@@ -133,41 +133,20 @@ public struct Type: CodableProtoEnum, Sendable {
   let rawValue: String
 }
 
-/// Sites with confidence level chosen & above this value will be blocked from the
-/// search results. This enum is not supported in Gemini API.
+/// The environment being operated.
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 
-public struct PhishBlockThreshold: CodableProtoEnum, Sendable {
+public struct Environment: CodableProtoEnum, Sendable {
   enum Kind: String {
-    case unspecified = "PHISH_BLOCK_THRESHOLD_UNSPECIFIED"
-    case blockLowAndAbove = "BLOCK_LOW_AND_ABOVE"
-    case blockMediumAndAbove = "BLOCK_MEDIUM_AND_ABOVE"
-    case blockHighAndAbove = "BLOCK_HIGH_AND_ABOVE"
-    case blockHigherAndAbove = "BLOCK_HIGHER_AND_ABOVE"
-    case blockVeryHighAndAbove = "BLOCK_VERY_HIGH_AND_ABOVE"
-    case blockOnlyExtremelyHigh = "BLOCK_ONLY_EXTREMELY_HIGH"
+    case unspecified = "ENVIRONMENT_UNSPECIFIED"
+    case browser = "ENVIRONMENT_BROWSER"
   }
 
-  /// Defaults to unspecified.
-  public static let unspecified = PhishBlockThreshold(kind: .unspecified)
+  /// Defaults to browser.
+  public static let unspecified = Environment(kind: .unspecified)
 
-  /// Blocks Low and above confidence URL that is risky.
-  public static let blockLowAndAbove = PhishBlockThreshold(kind: .blockLowAndAbove)
-
-  /// Blocks Medium and above confidence URL that is risky.
-  public static let blockMediumAndAbove = PhishBlockThreshold(kind: .blockMediumAndAbove)
-
-  /// Blocks High and above confidence URL that is risky.
-  public static let blockHighAndAbove = PhishBlockThreshold(kind: .blockHighAndAbove)
-
-  /// Blocks Higher and above confidence URL that is risky.
-  public static let blockHigherAndAbove = PhishBlockThreshold(kind: .blockHigherAndAbove)
-
-  /// Blocks Very high and above confidence URL that is risky.
-  public static let blockVeryHighAndAbove = PhishBlockThreshold(kind: .blockVeryHighAndAbove)
-
-  /// Blocks Extremely high confidence URL that is risky.
-  public static let blockOnlyExtremelyHigh = PhishBlockThreshold(kind: .blockOnlyExtremelyHigh)
+  /// Operates in a web browser.
+  public static let browser = Environment(kind: .browser)
 
   let rawValue: String
 }
@@ -265,6 +244,45 @@ public struct ApiSpec: CodableProtoEnum, Sendable {
   let rawValue: String
 }
 
+/// Sites with confidence level chosen & above this value will be blocked from the
+/// search results. This enum is not supported in Gemini API.
+@available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+
+public struct PhishBlockThreshold: CodableProtoEnum, Sendable {
+  enum Kind: String {
+    case unspecified = "PHISH_BLOCK_THRESHOLD_UNSPECIFIED"
+    case blockLowAndAbove = "BLOCK_LOW_AND_ABOVE"
+    case blockMediumAndAbove = "BLOCK_MEDIUM_AND_ABOVE"
+    case blockHighAndAbove = "BLOCK_HIGH_AND_ABOVE"
+    case blockHigherAndAbove = "BLOCK_HIGHER_AND_ABOVE"
+    case blockVeryHighAndAbove = "BLOCK_VERY_HIGH_AND_ABOVE"
+    case blockOnlyExtremelyHigh = "BLOCK_ONLY_EXTREMELY_HIGH"
+  }
+
+  /// Defaults to unspecified.
+  public static let unspecified = PhishBlockThreshold(kind: .unspecified)
+
+  /// Blocks Low and above confidence URL that is risky.
+  public static let blockLowAndAbove = PhishBlockThreshold(kind: .blockLowAndAbove)
+
+  /// Blocks Medium and above confidence URL that is risky.
+  public static let blockMediumAndAbove = PhishBlockThreshold(kind: .blockMediumAndAbove)
+
+  /// Blocks High and above confidence URL that is risky.
+  public static let blockHighAndAbove = PhishBlockThreshold(kind: .blockHighAndAbove)
+
+  /// Blocks Higher and above confidence URL that is risky.
+  public static let blockHigherAndAbove = PhishBlockThreshold(kind: .blockHigherAndAbove)
+
+  /// Blocks Very high and above confidence URL that is risky.
+  public static let blockVeryHighAndAbove = PhishBlockThreshold(kind: .blockVeryHighAndAbove)
+
+  /// Blocks Extremely high confidence URL that is risky.
+  public static let blockOnlyExtremelyHigh = PhishBlockThreshold(kind: .blockOnlyExtremelyHigh)
+
+  let rawValue: String
+}
+
 /// Specifies the function Behavior. Currently only supported by the
 /// BidiGenerateContent method. This enum is not supported in Vertex AI.
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
@@ -353,14 +371,17 @@ public struct FunctionCallingConfigMode: CodableProtoEnum, Sendable {
 public struct ThinkingLevel: CodableProtoEnum, Sendable {
   enum Kind: String {
     case unspecified = "THINKING_LEVEL_UNSPECIFIED"
+    case minimal = "MINIMAL"
     case low = "LOW"
     case medium = "MEDIUM"
     case high = "HIGH"
-    case minimal = "MINIMAL"
   }
 
   /// Unspecified thinking level.
   public static let unspecified = ThinkingLevel(kind: .unspecified)
+
+  /// MINIMAL thinking level.
+  public static let minimal = ThinkingLevel(kind: .minimal)
 
   /// Low thinking level.
   public static let low = ThinkingLevel(kind: .low)
@@ -370,9 +391,6 @@ public struct ThinkingLevel: CodableProtoEnum, Sendable {
 
   /// High thinking level.
   public static let high = ThinkingLevel(kind: .high)
-
-  /// MINIMAL thinking level.
-  public static let minimal = ThinkingLevel(kind: .minimal)
 
   let rawValue: String
 }
@@ -395,6 +413,33 @@ public struct PersonGeneration: CodableProtoEnum, Sendable {
 
   /// Generate images that include adults and children.
   public static let allowAll = PersonGeneration(kind: .allowAll)
+
+  let rawValue: String
+}
+
+/// Controls whether prominent people (celebrities) generation is allowed. If used
+/// with personGeneration, personGeneration enum would take precedence. For
+/// instance, if ALLOW_NONE is set, all person generation would be blocked. If this
+/// field is unspecified, the default behavior is to allow prominent people. This
+/// enum is not supported in Gemini API.
+@available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+
+public struct ProminentPeople: CodableProtoEnum, Sendable {
+  enum Kind: String {
+    case unspecified = "PROMINENT_PEOPLE_UNSPECIFIED"
+    case allowProminentPeople = "ALLOW_PROMINENT_PEOPLE"
+    case blockProminentPeople = "BLOCK_PROMINENT_PEOPLE"
+  }
+
+  /// Unspecified value. The model will proceed with the default behavior, which is to
+  /// allow generation of prominent people.
+  public static let unspecified = ProminentPeople(kind: .unspecified)
+
+  /// Allows the model to generate images of prominent people.
+  public static let allowProminentPeople = ProminentPeople(kind: .allowProminentPeople)
+
+  /// Prevents the model from generating images of prominent people.
+  public static let blockProminentPeople = ProminentPeople(kind: .blockProminentPeople)
 
   let rawValue: String
 }
@@ -797,6 +842,49 @@ public struct Modality: CodableProtoEnum, Sendable {
   let rawValue: String
 }
 
+/// The stage of the underlying model. This enum is not supported in Vertex AI.
+@available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+
+public struct ModelStage: CodableProtoEnum, Sendable {
+  enum Kind: String {
+    case unspecified = "MODEL_STAGE_UNSPECIFIED"
+    case unstableExperimental = "UNSTABLE_EXPERIMENTAL"
+    case experimental = "EXPERIMENTAL"
+    case preview = "PREVIEW"
+    case stable = "STABLE"
+    case legacy = "LEGACY"
+    case deprecated = "DEPRECATED"
+    case retired = "RETIRED"
+  }
+
+  /// Unspecified model stage.
+  public static let unspecified = ModelStage(kind: .unspecified)
+
+  /// The underlying model is subject to lots of tunings.
+  public static let unstableExperimental = ModelStage(kind: .unstableExperimental)
+
+  /// Models in this stage are for experimental purposes only.
+  public static let experimental = ModelStage(kind: .experimental)
+
+  /// Models in this stage are more mature than experimental models.
+  public static let preview = ModelStage(kind: .preview)
+
+  /// Models in this stage are considered stable and ready for production use.
+  public static let stable = ModelStage(kind: .stable)
+
+  /// If the model is on this stage, it means that this model is on the path to
+  /// deprecation in near future. Only existing customers can use this model.
+  public static let legacy = ModelStage(kind: .legacy)
+
+  /// Models in this stage are deprecated. These models cannot be used.
+  public static let deprecated = ModelStage(kind: .deprecated)
+
+  /// Models in this stage are retired. These models cannot be used.
+  public static let retired = ModelStage(kind: .retired)
+
+  let rawValue: String
+}
+
 /// The media resolution to use.
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 
@@ -1084,6 +1172,34 @@ public struct TuningTask: CodableProtoEnum, Sendable {
   let rawValue: String
 }
 
+/// Output only. Current state of the `Document`. This enum is not supported in
+/// Vertex AI.
+@available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+
+public struct DocumentState: CodableProtoEnum, Sendable {
+  enum Kind: String {
+    case stateUnspecified = "STATE_UNSPECIFIED"
+    case statePending = "STATE_PENDING"
+    case stateActive = "STATE_ACTIVE"
+    case stateFailed = "STATE_FAILED"
+  }
+
+  /// The default value. This value is used if the state is omitted.
+  public static let stateUnspecified = DocumentState(kind: .stateUnspecified)
+
+  /// Some `Chunks` of the `Document` are being processed (embedding and vector
+  /// storage).
+  public static let statePending = DocumentState(kind: .statePending)
+
+  /// All `Chunks` of the `Document` is processed and available for querying.
+  public static let stateActive = DocumentState(kind: .stateActive)
+
+  /// Some `Chunks` of the `Document` failed processing.
+  public static let stateFailed = DocumentState(kind: .stateFailed)
+
+  let rawValue: String
+}
+
 /// The tokenization quality used for given media.
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 
@@ -1176,48 +1292,6 @@ public struct FeatureSelectionPreference: CodableProtoEnum, Sendable {
   public static let balanced = FeatureSelectionPreference(kind: .balanced)
 
   public static let prioritizeCost = FeatureSelectionPreference(kind: .prioritizeCost)
-
-  let rawValue: String
-}
-
-/// The environment being operated.
-@available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-
-public struct Environment: CodableProtoEnum, Sendable {
-  enum Kind: String {
-    case unspecified = "ENVIRONMENT_UNSPECIFIED"
-    case browser = "ENVIRONMENT_BROWSER"
-  }
-
-  /// Defaults to browser.
-  public static let unspecified = Environment(kind: .unspecified)
-
-  /// Operates in a web browser.
-  public static let browser = Environment(kind: .browser)
-
-  let rawValue: String
-}
-
-/// Enum for controlling whether the model can generate images of prominent people
-/// (celebrities).
-@available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-
-public struct ProminentPeople: CodableProtoEnum, Sendable {
-  enum Kind: String {
-    case unspecified = "PROMINENT_PEOPLE_UNSPECIFIED"
-    case allowProminentPeople = "ALLOW_PROMINENT_PEOPLE"
-    case blockProminentPeople = "BLOCK_PROMINENT_PEOPLE"
-  }
-
-  /// Unspecified value. The model will proceed with the default behavior, which is to
-  /// allow generation of prominent people.
-  public static let unspecified = ProminentPeople(kind: .unspecified)
-
-  /// Allows the model to generate images of prominent people.
-  public static let allowProminentPeople = ProminentPeople(kind: .allowProminentPeople)
-
-  /// Prevents the model from generating images of prominent people.
-  public static let blockProminentPeople = ProminentPeople(kind: .blockProminentPeople)
 
   let rawValue: String
 }
@@ -1524,28 +1598,6 @@ public struct TuningMethod: CodableProtoEnum, Sendable {
 
   /// Distillation tuning.
   public static let distillation = TuningMethod(kind: .distillation)
-
-  let rawValue: String
-}
-
-/// State for the lifecycle of a Document.
-@available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-
-public struct DocumentState: CodableProtoEnum, Sendable {
-  enum Kind: String {
-    case stateUnspecified = "STATE_UNSPECIFIED"
-    case statePending = "STATE_PENDING"
-    case stateActive = "STATE_ACTIVE"
-    case stateFailed = "STATE_FAILED"
-  }
-
-  public static let stateUnspecified = DocumentState(kind: .stateUnspecified)
-
-  public static let statePending = DocumentState(kind: .statePending)
-
-  public static let stateActive = DocumentState(kind: .stateActive)
-
-  public static let stateFailed = DocumentState(kind: .stateFailed)
 
   let rawValue: String
 }
@@ -3097,6 +3149,12 @@ public struct Part: Sendable {
   /// client with the results of executing the corresponding ToolCall.
   public let toolResponse: ToolResponse?
 
+  /// Custom metadata associated with the Part. Agents using genai.Part as content
+  /// representation may need to keep track of the additional information. For example
+  /// it can be name of a file/source from which the Part originates or a way to
+  /// multiplex multiple Part streams. This field is not supported in Vertex AI.
+  public let partMetadata: [String: JSONValue]?
+
   /// Default initializer.
   public init(
     mediaResolution: PartMediaResolution? = nil,
@@ -3111,7 +3169,8 @@ public struct Part: Sendable {
     thoughtSignature: Data? = nil,
     videoMetadata: VideoMetadata? = nil,
     toolCall: ToolCall? = nil,
-    toolResponse: ToolResponse? = nil
+    toolResponse: ToolResponse? = nil,
+    partMetadata: [String: JSONValue]? = nil
   ) {
     self.mediaResolution = mediaResolution
     self.codeExecutionResult = codeExecutionResult
@@ -3126,6 +3185,7 @@ public struct Part: Sendable {
     self.videoMetadata = videoMetadata
     self.toolCall = toolCall
     self.toolResponse = toolResponse
+    self.partMetadata = partMetadata
   }
 }
 
@@ -3150,6 +3210,7 @@ extension Part: Codable {
   public enum MLDevKeys: String, CodingKey {
     case toolCall = "toolCall"
     case toolResponse = "toolResponse"
+    case partMetadata = "partMetadata"
   }
 
   public init(from decoder: any Decoder) throws {
@@ -3220,6 +3281,11 @@ extension Part: Codable {
     toolResponse = try MLDevKeysContainer.decodeIfPresent(
       ToolResponse.self,
       forKey: .toolResponse
+    )
+
+    partMetadata = try MLDevKeysContainer.decodeIfPresent(
+      [String: JSONValue].self,
+      forKey: .partMetadata
     )
   }
 
@@ -3293,6 +3359,11 @@ extension Part: Codable {
       try MLDevKeysContainer.encodeIfPresent(
         toolResponse,
         forKey: .toolResponse
+      )
+
+      try MLDevKeysContainer.encodeIfPresent(
+        partMetadata,
+        forKey: .partMetadata
       )
 
     }
@@ -3706,7 +3777,10 @@ public final class Schema: Sendable, Codable {
   /// Optional. Default value to use if the field is not specified.
   public let `default`: JSONValue?
 
-  /// Optional. Description of the schema.
+  /// Optional. Describes the data. The model uses this field to understand the
+  /// purpose of the schema and how to use it. It is a best practice to provide a
+  /// clear and descriptive explanation for the schema and its properties here, rather
+  /// than in the prompt.
   public let description: String?
 
   /// Optional. Possible values of the field. This field can be used to restrict a
@@ -4250,381 +4324,6 @@ extension ComputerUse: Codable {
       excludedPredefinedFunctions,
       forKey: .excludedPredefinedFunctions
     )
-  }
-}
-
-/// Tool to retrieve knowledge from the File Search Stores.
-@available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public struct FileSearch: Sendable {
-  /// The names of the file_search_stores to retrieve from.
-  /// Example: `fileSearchStores/my-file-search-store-123`
-  public let fileSearchStoreNames: [String]?
-
-  /// The number of file search retrieval chunks to retrieve.
-  public let topK: Int32?
-
-  /// Metadata filter to apply to the file search retrieval documents. See
-  /// https://google.aip.dev/160 for the syntax of the filter expression.
-  public let metadataFilter: String?
-
-  /// Default initializer.
-  public init(
-    fileSearchStoreNames: [String]? = nil,
-    topK: Int32? = nil,
-    metadataFilter: String? = nil
-  ) {
-    self.fileSearchStoreNames = fileSearchStoreNames
-    self.topK = topK
-    self.metadataFilter = metadataFilter
-  }
-}
-
-@available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension FileSearch: Codable {
-
-  // MARK: - Codable
-
-  public enum CommonKeys: String, CodingKey {
-    case topK = "topK"
-    case metadataFilter = "metadataFilter"
-  }
-  public enum MLDevKeys: String, CodingKey {
-    case fileSearchStoreNames = "fileSearchStoreNames"
-  }
-
-  public init(from decoder: any Decoder) throws {
-    let configuration: APIClient = try decoder.userInfoOrThrow(.configuration)
-
-    let CommonKeysContainer = try decoder.container(keyedBy: CommonKeys.self)
-    topK = try CommonKeysContainer.decodeIfPresent(
-      Int32.self,
-      forKey: .topK
-    )
-
-    metadataFilter = try CommonKeysContainer.decodeIfPresent(
-      String.self,
-      forKey: .metadataFilter
-    )
-
-    let MLDevKeysContainer = try decoder.container(keyedBy: MLDevKeys.self)
-    fileSearchStoreNames = try MLDevKeysContainer.decodeIfPresent(
-      [String].self,
-      forKey: .fileSearchStoreNames
-    )
-  }
-
-  public func encode(to encoder: any Encoder) throws {
-    let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
-
-    var CommonKeysContainer = encoder.container(keyedBy: CommonKeys.self)
-    try CommonKeysContainer.encodeIfPresent(
-      topK,
-      forKey: .topK
-    )
-
-    try CommonKeysContainer.encodeIfPresent(
-      metadataFilter,
-      forKey: .metadataFilter
-    )
-
-    if configuration.isMlDeveloper() {
-
-      var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
-      try MLDevKeysContainer.encodeIfPresent(
-        fileSearchStoreNames,
-        forKey: .fileSearchStoreNames
-      )
-
-    }
-  }
-}
-
-/// Standard web search for grounding and related configurations.
-///
-/// Only text results are returned.
-@available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public struct WebSearch: Sendable {
-
-  /// Default initializer.
-  public init() {
-
-  }
-}
-
-@available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension WebSearch: Codable {
-
-  // MARK: - Codable
-
-  public init(from decoder: any Decoder) throws {
-    let configuration: APIClient = try decoder.userInfoOrThrow(.configuration)
-  }
-
-  public func encode(to encoder: any Encoder) throws {
-    let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
-  }
-}
-
-/// Image search for grounding and related configurations.
-@available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public struct ImageSearch: Sendable {
-
-  /// Default initializer.
-  public init() {
-
-  }
-}
-
-@available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension ImageSearch: Codable {
-
-  // MARK: - Codable
-
-  public init(from decoder: any Decoder) throws {
-    let configuration: APIClient = try decoder.userInfoOrThrow(.configuration)
-  }
-
-  public func encode(to encoder: any Encoder) throws {
-    let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
-  }
-}
-
-/// Tool to support computer use.
-@available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public struct SearchTypes: Sendable {
-  /// Setting this field enables web search. Only text results are
-  /// returned.
-  public let webSearch: WebSearch?
-
-  /// Setting this field enables image search. Image bytes are returned.
-  public let imageSearch: ImageSearch?
-
-  /// Default initializer.
-  public init(
-    webSearch: WebSearch? = nil,
-    imageSearch: ImageSearch? = nil
-  ) {
-    self.webSearch = webSearch
-    self.imageSearch = imageSearch
-  }
-}
-
-@available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension SearchTypes: Codable {
-
-  // MARK: - Codable
-
-  public enum CommonKeys: String, CodingKey {
-    case webSearch = "webSearch"
-    case imageSearch = "imageSearch"
-  }
-
-  public init(from decoder: any Decoder) throws {
-    let configuration: APIClient = try decoder.userInfoOrThrow(.configuration)
-
-    let CommonKeysContainer = try decoder.container(keyedBy: CommonKeys.self)
-    webSearch = try CommonKeysContainer.decodeIfPresent(
-      WebSearch.self,
-      forKey: .webSearch
-    )
-
-    imageSearch = try CommonKeysContainer.decodeIfPresent(
-      ImageSearch.self,
-      forKey: .imageSearch
-    )
-  }
-
-  public func encode(to encoder: any Encoder) throws {
-    let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
-
-    var CommonKeysContainer = encoder.container(keyedBy: CommonKeys.self)
-    try CommonKeysContainer.encodeIfPresent(
-      webSearch,
-      forKey: .webSearch
-    )
-
-    try CommonKeysContainer.encodeIfPresent(
-      imageSearch,
-      forKey: .imageSearch
-    )
-  }
-}
-
-/// Represents a time interval, encoded as a Timestamp start (inclusive) and a
-/// Timestamp end (exclusive). The start must be less than or equal to the end. When
-/// the start equals the end, the interval is empty (matches no time). When both
-/// start and end are unspecified, the interval matches any time.
-@available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public struct Interval: Sendable {
-  /// Optional. Exclusive end of the interval. If specified, a Timestamp matching this
-  /// interval will have to be before the end.
-  public let endTime: String?
-
-  /// Optional. Inclusive start of the interval. If specified, a Timestamp matching
-  /// this interval will have to be the same or after the start.
-  public let startTime: String?
-
-  /// Default initializer.
-  public init(
-    endTime: String? = nil,
-    startTime: String? = nil
-  ) {
-    self.endTime = endTime
-    self.startTime = startTime
-  }
-}
-
-@available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension Interval: Codable {
-
-  // MARK: - Codable
-
-  public enum CommonKeys: String, CodingKey {
-    case endTime = "endTime"
-    case startTime = "startTime"
-  }
-
-  public init(from decoder: any Decoder) throws {
-    let configuration: APIClient = try decoder.userInfoOrThrow(.configuration)
-
-    let CommonKeysContainer = try decoder.container(keyedBy: CommonKeys.self)
-    endTime = try CommonKeysContainer.decodeIfPresent(
-      String.self,
-      forKey: .endTime
-    )
-
-    startTime = try CommonKeysContainer.decodeIfPresent(
-      String.self,
-      forKey: .startTime
-    )
-  }
-
-  public func encode(to encoder: any Encoder) throws {
-    let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
-
-    var CommonKeysContainer = encoder.container(keyedBy: CommonKeys.self)
-    try CommonKeysContainer.encodeIfPresent(
-      endTime,
-      forKey: .endTime
-    )
-
-    try CommonKeysContainer.encodeIfPresent(
-      startTime,
-      forKey: .startTime
-    )
-  }
-}
-
-/// Tool to support web search.
-@available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public struct GoogleSearch: Sendable {
-  /// Different types of search that can be enabled on the GoogleSearch tool.
-  public let searchTypes: SearchTypes?
-
-  /// Optional. Sites with confidence level chosen & above this value will be blocked
-  /// from the search results. This field is not supported in Gemini API.
-  public let blockingConfidence: PhishBlockThreshold?
-
-  /// Optional. List of domains to be excluded from the search results. The default
-  /// limit is 2000 domains. Example: ["amazon.com", "facebook.com"]. This field is
-  /// not supported in Gemini API.
-  public let excludeDomains: [String]?
-
-  /// Optional. Filter search results to a specific time range. If customers set a
-  /// start time, they must set an end time (and vice versa). This field is not
-  /// supported in Vertex AI.
-  public let timeRangeFilter: Interval?
-
-  /// Default initializer.
-  public init(
-    searchTypes: SearchTypes? = nil,
-    blockingConfidence: PhishBlockThreshold? = nil,
-    excludeDomains: [String]? = nil,
-    timeRangeFilter: Interval? = nil
-  ) {
-    self.searchTypes = searchTypes
-    self.blockingConfidence = blockingConfidence
-    self.excludeDomains = excludeDomains
-    self.timeRangeFilter = timeRangeFilter
-  }
-}
-
-@available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension GoogleSearch: Codable {
-
-  // MARK: - Codable
-
-  public enum CommonKeys: String, CodingKey {
-    case searchTypes = "searchTypes"
-  }
-  public enum MLDevKeys: String, CodingKey {
-    case timeRangeFilter = "timeRangeFilter"
-  }
-  public enum VertexKeys: String, CodingKey {
-    case blockingConfidence = "blockingConfidence"
-    case excludeDomains = "excludeDomains"
-  }
-
-  public init(from decoder: any Decoder) throws {
-    let configuration: APIClient = try decoder.userInfoOrThrow(.configuration)
-
-    let CommonKeysContainer = try decoder.container(keyedBy: CommonKeys.self)
-    searchTypes = try CommonKeysContainer.decodeIfPresent(
-      SearchTypes.self,
-      forKey: .searchTypes
-    )
-
-    let MLDevKeysContainer = try decoder.container(keyedBy: MLDevKeys.self)
-    timeRangeFilter = try MLDevKeysContainer.decodeIfPresent(
-      Interval.self,
-      forKey: .timeRangeFilter
-    )
-
-    let VertexKeysContainer = try decoder.container(keyedBy: VertexKeys.self)
-    blockingConfidence = try VertexKeysContainer.decodeIfPresent(
-      PhishBlockThreshold.self,
-      forKey: .blockingConfidence
-    )
-
-    excludeDomains = try VertexKeysContainer.decodeIfPresent(
-      [String].self,
-      forKey: .excludeDomains
-    )
-  }
-
-  public func encode(to encoder: any Encoder) throws {
-    let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
-
-    var CommonKeysContainer = encoder.container(keyedBy: CommonKeys.self)
-    try CommonKeysContainer.encodeIfPresent(
-      searchTypes,
-      forKey: .searchTypes
-    )
-
-    if configuration.isMlDeveloper() {
-
-      var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
-      try MLDevKeysContainer.encodeIfPresent(
-        timeRangeFilter,
-        forKey: .timeRangeFilter
-      )
-
-    }
-
-    if configuration.isVertexAI() {
-
-      var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
-      try VertexKeysContainer.encodeIfPresent(
-        blockingConfidence,
-        forKey: .blockingConfidence
-      )
-
-      try VertexKeysContainer.encodeIfPresent(
-        excludeDomains,
-        forKey: .excludeDomains
-      )
-
-    }
   }
 }
 
@@ -6412,6 +6111,378 @@ extension Retrieval: Codable {
   }
 }
 
+/// The FileSearch tool that retrieves knowledge from Semantic Retrieval corpora.
+/// Files are imported to Semantic Retrieval corpora using the ImportFile API. This
+/// data type is not supported in Vertex AI.
+@available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+public struct FileSearch: Sendable {
+  /// Required. The names of the file_search_stores to retrieve from. Example:
+  /// `fileSearchStores/my-file-search-store-123`
+  public let fileSearchStoreNames: [String]?
+
+  /// Optional. The number of semantic retrieval chunks to retrieve.
+  public let topK: Int32?
+
+  /// Optional. Metadata filter to apply to the semantic retrieval documents and
+  /// chunks.
+  public let metadataFilter: String?
+
+  /// Default initializer.
+  public init(
+    fileSearchStoreNames: [String]? = nil,
+    topK: Int32? = nil,
+    metadataFilter: String? = nil
+  ) {
+    self.fileSearchStoreNames = fileSearchStoreNames
+    self.topK = topK
+    self.metadataFilter = metadataFilter
+  }
+}
+
+@available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension FileSearch: Codable {
+
+  // MARK: - Codable
+  public enum MLDevKeys: String, CodingKey {
+    case fileSearchStoreNames = "fileSearchStoreNames"
+    case topK = "topK"
+    case metadataFilter = "metadataFilter"
+  }
+
+  public init(from decoder: any Decoder) throws {
+    let configuration: APIClient = try decoder.userInfoOrThrow(.configuration)
+
+    let MLDevKeysContainer = try decoder.container(keyedBy: MLDevKeys.self)
+    fileSearchStoreNames = try MLDevKeysContainer.decodeIfPresent(
+      [String].self,
+      forKey: .fileSearchStoreNames
+    )
+
+    topK = try MLDevKeysContainer.decodeIfPresent(
+      Int32.self,
+      forKey: .topK
+    )
+
+    metadataFilter = try MLDevKeysContainer.decodeIfPresent(
+      String.self,
+      forKey: .metadataFilter
+    )
+  }
+
+  public func encode(to encoder: any Encoder) throws {
+    let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
+
+    if configuration.isMlDeveloper() {
+
+      var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
+      try MLDevKeysContainer.encodeIfPresent(
+        fileSearchStoreNames,
+        forKey: .fileSearchStoreNames
+      )
+
+      try MLDevKeysContainer.encodeIfPresent(
+        topK,
+        forKey: .topK
+      )
+
+      try MLDevKeysContainer.encodeIfPresent(
+        metadataFilter,
+        forKey: .metadataFilter
+      )
+
+    }
+  }
+}
+
+/// Standard web search for grounding and related configurations. Only text results
+/// are returned.
+@available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+public struct WebSearch: Sendable {
+
+  /// Default initializer.
+  public init() {
+
+  }
+}
+
+@available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension WebSearch: Codable {
+
+  // MARK: - Codable
+
+  public init(from decoder: any Decoder) throws {
+    let configuration: APIClient = try decoder.userInfoOrThrow(.configuration)
+  }
+
+  public func encode(to encoder: any Encoder) throws {
+    let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
+  }
+}
+
+/// Image search for grounding and related configurations.
+@available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+public struct ImageSearch: Sendable {
+
+  /// Default initializer.
+  public init() {
+
+  }
+}
+
+@available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension ImageSearch: Codable {
+
+  // MARK: - Codable
+
+  public init(from decoder: any Decoder) throws {
+    let configuration: APIClient = try decoder.userInfoOrThrow(.configuration)
+  }
+
+  public func encode(to encoder: any Encoder) throws {
+    let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
+  }
+}
+
+/// Different types of search that can be enabled on the GoogleSearch tool.
+@available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+public struct SearchTypes: Sendable {
+  /// Optional. Setting this field enables web search. Only text results are returned.
+  public let webSearch: WebSearch?
+
+  /// Optional. Setting this field enables image search. Image bytes are returned.
+  public let imageSearch: ImageSearch?
+
+  /// Default initializer.
+  public init(
+    webSearch: WebSearch? = nil,
+    imageSearch: ImageSearch? = nil
+  ) {
+    self.webSearch = webSearch
+    self.imageSearch = imageSearch
+  }
+}
+
+@available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension SearchTypes: Codable {
+
+  // MARK: - Codable
+
+  public enum CommonKeys: String, CodingKey {
+    case webSearch = "webSearch"
+    case imageSearch = "imageSearch"
+  }
+
+  public init(from decoder: any Decoder) throws {
+    let configuration: APIClient = try decoder.userInfoOrThrow(.configuration)
+
+    let CommonKeysContainer = try decoder.container(keyedBy: CommonKeys.self)
+    webSearch = try CommonKeysContainer.decodeIfPresent(
+      WebSearch.self,
+      forKey: .webSearch
+    )
+
+    imageSearch = try CommonKeysContainer.decodeIfPresent(
+      ImageSearch.self,
+      forKey: .imageSearch
+    )
+  }
+
+  public func encode(to encoder: any Encoder) throws {
+    let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
+
+    var CommonKeysContainer = encoder.container(keyedBy: CommonKeys.self)
+    try CommonKeysContainer.encodeIfPresent(
+      webSearch,
+      forKey: .webSearch
+    )
+
+    try CommonKeysContainer.encodeIfPresent(
+      imageSearch,
+      forKey: .imageSearch
+    )
+  }
+}
+
+/// Represents a time interval, encoded as a Timestamp start (inclusive) and a
+/// Timestamp end (exclusive). The start must be less than or equal to the end. When
+/// the start equals the end, the interval is empty (matches no time). When both
+/// start and end are unspecified, the interval matches any time.
+@available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+public struct Interval: Sendable {
+  /// Optional. Exclusive end of the interval. If specified, a Timestamp matching this
+  /// interval will have to be before the end.
+  public let endTime: String?
+
+  /// Optional. Inclusive start of the interval. If specified, a Timestamp matching
+  /// this interval will have to be the same or after the start.
+  public let startTime: String?
+
+  /// Default initializer.
+  public init(
+    endTime: String? = nil,
+    startTime: String? = nil
+  ) {
+    self.endTime = endTime
+    self.startTime = startTime
+  }
+}
+
+@available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension Interval: Codable {
+
+  // MARK: - Codable
+
+  public enum CommonKeys: String, CodingKey {
+    case endTime = "endTime"
+    case startTime = "startTime"
+  }
+
+  public init(from decoder: any Decoder) throws {
+    let configuration: APIClient = try decoder.userInfoOrThrow(.configuration)
+
+    let CommonKeysContainer = try decoder.container(keyedBy: CommonKeys.self)
+    endTime = try CommonKeysContainer.decodeIfPresent(
+      String.self,
+      forKey: .endTime
+    )
+
+    startTime = try CommonKeysContainer.decodeIfPresent(
+      String.self,
+      forKey: .startTime
+    )
+  }
+
+  public func encode(to encoder: any Encoder) throws {
+    let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
+
+    var CommonKeysContainer = encoder.container(keyedBy: CommonKeys.self)
+    try CommonKeysContainer.encodeIfPresent(
+      endTime,
+      forKey: .endTime
+    )
+
+    try CommonKeysContainer.encodeIfPresent(
+      startTime,
+      forKey: .startTime
+    )
+  }
+}
+
+/// GoogleSearch tool type. Tool to support Google Search in Model. Powered by
+/// Google.
+@available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+public struct GoogleSearch: Sendable {
+  /// Optional. The set of search types to enable. If not set, web search is enabled
+  /// by default.
+  public let searchTypes: SearchTypes?
+
+  /// Optional. Sites with confidence level chosen & above this value will be blocked
+  /// from the search results. This field is not supported in Gemini API.
+  public let blockingConfidence: PhishBlockThreshold?
+
+  /// Optional. List of domains to be excluded from the search results. The default
+  /// limit is 2000 domains. Example: ["amazon.com", "facebook.com"]. This field is
+  /// not supported in Gemini API.
+  public let excludeDomains: [String]?
+
+  /// Optional. Filter search results to a specific time range. If customers set a
+  /// start time, they must set an end time (and vice versa). This field is not
+  /// supported in Vertex AI.
+  public let timeRangeFilter: Interval?
+
+  /// Default initializer.
+  public init(
+    searchTypes: SearchTypes? = nil,
+    blockingConfidence: PhishBlockThreshold? = nil,
+    excludeDomains: [String]? = nil,
+    timeRangeFilter: Interval? = nil
+  ) {
+    self.searchTypes = searchTypes
+    self.blockingConfidence = blockingConfidence
+    self.excludeDomains = excludeDomains
+    self.timeRangeFilter = timeRangeFilter
+  }
+}
+
+@available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension GoogleSearch: Codable {
+
+  // MARK: - Codable
+
+  public enum CommonKeys: String, CodingKey {
+    case searchTypes = "searchTypes"
+  }
+  public enum MLDevKeys: String, CodingKey {
+    case timeRangeFilter = "timeRangeFilter"
+  }
+  public enum VertexKeys: String, CodingKey {
+    case blockingConfidence = "blockingConfidence"
+    case excludeDomains = "excludeDomains"
+  }
+
+  public init(from decoder: any Decoder) throws {
+    let configuration: APIClient = try decoder.userInfoOrThrow(.configuration)
+
+    let CommonKeysContainer = try decoder.container(keyedBy: CommonKeys.self)
+    searchTypes = try CommonKeysContainer.decodeIfPresent(
+      SearchTypes.self,
+      forKey: .searchTypes
+    )
+
+    let MLDevKeysContainer = try decoder.container(keyedBy: MLDevKeys.self)
+    timeRangeFilter = try MLDevKeysContainer.decodeIfPresent(
+      Interval.self,
+      forKey: .timeRangeFilter
+    )
+
+    let VertexKeysContainer = try decoder.container(keyedBy: VertexKeys.self)
+    blockingConfidence = try VertexKeysContainer.decodeIfPresent(
+      PhishBlockThreshold.self,
+      forKey: .blockingConfidence
+    )
+
+    excludeDomains = try VertexKeysContainer.decodeIfPresent(
+      [String].self,
+      forKey: .excludeDomains
+    )
+  }
+
+  public func encode(to encoder: any Encoder) throws {
+    let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
+
+    var CommonKeysContainer = encoder.container(keyedBy: CommonKeys.self)
+    try CommonKeysContainer.encodeIfPresent(
+      searchTypes,
+      forKey: .searchTypes
+    )
+
+    if configuration.isMlDeveloper() {
+
+      var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
+      try MLDevKeysContainer.encodeIfPresent(
+        timeRangeFilter,
+        forKey: .timeRangeFilter
+      )
+
+    }
+
+    if configuration.isVertexAI() {
+
+      var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
+      try VertexKeysContainer.encodeIfPresent(
+        blockingConfidence,
+        forKey: .blockingConfidence
+      )
+
+      try VertexKeysContainer.encodeIfPresent(
+        excludeDomains,
+        forKey: .excludeDomains
+      )
+
+    }
+  }
+}
+
 /// Tool that executes code generated by the model, and automatically returns the
 /// result to the model. See also [ExecutableCode]and [CodeExecutionResult] which
 /// are input and output to this tool. This data type is not supported in Gemini
@@ -7069,10 +7140,12 @@ public struct Tool: Sendable {
   /// Function Declarations.
   public let computerUse: ComputerUse?
 
-  /// Optional. Tool to retrieve knowledge from the File Search Stores.
+  /// Optional. FileSearch tool type. Tool to retrieve knowledge from Semantic
+  /// Retrieval corpora. This field is not supported in Vertex AI.
   public let fileSearch: FileSearch?
 
-  /// Enables the model to execute Google Search as part of generation.
+  /// Optional. GoogleSearch tool type. Tool to support Google Search in Model.
+  /// Powered by Google.
   public let googleSearch: GoogleSearch?
 
   /// Optional. Tool that allows grounding the model's response with
@@ -7398,8 +7471,6 @@ extension RetrievalConfig: Codable {
 
   public enum CommonKeys: String, CodingKey {
     case latLng = "latLng"
-  }
-  public enum VertexKeys: String, CodingKey {
     case languageCode = "languageCode"
   }
 
@@ -7412,8 +7483,7 @@ extension RetrievalConfig: Codable {
       forKey: .latLng
     )
 
-    let VertexKeysContainer = try decoder.container(keyedBy: VertexKeys.self)
-    languageCode = try VertexKeysContainer.decodeIfPresent(
+    languageCode = try CommonKeysContainer.decodeIfPresent(
       String.self,
       forKey: .languageCode
     )
@@ -7428,15 +7498,10 @@ extension RetrievalConfig: Codable {
       forKey: .latLng
     )
 
-    if configuration.isVertexAI() {
-
-      var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
-      try VertexKeysContainer.encodeIfPresent(
-        languageCode,
-        forKey: .languageCode
-      )
-
-    }
+    try CommonKeysContainer.encodeIfPresent(
+      languageCode,
+      forKey: .languageCode
+    )
   }
 }
 
@@ -7617,13 +7682,15 @@ extension ToolConfig: Codable {
   }
 }
 
-/// ReplicatedVoiceConfig is used to configure replicated voice.
+/// The configuration for the replicated voice to use.
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct ReplicatedVoiceConfig: Sendable {
-  /// The mime type of the replicated voice.
+  /// The mimetype of the voice sample. The only currently supported
+  /// value is `audio/wav`. This represents 16-bit signed little-endian wav
+  /// data, with a 24kHz sampling rate.
   public let mimeType: String?
 
-  /// The sample audio of the replicated voice.
+  /// The sample of the custom voice.
   public let voiceSampleAudio: Data?
 
   /// Default initializer.
@@ -7721,9 +7788,12 @@ extension PrebuiltVoiceConfig: Codable {
   }
 }
 
+/// The configuration for the voice to use.
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct VoiceConfig: Sendable {
-  /// If true, the model will use a replicated voice for the response.
+  /// The configuration for a replicated voice, which is a clone of a
+  /// user's voice that can be used for speech synthesis. If this is unset, a
+  /// default voice is used.
   public let replicatedVoiceConfig: ReplicatedVoiceConfig?
 
   /// The configuration for a prebuilt voice.
@@ -7886,9 +7956,10 @@ extension MultiSpeakerVoiceConfig: Codable {
   }
 }
 
+/// Config for speech generation and transcription.
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct SpeechConfig: Sendable {
-  /// Configuration for the voice of the response.
+  /// The configuration in case of single-voice output.
   public let voiceConfig: VoiceConfig?
 
   /// Optional. The language code (ISO 639-1) for the speech synthesis.
@@ -8205,11 +8276,11 @@ public struct ImageConfig: Sendable {
   /// ALLOW_ALL, ALLOW_ADULT, ALLOW_NONE.
   public let personGeneration: String?
 
-  /// Controls whether prominent people (celebrities)
-  /// generation is allowed. If used with personGeneration, personGeneration
-  /// enum would take precedence. For instance, if ALLOW_NONE is set, all person
-  /// generation would be blocked. If this field is unspecified, the default
-  /// behavior is to allow prominent people.
+  /// Optional. Controls whether prominent people (celebrities) generation is allowed.
+  /// If used with personGeneration, personGeneration enum would take precedence. For
+  /// instance, if ALLOW_NONE is set, all person generation would be blocked. If this
+  /// field is unspecified, the default behavior is to allow prominent people. This
+  /// field is not supported in Gemini API.
   public let prominentPeople: ProminentPeople?
 
   /// MIME type of the generated image. This field is not
@@ -8220,7 +8291,8 @@ public struct ImageConfig: Sendable {
   /// ``image/jpeg`` only). This field is not supported in Gemini API.
   public let outputCompressionQuality: Int32?
 
-  /// Optional. The image output format for generated images.
+  /// Optional. The image output format for generated images. This field is not
+  /// supported in Gemini API.
   public let imageOutputOptions: ImageConfigImageOutputOptions?
 
   /// Default initializer.
@@ -9514,102 +9586,6 @@ extension CitationMetadata: Codable {
   }
 }
 
-/// A piece of evidence that comes from an image search result.
-///
-/// It contains the URI of the image search result and the URI of the image.
-/// This is used to provide the user with a link to the source of the
-/// information.
-@available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public struct GroundingChunkImage: Sendable {
-  /// The URI of the image search result page.
-  public let sourceUri: String?
-
-  /// The URI of the image.
-  public let imageUri: String?
-
-  /// The title of the image search result page.
-  public let title: String?
-
-  /// The domain of the image search result page.
-  public let domain: String?
-
-  /// Default initializer.
-  public init(
-    sourceUri: String? = nil,
-    imageUri: String? = nil,
-    title: String? = nil,
-    domain: String? = nil
-  ) {
-    self.sourceUri = sourceUri
-    self.imageUri = imageUri
-    self.title = title
-    self.domain = domain
-  }
-}
-
-@available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension GroundingChunkImage: Codable {
-
-  // MARK: - Codable
-
-  public enum CommonKeys: String, CodingKey {
-    case sourceUri = "sourceUri"
-    case imageUri = "imageUri"
-    case title = "title"
-    case domain = "domain"
-  }
-
-  public init(from decoder: any Decoder) throws {
-    let configuration: APIClient = try decoder.userInfoOrThrow(.configuration)
-
-    let CommonKeysContainer = try decoder.container(keyedBy: CommonKeys.self)
-    sourceUri = try CommonKeysContainer.decodeIfPresent(
-      String.self,
-      forKey: .sourceUri
-    )
-
-    imageUri = try CommonKeysContainer.decodeIfPresent(
-      String.self,
-      forKey: .imageUri
-    )
-
-    title = try CommonKeysContainer.decodeIfPresent(
-      String.self,
-      forKey: .title
-    )
-
-    domain = try CommonKeysContainer.decodeIfPresent(
-      String.self,
-      forKey: .domain
-    )
-  }
-
-  public func encode(to encoder: any Encoder) throws {
-    let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
-
-    var CommonKeysContainer = encoder.container(keyedBy: CommonKeys.self)
-    try CommonKeysContainer.encodeIfPresent(
-      sourceUri,
-      forKey: .sourceUri
-    )
-
-    try CommonKeysContainer.encodeIfPresent(
-      imageUri,
-      forKey: .imageUri
-    )
-
-    try CommonKeysContainer.encodeIfPresent(
-      title,
-      forKey: .title
-    )
-
-    try CommonKeysContainer.encodeIfPresent(
-      domain,
-      forKey: .domain
-    )
-  }
-}
-
 /// Author attribution for a photo or review.
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct GroundingChunkMapsPlaceAnswerSourcesAuthorAttribution: Sendable {
@@ -9915,6 +9891,87 @@ extension GroundingChunkMapsPlaceAnswerSources: Codable {
   }
 }
 
+/// Route information from Google Maps. This data type is not supported in Gemini
+/// API.
+@available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+public struct GroundingChunkMapsRoute: Sendable {
+  /// The total distance of the route, in meters.
+  public let distanceMeters: Int32?
+
+  /// The total duration of the route.
+  public let duration: TimeInterval?
+
+  /// An encoded polyline of the route. See
+  /// https://developers.google.com/maps/documentation/utilities/polylinealgorithm
+  public let encodedPolyline: String?
+
+  /// Default initializer.
+  public init(
+    distanceMeters: Int32? = nil,
+    duration: TimeInterval? = nil,
+    encodedPolyline: String? = nil
+  ) {
+    self.distanceMeters = distanceMeters
+    self.duration = duration
+    self.encodedPolyline = encodedPolyline
+  }
+}
+
+@available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension GroundingChunkMapsRoute: Codable {
+
+  // MARK: - Codable
+  public enum VertexKeys: String, CodingKey {
+    case distanceMeters = "distanceMeters"
+    case duration = "duration"
+    case encodedPolyline = "encodedPolyline"
+  }
+
+  public init(from decoder: any Decoder) throws {
+    let configuration: APIClient = try decoder.userInfoOrThrow(.configuration)
+
+    let VertexKeysContainer = try decoder.container(keyedBy: VertexKeys.self)
+    distanceMeters = try VertexKeysContainer.decodeIfPresent(
+      Int32.self,
+      forKey: .distanceMeters
+    )
+
+    duration = try VertexKeysContainer.decodeIfPresent(
+      TimeInterval.self,
+      forKey: .duration
+    )
+
+    encodedPolyline = try VertexKeysContainer.decodeIfPresent(
+      String.self,
+      forKey: .encodedPolyline
+    )
+  }
+
+  public func encode(to encoder: any Encoder) throws {
+    let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
+
+    if configuration.isVertexAI() {
+
+      var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
+      try VertexKeysContainer.encodeIfPresent(
+        distanceMeters,
+        forKey: .distanceMeters
+      )
+
+      try VertexKeysContainer.encodeIfPresent(
+        duration,
+        forKey: .duration
+      )
+
+      try VertexKeysContainer.encodeIfPresent(
+        encodedPolyline,
+        forKey: .encodedPolyline
+      )
+
+    }
+  }
+}
+
 /// A `Maps` chunk is a piece of evidence that comes from Google Maps.
 ///
 /// It contains information about a place, such as its name, address, and reviews.
@@ -9941,19 +9998,24 @@ public struct GroundingChunkMaps: Sendable {
   /// The URI of the place.
   public let uri: String?
 
+  /// Output only. Route information.
+  public let route: GroundingChunkMapsRoute?
+
   /// Default initializer.
   public init(
     placeAnswerSources: GroundingChunkMapsPlaceAnswerSources? = nil,
     placeId: String? = nil,
     text: String? = nil,
     title: String? = nil,
-    uri: String? = nil
+    uri: String? = nil,
+    route: GroundingChunkMapsRoute? = nil
   ) {
     self.placeAnswerSources = placeAnswerSources
     self.placeId = placeId
     self.text = text
     self.title = title
     self.uri = uri
+    self.route = route
   }
 }
 
@@ -9968,6 +10030,9 @@ extension GroundingChunkMaps: Codable {
     case text = "text"
     case title = "title"
     case uri = "uri"
+  }
+  public enum VertexKeys: String, CodingKey {
+    case route = "route"
   }
 
   public init(from decoder: any Decoder) throws {
@@ -9998,6 +10063,12 @@ extension GroundingChunkMaps: Codable {
       String.self,
       forKey: .uri
     )
+
+    let VertexKeysContainer = try decoder.container(keyedBy: VertexKeys.self)
+    route = try VertexKeysContainer.decodeIfPresent(
+      GroundingChunkMapsRoute.self,
+      forKey: .route
+    )
   }
 
   public func encode(to encoder: any Encoder) throws {
@@ -10027,6 +10098,110 @@ extension GroundingChunkMaps: Codable {
     try CommonKeysContainer.encodeIfPresent(
       uri,
       forKey: .uri
+    )
+
+    if configuration.isVertexAI() {
+
+      var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
+      try VertexKeysContainer.encodeIfPresent(
+        route,
+        forKey: .route
+      )
+
+    }
+  }
+}
+
+/// An `Image` chunk is a piece of evidence that comes from an image search result.
+/// It contains the URI of the image search result and the URI of the image. This is
+/// used to provide the user with a link to the source of the information.
+@available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+public struct GroundingChunkImage: Sendable {
+  /// The URI of the image search result page.
+  public let sourceUri: String?
+
+  /// The URI of the image.
+  public let imageUri: String?
+
+  /// The title of the image search result page.
+  public let title: String?
+
+  /// The domain of the image search result page.
+  public let domain: String?
+
+  /// Default initializer.
+  public init(
+    sourceUri: String? = nil,
+    imageUri: String? = nil,
+    title: String? = nil,
+    domain: String? = nil
+  ) {
+    self.sourceUri = sourceUri
+    self.imageUri = imageUri
+    self.title = title
+    self.domain = domain
+  }
+}
+
+@available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension GroundingChunkImage: Codable {
+
+  // MARK: - Codable
+
+  public enum CommonKeys: String, CodingKey {
+    case sourceUri = "sourceUri"
+    case imageUri = "imageUri"
+    case title = "title"
+    case domain = "domain"
+  }
+
+  public init(from decoder: any Decoder) throws {
+    let configuration: APIClient = try decoder.userInfoOrThrow(.configuration)
+
+    let CommonKeysContainer = try decoder.container(keyedBy: CommonKeys.self)
+    sourceUri = try CommonKeysContainer.decodeIfPresent(
+      String.self,
+      forKey: .sourceUri
+    )
+
+    imageUri = try CommonKeysContainer.decodeIfPresent(
+      String.self,
+      forKey: .imageUri
+    )
+
+    title = try CommonKeysContainer.decodeIfPresent(
+      String.self,
+      forKey: .title
+    )
+
+    domain = try CommonKeysContainer.decodeIfPresent(
+      String.self,
+      forKey: .domain
+    )
+  }
+
+  public func encode(to encoder: any Encoder) throws {
+    let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
+
+    var CommonKeysContainer = encoder.container(keyedBy: CommonKeys.self)
+    try CommonKeysContainer.encodeIfPresent(
+      sourceUri,
+      forKey: .sourceUri
+    )
+
+    try CommonKeysContainer.encodeIfPresent(
+      imageUri,
+      forKey: .imageUri
+    )
+
+    try CommonKeysContainer.encodeIfPresent(
+      title,
+      forKey: .title
+    )
+
+    try CommonKeysContainer.encodeIfPresent(
+      domain,
+      forKey: .domain
     )
   }
 }
@@ -10159,19 +10334,165 @@ extension RagChunk: Codable {
   }
 }
 
+/// A list of string values. This data type is not supported in Vertex AI.
+@available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+public struct GroundingChunkStringList: Sendable {
+  /// The string values of the list.
+  public let values: [String]?
+
+  /// Default initializer.
+  public init(
+    values: [String]? = nil
+  ) {
+    self.values = values
+  }
+}
+
+@available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension GroundingChunkStringList: Codable {
+
+  // MARK: - Codable
+  public enum MLDevKeys: String, CodingKey {
+    case values = "values"
+  }
+
+  public init(from decoder: any Decoder) throws {
+    let configuration: APIClient = try decoder.userInfoOrThrow(.configuration)
+
+    let MLDevKeysContainer = try decoder.container(keyedBy: MLDevKeys.self)
+    values = try MLDevKeysContainer.decodeIfPresent(
+      [String].self,
+      forKey: .values
+    )
+  }
+
+  public func encode(to encoder: any Encoder) throws {
+    let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
+
+    if configuration.isMlDeveloper() {
+
+      var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
+      try MLDevKeysContainer.encodeIfPresent(
+        values,
+        forKey: .values
+      )
+
+    }
+  }
+}
+
+/// User provided metadata about the GroundingFact. This data type is not supported
+/// in Vertex AI.
+@available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+public struct GroundingChunkCustomMetadata: Sendable {
+  /// The key of the metadata.
+  public let key: String?
+
+  /// Optional. The numeric value of the metadata. The expected range for this value
+  /// depends on the specific `key` used.
+  public let numericValue: Float?
+
+  /// Optional. A list of string values for the metadata.
+  public let stringListValue: GroundingChunkStringList?
+
+  /// Optional. The string value of the metadata.
+  public let stringValue: String?
+
+  /// Default initializer.
+  public init(
+    key: String? = nil,
+    numericValue: Float? = nil,
+    stringListValue: GroundingChunkStringList? = nil,
+    stringValue: String? = nil
+  ) {
+    self.key = key
+    self.numericValue = numericValue
+    self.stringListValue = stringListValue
+    self.stringValue = stringValue
+  }
+}
+
+@available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension GroundingChunkCustomMetadata: Codable {
+
+  // MARK: - Codable
+  public enum MLDevKeys: String, CodingKey {
+    case key = "key"
+    case numericValue = "numericValue"
+    case stringListValue = "stringListValue"
+    case stringValue = "stringValue"
+  }
+
+  public init(from decoder: any Decoder) throws {
+    let configuration: APIClient = try decoder.userInfoOrThrow(.configuration)
+
+    let MLDevKeysContainer = try decoder.container(keyedBy: MLDevKeys.self)
+    key = try MLDevKeysContainer.decodeIfPresent(
+      String.self,
+      forKey: .key
+    )
+
+    numericValue = try MLDevKeysContainer.decodeIfPresent(
+      Float.self,
+      forKey: .numericValue
+    )
+
+    stringListValue = try MLDevKeysContainer.decodeIfPresent(
+      GroundingChunkStringList.self,
+      forKey: .stringListValue
+    )
+
+    stringValue = try MLDevKeysContainer.decodeIfPresent(
+      String.self,
+      forKey: .stringValue
+    )
+  }
+
+  public func encode(to encoder: any Encoder) throws {
+    let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
+
+    if configuration.isMlDeveloper() {
+
+      var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
+      try MLDevKeysContainer.encodeIfPresent(
+        key,
+        forKey: .key
+      )
+
+      try MLDevKeysContainer.encodeIfPresent(
+        numericValue,
+        forKey: .numericValue
+      )
+
+      try MLDevKeysContainer.encodeIfPresent(
+        stringListValue,
+        forKey: .stringListValue
+      )
+
+      try MLDevKeysContainer.encodeIfPresent(
+        stringValue,
+        forKey: .stringValue
+      )
+
+    }
+  }
+}
+
 /// Context retrieved from a data source to ground the model's response. This is
 /// used when a retrieval tool fetches information from a user-provided corpus or a
-/// public dataset. This data type is not supported in Gemini API.
+/// public dataset.
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct GroundingChunkRetrievedContext: Sendable {
   /// Output only. The full resource name of the referenced Vertex AI Search document.
   /// This is used to identify the specific document that was retrieved. The format is
   /// `projects/{project}/locations/{location}/collections/{collection}/dataStores/{da
-  /// ta_store}/branches/{branch}/documents/{document}`.
+  /// ta_store}/branches/{branch}/documents/{document}`. This field is not supported
+  /// in Gemini API.
   public let documentName: String?
 
   /// Additional context for a Retrieval-Augmented Generation (RAG) retrieval result.
-  /// This is populated only when the RAG retrieval tool is used.
+  /// This is populated only when the RAG retrieval tool is used. This field is not
+  /// supported in Gemini API.
   public let ragChunk: RagChunk?
 
   /// The content of the retrieved data source.
@@ -10183,19 +10504,31 @@ public struct GroundingChunkRetrievedContext: Sendable {
   /// The URI of the retrieved data source.
   public let uri: String?
 
+  /// Optional. User-provided metadata about the retrieved context. This field is not
+  /// supported in Vertex AI.
+  public let customMetadata: [GroundingChunkCustomMetadata]?
+
+  /// Optional. Name of the `FileSearchStore` containing the document. Example:
+  /// `fileSearchStores/123`. This field is not supported in Vertex AI.
+  public let fileSearchStore: String?
+
   /// Default initializer.
   public init(
     documentName: String? = nil,
     ragChunk: RagChunk? = nil,
     text: String? = nil,
     title: String? = nil,
-    uri: String? = nil
+    uri: String? = nil,
+    customMetadata: [GroundingChunkCustomMetadata]? = nil,
+    fileSearchStore: String? = nil
   ) {
     self.documentName = documentName
     self.ragChunk = ragChunk
     self.text = text
     self.title = title
     self.uri = uri
+    self.customMetadata = customMetadata
+    self.fileSearchStore = fileSearchStore
   }
 }
 
@@ -10203,16 +10536,50 @@ public struct GroundingChunkRetrievedContext: Sendable {
 extension GroundingChunkRetrievedContext: Codable {
 
   // MARK: - Codable
-  public enum VertexKeys: String, CodingKey {
-    case documentName = "documentName"
-    case ragChunk = "ragChunk"
+
+  public enum CommonKeys: String, CodingKey {
     case text = "text"
     case title = "title"
     case uri = "uri"
   }
+  public enum MLDevKeys: String, CodingKey {
+    case customMetadata = "customMetadata"
+    case fileSearchStore = "fileSearchStore"
+  }
+  public enum VertexKeys: String, CodingKey {
+    case documentName = "documentName"
+    case ragChunk = "ragChunk"
+  }
 
   public init(from decoder: any Decoder) throws {
     let configuration: APIClient = try decoder.userInfoOrThrow(.configuration)
+
+    let CommonKeysContainer = try decoder.container(keyedBy: CommonKeys.self)
+    text = try CommonKeysContainer.decodeIfPresent(
+      String.self,
+      forKey: .text
+    )
+
+    title = try CommonKeysContainer.decodeIfPresent(
+      String.self,
+      forKey: .title
+    )
+
+    uri = try CommonKeysContainer.decodeIfPresent(
+      String.self,
+      forKey: .uri
+    )
+
+    let MLDevKeysContainer = try decoder.container(keyedBy: MLDevKeys.self)
+    customMetadata = try MLDevKeysContainer.decodeIfPresent(
+      [GroundingChunkCustomMetadata].self,
+      forKey: .customMetadata
+    )
+
+    fileSearchStore = try MLDevKeysContainer.decodeIfPresent(
+      String.self,
+      forKey: .fileSearchStore
+    )
 
     let VertexKeysContainer = try decoder.container(keyedBy: VertexKeys.self)
     documentName = try VertexKeysContainer.decodeIfPresent(
@@ -10224,25 +10591,41 @@ extension GroundingChunkRetrievedContext: Codable {
       RagChunk.self,
       forKey: .ragChunk
     )
-
-    text = try VertexKeysContainer.decodeIfPresent(
-      String.self,
-      forKey: .text
-    )
-
-    title = try VertexKeysContainer.decodeIfPresent(
-      String.self,
-      forKey: .title
-    )
-
-    uri = try VertexKeysContainer.decodeIfPresent(
-      String.self,
-      forKey: .uri
-    )
   }
 
   public func encode(to encoder: any Encoder) throws {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
+
+    var CommonKeysContainer = encoder.container(keyedBy: CommonKeys.self)
+    try CommonKeysContainer.encodeIfPresent(
+      text,
+      forKey: .text
+    )
+
+    try CommonKeysContainer.encodeIfPresent(
+      title,
+      forKey: .title
+    )
+
+    try CommonKeysContainer.encodeIfPresent(
+      uri,
+      forKey: .uri
+    )
+
+    if configuration.isMlDeveloper() {
+
+      var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
+      try MLDevKeysContainer.encodeIfPresent(
+        customMetadata,
+        forKey: .customMetadata
+      )
+
+      try MLDevKeysContainer.encodeIfPresent(
+        fileSearchStore,
+        forKey: .fileSearchStore
+      )
+
+    }
 
     if configuration.isVertexAI() {
 
@@ -10255,21 +10638,6 @@ extension GroundingChunkRetrievedContext: Codable {
       try VertexKeysContainer.encodeIfPresent(
         ragChunk,
         forKey: .ragChunk
-      )
-
-      try VertexKeysContainer.encodeIfPresent(
-        text,
-        forKey: .text
-      )
-
-      try VertexKeysContainer.encodeIfPresent(
-        title,
-        forKey: .title
-      )
-
-      try VertexKeysContainer.encodeIfPresent(
-        uri,
-        forKey: .uri
       )
 
     }
@@ -10370,8 +10738,8 @@ extension GroundingChunkWeb: Codable {
 /// the source of the information.
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct GroundingChunk: Sendable {
-  /// A grounding chunk from an image search result. See the `Image`
-  /// message for details.
+  /// A grounding chunk from an image search result. See the `Image` message for
+  /// details.
   public let image: GroundingChunkImage?
 
   /// A `Maps` chunk is a piece of evidence that comes from Google Maps.
@@ -10382,8 +10750,7 @@ public struct GroundingChunk: Sendable {
   public let maps: GroundingChunkMaps?
 
   /// A grounding chunk from a data source retrieved by a retrieval tool, such as
-  /// Vertex AI Search. See the `RetrievedContext` message for details. This field is
-  /// not supported in Gemini API.
+  /// Vertex AI Search. See the `RetrievedContext` message for details
   public let retrievedContext: GroundingChunkRetrievedContext?
 
   /// A grounding chunk from a web page, typically from Google Search. See the `Web`
@@ -10412,10 +10779,8 @@ extension GroundingChunk: Codable {
   public enum CommonKeys: String, CodingKey {
     case image = "image"
     case maps = "maps"
-    case web = "web"
-  }
-  public enum VertexKeys: String, CodingKey {
     case retrievedContext = "retrievedContext"
+    case web = "web"
   }
 
   public init(from decoder: any Decoder) throws {
@@ -10432,15 +10797,14 @@ extension GroundingChunk: Codable {
       forKey: .maps
     )
 
+    retrievedContext = try CommonKeysContainer.decodeIfPresent(
+      GroundingChunkRetrievedContext.self,
+      forKey: .retrievedContext
+    )
+
     web = try CommonKeysContainer.decodeIfPresent(
       GroundingChunkWeb.self,
       forKey: .web
-    )
-
-    let VertexKeysContainer = try decoder.container(keyedBy: VertexKeys.self)
-    retrievedContext = try VertexKeysContainer.decodeIfPresent(
-      GroundingChunkRetrievedContext.self,
-      forKey: .retrievedContext
     )
   }
 
@@ -10459,19 +10823,14 @@ extension GroundingChunk: Codable {
     )
 
     try CommonKeysContainer.encodeIfPresent(
+      retrievedContext,
+      forKey: .retrievedContext
+    )
+
+    try CommonKeysContainer.encodeIfPresent(
       web,
       forKey: .web
     )
-
-    if configuration.isVertexAI() {
-
-      var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
-      try VertexKeysContainer.encodeIfPresent(
-        retrievedContext,
-        forKey: .retrievedContext
-      )
-
-    }
   }
 }
 
@@ -10591,15 +10950,22 @@ public struct GroundingSupport: Sendable {
   /// Segment of the content this support belongs to.
   public let segment: Segment?
 
+  /// Indices into the `rendered_parts` field of the `GroundingMetadata` message.
+  /// These indices specify which rendered parts are associated with this support
+  /// message.
+  public let renderedParts: [Int32]?
+
   /// Default initializer.
   public init(
     confidenceScores: [Float]? = nil,
     groundingChunkIndices: [Int32]? = nil,
-    segment: Segment? = nil
+    segment: Segment? = nil,
+    renderedParts: [Int32]? = nil
   ) {
     self.confidenceScores = confidenceScores
     self.groundingChunkIndices = groundingChunkIndices
     self.segment = segment
+    self.renderedParts = renderedParts
   }
 }
 
@@ -10612,6 +10978,9 @@ extension GroundingSupport: Codable {
     case confidenceScores = "confidenceScores"
     case groundingChunkIndices = "groundingChunkIndices"
     case segment = "segment"
+  }
+  public enum VertexKeys: String, CodingKey {
+    case renderedParts = "renderedParts"
   }
 
   public init(from decoder: any Decoder) throws {
@@ -10631,6 +11000,12 @@ extension GroundingSupport: Codable {
     segment = try CommonKeysContainer.decodeIfPresent(
       Segment.self,
       forKey: .segment
+    )
+
+    let VertexKeysContainer = try decoder.container(keyedBy: VertexKeys.self)
+    renderedParts = try VertexKeysContainer.decodeIfPresent(
+      [Int32].self,
+      forKey: .renderedParts
     )
   }
 
@@ -10652,6 +11027,16 @@ extension GroundingSupport: Codable {
       segment,
       forKey: .segment
     )
+
+    if configuration.isVertexAI() {
+
+      var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
+      try VertexKeysContainer.encodeIfPresent(
+        renderedParts,
+        forKey: .renderedParts
+      )
+
+    }
   }
 }
 
@@ -10833,9 +11218,9 @@ extension GroundingMetadataSourceFlaggingUri: Codable {
 /// Information for various kinds of grounding.
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct GroundingMetadata: Sendable {
-  /// Optional. The image search queries that were used to generate the
-  /// content. This field is populated only when the grounding source is Google
-  /// Search with the Image Search search_type enabled.
+  /// Optional. The image search queries that were used to generate the content. This
+  /// field is populated only when the grounding source is Google Search with the
+  /// Image Search search_type enabled.
   public let imageSearchQueries: [String]?
 
   /// A list of supporting references retrieved from the grounding
@@ -10858,7 +11243,7 @@ public struct GroundingMetadata: Sendable {
 
   /// Optional. Output only. A token that can be used to render a Google Maps widget
   /// with the contextual data. This field is populated only when the grounding source
-  /// is Google Maps. This field is not supported in Gemini API.
+  /// is Google Maps.
   public let googleMapsWidgetContextToken: String?
 
   /// Optional. The queries that were executed by the retrieval tools. This field is
@@ -10907,9 +11292,9 @@ extension GroundingMetadata: Codable {
     case retrievalMetadata = "retrievalMetadata"
     case searchEntryPoint = "searchEntryPoint"
     case webSearchQueries = "webSearchQueries"
+    case googleMapsWidgetContextToken = "googleMapsWidgetContextToken"
   }
   public enum VertexKeys: String, CodingKey {
-    case googleMapsWidgetContextToken = "googleMapsWidgetContextToken"
     case retrievalQueries = "retrievalQueries"
     case sourceFlaggingUris = "sourceFlaggingUris"
   }
@@ -10948,12 +11333,12 @@ extension GroundingMetadata: Codable {
       forKey: .webSearchQueries
     )
 
-    let VertexKeysContainer = try decoder.container(keyedBy: VertexKeys.self)
-    googleMapsWidgetContextToken = try VertexKeysContainer.decodeIfPresent(
+    googleMapsWidgetContextToken = try CommonKeysContainer.decodeIfPresent(
       String.self,
       forKey: .googleMapsWidgetContextToken
     )
 
+    let VertexKeysContainer = try decoder.container(keyedBy: VertexKeys.self)
     retrievalQueries = try VertexKeysContainer.decodeIfPresent(
       [String].self,
       forKey: .retrievalQueries
@@ -10999,14 +11384,14 @@ extension GroundingMetadata: Codable {
       forKey: .webSearchQueries
     )
 
+    try CommonKeysContainer.encodeIfPresent(
+      googleMapsWidgetContextToken,
+      forKey: .googleMapsWidgetContextToken
+    )
+
     if configuration.isVertexAI() {
 
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
-      try VertexKeysContainer.encodeIfPresent(
-        googleMapsWidgetContextToken,
-        forKey: .googleMapsWidgetContextToken
-      )
-
       try VertexKeysContainer.encodeIfPresent(
         retrievalQueries,
         forKey: .retrievalQueries
@@ -11165,13 +11550,19 @@ public struct LogprobsResult: Sendable {
   /// list is equal to the total number of decoding steps.
   public let topCandidates: [LogprobsResultTopCandidates]?
 
+  /// Sum of log probabilities for all tokens. This field is not supported in Vertex
+  /// AI.
+  public let logProbabilitySum: Float?
+
   /// Default initializer.
   public init(
     chosenCandidates: [LogprobsResultCandidate]? = nil,
-    topCandidates: [LogprobsResultTopCandidates]? = nil
+    topCandidates: [LogprobsResultTopCandidates]? = nil,
+    logProbabilitySum: Float? = nil
   ) {
     self.chosenCandidates = chosenCandidates
     self.topCandidates = topCandidates
+    self.logProbabilitySum = logProbabilitySum
   }
 }
 
@@ -11183,6 +11574,9 @@ extension LogprobsResult: Codable {
   public enum CommonKeys: String, CodingKey {
     case chosenCandidates = "chosenCandidates"
     case topCandidates = "topCandidates"
+  }
+  public enum MLDevKeys: String, CodingKey {
+    case logProbabilitySum = "logProbabilitySum"
   }
 
   public init(from decoder: any Decoder) throws {
@@ -11197,6 +11591,12 @@ extension LogprobsResult: Codable {
     topCandidates = try CommonKeysContainer.decodeIfPresent(
       [LogprobsResultTopCandidates].self,
       forKey: .topCandidates
+    )
+
+    let MLDevKeysContainer = try decoder.container(keyedBy: MLDevKeys.self)
+    logProbabilitySum = try MLDevKeysContainer.decodeIfPresent(
+      Float.self,
+      forKey: .logProbabilitySum
     )
   }
 
@@ -11213,6 +11613,16 @@ extension LogprobsResult: Codable {
       topCandidates,
       forKey: .topCandidates
     )
+
+    if configuration.isMlDeveloper() {
+
+      var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
+      try MLDevKeysContainer.encodeIfPresent(
+        logProbabilitySum,
+        forKey: .logProbabilitySum
+      )
+
+    }
   }
 }
 
@@ -12076,6 +12486,87 @@ extension GenerateContentResponseUsageMetadata: Codable {
   }
 }
 
+/// The status of the underlying model. This is used to indicate the stage of the
+/// underlying model and the retirement time if applicable. This data type is not
+/// supported in Vertex AI.
+@available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+public struct ModelStatus: Sendable {
+  /// A message explaining the model status.
+  public let message: String?
+
+  /// The stage of the underlying model.
+  public let modelStage: ModelStage?
+
+  /// The time at which the model will be retired.
+  public let retirementTime: String?
+
+  /// Default initializer.
+  public init(
+    message: String? = nil,
+    modelStage: ModelStage? = nil,
+    retirementTime: String? = nil
+  ) {
+    self.message = message
+    self.modelStage = modelStage
+    self.retirementTime = retirementTime
+  }
+}
+
+@available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension ModelStatus: Codable {
+
+  // MARK: - Codable
+  public enum MLDevKeys: String, CodingKey {
+    case message = "message"
+    case modelStage = "modelStage"
+    case retirementTime = "retirementTime"
+  }
+
+  public init(from decoder: any Decoder) throws {
+    let configuration: APIClient = try decoder.userInfoOrThrow(.configuration)
+
+    let MLDevKeysContainer = try decoder.container(keyedBy: MLDevKeys.self)
+    message = try MLDevKeysContainer.decodeIfPresent(
+      String.self,
+      forKey: .message
+    )
+
+    modelStage = try MLDevKeysContainer.decodeIfPresent(
+      ModelStage.self,
+      forKey: .modelStage
+    )
+
+    retirementTime = try MLDevKeysContainer.decodeIfPresent(
+      String.self,
+      forKey: .retirementTime
+    )
+  }
+
+  public func encode(to encoder: any Encoder) throws {
+    let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
+
+    if configuration.isMlDeveloper() {
+
+      var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
+      try MLDevKeysContainer.encodeIfPresent(
+        message,
+        forKey: .message
+      )
+
+      try MLDevKeysContainer.encodeIfPresent(
+        modelStage,
+        forKey: .modelStage
+      )
+
+      try MLDevKeysContainer.encodeIfPresent(
+        retirementTime,
+        forKey: .retirementTime
+      )
+
+    }
+  }
+}
+
 /// Response message for PredictionService.GenerateContent.
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct GenerateContentResponse: Sendable {
@@ -12106,6 +12597,10 @@ public struct GenerateContentResponse: Sendable {
   /// Usage metadata about the response(s).
   public let usageMetadata: GenerateContentResponseUsageMetadata?
 
+  /// Output only. The current model status of this model. This field is not supported
+  /// in Vertex AI.
+  public let modelStatus: ModelStatus?
+
   /// Default initializer.
   public init(
     sdkHttpResponse: HttpResponse? = nil,
@@ -12115,7 +12610,8 @@ public struct GenerateContentResponse: Sendable {
     modelVersion: String? = nil,
     promptFeedback: GenerateContentResponsePromptFeedback? = nil,
     responseId: String? = nil,
-    usageMetadata: GenerateContentResponseUsageMetadata? = nil
+    usageMetadata: GenerateContentResponseUsageMetadata? = nil,
+    modelStatus: ModelStatus? = nil
   ) {
     self.sdkHttpResponse = sdkHttpResponse
     self.candidates = candidates
@@ -12125,6 +12621,7 @@ public struct GenerateContentResponse: Sendable {
     self.promptFeedback = promptFeedback
     self.responseId = responseId
     self.usageMetadata = usageMetadata
+    self.modelStatus = modelStatus
   }
 }
 
@@ -12141,6 +12638,9 @@ extension GenerateContentResponse: Codable {
     case promptFeedback = "promptFeedback"
     case responseId = "responseId"
     case usageMetadata = "usageMetadata"
+  }
+  public enum MLDevKeys: String, CodingKey {
+    case modelStatus = "modelStatus"
   }
   public enum VertexKeys: String, CodingKey {
     case createTime = "createTime"
@@ -12183,6 +12683,12 @@ extension GenerateContentResponse: Codable {
     usageMetadata = try CommonKeysContainer.decodeIfPresent(
       GenerateContentResponseUsageMetadata.self,
       forKey: .usageMetadata
+    )
+
+    let MLDevKeysContainer = try decoder.container(keyedBy: MLDevKeys.self)
+    modelStatus = try MLDevKeysContainer.decodeIfPresent(
+      ModelStatus.self,
+      forKey: .modelStatus
     )
 
     let VertexKeysContainer = try decoder.container(keyedBy: VertexKeys.self)
@@ -12230,6 +12736,16 @@ extension GenerateContentResponse: Codable {
       usageMetadata,
       forKey: .usageMetadata
     )
+
+    if configuration.isMlDeveloper() {
+
+      var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
+      try MLDevKeysContainer.encodeIfPresent(
+        modelStatus,
+        forKey: .modelStatus
+      )
+
+    }
 
     if configuration.isVertexAI() {
 
@@ -22612,8 +23128,7 @@ public struct EvaluateDatasetRun: Sendable {
   /// `projects/{project}/locations/{location}/evaluationRuns/{evaluation_run_id}`.
   public let evaluationRun: String?
 
-  /// Output only. The operation ID of the evaluation run. Format:
-  /// `projects/{project}/locations/{location}/operations/{operation_id}`.
+  /// Output only. Deprecated: The updated architecture uses evaluation_run instead.
   public let operationName: String?
 
   /// Default initializer.
@@ -22973,6 +23488,154 @@ extension VeoTuningSpec: Codable {
   }
 }
 
+/// Spec for creating a distilled dataset in Vertex Dataset. This data type is not
+/// supported in Gemini API.
+@available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+public struct DistillationSamplingSpec: Sendable {
+  /// Optional. The base teacher model that is being distilled. See [Supported
+  /// models](https://cloud.google.com/vertex-ai/generative-ai/docs/model-
+  /// reference/tuning#supported_models).
+  public let baseTeacherModel: String?
+
+  /// Optional. The resource name of the Tuned teacher model. Format:
+  /// `projects/{project}/locations/{location}/models/{model}`.
+  public let tunedTeacherModelSource: String?
+
+  /// Optional. Cloud Storage path to file containing validation dataset for
+  /// distillation. The dataset must be formatted as a JSONL file.
+  public let validationDatasetUri: String?
+
+  /// Default initializer.
+  public init(
+    baseTeacherModel: String? = nil,
+    tunedTeacherModelSource: String? = nil,
+    validationDatasetUri: String? = nil
+  ) {
+    self.baseTeacherModel = baseTeacherModel
+    self.tunedTeacherModelSource = tunedTeacherModelSource
+    self.validationDatasetUri = validationDatasetUri
+  }
+}
+
+@available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension DistillationSamplingSpec: Codable {
+
+  // MARK: - Codable
+  public enum VertexKeys: String, CodingKey {
+    case baseTeacherModel = "baseTeacherModel"
+    case tunedTeacherModelSource = "tunedTeacherModelSource"
+    case validationDatasetUri = "validationDatasetUri"
+  }
+
+  public init(from decoder: any Decoder) throws {
+    let configuration: APIClient = try decoder.userInfoOrThrow(.configuration)
+
+    let VertexKeysContainer = try decoder.container(keyedBy: VertexKeys.self)
+    baseTeacherModel = try VertexKeysContainer.decodeIfPresent(
+      String.self,
+      forKey: .baseTeacherModel
+    )
+
+    tunedTeacherModelSource = try VertexKeysContainer.decodeIfPresent(
+      String.self,
+      forKey: .tunedTeacherModelSource
+    )
+
+    validationDatasetUri = try VertexKeysContainer.decodeIfPresent(
+      String.self,
+      forKey: .validationDatasetUri
+    )
+  }
+
+  public func encode(to encoder: any Encoder) throws {
+    let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
+
+    if configuration.isVertexAI() {
+
+      var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
+      try VertexKeysContainer.encodeIfPresent(
+        baseTeacherModel,
+        forKey: .baseTeacherModel
+      )
+
+      try VertexKeysContainer.encodeIfPresent(
+        tunedTeacherModelSource,
+        forKey: .tunedTeacherModelSource
+      )
+
+      try VertexKeysContainer.encodeIfPresent(
+        validationDatasetUri,
+        forKey: .validationDatasetUri
+      )
+
+    }
+  }
+}
+
+/// Tuning job metadata. This data type is not supported in Gemini API.
+@available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+public struct TuningJobMetadata: Sendable {
+  /// Output only. The number of epochs that have been completed.
+  public let completedEpochCount: Int64?
+
+  /// Output only. The number of steps that have been completed. Set for Multi-Step
+  /// RL.
+  public let completedStepCount: Int64?
+
+  /// Default initializer.
+  public init(
+    completedEpochCount: Int64? = nil,
+    completedStepCount: Int64? = nil
+  ) {
+    self.completedEpochCount = completedEpochCount
+    self.completedStepCount = completedStepCount
+  }
+}
+
+@available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension TuningJobMetadata: Codable {
+
+  // MARK: - Codable
+  public enum VertexKeys: String, CodingKey {
+    case completedEpochCount = "completedEpochCount"
+    case completedStepCount = "completedStepCount"
+  }
+
+  public init(from decoder: any Decoder) throws {
+    let configuration: APIClient = try decoder.userInfoOrThrow(.configuration)
+
+    let VertexKeysContainer = try decoder.container(keyedBy: VertexKeys.self)
+    completedEpochCount = try VertexKeysContainer.decodeIfPresent(
+      Int64.self,
+      forKey: .completedEpochCount
+    )
+
+    completedStepCount = try VertexKeysContainer.decodeIfPresent(
+      Int64.self,
+      forKey: .completedStepCount
+    )
+  }
+
+  public func encode(to encoder: any Encoder) throws {
+    let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
+
+    if configuration.isVertexAI() {
+
+      var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
+      try VertexKeysContainer.encodeIfPresent(
+        completedEpochCount,
+        forKey: .completedEpochCount
+      )
+
+      try VertexKeysContainer.encodeIfPresent(
+        completedStepCount,
+        forKey: .completedStepCount
+      )
+
+    }
+  }
+}
+
 /// A tuning job.
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct TuningJob: Sendable {
@@ -23093,6 +23756,12 @@ public struct TuningJob: Sendable {
   /// Tuning Spec for Veo Tuning.
   public let veoTuningSpec: VeoTuningSpec?
 
+  /// Optional. Spec for creating a distillation dataset.
+  public let distillationSamplingSpec: DistillationSamplingSpec?
+
+  /// Output only. Tuning Job metadata.
+  public let tuningJobMetadata: TuningJobMetadata?
+
   /// Default initializer.
   public init(
     sdkHttpResponse: HttpResponse? = nil,
@@ -23123,7 +23792,9 @@ public struct TuningJob: Sendable {
     serviceAccount: String? = nil,
     tunedModelDisplayName: String? = nil,
     tuningJobState: TuningJobState? = nil,
-    veoTuningSpec: VeoTuningSpec? = nil
+    veoTuningSpec: VeoTuningSpec? = nil,
+    distillationSamplingSpec: DistillationSamplingSpec? = nil,
+    tuningJobMetadata: TuningJobMetadata? = nil
   ) {
     self.sdkHttpResponse = sdkHttpResponse
     self.name = name
@@ -23154,6 +23825,8 @@ public struct TuningJob: Sendable {
     self.tunedModelDisplayName = tunedModelDisplayName
     self.tuningJobState = tuningJobState
     self.veoTuningSpec = veoTuningSpec
+    self.distillationSamplingSpec = distillationSamplingSpec
+    self.tuningJobMetadata = tuningJobMetadata
   }
 }
 
@@ -23194,6 +23867,8 @@ extension TuningJob: Codable {
     case tunedModelDisplayName = "tunedModelDisplayName"
     case tuningJobState = "tuningJobState"
     case veoTuningSpec = "veoTuningSpec"
+    case distillationSamplingSpec = "distillationSamplingSpec"
+    case tuningJobMetadata = "tuningJobMetadata"
   }
 
   public init(from decoder: any Decoder) throws {
@@ -23344,6 +24019,16 @@ extension TuningJob: Codable {
     veoTuningSpec = try VertexKeysContainer.decodeIfPresent(
       VeoTuningSpec.self,
       forKey: .veoTuningSpec
+    )
+
+    distillationSamplingSpec = try VertexKeysContainer.decodeIfPresent(
+      DistillationSamplingSpec.self,
+      forKey: .distillationSamplingSpec
+    )
+
+    tuningJobMetadata = try VertexKeysContainer.decodeIfPresent(
+      TuningJobMetadata.self,
+      forKey: .tuningJobMetadata
     )
   }
 
@@ -23497,6 +24182,16 @@ extension TuningJob: Codable {
       try VertexKeysContainer.encodeIfPresent(
         veoTuningSpec,
         forKey: .veoTuningSpec
+      )
+
+      try VertexKeysContainer.encodeIfPresent(
+        distillationSamplingSpec,
+        forKey: .distillationSamplingSpec
+      )
+
+      try VertexKeysContainer.encodeIfPresent(
+        tuningJobMetadata,
+        forKey: .tuningJobMetadata
       )
 
     }
@@ -26050,20 +26745,26 @@ extension CustomMetadata: Codable {
 /// A Document is a collection of Chunks.
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct Document: Sendable {
-  /// The resource name of the Document.
-  /// Example: fileSearchStores/file-search-store-foo/documents/documents-bar
+  /// Immutable. Identifier. The `Document` resource name. The ID (name excluding the
+  /// "fileSearchStores/&#42;/documents/" prefix) can contain up to 40 characters that
+  /// are lowercase alphanumeric or dashes (-). The ID cannot start or end with a
+  /// dash. If the name is empty on create, a unique name will be derived from
+  /// `display_name` along with a 12 character random suffix. Example:
+  /// `fileSearchStores/{file_search_store_id}/documents/my-awesome-doc-123a456b789c`
   public let name: String?
 
-  /// The human-readable display name for the Document.
+  /// Optional. The human-readable display name for the `Document`. The display name
+  /// must be no more than 512 characters in length, including spaces. Example:
+  /// "Semantic Retriever Documentation".
   public let displayName: String?
 
-  /// The current state of the Document.
+  /// Output only. Current state of the `Document`.
   public let state: DocumentState?
 
-  /// The size of the Document in bytes.
+  /// Output only. The size of raw bytes ingested into the Document.
   public let sizeBytes: Int64?
 
-  /// The MIME type of the Document.
+  /// Output only. The mime type of the Document.
   public let mimeType: String?
 
   /// Output only. The Timestamp of when the `Document` was created.
@@ -27208,6 +27909,8 @@ public struct ListFileSearchStoresResponse: Sendable {
   /// Used to retain the full HTTP response.
   public let sdkHttpResponse: HttpResponse?
 
+  /// A token, which can be sent as `page_token` to retrieve the next page. If this
+  /// field is omitted, there are no more pages.
   public let nextPageToken: String?
 
   /// The returned file search stores.
@@ -27232,9 +27935,9 @@ extension ListFileSearchStoresResponse: Codable {
 
   public enum CommonKeys: String, CodingKey {
     case sdkHttpResponse = "sdkHttpResponse"
-    case nextPageToken = "nextPageToken"
   }
   public enum MLDevKeys: String, CodingKey {
+    case nextPageToken = "nextPageToken"
     case fileSearchStores = "fileSearchStores"
   }
 
@@ -27247,12 +27950,12 @@ extension ListFileSearchStoresResponse: Codable {
       forKey: .sdkHttpResponse
     )
 
-    nextPageToken = try CommonKeysContainer.decodeIfPresent(
+    let MLDevKeysContainer = try decoder.container(keyedBy: MLDevKeys.self)
+    nextPageToken = try MLDevKeysContainer.decodeIfPresent(
       String.self,
       forKey: .nextPageToken
     )
 
-    let MLDevKeysContainer = try decoder.container(keyedBy: MLDevKeys.self)
     fileSearchStores = try MLDevKeysContainer.decodeIfPresent(
       [FileSearchStore].self,
       forKey: .fileSearchStores
@@ -27268,14 +27971,14 @@ extension ListFileSearchStoresResponse: Codable {
       forKey: .sdkHttpResponse
     )
 
-    try CommonKeysContainer.encodeIfPresent(
-      nextPageToken,
-      forKey: .nextPageToken
-    )
-
     if configuration.isMlDeveloper() {
 
       var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
+      try MLDevKeysContainer.encodeIfPresent(
+        nextPageToken,
+        forKey: .nextPageToken
+      )
+
       try MLDevKeysContainer.encodeIfPresent(
         fileSearchStores,
         forKey: .fileSearchStores
@@ -29449,19 +30152,24 @@ extension SingleEmbedContentResponse: Codable {
 /// Config for `inlined_embedding_responses` parameter.
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct InlinedEmbedContentResponse: Sendable {
-  /// The response to the request.
+  /// Output only. The response to the request.
   public let response: SingleEmbedContentResponse?
 
-  /// The error encountered while processing the request.
+  /// Output only. The error encountered while processing the request.
   public let error: JobError?
+
+  /// Output only. The metadata associated with the request.
+  public let metadata: [String: JSONValue]?
 
   /// Default initializer.
   public init(
     response: SingleEmbedContentResponse? = nil,
-    error: JobError? = nil
+    error: JobError? = nil,
+    metadata: [String: JSONValue]? = nil
   ) {
     self.response = response
     self.error = error
+    self.metadata = metadata
   }
 }
 
@@ -29472,6 +30180,7 @@ extension InlinedEmbedContentResponse: Codable {
   public enum MLDevKeys: String, CodingKey {
     case response = "response"
     case error = "error"
+    case metadata = "metadata"
   }
 
   public init(from decoder: any Decoder) throws {
@@ -29486,6 +30195,11 @@ extension InlinedEmbedContentResponse: Codable {
     error = try MLDevKeysContainer.decodeIfPresent(
       JobError.self,
       forKey: .error
+    )
+
+    metadata = try MLDevKeysContainer.decodeIfPresent(
+      [String: JSONValue].self,
+      forKey: .metadata
     )
   }
 
@@ -29503,6 +30217,11 @@ extension InlinedEmbedContentResponse: Codable {
       try MLDevKeysContainer.encodeIfPresent(
         error,
         forKey: .error
+      )
+
+      try MLDevKeysContainer.encodeIfPresent(
+        metadata,
+        forKey: .metadata
       )
 
     }
@@ -33292,10 +34011,10 @@ extension LiveServerSetupComplete: Codable {
 /// Audio transcription in Server Conent.
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct Transcription: Sendable {
-  /// Transcription text.
+  /// Optional. Transcription text.
   public let text: String?
 
-  /// The bool indicates the end of the transcription.
+  /// Optional. The bool indicates the end of the transcription.
   public let finished: Bool?
 
   /// Default initializer.

@@ -1586,6 +1586,14 @@ public enum Converters {
         ])
     }
 
+    if fromObject.partMetadata != nil {
+      throw NSError(
+        domain: "Vertex AI", code: -1,
+        userInfo: [
+          NSLocalizedDescriptionKey: "partMetadata parameter is not supported in Vertex AI."
+        ])
+    }
+
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -1786,6 +1794,186 @@ public enum Converters {
       throw NSError(
         domain: "SwiftSDK", code: -1,
         userInfo: [NSLocalizedDescriptionKey: "Failed to encode ToolConfig: \(error)"])
+    }
+  }
+
+  public static func replicatedVoiceConfigToVertex(
+    apiClient: APIClient, fromObject: ReplicatedVoiceConfig
+  ) throws -> [String: Any] {
+    let encoder = JSONEncoder()
+    encoder.userInfo[.configuration] = apiClient
+    encoder.keyEncodingStrategy = .convertToSnakeCase
+    do {
+      let data = try encoder.encode(fromObject)
+      guard
+        let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
+          as? [String: Any]
+      else {
+        throw NSError(
+          domain: "SwiftSDK", code: -1,
+          userInfo: [
+            NSLocalizedDescriptionKey:
+              "Failed to convert encoded data to dictionary for ReplicatedVoiceConfig"
+          ])
+      }
+      var toObject = dictionary
+      var urlParams: [String: Any] = [:]
+      var queryParams: [String: Any] = [:]
+      if !urlParams.isEmpty {
+        toObject["_url"] = urlParams
+      }
+      if !queryParams.isEmpty {
+        toObject["_query"] = queryParams
+      }
+      return toObject
+    } catch {
+      throw NSError(
+        domain: "SwiftSDK", code: -1,
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode ReplicatedVoiceConfig: \(error)"])
+    }
+  }
+
+  public static func voiceConfigToVertex(apiClient: APIClient, fromObject: VoiceConfig) throws
+    -> [String: Any]
+  {
+    let encoder = JSONEncoder()
+    encoder.userInfo[.configuration] = apiClient
+    encoder.keyEncodingStrategy = .convertToSnakeCase
+    do {
+      let data = try encoder.encode(fromObject)
+      guard
+        let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
+          as? [String: Any]
+      else {
+        throw NSError(
+          domain: "SwiftSDK", code: -1,
+          userInfo: [
+            NSLocalizedDescriptionKey:
+              "Failed to convert encoded data to dictionary for VoiceConfig"
+          ])
+      }
+      var toObject = dictionary
+      var urlParams: [String: Any] = [:]
+      var queryParams: [String: Any] = [:]
+      if !urlParams.isEmpty {
+        toObject["_url"] = urlParams
+      }
+      if !queryParams.isEmpty {
+        toObject["_query"] = queryParams
+      }
+      return toObject
+    } catch {
+      throw NSError(
+        domain: "SwiftSDK", code: -1,
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode VoiceConfig: \(error)"])
+    }
+  }
+
+  public static func speakerVoiceConfigToVertex(
+    apiClient: APIClient, fromObject: SpeakerVoiceConfig
+  ) throws -> [String: Any] {
+    let encoder = JSONEncoder()
+    encoder.userInfo[.configuration] = apiClient
+    encoder.keyEncodingStrategy = .convertToSnakeCase
+    do {
+      let data = try encoder.encode(fromObject)
+      guard
+        let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
+          as? [String: Any]
+      else {
+        throw NSError(
+          domain: "SwiftSDK", code: -1,
+          userInfo: [
+            NSLocalizedDescriptionKey:
+              "Failed to convert encoded data to dictionary for SpeakerVoiceConfig"
+          ])
+      }
+      var toObject = dictionary
+      var urlParams: [String: Any] = [:]
+      var queryParams: [String: Any] = [:]
+      if !urlParams.isEmpty {
+        toObject["_url"] = urlParams
+      }
+      if !queryParams.isEmpty {
+        toObject["_query"] = queryParams
+      }
+      return toObject
+    } catch {
+      throw NSError(
+        domain: "SwiftSDK", code: -1,
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode SpeakerVoiceConfig: \(error)"])
+    }
+  }
+
+  public static func multiSpeakerVoiceConfigToVertex(
+    apiClient: APIClient, fromObject: MultiSpeakerVoiceConfig
+  ) throws -> [String: Any] {
+    let encoder = JSONEncoder()
+    encoder.userInfo[.configuration] = apiClient
+    encoder.keyEncodingStrategy = .convertToSnakeCase
+    do {
+      let data = try encoder.encode(fromObject)
+      guard
+        let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
+          as? [String: Any]
+      else {
+        throw NSError(
+          domain: "SwiftSDK", code: -1,
+          userInfo: [
+            NSLocalizedDescriptionKey:
+              "Failed to convert encoded data to dictionary for MultiSpeakerVoiceConfig"
+          ])
+      }
+      var toObject = dictionary
+      var urlParams: [String: Any] = [:]
+      var queryParams: [String: Any] = [:]
+      if !urlParams.isEmpty {
+        toObject["_url"] = urlParams
+      }
+      if !queryParams.isEmpty {
+        toObject["_query"] = queryParams
+      }
+      return toObject
+    } catch {
+      throw NSError(
+        domain: "SwiftSDK", code: -1,
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode MultiSpeakerVoiceConfig: \(error)"])
+    }
+  }
+
+  public static func speechConfigToVertex(apiClient: APIClient, fromObject: SpeechConfig) throws
+    -> [String: Any]
+  {
+    let encoder = JSONEncoder()
+    encoder.userInfo[.configuration] = apiClient
+    encoder.keyEncodingStrategy = .convertToSnakeCase
+    do {
+      let data = try encoder.encode(fromObject)
+      guard
+        let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
+          as? [String: Any]
+      else {
+        throw NSError(
+          domain: "SwiftSDK", code: -1,
+          userInfo: [
+            NSLocalizedDescriptionKey:
+              "Failed to convert encoded data to dictionary for SpeechConfig"
+          ])
+      }
+      var toObject = dictionary
+      var urlParams: [String: Any] = [:]
+      var queryParams: [String: Any] = [:]
+      if !urlParams.isEmpty {
+        toObject["_url"] = urlParams
+      }
+      if !queryParams.isEmpty {
+        toObject["_query"] = queryParams
+      }
+      return toObject
+    } catch {
+      throw NSError(
+        domain: "SwiftSDK", code: -1,
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode SpeechConfig: \(error)"])
     }
   }
 
@@ -3389,6 +3577,20 @@ public enum Converters {
     }
   }
 
+  public static func groundingChunkRetrievedContextFromMldev(apiClient: APIClient, fromObject: Data)
+    throws -> GroundingChunkRetrievedContext?
+  {
+    do {
+      let decoder = JSONDecoder()
+      decoder.userInfo[.configuration] = apiClient
+      let instance = try decoder.decode(GroundingChunkRetrievedContext.self, from: fromObject)
+      return instance
+    } catch {
+      print("Failed to decode GroundingChunkRetrievedContext: \(error)")
+      return nil
+    }
+  }
+
   public static func groundingChunkWebFromMldev(apiClient: APIClient, fromObject: Data) throws
     -> GroundingChunkWeb?
   {
@@ -3413,6 +3615,20 @@ public enum Converters {
       return instance
     } catch {
       print("Failed to decode GroundingChunk: \(error)")
+      return nil
+    }
+  }
+
+  public static func groundingSupportFromMldev(apiClient: APIClient, fromObject: Data) throws
+    -> GroundingSupport?
+  {
+    do {
+      let decoder = JSONDecoder()
+      decoder.userInfo[.configuration] = apiClient
+      let instance = try decoder.decode(GroundingSupport.self, from: fromObject)
+      return instance
+    } catch {
+      print("Failed to decode GroundingSupport: \(error)")
       return nil
     }
   }
@@ -3725,6 +3941,62 @@ public enum Converters {
       return instance
     } catch {
       print("Failed to decode Content: \(error)")
+      return nil
+    }
+  }
+
+  public static func groundingChunkRetrievedContextFromVertex(
+    apiClient: APIClient, fromObject: Data
+  ) throws -> GroundingChunkRetrievedContext? {
+    do {
+      let decoder = JSONDecoder()
+      decoder.userInfo[.configuration] = apiClient
+      let instance = try decoder.decode(GroundingChunkRetrievedContext.self, from: fromObject)
+      return instance
+    } catch {
+      print("Failed to decode GroundingChunkRetrievedContext: \(error)")
+      return nil
+    }
+  }
+
+  public static func groundingChunkFromVertex(apiClient: APIClient, fromObject: Data) throws
+    -> GroundingChunk?
+  {
+    do {
+      let decoder = JSONDecoder()
+      decoder.userInfo[.configuration] = apiClient
+      let instance = try decoder.decode(GroundingChunk.self, from: fromObject)
+      return instance
+    } catch {
+      print("Failed to decode GroundingChunk: \(error)")
+      return nil
+    }
+  }
+
+  public static func groundingMetadataFromVertex(apiClient: APIClient, fromObject: Data) throws
+    -> GroundingMetadata?
+  {
+    do {
+      let decoder = JSONDecoder()
+      decoder.userInfo[.configuration] = apiClient
+      let instance = try decoder.decode(GroundingMetadata.self, from: fromObject)
+      return instance
+    } catch {
+      print("Failed to decode GroundingMetadata: \(error)")
+      return nil
+    }
+  }
+
+  public static func logprobsResultFromVertex(apiClient: APIClient, fromObject: Data) throws
+    -> LogprobsResult?
+  {
+    do {
+      let decoder = JSONDecoder()
+      decoder.userInfo[.configuration] = apiClient
+      let instance = try decoder.decode(LogprobsResult.self, from: fromObject)
+      return instance
+    } catch {
+      print("Failed to decode LogprobsResult: \(error)")
       return nil
     }
   }
@@ -5007,6 +5279,76 @@ public enum Converters {
       return instance
     } catch {
       print("Failed to decode TuningDataStats: \(error)")
+      return nil
+    }
+  }
+
+  public static func replicatedVoiceConfigFromVertex(apiClient: APIClient, fromObject: Data) throws
+    -> ReplicatedVoiceConfig?
+  {
+    do {
+      let decoder = JSONDecoder()
+      decoder.userInfo[.configuration] = apiClient
+      let instance = try decoder.decode(ReplicatedVoiceConfig.self, from: fromObject)
+      return instance
+    } catch {
+      print("Failed to decode ReplicatedVoiceConfig: \(error)")
+      return nil
+    }
+  }
+
+  public static func voiceConfigFromVertex(apiClient: APIClient, fromObject: Data) throws
+    -> VoiceConfig?
+  {
+    do {
+      let decoder = JSONDecoder()
+      decoder.userInfo[.configuration] = apiClient
+      let instance = try decoder.decode(VoiceConfig.self, from: fromObject)
+      return instance
+    } catch {
+      print("Failed to decode VoiceConfig: \(error)")
+      return nil
+    }
+  }
+
+  public static func speakerVoiceConfigFromVertex(apiClient: APIClient, fromObject: Data) throws
+    -> SpeakerVoiceConfig?
+  {
+    do {
+      let decoder = JSONDecoder()
+      decoder.userInfo[.configuration] = apiClient
+      let instance = try decoder.decode(SpeakerVoiceConfig.self, from: fromObject)
+      return instance
+    } catch {
+      print("Failed to decode SpeakerVoiceConfig: \(error)")
+      return nil
+    }
+  }
+
+  public static func multiSpeakerVoiceConfigFromVertex(apiClient: APIClient, fromObject: Data)
+    throws -> MultiSpeakerVoiceConfig?
+  {
+    do {
+      let decoder = JSONDecoder()
+      decoder.userInfo[.configuration] = apiClient
+      let instance = try decoder.decode(MultiSpeakerVoiceConfig.self, from: fromObject)
+      return instance
+    } catch {
+      print("Failed to decode MultiSpeakerVoiceConfig: \(error)")
+      return nil
+    }
+  }
+
+  public static func speechConfigFromVertex(apiClient: APIClient, fromObject: Data) throws
+    -> SpeechConfig?
+  {
+    do {
+      let decoder = JSONDecoder()
+      decoder.userInfo[.configuration] = apiClient
+      let instance = try decoder.decode(SpeechConfig.self, from: fromObject)
+      return instance
+    } catch {
+      print("Failed to decode SpeechConfig: \(error)")
       return nil
     }
   }

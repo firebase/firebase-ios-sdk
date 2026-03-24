@@ -1689,7 +1689,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       .collection(collRef.path)
       .select([
         Field("title"),
-        Field("published").logicalMaximum([Constant(1960), 1961]).as("published-safe"),
+        Field("published").logicalMaximum([Constant(1960), 1961]).as("publishedSafe"),
       ])
       .sort([Field("title").ascending()])
       .limit(3)
@@ -1697,9 +1697,9 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     let snapshot = try await pipeline.execute()
 
     let expectedResults: [[String: Sendable]] = [
-      ["title": "1984", "published-safe": 1961],
-      ["title": "Crime and Punishment", "published-safe": 1961],
-      ["title": "Dune", "published-safe": 1965],
+      ["title": "1984", "publishedSafe": 1961],
+      ["title": "Crime and Punishment", "publishedSafe": 1961],
+      ["title": "Dune", "publishedSafe": 1965],
     ]
 
     TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
@@ -1713,7 +1713,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       .collection(collRef.path)
       .select([
         Field("title"),
-        Field("published").logicalMinimum([Constant(1960), 1961]).as("published-safe"),
+        Field("published").logicalMinimum([Constant(1960), 1961]).as("publishedSafe"),
       ])
       .sort([Field("title").ascending()])
       .limit(3)
@@ -1721,9 +1721,9 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     let snapshot = try await pipeline.execute()
 
     let expectedResults: [[String: Sendable]] = [
-      ["title": "1984", "published-safe": 1949],
-      ["title": "Crime and Punishment", "published-safe": 1866],
-      ["title": "Dune", "published-safe": 1960],
+      ["title": "1984", "publishedSafe": 1949],
+      ["title": "Crime and Punishment", "publishedSafe": 1866],
+      ["title": "Dune", "publishedSafe": 1960],
     ]
 
     TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
@@ -1738,7 +1738,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       .select([
         Field("title"),
         Field("published").lessThan(1960).then(Constant(1960), else: Field("published"))
-          .as("published-safe"),
+          .as("publishedSafe"),
       ])
       .sort([Field("title").ascending()])
       .limit(3)
@@ -1746,9 +1746,9 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     let snapshot = try await pipeline.execute()
 
     let expectedResults: [[String: Sendable]] = [
-      ["title": "1984", "published-safe": 1960],
-      ["title": "Crime and Punishment", "published-safe": 1960],
-      ["title": "Dune", "published-safe": 1965],
+      ["title": "1984", "publishedSafe": 1960],
+      ["title": "Crime and Punishment", "publishedSafe": 1960],
+      ["title": "Dune", "publishedSafe": 1965],
     ]
 
     TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
@@ -2902,8 +2902,8 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     let snapshot = try await pipeline.execute()
 
     let expectedResults: [[String: Sendable?]] = [
-      ["title": "The Hitchhiker's Guide to the Galaxy", "awards.hugo": true],
-      ["title": "Dune", "awards.hugo": true],
+      ["title": "The Hitchhiker's Guide to the Galaxy", "awards": ["hugo": true]],
+      ["title": "Dune", "awards": ["hugo": true]],
     ]
 
     TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
@@ -2930,10 +2930,13 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     let expectedResultsArray: [[String: Sendable?]] = [
       [
         "title": "The Hitchhiker's Guide to the Galaxy",
+        "nestedField": ["level": [String: Any]()],
         "nested": true,
       ],
       [
         "title": "Dune",
+        "nestedField": ["level": [String: Any]()],
+        "nested": nil,
       ],
     ]
     TestHelper.compare(
@@ -4109,6 +4112,131 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       .where(Constant(false).asBoolean())
     snapshot = try await pipeline.execute()
     TestHelper.compare(snapshot: snapshot, expectedCount: 0)
+  }
+
+  func testWhereByNorCondition() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .where(
+        nor(
+          Field("genre").equal("Romance"),
+          Field("genre").equal("Dystopian"),
+          Field("genre").equal("Fantasy"),
+          Field("published").greaterThan(1949)
+        )
+      )
+      .select([Field("title")])
+      .sort([Field("title").ascending()])
+
+    let snapshot = try await pipeline.execute()
+
+    TestHelper.compare(
+      snapshot: snapshot,
+      expected: [
+        ["title": "Crime and Punishment"],
+        ["title": "The Great Gatsby"],
+      ],
+      enforceOrder: true
+    )
+  }
+
+  func testNorConditionWithNull() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .limit(1)
+      .replace(
+        with: MapExpression([
+          "a": false,
+          "b": false,
+          "c": true,
+          "d": Constant.nil,
+        ])
+      )
+      .select([
+        nor(Field("a").asBoolean(), Field("b").asBoolean()).as("twoConditions"),
+        nor([Field("a").asBoolean(), Field("b").asBoolean(), Field("c").asBoolean()])
+          .as("threeConditions"),
+        nor(Field("a").asBoolean(), Field("b").asBoolean(), Field("d").asBoolean())
+          .as("threeConditionsWithNull"),
+      ])
+
+    let snapshot = try await pipeline.execute()
+
+    TestHelper.compare(
+      snapshot: snapshot,
+      expected: [
+        [
+          "twoConditions": true,
+          "threeConditions": false,
+          "threeConditionsWithNull": NSNull(),
+        ],
+      ],
+      enforceOrder: true
+    )
+  }
+
+  func testSwitchOn() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .limit(1)
+      .replace(with: MapExpression(["value": 2]))
+      .select([
+        switchOn(Field("value").equal(2), Constant("two"), Constant("NA")).as("result1"),
+        switchOn(Field("value").equal(3), Constant("three"), Constant("NA")).as("result2"),
+        switchOn(
+          Field("value").equal(1), Constant("one"),
+          Field("value").equal(2), Constant("two"),
+          Field("value").equal(3), Constant("three"),
+          Constant("NA")
+        ).as("result3"),
+      ])
+
+    let snapshot = try await pipeline.execute()
+
+    TestHelper.compare(
+      snapshot: snapshot,
+      expected: [
+        [
+          "result1": "two",
+          "result2": "NA",
+          "result3": "two",
+        ],
+      ],
+      enforceOrder: true
+    )
+  }
+
+  func testSwitchOnNoDefaultValueAndNoMatchingCondition() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .limit(1)
+      .replace(with: MapExpression(["value": 5]))
+      .select([
+        switchOn(
+          Field("value").equal(1), Constant("one"),
+          Field("value").equal(2), Constant("two")
+        ).as("result"),
+      ])
+
+    do {
+      _ = try await pipeline.execute()
+      XCTFail("Should have thrown an error for no default value matched")
+    } catch {
+      let nsError = error as NSError
+      XCTAssertEqual(nsError.domain, FirestoreErrorDomain, "Error domain mismatch")
+    }
   }
 
   func testArrayFirst() async throws {
