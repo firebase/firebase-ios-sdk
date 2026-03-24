@@ -38,16 +38,20 @@
         @available(iOS 26.0, macOS 26.0, *)
         @available(tvOS, unavailable)
         @available(watchOS, unavailable)
-        var model: FoundationModels.SystemLanguageModel? {
-          return _model as? FoundationModels.SystemLanguageModel
+        var systemModel: FoundationModels.SystemLanguageModel {
+          guard let model = _model as? FoundationModels.SystemLanguageModel else {
+            assertionFailure()
+            return FoundationModels.SystemLanguageModel()
+          }
+          return model
         }
       #endif // canImport(FoundationModels)
 
       var isAvailable: Bool {
         #if canImport(FoundationModels)
-          guard #available(iOS 26.0, macOS 26.0, visionOS 26.0, *), let model else { return false }
+          guard #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) else { return false }
 
-          return model.isAvailable
+          return systemModel.isAvailable
         #else
           return false
         #endif // canImport(FoundationModels)

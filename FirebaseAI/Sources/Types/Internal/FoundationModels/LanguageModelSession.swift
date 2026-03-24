@@ -45,8 +45,7 @@
       init(model: FirebaseAI.SystemLanguageModel) {
         #if canImport(FoundationModels)
           if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
-            guard let model = model.model else { fatalError() }
-            _session = FoundationModels.LanguageModelSession(model: model)
+            _session = FoundationModels.LanguageModelSession(model: model.systemModel)
           } else {
             _session = nil
           }

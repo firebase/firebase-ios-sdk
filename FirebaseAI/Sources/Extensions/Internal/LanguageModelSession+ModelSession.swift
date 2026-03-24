@@ -80,8 +80,59 @@
             rawContent: rawContent,
             rawResponse: rawResponse
           )
+        } else if let contentMetatype = type as? (any FoundationModels.Generable.Type) {
+          // Generic helper to explicitly bind the opened existential type to `T`.
+          func fetchResponse<T: FoundationModels.Generable>(_ generableType: T
+            .Type) async throws -> GenerativeModelSession.Response<Content> {
+            let response = try await session.respond(
+              to: prompt,
+              generating: generableType,
+              includeSchemaInPrompt: includeSchemaInPrompt
+            )
+
+            let rawContent = FirebaseAI.GeneratedContent(
+              kind: response.rawContent.kind,
+              id: FirebaseAI.GenerationID(
+                responseID: UUID().uuidString,
+                generationID: response.rawContent.id
+              ),
+              isComplete: response.rawContent.isComplete
+            )
+            let modelContent = ModelContent(
+              role: "model",
+              parts: [
+                InternalPart(
+                  .text(response.rawContent.jsonString),
+                  isThought: false,
+                  thoughtSignature: nil
+                ),
+              ]
+            )
+            let candidate = Candidate(
+              content: modelContent,
+              safetyRatings: [],
+              finishReason: nil,
+              citationMetadata: nil
+            )
+            let rawResponse = GenerateContentResponse(candidates: [candidate])
+
+            // Cast the generated content back to the outer `Content` type.
+            guard let finalContent = response.content as? Content else {
+              fatalError("Expected \(Content.self) but received \(T.self)")
+            }
+
+            return GenerativeModelSession.Response(
+              content: finalContent,
+              rawContent: rawContent,
+              rawResponse: rawResponse
+            )
+          }
+
+          // Call the helper, which opens `contentMetatype` and passes it as `T`.
+          return try await fetchResponse(contentMetatype)
+
         } else {
-          fatalError("Only String generation is supported.")
+          fatalError("Unsupported type for generation: \(type)")
         }
       #else
         fatalError("Foundation Models not supported.")
