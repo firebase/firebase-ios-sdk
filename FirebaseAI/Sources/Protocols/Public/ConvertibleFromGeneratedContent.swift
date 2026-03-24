@@ -13,14 +13,14 @@
 // limitations under the License.
 
 #if compiler(>=6.2)
-  public extension FirebaseAI {
+  extension FirebaseAI {
     protocol ConvertibleFromGeneratedContent {
       init(_ content: FirebaseAI.GeneratedContent) throws
     }
   }
 
   extension String: FirebaseAI.ConvertibleFromGeneratedContent {
-    public init(_ content: FirebaseAI.GeneratedContent) throws {
+    init(_ content: FirebaseAI.GeneratedContent) throws {
       guard case let .string(value) = content.kind else {
         throw GenerativeModelSession.GenerationError.decodingFailure(
           GenerativeModelSession.GenerationError.Context(debugDescription: """

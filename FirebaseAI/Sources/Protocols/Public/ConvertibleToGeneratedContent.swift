@@ -17,14 +17,14 @@
     import FoundationModels
   #endif // canImport(FoundationModels)
 
-  public extension FirebaseAI {
+  extension FirebaseAI {
     protocol ConvertibleToGeneratedContent {
       var firebaseGeneratedContent: FirebaseAI.GeneratedContent { get }
     }
   }
 
   extension String: FirebaseAI.ConvertibleToGeneratedContent {
-    public var firebaseGeneratedContent: FirebaseAI.GeneratedContent {
+    var firebaseGeneratedContent: FirebaseAI.GeneratedContent {
       FirebaseAI.GeneratedContent(kind: .string(self), isComplete: true)
     }
   }
@@ -33,7 +33,7 @@
     @available(iOS 26.0, macOS 26.0, *)
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
-    public extension FirebaseAI.ConvertibleToGeneratedContent
+    extension FirebaseAI.ConvertibleToGeneratedContent
       where Self: FoundationModels.ConvertibleToGeneratedContent {
       var firebaseGeneratedContent: FirebaseAI.GeneratedContent {
         return FirebaseAI.GeneratedContent(

@@ -223,7 +223,7 @@
   }
 
   extension FirebaseAI.GeneratedContent: FirebaseAI.ConvertibleToGeneratedContent {
-    public var firebaseGeneratedContent: FirebaseAI.GeneratedContent {
+    var firebaseGeneratedContent: FirebaseAI.GeneratedContent {
       return self
     }
   }
