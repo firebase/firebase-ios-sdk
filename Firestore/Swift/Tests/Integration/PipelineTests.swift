@@ -4673,26 +4673,26 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     let collRef = collectionRef(withDocuments: bookDocs)
     let db = collRef.firestore
 
-    var snapshot = try await db.pipeline()
+    let snapshot = try await db.pipeline()
       .collection(collRef.path)
       .where(Field("title").equal("The Lord of the Rings"))
       .select([
         Field("tags").arrayFilter(
           alias: "tag",
-          filter: variable("tag").notEqual("magic")
+          filter: Field("tag").notEqual("magic")
         ).as("notMagicTags"),
         Field("tags").arrayFilter(
           alias: "tag",
-          filter: variable("tag").notEqual("epic")
+          filter: Field("tag").notEqual("epic")
         ).as("notEpicTags"),
         Field("tags").arrayFilter(
           alias: "tag",
-          filter: variable("tag").equal("fantasy")
+          filter: Field("tag").equal("fantasy")
         ).as("noMatchingTags"),
       ])
       .execute()
 
-    var expectedResults: [[String: Sendable]] = [
+    let expectedResults: [[String: Sendable]] = [
       [
         "notMagicTags": ["adventure", "epic"],
         "notEpicTags": ["adventure", "magic"],
@@ -4703,7 +4703,9 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testArrayFilterMixedTypesAndNulls() async throws {
-    snapshot = try await db.pipeline()
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+    let snapshot = try await db.pipeline()
       .collection(collRef.path)
       .limit(1)
       .replace(with: MapExpression([
@@ -4712,12 +4714,12 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       .select([
         Field("arr").arrayFilter(
           alias: "element",
-          filter: variable("element").greaterThan(10)
+          filter: Field("element").greaterThan(10)
         ).as("filtered"),
       ])
       .execute()
 
-    expectedResults = [
+    let expectedResults = [
       ["filtered": [20.0, 30]],
     ]
     TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
@@ -4727,38 +4729,29 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     let collRef = collectionRef(withDocuments: bookDocs)
     let db = collRef.firestore
 
-    var snapshot = try await db.pipeline()
+    let snapshot = try await db.pipeline()
       .collection(collRef.path)
       .where(Field("title").equal("The Lord of the Rings"))
       .select([
-        Field("tags").arraySlice(offset: 1, length: 1).as("instanceMethodSlice"),
-        Field("tags").arraySlice(offset: 1).as("instanceMethodSliceToEnd"),
-        arraySlice("tags", 1, 1).as("staticMethodSlice"),
-        arraySlice("tags", 1).as("staticMethodSliceToEnd"),
+        Field("tags").arraySlice(offset: 1, length: 1).as("basicSlice"),
+        Field("tags").arraySlice(offset: 1).as("sliceToEnd"),
         Field("tags").arraySlice(offset: 1, length: 10).as("overflowLength"),
         Field("tags").arraySlice(offset: 10).as("overflowOffset"),
         Field("tags").arraySlice(offset: -1).as("negativeOffset"),
         Field("tags").arraySlice(offset: -1, length: 1).as("negativeOffsetLength"),
-        Field("tags").arraySlice(offset: -1, length: -1).as("negativeOffsetLengthNegative"),
-        Field("tags").arraySlice(offset: -1, length: -10)
-          .as("negativeOffsetLengthNegativeOverflow"),
         Field("tags").arraySlice(offset: -10).as("negativeOffsetOverflow"),
       ])
       .execute()
 
     let expectedResults: [[String: Sendable]] = [
       [
-        "instanceMethodSlice": ["magic"],
-        "instanceMethodSliceToEnd": ["magic", "epic"],
-        "staticMethodSlice": ["magic"],
-        "staticMethodSliceToEnd": ["magic", "epic"],
+        "basicSlice": ["magic"],
+        "sliceToEnd": ["magic", "epic"],
         "overflowLength": ["magic", "epic"],
         "overflowOffset": [],
-        "negativeOffset": ["fantasy"],
-        "negativeOffsetLength": ["fantasy"],
-        "negativeOffsetLengthNegative": ["fantasy"],
-        "negativeOffsetLengthNegativeOverflow": ["fantasy"],
-        "negativeOffsetOverflow": ["fantasy"],
+        "negativeOffset": ["epic"],
+        "negativeOffsetLength": ["epic"],
+        "negativeOffsetOverflow": ["adventure", "magic", "epic"],
       ],
     ]
     TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
@@ -4768,19 +4761,19 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     let collRef = collectionRef(withDocuments: bookDocs)
     let db = collRef.firestore
 
-    let snapshot = try await db.pipeline()
+    let pipeline = db.pipeline()
       .collection(collRef.path)
       .where(Field("title").equal("The Lord of the Rings"))
       .select([
         Field("tags").arraySlice(offset: 1, length: -1).as("negativeLength"),
       ])
-      .execute()
 
-    let expectedResults: [[String: Sendable]] = [
-      [
-        "negativeLength": ["magic"],
-      ],
-    ]
-    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
+    do {
+      _ = try await pipeline.execute()
+      XCTFail("Should have thrown an error for no default value matched")
+    } catch {
+      let nsError = error as NSError
+      XCTAssertEqual(nsError.domain, FirestoreErrorDomain, "length must be non-negative")
+    }
   }
 }
