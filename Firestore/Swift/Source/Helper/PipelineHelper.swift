@@ -55,7 +55,7 @@ enum Helper {
       if let errorMessage = value.expr.errorMessage {
         errors.append(errorMessage)
       }
-      if exprMap.keys.contains(alias) {
+      if exprMap[alias] != nil {
         errors.append("Duplicate alias '\(alias)' found in selectables.")
       }
       exprMap[alias] = value.expr
@@ -82,7 +82,7 @@ enum Helper {
       if let errorMessage = aliasedAggregate.aggregate.errorMessage {
         errors.append(errorMessage)
       }
-      if accumulatorMap.keys.contains(alias) {
+      if accumulatorMap[alias] != nil {
         errors.append("Duplicate alias '\(alias)' found in accumulators.")
       }
       accumulatorMap[alias] = aliasedAggregate.aggregate
