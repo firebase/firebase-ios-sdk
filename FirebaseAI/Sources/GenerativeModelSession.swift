@@ -74,13 +74,27 @@
     public nonisolated(nonsending)
     func respond(to prompt: PartsRepresentable..., options: GenerationConfig? = nil) async throws
       -> GenerativeModelSession.Response<String> {
-      return try await respond(
-        to: prompt,
-        schema: nil as FirebaseAI.GenerationSchema?,
-        generating: String.self,
-        includeSchemaInPrompt: false,
-        options: options
-      )
+      let model = FirebaseAI.SystemLanguageModel()
+
+      // Hardcoded Prefer On-Device for Testing
+      if model.isAvailable {
+        let session = FirebaseAI.LanguageModelSession(model: model)
+        return try await session.respond(
+          to: prompt,
+          schema: nil as FirebaseAI.GenerationSchema?,
+          generating: String.self,
+          includeSchemaInPrompt: false,
+          options: options
+        )
+      } else {
+        return try await respond(
+          to: prompt,
+          schema: nil as FirebaseAI.GenerationSchema?,
+          generating: String.self,
+          includeSchemaInPrompt: false,
+          options: options
+        )
+      }
     }
 
     #if canImport(FoundationModels)
