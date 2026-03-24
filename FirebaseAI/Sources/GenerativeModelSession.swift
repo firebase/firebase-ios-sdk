@@ -440,11 +440,6 @@
         switch functionDeclaration.kind {
         case .manual:
           continue
-        case let .automatic(tool):
-          try functionResponses.append(await FunctionDeclaration.call(
-            tool: tool,
-            functionCall: functionCall
-          ))
         case let .foundationModels(tool):
           #if canImport(FoundationModels) && HAS_FOUNDATION_MODELS
             if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {

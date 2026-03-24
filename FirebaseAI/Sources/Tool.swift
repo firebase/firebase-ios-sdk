@@ -22,13 +22,8 @@ import Foundation
 /// This `FunctionDeclaration` is a representation of a block of code that can be used as a ``Tool``
 /// by the model and executed by the client.
 public struct FunctionDeclaration: Sendable {
-  #if compiler(<6.2)
-    typealias FunctionTool = Sendable
-  #endif // compiler(>=6.2)
-
   enum Kind {
     case manual
-    case automatic(any FunctionTool)
     case foundationModels(any Sendable)
   }
 
@@ -71,15 +66,6 @@ public struct FunctionDeclaration: Sendable {
   }
 
   #if compiler(>=6.2)
-    init(functionTool: any FunctionTool) {
-      name = functionTool.name
-      description = functionTool.description
-      parameters = nil
-      parametersJSONSchema = functionTool.parametersSchema
-      responseJSONSchema = try? functionTool.responseSchema?.toGeminiJSONSchema()
-      kind = .automatic(functionTool)
-    }
-
     #if canImport(FoundationModels)
       @available(iOS 26.0, macOS 26.0, *)
       @available(tvOS, unavailable)
@@ -229,10 +215,6 @@ public extension ToolRepresentable where Self == FirebaseAILogic.Tool {
   }
 
   #if compiler(>=6.2)
-    static func autoFunctionDeclaration(_ tool: any FunctionTool) -> Tool {
-      return self.init(functionDeclarations: [FunctionDeclaration(functionTool: tool)])
-    }
-
     #if canImport(FoundationModels)
       @available(iOS 26.0, macOS 26.0, *)
       @available(tvOS, unavailable)
@@ -284,15 +266,6 @@ public extension ToolRepresentable where Self == FirebaseAILogic.Tool {
 
 #if compiler(>=6.2)
   extension FunctionDeclaration {
-    static func call<T: FunctionTool>(tool: T, functionCall: FunctionCallPart) async throws
-      -> FunctionResponsePart {
-      let arguments = try T.Arguments(functionCall.args.firebaseGeneratedContent)
-      let output = try await tool.call(arguments: arguments)
-      let outputJSONValue = try JSONValue(output.firebaseGeneratedContent)
-
-      return toFunctionResponse(output: outputJSONValue, functionCall: functionCall)
-    }
-
     static func toFunctionResponse(output: JSONValue,
                                    functionCall: FunctionCallPart) -> FunctionResponsePart {
       let outputJSONObject: JSONObject
