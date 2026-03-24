@@ -14,6 +14,7 @@
 
 import FirebaseAI
 import FirebaseAITestApp
+import XCTest
 import Testing
 
 @Suite(.serialized)
@@ -39,8 +40,10 @@ struct MapsGroundingIntegrationTests {
 
     for mapsChunk in mapChunks {
       #expect(mapsChunk.url != nil)
-      #expect(!mapsChunk.title.isEmpty)
-      #expect(!mapsChunk.placeID.isEmpty)
+      let title = try XCTUnwrap(mapsChunk.title)
+      #expect(!title.isEmpty)
+      let placeID = try XCTUnwrap(mapsChunk.placeID)
+      #expect(!placeID.isEmpty)
     }
   }
 
@@ -71,8 +74,44 @@ struct MapsGroundingIntegrationTests {
 
     for mapsChunk in mapChunks {
       #expect(mapsChunk.url != nil)
-      #expect(!mapsChunk.title.isEmpty)
-      #expect(!mapsChunk.placeID.isEmpty)
+      let title = try XCTUnwrap(mapsChunk.title)
+      #expect(!title.isEmpty)
+      let placeID = try XCTUnwrap(mapsChunk.placeID)
+      #expect(!placeID.isEmpty)
+    }
+  }
+
+  @Test(
+    "generateContent with Google Maps and languageCode returns grounding metadata",
+    arguments: InstanceConfig.allConfigs
+  )
+  func generateContent_withGoogleMapsAndLanguageConfig_succeeds(_ config: InstanceConfig) async throws {
+    let toolConfig = ToolConfig(
+      retrievalConfig: RetrievalConfig(
+        languageCode: "es"
+      )
+    )
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: ModelNames.gemini2_5_Flash,
+      tools: [.googleMaps()],
+      toolConfig: toolConfig
+    )
+    let prompt = "Where is a good place to grab a coffee near Alameda, CA?"
+
+    let response = try await model.generateContent(prompt)
+
+    let candidate = try #require(response.candidates.first)
+    let groundingMetadata = try #require(candidate.groundingMetadata)
+
+    let mapChunks = groundingMetadata.groundingChunks.compactMap { $0.maps }
+    #expect(!mapChunks.isEmpty)
+
+    for mapsChunk in mapChunks {
+      #expect(mapsChunk.url != nil)
+      let title = try XCTUnwrap(mapsChunk.title)
+      #expect(!title.isEmpty)
+      let placeID = try XCTUnwrap(mapsChunk.placeID)
+      #expect(!placeID.isEmpty)
     }
   }
 }

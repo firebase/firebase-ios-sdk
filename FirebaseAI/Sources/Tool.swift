@@ -224,13 +224,16 @@ public struct ToolConfig: Sendable {
   }
 }
 
-/// The retrieval config for grounding with Google Maps.
+/// Retrieval configuration.
 public struct RetrievalConfig: Sendable, Encodable {
   /// The location for the search.
-  public let latLng: LatLng
+  public let latLng: LatLng?
+  /// The language code of the user.
+  public let languageCode: String?
 
-  public init(latLng: LatLng) {
+  public init(latLng: LatLng? = nil, languageCode: String? = nil) {
     self.latLng = latLng
+    self.languageCode = languageCode
   }
 }
 
