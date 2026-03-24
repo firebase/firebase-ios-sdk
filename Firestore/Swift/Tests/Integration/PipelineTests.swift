@@ -1778,6 +1778,77 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
 
+  func testIfNullWorks() async throws {
+    let collRef = collectionRef(withDocuments: [
+      "doc1": ["title": "foo", "name": NSNull()],
+    ])
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .limit(1)
+      .select([
+        Field("title").ifNull(else: "default title").as("instanceMethod"),
+        Field("name").ifNull(else: Field("title")).as("nameOrTitle"),
+        Field("name").ifNull(else: "default name").as("fieldIsNull"),
+        Field("absent").ifNull(else: "default name").as("fieldIsAbsent"),
+      ])
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable?]] = [
+      [
+        "instanceMethod": "foo",
+        "nameOrTitle": "foo",
+        "fieldIsNull": "default name",
+        "fieldIsAbsent": "default name",
+      ]
+    ]
+
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
+  }
+
+  func testCoalesceWorks() async throws {
+    let collRef = collectionRef(withDocuments: [
+      "doc1": [
+        "numberValue": 1,
+        "stringValue": "hello",
+        "booleanValue": false,
+        "nullValue": NSNull(),
+        "nullValue2": NSNull(),
+      ]
+    ])
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .limit(1)
+      .select([
+        Field("numberValue").coalesce(Field("stringValue")).as("instanceMethod"),
+        Field("nullValue").coalesce(Field("stringValue")).as("firstIsNull"),
+        Field("nullValue").coalesce(Field("nullValue2"), Field("booleanValue")).as("lastIsNotNull"),
+        Field("nullValue").coalesce(Field("nullValue2")).as("allFieldsNull"),
+        Field("nullValue").coalesce(Field("nullValue2"), Constant("default")).as("allFieldsNullWithDefault"),
+        Field("absentField").coalesce(Field("numberValue"), Constant("default")).as("withAbsentField"),
+      ])
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable?]] = [
+      [
+        "instanceMethod": 1,
+        "firstIsNull": "hello",
+        "lastIsNotNull": false,
+        "allFieldsNull": NSNull(),
+        "allFieldsNullWithDefault": "default",
+        "withAbsentField": 1,
+      ]
+    ]
+
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
+  }
+
+
   func testInWorks() async throws {
     let collRef = collectionRef(withDocuments: bookDocs)
     let db = collRef.firestore
