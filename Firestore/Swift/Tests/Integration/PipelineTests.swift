@@ -2901,10 +2901,19 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     let snapshot = try await pipeline.execute()
 
-    let expectedResults: [[String: Sendable?]] = [
-      ["title": "The Hitchhiker's Guide to the Galaxy", "awards": ["hugo": true]],
-      ["title": "Dune", "awards": ["hugo": true]],
-    ]
+    let expectedResults: [[String: Sendable?]]
+    switch FSTIntegrationTestCase.targetBackend() {
+    case .nightly:
+      expectedResults = [
+        ["title": "The Hitchhiker's Guide to the Galaxy", "awards": ["hugo": true]],
+        ["title": "Dune", "awards": ["hugo": true]],
+      ]
+    default:
+      expectedResults = [
+        ["title": "The Hitchhiker's Guide to the Galaxy", "awards.hugo": 1],
+        ["title": "Dune", "awards.hugo": 1],
+      ]
+    }
 
     TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
