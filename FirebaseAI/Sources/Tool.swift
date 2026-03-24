@@ -237,9 +237,9 @@ public struct RetrievalConfig: Sendable, Encodable {
 /// An object that represents a latitude/longitude pair.
 public struct LatLng: Sendable, Encodable {
   /// The latitude in degrees. It must be in the range [-90.0, +90.0].
-  public let latitude: Double
+  let latitude: Double
   /// The longitude in degrees. It must be in the range [-180.0, +180.0].
-  public let longitude: Double
+  let longitude: Double
 
   public init(latitude: Double, longitude: Double) {
     precondition(
