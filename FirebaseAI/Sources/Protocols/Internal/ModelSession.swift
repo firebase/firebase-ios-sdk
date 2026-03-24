@@ -12,10 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-protocol ModelSession {
-  nonisolated(nonsending)
-  func respond<Content>(to prompt: [PartsRepresentable], schema: FirebaseAI.GenerationSchema?,
-                        generating type: Content.Type, includeSchemaInPrompt: Bool,
-                        options: GenerationConfig?) async throws
-    -> GenerativeModelSession.Response<Content>
-}
+// TODO: Remove the `#if compiler(>=6.2)` when Xcode 26 is the minimum supported version.
+#if compiler(>=6.2)
+  protocol ModelSession {
+    nonisolated(nonsending)
+    func respond<Content>(to prompt: [PartsRepresentable], schema: FirebaseAI.GenerationSchema?,
+                          generating type: Content.Type, includeSchemaInPrompt: Bool,
+                          options: GenerationConfig?) async throws
+      -> GenerativeModelSession.Response<Content>
+  }
+#endif // compiler(>=6.2)

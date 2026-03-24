@@ -12,44 +12,48 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if canImport(FoundationModels)
-  import FoundationModels
-#endif // canImport(FoundationModels)
+// TODO: Remove the `#if compiler(>=6.2)` when Xcode 26 is the minimum supported version.
+#if compiler(>=6.2)
+  #if canImport(FoundationModels)
+    import FoundationModels
+  #endif // canImport(FoundationModels)
 
-extension FirebaseAI {
-  final class LanguageModelSession: Sendable {
-    private let _session: (any Sendable)?
+  extension FirebaseAI {
+    final class LanguageModelSession: Sendable {
+      private let _session: (any Sendable)?
 
-    #if canImport(FoundationModels)
-      @available(iOS 26.0, macOS 26.0, *)
-      @available(tvOS, unavailable)
-      @available(watchOS, unavailable)
-      var session: FoundationModels.LanguageModelSession? {
-        return _session as? FoundationModels.LanguageModelSession
-      }
-    #endif // canImport(FoundationModels)
-
-    var isResponding: Bool {
       #if canImport(FoundationModels)
-        guard #available(iOS 26.0, macOS 26.0, visionOS 26.0, *), let session else { return false }
-
-        return session.isResponding
-      #else
-        return false
-      #endif // canImport(FoundationModels)
-    }
-
-    init(model: FirebaseAI.SystemLanguageModel) {
-      #if canImport(FoundationModels)
-        if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
-          guard let model = model.model else { fatalError() }
-          _session = FoundationModels.LanguageModelSession(model: model)
-        } else {
-          _session = nil
+        @available(iOS 26.0, macOS 26.0, *)
+        @available(tvOS, unavailable)
+        @available(watchOS, unavailable)
+        var session: FoundationModels.LanguageModelSession? {
+          return _session as? FoundationModels.LanguageModelSession
         }
-      #else
-        _session = nil
-      #endif
+      #endif // canImport(FoundationModels)
+
+      var isResponding: Bool {
+        #if canImport(FoundationModels)
+          guard #available(iOS 26.0, macOS 26.0, visionOS 26.0, *),
+                let session else { return false }
+
+          return session.isResponding
+        #else
+          return false
+        #endif // canImport(FoundationModels)
+      }
+
+      init(model: FirebaseAI.SystemLanguageModel) {
+        #if canImport(FoundationModels)
+          if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
+            guard let model = model.model else { fatalError() }
+            _session = FoundationModels.LanguageModelSession(model: model)
+          } else {
+            _session = nil
+          }
+        #else
+          _session = nil
+        #endif
+      }
     }
   }
-}
+#endif // compiler(>=6.2)
