@@ -39,9 +39,10 @@ public struct GoogleMapsGroundingChunk: Sendable, Equatable, Hashable, Decodable
 
   public init(from decoder: any Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
-    url = try container.decodeIfPresent(String.self, forKey: .url).flatMap { URL(string: $0) }
+    let uriString = try container.decode(String.self, forKey: .url)
+    url = URL(string: uriString)
 
-    title = try container.decodeIfPresent(String.self, forKey: .title) ?? ""
-    placeID = try container.decodeIfPresent(String.self, forKey: .placeID) ?? ""
+    title = try container.decode(String.self, forKey: .title)
+    placeID = try container.decode(String.self, forKey: .placeID)
   }
 }

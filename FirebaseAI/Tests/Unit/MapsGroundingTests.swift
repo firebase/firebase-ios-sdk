@@ -123,41 +123,4 @@ final class MapsGroundingTests: XCTestCase {
     XCTAssertEqual(mapsChunk.title, "Kickstand Cafe")
     XCTAssertEqual(mapsChunk.placeID, "ChIJyZ2y_wJz44kR5w8oQ8oQ8oQ")
   }
-
-  func testResponseDecodingWithMissingFields() throws {
-    let responseText = """
-    {
-      "candidates": [
-        {
-          "content": {
-            "parts": [
-              {
-                "text": "Sure, there are a few great coffee shops in Arlington, MA. One that stands out is located at [placeId: ChIJyZ2y_wJz44kR5w8oQ8oQ8oQ]."
-              }
-            ]
-          },
-          "groundingMetadata": {
-            "groundingChunks": [
-              {
-                "maps": {
-                }
-              }
-            ]
-          }
-        }
-      ]
-    }
-    """
-    let responseData = try XCTUnwrap(responseText.data(using: .utf8))
-    let response = try JSONDecoder().decode(GenerateContentResponse.self, from: responseData)
-
-    let candidate = try XCTUnwrap(response.candidates.first)
-    let groundingMetadata = try XCTUnwrap(candidate.groundingMetadata)
-    let chunk = try XCTUnwrap(groundingMetadata.groundingChunks.first)
-    let mapsChunk = try XCTUnwrap(chunk.maps)
-
-    XCTAssertNil(mapsChunk.url)
-    XCTAssertEqual(mapsChunk.title, "")
-    XCTAssertEqual(mapsChunk.placeID, "")
-  }
 }
