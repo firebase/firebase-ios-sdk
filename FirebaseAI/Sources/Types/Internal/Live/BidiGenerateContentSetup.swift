@@ -20,7 +20,6 @@ import Foundation
 ///
 /// Clients should wait for a `BidiGenerateContentSetupComplete` message before
 /// sending any additional messages.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
 @available(watchOS, unavailable)
 struct BidiGenerateContentSetup: Encodable {
   /// The fully qualified name of the publisher model.
@@ -73,6 +72,5 @@ struct BidiGenerateContentSetup: Encodable {
   }
 }
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
 @available(watchOS, unavailable)
 struct BidiAudioTranscriptionConfig: Encodable {}

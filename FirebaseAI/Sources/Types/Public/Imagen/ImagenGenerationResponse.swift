@@ -20,7 +20,6 @@ import Foundation
 ///
 /// This type is returned from:
 ///   - ``ImagenModel/generateImages(prompt:)`` where `T` is ``ImagenInlineImage``
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 // TODO(#14451): Re-add "- ``ImagenModel/generateImages(prompt:gcsURI:)`` where `T` is
 //                         ``ImagenGCSImage``" in the DocC above.
 public struct ImagenGenerationResponse<T>: Sendable where T: Sendable {
@@ -43,7 +42,6 @@ public struct ImagenGenerationResponse<T>: Sendable where T: Sendable {
 
 // MARK: - Codable Conformances
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ImagenGenerationResponse: Decodable where T: Decodable {
   enum CodingKeys: CodingKey {
     case predictions

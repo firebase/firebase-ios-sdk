@@ -18,7 +18,6 @@ import Foundation
 /// content based on various input types.
 ///
 /// **Public Preview**: This API is a public preview and may be subject to change.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public final class TemplateGenerativeModel: Sendable {
   let generativeAIService: GenerativeAIService
   let apiConfig: APIConfig
@@ -89,6 +88,7 @@ public final class TemplateGenerativeModel: Sendable {
   /// request timeout.
   /// - Returns: An `AsyncThrowingStream` that yields `GenerateContentResponse` objects.
   /// - Throws: A ``GenerateContentError`` if the request failed.
+  @available(macOS 12.0, watchOS 8.0, *)
   public func generateContentStream(templateID: String,
                                     inputs: [String: Any],
                                     options: RequestOptions = RequestOptions()) throws
@@ -106,6 +106,7 @@ public final class TemplateGenerativeModel: Sendable {
     return generativeAIService.loadRequestStream(request: request)
   }
 
+  @available(macOS 12.0, watchOS 8.0, *)
   func generateContentStreamWithHistory(history: [ModelContent], template: String,
                                         inputs: [String: TemplateInput],
                                         options: RequestOptions = RequestOptions()) throws

@@ -50,7 +50,6 @@
   /// print("Bio: \(response.content.bio)")
   /// print("Favorite Topics: \(response.content.favoriteTopics.joined(separator: ", "))")
   /// ```
-  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
   public final class GenerativeModelSession: Sendable {
     let session: Chat
 
@@ -217,6 +216,7 @@
     /// - Parameter options: An optional `GenerationConfig` to override the model's default
     /// generation configuration.
     /// - Returns: A `ResponseStream` that yields snapshots of the generated content.
+    @available(macOS 12.0, watchOS 8.0, *)
     public func streamResponse(to prompt: PartsRepresentable..., options: GenerationConfig? = nil)
       -> sending GenerativeModelSession.ResponseStream<String, String> {
       return streamResponse(
@@ -271,6 +271,7 @@
       )
     }
 
+    @available(macOS 12.0, watchOS 8.0, *)
     private func streamResponse<Content, PartialContent>(to prompt: [PartsRepresentable],
                                                          schema: FirebaseAI.GenerationSchema?,
                                                          generating type: Content.Type,
@@ -438,7 +439,6 @@
 
   // MARK: - Response Types
 
-  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
   public extension GenerativeModelSession {
     /// The response from a `respond` call.
     struct Response<Content> {
@@ -451,10 +451,11 @@
     }
   }
 
-  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
   public extension GenerativeModelSession {
     /// An asynchronous sequence of snapshots of the model's response.
     struct ResponseStream<Content, PartialContent>: AsyncSequence {
+      // TODO(#15962): Add unit tests for `ResponseStream`.
+
       public typealias Element = Snapshot
 
       /// A snapshot of the model's response at a point in time.
@@ -496,18 +497,52 @@
         @available(iOS 18.0, macOS 15.0, macCatalyst 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
         public mutating func next(isolation actor: isolated (any Actor)?) async throws
           -> Snapshot? {
-          let rawResult = try await rawIterator.next(isolation: actor)
-          return try process(rawResult)
+          var lastDecodingError: Error? = nil
+
+          while let rawResult = try await rawIterator.next(isolation: actor) {
+            do {
+              // If it parses successfully, return the snapshot and discard any errors from previous
+              // loop iterations.
+              return try process(rawResult)
+            } catch {
+              // Intermediate failure (e.g., incomplete JSON that could not be parsed).
+              // Hold onto the error and let the loop fetch the next chunk.
+              lastDecodingError = error
+            }
+          }
+
+          // If the last chunk processed resulted in an error, throw it.
+          if let lastDecodingError {
+            throw lastDecodingError
+          }
+
+          return nil
         }
 
         public mutating func next() async throws -> Snapshot? {
-          let rawResult = try await rawIterator.next()
-          return try process(rawResult)
+          var lastDecodingError: Error? = nil
+
+          while let rawResult = try await rawIterator.next() {
+            do {
+              // If it parses successfully, return the snapshot and discard any errors from previous
+              // loop iterations.
+              return try process(rawResult)
+            } catch {
+              // Intermediate failure (e.g., incomplete JSON that could not be parsed).
+              // Hold onto the error and let the loop fetch the next chunk.
+              lastDecodingError = error
+            }
+          }
+
+          // If the last chunk processed resulted in an error, throw it.
+          if let lastDecodingError {
+            throw lastDecodingError
+          }
+
+          return nil
         }
 
-        private func process(_ rawResult: RawResult?) throws -> Snapshot? {
-          guard let rawResult else { return nil }
-
+        private func process(_ rawResult: RawResult) throws -> Snapshot {
           let partialContent: PartialContent = try GenerativeModelSession
             .resolveContent(from: rawResult.rawContent)
 
@@ -541,7 +576,6 @@
     }
   }
 
-  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
   extension GenerativeModelSession.ResponseStream {
     struct RawResult: Sendable {
       let rawContent: FirebaseAI.GeneratedContent
@@ -639,7 +673,6 @@
     }
   }
 
-  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
   extension GenerativeModelSession {
     enum ErrorCodes: Int {
       // Generation Errors
