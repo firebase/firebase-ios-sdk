@@ -72,6 +72,10 @@ public final class ImagenModel {
   ///   - prompt: A text prompt describing the image(s) to generate.
   public func generateImages(prompt: String) async throws
     -> ImagenGenerationResponse<ImagenInlineImage> {
+    if modelResourceName.contains(GenerativeModel.geminiModelNamePrefix) {
+      return try await geminiGenerateImages(prompt: prompt)
+    }
+
     return try await generateImages(
       prompt: prompt,
       parameters: ImagenModel.imageGenerationParameters(
@@ -127,6 +131,38 @@ public final class ImagenModel {
     return try await generativeAIService.loadRequest(request: request)
   }
 
+  func geminiGenerateImages(prompt: String) async throws
+    -> ImagenGenerationResponse<ImagenInlineImage> {
+    let generationConfig = ImagenModel.geminiImageGenerationParameters(
+      generationConfig: generationConfig
+    )
+    let request = GenerateContentRequest(
+      model: modelResourceName,
+      contents: [ModelContent(parts: prompt)],
+      generationConfig: generationConfig,
+      safetySettings: nil, // TODO: Map `ImagenSafetySettings` to `[SafetySetting]`
+      tools: nil,
+      toolConfig: nil,
+      systemInstruction: nil,
+      apiConfig: apiConfig,
+      apiMethod: .generateContent,
+      options: requestOptions
+    )
+
+    let response = try await generativeAIService.loadRequest(request: request)
+
+    let inlineImages = response.inlineDataParts.compactMap { part in
+      guard part.mimeType.hasPrefix("image/") else { return nil as ImagenInlineImage? }
+
+      return ImagenInlineImage(mimeType: part.mimeType, data: part.data)
+    }
+    // TODO: Throw if `inlineImages.count == 0`.
+
+    // TODO: Add filtered reason based on `response.candidates[].finishReason` if image count is
+    //       less than the number requested.
+    return ImagenGenerationResponse<ImagenInlineImage>(images: inlineImages, filteredReason: nil)
+  }
+
   static func imageGenerationParameters(storageURI: String?,
                                         generationConfig: ImagenGenerationConfig?,
                                         safetySettings: ImagenSafetySettings?)
@@ -148,6 +184,28 @@ public final class ImagenModel {
       addWatermark: generationConfig?.addWatermark,
       includeResponsibleAIFilterReason: true,
       includeSafetyAttributes: true
+    )
+  }
+
+  static func geminiImageGenerationParameters(generationConfig: ImagenGenerationConfig?)
+    -> GenerationConfig {
+    assert(
+      generationConfig?.negativePrompt == nil,
+      "Negative prompts are not supported with Nano Banana."
+    )
+    assert(
+      generationConfig?.imageFormat == nil,
+      "Specifying an image format is not supported with Nano Banana; always 'image/png'."
+    )
+    assert(generationConfig?.addWatermark != false, "Watermarks are always added with Nano Banana.")
+
+    return GenerationConfig(
+      candidateCount: generationConfig?.numberOfImages,
+      responseModalities: [.image],
+      imageConfig: ImageConfig(
+        aspectRatio: generationConfig?.aspectRatio,
+        imageSize: generationConfig?.imageSize
+      )
     )
   }
 }

@@ -40,19 +40,19 @@ struct ImagenIntegrationTests {
 
   init() async throws {
     userID1 = try await TestHelpers.getUserID()
-    vertex = FirebaseAI.firebaseAI(backend: .vertexAI())
+    vertex = FirebaseAI.firebaseAI(backend: .vertexAI(location: "global"))
     storage = Storage.storage()
   }
 
   @Test func generateImage_inlineImage() async throws {
     let generationConfig = ImagenGenerationConfig(
-      negativePrompt: "snow, frost",
+      // negativePrompt: "snow, frost",
       aspectRatio: .portrait3x4,
-      imageFormat: .png(),
-      addWatermark: false
+      // imageFormat: .png(),
+      // addWatermark: false
     )
     let model = vertex.imagenModel(
-      modelName: "imagen-3.0-generate-002",
+      modelName: "gemini-3.1-flash-image-preview",
       generationConfig: generationConfig,
       safetySettings: ImagenSafetySettings(
         safetyFilterLevel: .blockLowAndAbove,
@@ -71,7 +71,7 @@ struct ImagenIntegrationTests {
     #if canImport(UIKit)
       let uiImage = try #require(UIImage(data: image.data))
       #expect(uiImage.size.width == 896.0)
-      #expect(uiImage.size.height == 1280.0)
+      #expect(uiImage.size.height == 1200.0)
     #endif // canImport(UIKit)
   }
 
@@ -79,11 +79,11 @@ struct ImagenIntegrationTests {
     let generationConfig = ImagenGenerationConfig(
       aspectRatio: .square1x1,
       imageSize: .size2K, // Test with size2K
-      imageFormat: .png(),
-      addWatermark: false
+      // imageFormat: .png(),
+      // addWatermark: false
     )
     let model = vertex.imagenModel(
-      modelName: "imagen-4.0-generate-001",
+      modelName: "gemini-3.1-flash-image-preview",
       generationConfig: generationConfig,
       safetySettings: ImagenSafetySettings(
         safetyFilterLevel: .blockLowAndAbove,
