@@ -18,14 +18,12 @@ import Foundation
 ///
 /// This may be decoded from, or encoded to, a
 /// [`google.protobuf.Struct`](https://protobuf.dev/reference/protobuf/google.protobuf/#struct).
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public typealias JSONObject = [String: JSONValue]
 
 /// Represents a value in one of JSON's data types.
 ///
 /// This may be decoded from, or encoded to, a
 /// [`google.protobuf.Value`](https://protobuf.dev/reference/protobuf/google.protobuf/#value).
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public enum JSONValue: Sendable {
   /// A `null` value.
   case null
@@ -46,7 +44,6 @@ public enum JSONValue: Sendable {
   case array([JSONValue])
 }
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension JSONValue: Decodable {
   public init(from decoder: Decoder) throws {
     let container = try decoder.singleValueContainer()
@@ -71,7 +68,6 @@ extension JSONValue: Decodable {
   }
 }
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension JSONValue: Encodable {
   public func encode(to encoder: Encoder) throws {
     var container = encoder.singleValueContainer()
@@ -97,5 +93,4 @@ extension JSONValue: Encodable {
   }
 }
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension JSONValue: Equatable {}

@@ -37,7 +37,6 @@ enum ImageConversionError: Error {
 
 #if canImport(UIKit)
   /// Enables images to be representable as ``PartsRepresentable``.
-  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
   extension UIImage: PartsRepresentable {
     public var partsValue: [any Part] {
       guard let data = jpegData(compressionQuality: imageCompressionQuality) else {
@@ -49,7 +48,6 @@ enum ImageConversionError: Error {
 
 #elseif canImport(AppKit)
   /// Enables images to be representable as ``PartsRepresentable``.
-  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
   extension NSImage: PartsRepresentable {
     public var partsValue: [any Part] {
       guard let cgImage = cgImage(forProposedRect: nil, context: nil, hints: nil) else {
@@ -67,12 +65,16 @@ enum ImageConversionError: Error {
 
 #if !os(watchOS) // This code does not build on watchOS.
   /// Enables `CGImages` to be representable as model content.
-  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
   extension CGImage: PartsRepresentable {
     public var partsValue: [any Part] {
       let output = NSMutableData()
+      let jpegIdentifier = if #available(macOS 11.0, *) {
+        UTType.jpeg.identifier
+      } else {
+        "public.jpeg"
+      }
       guard let imageDestination = CGImageDestinationCreateWithData(
-        output, UTType.jpeg.identifier as CFString, 1, nil
+        output, jpegIdentifier as CFString, 1, nil
       ) else {
         return [ErrorPart(ImageConversionError.couldNotAllocateDestination)]
       }
@@ -90,7 +92,6 @@ enum ImageConversionError: Error {
 
 #if canImport(CoreImage)
   /// Enables `CIImages` to be representable as model content.
-  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
   extension CIImage: PartsRepresentable {
     public var partsValue: [any Part] {
       let context = CIContext()
