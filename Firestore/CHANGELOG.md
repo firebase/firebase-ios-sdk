@@ -1,3 +1,6 @@
+# Unreleased
+- [feature] Added support for Pipeline expressions `nor` and `switchOn`. (#15943)
+
 # 12.11.0
 - [feature] Added support for `first`, `last`, `arrayAgg`, and `arrayAggDistinct` Pipeline expressions. (#15941)
 - [feature] Added support for `trunc` and `rand` Pipeline expressions. (#15938)
