@@ -1,3 +1,8 @@
+# Unreleased
+- [fixed] Remote Config Realtime updates now trigger when a parameter's experiment 
+  or variant assignment changes, ensuring more accurate A/B test analytics and 
+  consistent user experiences.
+
 # 12.10.0
 - [issue] A workaround to restore service if Remote Config data remains empty
   after a device restore is to publish a new version of your Remote Config template
