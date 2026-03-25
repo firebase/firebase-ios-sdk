@@ -1640,7 +1640,7 @@ func firestoreTargets() -> [Target] {
         condition: .when(platforms: [.iOS, .macCatalyst, .tvOS, .macOS])
       )],
       path: "FirebaseFirestoreInternal",
-      publicHeadersPath: "."
+      publicHeadersPath: "FirebaseFirestore"
     ),
     firestoreInternalTarget,
   ]
