@@ -122,7 +122,7 @@ public final class FirebaseAI: Sendable {
     ///   - instructions: System instructions that direct the model's behavior.
     public func generativeModelSession(model: String, tools: [any ToolRepresentable]? = nil,
                                        instructions: String? = nil) -> GenerativeModelSession {
-      let tools = tools?.compactMap { $0.toolRepresentation }
+      let tools = tools?.map { $0.toolRepresentation }
       let model = generativeModel(
         modelName: model,
         tools: tools,

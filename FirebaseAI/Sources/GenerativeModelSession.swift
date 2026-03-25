@@ -445,8 +445,10 @@
           #if canImport(FoundationModels) && HAS_FOUNDATION_MODELS
             if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
               guard let tool = tool as? (any FoundationModels.Tool) else {
-                assertionFailure("The value '\(tool)' is not a \(FoundationModels.Tool.self).")
-                throw TypeConversionError(from: (any Sendable).self, to: FoundationModels.Tool.self)
+                assertionFailure("The value '\(tool)' is not a Foundation Models `Tool`.")
+                throw TypeConversionError(
+                  from: (any Sendable).self, to: (any FoundationModels.Tool).self
+                )
               }
               try functionResponses.append(await FunctionDeclaration.call(
                 tool: tool,
