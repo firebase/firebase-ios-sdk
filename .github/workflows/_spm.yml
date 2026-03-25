@@ -105,10 +105,6 @@ jobs:
             xcode: Xcode_26.2
           - os: macos-26
             xcode: Xcode_16.4
-        include:
-          - os: macos-14
-            xcode: Xcode_16.2
-            platform: iOS
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
@@ -135,7 +131,7 @@ jobs:
     - name: Initialize xcodebuild
       run: scripts/setup_spm_tests.sh
     - uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
-      if: contains(inputs.platforms, matrix.platform) || matrix.os == 'macos-14'
+      if: contains(inputs.platforms, matrix.platform)
       env:
         FIREBASE_IS_NIGHTLY_TESTING: ${{ inputs.is_nightly && '1' || '' }}
         TARGET: ${{ inputs.target }}
