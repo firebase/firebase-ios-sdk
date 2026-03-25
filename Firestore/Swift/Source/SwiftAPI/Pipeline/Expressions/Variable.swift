@@ -12,10 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/// A `Variable` is an `Expression` that represents a variable in a Firestore pipeline.
+/// A `Variable` is an `Expression` that retrieves the value of a variable bound via
+/// `Pipeline.define`.
 ///
 /// Variables are typically defined in a `define` (let) stage and can be referenced in subsequent
 /// stages.
+///
+/// Example:
+/// ```swift
+/// firestore.pipeline().collection("products")
+///     .define([Field("price").multiply(0.9).as("discountedPrice")])
+///     .where(Variable("discountedPrice").lessThan(100))
+///     .select([Field("name"), Variable("discountedPrice")])
+/// ```
 public struct Variable: Expression, BridgeWrapper, SelectableWrapper, @unchecked Sendable {
   let bridge: ExprBridge
 

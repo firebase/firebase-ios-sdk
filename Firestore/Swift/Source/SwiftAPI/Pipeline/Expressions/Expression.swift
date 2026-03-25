@@ -2001,4 +2001,3 @@ public protocol Expression: Sendable {
   /// - Returns: A new `FunctionExpression` representing the type of the expression as a string.
   func type() -> FunctionExpression
 }
-
