@@ -19,7 +19,6 @@ import Foundation
 /// images based on various input types.
 ///
 /// **Public Preview**: This API is a public preview and may be subject to change.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public final class TemplateImagenModel: Sendable {
   let generativeAIService: GenerativeAIService
   let apiConfig: APIConfig

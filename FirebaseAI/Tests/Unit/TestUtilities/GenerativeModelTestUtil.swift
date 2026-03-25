@@ -20,7 +20,7 @@ import XCTest
 
 @testable import FirebaseAILogic
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+@available(macOS 12.0, watchOS 8.0, *)
 enum GenerativeModelTestUtil {
   /// Returns an HTTP request handler
   static func httpRequestHandler(forResource name: String,

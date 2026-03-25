@@ -17,7 +17,6 @@
 /// See the
 /// [`personGeneration`](https://cloud.google.com/vertex-ai/generative-ai/docs/model-reference/imagen-api#parameter_list)
 /// documentation for more details.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct ImagenPersonFilterLevel: ProtoEnum {
   enum Kind: String {
     case blockAll = "dont_allow"

@@ -21,7 +21,6 @@ private import FirebaseCoreInternal
 /// friendly interface for sending and consuming data from it.
 ///
 /// Also surfaces a more fine-grained ``WebSocketClosedError`` for when the web socket is closed.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
 @available(watchOS, unavailable)
 final class AsyncWebSocket: Sendable {
   private let webSocketTask: URLSessionWebSocketTask

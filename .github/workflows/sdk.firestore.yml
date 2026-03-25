@@ -268,6 +268,7 @@ jobs:
     runs-on: macos-15
 
     strategy:
+      fail-fast: false
       matrix:
         target: [iOS, macOS, tvOS]
         scheme: [Firestore, FirestoreEnterprise]
@@ -357,6 +358,19 @@ jobs:
       - name: Setup build
         run: scripts/install_prereqs.sh Firestore ${{ matrix.target }} xcodebuild
 
+      # XCTest dynamically isolates the test runner app from standard terminal environment variables.
+      # To successfully pass TARGET_BACKEND down to FSTIntegrationTestCase, we must physically inject it
+      # into the Xcode Schemes rather than using traditional YAML `env:` variables or `export` commands.
+      - name: Inject Nightly Backend into Schemes
+        run: |
+          python3 -c '
+          import glob, re
+          for f in glob.glob("Firestore/Example/Firestore.xcodeproj/xcshareddata/xcschemes/Firestore_IntegrationTests_*.xcscheme"):
+              with open(f, "r") as file: content = file.read()
+              content = re.sub(r"<EnvironmentVariables>", "<EnvironmentVariables>\n         <EnvironmentVariable\n            key = \"TARGET_BACKEND\"\n            value = \"nightly\"\n            isEnabled = \"YES\">\n         </EnvironmentVariable>", content)
+              with open(f, "w") as file: file.write(content)
+          '
+
       - name: Build
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
         with:
@@ -370,6 +384,7 @@ jobs:
           max_attempts: 3
           retry_wait_seconds: 120
           command: scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodetest
+
 
   xcodetest_emulator:
     needs: check
@@ -409,16 +424,17 @@ jobs:
     - name: Build
       uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
       with:
-        timeout_minutes: 120
+        timeout_minutes: 60
         command: scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodebuild
 
     - name: Test
       uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
       with:
-        timeout_minutes: 120
+        timeout_minutes: 60
         max_attempts: 3
         retry_wait_seconds: 120
         command: scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodetest
+
 
   pod_lib_lint:
     needs: check
@@ -592,12 +608,12 @@ jobs:
     needs:
       - cmake
       - xcodetest_emulator
-      - xcodetest_prod
       - spm-source
       - spm-binary
       - sanitizers-mac
       - sanitizers-ubuntu
       - pod_lib_lint
+      - xcodetest_prod
     steps:
       - name: Check test matrix
         if: contains(needs.*.result, 'failure')
