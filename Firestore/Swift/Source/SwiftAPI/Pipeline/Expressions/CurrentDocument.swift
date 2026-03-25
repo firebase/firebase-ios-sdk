@@ -13,7 +13,7 @@
 // limitations under the License.
 
 /// An expression that represents the current document in the pipeline stage context.
-public class CurrentDocument: FunctionExpression {
+public class CurrentDocument: FunctionExpression, @unchecked Sendable {
   public init() {
     super.init(functionName: "current_document", args: [])
   }

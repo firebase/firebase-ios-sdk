@@ -30,7 +30,7 @@
 ///   ])
 /// ```
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-public class Subcollection: Pipeline {
+public class Subcollection: Pipeline, @unchecked Sendable {
   /// Initializes a Subcollection Pipeline centered on a target path.
   ///
   /// - Parameter path: The location of the subcollection or relative target.
