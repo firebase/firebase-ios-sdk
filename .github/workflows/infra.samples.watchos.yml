@@ -29,13 +29,12 @@ jobs:
   watchos-sample-build-test:
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-    runs-on: macos-15
-    steps:
-    - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
-    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
-    - name: Setup Bundler
-      run: scripts/setup_bundler.sh
-    - name: Prereqs
-      run: scripts/install_prereqs.sh WatchOSSample watchOS
-    - name: Build
-      run: ([ -z "$plist_secret" ] || scripts/build.sh WatchOSSample watchOS)
+    uses: ./.github/workflows/_build.yml
+    with:
+      product: WatchOSSample
+      platform: watchOS
+      method: xcodebuild
+      setup_command: |
+        scripts/setup_bundler.sh
+        scripts/install_prereqs.sh WatchOSSample watchOS
+    # Note: The original job had a condition `([ -z "$plist_secret" ] || scripts/build.sh WatchOSSample watchOS)`. The _build.yml workflow's `check_secrets` job already handles the logic of skipping on forks if secrets are present, so no explicit plist_secret is needed here in the `with` section unless used in the setup_command.
