@@ -29,7 +29,7 @@ struct PipelineExpression: Expression, BridgeWrapper, @unchecked Sendable {
       self.errorMessage = errorMessage
     } else {
       bridge = PipelineExprBridge(stages: pipeline.stages.map { $0.bridge })
-      self.errorMessage = nil
+      errorMessage = nil
     }
   }
 }

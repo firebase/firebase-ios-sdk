@@ -76,8 +76,7 @@ google_firestore_v1_Pipeline_Stage SubcollectionSource::to_proto() const {
 
   result.args_count = 1;
   result.args = nanopb::MakeArray<google_firestore_v1_Value>(1);
-  result.args[0].which_value_type =
-      google_firestore_v1_Value_string_value_tag;
+  result.args[0].which_value_type = google_firestore_v1_Value_string_value_tag;
   result.args[0].string_value = nanopb::MakeBytesArray(path_);
 
   result.options_count = 0;

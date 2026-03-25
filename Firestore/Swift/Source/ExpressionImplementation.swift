@@ -11,7 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 extension Expression {
   /// Returns the internal error message. It is dynamically dispatched
-  /// to specific expression implementations (like FunctionExpression), and returns `nil` for others.
+  /// to specific expression implementations (like FunctionExpression), and returns `nil` for
+  /// others.
   /// This design is to support pipeline conversion to expression.
   var errorMessage: String? {
     return Helper.errorMessage(for: self)

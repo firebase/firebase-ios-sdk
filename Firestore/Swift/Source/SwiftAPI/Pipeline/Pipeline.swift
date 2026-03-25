@@ -135,7 +135,9 @@ public class Pipeline: @unchecked Sendable {
       throw NSError(
         domain: "com.google.firebase.firestore",
         code: 3 /* kErrorInvalidArgument */,
-        userInfo: [NSLocalizedDescriptionKey: "This pipeline was created without a database (e.g., as a subcollection pipeline) and cannot be executed directly. It can only be used as part of another pipeline."]
+        userInfo: [
+          NSLocalizedDescriptionKey: "This pipeline was created without a database (e.g., as a subcollection pipeline) and cannot be executed directly. It can only be used as part of another pipeline.",
+        ]
       )
     }
 
@@ -339,8 +341,10 @@ public class Pipeline: @unchecked Sendable {
   /// Defines one or more variables in the pipeline's scope. `define` is used to bind a value to a
   /// variable for internal reuse within the pipeline body (accessed via `Expression.variable()`).
   ///
-  /// This stage is particularly useful for passing values from an outer pipeline into a subquery, or
-  /// for declaring reusable intermediate calculations that can be referenced multiple times in later
+  /// This stage is particularly useful for passing values from an outer pipeline into a subquery,
+  /// or
+  /// for declaring reusable intermediate calculations that can be referenced multiple times in
+  /// later
   /// parts of the pipeline via `Expression.variable()`.
   ///
   /// Each variable is defined using an `AliasedExpression`, which pairs an expression with a name

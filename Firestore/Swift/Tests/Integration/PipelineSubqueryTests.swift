@@ -162,10 +162,12 @@ class PipelineSubqueryTests: FSTIntegrationTestCase {
   func testArraySubqueryJoinAndEmptyResult() async throws {
     let collRef = collectionRef(withDocuments: bookDocs)
     let db = collRef.firestore
-    
+
     let reviewsCollRef = collectionRef()
-    try await reviewsCollRef.document("r1").setData(["bookTitle": "The Hitchhiker's Guide to the Galaxy", "reviewer": "Alice"])
-    try await reviewsCollRef.document("r2").setData(["bookTitle": "The Hitchhiker's Guide to the Galaxy", "reviewer": "Bob"])
+    try await reviewsCollRef.document("r1")
+      .setData(["bookTitle": "The Hitchhiker's Guide to the Galaxy", "reviewer": "Alice"])
+    try await reviewsCollRef.document("r2")
+      .setData(["bookTitle": "The Hitchhiker's Guide to the Galaxy", "reviewer": "Bob"])
 
     let reviewsSub = db.pipeline()
       .collection(reviewsCollRef.path)
@@ -175,7 +177,8 @@ class PipelineSubqueryTests: FSTIntegrationTestCase {
 
     let snapshot = try await db.pipeline()
       .collection(collRef.path)
-      .where(Field("title").equal("The Hitchhiker's Guide to the Galaxy") || Field("title").equal("Pride and Prejudice"))
+      .where(Field("title").equal("The Hitchhiker's Guide to the Galaxy") || Field("title")
+        .equal("Pride and Prejudice"))
       .define([Field("title").as("book_title")])
       .addFields([reviewsSub.toArrayExpression().as("reviews_data")])
       .select(["title", "reviews_data"])
@@ -185,7 +188,7 @@ class PipelineSubqueryTests: FSTIntegrationTestCase {
     XCTAssertEqual(snapshot.results.count, 2)
     let expectedData: [[String: Sendable]] = [
       ["title": "The Hitchhiker's Guide to the Galaxy", "reviews_data": ["Alice", "Bob"]],
-      ["title": "Pride and Prejudice", "reviews_data": []]
+      ["title": "Pride and Prejudice", "reviews_data": []],
     ]
     for (i, resultDoc) in snapshot.results.enumerated() {
       TestHelper.compare(pipelineResult: resultDoc, expected: expectedData[i])
@@ -200,7 +203,8 @@ class PipelineSubqueryTests: FSTIntegrationTestCase {
     let authorsCollRef = collectionRef()
 
     try await reviewsCollRef.document("r1").setData(["bookTitle": "1984", "rating": 5])
-    try await authorsCollRef.document("a1").setData(["authorName": "George Orwell", "nationality": "British"])
+    try await authorsCollRef.document("a1")
+      .setData(["authorName": "George Orwell", "nationality": "British"])
 
     let reviewsSub = db.pipeline()
       .collection(reviewsCollRef.path)
@@ -218,14 +222,14 @@ class PipelineSubqueryTests: FSTIntegrationTestCase {
       .define([Field("title").as("book_title"), Field("author").as("author_name")])
       .addFields([
         reviewsSub.toArrayExpression().as("reviews_data"),
-        authorsSub.toArrayExpression().as("authors_data")
+        authorsSub.toArrayExpression().as("authors_data"),
       ])
       .select(["title", "reviews_data", "authors_data"])
       .execute()
 
     XCTAssertEqual(snapshot.results.count, 1)
     TestHelper.compare(pipelineResult: snapshot.results.first!, expected: [
-      "title": "1984", "reviews_data": [5], "authors_data": ["British"]
+      "title": "1984", "reviews_data": [5], "authors_data": ["British"],
     ])
   }
 
@@ -234,8 +238,10 @@ class PipelineSubqueryTests: FSTIntegrationTestCase {
     let db = collRef.firestore
 
     let reviewsCollRef = collectionRef()
-    try await reviewsCollRef.document("r1").setData(["bookTitle": "1984", "reviewer": "Alice", "rating": 5])
-    try await reviewsCollRef.document("r2").setData(["bookTitle": "1984", "reviewer": "Bob", "rating": 4])
+    try await reviewsCollRef.document("r1")
+      .setData(["bookTitle": "1984", "reviewer": "Alice", "rating": 5])
+    try await reviewsCollRef.document("r2")
+      .setData(["bookTitle": "1984", "reviewer": "Bob", "rating": 4])
 
     let reviewsSub = db.pipeline()
       .collection(reviewsCollRef.path)
@@ -256,8 +262,8 @@ class PipelineSubqueryTests: FSTIntegrationTestCase {
       "title": "1984",
       "reviews_data": [
         ["reviewer": "Alice", "rating": 5],
-        ["reviewer": "Bob", "rating": 4]
-      ]
+        ["reviewer": "Bob", "rating": 4],
+      ],
     ]
     TestHelper.compare(pipelineResult: snapshot.results.first!, expected: expectedData)
   }
@@ -309,7 +315,10 @@ class PipelineSubqueryTests: FSTIntegrationTestCase {
       .execute()
 
     XCTAssertEqual(snapshot.results.count, 1)
-    TestHelper.compare(pipelineResult: snapshot.results.first!, expected: ["title": "1984", "average_rating": 4.5])
+    TestHelper.compare(
+      pipelineResult: snapshot.results.first!,
+      expected: ["title": "1984", "average_rating": 4.5]
+    )
   }
 
   func testScalarSubqueryMultipleAggregationsMapWrapping() async throws {
@@ -325,7 +334,7 @@ class PipelineSubqueryTests: FSTIntegrationTestCase {
       .where(Field("bookTitle").equal(Variable("book_title")))
       .aggregate([
         Field("rating").average().as("avg"),
-        CountAll().as("count")
+        CountAll().as("count"),
       ])
 
     let snapshot = try await db.pipeline()
@@ -337,7 +346,10 @@ class PipelineSubqueryTests: FSTIntegrationTestCase {
       .execute()
 
     XCTAssertEqual(snapshot.results.count, 1)
-    TestHelper.compare(pipelineResult: snapshot.results.first!, expected: ["title": "1984", "stats": ["avg": 4.5, "count": 2]])
+    TestHelper.compare(
+      pipelineResult: snapshot.results.first!,
+      expected: ["title": "1984", "stats": ["avg": 4.5, "count": 2]]
+    )
   }
 
   func testScalarSubqueryZeroResults() async throws {
@@ -360,7 +372,10 @@ class PipelineSubqueryTests: FSTIntegrationTestCase {
       .execute()
 
     XCTAssertEqual(snapshot.results.count, 1)
-    TestHelper.compare(pipelineResult: snapshot.results.first!, expected: ["title": "1984", "average_rating": nil])
+    TestHelper.compare(
+      pipelineResult: snapshot.results.first!,
+      expected: ["title": "1984", "average_rating": nil]
+    )
   }
 
   func testScalarSubqueryMultipleResultsRuntimeError() async throws {
@@ -393,8 +408,10 @@ class PipelineSubqueryTests: FSTIntegrationTestCase {
     let db = collRef.firestore
 
     let reviewsCollRef = collectionRef()
-    try await reviewsCollRef.document("r1").setData(["bookTitle": "1984", "reviewer": "Alice", "rating": 4])
-    try await reviewsCollRef.document("r2").setData(["bookTitle": "1984", "reviewer": "Bob", "rating": 5])
+    try await reviewsCollRef.document("r1")
+      .setData(["bookTitle": "1984", "reviewer": "Alice", "rating": 4])
+    try await reviewsCollRef.document("r2")
+      .setData(["bookTitle": "1984", "reviewer": "Bob", "rating": 5])
 
     let arraySub = db.pipeline()
       .collection(reviewsCollRef.path)
@@ -413,7 +430,7 @@ class PipelineSubqueryTests: FSTIntegrationTestCase {
       .define([Field("title").as("book_title")])
       .addFields([
         arraySub.toArrayExpression().as("all_reviewers"),
-        scalarSub.toScalarExpression().as("average_rating")
+        scalarSub.toScalarExpression().as("average_rating"),
       ])
       .select(["title", "all_reviewers", "average_rating"])
       .execute()
@@ -422,7 +439,7 @@ class PipelineSubqueryTests: FSTIntegrationTestCase {
     TestHelper.compare(pipelineResult: snapshot.results.first!, expected: [
       "title": "1984",
       "all_reviewers": ["Alice", "Bob"],
-      "average_rating": 4.5
+      "average_rating": 4.5,
     ])
   }
 
@@ -476,17 +493,22 @@ class PipelineSubqueryTests: FSTIntegrationTestCase {
       .execute()
 
     XCTAssertEqual(snapshot.results.count, 1)
-    TestHelper.compare(pipelineResult: snapshot.results.first!, expected: ["title": "1984", "reviews": ["Alice"]])
+    TestHelper.compare(
+      pipelineResult: snapshot.results.first!,
+      expected: ["title": "1984", "reviews": ["Alice"]]
+    )
   }
 
   func testMultipleVariableBindings() async throws {
     let outerCollRef = collectionRef()
     let db = outerCollRef.firestore
 
-    try await outerCollRef.document("doc1").setData(["title": "1984", "id": "1", "category": "sci-fi"])
+    try await outerCollRef.document("doc1")
+      .setData(["title": "1984", "id": "1", "category": "sci-fi"])
 
     let reviewsCollRef = collectionRef()
-    try await reviewsCollRef.document("r1").setData(["bookId": "1", "category": "sci-fi", "reviewer": "Alice"])
+    try await reviewsCollRef.document("r1")
+      .setData(["bookId": "1", "category": "sci-fi", "reviewer": "Alice"])
 
     let reviewsSub = db.pipeline()
       .collection(reviewsCollRef.path)
@@ -502,7 +524,10 @@ class PipelineSubqueryTests: FSTIntegrationTestCase {
       .execute()
 
     XCTAssertEqual(snapshot.results.count, 1)
-    TestHelper.compare(pipelineResult: snapshot.results.first!, expected: ["title": "1984", "reviews": ["Alice"]])
+    TestHelper.compare(
+      pipelineResult: snapshot.results.first!,
+      expected: ["title": "1984", "reviews": ["Alice"]]
+    )
   }
 
   func testCurrentDocumentBinding() async throws {
@@ -512,7 +537,8 @@ class PipelineSubqueryTests: FSTIntegrationTestCase {
     try await outerCollRef.document("doc1").setData(["title": "1984", "author": "George Orwell"])
 
     let reviewsCollRef = collectionRef()
-    try await reviewsCollRef.document("r1").setData(["authorName": "George Orwell", "reviewer": "Alice"])
+    try await reviewsCollRef.document("r1")
+      .setData(["authorName": "George Orwell", "reviewer": "Alice"])
 
     let reviewsSub = db.pipeline()
       .collection(reviewsCollRef.path)
@@ -528,7 +554,10 @@ class PipelineSubqueryTests: FSTIntegrationTestCase {
       .execute()
 
     XCTAssertEqual(snapshot.results.count, 1)
-    TestHelper.compare(pipelineResult: snapshot.results.first!, expected: ["title": "1984", "reviews": ["Alice"]])
+    TestHelper.compare(
+      pipelineResult: snapshot.results.first!,
+      expected: ["title": "1984", "reviews": ["Alice"]]
+    )
   }
 
   func testUnboundVariableCornerCase() async throws {
@@ -569,7 +598,10 @@ class PipelineSubqueryTests: FSTIntegrationTestCase {
       .execute()
 
     XCTAssertEqual(snapshot.results.count, 1)
-    TestHelper.compare(pipelineResult: snapshot.results.first!, expected: ["shadowed": ["inner_val"]])
+    TestHelper.compare(
+      pipelineResult: snapshot.results.first!,
+      expected: ["shadowed": ["inner_val"]]
+    )
   }
 
   func testMissingFieldOnCurrentDocument() async throws {
@@ -594,7 +626,10 @@ class PipelineSubqueryTests: FSTIntegrationTestCase {
       .execute()
 
     XCTAssertEqual(snapshot.results.count, 1)
-    TestHelper.compare(pipelineResult: snapshot.results.first!, expected: ["title": "1984", "reviews": []])
+    TestHelper.compare(
+      pipelineResult: snapshot.results.first!,
+      expected: ["title": "1984", "reviews": []]
+    )
   }
 
   func test3LevelDeepJoin() async throws {
@@ -604,7 +639,8 @@ class PipelineSubqueryTests: FSTIntegrationTestCase {
     let reviewsCollRef = collectionRef()
 
     try await publishersCollRef.document("p1").setData(["publisherId": "pub1", "name": "Penguin"])
-    try await booksCollRef.document("b1").setData(["bookId": "book1", "publisherId": "pub1", "title": "1984"])
+    try await booksCollRef.document("b1")
+      .setData(["bookId": "book1", "publisherId": "pub1", "title": "1984"])
     try await reviewsCollRef.document("r1").setData(["bookId": "book1", "reviewer": "Alice"])
 
     let reviewsSub = db.pipeline()
@@ -631,8 +667,8 @@ class PipelineSubqueryTests: FSTIntegrationTestCase {
     TestHelper.compare(pipelineResult: snapshot.results.first!, expected: [
       "name": "Penguin",
       "books": [
-        ["title": "1984", "reviews": ["Alice"]]
-      ]
+        ["title": "1984", "reviews": ["Alice"]],
+      ],
     ])
   }
 
@@ -674,7 +710,7 @@ class PipelineSubqueryTests: FSTIntegrationTestCase {
       .limit(1)
       .select([Field("val").as("val")])
 
-    for i in 0..<9 {
+    for i in 0 ..< 9 {
       currentSubquery = db.pipeline()
         .collection(collRef.path)
         .limit(1)
@@ -691,7 +727,8 @@ class PipelineSubqueryTests: FSTIntegrationTestCase {
     let db = collRef.firestore
 
     try await collRef.document("doc1").setData(["title": "1984"])
-    try await collRef.document("doc1").collection("reviews").document("r1").setData(["reviewer": "Alice"])
+    try await collRef.document("doc1").collection("reviews").document("r1")
+      .setData(["reviewer": "Alice"])
 
     let reviewsSub = Subcollection("reviews")
       .select([Field("reviewer").as("reviewer")])
@@ -704,7 +741,10 @@ class PipelineSubqueryTests: FSTIntegrationTestCase {
       .execute()
 
     XCTAssertEqual(snapshot.results.count, 1)
-    TestHelper.compare(pipelineResult: snapshot.results.first!, expected: ["title": "1984", "reviews": ["Alice"]])
+    TestHelper.compare(
+      pipelineResult: snapshot.results.first!,
+      expected: ["title": "1984", "reviews": ["Alice"]]
+    )
   }
 
   func testMissingSubcollection() async throws {
@@ -733,7 +773,8 @@ class PipelineSubqueryTests: FSTIntegrationTestCase {
       _ = try await sub.execute()
       XCTFail("Should throw error")
     } catch {
-      XCTAssertTrue(error.localizedDescription.contains("This pipeline was created without a database"))
+      XCTAssertTrue(error.localizedDescription
+        .contains("This pipeline was created without a database"))
     }
   }
 
@@ -752,7 +793,10 @@ class PipelineSubqueryTests: FSTIntegrationTestCase {
         .execute()
       XCTFail("Should throw error")
     } catch {
-      XCTAssertTrue(error.localizedDescription.contains("Duplicate alias 'dup' found in selectables."), error.localizedDescription)
+      XCTAssertTrue(
+        error.localizedDescription.contains("Duplicate alias 'dup' found in selectables."),
+        error.localizedDescription
+      )
     }
   }
 
@@ -771,7 +815,10 @@ class PipelineSubqueryTests: FSTIntegrationTestCase {
         .execute()
       XCTFail("Should throw error")
     } catch {
-      XCTAssertTrue(error.localizedDescription.contains("Duplicate alias 'dup' found in selectables."), error.localizedDescription)
+      XCTAssertTrue(
+        error.localizedDescription.contains("Duplicate alias 'dup' found in selectables."),
+        error.localizedDescription
+      )
     }
   }
 
@@ -790,7 +837,10 @@ class PipelineSubqueryTests: FSTIntegrationTestCase {
         .execute()
       XCTFail("Should throw error")
     } catch {
-      XCTAssertTrue(error.localizedDescription.contains("Duplicate alias 'dup_var' found in selectables."), error.localizedDescription)
+      XCTAssertTrue(
+        error.localizedDescription.contains("Duplicate alias 'dup_var' found in selectables."),
+        error.localizedDescription
+      )
     }
   }
 
@@ -809,7 +859,10 @@ class PipelineSubqueryTests: FSTIntegrationTestCase {
         .execute()
       XCTFail("Should throw error")
     } catch {
-      XCTAssertTrue(error.localizedDescription.contains("Duplicate alias 'dup_group' found in selectables."), error.localizedDescription)
+      XCTAssertTrue(
+        error.localizedDescription.contains("Duplicate alias 'dup_group' found in selectables."),
+        error.localizedDescription
+      )
     }
   }
 
@@ -835,7 +888,10 @@ class PipelineSubqueryTests: FSTIntegrationTestCase {
         .execute()
       XCTFail("Should throw error")
     } catch {
-      XCTAssertTrue(error.localizedDescription.contains("Duplicate alias 'deep_dup' found in selectables."), error.localizedDescription)
+      XCTAssertTrue(
+        error.localizedDescription.contains("Duplicate alias 'deep_dup' found in selectables."),
+        error.localizedDescription
+      )
     }
   }
 }

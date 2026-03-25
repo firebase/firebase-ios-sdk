@@ -98,7 +98,6 @@ using firebase::firestore::api::Where;
 
 // Chunk 1: imports
 using firebase::firestore::api::CollectionSource;
-using firebase::firestore::api::SubcollectionSource;
 using firebase::firestore::api::Constant;
 using firebase::firestore::api::DatabaseSource;
 using firebase::firestore::api::DefineStage;
@@ -126,6 +125,7 @@ using firebase::firestore::api::Sample;
 using firebase::firestore::api::SelectStage;
 using firebase::firestore::api::SnapshotMetadata;
 using firebase::firestore::api::SortStage;
+using firebase::firestore::api::SubcollectionSource;
 using firebase::firestore::api::Union;
 using firebase::firestore::api::Unnest;
 using firebase::firestore::api::Variable;

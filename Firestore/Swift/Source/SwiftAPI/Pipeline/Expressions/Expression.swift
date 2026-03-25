@@ -20,7 +20,6 @@
 import Foundation
 
 public protocol Expression: Sendable {
-
   /// Casts the expression to a `BooleanExpression`.
   ///
   /// - Returns: A `BooleanExpression` representing the same expression.

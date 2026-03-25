@@ -4,12 +4,15 @@
 public extension Expression {
   /// Creates a reference to a variable defined in the pipeline scope.
   ///
-  /// Variables can be defined using the `define()` stage on a `Pipeline`. This is useful for passing
-  /// values from an outer query into a subquery, or for calculating intermediate values that are reused
+  /// Variables can be defined using the `define()` stage on a `Pipeline`. This is useful for
+  /// passing
+  /// values from an outer query into a subquery, or for calculating intermediate values that are
+  /// reused
   /// multiple times in the pipeline.
   ///
   /// ```swift
-  /// // Find products whose price is greater than the average price of products in the same category.
+  /// // Find products whose price is greater than the average price of products in the same
+  /// category.
   /// firestore.pipeline().collection("products")
   ///   .define([Field("category").as("productCategory"), Field("price").as("productPrice")])
   ///   .addFields([
