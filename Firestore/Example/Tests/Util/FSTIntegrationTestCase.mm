@@ -193,6 +193,19 @@ class FakeAuthCredentialsProvider : public EmptyAuthCredentialsProvider {
   }
 }
 
++ (FSTTargetBackend)targetBackend {
+  NSString *targetBackendStr = [[NSProcessInfo processInfo] environment][@"TARGET_BACKEND"];
+  if ([targetBackendStr isEqualToString:@"nightly"]) {
+    return FSTTargetBackendNightly;
+  } else if ([targetBackendStr isEqualToString:@"emulator"]) {
+    return FSTTargetBackendEmulator;
+  } else if ([targetBackendStr isEqualToString:@"qa"]) {
+    return FSTTargetBackendQA;
+  } else {
+    return FSTTargetBackendProd;
+  }
+}
+
 + (void)setUpDefaults {
   if (defaultSettings) return;
 
