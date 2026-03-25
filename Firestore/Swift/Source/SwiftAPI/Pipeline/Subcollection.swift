@@ -15,9 +15,20 @@
  */
 
 /// A `Subcollection` is a special type of pipeline constructed for sub-queries.
+///
 /// It is not tied to a primary database instance upfront and cannot be executed directly;
-/// instead, it is intended to be converted into an array or scalar expression and joined into
-/// another pipeline execution source.
+/// instead, it is intended to be converted into an array or scalar expression and used within
+/// another pipeline's stage (such as `addFields`).
+///
+/// ```swift
+/// // Calculate the average rating of reviews for each book and add it as a field.
+/// firestore.pipeline().collection("books")
+///   .addFields([
+///      Subcollection("reviews")
+///          .aggregate([Field("rating").average().as("avgRating")])
+///          .toScalarExpression().as("averageRating")
+///   ])
+/// ```
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 public class Subcollection: Pipeline {
   

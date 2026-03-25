@@ -336,11 +336,28 @@ public class Pipeline: @unchecked Sendable {
     return Pipeline(stages: stages + [stage], db: db)
   }
 
-  /// Defines variables that can be used in subsequent stages.
+  /// Defines one or more variables in the pipeline's scope. `define` is used to bind a value to a
+  /// variable for internal reuse within the pipeline body (accessed via `Expression.variable()`).
   ///
-  /// - Parameter variables: A dictionary where keys are variable names and values are expressions
-  /// or
-  /// literals.
+  /// This stage is particularly useful for passing values from an outer pipeline into a subquery, or
+  /// for declaring reusable intermediate calculations that can be referenced multiple times in later
+  /// parts of the pipeline via `Expression.variable()`.
+  ///
+  /// Each variable is defined using an `AliasedExpression`, which pairs an expression with a name
+  /// (alias). Use `.as()` on an expression to create an `AliasedExpression`.
+  ///
+  /// ```swift
+  /// firestore.pipeline().collection("products")
+  ///   .define([Field("category").as("productCategory")])
+  ///   .addFields([
+  ///      firestore.pipeline().collection("categories")
+  ///          .where(Field("name").equal(Expression.variable("productCategory")))
+  ///          .select([Field("description")])
+  ///          .toScalarExpression().as("categoryDescription")
+  ///   ])
+  /// ```
+  ///
+  /// - Parameter variables: An array of `AliasedExpression` specifying variables to define.
   /// - Returns: A new `Pipeline` with the define stage added.
   public func define(_ variables: [AliasedExpression]) -> Pipeline {
     let stage = Define(variables: variables)
@@ -693,6 +710,18 @@ public class Pipeline: @unchecked Sendable {
   /// array.
   /// - If the items have multiple fields, they are returned as dictionaries in the array.
   ///
+  /// ```swift
+  /// // Get a list of reviewers for each book
+  /// firestore.pipeline().collection("books")
+  ///     .define([Field("id").as("book_id")])
+  ///     .addFields([
+  ///         firestore.pipeline().collection("reviews")
+  ///             .where(Field("book_id").equal(Expression.variable("book_id")))
+  ///             .select([Field("reviewer")])
+  ///             .toArrayExpression()
+  ///             .as("reviewers")])
+  /// ```
+  ///
   /// - Returns: An `Expression` that executes this pipeline and returns the results as an array.
   public func toArrayExpression() -> Expression {
     return FunctionExpression(functionName: "array", args: [PipelineExpression(self)])
@@ -706,6 +735,19 @@ public class Pipeline: @unchecked Sendable {
   /// **Result Unwrapping:** If the result contains exactly one item:
   /// - If the item has a single field, its value is unwrapped and returned directly.
   /// - If the item has multiple fields, they are returned as a dictionary.
+  ///
+  /// ```swift
+  /// // Calculate average rating for a restaurant
+  /// firestore.pipeline().collection("restaurants")
+  ///   .define([Field("id").as("rid")])
+  ///   .addFields([
+  ///     firestore.pipeline().collection("reviews")
+  ///       .where(Field("restaurant_id").equal(Expression.variable("rid")))
+  ///       .aggregate([Field("rating").average().as("avg")])
+  ///       // Unwraps the single "avg" field to a scalar double
+  ///       .toScalarExpression().as("average_rating")
+  ///   ])
+  /// ```
   ///
   /// - Returns: An `Expression` representing the scalar result.
   public func toScalarExpression() -> Expression {
