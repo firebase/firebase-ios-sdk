@@ -2,7 +2,7 @@
 - [feature] Added support for Pipeline expressions `nor` and `switchOn`. (#15943)
 
 # 12.11.0
-- [removed] **Breaking change:** Removed the `then(_:else:)` API in `BooleanExpression` from the Pipeline Swift API. Use `ConditionalExpression` instead. (#15926)
+- [removed] **Breaking change:** Removed the `then(_:else:)` Beta API in `BooleanExpression` from the Pipeline Swift API. Use `ConditionalExpression` instead. (#15926)
 - [feature] Added support for `first`, `last`, `arrayAgg`, and `arrayAggDistinct` Pipeline expressions. (#15941)
 - [feature] Added support for `trunc` and `rand` Pipeline expressions. (#15938)
 - [changed] Minor refactor to avoid using an absl internal function. (#15889)
