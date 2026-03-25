@@ -433,8 +433,9 @@
         guard let functionDeclaration = functionDeclarations.first(
           where: { $0.name == functionCall.name }
         ) else {
-          // TODO: Throw an error instead.
-          fatalError("No function named '\(functionCall.name) was declared.")
+          throw GenerationError.invalidFunctionCall(GenerationError.Context(debugDescription: """
+          No function named "\(functionCall.name)" was declared.
+          """))
         }
 
         switch functionDeclaration.kind {
@@ -444,8 +445,8 @@
           #if canImport(FoundationModels) && HAS_FOUNDATION_MODELS
             if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
               guard let tool = tool as? (any FoundationModels.Tool) else {
-                // TODO: Throw an error instead.
-                fatalError("AFM Tool specified but type is not an AFM Tool.")
+                assertionFailure("The value '\(tool)' is not a \(FoundationModels.Tool.self).")
+                throw TypeConversionError(from: (any Sendable).self, to: FoundationModels.Tool.self)
               }
               try functionResponses.append(await FunctionDeclaration.call(
                 tool: tool,
@@ -454,7 +455,9 @@
               continue
             }
           #endif // canImport(FoundationModels) && HAS_FOUNDATION_MODELS
-          fatalError("AFM Tool specified but not running on a supported platform.")
+          assertionFailure("""
+          A Foundation Models `Tool` '\(tool)' was provided but not running on a supported platform.
+          """)
         }
       }
 
@@ -526,7 +529,7 @@
       assertionFailure("Unsupported type: \(T.self).")
       // In release builds we throw an error instead of crashing but this state should be
       // unreachable based on the public API.
-      throw GenerativeModelSession.ResponseTypeConversionError(
+      throw GenerativeModelSession.TypeConversionError(
         from: type(of: rawContent), to: T.self
       )
     }
@@ -793,9 +796,11 @@
 
       /// The model's response could not be decoded.
       case decodingFailure(GenerativeModelSession.GenerationError.Context)
+
+      case invalidFunctionCall(GenerativeModelSession.GenerationError.Context)
     }
 
-    struct ResponseTypeConversionError: CustomDebugStringConvertible, CustomNSError {
+    struct TypeConversionError: CustomDebugStringConvertible, CustomNSError {
       public static var errorDomain: String { GenerativeModelSession.errorDomain }
 
       public var errorCode: Int { ErrorCodes.typeConversionFailed.rawValue }
