@@ -1,32 +1,34 @@
+// Copyright 2025 Google LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-// MARK: - Variable Factory
+/// A `Variable` is an `Expression` that represents a variable in a Firestore pipeline.
+///
+/// Variables are typically defined in a `define` (let) stage and can be referenced in subsequent
+/// stages.
+public struct Variable: Expression, BridgeWrapper, SelectableWrapper, @unchecked Sendable {
+  let bridge: ExprBridge
 
-public extension Expression {
-  /// Creates a reference to a variable defined in the pipeline scope.
+  let name: String
+  var alias: String { name }
+
+  var expr: Expression { self }
+
+  /// Creates a new `Variable` expression from a variable name.
   ///
-  /// Variables can be defined using the `define()` stage on a `Pipeline`. This is useful for
-  /// passing
-  /// values from an outer query into a subquery, or for calculating intermediate values that are
-  /// reused
-  /// multiple times in the pipeline.
-  ///
-  /// ```swift
-  /// // Find products whose price is greater than the average price of products in the same
-  /// category.
-  /// firestore.pipeline().collection("products")
-  ///   .define([Field("category").as("productCategory"), Field("price").as("productPrice")])
-  ///   .addFields([
-  ///      firestore.pipeline().collection("products")
-  ///          .where(Field("category").equal(Expression.variable("productCategory")))
-  ///          .aggregate([Field("price").average().as("avgPrice")])
-  ///          .toScalarExpression().as("categoryAvgPrice")
-  ///   ])
-  ///   .where(Field("productPrice").greaterThan(Expression.variable("categoryAvgPrice")))
-  /// ```
-  ///
-  /// - Parameter name: The name of the variable to reference.
-  /// - Returns: A new `Variable` expression.
-  static func variable(_ name: String) -> Variable {
-    return Variable(name)
+  /// - Parameter name: The name of the variable.
+  public init(_ name: String) {
+    self.name = name
+    bridge = VariableBridge(name: name)
   }
 }
