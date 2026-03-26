@@ -176,9 +176,16 @@ else
   if [[ "$xcode_major" -gt 16 ]]; then
     iphone_simulator_name="iPhone 16e"
   fi
-  ios_flags=(
-    -destination "platform=iOS Simulator,name=${iphone_simulator_name}"
-  )
+
+  if [[ "$xcode_major" -gt 16 ]]; then
+    ios_flags=(
+      -destination "platform=iOS Simulator,name=${iphone_simulator_name},OS=26.2"
+    )
+  else
+    ios_flags=(
+      -destination "platform=iOS Simulator,name=${iphone_simulator_name}"
+    )
+  fi
   watchos_flags=(
     -destination 'platform=watchOS Simulator,name=Apple Watch Series 11 (42mm)'
   )
