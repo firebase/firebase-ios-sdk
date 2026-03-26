@@ -18,6 +18,12 @@ import Foundation
 ///
 /// The type placeholder `T` is an image type; this is currently always an ``ImagenInlineImage``.
 ///
+/// @DeprecationSummary {
+///  All imagen models are deprecated and will shut down as early as June 2026.
+///  As a replacement, you can [migrate your apps to use Gemini Image models
+///  (the "Nano Banana" models).](https://firebase.google.com/docs/ai-logic/imagen-models-migration)
+/// }
+///
 /// This type is returned from:
 ///   - ``ImagenModel/generateImages(prompt:)`` where `T` is ``ImagenInlineImage``
 // TODO(#14451): Re-add "- ``ImagenModel/generateImages(prompt:gcsURI:)`` where `T` is
@@ -47,6 +53,11 @@ public struct ImagenGenerationResponse<T>: Sendable where T: Sendable {
 
 // MARK: - Codable Conformances
 
+/// @DeprecationSummary {
+///  All imagen models are deprecated and will shut down as early as June 2026.
+///  As a replacement, you can [migrate your apps to use Gemini Image models
+///  (the "Nano Banana" models).](https://firebase.google.com/docs/ai-logic/imagen-models-migration)
+/// }
 @available(
   *,
   deprecated,

@@ -18,6 +18,12 @@ import Foundation
 
 /// Represents a remote Imagen model with the ability to generate images using text prompts.
 ///
+/// @DeprecationSummary {
+///  All imagen models are deprecated and will shut down as early as June 2026.
+///  As a replacement, you can [migrate your apps to use Gemini Image models
+///  (the "Nano Banana" models).](https://firebase.google.com/docs/ai-logic/imagen-models-migration)
+/// }
+///
 /// See the [generate images
 /// documentation](https://firebase.google.com/docs/vertex-ai/generate-images-imagen?platform=ios)
 /// for more details about the image generation capabilities offered by the Imagen model in the

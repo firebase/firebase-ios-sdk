@@ -14,6 +14,10 @@
 
 import Foundation
 
+/// @DeprecationSummary {
+///  All imagen models are deprecated and will shut down as early as June 2026.
+///  As a replacement, you can [migrate your apps to use Gemini Image models
+///  (the "Nano Banana" models).](https://firebase.google.com/docs/ai-logic/imagen-models-migration)
 /// }
 @available(
   *,
@@ -40,6 +44,11 @@ struct ImagenGenerationRequest<ImageType: ImagenImageRepresentable>: Sendable {
   }
 }
 
+/// @DeprecationSummary {
+///  All imagen models are deprecated and will shut down as early as June 2026.
+///  As a replacement, you can [migrate your apps to use Gemini Image models
+///  (the "Nano Banana" models).](https://firebase.google.com/docs/ai-logic/imagen-models-migration)
+/// }
 @available(
   *,
   deprecated,
@@ -58,6 +67,11 @@ extension ImagenGenerationRequest: GenerativeAIRequest where ImageType: Decodabl
   }
 }
 
+/// @DeprecationSummary {
+///  All imagen models are deprecated and will shut down as early as June 2026.
+///  As a replacement, you can [migrate your apps to use Gemini Image models
+///  (the "Nano Banana" models).](https://firebase.google.com/docs/ai-logic/imagen-models-migration)
+/// }
 @available(
   *,
   deprecated,

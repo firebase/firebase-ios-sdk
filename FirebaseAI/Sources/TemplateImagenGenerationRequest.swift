@@ -14,6 +14,11 @@
 
 import Foundation
 
+/// @DeprecationSummary {
+///  All imagen models are deprecated and will shut down as early as June 2026.
+///  As a replacement, you can [migrate your apps to use Gemini Image models
+///  (the "Nano Banana" models).](https://firebase.google.com/docs/ai-logic/imagen-models-migration)
+/// }
 @available(
   *,
   deprecated,
@@ -23,6 +28,11 @@ enum ImageAPIMethod: String {
   case generateImages = "templatePredict"
 }
 
+/// @DeprecationSummary {
+///  All imagen models are deprecated and will shut down as early as June 2026.
+///  As a replacement, you can [migrate your apps to use Gemini Image models
+///  (the "Nano Banana" models).](https://firebase.google.com/docs/ai-logic/imagen-models-migration)
+/// }
 @available(
   *,
   deprecated,
@@ -47,6 +57,11 @@ struct TemplateImagenGenerationRequest<ImageType: ImagenImageRepresentable>: Sen
   }
 }
 
+/// @DeprecationSummary {
+///  All imagen models are deprecated and will shut down as early as June 2026.
+///  As a replacement, you can [migrate your apps to use Gemini Image models
+///  (the "Nano Banana" models).](https://firebase.google.com/docs/ai-logic/imagen-models-migration)
+/// }
 @available(
   *,
   deprecated,
@@ -67,6 +82,11 @@ extension TemplateImagenGenerationRequest: GenerativeAIRequest where ImageType: 
   }
 }
 
+/// @DeprecationSummary {
+///  All imagen models are deprecated and will shut down as early as June 2026.
+///  As a replacement, you can [migrate your apps to use Gemini Image models
+///  (the "Nano Banana" models).](https://firebase.google.com/docs/ai-logic/imagen-models-migration)
+/// }
 @available(
   *,
   deprecated,

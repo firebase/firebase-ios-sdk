@@ -130,6 +130,14 @@ public final class FirebaseAI: Sendable {
   /// - Note: Refer to [Imagen models](https://firebase.google.com/docs/vertex-ai/models) for
   /// guidance on choosing an appropriate model for your use case.
   ///
+  ///
+  /// @DeprecationSummary {
+  ///  All imagen models are deprecated and will shut down as early as June 2026.
+  ///  As a replacement, you can [migrate your apps to use Gemini Image models
+  ///  (the "Nano Banana"
+  /// models).](https://firebase.google.com/docs/ai-logic/imagen-models-migration)
+  /// }
+  ///
   /// - Parameters:
   ///   - modelName: The name of the Imagen 3 model to use.
   ///   - generationConfig: Configuration options for generating images with Imagen.
@@ -173,6 +181,13 @@ public final class FirebaseAI: Sendable {
   }
 
   /// Initializes a new `TemplateImagenModel`.
+  ///
+  /// @DeprecationSummary {
+  ///  All imagen models are deprecated and will shut down as early as June 2026.
+  ///  As a replacement, you can [migrate your apps to use Gemini Image models
+  ///  (the "Nano Banana"
+  ///   models).](https://firebase.google.com/docs/ai-logic/imagen-models-migration)
+  /// }
   ///
   /// - Returns: A new `TemplateImagenModel` instance.
   @available(
