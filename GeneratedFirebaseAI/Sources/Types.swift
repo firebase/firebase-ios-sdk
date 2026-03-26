@@ -18853,6 +18853,9 @@ public struct GenerateVideosConfig: Sendable {
   /// Compression quality of the generated videos.
   public let compressionQuality: VideoCompressionQuality?
 
+  /// User specified labels to track billing usage.
+  public let labels: [String: String]?
+
   /// Default initializer.
   public init(
     httpOptions: HttpOptions? = nil,
@@ -18871,7 +18874,8 @@ public struct GenerateVideosConfig: Sendable {
     lastFrame: ImagePart? = nil,
     referenceImages: [VideoGenerationReferenceImage]? = nil,
     mask: VideoGenerationMask? = nil,
-    compressionQuality: VideoCompressionQuality? = nil
+    compressionQuality: VideoCompressionQuality? = nil,
+    labels: [String: String]? = nil
   ) {
     self.httpOptions = httpOptions
     self.numberOfVideos = numberOfVideos
@@ -18890,6 +18894,7 @@ public struct GenerateVideosConfig: Sendable {
     self.referenceImages = referenceImages
     self.mask = mask
     self.compressionQuality = compressionQuality
+    self.labels = labels
   }
 }
 
@@ -18918,6 +18923,7 @@ extension GenerateVideosConfig: Codable {
     case generateAudio = "generateAudio"
     case mask = "mask"
     case compressionQuality = "compressionQuality"
+    case labels = "labels"
   }
 
   public init(from decoder: any Decoder) throws {
@@ -19008,6 +19014,11 @@ extension GenerateVideosConfig: Codable {
     compressionQuality = try VertexKeysContainer.decodeIfPresent(
       VideoCompressionQuality.self,
       forKey: .compressionQuality
+    )
+
+    labels = try VertexKeysContainer.decodeIfPresent(
+      [String: String].self,
+      forKey: .labels
     )
   }
 
@@ -19101,6 +19112,11 @@ extension GenerateVideosConfig: Codable {
       try VertexKeysContainer.encodeIfPresent(
         compressionQuality,
         forKey: .compressionQuality
+      )
+
+      try VertexKeysContainer.encodeIfPresent(
+        labels,
+        forKey: .labels
       )
 
     }
