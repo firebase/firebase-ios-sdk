@@ -132,7 +132,7 @@ public final class FirebaseAI: Sendable {
   ///
   ///
   /// @DeprecationSummary {
-  ///  All imagen models are deprecated and will shut down as early as June 2026.
+  ///  All Imagen models are deprecated and will shut down as early as June 2026.
   ///  As a replacement, you can [migrate your apps to use Gemini Image models
   ///  (the "Nano Banana"
   /// models).](https://firebase.google.com/docs/ai-logic/imagen-models-migration)
@@ -147,7 +147,7 @@ public final class FirebaseAI: Sendable {
   @available(
     *,
     deprecated,
-    message: "All imagen models are deprecated and will shut down as early as June 2026. As a replacement, you can migrate your apps to use Gemini Image models (the \"Nano Banana\" models)."
+    message: "All Imagen models are deprecated and will shut down as early as June 2026. As a replacement, you can migrate your apps to use Gemini Image models (the \"Nano Banana\" models)."
   )
   public func imagenModel(modelName: String, generationConfig: ImagenGenerationConfig? = nil,
                           safetySettings: ImagenSafetySettings? = nil,
@@ -183,7 +183,7 @@ public final class FirebaseAI: Sendable {
   /// Initializes a new `TemplateImagenModel`.
   ///
   /// @DeprecationSummary {
-  ///  All imagen models are deprecated and will shut down as early as June 2026.
+  ///  All Imagen models are deprecated and will shut down as early as June 2026.
   ///  As a replacement, you can [migrate your apps to use Gemini Image models
   ///  (the "Nano Banana"
   ///   models).](https://firebase.google.com/docs/ai-logic/imagen-models-migration)
@@ -193,7 +193,7 @@ public final class FirebaseAI: Sendable {
   @available(
     *,
     deprecated,
-    message: "All imagen models are deprecated and will shut down as early as June 2026. As a replacement, you can migrate your apps to use Gemini Image models (the \"Nano Banana\" models)."
+    message: "All Imagen models are deprecated and will shut down as early as June 2026. As a replacement, you can migrate your apps to use Gemini Image models (the \"Nano Banana\" models)."
   )
   public func templateImagenModel() -> TemplateImagenModel {
     return TemplateImagenModel(

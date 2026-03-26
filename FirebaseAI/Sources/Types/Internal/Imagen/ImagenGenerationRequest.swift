@@ -15,14 +15,14 @@
 import Foundation
 
 /// @DeprecationSummary {
-///  All imagen models are deprecated and will shut down as early as June 2026.
+///  All Imagen models are deprecated and will shut down as early as June 2026.
 ///  As a replacement, you can [migrate your apps to use Gemini Image models
 ///  (the "Nano Banana" models).](https://firebase.google.com/docs/ai-logic/imagen-models-migration)
 /// }
 @available(
   *,
   deprecated,
-  message: "All imagen models are deprecated and will shut down as early as June 2026. As a replacement, you can migrate your apps to use Gemini Image models (the \"Nano Banana\" models)."
+  message: "All Imagen models are deprecated and will shut down as early as June 2026. As a replacement, you can migrate your apps to use Gemini Image models (the \"Nano Banana\" models)."
 )
 struct ImagenGenerationRequest<ImageType: ImagenImageRepresentable>: Sendable {
   let model: String
@@ -45,14 +45,14 @@ struct ImagenGenerationRequest<ImageType: ImagenImageRepresentable>: Sendable {
 }
 
 /// @DeprecationSummary {
-///  All imagen models are deprecated and will shut down as early as June 2026.
+///  All Imagen models are deprecated and will shut down as early as June 2026.
 ///  As a replacement, you can [migrate your apps to use Gemini Image models
 ///  (the "Nano Banana" models).](https://firebase.google.com/docs/ai-logic/imagen-models-migration)
 /// }
 @available(
   *,
   deprecated,
-  message: "All imagen models are deprecated and will shut down as early as June 2026. As a replacement, you can migrate your apps to use Gemini Image models (the \"Nano Banana\" models)."
+  message: "All Imagen models are deprecated and will shut down as early as June 2026. As a replacement, you can migrate your apps to use Gemini Image models (the \"Nano Banana\" models)."
 )
 extension ImagenGenerationRequest: GenerativeAIRequest where ImageType: Decodable {
   typealias Response = ImagenGenerationResponse<ImageType>
@@ -68,14 +68,14 @@ extension ImagenGenerationRequest: GenerativeAIRequest where ImageType: Decodabl
 }
 
 /// @DeprecationSummary {
-///  All imagen models are deprecated and will shut down as early as June 2026.
+///  All Imagen models are deprecated and will shut down as early as June 2026.
 ///  As a replacement, you can [migrate your apps to use Gemini Image models
 ///  (the "Nano Banana" models).](https://firebase.google.com/docs/ai-logic/imagen-models-migration)
 /// }
 @available(
   *,
   deprecated,
-  message: "All imagen models are deprecated and will shut down as early as June 2026. As a replacement, you can migrate your apps to use Gemini Image models (the \"Nano Banana\" models)."
+  message: "All Imagen models are deprecated and will shut down as early as June 2026. As a replacement, you can migrate your apps to use Gemini Image models (the \"Nano Banana\" models)."
 )
 extension ImagenGenerationRequest: Encodable {
   enum CodingKeys: CodingKey {
