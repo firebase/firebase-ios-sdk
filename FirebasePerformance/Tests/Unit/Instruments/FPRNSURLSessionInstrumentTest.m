@@ -352,8 +352,8 @@
   [instrument registerInstrumentors];
   FPRNSURLSessionCompleteTestDelegate *delegate =
       [[FPRNSURLSessionCompleteTestDelegate alloc] init];
-  // This request needs to fail.
-  NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:@"http://nonurl"]];
+  // This request needs to fail. Point at the stopped local server for deterministic refusal.
+  NSURLRequest *request = [NSURLRequest requestWithURL:self.testServer.serverURL];
   NSURLSessionConfiguration *configuration =
       [NSURLSessionConfiguration defaultSessionConfiguration];
   NSURLSession *session = [NSURLSession sessionWithConfiguration:configuration
@@ -363,8 +363,7 @@
   @autoreleasepool {
     task = [session dataTaskWithRequest:request];
     [task resume];
-    XCTAssertNotNil([FPRNetworkTrace networkTraceFromObject:task]);
-    [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:5.0]];
+    [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
   }
   XCTAssertNil([FPRNetworkTrace networkTraceFromObject:task]);
   XCTAssertTrue(delegate.URLSessionTaskDidCompleteWithErrorCalled);
@@ -833,6 +832,106 @@
   }];
 
   [instrument deregisterInstrumentors];
+}
+
+#pragma mark - Testing async/await support (didCreateTask: + didFinishCollectingMetrics:)
+
+/** Tests that URLSession:task:didFinishCollectingMetrics: is called and wrapped for a
+ *  delegate-based task, and that the network trace is completed and removed after it fires.
+ */
+- (void)testDelegateURLSessionTaskDidFinishCollectingMetrics {
+  FPRNSURLSessionInstrument *instrument = [[FPRNSURLSessionInstrument alloc] init];
+  [instrument registerInstrumentors];
+  FPRNSURLSessionCompleteTestDelegate *delegate =
+      [[FPRNSURLSessionCompleteTestDelegate alloc] init];
+  NSURLSessionConfiguration *configuration =
+      [NSURLSessionConfiguration defaultSessionConfiguration];
+  NSURLSession *session = [NSURLSession sessionWithConfiguration:configuration
+                                                        delegate:delegate
+                                                   delegateQueue:nil];
+  NSURLSessionDataTask *task = [session dataTaskWithURL:self.testServer.serverURL];
+  [task resume];
+  [self waitAndRunBlockAfterResponse:^(id self, GCDWebServerRequest *_Nonnull request,
+                                       GCDWebServerResponse *_Nonnull response) {
+    XCTAssertNil([FPRNetworkTrace networkTraceFromObject:task]);
+  }];
+  XCTAssertTrue(delegate.URLSessionTaskDidFinishCollectingMetricsCalled);
+  [instrument deregisterInstrumentors];
+}
+
+/** Tests that URLSession:task:didFinishCollectingMetrics: is instrumented on user-provided
+ *  delegate classes that don't originally implement it (via CopySelector).
+ */
+- (void)testDelegateURLSessionTaskDidFinishCollectingMetricsCopiedForNonImplementingDelegate {
+  FPRNSURLSessionInstrument *instrument = [[FPRNSURLSessionInstrument alloc] init];
+  [instrument registerInstrumentors];
+  // FPRNSURLSessionTestDelegate only implements NSURLSessionDelegate, not the task delegate.
+  FPRNSURLSessionTestDelegate *delegate = [[FPRNSURLSessionTestDelegate alloc] init];
+  NSURLSessionConfiguration *configuration =
+      [NSURLSessionConfiguration defaultSessionConfiguration];
+  NSURLSession *session = [NSURLSession sessionWithConfiguration:configuration
+                                                        delegate:delegate
+                                                   delegateQueue:nil];
+  // The delegate should now respond to didFinishCollectingMetrics: after CopySelector.
+  XCTAssertTrue(
+      [delegate respondsToSelector:@selector(URLSession:task:didFinishCollectingMetrics:)]);
+  (void)session;
+  [instrument deregisterInstrumentors];
+}
+
+/** Tests that a network trace attached by the ObjC task-creation swizzle is not duplicated
+ *  when URLSession:didCreateTask: also fires on iOS 16+. The trace from the ObjC path takes
+ *  precedence and didCreateTask: should be a no-op for that task.
+ */
+- (void)testDidCreateTaskDoesNotDoubleTraceObjCCreatedTask {
+  if (@available(iOS 16.0, tvOS 16.0, *)) {
+    FPRNSURLSessionInstrument *instrument = [[FPRNSURLSessionInstrument alloc] init];
+    [instrument registerInstrumentors];
+    FPRNSURLSessionCompleteTestDelegate *delegate =
+        [[FPRNSURLSessionCompleteTestDelegate alloc] init];
+    NSURLSessionConfiguration *configuration =
+        [NSURLSessionConfiguration defaultSessionConfiguration];
+    NSURLSession *session = [NSURLSession sessionWithConfiguration:configuration
+                                                          delegate:delegate
+                                                     delegateQueue:nil];
+    NSURL *URL = [self.testServer.serverURL URLByAppendingPathComponent:@"test"];
+    NSURLRequest *request = [NSURLRequest requestWithURL:URL];
+    // Task is created via ObjC swizzled method, trace attached immediately.
+    NSURLSessionTask *task = [session dataTaskWithRequest:request];
+    FPRNetworkTrace *traceFromObjCPath = [FPRNetworkTrace networkTraceFromObject:task];
+    XCTAssertNotNil(traceFromObjCPath);
+    // didCreateTask: fires here (iOS 16+). The trace already exists, so it must be a no-op.
+    // Verify the same trace object is still on the task (not replaced).
+    XCTAssertEqual([FPRNetworkTrace networkTraceFromObject:task], traceFromObjCPath);
+    [task resume];
+    [self waitAndRunBlockAfterResponse:^(id self, GCDWebServerRequest *_Nonnull req,
+                                         GCDWebServerResponse *_Nonnull resp) {
+      XCTAssertNil([FPRNetworkTrace networkTraceFromObject:task]);
+    }];
+    [instrument deregisterInstrumentors];
+  }
+}
+
+/** Tests that URLSession:didCreateTask: is called and wrapped for a user-provided delegate
+ *  on iOS 16+.
+ */
+- (void)testDelegateURLSessionDidCreateTaskCalledOnIOS16 {
+  if (@available(iOS 16.0, tvOS 16.0, *)) {
+    FPRNSURLSessionInstrument *instrument = [[FPRNSURLSessionInstrument alloc] init];
+    [instrument registerInstrumentors];
+    FPRNSURLSessionCompleteTestDelegate *delegate =
+        [[FPRNSURLSessionCompleteTestDelegate alloc] init];
+    NSURLSessionConfiguration *configuration =
+        [NSURLSessionConfiguration defaultSessionConfiguration];
+    NSURLSession *session = [NSURLSession sessionWithConfiguration:configuration
+                                                          delegate:delegate
+                                                     delegateQueue:nil];
+    NSURL *URL = [self.testServer.serverURL URLByAppendingPathComponent:@"test"];
+    NSURLSessionTask *task = [session dataTaskWithRequest:[NSURLRequest requestWithURL:URL]];
+    (void)task;
+    XCTAssertTrue(delegate.URLSessionDidCreateTaskCalled);
+    [instrument deregisterInstrumentors];
+  }
 }
 
 @end

@@ -19,6 +19,71 @@
 
 @implementation FPRNSURLSessionDelegate
 
+#pragma mark - Async/await support
+
+/** Fires for every task created on the session, including tasks created by Swift async/await
+ *  methods (iOS 16+). This is the only reliable hook that fires for async created "convenience
+ *  tasks" where delegate data transfer callbacks are suppressed by the system.
+ *  Only creates a trace when one has not already been attached by the ObjC task creation swizzle.
+ */
+- (void)URLSession:(NSURLSession *)session
+     didCreateTask:(NSURLSessionTask *)task API_AVAILABLE(ios(16.0), tvos(16.0)) {
+  @try {
+    // Skip if trace was already attached by the ObjC task creation swizzle path.
+    if ([FPRNetworkTrace networkTraceFromObject:task] != nil) {
+      return;
+    }
+    // Guard against nil request.
+    if (!task.originalRequest) {
+      return;
+    }
+    FPRNetworkTrace *trace = [[FPRNetworkTrace alloc] initWithURLRequest:task.originalRequest];
+    [trace start];
+    [FPRNetworkTrace addNetworkTrace:trace toObject:task];
+  } @catch (NSException *exception) {
+    FPRLogWarning(kFPRNetworkTraceNotTrackable, @"Unable to track network request.");
+  }
+}
+
+/** Fires after every task completes (iOS 10+), including async/await-created tasks where
+ *  didCompleteWithError: is suppressed by the system ("convenience task" semantics). Using metrics
+ *  also provides more accurate byte counts than incremental delegate callbacks.
+ *  The traceCompleted guard inside FPRNetworkTrace ensures this is idempotent: for ObjC
+ *  completion handler tasks the trace is already removed before metrics fire; for ObjC
+ *  delegate based tasks the trace is completed here and didCompleteWithError: becomes a no op.
+ */
+- (void)URLSession:(NSURLSession *)session
+                          task:(NSURLSessionTask *)task
+    didFinishCollectingMetrics:(NSURLSessionTaskMetrics *)metrics {
+  @try {
+    FPRNetworkTrace *trace = [FPRNetworkTrace networkTraceFromObject:task];
+    if (!trace) {
+      return;
+    }
+    // Use task metrics for accurate byte counts (more reliable than incremental callbacks).
+    NSURLSessionTaskTransactionMetrics *transactionMetrics = metrics.transactionMetrics.lastObject;
+    if (transactionMetrics) {
+      if (transactionMetrics.countOfResponseBodyBytesReceived > 0) {
+        trace.responseSize = transactionMetrics.countOfResponseBodyBytesReceived;
+      }
+      if (transactionMetrics.countOfRequestBodyBytesSent > 0) {
+        trace.requestSize = transactionMetrics.countOfRequestBodyBytesSent;
+      }
+    }
+    // Ensure intermediate checkpoints are recorded before completion (idempotent).
+    [trace checkpointState:FPRNetworkTraceCheckpointStateRequestCompleted];
+    [trace checkpointState:FPRNetworkTraceCheckpointStateResponseReceived];
+    // Complete the trace. For ObjC delegate tasks this fires before didCompleteWithError:,
+    // making that subsequent call a no op via the traceCompleted guard.
+    [trace didCompleteRequestWithResponse:task.response error:task.error];
+    [FPRNetworkTrace removeNetworkTraceFromObject:task];
+  } @catch (NSException *exception) {
+    FPRLogWarning(kFPRNetworkTraceNotTrackable, @"Unable to track network request.");
+  }
+}
+
+#pragma mark - NSURLSessionTaskDelegate
+
 - (void)URLSession:(NSURLSession *)session
                     task:(NSURLSessionTask *)task
     didCompleteWithError:(NSError *)error {
