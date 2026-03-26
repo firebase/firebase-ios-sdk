@@ -1,5 +1,5 @@
 # Unreleased
-- [feature] Added support for `timestampTruncate`, `timestampDiff`, and `timestampExtract` Pipeline expressions.
+- [feature] Added support for `timestampTruncate`, `timestampDiff`, and `timestampExtract` Pipeline expressions. (#15984)
 - [feature] Added support for Pipeline expressions `nor` and `switchOn`. (#15943)
 
 # 12.11.0
