@@ -1933,53 +1933,51 @@ public protocol Expression: Sendable {
   /// - Returns: A new "FunctionExpression" representing the "ifAbsent" operation.
   func ifAbsent(_ defaultValue: Sendable) -> FunctionExpression
 
-  /// Creates an expression that returns the `else` argument if this expression is null or absent, else
-  /// return the result of this expression.
+  /// Creates an expression that returns the `else` argument if this expression evaluates to null,
+  /// else return the result of this expression.
+  ///
+  /// This function provides a fallback for both absent and explicit null values. In contrast,
+  /// `ifAbsent` only triggers for missing fields.
   ///
   /// ```swift
-  /// // Return "Guest" if the "name" field is null or absent
-  /// Field("name").ifNull(else: "Guest")
+  /// // Returns the user's display name, or returns "Anonymous" if the field is null.
+  /// Field("displayName").ifNull("Anonymous")
   /// ```
   ///
-  /// - Parameter value: The `Sendable` value that will be returned if this expression evaluates to a null or absent value.
+  /// - Parameter defaultValue: The `Sendable` value that will be returned if this expression
+  /// evaluates to null.
   /// - Returns: A new `FunctionExpression` representing the `ifNull` operation.
-  func ifNull(`else` value: Sendable) -> FunctionExpression
+  func ifNull(_ defaultValue: Sendable) -> FunctionExpression
 
-  /// Creates an expression that returns the `else` argument if this expression is null or absent, else
-  /// return the result of this expression.
+  /// Creates an expression that returns the `else` argument if this expression evaluates to null,
+  /// else return the result of this expression.
+  ///
+  /// This function provides a fallback for both absent and explicit null values. In contrast,
+  /// `ifAbsent` only triggers for missing fields.
   ///
   /// ```swift
-  /// // Return "unknown" if the "name" field is null or absent
-  /// Field("name").ifNull(else: Field("defaultName"))
+  /// // Returns the user's preferred name, or if that is null, returns their full name.
+  /// Field("preferredName").ifNull(Field("fullName"))
   /// ```
   ///
-  /// - Parameter value: The `Expression` that will be evaluated and returned if this expression evaluates to a null or absent value.
+  /// - Parameter defaultExpression: The `Expression` that will be evaluated and returned if this
+  /// expression evaluates to null.
   /// - Returns: A new `FunctionExpression` representing the `ifNull` operation.
-  func ifNull(`else` value: Expression) -> FunctionExpression
+  func ifNull(_ defaultExpression: Expression) -> FunctionExpression
 
-  /// Returns the first non-null, non-absent argument, without evaluating
+  /// Creates an expression that returns the first non-null, non-absent argument, without evaluating
   /// the rest of the arguments. When all arguments are null or absent, returns the last argument.
   ///
   /// ```swift
-  /// // Return the first matching value, or "default"
-  /// Field("status").coalesce("pending", "default")
+  /// // Returns the value of the first non-null, non-absent field among 'preferredName',
+  /// 'fullName',
+  /// // or the last argument if all previous fields are null.
+  /// Field("preferredName").coalesce([Field("fullName"), Constant("Anonymous")])
   /// ```
   ///
   /// - Parameter others: Optional additional expressions to check if previous ones are null.
   /// - Returns: A new `FunctionExpression` representing the `coalesce` operation.
-  func coalesce(_ others: Sendable...) -> FunctionExpression
-
-  /// Returns the first non-null, non-absent argument, without evaluating
-  /// the rest of the arguments. When all arguments are null or absent, returns the last argument.
-  ///
-  /// ```swift
-  /// // Return the first default field, or fallback string
-  /// Field("status").coalesce(Field("defaultStatus"), Field("backupStatus"))
-  /// ```
-  ///
-  /// - Parameter others: Optional additional expressions to check if previous ones are null.
-  /// - Returns: A new `FunctionExpression` representing the `coalesce` operation.
-  func coalesce(_ others: Expression...) -> FunctionExpression
+  func coalesce(_ values: [Expression]) -> FunctionExpression
 
   // MARK: Sorting
 

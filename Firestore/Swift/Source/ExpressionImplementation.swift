@@ -1203,13 +1203,8 @@ public extension Expression {
     return FunctionExpression(functionName: "if_null", args: [self, value])
   }
 
-  func coalesce(_ others: Sendable...) -> FunctionExpression {
-    let exprs = [self] + others.map { Helper.sendableToExpr($0) }
-    return FunctionExpression(functionName: "coalesce", args: exprs)
-  }
-
-  func coalesce(_ others: Expression...) -> FunctionExpression {
-    return FunctionExpression(functionName: "coalesce", args: [self] + others)
+  func coalesce(_ values: [Expression]) -> FunctionExpression {
+    return FunctionExpression(functionName: "coalesce", args: [self] + values)
   }
 
   // MARK: Sorting
