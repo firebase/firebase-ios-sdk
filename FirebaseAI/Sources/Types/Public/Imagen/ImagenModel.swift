@@ -111,7 +111,6 @@ public final class ImagenModel {
   ///   - gcsURI: The Cloud Storage (GCS) for Firebase URI where the generated images are stored.
   ///     This is a `"gs://"`-prefixed URI , for example, `"gs://bucket-name/path/"`.
   ///
-  /// TODO(#14451): Make this `public` when backend support is ready.
   func generateImages(prompt: String, gcsURI: String) async throws
     -> ImagenGenerationResponse<ImagenGCSImage> {
     return try await generateImages(

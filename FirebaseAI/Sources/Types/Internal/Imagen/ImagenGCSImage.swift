@@ -21,8 +21,6 @@ import Foundation
 ///  As a replacement, you can [migrate your apps to use Gemini Image models
 ///  (the "Nano Banana" models).](https://firebase.google.com/docs/ai-logic/imagen-models-migration)
 /// }
-///
-/// TODO(#14451): Make this `public` and move to the `Public` directory when ready.
 @available(
   *,
   deprecated,
