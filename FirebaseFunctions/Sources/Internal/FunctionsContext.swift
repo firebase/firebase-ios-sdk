@@ -38,7 +38,7 @@ struct FunctionsContextProvider: Sendable {
 
   func context(options: HTTPSCallableOptions?) async throws -> FunctionsContext {
     // Previously, this section uses `async let`, but that was changed for a
-    // `Task`-based approach to work around Swift regression in Xcode 26.4.
+    // `Task`-based approach to work around a Swift 6.3 regression in Xcode 26.4.
     // - Context: https://github.com/firebase/firebase-ios-sdk/issues/15974
     let authToken = Task { try await auth?.getToken(forcingRefresh: false) }
     let appCheckToken = Task { await getAppCheckToken(options: options) }
