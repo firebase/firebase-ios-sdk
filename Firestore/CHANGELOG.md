@@ -1,5 +1,6 @@
 # Unreleased
 - [feature] Added support for Pipeline expressions `nor` and `switchOn`. (#15943)
+- [feature] Added support for Pipeline expressions `ifNull` and `coalesce`. (#15989)
 
 # 12.11.0
 - [feature] Added support for `first`, `last`, `arrayAgg`, and `arrayAggDistinct` Pipeline expressions. (#15941)
