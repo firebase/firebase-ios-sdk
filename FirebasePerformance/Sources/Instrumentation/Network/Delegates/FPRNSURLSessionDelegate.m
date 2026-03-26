@@ -47,12 +47,8 @@ void FPRHandleDidFinishCollectingMetrics(NSURLSessionTask *task,
     // Use task metrics for accurate byte counts (more reliable than incremental callbacks).
     NSURLSessionTaskTransactionMetrics *transactionMetrics = metrics.transactionMetrics.lastObject;
     if (transactionMetrics) {
-      if (transactionMetrics.countOfResponseBodyBytesReceived > 0) {
-        trace.responseSize = transactionMetrics.countOfResponseBodyBytesReceived;
-      }
-      if (transactionMetrics.countOfRequestBodyBytesSent > 0) {
-        trace.requestSize = transactionMetrics.countOfRequestBodyBytesSent;
-      }
+      trace.responseSize = transactionMetrics.countOfResponseBodyBytesReceived;
+      trace.requestSize = transactionMetrics.countOfRequestBodyBytesSent;
     }
     // Ensure intermediate checkpoints are recorded before completion.
     [trace checkpointState:FPRNetworkTraceCheckpointStateRequestCompleted];
