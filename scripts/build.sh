@@ -174,7 +174,7 @@ if [[ "$xcode_major" -lt 16 && "$method" != "cmake" ]]; then
 else
   iphone_simulator_name="iPhone 16"
   if [[ "$xcode_major" -gt 16 ]]; then
-    iphone_simulator_name="iPhone 16e"
+    iphone_simulator_name="iPhone 17"
   fi
   ios_flags=(
     -destination "platform=iOS Simulator,name=${iphone_simulator_name}"
