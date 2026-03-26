@@ -136,6 +136,11 @@ public final class FirebaseAI: Sendable {
   ///   - safetySettings: Settings describing what types of potentially harmful content your model
   ///     should allow.
   ///   - requestOptions: Configuration parameters for sending requests to the backend.
+  @available(
+    *,
+    deprecated,
+    message: "All imagen models are deprecated and will shut down as early as June 2026. As a replacement, you can migrate your apps to use Gemini Image models (the \"Nano Banana\" models)."
+  )
   public func imagenModel(modelName: String, generationConfig: ImagenGenerationConfig? = nil,
                           safetySettings: ImagenSafetySettings? = nil,
                           requestOptions: RequestOptions = RequestOptions()) -> ImagenModel {
@@ -170,6 +175,11 @@ public final class FirebaseAI: Sendable {
   /// Initializes a new `TemplateImagenModel`.
   ///
   /// - Returns: A new `TemplateImagenModel` instance.
+  @available(
+    *,
+    deprecated,
+    message: "All imagen models are deprecated and will shut down as early as June 2026. As a replacement, you can migrate your apps to use Gemini Image models (the \"Nano Banana\" models)."
+  )
   public func templateImagenModel() -> TemplateImagenModel {
     return TemplateImagenModel(
       generativeAIService: GenerativeAIService(firebaseInfo: firebaseInfo,

@@ -19,6 +19,11 @@ import Foundation
 /// images based on various input types.
 ///
 /// **Public Preview**: This API is a public preview and may be subject to change.
+@available(
+  *,
+  deprecated,
+  message: "All imagen models are deprecated and will shut down as early as June 2026. As a replacement, you can migrate your apps to use Gemini Image models (the \"Nano Banana\" models)."
+)
 public final class TemplateImagenModel: Sendable {
   let generativeAIService: GenerativeAIService
   let apiConfig: APIConfig

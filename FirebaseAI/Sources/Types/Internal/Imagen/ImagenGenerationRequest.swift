@@ -14,6 +14,12 @@
 
 import Foundation
 
+/// }
+@available(
+  *,
+  deprecated,
+  message: "All imagen models are deprecated and will shut down as early as June 2026. As a replacement, you can migrate your apps to use Gemini Image models (the \"Nano Banana\" models)."
+)
 struct ImagenGenerationRequest<ImageType: ImagenImageRepresentable>: Sendable {
   let model: String
   let apiConfig: APIConfig
@@ -34,6 +40,11 @@ struct ImagenGenerationRequest<ImageType: ImagenImageRepresentable>: Sendable {
   }
 }
 
+@available(
+  *,
+  deprecated,
+  message: "All imagen models are deprecated and will shut down as early as June 2026. As a replacement, you can migrate your apps to use Gemini Image models (the \"Nano Banana\" models)."
+)
 extension ImagenGenerationRequest: GenerativeAIRequest where ImageType: Decodable {
   typealias Response = ImagenGenerationResponse<ImageType>
 
@@ -47,6 +58,11 @@ extension ImagenGenerationRequest: GenerativeAIRequest where ImageType: Decodabl
   }
 }
 
+@available(
+  *,
+  deprecated,
+  message: "All imagen models are deprecated and will shut down as early as June 2026. As a replacement, you can migrate your apps to use Gemini Image models (the \"Nano Banana\" models)."
+)
 extension ImagenGenerationRequest: Encodable {
   enum CodingKeys: CodingKey {
     case instances
