@@ -142,20 +142,9 @@ void InstrumentURLSessionDidCreateTask(FPRClassInstrumentor *instrumentor) {
     IMP currentIMP = selectorInstrumentor.currentIMP;
     [selectorInstrumentor
         setReplacingBlock:^(id object, NSURLSession *session, NSURLSessionTask *task) {
-          @try {
-            // Only create a trace when the ObjC task creation swizzle has not already done so.
-            if ([FPRNetworkTrace networkTraceFromObject:task] == nil && task.originalRequest) {
-              FPRNetworkTrace *trace =
-                  [[FPRNetworkTrace alloc] initWithURLRequest:task.originalRequest];
-              [trace start];
-              [FPRNetworkTrace addNetworkTrace:trace toObject:task];
-            }
-          } @catch (NSException *exception) {
-            FPRLogWarning(kFPRNetworkTraceNotTrackable, @"Unable to track network request.");
-          } @finally {
-            typedef void (*OriginalImp)(id, SEL, NSURLSession *, NSURLSessionTask *);
-            ((OriginalImp)currentIMP)(object, selector, session, task);
-          }
+          FPRHandleDidCreateTask(task);
+          typedef void (*OriginalImp)(id, SEL, NSURLSession *, NSURLSessionTask *);
+          ((OriginalImp)currentIMP)(object, selector, session, task);
         }];
   }
 }
@@ -178,31 +167,10 @@ void InstrumentURLSessionTaskDidFinishCollectingMetrics(FPRClassInstrumentor *in
     [selectorInstrumentor
         setReplacingBlock:^(id object, NSURLSession *session, NSURLSessionTask *task,
                             NSURLSessionTaskMetrics *metrics) {
-          @try {
-            FPRNetworkTrace *trace = [FPRNetworkTrace networkTraceFromObject:task];
-            if (trace) {
-              NSURLSessionTaskTransactionMetrics *transactionMetrics =
-                  metrics.transactionMetrics.lastObject;
-              if (transactionMetrics) {
-                if (transactionMetrics.countOfResponseBodyBytesReceived > 0) {
-                  trace.responseSize = transactionMetrics.countOfResponseBodyBytesReceived;
-                }
-                if (transactionMetrics.countOfRequestBodyBytesSent > 0) {
-                  trace.requestSize = transactionMetrics.countOfRequestBodyBytesSent;
-                }
-              }
-              [trace checkpointState:FPRNetworkTraceCheckpointStateRequestCompleted];
-              [trace checkpointState:FPRNetworkTraceCheckpointStateResponseReceived];
-              [trace didCompleteRequestWithResponse:task.response error:task.error];
-              [FPRNetworkTrace removeNetworkTraceFromObject:task];
-            }
-          } @catch (NSException *exception) {
-            FPRLogWarning(kFPRNetworkTraceNotTrackable, @"Unable to track network request.");
-          } @finally {
-            typedef void (*OriginalImp)(id, SEL, NSURLSession *, NSURLSessionTask *,
-                                        NSURLSessionTaskMetrics *);
-            ((OriginalImp)currentIMP)(object, selector, session, task, metrics);
-          }
+          FPRHandleDidFinishCollectingMetrics(task, metrics);
+          typedef void (*OriginalImp)(id, SEL, NSURLSession *, NSURLSessionTask *,
+                                      NSURLSessionTaskMetrics *);
+          ((OriginalImp)currentIMP)(object, selector, session, task, metrics);
         }];
   }
 }
