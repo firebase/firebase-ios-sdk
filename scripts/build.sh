@@ -168,19 +168,44 @@ function CheckUnexpectedFailures() {
   fi
 }
 
+# Dynamically fetches the latest available simulator for a given OS and device type.
+function get_latest_simulator() {
+  local os_name="$1"
+  local device_keyword="$2"
+  local simulator_name
+
+  simulator_name=$(xcrun simctl list devices available -j \
+    | jq -r --arg os "$os_name" --arg dev "$device_keyword" '
+    .devices | 
+    to_entries | 
+    map(select(.key | contains($os))) | 
+    sort_by(.key) | 
+    last | 
+    .value | 
+    map(select(.name | contains($dev))) | 
+    first | 
+    .name
+  ')
+
+  if [[ -z "$simulator_name" ]] || [[ "$simulator_name" == "null" ]]; then
+    echo "Error: Could not find a simulator for OS '$os_name' and device '$device_keyword'." >&2
+    return 1
+  fi
+  
+  echo "Selected $os_name Simulator: $simulator_name"
+}
+
 if [[ "$xcode_major" -lt 16 && "$method" != "cmake" ]]; then
   echo "Unsupported Xcode major version being used: $xcode_major"
   exit 1
 else
-  iphone_simulator_name="iPhone 16"
-  if [[ "$xcode_major" -gt 16 ]]; then
-    iphone_simulator_name="iPhone 16e"
-  fi
+  iphone_simulator_name=$(get_latest_simulator "iOS" "iPhone")
   ios_flags=(
-    -destination "platform=iOS Simulator,name=${iphone_simulator_name}"
+    -destination "platform=iOS Simulator,OS=latest,name=${iphone_simulator_name}"
   )
+  watchos_simulator_name=$(get_latest_simulator "watchOS" "Apple Watch")
   watchos_flags=(
-    -destination 'platform=watchOS Simulator,name=Apple Watch Series 11 (42mm)'
+    -destination "platform=watchOS Simulator,OS=latest,name=${watchos_simulator_name}"
   )
 fi
 
@@ -195,8 +220,9 @@ ipad_flags=(
 macos_flags=(
   -destination 'platform=OS X,arch=x86_64'
 )
+tvos_simulator_name=$(get_latest_simulator "tvOS" "Apple TV")
 tvos_flags=(
-  -destination 'platform=tvOS Simulator,name=Apple TV'
+  -destination "platform=tvOS Simulator,OS=latest,name=${tvos_simulator_name}"
 )
 if [[ "$xcode_major" -ge 26 ]]; then
   visionos_flags=(
