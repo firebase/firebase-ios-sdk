@@ -132,8 +132,6 @@ class FunctionExpr : public Expr {
   std::vector<std::shared_ptr<Expr>> params_;
 };
 
-
-
 class PipelineExpr : public Expr {
  public:
   explicit PipelineExpr(std::vector<std::shared_ptr<Stage>> stages)

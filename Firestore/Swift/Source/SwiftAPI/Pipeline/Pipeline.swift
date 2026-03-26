@@ -342,13 +342,11 @@ public class Pipeline: @unchecked Sendable {
   /// variable for internal reuse within the pipeline body (accessed via `Expression.variable()`).
   ///
   /// This stage is particularly useful for passing values from an outer pipeline into a subquery,
-  /// or
-  /// for declaring reusable intermediate calculations that can be referenced multiple times in
-  /// later
-  /// parts of the pipeline via `Expression.variable()`.
+  /// or for declaring reusable intermediate calculations that can be referenced multiple times in
+  /// later parts of the pipeline via `Expression.variable()`.
   ///
-  /// Each variable is defined using an `AliasedExpression`, which pairs an expression with a name
-  /// (alias). Use `.as()` on an expression to create an `AliasedExpression`.
+  /// Each variable is defined using an `AliasedExpression`, which pairs an expression with a name.
+  /// Use `.as()` on an expression to create an `AliasedExpression`.
   ///
   /// ```swift
   /// firestore.pipeline().collection("products")
@@ -714,6 +712,7 @@ public class Pipeline: @unchecked Sendable {
   /// array.
   /// - If the items have multiple fields, they are returned as dictionaries in the array.
   ///
+  /// Example (Single Field):
   /// ```swift
   /// // Get a list of reviewers for each book
   /// firestore.pipeline().collection("books")
@@ -723,7 +722,49 @@ public class Pipeline: @unchecked Sendable {
   ///             .where(Field("book_id").equal(Expression.variable("book_id")))
   ///             .select([Field("reviewer")])
   ///             .toArrayExpression()
-  ///             .as("reviewers")])
+  ///             .as("reviewers")
+  ///     ])
+  /// ```
+  ///
+  /// Output:
+  /// ```json
+  /// [
+  ///   {
+  ///     "id": "1",
+  ///     "title": "1984",
+  ///     "reviewers": ["Alice", "Bob"]
+  ///   }
+  /// ]
+  /// ```
+  ///
+  /// Example (Multiple Fields):
+  /// ```swift
+  /// // Get a list of reviews (reviewer and rating) for each book
+  /// firestore.pipeline().collection("books")
+  ///     .define([Field("id").as("book_id")])
+  ///     .addFields([
+  ///         firestore.pipeline().collection("reviews")
+  ///             .where(Field("book_id").equal(Expression.variable("book_id")))
+  ///             .select([Field("reviewer"), Field("rating")])
+  ///             .toArrayExpression()
+  ///             .as("reviews")
+  ///     ])
+  /// ```
+  ///
+  /// *When the subquery produces multiple fields, they are kept as objects in the array:*
+  ///
+  /// Output:
+  /// ```json
+  /// [
+  ///   {
+  ///     "id": "1",
+  ///     "title": "1984",
+  ///     "reviews": [
+  ///       { "reviewer": "Alice", "rating": 5 },
+  ///       { "reviewer": "Bob", "rating": 4 }
+  ///     ]
+  ///   }
+  /// ]
   /// ```
   ///
   /// - Returns: An `Expression` that executes this pipeline and returns the results as an array.
@@ -740,6 +781,7 @@ public class Pipeline: @unchecked Sendable {
   /// - If the item has a single field, its value is unwrapped and returned directly.
   /// - If the item has multiple fields, they are returned as a dictionary.
   ///
+  /// Example (Single Field):
   /// ```swift
   /// // Calculate average rating for a restaurant
   /// firestore.pipeline().collection("restaurants")
@@ -751,6 +793,42 @@ public class Pipeline: @unchecked Sendable {
   ///       // Unwraps the single "avg" field to a scalar double
   ///       .toScalarExpression().as("average_rating")
   ///   ])
+  /// ```
+  ///
+  /// Output:
+  /// ```json
+  /// {
+  ///   "name": "The Burger Joint",
+  ///   "average_rating": 4.5
+  /// }
+  /// ```
+  ///
+  /// Example (Multiple Fields):
+  /// ```swift
+  /// // Calculate average rating AND count for a restaurant
+  /// firestore.pipeline().collection("restaurants")
+  ///   .define([Field("id").as("rid")])
+  ///   .addFields([
+  ///     firestore.pipeline().collection("reviews")
+  ///       .where(Field("restaurant_id").equal(Expression.variable("rid")))
+  ///       .aggregate([
+  ///         Field("rating").average().as("avg"),
+  ///         Field("rating").count().as("count")
+  ///       ])
+  ///       // Returns a Dictionary with "avg" and "count" fields
+  ///       .toScalarExpression().as("stats")
+  ///   ])
+  /// ```
+  ///
+  /// Output:
+  /// ```json
+  /// {
+  ///   "name": "The Burger Joint",
+  ///   "stats": {
+  ///     "avg": 4.5,
+  ///     "count": 100
+  ///   }
+  /// }
   /// ```
   ///
   /// - Returns: An `Expression` representing the scalar result.

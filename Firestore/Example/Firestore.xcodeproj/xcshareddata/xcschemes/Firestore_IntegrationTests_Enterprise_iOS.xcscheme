@@ -75,7 +75,6 @@
             value = "enterprise"
             isEnabled = "YES">
          </EnvironmentVariable>
-
       </EnvironmentVariables>
    </LaunchAction>
    <ProfileAction

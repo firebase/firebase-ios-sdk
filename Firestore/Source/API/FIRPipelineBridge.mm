@@ -1352,8 +1352,6 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
   return cpp_pipeline;
 }
 
-
-
 + (NSArray<FIRStageBridge *> *)createStageBridgesFromQuery:(FIRQuery *)query {
   std::vector<std::shared_ptr<api::EvaluableStage>> evaluable_stages =
       firebase::firestore::core::ToPipelineStages(query.query);

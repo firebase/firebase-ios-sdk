@@ -1362,21 +1362,11 @@ public protocol Expression: Sendable {
 
   /// Creates an expression that accesses a field on this expression using a string key.
   ///
-  /// ```swift
-  /// // Access the "name" field on a document
-  /// CurrentDocument().getField("name")
-  /// ```
-  ///
   /// - Parameter key: The string key to access.
   /// - Returns: A new `FunctionExpression` representing the field access.
   func getField(_ key: String) -> FunctionExpression
 
   /// Creates an expression that accesses a field on this expression using a dynamic key expression.
-  ///
-  /// ```swift
-  /// // Access a field using a dynamic key stored in a variable
-  /// CurrentDocument().getField(Variable("myKey"))
-  /// ```
   ///
   /// - Parameter expression: The expression evaluating to a key to access.
   /// - Returns: A new `FunctionExpression` representing the field access.

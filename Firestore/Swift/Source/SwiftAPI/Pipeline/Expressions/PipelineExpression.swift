@@ -12,10 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/// An internal `Expression` wrapper for a `Pipeline`.
-/// This aligns with the Android/Java SDK structure, enabling a pipeline to be passed via bridging
-/// into a `FunctionExpression` without having the `Pipeline` itself strictly conform to the
-/// `Expression` protocol.
+/// An internal `Expression` wrapper that allows a `Pipeline` to be used as an expression.
+///
+/// This enables a `Pipeline` (composed of multiple stages) to be passed via bridging into a
+/// `FunctionExpression` or other expression contexts in the iOS SDK, without requiring the
+/// `Pipeline` itself to conform to the `Expression` protocol.
 struct PipelineExpression: Expression, BridgeWrapper, @unchecked Sendable {
   let bridge: ExprBridge
   let errorMessage: String?
@@ -29,7 +30,7 @@ struct PipelineExpression: Expression, BridgeWrapper, @unchecked Sendable {
       self.errorMessage = errorMessage
     } else {
       bridge = PipelineExprBridge(stages: pipeline.stages.map { $0.bridge })
-      self.errorMessage = nil
+      errorMessage = nil
     }
   }
 }

@@ -19,7 +19,6 @@ import FirebaseFirestore
 import Foundation
 import XCTest
 
-
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class PipelineIntegrationTests: FSTIntegrationTestCase {
   override func setUpWithError() throws {
@@ -514,7 +513,8 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testConvertsArraysAndPlainObjectsToFunctionValues() async throws {
-    let collRef = collectionRef(withDocuments: TestHelper.bookDocs) // Uses existing TestHelper.bookDocs
+    let collRef = collectionRef(withDocuments: TestHelper
+      .bookDocs) // Uses existing TestHelper.bookDocs
     let db = collRef.firestore
 
     // Expected data for "The Lord of the Rings"

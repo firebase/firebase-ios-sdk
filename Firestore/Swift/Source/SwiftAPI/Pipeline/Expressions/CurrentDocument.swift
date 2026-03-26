@@ -12,9 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/// An expression that represents the current document in the pipeline stage context.
-public class CurrentDocument: FunctionExpression, @unchecked Sendable {
+/// An expression that represents the current document being processed.
+///
+/// Example:
+/// ```swift
+/// // Define the current document as a variable "doc"
+/// firestore.pipeline().collection("books")
+///     .define([CurrentDocument().as("doc")])
+///     // Access a field from the defined document variable
+///     .select([Variable("doc").getField("title")])
+/// ```
+public struct CurrentDocument: Expression, BridgeWrapper {
+  let bridge: ExprBridge
+
   public init() {
-    super.init(functionName: "current_document", args: [])
+    bridge = FunctionExprBridge(name: "current_document", args: [])
   }
 }
