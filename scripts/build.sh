@@ -170,6 +170,12 @@ function CheckUnexpectedFailures() {
 
 # Dynamically fetches the latest available simulator for a given OS and device type.
 function get_latest_simulator() {
+  if [[ "$method" == "cmake" ]]; then
+    # Skip for cmake builds since xcrun isn't available on Linux.
+    echo "null"
+    return 0
+  fi
+
   local os_name="$1"
   local device_keyword="$2"
   local simulator_name
