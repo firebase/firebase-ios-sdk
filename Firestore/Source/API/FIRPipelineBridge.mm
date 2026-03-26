@@ -89,42 +89,6 @@ using firebase::firestore::api::Sample;
 using firebase::firestore::api::SelectStage;
 using firebase::firestore::api::SnapshotMetadata;
 using firebase::firestore::api::SortStage;
-using firebase::firestore::api::Union;
-using firebase::firestore::api::Unnest;
-using firebase::firestore::api::Variable;
-using firebase::firestore::api::Where;
-// ... (skip lines to keep context short if possible, but replace needs context)
-// Actually I'll split into multiple chunks for safer replacement.
-
-// Chunk 1: imports
-using firebase::firestore::api::CollectionSource;
-using firebase::firestore::api::Constant;
-using firebase::firestore::api::DatabaseSource;
-using firebase::firestore::api::DefineStage;
-using firebase::firestore::api::DistinctStage;
-using firebase::firestore::api::DocumentChange;
-using firebase::firestore::api::DocumentReference;
-using firebase::firestore::api::DocumentsSource;
-using firebase::firestore::api::Expr;
-using firebase::firestore::api::Field;
-using firebase::firestore::api::FindNearestStage;
-using firebase::firestore::api::FunctionExpr;
-using firebase::firestore::api::LimitStage;
-using firebase::firestore::api::MakeFIRTimestamp;
-using firebase::firestore::api::OffsetStage;
-using firebase::firestore::api::Ordering;
-using firebase::firestore::api::Pipeline;
-using firebase::firestore::api::PipelineResultChange;
-using firebase::firestore::api::QueryListenerRegistration;
-using firebase::firestore::api::RawStage;
-using firebase::firestore::api::RealtimePipeline;
-using firebase::firestore::api::RealtimePipelineSnapshot;
-using firebase::firestore::api::RemoveFieldsStage;
-using firebase::firestore::api::ReplaceWith;
-using firebase::firestore::api::Sample;
-using firebase::firestore::api::SelectStage;
-using firebase::firestore::api::SnapshotMetadata;
-using firebase::firestore::api::SortStage;
 using firebase::firestore::api::SubcollectionSource;
 using firebase::firestore::api::Union;
 using firebase::firestore::api::Unnest;
@@ -379,14 +343,6 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
 
 - (std::shared_ptr<api::Stage>)cppStageWithReader:(FSTUserDataReader *)reader {
   return cpp_subcollection_source;
-}
-
-- (id)initWithCppStage:(std::shared_ptr<const api::SubcollectionSource>)stage {
-  self = [super init];
-  if (self) {
-    cpp_subcollection_source = std::const_pointer_cast<api::SubcollectionSource>(stage);
-  }
-  return self;
 }
 
 - (NSString *)name {
@@ -1333,18 +1289,23 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
 
 @implementation FIRPipelineExprBridge {
   NSArray<FIRStageBridge *> *_stages;
+  Boolean isUserDataRead;
+  std::vector<std::shared_ptr<api::Stage>> cpp_stages;
 }
 - (id)initWithStages:(NSArray<FIRStageBridge *> *)stages {
   self = [super init];
   if (self) {
     _stages = stages;
+    isUserDataRead = NO;
   }
   return self;
 }
 - (std::shared_ptr<api::Expr>)cppExprWithReader:(FSTUserDataReader *)reader {
-  std::vector<std::shared_ptr<api::Stage>> cpp_stages;
-  for (FIRStageBridge *stage in _stages) {
-    cpp_stages.push_back([stage cppStageWithReader:reader]);
+  if (!isUserDataRead) {
+    for (FIRStageBridge *stage in _stages) {
+      cpp_stages.push_back([stage cppStageWithReader:reader]);
+    }
+    isUserDataRead = YES;
   }
   return std::make_shared<api::PipelineExpr>(cpp_stages);
 }
@@ -1391,9 +1352,7 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
   return cpp_pipeline;
 }
 
-- (FIRExprBridge *)toExprBridge {
-  return [[FIRPipelineExprBridge alloc] initWithStages:_stages];
-}
+
 
 + (NSArray<FIRStageBridge *> *)createStageBridgesFromQuery:(FIRQuery *)query {
   std::vector<std::shared_ptr<api::EvaluableStage>> evaluable_stages =

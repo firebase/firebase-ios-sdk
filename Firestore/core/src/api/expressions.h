@@ -34,6 +34,7 @@ class EvaluableExpr;
 namespace api {
 
 class Pipeline;
+class Stage;
 
 class Expr {
  public:
@@ -131,7 +132,7 @@ class FunctionExpr : public Expr {
   std::vector<std::shared_ptr<Expr>> params_;
 };
 
-class Stage;
+
 
 class PipelineExpr : public Expr {
  public:

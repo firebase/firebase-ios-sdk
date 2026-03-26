@@ -221,8 +221,8 @@ class AddFields : public Stage {
 class DefineStage : public Stage {
  public:
   explicit DefineStage(
-      std::unordered_map<std::string, std::shared_ptr<Expr>> fields)
-      : fields_(std::move(fields)) {
+      std::unordered_map<std::string, std::shared_ptr<Expr>> variables)
+      : variables_(std::move(variables)) {
   }
   ~DefineStage() override = default;
 
@@ -234,7 +234,7 @@ class DefineStage : public Stage {
   }
 
  private:
-  std::unordered_map<std::string, std::shared_ptr<Expr>> fields_;
+  std::unordered_map<std::string, std::shared_ptr<Expr>> variables_;
 };
 
 class AggregateStage : public Stage {

@@ -171,7 +171,7 @@ google_firestore_v1_Pipeline_Stage DefineStage::to_proto() const {
   result.args[0].which_value_type = google_firestore_v1_Value_map_value_tag;
   nanopb::SetRepeatedField(
       &result.args[0].map_value.fields, &result.args[0].map_value.fields_count,
-      fields_, [](const std::pair<std::string, std::shared_ptr<Expr>>& entry) {
+      variables_, [](const std::pair<std::string, std::shared_ptr<Expr>>& entry) {
         return _google_firestore_v1_MapValue_FieldsEntry{
             nanopb::MakeBytesArray(entry.first), entry.second->to_proto()};
       });

@@ -25,13 +25,10 @@
 ///     .where(Variable("discountedPrice").lessThan(100))
 ///     .select([Field("name"), Variable("discountedPrice")])
 /// ```
-public struct Variable: Expression, BridgeWrapper, SelectableWrapper, @unchecked Sendable {
+public struct Variable: Expression, BridgeWrapper {
   let bridge: ExprBridge
 
   let name: String
-  var alias: String { name }
-
-  var expr: Expression { self }
 
   /// Creates a new `Variable` expression from a variable name.
   ///
