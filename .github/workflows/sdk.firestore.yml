@@ -290,13 +290,13 @@ jobs:
         run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
 
       - name: Install simulators in case they are missing.
-        if: matrix.target != 'macOS'
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
         with:
           timeout_minutes: 15
           max_attempts: 5
           retry_wait_seconds: 120
-          command: sudo xcodebuild -downloadPlatform ${{ matrix.target }}
+          continue_on_error: true
+          command: scripts/install_simulators.sh "${{ matrix.target }}"
 
       # 'FirestoreEnterprise' is used as product name for `build.sh` to select the enterprise build variant. `install_prereqs.sh` does not require this distinction, so 'Firestore' is used.
       - name: Setup build
@@ -346,13 +346,13 @@ jobs:
         run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
 
       - name: Install simulators in case they are missing.
-        if: matrix.target != 'macOS'
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
         with:
           timeout_minutes: 15
           max_attempts: 5
           retry_wait_seconds: 120
-          command: sudo xcodebuild -downloadPlatform ${{ matrix.target }}
+          continue_on_error: true
+          command: scripts/install_simulators.sh "${{ matrix.target }}"
 
       # 'FirestoreEnterprise' is used as product name for `build.sh` to select the enterprise build variant. `install_prereqs.sh` does not require this distinction, so 'Firestore' is used.
       - name: Setup build
@@ -409,13 +409,13 @@ jobs:
       run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
 
     - name: Install simulators in case they are missing.
-      if: matrix.target != 'macOS'
       uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
       with:
         timeout_minutes: 15
         max_attempts: 5
         retry_wait_seconds: 120
-        command: sudo xcodebuild -downloadPlatform ${{ matrix.target }}
+        continue_on_error: true
+        command: scripts/install_simulators.sh "${{ matrix.target }}"
 
     - name: Setup build
       # 'FirestoreEnterprise' is used as product name for `build.sh` to select the enterprise build variant. `install_prereqs.sh` does not require this distinction, so 'Firestore' is used.
