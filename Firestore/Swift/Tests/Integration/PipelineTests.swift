@@ -3449,8 +3449,14 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
           Constant(baseTimestamp).timestampTruncate(granularity: "day").as("truncDayString"),
           Constant(baseTimestamp).timestampTruncate(granularity: Constant("day"))
             .as("truncDayExpr"),
-          Constant(baseTimestamp).timestampTruncate(granularity: .day, timezone: "America/Los_Angeles").as("truncDayLA"),
-          Constant(baseTimestamp).timestampTruncate(granularity: "day", timezone: "America/Los_Angeles").as("truncDayLAString"),
+          Constant(baseTimestamp).timestampTruncate(
+            granularity: .day,
+            timezone: "America/Los_Angeles"
+          ).as("truncDayLA"),
+          Constant(baseTimestamp).timestampTruncate(
+            granularity: "day",
+            timezone: "America/Los_Angeles"
+          ).as("truncDayLAString"),
         ]
       )
 
@@ -3508,8 +3514,10 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
           Constant(baseTimestamp).timestampExtract(part: .microsecond).as("micros"),
           Constant(baseTimestamp).timestampExtract(part: .dayOfYear).as("day_of_year"),
           Constant(baseTimestamp).timestampExtract(part: .dayOfWeek).as("day_of_week"),
-          Constant(baseTimestamp).timestampExtract(part: .hour, timezone: "America/Los_Angeles").as("hourLA"),
-          Constant(baseTimestamp).timestampExtract(part: "hour", timezone: "America/Los_Angeles").as("hourLAString"),
+          Constant(baseTimestamp).timestampExtract(part: .hour, timezone: "America/Los_Angeles")
+            .as("hourLA"),
+          Constant(baseTimestamp).timestampExtract(part: "hour", timezone: "America/Los_Angeles")
+            .as("hourLAString"),
         ]
       )
 
@@ -3523,9 +3531,9 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       "minute": 43,
       "second": 55,
       "millis": 123,
-      "micros": 123456,
+      "micros": 123_456,
       "day_of_year": 66,
-      "day_of_week": 6, 
+      "day_of_week": 6,
       "hourLA": 12,
       "hourLAString": 12,
     ]
@@ -3541,13 +3549,13 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   func testTimestampDiffWorks() async throws {
     let db = firestore()
     let randomCol = collectionRef()
-    
+
     let startTimestamp = Timestamp(seconds: 1_741_428_000, nanoseconds: 0)
     let endTimestamp = Timestamp(seconds: 1_741_437_296, nanoseconds: 123_456_789)
 
     try await randomCol.document("diffDoc").setData([
       "start": startTimestamp,
-      "end": endTimestamp
+      "end": endTimestamp,
     ])
 
     let pipeline = db.pipeline()

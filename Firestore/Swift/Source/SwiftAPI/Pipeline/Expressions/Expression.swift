@@ -1817,7 +1817,8 @@ public protocol Expression: Sendable {
   /// - Returns: A new `FunctionExpression` representing the truncated timestamp.
   func timestampTruncate(granularity: Sendable) -> FunctionExpression
 
-  /// Creates an expression that truncates a timestamp to a specified granularity with a specified timezone.
+  /// Creates an expression that truncates a timestamp to a specified granularity with a specified
+  /// timezone.
   /// Assumes `self` evaluates to a Timestamp.
   ///
   /// ```swift
@@ -1826,33 +1827,41 @@ public protocol Expression: Sendable {
   /// ```
   ///
   /// - Parameter granularity: A `TimeGranularity` representing the truncation unit.
-  /// - Parameter timezone: A `Sendable` literal string or an `Expression` representing the timezone.
+  /// - Parameter timezone: A `Sendable` literal string or an `Expression` representing the
+  /// timezone.
   /// - Returns: A new `FunctionExpression` representing the truncated timestamp.
   func timestampTruncate(granularity: TimeGranularity, timezone: Sendable) -> FunctionExpression
 
-  /// Creates an expression that truncates a timestamp to a specified granularity with a specified timezone.
+  /// Creates an expression that truncates a timestamp to a specified granularity with a specified
+  /// timezone.
   /// Assumes `self` evaluates to a Timestamp.
   ///
   /// ```swift
-  /// // Truncate "timestamp" field to the nearest day in Los Angeles timezone using a literal string.
+  /// // Truncate "timestamp" field to the nearest day in Los Angeles timezone using a literal
+  /// string.
   /// Field("timestamp").timestampTruncate(granularity: "day", timezone: "America/Los_Angeles")
   /// ```
   ///
   /// ```swift
-  /// // Truncate "timestamp" field to the granularity specified by "granularity_field" in the timezone specified
+  /// // Truncate "timestamp" field to the granularity specified by "granularity_field" in the
+  /// timezone specified
   /// // by "timezone_field" using expressions.
-  /// Field("timestamp").timestampTruncate(granularity: Field("granularity_field"), timezone: Field("timezone_field"))
+  /// Field("timestamp").timestampTruncate(granularity: Field("granularity_field"), timezone:
+  /// Field("timezone_field"))
   /// ```
   ///
-  /// - Parameter granularity: A `Sendable` literal string or an `Expression` representing the truncation unit.
-  /// - Parameter timezone: A `Sendable` literal string or an `Expression` representing the timezone.
+  /// - Parameter granularity: A `Sendable` literal string or an `Expression` representing the
+  /// truncation unit.
+  /// - Parameter timezone: A `Sendable` literal string or an `Expression` representing the
+  /// timezone.
   /// - Returns: A new `FunctionExpression` representing the truncated timestamp.
   func timestampTruncate(granularity: Sendable, timezone: Sendable) -> FunctionExpression
 
   /// Calculates the difference between this timestamp and another timestamp.
   ///
   /// ```swift
-  /// // Calculate the difference in days between "endAt" (self) and a start field using a typed unit.
+  /// // Calculate the difference in days between "endAt" (self) and a start field using a typed
+  /// unit.
   /// Field("endAt").timestampDiff(Field("startAt"), .day)
   /// ```
   ///
@@ -1864,12 +1873,14 @@ public protocol Expression: Sendable {
   /// Calculates the difference between this timestamp and another timestamp.
   ///
   /// ```swift
-  /// // Calculate the difference in days between "endAt" (self) and a start field using a string unit.
+  /// // Calculate the difference in days between "endAt" (self) and a start field using a string
+  /// unit.
   /// Field("endAt").timestampDiff(Field("startAt"), "day")
   /// ```
   ///
   /// - Parameter start: An `Expression` representing the starting timestamp.
-  /// - Parameter unit: A `Sendable` literal string or an `Expression` representing the unit of time.
+  /// - Parameter unit: A `Sendable` literal string or an `Expression` representing the unit of
+  /// time.
   /// - Returns: A new `FunctionExpression` representing the difference.
   func timestampDiff(_ start: Expression, _ unit: Sendable) -> FunctionExpression
 
@@ -1884,18 +1895,21 @@ public protocol Expression: Sendable {
   /// - Returns: A new `FunctionExpression` representing the extracted part.
   func timestampExtract(part: TimePart) -> FunctionExpression
 
-  /// Creates an expression that extracts a specified part from this timestamp expression using a literal or expression.
+  /// Creates an expression that extracts a specified part from this timestamp expression using a
+  /// literal or expression.
   ///
   /// ```swift
   /// // Extract the day from the "timestamp" field using a string.
   /// Field("timestamp").timestampExtract(part: "day")
   /// ```
   ///
-  /// - Parameter part: A `Sendable` literal string or an `Expression` representing the part to extract.
+  /// - Parameter part: A `Sendable` literal string or an `Expression` representing the part to
+  /// extract.
   /// - Returns: A new `FunctionExpression` representing the extracted part.
   func timestampExtract(part: Sendable) -> FunctionExpression
 
-  /// Creates an expression that extracts a specified part from this timestamp expression in a given timezone.
+  /// Creates an expression that extracts a specified part from this timestamp expression in a given
+  /// timezone.
   ///
   /// ```swift
   /// // Extract the day from the "timestamp" field in Los Angeles timezone.
@@ -1903,20 +1917,23 @@ public protocol Expression: Sendable {
   /// ```
   ///
   /// - Parameter part: A `TimePart` representing the part to extract.
-  /// - Parameter timezone: A `Sendable` literal string or an `Expression` representing the timezone.
+  /// - Parameter timezone: A `Sendable` literal string or an `Expression` representing the
+  /// timezone.
   /// - Returns: A new `FunctionExpression` representing the extracted part.
   func timestampExtract(part: TimePart, timezone: Sendable) -> FunctionExpression
 
-
-  /// Creates an expression that extracts a specified part from this timestamp expression in a given timezone using a literal or expression.
+  /// Creates an expression that extracts a specified part from this timestamp expression in a given
+  /// timezone using a literal or expression.
   ///
   /// ```swift
   /// // Extract the day from the "timestamp" field in Los Angeles timezone using a string.
   /// Field("timestamp").timestampExtract(part: "day", timezone: "America/Los_Angeles")
   /// ```
   ///
-  /// - Parameter part: A `Sendable` literal string or an `Expression` representing the part to extract.
-  /// - Parameter timezone: A `Sendable` literal string or an `Expression` representing the timezone.
+  /// - Parameter part: A `Sendable` literal string or an `Expression` representing the part to
+  /// extract.
+  /// - Parameter timezone: A `Sendable` literal string or an `Expression` representing the
+  /// timezone.
   /// - Returns: A new `FunctionExpression` representing the extracted part.
   func timestampExtract(part: Sendable, timezone: Sendable) -> FunctionExpression
 

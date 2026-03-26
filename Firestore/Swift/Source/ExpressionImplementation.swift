@@ -1166,7 +1166,6 @@ public extension Expression {
     )
   }
 
-
   func timestampExtract(part: TimePart, timezone: Sendable) -> FunctionExpression {
     return FunctionExpression(
       functionName: "timestamp_extract",
