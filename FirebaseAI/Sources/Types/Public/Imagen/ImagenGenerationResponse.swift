@@ -26,8 +26,6 @@ import Foundation
 ///
 /// This type is returned from:
 ///   - ``ImagenModel/generateImages(prompt:)`` where `T` is ``ImagenInlineImage``
-// TODO(#14451): Re-add "- ``ImagenModel/generateImages(prompt:gcsURI:)`` where `T` is
-//                         ``ImagenGCSImage``" in the DocC above.
 @available(
   *,
   deprecated,
