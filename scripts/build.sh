@@ -176,14 +176,14 @@ function get_latest_simulator() {
 
   simulator_name=$(xcrun simctl list devices available -j \
     | jq -r --arg os "$os_name" --arg dev "$device_keyword" '
-    .devices | 
-    to_entries | 
-    map(select(.key | contains($os))) | 
-    sort_by(.key) | 
-    last | 
-    .value | 
-    map(select(.name | contains($dev))) | 
-    first | 
+    .devices |
+    to_entries |
+    map(select(.key | contains($os))) |
+    sort_by(.key) |
+    last |
+    .value |
+    map(select(.name | contains($dev))) |
+    first |
     .name
   ')
 
@@ -191,8 +191,8 @@ function get_latest_simulator() {
     echo "Error: Could not find a simulator for OS '$os_name' and device '$device_keyword'." >&2
     return 1
   fi
-  
-  echo "Selected $os_name Simulator: $simulator_name"
+
+  echo "$simulator_name"
 }
 
 if [[ "$xcode_major" -lt 16 && "$method" != "cmake" ]]; then
