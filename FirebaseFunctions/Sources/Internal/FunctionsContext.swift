@@ -37,17 +37,20 @@ struct FunctionsContextProvider: Sendable {
   }
 
   func context(options: HTTPSCallableOptions?) async throws -> FunctionsContext {
-    async let authToken = auth?.getToken(forcingRefresh: false)
-    async let appCheckToken = getAppCheckToken(options: options)
-    async let limitedUseAppCheckToken = getLimitedUseAppCheckToken(options: options)
+    // Previously, this section uses `async let`, but that was changed for a
+    // `Task`-based approach to work around Swift regression in Xcode 26.4.
+    // - Context: https://github.com/firebase/firebase-ios-sdk/issues/15974
+    let authToken = Task { try await auth?.getToken(forcingRefresh: false) }
+    let appCheckToken = Task { await getAppCheckToken(options: options) }
+    let limitedUseAppCheckToken = Task { await getLimitedUseAppCheckToken(options: options) }
 
     // Only `authToken` is throwing, but the formatter script removes the `try`
     // from `try authToken` and puts it in front of the initializer call.
-    return try await FunctionsContext(
-      authToken: authToken,
+    return try FunctionsContext(
+      authToken: await authToken.value,
       fcmToken: messaging?.fcmToken,
-      appCheckToken: appCheckToken,
-      limitedUseAppCheckToken: limitedUseAppCheckToken
+      appCheckToken: await appCheckToken.value,
+      limitedUseAppCheckToken: await limitedUseAppCheckToken.value
     )
   }
 
