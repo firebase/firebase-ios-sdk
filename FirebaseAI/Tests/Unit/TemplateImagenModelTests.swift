@@ -15,6 +15,7 @@
 @testable import FirebaseAILogic
 import XCTest
 
+@available(*, deprecated)
 @available(macOS 12.0, watchOS 8.0, *)
 final class TemplateImagenModelTests: XCTestCase {
   var urlSession: URLSession!
