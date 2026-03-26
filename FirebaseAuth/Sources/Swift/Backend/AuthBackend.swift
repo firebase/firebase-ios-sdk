@@ -64,11 +64,16 @@ final class AuthBackend: AuthBackendProtocol {
                       httpMethod: String,
                       contentType: String,
                       requestConfiguration: AuthRequestConfiguration) async -> URLRequest {
+    // Previously, this section uses `async let`, but that was changed for a
+    // `Task`-based approach to work around a Swift 6.3 regression in Xcode 26.4.
+    // - Context: https://github.com/firebase/firebase-ios-sdk/issues/15974
     // Kick off tasks for the async header values.
-    async let heartbeatsHeaderValue = requestConfiguration.heartbeatLogger?.asyncHeaderValue()
-    async let appCheckTokenHeaderValue = requestConfiguration.appCheck?
-      .getToken(forcingRefresh: false)
-
+    let heartbeatsHeaderValue = Task {
+      await requestConfiguration.heartbeatLogger?.asyncHeaderValue()
+    }
+    let appCheckTokenHeaderValue = Task {
+      await requestConfiguration.appCheck?.getToken(forcingRefresh: false)
+    }
     var request = URLRequest(url: url)
     request.setValue(contentType, forHTTPHeaderField: "Content-Type")
     let additionalFrameworkMarker = requestConfiguration.additionalFrameworkMarker
@@ -86,8 +91,8 @@ final class AuthBackend: AuthBackendProtocol {
       request.setValue(languageCode, forHTTPHeaderField: "X-Firebase-Locale")
     }
     // Wait for the async header values.
-    await request.setValue(heartbeatsHeaderValue, forHTTPHeaderField: "X-Firebase-Client")
-    if let tokenResult = await appCheckTokenHeaderValue {
+    await request.setValue(heartbeatsHeaderValue.value, forHTTPHeaderField: "X-Firebase-Client")
+    if let tokenResult = await appCheckTokenHeaderValue.value {
       if let error = tokenResult.error {
         AuthLog.logWarning(code: "I-AUT000018",
                            message: "Error getting App Check token; using placeholder " +
