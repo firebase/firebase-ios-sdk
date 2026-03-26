@@ -1131,6 +1131,63 @@ public extension Expression {
     )
   }
 
+  func timestampTruncate(granularity: TimeGranularity, timezone: Sendable) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "timestamp_trunc",
+      args: [self, Helper.sendableToExpr(granularity.rawValue), Helper.sendableToExpr(timezone)]
+    )
+  }
+
+  func timestampTruncate(granularity: Sendable, timezone: Sendable) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "timestamp_trunc",
+      args: [self, Helper.sendableToExpr(granularity), Helper.sendableToExpr(timezone)]
+    )
+  }
+
+  func timestampDiff(_ start: Expression, _ unit: TimeUnit) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "timestamp_diff",
+      args: [self, start, Helper.sendableToExpr(unit)]
+    )
+  }
+
+  func timestampDiff(_ start: Expression, _ unit: Sendable) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "timestamp_diff",
+      args: [self, start, Helper.sendableToExpr(unit)]
+    )
+  }
+
+  func timestampExtract(part: TimePart) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "timestamp_extract",
+      args: [self, Helper.sendableToExpr(part.rawValue)]
+    )
+  }
+
+
+  func timestampExtract(part: TimePart, timezone: Sendable) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "timestamp_extract",
+      args: [self, Helper.sendableToExpr(part.rawValue), Helper.sendableToExpr(timezone)]
+    )
+  }
+
+  func timestampExtract(part: Sendable) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "timestamp_extract",
+      args: [self, Helper.sendableToExpr(part)]
+    )
+  }
+
+  func timestampExtract(part: Sendable, timezone: Sendable) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "timestamp_extract",
+      args: [self, Helper.sendableToExpr(part), Helper.sendableToExpr(timezone)]
+    )
+  }
+
   func timestampAdd(_ amount: Int, _ unit: TimeUnit) -> FunctionExpression {
     return FunctionExpression(
       functionName: "timestamp_add",
