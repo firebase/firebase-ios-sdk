@@ -27,8 +27,6 @@ extension Expression {
   /// Creates an expression applying bitwise AND between this expression and an integer literal.
   /// Assumes `self` evaluates to an Integer or Bytes.
   ///
-  /// - Note: This API is in beta.
-  ///
   /// ```swift
   /// // Bitwise AND of "flags" field and 0xFF
   /// Field("flags").bitAnd(0xFF)
@@ -46,7 +44,7 @@ extension Expression {
   /// Creates an expression applying bitwise AND between this expression and a UInt8 literal (often
   /// for byte masks).
   /// Assumes `self` evaluates to an Integer or Bytes.
-  /// - Note: This API is in beta.
+  ///
   /// ```swift
   /// // Bitwise AND of "byteFlags" field and a byte mask
   /// Field("byteFlags").bitAnd(0b00001111 as UInt8)
@@ -62,7 +60,6 @@ extension Expression {
 
   /// Creates an expression applying bitwise AND between this expression and another expression.
   /// Assumes `self` and `bitsExpression` evaluate to Integer or Bytes.
-  /// - Note: This API is in beta.
   ///
   /// ```swift
   /// // Bitwise AND of "mask1" and "mask2" fields
@@ -76,8 +73,6 @@ extension Expression {
 
   /// Creates an expression applying bitwise OR between this expression and an integer literal.
   /// Assumes `self` evaluates to an Integer or Bytes.
-  ///
-  /// - Note: This API is in beta.
   ///
   /// ```swift
   /// // Bitwise OR of "flags" field and 0x01
@@ -95,7 +90,7 @@ extension Expression {
 
   /// Creates an expression applying bitwise OR between this expression and a UInt8 literal.
   /// Assumes `self` evaluates to an Integer or Bytes.
-  /// - Note: This API is in beta.
+  ///
   /// ```swift
   /// // Set specific bits in "controlByte"
   /// Field("controlByte").bitOr(0b10000001 as UInt8)
@@ -111,7 +106,6 @@ extension Expression {
 
   /// Creates an expression applying bitwise OR between this expression and another expression.
   /// Assumes `self` and `bitsExpression` evaluate to Integer or Bytes.
-  /// - Note: This API is in beta.
   ///
   /// ```swift
   /// // Bitwise OR of "permissionSet1" and "permissionSet2" fields
@@ -125,8 +119,6 @@ extension Expression {
 
   /// Creates an expression applying bitwise XOR between this expression and an integer literal.
   /// Assumes `self` evaluates to an Integer or Bytes.
-  ///
-  /// - Note: This API is in beta.
   ///
   /// ```swift
   /// // Bitwise XOR of "toggle" field and 0xFFFF
@@ -144,7 +136,7 @@ extension Expression {
 
   /// Creates an expression applying bitwise XOR between this expression and a UInt8 literal.
   /// Assumes `self` evaluates to an Integer or Bytes.
-  /// - Note: This API is in beta.
+  ///
   /// ```swift
   /// // Toggle bits in "statusByte" using a XOR mask
   /// Field("statusByte").bitXor(0b01010101 as UInt8)
@@ -160,7 +152,6 @@ extension Expression {
 
   /// Creates an expression applying bitwise XOR between this expression and another expression.
   /// Assumes `self` and `bitsExpression` evaluate to Integer or Bytes.
-  /// - Note: This API is in beta.
   ///
   /// ```swift
   /// // Bitwise XOR of "key1" and "key2" fields (assuming Bytes)
@@ -175,8 +166,6 @@ extension Expression {
   /// Creates an expression applying bitwise NOT to this expression.
   /// Assumes `self` evaluates to an Integer or Bytes.
   ///
-  /// - Note: This API is in beta.
-  ///
   /// ```swift
   /// // Bitwise NOT of "mask" field
   /// Field("mask").bitNot()
@@ -190,8 +179,6 @@ extension Expression {
   /// Creates an expression applying bitwise left shift to this expression by a literal number of
   /// bits.
   /// Assumes `self` evaluates to Integer or Bytes.
-  ///
-  /// - Note: This API is in beta.
   ///
   /// ```swift
   /// // Left shift "value" field by 2 bits
@@ -210,7 +197,6 @@ extension Expression {
   /// Creates an expression applying bitwise left shift to this expression by a number of bits
   /// specified by an expression.
   /// Assumes `self` evaluates to Integer or Bytes, and `numberExpr` evaluates to an Integer.
-  /// - Note: This API is in beta.
   ///
   /// ```swift
   /// // Left shift "data" by number of bits in "shiftCount" field
@@ -225,8 +211,6 @@ extension Expression {
   /// Creates an expression applying bitwise right shift to this expression by a literal number of
   /// bits.
   /// Assumes `self` evaluates to Integer or Bytes.
-  ///
-  /// - Note: This API is in beta.
   ///
   /// ```swift
   /// // Right shift "value" field by 4 bits
@@ -245,7 +229,6 @@ extension Expression {
   /// Creates an expression applying bitwise right shift to this expression by a number of bits
   /// specified by an expression.
   /// Assumes `self` evaluates to Integer or Bytes, and `numberExpr` evaluates to an Integer.
-  /// - Note: This API is in beta.
   ///
   /// ```swift
   /// // Right shift "data" by number of bits in "shiftCount" field
@@ -261,8 +244,6 @@ extension Expression {
   /// expression.
   /// Assumes both `self` and `other` evaluate to Vectors.
   ///
-  /// - Note: This API is in beta.
-  ///
   /// ```swift
   /// // Manhattan distance between "vector1" field and "vector2" field
   /// Field("vector1").manhattanDistance(Field("vector2"))
@@ -277,7 +258,7 @@ extension Expression {
   /// Calculates the Manhattan (L1) distance between this vector expression and another vector
   /// literal (`VectorValue`).
   /// Assumes `self` evaluates to a Vector.
-  /// - Note: This API is in beta.
+  ///
   /// ```swift
   /// let referencePoint = VectorValue(vector: [5.0, 10.0])
   /// Field("dataPoint").manhattanDistance(referencePoint)
@@ -294,7 +275,6 @@ extension Expression {
   /// Calculates the Manhattan (L1) distance between this vector expression and another vector
   /// literal (`[Double]`).
   /// Assumes `self` evaluates to a Vector.
-  /// - Note: This API is in beta.
   ///
   /// ```swift
   /// // Manhattan distance between "point" field and a target point

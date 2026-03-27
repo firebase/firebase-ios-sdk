@@ -1826,6 +1826,7 @@ public struct TurnCoverage: CodableProtoEnum, Sendable {
     case unspecified = "TURN_COVERAGE_UNSPECIFIED"
     case turnIncludesOnlyActivity = "TURN_INCLUDES_ONLY_ACTIVITY"
     case turnIncludesAllInput = "TURN_INCLUDES_ALL_INPUT"
+    case turnIncludesAudioActivityAndAllVideo = "TURN_INCLUDES_AUDIO_ACTIVITY_AND_ALL_VIDEO"
   }
 
   /// If unspecified, the default behavior is `TURN_INCLUDES_ONLY_ACTIVITY`.
@@ -1838,6 +1839,11 @@ public struct TurnCoverage: CodableProtoEnum, Sendable {
   /// The users turn includes all realtime input since the last turn, including
   /// inactivity (e.g. silence on the audio stream).
   public static let turnIncludesAllInput = TurnCoverage(kind: .turnIncludesAllInput)
+
+  /// Includes audio activity and all video since the last turn. With automatic
+  /// activity detection, audio activity means speech and excludes silence.
+  public static let turnIncludesAudioActivityAndAllVideo = TurnCoverage(
+    kind: .turnIncludesAudioActivityAndAllVideo)
 
   let rawValue: String
 }

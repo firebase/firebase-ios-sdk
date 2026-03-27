@@ -18,10 +18,21 @@ import Foundation
 
 /// Represents a remote Imagen model with the ability to generate images using text prompts.
 ///
+/// @DeprecationSummary {
+///  All Imagen models are deprecated and will shut down as early as June 2026.
+///  As a replacement, you can [migrate your apps to use Gemini Image models
+///  (the "Nano Banana" models).](https://firebase.google.com/docs/ai-logic/imagen-models-migration)
+/// }
+///
 /// See the [generate images
 /// documentation](https://firebase.google.com/docs/vertex-ai/generate-images-imagen?platform=ios)
 /// for more details about the image generation capabilities offered by the Imagen model in the
 /// Firebase AI SDK SDK.
+@available(
+  *,
+  deprecated,
+  message: "All Imagen models are deprecated and will shut down as early as June 2026. As a replacement, you can migrate your apps to use Gemini Image models (the \"Nano Banana\" models)."
+)
 public final class ImagenModel {
   /// Model name prefix to identify Imagen models.
   static let imagenModelNamePrefix = "imagen-"
@@ -100,7 +111,6 @@ public final class ImagenModel {
   ///   - gcsURI: The Cloud Storage (GCS) for Firebase URI where the generated images are stored.
   ///     This is a `"gs://"`-prefixed URI , for example, `"gs://bucket-name/path/"`.
   ///
-  /// TODO(#14451): Make this `public` when backend support is ready.
   func generateImages(prompt: String, gcsURI: String) async throws
     -> ImagenGenerationResponse<ImagenGCSImage> {
     return try await generateImages(
