@@ -110,6 +110,26 @@ class CollectionSource : public EvaluableStage {
   model::ResourcePath path_;
 };
 
+class SubcollectionSource : public Stage {
+ public:
+  explicit SubcollectionSource(std::string path);
+  ~SubcollectionSource() override = default;
+
+  google_firestore_v1_Pipeline_Stage to_proto() const override;
+
+  const std::string& name() const override {
+    static const std::string kName = "subcollection";
+    return kName;
+  }
+
+  std::string path() const {
+    return path_;
+  }
+
+ private:
+  std::string path_;
+};
+
 class DatabaseSource : public EvaluableStage {
  public:
   DatabaseSource() = default;
@@ -196,6 +216,25 @@ class AddFields : public Stage {
 
  private:
   std::unordered_map<std::string, std::shared_ptr<Expr>> fields_;
+};
+
+class DefineStage : public Stage {
+ public:
+  explicit DefineStage(
+      std::unordered_map<std::string, std::shared_ptr<Expr>> variables)
+      : variables_(std::move(variables)) {
+  }
+  ~DefineStage() override = default;
+
+  google_firestore_v1_Pipeline_Stage to_proto() const override;
+
+  const std::string& name() const override {
+    static const std::string kName = "let";
+    return kName;
+  }
+
+ private:
+  std::unordered_map<std::string, std::shared_ptr<Expr>> variables_;
 };
 
 class AggregateStage : public Stage {
