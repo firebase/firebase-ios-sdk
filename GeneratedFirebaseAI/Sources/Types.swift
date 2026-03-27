@@ -1266,6 +1266,32 @@ public struct ToolType: CodableProtoEnum, Sendable {
   let rawValue: String
 }
 
+/// Pricing and performance service tier.
+@available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+
+public struct ServiceTier: CodableProtoEnum, Sendable {
+  enum Kind: String {
+    case unspecified = "SERVICE_TIER_UNSPECIFIED"
+    case flex = "SERVICE_TIER_FLEX"
+    case standard = "SERVICE_TIER_STANDARD"
+    case priority = "SERVICE_TIER_PRIORITY"
+  }
+
+  /// Default service tier, which is standard.
+  public static let unspecified = ServiceTier(kind: .unspecified)
+
+  /// Flex service tier.
+  public static let flex = ServiceTier(kind: .flex)
+
+  /// Standard service tier.
+  public static let standard = ServiceTier(kind: .standard)
+
+  /// Priority service tier.
+  public static let priority = ServiceTier(kind: .priority)
+
+  let rawValue: String
+}
+
 /// The type of the data supported by JSON Schema.
 ///
 /// The values of the enums are lower case strings, while the values of the enums
@@ -8745,6 +8771,9 @@ public struct GenerateContentConfig: Sendable {
   /// service. If supplied, safety_settings must not be supplied.
   public let modelArmorConfig: ModelArmorConfig?
 
+  /// The service tier to use for the request. For example, SERVICE_TIER_FLEX.
+  public let serviceTier: ServiceTier?
+
   /// Default initializer.
   public init(
     httpOptions: HttpOptions? = nil,
@@ -8777,7 +8806,8 @@ public struct GenerateContentConfig: Sendable {
     thinkingConfig: ThinkingConfig? = nil,
     imageConfig: ImageConfig? = nil,
     enableEnhancedCivicAnswers: Bool? = nil,
-    modelArmorConfig: ModelArmorConfig? = nil
+    modelArmorConfig: ModelArmorConfig? = nil,
+    serviceTier: ServiceTier? = nil
   ) {
     self.httpOptions = httpOptions
     self.shouldReturnHttpResponse = shouldReturnHttpResponse
@@ -8810,6 +8840,7 @@ public struct GenerateContentConfig: Sendable {
     self.imageConfig = imageConfig
     self.enableEnhancedCivicAnswers = enableEnhancedCivicAnswers
     self.modelArmorConfig = modelArmorConfig
+    self.serviceTier = serviceTier
   }
 }
 
@@ -8849,6 +8880,7 @@ extension GenerateContentConfig: Codable {
   }
   public enum MLDevKeys: String, CodingKey {
     case enableEnhancedCivicAnswers = "enableEnhancedCivicAnswers"
+    case serviceTier = "serviceTier"
   }
   public enum VertexKeys: String, CodingKey {
     case modelSelectionConfig = "modelSelectionConfig"
@@ -8999,6 +9031,11 @@ extension GenerateContentConfig: Codable {
     enableEnhancedCivicAnswers = try MLDevKeysContainer.decodeIfPresent(
       Bool.self,
       forKey: .enableEnhancedCivicAnswers
+    )
+
+    serviceTier = try MLDevKeysContainer.decodeIfPresent(
+      ServiceTier.self,
+      forKey: .serviceTier
     )
 
     let VertexKeysContainer = try decoder.container(keyedBy: VertexKeys.self)
@@ -9163,6 +9200,11 @@ extension GenerateContentConfig: Codable {
       try MLDevKeysContainer.encodeIfPresent(
         enableEnhancedCivicAnswers,
         forKey: .enableEnhancedCivicAnswers
+      )
+
+      try MLDevKeysContainer.encodeIfPresent(
+        serviceTier,
+        forKey: .serviceTier
       )
 
     }
