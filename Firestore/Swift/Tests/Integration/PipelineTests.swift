@@ -1737,8 +1737,11 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       .collection(collRef.path)
       .select([
         Field("title"),
-        Field("published").lessThan(1960).then(Constant(1960), else: Field("published"))
-          .as("publishedSafe"),
+        ConditionalExpression(
+          Field("published").lessThan(1960),
+          then: Constant(1960),
+          else: Field("published")
+        ).as("publishedSafe"),
       ])
       .sort([Field("title").ascending()])
       .limit(3)
