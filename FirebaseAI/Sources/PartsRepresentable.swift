@@ -30,6 +30,8 @@ public extension Part {
 /// Enable an `Array` of ``PartsRepresentable`` values to be passed in as a single
 /// ``PartsRepresentable``.
 extension [PartsRepresentable]: PartsRepresentable {
+  // Note: this is written as Array<T> instead of [T] because
+  // devsite doesn't like it when a toc title begins with [].
   public var partsValue: [any Part] {
     return flatMap { $0.partsValue }
   }
