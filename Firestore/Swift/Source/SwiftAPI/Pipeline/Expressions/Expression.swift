@@ -1975,7 +1975,7 @@ public protocol Expression: Sendable {
   /// Field("preferredName").coalesce([Field("fullName"), Constant("Anonymous")])
   /// ```
   ///
-  /// - Parameter others: Optional additional expressions to check if previous ones are null.
+  /// - Parameter values: Optional additional expressions to check if previous ones are null.
   /// - Returns: A new `FunctionExpression` representing the `coalesce` operation.
   func coalesce(_ values: [Expression]) -> FunctionExpression
 
