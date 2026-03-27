@@ -1440,6 +1440,18 @@ public protocol Expression: Sendable {
 
   // MARK: Map Operations
 
+  /// Creates an expression that accesses a field on this expression using a string key.
+  ///
+  /// - Parameter key: The string key to access.
+  /// - Returns: A new `FunctionExpression` representing the field access.
+  func getField(_ key: String) -> FunctionExpression
+
+  /// Creates an expression that accesses a field on this expression using a dynamic key expression.
+  ///
+  /// - Parameter expression: The expression evaluating to a key to access.
+  /// - Returns: A new `FunctionExpression` representing the field access.
+  func getField(_ expression: Expression) -> FunctionExpression
+
   /// Accesses a value from a map (object) field using the provided literal string key.
   /// Assumes `self` evaluates to a Map.
   ///

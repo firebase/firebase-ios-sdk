@@ -11,8 +11,15 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
 extension Expression {
+  /// Returns the internal error message. It is dynamically dispatched
+  /// to specific expression implementations (like FunctionExpression), and returns `nil` for
+  /// others.
+  /// This design is to support pipeline conversion to expression.
+  var errorMessage: String? {
+    return Helper.errorMessage(for: self)
+  }
+
   func toBridge() -> ExprBridge {
     return (self as! BridgeWrapper).bridge
   }
@@ -1248,5 +1255,15 @@ public extension Expression {
 
   func type() -> FunctionExpression {
     return FunctionExpression(functionName: "type", args: [self])
+  }
+
+  /// Creates an expression that accesses a field on this expression using a string key.
+  func getField(_ key: String) -> FunctionExpression {
+    return FunctionExpression(functionName: "get_field", args: [self, Constant(key)])
+  }
+
+  /// Creates an expression that accesses a field on this expression using a dynamic key expression.
+  func getField(_ expression: Expression) -> FunctionExpression {
+    return FunctionExpression(functionName: "get_field", args: [self, expression])
   }
 }

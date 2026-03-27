@@ -43,6 +43,10 @@ struct BooleanFunctionExpression: BooleanExpression, BridgeWrapper {
   init(functionName: String, args: [Expression]) {
     expr = FunctionExpression(functionName: functionName, args: args)
   }
+
+  var errorMessage: String? {
+    return expr.errorMessage
+  }
 }
 
 struct BooleanConstant: BooleanExpression, BridgeWrapper {

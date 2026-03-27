@@ -25,6 +25,12 @@ public class FunctionExpression: Expression, BridgeWrapper, @unchecked Sendable 
   let functionName: String
   let args: [Expression]
 
+  /// The error message associated with this expression or its arguments, if any.
+  var errorMessage: String? {
+    let errors = args.compactMap { $0.errorMessage }
+    return errors.isEmpty ? nil : errors.joined(separator: "\n")
+  }
+
   /// Creates a new `FunctionExpression`.
   ///
   /// - Parameters:
@@ -35,8 +41,7 @@ public class FunctionExpression: Expression, BridgeWrapper, @unchecked Sendable 
     self.args = args
     bridge = FunctionExprBridge(
       name: functionName,
-      args: self.args.map { $0.toBridge()
-      }
+      args: self.args.map { $0.toBridge() }
     )
   }
 }

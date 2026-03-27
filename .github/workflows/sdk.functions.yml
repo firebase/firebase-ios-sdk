@@ -61,5 +61,5 @@ jobs:
       platforms: '[ "ios", "tvos", "macos" ]'
       flags: '[ "--use-static-frameworks" ]'
       setup_command: FirebaseFunctions/Backend/start.sh synchronous
-      runs_on: macos-14
-      xcode: Xcode_16.2
+      runs_on: macos-15
+      xcode: Xcode_16.4

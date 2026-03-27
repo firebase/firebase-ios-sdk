@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Foundation
+
 enum Helper {
   enum HelperError: Error, LocalizedError {
     case duplicateAlias(String)
@@ -22,6 +24,17 @@ enum Helper {
         return message
       }
     }
+  }
+
+  static func errorMessage(for expr: Expression) -> String? {
+    if let funcExpr = expr as? FunctionExpression {
+      return funcExpr.errorMessage
+    } else if let pipelineExpr = expr as? PipelineExpression {
+      return pipelineExpr.errorMessage
+    } else if let boolFuncExpr = expr as? BooleanFunctionExpression {
+      return boolFuncExpr.errorMessage
+    }
+    return nil
   }
 
   static func sendableToExpr(_ value: Sendable?) -> Expression {
@@ -44,15 +57,29 @@ enum Helper {
 
   static func selectablesToMap(selectables: [Selectable]) -> ([String: Expression], Error?) {
     var exprMap = [String: Expression]()
+    var errors = [String]()
     for selectable in selectables {
       guard let value = selectable as? SelectableWrapper else {
         fatalError("Selectable class must conform to SelectableWrapper.")
       }
       let alias = value.alias
-      if exprMap.keys.contains(alias) {
-        return ([:], HelperError.duplicateAlias("Duplicate alias '\(alias)' found in selectables."))
+      if let errorMessage = value.expr.errorMessage {
+        errors.append(errorMessage)
+      }
+      if exprMap[alias] != nil {
+        errors.append("Duplicate alias '\(alias)' found in selectables.")
       }
       exprMap[alias] = value.expr
+    }
+    if !errors.isEmpty {
+      return (
+        [:],
+        NSError(
+          domain: "com.google.firebase.firestore",
+          code: 3,
+          userInfo: [NSLocalizedDescriptionKey: errors.joined(separator: "\n")]
+        )
+      )
     }
     return (exprMap, nil)
   }
@@ -60,15 +87,26 @@ enum Helper {
   static func aliasedAggregatesToMap(accumulators: [AliasedAggregate])
     -> ([String: AggregateFunction], Error?) {
     var accumulatorMap = [String: AggregateFunction]()
+    var errors = [String]()
     for aliasedAggregate in accumulators {
       let alias = aliasedAggregate.alias
-      if accumulatorMap.keys.contains(alias) {
-        return (
-          [:],
-          HelperError.duplicateAlias("Duplicate alias '\(alias)' found in accumulators.")
-        )
+      if let errorMessage = aliasedAggregate.aggregate.errorMessage {
+        errors.append(errorMessage)
+      }
+      if accumulatorMap[alias] != nil {
+        errors.append("Duplicate alias '\(alias)' found in accumulators.")
       }
       accumulatorMap[alias] = aliasedAggregate.aggregate
+    }
+    if !errors.isEmpty {
+      return (
+        [:],
+        NSError(
+          domain: "com.google.firebase.firestore",
+          code: 3,
+          userInfo: [NSLocalizedDescriptionKey: errors.joined(separator: "\n")]
+        )
+      )
     }
     return (accumulatorMap, nil)
   }
