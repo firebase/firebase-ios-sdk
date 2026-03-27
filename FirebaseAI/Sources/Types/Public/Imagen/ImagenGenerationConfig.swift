@@ -14,9 +14,20 @@
 
 /// Configuration options for generating images with Imagen.
 ///
+/// @DeprecationSummary {
+///  All Imagen models are deprecated and will shut down as early as June 2026.
+///  As a replacement, you can [migrate your apps to use Gemini Image models
+///  (the "Nano Banana" models).](https://firebase.google.com/docs/ai-logic/imagen-models-migration)
+/// }
+///
 /// See [Parameters for Imagen
 /// models](https://firebase.google.com/docs/vertex-ai/model-parameters?platform=ios#imagen) to
 /// learn about parameters available for use with Imagen models, including how to configure them.
+@available(
+  *,
+  deprecated,
+  message: "All Imagen models are deprecated and will shut down as early as June 2026. As a replacement, you can migrate your apps to use Gemini Image models (the \"Nano Banana\" models)."
+)
 public struct ImagenGenerationConfig {
   /// Specifies elements to exclude from the generated image.
   ///
