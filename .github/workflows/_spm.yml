@@ -97,8 +97,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-15, macos-26]
-        xcode: [Xcode_16.4, Xcode_26.2]
+        # os: [macos-15, macos-26]
+        os: [macos-26]
+        # xcode: [Xcode_16.4, Xcode_26.2]
+        xcode: [Xcode_26.4_beta_2]
         platform: [iOS, tvOS, macOS, watchOS, catalyst, visionOS]
         exclude:
           - os: macos-15
