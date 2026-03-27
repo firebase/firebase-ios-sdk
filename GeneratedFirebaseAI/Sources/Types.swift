@@ -1826,6 +1826,7 @@ public struct TurnCoverage: CodableProtoEnum, Sendable {
     case unspecified = "TURN_COVERAGE_UNSPECIFIED"
     case turnIncludesOnlyActivity = "TURN_INCLUDES_ONLY_ACTIVITY"
     case turnIncludesAllInput = "TURN_INCLUDES_ALL_INPUT"
+    case turnIncludesAudioActivityAndAllVideo = "TURN_INCLUDES_AUDIO_ACTIVITY_AND_ALL_VIDEO"
   }
 
   /// If unspecified, the default behavior is `TURN_INCLUDES_ONLY_ACTIVITY`.
@@ -1838,6 +1839,11 @@ public struct TurnCoverage: CodableProtoEnum, Sendable {
   /// The users turn includes all realtime input since the last turn, including
   /// inactivity (e.g. silence on the audio stream).
   public static let turnIncludesAllInput = TurnCoverage(kind: .turnIncludesAllInput)
+
+  /// Includes audio activity and all video since the last turn. With automatic
+  /// activity detection, audio activity means speech and excludes silence.
+  public static let turnIncludesAudioActivityAndAllVideo = TurnCoverage(
+    kind: .turnIncludesAudioActivityAndAllVideo)
 
   let rawValue: String
 }
@@ -7682,13 +7688,15 @@ extension ToolConfig: Codable {
   }
 }
 
-/// ReplicatedVoiceConfig is used to configure replicated voice.
+/// The configuration for the replicated voice to use.
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct ReplicatedVoiceConfig: Sendable {
-  /// The mime type of the replicated voice.
+  /// The mimetype of the voice sample. The only currently supported
+  /// value is `audio/wav`. This represents 16-bit signed little-endian wav
+  /// data, with a 24kHz sampling rate.
   public let mimeType: String?
 
-  /// The sample audio of the replicated voice.
+  /// The sample of the custom voice.
   public let voiceSampleAudio: Data?
 
   /// Default initializer.
@@ -7786,9 +7794,12 @@ extension PrebuiltVoiceConfig: Codable {
   }
 }
 
+/// The configuration for the voice to use.
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct VoiceConfig: Sendable {
-  /// If true, the model will use a replicated voice for the response.
+  /// The configuration for a replicated voice, which is a clone of a
+  /// user's voice that can be used for speech synthesis. If this is unset, a
+  /// default voice is used.
   public let replicatedVoiceConfig: ReplicatedVoiceConfig?
 
   /// The configuration for a prebuilt voice.
@@ -7951,9 +7962,10 @@ extension MultiSpeakerVoiceConfig: Codable {
   }
 }
 
+/// Config for speech generation and transcription.
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct SpeechConfig: Sendable {
-  /// Configuration for the voice of the response.
+  /// The configuration in case of single-voice output.
   public let voiceConfig: VoiceConfig?
 
   /// Optional. The language code (ISO 639-1) for the speech synthesis.
@@ -18847,6 +18859,9 @@ public struct GenerateVideosConfig: Sendable {
   /// Compression quality of the generated videos.
   public let compressionQuality: VideoCompressionQuality?
 
+  /// User specified labels to track billing usage.
+  public let labels: [String: String]?
+
   /// Default initializer.
   public init(
     httpOptions: HttpOptions? = nil,
@@ -18865,7 +18880,8 @@ public struct GenerateVideosConfig: Sendable {
     lastFrame: ImagePart? = nil,
     referenceImages: [VideoGenerationReferenceImage]? = nil,
     mask: VideoGenerationMask? = nil,
-    compressionQuality: VideoCompressionQuality? = nil
+    compressionQuality: VideoCompressionQuality? = nil,
+    labels: [String: String]? = nil
   ) {
     self.httpOptions = httpOptions
     self.numberOfVideos = numberOfVideos
@@ -18884,6 +18900,7 @@ public struct GenerateVideosConfig: Sendable {
     self.referenceImages = referenceImages
     self.mask = mask
     self.compressionQuality = compressionQuality
+    self.labels = labels
   }
 }
 
@@ -18912,6 +18929,7 @@ extension GenerateVideosConfig: Codable {
     case generateAudio = "generateAudio"
     case mask = "mask"
     case compressionQuality = "compressionQuality"
+    case labels = "labels"
   }
 
   public init(from decoder: any Decoder) throws {
@@ -19002,6 +19020,11 @@ extension GenerateVideosConfig: Codable {
     compressionQuality = try VertexKeysContainer.decodeIfPresent(
       VideoCompressionQuality.self,
       forKey: .compressionQuality
+    )
+
+    labels = try VertexKeysContainer.decodeIfPresent(
+      [String: String].self,
+      forKey: .labels
     )
   }
 
@@ -19095,6 +19118,11 @@ extension GenerateVideosConfig: Codable {
       try VertexKeysContainer.encodeIfPresent(
         compressionQuality,
         forKey: .compressionQuality
+      )
+
+      try VertexKeysContainer.encodeIfPresent(
+        labels,
+        forKey: .labels
       )
 
     }
