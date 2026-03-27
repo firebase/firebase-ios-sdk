@@ -40,9 +40,9 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: macos-15
+          - os: macos-26
             target: iOS
-            xcode: Xcode_16.4
+            xcode: Xcode_26.4
           - os: macos-26
             target: iOS
             xcode: Xcode_26.1
@@ -84,8 +84,8 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: macos-15
-            xcode: Xcode_16.4
+          - os: macos-26
+            xcode: Xcode_26.4
           - os: macos-26
             xcode: Xcode_26.1
     runs-on: ${{ matrix.os }}

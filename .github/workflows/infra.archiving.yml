@@ -22,7 +22,7 @@ jobs:
   pods-ios-only-cron:
     # Don't run on private repo.
     if: github.repository == 'Firebase/firebase-ios-sdk'
-    runs-on: macos-15
+    runs-on: macos-26
     strategy:
       matrix:
         # These need to be on a single line or else the formatting won't validate.
@@ -30,7 +30,7 @@ jobs:
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
     - name: Set Xcode version
-      run: sudo xcode-select -s /Applications/Xcode_16.4.app
+      run: sudo xcode-select -s /Applications/Xcode_26.4.app/Contents/Developer
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
@@ -47,7 +47,7 @@ jobs:
   pods-ios-tvos-macos-cron:
     # Don't run on private repo.
     if: github.repository == 'Firebase/firebase-ios-sdk'
-    runs-on: macos-15
+    runs-on: macos-26
     strategy:
       matrix:
         target: [ios, tvos, macos]
@@ -56,7 +56,7 @@ jobs:
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
     - name: Set Xcode version
-      run: sudo xcode-select -s /Applications/Xcode_16.4.app
+      run: sudo xcode-select -s /Applications/Xcode_26.4.app/Contents/Developer
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Setup Bundler
       run: scripts/setup_bundler.sh

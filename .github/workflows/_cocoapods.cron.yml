@@ -38,7 +38,7 @@ on:
       xcode:
         type: string
         required: false
-        default: "Xcode_16.4"
+        default: "Xcode_26.2"
 
       # The runner to use.
       runs_on:

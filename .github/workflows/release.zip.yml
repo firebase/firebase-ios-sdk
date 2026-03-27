@@ -117,7 +117,7 @@ jobs:
       github.repository == 'firebase/firebase-ios-sdk' &&
       contains(fromJSON('["schedule", "pull_request", "workflow_dispatch"]'), github.event_name) &&
       needs.should_package.outputs.should_package == 'true'
-    runs-on: macos-15
+    runs-on: macos-26
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       with:
@@ -192,7 +192,7 @@ jobs:
     if: ${{ !cancelled() }}
     env:
       FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
-    runs-on: macos-15
+    runs-on: macos-26
     steps:
       - name: Xcode
         run: sudo xcode-select -s /Applications/${{ env.MIN_XCODE }}.app/Contents/Developer
@@ -348,8 +348,8 @@ jobs:
       zip_run_id: ${{ needs.packaging_done.outputs.run_id }}
       artifact_name: ${{ matrix.artifact }}
       # Use defaults with option to override
-      os: ${{ matrix.config.os || 'macos-15' }}
-      xcode: ${{ matrix.config.xcode || 'Xcode_26.3' }}
+      os: ${{ matrix.config.os || 'macos-26' }}
+      xcode: ${{ matrix.config.xcode || 'Xcode_26.4' }}
       # Optional scheme (only used by FirebaseAI)
       scheme: ${{ matrix.config.scheme }}
       plist_src_path: ${{ matrix.config.plist_src }}

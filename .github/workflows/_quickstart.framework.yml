@@ -41,12 +41,12 @@ on:
       os:
         required: false
         type: string
-        default: macos-15
+        default: macos-26
       # The version of Xcode to use.
       xcode:
         required: false
         type: string
-        default: Xcode_16.4
+        default: Xcode_26.4
     secrets:
       # The passphrase for decrypting the GoogleService-Info.plist.
       plist_secret:
