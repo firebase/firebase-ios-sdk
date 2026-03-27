@@ -14,8 +14,8 @@
 
 import FirebaseAI
 import FirebaseAITestApp
-import XCTest
 import Testing
+import XCTest
 
 @Suite(.serialized)
 struct MapsGroundingIntegrationTests {
