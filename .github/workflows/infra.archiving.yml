@@ -31,6 +31,14 @@ jobs:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
     - name: Set Xcode version
       run: sudo xcode-select -s /Applications/Xcode_26.4.app/Contents/Developer
+    - name: Install iOS SDK
+      uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
+      with:
+        timeout_minutes: 15
+        max_attempts: 5
+        retry_wait_seconds: 120
+        continue_on_error: true
+        command: xcodebuild -downloadPlatform iOS
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
@@ -57,6 +65,20 @@ jobs:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
     - name: Set Xcode version
       run: sudo xcode-select -s /Applications/Xcode_26.4.app/Contents/Developer
+    - name: Install SDK
+      if: matrix.target != 'macos'
+      uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
+      with:
+        timeout_minutes: 15
+        max_attempts: 5
+        retry_wait_seconds: 120
+        continue_on_error: true
+        command: |
+          if [[ "${{ matrix.target }}" == "ios" ]]; then
+            xcodebuild -downloadPlatform iOS
+          elif [[ "${{ matrix.target }}" == "tvos" ]]; then
+            xcodebuild -downloadPlatform tvOS
+          fi
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
