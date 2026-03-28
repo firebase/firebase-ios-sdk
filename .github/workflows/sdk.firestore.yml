@@ -489,6 +489,15 @@ jobs:
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
 
+    - name: Install simulators in case they are missing.
+      if: matrix.platforms != 'macos'
+      uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
+      with:
+        timeout_minutes: 15
+        max_attempts: 5
+        retry_wait_seconds: 120
+        command: sudo xcodebuild -downloadPlatform ${{ matrix.platforms }}
+
     - name: Pod lib lint
       # TODO(#9565, b/227461966): Remove --no-analyze when absl is fixed.
       run: |
