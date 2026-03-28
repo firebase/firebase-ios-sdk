@@ -41,8 +41,7 @@ public class FunctionExpression: Expression, BridgeWrapper, @unchecked Sendable 
     self.args = args
     bridge = FunctionExprBridge(
       name: functionName,
-      args: self.args.map { $0.toBridge()
-      }
+      args: self.args.map { $0.toBridge() }
     )
   }
 }

@@ -42,18 +42,23 @@ void Pipeline::execute(util::StatusOrCallback<PipelineSnapshot> callback) {
   this->firestore_->RunPipeline(*this, std::move(callback));
 }
 
-google_firestore_v1_Value Pipeline::to_proto() const {
+google_firestore_v1_Value PipelineStagesToProto(
+    const std::vector<std::shared_ptr<Stage>>& stages) {
   google_firestore_v1_Value result;
 
   result.which_value_type = google_firestore_v1_Value_pipeline_value_tag;
   result.pipeline_value = google_firestore_v1_Pipeline{};
-  result.pipeline_value.stages_count = CheckedSize(this->stages_.size());
+  result.pipeline_value.stages_count = CheckedSize(stages.size());
   nanopb::SetRepeatedField(
       &result.pipeline_value.stages, &result.pipeline_value.stages_count,
-      stages_,
+      stages,
       [](const std::shared_ptr<Stage>& arg) { return arg->to_proto(); });
 
   return result;
+}
+
+google_firestore_v1_Value Pipeline::to_proto() const {
+  return PipelineStagesToProto(this->stages_);
 }
 
 }  // namespace api
