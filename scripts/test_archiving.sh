@@ -30,20 +30,14 @@ output_path="$3"
 case "$platform" in
   ios)
   scheme_name="App-iOS"
-  destination="generic/platform=iOS"
-  sdk="iphoneos"
   ;;
 
   macos)
   scheme_name="App-macOS"
-  destination="generic/platform=macOS"
-  sdk="macosx"
   ;;
 
   tvos)
   scheme_name="App-tvOS"
-  destination="generic/platform=tvOS"
-  sdk="appletvos"
   ;;
 
   # Fail for anything else, invalid input.
@@ -64,10 +58,6 @@ args=(
   "-workspace" "gen/$pod/$pod.xcworkspace"
   # Specify the generated App scheme.
   "-scheme" "$scheme_name"
-  # Specify the SDK.
-  "-sdk" "$sdk"
-  # Specify the destination.
-  "-destination" "$destination"
   # Disable signing.
   "CODE_SIGN_IDENTITY=-" "CODE_SIGNING_REQUIRED=NO" "CODE_SIGNING_ALLOWED=NO"
 )
