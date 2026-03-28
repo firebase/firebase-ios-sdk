@@ -577,6 +577,21 @@ public extension Expression {
     )
   }
 
+  func arrayTransform(elementAlias: String, transform: Expression) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "array_transform",
+      args: [self, Constant(elementAlias), transform]
+    )
+  }
+
+  func arrayTransformWithIndex(elementAlias: String, indexAlias: String,
+                               transform: Expression) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "array_transform",
+      args: [self, Constant(elementAlias), Constant(indexAlias), transform]
+    )
+  }
+
   func arraySlice(offset: Int) -> FunctionExpression {
     return FunctionExpression(
       functionName: "array_slice",

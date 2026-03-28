@@ -4591,7 +4591,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testArrayFilter() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let snapshot = try await db.pipeline()
@@ -4600,15 +4600,15 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       .select([
         Field("tags").arrayFilter(
           alias: "tag",
-          filter: Field("tag").notEqual("magic")
+          filter: Variable("tag").notEqual("magic")
         ).as("notMagicTags"),
         Field("tags").arrayFilter(
           alias: "tag",
-          filter: Field("tag").notEqual("epic")
+          filter: Variable("tag").notEqual("epic")
         ).as("notEpicTags"),
         Field("tags").arrayFilter(
           alias: "tag",
-          filter: Field("tag").equal("fantasy")
+          filter: Variable("tag").equal("fantasy")
         ).as("noMatchingTags"),
       ])
       .execute()
@@ -4624,7 +4624,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testArrayFilterMixedTypesAndNulls() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
     let snapshot = try await db.pipeline()
       .collection(collRef.path)
@@ -4635,7 +4635,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       .select([
         Field("arr").arrayFilter(
           alias: "element",
-          filter: Field("element").greaterThan(10)
+          filter: Variable("element").greaterThan(10)
         ).as("filtered"),
       ])
       .execute()
@@ -4646,8 +4646,92 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
 
+  func testArrayTransformAndArrayTransformWithIndex() async throws {
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
+    let db = collRef.firestore
+
+    let snapshot = try await db.pipeline()
+      .collection(collRef.path)
+      .limit(1)
+      .replace(with: MapExpression(["arr": [10, 20, 30]]))
+      .select([
+        Field("arr").arrayTransform(
+          elementAlias: "element",
+          transform: Variable("element").multiply(10)
+        ).as("staticTransform"),
+        Field("arr").arrayTransform(
+          elementAlias: "element",
+          transform: Variable("element").multiply(10)
+        ).as("instanceTransform"),
+        Field("arr").arrayTransformWithIndex(
+          elementAlias: "element",
+          indexAlias: "i",
+          transform: Variable("element").add(Variable("i"))
+        ).as("staticTransformWithIndex"),
+        Field("arr").arrayTransformWithIndex(
+          elementAlias: "element",
+          indexAlias: "i",
+          transform: Variable("element").add(Variable("i"))
+        ).as("instanceTransformWithIndex"),
+      ])
+      .execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      [
+        "staticTransform": [100, 200, 300],
+        "instanceTransform": [100, 200, 300],
+        "staticTransformWithIndex": [10, 21, 32],
+        "instanceTransformWithIndex": [10, 21, 32],
+      ],
+    ]
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
+  }
+
+  func testArrayTransformWithEmptyArrayAndNulls() async throws {
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
+    let db = collRef.firestore
+    let snapshot = try await db.pipeline()
+      .collection(collRef.path)
+      .limit(1)
+      .replace(with: MapExpression([
+        "arr": [1, Constant.nil, 3],
+        "empty": [],
+      ]))
+      .select([
+        Field("arr").arrayTransform(
+          elementAlias: "element",
+          transform: Variable("element").add(1)
+        ).as("transformedWithNulls"),
+        Field("empty").arrayTransform(
+          elementAlias: "element",
+          transform: Variable("element").add(1)
+        ).as("transformedEmpty"),
+        Field("arr").arrayTransformWithIndex(
+          elementAlias: "element",
+          indexAlias: "idx",
+          transform: Variable("element").add(Variable("idx"))
+        ).as("transformedWithIndex"),
+        Field("empty").arrayTransformWithIndex(
+          elementAlias: "element",
+          indexAlias: "idx",
+          transform: Variable("element").add(Variable("idx"))
+        ).as("transformedEmptyWithIndex"),
+      ])
+      .execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      [
+        "transformedWithNulls": [2, NSNull(), 4],
+        "transformedEmpty": [],
+        "transformedWithIndex": [1, NSNull(), 5],
+        "transformedEmptyWithIndex": [],
+      ],
+    ]
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
+  }
+
   func testArraySlice() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let snapshot = try await db.pipeline()
@@ -4679,7 +4763,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testArraySliceThrowsOnNegativeLength() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()

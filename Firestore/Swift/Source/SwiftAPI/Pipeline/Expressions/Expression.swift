@@ -485,6 +485,41 @@ public protocol Expression: Sendable {
   /// - Returns: A new `FunctionExpression` representing the filtered array.
   func arrayFilter(alias: String, filter: BooleanExpression) -> FunctionExpression
 
+  /// Creates an expression that applies a provided transformation to each element in an array.
+  /// Assumes `self` evaluates to an array.
+  ///
+  /// ```swift
+  /// // Transform the "scores" array by multiplying the "score" by 2
+  /// Field("scores").arrayTransform(elementAlias: "score", transform:
+  /// Variable("score").multiply(2))
+  /// ```
+  ///
+  /// - Parameters:
+  ///   - elementAlias: The variable name to be used in the transform expression to refer to the
+  /// current array element.
+  ///   - transform: A lambda `Expression` evaluated for each element to determine its new value.
+  /// - Returns: A new `FunctionExpression` representing the transformed array.
+  func arrayTransform(elementAlias: String, transform: Expression) -> FunctionExpression
+
+  /// Creates an expression that applies a provided transformation to each element in an array, providing the element's index to the transformation expression.
+  /// Assumes `self` evaluates to an array.
+  ///
+  /// ```swift
+  /// // Transform the "scores" array by adding the element index and "name"
+  /// Field("scores").arrayTransformWithIndex(elementAlias: "score", indexAlias: "index", transform:
+  /// Variable("score").add(Variable("index")))
+  /// ```
+  ///
+  /// - Parameters:
+  ///   - elementAlias: The variable name to be used in the transform expression to refer to the
+  /// current array element.
+  ///   - indexAlias: The variable name to be used in the transform expression to refer to the
+  /// current element's zero-based index.
+  ///   - transform: A lambda `Expression` evaluated for each element to determine its new value.
+  /// - Returns: A new `FunctionExpression` representing the transformed array.
+  func arrayTransformWithIndex(elementAlias: String, indexAlias: String, transform: Expression)
+    -> FunctionExpression
+
   /// Returns a subset of the array starting at the given offset.
   /// Assumes `self` evaluates to an array.
   ///
