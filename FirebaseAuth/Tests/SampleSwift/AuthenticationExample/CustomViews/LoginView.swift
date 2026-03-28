@@ -89,6 +89,39 @@ struct LoginView: View {
   }
 }
 
+struct SecureToggleField: View {
+    var title: String
+    @Binding var text: String
+
+    // Internal state: always starts as a hidden password field
+    @State private var isSecure = true
+
+    var body: some View {
+        Group {
+            if isSecure {
+                SecureField(title, text: $text)
+            } else {
+                TextField(title, text: $text)
+            }
+        }
+        // Apply your custom styling
+        .textFieldStyle(SymbolTextFieldStyle(symbolName: "lock.fill"))
+        // Add the toggle button
+        .overlay(alignment: .trailing) {
+            Button {
+                isSecure.toggle()
+            } label: {
+                Image(systemName: isSecure ? "eye.slash" : "eye")
+                    .foregroundColor(.secondary)
+                    .padding(.trailing, 12)
+            }
+        }
+        // Apply the bottom padding OUTSIDE the overlay so the eye icon
+        // stays vertically centered with the text, not the padding.
+        .padding(.bottom)
+    }
+}
+
 extension LoginView {
   var body: some View {
     VStack(alignment: .leading) {
@@ -103,9 +136,7 @@ extension LoginView {
       TextField("Email", text: $email)
         .textFieldStyle(SymbolTextFieldStyle(symbolName: "person.crop.circle"))
 
-      TextField("Password", text: $password)
-        .textFieldStyle(SymbolTextFieldStyle(symbolName: "lock.fill"))
-        .padding(.bottom)
+      SecureToggleField(title: "Password", text: $password)      
 
       Group {
         Button(action: login) {
@@ -173,3 +204,4 @@ private struct CustomButtonStyle: ButtonStyle {
 #Preview {
   LoginView()
 }
+
