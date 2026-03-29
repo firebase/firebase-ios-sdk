@@ -80,13 +80,8 @@ class AuthenticationExampleUITests: XCTestCase {
 
     let testPassword = existingPassword
     app.secureTextFields["Password"].tap()
-    app.secureTextFields["Password"].typeText(testPassword)
+    app.secureTextFields["Password"].typeText(testPassword + "\n")
 
-    if app.keyboards.buttons["return"].exists {
-      app.keyboards.buttons["return"].tap()
-    } else if app.buttons["return"].exists {
-      app.buttons["return"].tap()
-    }
     app.buttons["Login"].tap()
     dismissSavePasswordPrompt()
 
@@ -106,13 +101,8 @@ class AuthenticationExampleUITests: XCTestCase {
     app.textFields["Email"].typeText(testEmail)
 
     app.secureTextFields["Password"].tap()
-    app.secureTextFields["Password"].typeText("wrong password")
+    app.secureTextFields["Password"].typeText("wrong password\n")
 
-    if app.keyboards.buttons["return"].exists {
-      app.keyboards.buttons["return"].tap()
-    } else if app.buttons["return"].exists {
-      app.buttons["return"].tap()
-    }
     app.buttons["Login"].tap()
 
     wait(forElement: app.alerts.staticTexts["Error"], timeout: 5.0)
@@ -142,13 +132,8 @@ class AuthenticationExampleUITests: XCTestCase {
 
     app.secureTextFields["Password"].tap()
     // Enter an invalid password that is "too short"
-    app.secureTextFields["Password"].typeText("2shrt")
+    app.secureTextFields["Password"].typeText("2shrt\n")
 
-    if app.keyboards.buttons["return"].exists {
-      app.keyboards.buttons["return"].tap()
-    } else if app.buttons["return"].exists {
-      app.buttons["return"].tap()
-    }
     app.buttons["Create Account"].tap()
 
     wait(forElement: app.alerts.staticTexts["Error"], timeout: 5.0)
@@ -178,13 +163,8 @@ class AuthenticationExampleUITests: XCTestCase {
 
     let testPassword = "test12"
     app.secureTextFields["Password"].tap()
-    app.secureTextFields["Password"].typeText(testPassword)
+    app.secureTextFields["Password"].typeText(testPassword + "\n")
 
-    if app.keyboards.buttons["return"].exists {
-      app.keyboards.buttons["return"].tap()
-    } else if app.buttons["return"].exists {
-      app.buttons["return"].tap()
-    }
     app.buttons["Create Account"].tap()
 
     wait(forElement: app.alerts.staticTexts["Error"], timeout: 5.0)
@@ -214,13 +194,8 @@ class AuthenticationExampleUITests: XCTestCase {
 
     let newPassword = "new password"
     app.secureTextFields["Password"].tap()
-    app.typeText(newPassword)
+    app.typeText(newPassword + "\n")
 
-    if app.keyboards.buttons["return"].exists {
-      app.keyboards.buttons["return"].tap()
-    } else if app.buttons["return"].exists {
-      app.buttons["return"].tap()
-    }
     app.buttons["Create Account"].tap()
     dismissSavePasswordPrompt()
 
