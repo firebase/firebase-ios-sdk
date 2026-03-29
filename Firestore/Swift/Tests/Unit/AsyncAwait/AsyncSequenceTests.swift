@@ -132,25 +132,24 @@ private struct Swizzler: ~Copyable {
 
 // MARK: - Query Tests
 
+@MainActor
+private let sharedFirebaseApp: FirebaseApp = {
+  if let app = FirebaseApp.app() { return app }
+  let options = FirebaseOptions(googleAppID: "1:1234567890:ios:abcdef", gcmSenderID: "1234s567890")
+  options.projectID = "Firestore-Testing-Project"
+  FirebaseApp.configure(options: options)
+  return FirebaseApp.app()!
+}()
+
 @Suite("Query AsyncSequence Tests")
 struct QueryAsyncSequenceTests {
   fileprivate static let associationKey = AssociationKey()
 
-  // This static property handles the one-time setup for FirebaseApp.
-  @MainActor
-  private static let firebaseApp: FirebaseApp = {
-    let options = FirebaseOptions(googleAppID: "1:1234567890:ios:abcdef",
-                                  gcmSenderID: "1234s567890")
-    options.projectID = "Firestore-Testing-Project"
-    FirebaseApp.configure(options: options)
-    return FirebaseApp.app()!
-  }()
-
-  @available(iOS 18.0, *)
+  @available(iOS 18.0, macOS 15.0, tvOS 18.0, watchOS 11.0, *)
   @MainActor
   @Test("Stream handles cancellation correctly")
   func test_snapshotStream_handlesCancellationCorrectly() async throws {
-    let app = Self.firebaseApp
+    let app = sharedFirebaseApp
     let swizzler = Swizzler(
       Query.self,
       original: #selector(Query.addSnapshotListener(includeMetadataChanges:listener:)),
@@ -175,11 +174,11 @@ struct QueryAsyncSequenceTests {
     await actor.waitForListenerRemoval()
   }
 
-  @available(iOS 18.0, *)
+  @available(iOS 18.0, macOS 15.0, tvOS 18.0, watchOS 11.0, *)
   @MainActor
   @Test("Stream propagates errors")
   func test_snapshotStream_propagatesErrors() async throws {
-    let app = Self.firebaseApp
+    let app = sharedFirebaseApp
     let swizzler = Swizzler(
       Query.self,
       original: #selector(Query.addSnapshotListener(includeMetadataChanges:listener:)),
@@ -210,11 +209,11 @@ struct QueryAsyncSequenceTests {
     task.cancel()
   }
 
-  @available(iOS 18.0, *)
+  @available(iOS 18.0, macOS 15.0, tvOS 18.0, watchOS 11.0, *)
   @MainActor
   @Test("Stream handles (nil, nil) events gracefully")
   func test_snapshotStream_handlesNilSnapshotAndNilErrorGracefully() async throws {
-    let app = Self.firebaseApp
+    let app = sharedFirebaseApp
     let swizzler = Swizzler(
       Query.self,
       original: #selector(Query.addSnapshotListener(includeMetadataChanges:listener:)),
@@ -251,23 +250,11 @@ struct QueryAsyncSequenceTests {
 struct DocumentReferenceAsyncSequenceTests {
   fileprivate static let associationKey = AssociationKey()
 
-  @MainActor
-  private static let firebaseApp: FirebaseApp = {
-    // This will either configure a new app or return the existing one
-    // from the Query tests, which is safe.
-    if let app = FirebaseApp.app() { return app }
-    let options = FirebaseOptions(googleAppID: "1:1234567890:ios:abcdef",
-                                  gcmSenderID: "1234s567890")
-    options.projectID = "Firestore-Testing-Project"
-    FirebaseApp.configure(options: options)
-    return FirebaseApp.app()!
-  }()
-
-  @available(iOS 18.0, *)
+  @available(iOS 18.0, macOS 15.0, tvOS 18.0, watchOS 11.0, *)
   @MainActor
   @Test("Stream handles cancellation correctly")
   func test_snapshotStream_handlesCancellationCorrectly() async throws {
-    let app = Self.firebaseApp
+    let app = sharedFirebaseApp
     let swizzler = Swizzler(
       DocumentReference.self,
       original: #selector(DocumentReference.addSnapshotListener(includeMetadataChanges:listener:)),
@@ -293,11 +280,11 @@ struct DocumentReferenceAsyncSequenceTests {
     await actor.waitForListenerRemoval()
   }
 
-  @available(iOS 18.0, *)
+  @available(iOS 18.0, macOS 15.0, tvOS 18.0, watchOS 11.0, *)
   @MainActor
   @Test("Stream propagates errors")
   func test_snapshotStream_propagatesErrors() async throws {
-    let app = Self.firebaseApp
+    let app = sharedFirebaseApp
     let swizzler = Swizzler(
       DocumentReference.self,
       original: #selector(DocumentReference.addSnapshotListener(includeMetadataChanges:listener:)),
@@ -329,11 +316,11 @@ struct DocumentReferenceAsyncSequenceTests {
     task.cancel()
   }
 
-  @available(iOS 18.0, *)
+  @available(iOS 18.0, macOS 15.0, tvOS 18.0, watchOS 11.0, *)
   @MainActor
   @Test("Stream handles (nil, nil) events gracefully")
   func test_snapshotStream_handlesNilSnapshotAndNilErrorGracefully() async throws {
-    let app = Self.firebaseApp
+    let app = sharedFirebaseApp
     let swizzler = Swizzler(
       DocumentReference.self,
       original: #selector(DocumentReference.addSnapshotListener(includeMetadataChanges:listener:)),
