@@ -34,7 +34,7 @@ class AuthenticationExampleUITests: XCTestCase {
   func dismissSavePasswordPrompt() {
     let passwordSheet = app.sheets.firstMatch
 
-    if passwordSheet.waitForExistence(timeout: 1.0) {
+    if passwordSheet.waitForExistence(timeout: 3.0) {
       let notNowOption = passwordSheet.buttons["Not Now"]
 
       if notNowOption.exists {
