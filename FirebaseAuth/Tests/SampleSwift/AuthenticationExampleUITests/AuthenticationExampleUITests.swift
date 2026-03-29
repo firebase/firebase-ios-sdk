@@ -38,11 +38,11 @@ class AuthenticationExampleUITests: XCTestCase {
       let notNowOption = passwordSheet.buttons["Not Now"]
 
       if notNowOption.exists {
-          notNowOption.tap()
+        notNowOption.tap()
       } else {
-          // Fallback: If Apple literally made it StaticText instead of a Button,
-          // you can often just tap the text directly!
-          passwordSheet.staticTexts["Not Now"].tap()
+        // Fallback: If Apple literally made it StaticText instead of a Button,
+        // you can often just tap the text directly!
+        passwordSheet.staticTexts["Not Now"].tap()
       }
 
       let predicate = NSPredicate(format: "exists == false")
@@ -110,12 +110,11 @@ class AuthenticationExampleUITests: XCTestCase {
 
     // Dismiss alert that password was incorrect
     app.alerts.buttons["OK"].tap()
+
     // Go back and check that there is no user that is signed in
     app.navigationBars.buttons.firstMatch.tap()
-
     dismissSavePasswordPrompt()
     app.tabBars.firstMatch.buttons.element(boundBy: 1).tap()
-
     wait(forElement: app.navigationBars["User"], timeout: 10.0)
     XCTAssertEqual(
       app.cells.count,
