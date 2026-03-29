@@ -29,7 +29,7 @@ class AuthenticationExampleUITests: XCTestCase {
   override func tearDown() {
     super.tearDown()
     signOut()
-  }
+  }	
 
   func dismissSavePasswordPrompt() {
     let passwordSheet = app.sheets.firstMatch
@@ -44,7 +44,9 @@ class AuthenticationExampleUITests: XCTestCase {
           // you can often just tap the text directly!
           passwordSheet.staticTexts["Not Now"].tap()
       }
-      sleep(2)
+      let predicate = NSPredicate(format: "exists == false")
+      expectation(for: predicate, evaluatedWith: passwordSheet)
+      waitForExpectations(timeout: 5.0)
     }
   }
 

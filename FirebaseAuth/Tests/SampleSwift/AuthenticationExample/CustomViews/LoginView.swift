@@ -115,6 +115,7 @@ struct SecureToggleField: View {
           .foregroundColor(.secondary)
           .padding(.trailing, 12)
       }
+      .accessibilityLabel(isSecure ? "Show password" : "Hide password")
     }
     // Apply the bottom padding OUTSIDE the overlay so the eye icon
     // stays vertically centered with the text, not the padding.
