@@ -96,7 +96,7 @@ class UserViewController: UIViewController, DataSourceProviderDelegate {
       presentEditUserInfoController(for: actionName, to: updateUserEmail)
 
     case .updatePassword:
-      presentEditUserInfoController(for: actionName, to: updatePassword)
+      presentEditUserInfoController(for: "Password", to: updatePassword, isSecure: true)
 
     case .updateDisplayName:
       presentEditUserInfoController(for: actionName, to: updateUserDisplayName)
@@ -321,13 +321,43 @@ class UserViewController: UIViewController, DataSourceProviderDelegate {
   }
 
   private func presentEditUserInfoController(for title: String,
-                                             to saveHandler: @escaping (String) -> Void) {
+                                             to saveHandler: @escaping (String) -> Void,
+                                             isSecure: Bool = false) {
     let editController = UIAlertController(
       title: "Update \(title)",
       message: nil,
       preferredStyle: .alert
     )
-    editController.addTextField { $0.placeholder = "New \(title)" }
+
+    // Configure the secure text field
+    editController.addTextField { textField in
+      textField.isSecureTextEntry = isSecure
+      textField.placeholder = "New \(title)"
+      if isSecure {
+        // 1. Create the toggle button
+        let toggleButton = UIButton(type: .custom)
+
+        // Set SF Symbol images for the two states
+        toggleButton.setImage(UIImage(systemName: "eye.slash"), for: .normal)
+        toggleButton.setImage(UIImage(systemName: "eye"), for: .selected)
+
+        // Set initial selection state based on your 'isSecure' variable
+        toggleButton.isSelected = !isSecure
+
+        // 2. Add the toggle action
+        let toggleAction = UIAction { [weak textField, weak toggleButton] _ in
+          // Toggle the secure state
+          textField?.isSecureTextEntry.toggle()
+          toggleButton?.isSelected.toggle()
+        }
+
+        toggleButton.addAction(toggleAction, for: .touchUpInside)
+
+        // 3. Assign the button to the text field's right view
+        textField.rightView = toggleButton
+        textField.rightViewMode = .always
+      }
+    }
 
     let saveHandler1: (UIAlertAction) -> Void = { _ in
       let text = editController.textFields!.first!.text!
