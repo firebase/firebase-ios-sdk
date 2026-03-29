@@ -82,6 +82,11 @@ class AuthenticationExampleUITests: XCTestCase {
     app.secureTextFields["Password"].tap()
     app.secureTextFields["Password"].typeText(testPassword)
 
+    if app.keyboards.buttons["return"].exists {
+      app.keyboards.buttons["return"].tap()
+    } else if app.buttons["return"].exists {
+      app.buttons["return"].tap()
+    }
     app.buttons["Login"].tap()
     dismissSavePasswordPrompt()
 
@@ -103,6 +108,11 @@ class AuthenticationExampleUITests: XCTestCase {
     app.secureTextFields["Password"].tap()
     app.secureTextFields["Password"].typeText("wrong password")
 
+    if app.keyboards.buttons["return"].exists {
+      app.keyboards.buttons["return"].tap()
+    } else if app.buttons["return"].exists {
+      app.buttons["return"].tap()
+    }
     app.buttons["Login"].tap()
 
     wait(forElement: app.alerts.staticTexts["Error"], timeout: 5.0)
@@ -134,6 +144,11 @@ class AuthenticationExampleUITests: XCTestCase {
     // Enter an invalid password that is "too short"
     app.secureTextFields["Password"].typeText("2shrt")
 
+    if app.keyboards.buttons["return"].exists {
+      app.keyboards.buttons["return"].tap()
+    } else if app.buttons["return"].exists {
+      app.buttons["return"].tap()
+    }
     app.buttons["Create Account"].tap()
 
     wait(forElement: app.alerts.staticTexts["Error"], timeout: 5.0)
@@ -165,6 +180,11 @@ class AuthenticationExampleUITests: XCTestCase {
     app.secureTextFields["Password"].tap()
     app.secureTextFields["Password"].typeText(testPassword)
 
+    if app.keyboards.buttons["return"].exists {
+      app.keyboards.buttons["return"].tap()
+    } else if app.buttons["return"].exists {
+      app.buttons["return"].tap()
+    }
     app.buttons["Create Account"].tap()
 
     wait(forElement: app.alerts.staticTexts["Error"], timeout: 5.0)
@@ -196,6 +216,11 @@ class AuthenticationExampleUITests: XCTestCase {
     app.secureTextFields["Password"].tap()
     app.typeText(newPassword)
 
+    if app.keyboards.buttons["return"].exists {
+      app.keyboards.buttons["return"].tap()
+    } else if app.buttons["return"].exists {
+      app.buttons["return"].tap()
+    }
     app.buttons["Create Account"].tap()
     dismissSavePasswordPrompt()
 

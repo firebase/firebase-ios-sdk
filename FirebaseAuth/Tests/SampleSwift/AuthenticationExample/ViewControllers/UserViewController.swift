@@ -96,7 +96,7 @@ class UserViewController: UIViewController, DataSourceProviderDelegate {
       presentEditUserInfoController(for: actionName, to: updateUserEmail)
 
     case .updatePassword:
-      presentEditUserInfoController(for: "Password", to: updatePassword, isSecure: true)
+      presentEditUserInfoController(for: actionName, to: updatePassword, isSecure: true)
 
     case .updateDisplayName:
       presentEditUserInfoController(for: actionName, to: updateUserDisplayName)
