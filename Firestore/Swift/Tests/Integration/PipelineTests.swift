@@ -19,112 +19,6 @@ import FirebaseFirestore
 import Foundation
 import XCTest
 
-private let bookDocs: [String: [String: Sendable]] = [
-  "book1": [
-    "title": "The Hitchhiker's Guide to the Galaxy",
-    "author": "Douglas Adams",
-    "genre": "Science Fiction",
-    "published": 1979,
-    "rating": 4.2,
-    "tags": ["comedy", "space", "adventure"],
-    "awards": ["hugo": true, "nebula": false, "others": ["unknown": ["year": 1980]]], // Corrected
-    "nestedField": ["level.1": ["level.2": true]],
-    "embedding": VectorValue([10, 1, 1, 1, 1, 1, 1, 1, 1, 1]),
-  ],
-  "book2": [
-    "title": "Pride and Prejudice",
-    "author": "Jane Austen",
-    "genre": "Romance",
-    "published": 1813,
-    "rating": 4.5,
-    "tags": ["classic", "social commentary", "love"],
-    "awards": ["none": true],
-    "embedding": VectorValue([1, 10, 1, 1, 1, 1, 1, 1, 1, 1]), // Added
-  ],
-  "book3": [
-    "title": "One Hundred Years of Solitude",
-    "author": "Gabriel García Márquez",
-    "genre": "Magical Realism",
-    "published": 1967,
-    "rating": 4.3,
-    "tags": ["family", "history", "fantasy"],
-    "awards": ["nobel": true, "nebula": false],
-    "embedding": VectorValue([1, 1, 10, 1, 1, 1, 1, 1, 1, 1]),
-  ],
-  "book4": [
-    "title": "The Lord of the Rings",
-    "author": "J.R.R. Tolkien",
-    "genre": "Fantasy",
-    "published": 1954,
-    "rating": 4.7,
-    "tags": ["adventure", "magic", "epic"],
-    "awards": ["hugo": false, "nebula": false],
-    "remarks": NSNull(), // Added
-    "cost": Double.nan, // Added
-    "embedding": VectorValue([1, 1, 1, 10, 1, 1, 1, 1, 1, 1]), // Added
-  ],
-  "book5": [
-    "title": "The Handmaid's Tale",
-    "author": "Margaret Atwood",
-    "genre": "Dystopian",
-    "published": 1985,
-    "rating": 4.1,
-    "tags": ["feminism", "totalitarianism", "resistance"],
-    "awards": ["arthur c. clarke": true, "booker prize": false],
-    "embedding": VectorValue([1, 1, 1, 1, 10, 1, 1, 1, 1, 1]), // Added
-  ],
-  "book6": [
-    "title": "Crime and Punishment",
-    "author": "Fyodor Dostoevsky",
-    "genre": "Psychological Thriller",
-    "published": 1866,
-    "rating": 4.3,
-    "tags": ["philosophy", "crime", "redemption"],
-    "awards": ["none": true],
-    "embedding": VectorValue([1, 1, 1, 1, 1, 10, 1, 1, 1, 1]), // Added
-  ],
-  "book7": [
-    "title": "To Kill a Mockingbird",
-    "author": "Harper Lee",
-    "genre": "Southern Gothic",
-    "published": 1960,
-    "rating": 4.2,
-    "tags": ["racism", "injustice", "coming-of-age"],
-    "awards": ["pulitzer": true],
-    "embedding": VectorValue([1, 1, 1, 1, 1, 1, 10, 1, 1, 1]), // Added
-  ],
-  "book8": [
-    "title": "1984",
-    "author": "George Orwell",
-    "genre": "Dystopian",
-    "published": 1949,
-    "rating": 4.2,
-    "tags": ["surveillance", "totalitarianism", "propaganda"],
-    "awards": ["prometheus": true],
-    "embedding": VectorValue([1, 1, 1, 1, 1, 1, 1, 10, 1, 1]), // Added
-  ],
-  "book9": [
-    "title": "The Great Gatsby",
-    "author": "F. Scott Fitzgerald",
-    "genre": "Modernist",
-    "published": 1925,
-    "rating": 4.0,
-    "tags": ["wealth", "american dream", "love"],
-    "awards": ["none": true],
-    "embedding": VectorValue([1, 1, 1, 1, 1, 1, 1, 1, 10, 1]), // Added
-  ],
-  "book10": [
-    "title": "Dune",
-    "author": "Frank Herbert",
-    "genre": "Science Fiction",
-    "published": 1965,
-    "rating": 4.6,
-    "tags": ["politics", "desert", "ecology"],
-    "awards": ["hugo": true, "nebula": true],
-    "embedding": VectorValue([1, 1, 1, 1, 1, 1, 1, 1, 1, 10]), // Added
-  ],
-]
-
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class PipelineIntegrationTests: FSTIntegrationTestCase {
   override func setUpWithError() throws {
@@ -139,7 +33,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
   func testEmptyResults() async throws {
     let collRef = collectionRef(
-      withDocuments: bookDocs
+      withDocuments: TestHelper.bookDocs
     )
     let db = collRef.firestore
 
@@ -154,7 +48,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
   func testFullResults() async throws {
     let collRef = collectionRef(
-      withDocuments: bookDocs
+      withDocuments: TestHelper.bookDocs
     )
     let db = collRef.firestore
 
@@ -170,13 +64,13 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testReturnsExecutionTime() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline().collection(collRef.path)
     let snapshot = try await pipeline.execute()
 
-    XCTAssertEqual(snapshot.results.count, bookDocs.count, "Should fetch all documents")
+    XCTAssertEqual(snapshot.results.count, TestHelper.bookDocs.count, "Should fetch all documents")
 
     let executionTimeValue = snapshot.executionTime.dateValue().timeIntervalSince1970
 
@@ -185,7 +79,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
   func testReturnsExecutionTimeForEmptyQuery() async throws {
     let collRef =
-      collectionRef(withDocuments: bookDocs)
+      collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline().collection(collRef.path).limit(0)
@@ -198,14 +92,14 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testReturnsCreateAndUpdateTimeForEachDocument() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
     let pipeline = db.pipeline().collection(collRef.path)
     var snapshot = try await pipeline.execute()
 
     XCTAssertEqual(
       snapshot.results.count,
-      bookDocs.count,
+      TestHelper.bookDocs.count,
       "Initial fetch should return all documents"
     )
     for doc in snapshot.results {
@@ -242,7 +136,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     snapshot = try await pipeline.execute()
     XCTAssertEqual(
       snapshot.results.count,
-      bookDocs.count,
+      TestHelper.bookDocs.count,
       "Fetch after update should return all documents"
     )
 
@@ -267,7 +161,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testReturnsExecutionTimeForAggregateQuery() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -282,7 +176,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testTimestampsAreNilForAggregateQueryResults() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -293,7 +187,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       ) // Make sure 'groupBy' and 'average' are correct
     let snapshot = try await pipeline.execute()
 
-    // There are 8 unique genres in bookDocs
+    // There are 8 unique genres in TestHelper.bookDocs
     XCTAssertEqual(snapshot.results.count, 8, "Should return one result per genre")
 
     for doc in snapshot.results {
@@ -309,17 +203,17 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testSupportsCollectionReferenceAsSource() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline().collection(collRef)
     let snapshot = try await pipeline.execute()
 
-    TestHelper.compare(snapshot: snapshot, expectedCount: bookDocs.count)
+    TestHelper.compare(snapshot: snapshot, expectedCount: TestHelper.bookDocs.count)
   }
 
   func testSupportsListOfDocumentReferencesAsSource() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let docRefs: [DocumentReference] = [
@@ -339,7 +233,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testSupportsListOfDocumentPathsAsSource() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let docPaths: [String] = [
@@ -619,7 +513,8 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testConvertsArraysAndPlainObjectsToFunctionValues() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs) // Uses existing bookDocs
+    let collRef = collectionRef(withDocuments: TestHelper
+      .bookDocs) // Uses existing TestHelper.bookDocs
     let db = collRef.firestore
 
     // Expected data for "The Lord of the Rings"
@@ -705,7 +600,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testSupportsAggregate() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     var pipeline = db.pipeline()
@@ -715,7 +610,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     XCTAssertEqual(snapshot.results.count, 1, "Count all should return a single aggregate document")
     if let result = snapshot.results.first {
-      TestHelper.compare(pipelineResult: result, expected: ["count": bookDocs.count])
+      TestHelper.compare(pipelineResult: result, expected: ["count": TestHelper.bookDocs.count])
     } else {
       XCTFail("No result for count all aggregation")
     }
@@ -744,7 +639,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testRejectsGroupsWithoutAccumulators() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let dummyDocRef = collRef.document("dummyDocForRejectTest")
@@ -767,7 +662,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testReturnsGroupAndAccumulateResults() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -799,7 +694,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testReturnsMinMaxCountAndCountAllAccumulations() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -817,7 +712,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     let expectedValues: [String: Sendable] = [
       "booksWithCost": 1,
-      "count": bookDocs.count,
+      "count": TestHelper.bookDocs.count,
       "maxRating": 4.7,
       "minPublished": 1813,
     ]
@@ -830,7 +725,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testReturnsCountDistinctAccumulation() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -855,7 +750,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testReturnsCountIfAccumulation() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let expectedCount = 3
@@ -876,7 +771,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testFirstAndLastAccumulators() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -905,7 +800,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testArrayAggAccumulators() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -926,7 +821,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testArrayAggDistinctAccumulators() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -949,7 +844,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testDistinctStage() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -978,7 +873,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testSelectStage() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -1011,7 +906,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testAddFieldStage() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -1045,7 +940,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testRemoveFieldsStage() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -1080,7 +975,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testWhereStageWithAndConditions() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     // Test Case 1: Two AND conditions
@@ -1106,7 +1001,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testWhereStageWithOrAndXorConditions() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     // Test Case 1: OR conditions
@@ -1165,7 +1060,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testSortOffsetAndLimitStages() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -1188,7 +1083,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   // MARK: - Generic Stage Tests
 
   func testRawStageSelectFields() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let expectedSelectedData: [String: Sendable] = [
@@ -1221,7 +1116,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testCanAddFields() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -1257,7 +1152,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testCanPerformDistinctQuery() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -1289,7 +1184,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testCanPerformAggregateQuery() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let emptySendableDictionary: [String: Sendable?] = [:]
@@ -1321,7 +1216,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testCanFilterWithWhere() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -1347,7 +1242,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testCanLimitOffsetAndSort() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -1382,7 +1277,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   // MARK: - Replace Stage Test
 
   func testReplaceStagePromoteAwardsAndAddFlag() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -1409,7 +1304,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testReplaceWithExprResult() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -1436,7 +1331,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   // MARK: - Sample Stage Tests
 
   func testSampleStageLimit3() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -1450,7 +1345,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testSampleStageLimitPercentage60Average() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     var avgSize = 0.0
@@ -1470,7 +1365,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   // MARK: - Union Stage Test
 
   func testUnionStageCombineAuthors() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -1507,7 +1402,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testUnnestStage() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -1568,7 +1463,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testUnnestExpr() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -1629,7 +1524,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testFindNearest() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let measures: [DistanceMeasure] = [.euclidean, .dotProduct, .cosine]
@@ -1654,7 +1549,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testFindNearestWithDistance() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let expectedResults: [[String: Sendable]] = [
@@ -1682,7 +1577,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testLogicalMaxWorks() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -1706,7 +1601,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testLogicalMinWorks() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -1730,15 +1625,18 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testCondWorks() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
       .collection(collRef.path)
       .select([
         Field("title"),
-        Field("published").lessThan(1960).then(Constant(1960), else: Field("published"))
-          .as("publishedSafe"),
+        ConditionalExpression(
+          Field("published").lessThan(1960),
+          then: Constant(1960),
+          else: Field("published")
+        ).as("publishedSafe"),
       ])
       .sort([Field("title").ascending()])
       .limit(3)
@@ -1850,7 +1748,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testInWorks() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -1870,7 +1768,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testNotEqAnyWorks() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -1889,7 +1787,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testArrayContainsWorks() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -1907,7 +1805,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testArrayContainsAnyWorks() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -1927,7 +1825,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testArrayContainsAllWorks() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -1945,7 +1843,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testArrayLengthWorks() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -1985,7 +1883,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testStrConcat() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -2004,7 +1902,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testStringConcatWithSendable() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -2047,7 +1945,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testStartsWith() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -2069,7 +1967,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testEndsWith() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -2089,7 +1987,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testStrContains() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -2109,7 +2007,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testCharLength() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -2212,7 +2110,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testLike() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -2230,7 +2128,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testRegexContains() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -2243,7 +2141,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testRegexFind() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -2266,7 +2164,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testRegexFindAll() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -2289,7 +2187,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testRegexMatches() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -2302,7 +2200,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testArithmeticOperations() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -2496,7 +2394,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testTrunc() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -2699,7 +2597,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 //  }
 
   func testComparisonOperators() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -2724,7 +2622,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testLogicalOperators() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -2748,7 +2646,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testChecks() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -2787,7 +2685,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testIsError() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -2814,7 +2712,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testIfError() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -2841,7 +2739,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testMapGet() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -2961,7 +2859,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testNestedFields() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -2990,7 +2888,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testMapGetWithFieldNameIncludingDotNotation() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -3041,7 +2939,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testGenericFunctionAddSelectable() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -3072,7 +2970,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testGenericFunctionAndVariadicSelectable() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -3097,7 +2995,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testGenericFunctionArrayContainsAny() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -3120,7 +3018,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testGenericFunctionCountIfAggregate() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -3149,7 +3047,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testGenericFunctionSortByCharLen() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -3202,7 +3100,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
 //  func testSupportsRand() async throws {
-//    let collRef = collectionRef(withDocuments: bookDocs)
+//    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
 //    let db = collRef.firestore
 //
 //    let pipeline = db.pipeline()
@@ -3235,7 +3133,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
   func testSupportsArray() async throws {
     let db = firestore()
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
 
     let pipeline = db.pipeline()
       .collection(collRef.path)
@@ -3258,7 +3156,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
   func testEvaluatesExpressionInArray() async throws {
     let db = firestore()
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
 
     let pipeline = db.pipeline()
       .collection(collRef.path)
@@ -3286,7 +3184,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
   func testSupportsArrayOffset() async throws {
     let db = firestore()
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
 
     let expectedResultsPart1: [[String: Sendable?]] = [
       ["firstTag": "adventure"],
@@ -3311,7 +3209,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
   func testSupportsMap() async throws {
     let db = firestore()
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
 
     let pipeline = db.pipeline()
       .collection(collRef.path)
@@ -3334,7 +3232,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
   func testEvaluatesExpressionInMap() async throws {
     let db = firestore()
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
 
     let pipeline = db.pipeline()
       .collection(collRef.path)
@@ -3361,7 +3259,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
   func testSupportsMapRemove() async throws {
     let db = firestore()
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
 
     let expectedResult: [String: Sendable?] = ["awards": ["nebula": false]]
 
@@ -3382,7 +3280,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
   func testSupportsMapMerge() async throws {
     let db = firestore()
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
 
     let expectedResult: [String: Sendable] =
       ["awards": ["hugo": false, "nebula": false, "fakeAward": true]]
@@ -3679,7 +3577,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testDocumentId() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -3696,7 +3594,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testSubstring() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -3709,7 +3607,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testSubstringWithoutLength() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -3835,7 +3733,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testTrimCharactersWithStringLiteral() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -3854,7 +3752,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testTrimCharactersWithExpression() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -4033,7 +3931,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testDuplicateAliasInAddFields() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -4098,7 +3996,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testPaginationWithFilters() async throws {
-    let randomCol = collectionRef(withDocuments: bookDocs)
+    let randomCol = collectionRef(withDocuments: TestHelper.bookDocs)
     try await addBooks(to: randomCol)
 
     let pageSize = 2
@@ -4134,7 +4032,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testPaginationWithOffsets() async throws {
-    let randomCol = collectionRef(withDocuments: bookDocs)
+    let randomCol = collectionRef(withDocuments: TestHelper.bookDocs)
     try await addBooks(to: randomCol)
 
     let secondFilterField = "__name__"
@@ -4209,7 +4107,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testWhereByNorCondition() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -4238,7 +4136,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testNorConditionWithNull() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -4276,7 +4174,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testSwitchOn() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -4310,7 +4208,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testSwitchOnNoDefaultValueAndNoMatchingCondition() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -4334,7 +4232,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testArrayFirst() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     var snapshot = try await db.pipeline()
@@ -4375,7 +4273,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testArrayFirstN() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     var snapshot = try await db.pipeline()
@@ -4416,7 +4314,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testArrayLast() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     var snapshot = try await db.pipeline()
@@ -4457,7 +4355,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testArrayLastN() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     var snapshot = try await db.pipeline()
@@ -4498,7 +4396,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testArrayMinimum() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
 
     let db = collRef.firestore
 
@@ -4541,7 +4439,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testArrayMinimumN() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let snapshot = try await db.pipeline()
@@ -4558,7 +4456,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testArrayMaximum() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     var snapshot = try await db.pipeline()
@@ -4600,7 +4498,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testArrayMaximumN() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let snapshot = try await db.pipeline()
@@ -4617,7 +4515,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testArrayIndexOf() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     var snapshot = try await db.pipeline()
@@ -4667,7 +4565,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testArrayLastIndexOf() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     var snapshot = try await db.pipeline()
@@ -4717,7 +4615,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testArrayIndexOfAll() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     var snapshot = try await db.pipeline()

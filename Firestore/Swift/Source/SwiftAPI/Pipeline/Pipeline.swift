@@ -72,20 +72,25 @@ import Foundation
 /// }
 /// ```
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-public struct Pipeline: @unchecked Sendable {
-  private var stages: [Stage]
-  let bridge: PipelineBridge
-  let db: Firestore
+public class Pipeline: @unchecked Sendable {
+  private(set) var stages: [Stage]
+  let db: Firestore?
+
+  var pipelineBridge: PipelineBridge {
+    guard let db = db else {
+      fatalError("pipelineBridge cannot be accessed on a pipeline created without a database.")
+    }
+    return PipelineBridge(stages: stages.map { $0.bridge }, db: db)
+  }
 
   var errorMessage: String? {
     let errors = stages.compactMap { $0.errorMessage }
     return errors.isEmpty ? nil : errors.joined(separator: ", ")
   }
 
-  init(stages: [Stage], db: Firestore) {
+  init(stages: [Stage], db: Firestore?) {
     self.stages = stages
     self.db = db
-    bridge = PipelineBridge(stages: stages.map { $0.bridge }, db: db)
   }
 
   /// A `Pipeline.Snapshot` contains the results of a pipeline execution.
@@ -125,17 +130,28 @@ public struct Pipeline: @unchecked Sendable {
   /// - Throws: An error if the pipeline execution fails on the backend.
   /// - Returns: A `Pipeline.Snapshot` containing the result of the pipeline execution.
   public func execute() async throws -> Pipeline.Snapshot {
-    // Check if any errors occurred during stage construction.
-    if let errorMessage = errorMessage {
+    // Check if isolated subcollection execution is being attempted.
+    guard db != nil else {
       throw NSError(
         domain: "com.google.firebase.firestore",
         code: 3 /* kErrorInvalidArgument */,
-        userInfo: [NSLocalizedDescriptionKey: errorMessage]
+        userInfo: [
+          NSLocalizedDescriptionKey: "This pipeline was created without a database (e.g., as a subcollection pipeline) and cannot be executed directly. It can only be used as part of another pipeline.",
+        ]
+      )
+    }
+
+    // Check if any errors occurred during stage construction.
+    if errorMessage != nil {
+      throw NSError(
+        domain: "com.google.firebase.firestore",
+        code: 3 /* kErrorInvalidArgument */,
+        userInfo: [NSLocalizedDescriptionKey: errorMessage!]
       )
     }
 
     return try await withCheckedThrowingContinuation { continuation in
-      self.bridge.execute { result, error in
+      self.pipelineBridge.execute { result, error in
         if let error {
           continuation.resume(throwing: error)
         } else {
@@ -319,6 +335,34 @@ public struct Pipeline: @unchecked Sendable {
   /// - Returns: A new `Pipeline` object with this stage appended.
   public func limit(_ limit: Int32) -> Pipeline {
     let stage = Limit(limit)
+    return Pipeline(stages: stages + [stage], db: db)
+  }
+
+  /// Defines one or more variables in the pipeline's scope. `define` is used to bind a value to a
+  /// variable for internal reuse within the pipeline body (accessed via `Expression.variable()`).
+  ///
+  /// This stage is particularly useful for passing values from an outer pipeline into a subquery,
+  /// or for declaring reusable intermediate calculations that can be referenced multiple times in
+  /// later parts of the pipeline via `Expression.variable()`.
+  ///
+  /// Each variable is defined using an `AliasedExpression`, which pairs an expression with a name.
+  /// Use `.as()` on an expression to create an `AliasedExpression`.
+  ///
+  /// ```swift
+  /// firestore.pipeline().collection("products")
+  ///   .define([Field("category").as("productCategory")])
+  ///   .addFields([
+  ///      firestore.pipeline().collection("categories")
+  ///          .where(Field("name").equal(Expression.variable("productCategory")))
+  ///          .select([Field("description")])
+  ///          .toScalarExpression().as("categoryDescription")
+  ///   ])
+  /// ```
+  ///
+  /// - Parameter variables: An array of `AliasedExpression` specifying variables to define.
+  /// - Returns: A new `Pipeline` with the define stage added.
+  public func define(_ variables: [AliasedExpression]) -> Pipeline {
+    let stage = Define(variables: variables)
     return Pipeline(stages: stages + [stage], db: db)
   }
 
@@ -659,5 +703,136 @@ public struct Pipeline: @unchecked Sendable {
                        options: [String: Sendable]? = nil) -> Pipeline {
     let stage = RawStage(name: name, params: params, options: options)
     return Pipeline(stages: stages + [stage], db: db)
+  }
+
+  /// Converts this Pipeline into an expression that evaluates to an array of results.
+  ///
+  /// **Result Unwrapping:**
+  /// - If the items have a single field, their values are unwrapped and returned directly in the
+  /// array.
+  /// - If the items have multiple fields, they are returned as dictionaries in the array.
+  ///
+  /// Example (Single Field):
+  /// ```swift
+  /// // Get a list of reviewers for each book
+  /// firestore.pipeline().collection("books")
+  ///     .define([Field("id").as("book_id")])
+  ///     .addFields([
+  ///         firestore.pipeline().collection("reviews")
+  ///             .where(Field("book_id").equal(Expression.variable("book_id")))
+  ///             .select([Field("reviewer")])
+  ///             .toArrayExpression()
+  ///             .as("reviewers")
+  ///     ])
+  /// ```
+  ///
+  /// Output:
+  /// ```json
+  /// [
+  ///   {
+  ///     "id": "1",
+  ///     "title": "1984",
+  ///     "reviewers": ["Alice", "Bob"]
+  ///   }
+  /// ]
+  /// ```
+  ///
+  /// Example (Multiple Fields):
+  /// ```swift
+  /// // Get a list of reviews (reviewer and rating) for each book
+  /// firestore.pipeline().collection("books")
+  ///     .define([Field("id").as("book_id")])
+  ///     .addFields([
+  ///         firestore.pipeline().collection("reviews")
+  ///             .where(Field("book_id").equal(Expression.variable("book_id")))
+  ///             .select([Field("reviewer"), Field("rating")])
+  ///             .toArrayExpression()
+  ///             .as("reviews")
+  ///     ])
+  /// ```
+  ///
+  /// *When the subquery produces multiple fields, they are kept as objects in the array:*
+  ///
+  /// Output:
+  /// ```json
+  /// [
+  ///   {
+  ///     "id": "1",
+  ///     "title": "1984",
+  ///     "reviews": [
+  ///       { "reviewer": "Alice", "rating": 5 },
+  ///       { "reviewer": "Bob", "rating": 4 }
+  ///     ]
+  ///   }
+  /// ]
+  /// ```
+  ///
+  /// - Returns: An `Expression` that executes this pipeline and returns the results as an array.
+  public func toArrayExpression() -> Expression {
+    return FunctionExpression(functionName: "array", args: [PipelineExpression(self)])
+  }
+
+  /// Converts this Pipeline into an expression that evaluates to a single scalar result.
+  ///
+  /// **Runtime Validation:** The runtime validates that the result set contains zero or one item.
+  /// If zero items, it evaluates to `nil`.
+  ///
+  /// **Result Unwrapping:** If the result contains exactly one item:
+  /// - If the item has a single field, its value is unwrapped and returned directly.
+  /// - If the item has multiple fields, they are returned as a dictionary.
+  ///
+  /// Example (Single Field):
+  /// ```swift
+  /// // Calculate average rating for a restaurant
+  /// firestore.pipeline().collection("restaurants")
+  ///   .define([Field("id").as("rid")])
+  ///   .addFields([
+  ///     firestore.pipeline().collection("reviews")
+  ///       .where(Field("restaurant_id").equal(Expression.variable("rid")))
+  ///       .aggregate([Field("rating").average().as("avg")])
+  ///       // Unwraps the single "avg" field to a scalar double
+  ///       .toScalarExpression().as("average_rating")
+  ///   ])
+  /// ```
+  ///
+  /// Output:
+  /// ```json
+  /// {
+  ///   "name": "The Burger Joint",
+  ///   "average_rating": 4.5
+  /// }
+  /// ```
+  ///
+  /// Example (Multiple Fields):
+  /// ```swift
+  /// // Calculate average rating AND count for a restaurant
+  /// firestore.pipeline().collection("restaurants")
+  ///   .define([Field("id").as("rid")])
+  ///   .addFields([
+  ///     firestore.pipeline().collection("reviews")
+  ///       .where(Field("restaurant_id").equal(Expression.variable("rid")))
+  ///       .aggregate([
+  ///         Field("rating").average().as("avg"),
+  ///         Field("rating").count().as("count")
+  ///       ])
+  ///       // Returns a Dictionary with "avg" and "count" fields
+  ///       .toScalarExpression().as("stats")
+  ///   ])
+  /// ```
+  ///
+  /// Output:
+  /// ```json
+  /// {
+  ///   "name": "The Burger Joint",
+  ///   "stats": {
+  ///     "avg": 4.5,
+  ///     "count": 100
+  ///   }
+  /// }
+  /// ```
+  ///
+  /// - Returns: An `Expression` representing the scalar result.
+  public func toScalarExpression() -> Expression {
+    return FunctionExpression(functionName: "scalar", args: [PipelineExpression(self)])
   }
 }
