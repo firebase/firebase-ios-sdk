@@ -21,6 +21,8 @@ import Foundation
 
 /// A full-text search against all indexed search fields in the document.
 ///
+/// - Note: This API is in beta.
+///
 /// Note: This expression can only be used in the `search` stage.
 ///
 /// Example usage in a `search` stage:

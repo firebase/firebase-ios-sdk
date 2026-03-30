@@ -66,6 +66,8 @@ public struct Field: Expression, Selectable, BridgeWrapper, SelectableWrapper,
 
   /// Creates a condition that evaluates to true if the field matches the search query.
   ///
+  /// - Note: This API is in beta.
+  ///
   /// Example usage:
   /// ```swift
   /// firestore.pipeline().collection("restaurants")
@@ -84,6 +86,8 @@ public struct Field: Expression, Selectable, BridgeWrapper, SelectableWrapper,
   }
 
   /// Calculates the distance between the GeoPoint in this field and a target location.
+  ///
+  /// - Note: This API is in beta.
   ///
   /// Example usage:
   /// ```swift

@@ -21,6 +21,8 @@ import Foundation
 
 /// Represents the relevance score of a document against the search query.
 ///
+/// - Note: This API is in beta.
+///
 /// Example usage:
 /// ```swift
 /// firestore.pipeline().collection("restaurants")

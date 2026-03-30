@@ -1993,6 +1993,8 @@ public protocol Expression: Sendable {
 
   /// Evaluates to an HTML-formatted text snippet highlighting terms matching the search query.
   ///
+  /// - Note: This API is in beta.
+  ///
   /// Example usage:
   /// ```swift
   /// firestore.pipeline().collection("restaurants")
