@@ -1154,6 +1154,10 @@ public extension Expression {
     return FunctionExpression(functionName: "collection_id", args: [self])
   }
 
+  func parent() -> FunctionExpression {
+    return FunctionExpression(functionName: "parent", args: [self])
+  }
+
   func ifError(_ catchExpression: Expression) -> FunctionExpression {
     return FunctionExpression(functionName: "if_error", args: [self, catchExpression])
   }
