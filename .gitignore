@@ -157,6 +157,7 @@ FirebaseAppCheck/Apps/AppCheckCustomProvideApp/AppCheckCustomProvideApp/GoogleSe
 /Example/FirestoreSample/firestore-debug.log
 /Example/FirestoreSample/firebase-debug.log
 Firestore/Example/GoogleService-Info.plist
+Firestore/Example/App/GoogleService-Info.plist
 
 # generated Terraform docs
 .terraform/*

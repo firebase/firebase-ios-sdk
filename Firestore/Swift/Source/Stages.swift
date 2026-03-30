@@ -56,6 +56,16 @@ class CollectionSource: Stage {
 }
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+class SubcollectionStage: Stage {
+  let name: String = "subcollection"
+  let bridge: StageBridge
+
+  init(path: String) {
+    bridge = SubcollectionSourceStageBridge(path: path)
+  }
+}
+
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class CollectionGroupSource: Stage {
   let name: String = "collection_group"
 
@@ -110,14 +120,17 @@ class Where: Stage {
 
   let bridge: StageBridge
   private var condition: BooleanExpression?
+  let errorMessage: String?
 
   init(condition: BooleanExpression) {
     self.condition = condition
     bridge = WhereStageBridge(expr: condition.toBridge())
+    errorMessage = condition.errorMessage
   }
 
   init(bridge: WhereStageBridge) {
     self.bridge = bridge
+    errorMessage = nil
   }
 }
 
@@ -186,6 +199,25 @@ class RemoveFieldsStage: Stage {
   init(fields: [Field]) {
     self.fields = fields.map { $0.fieldName }
     bridge = RemoveFieldsStageBridge(fields: self.fields)
+  }
+}
+
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+class Define: Stage {
+  let name: String = "let"
+  let bridge: StageBridge
+  let errorMessage: String?
+
+  init(variables: [Selectable]) {
+    let (exprMap, error) = Helper.selectablesToMap(selectables: variables)
+    if let error = error {
+      errorMessage = error.localizedDescription
+      bridge = DefineStageBridge(variables: [:])
+    } else {
+      errorMessage = nil
+      let bridgeVariables = exprMap.mapValues { $0.toBridge() }
+      bridge = DefineStageBridge(variables: bridgeVariables)
+    }
   }
 }
 
@@ -402,10 +434,12 @@ class ReplaceWith: Stage {
   let name: String = "replace_with"
   let bridge: StageBridge
   private var expr: Expression
+  let errorMessage: String?
 
   init(expr: Expression) {
     self.expr = expr
     bridge = ReplaceWithStageBridge(expr: expr.toBridge())
+    errorMessage = expr.errorMessage
   }
 }
 
@@ -435,9 +469,12 @@ class Union: Stage {
   let bridge: StageBridge
   private var other: Pipeline
 
+  let errorMessage: String?
+
   init(other: Pipeline) {
     self.other = other
-    bridge = UnionStageBridge(other: other.bridge)
+    bridge = UnionStageBridge(other: other.pipelineBridge)
+    errorMessage = other.errorMessage
   }
 }
 
@@ -448,12 +485,14 @@ class Unnest: Stage {
   private var alias: Expression
   private var field: Expression
   private var indexField: String?
+  let errorMessage: String?
 
   init(field: Selectable, indexField: String? = nil) {
     let seletable = field as! SelectableWrapper
     self.field = seletable.expr
     alias = Field(seletable.alias)
     self.indexField = indexField
+    errorMessage = self.field.errorMessage ?? alias.errorMessage
 
     bridge = UnnestStageBridge(
       field: self.field.toBridge(),
@@ -469,6 +508,7 @@ class RawStage: Stage {
   let bridge: StageBridge
   private var params: [Sendable]
   private var options: [String: Sendable]?
+  let errorMessage: String? = nil
 
   init(name: String, params: [Sendable], options: [String: Sendable]? = nil) {
     self.name = name

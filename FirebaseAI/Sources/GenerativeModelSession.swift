@@ -454,8 +454,6 @@
   public extension GenerativeModelSession {
     /// An asynchronous sequence of snapshots of the model's response.
     struct ResponseStream<Content, PartialContent>: AsyncSequence {
-      // TODO(#15962): Add unit tests for `ResponseStream`.
-
       public typealias Element = Snapshot
 
       /// A snapshot of the model's response at a point in time.
@@ -606,6 +604,8 @@
       }
 
       func finish(throwing error: Error) {
+        // TODO: Wrap `FoundationModels.GenerationError` errors into equivalent
+        //       `GenerativeModelSession.GenerationError` values.
         continuation.finish(throwing: error)
         finalize(with: error)
       }

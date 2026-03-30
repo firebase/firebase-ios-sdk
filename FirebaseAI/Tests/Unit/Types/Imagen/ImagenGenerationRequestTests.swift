@@ -16,6 +16,7 @@ import XCTest
 
 @testable import FirebaseAILogic
 
+@available(*, deprecated)
 final class ImagenGenerationRequestTests: XCTestCase {
   let encoder = JSONEncoder()
   let requestOptions = RequestOptions(timeout: 30.0)

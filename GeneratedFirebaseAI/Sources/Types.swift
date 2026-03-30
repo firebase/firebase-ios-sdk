@@ -1266,6 +1266,32 @@ public struct ToolType: CodableProtoEnum, Sendable {
   let rawValue: String
 }
 
+/// Pricing and performance service tier.
+@available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+
+public struct ServiceTier: CodableProtoEnum, Sendable {
+  enum Kind: String {
+    case unspecified = "SERVICE_TIER_UNSPECIFIED"
+    case flex = "SERVICE_TIER_FLEX"
+    case standard = "SERVICE_TIER_STANDARD"
+    case priority = "SERVICE_TIER_PRIORITY"
+  }
+
+  /// Default service tier, which is standard.
+  public static let unspecified = ServiceTier(kind: .unspecified)
+
+  /// Flex service tier.
+  public static let flex = ServiceTier(kind: .flex)
+
+  /// Standard service tier.
+  public static let standard = ServiceTier(kind: .standard)
+
+  /// Priority service tier.
+  public static let priority = ServiceTier(kind: .priority)
+
+  let rawValue: String
+}
+
 /// The type of the data supported by JSON Schema.
 ///
 /// The values of the enums are lower case strings, while the values of the enums
@@ -1826,6 +1852,7 @@ public struct TurnCoverage: CodableProtoEnum, Sendable {
     case unspecified = "TURN_COVERAGE_UNSPECIFIED"
     case turnIncludesOnlyActivity = "TURN_INCLUDES_ONLY_ACTIVITY"
     case turnIncludesAllInput = "TURN_INCLUDES_ALL_INPUT"
+    case turnIncludesAudioActivityAndAllVideo = "TURN_INCLUDES_AUDIO_ACTIVITY_AND_ALL_VIDEO"
   }
 
   /// If unspecified, the default behavior is `TURN_INCLUDES_ONLY_ACTIVITY`.
@@ -1838,6 +1865,11 @@ public struct TurnCoverage: CodableProtoEnum, Sendable {
   /// The users turn includes all realtime input since the last turn, including
   /// inactivity (e.g. silence on the audio stream).
   public static let turnIncludesAllInput = TurnCoverage(kind: .turnIncludesAllInput)
+
+  /// Includes audio activity and all video since the last turn. With automatic
+  /// activity detection, audio activity means speech and excludes silence.
+  public static let turnIncludesAudioActivityAndAllVideo = TurnCoverage(
+    kind: .turnIncludesAudioActivityAndAllVideo)
 
   let rawValue: String
 }
@@ -7682,13 +7714,15 @@ extension ToolConfig: Codable {
   }
 }
 
-/// ReplicatedVoiceConfig is used to configure replicated voice.
+/// The configuration for the replicated voice to use.
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct ReplicatedVoiceConfig: Sendable {
-  /// The mime type of the replicated voice.
+  /// The mimetype of the voice sample. The only currently supported
+  /// value is `audio/wav`. This represents 16-bit signed little-endian wav
+  /// data, with a 24kHz sampling rate.
   public let mimeType: String?
 
-  /// The sample audio of the replicated voice.
+  /// The sample of the custom voice.
   public let voiceSampleAudio: Data?
 
   /// Default initializer.
@@ -7786,9 +7820,12 @@ extension PrebuiltVoiceConfig: Codable {
   }
 }
 
+/// The configuration for the voice to use.
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct VoiceConfig: Sendable {
-  /// If true, the model will use a replicated voice for the response.
+  /// The configuration for a replicated voice, which is a clone of a
+  /// user's voice that can be used for speech synthesis. If this is unset, a
+  /// default voice is used.
   public let replicatedVoiceConfig: ReplicatedVoiceConfig?
 
   /// The configuration for a prebuilt voice.
@@ -7951,9 +7988,10 @@ extension MultiSpeakerVoiceConfig: Codable {
   }
 }
 
+/// Config for speech generation and transcription.
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct SpeechConfig: Sendable {
-  /// Configuration for the voice of the response.
+  /// The configuration in case of single-voice output.
   public let voiceConfig: VoiceConfig?
 
   /// Optional. The language code (ISO 639-1) for the speech synthesis.
@@ -8733,6 +8771,9 @@ public struct GenerateContentConfig: Sendable {
   /// service. If supplied, safety_settings must not be supplied.
   public let modelArmorConfig: ModelArmorConfig?
 
+  /// The service tier to use for the request. For example, SERVICE_TIER_FLEX.
+  public let serviceTier: ServiceTier?
+
   /// Default initializer.
   public init(
     httpOptions: HttpOptions? = nil,
@@ -8765,7 +8806,8 @@ public struct GenerateContentConfig: Sendable {
     thinkingConfig: ThinkingConfig? = nil,
     imageConfig: ImageConfig? = nil,
     enableEnhancedCivicAnswers: Bool? = nil,
-    modelArmorConfig: ModelArmorConfig? = nil
+    modelArmorConfig: ModelArmorConfig? = nil,
+    serviceTier: ServiceTier? = nil
   ) {
     self.httpOptions = httpOptions
     self.shouldReturnHttpResponse = shouldReturnHttpResponse
@@ -8798,6 +8840,7 @@ public struct GenerateContentConfig: Sendable {
     self.imageConfig = imageConfig
     self.enableEnhancedCivicAnswers = enableEnhancedCivicAnswers
     self.modelArmorConfig = modelArmorConfig
+    self.serviceTier = serviceTier
   }
 }
 
@@ -8837,6 +8880,7 @@ extension GenerateContentConfig: Codable {
   }
   public enum MLDevKeys: String, CodingKey {
     case enableEnhancedCivicAnswers = "enableEnhancedCivicAnswers"
+    case serviceTier = "serviceTier"
   }
   public enum VertexKeys: String, CodingKey {
     case modelSelectionConfig = "modelSelectionConfig"
@@ -8987,6 +9031,11 @@ extension GenerateContentConfig: Codable {
     enableEnhancedCivicAnswers = try MLDevKeysContainer.decodeIfPresent(
       Bool.self,
       forKey: .enableEnhancedCivicAnswers
+    )
+
+    serviceTier = try MLDevKeysContainer.decodeIfPresent(
+      ServiceTier.self,
+      forKey: .serviceTier
     )
 
     let VertexKeysContainer = try decoder.container(keyedBy: VertexKeys.self)
@@ -9151,6 +9200,11 @@ extension GenerateContentConfig: Codable {
       try MLDevKeysContainer.encodeIfPresent(
         enableEnhancedCivicAnswers,
         forKey: .enableEnhancedCivicAnswers
+      )
+
+      try MLDevKeysContainer.encodeIfPresent(
+        serviceTier,
+        forKey: .serviceTier
       )
 
     }
@@ -18847,6 +18901,9 @@ public struct GenerateVideosConfig: Sendable {
   /// Compression quality of the generated videos.
   public let compressionQuality: VideoCompressionQuality?
 
+  /// User specified labels to track billing usage.
+  public let labels: [String: String]?
+
   /// Default initializer.
   public init(
     httpOptions: HttpOptions? = nil,
@@ -18865,7 +18922,8 @@ public struct GenerateVideosConfig: Sendable {
     lastFrame: ImagePart? = nil,
     referenceImages: [VideoGenerationReferenceImage]? = nil,
     mask: VideoGenerationMask? = nil,
-    compressionQuality: VideoCompressionQuality? = nil
+    compressionQuality: VideoCompressionQuality? = nil,
+    labels: [String: String]? = nil
   ) {
     self.httpOptions = httpOptions
     self.numberOfVideos = numberOfVideos
@@ -18884,6 +18942,7 @@ public struct GenerateVideosConfig: Sendable {
     self.referenceImages = referenceImages
     self.mask = mask
     self.compressionQuality = compressionQuality
+    self.labels = labels
   }
 }
 
@@ -18912,6 +18971,7 @@ extension GenerateVideosConfig: Codable {
     case generateAudio = "generateAudio"
     case mask = "mask"
     case compressionQuality = "compressionQuality"
+    case labels = "labels"
   }
 
   public init(from decoder: any Decoder) throws {
@@ -19002,6 +19062,11 @@ extension GenerateVideosConfig: Codable {
     compressionQuality = try VertexKeysContainer.decodeIfPresent(
       VideoCompressionQuality.self,
       forKey: .compressionQuality
+    )
+
+    labels = try VertexKeysContainer.decodeIfPresent(
+      [String: String].self,
+      forKey: .labels
     )
   }
 
@@ -19095,6 +19160,11 @@ extension GenerateVideosConfig: Codable {
       try VertexKeysContainer.encodeIfPresent(
         compressionQuality,
         forKey: .compressionQuality
+      )
+
+      try VertexKeysContainer.encodeIfPresent(
+        labels,
+        forKey: .labels
       )
 
     }
@@ -20301,7 +20371,7 @@ extension PreferenceOptimizationSpec: Codable {
   }
 }
 
-/// Hyperparameters for Distillation. This data type is not supported in Gemini API.
+/// Hyperparameters for distillation.
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct DistillationHyperParameters: Sendable {
   /// Optional. Adapter size for distillation.
@@ -20314,15 +20384,26 @@ public struct DistillationHyperParameters: Sendable {
   /// Optional. Multiplier for adjusting the default learning rate.
   public let learningRateMultiplier: Double?
 
+  /// The batch size hyperparameter for tuning.
+  /// This is only supported for OSS models in Vertex.
+  public let batchSize: Int32?
+
+  /// The learning rate for tuning. OSS models only.
+  public let learningRate: Float?
+
   /// Default initializer.
   public init(
     adapterSize: AdapterSize? = nil,
     epochCount: Int64? = nil,
-    learningRateMultiplier: Double? = nil
+    learningRateMultiplier: Double? = nil,
+    batchSize: Int32? = nil,
+    learningRate: Float? = nil
   ) {
     self.adapterSize = adapterSize
     self.epochCount = epochCount
     self.learningRateMultiplier = learningRateMultiplier
+    self.batchSize = batchSize
+    self.learningRate = learningRate
   }
 }
 
@@ -20334,6 +20415,8 @@ extension DistillationHyperParameters: Codable {
     case adapterSize = "adapterSize"
     case epochCount = "epochCount"
     case learningRateMultiplier = "learningRateMultiplier"
+    case batchSize = "batchSize"
+    case learningRate = "learningRate"
   }
 
   public init(from decoder: any Decoder) throws {
@@ -20353,6 +20436,16 @@ extension DistillationHyperParameters: Codable {
     learningRateMultiplier = try VertexKeysContainer.decodeIfPresent(
       Double.self,
       forKey: .learningRateMultiplier
+    )
+
+    batchSize = try VertexKeysContainer.decodeIfPresent(
+      Int32.self,
+      forKey: .batchSize
+    )
+
+    learningRate = try VertexKeysContainer.decodeIfPresent(
+      Float.self,
+      forKey: .learningRate
     )
   }
 
@@ -20375,6 +20468,16 @@ extension DistillationHyperParameters: Codable {
       try VertexKeysContainer.encodeIfPresent(
         learningRateMultiplier,
         forKey: .learningRateMultiplier
+      )
+
+      try VertexKeysContainer.encodeIfPresent(
+        batchSize,
+        forKey: .batchSize
+      )
+
+      try VertexKeysContainer.encodeIfPresent(
+        learningRate,
+        forKey: .learningRate
       )
 
     }
@@ -20416,6 +20519,9 @@ public struct DistillationSpec: Sendable {
   /// The dataset must be formatted as a JSONL file.
   public let validationDatasetUri: String?
 
+  /// Tuning mode for tuning.
+  public let tuningMode: TuningMode?
+
   /// Default initializer.
   public init(
     promptDatasetUri: String? = nil,
@@ -20425,7 +20531,8 @@ public struct DistillationSpec: Sendable {
     studentModel: String? = nil,
     trainingDatasetUri: String? = nil,
     tunedTeacherModelSource: String? = nil,
-    validationDatasetUri: String? = nil
+    validationDatasetUri: String? = nil,
+    tuningMode: TuningMode? = nil
   ) {
     self.promptDatasetUri = promptDatasetUri
     self.baseTeacherModel = baseTeacherModel
@@ -20435,6 +20542,7 @@ public struct DistillationSpec: Sendable {
     self.trainingDatasetUri = trainingDatasetUri
     self.tunedTeacherModelSource = tunedTeacherModelSource
     self.validationDatasetUri = validationDatasetUri
+    self.tuningMode = tuningMode
   }
 }
 
@@ -20451,6 +20559,7 @@ extension DistillationSpec: Codable {
     case trainingDatasetUri = "trainingDatasetUri"
     case tunedTeacherModelSource = "tunedTeacherModelSource"
     case validationDatasetUri = "validationDatasetUri"
+    case tuningMode = "tuningMode"
   }
 
   public init(from decoder: any Decoder) throws {
@@ -20495,6 +20604,11 @@ extension DistillationSpec: Codable {
     validationDatasetUri = try VertexKeysContainer.decodeIfPresent(
       String.self,
       forKey: .validationDatasetUri
+    )
+
+    tuningMode = try VertexKeysContainer.decodeIfPresent(
+      TuningMode.self,
+      forKey: .tuningMode
     )
   }
 
@@ -20542,6 +20656,11 @@ extension DistillationSpec: Codable {
       try VertexKeysContainer.encodeIfPresent(
         validationDatasetUri,
         forKey: .validationDatasetUri
+      )
+
+      try VertexKeysContainer.encodeIfPresent(
+        tuningMode,
+        forKey: .tuningMode
       )
 
     }
@@ -24806,7 +24925,7 @@ public struct CreateTuningJobConfig: Sendable {
   /// Adapter size for tuning.
   public let adapterSize: AdapterSize?
 
-  /// Tuning mode for SFT tuning.
+  /// Tuning mode for tuning.
   public let tuningMode: TuningMode?
 
   /// Custom base model for tuning. This is only supported for OSS models in Vertex.

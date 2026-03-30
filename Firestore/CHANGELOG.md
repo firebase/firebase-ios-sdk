@@ -1,8 +1,11 @@
 # Unreleased
+- [feature] Added support for Firestore Pipeline Subqueries and scope bridging with `Subcollection`, `define()`, `toArrayExpression()`, `toScalarExpression()`, `Variable`, and `CurrentDocument` APIs.
+
 - [feature] Add beta support for full-text search and geo search.
 - [feature] Added support for Pipeline expressions `nor` and `switchOn`. (#15943)
 
 # 12.11.0
+- [removed] **Breaking change:** Removed the `then(_:else:)` Beta API in `BooleanExpression` from the Pipeline Swift API. Use `ConditionalExpression` instead. (#15926)
 - [feature] Added support for `first`, `last`, `arrayAgg`, and `arrayAggDistinct` Pipeline expressions. (#15941)
 - [feature] Added support for `trunc` and `rand` Pipeline expressions. (#15938)
 - [changed] Minor refactor to avoid using an absl internal function. (#15889)
