@@ -44,22 +44,18 @@ public extension DocumentReference {
   ///
   /// This struct is the concrete type returned by the `DocumentReference.snapshots` property.
   @available(macOS 15.0, iOS 18.0, watchOS 11.0, tvOS 18.0, visionOS 2.0, *)
-  @frozen
   struct DocumentSnapshotsSequence: AsyncSequence {
     public typealias Element = DocumentSnapshot
     public typealias Failure = Error
     public typealias AsyncIterator = Iterator
 
-    @usableFromInline
     let documentReference: DocumentReference
-    @usableFromInline
     let includeMetadataChanges: Bool
 
     /// Creates a new sequence for monitoring document snapshots.
     /// - Parameters:
     ///   - documentReference: The `DocumentReference` instance to monitor.
     ///   - includeMetadataChanges: Whether to receive events for metadata-only changes.
-    @inlinable
     public init(_ documentReference: DocumentReference, includeMetadataChanges: Bool) {
       self.documentReference = documentReference
       self.includeMetadataChanges = includeMetadataChanges
@@ -67,19 +63,15 @@ public extension DocumentReference {
 
     /// Creates and returns an iterator for this asynchronous sequence.
     /// - Returns: An `Iterator` for `DocumentSnapshotsSequence`.
-    @inlinable
     public func makeAsyncIterator() -> Iterator {
       Iterator(documentReference: documentReference, includeMetadataChanges: includeMetadataChanges)
     }
 
     /// The asynchronous iterator for `DocumentSnapshotsSequence`.
     @available(macOS 15.0, iOS 18.0, watchOS 11.0, tvOS 18.0, visionOS 2.0, *)
-    @frozen
     public struct Iterator: AsyncIteratorProtocol {
       public typealias Element = DocumentSnapshot
-      @usableFromInline
       let stream: AsyncThrowingStream<DocumentSnapshot, Error>
-      @usableFromInline
       var streamIterator: AsyncThrowingStream<DocumentSnapshot, Error>.Iterator
 
       /// Initializes the iterator with the provided `DocumentReference` instance.
@@ -87,7 +79,6 @@ public extension DocumentReference {
       /// - Parameters:
       ///   - documentReference: The `DocumentReference` instance to monitor.
       ///   - includeMetadataChanges: Whether to receive events for metadata-only changes.
-      @inlinable
       init(documentReference: DocumentReference, includeMetadataChanges: Bool) {
         stream = AsyncThrowingStream { continuation in
           let listener = documentReference
@@ -111,7 +102,6 @@ public extension DocumentReference {
       /// Returns a `DocumentSnapshot` value or `nil` if the sequence has terminated.
       /// Throws an error if the underlying listener encounters an issue.
       /// - Returns: An optional `DocumentSnapshot` object.
-      @inlinable
       public mutating func next() async throws -> Element? {
         try await streamIterator.next()
       }

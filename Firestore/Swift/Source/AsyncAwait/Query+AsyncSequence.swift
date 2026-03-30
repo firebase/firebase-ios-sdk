@@ -44,22 +44,18 @@ public extension Query {
   ///
   /// This struct is the concrete type returned by the `Query.snapshots` property.
   @available(macOS 15.0, iOS 18.0, watchOS 11.0, tvOS 18.0, visionOS 2.0, *)
-  @frozen
   struct QuerySnapshotsSequence: AsyncSequence {
     public typealias Element = QuerySnapshot
     public typealias Failure = Error
     public typealias AsyncIterator = Iterator
 
-    @usableFromInline
     let query: Query
-    @usableFromInline
     let includeMetadataChanges: Bool
 
     /// Creates a new sequence for monitoring query snapshots.
     /// - Parameters:
     ///   - query: The `Query` instance to monitor.
     ///   - includeMetadataChanges: Whether to receive events for metadata-only changes.
-    @inlinable
     public init(_ query: Query, includeMetadataChanges: Bool) {
       self.query = query
       self.includeMetadataChanges = includeMetadataChanges
@@ -67,19 +63,15 @@ public extension Query {
 
     /// Creates and returns an iterator for this asynchronous sequence.
     /// - Returns: An `Iterator` for `QuerySnapshotsSequence`.
-    @inlinable
     public func makeAsyncIterator() -> Iterator {
       Iterator(query: query, includeMetadataChanges: includeMetadataChanges)
     }
 
     /// The asynchronous iterator for `QuerySnapshotsSequence`.
     @available(macOS 15.0, iOS 18.0, watchOS 11.0, tvOS 18.0, visionOS 2.0, *)
-    @frozen
     public struct Iterator: AsyncIteratorProtocol {
       public typealias Element = QuerySnapshot
-      @usableFromInline
       let stream: AsyncThrowingStream<QuerySnapshot, Error>
-      @usableFromInline
       var streamIterator: AsyncThrowingStream<QuerySnapshot, Error>.Iterator
 
       /// Initializes the iterator with the provided `Query` instance.
@@ -87,7 +79,6 @@ public extension Query {
       /// - Parameters:
       ///   - query: The `Query` instance to monitor.
       ///   - includeMetadataChanges: Whether to receive events for metadata-only changes.
-      @inlinable
       init(query: Query, includeMetadataChanges: Bool) {
         stream = AsyncThrowingStream { continuation in
           let listener = query
@@ -111,7 +102,6 @@ public extension Query {
       /// Returns a `QuerySnapshot` value or `nil` if the sequence has terminated.
       /// Throws an error if the underlying listener encounters an issue.
       /// - Returns: An optional `QuerySnapshot` object.
-      @inlinable
       public mutating func next() async throws -> Element? {
         try await streamIterator.next()
       }
