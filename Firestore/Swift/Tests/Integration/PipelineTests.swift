@@ -3896,6 +3896,78 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: false)
   }
 
+  func testIsTypeWorks() async throws {
+    let collRef = collectionRef(withDocuments: ["doc1": ["dummy": 1]])
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .limit(1)
+      .replace(with: MapExpression([
+        "int": 1,
+        "float": 1.1,
+        "str": "a string",
+        "bool": true,
+        "null": Constant.nil,
+        "geoPoint": GeoPoint(latitude: 0.1, longitude: 0.2),
+        "timestamp": Timestamp(seconds: 123_456, nanoseconds: 0),
+        "bytes": Data([1, 2, 3]),
+        "docRef": db.document("foo/bar"),
+        "vector": VectorValue([1.0, 2.0, 3.0]),
+        "map": MapExpression(["numberK": 1, "stringK": "a string"]),
+        "array": ArrayExpression([1, 2, true]),
+      ]))
+      .select([
+        Field("int").isType("int64").as("isInt64"),
+        Field("int").isType("number").as("isInt64IsNumber"),
+        Field("int").isType("decimal128").as("isInt64IsDecimal128"),
+        Field("float").isType("float64").as("isFloat64"),
+        Field("float").isType("number").as("isFloat64IsNumber"),
+        Field("float").isType("decimal128").as("isFloat64IsDecimal128"),
+        Field("str").isType("string").as("isStr"),
+        Field("str").isType("int64").as("isStrNum"),
+        Field("int").isType("string").as("isNumStr"),
+        Field("bool").isType("boolean").as("isBool"),
+        Field("null").isType("null").as("isNull"),
+        Field("geoPoint").isType("geo_point").as("isGeoPoint"),
+        Field("timestamp").isType("timestamp").as("isTimestamp"),
+        Field("bytes").isType("bytes").as("isBytes"),
+        Field("docRef").isType("reference").as("isDocRef"),
+        Field("vector").isType("vector").as("isVector"),
+        Field("map").isType("map").as("isMap"),
+        Field("array").isType("array").as("isArray"),
+        Constant(1).isType("int64").as("exprIsInt64"),
+      ])
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      [
+        "isInt64": true,
+        "isInt64IsNumber": true,
+        "isInt64IsDecimal128": false,
+        "isFloat64": true,
+        "isFloat64IsNumber": true,
+        "isFloat64IsDecimal128": false,
+        "isStr": true,
+        "isStrNum": false,
+        "isNumStr": false,
+        "isBool": true,
+        "isNull": true,
+        "isGeoPoint": true,
+        "isTimestamp": true,
+        "isBytes": true,
+        "isDocRef": true,
+        "isVector": true,
+        "isMap": true,
+        "isArray": true,
+        "exprIsInt64": true,
+      ],
+    ]
+
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: false)
+  }
+
   func testAggregateThrowsOnDuplicateAliases() async throws {
     let collRef = collectionRef()
     let pipeline = db.pipeline()
