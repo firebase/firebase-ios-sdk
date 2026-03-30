@@ -656,9 +656,6 @@ public class Pipeline: @unchecked Sendable {
                      select: [Selectable]? = nil,
                      addFields: [Selectable]? = nil,
                      queryEnhancement: QueryEnhancement? = nil) -> Pipeline {
-    if let errorMessage = errorMessage {
-      return withError(errorMessage)
-    }
     let stage = Search(
       query: query,
       limit: limit,
@@ -669,11 +666,7 @@ public class Pipeline: @unchecked Sendable {
       offset: offset,
       queryEnhancement: queryEnhancement
     )
-    if let errorMessage = stage.errorMessage {
-      return withError(errorMessage)
-    } else {
-      return Pipeline(stages: stages + [stage], db: db)
-    }
+    return Pipeline(stages: stages + [stage], db: db)
   }
 
   /// Adds a search stage to the Pipeline using a raw query string.
