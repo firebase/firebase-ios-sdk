@@ -264,6 +264,7 @@ jobs:
             plist_src: "scripts/gha-encrypted/qs-crashlytics.plist.gpg"
             plist_dst: "quickstart-ios/crashlytics/GoogleService-Info.plist"
             command: |
+              xcodebuild -downloadPlatform watchOS
               rm -rf "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/FirebaseAnalytics*
               rm -rf "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/GoogleAppMeasurement*
               rm -rf "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/GoogleAds*
