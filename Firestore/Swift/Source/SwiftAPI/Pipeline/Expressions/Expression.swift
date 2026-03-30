@@ -1850,16 +1850,17 @@ public protocol Expression: Sendable {
   ///
   /// ```swift
   /// // Truncate "timestamp" field to the nearest day in Los Angeles timezone using a literal
-  /// string.
+  /// // string.
   /// Field("timestamp").timestampTruncate(granularity: "day", timezone: "America/Los_Angeles")
   /// ```
   ///
   /// ```swift
   /// // Truncate "timestamp" field to the granularity specified by "granularity_field" in the
-  /// timezone specified
-  /// // by "timezone_field" using expressions.
-  /// Field("timestamp").timestampTruncate(granularity: Field("granularity_field"), timezone:
-  /// Field("timezone_field"))
+  /// // timezone specified by "timezone_field" using expressions.
+  /// Field("timestamp").timestampTruncate(
+  ///   granularity: Field("granularity_field"),
+  ///   timezone: Field("timezone_field")
+  /// )
   /// ```
   ///
   /// - Parameter granularity: A `Sendable` literal string or an `Expression` representing the
@@ -1873,7 +1874,7 @@ public protocol Expression: Sendable {
   ///
   /// ```swift
   /// // Calculate the difference in days between "endAt" (self) and a start field using a typed
-  /// unit.
+  /// // unit.
   /// Field("endAt").timestampDiff(Field("startAt"), .day)
   /// ```
   ///
@@ -1886,7 +1887,7 @@ public protocol Expression: Sendable {
   ///
   /// ```swift
   /// // Calculate the difference in days between "endAt" (self) and a start field using a string
-  /// unit.
+  /// // unit.
   /// Field("endAt").timestampDiff(Field("startAt"), "day")
   /// ```
   ///
