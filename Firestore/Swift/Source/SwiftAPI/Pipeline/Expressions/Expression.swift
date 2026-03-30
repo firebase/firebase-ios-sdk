@@ -2041,7 +2041,7 @@ public protocol Expression: Sendable {
   /// Supported values for `type` are: `"null"`, `"array"`, `"boolean"`, `"bytes"`, `"timestamp"`,
   /// `"geo_point"`, `"number"`, `"int32"`, `"int64"`, `"float64"`, `"decimal128"`, `"map"`,
   /// `"reference"`, `"string"`,
-  /// `"vector"`, `"max_key"`, `"min_key"`, `"object_id"`, "`regex"`, and `"request_timestamp"`.
+  /// `"vector"`, `"max_key"`, `"min_key"`, `"object_id"`, `"regex"`, and `"request_timestamp"`.
   ///
   /// ```swift
   /// // Check if the "age" field is an integer
