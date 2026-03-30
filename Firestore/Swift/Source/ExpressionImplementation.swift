@@ -1246,6 +1246,21 @@ public extension Expression {
     )
   }
 
+  func ifNull(_ value: Sendable) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "if_null",
+      args: [self, Helper.sendableToExpr(value)]
+    )
+  }
+
+  func ifNull(_ value: Expression) -> FunctionExpression {
+    return FunctionExpression(functionName: "if_null", args: [self, value])
+  }
+
+  func coalesce(_ values: [Expression]) -> FunctionExpression {
+    return FunctionExpression(functionName: "coalesce", args: [self] + values)
+  }
+
   // MARK: Sorting
 
   func ascending() -> Ordering {

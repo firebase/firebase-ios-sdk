@@ -1266,6 +1266,32 @@ public struct ToolType: CodableProtoEnum, Sendable {
   let rawValue: String
 }
 
+/// Pricing and performance service tier.
+@available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+
+public struct ServiceTier: CodableProtoEnum, Sendable {
+  enum Kind: String {
+    case unspecified = "SERVICE_TIER_UNSPECIFIED"
+    case flex = "SERVICE_TIER_FLEX"
+    case standard = "SERVICE_TIER_STANDARD"
+    case priority = "SERVICE_TIER_PRIORITY"
+  }
+
+  /// Default service tier, which is standard.
+  public static let unspecified = ServiceTier(kind: .unspecified)
+
+  /// Flex service tier.
+  public static let flex = ServiceTier(kind: .flex)
+
+  /// Standard service tier.
+  public static let standard = ServiceTier(kind: .standard)
+
+  /// Priority service tier.
+  public static let priority = ServiceTier(kind: .priority)
+
+  let rawValue: String
+}
+
 /// The type of the data supported by JSON Schema.
 ///
 /// The values of the enums are lower case strings, while the values of the enums
@@ -8745,6 +8771,9 @@ public struct GenerateContentConfig: Sendable {
   /// service. If supplied, safety_settings must not be supplied.
   public let modelArmorConfig: ModelArmorConfig?
 
+  /// The service tier to use for the request. For example, SERVICE_TIER_FLEX.
+  public let serviceTier: ServiceTier?
+
   /// Default initializer.
   public init(
     httpOptions: HttpOptions? = nil,
@@ -8777,7 +8806,8 @@ public struct GenerateContentConfig: Sendable {
     thinkingConfig: ThinkingConfig? = nil,
     imageConfig: ImageConfig? = nil,
     enableEnhancedCivicAnswers: Bool? = nil,
-    modelArmorConfig: ModelArmorConfig? = nil
+    modelArmorConfig: ModelArmorConfig? = nil,
+    serviceTier: ServiceTier? = nil
   ) {
     self.httpOptions = httpOptions
     self.shouldReturnHttpResponse = shouldReturnHttpResponse
@@ -8810,6 +8840,7 @@ public struct GenerateContentConfig: Sendable {
     self.imageConfig = imageConfig
     self.enableEnhancedCivicAnswers = enableEnhancedCivicAnswers
     self.modelArmorConfig = modelArmorConfig
+    self.serviceTier = serviceTier
   }
 }
 
@@ -8849,6 +8880,7 @@ extension GenerateContentConfig: Codable {
   }
   public enum MLDevKeys: String, CodingKey {
     case enableEnhancedCivicAnswers = "enableEnhancedCivicAnswers"
+    case serviceTier = "serviceTier"
   }
   public enum VertexKeys: String, CodingKey {
     case modelSelectionConfig = "modelSelectionConfig"
@@ -8999,6 +9031,11 @@ extension GenerateContentConfig: Codable {
     enableEnhancedCivicAnswers = try MLDevKeysContainer.decodeIfPresent(
       Bool.self,
       forKey: .enableEnhancedCivicAnswers
+    )
+
+    serviceTier = try MLDevKeysContainer.decodeIfPresent(
+      ServiceTier.self,
+      forKey: .serviceTier
     )
 
     let VertexKeysContainer = try decoder.container(keyedBy: VertexKeys.self)
@@ -9163,6 +9200,11 @@ extension GenerateContentConfig: Codable {
       try MLDevKeysContainer.encodeIfPresent(
         enableEnhancedCivicAnswers,
         forKey: .enableEnhancedCivicAnswers
+      )
+
+      try MLDevKeysContainer.encodeIfPresent(
+        serviceTier,
+        forKey: .serviceTier
       )
 
     }
@@ -20329,7 +20371,7 @@ extension PreferenceOptimizationSpec: Codable {
   }
 }
 
-/// Hyperparameters for Distillation. This data type is not supported in Gemini API.
+/// Hyperparameters for distillation.
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct DistillationHyperParameters: Sendable {
   /// Optional. Adapter size for distillation.
@@ -20342,15 +20384,26 @@ public struct DistillationHyperParameters: Sendable {
   /// Optional. Multiplier for adjusting the default learning rate.
   public let learningRateMultiplier: Double?
 
+  /// The batch size hyperparameter for tuning.
+  /// This is only supported for OSS models in Vertex.
+  public let batchSize: Int32?
+
+  /// The learning rate for tuning. OSS models only.
+  public let learningRate: Float?
+
   /// Default initializer.
   public init(
     adapterSize: AdapterSize? = nil,
     epochCount: Int64? = nil,
-    learningRateMultiplier: Double? = nil
+    learningRateMultiplier: Double? = nil,
+    batchSize: Int32? = nil,
+    learningRate: Float? = nil
   ) {
     self.adapterSize = adapterSize
     self.epochCount = epochCount
     self.learningRateMultiplier = learningRateMultiplier
+    self.batchSize = batchSize
+    self.learningRate = learningRate
   }
 }
 
@@ -20362,6 +20415,8 @@ extension DistillationHyperParameters: Codable {
     case adapterSize = "adapterSize"
     case epochCount = "epochCount"
     case learningRateMultiplier = "learningRateMultiplier"
+    case batchSize = "batchSize"
+    case learningRate = "learningRate"
   }
 
   public init(from decoder: any Decoder) throws {
@@ -20381,6 +20436,16 @@ extension DistillationHyperParameters: Codable {
     learningRateMultiplier = try VertexKeysContainer.decodeIfPresent(
       Double.self,
       forKey: .learningRateMultiplier
+    )
+
+    batchSize = try VertexKeysContainer.decodeIfPresent(
+      Int32.self,
+      forKey: .batchSize
+    )
+
+    learningRate = try VertexKeysContainer.decodeIfPresent(
+      Float.self,
+      forKey: .learningRate
     )
   }
 
@@ -20403,6 +20468,16 @@ extension DistillationHyperParameters: Codable {
       try VertexKeysContainer.encodeIfPresent(
         learningRateMultiplier,
         forKey: .learningRateMultiplier
+      )
+
+      try VertexKeysContainer.encodeIfPresent(
+        batchSize,
+        forKey: .batchSize
+      )
+
+      try VertexKeysContainer.encodeIfPresent(
+        learningRate,
+        forKey: .learningRate
       )
 
     }
@@ -20444,6 +20519,9 @@ public struct DistillationSpec: Sendable {
   /// The dataset must be formatted as a JSONL file.
   public let validationDatasetUri: String?
 
+  /// Tuning mode for tuning.
+  public let tuningMode: TuningMode?
+
   /// Default initializer.
   public init(
     promptDatasetUri: String? = nil,
@@ -20453,7 +20531,8 @@ public struct DistillationSpec: Sendable {
     studentModel: String? = nil,
     trainingDatasetUri: String? = nil,
     tunedTeacherModelSource: String? = nil,
-    validationDatasetUri: String? = nil
+    validationDatasetUri: String? = nil,
+    tuningMode: TuningMode? = nil
   ) {
     self.promptDatasetUri = promptDatasetUri
     self.baseTeacherModel = baseTeacherModel
@@ -20463,6 +20542,7 @@ public struct DistillationSpec: Sendable {
     self.trainingDatasetUri = trainingDatasetUri
     self.tunedTeacherModelSource = tunedTeacherModelSource
     self.validationDatasetUri = validationDatasetUri
+    self.tuningMode = tuningMode
   }
 }
 
@@ -20479,6 +20559,7 @@ extension DistillationSpec: Codable {
     case trainingDatasetUri = "trainingDatasetUri"
     case tunedTeacherModelSource = "tunedTeacherModelSource"
     case validationDatasetUri = "validationDatasetUri"
+    case tuningMode = "tuningMode"
   }
 
   public init(from decoder: any Decoder) throws {
@@ -20523,6 +20604,11 @@ extension DistillationSpec: Codable {
     validationDatasetUri = try VertexKeysContainer.decodeIfPresent(
       String.self,
       forKey: .validationDatasetUri
+    )
+
+    tuningMode = try VertexKeysContainer.decodeIfPresent(
+      TuningMode.self,
+      forKey: .tuningMode
     )
   }
 
@@ -20570,6 +20656,11 @@ extension DistillationSpec: Codable {
       try VertexKeysContainer.encodeIfPresent(
         validationDatasetUri,
         forKey: .validationDatasetUri
+      )
+
+      try VertexKeysContainer.encodeIfPresent(
+        tuningMode,
+        forKey: .tuningMode
       )
 
     }
@@ -24834,7 +24925,7 @@ public struct CreateTuningJobConfig: Sendable {
   /// Adapter size for tuning.
   public let adapterSize: AdapterSize?
 
-  /// Tuning mode for SFT tuning.
+  /// Tuning mode for tuning.
   public let tuningMode: TuningMode?
 
   /// Custom base model for tuning. This is only supported for OSS models in Vertex.
