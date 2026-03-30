@@ -13,18 +13,18 @@ the simulator's booting and install sequence.
 
 ## The Script: `run_test_and_record.sh`
 
-The core logic of this skill resides in `./scripts/run_test_and_record.sh`. You can call this script whenever you
-need to execute a test block accompanied by screen recording.
+The core logic of this skill resides in `./.agents/skills/ios-simulator-test-recording/scripts/run_test_and_record.sh`.
+You can call this script whenever you need to execute a test block accompanied by screen recording.
 
 ### Usage
 
 ```bash
-./scripts/run_test_and_record.sh [OPTIONS] -- COMMAND
+./.agents/skills/ios-simulator-test-recording/scripts/run_test_and_record.sh [OPTIONS] -- COMMAND
 ```
 
 #### Options
 
-- `--video PATH` : Change the video output file. Default: `simulator_walkthrough.mp4`
+- `--video PATH` : Change the video output file. Default: `simulator_test_walkthrough.mp4`
 - `--show-ui` : Explicitly brings the Simulator.app window to the foreground so the user sees the execution happening.
   By default, it runs the simulator headless or in the background.
 - `--udid UDID` : Specifies the ID of the simulator to attach to. If left omitted, it queries
@@ -39,7 +39,7 @@ command execution block. The script will intercept and substitute it before laun
 
 **1. Basic Automated Fallback (Latest Simulator + Default Video)**
 ```bash
-  ./scripts/run_test_and_record.sh \
+  ./.agents/skills/ios-simulator-test-recording/scripts/run_test_and_record.sh \
   -- xcodebuild test -project SampleApp.xcodeproj -scheme SampleApp \
   -destination "platform=iOS Simulator,id={UDID}" -quiet
 ```
@@ -47,7 +47,7 @@ command execution block. The script will intercept and substitute it before laun
 
 **2. Custom Video Path & Show UI**
 ```bash
-  ./scripts/run_test_and_record.sh \
+  ./.agents/skills/ios-simulator-test-recording/scripts/run_test_and_record.sh \
   --show-ui \
   --video "~/Code/firebase-ios-sdk/auth_test.mp4" \
   -- xcodebuild test -workspace App.xcworkspace -scheme AppUITests \
@@ -56,7 +56,7 @@ command execution block. The script will intercept and substitute it before laun
 
 **3. With a specific Custom UDID provided**
 ```bash
-  ./scripts/run_test_and_record.sh \
+  ./.agents/skills/ios-simulator-test-recording/scripts/run_test_and_record.sh \
   --udid "62425200-F824-4E55-ACB4-08D031165A82" \
   --video ./fast_test.mp4 \
   -- xcodebuild test -project Proj.xcodeproj ... -destination "platform=iOS Simulator,id={UDID}"

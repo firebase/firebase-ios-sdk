@@ -34,13 +34,27 @@ done
 if [[ -z "$UDID" ]]; then
     echo "0. Auto-selecting latest iOS Simulator..."
     UDID=$(python3 -c "
-import json, subprocess
+import json, subprocess, re
 try:
     data = json.loads(subprocess.check_output(['xcrun', 'simctl', 'list', 'devices', 'available', '-j']))
     runtimes = sorted([r for r in data['devices'].keys() if 'iOS' in r], reverse=True)
     if not runtimes: exit(1)
-    iphones = sorted([d for d in data['devices'][runtimes[0]] if 'iPhone' in d['name']], key=lambda x: x['name'], reverse=True)
+    
+    def iphone_rank(d):
+        name = d['name']
+        if 'SE' in name: return (-1, 0, name)
+        match = re.search(r'iPhone\s+(\d+)', name)
+        num = int(match.group(1)) if match else 0
+        tier = 0
+        if 'Pro Max' in name: tier = 1
+        elif 'Pro' in name: tier = 3
+        elif 'Plus' in name: tier = 0
+        else: tier = 2 # Standard
+        return (num, tier, name)
+        
+    iphones = [d for d in data['devices'][runtimes[0]] if 'iPhone' in d['name']]
     if not iphones: exit(1)
+    iphones.sort(key=iphone_rank, reverse=True)
     print(iphones[0]['udid'])
 except Exception:
     exit(1)
@@ -145,9 +159,11 @@ set -e
 if [[ -f "/tmp/simctl_record_pid_$$.txt" ]]; then
     RECORD_PID=$(cat "/tmp/simctl_record_pid_$$.txt")
     echo "4. Test finished (Exit $TEST_RESULT). Sending SIGINT to recording PID $RECORD_PID..."
+    # Capture the final UI state or test outcomes for a few seconds after tests finish before stopping
     sleep 3
     kill -INT "$RECORD_PID" 2>/dev/null || true
     echo "Waiting for video file to finalize..."
+    # Wait for it to be done - this is likely long enough. May need to tweak for later.
     sleep 5
     rm -f "/tmp/simctl_record_pid_$$.txt"
 else
