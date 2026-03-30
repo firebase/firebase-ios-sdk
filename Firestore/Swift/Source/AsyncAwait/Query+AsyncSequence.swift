@@ -43,11 +43,9 @@ public extension Query {
   /// An `AsyncSequence` that emits `QuerySnapshot` values whenever the query data changes.
   ///
   /// This struct is the concrete type returned by the `Query.snapshots` property.
-  ///
-  /// - Important: This type is marked `Sendable` because `Query` itself is `Sendable`.
   @available(macOS 15.0, iOS 18.0, watchOS 11.0, tvOS 18.0, visionOS 2.0, *)
   @frozen
-  struct QuerySnapshotsSequence: AsyncSequence, Sendable {
+  struct QuerySnapshotsSequence: AsyncSequence {
     public typealias Element = QuerySnapshot
     public typealias Failure = Error
     public typealias AsyncIterator = Iterator

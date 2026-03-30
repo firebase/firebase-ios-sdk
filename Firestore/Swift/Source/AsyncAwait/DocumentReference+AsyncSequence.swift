@@ -45,7 +45,7 @@ public extension DocumentReference {
   /// This struct is the concrete type returned by the `DocumentReference.snapshots` property.
   @available(macOS 15.0, iOS 18.0, watchOS 11.0, tvOS 18.0, visionOS 2.0, *)
   @frozen
-  struct DocumentSnapshotsSequence: AsyncSequence, Sendable {
+  struct DocumentSnapshotsSequence: AsyncSequence {
     public typealias Element = DocumentSnapshot
     public typealias Failure = Error
     public typealias AsyncIterator = Iterator
