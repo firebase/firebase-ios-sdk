@@ -249,11 +249,11 @@
         )
       }
       let generationID = response.responseID.map {
-        #if canImport(FoundationModels)
+        #if canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
           if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
             return FirebaseAI.GenerationID(responseID: $0, generationID: GenerationID())
           }
-        #endif // canImport(FoundationModels)
+        #endif // canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
 
         return FirebaseAI.GenerationID(responseID: $0, generationID: nil)
       }
@@ -327,13 +327,13 @@
             streamedText.append(text)
             if generationID == nil {
               generationID = chunk.responseID.map {
-                #if canImport(FoundationModels)
+                #if canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
                   if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
                     return FirebaseAI.GenerationID(
                       responseID: $0, generationID: FoundationModels.GenerationID()
                     )
                   }
-                #endif // canImport(FoundationModels)
+                #endif // canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
 
                 return FirebaseAI.GenerationID(responseID: $0, generationID: nil)
               }
@@ -392,7 +392,7 @@
         return try FirebaseAI.GeneratedContent(json: text, id: generationID, isComplete: isComplete)
       }
 
-      #if canImport(FoundationModels)
+      #if canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
         if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
           return FirebaseAI
             .GeneratedContent(
@@ -401,7 +401,7 @@
               isComplete: isComplete
             )
         }
-      #endif // canImport(FoundationModels)
+      #endif // canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
 
       return FirebaseAI.GeneratedContent(
         kind: FirebaseAI.GeneratedContent.Kind.string(text),
@@ -415,13 +415,13 @@
         return content
       }
 
-      #if canImport(FoundationModels)
+      #if canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
         if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *), let contentMetatype = T
           .self as? (any FoundationModels.ConvertibleFromGeneratedContent.Type),
           let content = try contentMetatype.init(rawContent) as? T {
           return content
         }
-      #endif // canImport(FoundationModels)
+      #endif // canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
 
       if let contentMetatype = T.self as? (any FirebaseAI.ConvertibleFromGeneratedContent.Type),
          let content = try contentMetatype.init(rawContent) as? T {
