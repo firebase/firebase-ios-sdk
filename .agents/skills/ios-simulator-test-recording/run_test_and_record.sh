@@ -171,6 +171,4 @@ else
     exit 1
 fi
 
-# Cleanup
-rm -f "$LOG_FILE"
 exit $TEST_RESULT
