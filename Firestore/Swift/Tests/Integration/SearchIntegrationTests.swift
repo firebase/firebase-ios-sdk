@@ -158,17 +158,17 @@ final class SearchIntegrationTests: FSTIntegrationTestCase {
 //    XCTAssertEqual(snapshot.results[0].id, "goldenWaffle")
 //  }
 
-  func testGeoNearQuery() async throws {
-    let firestore = db
-    let pipeline = firestore.pipeline().collection(COLLECTION_NAME)
-      .search(query: Field("location")
-        .geoDistance(GeoPoint(latitude: 39.6985, longitude: -105.024))
-        .lessThan(1000))
-
-    let snapshot = try await (pipeline.execute())
-    XCTAssertEqual(snapshot.results.count, 1)
-    XCTAssertEqual(snapshot.results[0].id, "solTacos")
-  }
+//  func testGeoNearQuery() async throws {
+//    let firestore = db
+//    let pipeline = firestore.pipeline().collection(COLLECTION_NAME)
+//      .search(query: Field("location")
+//        .geoDistance(GeoPoint(latitude: 39.6985, longitude: -105.024))
+//        .lessThan(1000))
+//
+//    let snapshot = try await (pipeline.execute())
+//    XCTAssertEqual(snapshot.results.count, 1)
+//    XCTAssertEqual(snapshot.results[0].id, "solTacos")
+//  }
 
 //  func testConjunctionOfTextSearchPredicates() async throws {
 //    let firestore = db
@@ -265,24 +265,24 @@ final class SearchIntegrationTests: FSTIntegrationTestCase {
     XCTAssertGreaterThan(doc.get("searchScore") as? Double ?? 0, 0)
   }
 
-  func testAddGeoDistance() async throws {
-    let firestore = db
-    let pipeline = firestore.pipeline().collection(COLLECTION_NAME)
-      .search(
-        query: DocumentMatches("waffles"),
-        addFields: [
-          Field("location").geoDistance(GeoPoint(latitude: 39.7183, longitude: -104.9621))
-            .as("distance"),
-        ]
-      )
-      .select([Field("name"), Field("distance")])
-
-    let snapshot = try await (pipeline.execute())
-    XCTAssertEqual(snapshot.results.count, 1)
-    let doc = snapshot.results[0]
-    XCTAssertEqual(doc.get("name") as? String, "The Golden Waffle")
-    XCTAssertGreaterThan(doc.get("distance") as? Double ?? 0, 0)
-  }
+//  func testAddGeoDistance() async throws {
+//    let firestore = db
+//    let pipeline = firestore.pipeline().collection(COLLECTION_NAME)
+//      .search(
+//        query: DocumentMatches("waffles"),
+//        addFields: [
+//          Field("location").geoDistance(GeoPoint(latitude: 39.7183, longitude: -104.9621))
+//            .as("distance"),
+//        ]
+//      )
+//      .select([Field("name"), Field("distance")])
+//
+//    let snapshot = try await (pipeline.execute())
+//    XCTAssertEqual(snapshot.results.count, 1)
+//    let doc = snapshot.results[0]
+//    XCTAssertEqual(doc.get("name") as? String, "The Golden Waffle")
+//    XCTAssertGreaterThan(doc.get("distance") as? Double ?? 0, 0)
+//  }
 
 //  func testAddTopicalityScoreAndSnippet() async throws {
 //    let firestore = db
@@ -343,22 +343,22 @@ final class SearchIntegrationTests: FSTIntegrationTestCase {
     XCTAssertEqual(docIDs, ["eastsideTacos", "solTacos"])
   }
 
-  func testSortByDistance() async throws {
-    let firestore = db
-    let pipeline = firestore.pipeline().collection(COLLECTION_NAME)
-      .search(
-        query: DocumentMatches("tacos"),
-        sort: [
-          Field("location")
-            .geoDistance(GeoPoint(latitude: 39.6985, longitude: -105.024))
-            .ascending(),
-        ]
-      )
-
-    let snapshot = try await (pipeline.execute())
-    let docIDs = snapshot.results.map { $0.id }
-    XCTAssertEqual(docIDs, ["solTacos", "eastsideTacos"])
-  }
+//  func testSortByDistance() async throws {
+//    let firestore = db
+//    let pipeline = firestore.pipeline().collection(COLLECTION_NAME)
+//      .search(
+//        query: DocumentMatches("tacos"),
+//        sort: [
+//          Field("location")
+//            .geoDistance(GeoPoint(latitude: 39.6985, longitude: -105.024))
+//            .ascending(),
+//        ]
+//      )
+//
+//    let snapshot = try await (pipeline.execute())
+//    let docIDs = snapshot.results.map { $0.id }
+//    XCTAssertEqual(docIDs, ["solTacos", "eastsideTacos"])
+//  }
 
 //  func testSortByMultipleOrderings() async throws {
 //    let firestore = db

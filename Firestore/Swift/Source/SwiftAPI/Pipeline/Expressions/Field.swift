@@ -101,7 +101,8 @@ public struct Field: Expression, Selectable, BridgeWrapper, SelectableWrapper,
   ///
   /// - Parameter location: The target `GeoPoint`.
   /// - Returns: An `Expression` representing the distance in meters.
-  public func geoDistance(_ location: FirebaseFirestore.GeoPoint) -> Expression {
+  // TODO(search): enable with backend support
+  func geoDistance(_ location: FirebaseFirestore.GeoPoint) -> Expression {
     return FunctionExpression(
       functionName: "geo_distance",
       args: [self, Constant(location)]
