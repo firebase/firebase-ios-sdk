@@ -43,6 +43,10 @@ struct BooleanFunctionExpression: BooleanExpression, BridgeWrapper {
   init(functionName: String, args: [Expression]) {
     expr = FunctionExpression(functionName: functionName, args: args)
   }
+
+  var errorMessage: String? {
+    return expr.errorMessage
+  }
 }
 
 struct BooleanConstant: BooleanExpression, BridgeWrapper {
@@ -211,34 +215,5 @@ public extension BooleanExpression {
   /// - Returns: An `AggregateFunction` that performs the conditional count.
   func countIf() -> AggregateFunction {
     return AggregateFunction(functionName: "count_if", args: [self])
-  }
-
-  /// Creates a conditional expression that returns one of two specified expressions based on the
-  /// result of this boolean expression.
-  ///
-  /// This is equivalent to a ternary operator (`condition ? then : else`).
-  ///
-  /// ```swift
-  /// // Create a new field "status" based on the "rating" field.
-  /// // If rating > 4.5, status is "top_rated", otherwise "regular".
-  /// firestore.pipeline()
-  ///   .collection("products")
-  ///   .addFields([
-  ///     Field("rating").greaterThan(4.5)
-  ///       .then(Constant("top_rated"), else: Constant("regular"))
-  ///       .as("status")
-  ///   ])
-  /// ```
-  ///
-  /// - Parameters:
-  ///   - thenExpression: The `Expression` to evaluate if this boolean expression is `true`.
-  ///   - elseExpression: The `Expression` to evaluate if this boolean expression is `false`.
-  /// - Returns: A new `FunctionExpression` representing the conditional logic.
-  func then(_ thenExpression: Expression,
-            else elseExpression: Expression) -> FunctionExpression {
-    return FunctionExpression(
-      functionName: "conditional",
-      args: [self, thenExpression, elseExpression]
-    )
   }
 }

@@ -162,12 +162,25 @@ public final class FirebaseAI: Sendable {
   /// - Note: Refer to [Imagen models](https://firebase.google.com/docs/vertex-ai/models) for
   /// guidance on choosing an appropriate model for your use case.
   ///
+  ///
+  /// @DeprecationSummary {
+  ///  All Imagen models are deprecated and will shut down as early as June 2026.
+  ///  As a replacement, you can [migrate your apps to use Gemini Image models
+  ///  (the "Nano Banana"
+  /// models).](https://firebase.google.com/docs/ai-logic/imagen-models-migration)
+  /// }
+  ///
   /// - Parameters:
   ///   - modelName: The name of the Imagen 3 model to use.
   ///   - generationConfig: Configuration options for generating images with Imagen.
   ///   - safetySettings: Settings describing what types of potentially harmful content your model
   ///     should allow.
   ///   - requestOptions: Configuration parameters for sending requests to the backend.
+  @available(
+    *,
+    deprecated,
+    message: "All Imagen models are deprecated and will shut down as early as June 2026. As a replacement, you can migrate your apps to use Gemini Image models (the \"Nano Banana\" models)."
+  )
   public func imagenModel(modelName: String, generationConfig: ImagenGenerationConfig? = nil,
                           safetySettings: ImagenSafetySettings? = nil,
                           requestOptions: RequestOptions = RequestOptions()) -> ImagenModel {
@@ -201,7 +214,19 @@ public final class FirebaseAI: Sendable {
 
   /// Initializes a new `TemplateImagenModel`.
   ///
+  /// @DeprecationSummary {
+  ///  All Imagen models are deprecated and will shut down as early as June 2026.
+  ///  As a replacement, you can [migrate your apps to use Gemini Image models
+  ///  (the "Nano Banana"
+  ///   models).](https://firebase.google.com/docs/ai-logic/imagen-models-migration)
+  /// }
+  ///
   /// - Returns: A new `TemplateImagenModel` instance.
+  @available(
+    *,
+    deprecated,
+    message: "All Imagen models are deprecated and will shut down as early as June 2026. As a replacement, you can migrate your apps to use Gemini Image models (the \"Nano Banana\" models)."
+  )
   public func templateImagenModel() -> TemplateImagenModel {
     return TemplateImagenModel(
       generativeAIService: GenerativeAIService(firebaseInfo: firebaseInfo,

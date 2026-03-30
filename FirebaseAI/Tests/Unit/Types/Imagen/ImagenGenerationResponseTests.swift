@@ -16,6 +16,7 @@ import XCTest
 
 @testable import FirebaseAILogic
 
+@available(*, deprecated)
 final class ImagenGenerationResponseTests: XCTestCase {
   let decoder = JSONDecoder()
 

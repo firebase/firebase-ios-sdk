@@ -605,8 +605,6 @@ jobs:
   check-required-tests:
     runs-on: ubuntu-latest
     name: Check all required Firestore tests results
-    # xcodetest_prod is skipped for now. After the backend rolls out the new features
-    # to the production environment, this required test should be added back to the list.
     needs:
       - cmake
       - xcodetest_emulator
@@ -615,6 +613,7 @@ jobs:
       - sanitizers-mac
       - sanitizers-ubuntu
       - pod_lib_lint
+      - xcodetest_prod
     steps:
       - name: Check test matrix
         if: contains(needs.*.result, 'failure')

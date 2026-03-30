@@ -56,6 +56,16 @@ class CollectionSource: Stage {
 }
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+class SubcollectionStage: Stage {
+  let name: String = "subcollection"
+  let bridge: StageBridge
+
+  init(path: String) {
+    bridge = SubcollectionSourceStageBridge(path: path)
+  }
+}
+
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class CollectionGroupSource: Stage {
   let name: String = "collection_group"
 
@@ -189,6 +199,25 @@ class RemoveFieldsStage: Stage {
   init(fields: [Field]) {
     self.fields = fields.map { $0.fieldName }
     bridge = RemoveFieldsStageBridge(fields: self.fields)
+  }
+}
+
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+class Define: Stage {
+  let name: String = "let"
+  let bridge: StageBridge
+  let errorMessage: String?
+
+  init(variables: [Selectable]) {
+    let (exprMap, error) = Helper.selectablesToMap(selectables: variables)
+    if let error = error {
+      errorMessage = error.localizedDescription
+      bridge = DefineStageBridge(variables: [:])
+    } else {
+      errorMessage = nil
+      let bridgeVariables = exprMap.mapValues { $0.toBridge() }
+      bridge = DefineStageBridge(variables: bridgeVariables)
+    }
   }
 }
 
@@ -355,7 +384,7 @@ class Union: Stage {
 
   init(other: Pipeline) {
     self.other = other
-    bridge = UnionStageBridge(other: other.bridge)
+    bridge = UnionStageBridge(other: other.pipelineBridge)
     errorMessage = other.errorMessage
   }
 }

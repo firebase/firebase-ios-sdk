@@ -1360,6 +1360,18 @@ public protocol Expression: Sendable {
 
   // MARK: Map Operations
 
+  /// Creates an expression that accesses a field on this expression using a string key.
+  ///
+  /// - Parameter key: The string key to access.
+  /// - Returns: A new `FunctionExpression` representing the field access.
+  func getField(_ key: String) -> FunctionExpression
+
+  /// Creates an expression that accesses a field on this expression using a dynamic key expression.
+  ///
+  /// - Parameter expression: The expression evaluating to a key to access.
+  /// - Returns: A new `FunctionExpression` representing the field access.
+  func getField(_ expression: Expression) -> FunctionExpression
+
   /// Accesses a value from a map (object) field using the provided literal string key.
   /// Assumes `self` evaluates to a Map.
   ///
@@ -1932,6 +1944,51 @@ public protocol Expression: Sendable {
   /// - Parameter defaultValue: The literal `Sendable` value to return if this expression is absent.
   /// - Returns: A new "FunctionExpression" representing the "ifAbsent" operation.
   func ifAbsent(_ defaultValue: Sendable) -> FunctionExpression
+
+  /// Creates an expression that returns the `else` argument if this expression evaluates to null,
+  /// else return the result of this expression.
+  ///
+  /// This function provides a fallback for both absent and explicit null values. In contrast,
+  /// `ifAbsent` only triggers for missing fields.
+  ///
+  /// ```swift
+  /// // Returns the user's display name, or returns "Anonymous" if the field is null.
+  /// Field("displayName").ifNull("Anonymous")
+  /// ```
+  ///
+  /// - Parameter defaultValue: The `Sendable` value that will be returned if this expression
+  /// evaluates to null.
+  /// - Returns: A new `FunctionExpression` representing the `ifNull` operation.
+  func ifNull(_ defaultValue: Sendable) -> FunctionExpression
+
+  /// Creates an expression that returns the `else` argument if this expression evaluates to null,
+  /// else return the result of this expression.
+  ///
+  /// This function provides a fallback for both absent and explicit null values. In contrast,
+  /// `ifAbsent` only triggers for missing fields.
+  ///
+  /// ```swift
+  /// // Returns the user's preferred name, or if that is null, returns their full name.
+  /// Field("preferredName").ifNull(Field("fullName"))
+  /// ```
+  ///
+  /// - Parameter defaultExpression: The `Expression` that will be evaluated and returned if this
+  /// expression evaluates to null.
+  /// - Returns: A new `FunctionExpression` representing the `ifNull` operation.
+  func ifNull(_ defaultExpression: Expression) -> FunctionExpression
+
+  /// Creates an expression that returns the first non-null, non-absent argument, without evaluating
+  /// the rest of the arguments. When all arguments are null or absent, returns the last argument.
+  ///
+  /// ```swift
+  /// // Returns the value of the first non-null, non-absent field among 'preferredName',
+  /// 'fullName', or the last argument if all previous fields are null.
+  /// Field("preferredName").coalesce([Field("fullName"), Constant("Anonymous")])
+  /// ```
+  ///
+  /// - Parameter values: Optional additional expressions to check if previous ones are null.
+  /// - Returns: A new `FunctionExpression` representing the `coalesce` operation.
+  func coalesce(_ values: [Expression]) -> FunctionExpression
 
   // MARK: Sorting
 

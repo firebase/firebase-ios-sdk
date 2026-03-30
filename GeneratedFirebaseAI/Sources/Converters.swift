@@ -1496,6 +1496,12 @@ public enum Converters {
         ])
     }
 
+    if fromObject.labels != nil {
+      throw NSError(
+        domain: "Gemini API", code: -1,
+        userInfo: [NSLocalizedDescriptionKey: "labels parameter is not supported in Gemini API."])
+    }
+
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -2023,6 +2029,14 @@ public enum Converters {
         userInfo: [
           NSLocalizedDescriptionKey:
             "enableEnhancedCivicAnswers parameter is not supported in Vertex AI."
+        ])
+    }
+
+    if fromObject.serviceTier != nil {
+      throw NSError(
+        domain: "Vertex AI", code: -1,
+        userInfo: [
+          NSLocalizedDescriptionKey: "serviceTier parameter is not supported in Vertex AI."
         ])
     }
 
