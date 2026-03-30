@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if compiler(>=6.2)
+#if compiler(>=6.2.3)
 
   #if canImport(FoundationModels)
     import FoundationModels
@@ -315,4 +315,4 @@
     }
   #endif // canImport(FoundationModels)
 
-#endif // compiler(>=6.2)
+#endif // compiler(>=6.2.3)
