@@ -1262,8 +1262,6 @@ public protocol Expression: Sendable {
   /// Creates an expression that removes leading whitespace from this string expression.
   /// Assumes `self` evaluates to a string.
   ///
-  /// The characters in `value` are treated as a **set** of characters to trim, not as a substring.
-  ///
   /// ```swift
   /// // Trim leading whitespace from the "text" field.
   /// Field("text").ltrim()
@@ -1303,8 +1301,6 @@ public protocol Expression: Sendable {
 
   /// Creates an expression that removes trailing whitespace from this string expression.
   /// Assumes `self` evaluates to a string.
-  ///
-  /// The characters in `value` are treated as a **set** of characters to trim, not as a substring.
   ///
   /// ```swift
   /// // Trim trailing whitespace from the "text" field.
