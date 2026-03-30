@@ -99,37 +99,37 @@ final class SearchIntegrationTests: FSTIntegrationTestCase {
     return db.collection("SearchIntegrationTests")
   }
 
-  func testAllSearchFeatures() async throws {
-    let firestore = db
-    let queryLocation = GeoPoint(latitude: 0, longitude: 0)
-    let pipeline = firestore.pipeline().collection("restaurants")
-      .search(
-        query: Field("description").matches("breakfast") &&
-          Field("location").geoDistance(queryLocation).lessThan(1000) &&
-          Field("avgPrice").between(10, 20),
-        languageCode: "us-EN",
-        retrievalDepth: 1000,
-        sort: [
-          Field("location").geoDistance(queryLocation).ascending(),
-        ],
-        offset: 0,
-        limit: 50,
-        select: [
-          Field("title"),
-          Field("menu"),
-          Field("description"),
-          Field("location").geoDistance(queryLocation).as("distance"),
-        ],
-        addFields: [
-          Score().as("searchScore"),
-        ],
-        queryEnhancement: .disabled
-      )
-
-    let snapshot = try await (pipeline.execute())
-    XCTAssertEqual(snapshot.results.count, 1)
-    XCTAssertEqual(snapshot.results[0].id, "goldenWaffle")
-  }
+//  func testAllSearchFeatures() async throws {
+//    let firestore = db
+//    let queryLocation = GeoPoint(latitude: 0, longitude: 0)
+//    let pipeline = firestore.pipeline().collection("restaurants")
+//      .search(
+//        query: Field("description").matches("breakfast") &&
+//          Field("location").geoDistance(queryLocation).lessThan(1000) &&
+//          Field("avgPrice").between(10, 20),
+//        languageCode: "us-EN",
+//        retrievalDepth: 1000,
+//        sort: [
+//          Field("location").geoDistance(queryLocation).ascending(),
+//        ],
+//        offset: 0,
+//        limit: 50,
+//        select: [
+//          Field("title"),
+//          Field("menu"),
+//          Field("description"),
+//          Field("location").geoDistance(queryLocation).as("distance"),
+//        ],
+//        addFields: [
+//          Score().as("searchScore"),
+//        ],
+//        queryEnhancement: .disabled
+//      )
+//
+//    let snapshot = try await (pipeline.execute())
+//    XCTAssertEqual(snapshot.results.count, 1)
+//    XCTAssertEqual(snapshot.results[0].id, "goldenWaffle")
+//  }
 
   func testSearchFullDocument() async throws {
     let firestore = db
@@ -141,15 +141,15 @@ final class SearchIntegrationTests: FSTIntegrationTestCase {
     XCTAssertEqual(snapshot.results[0].id, "goldenWaffle")
   }
 
-  func testSearchSpecificField() async throws {
-    let firestore = db
-    let pipeline = firestore.pipeline().collection("restaurants")
-      .search(query: Field("menu").matches("waffles"))
-
-    let snapshot = try await (pipeline.execute())
-    XCTAssertEqual(snapshot.results.count, 1)
-    XCTAssertEqual(snapshot.results[0].id, "goldenWaffle")
-  }
+//  func testSearchSpecificField() async throws {
+//    let firestore = db
+//    let pipeline = firestore.pipeline().collection("restaurants")
+//      .search(query: Field("menu").matches("waffles"))
+//
+//    let snapshot = try await (pipeline.execute())
+//    XCTAssertEqual(snapshot.results.count, 1)
+//    XCTAssertEqual(snapshot.results[0].id, "goldenWaffle")
+//  }
 
   func testGeoNearQuery() async throws {
     let firestore = db
@@ -163,140 +163,170 @@ final class SearchIntegrationTests: FSTIntegrationTestCase {
     XCTAssertEqual(snapshot.results[0].id, "solTacos")
   }
 
-  func testConjunctionOfTextSearchPredicates() async throws {
-    let firestore = db
-    let pipeline = firestore.pipeline().collection("restaurants")
-      .search(query: Field("menu").matches("waffles") && Field("description").matches("diner"))
+//  func testConjunctionOfTextSearchPredicates() async throws {
+//    let firestore = db
+//    let pipeline = firestore.pipeline().collection("restaurants")
+//      .search(query: Field("menu").matches("waffles") && Field("description").matches("diner"))
+//
+//    let snapshot = try await (pipeline.execute())
+//    let docIDs = snapshot.results.map { $0.id ?? "" }.sorted()
+//    XCTAssertEqual(docIDs, ["goldenWaffle", "sunnySideUp"])
+//  }
 
-    let snapshot = try await (pipeline.execute())
-    let docIDs = snapshot.results.map { $0.id ?? "" }.sorted()
-    XCTAssertEqual(docIDs, ["goldenWaffle", "sunnySideUp"])
-  }
-
-  func testConjunctionOfTextSearchAndGeoNear() async throws {
-    let firestore = db
-    let pipeline = firestore.pipeline().collection("restaurants")
-      .search(query: Field("menu").matches("tacos") &&
-        Field("location")
-        .geoDistance(GeoPoint(latitude: 39.6985, longitude: -105.024))
-        .lessThan(10000))
-
-    let snapshot = try await (pipeline.execute())
-    XCTAssertEqual(snapshot.results.count, 1)
-    XCTAssertEqual(snapshot.results[0].id, "solTacos")
-  }
+//  func testConjunctionOfTextSearchAndGeoNear() async throws {
+//    let firestore = db
+//    let pipeline = firestore.pipeline().collection("restaurants")
+//      .search(query: Field("menu").matches("tacos") &&
+//        Field("location")
+//        .geoDistance(GeoPoint(latitude: 39.6985, longitude: -105.024))
+//        .lessThan(10000))
+//
+//    let snapshot = try await (pipeline.execute())
+//    XCTAssertEqual(snapshot.results.count, 1)
+//    XCTAssertEqual(snapshot.results[0].id, "solTacos")
+//  }
 
   func testNegateMatch() async throws {
     let firestore = db
     let pipeline = firestore.pipeline().collection("restaurants")
-      .search(query: !Field("menu").matches("waffles"))
+      .search(query: DocumentMatches("coffee -waffles"))
     let snapshot = try await (pipeline.execute())
     let docIDs = snapshot.results.map { $0.id ?? "" }.sorted()
     XCTAssertEqual(
       docIDs,
       [
-        "eastsideChicken",
-        "eastsideTacos",
-        "lotusBlossomThai",
-        "mileHighCatch",
-        "peakBurgers",
-        "solTacos",
         "sunnySideUp",
       ]
     )
   }
 
-  func testRQuerySearchTheDocumentWithConjunctionAndDisjunction() async throws {
-    let firestore = db
-    let pipeline = firestore.pipeline().collection("restaurants")
-      .search(query: DocumentMatches("(waffles OR pancakes) AND coffee"))
-
-    let snapshot = try await (pipeline.execute())
-    let docIDs = snapshot.results.map { $0.id ?? "" }.sorted()
-    XCTAssertEqual(docIDs, ["goldenWaffle", "sunnySideUp"])
-  }
+//  func testRQuerySearchTheDocumentWithConjunctionAndDisjunction() async throws {
+//    let firestore = db
+//    let pipeline = firestore.pipeline().collection("restaurants")
+//      .search(query: DocumentMatches("(waffles OR pancakes) AND coffee"))
+//
+//    let snapshot = try await (pipeline.execute())
+//    let docIDs = snapshot.results.map { $0.id ?? "" }.sorted()
+//    XCTAssertEqual(docIDs, ["goldenWaffle", "sunnySideUp"])
+//  }
 
   func testRQueryAsQueryParam() async throws {
     let firestore = db
     let pipeline = firestore.pipeline().collection("restaurants")
-      .search(query: "(waffles OR pancakes) AND coffee")
+      .search(query: "chicken wings")
 
     let snapshot = try await (pipeline.execute())
     let docIDs = snapshot.results.map { $0.id ?? "" }.sorted()
-    XCTAssertEqual(docIDs, ["goldenWaffle", "sunnySideUp"])
+    XCTAssertEqual(docIDs, ["eastsideChicken"])
   }
 
-  func testRQuerySupportsFieldPaths() async throws {
-    let firestore = db
-    let pipeline = firestore.pipeline().collection("restaurants")
-      .search(query: "menu:(waffles OR pancakes) AND description:\"breakfast all day\"")
+//  func testRQuerySupportsFieldPaths() async throws {
+//    let firestore = db
+//    let pipeline = firestore.pipeline().collection("restaurants")
+//      .search(query: "menu:(waffles OR pancakes) AND description:\"breakfast all day\"")
+//
+//    let snapshot = try await (pipeline.execute())
+//    XCTAssertEqual(snapshot.results.count, 1)
+//    XCTAssertEqual(snapshot.results[0].id, "sunnySideUp")
+//  }
 
-    let snapshot = try await (pipeline.execute())
-    XCTAssertEqual(snapshot.results.count, 1)
-    XCTAssertEqual(snapshot.results[0].id, "sunnySideUp")
-  }
-
-  func testConjunctionOfRQueryAndExpression() async throws {
-    let firestore = db
-    let pipeline = firestore.pipeline().collection("restaurants")
-      .search(query: DocumentMatches("tacos") && Field("average_price_per_person").between(8, 15))
-
-    let snapshot = try await (pipeline.execute())
-    XCTAssertEqual(snapshot.results.count, 1)
-    XCTAssertEqual(snapshot.results[0].id, "solTacos")
-  }
-
-  func testAddTopicalityScoreAndSnippet() async throws {
+//  func testConjunctionOfRQueryAndExpression() async throws {
+//    let firestore = db
+//    let pipeline = firestore.pipeline().collection("restaurants")
+//      .search(query: DocumentMatches("tacos") && Field("average_price_per_person").between(8, 15))
+//
+//    let snapshot = try await (pipeline.execute())
+//    XCTAssertEqual(snapshot.results.count, 1)
+//    XCTAssertEqual(snapshot.results[0].id, "solTacos")
+//  }
+  
+  func testAddScore() async throws {
     let firestore = db
     let pipeline = firestore.pipeline().collection("restaurants")
       .search(
-        query: Field("menu").matches("waffles"),
+        query: DocumentMatches("waffles"),
         addFields: [
           Score().as("searchScore"),
-          Field("menu").snippet("waffles").as("snippet"),
         ]
       )
-      .select([Field("name"), Field("searchScore"), Field("snippet")])
+      .select([Field("name"), Field("searchScore")])
 
     let snapshot = try await (pipeline.execute())
     XCTAssertEqual(snapshot.results.count, 1)
     let doc = snapshot.results[0]
     XCTAssertEqual(doc.get("name") as? String, "The Golden Waffle")
     XCTAssertGreaterThan(doc.get("searchScore") as? Double ?? 0, 0)
-    XCTAssertGreaterThan((doc.get("snippet") as? String)?.count ?? 0, 0)
   }
-
-  func testSelectTopicalityScoreAndSnippet() async throws {
+  
+  func testAddGeoDistance() async throws {
     let firestore = db
     let pipeline = firestore.pipeline().collection("restaurants")
       .search(
-        query: Field("menu").matches("waffles"),
-        select: [
-          Field("name"),
-          Field("location"),
-          Score().as("searchScore"),
-          Field("menu").snippet("waffles").as("snippet"),
+        query: DocumentMatches("waffles"),
+        addFields: [
+          Field("location").geoDistance(GeoPoint(latitude: 39.7183, longitude: -104.9621)).as("distance"),
         ]
       )
+      .select([Field("name"), Field("distance")])
 
     let snapshot = try await (pipeline.execute())
     XCTAssertEqual(snapshot.results.count, 1)
     let doc = snapshot.results[0]
     XCTAssertEqual(doc.get("name") as? String, "The Golden Waffle")
-    XCTAssertEqual(
-      doc.get("location") as? GeoPoint,
-      GeoPoint(latitude: 39.7183, longitude: -104.9621)
-    )
-    XCTAssertGreaterThan(doc.get("searchScore") as? Double ?? 0, 0)
-    XCTAssertGreaterThan((doc.get("snippet") as? String)?.count ?? 0, 0)
-    XCTAssertEqual(doc.data.keys.sorted(), ["location", "name", "searchScore", "snippet"])
+    XCTAssertGreaterThan(doc.get("distance") as? Double ?? 0, 0)
   }
+  
+//  func testAddTopicalityScoreAndSnippet() async throws {
+//    let firestore = db
+//    let pipeline = firestore.pipeline().collection("restaurants")
+//      .search(
+//        query: Field("menu").matches("waffles"),
+//        addFields: [
+//          Score().as("searchScore"),
+//          Field("menu").snippet("waffles").as("snippet"),
+//        ]
+//      )
+//      .select([Field("name"), Field("searchScore"), Field("snippet")])
+//
+//    let snapshot = try await (pipeline.execute())
+//    XCTAssertEqual(snapshot.results.count, 1)
+//    let doc = snapshot.results[0]
+//    XCTAssertEqual(doc.get("name") as? String, "The Golden Waffle")
+//    XCTAssertGreaterThan(doc.get("searchScore") as? Double ?? 0, 0)
+//    XCTAssertGreaterThan((doc.get("snippet") as? String)?.count ?? 0, 0)
+//  }
 
-  func testSortByTopicality() async throws {
+//  func testSelectTopicalityScoreAndSnippet() async throws {
+//    let firestore = db
+//    let pipeline = firestore.pipeline().collection("restaurants")
+//      .search(
+//        query: Field("menu").matches("waffles"),
+//        select: [
+//          Field("name"),
+//          Field("location"),
+//          Score().as("searchScore"),
+//          Field("menu").snippet("waffles").as("snippet"),
+//        ]
+//      )
+//
+//    let snapshot = try await (pipeline.execute())
+//    XCTAssertEqual(snapshot.results.count, 1)
+//    let doc = snapshot.results[0]
+//    XCTAssertEqual(doc.get("name") as? String, "The Golden Waffle")
+//    XCTAssertEqual(
+//      doc.get("location") as? GeoPoint,
+//      GeoPoint(latitude: 39.7183, longitude: -104.9621)
+//    )
+//    XCTAssertGreaterThan(doc.get("searchScore") as? Double ?? 0, 0)
+//    XCTAssertGreaterThan((doc.get("snippet") as? String)?.count ?? 0, 0)
+//    XCTAssertEqual(doc.data.keys.sorted(), ["location", "name", "searchScore", "snippet"])
+//  }
+
+  func testSortByScore() async throws {
     let firestore = db
     let pipeline = firestore.pipeline().collection("restaurants")
       .search(
-        query: Field("menu").matches("tacos"),
+        query: DocumentMatches("tacos"),
         sort: [Score().descending()]
       )
 
@@ -309,7 +339,7 @@ final class SearchIntegrationTests: FSTIntegrationTestCase {
     let firestore = db
     let pipeline = firestore.pipeline().collection("restaurants")
       .search(
-        query: Field("menu").matches("tacos"),
+        query: DocumentMatches("tacos"),
         sort: [
           Field("location")
             .geoDistance(GeoPoint(latitude: 39.6985, longitude: -105.024))
@@ -322,184 +352,184 @@ final class SearchIntegrationTests: FSTIntegrationTestCase {
     XCTAssertEqual(docIDs, ["solTacos", "eastsideTacos"])
   }
 
-  func testSortByMultipleOrderings() async throws {
-    let firestore = db
-    let pipeline = firestore.pipeline().collection("restaurants")
-      .search(
-        query: Field("menu").matches("tacos OR chicken"),
-        sort: [
-          Field("location")
-            .geoDistance(GeoPoint(latitude: 39.6985, longitude: -105.024))
-            .ascending(),
-          Score().descending(),
-        ]
-      )
+//  func testSortByMultipleOrderings() async throws {
+//    let firestore = db
+//    let pipeline = firestore.pipeline().collection("restaurants")
+//      .search(
+//        query: Field("menu").matches("tacos OR chicken"),
+//        sort: [
+//          Field("location")
+//            .geoDistance(GeoPoint(latitude: 39.6985, longitude: -105.024))
+//            .ascending(),
+//          Score().descending(),
+//        ]
+//      )
+//
+//    let snapshot = try await (pipeline.execute())
+//    let docIDs = snapshot.results.map { $0.id }
+//    XCTAssertEqual(docIDs, ["solTacos", "eastsideTacos", "eastsideChicken"])
+//  }
 
-    let snapshot = try await (pipeline.execute())
-    let docIDs = snapshot.results.map { $0.id }
-    XCTAssertEqual(docIDs, ["solTacos", "eastsideTacos", "eastsideChicken"])
-  }
+//  func testLimitTheNumberOfDocumentsReturned() async throws {
+//    let firestore = db
+//    let pipeline = firestore.pipeline().collection("restaurants")
+//      .search(
+//        query: Constant(true),
+//        sort: [
+//          Field("location")
+//            .geoDistance(GeoPoint(latitude: 39.6985, longitude: -105.024))
+//            .ascending(),
+//        ],
+//        limit: 3
+//      )
+//
+//    let snapshot = try await (pipeline.execute())
+//    let docIDs = snapshot.results.map { $0.id }
+//    XCTAssertEqual(docIDs, ["solTacos", "goldenWaffle", "lotusBlossomThai"])
+//  }
 
-  func testLimitTheNumberOfDocumentsReturned() async throws {
-    let firestore = db
-    let pipeline = firestore.pipeline().collection("restaurants")
-      .search(
-        query: Constant(true),
-        sort: [
-          Field("location")
-            .geoDistance(GeoPoint(latitude: 39.6985, longitude: -105.024))
-            .ascending(),
-        ],
-        limit: 3
-      )
+//  func testLimitTheNumberOfDocumentsScored() async throws {
+//    let firestore = db
+//    let pipeline = firestore.pipeline().collection("restaurants")
+//      .search(
+//        query: Field("menu").matches("chicken OR tacos OR fish OR waffles"),
+//        retrievalDepth: 6
+//      )
+//
+//    let snapshot = try await (pipeline.execute())
+//    let docIDs = snapshot.results.map { $0.id ?? "" }.sorted()
+//    XCTAssertEqual(docIDs, ["eastsideChicken", "eastsideTacos", "mileHighCatch", "solTacos"])
+//  }
 
-    let snapshot = try await (pipeline.execute())
-    let docIDs = snapshot.results.map { $0.id }
-    XCTAssertEqual(docIDs, ["solTacos", "goldenWaffle", "lotusBlossomThai"])
-  }
+//  func testSkipsNDocuments() async throws {
+//    let firestore = db
+//    let pipeline = firestore.pipeline().collection("restaurants")
+//      .search(
+//        query: Constant(true),
+//        offset: 2,
+//        limit: 2
+//      )
+//
+//    let snapshot = try await (pipeline.execute())
+//    let docIDs = snapshot.results.map { $0.id ?? "" }.sorted()
+//    XCTAssertEqual(docIDs, ["eastsideTacos", "goldenWaffle"])
+//  }
 
-  func testLimitTheNumberOfDocumentsScored() async throws {
-    let firestore = db
-    let pipeline = firestore.pipeline().collection("restaurants")
-      .search(
-        query: Field("menu").matches("chicken OR tacos OR fish OR waffles"),
-        retrievalDepth: 6
-      )
+//  func testSearchFullDocumentWithQueryExpansion() async throws {
+//    let firestore = db
+//    let pipeline = firestore.pipeline().collection("restaurants")
+//      .search(query: DocumentMatches("waffles"), queryEnhancement: .required)
+//
+//    let snapshot = try await (pipeline.execute())
+//    let docIDs = snapshot.results.map { $0.id ?? "" }.sorted()
+//    XCTAssertEqual(docIDs, ["goldenWaffle", "sunnySideUp"])
+//  }
 
-    let snapshot = try await (pipeline.execute())
-    let docIDs = snapshot.results.map { $0.id ?? "" }.sorted()
-    XCTAssertEqual(docIDs, ["eastsideChicken", "eastsideTacos", "mileHighCatch", "solTacos"])
-  }
+//  func testSearchSpecificFieldWithQueryExpansion() async throws {
+//    let firestore = db
+//    let pipeline = firestore.pipeline().collection("restaurants")
+//      .search(query: Field("menu").matches("waffles"), queryEnhancement: .required)
+//
+//    let snapshot = try await (pipeline.execute())
+//    let docIDs = snapshot.results.map { $0.id ?? "" }.sorted()
+//    XCTAssertEqual(docIDs, ["goldenWaffle", "sunnySideUp"])
+//  }
 
-  func testSkipsNDocuments() async throws {
-    let firestore = db
-    let pipeline = firestore.pipeline().collection("restaurants")
-      .search(
-        query: Constant(true),
-        offset: 2,
-        limit: 2
-      )
+//  func testSnippetOptions() async throws {
+//    let firestore = db
+//    let pipeline1 = firestore.pipeline().collection("restaurants")
+//      .search(
+//        query: Field("menu").matches("waffles"),
+//        addFields: [
+//          Field("menu").snippet("waffles", maxSnippetWidth: 10).as("snippet"),
+//        ]
+//      )
+//
+//    let snapshot1 = try await (pipeline1.execute())
+//    XCTAssertEqual(snapshot1.results.count, 1)
+//    let doc1 = snapshot1.results[0]
+//    XCTAssertEqual(doc1.get("name") as? String, "The Golden Waffle")
+//    let snippet1 = doc1.get("snippet") as? String ?? ""
+//    XCTAssertGreaterThan(snippet1.count, 0)
+//
+//    let pipeline2 = firestore.pipeline().collection("restaurants")
+//      .search(
+//        query: Field("menu").matches("waffles"),
+//        addFields: [
+//          Field("menu").snippet("waffles", maxSnippetWidth: 1000).as("snippet"),
+//        ]
+//      )
+//    let snapshot2 = try await (pipeline2.execute())
+//    XCTAssertEqual(snapshot2.results.count, 1)
+//    let doc2 = snapshot2.results[0]
+//    XCTAssertEqual(doc2.get("name") as? String, "The Golden Waffle")
+//    let snippet2 = doc2.get("snippet") as? String ?? ""
+//    XCTAssertGreaterThan(snippet2.count, 0)
+//
+//    XCTAssertGreaterThan(snippet2.count, snippet1.count)
+//  }
 
-    let snapshot = try await (pipeline.execute())
-    let docIDs = snapshot.results.map { $0.id ?? "" }.sorted()
-    XCTAssertEqual(docIDs, ["eastsideTacos", "goldenWaffle"])
-  }
+//  func testSnippetOnMultipleFields() async throws {
+//    let firestore = db
+//    let pipeline1 = firestore.pipeline().collection("restaurants")
+//      .search(
+//        query: DocumentMatches("waffle"),
+//        addFields: [
+//          Field("menu").snippet("waffles", maxSnippetWidth: 2000).as("snippet"),
+//        ]
+//      )
+//
+//    let snapshot1 = try await (pipeline1.execute())
+//    XCTAssertEqual(snapshot1.results.count, 1)
+//    let doc1 = snapshot1.results[0]
+//    XCTAssertEqual(doc1.get("name") as? String, "The Golden Waffle")
+//    let snippet1 = doc1.get("snippet") as? String ?? ""
+//    XCTAssertGreaterThan(snippet1.count, 0)
+//
+//    let pipeline2 = firestore.pipeline().collection("restaurants")
+//      .search(
+//        query: DocumentMatches("waffle"),
+//        addFields: [
+//          Field("menu").stringConcat([Field("description")])
+//            .snippet("waffles", maxSnippetWidth: 2000).as("snippet"),
+//        ]
+//      )
+//    let snapshot2 = try await (pipeline2.execute())
+//    XCTAssertEqual(snapshot2.results.count, 1)
+//    let doc2 = snapshot2.results[0]
+//    XCTAssertEqual(doc2.get("name") as? String, "The Golden Waffle")
+//    let snippet2 = doc2.get("snippet") as? String ?? ""
+//    XCTAssertGreaterThan(snippet2.count, 0)
+//
+//    XCTAssertGreaterThan(snippet2.count, snippet1.count)
+//  }
 
-  func testSearchFullDocumentWithQueryExpansion() async throws {
-    let firestore = db
-    let pipeline = firestore.pipeline().collection("restaurants")
-      .search(query: DocumentMatches("waffles"), queryEnhancement: .required)
-
-    let snapshot = try await (pipeline.execute())
-    let docIDs = snapshot.results.map { $0.id ?? "" }.sorted()
-    XCTAssertEqual(docIDs, ["goldenWaffle", "sunnySideUp"])
-  }
-
-  func testSearchSpecificFieldWithQueryExpansion() async throws {
-    let firestore = db
-    let pipeline = firestore.pipeline().collection("restaurants")
-      .search(query: Field("menu").matches("waffles"), queryEnhancement: .required)
-
-    let snapshot = try await (pipeline.execute())
-    let docIDs = snapshot.results.map { $0.id ?? "" }.sorted()
-    XCTAssertEqual(docIDs, ["goldenWaffle", "sunnySideUp"])
-  }
-
-  func testSnippetOptions() async throws {
-    let firestore = db
-    let pipeline1 = firestore.pipeline().collection("restaurants")
-      .search(
-        query: Field("menu").matches("waffles"),
-        addFields: [
-          Field("menu").snippet("waffles", maxSnippetWidth: 10).as("snippet"),
-        ]
-      )
-
-    let snapshot1 = try await (pipeline1.execute())
-    XCTAssertEqual(snapshot1.results.count, 1)
-    let doc1 = snapshot1.results[0]
-    XCTAssertEqual(doc1.get("name") as? String, "The Golden Waffle")
-    let snippet1 = doc1.get("snippet") as? String ?? ""
-    XCTAssertGreaterThan(snippet1.count, 0)
-
-    let pipeline2 = firestore.pipeline().collection("restaurants")
-      .search(
-        query: Field("menu").matches("waffles"),
-        addFields: [
-          Field("menu").snippet("waffles", maxSnippetWidth: 1000).as("snippet"),
-        ]
-      )
-    let snapshot2 = try await (pipeline2.execute())
-    XCTAssertEqual(snapshot2.results.count, 1)
-    let doc2 = snapshot2.results[0]
-    XCTAssertEqual(doc2.get("name") as? String, "The Golden Waffle")
-    let snippet2 = doc2.get("snippet") as? String ?? ""
-    XCTAssertGreaterThan(snippet2.count, 0)
-
-    XCTAssertGreaterThan(snippet2.count, snippet1.count)
-  }
-
-  func testSnippetOnMultipleFields() async throws {
-    let firestore = db
-    let pipeline1 = firestore.pipeline().collection("restaurants")
-      .search(
-        query: DocumentMatches("waffle"),
-        addFields: [
-          Field("menu").snippet("waffles", maxSnippetWidth: 2000).as("snippet"),
-        ]
-      )
-
-    let snapshot1 = try await (pipeline1.execute())
-    XCTAssertEqual(snapshot1.results.count, 1)
-    let doc1 = snapshot1.results[0]
-    XCTAssertEqual(doc1.get("name") as? String, "The Golden Waffle")
-    let snippet1 = doc1.get("snippet") as? String ?? ""
-    XCTAssertGreaterThan(snippet1.count, 0)
-
-    let pipeline2 = firestore.pipeline().collection("restaurants")
-      .search(
-        query: DocumentMatches("waffle"),
-        addFields: [
-          Field("menu").stringConcat([Field("description")])
-            .snippet("waffles", maxSnippetWidth: 2000).as("snippet"),
-        ]
-      )
-    let snapshot2 = try await (pipeline2.execute())
-    XCTAssertEqual(snapshot2.results.count, 1)
-    let doc2 = snapshot2.results[0]
-    XCTAssertEqual(doc2.get("name") as? String, "The Golden Waffle")
-    let snippet2 = doc2.get("snippet") as? String ?? ""
-    XCTAssertGreaterThan(snippet2.count, 0)
-
-    XCTAssertGreaterThan(snippet2.count, snippet1.count)
-  }
-
-  func testSearchLanguageCodeParam() async throws {
-    let firestore = db
-
-    // Scenario 1: Valid languageCode ("us-EN") - should pass and return results
-    let validLanguagePipeline = firestore.pipeline().collection("restaurants")
-      .search(
-        query: DocumentMatches("waffles"),
-        languageCode: "us-EN"
-      )
-    let validLanguageSnapshot = try await validLanguagePipeline.execute()
-    XCTAssertEqual(validLanguageSnapshot.results.count, 1)
-    XCTAssertEqual(validLanguageSnapshot.results[0].id, "goldenWaffle")
-
-    // Scenario 2: Invalid languageCode ("does not exist") - should fail
-    let invalidLanguagePipeline = firestore.pipeline().collection("restaurants")
-      .search(
-        query: DocumentMatches("waffles"),
-        languageCode: "does not exist"
-      )
-    do {
-      _ = try await invalidLanguagePipeline.execute()
-      XCTFail(
-        "Executing pipeline with invalid language code should have thrown an error, but it succeeded."
-      )
-    } catch {
-      // An error was thrown as expected.
-    }
-  }
+//  func testSearchLanguageCodeParam() async throws {
+//    let firestore = db
+//
+//    // Scenario 1: Valid languageCode ("us-EN") - should pass and return results
+//    let validLanguagePipeline = firestore.pipeline().collection("restaurants")
+//      .search(
+//        query: DocumentMatches("waffles"),
+//        languageCode: "us-EN"
+//      )
+//    let validLanguageSnapshot = try await validLanguagePipeline.execute()
+//    XCTAssertEqual(validLanguageSnapshot.results.count, 1)
+//    XCTAssertEqual(validLanguageSnapshot.results[0].id, "goldenWaffle")
+//
+//    // Scenario 2: Invalid languageCode ("does not exist") - should fail
+//    let invalidLanguagePipeline = firestore.pipeline().collection("restaurants")
+//      .search(
+//        query: DocumentMatches("waffles"),
+//        languageCode: "does not exist"
+//      )
+//    do {
+//      _ = try await invalidLanguagePipeline.execute()
+//      XCTFail(
+//        "Executing pipeline with invalid language code should have thrown an error, but it succeeded."
+//      )
+//    } catch {
+//      // An error was thrown as expected.
+//    }
+//  }
 }

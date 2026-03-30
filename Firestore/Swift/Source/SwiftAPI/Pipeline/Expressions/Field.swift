@@ -79,7 +79,8 @@ public struct Field: Expression, Selectable, BridgeWrapper, SelectableWrapper,
   /// - Parameters:
   ///   - query: The text to search for.
   /// - Returns: A `BooleanExpression` representing the search predicate.
-  public func matches(_ query: String) -> BooleanExpression {
+  // TODO(search): enable with backend support
+  func matches(_ query: String) -> BooleanExpression {
     let args: [Sendable] = [self, query]
     let expressionArgs = args.map { Helper.sendableToExpr($0) }
     return BooleanFunctionExpression(functionName: "matches", args: expressionArgs)

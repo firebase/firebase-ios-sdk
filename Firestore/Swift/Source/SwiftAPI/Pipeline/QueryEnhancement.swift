@@ -17,7 +17,8 @@ import Foundation
 /// Represents the query enhancement to be used in a search stage.
 ///
 /// - Note: This API is in beta.
-public struct QueryEnhancement: Sendable, Equatable, Hashable {
+// TODO(search): enable with backend support
+struct QueryEnhancement: Sendable, Equatable, Hashable {
   let kind: Kind
 
   enum Kind: String {
@@ -27,15 +28,15 @@ public struct QueryEnhancement: Sendable, Equatable, Hashable {
   }
 
   /// Query enhancement is disabled.
-  public static let disabled: QueryEnhancement = .init(kind: .disabled)
+  static let disabled: QueryEnhancement = .init(kind: .disabled)
 
   /// Query enhancement is required. If query enhancement fails or times out, the search stage will
   /// fail, causing the pipeline to fail.
-  public static let required: QueryEnhancement = .init(kind: .required)
+  static let required: QueryEnhancement = .init(kind: .required)
 
   /// Query enhancement is preferred.If query enhancement fails or times out, the search stage will
   /// still execute with the user provided query.
-  public static let preferred: QueryEnhancement = .init(kind: .preferred)
+  static let preferred: QueryEnhancement = .init(kind: .preferred)
 
   init(kind: Kind) {
     self.kind = kind

@@ -2010,10 +2010,11 @@ public protocol Expression: Sendable {
   ///   - maxSnippets: The maximum number of text pieces to return (default: 1).
   ///   - separator: The string used to join pieces (default: "\n").
   /// - Returns: An `Expression` evaluating to the HTML snippet string.
-  func snippet(_ rquery: String,
-               maxSnippetWidth: Int?,
-               maxSnippets: Int?,
-               separator: String?) -> Expression
+  // TODO(search): enable with backend support
+  // func snippet(_ rquery: String,
+  //              maxSnippetWidth: Int?,
+  //              maxSnippets: Int?,
+  //              separator: String?) -> Expression
 
   /// Evaluates if the result of this expression is between the `lowerBound` (inclusive)
   /// and `upperBound` (inclusive).
@@ -2033,7 +2034,8 @@ public protocol Expression: Sendable {
   ///   - lowerBound: The lower bound value (inclusive).
   ///   - upperBound: The upper bound value (inclusive).
   /// - Returns: A `BooleanExpression` representing the range check.
-  func between(_ lowerBound: Sendable, _ upperBound: Sendable) -> BooleanExpression
+  // TODO(search): enable with backend support
+  // func between(_ lowerBound: Sendable, _ upperBound: Sendable) -> BooleanExpression
 
   /// Evaluates if the result of this expression is between the `lowerBound` (inclusive)
   /// and `upperBound` (inclusive).
@@ -2053,5 +2055,6 @@ public protocol Expression: Sendable {
   ///   - lowerBound: The lower bound expression (inclusive).
   ///   - upperBound: The upper bound expression (inclusive).
   /// - Returns: A `BooleanExpression` representing the range check.
-  func between(_ lowerBound: Expression, _ upperBound: Expression) -> BooleanExpression
+  // TODO(search): enable with backend support
+  // func between(_ lowerBound: Expression, _ upperBound: Expression) -> BooleanExpression
 }
