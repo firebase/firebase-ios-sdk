@@ -39,7 +39,7 @@ try:
     data = json.loads(subprocess.check_output(['xcrun', 'simctl', 'list', 'devices', 'available', '-j']))
     runtimes = sorted([r for r in data['devices'].keys() if 'iOS' in r], reverse=True)
     if not runtimes: exit(1)
-    
+
     def iphone_rank(d):
         name = d['name']
         if 'SE' in name: return (-1, 0, name)
@@ -51,7 +51,7 @@ try:
         elif 'Plus' in name: tier = 0
         else: tier = 2 # Standard
         return (num, tier, name)
-        
+
     iphones = [d for d in data['devices'][runtimes[0]] if 'iPhone' in d['name']]
     if not iphones: exit(1)
     iphones.sort(key=iphone_rank, reverse=True)
