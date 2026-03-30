@@ -84,11 +84,6 @@ final class SearchIntegrationTests: FSTIntegrationTestCase {
   override func setUp() async throws {
     try await super.setUp()
 
-    let runSearchTests = ProcessInfo.processInfo.environment["RUN_SEARCH_TESTS"] == "true"
-    if !runSearchTests {
-      throw XCTSkip("Skipping search tests because RUN_SEARCH_TESTS is not set to true.")
-    }
-
     // Skip tests if the backend edition is not supported
     if FSTIntegrationTestCase.backendEdition() == .standard {
       throw XCTSkip("Skipping search tests because backend is not compatible.")
