@@ -29,7 +29,7 @@ class AuthenticationExampleUITests: XCTestCase {
   override func tearDown() {
     super.tearDown()
     signOut()
-  }	
+  }
 
   func dismissSavePasswordPrompt() {
     let passwordSheet = app.sheets.firstMatch
@@ -38,11 +38,11 @@ class AuthenticationExampleUITests: XCTestCase {
       let notNowOption = passwordSheet.buttons["Not Now"]
 
       if notNowOption.exists {
-          notNowOption.tap()
+        notNowOption.tap()
       } else {
-          // Fallback: If Apple literally made it StaticText instead of a Button,
-          // you can often just tap the text directly!
-          passwordSheet.staticTexts["Not Now"].tap()
+        // Fallback: If Apple literally made it StaticText instead of a Button,
+        // you can often just tap the text directly!
+        passwordSheet.staticTexts["Not Now"].tap()
       }
       let predicate = NSPredicate(format: "exists == false")
       expectation(for: predicate, evaluatedWith: passwordSheet)
@@ -357,4 +357,3 @@ extension XCTestCase {
     waitForExpectations(timeout: timeout)
   }
 }
-

@@ -331,9 +331,9 @@ class UserViewController: UIViewController, DataSourceProviderDelegate {
 
     // Configure the secure text field
     editController.addTextField { textField in
-         textField.isSecureTextEntry = isSecure
-         textField.placeholder = "New \(title)"
-      if (isSecure) {
+      textField.isSecureTextEntry = isSecure
+      textField.placeholder = "New \(title)"
+      if isSecure {
         // 1. Create the toggle button
         let toggleButton = UIButton(type: .custom)
 
@@ -346,9 +346,9 @@ class UserViewController: UIViewController, DataSourceProviderDelegate {
 
         // 2. Add the toggle action (iOS 14+)
         let toggleAction = UIAction { _ in
-            // Toggle the secure state
-            textField.isSecureTextEntry.toggle()
-            toggleButton.isSelected.toggle()
+          // Toggle the secure state
+          textField.isSecureTextEntry.toggle()
+          toggleButton.isSelected.toggle()
         }
 
         toggleButton.addAction(toggleAction, for: .touchUpInside)
@@ -421,4 +421,3 @@ extension UserViewController: ASAuthorizationControllerDelegate,
     return view.window!
   }
 }
-
