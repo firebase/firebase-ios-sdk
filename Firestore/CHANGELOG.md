@@ -1,7 +1,7 @@
 # Unreleased
 - [feature] Added support for Firestore Pipeline Subqueries and scope bridging with `Subcollection`, `define()`, `toArrayExpression()`, `toScalarExpression()`, `Variable`, and `CurrentDocument` APIs.
 
-- [feature] Add beta support for full-text search and geo search.
+- [feature] Add preview support for full-text search and geo search.
 - [feature] Added support for Pipeline expressions `nor` and `switchOn`. (#15943)
 
 # 12.11.0
