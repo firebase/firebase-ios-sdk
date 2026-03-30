@@ -179,9 +179,15 @@ else
   ios_flags=(
     -destination "platform=iOS Simulator,name=${iphone_simulator_name}"
   )
-  watchos_flags=(
-    -destination 'platform=watchOS Simulator,name=Apple Watch Series 11 (42mm)'
-  )
+  if [[ "$xcode_major" -ge 26 ]]; then
+    watchos_flags=(
+      -destination "platform=watchOS Simulator,OS=${xcode_version},name=Apple Watch Series 11 (42mm)"
+    )
+  else
+    watchos_flags=(
+      -destination 'platform=watchOS Simulator,name=Apple Watch Series 11 (42mm)'
+    )
+  fi
 fi
 
 ios_device_flags=(
@@ -497,7 +503,7 @@ case "$product-$platform-$method" in
       RunXcodebuild \
         -workspace 'FirebaseMessaging/Apps/SampleStandaloneWatchApp/SampleStandaloneWatchApp.xcworkspace' \
         -scheme "SampleStandaloneWatchApp Watch App" \
-        -destination 'platform=watchOS Simulator,name=Apple Watch Series 11 (42mm)' \
+        "${xcb_flags[@]}" \
         build
     fi
     ;;
