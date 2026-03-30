@@ -81,7 +81,7 @@ if [[ "${TEST_CMD[0]}" == "xcodebuild" ]]; then
                 BUILD_CMD[$i]="build-for-testing"
                 TEST_CMD[$i]="test-without-building"
             fi
-            
+
             # Prevent Xcode from spawning clones ("Clone 1 of iPhone...") which ruins video capture targeting the base UDID
             TEST_CMD+=("-disable-concurrent-destination-testing" "-parallel-testing-enabled" "NO")
             BUILD_CMD+=("-disable-concurrent-destination-testing" "-parallel-testing-enabled" "NO")
@@ -97,7 +97,7 @@ if [ "$IS_XCODEBUILD_TEST" = true ]; then
     "${BUILD_CMD[@]}"
     BUILD_RESULT=$?
     set -e
-    
+
     if [ $BUILD_RESULT -ne 0 ]; then
         echo "Error: Compilation failed (Exit $BUILD_RESULT). Aborting video recording and simulator boot."
         exit $BUILD_RESULT
@@ -159,7 +159,7 @@ echo "5. Verifying video file size..."
 if [[ -f "$VIDEO_PATH" ]]; then
     FILE_SIZE=$(stat -f%z "$VIDEO_PATH" 2>/dev/null || stat -c%s "$VIDEO_PATH" 2>/dev/null || echo "0")
     echo "Video file size: ${FILE_SIZE} bytes"
-    
+
     if [[ "$FILE_SIZE" -gt 0 ]]; then
         echo "Success: Video generated properly at $VIDEO_PATH"
     else
