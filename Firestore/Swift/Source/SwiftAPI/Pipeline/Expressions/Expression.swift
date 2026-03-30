@@ -501,7 +501,8 @@ public protocol Expression: Sendable {
   /// - Returns: A new `FunctionExpression` representing the transformed array.
   func arrayTransform(elementAlias: String, transform: Expression) -> FunctionExpression
 
-  /// Creates an expression that applies a provided transformation to each element in an array, providing the element's index to the transformation expression.
+  /// Creates an expression that applies a provided transformation to each element in an array,
+  /// providing the element's index to the transformation expression.
   /// Assumes `self` evaluates to an array.
   ///
   /// ```swift
