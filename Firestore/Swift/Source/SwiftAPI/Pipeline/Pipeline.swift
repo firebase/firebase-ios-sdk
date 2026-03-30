@@ -638,11 +638,13 @@ public class Pipeline: @unchecked Sendable {
   /// - Returns: A new `Pipeline` with the search stage appended.
   public func search(query: Expression,
                      // TODO(search): enable with backend support
-                     //   - languageCode: The BCP-47 language code of text in the search query, such as, “en-US” or “sr-Latn”
+                     //   - languageCode: The BCP-47 language code of text in the search query, such
+                     //   as, “en-US” or “sr-Latn”
                      // languageCode: String? = nil,
                      // TODO: add indexPartition here
                      // TODO(search): enable with backend support
-                     //   - retrievalDepth: The maximum number of documents to retrieve. Documents will be retrieved in the pre-sort order specified by the search index.
+                     //   - retrievalDepth: The maximum number of documents to retrieve. Documents
+                     //   will be retrieved in the pre-sort order specified by the search index.
                      // retrievalDepth: Int? = nil,
                      sort: [Ordering]? = nil,
                      // TODO(search): enable with backend support
@@ -652,13 +654,15 @@ public class Pipeline: @unchecked Sendable {
                      //   - limit: The maximum number of documents to return.
                      // limit: Int? = nil,
                      // TODO(search): enable with backend support
-                     //   - select: An array of `Selectable` fields or field names to include in the result.
+                     //   - select: An array of `Selectable` fields or field names to include in the
+                     //   result.
                      // select: [Selectable]? = nil,
                      addFields: [Selectable]? = nil
                      // TODO(search): enable with backend support
-                     //   - queryEnhancement: specify if query expansion should be applied to the query
+                     //   - queryEnhancement: specify if query expansion should be applied to the
+                     //   query
                      // queryEnhancement: QueryEnhancement? = nil
-                     ) -> Pipeline {
+  ) -> Pipeline {
     let stage = Search(
       query: query,
       // TODO(search): enable with backend support
@@ -719,7 +723,7 @@ public class Pipeline: @unchecked Sendable {
                      addFields: [Selectable]? = nil
                      // TODO(search): enable with backend support
                      // queryEnhancement: QueryEnhancement? = nil
-                     ) -> Pipeline {
+  ) -> Pipeline {
     return search(
       query: DocumentMatches(query),
       // TODO(search): enable with backend support

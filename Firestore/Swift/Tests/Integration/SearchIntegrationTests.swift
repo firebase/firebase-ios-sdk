@@ -20,6 +20,8 @@ import XCTest
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 final class SearchIntegrationTests: FSTIntegrationTestCase {
+  let COLLECTION_NAME = "TextSearchIntegrationTests"
+
   let restaurantData: [String: [String: Any]] = [
     "sunnySideUp": [
       "name": "The Sunny Side Up",
@@ -82,6 +84,11 @@ final class SearchIntegrationTests: FSTIntegrationTestCase {
   override func setUp() async throws {
     try await super.setUp()
 
+    let runSearchTests = ProcessInfo.processInfo.environment["RUN_SEARCH_TESTS"] == "true"
+    if !runSearchTests {
+      throw XCTSkip("Skipping search tests because RUN_SEARCH_TESTS is not set to true.")
+    }
+
     // Skip tests if the backend edition is not supported
     if FSTIntegrationTestCase.backendEdition() == .standard {
       throw XCTSkip("Skipping search tests because backend is not compatible.")
@@ -102,7 +109,7 @@ final class SearchIntegrationTests: FSTIntegrationTestCase {
 //  func testAllSearchFeatures() async throws {
 //    let firestore = db
 //    let queryLocation = GeoPoint(latitude: 0, longitude: 0)
-//    let pipeline = firestore.pipeline().collection("restaurants")
+//    let pipeline = firestore.pipeline().collection(COLLECTION_NAME)
 //      .search(
 //        query: Field("description").matches("breakfast") &&
 //          Field("location").geoDistance(queryLocation).lessThan(1000) &&
@@ -133,7 +140,7 @@ final class SearchIntegrationTests: FSTIntegrationTestCase {
 
   func testSearchFullDocument() async throws {
     let firestore = db
-    let pipeline = firestore.pipeline().collection("restaurants")
+    let pipeline = firestore.pipeline().collection(COLLECTION_NAME)
       .search(query: DocumentMatches("waffles"))
 
     let snapshot = try await (pipeline.execute())
@@ -143,7 +150,7 @@ final class SearchIntegrationTests: FSTIntegrationTestCase {
 
 //  func testSearchSpecificField() async throws {
 //    let firestore = db
-//    let pipeline = firestore.pipeline().collection("restaurants")
+//    let pipeline = firestore.pipeline().collection(COLLECTION_NAME)
 //      .search(query: Field("menu").matches("waffles"))
 //
 //    let snapshot = try await (pipeline.execute())
@@ -153,7 +160,7 @@ final class SearchIntegrationTests: FSTIntegrationTestCase {
 
   func testGeoNearQuery() async throws {
     let firestore = db
-    let pipeline = firestore.pipeline().collection("restaurants")
+    let pipeline = firestore.pipeline().collection(COLLECTION_NAME)
       .search(query: Field("location")
         .geoDistance(GeoPoint(latitude: 39.6985, longitude: -105.024))
         .lessThan(1000))
@@ -165,7 +172,7 @@ final class SearchIntegrationTests: FSTIntegrationTestCase {
 
 //  func testConjunctionOfTextSearchPredicates() async throws {
 //    let firestore = db
-//    let pipeline = firestore.pipeline().collection("restaurants")
+//    let pipeline = firestore.pipeline().collection(COLLECTION_NAME)
 //      .search(query: Field("menu").matches("waffles") && Field("description").matches("diner"))
 //
 //    let snapshot = try await (pipeline.execute())
@@ -175,7 +182,7 @@ final class SearchIntegrationTests: FSTIntegrationTestCase {
 
 //  func testConjunctionOfTextSearchAndGeoNear() async throws {
 //    let firestore = db
-//    let pipeline = firestore.pipeline().collection("restaurants")
+//    let pipeline = firestore.pipeline().collection(COLLECTION_NAME)
 //      .search(query: Field("menu").matches("tacos") &&
 //        Field("location")
 //        .geoDistance(GeoPoint(latitude: 39.6985, longitude: -105.024))
@@ -188,7 +195,7 @@ final class SearchIntegrationTests: FSTIntegrationTestCase {
 
   func testNegateMatch() async throws {
     let firestore = db
-    let pipeline = firestore.pipeline().collection("restaurants")
+    let pipeline = firestore.pipeline().collection(COLLECTION_NAME)
       .search(query: DocumentMatches("coffee -waffles"))
     let snapshot = try await (pipeline.execute())
     let docIDs = snapshot.results.map { $0.id ?? "" }.sorted()
@@ -202,7 +209,7 @@ final class SearchIntegrationTests: FSTIntegrationTestCase {
 
 //  func testRQuerySearchTheDocumentWithConjunctionAndDisjunction() async throws {
 //    let firestore = db
-//    let pipeline = firestore.pipeline().collection("restaurants")
+//    let pipeline = firestore.pipeline().collection(COLLECTION_NAME)
 //      .search(query: DocumentMatches("(waffles OR pancakes) AND coffee"))
 //
 //    let snapshot = try await (pipeline.execute())
@@ -212,7 +219,7 @@ final class SearchIntegrationTests: FSTIntegrationTestCase {
 
   func testRQueryAsQueryParam() async throws {
     let firestore = db
-    let pipeline = firestore.pipeline().collection("restaurants")
+    let pipeline = firestore.pipeline().collection(COLLECTION_NAME)
       .search(query: "chicken wings")
 
     let snapshot = try await (pipeline.execute())
@@ -222,7 +229,7 @@ final class SearchIntegrationTests: FSTIntegrationTestCase {
 
 //  func testRQuerySupportsFieldPaths() async throws {
 //    let firestore = db
-//    let pipeline = firestore.pipeline().collection("restaurants")
+//    let pipeline = firestore.pipeline().collection(COLLECTION_NAME)
 //      .search(query: "menu:(waffles OR pancakes) AND description:\"breakfast all day\"")
 //
 //    let snapshot = try await (pipeline.execute())
@@ -232,17 +239,17 @@ final class SearchIntegrationTests: FSTIntegrationTestCase {
 
 //  func testConjunctionOfRQueryAndExpression() async throws {
 //    let firestore = db
-//    let pipeline = firestore.pipeline().collection("restaurants")
+//    let pipeline = firestore.pipeline().collection(COLLECTION_NAME)
 //      .search(query: DocumentMatches("tacos") && Field("average_price_per_person").between(8, 15))
 //
 //    let snapshot = try await (pipeline.execute())
 //    XCTAssertEqual(snapshot.results.count, 1)
 //    XCTAssertEqual(snapshot.results[0].id, "solTacos")
 //  }
-  
+
   func testAddScore() async throws {
     let firestore = db
-    let pipeline = firestore.pipeline().collection("restaurants")
+    let pipeline = firestore.pipeline().collection(COLLECTION_NAME)
       .search(
         query: DocumentMatches("waffles"),
         addFields: [
@@ -257,14 +264,15 @@ final class SearchIntegrationTests: FSTIntegrationTestCase {
     XCTAssertEqual(doc.get("name") as? String, "The Golden Waffle")
     XCTAssertGreaterThan(doc.get("searchScore") as? Double ?? 0, 0)
   }
-  
+
   func testAddGeoDistance() async throws {
     let firestore = db
-    let pipeline = firestore.pipeline().collection("restaurants")
+    let pipeline = firestore.pipeline().collection(COLLECTION_NAME)
       .search(
         query: DocumentMatches("waffles"),
         addFields: [
-          Field("location").geoDistance(GeoPoint(latitude: 39.7183, longitude: -104.9621)).as("distance"),
+          Field("location").geoDistance(GeoPoint(latitude: 39.7183, longitude: -104.9621))
+            .as("distance"),
         ]
       )
       .select([Field("name"), Field("distance")])
@@ -275,10 +283,10 @@ final class SearchIntegrationTests: FSTIntegrationTestCase {
     XCTAssertEqual(doc.get("name") as? String, "The Golden Waffle")
     XCTAssertGreaterThan(doc.get("distance") as? Double ?? 0, 0)
   }
-  
+
 //  func testAddTopicalityScoreAndSnippet() async throws {
 //    let firestore = db
-//    let pipeline = firestore.pipeline().collection("restaurants")
+//    let pipeline = firestore.pipeline().collection(COLLECTION_NAME)
 //      .search(
 //        query: Field("menu").matches("waffles"),
 //        addFields: [
@@ -298,7 +306,7 @@ final class SearchIntegrationTests: FSTIntegrationTestCase {
 
 //  func testSelectTopicalityScoreAndSnippet() async throws {
 //    let firestore = db
-//    let pipeline = firestore.pipeline().collection("restaurants")
+//    let pipeline = firestore.pipeline().collection(COLLECTION_NAME)
 //      .search(
 //        query: Field("menu").matches("waffles"),
 //        select: [
@@ -324,7 +332,7 @@ final class SearchIntegrationTests: FSTIntegrationTestCase {
 
   func testSortByScore() async throws {
     let firestore = db
-    let pipeline = firestore.pipeline().collection("restaurants")
+    let pipeline = firestore.pipeline().collection(COLLECTION_NAME)
       .search(
         query: DocumentMatches("tacos"),
         sort: [Score().descending()]
@@ -337,7 +345,7 @@ final class SearchIntegrationTests: FSTIntegrationTestCase {
 
   func testSortByDistance() async throws {
     let firestore = db
-    let pipeline = firestore.pipeline().collection("restaurants")
+    let pipeline = firestore.pipeline().collection(COLLECTION_NAME)
       .search(
         query: DocumentMatches("tacos"),
         sort: [
@@ -354,7 +362,7 @@ final class SearchIntegrationTests: FSTIntegrationTestCase {
 
 //  func testSortByMultipleOrderings() async throws {
 //    let firestore = db
-//    let pipeline = firestore.pipeline().collection("restaurants")
+//    let pipeline = firestore.pipeline().collection(COLLECTION_NAME)
 //      .search(
 //        query: Field("menu").matches("tacos OR chicken"),
 //        sort: [
@@ -372,7 +380,7 @@ final class SearchIntegrationTests: FSTIntegrationTestCase {
 
 //  func testLimitTheNumberOfDocumentsReturned() async throws {
 //    let firestore = db
-//    let pipeline = firestore.pipeline().collection("restaurants")
+//    let pipeline = firestore.pipeline().collection(COLLECTION_NAME)
 //      .search(
 //        query: Constant(true),
 //        sort: [
@@ -390,7 +398,7 @@ final class SearchIntegrationTests: FSTIntegrationTestCase {
 
 //  func testLimitTheNumberOfDocumentsScored() async throws {
 //    let firestore = db
-//    let pipeline = firestore.pipeline().collection("restaurants")
+//    let pipeline = firestore.pipeline().collection(COLLECTION_NAME)
 //      .search(
 //        query: Field("menu").matches("chicken OR tacos OR fish OR waffles"),
 //        retrievalDepth: 6
@@ -403,7 +411,7 @@ final class SearchIntegrationTests: FSTIntegrationTestCase {
 
 //  func testSkipsNDocuments() async throws {
 //    let firestore = db
-//    let pipeline = firestore.pipeline().collection("restaurants")
+//    let pipeline = firestore.pipeline().collection(COLLECTION_NAME)
 //      .search(
 //        query: Constant(true),
 //        offset: 2,
@@ -417,7 +425,7 @@ final class SearchIntegrationTests: FSTIntegrationTestCase {
 
 //  func testSearchFullDocumentWithQueryExpansion() async throws {
 //    let firestore = db
-//    let pipeline = firestore.pipeline().collection("restaurants")
+//    let pipeline = firestore.pipeline().collection(COLLECTION_NAME)
 //      .search(query: DocumentMatches("waffles"), queryEnhancement: .required)
 //
 //    let snapshot = try await (pipeline.execute())
@@ -427,7 +435,7 @@ final class SearchIntegrationTests: FSTIntegrationTestCase {
 
 //  func testSearchSpecificFieldWithQueryExpansion() async throws {
 //    let firestore = db
-//    let pipeline = firestore.pipeline().collection("restaurants")
+//    let pipeline = firestore.pipeline().collection(COLLECTION_NAME)
 //      .search(query: Field("menu").matches("waffles"), queryEnhancement: .required)
 //
 //    let snapshot = try await (pipeline.execute())
@@ -437,7 +445,7 @@ final class SearchIntegrationTests: FSTIntegrationTestCase {
 
 //  func testSnippetOptions() async throws {
 //    let firestore = db
-//    let pipeline1 = firestore.pipeline().collection("restaurants")
+//    let pipeline1 = firestore.pipeline().collection(COLLECTION_NAME)
 //      .search(
 //        query: Field("menu").matches("waffles"),
 //        addFields: [
@@ -452,7 +460,7 @@ final class SearchIntegrationTests: FSTIntegrationTestCase {
 //    let snippet1 = doc1.get("snippet") as? String ?? ""
 //    XCTAssertGreaterThan(snippet1.count, 0)
 //
-//    let pipeline2 = firestore.pipeline().collection("restaurants")
+//    let pipeline2 = firestore.pipeline().collection(COLLECTION_NAME)
 //      .search(
 //        query: Field("menu").matches("waffles"),
 //        addFields: [
@@ -471,7 +479,7 @@ final class SearchIntegrationTests: FSTIntegrationTestCase {
 
 //  func testSnippetOnMultipleFields() async throws {
 //    let firestore = db
-//    let pipeline1 = firestore.pipeline().collection("restaurants")
+//    let pipeline1 = firestore.pipeline().collection(COLLECTION_NAME)
 //      .search(
 //        query: DocumentMatches("waffle"),
 //        addFields: [
@@ -486,7 +494,7 @@ final class SearchIntegrationTests: FSTIntegrationTestCase {
 //    let snippet1 = doc1.get("snippet") as? String ?? ""
 //    XCTAssertGreaterThan(snippet1.count, 0)
 //
-//    let pipeline2 = firestore.pipeline().collection("restaurants")
+//    let pipeline2 = firestore.pipeline().collection(COLLECTION_NAME)
 //      .search(
 //        query: DocumentMatches("waffle"),
 //        addFields: [
@@ -508,7 +516,7 @@ final class SearchIntegrationTests: FSTIntegrationTestCase {
 //    let firestore = db
 //
 //    // Scenario 1: Valid languageCode ("us-EN") - should pass and return results
-//    let validLanguagePipeline = firestore.pipeline().collection("restaurants")
+//    let validLanguagePipeline = firestore.pipeline().collection(COLLECTION_NAME)
 //      .search(
 //        query: DocumentMatches("waffles"),
 //        languageCode: "us-EN"
@@ -518,7 +526,7 @@ final class SearchIntegrationTests: FSTIntegrationTestCase {
 //    XCTAssertEqual(validLanguageSnapshot.results[0].id, "goldenWaffle")
 //
 //    // Scenario 2: Invalid languageCode ("does not exist") - should fail
-//    let invalidLanguagePipeline = firestore.pipeline().collection("restaurants")
+//    let invalidLanguagePipeline = firestore.pipeline().collection(COLLECTION_NAME)
 //      .search(
 //        query: DocumentMatches("waffles"),
 //        languageCode: "does not exist"
@@ -526,7 +534,8 @@ final class SearchIntegrationTests: FSTIntegrationTestCase {
 //    do {
 //      _ = try await invalidLanguagePipeline.execute()
 //      XCTFail(
-//        "Executing pipeline with invalid language code should have thrown an error, but it succeeded."
+//        "Executing pipeline with invalid language code should have thrown an error, but it
+//        succeeded."
 //      )
 //    } catch {
 //      // An error was thrown as expected.
