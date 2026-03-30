@@ -84,12 +84,12 @@ final class SearchIntegrationTests: FSTIntegrationTestCase {
   override func setUp() async throws {
     try await super.setUp()
 
-    // Skip tests if the backend edition is not supported
-    if FSTIntegrationTestCase.backendEdition() == .standard {
+    // Skip tests if the backend edition is not supported or if not nightly
+    if FSTIntegrationTestCase.targetBackend() != .nightly || FSTIntegrationTestCase
+      .backendEdition() == .standard {
       throw XCTSkip("Skipping search tests because backend is not compatible.")
     }
 
-    // Now you can safely await your async setup logic
     setUpTestDocs()
   }
 
@@ -101,37 +101,40 @@ final class SearchIntegrationTests: FSTIntegrationTestCase {
     return db.collection("SearchIntegrationTests")
   }
 
-//  func testAllSearchFeatures() async throws {
-//    let firestore = db
-//    let queryLocation = GeoPoint(latitude: 0, longitude: 0)
-//    let pipeline = firestore.pipeline().collection(COLLECTION_NAME)
-//      .search(
-//        query: Field("description").matches("breakfast") &&
-//          Field("location").geoDistance(queryLocation).lessThan(1000) &&
-//          Field("avgPrice").between(10, 20),
-//        languageCode: "us-EN",
-//        retrievalDepth: 1000,
-//        sort: [
-//          Field("location").geoDistance(queryLocation).ascending(),
-//        ],
-//        offset: 0,
-//        limit: 50,
-//        select: [
-//          Field("title"),
-//          Field("menu"),
-//          Field("description"),
-//          Field("location").geoDistance(queryLocation).as("distance"),
-//        ],
-//        addFields: [
-//          Score().as("searchScore"),
-//        ],
-//        queryEnhancement: .disabled
-//      )
-//
-//    let snapshot = try await (pipeline.execute())
-//    XCTAssertEqual(snapshot.results.count, 1)
-//    XCTAssertEqual(snapshot.results[0].id, "goldenWaffle")
-//  }
+  /*
+   func testAllSearchFeatures() async throws {
+     throw XCTSkip("Skipping search tests because backend is not compatible.")
+     let firestore = db
+     let queryLocation = GeoPoint(latitude: 0, longitude: 0)
+     let pipeline = firestore.pipeline().collection(COLLECTION_NAME)
+       .search(
+         query: Field("description").matches("breakfast") &&
+           Field("location").geoDistance(queryLocation).lessThan(1000) &&
+           Field("avgPrice").between(10, 20),
+         languageCode: "us-EN",
+         retrievalDepth: 1000,
+         sort: [
+           Field("location").geoDistance(queryLocation).ascending(),
+         ],
+         offset: 0,
+         limit: 50,
+         select: [
+           Field("title"),
+           Field("menu"),
+           Field("description"),
+           Field("location").geoDistance(queryLocation).as("distance"),
+         ],
+         addFields: [
+           Score().as("searchScore"),
+         ],
+         queryEnhancement: .disabled
+       )
+
+     let snapshot = try await (pipeline.execute())
+     XCTAssertEqual(snapshot.results.count, 1)
+     XCTAssertEqual(snapshot.results[0].id, "goldenWaffle")
+   }
+   */
 
   func testSearchFullDocument() async throws {
     let firestore = db
@@ -143,15 +146,18 @@ final class SearchIntegrationTests: FSTIntegrationTestCase {
     XCTAssertEqual(snapshot.results[0].id, "goldenWaffle")
   }
 
-//  func testSearchSpecificField() async throws {
-//    let firestore = db
-//    let pipeline = firestore.pipeline().collection(COLLECTION_NAME)
-//      .search(query: Field("menu").matches("waffles"))
-//
-//    let snapshot = try await (pipeline.execute())
-//    XCTAssertEqual(snapshot.results.count, 1)
-//    XCTAssertEqual(snapshot.results[0].id, "goldenWaffle")
-//  }
+  /*
+   func testSearchSpecificField() async throws {
+     throw XCTSkip("Skipping search tests because backend is not compatible.")
+     let firestore = db
+     let pipeline = firestore.pipeline().collection(COLLECTION_NAME)
+       .search(query: Field("menu").matches("waffles"))
+
+     let snapshot = try await (pipeline.execute())
+     XCTAssertEqual(snapshot.results.count, 1)
+     XCTAssertEqual(snapshot.results[0].id, "goldenWaffle")
+   }
+   */
 
   func testGeoNearQuery() async throws {
     let firestore = db
@@ -165,28 +171,32 @@ final class SearchIntegrationTests: FSTIntegrationTestCase {
     XCTAssertEqual(snapshot.results[0].id, "solTacos")
   }
 
-//  func testConjunctionOfTextSearchPredicates() async throws {
-//    let firestore = db
-//    let pipeline = firestore.pipeline().collection(COLLECTION_NAME)
-//      .search(query: Field("menu").matches("waffles") && Field("description").matches("diner"))
-//
-//    let snapshot = try await (pipeline.execute())
-//    let docIDs = snapshot.results.map { $0.id ?? "" }.sorted()
-//    XCTAssertEqual(docIDs, ["goldenWaffle", "sunnySideUp"])
-//  }
+  /*
+   func testConjunctionOfTextSearchPredicates() async throws {
+     let firestore = db
+     let pipeline = firestore.pipeline().collection(COLLECTION_NAME)
+       .search(query: Field("menu").matches("waffles") && Field("description").matches("diner"))
 
-//  func testConjunctionOfTextSearchAndGeoNear() async throws {
-//    let firestore = db
-//    let pipeline = firestore.pipeline().collection(COLLECTION_NAME)
-//      .search(query: Field("menu").matches("tacos") &&
-//        Field("location")
-//        .geoDistance(GeoPoint(latitude: 39.6985, longitude: -105.024))
-//        .lessThan(10000))
-//
-//    let snapshot = try await (pipeline.execute())
-//    XCTAssertEqual(snapshot.results.count, 1)
-//    XCTAssertEqual(snapshot.results[0].id, "solTacos")
-//  }
+     let snapshot = try await (pipeline.execute())
+     let docIDs = snapshot.results.map { $0.id ?? "" }.sorted()
+     XCTAssertEqual(docIDs, ["goldenWaffle", "sunnySideUp"])
+   }
+   */
+
+  /*
+   func testConjunctionOfTextSearchAndGeoNear() async throws {
+     let firestore = db
+     let pipeline = firestore.pipeline().collection(COLLECTION_NAME)
+       .search(query: Field("menu").matches("tacos") &&
+         Field("location")
+         .geoDistance(GeoPoint(latitude: 39.6985, longitude: -105.024))
+         .lessThan(10000))
+
+     let snapshot = try await (pipeline.execute())
+     XCTAssertEqual(snapshot.results.count, 1)
+     XCTAssertEqual(snapshot.results[0].id, "solTacos")
+   }
+   */
 
   func testNegateMatch() async throws {
     let firestore = db
@@ -202,15 +212,16 @@ final class SearchIntegrationTests: FSTIntegrationTestCase {
     )
   }
 
-//  func testRQuerySearchTheDocumentWithConjunctionAndDisjunction() async throws {
-//    let firestore = db
-//    let pipeline = firestore.pipeline().collection(COLLECTION_NAME)
-//      .search(query: DocumentMatches("(waffles OR pancakes) AND coffee"))
-//
-//    let snapshot = try await (pipeline.execute())
-//    let docIDs = snapshot.results.map { $0.id ?? "" }.sorted()
-//    XCTAssertEqual(docIDs, ["goldenWaffle", "sunnySideUp"])
-//  }
+  func testRQuerySearchTheDocumentWithConjunctionAndDisjunction() async throws {
+    throw XCTSkip("Skipping search tests because backend is not compatible.")
+    let firestore = db
+    let pipeline = firestore.pipeline().collection(COLLECTION_NAME)
+      .search(query: DocumentMatches("(waffles OR pancakes) AND coffee"))
+
+    let snapshot = try await (pipeline.execute())
+    let docIDs = snapshot.results.map { $0.id ?? "" }.sorted()
+    XCTAssertEqual(docIDs, ["goldenWaffle", "sunnySideUp"])
+  }
 
   func testRQueryAsQueryParam() async throws {
     let firestore = db
@@ -222,25 +233,27 @@ final class SearchIntegrationTests: FSTIntegrationTestCase {
     XCTAssertEqual(docIDs, ["eastsideChicken"])
   }
 
-//  func testRQuerySupportsFieldPaths() async throws {
-//    let firestore = db
-//    let pipeline = firestore.pipeline().collection(COLLECTION_NAME)
-//      .search(query: "menu:(waffles OR pancakes) AND description:\"breakfast all day\"")
-//
-//    let snapshot = try await (pipeline.execute())
-//    XCTAssertEqual(snapshot.results.count, 1)
-//    XCTAssertEqual(snapshot.results[0].id, "sunnySideUp")
-//  }
+  func testRQuerySupportsFieldPaths() async throws {
+    throw XCTSkip("Skipping search tests because backend is not compatible.")
+    let firestore = db
+    let pipeline = firestore.pipeline().collection(COLLECTION_NAME)
+      .search(query: "menu:(waffles OR pancakes) AND description:\"breakfast all day\"")
 
-//  func testConjunctionOfRQueryAndExpression() async throws {
-//    let firestore = db
-//    let pipeline = firestore.pipeline().collection(COLLECTION_NAME)
-//      .search(query: DocumentMatches("tacos") && Field("average_price_per_person").between(8, 15))
-//
-//    let snapshot = try await (pipeline.execute())
-//    XCTAssertEqual(snapshot.results.count, 1)
-//    XCTAssertEqual(snapshot.results[0].id, "solTacos")
-//  }
+    let snapshot = try await (pipeline.execute())
+    XCTAssertEqual(snapshot.results.count, 1)
+    XCTAssertEqual(snapshot.results[0].id, "sunnySideUp")
+  }
+
+  func testConjunctionOfRQueryAndExpression() async throws {
+    throw XCTSkip("Skipping search tests because backend is not compatible.")
+    let firestore = db
+    let pipeline = firestore.pipeline().collection(COLLECTION_NAME)
+      .search(query: DocumentMatches("tacos") && Field("average_price_per_person").between(8, 15))
+
+    let snapshot = try await (pipeline.execute())
+    XCTAssertEqual(snapshot.results.count, 1)
+    XCTAssertEqual(snapshot.results[0].id, "solTacos")
+  }
 
   func testAddScore() async throws {
     let firestore = db
@@ -260,70 +273,75 @@ final class SearchIntegrationTests: FSTIntegrationTestCase {
     XCTAssertGreaterThan(doc.get("searchScore") as? Double ?? 0, 0)
   }
 
-//  func testAddGeoDistance() async throws {
-//    let firestore = db
-//    let pipeline = firestore.pipeline().collection(COLLECTION_NAME)
-//      .search(
-//        query: DocumentMatches("waffles"),
-//        addFields: [
-//          Field("location").geoDistance(GeoPoint(latitude: 39.7183, longitude: -104.9621))
-//            .as("distance"),
-//        ]
-//      )
-//      .select([Field("name"), Field("distance")])
-//
-//    let snapshot = try await (pipeline.execute())
-//    XCTAssertEqual(snapshot.results.count, 1)
-//    let doc = snapshot.results[0]
-//    XCTAssertEqual(doc.get("name") as? String, "The Golden Waffle")
-//    XCTAssertGreaterThan(doc.get("distance") as? Double ?? 0, 0)
-//  }
+  func testAddGeoDistance() async throws {
+    throw XCTSkip("Skipping search tests because backend is not compatible.")
+    let firestore = db
+    let pipeline = firestore.pipeline().collection(COLLECTION_NAME)
+      .search(
+        query: DocumentMatches("waffles"),
+        addFields: [
+          Field("location").geoDistance(GeoPoint(latitude: 39.7183, longitude: -104.9621))
+            .as("distance"),
+        ]
+      )
+      .select([Field("name"), Field("distance")])
 
-//  func testAddTopicalityScoreAndSnippet() async throws {
-//    let firestore = db
-//    let pipeline = firestore.pipeline().collection(COLLECTION_NAME)
-//      .search(
-//        query: Field("menu").matches("waffles"),
-//        addFields: [
-//          Score().as("searchScore"),
-//          Field("menu").snippet("waffles").as("snippet"),
-//        ]
-//      )
-//      .select([Field("name"), Field("searchScore"), Field("snippet")])
-//
-//    let snapshot = try await (pipeline.execute())
-//    XCTAssertEqual(snapshot.results.count, 1)
-//    let doc = snapshot.results[0]
-//    XCTAssertEqual(doc.get("name") as? String, "The Golden Waffle")
-//    XCTAssertGreaterThan(doc.get("searchScore") as? Double ?? 0, 0)
-//    XCTAssertGreaterThan((doc.get("snippet") as? String)?.count ?? 0, 0)
-//  }
+    let snapshot = try await (pipeline.execute())
+    XCTAssertEqual(snapshot.results.count, 1)
+    let doc = snapshot.results[0]
+    XCTAssertEqual(doc.get("name") as? String, "The Golden Waffle")
+    XCTAssertGreaterThan(doc.get("distance") as? Double ?? 0, 0)
+  }
 
-//  func testSelectTopicalityScoreAndSnippet() async throws {
-//    let firestore = db
-//    let pipeline = firestore.pipeline().collection(COLLECTION_NAME)
-//      .search(
-//        query: Field("menu").matches("waffles"),
-//        select: [
-//          Field("name"),
-//          Field("location"),
-//          Score().as("searchScore"),
-//          Field("menu").snippet("waffles").as("snippet"),
-//        ]
-//      )
-//
-//    let snapshot = try await (pipeline.execute())
-//    XCTAssertEqual(snapshot.results.count, 1)
-//    let doc = snapshot.results[0]
-//    XCTAssertEqual(doc.get("name") as? String, "The Golden Waffle")
-//    XCTAssertEqual(
-//      doc.get("location") as? GeoPoint,
-//      GeoPoint(latitude: 39.7183, longitude: -104.9621)
-//    )
-//    XCTAssertGreaterThan(doc.get("searchScore") as? Double ?? 0, 0)
-//    XCTAssertGreaterThan((doc.get("snippet") as? String)?.count ?? 0, 0)
-//    XCTAssertEqual(doc.data.keys.sorted(), ["location", "name", "searchScore", "snippet"])
-//  }
+  /*
+   func testAddTopicalityScoreAndSnippet() async throws {
+     let firestore = db
+     let pipeline = firestore.pipeline().collection(COLLECTION_NAME)
+       .search(
+         query: Field("menu").matches("waffles"),
+         addFields: [
+           Score().as("searchScore"),
+           Field("menu").snippet("waffles").as("snippet"),
+         ]
+       )
+       .select([Field("name"), Field("searchScore"), Field("snippet")])
+
+     let snapshot = try await (pipeline.execute())
+     XCTAssertEqual(snapshot.results.count, 1)
+     let doc = snapshot.results[0]
+     XCTAssertEqual(doc.get("name") as? String, "The Golden Waffle")
+     XCTAssertGreaterThan(doc.get("searchScore") as? Double ?? 0, 0)
+     XCTAssertGreaterThan((doc.get("snippet") as? String)?.count ?? 0, 0)
+   }
+   */
+
+  /*
+   func testSelectTopicalityScoreAndSnippet() async throws {
+     let firestore = db
+     let pipeline = firestore.pipeline().collection(COLLECTION_NAME)
+       .search(
+         query: Field("menu").matches("waffles"),
+         select: [
+           Field("name"),
+           Field("location"),
+           Score().as("searchScore"),
+           Field("menu").snippet("waffles").as("snippet"),
+         ]
+       )
+
+     let snapshot = try await (pipeline.execute())
+     XCTAssertEqual(snapshot.results.count, 1)
+     let doc = snapshot.results[0]
+     XCTAssertEqual(doc.get("name") as? String, "The Golden Waffle")
+     XCTAssertEqual(
+       doc.get("location") as? GeoPoint,
+       GeoPoint(latitude: 39.7183, longitude: -104.9621)
+     )
+     XCTAssertGreaterThan(doc.get("searchScore") as? Double ?? 0, 0)
+     XCTAssertGreaterThan((doc.get("snippet") as? String)?.count ?? 0, 0)
+     XCTAssertEqual(doc.data.keys.sorted(), ["location", "name", "searchScore", "snippet"])
+   }
+   */
 
   func testSortByScore() async throws {
     let firestore = db
@@ -338,202 +356,228 @@ final class SearchIntegrationTests: FSTIntegrationTestCase {
     XCTAssertEqual(docIDs, ["eastsideTacos", "solTacos"])
   }
 
-//  func testSortByDistance() async throws {
-//    let firestore = db
-//    let pipeline = firestore.pipeline().collection(COLLECTION_NAME)
-//      .search(
-//        query: DocumentMatches("tacos"),
-//        sort: [
-//          Field("location")
-//            .geoDistance(GeoPoint(latitude: 39.6985, longitude: -105.024))
-//            .ascending(),
-//        ]
-//      )
-//
-//    let snapshot = try await (pipeline.execute())
-//    let docIDs = snapshot.results.map { $0.id }
-//    XCTAssertEqual(docIDs, ["solTacos", "eastsideTacos"])
-//  }
+  func testSortByDistance() async throws {
+    let firestore = db
+    let pipeline = firestore.pipeline().collection(COLLECTION_NAME)
+      .search(
+        query: Field("location")
+          .geoDistance(GeoPoint(latitude: 39.6985, longitude: -105.024))
+          .lessThanOrEqual(5600),
+        sort: [
+          Field("location")
+            .geoDistance(GeoPoint(latitude: 39.6985, longitude: -105.024))
+            .descending(),
+        ]
+      )
 
-//  func testSortByMultipleOrderings() async throws {
-//    let firestore = db
-//    let pipeline = firestore.pipeline().collection(COLLECTION_NAME)
-//      .search(
-//        query: Field("menu").matches("tacos OR chicken"),
-//        sort: [
-//          Field("location")
-//            .geoDistance(GeoPoint(latitude: 39.6985, longitude: -105.024))
-//            .ascending(),
-//          Score().descending(),
-//        ]
-//      )
-//
-//    let snapshot = try await (pipeline.execute())
-//    let docIDs = snapshot.results.map { $0.id }
-//    XCTAssertEqual(docIDs, ["solTacos", "eastsideTacos", "eastsideChicken"])
-//  }
+    let snapshot = try await (pipeline.execute())
+    let docIDs = snapshot.results.map { $0.id }
+    XCTAssertEqual(docIDs, ["solTacos", "lotusBlossomThai", "mileHighCatch"])
+  }
 
-//  func testLimitTheNumberOfDocumentsReturned() async throws {
-//    let firestore = db
-//    let pipeline = firestore.pipeline().collection(COLLECTION_NAME)
-//      .search(
-//        query: Constant(true),
-//        sort: [
-//          Field("location")
-//            .geoDistance(GeoPoint(latitude: 39.6985, longitude: -105.024))
-//            .ascending(),
-//        ],
-//        limit: 3
-//      )
-//
-//    let snapshot = try await (pipeline.execute())
-//    let docIDs = snapshot.results.map { $0.id }
-//    XCTAssertEqual(docIDs, ["solTacos", "goldenWaffle", "lotusBlossomThai"])
-//  }
+  /*
+   func testSortByMultipleOrderings() async throws {
+     let firestore = db
+     let pipeline = firestore.pipeline().collection(COLLECTION_NAME)
+       .search(
+         query: Field("menu").matches("tacos OR chicken"),
+         sort: [
+           Field("location")
+             .geoDistance(GeoPoint(latitude: 39.6985, longitude: -105.024))
+             .ascending(),
+           Score().descending(),
+         ]
+       )
 
-//  func testLimitTheNumberOfDocumentsScored() async throws {
-//    let firestore = db
-//    let pipeline = firestore.pipeline().collection(COLLECTION_NAME)
-//      .search(
-//        query: Field("menu").matches("chicken OR tacos OR fish OR waffles"),
-//        retrievalDepth: 6
-//      )
-//
-//    let snapshot = try await (pipeline.execute())
-//    let docIDs = snapshot.results.map { $0.id ?? "" }.sorted()
-//    XCTAssertEqual(docIDs, ["eastsideChicken", "eastsideTacos", "mileHighCatch", "solTacos"])
-//  }
+     let snapshot = try await (pipeline.execute())
+     let docIDs = snapshot.results.map { $0.id }
+     XCTAssertEqual(docIDs, ["solTacos", "eastsideTacos", "eastsideChicken"])
+   }
+   */
 
-//  func testSkipsNDocuments() async throws {
-//    let firestore = db
-//    let pipeline = firestore.pipeline().collection(COLLECTION_NAME)
-//      .search(
-//        query: Constant(true),
-//        offset: 2,
-//        limit: 2
-//      )
-//
-//    let snapshot = try await (pipeline.execute())
-//    let docIDs = snapshot.results.map { $0.id ?? "" }.sorted()
-//    XCTAssertEqual(docIDs, ["eastsideTacos", "goldenWaffle"])
-//  }
+  /*
+   func testLimitTheNumberOfDocumentsReturned() async throws {
+     throw XCTSkip("Skipping search tests because backend is not compatible.")
+     let firestore = db
+     let pipeline = firestore.pipeline().collection(COLLECTION_NAME)
+       .search(
+         query: Constant(true),
+         sort: [
+           Field("location")
+             .geoDistance(GeoPoint(latitude: 39.6985, longitude: -105.024))
+             .ascending(),
+         ],
+         limit: 3
+       )
 
-//  func testSearchFullDocumentWithQueryExpansion() async throws {
-//    let firestore = db
-//    let pipeline = firestore.pipeline().collection(COLLECTION_NAME)
-//      .search(query: DocumentMatches("waffles"), queryEnhancement: .required)
-//
-//    let snapshot = try await (pipeline.execute())
-//    let docIDs = snapshot.results.map { $0.id ?? "" }.sorted()
-//    XCTAssertEqual(docIDs, ["goldenWaffle", "sunnySideUp"])
-//  }
+     let snapshot = try await (pipeline.execute())
+     let docIDs = snapshot.results.map { $0.id }
+     XCTAssertEqual(docIDs, ["solTacos", "goldenWaffle", "lotusBlossomThai"])
+   }
+   */
 
-//  func testSearchSpecificFieldWithQueryExpansion() async throws {
-//    let firestore = db
-//    let pipeline = firestore.pipeline().collection(COLLECTION_NAME)
-//      .search(query: Field("menu").matches("waffles"), queryEnhancement: .required)
-//
-//    let snapshot = try await (pipeline.execute())
-//    let docIDs = snapshot.results.map { $0.id ?? "" }.sorted()
-//    XCTAssertEqual(docIDs, ["goldenWaffle", "sunnySideUp"])
-//  }
+  /*
+   func testLimitTheNumberOfDocumentsScored() async throws {
+     let firestore = db
+     let pipeline = firestore.pipeline().collection(COLLECTION_NAME)
+       .search(
+         query: Field("menu").matches("chicken OR tacos OR fish OR waffles"),
+         retrievalDepth: 6
+       )
 
-//  func testSnippetOptions() async throws {
-//    let firestore = db
-//    let pipeline1 = firestore.pipeline().collection(COLLECTION_NAME)
-//      .search(
-//        query: Field("menu").matches("waffles"),
-//        addFields: [
-//          Field("menu").snippet("waffles", maxSnippetWidth: 10).as("snippet"),
-//        ]
-//      )
-//
-//    let snapshot1 = try await (pipeline1.execute())
-//    XCTAssertEqual(snapshot1.results.count, 1)
-//    let doc1 = snapshot1.results[0]
-//    XCTAssertEqual(doc1.get("name") as? String, "The Golden Waffle")
-//    let snippet1 = doc1.get("snippet") as? String ?? ""
-//    XCTAssertGreaterThan(snippet1.count, 0)
-//
-//    let pipeline2 = firestore.pipeline().collection(COLLECTION_NAME)
-//      .search(
-//        query: Field("menu").matches("waffles"),
-//        addFields: [
-//          Field("menu").snippet("waffles", maxSnippetWidth: 1000).as("snippet"),
-//        ]
-//      )
-//    let snapshot2 = try await (pipeline2.execute())
-//    XCTAssertEqual(snapshot2.results.count, 1)
-//    let doc2 = snapshot2.results[0]
-//    XCTAssertEqual(doc2.get("name") as? String, "The Golden Waffle")
-//    let snippet2 = doc2.get("snippet") as? String ?? ""
-//    XCTAssertGreaterThan(snippet2.count, 0)
-//
-//    XCTAssertGreaterThan(snippet2.count, snippet1.count)
-//  }
+     let snapshot = try await (pipeline.execute())
+     let docIDs = snapshot.results.map { $0.id ?? "" }.sorted()
+     XCTAssertEqual(docIDs, ["eastsideChicken", "eastsideTacos", "mileHighCatch", "solTacos"])
+   }
+   */
 
-//  func testSnippetOnMultipleFields() async throws {
-//    let firestore = db
-//    let pipeline1 = firestore.pipeline().collection(COLLECTION_NAME)
-//      .search(
-//        query: DocumentMatches("waffle"),
-//        addFields: [
-//          Field("menu").snippet("waffles", maxSnippetWidth: 2000).as("snippet"),
-//        ]
-//      )
-//
-//    let snapshot1 = try await (pipeline1.execute())
-//    XCTAssertEqual(snapshot1.results.count, 1)
-//    let doc1 = snapshot1.results[0]
-//    XCTAssertEqual(doc1.get("name") as? String, "The Golden Waffle")
-//    let snippet1 = doc1.get("snippet") as? String ?? ""
-//    XCTAssertGreaterThan(snippet1.count, 0)
-//
-//    let pipeline2 = firestore.pipeline().collection(COLLECTION_NAME)
-//      .search(
-//        query: DocumentMatches("waffle"),
-//        addFields: [
-//          Field("menu").stringConcat([Field("description")])
-//            .snippet("waffles", maxSnippetWidth: 2000).as("snippet"),
-//        ]
-//      )
-//    let snapshot2 = try await (pipeline2.execute())
-//    XCTAssertEqual(snapshot2.results.count, 1)
-//    let doc2 = snapshot2.results[0]
-//    XCTAssertEqual(doc2.get("name") as? String, "The Golden Waffle")
-//    let snippet2 = doc2.get("snippet") as? String ?? ""
-//    XCTAssertGreaterThan(snippet2.count, 0)
-//
-//    XCTAssertGreaterThan(snippet2.count, snippet1.count)
-//  }
+  /*
+   func testSkipsNDocuments() async throws {
+     throw XCTSkip("Skipping search tests because backend is not compatible.")
+     let firestore = db
+     let pipeline = firestore.pipeline().collection(COLLECTION_NAME)
+       .search(
+         query: Constant(true),
+         offset: 2,
+         limit: 2
+       )
 
-//  func testSearchLanguageCodeParam() async throws {
-//    let firestore = db
-//
-//    // Scenario 1: Valid languageCode ("us-EN") - should pass and return results
-//    let validLanguagePipeline = firestore.pipeline().collection(COLLECTION_NAME)
-//      .search(
-//        query: DocumentMatches("waffles"),
-//        languageCode: "us-EN"
-//      )
-//    let validLanguageSnapshot = try await validLanguagePipeline.execute()
-//    XCTAssertEqual(validLanguageSnapshot.results.count, 1)
-//    XCTAssertEqual(validLanguageSnapshot.results[0].id, "goldenWaffle")
-//
-//    // Scenario 2: Invalid languageCode ("does not exist") - should fail
-//    let invalidLanguagePipeline = firestore.pipeline().collection(COLLECTION_NAME)
-//      .search(
-//        query: DocumentMatches("waffles"),
-//        languageCode: "does not exist"
-//      )
-//    do {
-//      _ = try await invalidLanguagePipeline.execute()
-//      XCTFail(
-//        "Executing pipeline with invalid language code should have thrown an error, but it
-//        succeeded."
-//      )
-//    } catch {
-//      // An error was thrown as expected.
-//    }
-//  }
+     let snapshot = try await (pipeline.execute())
+     let docIDs = snapshot.results.map { $0.id ?? "" }.sorted()
+     XCTAssertEqual(docIDs, ["eastsideTacos", "goldenWaffle"])
+   }
+   */
+
+  /*
+   func testSearchFullDocumentWithQueryExpansion() async throws {
+     throw XCTSkip("Skipping search tests because backend is not compatible.")
+     let firestore = db
+     let pipeline = firestore.pipeline().collection(COLLECTION_NAME)
+       .search(query: DocumentMatches("waffles"), queryEnhancement: .required)
+
+     let snapshot = try await (pipeline.execute())
+     let docIDs = snapshot.results.map { $0.id ?? "" }.sorted()
+     XCTAssertEqual(docIDs, ["goldenWaffle", "sunnySideUp"])
+   }
+   */
+
+  /*
+   func testSearchSpecificFieldWithQueryExpansion() async throws {
+     throw XCTSkip("Skipping search tests because backend is not compatible.")
+     let firestore = db
+     let pipeline = firestore.pipeline().collection(COLLECTION_NAME)
+       .search(query: Field("menu").matches("waffles"), queryEnhancement: .required)
+
+     let snapshot = try await (pipeline.execute())
+     let docIDs = snapshot.results.map { $0.id ?? "" }.sorted()
+     XCTAssertEqual(docIDs, ["goldenWaffle", "sunnySideUp"])
+   }
+   */
+
+  /*
+   func testSnippetOptions() async throws {
+     throw XCTSkip("Skipping search tests because backend is not compatible.")
+     let firestore = db
+     let pipeline1 = firestore.pipeline().collection(COLLECTION_NAME)
+       .search(
+         query: Field("menu").matches("waffles"),
+         addFields: [
+           Field("menu").snippet("waffles", maxSnippetWidth: 10).as("snippet"),
+         ]
+       )
+
+     let snapshot1 = try await (pipeline1.execute())
+     XCTAssertEqual(snapshot1.results.count, 1)
+     let doc1 = snapshot1.results[0]
+     XCTAssertEqual(doc1.get("name") as? String, "The Golden Waffle")
+     let snippet1 = doc1.get("snippet") as? String ?? ""
+     XCTAssertGreaterThan(snippet1.count, 0)
+
+     let pipeline2 = firestore.pipeline().collection(COLLECTION_NAME)
+       .search(
+         query: Field("menu").matches("waffles"),
+         addFields: [
+           Field("menu").snippet("waffles", maxSnippetWidth: 1000).as("snippet"),
+         ]
+       )
+     let snapshot2 = try await (pipeline2.execute())
+     XCTAssertEqual(snapshot2.results.count, 1)
+     let doc2 = snapshot2.results[0]
+     XCTAssertEqual(doc2.get("name") as? String, "The Golden Waffle")
+     let snippet2 = doc2.get("snippet") as? String ?? ""
+     XCTAssertGreaterThan(snippet2.count, 0)
+
+     XCTAssertGreaterThan(snippet2.count, snippet1.count)
+   }
+   */
+
+  /*
+   func testSnippetOnMultipleFields() async throws {
+     throw XCTSkip("Skipping search tests because backend is not compatible.")
+     let firestore = db
+     let pipeline1 = firestore.pipeline().collection(COLLECTION_NAME)
+       .search(
+         query: DocumentMatches("waffle"),
+         addFields: [
+           Field("menu").snippet("waffles", maxSnippetWidth: 2000).as("snippet"),
+         ]
+       )
+
+     let snapshot1 = try await (pipeline1.execute())
+     XCTAssertEqual(snapshot1.results.count, 1)
+     let doc1 = snapshot1.results[0]
+     XCTAssertEqual(doc1.get("name") as? String, "The Golden Waffle")
+     let snippet1 = doc1.get("snippet") as? String ?? ""
+     XCTAssertGreaterThan(snippet1.count, 0)
+
+     let pipeline2 = firestore.pipeline().collection(COLLECTION_NAME)
+       .search(
+         query: DocumentMatches("waffle"),
+         addFields: [
+           Field("menu").stringConcat([Field("description")])
+             .snippet("waffles", maxSnippetWidth: 2000).as("snippet"),
+         ]
+       )
+     let snapshot2 = try await (pipeline2.execute())
+     XCTAssertEqual(snapshot2.results.count, 1)
+     let doc2 = snapshot2.results[0]
+     XCTAssertEqual(doc2.get("name") as? String, "The Golden Waffle")
+     let snippet2 = doc2.get("snippet") as? String ?? ""
+     XCTAssertGreaterThan(snippet2.count, 0)
+
+     XCTAssertGreaterThan(snippet2.count, snippet1.count)
+   }
+   */
+
+  /*
+   func testSearchLanguageCodeParam() async throws {
+     throw XCTSkip("Skipping search tests because backend is not compatible.")
+     let firestore = db
+
+     // Scenario 1: Valid languageCode ("us-EN") - should pass and return results
+     let validLanguagePipeline = firestore.pipeline().collection(COLLECTION_NAME)
+       .search(
+         query: DocumentMatches("waffles"),
+         languageCode: "us-EN"
+       )
+     let validLanguageSnapshot = try await validLanguagePipeline.execute()
+     XCTAssertEqual(validLanguageSnapshot.results.count, 1)
+     XCTAssertEqual(validLanguageSnapshot.results[0].id, "goldenWaffle")
+
+     // Scenario 2: Invalid languageCode ("does not exist") - should fail
+     let invalidLanguagePipeline = firestore.pipeline().collection(COLLECTION_NAME)
+       .search(
+         query: DocumentMatches("waffles"),
+         languageCode: "does not exist"
+       )
+     do {
+       _ = try await invalidLanguagePipeline.execute()
+       XCTFail(
+         "Executing pipeline with invalid language code should have thrown an error, but it succeeded."
+       )
+     } catch {
+       // An error was thrown as expected.
+     }
+   }
+   */
 }
