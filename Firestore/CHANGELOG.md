@@ -1,4 +1,5 @@
 # Unreleased
+- [feature] Added support for Pipeline expressions `arraySlice`, `arrayFilter`, `arrayTransform` and `arrayTransformWithIndex`. (#16001)
 - [feature] Added support for Firestore Pipeline Subqueries and scope bridging with `Subcollection`, `define()`, `toArrayExpression()`, `toScalarExpression()`, `Variable`, and `CurrentDocument` APIs.
 
 - [feature] Added support for Pipeline expressions `nor` and `switchOn`. (#15943)
