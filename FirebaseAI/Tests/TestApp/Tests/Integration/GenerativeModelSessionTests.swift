@@ -35,9 +35,11 @@
       let content = response.content
       #expect(!content.isEmpty)
       #expect(response.rawContent.isComplete)
-      if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
-        #expect(response.rawContent.kind == .string(content))
-      }
+      #if canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
+        if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
+          #expect(response.rawContent.kind == .string(content))
+        }
+      #endif // canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
       #expect(response.rawContent.generationID != nil)
       #expect(response.rawResponse.text == content)
     }
@@ -363,9 +365,11 @@
       #expect(!content.isEmpty)
       #expect(response.rawContent.isComplete, "The final response was not marked as complete.")
       #expect(response.rawContent.generationID == generationID)
-      if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
-        #expect(response.rawContent.kind == .string(content))
-      }
+      #if canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
+        if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
+          #expect(response.rawContent.kind == .string(content))
+        }
+      #endif // canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
       if let text = response.rawResponse.text {
         #expect(content.hasSuffix(text))
       }
