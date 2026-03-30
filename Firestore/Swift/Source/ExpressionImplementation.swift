@@ -892,6 +892,80 @@ public extension Expression {
     return FunctionExpression(functionName: "trim", args: [self])
   }
 
+  func ltrim() -> FunctionExpression {
+    return FunctionExpression(functionName: "ltrim", args: [self])
+  }
+
+  func ltrim(_ characters: String) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "ltrim",
+      args: [self, Helper.sendableToExpr(characters)]
+    )
+  }
+
+  func ltrim(_ characters: Expression) -> FunctionExpression {
+    return FunctionExpression(functionName: "ltrim", args: [self, characters])
+  }
+
+  func rtrim() -> FunctionExpression {
+    return FunctionExpression(functionName: "rtrim", args: [self])
+  }
+
+  func rtrim(_ characters: String) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "rtrim",
+      args: [self, Helper.sendableToExpr(characters)]
+    )
+  }
+
+  func rtrim(_ characters: Expression) -> FunctionExpression {
+    return FunctionExpression(functionName: "rtrim", args: [self, characters])
+  }
+
+  func stringRepeat(_ count: Int) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "string_repeat",
+      args: [self, Helper.sendableToExpr(count)]
+    )
+  }
+
+  func stringRepeat(_ count: Expression) -> FunctionExpression {
+    return FunctionExpression(functionName: "string_repeat", args: [self, count])
+  }
+
+  func stringReplaceAll(_ oldValue: String, with newValue: String) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "string_replace_all",
+      args: [self, Helper.sendableToExpr(oldValue), Helper.sendableToExpr(newValue)]
+    )
+  }
+
+  func stringReplaceAll(_ oldValue: Expression, with newValue: Expression) -> FunctionExpression {
+    return FunctionExpression(functionName: "string_replace_all", args: [self, oldValue, newValue])
+  }
+
+  func stringReplaceOne(_ oldValue: String, with newValue: String) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "string_replace_one",
+      args: [self, Helper.sendableToExpr(oldValue), Helper.sendableToExpr(newValue)]
+    )
+  }
+
+  func stringReplaceOne(_ oldValue: Expression, with newValue: Expression) -> FunctionExpression {
+    return FunctionExpression(functionName: "string_replace_one", args: [self, oldValue, newValue])
+  }
+
+  func stringIndexOf(_ substring: String) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "string_index_of",
+      args: [self, Helper.sendableToExpr(substring)]
+    )
+  }
+
+  func stringIndexOf(_ substring: Expression) -> FunctionExpression {
+    return FunctionExpression(functionName: "string_index_of", args: [self, substring])
+  }
+
   func stringConcat(_ strings: [Expression]) -> FunctionExpression {
     return FunctionExpression(functionName: "string_concat", args: [self] + strings)
   }

@@ -1,6 +1,6 @@
 # Unreleased
 - [feature] Added support for Firestore Pipeline Subqueries and scope bridging with `Subcollection`, `define()`, `toArrayExpression()`, `toScalarExpression()`, `Variable`, and `CurrentDocument` APIs.
-
+- [featire] Added support for Pipeline expressions `ltrim`, `rtrim`, `stringIndexOf`, `stringReplaceOne`, `stringReplaceAll`, and `stringRepeat`.
 - [feature] Added support for Pipeline expressions `nor` and `switchOn`. (#15943)
 
 # 12.11.0
