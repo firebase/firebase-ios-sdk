@@ -442,7 +442,7 @@
         case .manual:
           continue
         case let .foundationModels(tool):
-          #if canImport(FoundationModels) && HAS_FOUNDATION_MODELS
+          #if canImport(FoundationModels)
             if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
               guard let tool = tool as? (any FoundationModels.Tool) else {
                 assertionFailure("The value '\(tool)' is not a Foundation Models `Tool`.")
@@ -456,7 +456,7 @@
               ))
               continue
             }
-          #endif // canImport(FoundationModels) && HAS_FOUNDATION_MODELS
+          #endif // canImport(FoundationModels)
           assertionFailure("""
           A Foundation Models `Tool` '\(tool)' was provided but not running on a supported platform.
           """)

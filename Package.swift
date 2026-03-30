@@ -192,10 +192,7 @@ let package = Package(
         "FirebaseCore",
         "FirebaseCoreExtension",
       ],
-      path: "FirebaseAI/Sources",
-      swiftSettings: [
-        .define("HAS_FOUNDATION_MODELS", .when(platforms: [.iOS, .macCatalyst, .macOS, .visionOS])),
-      ]
+      path: "FirebaseAI/Sources"
     ),
     .testTarget(
       name: "FirebaseAILogicUnit",
