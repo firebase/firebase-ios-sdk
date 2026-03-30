@@ -49,7 +49,7 @@ jobs:
     uses: ./.github/workflows/_quickstart.yml
     with:
       product: Crashlytics
-      setup_command: scripts/setup_quickstart.sh crashlytics
+      setup_command: scripts/setup_quickstart.sh crashlytics && xcodebuild -downloadPlatform watchOS
       plist_src_path: scripts/gha-encrypted/qs-crashlytics.plist.gpg
       plist_dst_path: quickstart-ios/crashlytics/GoogleService-Info.plist
     secrets:
