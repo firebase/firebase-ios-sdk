@@ -23,8 +23,9 @@ import XCTest
 class PipelineSubqueryTests: FSTIntegrationTestCase {
   override func setUpWithError() throws {
     try super.setUpWithError()
-    if FSTIntegrationTestCase.backendEdition() == .standard {
-      throw XCTSkip("Skip PipelineSubqueryTests on standard backend")
+    if FSTIntegrationTestCase.targetBackend() != .nightly || FSTIntegrationTestCase
+      .backendEdition() == .standard {
+      throw XCTSkip("Skip PipelineSubqueryTests on non-nightly or standard environment")
     }
   }
 
