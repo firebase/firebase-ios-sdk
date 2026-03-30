@@ -330,12 +330,12 @@ extension FunctionDeclaration: Encodable {
     try container.encode(name, forKey: .name)
     try container.encode(description, forKey: .description)
     try container.encodeIfPresent(parameters, forKey: .parameters)
-    #if canImport(FoundationModels)
+    #if canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
       if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
         try container.encodeIfPresent(parametersJSONSchema, forKey: .parametersJSONSchema)
         try container.encodeIfPresent(responseJSONSchema, forKey: .responseJSONSchema)
       }
-    #endif // canImport(FoundationModels)
+    #endif // canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
   }
 }
 

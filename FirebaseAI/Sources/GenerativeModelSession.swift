@@ -354,13 +354,13 @@
               streamedText.append(text)
               if generationID == nil {
                 generationID = chunk.responseID.map {
-                  #if canImport(FoundationModels)
+                  #if canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
                     if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
                       return FirebaseAI.GenerationID(
                         responseID: $0, generationID: FoundationModels.GenerationID()
                       )
                     }
-                  #endif // canImport(FoundationModels)
+                  #endif // canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
 
                   return FirebaseAI.GenerationID(responseID: $0, generationID: nil)
                 }
@@ -442,7 +442,7 @@
         case .manual:
           continue
         case let .foundationModels(tool):
-          #if canImport(FoundationModels)
+          #if canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
             if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
               guard let tool = tool as? (any FoundationModels.Tool) else {
                 assertionFailure("The value '\(tool)' is not a Foundation Models `Tool`.")
@@ -456,7 +456,7 @@
               ))
               continue
             }
-          #endif // canImport(FoundationModels)
+          #endif // canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
           assertionFailure("""
           A Foundation Models `Tool` '\(tool)' was provided but not running on a supported platform.
           """)
