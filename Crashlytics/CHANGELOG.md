@@ -1,3 +1,6 @@
+# Unreleased
+- [changed] Updated `upload-symbols` to version 3.21, updated error logging in `upload-symbols` and added a way to set `XCODE_PATH` as an environment variable.
+
 # 12.11.0
 - [fixed] Fixed an issue where Crashlytics API calls were silently dropped if invoked immediately after Firebase initialization.
 
