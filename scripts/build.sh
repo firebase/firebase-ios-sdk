@@ -200,7 +200,7 @@ tvos_flags=(
 )
 if [[ "$xcode_major" -ge 26 ]]; then
   visionos_flags=(
-    -destination "platform=visionOS Simulator,OS=${xcode_major},name=Apple Vision Pro"
+    -destination "platform=visionOS Simulator,OS=${xcode_version},name=Apple Vision Pro"
   )
 else
   # TODO(ncooke3): Remove this else case when we no longer need to test against macOS 15.
