@@ -700,6 +700,11 @@ public struct Pipeline: @unchecked Sendable {
     }
   }
 
+  /// Adds a search stage to the Pipeline.
+  ///
+  /// - Important: This must be the first stage of the pipeline.
+  /// - Note: A limited set of expressions are supported in the search stage.
+  ///
   /// Performs a search on the collection, supporting full-text search and geo search expressions.
   ///
   /// Example usage:
@@ -726,7 +731,7 @@ public struct Pipeline: @unchecked Sendable {
   /// `Field("menu").matches("waffles")`).
   ///   - languageCode: The BCP-47 language code of text in the search query, such as, “en-US” or
   /// “sr-Latn”
-  ///   - retrievalDepth: The maximum number of documents to retrieve.
+  ///   - retrievalDepth: The maximum number of documents to retrieve. Documents will be retrieved in the pre-sort order specified by the search index.
   ///   - sort: An array of `Ordering` objects to sort the results.
   ///   - offset: The number of documents to skip.
   ///   - limit: The maximum number of documents to return.
@@ -764,6 +769,11 @@ public struct Pipeline: @unchecked Sendable {
     }
   }
 
+  /// Adds a search stage to the Pipeline using a raw query string.
+  ///
+  /// - Important: This must be the first stage of the pipeline.
+  /// - Note: A limited set of expressions are supported in the search stage.
+  ///
   /// Performs a search using a raw query string (RQuery).
   ///
   /// Example usage:
@@ -789,7 +799,7 @@ public struct Pipeline: @unchecked Sendable {
   ///   - query: A raw query string (e.g., `"menu:waffles AND tags:breakfast"`).
   ///   - languageCode: The BCP-47 language code of text in the search query, such as, “en-US” or
   /// “sr-Latn”
-  ///   - retrievalDepth: The maximum number of documents to retrieve.
+  ///   - retrievalDepth: The maximum number of documents to retrieve. Documents will be retrieved in the pre-sort order specified by the search index.
   ///   - sort: An array of `Ordering` objects to sort the results.
   ///   - offset: The number of documents to skip.
   ///   - limit: The maximum number of documents to return.

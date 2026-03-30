@@ -19,7 +19,7 @@
 #endif // SWIFT_PACKAGE
 import Foundation
 
-/// Represents a full-text search against the entire document content.
+/// A full-text search against all indexed search fields in the document.
 ///
 /// Note: This expression can only be used in the `search` stage.
 ///
