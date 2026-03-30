@@ -1982,8 +1982,7 @@ public protocol Expression: Sendable {
   ///
   /// ```swift
   /// // Returns the value of the first non-null, non-absent field among 'preferredName',
-  /// 'fullName',
-  /// // or the last argument if all previous fields are null.
+  /// 'fullName', or the last argument if all previous fields are null.
   /// Field("preferredName").coalesce([Field("fullName"), Constant("Anonymous")])
   /// ```
   ///
