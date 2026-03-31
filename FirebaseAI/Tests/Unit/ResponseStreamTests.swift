@@ -86,7 +86,7 @@
       XCTAssertEqual(snapshots[0].content, "Good chunk")
     }
 
-    #if canImport(FoundationModels)
+    #if canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
       func testResponseStream_throwsIfLastChunkFailsToDecode() async {
         let stream = GenerativeModelSession.ResponseStream<String, String> { context in
           let badRawContent = FirebaseAI.GeneratedContent(kind: .null, id: nil, isComplete: true)
@@ -120,7 +120,7 @@
           }
         }
       }
-    #endif // canImport(FoundationModels)
+    #endif // canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
 
     func testResponseStream_collectReturnsLatestChunk() async throws {
       let stream = GenerativeModelSession.ResponseStream<String, String> { context in
@@ -157,11 +157,11 @@
         "Expected stream to yield at least one snapshot before finishing."
       )
       XCTAssertEqual(lastResult.content, response.content)
-      #if canImport(FoundationModels)
+      #if canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
         if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
           XCTAssertEqual(lastResult.rawContent, response.rawContent)
         }
-      #endif // canImport(FoundationModels)
+      #endif // canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
       XCTAssertEqual(lastResult.rawContent.isComplete, response.rawContent.isComplete)
     }
 
