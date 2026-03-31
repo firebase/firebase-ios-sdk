@@ -1945,6 +1945,51 @@ public protocol Expression: Sendable {
   /// - Returns: A new "FunctionExpression" representing the "ifAbsent" operation.
   func ifAbsent(_ defaultValue: Sendable) -> FunctionExpression
 
+  /// Creates an expression that returns the `else` argument if this expression evaluates to null,
+  /// else return the result of this expression.
+  ///
+  /// This function provides a fallback for both absent and explicit null values. In contrast,
+  /// `ifAbsent` only triggers for missing fields.
+  ///
+  /// ```swift
+  /// // Returns the user's display name, or returns "Anonymous" if the field is null.
+  /// Field("displayName").ifNull("Anonymous")
+  /// ```
+  ///
+  /// - Parameter defaultValue: The `Sendable` value that will be returned if this expression
+  /// evaluates to null.
+  /// - Returns: A new `FunctionExpression` representing the `ifNull` operation.
+  func ifNull(_ defaultValue: Sendable) -> FunctionExpression
+
+  /// Creates an expression that returns the `else` argument if this expression evaluates to null,
+  /// else return the result of this expression.
+  ///
+  /// This function provides a fallback for both absent and explicit null values. In contrast,
+  /// `ifAbsent` only triggers for missing fields.
+  ///
+  /// ```swift
+  /// // Returns the user's preferred name, or if that is null, returns their full name.
+  /// Field("preferredName").ifNull(Field("fullName"))
+  /// ```
+  ///
+  /// - Parameter defaultExpression: The `Expression` that will be evaluated and returned if this
+  /// expression evaluates to null.
+  /// - Returns: A new `FunctionExpression` representing the `ifNull` operation.
+  func ifNull(_ defaultExpression: Expression) -> FunctionExpression
+
+  /// Creates an expression that returns the first non-null, non-absent argument, without evaluating
+  /// the rest of the arguments. When all arguments are null or absent, returns the last argument.
+  ///
+  /// ```swift
+  /// // Returns the value of the first non-null, non-absent field among 'preferredName',
+  /// 'fullName', or the last argument if all previous fields are null.
+  /// Field("preferredName").coalesce([Field("fullName"), Constant("Anonymous")])
+  /// ```
+  ///
+  /// - Parameter values: Optional additional expressions to check if previous ones are null.
+  /// - Returns: A new `FunctionExpression` representing the `coalesce` operation.
+  func coalesce(_ values: [Expression]) -> FunctionExpression
+
   // MARK: Sorting
 
   /// Creates an `Ordering` object that sorts documents in ascending order based on this expression.
