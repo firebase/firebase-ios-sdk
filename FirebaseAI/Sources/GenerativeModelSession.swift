@@ -249,11 +249,11 @@
         )
       }
       let generationID = response.responseID.map {
-        #if canImport(FoundationModels)
+        #if canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
           if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
             return FirebaseAI.GenerationID(responseID: $0, generationID: GenerationID())
           }
-        #endif // canImport(FoundationModels)
+        #endif // canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
 
         return FirebaseAI.GenerationID(responseID: $0, generationID: nil)
       }
@@ -327,13 +327,13 @@
             streamedText.append(text)
             if generationID == nil {
               generationID = chunk.responseID.map {
-                #if canImport(FoundationModels)
+                #if canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
                   if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
                     return FirebaseAI.GenerationID(
                       responseID: $0, generationID: FoundationModels.GenerationID()
                     )
                   }
-                #endif // canImport(FoundationModels)
+                #endif // canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
 
                 return FirebaseAI.GenerationID(responseID: $0, generationID: nil)
               }
@@ -392,7 +392,7 @@
         return try FirebaseAI.GeneratedContent(json: text, id: generationID, isComplete: isComplete)
       }
 
-      #if canImport(FoundationModels)
+      #if canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
         if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
           return FirebaseAI
             .GeneratedContent(
@@ -401,7 +401,7 @@
               isComplete: isComplete
             )
         }
-      #endif // canImport(FoundationModels)
+      #endif // canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
 
       return FirebaseAI.GeneratedContent(
         kind: FirebaseAI.GeneratedContent.Kind.string(text),
@@ -415,13 +415,13 @@
         return content
       }
 
-      #if canImport(FoundationModels)
+      #if canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
         if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *), let contentMetatype = T
           .self as? (any FoundationModels.ConvertibleFromGeneratedContent.Type),
           let content = try contentMetatype.init(rawContent) as? T {
           return content
         }
-      #endif // canImport(FoundationModels)
+      #endif // canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
 
       if let contentMetatype = T.self as? (any FirebaseAI.ConvertibleFromGeneratedContent.Type),
          let content = try contentMetatype.init(rawContent) as? T {
@@ -495,18 +495,52 @@
         @available(iOS 18.0, macOS 15.0, macCatalyst 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
         public mutating func next(isolation actor: isolated (any Actor)?) async throws
           -> Snapshot? {
-          let rawResult = try await rawIterator.next(isolation: actor)
-          return try process(rawResult)
+          var lastDecodingError: Error? = nil
+
+          while let rawResult = try await rawIterator.next(isolation: actor) {
+            do {
+              // If it parses successfully, return the snapshot and discard any errors from previous
+              // loop iterations.
+              return try process(rawResult)
+            } catch {
+              // Intermediate failure (e.g., incomplete JSON that could not be parsed).
+              // Hold onto the error and let the loop fetch the next chunk.
+              lastDecodingError = error
+            }
+          }
+
+          // If the last chunk processed resulted in an error, throw it.
+          if let lastDecodingError {
+            throw lastDecodingError
+          }
+
+          return nil
         }
 
         public mutating func next() async throws -> Snapshot? {
-          let rawResult = try await rawIterator.next()
-          return try process(rawResult)
+          var lastDecodingError: Error? = nil
+
+          while let rawResult = try await rawIterator.next() {
+            do {
+              // If it parses successfully, return the snapshot and discard any errors from previous
+              // loop iterations.
+              return try process(rawResult)
+            } catch {
+              // Intermediate failure (e.g., incomplete JSON that could not be parsed).
+              // Hold onto the error and let the loop fetch the next chunk.
+              lastDecodingError = error
+            }
+          }
+
+          // If the last chunk processed resulted in an error, throw it.
+          if let lastDecodingError {
+            throw lastDecodingError
+          }
+
+          return nil
         }
 
-        private func process(_ rawResult: RawResult?) throws -> Snapshot? {
-          guard let rawResult else { return nil }
-
+        private func process(_ rawResult: RawResult) throws -> Snapshot {
           let partialContent: PartialContent = try GenerativeModelSession
             .resolveContent(from: rawResult.rawContent)
 
@@ -570,6 +604,8 @@
       }
 
       func finish(throwing error: Error) {
+        // TODO: Wrap `FoundationModels.GenerationError` errors into equivalent
+        //       `GenerativeModelSession.GenerationError` values.
         continuation.finish(throwing: error)
         finalize(with: error)
       }
@@ -649,6 +685,7 @@
     static let errorDomain = "\(Constants.baseErrorDomain).\(GenerativeModelSession.self)"
 
     /// An error that occurs during content generation.
+    @nonexhaustive
     public enum GenerationError: Error, LocalizedError {
       /// A context providing more information about the generation error.
       public struct Context: Sendable {

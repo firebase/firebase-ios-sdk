@@ -139,6 +139,45 @@ public protocol Expression: Sendable {
   /// - Returns: A new `FunctionExpression` representing the absolute value of the number.
   func abs() -> FunctionExpression
 
+  /// Creates an expression that returns the value of self truncated to an integer.
+  ///
+  /// ```swift
+  /// // Get the value of the "rating" field truncated to an integer.
+  /// Field("rating").trunc()
+  /// ```
+  ///
+  /// - Returns: A new `FunctionExpression` representing the truncated number.
+  func trunc() -> FunctionExpression
+
+  /// Creates an expression that truncates self to a specified number of decimal places.
+  ///
+  /// If `decimalPlace` is positive, truncates number to the right of the decimal point.
+  /// If `decimalPlace` is negative, truncates number to the left of the decimal point.
+  ///
+  /// ```swift
+  /// // Truncate the value of the "rating" field to 2 decimal places.
+  /// Field("rating").truncToPrecision(2)
+  /// ```
+  ///
+  /// - Parameter decimalPlace: The number of decimal places to truncate to.
+  /// - Returns: A new `FunctionExpression` representing the truncated number.
+  func truncToPrecision(_ decimalPlace: Sendable) -> FunctionExpression
+
+  /// Creates an expression that truncates self to a specified number of decimal places.
+  ///
+  /// If `decimalPlace` is positive, truncates number to the right of the decimal point.
+  /// If `decimalPlace` is negative, truncates number to the left of the decimal point.
+  ///
+  /// ```swift
+  /// // Truncate the value of the "rating" field to the number of decimal places specified in the
+  /// // "precision" field.
+  /// Field("rating").truncToPrecision(Field("precision"))
+  /// ```
+  ///
+  /// - Parameter decimalPlace: The number of decimal places to truncate to as an expression.
+  /// - Returns: A new `FunctionExpression` representing the truncated number.
+  func truncToPrecision(_ decimalPlace: Expression) -> FunctionExpression
+
   /// Creates an expression that adds another expression to this expression.
   /// To add multiple expressions, chain calls to this method.
   /// Assumes `self` and the parameter evaluate to compatible types for addition (e.g., numbers, or
@@ -432,6 +471,78 @@ public protocol Expression: Sendable {
   /// - Returns: A new `FunctionExpression` representing the length of the array.
   func arrayLength() -> FunctionExpression
 
+  /// Creates an expression that returns the first element of an array.
+  /// Assumes `self` evaluates to an array.
+  ///
+  /// ```swift
+  /// // Get the first item in the "tags" array.
+  /// Field("tags").arrayFirst()
+  /// ```
+  ///
+  /// - Returns: A new `FunctionExpression` representing the first element of the array.
+  func arrayFirst() -> FunctionExpression
+
+  /// Creates an expression that returns the first `n` elements of an array.
+  /// Assumes `self` evaluates to an array.
+  ///
+  /// ```swift
+  /// // Get the first 3 items in the "tags" array.
+  /// Field("tags").arrayFirstN(3)
+  /// ```
+  ///
+  /// - Parameter n: The number of elements to return.
+  /// - Returns: A new `FunctionExpression` representing the first `n` elements of the array.
+  func arrayFirstN(_ n: Int) -> FunctionExpression
+
+  /// Creates an expression that returns the first `n` elements of an array.
+  /// Assumes `self` evaluates to an array.
+  ///
+  /// ```swift
+  /// // Get the first n items in the "tags" array where n is specified by field "count".
+  /// Field("tags").arrayFirstN(Field("count"))
+  /// ```
+  ///
+  /// - Parameter n: An `Expression` (evaluating to an Int) representing the number of elements to
+  /// return.
+  /// - Returns: A new `FunctionExpression` representing the first `n` elements of the array.
+  func arrayFirstN(_ n: Expression) -> FunctionExpression
+
+  /// Creates an expression that returns the last element of an array.
+  /// Assumes `self` evaluates to an array.
+  ///
+  /// ```swift
+  /// // Get the last item in the "tags" array.
+  /// Field("tags").arrayLast()
+  /// ```
+  ///
+  /// - Returns: A new `FunctionExpression` representing the last element of the array.
+  func arrayLast() -> FunctionExpression
+
+  /// Creates an expression that returns the last `n` elements of an array.
+  /// Assumes `self` evaluates to an array.
+  ///
+  /// ```swift
+  /// // Get the last 3 items in the "tags" array.
+  /// Field("tags").arrayLastN(3)
+  /// ```
+  ///
+  /// - Parameter n: The number of elements to return.
+  /// - Returns: A new `FunctionExpression` representing the last `n` elements of the array.
+  func arrayLastN(_ n: Int) -> FunctionExpression
+
+  /// Creates an expression that returns the last `n` elements of an array.
+  /// Assumes `self` evaluates to an array.
+  ///
+  /// ```swift
+  /// // Get the last n items in the "tags" array where n is specified by field "count".
+  /// Field("tags").arrayLastN(Field("count"))
+  /// ```
+  ///
+  /// - Parameter n: An `Expression` (evaluating to an Int) representing the number of elements to
+  /// return.
+  /// - Returns: A new `FunctionExpression` representing the last `n` elements of the array.
+  func arrayLastN(_ n: Expression) -> FunctionExpression
+
   /// Creates an expression that accesses an element in an array (from `self`) at the specified
   /// integer offset.
   /// A negative offset starts from the end. If the offset is out of bounds, an error may be
@@ -466,6 +577,84 @@ public protocol Expression: Sendable {
   /// - Returns: A new `FunctionExpression` representing the "arrayGet" operation.
   func arrayGet(_ offsetExpression: Expression) -> FunctionExpression
 
+  /// Creates an expression that returns the index of the first occurrence of a value in an array.
+  /// Returns nil if the value is not found.
+  /// Assumes `self` evaluates to an array.
+  ///
+  /// ```swift
+  /// // Get the index of "urgent" in the "tags" array.
+  /// Field("tags").arrayIndexOf("urgent")
+  /// ```
+  ///
+  /// - Parameter value: The literal `Sendable` value to search for.
+  /// - Returns: A new `FunctionExpression` representing the index of the value.
+  func arrayIndexOf(_ value: Sendable) -> FunctionExpression
+
+  /// Creates an expression that returns the index of the first occurrence of a value in an array.
+  /// Returns nil if the value is not found.
+  /// Assumes `self` evaluates to an array.
+  ///
+  /// ```swift
+  /// // Get the index of the value of field "searchTag" in the "tags" array.
+  /// Field("tags").arrayIndexOf(Field("searchTag"))
+  /// ```
+  ///
+  /// - Parameter value: An `Expression` representing the value to search for.
+  /// - Returns: A new `FunctionExpression` representing the index of the value.
+  func arrayIndexOf(_ value: Expression) -> FunctionExpression
+
+  /// Creates an expression that returns the index of the last occurrence of a value in an array.
+  /// Returns nil if the value is not found.
+  /// Assumes `self` evaluates to an array.
+  ///
+  /// ```swift
+  /// // Get the last index of "urgent" in the "tags" array.
+  /// Field("tags").arrayLastIndexOf("urgent")
+  /// ```
+  ///
+  /// - Parameter value: The literal `Sendable` value to search for.
+  /// - Returns: A new `FunctionExpression` representing the last index of the value.
+  func arrayLastIndexOf(_ value: Sendable) -> FunctionExpression
+
+  /// Creates an expression that returns the index of the last occurrence of a value in an array.
+  /// Returns nil if the value is not found.
+  /// Assumes `self` evaluates to an array.
+  ///
+  /// ```swift
+  /// // Get the last index of the value of field "searchTag" in the "tags" array.
+  /// Field("tags").arrayLastIndexOf(Field("searchTag"))
+  /// ```
+  ///
+  /// - Parameter value: An `Expression` representing the value to search for.
+  /// - Returns: A new `FunctionExpression` representing the last index of the value.
+  func arrayLastIndexOf(_ value: Expression) -> FunctionExpression
+
+  /// Creates an expression that returns all indices of a value in an array.
+  /// Returns an empty array if the value is not found.
+  /// Assumes `self` evaluates to an array.
+  ///
+  /// ```swift
+  /// // Get all indices of "urgent" in the "tags" array.
+  /// Field("tags").arrayIndexOfAll("urgent")
+  /// ```
+  ///
+  /// - Parameter value: The literal `Sendable` value to search for.
+  /// - Returns: A new `FunctionExpression` representing the indices of the value.
+  func arrayIndexOfAll(_ value: Sendable) -> FunctionExpression
+
+  /// Creates an expression that returns all indices of a value in an array.
+  /// Returns an empty array if the value is not found.
+  /// Assumes `self` evaluates to an array.
+  ///
+  /// ```swift
+  /// // Get all indices of the value of field "searchTag" in the "tags" array.
+  /// Field("tags").arrayIndexOfAll(Field("searchTag"))
+  /// ```
+  ///
+  /// - Parameter value: An `Expression` representing the value to search for.
+  /// - Returns: A new `FunctionExpression` representing the indices of the value.
+  func arrayIndexOfAll(_ value: Expression) -> FunctionExpression
+
   /// Creates an expression that returns the maximum element of an array.
   ///
   /// Assumes `self` evaluates to an array.
@@ -489,6 +678,56 @@ public protocol Expression: Sendable {
   ///
   /// - Returns: A new `FunctionExpression` representing the minimum element of the array.
   func arrayMinimum() -> FunctionExpression
+
+  /// Creates an expression that returns the `n` smallest elements of an array.
+  /// Assumes `self` evaluates to an array.
+  ///
+  /// ```swift
+  /// // Get the 3 lowest scores in the "scores" array.
+  /// Field("scores").arrayMinimumN(3)
+  /// ```
+  ///
+  /// - Parameter n: The number of elements to return.
+  /// - Returns: A new `FunctionExpression` representing the `n` smallest elements of the array.
+  func arrayMinimumN(_ n: Int) -> FunctionExpression
+
+  /// Creates an expression that returns the `n` smallest elements of an array.
+  /// Assumes `self` evaluates to an array.
+  ///
+  /// ```swift
+  /// // Get the n lowest scores in the "scores" array where n is specified by field "count".
+  /// Field("scores").arrayMinimumN(Field("count"))
+  /// ```
+  ///
+  /// - Parameter n: An `Expression` (evaluating to an Int) representing the number of elements to
+  /// return.
+  /// - Returns: A new `FunctionExpression` representing the `n` smallest elements of the array.
+  func arrayMinimumN(_ n: Expression) -> FunctionExpression
+
+  /// Creates an expression that returns the `n` largest elements of an array.
+  /// Assumes `self` evaluates to an array.
+  ///
+  /// ```swift
+  /// // Get the 3 highest scores in the "scores" array.
+  /// Field("scores").arrayMaximumN(3)
+  /// ```
+  ///
+  /// - Parameter n: The number of elements to return.
+  /// - Returns: A new `FunctionExpression` representing the `n` largest elements of the array.
+  func arrayMaximumN(_ n: Int) -> FunctionExpression
+
+  /// Creates an expression that returns the `n` largest elements of an array.
+  /// Assumes `self` evaluates to an array.
+  ///
+  /// ```swift
+  /// // Get the n highest scores in the "scores" array where n is specified by field "count".
+  /// Field("scores").arrayMaximumN(Field("count"))
+  /// ```
+  ///
+  /// - Parameter n: An `Expression` (evaluating to an Int) representing the number of elements to
+  /// return.
+  /// - Returns: A new `FunctionExpression` representing the `n` largest elements of the array.
+  func arrayMaximumN(_ n: Expression) -> FunctionExpression
 
   /// Creates a `BooleanExpression` that returns `true` if this expression is greater
   /// than the given expression.
@@ -1121,6 +1360,18 @@ public protocol Expression: Sendable {
 
   // MARK: Map Operations
 
+  /// Creates an expression that accesses a field on this expression using a string key.
+  ///
+  /// - Parameter key: The string key to access.
+  /// - Returns: A new `FunctionExpression` representing the field access.
+  func getField(_ key: String) -> FunctionExpression
+
+  /// Creates an expression that accesses a field on this expression using a dynamic key expression.
+  ///
+  /// - Parameter expression: The expression evaluating to a key to access.
+  /// - Returns: A new `FunctionExpression` representing the field access.
+  func getField(_ expression: Expression) -> FunctionExpression
+
   /// Accesses a value from a map (object) field using the provided literal string key.
   /// Assumes `self` evaluates to a Map.
   ///
@@ -1186,6 +1437,88 @@ public protocol Expression: Sendable {
   /// - Parameter maps: Additional `Expression` (evaluating to Maps) to merge.
   /// - Returns: A new `FunctionExpression` representing the "map_merge" operation.
   func mapMerge(_ maps: [Expression]) -> FunctionExpression
+
+  /// Creates an expression that returns a new map with the specified entries added or updated.
+  /// Assumes `self` evaluates to a Map.
+  ///
+  /// - Only performs shallow updates to the map.
+  /// - Setting a value to `nil` will retain the key with a `nil` value. To remove
+  ///   a key entirely, use `mapRemove`.
+  ///
+  /// ```swift
+  /// // Set the 'category' key to the value of the 'newCategory' field.
+  /// Field("metadata").mapSet(Field("keyField"), Field("newCategory"))
+  /// ```
+  ///
+  /// - Parameters:
+  ///   - key: An `Expression` representing the key to set.
+  ///   - value: An `Expression` representing the value to set.
+  ///   - moreKeyValues: Additional alternating key-value `Expression` pairs to set.
+  /// - Returns: A new `FunctionExpression` representing the map with the entries set.
+  func mapSet(_ key: Expression, _ value: Expression, _ moreKeyValues: Expression...)
+    -> FunctionExpression
+
+  /// Creates an expression that returns a new map with the specified entries added or updated.
+  /// Assumes `self` evaluates to a Map.
+  ///
+  /// - Only performs shallow updates to the map.
+  /// - Setting a value to `nil` will retain the key with a `nil` value. To remove
+  ///   a key entirely, use `mapRemove`.
+  ///
+  /// ```swift
+  /// // Set the 'category' key to "Electronics" and 'active' to true.
+  /// Field("metadata").mapSet("category", "Electronics", "active", true)
+  /// ```
+  ///
+  /// - Parameters:
+  ///   - key: A literal string key to set.
+  ///   - value: A `Sendable` value to set.
+  ///   - moreKeyValues: Additional alternating key-value `Sendable` pairs to set.
+  /// - Returns: A new `FunctionExpression` representing the map with the entries set.
+  func mapSet(_ key: String, _ value: Sendable, _ moreKeyValues: Sendable...) -> FunctionExpression
+
+  /// Creates an expression that returns the keys of this map expression.
+  /// Assumes `self` evaluates to a Map.
+  ///
+  /// While the backend generally preserves insertion order, relying on the order of the output
+  /// array is not guaranteed and should be avoided.
+  ///
+  /// ```swift
+  /// // Get the keys of the 'metadata' map field.
+  /// Field("metadata").mapKeys()
+  /// ```
+  ///
+  /// - Returns: A new `FunctionExpression` representing the keys of the map.
+  func mapKeys() -> FunctionExpression
+
+  /// Creates an expression that returns the values of this map expression.
+  /// Assumes `self` evaluates to a Map.
+  ///
+  /// While the backend generally preserves insertion order, relying on the order of the output
+  /// array is not guaranteed and should be avoided.
+  ///
+  /// ```swift
+  /// // Get the values of the 'metadata' map field.
+  /// Field("metadata").mapValues()
+  /// ```
+  ///
+  /// - Returns: A new `FunctionExpression` representing the values of the map.
+  func mapValues() -> FunctionExpression
+
+  /// Creates an expression that returns the entries of this map expression as an array of maps,
+  /// where each map contains a "k" property for the key and a "v" property for the value.
+  /// Assumes `self` evaluates to a Map.
+  ///
+  /// While the backend generally preserves insertion order, relying on the order of the output
+  /// array is not guaranteed and should be avoided.
+  ///
+  /// ```swift
+  /// // Get the entries of the 'metadata' map field.
+  /// Field("metadata").mapEntries()
+  /// ```
+  ///
+  /// - Returns: A new `FunctionExpression` representing the entries of the map.
+  func mapEntries() -> FunctionExpression
 
   // MARK: Aggregations
 
@@ -1255,6 +1588,56 @@ public protocol Expression: Sendable {
   ///
   /// - Returns: A new `AggregateFunction` representing the "max" aggregation.
   func maximum() -> AggregateFunction
+
+  /// Creates an aggregation that finds the first value of this expression across multiple stage
+  /// inputs.
+  ///
+  /// ```swift
+  /// // Find the first rating
+  /// Field("rating").first().as("firstRating")
+  /// ```
+  ///
+  /// - Returns: A new `AggregateFunction` representing the "first" aggregation.
+  func first() -> AggregateFunction
+
+  /// Creates an aggregation that finds the last value of this expression across multiple stage
+  /// inputs.
+  ///
+  /// ```swift
+  /// // Find the last rating
+  /// Field("rating").last().as("lastRating")
+  /// ```
+  ///
+  /// - Returns: A new `AggregateFunction` representing the "last" aggregation.
+  func last() -> AggregateFunction
+
+  /// Creates an aggregation that collects all values of this expression across multiple stage
+  /// inputs into an array.
+  ///
+  /// If the expression resolves to an absent value, it is converted to `null`.
+  /// The order of elements in the output array is not stable and shouldn't be relied upon.
+  ///
+  /// ```swift
+  /// // Collect all tags into an array
+  /// Field("tags").arrayAgg().as("allTags")
+  /// ```
+  ///
+  /// - Returns: A new `AggregateFunction` representing the "array_agg" aggregation.
+  func arrayAgg() -> AggregateFunction
+
+  /// Creates an aggregation that collects all distinct values of this expression across multiple
+  /// stage inputs into an array.
+  ///
+  /// If the expression resolves to an absent value, it is converted to `null`.
+  /// The order of elements in the output array is not stable and shouldn't be relied upon.
+  ///
+  /// ```swift
+  /// // Collect all distinct tags into an array
+  /// Field("tags").arrayAggDistinct().as("allDistinctTags")
+  /// ```
+  ///
+  /// - Returns: A new `AggregateFunction` representing the "array_agg_distinct" aggregation.
+  func arrayAggDistinct() -> AggregateFunction
 
   /// Creates an expression that returns the larger value between this expression and other
   /// expressions, based on Firestore"s value type ordering.
@@ -1528,6 +1911,127 @@ public protocol Expression: Sendable {
   /// - Returns: A new `FunctionExpression` representing the truncated timestamp.
   func timestampTruncate(granularity: Sendable) -> FunctionExpression
 
+  /// Creates an expression that truncates a timestamp to a specified granularity with a specified
+  /// timezone.
+  /// Assumes `self` evaluates to a Timestamp.
+  ///
+  /// ```swift
+  /// // Truncate "timestamp" field to the nearest day in Los Angeles timezone.
+  /// Field("timestamp").timestampTruncate(granularity: .day, timezone: "America/Los_Angeles")
+  /// ```
+  ///
+  /// - Parameter granularity: A `TimeGranularity` representing the truncation unit.
+  /// - Parameter timezone: A `Sendable` literal string or an `Expression` representing the
+  /// timezone.
+  /// - Returns: A new `FunctionExpression` representing the truncated timestamp.
+  func timestampTruncate(granularity: TimeGranularity, timezone: Sendable) -> FunctionExpression
+
+  /// Creates an expression that truncates a timestamp to a specified granularity with a specified
+  /// timezone.
+  /// Assumes `self` evaluates to a Timestamp.
+  ///
+  /// ```swift
+  /// // Truncate "timestamp" field to the nearest day in Los Angeles timezone using a literal
+  /// // string.
+  /// Field("timestamp").timestampTruncate(granularity: "day", timezone: "America/Los_Angeles")
+  /// ```
+  ///
+  /// ```swift
+  /// // Truncate "timestamp" field to the granularity specified by "granularity_field" in the
+  /// // timezone specified by "timezone_field" using expressions.
+  /// Field("timestamp").timestampTruncate(
+  ///   granularity: Field("granularity_field"),
+  ///   timezone: Field("timezone_field")
+  /// )
+  /// ```
+  ///
+  /// - Parameter granularity: A `Sendable` literal string or an `Expression` representing the
+  /// truncation unit.
+  /// - Parameter timezone: A `Sendable` literal string or an `Expression` representing the
+  /// timezone.
+  /// - Returns: A new `FunctionExpression` representing the truncated timestamp.
+  func timestampTruncate(granularity: Sendable, timezone: Sendable) -> FunctionExpression
+
+  /// Calculates the difference between this timestamp and another timestamp.
+  ///
+  /// ```swift
+  /// // Calculate the difference in days between "endAt" (self) and a start field using a typed
+  /// // unit.
+  /// Field("endAt").timestampDiff(Field("startAt"), .day)
+  /// ```
+  ///
+  /// - Parameter start: An `Expression` representing the starting timestamp.
+  /// - Parameter unit: A `TimeUnit` representing the unit of time for the difference.
+  /// - Returns: A new `FunctionExpression` representing the difference.
+  func timestampDiff(_ start: Expression, _ unit: TimeUnit) -> FunctionExpression
+
+  /// Calculates the difference between this timestamp and another timestamp.
+  ///
+  /// ```swift
+  /// // Calculate the difference in days between "endAt" (self) and a start field using a string
+  /// // unit.
+  /// Field("endAt").timestampDiff(Field("startAt"), "day")
+  /// ```
+  ///
+  /// - Parameter start: An `Expression` representing the starting timestamp.
+  /// - Parameter unit: A `Sendable` literal string or an `Expression` representing the unit of
+  /// time.
+  /// - Returns: A new `FunctionExpression` representing the difference.
+  func timestampDiff(_ start: Expression, _ unit: Sendable) -> FunctionExpression
+
+  /// Creates an expression that extracts a specified part from this timestamp expression.
+  ///
+  /// ```swift
+  /// // Extract the day from the "timestamp" field.
+  /// Field("timestamp").timestampExtract(part: .day)
+  /// ```
+  ///
+  /// - Parameter part: A `TimePart` representing the part to extract.
+  /// - Returns: A new `FunctionExpression` representing the extracted part.
+  func timestampExtract(part: TimePart) -> FunctionExpression
+
+  /// Creates an expression that extracts a specified part from this timestamp expression using a
+  /// literal or expression.
+  ///
+  /// ```swift
+  /// // Extract the day from the "timestamp" field using a string.
+  /// Field("timestamp").timestampExtract(part: "day")
+  /// ```
+  ///
+  /// - Parameter part: A `Sendable` literal string or an `Expression` representing the part to
+  /// extract.
+  /// - Returns: A new `FunctionExpression` representing the extracted part.
+  func timestampExtract(part: Sendable) -> FunctionExpression
+
+  /// Creates an expression that extracts a specified part from this timestamp expression in a given
+  /// timezone.
+  ///
+  /// ```swift
+  /// // Extract the day from the "timestamp" field in Los Angeles timezone.
+  /// Field("timestamp").timestampExtract(part: .day, timezone: "America/Los_Angeles")
+  /// ```
+  ///
+  /// - Parameter part: A `TimePart` representing the part to extract.
+  /// - Parameter timezone: A `Sendable` literal string or an `Expression` representing the
+  /// timezone.
+  /// - Returns: A new `FunctionExpression` representing the extracted part.
+  func timestampExtract(part: TimePart, timezone: Sendable) -> FunctionExpression
+
+  /// Creates an expression that extracts a specified part from this timestamp expression in a given
+  /// timezone using a literal or expression.
+  ///
+  /// ```swift
+  /// // Extract the day from the "timestamp" field in Los Angeles timezone using a string.
+  /// Field("timestamp").timestampExtract(part: "day", timezone: "America/Los_Angeles")
+  /// ```
+  ///
+  /// - Parameter part: A `Sendable` literal string or an `Expression` representing the part to
+  /// extract.
+  /// - Parameter timezone: A `Sendable` literal string or an `Expression` representing the
+  /// timezone.
+  /// - Returns: A new `FunctionExpression` representing the extracted part.
+  func timestampExtract(part: Sendable, timezone: Sendable) -> FunctionExpression
+
   /// Creates an expression that adds a specified amount of time to this timestamp expression,
   /// where unit and amount are provided as literals.
   /// Assumes `self` evaluates to a Timestamp.
@@ -1644,6 +2148,51 @@ public protocol Expression: Sendable {
   /// - Returns: A new "FunctionExpression" representing the "ifAbsent" operation.
   func ifAbsent(_ defaultValue: Sendable) -> FunctionExpression
 
+  /// Creates an expression that returns the `else` argument if this expression evaluates to null,
+  /// else return the result of this expression.
+  ///
+  /// This function provides a fallback for both absent and explicit null values. In contrast,
+  /// `ifAbsent` only triggers for missing fields.
+  ///
+  /// ```swift
+  /// // Returns the user's display name, or returns "Anonymous" if the field is null.
+  /// Field("displayName").ifNull("Anonymous")
+  /// ```
+  ///
+  /// - Parameter defaultValue: The `Sendable` value that will be returned if this expression
+  /// evaluates to null.
+  /// - Returns: A new `FunctionExpression` representing the `ifNull` operation.
+  func ifNull(_ defaultValue: Sendable) -> FunctionExpression
+
+  /// Creates an expression that returns the `else` argument if this expression evaluates to null,
+  /// else return the result of this expression.
+  ///
+  /// This function provides a fallback for both absent and explicit null values. In contrast,
+  /// `ifAbsent` only triggers for missing fields.
+  ///
+  /// ```swift
+  /// // Returns the user's preferred name, or if that is null, returns their full name.
+  /// Field("preferredName").ifNull(Field("fullName"))
+  /// ```
+  ///
+  /// - Parameter defaultExpression: The `Expression` that will be evaluated and returned if this
+  /// expression evaluates to null.
+  /// - Returns: A new `FunctionExpression` representing the `ifNull` operation.
+  func ifNull(_ defaultExpression: Expression) -> FunctionExpression
+
+  /// Creates an expression that returns the first non-null, non-absent argument, without evaluating
+  /// the rest of the arguments. When all arguments are null or absent, returns the last argument.
+  ///
+  /// ```swift
+  /// // Returns the value of the first non-null, non-absent field among 'preferredName',
+  /// 'fullName', or the last argument if all previous fields are null.
+  /// Field("preferredName").coalesce([Field("fullName"), Constant("Anonymous")])
+  /// ```
+  ///
+  /// - Parameter values: Optional additional expressions to check if previous ones are null.
+  /// - Returns: A new `FunctionExpression` representing the `coalesce` operation.
+  func coalesce(_ values: [Expression]) -> FunctionExpression
+
   // MARK: Sorting
 
   /// Creates an `Ordering` object that sorts documents in ascending order based on this expression.
@@ -1689,4 +2238,21 @@ public protocol Expression: Sendable {
   ///
   /// - Returns: A new `FunctionExpression` representing the type of the expression as a string.
   func type() -> FunctionExpression
+
+  /// Creates an expression that checks if the result of this expression is of the given type.
+  ///
+  /// Supported values for `type` are: `"null"`, `"array"`, `"boolean"`, `"bytes"`, `"timestamp"`,
+  /// `"geo_point"`, `"number"`, `"int32"`, `"int64"`, `"float64"`, `"decimal128"`, `"map"`,
+  /// `"reference"`, `"string"`,
+  /// `"vector"`, `"max_key"`, `"min_key"`, `"object_id"`, `"regex"`, and `"request_timestamp"`.
+  ///
+  /// ```swift
+  /// // Check if the "age" field is an integer
+  /// Field("age").isType("int64")
+  /// ```
+  ///
+  /// - Parameter type: The type to check for.
+  /// - Returns: A new `BooleanExpression` that evaluates to true if the expression's result is of
+  ///     the given type, false otherwise.
+  func isType(_ type: String) -> BooleanExpression
 }

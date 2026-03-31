@@ -43,6 +43,10 @@ struct BooleanFunctionExpression: BooleanExpression, BridgeWrapper {
   init(functionName: String, args: [Expression]) {
     expr = FunctionExpression(functionName: functionName, args: args)
   }
+
+  var errorMessage: String? {
+    return expr.errorMessage
+  }
 }
 
 struct BooleanConstant: BooleanExpression, BridgeWrapper {
@@ -149,6 +153,48 @@ public prefix func ! (lhs: BooleanExpression) -> BooleanExpression {
   return BooleanFunctionExpression(functionName: "not", args: [lhs])
 }
 
+/// Combines given boolean expressions with a logical NOR (`nor`).
+///
+/// The resulting expression is `true` only if all of the provided expressions are `false`.
+///
+/// ```swift
+/// // Find books that are neither "Fantasy" nor have a rating > 4.5
+/// firestore.pipeline()
+///   .collection("books")
+///   .where(nor(Field("genre").equal("Fantasy"), Field("rating").greaterThan(4.5)))
+/// ```
+///
+/// - Parameter condition: The first boolean expression.
+/// - Parameter conditions: Additional boolean expressions.
+/// - Returns: A new `BooleanExpression` representing the logical NOR.
+public func nor(_ condition: BooleanExpression,
+                _ conditions: BooleanExpression...) -> BooleanExpression {
+  var args = [condition]
+  args.append(contentsOf: conditions)
+  return BooleanFunctionExpression(functionName: "nor", args: args)
+}
+
+/// Combines given boolean expressions with a logical NOR (`nor`).
+///
+/// The resulting expression is `true` only if all of the provided expressions are `false`.
+///
+/// ```swift
+/// // Find books that are neither "Fantasy" nor have a rating > 4.5
+/// let conditions: [BooleanExpression] = [
+///   Field("genre").equal("Fantasy"),
+///   Field("rating").greaterThan(4.5)
+/// ]
+/// firestore.pipeline()
+///   .collection("books")
+///   .where(nor(conditions))
+/// ```
+///
+/// - Parameter conditions: An array of boolean expressions. Must contain at least 2 expressions.
+/// - Returns: A new `BooleanExpression` representing the logical NOR.
+public func nor(_ conditions: [BooleanExpression]) -> BooleanExpression {
+  return BooleanFunctionExpression(functionName: "nor", args: conditions)
+}
+
 public extension BooleanExpression {
   /// Creates an aggregation that counts the number of documents for which this boolean expression
   /// evaluates to `true`.
@@ -169,34 +215,5 @@ public extension BooleanExpression {
   /// - Returns: An `AggregateFunction` that performs the conditional count.
   func countIf() -> AggregateFunction {
     return AggregateFunction(functionName: "count_if", args: [self])
-  }
-
-  /// Creates a conditional expression that returns one of two specified expressions based on the
-  /// result of this boolean expression.
-  ///
-  /// This is equivalent to a ternary operator (`condition ? then : else`).
-  ///
-  /// ```swift
-  /// // Create a new field "status" based on the "rating" field.
-  /// // If rating > 4.5, status is "top_rated", otherwise "regular".
-  /// firestore.pipeline()
-  ///   .collection("products")
-  ///   .addFields([
-  ///     Field("rating").greaterThan(4.5)
-  ///       .then(Constant("top_rated"), else: Constant("regular"))
-  ///       .as("status")
-  ///   ])
-  /// ```
-  ///
-  /// - Parameters:
-  ///   - thenExpression: The `Expression` to evaluate if this boolean expression is `true`.
-  ///   - elseExpression: The `Expression` to evaluate if this boolean expression is `false`.
-  /// - Returns: A new `FunctionExpression` representing the conditional logic.
-  func then(_ thenExpression: Expression,
-            else elseExpression: Expression) -> FunctionExpression {
-    return FunctionExpression(
-      functionName: "conditional",
-      args: [self, thenExpression, elseExpression]
-    )
   }
 }

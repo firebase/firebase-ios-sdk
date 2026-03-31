@@ -1,3 +1,14 @@
+# 12.12.0
+- [fixed] Updated `GenerativeModelSession` to handle intermediate JSON decoding
+  failures when streaming structured data. (#15960)
+- [changed] **Breaking Change**: `GenerativeModelSession.GenerationError` is now
+  marked `@nonexhaustive` to support additional cases in a non-breaking manner.
+  If switching on `GenerativeModelSession.GenerationError`, you must add an
+  [`@unknown default:`](https://github.com/swiftlang/swift-evolution/blob/main/proposals/0192-non-exhaustive-enums.md#unknown)
+  case to your `switch` statement. (#16011)
+- [deprecated] All Imagen models are deprecated and will shut down as early as June 2026.
+  As a replacement, you can [migrate your apps to use Gemini Image models (the "Nano Banana" models)](https://firebase.google.com/docs/ai-logic/imagen-models-migration).
+
 # 12.11.0
 - [feature] **Public Preview**: Introduces `GenerativeModelSession` providing
   APIs for generating structured data from Gemini via the same `@Generable` and

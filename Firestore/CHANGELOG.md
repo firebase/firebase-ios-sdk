@@ -1,8 +1,19 @@
 # Unreleased
 - [changed] Drop C++14 support, Firestore SDK now requires at least C++17.
+- [feature] Added support for `timestampTruncate`, `timestampDiff`, and `timestampExtract` Pipeline expressions. (#15984)
+- [feature] Added support for Firestore Pipeline Subqueries and scope bridging with `Subcollection`, `define()`, `toArrayExpression()`, `toScalarExpression()`, `Variable`, and `CurrentDocument` APIs.
+- [feature] Added support for Pipeline expressions `nor` and `switchOn`. (#15943)
+- [feature] Added support for Pipeline expressions `ifNull` and `coalesce`. (#15989)
+- [feature] Added support for Pipeline expression `isType`.
+- [feature] Added support for Pipeline expressions `mapSet`, `mapKeys`, `mapEntries`, `mapValues`.
 
 # 12.11.0
+- [removed] **Breaking change:** Removed the `then(_:else:)` Beta API in `BooleanExpression` from the Pipeline Swift API. Use `ConditionalExpression` instead. (#15926)
+- [feature] Added support for `first`, `last`, `arrayAgg`, and `arrayAggDistinct` Pipeline expressions. (#15941)
+- [feature] Added support for `trunc` and `rand` Pipeline expressions. (#15938)
 - [changed] Minor refactor to avoid using an absl internal function. (#15889)
+- [feature] Added support for Pipeline expressions `arrayFirst`, `arrayFirstN`, `arrayLast`,
+  `arrayLastN`, `arrayMinimumN`, `arrayMaximumN`, `arrayIndexOf`, `arrayLastIndexOf` and `arrayIndexOfAll`. (#15900)
 
 # 12.10.0
 - [feature] Added support for `regexFind` and `regexFindAll` Pipeline expressions.
