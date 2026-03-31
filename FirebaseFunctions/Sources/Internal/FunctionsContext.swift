@@ -44,14 +44,20 @@ struct FunctionsContextProvider: Sendable {
     let appCheckToken = Task { await getAppCheckToken(options: options) }
     let limitedUseAppCheckToken = Task { await getLimitedUseAppCheckToken(options: options) }
 
-    // Only `authToken` is throwing, but the formatter script removes the `try`
-    // from `try authToken` and puts it in front of the initializer call.
-    return try FunctionsContext(
-      authToken: await authToken.value,
-      fcmToken: messaging?.fcmToken,
-      appCheckToken: await appCheckToken.value,
-      limitedUseAppCheckToken: await limitedUseAppCheckToken.value
-    )
+    return await try withTaskCancellationHandler {
+      // Only `authToken` is throwing, but the formatter script removes the `try`
+      // from `try authToken` and puts it in front of the initializer call.
+      try FunctionsContext(
+        authToken: await authToken.value,
+        fcmToken: messaging?.fcmToken,
+        appCheckToken: await appCheckToken.value,
+        limitedUseAppCheckToken: await limitedUseAppCheckToken.value
+      )
+    } onCancel: {
+      authToken.cancel()
+      appCheckToken.cancel()
+      limitedUseAppCheckToken.cancel()
+    }
   }
 
   private func getAppCheckToken(options: HTTPSCallableOptions?) async -> String? {
