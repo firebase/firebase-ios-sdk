@@ -1439,6 +1439,7 @@ public protocol Expression: Sendable {
   func mapMerge(_ maps: [Expression]) -> FunctionExpression
 
   /// Creates an expression that returns a new map with the specified entries added or updated.
+  /// Assumes `self` evaluates to a Map.
   ///
   /// - Only performs shallow updates to the map.
   /// - Setting a value to `nil` will retain the key with a `nil` value. To remove
@@ -1458,6 +1459,7 @@ public protocol Expression: Sendable {
     -> FunctionExpression
 
   /// Creates an expression that returns a new map with the specified entries added or updated.
+  /// Assumes `self` evaluates to a Map.
   ///
   /// - Only performs shallow updates to the map.
   /// - Setting a value to `nil` will retain the key with a `nil` value. To remove
@@ -1476,6 +1478,7 @@ public protocol Expression: Sendable {
   func mapSet(_ key: String, _ value: Sendable, _ moreKeyValues: Sendable...) -> FunctionExpression
 
   /// Creates an expression that returns the keys of this map expression.
+  /// Assumes `self` evaluates to a Map.
   ///
   /// While the backend generally preserves insertion order, relying on the order of the output
   /// array is not guaranteed and should be avoided.
@@ -1489,6 +1492,7 @@ public protocol Expression: Sendable {
   func mapKeys() -> FunctionExpression
 
   /// Creates an expression that returns the values of this map expression.
+  /// Assumes `self` evaluates to a Map.
   ///
   /// While the backend generally preserves insertion order, relying on the order of the output
   /// array is not guaranteed and should be avoided.
@@ -1503,6 +1507,7 @@ public protocol Expression: Sendable {
 
   /// Creates an expression that returns the entries of this map expression as an array of maps,
   /// where each map contains a "k" property for the key and a "v" property for the value.
+  /// Assumes `self` evaluates to a Map.
   ///
   /// While the backend generally preserves insertion order, relying on the order of the output
   /// array is not guaranteed and should be avoided.

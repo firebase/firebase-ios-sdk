@@ -2775,7 +2775,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testMapSet() async throws {
-    let collRef = collectionRef(withDocuments: ["doc1": ["dummy": 1]])
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -2826,7 +2826,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testMapKeys() async throws {
-    let collRef = collectionRef(withDocuments: ["doc1": ["dummy": 1]])
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -2863,7 +2863,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testMapValues() async throws {
-    let collRef = collectionRef(withDocuments: ["doc1": ["dummy": 1]])
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -2900,7 +2900,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testMapEntries() async throws {
-    let collRef = collectionRef(withDocuments: ["doc1": ["dummy": 1]])
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
