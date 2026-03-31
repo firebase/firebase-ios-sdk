@@ -20,7 +20,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-FOUNDATION_EXTERN FPRCPUGaugeData *fprCollectCPUMetric(void);
+FOUNDATION_EXTERN FPRCPUGaugeData *_Nullable fprCollectCPUMetric(void);
 
 /** This extension should only be used for testing. */
 @interface FPRCPUGaugeCollector ()

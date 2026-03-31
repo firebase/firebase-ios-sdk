@@ -1,4 +1,4 @@
-# Unreleased
+# Firebase 12.12.0
 - [changed] Firebase now requires at least Xcode 26.2 and the Swift
   6.2.3+ toolchain. See https://developer.apple.com/news/?id=ueeok6yw for
   more info.

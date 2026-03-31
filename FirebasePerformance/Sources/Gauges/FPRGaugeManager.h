@@ -72,7 +72,7 @@ NS_EXTENSION_UNAVAILABLE("Firebase Performance is not supported for extensions."
  *
  * @param gaugeMetric Gauge metric that needs to be dispatched.
  */
-- (void)dispatchMetric:(id)gaugeMetric;
+- (void)dispatchMetric:(nullable id)gaugeMetric;
 
 @end
 
