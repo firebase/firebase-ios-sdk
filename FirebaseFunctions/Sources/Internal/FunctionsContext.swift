@@ -47,11 +47,11 @@ struct FunctionsContextProvider: Sendable {
     return await try withTaskCancellationHandler {
       // Only `authToken` is throwing, but the formatter script removes the `try`
       // from `try authToken` and puts it in front of the initializer call.
-      try FunctionsContext(
-        authToken: await authToken.value,
+      try await FunctionsContext(
+        authToken: authToken.value,
         fcmToken: messaging?.fcmToken,
-        appCheckToken: await appCheckToken.value,
-        limitedUseAppCheckToken: await limitedUseAppCheckToken.value
+        appCheckToken: appCheckToken.value,
+        limitedUseAppCheckToken: limitedUseAppCheckToken.value
       )
     } onCancel: {
       authToken.cancel()
