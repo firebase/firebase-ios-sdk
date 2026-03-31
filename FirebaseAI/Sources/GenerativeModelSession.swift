@@ -328,6 +328,7 @@
 
           var currentParts = initialParts
           var generationID: FirebaseAI.GenerationID?
+          var autoFunctionCallTurns = 0
 
           functionCallingLoop: while true {
             let stream = try self.session.sendMessageStream(currentParts, generationConfig: config)
@@ -395,6 +396,17 @@
 
             // Stream for the current turn finished. Check if there are function calls to handle.
             if !functionCalls.isEmpty {
+              guard autoFunctionCallTurns < GenerativeModelSession.maxAutoFunctionCallTurns else {
+                throw GenerationError.internalError(
+                  GenerationError.Context(
+                    debugDescription: """
+                    The model exceeded the maximum allowed automatic function call iterations \
+                    (\(GenerativeModelSession.maxAutoFunctionCallTurns)).
+                    """
+                  ),
+                  underlyingError: FunctionCallingError.maxFunctionCallTurnsExceeded
+                )
+              }
               let functionResponses = try await self.execute(functionCalls: functionCalls)
 
               if !functionResponses.isEmpty {
@@ -415,6 +427,7 @@
                 }
 
                 currentParts = [ModelContent(role: "user", parts: functionResponses)]
+                autoFunctionCallTurns += 1
                 continue functionCallingLoop
               }
             }
