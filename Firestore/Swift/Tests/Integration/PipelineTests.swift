@@ -3845,6 +3845,41 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     )
   }
 
+  func testSupportsParent() async throws {
+    let db = firestore()
+    let randomCol = collectionRef()
+
+    let docRef = randomCol.document("book4").collection("reviews").document("review1")
+    try await docRef.setData(["foo": "bar"])
+
+    let pipeline = db.pipeline()
+      .collection(randomCol.path)
+      .limit(1)
+      .select([
+        Constant(docRef).parent().as("parentRefStatic"),
+        Constant(docRef).parent().as("parentRefInstance"),
+      ])
+      .select([
+        Field("parentRefStatic").documentId().as("parentIdStatic"),
+        Field("parentRefInstance").documentId().as("parentIdInstance"),
+      ])
+
+    let snapshot = try await pipeline.execute()
+
+    XCTAssertEqual(snapshot.results.count, 1)
+
+    let expectedResults: [String: Sendable] = [
+      "parentIdStatic": "book4",
+      "parentIdInstance": "book4",
+    ]
+
+    if let resultDoc = snapshot.results.first {
+      TestHelper.compare(pipelineResult: resultDoc, expected: expectedResults)
+    } else {
+      XCTFail("No document retrieved for parent test")
+    }
+  }
+
   func testSubstring() async throws {
     let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore

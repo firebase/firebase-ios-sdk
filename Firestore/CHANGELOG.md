@@ -1,4 +1,5 @@
 # Unreleased
+- [feature] Added support for the `parent` Pipeline expression. (#16010)
 - [feature] Added support for `timestampTruncate`, `timestampDiff`, and `timestampExtract` Pipeline expressions. (#15984)
 - [feature] Added support for Firestore Pipeline Subqueries and scope bridging with `Subcollection`, `define()`, `toArrayExpression()`, `toScalarExpression()`, `Variable`, and `CurrentDocument` APIs.
 - [feature] Add preview support for full-text search and geo search.

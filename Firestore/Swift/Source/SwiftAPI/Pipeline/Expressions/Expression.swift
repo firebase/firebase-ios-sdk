@@ -2110,6 +2110,16 @@ public protocol Expression: Sendable {
   /// root itself.
   func collectionId() -> FunctionExpression
 
+  /// Creates an expression that returns the parent document reference of a document reference.
+  ///
+  /// ```swift
+  /// // Get the parent document reference of a document reference.
+  /// Field("__path__").parent()
+  /// ```
+  ///
+  /// - Returns: A new `FunctionExpression` representing the parent operation.
+  func parent() -> FunctionExpression
+
   /// Creates an expression that returns the result of `catchExpression` if this expression produces
   /// an error during evaluation, otherwise returns the result of this expression.
   ///
