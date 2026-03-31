@@ -88,6 +88,7 @@ jobs:
       platforms: '[ "ios", "tvos", "macos --skip-tests", "watchos --skip-tests" ]'
       flags: '[ "--use-static-frameworks" ]'
 
+  
   sample-build-test:
     if: github.event.pull_request.head.repo.fork == false
     strategy:
@@ -97,8 +98,9 @@ jobs:
             platform: iOS
           - target: SwiftUISample
             platform: iOS
-          - target: MessagingSampleStandaloneWatchApp
-            platform: watchOS
+          # TODO(ncooke3): Re-enable post #15997
+          # - target: MessagingSampleStandaloneWatchApp
+          #   platform: watchOS
     uses: ./.github/workflows/_build.yml
     with:
       product: ${{ matrix.target }}
