@@ -366,7 +366,7 @@ final class SearchIntegrationTests: FSTIntegrationTestCase {
         sort: [
           Field("location")
             .geoDistance(GeoPoint(latitude: 39.6985, longitude: -105.024))
-            .descending(),
+            .ascending(),
         ]
       )
 
