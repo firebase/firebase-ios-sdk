@@ -3038,19 +3038,10 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     let snapshot = try await pipeline.execute()
 
-    let expectedResults: [[String: Sendable?]]
-    switch FSTIntegrationTestCase.targetBackend() {
-    case .nightly:
-      expectedResults = [
-        ["title": "The Hitchhiker's Guide to the Galaxy", "awards": ["hugo": true]],
-        ["title": "Dune", "awards": ["hugo": true]],
-      ]
-    default:
-      expectedResults = [
-        ["title": "The Hitchhiker's Guide to the Galaxy", "awards.hugo": 1],
-        ["title": "Dune", "awards.hugo": 1],
-      ]
-    }
+    let expectedResults: [[String: Sendable?]] = [
+      ["title": "The Hitchhiker's Guide to the Galaxy", "awards": ["hugo": true]],
+      ["title": "Dune", "awards": ["hugo": true]],
+    ]
 
     TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
@@ -3073,32 +3064,18 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     XCTAssertEqual(snapshot.results.count, 2, "Should retrieve two documents")
 
-    let expectedResultsArray: [[String: Sendable?]]
-    switch FSTIntegrationTestCase.targetBackend() {
-    case .nightly:
-      expectedResultsArray = [
-        [
-          "title": "The Hitchhiker's Guide to the Galaxy",
-          "nestedField": ["level": [String: Any]()],
-          "nested": true,
-        ],
-        [
-          "title": "Dune",
-          "nestedField": ["level": [String: Any]()],
-          "nested": nil,
-        ],
-      ]
-    default:
-      expectedResultsArray = [
-        [
-          "title": "The Hitchhiker's Guide to the Galaxy",
-          "nested": true,
-        ],
-        [
-          "title": "Dune",
-        ],
-      ]
-    }
+    let expectedResultsArray: [[String: Sendable?]] = [
+      [
+        "title": "The Hitchhiker's Guide to the Galaxy",
+        "nestedField": ["level": [String: Any]()],
+        "nested": true,
+      ],
+      [
+        "title": "Dune",
+        "nestedField": ["level": [String: Any]()],
+        "nested": nil,
+      ],
+    ]
     TestHelper.compare(
       snapshot: snapshot,
       expected: expectedResultsArray,
@@ -3866,6 +3843,41 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       expected: [["docId": "book4"]],
       enforceOrder: false
     )
+  }
+
+  func testSupportsParent() async throws {
+    let db = firestore()
+    let randomCol = collectionRef()
+
+    let docRef = randomCol.document("book4").collection("reviews").document("review1")
+    try await docRef.setData(["foo": "bar"])
+
+    let pipeline = db.pipeline()
+      .collection(randomCol.path)
+      .limit(1)
+      .select([
+        Constant(docRef).parent().as("parentRefStatic"),
+        Constant(docRef).parent().as("parentRefInstance"),
+      ])
+      .select([
+        Field("parentRefStatic").documentId().as("parentIdStatic"),
+        Field("parentRefInstance").documentId().as("parentIdInstance"),
+      ])
+
+    let snapshot = try await pipeline.execute()
+
+    XCTAssertEqual(snapshot.results.count, 1)
+
+    let expectedResults: [String: Sendable] = [
+      "parentIdStatic": "book4",
+      "parentIdInstance": "book4",
+    ]
+
+    if let resultDoc = snapshot.results.first {
+      TestHelper.compare(pipelineResult: resultDoc, expected: expectedResults)
+    } else {
+      XCTFail("No document retrieved for parent test")
+    }
   }
 
   func testSubstring() async throws {

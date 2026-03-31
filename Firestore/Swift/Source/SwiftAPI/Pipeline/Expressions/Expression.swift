@@ -2302,6 +2302,16 @@ public protocol Expression: Sendable {
   /// root itself.
   func collectionId() -> FunctionExpression
 
+  /// Creates an expression that returns the parent document reference of a document reference.
+  ///
+  /// ```swift
+  /// // Get the parent document reference of a document reference.
+  /// Field("__path__").parent()
+  /// ```
+  ///
+  /// - Returns: A new `FunctionExpression` representing the parent operation.
+  func parent() -> FunctionExpression
+
   /// Creates an expression that returns the result of `catchExpression` if this expression produces
   /// an error during evaluation, otherwise returns the result of this expression.
   ///
@@ -2447,4 +2457,71 @@ public protocol Expression: Sendable {
   /// - Returns: A new `BooleanExpression` that evaluates to true if the expression's result is of
   ///     the given type, false otherwise.
   func isType(_ type: String) -> BooleanExpression
+
+  /// Evaluates to an HTML-formatted text snippet highlighting terms matching the search query.
+  ///
+  /// - Note: This API is in beta.
+  ///
+  /// Example usage:
+  /// ```swift
+  /// firestore.pipeline().collection("restaurants")
+  /// .search(
+  ///   query: "waffles OR pancakes",
+  ///   addFields: [ Field("menu").snippet("waffles OR pancakes").as("snippet") ]
+  /// )
+  /// ```
+  ///
+  /// - Parameters:
+  ///   - rquery: The search query string used to find matches (Required).
+  ///   - maxSnippetWidth: The maximum width of the snippet (default: 160).
+  ///   - maxSnippets: The maximum number of text pieces to return (default: 1).
+  ///   - separator: The string used to join pieces (default: "\n").
+  /// - Returns: An `Expression` evaluating to the HTML snippet string.
+  // TODO(search): enable with backend support
+  // func snippet(_ rquery: String,
+  //              maxSnippetWidth: Int?,
+  //              maxSnippets: Int?,
+  //              separator: String?) -> Expression
+
+  /// Evaluates if the result of this expression is between the `lowerBound` (inclusive)
+  /// and `upperBound` (inclusive).
+  ///
+  /// Example usage:
+  /// ```swift
+  /// firestore.pipeline().collection("restaurants")
+  /// .search(
+  ///   query: And(
+  ///           Field("menu").matches("waffles OR pancakes"),
+  ///           Field("price_per_guest").between(10, 20))
+  ///   addFields: [ Field("menu").snippet("waffles OR pancakes").as("snippet") ]
+  /// )
+  /// ```
+  ///
+  /// - Parameters:
+  ///   - lowerBound: The lower bound value (inclusive).
+  ///   - upperBound: The upper bound value (inclusive).
+  /// - Returns: A `BooleanExpression` representing the range check.
+  // TODO(search): enable with backend support
+  // func between(_ lowerBound: Sendable, _ upperBound: Sendable) -> BooleanExpression
+
+  /// Evaluates if the result of this expression is between the `lowerBound` (inclusive)
+  /// and `upperBound` (inclusive).
+  ///
+  /// Example usage:
+  /// ```swift
+  /// firestore.pipeline().collection("restaurants")
+  /// .search(
+  ///   query: And(
+  ///           Field("menu").matches("waffles OR pancakes"),
+  ///           Field("price_per_guest").between(Constant(10), Constant(20)))
+  ///   addFields: [ Field("menu").snippet("waffles OR pancakes").as("snippet") ]
+  /// )
+  /// ```
+  ///
+  /// - Parameters:
+  ///   - lowerBound: The lower bound expression (inclusive).
+  ///   - upperBound: The upper bound expression (inclusive).
+  /// - Returns: A `BooleanExpression` representing the range check.
+  // TODO(search): enable with backend support
+  // func between(_ lowerBound: Expression, _ upperBound: Expression) -> BooleanExpression
 }
