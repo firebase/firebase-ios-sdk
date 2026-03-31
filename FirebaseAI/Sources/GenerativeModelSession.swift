@@ -52,6 +52,7 @@
   /// ```
   public final class GenerativeModelSession: Sendable {
     let session: Chat
+    let functionDeclarations: [String: FunctionDeclaration]
 
     // The maximum number of automatic back-and-forth turns the session will perform to resolve
     // function calls.
@@ -67,6 +68,7 @@
     /// - Parameter model: The `GenerativeModel` to use for generating content.
     init(model: GenerativeModel) {
       session = model.startChat()
+      functionDeclarations = model.functionDeclarationsByName()
     }
 
     /// Sends a new prompt to the model and returns a `Response` containing the generated content as
@@ -459,16 +461,9 @@
     }
 
     private func execute(functionCalls: [FunctionCallPart]) async throws -> [FunctionResponsePart] {
-      // TODO: Consider moving the automatic function calling handling into `Chat`.
-      let tools = session.model.tools ?? []
-      // TODO: Convert to Dictionary indexed by `name` for fast lookups.
-      let functionDeclarations = tools.compactMap { $0.functionDeclarations }.flatMap { $0 }
-
       var functionResponses = [FunctionResponsePart]()
       for functionCall in functionCalls {
-        guard let functionDeclaration = functionDeclarations.first(
-          where: { $0.name == functionCall.name }
-        ) else {
+        guard let functionDeclaration = functionDeclarations[functionCall.name] else {
           throw GenerationError.internalError(
             GenerationError.Context(debugDescription: """
             No function named "\(functionCall.name)" was declared.
