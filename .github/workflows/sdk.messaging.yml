@@ -111,4 +111,3 @@ jobs:
         scripts/install_prereqs.sh ${{ matrix.target }} ${{ matrix.platform }}
     secrets:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-
