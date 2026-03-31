@@ -65,7 +65,7 @@ final class AuthBackend: AuthBackendProtocol {
                       contentType: String,
                       requestConfiguration: AuthRequestConfiguration) async -> URLRequest {
     // Previously, this section used `async let`, but that was changed for a
-    // `Task`-based approach to work around a Swift 6.0 regression in Xcode 16.4.
+    // `Task`-based approach to work around a Swift 6.3 regression in Xcode 26.4.
     // - Context: https://github.com/firebase/firebase-ios-sdk/issues/15974
     // Kick off tasks for the async header values.
     let heartbeatsHeaderValue = Task {
