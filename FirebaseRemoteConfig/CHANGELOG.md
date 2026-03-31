@@ -1,3 +1,9 @@
+# Unreleased
+- [added] Introduced a new `configUpdates` property to `RemoteConfig` that
+  provides an `AsyncSequence` for consuming real-time config updates.
+  This offers a modern, Swift Concurrency-native alternative to the existing
+  closure-based listener.
+
 # 12.10.0
 - [issue] A workaround to restore service if Remote Config data remains empty
   after a device restore is to publish a new version of your Remote Config template

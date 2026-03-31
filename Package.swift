@@ -192,7 +192,13 @@ let package = Package(
         "FirebaseCore",
         "FirebaseCoreExtension",
       ],
-      path: "FirebaseAI/Sources"
+      path: "FirebaseAI/Sources",
+      swiftSettings: [
+        .define(
+          "IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM",
+          .when(platforms: [.iOS, .macCatalyst, .macOS, .visionOS])
+        ),
+      ]
     ),
     .testTarget(
       name: "FirebaseAILogicUnit",
@@ -1332,6 +1338,18 @@ let package = Package(
         .headerSearchPath("../../.."),
       ]
     ),
+    .testTarget(
+      name: "FirebaseFirestoreTests",
+      dependencies: [
+        "Firebase",
+        "FirebaseCore",
+        "FirebaseFirestoreTarget",
+      ],
+      path: "Firestore/Swift/Tests/Unit",
+      cSettings: [
+        .headerSearchPath("../../../"),
+      ]
+    ),
   ] + firestoreTargets(),
   cxxLanguageStandard: CXXLanguageStandard.gnucxx14
 )
@@ -1591,8 +1609,8 @@ func firestoreTargets() -> [Target] {
     } else {
       return .binaryTarget(
         name: "FirebaseFirestoreInternal",
-        url: "https://dl.google.com/firebase/ios/bin/firestore/12.11.0/rc0/FirebaseFirestoreInternal.zip",
-        checksum: "145be6b7b058f52eb78a4dd36ce8c9a8355e322471f409d9ea4ac4e2fa7b5814"
+        url: "https://dl.google.com/firebase/ios/bin/firestore/12.12.0/pre_rc0/FirebaseFirestoreInternal.zip",
+        checksum: "f9e3e0f922f6508cad8556bbbf3c56ae41b557bb2c48f68c33802fcdec5446e9"
       )
     }
   }()
