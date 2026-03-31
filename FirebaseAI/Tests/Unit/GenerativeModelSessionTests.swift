@@ -45,17 +45,18 @@
     @Generable
     struct Empty {}
 
-    func testRespondTo_functionCall_emptyArguments() async throws {
-      struct CurrentTimeTool: FoundationModels.Tool {
-        let name = "current_time"
-        let description = "Returns the current time in ISO 8601 format."
+    struct CurrentTimeTool: FoundationModels.Tool {
+      let name = "current_time"
+      let description = "Returns the current time in ISO 8601 format."
 
-        static let currentTime = "13:30:00-07:00" // 1:30 PM, PDT
+      static let currentTime = "13:30:00-07:00" // 1:30 PM, PDT
 
-        func call(arguments: Empty) async throws -> String {
-          return CurrentTimeTool.currentTime
-        }
+      func call(arguments: Empty) async throws -> String {
+        return CurrentTimeTool.currentTime
       }
+    }
+
+    func testRespondTo_functionCall_emptyArguments() async throws {
       MockURLProtocol.requestHandlersQueue = try [
         GenerativeModelTestUtil.httpRequestHandler(
           forResource: "unary-success-function-call-empty-arguments", withExtension: "json",
@@ -93,6 +94,119 @@
       XCTAssertEqual(functionCall.name, currentTimeTool.name)
       XCTAssertEqual(functionCall.args, [:])
       XCTAssertEqual(functionResponses.count, 1)
+      let functionResponse = try XCTUnwrap(functionResponses.first)
+      XCTAssertNil(functionResponse.id)
+      XCTAssertEqual(functionResponse.name, functionCall.name)
+      XCTAssertEqual(functionResponse.response, ["result": .string(CurrentTimeTool.currentTime)])
+    }
+
+    func testRespondTo_functionCall_sequentialFunctionCalls() async throws {
+      let functionCallRequestHandler = try GenerativeModelTestUtil.httpRequestHandler(
+        forResource: "unary-success-function-call-empty-arguments", withExtension: "json",
+        subdirectory: vertexSubdirectory
+      )
+      let functionCallRequestHandlers = Array(
+        repeating: functionCallRequestHandler,
+        count: GenerativeModelSession.maxAutoFunctionCallTurns
+      )
+      MockURLProtocol.requestHandlersQueue = functionCallRequestHandlers
+      try MockURLProtocol.requestHandlersQueue.append(GenerativeModelTestUtil.httpRequestHandler(
+        forResource: "unary-success-basic-reply-short", withExtension: "json",
+        subdirectory: vertexSubdirectory
+      ))
+      let currentTimeTool = CurrentTimeTool()
+      let model = try mockGenerativeModel(tools: .autoFunctionDeclaration(CurrentTimeTool()))
+      let session = GenerativeModelSession(model: model)
+
+      let response = try await session.respond(to: testPrompt)
+
+      XCTAssertEqual(response.content, "Mountain View, California")
+      var functionCalls = [FunctionCall]()
+      var functionResponses = [FunctionResponse]()
+      for content in session.session.history {
+        for part in content.internalParts {
+          switch part.data {
+          case let .functionCall(functionCall):
+            functionCalls.append(functionCall)
+          case let .functionResponse(functionResponse):
+            functionResponses.append(functionResponse)
+          default:
+            continue
+          }
+        }
+      }
+      XCTAssertEqual(functionCalls.count, GenerativeModelSession.maxAutoFunctionCallTurns)
+      let functionCall = try XCTUnwrap(functionCalls.first)
+      XCTAssertNil(functionCall.id)
+      XCTAssertEqual(functionCall.name, currentTimeTool.name)
+      XCTAssertEqual(functionCall.args, [:])
+      XCTAssertEqual(functionResponses.count, GenerativeModelSession.maxAutoFunctionCallTurns)
+      let functionResponse = try XCTUnwrap(functionResponses.first)
+      XCTAssertNil(functionResponse.id)
+      XCTAssertEqual(functionResponse.name, functionCall.name)
+      XCTAssertEqual(functionResponse.response, ["result": .string(CurrentTimeTool.currentTime)])
+    }
+
+    func testRespondTo_functionCall_maxFunctionCallTurnsExceeded() async throws {
+      let functionCallCount = GenerativeModelSession.maxAutoFunctionCallTurns + 1
+      let functionCallRequestHandler = try GenerativeModelTestUtil.httpRequestHandler(
+        forResource: "unary-success-function-call-empty-arguments", withExtension: "json",
+        subdirectory: vertexSubdirectory
+      )
+      let functionCallRequestHandlers = Array(
+        repeating: functionCallRequestHandler,
+        count: functionCallCount
+      )
+      MockURLProtocol.requestHandlersQueue = functionCallRequestHandlers
+      try MockURLProtocol.requestHandlersQueue.append(GenerativeModelTestUtil.httpRequestHandler(
+        forResource: "unary-success-basic-reply-short", withExtension: "json",
+        subdirectory: vertexSubdirectory
+      ))
+      let currentTimeTool = CurrentTimeTool()
+      let model = try mockGenerativeModel(tools: .autoFunctionDeclaration(CurrentTimeTool()))
+      let session = GenerativeModelSession(model: model)
+
+      await XCTAssertThrowsError {
+        try await session.respond(to: testPrompt)
+      } errorHandler: { error in
+        guard case let GenerativeModelSession.GenerationError.internalError(
+          context,
+          underlyingError: underlyingError
+        ) = error, let functionCallingError =
+          underlyingError as? GenerativeModelSession.FunctionCallingError else {
+          return XCTFail("Unexpected error type: \(error)")
+        }
+
+        XCTAssertContains(
+          context.debugDescription,
+          "\(GenerativeModelSession.maxAutoFunctionCallTurns)"
+        )
+        XCTAssertEqual(
+          functionCallingError,
+          GenerativeModelSession.FunctionCallingError.maxFunctionCallTurnsExceeded
+        )
+      }
+
+      var functionCalls = [FunctionCall]()
+      var functionResponses = [FunctionResponse]()
+      for content in session.session.history {
+        for part in content.internalParts {
+          switch part.data {
+          case let .functionCall(functionCall):
+            functionCalls.append(functionCall)
+          case let .functionResponse(functionResponse):
+            functionResponses.append(functionResponse)
+          default:
+            continue
+          }
+        }
+      }
+      XCTAssertEqual(functionCalls.count, functionCallCount)
+      let functionCall = try XCTUnwrap(functionCalls.first)
+      XCTAssertNil(functionCall.id)
+      XCTAssertEqual(functionCall.name, currentTimeTool.name)
+      XCTAssertEqual(functionCall.args, [:])
+      XCTAssertEqual(functionResponses.count, GenerativeModelSession.maxAutoFunctionCallTurns)
       let functionResponse = try XCTUnwrap(functionResponses.first)
       XCTAssertNil(functionResponse.id)
       XCTAssertEqual(functionResponse.name, functionCall.name)

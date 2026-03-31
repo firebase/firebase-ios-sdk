@@ -53,6 +53,14 @@
   public final class GenerativeModelSession: Sendable {
     let session: Chat
 
+    // The maximum number of automatic back-and-forth turns the session will perform to resolve
+    // function calls.
+    //
+    // This prevents infinite looping if the model consistently requests one or more function calls.
+    //
+    // TODO: Add ability to configure this setting.
+    static let maxAutoFunctionCallTurns = 10
+
     /// Creates a new `GenerativeModelSession` with the given model.
     ///
     /// **Public Preview**: This API is a public preview and may be subject to change.
@@ -244,7 +252,20 @@
 
       var response = try await session.sendMessage(parts, generationConfig: config)
 
+      var autoFunctionCallTurns = 0
       while !response.functionCalls.isEmpty {
+        guard autoFunctionCallTurns < GenerativeModelSession.maxAutoFunctionCallTurns else {
+          throw GenerationError.internalError(
+            GenerationError.Context(
+              debugDescription: """
+              The model exceeded the maximum allowed automatic function call iterations \
+              (\(GenerativeModelSession.maxAutoFunctionCallTurns)).
+              """
+            ),
+            underlyingError: FunctionCallingError.maxFunctionCallTurnsExceeded
+          )
+        }
+
         let functionResponses = try await execute(functionCalls: response.functionCalls)
 
         guard !functionResponses.isEmpty else { break }
@@ -252,6 +273,8 @@
           [ModelContent(role: "user", parts: functionResponses)],
           generationConfig: config
         )
+
+        autoFunctionCallTurns += 1
       }
 
       let text: String
@@ -433,9 +456,12 @@
         guard let functionDeclaration = functionDeclarations.first(
           where: { $0.name == functionCall.name }
         ) else {
-          throw GenerationError.invalidFunctionCall(GenerationError.Context(debugDescription: """
-          No function named "\(functionCall.name)" was declared.
-          """))
+          throw GenerationError.internalError(
+            GenerationError.Context(debugDescription: """
+            No function named "\(functionCall.name)" was declared.
+            """),
+            underlyingError: FunctionCallingError.invalidFunctionCall
+          )
         }
 
         switch functionDeclaration.kind {
@@ -785,6 +811,7 @@
     static let errorDomain = "\(Constants.baseErrorDomain).\(GenerativeModelSession.self)"
 
     /// An error that occurs during content generation.
+    @nonexhaustive
     public enum GenerationError: Error, LocalizedError {
       /// A context providing more information about the generation error.
       public struct Context: Sendable {
@@ -799,7 +826,12 @@
       /// The model's response could not be decoded.
       case decodingFailure(GenerativeModelSession.GenerationError.Context)
 
-      case invalidFunctionCall(GenerativeModelSession.GenerationError.Context)
+      case internalError(GenerativeModelSession.GenerationError.Context, underlyingError: any Error)
+    }
+
+    enum FunctionCallingError: Error, LocalizedError {
+      case invalidFunctionCall
+      case maxFunctionCallTurnsExceeded
     }
 
     struct TypeConversionError: CustomDebugStringConvertible, CustomNSError {
