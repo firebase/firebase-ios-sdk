@@ -293,11 +293,16 @@ public extension ToolRepresentable where Self == FirebaseAILogic.Tool {
         -> FunctionResponsePart {
         let arguments = try T.Arguments(functionCall.args.firebaseGeneratedContent.generatedContent)
         let output = try await tool.call(arguments: arguments)
-        assert(output is (any FoundationModels.ConvertibleToGeneratedContent))
+        let outputErrorMessage = """
+        Unsupported output type "\(output.self)" for tool "\(tool.name)"; the associated type \
+        `Output` for the `FoundationModels.Tool` must conform to `ConvertibleToGeneratedContent`.
+        """
+        assert(output is (any FoundationModels.ConvertibleToGeneratedContent), outputErrorMessage)
         guard let output = output as? (any FoundationModels.ConvertibleToGeneratedContent) else {
-          // TODO: Throw error instead.
-          fatalError(
-            "Tool.Output for '\(tool)' does not conform to `ConvertibleToGeneratedContent`."
+          throw NSError(
+            domain: "\(Constants.baseErrorDomain).\(Self.self)",
+            code: AILog.MessageCode.invalidToolOutputType.rawValue,
+            userInfo: [NSLocalizedDescriptionKey: outputErrorMessage]
           )
         }
         let generatedContent = output.generatedContent
