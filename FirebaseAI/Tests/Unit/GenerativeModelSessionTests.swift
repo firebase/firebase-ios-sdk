@@ -66,7 +66,7 @@
           forResource: "unary-success-thinking-reply-thought-summary",
           withExtension: "json",
           subdirectory: googleAISubdirectory
-        )
+        ),
       ]
       let currentTimeTool = CurrentTimeTool()
       let model = try mockGenerativeModel(tools: .autoFunctionDeclaration(currentTimeTool))
@@ -102,8 +102,8 @@
     }
 
     func testRespondTo_functionCall_sequentialCalls() async throws {
-      MockURLProtocol.requestHandlersQueue = Array(
-        repeating: try GenerativeModelTestUtil.httpRequestHandler(
+      MockURLProtocol.requestHandlersQueue = try Array(
+        repeating: GenerativeModelTestUtil.httpRequestHandler(
           forResource: "unary-success-thinking-function-call-thought-summary-signature",
           withExtension: "json",
           subdirectory: googleAISubdirectory
@@ -149,8 +149,8 @@
 
     func testRespondTo_functionCall_maxFunctionCallTurnsExceeded() async throws {
       let functionCallCount = GenerativeModelSession.maxAutoFunctionCallTurns + 1
-      MockURLProtocol.requestHandlersQueue = Array(
-        repeating: try GenerativeModelTestUtil.httpRequestHandler(
+      MockURLProtocol.requestHandlersQueue = try Array(
+        repeating: GenerativeModelTestUtil.httpRequestHandler(
           forResource: "unary-success-thinking-function-call-thought-summary-signature",
           withExtension: "json",
           subdirectory: googleAISubdirectory
@@ -263,8 +263,8 @@
     }
 
     func testStreamResponseTo_functionCall_sequentialCalls() async throws {
-      MockURLProtocol.requestHandlersQueue = Array(
-        repeating: try GenerativeModelTestUtil.httpRequestHandler(
+      MockURLProtocol.requestHandlersQueue = try Array(
+        repeating: GenerativeModelTestUtil.httpRequestHandler(
           forResource: "streaming-success-thinking-function-call-thought-summary-signature",
           withExtension: "txt",
           subdirectory: googleAISubdirectory
@@ -315,8 +315,8 @@
 
     func testStreamResponseTo_functionCall_maxFunctionCallTurnsExceeded() async throws {
       let functionCallCount = GenerativeModelSession.maxAutoFunctionCallTurns + 1
-      MockURLProtocol.requestHandlersQueue = Array(
-        repeating: try GenerativeModelTestUtil.httpRequestHandler(
+      MockURLProtocol.requestHandlersQueue = try Array(
+        repeating: GenerativeModelTestUtil.httpRequestHandler(
           forResource: "streaming-success-thinking-function-call-thought-summary-signature",
           withExtension: "txt",
           subdirectory: googleAISubdirectory
@@ -340,7 +340,7 @@
           context,
           underlyingError: underlyingError
         ) = error, let functionCallingError =
-                underlyingError as? GenerativeModelSession.FunctionCallingError else {
+          underlyingError as? GenerativeModelSession.FunctionCallingError else {
           return XCTFail("Unexpected error type: \(error)")
         }
 
