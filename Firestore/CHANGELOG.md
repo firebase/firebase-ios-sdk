@@ -4,7 +4,7 @@
 - [feature] Added support for Pipeline expressions `nor` and `switchOn`. (#15943)
 - [feature] Added support for Pipeline expressions `ifNull` and `coalesce`. (#15989)
 - [feature] Added support for Pipeline expression `isType`.
-- [feature] Added support for Pipeline expressions `mapGet`, `mapKeys`, `mapEntries`, `mapValues`.
+- [feature] Added support for Pipeline expressions `mapSet`, `mapKeys`, `mapEntries`, `mapValues`.
 
 # 12.11.0
 - [removed] **Breaking change:** Removed the `then(_:else:)` Beta API in `BooleanExpression` from the Pipeline Swift API. Use `ConditionalExpression` instead. (#15926)
