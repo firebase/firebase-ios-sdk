@@ -1,7 +1,7 @@
 # Unreleased
 - [added] Added `AsyncSequence` support for `Query.snapshots` and
   `DocumentReference.snapshots`, providing a modern, structured-concurrency
-  alternative to `addSnapshotListener`.
+  alternative to `addSnapshotListener`. (#15363)
 
 # 10.17.0
 - [deprecated] All of the public API from `FirebaseFirestoreSwift` can now
