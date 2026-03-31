@@ -76,6 +76,10 @@ final class AuthBackend: AuthBackendProtocol {
     }
 
     return await withTaskCancellationHandler {
+      defer {
+        heartbeatsHeaderValue.cancel()
+        appCheckTokenHeaderValue.cancel()
+      }
       var request = URLRequest(url: url)
       request.setValue(contentType, forHTTPHeaderField: "Content-Type")
       let additionalFrameworkMarker = requestConfiguration.additionalFrameworkMarker
