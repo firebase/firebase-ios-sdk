@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// TODO: Remove the `#if compiler(>=6.2)` when Xcode 26 is the minimum supported version.
-#if compiler(>=6.2)
+// TODO: Remove the `#if compiler(>=6.2.3)` when Xcode 26.2 is the minimum supported version.
+#if compiler(>=6.2.3)
   import Foundation
   #if canImport(FoundationModels)
     import FoundationModels
@@ -848,4 +848,4 @@
       }
     }
   }
-#endif // compiler(>=6.2)
+#endif // compiler(>=6.2.3)

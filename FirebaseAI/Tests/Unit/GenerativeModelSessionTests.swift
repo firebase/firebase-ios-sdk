@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if compiler(>=6.2) && canImport(FoundationModels)
+#if compiler(>=6.2.3) && canImport(FoundationModels)
   import FoundationModels
   import XCTest
 
@@ -236,4 +236,4 @@
       return self.map { $0.toolRepresentation }
     }
   }
-#endif // compiler(>=6.2) && canImport(FoundationModels)
+#endif // compiler(>=6.2.3) && canImport(FoundationModels)

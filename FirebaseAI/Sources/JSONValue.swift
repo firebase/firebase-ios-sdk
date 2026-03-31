@@ -95,7 +95,7 @@ extension JSONValue: Encodable {
 
 extension JSONValue: Equatable {}
 
-#if compiler(>=6.2)
+#if compiler(>=6.2.3)
   extension JSONValue {
     var firebaseGeneratedContent: FirebaseAI.GeneratedContent {
       switch self {
@@ -154,4 +154,4 @@ extension JSONValue: Equatable {}
       }
     }
   }
-#endif // compiler(>=6.2)
+#endif // compiler(>=6.2.3)

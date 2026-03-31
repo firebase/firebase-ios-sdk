@@ -65,7 +65,7 @@ public struct FunctionDeclaration: Sendable {
     kind = .manual
   }
 
-  #if compiler(>=6.2)
+  #if compiler(>=6.2.3)
     #if canImport(FoundationModels)
       @available(iOS 26.0, macOS 26.0, *)
       @available(tvOS, unavailable)
@@ -88,7 +88,7 @@ public struct FunctionDeclaration: Sendable {
         kind = .foundationModels(foundationModelsTool)
       }
     #endif // canImport(FoundationModels)
-  #endif // compiler(>=6.2)
+  #endif // compiler(>=6.2.3)
 }
 
 /// A tool that allows the generative model to connect to Google Search to access and incorporate
@@ -214,7 +214,7 @@ public extension ToolRepresentable where Self == FirebaseAILogic.Tool {
     return self.init(functionDeclarations: functionDeclarations)
   }
 
-  #if compiler(>=6.2)
+  #if compiler(>=6.2.3)
     #if canImport(FoundationModels)
       @available(iOS 26.0, macOS 26.0, *)
       @available(tvOS, unavailable)
@@ -223,7 +223,7 @@ public extension ToolRepresentable where Self == FirebaseAILogic.Tool {
         return self.init(functionDeclarations: [FunctionDeclaration(foundationModelsTool: tool)])
       }
     #endif // canImport(FoundationModels)
-  #endif // compiler(>=6.2)
+  #endif // compiler(>=6.2.3)
 
   /// Creates a tool that allows the model to use Grounding with Google Search.
   ///
@@ -264,7 +264,7 @@ public extension ToolRepresentable where Self == FirebaseAILogic.Tool {
 
 // MARK: - Automatic Function Calling Helpers
 
-#if compiler(>=6.2)
+#if compiler(>=6.2.3)
   extension FunctionDeclaration {
     static func toFunctionResponse(output: JSONValue,
                                    functionCall: FunctionCallPart) -> FunctionResponsePart {
@@ -312,7 +312,7 @@ public extension ToolRepresentable where Self == FirebaseAILogic.Tool {
       }
     }
   #endif // canImport(FoundationModels)
-#endif // compiler(>=6.2)
+#endif // compiler(>=6.2.3)
 
 // MARK: - Codable Conformance
 
