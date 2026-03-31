@@ -2774,8 +2774,6 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
 
-  // TODO: Add tests for mapSet and mapMerge
-
   func testMapSet() async throws {
     let collRef = collectionRef(withDocuments: ["doc1": ["dummy": 1]])
     let db = collRef.firestore
