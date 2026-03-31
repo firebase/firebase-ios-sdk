@@ -189,4 +189,3 @@ jobs:
         name: spm-platforms-${{ matrix.target }}-${{ matrix.os }}-${{ matrix.xcode }}-logs
         path: xcodebuild-*.log
         if-no-files-found: error
-
