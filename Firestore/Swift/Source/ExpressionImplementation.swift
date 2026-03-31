@@ -1206,6 +1206,13 @@ public extension Expression {
     return FunctionExpression(functionName: "type", args: [self])
   }
 
+  func isType(_ type: String) -> BooleanExpression {
+    return BooleanFunctionExpression(
+      functionName: "is_type",
+      args: [self, Helper.sendableToExpr(type)]
+    )
+  }
+
   /// Creates an expression that accesses a field on this expression using a string key.
   func getField(_ key: String) -> FunctionExpression {
     return FunctionExpression(functionName: "get_field", args: [self, Constant(key)])

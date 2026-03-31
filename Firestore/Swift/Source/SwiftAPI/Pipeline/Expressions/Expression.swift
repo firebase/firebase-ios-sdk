@@ -2036,6 +2036,23 @@ public protocol Expression: Sendable {
   /// - Returns: A new `FunctionExpression` representing the type of the expression as a string.
   func type() -> FunctionExpression
 
+  /// Creates an expression that checks if the result of this expression is of the given type.
+  ///
+  /// Supported values for `type` are: `"null"`, `"array"`, `"boolean"`, `"bytes"`, `"timestamp"`,
+  /// `"geo_point"`, `"number"`, `"int32"`, `"int64"`, `"float64"`, `"decimal128"`, `"map"`,
+  /// `"reference"`, `"string"`,
+  /// `"vector"`, `"max_key"`, `"min_key"`, `"object_id"`, `"regex"`, and `"request_timestamp"`.
+  ///
+  /// ```swift
+  /// // Check if the "age" field is an integer
+  /// Field("age").isType("int64")
+  /// ```
+  ///
+  /// - Parameter type: The type to check for.
+  /// - Returns: A new `BooleanExpression` that evaluates to true if the expression's result is of
+  ///     the given type, false otherwise.
+  func isType(_ type: String) -> BooleanExpression
+
   /// Evaluates to an HTML-formatted text snippet highlighting terms matching the search query.
   ///
   /// - Note: This API is in beta.
