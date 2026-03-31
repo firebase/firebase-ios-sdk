@@ -2774,6 +2774,176 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
 
+  // TODO: Add tests for mapSet and mapMerge
+
+  func testMapSet() async throws {
+    let collRef = collectionRef(withDocuments: ["doc1": ["dummy": 1]])
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .limit(1)
+      .replace(with: MapExpression([
+        "existingField": ["foo": 1],
+      ]))
+      .select([
+        Field("existingField").mapSet("bar", 2).as("modifiedField"),
+        MapExpression([:]).mapSet("a", 1).as("simple"),
+        MapExpression(["a": 1]).mapSet("b", 2).as("add"),
+        MapExpression(["a": 1]).mapSet("a", 2).as("overwrite"),
+        MapExpression(["a": 1, "b": 2]).mapSet("a", 3, "c", 4).as("multi"),
+        MapExpression(["a": 1]).mapSet("a", Field("non_existent")).as("remove"),
+        MapExpression(["a": 1]).mapSet("b", Constant.nil).as("setNull"),
+        MapExpression(["a": ["b": 1]]).mapSet("a.b", 2).as("setDotted"),
+        MapExpression([:]).mapSet("", "empty").as("setEmptyKey"),
+        MapExpression(["a": 1]).mapSet("b", Constant(1).add(2)).as("setExprVal"),
+        MapExpression([:]).mapSet("obj", ["hidden": true]).as("setNestedMap"),
+        MapExpression([:]).mapSet("~!@#$%^&*()_+", "special").as("setSpecialChars"),
+        Field("existingField").mapSet("instanceKey", 100).as("instanceSetField"),
+        MapExpression(["x": 1]).mapSet(Constant("y"), Constant(2)).as("instanceSetConstant"),
+      ])
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable?]] = [
+      [
+        "modifiedField": ["foo": 1, "bar": 2],
+        "simple": ["a": 1],
+        "add": ["a": 1, "b": 2],
+        "overwrite": ["a": 2],
+        "multi": ["a": 3, "b": 2, "c": 4],
+        "remove": [:],
+        "setNull": ["a": 1, "b": NSNull()],
+        "setDotted": ["a": ["b": 1], "a.b": 2],
+        "setEmptyKey": ["": "empty"],
+        "setExprVal": ["a": 1, "b": 3],
+        "setNestedMap": ["obj": ["hidden": true]],
+        "setSpecialChars": ["~!@#$%^&*()_+": "special"],
+        "instanceSetField": ["foo": 1, "instanceKey": 100],
+        "instanceSetConstant": ["x": 1, "y": 2],
+      ],
+    ]
+
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: false)
+  }
+
+  func testMapKeys() async throws {
+    let collRef = collectionRef(withDocuments: ["doc1": ["dummy": 1]])
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .limit(1)
+      .replace(with: MapExpression([
+        "existingField": ["foo": 1],
+      ]))
+      .select([
+        Field("existingField").mapKeys().as("existingKeys"),
+        MapExpression(["a": 1, "b": 2]).mapKeys().as("keys"),
+        MapExpression([:]).mapKeys().as("empty_keys"),
+        MapExpression(["a": ["nested": true]]).mapKeys().as("nested_keys"),
+      ])
+
+    let snapshot = try await pipeline.execute()
+
+    XCTAssertEqual(snapshot.results.count, 1)
+    let data = snapshot.results[0].data
+
+    let existingKeys = data["existingKeys"] as? [String] ?? []
+    XCTAssertEqual(existingKeys, ["foo"])
+
+    let keys = data["keys"] as? [String] ?? []
+    XCTAssertEqual(keys.count, 2)
+    XCTAssertTrue(keys.contains("a"))
+    XCTAssertTrue(keys.contains("b"))
+
+    let emptyKeys = data["empty_keys"] as? [String] ?? ["dummy"]
+    XCTAssertEqual(emptyKeys.count, 0)
+
+    let nestedKeys = data["nested_keys"] as? [String] ?? []
+    XCTAssertEqual(nestedKeys, ["a"])
+  }
+
+  func testMapValues() async throws {
+    let collRef = collectionRef(withDocuments: ["doc1": ["dummy": 1]])
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .limit(1)
+      .replace(with: MapExpression([
+        "existingField": ["foo": 1],
+      ]))
+      .select([
+        Field("existingField").mapValues().as("existingValues"),
+        MapExpression(["a": 1, "b": 2]).mapValues().as("values"),
+        MapExpression([:]).mapValues().as("empty_values"),
+        MapExpression(["a": ["nested": true]]).mapValues().as("nested_values"),
+      ])
+
+    let snapshot = try await pipeline.execute()
+
+    XCTAssertEqual(snapshot.results.count, 1)
+    let data = snapshot.results[0].data
+
+    let existingValues = data["existingValues"] as? [Int] ?? []
+    XCTAssertEqual(existingValues, [1])
+
+    let values = data["values"] as? [Int] ?? []
+    XCTAssertEqual(values.count, 2)
+    XCTAssertTrue(values.contains(1))
+    XCTAssertTrue(values.contains(2))
+
+    let emptyValues = data["empty_values"] as? [Int] ?? [999]
+    XCTAssertEqual(emptyValues.count, 0)
+
+    let nestedValues = data["nested_values"] as? [[String: Bool]] ?? []
+    XCTAssertEqual(nestedValues, [["nested": true]])
+  }
+
+  func testMapEntries() async throws {
+    let collRef = collectionRef(withDocuments: ["doc1": ["dummy": 1]])
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .limit(1)
+      .replace(with: MapExpression([
+        "existingField": ["foo": 1],
+      ]))
+      .select([
+        Field("existingField").mapEntries().as("existingEntries"),
+        MapExpression(["a": 1, "b": 2]).mapEntries().as("entries"),
+        MapExpression([:]).mapEntries().as("empty_entries"),
+        MapExpression(["a": ["nested": true]]).mapEntries().as("nested_entries"),
+      ])
+
+    let snapshot = try await pipeline.execute()
+
+    XCTAssertEqual(snapshot.results.count, 1)
+    let data = snapshot.results[0].data
+
+    let existingEntries = data["existingEntries"] as? [[String: Any]] ?? []
+    XCTAssertEqual(existingEntries.count, 1)
+    XCTAssertEqual(existingEntries[0]["k"] as? String, "foo")
+    XCTAssertEqual(existingEntries[0]["v"] as? Int, 1)
+
+    let entries = data["entries"] as? [[String: Any]] ?? []
+    XCTAssertEqual(entries.count, 2)
+    let hasA1 = entries.contains { ($0["k"] as? String) == "a" && ($0["v"] as? Int) == 1 }
+    let hasB2 = entries.contains { ($0["k"] as? String) == "b" && ($0["v"] as? Int) == 2 }
+    XCTAssertTrue(hasA1)
+    XCTAssertTrue(hasB2)
+
+    let emptyEntries = data["empty_entries"] as? [[String: Any]] ?? [["dummy": "dummy"]]
+    XCTAssertEqual(emptyEntries.count, 0)
+
+    let nestedEntries = data["nested_entries"] as? [[String: Any]] ?? []
+    XCTAssertEqual(nestedEntries.count, 1)
+    XCTAssertEqual(nestedEntries[0]["k"] as? String, "a")
+    XCTAssertEqual(nestedEntries[0]["v"] as? [String: Bool], ["nested": true])
+  }
+
   func testDistanceFunctions() async throws {
     let db = firestore()
     let randomCol = collectionRef() // Ensure a unique collection for the test
