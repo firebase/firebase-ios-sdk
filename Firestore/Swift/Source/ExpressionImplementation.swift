@@ -1304,4 +1304,36 @@ public extension Expression {
   func getField(_ expression: Expression) -> FunctionExpression {
     return FunctionExpression(functionName: "get_field", args: [self, expression])
   }
+
+  // MARK: - Snippet
+
+  func snippet(_ rquery: String,
+               maxSnippetWidth: Int? = nil,
+               maxSnippets: Int? = nil,
+               separator: String? = nil) -> Expression {
+    var args: [Expression] = [self, Constant(rquery)]
+
+    var options: [String: Sendable] = [:]
+    if let maxSnippetWidth = maxSnippetWidth {
+      options["maxSnippetWidth"] = maxSnippetWidth
+    }
+    if let maxSnippets = maxSnippets {
+      options["maxSnippets"] = maxSnippets
+    }
+    if let separator = separator {
+      options["separator"] = separator
+    }
+
+    return FunctionExpression(functionName: "snippet", args: args, options: options)
+  }
+
+  // MARK: - Range Operations
+
+  func between(_ lowerBound: Sendable, _ upperBound: Sendable) -> BooleanExpression {
+    return between(Helper.sendableToExpr(lowerBound), Helper.sendableToExpr(upperBound))
+  }
+
+  func between(_ lowerBound: Expression, _ upperBound: Expression) -> BooleanExpression {
+    return greaterThanOrEqual(lowerBound) && lessThanOrEqual(upperBound)
+  }
 }

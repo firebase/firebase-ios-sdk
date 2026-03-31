@@ -1,6 +1,7 @@
 # Unreleased
 - [feature] Added support for `timestampTruncate`, `timestampDiff`, and `timestampExtract` Pipeline expressions. (#15984)
 - [feature] Added support for Firestore Pipeline Subqueries and scope bridging with `Subcollection`, `define()`, `toArrayExpression()`, `toScalarExpression()`, `Variable`, and `CurrentDocument` APIs.
+- [feature] Add preview support for full-text search and geo search.
 - [feature] Added support for Pipeline expressions `nor` and `switchOn`. (#15943)
 - [feature] Added support for Pipeline expressions `ifNull` and `coalesce`. (#15989)
 - [feature] Added support for Pipeline expression `isType`.

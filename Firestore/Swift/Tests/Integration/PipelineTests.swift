@@ -3038,19 +3038,10 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     let snapshot = try await pipeline.execute()
 
-    let expectedResults: [[String: Sendable?]]
-    switch FSTIntegrationTestCase.targetBackend() {
-    case .nightly:
-      expectedResults = [
-        ["title": "The Hitchhiker's Guide to the Galaxy", "awards": ["hugo": true]],
-        ["title": "Dune", "awards": ["hugo": true]],
-      ]
-    default:
-      expectedResults = [
-        ["title": "The Hitchhiker's Guide to the Galaxy", "awards.hugo": 1],
-        ["title": "Dune", "awards.hugo": 1],
-      ]
-    }
+    let expectedResults: [[String: Sendable?]] = [
+      ["title": "The Hitchhiker's Guide to the Galaxy", "awards": ["hugo": true]],
+      ["title": "Dune", "awards": ["hugo": true]],
+    ]
 
     TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
@@ -3073,32 +3064,18 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     XCTAssertEqual(snapshot.results.count, 2, "Should retrieve two documents")
 
-    let expectedResultsArray: [[String: Sendable?]]
-    switch FSTIntegrationTestCase.targetBackend() {
-    case .nightly:
-      expectedResultsArray = [
-        [
-          "title": "The Hitchhiker's Guide to the Galaxy",
-          "nestedField": ["level": [String: Any]()],
-          "nested": true,
-        ],
-        [
-          "title": "Dune",
-          "nestedField": ["level": [String: Any]()],
-          "nested": nil,
-        ],
-      ]
-    default:
-      expectedResultsArray = [
-        [
-          "title": "The Hitchhiker's Guide to the Galaxy",
-          "nested": true,
-        ],
-        [
-          "title": "Dune",
-        ],
-      ]
-    }
+    let expectedResultsArray: [[String: Sendable?]] = [
+      [
+        "title": "The Hitchhiker's Guide to the Galaxy",
+        "nestedField": ["level": [String: Any]()],
+        "nested": true,
+      ],
+      [
+        "title": "Dune",
+        "nestedField": ["level": [String: Any]()],
+        "nested": nil,
+      ],
+    ]
     TestHelper.compare(
       snapshot: snapshot,
       expected: expectedResultsArray,
