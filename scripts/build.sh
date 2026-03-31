@@ -497,7 +497,7 @@ case "$product-$platform-$method" in
       RunXcodebuild \
         -workspace 'FirebaseMessaging/Apps/SampleStandaloneWatchApp/SampleStandaloneWatchApp.xcworkspace' \
         -scheme "SampleStandaloneWatchApp Watch App" \
-        -destination 'platform=watchOS Simulator,name=Apple Watch Series 10 (42mm)' \
+        -destination 'platform=watchOS Simulator,name=Apple Watch Series 11 (42mm)' \
         build
     fi
     ;;
