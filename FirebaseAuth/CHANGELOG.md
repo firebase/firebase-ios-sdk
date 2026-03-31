@@ -1,4 +1,7 @@
 # Unreleased
+- [added] Added `AsyncSequence` support to `Auth.authStateChanges` and
+  `Auth.idTokenChanges`, providing a modern, structured-concurrency
+  alternative to `addStateDidChangeListener` and `addIDTokenDidChangeListener`.
 - [fixed] Fix a race condition with User.providerData getter. (#15950)
 
 # 12.9.0
