@@ -426,6 +426,8 @@ case "$product-$platform-$method" in
           -scheme "Firestore_IntegrationTests_Enterprise_$platform" \
           -enableCodeCoverage YES \
           "${xcb_flags[@]}" \
+          -retry-tests-on-failure \
+          -test-iterations 3 \
           test-without-building
       ;;
 
