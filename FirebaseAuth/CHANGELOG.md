@@ -1,4 +1,4 @@
-# Unreleased
+# 12.12.0
 - [added] Added `AsyncSequence` support to `Auth.authStateChanges` and
   `Auth.idTokenChanges`, providing a modern, structured-concurrency
   alternative to `addStateDidChangeListener` and `addIDTokenDidChangeListener`.

@@ -1,4 +1,4 @@
-# Unreleased
+# 12.12.0
 - [added] Added `AsyncSequence` support for `Query.snapshots` and
   `DocumentReference.snapshots`, providing a modern, structured-concurrency
   alternative to `addSnapshotListener`. (#15363)
