@@ -607,7 +607,7 @@ jobs:
         timeout_minutes: 15
         max_attempts: 5
         retry_wait_seconds: 120
-        command: sudo xcodebuild -downloadPlatform ${{ matrix.target }}      
+        command: sudo xcodebuild -downloadPlatform ${{ matrix.target }}
     - name: Initialize xcodebuild
       run: scripts/setup_spm_tests.sh
     - name: Build Test - Binary
