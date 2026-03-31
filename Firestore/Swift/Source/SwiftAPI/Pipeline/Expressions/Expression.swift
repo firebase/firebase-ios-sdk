@@ -479,9 +479,10 @@ public protocol Expression: Sendable {
   /// Field("items").arrayFilter(alias: "item", filter: Variable("item.price").greaterThan(10))
   /// ```
   ///
-  /// - Parameter alias: The variable name to be used in the filter expression to refer to the
-  /// current array element.
-  /// - Parameter filter: A `BooleanExpression` that determines whether an element is included.
+  /// - Parameters:
+  ///   - alias: The variable name to be used in the filter expression to refer to the
+  ///     current array element.
+  ///   - filter: A `BooleanExpression` that determines whether an element is included.
   /// - Returns: A new `FunctionExpression` representing the filtered array.
   func arrayFilter(alias: String, filter: BooleanExpression) -> FunctionExpression
 
@@ -490,13 +491,15 @@ public protocol Expression: Sendable {
   ///
   /// ```swift
   /// // Transform the "scores" array by multiplying the "score" by 2
-  /// Field("scores").arrayTransform(elementAlias: "score", transform:
-  /// Variable("score").multiply(2))
+  /// Field("scores").arrayTransform(
+  ///   elementAlias: "score",
+  ///   transform: Variable("score").multiply(2)
+  /// )
   /// ```
   ///
   /// - Parameters:
   ///   - elementAlias: The variable name to be used in the transform expression to refer to the
-  /// current array element.
+  ///     current array element.
   ///   - transform: A lambda `Expression` evaluated for each element to determine its new value.
   /// - Returns: A new `FunctionExpression` representing the transformed array.
   func arrayTransform(elementAlias: String, transform: Expression) -> FunctionExpression
@@ -507,15 +510,18 @@ public protocol Expression: Sendable {
   ///
   /// ```swift
   /// // Transform the "scores" array by adding the element index and "name"
-  /// Field("scores").arrayTransformWithIndex(elementAlias: "score", indexAlias: "index", transform:
-  /// Variable("score").add(Variable("index")))
+  /// Field("scores").arrayTransformWithIndex(
+  ///   elementAlias: "score",
+  ///   indexAlias: "index",
+  ///   transform: Variable("score").add(Variable("index"))
+  /// )
   /// ```
   ///
   /// - Parameters:
   ///   - elementAlias: The variable name to be used in the transform expression to refer to the
-  /// current array element.
+  ///     current array element.
   ///   - indexAlias: The variable name to be used in the transform expression to refer to the
-  /// current element's zero-based index.
+  ///     current element's zero-based index.
   ///   - transform: A lambda `Expression` evaluated for each element to determine its new value.
   /// - Returns: A new `FunctionExpression` representing the transformed array.
   func arrayTransformWithIndex(elementAlias: String, indexAlias: String, transform: Expression)
@@ -525,7 +531,7 @@ public protocol Expression: Sendable {
   /// Assumes `self` evaluates to an array.
   ///
   /// ```swift
-  /// // Get elements from the "tags" array starting at index 1
+  /// // Get all elements from the "tags" array starting at index 1
   /// Field("tags").arraySlice(offset: 1)
   /// ```
   ///
@@ -533,24 +539,11 @@ public protocol Expression: Sendable {
   /// - Returns: A new `FunctionExpression` representing the sliced array.
   func arraySlice(offset: Int) -> FunctionExpression
 
-  /// Returns a subset of the array starting at the given offset, up to the given length.
-  /// Assumes `self` evaluates to an array.
-  ///
-  /// ```swift
-  /// // Get 2 elements from the "tags" array starting at index 1
-  /// Field("tags").arraySlice(offset: 1, length: 2)
-  /// ```
-  ///
-  /// - Parameter offset: The starting offset (integer).
-  /// - Parameter length: The maximum length of the subset (integer).
-  /// - Returns: A new `FunctionExpression` representing the sliced array.
-  func arraySlice(offset: Int, length: Int) -> FunctionExpression
-
   /// Returns a subset of the array starting at the given offset.
   /// Assumes `self` evaluates to an array.
   ///
   /// ```swift
-  /// // Get elements from "tags" starting at an offset defined by a field
+  /// // Get all elements from "tags" starting at an offset defined by a field
   /// Field("tags").arraySlice(offset: Field("startIdx"))
   /// ```
   ///
@@ -562,28 +555,55 @@ public protocol Expression: Sendable {
   /// Assumes `self` evaluates to an array.
   ///
   /// ```swift
+  /// // Get 2 elements from the "tags" array starting at index 1
+  /// Field("tags").arraySlice(offset: 1, length: 2)
+  /// ```
+  ///
+  /// - Parameters:
+  ///   - offset: The starting offset (integer).
+  ///   - length: The maximum length of the subset (positive integer).
+  /// - Returns: A new `FunctionExpression` representing the sliced array.
+  func arraySlice(offset: Int, length: Int) -> FunctionExpression
+
+  /// Returns a subset of the array starting at the given offset, up to the given length.
+  /// Assumes `self` evaluates to an array.
+  ///
+  /// ```swift
   /// // Get elements using expressions for offset and length
   /// Field("tags").arraySlice(offset: Field("startIdx"), length: Field("count"))
   /// ```
   ///
-  /// - Parameter offset: An `Expression` (evaluating to an integer) for the starting offset.
-  /// - Parameter length: An `Expression` (evaluating to an integer) for the maximum length.
+  /// - Parameters:
+  ///   - offset: An `Expression` (evaluating to an integer) for the starting offset.
+  ///   - length: An `Expression` (evaluating to a positive integer) for the maximum length.
   /// - Returns: A new `FunctionExpression` representing the sliced array.
   func arraySlice(offset: Expression, length: Expression) -> FunctionExpression
 
   /// Returns a subset of the array starting at the given offset, up to the given length.
   /// Assumes `self` evaluates to an array.
   ///
-  /// - Parameter offset: The starting offset (integer).
-  /// - Parameter length: An `Expression` (evaluating to an integer) for the maximum length.
+  /// ```swift
+  /// // Get n elements from the "tags" array starting at index 1
+  /// Field("tags").arraySlice(offset: 1, length: Field("count"))
+  /// ```
+  ///
+  /// - Parameters:
+  ///   - offset: The starting offset (integer).
+  ///   - length: An `Expression` (evaluating to a positive integer) for the maximum length.
   /// - Returns: A new `FunctionExpression` representing the sliced array.
   func arraySlice(offset: Int, length: Expression) -> FunctionExpression
 
   /// Returns a subset of the array starting at the given offset, up to the given length.
   /// Assumes `self` evaluates to an array.
   ///
-  /// - Parameter offset: An `Expression` (evaluating to an integer) for the starting offset.
-  /// - Parameter length: The maximum length of the subset (integer).
+  /// ```swift
+  /// // Get 2 elements from the "tags" array starting at an offset defined by a field
+  /// Field("tags").arraySlice(offset: Field("startIdx"), length: 2)
+  /// ```
+  ///
+  /// - Parameters:
+  ///   - offset: An `Expression` (evaluating to an integer) for the starting offset.
+  ///   - length: The maximum length of the subset (positive integer).
   /// - Returns: A new `FunctionExpression` representing the sliced array.
   func arraySlice(offset: Expression, length: Int) -> FunctionExpression
 
