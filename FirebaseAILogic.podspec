@@ -43,6 +43,14 @@ Build AI-powered apps and features with the Gemini API using the Firebase AI Log
   s.tvos.framework = 'UIKit'
   s.watchos.framework = 'WatchKit'
 
+  # Note: Foundation Models is only supported on iOS and macOS; watchOS and tvOS are omitted.
+  s.ios.pod_target_xcconfig = {
+    'OTHER_SWIFT_FLAGS' => '$(inherited) -D IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM'
+  }
+  s.osx.pod_target_xcconfig = {
+    'OTHER_SWIFT_FLAGS' => '$(inherited) -D IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM'
+  }
+
   s.dependency 'FirebaseAppCheckInterop', '~> 12.12.0'
   s.dependency 'FirebaseAuthInterop', '~> 12.12.0'
   s.dependency 'FirebaseCore', '~> 12.12.0'
