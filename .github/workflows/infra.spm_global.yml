@@ -29,13 +29,13 @@ jobs:
   spm-package-resolved:
     env:
       FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
-    runs-on: macos-15
+    runs-on: macos-26
     outputs:
       cache_key: ${{ steps.generate_cache_key.outputs.cache_key }}
     steps:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       - name: Xcode
-        run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
+        run: sudo xcode-select -s /Applications/Xcode_26.4.app/Contents/Developer
       - name: Generate Swift Package.resolved
         id: swift_package_resolve
         run: |
@@ -59,7 +59,10 @@ jobs:
       matrix:
         include:
           - os: macos-15
-            xcode: Xcode_16.4
+            xcode: Xcode_26.2
+            test: spm
+          - os: macos-26
+            xcode: Xcode_26.4
             test: spm
     runs-on: ${{ matrix.os }}
     steps:
@@ -72,6 +75,14 @@ jobs:
       run: scripts/update_vertexai_responses.sh
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
+    - name: Install simulators in case they are missing.
+      uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
+      with:
+        timeout_minutes: 15
+        max_attempts: 5
+        retry_wait_seconds: 120
+        continue_on_error: true
+        command: xcodebuild -downloadPlatform iOS
     - name: Initialize xcodebuild
       run: scripts/setup_spm_tests.sh
     - name: Functions Integration Test Server
@@ -97,8 +108,8 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: macos-15
-            xcode: Xcode_16.4
+          - os: macos-26
+            xcode: Xcode_26.4
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
@@ -110,6 +121,14 @@ jobs:
       run: scripts/update_vertexai_responses.sh
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
+    - name: Install simulators in case they are missing.
+      uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
+      with:
+        timeout_minutes: 15
+        max_attempts: 5
+        retry_wait_seconds: 120
+        continue_on_error: true
+        command: xcodebuild -downloadPlatform iOS
     - name: Initialize xcodebuild
       run: scripts/setup_spm_tests.sh
     - name: iOS Device and Test Build
@@ -132,8 +151,8 @@ jobs:
         # targets need Analytics.
         target: [tvOS, macOS, catalyst]
         include:
-          - os: macos-15
-            xcode: Xcode_16.4
+          - os: macos-26
+            xcode: Xcode_26.4
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
@@ -143,6 +162,15 @@ jobs:
         key: ${{needs.spm-package-resolved.outputs.cache_key}}
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
+    - name: Install simulators in case they are missing.
+      if: matrix.target != 'macOS' && matrix.target != 'catalyst'
+      uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
+      with:
+        timeout_minutes: 15
+        max_attempts: 5
+        retry_wait_seconds: 120
+        continue_on_error: true
+        command: xcodebuild -downloadPlatform ${{ matrix.target }}
     - name: Initialize xcodebuild
       run: scripts/setup_spm_tests.sh
     - name: Objc Import Tests
@@ -159,4 +187,3 @@ jobs:
         name: spm-platforms-${{ matrix.target }}-${{ matrix.os }}-${{ matrix.xcode }}-logs
         path: xcodebuild-*.log
         if-no-files-found: error
-
