@@ -30,12 +30,6 @@ xcode_version=$(xcodebuild -version | grep Xcode)
 xcode_version="${xcode_version/Xcode /}"
 xcode_major="${xcode_version/.*/}"
 
-if [[ "$xcode_major" -lt 15 ]]; then
-  device_name="iPhone 14"
-elif [[ "$xcode_major" -lt 16 ]]; then
-  device_name="iPhone 15"
-else
-  device_name="iPhone 17"
 device_name="iPhone 17 Pro"
 
 # Define project and, if needed, scheme.
