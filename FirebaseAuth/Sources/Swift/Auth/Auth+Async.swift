@@ -78,10 +78,7 @@ public extension Auth {
     }
 
     /// The asynchronous iterator for `AuthStateChangesSequence`.
-    ///
-    /// - Important: This type is marked `@unchecked Sendable` for the same reasons as its parent
-    ///   `AuthStateChangesSequence`.
-    public struct Iterator: AsyncIteratorProtocol, @unchecked Sendable {
+    public struct Iterator: AsyncIteratorProtocol {
       private let stream: AsyncStream<User?>
       private var streamIterator: AsyncStream<User?>.Iterator
 
@@ -176,10 +173,7 @@ public extension Auth {
     }
 
     /// The asynchronous iterator for `IDTokenChangesSequence`.
-    ///
-    /// - Important: This type is marked `@unchecked Sendable` for the same reasons as its parent
-    ///   `IDTokenChangesSequence`.
-    public struct Iterator: AsyncIteratorProtocol, @unchecked Sendable {
+    public struct Iterator: AsyncIteratorProtocol {
       private let stream: AsyncStream<User?>
       private var streamIterator: AsyncStream<User?>.Iterator
 
@@ -212,3 +206,10 @@ public extension Auth {
     }
   }
 }
+
+// Explicitly mark the Iterators as unavailable for Sendable conformance
+@available(*, unavailable)
+extension Auth.AuthStateChangesSequence.Iterator: Sendable {}
+
+@available(*, unavailable)
+extension Auth.IDTokenChangesSequence.Iterator: Sendable {}
