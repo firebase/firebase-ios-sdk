@@ -124,13 +124,13 @@ jobs:
       fail-fast: false
       matrix:
         os: [macos-15, macos-26]
-        xcode: [Xcode_16.4, Xcode_26.2]
+        xcode: [Xcode_26.2, Xcode_26.4]
         platform: [iOS, tvOS, macOS, watchOS]
         exclude:
           - os: macos-15
-            xcode: Xcode_26.2
+            xcode: Xcode_26.4
           - os: macos-26
-            xcode: Xcode_16.4
+            xcode: Xcode_26.2
     runs-on: ${{ matrix.os }}
     steps:
     - name: Skip, if applicable.

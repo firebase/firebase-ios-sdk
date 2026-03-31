@@ -1,4 +1,4 @@
-# Unreleased
+# 12.12.0
 - [added] Introduced a new `configUpdates` property to `RemoteConfig` that
   provides an `AsyncSequence` for consuming real-time config updates.
   This offers a modern, Swift Concurrency-native alternative to the existing
