@@ -56,47 +56,37 @@ public extension RemoteConfig {
   ///
   /// This struct is the concrete type returned by the `RemoteConfig.configUpdates` property.
   ///
-  /// - Important: This type is marked `Sendable` because `RemoteConfig` is assumed to be
-  /// `Sendable`.
   @available(macOS 15.0, iOS 18.0, watchOS 11.0, tvOS 18.0, visionOS 2.0, *)
-  @frozen
-  struct RemoteConfigUpdateSequence: AsyncSequence, Sendable {
+  struct RemoteConfigUpdateSequence: AsyncSequence {
     public typealias Element = RemoteConfigUpdate
     public typealias Failure = Error
     public typealias AsyncIterator = Iterator
 
-    @usableFromInline
     let remoteConfig: RemoteConfig
 
     /// Creates a new sequence for monitoring real-time config updates.
     /// - Parameter remoteConfig: The `RemoteConfig` instance to monitor.
-    @inlinable
     public init(_ remoteConfig: RemoteConfig) {
       self.remoteConfig = remoteConfig
     }
 
     /// Creates and returns an iterator for this asynchronous sequence.
     /// - Returns: An `Iterator` for `RemoteConfigUpdateSequence`.
-    @inlinable
     public func makeAsyncIterator() -> Iterator {
       Iterator(remoteConfig: remoteConfig)
     }
 
     /// The asynchronous iterator for `RemoteConfigUpdateSequence`.
     @available(macOS 15.0, iOS 18.0, watchOS 11.0, tvOS 18.0, visionOS 2.0, *)
-    @frozen
     public struct Iterator: AsyncIteratorProtocol {
       public typealias Element = RemoteConfigUpdate
 
-      @usableFromInline
       let stream: AsyncThrowingStream<RemoteConfigUpdate, Error>
-      @usableFromInline
       var streamIterator: AsyncThrowingStream<RemoteConfigUpdate, Error>.Iterator
 
       /// Initializes the iterator with the provided `RemoteConfig` instance.
       /// This sets up the `AsyncThrowingStream` and registers the necessary listener.
       /// - Parameter remoteConfig: The `RemoteConfig` instance to monitor.
-      @inlinable
       init(remoteConfig: RemoteConfig) {
         stream = AsyncThrowingStream { continuation in
           let listener = remoteConfig.addOnConfigUpdateListener { update, error in
@@ -125,7 +115,6 @@ public extension RemoteConfig {
       /// Returns a `RemoteConfigUpdate` value or `nil` if the sequence has terminated.
       /// Throws an error if the underlying listener encounters an issue.
       /// - Returns: An optional `RemoteConfigUpdate` object.
-      @inlinable
       public mutating func next() async throws -> Element? {
         try await streamIterator.next()
       }
@@ -136,7 +125,3 @@ public extension RemoteConfig {
 // Explicitly mark the Iterator as unavailable for Sendable conformance
 @available(*, unavailable)
 extension RemoteConfig.RemoteConfigUpdateSequence.Iterator: Sendable {}
-
-// Since RemoteConfig is a thread-safe Objective-C class (it uses a serial queue for its
-// operations), we can safely declare its conformance to Sendable.
-extension RemoteConfig: @unchecked @retroactive Sendable {}
