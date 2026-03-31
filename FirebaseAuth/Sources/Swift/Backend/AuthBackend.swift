@@ -74,33 +74,39 @@ final class AuthBackend: AuthBackendProtocol {
     let appCheckTokenHeaderValue = Task {
       await requestConfiguration.appCheck?.getToken(forcingRefresh: false)
     }
-    var request = URLRequest(url: url)
-    request.setValue(contentType, forHTTPHeaderField: "Content-Type")
-    let additionalFrameworkMarker = requestConfiguration.additionalFrameworkMarker
-    let clientVersion = "iOS/FirebaseSDK/\(FirebaseVersion())/\(additionalFrameworkMarker)"
-    request.setValue(clientVersion, forHTTPHeaderField: "X-Client-Version")
-    request.setValue(Bundle.main.bundleIdentifier, forHTTPHeaderField: "X-Ios-Bundle-Identifier")
-    request.setValue(requestConfiguration.appID, forHTTPHeaderField: "X-Firebase-GMPID")
-    request.httpMethod = httpMethod
-    let preferredLocalizations = Bundle.main.preferredLocalizations
-    if preferredLocalizations.count > 0 {
-      request.setValue(preferredLocalizations.first, forHTTPHeaderField: "Accept-Language")
-    }
-    if let languageCode = requestConfiguration.languageCode,
-       languageCode.count > 0 {
-      request.setValue(languageCode, forHTTPHeaderField: "X-Firebase-Locale")
-    }
-    // Wait for the async header values.
-    await request.setValue(heartbeatsHeaderValue.value, forHTTPHeaderField: "X-Firebase-Client")
-    if let tokenResult = await appCheckTokenHeaderValue.value {
-      if let error = tokenResult.error {
-        AuthLog.logWarning(code: "I-AUT000018",
-                           message: "Error getting App Check token; using placeholder " +
-                             "token instead. Error: \(error)")
+
+    return await withTaskCancellationHandler {
+      var request = URLRequest(url: url)
+      request.setValue(contentType, forHTTPHeaderField: "Content-Type")
+      let additionalFrameworkMarker = requestConfiguration.additionalFrameworkMarker
+      let clientVersion = "iOS/FirebaseSDK/\(FirebaseVersion())/\(additionalFrameworkMarker)"
+      request.setValue(clientVersion, forHTTPHeaderField: "X-Client-Version")
+      request.setValue(Bundle.main.bundleIdentifier, forHTTPHeaderField: "X-Ios-Bundle-Identifier")
+      request.setValue(requestConfiguration.appID, forHTTPHeaderField: "X-Firebase-GMPID")
+      request.httpMethod = httpMethod
+      let preferredLocalizations = Bundle.main.preferredLocalizations
+      if preferredLocalizations.count > 0 {
+        request.setValue(preferredLocalizations.first, forHTTPHeaderField: "Accept-Language")
       }
-      request.setValue(tokenResult.token, forHTTPHeaderField: "X-Firebase-AppCheck")
+      if let languageCode = requestConfiguration.languageCode,
+         languageCode.count > 0 {
+        request.setValue(languageCode, forHTTPHeaderField: "X-Firebase-Locale")
+      }
+      // Wait for the async header values.
+      await request.setValue(heartbeatsHeaderValue.value, forHTTPHeaderField: "X-Firebase-Client")
+      if let tokenResult = await appCheckTokenHeaderValue.value {
+        if let error = tokenResult.error {
+          AuthLog.logWarning(code: "I-AUT000018",
+                             message: "Error getting App Check token; using placeholder " +
+                               "token instead. Error: \(error)")
+        }
+        request.setValue(tokenResult.token, forHTTPHeaderField: "X-Firebase-AppCheck")
+      }
+      return request
+    } onCancel: {
+      heartbeatsHeaderValue.cancel()
+      appCheckTokenHeaderValue.cancel()
     }
-    return request
   }
 
   private static func generateMFAError(response: AuthRPCResponse, auth: Auth) -> Error? {
