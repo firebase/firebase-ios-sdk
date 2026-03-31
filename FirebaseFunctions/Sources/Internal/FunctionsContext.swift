@@ -44,7 +44,7 @@ struct FunctionsContextProvider: Sendable {
     let appCheckToken = Task { await getAppCheckToken(options: options) }
     let limitedUseAppCheckToken = Task { await getLimitedUseAppCheckToken(options: options) }
 
-    return await try withTaskCancellationHandler {
+    return try await withTaskCancellationHandler {
       // Only `authToken` is throwing, but the formatter script removes the `try`
       // from `try authToken` and puts it in front of the initializer call.
       try await FunctionsContext(
