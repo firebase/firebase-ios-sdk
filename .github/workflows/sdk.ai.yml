@@ -45,7 +45,8 @@ jobs:
             xcode: Xcode_26.2
           - os: macos-26
             target: iOS
-            xcode: Xcode_26.4
+            # TODO: Bump to 26.4 when "Unable to find a destination matching the provided destination specifier" is resolved.
+            xcode: Xcode_26.2
     runs-on: ${{ matrix.os }}
     needs: spm
     env:
