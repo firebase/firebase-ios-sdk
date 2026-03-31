@@ -685,6 +685,7 @@
     static let errorDomain = "\(Constants.baseErrorDomain).\(GenerativeModelSession.self)"
 
     /// An error that occurs during content generation.
+    @nonexhaustive
     public enum GenerationError: Error, LocalizedError {
       /// A context providing more information about the generation error.
       public struct Context: Sendable {
