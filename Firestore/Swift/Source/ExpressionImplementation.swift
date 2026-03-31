@@ -956,6 +956,32 @@ public extension Expression {
     return FunctionExpression(functionName: "map_merge", args: [self] + maps)
   }
 
+  func mapSet(_ key: Expression, _ value: Expression,
+              _ moreKeyValues: Expression...) -> FunctionExpression {
+    var args: [Expression] = [self, key, value]
+    args.append(contentsOf: moreKeyValues)
+    return FunctionExpression(functionName: "map_set", args: args)
+  }
+
+  func mapSet(_ key: String, _ value: Sendable,
+              _ moreKeyValues: Sendable...) -> FunctionExpression {
+    var args: [Expression] = [self, Helper.sendableToExpr(key), Helper.sendableToExpr(value)]
+    args.append(contentsOf: moreKeyValues.map { Helper.sendableToExpr($0) })
+    return FunctionExpression(functionName: "map_set", args: args)
+  }
+
+  func mapKeys() -> FunctionExpression {
+    return FunctionExpression(functionName: "map_keys", args: [self])
+  }
+
+  func mapValues() -> FunctionExpression {
+    return FunctionExpression(functionName: "map_values", args: [self])
+  }
+
+  func mapEntries() -> FunctionExpression {
+    return FunctionExpression(functionName: "map_entries", args: [self])
+  }
+
   // --- Added Aggregate Operations (on Expr) ---
 
   func countDistinct() -> AggregateFunction {
@@ -1115,6 +1141,62 @@ public extension Expression {
     return FunctionExpression(
       functionName: "timestamp_trunc",
       args: [self, Helper.sendableToExpr(granularity)]
+    )
+  }
+
+  func timestampTruncate(granularity: TimeGranularity, timezone: Sendable) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "timestamp_trunc",
+      args: [self, Helper.sendableToExpr(granularity.rawValue), Helper.sendableToExpr(timezone)]
+    )
+  }
+
+  func timestampTruncate(granularity: Sendable, timezone: Sendable) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "timestamp_trunc",
+      args: [self, Helper.sendableToExpr(granularity), Helper.sendableToExpr(timezone)]
+    )
+  }
+
+  func timestampDiff(_ start: Expression, _ unit: TimeUnit) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "timestamp_diff",
+      args: [self, start, Helper.sendableToExpr(unit)]
+    )
+  }
+
+  func timestampDiff(_ start: Expression, _ unit: Sendable) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "timestamp_diff",
+      args: [self, start, Helper.sendableToExpr(unit)]
+    )
+  }
+
+  func timestampExtract(part: TimePart) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "timestamp_extract",
+      args: [self, Helper.sendableToExpr(part.rawValue)]
+    )
+  }
+
+  func timestampExtract(part: TimePart, timezone: Sendable) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "timestamp_extract",
+      args: [self, Helper.sendableToExpr(part.rawValue), Helper.sendableToExpr(timezone)]
+    )
+  }
+
+  func timestampExtract(part: Sendable) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "timestamp_extract",
+      args: [self, Helper.sendableToExpr(part)]
+    )
+  }
+
+  func timestampExtract(part: Sendable, timezone: Sendable) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "timestamp_extract",
+      args: [self, Helper.sendableToExpr(part), Helper.sendableToExpr(timezone)]
     )
   }
 
