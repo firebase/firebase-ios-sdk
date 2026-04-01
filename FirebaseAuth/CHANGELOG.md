@@ -1,5 +1,11 @@
-# Unreleased
+# 12.12.0
+- [added] Added `AsyncSequence` support to `Auth.authStateChanges` and
+  `Auth.idTokenChanges`, providing a modern, structured-concurrency
+  alternative to `addStateDidChangeListener` and `addIDTokenDidChangeListener`.
 - [fixed] Fix a race condition with User.providerData getter. (#15950)
+- [fixed] Fixed a release-build crash in networking code when using
+  Xcode 26.4 (Swift 6.3) that was caused by a Swift regression in `async let`
+  teardown. (#15974)
 
 # 12.9.0
 - [fixed] Stop doing unnecessary AppCheck token refreshes. Introduced

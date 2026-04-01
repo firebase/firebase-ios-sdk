@@ -30,7 +30,7 @@ concurrency:
 
 jobs:
   changes:
-    runs-on: macos-14
+    runs-on: macos-26
     outputs:
       changed: ${{ steps.firestore_src_changes.outputs.sources == 'true' || steps.related_changes.outputs.other_changes == 'true' }}
     steps:
@@ -98,7 +98,7 @@ jobs:
     if: |
       (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
       (github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true')
-    runs-on: macos-14
+    runs-on: macos-26
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
@@ -120,7 +120,7 @@ jobs:
       (github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true')
     strategy:
       matrix:
-        os: [macos-14, ubuntu-latest]
+        os: [macos-26, ubuntu-latest]
 
     env:
       MINT_PATH: ${{ github.workspace }}/mint
@@ -171,7 +171,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [macos-14]
+        os: [macos-26]
         sanitizer: [asan, tsan]
 
     runs-on: ${{ matrix.os }}
@@ -265,7 +265,7 @@ jobs:
     if: |
       (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
       (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false)
-    runs-on: macos-15
+    runs-on: macos-26
 
     strategy:
       fail-fast: false
@@ -287,7 +287,7 @@ jobs:
             Firestore/Example/App/GoogleService-Info.plist "$plist_secret"
 
       - name: Select Xcode
-        run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
+        run: sudo xcode-select -s /Applications/Xcode_26.4.app/Contents/Developer
 
       - name: Install simulators in case they are missing.
         if: matrix.target != 'macOS'
@@ -322,7 +322,7 @@ jobs:
     if: |
       (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
       (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false)
-    runs-on: macos-15
+    runs-on: macos-26
 
     strategy:
       matrix:
@@ -343,7 +343,7 @@ jobs:
             Firestore/Example/App/GoogleService-Info.plist "$plist_secret"
 
       - name: Select Xcode
-        run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
+        run: sudo xcode-select -s /Applications/Xcode_26.4.app/Contents/Developer
 
       - name: Install simulators in case they are missing.
         if: matrix.target != 'macOS'
@@ -392,7 +392,7 @@ jobs:
     if: |
       (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
       (github.event_name == 'pull_request')
-    runs-on: macos-15
+    runs-on: macos-26
 
     strategy:
       matrix:
@@ -406,7 +406,7 @@ jobs:
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
 
     - name: Select Xcode
-      run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
+      run: sudo xcode-select -s /Applications/Xcode_26.4.app/Contents/Developer
 
     - name: Install simulators in case they are missing.
       if: matrix.target != 'macOS'
@@ -468,10 +468,14 @@ jobs:
           '--use-static-frameworks',
           '',
         ]
-        os: [macos-15]
-        xcode: [Xcode_16.4]
+        os: [macos-15, macos-26]
+        xcode: [Xcode_26.2, Xcode_26.4]
         # Skip matrix cells covered by pod-lib-lint job.
         exclude:
+          - os: macos-15
+            xcode: Xcode_26.4
+          - os: macos-26
+            xcode: Xcode_26.2
           - os: macos-15
             platforms: 'ios'
     runs-on: ${{ matrix.os }}
@@ -485,6 +489,15 @@ jobs:
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
 
+    - name: Install simulators in case they are missing.
+      if: matrix.platforms != 'macos'
+      uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
+      with:
+        timeout_minutes: 15
+        max_attempts: 5
+        retry_wait_seconds: 120
+        command: sudo xcodebuild -downloadPlatform ${{ matrix.platforms }}
+
     - name: Pod lib lint
       # TODO(#9565, b/227461966): Remove --no-analyze when absl is fixed.
       run: |
@@ -495,7 +508,7 @@ jobs:
           --no-analyze
 
   spm-package-resolved:
-    runs-on: macos-14
+    runs-on: macos-26
     env:
       FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
       FIREBASE_SOURCE_FIRESTORE: 1
@@ -504,7 +517,7 @@ jobs:
     steps:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       - name: Xcode
-        run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
+        run: sudo xcode-select -s /Applications/Xcode_26.4.app/Contents/Developer
       - name: Generate Swift Package.resolved
         id: swift_package_resolve
         run: |
@@ -529,23 +542,23 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: macos-14
-            xcode: Xcode_16.2
-            target: iOS
           - os: macos-15
-            xcode: Xcode_16.4
+            xcode: Xcode_26.2
             target: iOS
-          - os: macos-15
-            xcode: Xcode_16.4
+          - os: macos-26
+            xcode: Xcode_26.4
+            target: iOS
+          - os: macos-26
+            xcode: Xcode_26.4
             target: tvOS
-          - os: macos-15
-            xcode: Xcode_16.4
+          - os: macos-26
+            xcode: Xcode_26.4
             target: macOS
-          - os: macos-15
-            xcode: Xcode_16.4
+          - os: macos-26
+            xcode: Xcode_26.4
             target: catalyst
-          - os: macos-15
-            xcode: Xcode_16.4
+          - os: macos-26
+            xcode: Xcode_26.4
             target: visionOS
     runs-on: ${{ matrix.os }}
     env:
@@ -554,6 +567,14 @@ jobs:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
+    - name: Install simulators in case they are missing.
+      if: matrix.target != 'macOS' && matrix.target != 'catalyst'
+      uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
+      with:
+        timeout_minutes: 15
+        max_attempts: 5
+        retry_wait_seconds: 120
+        command: sudo xcodebuild -downloadPlatform ${{ matrix.target }}
     - name: Initialize xcodebuild
       run: scripts/setup_spm_tests.sh
     - name: iOS Build Test
@@ -562,14 +583,13 @@ jobs:
   spm-binary:
     uses: ./.github/workflows/_spm.yml
     with:
-      target: FirebaseFirestore
+      target: FirebaseFirestoreTests
       platforms: iOS
-      buildonly_platforms: iOS
 
   spm-source-cron:
     # Don't run on private repo.
     if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
-    runs-on: macos-14
+    runs-on: macos-15
     strategy:
       matrix:
         target: [tvOS, macOS, catalyst]
@@ -578,7 +598,15 @@ jobs:
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
     - name: Xcode
-      run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
+      run: sudo xcode-select -s /Applications/Xcode_26.2.app/Contents/Developer
+    - name: Install simulators in case they are missing.
+      if: matrix.target != 'macOS' && matrix.target != 'catalyst'
+      uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
+      with:
+        timeout_minutes: 15
+        max_attempts: 5
+        retry_wait_seconds: 120
+        command: sudo xcodebuild -downloadPlatform ${{ matrix.target }}
     - name: Initialize xcodebuild
       run: scripts/setup_spm_tests.sh
     - name: Build Test - Binary
@@ -587,14 +615,22 @@ jobs:
   spm-binary-cron:
     # Don't run on private repo.
     if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
-    runs-on: macos-15
+    runs-on: macos-26
     strategy:
       matrix:
         target: [tvOS, macOS, catalyst]
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
     - name: Xcode
-      run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
+      run: sudo xcode-select -s /Applications/Xcode_26.4.app/Contents/Developer
+    - name: Install simulators in case they are missing.
+      if: matrix.target != 'macOS' && matrix.target != 'catalyst'
+      uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
+      with:
+        timeout_minutes: 15
+        max_attempts: 5
+        retry_wait_seconds: 120
+        command: sudo xcodebuild -downloadPlatform ${{ matrix.target }}
     - name: Initialize xcodebuild
       run: scripts/setup_spm_tests.sh
     - name: Build Test - Binary
@@ -605,8 +641,6 @@ jobs:
   check-required-tests:
     runs-on: ubuntu-latest
     name: Check all required Firestore tests results
-    # xcodetest_prod is skipped for now. After the backend rolls out the new features
-    # to the production environment, this required test should be added back to the list.
     needs:
       - cmake
       - xcodetest_emulator
@@ -615,6 +649,7 @@ jobs:
       - sanitizers-mac
       - sanitizers-ubuntu
       - pod_lib_lint
+      - xcodetest_prod
     steps:
       - name: Check test matrix
         if: contains(needs.*.result, 'failure')

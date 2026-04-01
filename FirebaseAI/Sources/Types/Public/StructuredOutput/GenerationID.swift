@@ -32,7 +32,7 @@ public extension FirebaseAI {
     /// **Public Preview**: This API is a public preview and may be subject to change.
     public init() {
       responseID = UUID().uuidString
-      #if canImport(FoundationModels)
+      #if canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
         if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
           appleGenerationID = FoundationModels.GenerationID()
         } else {
@@ -40,7 +40,7 @@ public extension FirebaseAI {
         }
       #else
         appleGenerationID = nil
-      #endif // canImport(FoundationModels)
+      #endif // canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
     }
 
     init(responseID: String, generationID: (any GenerationIDProtocol)?) {
@@ -76,13 +76,13 @@ extension FirebaseAI.GenerationID: Equatable {
       return false
     }
 
-    #if canImport(FoundationModels)
+    #if canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
       if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
         guard lhs.generationID == rhs.generationID else {
           return false
         }
       }
-    #endif // canImport(FoundationModels)
+    #endif // canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
 
     return true
   }
@@ -92,10 +92,10 @@ extension FirebaseAI.GenerationID: Hashable {
   public func hash(into hasher: inout Hasher) {
     hasher.combine(responseID)
 
-    #if canImport(FoundationModels)
+    #if canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
       if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
         hasher.combine(generationID)
       }
-    #endif // canImport(FoundationModels)
+    #endif // canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
   }
 }

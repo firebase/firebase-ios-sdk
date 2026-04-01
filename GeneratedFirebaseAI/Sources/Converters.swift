@@ -1496,6 +1496,12 @@ public enum Converters {
         ])
     }
 
+    if fromObject.labels != nil {
+      throw NSError(
+        domain: "Gemini API", code: -1,
+        userInfo: [NSLocalizedDescriptionKey: "labels parameter is not supported in Gemini API."])
+    }
+
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase

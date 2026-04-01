@@ -30,13 +30,7 @@ xcode_version=$(xcodebuild -version | grep Xcode)
 xcode_version="${xcode_version/Xcode /}"
 xcode_major="${xcode_version/.*/}"
 
-if [[ "$xcode_major" -lt 15 ]]; then
-  device_name="iPhone 14"
-elif [[ "$xcode_major" -lt 16 ]]; then
-  device_name="iPhone 15"
-else
-  device_name="iPhone 16"
-fi
+device_name="iPhone 17 Pro"
 
 # Define project and, if needed, scheme.
 PROJECT_NAME="${SAMPLE}Example.xcodeproj"
@@ -60,7 +54,7 @@ fi
 xcodebuild \
 -project ${PROJECT_NAME} \
 -scheme  "${SCHEME_NAME}" \
--destination "platform=iOS Simulator,name=$device_name" "SWIFT_VERSION=5.3" "OTHER_LDFLAGS=\$(OTHER_LDFLAGS) -ObjC" "FRAMEWORK_SEARCH_PATHS= \$(PROJECT_DIR)/Firebase/" HEADER_SEARCH_PATHS='$(inherited) $(PROJECT_DIR)/Firebase' \
+-destination "platform=iOS Simulator,OS=$xcode_version,name=$device_name" "SWIFT_VERSION=5.3" "OTHER_LDFLAGS=\$(OTHER_LDFLAGS) -ObjC" "FRAMEWORK_SEARCH_PATHS= \$(PROJECT_DIR)/Firebase/" HEADER_SEARCH_PATHS='$(inherited) $(PROJECT_DIR)/Firebase' \
 build \
 ) || EXIT_STATUS=$?
 
