@@ -4060,6 +4060,210 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     )
   }
 
+  func testLTrim() async throws {
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .limit(1)
+      .replace(with: MapExpression([
+        "strWhitespace": "  trimMe  ",
+        "strChars": "xxxtrimMe",
+        "chars": "x",
+      ]))
+      .select([
+        Constant("  trimMe  ").ltrim().as("constLtrim"),
+        Field("strWhitespace").ltrim().as("fieldLtrim"),
+        Constant("xxxtrimMe").ltrim("x").as("constLtrimValuePrim"),
+        Constant("xxxtrimMe").ltrim(Field("chars")).as("constLtrimValueExpr"),
+        Field("strChars").ltrim("x").as("fieldLtrimValuePrim"),
+        Field("strChars").ltrim(Field("chars")).as("fieldLtrimValueExpr"),
+      ])
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      [
+        "constLtrim": "trimMe  ",
+        "fieldLtrim": "trimMe  ",
+        "constLtrimValuePrim": "trimMe",
+        "constLtrimValueExpr": "trimMe",
+        "fieldLtrimValuePrim": "trimMe",
+        "fieldLtrimValueExpr": "trimMe",
+      ],
+    ]
+
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: false)
+  }
+
+  func testRTrim() async throws {
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .limit(1)
+      .replace(with: MapExpression([
+        "strWhitespace": "  trimMe  ",
+        "strChars": "trimMexxx",
+        "chars": "x",
+      ]))
+      .select([
+        Constant("  trimMe  ").rtrim().as("constRtrim"),
+        Field("strWhitespace").rtrim().as("fieldRtrim"),
+        Constant("trimMexxx").rtrim("x").as("constRtrimValuePrim"),
+        Constant("trimMexxx").rtrim(Field("chars")).as("constRtrimValueExpr"),
+        Field("strChars").rtrim("x").as("fieldRtrimValuePrim"),
+        Field("strChars").rtrim(Field("chars")).as("fieldRtrimValueExpr"),
+      ])
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      [
+        "constRtrim": "  trimMe",
+        "fieldRtrim": "  trimMe",
+        "constRtrimValuePrim": "trimMe",
+        "constRtrimValueExpr": "trimMe",
+        "fieldRtrimValuePrim": "trimMe",
+        "fieldRtrimValueExpr": "trimMe",
+      ],
+    ]
+
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: false)
+  }
+
+  func testStringRepeat() async throws {
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .limit(1)
+      .replace(with: MapExpression([
+        "str": "ha",
+        "count": 3,
+      ]))
+      .select([
+        Constant("ha").stringRepeat(3).as("constPrim"),
+        Constant("ha").stringRepeat(Field("count")).as("constExpr"),
+        Field("str").stringRepeat(3).as("fieldPrim"),
+        Field("str").stringRepeat(Field("count")).as("fieldExpr"),
+      ])
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      [
+        "constPrim": "hahaha",
+        "constExpr": "hahaha",
+        "fieldPrim": "hahaha",
+        "fieldExpr": "hahaha",
+      ],
+    ]
+
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: false)
+  }
+
+  func testStringReplaceAll() async throws {
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .limit(1)
+      .replace(with: MapExpression([
+        "str": "hello world",
+        "old": "o",
+        "new": "a",
+      ]))
+      .select([
+        Constant("hello world").stringReplaceAll("o", with: "a").as("constPrim"),
+        Constant("hello world").stringReplaceAll(Field("old"), with: Field("new")).as("constExpr"),
+        Field("str").stringReplaceAll("o", with: "a").as("fieldPrim"),
+        Field("str").stringReplaceAll(Field("old"), with: Field("new")).as("fieldExpr"),
+      ])
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      [
+        "constPrim": "hella warld",
+        "constExpr": "hella warld",
+        "fieldPrim": "hella warld",
+        "fieldExpr": "hella warld",
+      ],
+    ]
+
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: false)
+  }
+
+  func testStringReplaceOne() async throws {
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .limit(1)
+      .replace(with: MapExpression([
+        "str": "hello world",
+        "old": "o",
+        "new": "a",
+      ]))
+      .select([
+        Constant("hello world").stringReplaceOne("o", with: "a").as("constPrim"),
+        Constant("hello world").stringReplaceOne(Field("old"), with: Field("new")).as("constExpr"),
+        Field("str").stringReplaceOne("o", with: "a").as("fieldPrim"),
+        Field("str").stringReplaceOne(Field("old"), with: Field("new")).as("fieldExpr"),
+      ])
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      [
+        "constPrim": "hella world",
+        "constExpr": "hella world",
+        "fieldPrim": "hella world",
+        "fieldExpr": "hella world",
+      ],
+    ]
+
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: false)
+  }
+
+  func testStringIndexOf() async throws {
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .limit(1)
+      .replace(with: MapExpression([
+        "str": "hello world",
+        "sub": "world",
+      ]))
+      .select([
+        Constant("hello world").stringIndexOf("world").as("constPrim"),
+        Constant("hello world").stringIndexOf(Field("sub")).as("constExpr"),
+        Field("str").stringIndexOf("world").as("fieldPrim"),
+        Field("str").stringIndexOf(Field("sub")).as("fieldExpr"),
+      ])
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      [
+        "constPrim": 6,
+        "constExpr": 6,
+        "fieldPrim": 6,
+        "fieldExpr": 6,
+      ],
+    ]
+
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: false)
+  }
+
   func testSplitWorks() async throws {
     let collRef = collectionRef(withDocuments: [
       "doc1": ["text": "a-b-c"],
