@@ -11,13 +11,13 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
 extension Expression {
-  /// Returns the internal error message. It is overridden in specific expression implementations
-  /// (like FunctionExpression) but defaults to `nil` for others.
+  /// Returns the internal error message. It is dynamically dispatched
+  /// to specific expression implementations (like FunctionExpression), and returns `nil` for
+  /// others.
   /// This design is to support pipeline conversion to expression.
   var errorMessage: String? {
-    return nil
+    return Helper.errorMessage(for: self)
   }
 
   func toBridge() -> ExprBridge {
@@ -26,8 +26,6 @@ extension Expression {
 
   /// Creates an expression applying bitwise AND between this expression and an integer literal.
   /// Assumes `self` evaluates to an Integer or Bytes.
-  ///
-  /// - Note: This API is in beta.
   ///
   /// ```swift
   /// // Bitwise AND of "flags" field and 0xFF
@@ -46,7 +44,7 @@ extension Expression {
   /// Creates an expression applying bitwise AND between this expression and a UInt8 literal (often
   /// for byte masks).
   /// Assumes `self` evaluates to an Integer or Bytes.
-  /// - Note: This API is in beta.
+  ///
   /// ```swift
   /// // Bitwise AND of "byteFlags" field and a byte mask
   /// Field("byteFlags").bitAnd(0b00001111 as UInt8)
@@ -62,7 +60,6 @@ extension Expression {
 
   /// Creates an expression applying bitwise AND between this expression and another expression.
   /// Assumes `self` and `bitsExpression` evaluate to Integer or Bytes.
-  /// - Note: This API is in beta.
   ///
   /// ```swift
   /// // Bitwise AND of "mask1" and "mask2" fields
@@ -76,8 +73,6 @@ extension Expression {
 
   /// Creates an expression applying bitwise OR between this expression and an integer literal.
   /// Assumes `self` evaluates to an Integer or Bytes.
-  ///
-  /// - Note: This API is in beta.
   ///
   /// ```swift
   /// // Bitwise OR of "flags" field and 0x01
@@ -95,7 +90,7 @@ extension Expression {
 
   /// Creates an expression applying bitwise OR between this expression and a UInt8 literal.
   /// Assumes `self` evaluates to an Integer or Bytes.
-  /// - Note: This API is in beta.
+  ///
   /// ```swift
   /// // Set specific bits in "controlByte"
   /// Field("controlByte").bitOr(0b10000001 as UInt8)
@@ -111,7 +106,6 @@ extension Expression {
 
   /// Creates an expression applying bitwise OR between this expression and another expression.
   /// Assumes `self` and `bitsExpression` evaluate to Integer or Bytes.
-  /// - Note: This API is in beta.
   ///
   /// ```swift
   /// // Bitwise OR of "permissionSet1" and "permissionSet2" fields
@@ -125,8 +119,6 @@ extension Expression {
 
   /// Creates an expression applying bitwise XOR between this expression and an integer literal.
   /// Assumes `self` evaluates to an Integer or Bytes.
-  ///
-  /// - Note: This API is in beta.
   ///
   /// ```swift
   /// // Bitwise XOR of "toggle" field and 0xFFFF
@@ -144,7 +136,7 @@ extension Expression {
 
   /// Creates an expression applying bitwise XOR between this expression and a UInt8 literal.
   /// Assumes `self` evaluates to an Integer or Bytes.
-  /// - Note: This API is in beta.
+  ///
   /// ```swift
   /// // Toggle bits in "statusByte" using a XOR mask
   /// Field("statusByte").bitXor(0b01010101 as UInt8)
@@ -160,7 +152,6 @@ extension Expression {
 
   /// Creates an expression applying bitwise XOR between this expression and another expression.
   /// Assumes `self` and `bitsExpression` evaluate to Integer or Bytes.
-  /// - Note: This API is in beta.
   ///
   /// ```swift
   /// // Bitwise XOR of "key1" and "key2" fields (assuming Bytes)
@@ -175,8 +166,6 @@ extension Expression {
   /// Creates an expression applying bitwise NOT to this expression.
   /// Assumes `self` evaluates to an Integer or Bytes.
   ///
-  /// - Note: This API is in beta.
-  ///
   /// ```swift
   /// // Bitwise NOT of "mask" field
   /// Field("mask").bitNot()
@@ -190,8 +179,6 @@ extension Expression {
   /// Creates an expression applying bitwise left shift to this expression by a literal number of
   /// bits.
   /// Assumes `self` evaluates to Integer or Bytes.
-  ///
-  /// - Note: This API is in beta.
   ///
   /// ```swift
   /// // Left shift "value" field by 2 bits
@@ -210,7 +197,6 @@ extension Expression {
   /// Creates an expression applying bitwise left shift to this expression by a number of bits
   /// specified by an expression.
   /// Assumes `self` evaluates to Integer or Bytes, and `numberExpr` evaluates to an Integer.
-  /// - Note: This API is in beta.
   ///
   /// ```swift
   /// // Left shift "data" by number of bits in "shiftCount" field
@@ -225,8 +211,6 @@ extension Expression {
   /// Creates an expression applying bitwise right shift to this expression by a literal number of
   /// bits.
   /// Assumes `self` evaluates to Integer or Bytes.
-  ///
-  /// - Note: This API is in beta.
   ///
   /// ```swift
   /// // Right shift "value" field by 4 bits
@@ -245,7 +229,6 @@ extension Expression {
   /// Creates an expression applying bitwise right shift to this expression by a number of bits
   /// specified by an expression.
   /// Assumes `self` evaluates to Integer or Bytes, and `numberExpr` evaluates to an Integer.
-  /// - Note: This API is in beta.
   ///
   /// ```swift
   /// // Right shift "data" by number of bits in "shiftCount" field
@@ -261,8 +244,6 @@ extension Expression {
   /// expression.
   /// Assumes both `self` and `other` evaluate to Vectors.
   ///
-  /// - Note: This API is in beta.
-  ///
   /// ```swift
   /// // Manhattan distance between "vector1" field and "vector2" field
   /// Field("vector1").manhattanDistance(Field("vector2"))
@@ -277,7 +258,7 @@ extension Expression {
   /// Calculates the Manhattan (L1) distance between this vector expression and another vector
   /// literal (`VectorValue`).
   /// Assumes `self` evaluates to a Vector.
-  /// - Note: This API is in beta.
+  ///
   /// ```swift
   /// let referencePoint = VectorValue(vector: [5.0, 10.0])
   /// Field("dataPoint").manhattanDistance(referencePoint)
@@ -294,7 +275,6 @@ extension Expression {
   /// Calculates the Manhattan (L1) distance between this vector expression and another vector
   /// literal (`[Double]`).
   /// Assumes `self` evaluates to a Vector.
-  /// - Note: This API is in beta.
   ///
   /// ```swift
   /// // Manhattan distance between "point" field and a target point
@@ -976,6 +956,32 @@ public extension Expression {
     return FunctionExpression(functionName: "map_merge", args: [self] + maps)
   }
 
+  func mapSet(_ key: Expression, _ value: Expression,
+              _ moreKeyValues: Expression...) -> FunctionExpression {
+    var args: [Expression] = [self, key, value]
+    args.append(contentsOf: moreKeyValues)
+    return FunctionExpression(functionName: "map_set", args: args)
+  }
+
+  func mapSet(_ key: String, _ value: Sendable,
+              _ moreKeyValues: Sendable...) -> FunctionExpression {
+    var args: [Expression] = [self, Helper.sendableToExpr(key), Helper.sendableToExpr(value)]
+    args.append(contentsOf: moreKeyValues.map { Helper.sendableToExpr($0) })
+    return FunctionExpression(functionName: "map_set", args: args)
+  }
+
+  func mapKeys() -> FunctionExpression {
+    return FunctionExpression(functionName: "map_keys", args: [self])
+  }
+
+  func mapValues() -> FunctionExpression {
+    return FunctionExpression(functionName: "map_values", args: [self])
+  }
+
+  func mapEntries() -> FunctionExpression {
+    return FunctionExpression(functionName: "map_entries", args: [self])
+  }
+
   // --- Added Aggregate Operations (on Expr) ---
 
   func countDistinct() -> AggregateFunction {
@@ -1138,6 +1144,62 @@ public extension Expression {
     )
   }
 
+  func timestampTruncate(granularity: TimeGranularity, timezone: Sendable) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "timestamp_trunc",
+      args: [self, Helper.sendableToExpr(granularity.rawValue), Helper.sendableToExpr(timezone)]
+    )
+  }
+
+  func timestampTruncate(granularity: Sendable, timezone: Sendable) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "timestamp_trunc",
+      args: [self, Helper.sendableToExpr(granularity), Helper.sendableToExpr(timezone)]
+    )
+  }
+
+  func timestampDiff(_ start: Expression, _ unit: TimeUnit) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "timestamp_diff",
+      args: [self, start, Helper.sendableToExpr(unit)]
+    )
+  }
+
+  func timestampDiff(_ start: Expression, _ unit: Sendable) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "timestamp_diff",
+      args: [self, start, Helper.sendableToExpr(unit)]
+    )
+  }
+
+  func timestampExtract(part: TimePart) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "timestamp_extract",
+      args: [self, Helper.sendableToExpr(part.rawValue)]
+    )
+  }
+
+  func timestampExtract(part: TimePart, timezone: Sendable) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "timestamp_extract",
+      args: [self, Helper.sendableToExpr(part.rawValue), Helper.sendableToExpr(timezone)]
+    )
+  }
+
+  func timestampExtract(part: Sendable) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "timestamp_extract",
+      args: [self, Helper.sendableToExpr(part)]
+    )
+  }
+
+  func timestampExtract(part: Sendable, timezone: Sendable) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "timestamp_extract",
+      args: [self, Helper.sendableToExpr(part), Helper.sendableToExpr(timezone)]
+    )
+  }
+
   func timestampAdd(_ amount: Int, _ unit: TimeUnit) -> FunctionExpression {
     return FunctionExpression(
       functionName: "timestamp_add",
@@ -1174,6 +1236,10 @@ public extension Expression {
     return FunctionExpression(functionName: "collection_id", args: [self])
   }
 
+  func parent() -> FunctionExpression {
+    return FunctionExpression(functionName: "parent", args: [self])
+  }
+
   func ifError(_ catchExpression: Expression) -> FunctionExpression {
     return FunctionExpression(functionName: "if_error", args: [self, catchExpression])
   }
@@ -1190,6 +1256,21 @@ public extension Expression {
       functionName: "if_absent",
       args: [self, Helper.sendableToExpr(defaultValue)]
     )
+  }
+
+  func ifNull(_ value: Sendable) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "if_null",
+      args: [self, Helper.sendableToExpr(value)]
+    )
+  }
+
+  func ifNull(_ value: Expression) -> FunctionExpression {
+    return FunctionExpression(functionName: "if_null", args: [self, value])
+  }
+
+  func coalesce(_ values: [Expression]) -> FunctionExpression {
+    return FunctionExpression(functionName: "coalesce", args: [self] + values)
   }
 
   // MARK: Sorting
@@ -1209,5 +1290,54 @@ public extension Expression {
 
   func type() -> FunctionExpression {
     return FunctionExpression(functionName: "type", args: [self])
+  }
+
+  func isType(_ type: String) -> BooleanExpression {
+    return BooleanFunctionExpression(
+      functionName: "is_type",
+      args: [self, Helper.sendableToExpr(type)]
+    )
+  }
+
+  /// Creates an expression that accesses a field on this expression using a string key.
+  func getField(_ key: String) -> FunctionExpression {
+    return FunctionExpression(functionName: "get_field", args: [self, Constant(key)])
+  }
+
+  /// Creates an expression that accesses a field on this expression using a dynamic key expression.
+  func getField(_ expression: Expression) -> FunctionExpression {
+    return FunctionExpression(functionName: "get_field", args: [self, expression])
+  }
+
+  // MARK: - Snippet
+
+  func snippet(_ rquery: String,
+               maxSnippetWidth: Int? = nil,
+               maxSnippets: Int? = nil,
+               separator: String? = nil) -> Expression {
+    var args: [Expression] = [self, Constant(rquery)]
+
+    var options: [String: Sendable] = [:]
+    if let maxSnippetWidth = maxSnippetWidth {
+      options["maxSnippetWidth"] = maxSnippetWidth
+    }
+    if let maxSnippets = maxSnippets {
+      options["maxSnippets"] = maxSnippets
+    }
+    if let separator = separator {
+      options["separator"] = separator
+    }
+
+    return FunctionExpression(functionName: "snippet", args: args, options: options)
+  }
+
+  // MARK: - Range Operations
+
+  func between(_ lowerBound: Sendable, _ upperBound: Sendable) -> BooleanExpression {
+    return between(Helper.sendableToExpr(lowerBound), Helper.sendableToExpr(upperBound))
+  }
+
+  func between(_ lowerBound: Expression, _ upperBound: Expression) -> BooleanExpression {
+    return greaterThanOrEqual(lowerBound) && lessThanOrEqual(upperBound)
   }
 }
