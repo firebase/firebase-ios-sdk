@@ -458,11 +458,13 @@ const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
 
   // Wait for the completion handler to signal.
   // We use a timeout to prevent permanent deadlocks if something goes wrong in the DB layer.
-  long timedOut = dispatch_semaphore_wait(semaphore, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(kDatabaseLoadTimeoutSecs * NSEC_PER_SEC)));
-  
+  long timedOut = dispatch_semaphore_wait(
+      semaphore,
+      dispatch_time(DISPATCH_TIME_NOW, (int64_t)(kDatabaseLoadTimeoutSecs * NSEC_PER_SEC)));
+
   if (timedOut) {
-     FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000048",
-                  @"Timed out waiting for experiment payloads to be loaded from DB");
+    FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000048",
+                @"Timed out waiting for experiment payloads to be loaded from DB");
   }
 
   return @{
