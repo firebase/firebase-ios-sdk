@@ -3846,8 +3846,8 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testSupportsParent() async throws {
-    let db = firestore()
     let randomCol = collectionRef()
+    let db = randomCol.firestore
 
     // Add a dummy document directly to randomCol so the pipeline has input data to process
     try await randomCol.document("dummy").setData(["dummy": 1])
