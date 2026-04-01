@@ -441,6 +441,9 @@ const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
   __block NSMutableArray *activeExperimentPayloads = [[NSMutableArray alloc] init];
   __block NSMutableArray *experimentPayloads = [[NSMutableArray alloc] init];
 
+  // Create a semaphore to synchronize the async completion handler.
+  dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+
   /// Load experiments from DB.
   [_DBManager loadExperimentWithCompletionHandler:^(BOOL success, NSDictionary *result) {
     if (success && result) {
@@ -449,9 +452,18 @@ const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
       activeExperimentPayloads =
           [result[@RCNExperimentTableKeyActivePayload] mutableCopy] ?: activeExperimentPayloads;
     }
+    // Signal that the block has finished updating the variables.
+    dispatch_semaphore_signal(semaphore);
   }];
 
-  [_DBManager waitForDatabaseOperationQueue];
+  // Wait for the completion handler to signal.
+  // We use a timeout to prevent permanent deadlocks if something goes wrong in the DB layer.
+  long timedOut = dispatch_semaphore_wait(semaphore, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(kDatabaseLoadTimeoutSecs * NSEC_PER_SEC)));
+  
+  if (timedOut) {
+     FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000048",
+                  @"Timed out waiting for experiment payloads to be loaded from DB");
+  }
 
   return @{
     @RCNExperimentTableKeyPayload : experimentPayloads,
