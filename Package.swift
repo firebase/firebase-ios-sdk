@@ -194,10 +194,7 @@ let package = Package(
       ],
       path: "FirebaseAI/Sources",
       swiftSettings: [
-        .define(
-          "IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM",
-          .when(platforms: [.iOS, .macCatalyst, .macOS, .visionOS])
-        ),
+        isFoundationModelsSupportedPlatformSwiftSetting(),
       ]
     ),
     .testTarget(
@@ -213,6 +210,9 @@ let package = Package(
       ],
       cSettings: [
         .headerSearchPath("../../../"),
+      ],
+      swiftSettings: [
+        isFoundationModelsSupportedPlatformSwiftSetting(),
       ]
     ),
     .target(
@@ -1662,4 +1662,11 @@ func firestoreTargets() -> [Target] {
     ),
     firestoreInternalTarget,
   ]
+}
+
+func isFoundationModelsSupportedPlatformSwiftSetting() -> SwiftSetting {
+  return SwiftSetting.define(
+    "IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM",
+    .when(platforms: [.iOS, .macCatalyst, .macOS, .visionOS])
+  )
 }

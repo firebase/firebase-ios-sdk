@@ -1259,6 +1259,198 @@ public protocol Expression: Sendable {
   /// - Returns: A new `FunctionExpression` representing the trimmed string.
   func trim(_ value: Expression) -> FunctionExpression
 
+  /// Creates an expression that removes leading whitespace from this string expression.
+  /// Assumes `self` evaluates to a string.
+  ///
+  /// ```swift
+  /// // Trim leading whitespace from the "text" field.
+  /// Field("text").ltrim()
+  /// ```
+  ///
+  /// - Returns: A new `FunctionExpression` representing the ltrim operation.
+  func ltrim() -> FunctionExpression
+
+  /// Creates an expression that removes specified leading characters from this string expression.
+  /// Assumes `self` evaluates to a string, and `value` evaluates to a string.
+  ///
+  /// The characters in `value` are treated as a **set** of characters to trim, not as a substring.
+  ///
+  /// ```swift
+  /// // Trim all leading '-' or '_' characters from the "text" field.
+  /// Field("text").ltrim("-_")
+  /// ```
+  ///
+  /// - Parameter value: The literal string of characters to remove.
+  /// - Returns: A new `FunctionExpression` representing the ltrim operation.
+  func ltrim(_ value: String) -> FunctionExpression
+
+  /// Creates an expression that removes specified leading characters from this string expression.
+  /// Assumes `self` evaluates to a string, and `value` evaluates to a string.
+  ///
+  /// The characters in `value` are treated as a **set** of characters to trim, not as a substring.
+  ///
+  /// ```swift
+  /// // Trim leading characters defined by the "chars" field from the "text" field.
+  /// Field("text").ltrim(Field("chars"))
+  /// ```
+  ///
+  /// - Parameter value: An `Expression` (evaluating to a string) representing the characters
+  /// to remove.
+  /// - Returns: A new `FunctionExpression` representing the ltrim operation.
+  func ltrim(_ value: Expression) -> FunctionExpression
+
+  /// Creates an expression that removes trailing whitespace from this string expression.
+  /// Assumes `self` evaluates to a string.
+  ///
+  /// ```swift
+  /// // Trim trailing whitespace from the "text" field.
+  /// Field("text").rtrim()
+  /// ```
+  ///
+  /// - Returns: A new `FunctionExpression` representing the rtrim operation.
+  func rtrim() -> FunctionExpression
+
+  /// Creates an expression that removes specified trailing characters from this string expression.
+  /// Assumes `self` evaluates to a string, and `value` evaluates to a string.
+  ///
+  /// The characters in `value` are treated as a **set** of characters to trim, not as a substring.
+  ///
+  /// ```swift
+  /// // Trim trailing '-' or '_' characters from the "text" field.
+  /// Field("text").rtrim("-_")
+  /// ```
+  ///
+  /// - Parameter value: The literal string of characters to remove.
+  /// - Returns: A new `FunctionExpression` representing the rtrim operation.
+  func rtrim(_ value: String) -> FunctionExpression
+
+  /// Creates an expression that removes specified trailing characters from this string expression.
+  /// Assumes `self` evaluates to a string, and `value` evaluates to a string.
+  ///
+  /// The characters in `value` are treated as a **set** of characters to trim, not as a substring.
+  ///
+  /// ```swift
+  /// // Trim trailing characters defined by the "chars" field from the "text" field.
+  /// Field("text").rtrim(Field("chars"))
+  /// ```
+  ///
+  /// - Parameter value: An `Expression` (evaluating to a string) representing the characters
+  /// to remove.
+  /// - Returns: A new `FunctionExpression` representing the rtrim operation.
+  func rtrim(_ value: Expression) -> FunctionExpression
+
+  /// Creates an expression that repeats this string expression a given number of times.
+  /// Assumes `self` evaluates to a string.
+  ///
+  /// ```swift
+  /// // Repeat the "name" field 3 times.
+  /// Field("name").stringRepeat(3)
+  /// ```
+  ///
+  /// - Parameter count: The literal `Int` number of times to repeat the string.
+  /// - Returns: A new `FunctionExpression` representing the stringRepeat operation.
+  func stringRepeat(_ count: Int) -> FunctionExpression
+
+  /// Creates an expression that repeats this string expression a given number of times.
+  /// Assumes `self` evaluates to a string.
+  ///
+  /// ```swift
+  /// // Repeat the "name" field the number of times specified in the "count" field.
+  /// Field("name").stringRepeat(Field("count"))
+  /// ```
+  ///
+  /// - Parameter count: An `Expression` (evaluating to an Int) representing the number of times to
+  /// repeat the string.
+  /// - Returns: A new `FunctionExpression` representing the stringRepeat operation.
+  func stringRepeat(_ count: Expression) -> FunctionExpression
+
+  /// Creates an expression that replaces all occurrences of a literal substring with another
+  /// literal string.
+  /// Assumes `self` evaluates to a string.
+  ///
+  /// ```swift
+  /// // Replace all occurrences of "cat" with "dog" in the "text" field.
+  /// Field("text").stringReplaceAll("cat", with: "dog")
+  /// ```
+  ///
+  /// - Parameters:
+  ///   - oldValue: The literal string substring to replace.
+  ///   - newValue: The literal replacement string.
+  /// - Returns: A new `FunctionExpression` representing the stringReplaceAll operation.
+  func stringReplaceAll(_ oldValue: String, with newValue: String) -> FunctionExpression
+
+  /// Creates an expression that replaces all occurrences of a substring (from an expression) with
+  /// another string.
+  /// Assumes `self` evaluates to a string.
+  ///
+  /// ```swift
+  /// // Replace all occurrences of the "old" field with the "new" field in "text".
+  /// Field("text").stringReplaceAll(Field("old"), with: Field("new"))
+  /// ```
+  ///
+  /// - Parameters:
+  ///   - oldValue: An `Expression` (evaluating to a string) representing the substring to replace.
+  ///   - newValue: An `Expression` (evaluating to a string) representing the replacement string.
+  /// - Returns: A new `FunctionExpression` representing the stringReplaceAll operation.
+  func stringReplaceAll(_ oldValue: Expression, with newValue: Expression) -> FunctionExpression
+
+  /// Creates an expression that replaces the first occurrence of a literal substring with another
+  /// literal string.
+  /// Assumes `self` evaluates to a string.
+  ///
+  /// ```swift
+  /// // Replace the first occurrence of "cat" with "dog" in the "text" field.
+  /// Field("text").stringReplaceOne("cat", with: "dog")
+  /// ```
+  ///
+  /// - Parameters:
+  ///   - oldValue: The literal string substring to replace.
+  ///   - newValue: The literal replacement string.
+  /// - Returns: A new `FunctionExpression` representing the stringReplaceOne operation.
+  func stringReplaceOne(_ oldValue: String, with newValue: String) -> FunctionExpression
+
+  /// Creates an expression that replaces the first occurrence of a substring (from an expression)
+  /// with another string.
+  /// Assumes `self` evaluates to a string.
+  ///
+  /// ```swift
+  /// // Replace the first occurrence of the "old" field with the "new" field in "text".
+  /// Field("text").stringReplaceOne(Field("old"), with: Field("new"))
+  /// ```
+  ///
+  /// - Parameters:
+  ///   - oldValue: An `Expression` (evaluating to a string) representing the substring to replace.
+  ///   - newValue: An `Expression` (evaluating to a string) representing the replacement string.
+  /// - Returns: A new `FunctionExpression` representing the stringReplaceOne operation.
+  func stringReplaceOne(_ oldValue: Expression, with newValue: Expression) -> FunctionExpression
+
+  /// Creates an expression that returns the 0-based index of the first occurrence of a literal
+  /// substring.
+  /// Assumes `self` evaluates to a string.
+  ///
+  /// ```swift
+  /// // Get the index of "world" within the "text" field.
+  /// Field("text").stringIndexOf("world")
+  /// ```
+  ///
+  /// - Parameter substring: The literal string substring to search for.
+  /// - Returns: A new `FunctionExpression` representing the stringIndexOf operation.
+  func stringIndexOf(_ substring: String) -> FunctionExpression
+
+  /// Creates an expression that returns the 0-based index of the first occurrence of a substring
+  /// (from an expression).
+  /// Assumes `self` evaluates to a string.
+  ///
+  /// ```swift
+  /// // Get the index of the "search" field within the "text" field.
+  /// Field("text").stringIndexOf(Field("search"))
+  /// ```
+  ///
+  /// - Parameter substring: An `Expression` (evaluating to a string) representing the substring to
+  /// search for.
+  /// - Returns: A new `FunctionExpression` representing the stringIndexOf operation.
+  func stringIndexOf(_ substring: Expression) -> FunctionExpression
+
   /// Creates an expression that concatenates this string expression with other string expressions.
   /// Assumes `self` and all parameters evaluate to strings.
   ///
