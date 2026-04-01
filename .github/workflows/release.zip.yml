@@ -224,8 +224,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: ['macos-26']
-        xcode: ['Xcode_26.4']
+#        os: ['macos-26']
+#        xcode: ['Xcode_26.4']
+        os: ['macos-15']
+        xcode: ['Xcode_26.2']
         artifact: [Firebase-actions-dir, Firebase-actions-dir-dynamic]
         config:
           - product: "ABTesting"
