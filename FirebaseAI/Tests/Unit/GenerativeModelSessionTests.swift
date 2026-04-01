@@ -32,6 +32,11 @@
     var urlSession: URLSession!
 
     override func setUp() async throws {
+      // Skip tests on platforms that do not support Foundation Models. This is a
+      // workaround for XCTest ignoring the `@available` attributes. See
+      // https://stackoverflow.com/q/59645536 for more details.
+      try XCTSkipFoundationModelsUnsupported()
+
       let configuration = URLSessionConfiguration.default
       configuration.protocolClasses = [MockURLProtocol.self]
       urlSession = try XCTUnwrap(URLSession(configuration: configuration))
