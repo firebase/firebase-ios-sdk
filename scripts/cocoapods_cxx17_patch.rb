@@ -14,14 +14,24 @@
 
 module CocoapodsCXX17Patch
   def self.apply_patch(installer)
-    targets_to_patch = ['BoringSSL-GRPC', 'gRPC-C++', 'abseil']
-    installer.pods_project.targets.each do |target|
-      if targets_to_patch.any? { |name| target.name.start_with?(name) }
-        target.build_configurations.each do |config|
-          config.build_settings['CLANG_CXX_LANGUAGE_STANDARD'] = 'c++17'
-          config.build_settings['CLANG_CXX_LIBRARY'] = 'libc++'
+    targets_to_patch = ['BoringSSL-GRPC', 'gRPC-C++', 'abseil', 'Pods-']
+    projects = []
+    if installer.respond_to?(:pods_project) && installer.pods_project
+      projects << installer.pods_project
+    elsif installer.respond_to?(:generated_projects)
+      projects = installer.generated_projects
+    end
+
+    projects.each do |project|
+      project.targets.each do |target|
+        if targets_to_patch.any? { |name| target.name.start_with?(name) }
+          target.build_configurations.each do |config|
+            config.build_settings['CLANG_CXX_LANGUAGE_STANDARD'] = 'c++17'
+            config.build_settings['CLANG_CXX_LIBRARY'] = 'libc++'
+          end
         end
       end
+      project.save if installer.respond_to?(:generated_projects) # Save subprojects
     end
   end
 end

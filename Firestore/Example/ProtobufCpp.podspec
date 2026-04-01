@@ -58,7 +58,7 @@ Pod::Spec.new do |s|
 
   s.header_mappings_dir = 'src/'
 
-  s.dependency 'abseil', '~> 1.20240722.0'
+  s.dependency 'abseil', '~> 1.20250512.1'
 
   # Set a CPP symbol so the code knows to use framework imports.
   s.pod_target_xcconfig = {

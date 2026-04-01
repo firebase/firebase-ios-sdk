@@ -1439,12 +1439,12 @@ func abseilDependency() -> Package.Dependency {
   if shouldUseSourceFirestore {
     packageInfo = (
       "https://github.com/firebase/abseil-cpp-SwiftPM.git",
-      "0.20240722.0" ..< "0.20240723.0"
+      "0.20250512.1" ..< "0.20250512.2"
     )
   } else {
     packageInfo = (
       "https://github.com/google/abseil-cpp-binary.git",
-      "1.2024072200.0" ..< "1.2024072300.0"
+      "1.2025051201.0" ..< "1.2025051202.0"
     )
   }
 
@@ -1457,9 +1457,9 @@ func grpcDependency() -> Package.Dependency {
   // If building Firestore from source, abseil will need to be built as source
   // as the headers in the binary version of abseil are unusable.
   if shouldUseSourceFirestore {
-    packageInfo = ("https://github.com/grpc/grpc-ios.git", "1.69.0" ..< "1.70.0")
+    packageInfo = ("https://github.com/grpc/grpc-ios.git", "1.80.0" ..< "1.81.0")
   } else {
-    packageInfo = ("https://github.com/google/grpc-binary.git", "1.69.0" ..< "1.70.0")
+    packageInfo = ("https://github.com/google/grpc-binary.git", "1.80.0" ..< "1.81.0")
   }
 
   return .package(url: packageInfo.url, packageInfo.range)

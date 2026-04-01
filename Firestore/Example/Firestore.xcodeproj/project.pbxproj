@@ -26,6 +26,7 @@
 		020AFD89BB40E5175838BB76 /* local_serializer_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = F8043813A5D16963EC02B182 /* local_serializer_test.cc */; };
 		021058F033B6BBA599DEE1FD /* sort_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 15EAAEEE767299A3CDA96132 /* sort_test.cc */; };
 		022BA1619A576F6818B212C5 /* remote_store_spec_test.json in Resources */ = {isa = PBXBuildFile; fileRef = 3B843E4A1F3930A400548890 /* remote_store_spec_test.json */; };
+		028BEB67C8B486FC461F8A07 /* AsyncSequenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 157899B132ED897A03A3B2FB /* AsyncSequenceTests.swift */; };
 		02C953A7B0FA5EF87DB0361A /* FSTIntegrationTestCase.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5491BC711FB44593008B3588 /* FSTIntegrationTestCase.mm */; };
 		02E1EA3818F4BEEA9CE40DAE /* timestamp_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 82DF854A7238D538FA53C908 /* timestamp_test.cc */; };
 		02EB33CC2590E1484D462912 /* annotations.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = 618BBE9520B89AAC00B5BCE7 /* annotations.pb.cc */; };
@@ -152,6 +153,7 @@
 		128F2B022E254E2C0006327E /* QueryToPipelineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 128F2B002E254E2C0006327E /* QueryToPipelineTests.swift */; };
 		128F2B032E254E2C0006327E /* QueryToPipelineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 128F2B002E254E2C0006327E /* QueryToPipelineTests.swift */; };
 		1290FA77A922B76503AE407C /* lru_garbage_collector_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 277EAACC4DD7C21332E8496A /* lru_garbage_collector_test.cc */; };
+		1291BC7F4E00120075F924B8 /* AsyncSequenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 157899B132ED897A03A3B2FB /* AsyncSequenceTests.swift */; };
 		1291D9F5300AFACD1FBD262D /* array_sorted_map_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 54EB764C202277B30088B8F3 /* array_sorted_map_test.cc */; };
 		129A369A28CA555B005AE7E2 /* FIRCountTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 129A369928CA555B005AE7E2 /* FIRCountTests.mm */; };
 		129A369B28CA555B005AE7E2 /* FIRCountTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 129A369928CA555B005AE7E2 /* FIRCountTests.mm */; };
@@ -933,6 +935,7 @@
 		7264B73291F7F1EB454C45B1 /* FIRIndexingTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 795AA8FC31D2AF6864B07D39 /* FIRIndexingTests.mm */; };
 		7272BD4FEC80177D38508BF1 /* complex_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = B32C2DDDEC16F6465317B8AE /* complex_test.cc */; };
 		7281C2F04838AFFDF6A762DF /* memory_remote_document_cache_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1CA9800A53669EFBFFB824E3 /* memory_remote_document_cache_test.cc */; };
+		729A8B2C7BBEE285FB1470B2 /* AsyncSequenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 157899B132ED897A03A3B2FB /* AsyncSequenceTests.swift */; };
 		72AD91671629697074F2545B /* ordered_code_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB380D03201BC6E400D97691 /* ordered_code_test.cc */; };
 		72B25B2D698E4746143D5B74 /* memory_lru_garbage_collector_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 9765D47FA12FA283F4EFAD02 /* memory_lru_garbage_collector_test.cc */; };
 		72B53221FD099862C4BDBA2D /* FIRFieldValueTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E04A202154AA00B64F25 /* FIRFieldValueTests.mm */; };
@@ -1926,6 +1929,7 @@
 		132E32997D781B896672D30A /* reference_set_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = reference_set_test.cc; sourceTree = "<group>"; };
 		13686A75655552CE5D44751E /* Pods_Firestore_Tests_macOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Firestore_Tests_macOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		15249D092D85B40EFC8A1459 /* pipeline.pb.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = pipeline.pb.h; sourceTree = "<group>"; };
+		157899B132ED897A03A3B2FB /* AsyncSequenceTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AsyncSequenceTests.swift; path = Unit/AsyncAwait/AsyncSequenceTests.swift; sourceTree = "<group>"; };
 		15EAAEEE767299A3CDA96132 /* sort_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = sort_test.cc; path = pipeline/sort_test.cc; sourceTree = "<group>"; };
 		166CE73C03AB4366AAC5201C /* leveldb_index_manager_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = leveldb_index_manager_test.cc; sourceTree = "<group>"; };
 		1924149B429A2020C3CD94D6 /* utils.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = utils.cc; path = pipeline/utils.cc; sourceTree = "<group>"; };
@@ -2510,6 +2514,22 @@
 			path = Integration;
 			sourceTree = "<group>";
 		};
+		2B9416F41332897C44F8AC72 /* Unit */ = {
+			isa = PBXGroup;
+			children = (
+				37C209E504495E8536DF6406 /* AsyncAwait */,
+			);
+			name = Unit;
+			sourceTree = "<group>";
+		};
+		37C209E504495E8536DF6406 /* AsyncAwait */ = {
+			isa = PBXGroup;
+			children = (
+				157899B132ED897A03A3B2FB /* AsyncSequenceTests.swift */,
+			);
+			name = AsyncAwait;
+			sourceTree = "<group>";
+		};
 		3C21D8CBCC4E086899931A65 /* admin */ = {
 			isa = PBXGroup;
 			children = (
@@ -2799,6 +2819,7 @@
 				5495EB012040E90200EBA509 /* Codable */,
 				124C932A22C1635300CA8C2D /* Integration */,
 				C7D3D622BB13EB3C3301DA4F /* TestHelper */,
+				2B9416F41332897C44F8AC72 /* Unit */,
 				620C1427763BA5D3CCFB5A1F /* BridgingHeader.h */,
 				54C9EDF52040E16300A969CD /* Info.plist */,
 			);
@@ -4924,6 +4945,7 @@
 			files = (
 				EF6C286F29E6D22200A7D4F1 /* AggregationIntegrationTests.swift in Sources */,
 				062072B92773A055001655D7 /* AsyncAwaitIntegrationTests.swift in Sources */,
+				1291BC7F4E00120075F924B8 /* AsyncSequenceTests.swift in Sources */,
 				733AFC467B600967536BD70F /* BasicCompileTests.swift in Sources */,
 				79987AF2DF1FCE799008B846 /* CodableGeoPointTests.swift in Sources */,
 				1C79AE3FBFC91800E30D092C /* CodableIntegrationTests.swift in Sources */,
@@ -5179,8 +5201,8 @@
 				25D74F38A5EE96CC653ABB49 /* thread_safe_memoizer_testing.cc in Sources */,
 				688AC36AA9D0677E910D5A37 /* thread_safe_memoizer_testing_test.cc in Sources */,
 				6300709ECDE8E0B5A8645F8D /* time_testing.cc in Sources */,
-				A405A976DB6444D3ED3FCAB2 /* timestamp_test.cc in Sources */,
 				0CEE93636BA4852D3C5EC428 /* timestamp_test.cc in Sources */,
+				A405A976DB6444D3ED3FCAB2 /* timestamp_test.cc in Sources */,
 				95DCD082374F871A86EF905F /* to_string_apple_test.mm in Sources */,
 				9E656F4FE92E8BFB7F625283 /* to_string_test.cc in Sources */,
 				96D95E144C383459D4E26E47 /* token_test.cc in Sources */,
@@ -5206,6 +5228,7 @@
 			files = (
 				EF6C286E29E6D22200A7D4F1 /* AggregationIntegrationTests.swift in Sources */,
 				062072B82773A055001655D7 /* AsyncAwaitIntegrationTests.swift in Sources */,
+				729A8B2C7BBEE285FB1470B2 /* AsyncSequenceTests.swift in Sources */,
 				B896E5DE1CC27347FAC009C3 /* BasicCompileTests.swift in Sources */,
 				722F9A798F39F7D1FE7CF270 /* CodableGeoPointTests.swift in Sources */,
 				CF5DE1ED21DD0A9783383A35 /* CodableIntegrationTests.swift in Sources */,
@@ -5461,8 +5484,8 @@
 				CF18D52A88F4F6F62C5495EF /* thread_safe_memoizer_testing.cc in Sources */,
 				A7669E72BCED7FBADA4B1314 /* thread_safe_memoizer_testing_test.cc in Sources */,
 				A25FF76DEF542E01A2DF3B0E /* time_testing.cc in Sources */,
-				BDDAB87A7D76562BCB5D0BF8 /* timestamp_test.cc in Sources */,
 				1E42CD0F60EB22A5D0C86D1F /* timestamp_test.cc in Sources */,
+				BDDAB87A7D76562BCB5D0BF8 /* timestamp_test.cc in Sources */,
 				F9705E595FC3818F13F6375A /* to_string_apple_test.mm in Sources */,
 				3BAFCABA851AE1865D904323 /* to_string_test.cc in Sources */,
 				1B9E54F4C4280A713B825981 /* token_test.cc in Sources */,
@@ -5770,6 +5793,7 @@
 			files = (
 				EF6C286D29E6D22200A7D4F1 /* AggregationIntegrationTests.swift in Sources */,
 				062072B72773A055001655D7 /* AsyncAwaitIntegrationTests.swift in Sources */,
+				028BEB67C8B486FC461F8A07 /* AsyncSequenceTests.swift in Sources */,
 				F731A0CCD0220B370BC1BE8B /* BasicCompileTests.swift in Sources */,
 				7C5E017689012489AAB7718D /* CodableGeoPointTests.swift in Sources */,
 				54C3242322D3B627000FE6DD /* CodableIntegrationTests.swift in Sources */,
@@ -6025,8 +6049,8 @@
 				D928302820891CCCAD0437DD /* thread_safe_memoizer_testing.cc in Sources */,
 				C099AEC05D44976755BA32A2 /* thread_safe_memoizer_testing_test.cc in Sources */,
 				2D220B9ABFA36CD7AC43D0A7 /* time_testing.cc in Sources */,
-				06B8A653BC26CB2C96024993 /* timestamp_test.cc in Sources */,
 				D91D86B29B86A60C05879A48 /* timestamp_test.cc in Sources */,
+				06B8A653BC26CB2C96024993 /* timestamp_test.cc in Sources */,
 				60260A06871DCB1A5F3448D3 /* to_string_apple_test.mm in Sources */,
 				ECED3B60C5718B085AAB14FB /* to_string_test.cc in Sources */,
 				F0EA84FB66813F2BC164EF7C /* token_test.cc in Sources */,
