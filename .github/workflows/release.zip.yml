@@ -240,107 +240,107 @@ jobs:
                 "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/FirebaseInstallations.xcframework \
                 "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/GoogleUtilities.xcframework
 
-          # - product: "Authentication"
-          #   plist_src: "scripts/gha-encrypted/qs-authentication.plist.gpg"
-          #   plist_dst: "quickstart-ios/authentication/GoogleService-Info.plist"
-          #   command: |
-          #     SAMPLE="Authentication" TARGET="AuthenticationExample" \
-          #       NON_FIREBASE_SDKS="FBSDKLoginKit FBSDKCoreKit FBSDKCoreKit_Basics FBAEMKit" \
-          #       scripts/zip/setup_quickstart_framework.sh \
-          #       "${HOME}"/ios_frameworks/Firebase/NonFirebaseSDKs/* \
-          #       "${HOME}"/ios_frameworks/Firebase/GoogleSignIn/* \
-          #       "${HOME}"/ios_frameworks/Firebase/FirebaseAuth/* \
-          #       "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
+          - product: "Authentication"
+            plist_src: "scripts/gha-encrypted/qs-authentication.plist.gpg"
+            plist_dst: "quickstart-ios/authentication/GoogleService-Info.plist"
+            command: |
+              SAMPLE="Authentication" TARGET="AuthenticationExample" \
+                NON_FIREBASE_SDKS="FBSDKLoginKit FBSDKCoreKit FBSDKCoreKit_Basics FBAEMKit" \
+                scripts/zip/setup_quickstart_framework.sh \
+                "${HOME}"/ios_frameworks/Firebase/NonFirebaseSDKs/* \
+                "${HOME}"/ios_frameworks/Firebase/GoogleSignIn/* \
+                "${HOME}"/ios_frameworks/Firebase/FirebaseAuth/* \
+                "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
 
-          # - product: "Config"
-          #   plist_src: "scripts/gha-encrypted/qs-config.plist.gpg"
-          #   plist_dst: "quickstart-ios/config/GoogleService-Info.plist"
-          #   command: |
-          #     SAMPLE="Config" TARGET="ConfigExample" scripts/zip/setup_quickstart_framework.sh \
-          #       "${HOME}"/ios_frameworks/Firebase/FirebaseRemoteConfig/* \
-          #       "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
+          - product: "Config"
+            plist_src: "scripts/gha-encrypted/qs-config.plist.gpg"
+            plist_dst: "quickstart-ios/config/GoogleService-Info.plist"
+            command: |
+              SAMPLE="Config" TARGET="ConfigExample" scripts/zip/setup_quickstart_framework.sh \
+                "${HOME}"/ios_frameworks/Firebase/FirebaseRemoteConfig/* \
+                "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
 
-          # - product: "Crashlytics"
-          #   plist_src: "scripts/gha-encrypted/qs-crashlytics.plist.gpg"
-          #   plist_dst: "quickstart-ios/crashlytics/GoogleService-Info.plist"
-          #   command: |
-          #     xcodebuild -downloadPlatform watchOS
-          #     rm -rf "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/FirebaseAnalytics*
-          #     rm -rf "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/GoogleAppMeasurement*
-          #     rm -rf "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/GoogleAds*
-          #     SAMPLE="Crashlytics" TARGET="CrashlyticsExample" scripts/zip/setup_quickstart_framework.sh \
-          #       "${HOME}"/ios_frameworks/Firebase/FirebaseCrashlytics/* \
-          #       "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
-          #     cd quickstart-ios/crashlytics
-          #     "${GITHUB_WORKSPACE}"/quickstart-ios/scripts/add_framework_script.rb --sdk "Crashlytics" \
-          #       --target "CrashlyticsExample_(watchOS)_Extension" \
-          #       --framework_path Firebase/
-          #     cd ../../
-          #     scripts/patch_crashlytics_run_path.rb
+          - product: "Crashlytics"
+            plist_src: "scripts/gha-encrypted/qs-crashlytics.plist.gpg"
+            plist_dst: "quickstart-ios/crashlytics/GoogleService-Info.plist"
+            command: |
+              xcodebuild -downloadPlatform watchOS
+              rm -rf "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/FirebaseAnalytics*
+              rm -rf "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/GoogleAppMeasurement*
+              rm -rf "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/GoogleAds*
+              SAMPLE="Crashlytics" TARGET="CrashlyticsExample" scripts/zip/setup_quickstart_framework.sh \
+                "${HOME}"/ios_frameworks/Firebase/FirebaseCrashlytics/* \
+                "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
+              cd quickstart-ios/crashlytics
+              "${GITHUB_WORKSPACE}"/quickstart-ios/scripts/add_framework_script.rb --sdk "Crashlytics" \
+                --target "CrashlyticsExample_(watchOS)_Extension" \
+                --framework_path Firebase/
+              cd ../../
+              scripts/patch_crashlytics_run_path.rb
 
-          # - product: "Database"
-          #   plist_src: "scripts/gha-encrypted/qs-database.plist.gpg"
-          #   plist_dst: "quickstart-ios/database/GoogleService-Info.plist"
-          #   command: |
-          #     SAMPLE="Database" TARGET="DatabaseExample" NON_FIREBASE_SDKS="FirebaseDatabaseUI" \
-          #       scripts/zip/setup_quickstart_framework.sh \
-          #       "${HOME}"/ios_frameworks/Firebase/FirebaseDatabase/* \
-          #       "${HOME}"/ios_frameworks/Firebase/FirebaseStorage/* \
-          #       "${HOME}"/ios_frameworks/Firebase/FirebaseFirestore/* \
-          #       "${HOME}"/ios_frameworks/Firebase/FirebaseAuth/* \
-          #       "${HOME}"/ios_frameworks/Firebase/NonFirebaseSDKs/* \
-          #       "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
+          - product: "Database"
+            plist_src: "scripts/gha-encrypted/qs-database.plist.gpg"
+            plist_dst: "quickstart-ios/database/GoogleService-Info.plist"
+            command: |
+              SAMPLE="Database" TARGET="DatabaseExample" NON_FIREBASE_SDKS="FirebaseDatabaseUI" \
+                scripts/zip/setup_quickstart_framework.sh \
+                "${HOME}"/ios_frameworks/Firebase/FirebaseDatabase/* \
+                "${HOME}"/ios_frameworks/Firebase/FirebaseStorage/* \
+                "${HOME}"/ios_frameworks/Firebase/FirebaseFirestore/* \
+                "${HOME}"/ios_frameworks/Firebase/FirebaseAuth/* \
+                "${HOME}"/ios_frameworks/Firebase/NonFirebaseSDKs/* \
+                "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
 
-          # - product: "FirebaseAI"
-          #   plist_src: "scripts/gha-encrypted/FirebaseAI/TestApp-GoogleService-Info.plist.gpg"
-          #   plist_dst: "quickstart-ios/firebaseai/GoogleService-Info.plist"
-          #   scheme: "FirebaseAIExample (iOS)" # Special property
-          #   command: |
-          #     SAMPLE="$SDK" TARGET="${SDK}Example" scripts/zip/setup_quickstart_framework.sh \
-          #       "${HOME}"/ios_frameworks/Firebase/FirebaseAILogic/* \
-          #       "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
+          - product: "FirebaseAI"
+            plist_src: "scripts/gha-encrypted/FirebaseAI/TestApp-GoogleService-Info.plist.gpg"
+            plist_dst: "quickstart-ios/firebaseai/GoogleService-Info.plist"
+            scheme: "FirebaseAIExample (iOS)" # Special property
+            command: |
+              SAMPLE="$SDK" TARGET="${SDK}Example" scripts/zip/setup_quickstart_framework.sh \
+                "${HOME}"/ios_frameworks/Firebase/FirebaseAILogic/* \
+                "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
 
-          # - product: "Firestore"
-          #   plist_src: "scripts/gha-encrypted/qs-firestore.plist.gpg"
-          #   plist_dst: "quickstart-ios/firestore/GoogleService-Info.plist"
-          #   command: |
-          #     SAMPLE="Firestore" TARGET="FirestoreExample" \
-          #       NON_FIREBASE_SDKS="SDWebImage FirebaseAuthUI FirebaseEmailAuthUI" \
-          #       scripts/zip/setup_quickstart_framework.sh \
-          #       "${HOME}"/ios_frameworks/Firebase/NonFirebaseSDKs/* \
-          #       "${HOME}"/ios_frameworks/Firebase/FirebaseFirestore/* \
-          #       "${HOME}"/ios_frameworks/Firebase/FirebaseAuth/* \
-          #       "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
+          - product: "Firestore"
+            plist_src: "scripts/gha-encrypted/qs-firestore.plist.gpg"
+            plist_dst: "quickstart-ios/firestore/GoogleService-Info.plist"
+            command: |
+              SAMPLE="Firestore" TARGET="FirestoreExample" \
+                NON_FIREBASE_SDKS="SDWebImage FirebaseAuthUI FirebaseEmailAuthUI" \
+                scripts/zip/setup_quickstart_framework.sh \
+                "${HOME}"/ios_frameworks/Firebase/NonFirebaseSDKs/* \
+                "${HOME}"/ios_frameworks/Firebase/FirebaseFirestore/* \
+                "${HOME}"/ios_frameworks/Firebase/FirebaseAuth/* \
+                "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
 
-          # - product: "InAppMessaging"
-          #   plist_src: "scripts/gha-encrypted/qs-inappmessaging.plist.gpg"
-          #   plist_dst: "quickstart-ios/inappmessaging/GoogleService-Info.plist"
-          #   command: |
-          #     SAMPLE="InAppMessaging" TARGET="InAppMessagingExample" scripts/zip/setup_quickstart_framework.sh \
-          #       "${HOME}"/ios_frameworks/Firebase/FirebaseInAppMessaging/* \
-          #       "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
+          - product: "InAppMessaging"
+            plist_src: "scripts/gha-encrypted/qs-inappmessaging.plist.gpg"
+            plist_dst: "quickstart-ios/inappmessaging/GoogleService-Info.plist"
+            command: |
+              SAMPLE="InAppMessaging" TARGET="InAppMessagingExample" scripts/zip/setup_quickstart_framework.sh \
+                "${HOME}"/ios_frameworks/Firebase/FirebaseInAppMessaging/* \
+                "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
 
-          # - product: "Messaging"
-          #   plist_src: "scripts/gha-encrypted/qs-messaging.plist.gpg"
-          #   plist_dst: "quickstart-ios/messaging/GoogleService-Info.plist"
-          #   command: |
-          #     SAMPLE="Messaging" TARGET="MessagingExample" scripts/zip/setup_quickstart_framework.sh \
-          #       "${HOME}"/ios_frameworks/Firebase/FirebaseMessaging/* \
-          #       "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
-          #     cd quickstart-ios/messaging
-          #     "${GITHUB_WORKSPACE}"/quickstart-ios/scripts/add_framework_script.rb \
-          #       --sdk "Messaging" \
-          #       --target "NotificationServiceExtension" \
-          #       --framework_path Firebase/
+          - product: "Messaging"
+            plist_src: "scripts/gha-encrypted/qs-messaging.plist.gpg"
+            plist_dst: "quickstart-ios/messaging/GoogleService-Info.plist"
+            command: |
+              SAMPLE="Messaging" TARGET="MessagingExample" scripts/zip/setup_quickstart_framework.sh \
+                "${HOME}"/ios_frameworks/Firebase/FirebaseMessaging/* \
+                "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
+              cd quickstart-ios/messaging
+              "${GITHUB_WORKSPACE}"/quickstart-ios/scripts/add_framework_script.rb \
+                --sdk "Messaging" \
+                --target "NotificationServiceExtension" \
+                --framework_path Firebase/
 
-          # - product: "Storage"
-          #   plist_src: "scripts/gha-encrypted/qs-storage.plist.gpg"
-          #   plist_dst: "quickstart-ios/storage/GoogleService-Info.plist"
-          #   command: |
-          #     SAMPLE="Storage" TARGET="StorageExample" scripts/zip/setup_quickstart_framework.sh \
-          #       "${HOME}"/ios_frameworks/Firebase/FirebaseStorage/* \
-          #       "${HOME}"/ios_frameworks/Firebase/FirebaseAuth/* \
-          #       "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
+          - product: "Storage"
+            plist_src: "scripts/gha-encrypted/qs-storage.plist.gpg"
+            plist_dst: "quickstart-ios/storage/GoogleService-Info.plist"
+            command: |
+              SAMPLE="Storage" TARGET="StorageExample" scripts/zip/setup_quickstart_framework.sh \
+                "${HOME}"/ios_frameworks/Firebase/FirebaseStorage/* \
+                "${HOME}"/ios_frameworks/Firebase/FirebaseAuth/* \
+                "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
 
     uses: ./.github/workflows/_quickstart.framework.yml
     name: ${{ matrix.config.product }} / ${{ matrix.artifact == 'Firebase-actions-dir' && 'static' || 'dynamic' }}
