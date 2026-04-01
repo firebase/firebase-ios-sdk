@@ -309,12 +309,7 @@ jobs:
           command: scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodebuild
 
       - name: Test
-        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
-        with:
-          timeout_minutes: 60
-          max_attempts: 3
-          retry_wait_seconds: 120
-          command: scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodetest
+        run: scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodetest
 
   xcodetest_nightly:
     needs: check
@@ -378,12 +373,7 @@ jobs:
           command: scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodebuild
 
       - name: Test
-        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
-        with:
-          timeout_minutes: 60
-          max_attempts: 3
-          retry_wait_seconds: 120
-          command: scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodetest
+        run: scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodetest
 
 
   xcodetest_emulator:
@@ -428,12 +418,7 @@ jobs:
         command: scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodebuild
 
     - name: Test
-      uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
-      with:
-        timeout_minutes: 60
-        max_attempts: 3
-        retry_wait_seconds: 120
-        command: scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodetest
+      run: scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodetest
 
 
   pod_lib_lint:
