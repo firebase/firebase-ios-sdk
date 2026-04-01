@@ -892,6 +892,80 @@ public extension Expression {
     return FunctionExpression(functionName: "trim", args: [self])
   }
 
+  func ltrim() -> FunctionExpression {
+    return FunctionExpression(functionName: "ltrim", args: [self])
+  }
+
+  func ltrim(_ characters: String) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "ltrim",
+      args: [self, Helper.sendableToExpr(characters)]
+    )
+  }
+
+  func ltrim(_ characters: Expression) -> FunctionExpression {
+    return FunctionExpression(functionName: "ltrim", args: [self, characters])
+  }
+
+  func rtrim() -> FunctionExpression {
+    return FunctionExpression(functionName: "rtrim", args: [self])
+  }
+
+  func rtrim(_ characters: String) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "rtrim",
+      args: [self, Helper.sendableToExpr(characters)]
+    )
+  }
+
+  func rtrim(_ characters: Expression) -> FunctionExpression {
+    return FunctionExpression(functionName: "rtrim", args: [self, characters])
+  }
+
+  func stringRepeat(_ count: Int) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "string_repeat",
+      args: [self, Helper.sendableToExpr(count)]
+    )
+  }
+
+  func stringRepeat(_ count: Expression) -> FunctionExpression {
+    return FunctionExpression(functionName: "string_repeat", args: [self, count])
+  }
+
+  func stringReplaceAll(_ oldValue: String, with newValue: String) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "string_replace_all",
+      args: [self, Helper.sendableToExpr(oldValue), Helper.sendableToExpr(newValue)]
+    )
+  }
+
+  func stringReplaceAll(_ oldValue: Expression, with newValue: Expression) -> FunctionExpression {
+    return FunctionExpression(functionName: "string_replace_all", args: [self, oldValue, newValue])
+  }
+
+  func stringReplaceOne(_ oldValue: String, with newValue: String) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "string_replace_one",
+      args: [self, Helper.sendableToExpr(oldValue), Helper.sendableToExpr(newValue)]
+    )
+  }
+
+  func stringReplaceOne(_ oldValue: Expression, with newValue: Expression) -> FunctionExpression {
+    return FunctionExpression(functionName: "string_replace_one", args: [self, oldValue, newValue])
+  }
+
+  func stringIndexOf(_ substring: String) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "string_index_of",
+      args: [self, Helper.sendableToExpr(substring)]
+    )
+  }
+
+  func stringIndexOf(_ substring: Expression) -> FunctionExpression {
+    return FunctionExpression(functionName: "string_index_of", args: [self, substring])
+  }
+
   func stringConcat(_ strings: [Expression]) -> FunctionExpression {
     return FunctionExpression(functionName: "string_concat", args: [self] + strings)
   }
@@ -1236,6 +1310,10 @@ public extension Expression {
     return FunctionExpression(functionName: "collection_id", args: [self])
   }
 
+  func parent() -> FunctionExpression {
+    return FunctionExpression(functionName: "parent", args: [self])
+  }
+
   func ifError(_ catchExpression: Expression) -> FunctionExpression {
     return FunctionExpression(functionName: "if_error", args: [self, catchExpression])
   }
@@ -1303,5 +1381,37 @@ public extension Expression {
   /// Creates an expression that accesses a field on this expression using a dynamic key expression.
   func getField(_ expression: Expression) -> FunctionExpression {
     return FunctionExpression(functionName: "get_field", args: [self, expression])
+  }
+
+  // MARK: - Snippet
+
+  func snippet(_ rquery: String,
+               maxSnippetWidth: Int? = nil,
+               maxSnippets: Int? = nil,
+               separator: String? = nil) -> Expression {
+    var args: [Expression] = [self, Constant(rquery)]
+
+    var options: [String: Sendable] = [:]
+    if let maxSnippetWidth = maxSnippetWidth {
+      options["maxSnippetWidth"] = maxSnippetWidth
+    }
+    if let maxSnippets = maxSnippets {
+      options["maxSnippets"] = maxSnippets
+    }
+    if let separator = separator {
+      options["separator"] = separator
+    }
+
+    return FunctionExpression(functionName: "snippet", args: args, options: options)
+  }
+
+  // MARK: - Range Operations
+
+  func between(_ lowerBound: Sendable, _ upperBound: Sendable) -> BooleanExpression {
+    return between(Helper.sendableToExpr(lowerBound), Helper.sendableToExpr(upperBound))
+  }
+
+  func between(_ lowerBound: Expression, _ upperBound: Expression) -> BooleanExpression {
+    return greaterThanOrEqual(lowerBound) && lessThanOrEqual(upperBound)
   }
 }

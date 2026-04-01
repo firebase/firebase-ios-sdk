@@ -64,3 +64,9 @@ func XCTAssertThrowsError(
     errorHandler?(error)
   }
 }
+
+func XCTSkipFoundationModelsUnsupported() throws {
+  guard #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) else {
+    throw XCTSkip("Foundation Models requires iOS/macOS/visionOS 26+.")
+  }
+}

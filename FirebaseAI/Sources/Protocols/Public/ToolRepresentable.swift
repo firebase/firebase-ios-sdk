@@ -12,22 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if compiler(>=6.2.3) && canImport(FoundationModels)
+#if canImport(FoundationModels)
   import FoundationModels
+#endif
 
+public protocol ToolRepresentable: Sendable {
+  var toolRepresentation: FirebaseAILogic.Tool { get }
+}
+
+#if canImport(FoundationModels)
   @available(iOS 26.0, macOS 26.0, *)
   @available(tvOS, unavailable)
   @available(watchOS, unavailable)
-  public extension FoundationModels.ConvertibleFromGeneratedContent {
-    /// Initializes an instance from `FirebaseAI.GeneratedContent`.
-    ///
-    /// **Public Preview**: This API is a public preview and may be subject to change.
-    ///
-    /// - Parameters:
-    ///   - content: The `FirebaseAI.GeneratedContent` from which to initialize.
-    /// - Throws: An error if initialization fails.
-    init(_ content: FirebaseAI.GeneratedContent) throws {
-      try self.init(content.generatedContent)
+  public extension FoundationModels.Tool
+    where Self.Output: FoundationModels.ConvertibleToGeneratedContent {
+    var toolRepresentation: FirebaseAILogic.Tool {
+      return FirebaseAILogic.Tool.autoFunctionDeclaration(self)
     }
   }
-#endif // compiler(>=6.2.3) && canImport(FoundationModels)
+#endif // canImport(FoundationModels)
