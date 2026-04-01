@@ -26,6 +26,8 @@ EXIT_STATUS=0
 
 cd "${SAMPLE}"
 
+# This os / device pair should be available in Xcode 26.2+, on macOS 15 and macOS 26 runners.
+os="26.2"
 device_name="iPhone 17 Pro"
 
 # Define project and, if needed, scheme.
