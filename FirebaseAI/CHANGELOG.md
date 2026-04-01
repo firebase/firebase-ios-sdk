@@ -1,4 +1,8 @@
 # 12.12.0
+- [feature] Added support for automatic function calling in
+  `GenerativeModelSession`. You can create Gemini-compatible function
+  declarations by providing types conforming to the `FoundationModels.Tool`
+  protocol when initializing a session. (#15915)
 - [fixed] Updated `GenerativeModelSession` to handle intermediate JSON decoding
   failures when streaming structured data. (#15960)
 - [changed] **Breaking Change**: `GenerativeModelSession.GenerationError` is now
