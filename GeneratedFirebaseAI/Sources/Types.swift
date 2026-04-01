@@ -1271,10 +1271,10 @@ public struct ToolType: CodableProtoEnum, Sendable {
 
 public struct ServiceTier: CodableProtoEnum, Sendable {
   enum Kind: String {
-    case unspecified = "SERVICE_TIER_UNSPECIFIED"
-    case flex = "SERVICE_TIER_FLEX"
-    case standard = "SERVICE_TIER_STANDARD"
-    case priority = "SERVICE_TIER_PRIORITY"
+    case unspecified = "unspecified"
+    case flex = "flex"
+    case standard = "standard"
+    case priority = "priority"
   }
 
   /// Default service tier, which is standard.
@@ -8771,7 +8771,7 @@ public struct GenerateContentConfig: Sendable {
   /// service. If supplied, safety_settings must not be supplied.
   public let modelArmorConfig: ModelArmorConfig?
 
-  /// The service tier to use for the request. For example, SERVICE_TIER_FLEX.
+  /// The service tier to use for the request. For example, ServiceTier.FLEX.
   public let serviceTier: ServiceTier?
 
   /// Default initializer.
@@ -8877,10 +8877,10 @@ extension GenerateContentConfig: Codable {
     case automaticFunctionCalling = "automaticFunctionCalling"
     case thinkingConfig = "thinkingConfig"
     case imageConfig = "imageConfig"
+    case serviceTier = "serviceTier"
   }
   public enum MLDevKeys: String, CodingKey {
     case enableEnhancedCivicAnswers = "enableEnhancedCivicAnswers"
-    case serviceTier = "serviceTier"
   }
   public enum VertexKeys: String, CodingKey {
     case modelSelectionConfig = "modelSelectionConfig"
@@ -9027,15 +9027,15 @@ extension GenerateContentConfig: Codable {
       forKey: .imageConfig
     )
 
+    serviceTier = try CommonKeysContainer.decodeIfPresent(
+      ServiceTier.self,
+      forKey: .serviceTier
+    )
+
     let MLDevKeysContainer = try decoder.container(keyedBy: MLDevKeys.self)
     enableEnhancedCivicAnswers = try MLDevKeysContainer.decodeIfPresent(
       Bool.self,
       forKey: .enableEnhancedCivicAnswers
-    )
-
-    serviceTier = try MLDevKeysContainer.decodeIfPresent(
-      ServiceTier.self,
-      forKey: .serviceTier
     )
 
     let VertexKeysContainer = try decoder.container(keyedBy: VertexKeys.self)
@@ -9194,17 +9194,17 @@ extension GenerateContentConfig: Codable {
       forKey: .imageConfig
     )
 
+    try CommonKeysContainer.encodeIfPresent(
+      serviceTier,
+      forKey: .serviceTier
+    )
+
     if configuration.isMlDeveloper() {
 
       var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
       try MLDevKeysContainer.encodeIfPresent(
         enableEnhancedCivicAnswers,
         forKey: .enableEnhancedCivicAnswers
-      )
-
-      try MLDevKeysContainer.encodeIfPresent(
-        serviceTier,
-        forKey: .serviceTier
       )
 
     }

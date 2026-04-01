@@ -3849,6 +3849,9 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     let db = firestore()
     let randomCol = collectionRef()
 
+    // Add a dummy document directly to randomCol so the pipeline has input data to process
+    try await randomCol.document("dummy").setData(["dummy": 1])
+
     let docRef = randomCol.document("book4").collection("reviews").document("review1")
     try await docRef.setData(["foo": "bar"])
 
