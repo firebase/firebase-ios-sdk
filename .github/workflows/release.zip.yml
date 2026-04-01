@@ -224,10 +224,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-#        os: ['macos-26']
-#        xcode: ['Xcode_26.4']
-        os: ['macos-15']
-        xcode: ['Xcode_26.2']
+        platform:
+          - os: 'macos-26'
+            xcode: 'Xcode_26.4'
+          - os: 'macos-15'
+            xcode: 'Xcode_26.2'
         artifact: [Firebase-actions-dir, Firebase-actions-dir-dynamic]
         config:
           - product: "ABTesting"
@@ -345,14 +346,13 @@ jobs:
                 "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
 
     uses: ./.github/workflows/_quickstart.framework.yml
-    name: ${{ matrix.config.product }} / ${{ matrix.artifact == 'Firebase-actions-dir' && 'static' || 'dynamic' }}
     with:
       product: ${{ matrix.config.product }}
       zip_run_id: ${{ needs.packaging_done.outputs.run_id }}
       artifact_name: ${{ matrix.artifact }}
       # Use defaults with option to override
-      os: ${{ matrix.config.os || matrix.os }}
-      xcode: ${{ matrix.config.xcode || matrix.xcode }}
+      os: ${{ matrix.config.os || matrix.platform.os }}
+      xcode: ${{ matrix.config.xcode || matrix.platform.xcode }}
       # Optional scheme (only used by FirebaseAI)
       scheme: ${{ matrix.config.scheme }}
       plist_src_path: ${{ matrix.config.plist_src }}
