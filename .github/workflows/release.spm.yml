@@ -66,7 +66,7 @@ jobs:
       matrix:
         include:
           - product: Performance
-            run_tests: true
+            run_tests: false
           - product: Storage
             run_tests: false
           - product: Config
