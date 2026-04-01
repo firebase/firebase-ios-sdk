@@ -24,7 +24,7 @@ public extension FirebaseAI {
   struct GenerationID: Sendable {
     protocol GenerationIDProtocol: Sendable, Hashable {}
 
-    let responseID: String
+    let responseID: String?
     let appleGenerationID: (any GenerationIDProtocol)?
 
     /// Creates a new, unique generation identifier.
@@ -43,7 +43,7 @@ public extension FirebaseAI {
       #endif // canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
     }
 
-    init(responseID: String, generationID: (any GenerationIDProtocol)?) {
+    init(responseID: String?, generationID: (any GenerationIDProtocol)?) {
       self.responseID = responseID
       appleGenerationID = generationID
     }

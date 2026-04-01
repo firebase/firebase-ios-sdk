@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if compiler(>=6.2)
+#if compiler(>=6.2.3)
 
   #if canImport(FoundationModels)
     import FoundationModels
@@ -222,6 +222,12 @@
     }
   }
 
+  extension FirebaseAI.GeneratedContent: FirebaseAI.ConvertibleToGeneratedContent {
+    var firebaseGeneratedContent: FirebaseAI.GeneratedContent {
+      return self
+    }
+  }
+
   #if canImport(FoundationModels)
     @available(iOS 26.0, macOS 26.0, *)
     @available(tvOS, unavailable)
@@ -315,4 +321,4 @@
     }
   #endif // canImport(FoundationModels)
 
-#endif // compiler(>=6.2)
+#endif // compiler(>=6.2.3)
