@@ -41,7 +41,7 @@ jobs:
       with:
         fetch-depth: 0 # Required for pulling down repo tags.
     - name: Xcode
-      run: sudo xcode-select -s /Applications/Xcode_26.4.app/Contents/Developer
+      run: sudo xcode-select -s /Applications/Xcode_26.2.app/Contents/Developer
     - name: Generate matrix
       id: generate_matrix
       run: |
@@ -104,7 +104,7 @@ jobs:
       with:
         persist-credentials: false
     - name: Xcode
-      run: sudo xcode-select -s /Applications/Xcode_26.4.app/Contents/Developer
+      run: sudo xcode-select -s /Applications/Xcode_26.2.app/Contents/Developer
     - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
       with:
         name: firebase-ios-sdk
@@ -150,7 +150,7 @@ jobs:
       with:
         persist-credentials: false
     - name: Xcode
-      run: sudo xcode-select -s /Applications/Xcode_26.4.app/Contents/Developer
+      run: sudo xcode-select -s /Applications/Xcode_26.2.app/Contents/Developer
     - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
       with:
         name: firebase-ios-sdk
@@ -196,7 +196,7 @@ jobs:
       with:
         fetch-depth: 0 # Required for pulling down repo tags.
     - name: Xcode
-      run: sudo xcode-select -s /Applications/Xcode_26.4.app/Contents/Developer
+      run: sudo xcode-select -s /Applications/Xcode_26.2.app/Contents/Developer
     - name: Update SpecsTesting repo setup
       run: |
          # Update/create a nightly tag to the head of the main branch.
