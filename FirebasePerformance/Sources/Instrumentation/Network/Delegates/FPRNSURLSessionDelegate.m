@@ -37,8 +37,7 @@ void FPRHandleDidCreateTask(NSURLSessionTask *task) {
   }
 }
 
-void FPRHandleDidFinishCollectingMetrics(NSURLSessionTask *task,
-                                         NSURLSessionTaskMetrics *metrics) {
+void FPRHandleDidFinishCollectingMetrics(NSURLSessionTask *task, NSURLSessionTaskMetrics *metrics) {
   @try {
     FPRNetworkTrace *trace = [FPRNetworkTrace networkTraceFromObject:task];
     if (!trace) {

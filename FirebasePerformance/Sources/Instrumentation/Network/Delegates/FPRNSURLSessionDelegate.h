@@ -35,7 +35,7 @@ NS_EXTENSION_UNAVAILABLE("Firebase Performance is not supported for extensions."
  */
 FOUNDATION_EXTERN
 NS_EXTENSION_UNAVAILABLE("Firebase Performance is not supported for extensions.")
-void FPRHandleDidCreateTask(NSURLSessionTask *task) API_AVAILABLE(ios(16.0), tvos(16.0));
+void FPRHandleDidCreateTask(NSURLSessionTask *task);
 
 /** Completes and removes the FPRNetworkTrace attached to task using data from metrics.
  *  Called from both FPRNSURLSessionDelegate and FPRNSURLSessionDelegateInstrument.
@@ -45,5 +45,4 @@ void FPRHandleDidCreateTask(NSURLSessionTask *task) API_AVAILABLE(ios(16.0), tvo
  */
 FOUNDATION_EXTERN
 NS_EXTENSION_UNAVAILABLE("Firebase Performance is not supported for extensions.")
-void FPRHandleDidFinishCollectingMetrics(NSURLSessionTask *task,
-                                         NSURLSessionTaskMetrics *metrics);
+void FPRHandleDidFinishCollectingMetrics(NSURLSessionTask *task, NSURLSessionTaskMetrics *metrics);
