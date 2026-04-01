@@ -84,7 +84,6 @@ jobs:
         continue_on_error: true
         command: |
           xcodebuild -downloadPlatform iOS
-          xcodebuild -downloadPlatform tvOS
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
     - name: Move frameworks
