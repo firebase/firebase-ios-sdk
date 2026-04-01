@@ -1,6 +1,9 @@
 # Firebase 12.12.0
 - [changed] Firebase now requires at least Xcode 26.2 and the Swift
-  6.2.3+ toolchain. See https://developer.apple.com/news/?id=ueeok6yw for
+  6.2.3+ toolchain. This update allows Firebase to leverage new Swift
+  features like [Extensible Enums](https://github.com/swiftlang/swift-evolution/blob/main/proposals/0487-extensible-enums.md)
+  to build more resilient APIs. Note that Xcode 26.2 continues to be
+  supported on macOS 15. See https://developer.apple.com/news/?id=ueeok6yw for
   more info.
 
 # Firebase 12.7.0
