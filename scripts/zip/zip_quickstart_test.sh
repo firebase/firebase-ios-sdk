@@ -26,8 +26,13 @@ EXIT_STATUS=0
 
 cd "${SAMPLE}"
 
+xcode_version=$(xcodebuild -version | grep Xcode)
+xcode_version="${xcode_version/Xcode /}"
+xcode_major="${xcode_version/.*/}"
+
 # This os / device pair should be available in Xcode 26.2+, on macOS 15 and macOS 26 runners.
-os="26.2"
+# os="26.2"
+os="$xcode_version"
 device_name="iPhone 17 Pro"
 
 # Define project and, if needed, scheme.
