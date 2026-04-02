@@ -5415,7 +5415,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     do {
       _ = try await pipeline.execute()
-      XCTFail("Should have thrown an error for no default value matched")
+      XCTFail("Should have thrown an error for negative length")
     } catch {
       let nsError = error as NSError
       XCTAssertEqual(nsError.domain, FirestoreErrorDomain, "length must be non-negative")
