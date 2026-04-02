@@ -343,7 +343,7 @@ extern const NSTimeInterval kDatabaseLoadTimeoutSecs;
                                  rolloutMetadata:nil];
   [_configContent updateConfigContentWithResponse:fetchResponse forNamespace:namespace];
 
-  // active config is the same as fetched config
+  // active config to match fetched config
   FIRRemoteConfigValue *value =
       [[FIRRemoteConfigValue alloc] initWithData:[@"value1" dataUsingEncoding:NSUTF8StringEncoding]
                                           source:FIRRemoteConfigSourceRemote];
@@ -352,9 +352,16 @@ extern const NSTimeInterval kDatabaseLoadTimeoutSecs;
                             toSource:RCNDBSourceActive
                         forNamespace:namespace];
 
-  FIRRemoteConfigUpdate *update = [_configContent getConfigUpdateForNamespace:namespace];
+  XCTestExpectation *expectation = [self expectationWithDescription:@"Config update completion"];
 
-  XCTAssertTrue([update updatedKeys].count == 0);
+  [_configContent getConfigUpdateForNamespace:namespace
+                            completionHandler:^(FIRRemoteConfigUpdate *update) {
+                              XCTAssertNotNil(update, @"Update object should not be nil");
+                              XCTAssertEqual(update.updatedKeys.count, 0,
+                                             @"There should be no updated keys when configs match");
+                              [expectation fulfill];
+                            }];
+  [self waitForExpectationsWithTimeout:5.0 handler:nil];
 }
 
 - (void)testConfigUpdate_noParamChange_butExperimentChange {
@@ -383,10 +390,16 @@ extern const NSTimeInterval kDatabaseLoadTimeoutSecs;
                         toSource:RCNDBSourceActive
                     forNamespace:namespace];
 
-  FIRRemoteConfigUpdate *update = [configMock getConfigUpdateForNamespace:namespace];
+  // Create expectation for async callback
+  XCTestExpectation *expectation = [self expectationWithDescription:@"Config update completion"];
 
-  XCTAssertTrue([update updatedKeys].count == 1);
-  XCTAssertTrue([[update updatedKeys] containsObject:@"key_2"]);
+  [configMock getConfigUpdateForNamespace:namespace
+                        completionHandler:^(FIRRemoteConfigUpdate *update) {
+                          XCTAssertTrue([update updatedKeys].count == 1);
+                          XCTAssertTrue([[update updatedKeys] containsObject:@"key_2"]);
+                          [expectation fulfill];
+                        }];
+  [self waitForExpectationsWithTimeout:5.0 handler:nil];
 }
 
 - (void)testExperimentDiff_addedExperiment {
@@ -502,10 +515,14 @@ extern const NSTimeInterval kDatabaseLoadTimeoutSecs;
                                  rolloutMetadata:nil];
   [_configContent updateConfigContentWithResponse:fetchResponse forNamespace:namespace];
 
-  FIRRemoteConfigUpdate *update = [_configContent getConfigUpdateForNamespace:namespace];
-
-  XCTAssertTrue([update updatedKeys].count == 1);
-  XCTAssertTrue([[update updatedKeys] containsObject:newParam]);
+  XCTestExpectation *expectation = [self expectationWithDescription:NSStringFromSelector(_cmd)];
+  [_configContent getConfigUpdateForNamespace:namespace
+                            completionHandler:^(FIRRemoteConfigUpdate *update) {
+                              XCTAssertTrue([update updatedKeys].count == 1);
+                              XCTAssertTrue([[update updatedKeys] containsObject:newParam]);
+                              [expectation fulfill];
+                            }];
+  [self waitForExpectationsWithTimeout:5.0 handler:nil];
 }
 
 - (void)testConfigUpdate_paramValueChanged_returnsUpdatedKey {
@@ -530,10 +547,14 @@ extern const NSTimeInterval kDatabaseLoadTimeoutSecs;
                                  rolloutMetadata:nil];
   [_configContent updateConfigContentWithResponse:fetchResponse forNamespace:namespace];
 
-  FIRRemoteConfigUpdate *update = [_configContent getConfigUpdateForNamespace:namespace];
-
-  XCTAssertTrue([update updatedKeys].count == 1);
-  XCTAssertTrue([[update updatedKeys] containsObject:existingParam]);
+  XCTestExpectation *expectation = [self expectationWithDescription:NSStringFromSelector(_cmd)];
+  [_configContent getConfigUpdateForNamespace:namespace
+                            completionHandler:^(FIRRemoteConfigUpdate *update) {
+                              XCTAssertTrue([update updatedKeys].count == 1);
+                              XCTAssertTrue([[update updatedKeys] containsObject:existingParam]);
+                              [expectation fulfill];
+                            }];
+  [self waitForExpectationsWithTimeout:5.0 handler:nil];
 }
 
 - (void)testConfigUpdate_paramDeleted_returnsDeletedKey {
@@ -558,11 +579,16 @@ extern const NSTimeInterval kDatabaseLoadTimeoutSecs;
                                  rolloutMetadata:nil];
   [_configContent updateConfigContentWithResponse:fetchResponse forNamespace:namespace];
 
-  FIRRemoteConfigUpdate *update = [_configContent getConfigUpdateForNamespace:namespace];
-
-  XCTAssertTrue([update updatedKeys].count == 2);
-  XCTAssertTrue([[update updatedKeys] containsObject:existingParam]);  // deleted
-  XCTAssertTrue([[update updatedKeys] containsObject:newParam]);       // added
+  XCTestExpectation *expectation = [self expectationWithDescription:NSStringFromSelector(_cmd)];
+  [_configContent
+      getConfigUpdateForNamespace:namespace
+                completionHandler:^(FIRRemoteConfigUpdate *update) {
+                  XCTAssertTrue([update updatedKeys].count == 2);
+                  XCTAssertTrue([[update updatedKeys] containsObject:existingParam]);  // deleted
+                  XCTAssertTrue([[update updatedKeys] containsObject:newParam]);       // added
+                  [expectation fulfill];
+                }];
+  [self waitForExpectationsWithTimeout:5.0 handler:nil];
 }
 
 - (void)testConfigUpdate_p13nMetadataUpdated_returnsKey {
@@ -594,10 +620,14 @@ extern const NSTimeInterval kDatabaseLoadTimeoutSecs;
                    forKey:RCNFetchResponseKeyPersonalizationMetadata];
   [_configContent updateConfigContentWithResponse:fetchResponse forNamespace:namespace];
 
-  FIRRemoteConfigUpdate *update = [_configContent getConfigUpdateForNamespace:namespace];
-
-  XCTAssertTrue([update updatedKeys].count == 1);
-  XCTAssertTrue([[update updatedKeys] containsObject:existingParam]);
+  XCTestExpectation *expectation = [self expectationWithDescription:NSStringFromSelector(_cmd)];
+  [_configContent getConfigUpdateForNamespace:namespace
+                            completionHandler:^(FIRRemoteConfigUpdate *update) {
+                              XCTAssertTrue([update updatedKeys].count == 1);
+                              XCTAssertTrue([[update updatedKeys] containsObject:existingParam]);
+                              [expectation fulfill];
+                            }];
+  [self waitForExpectationsWithTimeout:5.0 handler:nil];
 }
 
 - (void)testConfigUpdate_rolloutMetadataUpdated_returnsKey {
@@ -647,11 +677,15 @@ extern const NSTimeInterval kDatabaseLoadTimeoutSecs;
   [fetchResponse setValue:updatedRolloutMetadata forKey:RCNFetchResponseKeyRolloutMetadata];
   [_configContent updateConfigContentWithResponse:fetchResponse forNamespace:namespace];
 
-  FIRRemoteConfigUpdate *update = [_configContent getConfigUpdateForNamespace:namespace];
-
-  XCTAssertTrue([update updatedKeys].count == 2);
-  XCTAssertTrue([[update updatedKeys] containsObject:key1]);
-  XCTAssertTrue([[update updatedKeys] containsObject:key2]);
+  XCTestExpectation *expectation = [self expectationWithDescription:NSStringFromSelector(_cmd)];
+  [_configContent getConfigUpdateForNamespace:namespace
+                            completionHandler:^(FIRRemoteConfigUpdate *update) {
+                              XCTAssertTrue([update updatedKeys].count == 2);
+                              XCTAssertTrue([[update updatedKeys] containsObject:key1]);
+                              XCTAssertTrue([[update updatedKeys] containsObject:key2]);
+                              [expectation fulfill];
+                            }];
+  [self waitForExpectationsWithTimeout:5.0 handler:nil];
 }
 
 - (void)testConfigUpdate_rolloutMetadataDeleted_returnsKey {
@@ -693,10 +727,14 @@ extern const NSTimeInterval kDatabaseLoadTimeoutSecs;
   [fetchResponse setValue:updatedRolloutMetadata forKey:RCNFetchResponseKeyRolloutMetadata];
   [_configContent updateConfigContentWithResponse:fetchResponse forNamespace:namespace];
 
-  FIRRemoteConfigUpdate *update = [_configContent getConfigUpdateForNamespace:namespace];
-
-  XCTAssertTrue([update updatedKeys].count == 1);
-  XCTAssertTrue([[update updatedKeys] containsObject:key2]);
+  XCTestExpectation *expectation = [self expectationWithDescription:NSStringFromSelector(_cmd)];
+  [_configContent getConfigUpdateForNamespace:namespace
+                            completionHandler:^(FIRRemoteConfigUpdate *update) {
+                              XCTAssertTrue([update updatedKeys].count == 1);
+                              XCTAssertTrue([[update updatedKeys] containsObject:key2]);
+                              [expectation fulfill];
+                            }];
+  [self waitForExpectationsWithTimeout:5.0 handler:nil];
 }
 
 - (void)testConfigUpdate_rolloutMetadataDeletedAll_returnsKey {
@@ -734,12 +772,17 @@ extern const NSTimeInterval kDatabaseLoadTimeoutSecs;
                                  rolloutMetadata:nil];
   [_configContent updateConfigContentWithResponse:updateFetchResponse forNamespace:namespace];
 
-  FIRRemoteConfigUpdate *update = [_configContent getConfigUpdateForNamespace:namespace];
-  [_configContent activateRolloutMetadata:nil];
+  XCTestExpectation *expectation = [self expectationWithDescription:NSStringFromSelector(_cmd)];
+  [_configContent getConfigUpdateForNamespace:namespace
+                            completionHandler:^(FIRRemoteConfigUpdate *update) {
+                              [self->_configContent activateRolloutMetadata:nil];
 
-  XCTAssertTrue([update updatedKeys].count == 1);
-  XCTAssertTrue([[update updatedKeys] containsObject:key]);
-  XCTAssertTrue(_configContent.activeRolloutMetadata.count == 0);
+                              XCTAssertTrue([update updatedKeys].count == 1);
+                              XCTAssertTrue([[update updatedKeys] containsObject:key]);
+                              XCTAssertTrue(self->_configContent.activeRolloutMetadata.count == 0);
+                              [expectation fulfill];
+                            }];
+  [self waitForExpectationsWithTimeout:5.0 handler:nil];
 }
 
 - (void)testConfigUpdate_valueSourceChanged_returnsKey {
@@ -763,10 +806,14 @@ extern const NSTimeInterval kDatabaseLoadTimeoutSecs;
                                  rolloutMetadata:nil];
   [_configContent updateConfigContentWithResponse:fetchResponse forNamespace:namespace];
 
-  FIRRemoteConfigUpdate *update = [_configContent getConfigUpdateForNamespace:namespace];
-
-  XCTAssertTrue([update updatedKeys].count == 1);
-  XCTAssertTrue([[update updatedKeys] containsObject:existingParam]);
+  XCTestExpectation *expectation = [self expectationWithDescription:NSStringFromSelector(_cmd)];
+  [_configContent getConfigUpdateForNamespace:namespace
+                            completionHandler:^(FIRRemoteConfigUpdate *update) {
+                              XCTAssertTrue([update updatedKeys].count == 1);
+                              XCTAssertTrue([[update updatedKeys] containsObject:existingParam]);
+                              [expectation fulfill];
+                            }];
+  [self waitForExpectationsWithTimeout:5.0 handler:nil];
 }
 
 #pragma mark - Test Helpers
@@ -800,7 +847,7 @@ extern const NSTimeInterval kDatabaseLoadTimeoutSecs;
                                                        encoding:NSUTF8StringEncoding
                                                           error:&readTextError];
 
-  NSData *fileData = [fileText dataUsingEncoding:kCFStringEncodingUTF8];
+  NSData *fileData = [fileText dataUsingEncoding:NSUTF8StringEncoding];
 
   NSError *jsonDictionaryError = nil;
   NSMutableDictionary *jsonDictionary =

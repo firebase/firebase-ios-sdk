@@ -516,13 +516,16 @@ static NSInteger const kRCNFetchResponseHTTPStatusCodeGatewayTimeout = 504;
       if (!data) {
         FIRLogInfo(kFIRLoggerRemoteConfig, @"I-RCN000043", @"RCN Fetch: No data in fetch response");
         // There may still be a difference between fetched and active config
-        FIRRemoteConfigUpdate *update =
-            [strongSelf->_content getConfigUpdateForNamespace:strongSelf->_FIRNamespace];
-        return [strongSelf reportCompletionWithStatus:FIRRemoteConfigFetchStatusSuccess
-                                           withUpdate:update
-                                            withError:nil
-                                    completionHandler:completionHandler
-                              updateCompletionHandler:updateCompletionHandler];
+        [strongSelf->_content
+            getConfigUpdateForNamespace:strongSelf->_FIRNamespace
+                      completionHandler:^(FIRRemoteConfigUpdate *update) {
+                        [strongSelf reportCompletionWithStatus:FIRRemoteConfigFetchStatusSuccess
+                                                    withUpdate:update
+                                                     withError:nil
+                                             completionHandler:completionHandler
+                                       updateCompletionHandler:updateCompletionHandler];
+                      }];
+        return;
       }
 
       // Config fetch succeeded.
@@ -594,17 +597,18 @@ static NSInteger const kRCNFetchResponseHTTPStatusCodeGatewayTimeout = 504;
         strongSelf->_settings.lastETag = latestETag;
       }
       // Compute config update after successful fetch
-      FIRRemoteConfigUpdate *update =
-          [strongSelf->_content getConfigUpdateForNamespace:strongSelf->_FIRNamespace];
-
-      [strongSelf->_settings
-          updateMetadataWithFetchSuccessStatus:YES
-                               templateVersion:strongSelf->_templateVersionNumber];
-      return [strongSelf reportCompletionWithStatus:FIRRemoteConfigFetchStatusSuccess
-                                         withUpdate:update
-                                          withError:nil
-                                  completionHandler:completionHandler
-                            updateCompletionHandler:updateCompletionHandler];
+      [strongSelf->_content
+          getConfigUpdateForNamespace:strongSelf->_FIRNamespace
+                    completionHandler:^(FIRRemoteConfigUpdate *update) {
+                      [strongSelf->_settings
+                          updateMetadataWithFetchSuccessStatus:YES
+                                               templateVersion:strongSelf->_templateVersionNumber];
+                      [strongSelf reportCompletionWithStatus:FIRRemoteConfigFetchStatusSuccess
+                                                  withUpdate:update
+                                                   withError:nil
+                                           completionHandler:completionHandler
+                                     updateCompletionHandler:updateCompletionHandler];
+                    }];
     });
   };
 

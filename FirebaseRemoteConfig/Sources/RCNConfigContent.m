@@ -436,41 +436,39 @@ const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
   return true;
 }
 
-/// Load active and fetched experiment payloads and return them in a map.
-- (NSDictionary<NSString *, NSMutableArray<NSData *> *> *)loadExperimentsPayloads {
-  __block NSMutableArray *activeExperimentPayloads = [[NSMutableArray alloc] init];
-  __block NSMutableArray *experimentPayloads = [[NSMutableArray alloc] init];
+/// Load active and fetched experiment payloads asynchronously.
+- (void)loadExperimentsPayloadsWithCompletion:
+    (void (^)(NSDictionary<NSString *, NSMutableArray<NSData *> *> *payloads))completion {
+  if (!_DBManager) {
+    if (completion) {
+      completion(@{
+        @RCNExperimentTableKeyPayload : [[NSMutableArray alloc] init],
+        @RCNExperimentTableKeyActivePayload : [[NSMutableArray alloc] init]
+      });
+    }
+    return;
+  }
 
-  // Create a semaphore to synchronize the async completion handler.
-  dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
-
-  /// Load experiments from DB.
   [_DBManager loadExperimentWithCompletionHandler:^(BOOL success, NSDictionary *result) {
+    NSMutableArray *activeExperimentPayloads = [[NSMutableArray alloc] init];
+    NSMutableArray *experimentPayloads = [[NSMutableArray alloc] init];
+
     if (success && result) {
       experimentPayloads =
           [result[@RCNExperimentTableKeyPayload] mutableCopy] ?: experimentPayloads;
       activeExperimentPayloads =
           [result[@RCNExperimentTableKeyActivePayload] mutableCopy] ?: activeExperimentPayloads;
     }
-    // Signal that the block has finished updating the variables.
-    dispatch_semaphore_signal(semaphore);
+
+    NSDictionary *payloads = @{
+      @RCNExperimentTableKeyPayload : experimentPayloads,
+      @RCNExperimentTableKeyActivePayload : activeExperimentPayloads
+    };
+
+    if (completion) {
+      completion(payloads);
+    }
   }];
-
-  // Wait for the completion handler to signal.
-  // We use a timeout to prevent permanent deadlocks if something goes wrong in the DB layer.
-  long timedOut = dispatch_semaphore_wait(
-      semaphore,
-      dispatch_time(DISPATCH_TIME_NOW, (int64_t)(kDatabaseLoadTimeoutSecs * NSEC_PER_SEC)));
-
-  if (timedOut) {
-    FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000048",
-                @"Timed out waiting for experiment payloads to be loaded from DB");
-  }
-
-  return @{
-    @RCNExperimentTableKeyPayload : experimentPayloads,
-    @RCNExperimentTableKeyActivePayload : activeExperimentPayloads
-  };
 }
 
 /// Creates a map where the key is the config key and the value is the experiment description.
@@ -485,10 +483,9 @@ const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
         [NSJSONSerialization JSONObjectWithData:experiment
                                         options:NSJSONReadingMutableContainers
                                           error:&error];
-    if (!error && experimentJSON) {
-      if ([experimentJSON objectForKey:kAffectedParameterKeys]) {
-        NSMutableArray *configKeys =
-            (NSMutableArray *)[experimentJSON objectForKey:kAffectedParameterKeys];
+    if (!error && [experimentJSON isKindOfClass:[NSDictionary class]]) {
+      NSArray *configKeys = experimentJSON[kAffectedParameterKeys];
+      if ([configKeys isKindOfClass:[NSArray class]]) {
         NSMutableDictionary *experimentCopy = [experimentJSON mutableCopy];
         /// Remove `affectedParameterKeys` because the values come out of order and could affect the
         /// diffing.
@@ -531,78 +528,79 @@ const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
   return changedKeys;
 }
 
-// Compare fetched config with active config and output what has changed
-- (FIRRemoteConfigUpdate *)getConfigUpdateForNamespace:(NSString *)FIRNamespace {
-  FIRRemoteConfigUpdate *configUpdate;
-  NSMutableSet<NSString *> *updatedKeys = [[NSMutableSet alloc] init];
-  NSDictionary *experiments = [self loadExperimentsPayloads];
-  NSMutableSet *changedExperimentKeys = [self
-      getKeysAffectedByChangedExperiments:[experiments
-                                              objectForKey:@RCNExperimentTableKeyActivePayload]
-                fetchedExperimentPayloads:[experiments objectForKey:@RCNExperimentTableKeyPayload]];
+// Compare fetched config with active config and output what has changed asynchronously
+- (void)getConfigUpdateForNamespace:(NSString *)FIRNamespace
+                  completionHandler:(void (^)(FIRRemoteConfigUpdate *update))completionHandler {
+  [self loadExperimentsPayloadsWithCompletion:^(NSDictionary *experiments) {
+    NSMutableSet<NSString *> *updatedKeys = [[NSMutableSet alloc] init];
 
-  NSDictionary *fetchedConfig =
-      _fetchedConfig[FIRNamespace] ? _fetchedConfig[FIRNamespace] : [[NSDictionary alloc] init];
-  NSDictionary *activeConfig =
-      _activeConfig[FIRNamespace] ? _activeConfig[FIRNamespace] : [[NSDictionary alloc] init];
-  NSDictionary *fetchedP13n = _fetchedPersonalization;
-  NSDictionary *activeP13n = _activePersonalization;
-  NSArray<NSDictionary *> *fetchedRolloutMetadata = _fetchedRolloutMetadata;
-  NSArray<NSDictionary *> *activeRolloutMetadata = _activeRolloutMetadata;
+    // Get keys affected by changed experiments
+    NSMutableSet *changedExperimentKeys = [self
+        getKeysAffectedByChangedExperiments:[experiments
+                                                objectForKey:@RCNExperimentTableKeyActivePayload]
+                  fetchedExperimentPayloads:[experiments
+                                                objectForKey:@RCNExperimentTableKeyPayload]];
 
-  // add new/updated params
-  for (NSString *key in [fetchedConfig allKeys]) {
-    if (activeConfig[key] == nil ||
-        ![[activeConfig[key] stringValue] isEqualToString:[fetchedConfig[key] stringValue]]) {
-      [updatedKeys addObject:key];
+    NSDictionary *fetchedConfig = self->_fetchedConfig[FIRNamespace] ?: [[NSDictionary alloc] init];
+    NSDictionary *activeConfig = self->_activeConfig[FIRNamespace] ?: [[NSDictionary alloc] init];
+    NSDictionary *fetchedP13n = self->_fetchedPersonalization;
+    NSDictionary *activeP13n = self->_activePersonalization;
+    NSArray<NSDictionary *> *fetchedRolloutMetadata = self->_fetchedRolloutMetadata;
+    NSArray<NSDictionary *> *activeRolloutMetadata = self->_activeRolloutMetadata;
+
+    // Check for param changes (Value/Presence)
+    for (NSString *key in [fetchedConfig allKeys]) {
+      if (activeConfig[key] == nil ||
+          ![[activeConfig[key] stringValue] isEqualToString:[fetchedConfig[key] stringValue]]) {
+        [updatedKeys addObject:key];
+      }
     }
-  }
-  // add deleted params
-  for (NSString *key in [activeConfig allKeys]) {
-    if (fetchedConfig[key] == nil) {
-      [updatedKeys addObject:key];
+    for (NSString *key in [activeConfig allKeys]) {
+      if (fetchedConfig[key] == nil) {
+        [updatedKeys addObject:key];
+      }
     }
-  }
 
-  // add params with new/updated p13n metadata
-  for (NSString *key in [fetchedP13n allKeys]) {
-    if (activeP13n[key] == nil || ![activeP13n[key] isEqualToDictionary:fetchedP13n[key]]) {
-      [updatedKeys addObject:key];
+    // Check for Personalization changes
+    for (NSString *key in [fetchedP13n allKeys]) {
+      if (activeP13n[key] == nil || ![activeP13n[key] isEqualToDictionary:fetchedP13n[key]]) {
+        [updatedKeys addObject:key];
+      }
     }
-  }
-  // add params with deleted p13n metadata
-  for (NSString *key in [activeP13n allKeys]) {
-    if (fetchedP13n[key] == nil) {
-      [updatedKeys addObject:key];
+    for (NSString *key in [activeP13n allKeys]) {
+      if (fetchedP13n[key] == nil) {
+        [updatedKeys addObject:key];
+      }
     }
-  }
 
-  NSDictionary<NSString *, NSDictionary *> *fetchedRollouts =
-      [self getParameterKeyToRolloutMetadata:fetchedRolloutMetadata];
-  NSDictionary<NSString *, NSDictionary *> *activeRollouts =
-      [self getParameterKeyToRolloutMetadata:activeRolloutMetadata];
+    // Check for Rollout metadata changes
+    NSDictionary<NSString *, NSDictionary *> *fetchedRollouts =
+        [self getParameterKeyToRolloutMetadata:fetchedRolloutMetadata];
+    NSDictionary<NSString *, NSDictionary *> *activeRollouts =
+        [self getParameterKeyToRolloutMetadata:activeRolloutMetadata];
 
-  // add params with new/updated rollout metadata
-  for (NSString *key in [fetchedRollouts allKeys]) {
-    if (activeRollouts[key] == nil ||
-        ![activeRollouts[key] isEqualToDictionary:fetchedRollouts[key]]) {
-      [updatedKeys addObject:key];
+    for (NSString *key in [fetchedRollouts allKeys]) {
+      if (activeRollouts[key] == nil ||
+          ![activeRollouts[key] isEqualToDictionary:fetchedRollouts[key]]) {
+        [updatedKeys addObject:key];
+      }
     }
-  }
-  // add params with deleted rollout metadata
-  for (NSString *key in [activeRollouts allKeys]) {
-    if (fetchedRollouts[key] == nil) {
-      [updatedKeys addObject:key];
+    for (NSString *key in [activeRollouts allKeys]) {
+      if (fetchedRollouts[key] == nil) {
+        [updatedKeys addObject:key];
+      }
     }
-  }
 
-  // Add params affected by changed experiments.
-  for (NSString *key in changedExperimentKeys) {
-    [updatedKeys addObject:key];
-  }
+    // Add params affected by changed experiments
+    [updatedKeys unionSet:changedExperimentKeys];
 
-  configUpdate = [[FIRRemoteConfigUpdate alloc] initWithUpdatedKeys:updatedKeys];
-  return configUpdate;
+    FIRRemoteConfigUpdate *configUpdate =
+        [[FIRRemoteConfigUpdate alloc] initWithUpdatedKeys:updatedKeys];
+
+    if (completionHandler) {
+      completionHandler(configUpdate);
+    }
+  }];
 }
 
 - (NSDictionary<NSString *, NSDictionary *> *)getParameterKeyToRolloutMetadata:
