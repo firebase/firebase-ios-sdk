@@ -17,10 +17,30 @@ import XCTest
 
 @available(macOS 12.0, watchOS 8.0, *)
 class MockURLProtocol: URLProtocol, @unchecked Sendable {
-  nonisolated(unsafe) static var requestHandler: ((URLRequest) throws -> (
+  typealias MockURLRequestHandler = (URLRequest) throws -> (
     URLResponse,
     AsyncLineSequence<URL.AsyncBytes>?
-  ))?
+  )
+
+  private nonisolated(unsafe) static var _requestHandlers = [MockURLRequestHandler]()
+
+  nonisolated(unsafe) static var requestHandler: MockURLRequestHandler? {
+    get {
+      assert(
+        _requestHandlers.count <= 1,
+        "More than one request handler is configured; use `requestHandlers` instead."
+      )
+      return _requestHandlers.first
+    }
+    set {
+      _requestHandlers = newValue.map { [$0] } ?? []
+    }
+  }
+
+  nonisolated(unsafe) static var requestHandlersQueue: [MockURLRequestHandler] {
+    get { _requestHandlers }
+    set { _requestHandlers = newValue }
+  }
 
   override class func canInit(with request: URLRequest) -> Bool {
     #if os(watchOS)
@@ -38,9 +58,10 @@ class MockURLProtocol: URLProtocol, @unchecked Sendable {
       fatalError("`client` is nil.")
     }
 
-    guard let requestHandler = MockURLProtocol.requestHandler else {
-      fatalError("No request handler set.")
+    guard !MockURLProtocol.requestHandlersQueue.isEmpty else {
+      fatalError("No request handlers left in the queue. Unexpected network call.")
     }
+    let requestHandler = MockURLProtocol.requestHandlersQueue.removeFirst()
 
     Task {
       let (response, stream) = try requestHandler(self.request)

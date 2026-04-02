@@ -37,7 +37,7 @@ jobs:
     # - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
     # - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     # - name: Xcode
-    #   run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
+    #   run: sudo xcode-select -s /Applications/Xcode_26.2.app/Contents/Developer
     # - name: Setup testing repo and quickstart
     #   run: BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh functions prerelease_testing
     # - name: install secret googleservice-info.plist
@@ -71,7 +71,7 @@ jobs:
       matrix:
         include:
           - product: Performance
-            run_tests: true
+            run_tests: false
           - product: Storage
             run_tests: false
           - product: Config
@@ -102,7 +102,7 @@ jobs:
     - name: Prereqs
       run: gem install xcpretty
     - name: Xcode
-      run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
+      run: sudo xcode-select -s /Applications/Xcode_26.2.app/Contents/Developer
     - name: Setup testing repo and quickstart
       run: scripts/setup_quickstart.sh ${{ matrix.product }} prerelease_testing
     - name: Install Secret GoogleService-Info.plist

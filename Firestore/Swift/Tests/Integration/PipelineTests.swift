@@ -19,112 +19,6 @@ import FirebaseFirestore
 import Foundation
 import XCTest
 
-private let bookDocs: [String: [String: Sendable]] = [
-  "book1": [
-    "title": "The Hitchhiker's Guide to the Galaxy",
-    "author": "Douglas Adams",
-    "genre": "Science Fiction",
-    "published": 1979,
-    "rating": 4.2,
-    "tags": ["comedy", "space", "adventure"],
-    "awards": ["hugo": true, "nebula": false, "others": ["unknown": ["year": 1980]]], // Corrected
-    "nestedField": ["level.1": ["level.2": true]],
-    "embedding": VectorValue([10, 1, 1, 1, 1, 1, 1, 1, 1, 1]),
-  ],
-  "book2": [
-    "title": "Pride and Prejudice",
-    "author": "Jane Austen",
-    "genre": "Romance",
-    "published": 1813,
-    "rating": 4.5,
-    "tags": ["classic", "social commentary", "love"],
-    "awards": ["none": true],
-    "embedding": VectorValue([1, 10, 1, 1, 1, 1, 1, 1, 1, 1]), // Added
-  ],
-  "book3": [
-    "title": "One Hundred Years of Solitude",
-    "author": "Gabriel García Márquez",
-    "genre": "Magical Realism",
-    "published": 1967,
-    "rating": 4.3,
-    "tags": ["family", "history", "fantasy"],
-    "awards": ["nobel": true, "nebula": false],
-    "embedding": VectorValue([1, 1, 10, 1, 1, 1, 1, 1, 1, 1]),
-  ],
-  "book4": [
-    "title": "The Lord of the Rings",
-    "author": "J.R.R. Tolkien",
-    "genre": "Fantasy",
-    "published": 1954,
-    "rating": 4.7,
-    "tags": ["adventure", "magic", "epic"],
-    "awards": ["hugo": false, "nebula": false],
-    "remarks": NSNull(), // Added
-    "cost": Double.nan, // Added
-    "embedding": VectorValue([1, 1, 1, 10, 1, 1, 1, 1, 1, 1]), // Added
-  ],
-  "book5": [
-    "title": "The Handmaid's Tale",
-    "author": "Margaret Atwood",
-    "genre": "Dystopian",
-    "published": 1985,
-    "rating": 4.1,
-    "tags": ["feminism", "totalitarianism", "resistance"],
-    "awards": ["arthur c. clarke": true, "booker prize": false],
-    "embedding": VectorValue([1, 1, 1, 1, 10, 1, 1, 1, 1, 1]), // Added
-  ],
-  "book6": [
-    "title": "Crime and Punishment",
-    "author": "Fyodor Dostoevsky",
-    "genre": "Psychological Thriller",
-    "published": 1866,
-    "rating": 4.3,
-    "tags": ["philosophy", "crime", "redemption"],
-    "awards": ["none": true],
-    "embedding": VectorValue([1, 1, 1, 1, 1, 10, 1, 1, 1, 1]), // Added
-  ],
-  "book7": [
-    "title": "To Kill a Mockingbird",
-    "author": "Harper Lee",
-    "genre": "Southern Gothic",
-    "published": 1960,
-    "rating": 4.2,
-    "tags": ["racism", "injustice", "coming-of-age"],
-    "awards": ["pulitzer": true],
-    "embedding": VectorValue([1, 1, 1, 1, 1, 1, 10, 1, 1, 1]), // Added
-  ],
-  "book8": [
-    "title": "1984",
-    "author": "George Orwell",
-    "genre": "Dystopian",
-    "published": 1949,
-    "rating": 4.2,
-    "tags": ["surveillance", "totalitarianism", "propaganda"],
-    "awards": ["prometheus": true],
-    "embedding": VectorValue([1, 1, 1, 1, 1, 1, 1, 10, 1, 1]), // Added
-  ],
-  "book9": [
-    "title": "The Great Gatsby",
-    "author": "F. Scott Fitzgerald",
-    "genre": "Modernist",
-    "published": 1925,
-    "rating": 4.0,
-    "tags": ["wealth", "american dream", "love"],
-    "awards": ["none": true],
-    "embedding": VectorValue([1, 1, 1, 1, 1, 1, 1, 1, 10, 1]), // Added
-  ],
-  "book10": [
-    "title": "Dune",
-    "author": "Frank Herbert",
-    "genre": "Science Fiction",
-    "published": 1965,
-    "rating": 4.6,
-    "tags": ["politics", "desert", "ecology"],
-    "awards": ["hugo": true, "nebula": true],
-    "embedding": VectorValue([1, 1, 1, 1, 1, 1, 1, 1, 1, 10]), // Added
-  ],
-]
-
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class PipelineIntegrationTests: FSTIntegrationTestCase {
   override func setUpWithError() throws {
@@ -139,7 +33,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
   func testEmptyResults() async throws {
     let collRef = collectionRef(
-      withDocuments: bookDocs
+      withDocuments: TestHelper.bookDocs
     )
     let db = collRef.firestore
 
@@ -154,7 +48,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
   func testFullResults() async throws {
     let collRef = collectionRef(
-      withDocuments: bookDocs
+      withDocuments: TestHelper.bookDocs
     )
     let db = collRef.firestore
 
@@ -170,13 +64,13 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testReturnsExecutionTime() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline().collection(collRef.path)
     let snapshot = try await pipeline.execute()
 
-    XCTAssertEqual(snapshot.results.count, bookDocs.count, "Should fetch all documents")
+    XCTAssertEqual(snapshot.results.count, TestHelper.bookDocs.count, "Should fetch all documents")
 
     let executionTimeValue = snapshot.executionTime.dateValue().timeIntervalSince1970
 
@@ -185,7 +79,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
   func testReturnsExecutionTimeForEmptyQuery() async throws {
     let collRef =
-      collectionRef(withDocuments: bookDocs)
+      collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline().collection(collRef.path).limit(0)
@@ -198,14 +92,14 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testReturnsCreateAndUpdateTimeForEachDocument() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
     let pipeline = db.pipeline().collection(collRef.path)
     var snapshot = try await pipeline.execute()
 
     XCTAssertEqual(
       snapshot.results.count,
-      bookDocs.count,
+      TestHelper.bookDocs.count,
       "Initial fetch should return all documents"
     )
     for doc in snapshot.results {
@@ -242,7 +136,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     snapshot = try await pipeline.execute()
     XCTAssertEqual(
       snapshot.results.count,
-      bookDocs.count,
+      TestHelper.bookDocs.count,
       "Fetch after update should return all documents"
     )
 
@@ -267,7 +161,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testReturnsExecutionTimeForAggregateQuery() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -282,7 +176,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testTimestampsAreNilForAggregateQueryResults() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -293,7 +187,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       ) // Make sure 'groupBy' and 'average' are correct
     let snapshot = try await pipeline.execute()
 
-    // There are 8 unique genres in bookDocs
+    // There are 8 unique genres in TestHelper.bookDocs
     XCTAssertEqual(snapshot.results.count, 8, "Should return one result per genre")
 
     for doc in snapshot.results {
@@ -309,17 +203,17 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testSupportsCollectionReferenceAsSource() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline().collection(collRef)
     let snapshot = try await pipeline.execute()
 
-    TestHelper.compare(snapshot: snapshot, expectedCount: bookDocs.count)
+    TestHelper.compare(snapshot: snapshot, expectedCount: TestHelper.bookDocs.count)
   }
 
   func testSupportsListOfDocumentReferencesAsSource() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let docRefs: [DocumentReference] = [
@@ -339,7 +233,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testSupportsListOfDocumentPathsAsSource() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let docPaths: [String] = [
@@ -619,7 +513,8 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testConvertsArraysAndPlainObjectsToFunctionValues() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs) // Uses existing bookDocs
+    let collRef = collectionRef(withDocuments: TestHelper
+      .bookDocs) // Uses existing TestHelper.bookDocs
     let db = collRef.firestore
 
     // Expected data for "The Lord of the Rings"
@@ -705,7 +600,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testSupportsAggregate() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     var pipeline = db.pipeline()
@@ -715,7 +610,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     XCTAssertEqual(snapshot.results.count, 1, "Count all should return a single aggregate document")
     if let result = snapshot.results.first {
-      TestHelper.compare(pipelineResult: result, expected: ["count": bookDocs.count])
+      TestHelper.compare(pipelineResult: result, expected: ["count": TestHelper.bookDocs.count])
     } else {
       XCTFail("No result for count all aggregation")
     }
@@ -744,7 +639,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testRejectsGroupsWithoutAccumulators() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let dummyDocRef = collRef.document("dummyDocForRejectTest")
@@ -767,7 +662,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testReturnsGroupAndAccumulateResults() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -799,7 +694,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testReturnsMinMaxCountAndCountAllAccumulations() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -817,7 +712,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     let expectedValues: [String: Sendable] = [
       "booksWithCost": 1,
-      "count": bookDocs.count,
+      "count": TestHelper.bookDocs.count,
       "maxRating": 4.7,
       "minPublished": 1813,
     ]
@@ -830,7 +725,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testReturnsCountDistinctAccumulation() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -855,7 +750,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testReturnsCountIfAccumulation() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let expectedCount = 3
@@ -876,7 +771,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testFirstAndLastAccumulators() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -905,7 +800,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testArrayAggAccumulators() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -926,7 +821,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testArrayAggDistinctAccumulators() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -949,7 +844,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testDistinctStage() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -978,7 +873,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testSelectStage() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -1011,7 +906,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testAddFieldStage() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -1045,7 +940,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testRemoveFieldsStage() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -1080,7 +975,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testWhereStageWithAndConditions() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     // Test Case 1: Two AND conditions
@@ -1106,7 +1001,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testWhereStageWithOrAndXorConditions() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     // Test Case 1: OR conditions
@@ -1165,7 +1060,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testSortOffsetAndLimitStages() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -1188,7 +1083,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   // MARK: - Generic Stage Tests
 
   func testRawStageSelectFields() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let expectedSelectedData: [String: Sendable] = [
@@ -1221,7 +1116,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testCanAddFields() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -1257,7 +1152,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testCanPerformDistinctQuery() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -1289,7 +1184,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testCanPerformAggregateQuery() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let emptySendableDictionary: [String: Sendable?] = [:]
@@ -1321,7 +1216,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testCanFilterWithWhere() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -1347,7 +1242,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testCanLimitOffsetAndSort() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -1382,7 +1277,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   // MARK: - Replace Stage Test
 
   func testReplaceStagePromoteAwardsAndAddFlag() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -1409,7 +1304,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testReplaceWithExprResult() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -1436,7 +1331,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   // MARK: - Sample Stage Tests
 
   func testSampleStageLimit3() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -1450,7 +1345,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testSampleStageLimitPercentage60Average() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     var avgSize = 0.0
@@ -1470,7 +1365,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   // MARK: - Union Stage Test
 
   func testUnionStageCombineAuthors() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -1507,7 +1402,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testUnnestStage() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -1568,7 +1463,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testUnnestExpr() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -1629,7 +1524,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testFindNearest() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let measures: [DistanceMeasure] = [.euclidean, .dotProduct, .cosine]
@@ -1654,7 +1549,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testFindNearestWithDistance() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let expectedResults: [[String: Sendable]] = [
@@ -1682,7 +1577,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testLogicalMaxWorks() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -1706,7 +1601,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testLogicalMinWorks() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -1730,15 +1625,18 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testCondWorks() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
       .collection(collRef.path)
       .select([
         Field("title"),
-        Field("published").lessThan(1960).then(Constant(1960), else: Field("published"))
-          .as("publishedSafe"),
+        ConditionalExpression(
+          Field("published").lessThan(1960),
+          then: Constant(1960),
+          else: Field("published")
+        ).as("publishedSafe"),
       ])
       .sort([Field("title").ascending()])
       .limit(3)
@@ -1778,8 +1676,79 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
 
+  func testIfNullWorks() async throws {
+    let collRef = collectionRef(withDocuments: [
+      "doc1": ["title": "foo", "name": NSNull()],
+    ])
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .select([
+        Field("title").ifNull("default title").as("title"),
+        Field("name").ifNull(Field("title")).as("nameOrTitle"),
+        Field("name").ifNull("default name").as("fieldIsNull"),
+        Field("absent").ifNull("default name").as("fieldIsAbsent"),
+      ])
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable?]] = [
+      [
+        "title": "foo",
+        "nameOrTitle": "foo",
+        "fieldIsNull": "default name",
+        "fieldIsAbsent": "default name",
+      ],
+    ]
+
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
+  }
+
+  func testCoalesceWorks() async throws {
+    let collRef = collectionRef(withDocuments: [
+      "doc1": [
+        "numberValue": 1,
+        "stringValue": "hello",
+        "booleanValue": false,
+        "nullValue": NSNull(),
+        "nullValue2": NSNull(),
+      ],
+    ])
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .select([
+        Field("numberValue").coalesce([Field("stringValue")]).as("instanceMethod"),
+        Field("nullValue").coalesce([Field("stringValue")]).as("firstIsNull"),
+        Field("nullValue").coalesce([Field("nullValue2"), Field("booleanValue")])
+          .as("lastIsNotNull"),
+        Field("nullValue").coalesce([Field("nullValue2")]).as("allFieldsNull"),
+        Field("nullValue").coalesce([Field("nullValue2"), Constant("default")])
+          .as("allFieldsNullWithDefault"),
+        Field("absentField").coalesce([Field("numberValue"), Constant("default")])
+          .as("withAbsentField"),
+      ])
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable?]] = [
+      [
+        "instanceMethod": 1,
+        "firstIsNull": "hello",
+        "lastIsNotNull": false,
+        "allFieldsNull": NSNull(),
+        "allFieldsNullWithDefault": "default",
+        "withAbsentField": 1,
+      ],
+    ]
+
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
+  }
+
   func testInWorks() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -1799,7 +1768,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testNotEqAnyWorks() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -1818,7 +1787,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testArrayContainsWorks() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -1836,7 +1805,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testArrayContainsAnyWorks() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -1856,7 +1825,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testArrayContainsAllWorks() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -1874,7 +1843,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testArrayLengthWorks() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -1914,7 +1883,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testStrConcat() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -1933,7 +1902,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testStringConcatWithSendable() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -1976,7 +1945,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testStartsWith() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -1998,7 +1967,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testEndsWith() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -2018,7 +1987,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testStrContains() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -2038,7 +2007,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testCharLength() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -2141,7 +2110,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testLike() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -2159,7 +2128,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testRegexContains() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -2172,7 +2141,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testRegexFind() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -2195,7 +2164,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testRegexFindAll() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -2218,7 +2187,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testRegexMatches() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -2231,7 +2200,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testArithmeticOperations() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -2425,7 +2394,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testTrunc() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -2628,7 +2597,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 //  }
 
   func testComparisonOperators() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -2653,7 +2622,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testLogicalOperators() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -2677,7 +2646,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testChecks() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -2716,7 +2685,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testIsError() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -2743,7 +2712,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testIfError() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -2770,7 +2739,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testMapGet() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -2803,6 +2772,174 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     ]
 
     TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
+  }
+
+  func testMapSet() async throws {
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .limit(1)
+      .replace(with: MapExpression([
+        "existingField": ["foo": 1],
+      ]))
+      .select([
+        Field("existingField").mapSet("bar", 2).as("modifiedField"),
+        MapExpression([:]).mapSet("a", 1).as("simple"),
+        MapExpression(["a": 1]).mapSet("b", 2).as("add"),
+        MapExpression(["a": 1]).mapSet("a", 2).as("overwrite"),
+        MapExpression(["a": 1, "b": 2]).mapSet("a", 3, "c", 4).as("multi"),
+        MapExpression(["a": 1]).mapSet("a", Field("non_existent")).as("remove"),
+        MapExpression(["a": 1]).mapSet("b", Constant.nil).as("setNull"),
+        MapExpression(["a": ["b": 1]]).mapSet("a.b", 2).as("setDotted"),
+        MapExpression([:]).mapSet("", "empty").as("setEmptyKey"),
+        MapExpression(["a": 1]).mapSet("b", Constant(1).add(2)).as("setExprVal"),
+        MapExpression([:]).mapSet("obj", ["hidden": true]).as("setNestedMap"),
+        MapExpression([:]).mapSet("~!@#$%^&*()_+", "special").as("setSpecialChars"),
+        Field("existingField").mapSet("instanceKey", 100).as("instanceSetField"),
+        MapExpression(["x": 1]).mapSet(Constant("y"), Constant(2)).as("instanceSetConstant"),
+      ])
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable?]] = [
+      [
+        "modifiedField": ["foo": 1, "bar": 2],
+        "simple": ["a": 1],
+        "add": ["a": 1, "b": 2],
+        "overwrite": ["a": 2],
+        "multi": ["a": 3, "b": 2, "c": 4],
+        "remove": [:],
+        "setNull": ["a": 1, "b": NSNull()],
+        "setDotted": ["a": ["b": 1], "a.b": 2],
+        "setEmptyKey": ["": "empty"],
+        "setExprVal": ["a": 1, "b": 3],
+        "setNestedMap": ["obj": ["hidden": true]],
+        "setSpecialChars": ["~!@#$%^&*()_+": "special"],
+        "instanceSetField": ["foo": 1, "instanceKey": 100],
+        "instanceSetConstant": ["x": 1, "y": 2],
+      ],
+    ]
+
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: false)
+  }
+
+  func testMapKeys() async throws {
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .limit(1)
+      .replace(with: MapExpression([
+        "existingField": ["foo": 1],
+      ]))
+      .select([
+        Field("existingField").mapKeys().as("existingKeys"),
+        MapExpression(["a": 1, "b": 2]).mapKeys().as("keys"),
+        MapExpression([:]).mapKeys().as("empty_keys"),
+        MapExpression(["a": ["nested": true]]).mapKeys().as("nested_keys"),
+      ])
+
+    let snapshot = try await pipeline.execute()
+
+    XCTAssertEqual(snapshot.results.count, 1)
+    let data = snapshot.results[0].data
+
+    let existingKeys = data["existingKeys"] as? [String] ?? []
+    XCTAssertEqual(existingKeys, ["foo"])
+
+    let keys = data["keys"] as? [String] ?? []
+    XCTAssertEqual(keys.count, 2)
+    XCTAssertTrue(keys.contains("a"))
+    XCTAssertTrue(keys.contains("b"))
+
+    let emptyKeys = data["empty_keys"] as? [String] ?? ["dummy"]
+    XCTAssertEqual(emptyKeys.count, 0)
+
+    let nestedKeys = data["nested_keys"] as? [String] ?? []
+    XCTAssertEqual(nestedKeys, ["a"])
+  }
+
+  func testMapValues() async throws {
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .limit(1)
+      .replace(with: MapExpression([
+        "existingField": ["foo": 1],
+      ]))
+      .select([
+        Field("existingField").mapValues().as("existingValues"),
+        MapExpression(["a": 1, "b": 2]).mapValues().as("values"),
+        MapExpression([:]).mapValues().as("empty_values"),
+        MapExpression(["a": ["nested": true]]).mapValues().as("nested_values"),
+      ])
+
+    let snapshot = try await pipeline.execute()
+
+    XCTAssertEqual(snapshot.results.count, 1)
+    let data = snapshot.results[0].data
+
+    let existingValues = data["existingValues"] as? [Int] ?? []
+    XCTAssertEqual(existingValues, [1])
+
+    let values = data["values"] as? [Int] ?? []
+    XCTAssertEqual(values.count, 2)
+    XCTAssertTrue(values.contains(1))
+    XCTAssertTrue(values.contains(2))
+
+    let emptyValues = data["empty_values"] as? [Int] ?? [999]
+    XCTAssertEqual(emptyValues.count, 0)
+
+    let nestedValues = data["nested_values"] as? [[String: Bool]] ?? []
+    XCTAssertEqual(nestedValues, [["nested": true]])
+  }
+
+  func testMapEntries() async throws {
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .limit(1)
+      .replace(with: MapExpression([
+        "existingField": ["foo": 1],
+      ]))
+      .select([
+        Field("existingField").mapEntries().as("existingEntries"),
+        MapExpression(["a": 1, "b": 2]).mapEntries().as("entries"),
+        MapExpression([:]).mapEntries().as("empty_entries"),
+        MapExpression(["a": ["nested": true]]).mapEntries().as("nested_entries"),
+      ])
+
+    let snapshot = try await pipeline.execute()
+
+    XCTAssertEqual(snapshot.results.count, 1)
+    let data = snapshot.results[0].data
+
+    let existingEntries = data["existingEntries"] as? [[String: Any]] ?? []
+    XCTAssertEqual(existingEntries.count, 1)
+    XCTAssertEqual(existingEntries[0]["k"] as? String, "foo")
+    XCTAssertEqual(existingEntries[0]["v"] as? Int, 1)
+
+    let entries = data["entries"] as? [[String: Any]] ?? []
+    XCTAssertEqual(entries.count, 2)
+    let hasA1 = entries.contains { ($0["k"] as? String) == "a" && ($0["v"] as? Int) == 1 }
+    let hasB2 = entries.contains { ($0["k"] as? String) == "b" && ($0["v"] as? Int) == 2 }
+    XCTAssertTrue(hasA1)
+    XCTAssertTrue(hasB2)
+
+    let emptyEntries = data["empty_entries"] as? [[String: Any]] ?? [["dummy": "dummy"]]
+    XCTAssertEqual(emptyEntries.count, 0)
+
+    let nestedEntries = data["nested_entries"] as? [[String: Any]] ?? []
+    XCTAssertEqual(nestedEntries.count, 1)
+    XCTAssertEqual(nestedEntries[0]["k"] as? String, "a")
+    XCTAssertEqual(nestedEntries[0]["v"] as? [String: Bool], ["nested": true])
   }
 
   func testDistanceFunctions() async throws {
@@ -2890,7 +3027,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testNestedFields() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -2910,7 +3047,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testMapGetWithFieldNameIncludingDotNotation() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -2947,7 +3084,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testGenericFunctionAddSelectable() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -2978,7 +3115,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testGenericFunctionAndVariadicSelectable() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -3003,7 +3140,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testGenericFunctionArrayContainsAny() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -3026,7 +3163,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testGenericFunctionCountIfAggregate() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -3055,7 +3192,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testGenericFunctionSortByCharLen() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -3108,7 +3245,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
 //  func testSupportsRand() async throws {
-//    let collRef = collectionRef(withDocuments: bookDocs)
+//    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
 //    let db = collRef.firestore
 //
 //    let pipeline = db.pipeline()
@@ -3141,7 +3278,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
   func testSupportsArray() async throws {
     let db = firestore()
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
 
     let pipeline = db.pipeline()
       .collection(collRef.path)
@@ -3164,7 +3301,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
   func testEvaluatesExpressionInArray() async throws {
     let db = firestore()
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
 
     let pipeline = db.pipeline()
       .collection(collRef.path)
@@ -3192,7 +3329,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
   func testSupportsArrayOffset() async throws {
     let db = firestore()
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
 
     let expectedResultsPart1: [[String: Sendable?]] = [
       ["firstTag": "adventure"],
@@ -3217,7 +3354,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
   func testSupportsMap() async throws {
     let db = firestore()
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
 
     let pipeline = db.pipeline()
       .collection(collRef.path)
@@ -3240,7 +3377,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
   func testEvaluatesExpressionInMap() async throws {
     let db = firestore()
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
 
     let pipeline = db.pipeline()
       .collection(collRef.path)
@@ -3267,7 +3404,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
   func testSupportsMapRemove() async throws {
     let db = firestore()
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
 
     let expectedResult: [String: Sendable?] = ["awards": ["nebula": false]]
 
@@ -3288,7 +3425,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
   func testSupportsMapMerge() async throws {
     let db = firestore()
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
 
     let expectedResult: [String: Sendable] =
       ["awards": ["hugo": false, "nebula": false, "fakeAward": true]]
@@ -3449,6 +3586,14 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
           Constant(baseTimestamp).timestampTruncate(granularity: "day").as("truncDayString"),
           Constant(baseTimestamp).timestampTruncate(granularity: Constant("day"))
             .as("truncDayExpr"),
+          Constant(baseTimestamp).timestampTruncate(
+            granularity: .day,
+            timezone: "America/Los_Angeles"
+          ).as("truncDayLA"),
+          Constant(baseTimestamp).timestampTruncate(
+            granularity: "day",
+            timezone: "America/Los_Angeles"
+          ).as("truncDayLAString"),
         ]
       )
 
@@ -3473,12 +3618,111 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       "truncIsoYear": Timestamp(seconds: 1_735_516_800, nanoseconds: 0),
       "truncDayString": Timestamp(seconds: 1_741_305_600, nanoseconds: 0),
       "truncDayExpr": Timestamp(seconds: 1_741_305_600, nanoseconds: 0),
+      "truncDayLA": Timestamp(seconds: 1_741_334_400, nanoseconds: 0),
+      "truncDayLAString": Timestamp(seconds: 1_741_334_400, nanoseconds: 0),
     ]
 
     if let resultDoc = snapshot.results.first {
       TestHelper.compare(pipelineResult: resultDoc, expected: expectedResults)
     } else {
       XCTFail("No document retrieved for timestamp trunc test")
+    }
+  }
+
+  func testTimestampExtractWorks() async throws {
+    let db = firestore()
+    let randomCol = collectionRef()
+    try await randomCol.document("dummyDoc").setData(["field": "value"])
+
+    let baseTimestamp = Timestamp(seconds: 1_741_380_235, nanoseconds: 123_456_000)
+
+    let pipeline = db.pipeline()
+      .collection(randomCol.path)
+      .limit(1)
+      .select(
+        [
+          Constant(baseTimestamp).timestampExtract(part: .year).as("year"),
+          Constant(baseTimestamp).timestampExtract(part: .month).as("month"),
+          Constant(baseTimestamp).timestampExtract(part: .day).as("day"),
+          Constant(baseTimestamp).timestampExtract(part: .hour).as("hour"),
+          Constant(baseTimestamp).timestampExtract(part: .minute).as("minute"),
+          Constant(baseTimestamp).timestampExtract(part: .second).as("second"),
+          Constant(baseTimestamp).timestampExtract(part: .millisecond).as("millis"),
+          Constant(baseTimestamp).timestampExtract(part: .microsecond).as("micros"),
+          Constant(baseTimestamp).timestampExtract(part: .dayOfYear).as("day_of_year"),
+          Constant(baseTimestamp).timestampExtract(part: .dayOfWeek).as("day_of_week"),
+          Constant(baseTimestamp).timestampExtract(part: .hour, timezone: "America/Los_Angeles")
+            .as("hourLA"),
+          Constant(baseTimestamp).timestampExtract(part: "hour", timezone: "America/Los_Angeles")
+            .as("hourLAString"),
+        ]
+      )
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [String: Int] = [
+      "year": 2025,
+      "month": 3,
+      "day": 7,
+      "hour": 20,
+      "minute": 43,
+      "second": 55,
+      "millis": 123,
+      "micros": 123_456,
+      "day_of_year": 66,
+      "day_of_week": 6,
+      "hourLA": 12,
+      "hourLAString": 12,
+    ]
+
+    XCTAssertEqual(snapshot.results.count, 1, "Should retrieve one document")
+    if let resultDoc = snapshot.results.first {
+      TestHelper.compare(pipelineResult: resultDoc, expected: expectedResults)
+    } else {
+      XCTFail("No document retrieved for timestamp extract test")
+    }
+  }
+
+  func testTimestampDiffWorks() async throws {
+    let db = firestore()
+    let randomCol = collectionRef()
+
+    let startTimestamp = Timestamp(seconds: 1_741_428_000, nanoseconds: 0)
+    let endTimestamp = Timestamp(seconds: 1_741_437_296, nanoseconds: 123_456_789)
+
+    try await randomCol.document("diffDoc").setData([
+      "start": startTimestamp,
+      "end": endTimestamp,
+    ])
+
+    let pipeline = db.pipeline()
+      .collection(randomCol.path)
+      .limit(1)
+      .select(
+        [
+          Field("end").timestampDiff(Field("start"), .hour).as("diffHour"),
+          Field("end").timestampDiff(Field("start"), .minute).as("diffMinute"),
+          Field("end").timestampDiff(Field("start"), .second).as("diffSecond"),
+          Field("start").timestampDiff(Field("end"), .hour).as("diffHourNeg"),
+          Field("end").timestampDiff(Field("start"), "hour").as("diffHourString"),
+        ]
+      )
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [String: Int] = [
+      "diffHour": 2,
+      "diffMinute": 154,
+      "diffSecond": 9296,
+      "diffHourNeg": -2,
+      "diffHourString": 2,
+    ]
+
+    XCTAssertEqual(snapshot.results.count, 1, "Should retrieve one document")
+    if let resultDoc = snapshot.results.first {
+      TestHelper.compare(pipelineResult: resultDoc, expected: expectedResults)
+    } else {
+      XCTFail("No document retrieved for timestamp diff test")
     }
   }
 
@@ -3585,7 +3829,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testDocumentId() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -3601,8 +3845,46 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     )
   }
 
+  func testSupportsParent() async throws {
+    let db = firestore()
+    let randomCol = collectionRef()
+
+    // Add a dummy document directly to randomCol so the pipeline has input data to process
+    try await randomCol.document("dummy").setData(["dummy": 1])
+
+    let docRef = randomCol.document("book4").collection("reviews").document("review1")
+    try await docRef.setData(["foo": "bar"])
+
+    let pipeline = db.pipeline()
+      .collection(randomCol.path)
+      .limit(1)
+      .select([
+        Constant(docRef).parent().as("parentRefStatic"),
+        Constant(docRef).parent().as("parentRefInstance"),
+      ])
+      .select([
+        Field("parentRefStatic").documentId().as("parentIdStatic"),
+        Field("parentRefInstance").documentId().as("parentIdInstance"),
+      ])
+
+    let snapshot = try await pipeline.execute()
+
+    XCTAssertEqual(snapshot.results.count, 1)
+
+    let expectedResults: [String: Sendable] = [
+      "parentIdStatic": "book4",
+      "parentIdInstance": "book4",
+    ]
+
+    if let resultDoc = snapshot.results.first {
+      TestHelper.compare(pipelineResult: resultDoc, expected: expectedResults)
+    } else {
+      XCTFail("No document retrieved for parent test")
+    }
+  }
+
   func testSubstring() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -3615,7 +3897,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testSubstringWithoutLength() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -3741,7 +4023,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testTrimCharactersWithStringLiteral() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -3760,7 +4042,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testTrimCharactersWithExpression() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -3776,6 +4058,210 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       ]],
       enforceOrder: false
     )
+  }
+
+  func testLTrim() async throws {
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .limit(1)
+      .replace(with: MapExpression([
+        "strWhitespace": "  trimMe  ",
+        "strChars": "xxxtrimMe",
+        "chars": "x",
+      ]))
+      .select([
+        Constant("  trimMe  ").ltrim().as("constLtrim"),
+        Field("strWhitespace").ltrim().as("fieldLtrim"),
+        Constant("xxxtrimMe").ltrim("x").as("constLtrimValuePrim"),
+        Constant("xxxtrimMe").ltrim(Field("chars")).as("constLtrimValueExpr"),
+        Field("strChars").ltrim("x").as("fieldLtrimValuePrim"),
+        Field("strChars").ltrim(Field("chars")).as("fieldLtrimValueExpr"),
+      ])
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      [
+        "constLtrim": "trimMe  ",
+        "fieldLtrim": "trimMe  ",
+        "constLtrimValuePrim": "trimMe",
+        "constLtrimValueExpr": "trimMe",
+        "fieldLtrimValuePrim": "trimMe",
+        "fieldLtrimValueExpr": "trimMe",
+      ],
+    ]
+
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: false)
+  }
+
+  func testRTrim() async throws {
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .limit(1)
+      .replace(with: MapExpression([
+        "strWhitespace": "  trimMe  ",
+        "strChars": "trimMexxx",
+        "chars": "x",
+      ]))
+      .select([
+        Constant("  trimMe  ").rtrim().as("constRtrim"),
+        Field("strWhitespace").rtrim().as("fieldRtrim"),
+        Constant("trimMexxx").rtrim("x").as("constRtrimValuePrim"),
+        Constant("trimMexxx").rtrim(Field("chars")).as("constRtrimValueExpr"),
+        Field("strChars").rtrim("x").as("fieldRtrimValuePrim"),
+        Field("strChars").rtrim(Field("chars")).as("fieldRtrimValueExpr"),
+      ])
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      [
+        "constRtrim": "  trimMe",
+        "fieldRtrim": "  trimMe",
+        "constRtrimValuePrim": "trimMe",
+        "constRtrimValueExpr": "trimMe",
+        "fieldRtrimValuePrim": "trimMe",
+        "fieldRtrimValueExpr": "trimMe",
+      ],
+    ]
+
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: false)
+  }
+
+  func testStringRepeat() async throws {
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .limit(1)
+      .replace(with: MapExpression([
+        "str": "ha",
+        "count": 3,
+      ]))
+      .select([
+        Constant("ha").stringRepeat(3).as("constPrim"),
+        Constant("ha").stringRepeat(Field("count")).as("constExpr"),
+        Field("str").stringRepeat(3).as("fieldPrim"),
+        Field("str").stringRepeat(Field("count")).as("fieldExpr"),
+      ])
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      [
+        "constPrim": "hahaha",
+        "constExpr": "hahaha",
+        "fieldPrim": "hahaha",
+        "fieldExpr": "hahaha",
+      ],
+    ]
+
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: false)
+  }
+
+  func testStringReplaceAll() async throws {
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .limit(1)
+      .replace(with: MapExpression([
+        "str": "hello world",
+        "old": "o",
+        "new": "a",
+      ]))
+      .select([
+        Constant("hello world").stringReplaceAll("o", with: "a").as("constPrim"),
+        Constant("hello world").stringReplaceAll(Field("old"), with: Field("new")).as("constExpr"),
+        Field("str").stringReplaceAll("o", with: "a").as("fieldPrim"),
+        Field("str").stringReplaceAll(Field("old"), with: Field("new")).as("fieldExpr"),
+      ])
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      [
+        "constPrim": "hella warld",
+        "constExpr": "hella warld",
+        "fieldPrim": "hella warld",
+        "fieldExpr": "hella warld",
+      ],
+    ]
+
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: false)
+  }
+
+  func testStringReplaceOne() async throws {
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .limit(1)
+      .replace(with: MapExpression([
+        "str": "hello world",
+        "old": "o",
+        "new": "a",
+      ]))
+      .select([
+        Constant("hello world").stringReplaceOne("o", with: "a").as("constPrim"),
+        Constant("hello world").stringReplaceOne(Field("old"), with: Field("new")).as("constExpr"),
+        Field("str").stringReplaceOne("o", with: "a").as("fieldPrim"),
+        Field("str").stringReplaceOne(Field("old"), with: Field("new")).as("fieldExpr"),
+      ])
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      [
+        "constPrim": "hella world",
+        "constExpr": "hella world",
+        "fieldPrim": "hella world",
+        "fieldExpr": "hella world",
+      ],
+    ]
+
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: false)
+  }
+
+  func testStringIndexOf() async throws {
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .limit(1)
+      .replace(with: MapExpression([
+        "str": "hello world",
+        "sub": "world",
+      ]))
+      .select([
+        Constant("hello world").stringIndexOf("world").as("constPrim"),
+        Constant("hello world").stringIndexOf(Field("sub")).as("constExpr"),
+        Field("str").stringIndexOf("world").as("fieldPrim"),
+        Field("str").stringIndexOf(Field("sub")).as("fieldExpr"),
+      ])
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      [
+        "constPrim": 6,
+        "constExpr": 6,
+        "fieldPrim": 6,
+        "fieldExpr": 6,
+      ],
+    ]
+
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: false)
   }
 
   func testSplitWorks() async throws {
@@ -3904,6 +4390,78 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: false)
   }
 
+  func testIsTypeWorks() async throws {
+    let collRef = collectionRef(withDocuments: ["doc1": ["dummy": 1]])
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .limit(1)
+      .replace(with: MapExpression([
+        "int": 1,
+        "float": 1.1,
+        "str": "a string",
+        "bool": true,
+        "null": Constant.nil,
+        "geoPoint": GeoPoint(latitude: 0.1, longitude: 0.2),
+        "timestamp": Timestamp(seconds: 123_456, nanoseconds: 0),
+        "bytes": Data([1, 2, 3]),
+        "docRef": db.document("foo/bar"),
+        "vector": VectorValue([1.0, 2.0, 3.0]),
+        "map": MapExpression(["numberK": 1, "stringK": "a string"]),
+        "array": ArrayExpression([1, 2, true]),
+      ]))
+      .select([
+        Field("int").isType("int64").as("isInt64"),
+        Field("int").isType("number").as("isInt64IsNumber"),
+        Field("int").isType("decimal128").as("isInt64IsDecimal128"),
+        Field("float").isType("float64").as("isFloat64"),
+        Field("float").isType("number").as("isFloat64IsNumber"),
+        Field("float").isType("decimal128").as("isFloat64IsDecimal128"),
+        Field("str").isType("string").as("isStr"),
+        Field("str").isType("int64").as("isStrNum"),
+        Field("int").isType("string").as("isNumStr"),
+        Field("bool").isType("boolean").as("isBool"),
+        Field("null").isType("null").as("isNull"),
+        Field("geoPoint").isType("geo_point").as("isGeoPoint"),
+        Field("timestamp").isType("timestamp").as("isTimestamp"),
+        Field("bytes").isType("bytes").as("isBytes"),
+        Field("docRef").isType("reference").as("isDocRef"),
+        Field("vector").isType("vector").as("isVector"),
+        Field("map").isType("map").as("isMap"),
+        Field("array").isType("array").as("isArray"),
+        Constant(1).isType("int64").as("exprIsInt64"),
+      ])
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      [
+        "isInt64": true,
+        "isInt64IsNumber": true,
+        "isInt64IsDecimal128": false,
+        "isFloat64": true,
+        "isFloat64IsNumber": true,
+        "isFloat64IsDecimal128": false,
+        "isStr": true,
+        "isStrNum": false,
+        "isNumStr": false,
+        "isBool": true,
+        "isNull": true,
+        "isGeoPoint": true,
+        "isTimestamp": true,
+        "isBytes": true,
+        "isDocRef": true,
+        "isVector": true,
+        "isMap": true,
+        "isArray": true,
+        "exprIsInt64": true,
+      ],
+    ]
+
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: false)
+  }
+
   func testAggregateThrowsOnDuplicateAliases() async throws {
     let collRef = collectionRef()
     let pipeline = db.pipeline()
@@ -3939,7 +4497,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testDuplicateAliasInAddFields() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -4004,7 +4562,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testPaginationWithFilters() async throws {
-    let randomCol = collectionRef(withDocuments: bookDocs)
+    let randomCol = collectionRef(withDocuments: TestHelper.bookDocs)
     try await addBooks(to: randomCol)
 
     let pageSize = 2
@@ -4040,7 +4598,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testPaginationWithOffsets() async throws {
-    let randomCol = collectionRef(withDocuments: bookDocs)
+    let randomCol = collectionRef(withDocuments: TestHelper.bookDocs)
     try await addBooks(to: randomCol)
 
     let secondFilterField = "__name__"
@@ -4115,7 +4673,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testWhereByNorCondition() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -4144,7 +4702,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testNorConditionWithNull() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -4182,7 +4740,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testSwitchOn() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -4216,7 +4774,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testSwitchOnNoDefaultValueAndNoMatchingCondition() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
@@ -4240,7 +4798,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testArrayFirst() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     var snapshot = try await db.pipeline()
@@ -4281,7 +4839,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testArrayFirstN() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     var snapshot = try await db.pipeline()
@@ -4322,7 +4880,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testArrayLast() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     var snapshot = try await db.pipeline()
@@ -4363,7 +4921,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testArrayLastN() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     var snapshot = try await db.pipeline()
@@ -4404,7 +4962,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testArrayMinimum() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
 
     let db = collRef.firestore
 
@@ -4447,7 +5005,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testArrayMinimumN() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let snapshot = try await db.pipeline()
@@ -4464,7 +5022,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testArrayMaximum() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     var snapshot = try await db.pipeline()
@@ -4506,7 +5064,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testArrayMaximumN() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     let snapshot = try await db.pipeline()
@@ -4523,7 +5081,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testArrayIndexOf() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     var snapshot = try await db.pipeline()
@@ -4573,7 +5131,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testArrayLastIndexOf() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     var snapshot = try await db.pipeline()
@@ -4623,7 +5181,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testArrayIndexOfAll() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
 
     var snapshot = try await db.pipeline()

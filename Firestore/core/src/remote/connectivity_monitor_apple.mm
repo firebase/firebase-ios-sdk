@@ -36,6 +36,11 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+// TODO(#12593): SCNetworkReachability was deprecated in macOS 14.4.
+// Migrate to NWPathMonitor.
+
 namespace {
 
 using NetworkStatus = ConnectivityMonitor::NetworkStatus;
@@ -188,6 +193,8 @@ std::unique_ptr<ConnectivityMonitor> ConnectivityMonitor::Create(
     const std::shared_ptr<AsyncQueue>& worker_queue) {
   return absl::make_unique<ConnectivityMonitorApple>(worker_queue);
 }
+
+#pragma clang diagnostic pop
 
 }  // namespace remote
 }  // namespace firestore

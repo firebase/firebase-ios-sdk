@@ -128,8 +128,8 @@
 
 - (void)testDwarfExpressionMachineInit {
   FIRCLSDwarfExpressionMachine machine;
-  uint8_t fakeData;
-  FIRCLSThreadContext registers;
+  uint8_t fakeData = 0;
+  FIRCLSThreadContext registers = {0};
 
   XCTAssert(FIRCLSDwarfExpressionMachineInit(&machine, (void *)&fakeData, &registers, 42));
   XCTAssert(FIRCLSDwarfExpressionStackIsValid(&machine.stack));

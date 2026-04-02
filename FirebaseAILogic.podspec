@@ -43,6 +43,14 @@ Build AI-powered apps and features with the Gemini API using the Firebase AI Log
   s.tvos.framework = 'UIKit'
   s.watchos.framework = 'WatchKit'
 
+  swift_flags_xcconfig = {
+    'OTHER_SWIFT_FLAGS' => '$(inherited) -D IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM'
+  }
+
+  # Note: Foundation Models is only supported on iOS and macOS; watchOS and tvOS are omitted.
+  s.ios.pod_target_xcconfig = swift_flags_xcconfig
+  s.osx.pod_target_xcconfig = swift_flags_xcconfig
+
   s.dependency 'FirebaseAppCheckInterop', '~> 12.12.0'
   s.dependency 'FirebaseAuthInterop', '~> 12.12.0'
   s.dependency 'FirebaseCore', '~> 12.12.0'
@@ -66,5 +74,9 @@ Build AI-powered apps and features with the Gemini API using the Firebase AI Log
       unit_tests_dir + 'vertexai-sdk-test-data/mock-responses',
       unit_tests_dir + 'Resources/**/*',
     ]
+
+    # Note: Foundation Models is only supported on iOS and macOS; watchOS and tvOS are omitted.
+    unit_tests.ios.pod_target_xcconfig = swift_flags_xcconfig
+    unit_tests.osx.pod_target_xcconfig = swift_flags_xcconfig
   end
 end

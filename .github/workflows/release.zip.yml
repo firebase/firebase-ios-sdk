@@ -9,8 +9,6 @@
 #    zip from the current commit (HEAD).
 name: release.zip
 
-# TODO(ncooke3): Also do Xcode 26 testing
-
 permissions:
   actions: read
   contents: read
@@ -117,7 +115,7 @@ jobs:
       github.repository == 'firebase/firebase-ios-sdk' &&
       contains(fromJSON('["schedule", "pull_request", "workflow_dispatch"]'), github.event_name) &&
       needs.should_package.outputs.should_package == 'true'
-    runs-on: macos-15
+    runs-on: macos-26
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       with:
@@ -192,7 +190,7 @@ jobs:
     if: ${{ !cancelled() }}
     env:
       FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
-    runs-on: macos-15
+    runs-on: macos-26
     steps:
       - name: Xcode
         run: sudo xcode-select -s /Applications/${{ env.MIN_XCODE }}.app/Contents/Developer
@@ -226,6 +224,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        platform:
+          - os: 'macos-26'
+            xcode: 'Xcode_26.4'
+          - os: 'macos-15'
+            xcode: 'Xcode_26.2'
         artifact: [Firebase-actions-dir, Firebase-actions-dir-dynamic]
         config:
           - product: "ABTesting"
@@ -264,6 +267,7 @@ jobs:
             plist_src: "scripts/gha-encrypted/qs-crashlytics.plist.gpg"
             plist_dst: "quickstart-ios/crashlytics/GoogleService-Info.plist"
             command: |
+              xcodebuild -downloadPlatform watchOS
               rm -rf "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/FirebaseAnalytics*
               rm -rf "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/GoogleAppMeasurement*
               rm -rf "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/GoogleAds*
@@ -342,14 +346,13 @@ jobs:
                 "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
 
     uses: ./.github/workflows/_quickstart.framework.yml
-    name: ${{ matrix.config.product }} / ${{ matrix.artifact == 'Firebase-actions-dir' && 'static' || 'dynamic' }}
     with:
       product: ${{ matrix.config.product }}
       zip_run_id: ${{ needs.packaging_done.outputs.run_id }}
       artifact_name: ${{ matrix.artifact }}
       # Use defaults with option to override
-      os: ${{ matrix.config.os || 'macos-15' }}
-      xcode: ${{ matrix.config.xcode || 'Xcode_26.3' }}
+      os: ${{ matrix.config.os || matrix.platform.os }}
+      xcode: ${{ matrix.config.xcode || matrix.platform.xcode }}
       # Optional scheme (only used by FirebaseAI)
       scheme: ${{ matrix.config.scheme }}
       plist_src_path: ${{ matrix.config.plist_src }}

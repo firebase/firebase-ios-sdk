@@ -19,6 +19,7 @@
 
 #include <memory>
 #include <string>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -32,6 +33,9 @@ namespace core {
 class EvaluableExpr;
 }  // namespace core
 namespace api {
+
+class Pipeline;
+class Stage;
 
 class Expr {
  public:
@@ -73,6 +77,24 @@ class Field : public Selectable {
   std::string alias_;
 };
 
+class Variable : public Expr {
+ public:
+  explicit Variable(std::string name) : name_(std::move(name)) {
+  }
+  ~Variable() override = default;
+
+  google_firestore_v1_Value to_proto() const override;
+
+  const std::string& name() const {
+    return name_;
+  }
+
+  std::unique_ptr<core::EvaluableExpr> ToEvaluable() const override;
+
+ private:
+  std::string name_;
+};
+
 class Constant : public Expr {
  public:
   explicit Constant(nanopb::SharedMessage<google_firestore_v1_Value> value)
@@ -90,8 +112,13 @@ class Constant : public Expr {
 
 class FunctionExpr : public Expr {
  public:
-  FunctionExpr(std::string name, std::vector<std::shared_ptr<Expr>> params)
-      : name_(std::move(name)), params_(std::move(params)) {
+  FunctionExpr(
+      std::string name,
+      std::vector<std::shared_ptr<Expr>> params,
+      std::unordered_map<std::string, std::shared_ptr<Expr>> options = {})
+      : name_(std::move(name)),
+        params_(std::move(params)),
+        options_(std::move(options)) {
   }
 
   google_firestore_v1_Value to_proto() const override;
@@ -106,9 +133,29 @@ class FunctionExpr : public Expr {
     return params_;
   }
 
+  const std::unordered_map<std::string, std::shared_ptr<Expr>>& options()
+      const {
+    return options_;
+  }
+
  private:
   std::string name_;
   std::vector<std::shared_ptr<Expr>> params_;
+  std::unordered_map<std::string, std::shared_ptr<Expr>> options_;
+};
+
+class PipelineExpr : public Expr {
+ public:
+  explicit PipelineExpr(std::vector<std::shared_ptr<Stage>> stages)
+      : stages_(std::move(stages)) {
+  }
+
+  google_firestore_v1_Value to_proto() const override;
+
+  std::unique_ptr<core::EvaluableExpr> ToEvaluable() const override;
+
+ private:
+  std::vector<std::shared_ptr<Stage>> stages_;
 };
 
 }  // namespace api
