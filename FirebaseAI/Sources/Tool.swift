@@ -194,26 +194,31 @@ public struct ToolConfig: Sendable {
 /// Retrieval configuration.
 public struct RetrievalConfig: Sendable, Encodable {
   /// The location for the search.
-  public let latLng: CLLocationCoordinate2D?
+  public let location: CLLocationCoordinate2D?
   /// The language code of the user.
   public let languageCode: String?
 
-  public init(latLng: CLLocationCoordinate2D? = nil, languageCode: String? = nil) {
-    self.latLng = latLng
+  public init(location: CLLocationCoordinate2D? = nil, languageCode: String? = nil) {
+    self.location = location
     self.languageCode = languageCode
   }
-}
 
-extension CLLocationCoordinate2D: @unchecked Sendable {}
-
-extension CLLocationCoordinate2D: Encodable {
   public func encode(to encoder: Encoder) throws {
     var container = encoder.container(keyedBy: CodingKeys.self)
-    try container.encode(latitude, forKey: .latitude)
-    try container.encode(longitude, forKey: .longitude)
+    try container.encodeIfPresent(languageCode, forKey: .languageCode)
+    if let location = location {
+      var latLngContainer = container.nestedContainer(keyedBy: LatLngKeys.self, forKey: .location)
+      try latLngContainer.encode(location.latitude, forKey: .latitude)
+      try latLngContainer.encode(location.longitude, forKey: .longitude)
+    }
   }
 
   enum CodingKeys: String, CodingKey {
+    case location = "latLng"
+    case languageCode
+  }
+
+  enum LatLngKeys: String, CodingKey {
     case latitude
     case longitude
   }
