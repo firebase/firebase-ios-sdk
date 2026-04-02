@@ -5295,33 +5295,22 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       .limit(1)
       .replace(with: MapExpression(["arr": [10, 20, 30]]))
       .select([
-        Field("arr").arrayTransform(
+  Field("arr").arrayTransform(
           elementAlias: "element",
           transform: Variable("element").multiply(10)
-        ).as("staticTransform"),
-        Field("arr").arrayTransform(
-          elementAlias: "element",
-          transform: Variable("element").multiply(10)
-        ).as("instanceTransform"),
+        ).as("transform"),
         Field("arr").arrayTransformWithIndex(
           elementAlias: "element",
           indexAlias: "i",
           transform: Variable("element").add(Variable("i"))
-        ).as("staticTransformWithIndex"),
-        Field("arr").arrayTransformWithIndex(
-          elementAlias: "element",
-          indexAlias: "i",
-          transform: Variable("element").add(Variable("i"))
-        ).as("instanceTransformWithIndex"),
+        ).as("transformWithIndex"),
       ])
       .execute()
 
     let expectedResults: [[String: Sendable]] = [
       [
-        "staticTransform": [100, 200, 300],
-        "instanceTransform": [100, 200, 300],
-        "staticTransformWithIndex": [10, 21, 32],
-        "instanceTransformWithIndex": [10, 21, 32],
+        "transform": [100, 200, 300],
+        "transformWithIndex": [10, 21, 32],
       ],
     ]
     TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
