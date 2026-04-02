@@ -1,5 +1,7 @@
 # Unreleased
-- [changed] Updated `upload-symbols` to version 3.21, updated error logging in `upload-symbols` and started reading the `DEVELOPER_DIR` environment varibale for the path to Xcode for CoreSymbolication (#15896).
+- [changed] Updated `upload-symbols` to version 3.21, updated error logging in
+  `upload-symbols` and started reading the `DEVELOPER_DIR` environment
+  variable for the path to Xcode for CoreSymbolication (#15896).
 
 # 12.11.0
 - [fixed] Fixed an issue where Crashlytics API calls were silently dropped if invoked immediately after Firebase initialization.
