@@ -2774,6 +2774,174 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
 
+  func testMapSet() async throws {
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .limit(1)
+      .replace(with: MapExpression([
+        "existingField": ["foo": 1],
+      ]))
+      .select([
+        Field("existingField").mapSet("bar", 2).as("modifiedField"),
+        MapExpression([:]).mapSet("a", 1).as("simple"),
+        MapExpression(["a": 1]).mapSet("b", 2).as("add"),
+        MapExpression(["a": 1]).mapSet("a", 2).as("overwrite"),
+        MapExpression(["a": 1, "b": 2]).mapSet("a", 3, "c", 4).as("multi"),
+        MapExpression(["a": 1]).mapSet("a", Field("non_existent")).as("remove"),
+        MapExpression(["a": 1]).mapSet("b", Constant.nil).as("setNull"),
+        MapExpression(["a": ["b": 1]]).mapSet("a.b", 2).as("setDotted"),
+        MapExpression([:]).mapSet("", "empty").as("setEmptyKey"),
+        MapExpression(["a": 1]).mapSet("b", Constant(1).add(2)).as("setExprVal"),
+        MapExpression([:]).mapSet("obj", ["hidden": true]).as("setNestedMap"),
+        MapExpression([:]).mapSet("~!@#$%^&*()_+", "special").as("setSpecialChars"),
+        Field("existingField").mapSet("instanceKey", 100).as("instanceSetField"),
+        MapExpression(["x": 1]).mapSet(Constant("y"), Constant(2)).as("instanceSetConstant"),
+      ])
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable?]] = [
+      [
+        "modifiedField": ["foo": 1, "bar": 2],
+        "simple": ["a": 1],
+        "add": ["a": 1, "b": 2],
+        "overwrite": ["a": 2],
+        "multi": ["a": 3, "b": 2, "c": 4],
+        "remove": [:],
+        "setNull": ["a": 1, "b": NSNull()],
+        "setDotted": ["a": ["b": 1], "a.b": 2],
+        "setEmptyKey": ["": "empty"],
+        "setExprVal": ["a": 1, "b": 3],
+        "setNestedMap": ["obj": ["hidden": true]],
+        "setSpecialChars": ["~!@#$%^&*()_+": "special"],
+        "instanceSetField": ["foo": 1, "instanceKey": 100],
+        "instanceSetConstant": ["x": 1, "y": 2],
+      ],
+    ]
+
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: false)
+  }
+
+  func testMapKeys() async throws {
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .limit(1)
+      .replace(with: MapExpression([
+        "existingField": ["foo": 1],
+      ]))
+      .select([
+        Field("existingField").mapKeys().as("existingKeys"),
+        MapExpression(["a": 1, "b": 2]).mapKeys().as("keys"),
+        MapExpression([:]).mapKeys().as("empty_keys"),
+        MapExpression(["a": ["nested": true]]).mapKeys().as("nested_keys"),
+      ])
+
+    let snapshot = try await pipeline.execute()
+
+    XCTAssertEqual(snapshot.results.count, 1)
+    let data = snapshot.results[0].data
+
+    let existingKeys = data["existingKeys"] as? [String] ?? []
+    XCTAssertEqual(existingKeys, ["foo"])
+
+    let keys = data["keys"] as? [String] ?? []
+    XCTAssertEqual(keys.count, 2)
+    XCTAssertTrue(keys.contains("a"))
+    XCTAssertTrue(keys.contains("b"))
+
+    let emptyKeys = data["empty_keys"] as? [String] ?? ["dummy"]
+    XCTAssertEqual(emptyKeys.count, 0)
+
+    let nestedKeys = data["nested_keys"] as? [String] ?? []
+    XCTAssertEqual(nestedKeys, ["a"])
+  }
+
+  func testMapValues() async throws {
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .limit(1)
+      .replace(with: MapExpression([
+        "existingField": ["foo": 1],
+      ]))
+      .select([
+        Field("existingField").mapValues().as("existingValues"),
+        MapExpression(["a": 1, "b": 2]).mapValues().as("values"),
+        MapExpression([:]).mapValues().as("empty_values"),
+        MapExpression(["a": ["nested": true]]).mapValues().as("nested_values"),
+      ])
+
+    let snapshot = try await pipeline.execute()
+
+    XCTAssertEqual(snapshot.results.count, 1)
+    let data = snapshot.results[0].data
+
+    let existingValues = data["existingValues"] as? [Int] ?? []
+    XCTAssertEqual(existingValues, [1])
+
+    let values = data["values"] as? [Int] ?? []
+    XCTAssertEqual(values.count, 2)
+    XCTAssertTrue(values.contains(1))
+    XCTAssertTrue(values.contains(2))
+
+    let emptyValues = data["empty_values"] as? [Int] ?? [999]
+    XCTAssertEqual(emptyValues.count, 0)
+
+    let nestedValues = data["nested_values"] as? [[String: Bool]] ?? []
+    XCTAssertEqual(nestedValues, [["nested": true]])
+  }
+
+  func testMapEntries() async throws {
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .limit(1)
+      .replace(with: MapExpression([
+        "existingField": ["foo": 1],
+      ]))
+      .select([
+        Field("existingField").mapEntries().as("existingEntries"),
+        MapExpression(["a": 1, "b": 2]).mapEntries().as("entries"),
+        MapExpression([:]).mapEntries().as("empty_entries"),
+        MapExpression(["a": ["nested": true]]).mapEntries().as("nested_entries"),
+      ])
+
+    let snapshot = try await pipeline.execute()
+
+    XCTAssertEqual(snapshot.results.count, 1)
+    let data = snapshot.results[0].data
+
+    let existingEntries = data["existingEntries"] as? [[String: Any]] ?? []
+    XCTAssertEqual(existingEntries.count, 1)
+    XCTAssertEqual(existingEntries[0]["k"] as? String, "foo")
+    XCTAssertEqual(existingEntries[0]["v"] as? Int, 1)
+
+    let entries = data["entries"] as? [[String: Any]] ?? []
+    XCTAssertEqual(entries.count, 2)
+    let hasA1 = entries.contains { ($0["k"] as? String) == "a" && ($0["v"] as? Int) == 1 }
+    let hasB2 = entries.contains { ($0["k"] as? String) == "b" && ($0["v"] as? Int) == 2 }
+    XCTAssertTrue(hasA1)
+    XCTAssertTrue(hasB2)
+
+    let emptyEntries = data["empty_entries"] as? [[String: Any]] ?? [["dummy": "dummy"]]
+    XCTAssertEqual(emptyEntries.count, 0)
+
+    let nestedEntries = data["nested_entries"] as? [[String: Any]] ?? []
+    XCTAssertEqual(nestedEntries.count, 1)
+    XCTAssertEqual(nestedEntries[0]["k"] as? String, "a")
+    XCTAssertEqual(nestedEntries[0]["v"] as? [String: Bool], ["nested": true])
+  }
+
   func testDistanceFunctions() async throws {
     let db = firestore()
     let randomCol = collectionRef() // Ensure a unique collection for the test
@@ -2870,19 +3038,10 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     let snapshot = try await pipeline.execute()
 
-    let expectedResults: [[String: Sendable?]]
-    switch FSTIntegrationTestCase.targetBackend() {
-    case .nightly:
-      expectedResults = [
-        ["title": "The Hitchhiker's Guide to the Galaxy", "awards": ["hugo": true]],
-        ["title": "Dune", "awards": ["hugo": true]],
-      ]
-    default:
-      expectedResults = [
-        ["title": "The Hitchhiker's Guide to the Galaxy", "awards.hugo": 1],
-        ["title": "Dune", "awards.hugo": 1],
-      ]
-    }
+    let expectedResults: [[String: Sendable?]] = [
+      ["title": "The Hitchhiker's Guide to the Galaxy", "awards": ["hugo": true]],
+      ["title": "Dune", "awards": ["hugo": true]],
+    ]
 
     TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
@@ -2905,32 +3064,18 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     XCTAssertEqual(snapshot.results.count, 2, "Should retrieve two documents")
 
-    let expectedResultsArray: [[String: Sendable?]]
-    switch FSTIntegrationTestCase.targetBackend() {
-    case .nightly:
-      expectedResultsArray = [
-        [
-          "title": "The Hitchhiker's Guide to the Galaxy",
-          "nestedField": ["level": [String: Any]()],
-          "nested": true,
-        ],
-        [
-          "title": "Dune",
-          "nestedField": ["level": [String: Any]()],
-          "nested": nil,
-        ],
-      ]
-    default:
-      expectedResultsArray = [
-        [
-          "title": "The Hitchhiker's Guide to the Galaxy",
-          "nested": true,
-        ],
-        [
-          "title": "Dune",
-        ],
-      ]
-    }
+    let expectedResultsArray: [[String: Sendable?]] = [
+      [
+        "title": "The Hitchhiker's Guide to the Galaxy",
+        "nestedField": ["level": [String: Any]()],
+        "nested": true,
+      ],
+      [
+        "title": "Dune",
+        "nestedField": ["level": [String: Any]()],
+        "nested": nil,
+      ],
+    ]
     TestHelper.compare(
       snapshot: snapshot,
       expected: expectedResultsArray,
@@ -3441,6 +3586,14 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
           Constant(baseTimestamp).timestampTruncate(granularity: "day").as("truncDayString"),
           Constant(baseTimestamp).timestampTruncate(granularity: Constant("day"))
             .as("truncDayExpr"),
+          Constant(baseTimestamp).timestampTruncate(
+            granularity: .day,
+            timezone: "America/Los_Angeles"
+          ).as("truncDayLA"),
+          Constant(baseTimestamp).timestampTruncate(
+            granularity: "day",
+            timezone: "America/Los_Angeles"
+          ).as("truncDayLAString"),
         ]
       )
 
@@ -3465,12 +3618,111 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       "truncIsoYear": Timestamp(seconds: 1_735_516_800, nanoseconds: 0),
       "truncDayString": Timestamp(seconds: 1_741_305_600, nanoseconds: 0),
       "truncDayExpr": Timestamp(seconds: 1_741_305_600, nanoseconds: 0),
+      "truncDayLA": Timestamp(seconds: 1_741_334_400, nanoseconds: 0),
+      "truncDayLAString": Timestamp(seconds: 1_741_334_400, nanoseconds: 0),
     ]
 
     if let resultDoc = snapshot.results.first {
       TestHelper.compare(pipelineResult: resultDoc, expected: expectedResults)
     } else {
       XCTFail("No document retrieved for timestamp trunc test")
+    }
+  }
+
+  func testTimestampExtractWorks() async throws {
+    let db = firestore()
+    let randomCol = collectionRef()
+    try await randomCol.document("dummyDoc").setData(["field": "value"])
+
+    let baseTimestamp = Timestamp(seconds: 1_741_380_235, nanoseconds: 123_456_000)
+
+    let pipeline = db.pipeline()
+      .collection(randomCol.path)
+      .limit(1)
+      .select(
+        [
+          Constant(baseTimestamp).timestampExtract(part: .year).as("year"),
+          Constant(baseTimestamp).timestampExtract(part: .month).as("month"),
+          Constant(baseTimestamp).timestampExtract(part: .day).as("day"),
+          Constant(baseTimestamp).timestampExtract(part: .hour).as("hour"),
+          Constant(baseTimestamp).timestampExtract(part: .minute).as("minute"),
+          Constant(baseTimestamp).timestampExtract(part: .second).as("second"),
+          Constant(baseTimestamp).timestampExtract(part: .millisecond).as("millis"),
+          Constant(baseTimestamp).timestampExtract(part: .microsecond).as("micros"),
+          Constant(baseTimestamp).timestampExtract(part: .dayOfYear).as("day_of_year"),
+          Constant(baseTimestamp).timestampExtract(part: .dayOfWeek).as("day_of_week"),
+          Constant(baseTimestamp).timestampExtract(part: .hour, timezone: "America/Los_Angeles")
+            .as("hourLA"),
+          Constant(baseTimestamp).timestampExtract(part: "hour", timezone: "America/Los_Angeles")
+            .as("hourLAString"),
+        ]
+      )
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [String: Int] = [
+      "year": 2025,
+      "month": 3,
+      "day": 7,
+      "hour": 20,
+      "minute": 43,
+      "second": 55,
+      "millis": 123,
+      "micros": 123_456,
+      "day_of_year": 66,
+      "day_of_week": 6,
+      "hourLA": 12,
+      "hourLAString": 12,
+    ]
+
+    XCTAssertEqual(snapshot.results.count, 1, "Should retrieve one document")
+    if let resultDoc = snapshot.results.first {
+      TestHelper.compare(pipelineResult: resultDoc, expected: expectedResults)
+    } else {
+      XCTFail("No document retrieved for timestamp extract test")
+    }
+  }
+
+  func testTimestampDiffWorks() async throws {
+    let db = firestore()
+    let randomCol = collectionRef()
+
+    let startTimestamp = Timestamp(seconds: 1_741_428_000, nanoseconds: 0)
+    let endTimestamp = Timestamp(seconds: 1_741_437_296, nanoseconds: 123_456_789)
+
+    try await randomCol.document("diffDoc").setData([
+      "start": startTimestamp,
+      "end": endTimestamp,
+    ])
+
+    let pipeline = db.pipeline()
+      .collection(randomCol.path)
+      .limit(1)
+      .select(
+        [
+          Field("end").timestampDiff(Field("start"), .hour).as("diffHour"),
+          Field("end").timestampDiff(Field("start"), .minute).as("diffMinute"),
+          Field("end").timestampDiff(Field("start"), .second).as("diffSecond"),
+          Field("start").timestampDiff(Field("end"), .hour).as("diffHourNeg"),
+          Field("end").timestampDiff(Field("start"), "hour").as("diffHourString"),
+        ]
+      )
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [String: Int] = [
+      "diffHour": 2,
+      "diffMinute": 154,
+      "diffSecond": 9296,
+      "diffHourNeg": -2,
+      "diffHourString": 2,
+    ]
+
+    XCTAssertEqual(snapshot.results.count, 1, "Should retrieve one document")
+    if let resultDoc = snapshot.results.first {
+      TestHelper.compare(pipelineResult: resultDoc, expected: expectedResults)
+    } else {
+      XCTFail("No document retrieved for timestamp diff test")
     }
   }
 
@@ -3591,6 +3843,44 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       expected: [["docId": "book4"]],
       enforceOrder: false
     )
+  }
+
+  func testSupportsParent() async throws {
+    let db = firestore()
+    let randomCol = collectionRef()
+
+    // Add a dummy document directly to randomCol so the pipeline has input data to process
+    try await randomCol.document("dummy").setData(["dummy": 1])
+
+    let docRef = randomCol.document("book4").collection("reviews").document("review1")
+    try await docRef.setData(["foo": "bar"])
+
+    let pipeline = db.pipeline()
+      .collection(randomCol.path)
+      .limit(1)
+      .select([
+        Constant(docRef).parent().as("parentRefStatic"),
+        Constant(docRef).parent().as("parentRefInstance"),
+      ])
+      .select([
+        Field("parentRefStatic").documentId().as("parentIdStatic"),
+        Field("parentRefInstance").documentId().as("parentIdInstance"),
+      ])
+
+    let snapshot = try await pipeline.execute()
+
+    XCTAssertEqual(snapshot.results.count, 1)
+
+    let expectedResults: [String: Sendable] = [
+      "parentIdStatic": "book4",
+      "parentIdInstance": "book4",
+    ]
+
+    if let resultDoc = snapshot.results.first {
+      TestHelper.compare(pipelineResult: resultDoc, expected: expectedResults)
+    } else {
+      XCTFail("No document retrieved for parent test")
+    }
   }
 
   func testSubstring() async throws {
@@ -3770,6 +4060,210 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     )
   }
 
+  func testLTrim() async throws {
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .limit(1)
+      .replace(with: MapExpression([
+        "strWhitespace": "  trimMe  ",
+        "strChars": "xxxtrimMe",
+        "chars": "x",
+      ]))
+      .select([
+        Constant("  trimMe  ").ltrim().as("constLtrim"),
+        Field("strWhitespace").ltrim().as("fieldLtrim"),
+        Constant("xxxtrimMe").ltrim("x").as("constLtrimValuePrim"),
+        Constant("xxxtrimMe").ltrim(Field("chars")).as("constLtrimValueExpr"),
+        Field("strChars").ltrim("x").as("fieldLtrimValuePrim"),
+        Field("strChars").ltrim(Field("chars")).as("fieldLtrimValueExpr"),
+      ])
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      [
+        "constLtrim": "trimMe  ",
+        "fieldLtrim": "trimMe  ",
+        "constLtrimValuePrim": "trimMe",
+        "constLtrimValueExpr": "trimMe",
+        "fieldLtrimValuePrim": "trimMe",
+        "fieldLtrimValueExpr": "trimMe",
+      ],
+    ]
+
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: false)
+  }
+
+  func testRTrim() async throws {
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .limit(1)
+      .replace(with: MapExpression([
+        "strWhitespace": "  trimMe  ",
+        "strChars": "trimMexxx",
+        "chars": "x",
+      ]))
+      .select([
+        Constant("  trimMe  ").rtrim().as("constRtrim"),
+        Field("strWhitespace").rtrim().as("fieldRtrim"),
+        Constant("trimMexxx").rtrim("x").as("constRtrimValuePrim"),
+        Constant("trimMexxx").rtrim(Field("chars")).as("constRtrimValueExpr"),
+        Field("strChars").rtrim("x").as("fieldRtrimValuePrim"),
+        Field("strChars").rtrim(Field("chars")).as("fieldRtrimValueExpr"),
+      ])
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      [
+        "constRtrim": "  trimMe",
+        "fieldRtrim": "  trimMe",
+        "constRtrimValuePrim": "trimMe",
+        "constRtrimValueExpr": "trimMe",
+        "fieldRtrimValuePrim": "trimMe",
+        "fieldRtrimValueExpr": "trimMe",
+      ],
+    ]
+
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: false)
+  }
+
+  func testStringRepeat() async throws {
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .limit(1)
+      .replace(with: MapExpression([
+        "str": "ha",
+        "count": 3,
+      ]))
+      .select([
+        Constant("ha").stringRepeat(3).as("constPrim"),
+        Constant("ha").stringRepeat(Field("count")).as("constExpr"),
+        Field("str").stringRepeat(3).as("fieldPrim"),
+        Field("str").stringRepeat(Field("count")).as("fieldExpr"),
+      ])
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      [
+        "constPrim": "hahaha",
+        "constExpr": "hahaha",
+        "fieldPrim": "hahaha",
+        "fieldExpr": "hahaha",
+      ],
+    ]
+
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: false)
+  }
+
+  func testStringReplaceAll() async throws {
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .limit(1)
+      .replace(with: MapExpression([
+        "str": "hello world",
+        "old": "o",
+        "new": "a",
+      ]))
+      .select([
+        Constant("hello world").stringReplaceAll("o", with: "a").as("constPrim"),
+        Constant("hello world").stringReplaceAll(Field("old"), with: Field("new")).as("constExpr"),
+        Field("str").stringReplaceAll("o", with: "a").as("fieldPrim"),
+        Field("str").stringReplaceAll(Field("old"), with: Field("new")).as("fieldExpr"),
+      ])
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      [
+        "constPrim": "hella warld",
+        "constExpr": "hella warld",
+        "fieldPrim": "hella warld",
+        "fieldExpr": "hella warld",
+      ],
+    ]
+
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: false)
+  }
+
+  func testStringReplaceOne() async throws {
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .limit(1)
+      .replace(with: MapExpression([
+        "str": "hello world",
+        "old": "o",
+        "new": "a",
+      ]))
+      .select([
+        Constant("hello world").stringReplaceOne("o", with: "a").as("constPrim"),
+        Constant("hello world").stringReplaceOne(Field("old"), with: Field("new")).as("constExpr"),
+        Field("str").stringReplaceOne("o", with: "a").as("fieldPrim"),
+        Field("str").stringReplaceOne(Field("old"), with: Field("new")).as("fieldExpr"),
+      ])
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      [
+        "constPrim": "hella world",
+        "constExpr": "hella world",
+        "fieldPrim": "hella world",
+        "fieldExpr": "hella world",
+      ],
+    ]
+
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: false)
+  }
+
+  func testStringIndexOf() async throws {
+    let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .limit(1)
+      .replace(with: MapExpression([
+        "str": "hello world",
+        "sub": "world",
+      ]))
+      .select([
+        Constant("hello world").stringIndexOf("world").as("constPrim"),
+        Constant("hello world").stringIndexOf(Field("sub")).as("constExpr"),
+        Field("str").stringIndexOf("world").as("fieldPrim"),
+        Field("str").stringIndexOf(Field("sub")).as("fieldExpr"),
+      ])
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      [
+        "constPrim": 6,
+        "constExpr": 6,
+        "fieldPrim": 6,
+        "fieldExpr": 6,
+      ],
+    ]
+
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: false)
+  }
+
   func testSplitWorks() async throws {
     let collRef = collectionRef(withDocuments: [
       "doc1": ["text": "a-b-c"],
@@ -3890,6 +4384,78 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
         "type_h": "bytes",
         "type_i": "null",
         "type_j": "float64",
+      ],
+    ]
+
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: false)
+  }
+
+  func testIsTypeWorks() async throws {
+    let collRef = collectionRef(withDocuments: ["doc1": ["dummy": 1]])
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .limit(1)
+      .replace(with: MapExpression([
+        "int": 1,
+        "float": 1.1,
+        "str": "a string",
+        "bool": true,
+        "null": Constant.nil,
+        "geoPoint": GeoPoint(latitude: 0.1, longitude: 0.2),
+        "timestamp": Timestamp(seconds: 123_456, nanoseconds: 0),
+        "bytes": Data([1, 2, 3]),
+        "docRef": db.document("foo/bar"),
+        "vector": VectorValue([1.0, 2.0, 3.0]),
+        "map": MapExpression(["numberK": 1, "stringK": "a string"]),
+        "array": ArrayExpression([1, 2, true]),
+      ]))
+      .select([
+        Field("int").isType("int64").as("isInt64"),
+        Field("int").isType("number").as("isInt64IsNumber"),
+        Field("int").isType("decimal128").as("isInt64IsDecimal128"),
+        Field("float").isType("float64").as("isFloat64"),
+        Field("float").isType("number").as("isFloat64IsNumber"),
+        Field("float").isType("decimal128").as("isFloat64IsDecimal128"),
+        Field("str").isType("string").as("isStr"),
+        Field("str").isType("int64").as("isStrNum"),
+        Field("int").isType("string").as("isNumStr"),
+        Field("bool").isType("boolean").as("isBool"),
+        Field("null").isType("null").as("isNull"),
+        Field("geoPoint").isType("geo_point").as("isGeoPoint"),
+        Field("timestamp").isType("timestamp").as("isTimestamp"),
+        Field("bytes").isType("bytes").as("isBytes"),
+        Field("docRef").isType("reference").as("isDocRef"),
+        Field("vector").isType("vector").as("isVector"),
+        Field("map").isType("map").as("isMap"),
+        Field("array").isType("array").as("isArray"),
+        Constant(1).isType("int64").as("exprIsInt64"),
+      ])
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      [
+        "isInt64": true,
+        "isInt64IsNumber": true,
+        "isInt64IsDecimal128": false,
+        "isFloat64": true,
+        "isFloat64IsNumber": true,
+        "isFloat64IsDecimal128": false,
+        "isStr": true,
+        "isStrNum": false,
+        "isNumStr": false,
+        "isBool": true,
+        "isNull": true,
+        "isGeoPoint": true,
+        "isTimestamp": true,
+        "isBytes": true,
+        "isDocRef": true,
+        "isVector": true,
+        "isMap": true,
+        "isArray": true,
+        "exprIsInt64": true,
       ],
     ]
 

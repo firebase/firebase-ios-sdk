@@ -433,6 +433,22 @@ public final class GenerativeModel: Sendable {
     }
   }
 
+  /// Returns a `Dictionary` of ``FunctionDeclaration`` indexed by `name`.
+  func functionDeclarationsByName() -> [String: FunctionDeclaration] {
+    guard let tools else {
+      return [:]
+    }
+
+    let functionDeclarations = tools.compactMap { $0.functionDeclarations }.flatMap { $0 }
+    return Dictionary(
+      functionDeclarations.map { ($0.name, $0) },
+      uniquingKeysWith: { first, _ in
+        assertionFailure("Multiple function declarations with name: \(first.name)")
+        return first
+      }
+    )
+  }
+
   /// Returns a `GenerateContentError` (for public consumption) from an internal error.
   ///
   /// If `error` is already a `GenerateContentError` the error is returned unchanged.

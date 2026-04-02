@@ -607,6 +607,142 @@ public class Pipeline: @unchecked Sendable {
     return Pipeline(stages: stages + [stage], db: db)
   }
 
+  /// Adds a search stage to the Pipeline.
+  ///
+  /// - Note: This API is in beta.
+  ///
+  /// - Important: This must be the first stage of the pipeline.
+  /// - Note: A limited set of expressions are supported in the search stage.
+  ///
+  /// Performs a search on the collection, supporting full-text search and geo search expressions.
+  ///
+  /// Example usage:
+  /// ```swift
+  /// firestore.pipeline().collection("restaurants")
+  /// .search(
+  ///   query: DocumentMatches("waffles OR pancakes"),
+  ///   sort: [
+  ///     Score().descending(),
+  ///   ],
+  ///   addFields: [
+  ///     Score().as("searchScore"),
+  ///   ]
+  /// )
+  /// ```
+  ///
+  /// - Parameters:
+  ///   - query: An `Expression` defining the search criteria (e.g.,
+  /// `Field("menu").matches("waffles")`).
+  ///   - sort: An array of `Ordering` objects to sort the results.
+  ///   - addFields: An array of `Selectable` fields to compute and add to the result.
+  /// - Returns: A new `Pipeline` with the search stage appended.
+  public func search(query: Expression,
+                     // TODO(search): enable with backend support
+                     //   - languageCode: The BCP-47 language code of text in the search query, such
+                     //   as, “en-US” or “sr-Latn”
+                     // languageCode: String? = nil,
+                     // TODO: add indexPartition here
+                     // TODO(search): enable with backend support
+                     //   - retrievalDepth: The maximum number of documents to retrieve. Documents
+                     //   will be retrieved in the pre-sort order specified by the search index.
+                     // retrievalDepth: Int? = nil,
+                     sort: [Ordering]? = nil,
+                     // TODO(search): enable with backend support
+                     //   - offset: The number of documents to skip.
+                     // offset: Int? = nil,
+                     // TODO(search): enable with backend support
+                     //   - limit: The maximum number of documents to return.
+                     // limit: Int? = nil,
+                     // TODO(search): enable with backend support
+                     //   - select: An array of `Selectable` fields or field names to include in the
+                     //   result.
+                     // select: [Selectable]? = nil,
+                     addFields: [Selectable]? = nil
+                     // TODO(search): enable with backend support
+                     //   - queryEnhancement: specify if query expansion should be applied to the
+                     //   query
+                     // queryEnhancement: QueryEnhancement? = nil
+  ) -> Pipeline {
+    let stage = Search(
+      query: query,
+      // TODO(search): enable with backend support
+      // limit: limit,
+      // TODO(search): enable with backend support
+      // retrievalDepth: retrievalDepth,
+      sort: sort,
+      addFields: addFields
+      // TODO(search): enable with backend support
+      // select: select,
+      // TODO(search): enable with backend support
+      // offset: offset,
+      // TODO(search): enable with backend support
+      // queryEnhancement: queryEnhancement
+    )
+    return Pipeline(stages: stages + [stage], db: db)
+  }
+
+  /// Adds a search stage to the Pipeline using a raw query string.
+  ///
+  /// - Important: This must be the first stage of the pipeline.
+  /// - Note: A limited set of expressions are supported in the search stage.
+  ///
+  /// Performs a search using a raw query string (RQuery).
+  ///
+  /// Example usage:
+  /// ```swift
+  /// firestore.pipeline().collection("restaurants")
+  /// .search(
+  ///   query: "waffles OR pancakes",
+  ///   sort: [
+  ///     Score().descending(),
+  ///   ],
+  ///   addFields: [
+  ///     Score().as("searchScore"),
+  ///   ]
+  /// )
+  /// ```
+  ///
+  /// - Parameters:
+  ///   - query: A raw query string (e.g., `"menu:waffles AND tags:breakfast"`).
+  ///   - sort: An array of `Ordering` objects to sort the results.
+  ///   - addFields: An array of `Selectable` fields to compute and add to the result.
+  /// - Returns: A new `Pipeline` with the search stage appended.
+  public func search(query: String,
+                     // TODO(search): enable with backend support
+                     // languageCode: String? = nil,
+                     // TODO: add indexPartition here
+                     // TODO(search): enable with backend support
+                     // retrievalDepth: Int? = nil,
+                     sort: [Ordering]? = nil,
+                     // TODO(search): enable with backend support
+                     // offset: Int? = nil,
+                     // TODO(search): enable with backend support
+                     // limit: Int? = nil,
+                     // TODO(search): enable with backend support
+                     // select: [Selectable]? = nil,
+                     addFields: [Selectable]? = nil
+                     // TODO(search): enable with backend support
+                     // queryEnhancement: QueryEnhancement? = nil
+  ) -> Pipeline {
+    return search(
+      query: DocumentMatches(query),
+      // TODO(search): enable with backend support
+      // languageCode: languageCode,
+      // TODO(search): enable with backend support
+      // retrievalDepth: retrievalDepth,
+      sort: sort,
+      // TODO(search): enable with backend support
+      // offset: offset,
+      // TODO(search): enable with backend support
+      // limit: limit,
+      // TODO(search): enable with backend support
+      // select: select,
+      addFields: addFields
+      // TODO(search): enable with backend support
+      // queryEnhancement: queryEnhancement
+    )
+  }
+
   /// Performs a union of all documents from this pipeline and another, including duplicates.
   ///
   /// Passes through documents from this pipeline's previous stage and also those from

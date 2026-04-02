@@ -2032,14 +2032,6 @@ public enum Converters {
         ])
     }
 
-    if fromObject.serviceTier != nil {
-      throw NSError(
-        domain: "Vertex AI", code: -1,
-        userInfo: [
-          NSLocalizedDescriptionKey: "serviceTier parameter is not supported in Vertex AI."
-        ])
-    }
-
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
