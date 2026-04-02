@@ -16,7 +16,6 @@ import CoreLocation
 import FirebaseAI
 import FirebaseAITestApp
 import Testing
-import XCTest
 
 @Suite(.serialized)
 struct MapsGroundingIntegrationTests {
@@ -41,9 +40,9 @@ struct MapsGroundingIntegrationTests {
 
     for mapsChunk in mapChunks {
       #expect(mapsChunk.url != nil)
-      let title = try XCTUnwrap(mapsChunk.title)
+      let title = try #require(mapsChunk.title)
       #expect(!title.isEmpty)
-      let placeID = try XCTUnwrap(mapsChunk.placeID)
+      let placeID = try #require(mapsChunk.placeID)
       #expect(!placeID.isEmpty)
     }
   }
@@ -75,9 +74,9 @@ struct MapsGroundingIntegrationTests {
 
     for mapsChunk in mapChunks {
       #expect(mapsChunk.url != nil)
-      let title = try XCTUnwrap(mapsChunk.title)
+      let title = try #require(mapsChunk.title)
       #expect(!title.isEmpty)
-      let placeID = try XCTUnwrap(mapsChunk.placeID)
+      let placeID = try #require(mapsChunk.placeID)
       #expect(!placeID.isEmpty)
     }
   }
@@ -109,9 +108,9 @@ struct MapsGroundingIntegrationTests {
 
     for mapsChunk in mapChunks {
       #expect(mapsChunk.url != nil)
-      let title = try XCTUnwrap(mapsChunk.title)
+      let title = try #require(mapsChunk.title)
       #expect(!title.isEmpty)
-      let placeID = try XCTUnwrap(mapsChunk.placeID)
+      let placeID = try #require(mapsChunk.placeID)
       #expect(!placeID.isEmpty)
     }
   }

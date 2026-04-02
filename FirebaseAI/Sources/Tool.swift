@@ -224,6 +224,8 @@ public struct RetrievalConfig: Sendable, Encodable {
   }
 }
 
+extension CLLocationCoordinate2D: @unchecked Sendable {}
+
 // MARK: - ToolRepresentable Conformances
 
 extension FirebaseAILogic.Tool: ToolRepresentable {

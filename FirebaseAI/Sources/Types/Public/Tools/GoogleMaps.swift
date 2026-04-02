@@ -19,7 +19,7 @@ import Foundation
 /// > Important: When using this feature, you are required to comply with the
 /// "Grounding with Google Maps" usage requirements for your chosen API provider.
 public struct GoogleMaps: Sendable, Encodable {
-  init() {}
+  public init() {}
 }
 
 /// A grounding chunk sourced from Google Maps.
@@ -39,10 +39,9 @@ public struct GoogleMapsGroundingChunk: Sendable, Equatable, Hashable, Decodable
 
   public init(from decoder: any Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
-    let uriString = try container.decode(String.self, forKey: .url)
-    url = URL(string: uriString)
+    url = try container.decodeIfPresent(String.self, forKey: .url).flatMap { URL(string: $0) }
 
-    title = try container.decode(String.self, forKey: .title)
-    placeID = try container.decode(String.self, forKey: .placeID)
+    title = try container.decodeIfPresent(String.self, forKey: .title)
+    placeID = try container.decodeIfPresent(String.self, forKey: .placeID)
   }
 }
