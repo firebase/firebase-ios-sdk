@@ -26,6 +26,17 @@ enum Helper {
     }
   }
 
+  static func errorMessage(for expr: Expression) -> String? {
+    if let funcExpr = expr as? FunctionExpression {
+      return funcExpr.errorMessage
+    } else if let pipelineExpr = expr as? PipelineExpression {
+      return pipelineExpr.errorMessage
+    } else if let boolFuncExpr = expr as? BooleanFunctionExpression {
+      return boolFuncExpr.errorMessage
+    }
+    return nil
+  }
+
   static func sendableToExpr(_ value: Sendable?) -> Expression {
     guard let value else {
       return Constant.nil

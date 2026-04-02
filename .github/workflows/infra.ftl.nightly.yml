@@ -18,7 +18,8 @@ env:
 
 jobs:
   ftl_test:
-    if: github.repository == 'Firebase/firebase-ios-sdk'
+    # TODO(ncooke3): Enable FTL nightly testing. See #16031.
+    if: github.repository == 'Firebase/firebase-ios-sdk' && false
     runs-on: macos-15
     name: ${{ matrix.product }}
     env:

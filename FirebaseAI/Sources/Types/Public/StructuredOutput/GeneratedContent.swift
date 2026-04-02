@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if compiler(>=6.2)
+#if compiler(>=6.2.3)
 
   #if canImport(FoundationModels)
     import FoundationModels
@@ -69,7 +69,7 @@
       }
 
       init(json: String, id: FirebaseAI.GenerationID?, isComplete: Bool?) throws {
-        #if canImport(FoundationModels)
+        #if canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
           if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
             var generatedContent = try FoundationModels.GeneratedContent(json: json)
             generatedContent.id = id?.generationID
@@ -81,7 +81,7 @@
 
             return
           }
-        #endif // canImport(FoundationModels)
+        #endif // canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
 
         throw GenerativeModelSession.GenerationError.decodingFailure(
           GenerativeModelSession.GenerationError.Context(
@@ -106,7 +106,7 @@
 
       init(kind: FirebaseAI.GeneratedContent.Kind, id: FirebaseAI.GenerationID? = nil,
            isComplete: Bool) {
-        #if canImport(FoundationModels)
+        #if canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
           if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
             _generatedContent = FoundationModels
               .GeneratedContent(kind: kind.toFoundationModels(), id: id?.generationID)
@@ -115,7 +115,7 @@
           }
         #else
           _generatedContent = nil
-        #endif // canImport(FoundationModels)
+        #endif // canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
 
         self.kind = kind
         generationID = id
@@ -222,6 +222,12 @@
     }
   }
 
+  extension FirebaseAI.GeneratedContent: FirebaseAI.ConvertibleToGeneratedContent {
+    var firebaseGeneratedContent: FirebaseAI.GeneratedContent {
+      return self
+    }
+  }
+
   #if canImport(FoundationModels)
     @available(iOS 26.0, macOS 26.0, *)
     @available(tvOS, unavailable)
@@ -315,4 +321,4 @@
     }
   #endif // canImport(FoundationModels)
 
-#endif // compiler(>=6.2)
+#endif // compiler(>=6.2.3)

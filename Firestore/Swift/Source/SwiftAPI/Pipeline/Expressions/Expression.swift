@@ -1259,6 +1259,198 @@ public protocol Expression: Sendable {
   /// - Returns: A new `FunctionExpression` representing the trimmed string.
   func trim(_ value: Expression) -> FunctionExpression
 
+  /// Creates an expression that removes leading whitespace from this string expression.
+  /// Assumes `self` evaluates to a string.
+  ///
+  /// ```swift
+  /// // Trim leading whitespace from the "text" field.
+  /// Field("text").ltrim()
+  /// ```
+  ///
+  /// - Returns: A new `FunctionExpression` representing the ltrim operation.
+  func ltrim() -> FunctionExpression
+
+  /// Creates an expression that removes specified leading characters from this string expression.
+  /// Assumes `self` evaluates to a string, and `value` evaluates to a string.
+  ///
+  /// The characters in `value` are treated as a **set** of characters to trim, not as a substring.
+  ///
+  /// ```swift
+  /// // Trim all leading '-' or '_' characters from the "text" field.
+  /// Field("text").ltrim("-_")
+  /// ```
+  ///
+  /// - Parameter value: The literal string of characters to remove.
+  /// - Returns: A new `FunctionExpression` representing the ltrim operation.
+  func ltrim(_ value: String) -> FunctionExpression
+
+  /// Creates an expression that removes specified leading characters from this string expression.
+  /// Assumes `self` evaluates to a string, and `value` evaluates to a string.
+  ///
+  /// The characters in `value` are treated as a **set** of characters to trim, not as a substring.
+  ///
+  /// ```swift
+  /// // Trim leading characters defined by the "chars" field from the "text" field.
+  /// Field("text").ltrim(Field("chars"))
+  /// ```
+  ///
+  /// - Parameter value: An `Expression` (evaluating to a string) representing the characters
+  /// to remove.
+  /// - Returns: A new `FunctionExpression` representing the ltrim operation.
+  func ltrim(_ value: Expression) -> FunctionExpression
+
+  /// Creates an expression that removes trailing whitespace from this string expression.
+  /// Assumes `self` evaluates to a string.
+  ///
+  /// ```swift
+  /// // Trim trailing whitespace from the "text" field.
+  /// Field("text").rtrim()
+  /// ```
+  ///
+  /// - Returns: A new `FunctionExpression` representing the rtrim operation.
+  func rtrim() -> FunctionExpression
+
+  /// Creates an expression that removes specified trailing characters from this string expression.
+  /// Assumes `self` evaluates to a string, and `value` evaluates to a string.
+  ///
+  /// The characters in `value` are treated as a **set** of characters to trim, not as a substring.
+  ///
+  /// ```swift
+  /// // Trim trailing '-' or '_' characters from the "text" field.
+  /// Field("text").rtrim("-_")
+  /// ```
+  ///
+  /// - Parameter value: The literal string of characters to remove.
+  /// - Returns: A new `FunctionExpression` representing the rtrim operation.
+  func rtrim(_ value: String) -> FunctionExpression
+
+  /// Creates an expression that removes specified trailing characters from this string expression.
+  /// Assumes `self` evaluates to a string, and `value` evaluates to a string.
+  ///
+  /// The characters in `value` are treated as a **set** of characters to trim, not as a substring.
+  ///
+  /// ```swift
+  /// // Trim trailing characters defined by the "chars" field from the "text" field.
+  /// Field("text").rtrim(Field("chars"))
+  /// ```
+  ///
+  /// - Parameter value: An `Expression` (evaluating to a string) representing the characters
+  /// to remove.
+  /// - Returns: A new `FunctionExpression` representing the rtrim operation.
+  func rtrim(_ value: Expression) -> FunctionExpression
+
+  /// Creates an expression that repeats this string expression a given number of times.
+  /// Assumes `self` evaluates to a string.
+  ///
+  /// ```swift
+  /// // Repeat the "name" field 3 times.
+  /// Field("name").stringRepeat(3)
+  /// ```
+  ///
+  /// - Parameter count: The literal `Int` number of times to repeat the string.
+  /// - Returns: A new `FunctionExpression` representing the stringRepeat operation.
+  func stringRepeat(_ count: Int) -> FunctionExpression
+
+  /// Creates an expression that repeats this string expression a given number of times.
+  /// Assumes `self` evaluates to a string.
+  ///
+  /// ```swift
+  /// // Repeat the "name" field the number of times specified in the "count" field.
+  /// Field("name").stringRepeat(Field("count"))
+  /// ```
+  ///
+  /// - Parameter count: An `Expression` (evaluating to an Int) representing the number of times to
+  /// repeat the string.
+  /// - Returns: A new `FunctionExpression` representing the stringRepeat operation.
+  func stringRepeat(_ count: Expression) -> FunctionExpression
+
+  /// Creates an expression that replaces all occurrences of a literal substring with another
+  /// literal string.
+  /// Assumes `self` evaluates to a string.
+  ///
+  /// ```swift
+  /// // Replace all occurrences of "cat" with "dog" in the "text" field.
+  /// Field("text").stringReplaceAll("cat", with: "dog")
+  /// ```
+  ///
+  /// - Parameters:
+  ///   - oldValue: The literal string substring to replace.
+  ///   - newValue: The literal replacement string.
+  /// - Returns: A new `FunctionExpression` representing the stringReplaceAll operation.
+  func stringReplaceAll(_ oldValue: String, with newValue: String) -> FunctionExpression
+
+  /// Creates an expression that replaces all occurrences of a substring (from an expression) with
+  /// another string.
+  /// Assumes `self` evaluates to a string.
+  ///
+  /// ```swift
+  /// // Replace all occurrences of the "old" field with the "new" field in "text".
+  /// Field("text").stringReplaceAll(Field("old"), with: Field("new"))
+  /// ```
+  ///
+  /// - Parameters:
+  ///   - oldValue: An `Expression` (evaluating to a string) representing the substring to replace.
+  ///   - newValue: An `Expression` (evaluating to a string) representing the replacement string.
+  /// - Returns: A new `FunctionExpression` representing the stringReplaceAll operation.
+  func stringReplaceAll(_ oldValue: Expression, with newValue: Expression) -> FunctionExpression
+
+  /// Creates an expression that replaces the first occurrence of a literal substring with another
+  /// literal string.
+  /// Assumes `self` evaluates to a string.
+  ///
+  /// ```swift
+  /// // Replace the first occurrence of "cat" with "dog" in the "text" field.
+  /// Field("text").stringReplaceOne("cat", with: "dog")
+  /// ```
+  ///
+  /// - Parameters:
+  ///   - oldValue: The literal string substring to replace.
+  ///   - newValue: The literal replacement string.
+  /// - Returns: A new `FunctionExpression` representing the stringReplaceOne operation.
+  func stringReplaceOne(_ oldValue: String, with newValue: String) -> FunctionExpression
+
+  /// Creates an expression that replaces the first occurrence of a substring (from an expression)
+  /// with another string.
+  /// Assumes `self` evaluates to a string.
+  ///
+  /// ```swift
+  /// // Replace the first occurrence of the "old" field with the "new" field in "text".
+  /// Field("text").stringReplaceOne(Field("old"), with: Field("new"))
+  /// ```
+  ///
+  /// - Parameters:
+  ///   - oldValue: An `Expression` (evaluating to a string) representing the substring to replace.
+  ///   - newValue: An `Expression` (evaluating to a string) representing the replacement string.
+  /// - Returns: A new `FunctionExpression` representing the stringReplaceOne operation.
+  func stringReplaceOne(_ oldValue: Expression, with newValue: Expression) -> FunctionExpression
+
+  /// Creates an expression that returns the 0-based index of the first occurrence of a literal
+  /// substring.
+  /// Assumes `self` evaluates to a string.
+  ///
+  /// ```swift
+  /// // Get the index of "world" within the "text" field.
+  /// Field("text").stringIndexOf("world")
+  /// ```
+  ///
+  /// - Parameter substring: The literal string substring to search for.
+  /// - Returns: A new `FunctionExpression` representing the stringIndexOf operation.
+  func stringIndexOf(_ substring: String) -> FunctionExpression
+
+  /// Creates an expression that returns the 0-based index of the first occurrence of a substring
+  /// (from an expression).
+  /// Assumes `self` evaluates to a string.
+  ///
+  /// ```swift
+  /// // Get the index of the "search" field within the "text" field.
+  /// Field("text").stringIndexOf(Field("search"))
+  /// ```
+  ///
+  /// - Parameter substring: An `Expression` (evaluating to a string) representing the substring to
+  /// search for.
+  /// - Returns: A new `FunctionExpression` representing the stringIndexOf operation.
+  func stringIndexOf(_ substring: Expression) -> FunctionExpression
+
   /// Creates an expression that concatenates this string expression with other string expressions.
   /// Assumes `self` and all parameters evaluate to strings.
   ///
@@ -1360,6 +1552,18 @@ public protocol Expression: Sendable {
 
   // MARK: Map Operations
 
+  /// Creates an expression that accesses a field on this expression using a string key.
+  ///
+  /// - Parameter key: The string key to access.
+  /// - Returns: A new `FunctionExpression` representing the field access.
+  func getField(_ key: String) -> FunctionExpression
+
+  /// Creates an expression that accesses a field on this expression using a dynamic key expression.
+  ///
+  /// - Parameter expression: The expression evaluating to a key to access.
+  /// - Returns: A new `FunctionExpression` representing the field access.
+  func getField(_ expression: Expression) -> FunctionExpression
+
   /// Accesses a value from a map (object) field using the provided literal string key.
   /// Assumes `self` evaluates to a Map.
   ///
@@ -1425,6 +1629,88 @@ public protocol Expression: Sendable {
   /// - Parameter maps: Additional `Expression` (evaluating to Maps) to merge.
   /// - Returns: A new `FunctionExpression` representing the "map_merge" operation.
   func mapMerge(_ maps: [Expression]) -> FunctionExpression
+
+  /// Creates an expression that returns a new map with the specified entries added or updated.
+  /// Assumes `self` evaluates to a Map.
+  ///
+  /// - Only performs shallow updates to the map.
+  /// - Setting a value to `nil` will retain the key with a `nil` value. To remove
+  ///   a key entirely, use `mapRemove`.
+  ///
+  /// ```swift
+  /// // Set the 'category' key to the value of the 'newCategory' field.
+  /// Field("metadata").mapSet(Field("keyField"), Field("newCategory"))
+  /// ```
+  ///
+  /// - Parameters:
+  ///   - key: An `Expression` representing the key to set.
+  ///   - value: An `Expression` representing the value to set.
+  ///   - moreKeyValues: Additional alternating key-value `Expression` pairs to set.
+  /// - Returns: A new `FunctionExpression` representing the map with the entries set.
+  func mapSet(_ key: Expression, _ value: Expression, _ moreKeyValues: Expression...)
+    -> FunctionExpression
+
+  /// Creates an expression that returns a new map with the specified entries added or updated.
+  /// Assumes `self` evaluates to a Map.
+  ///
+  /// - Only performs shallow updates to the map.
+  /// - Setting a value to `nil` will retain the key with a `nil` value. To remove
+  ///   a key entirely, use `mapRemove`.
+  ///
+  /// ```swift
+  /// // Set the 'category' key to "Electronics" and 'active' to true.
+  /// Field("metadata").mapSet("category", "Electronics", "active", true)
+  /// ```
+  ///
+  /// - Parameters:
+  ///   - key: A literal string key to set.
+  ///   - value: A `Sendable` value to set.
+  ///   - moreKeyValues: Additional alternating key-value `Sendable` pairs to set.
+  /// - Returns: A new `FunctionExpression` representing the map with the entries set.
+  func mapSet(_ key: String, _ value: Sendable, _ moreKeyValues: Sendable...) -> FunctionExpression
+
+  /// Creates an expression that returns the keys of this map expression.
+  /// Assumes `self` evaluates to a Map.
+  ///
+  /// While the backend generally preserves insertion order, relying on the order of the output
+  /// array is not guaranteed and should be avoided.
+  ///
+  /// ```swift
+  /// // Get the keys of the 'metadata' map field.
+  /// Field("metadata").mapKeys()
+  /// ```
+  ///
+  /// - Returns: A new `FunctionExpression` representing the keys of the map.
+  func mapKeys() -> FunctionExpression
+
+  /// Creates an expression that returns the values of this map expression.
+  /// Assumes `self` evaluates to a Map.
+  ///
+  /// While the backend generally preserves insertion order, relying on the order of the output
+  /// array is not guaranteed and should be avoided.
+  ///
+  /// ```swift
+  /// // Get the values of the 'metadata' map field.
+  /// Field("metadata").mapValues()
+  /// ```
+  ///
+  /// - Returns: A new `FunctionExpression` representing the values of the map.
+  func mapValues() -> FunctionExpression
+
+  /// Creates an expression that returns the entries of this map expression as an array of maps,
+  /// where each map contains a "k" property for the key and a "v" property for the value.
+  /// Assumes `self` evaluates to a Map.
+  ///
+  /// While the backend generally preserves insertion order, relying on the order of the output
+  /// array is not guaranteed and should be avoided.
+  ///
+  /// ```swift
+  /// // Get the entries of the 'metadata' map field.
+  /// Field("metadata").mapEntries()
+  /// ```
+  ///
+  /// - Returns: A new `FunctionExpression` representing the entries of the map.
+  func mapEntries() -> FunctionExpression
 
   // MARK: Aggregations
 
@@ -1817,6 +2103,127 @@ public protocol Expression: Sendable {
   /// - Returns: A new `FunctionExpression` representing the truncated timestamp.
   func timestampTruncate(granularity: Sendable) -> FunctionExpression
 
+  /// Creates an expression that truncates a timestamp to a specified granularity with a specified
+  /// timezone.
+  /// Assumes `self` evaluates to a Timestamp.
+  ///
+  /// ```swift
+  /// // Truncate "timestamp" field to the nearest day in Los Angeles timezone.
+  /// Field("timestamp").timestampTruncate(granularity: .day, timezone: "America/Los_Angeles")
+  /// ```
+  ///
+  /// - Parameter granularity: A `TimeGranularity` representing the truncation unit.
+  /// - Parameter timezone: A `Sendable` literal string or an `Expression` representing the
+  /// timezone.
+  /// - Returns: A new `FunctionExpression` representing the truncated timestamp.
+  func timestampTruncate(granularity: TimeGranularity, timezone: Sendable) -> FunctionExpression
+
+  /// Creates an expression that truncates a timestamp to a specified granularity with a specified
+  /// timezone.
+  /// Assumes `self` evaluates to a Timestamp.
+  ///
+  /// ```swift
+  /// // Truncate "timestamp" field to the nearest day in Los Angeles timezone using a literal
+  /// // string.
+  /// Field("timestamp").timestampTruncate(granularity: "day", timezone: "America/Los_Angeles")
+  /// ```
+  ///
+  /// ```swift
+  /// // Truncate "timestamp" field to the granularity specified by "granularity_field" in the
+  /// // timezone specified by "timezone_field" using expressions.
+  /// Field("timestamp").timestampTruncate(
+  ///   granularity: Field("granularity_field"),
+  ///   timezone: Field("timezone_field")
+  /// )
+  /// ```
+  ///
+  /// - Parameter granularity: A `Sendable` literal string or an `Expression` representing the
+  /// truncation unit.
+  /// - Parameter timezone: A `Sendable` literal string or an `Expression` representing the
+  /// timezone.
+  /// - Returns: A new `FunctionExpression` representing the truncated timestamp.
+  func timestampTruncate(granularity: Sendable, timezone: Sendable) -> FunctionExpression
+
+  /// Calculates the difference between this timestamp and another timestamp.
+  ///
+  /// ```swift
+  /// // Calculate the difference in days between "endAt" (self) and a start field using a typed
+  /// // unit.
+  /// Field("endAt").timestampDiff(Field("startAt"), .day)
+  /// ```
+  ///
+  /// - Parameter start: An `Expression` representing the starting timestamp.
+  /// - Parameter unit: A `TimeUnit` representing the unit of time for the difference.
+  /// - Returns: A new `FunctionExpression` representing the difference.
+  func timestampDiff(_ start: Expression, _ unit: TimeUnit) -> FunctionExpression
+
+  /// Calculates the difference between this timestamp and another timestamp.
+  ///
+  /// ```swift
+  /// // Calculate the difference in days between "endAt" (self) and a start field using a string
+  /// // unit.
+  /// Field("endAt").timestampDiff(Field("startAt"), "day")
+  /// ```
+  ///
+  /// - Parameter start: An `Expression` representing the starting timestamp.
+  /// - Parameter unit: A `Sendable` literal string or an `Expression` representing the unit of
+  /// time.
+  /// - Returns: A new `FunctionExpression` representing the difference.
+  func timestampDiff(_ start: Expression, _ unit: Sendable) -> FunctionExpression
+
+  /// Creates an expression that extracts a specified part from this timestamp expression.
+  ///
+  /// ```swift
+  /// // Extract the day from the "timestamp" field.
+  /// Field("timestamp").timestampExtract(part: .day)
+  /// ```
+  ///
+  /// - Parameter part: A `TimePart` representing the part to extract.
+  /// - Returns: A new `FunctionExpression` representing the extracted part.
+  func timestampExtract(part: TimePart) -> FunctionExpression
+
+  /// Creates an expression that extracts a specified part from this timestamp expression using a
+  /// literal or expression.
+  ///
+  /// ```swift
+  /// // Extract the day from the "timestamp" field using a string.
+  /// Field("timestamp").timestampExtract(part: "day")
+  /// ```
+  ///
+  /// - Parameter part: A `Sendable` literal string or an `Expression` representing the part to
+  /// extract.
+  /// - Returns: A new `FunctionExpression` representing the extracted part.
+  func timestampExtract(part: Sendable) -> FunctionExpression
+
+  /// Creates an expression that extracts a specified part from this timestamp expression in a given
+  /// timezone.
+  ///
+  /// ```swift
+  /// // Extract the day from the "timestamp" field in Los Angeles timezone.
+  /// Field("timestamp").timestampExtract(part: .day, timezone: "America/Los_Angeles")
+  /// ```
+  ///
+  /// - Parameter part: A `TimePart` representing the part to extract.
+  /// - Parameter timezone: A `Sendable` literal string or an `Expression` representing the
+  /// timezone.
+  /// - Returns: A new `FunctionExpression` representing the extracted part.
+  func timestampExtract(part: TimePart, timezone: Sendable) -> FunctionExpression
+
+  /// Creates an expression that extracts a specified part from this timestamp expression in a given
+  /// timezone using a literal or expression.
+  ///
+  /// ```swift
+  /// // Extract the day from the "timestamp" field in Los Angeles timezone using a string.
+  /// Field("timestamp").timestampExtract(part: "day", timezone: "America/Los_Angeles")
+  /// ```
+  ///
+  /// - Parameter part: A `Sendable` literal string or an `Expression` representing the part to
+  /// extract.
+  /// - Parameter timezone: A `Sendable` literal string or an `Expression` representing the
+  /// timezone.
+  /// - Returns: A new `FunctionExpression` representing the extracted part.
+  func timestampExtract(part: Sendable, timezone: Sendable) -> FunctionExpression
+
   /// Creates an expression that adds a specified amount of time to this timestamp expression,
   /// where unit and amount are provided as literals.
   /// Assumes `self` evaluates to a Timestamp.
@@ -1895,6 +2302,16 @@ public protocol Expression: Sendable {
   /// root itself.
   func collectionId() -> FunctionExpression
 
+  /// Creates an expression that returns the parent document reference of a document reference.
+  ///
+  /// ```swift
+  /// // Get the parent document reference of a document reference.
+  /// Field("__path__").parent()
+  /// ```
+  ///
+  /// - Returns: A new `FunctionExpression` representing the parent operation.
+  func parent() -> FunctionExpression
+
   /// Creates an expression that returns the result of `catchExpression` if this expression produces
   /// an error during evaluation, otherwise returns the result of this expression.
   ///
@@ -1932,6 +2349,51 @@ public protocol Expression: Sendable {
   /// - Parameter defaultValue: The literal `Sendable` value to return if this expression is absent.
   /// - Returns: A new "FunctionExpression" representing the "ifAbsent" operation.
   func ifAbsent(_ defaultValue: Sendable) -> FunctionExpression
+
+  /// Creates an expression that returns the `else` argument if this expression evaluates to null,
+  /// else return the result of this expression.
+  ///
+  /// This function provides a fallback for both absent and explicit null values. In contrast,
+  /// `ifAbsent` only triggers for missing fields.
+  ///
+  /// ```swift
+  /// // Returns the user's display name, or returns "Anonymous" if the field is null.
+  /// Field("displayName").ifNull("Anonymous")
+  /// ```
+  ///
+  /// - Parameter defaultValue: The `Sendable` value that will be returned if this expression
+  /// evaluates to null.
+  /// - Returns: A new `FunctionExpression` representing the `ifNull` operation.
+  func ifNull(_ defaultValue: Sendable) -> FunctionExpression
+
+  /// Creates an expression that returns the `else` argument if this expression evaluates to null,
+  /// else return the result of this expression.
+  ///
+  /// This function provides a fallback for both absent and explicit null values. In contrast,
+  /// `ifAbsent` only triggers for missing fields.
+  ///
+  /// ```swift
+  /// // Returns the user's preferred name, or if that is null, returns their full name.
+  /// Field("preferredName").ifNull(Field("fullName"))
+  /// ```
+  ///
+  /// - Parameter defaultExpression: The `Expression` that will be evaluated and returned if this
+  /// expression evaluates to null.
+  /// - Returns: A new `FunctionExpression` representing the `ifNull` operation.
+  func ifNull(_ defaultExpression: Expression) -> FunctionExpression
+
+  /// Creates an expression that returns the first non-null, non-absent argument, without evaluating
+  /// the rest of the arguments. When all arguments are null or absent, returns the last argument.
+  ///
+  /// ```swift
+  /// // Returns the value of the first non-null, non-absent field among 'preferredName',
+  /// 'fullName', or the last argument if all previous fields are null.
+  /// Field("preferredName").coalesce([Field("fullName"), Constant("Anonymous")])
+  /// ```
+  ///
+  /// - Parameter values: Optional additional expressions to check if previous ones are null.
+  /// - Returns: A new `FunctionExpression` representing the `coalesce` operation.
+  func coalesce(_ values: [Expression]) -> FunctionExpression
 
   // MARK: Sorting
 
@@ -1978,4 +2440,88 @@ public protocol Expression: Sendable {
   ///
   /// - Returns: A new `FunctionExpression` representing the type of the expression as a string.
   func type() -> FunctionExpression
+
+  /// Creates an expression that checks if the result of this expression is of the given type.
+  ///
+  /// Supported values for `type` are: `"null"`, `"array"`, `"boolean"`, `"bytes"`, `"timestamp"`,
+  /// `"geo_point"`, `"number"`, `"int32"`, `"int64"`, `"float64"`, `"decimal128"`, `"map"`,
+  /// `"reference"`, `"string"`,
+  /// `"vector"`, `"max_key"`, `"min_key"`, `"object_id"`, `"regex"`, and `"request_timestamp"`.
+  ///
+  /// ```swift
+  /// // Check if the "age" field is an integer
+  /// Field("age").isType("int64")
+  /// ```
+  ///
+  /// - Parameter type: The type to check for.
+  /// - Returns: A new `BooleanExpression` that evaluates to true if the expression's result is of
+  ///     the given type, false otherwise.
+  func isType(_ type: String) -> BooleanExpression
+
+  /// Evaluates to an HTML-formatted text snippet highlighting terms matching the search query.
+  ///
+  /// - Note: This API is in beta.
+  ///
+  /// Example usage:
+  /// ```swift
+  /// firestore.pipeline().collection("restaurants")
+  /// .search(
+  ///   query: "waffles OR pancakes",
+  ///   addFields: [ Field("menu").snippet("waffles OR pancakes").as("snippet") ]
+  /// )
+  /// ```
+  ///
+  /// - Parameters:
+  ///   - rquery: The search query string used to find matches (Required).
+  ///   - maxSnippetWidth: The maximum width of the snippet (default: 160).
+  ///   - maxSnippets: The maximum number of text pieces to return (default: 1).
+  ///   - separator: The string used to join pieces (default: "\n").
+  /// - Returns: An `Expression` evaluating to the HTML snippet string.
+  // TODO(search): enable with backend support
+  // func snippet(_ rquery: String,
+  //              maxSnippetWidth: Int?,
+  //              maxSnippets: Int?,
+  //              separator: String?) -> Expression
+
+  /// Evaluates if the result of this expression is between the `lowerBound` (inclusive)
+  /// and `upperBound` (inclusive).
+  ///
+  /// Example usage:
+  /// ```swift
+  /// firestore.pipeline().collection("restaurants")
+  /// .search(
+  ///   query: And(
+  ///           Field("menu").matches("waffles OR pancakes"),
+  ///           Field("price_per_guest").between(10, 20))
+  ///   addFields: [ Field("menu").snippet("waffles OR pancakes").as("snippet") ]
+  /// )
+  /// ```
+  ///
+  /// - Parameters:
+  ///   - lowerBound: The lower bound value (inclusive).
+  ///   - upperBound: The upper bound value (inclusive).
+  /// - Returns: A `BooleanExpression` representing the range check.
+  // TODO(search): enable with backend support
+  // func between(_ lowerBound: Sendable, _ upperBound: Sendable) -> BooleanExpression
+
+  /// Evaluates if the result of this expression is between the `lowerBound` (inclusive)
+  /// and `upperBound` (inclusive).
+  ///
+  /// Example usage:
+  /// ```swift
+  /// firestore.pipeline().collection("restaurants")
+  /// .search(
+  ///   query: And(
+  ///           Field("menu").matches("waffles OR pancakes"),
+  ///           Field("price_per_guest").between(Constant(10), Constant(20)))
+  ///   addFields: [ Field("menu").snippet("waffles OR pancakes").as("snippet") ]
+  /// )
+  /// ```
+  ///
+  /// - Parameters:
+  ///   - lowerBound: The lower bound expression (inclusive).
+  ///   - upperBound: The upper bound expression (inclusive).
+  /// - Returns: A `BooleanExpression` representing the range check.
+  // TODO(search): enable with backend support
+  // func between(_ lowerBound: Expression, _ upperBound: Expression) -> BooleanExpression
 }

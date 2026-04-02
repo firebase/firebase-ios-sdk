@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if compiler(>=6.2) && canImport(FoundationModels)
+#if compiler(>=6.2.3) && canImport(FoundationModels)
   import FoundationModels
 
   @available(iOS 26.0, macOS 26.0, *)
@@ -30,4 +30,4 @@
       try self.init(content.generatedContent)
     }
   }
-#endif // compiler(>=6.2) && canImport(FoundationModels)
+#endif // compiler(>=6.2.3) && canImport(FoundationModels)

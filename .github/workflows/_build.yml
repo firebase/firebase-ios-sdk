@@ -26,11 +26,11 @@ on:
       xcode:
         required: false
         type: string
-        default: 'Xcode_16.4'
+        default: 'Xcode_26.4'
       os:
         required: false
         type: string
-        default: 'macos-15'
+        default: 'macos-26'
       timeout_minutes:
         required: false
         type: number

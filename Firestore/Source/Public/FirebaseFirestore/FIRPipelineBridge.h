@@ -43,6 +43,12 @@ NS_SWIFT_NAME(FieldBridge)
 @end
 
 NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(VariableBridge)
+@interface FIRVariableBridge : FIRExprBridge
+- (id)initWithName:(NSString *)name;
+@end
+
+NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(ConstantBridge)
 @interface FIRConstantBridge : FIRExprBridge
 - (id)init:(id)input;
@@ -51,7 +57,9 @@ NS_SWIFT_NAME(ConstantBridge)
 NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(FunctionExprBridge)
 @interface FIRFunctionExprBridge : FIRExprBridge
-- (id)initWithName:(NSString *)name Args:(NSArray<FIRExprBridge *> *)args;
+- (id)initWithName:(NSString *)name
+              Args:(NSArray<FIRExprBridge *> *)args
+           Options:(NSDictionary<NSString *, FIRExprBridge *> *_Nullable)options;
 @end
 
 NS_SWIFT_SENDABLE
@@ -77,6 +85,13 @@ NS_SWIFT_NAME(CollectionSourceStageBridge)
 @interface FIRCollectionSourceStageBridge : FIRStageBridge
 
 - (id)initWithRef:(FIRCollectionReference *)ref firestore:(FIRFirestore *)db;
+@end
+
+NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(SubcollectionSourceStageBridge)
+@interface FIRSubcollectionSourceStageBridge : FIRStageBridge
+
+- (id)initWithPath:(NSString *)path;
 @end
 
 NS_SWIFT_SENDABLE
@@ -140,6 +155,12 @@ NS_SWIFT_NAME(SelectStageBridge)
 @end
 
 NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(DefineStageBridge)
+@interface FIRDefineStageBridge : FIRStageBridge
+- (id)initWithVariables:(NSDictionary<NSString *, FIRExprBridge *> *)variables;
+@end
+
+NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(DistinctStageBridge)
 @interface FIRDistinctStageBridge : FIRStageBridge
 - (id)initWithGroups:(NSDictionary<NSString *, FIRExprBridge *> *)groups;
@@ -160,6 +181,15 @@ NS_SWIFT_NAME(FindNearestStageBridge)
     distanceMeasure:(NSString *)distanceMeasure
               limit:(NSNumber *_Nullable)limit
       distanceField:(FIRExprBridge *_Nullable)distanceField;
+@end
+
+NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(SearchStageBridge)
+@interface FIRSearchStageBridge : FIRStageBridge
+- (id)initWithOptions:(NSDictionary<NSString *, FIRExprBridge *> *)options
+            addFields:(NSDictionary<NSString *, FIRExprBridge *> *)add_fields
+               select:(NSDictionary<NSString *, FIRExprBridge *> *)select
+                 sort:(NSArray<FIROrderingBridge *> *)sort;
 @end
 
 NS_SWIFT_SENDABLE
@@ -264,6 +294,12 @@ NS_SWIFT_NAME(PipelineBridge)
                                         NSError *_Nullable error))completion;
 
 + (NSArray<FIRStageBridge *> *)createStageBridgesFromQuery:(FIRQuery *)query;
+@end
+
+NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(PipelineExprBridge)
+@interface FIRPipelineExprBridge : FIRExprBridge
+- (id)initWithStages:(NSArray<FIRStageBridge *> *)stages;
 @end
 
 NS_SWIFT_SENDABLE
