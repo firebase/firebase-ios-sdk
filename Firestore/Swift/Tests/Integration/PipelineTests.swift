@@ -276,7 +276,6 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testSupportsCollectionGroupAsSource() async throws {
-    XCTAssertTrue(false, "Intentional failure for testing")
     let db = firestore()
 
     let rootCollForTest = collectionRef()
