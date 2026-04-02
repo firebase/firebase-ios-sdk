@@ -33,6 +33,18 @@ post_install do |installer|
     raise "sync_project.rb failed with status #{$?.exitstatus}"
   end
 
+  # Apply C++17 patch to all pod targets in generated projects
+  projects = installer.respond_to?(:generated_projects) ? installer.generated_projects : [installer.pods_project].compact
+  projects.each do |project|
+    project.targets.each do |target|
+      target.build_configurations.each do |config|
+        config.build_settings['CLANG_CXX_LANGUAGE_STANDARD'] = 'c++17'
+        config.build_settings['CLANG_CXX_LIBRARY'] = 'libc++'
+      end
+    end
+    project.save if installer.respond_to?(:generated_projects)
+  end
+
   # Clean up duplicate C++ standards and suppress deprecation warnings in xcconfig files
   podfile_dir = Pathname.new(__FILE__).dirname
   installer.aggregate_targets.each do |target|
