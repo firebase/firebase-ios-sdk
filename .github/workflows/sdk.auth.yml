@@ -100,18 +100,16 @@ jobs:
         retry_wait_seconds: 120
         command: ([ -z $plist_secret ] || scripts/build.sh Auth iOS ${{ matrix.scheme }})
 
-  # quickstart:
-  #   uses: ./.github/workflows/_quickstart.yml
-  #   with:
-  #     product: Authentication
-  #     # TODO(ncook3): Remove when nc/fix-auth is merged.
-  #     quickstart_branch: nc/fix-auth
-  #     setup_command: scripts/setup_quickstart.sh authentication
-  #     plist_src_path: scripts/gha-encrypted/qs-authentication.plist.gpg
-  #     plist_dst_path: quickstart-ios/authentication/GoogleService-Info.plist
-  #     run_tests: false
-  #   secrets:
-  #     plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+  quickstart:
+    uses: ./.github/workflows/_quickstart.yml
+    with:
+      product: Authentication
+      setup_command: scripts/setup_quickstart.sh authentication
+      plist_src_path: scripts/gha-encrypted/qs-authentication.plist.gpg
+      plist_dst_path: quickstart-ios/authentication/GoogleService-Info.plist
+      run_tests: false
+    secrets:
+      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
 
   auth-cron-only:
     if: github.event.pull_request.head.repo.fork == false
