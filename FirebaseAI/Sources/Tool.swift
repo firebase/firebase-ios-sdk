@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import CoreLocation
 import Foundation
 
 /// Structured representation of a function declaration.
@@ -227,34 +228,28 @@ public struct ToolConfig: Sendable {
 /// Retrieval configuration.
 public struct RetrievalConfig: Sendable, Encodable {
   /// The location for the search.
-  public let latLng: LatLng?
+  public let latLng: CLLocationCoordinate2D?
   /// The language code of the user.
   public let languageCode: String?
 
-  public init(latLng: LatLng? = nil, languageCode: String? = nil) {
+  public init(latLng: CLLocationCoordinate2D? = nil, languageCode: String? = nil) {
     self.latLng = latLng
     self.languageCode = languageCode
   }
 }
 
-/// An object that represents a latitude/longitude pair.
-public struct LatLng: Sendable, Encodable {
-  /// The latitude in degrees. It must be in the range [-90.0, +90.0].
-  let latitude: Double
-  /// The longitude in degrees. It must be in the range [-180.0, +180.0].
-  let longitude: Double
+extension CLLocationCoordinate2D: @unchecked Sendable {}
 
-  public init(latitude: Double, longitude: Double) {
-    precondition(
-      latitude >= -90.0 && latitude <= 90.0,
-      "Latitude must be in the range [-90.0, 90.0]."
-    )
-    precondition(
-      longitude >= -180.0 && longitude <= 180.0,
-      "Longitude must be in the range [-180.0, 180.0]."
-    )
-    self.latitude = latitude
-    self.longitude = longitude
+extension CLLocationCoordinate2D: Encodable {
+  public func encode(to encoder: Encoder) throws {
+    var container = encoder.container(keyedBy: CodingKeys.self)
+    try container.encode(latitude, forKey: .latitude)
+    try container.encode(longitude, forKey: .longitude)
+  }
+
+  enum CodingKeys: String, CodingKey {
+    case latitude
+    case longitude
   }
 }
 

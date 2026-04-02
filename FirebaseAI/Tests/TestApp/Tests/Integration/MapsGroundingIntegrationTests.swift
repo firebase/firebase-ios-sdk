@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import CoreLocation
 import FirebaseAI
 import FirebaseAITestApp
 import Testing
@@ -54,7 +55,7 @@ struct MapsGroundingIntegrationTests {
   func generateContent_withGoogleMapsAndRetrievalConfig_succeeds(_ config: InstanceConfig) async throws {
     let toolConfig = ToolConfig(
       retrievalConfig: RetrievalConfig(
-        latLng: LatLng(latitude: 30.2672, longitude: -97.7431)
+        latLng: CLLocationCoordinate2D(latitude: 30.2672, longitude: -97.7431)
       )
     )
     let model = FirebaseAI.componentInstance(config).generativeModel(
