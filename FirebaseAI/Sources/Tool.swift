@@ -194,9 +194,9 @@ public struct ToolConfig: Sendable {
 /// Retrieval configuration.
 public struct RetrievalConfig: Sendable, Encodable {
   /// The location for the search.
-  public let location: CLLocationCoordinate2D?
+  let location: CLLocationCoordinate2D?
   /// The language code of the user.
-  public let languageCode: String?
+  let languageCode: String?
 
   public init(location: CLLocationCoordinate2D? = nil, languageCode: String? = nil) {
     self.location = location

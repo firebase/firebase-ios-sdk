@@ -19,7 +19,7 @@ import Foundation
 /// > Important: When using this feature, you are required to comply with the
 /// "Grounding with Google Maps" usage requirements for your chosen API provider.
 public struct GoogleMaps: Sendable, Encodable {
-  public init() {}
+  init() {}
 }
 
 /// A grounding chunk sourced from Google Maps.
