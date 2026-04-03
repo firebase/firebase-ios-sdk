@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import CoreLocation
 import Foundation
 #if canImport(FoundationModels)
   import FoundationModels
@@ -114,15 +115,20 @@ public struct Tool: Sendable {
   /// Specifies the Google Search configuration.
   let googleSearch: GoogleSearch?
 
+  /// Specifies the Google Maps configuration.
+  let googleMaps: GoogleMaps?
+
   let codeExecution: CodeExecution?
   let urlContext: URLContext?
 
   init(functionDeclarations: [FunctionDeclaration]? = nil,
        googleSearch: GoogleSearch? = nil,
+       googleMaps: GoogleMaps? = nil,
        urlContext: URLContext? = nil,
        codeExecution: CodeExecution? = nil) {
     self.functionDeclarations = functionDeclarations
     self.googleSearch = googleSearch
+    self.googleMaps = googleMaps
     self.urlContext = urlContext
     self.codeExecution = codeExecution
   }
@@ -176,11 +182,49 @@ public struct FunctionCallingConfig: Sendable {
 /// Tool configuration for any `Tool` specified in the request.
 public struct ToolConfig: Sendable {
   let functionCallingConfig: FunctionCallingConfig?
+  let retrievalConfig: RetrievalConfig?
 
-  public init(functionCallingConfig: FunctionCallingConfig? = nil) {
+  public init(functionCallingConfig: FunctionCallingConfig? = nil,
+              retrievalConfig: RetrievalConfig? = nil) {
     self.functionCallingConfig = functionCallingConfig
+    self.retrievalConfig = retrievalConfig
   }
 }
+
+/// Retrieval configuration.
+public struct RetrievalConfig: Sendable, Encodable {
+  /// The location for the search.
+  let location: CLLocationCoordinate2D?
+  /// The language code of the user.
+  let languageCode: String?
+
+  public init(location: CLLocationCoordinate2D? = nil, languageCode: String? = nil) {
+    self.location = location
+    self.languageCode = languageCode
+  }
+
+  public func encode(to encoder: Encoder) throws {
+    var container = encoder.container(keyedBy: CodingKeys.self)
+    try container.encodeIfPresent(languageCode, forKey: .languageCode)
+    if let location = location {
+      var latLngContainer = container.nestedContainer(keyedBy: LatLngKeys.self, forKey: .location)
+      try latLngContainer.encode(location.latitude, forKey: .latitude)
+      try latLngContainer.encode(location.longitude, forKey: .longitude)
+    }
+  }
+
+  enum CodingKeys: String, CodingKey {
+    case location = "latLng"
+    case languageCode
+  }
+
+  enum LatLngKeys: String, CodingKey {
+    case latitude
+    case longitude
+  }
+}
+
+extension CLLocationCoordinate2D: @retroactive @unchecked Sendable {}
 
 // MARK: - ToolRepresentable Conformances
 
@@ -243,6 +287,19 @@ public extension ToolRepresentable where Self == FirebaseAILogic.Tool {
   /// - Returns: A `Tool` configured for Google Search.
   static func googleSearch(_ googleSearch: GoogleSearch = GoogleSearch()) -> Tool {
     return FirebaseAILogic.Tool(googleSearch: googleSearch)
+  }
+
+  /// Creates a tool that allows the model to use Grounding with Google Maps.
+  ///
+  /// Grounding with Google Maps can be used to allow the model to connect to Google Maps to
+  /// access and incorporate up-to-date information from the web into it's responses.
+  ///
+  /// > Important: When using this feature, you are required to comply with the
+  /// "Grounding with Google Maps" usage requirements for your chosen API provider.
+  ///
+  /// - Returns: A `Tool` configured for Google Maps.
+  static func googleMaps() -> Tool {
+    return self.init(googleMaps: GoogleMaps())
   }
 
   /// Creates a tool that allows you to provide additional context to the models in the form of
