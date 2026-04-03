@@ -32,7 +32,7 @@ struct MapsGroundingIntegrationTests {
 
     let response = try await model.generateContent(prompt)
 
-    try #require(validateGoogleMapsGrounding(response: response))
+    try validateGoogleMapsGrounding(response: response)
   }
 
   @Test(
@@ -54,7 +54,7 @@ struct MapsGroundingIntegrationTests {
 
     let response = try await model.generateContent(prompt)
 
-    try #require(validateGoogleMapsGrounding(response: response))
+    try validateGoogleMapsGrounding(response: response)
   }
 
   @Test(
@@ -76,10 +76,10 @@ struct MapsGroundingIntegrationTests {
 
     let response = try await model.generateContent(prompt)
 
-    try #require(validateGoogleMapsGrounding(response: response))
+    try validateGoogleMapsGrounding(response: response)
   }
 
-  private func validateGoogleMapsGrounding(response: GenerateContentResponse) throws -> Bool {
+  private func validateGoogleMapsGrounding(response: GenerateContentResponse) throws {
     let candidate = try #require(response.candidates.first)
     let groundingMetadata = try #require(candidate.groundingMetadata)
 
@@ -93,7 +93,5 @@ struct MapsGroundingIntegrationTests {
       let placeID = try #require(mapsChunk.placeID)
       #expect(!placeID.isEmpty)
     }
-
-    return true
   }
 }
