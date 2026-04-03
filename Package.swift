@@ -197,7 +197,21 @@ let package = Package(
         isFoundationModelsSupportedPlatformSwiftSetting(),
       ],
       exclude: [
-        "**/AGENTS.md",
+        "AGENTS.md",
+        "Types/Internal/Imagen/AGENTS.md",
+        "Extensions/Internal/AGENTS.md",
+        "Types/Public/AGENTS.md",
+        "Types/Public/Imagen/AGENTS.md",
+        "Types/Public/Live/AGENTS.md",
+        "Protocols/Internal/AGENTS.md",
+        "Types/Internal/AGENTS.md",
+        "Types/Internal/Tools/AGENTS.md",
+        "Types/Internal/Live/AGENTS.md",
+        "Types/Internal/Errors/AGENTS.md",
+        "Types/Public/Tools/AGENTS.md",
+        "Types/AGENTS.md",
+        "Protocols/AGENTS.md",
+        "Types/Internal/Requests/AGENTS.md",
       ]
     ),
     .testTarget(
