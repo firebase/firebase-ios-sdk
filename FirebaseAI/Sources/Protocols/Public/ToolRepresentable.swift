@@ -20,6 +20,7 @@ public protocol ToolRepresentable: Sendable {
   var toolRepresentation: FirebaseAILogic.Tool { get }
 }
 
+#if compiler(>=6.2.3)
 #if canImport(FoundationModels)
   @available(iOS 26.0, macOS 26.0, *)
   @available(tvOS, unavailable)
@@ -31,3 +32,4 @@ public protocol ToolRepresentable: Sendable {
     }
   }
 #endif // canImport(FoundationModels)
+#endif // compiler(>=6.2.3)
