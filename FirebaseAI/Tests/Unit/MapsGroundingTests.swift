@@ -71,14 +71,19 @@ final class MapsGroundingTests: XCTestCase {
     )
 
     let encoder = JSONEncoder()
-    encoder.keyEncodingStrategy = .convertToSnakeCase
     let requestData = try encoder.encode(request)
-    let requestJSON = try XCTUnwrap(JSONSerialization
-      .jsonObject(with: requestData) as? [String: Any])
-    let tools = try XCTUnwrap(requestJSON["tools"] as? [[String: Any]])
+    let requestJSON = try JSONDecoder().decode(JSONObject.self, from: requestData)
+    guard case let .array(tools) = requestJSON["tools"] else {
+      XCTFail("No `tools` field in request JSON.")
+      return
+    }
     XCTAssertEqual(tools.count, 1)
-    let maps = try XCTUnwrap(tools[0]["google_maps"] as? [String: Any])
-    XCTAssertTrue(maps.isEmpty)
+    guard case let .object(tool) = tools[0] else {
+      XCTFail("Expected a single tool in the request JSON.")
+      return
+    }
+    let googleMaps = try XCTUnwrap(tool["googleMaps"])
+    XCTAssertEqual(googleMaps, .object([:]), "Expected no properties for the `googleMaps` tool.")
   }
 
   func testResponseDecoding() throws {
