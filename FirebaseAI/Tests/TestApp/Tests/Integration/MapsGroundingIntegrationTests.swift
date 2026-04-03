@@ -32,19 +32,7 @@ struct MapsGroundingIntegrationTests {
 
     let response = try await model.generateContent(prompt)
 
-    let candidate = try #require(response.candidates.first)
-    let groundingMetadata = try #require(candidate.groundingMetadata)
-
-    let mapChunks = groundingMetadata.groundingChunks.compactMap { $0.maps }
-    #expect(!mapChunks.isEmpty)
-
-    for mapsChunk in mapChunks {
-      #expect(mapsChunk.url != nil)
-      let title = try #require(mapsChunk.title)
-      #expect(!title.isEmpty)
-      let placeID = try #require(mapsChunk.placeID)
-      #expect(!placeID.isEmpty)
-    }
+    try #require(validateGoogleMapsGrounding(response: response))
   }
 
   @Test(
@@ -66,19 +54,7 @@ struct MapsGroundingIntegrationTests {
 
     let response = try await model.generateContent(prompt)
 
-    let candidate = try #require(response.candidates.first)
-    let groundingMetadata = try #require(candidate.groundingMetadata)
-
-    let mapChunks = groundingMetadata.groundingChunks.compactMap { $0.maps }
-    #expect(!mapChunks.isEmpty)
-
-    for mapsChunk in mapChunks {
-      #expect(mapsChunk.url != nil)
-      let title = try #require(mapsChunk.title)
-      #expect(!title.isEmpty)
-      let placeID = try #require(mapsChunk.placeID)
-      #expect(!placeID.isEmpty)
-    }
+    try #require(validateGoogleMapsGrounding(response: response))
   }
 
   @Test(
@@ -100,6 +76,10 @@ struct MapsGroundingIntegrationTests {
 
     let response = try await model.generateContent(prompt)
 
+    try #require(validateGoogleMapsGrounding(response: response))
+  }
+
+  private func validateGoogleMapsGrounding(response: GenerateContentResponse) throws -> Bool {
     let candidate = try #require(response.candidates.first)
     let groundingMetadata = try #require(candidate.groundingMetadata)
 
@@ -113,5 +93,7 @@ struct MapsGroundingIntegrationTests {
       let placeID = try #require(mapsChunk.placeID)
       #expect(!placeID.isEmpty)
     }
+
+    return true
   }
 }

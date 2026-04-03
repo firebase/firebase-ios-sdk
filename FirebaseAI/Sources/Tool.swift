@@ -224,7 +224,7 @@ public struct RetrievalConfig: Sendable, Encodable {
   }
 }
 
-extension CLLocationCoordinate2D: @unchecked Sendable {}
+extension CLLocationCoordinate2D: @retroactive @unchecked Sendable {}
 
 // MARK: - ToolRepresentable Conformances
 
@@ -296,10 +296,6 @@ public extension ToolRepresentable where Self == FirebaseAILogic.Tool {
   ///
   /// > Important: When using this feature, you are required to comply with the
   /// "Grounding with Google Maps" usage requirements for your chosen API provider.
-  ///
-  /// - Parameters:
-  ///   - googleMaps: A ``GoogleMaps`` object. The presence of this object in the list
-  ///     of tools enables the model to use Google Maps.
   ///
   /// - Returns: A `Tool` configured for Google Maps.
   static func googleMaps() -> Tool {
