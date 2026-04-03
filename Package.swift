@@ -193,9 +193,6 @@ let package = Package(
         "FirebaseCoreExtension",
       ],
       path: "FirebaseAI/Sources",
-      swiftSettings: [
-        isFoundationModelsSupportedPlatformSwiftSetting(),
-      ],
       exclude: [
         "AGENTS.md",
         "Types/Internal/Imagen/AGENTS.md",
@@ -212,7 +209,10 @@ let package = Package(
         "Types/AGENTS.md",
         "Protocols/AGENTS.md",
         "Types/Internal/Requests/AGENTS.md",
-      ]
+      ],
+      swiftSettings: [
+        isFoundationModelsSupportedPlatformSwiftSetting(),
+      ],
     ),
     .testTarget(
       name: "FirebaseAILogicUnit",
