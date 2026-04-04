@@ -580,9 +580,9 @@ let package = Package(
     .target(
       name: "FirebaseCrashlyticsSwift",
       dependencies: ["FirebaseRemoteConfigInterop"],
-      path: "Crashlytics",
+      path: "Crashlytics/Crashlytics/Rollouts/",
       sources: [
-        "Crashlytics/Rollouts/",
+        "./",
       ]
     ),
     .testTarget(
@@ -1408,7 +1408,7 @@ func firebaseCrashlyticsTarget() -> Target {
     ],
     path: "Crashlytics",
     exclude: [
-      "./run",
+      "run",
       "CHANGELOG.md",
       "LICENSE",
       "README.md",
