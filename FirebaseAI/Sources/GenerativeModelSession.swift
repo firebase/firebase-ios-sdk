@@ -50,9 +50,14 @@
   /// print("Bio: \(response.content.bio)")
   /// print("Favorite Topics: \(response.content.favoriteTopics.joined(separator: ", "))")
   /// ```
-  public final class GenerativeModelSession: Sendable {
-    let session: Chat
-    let functionDeclarations: [String: FunctionDeclaration]
+  public final class GenerativeModelSession: @unchecked Sendable {
+    let models: [any LanguageModel]
+    // TODO: Add `Sendable` manager for model sessions and remove `@unchecked`.
+    // TODO: Track history status (`Transcript`) alongside `modelSessions`.
+    var modelSessions: [Int: any ModelSession]
+
+    let tools: [any ToolRepresentable]?
+    let instructions: String?
 
     // The maximum number of automatic back-and-forth turns the session will perform to resolve
     // function calls.
@@ -66,9 +71,11 @@
     ///
     /// **Public Preview**: This API is a public preview and may be subject to change.
     /// - Parameter model: The `GenerativeModel` to use for generating content.
-    init(model: GenerativeModel) {
-      session = model.startChat()
-      functionDeclarations = model.functionDeclarationsByName()
+    init(models: [any LanguageModel], tools: [any ToolRepresentable]?, instructions: String?) {
+      self.models = models
+      modelSessions = [:]
+      self.tools = tools
+      self.instructions = instructions
     }
 
     /// Sends a new prompt to the model and returns a `Response` containing the generated content as
@@ -245,282 +252,80 @@
                           generating type: Content.Type, includeSchemaInPrompt: Bool,
                           options: GenerationConfig?) async throws
       -> GenerativeModelSession.Response<Content> {
-      let parts = [ModelContent(parts: prompt)]
-      let config = try buildConfig(
-        options: options,
-        schema: schema,
-        includeSchemaInPrompt: includeSchemaInPrompt
-      )
-
-      var response = try await session.sendMessage(parts, generationConfig: config)
-
-      var autoFunctionCallTurns = 0
-      while !response.functionCalls.isEmpty {
-        guard autoFunctionCallTurns < GenerativeModelSession.maxAutoFunctionCallTurns else {
-          throw GenerationError.internalError(
-            GenerationError.Context(
-              debugDescription: """
-              The model exceeded the maximum allowed automatic function call iterations \
-              (\(GenerativeModelSession.maxAutoFunctionCallTurns)).
-              """
-            ),
-            underlyingError: FunctionCallingError.maxFunctionCallTurnsExceeded
-          )
-        }
-
-        let functionResponses = try await execute(functionCalls: response.functionCalls)
-
-        guard !functionResponses.isEmpty else { break }
-        response = try await session.sendMessage(
-          [ModelContent(role: "user", parts: functionResponses)],
-          generationConfig: config
-        )
-
-        autoFunctionCallTurns += 1
-      }
-
-      let text: String
-      if let responseText = response.text {
-        text = responseText
-      } else if let parts = response.candidates.first?.content.parts, !parts.isEmpty {
-        text = ""
-      } else {
-        throw GenerationError.decodingFailure(
-          GenerationError.Context(debugDescription: "No parts in response: \(response)")
-        )
-      }
-      let generationID = response.responseID.map {
-        #if canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
-          if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
-            return FirebaseAI.GenerationID(responseID: $0, generationID: GenerationID())
+      var errors = [any Error]()
+      for (index, model) in models.enumerated() {
+        do {
+          var session: any ModelSession
+          if let modelSession = modelSessions[index] {
+            session = modelSession
+          } else {
+            let modelSession = try model.startSession(tools: tools, instructions: instructions)
+            modelSessions[index] = modelSession
+            session = modelSession
           }
-        #endif // canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
 
-        return FirebaseAI.GenerationID(responseID: $0, generationID: nil)
+          return try await session.respond(
+            to: prompt,
+            schema: schema,
+            generating: type,
+            includeSchemaInPrompt: includeSchemaInPrompt,
+            options: options
+          )
+        } catch {
+          errors.append(error)
+        }
       }
 
-      let rawContent = try Self.makeRawContent(
-        from: text,
-        generationID: generationID,
-        hasSchema: schema != nil,
-        isComplete: true
-      )
-      let content: Content = try Self.resolveContent(from: rawContent)
-
-      return GenerativeModelSession.Response(
-        content: content, rawContent: rawContent, rawResponse: response
-      )
+      guard let error = errors.first else {
+        // TODO: Throw some error
+        fatalError()
+      }
+      throw error
     }
 
-    @available(macOS 12.0, watchOS 8.0, *)
     private func streamResponse<Content, PartialContent>(to prompt: [PartsRepresentable],
                                                          schema: FirebaseAI.GenerationSchema?,
                                                          generating type: Content.Type,
                                                          includeSchemaInPrompt: Bool,
                                                          options: GenerationConfig?)
       -> sending GenerativeModelSession.ResponseStream<Content, PartialContent> {
-      let initialParts = [ModelContent(parts: prompt)]
-      return GenerativeModelSession.ResponseStream { context in
+      var errors = [any Error]()
+      for (index, model) in models.enumerated() {
         do {
-          let config = try self.buildConfig(
-            options: options,
-            schema: schema,
-            includeSchemaInPrompt: includeSchemaInPrompt
-          )
-
-          var currentParts = initialParts
-          var generationID: FirebaseAI.GenerationID?
-          var autoFunctionCallTurns = 0
-
-          functionCallingLoop: while true {
-            let stream = try self.session.sendMessageStream(currentParts, generationConfig: config)
-
-            var streamedText = ""
-            var functionCalls = [FunctionCallPart]()
-
-            // 1. Create a buffer to hold the previous iteration's data in order to differentiate
-            //    the last chunk to accurately set `isComplete`.
-            var pendingChunkData: (
-              text: String,
-              id: FirebaseAI.GenerationID?,
-              response: GenerateContentResponse
-            )?
-
-            for try await chunk in stream {
-              functionCalls.append(contentsOf: chunk.functionCalls)
-
-              let text: String
-              if let responseText = chunk.text {
-                text = responseText
-              } else if let parts = chunk.candidates.first?.content.parts, !parts.isEmpty {
-                text = ""
-              } else {
-                throw GenerationError.decodingFailure(
-                  GenerationError.Context(debugDescription: "No parts in response: \(chunk)")
-                )
-              }
-
-              // 2. If we have pending data, we now know it wasn't the last chunk.
-              if let pending = pendingChunkData, !pending.text.isEmpty {
-                let rawContent = try Self.makeRawContent(
-                  from: pending.text,
-                  generationID: pending.id,
-                  hasSchema: schema != nil,
-                  isComplete: false
-                )
-                let rawResult = GenerativeModelSession.ResponseStream<Content, PartialContent>
-                  .RawResult(
-                    rawContent: rawContent,
-                    rawResponse: pending.response
-                  )
-                await context.yield(rawResult)
-              }
-
-              // 3. Update our cumulative state for the current chunk
-              streamedText.append(text)
-              if generationID == nil {
-                generationID = chunk.responseID.map {
-                  #if canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
-                    if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
-                      return FirebaseAI.GenerationID(
-                        responseID: $0, generationID: FoundationModels.GenerationID()
-                      )
-                    }
-                  #endif // canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
-
-                  return FirebaseAI.GenerationID(responseID: $0, generationID: nil)
-                }
-              }
-
-              // 4. Save the current state as the new pending chunk.
-              pendingChunkData = (text: streamedText, id: generationID, response: chunk)
-            }
-
-            // Stream for the current turn finished. Check if there are function calls to handle.
-            if !functionCalls.isEmpty {
-              guard autoFunctionCallTurns < GenerativeModelSession.maxAutoFunctionCallTurns else {
-                throw GenerationError.internalError(
-                  GenerationError.Context(
-                    debugDescription: """
-                    The model exceeded the maximum allowed automatic function call iterations \
-                    (\(GenerativeModelSession.maxAutoFunctionCallTurns)).
-                    """
-                  ),
-                  underlyingError: FunctionCallingError.maxFunctionCallTurnsExceeded
-                )
-              }
-              let functionResponses = try await self.execute(functionCalls: functionCalls)
-
-              if !functionResponses.isEmpty {
-                // Yield any pending text if it's not empty, but mark it as NOT complete yet.
-                if let pending = pendingChunkData, !pending.text.isEmpty {
-                  let rawContent = try Self.makeRawContent(
-                    from: pending.text,
-                    generationID: pending.id,
-                    hasSchema: schema != nil,
-                    isComplete: false
-                  )
-                  let rawResult = GenerativeModelSession.ResponseStream<Content, PartialContent>
-                    .RawResult(
-                      rawContent: rawContent,
-                      rawResponse: pending.response
-                    )
-                  await context.yield(rawResult)
-                }
-
-                currentParts = [ModelContent(role: "user", parts: functionResponses)]
-                autoFunctionCallTurns += 1
-                continue functionCallingLoop
-              }
-            }
-
-            // 5. The remaining pending chunk is the final one.
-            if let finalChunk = pendingChunkData {
-              let rawContent = try Self.makeRawContent(
-                from: finalChunk.text,
-                generationID: finalChunk.id,
-                hasSchema: schema != nil,
-                isComplete: true
-              )
-              let rawResult = GenerativeModelSession.ResponseStream<Content, PartialContent>
-                .RawResult(
-                  rawContent: rawContent,
-                  rawResponse: finalChunk.response
-                )
-              await context.yield(rawResult)
-            }
-
-            break functionCallingLoop
+          var session: any ModelSession
+          if let modelSession = modelSessions[index] {
+            session = modelSession
+          } else {
+            let modelSession = try model.startSession(tools: tools, instructions: instructions)
+            modelSessions[index] = modelSession
+            session = modelSession
           }
 
-          await context.finish()
-        } catch {
-          await context.finish(throwing: error)
-        }
-      }
-    }
-
-    private func execute(functionCalls: [FunctionCallPart]) async throws -> [FunctionResponsePart] {
-      var functionResponses = [FunctionResponsePart]()
-      for functionCall in functionCalls {
-        guard let functionDeclaration = functionDeclarations[functionCall.name] else {
-          throw GenerationError.internalError(
-            GenerationError.Context(debugDescription: """
-            No function named "\(functionCall.name)" was declared.
-            """),
-            underlyingError: FunctionCallingError.invalidFunctionCall
+          return try session.streamResponse(
+            to: prompt,
+            schema: schema,
+            generating: type,
+            includeSchemaInPrompt: includeSchemaInPrompt,
+            options: options
           )
-        }
-
-        switch functionDeclaration.kind {
-        case .manual:
-          continue
-        case let .foundationModels(tool):
-          #if canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
-            if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
-              guard let tool = tool as? (any FoundationModels.Tool) else {
-                assertionFailure("The value '\(tool)' is not a Foundation Models `Tool`.")
-                throw TypeConversionError(
-                  from: (any Sendable).self, to: (any FoundationModels.Tool).self
-                )
-              }
-              try functionResponses.append(await FunctionDeclaration.call(
-                tool: tool,
-                functionCall: functionCall
-              ))
-              continue
-            }
-          #endif // canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
-          assertionFailure("""
-          A Foundation Models `Tool` '\(tool)' was provided but not running on a supported platform.
-          """)
+        } catch {
+          errors.append(error)
         }
       }
 
-      return functionResponses
-    }
+      let error = errors.first
+      return GenerativeModelSession.ResponseStream { context in
+        guard let error else {
+          // TODO: Throw some error
+          fatalError()
+        }
 
-    private func buildConfig(options: GenerationConfig?,
-                             schema: FirebaseAI.GenerationSchema?,
-                             includeSchemaInPrompt: Bool) throws -> GenerationConfig {
-      var config = GenerationConfig.merge(
-        session.generationConfig, with: options
-      ) ?? GenerationConfig()
-
-      if let schema {
-        config.responseMIMEType = "application/json"
-        config.responseJSONSchema = includeSchemaInPrompt ? try schema.toGeminiJSONSchema() : nil
-        config.responseSchema = nil // `responseSchema` must not be set with `responseJSONSchema`
+        await context.finish(throwing: error)
       }
-
-      config.responseModalities = nil // Override to the default (text only)
-      config.candidateCount = nil // Override to the default (one candidate)
-
-      return config
     }
 
-    private static func makeRawContent(from text: String, generationID: FirebaseAI.GenerationID?,
-                                       hasSchema: Bool, isComplete: Bool) throws
+    static func makeRawContent(from text: String, generationID: FirebaseAI.GenerationID?,
+                               hasSchema: Bool, isComplete: Bool) throws
       -> FirebaseAI.GeneratedContent {
       if hasSchema {
         return try FirebaseAI.GeneratedContent(json: text, id: generationID, isComplete: isComplete)

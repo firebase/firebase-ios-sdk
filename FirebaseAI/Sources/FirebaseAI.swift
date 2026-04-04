@@ -108,6 +108,9 @@ public final class FirebaseAI: Sendable {
 
   // TODO: Remove the `#if compiler(>=6.2.3)` when Xcode 26.2 is the minimum supported version.
   #if compiler(>=6.2.3)
+
+    // TODO: Add public API for instantiating models to use with hybrid GenerativeModelSession.
+
     /// Creates a new `GenerativeModelSession` with the given model.
     ///
     /// - Important: **Public Preview** - This API is a public preview and may be subject to change.
@@ -122,14 +125,16 @@ public final class FirebaseAI: Sendable {
     ///   - instructions: System instructions that direct the model's behavior.
     public func generativeModelSession(model: String, tools: [any ToolRepresentable]? = nil,
                                        instructions: String? = nil) -> GenerativeModelSession {
-      let tools = tools?.map { $0.toolRepresentation }
-      let model = generativeModel(
+      let geminiModel = GeminiModel(
+        firebaseAI: self,
         modelName: model,
-        tools: tools,
-        systemInstruction: instructions.map { ModelContent(role: "system", parts: $0) }
+        generationConfig: nil,
+        safetySettings: nil,
+        toolConfig: nil,
+        requestOptions: RequestOptions()
       )
 
-      return GenerativeModelSession(model: model)
+      return GenerativeModelSession(models: [geminiModel], tools: tools, instructions: instructions)
     }
 
     #if canImport(FoundationModels)
