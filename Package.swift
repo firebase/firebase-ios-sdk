@@ -1408,7 +1408,7 @@ func firebaseCrashlyticsTarget() -> Target {
     ],
     path: "Crashlytics",
     exclude: [
-      "run",
+      "./run",
       "CHANGELOG.md",
       "LICENSE",
       "README.md",
