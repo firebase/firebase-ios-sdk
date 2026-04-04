@@ -580,9 +580,9 @@ let package = Package(
     .target(
       name: "FirebaseCrashlyticsSwift",
       dependencies: ["FirebaseRemoteConfigInterop"],
-      path: "Crashlytics/Crashlytics/Rollouts/",
+      path: "Crashlytics/Crashlytics/Rollouts",
       sources: [
-        "./",
+        ".",
       ]
     ),
     .testTarget(
@@ -1419,7 +1419,6 @@ func firebaseCrashlyticsTarget() -> Target {
       "CrashlyticsInputFiles.xcfilelist",
       "third_party/libunwind/LICENSE",
       "Crashlytics/Rollouts",
-      "UnitTests"
     ],
     sources: [
       "Crashlytics",
