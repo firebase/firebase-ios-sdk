@@ -1,3 +1,6 @@
+# Unreleased
+- [fixed] Fix unfound file warnings from `swift build`. (#16012)
+
 # 12.11.0
 - [fixed] Fixed an issue where Crashlytics API calls were silently dropped if invoked immediately after Firebase initialization.
 

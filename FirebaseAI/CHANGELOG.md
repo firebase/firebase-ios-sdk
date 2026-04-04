@@ -1,5 +1,6 @@
 # Unreleased
 - [feature] Added support for GoogleMaps grounding.
+- [fixed] Fix unfound file warnings from `swift build`. (#16012)
 
 # 12.12.0
 - [feature] Added support for automatic function calling in
