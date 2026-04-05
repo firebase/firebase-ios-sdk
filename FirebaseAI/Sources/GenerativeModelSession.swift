@@ -283,6 +283,7 @@
       throw error
     }
 
+    @available(macOS 12.0, watchOS 8.0, *)
     private func streamResponse<Content, PartialContent>(to prompt: [PartsRepresentable],
                                                          schema: FirebaseAI.GenerationSchema?,
                                                          generating type: Content.Type,
