@@ -20,6 +20,7 @@ protocol ModelSession: Sendable {
                                                 options: GenerationConfig?) async throws
     -> GenerativeModelSession.Response<Content>
 
+  @available(macOS 12.0, watchOS 8.0, *)
   func streamResponse<Content, PartialContent>(to prompt: [PartsRepresentable],
                                                schema: FirebaseAI.GenerationSchema?,
                                                generating type: Content.Type,
