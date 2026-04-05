@@ -72,7 +72,7 @@
       // Check for the on-device model name when running on Apple Intelligence supported devices; in
       // this case, no fallback occurs. When running on devices that do not support Apple
       // Intelligence, including GitHub Runner Images, check for the cloud (Gemini) model name.
-      if onDeviceModel.isAvailable {
+      if await foundationModelsIsAvailable() {
         #expect(response.rawResponse.modelVersion == onDeviceModel.modelName)
       } else {
         #expect(response.rawResponse.modelVersion == cloudModel.modelName)
@@ -140,6 +140,37 @@
       }
       // On-device streaming is not yet implemented so this should always be the cloud model name.
       #expect(response.rawResponse.modelVersion == cloudModel.modelName)
+    }
+
+    /// Returns `true` if `FoundationModels.SystemLanguageModel` is available.
+    ///
+    /// This is a workaround for `SystemLanguageModel.isAvailable`, which returns `true` if *any*
+    /// version of the model is available. However, calls to `LanguageModelSession().respond(to:)`
+    /// throw a `ModelManagerError` if the simulator's model version does not match the host macOS
+    /// version. A new version of the model was introduced in Xcode/macOS/iOS 26.4.
+    func foundationModelsIsAvailable() async -> Bool {
+      #if canImport(FoundationModels)
+        if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
+          let model = SystemLanguageModel.default
+          guard model.isAvailable else {
+            return false
+          }
+
+          let session = LanguageModelSession(model: model)
+          do {
+            _ = try await session.respond(
+              to: "Hello",
+              options: GenerationOptions(sampling: .greedy, temperature: 0)
+            )
+
+            return true
+          } catch {
+            return false
+          }
+        }
+      #endif // canImport(FoundationModels)
+
+      return false
     }
   }
 #endif // compiler(>=6.2.3)
