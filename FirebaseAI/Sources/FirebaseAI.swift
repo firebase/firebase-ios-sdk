@@ -125,16 +125,28 @@ public final class FirebaseAI: Sendable {
     ///   - instructions: System instructions that direct the model's behavior.
     public func generativeModelSession(model: String, tools: [any ToolRepresentable]? = nil,
                                        instructions: String? = nil) -> GenerativeModelSession {
-      let geminiModel = GeminiModel(
-        modelName: model,
-        modelResourceName: modelResourceName(modelName: model),
+      let geminiModel = geminiModel(modelName: model)
+
+      return generativeModelSession(models: [geminiModel], tools: tools, instructions: instructions)
+    }
+
+    // TODO: Update this testing API for hybrid GenerativeModelSession.
+    func geminiModel(modelName: String, safetySettings: [SafetySetting]? = nil,
+                     toolConfig: ToolConfig? = nil) -> any LanguageModel {
+      return GeminiModel(
+        modelName: modelName,
+        modelResourceName: modelResourceName(modelName: modelName),
         firebaseInfo: firebaseInfo,
         apiConfig: apiConfig,
-        safetySettings: nil,
-        toolConfig: nil
+        safetySettings: safetySettings,
+        toolConfig: toolConfig
       )
+    }
 
-      return GenerativeModelSession(models: [geminiModel], tools: tools, instructions: instructions)
+    // TODO: Update this testing API for hybrid GenerativeModelSession.
+    func generativeModelSession(models: [any LanguageModel], tools: [any ToolRepresentable]? = nil,
+                                instructions: String? = nil) -> GenerativeModelSession {
+      return GenerativeModelSession(models: models, tools: tools, instructions: instructions)
     }
 
     #if canImport(FoundationModels)
