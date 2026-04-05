@@ -126,12 +126,12 @@ public final class FirebaseAI: Sendable {
     public func generativeModelSession(model: String, tools: [any ToolRepresentable]? = nil,
                                        instructions: String? = nil) -> GenerativeModelSession {
       let geminiModel = GeminiModel(
-        firebaseAI: self,
         modelName: model,
-        generationConfig: nil,
+        modelResourceName: modelResourceName(modelName: model),
+        firebaseInfo: firebaseInfo,
+        apiConfig: apiConfig,
         safetySettings: nil,
-        toolConfig: nil,
-        requestOptions: RequestOptions()
+        toolConfig: nil
       )
 
       return GenerativeModelSession(models: [geminiModel], tools: tools, instructions: instructions)

@@ -57,7 +57,7 @@
           finishReason: nil,
           citationMetadata: nil
         )
-        var rawResponse = GenerateContentResponse(
+        let rawResponse = GenerateContentResponse(
           candidates: [candidate],
           modelVersion: SystemLanguageModel.modelName
         )

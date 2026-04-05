@@ -15,38 +15,46 @@
 import Foundation
 
 struct GeminiModel: LanguageModel {
-  let firebaseAI: FirebaseAI
   let modelName: String
-  let generationConfig: GenerationConfig?
+  let modelResourceName: String
+  let firebaseInfo: FirebaseInfo
+  let apiConfig: APIConfig
   let safetySettings: [SafetySetting]?
   let toolConfig: ToolConfig?
   let requestOptions: RequestOptions
+  let urlSession: URLSession
 
-  init(firebaseAI: FirebaseAI,
-       modelName: String,
-       generationConfig: GenerationConfig? = nil,
+  init(modelName: String,
+       modelResourceName: String,
+       firebaseInfo: FirebaseInfo,
+       apiConfig: APIConfig,
        safetySettings: [SafetySetting]? = nil,
        toolConfig: ToolConfig? = nil,
        requestOptions: RequestOptions = RequestOptions(),
        urlSession: URLSession = GenAIURLSession.default) {
-    self.firebaseAI = firebaseAI
     self.modelName = modelName
-    self.generationConfig = generationConfig
+    self.modelResourceName = modelResourceName
+    self.firebaseInfo = firebaseInfo
+    self.apiConfig = apiConfig
     self.safetySettings = safetySettings
     self.toolConfig = toolConfig
     self.requestOptions = requestOptions
+    self.urlSession = urlSession
   }
 
   func startSession(tools: [any ToolRepresentable]?, instructions: String?) -> any ModelSession {
-    let tools = tools?.map { $0.toolRepresentation }
-    let model = firebaseAI.generativeModel(
+    let model = GenerativeModel(
       modelName: modelName,
-      generationConfig: generationConfig,
+      modelResourceName: modelResourceName,
+      firebaseInfo: firebaseInfo,
+      apiConfig: apiConfig,
+      generationConfig: nil,
       safetySettings: safetySettings,
-      tools: tools,
+      tools: tools?.map { $0.toolRepresentation },
       toolConfig: toolConfig,
       systemInstruction: instructions.map { ModelContent(role: "system", parts: $0) },
-      requestOptions: requestOptions
+      requestOptions: requestOptions,
+      urlSession: urlSession
     )
 
     return GeminiModelSession(model: model, history: [])
