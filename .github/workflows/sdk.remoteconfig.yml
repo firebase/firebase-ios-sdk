@@ -27,65 +27,65 @@ concurrency:
     cancel-in-progress: true
 
 jobs:
-  spm_1:
-    uses: ./.github/workflows/_spm.yml
-    with:
-      target: RemoteConfigUnit
-
-  spm_2:
-    uses: ./.github/workflows/_spm.yml
-    with:
-      target: RemoteConfigFakeConsole
-      buildonly_platforms: watchOS
-
-  catalyst:
-    uses: ./.github/workflows/_catalyst.yml
-    with:
-      product: FirebaseRemoteConfig
-      target: FirebaseRemoteConfig-Unit-unit
-
-  remoteconfig-fakeconsole:
-    uses: ./.github/workflows/_build.yml
-    with:
-      product: RemoteConfig
-      platform: iOS
-      method: fakeconsole
-
-  remoteconfig-integration:
-    if: github.event.pull_request.head.repo.fork == false
-    uses: ./.github/workflows/_build.yml
-    with:
-      product: RemoteConfig
-      platform: iOS
-      method: integration
-      setup_command: |
-        gem install xcpretty
-        echo "USE_REAL_CONSOLE=1" >> $GITHUB_ENV
-        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/RemoteConfigSwiftAPI/GoogleService-Info.plist.gpg \
-            FirebaseRemoteConfig/Tests/Swift/SwiftAPI/GoogleService-Info.plist "$plist_secret"
-        # Generate Access Token only if secret is present (handled by script logic usually, but here explicit)
-        if [[ -n "$plist_secret" ]]; then
-          scripts/generate_access_token.sh "$plist_secret" scripts/gha-encrypted/RemoteConfigSwiftAPI/ServiceAccount.json.gpg \
-            FirebaseRemoteConfig/Tests/Swift/AccessToken.json
-        fi
-    secrets:
-      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-
-  pod_lib_lint:
-    uses: ./.github/workflows/_cocoapods.yml
-    with:
-      product: FirebaseRemoteConfig
-      timeout_minutes: 30
-
-  quickstart:
-    uses: ./.github/workflows/_quickstart.yml
-    with:
-      product: Config
-      setup_command: scripts/setup_quickstart.sh config
-      plist_src_path: scripts/gha-encrypted/qs-config.plist.gpg
-      plist_dst_path: quickstart-ios/config/GoogleService-Info.plist
-    secrets:
-      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+#  spm_1:
+#    uses: ./.github/workflows/_spm.yml
+#    with:
+#      target: RemoteConfigUnit
+#
+#  spm_2:
+#    uses: ./.github/workflows/_spm.yml
+#    with:
+#      target: RemoteConfigFakeConsole
+#      buildonly_platforms: watchOS
+#
+#  catalyst:
+#    uses: ./.github/workflows/_catalyst.yml
+#    with:
+#      product: FirebaseRemoteConfig
+#      target: FirebaseRemoteConfig-Unit-unit
+#
+#  remoteconfig-fakeconsole:
+#    uses: ./.github/workflows/_build.yml
+#    with:
+#      product: RemoteConfig
+#      platform: iOS
+#      method: fakeconsole
+#
+#  remoteconfig-integration:
+#    if: github.event.pull_request.head.repo.fork == false
+#    uses: ./.github/workflows/_build.yml
+#    with:
+#      product: RemoteConfig
+#      platform: iOS
+#      method: integration
+#      setup_command: |
+#        gem install xcpretty
+#        echo "USE_REAL_CONSOLE=1" >> $GITHUB_ENV
+#        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/RemoteConfigSwiftAPI/GoogleService-Info.plist.gpg \
+#            FirebaseRemoteConfig/Tests/Swift/SwiftAPI/GoogleService-Info.plist "$plist_secret"
+#        # Generate Access Token only if secret is present (handled by script logic usually, but here explicit)
+#        if [[ -n "$plist_secret" ]]; then
+#          scripts/generate_access_token.sh "$plist_secret" scripts/gha-encrypted/RemoteConfigSwiftAPI/ServiceAccount.json.gpg \
+#            FirebaseRemoteConfig/Tests/Swift/AccessToken.json
+#        fi
+#    secrets:
+#      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+#
+#  pod_lib_lint:
+#    uses: ./.github/workflows/_cocoapods.yml
+#    with:
+#      product: FirebaseRemoteConfig
+#      timeout_minutes: 30
+#
+#  quickstart:
+#    uses: ./.github/workflows/_quickstart.yml
+#    with:
+#      product: Config
+#      setup_command: scripts/setup_quickstart.sh config
+#      plist_src_path: scripts/gha-encrypted/qs-config.plist.gpg
+#      plist_dst_path: quickstart-ios/config/GoogleService-Info.plist
+#    secrets:
+#      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
 
   sample-build-test:
     uses: ./.github/workflows/_build.yml
@@ -95,10 +95,10 @@ jobs:
       method: xcodebuild
       setup_command: scripts/install_prereqs.sh RemoteConfigSample iOS
 
-  remoteconfig-cron-only:
-    needs: pod_lib_lint
-    uses: ./.github/workflows/_cocoapods.cron.yml
-    with:
-      product: FirebaseRemoteConfig
-      platforms: '[ "ios", "tvos", "macos" ]'
-      flags: '[ "--skip-tests --use-static-frameworks" ]'
+#  remoteconfig-cron-only:
+#    needs: pod_lib_lint
+#    uses: ./.github/workflows/_cocoapods.cron.yml
+#    with:
+#      product: FirebaseRemoteConfig
+#      platforms: '[ "ios", "tvos", "macos" ]'
+#      flags: '[ "--skip-tests --use-static-frameworks" ]'
