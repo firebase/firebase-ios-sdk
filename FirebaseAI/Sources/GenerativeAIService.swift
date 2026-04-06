@@ -126,7 +126,6 @@ struct GenerativeAIService {
         // Received lines that are not server-sent events (SSE); these are not prefixed with "data:"
         var extraLines = ""
 
-        let decoder = JSONDecoder()
         for try await line in stream.lines {
           AILog.debug(code: .loadRequestStreamResponseLine, "Stream response: \(line)")
 
