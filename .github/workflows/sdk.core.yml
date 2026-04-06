@@ -49,3 +49,5 @@ jobs:
       flags: '[ "--use-static-frameworks" ]'
       runs_on: macos-26
       xcode: Xcode_26.4
+      setup_command: |
+        echo "TOOLCHAINS=com.apple.dt.toolchain.XcodeDefault" >> $GITHUB_ENV
