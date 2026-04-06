@@ -174,14 +174,20 @@ if [[ "$xcode_major" -lt 16 && "$method" != "cmake" ]]; then
 else
   iphone_simulator_name="iPhone 16"
   if [[ "$xcode_major" -gt 16 ]]; then
-    iphone_simulator_name="iPhone 16e"
+    iphone_simulator_name="iPhone 17"
   fi
   ios_flags=(
     -destination "platform=iOS Simulator,name=${iphone_simulator_name}"
   )
-  watchos_flags=(
-    -destination 'platform=watchOS Simulator,name=Apple Watch Series 11 (42mm)'
-  )
+  if [[ "$xcode_major" -ge 26 ]]; then
+    watchos_flags=(
+      -destination "platform=watchOS Simulator,OS=${xcode_version},name=Apple Watch Series 11 (42mm)"
+    )
+  else
+    watchos_flags=(
+      -destination 'platform=watchOS Simulator,name=Apple Watch Series 11 (42mm)'
+    )
+  fi
 fi
 
 ios_device_flags=(
@@ -200,7 +206,7 @@ tvos_flags=(
 )
 if [[ "$xcode_major" -ge 26 ]]; then
   visionos_flags=(
-    -destination 'platform=visionOS Simulator,OS=latest,name=Apple Vision Pro'
+    -destination "platform=visionOS Simulator,OS=${xcode_version},name=Apple Vision Pro"
   )
 else
   # TODO(ncooke3): Remove this else case when we no longer need to test against macOS 15.
@@ -497,7 +503,7 @@ case "$product-$platform-$method" in
       RunXcodebuild \
         -workspace 'FirebaseMessaging/Apps/SampleStandaloneWatchApp/SampleStandaloneWatchApp.xcworkspace' \
         -scheme "SampleStandaloneWatchApp Watch App" \
-        -destination 'platform=watchOS Simulator,name=Apple Watch Series 10 (42mm)' \
+        "${xcb_flags[@]}" \
         build
     fi
     ;;
@@ -768,13 +774,14 @@ case "$product-$platform-$method" in
       test
     ;;
 
-  # Note that the combine tests require setting the minimum iOS and tvOS version to 13.0
   *-*-spm)
     RunXcodebuild \
       -scheme $product \
       "${xcb_flags[@]}" \
-      IPHONEOS_DEPLOYMENT_TARGET=13.0 \
-      TVOS_DEPLOYMENT_TARGET=13.0 \
+      IPHONEOS_DEPLOYMENT_TARGET=15.0 \
+      MACOSX_DEPLOYMENT_TARGET=10.15 \
+      TVOS_DEPLOYMENT_TARGET=15.0 \
+      WATCHOS_DEPLOYMENT_TARGET=7.0 \
       test
     ;;
 

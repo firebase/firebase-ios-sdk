@@ -16,12 +16,14 @@ import FirebaseAppCheckInterop
 import FirebaseAuthInterop
 import FirebaseCore
 import Foundation
+#if canImport(FoundationModels)
+  import FoundationModels
+#endif // canImport(FoundationModels)
 
 // Avoids exposing internal FirebaseCore APIs to Swift users.
 internal import FirebaseCoreExtension
 
 /// The Firebase AI SDK provides access to Gemini models directly from your app.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public final class FirebaseAI: Sendable {
   // MARK: - Public APIs
 
@@ -29,7 +31,7 @@ public final class FirebaseAI: Sendable {
   ///
   /// - Parameters:
   ///   - app: A custom `FirebaseApp` used for initialization; if not specified, uses the default
-  ///     ``FirebaseApp``.
+  ///     `FirebaseApp`.
   ///   - backend: The backend API for the Firebase AI SDK; if not specified, uses the default
   ///     ``Backend/googleAI()`` (Gemini Developer API).
   ///   - useLimitedUseAppCheckTokens: When sending tokens to the backend, this option enables
@@ -104,10 +106,69 @@ public final class FirebaseAI: Sendable {
     )
   }
 
+  // TODO: Remove the `#if compiler(>=6.2.3)` when Xcode 26.2 is the minimum supported version.
+  #if compiler(>=6.2.3)
+    /// Creates a new `GenerativeModelSession` with the given model.
+    ///
+    /// - Important: **Public Preview** - This API is a public preview and may be subject to change.
+    ///
+    /// - Parameters:
+    ///   - model: The name of the model to use; see [available model names
+    ///     ](https://firebase.google.com/docs/vertex-ai/gemini-models#available-model-names)
+    ///     for a list of supported model names.
+    ///   - tools: A list of tools that extend the capabilities of the model. These are typically
+    ///     native Gemini ``FirebaseAILogic/Tool``s, such as ``ToolRepresentable/googleSearch(_:)``,
+    ///     or instances conforming to ``FunctionTool`` for automatic function calling.
+    ///   - instructions: System instructions that direct the model's behavior.
+    public func generativeModelSession(model: String, tools: [any ToolRepresentable]? = nil,
+                                       instructions: String? = nil) -> GenerativeModelSession {
+      let tools = tools?.map { $0.toolRepresentation }
+      let model = generativeModel(
+        modelName: model,
+        tools: tools,
+        systemInstruction: instructions.map { ModelContent(role: "system", parts: $0) }
+      )
+
+      return GenerativeModelSession(model: model)
+    }
+
+    #if canImport(FoundationModels)
+      /// **[Public Preview]** Initializes a `GenerativeModelSession` with the given model.
+      ///
+      /// > Warning: This API is a public preview and may be subject to change.
+      ///
+      /// - Parameters:
+      ///   - model: The name of the model to use; see [available model names
+      ///     ](https://firebase.google.com/docs/vertex-ai/gemini-models#available-model-names)
+      ///     for a list of supported model names.
+      ///   - tools: A list of tools that extend the capabilities of the model. These tools must be
+      ///     instances conforming to `FoundationModels.Tool` for automatic function calling.
+      ///   - instructions: System instructions that direct the model's behavior.
+      @available(iOS 26.0, macOS 26.0, *)
+      @available(tvOS, unavailable)
+      @available(watchOS, unavailable)
+      public func generativeModelSession(model: String, tools: [any FoundationModels.Tool],
+                                         instructions: String? = nil) -> GenerativeModelSession {
+        let tools = tools.map { FirebaseAILogic.Tool.autoFunctionDeclaration($0) }
+
+        return generativeModelSession(model: model, tools: tools as [any ToolRepresentable]?,
+                                      instructions: instructions)
+      }
+    #endif // canImport(FoundationModels)
+  #endif // compiler(>=6.2.3)
+
   /// Initializes an ``ImagenModel`` with the given parameters.
   ///
   /// - Note: Refer to [Imagen models](https://firebase.google.com/docs/vertex-ai/models) for
   /// guidance on choosing an appropriate model for your use case.
+  ///
+  ///
+  /// @DeprecationSummary {
+  ///  All Imagen models are deprecated and will shut down as early as June 2026.
+  ///  As a replacement, you can [migrate your apps to use Gemini Image models
+  ///  (the "Nano Banana"
+  /// models).](https://firebase.google.com/docs/ai-logic/imagen-models-migration)
+  /// }
   ///
   /// - Parameters:
   ///   - modelName: The name of the Imagen 3 model to use.
@@ -115,6 +176,11 @@ public final class FirebaseAI: Sendable {
   ///   - safetySettings: Settings describing what types of potentially harmful content your model
   ///     should allow.
   ///   - requestOptions: Configuration parameters for sending requests to the backend.
+  @available(
+    *,
+    deprecated,
+    message: "All Imagen models are deprecated and will shut down as early as June 2026. As a replacement, you can migrate your apps to use Gemini Image models (the \"Nano Banana\" models)."
+  )
   public func imagenModel(modelName: String, generationConfig: ImagenGenerationConfig? = nil,
                           safetySettings: ImagenSafetySettings? = nil,
                           requestOptions: RequestOptions = RequestOptions()) -> ImagenModel {
@@ -148,7 +214,19 @@ public final class FirebaseAI: Sendable {
 
   /// Initializes a new `TemplateImagenModel`.
   ///
+  /// @DeprecationSummary {
+  ///  All Imagen models are deprecated and will shut down as early as June 2026.
+  ///  As a replacement, you can [migrate your apps to use Gemini Image models
+  ///  (the "Nano Banana"
+  ///   models).](https://firebase.google.com/docs/ai-logic/imagen-models-migration)
+  /// }
+  ///
   /// - Returns: A new `TemplateImagenModel` instance.
+  @available(
+    *,
+    deprecated,
+    message: "All Imagen models are deprecated and will shut down as early as June 2026. As a replacement, you can migrate your apps to use Gemini Image models (the \"Nano Banana\" models)."
+  )
   public func templateImagenModel() -> TemplateImagenModel {
     return TemplateImagenModel(
       generativeAIService: GenerativeAIService(firebaseInfo: firebaseInfo,
@@ -175,7 +253,6 @@ public final class FirebaseAI: Sendable {
   ///   - systemInstruction: Instructions that direct the model to behave a certain way; currently
   ///     only text content is supported.
   ///   - requestOptions: Configuration parameters for sending requests to the backend.
-  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
   @available(watchOS, unavailable)
   public func liveModel(modelName: String,
                         generationConfig: LiveGenerationConfig? = nil,

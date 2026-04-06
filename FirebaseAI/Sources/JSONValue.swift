@@ -18,14 +18,12 @@ import Foundation
 ///
 /// This may be decoded from, or encoded to, a
 /// [`google.protobuf.Struct`](https://protobuf.dev/reference/protobuf/google.protobuf/#struct).
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public typealias JSONObject = [String: JSONValue]
 
 /// Represents a value in one of JSON's data types.
 ///
 /// This may be decoded from, or encoded to, a
 /// [`google.protobuf.Value`](https://protobuf.dev/reference/protobuf/google.protobuf/#value).
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public enum JSONValue: Sendable {
   /// A `null` value.
   case null
@@ -46,7 +44,6 @@ public enum JSONValue: Sendable {
   case array([JSONValue])
 }
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension JSONValue: Decodable {
   public init(from decoder: Decoder) throws {
     let container = try decoder.singleValueContainer()
@@ -71,7 +68,6 @@ extension JSONValue: Decodable {
   }
 }
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension JSONValue: Encodable {
   public func encode(to encoder: Encoder) throws {
     var container = encoder.singleValueContainer()
@@ -97,5 +93,65 @@ extension JSONValue: Encodable {
   }
 }
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension JSONValue: Equatable {}
+
+#if compiler(>=6.2.3)
+  extension JSONValue {
+    var firebaseGeneratedContent: FirebaseAI.GeneratedContent {
+      switch self {
+      case .null:
+        return FirebaseAI.GeneratedContent(kind: .null, isComplete: true)
+      case let .number(value):
+        return FirebaseAI.GeneratedContent(kind: .number(value), isComplete: true)
+      case let .string(value):
+        return value.firebaseGeneratedContent
+      case let .bool(value):
+        return FirebaseAI.GeneratedContent(kind: .bool(value), isComplete: true)
+      case let .object(value):
+        return value.firebaseGeneratedContent
+      case let .array(value):
+        return value.firebaseGeneratedContent
+      }
+    }
+  }
+
+  extension JSONObject {
+    var firebaseGeneratedContent: FirebaseAI.GeneratedContent {
+      return FirebaseAI.GeneratedContent(
+        kind: .structure(
+          properties: mapValues { $0.firebaseGeneratedContent },
+          orderedKeys: keys.map { $0 }
+        ),
+        isComplete: true
+      )
+    }
+  }
+
+  extension [JSONValue] {
+    var firebaseGeneratedContent: FirebaseAI.GeneratedContent {
+      return FirebaseAI.GeneratedContent(
+        kind: .array(map { $0.firebaseGeneratedContent }),
+        isComplete: true
+      )
+    }
+  }
+
+  extension JSONValue {
+    init(_ content: FirebaseAI.GeneratedContent) throws {
+      switch content.kind {
+      case .null:
+        self = .null
+      case let .bool(value):
+        self = .bool(value)
+      case let .number(value):
+        self = .number(value)
+      case let .string(value):
+        self = .string(value)
+      case let .array(values):
+        self = try .array(values.map { try JSONValue($0) })
+      case let .structure(properties: properties, orderedKeys: _):
+        self = try .object(properties.mapValues { try JSONValue($0) })
+      }
+    }
+  }
+#endif // compiler(>=6.2.3)

@@ -18,10 +18,8 @@ import Foundation
 ///
 /// These types can be objects, but also primitives and arrays. Represents a select subset of an
 /// [OpenAPI 3.0 schema object](https://spec.openapis.org/oas/v3.0.3#schema).
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public final class Schema: Sendable {
   /// Modifiers describing the expected format of a string `Schema`.
-  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
   public struct StringFormat: EncodableProtoEnum {
     // This enum is currently only used to conform `StringFormat` to `ProtoEnum`, which requires
     // `associatedtype Kind: RawRepresentable<String>`.
@@ -39,7 +37,6 @@ public final class Schema: Sendable {
   }
 
   /// Modifiers describing the expected format of an integer `Schema`.
-  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
   public struct IntegerFormat: EncodableProtoEnum, Sendable {
     enum Kind: String {
       case int32
@@ -462,7 +459,6 @@ public final class Schema: Sendable {
 
 // MARK: - Codable Conformance
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension Schema: Encodable {
   enum CodingKeys: String, CodingKey {
     case dataType = "type"
@@ -480,5 +476,27 @@ extension Schema: Encodable {
     case properties
     case requiredProperties = "required"
     case propertyOrdering
+  }
+}
+
+// MARK: - Equatable Conformance
+
+extension Schema: Equatable {
+  public static func == (lhs: Schema, rhs: Schema) -> Bool {
+    return lhs.dataType == rhs.dataType &&
+      lhs.format == rhs.format &&
+      lhs.description == rhs.description &&
+      lhs.title == rhs.title &&
+      lhs.nullable == rhs.nullable &&
+      lhs.enumValues == rhs.enumValues &&
+      lhs.items == rhs.items &&
+      lhs.minItems == rhs.minItems &&
+      lhs.maxItems == rhs.maxItems &&
+      lhs.minimum == rhs.minimum &&
+      lhs.maximum == rhs.maximum &&
+      lhs.properties == rhs.properties &&
+      lhs.anyOf == rhs.anyOf &&
+      lhs.requiredProperties == rhs.requiredProperties &&
+      lhs.propertyOrdering == rhs.propertyOrdering
   }
 }

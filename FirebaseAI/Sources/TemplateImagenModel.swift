@@ -15,11 +15,20 @@
 import Foundation
 
 /// A type that represents a remote image generation model (like Imagen), with the ability to
-/// generate
-/// images based on various input types.
+/// generate images based on various input types.
+///
+/// @DeprecationSummary {
+///  All Imagen models are deprecated and will shut down as early as June 2026.
+///  As a replacement, you can [migrate your apps to use Gemini Image models
+///  (the "Nano Banana" models).](https://firebase.google.com/docs/ai-logic/imagen-models-migration)
+/// }
 ///
 /// **Public Preview**: This API is a public preview and may be subject to change.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+@available(
+  *,
+  deprecated,
+  message: "All Imagen models are deprecated and will shut down as early as June 2026. As a replacement, you can migrate your apps to use Gemini Image models (the \"Nano Banana\" models)."
+)
 public final class TemplateImagenModel: Sendable {
   let generativeAIService: GenerativeAIService
   let apiConfig: APIConfig

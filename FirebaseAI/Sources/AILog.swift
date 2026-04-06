@@ -88,6 +88,7 @@ enum AILog {
     case invalidWebsocketURL = 4004
     case duplicateLiveSessionSetupComplete = 4005
     case malformedURL = 4006
+    case invalidToolOutputType = 4007
 
     // SDK Debugging
     case loadRequestStreamResponseLine = 5000
@@ -139,7 +140,6 @@ enum AILog {
     log(level: .debug, code: code, message)
   }
 
-  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
   static func makeInternalError(message: String, code: MessageCode) -> GenerateContentError {
     let error = GenerateContentError.internalError(underlying: NSError(
       domain: "\(Constants.baseErrorDomain).Internal",

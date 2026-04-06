@@ -16,10 +16,20 @@ import Foundation
 
 /// Settings for controlling the aggressiveness of filtering out sensitive content.
 ///
+/// @DeprecationSummary {
+///  All Imagen models are deprecated and will shut down as early as June 2026.
+///  As a replacement, you can [migrate your apps to use Gemini Image models
+///  (the "Nano Banana" models).](https://firebase.google.com/docs/ai-logic/imagen-models-migration)
+/// }
+///
 /// See the [Responsible AI and usage
 /// guidelines](https://cloud.google.com/vertex-ai/generative-ai/docs/image/responsible-ai-imagen#config-safety-filters)
 /// for more details.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+@available(
+  *,
+  deprecated,
+  message: "All Imagen models are deprecated and will shut down as early as June 2026. As a replacement, you can migrate your apps to use Gemini Image models (the \"Nano Banana\" models)."
+)
 public struct ImagenSafetySettings {
   let safetyFilterLevel: ImagenSafetyFilterLevel?
   let personFilterLevel: ImagenPersonFilterLevel?
