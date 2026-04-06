@@ -36,6 +36,7 @@ jobs:
     with:
       product: FirebaseInAppMessaging
       platforms: iOS, tvOS
+      timeout_minutes: 30
 
   tests:
     strategy:
@@ -43,7 +44,7 @@ jobs:
 # TODO(#8682): Reenable iPad after fixing Xcode 13 test failures.
 #        platform: [iOS, iPad]
         platform: [iOS]
-        xcode: [Xcode_16.4]
+        xcode: [Xcode_26.4]
     uses: ./.github/workflows/_build.yml
     with:
       product: InAppMessaging

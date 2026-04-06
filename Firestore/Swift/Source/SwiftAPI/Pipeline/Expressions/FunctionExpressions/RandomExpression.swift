@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-///
 /// A `RandomExpression` is a `FunctionExpression` that generates a random floating-point
 /// number between 0.0 (inclusive) and 1.0 (exclusive).
 ///
@@ -24,11 +23,23 @@
 /// // Create a query to sample approximately 10% of the documents in a collection
 /// firestore.pipeline()
 ///   .collection("users")
-///   .where(RandomExpression().lessThan(0.1))
+///   .where(rand().lessThan(0.1))
 /// ```
-class RandomExpression: FunctionExpression, @unchecked Sendable {
+public class RandomExpression: FunctionExpression, @unchecked Sendable {
   /// Creates a new `RandomExpression` that generates a random number.
-  init() {
+  public init() {
     super.init(functionName: "rand", args: [])
   }
+}
+
+/// Creates an expression that generates a random number between 0.0 and 1.0 but not including 1.0.
+///
+/// ```swift
+/// // Generate a random number between 0.0 and 1.0.
+/// rand()
+/// ```
+///
+/// - Returns: A new `RandomExpression` representing the random number generator.
+public func rand() -> RandomExpression {
+  return RandomExpression()
 }

@@ -17,7 +17,7 @@ import Foundation
 /// An object that represents a back-and-forth chat with a model, capturing the history and saving
 /// the context in memory between each message sent.
 public final class Chat: Sendable {
-  private let model: GenerativeModel
+  let model: GenerativeModel
   private let _history: History
 
   init(model: GenerativeModel, history: [ModelContent]) {

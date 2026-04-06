@@ -16,7 +16,7 @@ import Foundation
 
 /// A struct defining model parameters to be used when sending generative AI
 /// requests to the backend model.
-public struct GenerationConfig: Sendable {
+public struct GenerationConfig: Sendable, Equatable {
   /// Controls the degree of randomness in token selection.
   var temperature: Float?
 
