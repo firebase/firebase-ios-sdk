@@ -24,14 +24,38 @@
 
     var modelName: String { FoundationModels.SystemLanguageModel.modelName }
 
-    func startSession(tools: [any ToolRepresentable]?, instructions: String?) -> any ModelSession {
+    func startSession(tools: [any ToolRepresentable]?,
+                      instructions: String?) throws -> any ModelSession {
+      switch availability {
+      case .available:
+        break
+      case let .unavailable(reason):
+        throw FoundationModels.LanguageModelSession.GenerationError.assetsUnavailable(
+          LanguageModelSession.GenerationError.Context(debugDescription: """
+          The Foundation Models `SystemLanguageModel` is unavailable: \(reason)
+          """)
+        )
+      }
+
       var afmTools = [any FoundationModels.Tool]()
+      // Only function calling tools are supported by Foundation Models.
       for tool in tools ?? [] {
+        // Skips any unsupported tools such as `GoogleMaps` or `CodeExecution` since they are only
+        // supported by Gemini models.
+        // TODO: Decide whether to throw for unsupported `FirebaseAILogic.Tool` types or ignore.
         let functionDeclarations = tool.toolRepresentation.functionDeclarations ?? []
         for functionDeclaration in functionDeclarations {
-          if case let .foundationModels(afmTool) = functionDeclaration.kind {
+          switch functionDeclaration.kind {
+          case .manual:
+            // TODO: Decide whether ignore manual function calling declarations, throw or assert.
+            continue
+          case let .foundationModels(afmTool):
             guard let afmTool = afmTool as? (any FoundationModels.Tool) else {
-              fatalError("Unexpected tool type: \(tool)")
+              assertionFailure("""
+              The function declaration "\(afmTool)" in the tool "\(tool)" is not a
+              `FoundationModels.Tool` type.
+              """)
+              continue
             }
             afmTools.append(afmTool)
           }
