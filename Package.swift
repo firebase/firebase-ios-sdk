@@ -566,6 +566,7 @@ let package = Package(
       path: "Crashlytics",
       sources: [
         "Crashlytics/Rollouts/",
+        "Crashlytics/SwiftUtilities/",
       ]
     ),
     .testTarget(
@@ -1402,6 +1403,7 @@ func firebaseCrashlyticsTarget() -> Target {
       "CrashlyticsInputFiles.xcfilelist",
       "third_party/libunwind/LICENSE",
       "Crashlytics/Rollouts/",
+      "Crashlytics/SwiftUtilities",
     ],
     sources: [
       "Crashlytics/",
