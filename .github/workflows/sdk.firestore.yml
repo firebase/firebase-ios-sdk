@@ -641,6 +641,7 @@ jobs:
   check-required-tests:
     runs-on: ubuntu-latest
     name: Check all required Firestore tests results
+    if: always()
     needs:
       - cmake
       - xcodetest_emulator
@@ -652,7 +653,7 @@ jobs:
       - xcodetest_prod
     steps:
       - name: Check test matrix
-        if: contains(needs.*.result, 'failure')
+        if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
         run: exit 1
 
   # TODO: Disable until FirebaseUI is updated to accept Firebase 9 and

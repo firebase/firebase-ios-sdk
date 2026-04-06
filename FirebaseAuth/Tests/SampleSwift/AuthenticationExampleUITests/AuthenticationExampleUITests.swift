@@ -31,6 +31,25 @@ class AuthenticationExampleUITests: XCTestCase {
     signOut()
   }
 
+  func dismissSavePasswordPrompt() {
+    let passwordSheet = app.sheets.firstMatch
+
+    if passwordSheet.waitForExistence(timeout: 3.0) {
+      let notNowOption = passwordSheet.buttons["Not Now"]
+
+      if notNowOption.exists {
+        notNowOption.tap()
+      } else {
+        // Fallback: If Apple literally made it StaticText instead of a Button,
+        // you can often just tap the text directly!
+        passwordSheet.staticTexts["Not Now"].tap()
+      }
+      let predicate = NSPredicate(format: "exists == false")
+      expectation(for: predicate, evaluatedWith: passwordSheet)
+      waitForExpectations(timeout: 5.0)
+    }
+  }
+
   func testAuth() {
     // Verify that Auth Example app launched successfully
     XCTAssertTrue(app.navigationBars["Firebase Auth"].exists)
@@ -59,10 +78,11 @@ class AuthenticationExampleUITests: XCTestCase {
     app.textFields["Email"].typeText(testEmail)
 
     let testPassword = existingPassword
-    app.textFields["Password"].tap()
-    app.textFields["Password"].typeText(testPassword)
+    app.secureTextFields["Password"].tap()
+    app.secureTextFields["Password"].typeText(testPassword)
 
     app.buttons["Login"].tap()
+    dismissSavePasswordPrompt()
 
     wait(forElement: app.navigationBars["User"], timeout: 5.0)
     XCTAssertTrue(app.navigationBars["User"].exists)
@@ -79,8 +99,8 @@ class AuthenticationExampleUITests: XCTestCase {
     app.textFields["Email"].tap()
     app.textFields["Email"].typeText(testEmail)
 
-    app.textFields["Password"].tap()
-    app.textFields["Password"].typeText("wrong password")
+    app.secureTextFields["Password"].tap()
+    app.secureTextFields["Password"].typeText("wrong password")
 
     app.buttons["Login"].tap()
 
@@ -89,11 +109,13 @@ class AuthenticationExampleUITests: XCTestCase {
 
     // Dismiss alert that password was incorrect
     app.alerts.buttons["OK"].tap()
-
     // Go back and check that there is no user that is signed in
     app.navigationBars.buttons.firstMatch.tap()
+
+    dismissSavePasswordPrompt()
     app.tabBars.firstMatch.buttons.element(boundBy: 1).tap()
-    wait(forElement: app.navigationBars["User"], timeout: 5.0)
+
+    wait(forElement: app.navigationBars["User"], timeout: 10.0)
     XCTAssertEqual(
       app.cells.count,
       0,
@@ -108,9 +130,9 @@ class AuthenticationExampleUITests: XCTestCase {
     app.textFields["Email"].tap()
     app.textFields["Email"].typeText(testEmail)
 
-    app.textFields["Password"].tap()
+    app.secureTextFields["Password"].tap()
     // Enter an invalid password that is "too short"
-    app.textFields["Password"].typeText("2shrt")
+    app.secureTextFields["Password"].typeText("2shrt")
 
     app.buttons["Create Account"].tap()
 
@@ -122,6 +144,7 @@ class AuthenticationExampleUITests: XCTestCase {
 
     // Go back and check that there is no user that is signed in
     app.navigationBars.buttons.firstMatch.tap()
+    dismissSavePasswordPrompt()
     app.tabBars.firstMatch.buttons.element(boundBy: 1).tap()
     wait(forElement: app.navigationBars["User"], timeout: 5.0)
     XCTAssertEqual(
@@ -139,8 +162,8 @@ class AuthenticationExampleUITests: XCTestCase {
     app.textFields["Email"].typeText(testEmail)
 
     let testPassword = "test12"
-    app.textFields["Password"].tap()
-    app.textFields["Password"].typeText(testPassword)
+    app.secureTextFields["Password"].tap()
+    app.secureTextFields["Password"].typeText(testPassword)
 
     app.buttons["Create Account"].tap()
 
@@ -152,6 +175,7 @@ class AuthenticationExampleUITests: XCTestCase {
 
     // Go back and check that there is no user that is signed in
     app.navigationBars.buttons.firstMatch.tap()
+    dismissSavePasswordPrompt()
     app.tabBars.firstMatch.buttons.element(boundBy: 1).tap()
     wait(forElement: app.navigationBars["User"], timeout: 5.0)
     XCTAssertEqual(
@@ -169,10 +193,11 @@ class AuthenticationExampleUITests: XCTestCase {
     app.typeText(newEmail)
 
     let newPassword = "new password"
-    app.textFields["Password"].tap()
+    app.secureTextFields["Password"].tap()
     app.typeText(newPassword)
 
     app.buttons["Create Account"].tap()
+    dismissSavePasswordPrompt()
 
     wait(forElement: app.navigationBars["User"], timeout: 5.0)
     XCTAssertTrue(app.navigationBars["User"].exists)

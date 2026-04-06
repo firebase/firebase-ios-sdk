@@ -1,3 +1,6 @@
+# Unreleased
+- [feature] Added support for GoogleMaps grounding.
+
 # 12.12.0
 - [feature] Added support for automatic function calling in
   `GenerativeModelSession`. You can create Gemini-compatible function
