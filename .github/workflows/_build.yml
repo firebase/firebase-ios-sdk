@@ -136,7 +136,10 @@ jobs:
         max_attempts: ${{ inputs.max_attempts }}
         retry_wait_seconds: 120
         command: |
-          echo "TOOLCHAINS=com.apple.dt.toolchain.XcodeDefault" >> $GITHUB_ENV; scripts/build.sh "${{ inputs.product }}" "${{ inputs.platform }}" "${{ inputs.method }}"
+          xcodebuild -deleteComponent metalToolchain
+          echo "TOOLCHAINS=com.apple.dt.toolchain.XcodeDefault" >> $GITHUB_ENV
+          export TOOLCHAINS="com.apple.dt.toolchain.XcodeDefault"
+          scripts/build.sh "${{ inputs.product }}" "${{ inputs.platform }}" "${{ inputs.method }}"
     - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
       if: ${{ failure() }}
       with:
