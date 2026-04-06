@@ -2,6 +2,9 @@
 - [feature] Adds support for configuring image generation properties,
   such as aspect ratio and image size, through the new `ImageConfig` struct
   and its integration with `GenerationConfig`.
+- [feature] Adds support for new `FinishReason` values including
+  image-related reasons like `imageSafety`, `noImage`, and others for
+  tool-use, language, and malformed responses.
 - [feature] Added support for GoogleMaps grounding.
 
 # 12.12.0
