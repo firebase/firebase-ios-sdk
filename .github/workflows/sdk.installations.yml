@@ -69,7 +69,6 @@ jobs:
       platforms: '[ "ios", "tvos", "macos" ]'
       flags: '[ "--use-static-frameworks" ]'
       setup_command: |
-#        echo "TOOLCHAINS=com.apple.dt.toolchain.XcodeDefault" >> $GITHUB_ENV
         scripts/configure_test_keychain.sh
         mkdir -p FirebaseInstallations/Source/Tests/Resources
         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/Installations/GoogleService-Info.plist.gpg \
