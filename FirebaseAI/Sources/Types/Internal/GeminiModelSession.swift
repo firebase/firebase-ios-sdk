@@ -33,10 +33,9 @@ final class GeminiModelSession: ModelSession {
   // MARK: ModelSession Conformance
 
   nonisolated(nonsending)
-  func respond<Content>(to prompt: [PartsRepresentable], schema: FirebaseAI.GenerationSchema?,
-                        generating type: Content.Type, includeSchemaInPrompt: Bool,
-                        options: GenerationConfig?) async throws
-    -> GenerativeModelSession.Response<Content> {
+  func respond(to prompt: any PartsRepresentable, schema: FirebaseAI.GenerationSchema?,
+               includeSchemaInPrompt: Bool, options: GenerationConfig?) async throws
+    -> GenerativeModelSession.Response<FirebaseAI.GeneratedContent> {
     let parts = [ModelContent(parts: prompt)]
     let config = try buildConfig(
       options: options,
@@ -98,10 +97,9 @@ final class GeminiModelSession: ModelSession {
       hasSchema: schema != nil,
       isComplete: true
     )
-    let content: Content = try GenerativeModelSession.resolveContent(from: rawContent)
 
     return GenerativeModelSession.Response(
-      content: content, rawContent: rawContent, rawResponse: response
+      content: rawContent, rawContent: rawContent, rawResponse: response
     )
   }
 

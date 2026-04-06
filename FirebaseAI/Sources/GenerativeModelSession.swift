@@ -264,12 +264,17 @@
             session = modelSession
           }
 
-          return try await session.respond(
+          let response = try await session.respond(
             to: prompt,
             schema: schema,
-            generating: type,
             includeSchemaInPrompt: includeSchemaInPrompt,
             options: options
+          )
+
+          return try GenerativeModelSession.Response(
+            content: Self.resolveContent(from: response.content),
+            rawContent: response.rawContent,
+            rawResponse: response.rawResponse
           )
         } catch {
           errors.append(error)
@@ -350,7 +355,8 @@
       )
     }
 
-    static func resolveContent<T>(from rawContent: FirebaseAI.GeneratedContent) throws -> T {
+    private static func resolveContent<T>(from rawContent: FirebaseAI.GeneratedContent) throws
+      -> T {
       if let content = rawContent as? T {
         return content
       }

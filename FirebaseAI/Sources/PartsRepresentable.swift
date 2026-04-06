@@ -13,6 +13,9 @@
 // limitations under the License.
 
 import Foundation
+#if canImport(FoundationModels)
+  import FoundationModels
+#endif // canImport(FoundationModels)
 
 /// A protocol describing any data that could be serialized to model-interpretable input data,
 /// where the serialization process cannot fail with an error.
@@ -44,3 +47,45 @@ extension String: PartsRepresentable {
     return [TextPart(self)]
   }
 }
+
+#if canImport(FoundationModels)
+  @available(iOS 26.0, macOS 26.0, *)
+  @available(tvOS, unavailable)
+  @available(watchOS, unavailable)
+  extension PartsRepresentable {
+    func toFoundationModelsPrompt() throws -> FoundationModels.Prompt {
+      let parts = ModelContent(parts: partsValue)
+      let promptParts: [any FoundationModels.PromptRepresentable] = try parts.internalParts
+        .compactMap { part in
+          // Skip any `thought` parts since they are unused by Foundation Models.
+          guard !(part.isThought ?? false) else { return nil }
+
+          // Skip any parts without `data`, for example a `Part` containing only a thought
+          // signature,
+          // since they are unused by Foundation Models.
+          guard let data = part.data else { return nil }
+
+          // Currently only string types are supported.
+          guard case let .text(string) = data else {
+            // TODO: Create a custom error type for unsupported prompt part types.
+            throw GenerativeModelSession.GenerationError.internalError(
+              GenerativeModelSession.GenerationError.Context(
+                debugDescription: """
+                Prompt data type "\(data)" is not supported by Foundation Models.
+                """
+              ),
+              underlyingError: NSError(domain: Constants.baseErrorDomain, code: 0)
+            )
+          }
+
+          return string
+        }
+
+      return Prompt {
+        for part in promptParts {
+          part.promptRepresentation
+        }
+      }
+    }
+  }
+#endif // canImport(FoundationModels)

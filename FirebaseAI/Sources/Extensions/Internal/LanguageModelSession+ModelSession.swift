@@ -20,127 +20,55 @@
   @available(tvOS, unavailable)
   @available(watchOS, unavailable)
   extension FoundationModels.LanguageModelSession: ModelSession {
-    func respond<Content>(to prompt: [any PartsRepresentable], schema: FirebaseAI.GenerationSchema?,
-                          generating type: Content.Type, includeSchemaInPrompt: Bool,
-                          options: GenerationConfig?) async throws
-      -> GenerativeModelSession.Response<Content> {
-      let parts = ModelContent(parts: prompt)
-      let promptParts: [Prompt] = try parts.internalParts.compactMap { part in
-        // Skip any `thought` parts since they are unused by Foundation Models.
-        guard !(part.isThought ?? false) else { return nil }
+    func respond(to prompt: any PartsRepresentable, schema: FirebaseAI.GenerationSchema?,
+                 includeSchemaInPrompt: Bool, options: GenerationConfig?) async throws
+      -> GenerativeModelSession.Response<FirebaseAI.GeneratedContent> {
+      let prompt = try prompt.toFoundationModelsPrompt()
 
-        // Skip any parts without `data`, for example a `Part` containing only a thought signature,
-        // since they are unused by Foundation Models.
-        guard let data = part.data else { return nil }
-
-        // Currently only string types are supported.
-        guard case let .text(string) = data else {
-          // TODO: Create a custom error type for unsupported prompt part types.
-          throw GenerativeModelSession.GenerationError.internalError(
-            GenerativeModelSession.GenerationError.Context(
-              debugDescription: """
-              Prompt data type "\(data)" is not supported by Foundation Models.
-              """
-            ),
-            underlyingError: NSError(domain: Constants.baseErrorDomain, code: 0)
-          )
-        }
-
-        return Prompt(string)
-      }
-      let prompt = Prompt {
-        for part in promptParts {
-          part
-        }
-      }
-
-      if type == String.self {
-        let response = try await respond(to: prompt)
-
-        let rawContent = FirebaseAI.GeneratedContent(
-          kind: response.rawContent.kind,
-          id: FirebaseAI.GenerationID(responseID: nil, generationID: response.rawContent.id),
-          isComplete: response.rawContent.isComplete
+      let response: FoundationModels.LanguageModelSession
+        .Response<FoundationModels.GeneratedContent>
+      if let schema {
+        response = try await respond(
+          to: prompt,
+          schema: schema.generationSchema,
+          includeSchemaInPrompt: includeSchemaInPrompt
+          // TODO: Add options: GenerationOptions
         )
-
-        let modelContent = ModelContent(
-          role: "model",
-          parts: [InternalPart(.text(response.content), isThought: false, thoughtSignature: nil)]
-        )
-        let candidate = Candidate(
-          content: modelContent,
-          safetyRatings: [],
-          finishReason: nil,
-          citationMetadata: nil
-        )
-        let rawResponse = GenerateContentResponse(
-          candidates: [candidate],
-          modelVersion: SystemLanguageModel.modelName
-        )
-
-        guard let content = response.content as? Content else {
-          fatalError()
-        }
-
-        return GenerativeModelSession.Response(
-          content: content,
-          rawContent: rawContent,
-          rawResponse: rawResponse
-        )
-      } else if let contentMetatype = type as? (any FoundationModels.Generable.Type) {
-        // Generic helper to explicitly bind the opened existential type to `T`.
-        func fetchResponse<T: FoundationModels.Generable>(_ generableType: T
-          .Type) async throws -> GenerativeModelSession.Response<Content> {
-          let response = try await respond(
-            to: prompt,
-            generating: generableType,
-            includeSchemaInPrompt: includeSchemaInPrompt
-          )
-
-          let rawContent = FirebaseAI.GeneratedContent(
-            kind: response.rawContent.kind,
-            id: FirebaseAI.GenerationID(
-              responseID: UUID().uuidString,
-              generationID: response.rawContent.id
-            ),
-            isComplete: response.rawContent.isComplete
-          )
-          let modelContent = ModelContent(
-            role: "model",
-            parts: [
-              InternalPart(
-                .text(response.rawContent.jsonString),
-                isThought: false,
-                thoughtSignature: nil
-              ),
-            ]
-          )
-          let candidate = Candidate(
-            content: modelContent,
-            safetyRatings: [],
-            finishReason: nil,
-            citationMetadata: nil
-          )
-          let rawResponse = GenerateContentResponse(candidates: [candidate])
-
-          // Cast the generated content back to the outer `Content` type.
-          guard let finalContent = response.content as? Content else {
-            fatalError("Expected \(Content.self) but received \(T.self)")
-          }
-
-          return GenerativeModelSession.Response(
-            content: finalContent,
-            rawContent: rawContent,
-            rawResponse: rawResponse
-          )
-        }
-
-        // Call the helper, which opens `contentMetatype` and passes it as `T`.
-        return try await fetchResponse(contentMetatype)
-
       } else {
-        fatalError("Unsupported type for generation: \(type)")
+        response = try await respond(
+          to: prompt,
+          schema: String.generationSchema
+        )
       }
+
+      let responseText: String
+      if schema == nil, case let .string(text) = response.content.kind {
+        responseText = text
+      } else {
+        responseText = response.content.jsonString
+      }
+
+      let generatedContent = response.content.firebaseGeneratedContent
+      let modelContent = ModelContent(
+        role: "model",
+        parts: [InternalPart(.text(responseText), isThought: false, thoughtSignature: nil)]
+      )
+      let candidate = Candidate(
+        content: modelContent,
+        safetyRatings: [],
+        finishReason: nil,
+        citationMetadata: nil
+      )
+      let rawResponse = GenerateContentResponse(
+        candidates: [candidate],
+        modelVersion: SystemLanguageModel.modelName
+      )
+
+      return GenerativeModelSession.Response(
+        content: generatedContent,
+        rawContent: generatedContent,
+        rawResponse: rawResponse
+      )
     }
 
     func streamResponse<Content, PartialContent>(to prompt: [any PartsRepresentable],

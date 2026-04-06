@@ -13,12 +13,11 @@
 // limitations under the License.
 
 protocol ModelSession: Sendable {
-  nonisolated(nonsending) func respond<Content>(to prompt: [PartsRepresentable],
-                                                schema: FirebaseAI.GenerationSchema?,
-                                                generating type: Content.Type,
-                                                includeSchemaInPrompt: Bool,
-                                                options: GenerationConfig?) async throws
-    -> GenerativeModelSession.Response<Content>
+  nonisolated(nonsending) func respond(to prompt: any PartsRepresentable,
+                                       schema: FirebaseAI.GenerationSchema?,
+                                       includeSchemaInPrompt: Bool,
+                                       options: GenerationConfig?) async throws
+    -> GenerativeModelSession.Response<FirebaseAI.GeneratedContent>
 
   @available(macOS 12.0, watchOS 8.0, *)
   func streamResponse<Content, PartialContent>(to prompt: [PartsRepresentable],
