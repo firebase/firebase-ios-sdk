@@ -80,6 +80,39 @@
     }
 
     @Test(arguments: [InstanceConfig.vertexAI_v1beta_global])
+    @available(iOS 26.0, macOS 26.0, *)
+    @available(tvOS, unavailable)
+    @available(watchOS, unavailable)
+    func respondGenerable_fallbackOnFoundationModelsError(_ config: InstanceConfig) async throws {
+      let firebaseAI = FirebaseAI.componentInstance(config)
+      let onDeviceModel = SystemLanguageModel.default
+      let cloudModel = firebaseAI.geminiModel(modelName: ModelNames.gemini2_5_FlashLite)
+      let session = firebaseAI.generativeModelSession(models: [onDeviceModel, cloudModel])
+      let prompt = "Generate a cute rescue cat"
+
+      let response = try await session.respond(
+        to: prompt,
+        generating: GenerativeModelSessionTests.CatProfile.self
+      )
+
+      let catProfile = response.content
+      #expect(!catProfile.name.isEmpty)
+      #expect(catProfile.age >= 1)
+      #expect(catProfile.age <= 20)
+      #expect(!catProfile.profile.isEmpty)
+      #expect(response.rawContent.isComplete)
+      #expect(response.rawContent.generationID != nil)
+      // Check for the on-device model name when running on Apple Intelligence supported devices; in
+      // this case, no fallback occurs. When running on devices that do not support Apple
+      // Intelligence, including GitHub Runner Images, check for the cloud (Gemini) model name.
+      if await foundationModelsIsAvailable() {
+        #expect(response.rawResponse.modelVersion == onDeviceModel.modelName)
+      } else {
+        #expect(response.rawResponse.modelVersion == cloudModel.modelName)
+      }
+    }
+
+    @Test(arguments: [InstanceConfig.vertexAI_v1beta_global])
     func streamResponseText_fallbackOnGeminiModelError(_ config: InstanceConfig) async throws {
       let firebaseAI = FirebaseAI.componentInstance(config)
       let invalidModel = firebaseAI.geminiModel(modelName: "invalid-model-name")
