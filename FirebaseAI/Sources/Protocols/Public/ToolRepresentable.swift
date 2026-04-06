@@ -21,15 +21,15 @@ public protocol ToolRepresentable: Sendable {
 }
 
 #if compiler(>=6.2.3)
-#if canImport(FoundationModels)
-  @available(iOS 26.0, macOS 26.0, *)
-  @available(tvOS, unavailable)
-  @available(watchOS, unavailable)
-  public extension FoundationModels.Tool
-    where Self.Output: FoundationModels.ConvertibleToGeneratedContent {
-    var toolRepresentation: FirebaseAILogic.Tool {
-      return FirebaseAILogic.Tool.autoFunctionDeclaration(self)
+  #if canImport(FoundationModels)
+    @available(iOS 26.0, macOS 26.0, *)
+    @available(tvOS, unavailable)
+    @available(watchOS, unavailable)
+    public extension FoundationModels.Tool
+      where Self.Output: FoundationModels.ConvertibleToGeneratedContent {
+      var toolRepresentation: FirebaseAILogic.Tool {
+        return FirebaseAILogic.Tool.autoFunctionDeclaration(self)
+      }
     }
-  }
-#endif // canImport(FoundationModels)
+  #endif // canImport(FoundationModels)
 #endif // compiler(>=6.2.3)
