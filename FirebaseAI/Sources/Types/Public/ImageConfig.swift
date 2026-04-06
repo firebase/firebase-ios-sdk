@@ -16,7 +16,7 @@
 ///
 /// See the [documentation](https://ai.google.dev/gemini-api/docs/image-generation#aspect_ratios_and_image_size)
 /// to learn about parameters available for use with Gemini image models.
-public struct ImageConfig: Sendable {
+public struct ImageConfig: Sendable, Equatable {
   /// The aspect ratio of generated images.
   public let aspectRatio: AspectRatio?
 
@@ -36,7 +36,7 @@ public struct ImageConfig: Sendable {
 
 public extension ImageConfig {
   /// An aspect ratio for generated images.
-  struct AspectRatio: Sendable {
+  struct AspectRatio: Sendable, Equatable {
     /// Square (1:1) aspect ratio.
     ///
     /// Common uses for this aspect ratio include social media posts.
@@ -101,7 +101,7 @@ public extension ImageConfig {
   }
 
   /// The size of images to generate.
-  struct ImageSize: Sendable {
+  struct ImageSize: Sendable, Equatable {
     /// 512px (0.5K) image size.
     ///
     /// This corresponds to 512x512 pixel images in a ``ImageConfig/AspectRatio/square1x1`` aspect
