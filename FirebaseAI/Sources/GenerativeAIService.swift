@@ -127,7 +127,6 @@ struct GenerativeAIService {
         var extraLines = ""
 
         let decoder = JSONDecoder()
-        decoder.keyDecodingStrategy = .convertFromSnakeCase
         for try await line in stream.lines {
           AILog.debug(code: .loadRequestStreamResponseLine, "Stream response: \(line)")
 
