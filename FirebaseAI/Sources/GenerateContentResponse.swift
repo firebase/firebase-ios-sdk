@@ -197,6 +197,9 @@ public struct Candidate: Sendable {
   /// generated a predefined stop sequence.
   public let finishReason: FinishReason?
 
+  /// A human-readable description of why the model stopped generating content, if it exists.
+  public let finishMessage: String?
+
   /// Cited works in the model's response content, if it exists.
   public let citationMetadata: CitationMetadata?
 
@@ -208,10 +211,11 @@ public struct Candidate: Sendable {
   /// Initializer for SwiftUI previews or tests.
   public init(content: ModelContent, safetyRatings: [SafetyRating], finishReason: FinishReason?,
               citationMetadata: CitationMetadata?, groundingMetadata: GroundingMetadata? = nil,
-              urlContextMetadata: URLContextMetadata? = nil) {
+              urlContextMetadata: URLContextMetadata? = nil, finishMessage: String? = nil) {
     self.content = content
     self.safetyRatings = safetyRatings
     self.finishReason = finishReason
+    self.finishMessage = finishMessage
     self.citationMetadata = citationMetadata
     self.groundingMetadata = groundingMetadata
     self.urlContextMetadata = urlContextMetadata
@@ -220,7 +224,8 @@ public struct Candidate: Sendable {
   // Returns `true` if the candidate contains no information that a developer could use.
   var isEmpty: Bool {
     content.parts
-      .isEmpty && finishReason == nil && citationMetadata == nil && groundingMetadata == nil &&
+      .isEmpty && finishReason == nil && finishMessage == nil && citationMetadata == nil &&
+      groundingMetadata == nil &&
       urlContextMetadata == nil
   }
 }
@@ -598,6 +603,7 @@ extension Candidate: Decodable {
     case content
     case safetyRatings
     case finishReason
+    case finishMessage
     case citationMetadata
     case groundingMetadata
     case urlContextMetadata
@@ -632,6 +638,7 @@ extension Candidate: Decodable {
     }
 
     finishReason = try container.decodeIfPresent(FinishReason.self, forKey: .finishReason)
+    finishMessage = try container.decodeIfPresent(String.self, forKey: .finishMessage)
 
     citationMetadata = try container.decodeIfPresent(
       CitationMetadata.self,
