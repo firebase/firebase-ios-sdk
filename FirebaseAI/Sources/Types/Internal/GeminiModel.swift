@@ -14,49 +14,51 @@
 
 import Foundation
 
-struct GeminiModel: LanguageModel {
-  let modelName: String
-  let modelResourceName: String
-  let firebaseInfo: FirebaseInfo
-  let apiConfig: APIConfig
-  let safetySettings: [SafetySetting]?
-  let toolConfig: ToolConfig?
-  let requestOptions: RequestOptions
-  let urlSession: URLSession
+#if compiler(>=6.2.3)
+  struct GeminiModel: LanguageModel {
+    let modelName: String
+    let modelResourceName: String
+    let firebaseInfo: FirebaseInfo
+    let apiConfig: APIConfig
+    let safetySettings: [SafetySetting]?
+    let toolConfig: ToolConfig?
+    let requestOptions: RequestOptions
+    let urlSession: URLSession
 
-  init(modelName: String,
-       modelResourceName: String,
-       firebaseInfo: FirebaseInfo,
-       apiConfig: APIConfig,
-       safetySettings: [SafetySetting]? = nil,
-       toolConfig: ToolConfig? = nil,
-       requestOptions: RequestOptions = RequestOptions(),
-       urlSession: URLSession = GenAIURLSession.default) {
-    self.modelName = modelName
-    self.modelResourceName = modelResourceName
-    self.firebaseInfo = firebaseInfo
-    self.apiConfig = apiConfig
-    self.safetySettings = safetySettings
-    self.toolConfig = toolConfig
-    self.requestOptions = requestOptions
-    self.urlSession = urlSession
+    init(modelName: String,
+         modelResourceName: String,
+         firebaseInfo: FirebaseInfo,
+         apiConfig: APIConfig,
+         safetySettings: [SafetySetting]? = nil,
+         toolConfig: ToolConfig? = nil,
+         requestOptions: RequestOptions = RequestOptions(),
+         urlSession: URLSession = GenAIURLSession.default) {
+      self.modelName = modelName
+      self.modelResourceName = modelResourceName
+      self.firebaseInfo = firebaseInfo
+      self.apiConfig = apiConfig
+      self.safetySettings = safetySettings
+      self.toolConfig = toolConfig
+      self.requestOptions = requestOptions
+      self.urlSession = urlSession
+    }
+
+    func startSession(tools: [any ToolRepresentable]?, instructions: String?) -> any ModelSession {
+      let model = GenerativeModel(
+        modelName: modelName,
+        modelResourceName: modelResourceName,
+        firebaseInfo: firebaseInfo,
+        apiConfig: apiConfig,
+        generationConfig: nil,
+        safetySettings: safetySettings,
+        tools: tools?.map { $0.toolRepresentation },
+        toolConfig: toolConfig,
+        systemInstruction: instructions.map { ModelContent(role: "system", parts: $0) },
+        requestOptions: requestOptions,
+        urlSession: urlSession
+      )
+
+      return GeminiModelSession(model: model, history: [])
+    }
   }
-
-  func startSession(tools: [any ToolRepresentable]?, instructions: String?) -> any ModelSession {
-    let model = GenerativeModel(
-      modelName: modelName,
-      modelResourceName: modelResourceName,
-      firebaseInfo: firebaseInfo,
-      apiConfig: apiConfig,
-      generationConfig: nil,
-      safetySettings: safetySettings,
-      tools: tools?.map { $0.toolRepresentation },
-      toolConfig: toolConfig,
-      systemInstruction: instructions.map { ModelContent(role: "system", parts: $0) },
-      requestOptions: requestOptions,
-      urlSession: urlSession
-    )
-
-    return GeminiModelSession(model: model, history: [])
-  }
-}
+#endif // compiler(>=6.2.3)

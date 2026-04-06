@@ -12,18 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-protocol ModelSession: Sendable {
-  nonisolated(nonsending) func respond(to prompt: any PartsRepresentable,
-                                       schema: FirebaseAI.GenerationSchema?,
-                                       includeSchemaInPrompt: Bool,
-                                       options: GenerationConfig?) async throws
-    -> GenerativeModelSession.Response<FirebaseAI.GeneratedContent>
+#if compiler(>=6.2.3)
+  protocol ModelSession: Sendable {
+    nonisolated(nonsending) func respond(to prompt: any PartsRepresentable,
+                                         schema: FirebaseAI.GenerationSchema?,
+                                         includeSchemaInPrompt: Bool,
+                                         options: GenerationConfig?) async throws
+      -> GenerativeModelSession.Response<FirebaseAI.GeneratedContent>
 
-  @available(macOS 12.0, watchOS 8.0, *)
-  func streamResponse<Content, PartialContent>(to prompt: [PartsRepresentable],
-                                               schema: FirebaseAI.GenerationSchema?,
-                                               generating type: Content.Type,
-                                               includeSchemaInPrompt: Bool,
-                                               options: GenerationConfig?) throws
-    -> sending GenerativeModelSession.ResponseStream<Content, PartialContent>
-}
+    @available(macOS 12.0, watchOS 8.0, *)
+    func streamResponse<Content, PartialContent>(to prompt: [PartsRepresentable],
+                                                 schema: FirebaseAI.GenerationSchema?,
+                                                 generating type: Content.Type,
+                                                 includeSchemaInPrompt: Bool,
+                                                 options: GenerationConfig?) throws
+      -> sending GenerativeModelSession.ResponseStream<Content, PartialContent>
+  }
+#endif // compiler(>=6.2.3)

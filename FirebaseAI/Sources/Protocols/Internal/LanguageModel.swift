@@ -12,10 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-protocol LanguageModel: Sendable {
-  var modelName: String { get }
+#if compiler(>=6.2.3)
+  protocol LanguageModel: Sendable {
+    var modelName: String { get }
 
-  // TODO: Replace `instructions` with `Transcript` for session history.
-  func startSession(tools: [any ToolRepresentable]?,
-                    instructions: String?) throws -> any ModelSession
-}
+    // TODO: Replace `instructions` with `Transcript` for session history.
+    func startSession(tools: [any ToolRepresentable]?,
+                      instructions: String?) throws -> any ModelSession
+  }
+#endif // compiler(>=6.2.3)

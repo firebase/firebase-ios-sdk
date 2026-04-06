@@ -20,7 +20,7 @@ public protocol ToolRepresentable: Sendable {
   var toolRepresentation: FirebaseAILogic.Tool { get }
 }
 
-#if canImport(FoundationModels)
+#if compiler(>=6.2.3) && canImport(FoundationModels)
   @available(iOS 26.0, macOS 26.0, *)
   @available(tvOS, unavailable)
   @available(watchOS, unavailable)
@@ -30,4 +30,4 @@ public protocol ToolRepresentable: Sendable {
       return FirebaseAILogic.Tool.autoFunctionDeclaration(self)
     }
   }
-#endif // canImport(FoundationModels)
+#endif // compiler(>=6.2.3) && canImport(FoundationModels)

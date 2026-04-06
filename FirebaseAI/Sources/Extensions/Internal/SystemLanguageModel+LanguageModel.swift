@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if canImport(FoundationModels)
+#if compiler(>=6.2.3) && canImport(FoundationModels)
   import FoundationModels
 
   // TODO: Wrap `FoundationModels.SystemLanguageModel` in type-erased box to simplify iOS 15 hybrid.
@@ -64,4 +64,4 @@
       return LanguageModelSession(tools: afmTools, instructions: instructions)
     }
   }
-#endif // canImport(FoundationModels)
+#endif // compiler(>=6.2.3) && canImport(FoundationModels)
