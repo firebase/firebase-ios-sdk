@@ -253,6 +253,7 @@
                           options: GenerationConfig?) async throws
       -> GenerativeModelSession.Response<Content> {
       var errors = [any Error]()
+      // TODO: Propagate session history to the next model on fallback.
       for (index, model) in models.enumerated() {
         do {
           var session: any ModelSession
@@ -289,43 +290,71 @@
     }
 
     @available(macOS 12.0, watchOS 8.0, *)
-    private func streamResponse<Content, PartialContent>(to prompt: [PartsRepresentable],
+    private func streamResponse<Content, PartialContent>(to prompt: any PartsRepresentable,
                                                          schema: FirebaseAI.GenerationSchema?,
                                                          generating type: Content.Type,
                                                          includeSchemaInPrompt: Bool,
                                                          options: GenerationConfig?)
       -> sending GenerativeModelSession.ResponseStream<Content, PartialContent> {
-      var errors = [any Error]()
-      for (index, model) in models.enumerated() {
-        do {
-          var session: any ModelSession
-          if let modelSession = modelSessions[index] {
-            session = modelSession
-          } else {
-            let modelSession = try model.startSession(tools: tools, instructions: instructions)
-            modelSessions[index] = modelSession
-            session = modelSession
+      let parts = prompt.partsValue
+      return GenerativeModelSession.ResponseStream<Content, PartialContent> { context in
+        var errors = [any Error]()
+        // TODO: Propagate session history to the next model on fallback.
+        for (index, model) in self.models.enumerated() {
+          do {
+            var session: any ModelSession
+            if let modelSession = self.modelSessions[index] {
+              session = modelSession
+            } else {
+              let modelSession = try model.startSession(
+                tools: self.tools,
+                instructions: self.instructions
+              )
+              self.modelSessions[index] = modelSession
+              session = modelSession
+            }
+
+            let stream = try session.streamResponse(
+              to: parts,
+              schema: schema,
+              includeSchemaInPrompt: includeSchemaInPrompt,
+              options: options
+            )
+            do {
+              for try await response in stream {
+                let rawResult = GenerativeModelSession.ResponseStream<Content, PartialContent>
+                  .RawResult(
+                    rawContent: response.rawContent,
+                    rawResponse: response.rawResponse
+                  )
+                await context.yield(rawResult)
+              }
+              await context.finish()
+              return
+            } catch {
+              if await context.hasYielded {
+                throw error
+              } else {
+                continue
+              }
+            }
+          } catch {
+            errors.append(error)
           }
+        }
 
-          return try session.streamResponse(
-            to: prompt,
-            schema: schema,
-            generating: type,
-            includeSchemaInPrompt: includeSchemaInPrompt,
-            options: options
+        guard let error = errors.first else {
+          // TODO: Create new `GenerationError` case for no content generated.
+          let error = GenerativeModelSession.GenerationError.decodingFailure(
+            GenerativeModelSession.GenerationError.Context(
+              debugDescription: "No content generated in stream."
+            )
           )
-        } catch {
-          errors.append(error)
-        }
-      }
-
-      let error = errors.first
-      return GenerativeModelSession.ResponseStream { context in
-        guard let error else {
-          // TODO: Throw some error
-          fatalError()
+          await context.finish(throwing: error)
+          return
         }
 
+        // TODO: Create new `GenerationError` case that includes all underlying errors.
         await context.finish(throwing: error)
       }
     }
@@ -531,6 +560,11 @@
       private var finalResult: Result<RawResult, Error>?
       private var waitingContinuations: [CheckedContinuation<RawResult, Error>] = []
       private var latestRaw: RawResult?
+
+      // Returns `true` if the stream has yielded one or more values.
+      var hasYielded: Bool {
+        return latestRaw != nil
+      }
 
       init(continuation: AsyncThrowingStream<RawResult, Error>.Continuation) {
         self.continuation = continuation

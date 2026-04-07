@@ -71,18 +71,19 @@
       )
     }
 
-    func streamResponse<Content, PartialContent>(to prompt: [any PartsRepresentable],
-                                                 schema: FirebaseAI.GenerationSchema?,
-                                                 generating type: Content.Type,
-                                                 includeSchemaInPrompt: Bool,
-                                                 options: GenerationConfig?)
-      throws -> sending GenerativeModelSession.ResponseStream<Content, PartialContent> {
-      // TODO: Create a new error type
-      throw NSError(
-        domain: Constants.baseErrorDomain,
-        code: 0,
-        userInfo: [NSLocalizedDescriptionKey: "Hybrid streaming support is not yet implemented."]
-      )
+    func streamResponse(to prompt: [any Part],
+                        schema: FirebaseAI.GenerationSchema?,
+                        includeSchemaInPrompt: Bool,
+                        options: GenerationConfig?)
+      -> sending AsyncThrowingStream<ModelSessionResponse, any Error> {
+      return AsyncThrowingStream {
+        // TODO: Create a new error type
+        throw NSError(
+          domain: Constants.baseErrorDomain,
+          code: 0,
+          userInfo: [NSLocalizedDescriptionKey: "Hybrid streaming support is not yet implemented."]
+        )
+      }
     }
   }
 #endif // compiler(>=6.2.3) && canImport(FoundationModels)

@@ -122,12 +122,19 @@
 
       let stream = session.streamResponse(to: prompt)
 
-      await #expect(
-        throws: NSError.self,
-        "Hybrid streaming is not yet implemented so this should throw."
-      ) {
-        _ = try await stream.collect()
-      }
+      let response = try await stream.collect()
+      let content = response.content
+      #expect(!content.isEmpty)
+      #expect(response.rawContent.isComplete)
+      #if canImport(FoundationModels)
+        if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
+          #expect(response.rawContent.kind == .string(content))
+        }
+      #endif // canImport(FoundationModels)
+      #expect(response.rawContent.generationID != nil)
+      let text = try #require(response.rawResponse.text)
+      #expect(content.contains(text))
+      #expect(response.rawResponse.modelVersion == validModel.modelName)
     }
 
     @Test(arguments: [InstanceConfig.vertexAI_v1beta_global])

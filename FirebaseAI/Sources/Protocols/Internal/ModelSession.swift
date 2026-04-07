@@ -21,11 +21,10 @@
       -> GenerativeModelSession.Response<FirebaseAI.GeneratedContent>
 
     @available(macOS 12.0, watchOS 8.0, *)
-    func streamResponse<Content, PartialContent>(to prompt: [PartsRepresentable],
-                                                 schema: FirebaseAI.GenerationSchema?,
-                                                 generating type: Content.Type,
-                                                 includeSchemaInPrompt: Bool,
-                                                 options: GenerationConfig?) throws
-      -> sending GenerativeModelSession.ResponseStream<Content, PartialContent>
+    func streamResponse(to prompt: [any Part],
+                        schema: FirebaseAI.GenerationSchema?,
+                        includeSchemaInPrompt: Bool,
+                        options: GenerationConfig?)
+      -> sending AsyncThrowingStream<ModelSessionResponse, any Error>
   }
 #endif // compiler(>=6.2.3)
