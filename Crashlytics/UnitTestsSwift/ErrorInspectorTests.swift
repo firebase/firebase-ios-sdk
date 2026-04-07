@@ -12,7 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-@testable import FirebaseCrashlyticsSwift
+#if SWIFT_PACKAGE
+  @testable import FirebaseCrashlyticsSwift
+#else
+  @testable import FirebaseCrashlytics
+#endif
 
 import Foundation
 import Testing
