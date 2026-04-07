@@ -38,7 +38,8 @@ public final class ErrorInspector: NSObject {
     }
 
     let nsError = error as NSError
-    guard NSStringFromClass(type(of: nsError)).contains("__SwiftNativeNSError") else {
+    // Swift errors bridged to `NSError` have the `__SwiftNativeNSError` underlying type:
+    guard NSStringFromClass(type(of: nsError)).contains("SwiftNative") else {
       // This is a true `NSError` (or its subclass).
       return "\(nsError.domain).\(nsError.code)"
     }

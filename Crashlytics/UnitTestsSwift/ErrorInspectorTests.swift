@@ -81,6 +81,23 @@ import Testing
 
     #expect(description == "TEST_NSErrorSubclass.456")
   }
+
+  // This is a known edge case. If an error inherits from `NSError`
+  // and at the same time uses `SwiftNative` in its class name,
+  // it will be treated as if it were a Swift `Error` bridged to `NSError`,
+  // i.e. the error’s identity will be based on its class name, not `domain`
+  // (but `domain` and all other properties remain intact and available).
+  @Test func nsErrorSubclassWithSpecialName() {
+    let error = TestSwiftNativeError(
+      domain: "TEST_NSErrorSubclass",
+      code: 789,
+      userInfo: [NSLocalizedDescriptionKey: "TEST_LocDesc"]
+    )
+
+    let description = ErrorInspector.identityDescription(for: error)
+
+    #expect(description == "TestSwiftNativeError.789")
+  }
 }
 
 enum TestErrorEnum: Error {
@@ -114,3 +131,4 @@ class TestErrorClass: CustomNSError {
 }
 
 class SomeNSError: NSError, @unchecked Sendable {}
+class TestSwiftNativeError: NSError, @unchecked Sendable {}
