@@ -23,10 +23,6 @@ import FirebaseFirestore
 #if swift(>=5.5.2)
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   class DatabaseTests: FSTIntegrationTestCase {
-    func testIntentionalFailure() async throws {
-      XCTFail("Intentional failure to test CI retry logic")
-    }
-
     func testCanStillUseDisablePersistenceSettings() async throws {
       let settings = db.settings
       settings.isPersistenceEnabled = false
