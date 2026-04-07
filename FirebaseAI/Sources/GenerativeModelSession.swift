@@ -285,10 +285,16 @@
         }
       }
 
-      guard let error = errors.first else {
-        // TODO: Throw some error
-        fatalError()
+      guard let error = errors.last else {
+        // TODO: Create new `GenerationError` case for no content generated.
+        throw GenerativeModelSession.GenerationError.decodingFailure(
+          GenerativeModelSession.GenerationError.Context(
+            debugDescription: "No content generated in stream."
+          )
+        )
       }
+
+      // TODO: Create new `GenerationError` case that includes all underlying errors.
       throw error
     }
 
@@ -344,7 +350,7 @@
           }
         }
 
-        guard let error = errors.first else {
+        guard let error = errors.last else {
           // TODO: Create new `GenerationError` case for no content generated.
           let error = GenerativeModelSession.GenerationError.decodingFailure(
             GenerativeModelSession.GenerationError.Context(
