@@ -1,3 +1,6 @@
+# Unreleased
+- [feature] Added support for Pipeline expressions `arraySlice`, `arrayFilter`, `arrayTransform` and `arrayTransformWithIndex`. (#16001)
+
 # 12.12.0
 - [feature] Added support for the `parent` Pipeline expression. (#16010)
 - [feature] Added support for `timestampTruncate`, `timestampDiff`, and `timestampExtract` Pipeline expressions. (#15984)
