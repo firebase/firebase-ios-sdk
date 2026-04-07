@@ -52,10 +52,13 @@
   /// print("Favorite Topics: \(response.content.favoriteTopics.joined(separator: ", "))")
   /// ```
   public final class GenerativeModelSession: Sendable {
+    // TODO: Throw on concurrent requests using `GenerativeModelSession`.
+
     let models: [any LanguageModel]
     // TODO: Add a `SessionManager` to track which sessions are available (no permanent failures).
     // TODO: Track history status (`Transcript`) alongside `modelSessions`.
     private let modelSessions = UnfairLock([Int: any ModelSession]())
+    private let activeSessionIndex = UnfairLock<Int?>(nil)
 
     let tools: [any ToolRepresentable]?
     let instructions: String?
@@ -254,7 +257,7 @@
       -> GenerativeModelSession.Response<Content> {
       var errors = [any Error]()
       // TODO: Propagate session history to the next model on fallback.
-      for index in models.indices {
+      for index in allowedSessionIndices() {
         do {
           let session = try getOrStartSession(index: index)
 
@@ -265,6 +268,12 @@
             options: options
           )
 
+          // The request succeeded so the current session contains the history; mark the current
+          // session as active to disallow future fallbacks to other sessions.
+          if activeSessionIndex.value() == nil {
+            activeSessionIndex.withLock { $0 = index }
+          }
+
           return try GenerativeModelSession.Response(
             content: Self.resolveContent(from: response.content),
             rawContent: response.rawContent,
@@ -272,6 +281,10 @@
           )
         } catch {
           errors.append(error)
+          // Do not fallback to other other sessions if the current session contains history.
+          guard activeSessionIndex.value() == nil else {
+            break
+          }
         }
       }
 
@@ -299,7 +312,7 @@
       return GenerativeModelSession.ResponseStream<Content, PartialContent> { context in
         var errors = [any Error]()
         // TODO: Propagate session history to the next model on fallback.
-        for index in self.models.indices {
+        for index in self.allowedSessionIndices() {
           do {
             let session = try self.getOrStartSession(index: index)
 
@@ -317,11 +330,21 @@
                 )
               await context.yield(rawResult)
             }
+
+            // The request succeeded so the current session contains the history; mark the current
+            // session as active to disallow future fallbacks to other sessions.
+            if self.activeSessionIndex.value() == nil {
+              self.activeSessionIndex.withLock { $0 = index }
+            }
+
             await context.finish()
             return
           } catch {
             errors.append(error)
-            if await context.hasYielded {
+
+            // Do not fallback to other other sessions if the current stream has yielded any values
+            // to the caller or if there's an active session.
+            if await context.hasYielded || self.activeSessionIndex.value() != nil {
               break
             }
           }
@@ -412,6 +435,15 @@
           return modelSession
         }
       }
+    }
+
+    // Returns the indices of model sessions that are available.
+    //
+    // This is a workaround to prevent fallbacks to other sessions after the current session has
+    // valid history.
+    // TODO: Remove this method and related checks when history is propagated between sessions.
+    func allowedSessionIndices() -> [Int] {
+      return activeSessionIndex.value().map { [$0] } ?? Array(models.indices)
     }
   }
 
