@@ -14,6 +14,7 @@
 
 // TODO: Remove the `#if compiler(>=6.2.3)` when Xcode 26.2 is the minimum supported version.
 #if compiler(>=6.2.3)
+  private import FirebaseCoreInternal
   import Foundation
   #if canImport(FoundationModels)
     import FoundationModels
@@ -50,11 +51,11 @@
   /// print("Bio: \(response.content.bio)")
   /// print("Favorite Topics: \(response.content.favoriteTopics.joined(separator: ", "))")
   /// ```
-  public final class GenerativeModelSession: @unchecked Sendable {
+  public final class GenerativeModelSession: Sendable {
     let models: [any LanguageModel]
-    // TODO: Add `Sendable` manager for model sessions and remove `@unchecked`.
+    // TODO: Add a `SessionManager` to track which sessions are available (no permanent failures).
     // TODO: Track history status (`Transcript`) alongside `modelSessions`.
-    var modelSessions: [Int: any ModelSession]
+    private let modelSessions = UnfairLock([Int: any ModelSession]())
 
     let tools: [any ToolRepresentable]?
     let instructions: String?
@@ -73,7 +74,6 @@
     /// - Parameter model: The `GenerativeModel` to use for generating content.
     init(models: [any LanguageModel], tools: [any ToolRepresentable]?, instructions: String?) {
       self.models = models
-      modelSessions = [:]
       self.tools = tools
       self.instructions = instructions
     }
@@ -256,13 +256,16 @@
       // TODO: Propagate session history to the next model on fallback.
       for (index, model) in models.enumerated() {
         do {
-          var session: any ModelSession
-          if let modelSession = modelSessions[index] {
-            session = modelSession
-          } else {
-            let modelSession = try model.startSession(tools: tools, instructions: instructions)
-            modelSessions[index] = modelSession
-            session = modelSession
+          // TODO: Refactor into helper function.
+          let session = try modelSessions.withLock { modelSessions in
+            if let modelSession = modelSessions[index] {
+              return modelSession
+            } else {
+              let modelSession = try model.startSession(tools: tools, instructions: instructions)
+              modelSessions[index] = modelSession
+
+              return modelSession
+            }
           }
 
           let response = try await session.respond(
@@ -302,16 +305,19 @@
         // TODO: Propagate session history to the next model on fallback.
         for (index, model) in self.models.enumerated() {
           do {
-            var session: any ModelSession
-            if let modelSession = self.modelSessions[index] {
-              session = modelSession
-            } else {
-              let modelSession = try model.startSession(
-                tools: self.tools,
-                instructions: self.instructions
-              )
-              self.modelSessions[index] = modelSession
-              session = modelSession
+            // TODO: Refactor into helper function.
+            let session = try self.modelSessions.withLock { modelSessions in
+              if let modelSession = modelSessions[index] {
+                return modelSession
+              } else {
+                let modelSession = try model.startSession(
+                  tools: self.tools,
+                  instructions: self.instructions
+                )
+                modelSessions[index] = modelSession
+
+                return modelSession
+              }
             }
 
             let stream = session.streamResponse(
