@@ -122,18 +122,38 @@
 
       let stream = session.streamResponse(to: prompt)
 
+      var generationID: FirebaseAI.GenerationID?
+      var isComplete = false
+      for try await snapshot in stream {
+        #expect(!isComplete, "Stream yielded more elements after a snapshot was marked complete.")
+        let partial = snapshot.content
+        #expect(!partial.isEmpty)
+        if let generationID {
+          #expect(
+            generationID == snapshot.rawContent.generationID,
+            "The generation ID was not stable for the duration of the response."
+          )
+        } else {
+          #expect(snapshot.rawContent.generationID != nil)
+          generationID = snapshot.rawContent.generationID
+        }
+        isComplete = snapshot.rawContent.isComplete
+      }
+      #expect(isComplete, "The stream finished, but the final snapshot was not marked as complete.")
+
       let response = try await stream.collect()
       let content = response.content
       #expect(!content.isEmpty)
-      #expect(response.rawContent.isComplete)
+      #expect(response.rawContent.isComplete, "The final response was not marked as complete.")
+      #expect(response.rawContent.generationID == generationID)
       #if canImport(FoundationModels)
         if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
           #expect(response.rawContent.kind == .string(content))
         }
       #endif // canImport(FoundationModels)
-      #expect(response.rawContent.generationID != nil)
-      let text = try #require(response.rawResponse.text)
-      #expect(content.contains(text))
+      if let text = response.rawResponse.text {
+        #expect(content.hasSuffix(text))
+      }
       #expect(response.rawResponse.modelVersion == validModel.modelName)
     }
 
@@ -178,8 +198,14 @@
       if let text = response.rawResponse.text {
         #expect(content.hasSuffix(text))
       }
-      // On-device streaming is not yet implemented so this should always be the cloud model name.
-      #expect(response.rawResponse.modelVersion == cloudModel.modelName)
+      // Check for the on-device model name when running on Apple Intelligence supported devices; in
+      // this case, no fallback occurs. When running on devices that do not support Apple
+      // Intelligence, including GitHub Runner Images, check for the cloud (Gemini) model name.
+      if await foundationModelsIsAvailable() {
+        #expect(response.rawResponse.modelVersion == onDeviceModel.modelName)
+      } else {
+        #expect(response.rawResponse.modelVersion == cloudModel.modelName)
+      }
     }
 
     /// Returns `true` if `FoundationModels.SystemLanguageModel` is available.

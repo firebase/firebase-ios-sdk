@@ -38,17 +38,19 @@
         response = try await respond(
           to: prompt,
           schema: String.generationSchema
+          // TODO: Add options: GenerationOptions
         )
       }
 
+      // TODO: Extract common response handling code into a helper method.
       let responseText: String
-      if schema == nil, case let .string(text) = response.content.kind {
+      if schema == nil, case let .string(text) = response.rawContent.kind {
         responseText = text
       } else {
-        responseText = response.content.jsonString
+        responseText = response.rawContent.jsonString
       }
 
-      let generatedContent = response.content.firebaseGeneratedContent
+      let generatedContent = response.rawContent.firebaseGeneratedContent
       let modelContent = ModelContent(
         role: "model",
         parts: [InternalPart(.text(responseText), isThought: false, thoughtSignature: nil)]
@@ -71,18 +73,78 @@
       )
     }
 
-    func streamResponse(to prompt: [any Part],
+    func streamResponse(to parts: [any Part],
                         schema: FirebaseAI.GenerationSchema?,
                         includeSchemaInPrompt: Bool,
                         options: GenerationConfig?)
       -> sending AsyncThrowingStream<ModelSessionResponse, any Error> {
-      return AsyncThrowingStream {
-        // TODO: Create a new error type
-        throw NSError(
-          domain: Constants.baseErrorDomain,
-          code: 0,
-          userInfo: [NSLocalizedDescriptionKey: "Hybrid streaming support is not yet implemented."]
-        )
+      return AsyncThrowingStream { continuation in
+        let prompt: Prompt
+        do {
+          prompt = try parts.toFoundationModelsPrompt()
+        } catch {
+          continuation.finish(throwing: error)
+          return
+        }
+
+        let stream: FoundationModels.LanguageModelSession
+          .ResponseStream<FoundationModels.GeneratedContent>
+        if let schema {
+          stream = streamResponse(
+            to: prompt,
+            schema: schema.generationSchema,
+            includeSchemaInPrompt: includeSchemaInPrompt
+            // TODO: Add options: GenerationOptions
+          )
+        } else {
+          stream = streamResponse(
+            to: prompt,
+            schema: String.generationSchema
+            // TODO: Check `includeSchemaInPrompt: includeSchemaInPrompt` behaviour with `String`
+            // TODO: Add options: GenerationOptions
+          )
+        }
+
+        Task {
+          do {
+            for try await snapshot in stream {
+              // TODO: Extract common response handling code into a helper method.
+              let responseText: String
+              if schema == nil, case let .string(text) = snapshot.rawContent.kind {
+                responseText = text
+              } else {
+                responseText = snapshot.rawContent.jsonString
+              }
+
+              let generatedContent = snapshot.rawContent.firebaseGeneratedContent
+              let modelContent = ModelContent(
+                role: "model",
+                parts: [InternalPart(.text(responseText), isThought: false, thoughtSignature: nil)]
+              )
+              let candidate = Candidate(
+                content: modelContent,
+                safetyRatings: [],
+                finishReason: nil,
+                citationMetadata: nil
+              )
+              let rawResponse = GenerateContentResponse(
+                candidates: [candidate],
+                modelVersion: SystemLanguageModel.modelName
+              )
+
+              let response = ModelSessionResponse(
+                rawContent: generatedContent,
+                rawResponse: rawResponse
+              )
+
+              continuation.yield(response)
+            }
+            continuation.finish()
+          } catch {
+            continuation.finish(throwing: error)
+            return
+          }
+        }
       }
     }
   }
