@@ -320,26 +320,21 @@
               includeSchemaInPrompt: includeSchemaInPrompt,
               options: options
             )
-            do {
-              for try await response in stream {
-                let rawResult = GenerativeModelSession.ResponseStream<Content, PartialContent>
-                  .RawResult(
-                    rawContent: response.rawContent,
-                    rawResponse: response.rawResponse
-                  )
-                await context.yield(rawResult)
-              }
-              await context.finish()
-              return
-            } catch {
-              if await context.hasYielded {
-                throw error
-              } else {
-                continue
-              }
+            for try await response in stream {
+              let rawResult = GenerativeModelSession.ResponseStream<Content, PartialContent>
+                .RawResult(
+                  rawContent: response.rawContent,
+                  rawResponse: response.rawResponse
+                )
+              await context.yield(rawResult)
             }
+            await context.finish()
+            return
           } catch {
             errors.append(error)
+            if await context.hasYielded {
+              break
+            }
           }
         }
 
