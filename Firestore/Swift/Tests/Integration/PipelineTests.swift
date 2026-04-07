@@ -5295,7 +5295,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       .limit(1)
       .replace(with: MapExpression(["arr": [10, 20, 30]]))
       .select([
-  Field("arr").arrayTransform(
+        Field("arr").arrayTransform(
           elementAlias: "element",
           transform: Variable("element").multiply(10)
         ).as("transform"),
