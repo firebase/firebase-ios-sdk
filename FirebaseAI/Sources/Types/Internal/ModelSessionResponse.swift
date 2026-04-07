@@ -12,7 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-struct ModelSessionResponse {
-  let rawContent: FirebaseAI.GeneratedContent
-  let rawResponse: GenerateContentResponse
-}
+#if compiler(>=6.2.3)
+  struct ModelSessionResponse {
+    let rawContent: FirebaseAI.GeneratedContent
+    let rawResponse: GenerateContentResponse
+  }
+#endif // compiler(>=6.2.3)
