@@ -21,6 +21,10 @@ import FirebaseCore
 import FirebaseFirestore
 
 class DatabaseTests: FSTIntegrationTestCase {
+  func testIntentionalFailure() async throws {
+    XCTFail("Intentional failure to test CI retry logic")
+  }
+
   func testCanStillUseDisablePersistenceSettings() async throws {
     let settings = db.settings
     settings.isPersistenceEnabled = false
