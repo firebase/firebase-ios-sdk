@@ -36,7 +36,7 @@ jobs:
         os: [macos-15]
         include:
           - os: macos-15
-            xcode: Xcode_16.4
+            xcode: Xcode_26.2
     uses: ./.github/workflows/_build.yml
     with:
       product: ${{ matrix.scheme }}
@@ -54,7 +54,7 @@ jobs:
         os: [macos-15]
         include:
           - os: macos-15
-            xcode: Xcode_16.4
+            xcode: Xcode_26.2
     uses: ./.github/workflows/_build.yml
     with:
       product: ${{ matrix.scheme }}
@@ -71,7 +71,7 @@ jobs:
         os: [macos-15]
         include:
           - os: macos-15
-            xcode: Xcode_16.4
+            xcode: Xcode_26.2
     uses: ./.github/workflows/_build.yml
     with:
       product: ${{ matrix.scheme }}

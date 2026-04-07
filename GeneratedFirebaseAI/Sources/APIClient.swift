@@ -382,7 +382,7 @@ public final class APIClient: Sendable {
       The Firebase AI SDK requires the Firebase AI API \
       (`firebasevertexai.googleapis.com`) to be enabled in your Firebase project. Enable this API \
       by visiting the Firebase Console at
-      https://console.firebase.google.com/project/\(projectID)/genai/ and clicking "Get started". \
+      https://console.firebase.google.com/project/\(projectID)/ailogic/ and clicking "Get started". \
       If you enabled this API recently, wait a few minutes for the action to propagate to our \
       systems and then retry.
       """)
