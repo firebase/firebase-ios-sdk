@@ -314,7 +314,7 @@
               session = modelSession
             }
 
-            let stream = try session.streamResponse(
+            let stream = session.streamResponse(
               to: parts,
               schema: schema,
               includeSchemaInPrompt: includeSchemaInPrompt,

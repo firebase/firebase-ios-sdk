@@ -245,9 +245,9 @@ import Foundation
               break functionCallingLoop
             }
 
-            await continuation.finish()
+            continuation.finish()
           } catch {
-            await continuation.finish(throwing: error)
+            continuation.finish(throwing: error)
           }
         }
       }
