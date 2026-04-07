@@ -254,19 +254,9 @@
       -> GenerativeModelSession.Response<Content> {
       var errors = [any Error]()
       // TODO: Propagate session history to the next model on fallback.
-      for (index, model) in models.enumerated() {
+      for index in models.indices {
         do {
-          // TODO: Refactor into helper function.
-          let session = try modelSessions.withLock { modelSessions in
-            if let modelSession = modelSessions[index] {
-              return modelSession
-            } else {
-              let modelSession = try model.startSession(tools: tools, instructions: instructions)
-              modelSessions[index] = modelSession
-
-              return modelSession
-            }
-          }
+          let session = try getOrStartSession(index: index)
 
           let response = try await session.respond(
             to: prompt,
@@ -309,22 +299,9 @@
       return GenerativeModelSession.ResponseStream<Content, PartialContent> { context in
         var errors = [any Error]()
         // TODO: Propagate session history to the next model on fallback.
-        for (index, model) in self.models.enumerated() {
+        for index in self.models.indices {
           do {
-            // TODO: Refactor into helper function.
-            let session = try self.modelSessions.withLock { modelSessions in
-              if let modelSession = modelSessions[index] {
-                return modelSession
-              } else {
-                let modelSession = try model.startSession(
-                  tools: self.tools,
-                  instructions: self.instructions
-                )
-                modelSessions[index] = modelSession
-
-                return modelSession
-              }
-            }
+            let session = try self.getOrStartSession(index: index)
 
             let stream = session.streamResponse(
               to: parts,
@@ -416,6 +393,25 @@
       throw GenerativeModelSession.TypeConversionError(
         from: type(of: rawContent), to: T.self
       )
+    }
+
+    // Returns the session for `models[index]`, starting it if it doesn't exist.
+    //
+    // This is a workaround to provide `internal` access to `modelSessions` for unit-testing.
+    //
+    // TODO: Refactor into a `SessionManager` to track which sessions are available.
+    func getOrStartSession(index: Int) throws -> any ModelSession {
+      try modelSessions.withLock { modelSessions in
+        if let modelSession = modelSessions[index] {
+          return modelSession
+        } else {
+          let model = models[index]
+          let modelSession = try model.startSession(tools: tools, instructions: instructions)
+          modelSessions[index] = modelSession
+
+          return modelSession
+        }
+      }
     }
   }
 

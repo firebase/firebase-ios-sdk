@@ -86,7 +86,7 @@
       XCTAssertEqual(response.content, "Mountain View")
       var functionCalls = [FunctionCall]()
       var functionResponses = [FunctionResponse]()
-      let modelSession = try XCTUnwrap(session.modelSessions[0])
+      let modelSession = try XCTUnwrap(session.getOrStartSession(index: 0))
       let geminiSession = try XCTUnwrap(modelSession as? GeminiModelSession)
       for content in geminiSession.chat.history {
         for part in content.internalParts {
@@ -138,7 +138,7 @@
       XCTAssertEqual(response.content, "Mountain View")
       var functionCalls = [FunctionCall]()
       var functionResponses = [FunctionResponse]()
-      let modelSession = try XCTUnwrap(session.modelSessions[0])
+      let modelSession = try XCTUnwrap(session.getOrStartSession(index: 0))
       let geminiSession = try XCTUnwrap(modelSession as? GeminiModelSession)
       for content in geminiSession.chat.history {
         for part in content.internalParts {
@@ -209,7 +209,7 @@
 
       var functionCalls = [FunctionCall]()
       var functionResponses = [FunctionResponse]()
-      let modelSession = try XCTUnwrap(session.modelSessions[0])
+      let modelSession = try XCTUnwrap(session.getOrStartSession(index: 0))
       let geminiSession = try XCTUnwrap(modelSession as? GeminiModelSession)
       for content in geminiSession.chat.history {
         for part in content.internalParts {
@@ -265,7 +265,7 @@
       """)
       var functionCalls = [FunctionCall]()
       var functionResponses = [FunctionResponse]()
-      let modelSession = try XCTUnwrap(session.modelSessions[0])
+      let modelSession = try XCTUnwrap(session.getOrStartSession(index: 0))
       let geminiSession = try XCTUnwrap(modelSession as? GeminiModelSession)
       for content in geminiSession.chat.history {
         for part in content.internalParts {
@@ -322,7 +322,7 @@
       """)
       var functionCalls = [FunctionCall]()
       var functionResponses = [FunctionResponse]()
-      let modelSession = try XCTUnwrap(session.modelSessions[0])
+      let modelSession = try XCTUnwrap(session.getOrStartSession(index: 0))
       let geminiSession = try XCTUnwrap(modelSession as? GeminiModelSession)
       for content in geminiSession.chat.history {
         for part in content.internalParts {
@@ -395,7 +395,7 @@
 
       var functionCalls = [FunctionCall]()
       var functionResponses = [FunctionResponse]()
-      let modelSession = try XCTUnwrap(session.modelSessions[0])
+      let modelSession = try XCTUnwrap(session.getOrStartSession(index: 0))
       let geminiSession = try XCTUnwrap(modelSession as? GeminiModelSession)
       for content in geminiSession.chat.history {
         for part in content.internalParts {
