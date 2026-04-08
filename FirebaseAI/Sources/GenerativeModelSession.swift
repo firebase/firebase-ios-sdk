@@ -561,8 +561,11 @@
         let context = StreamContext(continuation: extractedContinuation)
         self.context = context
 
-        Task {
+        let task = Task {
           await builder(context)
+        }
+        extractedContinuation.onTermination = { _ in
+          task.cancel()
         }
       }
 
