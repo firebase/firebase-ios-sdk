@@ -289,7 +289,7 @@
         // TODO: Create new `GenerationError` case for no content generated.
         throw GenerativeModelSession.GenerationError.decodingFailure(
           GenerativeModelSession.GenerationError.Context(
-            debugDescription: "No content generated in stream."
+            debugDescription: "No content generated."
           )
         )
       }
