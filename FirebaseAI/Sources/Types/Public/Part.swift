@@ -363,8 +363,7 @@ public struct CodeExecutionResultPart: Part {
           guard !(part.isThought ?? false) else { return nil }
 
           // Skip any parts without `data`, for example a `Part` containing only a thought
-          // signature,
-          // since they are unused by Foundation Models.
+          // signature, since they are unused by Foundation Models.
           guard let data = part.data else { return nil }
 
           // Currently only string types are supported.
