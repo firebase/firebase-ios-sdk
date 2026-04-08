@@ -105,7 +105,7 @@
           )
         }
 
-        Task {
+        let task = Task {
           do {
             for try await snapshot in stream {
               // TODO: Extract common response handling code into a helper method.
@@ -145,6 +145,7 @@
             return
           }
         }
+        continuation.onTermination = { _ in task.cancel() }
       }
     }
   }

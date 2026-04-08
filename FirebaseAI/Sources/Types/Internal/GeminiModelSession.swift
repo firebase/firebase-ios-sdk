@@ -113,7 +113,7 @@ import Foundation
       -> sending AsyncThrowingStream<ModelSessionResponse, any Error> {
       let initialParts = [ModelContent(parts: prompt)]
       return AsyncThrowingStream { continuation in
-        Task {
+        let task = Task {
           do {
             let config = try self.buildConfig(
               options: options,
@@ -250,6 +250,7 @@ import Foundation
             continuation.finish(throwing: error)
           }
         }
+        continuation.onTermination = { _ in task.cancel() }
       }
     }
 
