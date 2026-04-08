@@ -52,15 +52,7 @@
   /// print("Favorite Topics: \(response.content.favoriteTopics.joined(separator: ", "))")
   /// ```
   public final class GenerativeModelSession: Sendable {
-    // TODO: Throw on concurrent requests using `GenerativeModelSession`.
-
-    let models: [any LanguageModel]
-    // TODO: Add a `SessionManager` to track which sessions are available (no permanent failures).
-    // TODO: Track history status (`Transcript`) alongside `modelSessions`.
-    private let modelSessions = UnfairLock([Int: any ModelSession]())
-    private let activeSessionIndex = UnfairLock<Int?>(nil)
-
-    let tools: [any ToolRepresentable]?
+    let sessionManager: SessionManager
     let instructions: String?
 
     // The maximum number of automatic back-and-forth turns the session will perform to resolve
@@ -76,8 +68,7 @@
     /// **Public Preview**: This API is a public preview and may be subject to change.
     /// - Parameter model: The `GenerativeModel` to use for generating content.
     init(models: [any LanguageModel], tools: [any ToolRepresentable]?, instructions: String?) {
-      self.models = models
-      self.tools = tools
+      sessionManager = SessionManager(models: models, tools: tools)
       self.instructions = instructions
     }
 
@@ -255,11 +246,19 @@
                           generating type: Content.Type, includeSchemaInPrompt: Bool,
                           options: GenerationConfig?) async throws
       -> GenerativeModelSession.Response<Content> {
+      try sessionManager.startResponding()
+      defer {
+        self.sessionManager.finishResponding()
+      }
+
       var errors = [any Error]()
       // TODO: Propagate session history to the next model on fallback.
-      for index in allowedSessionIndices() {
+      for index in sessionManager.allowedSessionIndices {
         do {
-          let session = try getOrStartSession(index: index)
+          let session = try sessionManager.getOrStartSession(
+            index: index,
+            instructions: instructions
+          )
 
           let response = try await session.respond(
             to: prompt,
@@ -270,9 +269,7 @@
 
           // The request succeeded so the current session contains the history; mark the current
           // session as active to disallow future fallbacks to other sessions.
-          if activeSessionIndex.value() == nil {
-            activeSessionIndex.withLock { $0 = index }
-          }
+          sessionManager.setActiveSessionIndexIfNil(index: index)
 
           return try GenerativeModelSession.Response(
             content: Self.resolveContent(from: response.content),
@@ -282,7 +279,7 @@
         } catch {
           errors.append(error)
           // Do not fallback to other other sessions if the current session contains history.
-          guard activeSessionIndex.value() == nil else {
+          if sessionManager.hasActiveSession {
             break
           }
         }
@@ -310,11 +307,24 @@
       -> sending GenerativeModelSession.ResponseStream<Content, PartialContent> {
       let parts = prompt.partsValue
       return GenerativeModelSession.ResponseStream<Content, PartialContent> { context in
+        do {
+          try self.sessionManager.startResponding()
+        } catch {
+          await context.finish(throwing: error)
+          return
+        }
+        defer {
+          self.sessionManager.finishResponding()
+        }
+
         var errors = [any Error]()
         // TODO: Propagate session history to the next model on fallback.
-        for index in self.allowedSessionIndices() {
+        for index in self.sessionManager.allowedSessionIndices {
           do {
-            let session = try self.getOrStartSession(index: index)
+            let session = try self.sessionManager.getOrStartSession(
+              index: index,
+              instructions: self.instructions
+            )
 
             let stream = session.streamResponse(
               to: parts,
@@ -333,9 +343,7 @@
 
             // The request succeeded so the current session contains the history; mark the current
             // session as active to disallow future fallbacks to other sessions.
-            if self.activeSessionIndex.value() == nil {
-              self.activeSessionIndex.withLock { $0 = index }
-            }
+            self.sessionManager.setActiveSessionIndexIfNil(index: index)
 
             await context.finish()
             return
@@ -344,7 +352,7 @@
 
             // Do not fallback to other other sessions if the current stream has yielded any values
             // to the caller or if there's an active session.
-            if await context.hasYielded || self.activeSessionIndex.value() != nil {
+            if await context.hasYielded || self.sessionManager.hasActiveSession {
               break
             }
           }
@@ -417,33 +425,97 @@
         from: type(of: rawContent), to: T.self
       )
     }
+  }
 
-    // Returns the session for `models[index]`, starting it if it doesn't exist.
-    //
-    // This is a workaround to provide `internal` access to `modelSessions` for unit-testing.
-    //
-    // TODO: Refactor into a `SessionManager` to track which sessions are available.
-    func getOrStartSession(index: Int) throws -> any ModelSession {
-      try modelSessions.withLock { modelSessions in
-        if let modelSession = modelSessions[index] {
-          return modelSession
-        } else {
-          let model = models[index]
-          let modelSession = try model.startSession(tools: tools, instructions: instructions)
-          modelSessions[index] = modelSession
+  extension GenerativeModelSession {
+    final class SessionManager: @unchecked Sendable {
+      // TODO: Track when sessions have permanent failures.
+      // TODO: Track and propagate history status (`Transcript`) for `modelSessions`.
 
-          return modelSession
+      private let models: [any LanguageModel]
+      private let tools: [any ToolRepresentable]?
+
+      // The properties `_modelSessions` and `_activeSessionIndex` should only be mutated when
+      // `_isResponding == true`.
+      private let _isResponding = UnfairLock(false)
+      private(set) var _modelSessions = [Int: any ModelSession]()
+      private var _activeSessionIndex: Int?
+
+      init(models: [any LanguageModel], tools: [any ToolRepresentable]?) {
+        self.models = models
+        self.tools = tools
+      }
+
+      var isResponding: Bool {
+        _isResponding.value()
+      }
+
+      func startResponding() throws {
+        try _isResponding.withLock { isResponding in
+          guard !isResponding else {
+            throw GenerativeModelSession.GenerationError.concurrentRequests(
+              GenerativeModelSession.GenerationError.Context(debugDescription: """
+              Attempted to start a new generation request while one was already in progress. \
+              Create an additional session to perform concurrent requests.
+              """)
+            )
+          }
+
+          isResponding = true
         }
       }
-    }
 
-    // Returns the indices of model sessions that are available.
-    //
-    // This is a workaround to prevent fallbacks to other sessions after the current session has
-    // valid history.
-    // TODO: Remove this method and related checks when history is propagated between sessions.
-    func allowedSessionIndices() -> [Int] {
-      return activeSessionIndex.value().map { [$0] } ?? Array(models.indices)
+      func finishResponding() {
+        _isResponding.withLock { isResponding in
+          assert(isResponding, "`finishResponding` called but `isResponding` is false.")
+          isResponding = false
+        }
+      }
+
+      var hasActiveSession: Bool {
+        _isResponding.withLock { isResponding in
+          assert(isResponding, "`activeSessionIndex` getter called but `isResponding` is false.")
+          return _activeSessionIndex != nil
+        }
+      }
+
+      // Returns the indices of model sessions that are available.
+      //
+      // This is a workaround to prevent fallbacks to other sessions after the current session has
+      // valid history.
+      // TODO: Remove this property and related checks when history is propagated between sessions.
+      var allowedSessionIndices: [Int] {
+        return _isResponding.withLock { isResponding in
+          assert(isResponding, "`allowedSessionIndices` called outside of a generation request.")
+          return _activeSessionIndex.map { [$0] } ?? Array(models.indices)
+        }
+      }
+
+      func setActiveSessionIndexIfNil(index: Int) {
+        _isResponding.withLock { isResponding in
+          assert(isResponding, "`setActiveSessionIndexIfNil` called but `isResponding` is false.")
+          if _activeSessionIndex == nil {
+            _activeSessionIndex = index
+          }
+        }
+      }
+
+      // Returns the session for `models[index]`, starting it if it doesn't exist.
+      //
+      // This is a workaround to provide `internal` access to `modelSessions` for unit-testing.
+      func getOrStartSession(index: Int, instructions: String?) throws -> any ModelSession {
+        try _isResponding.withLock { isResponding in
+          if let modelSession = _modelSessions[index] {
+            return modelSession
+          } else {
+            let model = models[index]
+            let modelSession = try model.startSession(tools: tools, instructions: instructions)
+            _modelSessions[index] = modelSession
+
+            return modelSession
+          }
+        }
+      }
     }
   }
 
@@ -714,6 +786,8 @@
 
       /// The model's response could not be decoded.
       case decodingFailure(GenerativeModelSession.GenerationError.Context)
+
+      case concurrentRequests(GenerativeModelSession.GenerationError.Context)
 
       case internalError(GenerativeModelSession.GenerationError.Context, underlyingError: any Error)
     }
