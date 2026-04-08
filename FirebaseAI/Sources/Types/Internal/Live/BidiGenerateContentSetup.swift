@@ -55,13 +55,19 @@ struct BidiGenerateContentSetup: Encodable {
   /// turn.
   let outputAudioTranscription: BidiAudioTranscriptionConfig?
 
+  /// Optional. Configures the proactivity of the model.
+  ///
+  /// This allows the model to respond proactively to the input and to ignore irrelevant input.
+  let proactivity: ProactivityConfig?
+
   init(model: String,
        generationConfig: BidiGenerationConfig? = nil,
        systemInstruction: ModelContent? = nil,
        tools: [Tool]? = nil,
        toolConfig: ToolConfig? = nil,
        inputAudioTranscription: BidiAudioTranscriptionConfig? = nil,
-       outputAudioTranscription: BidiAudioTranscriptionConfig? = nil) {
+       outputAudioTranscription: BidiAudioTranscriptionConfig? = nil,
+       proacity: ProactivityConfig? = nil) {
     self.model = model
     self.generationConfig = generationConfig
     self.systemInstruction = systemInstruction
@@ -69,6 +75,7 @@ struct BidiGenerateContentSetup: Encodable {
     self.toolConfig = toolConfig
     self.inputAudioTranscription = inputAudioTranscription
     self.outputAudioTranscription = outputAudioTranscription
+    proactivity = proacity
   }
 }
 
