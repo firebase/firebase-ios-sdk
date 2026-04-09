@@ -109,8 +109,6 @@ public final class FirebaseAI: Sendable {
   // TODO: Remove the `#if compiler(>=6.2.3)` when Xcode 26.2 is the minimum supported version.
   #if compiler(>=6.2.3)
 
-    // TODO: Add public API for instantiating models to use with hybrid GenerativeModelSession.
-
     /// Creates a new `GenerativeModelSession` with the given model.
     ///
     /// - Important: **Public Preview** - This API is a public preview and may be subject to change.
@@ -129,6 +127,47 @@ public final class FirebaseAI: Sendable {
 
       return generativeModelSession(models: [geminiModel], tools: tools, instructions: instructions)
     }
+
+    #if canImport(FoundationModels)
+      @available(iOS 26.0, macOS 26.0, *)
+      @available(tvOS, unavailable)
+      @available(watchOS, unavailable)
+      public func generativeModelSession(model: String, tools: [any ToolRepresentable]? = nil,
+                                         instructions: String? = nil, mode: InferenceMode)
+        -> GenerativeModelSession {
+        var models: [any LanguageModel]
+        switch mode {
+        case .preferOnDevice:
+          models = [SystemLanguageModel.default, geminiModel(modelName: model)]
+        case .onlyOnDevice:
+          models = [SystemLanguageModel.default]
+        case .preferInCloud:
+          models = [geminiModel(modelName: model), SystemLanguageModel.default]
+        case .onlyInCloud:
+          models = [geminiModel(modelName: model)]
+        }
+
+        return generativeModelSession(models: models, tools: tools, instructions: instructions)
+      }
+    #endif // canImport(FoundationModels)
+
+    #if canImport(FoundationModels)
+      @available(iOS 26.0, macOS 26.0, *)
+      @available(tvOS, unavailable)
+      @available(watchOS, unavailable)
+      public func generativeModelSession(model: String, tools: [any FoundationModels.Tool],
+                                         instructions: String? = nil, mode: InferenceMode)
+        -> GenerativeModelSession {
+        let tools = tools.map { FirebaseAILogic.Tool.autoFunctionDeclaration($0) }
+
+        return generativeModelSession(
+          model: model,
+          tools: tools as [any ToolRepresentable]?,
+          instructions: instructions,
+          mode: mode
+        )
+      }
+    #endif // canImport(FoundationModels)
 
     // TODO: Update this testing API for hybrid GenerativeModelSession.
     func geminiModel(modelName: String, safetySettings: [SafetySetting]? = nil,
