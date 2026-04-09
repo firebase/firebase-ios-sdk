@@ -152,7 +152,8 @@ actor LiveSessionService {
         tools: tools,
         toolConfig: toolConfig,
         inputAudioTranscription: generationConfig?.inputAudioTranscription,
-        outputAudioTranscription: generationConfig?.outputAudioTranscription
+        outputAudioTranscription: generationConfig?.outputAudioTranscription,
+        proacity: generationConfig?.proactivityConfig
       )
       let data = try jsonEncoder.encode(BidiGenerateContentClientMessage.setup(setup))
       try await webSocket.send(.data(data))

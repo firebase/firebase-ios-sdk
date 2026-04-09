@@ -20,6 +20,7 @@ public struct LiveGenerationConfig: Sendable {
   let bidiGenerationConfig: BidiGenerationConfig
   let inputAudioTranscription: BidiAudioTranscriptionConfig?
   let outputAudioTranscription: BidiAudioTranscriptionConfig?
+  let proactivityConfig: ProactivityConfig?
 
   /// Creates a new ``LiveGenerationConfig`` value.
   ///
@@ -118,13 +119,17 @@ public struct LiveGenerationConfig: Sendable {
   ///
   ///     > Important: Transcripts are independent to the model turn. This means transcripts may
   ///     > come earlier or later than when the model sends the corresponding audio responses.
+  ///   - proactivity: Controls the proactivity of the modal.
+  ///
+  ///     This allows the model to respond proactively to the input and to ignore irrelevant input.
   public init(temperature: Float? = nil, topP: Float? = nil, topK: Int? = nil,
               candidateCount: Int? = nil, maxOutputTokens: Int? = nil,
               presencePenalty: Float? = nil, frequencyPenalty: Float? = nil,
               responseModalities: [ResponseModality]? = nil,
               speech: SpeechConfig? = nil,
               inputAudioTranscription: AudioTranscriptionConfig? = nil,
-              outputAudioTranscription: AudioTranscriptionConfig? = nil) {
+              outputAudioTranscription: AudioTranscriptionConfig? = nil,
+              proactivity: LiveProactivityConfig? = nil) {
     self.init(
       BidiGenerationConfig(
         temperature: temperature,
@@ -138,15 +143,18 @@ public struct LiveGenerationConfig: Sendable {
         speechConfig: speech?.speechConfig
       ),
       inputAudioTranscription: inputAudioTranscription?.audioTranscriptionConfig,
-      outputAudioTranscription: outputAudioTranscription?.audioTranscriptionConfig
+      outputAudioTranscription: outputAudioTranscription?.audioTranscriptionConfig,
+      proactivityConfig: proactivity?.proactivityConfig
     )
   }
 
   init(_ bidiGenerationConfig: BidiGenerationConfig,
        inputAudioTranscription: BidiAudioTranscriptionConfig? = nil,
-       outputAudioTranscription: BidiAudioTranscriptionConfig? = nil) {
+       outputAudioTranscription: BidiAudioTranscriptionConfig? = nil,
+       proactivityConfig: ProactivityConfig? = nil) {
     self.bidiGenerationConfig = bidiGenerationConfig
     self.inputAudioTranscription = inputAudioTranscription
     self.outputAudioTranscription = outputAudioTranscription
+    self.proactivityConfig = proactivityConfig
   }
 }
