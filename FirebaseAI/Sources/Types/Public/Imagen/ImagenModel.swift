@@ -93,36 +93,6 @@ public final class ImagenModel {
     )
   }
 
-  /// Generates images using the Imagen model and stores them in Cloud Storage (GCS) for Firebase.
-  ///
-  /// The generated images are stored in a subdirectory of the requested `gcsURI`, named as a random
-  /// numeric hash. For example, for the `gcsURI` `"gs://bucket-name/path/"`, the generated images
-  /// are stored in `"gs://bucket-name/path/1234567890123/"` with the names `sample_0.png`,
-  /// `sample_1.png`, `sample_2.png`, ..., `sample_N.png`. In this example, `1234567890123` is the
-  /// hash value and `N` is the number of images that were generated, up to the number requested in
-  /// ``ImagenGenerationConfig/numberOfImages``. The individual ``ImagenGCSImage/gcsURI`` is
-  /// provided for each of the generated ``ImagenGenerationResponse/images``.
-  ///
-  /// > Note: By default, 1 image sample is generated; see ``ImagenGenerationConfig/numberOfImages``
-  /// to configure the number of images that are generated.
-  ///
-  /// - Parameters:
-  ///   - prompt: A text prompt describing the image(s) to generate.
-  ///   - gcsURI: The Cloud Storage (GCS) for Firebase URI where the generated images are stored.
-  ///     This is a `"gs://"`-prefixed URI , for example, `"gs://bucket-name/path/"`.
-  ///
-  func generateImages(prompt: String, gcsURI: String) async throws
-    -> ImagenGenerationResponse<ImagenGCSImage> {
-    return try await generateImages(
-      prompt: prompt,
-      parameters: ImagenModel.imageGenerationParameters(
-        storageURI: gcsURI,
-        generationConfig: generationConfig,
-        safetySettings: safetySettings
-      )
-    )
-  }
-
   func generateImages<T>(prompt: String,
                          parameters: ImageGenerationParameters) async throws
     -> ImagenGenerationResponse<T> where T: Decodable, T: ImagenImageRepresentable {
