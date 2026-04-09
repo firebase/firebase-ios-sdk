@@ -18,10 +18,6 @@ import FirebaseFirestore
 import Foundation
 
 class AggregationIntegrationTests: FSTIntegrationTestCase {
-  func testIntentionalFailure() async throws {
-    XCTFail("Intentional failure to test CI retry logic")
-  }
-
   func testCount() async throws {
     let collection = collectionRef()
     try await collection.addDocument(data: [:])
