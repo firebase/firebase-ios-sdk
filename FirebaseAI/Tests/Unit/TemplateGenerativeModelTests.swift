@@ -81,7 +81,7 @@ final class TemplateGenerativeModelTests: XCTestCase {
 
     MockURLProtocol.requestHandler = { request in
       let data = try XCTUnwrap(GenerativeModelTestUtil.readRequestBody(request))
-      
+
       if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
          let toolConfig = json["toolConfig"] as? [String: Any],
          let retrievalConfig = toolConfig["retrievalConfig"] as? [String: Any],
@@ -101,7 +101,7 @@ final class TemplateGenerativeModelTests: XCTestCase {
     let firebaseInfo = GenerativeModelTestUtil.testFirebaseInfo()
     let generativeAIService = GenerativeAIService(
       firebaseInfo: firebaseInfo,
-      urlSession: self.urlSession
+      urlSession: urlSession
     )
     let apiConfig = APIConfig(service: .googleAI(endpoint: .firebaseProxyProd), version: .v1beta)
     let modelWithConfig = TemplateGenerativeModel(

@@ -97,9 +97,9 @@ enum GenerativeModelTestUtil {
       return body
     }
     if let stream = request.httpBodyStream {
+      let bufferSize = 1024
       stream.open()
       defer { stream.close() }
-      let bufferSize = 1024
       var buffer = [UInt8](repeating: 0, count: bufferSize)
       var data = Data()
       while stream.hasBytesAvailable {

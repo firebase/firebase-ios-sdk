@@ -21,7 +21,7 @@ import Foundation
 public final class TemplateGenerativeModel: Sendable {
   let generativeAIService: GenerativeAIService
   let apiConfig: APIConfig
-  let toolConfig: TemplateToolConfig?
+  private let toolConfig: TemplateToolConfig?
 
   init(generativeAIService: GenerativeAIService, apiConfig: APIConfig,
        toolConfig: TemplateToolConfig? = nil) {
