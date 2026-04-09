@@ -102,7 +102,7 @@ enum GenerativeModelTestUtil {
       defer { stream.close() }
       var buffer = [UInt8](repeating: 0, count: bufferSize)
       var data = Data()
-      while stream.hasBytesAvailable {
+      while true {
         let read = stream.read(&buffer, maxLength: bufferSize)
         if read > 0 {
           data.append(buffer, count: read)

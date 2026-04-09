@@ -82,15 +82,12 @@ final class TemplateGenerativeModelTests: XCTestCase {
     MockURLProtocol.requestHandler = { request in
       let data = try XCTUnwrap(GenerativeModelTestUtil.readRequestBody(request))
 
-      if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-         let toolConfig = json["toolConfig"] as? [String: Any],
-         let retrievalConfig = toolConfig["retrievalConfig"] as? [String: Any],
-         let latLng = retrievalConfig["latLng"] as? [String: Any] {
-        XCTAssertEqual(latLng["latitude"] as? Double, 40.7128)
-        XCTAssertEqual(latLng["longitude"] as? Double, -74.0060)
-      } else {
-        XCTFail("Request body did not contain expected toolConfig")
-      }
+      let json = try XCTUnwrap(try JSONSerialization.jsonObject(with: data) as? [String: Any])
+      let toolConfig = try XCTUnwrap(json["toolConfig"] as? [String: Any])
+      let retrievalConfig = try XCTUnwrap(toolConfig["retrievalConfig"] as? [String: Any])
+      let latLng = try XCTUnwrap(retrievalConfig["latLng"] as? [String: Any])
+      XCTAssertEqual(latLng["latitude"] as? Double, 40.7128)
+      XCTAssertEqual(latLng["longitude"] as? Double, -74.0060)
       return try baseHandler(request)
     }
     let toolConfig = TemplateToolConfig(
