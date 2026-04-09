@@ -106,8 +106,11 @@ enum GenerativeModelTestUtil {
         let read = stream.read(&buffer, maxLength: bufferSize)
         if read > 0 {
           data.append(buffer, count: read)
-        } else {
+        } else if read == 0 {
           break
+        } else {
+          XCTFail("Failed to read request body stream due to a stream error.")
+          return nil
         }
       }
       return data

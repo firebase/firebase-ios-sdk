@@ -82,7 +82,7 @@ final class TemplateGenerativeModelTests: XCTestCase {
     MockURLProtocol.requestHandler = { request in
       let data = try XCTUnwrap(GenerativeModelTestUtil.readRequestBody(request))
 
-      let json = try XCTUnwrap(try JSONSerialization.jsonObject(with: data) as? [String: Any])
+      let json = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
       let toolConfig = try XCTUnwrap(json["toolConfig"] as? [String: Any])
       let retrievalConfig = try XCTUnwrap(toolConfig["retrievalConfig"] as? [String: Any])
       let latLng = try XCTUnwrap(retrievalConfig["latLng"] as? [String: Any])
