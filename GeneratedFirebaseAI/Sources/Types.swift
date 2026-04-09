@@ -22344,53 +22344,6 @@ extension PartnerModelTuningSpec: Codable {
   }
 }
 
-/// Evaluation config for tuning.
-@available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public struct EvaluationConfig: Sendable {
-  /// Generation config for inference.
-  public let inferenceGenerationConfig: GenerationConfig?
-
-  /// Default initializer.
-  public init(
-    inferenceGenerationConfig: GenerationConfig? = nil
-  ) {
-    self.inferenceGenerationConfig = inferenceGenerationConfig
-  }
-}
-
-@available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension EvaluationConfig: Codable {
-
-  // MARK: - Codable
-  public enum VertexKeys: String, CodingKey {
-    case inferenceGenerationConfig = "inferenceGenerationConfig"
-  }
-
-  public init(from decoder: any Decoder) throws {
-    let configuration: APIClient = try decoder.userInfoOrThrow(.configuration)
-
-    let VertexKeysContainer = try decoder.container(keyedBy: VertexKeys.self)
-    inferenceGenerationConfig = try VertexKeysContainer.decodeIfPresent(
-      GenerationConfig.self,
-      forKey: .inferenceGenerationConfig
-    )
-  }
-
-  public func encode(to encoder: any Encoder) throws {
-    let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
-
-    if configuration.isVertexAI() {
-
-      var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
-      try VertexKeysContainer.encodeIfPresent(
-        inferenceGenerationConfig,
-        forKey: .inferenceGenerationConfig
-      )
-
-    }
-  }
-}
-
 /// Bleu metric value for an instance. This data type is not supported in Gemini
 /// API.
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
@@ -24880,6 +24833,53 @@ extension TuningValidationDataset: Codable {
       try VertexKeysContainer.encodeIfPresent(
         vertexDatasetResource,
         forKey: .vertexDatasetResource
+      )
+
+    }
+  }
+}
+
+/// Evaluation config for tuning.
+@available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+public struct EvaluationConfig: Sendable {
+  /// Generation config for inference.
+  public let inferenceGenerationConfig: GenerationConfig?
+
+  /// Default initializer.
+  public init(
+    inferenceGenerationConfig: GenerationConfig? = nil
+  ) {
+    self.inferenceGenerationConfig = inferenceGenerationConfig
+  }
+}
+
+@available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension EvaluationConfig: Codable {
+
+  // MARK: - Codable
+  public enum VertexKeys: String, CodingKey {
+    case inferenceGenerationConfig = "inferenceGenerationConfig"
+  }
+
+  public init(from decoder: any Decoder) throws {
+    let configuration: APIClient = try decoder.userInfoOrThrow(.configuration)
+
+    let VertexKeysContainer = try decoder.container(keyedBy: VertexKeys.self)
+    inferenceGenerationConfig = try VertexKeysContainer.decodeIfPresent(
+      GenerationConfig.self,
+      forKey: .inferenceGenerationConfig
+    )
+  }
+
+  public func encode(to encoder: any Encoder) throws {
+    let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
+
+    if configuration.isVertexAI() {
+
+      var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
+      try VertexKeysContainer.encodeIfPresent(
+        inferenceGenerationConfig,
+        forKey: .inferenceGenerationConfig
       )
 
     }
