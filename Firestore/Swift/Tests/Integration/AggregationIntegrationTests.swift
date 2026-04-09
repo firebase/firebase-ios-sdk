@@ -19,10 +19,6 @@ import Foundation
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class AggregationIntegrationTests: FSTIntegrationTestCase {
-  func testIntentionalFailure() async throws {
-    XCTFail("Intentional failure to test CI retry logic")
-  }
-
   func testCount() async throws {
     let collection = collectionRef()
     try await collection.addDocument(data: [:])
