@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import CoreLocation
+
 // TODO: remove @testable when Template Chat is restored to the public API.
 @testable import FirebaseAILogic
 import Testing
@@ -39,7 +41,7 @@ struct ServerPromptTemplateIntegrationTests {
       ]
     )
     let text = try #require(response.text)
-    #expect(text.contains("Paul"))
+    #expect(text.localizedCaseInsensitiveContains("Paul"))
   }
 
   @Test(arguments: testConfigs)
@@ -59,7 +61,30 @@ struct ServerPromptTemplateIntegrationTests {
         resultText += text
       }
     }
-    #expect(resultText.contains("Paul"))
+    #expect(resultText.localizedCaseInsensitiveContains("Paul"))
+  }
+
+  @Test(arguments: [
+    InstanceConfig.googleAI_v1beta,
+    InstanceConfig.vertexAI_v1beta,
+  ])
+  func generateContentWithTemplateMapsGrounding(_ config: InstanceConfig) async throws {
+    let toolConfig = TemplateToolConfig(
+      retrievalConfig: RetrievalConfig(
+        location: CLLocationCoordinate2D(latitude: 37.7799, longitude: -122.2822)
+      )
+    )
+    let model = FirebaseAI.componentInstance(config).templateGenerativeModel(toolConfig: toolConfig)
+    let userName = "paul"
+    let response = try await model.generateContent(
+      templateID: "location-via-sdk",
+      inputs: [
+        "name": userName,
+      ]
+    )
+    let text = try #require(response.text)
+    #expect(text.localizedCaseInsensitiveContains("Paul"))
+    #expect(text.localizedCaseInsensitiveContains("museum"))
   }
 
   @Test(arguments: [

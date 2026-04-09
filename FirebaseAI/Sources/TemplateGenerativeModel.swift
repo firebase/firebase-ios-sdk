@@ -21,10 +21,13 @@ import Foundation
 public final class TemplateGenerativeModel: Sendable {
   let generativeAIService: GenerativeAIService
   let apiConfig: APIConfig
+  let toolConfig: TemplateToolConfig?
 
-  init(generativeAIService: GenerativeAIService, apiConfig: APIConfig) {
+  init(generativeAIService: GenerativeAIService, apiConfig: APIConfig,
+       toolConfig: TemplateToolConfig? = nil) {
     self.generativeAIService = generativeAIService
     self.apiConfig = apiConfig
+    self.toolConfig = toolConfig
   }
 
   /// Generates content from a prompt template and inputs.
@@ -70,7 +73,8 @@ public final class TemplateGenerativeModel: Sendable {
       projectID: generativeAIService.firebaseInfo.projectID,
       stream: false,
       apiConfig: apiConfig,
-      options: options
+      options: options,
+      toolConfig: toolConfig
     )
     let response: GenerateContentResponse = try await generativeAIService
       .loadRequest(request: request)
@@ -101,7 +105,8 @@ public final class TemplateGenerativeModel: Sendable {
       projectID: generativeAIService.firebaseInfo.projectID,
       stream: true,
       apiConfig: apiConfig,
-      options: options
+      options: options,
+      toolConfig: toolConfig
     )
     return generativeAIService.loadRequestStream(request: request)
   }
@@ -118,7 +123,8 @@ public final class TemplateGenerativeModel: Sendable {
       projectID: generativeAIService.firebaseInfo.projectID,
       stream: true,
       apiConfig: apiConfig,
-      options: options
+      options: options,
+      toolConfig: toolConfig
     )
     return generativeAIService.loadRequestStream(request: request)
   }

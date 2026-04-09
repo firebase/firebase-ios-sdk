@@ -91,6 +91,30 @@ enum GenerativeModelTestUtil {
     #endif // os(watchOS)
   }
 
+  /// Reads the request body, handling both `httpBody` and `httpBodyStream`.
+  static func readRequestBody(_ request: URLRequest) -> Data? {
+    if let body = request.httpBody {
+      return body
+    }
+    if let stream = request.httpBodyStream {
+      stream.open()
+      defer { stream.close() }
+      let bufferSize = 1024
+      var buffer = [UInt8](repeating: 0, count: bufferSize)
+      var data = Data()
+      while stream.hasBytesAvailable {
+        let read = stream.read(&buffer, maxLength: bufferSize)
+        if read > 0 {
+          data.append(buffer, count: read)
+        } else {
+          break
+        }
+      }
+      return data
+    }
+    return nil
+  }
+
   static func collectTextFromStream(_ stream: AsyncThrowingStream<
     GenerateContentResponse,
     Error

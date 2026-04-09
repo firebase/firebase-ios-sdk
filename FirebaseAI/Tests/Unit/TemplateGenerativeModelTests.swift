@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import CoreLocation
 @testable import FirebaseAILogic
 import FirebaseCore
 import XCTest
@@ -68,5 +69,50 @@ final class TemplateGenerativeModelTests: XCTestCase {
 
     let content = try await GenerativeModelTestUtil.collectTextFromStream(stream)
     XCTAssertEqual(content, "The capital of Wyoming is **Cheyenne**.\n")
+  }
+
+  func testGenerateContentWithTemplateToolConfig() async throws {
+    let baseHandler = try GenerativeModelTestUtil.httpRequestHandler(
+      forResource: "unary-success-basic-reply-short",
+      withExtension: "json",
+      subdirectory: "mock-responses/googleai",
+      isTemplateRequest: true
+    )
+
+    MockURLProtocol.requestHandler = { request in
+      let data = try XCTUnwrap(GenerativeModelTestUtil.readRequestBody(request))
+      
+      if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+         let toolConfig = json["toolConfig"] as? [String: Any],
+         let retrievalConfig = toolConfig["retrievalConfig"] as? [String: Any],
+         let latLng = retrievalConfig["latLng"] as? [String: Any] {
+        XCTAssertEqual(latLng["latitude"] as? Double, 40.7128)
+        XCTAssertEqual(latLng["longitude"] as? Double, -74.0060)
+      } else {
+        XCTFail("Request body did not contain expected toolConfig")
+      }
+      return try baseHandler(request)
+    }
+    let toolConfig = TemplateToolConfig(
+      retrievalConfig: RetrievalConfig(
+        location: CLLocationCoordinate2D(latitude: 40.7128, longitude: -74.0060)
+      )
+    )
+    let firebaseInfo = GenerativeModelTestUtil.testFirebaseInfo()
+    let generativeAIService = GenerativeAIService(
+      firebaseInfo: firebaseInfo,
+      urlSession: self.urlSession
+    )
+    let apiConfig = APIConfig(service: .googleAI(endpoint: .firebaseProxyProd), version: .v1beta)
+    let modelWithConfig = TemplateGenerativeModel(
+      generativeAIService: generativeAIService,
+      apiConfig: apiConfig,
+      toolConfig: toolConfig
+    )
+
+    let _ = try await modelWithConfig.generateContent(
+      templateID: "test-template",
+      inputs: ["name": "test"]
+    )
   }
 }
