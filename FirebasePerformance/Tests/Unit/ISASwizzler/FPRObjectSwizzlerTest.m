@@ -419,6 +419,45 @@
 }
 #endif
 
+- (void)testSwizzlerDisposesGeneratedClass {
+  NSString *className;
+  __weak FPRObjectSwizzler *weakSwizzler;
+
+  XCTestExpectation *swizzlerDeallocatedExpectation =
+      [self expectationWithDescription:@"swizzlerDeallocatedExpectation"];
+
+  @autoreleasepool {
+    NSObject *object = [[NSObject alloc] init];
+    FPRObjectSwizzler *swizzler = [[FPRObjectSwizzler alloc] initWithObject:object];
+    [swizzler copySelector:@selector(donorDescription)
+                 fromClass:[FPRObjectSwizzlerTest class]
+           isClassSelector:NO];
+    [swizzler swizzle];
+    className = NSStringFromClass(object_getClass(object));
+    weakSwizzler = swizzler;
+
+    // Release FPRObjectSwizzler
+    [FPRObjectSwizzler setAssociatedObject:object
+                                       key:&kGULSwizzlerAssociatedObjectKey
+                                     value:nil
+                               association:GUL_ASSOCIATION_RETAIN];
+
+    object = nil;
+  }
+
+  // Wait for a while until FPRObjectSwizzler has disposed the generated class on the main queue.
+  dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.0 * NSEC_PER_SEC)),
+                 dispatch_get_main_queue(), ^{
+                   [swizzlerDeallocatedExpectation fulfill];
+                 });
+
+  [self waitForExpectations:@[ swizzlerDeallocatedExpectation ] timeout:2];
+
+  XCTAssertNil(weakSwizzler);
+  Class cls = objc_getClass(className.UTF8String);
+  XCTAssertNil(cls);
+}
+
 - (void)testMultiSwizzling {
   NSObject *object = [[NSObject alloc] init];
 
