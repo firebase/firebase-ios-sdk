@@ -1,5 +1,6 @@
 # Unreleased
 - [changed] Drop C++14 support, Firestore SDK now requires at least C++17.
+- [feature] Added support for Pipeline expressions `arraySlice`, `arrayFilter`, `arrayTransform` and `arrayTransformWithIndex`. (#16001)
 
 # 12.12.0
 - [feature] Added support for the `parent` Pipeline expression. (#16010)

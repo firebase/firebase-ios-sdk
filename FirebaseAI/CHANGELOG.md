@@ -1,3 +1,8 @@
+# Unreleased
+- [feature] Added support for GoogleMaps grounding.
+- [fixed] Fixed a `no member 'autoFunctionDeclaration'` compilation error on
+  unofficially supported Xcode versions older than 26.2. (#16037)
+
 # 12.12.0
 - [feature] Added support for automatic function calling in
   `GenerativeModelSession`. You can create Gemini-compatible function
