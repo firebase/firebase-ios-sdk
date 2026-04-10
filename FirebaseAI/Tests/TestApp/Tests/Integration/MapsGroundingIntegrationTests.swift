@@ -36,6 +36,39 @@ struct MapsGroundingIntegrationTests {
   }
 
   @Test(
+    "respondTo with Google Maps returns grounding metadata",
+    arguments: InstanceConfig.allConfigs
+  )
+  func generativeModelSession_respondTo_withGoogleMaps_succeeds(_ config: InstanceConfig) async throws {
+    let session = FirebaseAI.componentInstance(config).generativeModelSession(
+      model: ModelNames.gemini2_5_Flash,
+      tools: [.googleMaps()]
+    )
+    let prompt = "Where is a good place to grab a coffee near Alameda, CA?"
+
+    let response = try await session.respond(to: prompt)
+
+    try validateGoogleMapsGrounding(response: response.rawResponse)
+  }
+
+  @Test(
+    "streamResponse with Google Maps returns grounding metadata",
+    arguments: InstanceConfig.allConfigs
+  )
+  func generativeModelSession_streamResponse_withGoogleMaps_succeeds(_ config: InstanceConfig) async throws {
+    let session = FirebaseAI.componentInstance(config).generativeModelSession(
+      model: ModelNames.gemini2_5_Flash,
+      tools: [.googleMaps()]
+    )
+    let prompt = "Where is a good place to grab a coffee near Alameda, CA?"
+
+    let stream = session.streamResponse(to: prompt)
+    let response = try await stream.collect()
+
+    try validateGoogleMapsGrounding(response: response.rawResponse)
+  }
+
+  @Test(
     "generateContent with Google Maps and RetrievalConfig returns grounding metadata",
     arguments: InstanceConfig.allConfigs
   )
