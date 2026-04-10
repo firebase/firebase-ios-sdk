@@ -509,6 +509,8 @@ static UIViewController *FPRCustomViewController(NSString *className, BOOL isVie
   }
 
   XCTAssertNil(weakVC);
+  [self.tracker cleanupStaleTraces];
+  XCTAssertEqual(self.tracker.activeScreenTraces.count, 0);
 }
 
 /** Tests that a FIRTrace is strongly retained in the map table that holds the mapping between a

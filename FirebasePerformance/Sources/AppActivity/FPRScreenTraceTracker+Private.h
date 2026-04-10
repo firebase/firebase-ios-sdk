@@ -134,6 +134,9 @@ FOUNDATION_EXTERN CFTimeInterval const kFPRFrozenFrameThreshold;
  */
 - (void)updateCachedSlowBudget;
 
+/** Cleans up stale entries in activeScreenTraces where the viewController has been deallocated. */
+- (void)cleanupStaleTraces;
+
 @end
 
 NS_ASSUME_NONNULL_END

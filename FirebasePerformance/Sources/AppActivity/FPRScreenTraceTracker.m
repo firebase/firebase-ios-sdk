@@ -330,6 +330,8 @@ void RecordFrameType(CFAbsoluteTime currentTimestamp,
     return;
   }
 
+  [self cleanupStaleTraces];
+
   NSValue *key = [NSValue valueWithNonretainedObject:viewController];
 
   [self.activeScreenTracesLock lock];
@@ -370,6 +372,9 @@ void RecordFrameType(CFAbsoluteTime currentTimestamp,
                       currentTotalFrames:(int64_t)currentTotalFrames
                      currentFrozenFrames:(int64_t)currentFrozenFrames
                        currentSlowFrames:(int64_t)currentSlowFrames {
+  if (viewController == nil) {
+    return;
+  }
   NSValue *key = [NSValue valueWithNonretainedObject:viewController];
 
   [self.activeScreenTracesLock lock];
@@ -462,6 +467,18 @@ void RecordFrameType(CFAbsoluteTime currentTimestamp,
            [viewController isMemberOfClass:[UISplitViewController class]] ||
            [viewController isMemberOfClass:[UIPageViewController class]] ||
            [viewController isKindOfClass:[UIInputViewController class]]);
+}
+
+- (void)cleanupStaleTraces {
+  [self.activeScreenTracesLock lock];
+  NSMutableArray *keysToRemove = [[NSMutableArray alloc] init];
+  [self.activeScreenTraces enumerateKeysAndObjectsUsingBlock:^(NSValue *key, FPRScreenTraceHolder *holder, BOOL *stop) {
+    if (holder.viewController == nil) {
+      [keysToRemove addObject:key];
+    }
+  }];
+  [self.activeScreenTraces removeObjectsForKeys:keysToRemove];
+  [self.activeScreenTracesLock unlock];
 }
 
 #pragma mark - Screen Traces swizzling hooks
