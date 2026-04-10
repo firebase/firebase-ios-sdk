@@ -60,7 +60,7 @@ FOUNDATION_EXTERN CFTimeInterval const kFPRFrozenFrameThreshold;
 @property(nonatomic) NSMutableDictionary<NSValue *, FPRScreenTraceHolder *> *activeScreenTraces;
 
 /** Lock to protect access to activeScreenTraces dictionary. */
-@property(nonatomic) NSLock *activeScreenTracesLock;
+@property(nonatomic) NSRecursiveLock *activeScreenTracesLock;
 
 /** A list of all UIViewController instances that were visible before app was backgrounded. The
  *  viewControllers are reatined weakly.
