@@ -1,5 +1,7 @@
+# Unreleased
+- [fixed] Fixed missing thought summary output in `GenerativeModelSession.streamResponse`. (#16075)
+
 # 12.12.0
-- [fixed] Fixed an issue in `GenerativeModelSession.streamResponse` where pure-thought chunks were swallowed, and prevented JSON decoding crashes during the reasoning phase of Gemini Thinking models.
 - [feature] Added support for automatic function calling in
   `GenerativeModelSession`. You can create Gemini-compatible function
   declarations by providing types conforming to the `FoundationModels.Tool`
