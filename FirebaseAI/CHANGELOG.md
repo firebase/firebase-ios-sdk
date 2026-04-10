@@ -1,4 +1,8 @@
 # Unreleased
+- [feature] Added support for GoogleMaps grounding.
+- [fixed] Fix unfound file warnings from `swift build`. (#16012)
+- [fixed] Fixed a `no member 'autoFunctionDeclaration'` compilation error on
+  unofficially supported Xcode versions older than 26.2. (#16037)
 - [fixed] Fixed missing thought summary output in `GenerativeModelSession.streamResponse`. (#16075)
 
 # 12.12.0
