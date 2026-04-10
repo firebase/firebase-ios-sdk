@@ -378,13 +378,12 @@ void RecordFrameType(CFAbsoluteTime currentTimestamp,
 
   [self.activeScreenTracesLock lock];
   FPRScreenTraceHolder *holder = [self.activeScreenTraces objectForKey:key];
-  if (holder && holder.viewController != viewController) {
-    // Stale entry due to pointer reuse. Remove it.
-    [self.activeScreenTraces removeObjectForKey:key];
-    holder = nil;
-  }
   if (holder) {
     [self.activeScreenTraces removeObjectForKey:key];
+    if (holder.viewController != viewController) {
+      // Stale entry due to pointer reuse.
+      holder = nil;
+    }
   }
   [self.activeScreenTracesLock unlock];
 
@@ -470,7 +469,7 @@ void RecordFrameType(CFAbsoluteTime currentTimestamp,
 
 - (void)cleanupStaleTraces {
   [self.activeScreenTracesLock lock];
-  NSMutableArray *keysToRemove = [[NSMutableArray alloc] init];
+  NSMutableArray *keysToRemove = [NSMutableArray array];
   [self.activeScreenTraces
       enumerateKeysAndObjectsUsingBlock:^(NSValue *key, FPRScreenTraceHolder *holder, BOOL *stop) {
         if (holder.viewController == nil) {
