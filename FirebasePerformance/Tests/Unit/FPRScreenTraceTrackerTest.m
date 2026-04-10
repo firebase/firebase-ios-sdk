@@ -654,16 +654,19 @@ static UIViewController *FPRCustomViewController(NSString *className, BOOL isVie
   UIViewController *testViewController = [[UIViewController alloc] init];
   [testViewController view];  // Loads the view so that a screen trace is created for it.
 
-  UIViewController *testViewController2 = [[UIViewController alloc] init];
-  [testViewController2 view];  // Loads the view so that a screen trace is created for it.
+  __weak UIViewController *weakVC2;
+  @autoreleasepool {
+    UIViewController *testViewController2 = [[UIViewController alloc] init];
+    [testViewController2 view];  // Loads the view so that a screen trace is created for it.
 
-  self.tracker.previouslyVisibleViewControllers = [NSPointerArray weakObjectsPointerArray];
-  [self.tracker.previouslyVisibleViewControllers addPointer:(__bridge void *)testViewController];
-  [self.tracker.previouslyVisibleViewControllers addPointer:(__bridge void *)testViewController2];
+    self.tracker.previouslyVisibleViewControllers = [NSPointerArray weakObjectsPointerArray];
+    [self.tracker.previouslyVisibleViewControllers addPointer:(__bridge void *)testViewController];
+    [self.tracker.previouslyVisibleViewControllers addPointer:(__bridge void *)testViewController2];
 
-  // UIKit deallocates one of the ViewControllers that was previously visible.
-  __weak UIViewController *weakVC2 = testViewController2;
-  testViewController2 = nil;
+    // UIKit deallocates one of the ViewControllers that was previously visible.
+    weakVC2 = testViewController2;
+    testViewController2 = nil;
+  }
 
   // The blocks retain the view controllers and it sometimes takes some time to release them.
   NSDate *timeoutDate = [NSDate dateWithTimeIntervalSinceNow:5.0];
