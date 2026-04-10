@@ -159,50 +159,10 @@
 }
 
 - (void)dealloc {
-  // When the Zombies instrument is enabled, a zombie is created for the swizzled object upon
-  // deallocation. Because this zombie subclasses the generated class, the swizzler should not
-  // dispose it during the swizzler's deallocation.
-  //
-  // There are other special cases where the generated class might be subclassed by a third-party
-  // generated classes, for example: https://github.com/firebase/firebase-ios-sdk/issues/9083
-  // To avoid errors in such cases, the environment variable `GULGeneratedClassDisposeDisabled` can
-  // be set with `YES`.
-  NSDictionary *environment = [[NSProcessInfo processInfo] environment];
-  if ([[environment objectForKey:@"NSZombieEnabled"] boolValue] ||
-      [[environment objectForKey:@"GULGeneratedClassDisposeDisabled"] boolValue]) {
-    return;
-  }
-
-  if (_generatedClass) {
-    if (_swizzledObject == nil) {
-      // The swizzled object has been deallocated already, so the generated class can be disposed
-      // now.
-      objc_disposeClassPair(_generatedClass);
-      return;
-    }
-
-    // FPRSwizzledObject is retained by the swizzled object which means that the swizzled object is
-    // being deallocated now. Let's see if we should schedule the generated class disposal.
-
-    // If the swizzled object has a different class, it most likely indicates that the object was
-    // ISA swizzled one more time. In this case it is not safe to dispose the generated class. We
-    // will have to keep it to prevent a crash.
-
-    // TODO: Consider adding a flag that can be set by the host application to dispose the class
-    // pair unconditionally. It may be used by apps that use ISA Swizzling themself and are
-    // confident in disposing their subclasses.
-    BOOL isSwizzledObjectInstanceOfGeneratedClass =
-        object_getClass(_swizzledObject) == _generatedClass;
-
-    if (isSwizzledObjectInstanceOfGeneratedClass) {
-      Class generatedClass = _generatedClass;
-
-      // Schedule the generated class disposal after the swizzled object has been deallocated.
-      dispatch_async(dispatch_get_main_queue(), ^{
-        objc_disposeClassPair(generatedClass);
-      });
-    }
-  }
+  // We do not dispose the generated class pair here to avoid race conditions where the class is
+  // disposed while instances are still being destroyed (e.g. on background threads).
+  // Disposing the class pair while instances exist can cause hard-to-debug crashes.
+  // The memory cost of leaking the class structure is negligible.
 }
 
 - (BOOL)isSwizzlingProxyObject {
