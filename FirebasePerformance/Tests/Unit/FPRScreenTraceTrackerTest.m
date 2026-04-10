@@ -668,7 +668,8 @@ static UIViewController *FPRCustomViewController(NSString *className, BOOL isVie
   // The blocks retain the view controllers and it sometimes takes some time to release them.
   NSDate *timeoutDate = [NSDate dateWithTimeIntervalSinceNow:5.0];
   while (weakVC2 && [timeoutDate timeIntervalSinceNow] > 0) {
-    [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
+    [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode
+                             beforeDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
   }
 
   // App becomes active.
