@@ -80,6 +80,9 @@ static NSString *FPRScreenTraceNameForViewController(UIViewController *viewContr
   }
 }
 
+@implementation FPRScreenTraceHolder
+@end
+
 @implementation FPRScreenTraceTracker {
   /** Instance variable storing the total frames observed so far. */
   atomic_int_fast64_t _totalFramesCount;
@@ -115,11 +118,8 @@ static NSString *FPRScreenTraceNameForViewController(UIViewController *viewContr
 - (instancetype)init {
   self = [super init];
   if (self) {
-    // Weakly retain viewController, use pointer hashing.
-    NSMapTableOptions keyOptions = NSMapTableWeakMemory | NSMapTableObjectPointerPersonality;
-    // Strongly retain the FIRTrace.
-    NSMapTableOptions valueOptions = NSMapTableStrongMemory;
-    _activeScreenTraces = [NSMapTable mapTableWithKeyOptions:keyOptions valueOptions:valueOptions];
+    _activeScreenTraces = [[NSMutableDictionary alloc] init];
+    _activeScreenTracesLock = [[NSLock alloc] init];
 
     _previouslyVisibleViewControllers = nil;  // Will be set when there is data.
     _screenTraceTrackerSerialQueue =
@@ -217,11 +217,15 @@ static NSString *FPRScreenTraceNameForViewController(UIViewController *viewContr
 
   dispatch_group_async(self.screenTraceTrackerDispatchGroup, self.screenTraceTrackerSerialQueue, ^{
     self.previouslyVisibleViewControllers = [NSPointerArray weakObjectsPointerArray];
-    id visibleViewControllersEnumerator = [self.activeScreenTraces keyEnumerator];
-    id visibleViewController = nil;
-    while (visibleViewController = [visibleViewControllersEnumerator nextObject]) {
-      [self.previouslyVisibleViewControllers addPointer:(__bridge void *)(visibleViewController)];
+    [self.activeScreenTracesLock lock];
+    NSArray<FPRScreenTraceHolder *> *holders = [self.activeScreenTraces allValues];
+    for (FPRScreenTraceHolder *holder in holders) {
+      UIViewController *vc = holder.viewController;
+      if (vc) {
+        [self.previouslyVisibleViewControllers addPointer:(__bridge void *)(vc)];
+      }
     }
+    [self.activeScreenTracesLock unlock];
 
     for (id visibleViewController in self.previouslyVisibleViewControllers) {
       [self stopScreenTraceForViewController:visibleViewController
@@ -326,16 +330,31 @@ void RecordFrameType(CFAbsoluteTime currentTimestamp,
     return;
   }
 
-  // If there's a trace for this viewController, don't do anything.
-  if (![self.activeScreenTraces objectForKey:viewController]) {
+  NSValue *key = [NSValue valueWithNonretainedObject:viewController];
+
+  [self.activeScreenTracesLock lock];
+  FPRScreenTraceHolder *holder = [self.activeScreenTraces objectForKey:key];
+  if (holder && holder.viewController != viewController) {
+    // Stale entry due to pointer reuse. Remove it.
+    [self.activeScreenTraces removeObjectForKey:key];
+    holder = nil;
+  }
+
+  if (!holder) {
     NSString *traceName = FPRScreenTraceNameForViewController(viewController);
     FIRTrace *newTrace = [[FIRTrace alloc] initInternalTraceWithName:traceName];
     [newTrace start];
     [newTrace setIntValue:currentTotalFrames forMetric:kFPRTotalFramesCounterName];
     [newTrace setIntValue:currentFrozenFrames forMetric:kFPRFrozenFrameCounterName];
     [newTrace setIntValue:currentSlowFrames forMetric:kFPRSlowFrameCounterName];
-    [self.activeScreenTraces setObject:newTrace forKey:viewController];
+
+    holder = [[FPRScreenTraceHolder alloc] init];
+    holder.viewController = viewController;
+    holder.trace = newTrace;
+
+    [self.activeScreenTraces setObject:holder forKey:key];
   }
+  [self.activeScreenTracesLock unlock];
 }
 
 /** Stops a screen trace for the given UIViewController instance if it exist. This method does NOT
@@ -351,7 +370,25 @@ void RecordFrameType(CFAbsoluteTime currentTimestamp,
                       currentTotalFrames:(int64_t)currentTotalFrames
                      currentFrozenFrames:(int64_t)currentFrozenFrames
                        currentSlowFrames:(int64_t)currentSlowFrames {
-  FIRTrace *previousScreenTrace = [self.activeScreenTraces objectForKey:viewController];
+  NSValue *key = [NSValue valueWithNonretainedObject:viewController];
+
+  [self.activeScreenTracesLock lock];
+  FPRScreenTraceHolder *holder = [self.activeScreenTraces objectForKey:key];
+  if (holder && holder.viewController != viewController) {
+    // Stale entry due to pointer reuse. Remove it.
+    [self.activeScreenTraces removeObjectForKey:key];
+    holder = nil;
+  }
+  if (holder) {
+    [self.activeScreenTraces removeObjectForKey:key];
+  }
+  [self.activeScreenTracesLock unlock];
+
+  if (!holder) {
+    return;
+  }
+
+  FIRTrace *previousScreenTrace = holder.trace;
 
   // Get a diff between the counters now and what they were at trace start.
   int64_t actualTotalFrames =
@@ -386,7 +423,6 @@ void RecordFrameType(CFAbsoluteTime currentTimestamp,
     // The trace did not collect any data. Don't log it.
     [previousScreenTrace cancel];
   }
-  [self.activeScreenTraces removeObjectForKey:viewController];
 }
 
 #pragma mark - Filtering for screen traces
