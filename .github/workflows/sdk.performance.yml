@@ -72,6 +72,7 @@ jobs:
       setup_command: scripts/setup_quickstart.sh performance
       plist_src_path: scripts/gha-encrypted/qs-performance.plist.gpg
       plist_dst_path: quickstart-ios/performance/GoogleService-Info.plist
+      run_tests: false
     secrets:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
 

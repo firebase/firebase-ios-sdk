@@ -59,3 +59,6 @@ jobs:
       product: FirebaseABTesting
       platforms: '[ "ios", "tvos", "macos" ]'
       flags: '[ "--use-static-frameworks" ]'
+      # For toolchains var, see https://github.com/actions/runner-images/issues/13135#issuecomment-3397914993
+      setup_command: |
+        echo "TOOLCHAINS=com.apple.dt.toolchain.XcodeDefault" >> $GITHUB_ENV

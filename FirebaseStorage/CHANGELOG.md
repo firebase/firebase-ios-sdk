@@ -1,3 +1,7 @@
+# Unreleased
+- [fixed] Fixed `InstanceCache` keying by bucket only, which caused named apps sharing a
+  storage bucket with the default app to use the wrong auth context. (#16039)
+
 # 12.9.0
 - [fixed] Fix "weak never mutated" build warning introduced in Xcode 26.2.
 

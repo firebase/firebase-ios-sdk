@@ -16,11 +16,22 @@ import Foundation
 
 /// An error that occurs when image generation fails due to all generated images being blocked.
 ///
+/// @DeprecationSummary {
+///  All Imagen models are deprecated and will shut down as early as June 2026.
+///  As a replacement, you can [migrate your apps to use Gemini Image models
+///  (the "Nano Banana" models).](https://firebase.google.com/docs/ai-logic/imagen-models-migration)
+/// }
+///
 /// The images may have been blocked due to the specified ``ImagenSafetyFilterLevel``, the
 /// ``ImagenPersonFilterLevel``, or filtering included in the model. These filter levels may be
 /// adjusted in your ``ImagenSafetySettings``. See the [Responsible AI and usage guidelines for
 /// Imagen](https://cloud.google.com/vertex-ai/generative-ai/docs/image/responsible-ai-imagen)
 /// for more details.
+@available(
+  *,
+  deprecated,
+  message: "All Imagen models are deprecated and will shut down as early as June 2026. As a replacement, you can migrate your apps to use Gemini Image models (the \"Nano Banana\" models)."
+)
 public struct ImagenImagesBlockedError: Error {
   /// The reason that all generated images were blocked (filtered out).
   let message: String
@@ -28,6 +39,16 @@ public struct ImagenImagesBlockedError: Error {
 
 // MARK: - CustomNSError Conformance
 
+/// @DeprecationSummary {
+///  All Imagen models are deprecated and will shut down as early as June 2026.
+///  As a replacement, you can [migrate your apps to use Gemini Image models
+///  (the "Nano Banana" models).](https://firebase.google.com/docs/ai-logic/imagen-models-migration)
+/// }
+@available(
+  *,
+  deprecated,
+  message: "All Imagen models are deprecated and will shut down as early as June 2026. As a replacement, you can migrate your apps to use Gemini Image models (the \"Nano Banana\" models)."
+)
 extension ImagenImagesBlockedError: CustomNSError {
   public static var errorDomain: String {
     return Constants.Imagen.errorDomain
