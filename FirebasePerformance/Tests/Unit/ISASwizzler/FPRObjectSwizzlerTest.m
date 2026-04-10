@@ -441,15 +441,14 @@
                                        key:&kGULSwizzlerAssociatedObjectKey
                                      value:nil
                                association:GUL_ASSOCIATION_RETAIN];
-    
+
     object = nil;
   }
 
-  // Wait for a while until FPRObjectSwizzler has disposed the generated class on the main queue.
-  dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.0 * NSEC_PER_SEC)),
-                 dispatch_get_main_queue(), ^{
-                   [swizzlerDeallocatedExpectation fulfill];
-                 });
+  // Wait for FPRObjectSwizzler to dispose the generated class on the main queue.
+  dispatch_async(dispatch_get_main_queue(), ^{
+    [swizzlerDeallocatedExpectation fulfill];
+  });
 
   [self waitForExpectations:@[ swizzlerDeallocatedExpectation ] timeout:2];
 
