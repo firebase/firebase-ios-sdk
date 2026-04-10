@@ -769,6 +769,23 @@ public enum Converters {
         ])
     }
 
+    if fromObject.documentOcr != nil {
+      throw NSError(
+        domain: "Gemini API", code: -1,
+        userInfo: [
+          NSLocalizedDescriptionKey: "documentOcr parameter is not supported in Gemini API."
+        ])
+    }
+
+    if fromObject.audioTrackExtraction != nil {
+      throw NSError(
+        domain: "Gemini API", code: -1,
+        userInfo: [
+          NSLocalizedDescriptionKey:
+            "audioTrackExtraction parameter is not supported in Gemini API."
+        ])
+    }
+
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
