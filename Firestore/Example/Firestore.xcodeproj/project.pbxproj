@@ -6374,6 +6374,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.google.Firestore-IntegrationTests-macOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Firestore_Example_macOS.app/Contents/MacOS/Firestore_Example_macOS";
 			};
 			name = Debug;
@@ -6399,6 +6400,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.google.Firestore-IntegrationTests-macOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Firestore_Example_macOS.app/Contents/MacOS/Firestore_Example_macOS";
 			};
 			name = Release;
@@ -6479,7 +6481,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
-				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = "";
 				SDKROOT = iphoneos;
@@ -6529,7 +6531,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
-				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				OTHER_CFLAGS = "";
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;

@@ -24,7 +24,7 @@ let shouldUseSourceFirestore = Context.environment["FIREBASE_SOURCE_FIRESTORE"] 
 
 let package = Package(
   name: "Firebase",
-  platforms: [.iOS(.v15), .macCatalyst(.v15), .macOS(.v10_15), .tvOS(.v15), .watchOS(.v7)],
+  platforms: [.iOS(.v15), .macCatalyst(.v15), .macOS(.v11), .tvOS(.v15), .watchOS(.v7)],
   products: [
     .library(
       name: "FirebaseAI",
