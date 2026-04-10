@@ -71,45 +71,77 @@ final class TemplateGenerativeModelTests: XCTestCase {
     XCTAssertEqual(content, "The capital of Wyoming is **Cheyenne**.\n")
   }
 
-  func testGenerateContentWithTemplateToolConfig() async throws {
-    let baseHandler = try GenerativeModelTestUtil.httpRequestHandler(
-      forResource: "unary-success-basic-reply-short",
+  func testGenerateContent_success_mapsGrounding_googleAI() async throws {
+    MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
+      forResource: "unary-success-google-maps-grounding",
       withExtension: "json",
       subdirectory: "mock-responses/googleai",
       isTemplateRequest: true
     )
 
-    MockURLProtocol.requestHandler = { request in
-      let data = try XCTUnwrap(GenerativeModelTestUtil.readRequestBody(request))
-
-      let json = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
-      let toolConfig = try XCTUnwrap(json["toolConfig"] as? [String: Any])
-      let retrievalConfig = try XCTUnwrap(toolConfig["retrievalConfig"] as? [String: Any])
-      let latLng = try XCTUnwrap(retrievalConfig["latLng"] as? [String: Any])
-      XCTAssertEqual(latLng["latitude"] as? Double, 40.7128)
-      XCTAssertEqual(latLng["longitude"] as? Double, -74.0060)
-      return try baseHandler(request)
-    }
-    let toolConfig = TemplateToolConfig(
-      retrievalConfig: RetrievalConfig(
-        location: CLLocationCoordinate2D(latitude: 40.7128, longitude: -74.0060)
-      )
-    )
     let firebaseInfo = GenerativeModelTestUtil.testFirebaseInfo()
     let generativeAIService = GenerativeAIService(
       firebaseInfo: firebaseInfo,
       urlSession: urlSession
     )
     let apiConfig = APIConfig(service: .googleAI(endpoint: .firebaseProxyProd), version: .v1beta)
-    let modelWithConfig = TemplateGenerativeModel(
+    let model = TemplateGenerativeModel(
       generativeAIService: generativeAIService,
       apiConfig: apiConfig
     )
 
-    let _ = try await modelWithConfig.generateContent(
+    let response = try await model.generateContent(
       templateID: "test-template",
-      inputs: ["name": "test"],
-      toolConfig: toolConfig
+      inputs: ["name": "test"]
     )
+
+    XCTAssertEqual(response.candidates.count, 1)
+    let candidate = try XCTUnwrap(response.candidates.first)
+    let groundingMetadata = try XCTUnwrap(candidate.groundingMetadata)
+
+    XCTAssertEqual(groundingMetadata.webSearchQueries, ["pizza near me"])
+    XCTAssertEqual(groundingMetadata.groundingChunks.count, 20)
+    let firstChunk = try XCTUnwrap(groundingMetadata.groundingChunks.first?.maps)
+    XCTAssertEqual(firstChunk.title, "Joe’s Pizza")
+    XCTAssertEqual(firstChunk.url, URL(string: "https://maps.google.com/?cid=10332424901773702701"))
+    XCTAssertEqual(firstChunk.placeID, "places/ChIJqdNaaBVbwokRLTafYrQlZI8")
+  }
+
+  func testGenerateContent_success_mapsGrounding_vertexAI() async throws {
+    MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
+      forResource: "unary-success-google-maps-grounding",
+      withExtension: "json",
+      subdirectory: "mock-responses/vertexai",
+      isTemplateRequest: true
+    )
+
+    let firebaseInfo = GenerativeModelTestUtil.testFirebaseInfo()
+    let generativeAIService = GenerativeAIService(
+      firebaseInfo: firebaseInfo,
+      urlSession: urlSession
+    )
+    let apiConfig = APIConfig(
+      service: .vertexAI(endpoint: .firebaseProxyProd, location: "us-central1"),
+      version: .v1beta
+    )
+    let model = TemplateGenerativeModel(
+      generativeAIService: generativeAIService,
+      apiConfig: apiConfig
+    )
+
+    let response = try await model.generateContent(
+      templateID: "test-template",
+      inputs: ["name": "test"]
+    )
+
+    XCTAssertEqual(response.candidates.count, 1)
+    let candidate = try XCTUnwrap(response.candidates.first)
+    let groundingMetadata = try XCTUnwrap(candidate.groundingMetadata)
+
+    XCTAssertEqual(groundingMetadata.groundingChunks.count, 20)
+    let firstChunk = try XCTUnwrap(groundingMetadata.groundingChunks.first?.maps)
+    XCTAssertEqual(firstChunk.title, "Joe’s Pizza")
+    XCTAssertEqual(firstChunk.url, URL(string: "https://maps.google.com/?cid=10332424901773702701"))
+    XCTAssertEqual(firstChunk.placeID, "places/ChIJqdNaaBVbwokRLTafYrQlZI8")
   }
 }
