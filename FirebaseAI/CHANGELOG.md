@@ -1,4 +1,7 @@
 # Unreleased
+- [feature] Adds support for configuring image generation properties,
+  such as aspect ratio and image size, through the new `ImageConfig` struct
+  and its integration with `GenerationConfig`.
 - [feature] Added support for GoogleMaps grounding.
 - [fixed] Fixed a `no member 'autoFunctionDeclaration'` compilation error on
   unofficially supported Xcode versions older than 26.2. (#16037)

@@ -14,6 +14,7 @@ Any changes to these types must be done carefully to avoid breaking changes for 
 ### Files
 
 - **`Backend.swift`**: Defines the `Backend` struct, which is used to configure the backend API for the Firebase AI SDK. It provides static methods `vertexAI(location:)` and `googleAI()` to create instances for the respective backends.
+- **`ImageConfig.swift`**: Defines the `ImageConfig` struct, used for configuring generated image properties like aspect ratio and size.
 - **`Part.swift`**: Defines the `Part` protocol and several conforming structs: `TextPart`, `InlineDataPart`, `FileDataPart`, `FunctionCallPart`, `FunctionResponsePart`, `ExecutableCodePart`, and `CodeExecutionResultPart`. A `Part` represents a discrete piece of data in a media format that can be interpreted by the model.
 - **`ResponseModality.swift`**: Defines the `ResponseModality` struct, which represents the different types of data that a model can produce as output (e.g., `text`, `image`, `audio`).
 - **`Schema.swift`**: Defines the `Schema` class, which allows the definition of input and output data types for function calling. It supports various data types like string, number, integer, boolean, array, and object.
