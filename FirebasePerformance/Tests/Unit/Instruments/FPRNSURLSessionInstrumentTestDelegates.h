@@ -67,6 +67,12 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property(nonatomic) BOOL URLSessionDownloadTaskDidWriteDataTotalBytesWrittenTotalBytesCalled;
 
+/** Set to YES when URLSession:didCreateTask: is called (iOS 16+), used for testing. */
+@property(nonatomic) BOOL URLSessionDidCreateTaskCalled;
+
+/** Set to YES when URLSession:task:didFinishCollectingMetrics: is called, used for testing. */
+@property(nonatomic) BOOL URLSessionTaskDidFinishCollectingMetricsCalled;
+
 @end
 
 /** This class implements the methods necessary to cancel and resume a download. */

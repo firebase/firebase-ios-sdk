@@ -1,3 +1,6 @@
+# Unreleased
+- [Performance] Fix missing network traces for Swift async/await URLSession requests on iOS 16+. (#11861)
+
 # 12.12.0
 - [fixed] Fix app_start trace not firing in SwiftUI apps using @UIApplicationDelegateAdaptor. (#15802)
 
