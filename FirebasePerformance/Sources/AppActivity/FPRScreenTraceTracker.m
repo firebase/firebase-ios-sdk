@@ -119,7 +119,7 @@ static NSString *FPRScreenTraceNameForViewController(UIViewController *viewContr
   self = [super init];
   if (self) {
     _activeScreenTraces = [[NSMutableDictionary alloc] init];
-    _activeScreenTracesLock = [[NSLock alloc] init];
+    _activeScreenTracesLock = [[NSRecursiveLock alloc] init];
 
     _previouslyVisibleViewControllers = nil;  // Will be set when there is data.
     _screenTraceTrackerSerialQueue =
@@ -330,11 +330,10 @@ void RecordFrameType(CFAbsoluteTime currentTimestamp,
     return;
   }
 
+  [self.activeScreenTracesLock lock];
   [self cleanupStaleTraces];
 
   NSValue *key = [NSValue valueWithNonretainedObject:viewController];
-
-  [self.activeScreenTracesLock lock];
   FPRScreenTraceHolder *holder = [self.activeScreenTraces objectForKey:key];
   if (holder && holder.viewController != viewController) {
     // Stale entry due to pointer reuse. Remove it.
