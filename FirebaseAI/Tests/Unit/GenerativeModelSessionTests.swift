@@ -74,15 +74,23 @@
         ),
       ]
       let currentTimeTool = CurrentTimeTool()
-      let model = try mockGenerativeModel(tools: .autoFunctionDeclaration(currentTimeTool))
-      let session = GenerativeModelSession(model: model)
+      let model = try mockGeminiModel()
+      let session = GenerativeModelSession(
+        models: [model],
+        tools: [.autoFunctionDeclaration(currentTimeTool)],
+        instructions: nil
+      )
 
       let response = try await session.respond(to: testPrompt)
 
       XCTAssertEqual(response.content, "Mountain View")
       var functionCalls = [FunctionCall]()
       var functionResponses = [FunctionResponse]()
-      for content in session.session.history {
+      let modelSession = try XCTUnwrap(
+        session.sessionManager.getOrStartSession(index: 0, instructions: nil)
+      )
+      let geminiSession = try XCTUnwrap(modelSession as? GeminiModelSession)
+      for content in geminiSession.chat.history {
         for part in content.internalParts {
           switch part.data {
           case let .functionCall(functionCall):
@@ -120,15 +128,23 @@
         subdirectory: googleAISubdirectory
       ))
       let currentTimeTool = CurrentTimeTool()
-      let model = try mockGenerativeModel(tools: .autoFunctionDeclaration(currentTimeTool))
-      let session = GenerativeModelSession(model: model)
+      let model = try mockGeminiModel()
+      let session = GenerativeModelSession(
+        models: [model],
+        tools: [.autoFunctionDeclaration(currentTimeTool)],
+        instructions: nil
+      )
 
       let response = try await session.respond(to: testPrompt)
 
       XCTAssertEqual(response.content, "Mountain View")
       var functionCalls = [FunctionCall]()
       var functionResponses = [FunctionResponse]()
-      for content in session.session.history {
+      let modelSession = try XCTUnwrap(
+        session.sessionManager.getOrStartSession(index: 0, instructions: nil)
+      )
+      let geminiSession = try XCTUnwrap(modelSession as? GeminiModelSession)
+      for content in geminiSession.chat.history {
         for part in content.internalParts {
           switch part.data {
           case let .functionCall(functionCall):
@@ -152,6 +168,85 @@
       XCTAssertEqual(functionResponse.response, ["result": .string(CurrentTimeTool.currentTime)])
     }
 
+    func testRespondTo_activeSessionIndexPreventsFallback() async throws {
+      let model1 = try mockGeminiModel(modelName: "gemini-2.5-flash")
+      let model2 = try mockGeminiModel(modelName: "gemini-2.0-flash")
+      let session = GenerativeModelSession(models: [model1, model2], tools: nil, instructions: nil)
+      let expectedStatusCode = 400
+      try MockURLProtocol.requestHandlersQueue.append(contentsOf: [
+        GenerativeModelTestUtil.httpRequestHandler(
+          forResource: "unary-success-thinking-reply-thought-summary",
+          withExtension: "json",
+          subdirectory: googleAISubdirectory
+        ),
+        GenerativeModelTestUtil.httpRequestHandler(
+          forResource: "unary-failure-api-key",
+          withExtension: "json",
+          subdirectory: googleAISubdirectory,
+          statusCode: expectedStatusCode
+        ),
+        GenerativeModelTestUtil.httpRequestHandler(
+          forResource: "unary-success-basic-reply-short",
+          withExtension: "json",
+          subdirectory: googleAISubdirectory
+        ),
+      ])
+
+      // Verify first request succeeds.
+      let response1 = try await session.respond(to: testPrompt)
+      XCTAssertEqual(response1.content, "Mountain View")
+      XCTAssertEqual(response1.rawResponse.modelVersion, model1.modelName)
+
+      // Verify no fallback to model2 after successful request.
+      await XCTAssertThrowsError({
+        try await session.respond(to: testPrompt)
+      }, "Expected an error but request succeeded.") { error in
+        guard case let GenerateContentError.internalError(underlying: underlyingError) = error
+        else {
+          return XCTFail("Unexpected error type: \(error)")
+        }
+        guard let backendError = underlyingError as? BackendError else {
+          return XCTFail("Unexpected underlying error type: \(underlyingError)")
+        }
+        XCTAssertEqual(backendError.status, .invalidArgument)
+        XCTAssertEqual(backendError.httpResponseCode, expectedStatusCode)
+        XCTAssertTrue(backendError.message.hasPrefix("API key not valid."))
+      }
+      XCTAssertEqual(MockURLProtocol.requestHandlersQueue.count, 1, """
+      Expected 'unary-success-basic-reply-short' to remain the queue since falling back to 'model2'
+      is not supported after a successful request using model1.
+      """)
+    }
+
+    func testRespondTo_fallbackAfterFailure() async throws {
+      let model1 = try mockGeminiModel(modelName: "gemini-5.0-flash")
+      let model2 = try mockGeminiModel(modelName: "gemini-2.5-flash")
+      let session = GenerativeModelSession(models: [model1, model2], tools: nil, instructions: nil)
+      let expectedStatusCode = 404
+      try MockURLProtocol.requestHandlersQueue.append(contentsOf: [
+        GenerativeModelTestUtil.httpRequestHandler(
+          forResource: "unary-failure-unknown-model",
+          withExtension: "json",
+          subdirectory: googleAISubdirectory,
+          statusCode: expectedStatusCode
+        ),
+        GenerativeModelTestUtil.httpRequestHandler(
+          forResource: "unary-success-thinking-reply-thought-summary",
+          withExtension: "json",
+          subdirectory: googleAISubdirectory
+        ),
+      ])
+
+      // Verify request falls back to model2 after initial failure with model1.
+      let response1 = try await session.respond(to: testPrompt)
+
+      XCTAssertEqual(response1.content, "Mountain View")
+      XCTAssertEqual(response1.rawResponse.modelVersion, model2.modelName)
+      XCTAssertTrue(MockURLProtocol.requestHandlersQueue.isEmpty, """
+      Expected the queue to be empty after automatically falling back to model2.
+      """)
+    }
+
     func testRespondTo_functionCall_maxFunctionCallTurnsExceeded() async throws {
       let functionCallCount = GenerativeModelSession.maxAutoFunctionCallTurns + 1
       MockURLProtocol.requestHandlersQueue = try Array(
@@ -167,8 +262,12 @@
         subdirectory: googleAISubdirectory
       ))
       let currentTimeTool = CurrentTimeTool()
-      let model = try mockGenerativeModel(tools: .autoFunctionDeclaration(currentTimeTool))
-      let session = GenerativeModelSession(model: model)
+      let model = try mockGeminiModel()
+      let session = GenerativeModelSession(
+        models: [model],
+        tools: [.autoFunctionDeclaration(currentTimeTool)],
+        instructions: nil
+      )
 
       await XCTAssertThrowsError {
         try await session.respond(to: testPrompt)
@@ -193,7 +292,11 @@
 
       var functionCalls = [FunctionCall]()
       var functionResponses = [FunctionResponse]()
-      for content in session.session.history {
+      let modelSession = try XCTUnwrap(
+        session.sessionManager.getOrStartSession(index: 0, instructions: nil)
+      )
+      let geminiSession = try XCTUnwrap(modelSession as? GeminiModelSession)
+      for content in geminiSession.chat.history {
         for part in content.internalParts {
           switch part.data {
           case let .functionCall(functionCall):
@@ -231,8 +334,12 @@
         ),
       ]
       let currentTimeTool = CurrentTimeTool()
-      let model = try mockGenerativeModel(tools: .autoFunctionDeclaration(currentTimeTool))
-      let session = GenerativeModelSession(model: model)
+      let model = try mockGeminiModel()
+      let session = GenerativeModelSession(
+        models: [model],
+        tools: [.autoFunctionDeclaration(currentTimeTool)],
+        instructions: nil
+      )
 
       let stream = session.streamResponse(to: testPrompt)
       let response = try await stream.collect()
@@ -243,7 +350,11 @@
       """)
       var functionCalls = [FunctionCall]()
       var functionResponses = [FunctionResponse]()
-      for content in session.session.history {
+      let modelSession = try XCTUnwrap(
+        session.sessionManager.getOrStartSession(index: 0, instructions: nil)
+      )
+      let geminiSession = try XCTUnwrap(modelSession as? GeminiModelSession)
+      for content in geminiSession.chat.history {
         for part in content.internalParts {
           switch part.data {
           case let .functionCall(functionCall):
@@ -282,8 +393,12 @@
         subdirectory: googleAISubdirectory
       ))
       let currentTimeTool = CurrentTimeTool()
-      let model = try mockGenerativeModel(tools: .autoFunctionDeclaration(currentTimeTool))
-      let session = GenerativeModelSession(model: model)
+      let model = try mockGeminiModel()
+      let session = GenerativeModelSession(
+        models: [model],
+        tools: [.autoFunctionDeclaration(currentTimeTool)],
+        instructions: nil
+      )
 
       let stream = session.streamResponse(to: testPrompt)
       let response = try await stream.collect()
@@ -294,7 +409,11 @@
       """)
       var functionCalls = [FunctionCall]()
       var functionResponses = [FunctionResponse]()
-      for content in session.session.history {
+      let modelSession = try XCTUnwrap(
+        session.sessionManager.getOrStartSession(index: 0, instructions: nil)
+      )
+      let geminiSession = try XCTUnwrap(modelSession as? GeminiModelSession)
+      for content in geminiSession.chat.history {
         for part in content.internalParts {
           switch part.data {
           case let .functionCall(functionCall):
@@ -334,8 +453,12 @@
         subdirectory: googleAISubdirectory
       ))
       let currentTimeTool = CurrentTimeTool()
-      let model = try mockGenerativeModel(tools: .autoFunctionDeclaration(currentTimeTool))
-      let session = GenerativeModelSession(model: model)
+      let model = try mockGeminiModel()
+      let session = GenerativeModelSession(
+        models: [model],
+        tools: [.autoFunctionDeclaration(currentTimeTool)],
+        instructions: nil
+      )
 
       await XCTAssertThrowsError {
         let stream = session.streamResponse(to: testPrompt)
@@ -361,7 +484,11 @@
 
       var functionCalls = [FunctionCall]()
       var functionResponses = [FunctionResponse]()
-      for content in session.session.history {
+      let modelSession = try XCTUnwrap(
+        session.sessionManager.getOrStartSession(index: 0, instructions: nil)
+      )
+      let geminiSession = try XCTUnwrap(modelSession as? GeminiModelSession)
+      for content in geminiSession.chat.history {
         for part in content.internalParts {
           switch part.data {
           case let .functionCall(functionCall):
@@ -387,16 +514,18 @@
 
     // MARK: - Helper Utilities
 
-    func mockGenerativeModel(modelName: String? = nil, modelResourceName: String? = nil,
-                             firebaseInfo: FirebaseInfo? = nil, apiConfig: APIConfig? = nil,
-                             tools: ToolRepresentable..., requestOptions: RequestOptions? = nil,
-                             urlSession: URLSession? = nil) throws -> GenerativeModel {
-      return GenerativeModel(
+    func mockGeminiModel(modelName: String? = nil, modelResourceName: String? = nil,
+                         firebaseInfo: FirebaseInfo? = nil, apiConfig: APIConfig? = nil,
+                         safetySettings: [SafetySetting]? = nil, toolConfig: ToolConfig? = nil,
+                         requestOptions: RequestOptions? = nil,
+                         urlSession: URLSession? = nil) throws -> GeminiModel {
+      return GeminiModel(
         modelName: modelName ?? testModelName,
         modelResourceName: modelResourceName ?? testModelResourceName,
         firebaseInfo: firebaseInfo ?? GenerativeModelTestUtil.testFirebaseInfo(),
         apiConfig: apiConfig ?? self.apiConfig,
-        tools: tools.isEmpty ? nil : tools.asFirebaseTools(),
+        safetySettings: safetySettings,
+        toolConfig: toolConfig,
         requestOptions: requestOptions ?? RequestOptions(),
         urlSession: urlSession ?? self.urlSession
       )

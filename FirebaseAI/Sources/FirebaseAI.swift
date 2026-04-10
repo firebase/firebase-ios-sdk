@@ -108,6 +108,9 @@ public final class FirebaseAI: Sendable {
 
   // TODO: Remove the `#if compiler(>=6.2.3)` when Xcode 26.2 is the minimum supported version.
   #if compiler(>=6.2.3)
+
+    // TODO: Add public API for instantiating models to use with hybrid GenerativeModelSession.
+
     /// Creates a new `GenerativeModelSession` with the given model.
     ///
     /// - Important: **Public Preview** - This API is a public preview and may be subject to change.
@@ -122,14 +125,28 @@ public final class FirebaseAI: Sendable {
     ///   - instructions: System instructions that direct the model's behavior.
     public func generativeModelSession(model: String, tools: [any ToolRepresentable]? = nil,
                                        instructions: String? = nil) -> GenerativeModelSession {
-      let tools = tools?.map { $0.toolRepresentation }
-      let model = generativeModel(
-        modelName: model,
-        tools: tools,
-        systemInstruction: instructions.map { ModelContent(role: "system", parts: $0) }
-      )
+      let geminiModel = geminiModel(modelName: model)
 
-      return GenerativeModelSession(model: model)
+      return generativeModelSession(models: [geminiModel], tools: tools, instructions: instructions)
+    }
+
+    // TODO: Update this testing API for hybrid GenerativeModelSession.
+    func geminiModel(modelName: String, safetySettings: [SafetySetting]? = nil,
+                     toolConfig: ToolConfig? = nil) -> any LanguageModel {
+      return GeminiModel(
+        modelName: modelName,
+        modelResourceName: modelResourceName(modelName: modelName),
+        firebaseInfo: firebaseInfo,
+        apiConfig: apiConfig,
+        safetySettings: safetySettings,
+        toolConfig: toolConfig
+      )
+    }
+
+    // TODO: Update this testing API for hybrid GenerativeModelSession.
+    func generativeModelSession(models: [any LanguageModel], tools: [any ToolRepresentable]? = nil,
+                                instructions: String? = nil) -> GenerativeModelSession {
+      return GenerativeModelSession(models: models, tools: tools, instructions: instructions)
     }
 
     #if canImport(FoundationModels)

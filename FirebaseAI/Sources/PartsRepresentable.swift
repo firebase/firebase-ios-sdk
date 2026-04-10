@@ -13,6 +13,9 @@
 // limitations under the License.
 
 import Foundation
+#if canImport(FoundationModels)
+  import FoundationModels
+#endif // canImport(FoundationModels)
 
 /// A protocol describing any data that could be serialized to model-interpretable input data,
 /// where the serialization process cannot fail with an error.
@@ -44,3 +47,14 @@ extension String: PartsRepresentable {
     return [TextPart(self)]
   }
 }
+
+#if compiler(>=6.2.3) && canImport(FoundationModels)
+  @available(iOS 26.0, macOS 26.0, *)
+  @available(tvOS, unavailable)
+  @available(watchOS, unavailable)
+  extension PartsRepresentable {
+    func toFoundationModelsPrompt() throws -> FoundationModels.Prompt {
+      return try partsValue.toFoundationModelsPrompt()
+    }
+  }
+#endif // compiler(>=6.2.3) && canImport(FoundationModels)
