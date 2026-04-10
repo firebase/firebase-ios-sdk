@@ -23,9 +23,6 @@ import Testing
   import UIKit
 #endif // canImport(UIKit)
 
-// TODO(#14452): Remove `@testable import` when `generateImages(prompt:gcsURI:)` is public.
-@testable import class FirebaseAILogic.ImagenModel
-
 @Suite(
   .enabled(
     if: ProcessInfo.processInfo.environment["VTXIntegrationImagen"] != nil,
@@ -44,7 +41,9 @@ struct ImagenIntegrationTests {
     storage = Storage.storage()
   }
 
-  @Test func generateImage_inlineImage() async throws {
+  @Test
+  @available(*, deprecated)
+  func generateImage_inlineImage() async throws {
     let generationConfig = ImagenGenerationConfig(
       negativePrompt: "snow, frost",
       aspectRatio: .portrait3x4,
@@ -75,45 +74,9 @@ struct ImagenIntegrationTests {
     #endif // canImport(UIKit)
   }
 
-  @Test func generateImages_gcsImages() async throws {
-    let generationConfig = ImagenGenerationConfig(
-      numberOfImages: 3,
-      aspectRatio: .landscape16x9,
-      imageFormat: .jpeg(compressionQuality: 60),
-      addWatermark: true
-    )
-    let model = vertex.imagenModel(
-      modelName: "imagen-3.0-fast-generate-001",
-      generationConfig: generationConfig,
-      safetySettings: ImagenSafetySettings(
-        safetyFilterLevel: .blockMediumAndAbove,
-        personFilterLevel: .blockAll
-      )
-    )
-    let prompt = "A dense jungle with light streaming through the treetops"
-    let storageRef = storage.reference(
-      withPath: "/vertexai/imagen/authenticated/user/\(userID1)"
-    )
-
-    let response = try await model.generateImages(prompt: prompt, gcsURI: storageRef.gsURI)
-
-    #expect(response.filteredReason == nil)
-    #expect(response.images.count == generationConfig.numberOfImages)
-    for image in response.images {
-      #expect(image.mimeType == "image/jpeg")
-      let imageRef = storage.reference(forURL: image.gcsURI)
-      let imageData = try await imageRef.data(maxSize: 1_000_000) // ~1MB
-      #expect(imageData.isEmpty == false)
-      #if canImport(UIKit)
-        let uiImage = try #require(UIImage(data: imageData))
-        #expect(uiImage.size.width == 1408.0)
-        #expect(uiImage.size.height == 768.0)
-      #endif // canImport(UIKit)
-      try await imageRef.delete()
-    }
-  }
-
-  @Test func generateImage_allImagesFilteredOut() async throws {
+  @Test
+  @available(*, deprecated)
+  func generateImage_allImagesFilteredOut() async throws {
     let generationConfig = ImagenGenerationConfig(numberOfImages: 2, imageFormat: .jpeg())
     let model = vertex.imagenModel(
       modelName: "imagen-3.0-fast-generate-001",
@@ -134,8 +97,4 @@ struct ImagenIntegrationTests {
       return error.localizedDescription.contains("39322892")
     }
   }
-
-  // TODO(#14221): Add an integration test for the prompt being blocked.
-
-  // TODO(#14452): Add integration tests for validating that Storage Rules are enforced.
 }
