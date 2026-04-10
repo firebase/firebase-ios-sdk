@@ -20,10 +20,10 @@
   @available(tvOS, unavailable)
   @available(watchOS, unavailable)
   extension FoundationModels.LanguageModelSession: ModelSession {
-    func respond(to prompt: any PartsRepresentable, schema: FirebaseAI.GenerationSchema?,
-                 includeSchemaInPrompt: Bool, options: GenerationConfig?) async throws
+    func respondTo(promptParts: [any Part], schema: FirebaseAI.GenerationSchema?,
+                   includeSchemaInPrompt: Bool, options: GenerationConfig?) async throws
       -> ModelSessionResponse {
-      let prompt = try prompt.toFoundationModelsPrompt()
+      let prompt = try promptParts.toFoundationModelsPrompt()
 
       let response: FoundationModels.LanguageModelSession
         .Response<FoundationModels.GeneratedContent>
@@ -69,15 +69,15 @@
       return ModelSessionResponse(rawContent: generatedContent, rawResponse: rawResponse)
     }
 
-    func streamResponse(to parts: [any Part],
-                        schema: FirebaseAI.GenerationSchema?,
-                        includeSchemaInPrompt: Bool,
-                        options: GenerationConfig?)
+    func streamResponseTo(promptParts: [any Part],
+                          schema: FirebaseAI.GenerationSchema?,
+                          includeSchemaInPrompt: Bool,
+                          options: GenerationConfig?)
       -> sending AsyncThrowingStream<ModelSessionResponse, any Error> {
       return AsyncThrowingStream { continuation in
         let prompt: Prompt
         do {
-          prompt = try parts.toFoundationModelsPrompt()
+          prompt = try promptParts.toFoundationModelsPrompt()
         } catch {
           continuation.finish(throwing: error)
           return

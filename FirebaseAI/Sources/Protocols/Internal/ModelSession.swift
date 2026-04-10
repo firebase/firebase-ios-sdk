@@ -14,17 +14,17 @@
 
 #if compiler(>=6.2.3)
   protocol ModelSession: Sendable {
-    nonisolated(nonsending) func respond(to prompt: any PartsRepresentable,
-                                         schema: FirebaseAI.GenerationSchema?,
-                                         includeSchemaInPrompt: Bool,
-                                         options: GenerationConfig?) async throws
+    nonisolated(nonsending) func respondTo(promptParts: [any Part],
+                                           schema: FirebaseAI.GenerationSchema?,
+                                           includeSchemaInPrompt: Bool,
+                                           options: GenerationConfig?) async throws
       -> ModelSessionResponse
 
     @available(macOS 12.0, watchOS 8.0, *)
-    func streamResponse(to prompt: [any Part],
-                        schema: FirebaseAI.GenerationSchema?,
-                        includeSchemaInPrompt: Bool,
-                        options: GenerationConfig?)
+    func streamResponseTo(promptParts: [any Part],
+                          schema: FirebaseAI.GenerationSchema?,
+                          includeSchemaInPrompt: Bool,
+                          options: GenerationConfig?)
       -> sending AsyncThrowingStream<ModelSessionResponse, any Error>
   }
 #endif // compiler(>=6.2.3)

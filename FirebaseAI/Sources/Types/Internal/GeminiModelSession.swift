@@ -34,10 +34,10 @@ import Foundation
     // MARK: ModelSession Conformance
 
     nonisolated(nonsending)
-    func respond(to prompt: any PartsRepresentable, schema: FirebaseAI.GenerationSchema?,
-                 includeSchemaInPrompt: Bool, options: GenerationConfig?) async throws
+    func respondTo(promptParts: [any Part], schema: FirebaseAI.GenerationSchema?,
+                   includeSchemaInPrompt: Bool, options: GenerationConfig?) async throws
       -> ModelSessionResponse {
-      let parts = [ModelContent(parts: prompt)]
+      let parts = [ModelContent(parts: promptParts)]
       let config = try buildConfig(
         options: options,
         schema: schema,
@@ -104,12 +104,12 @@ import Foundation
     }
 
     @available(macOS 12.0, watchOS 8.0, *)
-    func streamResponse(to prompt: [any Part],
-                        schema: FirebaseAI.GenerationSchema?,
-                        includeSchemaInPrompt: Bool,
-                        options: GenerationConfig?)
+    func streamResponseTo(promptParts: [any Part],
+                          schema: FirebaseAI.GenerationSchema?,
+                          includeSchemaInPrompt: Bool,
+                          options: GenerationConfig?)
       -> sending AsyncThrowingStream<ModelSessionResponse, any Error> {
-      let initialParts = [ModelContent(parts: prompt)]
+      let initialParts = [ModelContent(parts: promptParts)]
       return AsyncThrowingStream { continuation in
         let task = Task {
           do {

@@ -260,8 +260,8 @@
             instructions: instructions
           )
 
-          let response = try await session.respond(
-            to: prompt,
+          let response = try await session.respondTo(
+            promptParts: prompt.partsValue,
             schema: schema,
             includeSchemaInPrompt: includeSchemaInPrompt,
             options: options
@@ -326,8 +326,8 @@
               instructions: self.instructions
             )
 
-            let stream = session.streamResponse(
-              to: parts,
+            let stream = session.streamResponseTo(
+              promptParts: parts,
               schema: schema,
               includeSchemaInPrompt: includeSchemaInPrompt,
               options: options
