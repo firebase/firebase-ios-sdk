@@ -21,13 +21,10 @@ import Foundation
 public final class TemplateGenerativeModel: Sendable {
   let generativeAIService: GenerativeAIService
   let apiConfig: APIConfig
-  private let toolConfig: TemplateToolConfig?
 
-  init(generativeAIService: GenerativeAIService, apiConfig: APIConfig,
-       toolConfig: TemplateToolConfig? = nil) {
+  init(generativeAIService: GenerativeAIService, apiConfig: APIConfig) {
     self.generativeAIService = generativeAIService
     self.apiConfig = apiConfig
-    self.toolConfig = toolConfig
   }
 
   /// Generates content from a prompt template and inputs.
@@ -43,7 +40,8 @@ public final class TemplateGenerativeModel: Sendable {
   /// - Throws: A ``GenerateContentError`` if the request failed.
   public func generateContent(templateID: String,
                               inputs: [String: Any],
-                              options: RequestOptions = RequestOptions()) async throws
+                              options: RequestOptions = RequestOptions(),
+                              toolConfig: TemplateToolConfig? = nil) async throws
     -> GenerateContentResponse {
     let templateInputs = try inputs.mapValues { try TemplateInput(value: $0) }
     return try await generateContentWithHistory(
@@ -64,7 +62,8 @@ public final class TemplateGenerativeModel: Sendable {
   /// - Throws: A ``GenerateContentError`` if the request failed.
   func generateContentWithHistory(history: [ModelContent], template: String,
                                   inputs: [String: TemplateInput],
-                                  options: RequestOptions = RequestOptions()) async throws
+                                  options: RequestOptions = RequestOptions(),
+                                  toolConfig: TemplateToolConfig? = nil) async throws
     -> GenerateContentResponse {
     let request = TemplateGenerateContentRequest(
       template: template,
@@ -95,7 +94,8 @@ public final class TemplateGenerativeModel: Sendable {
   @available(macOS 12.0, watchOS 8.0, *)
   public func generateContentStream(templateID: String,
                                     inputs: [String: Any],
-                                    options: RequestOptions = RequestOptions()) throws
+                                    options: RequestOptions = RequestOptions(),
+                                    toolConfig: TemplateToolConfig? = nil) throws
     -> AsyncThrowingStream<GenerateContentResponse, Error> {
     let templateInputs = try inputs.mapValues { try TemplateInput(value: $0) }
     let request = TemplateGenerateContentRequest(
@@ -114,7 +114,8 @@ public final class TemplateGenerativeModel: Sendable {
   @available(macOS 12.0, watchOS 8.0, *)
   func generateContentStreamWithHistory(history: [ModelContent], template: String,
                                         inputs: [String: TemplateInput],
-                                        options: RequestOptions = RequestOptions()) throws
+                                        options: RequestOptions = RequestOptions(),
+                                        toolConfig: TemplateToolConfig? = nil) throws
     -> AsyncThrowingStream<GenerateContentResponse, Error> {
     let request = TemplateGenerateContentRequest(
       template: template,

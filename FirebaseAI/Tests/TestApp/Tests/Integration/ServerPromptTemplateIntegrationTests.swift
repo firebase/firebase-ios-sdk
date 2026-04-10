@@ -74,13 +74,14 @@ struct ServerPromptTemplateIntegrationTests {
         location: CLLocationCoordinate2D(latitude: 37.7799, longitude: -122.2822)
       )
     )
-    let model = FirebaseAI.componentInstance(config).templateGenerativeModel(toolConfig: toolConfig)
+    let model = FirebaseAI.componentInstance(config).templateGenerativeModel()
     let userName = "paul"
     let response = try await model.generateContent(
       templateID: "location-via-sdk",
       inputs: [
         "name": userName,
-      ]
+      ],
+      toolConfig: toolConfig
     )
     let text = try #require(response.text)
     #expect(text.localizedCaseInsensitiveContains("Paul"))

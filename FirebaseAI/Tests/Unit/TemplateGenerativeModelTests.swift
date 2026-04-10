@@ -103,13 +103,13 @@ final class TemplateGenerativeModelTests: XCTestCase {
     let apiConfig = APIConfig(service: .googleAI(endpoint: .firebaseProxyProd), version: .v1beta)
     let modelWithConfig = TemplateGenerativeModel(
       generativeAIService: generativeAIService,
-      apiConfig: apiConfig,
-      toolConfig: toolConfig
+      apiConfig: apiConfig
     )
 
     let _ = try await modelWithConfig.generateContent(
       templateID: "test-template",
-      inputs: ["name": "test"]
+      inputs: ["name": "test"],
+      toolConfig: toolConfig
     )
   }
 }
