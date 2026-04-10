@@ -525,8 +525,16 @@
                                        hasSchema: Bool, isComplete: Bool) throws
       -> FirebaseAI.GeneratedContent {
       if hasSchema {
-        let jsonText = (text.isEmpty && !isComplete) ? "{}" : text
-        return try FirebaseAI.GeneratedContent(json: jsonText, id: generationID, isComplete: isComplete)
+        if text.isEmpty && !isComplete {
+          return FirebaseAI.GeneratedContent(
+            // TODO: Set `kind:` to `.array(...)`, `.bool()`, `.number()` based on schema type.
+            kind: .structure(properties: [:], orderedKeys: []),
+            id: generationID,
+            isComplete: isComplete
+          )
+        }
+
+        return try FirebaseAI.GeneratedContent(json: text, id: generationID, isComplete: isComplete)
       }
 
       #if canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
