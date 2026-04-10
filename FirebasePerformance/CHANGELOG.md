@@ -1,7 +1,5 @@
 # Unreleased
 - [fixed] Address crash by deferring class disposal in FPRObjectSwizzler. (#14473)
-
-# Unreleased
 - [fixed] Prevent race condition crashes in FPRScreenTraceTracker by replacing NSMapTable with
   thread-safe NSMutableDictionary and locking.
 
