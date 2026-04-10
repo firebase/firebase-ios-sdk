@@ -104,7 +104,8 @@
   XCTAssertTrue([object respondsToSelector:@selector(gul_class)]);
 }
 
-/** Tests that there's no retain cycle and that the swizzler is deallocated when the object is deallocated. */
+/** Tests that there's no retain cycle and that the swizzler is deallocated when the object is
+ * deallocated. */
 - (void)testRetainCycleDoesntExistAndSwizzlerDeallocatesWithObject {
   NSObject *object = [[NSObject alloc] init];
   FPRObjectSwizzler *objectSwizzler = [[FPRObjectSwizzler alloc] initWithObject:object];
@@ -417,8 +418,6 @@
   objc_disposeClassPair(generatedClass);
 }
 #endif
-
-
 
 - (void)testMultiSwizzling {
   NSObject *object = [[NSObject alloc] init];
