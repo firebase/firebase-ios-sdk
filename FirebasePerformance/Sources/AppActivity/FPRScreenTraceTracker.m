@@ -472,11 +472,12 @@ void RecordFrameType(CFAbsoluteTime currentTimestamp,
 - (void)cleanupStaleTraces {
   [self.activeScreenTracesLock lock];
   NSMutableArray *keysToRemove = [[NSMutableArray alloc] init];
-  [self.activeScreenTraces enumerateKeysAndObjectsUsingBlock:^(NSValue *key, FPRScreenTraceHolder *holder, BOOL *stop) {
-    if (holder.viewController == nil) {
-      [keysToRemove addObject:key];
-    }
-  }];
+  [self.activeScreenTraces
+      enumerateKeysAndObjectsUsingBlock:^(NSValue *key, FPRScreenTraceHolder *holder, BOOL *stop) {
+        if (holder.viewController == nil) {
+          [keysToRemove addObject:key];
+        }
+      }];
   [self.activeScreenTraces removeObjectsForKeys:keysToRemove];
   [self.activeScreenTracesLock unlock];
 }
