@@ -662,7 +662,13 @@ static UIViewController *FPRCustomViewController(NSString *className, BOOL isVie
   [self.tracker.previouslyVisibleViewControllers addPointer:(__bridge void *)testViewController2];
 
   // UIKit deallocates one of the ViewControllers that was previously visible.
+  __weak UIViewController *weakVC2 = testViewController2;
   testViewController2 = nil;
+
+  // The blocks retain the view controllers and it sometimes takes some time to release them.
+  while (weakVC2) {
+    continue;
+  }
 
   // App becomes active.
   NSNotification *appDidBecomeActiveNSNotification =
@@ -674,6 +680,7 @@ static UIViewController *FPRCustomViewController(NSString *className, BOOL isVie
   XCTAssertNotNil([self.tracker.activeScreenTraces
                       objectForKey:[NSValue valueWithNonretainedObject:testViewController]]
                       .trace);
+  [self.tracker cleanupStaleTraces];
   XCTAssertEqual(self.tracker.activeScreenTraces.count, 1);
 }
 
