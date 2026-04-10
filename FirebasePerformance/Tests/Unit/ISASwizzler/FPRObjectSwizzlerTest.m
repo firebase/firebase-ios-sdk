@@ -104,8 +104,8 @@
   XCTAssertTrue([object respondsToSelector:@selector(gul_class)]);
 }
 
-/** Tests that there's no retain cycle and that -dealloc causes unswizzling. */
-- (void)testRetainCycleDoesntExistAndDeallocCausesUnswizzling {
+/** Tests that there's no retain cycle and that the swizzler is deallocated when the object is deallocated. */
+- (void)testRetainCycleDoesntExistAndSwizzlerDeallocatesWithObject {
   NSObject *object = [[NSObject alloc] init];
   FPRObjectSwizzler *objectSwizzler = [[FPRObjectSwizzler alloc] initWithObject:object];
   [objectSwizzler copySelector:@selector(donorMethod) fromClass:[self class] isClassSelector:NO];
@@ -418,47 +418,7 @@
 }
 #endif
 
-// The test is disabled because in the case of success it should crash with SIGABRT, so it is not
-// suitable for CI.
-- (void)disabledForCI_testSwizzlerDisposesGeneratedClass {
-  __weak FPRObjectSwizzler *weakSwizzler;
 
-  XCTestExpectation *swizzlerDeallocatedExpectation =
-      [self expectationWithDescription:@"swizzlerDeallocatedExpectation"];
-
-  @autoreleasepool {
-    NSObject *object = [[NSObject alloc] init];
-
-    @autoreleasepool {
-      FPRObjectSwizzler *swizzler = [[FPRObjectSwizzler alloc] initWithObject:object];
-      weakSwizzler = swizzler;
-      [swizzler copySelector:@selector(donorDescription)
-                   fromClass:[FPRObjectSwizzlerTest class]
-             isClassSelector:NO];
-      [swizzler swizzle];
-    }
-
-    // Release FPRObjectSwizzler
-    [FPRObjectSwizzler setAssociatedObject:object
-                                       key:&kGULSwizzlerAssociatedObjectKey
-                                     value:nil
-                               association:GUL_ASSOCIATION_RETAIN];
-
-    // Wait for a while until FPRObjectSwizzler has disposed the generated class.
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.0 * NSEC_PER_SEC)),
-                   dispatch_get_main_queue(), ^{
-                     [swizzlerDeallocatedExpectation fulfill];
-                   });
-
-    [self waitForExpectations:@[ swizzlerDeallocatedExpectation ] timeout:2];
-
-    XCTAssertNil(weakSwizzler);
-
-    // Must crash here with SIGABRT.
-    XCTAssertThrows([object description]);
-    XCTFail(@"The test must have crashed on the previous line.");
-  }
-}
 
 - (void)testMultiSwizzling {
   NSObject *object = [[NSObject alloc] init];
