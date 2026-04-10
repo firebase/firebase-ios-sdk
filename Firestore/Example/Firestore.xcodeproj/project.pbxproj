@@ -26,6 +26,7 @@
 		020AFD89BB40E5175838BB76 /* local_serializer_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = F8043813A5D16963EC02B182 /* local_serializer_test.cc */; };
 		021058F033B6BBA599DEE1FD /* sort_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 15EAAEEE767299A3CDA96132 /* sort_test.cc */; };
 		022BA1619A576F6818B212C5 /* remote_store_spec_test.json in Resources */ = {isa = PBXBuildFile; fileRef = 3B843E4A1F3930A400548890 /* remote_store_spec_test.json */; };
+		028BEB67C8B486FC461F8A07 /* AsyncSequenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 157899B132ED897A03A3B2FB /* AsyncSequenceTests.swift */; };
 		02C953A7B0FA5EF87DB0361A /* FSTIntegrationTestCase.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5491BC711FB44593008B3588 /* FSTIntegrationTestCase.mm */; };
 		02E1EA3818F4BEEA9CE40DAE /* timestamp_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 82DF854A7238D538FA53C908 /* timestamp_test.cc */; };
 		02EB33CC2590E1484D462912 /* annotations.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = 618BBE9520B89AAC00B5BCE7 /* annotations.pb.cc */; };
@@ -152,6 +153,7 @@
 		128F2B022E254E2C0006327E /* QueryToPipelineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 128F2B002E254E2C0006327E /* QueryToPipelineTests.swift */; };
 		128F2B032E254E2C0006327E /* QueryToPipelineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 128F2B002E254E2C0006327E /* QueryToPipelineTests.swift */; };
 		1290FA77A922B76503AE407C /* lru_garbage_collector_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 277EAACC4DD7C21332E8496A /* lru_garbage_collector_test.cc */; };
+		1291BC7F4E00120075F924B8 /* AsyncSequenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 157899B132ED897A03A3B2FB /* AsyncSequenceTests.swift */; };
 		1291D9F5300AFACD1FBD262D /* array_sorted_map_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 54EB764C202277B30088B8F3 /* array_sorted_map_test.cc */; };
 		129A369A28CA555B005AE7E2 /* FIRCountTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 129A369928CA555B005AE7E2 /* FIRCountTests.mm */; };
 		129A369B28CA555B005AE7E2 /* FIRCountTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 129A369928CA555B005AE7E2 /* FIRCountTests.mm */; };
@@ -935,6 +937,7 @@
 		7264B73291F7F1EB454C45B1 /* FIRIndexingTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 795AA8FC31D2AF6864B07D39 /* FIRIndexingTests.mm */; };
 		7272BD4FEC80177D38508BF1 /* complex_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = B32C2DDDEC16F6465317B8AE /* complex_test.cc */; };
 		7281C2F04838AFFDF6A762DF /* memory_remote_document_cache_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1CA9800A53669EFBFFB824E3 /* memory_remote_document_cache_test.cc */; };
+		729A8B2C7BBEE285FB1470B2 /* AsyncSequenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 157899B132ED897A03A3B2FB /* AsyncSequenceTests.swift */; };
 		72AD91671629697074F2545B /* ordered_code_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB380D03201BC6E400D97691 /* ordered_code_test.cc */; };
 		72B25B2D698E4746143D5B74 /* memory_lru_garbage_collector_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 9765D47FA12FA283F4EFAD02 /* memory_lru_garbage_collector_test.cc */; };
 		72B53221FD099862C4BDBA2D /* FIRFieldValueTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E04A202154AA00B64F25 /* FIRFieldValueTests.mm */; };
@@ -1932,6 +1935,7 @@
 		132E32997D781B896672D30A /* reference_set_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = reference_set_test.cc; sourceTree = "<group>"; };
 		13686A75655552CE5D44751E /* Pods_Firestore_Tests_macOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Firestore_Tests_macOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		15249D092D85B40EFC8A1459 /* pipeline.pb.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = pipeline.pb.h; sourceTree = "<group>"; };
+		157899B132ED897A03A3B2FB /* AsyncSequenceTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AsyncSequenceTests.swift; path = Unit/AsyncAwait/AsyncSequenceTests.swift; sourceTree = "<group>"; };
 		15EAAEEE767299A3CDA96132 /* sort_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = sort_test.cc; path = pipeline/sort_test.cc; sourceTree = "<group>"; };
 		166CE73C03AB4366AAC5201C /* leveldb_index_manager_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = leveldb_index_manager_test.cc; sourceTree = "<group>"; };
 		1924149B429A2020C3CD94D6 /* utils.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = utils.cc; path = pipeline/utils.cc; sourceTree = "<group>"; };
@@ -2519,10 +2523,18 @@
 			path = Integration;
 			sourceTree = "<group>";
 		};
-		24C7067A4A3A8C1B87B879F8 /* AsyncAwait */ = {
+		2B9416F41332897C44F8AC72 /* Unit */ = {
 			isa = PBXGroup;
 			children = (
-				1F3EEA0F8A85AE6E345DB1B2 /* AsyncSequenceTests.swift */,
+				37C209E504495E8536DF6406 /* AsyncAwait */,
+			);
+			name = Unit;
+			sourceTree = "<group>";
+		};
+		37C209E504495E8536DF6406 /* AsyncAwait */ = {
+			isa = PBXGroup;
+			children = (
+				157899B132ED897A03A3B2FB /* AsyncSequenceTests.swift */,
 			);
 			name = AsyncAwait;
 			sourceTree = "<group>";
@@ -2816,7 +2828,7 @@
 				5495EB012040E90200EBA509 /* Codable */,
 				124C932A22C1635300CA8C2D /* Integration */,
 				C7D3D622BB13EB3C3301DA4F /* TestHelper */,
-				D7C1545F948B5D9C8FE393E6 /* Unit */,
+				2B9416F41332897C44F8AC72 /* Unit */,
 				620C1427763BA5D3CCFB5A1F /* BridgingHeader.h */,
 				54C9EDF52040E16300A969CD /* Info.plist */,
 			);
@@ -4950,7 +4962,7 @@
 			files = (
 				EF6C286F29E6D22200A7D4F1 /* AggregationIntegrationTests.swift in Sources */,
 				062072B92773A055001655D7 /* AsyncAwaitIntegrationTests.swift in Sources */,
-				3CD19EF20299AA20D8F71F8E /* AsyncSequenceTests.swift in Sources */,
+				1291BC7F4E00120075F924B8 /* AsyncSequenceTests.swift in Sources */,
 				733AFC467B600967536BD70F /* BasicCompileTests.swift in Sources */,
 				79987AF2DF1FCE799008B846 /* CodableGeoPointTests.swift in Sources */,
 				1C79AE3FBFC91800E30D092C /* CodableIntegrationTests.swift in Sources */,
@@ -5234,7 +5246,7 @@
 			files = (
 				EF6C286E29E6D22200A7D4F1 /* AggregationIntegrationTests.swift in Sources */,
 				062072B82773A055001655D7 /* AsyncAwaitIntegrationTests.swift in Sources */,
-				ED6F2E19CFE231B0251464C9 /* AsyncSequenceTests.swift in Sources */,
+				729A8B2C7BBEE285FB1470B2 /* AsyncSequenceTests.swift in Sources */,
 				B896E5DE1CC27347FAC009C3 /* BasicCompileTests.swift in Sources */,
 				722F9A798F39F7D1FE7CF270 /* CodableGeoPointTests.swift in Sources */,
 				CF5DE1ED21DD0A9783383A35 /* CodableIntegrationTests.swift in Sources */,
@@ -5800,7 +5812,7 @@
 			files = (
 				EF6C286D29E6D22200A7D4F1 /* AggregationIntegrationTests.swift in Sources */,
 				062072B72773A055001655D7 /* AsyncAwaitIntegrationTests.swift in Sources */,
-				52DD091174079A4BAF2F3BFA /* AsyncSequenceTests.swift in Sources */,
+				028BEB67C8B486FC461F8A07 /* AsyncSequenceTests.swift in Sources */,
 				F731A0CCD0220B370BC1BE8B /* BasicCompileTests.swift in Sources */,
 				7C5E017689012489AAB7718D /* CodableGeoPointTests.swift in Sources */,
 				54C3242322D3B627000FE6DD /* CodableIntegrationTests.swift in Sources */,
@@ -6374,6 +6386,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.google.Firestore-IntegrationTests-macOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Firestore_Example_macOS.app/Contents/MacOS/Firestore_Example_macOS";
 			};
 			name = Debug;
@@ -6399,6 +6412,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.google.Firestore-IntegrationTests-macOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Firestore_Example_macOS.app/Contents/MacOS/Firestore_Example_macOS";
 			};
 			name = Release;
@@ -6479,7 +6493,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
-				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = "";
 				SDKROOT = iphoneos;
@@ -6529,7 +6543,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
-				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				OTHER_CFLAGS = "";
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;

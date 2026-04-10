@@ -12943,6 +12943,14 @@ public struct EmbedContentConfig: Sendable {
   /// will lead to an INVALID_ARGUMENT error, similar to other text APIs.
   public let autoTruncate: Bool?
 
+  /// Vertex API only. Whether to enable OCR for document content.
+  /// Only applicable to Gemini Embedding 2 models.
+  public let documentOcr: Bool?
+
+  /// Vertex API only. Whether to extract audio from video content.
+  /// Only applicable to Gemini Embedding 2 models.
+  public let audioTrackExtraction: Bool?
+
   /// Default initializer.
   public init(
     httpOptions: HttpOptions? = nil,
@@ -12950,7 +12958,9 @@ public struct EmbedContentConfig: Sendable {
     title: String? = nil,
     outputDimensionality: Int32? = nil,
     mimeType: String? = nil,
-    autoTruncate: Bool? = nil
+    autoTruncate: Bool? = nil,
+    documentOcr: Bool? = nil,
+    audioTrackExtraction: Bool? = nil
   ) {
     self.httpOptions = httpOptions
     self.taskType = taskType
@@ -12958,6 +12968,8 @@ public struct EmbedContentConfig: Sendable {
     self.outputDimensionality = outputDimensionality
     self.mimeType = mimeType
     self.autoTruncate = autoTruncate
+    self.documentOcr = documentOcr
+    self.audioTrackExtraction = audioTrackExtraction
   }
 }
 
@@ -12975,6 +12987,8 @@ extension EmbedContentConfig: Codable {
   public enum VertexKeys: String, CodingKey {
     case mimeType = "mimeType"
     case autoTruncate = "autoTruncate"
+    case documentOcr = "documentOcr"
+    case audioTrackExtraction = "audioTrackExtraction"
   }
 
   public init(from decoder: any Decoder) throws {
@@ -13010,6 +13024,16 @@ extension EmbedContentConfig: Codable {
     autoTruncate = try VertexKeysContainer.decodeIfPresent(
       Bool.self,
       forKey: .autoTruncate
+    )
+
+    documentOcr = try VertexKeysContainer.decodeIfPresent(
+      Bool.self,
+      forKey: .documentOcr
+    )
+
+    audioTrackExtraction = try VertexKeysContainer.decodeIfPresent(
+      Bool.self,
+      forKey: .audioTrackExtraction
     )
   }
 
@@ -13048,6 +13072,16 @@ extension EmbedContentConfig: Codable {
       try VertexKeysContainer.encodeIfPresent(
         autoTruncate,
         forKey: .autoTruncate
+      )
+
+      try VertexKeysContainer.encodeIfPresent(
+        documentOcr,
+        forKey: .documentOcr
+      )
+
+      try VertexKeysContainer.encodeIfPresent(
+        audioTrackExtraction,
+        forKey: .audioTrackExtraction
       )
 
     }

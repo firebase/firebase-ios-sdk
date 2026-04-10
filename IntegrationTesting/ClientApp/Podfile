@@ -1,3 +1,4 @@
+require_relative '../../scripts/cocoapods_cxx17_patch.rb'
 source 'https://github.com/firebase/SpecsDev.git'
 source 'https://github.com/firebase/SpecsStaging.git'
 source 'https://cdn.cocoapods.org/'
@@ -31,4 +32,8 @@ target 'ClientApp-CocoaPods' do
   pod 'FirebasePerformance', :path => '../../'
   pod 'FirebaseMLModelDownloader', :path => '../../'
   pod 'Firebase', :path => '../../'
+end
+
+post_install do |installer|
+  CocoapodsCXX17Patch.apply_patch(installer)
 end

@@ -32,6 +32,46 @@ post_install do |installer|
   if !$?.success?
     raise "sync_project.rb failed with status #{$?.exitstatus}"
   end
+
+  # Apply C++17 patch to all pod targets in generated projects
+  projects = installer.respond_to?(:generated_projects) ? installer.generated_projects : [installer.pods_project].compact
+  projects.each do |project|
+    project.targets.each do |target|
+      target.build_configurations.each do |config|
+        config.build_settings['CLANG_CXX_LANGUAGE_STANDARD'] = 'c++17'
+        config.build_settings['CLANG_CXX_LIBRARY'] = 'libc++'
+      end
+    end
+    project.save if installer.respond_to?(:generated_projects)
+  end
+
+  # Clean up duplicate C++ standards and suppress deprecation warnings in xcconfig files
+  podfile_dir = Pathname.new(__FILE__).dirname
+  installer.aggregate_targets.each do |target|
+    ['debug', 'release'].each do |config_type|
+      path = podfile_dir.join("Pods/Target Support Files/#{target.name}/#{target.name}.#{config_type}.xcconfig")
+      if File.exist?(path)
+        content = File.read(path)
+        modified = false
+
+        if content.include?('c++14 c++17')
+          content.gsub!('c++14 c++17', 'c++17')
+          modified = true
+        end
+
+        if content.include?('-Werror') && !content.include?('-Wno-deprecated-declarations')
+          content.gsub!('-Werror', '-Werror -Wno-deprecated-declarations')
+          modified = true
+        end
+
+        if modified
+          File.write(path, content)
+          puts "Fixed up xcconfig: #{File.basename(path)}"
+        end
+      end
+    end
+  end
+
 end
 
 # Returns true if the user has explicitly requested local sources or if this is
@@ -99,7 +139,9 @@ if is_platform(:ios)
 
     configure_local_pods()
 
-    pod 'abseil', '~> 1.20240722.0'
+    pod 'abseil', '~> 1.20250512.1'
+    pod 'gRPC-Core', :git => 'https://github.com/grpc/grpc-ios.git', :tag => 'v1.80.0'
+    pod 'gRPC-C++', :git => 'https://github.com/grpc/grpc-ios.git', :tag => 'v1.80.0'
 
     target 'Firestore_Tests_iOS' do
       inherit! :search_paths
@@ -131,11 +173,13 @@ end
 
 if is_platform(:osx)
   target 'Firestore_Example_macOS' do
-    platform :osx, '10.15'
+    platform :osx, '11.0'
 
     configure_local_pods()
 
-    pod 'abseil', '~> 1.20240722.0'
+    pod 'abseil', '~> 1.20250512.1'
+    pod 'gRPC-Core', :git => 'https://github.com/grpc/grpc-ios.git', :tag => 'v1.80.0'
+    pod 'gRPC-C++', :git => 'https://github.com/grpc/grpc-ios.git', :tag => 'v1.80.0'
 
     target 'Firestore_Tests_macOS' do
       inherit! :search_paths
@@ -165,7 +209,9 @@ if is_platform(:tvos)
 
     configure_local_pods()
 
-    pod 'abseil', '~> 1.20240722.0'
+    pod 'abseil', '~> 1.20250512.1'
+    pod 'gRPC-Core', :git => 'https://github.com/grpc/grpc-ios.git', :tag => 'v1.80.0'
+    pod 'gRPC-C++', :git => 'https://github.com/grpc/grpc-ios.git', :tag => 'v1.80.0'
 
     target 'Firestore_Tests_tvOS' do
       inherit! :search_paths
