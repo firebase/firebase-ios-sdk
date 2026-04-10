@@ -272,7 +272,7 @@
           sessionManager.setActiveSessionIndexIfNil(index: index)
 
           return try GenerativeModelSession.Response(
-            content: Self.resolveContent(from: response.content),
+            content: Self.resolveContent(from: response.rawContent),
             rawContent: response.rawContent,
             rawResponse: response.rawResponse
           )

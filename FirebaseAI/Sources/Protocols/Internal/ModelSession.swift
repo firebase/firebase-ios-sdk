@@ -18,7 +18,7 @@
                                          schema: FirebaseAI.GenerationSchema?,
                                          includeSchemaInPrompt: Bool,
                                          options: GenerationConfig?) async throws
-      -> GenerativeModelSession.Response<FirebaseAI.GeneratedContent>
+      -> ModelSessionResponse
 
     @available(macOS 12.0, watchOS 8.0, *)
     func streamResponse(to prompt: [any Part],

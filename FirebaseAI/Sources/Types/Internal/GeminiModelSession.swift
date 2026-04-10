@@ -36,7 +36,7 @@ import Foundation
     nonisolated(nonsending)
     func respond(to prompt: any PartsRepresentable, schema: FirebaseAI.GenerationSchema?,
                  includeSchemaInPrompt: Bool, options: GenerationConfig?) async throws
-      -> GenerativeModelSession.Response<FirebaseAI.GeneratedContent> {
+      -> ModelSessionResponse {
       let parts = [ModelContent(parts: prompt)]
       let config = try buildConfig(
         options: options,
@@ -100,9 +100,7 @@ import Foundation
         isComplete: true
       )
 
-      return GenerativeModelSession.Response(
-        content: rawContent, rawContent: rawContent, rawResponse: response
-      )
+      return ModelSessionResponse(rawContent: rawContent, rawResponse: response)
     }
 
     @available(macOS 12.0, watchOS 8.0, *)

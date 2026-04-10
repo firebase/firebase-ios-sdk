@@ -22,7 +22,7 @@
   extension FoundationModels.LanguageModelSession: ModelSession {
     func respond(to prompt: any PartsRepresentable, schema: FirebaseAI.GenerationSchema?,
                  includeSchemaInPrompt: Bool, options: GenerationConfig?) async throws
-      -> GenerativeModelSession.Response<FirebaseAI.GeneratedContent> {
+      -> ModelSessionResponse {
       let prompt = try prompt.toFoundationModelsPrompt()
 
       let response: FoundationModels.LanguageModelSession
@@ -66,11 +66,7 @@
         modelVersion: SystemLanguageModel.modelName
       )
 
-      return GenerativeModelSession.Response(
-        content: generatedContent,
-        rawContent: generatedContent,
-        rawResponse: rawResponse
-      )
+      return ModelSessionResponse(rawContent: generatedContent, rawResponse: rawResponse)
     }
 
     func streamResponse(to parts: [any Part],
