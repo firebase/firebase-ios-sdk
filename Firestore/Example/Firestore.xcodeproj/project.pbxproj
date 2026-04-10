@@ -2523,7 +2523,6 @@
 			path = Integration;
 			sourceTree = "<group>";
 		};
-<<<<<<< cheryllin/c++17upgrade
 		2B9416F41332897C44F8AC72 /* Unit */ = {
 			isa = PBXGroup;
 			children = (
@@ -2536,12 +2535,6 @@
 			isa = PBXGroup;
 			children = (
 				157899B132ED897A03A3B2FB /* AsyncSequenceTests.swift */,
-=======
-		24C7067A4A3A8C1B87B879F8 /* AsyncAwait */ = {
-			isa = PBXGroup;
-			children = (
-				1F3EEA0F8A85AE6E345DB1B2 /* AsyncSequenceTests.swift */,
->>>>>>> cheryl/fixTests
 			);
 			name = AsyncAwait;
 			sourceTree = "<group>";
@@ -2835,11 +2828,7 @@
 				5495EB012040E90200EBA509 /* Codable */,
 				124C932A22C1635300CA8C2D /* Integration */,
 				C7D3D622BB13EB3C3301DA4F /* TestHelper */,
-<<<<<<< cheryllin/c++17upgrade
 				2B9416F41332897C44F8AC72 /* Unit */,
-=======
-				D7C1545F948B5D9C8FE393E6 /* Unit */,
->>>>>>> cheryl/fixTests
 				620C1427763BA5D3CCFB5A1F /* BridgingHeader.h */,
 				54C9EDF52040E16300A969CD /* Info.plist */,
 			);
@@ -4973,11 +4962,7 @@
 			files = (
 				EF6C286F29E6D22200A7D4F1 /* AggregationIntegrationTests.swift in Sources */,
 				062072B92773A055001655D7 /* AsyncAwaitIntegrationTests.swift in Sources */,
-<<<<<<< cheryllin/c++17upgrade
 				1291BC7F4E00120075F924B8 /* AsyncSequenceTests.swift in Sources */,
-=======
-				3CD19EF20299AA20D8F71F8E /* AsyncSequenceTests.swift in Sources */,
->>>>>>> cheryl/fixTests
 				733AFC467B600967536BD70F /* BasicCompileTests.swift in Sources */,
 				79987AF2DF1FCE799008B846 /* CodableGeoPointTests.swift in Sources */,
 				1C79AE3FBFC91800E30D092C /* CodableIntegrationTests.swift in Sources */,
@@ -5261,11 +5246,7 @@
 			files = (
 				EF6C286E29E6D22200A7D4F1 /* AggregationIntegrationTests.swift in Sources */,
 				062072B82773A055001655D7 /* AsyncAwaitIntegrationTests.swift in Sources */,
-<<<<<<< cheryllin/c++17upgrade
 				729A8B2C7BBEE285FB1470B2 /* AsyncSequenceTests.swift in Sources */,
-=======
-				ED6F2E19CFE231B0251464C9 /* AsyncSequenceTests.swift in Sources */,
->>>>>>> cheryl/fixTests
 				B896E5DE1CC27347FAC009C3 /* BasicCompileTests.swift in Sources */,
 				722F9A798F39F7D1FE7CF270 /* CodableGeoPointTests.swift in Sources */,
 				CF5DE1ED21DD0A9783383A35 /* CodableIntegrationTests.swift in Sources */,
@@ -5831,11 +5812,7 @@
 			files = (
 				EF6C286D29E6D22200A7D4F1 /* AggregationIntegrationTests.swift in Sources */,
 				062072B72773A055001655D7 /* AsyncAwaitIntegrationTests.swift in Sources */,
-<<<<<<< cheryllin/c++17upgrade
 				028BEB67C8B486FC461F8A07 /* AsyncSequenceTests.swift in Sources */,
-=======
-				52DD091174079A4BAF2F3BFA /* AsyncSequenceTests.swift in Sources */,
->>>>>>> cheryl/fixTests
 				F731A0CCD0220B370BC1BE8B /* BasicCompileTests.swift in Sources */,
 				7C5E017689012489AAB7718D /* CodableGeoPointTests.swift in Sources */,
 				54C3242322D3B627000FE6DD /* CodableIntegrationTests.swift in Sources */,
