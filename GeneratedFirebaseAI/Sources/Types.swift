@@ -1610,6 +1610,26 @@ public struct VideoCompressionQuality: CodableProtoEnum, Sendable {
   let rawValue: String
 }
 
+/// Resize mode for the image input for video generation.
+@available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+
+public struct ImageResizeMode: CodableProtoEnum, Sendable {
+  enum Kind: String {
+    case crop = "CROP"
+    case pad = "PAD"
+  }
+
+  /// Crop the image to fit the correct aspect ratio (so we lose parts
+  /// of the image in the process).
+  public static let crop = ImageResizeMode(kind: .crop)
+
+  /// Pad the image to fit the correct aspect ratio (so we don't lose
+  /// any parts of the image in the process).
+  public static let pad = ImageResizeMode(kind: .pad)
+
+  let rawValue: String
+}
+
 /// Enum representing the tuning method.
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 
@@ -19047,6 +19067,9 @@ public struct GenerateVideosConfig: Sendable {
   /// User specified labels to track billing usage.
   public let labels: [String: String]?
 
+  /// Resize mode of the image input for video generation.
+  public let resizeMode: ImageResizeMode?
+
   /// Default initializer.
   public init(
     httpOptions: HttpOptions? = nil,
@@ -19066,7 +19089,8 @@ public struct GenerateVideosConfig: Sendable {
     referenceImages: [VideoGenerationReferenceImage]? = nil,
     mask: VideoGenerationMask? = nil,
     compressionQuality: VideoCompressionQuality? = nil,
-    labels: [String: String]? = nil
+    labels: [String: String]? = nil,
+    resizeMode: ImageResizeMode? = nil
   ) {
     self.httpOptions = httpOptions
     self.numberOfVideos = numberOfVideos
@@ -19086,6 +19110,7 @@ public struct GenerateVideosConfig: Sendable {
     self.mask = mask
     self.compressionQuality = compressionQuality
     self.labels = labels
+    self.resizeMode = resizeMode
   }
 }
 
@@ -19115,6 +19140,7 @@ extension GenerateVideosConfig: Codable {
     case mask = "mask"
     case compressionQuality = "compressionQuality"
     case labels = "labels"
+    case resizeMode = "resizeMode"
   }
 
   public init(from decoder: any Decoder) throws {
@@ -19210,6 +19236,11 @@ extension GenerateVideosConfig: Codable {
     labels = try VertexKeysContainer.decodeIfPresent(
       [String: String].self,
       forKey: .labels
+    )
+
+    resizeMode = try VertexKeysContainer.decodeIfPresent(
+      ImageResizeMode.self,
+      forKey: .resizeMode
     )
   }
 
@@ -19308,6 +19339,11 @@ extension GenerateVideosConfig: Codable {
       try VertexKeysContainer.encodeIfPresent(
         labels,
         forKey: .labels
+      )
+
+      try VertexKeysContainer.encodeIfPresent(
+        resizeMode,
+        forKey: .resizeMode
       )
 
     }

@@ -1519,6 +1519,14 @@ public enum Converters {
         userInfo: [NSLocalizedDescriptionKey: "labels parameter is not supported in Gemini API."])
     }
 
+    if fromObject.resizeMode != nil {
+      throw NSError(
+        domain: "Gemini API", code: -1,
+        userInfo: [
+          NSLocalizedDescriptionKey: "resizeMode parameter is not supported in Gemini API."
+        ])
+    }
+
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
