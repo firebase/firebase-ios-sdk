@@ -90,9 +90,15 @@ final class TemplateGenerativeModelTests: XCTestCase {
       apiConfig: apiConfig
     )
 
+    let toolConfig = TemplateToolConfig(
+      retrievalConfig: RetrievalConfig(
+        location: CLLocationCoordinate2D(latitude: 37.7799, longitude: -122.2822)
+      )
+    )
     let response = try await model.generateContent(
       templateID: "test-template",
-      inputs: ["name": "test"]
+      inputs: ["name": "test"],
+      toolConfig: toolConfig
     )
 
     XCTAssertEqual(response.candidates.count, 1)
@@ -129,9 +135,15 @@ final class TemplateGenerativeModelTests: XCTestCase {
       apiConfig: apiConfig
     )
 
+    let toolConfig = TemplateToolConfig(
+      retrievalConfig: RetrievalConfig(
+        location: CLLocationCoordinate2D(latitude: 37.7799, longitude: -122.2822)
+      )
+    )
     let response = try await model.generateContent(
       templateID: "test-template",
-      inputs: ["name": "test"]
+      inputs: ["name": "test"],
+      toolConfig: toolConfig
     )
 
     XCTAssertEqual(response.candidates.count, 1)
