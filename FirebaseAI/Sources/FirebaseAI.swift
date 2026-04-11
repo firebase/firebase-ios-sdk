@@ -206,6 +206,7 @@ public final class FirebaseAI: Sendable {
   /// - Returns: A new `TemplateGenerativeModel` instance.
   public func templateGenerativeModel() -> TemplateGenerativeModel {
     return TemplateGenerativeModel(
+      generativeModel: generativeModel(modelName: "template"),
       generativeAIService: GenerativeAIService(firebaseInfo: firebaseInfo,
                                                urlSession: GenAIURLSession.default),
       apiConfig: apiConfig

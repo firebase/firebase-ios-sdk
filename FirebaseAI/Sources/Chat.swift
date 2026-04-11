@@ -105,6 +105,33 @@ public final class Chat: Sendable {
     return result
   }
 
+  func sendMessage<T: GenerativeAIRequest>(_ content: [ModelContent],
+                                           request: T) async throws -> GenerateContentResponse
+    where T.Response == GenerateContentResponse {
+    // Ensure that the new content has the role set.
+    let newContent = content.map(populateContentRole(_:))
+
+    let result = try await GenerativeModel.generateContent(service: model.generativeAIService,
+                                                           request: request)
+
+    guard let reply = result.candidates.first?.content else {
+      let error = NSError(domain: "com.google.generative-ai",
+                          code: -1,
+                          userInfo: [
+                            NSLocalizedDescriptionKey: "No candidates with content available.",
+                          ])
+      throw GenerateContentError.internalError(underlying: error)
+    }
+
+    // Make sure we inject the role into the content received.
+    let toAdd = ModelContent(role: "model", parts: reply.parts)
+
+    // Append the request and successful result to history, then return the value.
+    _history.append(contentsOf: newContent)
+    _history.append(toAdd)
+    return result
+  }
+
   @available(macOS 12.0, watchOS 8.0, *)
   func sendMessageStream(_ content: [ModelContent], generationConfig: GenerationConfig?) throws
     -> AsyncThrowingStream<GenerateContentResponse, Error> {
@@ -114,6 +141,48 @@ public final class Chat: Sendable {
     // Send the history alongside the new message as context.
     let request = history + newContent
     let stream = try model.generateContentStream(request, generationConfig: generationConfig)
+    return AsyncThrowingStream { continuation in
+      Task {
+        var aggregatedContent: [ModelContent] = []
+
+        do {
+          for try await chunk in stream {
+            // Capture any content that's streaming. This should be populated if there's no error.
+            if let chunkContent = chunk.candidates.first?.content {
+              aggregatedContent.append(chunkContent)
+            }
+
+            // Pass along the chunk.
+            continuation.yield(chunk)
+          }
+        } catch {
+          // Rethrow the error that the underlying stream threw. Don't add anything to history.
+          continuation.finish(throwing: error)
+          return
+        }
+
+        // Save the request.
+        _history.append(contentsOf: newContent)
+
+        // Aggregate the content to add it to the history before we finish.
+        let aggregated = self._history.aggregatedChunks(aggregatedContent)
+        self._history.append(aggregated)
+        continuation.finish()
+      }
+    }
+  }
+
+  @available(macOS 12.0, watchOS 8.0, *)
+  func sendMessageStream<T: GenerativeAIRequest>(_ content: [ModelContent], request: T) throws
+    -> AsyncThrowingStream<GenerateContentResponse, Error>
+    where T.Response == GenerateContentResponse {
+    // Ensure that the new content has the role set.
+    let newContent: [ModelContent] = content.map(populateContentRole(_:))
+
+    let stream = try GenerativeModel.generateContentStream(
+      service: model.generativeAIService,
+      request: request
+    )
     return AsyncThrowingStream { continuation in
       Task {
         var aggregatedContent: [ModelContent] = []
