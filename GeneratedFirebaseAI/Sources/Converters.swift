@@ -4263,79 +4263,6 @@ public enum Converters {
     }
   }
 
-  public static func listTuningJobsConfigToMldev(
-    apiClient: APIClient, fromObject: ListTuningJobsConfig
-  ) throws -> [String: Any] {
-    let encoder = JSONEncoder()
-    encoder.userInfo[.configuration] = apiClient
-    encoder.keyEncodingStrategy = .convertToSnakeCase
-    do {
-      let data = try encoder.encode(fromObject)
-      guard
-        let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
-      else {
-        throw NSError(
-          domain: "SwiftSDK", code: -1,
-          userInfo: [
-            NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for ListTuningJobsConfig"
-          ])
-      }
-      var toObject = dictionary
-      var urlParams: [String: Any] = [:]
-      var queryParams: [String: Any] = [:]
-      if !urlParams.isEmpty {
-        toObject["_url"] = urlParams
-      }
-      if !queryParams.isEmpty {
-        toObject["_query"] = queryParams
-      }
-      return toObject
-    } catch {
-      throw NSError(
-        domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode ListTuningJobsConfig: \(error)"])
-    }
-  }
-
-  public static func listTuningJobsParametersToMldev(
-    apiClient: APIClient, fromObject: ListTuningJobsParameters
-  ) throws -> [String: Any] {
-    let encoder = JSONEncoder()
-    encoder.userInfo[.configuration] = apiClient
-    encoder.keyEncodingStrategy = .convertToSnakeCase
-    do {
-      let data = try encoder.encode(fromObject)
-      guard
-        let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
-      else {
-        throw NSError(
-          domain: "SwiftSDK", code: -1,
-          userInfo: [
-            NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for ListTuningJobsParameters"
-          ])
-      }
-      var toObject = dictionary
-      var urlParams: [String: Any] = [:]
-      var queryParams: [String: Any] = [:]
-      if !urlParams.isEmpty {
-        toObject["_url"] = urlParams
-      }
-      if !queryParams.isEmpty {
-        toObject["_query"] = queryParams
-      }
-      return toObject
-    } catch {
-      throw NSError(
-        domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode ListTuningJobsParameters: \(error)"]
-      )
-    }
-  }
-
   public static func cancelTuningJobParametersToMldev(
     apiClient: APIClient, fromObject: CancelTuningJobParameters
   ) throws -> [String: Any] {
@@ -4991,20 +4918,6 @@ public enum Converters {
       return instance
     } catch {
       print("Failed to decode TuningJob: \(error)")
-      return nil
-    }
-  }
-
-  public static func listTuningJobsResponseFromMldev(apiClient: APIClient, fromObject: Data) throws
-    -> ListTuningJobsResponse?
-  {
-    do {
-      let decoder = JSONDecoder()
-      decoder.userInfo[.configuration] = apiClient
-      let instance = try decoder.decode(ListTuningJobsResponse.self, from: fromObject)
-      return instance
-    } catch {
-      print("Failed to decode ListTuningJobsResponse: \(error)")
       return nil
     }
   }

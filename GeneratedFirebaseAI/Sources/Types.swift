@@ -24663,6 +24663,8 @@ extension ListTuningJobsResponse: Codable {
   public enum CommonKeys: String, CodingKey {
     case sdkHttpResponse = "sdkHttpResponse"
     case nextPageToken = "nextPageToken"
+  }
+  public enum VertexKeys: String, CodingKey {
     case tuningJobs = "tuningJobs"
   }
 
@@ -24680,7 +24682,8 @@ extension ListTuningJobsResponse: Codable {
       forKey: .nextPageToken
     )
 
-    tuningJobs = try CommonKeysContainer.decodeIfPresent(
+    let VertexKeysContainer = try decoder.container(keyedBy: VertexKeys.self)
+    tuningJobs = try VertexKeysContainer.decodeIfPresent(
       [TuningJob].self,
       forKey: .tuningJobs
     )
@@ -24700,10 +24703,15 @@ extension ListTuningJobsResponse: Codable {
       forKey: .nextPageToken
     )
 
-    try CommonKeysContainer.encodeIfPresent(
-      tuningJobs,
-      forKey: .tuningJobs
-    )
+    if configuration.isVertexAI() {
+
+      var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
+      try VertexKeysContainer.encodeIfPresent(
+        tuningJobs,
+        forKey: .tuningJobs
+      )
+
+    }
   }
 }
 
