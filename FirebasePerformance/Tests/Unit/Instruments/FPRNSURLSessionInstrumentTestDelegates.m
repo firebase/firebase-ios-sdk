@@ -132,7 +132,7 @@
                  didWriteData:(int64_t)bytesWritten
             totalBytesWritten:(int64_t)totalBytesWritten
     totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
-  if (bytesWritten > 0 && !self.hasCancelledOnce) {
+  if (!self.hasCancelledOnce) {
     self.hasCancelledOnce = YES;
     [downloadTask cancelByProducingResumeData:^(NSData *_Nullable resumeData) {
       // Create a resumable download task with the cancelled data, and start it.
