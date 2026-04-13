@@ -23,13 +23,14 @@ public final class ErrorInspector: NSObject {
   /// Returns a short description of the error’s identity.
   ///
   /// The error identity is described as follows:
+  ///   * **Errors conforming to `CustomNSError`**: error domain + error code
+  ///   from protocol conformance (e.g. `CustomErrorDomain.123`).
+  ///   * **True `NSError`s** and subclasses: error domain + error code
+  ///   (e.g. `FIRFirestoreErrorDomain.16`).
   ///   * Errors declared as **Swift enums**: type name + case name
   ///   (e.g. `SomeErrorEnum.errorCase`); associated values are discarded.
   ///   * Errors declared as **other Swift types**: type name + error code
-  ///   (e.g. `SomeErrorStruct.1`); types that conform to `CustomNSError`
-  ///   can provide their own error codes.
-  ///   * **True `NSError`s** and subclasses: error domain + error code
-  ///   (e.g. `FIRFirestoreErrorDomain.16`).
+  ///   (e.g. `SomeErrorStruct.1`).
   @objc(getIdentityDescriptionForError:)
   public static func identityDescription(for error: any Error) -> String {
     // Always prioritize the custom domain and code if they’re available:
@@ -50,8 +51,6 @@ public final class ErrorInspector: NSObject {
 
     guard mirror.displayStyle == .enum else {
       // This error is not declared as an enum. We fall back onto the `NSError` bridge.
-      // Types that implement `CustomNSError` can provide custom error codes;
-      // otherwise it’s always 1.
       // `typeLabel` is used instead of `nsError.domain` for consistency
       // (we only want the type name, not its parent types or module).
       return "\(typeLabel).\(nsError.code)"
