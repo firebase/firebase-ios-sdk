@@ -298,6 +298,14 @@ jobs:
           retry_wait_seconds: 120
           command: sudo xcodebuild -downloadPlatform ${{ matrix.target }}
 
+      - name: Cache Pods
+        uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+        with:
+          path: Firestore/Example/Pods
+          key: ${{ runner.os }}-pods-${{ matrix.target }}-${{ hashFiles('Firestore/Example/Podfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pods-${{ matrix.target }}-
+
       # 'FirestoreEnterprise' is used as product name for `build.sh` to select the enterprise build variant. `install_prereqs.sh` does not require this distinction, so 'Firestore' is used.
       - name: Setup build
         run: scripts/install_prereqs.sh Firestore ${{ matrix.target }} xcodebuild
@@ -309,12 +317,7 @@ jobs:
           command: scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodebuild
 
       - name: Test
-        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
-        with:
-          timeout_minutes: 60
-          max_attempts: 3
-          retry_wait_seconds: 120
-          command: scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodetest
+        run: scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodetest
 
   xcodetest_nightly:
     needs: check
@@ -354,6 +357,14 @@ jobs:
           retry_wait_seconds: 120
           command: sudo xcodebuild -downloadPlatform ${{ matrix.target }}
 
+      - name: Cache Pods
+        uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+        with:
+          path: Firestore/Example/Pods
+          key: ${{ runner.os }}-pods-${{ matrix.target }}-${{ hashFiles('Firestore/Example/Podfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pods-${{ matrix.target }}-
+
       # 'FirestoreEnterprise' is used as product name for `build.sh` to select the enterprise build variant. `install_prereqs.sh` does not require this distinction, so 'Firestore' is used.
       - name: Setup build
         run: scripts/install_prereqs.sh Firestore ${{ matrix.target }} xcodebuild
@@ -378,12 +389,7 @@ jobs:
           command: scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodebuild
 
       - name: Test
-        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
-        with:
-          timeout_minutes: 60
-          max_attempts: 3
-          retry_wait_seconds: 120
-          command: scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodetest
+        run: scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodetest
 
 
   xcodetest_emulator:
@@ -417,6 +423,14 @@ jobs:
         retry_wait_seconds: 120
         command: sudo xcodebuild -downloadPlatform ${{ matrix.target }}
 
+    - name: Cache Pods
+      uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+      with:
+        path: Firestore/Example/Pods
+        key: ${{ runner.os }}-pods-${{ matrix.target }}-${{ hashFiles('Firestore/Example/Podfile.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-pods-${{ matrix.target }}-
+
     - name: Setup build
       # 'FirestoreEnterprise' is used as product name for `build.sh` to select the enterprise build variant. `install_prereqs.sh` does not require this distinction, so 'Firestore' is used.
       run: scripts/install_prereqs.sh Firestore ${{ matrix.target }} xcodebuild
@@ -428,12 +442,7 @@ jobs:
         command: scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodebuild
 
     - name: Test
-      uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
-      with:
-        timeout_minutes: 60
-        max_attempts: 3
-        retry_wait_seconds: 120
-        command: scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodetest
+      run: scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodetest
 
 
   pod_lib_lint:
