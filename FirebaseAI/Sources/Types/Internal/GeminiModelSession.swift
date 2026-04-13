@@ -155,7 +155,8 @@ import Foundation
                 }
 
                 // 2. If we have pending data, we now know it wasn't the last chunk.
-                if let pending = pendingChunkData, !pending.text.isEmpty {
+                if let pending = pendingChunkData,
+                   !pending.text.isEmpty || pending.response.thoughtSummary != nil {
                   let rawContent = try GenerativeModelSession.makeRawContent(
                     from: pending.text,
                     generationID: pending.id,
@@ -207,7 +208,8 @@ import Foundation
 
                 if !functionResponses.isEmpty {
                   // Yield any pending text if it's not empty, but mark it as NOT complete yet.
-                  if let pending = pendingChunkData, !pending.text.isEmpty {
+                  if let pending = pendingChunkData,
+                     !pending.text.isEmpty || pending.response.thoughtSummary != nil {
                     let rawContent = try GenerativeModelSession.makeRawContent(
                       from: pending.text,
                       generationID: pending.id,
