@@ -64,9 +64,6 @@ if [[ "$method" != "cmake" ]]; then
   scripts/setup_bundler.sh
 fi
 
-if [[ -f "$(pwd)/scripts/cocoapods_cxx17_patch.rb" ]]; then
-  export RUBYOPT="-r$(pwd)/scripts/cocoapods_cxx17_patch.rb"
-fi
 
 case "$project-$platform-$method" in
 
