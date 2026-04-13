@@ -76,7 +76,7 @@
       let currentTimeTool = CurrentTimeTool()
       let model = try mockGeminiModel()
       let session = GenerativeModelSession(
-        models: [model],
+        model: model,
         tools: [.autoFunctionDeclaration(currentTimeTool)],
         instructions: nil
       )
@@ -130,7 +130,7 @@
       let currentTimeTool = CurrentTimeTool()
       let model = try mockGeminiModel()
       let session = GenerativeModelSession(
-        models: [model],
+        model: model,
         tools: [.autoFunctionDeclaration(currentTimeTool)],
         instructions: nil
       )
@@ -171,7 +171,12 @@
     func testRespondTo_activeSessionIndexPreventsFallback() async throws {
       let model1 = try mockGeminiModel(modelName: "gemini-2.5-flash")
       let model2 = try mockGeminiModel(modelName: "gemini-2.0-flash")
-      let session = GenerativeModelSession(models: [model1, model2], tools: nil, instructions: nil)
+
+      let session = GenerativeModelSession(
+        model: HybridModel(cloud: model1, onDevice: model2, mode: .preferInCloud),
+        tools: nil,
+        instructions: nil
+      )
       let expectedStatusCode = 400
       try MockURLProtocol.requestHandlersQueue.append(contentsOf: [
         GenerativeModelTestUtil.httpRequestHandler(
@@ -221,7 +226,11 @@
     func testRespondTo_fallbackAfterFailure() async throws {
       let model1 = try mockGeminiModel(modelName: "gemini-5.0-flash")
       let model2 = try mockGeminiModel(modelName: "gemini-2.5-flash")
-      let session = GenerativeModelSession(models: [model1, model2], tools: nil, instructions: nil)
+      let session = GenerativeModelSession(
+        model: HybridModel(cloud: model1, onDevice: model2, mode: .preferInCloud),
+        tools: nil,
+        instructions: nil
+      )
       let expectedStatusCode = 404
       try MockURLProtocol.requestHandlersQueue.append(contentsOf: [
         GenerativeModelTestUtil.httpRequestHandler(
@@ -264,7 +273,7 @@
       let currentTimeTool = CurrentTimeTool()
       let model = try mockGeminiModel()
       let session = GenerativeModelSession(
-        models: [model],
+        model: model,
         tools: [.autoFunctionDeclaration(currentTimeTool)],
         instructions: nil
       )
@@ -336,7 +345,7 @@
       let currentTimeTool = CurrentTimeTool()
       let model = try mockGeminiModel()
       let session = GenerativeModelSession(
-        models: [model],
+        model: model,
         tools: [.autoFunctionDeclaration(currentTimeTool)],
         instructions: nil
       )
@@ -395,7 +404,7 @@
       let currentTimeTool = CurrentTimeTool()
       let model = try mockGeminiModel()
       let session = GenerativeModelSession(
-        models: [model],
+        model: model,
         tools: [.autoFunctionDeclaration(currentTimeTool)],
         instructions: nil
       )
@@ -455,7 +464,7 @@
       let currentTimeTool = CurrentTimeTool()
       let model = try mockGeminiModel()
       let session = GenerativeModelSession(
-        models: [model],
+        model: model,
         tools: [.autoFunctionDeclaration(currentTimeTool)],
         instructions: nil
       )
