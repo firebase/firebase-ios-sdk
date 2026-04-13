@@ -195,7 +195,7 @@ let package = Package(
       path: "FirebaseAI/Sources",
       swiftSettings: [
         isFoundationModelsSupportedPlatformSwiftSetting(),
-      ]
+      ],
     ),
     .testTarget(
       name: "FirebaseAILogicUnit",
@@ -563,10 +563,7 @@ let package = Package(
     .target(
       name: "FirebaseCrashlyticsSwift",
       dependencies: ["FirebaseRemoteConfigInterop"],
-      path: "Crashlytics",
-      sources: [
-        "Crashlytics/Rollouts/",
-      ]
+      path: "Crashlytics/Crashlytics/Rollouts"
     ),
     .testTarget(
       name: "FirebaseCrashlyticsSwiftUnit",
@@ -1395,18 +1392,18 @@ func firebaseCrashlyticsTarget() -> Target {
       "CHANGELOG.md",
       "LICENSE",
       "README.md",
-      "ProtoSupport/",
-      "UnitTests/",
+      "ProtoSupport",
+      "UnitTests",
       "generate_project.sh",
       "upload-symbols",
       "CrashlyticsInputFiles.xcfilelist",
       "third_party/libunwind/LICENSE",
-      "Crashlytics/Rollouts/",
+      "Crashlytics/Rollouts",
     ],
     sources: [
-      "Crashlytics/",
-      "Protogen/",
-      "Shared/",
+      "Crashlytics",
+      "Protogen",
+      "Shared",
       "third_party/libunwind/dwarf.h",
     ],
     resources: [.process("Resources/PrivacyInfo.xcprivacy")],
