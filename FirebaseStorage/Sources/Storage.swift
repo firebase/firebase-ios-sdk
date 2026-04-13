@@ -244,8 +244,9 @@ internal import FirebaseCoreExtension
   private final class InstanceCache: @unchecked Sendable {
     static let shared = InstanceCache()
 
-    /// A map of active instances, grouped by app. Keys are FirebaseApp names and values are
-    /// instances of Storage associated with the given app.
+    /// A map of active instances, grouped by app and bucket. Keys combine the
+    /// FirebaseApp name and bucket to ensure each app gets its own Storage
+    /// instance, even when multiple apps share the same storage bucket.
     private var instances: [String: Storage] = [:]
 
     /// Lock to manage access to the instances array to avoid race conditions.
@@ -257,11 +258,12 @@ internal import FirebaseCoreExtension
       os_unfair_lock_lock(&instancesLock)
       defer { os_unfair_lock_unlock(&instancesLock) }
 
-      if let instance = instances[bucket] {
+      let key = "\(app.name)|\(bucket)"
+      if let instance = instances[key] {
         return instance
       }
       let newInstance = FirebaseStorage.Storage(app: app, bucket: bucket)
-      instances[bucket] = newInstance
+      instances[key] = newInstance
       return newInstance
     }
   }
