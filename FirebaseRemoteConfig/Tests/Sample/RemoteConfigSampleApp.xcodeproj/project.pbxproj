@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 54;
+	objectVersion = 51;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -55,7 +55,6 @@
 		DE71200724C92CA800C28FE2 /* SecondApp-GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "SecondApp-GoogleService-Info.plist"; path = "../../Unit/SecondApp-GoogleService-Info.plist"; sourceTree = "<group>"; };
 		DEB1E8782785018F0054A548 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "GoogleService-Info.plist"; sourceTree = SOURCE_ROOT; };
 		DEB267EAC843EF4BD455C9EC /* Pods-RemoteConfigSampleAppUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RemoteConfigSampleAppUITests.debug.xcconfig"; path = "Target Support Files/Pods-RemoteConfigSampleAppUITests/Pods-RemoteConfigSampleAppUITests.debug.xcconfig"; sourceTree = "<group>"; };
-		EA92CB8C2F841E9200D667AB /* Empty.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Empty.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -121,7 +120,6 @@
 		5BE818E023271577004DE6BA /* RemoteConfigSampleApp */ = {
 			isa = PBXGroup;
 			children = (
-				EA92CB8C2F841E9200D667AB /* Empty.swift */,
 				DEB1E8782785018F0054A548 /* GoogleService-Info.plist */,
 				DE71200724C92CA800C28FE2 /* SecondApp-GoogleService-Info.plist */,
 				5B1A9B12232846F3001809E9 /* FRCLog.h */,
@@ -257,13 +255,9 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-RemoteConfigSampleApp/Pods-RemoteConfigSampleApp-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			inputPaths = (
-			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-RemoteConfigSampleApp/Pods-RemoteConfigSampleApp-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
