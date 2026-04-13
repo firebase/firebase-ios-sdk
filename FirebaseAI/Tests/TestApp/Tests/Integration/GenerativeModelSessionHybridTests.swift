@@ -51,7 +51,7 @@
       #endif // canImport(FoundationModels)
       #expect(response.rawContent.generationID != nil)
       #expect(response.rawResponse.text == content)
-      #expect(response.rawResponse.modelVersion == validModel.modelName)
+      #expect(response.rawResponse.modelVersion == validModel._modelName)
     }
 
     @Test(arguments: [InstanceConfig.vertexAI_v1beta_global])
@@ -79,9 +79,9 @@
       // this case, no fallback occurs. When running on devices that do not support Apple
       // Intelligence, including GitHub Runner Images, check for the cloud (Gemini) model name.
       if await foundationModelsIsAvailable() {
-        #expect(response.rawResponse.modelVersion == onDeviceModel.modelName)
+        #expect(response.rawResponse.modelVersion == onDeviceModel._modelName)
       } else {
-        #expect(response.rawResponse.modelVersion == cloudModel.modelName)
+        #expect(response.rawResponse.modelVersion == cloudModel._modelName)
       }
     }
 
@@ -114,9 +114,9 @@
       // this case, no fallback occurs. When running on devices that do not support Apple
       // Intelligence, including GitHub Runner Images, check for the cloud (Gemini) model name.
       if await foundationModelsIsAvailable() {
-        #expect(response.rawResponse.modelVersion == onDeviceModel.modelName)
+        #expect(response.rawResponse.modelVersion == onDeviceModel._modelName)
       } else {
-        #expect(response.rawResponse.modelVersion == cloudModel.modelName)
+        #expect(response.rawResponse.modelVersion == cloudModel._modelName)
       }
     }
 
@@ -164,7 +164,7 @@
       if let text = response.rawResponse.text {
         #expect(content.hasSuffix(text))
       }
-      #expect(response.rawResponse.modelVersion == validModel.modelName)
+      #expect(response.rawResponse.modelVersion == validModel._modelName)
     }
 
     @Test(arguments: [InstanceConfig.vertexAI_v1beta_global])
@@ -214,9 +214,9 @@
       // this case, no fallback occurs. When running on devices that do not support Apple
       // Intelligence, including GitHub Runner Images, check for the cloud (Gemini) model name.
       if await foundationModelsIsAvailable() {
-        #expect(response.rawResponse.modelVersion == onDeviceModel.modelName)
+        #expect(response.rawResponse.modelVersion == onDeviceModel._modelName)
       } else {
-        #expect(response.rawResponse.modelVersion == cloudModel.modelName)
+        #expect(response.rawResponse.modelVersion == cloudModel._modelName)
       }
     }
 

@@ -20,7 +20,7 @@ import Foundation
 #if compiler(>=6.2.3)
   /// An object that represents a back-and-forth chat with a model, capturing the history and saving
   /// the context in memory between each message sent.
-  final class GeminiModelSession: ModelSession {
+  final class GeminiModelSession: _ModelSession {
     let chat: Chat
     private let functionDeclarations: [String: FunctionDeclaration]
 
@@ -31,15 +31,15 @@ import Foundation
 
     // MARK: ModelSession Conformance
 
-    var hasHistory: Bool {
+    var _hasHistory: Bool {
       return !chat.history.isEmpty
     }
 
     nonisolated(nonsending)
-    func respondTo(promptParts: [any Part], schema: FirebaseAI.GenerationSchema?,
-                   includeSchemaInPrompt: Bool, options: GenerationConfig?) async throws
-      -> ModelSessionResponse {
-      let parts = [ModelContent(parts: promptParts)]
+    func _respond(to prompt: [any Part], schema: FirebaseAI.GenerationSchema?,
+                  includeSchemaInPrompt: Bool, options: GenerationConfig?) async throws
+      -> _ModelSessionResponse {
+      let parts = [ModelContent(parts: prompt)]
       let config = try buildConfig(
         options: options,
         schema: schema,
@@ -102,16 +102,16 @@ import Foundation
         isComplete: true
       )
 
-      return ModelSessionResponse(rawContent: rawContent, rawResponse: response)
+      return _ModelSessionResponse(rawContent: rawContent, rawResponse: response)
     }
 
     @available(macOS 12.0, watchOS 8.0, *)
-    func streamResponseTo(promptParts: [any Part],
-                          schema: FirebaseAI.GenerationSchema?,
-                          includeSchemaInPrompt: Bool,
-                          options: GenerationConfig?)
-      -> sending AsyncThrowingStream<ModelSessionResponse, any Error> {
-      let initialParts = [ModelContent(parts: promptParts)]
+    func _streamResponse(to prompt: [any Part],
+                         schema: FirebaseAI.GenerationSchema?,
+                         includeSchemaInPrompt: Bool,
+                         options: GenerationConfig?)
+      -> sending AsyncThrowingStream<_ModelSessionResponse, any Error> {
+      let initialParts = [ModelContent(parts: prompt)]
       return AsyncThrowingStream { continuation in
         let task = Task {
           do {
@@ -163,7 +163,7 @@ import Foundation
                     hasSchema: schema != nil,
                     isComplete: false
                   )
-                  let response = ModelSessionResponse(
+                  let response = _ModelSessionResponse(
                     rawContent: rawContent,
                     rawResponse: pending.response
                   )
@@ -216,7 +216,7 @@ import Foundation
                       hasSchema: schema != nil,
                       isComplete: false
                     )
-                    let response = ModelSessionResponse(
+                    let response = _ModelSessionResponse(
                       rawContent: rawContent,
                       rawResponse: pending.response
                     )
@@ -237,7 +237,7 @@ import Foundation
                   hasSchema: schema != nil,
                   isComplete: true
                 )
-                let response = ModelSessionResponse(
+                let response = _ModelSessionResponse(
                   rawContent: rawContent,
                   rawResponse: finalChunk.response
                 )

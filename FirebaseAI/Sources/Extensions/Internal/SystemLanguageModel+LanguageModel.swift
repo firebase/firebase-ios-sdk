@@ -22,10 +22,10 @@
   extension FoundationModels.SystemLanguageModel: LanguageModel {
     static let modelName = "apple-foundation-models-system-language-model"
 
-    var modelName: String { FoundationModels.SystemLanguageModel.modelName }
+    public var _modelName: String { FoundationModels.SystemLanguageModel.modelName }
 
-    func startSession(tools: [any ToolRepresentable]?,
-                      instructions: String?) throws -> any ModelSession {
+    public func _startSession(tools: [any ToolRepresentable]?,
+                              instructions: String?) throws -> any _ModelSession {
       switch availability {
       case .available:
         break

@@ -19,14 +19,14 @@ public struct HybridModel: LanguageModel {
   let onDevice: any LanguageModel
   let mode: InferenceMode
 
-  var modelName: String {
-    return "hybrid:\(cloud.modelName),\(onDevice.modelName)"
+  public var _modelName: String {
+    return "hybrid:\(cloud._modelName),\(onDevice._modelName)"
   }
 
-  func startSession(tools: [any ToolRepresentable]?,
-                    instructions: String?) throws -> any ModelSession {
-    let cloudSession = try cloud.startSession(tools: tools, instructions: instructions)
-    let deviceSession = try onDevice.startSession(tools: tools, instructions: instructions)
+  public func _startSession(tools: [any ToolRepresentable]?,
+                            instructions: String?) throws -> any _ModelSession {
+    let cloudSession = try cloud._startSession(tools: tools, instructions: instructions)
+    let deviceSession = try onDevice._startSession(tools: tools, instructions: instructions)
 
     switch mode {
     case .preferOnDevice:

@@ -13,11 +13,8 @@
 // limitations under the License.
 
 #if compiler(>=6.2.3)
-  protocol LanguageModel: Sendable {
-    var modelName: String { get }
-
-    // TODO: Replace `instructions` with `Transcript` for session history.
-    func startSession(tools: [any ToolRepresentable]?,
-                      instructions: String?) throws -> any ModelSession
+  public struct _ModelSessionResponse: Sendable {
+    let rawContent: FirebaseAI.GeneratedContent
+    let rawResponse: GenerateContentResponse
   }
 #endif // compiler(>=6.2.3)

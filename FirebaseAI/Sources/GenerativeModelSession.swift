@@ -255,8 +255,8 @@
         instructions: instructions
       )
 
-      let response = try await session.respondTo(
-        promptParts: prompt.partsValue,
+      let response = try await session._respond(
+        to: prompt.partsValue,
         schema: schema,
         includeSchemaInPrompt: includeSchemaInPrompt,
         options: options
@@ -293,8 +293,8 @@
             instructions: self.instructions
           )
 
-          let stream = session.streamResponseTo(
-            promptParts: parts,
+          let stream = session._streamResponse(
+            to: parts,
             schema: schema,
             includeSchemaInPrompt: includeSchemaInPrompt,
             options: options
@@ -387,7 +387,7 @@
       private let tools: [any ToolRepresentable]?
 
       private let _isResponding = UnfairLock(false)
-      private(set) var _activeSession: (any ModelSession)?
+      private(set) var _activeSession: (any _ModelSession)?
 
       init(model: any LanguageModel, tools: [any ToolRepresentable]?) {
         self.model = model
@@ -420,12 +420,12 @@
         }
       }
 
-      func getOrStartSession(instructions: String?) throws -> any ModelSession {
+      func getOrStartSession(instructions: String?) throws -> any _ModelSession {
         try _isResponding.withLock { isResponding in
           if let currentSession = _activeSession {
             return currentSession
           } else {
-            let newSession = try model.startSession(tools: tools, instructions: instructions)
+            let newSession = try model._startSession(tools: tools, instructions: instructions)
             _activeSession = newSession
             return newSession
           }

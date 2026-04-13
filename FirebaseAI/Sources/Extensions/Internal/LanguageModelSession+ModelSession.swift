@@ -19,8 +19,8 @@
   @available(iOS 26.0, macOS 26.0, *)
   @available(tvOS, unavailable)
   @available(watchOS, unavailable)
-  extension FoundationModels.LanguageModelSession: ModelSession {
-    var hasHistory: Bool {
+  extension FoundationModels.LanguageModelSession: _ModelSession {
+    public var _hasHistory: Bool {
       if transcript.isEmpty {
         return false
       }
@@ -46,10 +46,10 @@
       return false
     }
 
-    func respondTo(promptParts: [any Part], schema: FirebaseAI.GenerationSchema?,
-                   includeSchemaInPrompt: Bool, options: GenerationConfig?) async throws
-      -> ModelSessionResponse {
-      let prompt = try promptParts.toFoundationModelsPrompt()
+    public func _respond(to prompt: [any Part], schema: FirebaseAI.GenerationSchema?,
+                         includeSchemaInPrompt: Bool, options: GenerationConfig?) async throws
+      -> _ModelSessionResponse {
+      let prompt = try prompt.toFoundationModelsPrompt()
 
       let response: FoundationModels.LanguageModelSession
         .Response<FoundationModels.GeneratedContent>
@@ -92,18 +92,18 @@
         modelVersion: SystemLanguageModel.modelName
       )
 
-      return ModelSessionResponse(rawContent: generatedContent, rawResponse: rawResponse)
+      return _ModelSessionResponse(rawContent: generatedContent, rawResponse: rawResponse)
     }
 
-    func streamResponseTo(promptParts: [any Part],
-                          schema: FirebaseAI.GenerationSchema?,
-                          includeSchemaInPrompt: Bool,
-                          options: GenerationConfig?)
-      -> sending AsyncThrowingStream<ModelSessionResponse, any Error> {
+    public func _streamResponse(to prompt: [any Part],
+                                schema: FirebaseAI.GenerationSchema?,
+                                includeSchemaInPrompt: Bool,
+                                options: GenerationConfig?)
+      -> sending AsyncThrowingStream<_ModelSessionResponse, any Error> {
       return AsyncThrowingStream { continuation in
-        let prompt: Prompt
+        let foundationModelsPrompt: Prompt
         do {
-          prompt = try promptParts.toFoundationModelsPrompt()
+          foundationModelsPrompt = try prompt.toFoundationModelsPrompt()
         } catch {
           continuation.finish(throwing: error)
           return
@@ -113,14 +113,14 @@
           .ResponseStream<FoundationModels.GeneratedContent>
         if let schema {
           stream = streamResponse(
-            to: prompt,
+            to: foundationModelsPrompt,
             schema: schema.generationSchema,
             includeSchemaInPrompt: includeSchemaInPrompt
             // TODO: Add options: GenerationOptions
           )
         } else {
           stream = streamResponse(
-            to: prompt,
+            to: foundationModelsPrompt,
             schema: String.generationSchema
             // TODO: Check `includeSchemaInPrompt: includeSchemaInPrompt` behaviour with `String`
             // TODO: Add options: GenerationOptions
@@ -154,7 +154,7 @@
                 modelVersion: SystemLanguageModel.modelName
               )
 
-              let response = ModelSessionResponse(
+              let response = _ModelSessionResponse(
                 rawContent: generatedContent,
                 rawResponse: rawResponse
               )

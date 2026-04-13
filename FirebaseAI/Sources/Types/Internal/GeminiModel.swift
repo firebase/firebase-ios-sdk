@@ -43,7 +43,10 @@ import Foundation
       self.urlSession = urlSession
     }
 
-    func startSession(tools: [any ToolRepresentable]?, instructions: String?) -> any ModelSession {
+    var _modelName: String { modelName }
+
+    func _startSession(tools: [any ToolRepresentable]?,
+                       instructions: String?) -> any _ModelSession {
       let model = GenerativeModel(
         modelName: modelName,
         modelResourceName: modelResourceName,
