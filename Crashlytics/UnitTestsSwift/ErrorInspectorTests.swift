@@ -27,6 +27,7 @@ import Testing
     (.error2(999), "TestErrorEnum.error2"),
     (.error3("TEST_AssociatedValue"), "TestErrorEnum.error3"),
     (.error4(TestErrorClass()), "TestErrorEnum.error4"),
+    (.error5(1, "2", true), "TestErrorEnum.error5"),
   ] as [(TestErrorEnum, String)]) func swiftEnumError(error: TestErrorEnum,
                                                       expectedDescription: String) {
     let description = ErrorInspector.identityDescription(for: error)
@@ -71,7 +72,7 @@ import Testing
   }
 
   @Test func nsErrorSubclass() {
-    let error = SomeNSError(
+    let error = TestNSError(
       domain: "TEST_NSErrorSubclass",
       code: 456,
       userInfo: [NSLocalizedDescriptionKey: "TEST_LocDesc"]
@@ -98,6 +99,20 @@ import Testing
 
     #expect(description == "TestSwiftNativeError.789")
   }
+
+  // Error details from the `CustomNSError` conformance are always prioritized.
+  // Note that `NSError` doesn’t conform to `CustomNSError` out of the box.
+  @Test func nsErrorSubclassWithCustomNSErrorConformance() {
+    let error = TestNSErrorWithCustomNSError(
+      domain: "TEST_ErrorDomainFromInit",
+      code: 123,
+      userInfo: [NSLocalizedDescriptionKey: "TEST_LocDesc"]
+    )
+
+    let description = ErrorInspector.identityDescription(for: error)
+
+    #expect(description == "TEST_ErrorDomainFromProtocol.321")
+  }
 }
 
 enum TestErrorEnum: Error {
@@ -105,6 +120,7 @@ enum TestErrorEnum: Error {
   case error2(Int)
   case error3(String)
   case error4(Any)
+  case error5(Int, String, Bool)
 }
 
 enum TestCustomErrorEnum: CustomNSError {
@@ -130,5 +146,12 @@ class TestErrorClass: CustomNSError {
   var errorCode: Int { 789 }
 }
 
-class SomeNSError: NSError, @unchecked Sendable {}
+class TestNSError: NSError, @unchecked Sendable {}
+
+// Having `SwiftNative` in the name is an edge case:
 class TestSwiftNativeError: NSError, @unchecked Sendable {}
+
+class TestNSErrorWithCustomNSError: NSError, CustomNSError, @unchecked Sendable {
+  static var errorDomain: String { "TEST_ErrorDomainFromProtocol" }
+  var errorCode: Int { 321 }
+}
