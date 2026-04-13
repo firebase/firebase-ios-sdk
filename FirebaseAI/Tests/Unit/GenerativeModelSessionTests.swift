@@ -87,7 +87,7 @@
       var functionCalls = [FunctionCall]()
       var functionResponses = [FunctionResponse]()
       let modelSession = try XCTUnwrap(
-        session.sessionManager.getOrStartSession(index: 0, instructions: nil)
+        session.sessionManager.getOrStartSession(instructions: nil)
       )
       let geminiSession = try XCTUnwrap(modelSession as? GeminiModelSession)
       for content in geminiSession.chat.history {
@@ -141,7 +141,7 @@
       var functionCalls = [FunctionCall]()
       var functionResponses = [FunctionResponse]()
       let modelSession = try XCTUnwrap(
-        session.sessionManager.getOrStartSession(index: 0, instructions: nil)
+        session.sessionManager.getOrStartSession(instructions: nil)
       )
       let geminiSession = try XCTUnwrap(modelSession as? GeminiModelSession)
       for content in geminiSession.chat.history {
@@ -293,7 +293,7 @@
       var functionCalls = [FunctionCall]()
       var functionResponses = [FunctionResponse]()
       let modelSession = try XCTUnwrap(
-        session.sessionManager.getOrStartSession(index: 0, instructions: nil)
+        session.sessionManager.getOrStartSession(instructions: nil)
       )
       let geminiSession = try XCTUnwrap(modelSession as? GeminiModelSession)
       for content in geminiSession.chat.history {
@@ -351,7 +351,7 @@
       var functionCalls = [FunctionCall]()
       var functionResponses = [FunctionResponse]()
       let modelSession = try XCTUnwrap(
-        session.sessionManager.getOrStartSession(index: 0, instructions: nil)
+        session.sessionManager.getOrStartSession(instructions: nil)
       )
       let geminiSession = try XCTUnwrap(modelSession as? GeminiModelSession)
       for content in geminiSession.chat.history {
@@ -410,7 +410,7 @@
       var functionCalls = [FunctionCall]()
       var functionResponses = [FunctionResponse]()
       let modelSession = try XCTUnwrap(
-        session.sessionManager.getOrStartSession(index: 0, instructions: nil)
+        session.sessionManager.getOrStartSession(instructions: nil)
       )
       let geminiSession = try XCTUnwrap(modelSession as? GeminiModelSession)
       for content in geminiSession.chat.history {
@@ -485,7 +485,7 @@
       var functionCalls = [FunctionCall]()
       var functionResponses = [FunctionResponse]()
       let modelSession = try XCTUnwrap(
-        session.sessionManager.getOrStartSession(index: 0, instructions: nil)
+        session.sessionManager.getOrStartSession(instructions: nil)
       )
       let geminiSession = try XCTUnwrap(modelSession as? GeminiModelSession)
       for content in geminiSession.chat.history {

@@ -20,6 +20,32 @@
   @available(tvOS, unavailable)
   @available(watchOS, unavailable)
   extension FoundationModels.LanguageModelSession: ModelSession {
+    var hasHistory: Bool {
+      if transcript.isEmpty {
+        return false
+      }
+
+      for entry in transcript {
+        switch entry {
+        case .instructions:
+          continue
+        case .prompt:
+          return true
+        case .toolCalls:
+          return true
+        case .toolOutput:
+          return true
+        case .response:
+          return true
+        @unknown default:
+          // Unknown entry type, assuming that it is session history.
+          return true
+        }
+      }
+
+      return false
+    }
+
     func respondTo(promptParts: [any Part], schema: FirebaseAI.GenerationSchema?,
                    includeSchemaInPrompt: Bool, options: GenerationConfig?) async throws
       -> ModelSessionResponse {

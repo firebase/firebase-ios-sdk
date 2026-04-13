@@ -31,7 +31,11 @@
       let invalidModel2 = firebaseAI.geminiModel(modelName: "invalid-model-name-2")
       let validModel = firebaseAI.geminiModel(modelName: ModelNames.gemini2_5_FlashLite)
       let session = firebaseAI.generativeModelSession(
-        models: [invalidModel1, invalidModel2, validModel]
+        model: HybridModel(
+          cloud: invalidModel1,
+          onDevice: HybridModel(cloud: invalidModel2, onDevice: validModel, mode: .preferInCloud),
+          mode: .preferInCloud
+        )
       )
       let prompt = "Why is the sky blue?"
 
@@ -58,7 +62,9 @@
       let firebaseAI = FirebaseAI.componentInstance(config)
       let onDeviceModel = SystemLanguageModel.default
       let cloudModel = firebaseAI.geminiModel(modelName: ModelNames.gemini2_5_FlashLite)
-      let session = firebaseAI.generativeModelSession(models: [onDeviceModel, cloudModel])
+      let session = firebaseAI.generativeModelSession(
+        model: HybridModel(cloud: cloudModel, onDevice: onDeviceModel, mode: .preferOnDevice)
+      )
       let prompt = "In one sentence, why is the sky blue?"
 
       let response = try await session.respond(to: prompt)
@@ -87,7 +93,9 @@
       let firebaseAI = FirebaseAI.componentInstance(config)
       let onDeviceModel = SystemLanguageModel.default
       let cloudModel = firebaseAI.geminiModel(modelName: ModelNames.gemini2_5_FlashLite)
-      let session = firebaseAI.generativeModelSession(models: [onDeviceModel, cloudModel])
+      let session = firebaseAI.generativeModelSession(
+        model: HybridModel(cloud: cloudModel, onDevice: onDeviceModel, mode: .preferOnDevice)
+      )
       let prompt = "Generate a cute rescue cat"
 
       let response = try await session.respond(
@@ -117,7 +125,9 @@
       let firebaseAI = FirebaseAI.componentInstance(config)
       let invalidModel = firebaseAI.geminiModel(modelName: "invalid-model-name")
       let validModel = firebaseAI.geminiModel(modelName: ModelNames.gemini2_5_FlashLite)
-      let session = firebaseAI.generativeModelSession(models: [invalidModel, validModel])
+      let session = firebaseAI.generativeModelSession(
+        model: HybridModel(cloud: invalidModel, onDevice: validModel, mode: .preferInCloud)
+      )
       let prompt = "In one sentence, why is the sky blue?"
 
       let stream = session.streamResponse(to: prompt)
@@ -165,7 +175,9 @@
       let firebaseAI = FirebaseAI.componentInstance(config)
       let onDeviceModel = SystemLanguageModel.default
       let cloudModel = firebaseAI.geminiModel(modelName: ModelNames.gemini2_5_FlashLite)
-      let session = firebaseAI.generativeModelSession(models: [onDeviceModel, cloudModel])
+      let session = firebaseAI.generativeModelSession(
+        model: HybridModel(cloud: cloudModel, onDevice: onDeviceModel, mode: .preferOnDevice)
+      )
       let prompt = "In one sentence, why is the sky blue?"
 
       let stream = session.streamResponse(to: prompt)

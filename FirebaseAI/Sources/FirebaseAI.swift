@@ -127,7 +127,7 @@ public final class FirebaseAI: Sendable {
                                        instructions: String? = nil) -> GenerativeModelSession {
       let geminiModel = geminiModel(modelName: model)
 
-      return generativeModelSession(models: [geminiModel], tools: tools, instructions: instructions)
+      return generativeModelSession(model: geminiModel, tools: tools, instructions: instructions)
     }
 
     // TODO: Update this testing API for hybrid GenerativeModelSession.
@@ -144,9 +144,9 @@ public final class FirebaseAI: Sendable {
     }
 
     // TODO: Update this testing API for hybrid GenerativeModelSession.
-    func generativeModelSession(models: [any LanguageModel], tools: [any ToolRepresentable]? = nil,
+    func generativeModelSession(model: any LanguageModel, tools: [any ToolRepresentable]? = nil,
                                 instructions: String? = nil) -> GenerativeModelSession {
-      return GenerativeModelSession(models: models, tools: tools, instructions: instructions)
+      return GenerativeModelSession(model: model, tools: tools, instructions: instructions)
     }
 
     #if canImport(FoundationModels)

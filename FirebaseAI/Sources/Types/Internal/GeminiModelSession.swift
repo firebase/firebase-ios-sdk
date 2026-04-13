@@ -23,15 +23,17 @@ import Foundation
   final class GeminiModelSession: ModelSession {
     let chat: Chat
     private let functionDeclarations: [String: FunctionDeclaration]
-    private let _history: History
 
     init(model: GenerativeModel, history: [ModelContent]) {
       chat = model.startChat(history: history)
       functionDeclarations = model.functionDeclarationsByName()
-      _history = History(history: history)
     }
 
     // MARK: ModelSession Conformance
+
+    var hasHistory: Bool {
+      return !chat.history.isEmpty
+    }
 
     nonisolated(nonsending)
     func respondTo(promptParts: [any Part], schema: FirebaseAI.GenerationSchema?,

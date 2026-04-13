@@ -14,6 +14,8 @@
 
 #if compiler(>=6.2.3)
   protocol ModelSession: Sendable {
+    var hasHistory: Bool { get }
+
     nonisolated(nonsending) func respondTo(promptParts: [any Part],
                                            schema: FirebaseAI.GenerationSchema?,
                                            includeSchemaInPrompt: Bool,
