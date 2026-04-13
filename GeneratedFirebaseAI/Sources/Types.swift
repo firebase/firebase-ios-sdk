@@ -825,6 +825,7 @@ public struct Modality: CodableProtoEnum, Sendable {
     case text = "TEXT"
     case image = "IMAGE"
     case audio = "AUDIO"
+    case video = "VIDEO"
   }
 
   /// The modality is unspecified.
@@ -838,6 +839,9 @@ public struct Modality: CodableProtoEnum, Sendable {
 
   /// Indicates the model should return audio.
   public static let audio = Modality(kind: .audio)
+
+  /// Indicates the model should return video.
+  public static let video = Modality(kind: .video)
 
   let rawValue: String
 }
@@ -1681,6 +1685,32 @@ public struct TurnCompleteReason: CodableProtoEnum, Sendable {
     case malformedFunctionCall = "MALFORMED_FUNCTION_CALL"
     case responseRejected = "RESPONSE_REJECTED"
     case needMoreInput = "NEED_MORE_INPUT"
+    case prohibitedInputContent = "PROHIBITED_INPUT_CONTENT"
+    case imageProhibitedInputContent = "IMAGE_PROHIBITED_INPUT_CONTENT"
+    case inputTextContainProminentPersonProhibited =
+      "INPUT_TEXT_CONTAIN_PROMINENT_PERSON_PROHIBITED"
+    case inputImageCelebrity = "INPUT_IMAGE_CELEBRITY"
+    case inputImagePhotoRealisticChildProhibited = "INPUT_IMAGE_PHOTO_REALISTIC_CHILD_PROHIBITED"
+    case inputTextNciiProhibited = "INPUT_TEXT_NCII_PROHIBITED"
+    case inputOther = "INPUT_OTHER"
+    case inputIpProhibited = "INPUT_IP_PROHIBITED"
+    case blocklist = "BLOCKLIST"
+    case unsafePromptForImageGeneration = "UNSAFE_PROMPT_FOR_IMAGE_GENERATION"
+    case generatedImageSafety = "GENERATED_IMAGE_SAFETY"
+    case generatedContentSafety = "GENERATED_CONTENT_SAFETY"
+    case generatedAudioSafety = "GENERATED_AUDIO_SAFETY"
+    case generatedVideoSafety = "GENERATED_VIDEO_SAFETY"
+    case generatedContentProhibited = "GENERATED_CONTENT_PROHIBITED"
+    case generatedContentBlocklist = "GENERATED_CONTENT_BLOCKLIST"
+    case generatedImageProhibited = "GENERATED_IMAGE_PROHIBITED"
+    case generatedImageCelebrity = "GENERATED_IMAGE_CELEBRITY"
+    case generatedImageProminentPeopleDetectedByRewriter =
+      "GENERATED_IMAGE_PROMINENT_PEOPLE_DETECTED_BY_REWRITER"
+    case generatedImageIdentifiablePeople = "GENERATED_IMAGE_IDENTIFIABLE_PEOPLE"
+    case generatedImageMinors = "GENERATED_IMAGE_MINORS"
+    case outputImageIpProhibited = "OUTPUT_IMAGE_IP_PROHIBITED"
+    case generatedOther = "GENERATED_OTHER"
+    case maxRegenerationReached = "MAX_REGENERATION_REACHED"
   }
 
   /// Default value. Reason is unspecified.
@@ -1694,6 +1724,85 @@ public struct TurnCompleteReason: CodableProtoEnum, Sendable {
 
   /// Needs more input from the user.
   public static let needMoreInput = TurnCompleteReason(kind: .needMoreInput)
+
+  /// Input content is prohibited.
+  public static let prohibitedInputContent = TurnCompleteReason(kind: .prohibitedInputContent)
+
+  /// Input image contains prohibited content.
+  public static let imageProhibitedInputContent = TurnCompleteReason(
+    kind: .imageProhibitedInputContent)
+
+  /// Input text contains prominent person reference.
+  public static let inputTextContainProminentPersonProhibited = TurnCompleteReason(
+    kind: .inputTextContainProminentPersonProhibited)
+
+  /// Input image contains celebrity.
+  public static let inputImageCelebrity = TurnCompleteReason(kind: .inputImageCelebrity)
+
+  /// Input image contains photo realistic child.
+  public static let inputImagePhotoRealisticChildProhibited = TurnCompleteReason(
+    kind: .inputImagePhotoRealisticChildProhibited)
+
+  /// Input text contains NCII content.
+  public static let inputTextNciiProhibited = TurnCompleteReason(kind: .inputTextNciiProhibited)
+
+  /// Other input safety issue.
+  public static let inputOther = TurnCompleteReason(kind: .inputOther)
+
+  /// Input contains IP violation.
+  public static let inputIpProhibited = TurnCompleteReason(kind: .inputIpProhibited)
+
+  /// Input matched blocklist.
+  public static let blocklist = TurnCompleteReason(kind: .blocklist)
+
+  /// Input is unsafe for image generation.
+  public static let unsafePromptForImageGeneration = TurnCompleteReason(
+    kind: .unsafePromptForImageGeneration)
+
+  /// Generated image failed safety check.
+  public static let generatedImageSafety = TurnCompleteReason(kind: .generatedImageSafety)
+
+  /// Generated content failed safety check.
+  public static let generatedContentSafety = TurnCompleteReason(kind: .generatedContentSafety)
+
+  /// Generated audio failed safety check.
+  public static let generatedAudioSafety = TurnCompleteReason(kind: .generatedAudioSafety)
+
+  /// Generated video failed safety check.
+  public static let generatedVideoSafety = TurnCompleteReason(kind: .generatedVideoSafety)
+
+  /// Generated content is prohibited.
+  public static let generatedContentProhibited = TurnCompleteReason(
+    kind: .generatedContentProhibited)
+
+  /// Generated content matched blocklist.
+  public static let generatedContentBlocklist = TurnCompleteReason(kind: .generatedContentBlocklist)
+
+  /// Generated image is prohibited.
+  public static let generatedImageProhibited = TurnCompleteReason(kind: .generatedImageProhibited)
+
+  /// Generated image contains celebrity.
+  public static let generatedImageCelebrity = TurnCompleteReason(kind: .generatedImageCelebrity)
+
+  /// Generated image contains prominent people detected by rewriter.
+  public static let generatedImageProminentPeopleDetectedByRewriter = TurnCompleteReason(
+    kind: .generatedImageProminentPeopleDetectedByRewriter)
+
+  /// Generated image contains identifiable people.
+  public static let generatedImageIdentifiablePeople = TurnCompleteReason(
+    kind: .generatedImageIdentifiablePeople)
+
+  /// Generated image contains minors.
+  public static let generatedImageMinors = TurnCompleteReason(kind: .generatedImageMinors)
+
+  /// Generated image contains IP violation.
+  public static let outputImageIpProhibited = TurnCompleteReason(kind: .outputImageIpProhibited)
+
+  /// Other generated content issue.
+  public static let generatedOther = TurnCompleteReason(kind: .generatedOther)
+
+  /// Max regeneration attempts reached.
+  public static let maxRegenerationReached = TurnCompleteReason(kind: .maxRegenerationReached)
 
   let rawValue: String
 }
@@ -12834,6 +12943,14 @@ public struct EmbedContentConfig: Sendable {
   /// will lead to an INVALID_ARGUMENT error, similar to other text APIs.
   public let autoTruncate: Bool?
 
+  /// Vertex API only. Whether to enable OCR for document content.
+  /// Only applicable to Gemini Embedding 2 models.
+  public let documentOcr: Bool?
+
+  /// Vertex API only. Whether to extract audio from video content.
+  /// Only applicable to Gemini Embedding 2 models.
+  public let audioTrackExtraction: Bool?
+
   /// Default initializer.
   public init(
     httpOptions: HttpOptions? = nil,
@@ -12841,7 +12958,9 @@ public struct EmbedContentConfig: Sendable {
     title: String? = nil,
     outputDimensionality: Int32? = nil,
     mimeType: String? = nil,
-    autoTruncate: Bool? = nil
+    autoTruncate: Bool? = nil,
+    documentOcr: Bool? = nil,
+    audioTrackExtraction: Bool? = nil
   ) {
     self.httpOptions = httpOptions
     self.taskType = taskType
@@ -12849,6 +12968,8 @@ public struct EmbedContentConfig: Sendable {
     self.outputDimensionality = outputDimensionality
     self.mimeType = mimeType
     self.autoTruncate = autoTruncate
+    self.documentOcr = documentOcr
+    self.audioTrackExtraction = audioTrackExtraction
   }
 }
 
@@ -12866,6 +12987,8 @@ extension EmbedContentConfig: Codable {
   public enum VertexKeys: String, CodingKey {
     case mimeType = "mimeType"
     case autoTruncate = "autoTruncate"
+    case documentOcr = "documentOcr"
+    case audioTrackExtraction = "audioTrackExtraction"
   }
 
   public init(from decoder: any Decoder) throws {
@@ -12901,6 +13024,16 @@ extension EmbedContentConfig: Codable {
     autoTruncate = try VertexKeysContainer.decodeIfPresent(
       Bool.self,
       forKey: .autoTruncate
+    )
+
+    documentOcr = try VertexKeysContainer.decodeIfPresent(
+      Bool.self,
+      forKey: .documentOcr
+    )
+
+    audioTrackExtraction = try VertexKeysContainer.decodeIfPresent(
+      Bool.self,
+      forKey: .audioTrackExtraction
     )
   }
 
@@ -12939,6 +13072,16 @@ extension EmbedContentConfig: Codable {
       try VertexKeysContainer.encodeIfPresent(
         autoTruncate,
         forKey: .autoTruncate
+      )
+
+      try VertexKeysContainer.encodeIfPresent(
+        documentOcr,
+        forKey: .documentOcr
+      )
+
+      try VertexKeysContainer.encodeIfPresent(
+        audioTrackExtraction,
+        forKey: .audioTrackExtraction
       )
 
     }
@@ -18834,6 +18977,72 @@ extension VideoGenerationMask: Codable {
   }
 }
 
+/// Configuration for webhook notifications.
+///
+/// Used to configure webhook endpoints that will receive notifications
+/// when long-running operations (e.g., batch jobs, video generation) complete.
+@available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+public struct WebhookConfig: Sendable {
+  /// The webhook URIs to receive notifications. If set, these
+  /// webhook URIs will be used instead of the registered webhooks.
+  public let uris: [String]?
+
+  /// User metadata that will be included in each webhook event
+  /// notification. Use this to attach custom key-value data to correlate
+  /// webhook events with your internal systems.
+  public let userMetadata: [String: JSONValue]?
+
+  /// Default initializer.
+  public init(
+    uris: [String]? = nil,
+    userMetadata: [String: JSONValue]? = nil
+  ) {
+    self.uris = uris
+    self.userMetadata = userMetadata
+  }
+}
+
+@available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension WebhookConfig: Codable {
+
+  // MARK: - Codable
+
+  public enum CommonKeys: String, CodingKey {
+    case uris = "uris"
+    case userMetadata = "userMetadata"
+  }
+
+  public init(from decoder: any Decoder) throws {
+    let configuration: APIClient = try decoder.userInfoOrThrow(.configuration)
+
+    let CommonKeysContainer = try decoder.container(keyedBy: CommonKeys.self)
+    uris = try CommonKeysContainer.decodeIfPresent(
+      [String].self,
+      forKey: .uris
+    )
+
+    userMetadata = try CommonKeysContainer.decodeIfPresent(
+      [String: JSONValue].self,
+      forKey: .userMetadata
+    )
+  }
+
+  public func encode(to encoder: any Encoder) throws {
+    let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
+
+    var CommonKeysContainer = encoder.container(keyedBy: CommonKeys.self)
+    try CommonKeysContainer.encodeIfPresent(
+      uris,
+      forKey: .uris
+    )
+
+    try CommonKeysContainer.encodeIfPresent(
+      userMetadata,
+      forKey: .userMetadata
+    )
+  }
+}
+
 /// Configuration for generating videos.
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct GenerateVideosConfig: Sendable {
@@ -18904,6 +19113,10 @@ public struct GenerateVideosConfig: Sendable {
   /// User specified labels to track billing usage.
   public let labels: [String: String]?
 
+  /// Webhook configuration for receiving notifications when the
+  /// video generation operation completes.
+  public let webhookConfig: WebhookConfig?
+
   /// Default initializer.
   public init(
     httpOptions: HttpOptions? = nil,
@@ -18923,7 +19136,8 @@ public struct GenerateVideosConfig: Sendable {
     referenceImages: [VideoGenerationReferenceImage]? = nil,
     mask: VideoGenerationMask? = nil,
     compressionQuality: VideoCompressionQuality? = nil,
-    labels: [String: String]? = nil
+    labels: [String: String]? = nil,
+    webhookConfig: WebhookConfig? = nil
   ) {
     self.httpOptions = httpOptions
     self.numberOfVideos = numberOfVideos
@@ -18943,6 +19157,7 @@ public struct GenerateVideosConfig: Sendable {
     self.mask = mask
     self.compressionQuality = compressionQuality
     self.labels = labels
+    self.webhookConfig = webhookConfig
   }
 }
 
@@ -18962,6 +19177,9 @@ extension GenerateVideosConfig: Codable {
     case enhancePrompt = "enhancePrompt"
     case lastFrame = "lastFrame"
     case referenceImages = "referenceImages"
+  }
+  public enum MLDevKeys: String, CodingKey {
+    case webhookConfig = "webhookConfig"
   }
   public enum VertexKeys: String, CodingKey {
     case outputGcsUri = "outputGcsUri"
@@ -19026,6 +19244,12 @@ extension GenerateVideosConfig: Codable {
     referenceImages = try CommonKeysContainer.decodeIfPresent(
       [VideoGenerationReferenceImage].self,
       forKey: .referenceImages
+    )
+
+    let MLDevKeysContainer = try decoder.container(keyedBy: MLDevKeys.self)
+    webhookConfig = try MLDevKeysContainer.decodeIfPresent(
+      WebhookConfig.self,
+      forKey: .webhookConfig
     )
 
     let VertexKeysContainer = try decoder.container(keyedBy: VertexKeys.self)
@@ -19123,6 +19347,16 @@ extension GenerateVideosConfig: Codable {
       referenceImages,
       forKey: .referenceImages
     )
+
+    if configuration.isMlDeveloper() {
+
+      var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
+      try MLDevKeysContainer.encodeIfPresent(
+        webhookConfig,
+        forKey: .webhookConfig
+      )
+
+    }
 
     if configuration.isVertexAI() {
 
@@ -22344,53 +22578,6 @@ extension PartnerModelTuningSpec: Codable {
   }
 }
 
-/// Evaluation config for tuning.
-@available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public struct EvaluationConfig: Sendable {
-  /// Generation config for inference.
-  public let inferenceGenerationConfig: GenerationConfig?
-
-  /// Default initializer.
-  public init(
-    inferenceGenerationConfig: GenerationConfig? = nil
-  ) {
-    self.inferenceGenerationConfig = inferenceGenerationConfig
-  }
-}
-
-@available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension EvaluationConfig: Codable {
-
-  // MARK: - Codable
-  public enum VertexKeys: String, CodingKey {
-    case inferenceGenerationConfig = "inferenceGenerationConfig"
-  }
-
-  public init(from decoder: any Decoder) throws {
-    let configuration: APIClient = try decoder.userInfoOrThrow(.configuration)
-
-    let VertexKeysContainer = try decoder.container(keyedBy: VertexKeys.self)
-    inferenceGenerationConfig = try VertexKeysContainer.decodeIfPresent(
-      GenerationConfig.self,
-      forKey: .inferenceGenerationConfig
-    )
-  }
-
-  public func encode(to encoder: any Encoder) throws {
-    let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
-
-    if configuration.isVertexAI() {
-
-      var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
-      try VertexKeysContainer.encodeIfPresent(
-        inferenceGenerationConfig,
-        forKey: .inferenceGenerationConfig
-      )
-
-    }
-  }
-}
-
 /// Bleu metric value for an instance. This data type is not supported in Gemini
 /// API.
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
@@ -24880,6 +25067,53 @@ extension TuningValidationDataset: Codable {
       try VertexKeysContainer.encodeIfPresent(
         vertexDatasetResource,
         forKey: .vertexDatasetResource
+      )
+
+    }
+  }
+}
+
+/// Evaluation config for tuning.
+@available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+public struct EvaluationConfig: Sendable {
+  /// Generation config for inference.
+  public let inferenceGenerationConfig: GenerationConfig?
+
+  /// Default initializer.
+  public init(
+    inferenceGenerationConfig: GenerationConfig? = nil
+  ) {
+    self.inferenceGenerationConfig = inferenceGenerationConfig
+  }
+}
+
+@available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension EvaluationConfig: Codable {
+
+  // MARK: - Codable
+  public enum VertexKeys: String, CodingKey {
+    case inferenceGenerationConfig = "inferenceGenerationConfig"
+  }
+
+  public init(from decoder: any Decoder) throws {
+    let configuration: APIClient = try decoder.userInfoOrThrow(.configuration)
+
+    let VertexKeysContainer = try decoder.container(keyedBy: VertexKeys.self)
+    inferenceGenerationConfig = try VertexKeysContainer.decodeIfPresent(
+      GenerationConfig.self,
+      forKey: .inferenceGenerationConfig
+    )
+  }
+
+  public func encode(to encoder: any Encoder) throws {
+    let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
+
+    if configuration.isVertexAI() {
+
+      var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
+      try VertexKeysContainer.encodeIfPresent(
+        inferenceGenerationConfig,
+        forKey: .inferenceGenerationConfig
       )
 
     }
@@ -30498,15 +30732,21 @@ public struct CreateBatchJobConfig: Sendable {
   /// "gs://path/to/output/data" or "bq://projectId.bqDatasetId.bqTableId".
   public let dest: BatchJobDestination?
 
+  /// Webhook configuration for receiving notifications when the batch
+  /// operation completes.
+  public let webhookConfig: WebhookConfig?
+
   /// Default initializer.
   public init(
     httpOptions: HttpOptions? = nil,
     displayName: String? = nil,
-    dest: BatchJobDestination? = nil
+    dest: BatchJobDestination? = nil,
+    webhookConfig: WebhookConfig? = nil
   ) {
     self.httpOptions = httpOptions
     self.displayName = displayName
     self.dest = dest
+    self.webhookConfig = webhookConfig
   }
 }
 
@@ -30518,6 +30758,9 @@ extension CreateBatchJobConfig: Codable {
   public enum CommonKeys: String, CodingKey {
     case httpOptions = "httpOptions"
     case displayName = "displayName"
+  }
+  public enum MLDevKeys: String, CodingKey {
+    case webhookConfig = "webhookConfig"
   }
   public enum VertexKeys: String, CodingKey {
     case dest = "dest"
@@ -30535,6 +30778,12 @@ extension CreateBatchJobConfig: Codable {
     displayName = try CommonKeysContainer.decodeIfPresent(
       String.self,
       forKey: .displayName
+    )
+
+    let MLDevKeysContainer = try decoder.container(keyedBy: MLDevKeys.self)
+    webhookConfig = try MLDevKeysContainer.decodeIfPresent(
+      WebhookConfig.self,
+      forKey: .webhookConfig
     )
 
     let VertexKeysContainer = try decoder.container(keyedBy: VertexKeys.self)
@@ -30557,6 +30806,16 @@ extension CreateBatchJobConfig: Codable {
       displayName,
       forKey: .displayName
     )
+
+    if configuration.isMlDeveloper() {
+
+      var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
+      try MLDevKeysContainer.encodeIfPresent(
+        webhookConfig,
+        forKey: .webhookConfig
+      )
+
+    }
 
     if configuration.isVertexAI() {
 
@@ -35587,6 +35846,159 @@ extension ProactivityConfig: Codable {
   }
 }
 
+/// Configures the customized avatar to be used in the session.
+@available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+public struct CustomizedAvatar: Sendable {
+  /// The mime type of the reference image, e.g., "image/jpeg".
+  public let imageMimeType: String?
+
+  /// The data of the reference image. The dimensions of the reference
+  /// image should be 9:16 (portrait) with a minimum resolution of 704x1280.
+  public let imageData: Data?
+
+  /// Default initializer.
+  public init(
+    imageMimeType: String? = nil,
+    imageData: Data? = nil
+  ) {
+    self.imageMimeType = imageMimeType
+    self.imageData = imageData
+  }
+}
+
+@available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension CustomizedAvatar: Codable {
+
+  // MARK: - Codable
+
+  public enum CommonKeys: String, CodingKey {
+    case imageMimeType = "imageMimeType"
+    case imageData = "imageData"
+  }
+
+  public init(from decoder: any Decoder) throws {
+    let configuration: APIClient = try decoder.userInfoOrThrow(.configuration)
+
+    let CommonKeysContainer = try decoder.container(keyedBy: CommonKeys.self)
+    imageMimeType = try CommonKeysContainer.decodeIfPresent(
+      String.self,
+      forKey: .imageMimeType
+    )
+
+    imageData = try CommonKeysContainer.decodeIfPresent(
+      Data.self,
+      forKey: .imageData
+    )
+  }
+
+  public func encode(to encoder: any Encoder) throws {
+    let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
+
+    var CommonKeysContainer = encoder.container(keyedBy: CommonKeys.self)
+    try CommonKeysContainer.encodeIfPresent(
+      imageMimeType,
+      forKey: .imageMimeType
+    )
+
+    try CommonKeysContainer.encodeIfPresent(
+      imageData,
+      forKey: .imageData
+    )
+  }
+}
+
+/// Configures the avatar to be used in the session.
+@available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+public struct AvatarConfig: Sendable {
+  /// Pre-built avatar id.
+  public let avatarName: String?
+
+  /// Customized avatar appearance with a reference image.
+  public let customizedAvatar: CustomizedAvatar?
+
+  /// The bitrate of compressed audio.
+  public let audioBitrateBps: Int32?
+
+  /// The bitrate of compressed video output.
+  public let videoBitrateBps: Int32?
+
+  /// Default initializer.
+  public init(
+    avatarName: String? = nil,
+    customizedAvatar: CustomizedAvatar? = nil,
+    audioBitrateBps: Int32? = nil,
+    videoBitrateBps: Int32? = nil
+  ) {
+    self.avatarName = avatarName
+    self.customizedAvatar = customizedAvatar
+    self.audioBitrateBps = audioBitrateBps
+    self.videoBitrateBps = videoBitrateBps
+  }
+}
+
+@available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension AvatarConfig: Codable {
+
+  // MARK: - Codable
+
+  public enum CommonKeys: String, CodingKey {
+    case avatarName = "avatarName"
+    case customizedAvatar = "customizedAvatar"
+    case audioBitrateBps = "audioBitrateBps"
+    case videoBitrateBps = "videoBitrateBps"
+  }
+
+  public init(from decoder: any Decoder) throws {
+    let configuration: APIClient = try decoder.userInfoOrThrow(.configuration)
+
+    let CommonKeysContainer = try decoder.container(keyedBy: CommonKeys.self)
+    avatarName = try CommonKeysContainer.decodeIfPresent(
+      String.self,
+      forKey: .avatarName
+    )
+
+    customizedAvatar = try CommonKeysContainer.decodeIfPresent(
+      CustomizedAvatar.self,
+      forKey: .customizedAvatar
+    )
+
+    audioBitrateBps = try CommonKeysContainer.decodeIfPresent(
+      Int32.self,
+      forKey: .audioBitrateBps
+    )
+
+    videoBitrateBps = try CommonKeysContainer.decodeIfPresent(
+      Int32.self,
+      forKey: .videoBitrateBps
+    )
+  }
+
+  public func encode(to encoder: any Encoder) throws {
+    let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
+
+    var CommonKeysContainer = encoder.container(keyedBy: CommonKeys.self)
+    try CommonKeysContainer.encodeIfPresent(
+      avatarName,
+      forKey: .avatarName
+    )
+
+    try CommonKeysContainer.encodeIfPresent(
+      customizedAvatar,
+      forKey: .customizedAvatar
+    )
+
+    try CommonKeysContainer.encodeIfPresent(
+      audioBitrateBps,
+      forKey: .audioBitrateBps
+    )
+
+    try CommonKeysContainer.encodeIfPresent(
+      videoBitrateBps,
+      forKey: .videoBitrateBps
+    )
+  }
+}
+
 /// Message contains configuration that will apply for the duration of the streaming
 /// session.
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
@@ -35642,6 +36054,13 @@ public struct LiveClientSetup: Sendable {
   /// to process the audio more efficiently.
   public let explicitVadSignal: Bool?
 
+  /// Configures the avatar model behavior.
+  public let avatarConfig: AvatarConfig?
+
+  /// Safety settings in the request to block unsafe content in the
+  /// response.
+  public let safetySettings: [SafetySetting]?
+
   /// Default initializer.
   public init(
     model: String? = nil,
@@ -35654,7 +36073,9 @@ public struct LiveClientSetup: Sendable {
     inputAudioTranscription: AudioTranscriptionConfig? = nil,
     outputAudioTranscription: AudioTranscriptionConfig? = nil,
     proactivity: ProactivityConfig? = nil,
-    explicitVadSignal: Bool? = nil
+    explicitVadSignal: Bool? = nil,
+    avatarConfig: AvatarConfig? = nil,
+    safetySettings: [SafetySetting]? = nil
   ) {
     self.model = model
     self.generationConfig = generationConfig
@@ -35667,6 +36088,8 @@ public struct LiveClientSetup: Sendable {
     self.outputAudioTranscription = outputAudioTranscription
     self.proactivity = proactivity
     self.explicitVadSignal = explicitVadSignal
+    self.avatarConfig = avatarConfig
+    self.safetySettings = safetySettings
   }
 }
 
@@ -35686,6 +36109,8 @@ extension LiveClientSetup: Codable {
     case inputAudioTranscription = "inputAudioTranscription"
     case outputAudioTranscription = "outputAudioTranscription"
     case proactivity = "proactivity"
+    case avatarConfig = "avatarConfig"
+    case safetySettings = "safetySettings"
   }
   public enum VertexKeys: String, CodingKey {
     case explicitVadSignal = "explicitVadSignal"
@@ -35743,6 +36168,16 @@ extension LiveClientSetup: Codable {
     proactivity = try CommonKeysContainer.decodeIfPresent(
       ProactivityConfig.self,
       forKey: .proactivity
+    )
+
+    avatarConfig = try CommonKeysContainer.decodeIfPresent(
+      AvatarConfig.self,
+      forKey: .avatarConfig
+    )
+
+    safetySettings = try CommonKeysContainer.decodeIfPresent(
+      [SafetySetting].self,
+      forKey: .safetySettings
     )
 
     let VertexKeysContainer = try decoder.container(keyedBy: VertexKeys.self)
@@ -35804,6 +36239,16 @@ extension LiveClientSetup: Codable {
     try CommonKeysContainer.encodeIfPresent(
       proactivity,
       forKey: .proactivity
+    )
+
+    try CommonKeysContainer.encodeIfPresent(
+      avatarConfig,
+      forKey: .avatarConfig
+    )
+
+    try CommonKeysContainer.encodeIfPresent(
+      safetySettings,
+      forKey: .safetySettings
     )
 
     if configuration.isVertexAI() {
@@ -36516,6 +36961,13 @@ public struct LiveConnectConfig: Sendable {
   /// to process the audio more efficiently.
   public let explicitVadSignal: Bool?
 
+  /// Configures the avatar model behavior.
+  public let avatarConfig: AvatarConfig?
+
+  /// Safety settings in the request to block unsafe content in the
+  /// response.
+  public let safetySettings: [SafetySetting]?
+
   /// Default initializer.
   public init(
     httpOptions: HttpOptions? = nil,
@@ -36538,7 +36990,9 @@ public struct LiveConnectConfig: Sendable {
     realtimeInputConfig: RealtimeInputConfig? = nil,
     contextWindowCompression: ContextWindowCompressionConfig? = nil,
     proactivity: ProactivityConfig? = nil,
-    explicitVadSignal: Bool? = nil
+    explicitVadSignal: Bool? = nil,
+    avatarConfig: AvatarConfig? = nil,
+    safetySettings: [SafetySetting]? = nil
   ) {
     self.httpOptions = httpOptions
     self.generationConfig = generationConfig
@@ -36561,6 +37015,8 @@ public struct LiveConnectConfig: Sendable {
     self.contextWindowCompression = contextWindowCompression
     self.proactivity = proactivity
     self.explicitVadSignal = explicitVadSignal
+    self.avatarConfig = avatarConfig
+    self.safetySettings = safetySettings
   }
 }
 
@@ -36590,6 +37046,8 @@ extension LiveConnectConfig: Codable {
     case realtimeInputConfig = "realtimeInputConfig"
     case contextWindowCompression = "contextWindowCompression"
     case proactivity = "proactivity"
+    case avatarConfig = "avatarConfig"
+    case safetySettings = "safetySettings"
   }
   public enum VertexKeys: String, CodingKey {
     case explicitVadSignal = "explicitVadSignal"
@@ -36697,6 +37155,16 @@ extension LiveConnectConfig: Codable {
     proactivity = try CommonKeysContainer.decodeIfPresent(
       ProactivityConfig.self,
       forKey: .proactivity
+    )
+
+    avatarConfig = try CommonKeysContainer.decodeIfPresent(
+      AvatarConfig.self,
+      forKey: .avatarConfig
+    )
+
+    safetySettings = try CommonKeysContainer.decodeIfPresent(
+      [SafetySetting].self,
+      forKey: .safetySettings
     )
 
     let VertexKeysContainer = try decoder.container(keyedBy: VertexKeys.self)
@@ -36808,6 +37276,16 @@ extension LiveConnectConfig: Codable {
     try CommonKeysContainer.encodeIfPresent(
       proactivity,
       forKey: .proactivity
+    )
+
+    try CommonKeysContainer.encodeIfPresent(
+      avatarConfig,
+      forKey: .avatarConfig
+    )
+
+    try CommonKeysContainer.encodeIfPresent(
+      safetySettings,
+      forKey: .safetySettings
     )
 
     if configuration.isVertexAI() {
