@@ -139,7 +139,7 @@ jobs:
 #          echo "TOOLCHAINS=com.apple.dt.toolchain.XcodeDefault" >> $GITHUB_ENV
 #          export TOOLCHAINS="com.apple.dt.toolchain.XcodeDefault"
         command: |
-          echo "TOOLCHAINS=com.apple.dt.toolchain.XcodeDefault" >> $GITHUB_ENV
+          export TOOLCHAINS=com.apple.dt.toolchain.XcodeDefault
           scripts/build.sh "${{ inputs.product }}" "${{ inputs.platform }}" "${{ inputs.method }}"
     - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
       if: ${{ failure() }}
