@@ -428,8 +428,8 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
   NSString *rolloutsInfoJSON = [_remoteConfigManager getRolloutAssignmentsEncodedJsonString];
   NSMutableDictionary *errorInfo = [userInfo mutableCopy] ?: [NSMutableDictionary dictionary];
   if (error) {
-    errorInfo[@"crashlytics_error_identity"] =
-        [FIRCLSErrorInspector getIdentityDescriptionForError:error];
+    NSString *swiftErrorIdentity = [FIRCLSErrorInspector getIdentityDescriptionForError:error];
+    if (swiftErrorIdentity) errorInfo[@"swift-error"] = swiftErrorIdentity;
   }
   [self waitForContextInit:@"recordError"
                   callback:^{

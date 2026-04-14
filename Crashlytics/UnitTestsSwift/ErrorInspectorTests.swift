@@ -68,7 +68,7 @@ import Testing
 
     let description = ErrorInspector.identityDescription(for: error)
 
-    #expect(description == "TEST_NSError.123")
+    #expect(description == nil)
   }
 
   @Test func nsErrorSubclass() {
@@ -80,7 +80,7 @@ import Testing
 
     let description = ErrorInspector.identityDescription(for: error)
 
-    #expect(description == "TEST_NSErrorSubclass.456")
+    #expect(description == nil)
   }
 
   // This is a known edge case. If an error inherits from `NSError`

@@ -25,14 +25,14 @@ public final class ErrorInspector: NSObject {
   /// The error identity is described as follows:
   ///   * **Errors conforming to `CustomNSError`**: error domain + error code
   ///   from protocol conformance (e.g. `CustomErrorDomain.123`).
-  ///   * **True `NSError`s** and subclasses: error domain + error code
-  ///   (e.g. `FIRFirestoreErrorDomain.16`).
+  ///   * **True `NSError`s** and subclasses: `nil`
+  ///   (since we only describe the identity of errors declared as Swift types).
   ///   * Errors declared as **Swift enums**: type name + case name
   ///   (e.g. `SomeErrorEnum.errorCase`); associated values are discarded.
   ///   * Errors declared as **other Swift types**: type name + error code
   ///   (e.g. `SomeErrorStruct.1`).
   @objc(getIdentityDescriptionForError:)
-  public static func identityDescription(for error: any Error) -> String {
+  public static func identityDescription(for error: any Error) -> String? {
     // Always prioritize the custom domain and code if they’re available:
     if let customNSError = error as? CustomNSError {
       return "\(type(of: customNSError).errorDomain).\(customNSError.errorCode)"
@@ -41,8 +41,10 @@ public final class ErrorInspector: NSObject {
     let nsError = error as NSError
     // Swift errors bridged to `NSError` have the `__SwiftNativeNSError` underlying type:
     guard NSStringFromClass(type(of: nsError)).contains("SwiftNative") else {
-      // This is a true `NSError` (or its subclass).
-      return "\(nsError.domain).\(nsError.code)"
+      // This is a true `NSError` (or its subclass), not a Swift error bridged to one.
+      // We only report the identity of errors declared as Swift types.
+      // See https://github.com/firebase/firebase-ios-sdk/pull/16045
+      return nil
     }
 
     // This is a Swift error bridged to `NSError`.
