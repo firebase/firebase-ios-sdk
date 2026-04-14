@@ -135,9 +135,6 @@ jobs:
         timeout_minutes: ${{ inputs.timeout_minutes }}
         max_attempts: ${{ inputs.max_attempts }}
         retry_wait_seconds: 120
-#          xcodebuild -deleteComponent metalToolchain
-#          echo "TOOLCHAINS=com.apple.dt.toolchain.XcodeDefault" >> $GITHUB_ENV
-#          export TOOLCHAINS="com.apple.dt.toolchain.XcodeDefault"
         command: |
           export TOOLCHAINS=com.apple.dt.toolchain.XcodeDefault
           scripts/build.sh "${{ inputs.product }}" "${{ inputs.platform }}" "${{ inputs.method }}"
