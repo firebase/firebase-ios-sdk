@@ -36,7 +36,7 @@
       }
 
       #if canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
-        if #available(iOS 26.0, macOS 26.0, *) {
+        if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
           var afmTools = [any FoundationModels.Tool]()
           // Only function calling tools are supported by Foundation Models.
           for tool in tools ?? [] {

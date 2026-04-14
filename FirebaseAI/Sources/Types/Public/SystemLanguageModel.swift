@@ -43,7 +43,7 @@
 
       public final var availability: SystemLanguageModel.Availability {
         #if canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
-          if #available(iOS 26.0, macOS 26.0, *) {
+          if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
             if let model = _systemLanguageModel as? FoundationModels.SystemLanguageModel {
               let systemAvail = model.availability
               switch systemAvail {
@@ -69,7 +69,7 @@
 
       public final var isAvailable: Bool {
         #if canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
-          if #available(iOS 26.0, macOS 26.0, *) {
+          if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
             if let model = _systemLanguageModel as? FoundationModels.SystemLanguageModel {
               return model.isAvailable
             }
@@ -155,7 +155,7 @@
 
     static var `default`: FirebaseAI.SystemLanguageModel {
       #if canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
-        if #available(iOS 26.0, macOS 26.0, *) {
+        if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
           return FirebaseAI
             .SystemLanguageModel(systemLanguageModel: FoundationModels.SystemLanguageModel.default)
         }
@@ -166,7 +166,7 @@
     convenience init(useCase: FirebaseAI.SystemLanguageModel.UseCase = .general,
                      guardrails: FirebaseAI.SystemLanguageModel.Guardrails = .default) {
       #if canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
-        if #available(iOS 26.0, macOS 26.0, *) {
+        if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
           let model = FoundationModels.SystemLanguageModel(
             useCase: useCase.toFoundationModels(),
             guardrails: guardrails.toFoundationModels()
@@ -190,7 +190,7 @@
     @available(macOS 13, iOS 16, tvOS 16, watchOS 9, *)
     final var supportedLanguages: Set<Locale.Language> {
       #if canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
-        if #available(iOS 26.0, macOS 26.0, *) {
+        if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
           if let model = _systemLanguageModel as? FoundationModels.SystemLanguageModel {
             return model.supportedLanguages
           }
@@ -201,7 +201,7 @@
 
     final func supportsLocale(_ locale: Locale = Locale.current) -> Bool {
       #if canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
-        if #available(iOS 26.0, macOS 26.0, *) {
+        if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
           if let model = _systemLanguageModel as? FoundationModels.SystemLanguageModel {
             return model.supportsLocale(locale)
           }
