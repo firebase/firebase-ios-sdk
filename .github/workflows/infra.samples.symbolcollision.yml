@@ -27,4 +27,7 @@ jobs:
       product: SymbolCollision
       platform: iOS
       method: xcodebuild
-      setup_command: scripts/install_prereqs.sh SymbolCollision iOS
+      # For toolchains var, see https://github.com/actions/runner-images/issues/13135#issuecomment-3397914993
+      setup_command: |
+        echo "TOOLCHAINS=com.apple.dt.toolchain.XcodeDefault" >> $GITHUB_ENV
+        scripts/install_prereqs.sh SymbolCollision iOS
