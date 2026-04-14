@@ -15,14 +15,12 @@
 #if compiler(>=6.2.3) && canImport(FoundationModels)
   import FoundationModels
 
-  // TODO: Wrap `FoundationModels.SystemLanguageModel` in type-erased box to simplify iOS 15 hybrid.
-  @available(iOS 26.0, macOS 26.0, *)
-  @available(tvOS, unavailable)
-  @available(watchOS, unavailable)
-  extension FoundationModels.SystemLanguageModel: LanguageModel {
+  extension FirebaseAI.SystemLanguageModel: LanguageModel {
     static let modelName = "apple-foundation-models-system-language-model"
 
-    public var _modelName: String { FoundationModels.SystemLanguageModel.modelName }
+    public var _modelName: String {
+      return FirebaseAI.SystemLanguageModel.modelName
+    }
 
     public func _startSession(tools: [any ToolRepresentable]?,
                               instructions: String?) throws -> any _ModelSession {
@@ -30,38 +28,50 @@
       case .available:
         break
       case let .unavailable(reason):
-        throw FoundationModels.LanguageModelSession.GenerationError.assetsUnavailable(
-          LanguageModelSession.GenerationError.Context(debugDescription: """
+        throw GenerativeModelSession.GenerationError.assetsUnavailable(
+          GenerativeModelSession.GenerationError.Context(debugDescription: """
           The Foundation Models `SystemLanguageModel` is unavailable: \(reason)
           """)
         )
       }
 
-      var afmTools = [any FoundationModels.Tool]()
-      // Only function calling tools are supported by Foundation Models.
-      for tool in tools ?? [] {
-        // Skips any unsupported tools such as `GoogleMaps` or `CodeExecution` since they are only
-        // supported by Gemini models.
-        // TODO: Decide whether to throw for unsupported `FirebaseAILogic.Tool` types or ignore.
-        let functionDeclarations = tool.toolRepresentation.functionDeclarations ?? []
-        for functionDeclaration in functionDeclarations {
-          switch functionDeclaration.kind {
-          case .manual:
-            // TODO: Decide whether ignore manual function calling declarations, throw or assert.
-            continue
-          case let .foundationModels(afmTool):
-            guard let afmTool = afmTool as? (any FoundationModels.Tool) else {
-              assertionFailure("""
-              The function declaration "\(afmTool)" in the tool "\(tool)" is not a
-              `FoundationModels.Tool` type.
-              """)
-              continue
+      #if canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
+        if #available(iOS 26.0, macOS 26.0, *) {
+          var afmTools = [any FoundationModels.Tool]()
+          // Only function calling tools are supported by Foundation Models.
+          for tool in tools ?? [] {
+            // Skips any unsupported tools such as `GoogleMaps` or `CodeExecution` since they are
+            // only
+            // supported by Gemini models.
+            // TODO: Decide whether to throw for unsupported `FirebaseAILogic.Tool` types or ignore.
+            let functionDeclarations = tool.toolRepresentation.functionDeclarations ?? []
+            for functionDeclaration in functionDeclarations {
+              switch functionDeclaration.kind {
+              case .manual:
+                // TODO: Decide whether ignore manual function calling declarations, throw or assert.
+                continue
+              case let .foundationModels(afmTool):
+                guard let afmTool = afmTool as? (any FoundationModels.Tool) else {
+                  assertionFailure("""
+                  The function declaration "\(afmTool)" in the tool "\(tool)" is not a
+                  `FoundationModels.Tool` type.
+                  """)
+                  continue
+                }
+                afmTools.append(afmTool)
+              }
             }
-            afmTools.append(afmTool)
           }
+          return LanguageModelSession(tools: afmTools, instructions: instructions)
         }
-      }
-      return LanguageModelSession(tools: afmTools, instructions: instructions)
+      #endif // canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
+
+      throw GenerativeModelSession.GenerationError.assetsUnavailable(
+        GenerativeModelSession.GenerationError.Context(debugDescription: """
+        Failed to start a `LanguageModelSession`. The Foundation Models `SystemLanguageModel` is not
+        available on the current platform.
+        """)
+      )
     }
   }
 #endif // compiler(>=6.2.3) && canImport(FoundationModels)

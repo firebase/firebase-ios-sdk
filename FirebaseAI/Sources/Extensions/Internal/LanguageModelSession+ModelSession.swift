@@ -89,7 +89,7 @@
       )
       let rawResponse = GenerateContentResponse(
         candidates: [candidate],
-        modelVersion: SystemLanguageModel.modelName
+        modelVersion: FirebaseAI.SystemLanguageModel.modelName
       )
 
       return _ModelSessionResponse(rawContent: generatedContent, rawResponse: rawResponse)
@@ -151,7 +151,7 @@
               )
               let rawResponse = GenerateContentResponse(
                 candidates: [candidate],
-                modelVersion: SystemLanguageModel.modelName
+                modelVersion: FirebaseAI.SystemLanguageModel.modelName
               )
 
               let response = _ModelSessionResponse(

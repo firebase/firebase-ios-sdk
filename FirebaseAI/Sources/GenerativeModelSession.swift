@@ -702,6 +702,8 @@
         }
       }
 
+      case assetsUnavailable(GenerativeModelSession.GenerationError.Context)
+
       /// The model's response could not be decoded.
       case decodingFailure(GenerativeModelSession.GenerationError.Context)
 
