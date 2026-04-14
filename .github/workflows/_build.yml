@@ -135,6 +135,7 @@ jobs:
         timeout_minutes: ${{ inputs.timeout_minutes }}
         max_attempts: ${{ inputs.max_attempts }}
         retry_wait_seconds: 120
+        # For toolchains var, see https://github.com/actions/runner-images/issues/13135#issuecomment-3397914993
         command: |
           export TOOLCHAINS=com.apple.dt.toolchain.XcodeDefault
           scripts/build.sh "${{ inputs.product }}" "${{ inputs.platform }}" "${{ inputs.method }}"
