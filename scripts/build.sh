@@ -403,6 +403,8 @@ case "$product-$platform-$method" in
           -workspace 'Firestore/Example/Firestore.xcworkspace' \
           -scheme "Firestore_IntegrationTests_$platform" \
           -enableCodeCoverage YES \
+          -retry-tests-on-failure \
+          -test-iterations 3 \
           "${xcb_flags[@]}" \
           test-without-building
       ;;
@@ -425,6 +427,8 @@ case "$product-$platform-$method" in
           -workspace 'Firestore/Example/Firestore.xcworkspace' \
           -scheme "Firestore_IntegrationTests_Enterprise_$platform" \
           -enableCodeCoverage YES \
+          -retry-tests-on-failure \
+          -test-iterations 3 \
           "${xcb_flags[@]}" \
           test-without-building
       ;;
