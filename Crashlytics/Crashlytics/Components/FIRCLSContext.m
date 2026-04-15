@@ -323,8 +323,7 @@ bool FIRCLSContextHasCrashed(void) {
     return false;
   }
 
-  // we've already run a full barrier above, so this read is ok
-  return _firclsContext.writable->crashOccurred;
+  return atomic_load(&_firclsContext.writable->crashOccurred);
 }
 
 void FIRCLSContextMarkHasCrashed(void) {
@@ -332,8 +331,7 @@ void FIRCLSContextMarkHasCrashed(void) {
     return;
   }
 
-  _firclsContext.writable->crashOccurred = true;
-  __sync_synchronize();
+  atomic_store(&_firclsContext.writable->crashOccurred, true);
 }
 
 bool FIRCLSContextMarkAndCheckIfCrashed(void) {
@@ -341,14 +339,11 @@ bool FIRCLSContextMarkAndCheckIfCrashed(void) {
     return false;
   }
 
-  if (_firclsContext.writable->crashOccurred) {
-    return true;
-  }
-
-  _firclsContext.writable->crashOccurred = true;
-  __sync_synchronize();
-
-  return false;
+  // Use atomic compare-and-swap to eliminate the TOCTOU race condition.
+  // Only one thread can successfully swap false -> true; all others see
+  // that the flag was already set and return true (crash already occurred).
+  bool expected = false;
+  return !atomic_compare_exchange_strong(&_firclsContext.writable->crashOccurred, &expected, true);
 }
 
 static const char* FIRCLSContextAppendToRoot(NSString* root, NSString* component) {

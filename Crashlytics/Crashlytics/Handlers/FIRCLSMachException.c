@@ -506,7 +506,7 @@ static bool FIRCLSMachExceptionRecord(FIRCLSMachExceptionReadContext* context,
 
   if (FIRCLSContextMarkAndCheckIfCrashed()) {
     FIRCLSSDKLog("Error: aborting mach exception handler because crash has already occurred\n");
-    exit(1);
+    _exit(1);
     return false;
   }
 

@@ -19,6 +19,7 @@
 
 #include <dlfcn.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 #if CLS_SIGNAL_SUPPORTED
 static const int FIRCLSFatalSignals[FIRCLSSignalCount] = {SIGABRT, SIGBUS, SIGFPE, SIGILL,
@@ -250,7 +251,7 @@ static void FIRCLSSignalRecordSignal(int savedErrno, siginfo_t *info, void *uapV
 
   if (FIRCLSContextMarkAndCheckIfCrashed()) {
     FIRCLSSDKLog("Error: aborting signal handler because crash has already occurred");
-    exit(1);
+    _exit(1);
     return;
   }
 

@@ -25,6 +25,7 @@
 #include "Crashlytics/Crashlytics/Helpers/FIRCLSInternalLogging.h"
 
 #include <dispatch/dispatch.h>
+#include <stdatomic.h>
 #include <stdbool.h>
 
 // The purpose of the crash context is to hold values that absolutely must be read and/or written at
@@ -71,7 +72,7 @@ typedef struct {
 
 typedef struct {
   FIRCLSInternalLoggingWritableContext internalLogging;
-  volatile bool crashOccurred;
+  _Atomic(bool) crashOccurred;
   FIRCLSBinaryImageReadWriteContext binaryImage;
   FIRCLSUserLoggingWritableContext logging;
   FIRCLSExceptionWritableContext exception;
