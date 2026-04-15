@@ -1,6 +1,6 @@
 # Unreleased
 - [fixed] Fixed an issue where universal links were not correctly routed in apps utilizing scene
-  delegates.
+  delegates. (#16083)
 
 # 12.1.0
 - [fixed] Fix Xcode 26 crash from missing `NSUserActivityTypeBrowsingWeb`
