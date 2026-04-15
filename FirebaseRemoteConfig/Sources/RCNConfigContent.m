@@ -453,6 +453,12 @@ const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
   [_DBManager loadExperimentWithCompletionHandler:^(BOOL success, NSDictionary *result) {
     RCNConfigContent *strongSelf = weakSelf;
     if (!strongSelf) {
+      if (completion) {
+        completion(@{
+          @RCNExperimentTableKeyPayload : [[NSMutableArray alloc] init],
+          @RCNExperimentTableKeyActivePayload : [[NSMutableArray alloc] init]
+        });
+      }
       return;
     }
 
@@ -541,6 +547,9 @@ const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
   [self loadExperimentsPayloadsWithCompletion:^(NSDictionary *experiments) {
     RCNConfigContent *strongSelf = weakSelf;
     if (!strongSelf) {
+      if (completionHandler) {
+        completionHandler(nil);
+      }
       return;
     }
 
