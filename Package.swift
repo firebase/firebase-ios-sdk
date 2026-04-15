@@ -195,7 +195,7 @@ let package = Package(
       path: "FirebaseAI/Sources",
       swiftSettings: [
         isFoundationModelsSupportedPlatformSwiftSetting(),
-      ]
+      ],
     ),
     .testTarget(
       name: "FirebaseAILogicUnit",
@@ -563,10 +563,7 @@ let package = Package(
     .target(
       name: "FirebaseCrashlyticsSwift",
       dependencies: ["FirebaseRemoteConfigInterop"],
-      path: "Crashlytics",
-      sources: [
-        "Crashlytics/Rollouts/",
-      ]
+      path: "Crashlytics/Crashlytics/Rollouts"
     ),
     .testTarget(
       name: "FirebaseCrashlyticsSwiftUnit",
@@ -1395,18 +1392,18 @@ func firebaseCrashlyticsTarget() -> Target {
       "CHANGELOG.md",
       "LICENSE",
       "README.md",
-      "ProtoSupport/",
-      "UnitTests/",
+      "ProtoSupport",
+      "UnitTests",
       "generate_project.sh",
       "upload-symbols",
       "CrashlyticsInputFiles.xcfilelist",
       "third_party/libunwind/LICENSE",
-      "Crashlytics/Rollouts/",
+      "Crashlytics/Rollouts",
     ],
     sources: [
-      "Crashlytics/",
-      "Protogen/",
-      "Shared/",
+      "Crashlytics",
+      "Protogen",
+      "Shared",
       "third_party/libunwind/dwarf.h",
     ],
     resources: [.process("Resources/PrivacyInfo.xcprivacy")],
@@ -1609,8 +1606,8 @@ func firestoreTargets() -> [Target] {
     } else {
       return .binaryTarget(
         name: "FirebaseFirestoreInternal",
-        url: "https://dl.google.com/firebase/ios/bin/firestore/12.12.0/pre_rc1/FirebaseFirestoreInternal.zip",
-        checksum: "a0ac6580267831be086b98ced9645d96da9919ce0e88233d38c4a8761b2d617e"
+        url: "https://dl.google.com/firebase/ios/bin/firestore/12.12.0/rc2/FirebaseFirestoreInternal.zip",
+        checksum: "67b8d3aadfc35a325dc642d36e32fe4ef3c2d7da8a233ac8cc706a8a1148f239"
       )
     }
   }()

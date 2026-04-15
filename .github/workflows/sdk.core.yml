@@ -49,3 +49,6 @@ jobs:
       flags: '[ "--use-static-frameworks" ]'
       runs_on: macos-26
       xcode: Xcode_26.4
+      # For toolchains var, see https://github.com/actions/runner-images/issues/13135#issuecomment-3397914993
+      setup_command: |
+        echo "TOOLCHAINS=com.apple.dt.toolchain.XcodeDefault" >> $GITHUB_ENV

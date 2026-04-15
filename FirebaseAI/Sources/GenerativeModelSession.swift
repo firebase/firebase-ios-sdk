@@ -361,7 +361,8 @@
               }
 
               // 2. If we have pending data, we now know it wasn't the last chunk.
-              if let pending = pendingChunkData, !pending.text.isEmpty {
+              if let pending = pendingChunkData,
+                 !pending.text.isEmpty || pending.response.thoughtSummary != nil {
                 let rawContent = try Self.makeRawContent(
                   from: pending.text,
                   generationID: pending.id,
@@ -413,7 +414,8 @@
 
               if !functionResponses.isEmpty {
                 // Yield any pending text if it's not empty, but mark it as NOT complete yet.
-                if let pending = pendingChunkData, !pending.text.isEmpty {
+                if let pending = pendingChunkData,
+                   !pending.text.isEmpty || pending.response.thoughtSummary != nil {
                   let rawContent = try Self.makeRawContent(
                     from: pending.text,
                     generationID: pending.id,
@@ -523,6 +525,15 @@
                                        hasSchema: Bool, isComplete: Bool) throws
       -> FirebaseAI.GeneratedContent {
       if hasSchema {
+        if text.isEmpty && !isComplete {
+          return FirebaseAI.GeneratedContent(
+            // TODO: Set `kind:` to `.array(...)`, `.bool()`, `.number()` based on schema type.
+            kind: .structure(properties: [:], orderedKeys: []),
+            id: generationID,
+            isComplete: isComplete
+          )
+        }
+
         return try FirebaseAI.GeneratedContent(json: text, id: generationID, isComplete: isComplete)
       }
 

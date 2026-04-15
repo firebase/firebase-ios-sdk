@@ -452,6 +452,7 @@
 		3C63B6ED2E494437BBAD82D7 /* mirroring_semantics_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = F3704E3BF509EE783D0B0F08 /* mirroring_semantics_test.cc */; };
 		3C9DEC46FE7B3995A4EA629C /* memory_globals_cache_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 5C6DEA63FBDE19D841291723 /* memory_globals_cache_test.cc */; };
 		3CCABD7BB5ED39DF1140B5F0 /* leveldb_globals_cache_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = FC44D934D4A52C790659C8D6 /* leveldb_globals_cache_test.cc */; };
+		3CD19EF20299AA20D8F71F8E /* AsyncSequenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F3EEA0F8A85AE6E345DB1B2 /* AsyncSequenceTests.swift */; };
 		3CFFA6F016231446367E3A69 /* listen_spec_test.json in Resources */ = {isa = PBXBuildFile; fileRef = 54DA12A01F315EE100DD57A1 /* listen_spec_test.json */; };
 		3D1365A99984C2F86C2B8A82 /* timestamp_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 82DF854A7238D538FA53C908 /* timestamp_test.cc */; };
 		3D22F56C0DE7C7256C75DC06 /* tree_sorted_map_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 549CCA4D20A36DBB00BCEB75 /* tree_sorted_map_test.cc */; };
@@ -589,6 +590,7 @@
 		5250AE69A391E7A3310E013B /* listen_source_spec_test.json in Resources */ = {isa = PBXBuildFile; fileRef = 4D9E51DA7A275D8B1CAEAEB2 /* listen_source_spec_test.json */; };
 		52967C3DD7896BFA48840488 /* byte_string_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 5342CDDB137B4E93E2E85CCA /* byte_string_test.cc */; };
 		529AB59F636060FEA21BD4FF /* garbage_collection_spec_test.json in Resources */ = {isa = PBXBuildFile; fileRef = AAED89D7690E194EF3BA1132 /* garbage_collection_spec_test.json */; };
+		52DD091174079A4BAF2F3BFA /* AsyncSequenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F3EEA0F8A85AE6E345DB1B2 /* AsyncSequenceTests.swift */; };
 		5360D52DCAD1069B1E4B0B9D /* testing_hooks_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = A002425BC4FC4E805F4175B6 /* testing_hooks_test.cc */; };
 		53AB47E44D897C81A94031F6 /* write.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = 544129D921C2DDC800EFB9CC /* write.pb.cc */; };
 		53BBB5CDED453F923ADD08D2 /* stream_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 5B5414D28802BC76FDADABD6 /* stream_test.cc */; };
@@ -1729,6 +1731,7 @@
 		ED14A67E34AEDF55232096EF /* Validation_BloomFilterTest_MD5_5000_0001_membership_test_result.json in Resources */ = {isa = PBXBuildFile; fileRef = C8582DFD74E8060C7072104B /* Validation_BloomFilterTest_MD5_5000_0001_membership_test_result.json */; };
 		ED420D8F49DA5C41EEF93913 /* FIRSnapshotMetadataTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E04D202154AA00B64F25 /* FIRSnapshotMetadataTests.mm */; };
 		ED4E2AC80CAF2A8FDDAC3DEE /* field_mask_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 549CCA5320A36E1F00BCEB75 /* field_mask_test.cc */; };
+		ED6F2E19CFE231B0251464C9 /* AsyncSequenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F3EEA0F8A85AE6E345DB1B2 /* AsyncSequenceTests.swift */; };
 		ED9DF1EB20025227B38736EC /* message_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = CE37875365497FFA8687B745 /* message_test.cc */; };
 		EDF35B147B116F659D0D2CA8 /* Validation_BloomFilterTest_MD5_1_0001_membership_test_result.json in Resources */ = {isa = PBXBuildFile; fileRef = C939D1789E38C09F9A0C1157 /* Validation_BloomFilterTest_MD5_1_0001_membership_test_result.json */; };
 		EE470CC3C8FBCDA5F70A8466 /* local_store_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 307FF03D0297024D59348EBD /* local_store_test.cc */; };
@@ -1941,6 +1944,7 @@
 		1C3F7302BF4AE6CBC00ECDD0 /* resource.pb.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = resource.pb.cc; sourceTree = "<group>"; };
 		1CA9800A53669EFBFFB824E3 /* memory_remote_document_cache_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = memory_remote_document_cache_test.cc; sourceTree = "<group>"; };
 		1E0C7C0DCD2790019E66D8CC /* bloom_filter.pb.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = bloom_filter.pb.cc; sourceTree = "<group>"; };
+		1F3EEA0F8A85AE6E345DB1B2 /* AsyncSequenceTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AsyncSequenceTests.swift; path = Unit/AsyncAwait/AsyncSequenceTests.swift; sourceTree = "<group>"; };
 		1F50E872B3F117A674DA8E94 /* index_backfiller_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = index_backfiller_test.cc; sourceTree = "<group>"; };
 		1F78CD3208A1D5885B4C134E /* field_behavior.pb.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = field_behavior.pb.cc; sourceTree = "<group>"; };
 		214877F52A705012D6720CA0 /* object_value_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = object_value_test.cc; sourceTree = "<group>"; };
@@ -2515,6 +2519,14 @@
 			path = Integration;
 			sourceTree = "<group>";
 		};
+		24C7067A4A3A8C1B87B879F8 /* AsyncAwait */ = {
+			isa = PBXGroup;
+			children = (
+				1F3EEA0F8A85AE6E345DB1B2 /* AsyncSequenceTests.swift */,
+			);
+			name = AsyncAwait;
+			sourceTree = "<group>";
+		};
 		3C21D8CBCC4E086899931A65 /* admin */ = {
 			isa = PBXGroup;
 			children = (
@@ -2804,6 +2816,7 @@
 				5495EB012040E90200EBA509 /* Codable */,
 				124C932A22C1635300CA8C2D /* Integration */,
 				C7D3D622BB13EB3C3301DA4F /* TestHelper */,
+				D7C1545F948B5D9C8FE393E6 /* Unit */,
 				620C1427763BA5D3CCFB5A1F /* BridgingHeader.h */,
 				54C9EDF52040E16300A969CD /* Info.plist */,
 			);
@@ -3226,6 +3239,14 @@
 				0E73D03B9C02CAC7BEBAFA86 /* TestHelper.swift */,
 			);
 			name = TestHelper;
+			sourceTree = "<group>";
+		};
+		D7C1545F948B5D9C8FE393E6 /* Unit */ = {
+			isa = PBXGroup;
+			children = (
+				24C7067A4A3A8C1B87B879F8 /* AsyncAwait */,
+			);
+			name = Unit;
 			sourceTree = "<group>";
 		};
 		DAFF0CF621E64AC30062958F /* macOS */ = {
@@ -4929,6 +4950,7 @@
 			files = (
 				EF6C286F29E6D22200A7D4F1 /* AggregationIntegrationTests.swift in Sources */,
 				062072B92773A055001655D7 /* AsyncAwaitIntegrationTests.swift in Sources */,
+				3CD19EF20299AA20D8F71F8E /* AsyncSequenceTests.swift in Sources */,
 				733AFC467B600967536BD70F /* BasicCompileTests.swift in Sources */,
 				79987AF2DF1FCE799008B846 /* CodableGeoPointTests.swift in Sources */,
 				1C79AE3FBFC91800E30D092C /* CodableIntegrationTests.swift in Sources */,
@@ -5185,8 +5207,8 @@
 				25D74F38A5EE96CC653ABB49 /* thread_safe_memoizer_testing.cc in Sources */,
 				688AC36AA9D0677E910D5A37 /* thread_safe_memoizer_testing_test.cc in Sources */,
 				6300709ECDE8E0B5A8645F8D /* time_testing.cc in Sources */,
-				A405A976DB6444D3ED3FCAB2 /* timestamp_test.cc in Sources */,
 				0CEE93636BA4852D3C5EC428 /* timestamp_test.cc in Sources */,
+				A405A976DB6444D3ED3FCAB2 /* timestamp_test.cc in Sources */,
 				95DCD082374F871A86EF905F /* to_string_apple_test.mm in Sources */,
 				9E656F4FE92E8BFB7F625283 /* to_string_test.cc in Sources */,
 				96D95E144C383459D4E26E47 /* token_test.cc in Sources */,
@@ -5212,6 +5234,7 @@
 			files = (
 				EF6C286E29E6D22200A7D4F1 /* AggregationIntegrationTests.swift in Sources */,
 				062072B82773A055001655D7 /* AsyncAwaitIntegrationTests.swift in Sources */,
+				ED6F2E19CFE231B0251464C9 /* AsyncSequenceTests.swift in Sources */,
 				B896E5DE1CC27347FAC009C3 /* BasicCompileTests.swift in Sources */,
 				722F9A798F39F7D1FE7CF270 /* CodableGeoPointTests.swift in Sources */,
 				CF5DE1ED21DD0A9783383A35 /* CodableIntegrationTests.swift in Sources */,
@@ -5468,8 +5491,8 @@
 				CF18D52A88F4F6F62C5495EF /* thread_safe_memoizer_testing.cc in Sources */,
 				A7669E72BCED7FBADA4B1314 /* thread_safe_memoizer_testing_test.cc in Sources */,
 				A25FF76DEF542E01A2DF3B0E /* time_testing.cc in Sources */,
-				BDDAB87A7D76562BCB5D0BF8 /* timestamp_test.cc in Sources */,
 				1E42CD0F60EB22A5D0C86D1F /* timestamp_test.cc in Sources */,
+				BDDAB87A7D76562BCB5D0BF8 /* timestamp_test.cc in Sources */,
 				F9705E595FC3818F13F6375A /* to_string_apple_test.mm in Sources */,
 				3BAFCABA851AE1865D904323 /* to_string_test.cc in Sources */,
 				1B9E54F4C4280A713B825981 /* token_test.cc in Sources */,
@@ -5777,6 +5800,7 @@
 			files = (
 				EF6C286D29E6D22200A7D4F1 /* AggregationIntegrationTests.swift in Sources */,
 				062072B72773A055001655D7 /* AsyncAwaitIntegrationTests.swift in Sources */,
+				52DD091174079A4BAF2F3BFA /* AsyncSequenceTests.swift in Sources */,
 				F731A0CCD0220B370BC1BE8B /* BasicCompileTests.swift in Sources */,
 				7C5E017689012489AAB7718D /* CodableGeoPointTests.swift in Sources */,
 				54C3242322D3B627000FE6DD /* CodableIntegrationTests.swift in Sources */,
@@ -6033,8 +6057,8 @@
 				D928302820891CCCAD0437DD /* thread_safe_memoizer_testing.cc in Sources */,
 				C099AEC05D44976755BA32A2 /* thread_safe_memoizer_testing_test.cc in Sources */,
 				2D220B9ABFA36CD7AC43D0A7 /* time_testing.cc in Sources */,
-				06B8A653BC26CB2C96024993 /* timestamp_test.cc in Sources */,
 				D91D86B29B86A60C05879A48 /* timestamp_test.cc in Sources */,
+				06B8A653BC26CB2C96024993 /* timestamp_test.cc in Sources */,
 				60260A06871DCB1A5F3448D3 /* to_string_apple_test.mm in Sources */,
 				ECED3B60C5718B085AAB14FB /* to_string_test.cc in Sources */,
 				F0EA84FB66813F2BC164EF7C /* token_test.cc in Sources */,
