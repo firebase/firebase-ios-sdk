@@ -93,9 +93,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property(nonatomic) BOOL URLSessionDownloadTaskDidWriteDataTotalBytesWrittenTotalBytesCalled;
 
-/** Set to YES after the first cancel-and-resume has been triggered, preventing re-entry. */
-@property(nonatomic) BOOL hasCancelledOnce;
-
 @end
 
 NS_ASSUME_NONNULL_END

@@ -157,7 +157,8 @@ void InstrumentSessionWithConfigurationDelegateDelegateQueue(
           ThrowExceptionBecauseInstrumentHasBeenDeallocated(selector, instrumentedClass);
         }
         if (delegate) {
-          if ([delegate isProxy]) {
+          if ([delegate isProxy] &&
+              [delegateInstrument respondsToSelector:@selector(registerProxy:)]) {
             [delegateInstrument registerProxy:delegate];
           } else {
             [delegateInstrument registerClass:[delegate class]];

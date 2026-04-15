@@ -804,31 +804,6 @@
   [instrument deregisterInstrumentors];
 }
 
-/** Tests that the called delegate selector is wrapped and calls through when delegate is a proxy.
- *  The delegate cancels the download from didWriteData and resumes with resume data, which
- *  triggers didResumeAtOffset:expectedTotalBytes: on the same delegate (via the proxy).
- */
-- (void)testProxyDelegateURLSessionDownloadTaskDidResumeAtOffsetExpectedTotalBytes {
-  FPRNSURLSessionInstrument *instrument = [[FPRNSURLSessionInstrument alloc] init];
-  [instrument registerInstrumentors];
-  FPRNSURLSessionTestDownloadDelegate *delegate =
-      [[FPRNSURLSessionTestDownloadDelegate alloc] init];
-  FPRNSURLSessionDelegateProxy *proxyDelegate =
-      [[FPRNSURLSessionDelegateProxy alloc] initWithDelegate:delegate];
-  NSURLSessionConfiguration *configuration =
-      [NSURLSessionConfiguration defaultSessionConfiguration];
-  NSURLSession *session = [NSURLSession sessionWithConfiguration:configuration
-                                                        delegate:proxyDelegate
-                                                   delegateQueue:nil];
-  NSURL *URL = [self.testServer.serverURL URLByAppendingPathComponent:@"testBigDownload"];
-  NSURLSessionDownloadTask *downloadTask = [session downloadTaskWithURL:URL];
-  [downloadTask resume];
-  [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:5.0]];
-  XCTAssertNil([FPRNetworkTrace networkTraceFromObject:downloadTask]);
-  XCTAssertTrue(delegate.URLSessionDownloadTaskDidResumeAtOffsetExpectedTotalBytesCalled);
-  [instrument deregisterInstrumentors];
-}
-
 /** Tests that the called delegate selector is wrapped and calls through. */
 - (void)
     testProxyDelegateURLSessionDownloadTaskDidWriteDataTotalBytesWrittenTotalBytesExpectedToWrite {

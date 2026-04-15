@@ -132,12 +132,14 @@
                  didWriteData:(int64_t)bytesWritten
             totalBytesWritten:(int64_t)totalBytesWritten
     totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
-  if (!self.hasCancelledOnce) {
-    self.hasCancelledOnce = YES;
-    [downloadTask cancelByProducingResumeData:^(NSData *_Nullable resumeData) {
-      // Create a resumable download task with the cancelled data, and start it.
-      [[session downloadTaskWithResumeData:resumeData] resume];
-    }];
+  if (bytesWritten > 0) {
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+      [downloadTask cancelByProducingResumeData:^(NSData *_Nullable resumeData) {
+        // Create a resumable download task with the cancelled data, and start it.
+        [[session downloadTaskWithResumeData:resumeData] resume];
+      }];
+    });
   }
   self.URLSessionDownloadTaskDidWriteDataTotalBytesWrittenTotalBytesCalled = YES;
 }
