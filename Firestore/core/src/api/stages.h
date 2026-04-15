@@ -89,6 +89,9 @@ class EvaluableStage : public Stage {
 class CollectionSource : public EvaluableStage {
  public:
   explicit CollectionSource(std::string path);
+  explicit CollectionSource(std::string path,
+                            absl::optional<std::string> force_index);
+
   ~CollectionSource() override = default;
 
   google_firestore_v1_Pipeline_Stage to_proto() const override;
@@ -108,6 +111,7 @@ class CollectionSource : public EvaluableStage {
 
  private:
   model::ResourcePath path_;
+  absl::optional<std::string> force_index_;
 };
 
 class SubcollectionSource : public Stage {
@@ -152,6 +156,11 @@ class CollectionGroupSource : public EvaluableStage {
   explicit CollectionGroupSource(std::string collection_id)
       : collection_id_(std::move(collection_id)) {
   }
+  explicit CollectionGroupSource(std::string collection_id,
+                                 absl::optional<std::string> force_index)
+      : collection_id_(std::move(collection_id)),
+        force_index_(std::move(force_index)) {
+  }
   ~CollectionGroupSource() override = default;
 
   google_firestore_v1_Pipeline_Stage to_proto() const override;
@@ -171,6 +180,7 @@ class CollectionGroupSource : public EvaluableStage {
 
  private:
   std::string collection_id_;
+  absl::optional<std::string> force_index_;
 };
 
 class DocumentsSource : public EvaluableStage {
