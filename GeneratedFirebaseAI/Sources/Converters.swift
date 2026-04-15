@@ -6879,6 +6879,14 @@ public enum Converters {
         ])
     }
 
+    if fromObject.vertexDatasetName != nil {
+      throw NSError(
+        domain: "Gemini API", code: -1,
+        userInfo: [
+          NSLocalizedDescriptionKey: "vertexDatasetName parameter is not supported in Gemini API."
+        ])
+    }
+
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -7401,6 +7409,44 @@ public enum Converters {
     }
   }
 
+  public static func vertexMultimodalDatasetDestinationToVertex(
+    apiClient: APIClient, fromObject: VertexMultimodalDatasetDestination
+  ) throws -> [String: Any] {
+    let encoder = JSONEncoder()
+    encoder.userInfo[.configuration] = apiClient
+    encoder.keyEncodingStrategy = .convertToSnakeCase
+    do {
+      let data = try encoder.encode(fromObject)
+      guard
+        let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
+          as? [String: Any]
+      else {
+        throw NSError(
+          domain: "SwiftSDK", code: -1,
+          userInfo: [
+            NSLocalizedDescriptionKey:
+              "Failed to convert encoded data to dictionary for VertexMultimodalDatasetDestination"
+          ])
+      }
+      var toObject = dictionary
+      var urlParams: [String: Any] = [:]
+      var queryParams: [String: Any] = [:]
+      if !urlParams.isEmpty {
+        toObject["_url"] = urlParams
+      }
+      if !queryParams.isEmpty {
+        toObject["_query"] = queryParams
+      }
+      return toObject
+    } catch {
+      throw NSError(
+        domain: "SwiftSDK", code: -1,
+        userInfo: [
+          NSLocalizedDescriptionKey: "Failed to encode VertexMultimodalDatasetDestination: \(error)"
+        ])
+    }
+  }
+
   public static func batchJobDestinationToVertex(
     apiClient: APIClient, fromObject: BatchJobDestination
   ) throws -> [String: Any] {
@@ -7843,6 +7889,20 @@ public enum Converters {
       return instance
     } catch {
       print("Failed to decode BatchJobSource: \(error)")
+      return nil
+    }
+  }
+
+  public static func vertexMultimodalDatasetDestinationFromVertex(
+    apiClient: APIClient, fromObject: Data
+  ) throws -> VertexMultimodalDatasetDestination? {
+    do {
+      let decoder = JSONDecoder()
+      decoder.userInfo[.configuration] = apiClient
+      let instance = try decoder.decode(VertexMultimodalDatasetDestination.self, from: fromObject)
+      return instance
+    } catch {
+      print("Failed to decode VertexMultimodalDatasetDestination: \(error)")
       return nil
     }
   }

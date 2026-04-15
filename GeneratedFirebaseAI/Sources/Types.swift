@@ -30159,7 +30159,7 @@ extension InlinedRequest: Codable {
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct BatchJobSource: Sendable {
   /// Storage format of the input files. Must be one of:
-  /// 'jsonl', 'bigquery'.
+  /// 'jsonl', 'bigquery', 'vertex-dataset'.
   public let format: String?
 
   /// The Google Cloud Storage URIs to input files.
@@ -30175,19 +30175,25 @@ public struct BatchJobSource: Sendable {
   /// The Gemini Developer API's inlined input data to run batch job.
   public let inlinedRequests: [InlinedRequest]?
 
+  /// This field is experimental and may change in future versions. The Vertex AI
+  /// dataset resource name to use as input. Must be of type multimodal.
+  public let vertexDatasetName: String?
+
   /// Default initializer.
   public init(
     format: String? = nil,
     gcsUri: [String]? = nil,
     bigqueryUri: String? = nil,
     fileName: String? = nil,
-    inlinedRequests: [InlinedRequest]? = nil
+    inlinedRequests: [InlinedRequest]? = nil,
+    vertexDatasetName: String? = nil
   ) {
     self.format = format
     self.gcsUri = gcsUri
     self.bigqueryUri = bigqueryUri
     self.fileName = fileName
     self.inlinedRequests = inlinedRequests
+    self.vertexDatasetName = vertexDatasetName
   }
 }
 
@@ -30203,6 +30209,7 @@ extension BatchJobSource: Codable {
     case format = "format"
     case gcsUri = "gcsUri"
     case bigqueryUri = "bigqueryUri"
+    case vertexDatasetName = "vertexDatasetName"
   }
 
   public init(from decoder: any Decoder) throws {
@@ -30233,6 +30240,11 @@ extension BatchJobSource: Codable {
     bigqueryUri = try VertexKeysContainer.decodeIfPresent(
       String.self,
       forKey: .bigqueryUri
+    )
+
+    vertexDatasetName = try VertexKeysContainer.decodeIfPresent(
+      String.self,
+      forKey: .vertexDatasetName
     )
   }
 
@@ -30270,6 +30282,76 @@ extension BatchJobSource: Codable {
       try VertexKeysContainer.encodeIfPresent(
         bigqueryUri,
         forKey: .bigqueryUri
+      )
+
+      try VertexKeysContainer.encodeIfPresent(
+        vertexDatasetName,
+        forKey: .vertexDatasetName
+      )
+
+    }
+  }
+}
+
+/// This class is experimental and may change in future versions.
+///
+/// The specification for an output Vertex AI multimodal dataset.
+@available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+public struct VertexMultimodalDatasetDestination: Sendable {
+  /// The BigQuery destination for the multimodal dataset.
+  public let bigqueryDestination: String?
+
+  /// The display name of the multimodal dataset.
+  public let displayName: String?
+
+  /// Default initializer.
+  public init(
+    bigqueryDestination: String? = nil,
+    displayName: String? = nil
+  ) {
+    self.bigqueryDestination = bigqueryDestination
+    self.displayName = displayName
+  }
+}
+
+@available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension VertexMultimodalDatasetDestination: Codable {
+
+  // MARK: - Codable
+  public enum VertexKeys: String, CodingKey {
+    case bigqueryDestination = "bigqueryDestination"
+    case displayName = "displayName"
+  }
+
+  public init(from decoder: any Decoder) throws {
+    let configuration: APIClient = try decoder.userInfoOrThrow(.configuration)
+
+    let VertexKeysContainer = try decoder.container(keyedBy: VertexKeys.self)
+    bigqueryDestination = try VertexKeysContainer.decodeIfPresent(
+      String.self,
+      forKey: .bigqueryDestination
+    )
+
+    displayName = try VertexKeysContainer.decodeIfPresent(
+      String.self,
+      forKey: .displayName
+    )
+  }
+
+  public func encode(to encoder: any Encoder) throws {
+    let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
+
+    if configuration.isVertexAI() {
+
+      var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
+      try VertexKeysContainer.encodeIfPresent(
+        bigqueryDestination,
+        forKey: .bigqueryDestination
+      )
+
+      try VertexKeysContainer.encodeIfPresent(
+        displayName,
+        forKey: .displayName
       )
 
     }
@@ -30579,7 +30661,7 @@ extension InlinedEmbedContentResponse: Codable {
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct BatchJobDestination: Sendable {
   /// Storage format of the output files. Must be one of:
-  /// 'jsonl', 'bigquery'.
+  /// 'jsonl', 'bigquery', 'vertex-dataset'.
   public let format: String?
 
   /// The Google Cloud Storage URI to the output file.
@@ -30605,6 +30687,10 @@ public struct BatchJobDestination: Sendable {
   /// the input requests.
   public let inlinedEmbedContentResponses: [InlinedEmbedContentResponse]?
 
+  /// This field is experimental and may change in future versions. The Vertex AI
+  /// dataset destination.
+  public let vertexDataset: VertexMultimodalDatasetDestination?
+
   /// Default initializer.
   public init(
     format: String? = nil,
@@ -30612,7 +30698,8 @@ public struct BatchJobDestination: Sendable {
     bigqueryUri: String? = nil,
     fileName: String? = nil,
     inlinedResponses: [InlinedResponse]? = nil,
-    inlinedEmbedContentResponses: [InlinedEmbedContentResponse]? = nil
+    inlinedEmbedContentResponses: [InlinedEmbedContentResponse]? = nil,
+    vertexDataset: VertexMultimodalDatasetDestination? = nil
   ) {
     self.format = format
     self.gcsUri = gcsUri
@@ -30620,6 +30707,7 @@ public struct BatchJobDestination: Sendable {
     self.fileName = fileName
     self.inlinedResponses = inlinedResponses
     self.inlinedEmbedContentResponses = inlinedEmbedContentResponses
+    self.vertexDataset = vertexDataset
   }
 }
 
@@ -30636,6 +30724,7 @@ extension BatchJobDestination: Codable {
     case format = "format"
     case gcsUri = "gcsUri"
     case bigqueryUri = "bigqueryUri"
+    case vertexDataset = "vertexDataset"
   }
 
   public init(from decoder: any Decoder) throws {
@@ -30671,6 +30760,11 @@ extension BatchJobDestination: Codable {
     bigqueryUri = try VertexKeysContainer.decodeIfPresent(
       String.self,
       forKey: .bigqueryUri
+    )
+
+    vertexDataset = try VertexKeysContainer.decodeIfPresent(
+      VertexMultimodalDatasetDestination.self,
+      forKey: .vertexDataset
     )
   }
 
@@ -30713,6 +30807,11 @@ extension BatchJobDestination: Codable {
       try VertexKeysContainer.encodeIfPresent(
         bigqueryUri,
         forKey: .bigqueryUri
+      )
+
+      try VertexKeysContainer.encodeIfPresent(
+        vertexDataset,
+        forKey: .vertexDataset
       )
 
     }
@@ -30908,6 +31007,53 @@ extension CreateBatchJobParameters: Codable {
   }
 }
 
+/// Represents the `output_info` field in batch jobs.
+@available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+public struct BatchJobOutputInfo: Sendable {
+  /// The Vertex AI dataset name containing the output data.
+  public let vertexMultimodalDatasetName: String?
+
+  /// Default initializer.
+  public init(
+    vertexMultimodalDatasetName: String? = nil
+  ) {
+    self.vertexMultimodalDatasetName = vertexMultimodalDatasetName
+  }
+}
+
+@available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension BatchJobOutputInfo: Codable {
+
+  // MARK: - Codable
+  public enum VertexKeys: String, CodingKey {
+    case vertexMultimodalDatasetName = "vertexMultimodalDatasetName"
+  }
+
+  public init(from decoder: any Decoder) throws {
+    let configuration: APIClient = try decoder.userInfoOrThrow(.configuration)
+
+    let VertexKeysContainer = try decoder.container(keyedBy: VertexKeys.self)
+    vertexMultimodalDatasetName = try VertexKeysContainer.decodeIfPresent(
+      String.self,
+      forKey: .vertexMultimodalDatasetName
+    )
+  }
+
+  public func encode(to encoder: any Encoder) throws {
+    let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
+
+    if configuration.isVertexAI() {
+
+      var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
+      try VertexKeysContainer.encodeIfPresent(
+        vertexMultimodalDatasetName,
+        forKey: .vertexMultimodalDatasetName
+      )
+
+    }
+  }
+}
+
 /// Success and error statistics of processing multiple entities (for example,
 /// DataItems or structured data rows) in batch. This data type is not supported in
 /// Gemini API.
@@ -31052,6 +31198,9 @@ public struct BatchJob: Sendable {
   /// Vertex AI only.
   public let completionStats: CompletionStats?
 
+  /// Configuration for the output data.
+  public let outputInfo: BatchJobOutputInfo?
+
   /// Default initializer.
   public init(
     name: String? = nil,
@@ -31065,7 +31214,8 @@ public struct BatchJob: Sendable {
     model: String? = nil,
     src: BatchJobSource? = nil,
     dest: BatchJobDestination? = nil,
-    completionStats: CompletionStats? = nil
+    completionStats: CompletionStats? = nil,
+    outputInfo: BatchJobOutputInfo? = nil
   ) {
     self.name = name
     self.displayName = displayName
@@ -31079,6 +31229,7 @@ public struct BatchJob: Sendable {
     self.src = src
     self.dest = dest
     self.completionStats = completionStats
+    self.outputInfo = outputInfo
   }
 }
 
@@ -31102,6 +31253,7 @@ extension BatchJob: Codable {
     case startTime = "startTime"
     case src = "src"
     case completionStats = "completionStats"
+    case outputInfo = "outputInfo"
   }
 
   public init(from decoder: any Decoder) throws {
@@ -31167,6 +31319,11 @@ extension BatchJob: Codable {
     completionStats = try VertexKeysContainer.decodeIfPresent(
       CompletionStats.self,
       forKey: .completionStats
+    )
+
+    outputInfo = try VertexKeysContainer.decodeIfPresent(
+      BatchJobOutputInfo.self,
+      forKey: .outputInfo
     )
   }
 
@@ -31235,6 +31392,11 @@ extension BatchJob: Codable {
       try VertexKeysContainer.encodeIfPresent(
         completionStats,
         forKey: .completionStats
+      )
+
+      try VertexKeysContainer.encodeIfPresent(
+        outputInfo,
+        forKey: .outputInfo
       )
 
     }
