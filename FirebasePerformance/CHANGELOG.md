@@ -1,4 +1,5 @@
 # Unreleased
+- [fixed] Fixed NSURLSession delegate instrumentation for NSProxy delegates. (#14478)
 - [fixed] Address crash by deferring class disposal in FPRObjectSwizzler. (#14473)
 
 # 12.12.0
