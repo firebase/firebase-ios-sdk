@@ -92,8 +92,15 @@
         let firebaseAI = FirebaseAI.componentInstance(config)
         let session = firebaseAI.generativeModelSession(model: ModelNames.gemini2_5_FlashLite)
         let prompt = "Generate a Ragdoll kitten"
+        let config = GenerationConfig(
+          thinkingConfig: ThinkingConfig(thinkingBudget: -1, includeThoughts: true)
+        )
 
-        let response = try await session.respond(to: prompt, generating: CatProfile.self)
+        let response = try await session.respond(
+          to: prompt,
+          generating: CatProfile.self,
+          options: config
+        )
 
         let catProfile = response.content
         #expect(!catProfile.name.isEmpty)
@@ -102,6 +109,10 @@
         #expect(!catProfile.profile.isEmpty)
         #expect(response.rawContent.isComplete)
         #expect(response.rawContent.generationID != nil)
+        let thoughtSummary = try #require(
+          response.rawResponse.thoughtSummary, "No thought summary was generated."
+        )
+        #expect(!thoughtSummary.isEmpty)
       }
 
       @Generable
@@ -438,15 +449,20 @@
         let firebaseAI = FirebaseAI.componentInstance(config)
         let session = firebaseAI.generativeModelSession(model: ModelNames.gemini2_5_FlashLite)
         let prompt = "Generate a Ragdoll kitten"
+        let config = GenerationConfig(
+          thinkingConfig: ThinkingConfig(thinkingBudget: -1, includeThoughts: true)
+        )
 
         let stream = session.streamResponse(
           to: prompt,
-          generating: CatProfile.self
+          generating: CatProfile.self,
+          options: config
         )
 
         var generationID: FirebaseAI.GenerationID?
         var id: FoundationModels.GenerationID?
         var isComplete = false
+        var thoughtSummary = ""
         for try await snapshot in stream {
           #expect(!isComplete, "Stream yielded more elements after a snapshot was marked complete.")
           let partial = snapshot.content
@@ -477,10 +493,16 @@
           } else {
             id = snapshot.content.id
           }
+          if let partialThoughtSummary = snapshot.rawResponse.thoughtSummary {
+            thoughtSummary += partialThoughtSummary
+          }
           isComplete = snapshot.rawContent.isComplete
         }
         #expect(
           isComplete, "The stream finished, but the final snapshot was not marked as complete."
+        )
+        #expect(
+          !thoughtSummary.isEmpty, "The stream finished, but no thought summary was generated."
         )
 
         let response = try await stream.collect()
