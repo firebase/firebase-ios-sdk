@@ -543,6 +543,23 @@ const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
 // Compare fetched config with active config and output what has changed
 - (void)getConfigUpdateForNamespace:(NSString *)FIRNamespace
                   completionHandler:(void (^)(FIRRemoteConfigUpdate *update))completionHandler {
+  NSDictionary *fetchedConfig;
+  NSDictionary *activeConfig;
+  NSDictionary *fetchedP13n;
+  NSDictionary *activeP13n;
+  NSArray<NSDictionary *> *fetchedRolloutMetadata;
+  NSArray<NSDictionary *> *activeRolloutMetadata;
+
+  // Fully synchronize direct reads of shared state to prevent data races.
+  @synchronized(self) {
+    fetchedConfig = [self->_fetchedConfig[FIRNamespace] copy] ?: @{};
+    activeConfig = [self->_activeConfig[FIRNamespace] copy] ?: @{};
+    fetchedP13n = [self->_fetchedPersonalization copy] ?: @{};
+    activeP13n = [self->_activePersonalization copy] ?: @{};
+    fetchedRolloutMetadata = [self->_fetchedRolloutMetadata copy] ?: @[];
+    activeRolloutMetadata = [self->_activeRolloutMetadata copy] ?: @[];
+  }
+
   __weak RCNConfigContent *weakSelf = self;
   [self loadExperimentsPayloadsWithCompletion:^(NSDictionary *experiments) {
     RCNConfigContent *strongSelf = weakSelf;
@@ -555,18 +572,8 @@ const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
 
     NSMutableSet<NSString *> *updatedKeys = [[NSMutableSet alloc] init];
 
-    NSDictionary *fetchedConfig = strongSelf->_fetchedConfig[FIRNamespace]
-                                      ? strongSelf->_fetchedConfig[FIRNamespace]
-                                      : [[NSDictionary alloc] init];
-    NSDictionary *activeConfig = strongSelf->_activeConfig[FIRNamespace]
-                                     ? strongSelf->_activeConfig[FIRNamespace]
-                                     : [[NSDictionary alloc] init];
-    NSDictionary *fetchedP13n = strongSelf->_fetchedPersonalization;
-    NSDictionary *activeP13n = strongSelf->_activePersonalization;
-    NSArray<NSDictionary *> *fetchedRolloutMetadata = strongSelf->_fetchedRolloutMetadata;
-    NSArray<NSDictionary *> *activeRolloutMetadata = strongSelf->_activeRolloutMetadata;
-
     // add new/updated params
+    // Note: We use the captured immutable snapshots here safely.
     for (NSString *key in [fetchedConfig allKeys]) {
       if (activeConfig[key] == nil ||
           ![[activeConfig[key] stringValue] isEqualToString:[fetchedConfig[key] stringValue]]) {
