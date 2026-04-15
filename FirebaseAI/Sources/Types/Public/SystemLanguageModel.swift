@@ -66,7 +66,9 @@
                 case .modelNotReady:
                   return .unavailable(.modelNotReady)
                 @unknown default:
-                  return .unavailable(.deviceNotEligible)
+                  return .unavailable(
+                    .unknown(Availability.UnavailableReason.Context(unavailableReason: reason))
+                  )
                 }
               }
             }
@@ -185,7 +187,65 @@
       /// For more details, see the Apple
       /// [documentation](https://developer.apple.com/documentation/foundationmodels/systemlanguagemodel/availability-swift.enum).
       @nonexhaustive
-      public enum UnavailableReason: Equatable, Sendable {
+      public enum UnavailableReason: Hashable, Equatable, Sendable {
+        public struct Context: CustomDebugStringConvertible, Hashable, Equatable, Sendable {
+          public var debugDescription: String {
+            _unavailableReason.debugDescription
+          }
+
+          protocol AFMUnavailableReason: Hashable, Equatable, Sendable {}
+
+          private let _unavailableReason: (any AFMUnavailableReason)?
+
+          #if canImport(FoundationModels)
+            @available(iOS 26.0, macOS 26.0, *)
+            @available(tvOS, unavailable)
+            @available(watchOS, unavailable)
+            var unavailableReason: FoundationModels.SystemLanguageModel.Availability
+              .UnavailableReason {
+              guard let reason = _unavailableReason as? FoundationModels.SystemLanguageModel
+                .Availability.UnavailableReason else {
+                preconditionFailure("""
+                \(Self.self).#\(#function): `_unavailableReason` must not be `nil` when running on
+                platforms supported by Foundation Models.
+                """)
+              }
+              return reason
+            }
+
+            @available(iOS 26.0, macOS 26.0, *)
+            @available(tvOS, unavailable)
+            @available(watchOS, unavailable)
+            init(unavailableReason: FoundationModels.SystemLanguageModel.Availability
+              .UnavailableReason) {
+              _unavailableReason = unavailableReason
+            }
+          #endif // canImport(FoundationModels)
+
+          public static func == (lhs: UnavailableReason.Context,
+                                 rhs: UnavailableReason.Context) -> Bool {
+            #if canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
+              if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
+                return lhs.unavailableReason == rhs.unavailableReason
+              }
+            #endif // canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
+
+            if lhs._unavailableReason == nil && rhs._unavailableReason == nil {
+              return true
+            }
+
+            return false
+          }
+
+          public func hash(into hasher: inout Hasher) {
+            #if canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
+              if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
+                hasher.combine(unavailableReason)
+              }
+            #endif // canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
+          }
+        }
+
         /// The device does not support the on-device model.
         ///
         /// For more details, see the Apple
@@ -205,6 +265,8 @@
         /// For more details, see the Apple
         /// [documentation](https://developer.apple.com/documentation/foundationmodels/systemlanguagemodel/availability-swift.enum/unavailablereason/modelnotready).
         case modelNotReady
+
+        case unknown(Context)
       }
 
       /// The on-device model is ready and available for use.
@@ -307,13 +369,19 @@
     }
   }
 
-  extension FirebaseAI.SystemLanguageModel.Availability.UnavailableReason: Hashable {}
-
   #if canImport(FoundationModels)
     @available(iOS 26.0, macOS 26.0, *)
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
     extension FoundationModels.SystemLanguageModel: FirebaseAI.SystemLanguageModel
       .SystemLanguageModelProtocol {}
+  #endif // canImport(FoundationModels)
+
+  #if canImport(FoundationModels)
+    @available(iOS 26.0, macOS 26.0, *)
+    @available(tvOS, unavailable)
+    @available(watchOS, unavailable)
+    extension FoundationModels.SystemLanguageModel.Availability.UnavailableReason: FirebaseAI
+      .SystemLanguageModel.Availability.UnavailableReason.Context.AFMUnavailableReason {}
   #endif // canImport(FoundationModels)
 #endif // compiler(>=6.2.3)
