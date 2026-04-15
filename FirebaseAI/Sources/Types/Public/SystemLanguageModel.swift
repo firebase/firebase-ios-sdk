@@ -36,8 +36,10 @@
         @available(watchOS, unavailable)
         var systemLanguageModel: FoundationModels.SystemLanguageModel {
           guard let model = _systemLanguageModel as? FoundationModels.SystemLanguageModel else {
-            assertionFailure("Model was nil in \(Self.self).#\(#function).")
-            fatalError("SystemLanguageModel not available")
+            preconditionFailure("""
+            \(Self.self).#\(#function): `_systemLanguageModel` must not be `nil` when running on
+            platforms supported by Foundation Models.
+            """)
           }
           return model
         }
