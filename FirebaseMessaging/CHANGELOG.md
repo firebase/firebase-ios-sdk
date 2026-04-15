@@ -1,6 +1,6 @@
 # Unreleased
 - [fixed] Fixed an issue where deep links were not correctly routed in apps utilizing scene
-  delegates.
+  delegates. (#15987)
 
 # 12.8.0
 - [fixed] Fix missing database crash on launch. (#14880)
