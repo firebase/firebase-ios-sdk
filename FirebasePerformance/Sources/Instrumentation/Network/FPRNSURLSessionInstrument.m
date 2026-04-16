@@ -157,9 +157,13 @@ void InstrumentSessionWithConfigurationDelegateDelegateQueue(
           ThrowExceptionBecauseInstrumentHasBeenDeallocated(selector, instrumentedClass);
         }
         if (delegate) {
-          [delegateInstrument registerClass:[delegate class]];
-          [delegateInstrument registerObject:delegate];
-
+          if ([delegate isProxy] &&
+              [delegateInstrument respondsToSelector:@selector(registerProxy:)]) {
+            [delegateInstrument registerProxy:delegate];
+          } else {
+            [delegateInstrument registerClass:[delegate class]];
+            [delegateInstrument registerObject:delegate];
+          }
         } else {
           delegate = [[FPRNSURLSessionDelegate alloc] init];
         }
