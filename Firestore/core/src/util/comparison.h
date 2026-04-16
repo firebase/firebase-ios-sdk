@@ -223,13 +223,13 @@ namespace impl {
 /**
  * Checks wither the type T has a `CompareTo` member.
  */
-template <typename T, typename = absl::void_t<>>
+template <typename T, typename = std::void_t<>>
 struct has_compare_to : public std::false_type {};
 
 template <typename T>
 struct has_compare_to<
     T,
-    absl::void_t<decltype(std::declval<T>().CompareTo(std::declval<T>()))>>
+    std::void_t<decltype(std::declval<T>().CompareTo(std::declval<T>()))>>
     : public std::true_type {};
 
 /**
