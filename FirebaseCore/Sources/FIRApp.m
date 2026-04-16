@@ -179,6 +179,9 @@ static FIRApp *sDefaultApp;
   //
   // Since a lot of Firebase SDKs depend on the main UIApplication instance to be initialized,
   // we ensure it exists before initializing all the SDKs.
+  // TODO: hmm, UIKit is an optional dependency it seems. Maybe SDKs themselves will need to lazy
+  // initialize it? Or maybe it'd be fine to only do the optional check when UIKit is present?
+#if __has_include(<UIKit/UIKit.h>)
   if ([UIApplication sharedApplication]) {
     [self initialize:name options:options];
   } else {
@@ -190,6 +193,9 @@ static FIRApp *sDefaultApp;
                   [self initialize:name options:options];
                 }];
   }
+#else
+  [self initialize:name options:options];
+#endif
 }
 
 + (void)initialize:(NSString *)name options:(FIROptions *)options {
