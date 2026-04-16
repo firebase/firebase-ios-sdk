@@ -47,12 +47,20 @@ FOUNDATION_EXTERN CFTimeInterval const kFPRSlowFrameThreshold;
  */
 FOUNDATION_EXTERN CFTimeInterval const kFPRFrozenFrameThreshold;
 
+@interface FPRScreenTraceHolder : NSObject
+@property(nonatomic, weak) UIViewController *viewController;
+@property(nonatomic, strong) FIRTrace *trace;
+@end
+
 @interface FPRScreenTraceTracker ()
 
-/** A map table of that has the viewControllers as the keys and their associated trace as the value.
- *  The key is weakly retained and the value is strongly retained.
+/** A dictionary that has the viewControllers as the keys (wrapped in NSValue) and their associated
+ * trace holder as the value.
  */
-@property(nonatomic) NSMapTable<UIViewController *, FIRTrace *> *activeScreenTraces;
+@property(nonatomic) NSMutableDictionary<NSValue *, FPRScreenTraceHolder *> *activeScreenTraces;
+
+/** Lock to protect access to activeScreenTraces dictionary. */
+@property(nonatomic) NSRecursiveLock *activeScreenTracesLock;
 
 /** A list of all UIViewController instances that were visible before app was backgrounded. The
  *  viewControllers are reatined weakly.
@@ -125,6 +133,9 @@ FOUNDATION_EXTERN CFTimeInterval const kFPRFrozenFrameThreshold;
  *  This method must be called on the main thread.
  */
 - (void)updateCachedSlowBudget;
+
+/** Cleans up stale entries in activeScreenTraces where the viewController has been deallocated. */
+- (void)cleanupStaleTraces;
 
 @end
 
