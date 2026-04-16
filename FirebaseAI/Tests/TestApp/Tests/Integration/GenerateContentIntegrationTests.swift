@@ -53,14 +53,14 @@ struct GenerateContentIntegrationTests {
     (InstanceConfig.vertexAI_v1beta_global_appCheckLimitedUse, ModelNames.gemini2_5_FlashLite),
     (InstanceConfig.googleAI_v1beta, ModelNames.gemini3_1_FlashLitePreview),
     (InstanceConfig.googleAI_v1beta_appCheckLimitedUse, ModelNames.gemini3_1_FlashLitePreview),
-    (InstanceConfig.googleAI_v1beta, ModelNames.gemma3_4B),
-    (InstanceConfig.googleAI_v1beta_freeTier, ModelNames.gemma3_4B),
+    (InstanceConfig.googleAI_v1beta, ModelNames.gemma4_31B),
+    (InstanceConfig.googleAI_v1beta_freeTier, ModelNames.gemma4_31B),
     // Note: The following configs are commented out for easy one-off manual testing.
     // (InstanceConfig.googleAI_v1beta_freeTier, ModelNames.gemini2_5_FlashLite),
     // (InstanceConfig.googleAI_v1beta_staging, ModelNames.gemini2_5_FlashLite),
-    // (InstanceConfig.googleAI_v1beta_staging, ModelNames.gemma3_4B),
+    // (InstanceConfig.googleAI_v1beta_staging, ModelNames.gemma4_31B),
     // (InstanceConfig.googleAI_v1beta_freeTier_bypassProxy, ModelNames.gemini2_5_FlashLite),
-    // (InstanceConfig.googleAI_v1beta_freeTier_bypassProxy, ModelNames.gemma3_4B),
+    // (InstanceConfig.googleAI_v1beta_freeTier_bypassProxy, ModelNames.gemma4_31B),
   ])
   func generateContent(_ config: InstanceConfig, modelName: String) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
@@ -528,15 +528,15 @@ struct GenerateContentIntegrationTests {
     ),
     (InstanceConfig.googleAI_v1beta, ModelNames.gemini2_5_FlashLite),
     (InstanceConfig.googleAI_v1beta_appCheckLimitedUse, ModelNames.gemini2_5_FlashLite),
-    (InstanceConfig.googleAI_v1beta, ModelNames.gemma3_4B),
+    (InstanceConfig.googleAI_v1beta, ModelNames.gemma4_31B),
     // Note: The following configs are commented out for easy one-off manual testing.
     // (InstanceConfig.vertexAI_v1beta_staging, ModelNames.gemini2_5_FlashLite),
     // (InstanceConfig.googleAI_v1beta_staging, ModelNames.gemini2_5_FlashLite),
-    // (InstanceConfig.googleAI_v1beta_staging, ModelNames.gemma3_4B),
+    // (InstanceConfig.googleAI_v1beta_staging, ModelNames.gemma4_31B),
     // (InstanceConfig.googleAI_v1beta_freeTier_bypassProxy, ModelNames.gemini2_5_FlashLite),
-    // (InstanceConfig.googleAI_v1beta_freeTier_bypassProxy, ModelNames.gemma3_4B),
+    // (InstanceConfig.googleAI_v1beta_freeTier_bypassProxy, ModelNames.gemma4_31B),
 //    (InstanceConfig.googleAI_v1beta_freeTier, ModelNames.gemini2_5_FlashLite),
-//    (InstanceConfig.googleAI_v1beta_freeTier, ModelNames.gemma3_4B),
+//    (InstanceConfig.googleAI_v1beta_freeTier, ModelNames.gemma4_31B),
   ])
   func generateContentStream(_ config: InstanceConfig, modelName: String) async throws {
     let expectedResponse = [
