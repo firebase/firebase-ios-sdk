@@ -82,14 +82,12 @@ struct GenerateContentIntegrationTests {
     #expect(promptTokensDetails.modality == .text)
     #expect(promptTokensDetails.tokenCount == usageMetadata.promptTokenCount)
     // No thoughts in Flash Lite.
-    #expect(usageMetadata.thoughtsTokenCount == 0)
-    // The fields `candidatesTokenCount` and `candidatesTokensDetails` are not included when using
-    // Gemma models.
-    if modelName.hasPrefix("gemini-3") {
+    if !modelName.contains("flash-lite") {
+      #expect(usageMetadata.thoughtsTokenCount > 0)
+    }
+    // The `candidatesTokensDetails` field is not included when using Gemini 3 or Gemma models.
+    if modelName.hasPrefix("gemini-3") || modelName.hasPrefix("gemma") {
       #expect(usageMetadata.candidatesTokenCount == 2)
-      #expect(usageMetadata.candidatesTokensDetails.isEmpty)
-    } else if modelName.hasPrefix("gemma") {
-      #expect(usageMetadata.candidatesTokenCount == 0)
       #expect(usageMetadata.candidatesTokensDetails.isEmpty)
     } else {
       #expect(usageMetadata.candidatesTokenCount.isEqual(to: 3, accuracy: tokenCountAccuracy))
