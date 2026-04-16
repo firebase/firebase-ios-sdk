@@ -36,8 +36,10 @@
         @available(watchOS, unavailable)
         var systemLanguageModel: FoundationModels.SystemLanguageModel {
           guard let model = _systemLanguageModel as? FoundationModels.SystemLanguageModel else {
-            assertionFailure("Model was nil in \(Self.self).#\(#function).")
-            fatalError("SystemLanguageModel not available")
+            preconditionFailure("""
+            \(Self.self).#\(#function): `_systemLanguageModel` must not be `nil` when running on
+            platforms supported by Foundation Models.
+            """)
           }
           return model
         }
@@ -64,7 +66,7 @@
                 case .modelNotReady:
                   return .unavailable(.modelNotReady)
                 @unknown default:
-                  return .unavailable(.deviceNotEligible)
+                  return .unavailable(.unknown)
                 }
               }
             }
@@ -183,7 +185,7 @@
       /// For more details, see the Apple
       /// [documentation](https://developer.apple.com/documentation/foundationmodels/systemlanguagemodel/availability-swift.enum).
       @nonexhaustive
-      public enum UnavailableReason: Equatable, Sendable {
+      public enum UnavailableReason: Hashable, Equatable, Sendable {
         /// The device does not support the on-device model.
         ///
         /// For more details, see the Apple
@@ -203,6 +205,12 @@
         /// For more details, see the Apple
         /// [documentation](https://developer.apple.com/documentation/foundationmodels/systemlanguagemodel/availability-swift.enum/unavailablereason/modelnotready).
         case modelNotReady
+
+        /// The on-device model is unavailable for an unknown reason.
+        ///
+        /// See `FoundationModels.SystemLanguageModel.availability` for added
+        /// `FoundationModels.SystemLanguageModel.Availability.UnavailableReason` reasons.
+        case unknown
       }
 
       /// The on-device model is ready and available for use.
@@ -304,8 +312,6 @@
       return false
     }
   }
-
-  extension FirebaseAI.SystemLanguageModel.Availability.UnavailableReason: Hashable {}
 
   #if canImport(FoundationModels)
     @available(iOS 26.0, macOS 26.0, *)
