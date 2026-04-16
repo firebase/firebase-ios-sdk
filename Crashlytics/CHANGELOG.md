@@ -1,4 +1,5 @@
 # Unreleased
+- [fixed] Fix race in FIRCLSContextMarkAndCheckIfCrashed. (#15384)
 - [fixed] Fix unfound file warnings from `swift build`. (#16012)
 - [changed] Updated `upload-symbols` to version 3.21, updated error logging in
   `upload-symbols` and started reading the `DEVELOPER_DIR` environment
