@@ -1,4 +1,5 @@
 # Unreleased
+- [fixed] Fix race in FIRCLSContextMarkAndCheckIfCrashed. (#15384)
 - [fixed] Fix unfound file warnings from `swift build`. (#16012)
 
 # 12.12.1
