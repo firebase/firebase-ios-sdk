@@ -2595,7 +2595,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 //      // Expected error
 //    }
 //  }
-  
+
   func testCollectionForceIndex() async throws {
     let collRef = collectionRef()
     let docRef = collRef.document("doc")
@@ -2615,7 +2615,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
-  
+
   func testCollectionForceIndexInvalid() async throws {
     let collRef = collectionRef()
     let pipeline = db.pipeline()
@@ -2634,7 +2634,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       )
     }
   }
-  
+
   func testCollectionGroupForceIndex() async throws {
     let collRef = collectionRef()
     let docRef = collRef.document("doc")
@@ -2654,7 +2654,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
-  
+
   func testCollectionGroupForceIndexInvalid() async throws {
     let collRef = collectionRef()
     let pipeline = db.pipeline()
@@ -2673,7 +2673,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       )
     }
   }
-  
+
   func testComparisonOperators() async throws {
     let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore

@@ -31,7 +31,10 @@ public struct PipelineSource: @unchecked Sendable {
   /// - Parameter forceIndex: The name of the index to be used.
   /// - Returns: A `Pipeline` with the specified collection as its source.
   public func collection(_ path: String, forceIndex: String? = nil) -> Pipeline {
-    return factory([CollectionSource(collection: db.collection(path), db: db, forceIndex: forceIndex)], db)
+    return factory(
+      [CollectionSource(collection: db.collection(path), db: db, forceIndex: forceIndex)],
+      db
+    )
   }
 
   /// Specifies a collection as the data source for the pipeline.
