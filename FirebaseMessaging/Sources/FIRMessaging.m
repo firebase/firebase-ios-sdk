@@ -57,6 +57,9 @@ NSString *const kFIRMessagingUserDefaultsKeyAutoInitEnabled =
 NSString *const kFIRMessagingPlistAutoInitEnabled =
     @"FirebaseMessagingAutoInitEnabled";  // Auto Init Enabled key stored in Info.plist
 
+NSString *const kFIRMessagingPlistInstallationIdEnabled =
+    @"FirebaseMessagingInstallationIdEnabled";  // Installation ID Enabled key stored in Info.plist
+
 NSString *const FIRMessagingErrorDomain = @"com.google.fcm";
 
 BOOL FIRMessagingIsAPNSSyncMessage(NSDictionary *message) {
@@ -491,6 +494,12 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
   if (!isFCMAutoInitEnabled && autoInitEnabled) {
     [self.tokenManager tokenAndRequestIfNotExist];
   }
+}
+
+- (BOOL)isInstallationIdEnabled {
+  id isInstallationIdEnabledObject =
+      [[NSBundle mainBundle] objectForInfoDictionaryKey:kFIRMessagingPlistInstallationIdEnabled];
+  return [isInstallationIdEnabledObject boolValue];
 }
 
 - (NSString *)FCMToken {

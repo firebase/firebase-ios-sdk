@@ -239,6 +239,20 @@ NS_SWIFT_NAME(Messaging)
 @property(nonatomic, assign, getter=isAutoInitEnabled) BOOL autoInitEnabled;
 
 /**
+ * Is Firebase Messaging installation ID enabled? It's the `FirebaseMessagingInstallationIdEnabled`
+ * property in `Info.plist` file. The default value is `NO`.
+ *
+ * When enabled, there are several behavior changes:
+ *
+ *    1. An installation ID, instead of an FCM Registration token, is generated.
+ *    2. All token related operations like `tokenWithCompletion`, `deleteTokenWithCompletion`,
+ *       `retrieveFCMTokenForSenderID`, and `deleteFCMTokenForSenderID` will always fail
+ *       with an error indicating that the operation is not supported.
+ *    3. You should call `register()` and `unregister()` instead.
+ */
+@property(nonatomic, readonly, getter=isInstallationIdEnabled) BOOL installationIdEnabled;
+
+/**
  * The FCM registration token is used to identify this device so that FCM can send notifications to
  * it. It is associated with your APNs token when the APNs token is supplied, so messages sent to
  * the FCM token will be delivered over APNs.
