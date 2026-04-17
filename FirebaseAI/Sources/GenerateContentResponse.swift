@@ -75,7 +75,7 @@ public struct GenerateContentResponse: Sendable {
   ///
   /// - Note: This does not include thought summaries; see ``thoughtSummary`` for more details.
   public var text: String? {
-    guard candidates.first != nil else {
+    guard !candidates.isEmpty else {
       AILog.error(
         code: .generateContentResponseNoCandidates,
         "Could not get text from a response that had no candidates."
@@ -85,7 +85,7 @@ public struct GenerateContentResponse: Sendable {
     guard let value = text(isThought: false) else {
       AILog.error(
         code: .generateContentResponseNoText,
-        "Could not get a text part from any candidates."
+        "Could not get a text part from the first candidate."
       )
       return nil
     }
