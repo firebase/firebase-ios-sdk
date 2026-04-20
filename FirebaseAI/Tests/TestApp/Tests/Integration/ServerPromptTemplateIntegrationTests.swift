@@ -92,6 +92,7 @@ struct ServerPromptTemplateIntegrationTests {
     InstanceConfig.googleAI_v1beta,
     InstanceConfig.vertexAI_v1beta,
   ])
+  @available(*, deprecated)
   func generateImages(_ config: InstanceConfig) async throws {
     let imagenModel = FirebaseAI.componentInstance(config).templateImagenModel()
     let imagenPrompt = "firefly"
