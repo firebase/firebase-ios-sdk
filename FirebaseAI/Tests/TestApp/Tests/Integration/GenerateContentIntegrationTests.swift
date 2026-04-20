@@ -564,10 +564,17 @@ struct GenerateContentIntegrationTests {
         textValues.append(text)
       } else if let finishReason = value.candidates.first?.finishReason {
         #expect(finishReason == .stop)
+      } else if let thoughtSummary = value.thoughtSummary {
+        #expect(!thoughtSummary.isEmpty)
       } else {
         Issue.record("Expected a candidate with a `TextPart` or a `finishReason`; got \(value).")
       }
     }
+
+    // Tests the text derived from streaming directly
+    let modelJSONData = try #require(textValues.joined().data(using: .utf8))
+    let response = try JSONDecoder().decode([String].self, from: modelJSONData)
+    #expect(response == expectedResponse)
 
     let userHistory = try #require(chat.history.first)
     #expect(userHistory.role == "user")
@@ -576,15 +583,17 @@ struct GenerateContentIntegrationTests {
     #expect(promptTextPart.text == prompt)
     let modelHistory = try #require(chat.history.last)
     #expect(modelHistory.role == "model")
-    if modelName.hasPrefix("gemini-3.1-") {
-      #expect(modelHistory.parts.count == 2)
-    } else {
-      #expect(modelHistory.parts.count == 1)
-    }
-    let modelTextPart = try #require(modelHistory.parts.first as? TextPart)
-    let modelJSONData = try #require(modelTextPart.text.data(using: .utf8))
-    let response = try JSONDecoder().decode([String].self, from: modelJSONData)
-    #expect(response == expectedResponse)
+    let textParts = modelHistory.parts.compactMap { $0 as? TextPart }.filter { !$0.isThought }
+    #expect(
+      textParts.count == 1,
+      "The model should reply with exactly one (non thought) text response."
+    )
+
+    // Tests the text derived from the chat history
+    let historyTextPart = try #require(textParts.first)
+    let historyModelJSONData = try #require(historyTextPart.text.data(using: .utf8))
+    let historyResponse = try JSONDecoder().decode([String].self, from: historyModelJSONData)
+    #expect(historyResponse == expectedResponse)
   }
 
   @Test(arguments: [
