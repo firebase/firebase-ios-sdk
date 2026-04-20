@@ -108,6 +108,101 @@ final class GenerateContentResponseTests: XCTestCase {
     )
   }
 
+  func testGenerateContentResponse_noCandidates_logging() throws {
+    var loggedCodes: [AILog.MessageCode] = []
+    AILog.logInterceptor = { level, code, message in
+      loggedCodes.append(code)
+    }
+
+    let response = GenerateContentResponse(candidates: [])
+
+    _ = response.text
+    XCTAssertTrue(loggedCodes.contains(.generateContentResponseNoCandidates))
+
+    loggedCodes.removeAll()
+    _ = response.thoughtSummary
+    XCTAssertTrue(loggedCodes.contains(.generateContentResponseNoCandidates))
+  }
+
+  func testGenerateContentResponse_textIsThought_logging() throws {
+    var loggedCodes: [AILog.MessageCode] = []
+    AILog.logInterceptor = { level, code, message in
+      loggedCodes.append(code)
+    }
+
+    let imageData = Data("sample image data".utf8)
+    let inlineDataPart = InlineDataPart(data: imageData, mimeType: "image/png")
+    let candidate = Candidate(
+      content: ModelContent(parts: [inlineDataPart]),
+      safetyRatings: [],
+      finishReason: nil,
+      citationMetadata: nil
+    )
+    let response = GenerateContentResponse(candidates: [candidate])
+
+    _ = response.text
+    XCTAssertTrue(loggedCodes.contains(.generateContentResponseNoText))
+
+    loggedCodes.removeAll()
+    _ = response.thoughtSummary
+    XCTAssertTrue(loggedCodes.contains(.generateContentResponseNoText))
+  }
+
+  func testGenerateContentResponse_thoughtSummary_success() throws {
+    let thoughtPart = TextPart("This is a thought.", isThought: true, thoughtSignature: nil)
+    let modelContent = ModelContent(parts: [thoughtPart])
+    let candidate = Candidate(
+      content: modelContent,
+      safetyRatings: [],
+      finishReason: nil,
+      citationMetadata: nil
+    )
+    let response = GenerateContentResponse(candidates: [candidate])
+
+    XCTAssertEqual(response.thoughtSummary, "This is a thought.")
+  }
+
+  func testGenerateContentResponse_text_success() throws {
+    let textPart = TextPart("This is text.", isThought: false, thoughtSignature: nil)
+    let modelContent = ModelContent(parts: [textPart])
+    let candidate = Candidate(
+      content: modelContent,
+      safetyRatings: [],
+      finishReason: nil,
+      citationMetadata: nil
+    )
+    let response = GenerateContentResponse(candidates: [candidate])
+
+    XCTAssertEqual(response.text, "This is text.")
+  }
+
+  func testGenerateContentResponse_internalAccessor_doesNotLog() throws {
+    var loggedCodes: [AILog.MessageCode] = []
+    AILog.logInterceptor = { level, code, message in
+      loggedCodes.append(code)
+    }
+
+    // Case 1: No candidates
+    let noCandidatesResponse = GenerateContentResponse(candidates: [])
+    _ = noCandidatesResponse.text(isThought: false)
+    _ = noCandidatesResponse.text(isThought: true)
+    XCTAssertTrue(loggedCodes.isEmpty)
+
+    // Case 2: No text parts
+    let imageData = Data("sample image data".utf8)
+    let inlineDataPart = InlineDataPart(data: imageData, mimeType: "image/png")
+    let candidate = Candidate(
+      content: ModelContent(parts: [inlineDataPart]),
+      safetyRatings: [],
+      finishReason: nil,
+      citationMetadata: nil
+    )
+    let noTextResponse = GenerateContentResponse(candidates: [candidate])
+    _ = noTextResponse.text(isThought: false)
+    _ = noTextResponse.text(isThought: true)
+    XCTAssertTrue(loggedCodes.isEmpty)
+  }
+
   // MARK: - Decoding Tests
 
   func testDecodeCandidate_emptyURLMetadata_urlContextMetadataIsNil() throws {
