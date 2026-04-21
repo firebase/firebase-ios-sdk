@@ -118,7 +118,7 @@
                    schema: FoundationModels.GenerationSchema,
                    includeSchemaInPrompt: Bool = true,
                    options: any GenerationOptionsRepresentable =
-                     ResponseGenerationOptions()) async throws
+                     ResponseGenerationOptions.default) async throws
         -> GenerativeModelSession.Response<FirebaseAI.GeneratedContent> {
         // TODO: Replace `FoundationModels.GenerationSchema` and make this method public when
         // `FirebaseAI.GenerationSchema`'s public API is ready.
