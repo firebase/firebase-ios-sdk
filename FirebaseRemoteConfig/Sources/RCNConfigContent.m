@@ -127,13 +127,15 @@ const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
                          completionHandler:^(
                              BOOL success, NSDictionary *fetchedConfig, NSDictionary *activeConfig,
                              NSDictionary *defaultConfig, NSDictionary *rolloutMetadata) {
-                           self->_fetchedConfig = [fetchedConfig mutableCopy];
-                           self->_activeConfig = [activeConfig mutableCopy];
-                           self->_defaultConfig = [defaultConfig mutableCopy];
-                           self->_fetchedRolloutMetadata =
-                               [rolloutMetadata[@RCNRolloutTableKeyFetchedMetadata] copy];
-                           self->_activeRolloutMetadata =
-                               [rolloutMetadata[@RCNRolloutTableKeyActiveMetadata] copy];
+                           @synchronized(self) {
+                             self->_fetchedConfig = [fetchedConfig mutableCopy];
+                             self->_activeConfig = [activeConfig mutableCopy];
+                             self->_defaultConfig = [defaultConfig mutableCopy];
+                             self->_fetchedRolloutMetadata =
+                                 [rolloutMetadata[@RCNRolloutTableKeyFetchedMetadata] copy];
+                             self->_activeRolloutMetadata =
+                                 [rolloutMetadata[@RCNRolloutTableKeyActiveMetadata] copy];
+                           }
                            dispatch_group_leave(self->_dispatch_group);
                          }];
 
@@ -143,8 +145,10 @@ const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
       loadPersonalizationWithCompletionHandler:^(
           BOOL success, NSDictionary *fetchedPersonalization, NSDictionary *activePersonalization,
           NSDictionary *defaultConfig, NSDictionary *rolloutMetadata) {
-        self->_fetchedPersonalization = [fetchedPersonalization copy];
-        self->_activePersonalization = [activePersonalization copy];
+        @synchronized(self) {
+          self->_fetchedPersonalization = [fetchedPersonalization copy];
+          self->_activePersonalization = [activePersonalization copy];
+        }
         dispatch_group_leave(self->_dispatch_group);
       }];
 }
@@ -288,13 +292,17 @@ const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
 }
 
 - (void)activatePersonalization {
-  _activePersonalization = _fetchedPersonalization;
+  @synchronized(self) {
+    _activePersonalization = _fetchedPersonalization;
+  }
   [_DBManager insertOrUpdatePersonalizationConfig:_activePersonalization
                                        fromSource:RCNDBSourceActive];
 }
 
 - (void)activateRolloutMetadata:(void (^)(BOOL success))completionHandler {
-  _activeRolloutMetadata = _fetchedRolloutMetadata;
+  @synchronized(self) {
+    _activeRolloutMetadata = _fetchedRolloutMetadata;
+  }
   [_DBManager insertOrUpdateRolloutTableWithKey:@RCNRolloutTableKeyActiveMetadata
                                           value:_activeRolloutMetadata
                               completionHandler:^(BOOL success, NSDictionary *result) {
@@ -338,22 +346,25 @@ const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
   [_DBManager deleteRecordFromMainTableWithNamespace:currentNamespace
                                     bundleIdentifier:_bundleIdentifier
                                           fromSource:RCNDBSourceFetched];
-  if ([_fetchedConfig objectForKey:currentNamespace]) {
-    [_fetchedConfig[currentNamespace] removeAllObjects];
-  } else {
-    _fetchedConfig[currentNamespace] = [[NSMutableDictionary alloc] init];
-  }
 
-  // Store the fetched config values.
-  for (NSString *key in entries) {
-    NSData *valueData = [entries[key] dataUsingEncoding:NSUTF8StringEncoding];
-    if (!valueData) {
-      continue;
+  @synchronized(self) {
+    if ([_fetchedConfig objectForKey:currentNamespace]) {
+      [_fetchedConfig[currentNamespace] removeAllObjects];
+    } else {
+      _fetchedConfig[currentNamespace] = [[NSMutableDictionary alloc] init];
     }
-    _fetchedConfig[currentNamespace][key] =
-        [[FIRRemoteConfigValue alloc] initWithData:valueData source:FIRRemoteConfigSourceRemote];
-    NSArray *values = @[ _bundleIdentifier, currentNamespace, key, valueData ];
-    [self updateMainTableWithValues:values fromSource:RCNDBSourceFetched];
+
+    // Store the fetched config values.
+    for (NSString *key in entries) {
+      NSData *valueData = [entries[key] dataUsingEncoding:NSUTF8StringEncoding];
+      if (!valueData) {
+        continue;
+      }
+      _fetchedConfig[currentNamespace][key] =
+          [[FIRRemoteConfigValue alloc] initWithData:valueData source:FIRRemoteConfigSourceRemote];
+      NSArray *values = @[ _bundleIdentifier, currentNamespace, key, valueData ];
+      [self updateMainTableWithValues:values fromSource:RCNDBSourceFetched];
+    }
   }
 }
 
@@ -361,7 +372,9 @@ const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
   if (!metadata) {
     return;
   }
-  _fetchedPersonalization = metadata;
+  @synchronized(self) {
+    _fetchedPersonalization = metadata;
+  }
   [_DBManager insertOrUpdatePersonalizationConfig:metadata fromSource:RCNDBSourceFetched];
 }
 
@@ -369,7 +382,9 @@ const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
   if (!metadata) {
     metadata = [[NSArray alloc] init];
   }
-  _fetchedRolloutMetadata = metadata;
+  @synchronized(self) {
+    _fetchedRolloutMetadata = metadata;
+  }
   [_DBManager insertOrUpdateRolloutTableWithKey:@RCNRolloutTableKeyFetchedMetadata
                                           value:metadata
                               completionHandler:nil];
@@ -532,7 +547,7 @@ const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
     NSDictionary *fetchedExp = fetchedMap[key];
 
     // If one exists and the other doesn't, or if they both exist but differ
-    if (![activeExp isEqualToDictionary:fetchedExp]) {
+    if (![activeExp isEqual:fetchedExp]) {
       [changedKeys addObject:key];
     }
   }

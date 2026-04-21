@@ -584,7 +584,9 @@ static NSInteger const kRCNFetchResponseHTTPStatusCodeGatewayTimeout = 504;
                                        fetchedConfig[RCNFetchResponseKeyExperimentDescriptions]];
         }
 
-        strongSelf->_templateVersionNumber = [strongSelf getTemplateVersionNumber:fetchedConfig];
+        @synchronized(strongSelf) {
+          strongSelf->_templateVersionNumber = [strongSelf getTemplateVersionNumber:fetchedConfig];
+        }
       } else {
         FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000063",
                     @"Empty response with no fetched config.");
@@ -597,12 +599,16 @@ static NSInteger const kRCNFetchResponseHTTPStatusCodeGatewayTimeout = 504;
         strongSelf->_settings.lastETag = latestETag;
       }
       // Compute config update after successful fetch
+      NSString *templateVersionNumber;
+      @synchronized(strongSelf) {
+        templateVersionNumber = strongSelf->_templateVersionNumber;
+      }
       [strongSelf->_content
           getConfigUpdateForNamespace:strongSelf->_FIRNamespace
                     completionHandler:^(FIRRemoteConfigUpdate *update) {
                       [strongSelf->_settings
                           updateMetadataWithFetchSuccessStatus:YES
-                                               templateVersion:strongSelf->_templateVersionNumber];
+                                               templateVersion:templateVersionNumber];
                       [strongSelf reportCompletionWithStatus:FIRRemoteConfigFetchStatusSuccess
                                                   withUpdate:update
                                                    withError:nil
