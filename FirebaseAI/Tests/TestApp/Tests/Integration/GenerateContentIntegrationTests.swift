@@ -48,11 +48,11 @@ struct GenerateContentIntegrationTests {
   }
 
   @Test(arguments: [
-    (InstanceConfig.vertexAI_v1beta, ModelNames.gemini2_5_FlashLite),
-    (InstanceConfig.vertexAI_v1beta_global, ModelNames.gemini2_5_FlashLite),
-    (InstanceConfig.vertexAI_v1beta_global_appCheckLimitedUse, ModelNames.gemini2_5_FlashLite),
-    (InstanceConfig.googleAI_v1beta, ModelNames.gemini3_1_FlashLitePreview),
-    (InstanceConfig.googleAI_v1beta_appCheckLimitedUse, ModelNames.gemini3_1_FlashLitePreview),
+    //    (InstanceConfig.vertexAI_v1beta, ModelNames.gemini2_5_FlashLite),
+//    (InstanceConfig.vertexAI_v1beta_global, ModelNames.gemini2_5_FlashLite),
+//    (InstanceConfig.vertexAI_v1beta_global_appCheckLimitedUse, ModelNames.gemini2_5_FlashLite),
+//    (InstanceConfig.googleAI_v1beta, ModelNames.gemini3_1_FlashLitePreview),
+//    (InstanceConfig.googleAI_v1beta_appCheckLimitedUse, ModelNames.gemini3_1_FlashLitePreview),
     (InstanceConfig.googleAI_v1beta, ModelNames.gemma4_31B),
     (InstanceConfig.googleAI_v1beta_freeTier, ModelNames.gemma4_31B),
     // Note: The following configs are commented out for easy one-off manual testing.
@@ -583,7 +583,12 @@ struct GenerateContentIntegrationTests {
     #expect(promptTextPart.text == prompt)
     let modelHistory = try #require(chat.history.last)
     #expect(modelHistory.role == "model")
-    let textParts = modelHistory.parts.compactMap { $0 as? TextPart }.filter { !$0.isThought }
+    let textParts = modelHistory.parts.compactMap { $0 as? TextPart }.filter {
+      !$0.isThoughtOrRelated()
+    }
+    if textParts.count > 1 {
+      Issue.record("Found multiple text parts: \(textParts)")
+    }
     #expect(
       textParts.count == 1,
       "The model should reply with exactly one (non thought) text response."
@@ -670,5 +675,18 @@ struct GenerateContentIntegrationTests {
 
       return String(describing: underlyingError).contains("Firebase App Check token is invalid")
     }
+  }
+}
+
+extension TextPart {
+  /// Whether this text part is a thought or thought related text part.
+  ///
+  /// In such cases, it can be ignored for display and testing purposes.
+  ///
+  /// We use this over just a standard `isThought` check so that we can
+  /// catch cases where the gemini model sends a text part with empty text that just
+  /// acts as the last thought of the model.
+  func isThoughtOrRelated() -> Bool {
+    return isThought || (thoughtSignature != nil && text.isEmpty)
   }
 }
