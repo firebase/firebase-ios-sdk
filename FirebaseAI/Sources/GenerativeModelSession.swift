@@ -84,13 +84,27 @@
     public nonisolated(nonsending)
     func respond(to prompt: PartsRepresentable..., options: GenerationConfig? = nil) async throws
       -> GenerativeModelSession.Response<String> {
-      return try await respond(
-        to: prompt,
-        schema: nil as FirebaseAI.GenerationSchema?,
-        generating: String.self,
-        includeSchemaInPrompt: false,
-        options: options
-      )
+      let model = FirebaseAI.SystemLanguageModel()
+
+      // Hardcoded Prefer On-Device for Testing
+      if model.isAvailable {
+        let session = FirebaseAI.LanguageModelSession(model: model)
+        return try await session.respond(
+          to: prompt,
+          schema: nil as FirebaseAI.GenerationSchema?,
+          generating: String.self,
+          includeSchemaInPrompt: false,
+          options: options
+        )
+      } else {
+        return try await respond(
+          to: prompt,
+          schema: nil as FirebaseAI.GenerationSchema?,
+          generating: String.self,
+          includeSchemaInPrompt: false,
+          options: options
+        )
+      }
     }
 
     #if canImport(FoundationModels)
@@ -151,13 +165,27 @@
                             includeSchemaInPrompt: Bool = true,
                             options: GenerationConfig? = nil) async throws
         -> GenerativeModelSession.Response<Content> where Content: Generable {
-        return try await respond(
-          to: prompt,
-          schema: FirebaseAI.GenerationSchema(Content.generationSchema),
-          generating: type,
-          includeSchemaInPrompt: includeSchemaInPrompt,
-          options: options
-        )
+        let model = FirebaseAI.SystemLanguageModel()
+
+        // Hardcoded Prefer On-Device for Testing
+        if model.isAvailable {
+          let session = FirebaseAI.LanguageModelSession(model: model)
+          return try await session.respond(
+            to: prompt,
+            schema: FirebaseAI.GenerationSchema(Content.generationSchema),
+            generating: type,
+            includeSchemaInPrompt: includeSchemaInPrompt,
+            options: options
+          )
+        } else {
+          return try await respond(
+            to: prompt,
+            schema: FirebaseAI.GenerationSchema(Content.generationSchema),
+            generating: type,
+            includeSchemaInPrompt: includeSchemaInPrompt,
+            options: options
+          )
+        }
       }
 
       /// Streams the model's response as `GeneratedContent`.
