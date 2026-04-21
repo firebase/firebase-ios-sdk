@@ -85,6 +85,24 @@
         .GenerationOptions) -> Self {
         return generationOptions.responseGenerationOptions
       }
+
+      /// Returns response generation options for hybrid (on-device and cloud) requests.
+      ///
+      /// - Parameters:
+      ///   - gemini: Generation options for Gemini models.
+      ///   - foundationModels: Generation options for the on-device `SystemLanguageModel` provided
+      ///     by the Foundation Models framework.
+      @available(iOS 26.0, macOS 26.0, *)
+      @available(tvOS, unavailable)
+      @available(watchOS, unavailable)
+      static func hybrid(gemini: GenerationConfig,
+                         foundationModels: FoundationModels.GenerationOptions)
+        -> ResponseGenerationOptions {
+        return Self(
+          geminiGenerationConfig: gemini,
+          afmGenerationOptions: FirebaseAI.GenerationOptions(foundationModels)
+        )
+      }
     #endif // canImport(FoundationModels)
 
     /// Returns response generation options for hybrid (on-device and cloud) requests.
@@ -94,8 +112,8 @@
     ///   - foundationModels: Generation options for the on-device `SystemLanguageModel` provided by
     ///     the Foundation Models framework.
     static func hybrid(gemini: GenerationConfig,
-                       foundationModels: FirebaseAI
-                         .GenerationOptions) -> ResponseGenerationOptions {
+                       foundationModels: FirebaseAI.GenerationOptions)
+      -> ResponseGenerationOptions {
       return Self(geminiGenerationConfig: gemini, afmGenerationOptions: foundationModels)
     }
   }
