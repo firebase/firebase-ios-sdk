@@ -26,6 +26,11 @@
       @available(tvOS, unavailable)
       @available(watchOS, unavailable)
       func testConversionToFoundationModels() throws {
+        // Skip this test on platforms that do not support Foundation Models. This is a
+        // workaround for XCTest ignoring the `@available` attributes. See
+        // https://stackoverflow.com/q/59645536 for more details.
+        try XCTSkipFoundationModelsUnsupported()
+
         let options = FirebaseAI.GenerationOptions(
           sampling: .greedy,
           temperature: 0.5,
