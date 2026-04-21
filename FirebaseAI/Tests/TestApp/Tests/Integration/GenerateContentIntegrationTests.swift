@@ -48,11 +48,11 @@ struct GenerateContentIntegrationTests {
   }
 
   @Test(arguments: [
-    //    (InstanceConfig.vertexAI_v1beta, ModelNames.gemini2_5_FlashLite),
-//    (InstanceConfig.vertexAI_v1beta_global, ModelNames.gemini2_5_FlashLite),
-//    (InstanceConfig.vertexAI_v1beta_global_appCheckLimitedUse, ModelNames.gemini2_5_FlashLite),
-//    (InstanceConfig.googleAI_v1beta, ModelNames.gemini3_1_FlashLitePreview),
-//    (InstanceConfig.googleAI_v1beta_appCheckLimitedUse, ModelNames.gemini3_1_FlashLitePreview),
+    (InstanceConfig.vertexAI_v1beta, ModelNames.gemini2_5_FlashLite),
+    (InstanceConfig.vertexAI_v1beta_global, ModelNames.gemini2_5_FlashLite),
+    (InstanceConfig.vertexAI_v1beta_global_appCheckLimitedUse, ModelNames.gemini2_5_FlashLite),
+    (InstanceConfig.googleAI_v1beta, ModelNames.gemini3_1_FlashLitePreview),
+    (InstanceConfig.googleAI_v1beta_appCheckLimitedUse, ModelNames.gemini3_1_FlashLitePreview),
     (InstanceConfig.googleAI_v1beta, ModelNames.gemma4_31B),
     (InstanceConfig.googleAI_v1beta_freeTier, ModelNames.gemma4_31B),
     // Note: The following configs are commented out for easy one-off manual testing.
