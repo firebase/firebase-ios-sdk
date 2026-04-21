@@ -199,7 +199,7 @@ ipad_flags=(
 )
 
 macos_flags=(
-  -destination 'platform=OS X,arch=x86_64'
+  -destination 'platform=macOS,arch=arm64,name=My Mac'
 )
 tvos_flags=(
   -destination 'platform=tvOS Simulator,name=Apple TV'
@@ -218,8 +218,8 @@ else
   )
 fi
 catalyst_flags=(
-  ARCHS=x86_64 VALID_ARCHS=x86_64 SUPPORTS_MACCATALYST=YES
-  -destination platform="macOS,variant=Mac Catalyst,arch=x86_64" TARGETED_DEVICE_FAMILY=2
+  ARCHS=arm64 VALID_ARCHS=arm64 SUPPORTS_MACCATALYST=YES
+  -destination platform="macOS,variant=Mac Catalyst,arch=arm64,name=My Mac" TARGETED_DEVICE_FAMILY=2
   CODE_SIGN_IDENTITY=- CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
 )
 
