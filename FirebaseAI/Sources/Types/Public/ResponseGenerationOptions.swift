@@ -12,22 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/// Options for controlling model response generation.
-///
-/// See ``GenerationOptionsRepresentable`` for details on how to configure generation options.
-public struct ResponseGenerationOptions: Sendable, Equatable {
-  let geminiGenerationConfig: GenerationConfig?
-  let afmGenerationOptions: FirebaseAI.GenerationOptions?
+#if compiler(>=6.2.3)
+  /// Options for controlling model response generation.
+  ///
+  /// See ``GenerationOptionsRepresentable`` for details on how to configure generation options.
+  public struct ResponseGenerationOptions: Sendable, Equatable {
+    let geminiGenerationConfig: GenerationConfig?
+    let afmGenerationOptions: FirebaseAI.GenerationOptions?
 
-  init(geminiGenerationConfig: GenerationConfig? = nil,
-       afmGenerationOptions: FirebaseAI.GenerationOptions? = nil) {
-    self.geminiGenerationConfig = geminiGenerationConfig
-    self.afmGenerationOptions = afmGenerationOptions
+    init(geminiGenerationConfig: GenerationConfig? = nil,
+         afmGenerationOptions: FirebaseAI.GenerationOptions? = nil) {
+      self.geminiGenerationConfig = geminiGenerationConfig
+      self.afmGenerationOptions = afmGenerationOptions
+    }
   }
-}
 
-extension ResponseGenerationOptions: GenerationOptionsRepresentable {
-  public var responseGenerationOptions: ResponseGenerationOptions {
-    return self
+  extension ResponseGenerationOptions: GenerationOptionsRepresentable {
+    public var responseGenerationOptions: ResponseGenerationOptions {
+      return self
+    }
   }
-}
+#endif // compiler(>=6.2.3)
