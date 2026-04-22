@@ -122,7 +122,9 @@ function RunXcodebuild() {
   local log_filename="xcodebuild-${buildaction}.log"
 
   local xcbeautify_cmd
-  if command -v xcbeautify &> /dev/null; then
+  if [[ "${DISABLE_XCBEAUTIFY:-}" == "true" ]]; then
+    xcbeautify_cmd=(cat)
+  elif command -v xcbeautify &> /dev/null; then
     xcbeautify_cmd=(xcbeautify --renderer github-actions --disable-logging)
   else
     echo "xcbeautify not found, using raw xcodebuild output."
@@ -585,22 +587,15 @@ case "$product-$platform-$method" in
     ;;
 
   FirebaseAIIntegration-*-*)
-    # Build
-    RunXcodebuild \
-      -project 'FirebaseAI/Tests/TestApp/FirebaseAITestApp.xcodeproj' \
-      -scheme "FirebaseAITestApp-SPM" \
-      "${xcb_flags[@]}" \
-      build-for-testing
-
-    # Run tests
-    RunXcodebuild \
+    DISABLE_XCBEAUTIFY=true RunXcodebuild \
       -project 'FirebaseAI/Tests/TestApp/FirebaseAITestApp.xcodeproj' \
       -scheme "FirebaseAITestApp-SPM" \
       "${xcb_flags[@]}" \
       -parallel-testing-enabled NO \
       -retry-tests-on-failure \
       -test-iterations 3 \
-      test-without-building
+      -quiet \
+      test
     ;;
 
   Sessions-*-integration)
