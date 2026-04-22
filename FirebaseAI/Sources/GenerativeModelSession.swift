@@ -67,7 +67,8 @@
     ///
     /// **Public Preview**: This API is a public preview and may be subject to change.
     /// - Parameter model: The `GenerativeModel` to use for generating content.
-    init(model: any LanguageModel, tools: [any ToolRepresentable]?, instructions: String?) {
+    public init(model: any LanguageModel, tools: [any ToolRepresentable]? = nil,
+                instructions: String? = nil) {
       sessionManager = SessionManager(model: model, tools: tools)
       self.instructions = instructions
     }
