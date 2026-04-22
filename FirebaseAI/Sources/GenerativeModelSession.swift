@@ -82,7 +82,9 @@
     /// - Throws: A `GenerationError` if the model fails to generate a response.
     @discardableResult
     public nonisolated(nonsending)
-    func respond(to prompt: PartsRepresentable..., options: GenerationConfig? = nil) async throws
+    func respond(to prompt: PartsRepresentable...,
+                 options: any GenerationOptionsRepresentable
+                   = ResponseGenerationOptions.default) async throws
       -> GenerativeModelSession.Response<String> {
       return try await respond(
         to: prompt,
@@ -112,9 +114,11 @@
       @available(watchOS, unavailable)
       @discardableResult
       nonisolated(nonsending)
-      func respond(to prompt: PartsRepresentable..., schema: FoundationModels.GenerationSchema,
+      func respond(to prompt: PartsRepresentable...,
+                   schema: FoundationModels.GenerationSchema,
                    includeSchemaInPrompt: Bool = true,
-                   options: GenerationConfig? = nil) async throws
+                   options: any GenerationOptionsRepresentable =
+                     ResponseGenerationOptions.default) async throws
         -> GenerativeModelSession.Response<FirebaseAI.GeneratedContent> {
         // TODO: Replace `FoundationModels.GenerationSchema` and make this method public when
         // `FirebaseAI.GenerationSchema`'s public API is ready.
@@ -149,7 +153,8 @@
       func respond<Content>(to prompt: PartsRepresentable...,
                             generating type: Content.Type = Content.self,
                             includeSchemaInPrompt: Bool = true,
-                            options: GenerationConfig? = nil) async throws
+                            options: any GenerationOptionsRepresentable
+                              = ResponseGenerationOptions.default) async throws
         -> GenerativeModelSession.Response<Content> where Content: Generable {
         return try await respond(
           to: prompt,
@@ -175,7 +180,9 @@
       @available(watchOS, unavailable)
       func streamResponse(to prompt: PartsRepresentable...,
                           schema: FoundationModels.GenerationSchema,
-                          includeSchemaInPrompt: Bool = true, options: GenerationConfig? = nil)
+                          includeSchemaInPrompt: Bool = true,
+                          options: any GenerationOptionsRepresentable
+                            = ResponseGenerationOptions.default)
         -> sending GenerativeModelSession.ResponseStream<
           FirebaseAI.GeneratedContent, FirebaseAI.GeneratedContent
         > {
@@ -206,9 +213,11 @@
       public func streamResponse<Content>(to prompt: PartsRepresentable...,
                                           generating type: Content.Type = Content.self,
                                           includeSchemaInPrompt: Bool = true,
-                                          options: GenerationConfig? = nil)
-        -> sending GenerativeModelSession.ResponseStream<Content, Content.PartiallyGenerated>
-        where Content: Generable {
+                                          options: any GenerationOptionsRepresentable =
+                                            ResponseGenerationOptions.default)
+        -> sending GenerativeModelSession.ResponseStream<
+          Content, Content.PartiallyGenerated
+        > where Content: Generable {
         return streamResponse(
           to: prompt,
           schema: FirebaseAI.GenerationSchema(type.generationSchema),
@@ -227,7 +236,9 @@
     /// generation configuration.
     /// - Returns: A `ResponseStream` that yields snapshots of the generated content.
     @available(macOS 12.0, watchOS 8.0, *)
-    public func streamResponse(to prompt: PartsRepresentable..., options: GenerationConfig? = nil)
+    public func streamResponse(to prompt: PartsRepresentable...,
+                               options: any GenerationOptionsRepresentable
+                                 = ResponseGenerationOptions.default)
       -> sending GenerativeModelSession.ResponseStream<String, String> {
       return streamResponse(
         to: prompt,
@@ -243,11 +254,11 @@
     private nonisolated(nonsending)
     func respond<Content>(to prompt: [PartsRepresentable], schema: FirebaseAI.GenerationSchema?,
                           generating type: Content.Type, includeSchemaInPrompt: Bool,
-                          options: GenerationConfig?) async throws
+                          options: any GenerationOptionsRepresentable) async throws
       -> GenerativeModelSession.Response<Content> {
       let parts = [ModelContent(parts: prompt)]
       let config = try buildConfig(
-        options: options,
+        options: options.responseGenerationOptions.geminiGenerationConfig,
         schema: schema,
         includeSchemaInPrompt: includeSchemaInPrompt
       )
@@ -317,13 +328,16 @@
                                                          schema: FirebaseAI.GenerationSchema?,
                                                          generating type: Content.Type,
                                                          includeSchemaInPrompt: Bool,
-                                                         options: GenerationConfig?)
-      -> sending GenerativeModelSession.ResponseStream<Content, PartialContent> {
+                                                         options: any GenerationOptionsRepresentable)
+      -> sending GenerativeModelSession.ResponseStream<
+        Content,
+        PartialContent
+      > {
       let initialParts = [ModelContent(parts: prompt)]
       return GenerativeModelSession.ResponseStream { context in
         do {
           let config = try self.buildConfig(
-            options: options,
+            options: options.responseGenerationOptions.geminiGenerationConfig,
             schema: schema,
             includeSchemaInPrompt: includeSchemaInPrompt
           )

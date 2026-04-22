@@ -217,6 +217,50 @@
       XCTAssertEqual(functionResponse.response, ["result": .string(CurrentTimeTool.currentTime)])
     }
 
+    func testRespondTo_withOptions() async throws {
+      let config = GenerationConfig(temperature: 0.5, responseMIMEType: "application/json")
+      let bundle = BundleTestUtil.bundle()
+      let fileURL = try XCTUnwrap(bundle.url(
+        forResource: "unary-success-thinking-reply-thought-summary",
+        withExtension: "json",
+        subdirectory: googleAISubdirectory
+      ))
+      MockURLProtocol.requestHandler = { request in
+        let requestBody = try XCTUnwrap(request.extractBodyData(), "Empty request body.")
+        let requestURL = try XCTUnwrap(request.url)
+        let response = try XCTUnwrap(HTTPURLResponse(
+          url: requestURL,
+          statusCode: 200,
+          httpVersion: nil,
+          headerFields: nil
+        ))
+
+        let json = try JSONDecoder().decode(JSONObject.self, from: requestBody)
+        guard case let .object(generationConfig) = json["generationConfig"] else {
+          XCTFail("Expected an object for JSON key 'generationConfig', got: \(json)")
+          return (response, nil)
+        }
+        guard case let .number(temperature) = generationConfig["temperature"] else {
+          XCTFail("Expected a number for JSON key 'temperature', got: \(json)")
+          return (response, nil)
+        }
+        XCTAssertEqual(Float(temperature), config.temperature)
+        guard case let .string(responseMIMEType) = generationConfig["responseMimeType"] else {
+          XCTFail("Expected a string for JSON key 'responseMimeType', got: \(json)")
+          return (response, nil)
+        }
+        XCTAssertEqual(responseMIMEType, config.responseMIMEType)
+
+        return (response, fileURL.lines)
+      }
+      let model = try mockGenerativeModel()
+      let session = GenerativeModelSession(model: model)
+
+      let response = try await session.respond(to: testPrompt, options: .gemini(config))
+
+      XCTAssertEqual(response.content, "Mountain View")
+    }
+
     func testStreamResponseTo_functionCall() async throws {
       MockURLProtocol.requestHandlersQueue = try [
         GenerativeModelTestUtil.httpRequestHandler(
