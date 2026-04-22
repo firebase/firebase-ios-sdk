@@ -18,12 +18,12 @@
   /// See ``GenerationOptionsRepresentable`` for details on how to configure generation options.
   public struct ResponseGenerationOptions: Sendable, Equatable {
     let geminiGenerationConfig: GenerationConfig?
-    let afmGenerationOptions: FirebaseAI.GenerationOptions?
+    let foundationModelsGenerationOptions: FirebaseAI.GenerationOptions?
 
     init(geminiGenerationConfig: GenerationConfig? = nil,
-         afmGenerationOptions: FirebaseAI.GenerationOptions? = nil) {
+         foundationModelsGenerationOptions: FirebaseAI.GenerationOptions? = nil) {
       self.geminiGenerationConfig = geminiGenerationConfig
-      self.afmGenerationOptions = afmGenerationOptions
+      self.foundationModelsGenerationOptions = foundationModelsGenerationOptions
     }
   }
 

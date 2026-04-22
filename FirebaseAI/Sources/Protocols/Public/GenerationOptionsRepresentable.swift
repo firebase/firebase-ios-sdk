@@ -38,7 +38,7 @@
 
   extension FirebaseAI.GenerationOptions: GenerationOptionsRepresentable {
     public var responseGenerationOptions: ResponseGenerationOptions {
-      return ResponseGenerationOptions(afmGenerationOptions: self)
+      return ResponseGenerationOptions(foundationModelsGenerationOptions: self)
     }
   }
 
@@ -48,7 +48,9 @@
     @available(watchOS, unavailable)
     extension FoundationModels.GenerationOptions: GenerationOptionsRepresentable {
       public var responseGenerationOptions: ResponseGenerationOptions {
-        return ResponseGenerationOptions(afmGenerationOptions: FirebaseAI.GenerationOptions(self))
+        return ResponseGenerationOptions(
+          foundationModelsGenerationOptions: FirebaseAI.GenerationOptions(self)
+        )
       }
     }
   #endif // canImport(FoundationModels)
@@ -68,21 +70,21 @@
     ///
     /// - Parameter generationOptions: Generation options for the on-device `SystemLanguageModel`
     ///   provided by the Foundation Models framework.
-    static func foundationModels(_ generationOptions: FirebaseAI
-      .GenerationOptions) -> ResponseGenerationOptions {
+    static func foundationModels(_ generationOptions: FirebaseAI.GenerationOptions)
+      -> ResponseGenerationOptions {
       return generationOptions.responseGenerationOptions
     }
 
     #if canImport(FoundationModels)
-      /// Initializes response generation options for on-device requests.
+      /// Returns response generation options for on-device requests.
       ///
       /// - Parameter generationOptions: Generation options for the on-device `SystemLanguageModel`
       ///   provided by the Foundation Models framework.
       @available(iOS 26.0, macOS 26.0, *)
       @available(tvOS, unavailable)
       @available(watchOS, unavailable)
-      static func foundationModels(_ generationOptions: FoundationModels
-        .GenerationOptions) -> Self {
+      static func foundationModels(_ generationOptions: FoundationModels.GenerationOptions)
+        -> ResponseGenerationOptions {
         return generationOptions.responseGenerationOptions
       }
 
@@ -98,9 +100,9 @@
       static func hybrid(gemini: GenerationConfig,
                          foundationModels: FoundationModels.GenerationOptions)
         -> ResponseGenerationOptions {
-        return Self(
+        return ResponseGenerationOptions(
           geminiGenerationConfig: gemini,
-          afmGenerationOptions: FirebaseAI.GenerationOptions(foundationModels)
+          foundationModelsGenerationOptions: FirebaseAI.GenerationOptions(foundationModels)
         )
       }
     #endif // canImport(FoundationModels)
@@ -114,7 +116,10 @@
     static func hybrid(gemini: GenerationConfig,
                        foundationModels: FirebaseAI.GenerationOptions)
       -> ResponseGenerationOptions {
-      return Self(geminiGenerationConfig: gemini, afmGenerationOptions: foundationModels)
+      return ResponseGenerationOptions(
+        geminiGenerationConfig: gemini,
+        foundationModelsGenerationOptions: foundationModels
+      )
     }
   }
 

@@ -24,48 +24,56 @@
       let options = config.responseGenerationOptions
 
       XCTAssertEqual(options.geminiGenerationConfig, config)
-      XCTAssertNil(options.afmGenerationOptions)
+      XCTAssertNil(options.foundationModelsGenerationOptions)
     }
 
     func testGenerationOptionsConversion() {
-      let afmOptions = FirebaseAI.GenerationOptions(
+      let foundationModelsGenerationOptions = FirebaseAI.GenerationOptions(
         sampling: .random(probabilityThreshold: 0.9),
         temperature: 0.5
       )
 
-      let options = afmOptions.responseGenerationOptions
+      let options = foundationModelsGenerationOptions.responseGenerationOptions
 
       XCTAssertNil(options.geminiGenerationConfig)
-      XCTAssertEqual(options.afmGenerationOptions, afmOptions)
+      XCTAssertEqual(options.foundationModelsGenerationOptions, foundationModelsGenerationOptions)
     }
 
     func testFactoryMethods() {
       let config = GenerationConfig(temperature: 0.7, topP: 0.8)
-      let afmOptions = FirebaseAI.GenerationOptions(
+      let foundationModelsGenerationOptions = FirebaseAI.GenerationOptions(
         sampling: .greedy, temperature: 0.4, maximumResponseTokens: 200
       )
 
       let geminiOptions = ResponseGenerationOptions.gemini(config)
       XCTAssertEqual(geminiOptions.geminiGenerationConfig, config)
-      XCTAssertNil(geminiOptions.afmGenerationOptions)
+      XCTAssertNil(geminiOptions.foundationModelsGenerationOptions)
 
-      let foundationOptions = ResponseGenerationOptions.foundationModels(afmOptions)
+      let foundationOptions = ResponseGenerationOptions.foundationModels(
+        foundationModelsGenerationOptions
+      )
       XCTAssertNil(foundationOptions.geminiGenerationConfig)
-      XCTAssertEqual(foundationOptions.afmGenerationOptions, afmOptions)
+      XCTAssertEqual(
+        foundationOptions.foundationModelsGenerationOptions,
+        foundationModelsGenerationOptions
+      )
 
       let hybridOptions = ResponseGenerationOptions.hybrid(
         gemini: config,
-        foundationModels: afmOptions
+        foundationModels: foundationModelsGenerationOptions
       )
       XCTAssertEqual(hybridOptions.geminiGenerationConfig, config)
-      XCTAssertEqual(hybridOptions.afmGenerationOptions, afmOptions)
+      XCTAssertEqual(
+        hybridOptions.foundationModelsGenerationOptions,
+        foundationModelsGenerationOptions
+      )
     }
 
     func testDefaultOptions() {
       let defaultOptions = ResponseGenerationOptions.default
 
       XCTAssertNil(defaultOptions.geminiGenerationConfig)
-      XCTAssertNil(defaultOptions.afmGenerationOptions)
+      XCTAssertNil(defaultOptions.foundationModelsGenerationOptions)
     }
   }
 #endif // compiler(>=6.2.3)
