@@ -71,8 +71,10 @@ class ConnectivityMonitorApple : public ConnectivityMonitor {
     }
 
     dispatch_queue_attr_t attrs = dispatch_queue_attr_make_with_qos_class(
-        DISPATCH_QUEUE_SERIAL, QOS_CLASS_UTILITY, DISPATCH_QUEUE_PRIORITY_DEFAULT);
-    monitor_queue_ = dispatch_queue_create("com.google.firebase.firestore.network.monitor", attrs);
+        DISPATCH_QUEUE_SERIAL, QOS_CLASS_UTILITY,
+        DISPATCH_QUEUE_PRIORITY_DEFAULT);
+    monitor_queue_ = dispatch_queue_create(
+        "com.google.firebase.firestore.network.monitor", attrs);
 
     nw_path_monitor_set_queue(monitor_, monitor_queue_);
 
@@ -101,7 +103,8 @@ class ConnectivityMonitorApple : public ConnectivityMonitor {
                      queue:[NSOperationQueue mainQueue]
                 usingBlock:^(NSNotification* note) {
                   this->foreground_transition_pending_ = true;
-                  LOG_DEBUG("App entered foreground, network monitor will update if needed.");
+                  LOG_DEBUG("App entered foreground, network monitor will "
+                            "update if needed.");
                 }];
 #endif
   }
