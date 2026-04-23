@@ -40,10 +40,41 @@
 
     public func _startSession(tools: [any ToolRepresentable]?,
                               instructions: String?) throws -> any _ModelSession {
-      let primarySession = try primary._startSession(tools: tools, instructions: instructions)
-      let secondarySession = try secondary._startSession(tools: tools, instructions: instructions)
+      var primarySession: (any _ModelSession)?
+      var primaryError: Error?
+      var secondarySession: (any _ModelSession)?
+      var secondaryError: Error?
 
-      return HybridModelSession(primary: primarySession, secondary: secondarySession)
+      do {
+        primarySession = try primary._startSession(tools: tools, instructions: instructions)
+      } catch {
+        primaryError = error
+      }
+
+      do {
+        secondarySession = try secondary._startSession(tools: tools, instructions: instructions)
+      } catch {
+        secondaryError = error
+      }
+
+      if let primarySession, let secondarySession {
+        return HybridModelSession(primary: primarySession, secondary: secondarySession)
+      } else if let primarySession {
+        return primarySession
+      } else if let secondarySession {
+        return secondarySession
+      } else {
+        let debugDescription = """
+        Failed to start session for model "\(primary._modelName)": \(primaryError.debugDescription);
+        Failed to start session for model "\(secondary._modelName)": \
+        \(secondaryError.debugDescription)
+        """
+        let context = GenerativeModelSession.GenerationError.Context(
+          debugDescription: debugDescription
+        )
+
+        throw GenerativeModelSession.GenerationError.assetsUnavailable(context)
+      }
     }
   }
 #endif // compiler(>=6.2.3)
