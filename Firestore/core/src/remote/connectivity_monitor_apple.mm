@@ -128,7 +128,9 @@ ConnectivityMonitorApple::~ConnectivityMonitorApple() {
   }
 #endif
   if (monitor_) {
-    nw_path_monitor_set_update_handler(monitor_, nil);
+    nw_path_monitor_set_update_handler(monitor_, ^(nw_path_t path) {
+      (void)path;
+    });
     nw_path_monitor_cancel(monitor_);
     monitor_ = nil;
   }
