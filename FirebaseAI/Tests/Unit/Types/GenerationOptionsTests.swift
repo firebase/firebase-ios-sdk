@@ -22,7 +22,7 @@
 
   final class GenerationOptionsTests: XCTestCase {
     #if canImport(FoundationModels)
-      @available(iOS 26.0, macOS 26.0, *)
+      @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
       @available(tvOS, unavailable)
       @available(watchOS, unavailable)
       func testConversionToFoundationModels() throws {

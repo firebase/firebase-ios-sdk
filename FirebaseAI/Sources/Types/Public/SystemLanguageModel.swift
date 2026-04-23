@@ -31,7 +31,7 @@
       private let _systemLanguageModel: (any SystemLanguageModelProtocol)?
 
       #if canImport(FoundationModels)
-        @available(iOS 26.0, macOS 26.0, *)
+        @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
         @available(tvOS, unavailable)
         @available(watchOS, unavailable)
         var systemLanguageModel: FoundationModels.SystemLanguageModel {
@@ -115,7 +115,7 @@
         public static let contentTagging = UseCase(kind: .contentTagging)
 
         #if canImport(FoundationModels)
-          @available(iOS 26.0, macOS 26.0, *)
+          @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
           @available(tvOS, unavailable)
           @available(watchOS, unavailable)
           func toFoundationModels() -> FoundationModels.SystemLanguageModel.UseCase {
@@ -161,7 +161,7 @@
       )
 
       #if canImport(FoundationModels)
-        @available(iOS 26.0, macOS 26.0, *)
+        @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
         @available(tvOS, unavailable)
         @available(watchOS, unavailable)
         func toFoundationModels() -> FoundationModels.SystemLanguageModel.Guardrails {
@@ -272,7 +272,7 @@
       /// such as providing a `SystemLanguageModel.Adapter`.
       ///
       /// - Parameter systemLanguageModel: The `FoundationModels.SystemLanguageModel` to wrap.
-      @available(iOS 26.0, macOS 26.0, *)
+      @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
       @available(tvOS, unavailable)
       @available(watchOS, unavailable)
       convenience init(_ systemLanguageModel: FoundationModels.SystemLanguageModel) {
@@ -314,7 +314,7 @@
   }
 
   #if canImport(FoundationModels)
-    @available(iOS 26.0, macOS 26.0, *)
+    @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
     extension FoundationModels.SystemLanguageModel: FirebaseAI.SystemLanguageModel
