@@ -54,7 +54,7 @@
               switch functionDeclaration.kind {
               case .manual:
                 assertionFailure("""
-                The manual function declaration "\(functionDeclaration)" is not supported by the 
+                The manual function declaration "\(functionDeclaration)" is not supported by the
                 Foundation Models framework; function declarations must be `FoundationModels.Tool`
                 types for use with the on-device model.
                 """)
