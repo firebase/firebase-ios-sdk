@@ -64,13 +64,13 @@
       } else if let secondarySession {
         return secondarySession
       } else {
-        let debugDescription = """
-        Failed to start session for model "\(primary._modelName)": \(primaryError.debugDescription);
-        Failed to start session for model "\(secondary._modelName)": \
-        \(secondaryError.debugDescription)
-        """
         let context = GenerativeModelSession.GenerationError.Context(
-          debugDescription: debugDescription
+          debugDescription: """
+          Failed to start session for model "\(primary._modelName)" with error: \
+          \(primaryError?.localizedDescription ?? "unknown error");
+          Failed to start session for model "\(secondary._modelName)" with error: \
+          \(secondaryError?.localizedDescription ?? "unknown error")
+          """
         )
 
         throw GenerativeModelSession.GenerationError.assetsUnavailable(context)

@@ -113,10 +113,14 @@
               options: options
             )
 
-            for try await snapshot in stream {
-              continuation.yield(snapshot)
+            do {
+              for try await snapshot in stream {
+                continuation.yield(snapshot)
+              }
+              continuation.finish()
+            } catch {
+              continuation.finish(throwing: error)
             }
-            continuation.finish()
           }
         }
         continuation.onTermination = { _ in task.cancel() }
