@@ -60,6 +60,37 @@
     @available(iOS 26.0, macOS 26.0, *)
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
+    func respondText_fallbackOnFoundationModelsError(_ config: InstanceConfig) async throws {
+      let firebaseAI = FirebaseAI.componentInstance(config)
+      let systemModel = FirebaseAI.SystemLanguageModel.default
+      let geminiModel = firebaseAI.geminiModel(name: ModelNames.gemini2_5_FlashLite)
+      let session = firebaseAI.generativeModelSession(
+        model: HybridModel(primary: systemModel, secondary: geminiModel)
+      )
+      let prompt = "In one sentence, why is the sky blue?"
+
+      let response = try await session.respond(to: prompt)
+
+      let content = response.content
+      #expect(!content.isEmpty)
+      #expect(response.rawContent.isComplete)
+      #expect(response.rawContent.kind == .string(content))
+      #expect(response.rawContent.generationID != nil)
+      #expect(response.rawResponse.text == content)
+      // Check for the on-device model name when running on Apple Intelligence supported devices; in
+      // this case, no fallback occurs. When running on devices that do not support Apple
+      // Intelligence, including GitHub Runner Images, check for the cloud (Gemini) model name.
+      if await foundationModelsIsAvailable() {
+        #expect(response.rawResponse.modelVersion == systemModel._modelName)
+      } else {
+        #expect(response.rawResponse.modelVersion == geminiModel._modelName)
+      }
+    }
+
+    @Test(arguments: [InstanceConfig.vertexAI_v1beta_global])
+    @available(iOS 26.0, macOS 26.0, *)
+    @available(tvOS, unavailable)
+    @available(watchOS, unavailable)
     func respondGenerable_fallbackOnGeminiModelError(_ config: InstanceConfig) async throws {
       let firebaseAI = FirebaseAI.componentInstance(config)
       let invalidModel = firebaseAI.geminiModel(name: "invalid-model-name-1")
@@ -175,6 +206,37 @@
       #expect(response.rawContent.isComplete)
       #expect(response.rawContent.generationID != nil)
       #expect(response.rawResponse.modelVersion == validModel._modelName)
+    }
+
+    /// Returns `true` if `FoundationModels.SystemLanguageModel` is available.
+    ///
+    /// This is a workaround for `SystemLanguageModel.isAvailable`, which returns `true` if *any*
+    /// version of the model is available. However, calls to `LanguageModelSession().respond(to:)`
+    /// throw a `ModelManagerError` if the simulator's model version does not match the host macOS
+    /// version. A new version of the model was introduced in Xcode/macOS/iOS 26.4.
+    func foundationModelsIsAvailable() async -> Bool {
+      #if canImport(FoundationModels)
+        if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
+          let model = SystemLanguageModel.default
+          guard model.isAvailable else {
+            return false
+          }
+
+          let session = LanguageModelSession(model: model)
+          do {
+            _ = try await session.respond(
+              to: "Hello",
+              options: GenerationOptions(sampling: .greedy, temperature: 0)
+            )
+
+            return true
+          } catch {
+            return false
+          }
+        }
+      #endif // canImport(FoundationModels)
+
+      return false
     }
   }
 #endif // compiler(>=6.2.3)
