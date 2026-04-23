@@ -47,11 +47,23 @@
     }
   }
 
-  // TODO: Add docs and config options for `systemModel`
   public extension LanguageModelProvider where Self == FirebaseAI.SystemLanguageModel {
-    static func systemModel() -> FirebaseAI.SystemLanguageModel {
-      // TODO: Update to use config options
-      return FirebaseAI.SystemLanguageModel.default
+    /// **[Public Preview]** Creates a model provider for the on-device `SystemLanguageModel`
+    /// provided by Apple's Foundation Models framework.
+    ///
+    /// > Warning: This API is a public preview and may be subject to change.
+    ///
+    /// For more details about the configuration options, see the Apple
+    /// [documentation](https://developer.apple.com/documentation/foundationmodels/systemlanguagemodel/init(usecase:guardrails:)).
+    ///
+    /// - Parameters:
+    ///   - useCase: The ``UseCase`` that the model is tuned for; defaults to ``UseCase/general``.
+    ///   - guardrails: The ``Guardrails`` that configure how the model handles potentially harmful
+    ///     content; defaults to ``Guardrails/default``.
+    static func systemModel(useCase: FirebaseAI.SystemLanguageModel.UseCase = .general,
+                            guardrails: FirebaseAI.SystemLanguageModel.Guardrails = .default)
+      -> FirebaseAI.SystemLanguageModel {
+      return FirebaseAI.SystemLanguageModel(useCase: useCase, guardrails: guardrails)
     }
   }
 
