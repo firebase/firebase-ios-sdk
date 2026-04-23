@@ -16,19 +16,21 @@ import FirebaseAILogic
 import FirebaseCore
 import XCTest
 
-final class GenerativeModelSessionAPITests: XCTestCase {
-  func codeSamples() async throws {
-    let ai = FirebaseAI.firebaseAI()
+#if compiler(>=6.2.3)
+  final class GenerativeModelSessionAPITests: XCTestCase {
+    func codeSamples() async throws {
+      let ai = FirebaseAI.firebaseAI()
 
-    // Initialize a session with a Gemini model name
-    let session = ai.generativeModelSession(model: "gemini-flash-latest")
+      // Initialize a session with a Gemini model name
+      _ = ai.generativeModelSession(model: "gemini-flash-latest")
 
-    // Initialize a session with a `GeminiLanguageModelProvider`
-    _ = ai.generativeModelSession(model: .gemini(modelName: "gemini-flash-latest"))
+      // Initialize a session with a `GeminiLanguageModelProvider`
+      _ = ai.generativeModelSession(model: .gemini(modelName: "gemini-flash-latest"))
 
-    // Initialize a session with a `GeminiLanguageModel` model
-    let geminiModel = ai.geminiLanguageModel(modelName: "gemini-flash-latest")
-    _ = ai.generativeModelSession(model: geminiModel)
-    _ = GenerativeModelSession(model: geminiModel)
+      // Initialize a session with a `GeminiLanguageModel` model
+      let geminiModel = ai.geminiLanguageModel(modelName: "gemini-flash-latest")
+      _ = ai.generativeModelSession(model: geminiModel)
+      _ = GenerativeModelSession(model: geminiModel)
+    }
   }
-}
+#endif // compiler(>=6.2.3)

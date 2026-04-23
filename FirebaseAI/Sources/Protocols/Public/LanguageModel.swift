@@ -27,8 +27,10 @@
       -> any _ModelSession
   }
 
+  // Default implementation to allow a `LanguageModel` to conform to `LanguageModelProvider`.
   public extension LanguageModel {
     func _languageModel(firebaseAI: FirebaseAI) -> any LanguageModel {
+      // A `LanguageModel` can simply provide itself since it is already a `LanguageModel`.
       return self
     }
   }
