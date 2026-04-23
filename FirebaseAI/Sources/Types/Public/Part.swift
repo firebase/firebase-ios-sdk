@@ -371,7 +371,8 @@ public struct CodeExecutionResultPart: Part {
             throw GenerativeModelSession.GenerationError.unsupportedPromptContent(
               GenerativeModelSession.GenerationError.Context(
                 debugDescription: """
-                Prompt data type "\(data)" is not supported by the on-device model.
+                Prompt data type "\(data)" is not supported by the on-device model; currently only \
+                text content is supported.
                 """
               )
             )

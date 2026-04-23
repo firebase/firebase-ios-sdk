@@ -115,7 +115,7 @@
       let generatedContent = content.firebaseGeneratedContent
       let modelContent = ModelContent(
         role: "model",
-        parts: [InternalPart(.text(responseText), isThought: false, thoughtSignature: nil)]
+        parts: [TextPart(responseText, isThought: false, thoughtSignature: nil)]
       )
       let candidate = Candidate(
         content: modelContent,

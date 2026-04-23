@@ -71,7 +71,12 @@
               }
             }
           }
-          return LanguageModelSession(tools: afmTools, instructions: instructions)
+
+          return LanguageModelSession(
+            model: self.systemLanguageModel,
+            tools: afmTools,
+            instructions: instructions
+          )
         }
       #endif // canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
 
