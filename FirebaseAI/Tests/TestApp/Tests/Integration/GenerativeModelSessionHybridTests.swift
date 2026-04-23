@@ -31,13 +31,7 @@
       let invalidModel2 = firebaseAI.geminiModel(name: "invalid-model-name-2")
       let validModel = firebaseAI.geminiModel(name: ModelNames.gemini2_5_FlashLite)
       let session = firebaseAI.generativeModelSession(
-        model: .hybridModel(
-          primary: invalidModel1,
-          secondary: .hybridModel( // Nested hybrid model
-            primary: invalidModel2,
-            secondary: validModel
-          )
-        )
+        model: .hybridModel(models: invalidModel1, invalidModel2, validModel)
       )
       let prompt = "Why is the sky blue?"
 

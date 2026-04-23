@@ -59,6 +59,25 @@
                             secondary: any LanguageModelProvider) -> HybridModelProvider {
       return HybridModelProvider(primary: primary, secondary: secondary)
     }
+
+    static func hybridModel(models: any LanguageModelProvider...) -> HybridModelProvider {
+      return hybridModel(models: models)
+    }
+
+    static func hybridModel(models: [any LanguageModelProvider]) -> HybridModelProvider {
+      if models.isEmpty {
+        preconditionFailure("Must specify at least one model.")
+      } else if models.count == 1 {
+        return HybridModelProvider(primary: models[0], secondary: nil)
+      } else if models.count == 2 {
+        return HybridModelProvider(primary: models[0], secondary: models[1])
+      } else {
+        return HybridModelProvider(
+          primary: models[0],
+          secondary: hybridModel(models: Array(models.dropFirst()))
+        )
+      }
+    }
   }
 
   // Provides backwards compatibility for the

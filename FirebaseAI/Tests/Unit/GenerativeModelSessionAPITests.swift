@@ -44,6 +44,20 @@ import XCTest
       let gemmaModel = ai.geminiModel(name: "gemma-4-31b-it")
       let hybridModel = HybridModel(primary: gemmaModel, secondary: geminiModel)
       _ = GenerativeModelSession(model: hybridModel)
+
+      // Variadic examples:
+      // #1
+      _ = ai.generativeModelSession(
+        model: .hybridModel(models:
+          .geminiModel(name: "gemini-3.1-flash-lite-preview"),
+          .geminiModel(name: "gemini-2.5-flash-lite"))
+      )
+      // #2
+      _ = GenerativeModelSession(model: HybridModel(models: gemmaModel, geminiModel))
+      // #3
+      let modelNames = ["gemini-3.1-flash-lite-preview", "gemini-2.5-flash-lite"]
+      let hybridModel2 = HybridModel(models: modelNames.map { ai.geminiModel(name: $0) })
+      _ = GenerativeModelSession(model: hybridModel2)
     }
   }
 #endif // compiler(>=6.2.3)

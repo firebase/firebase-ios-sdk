@@ -18,7 +18,7 @@
   /// **Public Preview**: This API is a public preview and may be subject to change.
   public struct HybridModel: LanguageModel {
     let primary: any LanguageModel
-    let secondary: any LanguageModel
+    let secondary: (any LanguageModel)?
 
     /// **[Public Preview]** Creates a ``HybridModel`` for the specified models.
     ///
@@ -32,10 +32,32 @@
       self.secondary = secondary
     }
 
+    public init(models: any LanguageModel...) {
+      self.init(models: models)
+    }
+
+    public init(models: [any LanguageModel]) {
+      if models.isEmpty {
+        preconditionFailure("Must specify at least one model.")
+      } else if models.count == 1 {
+        primary = models[0]
+        secondary = nil
+      } else if models.count == 2 {
+        primary = models[0]
+        secondary = models[1]
+      } else {
+        primary = models[0]
+        secondary = HybridModel(models: Array(models.dropFirst()))
+      }
+    }
+
     // MARK: LanguageModel Conformance
 
     public var _modelName: String {
-      return "hybrid:\(primary._modelName),\(secondary._modelName)"
+      if let secondary {
+        return "hybrid:\(primary._modelName),\(secondary._modelName)"
+      }
+      return primary._modelName
     }
 
     public func _startSession(tools: [any ToolRepresentable]?,
@@ -52,7 +74,7 @@
       }
 
       do {
-        secondarySession = try secondary._startSession(tools: tools, instructions: instructions)
+        secondarySession = try secondary?._startSession(tools: tools, instructions: instructions)
       } catch {
         secondaryError = error
       }
@@ -68,8 +90,8 @@
           debugDescription: """
           Failed to start session for model "\(primary._modelName)" with error: \
           \(primaryError?.localizedDescription ?? "unknown error");
-          Failed to start session for model "\(secondary._modelName)" with error: \
-          \(secondaryError?.localizedDescription ?? "unknown error")
+          Failed to start session for model "\(secondary?._modelName ?? "unspecified")" with \
+          error: \(secondaryError?.localizedDescription ?? "unknown error")
           """
         )
 
