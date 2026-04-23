@@ -12,85 +12,87 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-final class HybridModelSession: _ModelSession {
-  private let primary: any _ModelSession
-  private let secondary: any _ModelSession
+#if compiler(>=6.2.3)
+  final class HybridModelSession: _ModelSession {
+    private let primary: any _ModelSession
+    private let secondary: any _ModelSession
 
-  init(primary: any _ModelSession, secondary: any _ModelSession) {
-    self.primary = primary
-    self.secondary = secondary
-  }
-
-  var _hasHistory: Bool {
-    return primary._hasHistory || secondary._hasHistory
-  }
-
-  func _respond(to prompt: [any Part], schema: FirebaseAI.GenerationSchema?,
-                includeSchemaInPrompt: Bool,
-                options: GenerationConfig?) async throws -> _ModelSessionResponse {
-    do {
-      // Try the primary model
-      return try await primary._respond(
-        to: prompt,
-        schema: schema,
-        includeSchemaInPrompt: includeSchemaInPrompt,
-        options: options
-      )
-    } catch {
-      // Do not fallback to other other sessions if the current session contains history.
-      if primary._hasHistory {
-        throw error
-      }
-
-      return try await secondary._respond(
-        to: prompt,
-        schema: schema,
-        includeSchemaInPrompt: includeSchemaInPrompt,
-        options: options
-      )
+    init(primary: any _ModelSession, secondary: any _ModelSession) {
+      self.primary = primary
+      self.secondary = secondary
     }
-  }
 
-  @available(macOS 12.0, watchOS 8.0, *)
-  func _streamResponse(to prompt: [any Part], schema: FirebaseAI.GenerationSchema?,
-                       includeSchemaInPrompt: Bool,
-                       options: GenerationConfig?)
-    -> sending AsyncThrowingStream<_ModelSessionResponse, any Error> {
-    return AsyncThrowingStream { continuation in
-      let task = Task {
-        let stream = primary._streamResponse(
+    var _hasHistory: Bool {
+      return primary._hasHistory || secondary._hasHistory
+    }
+
+    func _respond(to prompt: [any Part], schema: FirebaseAI.GenerationSchema?,
+                  includeSchemaInPrompt: Bool,
+                  options: GenerationConfig?) async throws -> _ModelSessionResponse {
+      do {
+        // Try the primary model
+        return try await primary._respond(
           to: prompt,
           schema: schema,
           includeSchemaInPrompt: includeSchemaInPrompt,
           options: options
         )
+      } catch {
+        // Do not fallback to other other sessions if the current session contains history.
+        if primary._hasHistory {
+          throw error
+        }
 
-        do {
-          for try await snapshot in stream {
-            continuation.yield(snapshot)
-          }
-          continuation.finish()
-        } catch {
-          // Do not fallback to other other sessions if the current session contains history.
-          if primary._hasHistory {
-            continuation.finish(throwing: error)
-            return
-          }
+        return try await secondary._respond(
+          to: prompt,
+          schema: schema,
+          includeSchemaInPrompt: includeSchemaInPrompt,
+          options: options
+        )
+      }
+    }
 
-          let stream = secondary._streamResponse(
+    @available(macOS 12.0, watchOS 8.0, *)
+    func _streamResponse(to prompt: [any Part], schema: FirebaseAI.GenerationSchema?,
+                         includeSchemaInPrompt: Bool,
+                         options: GenerationConfig?)
+      -> sending AsyncThrowingStream<_ModelSessionResponse, any Error> {
+      return AsyncThrowingStream { continuation in
+        let task = Task {
+          let stream = primary._streamResponse(
             to: prompt,
             schema: schema,
             includeSchemaInPrompt: includeSchemaInPrompt,
             options: options
           )
 
-          for try await snapshot in stream {
-            continuation.yield(snapshot)
+          do {
+            for try await snapshot in stream {
+              continuation.yield(snapshot)
+            }
+            continuation.finish()
+          } catch {
+            // Do not fallback to other other sessions if the current session contains history.
+            if primary._hasHistory {
+              continuation.finish(throwing: error)
+              return
+            }
+
+            let stream = secondary._streamResponse(
+              to: prompt,
+              schema: schema,
+              includeSchemaInPrompt: includeSchemaInPrompt,
+              options: options
+            )
+
+            for try await snapshot in stream {
+              continuation.yield(snapshot)
+            }
+            continuation.finish()
           }
-          continuation.finish()
         }
+        continuation.onTermination = { _ in task.cancel() }
       }
-      continuation.onTermination = { _ in task.cancel() }
     }
   }
-}
+#endif // compiler(>=6.2.3)
