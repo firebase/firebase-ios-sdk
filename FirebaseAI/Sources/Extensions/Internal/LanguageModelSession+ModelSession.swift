@@ -69,31 +69,7 @@
         )
       }
 
-      // TODO: Extract common response handling code into a helper method.
-      let responseText: String
-      if schema == nil, case let .string(text) = response.rawContent.kind {
-        responseText = text
-      } else {
-        responseText = response.rawContent.jsonString
-      }
-
-      let generatedContent = response.rawContent.firebaseGeneratedContent
-      let modelContent = ModelContent(
-        role: "model",
-        parts: [InternalPart(.text(responseText), isThought: false, thoughtSignature: nil)]
-      )
-      let candidate = Candidate(
-        content: modelContent,
-        safetyRatings: [],
-        finishReason: nil,
-        citationMetadata: nil
-      )
-      let rawResponse = GenerateContentResponse(
-        candidates: [candidate],
-        modelVersion: FirebaseAI.SystemLanguageModel.modelName
-      )
-
-      return _ModelSessionResponse(rawContent: generatedContent, rawResponse: rawResponse)
+      return makeResponse(from: response.rawContent, schema: schema)
     }
 
     public func _streamResponse(to prompt: [any Part], schema: FirebaseAI.GenerationSchema?,
@@ -130,34 +106,7 @@
         let task = Task {
           do {
             for try await snapshot in stream {
-              // TODO: Extract common response handling code into a helper method.
-              let responseText: String
-              if schema == nil, case let .string(text) = snapshot.rawContent.kind {
-                responseText = text
-              } else {
-                responseText = snapshot.rawContent.jsonString
-              }
-
-              let generatedContent = snapshot.rawContent.firebaseGeneratedContent
-              let modelContent = ModelContent(
-                role: "model",
-                parts: [InternalPart(.text(responseText), isThought: false, thoughtSignature: nil)]
-              )
-              let candidate = Candidate(
-                content: modelContent,
-                safetyRatings: [],
-                finishReason: nil,
-                citationMetadata: nil
-              )
-              let rawResponse = GenerateContentResponse(
-                candidates: [candidate],
-                modelVersion: FirebaseAI.SystemLanguageModel.modelName
-              )
-
-              let response = _ModelSessionResponse(
-                rawContent: generatedContent,
-                rawResponse: rawResponse
-              )
+              let response = makeResponse(from: snapshot.rawContent, schema: schema)
 
               continuation.yield(response)
             }
@@ -169,6 +118,34 @@
         }
         continuation.onTermination = { _ in task.cancel() }
       }
+    }
+
+    private func makeResponse(from content: FoundationModels.GeneratedContent,
+                              schema: FirebaseAI.GenerationSchema?) -> _ModelSessionResponse {
+      let responseText: String
+      if schema == nil, case let .string(text) = content.kind {
+        responseText = text
+      } else {
+        responseText = content.jsonString
+      }
+
+      let generatedContent = content.firebaseGeneratedContent
+      let modelContent = ModelContent(
+        role: "model",
+        parts: [InternalPart(.text(responseText), isThought: false, thoughtSignature: nil)]
+      )
+      let candidate = Candidate(
+        content: modelContent,
+        safetyRatings: [],
+        finishReason: nil,
+        citationMetadata: nil
+      )
+      let rawResponse = GenerateContentResponse(
+        candidates: [candidate],
+        modelVersion: FirebaseAI.SystemLanguageModel.modelName
+      )
+
+      return _ModelSessionResponse(rawContent: generatedContent, rawResponse: rawResponse)
     }
   }
 
