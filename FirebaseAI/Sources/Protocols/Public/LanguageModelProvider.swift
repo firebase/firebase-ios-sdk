@@ -47,6 +47,14 @@
     }
   }
 
+  // TODO: Add docs and config options for `systemModel`
+  public extension LanguageModelProvider where Self == FirebaseAI.SystemLanguageModel {
+    static func systemModel() -> FirebaseAI.SystemLanguageModel {
+      // TODO: Update to use config options
+      return FirebaseAI.SystemLanguageModel.default
+    }
+  }
+
   public extension LanguageModelProvider where Self == HybridModelProvider {
     /// **[Public Preview]** Creates a ``HybridModelProvider`` for the specified models.
     ///

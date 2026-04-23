@@ -13,6 +13,9 @@
 // limitations under the License.
 
 import Foundation
+#if canImport(FoundationModels)
+  import FoundationModels
+#endif // canImport(FoundationModels)
 
 /// A discrete piece of data in a media format interpretable by an AI model.
 ///
@@ -346,3 +349,44 @@ public struct CodeExecutionResultPart: Part {
     self.thoughtSignature = thoughtSignature
   }
 }
+
+#if compiler(>=6.2.3) && canImport(FoundationModels)
+  @available(iOS 26.0, macOS 26.0, *)
+  @available(tvOS, unavailable)
+  @available(watchOS, unavailable)
+  extension [any Part] {
+    func toFoundationModelsPrompt() throws -> FoundationModels.Prompt {
+      let parts = ModelContent(parts: self)
+      let promptParts: [any FoundationModels.PromptRepresentable] = try parts.internalParts
+        .compactMap { part in
+          // Skip any `thought` parts since they are unused by Foundation Models.
+          guard !(part.isThought ?? false) else { return nil }
+
+          // Skip any parts without `data`, for example a `Part` containing only a thought
+          // signature, since they are unused by Foundation Models.
+          guard let data = part.data else { return nil }
+
+          // Currently only string types are supported.
+          guard case let .text(string) = data else {
+            // TODO: Create a custom error type for unsupported prompt part types.
+            throw GenerativeModelSession.GenerationError.internalError(
+              GenerativeModelSession.GenerationError.Context(
+                debugDescription: """
+                Prompt data type "\(data)" is not supported by Foundation Models.
+                """
+              ),
+              underlyingError: NSError(domain: Constants.baseErrorDomain, code: 0)
+            )
+          }
+
+          return string
+        }
+
+      return Prompt {
+        for part in promptParts {
+          part.promptRepresentation
+        }
+      }
+    }
+  }
+#endif // compiler(>=6.2.3) && canImport(FoundationModels)
