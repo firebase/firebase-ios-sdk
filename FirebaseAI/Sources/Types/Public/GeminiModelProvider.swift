@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #if compiler(>=6.2.3)
+  /// Provides a ``GeminiModel`` for an instance of ``FirebaseAI``.
   public struct GeminiModelProvider: LanguageModelProvider {
     let modelName: String
     let safetySettings: [SafetySetting]?

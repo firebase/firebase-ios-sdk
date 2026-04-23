@@ -15,6 +15,12 @@
 import Foundation
 
 #if compiler(>=6.2.3)
+  /// A Gemini or Gemma model accessed via the Gemini Developer API or the Vertex AI API.
+  ///
+  /// **Public Preview**: This API is a public preview and may be subject to change.
+  ///
+  /// To create a ``GeminiModel`` instance, see
+  /// ``FirebaseAI/geminiModel(name:safetySettings:requestOptions:)``.
   public struct GeminiModel {
     let modelName: String
     let modelResourceName: String

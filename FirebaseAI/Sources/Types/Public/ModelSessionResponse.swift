@@ -13,6 +13,9 @@
 // limitations under the License.
 
 #if compiler(>=6.2.3)
+  /// A response from a ``_ModelSession``.
+  ///
+  /// > Important: This type is for **internal use only** and may change at any time.
   public struct _ModelSessionResponse: Sendable {
     let rawContent: FirebaseAI.GeneratedContent
     let rawResponse: GenerateContentResponse
