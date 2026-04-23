@@ -168,6 +168,85 @@
       XCTAssertEqual(functionResponse.response, ["result": .string(CurrentTimeTool.currentTime)])
     }
 
+    func testRespondTo_sessionHistoryPreventsFallback() async throws {
+      let model1 = try mockGeminiModel(modelName: "gemini-2.5-flash")
+      let model2 = try mockGeminiModel(modelName: "gemini-2.0-flash")
+      let session = GenerativeModelSession(model: HybridModel(primary: model1, secondary: model2))
+      let expectedStatusCode = 400
+      try MockURLProtocol.requestHandlersQueue.append(contentsOf: [
+        GenerativeModelTestUtil.httpRequestHandler(
+          forResource: "unary-success-thinking-reply-thought-summary",
+          withExtension: "json",
+          subdirectory: googleAISubdirectory
+        ),
+        GenerativeModelTestUtil.httpRequestHandler(
+          forResource: "unary-failure-api-key",
+          withExtension: "json",
+          subdirectory: googleAISubdirectory,
+          statusCode: expectedStatusCode
+        ),
+        GenerativeModelTestUtil.httpRequestHandler(
+          forResource: "unary-success-basic-reply-short",
+          withExtension: "json",
+          subdirectory: googleAISubdirectory
+        ),
+      ])
+
+      // Verify first request succeeds.
+      let response1 = try await session.respond(to: testPrompt)
+      XCTAssertEqual(response1.content, "Mountain View")
+      XCTAssertEqual(response1.rawResponse.modelVersion, model1.modelName)
+
+      // Verify no fallback to model2 after successful request.
+      await XCTAssertThrowsError({
+        try await session.respond(to: testPrompt)
+      }, "Expected an error but request succeeded.") { error in
+        guard case let GenerateContentError.internalError(underlying: underlyingError) = error
+        else {
+          return XCTFail("Unexpected error type: \(error)")
+        }
+        guard let backendError = underlyingError as? BackendError else {
+          return XCTFail("Unexpected underlying error type: \(underlyingError)")
+        }
+        XCTAssertEqual(backendError.status, .invalidArgument)
+        XCTAssertEqual(backendError.httpResponseCode, expectedStatusCode)
+        XCTAssertTrue(backendError.message.hasPrefix("API key not valid."))
+      }
+      XCTAssertEqual(MockURLProtocol.requestHandlersQueue.count, 1, """
+      Expected 'unary-success-basic-reply-short' to remain the queue since falling back to 'model2'
+      is not supported after a successful request using model1.
+      """)
+    }
+
+    func testRespondTo_fallbackAfterFailure() async throws {
+      let model1 = try mockGeminiModel(modelName: "gemini-5.0-flash")
+      let model2 = try mockGeminiModel(modelName: "gemini-2.5-flash")
+      let session = GenerativeModelSession(model: HybridModel(primary: model1, secondary: model2))
+      let expectedStatusCode = 404
+      try MockURLProtocol.requestHandlersQueue.append(contentsOf: [
+        GenerativeModelTestUtil.httpRequestHandler(
+          forResource: "unary-failure-unknown-model",
+          withExtension: "json",
+          subdirectory: googleAISubdirectory,
+          statusCode: expectedStatusCode
+        ),
+        GenerativeModelTestUtil.httpRequestHandler(
+          forResource: "unary-success-thinking-reply-thought-summary",
+          withExtension: "json",
+          subdirectory: googleAISubdirectory
+        ),
+      ])
+
+      // Verify request falls back to model2 after initial failure with model1.
+      let response1 = try await session.respond(to: testPrompt)
+
+      XCTAssertEqual(response1.content, "Mountain View")
+      XCTAssertEqual(response1.rawResponse.modelVersion, model2.modelName)
+      XCTAssertTrue(MockURLProtocol.requestHandlersQueue.isEmpty, """
+      Expected the queue to be empty after automatically falling back to model2.
+      """)
+    }
+
     func testRespondTo_functionCall_maxFunctionCallTurnsExceeded() async throws {
       let functionCallCount = GenerativeModelSession.maxAutoFunctionCallTurns + 1
       MockURLProtocol.requestHandlersQueue = try Array(

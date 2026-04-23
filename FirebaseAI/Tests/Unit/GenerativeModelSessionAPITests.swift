@@ -24,13 +24,26 @@ import XCTest
       // Initialize a session with a Gemini model name
       _ = ai.generativeModelSession(model: "gemini-flash-latest")
 
-      // Initialize a session with a `GeminiLanguageModelProvider`
+      // Initialize a session with a `GeminiModelProvider`
       _ = ai.generativeModelSession(model: .geminiModel(name: "gemini-flash-latest"))
 
-      // Initialize a session with a `GeminiLanguageModel` model
+      // Initialize a session with a `GeminiModel`
       let geminiModel = ai.geminiModel(name: "gemini-flash-latest")
       _ = ai.generativeModelSession(model: geminiModel)
       _ = GenerativeModelSession(model: geminiModel)
+
+      // Initialize a session with a `HybridModelProvider`
+      _ = ai.generativeModelSession(
+        model: .hybridModel(
+          primary: geminiModel,
+          secondary: .geminiModel(name: "gemini-flash-lite-latest")
+        )
+      )
+
+      // Initialize a session with a `HybridModel`
+      let gemmaModel = ai.geminiModel(name: "gemma-4-31b-it")
+      let hybridModel = HybridModel(primary: gemmaModel, secondary: geminiModel)
+      _ = GenerativeModelSession(model: hybridModel)
     }
   }
 #endif // compiler(>=6.2.3)

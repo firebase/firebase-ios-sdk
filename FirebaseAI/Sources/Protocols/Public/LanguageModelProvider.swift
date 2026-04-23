@@ -47,6 +47,20 @@
     }
   }
 
+  public extension LanguageModelProvider where Self == HybridModelProvider {
+    /// **[Public Preview]** Creates a ``HybridModelProvider`` for the specified models.
+    ///
+    /// > Warning: This API is a public preview and may be subject to change.
+    ///
+    /// - Parameters:
+    ///   - primary: The main, or default, model to use.
+    ///   - secondary: The backup model to fallback to if the `primary` model is unavailable.
+    static func hybridModel(primary: any LanguageModelProvider,
+                            secondary: any LanguageModelProvider) -> HybridModelProvider {
+      return HybridModelProvider(primary: primary, secondary: secondary)
+    }
+  }
+
   // Provides backwards compatibility for the
   // `FirebaseAI.generativeModelSession(model:tools:instructions:)` method where `model` was a
   // simple `String` containing a Gemini model name.
