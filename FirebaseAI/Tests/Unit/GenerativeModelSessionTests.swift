@@ -483,8 +483,8 @@
                          firebaseInfo: FirebaseInfo? = nil, apiConfig: APIConfig? = nil,
                          safetySettings: [SafetySetting]? = nil,
                          requestOptions: RequestOptions? = nil, urlSession: URLSession? = nil)
-      throws -> GeminiLanguageModel {
-      return GeminiLanguageModel(
+      throws -> GeminiModel {
+      return GeminiModel(
         modelName: modelName ?? testModelName,
         modelResourceName: modelResourceName ?? testModelResourceName,
         firebaseInfo: firebaseInfo ?? GenerativeModelTestUtil.testFirebaseInfo(),

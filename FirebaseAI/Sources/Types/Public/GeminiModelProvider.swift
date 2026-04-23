@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #if compiler(>=6.2.3)
-  public struct GeminiLanguageModelProvider: LanguageModelProvider {
+  public struct GeminiModelProvider: LanguageModelProvider {
     let modelName: String
     let safetySettings: [SafetySetting]?
     let requestOptions: RequestOptions
@@ -26,8 +26,8 @@
     }
 
     public func _languageModel(firebaseAI: FirebaseAI) -> any LanguageModel {
-      return firebaseAI.geminiLanguageModel(
-        modelName: modelName,
+      return firebaseAI.geminiModel(
+        name: modelName,
         safetySettings: safetySettings,
         requestOptions: requestOptions
       )

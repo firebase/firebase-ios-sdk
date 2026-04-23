@@ -66,7 +66,13 @@
     /// Creates a new `GenerativeModelSession` with the given model.
     ///
     /// **Public Preview**: This API is a public preview and may be subject to change.
-    /// - Parameter model: The `GenerativeModel` to use for generating content.
+    ///
+    /// - Parameters:
+    ///   - model: The `GenerativeModel` to use for generating content.
+    ///   - tools: A list of tools that extend the capabilities of the model. These are typically
+    ///     native Gemini ``FirebaseAILogic/Tool``s, such as ``ToolRepresentable/googleSearch(_:)``,
+    ///     or instances conforming to ``ToolRepresentable`` for automatic function calling.
+    ///   - instructions: System instructions that direct the model's behavior.
     public init(model: any LanguageModel, tools: [any ToolRepresentable]? = nil,
                 instructions: String? = nil) {
       sessionManager = SessionManager(model: model, tools: tools)

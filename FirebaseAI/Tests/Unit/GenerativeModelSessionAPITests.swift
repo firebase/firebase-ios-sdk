@@ -25,10 +25,10 @@ import XCTest
       _ = ai.generativeModelSession(model: "gemini-flash-latest")
 
       // Initialize a session with a `GeminiLanguageModelProvider`
-      _ = ai.generativeModelSession(model: .gemini(modelName: "gemini-flash-latest"))
+      _ = ai.generativeModelSession(model: .geminiModel(name: "gemini-flash-latest"))
 
       // Initialize a session with a `GeminiLanguageModel` model
-      let geminiModel = ai.geminiLanguageModel(modelName: "gemini-flash-latest")
+      let geminiModel = ai.geminiModel(name: "gemini-flash-latest")
       _ = ai.generativeModelSession(model: geminiModel)
       _ = GenerativeModelSession(model: geminiModel)
     }

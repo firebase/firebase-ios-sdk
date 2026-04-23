@@ -15,7 +15,7 @@
 import Foundation
 
 #if compiler(>=6.2.3)
-  public struct GeminiLanguageModel {
+  public struct GeminiModel {
     let modelName: String
     let modelResourceName: String
     let firebaseInfo: FirebaseInfo
@@ -44,7 +44,7 @@ import Foundation
     }
   }
 
-  extension GeminiLanguageModel: LanguageModel {
+  extension GeminiModel: LanguageModel {
     public var _modelName: String {
       return modelName
     }
