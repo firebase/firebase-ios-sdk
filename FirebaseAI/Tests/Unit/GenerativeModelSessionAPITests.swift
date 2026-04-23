@@ -32,7 +32,14 @@ import XCTest
       _ = ai.generativeModelSession(model: geminiModel)
       _ = GenerativeModelSession(model: geminiModel)
 
-      // Initialize a session with a `HybridModelProvider`
+      // Initialize a session with a `SystemLanguageModel` as a `LanguageModel`
+      let systemModel = FirebaseAI.SystemLanguageModel.default
+      _ = GenerativeModelSession(model: systemModel)
+
+      // Initialize a session with a `SystemLanguageModel` as a `LanguageModelProvider`
+      _ = ai.generativeModelSession(model: .systemModel())
+
+      // Initialize a session with a `HybridModelProvider` of cloud models
       _ = ai.generativeModelSession(
         model: .hybridModel(
           primary: geminiModel,
@@ -40,10 +47,21 @@ import XCTest
         )
       )
 
-      // Initialize a session with a `HybridModel`
+      // Initialize a session with a `HybridModelProvider` of cloud and on-device models
+      _ = ai.generativeModelSession(
+        model: .hybridModel(
+          primary: .systemModel(),
+          secondary: .geminiModel(name: "gemini-flash-lite-latest")
+        )
+      )
+
+      // Initialize a session with a `HybridModel` of cloud models
       let gemmaModel = ai.geminiModel(name: "gemma-4-31b-it")
       let hybridModel = HybridModel(primary: gemmaModel, secondary: geminiModel)
       _ = GenerativeModelSession(model: hybridModel)
+
+      // Initialize a session with a `HybridModel` of cloud and on-device models
+      _ = HybridModel(primary: systemModel, secondary: geminiModel)
     }
   }
 #endif // compiler(>=6.2.3)
