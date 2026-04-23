@@ -17,8 +17,9 @@
 #ifndef FIRESTORE_CORE_SRC_REMOTE_CONNECTIVITY_MONITOR_APPLE_H_
 #define FIRESTORE_CORE_SRC_REMOTE_CONNECTIVITY_MONITOR_APPLE_H_
 
-#include "Firestore/core/src/remote/connectivity_monitor.h"
 #include <memory>
+
+#include "Firestore/core/src/remote/connectivity_monitor.h"
 
 #if defined(__APPLE__)
 
