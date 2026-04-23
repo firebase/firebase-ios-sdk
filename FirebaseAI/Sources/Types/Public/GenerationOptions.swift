@@ -65,14 +65,14 @@
         }
 
         #if canImport(FoundationModels)
-          @available(iOS 26.0, macOS 26.0, *)
+          @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
           @available(tvOS, unavailable)
           @available(watchOS, unavailable)
           init(_ samplingMode: FoundationModels.GenerationOptions.SamplingMode) {
             kind = .foundationModelsSamplingMode(samplingMode)
           }
 
-          @available(iOS 26.0, macOS 26.0, *)
+          @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
           @available(tvOS, unavailable)
           @available(watchOS, unavailable)
           var samplingMode: FoundationModels.GenerationOptions.SamplingMode {
@@ -153,7 +153,7 @@
         /// `FoundationModels.GenerationOptions`.
         ///
         /// - Parameter options: The `FoundationModels.GenerationOptions` to wrap.
-        @available(iOS 26.0, macOS 26.0, *)
+        @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
         @available(tvOS, unavailable)
         @available(watchOS, unavailable)
         public init(_ options: FoundationModels.GenerationOptions) {
@@ -163,7 +163,7 @@
           maximumResponseTokens = options.maximumResponseTokens
         }
 
-        @available(iOS 26.0, macOS 26.0, *)
+        @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
         @available(tvOS, unavailable)
         @available(watchOS, unavailable)
         func toFoundationModels() -> FoundationModels.GenerationOptions {
@@ -197,13 +197,13 @@
   }
 
   #if canImport(FoundationModels)
-    @available(iOS 26.0, macOS 26.0, *)
+    @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
     extension FoundationModels.GenerationOptions: FirebaseAI.GenerationOptions
       .GenerationOptionsProtocol {}
 
-    @available(iOS 26.0, macOS 26.0, *)
+    @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
     extension FoundationModels.GenerationOptions.SamplingMode: FirebaseAI.GenerationOptions

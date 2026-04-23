@@ -117,7 +117,7 @@
       /// generation configuration.
       /// - Returns: A `Response` containing the generated content as `GeneratedContent`.
       /// - Throws: A `GenerationError` if the model fails to generate a response.
-      @available(iOS 26.0, macOS 26.0, *)
+      @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
       @available(tvOS, unavailable)
       @available(watchOS, unavailable)
       @discardableResult
@@ -153,7 +153,7 @@
       /// - Returns: A `Response` containing the generated content as the specified `Generable`
       /// type.
       /// - Throws: A `GenerationError` if the model fails to generate a response.
-      @available(iOS 26.0, macOS 26.0, *)
+      @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
       @available(tvOS, unavailable)
       @available(watchOS, unavailable)
       @discardableResult
@@ -183,7 +183,7 @@
       /// - Parameter options: An optional `GenerationConfig` to override the model's default
       /// generation configuration.
       /// - Returns: A `ResponseStream` that yields snapshots of the generated content.
-      @available(iOS 26.0, macOS 26.0, *)
+      @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
       @available(tvOS, unavailable)
       @available(watchOS, unavailable)
       func streamResponse(to prompt: PartsRepresentable...,
@@ -215,7 +215,7 @@
       /// - Parameter options: An optional `GenerationConfig` to override the model's default
       /// generation configuration.
       /// - Returns: A `ResponseStream` that yields snapshots of the generated content.
-      @available(iOS 26.0, macOS 26.0, *)
+      @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
       @available(tvOS, unavailable)
       @available(watchOS, unavailable)
       public func streamResponse<Content>(to prompt: PartsRepresentable...,

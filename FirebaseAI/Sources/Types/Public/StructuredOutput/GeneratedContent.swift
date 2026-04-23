@@ -19,7 +19,7 @@
   #endif // canImport(FoundationModels)
 
   #if canImport(FoundationModels)
-    @available(iOS 26.0, macOS 26.0, *)
+    @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
     extension FoundationModels.GeneratedContent: FirebaseAI.GeneratedContent
@@ -38,7 +38,7 @@
       public let kind: Kind
 
       #if canImport(FoundationModels)
-        @available(iOS 26.0, macOS 26.0, *)
+        @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
         @available(tvOS, unavailable)
         @available(watchOS, unavailable)
         var generatedContent: FoundationModels.GeneratedContent {
@@ -91,7 +91,7 @@
       }
 
       #if canImport(FoundationModels)
-        @available(iOS 26.0, macOS 26.0, *)
+        @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
         @available(tvOS, unavailable)
         @available(watchOS, unavailable)
         init(kind: FoundationModels.GeneratedContent.Kind, id: FirebaseAI.GenerationID? = nil,
@@ -126,7 +126,7 @@
         /// The JSON string representation of the generated content.
         ///
         /// **Public Preview**: This API is a public preview and may be subject to change.
-        @available(iOS 26.0, macOS 26.0, *)
+        @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
         @available(tvOS, unavailable)
         @available(watchOS, unavailable)
         public var jsonString: String {
@@ -146,7 +146,7 @@
         ///   - type: The type to decode the content into.
         /// - Returns: The decoded value.
         /// - Throws: An error if decoding fails.
-        @available(iOS 26.0, macOS 26.0, *)
+        @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
         @available(tvOS, unavailable)
         @available(watchOS, unavailable)
         public func value<Value>(_ type: Value.Type = Value.self) throws -> Value
@@ -165,7 +165,7 @@
         ///   - property: The name of the property to decode.
         /// - Returns: The decoded value.
         /// - Throws: An error if decoding fails or the property does not exist.
-        @available(iOS 26.0, macOS 26.0, *)
+        @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
         @available(tvOS, unavailable)
         @available(watchOS, unavailable)
         public func value<Value>(_ type: Value.Type = Value.self,
@@ -185,7 +185,7 @@
         ///   - property: The name of the property to decode.
         /// - Returns: The decoded value, or `nil` if the property does not exist or is null.
         /// - Throws: An error if decoding fails.
-        @available(iOS 26.0, macOS 26.0, *)
+        @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
         @available(tvOS, unavailable)
         @available(watchOS, unavailable)
         public func value<Value>(_ type: Value?.Type = Value?.self,
@@ -229,7 +229,7 @@
   }
 
   #if canImport(FoundationModels)
-    @available(iOS 26.0, macOS 26.0, *)
+    @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
     extension FirebaseAI.GeneratedContent: Equatable {
@@ -240,7 +240,7 @@
       }
     }
 
-    @available(iOS 26.0, macOS 26.0, *)
+    @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
     extension FirebaseAI.GeneratedContent: CustomDebugStringConvertible {
@@ -249,12 +249,12 @@
       }
     }
 
-    @available(iOS 26.0, macOS 26.0, *)
+    @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
     extension FirebaseAI.GeneratedContent.Kind: Equatable {}
 
-    @available(iOS 26.0, macOS 26.0, *)
+    @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
     extension FoundationModels.GeneratedContent.Kind {
@@ -288,7 +288,7 @@
       }
     }
 
-    @available(iOS 26.0, macOS 26.0, *)
+    @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
     extension FirebaseAI.GeneratedContent.Kind {

@@ -48,7 +48,7 @@
 
     #if canImport(FoundationModels)
       @Generable(description: "Basic profile information about a cat")
-      @available(iOS 26.0, macOS 26.0, *)
+      @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
       @available(tvOS, unavailable)
       @available(watchOS, unavailable)
       struct CatProfile {
@@ -63,7 +63,7 @@
       }
 
       @Test(arguments: [InstanceConfig.vertexAI_v1beta_global, InstanceConfig.googleAI_v1beta])
-      @available(iOS 26.0, macOS 26.0, *)
+      @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
       @available(tvOS, unavailable)
       @available(watchOS, unavailable)
       func respondGeneratedContent(_ config: InstanceConfig) async throws {
@@ -91,7 +91,7 @@
       }
 
       @Test(arguments: [InstanceConfig.vertexAI_v1beta_global, InstanceConfig.googleAI_v1beta])
-      @available(iOS 26.0, macOS 26.0, *)
+      @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
       @available(tvOS, unavailable)
       @available(watchOS, unavailable)
       func respondGenerable(_ config: InstanceConfig) async throws {
@@ -122,7 +122,7 @@
       }
 
       @Generable
-      @available(iOS 26.0, macOS 26.0, *)
+      @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
       @available(tvOS, unavailable)
       @available(watchOS, unavailable)
       enum Difficulty {
@@ -132,7 +132,7 @@
       }
 
       @Generable
-      @available(iOS 26.0, macOS 26.0, *)
+      @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
       @available(tvOS, unavailable)
       @available(watchOS, unavailable)
       enum SuggestedCourse {
@@ -142,7 +142,7 @@
       }
 
       @Generable(description: "A recipe for a delicious dish")
-      @available(iOS 26.0, macOS 26.0, *)
+      @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
       @available(tvOS, unavailable)
       @available(watchOS, unavailable)
       struct Recipe {
@@ -169,7 +169,7 @@
       }
 
       @Generable(description: "A list of recipes")
-      @available(iOS 26.0, macOS 26.0, *)
+      @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
       @available(tvOS, unavailable)
       @available(watchOS, unavailable)
       struct RecipeList {
@@ -178,7 +178,7 @@
       }
 
       @Test(arguments: [InstanceConfig.vertexAI_v1beta_global, InstanceConfig.googleAI_v1beta])
-      @available(iOS 26.0, macOS 26.0, *)
+      @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
       @available(tvOS, unavailable)
       @available(watchOS, unavailable)
       func respondGenerableRecipe(_ config: InstanceConfig) async throws {
@@ -206,7 +206,7 @@
       }
 
       @Test(arguments: [InstanceConfig.vertexAI_v1beta_global, InstanceConfig.googleAI_v1beta])
-      @available(iOS 26.0, macOS 26.0, *)
+      @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
       @available(tvOS, unavailable)
       @available(watchOS, unavailable)
       func respondGenerableRecipeList(_ config: InstanceConfig) async throws {
@@ -242,7 +242,7 @@
       }
     #endif // canImport(FoundationModels)
 
-    @available(iOS 26.0, macOS 26.0, *)
+    @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
     struct GetTemperature: FoundationModels.Tool {
@@ -272,7 +272,7 @@
     }
 
     @Test(arguments: [InstanceConfig.vertexAI_v1beta_global, InstanceConfig.googleAI_v1beta])
-    @available(iOS 26.0, macOS 26.0, *)
+    @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
     func respondTextWithAutomaticFunctionCalling(_ config: InstanceConfig) async throws {
@@ -306,7 +306,7 @@
     }
 
     @Test(arguments: [InstanceConfig.vertexAI_v1beta_global, InstanceConfig.googleAI_v1beta])
-    @available(iOS 26.0, macOS 26.0, *)
+    @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
     func respondGenerableWithAutomaticFunctionCalling(_ config: InstanceConfig) async throws {
@@ -403,7 +403,7 @@
 
     #if canImport(FoundationModels)
       @Test(arguments: [InstanceConfig.vertexAI_v1beta_global, InstanceConfig.googleAI_v1beta])
-      @available(iOS 26.0, macOS 26.0, *)
+      @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
       @available(tvOS, unavailable)
       @available(watchOS, unavailable)
       func streamResponseGeneratedContent(_ config: InstanceConfig) async throws {
@@ -458,7 +458,7 @@
       }
 
       @Test(arguments: [InstanceConfig.vertexAI_v1beta_global, InstanceConfig.googleAI_v1beta])
-      @available(iOS 26.0, macOS 26.0, *)
+      @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
       @available(tvOS, unavailable)
       @available(watchOS, unavailable)
       func streamResponseGenerable(_ config: InstanceConfig) async throws {
@@ -532,7 +532,7 @@
       }
 
       @Test(arguments: [InstanceConfig.vertexAI_v1beta_global, InstanceConfig.googleAI_v1beta])
-      @available(iOS 26.0, macOS 26.0, *)
+      @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
       @available(tvOS, unavailable)
       @available(watchOS, unavailable)
       func streamResponseTextWithAutomaticFunctionCalling(_ config: InstanceConfig) async throws {
