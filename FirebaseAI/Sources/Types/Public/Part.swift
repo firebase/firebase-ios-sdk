@@ -368,14 +368,12 @@ public struct CodeExecutionResultPart: Part {
 
           // Currently only string types are supported.
           guard case let .text(string) = data else {
-            // TODO: Create a custom error type for unsupported prompt part types.
-            throw GenerativeModelSession.GenerationError.internalError(
+            throw GenerativeModelSession.GenerationError.unsupportedPromptContent(
               GenerativeModelSession.GenerationError.Context(
                 debugDescription: """
-                Prompt data type "\(data)" is not supported by Foundation Models.
+                Prompt data type "\(data)" is not supported by the on-device model.
                 """
-              ),
-              underlyingError: NSError(domain: Constants.baseErrorDomain, code: 0)
+              )
             )
           }
 

@@ -727,6 +727,9 @@
 
       case concurrentRequests(GenerativeModelSession.GenerationError.Context)
 
+      /// The content provided as a prompt is not supported by the model.
+      case unsupportedPromptContent(GenerativeModelSession.GenerationError.Context)
+
       case internalError(GenerativeModelSession.GenerationError.Context, underlyingError: any Error)
     }
 

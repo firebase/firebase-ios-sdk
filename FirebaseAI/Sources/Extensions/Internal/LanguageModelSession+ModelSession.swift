@@ -98,7 +98,6 @@
           stream = streamResponse(
             to: foundationModelsPrompt,
             schema: String.generationSchema,
-            // TODO: Check `includeSchemaInPrompt: includeSchemaInPrompt` behaviour with `String`
             options: options.generationOptions
           )
         }
