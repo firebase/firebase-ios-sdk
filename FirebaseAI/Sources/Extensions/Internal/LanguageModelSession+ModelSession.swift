@@ -21,29 +21,13 @@
   @available(watchOS, unavailable)
   extension FoundationModels.LanguageModelSession: _ModelSession {
     public var _hasHistory: Bool {
-      if transcript.isEmpty {
-        return false
-      }
-
-      for entry in transcript {
-        switch entry {
-        case .instructions:
-          continue
-        case .prompt:
-          return true
-        case .toolCalls:
-          return true
-        case .toolOutput:
-          return true
-        case .response:
-          return true
-        @unknown default:
-          // Unknown entry type, assuming that it is session history.
-          return true
+      return transcript.contains { entry in
+        if case .instructions = entry {
+          return false
         }
-      }
 
-      return false
+        return true
+      }
     }
 
     public func _respond(to prompt: [any Part], schema: FirebaseAI.GenerationSchema?,
