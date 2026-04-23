@@ -44,7 +44,7 @@
   }
 
   #if canImport(FoundationModels)
-    @available(iOS 26.0, macOS 26.0, *)
+    @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
     extension FoundationModels.GenerationOptions: GenerationOptionsRepresentable {
@@ -81,7 +81,7 @@
       ///
       /// - Parameter generationOptions: Generation options for the on-device `SystemLanguageModel`
       ///   provided by the Foundation Models framework.
-      @available(iOS 26.0, macOS 26.0, *)
+      @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
       @available(tvOS, unavailable)
       @available(watchOS, unavailable)
       static func foundationModels(_ generationOptions: FoundationModels.GenerationOptions)
@@ -95,7 +95,7 @@
       ///   - gemini: Generation options for Gemini models.
       ///   - foundationModels: Generation options for the on-device `SystemLanguageModel` provided
       ///     by the Foundation Models framework.
-      @available(iOS 26.0, macOS 26.0, *)
+      @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
       @available(tvOS, unavailable)
       @available(watchOS, unavailable)
       static func hybrid(gemini: GenerationConfig,

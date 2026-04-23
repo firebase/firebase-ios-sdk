@@ -169,7 +169,7 @@ public final class FirebaseAI: Sendable {
       ///   - tools: A list of tools that extend the capabilities of the model. These tools must be
       ///     instances conforming to `FoundationModels.Tool` for automatic function calling.
       ///   - instructions: System instructions that direct the model's behavior.
-      @available(iOS 26.0, macOS 26.0, *)
+      @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
       @available(tvOS, unavailable)
       @available(watchOS, unavailable)
       public func generativeModelSession(model: any LanguageModelProvider,
