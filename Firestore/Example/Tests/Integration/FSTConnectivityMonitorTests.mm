@@ -27,6 +27,7 @@ using firebase::firestore::util::AsyncQueue;
 
 @implementation FSTConnectivityMonitorTests
 
+#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
 - (void)testForegroundNotificationInvokesCallback {
   auto executor = firebase::firestore::util::Executor::CreateSerial("test_queue");
   auto worker_queue = firebase::firestore::util::AsyncQueue::Create(std::move(executor));
@@ -55,6 +56,7 @@ using firebase::firestore::util::AsyncQueue;
   XCTestExpectation *callbackExpectation = [self expectationWithDescription:@"Callback invoked"];
 
   monitor->AddCallback([&](firebase::firestore::remote::ConnectivityMonitor::NetworkStatus status) {
+    (void)status;
     callbackInvoked = true;
     [callbackExpectation fulfill];
   });
@@ -65,6 +67,7 @@ using firebase::firestore::util::AsyncQueue;
                   object:nil
                    queue:[NSOperationQueue mainQueue]
               usingBlock:^(NSNotification *note) {
+                (void)note;
                 notificationReceived = true;
               }];
 
@@ -83,5 +86,6 @@ using firebase::firestore::util::AsyncQueue;
       @"UIApplicationWillEnterForegroundNotification was not received by the test observer!");
   XCTAssertTrue(callbackInvoked);
 }
+#endif
 
 @end
