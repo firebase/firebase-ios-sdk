@@ -696,8 +696,8 @@ public class Pipeline: @unchecked Sendable {
   ///
   /// - Parameters:
   ///   - query: A raw query string (e.g., `"menu:waffles AND tags:breakfast"`).
-  ///   - languageCode: The BCP-47 language code of text in the search query, such as, “en-US” or
-  /// “sr-Latn”
+  ///   - languageCode: The BCP-47 language code of text in the search query, such as, “en” or
+  /// “sr”
   ///   - retrievalDepth: The maximum number of documents to retrieve. Documents will be retrieved
   /// in the pre-sort order specified by the search index.
   ///   - sort: An array of `Ordering` objects to sort the results.
