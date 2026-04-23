@@ -13,21 +13,21 @@
 // limitations under the License.
 
 #if compiler(>=6.2.3)
-/// Provides a ``HybridModel`` for an instance of ``FirebaseAI``.
-public struct HybridModelProvider: LanguageModelProvider {
-  let primary: any LanguageModelProvider
-  let secondary: any LanguageModelProvider
+  /// Provides a ``HybridModel`` for an instance of ``FirebaseAI``.
+  public struct HybridModelProvider: LanguageModelProvider {
+    let primary: any LanguageModelProvider
+    let secondary: any LanguageModelProvider
 
-  init(primary: any LanguageModelProvider, secondary: any LanguageModelProvider) {
-    self.primary = primary
-    self.secondary = secondary
-  }
+    init(primary: any LanguageModelProvider, secondary: any LanguageModelProvider) {
+      self.primary = primary
+      self.secondary = secondary
+    }
 
-  public func _languageModel(firebaseAI: FirebaseAI) -> any LanguageModel {
-    return HybridModel(
-      primary: primary._languageModel(firebaseAI: firebaseAI),
-      secondary: secondary._languageModel(firebaseAI: firebaseAI)
-    )
+    public func _languageModel(firebaseAI: FirebaseAI) -> any LanguageModel {
+      return HybridModel(
+        primary: primary._languageModel(firebaseAI: firebaseAI),
+        secondary: secondary._languageModel(firebaseAI: firebaseAI)
+      )
+    }
   }
-}
 #endif // compiler(>=6.2.3)
