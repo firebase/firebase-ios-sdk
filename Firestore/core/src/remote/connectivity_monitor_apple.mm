@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "Firestore/core/src/remote/connectivity_monitor_apple.h"
 #include "Firestore/core/src/remote/connectivity_monitor.h"
 
 #if defined(__APPLE__)
@@ -55,78 +56,83 @@ NetworkStatus ToNetworkStatus(nw_path_t path) {
 
 }  // namespace
 
-/**
- * Implementation of `ConnectivityMonitor` based on `NWPathMonitor`
- * (iOS/MacOS/tvOS/visionOS).
- */
-class ConnectivityMonitorApple : public ConnectivityMonitor {
- public:
-  explicit ConnectivityMonitorApple(
-      const std::shared_ptr<AsyncQueue>& worker_queue)
-      : ConnectivityMonitor{worker_queue} {
-    monitor_ = nw_path_monitor_create();
-    if (!monitor_) {
-      LOG_DEBUG("Failed to create network monitor.");
-      return;
-    }
+ConnectivityMonitorApple::ConnectivityMonitorApple(
+    const std::shared_ptr<AsyncQueue>& worker_queue)
+    : ConnectivityMonitor{worker_queue} {
+  monitor_ = nw_path_monitor_create();
+  if (!monitor_) {
+    LOG_DEBUG("Failed to create network monitor.");
+    return;
+  }
 
-    dispatch_queue_attr_t attrs = dispatch_queue_attr_make_with_qos_class(
-        DISPATCH_QUEUE_SERIAL, QOS_CLASS_UTILITY,
-        DISPATCH_QUEUE_PRIORITY_DEFAULT);
-    monitor_queue_ = dispatch_queue_create(
-        "com.google.firebase.firestore.network.monitor", attrs);
+  dispatch_queue_attr_t attrs = dispatch_queue_attr_make_with_qos_class(
+      DISPATCH_QUEUE_SERIAL, QOS_CLASS_UTILITY,
+      DISPATCH_QUEUE_PRIORITY_DEFAULT);
+  monitor_queue_ = dispatch_queue_create(
+      "com.google.firebase.firestore.network.monitor", attrs);
 
-    nw_path_monitor_set_queue(monitor_, monitor_queue_);
+  nw_path_monitor_set_queue(monitor_, monitor_queue_);
 
-    // Capture `this` is safe because we call `nw_path_monitor_cancel` in the
-    // destructor, which ensures no more callbacks are delivered.
-    nw_path_monitor_set_update_handler(monitor_, ^(nw_path_t path) {
-      auto status = ToNetworkStatus(path);
-      this->queue()->Enqueue([this, status] {
-        bool is_foreground = this->foreground_transition_pending_;
-        this->foreground_transition_pending_ = false;
-
-        if (is_foreground && status != NetworkStatus::Unavailable) {
-          this->InvokeCallbacks(status);
-        } else {
-          this->MaybeInvokeCallbacks(status);
-        }
-      });
+  // Capture `this` is safe because we call `nw_path_monitor_cancel` in the
+  // destructor, which ensures no more callbacks are delivered.
+  nw_path_monitor_set_update_handler(monitor_, ^(nw_path_t path) {
+    auto status = ToNetworkStatus(path);
+    this->queue()->Enqueue([this, status] {
+      if (!this->current_status_.has_value()) {
+        this->current_status_ = status;
+        this->SetInitialStatus(status);
+      } else {
+        this->current_status_ = status;
+        this->MaybeInvokeCallbacks(status);
+      }
     });
+  });
 
-    nw_path_monitor_start(monitor_);
+  nw_path_monitor_start(monitor_);
 
 #if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
-    this->observer_ = [[NSNotificationCenter defaultCenter]
-        addObserverForName:UIApplicationWillEnterForegroundNotification
-                    object:nil
-                     queue:[NSOperationQueue mainQueue]
-                usingBlock:^(NSNotification* note) {
-                  this->foreground_transition_pending_ = true;
-                  LOG_DEBUG("App entered foreground, network monitor will "
-                            "update if needed.");
-                }];
+  this->observer_ = [[NSNotificationCenter defaultCenter]
+      addObserverForName:UIApplicationWillEnterForegroundNotification
+                  object:nil
+                   queue:[NSOperationQueue mainQueue]
+              usingBlock:^(NSNotification* note) {
+                NSLog(@"ConnectivityMonitorApple: Received "
+                      @"UIApplicationWillEnterForegroundNotification");
+                this->queue()->Enqueue([this] {
+                  // Force a reconnect by invoking callbacks with the current
+                  // status
+                  if (this->current_status_.has_value() &&
+                      this->current_status_.value() !=
+                          NetworkStatus::Unavailable) {
+                    NSLog(@"ConnectivityMonitorApple: Invoking callbacks on "
+                          @"foreground");
+                    this->InvokeCallbacks(this->current_status_.value());
+                  } else {
+                    NSLog(@"ConnectivityMonitorApple: Skipping callbacks on "
+                          @"foreground, has_value: %d, status: %d",
+                          this->current_status_.has_value(),
+                          this->current_status_.has_value()
+                              ? (int)this->current_status_.value()
+                              : -1);
+                  }
+                });
+              }];
 #endif
-  }
+}
 
-  ~ConnectivityMonitorApple() {
+ConnectivityMonitorApple::~ConnectivityMonitorApple() {
 #if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
+  if (this->observer_) {
     [[NSNotificationCenter defaultCenter] removeObserver:this->observer_];
-#endif
-
-    if (monitor_) {
-      nw_path_monitor_cancel(monitor_);
-    }
+    this->observer_ = nil;
   }
-
- private:
-  nw_path_monitor_t monitor_ = nullptr;
-  dispatch_queue_t monitor_queue_ = nullptr;
-  bool foreground_transition_pending_ = false;
-#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
-  id<NSObject> observer_ = nil;
 #endif
-};
+  if (monitor_) {
+    nw_path_monitor_set_update_handler(monitor_, nil);
+    nw_path_monitor_cancel(monitor_);
+    monitor_ = nil;
+  }
+}
 
 std::unique_ptr<ConnectivityMonitor> ConnectivityMonitor::Create(
     const std::shared_ptr<AsyncQueue>& worker_queue) {
