@@ -1,4 +1,5 @@
 # Unreleased
+- [feature] Added search stage support for `languageCode`, `offset`, `limit`, and `retrievalDepth`.
 - [feature] Added support for Pipeline expressions `arraySlice`, `arrayFilter`, `arrayTransform` and `arrayTransformWithIndex`. (#16001)
 
 # 12.12.0
