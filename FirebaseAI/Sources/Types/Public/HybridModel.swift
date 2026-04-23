@@ -13,11 +13,21 @@
 // limitations under the License.
 
 #if compiler(>=6.2.3)
+  /// A hybrid model combining a primary, or main, model and a secondary, or fallback, model.
+  ///
+  /// **Public Preview**: This API is a public preview and may be subject to change.
   public struct HybridModel: LanguageModel {
     let primary: any LanguageModel
     let secondary: any LanguageModel
 
-    init(primary: any LanguageModel, secondary: any LanguageModel) {
+    /// **[Public Preview]** Creates a ``HybridModel`` for the specified models.
+    ///
+    /// > Warning: This API is a public preview and may be subject to change.
+    ///
+    /// - Parameters:
+    ///   - primary: The main, or default, model to use.
+    ///   - secondary: The backup model to fallback to if the `primary` model is unavailable.
+    public init(primary: any LanguageModel, secondary: any LanguageModel) {
       self.primary = primary
       self.secondary = secondary
     }
