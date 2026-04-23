@@ -24,7 +24,8 @@
   /// ``FirebaseAI/GenerationOptions`` or a `Foundation Models`
   /// [`GenerationOptions`](https://developer.apple.com/documentation/foundationmodels/generationoptions)
   /// value. For hybrid (on-device and cloud) configurations, use
-  /// ``hybrid(gemini:foundationModels:)`` to specify options for each model.
+  /// ``hybrid(gemini:foundationModels:)-(_,FirebaseAI.GenerationOptions)`` to specify options for
+  /// each model.
   public protocol GenerationOptionsRepresentable: Sendable {
     /// Options for controlling model response generation.
     var responseGenerationOptions: ResponseGenerationOptions { get }

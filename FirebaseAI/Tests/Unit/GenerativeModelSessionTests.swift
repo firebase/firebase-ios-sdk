@@ -74,15 +74,23 @@
         ),
       ]
       let currentTimeTool = CurrentTimeTool()
-      let model = try mockGenerativeModel(tools: .autoFunctionDeclaration(currentTimeTool))
-      let session = GenerativeModelSession(model: model)
+      let model = try mockGeminiModel()
+      let session = GenerativeModelSession(
+        model: model,
+        tools: [.autoFunctionDeclaration(currentTimeTool)],
+        instructions: nil
+      )
 
       let response = try await session.respond(to: testPrompt)
 
       XCTAssertEqual(response.content, "Mountain View")
       var functionCalls = [FunctionCall]()
       var functionResponses = [FunctionResponse]()
-      for content in session.session.history {
+      let modelSession = try XCTUnwrap(
+        session.sessionManager.getOrStartSession(instructions: nil)
+      )
+      let geminiSession = try XCTUnwrap(modelSession as? GeminiModelSession)
+      for content in geminiSession.chat.history {
         for part in content.internalParts {
           switch part.data {
           case let .functionCall(functionCall):
@@ -120,15 +128,23 @@
         subdirectory: googleAISubdirectory
       ))
       let currentTimeTool = CurrentTimeTool()
-      let model = try mockGenerativeModel(tools: .autoFunctionDeclaration(currentTimeTool))
-      let session = GenerativeModelSession(model: model)
+      let model = try mockGeminiModel()
+      let session = GenerativeModelSession(
+        model: model,
+        tools: [.autoFunctionDeclaration(currentTimeTool)],
+        instructions: nil
+      )
 
       let response = try await session.respond(to: testPrompt)
 
       XCTAssertEqual(response.content, "Mountain View")
       var functionCalls = [FunctionCall]()
       var functionResponses = [FunctionResponse]()
-      for content in session.session.history {
+      let modelSession = try XCTUnwrap(
+        session.sessionManager.getOrStartSession(instructions: nil)
+      )
+      let geminiSession = try XCTUnwrap(modelSession as? GeminiModelSession)
+      for content in geminiSession.chat.history {
         for part in content.internalParts {
           switch part.data {
           case let .functionCall(functionCall):
@@ -167,8 +183,12 @@
         subdirectory: googleAISubdirectory
       ))
       let currentTimeTool = CurrentTimeTool()
-      let model = try mockGenerativeModel(tools: .autoFunctionDeclaration(currentTimeTool))
-      let session = GenerativeModelSession(model: model)
+      let model = try mockGeminiModel()
+      let session = GenerativeModelSession(
+        model: model,
+        tools: [.autoFunctionDeclaration(currentTimeTool)],
+        instructions: nil
+      )
 
       await XCTAssertThrowsError {
         try await session.respond(to: testPrompt)
@@ -193,7 +213,11 @@
 
       var functionCalls = [FunctionCall]()
       var functionResponses = [FunctionResponse]()
-      for content in session.session.history {
+      let modelSession = try XCTUnwrap(
+        session.sessionManager.getOrStartSession(instructions: nil)
+      )
+      let geminiSession = try XCTUnwrap(modelSession as? GeminiModelSession)
+      for content in geminiSession.chat.history {
         for part in content.internalParts {
           switch part.data {
           case let .functionCall(functionCall):
@@ -253,8 +277,8 @@
 
         return (response, fileURL.lines)
       }
-      let model = try mockGenerativeModel()
-      let session = GenerativeModelSession(model: model)
+      let model = try mockGeminiModel()
+      let session = GenerativeModelSession(model: model, tools: nil, instructions: nil)
 
       let response = try await session.respond(to: testPrompt, options: .gemini(config))
 
@@ -275,8 +299,12 @@
         ),
       ]
       let currentTimeTool = CurrentTimeTool()
-      let model = try mockGenerativeModel(tools: .autoFunctionDeclaration(currentTimeTool))
-      let session = GenerativeModelSession(model: model)
+      let model = try mockGeminiModel()
+      let session = GenerativeModelSession(
+        model: model,
+        tools: [.autoFunctionDeclaration(currentTimeTool)],
+        instructions: nil
+      )
 
       let stream = session.streamResponse(to: testPrompt)
       let response = try await stream.collect()
@@ -287,7 +315,11 @@
       """)
       var functionCalls = [FunctionCall]()
       var functionResponses = [FunctionResponse]()
-      for content in session.session.history {
+      let modelSession = try XCTUnwrap(
+        session.sessionManager.getOrStartSession(instructions: nil)
+      )
+      let geminiSession = try XCTUnwrap(modelSession as? GeminiModelSession)
+      for content in geminiSession.chat.history {
         for part in content.internalParts {
           switch part.data {
           case let .functionCall(functionCall):
@@ -326,8 +358,12 @@
         subdirectory: googleAISubdirectory
       ))
       let currentTimeTool = CurrentTimeTool()
-      let model = try mockGenerativeModel(tools: .autoFunctionDeclaration(currentTimeTool))
-      let session = GenerativeModelSession(model: model)
+      let model = try mockGeminiModel()
+      let session = GenerativeModelSession(
+        model: model,
+        tools: [.autoFunctionDeclaration(currentTimeTool)],
+        instructions: nil
+      )
 
       let stream = session.streamResponse(to: testPrompt)
       let response = try await stream.collect()
@@ -338,7 +374,11 @@
       """)
       var functionCalls = [FunctionCall]()
       var functionResponses = [FunctionResponse]()
-      for content in session.session.history {
+      let modelSession = try XCTUnwrap(
+        session.sessionManager.getOrStartSession(instructions: nil)
+      )
+      let geminiSession = try XCTUnwrap(modelSession as? GeminiModelSession)
+      for content in geminiSession.chat.history {
         for part in content.internalParts {
           switch part.data {
           case let .functionCall(functionCall):
@@ -378,8 +418,12 @@
         subdirectory: googleAISubdirectory
       ))
       let currentTimeTool = CurrentTimeTool()
-      let model = try mockGenerativeModel(tools: .autoFunctionDeclaration(currentTimeTool))
-      let session = GenerativeModelSession(model: model)
+      let model = try mockGeminiModel()
+      let session = GenerativeModelSession(
+        model: model,
+        tools: [.autoFunctionDeclaration(currentTimeTool)],
+        instructions: nil
+      )
 
       await XCTAssertThrowsError {
         let stream = session.streamResponse(to: testPrompt)
@@ -405,7 +449,11 @@
 
       var functionCalls = [FunctionCall]()
       var functionResponses = [FunctionResponse]()
-      for content in session.session.history {
+      let modelSession = try XCTUnwrap(
+        session.sessionManager.getOrStartSession(instructions: nil)
+      )
+      let geminiSession = try XCTUnwrap(modelSession as? GeminiModelSession)
+      for content in geminiSession.chat.history {
         for part in content.internalParts {
           switch part.data {
           case let .functionCall(functionCall):
@@ -431,16 +479,17 @@
 
     // MARK: - Helper Utilities
 
-    func mockGenerativeModel(modelName: String? = nil, modelResourceName: String? = nil,
-                             firebaseInfo: FirebaseInfo? = nil, apiConfig: APIConfig? = nil,
-                             tools: ToolRepresentable..., requestOptions: RequestOptions? = nil,
-                             urlSession: URLSession? = nil) throws -> GenerativeModel {
-      return GenerativeModel(
+    func mockGeminiModel(modelName: String? = nil, modelResourceName: String? = nil,
+                         firebaseInfo: FirebaseInfo? = nil, apiConfig: APIConfig? = nil,
+                         safetySettings: [SafetySetting]? = nil,
+                         requestOptions: RequestOptions? = nil, urlSession: URLSession? = nil)
+      throws -> GeminiModel {
+      return GeminiModel(
         modelName: modelName ?? testModelName,
         modelResourceName: modelResourceName ?? testModelResourceName,
         firebaseInfo: firebaseInfo ?? GenerativeModelTestUtil.testFirebaseInfo(),
         apiConfig: apiConfig ?? self.apiConfig,
-        tools: tools.isEmpty ? nil : tools.asFirebaseTools(),
+        safetySettings: safetySettings,
         requestOptions: requestOptions ?? RequestOptions(),
         urlSession: urlSession ?? self.urlSession
       )
