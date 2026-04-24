@@ -181,8 +181,9 @@ void GrpcStream::FinishAndNotify(const Status& status) {
 }
 
 void GrpcStream::Shutdown() {
-  LOG_DEBUG("GrpcStream('%x'): shutting down; completions: %s, is finished: %s",
-            this, completions_.size(), is_grpc_call_finished_);
+  printf("GrpcStream('%p')::Shutdown started\n", this);
+  printf("GrpcStream('%p'): shutting down; completions: %zu, is finished: %d\n",
+         this, completions_.size(), is_grpc_call_finished_);
 
   MaybeUnregister();
 
@@ -196,6 +197,7 @@ void GrpcStream::Shutdown() {
     // the context to avoid overwriting the status captured during the
     // `OnOperationFailed`.
 
+    printf("GrpcStream('%p'): cancelling context and finishing call\n", this);
     context_->TryCancel();
     FinishGrpcCall({});
   }
@@ -205,7 +207,9 @@ void GrpcStream::Shutdown() {
   // - completions are empty -- nothing to block on;
   // - the only completion is "finish" (whether enqueued by this function or
   //   previously) -- "finish" is a very fast operation.
+  printf("GrpcStream('%p'): fast finishing completions\n", this);
   FastFinishCompletionsBlocking();
+  printf("GrpcStream('%p')::Shutdown completed\n", this);
 }
 
 void GrpcStream::MaybeUnregister() {

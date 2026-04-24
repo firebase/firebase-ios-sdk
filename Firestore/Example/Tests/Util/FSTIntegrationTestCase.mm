@@ -31,6 +31,7 @@
 #include <memory>
 #include <string>
 #include <utility>
+#include "Firestore/core/src/util/log.h"
 
 #import "FirebaseCore/Extension/FIRAppInternal.h"
 #import "FirebaseCore/Extension/FIRLogger.h"
@@ -120,6 +121,8 @@ class FakeAuthCredentialsProvider : public EmptyAuthCredentialsProvider {
 
 - (void)setUp {
   [super setUp];
+
+  firebase::firestore::util::LogSetLevel(firebase::firestore::util::kLogLevelDebug);
 
   LoadXCTestCaseAwait();
 

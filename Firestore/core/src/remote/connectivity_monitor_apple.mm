@@ -58,7 +58,7 @@ NetworkStatus ToNetworkStatus(nw_path_t path) {
 
 ConnectivityMonitorApple::ConnectivityMonitorApple(
     const std::shared_ptr<AsyncQueue>& worker_queue)
-    : ConnectivityMonitor{worker_queue} {
+    : ConnectivityMonitor{worker_queue}, alive_{std::make_shared<bool>(true)} {
   monitor_ = nw_path_monitor_create();
   if (!monitor_) {
     LOG_DEBUG("Failed to create network monitor.");
@@ -91,29 +91,31 @@ ConnectivityMonitorApple::ConnectivityMonitorApple(
   nw_path_monitor_start(monitor_);
 
 #if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
+  std::weak_ptr<bool> weak_alive = alive_;
+  std::shared_ptr<AsyncQueue> queue = this->queue();
+
   this->observer_ = [[NSNotificationCenter defaultCenter]
       addObserverForName:UIApplicationWillEnterForegroundNotification
                   object:nil
                    queue:[NSOperationQueue mainQueue]
               usingBlock:^(NSNotification* note) {
+                (void)note;
                 NSLog(@"ConnectivityMonitorApple: Received "
                       @"UIApplicationWillEnterForegroundNotification");
-                this->queue()->Enqueue([this] {
-                  // Force a reconnect by invoking callbacks with the current
-                  // status
-                  if (this->current_status_.has_value() &&
-                      this->current_status_.value() !=
-                          NetworkStatus::Unavailable) {
-                    NSLog(@"ConnectivityMonitorApple: Invoking callbacks on "
-                          @"foreground");
-                    this->InvokeCallbacks(this->current_status_.value());
-                  } else {
-                    NSLog(@"ConnectivityMonitorApple: Skipping callbacks on "
-                          @"foreground, has_value: %d, status: %d",
-                          this->current_status_.has_value(),
-                          this->current_status_.has_value()
-                              ? (int)this->current_status_.value()
-                              : -1);
+                queue->Enqueue([this, weak_alive] {
+                  if (auto shared_alive = weak_alive.lock()) {
+                    // Force a reconnect by invoking callbacks with the current
+                    // status
+                    if (this->current_status_.has_value() &&
+                        this->current_status_.value() !=
+                            NetworkStatus::Unavailable) {
+                      NSLog(@"ConnectivityMonitorApple: Invoking callbacks on "
+                            @"foreground");
+                      this->InvokeCallbacks(this->current_status_.value());
+                    } else {
+                      NSLog(@"ConnectivityMonitorApple: Skipping callbacks on "
+                            @"foreground");
+                    }
                   }
                 });
               }];

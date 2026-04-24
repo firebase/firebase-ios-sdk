@@ -69,9 +69,11 @@ FirebaseAppCheckCredentialsProvider::FirebaseAppCheckCredentialsProvider(
 }
 
 FirebaseAppCheckCredentialsProvider::~FirebaseAppCheckCredentialsProvider() {
+  std::unique_lock<std::mutex> lock(contents_->mutex);
   if (app_check_listener_handle_) {
     [[NSNotificationCenter defaultCenter]
         removeObserver:app_check_listener_handle_];
+    app_check_listener_handle_ = nil;
   }
 }
 

@@ -317,6 +317,9 @@ jobs:
           command: scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodebuild
 
       - name: Test
+        env:
+          GRPC_TRACE: all
+          GRPC_VERBOSITY: DEBUG
         run: scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodetest
 
   xcodetest_nightly:
@@ -389,6 +392,9 @@ jobs:
           command: scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodebuild
 
       - name: Test
+        env:
+          GRPC_TRACE: all
+          GRPC_VERBOSITY: DEBUG
         run: scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodetest
 
 
@@ -442,6 +448,9 @@ jobs:
         command: scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodebuild
 
     - name: Test
+      env:
+        GRPC_TRACE: all
+        GRPC_VERBOSITY: DEBUG
       run: scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodetest
 
 

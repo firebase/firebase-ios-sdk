@@ -49,6 +49,7 @@ class ConnectivityMonitorApple : public ConnectivityMonitor {
   nw_path_monitor_t monitor_ = nullptr;
   dispatch_queue_t monitor_queue_ = nullptr;
   absl::optional<NetworkStatus> current_status_;
+  std::shared_ptr<bool> alive_;
 #if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
   id<NSObject> observer_ = nil;
 #endif

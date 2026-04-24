@@ -252,6 +252,9 @@ void GrpcConnection::Shutdown() {
   for (GrpcCall* call : active_calls) {
     call->FinishImmediately();
   }
+
+  grpc_stub_.reset();
+  grpc_channel_.reset();
 }
 
 std::unique_ptr<grpc::ClientContext> GrpcConnection::CreateContext(
