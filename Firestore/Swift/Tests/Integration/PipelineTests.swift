@@ -2596,7 +2596,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 //    }
 //  }
 
-  func testCollectionForceIndex() async throws {
+  func testCollectionForceIndexTableScan() async throws {
     let collRef = collectionRef()
     let docRef = collRef.document("doc")
     try await docRef.setData(["foo": "bar"])
@@ -2635,7 +2635,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     }
   }
 
-  func testCollectionGroupForceIndex() async throws {
+  func testCollectionGroupForceIndexTableScan() async throws {
     let collRef = collectionRef()
     let docRef = collRef.document("doc")
     try await docRef.setData(["foo": "bar"])
