@@ -17,7 +17,7 @@ import Foundation
 /// A container for task-local values used within the Firebase AI Logic SDK.
 ///
 /// See https://developer.apple.com/documentation/swift/tasklocal for more details about
-// `TaskLocal` values in Swift.
+/// `TaskLocal` values in Swift.
 enum TaskLocals {
   /// A task-local value indicating whether the current request is a hybrid request.
   ///
