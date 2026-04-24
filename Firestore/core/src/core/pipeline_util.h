@@ -202,7 +202,7 @@ namespace std {
 template <>
 struct hash<firebase::firestore::core::QueryOrPipeline> {
   size_t operator()(
-      const firebase::firestore::core::QueryOrPipeline& query) const {
+      const firebase::firestore::core::QueryOrPipeline& query) const noexcept {
     return query.Hash();
   }
 };
@@ -210,7 +210,7 @@ struct hash<firebase::firestore::core::QueryOrPipeline> {
 template <>
 struct hash<firebase::firestore::core::TargetOrPipeline> {
   size_t operator()(
-      const firebase::firestore::core::TargetOrPipeline& target) const {
+      const firebase::firestore::core::TargetOrPipeline& target) const noexcept {
     return target.Hash();
   }
 };

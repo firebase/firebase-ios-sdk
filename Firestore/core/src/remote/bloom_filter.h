@@ -32,7 +32,7 @@ class BloomFilter final {
 
   // Copyable & movable.
   BloomFilter(const BloomFilter&) = default;
-  BloomFilter(BloomFilter&&) = default;
+  BloomFilter(BloomFilter&&) noexcept = default;
   BloomFilter& operator=(const BloomFilter&) = default;
   BloomFilter& operator=(BloomFilter&&) = default;
 

@@ -55,7 +55,7 @@ class Overlay {
     return mutation_.key();
   }
 
-  std::size_t Hash() const;
+  std::size_t Hash() const noexcept;
 
   std::string ToString() const;
 
@@ -76,7 +76,7 @@ inline bool operator!=(const Overlay& lhs, const Overlay& rhs) {
 std::ostream& operator<<(std::ostream&, const Overlay&);
 
 struct OverlayHash {
-  std::size_t operator()(const Overlay&) const;
+  std::size_t operator()(const Overlay&) const noexcept;
 };
 
 }  // namespace model

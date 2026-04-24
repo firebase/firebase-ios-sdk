@@ -85,6 +85,7 @@ class SortedMap : public SortedMapBase {
   }
 
   SortedMap(SortedMap&& other) noexcept : tag_{other.tag_} {
+    throw 32;
     switch (tag_) {
       case Tag::Array:
         new (&array_) array_type{std::move(other.array_)};

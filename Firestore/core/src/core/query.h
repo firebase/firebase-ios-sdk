@@ -329,7 +329,7 @@ namespace std {
 
 template <>
 struct hash<firebase::firestore::core::Query> {
-  size_t operator()(const firebase::firestore::core::Query& query) const {
+  size_t operator()(const firebase::firestore::core::Query& query) const noexcept {
     return query.Hash();
   }
 };
