@@ -42,38 +42,40 @@
     func _respond(to prompt: [any Part], schema: FirebaseAI.GenerationSchema?,
                   includeSchemaInPrompt: Bool, options: any GenerationOptionsRepresentable)
       async throws -> _ModelSessionResponse {
-      // If the secondary session contains history then a previous fallback occurred.
-      // Stick with the secondary session to maintain conversation consistency.
-      if secondary._hasHistory {
-        return try await secondary._respond(
-          to: prompt,
-          schema: schema,
-          includeSchemaInPrompt: includeSchemaInPrompt,
-          options: options
-        )
-      }
-
-      do {
-        // First try the primary session.
-        return try await primary._respond(
-          to: prompt,
-          schema: schema,
-          includeSchemaInPrompt: includeSchemaInPrompt,
-          options: options
-        )
-      } catch {
-        // Do not fallback to second session if the primary session contains history.
-        if primary._hasHistory {
-          throw error
+      return try await TaskLocals.$isHybridRequest.withValue(true) {
+        // If the secondary session contains history then a previous fallback occurred.
+        // Stick with the secondary session to maintain conversation consistency.
+        if secondary._hasHistory {
+          return try await secondary._respond(
+            to: prompt,
+            schema: schema,
+            includeSchemaInPrompt: includeSchemaInPrompt,
+            options: options
+          )
         }
 
-        // Fallback to the second session if the first fails or is unavailable.
-        return try await secondary._respond(
-          to: prompt,
-          schema: schema,
-          includeSchemaInPrompt: includeSchemaInPrompt,
-          options: options
-        )
+        do {
+          // First try the primary session.
+          return try await primary._respond(
+            to: prompt,
+            schema: schema,
+            includeSchemaInPrompt: includeSchemaInPrompt,
+            options: options
+          )
+        } catch {
+          // Do not fallback to second session if the primary session contains history.
+          if primary._hasHistory {
+            throw error
+          }
+
+          // Fallback to the second session if the first fails or is unavailable.
+          return try await secondary._respond(
+            to: prompt,
+            schema: schema,
+            includeSchemaInPrompt: includeSchemaInPrompt,
+            options: options
+          )
+        }
       }
     }
 
@@ -90,61 +92,63 @@
                          includeSchemaInPrompt: Bool,
                          options: any GenerationOptionsRepresentable)
       -> sending AsyncThrowingStream<_ModelSessionResponse, any Error> {
-      // If the secondary session contains history then a previous fallback occurred.
-      // Stick with the secondary session to maintain conversation consistency.
-      if secondary._hasHistory {
-        return secondary._streamResponse(
-          to: prompt,
-          schema: schema,
-          includeSchemaInPrompt: includeSchemaInPrompt,
-          options: options
-        )
-      }
-
-      return AsyncThrowingStream { continuation in
-        let task = Task {
-          // First try the primary session.
-          let stream = primary._streamResponse(
+      return TaskLocals.$isHybridRequest.withValue(true) {
+        // If the secondary session contains history then a previous fallback occurred.
+        // Stick with the secondary session to maintain conversation consistency.
+        if secondary._hasHistory {
+          return secondary._streamResponse(
             to: prompt,
             schema: schema,
             includeSchemaInPrompt: includeSchemaInPrompt,
             options: options
           )
+        }
 
-          var didYield = false
-          do {
-            for try await snapshot in stream {
-              didYield = true
-              continuation.yield(snapshot)
-            }
-            continuation.finish()
-          } catch {
-            // Do not fallback to second session if the primary session contains history or has
-            // already yielded data.
-            if didYield || primary._hasHistory {
-              continuation.finish(throwing: error)
-              return
-            }
-
-            // Fallback to the second session if the first fails or is unavailable.
-            let stream = secondary._streamResponse(
+        return AsyncThrowingStream { continuation in
+          let task = Task {
+            // First try the primary session.
+            let stream = primary._streamResponse(
               to: prompt,
               schema: schema,
               includeSchemaInPrompt: includeSchemaInPrompt,
               options: options
             )
 
+            var didYield = false
             do {
               for try await snapshot in stream {
+                didYield = true
                 continuation.yield(snapshot)
               }
               continuation.finish()
             } catch {
-              continuation.finish(throwing: error)
+              // Do not fallback to second session if the primary session contains history or has
+              // already yielded data.
+              if didYield || primary._hasHistory {
+                continuation.finish(throwing: error)
+                return
+              }
+
+              // Fallback to the second session if the first fails or is unavailable.
+              let stream = secondary._streamResponse(
+                to: prompt,
+                schema: schema,
+                includeSchemaInPrompt: includeSchemaInPrompt,
+                options: options
+              )
+
+              do {
+                for try await snapshot in stream {
+                  continuation.yield(snapshot)
+                }
+                continuation.finish()
+              } catch {
+                continuation.finish(throwing: error)
+              }
             }
           }
+          continuation.onTermination = { _ in task.cancel() }
         }
-        continuation.onTermination = { _ in task.cancel() }
       }
     }
   }
