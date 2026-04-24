@@ -132,6 +132,13 @@ public struct Tool: Sendable {
     self.urlContext = urlContext
     self.codeExecution = codeExecution
   }
+
+  /// Returns `true` if all tools contained in `Tool` are supported by Foundation Models.
+  ///
+  /// Note: Currently only function declarations are supported.
+  var isFoundationModeCompatible: Bool {
+    return googleSearch == nil && googleMaps == nil && urlContext == nil && codeExecution == nil
+  }
 }
 
 /// Configuration for specifying function calling behavior.

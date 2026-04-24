@@ -33,8 +33,7 @@
     @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
-    extension FirebaseAI.ConvertibleToGeneratedContent
-      where Self: FoundationModels.ConvertibleToGeneratedContent {
+    extension FoundationModels.ConvertibleToGeneratedContent {
       var firebaseGeneratedContent: FirebaseAI.GeneratedContent {
         return FirebaseAI.GeneratedContent(
           kind: generatedContent.kind,

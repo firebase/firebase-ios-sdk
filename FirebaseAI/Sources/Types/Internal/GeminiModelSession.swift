@@ -31,10 +31,23 @@ import Foundation
 
     // MARK: ModelSession Conformance
 
+    /// Returns `true` if the session has history (i.e., it has already had one or more chat turns).
+    ///
+    /// > Important: This property is for **internal use only** and may change at any time.
     var _hasHistory: Bool {
       return !chat.history.isEmpty
     }
 
+    /// Sends a prompt to the model and returns a ``_ModelSessionResponse``.
+    ///
+    /// > Important: This method is for **internal use only** and may change at any time.
+    ///
+    /// - Parameters:
+    ///   - prompt: The content to send to the model.
+    ///   - schema: An optional schema for structured outputs.
+    ///   - includeSchemaInPrompt: Whether to include the `schema` in the request to the model; if
+    ///     `false`, structured output (JSON) is requested but the schema is not strictly enforced.
+    ///   - options: A set of options, represented as a ``GenerationOptionsRepresentable`` type.
     nonisolated(nonsending)
     func _respond(to prompt: [any Part],
                   schema: FirebaseAI.GenerationSchema?,
@@ -107,6 +120,14 @@ import Foundation
       return _ModelSessionResponse(rawContent: rawContent, rawResponse: response)
     }
 
+    /// Sends a prompt to the model and streams the model's response.
+    ///
+    /// - Parameters:
+    ///   - prompt: The content to send to the model.
+    ///   - schema: An optional schema for structured outputs.
+    ///   - includeSchemaInPrompt: Whether to include the `schema` in the request to the model; if
+    ///     `false`, structured output (JSON) is requested but the schema is not strictly enforced.
+    ///   - options: A set of options, represented as a ``GenerationOptionsRepresentable`` type.
     @available(macOS 12.0, watchOS 8.0, *)
     func _streamResponse(to prompt: [any Part],
                          schema: FirebaseAI.GenerationSchema?,

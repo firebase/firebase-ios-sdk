@@ -34,10 +34,16 @@
 
     // MARK: LanguageModel Conformance
 
+    /// Returns the name of the model.
+    ///
+    /// > Important: This property is for **internal use only** and may change at any time.
     public var _modelName: String {
       return "hybrid:\(primary._modelName),\(secondary._modelName)"
     }
 
+    /// Returns a new session for this model.
+    ///
+    /// > Important: This method is for **internal use only** and may change at any time.
     public func _startSession(tools: [any ToolRepresentable]?,
                               instructions: String?) throws -> any _ModelSession {
       var primarySession: (any _ModelSession)?
