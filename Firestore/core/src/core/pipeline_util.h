@@ -209,8 +209,8 @@ struct hash<firebase::firestore::core::QueryOrPipeline> {
 
 template <>
 struct hash<firebase::firestore::core::TargetOrPipeline> {
-  size_t operator()(
-      const firebase::firestore::core::TargetOrPipeline& target) const noexcept {
+  size_t operator()(const firebase::firestore::core::TargetOrPipeline& target)
+      const noexcept {
     return target.Hash();
   }
 };
