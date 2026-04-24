@@ -556,6 +556,67 @@
       XCTAssertEqual(functionResponse.response, ["result": .string(CurrentTimeTool.currentTime)])
     }
 
+    func testRespondTo_hybridHeader() async throws {
+      let model1 = try mockGeminiModel(modelName: "test-model-1")
+      let model2 = try mockGeminiModel(modelName: "test-model-2")
+      let session = GenerativeModelSession(model: HybridModel(primary: model1, secondary: model2))
+
+      let bundle = BundleTestUtil.bundle()
+      let fileURL = try XCTUnwrap(bundle.url(
+        forResource: "unary-success-thinking-reply-thought-summary",
+        withExtension: "json",
+        subdirectory: googleAISubdirectory
+      ))
+
+      MockURLProtocol.requestHandler = { request in
+        let apiClientHeader = try XCTUnwrap(request.value(forHTTPHeaderField: "x-goog-api-client"))
+        let apiClientTags = apiClientHeader.components(separatedBy: " ")
+
+        XCTAssertTrue(apiClientTags.contains("hybrid"), "Header was: \(apiClientTags)")
+
+        let requestURL = try XCTUnwrap(request.url)
+        let response = try XCTUnwrap(HTTPURLResponse(
+          url: requestURL,
+          statusCode: 200,
+          httpVersion: nil,
+          headerFields: nil
+        ))
+        return (response, fileURL.lines)
+      }
+
+      _ = try await session.respond(to: testPrompt)
+    }
+
+    func testRespondTo_noHybridHeader() async throws {
+      let model = try mockGeminiModel()
+      let session = GenerativeModelSession(model: model)
+
+      let bundle = BundleTestUtil.bundle()
+      let fileURL = try XCTUnwrap(bundle.url(
+        forResource: "unary-success-thinking-reply-thought-summary",
+        withExtension: "json",
+        subdirectory: googleAISubdirectory
+      ))
+
+      MockURLProtocol.requestHandler = { request in
+        let apiClientHeader = try XCTUnwrap(request.value(forHTTPHeaderField: "x-goog-api-client"))
+        let apiClientTags = apiClientHeader.components(separatedBy: " ")
+
+        XCTAssertFalse(apiClientTags.contains("hybrid"), "Header was: \(apiClientTags)")
+
+        let requestURL = try XCTUnwrap(request.url)
+        let response = try XCTUnwrap(HTTPURLResponse(
+          url: requestURL,
+          statusCode: 200,
+          httpVersion: nil,
+          headerFields: nil
+        ))
+        return (response, fileURL.lines)
+      }
+
+      _ = try await session.respond(to: testPrompt)
+    }
+
     // MARK: - Helper Utilities
 
     func mockGeminiModel(modelName: String? = nil, modelResourceName: String? = nil,
