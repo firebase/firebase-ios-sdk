@@ -31,12 +31,18 @@
     struct MockSession: _ModelSession {
       var _hasHistory: Bool = false
       let respondHandler: @Sendable () async throws -> _ModelSessionResponse
+      let streamHandler: @Sendable () -> AsyncThrowingStream<_ModelSessionResponse, any Error>
 
       init(_hasHistory: Bool = false,
            respondHandler: @escaping @Sendable () async throws
-             -> _ModelSessionResponse = { fatalError("Not implemented") }) {
+             -> _ModelSessionResponse = { fatalError("Not implemented") },
+           streamHandler: @escaping @Sendable ()
+             -> AsyncThrowingStream<_ModelSessionResponse, any Error> = {
+               fatalError("Not implemented")
+             }) {
         self._hasHistory = _hasHistory
         self.respondHandler = respondHandler
+        self.streamHandler = streamHandler
       }
 
       func _respond(to prompt: [any Part], schema: FirebaseAI.GenerationSchema?,
@@ -50,19 +56,27 @@
                            includeSchemaInPrompt: Bool,
                            options: any GenerationOptionsRepresentable)
         -> sending AsyncThrowingStream<_ModelSessionResponse, any Error> {
-        fatalError("Not implemented")
+        return streamHandler()
       }
     }
 
     func testStartSession_bothSucceed() async throws {
-      let session1 = MockSession(respondHandler: { _ModelSessionResponse(
-        rawContent: FirebaseAI.GeneratedContent(kind: .string("primary"), isComplete: true),
-        rawResponse: GenerateContentResponse(candidates: [])
-      ) })
-      let session2 = MockSession(respondHandler: { _ModelSessionResponse(
-        rawContent: FirebaseAI.GeneratedContent(kind: .string("secondary"), isComplete: true),
-        rawResponse: GenerateContentResponse(candidates: [])
-      ) })
+      let session1 = MockSession(
+        respondHandler: {
+          _ModelSessionResponse(
+            rawContent: FirebaseAI.GeneratedContent(kind: .string("primary"), isComplete: true),
+            rawResponse: GenerateContentResponse(candidates: [])
+          )
+        }
+      )
+      let session2 = MockSession(
+        respondHandler: {
+          _ModelSessionResponse(
+            rawContent: FirebaseAI.GeneratedContent(kind: .string("secondary"), isComplete: true),
+            rawResponse: GenerateContentResponse(candidates: [])
+          )
+        }
+      )
       let model1 = MockModel(_modelName: "model1") { session1 }
       let model2 = MockModel(_modelName: "model2") { session2 }
       let hybridModel = HybridModel(primary: model1, secondary: model2)
@@ -85,10 +99,14 @@
     }
 
     func testStartSession_primaryFails_secondarySucceeds() async throws {
-      let session2 = MockSession(respondHandler: { _ModelSessionResponse(
-        rawContent: FirebaseAI.GeneratedContent(kind: .string("secondary"), isComplete: true),
-        rawResponse: GenerateContentResponse(candidates: [])
-      ) })
+      let session2 = MockSession(
+        respondHandler: {
+          _ModelSessionResponse(
+            rawContent: FirebaseAI.GeneratedContent(kind: .string("secondary"), isComplete: true),
+            rawResponse: GenerateContentResponse(candidates: [])
+          )
+        }
+      )
       let model1 = MockModel(_modelName: "model1") { throw NSError(domain: "test", code: 1) }
       let model2 = MockModel(_modelName: "model2") { session2 }
       let hybridModel = HybridModel(primary: model1, secondary: model2)
@@ -111,10 +129,14 @@
     }
 
     func testStartSession_primarySucceeds_secondaryFails() async throws {
-      let session1 = MockSession(respondHandler: { _ModelSessionResponse(
-        rawContent: FirebaseAI.GeneratedContent(kind: .string("primary"), isComplete: true),
-        rawResponse: GenerateContentResponse(candidates: [])
-      ) })
+      let session1 = MockSession(
+        respondHandler: {
+          _ModelSessionResponse(
+            rawContent: FirebaseAI.GeneratedContent(kind: .string("primary"), isComplete: true),
+            rawResponse: GenerateContentResponse(candidates: [])
+          )
+        }
+      )
       let model1 = MockModel(_modelName: "model1") { session1 }
       let model2 = MockModel(_modelName: "model2") { throw NSError(domain: "test", code: 2) }
       let hybridModel = HybridModel(primary: model1, secondary: model2)
@@ -159,17 +181,12 @@
         )
         XCTFail("Expected error but succeeded")
       } catch {
-        // Verify that the error is what we expect.
-        // In the new implementation, the error will be from the fallback logic.
-        // If primary fails and has no history, it falls back to secondary.
-        // If secondary fails, its error is thrown.
-        // So the error will be from secondary model creation or response.
         let nsError = error as NSError
         XCTAssertEqual(nsError.code, 2) // Error from model2
       }
     }
 
-    func testStartSession_lazyInitialization() throws {
+    func testStartSession_lazyInitialization() async throws {
       final class CallTracker: @unchecked Sendable {
         var count = 0
       }
@@ -177,7 +194,14 @@
       let tracker2 = CallTracker()
       let model1 = MockModel(_modelName: "model1") {
         tracker1.count += 1
-        return MockSession()
+        return MockSession(
+          respondHandler: {
+            _ModelSessionResponse(
+              rawContent: FirebaseAI.GeneratedContent(kind: .string("primary"), isComplete: true),
+              rawResponse: GenerateContentResponse(candidates: [])
+            )
+          }
+        )
       }
       let model2 = MockModel(_modelName: "model2") {
         tracker2.count += 1
@@ -190,6 +214,125 @@
       XCTAssertTrue(session is HybridModelSession)
       XCTAssertEqual(tracker1.count, 0)
       XCTAssertEqual(tracker2.count, 0)
+
+      // Verify that calling respond creates the primary session lazily.
+      _ = try await session._respond(
+        to: [],
+        schema: nil,
+        includeSchemaInPrompt: false,
+        options: ResponseGenerationOptions.default
+      )
+
+      XCTAssertEqual(tracker1.count, 1)
+      XCTAssertEqual(tracker2.count, 0)
+    }
+
+    func testStreamResponse_bothSucceed() async throws {
+      let session1 = MockSession(
+        streamHandler: {
+          AsyncThrowingStream { continuation in
+            continuation.yield(
+              _ModelSessionResponse(
+                rawContent: FirebaseAI.GeneratedContent(kind: .string("primary"), isComplete: true),
+                rawResponse: GenerateContentResponse(candidates: [])
+              )
+            )
+            continuation.finish()
+          }
+        }
+      )
+      let session2 = MockSession(
+        streamHandler: {
+          AsyncThrowingStream { continuation in
+            continuation.yield(
+              _ModelSessionResponse(
+                rawContent: FirebaseAI.GeneratedContent(
+                  kind: .string("secondary"),
+                  isComplete: true
+                ),
+                rawResponse: GenerateContentResponse(candidates: [])
+              )
+            )
+            continuation.finish()
+          }
+        }
+      )
+      let model1 = MockModel(_modelName: "model1") { session1 }
+      let model2 = MockModel(_modelName: "model2") { session2 }
+      let hybridModel = HybridModel(primary: model1, secondary: model2)
+
+      let session = try hybridModel._startSession(tools: nil, instructions: nil)
+
+      XCTAssertTrue(session is HybridModelSession)
+
+      let stream = session._streamResponse(
+        to: [],
+        schema: nil,
+        includeSchemaInPrompt: false,
+        options: ResponseGenerationOptions.default
+      )
+
+      var receivedTexts = [String]()
+      for try await response in stream {
+        guard case let .string(text) = response.rawContent.kind else {
+          return XCTFail("Unexpected content kind")
+        }
+        receivedTexts.append(text)
+      }
+
+      XCTAssertEqual(receivedTexts, ["primary"])
+    }
+
+    func testStreamResponse_primaryFails_secondarySucceeds() async throws {
+      let session2 = MockSession(
+        streamHandler: {
+          AsyncThrowingStream { continuation in
+            continuation.yield(
+              _ModelSessionResponse(
+                rawContent: FirebaseAI.GeneratedContent(
+                  kind: .string("secondary"),
+                  isComplete: true
+                ),
+                rawResponse: GenerateContentResponse(candidates: [])
+              )
+            )
+            continuation.finish()
+          }
+        }
+      )
+      let model1 = MockModel(_modelName: "model1") {
+        let session = MockSession(
+          streamHandler: {
+            AsyncThrowingStream { continuation in
+              continuation.finish(throwing: NSError(domain: "test", code: 1))
+            }
+          }
+        )
+        return session
+      }
+      let model2 = MockModel(_modelName: "model2") { session2 }
+      let hybridModel = HybridModel(primary: model1, secondary: model2)
+
+      let session = try hybridModel._startSession(tools: nil, instructions: nil)
+
+      XCTAssertTrue(session is HybridModelSession)
+
+      let stream = session._streamResponse(
+        to: [],
+        schema: nil,
+        includeSchemaInPrompt: false,
+        options: ResponseGenerationOptions.default
+      )
+
+      var receivedTexts = [String]()
+      for try await response in stream {
+        guard case let .string(text) = response.rawContent.kind else {
+          return XCTFail("Unexpected content kind")
+        }
+        receivedTexts.append(text)
+      }
+
+      XCTAssertEqual(receivedTexts, ["secondary"])
     }
   }
 #endif // compiler(>=6.2.3)

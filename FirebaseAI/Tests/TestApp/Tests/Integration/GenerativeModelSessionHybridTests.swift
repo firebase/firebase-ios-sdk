@@ -208,6 +208,41 @@
       #expect(response.rawResponse.modelVersion == validModel._modelName)
     }
 
+    @Test(arguments: [InstanceConfig.vertexAI_v1beta_global])
+    @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
+    @available(tvOS, unavailable)
+    @available(watchOS, unavailable)
+    func streamResponseText_fallbackOnFoundationModelsError(_ config: InstanceConfig) async throws {
+      let firebaseAI = FirebaseAI.componentInstance(config)
+      let systemModel = FirebaseAI.SystemLanguageModel.default
+      let geminiModel = firebaseAI.geminiModel(name: ModelNames.gemini2_5_FlashLite)
+      let session = firebaseAI.generativeModelSession(
+        model: HybridModel(primary: systemModel, secondary: geminiModel)
+      )
+      let prompt = "In one sentence, why is the sky blue?"
+
+      let stream = session.streamResponse(to: prompt)
+
+      var receivedTexts = [String]()
+      var isComplete = false
+      for try await snapshot in stream {
+        let partial = snapshot.content
+        receivedTexts.append(partial)
+        isComplete = snapshot.rawContent.isComplete
+      }
+      #expect(isComplete)
+
+      let response = try await stream.collect()
+      let content = response.content
+      #expect(!content.isEmpty)
+
+      if await foundationModelsIsAvailable() {
+        #expect(response.rawResponse.modelVersion == systemModel._modelName)
+      } else {
+        #expect(response.rawResponse.modelVersion == geminiModel._modelName)
+      }
+    }
+
     /// Returns `true` if `FoundationModels.SystemLanguageModel` is available.
     ///
     /// This is a workaround for `SystemLanguageModel.isAvailable`, which returns `true` if *any*
