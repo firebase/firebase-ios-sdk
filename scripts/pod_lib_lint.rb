@@ -88,6 +88,7 @@ def main(args)
   # by the shell when the command is copy-pasted, preventing unintended brace expansion.
   puts command.map { |arg| arg =~ /[{}]/ ? "'#{arg}'" : arg }.join(' ')
 
+
   # Run the lib lint command in a thread.
   pod_lint_status = 1
   t = Thread.new do

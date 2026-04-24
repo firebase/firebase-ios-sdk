@@ -99,7 +99,9 @@ if is_platform(:ios)
 
     configure_local_pods()
 
-    pod 'abseil', '~> 1.20240722.0'
+    pod 'abseil', '~> 1.20250512.1'
+    pod 'gRPC-Core', :git => 'https://github.com/grpc/grpc-ios.git', :tag => 'v1.80.0'
+    pod 'gRPC-C++', :git => 'https://github.com/grpc/grpc-ios.git', :tag => 'v1.80.0'
 
     target 'Firestore_Tests_iOS' do
       inherit! :search_paths
@@ -131,11 +133,13 @@ end
 
 if is_platform(:osx)
   target 'Firestore_Example_macOS' do
-    platform :osx, '10.15'
+    platform :osx, '11.0'
 
     configure_local_pods()
 
-    pod 'abseil', '~> 1.20240722.0'
+    pod 'abseil', '~> 1.20250512.1'
+    pod 'gRPC-Core', :git => 'https://github.com/grpc/grpc-ios.git', :tag => 'v1.80.0'
+    pod 'gRPC-C++', :git => 'https://github.com/grpc/grpc-ios.git', :tag => 'v1.80.0'
 
     target 'Firestore_Tests_macOS' do
       inherit! :search_paths
@@ -165,7 +169,9 @@ if is_platform(:tvos)
 
     configure_local_pods()
 
-    pod 'abseil', '~> 1.20240722.0'
+    pod 'abseil', '~> 1.20250512.1'
+    pod 'gRPC-Core', :git => 'https://github.com/grpc/grpc-ios.git', :tag => 'v1.80.0'
+    pod 'gRPC-C++', :git => 'https://github.com/grpc/grpc-ios.git', :tag => 'v1.80.0'
 
     target 'Firestore_Tests_tvOS' do
       inherit! :search_paths
