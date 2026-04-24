@@ -21,7 +21,8 @@
     private let tools: [any ToolRepresentable]?
     private let instructions: String?
 
-    private let lock: UnfairLock<(primary: (any _ModelSession)?, secondary: (any _ModelSession)?)>
+    typealias SessionState = (primary: (any _ModelSession)?, secondary: (any _ModelSession)?)
+    private let lock: UnfairLock<SessionState>
 
     init(primaryModel: any LanguageModel, secondaryModel: any LanguageModel,
          tools: [any ToolRepresentable]?, instructions: String?) {
@@ -30,6 +31,11 @@
       self.tools = tools
       self.instructions = instructions
       lock = UnfairLock((primary: nil, secondary: nil))
+    }
+
+    enum SessionModel {
+      case primaryModel
+      case secondaryModel
     }
 
     /// Returns `true` if the session has history (i.e., it has already had one or more chat turns).
@@ -61,7 +67,7 @@
           state.secondary?._hasHistory == true
         }
         if useSecondary {
-          let secondarySession = try getSecondarySession()
+          let secondarySession = try getSession(for: .secondaryModel)
           return try await secondarySession._respond(
             to: prompt,
             schema: schema,
@@ -72,7 +78,7 @@
 
         do {
           // First try the primary session.
-          let primarySession = try getPrimarySession()
+          let primarySession = try getSession(for: .primaryModel)
           return try await primarySession._respond(
             to: prompt,
             schema: schema,
@@ -89,7 +95,7 @@
           }
 
           // Fallback to the second session if the first fails or is unavailable.
-          let secondarySession = try getSecondarySession()
+          let secondarySession = try getSession(for: .secondaryModel)
           return try await secondarySession._respond(
             to: prompt,
             schema: schema,
@@ -121,7 +127,7 @@
         }
         if useSecondary {
           do {
-            let secondarySession = try getSecondarySession()
+            let secondarySession = try getSession(for: .secondaryModel)
             return secondarySession._streamResponse(
               to: prompt,
               schema: schema,
@@ -139,7 +145,7 @@
           let task = Task {
             do {
               // First try the primary session.
-              let primarySession = try self.getPrimarySession()
+              let primarySession = try self.getSession(for: .primaryModel)
               let stream = primarySession._streamResponse(
                 to: prompt,
                 schema: schema,
@@ -166,7 +172,7 @@
                 }
 
                 // Fallback to the second session if the first fails or is unavailable.
-                let secondarySession = try self.getSecondarySession()
+                let secondarySession = try self.getSession(for: .secondaryModel)
                 let stream = secondarySession._streamResponse(
                   to: prompt,
                   schema: schema,
@@ -187,7 +193,7 @@
               // Failure to create primary session.
               // Fallback to the second session if the first fails or is unavailable.
               do {
-                let secondarySession = try self.getSecondarySession()
+                let secondarySession = try self.getSession(for: .secondaryModel)
                 let stream = secondarySession._streamResponse(
                   to: prompt,
                   schema: schema,
@@ -209,24 +215,29 @@
       }
     }
 
-    private func getPrimarySession() throws -> any _ModelSession {
-      try lock.withLock { state in
-        if let session = state.primary {
-          return session
-        }
-        let session = try primaryModel._startSession(tools: tools, instructions: instructions)
-        state.primary = session
-        return session
-      }
-    }
+    private func getSession(for model: SessionModel) throws -> any _ModelSession {
+      let languageModel = (model == .primaryModel) ? primaryModel : secondaryModel
 
-    private func getSecondarySession() throws -> any _ModelSession {
-      try lock.withLock { state in
-        if let session = state.secondary {
-          return session
+      // 1. Check if it exists under lock.
+      let existing = lock.withLock { state in
+        (model == .primaryModel) ? state.primary : state.secondary
+      }
+      if let existing {
+        return existing
+      }
+
+      // 2. Create it outside the lock.
+      let session = try languageModel._startSession(tools: tools, instructions: instructions)
+
+      // 3. Try to store it under lock.
+      return lock.withLock { state in
+        if model == .primaryModel {
+          if let existing = state.primary { return existing }
+          state.primary = session
+        } else {
+          if let existing = state.secondary { return existing }
+          state.secondary = session
         }
-        let session = try secondaryModel._startSession(tools: tools, instructions: instructions)
-        state.secondary = session
         return session
       }
     }
