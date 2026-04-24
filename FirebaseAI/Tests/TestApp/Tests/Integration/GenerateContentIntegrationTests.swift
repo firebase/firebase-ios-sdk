@@ -432,8 +432,9 @@ struct GenerateContentIntegrationTests {
   ])
   func generateImageWithCustomSize(_ config: InstanceConfig, modelName: String) async throws {
     let imageConfig = ImageConfig(
-      // If not specified, images are generated in a random aspect ratio.
-      // Note: The documentation states that "1:1 squares" are the default.
+      // Specifying aspectRatio explicitly to ensure consistent results, as the
+      // default behavior seems to be random aspect ratio despite documentation
+      // stating 1:1 is the default.
       aspectRatio: .square1x1,
       imageSize: .size2K
     )

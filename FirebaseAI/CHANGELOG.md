@@ -1,7 +1,7 @@
 # Unreleased
 - [feature] Adds support for configuring image generation properties,
   such as aspect ratio and image size, through the new `ImageConfig` struct
-  and its integration with `GenerationConfig`.
+  and its integration with `GenerationConfig`. (#15923)
 - [feature] Added support for GoogleMaps grounding, including for Server Prompt Templates.
 - [fixed] Fix unfound file warnings from `swift build`. (#16012)
 - [fixed] Fixed a `no member 'autoFunctionDeclaration'` compilation error on

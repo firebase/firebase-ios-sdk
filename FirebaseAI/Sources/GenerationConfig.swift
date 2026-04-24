@@ -58,7 +58,7 @@ public struct GenerationConfig: Sendable, Equatable {
   /// Configuration for controlling the "thinking" behavior of compatible Gemini models.
   var thinkingConfig: ThinkingConfig?
 
-  /// Configuration for the aspect ratio and size of generated images.
+  /// Configuration options for generating images.
   var imageConfig: ImageConfig?
 
   /// Creates a new `GenerationConfig` value.
@@ -164,7 +164,7 @@ public struct GenerationConfig: Sendable, Equatable {
   ///     > backwards-incompatible ways.
   ///   - thinkingConfig: Configuration for controlling the "thinking" behavior of compatible Gemini
   ///     models; see ``ThinkingConfig`` for more details.
-  ///   - imageConfig: Configure the aspect ratio and size of generated images.
+  ///   - imageConfig: Configuration options for generating images.
   public init(temperature: Float? = nil, topP: Float? = nil, topK: Int? = nil,
               candidateCount: Int? = nil, maxOutputTokens: Int? = nil,
               presencePenalty: Float? = nil, frequencyPenalty: Float? = nil,
