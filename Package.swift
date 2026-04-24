@@ -18,7 +18,7 @@
 
 import PackageDescription
 
-let firebaseVersion = "12.12.0"
+let firebaseVersion = "12.13.0"
 
 let shouldUseSourceFirestore = Context.environment["FIREBASE_SOURCE_FIRESTORE"] != nil
 
@@ -352,8 +352,8 @@ let package = Package(
     ),
     .binaryTarget(
       name: "FirebaseAnalytics",
-      url: "https://dl.google.com/firebase/ios/swiftpm/12.11.0/FirebaseAnalytics.zip",
-      checksum: "df4ac368d1e03c62dd1fc74883ab961c7039825f6f26c54c681ebb9ff606dd0e"
+      url: "https://dl.google.com/firebase/ios/swiftpm/12.12.1/FirebaseAnalytics.zip",
+      checksum: "82f57ee93f1d34d6827a3ad148a37630e828e6cb47639bc297981c28152fd454"
     ),
     .testTarget(
       name: "AnalyticsSwiftUnit",
@@ -1425,7 +1425,7 @@ func googleAppMeasurementDependency() -> Package.Dependency {
     return .package(url: appMeasurementURL, branch: "main")
   }
 
-  return .package(url: appMeasurementURL, exact: "12.11.0")
+  return .package(url: appMeasurementURL, exact: "12.12.1")
 }
 
 func abseilDependency() -> Package.Dependency {
