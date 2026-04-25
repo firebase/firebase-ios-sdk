@@ -52,6 +52,7 @@
         return try await respondHandler()
       }
 
+      @available(macOS 12.0, watchOS 8.0, *)
       func _streamResponse(to prompt: [any Part], schema: FirebaseAI.GenerationSchema?,
                            includeSchemaInPrompt: Bool,
                            options: any GenerationOptionsRepresentable)
@@ -227,7 +228,13 @@
       XCTAssertEqual(tracker2.count, 0)
     }
 
+    @available(macOS 12.0, watchOS 8.0, *)
     func testStreamResponse_bothSucceed() async throws {
+      // Skip this test on platforms that do not support streaming with `_streamResponse)`. This is
+      // a workaround for XCTest ignoring the `@available` attributes. See
+      // https://stackoverflow.com/q/59645536 for more details.
+      try XCTSkipStreamingUnsupported()
+
       let session1 = MockSession(
         streamHandler: {
           AsyncThrowingStream { continuation in
@@ -283,7 +290,13 @@
       XCTAssertEqual(receivedTexts, ["primary"])
     }
 
+    @available(macOS 12.0, watchOS 8.0, *)
     func testStreamResponse_primaryFails_secondarySucceeds() async throws {
+      // Skip this test on platforms that do not support streaming with `_streamResponse)`. This is
+      // a workaround for XCTest ignoring the `@available` attributes. See
+      // https://stackoverflow.com/q/59645536 for more details.
+      try XCTSkipStreamingUnsupported()
+
       let session2 = MockSession(
         streamHandler: {
           AsyncThrowingStream { continuation in
