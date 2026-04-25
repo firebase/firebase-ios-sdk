@@ -86,6 +86,10 @@
             options: options
           )
         } catch {
+          if Task.isCancelled || error is CancellationError {
+            throw error
+          }
+
           // Do not fallback to second session if the primary session contains history.
           let primaryHasHistory = lock.withLock { state in
             state.primary?._hasHistory == true
@@ -161,6 +165,11 @@
                 }
                 continuation.finish()
               } catch {
+                if Task.isCancelled || error is CancellationError {
+                  continuation.finish(throwing: error)
+                  return
+                }
+
                 // Do not fallback to second session if the primary session contains history or has
                 // already yielded data.
                 let primaryHasHistory = self.lock.withLock { state in
@@ -190,6 +199,11 @@
                 }
               }
             } catch {
+              if Task.isCancelled || error is CancellationError {
+                continuation.finish(throwing: error)
+                return
+              }
+
               // Failure to create primary session.
               // Fallback to the second session if the first fails or is unavailable.
               do {
