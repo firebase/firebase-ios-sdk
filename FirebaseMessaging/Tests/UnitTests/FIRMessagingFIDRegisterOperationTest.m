@@ -281,4 +281,120 @@
   [self waitForExpectationsWithTimeout:0.5 handler:nil];
 }
 
+- (void)testRetryOn5xx {
+  NSDictionary *options = @{
+    kFIRMessagingTokenOptionsAPNSKey : [@"fakeAPNSToken" dataUsingEncoding:NSUTF8StringEncoding],
+    kFIRMessagingTokenOptionsAPNSIsSandboxKey : @NO
+  };
+
+  FIRInstallationsAuthTokenResult *mockTokenResult =
+      [[FIRInstallationsAuthTokenResult alloc] initWithToken:@"fis-auth-token"
+                                              expirationDate:[NSDate distantFuture]];
+
+  id authTokenWithCompletionArg = [OCMArg invokeBlockWithArgs:mockTokenResult, [NSNull null], nil];
+  OCMStub([self.mockInstallations authTokenWithCompletion:authTokenWithCompletionArg]);
+
+  FIRMessagingFIDRegisterOperation *operation =
+      [[FIRMessagingFIDRegisterOperation alloc] initWithAuthorizedEntity:@"sender-123"
+                                                                   scope:@"fcm"
+                                                                 options:options
+                                                              instanceID:@"instance-id"
+                                                         heartbeatLogger:nil
+                                                           installations:self.mockInstallations];
+
+  XCTestExpectation *retryExpectation = [self expectationWithDescription:@"Operation retried and succeeded"];
+
+  // First call returns 500
+  NSHTTPURLResponse *response500 = [FIRURLSessionOCMockStub HTTPResponseWithCode:500];
+  [FIRURLSessionOCMockStub
+      stubURLSessionDataTaskWithResponse:response500
+                                    body:[@"Internal Server Error" dataUsingEncoding:NSUTF8StringEncoding]
+                                   error:nil
+                          URLSessionMock:self.URLSessionMock
+                  requestValidationBlock:^BOOL(NSURLRequest *_Nonnull sentRequest) {
+                    return YES;
+                  }];
+
+  // Second call returns 200
+  NSHTTPURLResponse *response200 = [FIRURLSessionOCMockStub HTTPResponseWithCode:200];
+  [FIRURLSessionOCMockStub
+      stubURLSessionDataTaskWithResponse:response200
+                                    body:[@"{\"name\":\"projects/sender-123/registrations/fake-fid\"}" dataUsingEncoding:NSUTF8StringEncoding]
+                                   error:nil
+                          URLSessionMock:self.URLSessionMock
+                  requestValidationBlock:^BOOL(NSURLRequest *_Nonnull sentRequest) {
+                    return YES;
+                  }];
+
+  [operation addCompletionHandler:^(FIRMessagingTokenOperationResult result,
+                                    NSString *_Nullable token, NSError *_Nullable error) {
+    XCTAssertEqual(result, FIRMessagingTokenOperationSucceeded);
+    XCTAssertEqualObjects(token, @"fake-fid");
+    XCTAssertNil(error);
+    [retryExpectation fulfill];
+  }];
+
+  [operation start];
+
+  [self waitForExpectationsWithTimeout:2.0 handler:nil];
+}
+
+- (void)testRetryOnNetworkFailure {
+  NSDictionary *options = @{
+    kFIRMessagingTokenOptionsAPNSKey : [@"fakeAPNSToken" dataUsingEncoding:NSUTF8StringEncoding],
+    kFIRMessagingTokenOptionsAPNSIsSandboxKey : @NO
+  };
+
+  FIRInstallationsAuthTokenResult *mockTokenResult =
+      [[FIRInstallationsAuthTokenResult alloc] initWithToken:@"fis-auth-token"
+                                              expirationDate:[NSDate distantFuture]];
+
+  id authTokenWithCompletionArg = [OCMArg invokeBlockWithArgs:mockTokenResult, [NSNull null], nil];
+  OCMStub([self.mockInstallations authTokenWithCompletion:authTokenWithCompletionArg]);
+
+  FIRMessagingFIDRegisterOperation *operation =
+      [[FIRMessagingFIDRegisterOperation alloc] initWithAuthorizedEntity:@"sender-123"
+                                                                   scope:@"fcm"
+                                                                 options:options
+                                                              instanceID:@"instance-id"
+                                                         heartbeatLogger:nil
+                                                           installations:self.mockInstallations];
+
+  XCTestExpectation *retryExpectation = [self expectationWithDescription:@"Operation retried and succeeded after network failure"];
+
+  // First call returns network error
+  NSError *networkError = [NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorNotConnectedToInternet userInfo:nil];
+  [FIRURLSessionOCMockStub
+      stubURLSessionDataTaskWithResponse:nil
+                                    body:nil
+                                   error:networkError
+                          URLSessionMock:self.URLSessionMock
+                  requestValidationBlock:^BOOL(NSURLRequest *_Nonnull sentRequest) {
+                    return YES;
+                  }];
+
+  // Second call returns 200
+  NSHTTPURLResponse *response200 = [FIRURLSessionOCMockStub HTTPResponseWithCode:200];
+  [FIRURLSessionOCMockStub
+      stubURLSessionDataTaskWithResponse:response200
+                                    body:[@"{\"name\":\"projects/sender-123/registrations/fake-fid\"}" dataUsingEncoding:NSUTF8StringEncoding]
+                                   error:nil
+                          URLSessionMock:self.URLSessionMock
+                  requestValidationBlock:^BOOL(NSURLRequest *_Nonnull sentRequest) {
+                    return YES;
+                  }];
+
+  [operation addCompletionHandler:^(FIRMessagingTokenOperationResult result,
+                                    NSString *_Nullable token, NSError *_Nullable error) {
+    XCTAssertEqual(result, FIRMessagingTokenOperationSucceeded);
+    XCTAssertEqualObjects(token, @"fake-fid");
+    XCTAssertNil(error);
+    [retryExpectation fulfill];
+  }];
+
+  [operation start];
+
+  [self waitForExpectationsWithTimeout:2.0 handler:nil];
+}
+
 @end

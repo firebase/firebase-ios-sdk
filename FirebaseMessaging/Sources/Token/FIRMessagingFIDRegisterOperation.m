@@ -32,13 +32,27 @@
 - (void)setExecuting:(BOOL)executing;
 @end
 
-@interface FIRMessagingFIDRegisterOperation ()
+// Upon a network error or backend 5xx error, the request is retried this many times
+// with exponential backoff.
+static const int kMaxRetries = 10;
+
+@interface FIRMessagingFIDRegisterOperation () {
+  int _retryCount;
+}
 @property(nonatomic, strong) FIRInstallations *installations;
 - (nullable NSString *)extractFIDFromHTTPResponse:(NSURLResponse *)response
                                              data:(NSData *)data
                                        forRequest:(NSURLRequest *)request
                                             error:(NSError **)outError;
 @end
+
+static BOOL isServerError(NSURLResponse *response) {
+  if ([response isKindOfClass:[NSHTTPURLResponse class]]) {
+    NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
+    return httpResponse.statusCode >= 500 && httpResponse.statusCode < 600;
+  }
+  return NO;
+}
 
 @implementation FIRMessagingFIDRegisterOperation
 
@@ -170,6 +184,20 @@
         completionHandler:^(NSData *_Nullable data, NSURLResponse *_Nullable response,
                             NSError *_Nullable error) {
           FIRMessaging_STRONGIFY(self);
+          // Retry on network error or backend server 5xx error.
+          if ((error || isServerError(response)) && self->_retryCount < kMaxRetries) {
+            const int nextRetryInterval = 1 << self->_retryCount;
+            FIRMessaging_WEAKIFY(self);
+            dispatch_after(
+                dispatch_time(DISPATCH_TIME_NOW, (int64_t)(nextRetryInterval * NSEC_PER_SEC)),
+                dispatch_get_main_queue(), ^{
+                  FIRMessaging_STRONGIFY(self);
+                  self->_retryCount++;
+                  [self makeRegistrationRequestWithAuthToken:authToken];
+                });
+            return;
+          }
+
           if (error) {
             [self finishWithResult:FIRMessagingTokenOperationError token:nil error:error];
             return;
@@ -220,6 +248,7 @@
     return nil;
   }
 
+  // The response body looks like: {"name": "projects/<project_id>/registrations/<fid>", ...}
   NSString *name = responseDict[@"name"];
   NSString *fid = nil;
   if (name.length) {
