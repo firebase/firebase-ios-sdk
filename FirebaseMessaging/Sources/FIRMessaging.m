@@ -503,6 +503,12 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 }
 
 - (NSString *)FCMToken {
+  if (self.isInstallationIdEnabled) {
+    FIRMessagingLoggerDebug(
+        kFIRMessagingMessageCodeInstallationIdEnabled,
+        @"FirebaseMessagingInstallationIdEnabled is set to YES, token is not available.");
+    return nil;
+  }
   // Gets the current default token, and requests a new one if it doesn't exist.
   NSString *token = [self.tokenManager tokenAndRequestIfNotExist];
   return token;
@@ -653,6 +659,27 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
   NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
   [center postNotificationName:FIRMessagingRegistrationTokenRefreshedNotification
                         object:self.tokenManager.defaultFCMToken];
+}
+
+#pragma mark - FID
+
+- (void)register {
+  if (!self.isInstallationIdEnabled) {
+    FIRMessagingLoggerError(kFIRMessagingMessageCodeInstallationIdDisabled,
+                            @"FirebaseMessagingInstallationIdEnabled is not set to YES, so "
+                            @"FID operations are not supported.");
+    return;
+  }
+  [self.tokenManager tokenAndRequestIfNotExist];
+}
+
+- (void)unregister {
+  if (!self.isInstallationIdEnabled) {
+    FIRMessagingLoggerError(kFIRMessagingMessageCodeInstallationIdDisabled,
+                            @"FirebaseMessagingInstallationIdEnabled is not set to YES, so "
+                            @"FID operations are not supported.");
+    return;
+  }
 }
 
 #pragma mark - Topics

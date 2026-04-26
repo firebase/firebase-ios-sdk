@@ -19,6 +19,7 @@
 #import "FirebaseMessaging/Sources/FIRMessagingConstants.h"
 #import "FirebaseMessaging/Sources/FIRMessagingLogger.h"
 #import "FirebaseMessaging/Sources/FIRMessagingUtilities.h"
+#import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessaging.h"
 
 /**
  *  @enum Token Info Dictionary Key Constants
@@ -45,6 +46,8 @@ static NSString *const kFIRInstanceIDFirebaseAppIDKey = @"firebase_app_id";
 static NSString *const kFIRInstanceIDAPNSInfoKey = @"apns_info";
 /// Specifies a dictionary key representing the "last cached" time for the token.
 static NSString *const kFIRInstanceIDCacheTimeKey = @"cache_time";
+/// Specifies a dictionary key representing the token type (V4 or FID).
+static NSString *const kFIRInstanceIDTokenTypeKey = @"token_type";
 /// Default interval that token stays fresh.
 static const NSTimeInterval kDefaultFetchTokenInterval = 7 * 24 * 60 * 60;  // 7 days.
 
@@ -54,7 +57,8 @@ static const NSTimeInterval kDefaultFetchTokenInterval = 7 * 24 * 60 * 60;  // 7
                                    scope:(NSString *)scope
                                    token:(NSString *)token
                               appVersion:(NSString *)appVersion
-                           firebaseAppID:(NSString *)firebaseAppID {
+                           firebaseAppID:(NSString *)firebaseAppID
+                               tokenType:(NSString *)tokenType {
   self = [super init];
   if (self) {
     _authorizedEntity = [authorizedEntity copy];
@@ -62,8 +66,22 @@ static const NSTimeInterval kDefaultFetchTokenInterval = 7 * 24 * 60 * 60;  // 7
     _token = [token copy];
     _appVersion = [appVersion copy];
     _firebaseAppID = [firebaseAppID copy];
+    _tokenType = [tokenType copy] ?: @"V4";
   }
   return self;
+}
+
+- (instancetype)initWithAuthorizedEntity:(NSString *)authorizedEntity
+                                   scope:(NSString *)scope
+                                   token:(NSString *)token
+                              appVersion:(NSString *)appVersion
+                           firebaseAppID:(NSString *)firebaseAppID {
+  return [self initWithAuthorizedEntity:authorizedEntity
+                                  scope:scope
+                                  token:token
+                             appVersion:appVersion
+                          firebaseAppID:firebaseAppID
+                              tokenType:@"V4"];
 }
 
 - (BOOL)isFreshWithIID:(NSString *)IID {
@@ -73,6 +91,21 @@ static const NSTimeInterval kDefaultFetchTokenInterval = 7 * 24 * 60 * 60;  // 7
     return NO;
   }
   if (!_cacheTime) {
+    return NO;
+  }
+
+  // Check if token type matches isInstallationIdEnabled
+  BOOL isInstallationIdEnabled = [FIRMessaging messaging].isInstallationIdEnabled;
+  if (isInstallationIdEnabled && ![self.tokenType isEqualToString:@"FID"]) {
+    FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTokenManager004,
+                            @"Invalidating cached token due to isInstallationIdEnabled being YES "
+                            @"but token is not FID.");
+    return NO;
+  }
+  if (!isInstallationIdEnabled && ![self.tokenType isEqualToString:@"V4"]) {
+    FIRMessagingLoggerDebug(
+        kFIRMessagingMessageCodeTokenManager004,
+        @"Invalidating cached token due to isInstallationIdEnabled being NO but token is FID.");
     return NO;
   }
 
@@ -193,6 +226,8 @@ static const NSTimeInterval kDefaultFetchTokenInterval = 7 * 24 * 60 * 60;  // 7
 
   NSDate *cacheTime = [aDecoder decodeObjectOfClass:[NSDate class]
                                              forKey:kFIRInstanceIDCacheTimeKey];
+  NSString *tokenType = [aDecoder decodeObjectOfClass:[NSString class]
+                                               forKey:kFIRInstanceIDTokenTypeKey];
 
   self = [super init];
   if (self) {
@@ -204,6 +239,7 @@ static const NSTimeInterval kDefaultFetchTokenInterval = 7 * 24 * 60 * 60;  // 7
     _APNSInfo = [rawAPNSInfo copy];
     _cacheTime = cacheTime;
     _needsMigration = needsMigration;
+    _tokenType = [tokenType copy] ?: @"V4";
   }
   return self;
 }
@@ -218,6 +254,9 @@ static const NSTimeInterval kDefaultFetchTokenInterval = 7 * 24 * 60 * 60;  // 7
     [aCoder encodeObject:self.APNSInfo forKey:kFIRInstanceIDAPNSInfoKey];
   }
   [aCoder encodeObject:self.cacheTime forKey:kFIRInstanceIDCacheTimeKey];
+  if (self.tokenType) {
+    [aCoder encodeObject:self.tokenType forKey:kFIRInstanceIDTokenTypeKey];
+  }
 }
 
 @end

@@ -328,6 +328,25 @@ NS_SWIFT_NAME(Messaging)
                        completion:(void (^)(NSError *_Nullable error))completion
     NS_SWIFT_NAME(deleteFCMToken(forSenderID:completion:));
 
+#pragma mark - FID
+
+/**
+ * Asynchronously registers to the FCM backend.
+ *
+ * Please use the FIRMessaging delegate method
+ * `messaging:didReceiveRegistration:` to receive the registered FID.
+ *
+ * This method works only when `FirebaseMessaging.isInstallationIdEnabled` is set to `YES`.
+ */
+- (void)register;
+
+/**
+ * Asynchronously unregisters from the FCM backend.
+ *
+ * This method works only when `FirebaseMessaging.isInstallationIdEnabled` is set to `YES`.
+ */
+- (void)unregister;
+
 #pragma mark - Topics
 
 /**
