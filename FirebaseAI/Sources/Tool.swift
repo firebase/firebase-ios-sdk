@@ -68,7 +68,7 @@ public struct FunctionDeclaration: Sendable {
 
   #if compiler(>=6.2.3)
     #if canImport(FoundationModels)
-      @available(iOS 26.0, macOS 26.0, *)
+      @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
       @available(tvOS, unavailable)
       @available(watchOS, unavailable)
       init<T: FoundationModels.Tool>(foundationModelsTool: T) {
@@ -131,6 +131,13 @@ public struct Tool: Sendable {
     self.googleMaps = googleMaps
     self.urlContext = urlContext
     self.codeExecution = codeExecution
+  }
+
+  /// Returns `true` if all tools contained in `Tool` are supported by Foundation Models.
+  ///
+  /// Note: Currently only function declarations are supported.
+  var isFoundationModeCompatible: Bool {
+    return googleSearch == nil && googleMaps == nil && urlContext == nil && codeExecution == nil
   }
 }
 
@@ -260,7 +267,7 @@ public extension ToolRepresentable where Self == FirebaseAILogic.Tool {
 
   #if compiler(>=6.2.3)
     #if canImport(FoundationModels)
-      @available(iOS 26.0, macOS 26.0, *)
+      @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
       @available(tvOS, unavailable)
       @available(watchOS, unavailable)
       static func autoFunctionDeclaration(_ tool: any FoundationModels.Tool) -> Tool {
@@ -341,7 +348,7 @@ public extension ToolRepresentable where Self == FirebaseAILogic.Tool {
   }
 
   #if canImport(FoundationModels)
-    @available(iOS 26.0, macOS 26.0, *)
+    @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
     extension FunctionDeclaration {

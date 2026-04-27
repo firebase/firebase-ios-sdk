@@ -71,6 +71,8 @@ public struct GenerateContentResponse: Sendable {
 
   let responseID: String?
 
+  let modelVersion: String?
+
   /// The response's content as text, if it exists.
   ///
   /// - Note: This does not include thought summaries; see ``thoughtSummary`` for more details.
@@ -152,6 +154,17 @@ public struct GenerateContentResponse: Sendable {
     self.promptFeedback = promptFeedback
     self.usageMetadata = usageMetadata
     responseID = nil
+    modelVersion = nil
+  }
+
+  init(candidates: [Candidate], promptFeedback: PromptFeedback? = nil,
+       usageMetadata: UsageMetadata? = nil, responseID: String? = nil,
+       modelVersion: String? = nil) {
+    self.candidates = candidates
+    self.promptFeedback = promptFeedback
+    self.usageMetadata = usageMetadata
+    self.responseID = responseID
+    self.modelVersion = modelVersion
   }
 
   func text(isThought: Bool) -> String? {
@@ -468,6 +481,7 @@ extension GenerateContentResponse: Decodable {
     case promptFeedback
     case usageMetadata
     case responseID = "responseId"
+    case modelVersion
   }
 
   public init(from decoder: Decoder) throws {
@@ -494,6 +508,7 @@ extension GenerateContentResponse: Decodable {
     promptFeedback = try container.decodeIfPresent(PromptFeedback.self, forKey: .promptFeedback)
     usageMetadata = try container.decodeIfPresent(UsageMetadata.self, forKey: .usageMetadata)
     responseID = try container.decodeIfPresent(String.self, forKey: .responseID)
+    modelVersion = try container.decodeIfPresent(String.self, forKey: .modelVersion)
   }
 }
 
