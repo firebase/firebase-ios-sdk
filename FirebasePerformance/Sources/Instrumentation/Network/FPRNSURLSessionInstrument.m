@@ -149,35 +149,34 @@ void InstrumentSessionWithConfigurationDelegateDelegateQueue(
   FPRSelectorInstrumentor *selectorInstrumentor = SelectorInstrumentor(selector, instrumentor, YES);
   __weak FPRNSURLSessionInstrument *weakInstrument = instrument;
   IMP currentIMP = selectorInstrumentor.currentIMP;
-  [selectorInstrumentor
-      setReplacingBlock:^(id session, NSURLSessionConfiguration *configuration,
-                          id<NSURLSessionDelegate> delegate, NSOperationQueue *queue) {
-        __strong FPRNSURLSessionInstrument *strongInstrument = weakInstrument;
-        if (!strongInstrument) {
-          ThrowExceptionBecauseInstrumentHasBeenDeallocated(selector, instrumentedClass);
-        }
-        if (delegate) {
-          if ([delegate isProxy] &&
-              [delegateInstrument respondsToSelector:@selector(registerProxy:)]) {
-            [delegateInstrument registerProxy:delegate];
-          } else {
-            [delegateInstrument registerClass:[delegate class]];
-            [delegateInstrument registerObject:delegate];
-          }
-        } else {
-          delegate = [[FPRNSURLSessionDelegate alloc] init];
-        }
-        typedef NSURLSession *(*OriginalImp)(id, SEL, NSURLSessionConfiguration *,
-                                             id<NSURLSessionDelegate>, NSOperationQueue *);
-        NSURLSession *sessionInstance =
-            ((OriginalImp)currentIMP)([session class], selector, configuration, delegate, queue);
-        if ([sessionInstance isProxy]) {
-          [strongInstrument registerProxyObject:sessionInstance];
-        } else {
-          [strongInstrument registerInstrumentorForClass:[sessionInstance class]];
-        }
-        return sessionInstance;
-      }];
+  [selectorInstrumentor setReplacingBlock:^(id session, NSURLSessionConfiguration *configuration,
+                                            id<NSURLSessionDelegate> delegate,
+                                            NSOperationQueue *queue) {
+    __strong FPRNSURLSessionInstrument *strongInstrument = weakInstrument;
+    if (!strongInstrument) {
+      ThrowExceptionBecauseInstrumentHasBeenDeallocated(selector, instrumentedClass);
+    }
+    if (delegate) {
+      if ([delegate isProxy] && [delegateInstrument respondsToSelector:@selector(registerProxy:)]) {
+        [delegateInstrument registerProxy:delegate];
+      } else {
+        [delegateInstrument registerClass:[delegate class]];
+        [delegateInstrument registerObject:delegate];
+      }
+    } else {
+      delegate = [[FPRNSURLSessionDelegate alloc] init];
+    }
+    typedef NSURLSession *(*OriginalImp)(id, SEL, NSURLSessionConfiguration *,
+                                         id<NSURLSessionDelegate>, NSOperationQueue *);
+    NSURLSession *sessionInstance =
+        ((OriginalImp)currentIMP)([session class], selector, configuration, delegate, queue);
+    if ([sessionInstance isProxy]) {
+      [strongInstrument registerProxyObject:sessionInstance];
+    } else {
+      [strongInstrument registerInstrumentorForClass:[sessionInstance class]];
+    }
+    return sessionInstance;
+  }];
 }
 
 /** Wraps -dataTaskWithURL:.

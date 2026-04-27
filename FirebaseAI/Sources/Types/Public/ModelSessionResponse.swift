@@ -12,24 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if canImport(FoundationModels)
-  import FoundationModels
-#endif
-
-public protocol ToolRepresentable: Sendable {
-  var toolRepresentation: FirebaseAILogic.Tool { get }
-}
-
 #if compiler(>=6.2.3)
-  #if canImport(FoundationModels)
-    @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
-    @available(tvOS, unavailable)
-    @available(watchOS, unavailable)
-    public extension FoundationModels.Tool
-      where Self.Output: FoundationModels.ConvertibleToGeneratedContent {
-      var toolRepresentation: FirebaseAILogic.Tool {
-        return FirebaseAILogic.Tool.autoFunctionDeclaration(self)
-      }
-    }
-  #endif // canImport(FoundationModels)
+  /// A response from a ``_ModelSession``.
+  ///
+  /// > Important: This type is for **internal use only** and may change at any time.
+  public struct _ModelSessionResponse: Sendable {
+    let rawContent: FirebaseAI.GeneratedContent
+    let rawResponse: GenerateContentResponse
+  }
 #endif // compiler(>=6.2.3)
