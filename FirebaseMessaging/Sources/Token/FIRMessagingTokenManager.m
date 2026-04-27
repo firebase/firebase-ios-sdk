@@ -26,6 +26,7 @@
 #import "FirebaseMessaging/Sources/Token/FIRMessagingCheckinPreferences.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingCheckinStore.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingFIDRegisterOperation.h"
+#import "FirebaseMessaging/Sources/Token/FIRMessagingFIDUnregisterOperation.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingTokenDeleteOperation.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingTokenFetchOperation.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingTokenInfo.h"
@@ -438,7 +439,7 @@
   // Does not matter if we cannot find it in the cache. Still make an effort to unregister
   // from the server.
   FIRMessagingCheckinPreferences *checkinPreferences = self.authService.checkinPreferences;
-  FIRMessagingTokenDeleteOperation *operation =
+  FIRMessagingTokenOperation *operation =
       [self createDeleteOperationWithAuthorizedEntity:authorizedEntity
                                                 scope:scope
                                    checkinPreferences:checkinPreferences
@@ -483,7 +484,7 @@
           });
           return;
         }
-        FIRMessagingTokenDeleteOperation *operation = [self
+        FIRMessagingTokenOperation *operation = [self
             createDeleteOperationWithAuthorizedEntity:kFIRMessagingKeychainWildcardIdentifier
                                                 scope:kFIRMessagingKeychainWildcardIdentifier
                                    checkinPreferences:checkinPreferences
@@ -596,7 +597,7 @@
   // pubsub notifications if he is again subscribed to the same topic.
   //
   // The client state should be cleared on the server for the provided checkin preferences.
-  FIRMessagingTokenDeleteOperation *operation =
+  FIRMessagingTokenOperation *operation =
       [self createDeleteOperationWithAuthorizedEntity:nil
                                                 scope:nil
                                    checkinPreferences:checkin
@@ -636,19 +637,30 @@
 }
 
 // We really have this method so that we can more easily stub it out for unit testing
-- (FIRMessagingTokenDeleteOperation *)
+- (FIRMessagingTokenOperation *)
     createDeleteOperationWithAuthorizedEntity:(NSString *)authorizedEntity
                                         scope:(NSString *)scope
                            checkinPreferences:(FIRMessagingCheckinPreferences *)checkinPreferences
                                    instanceID:(NSString *)instanceID
                                        action:(FIRMessagingTokenAction)action {
-  FIRMessagingTokenDeleteOperation *operation =
-      [[FIRMessagingTokenDeleteOperation alloc] initWithAuthorizedEntity:authorizedEntity
-                                                                   scope:scope
-                                                      checkinPreferences:checkinPreferences
-                                                              instanceID:instanceID
-                                                                  action:action
-                                                         heartbeatLogger:self.heartbeatLogger];
+  FIRMessagingTokenOperation *operation;
+  if ([FIRMessaging messaging].isInstallationIdEnabled) {
+    operation =
+        [[FIRMessagingFIDUnregisterOperation alloc] initWithAuthorizedEntity:authorizedEntity
+                                                                       scope:scope
+                                                                     options:nil
+                                                                  instanceID:instanceID
+                                                             heartbeatLogger:self.heartbeatLogger
+                                                               installations:self.installations];
+  } else {
+    operation =
+        [[FIRMessagingTokenDeleteOperation alloc] initWithAuthorizedEntity:authorizedEntity
+                                                                     scope:scope
+                                                        checkinPreferences:checkinPreferences
+                                                                instanceID:instanceID
+                                                                    action:action
+                                                           heartbeatLogger:self.heartbeatLogger];
+  }
   return operation;
 }
 
