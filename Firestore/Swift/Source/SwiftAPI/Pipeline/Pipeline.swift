@@ -687,7 +687,7 @@ public class Pipeline: @unchecked Sendable {
   /// ```swift
   /// firestore.pipeline().collection("restaurants")
   /// .search(
-  ///   query: "waffles OR pancakes",
+  ///   query: "breakfast -diner", // Equivalent to `query: DocumentMatches("breakfast -diner")`
   ///   sort: [
   ///     Score().descending(),
   ///   ],
@@ -698,7 +698,8 @@ public class Pipeline: @unchecked Sendable {
   /// ```
   ///
   /// - Parameters:
-  ///   - query: A raw query string (e.g., `"menu:waffles AND tags:breakfast"`).
+  ///   - query: A raw query string (e.g., `"breakfast -diner"`), which will be used for searching
+  /// the document.
   ///   - languageCode: The BCP-47 language code of text in the search query, such as “en” or “sr”.
   ///   - retrievalDepth: The maximum number of documents to retrieve from the search index.
   /// Documents will be retrieved in the pre-sort order specified by the search index. The
