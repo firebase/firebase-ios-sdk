@@ -22,7 +22,7 @@
 
   final class GenerationOptionsTests: XCTestCase {
     #if canImport(FoundationModels)
-      @available(iOS 26.0, macOS 26.0, *)
+      @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
       @available(tvOS, unavailable)
       @available(watchOS, unavailable)
       func testConversionToFoundationModels() throws {
@@ -37,35 +37,35 @@
           maximumResponseTokens: 100
         )
 
-        let afmOptions = options.toFoundationModels()
+        let foundationModelsGenerationOptions = options.toFoundationModels()
 
-        XCTAssertEqual(afmOptions.temperature, 0.5)
-        XCTAssertEqual(afmOptions.maximumResponseTokens, 100)
-        XCTAssertNotNil(afmOptions.sampling)
-        XCTAssertEqual(afmOptions.sampling, .greedy)
+        XCTAssertEqual(foundationModelsGenerationOptions.temperature, 0.5)
+        XCTAssertEqual(foundationModelsGenerationOptions.maximumResponseTokens, 100)
+        XCTAssertNotNil(foundationModelsGenerationOptions.sampling)
+        XCTAssertEqual(foundationModelsGenerationOptions.sampling, .greedy)
       }
     #endif // canImport(FoundationModels)
 
     func testEquatable_emptyOptions() throws {
-      let options = FirebaseAI.GenerationOptions()
+      let foundationModelsGenerationOptions = FirebaseAI.GenerationOptions()
 
-      XCTAssertNil(options.sampling)
-      XCTAssertNil(options.temperature)
-      XCTAssertNil(options.maximumResponseTokens)
+      XCTAssertNil(foundationModelsGenerationOptions.sampling)
+      XCTAssertNil(foundationModelsGenerationOptions.temperature)
+      XCTAssertNil(foundationModelsGenerationOptions.maximumResponseTokens)
     }
 
     func testGenerationSchema_greedy() throws {
       let temperature = 0.9
       let maximumResponseTokens = 200
-      let options = FirebaseAI.GenerationOptions(
+      let foundationModelsGenerationOptions = FirebaseAI.GenerationOptions(
         sampling: .greedy,
         temperature: temperature,
         maximumResponseTokens: maximumResponseTokens
       )
 
-      XCTAssertEqual(options.sampling, .greedy)
-      XCTAssertEqual(options.temperature, temperature)
-      XCTAssertEqual(options.maximumResponseTokens, maximumResponseTokens)
+      XCTAssertEqual(foundationModelsGenerationOptions.sampling, .greedy)
+      XCTAssertEqual(foundationModelsGenerationOptions.temperature, temperature)
+      XCTAssertEqual(foundationModelsGenerationOptions.maximumResponseTokens, maximumResponseTokens)
     }
 
     func testGenerationSchema_probabilityThreshold() throws {
@@ -73,15 +73,18 @@
       let seed: UInt64 = 5_000_000_000
       let temperature = 0.6
       let maximumResponseTokens = 80
-      let options = FirebaseAI.GenerationOptions(
+      let foundationModelsGenerationOptions = FirebaseAI.GenerationOptions(
         sampling: .random(probabilityThreshold: topP, seed: seed),
         temperature: temperature,
         maximumResponseTokens: maximumResponseTokens
       )
 
-      XCTAssertEqual(options.sampling, .random(probabilityThreshold: topP, seed: seed))
-      XCTAssertEqual(options.temperature, temperature)
-      XCTAssertEqual(options.maximumResponseTokens, maximumResponseTokens)
+      XCTAssertEqual(
+        foundationModelsGenerationOptions.sampling,
+        .random(probabilityThreshold: topP, seed: seed)
+      )
+      XCTAssertEqual(foundationModelsGenerationOptions.temperature, temperature)
+      XCTAssertEqual(foundationModelsGenerationOptions.maximumResponseTokens, maximumResponseTokens)
     }
 
     func testGenerationSchema_topK() throws {
@@ -89,15 +92,15 @@
       let seed: UInt64 = 6_000_000_000
       let temperature = 0.4
       let maximumResponseTokens = 1000
-      let options = FirebaseAI.GenerationOptions(
+      let foundationModelsGenerationOptions = FirebaseAI.GenerationOptions(
         sampling: .random(top: topK, seed: seed),
         temperature: temperature,
         maximumResponseTokens: maximumResponseTokens
       )
 
-      XCTAssertEqual(options.sampling, .random(top: topK, seed: seed))
-      XCTAssertEqual(options.temperature, temperature)
-      XCTAssertEqual(options.maximumResponseTokens, maximumResponseTokens)
+      XCTAssertEqual(foundationModelsGenerationOptions.sampling, .random(top: topK, seed: seed))
+      XCTAssertEqual(foundationModelsGenerationOptions.temperature, temperature)
+      XCTAssertEqual(foundationModelsGenerationOptions.maximumResponseTokens, maximumResponseTokens)
     }
   }
 #endif // compiler(>=6.2.3)
