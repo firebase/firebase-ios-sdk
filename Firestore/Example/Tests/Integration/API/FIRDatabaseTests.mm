@@ -23,10 +23,30 @@
 
 #import "FirebaseCore/Sources/Public/FirebaseCore/FIRTimestamp.h"
 
+#import <FirebaseAppCheckInterop/FirebaseAppCheckInterop.h>
 #import "FirebaseCore/Extension/FIRAppInternal.h"
 #import "Firestore/Example/Tests/Util/FSTEventAccumulator.h"
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
+#include "Firestore/core/src/credentials/firebase_app_check_credentials_provider_apple.h"
+
+@interface FakeAppCheck : NSObject <FIRAppCheckInterop>
+@end
+
+@implementation FakeAppCheck
+- (void)getTokenForcingRefresh:(BOOL)forcingRefresh
+                    completion:(void (^)(id<FIRAppCheckTokenResultInterop>))completion {
+}
+- (NSString *)notificationAppNameKey {
+  return @"AppName";
+}
+- (NSString *)notificationTokenKey {
+  return @"Token";
+}
+- (NSString *)tokenDidChangeNotificationName {
+  return @"tokenDidChange";
+}
+@end
 #import "Firestore/Source/API/FIRLocalCacheSettings+Internal.h"
 
 #include "Firestore/core/src/api/query_snapshot.h"
@@ -1888,6 +1908,33 @@ using firebase::firestore::util::TimerId;
   XCTAssertNotEqual(db1.persistentCacheIndexManager, db4.persistentCacheIndexManager);
   XCTAssertNotEqual(db2.persistentCacheIndexManager, db4.persistentCacheIndexManager);
   XCTAssertNotEqual(db3.persistentCacheIndexManager, db4.persistentCacheIndexManager);
+}
+
+- (void)testVerifyPrintf {
+  FakeAppCheck *appCheck = [[FakeAppCheck alloc] init];
+
+  FIRApp *app = [FIRApp defaultApp];
+  if (!app) {
+    [FIRApp configure];
+    app = [FIRApp defaultApp];
+  }
+
+  // Create provider
+  auto provider =
+      std::make_shared<firebase::firestore::credentials::FirebaseAppCheckCredentialsProvider>(
+          app, (id<FIRAppCheckInterop>)appCheck);
+
+  // Trigger SetCredentialChangeListener
+  provider->SetCredentialChangeListener([](std::string token) {
+    printf("Listener called with token: %s\n", token.c_str());
+    fflush(stdout);
+  });
+
+  // Trigger notification
+  [[NSNotificationCenter defaultCenter] postNotificationName:@"tokenDidChange" object:nil];
+
+  // Clean up
+  provider->SetCredentialChangeListener(nullptr);
 }
 
 @end
