@@ -633,12 +633,15 @@ public class Pipeline: @unchecked Sendable {
   /// - Parameters:
   ///   - query: An `Expression` defining the search criteria (e.g.,
   /// `Field("menu").matches("waffles")`).
-  ///   - languageCode: The BCP-47 language code of text in the search query, such as, “en” or “sr”
-  ///   - retrievalDepth: The maximum number of documents to retrieve. Documents will be retrieved
-  /// in the pre-sort order specified by the search index.
+  ///   - languageCode: The BCP-47 language code of text in the search query, such as “en” or “sr”.
+  ///   - retrievalDepth: The maximum number of documents to retrieve from the search index.
+  /// Documents will be retrieved in the pre-sort order specified by the search index. The
+  /// `retrievalDepth` is a limit applied before documents are scored and sorted, which can reduce
+  /// costs of expensive scoring and sorting operations.
   ///   - sort: An array of `Ordering` objects to sort the results.
   ///   - offset: The number of documents to skip.
-  ///   - limit: The maximum number of documents to return.
+  ///   - limit: The maximum number of documents to return. The `limit` is applied after documents
+  /// are scored and sorted.
   ///   - addFields: An array of `Selectable` fields to compute and add to the result.
   /// - Returns: A new `Pipeline` with the search stage appended.
   public func search(query: Expression,
@@ -696,13 +699,15 @@ public class Pipeline: @unchecked Sendable {
   ///
   /// - Parameters:
   ///   - query: A raw query string (e.g., `"menu:waffles AND tags:breakfast"`).
-  ///   - languageCode: The BCP-47 language code of text in the search query, such as, “en” or
-  /// “sr”
-  ///   - retrievalDepth: The maximum number of documents to retrieve. Documents will be retrieved
-  /// in the pre-sort order specified by the search index.
+  ///   - languageCode: The BCP-47 language code of text in the search query, such as “en” or “sr”.
+  ///   - retrievalDepth: The maximum number of documents to retrieve from the search index.
+  /// Documents will be retrieved in the pre-sort order specified by the search index. The
+  /// `retrievalDepth` is a limit applied before documents are scored and sorted, which can reduce
+  /// costs of expensive scoring and sorting operations.
   ///   - sort: An array of `Ordering` objects to sort the results.
   ///   - offset: The number of documents to skip.
-  ///   - limit: The maximum number of documents to return.
+  ///   - limit: The maximum number of documents to return. The `limit` is applied after documents
+  /// are scored and sorted.
   ///   - addFields: An array of `Selectable` fields to compute and add to the result.
   /// - Returns: A new `Pipeline` with the search stage appended.
   public func search(query: String,
