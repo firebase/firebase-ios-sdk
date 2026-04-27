@@ -395,58 +395,65 @@ final class SearchIntegrationTests: FSTIntegrationTestCase {
    }
    */
 
-  /*
-   func testLimitTheNumberOfDocumentsReturned() async throws {
-     throw XCTSkip("Skipping search tests because backend is not compatible.")
-     let firestore = db
-     let pipeline = firestore.pipeline().collection(COLLECTION_NAME)
-       .search(
-         query: Constant(true),
-         sort: [
-           Field("location")
-             .geoDistance(GeoPoint(latitude: 39.6985, longitude: -105.024))
-             .ascending(),
-         ],
-         limit: 3
-       )
+  func testLimitTheNumberOfDocumentsReturned() async throws {
+    let firestore = db
+    let pipeline = firestore.pipeline().collection(COLLECTION_NAME)
+      .search(
+        query: Field("location")
+          .geoDistance(GeoPoint(latitude: 39.6985, longitude: -105.024))
+          .lessThanOrEqual(100_000_000),
+        sort: [
+          Field("location")
+            .geoDistance(GeoPoint(latitude: 39.6985, longitude: -105.024))
+            .ascending(),
+        ],
+        limit: 3
+      )
 
-     let snapshot = try await (pipeline.execute())
-     let docIDs = snapshot.results.map { $0.id }
-     XCTAssertEqual(docIDs, ["solTacos", "goldenWaffle", "lotusBlossomThai"])
-   }
-   */
+    let snapshot = try await (pipeline.execute())
+    let docIDs = snapshot.results.map { $0.id }
+    XCTAssertEqual(docIDs, ["solTacos", "lotusBlossomThai", "mileHighCatch"])
+  }
 
-  /*
-   func testLimitTheNumberOfDocumentsScored() async throws {
-     let firestore = db
-     let pipeline = firestore.pipeline().collection(COLLECTION_NAME)
-       .search(
-         query: Field("menu").matches("chicken OR tacos OR fish OR waffles"),
-         retrievalDepth: 6
-       )
+  func testLimitTheNumberOfDocumentsScoredViaRetrievalDepth() async throws {
+    let firestore = db
+    var pipeline = firestore.pipeline().collection(COLLECTION_NAME)
+      .search(
+        query: DocumentMatches("taco"),
+        retrievalDepth: 2,
+        sort: [Score().descending()],
+        addFields: [Score().as("score")]
+      )
 
-     let snapshot = try await (pipeline.execute())
-     let docIDs = snapshot.results.map { $0.id ?? "" }.sorted()
-     XCTAssertEqual(docIDs, ["eastsideChicken", "eastsideTacos", "mileHighCatch", "solTacos"])
-   }
-   */
+    var snapshot = try await (pipeline.execute())
+    var docIDs = snapshot.results.map { $0.id ?? "" }
+    XCTAssertEqual(docIDs, ["solTacos", "eastsideTacos"])
 
-  /*
-   func testSkipsNDocuments() async throws {
-     throw XCTSkip("Skipping search tests because backend is not compatible.")
-     let firestore = db
-     let pipeline = firestore.pipeline().collection(COLLECTION_NAME)
-       .search(
-         query: Constant(true),
-         offset: 2,
-         limit: 2
-       )
+    pipeline = firestore.pipeline().collection(COLLECTION_NAME)
+      .search(
+        query: DocumentMatches("taco"),
+        retrievalDepth: 1,
+        sort: [Score().descending()]
+      )
 
-     let snapshot = try await (pipeline.execute())
-     let docIDs = snapshot.results.map { $0.id ?? "" }.sorted()
-     XCTAssertEqual(docIDs, ["eastsideTacos", "goldenWaffle"])
-   }
-   */
+    snapshot = try await (pipeline.execute())
+    docIDs = snapshot.results.map { $0.id ?? "" }
+    XCTAssertEqual(docIDs, ["eastsideTacos"])
+  }
+
+  func testSkipsNDocuments() async throws {
+    let firestore = db
+    let pipeline = firestore.pipeline().collection(COLLECTION_NAME)
+      .search(
+        query: "chicken",
+        offset: 2,
+        limit: 2
+      )
+
+    let snapshot = try await (pipeline.execute())
+    let docIDs = snapshot.results.map { $0.id ?? "" }.sorted()
+    XCTAssertEqual(docIDs, ["goldenWaffle"])
+  }
 
   /*
    func testSearchFullDocumentWithQueryExpansion() async throws {
@@ -549,35 +556,33 @@ final class SearchIntegrationTests: FSTIntegrationTestCase {
    }
    */
 
-  /*
-   func testSearchLanguageCodeParam() async throws {
-     throw XCTSkip("Skipping search tests because backend is not compatible.")
-     let firestore = db
+  func testSearchLanguageCodeParam() async throws {
+    let firestore = db
 
-     // Scenario 1: Valid languageCode ("us-EN") - should pass and return results
-     let validLanguagePipeline = firestore.pipeline().collection(COLLECTION_NAME)
-       .search(
-         query: DocumentMatches("waffles"),
-         languageCode: "us-EN"
-       )
-     let validLanguageSnapshot = try await validLanguagePipeline.execute()
-     XCTAssertEqual(validLanguageSnapshot.results.count, 1)
-     XCTAssertEqual(validLanguageSnapshot.results[0].id, "goldenWaffle")
+    // Scenario 1: Valid languageCode ("en") - should pass and return results
+    let validLanguagePipeline = firestore.pipeline().collection(COLLECTION_NAME)
+      .search(
+        query: DocumentMatches("al pastor"),
+        languageCode: "en",
+        sort: [Score().descending()]
+      )
+    let validLanguageSnapshot = try await validLanguagePipeline.execute()
+    XCTAssertEqual(validLanguageSnapshot.results.count, 1)
+    XCTAssertEqual(validLanguageSnapshot.results[0].id, "solTacos")
 
-     // Scenario 2: Invalid languageCode ("does not exist") - should fail
-     let invalidLanguagePipeline = firestore.pipeline().collection(COLLECTION_NAME)
-       .search(
-         query: DocumentMatches("waffles"),
-         languageCode: "does not exist"
-       )
-     do {
-       _ = try await invalidLanguagePipeline.execute()
-       XCTFail(
-         "Executing pipeline with invalid language code should have thrown an error, but it succeeded."
-       )
-     } catch {
-       // An error was thrown as expected.
-     }
-   }
-   */
+    // Scenario 2: Invalid languageCode ("unknown") - should fail
+    let invalidLanguagePipeline = firestore.pipeline().collection(COLLECTION_NAME)
+      .search(
+        query: DocumentMatches("waffles"),
+        languageCode: "unknown"
+      )
+    do {
+      _ = try await invalidLanguagePipeline.execute()
+      XCTFail(
+        "Executing pipeline with invalid language code should have thrown an error, but it succeeded."
+      )
+    } catch {
+      // An error was thrown as expected.
+    }
+  }
 }
