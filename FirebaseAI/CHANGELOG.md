@@ -1,6 +1,6 @@
 # Unreleased
 - [feature] Added support for session resumption in the Live API via the `resumeSession` method on
-  [`LiveSession`](https://firebase.google.com/docs/reference/swift/firebaseai/api/reference/Classes/LiveSession).
+  [`LiveSession`](https://firebase.google.com/docs/reference/swift/firebaseai/api/reference/Structs/LiveSession).
   (#15904)
 - [feature] Added support for context window compression in the Liva API via
   [`ContextWindowCompressionConfig`](https://firebase.google.com/docs/reference/swift/firebaseai/api/reference/Classes/ContextWindowCompressionConfig).
