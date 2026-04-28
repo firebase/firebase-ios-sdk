@@ -65,6 +65,7 @@ Data types used in the FirebaseAI library.
 ### Public Types
 
 - **`Backend.swift`**: Used to configure the backend API (Vertex AI or Google AI).
+- **`ImageConfig.swift`**: Defines the `ImageConfig` struct, used for configuring generated image properties like aspect ratio and size.
 - **`Part.swift`**: Defines the `Part` protocol and conforming structs (Text, InlineData, FunctionCall, etc.).
 - **`ResponseModality.swift`**: Represents types of data a model can produce (text, image, audio).
 - **`Schema.swift`**: Allows definition of input and output data types for function calling.

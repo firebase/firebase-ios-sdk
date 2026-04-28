@@ -1,6 +1,7 @@
 # Unreleased
 - [fixed] Fix race in FIRCLSContextMarkAndCheckIfCrashed. (#15384)
 - [fixed] Fix unfound file warnings from `swift build`. (#16012)
+- [fixed] Fix calling frame not being included in the stack trace for record(error:). (#16106)
 
 # 12.12.1
 - [changed] Updated `upload-symbols` to version 3.21, updated error logging in
