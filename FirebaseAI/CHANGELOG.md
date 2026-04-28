@@ -1,4 +1,4 @@
-# Unreleased
+# 12.13.0
 - [feature] Added support for session resumption in the Live API via the `resumeSession` method on
   [`LiveSession`](https://firebase.google.com/docs/reference/swift/firebaseai/api/reference/Classes/LiveSession).
   (#15904)
