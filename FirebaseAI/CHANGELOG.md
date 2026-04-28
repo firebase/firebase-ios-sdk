@@ -1,4 +1,10 @@
 # Unreleased
+- [feature] Added support for session resumption in the Live API via the `resumeSession` method on
+  [`LiveSession`](https://firebase.google.com/docs/reference/swift/firebaseai/api/reference/Classes/LiveSession).
+  (#15904)
+- [feature] Added support for context window compression in the Liva API via
+  [`ContextWindowCompressionConfig`](https://firebase.google.com/docs/reference/swift/firebaseai/api/reference/Structs/ContextWindowCompressionConfig).
+  (#15904)
 - [feature] Adds support for configuring image generation properties,
   such as aspect ratio and image size, through the new `ImageConfig` struct
   and its integration with `GenerationConfig`. (#15923)
