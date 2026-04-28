@@ -268,6 +268,33 @@ final class GenerateContentResponseTests: XCTestCase {
     XCTAssertEqual(candidate.finishReason, .stop)
   }
 
+  func testDecodeGenerateContentResponse_withModelVersion() throws {
+    let json = """
+    {
+      "candidates": [],
+      "modelVersion": "gemini-2.5-flash"
+    }
+    """
+    let jsonData = try XCTUnwrap(json.data(using: .utf8))
+
+    let response = try jsonDecoder.decode(GenerateContentResponse.self, from: jsonData)
+
+    XCTAssertEqual(response.modelVersion, "gemini-2.5-flash")
+  }
+
+  func testDecodeGenerateContentResponse_withoutModelVersion() throws {
+    let json = """
+    {
+      "candidates": []
+    }
+    """
+    let jsonData = try XCTUnwrap(json.data(using: .utf8))
+
+    let response = try jsonDecoder.decode(GenerateContentResponse.self, from: jsonData)
+
+    XCTAssertEqual(response.modelVersion, GenerateContentResponse.unknownModelVersion)
+  }
+
   // MARK: - Candidate.isEmpty
 
   func testCandidateIsEmpty_allEmpty_isTrue() throws {

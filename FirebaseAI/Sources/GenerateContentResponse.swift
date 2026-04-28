@@ -71,7 +71,13 @@ public struct GenerateContentResponse: Sendable {
 
   let responseID: String?
 
-  let modelVersion: String?
+  static let unknownModelVersion = "unknown-model-version"
+
+  /// Returns the model version used to generate the response.
+  ///
+  /// - Note: If the model version is not specified by the backend, this returns
+  ///   "unknown-model-version".
+  public let modelVersion: String
 
   /// The response's content as text, if it exists.
   ///
@@ -150,11 +156,13 @@ public struct GenerateContentResponse: Sendable {
   /// Initializer for SwiftUI previews or tests.
   public init(candidates: [Candidate], promptFeedback: PromptFeedback? = nil,
               usageMetadata: UsageMetadata? = nil) {
-    self.candidates = candidates
-    self.promptFeedback = promptFeedback
-    self.usageMetadata = usageMetadata
-    responseID = nil
-    modelVersion = nil
+    self = .init(
+      candidates: candidates,
+      promptFeedback: promptFeedback,
+      usageMetadata: usageMetadata,
+      responseID: nil,
+      modelVersion: nil
+    )
   }
 
   init(candidates: [Candidate], promptFeedback: PromptFeedback? = nil,
@@ -164,7 +172,7 @@ public struct GenerateContentResponse: Sendable {
     self.promptFeedback = promptFeedback
     self.usageMetadata = usageMetadata
     self.responseID = responseID
-    self.modelVersion = modelVersion
+    self.modelVersion = modelVersion ?? GenerateContentResponse.unknownModelVersion
   }
 
   func text(isThought: Bool) -> String? {
@@ -553,7 +561,10 @@ extension GenerateContentResponse: Decodable {
     promptFeedback = try container.decodeIfPresent(PromptFeedback.self, forKey: .promptFeedback)
     usageMetadata = try container.decodeIfPresent(UsageMetadata.self, forKey: .usageMetadata)
     responseID = try container.decodeIfPresent(String.self, forKey: .responseID)
-    modelVersion = try container.decodeIfPresent(String.self, forKey: .modelVersion)
+    modelVersion = try container.decodeIfPresent(
+      String.self,
+      forKey: .modelVersion
+    ) ?? GenerateContentResponse.unknownModelVersion
   }
 }
 
