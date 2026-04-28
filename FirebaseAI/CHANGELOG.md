@@ -31,7 +31,7 @@
 - [changed] **Breaking Change**: `GenerativeModelSession.GenerationError` is now
   marked `@nonexhaustive` to support additional cases in a non-breaking manner.
   If switching on `GenerativeModelSession.GenerationError`, you must add an
-  [`@unknown default:`](https://github.com/swiftlang/swift-evolution/blob/main/proposals/0192-non-exhaustive-enums.md# 12.13.0
+  [`@unknown default:`](https://github.com/swiftlang/swift-evolution/blob/main/proposals/0192-non-exhaustive-enums.md#unknown)
   case to your `switch` statement. (#16011)
 - [deprecated] All Imagen models are deprecated and will shut down as early as June 2026.
   As a replacement, you can [migrate your apps to use Gemini Image models (the "Nano Banana" models)](https://firebase.google.com/docs/ai-logic/imagen-models-migration).
