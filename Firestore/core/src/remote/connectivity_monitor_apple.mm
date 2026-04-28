@@ -65,13 +65,8 @@ ConnectivityMonitorApple::ConnectivityMonitorApple(
     return;
   }
 
-  dispatch_queue_attr_t attrs = dispatch_queue_attr_make_with_qos_class(
-      DISPATCH_QUEUE_SERIAL, QOS_CLASS_UTILITY,
-      DISPATCH_QUEUE_PRIORITY_DEFAULT);
-  monitor_queue_ = dispatch_queue_create(
-      "com.google.firebase.firestore.network.monitor", attrs);
-
-  nw_path_monitor_set_queue(monitor_, monitor_queue_);
+  // Move execution to the main thread as requested by the user.
+  nw_path_monitor_set_queue(monitor_, dispatch_get_main_queue());
 
   // Capture `this` is safe because we call `nw_path_monitor_cancel` in the
   // destructor, which ensures no more callbacks are delivered.
