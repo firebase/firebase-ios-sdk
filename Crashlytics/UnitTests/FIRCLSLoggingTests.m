@@ -368,11 +368,7 @@
   NSError* error = [NSError errorWithDomain:@"My Custom Domain"
                                        code:-1
                                    userInfo:@{@"key1" : @"value", @"key2" : @"value2"}];
-  NSArray<NSNumber *> *stackTrace = @[
-    @(0x100000000),
-    @(0x100000008),
-    @(0x100000010)
-  ];
+  NSArray<NSNumber*>* stackTrace = @[ @(0x100000000), @(0x100000008), @(0x100000010) ];
 
   FIRCLSUserLoggingRecordError(error, @{@"additional" : @"key"}, nil, stackTrace, time(NULL));
 
@@ -440,11 +436,7 @@
 
 - (void)testLoggedErrorWithNullsInAdditionalInfo {
   NSError* error = [NSError errorWithDomain:@"Domain" code:-1 userInfo:nil];
-  NSArray<NSNumber *> *stackTrace = @[
-    @(0x100000000),
-    @(0x100000008),
-    @(0x100000010)
-  ];
+  NSArray<NSNumber*>* stackTrace = @[ @(0x100000000), @(0x100000008), @(0x100000010) ];
 
   FIRCLSUserLoggingRecordError(error, @{@"null-key" : [NSNull null]}, nil, stackTrace, time(NULL));
 
