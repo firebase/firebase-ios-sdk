@@ -77,16 +77,7 @@ FirebaseAppCheckCredentialsProvider::FirebaseAppCheckCredentialsProvider(
 }
 
 FirebaseAppCheckCredentialsProvider::~FirebaseAppCheckCredentialsProvider() {
-  printf("FACCP Destructor: locking mutex %p\n", &contents_->mutex);
-  fflush(stdout);
-  std::unique_lock<std::mutex> lock(contents_->mutex);
-  printf("FACCP Destructor: mutex locked %p\n", &contents_->mutex);
-  fflush(stdout);
-  if (app_check_listener_handle_) {
-    [[NSNotificationCenter defaultCenter]
-        removeObserver:app_check_listener_handle_];
-    app_check_listener_handle_ = nil;
-  }
+  Shutdown();
 }
 
 void FirebaseAppCheckCredentialsProvider::GetToken(
@@ -137,6 +128,22 @@ void FirebaseAppCheckCredentialsProvider::SetCredentialChangeListener(
   }
 
   change_listener_ = change_listener;
+}
+
+void FirebaseAppCheckCredentialsProvider::Shutdown() {
+  printf("FACCP Shutdown: locking mutex %p\n", &contents_->mutex);
+  fflush(stdout);
+  std::unique_lock<std::mutex> lock(contents_->mutex);
+  printf("FACCP Shutdown: mutex locked %p\n", &contents_->mutex);
+  fflush(stdout);
+
+  if (app_check_listener_handle_) {
+    [[NSNotificationCenter defaultCenter]
+        removeObserver:app_check_listener_handle_];
+    app_check_listener_handle_ = nil;
+  }
+
+  change_listener_ = nullptr;
 }
 
 }  // namespace credentials

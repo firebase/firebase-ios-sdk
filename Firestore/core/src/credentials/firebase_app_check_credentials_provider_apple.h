@@ -51,6 +51,8 @@ class FirebaseAppCheckCredentialsProvider
   void SetCredentialChangeListener(
       CredentialChangeListener<std::string> change_listener) override;
 
+  void Shutdown() override;
+
  private:
   /**
    * Most contents of the FirebaseAppCheckCredentialsProvider are kept in this

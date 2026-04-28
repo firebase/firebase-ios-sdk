@@ -52,6 +52,13 @@ class CredentialsProvider {
 
   virtual ~CredentialsProvider() = default;
 
+  /**
+   * Shuts down the credentials provider, clearing any listeners or background
+   * tasks.
+   */
+  virtual void Shutdown() {
+  }
+
   /** Requests token for the current user. */
   virtual void GetToken(TokenListener<TokenType> completion) = 0;
 
