@@ -90,7 +90,7 @@ import Foundation
       }
 
       let text: String
-      if let responseText = response.text {
+      if let responseText = response.text(isThought: false) {
         text = responseText
       } else if let parts = response.candidates.first?.content.parts, !parts.isEmpty {
         text = ""
@@ -166,7 +166,7 @@ import Foundation
                 functionCalls.append(contentsOf: chunk.functionCalls)
 
                 let text: String
-                if let responseText = chunk.text {
+                if let responseText = chunk.text(isThought: false) {
                   text = responseText
                 } else if let parts = chunk.candidates.first?.content.parts, !parts.isEmpty {
                   text = ""
@@ -179,7 +179,7 @@ import Foundation
 
                 // 2. If we have pending data, we now know it wasn't the last chunk.
                 if let pending = pendingChunkData,
-                   !pending.text.isEmpty || pending.response.thoughtSummary != nil {
+                   !pending.text.isEmpty || pending.response.text(isThought: true) != nil {
                   let rawContent = try GenerativeModelSession.makeRawContent(
                     from: pending.text,
                     generationID: pending.id,
@@ -232,7 +232,7 @@ import Foundation
                 if !functionResponses.isEmpty {
                   // Yield any pending text if it's not empty, but mark it as NOT complete yet.
                   if let pending = pendingChunkData,
-                     !pending.text.isEmpty || pending.response.thoughtSummary != nil {
+                     !pending.text.isEmpty || pending.response.text(isThought: true) != nil {
                     let rawContent = try GenerativeModelSession.makeRawContent(
                       from: pending.text,
                       generationID: pending.id,

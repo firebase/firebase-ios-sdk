@@ -70,3 +70,9 @@ func XCTSkipFoundationModelsUnsupported() throws {
     throw XCTSkip("Foundation Models requires iOS/macOS/visionOS 26+.")
   }
 }
+
+func XCTSkipStreamingUnsupported() throws {
+  guard #available(macOS 12.0, watchOS 8.0, *) else {
+    throw XCTSkip("Streaming requires macOS 12+ or watchOS 8+.")
+  }
+}

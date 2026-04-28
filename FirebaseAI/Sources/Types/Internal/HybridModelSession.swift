@@ -13,20 +13,38 @@
 // limitations under the License.
 
 #if compiler(>=6.2.3)
-  final class HybridModelSession: _ModelSession {
-    private let primary: any _ModelSession
-    private let secondary: any _ModelSession
+  private import FirebaseCoreInternal
 
-    init(primary: any _ModelSession, secondary: any _ModelSession) {
-      self.primary = primary
-      self.secondary = secondary
+  final class HybridModelSession: _ModelSession {
+    private let primaryModel: any LanguageModel
+    private let secondaryModel: any LanguageModel
+    private let tools: [any ToolRepresentable]?
+    private let instructions: String?
+
+    typealias SessionState = (primary: (any _ModelSession)?, secondary: (any _ModelSession)?)
+    private let lock: UnfairLock<SessionState>
+
+    init(primaryModel: any LanguageModel, secondaryModel: any LanguageModel,
+         tools: [any ToolRepresentable]?, instructions: String?) {
+      self.primaryModel = primaryModel
+      self.secondaryModel = secondaryModel
+      self.tools = tools
+      self.instructions = instructions
+      lock = UnfairLock((primary: nil, secondary: nil))
+    }
+
+    enum SessionModel {
+      case primaryModel
+      case secondaryModel
     }
 
     /// Returns `true` if the session has history (i.e., it has already had one or more chat turns).
     ///
     /// > Important: This property is for **internal use only** and may change at any time.
     var _hasHistory: Bool {
-      return primary._hasHistory || secondary._hasHistory
+      return lock.withLock { state in
+        state.primary?._hasHistory == true || state.secondary?._hasHistory == true
+      }
     }
 
     /// Sends a prompt to the model and returns a ``_ModelSessionResponse``.
@@ -42,38 +60,53 @@
     func _respond(to prompt: [any Part], schema: FirebaseAI.GenerationSchema?,
                   includeSchemaInPrompt: Bool, options: any GenerationOptionsRepresentable)
       async throws -> _ModelSessionResponse {
-      // If the secondary session contains history then a previous fallback occurred.
-      // Stick with the secondary session to maintain conversation consistency.
-      if secondary._hasHistory {
-        return try await secondary._respond(
-          to: prompt,
-          schema: schema,
-          includeSchemaInPrompt: includeSchemaInPrompt,
-          options: options
-        )
-      }
-
-      do {
-        // First try the primary session.
-        return try await primary._respond(
-          to: prompt,
-          schema: schema,
-          includeSchemaInPrompt: includeSchemaInPrompt,
-          options: options
-        )
-      } catch {
-        // Do not fallback to second session if the primary session contains history.
-        if primary._hasHistory {
-          throw error
+      return try await TaskLocals.$isHybridRequest.withValue(true) {
+        // If the secondary session contains history then a previous fallback occurred.
+        // Stick with the secondary session to maintain conversation consistency.
+        let useSecondary = lock.withLock { state in
+          state.secondary?._hasHistory == true
+        }
+        if useSecondary {
+          let secondarySession = try getSession(for: .secondaryModel)
+          return try await secondarySession._respond(
+            to: prompt,
+            schema: schema,
+            includeSchemaInPrompt: includeSchemaInPrompt,
+            options: options
+          )
         }
 
-        // Fallback to the second session if the first fails or is unavailable.
-        return try await secondary._respond(
-          to: prompt,
-          schema: schema,
-          includeSchemaInPrompt: includeSchemaInPrompt,
-          options: options
-        )
+        do {
+          // First try the primary session.
+          let primarySession = try getSession(for: .primaryModel)
+          return try await primarySession._respond(
+            to: prompt,
+            schema: schema,
+            includeSchemaInPrompt: includeSchemaInPrompt,
+            options: options
+          )
+        } catch {
+          if Task.isCancelled || error is CancellationError {
+            throw error
+          }
+
+          // Do not fallback to second session if the primary session contains history.
+          let primaryHasHistory = lock.withLock { state in
+            state.primary?._hasHistory == true
+          }
+          if primaryHasHistory {
+            throw error
+          }
+
+          // Fallback to the second session if the first fails or is unavailable.
+          let secondarySession = try getSession(for: .secondaryModel)
+          return try await secondarySession._respond(
+            to: prompt,
+            schema: schema,
+            includeSchemaInPrompt: includeSchemaInPrompt,
+            options: options
+          )
+        }
       }
     }
 
@@ -90,61 +123,136 @@
                          includeSchemaInPrompt: Bool,
                          options: any GenerationOptionsRepresentable)
       -> sending AsyncThrowingStream<_ModelSessionResponse, any Error> {
-      // If the secondary session contains history then a previous fallback occurred.
-      // Stick with the secondary session to maintain conversation consistency.
-      if secondary._hasHistory {
-        return secondary._streamResponse(
-          to: prompt,
-          schema: schema,
-          includeSchemaInPrompt: includeSchemaInPrompt,
-          options: options
-        )
-      }
-
-      return AsyncThrowingStream { continuation in
-        let task = Task {
-          // First try the primary session.
-          let stream = primary._streamResponse(
-            to: prompt,
-            schema: schema,
-            includeSchemaInPrompt: includeSchemaInPrompt,
-            options: options
-          )
-
-          var didYield = false
+      return TaskLocals.$isHybridRequest.withValue(true) {
+        // If the secondary session contains history then a previous fallback occurred.
+        // Stick with the secondary session to maintain conversation consistency.
+        let useSecondary = lock.withLock { state in
+          state.secondary?._hasHistory == true
+        }
+        if useSecondary {
           do {
-            for try await snapshot in stream {
-              didYield = true
-              continuation.yield(snapshot)
-            }
-            continuation.finish()
-          } catch {
-            // Do not fallback to second session if the primary session contains history or has
-            // already yielded data.
-            if didYield || primary._hasHistory {
-              continuation.finish(throwing: error)
-              return
-            }
-
-            // Fallback to the second session if the first fails or is unavailable.
-            let stream = secondary._streamResponse(
+            let secondarySession = try getSession(for: .secondaryModel)
+            return secondarySession._streamResponse(
               to: prompt,
               schema: schema,
               includeSchemaInPrompt: includeSchemaInPrompt,
               options: options
             )
-
-            do {
-              for try await snapshot in stream {
-                continuation.yield(snapshot)
-              }
-              continuation.finish()
-            } catch {
+          } catch {
+            return AsyncThrowingStream { continuation in
               continuation.finish(throwing: error)
             }
           }
         }
-        continuation.onTermination = { _ in task.cancel() }
+
+        return AsyncThrowingStream { continuation in
+          let task = Task {
+            do {
+              // First try the primary session.
+              let primarySession = try self.getSession(for: .primaryModel)
+              let stream = primarySession._streamResponse(
+                to: prompt,
+                schema: schema,
+                includeSchemaInPrompt: includeSchemaInPrompt,
+                options: options
+              )
+
+              var didYield = false
+              do {
+                for try await snapshot in stream {
+                  didYield = true
+                  continuation.yield(snapshot)
+                }
+                continuation.finish()
+              } catch {
+                if Task.isCancelled || error is CancellationError {
+                  continuation.finish(throwing: error)
+                  return
+                }
+
+                // Do not fallback to second session if the primary session contains history or has
+                // already yielded data.
+                let primaryHasHistory = self.lock.withLock { state in
+                  state.primary?._hasHistory == true
+                }
+                if didYield || primaryHasHistory {
+                  continuation.finish(throwing: error)
+                  return
+                }
+
+                // Fallback to the second session if the first fails or is unavailable.
+                let secondarySession = try self.getSession(for: .secondaryModel)
+                let stream = secondarySession._streamResponse(
+                  to: prompt,
+                  schema: schema,
+                  includeSchemaInPrompt: includeSchemaInPrompt,
+                  options: options
+                )
+
+                do {
+                  for try await snapshot in stream {
+                    continuation.yield(snapshot)
+                  }
+                  continuation.finish()
+                } catch {
+                  continuation.finish(throwing: error)
+                }
+              }
+            } catch {
+              if Task.isCancelled || error is CancellationError {
+                continuation.finish(throwing: error)
+                return
+              }
+
+              // Failure to create primary session.
+              // Fallback to the second session if the first fails or is unavailable.
+              do {
+                let secondarySession = try self.getSession(for: .secondaryModel)
+                let stream = secondarySession._streamResponse(
+                  to: prompt,
+                  schema: schema,
+                  includeSchemaInPrompt: includeSchemaInPrompt,
+                  options: options
+                )
+
+                for try await snapshot in stream {
+                  continuation.yield(snapshot)
+                }
+                continuation.finish()
+              } catch {
+                continuation.finish(throwing: error)
+              }
+            }
+          }
+          continuation.onTermination = { _ in task.cancel() }
+        }
+      }
+    }
+
+    private func getSession(for model: SessionModel) throws -> any _ModelSession {
+      let languageModel = (model == .primaryModel) ? primaryModel : secondaryModel
+
+      // 1. Check if it exists under lock.
+      let existing = lock.withLock { state in
+        (model == .primaryModel) ? state.primary : state.secondary
+      }
+      if let existing {
+        return existing
+      }
+
+      // 2. Create it outside the lock.
+      let session = try languageModel._startSession(tools: tools, instructions: instructions)
+
+      // 3. Try to store it under lock.
+      return lock.withLock { state in
+        if model == .primaryModel {
+          if let existing = state.primary { return existing }
+          state.primary = session
+        } else {
+          if let existing = state.secondary { return existing }
+          state.secondary = session
+        }
+        return session
       }
     }
   }

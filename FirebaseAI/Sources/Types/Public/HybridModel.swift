@@ -46,41 +46,12 @@
     /// > Important: This method is for **internal use only** and may change at any time.
     public func _startSession(tools: [any ToolRepresentable]?,
                               instructions: String?) throws -> any _ModelSession {
-      var primarySession: (any _ModelSession)?
-      var primaryError: Error?
-      var secondarySession: (any _ModelSession)?
-      var secondaryError: Error?
-
-      do {
-        primarySession = try primary._startSession(tools: tools, instructions: instructions)
-      } catch {
-        primaryError = error
-      }
-
-      do {
-        secondarySession = try secondary._startSession(tools: tools, instructions: instructions)
-      } catch {
-        secondaryError = error
-      }
-
-      if let primarySession, let secondarySession {
-        return HybridModelSession(primary: primarySession, secondary: secondarySession)
-      } else if let primarySession {
-        return primarySession
-      } else if let secondarySession {
-        return secondarySession
-      } else {
-        let context = GenerativeModelSession.GenerationError.Context(
-          debugDescription: """
-          Failed to start session for model "\(primary._modelName)" with error: \
-          \(primaryError?.localizedDescription ?? "unknown error");
-          Failed to start session for model "\(secondary._modelName)" with error: \
-          \(secondaryError?.localizedDescription ?? "unknown error")
-          """
-        )
-
-        throw GenerativeModelSession.GenerationError.assetsUnavailable(context)
-      }
+      return HybridModelSession(
+        primaryModel: primary,
+        secondaryModel: secondary,
+        tools: tools,
+        instructions: instructions
+      )
     }
   }
 #endif // compiler(>=6.2.3)
