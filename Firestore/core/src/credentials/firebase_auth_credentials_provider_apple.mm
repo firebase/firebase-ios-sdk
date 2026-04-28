@@ -16,6 +16,8 @@
 
 #include "Firestore/core/src/credentials/firebase_auth_credentials_provider_apple.h"
 
+#include <cstdio>
+
 #import "FirebaseCore/Extension/FIRAppInternal.h"
 
 #import "FirebaseAuth/Interop/Public/FirebaseAuthInterop/FIRAuthInterop.h"
@@ -45,7 +47,13 @@ FirebaseAuthCredentialsProvider::FirebaseAuthCredentialsProvider(
                   return;
                 }
 
+                printf("FACP Notification: locking mutex %p\n",
+                       &contents->mutex);
+                fflush(stdout);
                 std::unique_lock<std::mutex> lock(contents->mutex);
+                printf("FACP Notification: mutex locked %p\n",
+                       &contents->mutex);
+                fflush(stdout);
                 NSDictionary<NSString*, id>* user_info = notification.userInfo;
 
                 // ensure we're only notifying for the current app.
@@ -67,9 +75,7 @@ FirebaseAuthCredentialsProvider::FirebaseAuthCredentialsProvider(
 }
 
 FirebaseAuthCredentialsProvider::~FirebaseAuthCredentialsProvider() {
-  if (auth_listener_handle_) {
-    [[NSNotificationCenter defaultCenter] removeObserver:auth_listener_handle_];
-  }
+  Shutdown();
 }
 
 void FirebaseAuthCredentialsProvider::GetToken(
@@ -84,33 +90,38 @@ void FirebaseAuthCredentialsProvider::GetToken(
   // Capture self via a shared_ptr to ensure that the credentials provider
   // is not deallocated while the getToken request is outstanding.
   std::shared_ptr<FirebaseAuthCredentialsProvider> self = shared_from_this();
-  void (^get_token_callback)(NSString*, NSError*) =
-      ^(NSString* _Nullable token, NSError* _Nullable error) {
-        std::unique_lock<std::mutex> lock(self->contents_->mutex);
-        if (initial_token_counter != self->contents_->token_counter) {
-          // Cancel the request since the user changed while the request was
-          // outstanding so the response is likely for a previous user (which
-          // user, we can't be sure).
-          LOG_DEBUG("GetToken aborted due to token change.");
-          return self->GetToken(completion);
+  void (^get_token_callback)(NSString*, NSError*) = ^(
+      NSString* _Nullable token, NSError* _Nullable error) {
+    printf("FACP GetTokenCallback: locking mutex %p\n",
+           &self->contents_->mutex);
+    fflush(stdout);
+    std::unique_lock<std::mutex> lock(self->contents_->mutex);
+    printf("FACP GetTokenCallback: mutex locked %p\n", &self->contents_->mutex);
+    fflush(stdout);
+    if (initial_token_counter != self->contents_->token_counter) {
+      // Cancel the request since the user changed while the request was
+      // outstanding so the response is likely for a previous user (which
+      // user, we can't be sure).
+      LOG_DEBUG("GetToken aborted due to token change.");
+      return self->GetToken(completion);
+    } else {
+      if (error == nil) {
+        if (token != nil) {
+          completion(AuthToken{util::MakeString(token),
+                               self->contents_->current_user});
         } else {
-          if (error == nil) {
-            if (token != nil) {
-              completion(AuthToken{util::MakeString(token),
-                                   self->contents_->current_user});
-            } else {
-              completion(AuthToken::Unauthenticated());
-            }
-          } else {
-            Error error_code = Error::kErrorUnknown;
-            if (error.domain == FIRFirestoreErrorDomain) {
-              error_code = static_cast<Error>(error.code);
-            }
-            completion(util::Status(
-                error_code, util::MakeString(error.localizedDescription)));
-          }
+          completion(AuthToken::Unauthenticated());
         }
-      };
+      } else {
+        Error error_code = Error::kErrorUnknown;
+        if (error.domain == FIRFirestoreErrorDomain) {
+          error_code = static_cast<Error>(error.code);
+        }
+        completion(util::Status(error_code,
+                                util::MakeString(error.localizedDescription)));
+      }
+    }
+  };
 
   // TODO(wilhuff): Need a better abstraction over a missing auth provider.
   if (contents_->auth) {
@@ -126,7 +137,11 @@ void FirebaseAuthCredentialsProvider::GetToken(
 
 void FirebaseAuthCredentialsProvider::SetCredentialChangeListener(
     CredentialChangeListener<User> change_listener) {
+  printf("FACP SetListener: locking mutex %p\n", &contents_->mutex);
+  fflush(stdout);
   std::unique_lock<std::mutex> lock(contents_->mutex);
+  printf("FACP SetListener: mutex locked %p\n", &contents_->mutex);
+  fflush(stdout);
   if (change_listener) {
     HARD_ASSERT(!change_listener_, "set change_listener twice!");
     // Fire initial event.
@@ -138,6 +153,21 @@ void FirebaseAuthCredentialsProvider::SetCredentialChangeListener(
     auth_listener_handle_ = nil;
   }
   change_listener_ = change_listener;
+}
+
+void FirebaseAuthCredentialsProvider::Shutdown() {
+  printf("FACP Shutdown: locking mutex %p\n", &contents_->mutex);
+  fflush(stdout);
+  std::unique_lock<std::mutex> lock(contents_->mutex);
+  printf("FACP Shutdown: mutex locked %p\n", &contents_->mutex);
+  fflush(stdout);
+
+  if (auth_listener_handle_) {
+    [[NSNotificationCenter defaultCenter] removeObserver:auth_listener_handle_];
+    auth_listener_handle_ = nil;
+  }
+
+  change_listener_ = nullptr;
 }
 
 }  // namespace credentials

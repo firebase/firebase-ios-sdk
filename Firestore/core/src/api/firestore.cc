@@ -106,6 +106,10 @@ void Firestore::Dispose() {
     app_check_credentials_provider_->Shutdown();
   }
 
+  if (auth_credentials_provider_) {
+    auth_credentials_provider_->Shutdown();
+  }
+
   client_->Dispose();
 }
 
