@@ -322,6 +322,8 @@ void FirestoreClient::TerminateAsync(StatusCallback callback) {
 void FirestoreClient::TerminateInternal() {
   if (!remote_store_) return;
 
+  printf("TerminateInternal: resetting credentials providers\n");
+  fflush(stdout);
   app_check_credentials_provider_->SetCredentialChangeListener(nullptr);
   app_check_credentials_provider_.reset();
 
@@ -329,19 +331,31 @@ void FirestoreClient::TerminateInternal() {
   auth_credentials_provider_.reset();
 
   // If we've scheduled LRU garbage collection, cancel it.
+  printf("TerminateInternal: cancelling callbacks\n");
+  fflush(stdout);
   lru_callback_.Cancel();
 
   backfiller_callback_.Cancel();
 
+  printf("TerminateInternal: shutting down remote store\n");
+  fflush(stdout);
   remote_store_->Shutdown();
+  printf("TerminateInternal: shutting down persistence\n");
+  fflush(stdout);
   persistence_->Shutdown();
 
+  printf("TerminateInternal: resetting local store and engines\n");
+  fflush(stdout);
   local_store_.reset();
   query_engine_.reset();
   event_manager_.reset();
 
   // Clear the remote store to indicate terminate is complete.
+  printf("TerminateInternal: clearing remote store\n");
+  fflush(stdout);
   remote_store_.reset();
+  printf("TerminateInternal: completed\n");
+  fflush(stdout);
 }
 
 void FirestoreClient::ScheduleLruGarbageCollection() {

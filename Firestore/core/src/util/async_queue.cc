@@ -37,9 +37,13 @@ std::shared_ptr<AsyncQueue> AsyncQueue::Create(
 AsyncQueue::AsyncQueue(std::unique_ptr<Executor> executor)
     : executor_{std::move(executor)} {
   is_operation_in_progress_ = false;
+  printf("AsyncQueue::AsyncQueue %p\n", this);
+  fflush(stdout);
 }
 
 AsyncQueue::~AsyncQueue() {
+  printf("AsyncQueue::~AsyncQueue %p\n", this);
+  fflush(stdout);
   Dispose();
 }
 
@@ -86,7 +90,11 @@ void AsyncQueue::ExecuteBlocking(const Operation& operation) {
               "before the previous operation finishes executing");
 
   is_operation_in_progress_ = true;
+  printf("AsyncQueue::ExecuteBlocking %p starting operation\n", this);
+  fflush(stdout);
   operation();
+  printf("AsyncQueue::ExecuteBlocking %p finished operation\n", this);
+  fflush(stdout);
   is_operation_in_progress_ = false;
 }
 
@@ -104,6 +112,8 @@ bool AsyncQueue::EnqueueEvenWhileRestricted(const Operation& operation) {
 }
 
 bool AsyncQueue::is_running() const {
+  printf("AsyncQueue::is_running %p, mutex=%p\n", this, &mutex_);
+  fflush(stdout);
   std::lock_guard<std::mutex> lock(mutex_);
   return mode_ == Mode::kRunning;
 }
