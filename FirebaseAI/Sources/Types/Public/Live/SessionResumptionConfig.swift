@@ -22,13 +22,21 @@ import Foundation
 public struct SessionResumptionConfig: Sendable {
   let bidiSessionResumptionConfig: BidiSessionResumptionConfig
 
-  /// Creates a ``SessionResumptionConfig`` instance.
+  /// Resumes  a ``SessionResumptionConfig`` instance.
+  ///
+  /// To start a new session, use ``SessionResumptionConfig/init()`` instead.
   ///
   /// - Parameters:
   ///   - handle: The session resumption handle of the previous session to restore.
-  ///     If not present, a new session will be started.
-  public init(handle: String? = nil) {
+  public init(handle: String) {
     self.init(BidiSessionResumptionConfig(handle: handle, transparent: nil))
+  }
+
+  /// Creates a new ``SessionResumptionConfig`` instance.
+  ///
+  /// To resume a previously started session, use ``SessionResumptionConfig/init(handle:)`` instead.
+  public init() {
+    self.init(BidiSessionResumptionConfig(handle: nil, transparent: nil))
   }
 
   init(_ bidiSessionResumptionConfig: BidiSessionResumptionConfig) {
