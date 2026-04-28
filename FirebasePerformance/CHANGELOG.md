@@ -1,4 +1,5 @@
 # Unreleased
+- [Performance] Fix missing network traces for Swift async/await URLSession requests on iOS 16+. (#11861)
 - [fixed] Fixed NSURLSession delegate instrumentation for NSProxy delegates. (#14478)
 - [fixed] Address crash by deferring class disposal in FPRObjectSwizzler. (#14473)
 - [fixed] Prevent race condition crashes in FPRScreenTraceTracker by replacing NSMapTable with
