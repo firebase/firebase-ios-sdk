@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseAILogic'
-  s.version          = '12.11.0'
+  s.version          = '12.13.0'
   s.summary          = 'Firebase AI Logic SDK'
 
   s.description      = <<-DESC
@@ -43,10 +43,18 @@ Build AI-powered apps and features with the Gemini API using the Firebase AI Log
   s.tvos.framework = 'UIKit'
   s.watchos.framework = 'WatchKit'
 
-  s.dependency 'FirebaseAppCheckInterop', '~> 12.11.0'
-  s.dependency 'FirebaseAuthInterop', '~> 12.11.0'
-  s.dependency 'FirebaseCore', '~> 12.11.0'
-  s.dependency 'FirebaseCoreExtension', '~> 12.11.0'
+  swift_flags_xcconfig = {
+    'OTHER_SWIFT_FLAGS' => '$(inherited) -D IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM'
+  }
+
+  # Note: Foundation Models is only supported on iOS and macOS; watchOS and tvOS are omitted.
+  s.ios.pod_target_xcconfig = swift_flags_xcconfig
+  s.osx.pod_target_xcconfig = swift_flags_xcconfig
+
+  s.dependency 'FirebaseAppCheckInterop', '~> 12.13.0'
+  s.dependency 'FirebaseAuthInterop', '~> 12.13.0'
+  s.dependency 'FirebaseCore', '~> 12.13.0'
+  s.dependency 'FirebaseCoreExtension', '~> 12.13.0'
 
   s.test_spec 'unit' do |unit_tests|
     unit_tests_dir = 'FirebaseAI/Tests/Unit/'
@@ -66,5 +74,9 @@ Build AI-powered apps and features with the Gemini API using the Firebase AI Log
       unit_tests_dir + 'vertexai-sdk-test-data/mock-responses',
       unit_tests_dir + 'Resources/**/*',
     ]
+
+    # Note: Foundation Models is only supported on iOS and macOS; watchOS and tvOS are omitted.
+    unit_tests.ios.pod_target_xcconfig = swift_flags_xcconfig
+    unit_tests.osx.pod_target_xcconfig = swift_flags_xcconfig
   end
 end

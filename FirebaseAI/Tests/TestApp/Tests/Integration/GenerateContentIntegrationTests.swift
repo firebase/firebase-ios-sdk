@@ -48,20 +48,19 @@ struct GenerateContentIntegrationTests {
   }
 
   @Test(arguments: [
-    (InstanceConfig.vertexAI_v1beta, ModelNames.gemini2FlashLite),
-    (InstanceConfig.vertexAI_v1beta_global, ModelNames.gemini2FlashLite),
-    (InstanceConfig.vertexAI_v1beta_global_appCheckLimitedUse, ModelNames.gemini2FlashLite),
+    (InstanceConfig.vertexAI_v1beta, ModelNames.gemini2_5_FlashLite),
+    (InstanceConfig.vertexAI_v1beta_global, ModelNames.gemini2_5_FlashLite),
+    (InstanceConfig.vertexAI_v1beta_global_appCheckLimitedUse, ModelNames.gemini2_5_FlashLite),
     (InstanceConfig.googleAI_v1beta, ModelNames.gemini3_1_FlashLitePreview),
     (InstanceConfig.googleAI_v1beta_appCheckLimitedUse, ModelNames.gemini3_1_FlashLitePreview),
-    (InstanceConfig.googleAI_v1beta, ModelNames.gemma3_4B),
-    (InstanceConfig.googleAI_v1beta_freeTier, ModelNames.gemma3_4B),
+    (InstanceConfig.googleAI_v1beta, ModelNames.gemma4_31B),
+    (InstanceConfig.googleAI_v1beta_freeTier, ModelNames.gemma4_31B),
     // Note: The following configs are commented out for easy one-off manual testing.
     // (InstanceConfig.googleAI_v1beta_freeTier, ModelNames.gemini2_5_FlashLite),
     // (InstanceConfig.googleAI_v1beta_staging, ModelNames.gemini2_5_FlashLite),
-    // (InstanceConfig.googleAI_v1beta_staging, ModelNames.gemma3_4B),
-    // (InstanceConfig.vertexAI_v1beta_staging, ModelNames.gemini2FlashLite),
+    // (InstanceConfig.googleAI_v1beta_staging, ModelNames.gemma4_31B),
     // (InstanceConfig.googleAI_v1beta_freeTier_bypassProxy, ModelNames.gemini2_5_FlashLite),
-    // (InstanceConfig.googleAI_v1beta_freeTier_bypassProxy, ModelNames.gemma3_4B),
+    // (InstanceConfig.googleAI_v1beta_freeTier_bypassProxy, ModelNames.gemma4_31B),
   ])
   func generateContent(_ config: InstanceConfig, modelName: String) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
@@ -83,14 +82,12 @@ struct GenerateContentIntegrationTests {
     #expect(promptTokensDetails.modality == .text)
     #expect(promptTokensDetails.tokenCount == usageMetadata.promptTokenCount)
     // No thoughts in Flash Lite.
-    #expect(usageMetadata.thoughtsTokenCount == 0)
-    // The fields `candidatesTokenCount` and `candidatesTokensDetails` are not included when using
-    // Gemma models.
-    if modelName.hasPrefix("gemini-3") {
+    if !modelName.contains("flash-lite") {
+      #expect(usageMetadata.thoughtsTokenCount > 0)
+    }
+    // The `candidatesTokensDetails` field is not included when using Gemini 3 or Gemma models.
+    if modelName.hasPrefix("gemini-3") || modelName.hasPrefix("gemma") {
       #expect(usageMetadata.candidatesTokenCount == 2)
-      #expect(usageMetadata.candidatesTokensDetails.isEmpty)
-    } else if modelName.hasPrefix("gemma") {
-      #expect(usageMetadata.candidatesTokenCount == 0)
       #expect(usageMetadata.candidatesTokensDetails.isEmpty)
     } else {
       #expect(usageMetadata.candidatesTokenCount.isEqual(to: 3, accuracy: tokenCountAccuracy))
@@ -435,7 +432,7 @@ struct GenerateContentIntegrationTests {
   )
   func generateContent_withGoogleSearch_succeeds(_ config: InstanceConfig) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
-      modelName: ModelNames.gemini2Flash,
+      modelName: ModelNames.gemini2_5_Flash,
       tools: [.googleSearch()]
     )
     let prompt = "What is the weather in Toronto today?"
@@ -521,7 +518,7 @@ struct GenerateContentIntegrationTests {
   // MARK: Streaming Tests
 
   @Test(arguments: [
-    (InstanceConfig.vertexAI_v1beta, ModelNames.gemini2FlashLite),
+    (InstanceConfig.vertexAI_v1beta, ModelNames.gemini2_5_FlashLite),
     (InstanceConfig.vertexAI_v1beta_global, ModelNames.gemini3_1_FlashLitePreview),
     (
       InstanceConfig.vertexAI_v1beta_global_appCheckLimitedUse,
@@ -529,15 +526,15 @@ struct GenerateContentIntegrationTests {
     ),
     (InstanceConfig.googleAI_v1beta, ModelNames.gemini2_5_FlashLite),
     (InstanceConfig.googleAI_v1beta_appCheckLimitedUse, ModelNames.gemini2_5_FlashLite),
-    (InstanceConfig.googleAI_v1beta, ModelNames.gemma3_4B),
+    (InstanceConfig.googleAI_v1beta, ModelNames.gemma4_31B),
     // Note: The following configs are commented out for easy one-off manual testing.
     // (InstanceConfig.vertexAI_v1beta_staging, ModelNames.gemini2_5_FlashLite),
     // (InstanceConfig.googleAI_v1beta_staging, ModelNames.gemini2_5_FlashLite),
-    // (InstanceConfig.googleAI_v1beta_staging, ModelNames.gemma3_4B),
-    // (InstanceConfig.googleAI_v1beta_freeTier_bypassProxy, ModelNames.gemini2FlashLite),
-    // (InstanceConfig.googleAI_v1beta_freeTier_bypassProxy, ModelNames.gemma3_4B),
+    // (InstanceConfig.googleAI_v1beta_staging, ModelNames.gemma4_31B),
+    // (InstanceConfig.googleAI_v1beta_freeTier_bypassProxy, ModelNames.gemini2_5_FlashLite),
+    // (InstanceConfig.googleAI_v1beta_freeTier_bypassProxy, ModelNames.gemma4_31B),
 //    (InstanceConfig.googleAI_v1beta_freeTier, ModelNames.gemini2_5_FlashLite),
-//    (InstanceConfig.googleAI_v1beta_freeTier, ModelNames.gemma3_4B),
+//    (InstanceConfig.googleAI_v1beta_freeTier, ModelNames.gemma4_31B),
   ])
   func generateContentStream(_ config: InstanceConfig, modelName: String) async throws {
     let expectedResponse = [
@@ -567,10 +564,17 @@ struct GenerateContentIntegrationTests {
         textValues.append(text)
       } else if let finishReason = value.candidates.first?.finishReason {
         #expect(finishReason == .stop)
+      } else if let thoughtSummary = value.thoughtSummary {
+        #expect(!thoughtSummary.isEmpty)
       } else {
         Issue.record("Expected a candidate with a `TextPart` or a `finishReason`; got \(value).")
       }
     }
+
+    // Tests the text derived from streaming directly
+    let modelJSONData = try #require(textValues.joined().data(using: .utf8))
+    let response = try JSONDecoder().decode([String].self, from: modelJSONData)
+    #expect(response == expectedResponse)
 
     let userHistory = try #require(chat.history.first)
     #expect(userHistory.role == "user")
@@ -579,15 +583,22 @@ struct GenerateContentIntegrationTests {
     #expect(promptTextPart.text == prompt)
     let modelHistory = try #require(chat.history.last)
     #expect(modelHistory.role == "model")
-    if modelName.hasPrefix("gemini-3.1-") {
-      #expect(modelHistory.parts.count == 2)
-    } else {
-      #expect(modelHistory.parts.count == 1)
+    let textParts = modelHistory.parts.compactMap { $0 as? TextPart }.filter {
+      !$0.isThoughtOrRelated()
     }
-    let modelTextPart = try #require(modelHistory.parts.first as? TextPart)
-    let modelJSONData = try #require(modelTextPart.text.data(using: .utf8))
-    let response = try JSONDecoder().decode([String].self, from: modelJSONData)
-    #expect(response == expectedResponse)
+    if textParts.count > 1 {
+      Issue.record("Found multiple text parts: \(textParts)")
+    }
+    #expect(
+      textParts.count == 1,
+      "The model should reply with exactly one (non thought) text response."
+    )
+
+    // Tests the text derived from the chat history
+    let historyTextPart = try #require(textParts.first)
+    let historyModelJSONData = try #require(historyTextPart.text.data(using: .utf8))
+    let historyResponse = try JSONDecoder().decode([String].self, from: historyModelJSONData)
+    #expect(historyResponse == expectedResponse)
   }
 
   @Test(arguments: [
@@ -664,5 +675,18 @@ struct GenerateContentIntegrationTests {
 
       return String(describing: underlyingError).contains("Firebase App Check token is invalid")
     }
+  }
+}
+
+extension TextPart {
+  /// Whether this text part is a thought or thought related text part.
+  ///
+  /// In such cases, it can be ignored for display and testing purposes.
+  ///
+  /// We use this over just a standard `isThought` check so that we can
+  /// catch cases where the gemini model sends a text part with empty text that just
+  /// acts as the last thought of the model.
+  func isThoughtOrRelated() -> Bool {
+    return isThought || (thoughtSignature != nil && text.isEmpty)
   }
 }

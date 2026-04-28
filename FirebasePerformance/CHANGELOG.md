@@ -1,3 +1,12 @@
+# Unreleased
+- [fixed] Fixed NSURLSession delegate instrumentation for NSProxy delegates. (#14478)
+- [fixed] Address crash by deferring class disposal in FPRObjectSwizzler. (#14473)
+- [fixed] Prevent race condition crashes in FPRScreenTraceTracker by replacing NSMapTable with
+  thread-safe NSMutableDictionary and locking.
+
+# 12.12.0
+- [fixed] Fix app_start trace not firing in SwiftUI apps using @UIApplicationDelegateAdaptor. (#15802)
+
 # 12.10.0
 - [fixed] Fix a race condition by replacing `mstats()` with `malloc_zone_statistics()`. (#15501)
 - [fixed] Fixed a deadlock in Firebase Sessions where the main thread could

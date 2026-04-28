@@ -174,69 +174,7 @@ public final class GenerativeModel: Sendable {
   @available(macOS 12.0, watchOS 8.0, *)
   public func generateContentStream(_ content: [ModelContent]) throws
     -> AsyncThrowingStream<GenerateContentResponse, Error> {
-    try content.throwIfError()
-    let generateContentRequest = GenerateContentRequest(
-      model: modelResourceName,
-      contents: content,
-      generationConfig: generationConfig,
-      safetySettings: safetySettings,
-      tools: tools,
-      toolConfig: toolConfig,
-      systemInstruction: systemInstruction,
-      apiConfig: apiConfig,
-      apiMethod: .streamGenerateContent,
-      options: requestOptions
-    )
-
-    return AsyncThrowingStream { continuation in
-      let responseStream = generativeAIService.loadRequestStream(request: generateContentRequest)
-      Task {
-        do {
-          var didYieldResponse = false
-          for try await response in responseStream {
-            // Check the prompt feedback to see if the prompt was blocked.
-            if response.promptFeedback?.blockReason != nil {
-              throw GenerateContentError.promptBlocked(response: response)
-            }
-
-            // If the stream ended early unexpectedly, throw an error.
-            if let finishReason = response.candidates.first?.finishReason, finishReason != .stop {
-              throw GenerateContentError.responseStoppedEarly(
-                reason: finishReason,
-                response: response
-              )
-            }
-
-            // Skip returning the response if all candidates are empty (i.e., they contain no
-            // information that a developer could act on).
-            if response.candidates.allSatisfy({ $0.isEmpty }) {
-              AILog.log(
-                level: .debug,
-                code: .generateContentResponseEmptyCandidates,
-                "Skipped response with all empty candidates: \(response)"
-              )
-            } else {
-              continuation.yield(response)
-              didYieldResponse = true
-            }
-          }
-
-          // Throw an error if all responses were skipped due to empty content.
-          if didYieldResponse {
-            continuation.finish()
-          } else {
-            continuation.finish(throwing: GenerativeModel.generateContentError(
-              from: InvalidCandidateError.emptyContent(
-                underlyingError: Candidate.EmptyContentError()
-              )
-            ))
-          }
-        } catch {
-          continuation.finish(throwing: GenerativeModel.generateContentError(from: error))
-          return
-        }
-      }
-    }
+    return try generateContentStream(content, generationConfig: generationConfig)
   }
 
   /// Creates a new chat conversation using this model with the provided history.
@@ -431,6 +369,22 @@ public final class GenerativeModel: Sendable {
         }
       }
     }
+  }
+
+  /// Returns a `Dictionary` of ``FunctionDeclaration`` indexed by `name`.
+  func functionDeclarationsByName() -> [String: FunctionDeclaration] {
+    guard let tools else {
+      return [:]
+    }
+
+    let functionDeclarations = tools.compactMap { $0.functionDeclarations }.flatMap { $0 }
+    return Dictionary(
+      functionDeclarations.map { ($0.name, $0) },
+      uniquingKeysWith: { first, _ in
+        assertionFailure("Multiple function declarations with name: \(first.name)")
+        return first
+      }
+    )
   }
 
   /// Returns a `GenerateContentError` (for public consumption) from an internal error.

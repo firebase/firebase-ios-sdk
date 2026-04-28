@@ -5,6 +5,27 @@
 - [feature] Added support for context window compression in the Liva API via
   [`ContextWindowCompressionConfig`](https://firebase.google.com/docs/reference/swift/firebaseai/api/reference/Classes/ContextWindowCompressionConfig).
   (#15904)
+- [feature] Added support for GoogleMaps grounding, including for Server Prompt Templates.
+- [fixed] Fix unfound file warnings from `swift build`. (#16012)
+- [fixed] Fixed a `no member 'autoFunctionDeclaration'` compilation error on
+  unofficially supported Xcode versions older than 26.2. (#16037)
+- [fixed] Fixed missing thought summary output in `GenerativeModelSession.streamResponse`. (#16075)
+- [fixed] Removed unnecessary log statements related to retrieving text parts during automatic function calling.
+
+# 12.12.0
+- [feature] Added support for automatic function calling in
+  `GenerativeModelSession`. You can create Gemini-compatible function
+  declarations by providing types conforming to the `FoundationModels.Tool`
+  protocol when initializing a session. (#15915)
+- [fixed] Updated `GenerativeModelSession` to handle intermediate JSON decoding
+  failures when streaming structured data. (#15960)
+- [changed] **Breaking Change**: `GenerativeModelSession.GenerationError` is now
+  marked `@nonexhaustive` to support additional cases in a non-breaking manner.
+  If switching on `GenerativeModelSession.GenerationError`, you must add an
+  [`@unknown default:`](https://github.com/swiftlang/swift-evolution/blob/main/proposals/0192-non-exhaustive-enums.md#unknown)
+  case to your `switch` statement. (#16011)
+- [deprecated] All Imagen models are deprecated and will shut down as early as June 2026.
+  As a replacement, you can [migrate your apps to use Gemini Image models (the "Nano Banana" models)](https://firebase.google.com/docs/ai-logic/imagen-models-migration).
 
 # 12.11.0
 - [feature] **Public Preview**: Introduces `GenerativeModelSession` providing

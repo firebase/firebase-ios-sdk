@@ -48,6 +48,13 @@ typedef NS_ENUM(NSInteger, FSTBackendEdition) {
   FSTBackendEditionEnterprise,
 };
 
+typedef NS_ENUM(NSInteger, FSTTargetBackend) {
+  FSTTargetBackendProd,
+  FSTTargetBackendNightly,
+  FSTTargetBackendEmulator,
+  FSTTargetBackendQA,
+};
+
 @interface FSTIntegrationTestCase : XCTestCase
 
 /** Returns the default Firestore project ID for testing. */
@@ -58,6 +65,8 @@ typedef NS_ENUM(NSInteger, FSTBackendEdition) {
 
 /** Returns the backend edition being used for testing. */
 + (FSTBackendEdition)backendEdition;
+
++ (FSTTargetBackend)targetBackend;
 
 + (void)switchToEnterpriseMode;
 

@@ -71,11 +71,27 @@ public struct GenerateContentResponse: Sendable {
 
   let responseID: String?
 
+  let modelVersion: String?
+
   /// The response's content as text, if it exists.
   ///
   /// - Note: This does not include thought summaries; see ``thoughtSummary`` for more details.
   public var text: String? {
-    return text(isThought: false)
+    guard !candidates.isEmpty else {
+      AILog.error(
+        code: .generateContentResponseNoCandidates,
+        "Could not get text from a response that had no candidates."
+      )
+      return nil
+    }
+    guard let value = text(isThought: false) else {
+      AILog.error(
+        code: .generateContentResponseNoText,
+        "Could not get a text part from the first candidate."
+      )
+      return nil
+    }
+    return value
   }
 
   /// A summary of the model's thinking process, if available.
@@ -84,7 +100,21 @@ public struct GenerateContentResponse: Sendable {
   ///   ``ThinkingConfig``. For more information, see the
   ///   [Thinking](https://firebase.google.com/docs/ai-logic/thinking) documentation.
   public var thoughtSummary: String? {
-    return text(isThought: true)
+    guard candidates.first != nil else {
+      AILog.error(
+        code: .generateContentResponseNoCandidates,
+        "Could not get text from a response that had no candidates."
+      )
+      return nil
+    }
+    guard let value = text(isThought: true) else {
+      AILog.error(
+        code: .generateContentResponseNoText,
+        "Could not get a text part from any candidates."
+      )
+      return nil
+    }
+    return value
   }
 
   /// Returns function calls found in any `Part`s of the first candidate of the response, if any.
@@ -124,14 +154,21 @@ public struct GenerateContentResponse: Sendable {
     self.promptFeedback = promptFeedback
     self.usageMetadata = usageMetadata
     responseID = nil
+    modelVersion = nil
+  }
+
+  init(candidates: [Candidate], promptFeedback: PromptFeedback? = nil,
+       usageMetadata: UsageMetadata? = nil, responseID: String? = nil,
+       modelVersion: String? = nil) {
+    self.candidates = candidates
+    self.promptFeedback = promptFeedback
+    self.usageMetadata = usageMetadata
+    self.responseID = responseID
+    self.modelVersion = modelVersion
   }
 
   func text(isThought: Bool) -> String? {
     guard let candidate = candidates.first else {
-      AILog.error(
-        code: .generateContentResponseNoCandidates,
-        "Could not get text from a response that had no candidates."
-      )
       return nil
     }
     let textValues: [String] = candidate.content.parts.compactMap { part in
@@ -141,10 +178,6 @@ public struct GenerateContentResponse: Sendable {
       return textPart.text
     }
     guard textValues.count > 0 else {
-      AILog.error(
-        code: .generateContentResponseNoText,
-        "Could not get a text part from the first candidate."
-      )
       return nil
     }
     return textValues.joined(separator: " ")
@@ -375,6 +408,8 @@ public struct GroundingMetadata: Sendable, Equatable, Hashable {
   public struct GroundingChunk: Sendable, Equatable, Hashable {
     /// Contains details if the grounding chunk is from a web source.
     public let web: WebGroundingChunk?
+    /// Contains details if the grounding chunk is from a Google Maps source.
+    public let maps: GoogleMapsGroundingChunk?
   }
 
   /// A grounding chunk sourced from the web.
@@ -446,6 +481,7 @@ extension GenerateContentResponse: Decodable {
     case promptFeedback
     case usageMetadata
     case responseID = "responseId"
+    case modelVersion
   }
 
   public init(from decoder: Decoder) throws {
@@ -472,6 +508,7 @@ extension GenerateContentResponse: Decodable {
     promptFeedback = try container.decodeIfPresent(PromptFeedback.self, forKey: .promptFeedback)
     usageMetadata = try container.decodeIfPresent(UsageMetadata.self, forKey: .usageMetadata)
     responseID = try container.decodeIfPresent(String.self, forKey: .responseID)
+    modelVersion = try container.decodeIfPresent(String.self, forKey: .modelVersion)
   }
 }
 

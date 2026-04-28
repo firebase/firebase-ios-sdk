@@ -60,6 +60,9 @@ jobs:
       product: FirebaseFunctions
       platforms: '[ "ios", "tvos", "macos" ]'
       flags: '[ "--use-static-frameworks" ]'
-      setup_command: FirebaseFunctions/Backend/start.sh synchronous
-      runs_on: macos-14
-      xcode: Xcode_16.2
+      # For toolchains var, see https://github.com/actions/runner-images/issues/13135#issuecomment-3397914993
+      setup_command: |
+        echo "TOOLCHAINS=com.apple.dt.toolchain.XcodeDefault" >> $GITHUB_ENV
+        FirebaseFunctions/Backend/start.sh synchronous
+      runs_on: macos-26
+      xcode: Xcode_26.4
