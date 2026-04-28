@@ -428,7 +428,7 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
   if (!error) {
     return;
   }
-  
+
   NSString *rolloutsInfoJSON = [_remoteConfigManager getRolloutAssignmentsEncodedJsonString];
 
   // Capture the stack and time before the async queue.
