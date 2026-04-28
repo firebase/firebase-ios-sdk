@@ -5,6 +5,8 @@
 - [feature] Added support for context window compression in the Live API via
   [`ContextWindowCompressionConfig`](https://firebase.google.com/docs/reference/swift/firebaseai/api/reference/Structs/ContextWindowCompressionConfig).
   (#15904)
+- [feature] **Breaking Change**: Added a new Live API payload field for `LiveSessionResumptionUpdate` to
+  support the new session resumption feature. (#15904)
 - [feature] Adds support for configuring image generation properties,
   such as aspect ratio and image size, through the new `ImageConfig` struct
   and its integration with `GenerationConfig`. (#15923)
