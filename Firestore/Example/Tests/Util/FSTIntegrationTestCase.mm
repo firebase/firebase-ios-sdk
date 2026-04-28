@@ -120,6 +120,8 @@ class FakeAuthCredentialsProvider : public EmptyAuthCredentialsProvider {
 }
 
 - (void)setUp {
+  printf("-[FSTIntegrationTestCase setUp] started\n");
+  fflush(stdout);
   [super setUp];
 
   firebase::firestore::util::LogSetLevel(firebase::firestore::util::kLogLevelDebug);

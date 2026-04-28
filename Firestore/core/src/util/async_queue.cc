@@ -48,6 +48,8 @@ AsyncQueue::~AsyncQueue() {
 }
 
 void AsyncQueue::EnterRestrictedMode() {
+  printf("AsyncQueue::EnterRestrictedMode %p, mutex=%p\n", this, &mutex_);
+  fflush(stdout);
   std::lock_guard<std::mutex> lock(mutex_);
   if (mode_ == Mode::kDisposed) return;
 

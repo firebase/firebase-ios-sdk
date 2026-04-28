@@ -33,6 +33,8 @@
 
 // Clears persistence for each test method to have a clean start.
 - (void)setUp {
+  printf("-[FIRIndexingTests setUp] started\n");
+  fflush(stdout);
   [super setUp];
   XCTestExpectation *exp = [self expectationWithDescription:@"clear persistence"];
   [self.db clearPersistenceWithCompletion:^(NSError *) {
