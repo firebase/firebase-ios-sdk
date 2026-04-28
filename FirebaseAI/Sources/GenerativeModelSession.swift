@@ -73,8 +73,8 @@
     ///     native Gemini ``FirebaseAILogic/Tool``s, such as ``ToolRepresentable/googleSearch(_:)``,
     ///     or instances conforming to ``ToolRepresentable`` for automatic function calling.
     ///   - instructions: System instructions that direct the model's behavior.
-    public init(model: any LanguageModel, tools: [any ToolRepresentable]? = nil,
-                instructions: String? = nil) {
+    init(model: any LanguageModel, tools: [any ToolRepresentable]? = nil,
+         instructions: String? = nil) {
       sessionManager = SessionManager(model: model, tools: tools)
       self.instructions = instructions
     }
