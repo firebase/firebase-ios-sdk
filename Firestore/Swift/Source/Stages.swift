@@ -333,14 +333,14 @@ class Search: Stage {
   let errorMessage: String?
 
   init(query: Expression? = nil,
-       limit: Int? = nil,
+       languageCode: String? = nil,
        retrievalDepth: Int? = nil,
        sort: [Ordering]? = nil,
-       addFields: [Selectable]? = nil,
-       select: [Selectable]? = nil,
        offset: Int? = nil,
-       queryEnhancement: QueryEnhancement? = nil,
-       languageCode: String? = nil) {
+       limit: Int? = nil,
+       select: [Selectable]? = nil,
+       addFields: [Selectable]? = nil,
+       queryEnhancement: QueryEnhancement? = nil) {
     // Options represented as a Sendable (e.g. primitive data type or Expression)
     // can be added to this options map. Map and array values will be repsented
     // with the map and array function expressions.

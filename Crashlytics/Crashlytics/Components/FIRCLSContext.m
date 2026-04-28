@@ -341,14 +341,8 @@ bool FIRCLSContextMarkAndCheckIfCrashed(void) {
     return false;
   }
 
-  if (_firclsContext.writable->crashOccurred) {
-    return true;
-  }
-
-  _firclsContext.writable->crashOccurred = true;
-  __sync_synchronize();
-
-  return false;
+  // Atomic compare-and-swap: only one thread can set false -> true
+  return !__sync_bool_compare_and_swap(&_firclsContext.writable->crashOccurred, false, true);
 }
 
 static const char* FIRCLSContextAppendToRoot(NSString* root, NSString* component) {

@@ -3230,6 +3230,15 @@ public enum Converters {
   public static func generateVideosConfigToVertex(
     apiClient: APIClient, fromObject: GenerateVideosConfig
   ) throws -> [String: Any] {
+
+    if fromObject.webhookConfig != nil {
+      throw NSError(
+        domain: "Vertex AI", code: -1,
+        userInfo: [
+          NSLocalizedDescriptionKey: "webhookConfig parameter is not supported in Vertex AI."
+        ])
+    }
+
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -7455,6 +7464,15 @@ public enum Converters {
   public static func createBatchJobConfigToVertex(
     apiClient: APIClient, fromObject: CreateBatchJobConfig
   ) throws -> [String: Any] {
+
+    if fromObject.webhookConfig != nil {
+      throw NSError(
+        domain: "Vertex AI", code: -1,
+        userInfo: [
+          NSLocalizedDescriptionKey: "webhookConfig parameter is not supported in Vertex AI."
+        ])
+    }
+
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase

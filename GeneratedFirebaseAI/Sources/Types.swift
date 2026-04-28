@@ -18977,6 +18977,72 @@ extension VideoGenerationMask: Codable {
   }
 }
 
+/// Configuration for webhook notifications.
+///
+/// Used to configure webhook endpoints that will receive notifications
+/// when long-running operations (e.g., batch jobs, video generation) complete.
+@available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+public struct WebhookConfig: Sendable {
+  /// The webhook URIs to receive notifications. If set, these
+  /// webhook URIs will be used instead of the registered webhooks.
+  public let uris: [String]?
+
+  /// User metadata that will be included in each webhook event
+  /// notification. Use this to attach custom key-value data to correlate
+  /// webhook events with your internal systems.
+  public let userMetadata: [String: JSONValue]?
+
+  /// Default initializer.
+  public init(
+    uris: [String]? = nil,
+    userMetadata: [String: JSONValue]? = nil
+  ) {
+    self.uris = uris
+    self.userMetadata = userMetadata
+  }
+}
+
+@available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension WebhookConfig: Codable {
+
+  // MARK: - Codable
+
+  public enum CommonKeys: String, CodingKey {
+    case uris = "uris"
+    case userMetadata = "userMetadata"
+  }
+
+  public init(from decoder: any Decoder) throws {
+    let configuration: APIClient = try decoder.userInfoOrThrow(.configuration)
+
+    let CommonKeysContainer = try decoder.container(keyedBy: CommonKeys.self)
+    uris = try CommonKeysContainer.decodeIfPresent(
+      [String].self,
+      forKey: .uris
+    )
+
+    userMetadata = try CommonKeysContainer.decodeIfPresent(
+      [String: JSONValue].self,
+      forKey: .userMetadata
+    )
+  }
+
+  public func encode(to encoder: any Encoder) throws {
+    let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
+
+    var CommonKeysContainer = encoder.container(keyedBy: CommonKeys.self)
+    try CommonKeysContainer.encodeIfPresent(
+      uris,
+      forKey: .uris
+    )
+
+    try CommonKeysContainer.encodeIfPresent(
+      userMetadata,
+      forKey: .userMetadata
+    )
+  }
+}
+
 /// Configuration for generating videos.
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct GenerateVideosConfig: Sendable {
@@ -19047,6 +19113,10 @@ public struct GenerateVideosConfig: Sendable {
   /// User specified labels to track billing usage.
   public let labels: [String: String]?
 
+  /// Webhook configuration for receiving notifications when the
+  /// video generation operation completes.
+  public let webhookConfig: WebhookConfig?
+
   /// Default initializer.
   public init(
     httpOptions: HttpOptions? = nil,
@@ -19066,7 +19136,8 @@ public struct GenerateVideosConfig: Sendable {
     referenceImages: [VideoGenerationReferenceImage]? = nil,
     mask: VideoGenerationMask? = nil,
     compressionQuality: VideoCompressionQuality? = nil,
-    labels: [String: String]? = nil
+    labels: [String: String]? = nil,
+    webhookConfig: WebhookConfig? = nil
   ) {
     self.httpOptions = httpOptions
     self.numberOfVideos = numberOfVideos
@@ -19086,6 +19157,7 @@ public struct GenerateVideosConfig: Sendable {
     self.mask = mask
     self.compressionQuality = compressionQuality
     self.labels = labels
+    self.webhookConfig = webhookConfig
   }
 }
 
@@ -19105,6 +19177,9 @@ extension GenerateVideosConfig: Codable {
     case enhancePrompt = "enhancePrompt"
     case lastFrame = "lastFrame"
     case referenceImages = "referenceImages"
+  }
+  public enum MLDevKeys: String, CodingKey {
+    case webhookConfig = "webhookConfig"
   }
   public enum VertexKeys: String, CodingKey {
     case outputGcsUri = "outputGcsUri"
@@ -19169,6 +19244,12 @@ extension GenerateVideosConfig: Codable {
     referenceImages = try CommonKeysContainer.decodeIfPresent(
       [VideoGenerationReferenceImage].self,
       forKey: .referenceImages
+    )
+
+    let MLDevKeysContainer = try decoder.container(keyedBy: MLDevKeys.self)
+    webhookConfig = try MLDevKeysContainer.decodeIfPresent(
+      WebhookConfig.self,
+      forKey: .webhookConfig
     )
 
     let VertexKeysContainer = try decoder.container(keyedBy: VertexKeys.self)
@@ -19266,6 +19347,16 @@ extension GenerateVideosConfig: Codable {
       referenceImages,
       forKey: .referenceImages
     )
+
+    if configuration.isMlDeveloper() {
+
+      var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
+      try MLDevKeysContainer.encodeIfPresent(
+        webhookConfig,
+        forKey: .webhookConfig
+      )
+
+    }
 
     if configuration.isVertexAI() {
 
@@ -30641,15 +30732,21 @@ public struct CreateBatchJobConfig: Sendable {
   /// "gs://path/to/output/data" or "bq://projectId.bqDatasetId.bqTableId".
   public let dest: BatchJobDestination?
 
+  /// Webhook configuration for receiving notifications when the batch
+  /// operation completes.
+  public let webhookConfig: WebhookConfig?
+
   /// Default initializer.
   public init(
     httpOptions: HttpOptions? = nil,
     displayName: String? = nil,
-    dest: BatchJobDestination? = nil
+    dest: BatchJobDestination? = nil,
+    webhookConfig: WebhookConfig? = nil
   ) {
     self.httpOptions = httpOptions
     self.displayName = displayName
     self.dest = dest
+    self.webhookConfig = webhookConfig
   }
 }
 
@@ -30661,6 +30758,9 @@ extension CreateBatchJobConfig: Codable {
   public enum CommonKeys: String, CodingKey {
     case httpOptions = "httpOptions"
     case displayName = "displayName"
+  }
+  public enum MLDevKeys: String, CodingKey {
+    case webhookConfig = "webhookConfig"
   }
   public enum VertexKeys: String, CodingKey {
     case dest = "dest"
@@ -30678,6 +30778,12 @@ extension CreateBatchJobConfig: Codable {
     displayName = try CommonKeysContainer.decodeIfPresent(
       String.self,
       forKey: .displayName
+    )
+
+    let MLDevKeysContainer = try decoder.container(keyedBy: MLDevKeys.self)
+    webhookConfig = try MLDevKeysContainer.decodeIfPresent(
+      WebhookConfig.self,
+      forKey: .webhookConfig
     )
 
     let VertexKeysContainer = try decoder.container(keyedBy: VertexKeys.self)
@@ -30700,6 +30806,16 @@ extension CreateBatchJobConfig: Codable {
       displayName,
       forKey: .displayName
     )
+
+    if configuration.isMlDeveloper() {
+
+      var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
+      try MLDevKeysContainer.encodeIfPresent(
+        webhookConfig,
+        forKey: .webhookConfig
+      )
+
+    }
 
     if configuration.isVertexAI() {
 

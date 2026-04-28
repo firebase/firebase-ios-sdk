@@ -24,13 +24,15 @@
 
   @Suite(.serialized)
   struct GenerativeModelSessionTests {
+    let generationConfig = GenerationConfig(temperature: 0.0, topP: 0.0, topK: 1)
+
     @Test(arguments: [InstanceConfig.vertexAI_v1beta_global, InstanceConfig.googleAI_v1beta])
     func respondText(_ config: InstanceConfig) async throws {
       let firebaseAI = FirebaseAI.componentInstance(config)
       let session = firebaseAI.generativeModelSession(model: ModelNames.gemini2_5_FlashLite)
       let prompt = "Why is the sky blue?"
 
-      let response = try await session.respond(to: prompt)
+      let response = try await session.respond(to: prompt, options: .default)
 
       let content = response.content
       #expect(!content.isEmpty)
@@ -46,7 +48,7 @@
 
     #if canImport(FoundationModels)
       @Generable(description: "Basic profile information about a cat")
-      @available(iOS 26.0, macOS 26.0, *)
+      @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
       @available(tvOS, unavailable)
       @available(watchOS, unavailable)
       struct CatProfile {
@@ -61,7 +63,7 @@
       }
 
       @Test(arguments: [InstanceConfig.vertexAI_v1beta_global, InstanceConfig.googleAI_v1beta])
-      @available(iOS 26.0, macOS 26.0, *)
+      @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
       @available(tvOS, unavailable)
       @available(watchOS, unavailable)
       func respondGeneratedContent(_ config: InstanceConfig) async throws {
@@ -69,7 +71,11 @@
         let session = firebaseAI.generativeModelSession(model: ModelNames.gemini2_5_FlashLite)
         let prompt = "Generate a cute rescue cat"
 
-        let response = try await session.respond(to: prompt, schema: CatProfile.generationSchema)
+        let response = try await session.respond(
+          to: prompt,
+          schema: CatProfile.generationSchema,
+          options: .gemini(generationConfig)
+        )
 
         let content = response.content
         #expect(content.isComplete)
@@ -85,7 +91,7 @@
       }
 
       @Test(arguments: [InstanceConfig.vertexAI_v1beta_global, InstanceConfig.googleAI_v1beta])
-      @available(iOS 26.0, macOS 26.0, *)
+      @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
       @available(tvOS, unavailable)
       @available(watchOS, unavailable)
       func respondGenerable(_ config: InstanceConfig) async throws {
@@ -116,7 +122,7 @@
       }
 
       @Generable
-      @available(iOS 26.0, macOS 26.0, *)
+      @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
       @available(tvOS, unavailable)
       @available(watchOS, unavailable)
       enum Difficulty {
@@ -126,7 +132,7 @@
       }
 
       @Generable
-      @available(iOS 26.0, macOS 26.0, *)
+      @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
       @available(tvOS, unavailable)
       @available(watchOS, unavailable)
       enum SuggestedCourse {
@@ -136,7 +142,7 @@
       }
 
       @Generable(description: "A recipe for a delicious dish")
-      @available(iOS 26.0, macOS 26.0, *)
+      @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
       @available(tvOS, unavailable)
       @available(watchOS, unavailable)
       struct Recipe {
@@ -163,7 +169,7 @@
       }
 
       @Generable(description: "A list of recipes")
-      @available(iOS 26.0, macOS 26.0, *)
+      @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
       @available(tvOS, unavailable)
       @available(watchOS, unavailable)
       struct RecipeList {
@@ -172,7 +178,7 @@
       }
 
       @Test(arguments: [InstanceConfig.vertexAI_v1beta_global, InstanceConfig.googleAI_v1beta])
-      @available(iOS 26.0, macOS 26.0, *)
+      @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
       @available(tvOS, unavailable)
       @available(watchOS, unavailable)
       func respondGenerableRecipe(_ config: InstanceConfig) async throws {
@@ -180,7 +186,11 @@
         let session = firebaseAI.generativeModelSession(model: ModelNames.gemini2_5_FlashLite)
         let prompt = "Generate a recipe for a pasta dish with meat."
 
-        let response = try await session.respond(to: prompt, generating: Recipe.self)
+        let response = try await session.respond(
+          to: prompt,
+          generating: Recipe.self,
+          options: generationConfig
+        )
 
         let recipe = response.content
         #expect(!recipe.name.isEmpty)
@@ -196,7 +206,7 @@
       }
 
       @Test(arguments: [InstanceConfig.vertexAI_v1beta_global, InstanceConfig.googleAI_v1beta])
-      @available(iOS 26.0, macOS 26.0, *)
+      @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
       @available(tvOS, unavailable)
       @available(watchOS, unavailable)
       func respondGenerableRecipeList(_ config: InstanceConfig) async throws {
@@ -205,7 +215,11 @@
         let prompt =
           "Generate three recipes for a full-course vegetarian meal (appetizer, main, dessert)."
 
-        let response = try await session.respond(to: prompt, generating: RecipeList.self)
+        let response = try await session.respond(
+          to: prompt,
+          generating: RecipeList.self,
+          options: .gemini(generationConfig)
+        )
 
         let recipeList = response.content
         #expect(recipeList.recipes.count == 3)
@@ -228,7 +242,7 @@
       }
     #endif // canImport(FoundationModels)
 
-    @available(iOS 26.0, macOS 26.0, *)
+    @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
     struct GetTemperature: FoundationModels.Tool {
@@ -258,7 +272,7 @@
     }
 
     @Test(arguments: [InstanceConfig.vertexAI_v1beta_global, InstanceConfig.googleAI_v1beta])
-    @available(iOS 26.0, macOS 26.0, *)
+    @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
     func respondTextWithAutomaticFunctionCalling(_ config: InstanceConfig) async throws {
@@ -278,7 +292,7 @@
       )
       let prompt = "What is the current temperature in Waterloo, Ontario, Canada?"
 
-      let response = try await session.respond(to: prompt)
+      let response = try await session.respond(to: prompt, options: generationConfig)
 
       let content = response.content
       #expect(!content.isEmpty)
@@ -292,7 +306,7 @@
     }
 
     @Test(arguments: [InstanceConfig.vertexAI_v1beta_global, InstanceConfig.googleAI_v1beta])
-    @available(iOS 26.0, macOS 26.0, *)
+    @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
     func respondGenerableWithAutomaticFunctionCalling(_ config: InstanceConfig) async throws {
@@ -312,7 +326,8 @@
 
       let response = try await session.respond(
         to: prompt,
-        generating: GetTemperature.Temperature.self
+        generating: GetTemperature.Temperature.self,
+        options: .gemini(generationConfig)
       )
 
       let content = response.content
@@ -332,7 +347,7 @@
       let url = "https://blog.google/innovation-and-ai/technology/developers-tools/functiongemma/"
       let prompt = "What was the name of the model announced in: \(url)"
 
-      let response = try await session.respond(to: prompt)
+      let response = try await session.respond(to: prompt, options: generationConfig)
 
       #expect(response.content.contains("FunctionGemma"))
       let candidate = try #require(response.rawResponse.candidates.first)
@@ -350,7 +365,7 @@
       let session = firebaseAI.generativeModelSession(model: ModelNames.gemini2_5_FlashLite)
       let prompt = "Why is the sky blue?"
 
-      let stream = session.streamResponse(to: prompt)
+      let stream = session.streamResponse(to: prompt, options: .gemini(generationConfig))
 
       var generationID: FirebaseAI.GenerationID?
       var isComplete = false
@@ -388,7 +403,7 @@
 
     #if canImport(FoundationModels)
       @Test(arguments: [InstanceConfig.vertexAI_v1beta_global, InstanceConfig.googleAI_v1beta])
-      @available(iOS 26.0, macOS 26.0, *)
+      @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
       @available(tvOS, unavailable)
       @available(watchOS, unavailable)
       func streamResponseGeneratedContent(_ config: InstanceConfig) async throws {
@@ -398,7 +413,8 @@
 
         let stream = session.streamResponse(
           to: prompt,
-          schema: CatProfile.generationSchema
+          schema: CatProfile.generationSchema,
+          options: generationConfig
         )
 
         var generationID: FirebaseAI.GenerationID?
@@ -442,7 +458,7 @@
       }
 
       @Test(arguments: [InstanceConfig.vertexAI_v1beta_global, InstanceConfig.googleAI_v1beta])
-      @available(iOS 26.0, macOS 26.0, *)
+      @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
       @available(tvOS, unavailable)
       @available(watchOS, unavailable)
       func streamResponseGenerable(_ config: InstanceConfig) async throws {
@@ -516,7 +532,7 @@
       }
 
       @Test(arguments: [InstanceConfig.vertexAI_v1beta_global, InstanceConfig.googleAI_v1beta])
-      @available(iOS 26.0, macOS 26.0, *)
+      @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
       @available(tvOS, unavailable)
       @available(watchOS, unavailable)
       func streamResponseTextWithAutomaticFunctionCalling(_ config: InstanceConfig) async throws {
@@ -536,7 +552,7 @@
         )
         let prompt = "What is the current temperature in Waterloo, Ontario, Canada?"
 
-        let stream = session.streamResponse(to: prompt)
+        let stream = session.streamResponse(to: prompt, options: .gemini(generationConfig))
 
         var generationID: FirebaseAI.GenerationID?
         var isComplete = false
