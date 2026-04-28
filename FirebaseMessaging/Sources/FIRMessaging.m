@@ -235,7 +235,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
       // happens before developers able to set the delegate
       // Hence first token set must be happen here after listener is set
       // TODO(chliangGoogle) Need to investigate better solution.
-      [self updateDefaultFCMToken:self.FCMToken];
+      [self updateDefaultFCMToken:[self.tokenManager tokenAndRequestIfNotExist]];
     }];
   } else if (self.isAutoInitEnabled && self.APNSToken) {
     // When there is no cached token, must check auto init is enabled.
@@ -632,14 +632,27 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 // NOTE: Once |didReceiveRegistrationToken:| can be made a required method, this
 // check can be removed.
 - (void)validateDelegateConformsToTokenAvailabilityMethods {
-  if (self.delegate && ![self.delegate respondsToSelector:@selector(messaging:
-                                                              didReceiveRegistrationToken:)]) {
-    FIRMessagingLoggerWarn(kFIRMessagingMessageCodeTokenDelegateMethodsNotImplemented,
-                           @"The object %@ does not respond to "
-                           @"-messaging:didReceiveRegistrationToken:. Please implement "
-                           @"-messaging:didReceiveRegistrationToken: to be provided with an FCM "
-                           @"token.",
-                           self.delegate.description);
+  if (self.delegate) {
+    if ([self isInstallationIdEnabled]) {
+      if (![self.delegate respondsToSelector:@selector(messaging:didReceiveRegistration:)]) {
+        FIRMessagingLoggerWarn(
+            kFIRMessagingMessageCodeTokenDelegateMethodsNotImplemented,
+            @"The object %@ does not respond to "
+            @"-messaging:didReceiveRegistration:. Please implement "
+            @"-messaging:didReceiveRegistration: to be provided with a registration ID.",
+            self.delegate.description);
+      }
+    } else {
+      if (![self.delegate respondsToSelector:@selector(messaging:didReceiveRegistrationToken:)]) {
+        FIRMessagingLoggerWarn(
+            kFIRMessagingMessageCodeTokenDelegateMethodsNotImplemented,
+            @"The object %@ does not respond to "
+            @"-messaging:didReceiveRegistrationToken:. Please implement "
+            @"-messaging:didReceiveRegistrationToken: to be provided with an FCM "
+            @"token.",
+            self.delegate.description);
+      }
+    }
   }
 }
 
@@ -651,8 +664,14 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
     });
     return;
   }
-  if ([self.delegate respondsToSelector:@selector(messaging:didReceiveRegistrationToken:)]) {
-    [self.delegate messaging:self didReceiveRegistrationToken:self.tokenManager.defaultFCMToken];
+  if ([self isInstallationIdEnabled]) {
+    if ([self.delegate respondsToSelector:@selector(messaging:didReceiveRegistration:)]) {
+      [self.delegate messaging:self didReceiveRegistration:self.tokenManager.defaultFCMToken];
+    }
+  } else {
+    if ([self.delegate respondsToSelector:@selector(messaging:didReceiveRegistrationToken:)]) {
+      [self.delegate messaging:self didReceiveRegistrationToken:self.tokenManager.defaultFCMToken];
+    }
   }
 
   // Should always trigger the token refresh notification when the delegate method is called
@@ -881,8 +900,14 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
     });
     return;
   }
-  if ([self.delegate respondsToSelector:@selector(messaging:didReceiveRegistrationToken:)]) {
-    [self.delegate messaging:self didReceiveRegistrationToken:self.tokenManager.defaultFCMToken];
+  if ([self isInstallationIdEnabled]) {
+    if ([self.delegate respondsToSelector:@selector(messaging:didReceiveRegistration:)]) {
+      [self.delegate messaging:self didReceiveRegistration:self.tokenManager.defaultFCMToken];
+    }
+  } else {
+    if ([self.delegate respondsToSelector:@selector(messaging:didReceiveRegistrationToken:)]) {
+      [self.delegate messaging:self didReceiveRegistrationToken:self.tokenManager.defaultFCMToken];
+    }
   }
   // Should always trigger the token refresh notification when the delegate method is called
   NSNotificationCenter *center = [NSNotificationCenter defaultCenter];

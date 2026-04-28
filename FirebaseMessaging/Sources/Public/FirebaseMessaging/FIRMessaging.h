@@ -155,6 +155,12 @@ NS_SWIFT_NAME(MessagingDelegate)
 - (void)messaging:(FIRMessaging *)messaging
     didReceiveRegistrationToken:(nullable NSString *)fcmToken
     NS_SWIFT_NAME(messaging(_:didReceiveRegistrationToken:));
+
+/// This method is similar to `messaging(_:didReceiveRegistrationToken:)` above, but will be called
+/// instead when `isInstallationIdEnabled` is `YES`.
+- (void)messaging:(FIRMessaging *)messaging
+    didReceiveRegistration:(nullable NSString *)registrationId
+    NS_SWIFT_NAME(messaging(_:didReceiveRegistration:));
 @end
 
 /**

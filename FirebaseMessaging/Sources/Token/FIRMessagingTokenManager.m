@@ -109,6 +109,9 @@
 
 - (void)saveDefaultTokenInfoInKeychain:(NSString *)defaultFcmToken {
   if ([self hasTokenChangedFromOldToken:_defaultFCMToken toNewToken:defaultFcmToken]) {
+    FIRMessagingLoggerDebug(kFIRMessagingMessageCodeDebug,
+                            @"Update default token from '%@' to '%@'", _defaultFCMToken,
+                            defaultFcmToken);
     _defaultFCMToken = [defaultFcmToken copy];
     NSString *tokenType = [FIRMessaging messaging].isInstallationIdEnabled ? @"FID" : @"V4";
     FIRMessagingTokenInfo *tokenInfo =
