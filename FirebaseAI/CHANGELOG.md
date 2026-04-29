@@ -1,4 +1,10 @@
 # 12.13.0
+- [feature] Added support for hybrid inference, enabling fallback between on-device (Foundation Models) and cloud (Gemini) models. (#16111)
+- [feature] Added `HybridModel` to specify primary and secondary models for fallback configurations. (#16110)
+- [feature] Added wrappers for `FoundationModels.SystemLanguageModel` and `FoundationModels.GenerationOptions` to support hybrid configurations. (#16086, #16103)
+- [feature] Added `modelVersion` to `GenerateContentResponse` to identify which model generated the response. (#16132)
+- [changed] **Breaking Change**: Removed the public initializer for `GenerativeModelSession`. Use `FirebaseAI.generativeModelSession(...)` instead. (#16130)
+- [feature] Added debug logging for hybrid and Foundation Models interactions. (#16134)
 - [feature] Added support for session resumption in the Live API via the `resumeSession` method on
   [`LiveSession`](https://firebase.google.com/docs/reference/swift/firebaseai/api/reference/Classes/LiveSession).
   (#15904)
