@@ -30,7 +30,7 @@
     _userInfo = [userInfo copy];
     _rolloutsInfoJSON = [rolloutsInfoJSON copy];
     // Take a snapshot of the thread at initialization.
-    _stackTrace = [[NSThread callStackReturnAddresses] copy];
+    _stackTrace = [NSThread callStackReturnAddresses];
     _timestamp = time(NULL);
   }
   return self;
