@@ -19,7 +19,7 @@ import Testing
 
 @testable import struct FirebaseAILogic.APIConfig
 
-@Suite(.serialized)
+@Suite(.serialized, .timeLimit(.minutes(1)))
 struct LiveSessionTests {
   private static let arguments = InstanceConfig.liveConfigs.flatMap { config in
     switch config.apiConfig.service {
@@ -128,7 +128,13 @@ struct LiveSessionTests {
     // The model can't infer that we're done speaking until we send null bytes
     await session.sendAudioRealtime(Data(repeating: 0, count: audioFile.data.count))
 
-    let text = try await session.collectNextAudioOutputTranscript()
+    let text: String
+    do {
+      text = try await session.collectNextAudioOutputTranscript()
+    } catch {
+      await session.close()
+      throw error
+    }
 
     await session.close()
     let modelResponse = text
@@ -151,6 +157,7 @@ struct LiveSessionTests {
     let session = try await model.connect()
     guard let videoFile = NSDataAsset(name: "cat") else {
       Issue.record("Missing video file 'cat' in Assets")
+      await session.close()
       return
     }
 
@@ -164,12 +171,22 @@ struct LiveSessionTests {
     // (they both respond with audio though)
     guard let audioFile = NSDataAsset(name: "hello") else {
       Issue.record("Missing audio file 'hello.wav' in Assets")
+      await session.close()
       return
     }
     await session.sendAudioRealtime(audioFile.data)
     await session.sendAudioRealtime(Data(repeating: 0, count: audioFile.data.count))
 
-    let text = try await session.collectNextAudioOutputTranscript()
+    var text: String
+    do {
+      text = try await session.collectNextAudioOutputTranscript()
+      if text.isEmpty {
+        text = try await session.collectNextAudioOutputTranscript()
+      }
+    } catch {
+      await session.close()
+      throw error
+    }
 
     await session.close()
     let modelResponse = text
@@ -193,7 +210,15 @@ struct LiveSessionTests {
     let session = try await model.connect()
     await session.sendTextRealtime("Alex")
 
-    guard let toolCall = try await session.collectNextToolCall() else {
+    let toolCall: LiveServerToolCall?
+    do {
+      toolCall = try await session.collectNextToolCall()
+    } catch {
+      await session.close()
+      throw error
+    }
+    guard let toolCall else {
+      await session.close()
       return
     }
 
@@ -204,6 +229,7 @@ struct LiveSessionTests {
 
     #expect(functionCall.name == "getLastName")
     guard let response = getLastName(args: functionCall.args) else {
+      await session.close()
       return
     }
     await session.sendFunctionResponses([
@@ -213,9 +239,15 @@ struct LiveSessionTests {
         functionId: functionCall.functionId
       ),
     ])
-    var text = try await session.collectNextAudioOutputTranscript()
-    if text.isEmpty {
+    var text: String
+    do {
       text = try await session.collectNextAudioOutputTranscript()
+      if text.isEmpty {
+        text = try await session.collectNextAudioOutputTranscript()
+      }
+    } catch {
+      await session.close()
+      throw error
     }
 
     await session.close()
@@ -241,7 +273,15 @@ struct LiveSessionTests {
 
     await session.sendTextRealtime("My name is Alex.")
 
-    guard let newHandle = try await session.collectNextSessionHandle() else {
+    let newHandle: String?
+    do {
+      newHandle = try await session.collectNextSessionHandle()
+    } catch {
+      await session.close()
+      throw error
+    }
+    await session.close()
+    guard let newHandle else {
       return
     }
 
@@ -249,11 +289,17 @@ struct LiveSessionTests {
       sessionResumption: SessionResumptionConfig(handle: newHandle)
     )
 
-    await session.sendTextRealtime("What is my name?")
+    var text: String
+    do {
+      await session.sendTextRealtime("What is my name?")
 
-    var text = try await session.collectNextAudioOutputTranscript()
-    if text.isEmpty {
       text = try await session.collectNextAudioOutputTranscript()
+      if text.isEmpty {
+        text = try await session.collectNextAudioOutputTranscript()
+      }
+    } catch {
+      await session.close()
+      throw error
     }
 
     await session.close()
@@ -283,15 +329,22 @@ struct LiveSessionTests {
     await session.sendTextRealtime("My name is Alex.")
 
     // re-connect without specifying the new handle (so it should be a new session)
+    await session.close()
     session = try await model.connect(
       sessionResumption: SessionResumptionConfig()
     )
 
-    await session.sendTextRealtime("What is my name?")
+    var text: String
+    do {
+      await session.sendTextRealtime("What is my name?")
 
-    var text = try await session.collectNextAudioOutputTranscript()
-    if text.isEmpty {
       text = try await session.collectNextAudioOutputTranscript()
+      if text.isEmpty {
+        text = try await session.collectNextAudioOutputTranscript()
+      }
+    } catch {
+      await session.close()
+      throw error
     }
 
     await session.close()
@@ -318,18 +371,32 @@ struct LiveSessionTests {
 
     await session.sendTextRealtime("My name is Alex.")
 
-    guard let newHandle = try await session.collectNextSessionHandle() else {
-      return
+    let newHandle: String?
+    do {
+      newHandle = try await session.collectNextSessionHandle()
+    } catch {
+      await session.close()
+      throw error
     }
 
     await session.close()
+    guard let newHandle else {
+      return
+    }
+
     try await session.resumeSession(sessionResumption: SessionResumptionConfig(handle: newHandle))
 
-    await session.sendTextRealtime("What is my name?")
+    var text: String
+    do {
+      await session.sendTextRealtime("What is my name?")
 
-    var text = try await session.collectNextAudioOutputTranscript()
-    if text.isEmpty {
       text = try await session.collectNextAudioOutputTranscript()
+      if text.isEmpty {
+        text = try await session.collectNextAudioOutputTranscript()
+      }
+    } catch {
+      await session.close()
+      throw error
     }
 
     await session.close()
@@ -365,6 +432,7 @@ struct LiveSessionTests {
     await session.sendTextRealtime("Alex")
 
     guard let toolCall = try await session.collectNextToolCall() else {
+      await session.close()
       return
     }
 
@@ -374,11 +442,16 @@ struct LiveSessionTests {
     let functionCall = try #require(functionCalls.first)
     let id = try #require(functionCall.functionId)
 
-    await session.sendTextRealtime("Actually, I don't care about the last name of Alex anymore.")
+    do {
+      await session.sendTextRealtime("Actually, I don't care about the last name of Alex anymore.")
 
-    for try await cancellation in session.responsesOf(LiveServerToolCallCancellation.self) {
-      #expect(cancellation.ids == [id])
-      break
+      for try await cancellation in session.responsesOf(LiveServerToolCallCancellation.self) {
+        #expect(cancellation.ids == [id])
+        break
+      }
+    } catch {
+      await session.close()
+      throw error
     }
 
     await session.close()
@@ -398,23 +471,29 @@ struct LiveSessionTests {
 
     try await retry(times: 3, delayInSeconds: 2.0) {
       let session = try await model.connect()
-      await session.sendAudioRealtime(audioFile.data)
-      await session.sendAudioRealtime(Data(repeating: 0, count: audioFile.data.count))
+      do {
+        await session.sendAudioRealtime(audioFile.data)
+        await session.sendAudioRealtime(Data(repeating: 0, count: audioFile.data.count))
 
-      // Wait a second to allow the model to start generating (and cause a proper interruption)
-      try await Task.sleep(nanoseconds: oneSecondInNanoseconds)
-      await session.sendAudioRealtime(audioFile.data)
-      await session.sendAudioRealtime(Data(repeating: 0, count: audioFile.data.count))
+        // Wait a second to allow the model to start generating (and cause a proper interruption)
+        try await Task.sleep(nanoseconds: oneSecondInNanoseconds)
+        await session.sendAudioRealtime(audioFile.data)
+        await session.sendAudioRealtime(Data(repeating: 0, count: audioFile.data.count))
 
-      for try await content in session.responsesOf(LiveServerContent.self) {
-        if content.wasInterrupted {
-          break
+        for try await content in session.responsesOf(LiveServerContent.self) {
+          if content.wasInterrupted {
+            break
+          }
+
+          if content.isTurnComplete {
+            throw NoInterruptionError()
+          }
         }
-
-        if content.isTurnComplete {
-          throw NoInterruptionError()
-        }
+      } catch {
+        await session.close()
+        throw error
       }
+      await session.close()
     }
   }
 
@@ -427,13 +506,19 @@ struct LiveSessionTests {
     )
 
     let session = try await model.connect()
-    await session.sendContent("Does five plus")
-    await session.sendContent(" five equal ten?", turnComplete: true)
+    var text: String
+    do {
+      await session.sendContent("Does five plus")
+      await session.sendContent(" five equal ten?", turnComplete: true)
 
-    var text = try await session.collectNextAudioOutputTranscript()
-    if text.isEmpty {
-      // The model sometimes sends an empty text response first
       text = try await session.collectNextAudioOutputTranscript()
+      if text.isEmpty {
+        // The model sometimes sends an empty text response first
+        text = try await session.collectNextAudioOutputTranscript()
+      }
+    } catch {
+      await session.close()
+      throw error
     }
 
     await session.close()

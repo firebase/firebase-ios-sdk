@@ -35,6 +35,13 @@ public final class LiveSession: Sendable {
     self.service = service
   }
 
+  deinit {
+    let service = self.service
+    Task {
+      await service.close()
+    }
+  }
+
   /// Response to a ``LiveServerToolCall`` received from the server.
   ///
   /// This method is used both for the realtime API and the incremental API.
@@ -142,7 +149,7 @@ public final class LiveSession: Sendable {
   /// Attempting to receive content from a closed session will cause a
   /// ``LiveSessionUnexpectedClosureError`` error to be thrown.
   public func close() async {
-    await service.close()
+    await service.close(finishingStream: true)
   }
 
   /// Resumes an existing live session with the server.
