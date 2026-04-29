@@ -159,7 +159,7 @@ NS_SWIFT_NAME(MessagingDelegate)
 /// This method is similar to `messaging(_:didReceiveRegistrationToken:)` above, but will be called
 /// instead when `isInstallationIdEnabled` is `YES`.
 - (void)messaging:(FIRMessaging *)messaging
-    didReceiveRegistration:(nullable NSString *)registrationId
+    didReceiveRegistration:(nullable NSString *)installationId
     NS_SWIFT_NAME(messaging(_:didReceiveRegistration:));
 @end
 

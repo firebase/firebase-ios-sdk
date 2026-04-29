@@ -639,7 +639,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
             kFIRMessagingMessageCodeTokenDelegateMethodsNotImplemented,
             @"The object %@ does not respond to "
             @"-messaging:didReceiveRegistration:. Please implement "
-            @"-messaging:didReceiveRegistration: to be provided with a registration ID.",
+            @"-messaging:didReceiveRegistration: to be provided with an installation ID.",
             self.delegate.description);
       }
     } else {

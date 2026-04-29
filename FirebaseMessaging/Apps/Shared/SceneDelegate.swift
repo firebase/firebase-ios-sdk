@@ -77,10 +77,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, MessagingDelegate {
     print("\n=============================\n")
   }
 
-  func messaging(_ messaging: Messaging, didReceiveRegistration registrationId: String?) {
-    identity.token = registrationId
+  func messaging(_ messaging: Messaging, didReceiveRegistration installationId: String?) {
+    identity.token = installationId
     print("=============================")
-    print("Did refresh FCM registration ID: \(String(describing: registrationId))")
+    print("Did refresh FCM installation ID: \(String(describing: installationId))")
     print("=============================")
   }
 }
