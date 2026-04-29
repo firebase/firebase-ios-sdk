@@ -207,7 +207,7 @@
                 }
 
                 // Fallback to the second session if the first fails or is unavailable.
-                AILog.notice(code: .hybridPrimaryModelRequestFailed, """
+                AILog.notice(code: .hybridPrimaryModelStreamingRequestFailed, """
                 Primary model "\(primaryModel._modelName)" failed with error: \(error); falling back
                 to secondary model "\(secondaryModel._modelName)".
                 """)
