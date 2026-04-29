@@ -76,9 +76,31 @@
           )
         }
 
+        let primarySession: any _ModelSession
         do {
-          // First try the primary session.
-          let primarySession = try getSession(for: .primaryModel)
+          // First try to get the primary session.
+          primarySession = try getSession(for: .primaryModel)
+        } catch {
+          if Task.isCancelled || error is CancellationError {
+            throw error
+          }
+
+          // Fallback to the second session if the first fails or is unavailable.
+          AILog.notice(code: .hybridPrimarySessionInitializationFailed, """
+          Primary model "\(primaryModel._modelName)" failed to initialize session with error: \
+          \(error); falling back to secondary model "\(secondaryModel._modelName)".
+          """)
+          let secondarySession = try getSession(for: .secondaryModel)
+          return try await secondarySession._respond(
+            to: prompt,
+            schema: schema,
+            includeSchemaInPrompt: includeSchemaInPrompt,
+            options: options
+          )
+        }
+
+        do {
+          // Then try the request on the primary session.
           return try await primarySession._respond(
             to: prompt,
             schema: schema,
@@ -99,6 +121,10 @@
           }
 
           // Fallback to the second session if the first fails or is unavailable.
+          AILog.notice(code: .hybridPrimaryModelRequestFailed, """
+          Primary model "\(primaryModel._modelName)" failed with error: \(error); falling back to \
+          secondary model "\(secondaryModel._modelName)".
+          """)
           let secondarySession = try getSession(for: .secondaryModel)
           return try await secondarySession._respond(
             to: prompt,
@@ -181,6 +207,10 @@
                 }
 
                 // Fallback to the second session if the first fails or is unavailable.
+                AILog.notice(code: .hybridPrimaryModelStreamingRequestFailed, """
+                Primary model "\(primaryModel._modelName)" failed with error: \(error); falling \
+                back to secondary model "\(secondaryModel._modelName)".
+                """)
                 let secondarySession = try self.getSession(for: .secondaryModel)
                 let stream = secondarySession._streamResponse(
                   to: prompt,
@@ -206,6 +236,10 @@
 
               // Failure to create primary session.
               // Fallback to the second session if the first fails or is unavailable.
+              AILog.notice(code: .hybridPrimarySessionInitializationFailed, """
+              Primary model "\(primaryModel._modelName)" failed to initialize session with error: \
+              \(error); falling back to secondary model "\(secondaryModel._modelName)".
+              """)
               do {
                 let secondarySession = try self.getSession(for: .secondaryModel)
                 let stream = secondarySession._streamResponse(
