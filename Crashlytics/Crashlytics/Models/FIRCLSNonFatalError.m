@@ -27,10 +27,10 @@
   self = [super init];
   if (self) {
     _error = error;
-    _userInfo = userInfo;
-    _rolloutsInfoJSON = rolloutsInfoJSON;
+    _userInfo = [userInfo copy];
+    _rolloutsInfoJSON = [rolloutsInfoJSON copy];
     // Take a snapshot of the thread at initialization.
-    _stackTrace = [NSThread callStackReturnAddresses];
+    _stackTrace = [[NSThread callStackReturnAddresses] copy];
     _timestamp = time(NULL);
   }
   return self;
