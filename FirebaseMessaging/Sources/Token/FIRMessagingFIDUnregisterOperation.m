@@ -88,8 +88,9 @@ static BOOL isServerError(NSURLResponse *response) {
                                 NSError *_Nullable error) {
         FIRMessaging_STRONGIFY(self);
         if (error) {
-          FIRMessagingLoggerError(kFIRMessagingErrorCodeUnknown,
-                                  @"Failed to get Installations auth token: %@", error);
+          FIRMessagingLoggerError(
+              kFIRMessagingMessageCodeTokenOperationInstallationAuthTokenNotAvailable,
+              @"Failed to get Installations auth token: %@", error);
           [self finishWithResult:FIRMessagingTokenOperationError token:nil error:error];
           return;
         }
@@ -97,7 +98,8 @@ static BOOL isServerError(NSURLResponse *response) {
         NSString *authToken = tokenResult.authToken;
         if (!authToken.length) {
           NSError *emptyTokenError =
-              [NSError messagingErrorWithCode:kFIRMessagingErrorCodeUnknown
+              [NSError messagingErrorWithCode:
+                           kFIRMessagingMessageCodeTokenOperationInstallationAuthTokenNotAvailable
                                 failureReason:@"Installations auth token is empty."];
           [self finishWithResult:FIRMessagingTokenOperationError token:nil error:emptyTokenError];
           return;

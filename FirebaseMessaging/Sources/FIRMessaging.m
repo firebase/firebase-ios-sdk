@@ -716,7 +716,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
                                                      NSError *_Nullable error) {
     FIRMessaging_STRONGIFY(self);
     if (error) {
-      FIRMessagingLoggerError(kFIRMessagingErrorCodeInvalidIdentity,
+      FIRMessagingLoggerError(kFIRMessagingMessageCodeTokenOperationInstallationIdNotAvailable,
                               @"Failed to get installation ID.");
     } else {
       [self.tokenManager deleteTokenWithAuthorizedEntity:senderID

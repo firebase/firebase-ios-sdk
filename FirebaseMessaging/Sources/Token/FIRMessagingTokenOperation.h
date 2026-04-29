@@ -60,7 +60,7 @@ typedef void (^FIRMessagingTokenOperationCompletion)(FIRMessagingTokenOperationR
 @property(nonatomic, readonly, nullable) NSString *authorizedEntity;
 @property(nonatomic, readonly, nullable) NSString *scope;
 @property(nonatomic, readonly, nullable) NSDictionary<NSString *, NSString *> *options;
-@property(nonatomic, readonly, strong) FIRMessagingCheckinPreferences *checkinPreferences;
+@property(nonatomic, readonly, nullable, strong) FIRMessagingCheckinPreferences *checkinPreferences;
 @property(nonatomic, readonly, strong) NSString *instanceID;
 
 @property(nonatomic, readonly) FIRMessagingTokenOperationResult result;
@@ -80,7 +80,7 @@ typedef void (^FIRMessagingTokenOperationCompletion)(FIRMessagingTokenOperationR
            forAuthorizedEntity:(nullable NSString *)authorizedEntity
                          scope:(NSString *)scope
                        options:(nullable NSDictionary<NSString *, NSString *> *)options
-            checkinPreferences:(FIRMessagingCheckinPreferences *)checkinPreferences
+            checkinPreferences:(nullable FIRMessagingCheckinPreferences *)checkinPreferences
                     instanceID:(NSString *)instanceID
                heartbeatLogger:(id<FIRHeartbeatLoggerProtocol>)heartbeatLogger
     NS_DESIGNATED_INITIALIZER;
