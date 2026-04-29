@@ -18,8 +18,7 @@
 #import <XCTest/XCTest.h>
 
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
-#import "FirebaseInstallations/Source/Library/Public/FirebaseInstallations/FIRInstallations.h"
-#import "FirebaseInstallations/Source/Library/Public/FirebaseInstallations/FIRInstallationsAuthTokenResult.h"
+#import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
 #import "FirebaseMessaging/Sources/FIRMessagingConstants.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingFIDUnregisterOperation.h"
 #import "SharedTestUtilities/URLSession/FIRURLSessionOCMockStub.h"
