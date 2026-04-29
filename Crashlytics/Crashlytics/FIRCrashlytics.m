@@ -32,6 +32,7 @@
 #include "Crashlytics/Crashlytics/Helpers/FIRCLSUtility.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSExecutionIdentifierModel.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSFileManager.h"
+#import "Crashlytics/Crashlytics/Models/FIRCLSNonFatalError.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSSettings.h"
 #import "Crashlytics/Crashlytics/Settings/Models/FIRCLSApplicationIdentifierModel.h"
 
@@ -425,22 +426,15 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
 }
 
 - (void)recordError:(NSError *)error userInfo:(NSDictionary<NSString *, id> *)userInfo {
-  if (!error) {
-    return;
-  }
-
   NSString *rolloutsInfoJSON = [_remoteConfigManager getRolloutAssignmentsEncodedJsonString];
 
-  // Capture the stack and time before the async queue.
-  // Capturing inside the callback, results in the promise
-  // thread being recorded rather than the caller thread.
-  NSArray *addresses = [NSThread callStackReturnAddresses];
-  uint64_t timestamp = time(NULL);
+  FIRCLSNonFatalError *nonFatalError = [[FIRCLSNonFatalError alloc] initWithError:error
+                                                                         userInfo:userInfo
+                                                                 rolloutsInfoJSON:rolloutsInfoJSON];
 
   [self waitForContextInit:@"recordError"
                   callback:^{
-                    FIRCLSUserLoggingRecordError(error, userInfo, rolloutsInfoJSON, addresses,
-                                                 timestamp);
+                    [nonFatalError recordError];
                   }];
 }
 
