@@ -40,3 +40,5 @@
   FIRCLSUserLoggingRecordError(self.error, self.userInfo, self.rolloutsInfoJSON, self.stackTrace,
                                self.timestamp);
 }
+
+@end

@@ -47,6 +47,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * Records the error to disk. No-op if intialization failed.
+ * The action to record to disk is executed on the thread this method is called on.
  */
 - (void)recordError;
 
