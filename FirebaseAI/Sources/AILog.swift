@@ -89,9 +89,12 @@ enum AILog {
     case duplicateLiveSessionSetupComplete = 4005
     case malformedURL = 4006
     case invalidToolOutputType = 4007
+    case hybridPrimaryModelFailed = 4008
 
     // SDK Debugging
     case loadRequestStreamResponseLine = 5000
+    case foundationModelsResponseTranscript = 5001
+    case foundationModelsStreamResponseTranscript = 5002
   }
 
   /// Subsystem that should be used for all Loggers.

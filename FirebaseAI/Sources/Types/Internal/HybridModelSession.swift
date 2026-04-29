@@ -99,6 +99,10 @@
           }
 
           // Fallback to the second session if the first fails or is unavailable.
+          AILog.notice(code: .hybridPrimaryModelFailed, """
+          Primary model "\(primaryModel._modelName)" failed with error: \(error); falling back to
+          secondary model "\(secondaryModel._modelName)".
+          """)
           let secondarySession = try getSession(for: .secondaryModel)
           return try await secondarySession._respond(
             to: prompt,
@@ -181,6 +185,10 @@
                 }
 
                 // Fallback to the second session if the first fails or is unavailable.
+                AILog.notice(code: .hybridPrimaryModelFailed, """
+                Primary model "\(primaryModel._modelName)" failed with error: \(error); falling back
+                to secondary model "\(secondaryModel._modelName)".
+                """)
                 let secondarySession = try self.getSession(for: .secondaryModel)
                 let stream = secondarySession._streamResponse(
                   to: prompt,
