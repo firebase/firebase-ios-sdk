@@ -89,7 +89,8 @@ enum AILog {
     case duplicateLiveSessionSetupComplete = 4005
     case malformedURL = 4006
     case invalidToolOutputType = 4007
-    case hybridPrimaryModelFailed = 4008
+    case hybridPrimarySessionInitializationFailed = 4008
+    case hybridPrimaryModelRequestFailed = 4009
 
     // SDK Debugging
     case loadRequestStreamResponseLine = 5000
