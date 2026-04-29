@@ -302,13 +302,15 @@
                                                          heartbeatLogger:nil
                                                            installations:self.mockInstallations];
 
-  XCTestExpectation *retryExpectation = [self expectationWithDescription:@"Operation retried and succeeded"];
+  XCTestExpectation *retryExpectation =
+      [self expectationWithDescription:@"Operation retried and succeeded"];
 
   // First call returns 500
   NSHTTPURLResponse *response500 = [FIRURLSessionOCMockStub HTTPResponseWithCode:500];
   [FIRURLSessionOCMockStub
       stubURLSessionDataTaskWithResponse:response500
-                                    body:[@"Internal Server Error" dataUsingEncoding:NSUTF8StringEncoding]
+                                    body:[@"Internal Server Error"
+                                             dataUsingEncoding:NSUTF8StringEncoding]
                                    error:nil
                           URLSessionMock:self.URLSessionMock
                   requestValidationBlock:^BOOL(NSURLRequest *_Nonnull sentRequest) {
@@ -319,7 +321,8 @@
   NSHTTPURLResponse *response200 = [FIRURLSessionOCMockStub HTTPResponseWithCode:200];
   [FIRURLSessionOCMockStub
       stubURLSessionDataTaskWithResponse:response200
-                                    body:[@"{\"name\":\"projects/sender-123/registrations/fake-fid\"}" dataUsingEncoding:NSUTF8StringEncoding]
+                                    body:[@"{\"name\":\"projects/sender-123/registrations/"
+                                          @"fake-fid\"}" dataUsingEncoding:NSUTF8StringEncoding]
                                    error:nil
                           URLSessionMock:self.URLSessionMock
                   requestValidationBlock:^BOOL(NSURLRequest *_Nonnull sentRequest) {
@@ -360,10 +363,13 @@
                                                          heartbeatLogger:nil
                                                            installations:self.mockInstallations];
 
-  XCTestExpectation *retryExpectation = [self expectationWithDescription:@"Operation retried and succeeded after network failure"];
+  XCTestExpectation *retryExpectation =
+      [self expectationWithDescription:@"Operation retried and succeeded after network failure"];
 
   // First call returns network error
-  NSError *networkError = [NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorNotConnectedToInternet userInfo:nil];
+  NSError *networkError = [NSError errorWithDomain:NSURLErrorDomain
+                                              code:NSURLErrorNotConnectedToInternet
+                                          userInfo:nil];
   [FIRURLSessionOCMockStub
       stubURLSessionDataTaskWithResponse:nil
                                     body:nil
@@ -377,7 +383,8 @@
   NSHTTPURLResponse *response200 = [FIRURLSessionOCMockStub HTTPResponseWithCode:200];
   [FIRURLSessionOCMockStub
       stubURLSessionDataTaskWithResponse:response200
-                                    body:[@"{\"name\":\"projects/sender-123/registrations/fake-fid\"}" dataUsingEncoding:NSUTF8StringEncoding]
+                                    body:[@"{\"name\":\"projects/sender-123/registrations/"
+                                          @"fake-fid\"}" dataUsingEncoding:NSUTF8StringEncoding]
                                    error:nil
                           URLSessionMock:self.URLSessionMock
                   requestValidationBlock:^BOOL(NSURLRequest *_Nonnull sentRequest) {

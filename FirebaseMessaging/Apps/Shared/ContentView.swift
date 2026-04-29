@@ -167,7 +167,7 @@ struct ContentView: View {
   func deleteFCMToken() {
     if Messaging.messaging().isInstallationIdEnabled {
       Messaging.messaging().unregister()
-      self.log = "Called unregister()"
+      log = "Called unregister()"
     } else {
       Messaging.messaging().deleteToken { error in
         if let error = error as NSError? {

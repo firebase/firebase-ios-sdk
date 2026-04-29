@@ -19,6 +19,7 @@
 #error FIRMessagingLib should be compiled with ARC.
 #endif
 
+#import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessaging.h"
 #import <GoogleUtilities/GULAppDelegateSwizzler.h>
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import <GoogleUtilities/GULReachabilityChecker.h>
@@ -39,7 +40,6 @@
 #import "FirebaseMessaging/Sources/FIRMessagingUtilities.h"
 #import "FirebaseMessaging/Sources/FIRMessaging_Private.h"
 #import "FirebaseMessaging/Sources/NSError+FIRMessaging.h"
-#import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessaging.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingAuthService.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingTokenInfo.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingTokenManager.h"
@@ -394,8 +394,8 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
     return;
   }
   id<UIApplicationDelegate> appDelegate = application.delegate;
-  SEL continueUserActivitySelector = @selector(application:
-                                      continueUserActivity:restorationHandler:);
+  SEL continueUserActivitySelector =
+      @selector(application:continueUserActivity:restorationHandler:);
 
   // Due to FIRAAppDelegateProxy swizzling, this selector will most likely get chosen, whether or
   // not the actual application has implemented
@@ -712,24 +712,23 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
   }
 
   FIRMessaging_WEAKIFY(self);
-  [self.installations
-      installationIDWithCompletion:^(NSString *_Nullable identifier, NSError *_Nullable error) {
-        FIRMessaging_STRONGIFY(self);
-        if (error) {
-          FIRMessagingLoggerError(kFIRMessagingErrorCodeInvalidIdentity,
-                                  @"Failed to get installation ID.");
-        } else {
-          [self.tokenManager
-              deleteTokenWithAuthorizedEntity:senderID
-                                        scope:kFIRMessagingDefaultTokenScope
-                                   instanceID:identifier
-                                      handler:^(NSError *_Nullable error) {
-                                        if (!error && [self isAutoInitEnabled]) {
-                                          [self.tokenManager tokenAndRequestIfNotExist];
-                                        }
-                                      }];
-        }
-      }];
+  [self.installations installationIDWithCompletion:^(NSString *_Nullable identifier,
+                                                     NSError *_Nullable error) {
+    FIRMessaging_STRONGIFY(self);
+    if (error) {
+      FIRMessagingLoggerError(kFIRMessagingErrorCodeInvalidIdentity,
+                              @"Failed to get installation ID.");
+    } else {
+      [self.tokenManager deleteTokenWithAuthorizedEntity:senderID
+                                                   scope:kFIRMessagingDefaultTokenScope
+                                              instanceID:identifier
+                                                 handler:^(NSError *_Nullable error) {
+                                                   if (!error && [self isAutoInitEnabled]) {
+                                                     [self.tokenManager tokenAndRequestIfNotExist];
+                                                   }
+                                                 }];
+    }
+  }];
 }
 
 #pragma mark - Topics
