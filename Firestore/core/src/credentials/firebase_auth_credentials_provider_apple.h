@@ -75,8 +75,6 @@ class FirebaseAuthCredentialsProvider
   void SetCredentialChangeListener(
       CredentialChangeListener<User> change_listener) override;
 
-  void Shutdown() override;
-
  private:
   /**
    * Most contents of the FirebaseAuthCredentialsProvider are kept in this

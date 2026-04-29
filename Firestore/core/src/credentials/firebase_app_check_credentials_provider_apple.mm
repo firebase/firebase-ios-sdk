@@ -18,8 +18,6 @@
 
 #import <FirebaseAppCheckInterop/FirebaseAppCheckInterop.h>
 
-#include <cstdio>
-
 #import "FirebaseCore/Extension/FIRAppInternal.h"
 
 #include "Firestore/core/src/util/error_apple.h"
@@ -49,13 +47,7 @@ FirebaseAppCheckCredentialsProvider::FirebaseAppCheckCredentialsProvider(
                   return;
                 }
 
-                printf("FACCP Notification: locking mutex %p\n",
-                       &contents->mutex);
-                fflush(stdout);
                 std::unique_lock<std::mutex> lock(contents->mutex);
-                printf("FACCP Notification: mutex locked %p\n",
-                       &contents->mutex);
-                fflush(stdout);
                 NSDictionary<NSString*, id>* user_info = notification.userInfo;
 
                 // ensure we're only notifying for the current app.
@@ -77,7 +69,10 @@ FirebaseAppCheckCredentialsProvider::FirebaseAppCheckCredentialsProvider(
 }
 
 FirebaseAppCheckCredentialsProvider::~FirebaseAppCheckCredentialsProvider() {
-  Shutdown();
+  if (app_check_listener_handle_) {
+    [[NSNotificationCenter defaultCenter]
+        removeObserver:app_check_listener_handle_];
+  }
 }
 
 void FirebaseAppCheckCredentialsProvider::GetToken(
@@ -109,11 +104,7 @@ void FirebaseAppCheckCredentialsProvider::GetToken(
 
 void FirebaseAppCheckCredentialsProvider::SetCredentialChangeListener(
     CredentialChangeListener<std::string> change_listener) {
-  printf("FACCP SetListener: locking mutex %p\n", &contents_->mutex);
-  fflush(stdout);
   std::unique_lock<std::mutex> lock(contents_->mutex);
-  printf("FACCP SetListener: mutex locked %p\n", &contents_->mutex);
-  fflush(stdout);
   if (change_listener) {
     HARD_ASSERT(!change_listener_, "set change_listener twice!");
     // Fire initial event.
@@ -128,22 +119,6 @@ void FirebaseAppCheckCredentialsProvider::SetCredentialChangeListener(
   }
 
   change_listener_ = change_listener;
-}
-
-void FirebaseAppCheckCredentialsProvider::Shutdown() {
-  printf("FACCP Shutdown: locking mutex %p\n", &contents_->mutex);
-  fflush(stdout);
-  std::unique_lock<std::mutex> lock(contents_->mutex);
-  printf("FACCP Shutdown: mutex locked %p\n", &contents_->mutex);
-  fflush(stdout);
-
-  if (app_check_listener_handle_) {
-    [[NSNotificationCenter defaultCenter]
-        removeObserver:app_check_listener_handle_];
-    app_check_listener_handle_ = nil;
-  }
-
-  change_listener_ = nullptr;
 }
 
 }  // namespace credentials
