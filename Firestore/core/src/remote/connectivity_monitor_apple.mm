@@ -28,6 +28,7 @@
 
 #include <memory>
 
+#include "Firestore/core/src/util/hard_assert.h"
 #include "Firestore/core/src/util/log.h"
 #include "absl/memory/memory.h"
 
@@ -36,6 +37,8 @@ namespace firestore {
 namespace remote {
 
 namespace {
+
+static const void* const kMonitorQueueKey = &kMonitorQueueKey;
 
 using NetworkStatus = ConnectivityMonitor::NetworkStatus;
 using util::AsyncQueue;
@@ -58,27 +61,43 @@ NetworkStatus ToNetworkStatus(nw_path_t path) {
 
 ConnectivityMonitorApple::ConnectivityMonitorApple(
     const std::shared_ptr<AsyncQueue>& worker_queue)
-    : ConnectivityMonitor{worker_queue}, alive_{std::make_shared<bool>(true)} {
+    : ConnectivityMonitor{worker_queue}, state_{std::make_shared<State>()} {
   monitor_ = nw_path_monitor_create();
   if (!monitor_) {
     LOG_DEBUG("Failed to create network monitor.");
     return;
   }
 
-  // Move execution to the main thread as requested by the user.
-  nw_path_monitor_set_queue(monitor_, dispatch_get_main_queue());
+  dispatch_queue_attr_t attrs = dispatch_queue_attr_make_with_qos_class(
+      DISPATCH_QUEUE_SERIAL, QOS_CLASS_UTILITY,
+      DISPATCH_QUEUE_PRIORITY_DEFAULT);
+  monitor_queue_ = dispatch_queue_create(
+      "com.google.firebase.firestore.network.monitor", attrs);
 
-  // Capture `this` is safe because we call `nw_path_monitor_cancel` in the
-  // destructor, which ensures no more callbacks are delivered.
+  dispatch_queue_set_specific(monitor_queue_, kMonitorQueueKey,
+                              (__bridge void*)monitor_queue_, NULL);
+
+  nw_path_monitor_set_queue(monitor_, monitor_queue_);
+
+  std::weak_ptr<State> weak_state = state_;
+  std::weak_ptr<AsyncQueue> weak_queue = queue();
+
   nw_path_monitor_set_update_handler(monitor_, ^(nw_path_t path) {
+    auto s = weak_state.lock();
+    if (!s) return;
+    auto q = weak_queue.lock();
+    if (!q) return;
     auto status = ToNetworkStatus(path);
-    this->queue()->Enqueue([this, status] {
-      if (!this->current_status_.has_value()) {
-        this->current_status_ = status;
-        this->SetInitialStatus(status);
+    q->Enqueue([raw_this = this, weak_state, status]() {
+      auto s2 = weak_state.lock();
+      if (!s2) return;
+
+      if (!raw_this->current_status_.has_value()) {
+        raw_this->current_status_ = status;
+        raw_this->SetInitialStatus(status);
       } else {
-        this->current_status_ = status;
-        this->MaybeInvokeCallbacks(status);
+        raw_this->current_status_ = status;
+        raw_this->MaybeInvokeCallbacks(status);
       }
     });
   });
@@ -86,31 +105,26 @@ ConnectivityMonitorApple::ConnectivityMonitorApple(
   nw_path_monitor_start(monitor_);
 
 #if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
-  std::weak_ptr<bool> weak_alive = alive_;
-  std::shared_ptr<AsyncQueue> queue = this->queue();
-
   this->observer_ = [[NSNotificationCenter defaultCenter]
       addObserverForName:UIApplicationWillEnterForegroundNotification
                   object:nil
                    queue:[NSOperationQueue mainQueue]
               usingBlock:^(NSNotification* note) {
                 (void)note;
-                NSLog(@"ConnectivityMonitorApple: Received "
-                      @"UIApplicationWillEnterForegroundNotification");
-                queue->Enqueue([this, weak_alive] {
-                  if (auto shared_alive = weak_alive.lock()) {
-                    // Force a reconnect by invoking callbacks with the current
-                    // status
-                    if (this->current_status_.has_value() &&
-                        this->current_status_.value() !=
-                            NetworkStatus::Unavailable) {
-                      NSLog(@"ConnectivityMonitorApple: Invoking callbacks on "
-                            @"foreground");
-                      this->InvokeCallbacks(this->current_status_.value());
-                    } else {
-                      NSLog(@"ConnectivityMonitorApple: Skipping callbacks on "
-                            @"foreground");
-                    }
+                auto s = weak_state.lock();
+                if (!s) return;
+                auto q = weak_queue.lock();
+                if (!q) return;
+
+                q->Enqueue([raw_this = this, weak_state] {
+                  auto s2 = weak_state.lock();
+                  if (!s2) return;
+
+                  if (raw_this->current_status_.has_value() &&
+                      raw_this->current_status_.value() !=
+                          NetworkStatus::Unavailable) {
+                    raw_this->InvokeCallbacks(
+                        raw_this->current_status_.value());
                   }
                 });
               }];
@@ -124,13 +138,22 @@ ConnectivityMonitorApple::~ConnectivityMonitorApple() {
     this->observer_ = nil;
   }
 #endif
+
   if (monitor_) {
-    nw_path_monitor_set_update_handler(monitor_, ^(nw_path_t path) {
-      (void)path;
-    });
     nw_path_monitor_cancel(monitor_);
-    monitor_ = nil;
   }
+
+  if (monitor_queue_) {
+    HARD_ASSERT(dispatch_get_specific(kMonitorQueueKey) !=
+                    (__bridge void*)monitor_queue_,
+                "Cannot destruct on monitor_queue_");
+    dispatch_sync(monitor_queue_, ^{
+                  });
+  }
+
+  state_.reset();
+  monitor_ = nullptr;
+  monitor_queue_ = nullptr;
 }
 
 std::unique_ptr<ConnectivityMonitor> ConnectivityMonitor::Create(
