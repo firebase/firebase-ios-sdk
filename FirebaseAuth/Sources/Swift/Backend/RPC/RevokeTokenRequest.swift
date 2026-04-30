@@ -32,7 +32,6 @@ private let kIDTokenKey = "idToken"
 /// Represents the parameters for the verifyPassword endpoint.
 ///
 /// See https: // developers.google.com/identity/toolkit/web/reference/relyingparty/verifyPassword
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class RevokeTokenRequest: IdentityToolkitRequest, AuthRPCRequest {
   typealias Response = RevokeTokenResponse
 

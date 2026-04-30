@@ -15,7 +15,6 @@
 import Foundation
 
 /// Utility struct to make the execution of one task dependent upon a signal from another task.
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 struct AuthCondition {
   private let waiter: () async -> Void
   private let stream: AsyncStream<Void>.Continuation

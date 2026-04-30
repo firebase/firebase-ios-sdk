@@ -26,7 +26,6 @@ import FirebaseCore
 
 /// This file tests public methods and enums. Each function maps to a public header file.
 
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class AuthAPI_hOnlyTests: XCTestCase {
   // Each function corresponds with a public header.
   func FIRActionCodeSettings_h() {
@@ -46,7 +45,6 @@ class AuthAPI_hOnlyTests: XCTestCase {
     codeSettings.linkDomain = ""
   }
 
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   func FIRAuthAdditionalUserInfo_h(credential: AuthCredential) async throws {
     let auth = FirebaseAuth.Auth.auth()
     let user = auth.currentUser!
@@ -59,7 +57,6 @@ class AuthAPI_hOnlyTests: XCTestCase {
        let _: String = additionalUserInfo.username {}
   }
 
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   func ActionCodeOperationTests() async throws {
     let auth = FirebaseAuth.Auth.auth()
     let info = try await auth.checkActionCode("code")
@@ -165,7 +162,6 @@ class AuthAPI_hOnlyTests: XCTestCase {
     }
   }
 
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   func FIRAuth_hAsync(credential: AuthCredential) async throws {
     let auth = FirebaseAuth.Auth.auth()
     let user = auth.currentUser!
@@ -344,7 +340,6 @@ class AuthAPI_hOnlyTests: XCTestCase {
   }
 
   #if os(iOS)
-    @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     func FIRFedederatedAuthProvider_hAsync() async throws {
       class FederatedAuthImplementation: NSObject, FederatedAuthProvider {
         // TODO: Document this API breakage - needing to add this function for classes implementing
@@ -363,7 +358,6 @@ class AuthAPI_hOnlyTests: XCTestCase {
           return FacebookAuthProvider.credential(withAccessToken: "token")
         }
       }
-      @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
       func FIRFedederatedAuthProvider_hAsync() async throws {
         let obj = FederatedAuthImplementation()
         _ = try await obj.credential(with: nil)
@@ -377,7 +371,6 @@ class AuthAPI_hOnlyTests: XCTestCase {
       }
     }
 
-    @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     func FIRGameCenterAuthProvider_hAsync() async throws {
       _ = try await GameCenterAuthProvider.getCredential()
     }
@@ -410,7 +403,6 @@ class AuthAPI_hOnlyTests: XCTestCase {
       let _: [MultiFactorInfo] = obj.enrolledFactors
     }
 
-    @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     func FIRMultiFactor_hAsync(obj: MultiFactor) async throws {
       let provider = PhoneAuthProvider.provider(auth: FirebaseAuth.Auth.auth())
       let credential = provider.credential(withVerificationID: "id",
@@ -451,7 +443,6 @@ class AuthAPI_hOnlyTests: XCTestCase {
       }
     }
 
-    @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     func FIRMultiFactorResolver_hAsync(error: NSError) async throws {
       let provider = PhoneAuthProvider.provider(auth: FirebaseAuth.Auth.auth())
       let credential = provider.credential(withVerificationID: "id",
@@ -499,7 +490,6 @@ class AuthAPI_hOnlyTests: XCTestCase {
        let _: [String: String] = provider.customParameters {}
   }
 
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   func FIROAuthProvider_h() async throws {
     let provider = OAuthProvider(providerID: "abc")
     #if os(iOS)
@@ -528,7 +518,6 @@ class AuthAPI_hOnlyTests: XCTestCase {
       _ = provider.credential(withVerificationID: "id", verificationCode: "code")
     }
 
-    @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     func FIRPhoneAuthProvider_hAsync(mfi: PhoneMultiFactorInfo) async throws {
       _ = PhoneAuthProvider.provider()
       let provider = PhoneAuthProvider.provider(auth: FirebaseAuth.Auth.auth())
@@ -568,7 +557,6 @@ class AuthAPI_hOnlyTests: XCTestCase {
       )
     }
 
-    @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     func FIRTOTPMultiFactorGenerator_hAsync(session: MultiFactorSession) async throws {
       _ = try await TOTPMultiFactorGenerator.generateSecret(with: session)
     }
@@ -649,7 +637,6 @@ class AuthAPI_hOnlyTests: XCTestCase {
        let _: URL = changeRequest.photoURL {}
   }
 
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   func FIRUser_hAsync() async throws {
     let auth = FirebaseAuth.Auth.auth()
     let user = auth.currentUser!

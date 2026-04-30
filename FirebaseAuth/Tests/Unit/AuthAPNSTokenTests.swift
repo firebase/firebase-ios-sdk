@@ -18,7 +18,6 @@
 
   @testable import FirebaseAuth
 
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   class AuthAPNSTokenTests: XCTestCase {
     /** @fn testProperties
         @brief Tests the properties of the class.

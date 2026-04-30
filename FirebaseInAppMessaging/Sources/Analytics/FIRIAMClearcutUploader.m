@@ -102,12 +102,10 @@ static NSString *FIRIAM_UserDefaultsKeyForNextValidClearcutUploadTimeInMills =
                                              selector:@selector(scheduleNextSendFromForeground:)
                                                  name:UIApplicationWillEnterForegroundNotification
                                                object:nil];
-    if (@available(iOS 13.0, tvOS 13.0, *)) {
-      [[NSNotificationCenter defaultCenter] addObserver:self
-                                               selector:@selector(scheduleNextSendFromForeground:)
-                                                   name:UISceneWillEnterForegroundNotification
-                                                 object:nil];
-    }
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(scheduleNextSendFromForeground:)
+                                                 name:UISceneWillEnterForegroundNotification
+                                               object:nil];
     _userDefaults = userDefaults ? userDefaults : [GULUserDefaults standardUserDefaults];
     // it would be 0 if it does not exist, which is equivalent to saying that
     // you can send now

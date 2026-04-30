@@ -21,7 +21,6 @@ import Foundation
   /// the assertion.
   ///
   /// This class is available on iOS and macOS.
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   @objc(FIRTOTPMultiFactorGenerator) open class TOTPMultiFactorGenerator: NSObject {
     /// Creates a TOTP secret as part of enrolling a TOTP second factor. Used for generating a
     /// QR code URL or inputting into a TOTP app. This method uses the auth instance corresponding
@@ -72,7 +71,6 @@ import Foundation
     /// method uses the auth instance correspondingto the user in the multiFactorSession.
     /// - Parameter session: The multiFactorSession instance.
     /// - Returns: The TOTP secret.
-    @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     open class func generateSecret(with session: MultiFactorSession) async throws -> TOTPSecret {
       return try await withCheckedThrowingContinuation { continuation in
         self.generateSecret(with: session) { secret, error in

@@ -102,7 +102,6 @@ private let kClientType = "clientType"
 /// The key for the "recaptchaVersion" value in the request.
 private let kRecaptchaVersion = "recaptchaVersion"
 
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class GetOOBConfirmationCodeRequest: IdentityToolkitRequest, AuthRPCRequest {
   typealias Response = GetOOBConfirmationCodeResponse
 

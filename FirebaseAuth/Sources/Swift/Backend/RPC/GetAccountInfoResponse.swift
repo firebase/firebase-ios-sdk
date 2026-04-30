@@ -16,7 +16,6 @@ import Foundation
 
 /// Represents the response from the setAccountInfo endpoint.
 /// See https://developers.google.com/identity/toolkit/web/reference/relyingparty/getAccountInfo
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 struct GetAccountInfoResponse: AuthRPCResponse {
   /// Represents the provider user info part of the response from the getAccountInfo endpoint.
   /// See https://developers.google.com/identity/toolkit/web/reference/relyingparty/getAccountInfo
