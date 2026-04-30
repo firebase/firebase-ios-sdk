@@ -340,7 +340,7 @@ class AuthAPI_hOnlyTests: XCTestCase {
   }
 
   #if os(iOS)
-    func FIRFedederatedAuthProvider_hAsync() async throws {
+    func FIRFederatedAuthProvider_hAsync() async throws {
       class FederatedAuthImplementation: NSObject, FederatedAuthProvider {
         // TODO: Document this API breakage - needing to add this function for classes implementing
         // FederatedAuthProvider.
@@ -358,7 +358,7 @@ class AuthAPI_hOnlyTests: XCTestCase {
           return FacebookAuthProvider.credential(withAccessToken: "token")
         }
       }
-      func FIRFedederatedAuthProvider_hAsync() async throws {
+      func FIRFederatedAuthProvider_hAsync() async throws {
         let obj = FederatedAuthImplementation()
         _ = try await obj.credential(with: nil)
       }

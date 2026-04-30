@@ -217,7 +217,7 @@ API_AVAILABLE(macos(10.14))
   [mockContextManagerService stopMocking];
 }
 
-- (void)testContentFromConetxtualMessage {
+- (void)testContentFromContextualMessage {
   NSDictionary *message = @{
     @"aps" : @{@"content-available" : @1},
     @"gcm.message_id" : @1623702615599207,
