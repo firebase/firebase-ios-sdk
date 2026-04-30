@@ -38,7 +38,7 @@ public final class LiveSession: Sendable {
   deinit {
     let service = self.service
     Task {
-      await service.close()
+      await service.close(finishingStream: true)
     }
   }
 
@@ -160,7 +160,7 @@ public final class LiveSession: Sendable {
   ///
   /// To optain a valid handle, ensure you pass an instance of
   /// ``SessionResumptionConfig`` to ``LiveGenerativeModel/connect(sessionResumption:)``,
-  /// and then listen for the hande provided from a ``LiveSessionResumptionUpdate``
+  /// and then listen for the handle provided from a ``LiveSessionResumptionUpdate``
   /// server message.
   ///
   /// - Parameters:

@@ -315,7 +315,7 @@ actor LiveSessionService {
         guard let self = self else { return }
         if Task.isCancelled { return }
 
-        if let error = await self.mapWebsocketError(error) {
+        if let error = self.mapWebsocketError(error) {
           await self.close(finishingStream: true)
           self.streamState.withLock { state in
             state.continuation.finish(throwing: error)
@@ -368,7 +368,7 @@ actor LiveSessionService {
   ///
   /// Some errors have public api alternatives. This function will ensure they're mapped
   /// accordingly.
-  private func mapWebsocketError(_ error: Error) -> Error? {
+  private nonisolated func mapWebsocketError(_ error: Error) -> Error? {
     if let error = error as? WebSocketClosedError {
       // only raise an error if the session didn't close normally (ie; the user calling close)
       if error.closeCode == .goingAway {
