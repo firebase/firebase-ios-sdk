@@ -517,6 +517,7 @@ jobs:
           --no-analyze
 
   spm-package-resolved:
+    needs: check
     runs-on: macos-26
     env:
       FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
@@ -590,6 +591,7 @@ jobs:
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestore ${{ matrix.target }} spmbuildonly
 
   spm-binary:
+    needs: check
     uses: ./.github/workflows/_spm.yml
     with:
       target: FirebaseFirestoreTests

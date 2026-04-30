@@ -1,4 +1,6 @@
 # 12.13.0
+- [feature] **Public Preview**: Added support for hybrid inference, enabling
+  fallback between on-device (Foundation Models) and cloud (Gemini) models. (#16111)
 - [feature] Added support for session resumption in the Live API via the `resumeSession` method on
   [`LiveSession`](https://firebase.google.com/docs/reference/swift/firebaseai/api/reference/Classes/LiveSession).
   (#15904)
