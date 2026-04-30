@@ -17,7 +17,6 @@
   import SwiftUI
 
   /// Custom view modifier to allow for easily logging screen view events.
-
   @available(watchOS, unavailable)
   struct LoggedAnalyticsModifier: ViewModifier {
     /// The name of the view to log in the `AnalyticsParameterScreenName` parameter.
