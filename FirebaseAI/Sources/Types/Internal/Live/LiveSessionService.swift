@@ -162,6 +162,10 @@ actor LiveSessionService {
     responsesTask = nil
     messageQueueTask = nil
 
+    // Finish the message queue so the messageQueueTask's `for await` loop exits immediately,
+    // rather than waiting for task cancellation to take effect.
+    messageQueueContinuation.finish()
+
     if finishingStream {
       streamState.withLock { state in
         state.continuation.finish()
@@ -269,8 +273,8 @@ actor LiveSessionService {
   ///  - `messageQueueTask`: Listen to messages from the client and send them through the websocket.
   private func spawnMessageTasks(stream: MappedStream<URLSessionWebSocketTask.Message, Data>) {
     guard webSocket != nil else { return }
-    // we create a new messageQueue since the iterator below will cancel the old one when the
-    // task is cancelled. this will cause issues when trying to restart a session via resumeSession
+    // Create a fresh messageQueue so the new task iterates its own stream. The old stream was
+    // finished in close(), and the old task was cancelled, so they are both done at this point.
     (messageQueue, messageQueueContinuation) = AsyncStream.makeStream()
 
     responsesTask = Task { [weak self] in
@@ -316,7 +320,7 @@ actor LiveSessionService {
         if Task.isCancelled { return }
 
         if let error = self.mapWebsocketError(error) {
-          await self.close(finishingStream: true)
+          await self.close(finishingStream: false)
           self.streamState.withLock { state in
             state.continuation.finish(throwing: error)
             state.isFinished = true
@@ -338,7 +342,7 @@ actor LiveSessionService {
           try await self.webSocket?.send(.data(data))
         } catch {
           AILog.error(code: .liveSessionFailedToSendClientMessage, error.localizedDescription)
-          await self.close(finishingStream: true)
+          await self.close(finishingStream: false)
           self.streamState.withLock { state in
             state.continuation.finish(throwing: error)
             state.isFinished = true
