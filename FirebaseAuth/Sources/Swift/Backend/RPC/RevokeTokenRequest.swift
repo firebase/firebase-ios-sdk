@@ -29,9 +29,9 @@ private let kTokenKey = "token"
 /// The key for the ID Token associated with this credential.
 private let kIDTokenKey = "idToken"
 
-/// Represents the parameters for the verifyPassword endpoint.
+/// Represents the parameters for the revokeToken endpoint.
 ///
-/// See https: // developers.google.com/identity/toolkit/web/reference/relyingparty/verifyPassword
+/// See https://developers.google.com/identity/toolkit/web/reference/relyingparty/revokeToken
 class RevokeTokenRequest: IdentityToolkitRequest, AuthRPCRequest {
   typealias Response = RevokeTokenResponse
 
