@@ -15,7 +15,6 @@
 import Foundation
 
 /// Utility class for constructing Google Sign In credentials.
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIRGoogleAuthProvider) open class GoogleAuthProvider: NSObject {
   /// A string constant identifying the Google identity provider.
   @objc public static let id = "google.com"
@@ -35,7 +34,6 @@ import Foundation
   }
 }
 
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIRGoogleAuthCredential) class GoogleAuthCredential: AuthCredential, NSSecureCoding,
   @unchecked Sendable {
   let idToken: String?

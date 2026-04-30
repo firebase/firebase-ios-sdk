@@ -56,7 +56,6 @@ extension AuthOperationType {
   }
 }
 
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class VerifyPhoneNumberRequest: IdentityToolkitRequest, AuthRPCRequest {
   typealias Response = VerifyPhoneNumberResponse
 

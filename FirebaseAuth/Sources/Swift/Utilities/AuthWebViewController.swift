@@ -19,7 +19,6 @@
   import WebKit
 
   /// Defines a delegate for AuthWebViewController
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   protocol AuthWebViewControllerDelegate: AnyObject {
     /// Notifies the delegate that the web view controller is being cancelled by the user.
     /// - Parameter webViewController: The web view controller in question.
@@ -47,7 +46,6 @@
                  completion: @escaping (URL?, Error?) -> Void)
   }
 
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   class AuthWebViewController: UIViewController,
     WKNavigationDelegate {
     // MARK: - Properties

@@ -21,7 +21,6 @@
   import FirebaseCore
   import SafariServices
 
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   class AuthURLPresenterTests: XCTestCase {
     /** @fn testFIRAuthURLPresenterNonNilUIDelegate
         @brief Tests @c FIRAuthURLPresenter class showing UI with a non-nil UIDelegate.

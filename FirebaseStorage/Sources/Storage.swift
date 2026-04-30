@@ -31,7 +31,6 @@ internal import FirebaseCoreExtension
 ///
 /// If you provide a custom instance of `FirebaseApp`,
 /// the storage location will be specified via the `FirebaseOptions.storageBucket` property.
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIRStorage) open class Storage: NSObject {
   // MARK: - Public APIs
 
@@ -114,7 +113,6 @@ internal import FirebaseCoreExtension
 
   /// Creates a `StorageReference` initialized at the root Firebase Storage location.
   /// - Returns: An instance of `StorageReference` referencing the root of the storage bucket.
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   @objc open func reference() -> StorageReference {
     configured = true
     let path = StoragePath(with: storageBucket)
@@ -131,7 +129,6 @@ internal import FirebaseCoreExtension
   /// - Returns: An instance of StorageReference at the given child path.
   /// - Throws: Throws a fatal error if `url` is not associated with the `FirebaseApp` used to
   /// initialize this Storage instance.
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   @objc open func reference(forURL url: String) -> StorageReference {
     configured = true
     do {
