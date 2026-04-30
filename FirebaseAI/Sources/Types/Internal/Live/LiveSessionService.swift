@@ -283,10 +283,10 @@ actor LiveSessionService {
           guard let self else { return }
           #if DEBUG
             if #available(macOS 11.0, *) {
-              await self.logServerMessage(message)
+              self.logServerMessage(message)
             }
           #endif
-          let response = try await self.decodeServerMessage(message)
+          let response = try self.decodeServerMessage(message)
 
           if case .setupComplete = response.messageType {
             AILog.debug(
@@ -336,7 +336,7 @@ actor LiveSessionService {
     messageQueueTask = Task { [weak self] in
       for await message in messageQueue {
         guard let self = self else { return }
-        guard let data = await self.encodeClientMessage(message) else { continue }
+        guard let data = self.encodeClientMessage(message) else { continue }
 
         do {
           try await self.webSocket?.send(.data(data))
@@ -354,7 +354,7 @@ actor LiveSessionService {
 
   #if DEBUG
     @available(macOS 11.0, *)
-    private func logServerMessage(_ message: Data) {
+    private nonisolated func logServerMessage(_ message: Data) {
       guard AILog.additionalLoggingEnabled() else { return }
 
       guard let message = JSONSerialization.prettyString(with: message) else { return }
@@ -397,7 +397,8 @@ actor LiveSessionService {
   /// Decodes a message from the server's websocket into a valid `BidiGenerateContentServerMessage`.
   ///
   /// Will throw an error if decoding fails.
-  private func decodeServerMessage(_ message: Data) throws -> BidiGenerateContentServerMessage {
+  private nonisolated func decodeServerMessage(_ message: Data) throws
+    -> BidiGenerateContentServerMessage {
     do {
       return try jsonDecoder.decode(
         BidiGenerateContentServerMessage.self,
@@ -423,7 +424,8 @@ actor LiveSessionService {
   /// Encodes a message from the client into `Data` that can be sent through a websocket data frame.
   ///
   /// Will return `nil` if decoding fails, and log an error describing why.
-  private func encodeClientMessage(_ message: BidiGenerateContentClientMessage) -> Data? {
+  private nonisolated func encodeClientMessage(_ message: BidiGenerateContentClientMessage)
+    -> Data? {
     do {
       return try jsonEncoder.encode(message)
     } catch {

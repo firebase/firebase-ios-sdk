@@ -177,12 +177,9 @@ struct LiveSessionTests {
     await session.sendAudioRealtime(audioFile.data)
     await session.sendAudioRealtime(Data(repeating: 0, count: audioFile.data.count))
 
-    var text: String
+    let text: String
     do {
       text = try await session.collectNextAudioOutputTranscript()
-      if text.isEmpty {
-        text = try await session.collectNextAudioOutputTranscript()
-      }
     } catch {
       await session.close()
       throw error
@@ -239,12 +236,9 @@ struct LiveSessionTests {
         functionId: functionCall.functionId
       ),
     ])
-    var text: String
+    let text: String
     do {
       text = try await session.collectNextAudioOutputTranscript()
-      if text.isEmpty {
-        text = try await session.collectNextAudioOutputTranscript()
-      }
     } catch {
       await session.close()
       throw error
@@ -289,14 +283,11 @@ struct LiveSessionTests {
       sessionResumption: SessionResumptionConfig(handle: newHandle)
     )
 
-    var text: String
+    let text: String
     do {
       await session.sendTextRealtime("What is my name?")
 
       text = try await session.collectNextAudioOutputTranscript()
-      if text.isEmpty {
-        text = try await session.collectNextAudioOutputTranscript()
-      }
     } catch {
       await session.close()
       throw error
@@ -334,14 +325,11 @@ struct LiveSessionTests {
       sessionResumption: SessionResumptionConfig()
     )
 
-    var text: String
+    let text: String
     do {
       await session.sendTextRealtime("What is my name?")
 
       text = try await session.collectNextAudioOutputTranscript()
-      if text.isEmpty {
-        text = try await session.collectNextAudioOutputTranscript()
-      }
     } catch {
       await session.close()
       throw error
@@ -386,14 +374,11 @@ struct LiveSessionTests {
 
     try await session.resumeSession(sessionResumption: SessionResumptionConfig(handle: newHandle))
 
-    var text: String
+    let text: String
     do {
       await session.sendTextRealtime("What is my name?")
 
       text = try await session.collectNextAudioOutputTranscript()
-      if text.isEmpty {
-        text = try await session.collectNextAudioOutputTranscript()
-      }
     } catch {
       await session.close()
       throw error
@@ -506,16 +491,12 @@ struct LiveSessionTests {
     )
 
     let session = try await model.connect()
-    var text: String
+    let text: String
     do {
       await session.sendContent("Does five plus")
       await session.sendContent(" five equal ten?", turnComplete: true)
 
       text = try await session.collectNextAudioOutputTranscript()
-      if text.isEmpty {
-        // The model sometimes sends an empty text response first
-        text = try await session.collectNextAudioOutputTranscript()
-      }
     } catch {
       await session.close()
       throw error
@@ -554,6 +535,12 @@ private extension LiveSession {
   /// Once the model signals that its turn is complete, the function will return
   /// a string concatenated of all the `LiveAudioTranscription`s.
   func collectNextAudioOutputTranscript() async throws -> String {
+    // The model sometimes sends an empty text response first
+    let text = try await collectNextTurn()
+    return text.isEmpty ? try await collectNextTurn() : text
+  }
+
+  private func collectNextTurn() async throws -> String {
     var text = ""
 
     for try await content in responsesOf(LiveServerContent.self) {
