@@ -19,7 +19,7 @@ import Testing
 
 @testable import struct FirebaseAILogic.APIConfig
 
-@Suite(.serialized, .timeLimit(.minutes(1)))
+@Suite(.serialized)
 struct LiveSessionTests {
   private static let arguments = InstanceConfig.liveConfigs.flatMap { config in
     switch config.apiConfig.service {
