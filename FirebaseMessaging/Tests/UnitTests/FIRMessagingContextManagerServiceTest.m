@@ -101,14 +101,30 @@ API_AVAILABLE(macos(10.14))
   };
   XCTAssertTrue([FIRMessagingContextManagerService handleContextManagerMessage:message]);
 
-  XCTAssertEqual(self.requests.count, 1);
-  UNNotificationRequest *request = self.requests.firstObject;
-  XCTAssertEqualObjects(request.identifier, kMessageIdentifierValue);
+  if (@available(macOS 10.14, *)) {
+    XCTAssertEqual(self.requests.count, 1);
+    UNNotificationRequest *request = self.requests.firstObject;
+    XCTAssertEqualObjects(request.identifier, kMessageIdentifierValue);
 #if !TARGET_OS_TV
-  XCTAssertEqualObjects(request.content.body, kBody);
-  XCTAssertEqualObjects(request.content.userInfo[kUserInfoKey1], kUserInfoValue1);
-  XCTAssertEqualObjects(request.content.userInfo[kUserInfoKey2], kUserInfoValue2);
+    XCTAssertEqualObjects(request.content.body, kBody);
+    XCTAssertEqualObjects(request.content.userInfo[kUserInfoKey1], kUserInfoValue1);
+    XCTAssertEqualObjects(request.content.userInfo[kUserInfoKey2], kUserInfoValue2);
 #endif  // TARGET_OS_TV
+    return;
+  }
+
+#if TARGET_OS_IOS
+  XCTAssertEqual(self.scheduledLocalNotifications.count, 1);
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+  UILocalNotification *notification = self.scheduledLocalNotifications.firstObject;
+#pragma clang diagnostic pop
+  NSDate *date = [self.dateFormatter dateFromString:startTimeString];
+  XCTAssertEqual([notification.fireDate compare:date], NSOrderedSame);
+  XCTAssertEqualObjects(notification.alertBody, kBody);
+  XCTAssertEqualObjects(notification.userInfo[kUserInfoKey1], kUserInfoValue1);
+  XCTAssertEqualObjects(notification.userInfo[kUserInfoKey2], kUserInfoValue2);
+#endif  // TARGET_OS_IOS
 }
 
 /**
@@ -127,7 +143,11 @@ API_AVAILABLE(macos(10.14))
   };
 
   XCTAssertTrue([FIRMessagingContextManagerService handleContextManagerMessage:message]);
-  XCTAssertEqual(self.requests.count, 0);
+  if (@available(macOS 10.14, *)) {
+    XCTAssertEqual(self.requests.count, 0);
+    return;
+  }
+  XCTAssertEqual(self.scheduledLocalNotifications.count, 0);
 #endif
 }
 
@@ -153,12 +173,26 @@ API_AVAILABLE(macos(10.14))
 
   XCTAssertTrue([FIRMessagingContextManagerService handleContextManagerMessage:message]);
 
-  XCTAssertEqual(self.requests.count, 1);
-  UNNotificationRequest *request = self.requests.firstObject;
-  XCTAssertEqualObjects(request.identifier, kMessageIdentifierValue);
-  XCTAssertEqualObjects(request.content.body, kBody);
-  XCTAssertEqualObjects(request.content.userInfo[kUserInfoKey1], kUserInfoValue1);
-  XCTAssertEqualObjects(request.content.userInfo[kUserInfoKey2], kUserInfoValue2);
+  if (@available(macOS 10.14, *)) {
+    XCTAssertEqual(self.requests.count, 1);
+    UNNotificationRequest *request = self.requests.firstObject;
+    XCTAssertEqualObjects(request.identifier, kMessageIdentifierValue);
+    XCTAssertEqualObjects(request.content.body, kBody);
+    XCTAssertEqualObjects(request.content.userInfo[kUserInfoKey1], kUserInfoValue1);
+    XCTAssertEqualObjects(request.content.userInfo[kUserInfoKey2], kUserInfoValue2);
+    return;
+  }
+  XCTAssertEqual(self.scheduledLocalNotifications.count, 1);
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+  UILocalNotification *notification = [self.scheduledLocalNotifications firstObject];
+#pragma clang diagnostic pop
+  // schedule notification after start date
+  XCTAssertEqual([notification.fireDate compare:startDate], NSOrderedDescending);
+  // schedule notification after end date
+  XCTAssertEqual([notification.fireDate compare:endDate], NSOrderedAscending);
+  XCTAssertEqualObjects(notification.userInfo[kUserInfoKey1], kUserInfoValue1);
+  XCTAssertEqualObjects(notification.userInfo[kUserInfoKey2], kUserInfoValue2);
 #endif  // TARGET_OS_IOS
 }
 
@@ -179,109 +213,146 @@ API_AVAILABLE(macos(10.14))
   };
 
   XCTAssertTrue([FIRMessagingContextManagerService handleContextManagerMessage:message]);
-  XCTAssertEqual(self.requests.count, 1);
-  UNNotificationRequest *request = self.requests.firstObject;
-  XCTAssertEqualObjects(request.identifier, kMessageIdentifierValue);
-  XCTAssertEqualObjects(request.content.body, kBody);
-  XCTAssertEqualObjects(request.content.userInfo[kUserInfoKey1], kUserInfoValue1);
-  XCTAssertEqualObjects(request.content.userInfo[kUserInfoKey2], kUserInfoValue2);
+  if (@available(macOS 10.14, *)) {
+    XCTAssertEqual(self.requests.count, 1);
+    UNNotificationRequest *request = self.requests.firstObject;
+    XCTAssertEqualObjects(request.identifier, kMessageIdentifierValue);
+    XCTAssertEqualObjects(request.content.body, kBody);
+    XCTAssertEqualObjects(request.content.userInfo[kUserInfoKey1], kUserInfoValue1);
+    XCTAssertEqualObjects(request.content.userInfo[kUserInfoKey2], kUserInfoValue2);
+    return;
+  }
+  XCTAssertEqual(self.scheduledLocalNotifications.count, 1);
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+  UILocalNotification *notification = [self.scheduledLocalNotifications firstObject];
+#pragma clang diagnostic pop
+  XCTAssertEqualObjects(notification.userInfo[kUserInfoKey1], kUserInfoValue1);
+  XCTAssertEqualObjects(notification.userInfo[kUserInfoKey2], kUserInfoValue2);
 #endif  // TARGET_OS_IOS
 }
 
 #pragma mark - Private Helpers
 
 - (void)mockSchedulingLocalNotifications {
-  id mockNotificationCenter = OCMPartialMock([UNUserNotificationCenter currentNotificationCenter]);
-  __block UNNotificationRequest *request;
-  [[[mockNotificationCenter stub] andDo:^(NSInvocation *invocation) {
-    [self.requests addObject:request];
-  }] addNotificationRequest:[OCMArg checkWithBlock:^BOOL(id obj) {
-       if ([obj isKindOfClass:[UNNotificationRequest class]]) {
-         request = obj;
-         [self.requests addObject:request];
+  if (@available(macOS 10.14, iOS 10.0, watchOS 3.0, tvOS 10.0, *)) {
+    id mockNotificationCenter =
+        OCMPartialMock([UNUserNotificationCenter currentNotificationCenter]);
+    __block UNNotificationRequest *request;
+    [[[mockNotificationCenter stub] andDo:^(NSInvocation *invocation) {
+      [self.requests addObject:request];
+    }] addNotificationRequest:[OCMArg checkWithBlock:^BOOL(id obj) {
+         if ([obj isKindOfClass:[UNNotificationRequest class]]) {
+           request = obj;
+           [self.requests addObject:request];
+           return YES;
+         }
+         return NO;
+       }]
+        withCompletionHandler:^(NSError *_Nullable error){
+        }];
+    return;
+  }
+#if TARGET_OS_IOS
+  id mockApplication = OCMPartialMock([UIApplication sharedApplication]);
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+  __block UILocalNotification *notificationToSchedule;
+  [[[mockApplication stub] andDo:^(NSInvocation *invocation) {
+    // Mock scheduling a notification
+    if (notificationToSchedule) {
+      [self.scheduledLocalNotifications addObject:notificationToSchedule];
+    }
+  }] scheduleLocalNotification:[OCMArg checkWithBlock:^BOOL(id obj) {
+       if ([obj isKindOfClass:[UILocalNotification class]]) {
+         notificationToSchedule = obj;
          return YES;
        }
        return NO;
-     }]
-      withCompletionHandler:^(NSError *_Nullable error){
-      }];
+     }]];
+#pragma clang diagnostic pop
+#endif  // TARGET_OS_IOS
 }
 
 - (void)testScheduleiOS10LocalNotification {
-  id mockContextManagerService = OCMClassMock([FIRMessagingContextManagerService class]);
-  NSDictionary *message = @{};
+  if (@available(macOS 10.14, *)) {
+    id mockContextManagerService = OCMClassMock([FIRMessagingContextManagerService class]);
+    NSDictionary *message = @{};
 
-  [FIRMessagingContextManagerService scheduleiOS10LocalNotificationForMessage:message
-                                                                       atDate:[NSDate date]];
-  OCMVerify([mockContextManagerService contentFromContextualMessage:message]);
-  [mockContextManagerService stopMocking];
+    [FIRMessagingContextManagerService scheduleiOS10LocalNotificationForMessage:message
+                                                                         atDate:[NSDate date]];
+    OCMVerify([mockContextManagerService contentFromContextualMessage:message]);
+    [mockContextManagerService stopMocking];
+  }
 }
 
-- (void)testContentFromContextualMessage {
-  NSDictionary *message = @{
-    @"aps" : @{@"content-available" : @1},
-    @"gcm.message_id" : @1623702615599207,
-    @"gcm.n.e" : @1,
-    @"gcm.notification.badge" : @1,
-    @"gcm.notification.body" : kBody,
-    @"gcm.notification.image" :
-        @"https://firebasestorage.googleapis.com/v0/b/fir-ios-app-extensions.appspot.com/o/"
-        @"sparkyWFH.png?alt=media&token=f4dc1533-4d80-4ed6-9870-8df528593157",
-    @"gcm.notification.mutable_content" : @1,
-    @"gcm.notification.sound" : kSoundName,
-    @"gcm.notification.sound2" : kSoundName,
-    @"gcm.notification.title" : kTitle,
-    // This field is not popped out from console
-    // Manual add here to test unit test
-    @"gcm.notification.click_action" : kAction,
-    @"gcms" : @"gcm.gmsproc.cm",
-    @"google.c.a.c_id" : @2159728303499680621,
-    @"google.c.a.c_l" : @"test local send with sound",
-    @"google.c.a.e" : @1,
-    @"google.c.a.ts" : @1623753000,
-    @"google.c.a.udt" : @1,
-    @"google.c.cm.lt_end" : @"2021-07-13 10:30:00",
-    @"google.c.cm.lt_start" : @"2021-06-15 10:30:00",
-    @"google.c.sender.id" : @449451107265,
-  };
-  UNMutableNotificationContent *content =
-      [FIRMessagingContextManagerService contentFromContextualMessage:message];
-  XCTAssertEqualObjects(content.badge, @1);
+- (void)testContentFromConetxtualMessage {
+  if (@available(macOS 10.14, *)) {
+    NSDictionary *message = @{
+      @"aps" : @{@"content-available" : @1},
+      @"gcm.message_id" : @1623702615599207,
+      @"gcm.n.e" : @1,
+      @"gcm.notification.badge" : @1,
+      @"gcm.notification.body" : kBody,
+      @"gcm.notification.image" :
+          @"https://firebasestorage.googleapis.com/v0/b/fir-ios-app-extensions.appspot.com/o/"
+          @"sparkyWFH.png?alt=media&token=f4dc1533-4d80-4ed6-9870-8df528593157",
+      @"gcm.notification.mutable_content" : @1,
+      @"gcm.notification.sound" : kSoundName,
+      @"gcm.notification.sound2" : kSoundName,
+      @"gcm.notification.title" : kTitle,
+      // This field is not popped out from console
+      // Manual add here to test unit test
+      @"gcm.notification.click_action" : kAction,
+      @"gcms" : @"gcm.gmsproc.cm",
+      @"google.c.a.c_id" : @2159728303499680621,
+      @"google.c.a.c_l" : @"test local send with sound",
+      @"google.c.a.e" : @1,
+      @"google.c.a.ts" : @1623753000,
+      @"google.c.a.udt" : @1,
+      @"google.c.cm.lt_end" : @"2021-07-13 10:30:00",
+      @"google.c.cm.lt_start" : @"2021-06-15 10:30:00",
+      @"google.c.sender.id" : @449451107265,
+    };
+    UNMutableNotificationContent *content =
+        [FIRMessagingContextManagerService contentFromContextualMessage:message];
+    XCTAssertEqualObjects(content.badge, @1);
 
 #if TARGET_OS_IOS || TARGET_OS_OSX || TARGET_OS_WATCH
-  XCTAssertEqualObjects(content.body, kBody);
-  XCTAssertEqualObjects(content.title, kTitle);
+    XCTAssertEqualObjects(content.body, kBody);
+    XCTAssertEqualObjects(content.title, kTitle);
 #if !TARGET_OS_WATCH
-  XCTAssertEqualObjects(content.sound, [UNNotificationSound soundNamed:kSoundName]);
+    XCTAssertEqualObjects(content.sound, [UNNotificationSound soundNamed:kSoundName]);
 #else   // !TARGET_OS_WATCH
-  XCTAssertEqualObjects(content.sound, [UNNotificationSound defaultSound]);
+    XCTAssertEqualObjects(content.sound, [UNNotificationSound defaultSound]);
 #endif  // !TARGET_OS_WATCH
-  XCTAssertEqualObjects(content.categoryIdentifier, kAction);
-  NSDictionary *userInfo = @{
-    @"gcm.message_id" : @1623702615599207,
-    @"gcm.n.e" : @1,
-    @"gcm.notification.badge" : @1,
-    @"gcm.notification.body" : kBody,
-    @"gcm.notification.image" :
-        @"https://firebasestorage.googleapis.com/v0/b/fir-ios-app-extensions.appspot.com/o/"
-        @"sparkyWFH.png?alt=media&token=f4dc1533-4d80-4ed6-9870-8df528593157",
-    @"gcm.notification.mutable_content" : @1,
-    @"gcm.notification.sound" : kSoundName,
-    @"gcm.notification.sound2" : kSoundName,
-    @"gcm.notification.title" : kTitle,
-    // This field is not popped out from console
-    // Manual add here to test unit test
-    @"gcm.notification.click_action" : kAction,
-    @"gcms" : @"gcm.gmsproc.cm",
-    @"google.c.a.c_id" : @2159728303499680621,
-    @"google.c.a.c_l" : @"test local send with sound",
-    @"google.c.a.e" : @1,
-    @"google.c.a.ts" : @1623753000,
-    @"google.c.a.udt" : @1,
-    @"google.c.sender.id" : @449451107265
-  };
-  XCTAssertEqualObjects(content.userInfo, userInfo);
+    XCTAssertEqualObjects(content.categoryIdentifier, kAction);
+    NSDictionary *userInfo = @{
+      @"gcm.message_id" : @1623702615599207,
+      @"gcm.n.e" : @1,
+      @"gcm.notification.badge" : @1,
+      @"gcm.notification.body" : kBody,
+      @"gcm.notification.image" :
+          @"https://firebasestorage.googleapis.com/v0/b/fir-ios-app-extensions.appspot.com/o/"
+          @"sparkyWFH.png?alt=media&token=f4dc1533-4d80-4ed6-9870-8df528593157",
+      @"gcm.notification.mutable_content" : @1,
+      @"gcm.notification.sound" : kSoundName,
+      @"gcm.notification.sound2" : kSoundName,
+      @"gcm.notification.title" : kTitle,
+      // This field is not popped out from console
+      // Manual add here to test unit test
+      @"gcm.notification.click_action" : kAction,
+      @"gcms" : @"gcm.gmsproc.cm",
+      @"google.c.a.c_id" : @2159728303499680621,
+      @"google.c.a.c_l" : @"test local send with sound",
+      @"google.c.a.e" : @1,
+      @"google.c.a.ts" : @1623753000,
+      @"google.c.a.udt" : @1,
+      @"google.c.sender.id" : @449451107265
+    };
+    XCTAssertEqualObjects(content.userInfo, userInfo);
 #endif  // TARGET_OS_IOS || TARGET_OS_OSX || TARGET_OS_WATCH
+  }
 }
 
 @end
