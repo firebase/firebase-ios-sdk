@@ -149,7 +149,7 @@ static NSString *const kMethodNameLatestStartTime =
                                   events:lifecycleEvent
                                   policy:ABTExperimentPayloadExperimentOverflowPolicyDiscardOldest
                            lastStartTime:lastStartTime
-                                payloads:_experimentPayloads
+                                payloads:[_experimentPayloads copy]
                        completionHandler:handler];
 
   /// Update activated experiments payload and metadata in DB.

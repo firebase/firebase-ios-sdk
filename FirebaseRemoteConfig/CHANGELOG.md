@@ -1,3 +1,7 @@
+# Unreleased
+- [fixed] Fixed a race condition that could lead to a crash in ABTesting when
+  updating experiments. (#16145)
+
 # 12.13.0
 - [fixed] Remote Config Realtime updates now trigger when a parameter's experiment
   or variant assignment changes, ensuring more accurate A/B test analytics and
