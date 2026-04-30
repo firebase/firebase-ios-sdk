@@ -1,3 +1,6 @@
+# Unreleased
+- [fixed] Fix crash caused by a race condition on the mutable `payloads` array. (#16145)
+
 # 10.16.0
 - [fixed] Fix crash caused by empty experiment payload. (#11873)
 
