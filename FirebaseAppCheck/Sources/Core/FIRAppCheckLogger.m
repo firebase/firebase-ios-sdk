@@ -36,8 +36,8 @@ NSString *const kFIRLoggerAppCheckMessageCodeDebugToken = @"I-FAA005001";
 NSString *const kFIRLoggerAppCheckMessageDeviceCheckProviderIncompleteFIROptions = @"I-FAA006001";
 
 // FIRRecaptchaEnterpriseProvider.m
-NSString *const kFIRLoggerAppCheckMessageRecaptchaEnterpriseProviderIncompleteFIROptions = @"I-FAA007001";
-
+NSString *const kFIRLoggerAppCheckMessageRecaptchaEnterpriseProviderIncompleteFIROptions =
+    @"I-FAA007001";
 
 #pragma mark - Log functions
 

@@ -19,8 +19,6 @@
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheck.h"
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRRecaptchaEnterpriseProvider.h"
 
-NS_ASSUME_NONNULL_BEGIN
-
 @interface FIRRecaptchaEnterpriseProviderFactory ()
 
 @property(nonatomic, readonly) NSString *siteKey;
@@ -42,5 +40,3 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 @end
-
-NS_ASSUME_NONNULL_END

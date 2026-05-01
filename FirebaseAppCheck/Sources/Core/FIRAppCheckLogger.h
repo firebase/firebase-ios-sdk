@@ -36,8 +36,8 @@ FOUNDATION_EXPORT NSString *const kFIRLoggerAppCheckMessageCodeDebugToken;
 FOUNDATION_EXPORT NSString *const kFIRLoggerAppCheckMessageDeviceCheckProviderIncompleteFIROptions;
 
 // FIRRecaptchaEnterpriseProvider.m
-FOUNDATION_EXPORT NSString *const kFIRLoggerAppCheckMessageRecaptchaEnterpriseProviderIncompleteFIROptions;
-
+FOUNDATION_EXPORT NSString *const
+    kFIRLoggerAppCheckMessageRecaptchaEnterpriseProviderIncompleteFIROptions;
 
 void FIRAppCheckDebugLog(NSString *messageCode, NSString *message, ...);
 

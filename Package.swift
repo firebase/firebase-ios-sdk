@@ -172,7 +172,7 @@ let package = Package(
       url: "https://github.com/google/interop-ios-for-google-sdks.git",
       "101.0.0" ..< "102.0.0"
     ),
-    .package(path: "/Users/nickcooke/Developer/app-check"),
+    .package(url: "https://github.com/google/app-check.git", branch: "nc/target-split"),
   ],
   targets: [
     .target(

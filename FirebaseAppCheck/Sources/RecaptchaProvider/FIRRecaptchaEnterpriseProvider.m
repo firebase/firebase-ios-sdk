@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckAvailability.h"
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRRecaptchaEnterpriseProvider.h"
+#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckAvailability.h"
 
 #import <AppCheckCore/AppCheckCore.h>
 
@@ -29,8 +29,6 @@
 
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
-NS_ASSUME_NONNULL_BEGIN
-
 @interface FIRRecaptchaEnterpriseProvider ()
 
 @property(nonatomic, readonly) GACRecaptchaEnterpriseProvider *recaptchaEnterpriseProvider;
@@ -39,7 +37,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FIRRecaptchaEnterpriseProvider
 
-- (instancetype)initWithRecaptchaEnterpriseProvider:(GACRecaptchaEnterpriseProvider *)recaptchaEnterpriseProvider {
+- (instancetype)initWithRecaptchaEnterpriseProvider:
+    (GACRecaptchaEnterpriseProvider *)recaptchaEnterpriseProvider {
   self = [super init];
   if (self) {
     _recaptchaEnterpriseProvider = recaptchaEnterpriseProvider;
@@ -60,10 +59,11 @@ NS_ASSUME_NONNULL_BEGIN
   }
 
   GACRecaptchaEnterpriseProvider *recaptchaEnterpriseProvider =
-      [[GACRecaptchaEnterpriseProvider alloc] initWithSiteKey:siteKey
-                                                 resourceName:app.resourceName
-                                                       APIKey:app.options.APIKey
-                                                 requestHooks:@[ [app.heartbeatLogger requestHook] ]];
+      [[GACRecaptchaEnterpriseProvider alloc]
+          initWithSiteKey:siteKey
+             resourceName:app.resourceName
+                   APIKey:app.options.APIKey
+             requestHooks:@[ [app.heartbeatLogger requestHook] ]];
 
   return [self initWithRecaptchaEnterpriseProvider:recaptchaEnterpriseProvider];
 }
@@ -72,15 +72,16 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)getTokenWithCompletion:(void (^)(FIRAppCheckToken *_Nullable token,
                                          NSError *_Nullable error))handler {
-  [self.recaptchaEnterpriseProvider getTokenWithCompletion:^(GACAppCheckToken *_Nullable internalToken,
-                                                             NSError *_Nullable error) {
-    if (error) {
-      handler(nil, error);
-      return;
-    }
+  [self.recaptchaEnterpriseProvider
+      getTokenWithCompletion:^(GACAppCheckToken *_Nullable internalToken,
+                               NSError *_Nullable error) {
+        if (error) {
+          handler(nil, error);
+          return;
+        }
 
-    handler([[FIRAppCheckToken alloc] initWithInternalToken:internalToken], nil);
-  }];
+        handler([[FIRAppCheckToken alloc] initWithInternalToken:internalToken], nil);
+      }];
 }
 
 - (void)getLimitedUseTokenWithCompletion:(void (^)(FIRAppCheckToken *_Nullable,
@@ -98,5 +99,3 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 @end
-
-NS_ASSUME_NONNULL_END
