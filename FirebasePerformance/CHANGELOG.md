@@ -1,5 +1,6 @@
 # Unreleased
-- [fixed] Fixed race condition crash. (#16144)
+- [fixed] Fixed a race condition crash in `FPRConfigurations` by making
+  `remoteConfigFlags` atomic and explicitly nullable. (#16144)
 
 # 12.13.0
 - [fixed] Fixed NSURLSession delegate instrumentation for NSProxy delegates. (#14478)

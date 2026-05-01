@@ -32,7 +32,7 @@ typedef NS_OPTIONS(NSUInteger, FPRConfigurationSource) {
 @property(nonatomic) FPRConfigurationSource sources;
 
 /** @brief Instance of remote config flags. */
-@property(atomic) FPRRemoteConfigFlags *remoteConfigFlags;
+@property(atomic, nullable) FPRRemoteConfigFlags *remoteConfigFlags;
 
 /** @brief The class to use when FIRApp is referenced. */
 @property(nonatomic) Class FIRAppClass;
