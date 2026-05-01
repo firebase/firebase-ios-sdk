@@ -22,6 +22,7 @@
 @import RecaptchaEnterpriseProvider;
 
 #import "FirebaseAppCheck/Sources/Core/FIRApp+AppCheck.h"
+
 #import "FirebaseAppCheck/Sources/Core/FIRAppCheckLogger.h"
 #import "FirebaseAppCheck/Sources/Core/FIRAppCheckToken+Internal.h"
 #import "FirebaseAppCheck/Sources/Core/FIRAppCheckValidator.h"
@@ -58,12 +59,13 @@
     return nil;
   }
 
+  id heartbeatHook = [app.heartbeatLogger requestHook];
   GACRecaptchaEnterpriseProvider *recaptchaEnterpriseProvider =
       [[GACRecaptchaEnterpriseProvider alloc]
           initWithSiteKey:siteKey
              resourceName:app.resourceName
                    APIKey:app.options.APIKey
-             requestHooks:@[ [app.heartbeatLogger requestHook] ]];
+             requestHooks:heartbeatHook ? @[ heartbeatHook ] : @[]];
 
   return [self initWithRecaptchaEnterpriseProvider:recaptchaEnterpriseProvider];
 }

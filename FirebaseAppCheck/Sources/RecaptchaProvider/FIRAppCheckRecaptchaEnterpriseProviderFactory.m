@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRRecaptchaEnterpriseProviderFactory.h"
+#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckRecaptchaEnterpriseProviderFactory.h"
 
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheck.h"
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRRecaptchaEnterpriseProvider.h"
 
-@interface FIRRecaptchaEnterpriseProviderFactory ()
+@interface FIRAppCheckRecaptchaEnterpriseProviderFactory ()
 
 @property(nonatomic, readonly) NSString *siteKey;
 
 @end
 
-@implementation FIRRecaptchaEnterpriseProviderFactory
+@implementation FIRAppCheckRecaptchaEnterpriseProviderFactory
 
-- (instancetype)initWithSiteKey:(NSString *)siteKey {
+- (nullable instancetype)initWithSiteKey:(NSString *)siteKey {
   self = [super init];
   if (self) {
     _siteKey = [siteKey copy];

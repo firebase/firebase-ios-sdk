@@ -172,7 +172,7 @@ let package = Package(
       url: "https://github.com/google/interop-ios-for-google-sdks.git",
       "101.0.0" ..< "102.0.0"
     ),
-    .package(url: "https://github.com/google/app-check.git", branch: "nc/target-split"),
+    appCheckDependency(),
   ],
   targets: [
     .target(
@@ -1665,4 +1665,18 @@ func isFoundationModelsSupportedPlatformSwiftSetting() -> SwiftSetting {
     "IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM",
     .when(platforms: [.iOS, .macCatalyst, .macOS, .visionOS])
   )
+}
+
+func appCheckDependency() -> Package.Dependency {
+  let appCheckURL = "https://github.com/google/app-check.git"
+
+  if let localPath = Context.environment["FIREBASE_APP_CHECK_LOCAL_PATH"] {
+    return .package(path: localPath)
+  }
+
+  if let branch = Context.environment["FIREBASE_APP_CHECK_BRANCH"] {
+    return .package(url: appCheckURL, branch: branch)
+  }
+
+  return .package(url: appCheckURL, "11.0.1" ..< "12.0.0")
 }

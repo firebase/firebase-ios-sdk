@@ -16,15 +16,15 @@
 
 #import <XCTest/XCTest.h>
 
+#import <FirebaseAppCheck/FIRAppCheckRecaptchaEnterpriseProviderFactory.h>
 #import <FirebaseAppCheck/FIRRecaptchaEnterpriseProvider.h>
-#import <FirebaseAppCheck/FIRRecaptchaEnterpriseProviderFactory.h>
 
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
-@interface FIRRecaptchaEnterpriseProviderFactoryTests : XCTestCase
+@interface FIRAppCheckRecaptchaEnterpriseProviderFactoryTests : XCTestCase
 @end
 
-@implementation FIRRecaptchaEnterpriseProviderFactoryTests
+@implementation FIRAppCheckRecaptchaEnterpriseProviderFactoryTests
 
 - (void)testCreateProviderWithApp {
   FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:@"app_id" GCMSenderID:@"sender_id"];
@@ -34,7 +34,8 @@
   app.dataCollectionDefaultEnabled = NO;
 
   NSString *siteKey = @"test_site_key";
-  FIRRecaptchaEnterpriseProviderFactory *factory = [[FIRRecaptchaEnterpriseProviderFactory alloc] initWithSiteKey:siteKey];
+  FIRAppCheckRecaptchaEnterpriseProviderFactory *factory =
+      [[FIRAppCheckRecaptchaEnterpriseProviderFactory alloc] initWithSiteKey:siteKey];
 
   FIRRecaptchaEnterpriseProvider *createdProvider = [factory createProviderWithApp:app];
 

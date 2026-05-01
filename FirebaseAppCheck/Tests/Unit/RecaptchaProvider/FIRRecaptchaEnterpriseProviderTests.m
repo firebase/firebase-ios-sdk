@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-#import <XCTest/XCTest.h>
 #import <OCMock/OCMock.h>
+#import <XCTest/XCTest.h>
 
 #import <AppCheckCore/AppCheckCore.h>
 @import RecaptchaEnterpriseProvider;
 
-#import "FirebaseAppCheck/Sources/Core/FIRAppCheckToken+Internal.h"
 #import <FirebaseAppCheck/FIRRecaptchaEnterpriseProvider.h>
+#import "FirebaseAppCheck/Sources/Core/FIRAppCheckToken+Internal.h"
 
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
@@ -34,13 +34,13 @@ static NSString *const kSiteKey = @"test_site_key";
 
 @interface FIRRecaptchaEnterpriseProvider (Tests)
 
-- (instancetype)initWithRecaptchaEnterpriseProvider:(GACRecaptchaEnterpriseProvider *)recaptchaEnterpriseProvider;
+- (instancetype)initWithRecaptchaEnterpriseProvider:
+    (GACRecaptchaEnterpriseProvider *)recaptchaEnterpriseProvider;
 
 @end
 
 @interface FIRRecaptchaEnterpriseProviderTests : XCTestCase
 
-@property(nonatomic, copy) NSString *resourceName;
 @property(nonatomic) id recaptchaEnterpriseProviderMock;
 @property(nonatomic) FIRRecaptchaEnterpriseProvider *provider;
 
@@ -51,10 +51,9 @@ static NSString *const kSiteKey = @"test_site_key";
 - (void)setUp {
   [super setUp];
 
-  self.resourceName = [NSString stringWithFormat:@"projects/%@/apps/%@", kProjectID, kAppID];
   self.recaptchaEnterpriseProviderMock = OCMStrictClassMock([GACRecaptchaEnterpriseProvider class]);
-  self.provider =
-      [[FIRRecaptchaEnterpriseProvider alloc] initWithRecaptchaEnterpriseProvider:self.recaptchaEnterpriseProviderMock];
+  self.provider = [[FIRRecaptchaEnterpriseProvider alloc]
+      initWithRecaptchaEnterpriseProvider:self.recaptchaEnterpriseProviderMock];
 }
 
 - (void)tearDown {
@@ -80,13 +79,15 @@ static NSString *const kSiteKey = @"test_site_key";
   FIRApp *missingAPIKeyApp = [[FIRApp alloc] initInstanceWithName:kAppName options:options];
   missingAPIKeyApp.dataCollectionDefaultEnabled = NO;
 
-  XCTAssertNil([[FIRRecaptchaEnterpriseProvider alloc] initWithApp:missingAPIKeyApp siteKey:kSiteKey]);
+  XCTAssertNil([[FIRRecaptchaEnterpriseProvider alloc] initWithApp:missingAPIKeyApp
+                                                           siteKey:kSiteKey]);
 
   options.projectID = nil;
   options.APIKey = kAPIKey;
   FIRApp *missingProjectIDApp = [[FIRApp alloc] initInstanceWithName:kAppName options:options];
   missingProjectIDApp.dataCollectionDefaultEnabled = NO;
-  XCTAssertNil([[FIRRecaptchaEnterpriseProvider alloc] initWithApp:missingProjectIDApp siteKey:kSiteKey]);
+  XCTAssertNil([[FIRRecaptchaEnterpriseProvider alloc] initWithApp:missingProjectIDApp
+                                                           siteKey:kSiteKey]);
 }
 
 - (void)testGetTokenSuccess {
@@ -131,7 +132,7 @@ static NSString *const kSiteKey = @"test_site_key";
                                                                     [NSNull null], nil])]);
 
   [self.provider getLimitedUseTokenWithCompletion:^(FIRAppCheckToken *_Nullable token,
-                                                     NSError *_Nullable error) {
+                                                    NSError *_Nullable error) {
     XCTAssertEqualObjects(token.token, validInternalToken.token);
     XCTAssertEqualObjects(token.expirationDate, validInternalToken.expirationDate);
     XCTAssertEqualObjects(token.receivedAtDate, validInternalToken.receivedAtDate);
@@ -150,9 +151,9 @@ static NSString *const kSiteKey = @"test_site_key";
                                                                     nil])]);
 
   [self.provider getLimitedUseTokenWithCompletion:^(FIRAppCheckToken *_Nullable token,
-                                                     NSError *_Nullable error) {
+                                                    NSError *_Nullable error) {
     XCTAssertNil(token);
-    XCTAssertIdentical(error, expectedError);
+    XCTAssertEqualObjects(error, expectedError);
   }];
 
   OCMVerifyAll(self.recaptchaEnterpriseProviderMock);
