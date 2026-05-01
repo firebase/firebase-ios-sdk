@@ -85,6 +85,11 @@ using firebase::firestore::util::AsyncQueue;
       notificationReceived,
       @"UIApplicationWillEnterForegroundNotification was not received by the test observer!");
   XCTAssertTrue(callbackInvoked);
+
+  // Destroy monitor on its AsyncQueue. ConnectivityMonitorApple
+  // requires destruction on the queue passed to its constructor
+  // — see class comment in connectivity_monitor_apple.h.
+  worker_queue->EnqueueBlocking([&monitor]() { monitor.reset(); });
 }
 #endif
 

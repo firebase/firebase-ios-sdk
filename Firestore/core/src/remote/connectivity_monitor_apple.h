@@ -44,6 +44,11 @@ namespace remote {
 //
 // If destruction is moved off the AsyncQueue, invariant (2) breaks
 // and inner lambdas may dereference a dangling `this` pointer.
+//
+// Tests that create a ConnectivityMonitorApple directly must
+// explicitly destroy it on its AsyncQueue:
+//   worker_queue->EnqueueBlocking([&monitor]() { monitor.reset(); });
+// See FSTConnectivityMonitorTests for an example.
 class ConnectivityMonitorApple : public ConnectivityMonitor {
  public:
   explicit ConnectivityMonitorApple(
