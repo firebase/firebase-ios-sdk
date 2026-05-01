@@ -172,6 +172,33 @@ static FIRApp *sDefaultApp;
     FIRLogDebug(kFIRLoggerCore, @"I-COR000002", @"Configuring app named %@", name);
   }
 
+  // TODO: this could probably cause a race condition, since the default app is set "late"
+  // I'll need to brain storm on how to fix that. Maybe setting the app to some variable then
+  // throwing an error if it's not initialized yet? Idk, might cause issues if people are trying
+  // to reference the instance between when configure is called and the app is initialized.
+  //
+  // Since a lot of Firebase SDKs depend on the main UIApplication instance to be initialized,
+  // we ensure it exists before initializing all the SDKs.
+  // TODO: hmm, UIKit is an optional dependency it seems. Maybe SDKs themselves will need to lazy
+  // initialize it? Or maybe it'd be fine to only do the optional check when UIKit is present?
+#if __has_include(<UIKit/UIKit.h>)
+  if ([UIApplication sharedApplication]) {
+    [self initialize:name options:options];
+  } else {
+    [[NSNotificationCenter defaultCenter]
+        addObserverForName:UIApplicationDidFinishLaunchingNotification
+                    object:nil
+                     queue:[NSOperationQueue mainQueue]
+                usingBlock:^(NSNotification *_Nonnull _) {
+                  [self initialize:name options:options];
+                }];
+  }
+#else
+  [self initialize:name options:options];
+#endif
+}
+
++ (void)initialize:(NSString *)name options:(FIROptions *)options {
   // Default instantiation, make sure we populate with Swift SDKs that can't register in time.
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
