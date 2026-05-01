@@ -394,8 +394,8 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
     return;
   }
   id<UIApplicationDelegate> appDelegate = application.delegate;
-  SEL continueUserActivitySelector =
-      @selector(application:continueUserActivity:restorationHandler:);
+  SEL continueUserActivitySelector = @selector(application:
+                                      continueUserActivity:restorationHandler:);
 
   // Due to FIRAAppDelegateProxy swizzling, this selector will most likely get chosen, whether or
   // not the actual application has implemented
@@ -716,8 +716,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
                                                      NSError *_Nullable error) {
     FIRMessaging_STRONGIFY(self);
     if (error) {
-      FIRMessagingLoggerError(kFIRMessagingMessageCodeTokenOperationInstallationIdNotAvailable,
-                              @"Failed to get installation ID.");
+      FIRMessagingLoggerError(kFIRMessagingErrorCodeMissingFid, @"Failed to get installation ID.");
     } else {
       [self.tokenManager deleteTokenWithAuthorizedEntity:senderID
                                                    scope:kFIRMessagingDefaultTokenScope
