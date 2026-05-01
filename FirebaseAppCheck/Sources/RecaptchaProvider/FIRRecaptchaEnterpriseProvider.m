@@ -48,7 +48,11 @@
 }
 
 - (nullable instancetype)initWithApp:(FIRApp *)app siteKey:(NSString *)siteKey {
+  if (siteKey.length == 0) {
+    return nil;
+  }
   NSArray<NSString *> *missingOptionsFields =
+
       [FIRAppCheckValidator tokenExchangeMissingFieldsInOptions:app.options];
   if (missingOptionsFields.count > 0) {
     FIRLogError(kFIRLoggerAppCheck,

@@ -28,6 +28,7 @@
 @implementation FIRAppCheckRecaptchaEnterpriseProviderFactory
 
 - (instancetype)initWithSiteKey:(NSString *)siteKey {
+  NSParameterAssert(siteKey.length > 0);
   self = [super init];
 
   if (self) {
