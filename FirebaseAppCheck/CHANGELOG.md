@@ -1,5 +1,5 @@
 # Unreleased
-- [added] Added `FIRRecaptchaEnterpriseProvider` wrapping reCAPTCHA Enterprise for iOS.
+- [added] Added reCAPTCHA Enterprise provider.
 
 # 10.27.0
 - [fixed] [CocoaPods] missing symbol error for FIRGetLoggerLevel. (#12899)
