@@ -27,8 +27,9 @@
 
 @implementation FIRAppCheckRecaptchaEnterpriseProviderFactory
 
-- (nullable instancetype)initWithSiteKey:(NSString *)siteKey {
+- (instancetype)initWithSiteKey:(NSString *)siteKey {
   self = [super init];
+
   if (self) {
     _siteKey = [siteKey copy];
   }

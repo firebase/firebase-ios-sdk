@@ -23,7 +23,7 @@ NS_SWIFT_NAME(AppCheckRecaptchaEnterpriseProviderFactory)
 @interface FIRAppCheckRecaptchaEnterpriseProviderFactory : NSObject <FIRAppCheckProviderFactory>
 
 - (instancetype)init NS_UNAVAILABLE;
-- (nullable instancetype)initWithSiteKey:(NSString *)siteKey;
+- (instancetype)initWithSiteKey:(NSString *)siteKey;
 
 @end
 NS_ASSUME_NONNULL_END

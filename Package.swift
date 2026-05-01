@@ -1262,7 +1262,9 @@ let package = Package(
               "FirebaseAppCheckInterop",
               "FirebaseCore",
               .product(name: "AppCheckCore", package: "app-check"),
+              .product(name: "RecaptchaEnterpriseProvider", package: "app-check"),
               .product(name: "GULEnvironment", package: "GoogleUtilities"),
+
               .product(name: "GULUserDefaults", package: "GoogleUtilities"),
             ],
             path: "FirebaseAppCheck/Sources",
