@@ -59,15 +59,13 @@ static BOOL isServerError(NSURLResponse *response) {
                                    scope:(NSString *)scope
                                  options:(nullable NSDictionary<NSString *, NSString *> *)options
                               instanceID:(NSString *)instanceID
-                         heartbeatLogger:(id<FIRHeartbeatLoggerProtocol>)heartbeatLogger
                            installations:(FIRInstallations *)installations {
   self = [super initWithAction:FIRMessagingTokenActionFetch
            forAuthorizedEntity:authorizedEntity
                          scope:scope
                        options:options
             checkinPreferences:nil
-                    instanceID:instanceID
-               heartbeatLogger:heartbeatLogger];
+                    instanceID:instanceID];
   if (self) {
     _installations = installations;
   }

@@ -78,7 +78,6 @@
                                                                      scope:@"fcm"
                                                                    options:nil
                                                                 instanceID:@"fake-fid"
-                                                           heartbeatLogger:nil
                                                              installations:self.mockInstallations];
 
   XCTestExpectation *successExpectation = [self expectationWithDescription:@"Operation succeeded"];
@@ -129,7 +128,6 @@
                                                                      scope:@"fcm"
                                                                    options:nil
                                                                 instanceID:@"fake-fid"
-                                                           heartbeatLogger:nil
                                                              installations:self.mockInstallations];
 
   XCTestExpectation *retryExpectation =
@@ -184,7 +182,6 @@
                                                                      scope:@"fcm"
                                                                    options:nil
                                                                 instanceID:@"fake-fid"
-                                                           heartbeatLogger:nil
                                                              installations:self.mockInstallations];
 
   XCTestExpectation *retryExpectation =

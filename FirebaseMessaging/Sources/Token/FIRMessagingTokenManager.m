@@ -339,7 +339,6 @@
                                                                      scope:scope
                                                                    options:options
                                                                 instanceID:instanceID
-                                                           heartbeatLogger:self.heartbeatLogger
                                                              installations:self.installations];
   } else {
     operation = [self createFetchOperationWithAuthorizedEntity:authorizedEntity
@@ -653,7 +652,6 @@
                                                                        scope:scope
                                                                      options:nil
                                                                   instanceID:instanceID
-                                                             heartbeatLogger:self.heartbeatLogger
                                                                installations:self.installations];
   } else {
     operation =
@@ -661,8 +659,7 @@
                                                                      scope:scope
                                                         checkinPreferences:checkinPreferences
                                                                 instanceID:instanceID
-                                                                    action:action
-                                                           heartbeatLogger:self.heartbeatLogger];
+                                                                    action:action];
   }
   return operation;
 }

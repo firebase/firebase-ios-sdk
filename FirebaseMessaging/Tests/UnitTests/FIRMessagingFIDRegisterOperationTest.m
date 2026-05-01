@@ -84,7 +84,6 @@
                                                                    scope:@"fcm"
                                                                  options:options
                                                               instanceID:@"instance-id"
-                                                         heartbeatLogger:nil
                                                            installations:self.mockInstallations];
 
   XCTestExpectation *requestExpectation = [self expectationWithDescription:@"Request validation"];
@@ -150,7 +149,6 @@
                                                                    scope:@"fcm"
                                                                  options:options
                                                               instanceID:@"instance-id"
-                                                         heartbeatLogger:nil
                                                            installations:self.mockInstallations];
 
   XCTestExpectation *successExpectation = [self expectationWithDescription:@"Operation succeeded"];
@@ -202,7 +200,6 @@
                                                                    scope:@"fcm"
                                                                  options:options
                                                               instanceID:@"instance-id"
-                                                         heartbeatLogger:nil
                                                            installations:self.mockInstallations];
 
   XCTestExpectation *failureExpectation = [self expectationWithDescription:@"Operation failed"];
@@ -253,7 +250,6 @@
                                                                    scope:@"fcm"
                                                                  options:options
                                                               instanceID:@"instance-id"
-                                                         heartbeatLogger:nil
                                                            installations:self.mockInstallations];
 
   XCTestExpectation *failureExpectation = [self expectationWithDescription:@"Operation failed"];
@@ -298,7 +294,6 @@
                                                                    scope:@"fcm"
                                                                  options:options
                                                               instanceID:@"instance-id"
-                                                         heartbeatLogger:nil
                                                            installations:self.mockInstallations];
 
   XCTestExpectation *retryExpectation =
@@ -359,7 +354,6 @@
                                                                    scope:@"fcm"
                                                                  options:options
                                                               instanceID:@"instance-id"
-                                                         heartbeatLogger:nil
                                                            installations:self.mockInstallations];
 
   XCTestExpectation *retryExpectation =

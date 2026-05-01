@@ -26,7 +26,6 @@ NS_ASSUME_NONNULL_BEGIN
                                    scope:(NSString *)scope
                                  options:(nullable NSDictionary<NSString *, NSString *> *)options
                               instanceID:(NSString *)instanceID
-                         heartbeatLogger:(id<FIRHeartbeatLoggerProtocol>)heartbeatLogger
                            installations:(FIRInstallations *)installations;
 
 @end
