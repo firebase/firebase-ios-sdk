@@ -1473,6 +1473,7 @@ func firestoreWrapperTarget() -> Target {
                                .macOS,
                                .visionOS,
                                .macCatalyst,
+                               .watchOS,
                              ]))],
       path: "SwiftPM-PlatformExclude/FirebaseFirestoreWrap"
     )
@@ -1481,7 +1482,7 @@ func firestoreWrapperTarget() -> Target {
   return .target(
     name: "FirebaseFirestoreTarget",
     dependencies: [.target(name: "FirebaseFirestore",
-                           condition: .when(platforms: [.iOS, .tvOS, .macOS, .macCatalyst]))],
+                            condition: .when(platforms: [.iOS, .tvOS, .macOS, .macCatalyst, .watchOS]))],
     path: "SwiftPM-PlatformExclude/FirebaseFirestoreWrap",
     cSettings: [.define("FIREBASE_BINARY_FIRESTORE", to: "1")]
   )
@@ -1555,7 +1556,7 @@ func firestoreTargets() -> [Target] {
             "SystemConfiguration",
             .when(platforms: [.iOS, .macOS, .tvOS, .visionOS])
           ),
-          .linkedFramework("UIKit", .when(platforms: [.iOS, .tvOS, .visionOS])),
+//          .linkedFramework("UIKit", .when(platforms: [.iOS, .tvOS, .visionOS])),
           .linkedLibrary("c++"),
         ]
       ),
@@ -1618,17 +1619,17 @@ func firestoreTargets() -> [Target] {
       dependencies: [
         .target(
           name: "FirebaseFirestoreInternalWrapper",
-          condition: .when(platforms: [.iOS, .macCatalyst, .tvOS, .macOS])
+          condition: .when(platforms: [.iOS, .macCatalyst, .tvOS, .macOS, .watchOS])
         ),
         .product(
           name: "abseil",
           package: "abseil-cpp-binary",
-          condition: .when(platforms: [.iOS, .macCatalyst, .tvOS, .macOS])
+          condition: .when(platforms: [.iOS, .macCatalyst, .tvOS, .macOS, .watchOS])
         ),
         .product(
           name: "gRPC-C++",
           package: "grpc-binary",
-          condition: .when(platforms: [.iOS, .macCatalyst, .tvOS, .macOS])
+          condition: .when(platforms: [.iOS, .macCatalyst, .tvOS, .macOS, .watchOS])
         ),
         .product(name: "nanopb", package: "nanopb"),
         "FirebaseAppCheckInterop",
@@ -1650,10 +1651,10 @@ func firestoreTargets() -> [Target] {
     ),
     .target(
       name: "FirebaseFirestoreInternalWrapper",
-      dependencies: [.target(
-        name: "FirebaseFirestoreInternal",
-        condition: .when(platforms: [.iOS, .macCatalyst, .tvOS, .macOS])
-      )],
+        dependencies: [.target(
+          name: "FirebaseFirestoreInternal",
+          condition: .when(platforms: [.iOS, .macCatalyst, .tvOS, .macOS, .watchOS])
+        )],
       path: "FirebaseFirestoreInternal",
       publicHeadersPath: "."
     ),
