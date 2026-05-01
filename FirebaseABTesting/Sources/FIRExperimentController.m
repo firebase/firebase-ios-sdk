@@ -165,6 +165,7 @@ NSArray *ABTExperimentsToClearFromPayloads(
                                   payloads:(NSArray<NSData *> *)payloads
                          completionHandler:
                              (nullable void (^)(NSError *_Nullable error))completionHandler {
+  NSArray<NSData *> *payloadsCopy = [payloads copy];
   FIRExperimentController *__weak weakSelf = self;
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
     FIRExperimentController *strongSelf = weakSelf;
@@ -172,7 +173,7 @@ NSArray *ABTExperimentsToClearFromPayloads(
                                                                     events:events
                                                                     policy:policy
                                                              lastStartTime:lastStartTime
-                                                                  payloads:payloads
+                                                                  payloads:payloadsCopy
                                                          completionHandler:completionHandler];
   });
 }
