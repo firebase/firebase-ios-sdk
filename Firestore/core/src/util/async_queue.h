@@ -136,6 +136,9 @@ class AsyncQueue : public std::enable_shared_from_this<AsyncQueue> {
   // the `AsyncQueue`.
   void VerifyIsCurrentQueue() const;
 
+  // Returns true if the current thread is the queue's thread.
+  bool IsCurrentQueue() const;
+
   // Enqueue methods
 
   // Puts the `operation` on the queue to be executed as soon as possible, while

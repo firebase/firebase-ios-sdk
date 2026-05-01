@@ -92,11 +92,9 @@ ConnectivityMonitorApple::ConnectivityMonitorApple(
       auto s2 = weak_state.lock();
       if (!s2) return;
 
-      if (!raw_this->current_status_.has_value()) {
-        raw_this->current_status_ = status;
+      if (!raw_this->current_status().has_value()) {
         raw_this->SetInitialStatus(status);
       } else {
-        raw_this->current_status_ = status;
         raw_this->MaybeInvokeCallbacks(status);
       }
     });
@@ -120,11 +118,11 @@ ConnectivityMonitorApple::ConnectivityMonitorApple(
                   auto s2 = weak_state.lock();
                   if (!s2) return;
 
-                  if (raw_this->current_status_.has_value() &&
-                      raw_this->current_status_.value() !=
+                  if (raw_this->current_status().has_value() &&
+                      raw_this->current_status().value() !=
                           NetworkStatus::Unavailable) {
                     raw_this->InvokeCallbacks(
-                        raw_this->current_status_.value());
+                        raw_this->current_status().value());
                   }
                 });
               }];
@@ -132,6 +130,10 @@ ConnectivityMonitorApple::ConnectivityMonitorApple(
 }
 
 ConnectivityMonitorApple::~ConnectivityMonitorApple() {
+  HARD_ASSERT(this->queue()->IsCurrentQueue(),
+              "ConnectivityMonitorApple must be destroyed on its AsyncQueue. "
+              "See class comment for why.");
+
 #if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
   if (this->observer_) {
     [[NSNotificationCenter defaultCenter] removeObserver:this->observer_];
@@ -140,6 +142,8 @@ ConnectivityMonitorApple::~ConnectivityMonitorApple() {
 #endif
 
   if (monitor_) {
+    // Precondition: monitor_ is non-null and was started successfully
+    // by the constructor. Both implied by reaching this point.
     nw_path_monitor_cancel(monitor_);
   }
 
