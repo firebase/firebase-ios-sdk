@@ -172,7 +172,8 @@ let package = Package(
       url: "https://github.com/google/interop-ios-for-google-sdks.git",
       "101.0.0" ..< "102.0.0"
     ),
-    appCheckDependency(),
+    .package(url: "https://github.com/google/app-check.git",
+             "11.0.1" ..< "12.0.0"),
   ],
   targets: [
     .target(
