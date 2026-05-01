@@ -1,3 +1,6 @@
+# Unreleased
+- [fixed] Fixed race condition crash. (#16144)
+
 # 12.13.0
 - [fixed] Fixed NSURLSession delegate instrumentation for NSProxy delegates. (#14478)
 - [fixed] Address crash by deferring class disposal in FPRObjectSwizzler. (#14473)
