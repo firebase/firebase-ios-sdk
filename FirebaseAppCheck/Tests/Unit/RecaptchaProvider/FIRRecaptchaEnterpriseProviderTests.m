@@ -91,9 +91,10 @@ static NSString *const kSiteKey = @"test_site_key";
 }
 
 - (void)testGetTokenSuccess {
+  NSDate *date = [NSDate date];
   GACAppCheckToken *validInternalToken = [[GACAppCheckToken alloc] initWithToken:@"valid_token"
-                                                                  expirationDate:[NSDate date]
-                                                                  receivedAtDate:[NSDate date]];
+                                                                  expirationDate:date
+                                                                  receivedAtDate:date];
   OCMExpect([self.recaptchaEnterpriseProviderMock
       getTokenWithCompletion:([OCMArg
                                  invokeBlockWithArgs:validInternalToken, [NSNull null], nil])]);
@@ -124,9 +125,10 @@ static NSString *const kSiteKey = @"test_site_key";
 }
 
 - (void)testGetLimitedUseTokenSuccess {
+  NSDate *date = [NSDate date];
   GACAppCheckToken *validInternalToken = [[GACAppCheckToken alloc] initWithToken:@"TEST_ValidToken"
-                                                                  expirationDate:[NSDate date]
-                                                                  receivedAtDate:[NSDate date]];
+                                                                  expirationDate:date
+                                                                  receivedAtDate:date];
   OCMExpect([self.recaptchaEnterpriseProviderMock
       getLimitedUseTokenWithCompletion:([OCMArg invokeBlockWithArgs:validInternalToken,
                                                                     [NSNull null], nil])]);
