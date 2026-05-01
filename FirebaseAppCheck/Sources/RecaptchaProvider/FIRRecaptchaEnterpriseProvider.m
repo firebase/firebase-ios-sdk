@@ -52,7 +52,6 @@
     return nil;
   }
   NSArray<NSString *> *missingOptionsFields =
-
       [FIRAppCheckValidator tokenExchangeMissingFieldsInOptions:app.options];
   if (missingOptionsFields.count > 0) {
     FIRLogError(kFIRLoggerAppCheck,

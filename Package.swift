@@ -1265,8 +1265,8 @@ let package = Package(
               .product(name: "RecaptchaEnterpriseProvider", package: "app-check"),
               .product(name: "GULEnvironment", package: "GoogleUtilities"),
               .product(name: "GULUserDefaults", package: "GoogleUtilities"),
-
             ],
+
             path: "FirebaseAppCheck/Sources",
             publicHeadersPath: "Public",
             cSettings: [
