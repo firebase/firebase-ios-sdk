@@ -579,14 +579,7 @@ case "$product-$platform-$method" in
     ;;
 
   FirebaseAIIntegration-*-*)
-    # Build
-    RunXcodebuild \
-      -project 'FirebaseAI/Tests/TestApp/FirebaseAITestApp.xcodeproj' \
-      -scheme "FirebaseAITestApp-SPM" \
-      "${xcb_flags[@]}" \
-      build-for-testing
-
-    # Run tests
+    # Build and run tests
     RunXcodebuild \
       -project 'FirebaseAI/Tests/TestApp/FirebaseAITestApp.xcodeproj' \
       -scheme "FirebaseAITestApp-SPM" \
@@ -594,7 +587,7 @@ case "$product-$platform-$method" in
       -parallel-testing-enabled NO \
       -retry-tests-on-failure \
       -test-iterations 3 \
-      test-without-building
+      test
     ;;
 
   Sessions-*-integration)
