@@ -1,4 +1,4 @@
-// swift-tools-version:6.0
+// swift-tools-version:6.2.1
 // The swift-tools-version declares the minimum version of Swift required to
 // build this package.
 
@@ -19,6 +19,10 @@
 import PackageDescription
 
 let firebaseVersion = "12.13.0"
+
+#if compiler(<6.2.3)
+  #error("Firebase 12.12.0 and later requires at least Xcode 26.2 / Swift 6.2.3.")
+#endif // swift(<6.2.3)
 
 let shouldUseSourceFirestore = Context.environment["FIREBASE_SOURCE_FIRESTORE"] != nil
 
