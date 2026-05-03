@@ -1,6 +1,7 @@
 # 12.13.0
 - [feature] Added search stage support for `languageCode`, `offset`, `limit`, and `retrievalDepth`.
 - [feature] Added support for Pipeline expressions `arraySlice`, `arrayFilter`, `arrayTransform` and `arrayTransformWithIndex`. (#16001)
+- [feature] Added support for the `forceIndex` option on Pipeline `collection` and `collectionGroup` stages.
 
 # 12.12.0
 - [feature] Added support for the `parent` Pipeline expression. (#16010)
