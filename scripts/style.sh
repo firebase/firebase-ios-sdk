@@ -179,19 +179,43 @@ s%^./%%
 )
 
 needs_formatting=false
-for f in $files; do
-  if [[ "${f: -6}" == '.swift' ]]; then
-    # Match output that says:
-    # 1/1 files would have been formatted.  (with --dryrun)
-    # 1/1 files formatted.                  (without --dryrun)
-    mint run swiftformat "${swift_options[@]}" "$f" 2>&1 | grep '^1/1 files' > /dev/null
-  else
-    "$clang_format_bin" "${clang_options[@]}" "$f" | grep "<replacement " > /dev/null
-  fi
 
-  if [[ "$test_only" == true && $? -ne 1 ]]; then
-    echo "$f needs formatting."
-    needs_formatting=true
+# Get unique folders or root files
+folders=$(echo "$files" | awk -F/ '{print $1}' | sort -u)
+
+for folder in $folders; do
+  if [[ -z "$folder" ]]; then continue; fi
+
+  folder_files=$(echo "$files" | awk -F/ -v d="$folder" '$1==d {print $0}')
+
+  if [[ "$test_only" == true ]]; then
+    for f in $folder_files; do
+      if [[ "${f: -6}" == '.swift' ]]; then
+        # Match output that says:
+        # 1/1 files would have been formatted.  (with --dryrun)
+        # 1/1 files formatted.                  (without --dryrun)
+        mint run swiftformat "${swift_options[@]}" "$f" 2>&1 | grep '^1/1 files' > /dev/null
+        grep_status=$?
+      else
+        "$clang_format_bin" "${clang_options[@]}" "$f" | grep "<replacement " > /dev/null
+        grep_status=$?
+      fi
+
+      if [[ $grep_status -ne 1 ]]; then
+        echo "$f needs formatting."
+        needs_formatting=true
+      fi
+    done
+  else
+    swift_files=$(echo "$folder_files" | grep '\.swift$' || true)
+    clang_files=$(echo "$folder_files" | grep -v '\.swift$' || true)
+
+    if [[ -n "$swift_files" ]]; then
+      echo "$swift_files" | tr '\n' '\0' | xargs -0 mint run swiftformat "${swift_options[@]}" > /dev/null 2>&1
+    fi
+    if [[ -n "$clang_files" ]]; then
+      echo "$clang_files" | tr '\n' '\0' | xargs -0 "$clang_format_bin" "${clang_options[@]}" > /dev/null 2>&1
+    fi
   fi
 done
 
