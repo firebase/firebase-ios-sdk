@@ -20,6 +20,7 @@ import os.log
 // https://forums.swift.org/t/why-does-sending-a-sendable-value-risk-causing-data-races/73074
 @preconcurrency import FirebaseAppCheckInterop
 @preconcurrency import FirebaseAuthInterop
+private import FirebaseCoreInternal
 
 /// Facilitates communication with the backend for a ``LiveSession``.
 ///
@@ -31,9 +32,16 @@ import os.log
 /// session is being reloaded.
 @available(watchOS, unavailable)
 actor LiveSessionService {
-  let responses: AsyncThrowingStream<LiveServerMessage, Error>
-  private let responseContinuation: AsyncThrowingStream<LiveServerMessage, Error>
-    .Continuation
+  private typealias StreamState = (
+    responses: AsyncThrowingStream<LiveServerMessage, Error>,
+    continuation: AsyncThrowingStream<LiveServerMessage, Error>.Continuation,
+    isFinished: Bool
+  )
+  private let streamState: UnfairLock<StreamState>
+
+  nonisolated var responses: AsyncThrowingStream<LiveServerMessage, Error> {
+    streamState.value().responses
+  }
 
   // to ensure messages are sent in order, since swift actors are reentrant
   private var messageQueue: AsyncStream<BidiGenerateContentClientMessage>
@@ -71,7 +79,13 @@ actor LiveSessionService {
        toolConfig: ToolConfig?,
        systemInstruction: ModelContent?,
        requestOptions: RequestOptions) {
-    (responses, responseContinuation) = AsyncThrowingStream.makeStream()
+    let (responses, responseContinuation) = AsyncThrowingStream<LiveServerMessage, Error>
+      .makeStream()
+    streamState = UnfairLock((
+      responses: responses,
+      continuation: responseContinuation,
+      isFinished: false
+    ))
     (messageQueue, messageQueueContinuation) = AsyncStream.makeStream()
     self.modelResourceName = modelResourceName
     self.generationConfig = generationConfig
@@ -92,7 +106,10 @@ actor LiveSessionService {
     // we only finish the streams when the actor deinits; while the actor is still in scope, the
     // user could continue using the streams via resumeSession (even after calling close)
     messageQueueContinuation.finish()
-    responseContinuation.finish()
+    streamState.withLock { state in
+      state.continuation.finish()
+      state.isFinished = true
+    }
 
     webSocket = nil
     responsesTask = nil
@@ -115,7 +132,15 @@ actor LiveSessionService {
   ///
   /// This function will yield until the websocket is ready to communicate with the client.
   func connect(sessionResumption: SessionResumptionConfig? = nil) async throws {
-    close()
+    close(finishingStream: false)
+
+    streamState.withLock { state in
+      if state.isFinished {
+        let (responses, responseContinuation) = AsyncThrowingStream<LiveServerMessage, Error>
+          .makeStream()
+        state = (responses: responses, continuation: responseContinuation, isFinished: false)
+      }
+    }
 
     let stream = try await setupWebsocket()
     try await waitForSetupComplete(stream: stream, sessionResumption: sessionResumption)
@@ -125,7 +150,10 @@ actor LiveSessionService {
   /// Cancel any running tasks and close the websocket.
   ///
   /// This method is idempotent; if it's already ran once, it will effectively be a no-op.
-  func close() {
+  ///
+  /// - Parameters:
+  ///   - finishingStream: Whether to also finish the public ``responses`` stream.
+  func close(finishingStream: Bool = false) {
     responsesTask?.cancel()
     messageQueueTask?.cancel()
     webSocket?.disconnect()
@@ -133,6 +161,17 @@ actor LiveSessionService {
     webSocket = nil
     responsesTask = nil
     messageQueueTask = nil
+
+    // Finish the message queue so the messageQueueTask's `for await` loop exits immediately,
+    // rather than waiting for task cancellation to take effect.
+    messageQueueContinuation.finish()
+
+    if finishingStream {
+      streamState.withLock { state in
+        state.continuation.finish()
+        state.isFinished = true
+      }
+    }
   }
 
   /// Performs the initial setup procedure for the model.
@@ -163,7 +202,7 @@ actor LiveSessionService {
       try await webSocket.send(.data(data))
     } catch {
       let error = LiveSessionSetupError(underlyingError: error)
-      close()
+      close(finishingStream: true)
       throw error
     }
 
@@ -181,7 +220,7 @@ actor LiveSessionService {
       }
     } catch {
       if let error = mapWebsocketError(error) {
-        close()
+        close(finishingStream: true)
         throw error
       }
       // the user called close while setup was running
@@ -221,7 +260,7 @@ actor LiveSessionService {
       }
     } catch {
       let error = LiveSessionSetupError(underlyingError: error)
-      close()
+      close(finishingStream: true)
       throw error
     }
   }
@@ -233,20 +272,21 @@ actor LiveSessionService {
   ///  - `responsesTask`: Listen to messages from the server and yield them through `responses`.
   ///  - `messageQueueTask`: Listen to messages from the client and send them through the websocket.
   private func spawnMessageTasks(stream: MappedStream<URLSessionWebSocketTask.Message, Data>) {
-    guard let webSocket else { return }
-    // we create a new messageQueue since the iterator below will cancel the old one when the
-    // task is cancelled. this will cause issues when trying to restart a session via resumeSession
+    guard webSocket != nil else { return }
+    // Create a fresh messageQueue so the new task iterates its own stream. The old stream was
+    // finished in close(), and the old task was cancelled, so they are both done at this point.
     (messageQueue, messageQueueContinuation) = AsyncStream.makeStream()
 
-    responsesTask = Task {
+    responsesTask = Task { [weak self] in
       do {
         for try await message in stream {
+          guard let self else { return }
           #if DEBUG
             if #available(macOS 11.0, *) {
-              logServerMessage(message)
+              self.logServerMessage(message)
             }
           #endif
-          let response = try decodeServerMessage(message)
+          let response = try self.decodeServerMessage(message)
 
           if case .setupComplete = response.messageType {
             AILog.debug(
@@ -262,25 +302,51 @@ actor LiveSessionService {
               )
             }
 
-            responseContinuation.yield(liveMessage)
+            self.streamState.withLock { state in
+              state.continuation.yield(liveMessage)
+            }
+          }
+        }
+        // loop finished normally (websocket closed normally)
+        guard let self = self else { return }
+        if !Task.isCancelled {
+          self.streamState.withLock { state in
+            state.continuation.finish()
+            state.isFinished = true
           }
         }
       } catch {
-        if let error = mapWebsocketError(error) {
-          close()
-          responseContinuation.finish(throwing: error)
+        guard let self = self else { return }
+        if Task.isCancelled { return }
+
+        if let error = self.mapWebsocketError(error) {
+          await self.close(finishingStream: false)
+          self.streamState.withLock { state in
+            state.continuation.finish(throwing: error)
+            state.isFinished = true
+          }
+        } else {
+          // normal closure (mapped to nil)
+          await self.close(finishingStream: true)
         }
       }
     }
 
-    messageQueueTask = Task {
+    let messageQueue = self.messageQueue
+    messageQueueTask = Task { [weak self] in
       for await message in messageQueue {
-        guard let data = encodeClientMessage(message) else { continue }
+        guard let self = self else { return }
+        guard let data = self.encodeClientMessage(message) else { continue }
 
         do {
-          try await webSocket.send(.data(data))
+          try await self.webSocket?.send(.data(data))
         } catch {
           AILog.error(code: .liveSessionFailedToSendClientMessage, error.localizedDescription)
+          await self.close(finishingStream: false)
+          self.streamState.withLock { state in
+            state.continuation.finish(throwing: error)
+            state.isFinished = true
+          }
         }
       }
     }
@@ -288,7 +354,7 @@ actor LiveSessionService {
 
   #if DEBUG
     @available(macOS 11.0, *)
-    private func logServerMessage(_ message: Data) {
+    private nonisolated func logServerMessage(_ message: Data) {
       guard AILog.additionalLoggingEnabled() else { return }
 
       guard let message = JSONSerialization.prettyString(with: message) else { return }
@@ -306,7 +372,7 @@ actor LiveSessionService {
   ///
   /// Some errors have public api alternatives. This function will ensure they're mapped
   /// accordingly.
-  private func mapWebsocketError(_ error: Error) -> Error? {
+  private nonisolated func mapWebsocketError(_ error: Error) -> Error? {
     if let error = error as? WebSocketClosedError {
       // only raise an error if the session didn't close normally (ie; the user calling close)
       if error.closeCode == .goingAway {
@@ -331,7 +397,8 @@ actor LiveSessionService {
   /// Decodes a message from the server's websocket into a valid `BidiGenerateContentServerMessage`.
   ///
   /// Will throw an error if decoding fails.
-  private func decodeServerMessage(_ message: Data) throws -> BidiGenerateContentServerMessage {
+  private nonisolated func decodeServerMessage(_ message: Data) throws
+    -> BidiGenerateContentServerMessage {
     do {
       return try jsonDecoder.decode(
         BidiGenerateContentServerMessage.self,
@@ -357,7 +424,8 @@ actor LiveSessionService {
   /// Encodes a message from the client into `Data` that can be sent through a websocket data frame.
   ///
   /// Will return `nil` if decoding fails, and log an error describing why.
-  private func encodeClientMessage(_ message: BidiGenerateContentClientMessage) -> Data? {
+  private nonisolated func encodeClientMessage(_ message: BidiGenerateContentClientMessage)
+    -> Data? {
     do {
       return try jsonEncoder.encode(message)
     } catch {
