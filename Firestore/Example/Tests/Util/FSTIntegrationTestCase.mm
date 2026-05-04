@@ -31,7 +31,6 @@
 #include <memory>
 #include <string>
 #include <utility>
-#include "Firestore/core/src/util/log.h"
 
 #import "FirebaseCore/Extension/FIRAppInternal.h"
 #import "FirebaseCore/Extension/FIRLogger.h"

@@ -131,7 +131,6 @@ void Datastore::Shutdown() {
   // been called and all submitted tags have been extracted. Without this call,
   // `rpc_executor_` will never finish.
   grpc_queue_.Shutdown();
-
   // Drain the executor to make sure it extracted all the operations from gRPC
   // completion queue.
   rpc_executor_->ExecuteBlocking([] {});

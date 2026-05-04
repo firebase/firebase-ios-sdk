@@ -119,7 +119,6 @@ jobs:
       (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
       (github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true')
     strategy:
-      fail-fast: false
       matrix:
         os: [macos-26, ubuntu-latest]
 
@@ -171,7 +170,6 @@ jobs:
       (github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true')
 
     strategy:
-      fail-fast: false
       matrix:
         os: [macos-26]
         sanitizer: [asan, tsan]
@@ -336,7 +334,6 @@ jobs:
     runs-on: macos-26
 
     strategy:
-      fail-fast: false
       matrix:
         target: [iOS, macOS, tvOS]
         scheme: [Firestore, FirestoreEnterprise]

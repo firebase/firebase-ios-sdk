@@ -181,6 +181,9 @@ void GrpcStream::FinishAndNotify(const Status& status) {
 }
 
 void GrpcStream::Shutdown() {
+  LOG_DEBUG("GrpcStream('%x'): shutting down; completions: %s, is finished: %s",
+            this, completions_.size(), is_grpc_call_finished_);
+
   MaybeUnregister();
 
   // If completions are empty but the call hasn't been finished, it means this
