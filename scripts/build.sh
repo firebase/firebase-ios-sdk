@@ -424,6 +424,8 @@ case "$product-$platform-$method" in
           -retry-tests-on-failure \
           -test-iterations 3 \
           "${xcb_flags[@]}" \
+          -retry-tests-on-failure \
+          -test-iterations 3 \
           test-without-building
       ;;
 
