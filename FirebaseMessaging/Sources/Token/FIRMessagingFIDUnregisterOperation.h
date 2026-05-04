@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Google
+ * Copyright 2026 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,22 +16,18 @@
 
 #import "FirebaseMessaging/Sources/Token/FIRMessagingTokenOperation.h"
 
-@protocol FIRHeartbeatLoggerProtocol;
+@class FIRInstallations;
 
 NS_ASSUME_NONNULL_BEGIN
 
-FOUNDATION_EXPORT NSString *const kFIRMessagingFirebaseUserAgentKey;
-
-FOUNDATION_EXPORT NSString *const kFIRMessagingFirebaseHeartbeatKey;
-
-@interface FIRMessagingTokenFetchOperation : FIRMessagingTokenOperation
+@interface FIRMessagingFIDUnregisterOperation : FIRMessagingTokenOperation
 
 - (instancetype)initWithAuthorizedEntity:(NSString *)authorizedEntity
                                    scope:(NSString *)scope
                                  options:(nullable NSDictionary<NSString *, NSString *> *)options
-                      checkinPreferences:(FIRMessagingCheckinPreferences *)checkinPreferences
                               instanceID:(NSString *)instanceID
-                         heartbeatLogger:(id<FIRHeartbeatLoggerProtocol>)heartbeatLogger;
+                           installations:(FIRInstallations *)installations;
 
 @end
+
 NS_ASSUME_NONNULL_END
