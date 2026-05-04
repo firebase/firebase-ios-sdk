@@ -609,6 +609,7 @@ jobs:
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestore ${{ matrix.target }} spmbuildonly
 
   spm-binary:
+    needs: check
     uses: ./.github/workflows/_spm.yml
     with:
       target: FirebaseFirestoreTests
