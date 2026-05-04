@@ -83,4 +83,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, MessagingDelegate {
     print("Did refresh FCM installation ID: \(String(describing: installationId))")
     print("=============================")
   }
+
+  func messaging(_ messaging: Messaging, didUnregister installationId: String) {
+    print("=============================")
+    print("Did unregister FCM installation ID: \(installationId)")
+    print("=============================")
+  }
 }

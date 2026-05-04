@@ -91,8 +91,9 @@ static BOOL isServerError(NSURLResponse *response) {
                                 NSError *_Nullable error) {
         FIRMessaging_STRONGIFY(self);
         if (error) {
-          FIRMessagingLoggerError(kFIRMessagingErrorCodeMissingInstallationsAuthToken,
-                                  @"Failed to get Installations auth token: %@", error);
+          FIRMessagingLoggerError(
+              kFIRMessagingMessageCodeTokenOperationInstallationAuthTokenNotAvailable,
+              @"Failed to get Installations auth token: %@", error);
           [self finishWithResult:FIRMessagingTokenOperationError token:nil error:error];
           return;
         }

@@ -161,6 +161,13 @@ NS_SWIFT_NAME(MessagingDelegate)
 - (void)messaging:(FIRMessaging *)messaging
     didReceiveRegistration:(nullable NSString *)installationId
     NS_SWIFT_NAME(messaging(_:didReceiveRegistration:));
+
+/// This method will be called once an installation id is unregistered. After this call, the app
+/// will not receive any more notifications until a new installation id is registered.
+///
+/// - Note: This method works only when `FirebaseMessaging.isInstallationIdEnabled` is set to `YES`.
+- (void)messaging:(FIRMessaging *)messaging
+    didUnregister:(nonnull NSString *)installationId NS_SWIFT_NAME(messaging(_:didUnregister:));
 @end
 
 /**
@@ -245,12 +252,14 @@ NS_SWIFT_NAME(Messaging)
 @property(nonatomic, assign, getter=isAutoInitEnabled) BOOL autoInitEnabled;
 
 /**
- * Is Firebase Messaging installation ID enabled? It's the `FirebaseMessagingInstallationIdEnabled`
- * property in `Info.plist` file. The default value is `NO`.
+ * Is Firebase Messaging registration via Firebase installation ID enabled? It's the
+ * `FirebaseMessagingInstallationIdEnabled` property in `Info.plist` file. The default value is
+ * `NO`.
  *
  * When enabled, there are several behavior changes:
  *
- *    1. An installation ID, instead of an FCM Registration token, is generated.
+ *    1. An FCM registration token is no longer generated. Instead, the app instance is registered
+ *       with FCM through the Firebase Installation ID to receive messages.
  *    2. All token related operations like `tokenWithCompletion`, `deleteTokenWithCompletion`,
  *       `retrieveFCMTokenForSenderID`, and `deleteFCMTokenForSenderID` will always fail
  *       with an error indicating that the operation is not supported.
@@ -340,7 +349,8 @@ NS_SWIFT_NAME(Messaging)
  * Asynchronously registers to the FCM backend.
  *
  * Please use the FIRMessaging delegate method
- * `messaging:didReceiveRegistration:` to receive the registered FID.
+ * `messaging:didReceiveRegistration:` to receive the registered FID. The FID can be used to send
+ * messages to this app instance.
  *
  * This method works only when `FirebaseMessaging.isInstallationIdEnabled` is set to `YES`.
  */

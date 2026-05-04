@@ -394,8 +394,8 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
     return;
   }
   id<UIApplicationDelegate> appDelegate = application.delegate;
-  SEL continueUserActivitySelector = @selector(application:
-                                      continueUserActivity:restorationHandler:);
+  SEL continueUserActivitySelector =
+      @selector(application:continueUserActivity:restorationHandler:);
 
   // Due to FIRAAppDelegateProxy swizzling, this selector will most likely get chosen, whether or
   // not the actual application has implemented
@@ -680,6 +680,22 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
                         object:self.tokenManager.defaultFCMToken];
 }
 
+- (void)notifyInstallationIdUnregistered:(nonnull NSString *)installationID {
+  if (![self isInstallationIdEnabled] ||
+      ![self.delegate respondsToSelector:@selector(messaging:didUnregister:)]) {
+    return;
+  }
+
+  __weak FIRMessaging *weakSelf = self;
+  if (![NSThread isMainThread]) {
+    dispatch_async(dispatch_get_main_queue(), ^{
+      [weakSelf notifyInstallationIdUnregistered:installationID];
+    });
+    return;
+  }
+  [self.delegate messaging:self didUnregister:installationID];
+}
+
 #pragma mark - FID
 
 - (void)register {
@@ -712,22 +728,22 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
   }
 
   FIRMessaging_WEAKIFY(self);
-  [self.installations installationIDWithCompletion:^(NSString *_Nullable identifier,
-                                                     NSError *_Nullable error) {
-    FIRMessaging_STRONGIFY(self);
-    if (error) {
-      FIRMessagingLoggerError(kFIRMessagingErrorCodeMissingFid, @"Failed to get installation ID.");
-    } else {
-      [self.tokenManager deleteTokenWithAuthorizedEntity:senderID
-                                                   scope:kFIRMessagingDefaultTokenScope
-                                              instanceID:identifier
-                                                 handler:^(NSError *_Nullable error) {
-                                                   if (!error && [self isAutoInitEnabled]) {
-                                                     [self.tokenManager tokenAndRequestIfNotExist];
-                                                   }
-                                                 }];
-    }
-  }];
+  [self.installations
+      installationIDWithCompletion:^(NSString *_Nullable identifier, NSError *_Nullable error) {
+        FIRMessaging_STRONGIFY(self);
+        if (error) {
+          FIRMessagingLoggerError(kFIRMessagingMessageCodeTokenOperationInstallationIdNotAvailable,
+                                  @"Failed to get installation ID.");
+        } else {
+          [self.tokenManager
+              deleteTokenWithAuthorizedEntity:senderID
+                                        scope:kFIRMessagingDefaultTokenScope
+                                   instanceID:identifier
+                                      handler:^(NSError *_Nullable error) {
+                                        [self notifyInstallationIdUnregistered:identifier];
+                                      }];
+        }
+      }];
 }
 
 #pragma mark - Topics
