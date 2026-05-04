@@ -318,6 +318,12 @@ jobs:
 
       - name: Test
         run: scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodetest
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        if: ${{ failure() }}
+        with:
+          name: xcresults-${{ matrix.target }}-${{ matrix.scheme }}
+          path: xcresults/*
+          if-no-files-found: error
 
   xcodetest_nightly:
     needs: check
@@ -390,6 +396,12 @@ jobs:
 
       - name: Test
         run: scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodetest
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        if: ${{ failure() }}
+        with:
+          name: xcresults-${{ matrix.target }}-${{ matrix.scheme }}-nightly
+          path: xcresults/*
+          if-no-files-found: error
 
 
   xcodetest_emulator:
@@ -443,6 +455,12 @@ jobs:
 
     - name: Test
       run: scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodetest
+    - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+      if: ${{ failure() }}
+      with:
+        name: xcresults-${{ matrix.target }}-${{ matrix.scheme }}-emulator
+        path: xcresults/*
+        if-no-files-found: error
 
 
   pod_lib_lint:
@@ -591,7 +609,6 @@ jobs:
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestore ${{ matrix.target }} spmbuildonly
 
   spm-binary:
-    needs: check
     uses: ./.github/workflows/_spm.yml
     with:
       target: FirebaseFirestoreTests
