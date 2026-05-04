@@ -22,7 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRMessagingFIDRegisterOperation : FIRMessagingTokenOperation
 
-- (instancetype)initWithAuthorizedEntity:(NSString *)authorizedEntity
+- (instancetype)initWithAuthorizedEntity:(nullable NSString *)authorizedEntity
                                    scope:(NSString *)scope
                                  options:(nullable NSDictionary<NSString *, NSString *> *)options
                               instanceID:(NSString *)instanceID
