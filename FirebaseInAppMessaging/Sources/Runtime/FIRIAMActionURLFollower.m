@@ -168,9 +168,35 @@ NS_EXTENSION_UNAVAILABLE("Firebase In App Messaging is not supported for iOS ext
 
 // Try to handle the url as a universal link by triggering
 // application:continueUserActivity:restorationHandler: on App's delegate object directly.
+// Will also look for scene delegates in the foreground that implement scene:continueUserActivity:.
 // @return YES if that delegate method is defined and seeing a YES being returned from
 // trigging it
 - (BOOL)followURLWithContinueUserActivity:(NSURL *)url {
+  // First try to find a scene delegate to trigger, falling back to app delegate
+  for (UIScene *scene in self.mainApplication.connectedScenes) {
+    if (scene.activationState == UISceneActivationStateForegroundActive ||
+        scene.activationState == UISceneActivationStateForegroundInactive) {
+      id<UISceneDelegate> sceneDelegate = (id<UISceneDelegate>)scene.delegate;
+      if ([sceneDelegate respondsToSelector:@selector(scene:continueUserActivity:)]) {
+        FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM240004",
+                    @"Scene delegate responds to scene:continueUserActivity."
+                     "Simulating action url opening from a web browser.");
+        // Use string literal to ensure compatibility with Xcode 26 and iOS 18
+        NSString *browsingWebType = @"NSUserActivityTypeBrowsingWeb";
+        NSUserActivity *userActivity =
+            [[NSUserActivity alloc] initWithActivityType:browsingWebType];
+        userActivity.webpageURL = url;
+
+        [sceneDelegate scene:scene continueUserActivity:userActivity];
+
+        // The scene delegate method doesn't return anything, so we assume the response is YES
+        FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM240005",
+                    @"Scene handling action URL returns YES, no more further action taken");
+        return YES;
+      }
+    }
+  }
+
   if (self.isContinueUserActivityMethodDefined) {
     FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM240004",
                 @"App delegate responds to application:continueUserActivity:restorationHandler:."
