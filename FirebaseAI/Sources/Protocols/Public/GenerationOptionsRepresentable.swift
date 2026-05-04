@@ -24,7 +24,8 @@
   /// ``FirebaseAI/GenerationOptions`` or a `Foundation Models`
   /// [`GenerationOptions`](https://developer.apple.com/documentation/foundationmodels/generationoptions)
   /// value. For hybrid (on-device and cloud) configurations, use
-  /// ``hybrid(gemini:foundationModels:)`` to specify options for each model.
+  /// ``hybrid(gemini:foundationModels:)-(_,FirebaseAI.GenerationOptions)`` to specify options for
+  /// each model.
   public protocol GenerationOptionsRepresentable: Sendable {
     /// Options for controlling model response generation.
     var responseGenerationOptions: ResponseGenerationOptions { get }
@@ -43,7 +44,7 @@
   }
 
   #if canImport(FoundationModels)
-    @available(iOS 26.0, macOS 26.0, *)
+    @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
     extension FoundationModels.GenerationOptions: GenerationOptionsRepresentable {
@@ -80,7 +81,7 @@
       ///
       /// - Parameter generationOptions: Generation options for the on-device `SystemLanguageModel`
       ///   provided by the Foundation Models framework.
-      @available(iOS 26.0, macOS 26.0, *)
+      @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
       @available(tvOS, unavailable)
       @available(watchOS, unavailable)
       static func foundationModels(_ generationOptions: FoundationModels.GenerationOptions)
@@ -94,7 +95,7 @@
       ///   - gemini: Generation options for Gemini models.
       ///   - foundationModels: Generation options for the on-device `SystemLanguageModel` provided
       ///     by the Foundation Models framework.
-      @available(iOS 26.0, macOS 26.0, *)
+      @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
       @available(tvOS, unavailable)
       @available(watchOS, unavailable)
       static func hybrid(gemini: GenerationConfig,

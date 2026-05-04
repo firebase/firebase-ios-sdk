@@ -17,7 +17,6 @@ import XCTest
 
 @testable import FirebaseAuth
 
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class AuthWebUtilsTests: XCTestCase {
   /** @fn testExtractDomainWithHTTP
    @brief Test case for extracting the domain from a URL with "http://" scheme.

@@ -22,7 +22,6 @@ import Foundation
 private let kAccountPrefix = "firebase_auth_1_"
 
 /// The utility class to manipulate data in iOS Keychain.
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 final class AuthKeychainServices: Sendable {
   /// The name of the keychain service.
   private let service: String

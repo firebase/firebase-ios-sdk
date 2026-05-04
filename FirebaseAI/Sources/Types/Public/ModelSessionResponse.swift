@@ -1,4 +1,4 @@
-// Copyright 2025 Google LLC
+// Copyright 2026 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,21 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import FirebaseCore
-
-public class FirebaseFake: FirebaseApp {
-  init(options: FirebaseOptions) {
-    super.init(instanceWithName: "test-fake", options: options)
+#if compiler(>=6.2.3)
+  /// A response from a ``_ModelSession``.
+  ///
+  /// > Important: This type is for **internal use only** and may change at any time.
+  public struct _ModelSessionResponse: Sendable {
+    let rawContent: FirebaseAI.GeneratedContent
+    let rawResponse: GenerateContentResponse
   }
-}
-
-extension FirebaseOptions {
-  public convenience init(
-    apiKey: String,
-    projectID: String
-  ) {
-    self.init(googleAppID: TestConstants.GoogleAppId, gcmSenderID: "TEST_GCM_SENDER_ID")
-    self.apiKey = apiKey
-    self.projectID = projectID
-  }
-}
+#endif // compiler(>=6.2.3)

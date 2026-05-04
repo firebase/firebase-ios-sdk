@@ -1,4 +1,4 @@
-// Copyright 2025 Google LLC
+// Copyright 2026 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,9 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-enum TestConstants {
-  public static let GoogleAppId = "TEST_GOOGLE_APP_ID"
-  public static let APIKey = "test_api_key"
-  public static let ProjectID = "test-project-id"
-  public static let Model = "gemini-2.0-flash"
+import Foundation
+
+@available(watchOS, unavailable)
+struct BidiSlidingWindow: Encodable, Sendable {
+  let targetTokens: Int?
+}
+
+@available(watchOS, unavailable)
+struct BidiContextWindowCompressionConfig: Encodable, Sendable {
+  let triggerTokens: Int?
+  let slidingWindow: BidiSlidingWindow?
 }

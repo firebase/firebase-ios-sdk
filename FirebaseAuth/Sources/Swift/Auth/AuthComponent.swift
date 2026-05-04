@@ -19,7 +19,6 @@ import FirebaseAuthInterop
 import FirebaseCore
 import FirebaseCoreExtension
 
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIRAuthComponent)
 class AuthComponent: NSObject, Library, ComponentLifecycleMaintainer {
   // MARK: - Private Variables

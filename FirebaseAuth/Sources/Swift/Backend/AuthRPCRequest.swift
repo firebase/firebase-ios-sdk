@@ -15,7 +15,6 @@
 import Foundation
 
 /// The generic interface for an RPC request needed by AuthBackend.
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 protocol AuthRPCRequest {
   associatedtype Response: AuthRPCResponse
 
@@ -36,7 +35,6 @@ protocol AuthRPCRequest {
 
 // Default implementation of AuthRPCRequests. This produces similar behaviour to an optional method
 // in Obj-C.
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 extension AuthRPCRequest {
   func injectRecaptchaFields(recaptchaResponse: String?, recaptchaVersion: String) {
     fatalError("Internal FirebaseAuth Error: unimplemented injectRecaptchaFields")

@@ -153,7 +153,7 @@ jobs:
     - name: Setup cmake
       uses: jwlawson/actions-setup-cmake@802fa1a2c4e212495c05bf94dba2704a92a472be
       with:
-        cmake-version: '3.31.1'
+        cmake-version: '3.31.2'
 
     - name: Setup build
       run: scripts/install_prereqs.sh Firestore ${{ runner.os }} cmake
@@ -200,7 +200,7 @@ jobs:
     - name: Setup cmake
       uses: jwlawson/actions-setup-cmake@802fa1a2c4e212495c05bf94dba2704a92a472be
       with:
-        cmake-version: '3.31.1'
+        cmake-version: '3.31.2'
 
     - name: Setup build
       run: scripts/install_prereqs.sh Firestore ${{ runner.os }} cmake
@@ -251,7 +251,7 @@ jobs:
     - name: Setup cmake
       uses: jwlawson/actions-setup-cmake@802fa1a2c4e212495c05bf94dba2704a92a472be
       with:
-        cmake-version: '3.31.1'
+        cmake-version: '3.31.2'
 
     - name: Setup build
       run: scripts/install_prereqs.sh Firestore ${{ runner.os }} cmake
@@ -547,6 +547,7 @@ jobs:
           --no-analyze
 
   spm-package-resolved:
+    needs: check
     runs-on: macos-26
     env:
       FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
@@ -620,6 +621,7 @@ jobs:
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestore ${{ matrix.target }} spmbuildonly
 
   spm-binary:
+    needs: check
     uses: ./.github/workflows/_spm.yml
     with:
       target: FirebaseFirestoreTests

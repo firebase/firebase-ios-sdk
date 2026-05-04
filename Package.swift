@@ -352,8 +352,8 @@ let package = Package(
     ),
     .binaryTarget(
       name: "FirebaseAnalytics",
-      url: "https://dl.google.com/firebase/ios/swiftpm/12.12.1/FirebaseAnalytics.zip",
-      checksum: "82f57ee93f1d34d6827a3ad148a37630e828e6cb47639bc297981c28152fd454"
+      url: "https://dl.google.com/firebase/ios/swiftpm/12.13.0/FirebaseAnalytics.zip",
+      checksum: "fdb0ea5f06436a123da620e6f43e2ce7078a54f08b445f4987c4fb1b3c13f2fc"
     ),
     .testTarget(
       name: "AnalyticsSwiftUnit",
@@ -1425,7 +1425,7 @@ func googleAppMeasurementDependency() -> Package.Dependency {
     return .package(url: appMeasurementURL, branch: "main")
   }
 
-  return .package(url: appMeasurementURL, exact: "12.12.1")
+  return .package(url: appMeasurementURL, exact: "12.13.0")
 }
 
 func abseilDependency() -> Package.Dependency {
@@ -1607,8 +1607,8 @@ func firestoreTargets() -> [Target] {
     } else {
       return .binaryTarget(
         name: "FirebaseFirestoreInternal",
-        url: "https://dl.google.com/firebase/ios/bin/firestore/12.12.0/rc2/FirebaseFirestoreInternal.zip",
-        checksum: "67b8d3aadfc35a325dc642d36e32fe4ef3c2d7da8a233ac8cc706a8a1148f239"
+        url: "https://dl.google.com/firebase/ios/bin/firestore/12.13.0/rc0/FirebaseFirestoreInternal.zip",
+        checksum: "ea5326424da7dd8926c8311004ffaccf6a42b59ac0a9c72aba9f203040e6c8b0"
       )
     }
   }()

@@ -15,7 +15,6 @@
 import Foundation
 
 /// Task which provides the ability to get a download URL for an object in Firebase Storage.
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 enum StorageGetDownloadURLTask {
   static func getDownloadURLTask(reference: StorageReference,
                                  queue: DispatchQueue,

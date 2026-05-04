@@ -37,7 +37,6 @@ class GoogleTests: TestsBase {
     waitForExpectations(timeout: TestsBase.kExpectationsTimeout)
   }
 
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   func testSignInWithGoogleAsync() async throws {
     let auth = Auth.auth()
     let userInfoDict = try await getGoogleAccessTokenAsync()
@@ -89,7 +88,6 @@ class GoogleTests: TestsBase {
   /// Returns a dictionary that constains "access_token", "token_type", "expires_in" and sometimes
   /// the "id_token". (The id_token is not guaranteed to be returned during a refresh exchange;
   /// see https://openid.net/specs/openid-connect-core-1_0.html#RefreshTokenResponse)
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   func getGoogleAccessTokenAsync() async throws -> [String: Any] {
     let googleOauth2TokenServerUrl = "https://www.googleapis.com/oauth2/v4/token"
     let bodyString = "client_id=\(Credentials.kGoogleClientID)&grant_type=refresh_token" +

@@ -1,4 +1,4 @@
-// Copyright 2025 Google LLC
+// Copyright 2026 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,6 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-enum Constants {
-  static let baseErrorDomain = "com.google.firebase.generatedfirebaseai"
+import Foundation
+
+/// A container for task-local values used within the Firebase AI Logic SDK.
+///
+/// See https://developer.apple.com/documentation/swift/tasklocal for more details about
+/// `TaskLocal` values in Swift.
+enum TaskLocals {
+  /// A task-local value indicating whether the current request is a hybrid request.
+  ///
+  /// This is used to pass context down the call stack without modifying function signatures.
+  @TaskLocal static var isHybridRequest = false
 }

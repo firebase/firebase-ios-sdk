@@ -633,26 +633,23 @@ public class Pipeline: @unchecked Sendable {
   /// - Parameters:
   ///   - query: An `Expression` defining the search criteria (e.g.,
   /// `Field("menu").matches("waffles")`).
+  ///   - languageCode: The BCP-47 language code of text in the search query, such as “en” or “sr”.
+  ///   - retrievalDepth: The maximum number of documents to retrieve from the search index.
+  /// Documents will be retrieved in the pre-sort order specified by the search index. The
+  /// `retrievalDepth` is a limit applied before documents are scored and sorted, which can reduce
+  /// costs of expensive scoring and sorting operations.
   ///   - sort: An array of `Ordering` objects to sort the results.
+  ///   - offset: The number of documents to skip.
+  ///   - limit: The maximum number of documents to return. The `limit` is applied after documents
+  /// are scored and sorted.
   ///   - addFields: An array of `Selectable` fields to compute and add to the result.
   /// - Returns: A new `Pipeline` with the search stage appended.
   public func search(query: Expression,
-                     // TODO(search): enable with backend support
-                     //   - languageCode: The BCP-47 language code of text in the search query, such
-                     //   as, “en-US” or “sr-Latn”
-                     // languageCode: String? = nil,
-                     // TODO: add indexPartition here
-                     // TODO(search): enable with backend support
-                     //   - retrievalDepth: The maximum number of documents to retrieve. Documents
-                     //   will be retrieved in the pre-sort order specified by the search index.
-                     // retrievalDepth: Int? = nil,
+                     languageCode: String? = nil,
+                     retrievalDepth: Int? = nil,
                      sort: [Ordering]? = nil,
-                     // TODO(search): enable with backend support
-                     //   - offset: The number of documents to skip.
-                     // offset: Int? = nil,
-                     // TODO(search): enable with backend support
-                     //   - limit: The maximum number of documents to return.
-                     // limit: Int? = nil,
+                     offset: Int? = nil,
+                     limit: Int? = nil,
                      // TODO(search): enable with backend support
                      //   - select: An array of `Selectable` fields or field names to include in the
                      //   result.
@@ -665,16 +662,14 @@ public class Pipeline: @unchecked Sendable {
   ) -> Pipeline {
     let stage = Search(
       query: query,
-      // TODO(search): enable with backend support
-      // limit: limit,
-      // TODO(search): enable with backend support
-      // retrievalDepth: retrievalDepth,
+      languageCode: languageCode,
+      retrievalDepth: retrievalDepth,
       sort: sort,
-      addFields: addFields
+      offset: offset,
+      limit: limit,
       // TODO(search): enable with backend support
       // select: select,
-      // TODO(search): enable with backend support
-      // offset: offset,
+      addFields: addFields
       // TODO(search): enable with backend support
       // queryEnhancement: queryEnhancement
     )
@@ -692,7 +687,7 @@ public class Pipeline: @unchecked Sendable {
   /// ```swift
   /// firestore.pipeline().collection("restaurants")
   /// .search(
-  ///   query: "waffles OR pancakes",
+  ///   query: "breakfast -diner", // Equivalent to `query: DocumentMatches("breakfast -diner")`
   ///   sort: [
   ///     Score().descending(),
   ///   ],
@@ -703,21 +698,25 @@ public class Pipeline: @unchecked Sendable {
   /// ```
   ///
   /// - Parameters:
-  ///   - query: A raw query string (e.g., `"menu:waffles AND tags:breakfast"`).
+  ///   - query: A raw query string (e.g., `"breakfast -diner"`), which will be used for searching
+  /// the document.
+  ///   - languageCode: The BCP-47 language code of text in the search query, such as “en” or “sr”.
+  ///   - retrievalDepth: The maximum number of documents to retrieve from the search index.
+  /// Documents will be retrieved in the pre-sort order specified by the search index. The
+  /// `retrievalDepth` is a limit applied before documents are scored and sorted, which can reduce
+  /// costs of expensive scoring and sorting operations.
   ///   - sort: An array of `Ordering` objects to sort the results.
+  ///   - offset: The number of documents to skip.
+  ///   - limit: The maximum number of documents to return. The `limit` is applied after documents
+  /// are scored and sorted.
   ///   - addFields: An array of `Selectable` fields to compute and add to the result.
   /// - Returns: A new `Pipeline` with the search stage appended.
   public func search(query: String,
-                     // TODO(search): enable with backend support
-                     // languageCode: String? = nil,
-                     // TODO: add indexPartition here
-                     // TODO(search): enable with backend support
-                     // retrievalDepth: Int? = nil,
+                     languageCode: String? = nil,
+                     retrievalDepth: Int? = nil,
                      sort: [Ordering]? = nil,
-                     // TODO(search): enable with backend support
-                     // offset: Int? = nil,
-                     // TODO(search): enable with backend support
-                     // limit: Int? = nil,
+                     offset: Int? = nil,
+                     limit: Int? = nil,
                      // TODO(search): enable with backend support
                      // select: [Selectable]? = nil,
                      addFields: [Selectable]? = nil
@@ -726,15 +725,11 @@ public class Pipeline: @unchecked Sendable {
   ) -> Pipeline {
     return search(
       query: DocumentMatches(query),
-      // TODO(search): enable with backend support
-      // languageCode: languageCode,
-      // TODO(search): enable with backend support
-      // retrievalDepth: retrievalDepth,
+      languageCode: languageCode,
+      retrievalDepth: retrievalDepth,
       sort: sort,
-      // TODO(search): enable with backend support
-      // offset: offset,
-      // TODO(search): enable with backend support
-      // limit: limit,
+      offset: offset,
+      limit: limit,
       // TODO(search): enable with backend support
       // select: select,
       addFields: addFields

@@ -16,7 +16,6 @@
 import Foundation
 import XCTest
 
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class StoragePathTests: XCTestCase {
   func testGSURI() throws {
     let path = try StoragePath.path(string: "gs://bucket/path/to/object")

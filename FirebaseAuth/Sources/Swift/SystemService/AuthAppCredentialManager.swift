@@ -16,7 +16,6 @@
   import Foundation
 
   /// A class to manage app credentials backed by iOS Keychain.
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   class AuthAppCredentialManager {
     let kKeychainDataKey = "app_credentials"
     let kFullCredentialKey = "full_credential"

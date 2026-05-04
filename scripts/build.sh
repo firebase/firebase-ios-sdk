@@ -179,15 +179,9 @@ else
   ios_flags=(
     -destination "platform=iOS Simulator,name=${iphone_simulator_name}"
   )
-  if [[ "$xcode_major" -ge 26 ]]; then
-    watchos_flags=(
-      -destination "platform=watchOS Simulator,OS=${xcode_version},name=Apple Watch Series 11 (42mm)"
-    )
-  else
-    watchos_flags=(
-      -destination 'platform=watchOS Simulator,name=Apple Watch Series 11 (42mm)'
-    )
-  fi
+  watchos_flags=(
+    -destination 'platform=watchOS Simulator,name=Apple Watch Series 11 (42mm)'
+  )
 fi
 
 ios_device_flags=(
