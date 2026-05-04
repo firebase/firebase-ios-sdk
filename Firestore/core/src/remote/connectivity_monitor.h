@@ -68,6 +68,10 @@ class ConnectivityMonitor {
   // The status may be retrieved asynchronously.
   void SetInitialStatus(NetworkStatus new_status);
 
+  absl::optional<NetworkStatus> current_status() const {
+    return status_;
+  }
+
   // Invokes callbacks only if the status changed.
   void MaybeInvokeCallbacks(NetworkStatus new_status);
 

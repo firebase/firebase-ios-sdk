@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "Firestore/core/src/remote/connectivity_monitor_apple.h"
 #include "Firestore/core/src/remote/connectivity_monitor.h"
 
 #if defined(__APPLE__)
@@ -22,9 +23,8 @@
 #import <UIKit/UIKit.h>
 #endif
 
-#include <SystemConfiguration/SystemConfiguration.h>
+#import <Network/Network.h>
 #include <dispatch/dispatch.h>
-#include <netinet/in.h>
 
 #include <memory>
 
@@ -36,165 +36,134 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-// TODO(#12593): SCNetworkReachability was deprecated in macOS 14.4.
-// Migrate to NWPathMonitor.
-
 namespace {
+
+static const void* const kMonitorQueueKey = &kMonitorQueueKey;
 
 using NetworkStatus = ConnectivityMonitor::NetworkStatus;
 using util::AsyncQueue;
 
-NetworkStatus ToNetworkStatus(SCNetworkReachabilityFlags flags) {
-  if (!(flags & kSCNetworkReachabilityFlagsReachable)) {
-    return NetworkStatus::Unavailable;
-  }
-  if (flags & kSCNetworkReachabilityFlagsConnectionRequired) {
+NetworkStatus ToNetworkStatus(nw_path_t path) {
+  nw_path_status_t status = nw_path_get_status(path);
+  if (status != nw_path_status_satisfied) {
     return NetworkStatus::Unavailable;
   }
 
 #if TARGET_OS_IPHONE || TARGET_OS_VISION
-  if (flags & kSCNetworkReachabilityFlagsIsWWAN) {
+  if (nw_path_uses_interface_type(path, nw_interface_type_cellular)) {
     return NetworkStatus::AvailableViaCellular;
   }
 #endif
   return NetworkStatus::Available;
 }
 
-SCNetworkReachabilityRef CreateReachability() {
-  // Pseudoaddress that monitors internet reachability in general.
-  sockaddr_in any_connection_addr{};
-  any_connection_addr.sin_len = sizeof(any_connection_addr);
-  any_connection_addr.sin_family = AF_INET;
-  return SCNetworkReachabilityCreateWithAddress(
-      nullptr, reinterpret_cast<sockaddr*>(&any_connection_addr));
-}
-
-void OnReachabilityChangedCallback(SCNetworkReachabilityRef /*unused*/,
-                                   SCNetworkReachabilityFlags flags,
-                                   void* raw_this);
-
 }  // namespace
 
-/**
- * Implementation of `ConnectivityMonitor` based on `SCNetworkReachability`
- * (iOS/MacOS).
- */
-class ConnectivityMonitorApple : public ConnectivityMonitor {
- public:
-  explicit ConnectivityMonitorApple(
-      const std::shared_ptr<AsyncQueue>& worker_queue)
-      : ConnectivityMonitor{worker_queue} {
-    reachability_ = CreateReachability();
-    if (!reachability_) {
-      LOG_DEBUG("Failed to create reachability monitor.");
-      return;
-    }
-
-    SCNetworkReachabilityFlags flags{};
-    if (SCNetworkReachabilityGetFlags(reachability_, &flags)) {
-      SetInitialStatus(ToNetworkStatus(flags));
-    }
-
-    SCNetworkReachabilityContext context{};
-    context.info = this;
-    bool success = SCNetworkReachabilitySetCallback(
-        reachability_, OnReachabilityChangedCallback, &context);
-    if (!success) {
-      LOG_DEBUG("Couldn't set reachability callback");
-      return;
-    }
-
-    // It's okay to use the main queue for reachability events because they are
-    // fairly infrequent, and there's no good way to get the underlying dispatch
-    // queue out of the worker queue. The callback itself is still executed on
-    // the worker queue.
-    success = SCNetworkReachabilitySetDispatchQueue(reachability_,
-                                                    dispatch_get_main_queue());
-    if (!success) {
-      LOG_DEBUG("Couldn't set reachability queue");
-      return;
-    }
-
-#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
-    this->observer_ = [[NSNotificationCenter defaultCenter]
-        addObserverForName:UIApplicationWillEnterForegroundNotification
-                    object:nil
-                     queue:[NSOperationQueue mainQueue]
-                usingBlock:^(NSNotification* note) {
-                  this->OnEnteredForeground();
-                }];
-#endif
+ConnectivityMonitorApple::ConnectivityMonitorApple(
+    const std::shared_ptr<AsyncQueue>& worker_queue)
+    : ConnectivityMonitor{worker_queue}, state_{std::make_shared<State>()} {
+  monitor_ = nw_path_monitor_create();
+  if (!monitor_) {
+    LOG_DEBUG("Failed to create network monitor.");
+    return;
   }
 
-  ~ConnectivityMonitorApple() {
-#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
-    [[NSNotificationCenter defaultCenter] removeObserver:this->observer_];
-#endif
+  dispatch_queue_attr_t attrs = dispatch_queue_attr_make_with_qos_class(
+      DISPATCH_QUEUE_SERIAL, QOS_CLASS_UTILITY,
+      DISPATCH_QUEUE_PRIORITY_DEFAULT);
+  monitor_queue_ = dispatch_queue_create(
+      "com.google.firebase.firestore.network.monitor", attrs);
 
-    if (reachability_) {
-      bool success =
-          SCNetworkReachabilitySetDispatchQueue(reachability_, nullptr);
-      if (!success) {
-        LOG_DEBUG("Couldn't unset reachability queue");
-      }
+  dispatch_queue_set_specific(monitor_queue_, kMonitorQueueKey,
+                              (__bridge void*)monitor_queue_, NULL);
 
-      CFRelease(reachability_);
-    }
-  }
+  nw_path_monitor_set_queue(monitor_, monitor_queue_);
 
-#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
-  void OnEnteredForeground() {
-    SCNetworkReachabilityFlags flags{};
-    if (!SCNetworkReachabilityGetFlags(reachability_, &flags)) return;
+  std::weak_ptr<State> weak_state = state_;
+  std::weak_ptr<AsyncQueue> weak_queue = queue();
 
-    queue()->Enqueue([this, flags] {
-      auto status = ToNetworkStatus(flags);
-      if (status != NetworkStatus::Unavailable) {
-        // There may have been network changes while Firestore was in the
-        // background for which we did not get OnReachabilityChangedCallback
-        // notifications. If entering the foreground and we have a connection,
-        // reset the connection to ensure that RPCs don't have to wait for TCP
-        // timeouts.
-        this->InvokeCallbacks(status);
+  nw_path_monitor_set_update_handler(monitor_, ^(nw_path_t path) {
+    auto s = weak_state.lock();
+    if (!s) return;
+    auto q = weak_queue.lock();
+    if (!q) return;
+    auto status = ToNetworkStatus(path);
+    q->Enqueue([raw_this = this, weak_state, status]() {
+      auto s2 = weak_state.lock();
+      if (!s2) return;
+
+      if (!raw_this->current_status().has_value()) {
+        raw_this->SetInitialStatus(status);
       } else {
-        this->MaybeInvokeCallbacks(status);
+        raw_this->MaybeInvokeCallbacks(status);
       }
     });
-  }
-#endif
+  });
 
-  void OnReachabilityChanged(SCNetworkReachabilityFlags flags) {
-    queue()->Enqueue(
-        [this, flags] { MaybeInvokeCallbacks(ToNetworkStatus(flags)); });
-  }
+  nw_path_monitor_start(monitor_);
 
- private:
-  SCNetworkReachabilityRef reachability_ = nil;
 #if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
-  id<NSObject> observer_ = nil;
+  this->observer_ = [[NSNotificationCenter defaultCenter]
+      addObserverForName:UIApplicationWillEnterForegroundNotification
+                  object:nil
+                   queue:[NSOperationQueue mainQueue]
+              usingBlock:^(NSNotification* note) {
+                (void)note;
+                auto s = weak_state.lock();
+                if (!s) return;
+                auto q = weak_queue.lock();
+                if (!q) return;
+
+                q->Enqueue([raw_this = this, weak_state] {
+                  auto s2 = weak_state.lock();
+                  if (!s2) return;
+
+                  if (raw_this->current_status().has_value() &&
+                      raw_this->current_status().value() !=
+                          NetworkStatus::Unavailable) {
+                    raw_this->InvokeCallbacks(
+                        raw_this->current_status().value());
+                  }
+                });
+              }];
 #endif
-};
-
-namespace {
-
-void OnReachabilityChangedCallback(SCNetworkReachabilityRef /*unused*/,
-                                   SCNetworkReachabilityFlags flags,
-                                   void* raw_this) {
-  HARD_ASSERT(raw_this, "Received a null pointer as context");
-  static_cast<ConnectivityMonitorApple*>(raw_this)->OnReachabilityChanged(
-      flags);
 }
 
-}  // namespace
+ConnectivityMonitorApple::~ConnectivityMonitorApple() {
+  HARD_ASSERT(this->queue()->IsCurrentQueue(),
+              "ConnectivityMonitorApple must be destroyed on its AsyncQueue. "
+              "See class comment for why.");
+
+#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
+  if (this->observer_) {
+    [[NSNotificationCenter defaultCenter] removeObserver:this->observer_];
+    this->observer_ = nil;
+  }
+#endif
+
+  if (monitor_) {
+    // Precondition: monitor_ is non-null and was started successfully
+    // by the constructor. Both implied by reaching this point.
+    nw_path_monitor_cancel(monitor_);
+  }
+
+  if (monitor_queue_) {
+    HARD_ASSERT(dispatch_get_specific(kMonitorQueueKey) !=
+                    (__bridge void*)monitor_queue_,
+                "Cannot destruct on monitor_queue_");
+    dispatch_sync(monitor_queue_, ^{
+                  });
+  }
+
+  state_.reset();
+  monitor_ = nullptr;
+  monitor_queue_ = nullptr;
+}
 
 std::unique_ptr<ConnectivityMonitor> ConnectivityMonitor::Create(
     const std::shared_ptr<AsyncQueue>& worker_queue) {
   return absl::make_unique<ConnectivityMonitorApple>(worker_queue);
 }
-
-#pragma clang diagnostic pop
 
 }  // namespace remote
 }  // namespace firestore
