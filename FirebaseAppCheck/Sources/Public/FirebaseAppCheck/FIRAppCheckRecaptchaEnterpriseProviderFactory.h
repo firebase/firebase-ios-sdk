@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2026 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,23 +14,16 @@
  * limitations under the License.
  */
 
-#import "FIRAppCheck.h"
-#import "FIRAppCheckErrors.h"
-#import "FIRAppCheckProvider.h"
+#import <Foundation/Foundation.h>
 #import "FIRAppCheckProviderFactory.h"
-#import "FIRAppCheckToken.h"
 
-// Debug provider
-#import "FIRAppCheckDebugProvider.h"
-#import "FIRAppCheckDebugProviderFactory.h"
+NS_ASSUME_NONNULL_BEGIN
 
-// DeviceCheck provider
-#import "FIRDeviceCheckProvider.h"
-#import "FIRDeviceCheckProviderFactory.h"
+NS_SWIFT_NAME(AppCheckRecaptchaEnterpriseProviderFactory)
+@interface FIRAppCheckRecaptchaEnterpriseProviderFactory : NSObject <FIRAppCheckProviderFactory>
 
-// App Attest provider.
-#import "FIRAppAttestProvider.h"
+- (instancetype)init NS_UNAVAILABLE;
+- (instancetype)initWithSiteKey:(NSString *)siteKey;
 
-// Recaptcha Enterprise provider
-#import "FIRAppCheckRecaptchaEnterpriseProviderFactory.h"
-#import "FIRRecaptchaEnterpriseProvider.h"
+@end
+NS_ASSUME_NONNULL_END
