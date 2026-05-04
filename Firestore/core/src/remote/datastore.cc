@@ -120,26 +120,21 @@ void Datastore::Start() {
 }
 
 void Datastore::Shutdown() {
-  printf("Datastore::Shutdown started\n");
   is_shut_down_ = true;
 
   // Order matters here: shutting down `grpc_connection_`, which will quickly
   // finish any pending gRPC calls, must happen before shutting down the gRPC
   // queue.
-  printf("Datastore::Shutdown: calling grpc_connection_.Shutdown()\n");
   grpc_connection_.Shutdown();
 
   // `grpc::CompletionQueue::Next` will only return `false` once `Shutdown` has
   // been called and all submitted tags have been extracted. Without this call,
   // `rpc_executor_` will never finish.
-  printf("Datastore::Shutdown: calling grpc_queue_.Shutdown()\n");
   grpc_queue_.Shutdown();
 
   // Drain the executor to make sure it extracted all the operations from gRPC
   // completion queue.
-  printf("Datastore::Shutdown: draining executor\n");
   rpc_executor_->ExecuteBlocking([] {});
-  printf("Datastore::Shutdown completed\n");
 }
 
 void Datastore::PollGrpcQueue() {
