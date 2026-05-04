@@ -49,9 +49,15 @@
 
 - (nullable instancetype)initWithApp:(FIRApp *)app siteKey:(NSString *)siteKey {
   if (siteKey.length == 0) {
+    FIRLogError(kFIRLoggerAppCheck,
+                kFIRLoggerAppCheckMessageRecaptchaEnterpriseProviderIncompleteFIROptions,
+                @"Cannot instantiate `FIRRecaptchaEnterpriseProvider` for app: %@. "
+                @"`siteKey` is missing or empty.",
+                app.name);
     return nil;
   }
   NSArray<NSString *> *missingOptionsFields =
+
       [FIRAppCheckValidator tokenExchangeMissingFieldsInOptions:app.options];
   if (missingOptionsFields.count > 0) {
     FIRLogError(kFIRLoggerAppCheck,
