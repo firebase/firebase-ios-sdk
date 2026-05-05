@@ -23,9 +23,9 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FIRMessagingFIDUnregisterOperation : FIRMessagingTokenOperation
 
 - (instancetype)initWithAuthorizedEntity:(nullable NSString *)authorizedEntity
-                                   scope:(NSString *)scope
+                                   scope:(nullable NSString *)scope
                                  options:(nullable NSDictionary<NSString *, NSString *> *)options
-                              instanceID:(NSString *)instanceID
+                              instanceID:(nullable NSString *)instanceID
                            installations:(FIRInstallations *)installations;
 
 @end

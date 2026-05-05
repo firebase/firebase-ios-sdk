@@ -66,6 +66,12 @@ typedef void (^FIRMessagingTopicOperationCompletion)(NSError *_Nullable error)
 // clang-format12 merges the next two lines.
 FOUNDATION_EXPORT const NSNotificationName FIRMessagingRegistrationTokenRefreshedNotification
     NS_SWIFT_NAME(MessagingRegistrationTokenRefreshed);
+
+/**
+ *  Notification sent when the FCM installation id has been unregistered.
+ */
+FOUNDATION_EXPORT const NSNotificationName FIRMessagingInstallationIdUnregisteredNotification
+    NS_SWIFT_NAME(MessagingInstallationIdUnregistered);
 // clang-format on
 
 /**

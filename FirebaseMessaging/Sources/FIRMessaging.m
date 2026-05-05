@@ -51,6 +51,9 @@ static NSString *const kFIRMessagingReachabilityHostname = @"www.google.com";
 const NSNotificationName FIRMessagingRegistrationTokenRefreshedNotification =
     @"com.firebase.messaging.notif.fcm-token-refreshed";
 
+const NSNotificationName FIRMessagingInstallationIdUnregisteredNotification =
+    @"com.firebase.messaging.notif.installation-id-unregistered";
+
 NSString *const kFIRMessagingUserDefaultsKeyAutoInitEnabled =
     @"com.firebase.messaging.auto-init.enabled";  // Auto Init Enabled key stored in NSUserDefaults
 
@@ -681,8 +684,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 }
 
 - (void)notifyInstallationIdUnregistered:(nonnull NSString *)installationID {
-  if (![self isInstallationIdEnabled] ||
-      ![self.delegate respondsToSelector:@selector(messaging:didUnregister:)]) {
+  if (![self isInstallationIdEnabled]) {
     return;
   }
 
@@ -693,7 +695,14 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
     });
     return;
   }
-  [self.delegate messaging:self didUnregister:installationID];
+
+  if ([self.delegate respondsToSelector:@selector(messaging:didUnregister:)]) {
+    [self.delegate messaging:self didUnregister:installationID];
+  }
+
+  NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
+  [center postNotificationName:FIRMessagingInstallationIdUnregisteredNotification
+                        object:installationID];
 }
 
 #pragma mark - FID
@@ -731,7 +740,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
   [self.installations
       installationIDWithCompletion:^(NSString *_Nullable identifier, NSError *_Nullable error) {
         FIRMessaging_STRONGIFY(self);
-        if (error) {
+        if (error || !identifier.length) {
           FIRMessagingLoggerError(kFIRMessagingMessageCodeTokenOperationInstallationIdNotAvailable,
                                   @"Failed to get installation ID.");
         } else {
@@ -740,7 +749,9 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
                                         scope:kFIRMessagingDefaultTokenScope
                                    instanceID:identifier
                                       handler:^(NSError *_Nullable error) {
-                                        [self notifyInstallationIdUnregistered:identifier];
+                                        if (!error) {
+                                          [self notifyInstallationIdUnregistered:identifier];
+                                        }
                                       }];
         }
       }];

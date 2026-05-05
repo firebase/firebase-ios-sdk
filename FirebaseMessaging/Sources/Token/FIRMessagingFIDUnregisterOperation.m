@@ -51,9 +51,9 @@ static BOOL isServerError(NSURLResponse *response) {
 @implementation FIRMessagingFIDUnregisterOperation
 
 - (instancetype)initWithAuthorizedEntity:(nullable NSString *)authorizedEntity
-                                   scope:(NSString *)scope
+                                   scope:(nullable NSString *)scope
                                  options:(nullable NSDictionary<NSString *, NSString *> *)options
-                              instanceID:(NSString *)instanceID
+                              instanceID:(nullable NSString *)instanceID
                            installations:(FIRInstallations *)installations {
   self = [super initWithAction:FIRMessagingTokenActionDeleteToken
            forAuthorizedEntity:authorizedEntity
