@@ -309,16 +309,8 @@ class NumericTransform::Rep : public TransformOperation::Rep {
   }
 
   absl::optional<nanopb::Message<google_firestore_v1_Value>> ComputeBaseValue(
-      const absl::optional<google_firestore_v1_Value>& previous_value)
-      const override {
-    if (IsNumber(previous_value)) {
-      return DeepClone(*previous_value);
-    }
-
-    Message<google_firestore_v1_Value> zero_value;
-    zero_value->which_value_type = google_firestore_v1_Value_integer_value_tag;
-    zero_value->integer_value = 0;
-    return zero_value;
+      const absl::optional<google_firestore_v1_Value>&) const override {
+    return absl::nullopt;
   }
 
   double OperandAsDouble() const {
@@ -326,18 +318,6 @@ class NumericTransform::Rep : public TransformOperation::Rep {
       return operand_->double_value;
     } else if (IsInteger(*operand_)) {
       return static_cast<double>(operand_->integer_value);
-    } else {
-      HARD_FAIL(
-          "Expected 'operand' to be of numeric type, but was %s (type %s)",
-          CanonicalId(*operand_), GetTypeOrder(*operand_));
-    }
-  }
-
-  int64_t OperandAsLong() const {
-    if (IsDouble(*operand_)) {
-      return static_cast<int64_t>(operand_->double_value);
-    } else if (IsInteger(*operand_)) {
-      return operand_->integer_value;
     } else {
       HARD_FAIL(
           "Expected 'operand' to be of numeric type, but was %s (type %s)",
@@ -397,6 +377,19 @@ class NumericIncrementTransform::Rep : public NumericTransform::Rep {
   Message<google_firestore_v1_Value> ApplyToLocalView(
       const absl::optional<google_firestore_v1_Value>& previous_value,
       const Timestamp& local_write_time) const override;
+
+  absl::optional<nanopb::Message<google_firestore_v1_Value>> ComputeBaseValue(
+      const absl::optional<google_firestore_v1_Value>& previous_value)
+      const override {
+    if (IsNumber(previous_value)) {
+      return DeepClone(*previous_value);
+    }
+
+    Message<google_firestore_v1_Value> zero_value;
+    zero_value->which_value_type = google_firestore_v1_Value_integer_value_tag;
+    zero_value->integer_value = 0;
+    return zero_value;
+  }
 
   std::string ToString() const override {
     return absl::StrCat("NumericIncrement(", operand_->ToString(), ")");

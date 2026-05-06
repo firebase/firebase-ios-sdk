@@ -966,13 +966,9 @@ TEST(MutationTest, NumericMinimumBaseValue) {
                                      {"nested.string", Minimum(1)},
                                      {"nested.map", Minimum(1)},
                                      {"nested.missing", Minimum(1)}});
-  ObjectValue base_value = mutation.ExtractTransformBaseValue(base_doc).value();
-
-  auto expected_nested =
-      Map("double", 42.0, "long", 42, "string", 0, "map", 0, "missing", 0);
-  auto expected = Map("double", 42.0, "long", 42, "string", 0, "map", 0,
-                      "missing", 0, "nested", std::move(expected_nested));
-  EXPECT_EQ(*expected, *Value(base_value));
+  absl::optional<ObjectValue> base_value =
+      mutation.ExtractTransformBaseValue(base_doc);
+  EXPECT_FALSE(base_value.has_value());
 }
 
 TEST(MutationTest, NumericMaximumBaseValue) {
@@ -994,13 +990,9 @@ TEST(MutationTest, NumericMaximumBaseValue) {
                                      {"nested.string", Maximum(1)},
                                      {"nested.map", Maximum(1)},
                                      {"nested.missing", Maximum(1)}});
-  ObjectValue base_value = mutation.ExtractTransformBaseValue(base_doc).value();
-
-  auto expected_nested =
-      Map("double", 42.0, "long", 42, "string", 0, "map", 0, "missing", 0);
-  auto expected = Map("double", 42.0, "long", 42, "string", 0, "map", 0,
-                      "missing", 0, "nested", std::move(expected_nested));
-  EXPECT_EQ(*expected, *Value(base_value));
+  absl::optional<ObjectValue> base_value =
+      mutation.ExtractTransformBaseValue(base_doc);
+  EXPECT_FALSE(base_value.has_value());
 }
 
 }  // namespace
