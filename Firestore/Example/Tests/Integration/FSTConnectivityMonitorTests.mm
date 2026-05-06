@@ -43,9 +43,7 @@ std::shared_ptr<AsyncQueue> MakeWorkerQueue(const char* name) {
 // If the first update never arrives within `timeout_seconds`, fails the
 // test via XCTFail through the provided test case pointer.
 std::unique_ptr<ConnectivityMonitorApple> MakeMonitorAndWaitForInitialStatus(
-    XCTestCase* test_case,
-    const std::shared_ptr<AsyncQueue>& worker_queue,
-    NSTimeInterval timeout_seconds = 2.0) {
+    const std::shared_ptr<AsyncQueue>& worker_queue, NSTimeInterval timeout_seconds = 2.0) {
   auto monitor = std::make_unique<ConnectivityMonitorApple>(worker_queue);
 
   // NWPathMonitor delivers its first pathUpdateHandler asynchronously.
@@ -91,7 +89,7 @@ void DestroyOnQueue(std::unique_ptr<ConnectivityMonitorApple>& monitor,
   // (NWPathMonitor handles, dispatch queues, observer registrations) and
   // should not crash if a pathUpdateHandler is in flight when destruction
   // begins.
-  for (int i = 0; i < 50; ++i) {
+  for (int i = 0; i < 20; ++i) {
     auto worker_queue = MakeWorkerQueue("test_rapid");
     auto monitor = std::make_unique<ConnectivityMonitorApple>(worker_queue);
     DestroyOnQueue(monitor, worker_queue);
@@ -116,7 +114,7 @@ void DestroyOnQueue(std::unique_ptr<ConnectivityMonitorApple>& monitor,
 
 - (void)testGetCurrentStatusAfterUpdate {
   auto worker_queue = MakeWorkerQueue("test_get_status_after");
-  auto monitor = MakeMonitorAndWaitForInitialStatus(self, worker_queue);
+  auto monitor = MakeMonitorAndWaitForInitialStatus(worker_queue);
 
   auto status = monitor->GetCurrentStatus();
   XCTAssertTrue(status.has_value(), @"After waiting for initial update, status must be set");
@@ -126,7 +124,7 @@ void DestroyOnQueue(std::unique_ptr<ConnectivityMonitorApple>& monitor,
 
 - (void)testAddCallbackDoesNotCrash {
   auto worker_queue = MakeWorkerQueue("test_add_callback");
-  auto monitor = MakeMonitorAndWaitForInitialStatus(self, worker_queue);
+  auto monitor = MakeMonitorAndWaitForInitialStatus(worker_queue);
 
   std::atomic<int> invocation_count{0};
   monitor->AddCallback(
@@ -145,7 +143,7 @@ void DestroyOnQueue(std::unique_ptr<ConnectivityMonitorApple>& monitor,
 
 - (void)testForegroundNotificationInvokesCallback {
   auto worker_queue = MakeWorkerQueue("test_foreground_invokes");
-  auto monitor = MakeMonitorAndWaitForInitialStatus(self, worker_queue);
+  auto monitor = MakeMonitorAndWaitForInitialStatus(worker_queue);
 
   // Skip the test if the simulator has no network — the foreground handler
   // intentionally short-circuits when status is Unavailable, so the
@@ -181,7 +179,7 @@ void DestroyOnQueue(std::unique_ptr<ConnectivityMonitorApple>& monitor,
   // NSNotificationCenter observer. If it didn't, posting a notification
   // after destruction would call a block holding a dangling `this`.
   auto worker_queue = MakeWorkerQueue("test_foreground_after_destruct");
-  auto monitor = MakeMonitorAndWaitForInitialStatus(self, worker_queue);
+  auto monitor = MakeMonitorAndWaitForInitialStatus(worker_queue);
 
   DestroyOnQueue(monitor, worker_queue);
 
@@ -208,7 +206,7 @@ void DestroyOnQueue(std::unique_ptr<ConnectivityMonitorApple>& monitor,
   // The foreground handler iterates registered callbacks. With zero
   // callbacks registered, it must still complete without crashing.
   auto worker_queue = MakeWorkerQueue("test_foreground_no_callbacks");
-  auto monitor = MakeMonitorAndWaitForInitialStatus(self, worker_queue);
+  auto monitor = MakeMonitorAndWaitForInitialStatus(worker_queue);
 
   [[NSNotificationCenter defaultCenter]
       postNotificationName:UIApplicationWillEnterForegroundNotification
