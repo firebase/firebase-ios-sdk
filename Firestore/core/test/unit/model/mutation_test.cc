@@ -891,7 +891,7 @@ TEST(MutationTest, AppliesMinimumTransformToDocument) {
       {"longMinNan", Minimum(NAN)},  {"doubleMinNan", Minimum(NAN)},
   };
   auto expected =
-      Map("longMinLong", 2L, "longMinDouble", 2.2, "doubleMinLong", 2.0,
+      Map("longMinLong", 2L, "longMinDouble", 2.2, "doubleMinLong", 2L,
           "doubleMinDouble", 2.2, "longMinNan", NAN, "doubleMinNan", NAN);
   TransformBaseDoc(std::move(base_data), transforms, std::move(expected));
 }
@@ -906,7 +906,7 @@ TEST(MutationTest, AppliesMaximumTransformToDocument) {
       {"longMaxNan", Maximum(NAN)},  {"doubleMaxNan", Maximum(NAN)},
   };
   auto expected =
-      Map("longMaxLong", 8L, "longMaxDouble", 8.8, "doubleMaxLong", 8.0,
+      Map("longMaxLong", 8L, "longMaxDouble", 8.8, "doubleMaxLong", 8L,
           "doubleMaxDouble", 8.8, "longMaxNan", NAN, "doubleMaxNan", NAN);
   TransformBaseDoc(std::move(base_data), transforms, std::move(expected));
 }

@@ -533,8 +533,8 @@ NumericMinimumTransform::Rep::ApplyToLocalView(
   auto base_value = *previous_value;
   Message<google_firestore_v1_Value> result;
 
-  // Return an integer value only if the previous value and the operand is an
-  // integer.
+  // Return an integer value only if both the previous value and the operand are
+  // integers.
   if (IsInteger(base_value) && IsInteger(*operand_)) {
     result->which_value_type = google_firestore_v1_Value_integer_value_tag;
     result->integer_value =
@@ -573,8 +573,8 @@ NumericMaximumTransform::Rep::ApplyToLocalView(
   auto base_value = *previous_value;
   Message<google_firestore_v1_Value> result;
 
-  // Return an integer value only if the previous value and the operand is an
-  // integer.
+  // Return an integer value only if both the previous value and the operand are
+  // integers.
   if (IsInteger(base_value) && IsInteger(*operand_)) {
     result->which_value_type = google_firestore_v1_Value_integer_value_tag;
     result->integer_value =
