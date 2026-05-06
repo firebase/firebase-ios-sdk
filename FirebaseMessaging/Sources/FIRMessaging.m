@@ -120,6 +120,8 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 /// calling it implicitly during swizzling.
 @property(nonatomic, readwrite, strong) NSMutableSet *loggedMessageIDs;
 @property(nonatomic, readwrite, strong) id<FIRAnalyticsInterop> _Nullable analytics;
+@property(nonatomic, readwrite, strong, nullable) id<NSObject> installationIDObserver;
+@property(nonatomic, readwrite, copy, nullable) NSString *lastKnownFID;
 
 @end
 
@@ -707,6 +709,45 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 
 #pragma mark - FID
 
+- (void)handleInstallationIDDidChangeNotification:(NSNotification *)notification {
+  FIRMessaging_WEAKIFY(self);
+  [self.installations installationIDWithCompletion:^(NSString *_Nullable identifier,
+                                                     NSError *_Nullable error) {
+    dispatch_async(dispatch_get_main_queue(), ^{
+      FIRMessaging_STRONGIFY(self);
+      if (error || !identifier.length) {
+        return;
+      }
+      // Registration will only be triggered if FID is changed
+      if (![identifier isEqualToString:self.lastKnownFID]) {
+        FIRMessagingLoggerInfo(kFIRMessagingMessageCodeInstallationIdRotation,
+                               @"FID rotated. Registering with the new FID '%@'", identifier);
+        self.lastKnownFID = identifier;
+        [self retrieveFCMTokenForSenderID:self.tokenManager.fcmSenderID
+                               completion:^(NSString *_Nullable FCMToken, NSError *_Nullable error){
+                               }];
+      }
+    });
+  }];
+}
+
+- (void)setupInstallationIDObserver {
+  if (self.installationIDObserver) {
+    return;
+  }
+  // Monitor FID rotation events. When FID rotates, register with the new FID.
+  FIRMessagingLoggerDebug(kFIRMessagingMessageCodeDebug, @"Listening for FID rotation events");
+  FIRMessaging_WEAKIFY(self);
+  self.installationIDObserver = [NSNotificationCenter.defaultCenter
+      addObserverForName:FIRInstallationIDDidChangeNotification
+                  object:nil
+                   queue:nil
+              usingBlock:^(NSNotification *notification) {
+                FIRMessaging_STRONGIFY(self);
+                [self handleInstallationIDDidChangeNotification:notification];
+              }];
+}
+
 - (void)register {
   if (!self.isInstallationIdEnabled) {
     FIRMessagingLoggerError(kFIRMessagingMessageCodeInstallationIdDisabled,
@@ -719,6 +760,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
                             @"No Sender ID is available to register");
     return;
   }
+  [self setupInstallationIDObserver];
   [self.tokenManager tokenAndRequestIfNotExist];
 }
 
@@ -784,7 +826,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
                            @"subscribeToTopic.",
                            topic, [FIRMessagingPubSub removePrefixFromTopic:topic]);
   }
-  __weak FIRMessaging *weakSelf = self;
+  FIRMessaging_WEAKIFY(self);
   [self
       retrieveFCMTokenForSenderID:self.tokenManager.fcmSenderID
                        completion:^(NSString *_Nullable FCMToken, NSError *_Nullable error) {
@@ -798,10 +840,10 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
                            }
                            return;
                          }
-                         FIRMessaging *strongSelf = weakSelf;
-                         NSString *normalizeTopic = [[strongSelf class] normalizeTopic:topic];
+                         FIRMessaging_STRONGIFY(self);
+                         NSString *normalizeTopic = [[self class] normalizeTopic:topic];
                          if (normalizeTopic.length) {
-                           [strongSelf.pubsub subscribeToTopic:normalizeTopic handler:completion];
+                           [self.pubsub subscribeToTopic:normalizeTopic handler:completion];
                            return;
                          }
                          NSString *failureReason = [NSString
