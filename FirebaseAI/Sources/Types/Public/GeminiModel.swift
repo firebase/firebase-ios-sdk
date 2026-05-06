@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import FirebaseCore
 import Foundation
 
 #if compiler(>=6.2.3)
@@ -22,13 +23,27 @@ import Foundation
   /// To create a ``GeminiModel`` instance, see
   /// ``FirebaseAI/geminiModel(name:safetySettings:requestOptions:)``.
   public struct GeminiModel {
-    let modelName: String
+    public struct ModelConfig: Sendable, Hashable {
+      let firebaseAppName: String
+      public let modelName: String
+      public let safetySettings: [SafetySetting]?
+      public let requestOptions: RequestOptions
+
+      public var firebaseAI: FirebaseAI {
+        let firebaseApp = FirebaseApp.app(name: firebaseAppName)
+        return FirebaseAI.firebaseAI(
+          app: firebaseApp
+          // TODO: Add configuration for `backend:`
+          // TODO: Add configuration for `useLimitedUseAppCheckTokens:`
+        )
+      }
+    }
+
+    public let modelConfig: ModelConfig
     let modelResourceName: String
     let firebaseInfo: FirebaseInfo
     let apiConfig: APIConfig
-    let safetySettings: [SafetySetting]?
     let toolConfig: ToolConfig?
-    let requestOptions: RequestOptions
     let urlSession: URLSession
 
     init(modelName: String,
@@ -39,13 +54,16 @@ import Foundation
          toolConfig: ToolConfig? = nil,
          requestOptions: RequestOptions = RequestOptions(),
          urlSession: URLSession = GenAIURLSession.default) {
-      self.modelName = modelName
+      modelConfig = ModelConfig(
+        firebaseAppName: firebaseInfo.app.name,
+        modelName: modelName,
+        safetySettings: safetySettings,
+        requestOptions: requestOptions
+      )
       self.modelResourceName = modelResourceName
       self.firebaseInfo = firebaseInfo
       self.apiConfig = apiConfig
-      self.safetySettings = safetySettings
       self.toolConfig = toolConfig
-      self.requestOptions = requestOptions
       self.urlSession = urlSession
     }
   }
@@ -55,7 +73,7 @@ import Foundation
     ///
     /// > Important: This property is for **internal use only** and may change at any time.
     public var _modelName: String {
-      return modelName
+      return modelConfig.modelName
     }
 
     /// Returns a new session for this model.
@@ -64,16 +82,16 @@ import Foundation
     public func _startSession(tools: [any ToolRepresentable]?,
                               instructions: String?) throws -> any _ModelSession {
       let model = GenerativeModel(
-        modelName: modelName,
+        modelName: modelConfig.modelName,
         modelResourceName: modelResourceName,
         firebaseInfo: firebaseInfo,
         apiConfig: apiConfig,
         generationConfig: nil,
-        safetySettings: safetySettings,
+        safetySettings: modelConfig.safetySettings,
         tools: tools?.map { $0.toolRepresentation },
         // TODO: Add toolConfig
         systemInstruction: instructions.map { ModelContent(role: "system", parts: $0) },
-        requestOptions: requestOptions,
+        requestOptions: modelConfig.requestOptions,
         urlSession: urlSession
       )
 
