@@ -38,7 +38,6 @@ FOUNDATION_EXPORT NSString *const kFIRMessagingPlistUseMessagingDelegate;
 - (FIRMessagingPubSub *)pubsub;
 
 - (BOOL)isNetworkAvailable;
-- (FIRMessagingNetworkStatus)networkType;
 + (NSString *)FIRMessagingSDKVersion;
 
 @end

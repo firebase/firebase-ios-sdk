@@ -661,30 +661,6 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
   }
 }
 
-- (void)notifyRefreshedFCMToken {
-  __weak FIRMessaging *weakSelf = self;
-  if (![NSThread isMainThread]) {
-    dispatch_async(dispatch_get_main_queue(), ^{
-      [weakSelf notifyRefreshedFCMToken];
-    });
-    return;
-  }
-  if ([self isInstallationIdEnabled]) {
-    if ([self.delegate respondsToSelector:@selector(messaging:didReceiveRegistration:)]) {
-      [self.delegate messaging:self didReceiveRegistration:self.tokenManager.defaultFCMToken];
-    }
-  } else {
-    if ([self.delegate respondsToSelector:@selector(messaging:didReceiveRegistrationToken:)]) {
-      [self.delegate messaging:self didReceiveRegistrationToken:self.tokenManager.defaultFCMToken];
-    }
-  }
-
-  // Should always trigger the token refresh notification when the delegate method is called
-  NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
-  [center postNotificationName:FIRMessagingRegistrationTokenRefreshedNotification
-                        object:self.tokenManager.defaultFCMToken];
-}
-
 - (void)notifyInstallationIdUnregistered:(nonnull NSString *)installationID {
   if (![self isInstallationIdEnabled]) {
     return;
@@ -922,17 +898,6 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 - (BOOL)isNetworkAvailable {
   GULReachabilityStatus status = self.reachability.reachabilityStatus;
   return (status == kGULReachabilityViaCellular || status == kGULReachabilityViaWifi);
-}
-
-- (FIRMessagingNetworkStatus)networkType {
-  GULReachabilityStatus status = self.reachability.reachabilityStatus;
-  if (![self isNetworkAvailable]) {
-    return kFIRMessagingReachabilityNotReachable;
-  } else if (status == kGULReachabilityViaCellular) {
-    return kFIRMessagingReachabilityReachableViaWWAN;
-  } else {
-    return kFIRMessagingReachabilityReachableViaWiFi;
-  }
 }
 
 #pragma mark - Notifications
