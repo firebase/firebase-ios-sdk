@@ -1,4 +1,5 @@
 # 12.13.0
+- [feature] Added support for `minimum` and `maximum` FieldValue operations.
 - [feature] Added search stage support for `languageCode`, `offset`, `limit`, and `retrievalDepth`.
 - [feature] Added support for Pipeline expressions `arraySlice`, `arrayFilter`, `arrayTransform` and `arrayTransformWithIndex`. (#16001)
 - [fixed] Add missing `noexcept` specifiers to move, hash, swap operations [#16117].
