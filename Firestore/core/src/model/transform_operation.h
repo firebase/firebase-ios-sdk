@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef FIREBASE_IOS_SDK_FIRESTORE_CORE_SRC_MODEL_TRANSFORM_OPERATION_H_
-#define FIREBASE_IOS_SDK_FIRESTORE_CORE_SRC_MODEL_TRANSFORM_OPERATION_H_
+#ifndef FIRESTORE_CORE_SRC_MODEL_TRANSFORM_OPERATION_H_
+#define FIRESTORE_CORE_SRC_MODEL_TRANSFORM_OPERATION_H_
 
 #include <iosfwd>
 #include <memory>
@@ -287,4 +287,4 @@ inline bool operator!=(const TransformOperation& lhs,
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIREBASE_IOS_SDK_FIRESTORE_CORE_SRC_MODEL_TRANSFORM_OPERATION_H_
+#endif  // FIRESTORE_CORE_SRC_MODEL_TRANSFORM_OPERATION_H_

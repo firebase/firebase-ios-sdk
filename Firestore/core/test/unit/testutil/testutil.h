@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef FIREBASE_IOS_SDK_FIRESTORE_CORE_TEST_UNIT_TESTUTIL_TESTUTIL_H_
-#define FIREBASE_IOS_SDK_FIRESTORE_CORE_TEST_UNIT_TESTUTIL_TESTUTIL_H_
+#ifndef FIRESTORE_CORE_TEST_UNIT_TESTUTIL_TESTUTIL_H_
+#define FIRESTORE_CORE_TEST_UNIT_TESTUTIL_TESTUTIL_H_
 
 #include <algorithm>
 #include <memory>
@@ -564,4 +564,4 @@ model::FieldIndex MakeFieldIndex(const std::string& collection_group,
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIREBASE_IOS_SDK_FIRESTORE_CORE_TEST_UNIT_TESTUTIL_TESTUTIL_H_
+#endif  // FIRESTORE_CORE_TEST_UNIT_TESTUTIL_TESTUTIL_H_
