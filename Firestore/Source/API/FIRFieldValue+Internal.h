@@ -60,4 +60,16 @@ NS_ASSUME_NONNULL_BEGIN
 @property(strong, nonatomic, readonly) NSNumber *operand;
 @end
 
+/** FIRFieldValue class for number minimum transforms. */
+@interface FSTNumericMinimumFieldValue : FIRFieldValue
+- (instancetype)init NS_UNAVAILABLE;
+@property(strong, nonatomic, readonly) NSNumber *operand;
+@end
+
+/** FIRFieldValue class for number maximum transforms. */
+@interface FSTNumericMaximumFieldValue : FIRFieldValue
+- (instancetype)init NS_UNAVAILABLE;
+@property(strong, nonatomic, readonly) NSNumber *operand;
+@end
+
 NS_ASSUME_NONNULL_END

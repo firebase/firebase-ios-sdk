@@ -577,6 +577,22 @@ std::pair<std::string, TransformOperation> Increment(
                                                     std::move(transform));
 }
 
+std::pair<std::string, TransformOperation> Minimum(
+    std::string field, Message<google_firestore_v1_Value> operand) {
+  model::NumericMinimumTransform transform(std::move(operand));
+
+  return std::pair<std::string, TransformOperation>(std::move(field),
+                                                    std::move(transform));
+}
+
+std::pair<std::string, TransformOperation> Maximum(
+    std::string field, Message<google_firestore_v1_Value> operand) {
+  model::NumericMaximumTransform transform(std::move(operand));
+
+  return std::pair<std::string, TransformOperation>(std::move(field),
+                                                    std::move(transform));
+}
+
 std::pair<std::string, TransformOperation> ArrayUnion(
     std::string field,
     const std::vector<Message<google_firestore_v1_Value>>& operands) {

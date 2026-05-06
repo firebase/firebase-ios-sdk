@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_TEST_UNIT_TESTUTIL_TESTUTIL_H_
-#define FIRESTORE_CORE_TEST_UNIT_TESTUTIL_TESTUTIL_H_
+#ifndef FIREBASE_IOS_SDK_FIRESTORE_CORE_TEST_UNIT_TESTUTIL_TESTUTIL_H_
+#define FIREBASE_IOS_SDK_FIRESTORE_CORE_TEST_UNIT_TESTUTIL_TESTUTIL_H_
 
 #include <algorithm>
 #include <memory>
@@ -467,6 +467,22 @@ std::pair<std::string, model::TransformOperation> Increment(
     std::string field, nanopb::Message<google_firestore_v1_Value> operand);
 
 /**
+ * Creates a pair of field name, TransformOperation that represents a numeric
+ * minimum on the given field, suitable for passing to TransformMutation,
+ * above.
+ */
+std::pair<std::string, model::TransformOperation> Minimum(
+    std::string field, nanopb::Message<google_firestore_v1_Value> operand);
+
+/**
+ * Creates a pair of field name, TransformOperation that represents a numeric
+ * maximum on the given field, suitable for passing to TransformMutation,
+ * above.
+ */
+std::pair<std::string, model::TransformOperation> Maximum(
+    std::string field, nanopb::Message<google_firestore_v1_Value> operand);
+
+/**
  * Creates a pair of field name, TransformOperation that represents an array
  * union on the given field, suitable for passing to TransformMutation,
  * above.
@@ -548,4 +564,4 @@ model::FieldIndex MakeFieldIndex(const std::string& collection_group,
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_TEST_UNIT_TESTUTIL_TESTUTIL_H_
+#endif  // FIREBASE_IOS_SDK_FIRESTORE_CORE_TEST_UNIT_TESTUTIL_TESTUTIL_H_
