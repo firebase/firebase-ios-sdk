@@ -431,6 +431,10 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
 
   NSString *rolloutsInfoJSON = [_remoteConfigManager getRolloutAssignmentsEncodedJsonString];
 
+  NSMutableDictionary *errorInfo = [userInfo mutableCopy] ?: [NSMutableDictionary dictionary];
+  NSString *swiftErrorIdentity = [FIRCLSErrorInspector getIdentityDescriptionForError:error];
+  if (swiftErrorIdentity) errorInfo[@"swift-error"] = swiftErrorIdentity;
+
   // Capture the stack and time before the async queue.
   // Capturing inside the callback, results in the promise
   // thread being recorded rather than the caller thread.
@@ -439,7 +443,7 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
 
   [self waitForContextInit:@"recordError"
                   callback:^{
-                    FIRCLSUserLoggingRecordError(error, userInfo, rolloutsInfoJSON, addresses,
+                    FIRCLSUserLoggingRecordError(error, errorInfo, rolloutsInfoJSON, addresses,
                                                  timestamp);
                   }];
 }
