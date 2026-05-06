@@ -95,7 +95,7 @@
       let firebaseAI = FirebaseAI.componentInstance(config)
       let invalidModel = firebaseAI.geminiModel(name: "invalid-model-name-1")
       let validModel = firebaseAI.geminiModel(name: ModelNames.gemini2_5_FlashLite)
-      let session = GenerativeModelSession(
+      let session = firebaseAI.generativeModelSession(
         model: HybridModel(primary: invalidModel, secondary: validModel)
       )
       let prompt = "Generate a cute rescue cat"
@@ -120,7 +120,7 @@
       let firebaseAI = FirebaseAI.componentInstance(config)
       let invalidModel = firebaseAI.geminiModel(name: "invalid-model-name")
       let validModel = firebaseAI.geminiModel(name: ModelNames.gemini2_5_FlashLite)
-      let session = GenerativeModelSession(
+      let session = firebaseAI.generativeModelSession(
         model: HybridModel(primary: invalidModel, secondary: validModel)
       )
       let prompt = "In one sentence, why is the sky blue?"

@@ -1,4 +1,4 @@
-// Copyright 2025 Google LLC
+// Copyright 2026 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,21 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import FirebaseCore
+import Foundation
 
-public class FirebaseFake: FirebaseApp {
-  init(options: FirebaseOptions) {
-    super.init(instanceWithName: "test-fake", options: options)
-  }
+@available(watchOS, unavailable)
+struct BidiSlidingWindow: Encodable, Sendable {
+  let targetTokens: Int?
 }
 
-extension FirebaseOptions {
-  public convenience init(
-    apiKey: String,
-    projectID: String
-  ) {
-    self.init(googleAppID: TestConstants.GoogleAppId, gcmSenderID: "TEST_GCM_SENDER_ID")
-    self.apiKey = apiKey
-    self.projectID = projectID
-  }
+@available(watchOS, unavailable)
+struct BidiContextWindowCompressionConfig: Encodable, Sendable {
+  let triggerTokens: Int?
+  let slidingWindow: BidiSlidingWindow?
 }

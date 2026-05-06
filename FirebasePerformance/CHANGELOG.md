@@ -1,4 +1,4 @@
-# Unreleased
+# 12.13.0
 - [fixed] Fixed NSURLSession delegate instrumentation for NSProxy delegates. (#14478)
 - [fixed] Address crash by deferring class disposal in FPRObjectSwizzler. (#14473)
 - [fixed] Prevent race condition crashes in FPRScreenTraceTracker by replacing NSMapTable with

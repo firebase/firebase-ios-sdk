@@ -66,6 +66,15 @@
         )
       }
 
+      #if DEBUG
+        if AILog.additionalLoggingEnabled() {
+          AILog.debug(
+            code: .foundationModelsResponseTranscript,
+            "Foundation Models Transcript: \(response.transcriptEntries)"
+          )
+        }
+      #endif // DEBUG
+
       return makeResponse(from: response.rawContent, schema: schema)
     }
 
@@ -114,6 +123,19 @@
 
               continuation.yield(response)
             }
+
+            #if DEBUG
+              if AILog.additionalLoggingEnabled() {
+                // Streaming has completed but we call `collect()` to get a
+                // `LanguageModelSession.Response`, which contains `transcriptEntries`.
+                let response = try await stream.collect()
+                AILog.debug(
+                  code: .foundationModelsStreamResponseTranscript,
+                  "Foundation Models Transcript: \(response.transcriptEntries)"
+                )
+              }
+            #endif // DEBUG
+
             continuation.finish()
           } catch {
             continuation.finish(throwing: error)

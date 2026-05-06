@@ -57,9 +57,11 @@
     /// [documentation](https://developer.apple.com/documentation/foundationmodels/systemlanguagemodel/init(usecase:guardrails:)).
     ///
     /// - Parameters:
-    ///   - useCase: The ``UseCase`` that the model is tuned for; defaults to ``UseCase/general``.
-    ///   - guardrails: The ``Guardrails`` that configure how the model handles potentially harmful
-    ///     content; defaults to ``Guardrails/default``.
+    ///   - useCase: The ``FirebaseAI/SystemLanguageModel/UseCase`` that the model is tuned for;
+    ///     defaults to ``FirebaseAI/SystemLanguageModel/UseCase/general``.
+    ///   - guardrails: The ``FirebaseAI/SystemLanguageModel/Guardrails`` that configure how the
+    ///     model handles potentially harmful content; defaults to
+    ///     ``FirebaseAI/SystemLanguageModel/Guardrails/default``.
     static func systemModel(useCase: FirebaseAI.SystemLanguageModel.UseCase = .general,
                             guardrails: FirebaseAI.SystemLanguageModel.Guardrails = .default)
       -> FirebaseAI.SystemLanguageModel {

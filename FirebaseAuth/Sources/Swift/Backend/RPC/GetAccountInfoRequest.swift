@@ -23,7 +23,6 @@ private let kIDTokenKey = "idToken"
 
 /// Represents the parameters for the getAccountInfo endpoint.
 /// See https://developers.google.com/identity/toolkit/web/reference/relyingparty/getAccountInfo
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class GetAccountInfoRequest: IdentityToolkitRequest, AuthRPCRequest {
   typealias Response = GetAccountInfoResponse
 

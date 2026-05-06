@@ -53,7 +53,7 @@ final class IntegrationTests: XCTestCase {
     userID1 = try await TestHelpers.getUserID()
     vertex = FirebaseAI.firebaseAI(backend: .vertexAI())
     model = vertex.generativeModel(
-      modelName: "gemini-2.0-flash",
+      modelName: ModelNames.gemini2_5_Flash,
       generationConfig: generationConfig,
       safetySettings: safetySettings,
       tools: [],
@@ -173,7 +173,7 @@ final class IntegrationTests: XCTestCase {
       parameters: ["x": .integer(), "y": .integer()]
     )
     model = vertex.generativeModel(
-      modelName: "gemini-2.0-flash",
+      modelName: ModelNames.gemini2_5_Flash,
       tools: [.functionDeclarations([sumDeclaration])],
       toolConfig: .init(functionCallingConfig: .any(allowedFunctionNames: ["sum"]))
     )
@@ -197,7 +197,7 @@ final class IntegrationTests: XCTestCase {
   func testCountTokens_appCheckNotConfigured_shouldFail() async throws {
     let app = try XCTUnwrap(FirebaseApp.app(name: FirebaseAppNames.appCheckNotConfigured))
     let vertex = FirebaseAI.firebaseAI(app: app, backend: .vertexAI())
-    let model = vertex.generativeModel(modelName: "gemini-2.0-flash")
+    let model = vertex.generativeModel(modelName: ModelNames.gemini2_5_Flash)
     let prompt = "Why is the sky blue?"
 
     do {
