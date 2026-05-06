@@ -426,6 +426,10 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
 }
 
 - (void)recordError:(NSError *)error userInfo:(NSDictionary<NSString *, id> *)userInfo {
+  if (!error) {
+    return;
+  }
+  
   NSString *rolloutsInfoJSON = [_remoteConfigManager getRolloutAssignmentsEncodedJsonString];
 
   FIRCLSNonFatalError *nonFatalError = [[FIRCLSNonFatalError alloc] initWithError:error
