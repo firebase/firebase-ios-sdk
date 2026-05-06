@@ -648,13 +648,19 @@ FieldTransform Serializer::DecodeFieldTransform(
     }
 
     case google_firestore_v1_DocumentTransform_FieldTransform_minimum_tag: {
-      return FieldTransform(std::move(field), NumericMinimumTransform(
-                                                  MakeMessage(proto.minimum)));
+      FieldTransform field_transform(
+          std::move(field),
+          NumericMinimumTransform(MakeMessage(proto.minimum)));
+      proto.minimum = {};
+      return field_transform;
     }
 
     case google_firestore_v1_DocumentTransform_FieldTransform_maximum_tag: {
-      return FieldTransform(std::move(field), NumericMaximumTransform(
-                                                  MakeMessage(proto.maximum)));
+      FieldTransform field_transform(
+          std::move(field),
+          NumericMaximumTransform(MakeMessage(proto.maximum)));
+      proto.maximum = {};
+      return field_transform;
     }
   }
 
