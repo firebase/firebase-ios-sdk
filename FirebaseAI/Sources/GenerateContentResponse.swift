@@ -69,7 +69,10 @@ public struct GenerateContentResponse: Sendable {
   /// Token usage metadata for processing the generate content request.
   public let usageMetadata: UsageMetadata?
 
-  let responseID: String?
+  /// A unique identifier for the response.
+  ///
+  /// TODO: Determine if this is always populated by both backends.
+  public let responseID: String?
 
   static let unknownModelVersion = "unknown-model-version"
 
