@@ -134,19 +134,36 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   func requestRecaptchaToken(forcingRefresh: Bool = false,
                              completion: ((AppCheckToken?, Error?) -> Void)? = nil) {
     AppCheck.appCheck().token(forcingRefresh: forcingRefresh) { [weak self] token, error in
-      if let token = token {
-        let ttl = token.expirationDate.timeIntervalSinceNow
-        print("[NON-LIMITED USE] Token: \(token.token)")
-        print("  - Expiration date: \(token.expirationDate)")
-        print("  - TTL: \(Int(ttl)) seconds")
-        self?.readFromStorage { storageError in
-          completion?(token, storageError)
-        }
-      }
-
+      // 1. Handle error case
       if let error = error {
+        if let token = token {
+          fatalError(
+            "Received both token and error from AppCheck. Token: \(token), Error: \(error)"
+          )
+        }
         print("Recaptcha error: \(error)")
         completion?(nil, error)
+        return
+      }
+
+      // 2. Handle missing token (neither token nor error)
+      guard let token = token else {
+        fatalError("Received neither token nor error from AppCheck")
+      }
+
+      // 3. Success path (guaranteed to have token and no error here)
+      let ttl = token.expirationDate.timeIntervalSinceNow
+      print("[NON-LIMITED USE] Token: \(token.token)")
+      print("  - Expiration date: \(token.expirationDate)")
+      print("  - TTL: \(Int(ttl)) seconds")
+
+      guard let self = self else {
+        completion?(token, nil)
+        return
+      }
+
+      self.readFromStorage { storageError in
+        completion?(token, storageError)
       }
     }
   }
