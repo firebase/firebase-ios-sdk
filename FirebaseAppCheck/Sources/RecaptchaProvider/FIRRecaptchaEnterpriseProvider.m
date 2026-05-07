@@ -19,7 +19,16 @@
 
 #import <AppCheckCore/AppCheckCore.h>
 
+#if SWIFT_PACKAGE
 @import RecaptchaEnterpriseProvider;
+#elif __has_include(<AppCheckCore/AppCheckCore-Swift.h>)
+#import <AppCheckCore/AppCheckCore-Swift.h>
+#elif __has_include("AppCheckCore-Swift.h")
+// If frameworks are not available, fall back to importing the header as it
+// should be findable from a header search path pointing to the build
+// directory. See #12611 for more context.
+#import "AppCheckCore-Swift.h"
+#endif
 
 #import "FirebaseAppCheck/Sources/Core/FIRApp+AppCheck.h"
 
