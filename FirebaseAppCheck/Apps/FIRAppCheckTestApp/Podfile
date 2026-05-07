@@ -18,4 +18,8 @@ target 'FIRAppCheckTestApp' do
   if ENV['FIREBASE_APP_CHECK_LOCAL_PATH']
     pod 'AppCheckCore', :path => ENV['FIREBASE_APP_CHECK_LOCAL_PATH']
   end
+
+  target 'FIRAppCheckTestAppTests' do
+    inherit! :search_paths
+  end
 end
