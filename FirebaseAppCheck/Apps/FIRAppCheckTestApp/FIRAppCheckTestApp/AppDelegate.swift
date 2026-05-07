@@ -16,29 +16,57 @@
 
 import UIKit
 
+import AppCheckCore
 import FirebaseAppCheck
 import FirebaseCore
+import FirebaseStorage
 
 class AppDelegate: UIResponder, UIApplicationDelegate {
+  private(set) static var shared: AppDelegate?
+
+  override init() {
+    super.init()
+    AppDelegate.shared = self
+  }
+
   func application(_ application: UIApplication,
                    didFinishLaunchingWithOptions launchOptions: [UIApplication
                      .LaunchOptionsKey: Any]?) -> Bool {
-    let providerFactory = AppCheckDebugProviderFactory()
-    AppCheck.setAppCheckProviderFactory(providerFactory)
+    // Manual override for testing/debugging.
+    // Change this to explicitly set a provider, or leave nil to use environment variable.
+    let manualProviderOverride: String? = nil // e.g., "debug" or "recaptcha"
+
+    setupAppCheck(overrideProvider: manualProviderOverride)
 
     FirebaseApp.configure()
 
-    requestLimitedUseToken()
+    return true
+  }
 
-    requestDeviceCheckToken()
-
-    requestDebugToken()
-
-    if #available(iOS 14.0, *) {
-      requestAppAttestToken()
+  private func setupAppCheck(overrideProvider: String?) {
+    // Note: If running via `xcodebuild test`, pass this with the `TEST_RUNNER_` prefix
+    // (e.g., `TEST_RUNNER_APP_CHECK_PROVIDER="debug"`). Xcode strips the prefix at runtime.
+    guard let providerType = overrideProvider ?? ProcessInfo.processInfo
+      .environment["APP_CHECK_PROVIDER"], !providerType.isEmpty else {
+      fatalError(
+        "Error: APP_CHECK_PROVIDER is missing. Please set the environment variable or use manualProviderOverride."
+      )
     }
 
-    return true
+    let providerFactory: AppCheckProviderFactory
+    switch providerType {
+    case "recaptcha":
+      providerFactory = RecaptchaEnterpriseProviderFactory()
+    case "debug":
+      providerFactory = AppCheckDebugProviderFactory()
+    default:
+      print(
+        "Warning: Unknown APP_CHECK_PROVIDER '\(providerType)'. Falling back to Debug provider."
+      )
+      providerFactory = AppCheckDebugProviderFactory()
+    }
+
+    AppCheck.setAppCheckProviderFactory(providerFactory)
   }
 
   // MARK: UISceneSession Lifecycle
@@ -103,19 +131,60 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
   // MARK: App Check API
 
-  func requestLimitedUseToken() {
-    AppCheck.appCheck().limitedUseToken { result, error in
-      if let result {
-        print("FAC limited-use token: \(result.token), expiration date: \(result.expirationDate)")
+  func requestRecaptchaToken(forcingRefresh: Bool = false,
+                             completion: ((AppCheckToken?, Error?) -> Void)? = nil) {
+    AppCheck.appCheck().token(forcingRefresh: forcingRefresh) { [weak self] token, error in
+      if let token = token {
+        let ttl = token.expirationDate.timeIntervalSinceNow
+        print("[NON-LIMITED USE] Token: \(token.token)")
+        print("  - Expiration date: \(token.expirationDate)")
+        print("  - TTL: \(Int(ttl)) seconds")
+        self?.readFromStorage { storageError in
+          completion?(token, storageError)
+        }
       }
 
-      if let error {
-        print("Error: \(String(describing: error))")
+      if let error = error {
+        print("Recaptcha error: \(error)")
+        completion?(nil, error)
       }
     }
   }
 
-  @available(iOS 14.0, *)
+  func readFromStorage(completion: ((Error?) -> Void)? = nil) {
+    print("Attempting to read from Cloud Storage...")
+    let storage = Storage.storage()
+    let storageRef = storage.reference()
+    // NOTE: This path corresponds to the security rules configured for the test project.
+    // The rules allow public read on '/cep/ping'. If these rules change, this test may fail.
+    let pingRef = storageRef.child("cep/ping")
+
+    pingRef.getData(maxSize: 1 * 1024 * 1024) { data, error in
+      if let error = error {
+        print("Error reading from storage: \(error)")
+        completion?(error)
+      } else if let data = data, let string = String(data: data, encoding: .utf8) {
+        print("Storage content: \(string)")
+        completion?(nil)
+      }
+    }
+  }
+
+  func requestLimitedUseToken(completion: ((String?, Error?) -> Void)? = nil) {
+    AppCheck.appCheck().limitedUseToken { result, error in
+      if let result {
+        print("[LIMITED USE] Token: \(result.token)")
+        print("  - Expiration date: \(result.expirationDate)")
+        completion?(result.token, nil)
+      }
+
+      if let error {
+        print("Error: \(String(describing: error))")
+        completion?(nil, error)
+      }
+    }
+  }
+
   func requestAppAttestToken() {
     guard let firebaseApp = FirebaseApp.app() else {
       return
@@ -135,5 +204,20 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         print("App Attest error: \(error)")
       }
     }
+  }
+}
+
+class RecaptchaEnterpriseProviderFactory: NSObject, AppCheckProviderFactory {
+  func createProvider(with app: FirebaseApp) -> AppCheckProvider? {
+    // Note: If running via `xcodebuild test`, pass this with the `TEST_RUNNER_` prefix
+    // (e.g., `TEST_RUNNER_RECAPTCHA_SITE_KEY="your_key"`). Xcode strips the prefix at runtime.
+    guard let siteKey = ProcessInfo.processInfo.environment["RECAPTCHA_SITE_KEY"],
+          !siteKey.isEmpty else {
+      fatalError(
+        "Error: RECAPTCHA_SITE_KEY environment variable is missing or empty. E2E tests require this key."
+      )
+    }
+
+    return RecaptchaEnterpriseProvider(app: app, siteKey: siteKey)
   }
 }

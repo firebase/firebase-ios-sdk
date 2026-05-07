@@ -7,45 +7,93 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+
+		8F1202DD209F881D67D20BA8 /* FIRAppCheckTestAppTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DBE09F2A53CEC2B3E7600F4 /* FIRAppCheckTestAppTests.swift */; };
 		9AC7C27C2541C7E500F5DD80 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AC7C27B2541C7E500F5DD80 /* AppDelegate.swift */; };
 		9AC7C27E2541C7E500F5DD80 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AC7C27D2541C7E500F5DD80 /* SceneDelegate.swift */; };
 		9AC7C2852541C7E600F5DD80 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9AC7C2842541C7E600F5DD80 /* Assets.xcassets */; };
 		9AC7C2882541C7E600F5DD80 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9AC7C2862541C7E600F5DD80 /* LaunchScreen.storyboard */; };
-		EAD122EF2DB97E10004D64C9 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = EAD122EE2DB97E10004D64C9 /* GoogleService-Info.plist */; };
+		CB1E711C5CFEE1D2BFB9069D /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A5A8784D39A5706A47E89D31 /* Foundation.framework */; };
+		EAA2C1AB2FAA966B008D663E /* RecaptchaEnterprise in Frameworks */ = {isa = PBXBuildFile; productRef = EAA2C1AA2FAA966B008D663E /* RecaptchaEnterprise */; };
+		EAA2C1AD2FABCB69008D663E /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = EAA2C1AC2FABCB69008D663E /* FirebaseStorage */; };
+		EABC1CB82FA9257600C35F73 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = EABC1CB72FA9257600C35F73 /* GoogleService-Info.plist */; };
 		EAD122F12DB98BD0004D64C9 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAD122F02DB98BCC004D64C9 /* ContentView.swift */; };
 		EAD122F32DB9920D004D64C9 /* AppCheckTestApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAD122F22DB99206004D64C9 /* AppCheckTestApp.swift */; };
 		EAD122F62DB9940E004D64C9 /* FirebaseAppCheck in Frameworks */ = {isa = PBXBuildFile; productRef = EAD122F52DB9940E004D64C9 /* FirebaseAppCheck */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		6394C6DF77B30A8569910AC4 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9AC7C2702541C7E500F5DD80 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 9AC7C2772541C7E500F5DD80;
+			remoteInfo = FIRAppCheckTestApp;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
+		2F8964B09A6746481927ACD1 /* FIRAppCheckTestAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FIRAppCheckTestAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		9AC7C2782541C7E500F5DD80 /* FIRAppCheckTestApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FIRAppCheckTestApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9AC7C27B2541C7E500F5DD80 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		9AC7C27D2541C7E500F5DD80 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		9AC7C2842541C7E600F5DD80 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		9AC7C2872541C7E600F5DD80 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		9AC7C2892541C7E600F5DD80 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		EAD122EE2DB97E10004D64C9 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		9DBE09F2A53CEC2B3E7600F4 /* FIRAppCheckTestAppTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = FIRAppCheckTestAppTests.swift; path = FIRAppCheckTestAppTests/FIRAppCheckTestAppTests.swift; sourceTree = "<group>"; };
+		A5A8784D39A5706A47E89D31 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
+
+		EABC1CB72FA9257600C35F73 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		EAD122F02DB98BCC004D64C9 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		EAD122F22DB99206004D64C9 /* AppCheckTestApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCheckTestApp.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		2D060508510F1138A9FC12DE /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CB1E711C5CFEE1D2BFB9069D /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		9AC7C2752541C7E500F5DD80 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 				EAD122F62DB9940E004D64C9 /* FirebaseAppCheck in Frameworks */,
+				EAA2C1AB2FAA966B008D663E /* RecaptchaEnterprise in Frameworks */,
+				EAA2C1AD2FABCB69008D663E /* FirebaseStorage in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		4ABD2FB516E7A91E6E1527EA /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				A5A8784D39A5706A47E89D31 /* Foundation.framework */,
+			);
+			name = iOS;
+			sourceTree = "<group>";
+		};
+		671F07FAFFBA7B1FCBCABDBD /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				4ABD2FB516E7A91E6E1527EA /* iOS */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		9AC7C26F2541C7E500F5DD80 = {
 			isa = PBXGroup;
 			children = (
 				9AC7C27A2541C7E500F5DD80 /* FIRAppCheckTestApp */,
 				9AC7C2792541C7E500F5DD80 /* Products */,
+				671F07FAFFBA7B1FCBCABDBD /* Frameworks */,
+				9DBE09F2A53CEC2B3E7600F4 /* FIRAppCheckTestAppTests.swift */,
+
 			);
 			sourceTree = "<group>";
 		};
@@ -53,6 +101,7 @@
 			isa = PBXGroup;
 			children = (
 				9AC7C2782541C7E500F5DD80 /* FIRAppCheckTestApp.app */,
+				2F8964B09A6746481927ACD1 /* FIRAppCheckTestAppTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -60,7 +109,7 @@
 		9AC7C27A2541C7E500F5DD80 /* FIRAppCheckTestApp */ = {
 			isa = PBXGroup;
 			children = (
-				EAD122EE2DB97E10004D64C9 /* GoogleService-Info.plist */,
+				EABC1CB72FA9257600C35F73 /* GoogleService-Info.plist */,
 				9AC7C27B2541C7E500F5DD80 /* AppDelegate.swift */,
 				9AC7C27D2541C7E500F5DD80 /* SceneDelegate.swift */,
 				EAD122F02DB98BCC004D64C9 /* ContentView.swift */,
@@ -79,6 +128,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 9AC7C2A22541C7E600F5DD80 /* Build configuration list for PBXNativeTarget "FIRAppCheckTestApp" */;
 			buildPhases = (
+
 				9AC7C2742541C7E500F5DD80 /* Sources */,
 				9AC7C2752541C7E500F5DD80 /* Frameworks */,
 				9AC7C2762541C7E500F5DD80 /* Resources */,
@@ -91,6 +141,24 @@
 			productName = FIRAppCheckTestApp;
 			productReference = 9AC7C2782541C7E500F5DD80 /* FIRAppCheckTestApp.app */;
 			productType = "com.apple.product-type.application";
+		};
+		DD8474378DDE4504369D6D2A /* FIRAppCheckTestAppTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3829FC5F4FEBE88FE48726F9 /* Build configuration list for PBXNativeTarget "FIRAppCheckTestAppTests" */;
+			buildPhases = (
+				DF4B7F4A1910F5A1E4CA3F06 /* Sources */,
+				2D060508510F1138A9FC12DE /* Frameworks */,
+				FD0227B5A3BEC9A7E811417E /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				06C131FB9DE2B06EDC5A605D /* PBXTargetDependency */,
+			);
+			name = FIRAppCheckTestAppTests;
+			productName = FIRAppCheckTestAppTests;
+			productReference = 2F8964B09A6746481927ACD1 /* FIRAppCheckTestAppTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
 
@@ -116,13 +184,15 @@
 			);
 			mainGroup = 9AC7C26F2541C7E500F5DD80;
 			packageReferences = (
-				EAD122F42DB9940E004D64C9 /* XCLocalSwiftPackageReference "../../../../firebase-ios-sdk" */,
+				EAD122F42DB9940E004D64C9 /* XCLocalSwiftPackageReference "firebase-ios-sdk" */,
+				EAA2C1A92FAA966B008D663E /* XCRemoteSwiftPackageReference "recaptcha-enterprise-mobile-sdk" */,
 			);
 			productRefGroup = 9AC7C2792541C7E500F5DD80 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
 				9AC7C2772541C7E500F5DD80 /* FIRAppCheckTestApp */,
+				DD8474378DDE4504369D6D2A /* FIRAppCheckTestAppTests */,
 			);
 		};
 /* End PBXProject section */
@@ -133,12 +203,24 @@
 			buildActionMask = 2147483647;
 			files = (
 				9AC7C2882541C7E600F5DD80 /* LaunchScreen.storyboard in Resources */,
-				EAD122EF2DB97E10004D64C9 /* GoogleService-Info.plist in Resources */,
 				9AC7C2852541C7E600F5DD80 /* Assets.xcassets in Resources */,
+				EABC1CB82FA9257600C35F73 /* GoogleService-Info.plist in Resources */,
+
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		FD0227B5A3BEC9A7E811417E /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		9AC7C2742541C7E500F5DD80 /* Sources */ = {
@@ -152,7 +234,24 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		DF4B7F4A1910F5A1E4CA3F06 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8F1202DD209F881D67D20BA8 /* FIRAppCheckTestAppTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		06C131FB9DE2B06EDC5A605D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = FIRAppCheckTestApp;
+			target = 9AC7C2772541C7E500F5DD80 /* FIRAppCheckTestApp */;
+			targetProxy = 6394C6DF77B30A8569910AC4 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		9AC7C2862541C7E600F5DD80 /* LaunchScreen.storyboard */ = {
@@ -290,6 +389,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = EQHXZ8M8AV;
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = EQHXZ8M8AV;
 				INFOPLIST_FILE = FIRAppCheckTestApp/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -298,6 +398,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.google.firebase.appcheck.testapp.dev;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "Firebase App Check Dev";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "Firebase App Check Dev";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -311,6 +412,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = EQHXZ8M8AV;
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = EQHXZ8M8AV;
 				INFOPLIST_FILE = FIRAppCheckTestApp/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -319,14 +421,71 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.google.firebase.appcheck.testapp.dev;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "Firebase App Check Dev";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "Firebase App Check Dev";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		B539FF780C152B469B6CBAD9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_IDENTITY = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = EQHXZ8M8AV;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.google.firebase.appcheck.testapp.dev;
+				PRODUCT_NAME = FIRAppCheckTestAppTests;
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "Firebase App Check Dev";
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/FIRAppCheckTestApp.app/FIRAppCheckTestApp";
+				WRAPPER_EXTENSION = xctest;
+			};
+			name = Debug;
+		};
+		F6B3E8BA0B5DC042AD569583 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_IDENTITY = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = EQHXZ8M8AV;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.google.firebase.appcheck.testapp.dev;
+				PRODUCT_NAME = FIRAppCheckTestAppTests;
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "Firebase App Check Dev";
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/FIRAppCheckTestApp.app/FIRAppCheckTestApp";
+				VALIDATE_PRODUCT = YES;
+				WRAPPER_EXTENSION = xctest;
 			};
 			name = Release;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		3829FC5F4FEBE88FE48726F9 /* Build configuration list for PBXNativeTarget "FIRAppCheckTestAppTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F6B3E8BA0B5DC042AD569583 /* Release */,
+				B539FF780C152B469B6CBAD9 /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		9AC7C2732541C7E500F5DD80 /* Build configuration list for PBXProject "FIRAppCheckTestApp" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -348,13 +507,34 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		EAD122F42DB9940E004D64C9 /* XCLocalSwiftPackageReference "../../../../firebase-ios-sdk" */ = {
+		EAD122F42DB9940E004D64C9 /* XCLocalSwiftPackageReference "firebase-ios-sdk" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = "../../../../firebase-ios-sdk";
 		};
 /* End XCLocalSwiftPackageReference section */
 
+/* Begin XCRemoteSwiftPackageReference section */
+		EAA2C1A92FAA966B008D663E /* XCRemoteSwiftPackageReference "recaptcha-enterprise-mobile-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/GoogleCloudPlatform/recaptcha-enterprise-mobile-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 18.9.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
 /* Begin XCSwiftPackageProductDependency section */
+		EAA2C1AA2FAA966B008D663E /* RecaptchaEnterprise */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = EAA2C1A92FAA966B008D663E /* XCRemoteSwiftPackageReference "recaptcha-enterprise-mobile-sdk" */;
+			productName = RecaptchaEnterprise;
+		};
+		EAA2C1AC2FABCB69008D663E /* FirebaseStorage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = EAD122F42DB9940E004D64C9 /* XCLocalSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseStorage;
+		};
 		EAD122F52DB9940E004D64C9 /* FirebaseAppCheck */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = FirebaseAppCheck;
