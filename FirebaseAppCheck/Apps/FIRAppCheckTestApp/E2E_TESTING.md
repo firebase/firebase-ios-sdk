@@ -99,6 +99,40 @@ This avoids modifying code and works for both running and testing.
     *   `RECAPTCHA_SITE_KEY`: Set to your reCAPTCHA site key (required for
         `recaptcha`).
 
+### Running and Testing with CocoaPods
+
+If you prefer to use the CocoaPods workflow instead of SPM:
+
+#### 1. Install Dependencies
+You should use `pod update` (instead of `pod install`) to ensure you pick up
+the latest versions and avoid lockfile conflicts when using local development
+paths.
+
+Run the following command from the repository root:
+```bash
+FIREBASE_APP_CHECK_LOCAL_PATH="/path/to/your/local/app-check" pod update --repo-update --project-directory=FirebaseAppCheck/Apps/FIRAppCheckTestApp/
+```
+
+#### 2. Open Workspace
+Open the generated CocoaPods workspace instead of the project file:
+```bash
+open FirebaseAppCheck/Apps/FIRAppCheckTestApp/FIRAppCheckTestApp.xcworkspace
+```
+
+#### 3. Remove SPM Dependencies (If needed)
+By default, the project file is configured for SPM. To avoid duplicate symbol
+issues or conflicting resolutions when using CocoaPods:
+1.  In Xcode, select the project in the file navigator.
+2.  Select the project file at the top (not a target).
+3.  Go to the **Package Dependencies** tab.
+4.  Remove the `firebase-ios-sdk` or `app-check` package references if they
+    appear there.
+
+#### 4. Configure and Run
+Follow the same instructions in **[Running and Testing in Xcode](#running-and-testing-in-xcode)**
+to configure the provider and site key via the Xcode Scheme or the Manual
+Override in code.
+
 ## Project Structure
 
 - **`FIRAppCheckTestAppTests`**: A hosted unit test target containing the test cases. It runs inside the app process to have access to the full app context.
