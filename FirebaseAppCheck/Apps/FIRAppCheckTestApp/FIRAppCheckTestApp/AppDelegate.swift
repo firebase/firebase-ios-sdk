@@ -53,6 +53,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       print("⚠️ Warning: APP_CHECK_PROVIDER environment variable is missing. Defaulting to 'debug'.")
     }
 
+    print("Info: Using App Check provider: '\(providerType)'")
+
     let providerFactory: AppCheckProviderFactory
     switch providerType {
     case "recaptcha":
