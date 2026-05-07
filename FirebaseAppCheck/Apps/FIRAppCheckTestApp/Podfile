@@ -11,4 +11,11 @@ target 'FIRAppCheckTestApp' do
   pod 'FirebaseAppCheck', :path => '../../../'
 
   pod 'FirebaseCore', :path => '../../../'
+  pod 'FirebaseStorage', :path => '../../../'
+  pod 'RecaptchaEnterprise'
+
+  # Use local AppCheckCore if the environment variable is set
+  if ENV['FIREBASE_APP_CHECK_LOCAL_PATH']
+    pod 'AppCheckCore', :path => ENV['FIREBASE_APP_CHECK_LOCAL_PATH']
+  end
 end
