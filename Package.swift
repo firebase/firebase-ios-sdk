@@ -18,7 +18,7 @@
 
 import PackageDescription
 
-let firebaseVersion = "12.13.0"
+let firebaseVersion = "12.14.0"
 
 let shouldUseSourceFirestore = Context.environment["FIREBASE_SOURCE_FIRESTORE"] != nil
 
@@ -1606,8 +1606,8 @@ func firestoreTargets() -> [Target] {
     } else {
       return .binaryTarget(
         name: "FirebaseFirestoreInternal",
-        url: "https://dl.google.com/firebase/ios/bin/firestore/12.13.0/rc0/FirebaseFirestoreInternal.zip",
-        checksum: "ea5326424da7dd8926c8311004ffaccf6a42b59ac0a9c72aba9f203040e6c8b0"
+        url: "https://dl.google.com/firebase/ios/bin/firestore/12.14.0/pre_rc0/FirebaseFirestoreInternal.zip",
+        checksum: "0fc29ebfa106c8f08f4939de7631f7e70548f256ba6f57eeb814c8b2e72a6866"
       )
     }
   }()
