@@ -1,3 +1,7 @@
+# Unreleased 
+- [fixed] Remove extra command in Package.swift that caused SPM resolution
+  failures for some configurations.
+
 # Firebase 12.12.0
 - [changed] Firebase now requires at least Xcode 26.2 and the Swift
   6.2.3+ toolchain. This update allows Firebase to leverage new Swift
