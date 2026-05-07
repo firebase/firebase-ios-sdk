@@ -48,7 +48,7 @@ public extension FirebaseAI {
       @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
       @available(tvOS, unavailable)
       @available(watchOS, unavailable)
-      init(_ generationSchema: FoundationModels.GenerationSchema) {
+      public init(_ generationSchema: FoundationModels.GenerationSchema) {
         _generationSchema = generationSchema
       }
     #endif // canImport(FoundationModels)

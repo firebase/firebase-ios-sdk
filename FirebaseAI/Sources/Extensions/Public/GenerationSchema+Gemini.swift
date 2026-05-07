@@ -14,7 +14,7 @@
 
 import Foundation
 
-extension FirebaseAI.GenerationSchema {
+public extension FirebaseAI.GenerationSchema {
   /// Returns a Gemini-compatible JSON Schema of this `GenerationSchema`.
   func toGeminiJSONSchema() throws -> JSONObject {
     let encoder = JSONEncoder()

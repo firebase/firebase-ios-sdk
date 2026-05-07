@@ -189,11 +189,12 @@ public struct GenerationConfig: Sendable, Equatable {
     self.imageConfig = imageConfig
   }
 
-  init(temperature: Float? = nil, topP: Float? = nil, topK: Int? = nil, candidateCount: Int? = nil,
-       maxOutputTokens: Int? = nil, presencePenalty: Float? = nil, frequencyPenalty: Float? = nil,
-       stopSequences: [String]? = nil, responseMIMEType: String, responseJSONSchema: JSONObject,
-       responseModalities: [ResponseModality]? = nil, thinkingConfig: ThinkingConfig? = nil,
-       imageConfig: ImageConfig? = nil) {
+  public init(temperature: Float? = nil, topP: Float? = nil, topK: Int? = nil,
+              candidateCount: Int? = nil, maxOutputTokens: Int? = nil,
+              presencePenalty: Float? = nil, frequencyPenalty: Float? = nil,
+              stopSequences: [String]? = nil, responseMIMEType: String,
+              responseJSONSchema: JSONObject, responseModalities: [ResponseModality]? = nil,
+              thinkingConfig: ThinkingConfig? = nil, imageConfig: ImageConfig? = nil) {
     self.temperature = temperature
     self.topP = topP
     self.topK = topK

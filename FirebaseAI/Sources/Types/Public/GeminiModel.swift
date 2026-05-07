@@ -25,16 +25,19 @@ import Foundation
   public struct GeminiModel {
     public struct ModelConfig: Sendable, Hashable {
       let firebaseAppName: String
+      let apiConfig: APIConfig
+      let useLimitedUseAppCheckTokens: Bool
+
       public let modelName: String
       public let safetySettings: [SafetySetting]?
       public let requestOptions: RequestOptions
 
       public var firebaseAI: FirebaseAI {
         let firebaseApp = FirebaseApp.app(name: firebaseAppName)
-        return FirebaseAI.firebaseAI(
-          app: firebaseApp
-          // TODO: Add configuration for `backend:`
-          // TODO: Add configuration for `useLimitedUseAppCheckTokens:`
+        return FirebaseAI.createInstance(
+          app: firebaseApp,
+          apiConfig: apiConfig,
+          useLimitedUseAppCheckTokens: useLimitedUseAppCheckTokens
         )
       }
     }
@@ -42,7 +45,6 @@ import Foundation
     public let modelConfig: ModelConfig
     let modelResourceName: String
     let firebaseInfo: FirebaseInfo
-    let apiConfig: APIConfig
     let toolConfig: ToolConfig?
     let urlSession: URLSession
 
@@ -56,13 +58,14 @@ import Foundation
          urlSession: URLSession = GenAIURLSession.default) {
       modelConfig = ModelConfig(
         firebaseAppName: firebaseInfo.app.name,
+        apiConfig: apiConfig,
+        useLimitedUseAppCheckTokens: firebaseInfo.useLimitedUseAppCheckTokens,
         modelName: modelName,
         safetySettings: safetySettings,
         requestOptions: requestOptions
       )
       self.modelResourceName = modelResourceName
       self.firebaseInfo = firebaseInfo
-      self.apiConfig = apiConfig
       self.toolConfig = toolConfig
       self.urlSession = urlSession
     }
@@ -85,7 +88,7 @@ import Foundation
         modelName: modelConfig.modelName,
         modelResourceName: modelResourceName,
         firebaseInfo: firebaseInfo,
-        apiConfig: apiConfig,
+        apiConfig: modelConfig.apiConfig,
         generationConfig: nil,
         safetySettings: modelConfig.safetySettings,
         tools: tools?.map { $0.toolRepresentation },
