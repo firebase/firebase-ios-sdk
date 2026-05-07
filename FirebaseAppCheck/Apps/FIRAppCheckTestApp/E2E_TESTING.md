@@ -21,7 +21,7 @@ Starting with Xcode 13, you can pass environment variables directly to the test 
 For local debugging and manual testing, you can override the environment variables by setting `manualProviderOverride` in `AppDelegate.swift`:
 
 ```swift
-let manualProviderOverride: String? = "debug" // Force debug provider
+let manualProviderOverride: String? = "debug"
 ```
 
 ## Running Tests
@@ -39,11 +39,12 @@ The commands below should be run from the **repository root**.
 export TEST_RUNNER_RECAPTCHA_SITE_KEY="your_site_key_here"
 export TEST_RUNNER_APP_CHECK_PROVIDER="recaptcha"
 export FIREBASE_APP_CHECK_LOCAL_PATH="/path/to/your/local/app-check"
+SIM_ID=$(xcrun simctl list devices available | grep "iPhone" | grep -E -o '[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}' | head -n 1)
 
 xcodebuild test \
   -workspace FirebaseAppCheck/Apps/FIRAppCheckTestApp/FIRAppCheckTestApp.xcworkspace \
   -scheme FIRAppCheckTestApp \
-  -destination 'platform=iOS Simulator,name=iPhone 16'
+  -destination "platform=iOS Simulator,id=$SIM_ID"
 ```
 
 #### Run tests with Debug provider
@@ -51,11 +52,12 @@ xcodebuild test \
 ```bash
 export TEST_RUNNER_APP_CHECK_PROVIDER="debug"
 export FIREBASE_APP_CHECK_LOCAL_PATH="/path/to/your/local/app-check"
+SIM_ID=$(xcrun simctl list devices available | grep "iPhone" | grep -E -o '[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}' | head -n 1)
 
 xcodebuild test \
   -workspace FirebaseAppCheck/Apps/FIRAppCheckTestApp/FIRAppCheckTestApp.xcworkspace \
   -scheme FIRAppCheckTestApp \
-  -destination 'platform=iOS Simulator,name=iPhone 16'
+  -destination "platform=iOS Simulator,id=$SIM_ID"
 ```
 *Note: The Debug provider might require you to register the generated debug token in the Firebase Console for the tests to pass if they interact with live services.*
 
@@ -84,7 +86,7 @@ changing scheme settings:
 2.  Locate `manualProviderOverride` in `application(_:didFinishLaunchingWithOptions:)`.
 3.  Set it to your desired provider:
     ```swift
-    let manualProviderOverride: String? = "recaptcha" // or "debug"
+    let manualProviderOverride: String? = "recaptcha"
     ```
     *Note: Remember to revert this change before committing.*
 
@@ -127,11 +129,32 @@ issues or conflicting resolutions when using CocoaPods:
 3.  Go to the **Package Dependencies** tab.
 4.  Remove the `firebase-ios-sdk` or `app-check` package references if they
     appear there.
+5.  Also, select the `FIRAppCheckTestApp` target, go to the **General** tab,
+    and scroll down to **Frameworks, Libraries, and Embedded Content**.
+6.  Remove any SPM-resolved frameworks from this list.
 
 #### 4. Configure and Run
-Follow the same instructions in **[Running and Testing in Xcode](#running-and-testing-in-xcode)**
-to configure the provider and site key via the Xcode Scheme or the Manual
-Override in code.
+You can configure the provider and site key either via the Xcode Scheme or by
+passing environment variables to `xcodebuild`.
+
+**Via Xcode Scheme:**
+Follow the instructions in **[Running and Testing in Xcode](#running-and-testing-in-xcode)**.
+
+**Via `xcodebuild` (Command Line):**
+Run the following command from the repository root, replacing the site key with
+your own:
+```bash
+export TEST_RUNNER_RECAPTCHA_SITE_KEY="your_site_key_here"
+export TEST_RUNNER_APP_CHECK_PROVIDER="recaptcha"
+SIM_ID=$(xcrun simctl list devices available | grep "iPhone" | grep -E -o '[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}' | head -n 1)
+
+xcodebuild test \
+  -workspace FirebaseAppCheck/Apps/FIRAppCheckTestApp/FIRAppCheckTestApp.xcworkspace \
+  -scheme FIRAppCheckTestApp \
+  -destination "platform=iOS Simulator,id=$SIM_ID"
+```
+*(Note: See [Running Tests](#running-tests) for how to dynamically find a valid
+simulator destination).*
 
 ## Project Structure
 
