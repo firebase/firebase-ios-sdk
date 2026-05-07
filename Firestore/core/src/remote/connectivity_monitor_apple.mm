@@ -15,18 +15,12 @@
  */
 
 #include "Firestore/core/src/remote/connectivity_monitor_apple.h"
-#include "Firestore/core/src/remote/connectivity_monitor.h"
 
 #if defined(__APPLE__)
 
 #if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
 #import <UIKit/UIKit.h>
 #endif
-
-#import <Network/Network.h>
-#include <dispatch/dispatch.h>
-
-#include <memory>
 
 #include "Firestore/core/src/util/hard_assert.h"
 #include "Firestore/core/src/util/log.h"
