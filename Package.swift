@@ -1679,5 +1679,5 @@ func appCheckDependency() -> Package.Dependency {
     return .package(url: appCheckURL, branch: branch)
   }
 
-  return .package(url: appCheckURL, "11.0.1" ..< "12.0.0")
+  return .package(url: appCheckURL, "11.3.0" ..< "12.0.0")
 }
