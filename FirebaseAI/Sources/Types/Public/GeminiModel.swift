@@ -30,6 +30,7 @@ import Foundation
 
       public let modelName: String
       public let safetySettings: [SafetySetting]?
+      public let serverTools: [ServerTool]?
       public let requestOptions: RequestOptions
 
       public var firebaseAI: FirebaseAI {
@@ -53,6 +54,7 @@ import Foundation
          firebaseInfo: FirebaseInfo,
          apiConfig: APIConfig,
          safetySettings: [SafetySetting]? = nil,
+         serverTools: [ServerTool]? = nil,
          toolConfig: ToolConfig? = nil,
          requestOptions: RequestOptions = RequestOptions(),
          urlSession: URLSession = GenAIURLSession.default) {
@@ -62,7 +64,8 @@ import Foundation
         useLimitedUseAppCheckTokens: firebaseInfo.useLimitedUseAppCheckTokens,
         modelName: modelName,
         safetySettings: safetySettings,
-        requestOptions: requestOptions
+        serverTools: serverTools,
+        requestOptions: requestOptions,
       )
       self.modelResourceName = modelResourceName
       self.firebaseInfo = firebaseInfo
