@@ -59,6 +59,46 @@ xcodebuild test \
 ```
 *Note: The Debug provider might require you to register the generated debug token in the Firebase Console for the tests to pass if they interact with live services.*
 
+### Running and Testing in Xcode
+
+If you prefer to use the Xcode UI instead of `xcodebuild`, follow these steps
+to configure the environment:
+
+#### 1. Resolve Local Dependency
+If you are using a local checkout of the `app-check` repository, Xcode must be
+launched from the terminal with the `FIREBASE_APP_CHECK_LOCAL_PATH` environment
+variable set so that Swift Package Manager can resolve it correctly.
+
+Run the following command from the repository root:
+```bash
+open --env FIREBASE_APP_CHECK_LOCAL_PATH=/path/to/your/local/app-check FirebaseAppCheck/Apps/FIRAppCheckTestApp/FIRAppCheckTestApp.xcworkspace
+```
+
+#### 2. Configure Provider and Site Key
+You have two options to configure the provider when running or testing in Xcode:
+
+**Option A: Via Manual Override in Code (Easiest for Running the App)**
+If you just want to quickly run the app with a specific provider without
+changing scheme settings:
+1.  Open `AppDelegate.swift`.
+2.  Locate `manualProviderOverride` in `application(_:didFinishLaunchingWithOptions:)`.
+3.  Set it to your desired provider:
+    ```swift
+    let manualProviderOverride: String? = "recaptcha" // or "debug"
+    ```
+    *Note: Remember to revert this change before committing.*
+
+**Option B: Via Xcode Scheme (Recommended for Tests)**
+This avoids modifying code and works for both running and testing.
+1.  In Xcode, go to **Product > Scheme > Edit Scheme...** (or press `⌘<`).
+2.  Select the **Run** or **Test** action in the left sidebar, depending on
+    what you are doing.
+3.  Go to the **Arguments** tab.
+4.  In the **Environment Variables** section, add:
+    *   `APP_CHECK_PROVIDER`: Set to `recaptcha` or `debug`.
+    *   `RECAPTCHA_SITE_KEY`: Set to your reCAPTCHA site key (required for
+        `recaptcha`).
+
 ## Project Structure
 
 - **`FIRAppCheckTestAppTests`**: A hosted unit test target containing the test cases. It runs inside the app process to have access to the full app context.
