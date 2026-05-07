@@ -1,5 +1,5 @@
 # Unreleased 
-- [fixed] Remove extra command in Package.swift that caused SPM resolution
+- [fixed] Remove extra comma in Package.swift that caused SPM resolution
   failures for some configurations.
 
 # Firebase 12.12.0
