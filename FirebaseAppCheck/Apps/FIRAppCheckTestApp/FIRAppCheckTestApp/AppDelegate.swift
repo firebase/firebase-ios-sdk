@@ -186,10 +186,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       if let error = error {
         print("Error reading from storage: \(error)")
         completion?(error)
-      } else if let data = data, let string = String(data: data, encoding: .utf8) {
-        print("Storage content: \(string)")
-        completion?(nil)
+        return
       }
+
+      // This shouldn't be possible, but we want to know if it ever happens.
+      guard let data = data, let string = String(data: data, encoding: .utf8) else {
+        fatalError(
+          "Unexpected state: data is nil or not valid UTF-8. This shouldn't happen, but we want to know if it does."
+        )
+      }
+
+      print("Storage content: \(string)")
+      completion?(nil)
     }
   }
 
