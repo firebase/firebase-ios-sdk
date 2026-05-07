@@ -46,17 +46,23 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   private func setupAppCheck(overrideProvider: String?) {
     // Note: If running via `xcodebuild test`, pass this with the `TEST_RUNNER_` prefix
     // (e.g., `TEST_RUNNER_APP_CHECK_PROVIDER="debug"`). Xcode strips the prefix at runtime.
-    guard let providerType = overrideProvider ?? ProcessInfo.processInfo
-      .environment["APP_CHECK_PROVIDER"], !providerType.isEmpty else {
-      fatalError(
-        "Error: APP_CHECK_PROVIDER is missing. Please set the environment variable or use manualProviderOverride."
-      )
+    let providerType = overrideProvider ?? ProcessInfo.processInfo
+      .environment["APP_CHECK_PROVIDER"] ?? "debug"
+
+    if overrideProvider == nil && ProcessInfo.processInfo.environment["APP_CHECK_PROVIDER"] == nil {
+      print("⚠️ Warning: APP_CHECK_PROVIDER environment variable is missing. Defaulting to 'debug'.")
     }
 
     let providerFactory: AppCheckProviderFactory
     switch providerType {
     case "recaptcha":
-      providerFactory = RecaptchaEnterpriseProviderFactory()
+      guard let siteKey = ProcessInfo.processInfo.environment["RECAPTCHA_SITE_KEY"],
+            !siteKey.isEmpty else {
+        fatalError(
+          "Error: RECAPTCHA_SITE_KEY environment variable is missing or empty. E2E tests require this key."
+        )
+      }
+      providerFactory = AppCheckRecaptchaEnterpriseProviderFactory(siteKey: siteKey)
     case "debug":
       providerFactory = AppCheckDebugProviderFactory()
     default:
@@ -221,20 +227,5 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         print("App Attest error: \(error)")
       }
     }
-  }
-}
-
-class RecaptchaEnterpriseProviderFactory: NSObject, AppCheckProviderFactory {
-  func createProvider(with app: FirebaseApp) -> AppCheckProvider? {
-    // Note: If running via `xcodebuild test`, pass this with the `TEST_RUNNER_` prefix
-    // (e.g., `TEST_RUNNER_RECAPTCHA_SITE_KEY="your_key"`). Xcode strips the prefix at runtime.
-    guard let siteKey = ProcessInfo.processInfo.environment["RECAPTCHA_SITE_KEY"],
-          !siteKey.isEmpty else {
-      fatalError(
-        "Error: RECAPTCHA_SITE_KEY environment variable is missing or empty. E2E tests require this key."
-      )
-    }
-
-    return RecaptchaEnterpriseProvider(app: app, siteKey: siteKey)
   }
 }
