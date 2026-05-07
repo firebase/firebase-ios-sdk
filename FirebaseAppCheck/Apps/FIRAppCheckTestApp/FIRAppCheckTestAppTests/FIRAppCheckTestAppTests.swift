@@ -81,6 +81,8 @@ final class FIRAppCheckTestAppTests: XCTestCase {
 
     waitForExpectations(timeout: 5, handler: nil) // Short timeout for cache
 
+    XCTAssertNotNil(token1)
+    XCTAssertNotNil(token2)
     XCTAssertEqual(token1, token2, "Tokens should be identical (cached)")
   }
 
@@ -105,6 +107,7 @@ final class FIRAppCheckTestAppTests: XCTestCase {
     appDelegate.requestRecaptchaToken(forcingRefresh: true) { token, error in
       XCTAssertNotNil(token, "Token should not be nil")
       XCTAssertNil(error, "Error should be nil")
+      XCTAssertNotNil(token1)
       XCTAssertNotEqual(token1, token?.token, "Tokens should be different after forced refresh")
       expectation2.fulfill()
     }
