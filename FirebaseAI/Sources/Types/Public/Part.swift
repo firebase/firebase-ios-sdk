@@ -27,6 +27,8 @@ public protocol Part: PartsRepresentable, Codable, Sendable, Equatable {
   /// more "thought" parts that provide insight into how it reasoned through the prompt to arrive
   /// at the final answer. These parts will have `isThought` set to `true`.
   var isThought: Bool { get }
+
+  var thoughtSignature: String? { get }
 }
 
 /// A text part containing a string value.
@@ -36,7 +38,7 @@ public struct TextPart: Part {
 
   public var isThought: Bool { _isThought ?? false }
 
-  let thoughtSignature: String?
+  public let thoughtSignature: String?
 
   let _isThought: Bool?
 
@@ -74,7 +76,7 @@ public struct InlineDataPart: Part {
 
   public var isThought: Bool { _isThought ?? false }
 
-  let thoughtSignature: String?
+  public let thoughtSignature: String?
 
   /// Creates an inline data part from data and a MIME type.
   ///
@@ -105,7 +107,7 @@ public struct InlineDataPart: Part {
 public struct FileDataPart: Part {
   let fileData: FileData
   let _isThought: Bool?
-  let thoughtSignature: String?
+  public let thoughtSignature: String?
 
   public var uri: String { fileData.fileURI }
   public var mimeType: String { fileData.mimeType }
@@ -135,7 +137,7 @@ public struct FileDataPart: Part {
 public struct FunctionCallPart: Part {
   let functionCall: FunctionCall
   let _isThought: Bool?
-  let thoughtSignature: String?
+  public let thoughtSignature: String?
 
   /// The name of the function to call.
   public var name: String { functionCall.name }
@@ -191,7 +193,7 @@ public struct FunctionCallPart: Part {
 public struct FunctionResponsePart: Part {
   let functionResponse: FunctionResponse
   let _isThought: Bool?
-  let thoughtSignature: String?
+  public let thoughtSignature: String?
 
   /// Matching ``FunctionCallPart/functionId`` for a ``FunctionCallPart``, if one was provided.
   public var functionId: String? { functionResponse.id }
@@ -255,7 +257,7 @@ public struct ExecutableCodePart: Part {
 
   let executableCode: ExecutableCode
   let _isThought: Bool?
-  let thoughtSignature: String?
+  public let thoughtSignature: String?
 
   /// The language of the code.
   public var language: ExecutableCodePart.Language {
@@ -317,7 +319,7 @@ public struct CodeExecutionResultPart: Part {
 
   let codeExecutionResult: CodeExecutionResult
   let _isThought: Bool?
-  let thoughtSignature: String?
+  public let thoughtSignature: String?
 
   /// The outcome of the code execution.
   public var outcome: CodeExecutionResultPart.Outcome {
