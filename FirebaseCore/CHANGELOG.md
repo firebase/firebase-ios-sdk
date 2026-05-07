@@ -1,4 +1,4 @@
-# Unreleased 
+# Unreleased
 - [fixed] Remove extra comma in Package.swift that caused SPM resolution
   failures for some configurations.
 
