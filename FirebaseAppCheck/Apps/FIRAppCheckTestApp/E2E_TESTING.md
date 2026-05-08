@@ -1,24 +1,33 @@
 # E2E Testing with FIRAppCheckTestApp
 
-This document provides information on how to configure and run End-to-End (E2E) tests for App Check providers using this sample app.
+This document provides information on how to configure and run End-to-End (E2E)
+tests for App Check providers using this sample app.
 
 ## Configurability
 
-The app's behavior can be configured using environment variables passed during test execution.
+The app's behavior can be configured using environment variables passed during
+test execution.
 
 ### Environment Variables
 
-Starting with Xcode 13, you can pass environment variables directly to the test runner by prefixing them with `TEST_RUNNER_`. The prefix is stripped when it reaches the test process.
+Starting with Xcode 13, you can pass environment variables directly to the
+test runner by prefixing them with `TEST_RUNNER_`. The prefix is stripped when
+it reaches the test process.
 
-- **`TEST_RUNNER_RECAPTCHA_SITE_KEY`**: The reCAPTCHA Enterprise site key used by the `RecaptchaEnterpriseProvider`.
-    - **Access in Code**: Read via `ProcessInfo.processInfo.environment["RECAPTCHA_SITE_KEY"]`.
-- **`TEST_RUNNER_APP_CHECK_PROVIDER`**: Specifies which App Check provider factory to use.
+- **`TEST_RUNNER_RECAPTCHA_SITE_KEY`**: The reCAPTCHA Enterprise site key used
+  by the `RecaptchaEnterpriseProvider`.
+    - **Access in Code**: Read via
+      `ProcessInfo.processInfo.environment["RECAPTCHA_SITE_KEY"]`.
+- **`TEST_RUNNER_APP_CHECK_PROVIDER`**: Specifies which App Check provider
+  factory to use.
     - **Supported Values**: `recaptcha` (default), `debug`.
-    - **Access in Code**: Read via `ProcessInfo.processInfo.environment["APP_CHECK_PROVIDER"]`.
+    - **Access in Code**: Read via
+      `ProcessInfo.processInfo.environment["APP_CHECK_PROVIDER"]`.
 
 ### Manual Override
 
-For local debugging and manual testing, you can override the environment variables by setting `manualProviderOverride` in `AppDelegate.swift`:
+For local debugging and manual testing, you can override the environment
+variables by setting `manualProviderOverride` in `AppDelegate.swift`:
 
 ```swift
 let manualProviderOverride: String? = "debug"
@@ -29,7 +38,8 @@ let manualProviderOverride: String? = "debug"
 The commands below should be run from the **repository root**.
 
 ### Prerequisites
-- Ensure you have a local checkout of the `app-check` repository if you are developing it locally. Set `FIREBASE_APP_CHECK_LOCAL_PATH` to point to it.
+- Ensure you have a local checkout of the `app-check` repository if you are
+  developing it locally. Set `FIREBASE_APP_CHECK_LOCAL_PATH` to point to it.
 
 ### Sample Commands
 
@@ -105,13 +115,24 @@ This avoids modifying code and works for both running and testing.
 
 If you prefer to use the CocoaPods workflow instead of SPM:
 
+#### 0. Clean Up State (Optional but Recommended)
+If you are switching from the SPM workflow or encounter issues, it is
+recommended to clean up the CocoaPods state first:
+```bash
+pod deintegrate FirebaseAppCheck/Apps/FIRAppCheckTestApp/FIRAppCheckTestApp.xcodeproj
+rm -rf FirebaseAppCheck/Apps/FIRAppCheckTestApp/FIRAppCheckTestApp.xcworkspace
+rm -f FirebaseAppCheck/Apps/FIRAppCheckTestApp/Podfile.lock
+```
+
 #### 1. Install Dependencies
-You should use `pod update` (instead of `pod install`) to ensure you pick up
-the latest versions and avoid lockfile conflicts when using local development
-paths.
+To ensure a clean update and avoid conflicts with local development paths or
+stale state, it is recommended to remove the existing `Pods` directory and
+`Podfile.lock` before updating.
 
 Run the following command from the repository root:
 ```bash
+rm -rf FirebaseAppCheck/Apps/FIRAppCheckTestApp/Pods
+rm -f FirebaseAppCheck/Apps/FIRAppCheckTestApp/Podfile.lock
 FIREBASE_APP_CHECK_LOCAL_PATH="/path/to/your/local/app-check" pod update --repo-update --project-directory=FirebaseAppCheck/Apps/FIRAppCheckTestApp/
 ```
 
