@@ -139,8 +139,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
   // MARK: App Check API
 
-  func requestRecaptchaToken(forcingRefresh: Bool = false,
-                             completion: ((AppCheckToken?, Error?) -> Void)? = nil) {
+  func fetchAppCheckToken(forcingRefresh: Bool = false,
+                          completion: ((AppCheckToken?, Error?) -> Void)? = nil) {
     AppCheck.appCheck().token(forcingRefresh: forcingRefresh) { [weak self] token, error in
       // 1. Handle error case
       if let error = error {
@@ -149,7 +149,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             "Received both token and error from AppCheck. Token: \(token), Error: \(error)"
           )
         }
-        print("Recaptcha error: \(error)")
+        print("App Check error: \(error)")
         completion?(nil, error)
         return
       }

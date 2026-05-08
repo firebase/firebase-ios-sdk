@@ -26,7 +26,7 @@ final class FIRAppCheckTestAppTests: XCTestCase {
 
     let expectation = self.expectation(description: "Token acquisition and storage access")
 
-    appDelegate.requestRecaptchaToken { token, error in
+    appDelegate.fetchAppCheckToken { token, error in
       XCTAssertNotNil(token, "Token should not be nil")
       if let token = token {
         XCTAssertGreaterThan(token.expirationDate, Date(), "Token should not be expired")
@@ -64,7 +64,7 @@ final class FIRAppCheckTestAppTests: XCTestCase {
     let expectation1 = expectation(description: "First token acquisition")
     var token1: String?
 
-    appDelegate.requestRecaptchaToken { token, error in
+    appDelegate.fetchAppCheckToken { token, error in
       token1 = token?.token
       expectation1.fulfill()
     }
@@ -74,7 +74,7 @@ final class FIRAppCheckTestAppTests: XCTestCase {
     let expectation2 = expectation(description: "Second token acquisition (cached)")
     var token2: String?
 
-    appDelegate.requestRecaptchaToken { token, error in
+    appDelegate.fetchAppCheckToken { token, error in
       token2 = token?.token
       expectation2.fulfill()
     }
@@ -95,7 +95,7 @@ final class FIRAppCheckTestAppTests: XCTestCase {
     let expectation1 = expectation(description: "First token acquisition")
     var token1: String?
 
-    appDelegate.requestRecaptchaToken { token, error in
+    appDelegate.fetchAppCheckToken { token, error in
       token1 = token?.token
       expectation1.fulfill()
     }
@@ -104,7 +104,7 @@ final class FIRAppCheckTestAppTests: XCTestCase {
 
     let expectation2 = expectation(description: "Second token acquisition (forced refresh)")
 
-    appDelegate.requestRecaptchaToken(forcingRefresh: true) { token, error in
+    appDelegate.fetchAppCheckToken(forcingRefresh: true) { token, error in
       XCTAssertNotNil(token, "Token should not be nil")
       XCTAssertNil(error, "Error should be nil")
       XCTAssertNotNil(token1)
