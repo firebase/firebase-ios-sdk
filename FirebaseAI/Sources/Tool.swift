@@ -104,6 +104,24 @@ public struct GoogleSearch: Sendable {
   public init() {}
 }
 
+@available(iOS 26.0, macOS 26.0, *)
+extension GoogleSearch: FoundationModels.Tool {
+  public typealias Output = GeneratedContent
+  public typealias Arguments = GeneratedContent
+
+  public var description: String {
+    return ""
+  }
+
+  public var parameters: GenerationSchema {
+    return GeneratedContent.generationSchema
+  }
+
+  public func call(arguments: GeneratedContent) async throws -> GeneratedContent {
+    fatalError()
+  }
+}
+
 /// A helper tool that the model may use when generating responses.
 ///
 /// A `Tool` is a piece of code that enables the system to interact with external systems to perform
