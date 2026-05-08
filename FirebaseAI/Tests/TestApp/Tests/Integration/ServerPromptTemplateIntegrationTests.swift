@@ -112,7 +112,7 @@ struct ServerPromptTemplateIntegrationTests {
     let candidate = try #require(response.candidates.first)
     let groundingMetadata = try #require(candidate.groundingMetadata)
     let mapChunks = groundingMetadata.groundingChunks.compactMap { $0.maps }
-    #expect(!mapChunks.isEmpty)
+    try #require(!mapChunks.isEmpty)
     for mapsChunk in mapChunks {
       #expect(mapsChunk.url != nil)
       let title = try #require(mapsChunk.title)
