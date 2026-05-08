@@ -100,7 +100,7 @@ public struct FunctionDeclaration: Sendable {
 /// [Gemini Developer API](https://ai.google.dev/gemini-api/terms#grounding-with-google-search)
 /// or Vertex AI Gemini API (see [Service Terms](https://cloud.google.com/terms/service-terms)
 /// section within the Service Specific Terms).
-public struct GoogleSearch: Sendable, Hashable {
+public struct GoogleSearch: Sendable {
   public init() {}
 }
 
