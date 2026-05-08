@@ -1,10 +1,29 @@
-# Unreleased
+# 12.13.0
+- [feature] **Public Preview**: Added support for hybrid inference, enabling
+  fallback between on-device (Foundation Models) and cloud (Gemini) models. (#16111)
+- [feature] Added support for session resumption in the Live API via the `resumeSession` method on
+  [`LiveSession`](https://firebase.google.com/docs/reference/swift/firebaseai/api/reference/Classes/LiveSession).
+  (#15904)
+- [feature] Added support for context window compression in the Live API via
+  [`ContextWindowCompressionConfig`](https://firebase.google.com/docs/reference/swift/firebaseai/api/reference/Structs/ContextWindowCompressionConfig).
+  (#15904)
+- [feature] **Breaking Change**: Added a new Live API payload field for `LiveSessionResumptionUpdate` to
+  support the new session resumption feature. (#15904)
+- [feature] Adds support for configuring image generation properties,
+  such as aspect ratio and image size, through the new `ImageConfig` struct
+  and its integration with `GenerationConfig`. (#15923)
 - [feature] Added support for GoogleMaps grounding, including for Server Prompt Templates.
 - [fixed] Fix unfound file warnings from `swift build`. (#16012)
 - [fixed] Fixed a `no member 'autoFunctionDeclaration'` compilation error on
   unofficially supported Xcode versions older than 26.2. (#16037)
 - [fixed] Fixed missing thought summary output in `GenerativeModelSession.streamResponse`. (#16075)
-- [fixed] Removed unnecessary log statements related to retrieving text parts during automatic function calling.
+- [fixed] Removed unnecessary log statements related to retrieving text parts during automatic function calling. (#16087, #16122)
+- [feature] Adds support for configuring image generation properties,
+  such as aspect ratio and image size, through the new `ImageConfig` struct
+  and its integration with `GenerationConfig`. (#15923)
+- [feature] Adds support for new `FinishReason` values including
+  image-related reasons like `imageSafety`, `noImage`, and others for
+  tool-use, language, and malformed responses. (#15931)
 
 # 12.12.0
 - [feature] Added support for automatic function calling in

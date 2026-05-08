@@ -252,6 +252,49 @@ final class GenerateContentResponseTests: XCTestCase {
     XCTAssertEqual(candidate.finishReason, .stop)
   }
 
+  func testDecodeCandidate_withFinishMessage() throws {
+    let json = """
+    {
+      "content": { "role": "model", "parts": [ { "text": "Some text." } ] },
+      "finishReason": "STOP",
+      "finishMessage": "Stopped due to something."
+    }
+    """
+    let jsonData = try XCTUnwrap(json.data(using: .utf8))
+
+    let candidate = try jsonDecoder.decode(Candidate.self, from: jsonData)
+
+    XCTAssertEqual(candidate.finishMessage, "Stopped due to something.")
+    XCTAssertEqual(candidate.finishReason, .stop)
+  }
+
+  func testDecodeGenerateContentResponse_withModelVersion() throws {
+    let json = """
+    {
+      "candidates": [],
+      "modelVersion": "gemini-2.5-flash"
+    }
+    """
+    let jsonData = try XCTUnwrap(json.data(using: .utf8))
+
+    let response = try jsonDecoder.decode(GenerateContentResponse.self, from: jsonData)
+
+    XCTAssertEqual(response.modelVersion, "gemini-2.5-flash")
+  }
+
+  func testDecodeGenerateContentResponse_withoutModelVersion() throws {
+    let json = """
+    {
+      "candidates": []
+    }
+    """
+    let jsonData = try XCTUnwrap(json.data(using: .utf8))
+
+    let response = try jsonDecoder.decode(GenerateContentResponse.self, from: jsonData)
+
+    XCTAssertEqual(response.modelVersion, GenerateContentResponse.unknownModelVersion)
+  }
+
   // MARK: - Candidate.isEmpty
 
   func testCandidateIsEmpty_allEmpty_isTrue() throws {
@@ -285,6 +328,23 @@ final class GenerateContentResponseTests: XCTestCase {
     XCTAssertFalse(
       candidate.isEmpty,
       "A candidate with only `urlContextMetadata` should not be empty."
+    )
+  }
+
+  func testCandidateIsEmpty_withFinishMessage_isFalse() throws {
+    let candidate = Candidate(
+      content: ModelContent(parts: []),
+      safetyRatings: [],
+      finishReason: nil,
+      citationMetadata: nil,
+      groundingMetadata: nil,
+      urlContextMetadata: nil,
+      finishMessage: "Stopped"
+    )
+
+    XCTAssertFalse(
+      candidate.isEmpty,
+      "A candidate with only `finishMessage` should not be empty."
     )
   }
 }

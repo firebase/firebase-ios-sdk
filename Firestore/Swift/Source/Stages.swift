@@ -43,15 +43,18 @@ class CollectionSource: Stage {
 
   let bridge: StageBridge
   private let db: Firestore
+  private let forceIndex: String?
 
-  init(collection: CollectionReference, db: Firestore) {
+  init(collection: CollectionReference, db: Firestore, forceIndex: String? = nil) {
     self.db = db
-    bridge = CollectionSourceStageBridge(ref: collection, firestore: db)
+    self.forceIndex = forceIndex
+    bridge = CollectionSourceStageBridge(ref: collection, firestore: db, forceIndex: forceIndex)
   }
 
-  init(bridge: CollectionSourceStageBridge, db: Firestore) {
+  init(bridge: CollectionSourceStageBridge, db: Firestore, forceIndex: String? = nil) {
     self.db = db
     self.bridge = bridge
+    self.forceIndex = forceIndex
   }
 }
 
@@ -70,13 +73,16 @@ class CollectionGroupSource: Stage {
   let name: String = "collection_group"
 
   let bridge: StageBridge
+  private let forceIndex: String?
 
-  init(collectionId: String) {
-    bridge = CollectionGroupSourceStageBridge(collectionId: collectionId)
+  init(collectionId: String, forceIndex: String? = nil) {
+    self.forceIndex = forceIndex
+    bridge = CollectionGroupSourceStageBridge(collectionId: collectionId, forceIndex: forceIndex)
   }
 
-  init(bridge: CollectionGroupSourceStageBridge) {
+  init(bridge: CollectionGroupSourceStageBridge, forceIndex: String? = nil) {
     self.bridge = bridge
+    self.forceIndex = forceIndex
   }
 }
 
@@ -333,14 +339,14 @@ class Search: Stage {
   let errorMessage: String?
 
   init(query: Expression? = nil,
-       limit: Int? = nil,
+       languageCode: String? = nil,
        retrievalDepth: Int? = nil,
        sort: [Ordering]? = nil,
-       addFields: [Selectable]? = nil,
-       select: [Selectable]? = nil,
        offset: Int? = nil,
-       queryEnhancement: QueryEnhancement? = nil,
-       languageCode: String? = nil) {
+       limit: Int? = nil,
+       select: [Selectable]? = nil,
+       addFields: [Selectable]? = nil,
+       queryEnhancement: QueryEnhancement? = nil) {
     // Options represented as a Sendable (e.g. primitive data type or Expression)
     // can be added to this options map. Map and array values will be repsented
     // with the map and array function expressions.

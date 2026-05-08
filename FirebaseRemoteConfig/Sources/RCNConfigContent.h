@@ -71,6 +71,7 @@ typedef NS_ENUM(NSInteger, RCNDBSource) {
 - (void)activateRolloutMetadata:(void (^)(BOOL success))completionHandler;
 
 /// Returns the updated parameters between fetched and active config.
-- (FIRRemoteConfigUpdate *)getConfigUpdateForNamespace:(NSString *)FIRNamespace;
+- (void)getConfigUpdateForNamespace:(NSString *)FIRNamespace
+                  completionHandler:(void (^)(FIRRemoteConfigUpdate *update))completionHandler;
 
 @end

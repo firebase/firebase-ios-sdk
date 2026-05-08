@@ -15,7 +15,6 @@
 import Foundation
 
 /// Actor to serialize the update profile calls.
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 actor UserProfileUpdate {
   func link(user: User, with credential: AuthCredential) async throws -> AuthDataResult {
     let accessToken = try await user.internalGetTokenAsync(backend: user.backend)
