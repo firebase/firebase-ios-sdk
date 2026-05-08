@@ -102,42 +102,43 @@
           return
         }
 
-        let stream: FoundationModels.LanguageModelSession
-          .ResponseStream<FoundationModels.GeneratedContent>
-        if let schema {
-          stream = streamResponse(
-            to: foundationModelsPrompt,
-            schema: schema.generationSchema,
-            includeSchemaInPrompt: includeSchemaInPrompt,
-            options: options.generationOptions
-          )
-        } else {
-          stream = streamResponse(
-            to: foundationModelsPrompt,
-            schema: String.generationSchema,
-            options: options.generationOptions
-          )
-        }
-
         let task = Task {
           do {
-            for try await snapshot in stream {
-              let response = makeResponse(from: snapshot.rawContent, schema: schema)
+            func processStream<T>(_ stream: LanguageModelSession.ResponseStream<T>) async throws {
+              for try await snapshot in stream {
+                let response = makeResponse(from: snapshot.rawContent, schema: schema)
 
-              continuation.yield(response)
+                continuation.yield(response)
+              }
+
+              #if DEBUG
+                if AILog.additionalLoggingEnabled() {
+                  // Streaming has completed but we call `collect()` to get a
+                  // `LanguageModelSession.Response`, which contains `transcriptEntries`.
+                  let response = try await stream.collect()
+                  AILog.debug(
+                    code: .foundationModelsStreamResponseTranscript,
+                    "Foundation Models Transcript: \(response.transcriptEntries)"
+                  )
+                }
+              #endif // DEBUG
             }
 
-            #if DEBUG
-              if AILog.additionalLoggingEnabled() {
-                // Streaming has completed but we call `collect()` to get a
-                // `LanguageModelSession.Response`, which contains `transcriptEntries`.
-                let response = try await stream.collect()
-                AILog.debug(
-                  code: .foundationModelsStreamResponseTranscript,
-                  "Foundation Models Transcript: \(response.transcriptEntries)"
-                )
-              }
-            #endif // DEBUG
+            if let schema {
+              let stream = streamResponse(
+                to: foundationModelsPrompt,
+                schema: schema.generationSchema,
+                includeSchemaInPrompt: includeSchemaInPrompt,
+                options: options.generationOptions
+              )
+              try await processStream(stream)
+            } else {
+              let stream = streamResponse(
+                to: foundationModelsPrompt,
+                options: options.generationOptions
+              )
+              try await processStream(stream)
+            }
 
             continuation.finish()
           } catch {
