@@ -49,33 +49,36 @@
       -> _ModelSessionResponse {
       let prompt = try prompt.toFoundationModelsPrompt()
 
-      let response: FoundationModels.LanguageModelSession
-        .Response<FoundationModels.GeneratedContent>
+      let rawContent: GeneratedContent
+      let transcriptEntries: ArraySlice<Transcript.Entry>
       if let schema {
-        response = try await respond(
+        let response = try await respond(
           to: prompt,
           schema: schema.generationSchema,
           includeSchemaInPrompt: includeSchemaInPrompt,
           options: options.generationOptions
         )
+        rawContent = response.rawContent
+        transcriptEntries = response.transcriptEntries
       } else {
-        response = try await respond(
+        let response = try await respond(
           to: prompt,
-          schema: String.generationSchema,
           options: options.generationOptions
         )
+        rawContent = response.rawContent
+        transcriptEntries = response.transcriptEntries
       }
 
       #if DEBUG
         if AILog.additionalLoggingEnabled() {
           AILog.debug(
             code: .foundationModelsResponseTranscript,
-            "Foundation Models Transcript: \(response.transcriptEntries)"
+            "Foundation Models Transcript: \(transcriptEntries)"
           )
         }
       #endif // DEBUG
 
-      return makeResponse(from: response.rawContent, schema: schema)
+      return makeResponse(from: rawContent, schema: schema)
     }
 
     /// Sends a prompt to the model and streams the model's response.
