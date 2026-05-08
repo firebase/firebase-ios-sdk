@@ -49,8 +49,8 @@
       -> _ModelSessionResponse {
       let prompt = try prompt.toFoundationModelsPrompt()
 
-      let rawContent: GeneratedContent
-      let transcriptEntries: ArraySlice<Transcript.Entry>
+      let rawContent: FoundationModels.GeneratedContent
+      let transcriptEntries: ArraySlice<FoundationModels.Transcript.Entry>
       if let schema {
         let response = try await respond(
           to: prompt,
