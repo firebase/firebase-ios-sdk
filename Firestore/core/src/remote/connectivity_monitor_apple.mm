@@ -141,14 +141,6 @@ ConnectivityMonitorApple::~ConnectivityMonitorApple() {
     nw_path_monitor_cancel(monitor_);
   }
 
-  if (monitor_queue_) {
-    HARD_ASSERT(dispatch_get_specific(kMonitorQueueKey) !=
-                    (__bridge void*)monitor_queue_,
-                "Cannot destruct on monitor_queue_");
-    dispatch_sync(monitor_queue_, ^{
-                  });
-  }
-
   state_.reset();
   monitor_ = nullptr;
   monitor_queue_ = nullptr;
