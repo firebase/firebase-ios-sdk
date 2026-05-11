@@ -353,6 +353,7 @@
   [self.instrumentation deregisterInstrumentGroup:kFPRInstrumentationGroupNetworkKey];
   [self.instrumentation deregisterInstrumentGroup:kFPRInstrumentationGroupUIKitKey];
   self.swizzled = NO;
+  self.networkInstrumentationSwizzled = NO;
   [self.configuration setInstrumentationEnabled:NO];
 }
 
