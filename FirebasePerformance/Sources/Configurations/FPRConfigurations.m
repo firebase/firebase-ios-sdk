@@ -29,9 +29,16 @@ FPRConfigName kFPRConfigDataCollectionEnabled = @"dataCollectionEnabled";
 
 FPRConfigName kFPRConfigInstrumentationEnabled = @"instrumentationEnabled";
 
+FPRConfigName kFPRConfigNetworkInstrumentationEnabled = @"networkInstrumentationEnabled";
+
 NSString *const kFPRConfigInstrumentationUserPreference =
     @"com.firebase.performanceInsrumentationEnabled";
 NSString *const kFPRConfigInstrumentationPlistKey = @"firebase_performance_instrumentation_enabled";
+
+NSString *const kFPRConfigNetworkInstrumentationUserPreference =
+    @"com.firebase.performanceNetworkInstrumentationEnabled";
+NSString *const kFPRConfigNetworkInstrumentationPlistKey =
+    @"firebase_performance_network_instrumentation_enabled";
 
 NSString *const kFPRConfigCollectionUserPreference = @"com.firebase.performanceCollectionEnabled";
 NSString *const kFPRConfigCollectionPlistKey = @"firebase_performance_collection_enabled";
@@ -62,6 +69,8 @@ static dispatch_once_t gSharedInstanceToken;
   gSharedInstanceToken = 0;
   [[GULUserDefaults standardUserDefaults]
       removeObjectForKey:kFPRConfigInstrumentationUserPreference];
+  [[GULUserDefaults standardUserDefaults]
+      removeObjectForKey:kFPRConfigNetworkInstrumentationUserPreference];
   [[GULUserDefaults standardUserDefaults] removeObjectForKey:kFPRConfigCollectionUserPreference];
 }
 
@@ -215,6 +224,31 @@ static dispatch_once_t gSharedInstanceToken;
   }
 
   return instrumentationPreference;
+}
+
+- (void)setNetworkInstrumentationEnabled:(BOOL)networkInstrumentationEnabled {
+  [self.userDefaults setBool:networkInstrumentationEnabled
+                      forKey:kFPRConfigNetworkInstrumentationUserPreference];
+}
+
+- (BOOL)isNetworkInstrumentationEnabled {
+  // Resolves in order: GULUserDefaults, Info.plist, defaults to YES.
+  BOOL networkInstrumentationPreference = YES;
+
+  id networkInstrumentationPreferenceObject =
+      [self.userDefaults objectForKey:kFPRConfigNetworkInstrumentationUserPreference];
+
+  if (networkInstrumentationPreferenceObject) {
+    networkInstrumentationPreference = [networkInstrumentationPreferenceObject boolValue];
+  } else {
+    networkInstrumentationPreferenceObject =
+        [self objectForInfoDictionaryKey:kFPRConfigNetworkInstrumentationPlistKey];
+    if (networkInstrumentationPreferenceObject) {
+      networkInstrumentationPreference = [networkInstrumentationPreferenceObject boolValue];
+    }
+  }
+
+  return networkInstrumentationPreference;
 }
 
 #pragma mark - Fireperf SDK configurations.

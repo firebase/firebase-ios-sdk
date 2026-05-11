@@ -172,7 +172,9 @@
 - (void)checkAndStartInstrumentation {
   BOOL instrumentationEnabled = self.configuration.isInstrumentationEnabled;
   if (instrumentationEnabled && !self.isSwizzled) {
-    [self.instrumentation registerInstrumentGroup:kFPRInstrumentationGroupNetworkKey];
+    if (self.configuration.isNetworkInstrumentationEnabled) {
+      [self.instrumentation registerInstrumentGroup:kFPRInstrumentationGroupNetworkKey];
+    }
     [self.instrumentation registerInstrumentGroup:kFPRInstrumentationGroupUIKitKey];
     self.swizzled = YES;
   }

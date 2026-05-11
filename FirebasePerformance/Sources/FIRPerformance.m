@@ -106,6 +106,20 @@ static NSString *const kFirebasePerfErrorDomain = @"com.firebase.perf";
   }
 }
 
+- (BOOL)isNetworkInstrumentationEnabled {
+  return [FPRConfigurations sharedInstance].isNetworkInstrumentationEnabled;
+}
+
+- (void)setNetworkInstrumentationEnabled:(BOOL)networkInstrumentationEnabled {
+  [[FPRConfigurations sharedInstance]
+      setNetworkInstrumentationEnabled:networkInstrumentationEnabled];
+  if (self.fprClient.isSwizzled) {
+    FPRLogError(kFPRInstrumentationDisabledAfterConfigure,
+                @"Network instrumentation preference will only take effect on next app start "
+                @"because Firebase Performance has already been configured.");
+  }
+}
+
 #pragma mark - Custom attributes related methods
 
 - (NSDictionary<NSString *, NSString *> *)attributes {

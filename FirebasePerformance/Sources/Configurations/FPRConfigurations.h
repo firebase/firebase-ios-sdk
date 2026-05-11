@@ -51,6 +51,13 @@ FOUNDATION_EXTERN FPRConfigName kFPRConfigDataCollectionEnabled;
 /** The config KVC name string for the instrumentationEnabled property. */
 FOUNDATION_EXTERN FPRConfigName kFPRConfigInstrumentationEnabled;
 
+/** Enables or disables the URLSession/URLConnection network instrumentation only. Other
+ * instrumentation (app start, screen rendering, custom traces) is unaffected. Default is YES. */
+@property(nonatomic, getter=isNetworkInstrumentationEnabled) BOOL networkInstrumentationEnabled;
+
+/** The config KVC name string for the networkInstrumentationEnabled property. */
+FOUNDATION_EXTERN FPRConfigName kFPRConfigNetworkInstrumentationEnabled;
+
 /** Log source against which the Fireperf events are recorded. */
 @property(nonatomic, readonly) int logSource;
 
