@@ -107,7 +107,8 @@ static NSString *const kFirebasePerfErrorDomain = @"com.firebase.perf";
 }
 
 - (BOOL)isNetworkInstrumentationEnabled {
-  return [FPRConfigurations sharedInstance].isNetworkInstrumentationEnabled;
+  return self.fprClient.isNetworkInstrumentationSwizzled ||
+         [FPRConfigurations sharedInstance].isNetworkInstrumentationEnabled;
 }
 
 - (void)setNetworkInstrumentationEnabled:(BOOL)networkInstrumentationEnabled {

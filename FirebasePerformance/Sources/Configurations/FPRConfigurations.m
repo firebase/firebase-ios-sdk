@@ -232,29 +232,20 @@ static dispatch_once_t gSharedInstanceToken;
 }
 
 - (BOOL)isNetworkInstrumentationEnabled {
-  BOOL networkInstrumentationPreference = YES;
-
   id networkInstrumentationPreferenceObject =
       [self.userDefaults objectForKey:kFPRConfigNetworkInstrumentationUserPreference];
 
-  /**
-   * Check if the network instrumentation preference key is available in GULUserDefaults.
-   * If it exists, honor that value.
-   * Otherwise, check if firebase_performance_network_instrumentation_enabled exists in Info.plist.
-   * If it exists, honor that value.
-   * Otherwise, return YES stating network instrumentation is enabled.
-   */
   if (networkInstrumentationPreferenceObject) {
-    networkInstrumentationPreference = [networkInstrumentationPreferenceObject boolValue];
-  } else {
-    networkInstrumentationPreferenceObject =
-        [self objectForInfoDictionaryKey:kFPRConfigNetworkInstrumentationPlistKey];
-    if (networkInstrumentationPreferenceObject) {
-      networkInstrumentationPreference = [networkInstrumentationPreferenceObject boolValue];
-    }
+    return [networkInstrumentationPreferenceObject boolValue];
   }
 
-  return networkInstrumentationPreference;
+  networkInstrumentationPreferenceObject =
+      [self objectForInfoDictionaryKey:kFPRConfigNetworkInstrumentationPlistKey];
+  if (networkInstrumentationPreferenceObject) {
+    return [networkInstrumentationPreferenceObject boolValue];
+  }
+
+  return YES;
 }
 
 #pragma mark - Fireperf SDK configurations.

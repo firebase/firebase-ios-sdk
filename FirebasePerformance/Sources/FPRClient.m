@@ -174,6 +174,7 @@
   if (instrumentationEnabled && !self.isSwizzled) {
     if (self.configuration.isNetworkInstrumentationEnabled) {
       [self.instrumentation registerInstrumentGroup:kFPRInstrumentationGroupNetworkKey];
+      self.networkInstrumentationSwizzled = YES;
     }
     [self.instrumentation registerInstrumentGroup:kFPRInstrumentationGroupUIKitKey];
     self.swizzled = YES;
