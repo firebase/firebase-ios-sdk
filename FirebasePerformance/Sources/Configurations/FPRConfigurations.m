@@ -232,12 +232,18 @@ static dispatch_once_t gSharedInstanceToken;
 }
 
 - (BOOL)isNetworkInstrumentationEnabled {
-  // Resolves in order: GULUserDefaults, Info.plist, defaults to YES.
   BOOL networkInstrumentationPreference = YES;
 
   id networkInstrumentationPreferenceObject =
       [self.userDefaults objectForKey:kFPRConfigNetworkInstrumentationUserPreference];
 
+  /**
+   * Check if the network instrumentation preference key is available in GULUserDefaults.
+   * If it exists, honor that value.
+   * Otherwise, check if firebase_performance_network_instrumentation_enabled exists in Info.plist.
+   * If it exists, honor that value.
+   * Otherwise, return YES stating network instrumentation is enabled.
+   */
   if (networkInstrumentationPreferenceObject) {
     networkInstrumentationPreference = [networkInstrumentationPreferenceObject boolValue];
   } else {
