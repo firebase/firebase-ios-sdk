@@ -278,7 +278,7 @@
     func respondTextWithAutomaticFunctionCalling(_ config: InstanceConfig) async throws {
       let temperatureTool = GetTemperature()
       let session = FirebaseAI.componentInstance(config).generativeModelSession(
-        model: ModelNames.gemini3_1_FlashLitePreview,
+        model: ModelNames.gemini3_1_FlashLite,
         tools: [temperatureTool],
         instructions: """
         You are a weather bot that specializes in reporting outdoor temperatures in Celsius.
@@ -312,7 +312,7 @@
     func respondGenerableWithAutomaticFunctionCalling(_ config: InstanceConfig) async throws {
       let temperatureTool = GetTemperature()
       let session = FirebaseAI.componentInstance(config).generativeModelSession(
-        model: ModelNames.gemini3_1_FlashLitePreview,
+        model: ModelNames.gemini3_1_FlashLite,
         tools: [temperatureTool],
         instructions: """
         You are a weather bot that specializes in reporting outdoor temperatures in Celsius.
@@ -341,7 +341,7 @@
     @Test(arguments: [InstanceConfig.vertexAI_v1beta_global, InstanceConfig.googleAI_v1beta])
     func respondTextWithURLContext(_ config: InstanceConfig) async throws {
       let session = FirebaseAI.componentInstance(config).generativeModelSession(
-        model: ModelNames.gemini2_5_Flash,
+        model: ModelNames.gemini3_1_FlashLite,
         tools: [.urlContext()]
       )
       let url = "https://blog.google/innovation-and-ai/technology/developers-tools/functiongemma/"
@@ -538,7 +538,7 @@
       func streamResponseTextWithAutomaticFunctionCalling(_ config: InstanceConfig) async throws {
         let temperatureTool = GetTemperature()
         let session = FirebaseAI.componentInstance(config).generativeModelSession(
-          model: ModelNames.gemini3_1_FlashLitePreview,
+          model: ModelNames.gemini3_1_FlashLite,
           tools: [temperatureTool],
           instructions: """
           You are a weather bot that specializes in reporting outdoor temperatures in Celsius.

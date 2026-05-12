@@ -77,26 +77,27 @@ struct InstanceConfig: Equatable, Encodable {
     apiConfig: APIConfig(service: .googleAI(endpoint: .googleAIBypassProxy), version: .v1beta)
   )
 
-  static let allConfigs = [
-    vertexAI_v1beta,
+  static let defaultConfigs = [
     vertexAI_v1beta_global,
-    vertexAI_v1beta_global_appCheckLimitedUse,
     googleAI_v1beta,
-    googleAI_v1beta_appCheckLimitedUse,
     // Note: The following configs are commented out for easy one-off manual testing.
-    // googleAI_v1beta_freeTier,
+    // vertexAI_v1beta,
+    // vertexAI_v1beta_global_appCheckLimitedUse,
     // vertexAI_v1beta_staging,
     // vertexAI_v1beta_staging_global_bypassProxy,
+    // googleAI_v1beta_appCheckLimitedUse,
     // googleAI_v1beta_staging,
+    // googleAI_v1beta_freeTier,
     // googleAI_v1beta_freeTier_bypassProxy,
   ]
 
   static let liveConfigs = [
     vertexAI_v1beta,
-    vertexAI_v1beta_appCheckLimitedUse,
     googleAI_v1beta,
-    googleAI_v1beta_appCheckLimitedUse,
-    googleAI_v1beta_freeTier,
+    // Note: The following configs are commented out for easy one-off manual testing.
+    // vertexAI_v1beta_appCheckLimitedUse,
+    // googleAI_v1beta_appCheckLimitedUse,
+    // googleAI_v1beta_freeTier,
   ]
 
   static let vertexAI_v1beta_appCheckNotConfigured = InstanceConfig(

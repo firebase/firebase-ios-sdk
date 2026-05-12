@@ -51,9 +51,9 @@ final class IntegrationTests: XCTestCase {
 
   override func setUp() async throws {
     userID1 = try await TestHelpers.getUserID()
-    vertex = FirebaseAI.firebaseAI(backend: .vertexAI())
+    vertex = FirebaseAI.firebaseAI(backend: .vertexAI(location: "global"))
     model = vertex.generativeModel(
-      modelName: ModelNames.gemini2_5_Flash,
+      modelName: ModelNames.gemini3_1_FlashLite,
       generationConfig: generationConfig,
       safetySettings: safetySettings,
       tools: [],
@@ -69,7 +69,7 @@ final class IntegrationTests: XCTestCase {
   func testCountTokens_text() async throws {
     let prompt = "Why is the sky blue?"
     model = vertex.generativeModel(
-      modelName: ModelNames.gemini2_5_Flash,
+      modelName: ModelNames.gemini3_1_FlashLite,
       generationConfig: generationConfig,
       safetySettings: [
         SafetySetting(harmCategory: .harassment, threshold: .blockLowAndAbove, method: .severity),
@@ -173,7 +173,7 @@ final class IntegrationTests: XCTestCase {
       parameters: ["x": .integer(), "y": .integer()]
     )
     model = vertex.generativeModel(
-      modelName: ModelNames.gemini2_5_Flash,
+      modelName: ModelNames.gemini3_1_FlashLite,
       tools: [.functionDeclarations([sumDeclaration])],
       toolConfig: .init(functionCallingConfig: .any(allowedFunctionNames: ["sum"]))
     )
@@ -197,7 +197,7 @@ final class IntegrationTests: XCTestCase {
   func testCountTokens_appCheckNotConfigured_shouldFail() async throws {
     let app = try XCTUnwrap(FirebaseApp.app(name: FirebaseAppNames.appCheckNotConfigured))
     let vertex = FirebaseAI.firebaseAI(app: app, backend: .vertexAI())
-    let model = vertex.generativeModel(modelName: ModelNames.gemini2_5_Flash)
+    let model = vertex.generativeModel(modelName: ModelNames.gemini3_1_FlashLite)
     let prompt = "Why is the sky blue?"
 
     do {
