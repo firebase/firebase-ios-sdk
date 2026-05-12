@@ -106,21 +106,6 @@ static NSString *const kFirebasePerfErrorDomain = @"com.firebase.perf";
   }
 }
 
-- (BOOL)isNetworkInstrumentationEnabled {
-  return self.fprClient.isNetworkInstrumentationSwizzled ||
-         [FPRConfigurations sharedInstance].isNetworkInstrumentationEnabled;
-}
-
-- (void)setNetworkInstrumentationEnabled:(BOOL)networkInstrumentationEnabled {
-  [[FPRConfigurations sharedInstance]
-      setNetworkInstrumentationEnabled:networkInstrumentationEnabled];
-  if (!networkInstrumentationEnabled && self.fprClient.isNetworkInstrumentationSwizzled) {
-    FPRLogError(kFPRInstrumentationDisabledAfterConfigure,
-                @"Failed to disable network instrumentation because Firebase Performance has "
-                @"already been configured. It will be disabled when the app restarts.");
-  }
-}
-
 #pragma mark - Custom attributes related methods
 
 - (NSDictionary<NSString *, NSString *> *)attributes {

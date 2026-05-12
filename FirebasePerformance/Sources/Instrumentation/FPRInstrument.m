@@ -16,6 +16,7 @@
 #import "FirebasePerformance/Sources/Instrumentation/FPRInstrument_Private.h"
 
 #import "FirebasePerformance/Sources/Common/FPRDiagnostics.h"
+#import "FirebasePerformance/Sources/Configurations/FPRConfigurations.h"
 #import "FirebasePerformance/Sources/Instrumentation/FPRClassInstrumentor.h"
 #import "FirebasePerformance/Sources/Instrumentation/FPRObjectInstrumentor.h"
 
@@ -55,6 +56,10 @@
 
 - (BOOL)registerClassInstrumentor:(FPRClassInstrumentor *)instrumentor {
   @synchronized(self) {
+    NSString *className = NSStringFromClass(instrumentor.instrumentedClass);
+    if ([[FPRConfigurations sharedInstance].swizzleClassDenylist containsObject:className]) {
+      return NO;
+    }
     if ([_instrumentedClasses containsObject:instrumentor.instrumentedClass] ||
         [instrumentor.instrumentedClass instancesRespondToSelector:@selector(gul_class)]) {
       return NO;

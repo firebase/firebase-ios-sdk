@@ -39,10 +39,6 @@ NS_EXTENSION_UNAVAILABLE("Firebase Performance is not supported for extensions."
 /** YES if methods have been swizzled, NO otherwise. */
 @property(nonatomic, getter=isSwizzled) BOOL swizzled;
 
-/** YES if the URLSession/URLConnection network instrumentation group was registered during
- * the most recent `checkAndStartInstrumentation` call, NO otherwise. */
-@property(nonatomic, getter=isNetworkInstrumentationSwizzled) BOOL networkInstrumentationSwizzled;
-
 /** Accesses the singleton instance. All Firebase Performance methods should be managed via this
  *  shared instance.
  *  @return Reference to the shared object if successful; <code>nil</code> if not.

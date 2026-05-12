@@ -29,16 +29,11 @@ FPRConfigName kFPRConfigDataCollectionEnabled = @"dataCollectionEnabled";
 
 FPRConfigName kFPRConfigInstrumentationEnabled = @"instrumentationEnabled";
 
-FPRConfigName kFPRConfigNetworkInstrumentationEnabled = @"networkInstrumentationEnabled";
-
 NSString *const kFPRConfigInstrumentationUserPreference =
     @"com.firebase.performanceInsrumentationEnabled";
 NSString *const kFPRConfigInstrumentationPlistKey = @"firebase_performance_instrumentation_enabled";
 
-NSString *const kFPRConfigNetworkInstrumentationUserPreference =
-    @"com.firebase.performanceNetworkInstrumentationEnabled";
-NSString *const kFPRConfigNetworkInstrumentationPlistKey =
-    @"firebase_performance_network_instrumentation_enabled";
+NSString *const kFPRConfigSwizzleDenylistPlistKey = @"firebase_performance_swizzle_denylist";
 
 NSString *const kFPRConfigCollectionUserPreference = @"com.firebase.performanceCollectionEnabled";
 NSString *const kFPRConfigCollectionPlistKey = @"firebase_performance_collection_enabled";
@@ -69,8 +64,6 @@ static dispatch_once_t gSharedInstanceToken;
   gSharedInstanceToken = 0;
   [[GULUserDefaults standardUserDefaults]
       removeObjectForKey:kFPRConfigInstrumentationUserPreference];
-  [[GULUserDefaults standardUserDefaults]
-      removeObjectForKey:kFPRConfigNetworkInstrumentationUserPreference];
   [[GULUserDefaults standardUserDefaults] removeObjectForKey:kFPRConfigCollectionUserPreference];
 }
 
@@ -226,26 +219,12 @@ static dispatch_once_t gSharedInstanceToken;
   return instrumentationPreference;
 }
 
-- (void)setNetworkInstrumentationEnabled:(BOOL)networkInstrumentationEnabled {
-  [self.userDefaults setBool:networkInstrumentationEnabled
-                      forKey:kFPRConfigNetworkInstrumentationUserPreference];
-}
-
-- (BOOL)isNetworkInstrumentationEnabled {
-  id networkInstrumentationPreferenceObject =
-      [self.userDefaults objectForKey:kFPRConfigNetworkInstrumentationUserPreference];
-
-  if (networkInstrumentationPreferenceObject) {
-    return [networkInstrumentationPreferenceObject boolValue];
+- (NSArray<NSString *> *)swizzleClassDenylist {
+  id denylist = [self objectForInfoDictionaryKey:kFPRConfigSwizzleDenylistPlistKey];
+  if ([denylist isKindOfClass:[NSArray class]]) {
+    return denylist;
   }
-
-  networkInstrumentationPreferenceObject =
-      [self objectForInfoDictionaryKey:kFPRConfigNetworkInstrumentationPlistKey];
-  if (networkInstrumentationPreferenceObject) {
-    return [networkInstrumentationPreferenceObject boolValue];
-  }
-
-  return YES;
+  return @[];
 }
 
 #pragma mark - Fireperf SDK configurations.

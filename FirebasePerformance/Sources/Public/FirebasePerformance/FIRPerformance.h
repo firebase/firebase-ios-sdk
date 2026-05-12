@@ -51,18 +51,6 @@ NS_SWIFT_NAME(Performance)
  */
 @property(nonatomic, assign, getter=isInstrumentationEnabled) BOOL instrumentationEnabled;
 
-/**
- * Controls only the automatic URLSession/URLConnection network instrumentation. Other
- * instrumentation (app start, screen rendering, custom traces) is unaffected. Setting this value
- * to false has immediate effect only if done before calling FirebaseApp.configure(). Otherwise it
- * takes effect on the next app start. Default is true.
- *
- * This setting is persisted, and is applied on future invocations of your application. Once
- * explicitly set, it overrides any settings in your `Info.plist`.
- */
-@property(nonatomic, assign, getter=isNetworkInstrumentationEnabled)
-    BOOL networkInstrumentationEnabled;
-
 /** @return The shared instance. */
 + (nonnull instancetype)sharedInstance NS_SWIFT_NAME(sharedInstance());
 
