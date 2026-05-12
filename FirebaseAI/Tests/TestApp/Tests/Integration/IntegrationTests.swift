@@ -197,7 +197,7 @@ final class IntegrationTests: XCTestCase {
   func testCountTokens_appCheckNotConfigured_shouldFail() async throws {
     let app = try XCTUnwrap(FirebaseApp.app(name: FirebaseAppNames.appCheckNotConfigured))
     let vertex = FirebaseAI.firebaseAI(app: app, backend: .vertexAI())
-    let model = vertex.generativeModel(modelName: ModelNames.gemini3_1_FlashLite)
+    let model = vertex.generativeModel(modelName: ModelNames.gemini2_5_Flash)
     let prompt = "Why is the sky blue?"
 
     do {
