@@ -463,7 +463,7 @@
       @available(watchOS, unavailable)
       func streamResponseGenerable(_ config: InstanceConfig) async throws {
         let firebaseAI = FirebaseAI.componentInstance(config)
-        let session = firebaseAI.generativeModelSession(model: ModelNames.gemini2_5_FlashLite)
+        let session = firebaseAI.generativeModelSession(model: ModelNames.gemini3_1_FlashLite)
         let prompt = "Generate a Ragdoll kitten"
         let config = GenerationConfig(
           thinkingConfig: ThinkingConfig(thinkingBudget: -1, includeThoughts: true)
