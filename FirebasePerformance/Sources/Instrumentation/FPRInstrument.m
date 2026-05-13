@@ -17,6 +17,7 @@
 
 #import "FirebasePerformance/Sources/Common/FPRDiagnostics.h"
 #import "FirebasePerformance/Sources/Configurations/FPRConfigurations.h"
+#import "FirebasePerformance/Sources/FPRConsoleLogger.h"
 #import "FirebasePerformance/Sources/Instrumentation/FPRClassInstrumentor.h"
 #import "FirebasePerformance/Sources/Instrumentation/FPRObjectInstrumentor.h"
 
@@ -58,6 +59,10 @@
   @synchronized(self) {
     NSString *className = NSStringFromClass(instrumentor.instrumentedClass);
     if ([[FPRConfigurations sharedInstance].swizzleClassDenylist containsObject:className]) {
+      FPRLogInfo(kFPRSwizzleClassDenylisted,
+                 @"Skipped swizzling %@ because it is listed in "
+                 @"firebase_performance_swizzle_denylist.",
+                 className);
       return NO;
     }
     if ([_instrumentedClasses containsObject:instrumentor.instrumentedClass] ||
