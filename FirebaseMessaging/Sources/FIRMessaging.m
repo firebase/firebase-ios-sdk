@@ -291,6 +291,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
   // setup FIRMessaging objects
   [self setupRmqManager];
   [self setupSyncMessageManager];
+  [self setupInstallationIDObserver];
 }
 
 - (void)setupFileManagerSubDirectory {
@@ -736,7 +737,6 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
                             @"No Sender ID is available to register");
     return;
   }
-  [self setupInstallationIDObserver];
   [self.tokenManager tokenAndRequestIfNotExist];
 }
 

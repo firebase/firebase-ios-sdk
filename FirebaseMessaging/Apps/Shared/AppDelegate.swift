@@ -43,9 +43,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                    didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
     let tokenString = deviceToken.map { String(format: "%02.2hhx", $0) }.joined()
     print("APNs Device Token: \(tokenString)")
-    if Messaging.messaging().isInstallationIdEnabled {
-      Messaging.messaging().register()
-    }
   }
 
   // Implement this to display notification when app is in foreground.
