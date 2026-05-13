@@ -195,9 +195,9 @@ class RemoteStore : public TargetMetadataProvider,
   std::shared_ptr<core::Transaction> CreateTransaction();
 
   model::DocumentKeySet GetRemoteKeysForTarget(
-      model::TargetId target_id) const override;
-  absl::optional<local::TargetData> GetTargetDataForTarget(
-      model::TargetId target_id) const override;
+      model::RemoteTargetId target_id) const override;
+  absl::optional<local::RemoteTargetData> GetTargetDataForTarget(
+      model::RemoteTargetId target_id) const override;
   const model::DatabaseId& GetDatabaseId() const override;
 
   void RunAggregateQuery(const core::Query& query,

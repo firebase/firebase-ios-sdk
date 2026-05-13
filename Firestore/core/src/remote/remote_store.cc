@@ -572,15 +572,15 @@ std::shared_ptr<Transaction> RemoteStore::CreateTransaction() {
   return std::make_shared<Transaction>(datastore_);
 }
 
-DocumentKeySet RemoteStore::GetRemoteKeysForTarget(TargetId target_id) const {
+DocumentKeySet RemoteStore::GetRemoteKeysForTarget(model::RemoteTargetId target_id) const {
   return sync_engine_->GetRemoteKeys(target_id);
 }
 
-absl::optional<TargetData> RemoteStore::GetTargetDataForTarget(
-    TargetId target_id) const {
+absl::optional<local::RemoteTargetData> RemoteStore::GetTargetDataForTarget(
+    model::RemoteTargetId target_id) const {
   auto found = listen_targets_.find(target_id);
   return found != listen_targets_.end() ? found->second
-                                        : absl::optional<TargetData>{};
+                                        : absl::optional<local::RemoteTargetData>{};
 }
 
 const model::DatabaseId& RemoteStore::GetDatabaseId() const {

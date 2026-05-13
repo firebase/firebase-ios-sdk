@@ -37,6 +37,7 @@ using model::DocumentKeySet;
 using model::MutableDocument;
 using model::SnapshotVersion;
 using model::TargetId;
+using model::RemoteTargetId;
 using nanopb::ByteString;
 using util::TestingHooks;
 
@@ -126,7 +127,7 @@ WatchChangeAggregator::WatchChangeAggregator(
 
 void WatchChangeAggregator::HandleDocumentChange(
     const DocumentWatchChange& document_change) {
-  for (TargetId target_id : document_change.updated_target_ids()) {
+  for (RemoteTargetId target_id : document_change.updated_target_ids()) {
     const auto& new_doc = document_change.new_document();
     if (new_doc && new_doc->is_found_document()) {
       AddDocumentToTarget(target_id, *new_doc);
@@ -136,7 +137,7 @@ void WatchChangeAggregator::HandleDocumentChange(
     }
   }
 
-  for (TargetId target_id : document_change.removed_target_ids()) {
+  for (RemoteTargetId target_id : document_change.removed_target_ids()) {
     RemoveDocumentFromTarget(target_id, document_change.document_key(),
                              document_change.new_document());
   }
@@ -144,7 +145,7 @@ void WatchChangeAggregator::HandleDocumentChange(
 
 void WatchChangeAggregator::HandleTargetChange(
     const WatchTargetChange& target_change) {
-  for (TargetId target_id : GetTargetIds(target_change)) {
+  for (RemoteTargetId target_id : GetTargetIds(target_change)) {
     TargetState& target_state = EnsureTargetState(target_id);
 
     switch (target_change.state()) {
@@ -196,13 +197,13 @@ void WatchChangeAggregator::HandleTargetChange(
   }
 }
 
-std::vector<TargetId> WatchChangeAggregator::GetTargetIds(
+std::vector<RemoteTargetId> WatchChangeAggregator::GetTargetIds(
     const WatchTargetChange& target_change) const {
   if (!target_change.target_ids().empty()) {
     return target_change.target_ids();
   }
 
-  std::vector<TargetId> result;
+  std::vector<RemoteTargetId> result;
   for (const auto& entry : target_states_) {
     if (IsActiveTarget(entry.first)) {
       result.push_back(entry.first);
@@ -281,10 +282,10 @@ absl::optional<std::vector<model::ResourcePath>> GetDocumentPaths(
 
 void WatchChangeAggregator::HandleExistenceFilter(
     const ExistenceFilterWatchChange& existence_filter) {
-  TargetId target_id = existence_filter.target_id();
+  RemoteTargetId target_id = existence_filter.target_id();
   int expected_count = existence_filter.filter().count();
 
-  absl::optional<TargetData> target_data = TargetDataForActiveTarget(target_id);
+  absl::optional<local::RemoteTargetData> target_data = TargetDataForActiveTarget(target_id);
   if (target_data) {
     const core::TargetOrPipeline& target_or_pipeline =
         target_data->target_or_pipeline();
@@ -302,8 +303,8 @@ void WatchChangeAggregator::HandleExistenceFilter(
                                    current_size)
                 : BloomFilterApplicationStatus::kSkipped;
         if (status != BloomFilterApplicationStatus::kSuccess) {
-          // If bloom filter application fails, we reset the mapping and
-          // trigger re-run of the query.
+           // If bloom filter application fails, we reset the mapping and
+           // trigger re-run of the query.
           ResetTarget(target_id);
           const QueryPurpose purpose =
               status == BloomFilterApplicationStatus::kFalsePositive
@@ -400,15 +401,15 @@ int WatchChangeAggregator::FilterRemovedDocuments(
   return removalCount;
 }
 
-RemoteEvent WatchChangeAggregator::CreateRemoteEvent(
+RemoteEventTemplate<model::RemoteTargetId> WatchChangeAggregator::CreateRemoteEvent(
     const SnapshotVersion& snapshot_version) {
-  std::unordered_map<TargetId, TargetChange> target_changes;
+  std::unordered_map<RemoteTargetId, TargetChange> target_changes;
 
   for (auto& entry : target_states_) {
-    TargetId target_id = entry.first;
+    RemoteTargetId target_id = entry.first;
     TargetState& target_state = entry.second;
 
-    absl::optional<TargetData> target_data =
+    absl::optional<local::RemoteTargetData> target_data =
         TargetDataForActiveTarget(target_id);
     if (target_data) {
       auto doc_paths = GetDocumentPaths(target_data->target_or_pipeline());
@@ -446,8 +447,8 @@ RemoteEvent WatchChangeAggregator::CreateRemoteEvent(
   for (const auto& entry : pending_document_target_mappings_) {
     bool is_only_limbo_target = true;
 
-    for (TargetId target_id : entry.second) {
-      absl::optional<TargetData> target_data =
+    for (RemoteTargetId target_id : entry.second) {
+      absl::optional<local::RemoteTargetData> target_data =
           TargetDataForActiveTarget(target_id);
       if (target_data &&
           target_data->purpose() != QueryPurpose::LimboResolution) {
@@ -461,10 +462,10 @@ RemoteEvent WatchChangeAggregator::CreateRemoteEvent(
     }
   }
 
-  RemoteEvent remote_event{snapshot_version, std::move(target_changes),
-                           std::move(pending_target_resets_),
-                           std::move(pending_document_updates_),
-                           std::move(resolved_limbo_documents)};
+  RemoteEventTemplate<model::RemoteTargetId> remote_event{snapshot_version, std::move(target_changes),
+                                                          std::move(pending_target_resets_),
+                                                          std::move(pending_document_updates_),
+                                                          std::move(resolved_limbo_documents)};
 
   // Re-initialize the current state to ensure that we do not modify the
   // generated `RemoteEvent`.
@@ -476,7 +477,7 @@ RemoteEvent WatchChangeAggregator::CreateRemoteEvent(
 }
 
 void WatchChangeAggregator::AddDocumentToTarget(
-    TargetId target_id, const MutableDocument& document) {
+    RemoteTargetId target_id, const MutableDocument& document) {
   if (!IsActiveTarget(target_id)) {
     return;
   }
@@ -494,7 +495,7 @@ void WatchChangeAggregator::AddDocumentToTarget(
 }
 
 void WatchChangeAggregator::RemoveDocumentFromTarget(
-    TargetId target_id,
+    RemoteTargetId target_id,
     const DocumentKey& key,
     const absl::optional<MutableDocument>& updated_document) {
   if (!IsActiveTarget(target_id)) {
@@ -516,12 +517,12 @@ void WatchChangeAggregator::RemoveDocumentFromTarget(
   }
 }
 
-void WatchChangeAggregator::RemoveTarget(TargetId target_id) {
+void WatchChangeAggregator::RemoveTarget(RemoteTargetId target_id) {
   target_states_.erase(target_id);
 }
 
 int WatchChangeAggregator::GetCurrentDocumentCountForTarget(
-    TargetId target_id) {
+    RemoteTargetId target_id) {
   TargetState& target_state = EnsureTargetState(target_id);
   TargetChange target_change = target_state.ToTargetChange();
   return target_metadata_provider_->GetRemoteKeysForTarget(target_id).size() +
@@ -529,30 +530,30 @@ int WatchChangeAggregator::GetCurrentDocumentCountForTarget(
          target_change.removed_documents().size();
 }
 
-void WatchChangeAggregator::RecordPendingTargetRequest(TargetId target_id) {
+void WatchChangeAggregator::RecordPendingTargetRequest(RemoteTargetId target_id) {
   // For each request we get we need to record we need a response for it.
   TargetState& target_state = EnsureTargetState(target_id);
   target_state.RecordPendingTargetRequest();
 }
 
-TargetState& WatchChangeAggregator::EnsureTargetState(TargetId target_id) {
+TargetState& WatchChangeAggregator::EnsureTargetState(RemoteTargetId target_id) {
   return target_states_[target_id];
 }
 
-bool WatchChangeAggregator::IsActiveTarget(TargetId target_id) const {
+bool WatchChangeAggregator::IsActiveTarget(RemoteTargetId target_id) const {
   return TargetDataForActiveTarget(target_id) != absl::nullopt;
 }
 
-absl::optional<TargetData> WatchChangeAggregator::TargetDataForActiveTarget(
-    TargetId target_id) const {
+absl::optional<local::RemoteTargetData> WatchChangeAggregator::TargetDataForActiveTarget(
+    RemoteTargetId target_id) const {
   auto target_state = target_states_.find(target_id);
   return target_state != target_states_.end() &&
                  target_state->second.IsPending()
-             ? absl::optional<TargetData>{}
+             ? absl::optional<local::RemoteTargetData>{}
              : target_metadata_provider_->GetTargetDataForTarget(target_id);
 }
 
-void WatchChangeAggregator::ResetTarget(TargetId target_id) {
+void WatchChangeAggregator::ResetTarget(RemoteTargetId target_id) {
   auto current_target_state = target_states_.find(target_id);
   HARD_ASSERT(current_target_state != target_states_.end() &&
                   !(current_target_state->second.IsPending()),
@@ -571,7 +572,7 @@ void WatchChangeAggregator::ResetTarget(TargetId target_id) {
   }
 }
 
-bool WatchChangeAggregator::TargetContainsDocument(TargetId target_id,
+bool WatchChangeAggregator::TargetContainsDocument(RemoteTargetId target_id,
                                                    const DocumentKey& key) {
   const DocumentKeySet& existing_keys =
       target_metadata_provider_->GetRemoteKeysForTarget(target_id);
