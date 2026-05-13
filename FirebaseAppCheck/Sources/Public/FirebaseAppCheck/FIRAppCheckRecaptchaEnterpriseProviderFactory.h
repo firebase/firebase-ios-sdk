@@ -19,10 +19,17 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/// An implementation of `AppCheckProviderFactory` that creates a new instance of
+/// `RecaptchaEnterpriseProvider` when requested.
 NS_SWIFT_NAME(AppCheckRecaptchaEnterpriseProviderFactory)
 @interface FIRAppCheckRecaptchaEnterpriseProviderFactory : NSObject <FIRAppCheckProviderFactory>
 
 - (instancetype)init NS_UNAVAILABLE;
+
+/// The default initializer.
+/// @param siteKey The reCAPTCHA Enterprise iOS site key to be used during
+///     attestation.
+/// @return An instance of `RecaptchaEnterpriseProviderFactory`.
 - (instancetype)initWithSiteKey:(NSString *)siteKey;
 
 @end
