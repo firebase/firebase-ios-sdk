@@ -74,6 +74,12 @@ class TargetIdGeneratorTemplate {
     return TargetIdGeneratorTemplate(TargetIdGeneratorId::SyncEngine, 1);
   }
 
+  static TargetIdGeneratorTemplate SyncEngineTargetIdGenerator(TargetIdType after) {
+    TargetIdGeneratorTemplate generator(TargetIdGeneratorId::SyncEngine, after);
+    generator.NextId();
+    return generator;
+  }
+
   TargetIdGeneratorId generator_id() {
     return generator_id_;
   }

@@ -272,12 +272,20 @@ class RemoteEventTemplate {
     return target_changes_;
   }
 
+  TargetChangeMap& target_changes() {
+    return target_changes_;
+  }
+
   /**
    * A map of targets that is known to be inconsistent, and the purpose for
    * re-listening. Listens for these targets should be re-established without
    * resume tokens.
    */
   const TargetMismatchMap& target_mismatches() const {
+    return target_mismatches_;
+  }
+
+  TargetMismatchMap& target_mismatches() {
     return target_mismatches_;
   }
 
@@ -289,10 +297,18 @@ class RemoteEventTemplate {
     return document_updates_;
   }
 
+  model::DocumentUpdateMap& document_updates() {
+    return document_updates_;
+  }
+
   /**
    * A set of which document updates are due only to limbo resolution targets.
    */
   const model::DocumentKeySet& limbo_document_changes() const {
+    return limbo_document_changes_;
+  }
+
+  model::DocumentKeySet& limbo_document_changes() {
     return limbo_document_changes_;
   }
 

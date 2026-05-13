@@ -22,6 +22,7 @@
 #include <vector>
 
 #include "Firestore/core/src/api/pipeline.h"
+#include "Firestore/core/src/core/target_id_generator.h"
 #include "Firestore/core/src/core/transaction.h"
 #include "Firestore/core/src/local/target_data.h"
 #include "Firestore/core/src/model/model_fwd.h"
@@ -224,8 +225,13 @@ class RemoteStore : public TargetMetadataProvider,
   void RestartNetwork();
   void DisableNetworkInternal();
 
-  void SendWatchRequest(const local::TargetData& target_data);
-  void SendUnwatchRequest(model::TargetId target_id);
+  void SendWatchRequest(const local::RemoteTargetData& target_data);
+  void SendUnwatchRequest(model::RemoteTargetId target_id);
+
+  model::RemoteTargetId GenerateRemoteTargetId(model::TargetId sdk_target_id);
+  model::RemoteTargetId AllocateRemoteTargetId(model::TargetId sdk_target_id);
+  remote::RemoteEvent ToSdkRemoteEvent(
+      remote::RemoteEventTemplate<model::RemoteTargetId> remote_event) const;
 
   /**
    * Takes a batch of changes from the `Datastore`, repackages them as a
@@ -283,7 +289,12 @@ class RemoteStore : public TargetMetadataProvider,
    * to the server. The targets removed with unlistens are removed eagerly
    * without waiting for confirmation from the listen stream.
    */
-  std::unordered_map<model::TargetId, local::TargetData> listen_targets_;
+  std::unordered_map<model::RemoteTargetId, local::RemoteTargetData> listen_targets_;
+
+  std::unordered_map<model::TargetId, model::RemoteTargetId> target_id_map_sdk_to_remote_;
+  std::unordered_map<model::RemoteTargetId, model::TargetId> target_id_map_remote_to_sdk_;
+  core::RemoteTargetIdGenerator target_cache_target_id_generator_;
+  core::RemoteTargetIdGenerator sync_engine_target_id_generator_;
 
   OnlineStateTracker online_state_tracker_;
 
