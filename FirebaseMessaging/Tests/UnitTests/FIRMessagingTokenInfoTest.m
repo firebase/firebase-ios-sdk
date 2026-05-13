@@ -69,6 +69,7 @@ static BOOL const kAPNSSandbox = NO;
 
   [[NSUserDefaults standardUserDefaults] setObject:FIRMessagingCurrentLocale()
                                             forKey:kFIRMessagingInstanceIDUserDefaultsKeyLocale];
+  [NSKeyedUnarchiver setClass:[FIRMessagingTokenInfo class] forClassName:@"FIRInstanceIDTokenInfo"];
 }
 
 - (void)tearDown {
