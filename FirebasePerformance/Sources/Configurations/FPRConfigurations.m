@@ -48,6 +48,8 @@ NSString *const kFPRConfigLogSource = @"com.firebase.performanceLogSource";
 
 @implementation FPRConfigurations
 
+@synthesize swizzleClassDenylist = _swizzleClassDenylist;
+
 static dispatch_once_t gSharedInstanceToken;
 
 + (instancetype)sharedInstance {
