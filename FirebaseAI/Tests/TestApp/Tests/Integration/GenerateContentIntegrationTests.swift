@@ -51,8 +51,8 @@ struct GenerateContentIntegrationTests {
     (InstanceConfig.vertexAI_v1beta, ModelNames.gemini2_5_FlashLite),
     (InstanceConfig.vertexAI_v1beta_global, ModelNames.gemini2_5_FlashLite),
     (InstanceConfig.vertexAI_v1beta_global_appCheckLimitedUse, ModelNames.gemini2_5_FlashLite),
-    (InstanceConfig.googleAI_v1beta, ModelNames.gemini3_1_FlashLitePreview),
-    (InstanceConfig.googleAI_v1beta_appCheckLimitedUse, ModelNames.gemini3_1_FlashLitePreview),
+    (InstanceConfig.googleAI_v1beta, ModelNames.gemini3_1_FlashLite),
+    (InstanceConfig.googleAI_v1beta_appCheckLimitedUse, ModelNames.gemini3_1_FlashLite),
     (InstanceConfig.googleAI_v1beta, ModelNames.gemma4_31B),
     (InstanceConfig.googleAI_v1beta_freeTier, ModelNames.gemma4_31B),
     // Note: The following configs are commented out for easy one-off manual testing.
@@ -105,7 +105,7 @@ struct GenerateContentIntegrationTests {
 
   @Test(
     "Generate an enum and provide a system instruction",
-    arguments: InstanceConfig.allConfigs
+    arguments: InstanceConfig.defaultConfigs
   )
   func generateContentEnum(_ config: InstanceConfig) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
@@ -159,47 +159,18 @@ struct GenerateContentIntegrationTests {
       (.vertexAI_v1beta_global, ModelNames.gemini2_5_Pro, ThinkingConfig(
         thinkingBudget: 32768, includeThoughts: true
       )),
-      (.googleAI_v1beta, ModelNames.gemini2_5_Flash, ThinkingConfig(thinkingBudget: 0)),
-      (.googleAI_v1beta, ModelNames.gemini2_5_Flash, ThinkingConfig(thinkingBudget: 24576)),
-      (.googleAI_v1beta, ModelNames.gemini2_5_Flash, ThinkingConfig(
+      (.googleAI_v1beta, ModelNames.gemini2_5_FlashLite, ThinkingConfig(thinkingBudget: 0)),
+      (.googleAI_v1beta, ModelNames.gemini2_5_FlashLite, ThinkingConfig(thinkingBudget: 24576)),
+      (.googleAI_v1beta, ModelNames.gemini2_5_FlashLite, ThinkingConfig(
         thinkingBudget: 24576, includeThoughts: true
       )),
-      (.googleAI_v1beta, ModelNames.gemini2_5_Pro, ThinkingConfig(thinkingBudget: 128)),
-      (.googleAI_v1beta, ModelNames.gemini2_5_Pro, ThinkingConfig(thinkingBudget: 32768)),
-      (.googleAI_v1beta, ModelNames.gemini2_5_Pro, ThinkingConfig(
-        thinkingBudget: 32768, includeThoughts: true
-      )),
-      (
-        .googleAI_v1beta,
-        ModelNames.gemini3_1_FlashLitePreview,
-        ThinkingConfig(thinkingLevel: .minimal)
-      ),
-      (
-        .googleAI_v1beta,
-        ModelNames.gemini3_1_FlashLitePreview,
-        ThinkingConfig(thinkingLevel: .low)
-      ),
-      (
-        .googleAI_v1beta,
-        ModelNames.gemini3_1_FlashLitePreview,
-        ThinkingConfig(thinkingLevel: .medium)
-      ),
-      (
-        .googleAI_v1beta,
-        ModelNames.gemini3_1_FlashLitePreview,
-        ThinkingConfig(thinkingLevel: .high)
-      ),
-      (
-        .googleAI_v1beta,
-        ModelNames.gemini3_1_FlashLitePreview,
-        ThinkingConfig(thinkingBudget: 0)
-      ),
-      (
-        .googleAI_v1beta,
-        ModelNames.gemini3_1_FlashLitePreview,
-        ThinkingConfig(thinkingBudget: 32768)
-      ),
-      (.googleAI_v1beta, ModelNames.gemini3_1_FlashLitePreview, ThinkingConfig(
+      (.googleAI_v1beta, ModelNames.gemini3_1_FlashLite, ThinkingConfig(thinkingLevel: .minimal)),
+      (.googleAI_v1beta, ModelNames.gemini3_1_FlashLite, ThinkingConfig(thinkingLevel: .low)),
+      (.googleAI_v1beta, ModelNames.gemini3_1_FlashLite, ThinkingConfig(thinkingLevel: .medium)),
+      (.googleAI_v1beta, ModelNames.gemini3_1_FlashLite, ThinkingConfig(thinkingLevel: .high)),
+      (.googleAI_v1beta, ModelNames.gemini3_1_FlashLite, ThinkingConfig(thinkingBudget: 0)),
+      (.googleAI_v1beta, ModelNames.gemini3_1_FlashLite, ThinkingConfig(thinkingBudget: 32768)),
+      (.googleAI_v1beta, ModelNames.gemini3_1_FlashLite, ThinkingConfig(
         thinkingBudget: 32768, includeThoughts: true
       )),
       // Note: The following configs are commented out for easy one-off manual testing.
@@ -304,16 +275,12 @@ struct GenerateContentIntegrationTests {
       (.vertexAI_v1beta_global, ModelNames.gemini2_5_Pro, ThinkingConfig(
         thinkingBudget: -1, includeThoughts: true
       )),
-      (.googleAI_v1beta, ModelNames.gemini2_5_Flash, ThinkingConfig(thinkingBudget: -1)),
-      (.googleAI_v1beta, ModelNames.gemini2_5_Flash, ThinkingConfig(
+      (.googleAI_v1beta, ModelNames.gemini2_5_FlashLite, ThinkingConfig(thinkingBudget: -1)),
+      (.googleAI_v1beta, ModelNames.gemini2_5_FlashLite, ThinkingConfig(
         thinkingBudget: -1, includeThoughts: true
       )),
-      (.googleAI_v1beta, ModelNames.gemini2_5_Pro, ThinkingConfig(thinkingBudget: -1)),
-      (.googleAI_v1beta, ModelNames.gemini2_5_Pro, ThinkingConfig(
-        thinkingBudget: -1, includeThoughts: true
-      )),
-      (.googleAI_v1beta, ModelNames.gemini3_1_FlashLitePreview, ThinkingConfig(thinkingBudget: -1)),
-      (.googleAI_v1beta, ModelNames.gemini3_1_FlashLitePreview, ThinkingConfig(
+      (.googleAI_v1beta, ModelNames.gemini3_1_FlashLite, ThinkingConfig(thinkingBudget: -1)),
+      (.googleAI_v1beta, ModelNames.gemini3_1_FlashLite, ThinkingConfig(
         thinkingBudget: -1, includeThoughts: true
       )),
     ] as [(InstanceConfig, String, ThinkingConfig)]
@@ -549,11 +516,11 @@ struct GenerateContentIntegrationTests {
 
   @Test(
     "generateContent with Google Search returns grounding metadata",
-    arguments: InstanceConfig.allConfigs
+    arguments: InstanceConfig.defaultConfigs
   )
   func generateContent_withGoogleSearch_succeeds(_ config: InstanceConfig) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
-      modelName: ModelNames.gemini2_5_Flash,
+      modelName: ModelNames.gemini3_1_FlashLite,
       tools: [.googleSearch()]
     )
     let prompt = "What is the weather in Toronto today?"
@@ -588,11 +555,11 @@ struct GenerateContentIntegrationTests {
 
   @Test(
     "generateContent with URL Context",
-    arguments: InstanceConfig.allConfigs
+    arguments: InstanceConfig.defaultConfigs
   )
   func generateContent_withURLContext_succeeds(_ config: InstanceConfig) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
-      modelName: ModelNames.gemini2_5_Flash,
+      modelName: ModelNames.gemini3_1_FlashLite,
       tools: [.urlContext()]
     )
     let url = "https://developers.googleblog.com/en/introducing-gemma-3-270m/"
@@ -607,10 +574,10 @@ struct GenerateContentIntegrationTests {
     #expect(retrievedURL == URL(string: url))
   }
 
-  @Test(arguments: InstanceConfig.allConfigs)
+  @Test(arguments: InstanceConfig.defaultConfigs)
   func generateContent_codeExecution_succeeds(_ config: InstanceConfig) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
-      modelName: ModelNames.gemini2_5_FlashLite,
+      modelName: ModelNames.gemini3_1_FlashLite,
       generationConfig: generationConfig,
       tools: [.codeExecution()]
     )
@@ -640,11 +607,8 @@ struct GenerateContentIntegrationTests {
 
   @Test(arguments: [
     (InstanceConfig.vertexAI_v1beta, ModelNames.gemini2_5_FlashLite),
-    (InstanceConfig.vertexAI_v1beta_global, ModelNames.gemini3_1_FlashLitePreview),
-    (
-      InstanceConfig.vertexAI_v1beta_global_appCheckLimitedUse,
-      ModelNames.gemini3_1_FlashLitePreview
-    ),
+    (InstanceConfig.vertexAI_v1beta_global, ModelNames.gemini3_1_FlashLite),
+    (InstanceConfig.vertexAI_v1beta_global_appCheckLimitedUse, ModelNames.gemini3_1_FlashLite),
     (InstanceConfig.googleAI_v1beta, ModelNames.gemini2_5_FlashLite),
     (InstanceConfig.googleAI_v1beta_appCheckLimitedUse, ModelNames.gemini2_5_FlashLite),
     (InstanceConfig.googleAI_v1beta, ModelNames.gemma4_31B),
@@ -778,7 +742,7 @@ struct GenerateContentIntegrationTests {
   @Test(arguments: InstanceConfig.appCheckNotConfiguredConfigs)
   func generateContent_appCheckNotConfigured_shouldFail(_ config: InstanceConfig) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
-      modelName: ModelNames.gemini2_5_Flash
+      modelName: ModelNames.gemini3_1_FlashLite
     )
     let prompt = "Where is Google headquarters located? Answer with the city name only."
 

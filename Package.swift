@@ -195,7 +195,7 @@ let package = Package(
       path: "FirebaseAI/Sources",
       swiftSettings: [
         isFoundationModelsSupportedPlatformSwiftSetting(),
-      ],
+      ]
     ),
     .testTarget(
       name: "FirebaseAILogicUnit",
