@@ -37,12 +37,14 @@
 #include "Firestore/core/src/util/async_queue.h"
 #include "Firestore/core/src/util/empty.h"
 
+#include "Firestore/core/src/local/target_data_fwd.h"
+
 namespace firebase {
 namespace firestore {
+
 namespace local {
 
 class Persistence;
-class TargetData;
 
 }  // namespace local
 }  // namespace firestore

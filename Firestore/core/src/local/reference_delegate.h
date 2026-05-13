@@ -19,6 +19,7 @@
 
 #include "Firestore/core/src/model/types.h"
 #include "absl/strings/string_view.h"
+#include "Firestore/core/src/local/target_data_fwd.h"
 
 namespace firebase {
 namespace firestore {
@@ -31,7 +32,6 @@ class DocumentKey;
 namespace local {
 
 class ReferenceSet;
-class TargetData;
 
 /**
  * A ReferenceDelegate instance handles all of the hooks into the

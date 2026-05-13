@@ -35,7 +35,6 @@ namespace local {
 
 class LevelDbPersistence;
 class LocalSerializer;
-class TargetData;
 
 /** Cached Queries backed by LevelDB. */
 class LevelDbTargetCache : public TargetCache {

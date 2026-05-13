@@ -24,20 +24,18 @@
 #include <vector>
 
 #include "Firestore/core/src/core/view_snapshot.h"
+#include "Firestore/core/src/local/target_data_fwd.h"
 #include "Firestore/core/src/model/document_key.h"
 #include "Firestore/core/src/model/document_key_set.h"
 #include "Firestore/core/src/model/mutable_document.h"
 #include "Firestore/core/src/model/snapshot_version.h"
 #include "Firestore/core/src/model/types.h"
 #include "Firestore/core/src/nanopb/byte_string.h"
+#include "Firestore/core/src/remote/remote_event_fwd.h"
 #include "Firestore/core/src/remote/watch_change.h"
 
 namespace firebase {
 namespace firestore {
-
-namespace local {
-class TargetData;
-}  // namespace local
 
 namespace remote {
 
@@ -245,17 +243,18 @@ class TargetState {
  * the state or the set of documents in our watched targets) and
  * `DocumentUpdates` (changes to the actual documents).
  */
-class RemoteEvent {
+template <typename TargetIdType>
+class RemoteEventTemplate {
  public:
-  using TargetChangeMap = std::unordered_map<model::TargetId, TargetChange>;
+  using TargetChangeMap = std::unordered_map<TargetIdType, TargetChange>;
   using TargetMismatchMap =
-      std::unordered_map<model::TargetId, local::QueryPurpose>;
+      std::unordered_map<TargetIdType, local::QueryPurpose>;
 
-  RemoteEvent(model::SnapshotVersion snapshot_version,
-              TargetChangeMap target_changes,
-              TargetMismatchMap target_mismatches,
-              model::DocumentUpdateMap document_updates,
-              model::DocumentKeySet limbo_document_changes)
+  RemoteEventTemplate(model::SnapshotVersion snapshot_version,
+                      TargetChangeMap target_changes,
+                      TargetMismatchMap target_mismatches,
+                      model::DocumentUpdateMap document_updates,
+                      model::DocumentKeySet limbo_document_changes)
       : snapshot_version_{snapshot_version},
         target_changes_{std::move(target_changes)},
         target_mismatches_{std::move(target_mismatches)},

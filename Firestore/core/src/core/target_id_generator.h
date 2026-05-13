@@ -17,6 +17,7 @@
 #ifndef FIRESTORE_CORE_SRC_CORE_TARGET_ID_GENERATOR_H_
 #define FIRESTORE_CORE_SRC_CORE_TARGET_ID_GENERATOR_H_
 
+#include "Firestore/core/src/core/core_fwd.h"
 #include "Firestore/core/src/model/types.h"
 
 namespace firebase {
@@ -44,9 +45,10 @@ enum class TargetIdGeneratorId { TargetCache = 0, SyncEngine = 1 };
  */
 // TODO(mrschmidt): Explore removing this class in favor of generating these IDs
 // directly in SyncEngine and LocalStore.
-class TargetIdGenerator {
+template <typename TargetIdType>
+class TargetIdGeneratorTemplate {
  public:
-  TargetIdGenerator() = default;
+  TargetIdGeneratorTemplate() = default;
 
   /**
    * Creates and returns the TargetIdGenerator for the local store.
@@ -54,8 +56,8 @@ class TargetIdGenerator {
    * @param after An ID to start at. Every call to NextId returns a larger id.
    * @return An instance of TargetIdGenerator.
    */
-  static TargetIdGenerator TargetCacheTargetIdGenerator(model::TargetId after) {
-    TargetIdGenerator generator(TargetIdGeneratorId::TargetCache, after);
+  static TargetIdGeneratorTemplate TargetCacheTargetIdGenerator(TargetIdType after) {
+    TargetIdGeneratorTemplate generator(TargetIdGeneratorId::TargetCache, after);
     // Make sure that the next call to `NextId()` returns the first value after
     // 'after'.
     generator.NextId();
@@ -67,23 +69,23 @@ class TargetIdGenerator {
    *
    * @return An instance of TargetIdGenerator.
    */
-  static TargetIdGenerator SyncEngineTargetIdGenerator() {
+  static TargetIdGeneratorTemplate SyncEngineTargetIdGenerator() {
     // Sync engine assigns target IDs for limbo document detection.
-    return TargetIdGenerator(TargetIdGeneratorId::SyncEngine, 1);
+    return TargetIdGeneratorTemplate(TargetIdGeneratorId::SyncEngine, 1);
   }
 
   TargetIdGeneratorId generator_id() {
     return generator_id_;
   }
 
-  model::TargetId NextId();
+  TargetIdType NextId();
 
  private:
-  TargetIdGenerator(TargetIdGeneratorId generator_id, model::TargetId seed);
-  void seek(model::TargetId target_id);
+  TargetIdGeneratorTemplate(TargetIdGeneratorId generator_id, TargetIdType seed);
+  void seek(TargetIdType target_id);
 
   TargetIdGeneratorId generator_id_ = TargetIdGeneratorId::TargetCache;
-  model::TargetId next_id_ = 0;
+  TargetIdType next_id_ = 0;
 
   static const int kReservedBits = 1;
 };

@@ -578,6 +578,8 @@ bool WatchChangeAggregator::TargetContainsDocument(TargetId target_id,
   return existing_keys.contains(key);
 }
 
+template class RemoteEventTemplate<model::TargetId>;
+
 }  // namespace remote
 }  // namespace firestore
 }  // namespace firebase

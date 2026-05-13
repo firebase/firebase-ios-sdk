@@ -19,6 +19,8 @@
 
 #include <cstdint>
 
+#include "Firestore/core/src/local/target_data_fwd.h"
+
 namespace firebase {
 namespace firestore {
 namespace model {
@@ -29,8 +31,6 @@ class MutationBatch;
 }  // namespace model
 
 namespace local {
-
-class TargetData;
 
 /**
  * Estimates the stored size of documents and queries.

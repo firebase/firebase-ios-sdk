@@ -19,29 +19,35 @@
 #include "Firestore/core/src/util/hard_assert.h"
 
 using firebase::firestore::model::TargetId;
+using firebase::firestore::model::RemoteTargetId;
 
 namespace firebase {
 namespace firestore {
 namespace core {
 
-TargetIdGenerator::TargetIdGenerator(TargetIdGeneratorId generator_id,
-                                     TargetId seed)
+template <typename TargetIdType>
+TargetIdGeneratorTemplate<TargetIdType>::TargetIdGeneratorTemplate(
+    TargetIdGeneratorId generator_id, TargetIdType seed)
     : generator_id_(generator_id) {
   seek(seed);
 }
 
-void TargetIdGenerator::seek(TargetId target_id) {
-  const TargetId generator = static_cast<TargetId>(generator_id_);
+template <typename TargetIdType>
+void TargetIdGeneratorTemplate<TargetIdType>::seek(TargetIdType target_id) {
+  const TargetIdType generator = static_cast<TargetIdType>(generator_id_);
   HARD_ASSERT((target_id & generator) == generator,
               "Cannot supply target ID from different generator ID");
   next_id_ = target_id;
 }
 
-TargetId TargetIdGenerator::NextId() {
+template <typename TargetIdType>
+TargetIdType TargetIdGeneratorTemplate<TargetIdType>::NextId() {
   int next_id = next_id_;
   next_id_ += 1 << kReservedBits;
   return next_id;
 }
+
+template class TargetIdGeneratorTemplate<TargetId>;
 
 }  // namespace core
 }  // namespace firestore
