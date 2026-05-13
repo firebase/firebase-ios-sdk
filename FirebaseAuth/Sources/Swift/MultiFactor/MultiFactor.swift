@@ -16,14 +16,12 @@ import Foundation
 
 #if os(iOS) || os(macOS)
 
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   extension MultiFactor: NSSecureCoding {}
 
   /// The interface defining the multi factor related properties and operations pertaining to a
   /// user.
   ///
   /// This class is available on iOS and macOS.
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   @objc(FIRMultiFactor) open class MultiFactor: NSObject {
     @objc open var enrolledFactors: [MultiFactorInfo]
 
@@ -43,7 +41,6 @@ import Foundation
     /// Get a session for a second factor enrollment operation.
     ///
     /// This is used to identify the current user trying to enroll a second factor.
-    @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     open func session() async throws -> MultiFactorSession {
       return try await withCheckedThrowingContinuation { continuation in
         self.getSessionWithCompletion { session, error in
@@ -166,7 +163,6 @@ import Foundation
     /// - Parameter assertion: The `MultiFactorAssertion`.
     /// - Parameter displayName: An optional display name associated with the multi factor to
     /// enroll.
-    @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     open func enroll(with assertion: MultiFactorAssertion, displayName: String?) async throws {
       return try await withCheckedThrowingContinuation { continuation in
         self.enroll(with: assertion, displayName: displayName) { error in
@@ -190,7 +186,6 @@ import Foundation
     }
 
     /// Unenroll the given multi factor.
-    @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     open func unenroll(with factorInfo: MultiFactorInfo) async throws {
       try await unenroll(withFactorUID: factorInfo.uid)
     }
@@ -240,7 +235,6 @@ import Foundation
     }
 
     /// Unenroll the given multi factor.
-    @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     open func unenroll(withFactorUID factorUID: String) async throws {
       return try await withCheckedThrowingContinuation { continuation in
         self.unenroll(withFactorUID: factorUID) { error in

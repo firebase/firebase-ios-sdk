@@ -16,7 +16,6 @@
 import FirebaseCore
 import XCTest
 
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class UserThreadSafetyTests: XCTestCase {
   // A basic user setup for testing purposes.
   private func createTestUser() throws -> User {

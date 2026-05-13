@@ -20,7 +20,6 @@ private let kStartMFASignInEndPoint = "accounts/mfaSignIn:start"
 
 private let kTenantIDKey = "tenantId"
 
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class StartMFASignInRequest: IdentityToolkitRequest, AuthRPCRequest {
   typealias Response = StartMFASignInResponse
 

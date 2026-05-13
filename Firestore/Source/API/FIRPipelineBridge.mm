@@ -313,7 +313,9 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
   std::shared_ptr<CollectionSource> collection_source;
 }
 
-- (id)initWithRef:(FIRCollectionReference *)ref firestore:(FIRFirestore *)db {
+- (id)initWithRef:(FIRCollectionReference *)ref
+        firestore:(FIRFirestore *)db
+       forceIndex:(NSString *_Nullable)force_index {
   self = [super init];
   if (self) {
     if (ref.firestore.databaseID.CompareTo(db.databaseID) != ComparisonResult::Same) {
@@ -324,8 +326,12 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
           ref.firestore.databaseID.project_id(), ref.firestore.databaseID.database_id(),
           db.databaseID.project_id(), db.databaseID.project_id());
     }
-    collection_source =
-        std::make_shared<CollectionSource>(EnsureLeadingSlash(MakeString(ref.path)));
+    absl::optional<std::string> cpp_force_index = absl::nullopt;
+    if (force_index != nil) {
+      cpp_force_index = MakeString(force_index);
+    }
+    collection_source = std::make_shared<CollectionSource>(EnsureLeadingSlash(MakeString(ref.path)),
+                                                           cpp_force_index);
   }
   return self;
 }
@@ -401,10 +407,15 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
   std::shared_ptr<CollectionGroupSource> cpp_collection_group_source;
 }
 
-- (id)initWithCollectionId:(NSString *)id {
+- (id)initWithCollectionId:(NSString *)id forceIndex:(NSString *_Nullable)force_index {
   self = [super init];
   if (self) {
-    cpp_collection_group_source = std::make_shared<CollectionGroupSource>(MakeString(id));
+    absl::optional<std::string> cpp_force_index = absl::nullopt;
+    if (force_index != nil) {
+      cpp_force_index = MakeString(force_index);
+    }
+    cpp_collection_group_source =
+        std::make_shared<CollectionGroupSource>(MakeString(id), cpp_force_index);
   }
   return self;
 }

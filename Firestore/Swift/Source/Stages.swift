@@ -43,15 +43,18 @@ class CollectionSource: Stage {
 
   let bridge: StageBridge
   private let db: Firestore
+  private let forceIndex: String?
 
-  init(collection: CollectionReference, db: Firestore) {
+  init(collection: CollectionReference, db: Firestore, forceIndex: String? = nil) {
     self.db = db
-    bridge = CollectionSourceStageBridge(ref: collection, firestore: db)
+    self.forceIndex = forceIndex
+    bridge = CollectionSourceStageBridge(ref: collection, firestore: db, forceIndex: forceIndex)
   }
 
-  init(bridge: CollectionSourceStageBridge, db: Firestore) {
+  init(bridge: CollectionSourceStageBridge, db: Firestore, forceIndex: String? = nil) {
     self.db = db
     self.bridge = bridge
+    self.forceIndex = forceIndex
   }
 }
 
@@ -70,13 +73,16 @@ class CollectionGroupSource: Stage {
   let name: String = "collection_group"
 
   let bridge: StageBridge
+  private let forceIndex: String?
 
-  init(collectionId: String) {
-    bridge = CollectionGroupSourceStageBridge(collectionId: collectionId)
+  init(collectionId: String, forceIndex: String? = nil) {
+    self.forceIndex = forceIndex
+    bridge = CollectionGroupSourceStageBridge(collectionId: collectionId, forceIndex: forceIndex)
   }
 
-  init(bridge: CollectionGroupSourceStageBridge) {
+  init(bridge: CollectionGroupSourceStageBridge, forceIndex: String? = nil) {
     self.bridge = bridge
+    self.forceIndex = forceIndex
   }
 }
 
