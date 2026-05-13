@@ -18,100 +18,35 @@ import FirebaseAppCheck
 import XCTest
 
 final class FIRAppCheckTestAppTests: XCTestCase {
-  func testTokenAcquisitionAndStorageAccess() throws {
-    guard let appDelegate = AppDelegate.shared else {
-      XCTFail("AppDelegate.shared is nil")
-      return
-    }
+  var appDelegate: AppDelegate!
 
-    let expectation = self.expectation(description: "Token acquisition and storage access")
-
-    appDelegate.fetchAppCheckToken { token, error in
-      XCTAssertNotNil(token, "Token should not be nil")
-      if let token = token {
-        XCTAssertGreaterThan(token.expirationDate, Date(), "Token should not be expired")
-      }
-      XCTAssertNil(error, "Error should be nil: \(String(describing: error))")
-      expectation.fulfill()
-    }
-
-    waitForExpectations(timeout: 30, handler: nil)
+  @MainActor
+  override func setUp() async throws {
+    try await super.setUp()
+    appDelegate = try XCTUnwrap(AppDelegate.shared, "AppDelegate.shared is nil")
   }
 
-  func testLimitedUseTokenAcquisition() throws {
-    guard let appDelegate = AppDelegate.shared else {
-      XCTFail("AppDelegate.shared is nil")
-      return
-    }
-
-    let expectation = self.expectation(description: "Limited-use token acquisition")
-
-    appDelegate.requestLimitedUseToken { token, error in
-      XCTAssertNotNil(token, "Limited-use token should not be nil")
-      XCTAssertNil(error, "Error should be nil: \(String(describing: error))")
-      expectation.fulfill()
-    }
-
-    waitForExpectations(timeout: 30, handler: nil)
+  func testTokenAcquisitionAndStorageAccess() async throws {
+    let token = try await appDelegate.fetchAppCheckToken()
+    XCTAssertGreaterThan(token.expirationDate, Date(), "Token should not be expired")
   }
 
-  func testCacheWorks() throws {
-    guard let appDelegate = AppDelegate.shared else {
-      XCTFail("AppDelegate.shared is nil")
-      return
-    }
+  func testLimitedUseTokenAcquisition() async throws {
+    let token = try await appDelegate.requestLimitedUseToken()
+    XCTAssertFalse(token.isEmpty, "Limited-use token should not be empty")
+  }
 
-    let expectation1 = expectation(description: "First token acquisition")
-    var token1: String?
+  func testCacheWorks() async throws {
+    let token1 = try await appDelegate.fetchAppCheckToken().token
+    let token2 = try await appDelegate.fetchAppCheckToken().token
 
-    appDelegate.fetchAppCheckToken { token, error in
-      token1 = token?.token
-      expectation1.fulfill()
-    }
-
-    waitForExpectations(timeout: 30, handler: nil)
-
-    let expectation2 = expectation(description: "Second token acquisition (cached)")
-    var token2: String?
-
-    appDelegate.fetchAppCheckToken { token, error in
-      token2 = token?.token
-      expectation2.fulfill()
-    }
-
-    waitForExpectations(timeout: 5, handler: nil) // Short timeout for cache
-
-    XCTAssertNotNil(token1)
-    XCTAssertNotNil(token2)
     XCTAssertEqual(token1, token2, "Tokens should be identical (cached)")
   }
 
-  func testForceRefresh() throws {
-    guard let appDelegate = AppDelegate.shared else {
-      XCTFail("AppDelegate.shared is nil")
-      return
-    }
+  func testForceRefresh() async throws {
+    let token1 = try await appDelegate.fetchAppCheckToken().token
+    let token2 = try await appDelegate.fetchAppCheckToken(forcingRefresh: true).token
 
-    let expectation1 = expectation(description: "First token acquisition")
-    var token1: String?
-
-    appDelegate.fetchAppCheckToken { token, error in
-      token1 = token?.token
-      expectation1.fulfill()
-    }
-
-    waitForExpectations(timeout: 30, handler: nil)
-
-    let expectation2 = expectation(description: "Second token acquisition (forced refresh)")
-
-    appDelegate.fetchAppCheckToken(forcingRefresh: true) { token, error in
-      XCTAssertNotNil(token, "Token should not be nil")
-      XCTAssertNil(error, "Error should be nil")
-      XCTAssertNotNil(token1)
-      XCTAssertNotEqual(token1, token?.token, "Tokens should be different after forced refresh")
-      expectation2.fulfill()
-    }
-
-    waitForExpectations(timeout: 30, handler: nil)
+    XCTAssertNotEqual(token1, token2, "Tokens should be different after forced refresh")
   }
 }

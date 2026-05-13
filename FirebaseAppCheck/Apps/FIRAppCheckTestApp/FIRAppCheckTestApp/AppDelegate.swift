@@ -106,12 +106,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       return
     }
 
-    DeviceCheckProvider(app: firebaseApp)?.getToken { token, error in
-      if let token {
-        print("DeviceCheck token: \(token.token), expiration date: \(token.expirationDate)")
-      }
-
-      if let error {
+    Task {
+      do {
+        if let provider = DeviceCheckProvider(app: firebaseApp) {
+          let token = try await provider.getToken()
+          print("DeviceCheck token: \(token.token), expiration date: \(token.expirationDate)")
+        }
+      } catch {
         print("DeviceCheck error: \((error as NSError).userInfo)")
       }
     }
@@ -125,12 +126,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     if let debugProvider = AppCheckDebugProvider(app: firebaseApp) {
       print("Debug token: \(debugProvider.currentDebugToken())")
 
-      debugProvider.getToken { token, error in
-        if let token {
+      Task {
+        do {
+          let token = try await debugProvider.getToken()
           print("Debug FAC token: \(token.token), expiration date: \(token.expirationDate)")
-        }
-
-        if let error {
+        } catch {
           print("Debug error: \(error)")
         }
       }
@@ -139,44 +139,21 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
   // MARK: App Check API
 
-  func fetchAppCheckToken(forcingRefresh: Bool = false,
-                          completion: ((AppCheckToken?, Error?) -> Void)? = nil) {
-    AppCheck.appCheck().token(forcingRefresh: forcingRefresh) { [weak self] token, error in
-      // 1. Handle error case
-      if let error = error {
-        if let token = token {
-          fatalError(
-            "Received both token and error from AppCheck. Token: \(token), Error: \(error)"
-          )
-        }
-        print("App Check error: \(error)")
-        completion?(nil, error)
-        return
-      }
+  @discardableResult
+  func fetchAppCheckToken(forcingRefresh: Bool = false) async throws -> AppCheckToken {
+    let token = try await AppCheck.appCheck().token(forcingRefresh: forcingRefresh)
 
-      // 2. Handle missing token (neither token nor error)
-      guard let token = token else {
-        fatalError("Received neither token nor error from AppCheck")
-      }
+    let ttl = token.expirationDate.timeIntervalSinceNow
+    print("[NON-LIMITED USE] Token: \(token.token)")
+    print("  - Expiration date: \(token.expirationDate)")
+    print("  - TTL: \(Int(ttl)) seconds")
 
-      // 3. Success path (guaranteed to have token and no error here)
-      let ttl = token.expirationDate.timeIntervalSinceNow
-      print("[NON-LIMITED USE] Token: \(token.token)")
-      print("  - Expiration date: \(token.expirationDate)")
-      print("  - TTL: \(Int(ttl)) seconds")
+    try await readFromStorage()
 
-      guard let self = self else {
-        completion?(token, nil)
-        return
-      }
-
-      self.readFromStorage { storageError in
-        completion?(token, storageError)
-      }
-    }
+    return token
   }
 
-  func readFromStorage(completion: ((Error?) -> Void)? = nil) {
+  func readFromStorage() async throws {
     print("Attempting to read from Cloud Storage...")
     let storage = Storage.storage()
     let storageRef = storage.reference()
@@ -184,38 +161,23 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     // The rules allow public read on '/cep/ping'. If these rules change, this test may fail.
     let pingRef = storageRef.child("cep/ping")
 
-    pingRef.getData(maxSize: 1 * 1024 * 1024) { data, error in
-      if let error = error {
-        print("Error reading from storage: \(error)")
-        completion?(error)
-        return
-      }
+    let data = try await pingRef.data(maxSize: 1 * 1024 * 1024)
 
-      // This shouldn't be possible, but we want to know if it ever happens.
-      guard let data = data, let string = String(data: data, encoding: .utf8) else {
-        fatalError(
-          "Unexpected state: data is nil or not valid UTF-8. This shouldn't happen, but we want to know if it does."
-        )
-      }
-
-      print("Storage content: \(string)")
-      completion?(nil)
+    // This shouldn't be possible, but we want to know if it ever happens.
+    guard let string = String(data: data, encoding: .utf8) else {
+      fatalError(
+        "Unexpected state: data is not valid UTF-8. This shouldn't happen, but we want to know if it does."
+      )
     }
+
+    print("Storage content: \(string)")
   }
 
-  func requestLimitedUseToken(completion: ((String?, Error?) -> Void)? = nil) {
-    AppCheck.appCheck().limitedUseToken { result, error in
-      if let result {
-        print("[LIMITED USE] Token: \(result.token)")
-        print("  - Expiration date: \(result.expirationDate)")
-        completion?(result.token, nil)
-      }
-
-      if let error {
-        print("Error: \(String(describing: error))")
-        completion?(nil, error)
-      }
-    }
+  func requestLimitedUseToken() async throws -> String {
+    let result = try await AppCheck.appCheck().limitedUseToken()
+    print("[LIMITED USE] Token: \(result.token)")
+    print("  - Expiration date: \(result.expirationDate)")
+    return result.token
   }
 
   func requestAppAttestToken() {
@@ -228,12 +190,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       return
     }
 
-    appAttestProvider.getToken { token, error in
-      if let token {
+    Task {
+      do {
+        let token = try await appAttestProvider.getToken()
         print("App Attest FAC token: \(token.token), expiration date: \(token.expirationDate)")
-      }
-
-      if let error {
+      } catch {
         print("App Attest error: \(error)")
       }
     }

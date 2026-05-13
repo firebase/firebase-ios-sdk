@@ -16,13 +16,25 @@
 import FirebaseCore
 import XCTest
 
-final class FIRRecaptchaEnterpriseProviderFactoryTests: XCTestCase {
+final class AppCheckRecaptchaEnterpriseProviderFactoryTests: XCTestCase {
+  override func setUp() {
+    super.setUp()
+    _ = registerMocksOnce
+  }
+
   func testCreateProviderWithApp() throws {
-    let options = FirebaseOptions(googleAppID: "app_id", gcmSenderID: "sender_id")
+    let options = FirebaseOptions(googleAppID: "1:123456789:ios:abc123", gcmSenderID: "sender_id")
     options.apiKey = "api_key"
     options.projectID = "project_id"
 
-    let app = FirebaseApp(instanceWithName: "testCreateProviderWithApp", options: options)
+    let appName = "testCreateProviderWithApp"
+    let app: FirebaseApp
+    if let existingApp = FirebaseApp.app(name: appName) {
+      app = existingApp
+    } else {
+      FirebaseApp.configure(name: appName, options: options)
+      app = FirebaseApp.app(name: appName)!
+    }
     app.isDataCollectionDefaultEnabled = false
 
     let siteKey = "test_site_key"

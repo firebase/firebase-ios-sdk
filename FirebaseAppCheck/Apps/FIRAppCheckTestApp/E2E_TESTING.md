@@ -15,7 +15,7 @@ test runner by prefixing them with `TEST_RUNNER_`. The prefix is stripped when
 it reaches the test process.
 
 - **`TEST_RUNNER_RECAPTCHA_SITE_KEY`**: The reCAPTCHA Enterprise site key used
-  by the `RecaptchaEnterpriseProvider`.
+  by the `AppCheckRecaptchaEnterpriseProvider`.
     - **Access in Code**: Read via
       `ProcessInfo.processInfo.environment["RECAPTCHA_SITE_KEY"]`.
 - **`TEST_RUNNER_APP_CHECK_PROVIDER`**: Specifies which App Check provider

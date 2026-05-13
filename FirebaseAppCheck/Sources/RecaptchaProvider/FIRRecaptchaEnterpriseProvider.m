@@ -20,7 +20,7 @@
 #import <AppCheckCore/AppCheckCore.h>
 
 #if SWIFT_PACKAGE
-@import RecaptchaEnterpriseProvider;
+@import AppCheckRecaptchaEnterpriseProvider;
 #elif __has_include(<AppCheckCore/AppCheckCore-Swift.h>)
 #import <AppCheckCore/AppCheckCore-Swift.h>
 #elif __has_include("AppCheckCore-Swift.h")
@@ -41,14 +41,14 @@
 
 @interface FIRRecaptchaEnterpriseProvider ()
 
-@property(nonatomic, readonly) GACRecaptchaEnterpriseProvider *recaptchaEnterpriseProvider;
+@property(nonatomic, readonly) id<GACAppCheckProvider> recaptchaEnterpriseProvider;
 
 @end
 
 @implementation FIRRecaptchaEnterpriseProvider
 
 - (instancetype)initWithRecaptchaEnterpriseProvider:
-    (GACRecaptchaEnterpriseProvider *)recaptchaEnterpriseProvider {
+    (id<GACAppCheckProvider>)recaptchaEnterpriseProvider {
   self = [super init];
   if (self) {
     _recaptchaEnterpriseProvider = recaptchaEnterpriseProvider;
@@ -60,9 +60,9 @@
   if (siteKey.length == 0) {
     FIRLogError(kFIRLoggerAppCheck,
                 kFIRLoggerAppCheckMessageRecaptchaEnterpriseProviderIncompleteFIROptions,
-                @"Cannot instantiate `FIRRecaptchaEnterpriseProvider` for app: %@. "
+                @"Cannot instantiate `%@` for app: %@. "
                 @"`siteKey` is missing or empty.",
-                app.name);
+                NSStringFromClass([self class]), app.name);
     return nil;
   }
   NSArray<NSString *> *missingOptionsFields =
@@ -70,9 +70,10 @@
   if (missingOptionsFields.count > 0) {
     FIRLogError(kFIRLoggerAppCheck,
                 kFIRLoggerAppCheckMessageRecaptchaEnterpriseProviderIncompleteFIROptions,
-                @"Cannot instantiate `FIRRecaptchaEnterpriseProvider` for app: %@. The following "
+                @"Cannot instantiate `%@` for app: %@. The following "
                 @"`FirebaseOptions` fields are missing: %@",
-                app.name, [missingOptionsFields componentsJoinedByString:@", "]);
+                NSStringFromClass([self class]), app.name,
+                [missingOptionsFields componentsJoinedByString:@", "]);
     return nil;
   }
 
