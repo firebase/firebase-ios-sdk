@@ -4,6 +4,9 @@
 - [added] Added an `Info.plist` array key
   `firebase_performance_swizzle_denylist` listing class names to skip when
   registering swizzling instrumentors. (#8277)
+- [changed] Cache `firebase_performance_swizzle_denylist` resolution in
+  `FPRConfigurations` to avoid repeated `Info.plist` reads on every class
+  registration.
 
 # 12.13.0
 - [fixed] Fixed NSURLSession delegate instrumentation for NSProxy delegates. (#14478)
