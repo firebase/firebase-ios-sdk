@@ -48,6 +48,8 @@ NSString *const kFPRConfigLogSource = @"com.firebase.performanceLogSource";
 
 @implementation FPRConfigurations
 
+@synthesize swizzleClassDenylist = _swizzleClassDenylist;
+
 static dispatch_once_t gSharedInstanceToken;
 
 + (instancetype)sharedInstance {
@@ -220,11 +222,13 @@ static dispatch_once_t gSharedInstanceToken;
 }
 
 - (NSArray<NSString *> *)swizzleClassDenylist {
-  id denylist = [self objectForInfoDictionaryKey:kFPRConfigSwizzleDenylistPlistKey];
-  if ([denylist isKindOfClass:[NSArray class]]) {
-    return denylist;
+  NSArray<NSString *> *denylist = _swizzleClassDenylist;
+  if (denylist == nil) {
+    id plistObject = [self objectForInfoDictionaryKey:kFPRConfigSwizzleDenylistPlistKey];
+    denylist = [plistObject isKindOfClass:[NSArray class]] ? plistObject : @[];
+    _swizzleClassDenylist = denylist;
   }
-  return @[];
+  return denylist;
 }
 
 #pragma mark - Fireperf SDK configurations.
