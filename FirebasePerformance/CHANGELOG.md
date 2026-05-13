@@ -2,6 +2,9 @@
 - [Performance] Fix missing network traces for Swift async/await URLSession requests on iOS 16+. (#11861)
 - [fixed] Fixed a race condition crash in `FPRConfigurations` by making
   `remoteConfigFlags` atomic and explicitly nullable. (#16144)
+- [added] Added an `Info.plist` array key
+  `firebase_performance_swizzle_denylist` listing class names to skip when
+  registering swizzling instrumentors. (#8277)
 
 # 12.13.0
 - [fixed] Fixed NSURLSession delegate instrumentation for NSProxy delegates. (#14478)
