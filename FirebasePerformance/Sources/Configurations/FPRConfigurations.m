@@ -220,13 +220,11 @@ static dispatch_once_t gSharedInstanceToken;
 }
 
 - (NSArray<NSString *> *)swizzleClassDenylist {
-  @synchronized(self) {
-    if (_swizzleClassDenylist == nil) {
-      id denylist = [self objectForInfoDictionaryKey:kFPRConfigSwizzleDenylistPlistKey];
-      _swizzleClassDenylist = [denylist isKindOfClass:[NSArray class]] ? denylist : @[];
-    }
-    return _swizzleClassDenylist;
+  if (_swizzleClassDenylist == nil) {
+    id denylist = [self objectForInfoDictionaryKey:kFPRConfigSwizzleDenylistPlistKey];
+    _swizzleClassDenylist = [denylist isKindOfClass:[NSArray class]] ? denylist : @[];
   }
+  return _swizzleClassDenylist;
 }
 
 #pragma mark - Fireperf SDK configurations.
