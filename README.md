@@ -16,6 +16,8 @@
   </a>
 </p>
 
+- todo: deprecation announcement and link to migration guide
+
 # Firebase Apple Open Source Development
 
 This repository contains the source code for all Apple platform Firebase SDKs except FirebaseAnalytics.
