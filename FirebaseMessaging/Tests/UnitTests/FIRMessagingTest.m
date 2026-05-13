@@ -369,4 +369,78 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
   [self waitForExpectationsWithTimeout:2.0 handler:nil];
 }
 
+- (void)testUnregisterNotifiesDelegateWhenInstallationIdEnabled {
+  id bundleMock = OCMPartialMock([NSBundle mainBundle]);
+  // FirebaseMessaging.isInstallationIdEnabled should return YES.
+  OCMStub([bundleMock objectForInfoDictionaryKey:kFIRMessagingPlistInstallationIdEnabled])
+      .andReturn(@YES);
+
+  id mockOptions = OCMClassMock([FIROptions class]);
+  OCMStub([mockOptions GCMSenderID]).andReturn(@"123456789123");
+  OCMStub([mockOptions projectID]).andReturn(@"test-project-id");
+  OCMStub([mockOptions APIKey]).andReturn(@"test-api-key");
+  OCMStub([(FIRApp *)self.mockFirebaseApp options]).andReturn(mockOptions);
+
+  // Setup installation ID.
+  id installationIDArg = [OCMArg invokeBlockWithArgs:@"fake-fid", [NSNull null], nil];
+  OCMStub([(FIRInstallations *)self.testUtil.mockInstallations
+      installationIDWithCompletion:installationIDArg]);
+
+  // Setup FIS auth token. It will be used by FIRMessagingFIDUnregisterOperation.
+  FIRInstallationsAuthTokenResult *mockAuthTokenResult =
+      [[FIRInstallationsAuthTokenResult alloc] initWithToken:@"fis-auth-token"
+                                              expirationDate:[NSDate distantFuture]];
+  id authTokenArg = [OCMArg invokeBlockWithArgs:mockAuthTokenResult, [NSNull null], nil];
+  OCMStub(
+      [(FIRInstallations *)self.testUtil.mockInstallations authTokenWithCompletion:authTokenArg]);
+
+  // Setup V1 unregister HTTP response.
+  id URLSessionMock = OCMClassMock([NSURLSession class]);
+  OCMStub(ClassMethod([URLSessionMock sessionWithConfiguration:[OCMArg any]]))
+      .andReturn(URLSessionMock);
+
+  NSHTTPURLResponse *response =
+      [[NSHTTPURLResponse alloc] initWithURL:[NSURL URLWithString:@"https://example.com"]
+                                  statusCode:200
+                                 HTTPVersion:@"HTTP/1.1"
+                                headerFields:nil];
+
+  [FIRURLSessionOCMockStub
+      stubURLSessionDataTaskWithResponse:response
+                                    body:nil
+                                   error:nil
+                          URLSessionMock:URLSessionMock
+                  requestValidationBlock:^BOOL(NSURLRequest *_Nonnull sentRequest) {
+                    // Assert the HTTP request is correct.
+                    XCTAssertEqualObjects(sentRequest.URL.absoluteString,
+                                          @"https://fcmregistrations.googleapis.com/v1/projects/"
+                                          @"test-project-id/registrations/fake-fid");
+                    XCTAssertEqualObjects(sentRequest.HTTPMethod, @"DELETE");
+                    XCTAssertEqualObjects(sentRequest.allHTTPHeaderFields[@"X-Goog-Api-Key"],
+                                          @"test-api-key");
+                    XCTAssertEqualObjects(
+                        sentRequest.allHTTPHeaderFields[@"X-Goog-Firebase-Installations-Auth"],
+                        @"fis-auth-token");
+                    return YES;
+                  }];
+
+  // Setup message delegate.
+  id mockDelegate = OCMProtocolMock(@protocol(FIRMessagingDelegate));
+  self.messaging.delegate = mockDelegate;
+
+  XCTestExpectation *expectation =
+      [self expectationWithDescription:@"Delegate received unregister notification."];
+  OCMStub([mockDelegate messaging:OCMOCK_ANY didUnregister:OCMOCK_ANY])
+      .andDo(^(NSInvocation *invocation) {
+        __unsafe_unretained NSString *installationId;
+        [invocation getArgument:&installationId atIndex:3];
+        XCTAssertEqualObjects(installationId, @"fake-fid");
+        [expectation fulfill];
+      });
+
+  [self.messaging unregister];
+
+  [self waitForExpectationsWithTimeout:2.0 handler:nil];
+}
+
 @end
