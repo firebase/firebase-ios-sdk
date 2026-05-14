@@ -103,3 +103,22 @@ print(response.content)
 // Output example: 
 // The current temperature in Waterloo, Ontario, Canada is 25°C.
 ```
+
+## Additional features and considerations
+
+### Parallel Tool Calling
+The model can call a tool multiple times in parallel to satisfy the request, such as retrieving weather details for several cities simultaneously. Ensure that your tool implementation is thread-safe and can handle concurrent `call(arguments:)` executions.
+
+```swift
+let response = try await session.respond(
+    to: "Is it hotter in Boston, Wichita, or Pittsburgh?"
+)
+```
+
+### Error Handling
+You can throw errors from your tools to escape calls when you detect something is wrong, such as when the person using your app hasn't provided permission for data access or a network call times out. This will abort the ongoing generation request.
+
+Alternatively, if you want the model to recover from the failure, your tool can return a string (if your return type allows it) that briefly tells the model what didn't work. For example, returning `"Cannot access the weather database at this time."` allows the model to respond to the user with that context rather than throwing a fatal error.
+
+### Best Practices for Descriptions
+Similar to guided generation with `@Generable`, when you provide descriptions to properties, you help the model understand the semantics of the arguments. Keep descriptions as short as possible because long descriptions take up context size and can introduce latency.
