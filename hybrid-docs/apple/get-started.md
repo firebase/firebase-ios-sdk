@@ -75,7 +75,30 @@ prompt request that you want to send.
 
 Add the `FirebaseAI` dependency to your project. This SDK provides access to both Gemini models and Apple's Foundation Models.
 
-### **Step 3**: Initialize the service and create a model session
+### **Step 3**: (Optional) Check for on-device model availability
+
+Since hybrid inference can also use a cloud-hosted model, it is not strictly necessary to check for on-device availability before making a request. However, if you are using an "Only On-Device" configuration, or if you want to adapt your app's UI based on whether Apple Intelligence is enabled, you can check the model's availability status.
+
+```swift
+import FoundationModels
+
+let systemModel = FirebaseAI.SystemLanguageModel.default
+
+switch systemModel.availability {
+case .available:
+    print("Apple Intelligence model is ready.")
+case .unavailable(.deviceNotEligible):
+    print("Device does not support Apple Intelligence.")
+case .unavailable(.appleIntelligenceNotEnabled):
+    print("Apple Intelligence is turned off.")
+case .unavailable(.modelNotReady):
+    print("The model is still downloading.")
+case .unavailable(let other):
+    print("Model unavailable for unknown reason: \(other)")
+}
+```
+
+### **Step 4**: Initialize the service and create a model session
 
 Set up the following before you send a prompt request to the model.
 
@@ -109,7 +132,7 @@ if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
 }
 ```
 
-### **Step 4**: Send a prompt request to a model
+### **Step 5**: Send a prompt request to a model
 
 This section shows you how to send various types of input to generate different
 types of output, including:
