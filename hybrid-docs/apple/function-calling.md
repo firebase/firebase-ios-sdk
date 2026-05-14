@@ -69,7 +69,7 @@ struct GetTemperatureTool: FoundationModels.Tool {
 When initializing your `GenerativeModelSession`, pass an instance of your tool in the `tools` array. The tool can be used by both the on-device `SystemLanguageModel` and cloud-hosted `GeminiModel`.
 
 ```swift
-// Using this SDK to access on-device inference requires iOS 26+ / macOS 26+
+// Defining and using a `FoundationModels.Tool` requires iOS 26+ / macOS 26+
 if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
     let systemModel = FirebaseAI.SystemLanguageModel.default
     let geminiModel = firebaseAI.geminiModel(name: "gemini-2.5-flash-lite")

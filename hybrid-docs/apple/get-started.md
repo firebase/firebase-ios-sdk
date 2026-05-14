@@ -120,16 +120,13 @@ import FoundationModels
 FirebaseApp.configure()
 let firebaseAI = FirebaseAI.firebaseAI()
 
-// Using this SDK to access on-device inference requires iOS 26+ / macOS 26+
-if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
-    let systemModel = FirebaseAI.SystemLanguageModel.default
-    let geminiModel = firebaseAI.geminiModel(name: "gemini-2.5-flash-lite")
-    
-    // Set the hybrid fallback preference: use the on-device model first, then the cloud model
-    let session = firebaseAI.generativeModelSession(
-        model: .hybridModel(primary: systemModel, secondary: geminiModel)
-    )
-}
+let systemModel = FirebaseAI.SystemLanguageModel.default
+let geminiModel = firebaseAI.geminiModel(name: "gemini-2.5-flash-lite")
+
+// Set the hybrid fallback preference: use the on-device model first, then the cloud model
+let session = firebaseAI.generativeModelSession(
+    model: .hybridModel(primary: systemModel, secondary: geminiModel)
+)
 ```
 
 ### **Step 5**: Send a prompt request to a model
@@ -164,6 +161,7 @@ hybrid experiences:
 - [Determine whether on-device or in-cloud inference was used.](configuration-options.md#determine-inference-mode)
 - [Specify a model to use.](configuration-options.md#specify-model)
 - [Use model configuration to control responses (like temperature).](configuration-options.md#model-config)
+- [Generate structured output.](generate-structured-output.md)
 - [Implement automatic function calling.](function-calling.md)
 
 ## Features not yet available for on-device inference
