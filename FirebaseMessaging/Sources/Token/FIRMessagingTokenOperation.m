@@ -52,8 +52,7 @@ static NSString *const kFIRMessagingParamFCMLibVersion = @"X-cliv";
                          scope:(NSString *)scope
                        options:(NSDictionary<NSString *, NSString *> *)options
             checkinPreferences:(FIRMessagingCheckinPreferences *)checkinPreferences
-                    instanceID:(NSString *)instanceID
-               heartbeatLogger:(id<FIRHeartbeatLoggerProtocol>)heartbeatLogger {
+                    instanceID:(NSString *)instanceID {
   self = [super init];
   if (self) {
     _action = action;
@@ -63,7 +62,6 @@ static NSString *const kFIRMessagingParamFCMLibVersion = @"X-cliv";
     _checkinPreferences = checkinPreferences;
     _instanceID = instanceID;
     _completionHandlers = [[NSMutableArray alloc] init];
-    _heartbeatLogger = heartbeatLogger;
 
     _isExecuting = NO;
     _isFinished = NO;

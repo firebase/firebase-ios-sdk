@@ -33,6 +33,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, readonly, copy) NSString *scope;
 /// The token value itself, with which all other properties are associated.
 @property(nonatomic, readonly, copy) NSString *token;
+/// The type of the token, e.g. "V4" or "FID".
+@property(nonatomic, readonly, copy) NSString *tokenType;
 
 // These properties are nullable because they might not exist for tokens fetched from
 // legacy storage formats.
@@ -63,8 +65,16 @@ NS_ASSUME_NONNULL_BEGIN
  *  @param token            The token value itself.
  *  @param appVersion       The application version that this token is associated with.
  *  @param firebaseAppID    The Firebase app ID which this token is associated with.
+ *  @param tokenType        The type of the token, e.g. "V4" or "FID".
  *  @return An instance of FIRMessagingTokenInfo.
  */
+- (instancetype)initWithAuthorizedEntity:(NSString *)authorizedEntity
+                                   scope:(NSString *)scope
+                                   token:(NSString *)token
+                              appVersion:(nullable NSString *)appVersion
+                           firebaseAppID:(nullable NSString *)firebaseAppID
+                               tokenType:(NSString *)tokenType;
+
 - (instancetype)initWithAuthorizedEntity:(NSString *)authorizedEntity
                                    scope:(NSString *)scope
                                    token:(NSString *)token
