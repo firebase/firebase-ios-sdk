@@ -18,6 +18,8 @@
 
 #import <XCTest/XCTest.h>
 
+#import <math.h>
+
 #import "Firestore/Source/API/FIRFieldValue+Internal.h"
 
 #import "Firestore/Example/Tests/Util/FSTEventAccumulator.h"
@@ -213,6 +215,127 @@ double DOUBLE_EPSILON = 0.000001;
   [self enableNetwork];
   snap = [_accumulator awaitRemoteEvent];
   XCTAssertEqualWithAccuracy(0.111, [snap[@"sum"] doubleValue], DOUBLE_EPSILON);
+}
+
+- (void)testCreateDocumentWithMinimum {
+  [self writeDocumentRef:_docRef data:@{@"sum" : [FIRFieldValue fieldValueForIntegerMinimum:1337]}];
+  [self expectLocalAndRemoteValue:1337];
+}
+
+- (void)testCreateDocumentWithMaximum {
+  [self writeDocumentRef:_docRef data:@{@"sum" : [FIRFieldValue fieldValueForIntegerMaximum:1337]}];
+  [self expectLocalAndRemoteValue:1337];
+}
+
+- (void)testMinimumWithExistingInteger {
+  [self writeInitialData:@{@"sum" : @10}];
+  [self updateDocumentRef:_docRef data:@{@"sum" : [FIRFieldValue fieldValueForIntegerMinimum:5]}];
+  [self expectLocalAndRemoteValue:5];
+
+  [self updateDocumentRef:_docRef data:@{@"sum" : [FIRFieldValue fieldValueForIntegerMinimum:20]}];
+  [self expectLocalAndRemoteValue:5];
+}
+
+- (void)testMaximumWithExistingInteger {
+  [self writeInitialData:@{@"sum" : @10}];
+  [self updateDocumentRef:_docRef data:@{@"sum" : [FIRFieldValue fieldValueForIntegerMaximum:5]}];
+  [self expectLocalAndRemoteValue:10];
+
+  [self updateDocumentRef:_docRef data:@{@"sum" : [FIRFieldValue fieldValueForIntegerMaximum:20]}];
+  [self expectLocalAndRemoteValue:20];
+}
+
+- (void)testMinimumWithExistingDouble {
+  [self writeInitialData:@{@"sum" : @10.5}];
+  [self updateDocumentRef:_docRef data:@{@"sum" : [FIRFieldValue fieldValueForDoubleMinimum:5.5]}];
+  [self expectApproximateLocalAndRemoteValue:5.5];
+
+  [self updateDocumentRef:_docRef data:@{@"sum" : [FIRFieldValue fieldValueForDoubleMinimum:20.5]}];
+  [self expectApproximateLocalAndRemoteValue:5.5];
+}
+
+- (void)testMaximumWithExistingDouble {
+  [self writeInitialData:@{@"sum" : @10.5}];
+  [self updateDocumentRef:_docRef data:@{@"sum" : [FIRFieldValue fieldValueForDoubleMaximum:5.5]}];
+  [self expectApproximateLocalAndRemoteValue:10.5];
+
+  [self updateDocumentRef:_docRef data:@{@"sum" : [FIRFieldValue fieldValueForDoubleMaximum:20.5]}];
+  [self expectApproximateLocalAndRemoteValue:20.5];
+}
+
+- (void)testMixedTypesPreserveOperandTypeForMinimum {
+  // field and input value of mixed types: field takes on type of smaller operand
+  [self writeInitialData:@{@"sum" : @10}];
+  [self updateDocumentRef:_docRef data:@{@"sum" : [FIRFieldValue fieldValueForDoubleMinimum:5.5]}];
+  [self expectApproximateLocalAndRemoteValue:5.5];
+
+  [self writeInitialData:@{@"sum" : @10.5}];
+  [self updateDocumentRef:_docRef data:@{@"sum" : [FIRFieldValue fieldValueForIntegerMinimum:5]}];
+  [self expectLocalAndRemoteValue:5];
+}
+
+- (void)testMixedTypesPreserveOperandTypeForMaximum {
+  // field and input value of mixed types: field takes on type of larger operand
+  [self writeInitialData:@{@"sum" : @10}];
+  [self updateDocumentRef:_docRef data:@{@"sum" : [FIRFieldValue fieldValueForDoubleMaximum:20.5]}];
+  [self expectApproximateLocalAndRemoteValue:20.5];
+
+  [self writeInitialData:@{@"sum" : @10.5}];
+  [self updateDocumentRef:_docRef data:@{@"sum" : [FIRFieldValue fieldValueForIntegerMaximum:20]}];
+  [self expectLocalAndRemoteValue:20];
+}
+
+- (void)testEquivalentValuesDoNotChangeTypeForMinimum {
+  // equivalent (e.g. 3 and 3.0), field does not change type
+  [self writeInitialData:@{@"sum" : @3}];
+  [self updateDocumentRef:_docRef data:@{@"sum" : [FIRFieldValue fieldValueForDoubleMinimum:3.0]}];
+  [self expectLocalAndRemoteValue:3];
+
+  [self writeInitialData:@{@"sum" : @3.0}];
+  [self updateDocumentRef:_docRef data:@{@"sum" : [FIRFieldValue fieldValueForIntegerMinimum:3]}];
+  [self expectApproximateLocalAndRemoteValue:3.0];
+}
+
+- (void)testEquivalentValuesDoNotChangeTypeForMaximum {
+  // equivalent (e.g. 3 and 3.0), field does not change type
+  [self writeInitialData:@{@"sum" : @3}];
+  [self updateDocumentRef:_docRef data:@{@"sum" : [FIRFieldValue fieldValueForDoubleMaximum:3.0]}];
+  [self expectLocalAndRemoteValue:3];
+
+  [self writeInitialData:@{@"sum" : @3.0}];
+  [self updateDocumentRef:_docRef data:@{@"sum" : [FIRFieldValue fieldValueForIntegerMaximum:3]}];
+  [self expectApproximateLocalAndRemoteValue:3.0];
+}
+
+- (void)expectLocalAndRemoteNaN {
+  FIRDocumentSnapshot *snap = [_accumulator awaitLocalEvent];
+  XCTAssertTrue([snap[@"sum"] isKindOfClass:[NSNumber class]]);
+  XCTAssertTrue(isnan([snap[@"sum"] doubleValue]));
+  snap = [_accumulator awaitRemoteEvent];
+  XCTAssertTrue([snap[@"sum"] isKindOfClass:[NSNumber class]]);
+  XCTAssertTrue(isnan([snap[@"sum"] doubleValue]));
+}
+
+- (void)testMinimumWithNaN {
+  // If one of the values is NaN, minimum is NaN
+  [self writeInitialData:@{@"sum" : @(NAN)}];
+  [self updateDocumentRef:_docRef data:@{@"sum" : [FIRFieldValue fieldValueForIntegerMinimum:5]}];
+  [self expectLocalAndRemoteNaN];
+
+  [self writeInitialData:@{@"sum" : @5}];
+  [self updateDocumentRef:_docRef data:@{@"sum" : [FIRFieldValue fieldValueForDoubleMinimum:NAN]}];
+  [self expectLocalAndRemoteNaN];
+}
+
+- (void)testMaximumWithNaN {
+  // If one of the values is NaN, maximum is NaN
+  [self writeInitialData:@{@"sum" : @(NAN)}];
+  [self updateDocumentRef:_docRef data:@{@"sum" : [FIRFieldValue fieldValueForIntegerMaximum:5]}];
+  [self expectLocalAndRemoteNaN];
+
+  [self writeInitialData:@{@"sum" : @5}];
+  [self updateDocumentRef:_docRef data:@{@"sum" : [FIRFieldValue fieldValueForDoubleMaximum:NAN]}];
+  [self expectLocalAndRemoteNaN];
 }
 
 @end

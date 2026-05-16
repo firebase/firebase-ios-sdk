@@ -92,6 +92,8 @@ using model::MutationResult;
 using model::NaNValue;
 using model::NullValue;
 using model::NumericIncrementTransform;
+using model::NumericMaximumTransform;
+using model::NumericMinimumTransform;
 using model::ObjectValue;
 using model::PatchMutation;
 using model::Precondition;
@@ -579,6 +581,24 @@ Serializer::EncodeFieldTransform(const FieldTransform& field_transform) const {
       proto.increment = increment.operand();
       return proto;
     }
+
+    case Type::Minimum: {
+      proto.which_transform_type =
+          google_firestore_v1_DocumentTransform_FieldTransform_minimum_tag;
+      const auto& minimum = static_cast<const NumericMinimumTransform&>(
+          field_transform.transformation());
+      proto.minimum = minimum.operand();
+      return proto;
+    }
+
+    case Type::Maximum: {
+      proto.which_transform_type =
+          google_firestore_v1_DocumentTransform_FieldTransform_maximum_tag;
+      const auto& maximum = static_cast<const NumericMaximumTransform&>(
+          field_transform.transformation());
+      proto.maximum = maximum.operand();
+      return proto;
+    }
   }
 
   UNREACHABLE();
@@ -625,6 +645,22 @@ FieldTransform Serializer::DecodeFieldTransform(
       return FieldTransform(
           std::move(field),
           NumericIncrementTransform(MakeMessage(proto.increment)));
+    }
+
+    case google_firestore_v1_DocumentTransform_FieldTransform_minimum_tag: {
+      FieldTransform field_transform(
+          std::move(field),
+          NumericMinimumTransform(MakeMessage(proto.minimum)));
+      proto.minimum = {};
+      return field_transform;
+    }
+
+    case google_firestore_v1_DocumentTransform_FieldTransform_maximum_tag: {
+      FieldTransform field_transform(
+          std::move(field),
+          NumericMaximumTransform(MakeMessage(proto.maximum)));
+      proto.maximum = {};
+      return field_transform;
     }
   }
 
