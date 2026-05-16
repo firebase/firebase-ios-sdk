@@ -29,6 +29,9 @@ final class AsyncWebSocket: Sendable {
   private let continuationFinished = UnfairLock<Bool>(false)
   private let closeError: UnfairLock<WebSocketClosedError?>
 
+  private let receivingTask = UnfairLock<Task<Void, Never>?>(nil)
+  private let pingTask = UnfairLock<Task<Void, Never>?>(nil)
+
   init(urlSession: URLSession = GenAIURLSession.default, urlRequest: URLRequest) {
     webSocketTask = urlSession.webSocketTask(with: urlRequest)
     (stream, continuation) = AsyncThrowingStream<URLSessionWebSocketTask.Message, Error>
@@ -45,6 +48,7 @@ final class AsyncWebSocket: Sendable {
     webSocketTask.resume()
     closeError.withLock { $0 = nil }
     startReceiving()
+    startPinging()
     return stream
   }
 
@@ -66,20 +70,44 @@ final class AsyncWebSocket: Sendable {
   }
 
   private func startReceiving() {
-    Task {
-      while !Task.isCancelled && self.webSocketTask.isOpen && self.closeError.value() == nil {
-        do {
-          let message = try await webSocketTask.receive()
-          continuation.yield(message)
-        } catch {
-          if let error = webSocketTask.error as? NSError {
-            close(
-              code: webSocketTask.closeCode,
-              reason: webSocketTask.closeReason,
+    receivingTask.withLock { [weak self] task in
+      task?.cancel()
+      task = Task { [weak self] in
+        while let self,
+              !Task.isCancelled && self.webSocketTask.isOpen && self.closeError.value() == nil {
+          do {
+            let message = try await self.webSocketTask.receive()
+            self.continuation.yield(message)
+          } catch {
+            self.close(
+              code: self.webSocketTask.closeCode,
+              reason: self.webSocketTask.closeReason,
               underlyingError: error
             )
-          } else {
-            close(code: webSocketTask.closeCode, reason: webSocketTask.closeReason)
+          }
+        }
+      }
+    }
+  }
+
+  private func startPinging() {
+    pingTask.withLock { [weak self] task in
+      task?.cancel()
+      task = Task { [weak self] in
+        while let self,
+              !Task.isCancelled && self.webSocketTask.isOpen && self.closeError.value() == nil {
+          try? await Task.sleep(nanoseconds: 30 * 1_000_000_000)
+          guard !Task.isCancelled && self.webSocketTask.isOpen && self.closeError.value() == nil
+          else { return }
+
+          self.webSocketTask.sendPing { [weak self] error in
+            if let error {
+              self?.close(
+                code: .abnormalClosure,
+                reason: nil,
+                underlyingError: error
+              )
+            }
           }
         }
       }
@@ -99,6 +127,8 @@ final class AsyncWebSocket: Sendable {
     }
 
     webSocketTask.cancel(with: code, reason: reason)
+    receivingTask.value()?.cancel()
+    pingTask.value()?.cancel()
 
     continuationFinished.withLock { isFinished in
       guard !isFinished else { return }
