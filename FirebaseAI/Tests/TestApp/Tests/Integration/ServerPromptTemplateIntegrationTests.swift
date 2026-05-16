@@ -90,6 +90,40 @@ struct ServerPromptTemplateIntegrationTests {
 
   @Test(arguments: [
     InstanceConfig.googleAI_v1beta,
+  ])
+  func generateContentWithTemplateMapsGroundingSnippet(_ config: InstanceConfig) async throws {
+    let latAndLong = CLLocationCoordinate2D(latitude: 30.2672, longitude: -97.7431)
+    let retrievalConfig = RetrievalConfig(location: latAndLong, languageCode: "en_US")
+    let templateToolConfig = TemplateToolConfig(retrievalConfig: retrievalConfig)
+
+    let model = FirebaseAI.componentInstance(config).templateGenerativeModel()
+    let response = try await model.generateContent(
+      templateID: "grounding-with-google-maps-v1-0-0",
+      inputs: [
+        "question": "restaurants near me?",
+      ],
+      toolConfig: templateToolConfig
+    )
+
+    let text = try #require(response.text)
+    #expect(!text.isEmpty)
+
+    // Validate grounding metadata
+    let candidate = try #require(response.candidates.first)
+    let groundingMetadata = try #require(candidate.groundingMetadata)
+    let mapChunks = groundingMetadata.groundingChunks.compactMap { $0.maps }
+    try #require(!mapChunks.isEmpty)
+    for mapsChunk in mapChunks {
+      #expect(mapsChunk.url != nil)
+      let title = try #require(mapsChunk.title)
+      #expect(!title.isEmpty)
+      let placeID = try #require(mapsChunk.placeID)
+      #expect(!placeID.isEmpty)
+    }
+  }
+
+  @Test(arguments: [
+    InstanceConfig.googleAI_v1beta,
     InstanceConfig.vertexAI_v1beta,
   ])
   @available(*, deprecated)
