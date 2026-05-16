@@ -57,8 +57,7 @@ struct MapsGroundingIntegrationTests {
   )
   func generativeModelSession_streamResponse_withGoogleMaps_succeeds(_ config: InstanceConfig) async throws {
     let session = FirebaseAI.componentInstance(config).generativeModelSession(
-      // TODO: Replace with gemini3_1_FlashLite after resolving decoding failure.
-      model: ModelNames.gemini2_5_FlashLite,
+      model: ModelNames.gemini3_1_FlashLite,
       tools: [.googleMaps()]
     )
     let prompt = "Where is a good place to grab a coffee near Alameda, CA?"
