@@ -58,6 +58,14 @@ on:
         required: false
         default: false
 
+      # Custom environment variables to inject into the jobs.
+      # Expected to be a JSON-formatted string.
+      # Example: '{"FIREBASE_APP_CHECK_BRANCH": "nc/target-split"}'
+      env_vars:
+        type: string
+        required: false
+        default: "{}"
+
     outputs:
       cache_key:
         description: "The cache key for the Swift package resolution."
@@ -72,6 +80,24 @@ jobs:
       cache_key: ${{ steps.generate_cache_key.outputs.cache_key }}
     steps:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      - name: Set Custom Environment Variables
+        run: |
+          python3 -c '
+          import os, json
+          try:
+              env_vars = json.loads(os.environ.get("CUSTOM_ENV_VARS", "{}"))
+              if not isinstance(env_vars, dict):
+                  raise ValueError("env_vars must be a JSON object")
+              with open(os.environ["GITHUB_ENV"], "a") as f:
+                  for k, v in env_vars.items():
+                      f.write(f"{k}={v}\n")
+          except json.JSONDecodeError:
+              print("Warning: env_vars is not valid JSON. Skipping.")
+          except Exception as e:
+              print(f"Error setting env vars: {e}")
+          '
+        env:
+          CUSTOM_ENV_VARS: ${{ inputs.env_vars }}
       - name: Xcode
         run: sudo xcode-select -s /Applications/Xcode_26.4.app/Contents/Developer
       - name: Generate Swift Package.resolved
@@ -110,6 +136,24 @@ jobs:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       with:
         persist-credentials: false
+    - name: Set Custom Environment Variables
+      run: |
+        python3 -c '
+        import os, json
+        try:
+            env_vars = json.loads(os.environ.get("CUSTOM_ENV_VARS", "{}"))
+            if not isinstance(env_vars, dict):
+                raise ValueError("env_vars must be a JSON object")
+            with open(os.environ["GITHUB_ENV"], "a") as f:
+                for k, v in env_vars.items():
+                    f.write(f"{k}={v}\n")
+        except json.JSONDecodeError:
+            print("Warning: env_vars is not valid JSON. Skipping.")
+        except Exception as e:
+            print(f"Error setting env vars: {e}")
+        '
+      env:
+        CUSTOM_ENV_VARS: ${{ inputs.env_vars }}
     - uses: actions/cache/restore@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
       with:
         path: .build
