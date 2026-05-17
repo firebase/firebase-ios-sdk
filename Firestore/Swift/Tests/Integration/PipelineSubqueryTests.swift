@@ -783,4 +783,22 @@ class PipelineSubqueryTests: FSTIntegrationTestCase {
       )
     }
   }
+
+  func testUnionWithSubqueryThrows() async throws {
+    let collRef = collectionRef()
+    let db = collRef.firestore
+
+    do {
+      _ = try await db.pipeline()
+        .collection(collRef.path)
+        .union(with: Subcollection("subcollection"))
+        .execute()
+      XCTFail("Should throw error")
+    } catch {
+      XCTAssertTrue(
+        error.localizedDescription.contains("Union only supports combining root pipelines"),
+        error.localizedDescription
+      )
+    }
+  }
 }
