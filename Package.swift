@@ -1308,7 +1308,10 @@ let package = Package(
     ),
     .testTarget(
       name: "FirebaseAppCheckUnitSwift",
-      dependencies: ["FirebaseAppCheck"],
+      dependencies: [
+        "FirebaseAppCheck",
+        "FirebaseCoreExtension",
+      ],
       path: "FirebaseAppCheck/Tests/Unit/Swift",
       swiftSettings: [
         .swiftLanguageMode(SwiftLanguageMode.v5),

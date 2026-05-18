@@ -94,6 +94,8 @@ Pod::Spec.new do |s|
     swift_unit_tests.source_files = [
       base_dir + 'Tests/Unit/Swift/**/*.swift',
     ]
+
+    swift_unit_tests.dependency 'FirebaseCoreExtension', '~> 12.14.0'
   end
 
 end
