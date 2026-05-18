@@ -16,7 +16,7 @@
   </a>
 </p>
 
-> [!IMPORTANT]
+> [!WARNING]
 > **CocoaPods:** New versions of the Firebase Apple SDK will no longer be
 > published to CocoaPods after **October 2026**. Existing CocoaPods versions
 > will remain available and installations will remain functional. See the
