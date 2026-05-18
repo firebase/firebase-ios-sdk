@@ -1,3 +1,19 @@
+/*
+ * Copyright 2026 Google
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include "Firestore/core/src/local/target_data.h"
 
 #include <ostream>
@@ -12,9 +28,9 @@ namespace {
 using core::Target;
 using core::TargetOrPipeline;
 using model::ListenSequenceNumber;
+using model::RemoteTargetId;
 using model::SnapshotVersion;
 using model::TargetId;
-using model::RemoteTargetId;
 using nanopb::ByteString;
 
 // MARK: - QueryPurpose
@@ -89,41 +105,48 @@ TargetDataTemplate<TargetIdType> TargetDataTemplate<TargetIdType>::Invalid() {
 }
 
 template <typename TargetIdType>
-TargetDataTemplate<TargetIdType> TargetDataTemplate<TargetIdType>::WithSequenceNumber(
+TargetDataTemplate<TargetIdType>
+TargetDataTemplate<TargetIdType>::WithSequenceNumber(
     ListenSequenceNumber sequence_number) const {
-  return TargetDataTemplate(target_, target_id_, sequence_number, purpose_,
-                            snapshot_version_, last_limbo_free_snapshot_version_,
-                            resume_token_, expected_count_);
+  return TargetDataTemplate(
+      target_, target_id_, sequence_number, purpose_, snapshot_version_,
+      last_limbo_free_snapshot_version_, resume_token_, expected_count_);
 }
 
 template <typename TargetIdType>
-TargetDataTemplate<TargetIdType> TargetDataTemplate<TargetIdType>::WithResumeToken(
+TargetDataTemplate<TargetIdType>
+TargetDataTemplate<TargetIdType>::WithResumeToken(
     ByteString resume_token, SnapshotVersion snapshot_version) const {
   return TargetDataTemplate(target_, target_id_, sequence_number_, purpose_,
                             std::move(snapshot_version),
-                            last_limbo_free_snapshot_version_, std::move(resume_token),
+                            last_limbo_free_snapshot_version_,
+                            std::move(resume_token),
                             /*expected_count=*/absl::nullopt);
 }
 
 template <typename TargetIdType>
-TargetDataTemplate<TargetIdType> TargetDataTemplate<TargetIdType>::WithExpectedCount(
+TargetDataTemplate<TargetIdType>
+TargetDataTemplate<TargetIdType>::WithExpectedCount(
     absl::optional<int32_t> expected_count) const {
   return TargetDataTemplate(target_, target_id_, sequence_number_, purpose_,
-                            snapshot_version_, last_limbo_free_snapshot_version_,
-                            resume_token_, std::move(expected_count));
+                            snapshot_version_,
+                            last_limbo_free_snapshot_version_, resume_token_,
+                            std::move(expected_count));
 }
 
 template <typename TargetIdType>
-TargetDataTemplate<TargetIdType> TargetDataTemplate<TargetIdType>::WithLastLimboFreeSnapshotVersion(
+TargetDataTemplate<TargetIdType>
+TargetDataTemplate<TargetIdType>::WithLastLimboFreeSnapshotVersion(
     SnapshotVersion last_limbo_free_snapshot_version) const {
   return TargetDataTemplate(target_, target_id_, sequence_number_, purpose_,
                             snapshot_version_,
-                            std::move(last_limbo_free_snapshot_version), resume_token_,
-                            expected_count_);
+                            std::move(last_limbo_free_snapshot_version),
+                            resume_token_, expected_count_);
 }
 
 template <typename TargetIdType>
-bool TargetDataTemplate<TargetIdType>::Equals(const TargetDataTemplate& rhs) const {
+bool TargetDataTemplate<TargetIdType>::Equals(
+    const TargetDataTemplate& rhs) const {
   return target_or_pipeline() == rhs.target_or_pipeline() &&
          target_id() == rhs.target_id() &&
          sequence_number() == rhs.sequence_number() &&
@@ -153,7 +176,8 @@ std::string TargetDataTemplate<TargetIdType>::ToString() const {
 }
 
 template <typename TargetIdType>
-std::ostream& operator<<(std::ostream& os, const TargetDataTemplate<TargetIdType>& value) {
+std::ostream& operator<<(std::ostream& os,
+                         const TargetDataTemplate<TargetIdType>& value) {
   return os << "TargetData(target=" << value.target_or_pipeline().ToString()
             << ", target_id=" << value.target_id()
             << ", purpose=" << value.purpose()
@@ -172,7 +196,8 @@ template class TargetDataTemplate<TargetId>;
 template bool operator==(const TargetDataTemplate<TargetId>& lhs,
                          const TargetDataTemplate<TargetId>& rhs);
 
-template std::ostream& operator<<(std::ostream& os, const TargetDataTemplate<TargetId>& value);
+template std::ostream& operator<<(std::ostream& os,
+                                  const TargetDataTemplate<TargetId>& value);
 
 }  // namespace local
 }  // namespace firestore

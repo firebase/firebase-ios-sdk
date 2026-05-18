@@ -48,9 +48,9 @@ using model::MutationBatch;
 using model::MutationBatchResult;
 using model::MutationResult;
 using model::OnlineState;
+using model::RemoteTargetId;
 using model::SnapshotVersion;
 using model::TargetId;
-using model::RemoteTargetId;
 using nanopb::ByteString;
 using util::AsyncQueue;
 using util::Status;
@@ -69,8 +69,10 @@ RemoteStore::RemoteStore(
     std::function<void(model::OnlineState)> online_state_handler)
     : local_store_{local_store},
       datastore_{std::move(datastore)},
-      target_cache_target_id_generator_{core::RemoteTargetIdGenerator::TargetCacheTargetIdGenerator(1000)},
-      sync_engine_target_id_generator_{core::RemoteTargetIdGenerator::SyncEngineTargetIdGenerator(1001)},
+      target_cache_target_id_generator_{
+          core::RemoteTargetIdGenerator::TargetCacheTargetIdGenerator(1000)},
+      sync_engine_target_id_generator_{
+          core::RemoteTargetIdGenerator::SyncEngineTargetIdGenerator(1001)},
       online_state_tracker_{worker_queue, std::move(online_state_handler)},
       connectivity_monitor_{NOT_NULL(connectivity_monitor)} {
   datastore_->Start();
@@ -156,7 +158,8 @@ void RemoteStore::Shutdown() {
 
 // Watch Stream
 
-model::RemoteTargetId RemoteStore::GenerateRemoteTargetId(model::TargetId sdk_target_id) {
+model::RemoteTargetId RemoteStore::GenerateRemoteTargetId(
+    model::TargetId sdk_target_id) {
   if (sdk_target_id % 2 != 0) {
     return sync_engine_target_id_generator_.NextId();
   } else {
@@ -164,7 +167,8 @@ model::RemoteTargetId RemoteStore::GenerateRemoteTargetId(model::TargetId sdk_ta
   }
 }
 
-model::RemoteTargetId RemoteStore::AllocateRemoteTargetId(model::TargetId sdk_target_id) {
+model::RemoteTargetId RemoteStore::AllocateRemoteTargetId(
+    model::TargetId sdk_target_id) {
   auto found_map = target_id_map_sdk_to_remote_.find(sdk_target_id);
   if (found_map != target_id_map_sdk_to_remote_.end()) {
     model::RemoteTargetId existing_remote_id = found_map->second;
@@ -189,10 +193,9 @@ void RemoteStore::Listen(TargetData target_data) {
 
   model::RemoteTargetId new_remote_id = AllocateRemoteTargetId(sdk_target_id);
 
-  local::RemoteTargetData remote_target_data(target_data.target_or_pipeline(),
-                                             new_remote_id,
-                                             target_data.sequence_number(),
-                                             target_data.purpose());
+  local::RemoteTargetData remote_target_data(
+      target_data.target_or_pipeline(), new_remote_id,
+      target_data.sequence_number(), target_data.purpose());
 
   listen_targets_[new_remote_id] = std::move(remote_target_data);
 
@@ -227,13 +230,22 @@ void RemoteStore::StopListening(TargetId target_id) {
   }
 }
 
+absl::optional<model::RemoteTargetId> RemoteStore::GetRemoteTargetId(
+    model::TargetId sdk_target_id) const {
+  auto found = target_id_map_sdk_to_remote_.find(sdk_target_id);
+  return found != target_id_map_sdk_to_remote_.end()
+             ? found->second
+             : absl::optional<model::RemoteTargetId>{};
+}
+
 void RemoteStore::SendWatchRequest(const local::RemoteTargetData& target_data) {
   watch_change_aggregator_->RecordPendingTargetRequest(target_data.target_id());
 
   if (!target_data.resume_token().empty()) {
     int32_t expectedCount =
         GetRemoteKeysForTarget(target_data.target_id()).size();
-    local::RemoteTargetData new_target_data = target_data.WithExpectedCount(expectedCount);
+    local::RemoteTargetData new_target_data =
+        target_data.WithExpectedCount(expectedCount);
     watch_stream_->WatchQuery(new_target_data);
   } else {
     watch_stream_->WatchQuery(target_data);
@@ -399,9 +411,9 @@ void RemoteStore::RaiseWatchSnapshot(const SnapshotVersion& snapshot_version) {
 
     // Clear the resume token for the query, since we're in a known mismatch
     // state.
-    target_data =
-        local::RemoteTargetData(target_data.target_or_pipeline(), target_id,
-                                target_data.sequence_number(), target_data.purpose());
+    target_data = local::RemoteTargetData(
+        target_data.target_or_pipeline(), target_id,
+        target_data.sequence_number(), target_data.purpose());
     listen_targets_[target_id] = target_data;
 
     // Cause a hard reset by unwatching and rewatching immediately, but
@@ -412,8 +424,9 @@ void RemoteStore::RaiseWatchSnapshot(const SnapshotVersion& snapshot_version) {
     // mismatch, but don't actually retain that in listen_targets_. This ensures
     // that we flag the first re-listen this way without impacting future
     // listens of this target (that might happen e.g. on reconnect).
-    local::RemoteTargetData request_target_data(target_data.target_or_pipeline(), target_id,
-                                                target_data.sequence_number(), purpose);
+    local::RemoteTargetData request_target_data(
+        target_data.target_or_pipeline(), target_id,
+        target_data.sequence_number(), purpose);
     SendWatchRequest(request_target_data);
   }
 
@@ -637,15 +650,17 @@ std::shared_ptr<Transaction> RemoteStore::CreateTransaction() {
   return std::make_shared<Transaction>(datastore_);
 }
 
-DocumentKeySet RemoteStore::GetRemoteKeysForTarget(model::RemoteTargetId target_id) const {
+DocumentKeySet RemoteStore::GetRemoteKeysForTarget(
+    model::RemoteTargetId target_id) const {
   return sync_engine_->GetRemoteKeys(target_id);
 }
 
 absl::optional<local::RemoteTargetData> RemoteStore::GetTargetDataForTarget(
     model::RemoteTargetId target_id) const {
   auto found = listen_targets_.find(target_id);
-  return found != listen_targets_.end() ? found->second
-                                        : absl::optional<local::RemoteTargetData>{};
+  return found != listen_targets_.end()
+             ? found->second
+             : absl::optional<local::RemoteTargetData>{};
 }
 
 const model::DatabaseId& RemoteStore::GetDatabaseId() const {

@@ -174,6 +174,9 @@ class RemoteStore : public TargetMetadataProvider,
    */
   void StopListening(model::TargetId target_id);
 
+  absl::optional<model::RemoteTargetId> GetRemoteTargetId(
+      model::TargetId sdk_target_id) const;
+
   /**
    * Attempts to fill our write pipeline with writes from the `LocalStore`.
    *
@@ -289,10 +292,13 @@ class RemoteStore : public TargetMetadataProvider,
    * to the server. The targets removed with unlistens are removed eagerly
    * without waiting for confirmation from the listen stream.
    */
-  std::unordered_map<model::RemoteTargetId, local::RemoteTargetData> listen_targets_;
+  std::unordered_map<model::RemoteTargetId, local::RemoteTargetData>
+      listen_targets_;
 
-  std::unordered_map<model::TargetId, model::RemoteTargetId> target_id_map_sdk_to_remote_;
-  std::unordered_map<model::RemoteTargetId, model::TargetId> target_id_map_remote_to_sdk_;
+  std::unordered_map<model::TargetId, model::RemoteTargetId>
+      target_id_map_sdk_to_remote_;
+  std::unordered_map<model::RemoteTargetId, model::TargetId>
+      target_id_map_remote_to_sdk_;
   core::RemoteTargetIdGenerator target_cache_target_id_generator_;
   core::RemoteTargetIdGenerator sync_engine_target_id_generator_;
 

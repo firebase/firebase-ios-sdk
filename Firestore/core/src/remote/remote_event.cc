@@ -35,9 +35,9 @@ using model::DatabaseId;
 using model::DocumentKey;
 using model::DocumentKeySet;
 using model::MutableDocument;
+using model::RemoteTargetId;
 using model::SnapshotVersion;
 using model::TargetId;
-using model::RemoteTargetId;
 using nanopb::ByteString;
 using util::TestingHooks;
 
@@ -285,7 +285,8 @@ void WatchChangeAggregator::HandleExistenceFilter(
   RemoteTargetId target_id = existence_filter.target_id();
   int expected_count = existence_filter.filter().count();
 
-  absl::optional<local::RemoteTargetData> target_data = TargetDataForActiveTarget(target_id);
+  absl::optional<local::RemoteTargetData> target_data =
+      TargetDataForActiveTarget(target_id);
   if (target_data) {
     const core::TargetOrPipeline& target_or_pipeline =
         target_data->target_or_pipeline();
@@ -303,8 +304,8 @@ void WatchChangeAggregator::HandleExistenceFilter(
                                    current_size)
                 : BloomFilterApplicationStatus::kSkipped;
         if (status != BloomFilterApplicationStatus::kSuccess) {
-           // If bloom filter application fails, we reset the mapping and
-           // trigger re-run of the query.
+          // If bloom filter application fails, we reset the mapping and
+          // trigger re-run of the query.
           ResetTarget(target_id);
           const QueryPurpose purpose =
               status == BloomFilterApplicationStatus::kFalsePositive
@@ -401,7 +402,8 @@ int WatchChangeAggregator::FilterRemovedDocuments(
   return removalCount;
 }
 
-RemoteEventTemplate<model::RemoteTargetId> WatchChangeAggregator::CreateRemoteEvent(
+RemoteEventTemplate<model::RemoteTargetId>
+WatchChangeAggregator::CreateRemoteEvent(
     const SnapshotVersion& snapshot_version) {
   std::unordered_map<RemoteTargetId, TargetChange> target_changes;
 
@@ -462,10 +464,10 @@ RemoteEventTemplate<model::RemoteTargetId> WatchChangeAggregator::CreateRemoteEv
     }
   }
 
-  RemoteEventTemplate<model::RemoteTargetId> remote_event{snapshot_version, std::move(target_changes),
-                                                          std::move(pending_target_resets_),
-                                                          std::move(pending_document_updates_),
-                                                          std::move(resolved_limbo_documents)};
+  RemoteEventTemplate<model::RemoteTargetId> remote_event{
+      snapshot_version, std::move(target_changes),
+      std::move(pending_target_resets_), std::move(pending_document_updates_),
+      std::move(resolved_limbo_documents)};
 
   // Re-initialize the current state to ensure that we do not modify the
   // generated `RemoteEvent`.
@@ -530,13 +532,15 @@ int WatchChangeAggregator::GetCurrentDocumentCountForTarget(
          target_change.removed_documents().size();
 }
 
-void WatchChangeAggregator::RecordPendingTargetRequest(RemoteTargetId target_id) {
+void WatchChangeAggregator::RecordPendingTargetRequest(
+    RemoteTargetId target_id) {
   // For each request we get we need to record we need a response for it.
   TargetState& target_state = EnsureTargetState(target_id);
   target_state.RecordPendingTargetRequest();
 }
 
-TargetState& WatchChangeAggregator::EnsureTargetState(RemoteTargetId target_id) {
+TargetState& WatchChangeAggregator::EnsureTargetState(
+    RemoteTargetId target_id) {
   return target_states_[target_id];
 }
 
@@ -544,7 +548,8 @@ bool WatchChangeAggregator::IsActiveTarget(RemoteTargetId target_id) const {
   return TargetDataForActiveTarget(target_id) != absl::nullopt;
 }
 
-absl::optional<local::RemoteTargetData> WatchChangeAggregator::TargetDataForActiveTarget(
+absl::optional<local::RemoteTargetData>
+WatchChangeAggregator::TargetDataForActiveTarget(
     RemoteTargetId target_id) const {
   auto target_state = target_states_.find(target_id);
   return target_state != target_states_.end() &&

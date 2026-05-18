@@ -63,7 +63,8 @@ template <typename TargetIdType>
 class TargetIdGeneratorTemplate;
 
 using TargetIdGenerator = TargetIdGeneratorTemplate<model::TargetId>;
-using RemoteTargetIdGenerator = TargetIdGeneratorTemplate<model::RemoteTargetId>;
+using RemoteTargetIdGenerator =
+    TargetIdGeneratorTemplate<model::RemoteTargetId>;
 class Transaction;
 class ViewDocumentChanges;
 class ViewChange;

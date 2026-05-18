@@ -171,11 +171,13 @@ class TargetDataTemplate {
    * Creates a new target data instance with an updated resume token and
    * snapshot version.
    */
-  TargetDataTemplate WithResumeToken(nanopb::ByteString resume_token,
-                                     model::SnapshotVersion snapshot_version) const;
+  TargetDataTemplate WithResumeToken(
+      nanopb::ByteString resume_token,
+      model::SnapshotVersion snapshot_version) const;
 
   /** Creates a new target data instance with an updated expected count. */
-  TargetDataTemplate WithExpectedCount(absl::optional<int32_t> expected_count) const;
+  TargetDataTemplate WithExpectedCount(
+      absl::optional<int32_t> expected_count) const;
 
   /**
    * Creates a new target data instance with an updated last limbo free snapshot

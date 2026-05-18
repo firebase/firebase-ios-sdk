@@ -114,7 +114,8 @@ bool operator==(const DocumentWatchChange& lhs, const DocumentWatchChange& rhs);
  */
 class ExistenceFilterWatchChange : public WatchChange {
  public:
-  ExistenceFilterWatchChange(ExistenceFilter filter, model::RemoteTargetId target_id)
+  ExistenceFilterWatchChange(ExistenceFilter filter,
+                             model::RemoteTargetId target_id)
       : filter_{std::move(filter)}, target_id_{target_id} {
   }
 

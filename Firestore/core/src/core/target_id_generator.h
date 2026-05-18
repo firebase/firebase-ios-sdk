@@ -56,8 +56,10 @@ class TargetIdGeneratorTemplate {
    * @param after An ID to start at. Every call to NextId returns a larger id.
    * @return An instance of TargetIdGenerator.
    */
-  static TargetIdGeneratorTemplate TargetCacheTargetIdGenerator(TargetIdType after) {
-    TargetIdGeneratorTemplate generator(TargetIdGeneratorId::TargetCache, after);
+  static TargetIdGeneratorTemplate TargetCacheTargetIdGenerator(
+      TargetIdType after) {
+    TargetIdGeneratorTemplate generator(TargetIdGeneratorId::TargetCache,
+                                        after);
     // Make sure that the next call to `NextId()` returns the first value after
     // 'after'.
     generator.NextId();
@@ -74,7 +76,8 @@ class TargetIdGeneratorTemplate {
     return TargetIdGeneratorTemplate(TargetIdGeneratorId::SyncEngine, 1);
   }
 
-  static TargetIdGeneratorTemplate SyncEngineTargetIdGenerator(TargetIdType after) {
+  static TargetIdGeneratorTemplate SyncEngineTargetIdGenerator(
+      TargetIdType after) {
     TargetIdGeneratorTemplate generator(TargetIdGeneratorId::SyncEngine, after);
     generator.NextId();
     return generator;
@@ -87,7 +90,8 @@ class TargetIdGeneratorTemplate {
   TargetIdType NextId();
 
  private:
-  TargetIdGeneratorTemplate(TargetIdGeneratorId generator_id, TargetIdType seed);
+  TargetIdGeneratorTemplate(TargetIdGeneratorId generator_id,
+                            TargetIdType seed);
   void seek(TargetIdType target_id);
 
   TargetIdGeneratorId generator_id_ = TargetIdGeneratorId::TargetCache;

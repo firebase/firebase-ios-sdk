@@ -352,7 +352,8 @@ class WatchChangeAggregator {
    * taken from the initializer. Resets the accumulated changes before
    * returning.
    */
-  RemoteEventTemplate<model::RemoteTargetId> CreateRemoteEvent(const model::SnapshotVersion& snapshot_version);
+  RemoteEventTemplate<model::RemoteTargetId> CreateRemoteEvent(
+      const model::SnapshotVersion& snapshot_version);
 
   /** Removes the in-memory state for the provided target. */
   void RemoveTarget(model::RemoteTargetId target_id);
@@ -471,7 +472,8 @@ class WatchChangeAggregator {
    * to be inconsistent and their listens needs to be re-established by
    * `RemoteStore`.
    */
-  RemoteEventTemplate<model::RemoteTargetId>::TargetMismatchMap pending_target_resets_;
+  RemoteEventTemplate<model::RemoteTargetId>::TargetMismatchMap
+      pending_target_resets_;
 
   TargetMetadataProvider* target_metadata_provider_ = nullptr;
 };

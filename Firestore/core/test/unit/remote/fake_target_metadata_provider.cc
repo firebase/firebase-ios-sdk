@@ -94,7 +94,8 @@ DocumentKeySet FakeTargetMetadataProvider::GetRemoteKeysForTarget(
   return it->second;
 }
 
-absl::optional<local::RemoteTargetData> FakeTargetMetadataProvider::GetTargetDataForTarget(
+absl::optional<local::RemoteTargetData>
+FakeTargetMetadataProvider::GetTargetDataForTarget(
     model::RemoteTargetId target_id) const {
   auto it = target_data_.find(target_id);
   HARD_ASSERT(it != target_data_.end(), "Cannot process unknown target %s",

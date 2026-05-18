@@ -18,8 +18,8 @@
 
 #include "Firestore/core/src/util/hard_assert.h"
 
-using firebase::firestore::model::TargetId;
 using firebase::firestore::model::RemoteTargetId;
+using firebase::firestore::model::TargetId;
 
 namespace firebase {
 namespace firestore {
