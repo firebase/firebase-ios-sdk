@@ -10,8 +10,7 @@ Before starting any work, the agent must require or acquire:
 1.  **Feature Specification**: An OpenAPI specification, a link to the public docs for the feature, a snippet of the
     proto changes, a detailed natural language description of the feature, a PR pointing to another implementation
     on another platform, or some combination of them.
-2.  **Project Configuration**: Use the `firebase-test-configs` skill to fetch the appropriate `GoogleService-Info.plist`
-    for the target Firebase project. Do NOT proceed with integration tests without this.
+2.  **Project Configuration**: A valid `GoogleService-Info.plist` is required for the target Firebase project. Do NOT proceed with integration tests without this.
 3.  **Test Mock Data**: Check if the `vertexai-sdk-test-data` directory exists already in `FirebaseAI/Tests/Unit`. If not, run `./scripts/update_vertexai_responses.sh` to clone them. DO NOT PROCEED until this directory is present.
 
 ## 📤 Output Requirements
@@ -117,8 +116,12 @@ The task is not done until a `walkthrough.md` artifact is created containing:
 3.  **Video Link**: Path to the recorded UI test.
 4.  **Network Traces**: Snippets of real requests and responses used.
 5.  **API Behaviours**: A reference to the updates in the `FirebaseAI/behaviours/` directory.
-6.  **Copy-Pastable Snippet**: A complete command line snippet showing how to run the test app and tests, including
-    copying the `GoogleService-Info.plist` using the `firebase-test-configs` skill.
+6.  **Copy-Pastable Snippet**: A complete command line snippet showing how to run the test app and
+    associated tests.
+
+* **CRITICAL**: Do **NOT** include secrets in the walkthrough. This includes API keys, project IDs,
+  `GoogleService-Info.plist` contents, or other sensitive information. Replace them with
+  placeholders.
 
 ---
 

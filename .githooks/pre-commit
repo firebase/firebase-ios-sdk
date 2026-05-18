@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Get staged files. 
+# Get staged files.
 # --diff-filter=ACMR selects only files that are Added (A), Copied (C), Modified (M), or Renamed (R).
 # This excludes Deleted files, which would cause errors if we tried to check their style.
 staged_files=$(git diff --cached --name-only --diff-filter=ACMR)

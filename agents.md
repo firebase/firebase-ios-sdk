@@ -195,13 +195,10 @@ a backend project. How these are handled in tests varies:
     *   If integration tests fail due to configuration issues, it might relate to how the CI
         environment provides this plist.
     *   For local execution of sample apps or some integration tests (if specifically requested
-        for a task), a valid plist is needed. Agents should check `.gemini/firebase-configs.json`
-        for a mapping of products to their target Firebase project configurations.
-        Agents can fetch this configuration file without manual intervention (if authenticated)
-        by using the Firebase CLI via `npx` to avoid installation:
-        ```bash
-        npx firebase apps:sdkconfig ios <APP_ID> -o <PATH_TO_TARGET_DIRECTORY>/GoogleService-Info.plist
-        ```
+        for a task), a valid plist obtained from the Firebase console for a test project would
+        be needed, as described in the original `README.md`. However, direct interaction with
+        the Firebase console to download plists is outside typical AI agent operations unless
+        explicitly guided.
 
 ### Product-Specific Testing Notes
 
@@ -216,12 +213,7 @@ a backend project. How these are handled in tests varies:
         `FirebaseStorage/Tests/Integration/StorageIntegration.swift`.
 *   **Firebase AI**:
     *   Integration tests and the test app require a valid `GoogleService-Info.plist`.
-    *   Agents should check `.gemini/firebase-configs.json` for the default project and App ID.
-    *   You can fetch the config using the Firebase CLI without installation by running:
-        ```bash
-        npx firebase apps:sdkconfig ios <APP_ID> -o FirebaseAI/Tests/TestApp/Resources/GoogleService-Info.plist
-        ```
-    *   Ensure you have the correct App ID and are authenticated with access to the project.
+
 *   **Push Notifications (General for Messaging, etc.)**:
     *   Cannot be tested on the iOS Simulator; requires a physical device.
     *   Requires specific App ID provisioning in the Apple Developer portal.
