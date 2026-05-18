@@ -16,7 +16,8 @@
   </a>
 </p>
 
-- todo: deprecation announcement and link to migration guide
+> [!WARNING]
+> **CocoaPods Deprecation:** The Firebase Apple SDK via CocoaPods is deprecated in favor of Swift Package Manager. Firebase products remain fully supported, but new versions will no longer be published to CocoaPods after **October 2026**. See the [migration guide](https://firebase.google.com/docs/ios/cocoapods-deprecation) for more information.
 
 # Firebase Apple Open Source Development
 
