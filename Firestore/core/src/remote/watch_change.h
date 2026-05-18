@@ -62,8 +62,8 @@ bool operator==(const WatchChange& lhs, const WatchChange& rhs);
  */
 class DocumentWatchChange : public WatchChange {
  public:
-  DocumentWatchChange(std::vector<model::TargetId> updated_target_ids,
-                      std::vector<model::TargetId> removed_target_ids,
+  DocumentWatchChange(std::vector<model::RemoteTargetId> updated_target_ids,
+                      std::vector<model::RemoteTargetId> removed_target_ids,
                       model::DocumentKey document_key,
                       absl::optional<model::MutableDocument> new_document)
       : updated_target_ids_{std::move(updated_target_ids)},
@@ -77,12 +77,12 @@ class DocumentWatchChange : public WatchChange {
   }
 
   /** The new document applies to all of these targets. */
-  const std::vector<model::TargetId>& updated_target_ids() const {
+  const std::vector<model::RemoteTargetId>& updated_target_ids() const {
     return updated_target_ids_;
   }
 
   /** The new document is removed from all of these targets. */
-  const std::vector<model::TargetId>& removed_target_ids() const {
+  const std::vector<model::RemoteTargetId>& removed_target_ids() const {
     return removed_target_ids_;
   }
 
@@ -100,8 +100,8 @@ class DocumentWatchChange : public WatchChange {
   }
 
  private:
-  std::vector<model::TargetId> updated_target_ids_;
-  std::vector<model::TargetId> removed_target_ids_;
+  std::vector<model::RemoteTargetId> updated_target_ids_;
+  std::vector<model::RemoteTargetId> removed_target_ids_;
   model::DocumentKey document_key_;
   absl::optional<model::MutableDocument> new_document_;
 };
@@ -114,7 +114,8 @@ bool operator==(const DocumentWatchChange& lhs, const DocumentWatchChange& rhs);
  */
 class ExistenceFilterWatchChange : public WatchChange {
  public:
-  ExistenceFilterWatchChange(ExistenceFilter filter, model::TargetId target_id)
+  ExistenceFilterWatchChange(ExistenceFilter filter,
+                             model::RemoteTargetId target_id)
       : filter_{std::move(filter)}, target_id_{target_id} {
   }
 
@@ -125,13 +126,13 @@ class ExistenceFilterWatchChange : public WatchChange {
   const ExistenceFilter& filter() const {
     return filter_;
   }
-  model::TargetId target_id() const {
+  model::RemoteTargetId target_id() const {
     return target_id_;
   }
 
  private:
   ExistenceFilter filter_;
-  model::TargetId target_id_;
+  model::RemoteTargetId target_id_;
 };
 
 bool operator==(const ExistenceFilterWatchChange& lhs,
@@ -142,27 +143,27 @@ enum class WatchTargetChangeState { NoChange, Added, Removed, Current, Reset };
 class WatchTargetChange : public WatchChange {
  public:
   WatchTargetChange(WatchTargetChangeState state,
-                    std::vector<model::TargetId> target_ids)
+                    std::vector<model::RemoteTargetId> target_ids)
       : WatchTargetChange{state, std::move(target_ids), nanopb::ByteString(),
                           util::Status::OK()} {
   }
 
   WatchTargetChange(WatchTargetChangeState state,
-                    std::vector<model::TargetId> target_ids,
+                    std::vector<model::RemoteTargetId> target_ids,
                     nanopb::ByteString resume_token)
       : WatchTargetChange{state, std::move(target_ids), std::move(resume_token),
                           util::Status::OK()} {
   }
 
   WatchTargetChange(WatchTargetChangeState state,
-                    std::vector<model::TargetId> target_ids,
+                    std::vector<model::RemoteTargetId> target_ids,
                     util::Status cause)
       : WatchTargetChange{state, std::move(target_ids), nanopb::ByteString(),
                           cause} {
   }
 
   WatchTargetChange(WatchTargetChangeState state,
-                    std::vector<model::TargetId> target_ids,
+                    std::vector<model::RemoteTargetId> target_ids,
                     nanopb::ByteString resume_token,
                     util::Status cause)
       : state_{state},
@@ -181,7 +182,7 @@ class WatchTargetChange : public WatchChange {
   }
 
   /** The target IDs that were added/removed/set. */
-  const std::vector<model::TargetId>& target_ids() const {
+  const std::vector<model::RemoteTargetId>& target_ids() const {
     return target_ids_;
   }
 
@@ -205,7 +206,7 @@ class WatchTargetChange : public WatchChange {
 
  private:
   WatchTargetChangeState state_;
-  std::vector<model::TargetId> target_ids_;
+  std::vector<model::RemoteTargetId> target_ids_;
   nanopb::ByteString resume_token_;
   util::Status cause_;
 };

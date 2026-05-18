@@ -21,6 +21,8 @@
 #include <memory>
 #include <string>
 
+#include "Firestore/core/src/model/types.h"
+
 namespace firebase {
 namespace firestore {
 
@@ -56,7 +58,13 @@ class SyncEngine;
 class SyncEngineCallback;
 class Target;
 class TargetOrPipeline;
-class TargetIdGenerator;
+
+template <typename TargetIdType>
+class TargetIdGeneratorTemplate;
+
+using TargetIdGenerator = TargetIdGeneratorTemplate<model::TargetId>;
+using RemoteTargetIdGenerator =
+    TargetIdGeneratorTemplate<model::RemoteTargetId>;
 class Transaction;
 class ViewDocumentChanges;
 class ViewChange;

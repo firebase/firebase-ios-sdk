@@ -32,12 +32,10 @@
 #include "Firestore/core/test/unit/local/counting_query_engine.h"
 #include "gtest/gtest.h"
 
+#include "Firestore/core/src/remote/remote_event_fwd.h"
+
 namespace firebase {
 namespace firestore {
-
-namespace remote {
-class RemoteEvent;
-}  // namespace remote
 
 namespace local {
 

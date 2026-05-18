@@ -75,9 +75,11 @@ class MockDatastore : public Datastore {
   void FailWatchStream(const util::Status& error);
 
   /** Returns the set of active targets on the watch stream. */
-  const std::unordered_map<model::TargetId, local::TargetData>& ActiveTargets() const;
+  const std::unordered_map<model::RemoteTargetId, local::RemoteTargetData>& ActiveTargets() const;
   /** Helper method to expose watch stream state to verify in tests. */
   bool IsWatchStreamOpen() const;
+
+  void set_allow_unlisted_target_removal(bool allow);
 
   /**
    * Returns the next write that was "sent to the backend", failing if there are no queued sent

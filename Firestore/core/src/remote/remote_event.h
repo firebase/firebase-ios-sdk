@@ -24,20 +24,18 @@
 #include <vector>
 
 #include "Firestore/core/src/core/view_snapshot.h"
+#include "Firestore/core/src/local/target_data_fwd.h"
 #include "Firestore/core/src/model/document_key.h"
 #include "Firestore/core/src/model/document_key_set.h"
 #include "Firestore/core/src/model/mutable_document.h"
 #include "Firestore/core/src/model/snapshot_version.h"
 #include "Firestore/core/src/model/types.h"
 #include "Firestore/core/src/nanopb/byte_string.h"
+#include "Firestore/core/src/remote/remote_event_fwd.h"
 #include "Firestore/core/src/remote/watch_change.h"
 
 namespace firebase {
 namespace firestore {
-
-namespace local {
-class TargetData;
-}  // namespace local
 
 namespace remote {
 
@@ -56,14 +54,14 @@ class TargetMetadataProvider {
    * last raised snapshot.
    */
   virtual model::DocumentKeySet GetRemoteKeysForTarget(
-      model::TargetId target_id) const = 0;
+      model::RemoteTargetId target_id) const = 0;
 
   /**
    * Returns the TargetData for an active target ID or `nullopt` if this query
    * has become inactive.
    */
-  virtual absl::optional<local::TargetData> GetTargetDataForTarget(
-      model::TargetId target_id) const = 0;
+  virtual absl::optional<local::RemoteTargetData> GetTargetDataForTarget(
+      model::RemoteTargetId target_id) const = 0;
 
   /** Returns the database ID of the Firestore instance. */
   virtual const model::DatabaseId& GetDatabaseId() const = 0;
@@ -245,17 +243,18 @@ class TargetState {
  * the state or the set of documents in our watched targets) and
  * `DocumentUpdates` (changes to the actual documents).
  */
-class RemoteEvent {
+template <typename TargetIdType>
+class RemoteEventTemplate {
  public:
-  using TargetChangeMap = std::unordered_map<model::TargetId, TargetChange>;
+  using TargetChangeMap = std::unordered_map<TargetIdType, TargetChange>;
   using TargetMismatchMap =
-      std::unordered_map<model::TargetId, local::QueryPurpose>;
+      std::unordered_map<TargetIdType, local::QueryPurpose>;
 
-  RemoteEvent(model::SnapshotVersion snapshot_version,
-              TargetChangeMap target_changes,
-              TargetMismatchMap target_mismatches,
-              model::DocumentUpdateMap document_updates,
-              model::DocumentKeySet limbo_document_changes)
+  RemoteEventTemplate(model::SnapshotVersion snapshot_version,
+                      TargetChangeMap target_changes,
+                      TargetMismatchMap target_mismatches,
+                      model::DocumentUpdateMap document_updates,
+                      model::DocumentKeySet limbo_document_changes)
       : snapshot_version_{snapshot_version},
         target_changes_{std::move(target_changes)},
         target_mismatches_{std::move(target_mismatches)},
@@ -273,12 +272,20 @@ class RemoteEvent {
     return target_changes_;
   }
 
+  TargetChangeMap& target_changes() {
+    return target_changes_;
+  }
+
   /**
    * A map of targets that is known to be inconsistent, and the purpose for
    * re-listening. Listens for these targets should be re-established without
    * resume tokens.
    */
   const TargetMismatchMap& target_mismatches() const {
+    return target_mismatches_;
+  }
+
+  TargetMismatchMap& target_mismatches() {
     return target_mismatches_;
   }
 
@@ -290,10 +297,18 @@ class RemoteEvent {
     return document_updates_;
   }
 
+  model::DocumentUpdateMap& document_updates() {
+    return document_updates_;
+  }
+
   /**
    * A set of which document updates are due only to limbo resolution targets.
    */
   const model::DocumentKeySet& limbo_document_changes() const {
+    return limbo_document_changes_;
+  }
+
+  model::DocumentKeySet& limbo_document_changes() {
     return limbo_document_changes_;
   }
 
@@ -337,16 +352,17 @@ class WatchChangeAggregator {
    * taken from the initializer. Resets the accumulated changes before
    * returning.
    */
-  RemoteEvent CreateRemoteEvent(const model::SnapshotVersion& snapshot_version);
+  RemoteEventTemplate<model::RemoteTargetId> CreateRemoteEvent(
+      const model::SnapshotVersion& snapshot_version);
 
   /** Removes the in-memory state for the provided target. */
-  void RemoveTarget(model::TargetId target_id);
+  void RemoveTarget(model::RemoteTargetId target_id);
 
   /**
    * Increment the number of acks needed from watch before we can consider the
    * server to be 'in-sync' with the client's active targets.
    */
-  void RecordPendingTargetRequest(model::TargetId target_id);
+  void RecordPendingTargetRequest(model::RemoteTargetId target_id);
 
  private:
   /**
@@ -354,14 +370,14 @@ class WatchChangeAggregator {
    * `TargetId`s explicitly listed in the change or the `TargetId`s of all
    * currently active targets.
    */
-  std::vector<model::TargetId> GetTargetIds(
+  std::vector<model::RemoteTargetId> GetTargetIds(
       const WatchTargetChange& target_change) const;
 
   /**
    * Adds the provided document to the internal list of document updates and its
    * document key to the given target's mapping.
    */
-  void AddDocumentToTarget(model::TargetId target_id,
+  void AddDocumentToTarget(model::RemoteTargetId target_id,
                            const model::MutableDocument& document);
 
   /**
@@ -372,7 +388,7 @@ class WatchChangeAggregator {
    * document cache.
    */
   void RemoveDocumentFromTarget(
-      model::TargetId target_id,
+      model::RemoteTargetId target_id,
       const model::DocumentKey& key,
       const absl::optional<model::MutableDocument>& updated_document);
 
@@ -381,11 +397,11 @@ class WatchChangeAggregator {
    * the number of documents that the LocalStore considers to be part of the
    * target as well as any accumulated changes.
    */
-  int GetCurrentDocumentCountForTarget(model::TargetId target_id);
+  int GetCurrentDocumentCountForTarget(model::RemoteTargetId target_id);
 
   // PORTING NOTE: this method exists only for consistency with other platforms;
   // in C++, it's pretty much unnecessary.
-  TargetState& EnsureTargetState(model::TargetId target_id);
+  TargetState& EnsureTargetState(model::RemoteTargetId target_id);
 
   /**
    * Returns true if the given `target_id` is active. Active targets are those
@@ -396,25 +412,25 @@ class WatchChangeAggregator {
    * is useful in preventing race conditions for a target where events arrive
    * but the server hasn't yet acknowledged the intended change in state.
    */
-  bool IsActiveTarget(model::TargetId target_id) const;
+  bool IsActiveTarget(model::RemoteTargetId target_id) const;
 
   /**
    * Returns the `TargetData` for an active target (i.e., a target that the user
    * is still interested in that has no outstanding target change requests).
    */
-  absl::optional<local::TargetData> TargetDataForActiveTarget(
-      model::TargetId target_id) const;
+  absl::optional<local::RemoteTargetData> TargetDataForActiveTarget(
+      model::RemoteTargetId target_id) const;
 
   /**
    * Resets the state of a Watch target to its initial state (e.g. sets
    * 'current' to false, clears the resume token and removes its target mapping
    * from all documents).
    */
-  void ResetTarget(model::TargetId target_id);
+  void ResetTarget(model::RemoteTargetId target_id);
 
   /** Returns whether the local store considers the document to be part of the
    * specified target. */
-  bool TargetContainsDocument(model::TargetId target_id,
+  bool TargetContainsDocument(model::RemoteTargetId target_id,
                               const model::DocumentKey& key);
 
   /**
@@ -440,14 +456,14 @@ class WatchChangeAggregator {
   int FilterRemovedDocuments(const BloomFilter& bloom_filter, int target_id);
 
   /** The internal state of all tracked targets. */
-  std::unordered_map<model::TargetId, TargetState> target_states_;
+  std::unordered_map<model::RemoteTargetId, TargetState> target_states_;
 
   /** Keeps track of the documents to update since the last raised snapshot. */
   model::DocumentUpdateMap pending_document_updates_;
 
   /** A mapping of document keys to their set of target IDs. */
   std::unordered_map<model::DocumentKey,
-                     std::set<model::TargetId>,
+                     std::set<model::RemoteTargetId>,
                      model::DocumentKeyHash>
       pending_document_target_mappings_;
 
@@ -456,7 +472,8 @@ class WatchChangeAggregator {
    * to be inconsistent and their listens needs to be re-established by
    * `RemoteStore`.
    */
-  RemoteEvent::TargetMismatchMap pending_target_resets_;
+  RemoteEventTemplate<model::RemoteTargetId>::TargetMismatchMap
+      pending_target_resets_;
 
   TargetMetadataProvider* target_metadata_provider_ = nullptr;
 };

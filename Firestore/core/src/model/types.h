@@ -43,6 +43,12 @@ using ListenSequenceNumber = int64_t;
 using TargetId = int32_t;
 
 /**
+ * RemoteTargetId is a transient numeric identifier assigned by RemoteStore
+ * for a specific query listen on the Watch stream.
+ */
+using RemoteTargetId = int32_t;
+
+/**
  * Describes the online state of the Firestore client. Note that this does not
  * indicate whether or not the remote store is trying to connect or not. This is
  * primarily used by the View / EventManager code to change their behavior while
