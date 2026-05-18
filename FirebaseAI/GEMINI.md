@@ -129,5 +129,5 @@ The task is not done until a `walkthrough.md` artifact is created containing:
 After completing the task and creating the walkthrough, you must perform a self-reflection:
 1.  **Challenges Discovered**: What was harder than expected? Did you encounter gaps in documentation or tooling?
 2.  **Knowledge Updates**: If you discovered a new pattern, fixed a tricky bug, or found a better way to do something,
-    provide updates to this file (`GEMINI.md`) or create/update a Knowledge Item to help future agents avoid the same
+    provide updates to this file (`GEMINI.md`), the codebase map ([agent_map.md](file:///Users/wilsonryan/Code/agentic-firebase-ios-sdk/FirebaseAI/agent_map.md)), or create/update a Knowledge Item to help future agents avoid the same
     issues.
