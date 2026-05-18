@@ -12,8 +12,7 @@ Before starting any work, the agent must require or acquire:
     on another platform, or some combination of them.
 2.  **Project Configuration**: Use the `firebase-test-configs` skill to fetch the appropriate `GoogleService-Info.plist`
     for the target Firebase project. Do NOT proceed with integration tests without this.
-3.  **Test Data**: Run `./scripts/update_vertexai_responses.sh` to clone the shared test data repository
-    (`vertexai-sdk-test-data`) into `FirebaseAI/Tests/Unit/`.
+3.  **Test Mock Data**: Check if the `vertexai-sdk-test-data` directory exists already in `FirebaseAI/Tests/Unit`. If not, run `./scripts/update_vertexai_responses.sh` to clone them. DO NOT PROCEED until this directory is present.
 
 ## 📤 Output Requirements
 
@@ -73,6 +72,16 @@ A successful task completion MUST produce:
 
 ---
 
+## 🧪 Running Tests
+
+To run the unit tests for Firebase AI Logic, follow these steps:
+- Use the following command to run unit tests from the root of the repo:
+  ```bash
+  xcodebuild test -scheme FirebaseAILogicUnit -destination "platform=iOS Simulator,name=iPhone 17,OS=latest" -quiet
+  ```
+
+---
+
 ## 🏆 Quality Gates & Best Practices
 
 To ensure "rock solid" quality, the agent must check:
@@ -100,7 +109,7 @@ Take this list and ensure all work is complete before creating a new commit:
 
 ---
 
-## 📝 Final Walkthrough Structure
+## 📝 Final Walkthrough and Commit Structure
 
 The task is not done until a `walkthrough.md` artifact is created containing:
 1.  **Summary of Changes**: High-level overview.
