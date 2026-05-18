@@ -22,6 +22,8 @@ let firebaseVersion = "12.14.0"
 
 let shouldUseSourceFirestore = Context.environment["FIREBASE_SOURCE_FIRESTORE"] != nil
 
+let isAgent = Context.environment["ANTIGRAVITY_AGENT"] != nil
+
 let package = Package(
   name: "Firebase",
   platforms: [.iOS(.v15), .macCatalyst(.v15), .macOS(.v10_15), .tvOS(.v15), .watchOS(.v7)],
@@ -1421,7 +1423,7 @@ func googleAppMeasurementDependency() -> Package.Dependency {
 
   // Point SPM CI to the tip of main of https://github.com/google/GoogleAppMeasurement so that the
   // release process can defer publishing the GoogleAppMeasurement tag until after testing.
-  if Context.environment["FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT"] != nil {
+  if Context.environment["FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT"] != nil || isAgent {
     return .package(url: appMeasurementURL, branch: "main")
   }
 
