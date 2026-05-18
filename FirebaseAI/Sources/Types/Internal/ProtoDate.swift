@@ -53,6 +53,12 @@ struct ProtoDate {
       day: day
     )
   }
+
+  init(year: Int?, month: Int?, day: Int?) {
+    self.year = year
+    self.month = month
+    self.day = day
+  }
 }
 
 // MARK: - Codable Conformance
@@ -113,5 +119,22 @@ extension ProtoDate: Decodable {
         debugDescription: "Invalid date: missing year, month and day"
       ))
     }
+  }
+}
+
+extension ProtoDate: Encodable {
+  func encode(to encoder: any Encoder) throws {
+    var container = encoder.container(keyedBy: CodingKeys.self)
+    try container.encodeIfPresent(year, forKey: .year)
+    try container.encodeIfPresent(month, forKey: .month)
+    try container.encodeIfPresent(day, forKey: .day)
+  }
+}
+
+extension ProtoDate {
+  init(dateComponents: DateComponents) {
+    self.year = dateComponents.year
+    self.month = dateComponents.month
+    self.day = dateComponents.day
   }
 }

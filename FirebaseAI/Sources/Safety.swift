@@ -74,7 +74,7 @@ public struct SafetyRating: Equatable, Hashable, Sendable {
   /// The probability that a given model output falls under a harmful content category.
   ///
   /// > Note: This does not indicate the severity of harm for a piece of content.
-  public struct HarmProbability: DecodableProtoEnum, Hashable, Sendable {
+  public struct HarmProbability: CodableProtoEnum, Hashable, Sendable {
     enum Kind: String {
       case unspecified = "HARM_PROBABILITY_UNSPECIFIED"
       case negligible = "NEGLIGIBLE"
@@ -113,7 +113,7 @@ public struct SafetyRating: Equatable, Hashable, Sendable {
   }
 
   /// The magnitude of how harmful a model response might be for the respective ``HarmCategory``.
-  public struct HarmSeverity: DecodableProtoEnum, Hashable, Sendable {
+  public struct HarmSeverity: CodableProtoEnum, Hashable, Sendable {
     enum Kind: String {
       case unspecified = "HARM_SEVERITY_UNSPECIFIED"
       case negligible = "HARM_SEVERITY_NEGLIGIBLE"
@@ -298,6 +298,20 @@ extension SafetyRating: Decodable {
 
     // The blocked field is only included when true.
     blocked = try container.decodeIfPresent(Bool.self, forKey: .blocked) ?? false
+  }
+}
+
+extension SafetyRating: Encodable {
+  public func encode(to encoder: any Encoder) throws {
+    var container = encoder.container(keyedBy: CodingKeys.self)
+    try container.encode(category, forKey: .category)
+    try container.encode(probability, forKey: .probability)
+    try container.encode(probabilityScore, forKey: .probabilityScore)
+    try container.encode(severity, forKey: .severity)
+    try container.encode(severityScore, forKey: .severityScore)
+    if blocked {
+      try container.encode(blocked, forKey: .blocked)
+    }
   }
 }
 

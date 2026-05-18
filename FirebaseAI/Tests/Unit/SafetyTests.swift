@@ -119,4 +119,29 @@ final class SafetyTests: XCTestCase {
     }
     """)
   }
+
+  // MARK: - SafetyRating Encoding
+
+  func testEncodeSafetyRating() throws {
+    let rating = SafetyRating(
+      category: .hateSpeech,
+      probability: .low,
+      probabilityScore: 0.2,
+      severity: .medium,
+      severityScore: 0.5,
+      blocked: true
+    )
+    let jsonData = try encoder.encode(rating)
+    let jsonString = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
+    XCTAssertEqual(jsonString, """
+    {
+      "blocked" : true,
+      "category" : "HARM_CATEGORY_HATE_SPEECH",
+      "probability" : "LOW",
+      "probabilityScore" : 0.2,
+      "severity" : "HARM_SEVERITY_MEDIUM",
+      "severityScore" : 0.5
+    }
+    """)
+  }
 }

@@ -689,6 +689,13 @@ extension CitationMetadata: Decodable {
   }
 }
 
+extension CitationMetadata: Encodable {
+  public func encode(to encoder: any Encoder) throws {
+    var container = encoder.container(keyedBy: CodingKeys.self)
+    try container.encode(citations, forKey: .citations)
+  }
+}
+
 extension Citation: Decodable {
   enum CodingKeys: CodingKey {
     case startIndex
@@ -736,6 +743,20 @@ extension Citation: Decodable {
       }
     } else {
       publicationDate = nil
+    }
+  }
+}
+
+extension Citation: Encodable {
+  public func encode(to encoder: any Encoder) throws {
+    var container = encoder.container(keyedBy: CodingKeys.self)
+    try container.encode(startIndex, forKey: .startIndex)
+    try container.encode(endIndex, forKey: .endIndex)
+    try container.encodeIfPresent(uri, forKey: .uri)
+    try container.encodeIfPresent(title, forKey: .title)
+    try container.encodeIfPresent(license, forKey: .license)
+    if let publicationDate {
+      try container.encode(ProtoDate(dateComponents: publicationDate), forKey: .publicationDate)
     }
   }
 }

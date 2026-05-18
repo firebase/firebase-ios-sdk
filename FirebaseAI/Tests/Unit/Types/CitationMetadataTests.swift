@@ -74,4 +74,53 @@ final class CitationMetadataTests: XCTestCase {
     let citation = try XCTUnwrap(citationMetadata.citations.first)
     XCTAssertEqual(citation, expectedCitation)
   }
+
+  // MARK: - CitationMetadata Encoding
+
+  func testEncodeCitationMetadata() throws {
+    let citation = Citation(
+      startIndex: expectedStartIndex,
+      endIndex: expectedEndIndex,
+      uri: expectedURI,
+      title: "Test Title",
+      license: "Apache-2.0",
+      publicationDate: DateComponents(year: 2026, month: 5, day: 18)
+    )
+    let metadata = CitationMetadata(citations: [citation])
+    let encoder = JSONEncoder()
+    encoder.outputFormatting = [.prettyPrinted, .sortedKeys, .withoutEscapingSlashes]
+    let data = try encoder.encode(metadata)
+    let jsonString = try XCTUnwrap(String(data: data, encoding: .utf8))
+
+    XCTAssertEqual(jsonString, """
+    {
+      "citations" : [
+        {
+          "endIndex" : 200,
+          "license" : "Apache-2.0",
+          "publicationDate" : {
+            "day" : 18,
+            "month" : 5,
+            "year" : 2026
+          },
+          "startIndex" : 100,
+          "title" : "Test Title",
+          "uri" : "https://example.com/citation-1"
+        }
+      ]
+    }
+    """)
+
+    let decodedMetadata = try decoder.decode(CitationMetadata.self, from: data)
+    XCTAssertEqual(decodedMetadata.citations.count, 1)
+    let decodedCitation = try XCTUnwrap(decodedMetadata.citations.first)
+    XCTAssertEqual(decodedCitation.startIndex, expectedStartIndex)
+    XCTAssertEqual(decodedCitation.endIndex, expectedEndIndex)
+    XCTAssertEqual(decodedCitation.uri, expectedURI)
+    XCTAssertEqual(decodedCitation.title, "Test Title")
+    XCTAssertEqual(decodedCitation.license, "Apache-2.0")
+    XCTAssertEqual(decodedCitation.publicationDate?.year, 2026)
+    XCTAssertEqual(decodedCitation.publicationDate?.month, 5)
+    XCTAssertEqual(decodedCitation.publicationDate?.day, 18)
+  }
 }
