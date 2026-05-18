@@ -179,6 +179,31 @@ class APITests: APITestBase {
     registration.remove()
   }
 
+  func testRealtimeRemoteConfigRealConsoleAsync() async {
+    guard APITests.useFakeConfig == false else { return }
+
+    let expectation = expectation(description: #function)
+
+    let task = Task {
+      for await updateResult in config.updateStream {
+        switch updateResult {
+        case let .success(update):
+          XCTAssertNotNil(update)
+          XCTAssertNotNil(update.updatedKeys.contains(Constants.jedi))
+        case let .failure(error):
+          XCTFail("Expected a successful update result, but received an error: \(error)")
+        }
+
+        expectation.fulfill()
+      }
+    }
+
+    console.updateRemoteConfigValue(Constants.yoda, forKey: Constants.jedi)
+
+    await fulfillment(of: [expectation], timeout: 5.0)
+    task.cancel()
+  }
+
   // MARK: - RemoteConfigConsole Tests
 
   func testFetchConfigThenUpdateConsoleThenFetchAgain() {
