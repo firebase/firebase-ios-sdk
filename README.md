@@ -16,10 +16,13 @@
   </a>
 </p>
 
-> [!WARNING]
-> **CocoaPods Deprecation:** Installing the Firebase Apple SDK using CocoaPods is deprecated in favor of Swift
-> Package Manager. Firebase products remain fully supported, but new versions will no longer be
-> published to CocoaPods after **October 2026**. See the [migration guide](https://firebase.google.com/docs/ios/cocoapods-deprecation) for more information.
+> [!IMPORTANT]
+> **CocoaPods:** New versions of the Firebase Apple SDK will no longer be
+> published to CocoaPods after **October 2026**. Existing CocoaPods versions
+> will remain available and installations will remain functional. See the
+> [migration guide](https://firebase.google.com/docs/ios/cocoapods-deprecation)
+> for more information.
+
 
 # Firebase Apple Open Source Development
 
