@@ -483,9 +483,9 @@ maintenance. The existing dependencies are curated and managed by the Firebase t
 seems to require functionality that might suggest a new library, discuss alternatives or confirm
 the need for a new dependency with the user first.
 
-## Updating agents.md
+## Updating GEMINI.md
 
-This document (`agents.md`) is intended as a living guide to assist AI agents (like Jules) in
+This document (`GEMINI.md`) is intended as a living guide to assist AI agents (like Jules) in
 understanding and contributing to the `firebase-ios-sdk` repository. As the SDK evolves, new
 patterns may emerge, best practices might be updated, or setup procedures could change.
 
@@ -497,5 +497,5 @@ If, during the course of completing new tasks, you identify:
 *   Any other information that would be beneficial for an AI agent to have context on this
     repository.
 
-Please consider updating this `agents.md` file to reflect those new findings. Keeping this
+Please consider updating this `GEMINI.md` file to reflect those new findings. Keeping this
 document current will improve the efficiency and accuracy of future AI-assisted development.
