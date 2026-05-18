@@ -17,8 +17,9 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
   }
 
   s.deprecated_in_favor_of = 'the Firebase Apple SDK via Swift Package ' \
-                             'Manager. Firebase products remain fully ' \
-                             'supported, but new versions will no longer be ' \
+                             'Manager. Existing CocoaPods versions will ' \
+                             'remain available and installations will remain ' \
+                             'functional, but new versions will no longer be ' \
                              'published to CocoaPods after October 2026. ' \
                              'See: https://firebase.google.com/docs/ios/cocoapods-deprecation'
 
