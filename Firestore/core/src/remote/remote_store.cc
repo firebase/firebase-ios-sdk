@@ -195,7 +195,10 @@ void RemoteStore::Listen(TargetData target_data) {
 
   local::RemoteTargetData remote_target_data(
       target_data.target_or_pipeline(), new_remote_id,
-      target_data.sequence_number(), target_data.purpose());
+      target_data.sequence_number(), target_data.purpose(),
+      target_data.snapshot_version(),
+      target_data.last_limbo_free_snapshot_version(),
+      target_data.resume_token(), target_data.expected_count());
 
   listen_targets_[new_remote_id] = std::move(remote_target_data);
 
@@ -652,7 +655,11 @@ std::shared_ptr<Transaction> RemoteStore::CreateTransaction() {
 
 DocumentKeySet RemoteStore::GetRemoteKeysForTarget(
     model::RemoteTargetId target_id) const {
-  return sync_engine_->GetRemoteKeys(target_id);
+  auto found = target_id_map_remote_to_sdk_.find(target_id);
+  if (found != target_id_map_remote_to_sdk_.end()) {
+    return sync_engine_->GetRemoteKeys(found->second);
+  }
+  return DocumentKeySet{};
 }
 
 absl::optional<local::RemoteTargetData> RemoteStore::GetTargetDataForTarget(
