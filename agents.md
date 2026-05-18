@@ -89,6 +89,11 @@ Swift). Any code generated or modified must adhere to these standards.
     repository.
 *   Failures in CI style checks often indicate that code modifications were not formatted
     correctly with these tools.
+*   **Git Pre-commit Hook**: A pre-commit hook is available to automatically run style checks
+    on staged files. To enable it, run:
+    ```bash
+    git config core.hooksPath .githooks
+    ```
 
 ### Firestore Specific Development
 

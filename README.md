@@ -157,6 +157,15 @@ brew install clang-format@22
 brew install mint
 ```
 
+#### Automatic Style Check with Git Hooks
+
+You can enable a pre-commit hook to automatically run style checks on your staged
+files before committing. To enable it, run:
+
+```console
+git config core.hooksPath .githooks
+```
+
 ### Running Unit Tests
 
 Select a scheme and press Command-u to build a component and run its unit tests.
