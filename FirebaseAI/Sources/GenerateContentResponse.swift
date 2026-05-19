@@ -543,7 +543,7 @@ extension GenerateContentResponse: Decodable {
     guard container.contains(CodingKeys.candidates)
       || container.contains(CodingKeys.promptFeedback)
       || container.contains(CodingKeys.usageMetadata) else {
-      let keys = container.allKeys.map { $0.stringValue }.joined(separator: ", ")
+      let keys = container.allKeys.map { $0.stringValue }.sorted().joined(separator: ", ")
       let context = DecodingError.Context(
         codingPath: decoder.codingPath,
         debugDescription: """

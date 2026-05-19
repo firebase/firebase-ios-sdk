@@ -320,6 +320,7 @@ final class GenerateContentResponseTests: XCTestCase {
   func testDecodeGenerateContentResponse_missingRequiredKeys_throwsError() throws {
     let json = """
     {
+      "responseId": "test-response-id",
       "modelVersion": "gemini-2.5-flash"
     }
     """
@@ -338,7 +339,7 @@ final class GenerateContentResponseTests: XCTestCase {
       XCTAssertTrue(context.debugDescription.contains(
         "missing keys 'candidates', 'promptFeedback' or 'usageMetadata'"
       ))
-      XCTAssertTrue(context.debugDescription.contains("Found keys: modelVersion"))
+      XCTAssertTrue(context.debugDescription.contains("Found keys: modelVersion, responseId"))
     }
   }
 
