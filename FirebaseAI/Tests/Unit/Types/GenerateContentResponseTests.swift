@@ -338,7 +338,7 @@ final class GenerateContentResponseTests: XCTestCase {
       XCTAssertTrue(context.debugDescription.contains(
         "missing keys 'candidates', 'promptFeedback' or 'usageMetadata'"
       ))
-      XCTAssertTrue(context.debugDescription.contains("in response:"))
+      XCTAssertTrue(context.debugDescription.contains("Found keys: modelVersion"))
     }
   }
 
