@@ -1,0 +1,145 @@
+/*
+ * Copyright 2026 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import FirebaseFirestore
+import Foundation
+import XCTest
+
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+final class LargeDocIntegrationTests: FSTIntegrationTestCase {
+  // Test data prerequisites populated by the nightly seeder script.
+  let SEED_COLLECTION = "serverSdkTests"
+  let DOC_15_9MB_UNICODE = "doc_15_9MB_unicode"
+  let COL_LARGE_DOCS = "col_large_docs"
+
+  override func setUp() async throws {
+    try await super.setUp()
+
+    // Skip tests if the backend edition is not supported or if not nightly
+    if FSTIntegrationTestCase.targetBackend() != .nightly || FSTIntegrationTestCase
+      .backendEdition() == .standard {
+      throw XCTSkip("Skipping large document tests because backend is not compatible.")
+    }
+  }
+
+  // MARK: - Helper Methods
+
+  private func generateString(sizeInBytes: Int) -> String {
+    return String(repeating: "a", count: sizeInBytes)
+  }
+
+  override func collectionRef() -> CollectionReference {
+    return db.collection(SEED_COLLECTION)
+  }
+
+  // MARK: - Test Cases
+
+  func testReadAndCacheLargeUnicodeDocument() async throws {
+    let docRef = collectionRef().document(DOC_15_9MB_UNICODE)
+    defer { Task { try? await db.enableNetwork() } }
+
+    let serverSnapshot = try await docRef.getDocument(source: .server)
+    XCTAssertTrue(serverSnapshot.exists)
+
+    try await db.disableNetwork()
+
+    let cacheSnapshot = try await docRef.getDocument(source: .cache)
+    XCTAssertTrue(cacheSnapshot.exists)
+
+    let serverData = serverSnapshot.data() as NSDictionary?
+    let cacheData = cacheSnapshot.data() as NSDictionary?
+    XCTAssertEqual(serverData, cacheData)
+  }
+
+  func testQueryLargeDocumentsForcesLocalScan() async throws {
+    let colRef = db.collection(COL_LARGE_DOCS)
+    defer { Task { try? await db.enableNetwork() } }
+
+    // Populate cache
+    _ = try await colRef.document("doc_a").getDocument(source: .server)
+    _ = try await colRef.document("doc_b").getDocument(source: .server)
+
+    try await db.disableNetwork()
+
+    // Execute offline query which requires full local index scan
+    let query = colRef.order(by: FieldPath.documentID()).limit(to: 2)
+    let cacheSnapshot = try await query.getDocuments(source: .cache)
+    
+    XCTAssertEqual(cacheSnapshot.documents.count, 2)
+    if let firstDoc = cacheSnapshot.documents.first {
+      XCTAssertTrue(firstDoc.data().count > 0)
+    }
+  }
+
+  func testWatchStreamInitializationAndDiff() async throws {
+    let docRef = collectionRef().document(DOC_15_9MB_UNICODE)
+    let expectation = XCTestExpectation(description: "Wait for 15.9MB Watch stream payload")
+
+    // Attach listener, must not enter a CANCELLED retry loop
+    let listener = docRef.addSnapshotListener { snapshot, error in
+      XCTAssertNil(error)
+      guard let snapshot = snapshot else { return }
+
+      if snapshot.exists {
+        expectation.fulfill()
+      }
+    }
+
+    listener.remove()
+    
+    // TODO(dlarocque): Write streams for large docs are currently restricted in client SDKs.
+    // Once fixed, update this test to trigger a small field mutation and assert the
+    // listener fires a second time to test differential payload handling.
+  }
+
+  // NOTE: This test will cause stream errors because writes are not working through watch.
+  func testOversizedPayloadRejection() async throws {
+    let docRef = collectionRef().document("temp_oversized_doc")
+
+    // Generate ~16.1MB payload
+    let targetBytes = (16 * 1024 * 1024) + 102400
+    let largePayload = generateString(sizeInBytes: targetBytes)
+    
+    do {
+      try await docRef.setData(["largeField": largePayload])
+      XCTFail("Setting a document exceeding the 16MB limit should fail.")
+    } catch {
+      let nsError = error as NSError
+      XCTAssertEqual(nsError.domain, FirestoreErrorDomain)
+      // Must map to standard InvalidArgument/MongoDB compatibility error, not a crash.
+      XCTAssertEqual(nsError.code, FirestoreErrorCode.invalidArgument.rawValue)
+    }
+  }
+
+  func testTransactionReadModifyWrite() async throws {
+    let docRef = collectionRef().document(DOC_15_9MB_UNICODE)
+    
+    do {
+      _ = try await db.runTransaction { (transaction, errorPointer) -> Any? in
+        do {
+          _ = try transaction.getDocument(docRef)
+          // Minor write to test transaction commit payload limits
+          transaction.updateData(["transaction_timestamp": FieldValue.serverTimestamp()], forDocument: docRef)
+        } catch let fetchError as NSError {
+          errorPointer?.pointee = fetchError
+        }
+        return nil
+      }
+    } catch {
+      XCTFail("Transaction failed with error: \(error)")
+    }
+  }
+}
