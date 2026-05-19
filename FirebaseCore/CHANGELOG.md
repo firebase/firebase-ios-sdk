@@ -1,4 +1,4 @@
-# Unreleased
+# Firebase 12.14.0
 - [fixed] Remove extra comma in Package.swift that caused SPM resolution
   failures for some configurations.
 - [deprecated] New versions of the Firebase Apple SDK will no longer be
