@@ -384,9 +384,9 @@ void SyncEngine::HandleRejectedListen(TargetId target_id, Status error) {
     RemoteEvent::TargetMismatchMap target_mismatches;
     DocumentUpdateMap document_updates{{limbo_key, doc}};
 
-    RemoteEvent event{SnapshotVersion::None(), std::move(target_changes),
+    RemoteEvent event{SnapshotVersion::None(),      std::move(target_changes),
                       std::move(target_mismatches), std::move(document_updates),
-                      std::move(limbo_documents)};
+                      std::move(limbo_documents),   model::DocumentKeySet{}};
     ApplyRemoteEvent(event);
   } else {
     local_store_->ReleaseTarget(target_id);

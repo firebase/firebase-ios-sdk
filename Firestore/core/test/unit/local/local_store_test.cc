@@ -189,6 +189,13 @@ LocalStoreTestBase::LocalStoreTestBase(
   local_store_.Start();
 }
 
+model::MutableDocument LocalStoreTestBase::GetRemoteDocument(
+    const model::DocumentKey& key) {
+  return local_store_.persistence_->Run("GetRemoteDocument", [&] {
+    return local_store_.remote_document_cache_->Get(key);
+  });
+}
+
 void LocalStoreTestBase::WriteMutation(Mutation mutation) {
   WriteMutations({std::move(mutation)});
 }
@@ -1760,6 +1767,134 @@ TEST_P(LocalStoreTest, DeeplyNestedTimestampDoesNotCauseStackOverflow) {
   };
   std::thread t(makeDeeplyNestedTimestamp);
   EXPECT_NO_FATAL_FAILURE(t.join());
+}
+LocalStoreSynthesizedDeleteTest::LocalStoreSynthesizedDeleteTest()
+    : LocalStoreTestBase(GetParam().local_store_helper_factory()) {
+  should_use_pipeline_ = GetParam().use_pipeline;
+}
+
+model::MutableDocument LocalStoreSynthesizedDeleteTest::ReadRemoteDocument(
+    const std::string& key_path) {
+  return GetRemoteDocument(testutil::Key(key_path));
+}
+
+remote::RemoteEvent LocalStoreSynthesizedDeleteTest::SynthesizedDeleteEvent(
+    const std::string& key_path, int64_t version) {
+  model::DocumentKey key = testutil::Key(key_path);
+  model::SnapshotVersion snapshot_version = testutil::Version(version);
+
+  model::DocumentUpdateMap document_updates;
+  document_updates[key] =
+      model::MutableDocument::NoDocument(key, snapshot_version);
+
+  model::DocumentKeySet synthesized_deletes;
+  synthesized_deletes = synthesized_deletes.insert(key);
+
+  return remote::RemoteEvent(
+      snapshot_version, {}, {}, std::move(document_updates),
+      model::DocumentKeySet{}, std::move(synthesized_deletes));
+}
+
+TEST_P(LocalStoreSynthesizedDeleteTest,
+       RealServerDeleteAppliesEvenWithPendingSetMutation) {
+  WriteMutation(testutil::SetMutation("coll/a", Map("a", "b")));
+
+  // Document actually deleted on server.
+  RemoteEvent event = UpdateRemoteEvent(DeletedDoc("coll/a", 100), {1}, {});
+  ApplyRemoteEvent(event);
+
+  EXPECT_TRUE(ReadRemoteDocument("coll/a").is_no_document());
+}
+
+TEST_P(LocalStoreSynthesizedDeleteTest,
+       SynthesizedDeleteAppliesWhenNoPendingMutation) {
+  // Target goes current with no doc change -> synthesized delete.
+  RemoteEvent event = SynthesizedDeleteEvent("coll/a", 100);
+  ApplyRemoteEvent(event);
+
+  EXPECT_TRUE(ReadRemoteDocument("coll/a").is_no_document());
+}
+
+TEST_P(LocalStoreSynthesizedDeleteTest,
+       SynthesizedDeleteSuppressedWhilePendingSet) {
+  WriteMutation(testutil::SetMutation("coll/a", Map("a", "b")));
+
+  RemoteEvent event = SynthesizedDeleteEvent("coll/a", 100);
+  ApplyRemoteEvent(event);
+
+  // Synthesized delete should be suppressed because of pending mutation.
+  EXPECT_FALSE(ReadRemoteDocument("coll/a").is_no_document());
+}
+
+TEST_P(LocalStoreSynthesizedDeleteTest,
+       SynthesizedDeleteSuppressedWhilePendingMerge) {
+  WriteMutation(testutil::MergeMutation("coll/a", Map("a", "b"), {}));
+
+  RemoteEvent event = SynthesizedDeleteEvent("coll/a", 100);
+  ApplyRemoteEvent(event);
+
+  EXPECT_FALSE(ReadRemoteDocument("coll/a").is_no_document());
+}
+
+TEST_P(LocalStoreSynthesizedDeleteTest,
+       SynthesizedDeleteSuppressedWhilePendingUpdate) {
+  WriteMutation(testutil::PatchMutation("coll/a", Map("a", "b")));
+
+  RemoteEvent event = SynthesizedDeleteEvent("coll/a", 100);
+  ApplyRemoteEvent(event);
+
+  EXPECT_FALSE(ReadRemoteDocument("coll/a").is_no_document());
+}
+
+TEST_P(LocalStoreSynthesizedDeleteTest,
+       SynthesizedDeleteSuppressedWhileOnlyDeletePending) {
+  WriteMutation(testutil::DeleteMutation("coll/a"));
+
+  RemoteEvent event = SynthesizedDeleteEvent("coll/a", 100);
+  ApplyRemoteEvent(event);
+
+  EXPECT_FALSE(ReadRemoteDocument("coll/a").is_no_document());
+}
+
+TEST_P(LocalStoreSynthesizedDeleteTest,
+       SuppressionDoesNotPersistAfterMutationAcked) {
+  WriteMutation(testutil::SetMutation("coll/a", Map("a", "b")));
+
+  RemoteEvent event1 = SynthesizedDeleteEvent("coll/a", 100);
+  ApplyRemoteEvent(event1);
+  EXPECT_FALSE(ReadRemoteDocument("coll/a").is_no_document());  // Suppressed
+
+  // Ack the mutation.
+  AcknowledgeMutationWithVersion(101);
+
+  // Now apply another synthesized delete, it should apply because mutation
+  // queue is empty.
+  RemoteEvent event2 = SynthesizedDeleteEvent("coll/a", 102);
+  ApplyRemoteEvent(event2);
+  EXPECT_TRUE(ReadRemoteDocument("coll/a").is_no_document());
+}
+
+TEST_P(LocalStoreSynthesizedDeleteTest,
+       SuppressionTriggersWithMultiplePendingMutations) {
+  WriteMutation(testutil::SetMutation("coll/a", Map("a", "b")));
+  WriteMutation(testutil::PatchMutation("coll/a", Map("c", "d")));
+
+  RemoteEvent event = SynthesizedDeleteEvent("coll/a", 100);
+  ApplyRemoteEvent(event);
+
+  EXPECT_FALSE(ReadRemoteDocument("coll/a").is_no_document());
+}
+
+TEST_P(LocalStoreSynthesizedDeleteTest,
+       SynthesizedDeleteAppliesForFreshKeyWithoutPending) {
+  WriteMutation(testutil::SetMutation("coll/a", Map("a", "b")));
+
+  // Event contains synthesized delete for "coll/b", which has NO pending
+  // mutation.
+  RemoteEvent event = SynthesizedDeleteEvent("coll/b", 100);
+  ApplyRemoteEvent(event);
+
+  EXPECT_TRUE(ReadRemoteDocument("coll/b").is_no_document());
 }
 
 }  // namespace local

@@ -87,6 +87,12 @@ INSTANTIATE_TEST_SUITE_P(
     testing::Values(LocalStoreTestParams{Factory, /*use_pipeline=*/false},
                     LocalStoreTestParams{Factory, /*use_pipeline=*/true}));
 
+INSTANTIATE_TEST_SUITE_P(
+    LevelDbLocalStoreSynthesizedDeleteTest,
+    LocalStoreSynthesizedDeleteTest,
+    testing::Values(LocalStoreTestParams{Factory, /*use_pipeline=*/false},
+                    LocalStoreTestParams{Factory, /*use_pipeline=*/true}));
+
 class LevelDbLocalStoreTest : public LocalStoreTestBase {
  public:
   LevelDbLocalStoreTest()

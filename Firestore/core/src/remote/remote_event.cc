@@ -413,19 +413,40 @@ RemoteEvent WatchChangeAggregator::CreateRemoteEvent(
     if (target_data) {
       auto doc_paths = GetDocumentPaths(target_data->target_or_pipeline());
       if (target_state.current() && doc_paths.has_value()) {
-        // Document queries for document that don't exist can produce an empty
-        // result set. To update our local cache, we synthesize a document
-        // delete if we have not previously received the document. This resolves
-        // the limbo state of the document, removing it from
-        // SyncEngine::limbo_document_refs_.
+        // Document queries (limbo resolution lookups and ordinary
+        // DocumentReference listeners) become `current` without an
+        // accompanying server-side change when (a) the document does not
+        // exist on the server, or (b) it was deleted while the client was
+        // offline and the server resumes the target without replaying the
+        // delete. In both cases we synthesize a NoDocument so the local
+        // cache converges to "deleted".
+        //
+        // However, this synthesis is not safe if the client has a pending
+        // local mutation against the same key: that mutation may have just
+        // resurrected the document on the server, and the corresponding
+        // document_change may still be in flight on this stream (it can
+        // arrive AFTER a sibling target's CURRENT advances the batch's
+        // global snapshot_version, see issue #16149). We can't detect
+        // that here — WatchChangeAggregator has no view of the mutation
+        // queue — so we just *mark* the synthesized keys and let
+        // LocalStore filter them at apply-time, where the mutation queue
+        // is in reach.
         for (const model::ResourcePath& single_doc_path : doc_paths.value()) {
-          DocumentKey key{std::move(single_doc_path)};
-          if (pending_document_updates_.find(key) ==
-                  pending_document_updates_.end() &&
-              !TargetContainsDocument(target_id, key)) {
+          DocumentKey key{single_doc_path};
+          if (pending_document_updates_.find(key) !=
+              pending_document_updates_.end()) {
+            // The server did send us a change for this key in this batch;
+            // no synthesis needed.
+            continue;
+          }
+          if (!TargetContainsDocument(target_id, key)) {
             RemoveDocumentFromTarget(
                 target_id, key,
                 MutableDocument::NoDocument(key, snapshot_version));
+            // Mark the synthesized tombstone so LocalStore can decide
+            // whether to apply it.
+            pending_synthesized_deletes_ =
+                pending_synthesized_deletes_.insert(key);
           }
         }
       }
@@ -464,13 +485,16 @@ RemoteEvent WatchChangeAggregator::CreateRemoteEvent(
   RemoteEvent remote_event{snapshot_version, std::move(target_changes),
                            std::move(pending_target_resets_),
                            std::move(pending_document_updates_),
-                           std::move(resolved_limbo_documents)};
+                           std::move(resolved_limbo_documents),
+                           // ship synthesized-delete markers along.
+                           std::move(pending_synthesized_deletes_)};
 
-  // Re-initialize the current state to ensure that we do not modify the
-  // generated `RemoteEvent`.
+  // Re-initialize batch state. pending_synthesized_deletes_ was moved-from
+  // above; reassign to make its post-move state explicit.
   pending_document_updates_.clear();
   pending_document_target_mappings_.clear();
   pending_target_resets_.clear();
+  pending_synthesized_deletes_ = model::DocumentKeySet{};
 
   return remote_event;
 }

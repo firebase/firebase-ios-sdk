@@ -378,9 +378,9 @@ model::DocumentMap LocalStore::ApplyRemoteEvent(
       }
     }
 
-    auto result = PopulateDocumentChanges(remote_event.document_updates(),
-                                          DocumentVersionMap(),
-                                          remote_event.snapshot_version());
+    auto result = PopulateDocumentChanges(
+        remote_event.document_updates(), DocumentVersionMap(),
+        remote_event.snapshot_version(), remote_event.synthesized_deletes());
 
     // HACK: The only reason we allow omitting snapshot version is so we can
     // synthesize remote events when we get permission denied errors while
@@ -633,7 +633,8 @@ DocumentMap LocalStore::ApplyBundledDocuments(
     target_cache_->AddMatchingKeys(keys, umbrella_target.target_id());
 
     auto result = PopulateDocumentChanges(document_updates, versions,
-                                          SnapshotVersion::None());
+                                          SnapshotVersion::None(),
+                                          model::DocumentKeySet{});
     return local_documents_->GetLocalViewOfDocuments(
         std::move(result.changed_docs),
         std::move(result.existence_changed_keys));
@@ -726,7 +727,8 @@ Target LocalStore::NewUmbrellaTarget(const std::string& bundle_id) {
 LocalStore::DocumentChangeResult LocalStore::PopulateDocumentChanges(
     const DocumentUpdateMap& documents,
     const DocumentVersionMap& document_versions,
-    const SnapshotVersion& global_version) {
+    const SnapshotVersion& global_version,
+    const model::DocumentKeySet& synthesized_deletes) {
   MutableDocumentMap changed_docs;
   DocumentKeySet condition_changed;
 
@@ -742,6 +744,38 @@ LocalStore::DocumentChangeResult LocalStore::PopulateDocumentChanges(
   for (const auto& kv : documents) {
     const DocumentKey& key = kv.first;
     const MutableDocument& doc = kv.second;
+
+    // suppress a synthesized NoDocument when we have an outstanding
+    // local mutation against the same key. The watch aggregator emits these
+    // for single-document targets that went `current` without contents
+    // (limbo lookups, or doc deletions that happened while we were offline);
+    // the version it stamps them with is the batch's global snapshot_version,
+    // which can lie ahead of an in-flight server document_change carrying the
+    // real commit_time. If we let the tombstone land first, the real change
+    // will be rejected as outdated and the cache will be poisoned (#16149).
+    //
+    // We only short-circuit synthesized deletes here; explicit server-side
+    // document_deletes are NOT in `synthesized_deletes` and continue to
+    // apply unconditionally, even when local mutations are pending — that
+    // behavior is unchanged.
+    //
+    // Note: We deliberately do not narrow this suppression to merge-only
+    // mutations. The bug is not specific to merge; any mutation whose ack
+    // form is a `document_change` (including Set and Update) is vulnerable
+    // to the same version collision. A mutation-type-specific filter could
+    // be added as a follow-up if profiling shows this broad filter is
+    // harmful in practice, but its worst case is merely delaying a
+    // synthesized tombstone by one batch when a Delete is pending, which
+    // still converges via the server's real `document_delete`.
+    if (synthesized_deletes.contains(key) &&
+        !mutation_queue_->AllMutationBatchesAffectingDocumentKey(key).empty()) {
+      LOG_DEBUG(
+          "LocalStore Suppressing synthesized NoDocument for %s; local "
+          "mutation in flight will be reconciled by the server's "
+          "document_change.",
+          key.ToString());
+      continue;
+    }
     MutableDocument existing_doc = *existing_docs.get(key);
     auto search_version = document_versions.find(key);
     const SnapshotVersion& read_time = search_version != document_versions.end()

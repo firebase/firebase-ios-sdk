@@ -96,6 +96,7 @@ class LocalStoreTestBase : public testing::Test {
       absl::optional<nanopb::Message<google_firestore_v1_Value>>
           transform_result = absl::nullopt);
   void RejectMutation();
+  model::MutableDocument GetRemoteDocument(const model::DocumentKey& key);
   std::vector<model::FieldIndex> GetFieldIndexes();
   void ConfigureFieldIndexes(
       std::vector<model::FieldIndex>&& new_field_indexes);
@@ -144,6 +145,17 @@ class LocalStoreTest
       public testing::WithParamInterface<LocalStoreTestParams> {
  public:
   LocalStoreTest();
+};
+
+class LocalStoreSynthesizedDeleteTest
+    : public LocalStoreTestBase,
+      public testing::WithParamInterface<LocalStoreTestParams> {
+ public:
+  LocalStoreSynthesizedDeleteTest();
+
+  model::MutableDocument ReadRemoteDocument(const std::string& key_path);
+  remote::RemoteEvent SynthesizedDeleteEvent(const std::string& key_path,
+                                             int64_t version);
 };
 
 /** Asserts that the last target ID is the given number. */

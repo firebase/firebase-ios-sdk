@@ -153,5 +153,134 @@ import FirebaseFirestore
       XCTAssertNotEqual(db6.persistentCacheIndexManager, db8.persistentCacheIndexManager)
       XCTAssertNotEqual(db7.persistentCacheIndexManager, db8.persistentCacheIndexManager)
     }
+
+    /// Regression test for https://github.com/firebase/firebase-ios-sdk/issues/16149
+    ///
+    /// Invariant: after an offline-queued setData(merge: true) against a
+    /// concurrently server-deleted document, once the merge is acked by the
+    /// backend the local cache MUST reflect what the backend actually holds.
+    /// This must hold regardless of the order in which sibling target CURRENTs
+    /// and the merge's document_change arrive on the watch stream.
+    ///
+    /// Backend-agnostic: ground truth comes from an independent Firestore
+    /// client, not from REST or emulator-specific introspection.
+    func testCacheMatchesBackendAfterOfflineMergeOverServerDelete() async throws {
+      for iteration in 0 ..< 5 {
+        let readerDB = firestore()
+        let writerDB = firestore()
+
+        let path = "regression-16149/doc-\(UUID().uuidString)"
+        let readerRef = readerDB.document(path)
+        let writerRef = writerDB.document(path)
+
+        // Seed.
+        try await writerRef.setData(["status": "seed", "iter": iteration])
+
+        // Establish sibling targets on reader. These are what later pollute
+        // the reconnect batch's global snapshot_version.
+        let siblingsPath = "regression-16149-siblings-\(UUID().uuidString)"
+        let siblings = readerDB.collection(siblingsPath)
+        try await withThrowingTaskGroup(of: Void.self) { group in
+          for i in 0 ..< 10 {
+            group.addTask {
+              try await siblings.document("doc-\(i)")
+                .setData(["status": "active", "n": i])
+            }
+          }
+          try await group.waitForAll()
+        }
+        let siblingListener = siblings
+          .whereField("status", isEqualTo: "active")
+          .addSnapshotListener { _, _ in }
+
+        // Attach the doc listener while online so the seed lands in cache.
+        let saw = expectation(description: "reader saw seed")
+        var sawFulfilled = false
+        let docListener = readerRef.addSnapshotListener { snap, _ in
+          if let snap, snap.exists, !sawFulfilled {
+            sawFulfilled = true
+            saw.fulfill()
+          }
+        }
+        await fulfillment(of: [saw], timeout: 10)
+
+        // Offline ; concurrent server-side delete ; offline-queued merge.
+        try await readerDB.disableNetwork()
+        try await writerRef.delete()
+
+        let acked = expectation(description: "merge acked")
+        readerRef.setData(["merged": true, "iter": iteration], merge: true) {
+          XCTAssertNil($0)
+          acked.fulfill()
+        }
+
+        // Reconnect — the bug, if present, is born here.
+        try await readerDB.enableNetwork()
+        await fulfillment(of: [acked], timeout: 15)
+        try await readerDB.waitForPendingWrites()
+        try await Task.sleep(nanoseconds: 500_000_000)
+
+        // Independent ground truth.
+        let truth = try await writerRef.getDocument(source: .server)
+        let cached = try await readerRef.getDocument(source: .cache)
+
+        XCTAssertEqual(
+          cached.exists, truth.exists,
+          "iter \(iteration): cache.exists=\(cached.exists) backend.exists=\(truth.exists) — #16149"
+        )
+        if truth.exists {
+          XCTAssertEqual(
+            (cached.data() ?? [:]) as NSDictionary,
+            (truth.data() ?? [:]) as NSDictionary,
+            "iter \(iteration): cache and backend disagree on contents"
+          )
+        }
+
+        docListener.remove()
+        siblingListener.remove()
+        try? await writerRef.delete()
+        for i in 0 ..< 10 {
+          try? await siblings.document("doc-\(i)").delete()
+        }
+        try await readerDB.terminate()
+        try await writerDB.terminate()
+      }
+    }
+
+    func testCacheConvergesToDeletedWhenServerDeletesWhileOfflineWithNoLocalWrite()
+      async throws {
+      let readerDB = firestore()
+      let writerDB = firestore()
+      let path = "regression-16149-companion/doc-\(UUID().uuidString)"
+      let readerRef = readerDB.document(path)
+      let writerRef = writerDB.document(path)
+
+      try await writerRef.setData(["status": "alive"])
+
+      let saw = expectation(description: "reader saw seed")
+      var sawFulfilled = false
+      let listener = readerRef.addSnapshotListener { snap, _ in
+        if let snap, snap.exists, !sawFulfilled {
+          sawFulfilled = true
+          saw.fulfill()
+        }
+      }
+      await fulfillment(of: [saw], timeout: 10)
+
+      try await readerDB.disableNetwork()
+      try await writerRef.delete()
+      try await readerDB.enableNetwork()
+      try await Task.sleep(nanoseconds: 1_500_000_000)
+
+      let cached = try await readerRef.getDocument(source: .cache)
+      XCTAssertFalse(
+        cached.exists,
+        "Cache must converge to 'deleted' after server-side delete during offline."
+      )
+
+      listener.remove()
+      try await readerDB.terminate()
+      try await writerDB.terminate()
+    }
   }
 #endif

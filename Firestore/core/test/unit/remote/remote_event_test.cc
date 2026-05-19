@@ -824,7 +824,24 @@ TEST_F(RemoteEventTest, LastResumeTokenWins) {
   ASSERT_TRUE(event.target_changes().at(2) == target_change2);
 }
 
-TEST_F(RemoteEventTest, SynthesizeDeletes) {
+TEST_F(RemoteEventTest,
+       SynthesizedDeleteMarkedWhenSingleDocTargetGoesCurrentEmpty) {
+  core::Query query = Query("coll/a");
+  std::unordered_map<TargetId, TargetData> target_map;
+  target_map[1] = TargetData(core::TargetOrPipeline(query.ToTarget()), 1, 0,
+                             QueryPurpose::Listen);
+
+  auto resolve_target = MakeTargetChange(WatchTargetChangeState::Current, {1});
+  RemoteEvent event =
+      CreateRemoteEvent(3, target_map, no_outstanding_responses_,
+                        DocumentKeySet{}, Changes(std::move(resolve_target)));
+
+  ASSERT_TRUE(event.document_updates().count(Key("coll/a")));
+  EXPECT_FALSE(event.document_updates().at(Key("coll/a")).is_found_document());
+  EXPECT_TRUE(event.synthesized_deletes().contains(Key("coll/a")));
+}
+
+TEST_F(RemoteEventTest, SynthesizedDeleteMarkedForLimboResolutionTarget) {
   std::unordered_map<TargetId, TargetData> target_map = ActiveLimboQueries({1});
   DocumentKey limbo_key = testutil::Key("coll/limbo");
 
@@ -837,33 +854,79 @@ TEST_F(RemoteEventTest, SynthesizeDeletes) {
   MutableDocument expected =
       MutableDocument::NoDocument(limbo_key, event.snapshot_version());
   ASSERT_EQ(event.document_updates().at(limbo_key), expected);
-  ASSERT_TRUE(event.limbo_document_changes().contains(limbo_key));
+  ASSERT_TRUE(event.synthesized_deletes().contains(limbo_key));
 }
 
-TEST_F(RemoteEventTest, DoesntSynthesizeDeletesForWrongState) {
+TEST_F(RemoteEventTest, SynthesizedDeleteNotMarkedForExplicitServerDelete) {
   std::unordered_map<TargetId, TargetData> target_map = ActiveQueries({1});
+  DocumentKey key = Key("docs/deleted");
 
-  auto wrong_state = MakeTargetChange(WatchTargetChangeState::NoChange, {1});
-
-  RemoteEvent event =
-      CreateRemoteEvent(3, target_map, no_outstanding_responses_,
-                        DocumentKeySet{}, Changes(std::move(wrong_state)));
-
-  ASSERT_EQ(event.document_updates().size(), 0);
-  ASSERT_EQ(event.limbo_document_changes().size(), 0);
-}
-
-TEST_F(RemoteEventTest, DoesntSynthesizeDeletesForExistingDoc) {
-  std::unordered_map<TargetId, TargetData> target_map = ActiveQueries({3});
-
-  auto has_document = MakeTargetChange(WatchTargetChangeState::Current, {3});
+  MutableDocument deleted_doc = DeletedDoc("docs/deleted", 1);
+  auto deleted_doc_change = MakeDocChange({}, {1}, key, deleted_doc);
 
   RemoteEvent event = CreateRemoteEvent(
-      3, target_map, no_outstanding_responses_,
-      DocumentKeySet{Key("coll/limbo")}, Changes(std::move(has_document)));
+      3, target_map, no_outstanding_responses_, DocumentKeySet{key},
+      Changes(std::move(deleted_doc_change)));
 
-  ASSERT_EQ(event.document_updates().size(), 0);
-  ASSERT_EQ(event.limbo_document_changes().size(), 0);
+  ASSERT_EQ(event.document_updates().size(), 1);
+  ASSERT_EQ(event.document_updates().at(key), deleted_doc);
+  ASSERT_FALSE(event.synthesized_deletes().contains(key));
+}
+
+TEST_F(RemoteEventTest,
+       SynthesizedDeleteNotMarkedWhenServerSendsExplicitChange) {
+  core::Query query = Query("coll/a");
+  std::unordered_map<TargetId, TargetData> target_map;
+  target_map[1] = TargetData(core::TargetOrPipeline(query.ToTarget()), 1, 0,
+                             QueryPurpose::Listen);
+
+  MutableDocument doc = Doc("coll/a", 1, Map("a", "b"));
+  auto doc_change = MakeDocChange({1}, {}, Key("coll/a"), doc);
+  auto resolve_target = MakeTargetChange(WatchTargetChangeState::Current, {1});
+
+  RemoteEvent event = CreateRemoteEvent(
+      3, target_map, no_outstanding_responses_, DocumentKeySet{},
+      Changes(std::move(doc_change), std::move(resolve_target)));
+
+  EXPECT_FALSE(event.synthesized_deletes().contains(Key("coll/a")));
+}
+
+TEST_F(RemoteEventTest, SynthesizedDeletesDoNotLeakAcrossBatches) {
+  std::unordered_map<TargetId, TargetData> target_map = ActiveQueries({1, 2});
+  core::Query query1 = Query("coll/a");
+  target_map[1] = TargetData(core::TargetOrPipeline(query1.ToTarget()), 1, 0,
+                             QueryPurpose::Listen);
+
+  WatchChangeAggregator aggregator = CreateAggregator(
+      target_map, no_outstanding_responses_, DocumentKeySet{}, {});
+
+  WatchTargetChange current_target1{WatchTargetChangeState::Current, {1}};
+  aggregator.HandleTargetChange(current_target1);
+
+  RemoteEvent event1 = aggregator.CreateRemoteEvent(testutil::Version(3));
+  ASSERT_TRUE(event1.synthesized_deletes().contains(Key("coll/a")));
+
+  WatchTargetChange remove_target1{WatchTargetChangeState::Removed, {1}};
+  aggregator.HandleTargetChange(remove_target1);
+
+  WatchTargetChange current_target2{WatchTargetChangeState::Current, {2}};
+  aggregator.HandleTargetChange(current_target2);
+
+  RemoteEvent event2 = aggregator.CreateRemoteEvent(testutil::Version(4));
+
+  EXPECT_FALSE(event2.synthesized_deletes().contains(Key("coll/a")));
+}
+
+TEST_F(RemoteEventTest, NonSingleDocTargetDoesNotProduceSynthesizedDelete) {
+  std::unordered_map<TargetId, TargetData> target_map = ActiveQueries({1});
+
+  auto resolve_target = MakeTargetChange(WatchTargetChangeState::Current, {1});
+  RemoteEvent event =
+      CreateRemoteEvent(3, target_map, no_outstanding_responses_,
+                        DocumentKeySet{}, Changes(std::move(resolve_target)));
+
+  EXPECT_EQ(event.document_updates().size(), 0);
+  EXPECT_FALSE(event.synthesized_deletes().contains(Key("coll/a")));
 }
 
 TEST_F(RemoteEventTest, SeparatesDocumentUpdates) {

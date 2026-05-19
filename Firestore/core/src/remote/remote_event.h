@@ -255,12 +255,14 @@ class RemoteEvent {
               TargetChangeMap target_changes,
               TargetMismatchMap target_mismatches,
               model::DocumentUpdateMap document_updates,
-              model::DocumentKeySet limbo_document_changes)
+              model::DocumentKeySet limbo_document_changes,
+              model::DocumentKeySet synthesized_deletes)
       : snapshot_version_{snapshot_version},
         target_changes_{std::move(target_changes)},
         target_mismatches_{std::move(target_mismatches)},
         document_updates_{std::move(document_updates)},
-        limbo_document_changes_{std::move(limbo_document_changes)} {
+        limbo_document_changes_{std::move(limbo_document_changes)},
+        synthesized_deletes_{std::move(synthesized_deletes)} {
   }
 
   /** The snapshot version this event brings us up to. */
@@ -297,12 +299,21 @@ class RemoteEvent {
     return limbo_document_changes_;
   }
 
+  /**
+   * A set of which document updates were synthesized by the watch change
+   * aggregator (e.g. for document queries that returned empty).
+   */
+  const model::DocumentKeySet& synthesized_deletes() const {
+    return synthesized_deletes_;
+  }
+
  private:
   model::SnapshotVersion snapshot_version_;
   TargetChangeMap target_changes_;
   TargetMismatchMap target_mismatches_;
   model::DocumentUpdateMap document_updates_;
   model::DocumentKeySet limbo_document_changes_;
+  model::DocumentKeySet synthesized_deletes_;
 };
 
 /**
@@ -457,6 +468,13 @@ class WatchChangeAggregator {
    * `RemoteStore`.
    */
   RemoteEvent::TargetMismatchMap pending_target_resets_;
+
+  /**
+   * Keys whose update in `pending_document_updates_` is a NoDocument
+   * synthesized by this aggregator (see CreateRemoteEvent). Reset once per
+   * batch, alongside the other pending_* containers.
+   */
+  model::DocumentKeySet pending_synthesized_deletes_;
 
   TargetMetadataProvider* target_metadata_provider_ = nullptr;
 };

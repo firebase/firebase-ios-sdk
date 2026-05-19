@@ -371,7 +371,8 @@ class LocalStore : public bundle::BundleCallback {
   DocumentChangeResult PopulateDocumentChanges(
       const model::DocumentUpdateMap& documents,
       const model::DocumentVersionMap& document_versions,
-      const model::SnapshotVersion& global_version);
+      const model::SnapshotVersion& global_version,
+      const model::DocumentKeySet& synthesized_deletes);
 
   // For testing
   std::vector<model::FieldIndex> GetFieldIndexes();

@@ -49,6 +49,12 @@ INSTANTIATE_TEST_SUITE_P(
     testing::Values(LocalStoreTestParams{Factory, /*use_pipeline=*/false},
                     LocalStoreTestParams{Factory, /*use_pipeline=*/true}));
 
+INSTANTIATE_TEST_SUITE_P(
+    MemoryLocalStoreSynthesizedDeleteTest,
+    LocalStoreSynthesizedDeleteTest,
+    testing::Values(LocalStoreTestParams{Factory, /*use_pipeline=*/false},
+                    LocalStoreTestParams{Factory, /*use_pipeline=*/true}));
+
 }  // namespace local
 }  // namespace firestore
 }  // namespace firebase
