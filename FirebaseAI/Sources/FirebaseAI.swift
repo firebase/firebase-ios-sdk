@@ -54,8 +54,8 @@ public final class FirebaseAI: Sendable {
     )
     // Verify that the `FirebaseAI` instance is always configured with the production endpoint since
     // this is the public API surface for creating an instance.
-    assert(instance.apiConfig.service.endpoint == .firebaseProxyProd)
-    assert(instance.apiConfig.version == .v1beta)
+//    assert(instance.apiConfig.service.endpoint == .firebaseProxyProd) // Bug bash.
+//    assert(instance.apiConfig.version == .v1beta) // Bug bash.
     return instance
   }
 
