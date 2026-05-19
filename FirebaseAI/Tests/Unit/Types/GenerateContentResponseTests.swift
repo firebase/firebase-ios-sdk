@@ -295,6 +295,53 @@ final class GenerateContentResponseTests: XCTestCase {
     XCTAssertEqual(response.modelVersion, GenerateContentResponse.unknownModelVersion)
   }
 
+  func testDecodeGenerateContentResponse_withOnlyUsageMetadata() throws {
+    let json = """
+    {
+      "usageMetadata": {
+        "promptTokenCount": 10,
+        "candidatesTokenCount": 20,
+        "totalTokenCount": 30
+      },
+      "modelVersion": "gemini-2.5-flash"
+    }
+    """
+    let jsonData = try XCTUnwrap(json.data(using: .utf8))
+
+    let response = try jsonDecoder.decode(GenerateContentResponse.self, from: jsonData)
+
+    XCTAssertEqual(response.modelVersion, "gemini-2.5-flash")
+    XCTAssertEqual(response.usageMetadata?.promptTokenCount, 10)
+    XCTAssertEqual(response.usageMetadata?.candidatesTokenCount, 20)
+    XCTAssertEqual(response.usageMetadata?.totalTokenCount, 30)
+    XCTAssertTrue(response.candidates.isEmpty)
+  }
+
+  func testDecodeGenerateContentResponse_missingRequiredKeys_throwsError() throws {
+    let json = """
+    {
+      "modelVersion": "gemini-2.5-flash"
+    }
+    """
+    let jsonData = try XCTUnwrap(json.data(using: .utf8))
+
+    XCTAssertThrowsError(try jsonDecoder.decode(
+      GenerateContentResponse.self,
+      from: jsonData
+    )) { error in
+      guard case let DecodingError.dataCorrupted(context) = error else {
+        XCTFail("Expected DecodingError.dataCorrupted, got \(error)")
+        return
+      }
+      XCTAssertEqual(context.codingPath.count, 0)
+      XCTAssertTrue(context.debugDescription.contains("Failed to decode GenerateContentResponse"))
+      XCTAssertTrue(context.debugDescription.contains(
+        "missing keys 'candidates', 'promptFeedback' or 'usageMetadata'"
+      ))
+      XCTAssertTrue(context.debugDescription.contains("in response:"))
+    }
+  }
+
   // MARK: - Candidate.isEmpty
 
   func testCandidateIsEmpty_allEmpty_isTrue() throws {
