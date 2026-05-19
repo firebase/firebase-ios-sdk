@@ -26,7 +26,7 @@ public struct Backend {
   public static func vertexAI(location: String = "us-central1") -> Backend {
     return Backend(
       apiConfig: APIConfig(
-        service: .vertexAI(endpoint: .firebaseProxyProd, location: location),
+        service: .vertexAI(endpoint: .firebaseProxyStaging, location: location), // Bug bash.
         version: .v1beta
       )
     )
@@ -36,7 +36,7 @@ public struct Backend {
   public static func googleAI() -> Backend {
     return Backend(
       apiConfig: APIConfig(
-        service: .googleAI(endpoint: .firebaseProxyProd),
+        service: .googleAI(endpoint: .firebaseProxyStaging), // Bug bash.
         version: .v1beta
       )
     )
