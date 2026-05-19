@@ -544,11 +544,12 @@ extension GenerateContentResponse: Decodable {
       || container.contains(CodingKeys.promptFeedback)
       || container.contains(CodingKeys.usageMetadata) else {
       let jsonValue = try? JSONValue(from: decoder)
+      let responseString = jsonValue.map { ": \($0)" } ?? "."
       let context = DecodingError.Context(
-        codingPath: [],
+        codingPath: decoder.codingPath,
         debugDescription: """
         Failed to decode GenerateContentResponse; missing keys 'candidates', 'promptFeedback' or \
-        'usageMetadata' in response: \(jsonValue.debugDescription)
+        'usageMetadata' in response\(responseString)
         """
       )
       throw DecodingError.dataCorrupted(context)
