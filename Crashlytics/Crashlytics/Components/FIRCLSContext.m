@@ -447,7 +447,11 @@ void FIRCLSExecuteOnLoggingQueue(void (^block)(void)) {
     return;
   }
 
-  if (!_firclsLoggingQueue || dispatch_get_specific(&_firclsLoggingQueue) != NULL) {
+  if (!_firclsLoggingQueue) {
+    FIRCLSSDKLogWarn(
+        "FIRCLSExecuteOnLoggingQueue invoked with NULL logging queue; running block inline.\n");
+    block();
+  } else if (dispatch_get_specific(&_firclsLoggingQueue) != NULL) {
     block();
   } else {
     dispatch_sync(_firclsLoggingQueue, block);
