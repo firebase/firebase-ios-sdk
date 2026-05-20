@@ -245,6 +245,8 @@ void FIRCLSContextBaseInit(void) {
   NSString* exceptionQueueName = [sdkBundleID stringByAppendingString:@".exception"];
 
   _firclsLoggingQueue = dispatch_queue_create([loggingQueueName UTF8String], DISPATCH_QUEUE_SERIAL);
+  dispatch_queue_set_specific(_firclsLoggingQueue, &_firclsLoggingQueue, &_firclsLoggingQueue,
+                              NULL);
   _firclsBinaryImageQueue =
       dispatch_queue_create([binaryImagesQueueName UTF8String], DISPATCH_QUEUE_SERIAL);
   _firclsExceptionQueue =
@@ -436,4 +438,12 @@ bool FIRCLSContextRecordMetadata(NSString* rootPath, const FIRCLSContextInitData
   FIRCLSFileClose(&file);
 
   return true;
+}
+
+void FIRCLSExecuteOnLoggingQueue(void (^block)(void)) {
+  if (dispatch_get_specific(&_firclsLoggingQueue) != NULL) {
+    block();
+  } else {
+    dispatch_sync(_firclsLoggingQueue, block);
+  }
 }
