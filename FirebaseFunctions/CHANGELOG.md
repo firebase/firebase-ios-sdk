@@ -1,4 +1,4 @@
-# Unreleased
+# 12.13.0
 - [fixed] Fixed a release-build crash in `HTTPSCallable.call()` when using
   Xcode 26.4 (Swift 6.3) that was caused by a Swift regression in `async let`
   teardown. (#15974)

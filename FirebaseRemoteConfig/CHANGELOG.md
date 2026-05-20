@@ -1,4 +1,4 @@
-# Unreleased
+# 12.13.0
 - [fixed] Remote Config Realtime updates now trigger when a parameter's experiment
   or variant assignment changes, ensuring more accurate A/B test analytics and
   consistent user experiences.

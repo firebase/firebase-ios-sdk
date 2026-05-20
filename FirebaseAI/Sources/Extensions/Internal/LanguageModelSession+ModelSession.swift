@@ -49,24 +49,36 @@
       -> _ModelSessionResponse {
       let prompt = try prompt.toFoundationModelsPrompt()
 
-      let response: FoundationModels.LanguageModelSession
-        .Response<FoundationModels.GeneratedContent>
+      let rawContent: FoundationModels.GeneratedContent
+      let transcriptEntries: ArraySlice<FoundationModels.Transcript.Entry>
       if let schema {
-        response = try await respond(
+        let response = try await respond(
           to: prompt,
           schema: schema.generationSchema,
           includeSchemaInPrompt: includeSchemaInPrompt,
           options: options.generationOptions
         )
+        rawContent = response.rawContent
+        transcriptEntries = response.transcriptEntries
       } else {
-        response = try await respond(
+        let response = try await respond(
           to: prompt,
-          schema: String.generationSchema,
           options: options.generationOptions
         )
+        rawContent = response.rawContent
+        transcriptEntries = response.transcriptEntries
       }
 
-      return makeResponse(from: response.rawContent, schema: schema)
+      #if DEBUG
+        if AILog.additionalLoggingEnabled() {
+          AILog.debug(
+            code: .foundationModelsResponseTranscript,
+            "Foundation Models Transcript: \(transcriptEntries)"
+          )
+        }
+      #endif // DEBUG
+
+      return makeResponse(from: rawContent, schema: schema)
     }
 
     /// Sends a prompt to the model and streams the model's response.
@@ -90,30 +102,44 @@
           return
         }
 
-        let stream: FoundationModels.LanguageModelSession
-          .ResponseStream<FoundationModels.GeneratedContent>
-        if let schema {
-          stream = streamResponse(
-            to: foundationModelsPrompt,
-            schema: schema.generationSchema,
-            includeSchemaInPrompt: includeSchemaInPrompt,
-            options: options.generationOptions
-          )
-        } else {
-          stream = streamResponse(
-            to: foundationModelsPrompt,
-            schema: String.generationSchema,
-            options: options.generationOptions
-          )
-        }
-
         let task = Task {
           do {
-            for try await snapshot in stream {
-              let response = makeResponse(from: snapshot.rawContent, schema: schema)
+            func processStream<T>(_ stream: LanguageModelSession.ResponseStream<T>) async throws {
+              for try await snapshot in stream {
+                let response = makeResponse(from: snapshot.rawContent, schema: schema)
 
-              continuation.yield(response)
+                continuation.yield(response)
+              }
+
+              #if DEBUG
+                if AILog.additionalLoggingEnabled() {
+                  // Streaming has completed but we call `collect()` to get a
+                  // `LanguageModelSession.Response`, which contains `transcriptEntries`.
+                  let response = try await stream.collect()
+                  AILog.debug(
+                    code: .foundationModelsStreamResponseTranscript,
+                    "Foundation Models Transcript: \(response.transcriptEntries)"
+                  )
+                }
+              #endif // DEBUG
             }
+
+            if let schema {
+              let stream = streamResponse(
+                to: foundationModelsPrompt,
+                schema: schema.generationSchema,
+                includeSchemaInPrompt: includeSchemaInPrompt,
+                options: options.generationOptions
+              )
+              try await processStream(stream)
+            } else {
+              let stream = streamResponse(
+                to: foundationModelsPrompt,
+                options: options.generationOptions
+              )
+              try await processStream(stream)
+            }
+
             continuation.finish()
           } catch {
             continuation.finish(throwing: error)

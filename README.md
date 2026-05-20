@@ -16,6 +16,14 @@
   </a>
 </p>
 
+> [!WARNING]
+> **CocoaPods:** New versions of the Firebase Apple SDK will no longer be
+> published to CocoaPods after **October 2026**. Existing CocoaPods versions
+> will remain available and installations will remain functional. See the
+> [migration guide](https://firebase.google.com/docs/ios/cocoapods-deprecation)
+> for more information.
+
+
 # Firebase Apple Open Source Development
 
 This repository contains the source code for all Apple platform Firebase SDKs except FirebaseAnalytics.

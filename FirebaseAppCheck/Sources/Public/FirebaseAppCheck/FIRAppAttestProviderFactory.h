@@ -1,4 +1,4 @@
-// Copyright 2025 Google LLC
+// Copyright 2026 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,6 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-enum Constants {
-  static let baseErrorDomain = "com.google.firebase.generatedfirebaseai"
-}
+#import <Foundation/Foundation.h>
+
+#import "FIRAppCheckAvailability.h"
+#import "FIRAppCheckProviderFactory.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+/// A factory that vends `AppAttestProvider` instances for a given `FirebaseApp`.
+FIR_APP_ATTEST_PROVIDER_AVAILABILITY
+NS_SWIFT_NAME(AppAttestProviderFactory)
+@interface FIRAppAttestProviderFactory : NSObject <FIRAppCheckProviderFactory>
+@end
+
+NS_ASSUME_NONNULL_END

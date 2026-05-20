@@ -47,6 +47,12 @@ CollectionSource::CollectionSource(std::string path)
     : path_(model::ResourcePath::FromStringView(path)) {
 }
 
+CollectionSource::CollectionSource(std::string path,
+                                   absl::optional<std::string> force_index)
+    : path_(model::ResourcePath::FromStringView(path)),
+      force_index_(force_index) {
+}
+
 google_firestore_v1_Pipeline_Stage CollectionSource::to_proto() const {
   google_firestore_v1_Pipeline_Stage result;
 
@@ -59,8 +65,19 @@ google_firestore_v1_Pipeline_Stage CollectionSource::to_proto() const {
   result.args[0].reference_value = nanopb::MakeBytesArray(
       util::StringFormat("/%s", this->path_.CanonicalString()));
 
-  result.options_count = 0;
-  result.options = nullptr;
+  if (force_index_.has_value()) {
+    result.options_count = 1;
+    result.options =
+        nanopb::MakeArray<google_firestore_v1_Pipeline_Stage_OptionsEntry>(1);
+
+    result.options[0].key = nanopb::MakeBytesArray("force_index");
+    result.options[0].value = google_firestore_v1_Value{
+        .which_value_type = google_firestore_v1_Value_string_value_tag,
+        .string_value = nanopb::MakeBytesArray(force_index_.value())};
+  } else {
+    result.options_count = 0;
+    result.options = nullptr;
+  }
 
   return result;
 }
@@ -113,8 +130,19 @@ google_firestore_v1_Pipeline_Stage CollectionGroupSource::to_proto() const {
   result.args[1].which_value_type = google_firestore_v1_Value_string_value_tag;
   result.args[1].string_value = nanopb::MakeBytesArray(collection_id_);
 
-  result.options_count = 0;
-  result.options = nullptr;
+  if (force_index_.has_value()) {
+    result.options_count = 1;
+    result.options =
+        nanopb::MakeArray<google_firestore_v1_Pipeline_Stage_OptionsEntry>(1);
+
+    result.options[0].key = nanopb::MakeBytesArray("force_index");
+    result.options[0].value = google_firestore_v1_Value{
+        .which_value_type = google_firestore_v1_Value_string_value_tag,
+        .string_value = nanopb::MakeBytesArray(force_index_.value())};
+  } else {
+    result.options_count = 0;
+    result.options = nullptr;
+  }
 
   return result;
 }
