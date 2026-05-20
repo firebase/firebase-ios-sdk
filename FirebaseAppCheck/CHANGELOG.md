@@ -1,5 +1,7 @@
 # Unreleased
-- todo: add entry about change to default provider behavior
+- [changed] The default App Check provider is now automatically selected based
+  on the environment: the Debug provider is used on simulators, and the
+  DeviceCheck provider is used on devices.
 
 # 12.14.0
 - [added] Added `AppAttestProviderFactory` to simplify App Check setup when
