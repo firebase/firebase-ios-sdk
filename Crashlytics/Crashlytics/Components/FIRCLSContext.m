@@ -447,7 +447,7 @@ void FIRCLSExecuteOnLoggingQueue(void (^block)(void)) {
     return;
   }
 
-  if (dispatch_get_specific(&_firclsLoggingQueue) != NULL || !_firclsLoggingQueue) {
+  if (!_firclsLoggingQueue || dispatch_get_specific(&_firclsLoggingQueue) != NULL) {
     block();
   } else {
     dispatch_sync(_firclsLoggingQueue, block);
