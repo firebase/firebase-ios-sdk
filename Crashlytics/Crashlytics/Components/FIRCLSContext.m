@@ -441,9 +441,13 @@ bool FIRCLSContextRecordMetadata(NSString* rootPath, const FIRCLSContextInitData
 }
 
 void FIRCLSExecuteOnLoggingQueue(void (^block)(void)) {
+  if (!block) {
+    return;
+  }
+
   if (dispatch_get_specific(&_firclsLoggingQueue) != NULL) {
     block();
-  } else {
+  } else if (_firclsLoggingQueue) {
     dispatch_sync(_firclsLoggingQueue, block);
   }
 }
