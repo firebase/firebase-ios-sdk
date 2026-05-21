@@ -24,20 +24,8 @@ let package = Package(
     // Products define the executables and libraries a package produces, and make them visible to
     // other packages.
     .executable(
-      name: "CoverageReportGenerator",
-      targets: ["CoverageReportGenerator"]
-    ),
-    .executable(
       name: "UpdatedFilesCollector",
       targets: ["UpdatedFilesCollector"]
-    ),
-    .executable(
-      name: "IncrementalCoverageReportGenerator",
-      targets: ["IncrementalCoverageReportGenerator"]
-    ),
-    .executable(
-      name: "BinarySizeReportGenerator",
-      targets: ["BinarySizeReportGenerator"]
     ),
   ],
   dependencies: [
@@ -45,34 +33,10 @@ let package = Package(
   ],
   targets: [
     .target(
-      name: "CoverageReportGenerator",
-      dependencies: [
-        .product(name: "ArgumentParser", package: "swift-argument-parser"),
-        "Utils",
-      ]
-    ),
-    .target(
       name: "UpdatedFilesCollector",
       dependencies: [
         .product(name: "ArgumentParser", package: "swift-argument-parser"),
       ]
-    ),
-    .target(
-      name: "IncrementalCoverageReportGenerator",
-      dependencies: [
-        .product(name: "ArgumentParser", package: "swift-argument-parser"),
-        "Utils",
-      ]
-    ),
-    .target(
-      name: "BinarySizeReportGenerator",
-      dependencies: [
-        .product(name: "ArgumentParser", package: "swift-argument-parser"),
-        "Utils",
-      ]
-    ),
-    .target(
-      name: "Utils"
     ),
   ]
 )
