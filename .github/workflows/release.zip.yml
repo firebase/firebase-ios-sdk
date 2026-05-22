@@ -48,6 +48,10 @@ on:
         description: 'Run ID of a previous successful zip workflow to use for quickstart testing'
         required: false
         default: ''
+      build_firestore_only:
+        description: 'Build only FirebaseFirestoreInternal XCFramework'
+        required: false
+        default: 'false'
 
 concurrency:
     group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
@@ -58,6 +62,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       should_package: ${{ steps.check.outputs.should_package }}
+      build_firestore_only: ${{ steps.check.outputs.build_firestore_only }}
     steps:
     - name: Fail workflow if PINNED_RUN_ID is set on a schedule
       if: github.event_name == 'schedule' && env.PINNED_RUN_ID != ''
@@ -68,11 +73,17 @@ jobs:
       id: check
       env:
         ZIP_RUN_ID: ${{ github.event.inputs.zip_run_id }}
+        BUILD_FIRESTORE_ONLY: ${{ github.event.inputs.build_firestore_only }}
       run: |
-        if [[ -n "${{ env.PINNED_RUN_ID }}" || -n "$ZIP_RUN_ID" ]]; then
+        if [[ "${BUILD_FIRESTORE_ONLY}" == "true" ]]; then
           echo "should_package=false" >> "$GITHUB_OUTPUT"
+          echo "build_firestore_only=true" >> "$GITHUB_OUTPUT"
+        elif [[ -n "${{ env.PINNED_RUN_ID }}" || -n "$ZIP_RUN_ID" ]]; then
+          echo "should_package=false" >> "$GITHUB_OUTPUT"
+          echo "build_firestore_only=false" >> "$GITHUB_OUTPUT"
         else
           echo "should_package=true" >> "$GITHUB_OUTPUT"
+          echo "build_firestore_only=false" >> "$GITHUB_OUTPUT"
         fi
 
   package-release:
@@ -107,6 +118,33 @@ jobs:
         # Zip the entire output directory since the builder adds subdirectories we don't know the
         # name of.
         path: release_zip_dir
+
+  build-firestore-xcframework:
+    needs: should_package
+    if: needs.should_package.outputs.build_firestore_only == 'true'
+    runs-on: macos-26
+    steps:
+    - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      with:
+        persist-credentials: false
+    - name: Xcode
+      run: sudo xcode-select -s /Applications/${{ env.MIN_XCODE }}.app/Contents/Developer
+    - name: Build Firestore XCFramework
+      # The version '12.14.0' below is a placeholder value to trick ZipBuilder into thinking versions were specified.
+      # This prevents it from auto-including all other local podspecs in the repo.
+      # The actual local podspec will still be used because we pass `--local-podspec-path ..`.
+      run: |
+        mkdir -p firestore_xcframework_dir
+        cd ReleaseTooling
+        echo '[{"name": "FirebaseAppCheckInterop", "version": "12.14.0", "platforms": ["ios", "macos", "tvos"]}]' > pods.json
+        swift run zip-builder --zip-pods pods.json --disable-build-dependencies --output-dir ../firestore_xcframework_dir --local-podspec-path .. --platforms ios macos tvos
+    - name: Unpack XCFramework
+      run: |
+        unzip firestore_xcframework_dir/Frameworks.zip -d unpack_dir
+    - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+      with:
+        name: FirebaseAppCheckInterop
+        path: unpack_dir/Binaries/FirebaseAppCheckInterop.xcframework
 
   build:
     needs: should_package
@@ -163,7 +201,7 @@ jobs:
   packaging_done:
     runs-on: ubuntu-latest
     needs: [package-head]
-    if: always()
+    if: always() && github.event.inputs.build_firestore_only != 'true'
     outputs:
       run_id: ${{ steps.get_run_id.outputs.run_id }}
     steps:
