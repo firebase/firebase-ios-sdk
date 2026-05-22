@@ -26,9 +26,17 @@ NS_ASSUME_NONNULL_BEGIN
 - (nullable id<FIRAppCheckProvider>)createProviderWithApp:(FIRApp *)app {
   FIRAppCheckDebugProvider *provider = [[FIRAppCheckDebugProvider alloc] initWithApp:app];
 
-  // Print only locally generated token to avoid a valid token leak on CI.
-  FIRLogWarning(kFIRLoggerAppCheck, kFIRLoggerAppCheckMessageCodeDebugToken,
-                @"Firebase App Check debug token: '%@'.", [provider localDebugToken]);
+  NSString *currentToken = [provider currentDebugToken];
+  NSString *localToken = [provider localDebugToken];
+
+  if ([currentToken isEqualToString:localToken]) {
+    // Print only locally generated token to avoid a valid token leak on CI.
+    FIRLogWarning(kFIRLoggerAppCheck, kFIRLoggerAppCheckMessageCodeDebugToken,
+                  @"Firebase App Check debug token: '%@'.", localToken);
+  } else {
+    FIRLogWarning(kFIRLoggerAppCheck, kFIRLoggerAppCheckMessageCodeDebugToken,
+                  @"Firebase App Check debug token is overridden by environment variable.");
+  }
 
   return provider;
 }
