@@ -1,4 +1,4 @@
-// swift-tools-version:6.0
+// swift-tools-version:6.1
 // The swift-tools-version declares the minimum version of Swift required to
 // build this package.
 
@@ -131,6 +131,11 @@ let package = Package(
       name: "FirebaseStorage",
       targets: ["FirebaseStorage"]
     ),
+  ],
+  traits: [
+    .trait(name: "Analytics"),
+    .trait(name: "Firestore"),
+    .default(enabledTraits: ["Analytics", "Firestore"]),
   ],
   dependencies: [
     .package(
@@ -320,7 +325,10 @@ let package = Package(
     .target(
       name: "FirebaseAnalyticsTarget",
       dependencies: [.target(name: "FirebaseAnalyticsWrapper",
-                             condition: .when(platforms: [.iOS, .macCatalyst, .macOS, .tvOS]))],
+                             condition: .when(
+                               platforms: [.iOS, .macCatalyst, .macOS, .tvOS],
+                               traits: ["Analytics"]
+                             ))],
       path: "SwiftPM-PlatformExclude/FirebaseAnalyticsWrap"
     ),
 
@@ -333,7 +341,10 @@ let package = Package(
         ),
         .product(name: "GoogleAppMeasurement",
                  package: "GoogleAppMeasurement",
-                 condition: .when(platforms: [.iOS, .macCatalyst, .macOS, .tvOS])),
+                 condition: .when(
+                   platforms: [.iOS, .macCatalyst, .macOS, .tvOS],
+                   traits: ["Analytics"]
+                 )),
         "FirebaseCore",
         "FirebaseInstallations",
         .product(name: "GULAppDelegateSwizzler", package: "GoogleUtilities"),
@@ -369,7 +380,10 @@ let package = Package(
     .target(
       name: "FirebaseAnalyticsCoreTarget",
       dependencies: [.target(name: "FirebaseAnalyticsCoreWrapper",
-                             condition: .when(platforms: [.iOS, .macCatalyst, .macOS, .tvOS]))],
+                             condition: .when(
+                               platforms: [.iOS, .macCatalyst, .macOS, .tvOS],
+                               traits: ["Analytics"]
+                             ))],
       path: "SwiftPM-PlatformExclude/FirebaseAnalyticsCoreWrap"
     ),
     .target(
@@ -377,11 +391,14 @@ let package = Package(
       dependencies: [
         .target(
           name: "FirebaseAnalytics",
-          condition: .when(platforms: [.iOS, .macCatalyst, .macOS, .tvOS])
+          condition: .when(platforms: [.iOS, .macCatalyst, .macOS, .tvOS], traits: ["Analytics"])
         ),
         .product(name: "GoogleAppMeasurementCore",
                  package: "GoogleAppMeasurement",
-                 condition: .when(platforms: [.iOS, .macCatalyst, .macOS, .tvOS])),
+                 condition: .when(
+                   platforms: [.iOS, .macCatalyst, .macOS, .tvOS],
+                   traits: ["Analytics"]
+                 )),
         "FirebaseCore",
         "FirebaseInstallations",
         .product(name: "GULAppDelegateSwizzler", package: "GoogleUtilities"),
@@ -408,7 +425,10 @@ let package = Package(
         ),
         .product(name: "GoogleAppMeasurementIdentitySupport",
                  package: "GoogleAppMeasurement",
-                 condition: .when(platforms: [.iOS, .macCatalyst, .macOS, .tvOS])),
+                 condition: .when(
+                   platforms: [.iOS, .macCatalyst, .macOS, .tvOS],
+                   traits: ["Analytics"]
+                 )),
         "FirebaseCore",
         "FirebaseInstallations",
         .product(name: "GULAppDelegateSwizzler", package: "GoogleUtilities"),
@@ -1470,13 +1490,16 @@ func firestoreWrapperTarget() -> Target {
     return .target(
       name: "FirebaseFirestoreTarget",
       dependencies: [.target(name: "FirebaseFirestore",
-                             condition: .when(platforms: [
-                               .iOS,
-                               .tvOS,
-                               .macOS,
-                               .visionOS,
-                               .macCatalyst,
-                             ]))],
+                             condition: .when(
+                               platforms: [
+                                 .iOS,
+                                 .tvOS,
+                                 .macOS,
+                                 .visionOS,
+                                 .macCatalyst,
+                               ],
+                               traits: ["Firestore"]
+                             ))],
       path: "SwiftPM-PlatformExclude/FirebaseFirestoreWrap"
     )
   }
@@ -1484,7 +1507,10 @@ func firestoreWrapperTarget() -> Target {
   return .target(
     name: "FirebaseFirestoreTarget",
     dependencies: [.target(name: "FirebaseFirestore",
-                           condition: .when(platforms: [.iOS, .tvOS, .macOS, .macCatalyst]))],
+                           condition: .when(
+                             platforms: [.iOS, .tvOS, .macOS, .macCatalyst],
+                             traits: ["Firestore"]
+                           ))],
     path: "SwiftPM-PlatformExclude/FirebaseFirestoreWrap",
     cSettings: [.define("FIREBASE_BINARY_FIRESTORE", to: "1")]
   )
@@ -1500,8 +1526,10 @@ func firestoreTargets() -> [Target] {
           "FirebaseCore",
           "leveldb",
           .product(name: "nanopb", package: "nanopb"),
-          .product(name: "abseil", package: "abseil-cpp-SwiftPM"),
-          .product(name: "gRPC-cpp", package: "grpc-ios"),
+          .product(
+            name: "abseil", package: "abseil-cpp-SwiftPM", condition: .when(traits: ["Firestore"])
+          ),
+          .product(name: "gRPC-cpp", package: "grpc-ios", condition: .when(traits: ["Firestore"])),
         ],
         path: "Firestore",
         exclude: [
@@ -1626,12 +1654,12 @@ func firestoreTargets() -> [Target] {
         .product(
           name: "abseil",
           package: "abseil-cpp-binary",
-          condition: .when(platforms: [.iOS, .macCatalyst, .tvOS, .macOS])
+          condition: .when(platforms: [.iOS, .macCatalyst, .tvOS, .macOS], traits: ["Firestore"])
         ),
         .product(
           name: "gRPC-C++",
           package: "grpc-binary",
-          condition: .when(platforms: [.iOS, .macCatalyst, .tvOS, .macOS])
+          condition: .when(platforms: [.iOS, .macCatalyst, .tvOS, .macOS], traits: ["Firestore"])
         ),
         .product(name: "nanopb", package: "nanopb"),
         "FirebaseAppCheckInterop",
