@@ -147,7 +147,8 @@ public final class FirebaseAI: Sendable {
     ///   - instructions: System instructions that direct the model's behavior.
     public func generativeModelSession(model: any LanguageModelProvider,
                                        tools: [any ToolRepresentable]? = nil,
-                                       instructions: String? = nil) -> GenerativeModelSession {
+                                       instructions: SystemInstructions? = nil)
+      -> GenerativeModelSession {
       let tools = tools?.map { $0.toolRepresentation }
 
       return GenerativeModelSession(
@@ -155,6 +156,25 @@ public final class FirebaseAI: Sendable {
         tools: tools,
         instructions: instructions
       )
+    }
+
+    public func generativeModelSession(model: any LanguageModelProvider,
+                                       tools: [any ToolRepresentable]? = nil,
+                                       @SystemInstructionsBuilder instructions: () throws
+                                         -> SystemInstructions) rethrows -> GenerativeModelSession {
+      let tools = tools?.map { $0.toolRepresentation }
+
+      return try generativeModelSession(model: model, tools: tools as [any ToolRepresentable]?,
+                                        instructions: instructions())
+    }
+
+    public func generativeModelSession(model: any LanguageModelProvider,
+                                       tools: [any ToolRepresentable]? = nil,
+                                       instructions: String?) -> GenerativeModelSession {
+      let tools = tools?.map { $0.toolRepresentation }
+
+      return generativeModelSession(model: model, tools: tools as [any ToolRepresentable]?,
+                                    instructions: instructions)
     }
 
     #if canImport(FoundationModels)
@@ -179,6 +199,20 @@ public final class FirebaseAI: Sendable {
 
         return generativeModelSession(model: model, tools: tools as [any ToolRepresentable]?,
                                       instructions: instructions)
+      }
+
+      @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
+      @available(tvOS, unavailable)
+      @available(watchOS, unavailable)
+      public func generativeModelSession(model: any LanguageModelProvider,
+                                         tools: [any FoundationModels.Tool],
+                                         @SystemInstructionsBuilder instructions: () throws
+                                           -> SystemInstructions) rethrows
+        -> GenerativeModelSession {
+        let tools = tools.map { FirebaseAILogic.Tool.autoFunctionDeclaration($0) }
+
+        return try generativeModelSession(model: model, tools: tools as [any ToolRepresentable]?,
+                                          instructions: instructions)
       }
     #endif // canImport(FoundationModels)
   #endif // compiler(>=6.2.3)

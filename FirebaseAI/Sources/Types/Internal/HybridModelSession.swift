@@ -19,13 +19,13 @@
     private let primaryModel: any LanguageModel
     private let secondaryModel: any LanguageModel
     private let tools: [any ToolRepresentable]?
-    private let instructions: String?
+    private let instructions: SystemInstructions?
 
     typealias SessionState = (primary: (any _ModelSession)?, secondary: (any _ModelSession)?)
     private let lock: UnfairLock<SessionState>
 
     init(primaryModel: any LanguageModel, secondaryModel: any LanguageModel,
-         tools: [any ToolRepresentable]?, instructions: String?) {
+         tools: [any ToolRepresentable]?, instructions: SystemInstructions?) {
       self.primaryModel = primaryModel
       self.secondaryModel = secondaryModel
       self.tools = tools

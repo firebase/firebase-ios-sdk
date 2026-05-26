@@ -62,7 +62,7 @@ import Foundation
     ///
     /// > Important: This method is for **internal use only** and may change at any time.
     public func _startSession(tools: [any ToolRepresentable]?,
-                              instructions: String?) throws -> any _ModelSession {
+                              instructions: SystemInstructions?) throws -> any _ModelSession {
       let model = GenerativeModel(
         modelName: modelName,
         modelResourceName: modelResourceName,
@@ -72,7 +72,7 @@ import Foundation
         safetySettings: safetySettings,
         tools: tools?.map { $0.toolRepresentation },
         // TODO: Add toolConfig
-        systemInstruction: instructions.map { ModelContent(role: "system", parts: $0) },
+        systemInstruction: instructions?.toModelContent(),
         requestOptions: requestOptions,
         urlSession: urlSession
       )

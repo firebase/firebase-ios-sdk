@@ -23,7 +23,7 @@
     /// Returns a new session for this model.
     ///
     /// > Important: This method is for **internal use only** and may change at any time.
-    func _startSession(tools: [any ToolRepresentable]?, instructions: String?) throws
+    func _startSession(tools: [any ToolRepresentable]?, instructions: SystemInstructions?) throws
       -> any _ModelSession
   }
 

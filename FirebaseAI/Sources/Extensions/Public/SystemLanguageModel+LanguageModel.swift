@@ -32,7 +32,7 @@
     ///
     /// > Important: This method is for **internal use only** and may change at any time.
     public func _startSession(tools: [any ToolRepresentable]?,
-                              instructions: String?) throws -> any _ModelSession {
+                              instructions: SystemInstructions?) throws -> any _ModelSession {
       switch availability {
       case .available:
         break
@@ -81,7 +81,7 @@
           return LanguageModelSession(
             model: self.systemLanguageModel,
             tools: afmTools,
-            instructions: instructions
+            instructions: instructions?.toFoundationModels()
           )
         }
       #endif // canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
