@@ -1,5 +1,7 @@
 # Unreleased
 - [Performance] Fix missing network traces for Swift async/await URLSession requests on iOS 16+. (#11861)
+
+# 12.14.0
 - [fixed] Fixed a race condition crash in `FPRConfigurations` by making
   `remoteConfigFlags` atomic and explicitly nullable. (#16144)
 - [added] Added an `Info.plist` array key
