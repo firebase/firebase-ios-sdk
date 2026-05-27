@@ -113,15 +113,3 @@ repo is up-to-date.
 Generates a testing report for all nightly jobs, like #7797, so developers from the iOS SDK repo do
 not have to go through workflows to get all results.
 
-### Code coverage
-[test_coverage.yml](https://github.com/firebase/firebase-ios-sdk/tree/main/.github/workflows/test_coverage.yml)
-
-Generates code coverage reports in PRs (see
-[example](https://github.com/firebase/firebase-ios-sdk/pull/7788#issuecomment-807690514)).
-The workflow will trigger podspec
-tests if changed files follow file patterns. Tests will create xcresult bundles, which contain all
-code coverage data. These bundles will be gathered in the last job and generate a json report which
-will be sent to the Metrics Service, which will create a code coverage report in a PR. Currently
-code coverage can generate diff between commits. Incremental code coverage support is in progress.
-Details
-[here](https://github.com/firebase/firebase-ios-sdk/blob/main/.github/workflows/health-metrics-presubmit.yml#L417).
