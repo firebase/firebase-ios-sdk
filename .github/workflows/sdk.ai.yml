@@ -60,10 +60,10 @@ jobs:
       secrets_passphrase: ${{ secrets.GHASecretsGPGPassphrase1 }}
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
-    - uses: actions/cache/restore@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
-      with:
-        path: .build
-        key: ${{ needs.spm.outputs.cache_key }}
+    # - uses: actions/cache/restore@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+    #   with:
+    #     path: .build
+    #     key: ${{ needs.spm.outputs.cache_key }}
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/FirebaseAI/TestApp-GoogleService-Info.plist.gpg \
         FirebaseAI/Tests/TestApp/Resources/GoogleService-Info.plist "$secrets_passphrase"
