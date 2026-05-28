@@ -123,7 +123,12 @@ function RunXcodebuild() {
 
   local xcbeautify_cmd
   if command -v xcbeautify &> /dev/null; then
-    xcbeautify_cmd=(xcbeautify --renderer github-actions --disable-logging)
+    xcbeautify_cmd=(
+      env NSUnbufferedIO=YES
+      xcbeautify
+      --renderer github-actions
+      --disable-logging
+    )
   else
     echo "xcbeautify not found, using raw xcodebuild output."
     xcbeautify_cmd=(cat)
