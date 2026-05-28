@@ -14,7 +14,7 @@ Starting with Xcode 13, you can pass environment variables directly to the
 test runner by prefixing them with `TEST_RUNNER_`. The prefix is stripped when
 it reaches the test process.
 
-- **`TEST_RUNNER_RECAPTCHA_SITE_KEY`**: The reCAPTCHA Enterprise site key used
+- **`TEST_RUNNER_RECAPTCHA_SITE_KEY`**: The reCAPTCHA site key used
   by the `AppCheckRecaptchaProvider`.
     - **Access in Code**: Read via
       `ProcessInfo.processInfo.environment["RECAPTCHA_SITE_KEY"]`.
