@@ -56,7 +56,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     print("Info: Using App Check provider: '\(providerType)'")
 
     guard let options = FirebaseOptions.defaultOptions() else {
-      fatalError("Failed to load default Firebase options. Ensure GoogleService-Info.plist is added to the project.")
+      fatalError(
+        "Failed to load default Firebase options. Ensure GoogleService-Info.plist is added to the project."
+      )
     }
 
     let providerFactory: AppCheckProviderFactory
@@ -69,7 +71,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         )
       }
       options.recaptchaSiteKey = siteKey
-      providerFactory = RecaptchaEnterpriseProviderFactory()
+      providerFactory = RecaptchaProviderFactory()
     case "debug":
       providerFactory = AppCheckDebugProviderFactory()
     default:

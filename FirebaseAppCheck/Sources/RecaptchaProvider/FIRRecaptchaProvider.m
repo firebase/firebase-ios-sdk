@@ -20,7 +20,7 @@
 #import <AppCheckCore/AppCheckCore.h>
 
 #if SWIFT_PACKAGE
-@import AppCheckRecaptchaEnterpriseProvider;
+@import AppCheckRecaptchaProvider;
 #elif __has_include(<AppCheckCore/AppCheckCore-Swift.h>)
 #import <AppCheckCore/AppCheckCore-Swift.h>
 #elif __has_include("AppCheckCore-Swift.h")
@@ -47,19 +47,20 @@
 
 @implementation FIRRecaptchaProvider
 
-- (instancetype)initWithRecaptchaProvider:(id<GACAppCheckProvider>)recaptchaEnterpriseProvider {
+- (instancetype)initWithRecaptchaProvider:(id<GACAppCheckProvider>)recaptchaProvider {
   self = [super init];
   if (self) {
-    _recaptchaProvider = recaptchaEnterpriseProvider;
+    _recaptchaProvider = recaptchaProvider;
   }
   return self;
 }
 
-- (nullable instancetype)initWithApp:(FIRApp *)app siteKey:(NSString *)siteKey {
+- (nullable instancetype)initWithApp:(FIRApp *)app {
+  NSString *siteKey = app.options.recaptchaSiteKey;
   if (siteKey.length == 0) {
     FIRLogError(kFIRLoggerAppCheck, kFIRLoggerAppCheckMessageRecaptchaProviderIncompleteFIROptions,
                 @"Cannot instantiate `%@` for app: %@. "
-                @"`siteKey` is missing or empty.",
+                @"`recaptchaSiteKey` is missing or empty in Firebase app options.",
                 NSStringFromClass([self class]), app.name);
     return nil;
   }
@@ -76,14 +77,13 @@
 
   id heartbeatHook = [app.heartbeatLogger requestHook];
 #if TARGET_OS_IOS
-  GACRecaptchaEnterpriseProvider *recaptchaEnterpriseProvider =
-      [[GACRecaptchaEnterpriseProvider alloc]
-          initWithSiteKey:siteKey
-             resourceName:app.resourceName
-                   APIKey:app.options.APIKey
-             requestHooks:heartbeatHook ? @[ heartbeatHook ] : @[]];
+  GACRecaptchaProvider *recaptchaProvider =
+      [[GACRecaptchaProvider alloc] initWithSiteKey:siteKey
+                                       resourceName:app.resourceName
+                                             APIKey:app.options.APIKey
+                                       requestHooks:heartbeatHook ? @[ heartbeatHook ] : @[]];
 
-  return [self initWithRecaptchaProvider:recaptchaEnterpriseProvider];
+  return [self initWithRecaptchaProvider:recaptchaProvider];
 #else
   return nil;
 #endif

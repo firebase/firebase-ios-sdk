@@ -34,15 +34,7 @@
 }
 
 - (nullable id<FIRAppCheckProvider>)createProviderWithApp:(nonnull FIRApp *)app {
-  NSString *siteKey = app.options.recaptchaSiteKey;
-  if (siteKey.length == 0) {
-    FIRLogError(kFIRLoggerAppCheck, kFIRLoggerAppCheckMessageRecaptchaProviderIncompleteFIROptions,
-                @"Cannot instantiate `%@` for app: %@. "
-                @"`recaptchaSiteKey` is missing or empty in Firebase app options.",
-                NSStringFromClass([self class]), app.name);
-    return nil;
-  }
-  return [[FIRRecaptchaProvider alloc] initWithApp:app siteKey:siteKey];
+  return [[FIRRecaptchaProvider alloc] initWithApp:app];
 }
 
 @end

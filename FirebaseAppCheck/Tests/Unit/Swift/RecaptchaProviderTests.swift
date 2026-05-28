@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import AppCheckCore
-import AppCheckRecaptchaEnterpriseProvider
+import AppCheckRecaptchaProvider
 import FirebaseAppCheck
 import FirebaseCore
 import ObjectiveC
@@ -118,6 +118,7 @@ final class RecaptchaProviderTests: XCTestCase {
     let options = FirebaseOptions(googleAppID: "1:123456789:ios:abc123", gcmSenderID: "sender_id")
     options.apiKey = "api_key"
     options.projectID = "project_id"
+    options.recaptchaSiteKey = "test_site_key"
 
     let appName = "testInitWithValidApp"
     let app: FirebaseApp
@@ -129,12 +130,13 @@ final class RecaptchaProviderTests: XCTestCase {
     }
     app.isDataCollectionDefaultEnabled = false
 
-    XCTAssertNotNil(RecaptchaProvider(app: app, siteKey: "test_site_key"))
+    XCTAssertNotNil(RecaptchaProvider(app: app))
   }
 
   func testInitWithIncompleteApp() {
     let options = FirebaseOptions(googleAppID: "1:123456789:ios:abc123", gcmSenderID: "sender_id")
     options.projectID = "project_id"
+    options.recaptchaSiteKey = "test_site_key"
 
     let appName = "testInitWithIncompleteApp1"
     let missingAPIKeyApp: FirebaseApp
@@ -146,10 +148,11 @@ final class RecaptchaProviderTests: XCTestCase {
     }
     missingAPIKeyApp.isDataCollectionDefaultEnabled = false
 
-    XCTAssertNil(RecaptchaProvider(app: missingAPIKeyApp, siteKey: "test_site_key"))
+    XCTAssertNil(RecaptchaProvider(app: missingAPIKeyApp))
 
     options.projectID = nil
     options.apiKey = "api_key"
+    options.recaptchaSiteKey = "test_site_key"
 
     let appName2 = "testInitWithIncompleteApp2"
     let missingProjectIDApp: FirebaseApp
@@ -160,7 +163,26 @@ final class RecaptchaProviderTests: XCTestCase {
       missingProjectIDApp = FirebaseApp.app(name: appName2)!
     }
     missingProjectIDApp.isDataCollectionDefaultEnabled = false
-    XCTAssertNil(RecaptchaProvider(app: missingProjectIDApp, siteKey: "test_site_key"))
+    XCTAssertNil(RecaptchaProvider(app: missingProjectIDApp))
+  }
+
+  func testInitWithMissingSiteKey() {
+    let options = FirebaseOptions(googleAppID: "1:123456789:ios:abc123", gcmSenderID: "sender_id")
+    options.apiKey = "api_key"
+    options.projectID = "project_id"
+    // options.recaptchaSiteKey is nil
+
+    let appName = "testInitWithMissingSiteKey"
+    let app: FirebaseApp
+    if let existingApp = FirebaseApp.app(name: appName) {
+      app = existingApp
+    } else {
+      FirebaseApp.configure(name: appName, options: options)
+      app = FirebaseApp.app(name: appName)!
+    }
+    app.isDataCollectionDefaultEnabled = false
+
+    XCTAssertNil(RecaptchaProvider(app: app))
   }
 
   func testGetTokenSuccess() {
