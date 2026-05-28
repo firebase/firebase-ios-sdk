@@ -78,6 +78,7 @@
   }
 
   id heartbeatHook = [app.heartbeatLogger requestHook];
+#if TARGET_OS_IOS
   GACRecaptchaEnterpriseProvider *recaptchaEnterpriseProvider =
       [[GACRecaptchaEnterpriseProvider alloc]
           initWithSiteKey:siteKey
@@ -86,6 +87,9 @@
              requestHooks:heartbeatHook ? @[ heartbeatHook ] : @[]];
 
   return [self initWithRecaptchaEnterpriseProvider:recaptchaEnterpriseProvider];
+#else
+  return nil;
+#endif
 }
 
 #pragma mark - FIRAppCheckProvider

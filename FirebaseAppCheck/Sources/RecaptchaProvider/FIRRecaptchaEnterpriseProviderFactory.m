@@ -14,31 +14,36 @@
  * limitations under the License.
  */
 
-#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckRecaptchaEnterpriseProviderFactory.h"
+#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRRecaptchaEnterpriseProviderFactory.h"
 
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheck.h"
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRRecaptchaEnterpriseProvider.h"
 
-@interface FIRAppCheckRecaptchaEnterpriseProviderFactory ()
+#import "FirebaseAppCheck/Sources/Core/FIRAppCheckLogger.h"
+#import "FirebaseCore/Sources/Public/FirebaseCore/FIROptions.h"
 
-@property(nonatomic, readonly) NSString *siteKey;
+@interface FIRRecaptchaEnterpriseProviderFactory ()
 
 @end
 
-@implementation FIRAppCheckRecaptchaEnterpriseProviderFactory
+@implementation FIRRecaptchaEnterpriseProviderFactory
 
-- (instancetype)initWithSiteKey:(NSString *)siteKey {
-  NSParameterAssert(siteKey.length > 0);
+- (instancetype)init {
   self = [super init];
-
-  if (self) {
-    _siteKey = [siteKey copy];
-  }
   return self;
 }
 
 - (nullable id<FIRAppCheckProvider>)createProviderWithApp:(nonnull FIRApp *)app {
-  return [[FIRRecaptchaEnterpriseProvider alloc] initWithApp:app siteKey:self.siteKey];
+  NSString *siteKey = app.options.recaptchaSiteKey;
+  if (siteKey.length == 0) {
+    FIRLogError(kFIRLoggerAppCheck,
+                kFIRLoggerAppCheckMessageRecaptchaEnterpriseProviderIncompleteFIROptions,
+                @"Cannot instantiate `%@` for app: %@. "
+                @"`recaptchaSiteKey` is missing or empty in Firebase app options.",
+                NSStringFromClass([self class]), app.name);
+    return nil;
+  }
+  return [[FIRRecaptchaEnterpriseProvider alloc] initWithApp:app siteKey:siteKey];
 }
 
 @end

@@ -36,14 +36,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     // Change this to explicitly set a provider, or leave nil to use environment variable.
     let manualProviderOverride: String? = nil // e.g., "debug" or "recaptcha"
 
-    setupAppCheck(overrideProvider: manualProviderOverride)
+    let options = setupAppCheck(overrideProvider: manualProviderOverride)
 
-    FirebaseApp.configure()
+    FirebaseApp.configure(options: options)
 
     return true
   }
 
-  private func setupAppCheck(overrideProvider: String?) {
+  private func setupAppCheck(overrideProvider: String?) -> FirebaseOptions {
     // Note: If running via `xcodebuild test`, pass this with the `TEST_RUNNER_` prefix
     // (e.g., `TEST_RUNNER_APP_CHECK_PROVIDER="debug"`). Xcode strips the prefix at runtime.
     let providerType = overrideProvider ?? ProcessInfo.processInfo
@@ -55,6 +55,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     print("Info: Using App Check provider: '\(providerType)'")
 
+    guard let options = FirebaseOptions.defaultOptions() else {
+      fatalError("Failed to load default Firebase options. Ensure GoogleService-Info.plist is added to the project.")
+    }
+
     let providerFactory: AppCheckProviderFactory
     switch providerType {
     case "recaptcha":
@@ -64,7 +68,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
           "Error: RECAPTCHA_SITE_KEY environment variable is missing or empty. E2E tests require this key."
         )
       }
-      providerFactory = AppCheckRecaptchaEnterpriseProviderFactory(siteKey: siteKey)
+      options.recaptchaSiteKey = siteKey
+      providerFactory = RecaptchaEnterpriseProviderFactory()
     case "debug":
       providerFactory = AppCheckDebugProviderFactory()
     default:
@@ -75,6 +80,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     AppCheck.setAppCheckProviderFactory(providerFactory)
+
+    return options
   }
 
   // MARK: UISceneSession Lifecycle
