@@ -588,7 +588,6 @@ case "$product-$platform-$method" in
       -parallel-testing-enabled NO \
       -retry-tests-on-failure \
       -test-iterations 3 \
-      -skip-testing:IntegrationTests-SPM/LiveSessionTests \
       test
     ;;
 

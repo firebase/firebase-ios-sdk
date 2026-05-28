@@ -25,8 +25,8 @@ import Testing
 
 @Suite(
   .enabled(
-    if: ProcessInfo.processInfo.environment["VTXIntegrationImagen"] != nil,
-    "Only runs if the environment variable VTXIntegrationImagen is set."
+    if: ProcessInfo.processInfo.environment["FALIntegrationImagen"] == "true",
+    "Only runs if the environment variable FALIntegrationImagen is set to true."
   ),
   .serialized
 )

@@ -54,7 +54,8 @@ jobs:
     # needs: spm
     env:
       TEST_RUNNER_FIRAAppCheckDebugToken: ${{ secrets.VERTEXAI_INTEGRATION_FAC_DEBUG_TOKEN }}
-      TEST_RUNNER_VTXIntegrationImagen: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
+      TEST_RUNNER_FALIntegrationImagen: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
+      TEST_RUNNER_FALIntegrationLiveSession: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
       FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
       secrets_passphrase: ${{ secrets.GHASecretsGPGPassphrase1 }}
     steps:
