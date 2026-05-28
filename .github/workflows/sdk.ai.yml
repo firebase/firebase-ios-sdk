@@ -50,8 +50,7 @@ jobs:
             xcode: Xcode_26.2
             action: test
     runs-on: ${{ matrix.os }}
-    # // Temporarily stop waiting for SPM before starting integration tests.
-    # needs: spm
+    needs: spm
     env:
       TEST_RUNNER_FIRAAppCheckDebugToken: ${{ secrets.VERTEXAI_INTEGRATION_FAC_DEBUG_TOKEN }}
       TEST_RUNNER_FALIntegrationImagen: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
