@@ -123,7 +123,12 @@ function RunXcodebuild() {
 
   local xcbeautify_cmd
   if command -v xcbeautify &> /dev/null; then
-    xcbeautify_cmd=(xcbeautify --renderer github-actions --disable-logging)
+    xcbeautify_cmd=(
+      env NSUnbufferedIO=YES
+      xcbeautify
+      --renderer github-actions
+      --disable-logging
+    )
   else
     echo "xcbeautify not found, using raw xcodebuild output."
     xcbeautify_cmd=(cat)
@@ -566,15 +571,15 @@ case "$product-$platform-$method" in
       build
     ;;
 
-  FirebaseAIIntegration-*-*)
-    # Build
+  FirebaseAIIntegration-*-build)
     RunXcodebuild \
       -project 'FirebaseAI/Tests/TestApp/FirebaseAITestApp.xcodeproj' \
       -scheme "FirebaseAITestApp-SPM" \
       "${xcb_flags[@]}" \
       build-for-testing
+    ;;
 
-    # Run tests
+  FirebaseAIIntegration-*-test)
     RunXcodebuild \
       -project 'FirebaseAI/Tests/TestApp/FirebaseAITestApp.xcodeproj' \
       -scheme "FirebaseAITestApp-SPM" \
@@ -582,7 +587,7 @@ case "$product-$platform-$method" in
       -parallel-testing-enabled NO \
       -retry-tests-on-failure \
       -test-iterations 3 \
-      test-without-building
+      test
     ;;
 
   Sessions-*-integration)

@@ -19,7 +19,13 @@ import Testing
 
 @testable import struct FirebaseAILogic.APIConfig
 
-@Suite(.serialized)
+@Suite(
+  .enabled(
+    if: ProcessInfo.processInfo.environment["FALIntegrationLiveSession"] == "true",
+    "Only runs if the environment variable FALIntegrationLiveSession is set to true."
+  ),
+  .serialized
+)
 struct LiveSessionTests {
   private static let arguments = InstanceConfig.liveConfigs.flatMap { config in
     switch config.apiConfig.service {
