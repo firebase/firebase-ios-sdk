@@ -43,7 +43,7 @@ The commands below should be run from the **repository root**.
 
 ### Sample Commands
 
-#### Run tests with reCAPTCHA Enterprise provider
+#### Run tests with reCAPTCHA provider
 
 ```bash
 export TEST_RUNNER_RECAPTCHA_SITE_KEY="your_site_key_here"
