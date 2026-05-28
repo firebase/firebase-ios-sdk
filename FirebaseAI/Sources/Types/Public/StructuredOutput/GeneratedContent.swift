@@ -144,15 +144,7 @@
         case let .array(values):
           return "[\(values.map { $0.jsonString }.joined(separator: ", "))]"
         case let .structure(properties, orderedKeys):
-          let keysToEncode: [String]
-          if orderedKeys.isEmpty {
-            keysToEncode = properties.keys.sorted()
-          } else {
-            let orderedKeysSet = Set(orderedKeys)
-            let missingKeys = properties.keys.filter { !orderedKeysSet.contains($0) }.sorted()
-            keysToEncode = orderedKeys + missingKeys
-          }
-          let keyValuePairs = keysToEncode.compactMap { key -> String? in
+          let keyValuePairs = orderedKeys.compactMap { key -> String? in
             guard let value = properties[key] else { return nil }
             return "\"\(key)\": \(value.jsonString)"
           }
