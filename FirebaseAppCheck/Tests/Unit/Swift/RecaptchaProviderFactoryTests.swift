@@ -16,7 +16,7 @@
 import FirebaseCore
 import XCTest
 
-final class RecaptchaEnterpriseProviderFactoryTests: XCTestCase {
+final class RecaptchaProviderFactoryTests: XCTestCase {
   override func setUp() {
     super.setUp()
     _ = registerMocksOnce
@@ -38,10 +38,10 @@ final class RecaptchaEnterpriseProviderFactoryTests: XCTestCase {
     }
     app.isDataCollectionDefaultEnabled = false
 
-    let factory = RecaptchaEnterpriseProviderFactory()
+    let factory = RecaptchaProviderFactory()
 
     let createdProvider = factory.createProvider(with: app)
 
-    XCTAssertTrue(createdProvider is RecaptchaEnterpriseProvider)
+    XCTAssertTrue(createdProvider is RecaptchaProvider)
   }
 }

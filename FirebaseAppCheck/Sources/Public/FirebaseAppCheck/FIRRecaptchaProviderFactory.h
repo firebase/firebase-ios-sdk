@@ -20,9 +20,9 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /// An implementation of `AppCheckProviderFactory` that creates a new instance of
-/// `AppCheckRecaptchaEnterpriseProvider` when requested.
-NS_SWIFT_NAME(RecaptchaEnterpriseProviderFactory)
-@interface FIRRecaptchaEnterpriseProviderFactory : NSObject <FIRAppCheckProviderFactory>
+/// `AppCheckRecaptchaProvider` when requested.
+NS_SWIFT_NAME(RecaptchaProviderFactory)
+@interface FIRRecaptchaProviderFactory : NSObject <FIRAppCheckProviderFactory>
 
 /// Initializes a factory that will use the site key from Firebase app options.
 - (instancetype)init;

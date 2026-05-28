@@ -32,6 +32,6 @@
 #import "FIRAppAttestProvider.h"
 #import "FIRAppAttestProviderFactory.h"
 
-// Recaptcha Enterprise provider
-#import "FIRRecaptchaEnterpriseProvider.h"
-#import "FIRRecaptchaEnterpriseProviderFactory.h"
+// Recaptcha provider
+#import "FIRRecaptchaProvider.h"
+#import "FIRRecaptchaProviderFactory.h"

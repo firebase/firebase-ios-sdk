@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRRecaptchaEnterpriseProvider.h"
+#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRRecaptchaProvider.h"
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckAvailability.h"
 
 #import <AppCheckCore/AppCheckCore.h>
@@ -39,27 +39,25 @@
 
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
-@interface FIRRecaptchaEnterpriseProvider ()
+@interface FIRRecaptchaProvider ()
 
-@property(nonatomic, readonly) id<GACAppCheckProvider> recaptchaEnterpriseProvider;
+@property(nonatomic, readonly) id<GACAppCheckProvider> recaptchaProvider;
 
 @end
 
-@implementation FIRRecaptchaEnterpriseProvider
+@implementation FIRRecaptchaProvider
 
-- (instancetype)initWithRecaptchaEnterpriseProvider:
-    (id<GACAppCheckProvider>)recaptchaEnterpriseProvider {
+- (instancetype)initWithRecaptchaProvider:(id<GACAppCheckProvider>)recaptchaEnterpriseProvider {
   self = [super init];
   if (self) {
-    _recaptchaEnterpriseProvider = recaptchaEnterpriseProvider;
+    _recaptchaProvider = recaptchaEnterpriseProvider;
   }
   return self;
 }
 
 - (nullable instancetype)initWithApp:(FIRApp *)app siteKey:(NSString *)siteKey {
   if (siteKey.length == 0) {
-    FIRLogError(kFIRLoggerAppCheck,
-                kFIRLoggerAppCheckMessageRecaptchaEnterpriseProviderIncompleteFIROptions,
+    FIRLogError(kFIRLoggerAppCheck, kFIRLoggerAppCheckMessageRecaptchaProviderIncompleteFIROptions,
                 @"Cannot instantiate `%@` for app: %@. "
                 @"`siteKey` is missing or empty.",
                 NSStringFromClass([self class]), app.name);
@@ -68,8 +66,7 @@
   NSArray<NSString *> *missingOptionsFields =
       [FIRAppCheckValidator tokenExchangeMissingFieldsInOptions:app.options];
   if (missingOptionsFields.count > 0) {
-    FIRLogError(kFIRLoggerAppCheck,
-                kFIRLoggerAppCheckMessageRecaptchaEnterpriseProviderIncompleteFIROptions,
+    FIRLogError(kFIRLoggerAppCheck, kFIRLoggerAppCheckMessageRecaptchaProviderIncompleteFIROptions,
                 @"Cannot instantiate `%@` for app: %@. The following "
                 @"`FirebaseOptions` fields are missing: %@",
                 NSStringFromClass([self class]), app.name,
@@ -86,7 +83,7 @@
                    APIKey:app.options.APIKey
              requestHooks:heartbeatHook ? @[ heartbeatHook ] : @[]];
 
-  return [self initWithRecaptchaEnterpriseProvider:recaptchaEnterpriseProvider];
+  return [self initWithRecaptchaProvider:recaptchaEnterpriseProvider];
 #else
   return nil;
 #endif
@@ -96,30 +93,28 @@
 
 - (void)getTokenWithCompletion:(void (^)(FIRAppCheckToken *_Nullable token,
                                          NSError *_Nullable error))handler {
-  [self.recaptchaEnterpriseProvider
-      getTokenWithCompletion:^(GACAppCheckToken *_Nullable internalToken,
-                               NSError *_Nullable error) {
-        if (error) {
-          handler(nil, error);
-          return;
-        }
+  [self.recaptchaProvider getTokenWithCompletion:^(GACAppCheckToken *_Nullable internalToken,
+                                                   NSError *_Nullable error) {
+    if (error) {
+      handler(nil, error);
+      return;
+    }
 
-        handler([[FIRAppCheckToken alloc] initWithInternalToken:internalToken], nil);
-      }];
+    handler([[FIRAppCheckToken alloc] initWithInternalToken:internalToken], nil);
+  }];
 }
 
 - (void)getLimitedUseTokenWithCompletion:(void (^)(FIRAppCheckToken *_Nullable,
                                                    NSError *_Nullable))handler {
-  [self.recaptchaEnterpriseProvider
-      getLimitedUseTokenWithCompletion:^(GACAppCheckToken *_Nullable internalToken,
-                                         NSError *_Nullable error) {
-        if (error) {
-          handler(nil, error);
-          return;
-        }
+  [self.recaptchaProvider getLimitedUseTokenWithCompletion:^(
+                              GACAppCheckToken *_Nullable internalToken, NSError *_Nullable error) {
+    if (error) {
+      handler(nil, error);
+      return;
+    }
 
-        handler([[FIRAppCheckToken alloc] initWithInternalToken:internalToken], nil);
-      }];
+    handler([[FIRAppCheckToken alloc] initWithInternalToken:internalToken], nil);
+  }];
 }
 
 @end

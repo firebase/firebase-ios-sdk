@@ -25,8 +25,8 @@ NS_ASSUME_NONNULL_BEGIN
 /// App Check provider that verifies app integrity using
 /// [reCAPTCHA Enterprise for iOS](https://cloud.google.com/recaptcha/docs/instrument-ios-apps)
 /// API.
-NS_SWIFT_NAME(RecaptchaEnterpriseProvider)
-@interface FIRRecaptchaEnterpriseProvider : NSObject <FIRAppCheckProvider>
+NS_SWIFT_NAME(RecaptchaProvider)
+@interface FIRRecaptchaProvider : NSObject <FIRAppCheckProvider>
 
 - (instancetype)init NS_UNAVAILABLE;
 
@@ -34,7 +34,7 @@ NS_SWIFT_NAME(RecaptchaEnterpriseProvider)
 /// @param app A `FirebaseApp` instance.
 /// @param siteKey The reCAPTCHA Enterprise iOS site key to be used during
 ///     attestation.
-/// @return An instance of `RecaptchaEnterpriseProvider` if the provided
+/// @return An instance of `RecaptchaProvider` if the provided
 ///     `FirebaseApp` instance contains all required parameters.
 - (nullable instancetype)initWithApp:(FIRApp *)app siteKey:(NSString *)siteKey;
 

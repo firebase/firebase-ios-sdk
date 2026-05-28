@@ -21,7 +21,7 @@ import RecaptchaInterop
 import XCTest
 
 // These stub classes are needed to satisfy the reflection checks in
-// AppCheckRecaptchaEnterpriseProvider.swift in the app-check repository.
+// AppCheckRecaptchaProvider.swift in the app-check repository.
 // That class uses NSClassFromString to check if the Recaptcha Enterprise SDK
 // is linked. By providing these stub classes with the expected Objective-C names
 // using the runtime, we can run unit tests without crashing.
@@ -82,8 +82,8 @@ class FakeInternalProvider: NSObject, AppCheckCoreProvider {
   }
 }
 
-final class RecaptchaEnterpriseProviderTests: XCTestCase {
-  var provider: RecaptchaEnterpriseProvider!
+final class RecaptchaProviderTests: XCTestCase {
+  var provider: RecaptchaProvider!
   var fakeInternalProvider: FakeInternalProvider!
 
   override func setUp() {
@@ -91,17 +91,17 @@ final class RecaptchaEnterpriseProviderTests: XCTestCase {
     _ = registerMocksOnce
     fakeInternalProvider = FakeInternalProvider()
 
-    guard let ProviderClass = NSClassFromString("FIRRecaptchaEnterpriseProvider") as? NSObject.Type
+    guard let ProviderClass = NSClassFromString("FIRRecaptchaProvider") as? NSObject.Type
     else {
-      XCTFail("Failed to get FIRRecaptchaEnterpriseProvider class")
+      XCTFail("Failed to get FIRRecaptchaProvider class")
       return
     }
 
     let providerInstance = ProviderClass.init()
-    providerInstance.setValue(fakeInternalProvider, forKey: "recaptchaEnterpriseProvider")
+    providerInstance.setValue(fakeInternalProvider, forKey: "recaptchaProvider")
 
-    guard let typedProvider = providerInstance as? RecaptchaEnterpriseProvider else {
-      XCTFail("Failed to cast provider instance to RecaptchaEnterpriseProvider")
+    guard let typedProvider = providerInstance as? RecaptchaProvider else {
+      XCTFail("Failed to cast provider instance to RecaptchaProvider")
       return
     }
 
@@ -129,7 +129,7 @@ final class RecaptchaEnterpriseProviderTests: XCTestCase {
     }
     app.isDataCollectionDefaultEnabled = false
 
-    XCTAssertNotNil(RecaptchaEnterpriseProvider(app: app, siteKey: "test_site_key"))
+    XCTAssertNotNil(RecaptchaProvider(app: app, siteKey: "test_site_key"))
   }
 
   func testInitWithIncompleteApp() {
@@ -146,7 +146,7 @@ final class RecaptchaEnterpriseProviderTests: XCTestCase {
     }
     missingAPIKeyApp.isDataCollectionDefaultEnabled = false
 
-    XCTAssertNil(RecaptchaEnterpriseProvider(app: missingAPIKeyApp, siteKey: "test_site_key"))
+    XCTAssertNil(RecaptchaProvider(app: missingAPIKeyApp, siteKey: "test_site_key"))
 
     options.projectID = nil
     options.apiKey = "api_key"
@@ -160,7 +160,7 @@ final class RecaptchaEnterpriseProviderTests: XCTestCase {
       missingProjectIDApp = FirebaseApp.app(name: appName2)!
     }
     missingProjectIDApp.isDataCollectionDefaultEnabled = false
-    XCTAssertNil(RecaptchaEnterpriseProvider(app: missingProjectIDApp, siteKey: "test_site_key"))
+    XCTAssertNil(RecaptchaProvider(app: missingProjectIDApp, siteKey: "test_site_key"))
   }
 
   func testGetTokenSuccess() {
