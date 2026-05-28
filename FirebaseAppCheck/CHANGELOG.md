@@ -1,5 +1,5 @@
 # Unreleased
-- [added] Added reCAPTCHA Enterprise provider.
+- [added] Added reCAPTCHA provider.
 
 # 12.14.0
 - [added] Added `AppAttestProviderFactory` to simplify App Check setup when
