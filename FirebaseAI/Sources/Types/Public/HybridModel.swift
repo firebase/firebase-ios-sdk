@@ -45,7 +45,7 @@
     ///
     /// > Important: This method is for **internal use only** and may change at any time.
     public func _startSession(tools: [any ToolRepresentable]?,
-                              instructions: SystemInstructions?) throws -> any _ModelSession {
+                              instructions: FirebaseAI.Instructions?) throws -> any _ModelSession {
       return HybridModelSession(
         primaryModel: primary,
         secondaryModel: secondary,

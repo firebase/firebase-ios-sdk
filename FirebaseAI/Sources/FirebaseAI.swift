@@ -147,7 +147,7 @@ public final class FirebaseAI: Sendable {
     ///   - instructions: System instructions that direct the model's behavior.
     public func generativeModelSession(model: any LanguageModelProvider,
                                        tools: [any ToolRepresentable]? = nil,
-                                       instructions: SystemInstructions? = nil)
+                                       instructions: FirebaseAI.Instructions? = nil)
       -> GenerativeModelSession {
       let tools = tools?.map { $0.toolRepresentation }
 
@@ -160,8 +160,9 @@ public final class FirebaseAI: Sendable {
 
     public func generativeModelSession(model: any LanguageModelProvider,
                                        tools: [any ToolRepresentable]? = nil,
-                                       @SystemInstructionsBuilder instructions: () throws
-                                         -> SystemInstructions) rethrows -> GenerativeModelSession {
+                                       @FirebaseAI.InstructionsBuilder instructions: () throws
+                                         -> FirebaseAI.Instructions) rethrows
+    -> GenerativeModelSession {
       let tools = tools?.map { $0.toolRepresentation }
 
       return try generativeModelSession(model: model, tools: tools as [any ToolRepresentable]?,
@@ -206,8 +207,8 @@ public final class FirebaseAI: Sendable {
       @available(watchOS, unavailable)
       public func generativeModelSession(model: any LanguageModelProvider,
                                          tools: [any FoundationModels.Tool],
-                                         @SystemInstructionsBuilder instructions: () throws
-                                           -> SystemInstructions) rethrows
+                                         @FirebaseAI.InstructionsBuilder instructions: () throws
+                                           -> FirebaseAI.Instructions) rethrows
         -> GenerativeModelSession {
         let tools = tools.map { FirebaseAILogic.Tool.autoFunctionDeclaration($0) }
 

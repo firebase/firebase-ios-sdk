@@ -19,13 +19,13 @@
     private let primaryModel: any LanguageModel
     private let secondaryModel: any LanguageModel
     private let tools: [any ToolRepresentable]?
-    private let instructions: SystemInstructions?
+    private let instructions: FirebaseAI.Instructions?
 
     typealias SessionState = (primary: (any _ModelSession)?, secondary: (any _ModelSession)?)
     private let lock: UnfairLock<SessionState>
 
     init(primaryModel: any LanguageModel, secondaryModel: any LanguageModel,
-         tools: [any ToolRepresentable]?, instructions: SystemInstructions?) {
+         tools: [any ToolRepresentable]?, instructions: FirebaseAI.Instructions?) {
       self.primaryModel = primaryModel
       self.secondaryModel = secondaryModel
       self.tools = tools
