@@ -162,7 +162,7 @@ public final class FirebaseAI: Sendable {
                                        tools: [any ToolRepresentable]? = nil,
                                        @FirebaseAI.InstructionsBuilder instructions: () throws
                                          -> FirebaseAI.Instructions) rethrows
-    -> GenerativeModelSession {
+      -> GenerativeModelSession {
       let tools = tools?.map { $0.toolRepresentation }
 
       return try generativeModelSession(model: model, tools: tools as [any ToolRepresentable]?,
