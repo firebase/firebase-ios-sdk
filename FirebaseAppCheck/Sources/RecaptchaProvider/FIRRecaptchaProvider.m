@@ -58,18 +58,23 @@
 - (nullable instancetype)initWithApp:(FIRApp *)app {
   NSString *siteKey = app.options.recaptchaSiteKey;
   if (siteKey.length == 0) {
-    FIRLogError(kFIRLoggerAppCheck, kFIRLoggerAppCheckMessageRecaptchaProviderIncompleteFIROptions,
-                @"Cannot instantiate `%@` for app: %@. "
-                @"`recaptchaSiteKey` is missing or empty in Firebase app options.",
-                NSStringFromClass([self class]), app.name);
+    FIRLogError(
+        kFIRLoggerAppCheck, kFIRLoggerAppCheckMessageRecaptchaProviderIncompleteFIROptions,
+        @"Cannot instantiate `%@` for app: %@. `FirebaseOptions.recaptchaSiteKey` is missing or "
+        @"empty. "
+        @"Please ensure you have added `RECAPTCHA_SITE_KEY` to your `GoogleService-Info.plist` "
+        @"or set `recaptchaSiteKey` on `FirebaseOptions` programmatically.",
+        NSStringFromClass([self class]), app.name);
     return nil;
   }
   NSArray<NSString *> *missingOptionsFields =
       [FIRAppCheckValidator tokenExchangeMissingFieldsInOptions:app.options];
   if (missingOptionsFields.count > 0) {
     FIRLogError(kFIRLoggerAppCheck, kFIRLoggerAppCheckMessageRecaptchaProviderIncompleteFIROptions,
-                @"Cannot instantiate `%@` for app: %@. The following "
-                @"`FirebaseOptions` fields are missing: %@",
+                @"Cannot instantiate `%@` for app: %@. The following `FirebaseOptions` fields are "
+                @"missing: %@. "
+                @"Please ensure your `GoogleService-Info.plist` is complete or these fields are "
+                @"set on `FirebaseOptions` programmatically.",
                 NSStringFromClass([self class]), app.name,
                 [missingOptionsFields componentsJoinedByString:@", "]);
     return nil;
