@@ -151,7 +151,7 @@ public final class LiveSession: Sendable {
   /// the same configuration (URI, headers, model, system instruction, tools, etc.)
   /// as the original session.
   ///
-  /// To optain a valid handle, ensure you pass an instance of
+  /// To obtain a valid handle, ensure you pass an instance of
   /// ``SessionResumptionConfig`` to ``LiveGenerativeModel/connect(sessionResumption:)``,
   /// and then listen for the hande provided from a ``LiveSessionResumptionUpdate``
   /// server message.

@@ -45,11 +45,11 @@ struct CountTokensIntegrationTests {
     parts: "You are a friendly and helpful assistant."
   )
 
-  @Test(arguments: InstanceConfig.allConfigs)
+  @Test(arguments: InstanceConfig.defaultConfigs)
   func countTokens_text(_ config: InstanceConfig) async throws {
     let prompt = "Why is the sky blue?"
     let model = FirebaseAI.componentInstance(config).generativeModel(
-      modelName: ModelNames.gemini2_5_Flash,
+      modelName: ModelNames.gemini3_1_FlashLite,
       generationConfig: generationConfig,
       safetySettings: safetySettings
     )
@@ -63,10 +63,10 @@ struct CountTokensIntegrationTests {
     #expect(promptTokensDetails.tokenCount == response.totalTokens)
   }
 
-  @Test(arguments: InstanceConfig.allConfigs)
+  @Test(arguments: InstanceConfig.defaultConfigs)
   func countTokens_text_systemInstruction(_ config: InstanceConfig) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
-      modelName: ModelNames.gemini2_5_Flash,
+      modelName: ModelNames.gemini3_1_FlashLite,
       generationConfig: generationConfig,
       safetySettings: safetySettings,
       systemInstruction: systemInstruction
@@ -81,10 +81,10 @@ struct CountTokensIntegrationTests {
     #expect(promptTokensDetails.tokenCount == response.totalTokens)
   }
 
-  @Test(arguments: InstanceConfig.allConfigs)
+  @Test(arguments: InstanceConfig.defaultConfigs)
   func countTokens_jsonSchema(_ config: InstanceConfig) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
-      modelName: ModelNames.gemini2_5_Flash,
+      modelName: ModelNames.gemini3_1_FlashLite,
       generationConfig: GenerationConfig(
         responseMIMEType: "application/json",
         responseSchema: Schema.object(properties: [

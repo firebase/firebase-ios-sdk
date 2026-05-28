@@ -30,6 +30,7 @@
 
 // App Attest provider.
 #import "FIRAppAttestProvider.h"
+#import "FIRAppAttestProviderFactory.h"
 
 // Recaptcha Enterprise provider
 #import "FIRRecaptchaEnterpriseProvider.h"
