@@ -576,7 +576,7 @@ case "$product-$platform-$method" in
       -project 'FirebaseAI/Tests/TestApp/FirebaseAITestApp.xcodeproj' \
       -scheme "FirebaseAITestApp-SPM" \
       "${xcb_flags[@]}" \
-      build
+      build-for-testing
     ;;
 
   FirebaseAIIntegration-*-test)
