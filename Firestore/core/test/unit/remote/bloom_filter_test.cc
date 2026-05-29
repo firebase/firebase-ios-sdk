@@ -25,7 +25,7 @@
 #include "Firestore/core/src/util/path.h"
 
 #if defined(__APPLE__)
-#include <CoreFoundation/CoreFoundation.h>
+#import <CoreFoundation/CoreFoundation.h>
 #include <dlfcn.h>
 #endif
 #include "absl/strings/escaping.h"
