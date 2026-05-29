@@ -819,9 +819,8 @@
 
   // Sum
   XCTAssertEqual(
-      [[snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForSumOfField:@"rating"]]
-          doubleValue],
-      INFINITY);
+      [snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForSumOfField:@"rating"]],
+      [NSNumber numberWithDouble:INFINITY]);
 }
 
 - (void)testPerformsSumThatIsNegativeInfinity {
@@ -845,9 +844,8 @@
 
   // Sum
   XCTAssertEqual(
-      [[snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForSumOfField:@"rating"]]
-          doubleValue],
-      -INFINITY);
+      [snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForSumOfField:@"rating"]],
+      [NSNumber numberWithDouble:-INFINITY]);
 }
 
 - (void)testPerformsSumThatIsValidButCouldOverflowDuringAggregation {
@@ -864,17 +862,15 @@
                                                        aggregateFieldForSumOfField:@"rating"] ]]];
 
   // Sum
-  id ratingObj =
-      [snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForSumOfField:@"rating"]];
-  long long ratingL = [ratingObj isKindOfClass:[NSDictionary class]]
-                          ? [ratingObj[@"doubleValue"] longLongValue]
-                          : [ratingObj longLongValue];
+  long long ratingL =
+      [[snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForSumOfField:@"rating"]]
+          longLongValue];
   XCTAssertTrue(ratingL == [[NSNumber numberWithDouble:-INFINITY] longLongValue] || ratingL == 0 ||
                 ratingL == [[NSNumber numberWithDouble:INFINITY] longLongValue]);
 
-  double ratingD = [ratingObj isKindOfClass:[NSDictionary class]]
-                       ? [ratingObj[@"doubleValue"] doubleValue]
-                       : [ratingObj doubleValue];
+  double ratingD =
+      [[snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForSumOfField:@"rating"]]
+          doubleValue];
   XCTAssertTrue(ratingD == -INFINITY || ratingD == 0 || ratingD == INFINITY);
 }
 
@@ -1080,12 +1076,10 @@
             ]]];
 
   // Average
-  id ratingObj = [snapshot
-      valueForAggregateField:[FIRAggregateField aggregateFieldForAverageOfField:@"rating"]];
-  double val = [ratingObj isKindOfClass:[NSDictionary class]]
-                   ? [ratingObj[@"doubleValue"] doubleValue]
-                   : [ratingObj doubleValue];
-  XCTAssertEqual(val, INFINITY);
+  XCTAssertEqual([[snapshot valueForAggregateField:[FIRAggregateField
+                                                       aggregateFieldForAverageOfField:@"rating"]]
+                     doubleValue],
+                 [[NSNumber numberWithDouble:INFINITY] doubleValue]);
 }
 
 - (void)testPerformsAverageOverResultSetOfZeroDocuments {
