@@ -86,7 +86,7 @@ using firebase::firestore::util::MakeString;
   // number: <https://en.wikipedia.org/wiki/Denormal_number>.
   NSArray<NSNumber *> *values = @[
     @(-INFINITY), @(-DBL_MAX), @(LLONG_MIN * -1.0), @(-1.1), @(-0x1.0p-1074), @(-0.0), @(0.0),
-    @(0x1.0p-1074), @(DBL_MIN), @(1.1), @(LLONG_MAX * 1.0), @(DBL_MAX), @(INFINITY)
+    @(0x1.0p-1074), @(DBL_MIN), @(1.1), @((double)LLONG_MAX), @(DBL_MAX), @(INFINITY)
   ];
   for (NSNumber *value in values) {
     Message<google_firestore_v1_Value> wrapped = FSTTestFieldValue(value);
