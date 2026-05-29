@@ -1185,4 +1185,24 @@
                  }];
   [self awaitExpectations];
 }
+
+- (void)testPerformsAverageOnQueryWithLimit {
+  FIRCollectionReference* testCollection = [self collectionRefWithDocuments:@{
+    @"a" : @{@"rating" : @10},
+    @"b" : @{@"rating" : @20},
+    @"c" : @{@"rating" : @30}
+  }];
+
+  FIRAggregateQuerySnapshot* snapshot = [self
+      readSnapshotForAggregate:[[[testCollection queryOrderedByField:@"rating"] queryLimitedTo:2]
+                                   aggregate:@[ [FIRAggregateField
+                                                 aggregateFieldForAverageOfField:@"rating"] ]]];
+
+  XCTAssertEqualWithAccuracy(
+      [[snapshot
+          valueForAggregateField:[FIRAggregateField aggregateFieldForAverageOfField:@"rating"]]
+          doubleValue],
+      15.0, 0.001);
+}
+
 @end
