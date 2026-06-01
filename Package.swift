@@ -18,7 +18,7 @@
 
 import PackageDescription
 
-let firebaseVersion = "12.14.0"
+let firebaseVersion = "12.15.0"
 
 let shouldUseSourceFirestore = Context.environment["FIREBASE_SOURCE_FIRESTORE"] != nil
 
