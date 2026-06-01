@@ -27,7 +27,7 @@ set -euo pipefail
 
 if [[ $# -lt 1 ]]; then
   cat 1>&2 <<EOF
-USAGE: $0 product [platform] [method]
+USAGE: $0 product [platform] [method] [extra_flags...]
 product can be one of:
   Firebase
   Firestore
@@ -66,6 +66,8 @@ elements:
   asan
   tsan
   ubsan
+
+Optionally, any trailing arguments after 'method' are also appended as extra xcodebuild flags.
 EOF
   exit 1
 fi
@@ -329,6 +331,10 @@ if [[ -n "${SANITIZERS:-}" ]]; then
   done
 fi
 
+# Append any trailing arguments as extra xcodebuild flags (the extra_flags argument)
+if [[ $# -gt 3 ]]; then
+  xcb_flags+=("${@:4}")
+fi
 
 case "$product-$platform-$method" in
   FirebasePod-iOS-*)
