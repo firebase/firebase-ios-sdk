@@ -163,7 +163,7 @@ extension Tests {
       }
     }
 
-    mutating private func validateFilters() throws {
+    private mutating func validateFilters() throws {
       // filter takes priority with xcodebuild, so we just don't allow them to be used in tangent
       // to avoid any edge case issues
       if filter != nil && exclude != nil {
@@ -288,7 +288,11 @@ extension Tests {
           inheritEnvironment: true
         )
 
-        let exitCode = try build.runWithSignals(["Firebase\(sdk)Integration", "\(platform)", "xcodebuild"] + extraArguments)
+        let exitCode = try build.runWithSignals([
+          "Firebase\(sdk)Integration",
+          "\(platform)",
+          "xcodebuild",
+        ] + extraArguments)
         guard exitCode == 0 else {
           log.error(
             "Failed to run integration tests.",
