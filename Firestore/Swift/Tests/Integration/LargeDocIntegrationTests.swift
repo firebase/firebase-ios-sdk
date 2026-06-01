@@ -28,6 +28,13 @@ final class LargeDocIntegrationTests: FSTIntegrationTestCase {
   override func setUp() async throws {
     try await super.setUp()
 
+    // Skip by default to prevent slowing down CI.
+    // Add environment variable FIRESTORE_RUN_LARGE_DOC_TESTS = YES.
+    let runLargeTests = ProcessInfo.processInfo.environment["FIRESTORE_RUN_LARGE_DOC_TESTS"]
+    if runLargeTests != "YES" && runLargeTests != "true" {
+      throw XCTSkip("Skipping large doc tests. Set FIRESTORE_RUN_LARGE_DOC_TESTS=YES to run.")
+    }
+
     // Skip tests if the backend edition is not supported or if not nightly
     if FSTIntegrationTestCase.targetBackend() != .nightly || FSTIntegrationTestCase
       .backendEdition() == .standard {
