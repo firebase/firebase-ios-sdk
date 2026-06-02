@@ -16,22 +16,9 @@
 
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRRecaptchaProviderFactory.h"
 
-#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheck.h"
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRRecaptchaProvider.h"
 
-#import "FirebaseAppCheck/Sources/Core/FIRAppCheckLogger.h"
-#import "FirebaseCore/Sources/Public/FirebaseCore/FIROptions.h"
-
-@interface FIRRecaptchaProviderFactory ()
-
-@end
-
 @implementation FIRRecaptchaProviderFactory
-
-- (instancetype)init {
-  self = [super init];
-  return self;
-}
 
 - (nullable id<FIRAppCheckProvider>)createProviderWithApp:(nonnull FIRApp *)app {
   return [[FIRRecaptchaProvider alloc] initWithApp:app];

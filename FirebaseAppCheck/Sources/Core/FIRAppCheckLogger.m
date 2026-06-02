@@ -37,6 +37,9 @@ NSString *const kFIRLoggerAppCheckMessageDeviceCheckProviderIncompleteFIROptions
 
 // FIRRecaptchaProvider.m
 NSString *const kFIRLoggerAppCheckMessageRecaptchaProviderIncompleteFIROptions = @"I-FAA007001";
+NSString *const kFIRLoggerAppCheckMessageRecaptchaProviderMissingSiteKey = @"I-FAA007002";
+NSString *const kFIRLoggerAppCheckMessageRecaptchaProviderMissingRecaptchaEnterpriseSDK =
+    @"I-FAA007003";
 
 #pragma mark - Log functions
 

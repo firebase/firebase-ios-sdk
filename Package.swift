@@ -939,6 +939,7 @@ let package = Package(
     .target(
       name: "SharedTestUtilities",
       dependencies: ["FirebaseCore",
+                     "FirebaseCoreExtension",
                      "FirebaseAppCheckInterop",
                      "FirebaseAuthInterop",
                      "FirebaseMessagingInterop",
@@ -1311,8 +1312,13 @@ let package = Package(
       dependencies: [
         "FirebaseAppCheck",
         "FirebaseCoreExtension",
+        "SharedTestUtilities",
+        .product(name: "AppCheckCore", package: "app-check"),
       ],
       path: "FirebaseAppCheck/Tests/Unit/Swift",
+      cSettings: [
+        .headerSearchPath("../../../"),
+      ],
       swiftSettings: [
         .swiftLanguageMode(SwiftLanguageMode.v5),
       ]

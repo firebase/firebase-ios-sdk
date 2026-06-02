@@ -15,7 +15,6 @@
  */
 
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRRecaptchaProvider.h"
-#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckAvailability.h"
 
 #import <AppCheckCore/AppCheckCore.h>
 
@@ -37,51 +36,66 @@
 #import "FirebaseAppCheck/Sources/Core/FIRAppCheckValidator.h"
 #import "FirebaseAppCheck/Sources/Core/FIRHeartbeatLogger+AppCheck.h"
 
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
-
 @interface FIRRecaptchaProvider ()
 
 @property(nonatomic, readonly) id<GACAppCheckProvider> recaptchaProvider;
+
+- (instancetype)initWithRecaptchaProvider:(id<GACAppCheckProvider>)recaptchaProvider;
 
 @end
 
 @implementation FIRRecaptchaProvider
 
-- (instancetype)initWithRecaptchaProvider:(id<GACAppCheckProvider>)recaptchaProvider {
-  self = [super init];
-  if (self) {
-    _recaptchaProvider = recaptchaProvider;
-  }
-  return self;
-}
-
 - (nullable instancetype)initWithApp:(FIRApp *)app {
+  // 1. Validate options and raise exceptions on invalid configuration
   NSString *siteKey = app.options.recaptchaSiteKey;
   if (siteKey.length == 0) {
-    FIRLogError(
-        kFIRLoggerAppCheck, kFIRLoggerAppCheckMessageRecaptchaProviderIncompleteFIROptions,
-        @"Cannot instantiate `%@` for app: %@. `FirebaseOptions.recaptchaSiteKey` is missing or "
-        @"empty. "
-        @"Please ensure you have added `RECAPTCHA_SITE_KEY` to your `GoogleService-Info.plist` "
-        @"or set `recaptchaSiteKey` on `FirebaseOptions` programmatically.",
-        NSStringFromClass([self class]), app.name);
-    return nil;
+    NSString *message = [NSString
+        stringWithFormat:
+            @"Cannot instantiate `RecaptchaProvider` for app: %@. "
+            @"`FirebaseOptions.recaptchaSiteKey` "
+            @"is missing or empty. "
+            @"Please ensure you have added `RECAPTCHA_SITE_KEY` to your `GoogleService-Info.plist` "
+            @"or set `recaptchaSiteKey` on `FirebaseOptions` programmatically.",
+            app.name];
+    FIRLogError(kFIRLoggerAppCheck, kFIRLoggerAppCheckMessageRecaptchaProviderMissingSiteKey, @"%@",
+                message);
+    [NSException raise:NSInvalidArgumentException format:@"%@", message];
   }
   NSArray<NSString *> *missingOptionsFields =
       [FIRAppCheckValidator tokenExchangeMissingFieldsInOptions:app.options];
   if (missingOptionsFields.count > 0) {
     FIRLogError(kFIRLoggerAppCheck, kFIRLoggerAppCheckMessageRecaptchaProviderIncompleteFIROptions,
-                @"Cannot instantiate `%@` for app: %@. The following `FirebaseOptions` fields are "
+                @"Cannot instantiate `RecaptchaProvider` for app: %@. The following "
+                @"`FirebaseOptions` fields are "
                 @"missing: %@. "
                 @"Please ensure your `GoogleService-Info.plist` is complete or these fields are "
                 @"set on `FirebaseOptions` programmatically.",
-                NSStringFromClass([self class]), app.name,
-                [missingOptionsFields componentsJoinedByString:@", "]);
+                app.name, [missingOptionsFields componentsJoinedByString:@", "]);
     return nil;
   }
 
-  id heartbeatHook = [app.heartbeatLogger requestHook];
+  // 2. Validate SDK Linkage
 #if TARGET_OS_IOS
+  if (![GACRecaptchaProvider isRecaptchaEnterpriseSDKLinked]) {
+    NSString *message = [NSString
+        stringWithFormat:
+            @"Cannot instantiate `RecaptchaProvider` for app: %@. The reCAPTCHA Enterprise SDK "
+            @"is "
+            @"not linked. "
+            @"Please ensure you have installed the `FirebaseAppCheck` package along with "
+            @"the underlying reCAPTCHA Enterprise dependency. "
+            @"See "
+            @"https://cloud.google.com/recaptcha/docs/instrument-ios-apps#prepare-environment "
+            @"for details.",
+            app.name];
+    FIRLogError(kFIRLoggerAppCheck,
+                kFIRLoggerAppCheckMessageRecaptchaProviderMissingRecaptchaEnterpriseSDK, @"%@",
+                message);
+    [NSException raise:NSInternalInconsistencyException format:@"%@", message];
+  }
+
+  id heartbeatHook = [app.heartbeatLogger requestHook];
   GACRecaptchaProvider *recaptchaProvider =
       [[GACRecaptchaProvider alloc] initWithSiteKey:siteKey
                                        resourceName:app.resourceName
@@ -92,6 +106,14 @@
 #else
   return nil;
 #endif
+}
+
+- (instancetype)initWithRecaptchaProvider:(id<GACAppCheckProvider>)recaptchaProvider {
+  self = [super init];
+  if (self) {
+    _recaptchaProvider = recaptchaProvider;
+  }
+  return self;
 }
 
 #pragma mark - FIRAppCheckProvider

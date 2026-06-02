@@ -93,6 +93,7 @@ Pod::Spec.new do |s|
     }
     swift_unit_tests.source_files = [
       base_dir + 'Tests/Unit/Swift/**/*.swift',
+      'SharedTestUtilities/ExceptionCatcher.[mh]'
     ]
 
     swift_unit_tests.dependency 'FirebaseCoreExtension', '~> 12.15.0'

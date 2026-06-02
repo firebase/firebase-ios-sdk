@@ -13,59 +13,10 @@
 // limitations under the License.
 
 import AppCheckCore
-import AppCheckRecaptchaProvider
 import FirebaseAppCheck
 import FirebaseCore
-import ObjectiveC
-import RecaptchaInterop
+import SharedTestUtilities
 import XCTest
-
-// These stub classes are needed to satisfy the reflection checks in
-// AppCheckRecaptchaProvider.swift in the app-check repository.
-// That class uses NSClassFromString to check if the Recaptcha Enterprise SDK
-// is linked. By providing these stub classes with the expected Objective-C names
-// using the runtime, we can run unit tests without crashing.
-
-final class StubRCAAction: NSObject, RCAActionProtocol {
-  static var login: RCAActionProtocol { fatalError("Not implemented") }
-  static var signup: RCAActionProtocol { fatalError("Not implemented") }
-
-  var action: String
-
-  required init(customAction: String) {
-    action = customAction
-    super.init()
-  }
-}
-
-final class StubRCARecaptcha: NSObject, RCARecaptchaProtocol {
-  // Add a placeholder initializer to prevent inheriting init() from NSObject,
-  // which conflicts with the unavailable init in RCARecaptchaProtocol.
-  init(placeholder: Void) {
-    super.init()
-  }
-
-  static func fetchClient(withSiteKey siteKey: String,
-                          completion: @escaping (RCARecaptchaClientProtocol?, Error?) -> Void) {
-    // Do nothing.
-  }
-}
-
-let registerMocksOnce: Void = {
-  let actionClass = objc_allocateClassPair(StubRCAAction.self, "RecaptchaEnterprise.RCAAction", 0)
-  if let actionClass = actionClass {
-    objc_registerClassPair(actionClass)
-  }
-
-  let recaptchaClass = objc_allocateClassPair(
-    StubRCARecaptcha.self,
-    "RecaptchaEnterprise.RCARecaptcha",
-    0
-  )
-  if let recaptchaClass = recaptchaClass {
-    objc_registerClassPair(recaptchaClass)
-  }
-}()
 
 class FakeInternalProvider: NSObject, AppCheckCoreProvider {
   var stubbedToken: AppCheckCoreToken?
@@ -88,49 +39,14 @@ final class RecaptchaProviderTests: XCTestCase {
 
   override func setUp() {
     super.setUp()
-    _ = registerMocksOnce
     fakeInternalProvider = FakeInternalProvider()
-
-    guard let ProviderClass = NSClassFromString("FIRRecaptchaProvider") as? NSObject.Type
-    else {
-      XCTFail("Failed to get FIRRecaptchaProvider class")
-      return
-    }
-
-    let providerInstance = ProviderClass.init()
-    providerInstance.setValue(fakeInternalProvider, forKey: "recaptchaProvider")
-
-    guard let typedProvider = providerInstance as? RecaptchaProvider else {
-      XCTFail("Failed to cast provider instance to RecaptchaProvider")
-      return
-    }
-
-    provider = typedProvider
+    provider = RecaptchaProvider.testInstance(recaptchaProvider: fakeInternalProvider)
   }
 
   override func tearDown() {
     provider = nil
     fakeInternalProvider = nil
     super.tearDown()
-  }
-
-  func testInitWithValidApp() {
-    let options = FirebaseOptions(googleAppID: "1:123456789:ios:abc123", gcmSenderID: "sender_id")
-    options.apiKey = "api_key"
-    options.projectID = "project_id"
-    options.recaptchaSiteKey = "test_site_key"
-
-    let appName = "testInitWithValidApp"
-    let app: FirebaseApp
-    if let existingApp = FirebaseApp.app(name: appName) {
-      app = existingApp
-    } else {
-      FirebaseApp.configure(name: appName, options: options)
-      app = FirebaseApp.app(name: appName)!
-    }
-    app.isDataCollectionDefaultEnabled = false
-
-    XCTAssertNotNil(RecaptchaProvider(app: app))
   }
 
   func testInitWithIncompleteApp() {
@@ -182,7 +98,42 @@ final class RecaptchaProviderTests: XCTestCase {
     }
     app.isDataCollectionDefaultEnabled = false
 
-    XCTAssertNil(RecaptchaProvider(app: app))
+    XCTAssertThrowsError(try ExceptionCatcher.catchException {
+      _ = RecaptchaProvider(app: app)
+    }) { error in
+      let nsError = error as NSError
+      XCTAssertEqual(nsError.domain, NSExceptionName.invalidArgumentException.rawValue)
+      XCTAssertEqual(nsError.code, -114)
+      XCTAssertTrue((nsError.userInfo["ExceptionReason"] as? String)?
+        .contains("recaptchaSiteKey") ?? false)
+    }
+  }
+
+  func testInitWithMissingSDKThrows() {
+    let options = FirebaseOptions(googleAppID: "1:123456789:ios:abc123", gcmSenderID: "sender_id")
+    options.apiKey = "api_key"
+    options.projectID = "project_id"
+    options.recaptchaSiteKey = "test_site_key"
+
+    let appName = "testInitWithMissingSDKThrows"
+    let app: FirebaseApp
+    if let existingApp = FirebaseApp.app(name: appName) {
+      app = existingApp
+    } else {
+      FirebaseApp.configure(name: appName, options: options)
+      app = FirebaseApp.app(name: appName)!
+    }
+    app.isDataCollectionDefaultEnabled = false
+
+    XCTAssertThrowsError(try ExceptionCatcher.catchException {
+      _ = RecaptchaProvider(app: app)
+    }) { error in
+      let nsError = error as NSError
+      XCTAssertEqual(nsError.domain, NSExceptionName.internalInconsistencyException.rawValue)
+      XCTAssertEqual(nsError.code, -114)
+      XCTAssertTrue((nsError.userInfo["ExceptionReason"] as? String)?
+        .contains("reCAPTCHA Enterprise SDK is not linked") ?? false)
+    }
   }
 
   func testGetTokenSuccess() {
