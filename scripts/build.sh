@@ -577,8 +577,8 @@ case "$product-$platform-$method" in
     # Filter out test-only flags for the build-for-testing phase
     # It's a bit hacky, but xcode doesn't generate a proper dependency graph
     # when it's only targeting a single test file or filtering out files.
-    local build_flags=()
-    local skip_next=false
+    build_flags=()
+    skip_next=false
     for arg in "${xcb_flags[@]}"; do
       if [[ "$skip_next" == "true" ]]; then
         skip_next=false
