@@ -573,11 +573,28 @@ case "$product-$platform-$method" in
     ;;
 
   FirebaseAIIntegration-*-*)
+    # Filter out test-only flags for the build-for-testing phase
+    # It's a bit hacky, but xcode doesn't generate a proper dependency graph
+    # when it's only targeting a single test file or filtering out files.
+    local build_flags=()
+    local skip_next=false
+    for arg in "${xcb_flags[@]}"; do
+      if [[ "$skip_next" == "true" ]]; then
+        skip_next=false
+        continue
+      fi
+      if [[ "$arg" == "-only-testing" || "$arg" == "-skip-testing" ]]; then
+        skip_next=true
+        continue
+      fi
+      build_flags+=("$arg")
+    done
+
     # Build
     RunXcodebuild \
       -project 'FirebaseAI/Tests/TestApp/FirebaseAITestApp.xcodeproj' \
       -scheme "FirebaseAITestApp-SPM" \
-      "${xcb_flags[@]}" \
+      "${build_flags[@]}" \
       build-for-testing
 
     # Run tests
