@@ -238,7 +238,7 @@
   // Sum
   XCTAssertEqualObjects(
       [snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForSumOfField:@"pages"]],
-      [NSNumber numberWithLong:150L], );
+      [NSNumber numberWithLong:150L]);
 
   // Average
   XCTAssertEqualObjects(
@@ -376,7 +376,7 @@
   // Sum
   XCTAssertEqual(
       [snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForSumOfField:longField]],
-      [NSNumber numberWithLong:3], );
+      [NSNumber numberWithLong:3]);
 }
 
 - (void)testCanGetDuplicateAggregations {
@@ -418,7 +418,7 @@
   // Sum
   XCTAssertEqualObjects(
       [snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForSumOfField:@"pages"]],
-      [NSNumber numberWithLong:150L], );
+      [NSNumber numberWithLong:150L]);
 }
 
 - (void)testTerminateDoesNotCrashWithFlyingAggregateQuery {
