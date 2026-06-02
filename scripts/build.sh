@@ -336,6 +336,7 @@ if [[ $# -gt 3 ]]; then
   xcb_flags+=("${@:4}")
 fi
 
+# TODO(b/519178233): Find some way to modernize this or refactor the design for extensibility
 case "$product-$platform-$method" in
   FirebasePod-iOS-*)
     RunXcodebuild \
