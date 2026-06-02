@@ -163,8 +163,8 @@ extension Tests {
       }
     }
 
-    private mutating func validateFilters() throws {
-      // filter takes priority with xcodebuild, so we just don't allow them to be used in tangent
+    private func validateFilters() throws {
+      // filter takes priority with xcodebuild, so we just don't allow them to be used in tandem
       // to avoid any edge case issues
       if filter != nil && exclude != nil {
         throw ValidationError(
