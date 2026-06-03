@@ -57,7 +57,7 @@ Build AI-powered apps and features with the Gemini API using the Firebase AI Log
   # Despite the direct dependency on App Check, the AI Logic SDK still uses
   # AppCheck through the interop.
   s.dependency 'FirebaseAppCheckInterop', '~> 12.15.0'
-
+  s.dependency 'FirebaseAuthInterop', '~> 12.15.0'
   s.dependency 'FirebaseCore', '~> 12.15.0'
   s.dependency 'FirebaseCoreExtension', '~> 12.15.0'
 
