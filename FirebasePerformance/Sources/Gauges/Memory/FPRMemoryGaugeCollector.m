@@ -39,12 +39,12 @@ FPRMemoryGaugeData *fprCollectMemoryMetric(void) {
 
   // Avoid the malloc zone APIs here: they can crash on the XZM allocator.
   // phys_footprint reports only used memory, so heapAvailable is 0.
-  task_vm_info_data_t vmInfo;
+  task_vm_info_data_t vmInfo = {0};
   mach_msg_type_number_t count = TASK_VM_INFO_COUNT;
   u_long usedBytes = 0;
   u_long freeBytes = 0;
   kern_return_t kr = task_info(mach_task_self(), TASK_VM_INFO, (task_info_t)&vmInfo, &count);
-  if (kr == KERN_SUCCESS) {
+  if (kr == KERN_SUCCESS && count >= TASK_VM_INFO_REV1_COUNT) {
     usedBytes = (u_long)vmInfo.phys_footprint;
   } else {
     FPRLogDebug(kFPRMemoryCollection, @"Failed to collect memory metric: task_info returned %d",
