@@ -42,10 +42,15 @@ FPRMemoryGaugeData *fprCollectMemoryMetric(void) {
   task_vm_info_data_t vmInfo = {0};
   mach_msg_type_number_t count = TASK_VM_INFO_COUNT;
   u_long usedBytes = 0;
-  u_long freeBytes = 0;
   kern_return_t kr = task_info(mach_task_self(), TASK_VM_INFO, (task_info_t)&vmInfo, &count);
-  if (kr == KERN_SUCCESS && count >= TASK_VM_INFO_REV1_COUNT) {
-    usedBytes = (u_long)vmInfo.phys_footprint;
+  if (kr == KERN_SUCCESS) {
+    if (count >= TASK_VM_INFO_REV1_COUNT) {
+      usedBytes = (u_long)vmInfo.phys_footprint;
+    } else {
+      FPRLogDebug(kFPRMemoryCollection,
+                  @"Failed to collect memory metric: task_info returned insufficient count %d",
+                  count);
+    }
   } else {
     FPRLogDebug(kFPRMemoryCollection, @"Failed to collect memory metric: task_info returned %d",
                 kr);
@@ -53,7 +58,7 @@ FPRMemoryGaugeData *fprCollectMemoryMetric(void) {
 
   FPRMemoryGaugeData *gaugeData = [[FPRMemoryGaugeData alloc] initWithCollectionTime:collectionTime
                                                                             heapUsed:usedBytes
-                                                                       heapAvailable:freeBytes];
+                                                                       heapAvailable:0];
   return gaugeData;
 }
 
