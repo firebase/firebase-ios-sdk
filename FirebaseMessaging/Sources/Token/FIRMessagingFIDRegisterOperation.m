@@ -156,7 +156,8 @@ static BOOL isServerError(NSURLResponse *response) {
     @"ios" : @{
       @"apns_token" : apnsTokenString,
       @"app_version" : appVersion,
-      @"apns_environment" : apnsEnvironment
+      @"apns_environment" : apnsEnvironment,
+      @"bundle_id" : options.bundleID,
     },
     @"fcm_sdk_version" : sdkVersion
   };
