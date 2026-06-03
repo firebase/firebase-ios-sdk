@@ -25,7 +25,6 @@
 }
 
 - (nullable id<FIRAppCheckProvider>)createProviderWithApp:(nonnull FIRApp *)app {
-  // TODO(ncooke3): What about for local dev targeting macOS?
 #if TARGET_OS_SIMULATOR
   return [[[FIRAppCheckDebugProviderFactory alloc] init] createProviderWithApp:app];
 // TODO(ncooke3): Add elif case for future reCAPTCHA provider.
