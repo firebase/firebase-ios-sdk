@@ -26,7 +26,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (nullable id<FIRAppCheckProvider>)createProviderWithApp:(FIRApp *)app {
   FIRAppCheckDebugProvider *provider = [[FIRAppCheckDebugProvider alloc] initWithApp:app];
 
-
   return provider;
 }
 
