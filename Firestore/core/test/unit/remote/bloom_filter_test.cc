@@ -37,6 +37,11 @@ using util::Path;
 using util::Status;
 using util::StatusOr;
 
+static_assert(std::is_nothrow_move_constructible<BloomFilter>::value,
+              "BloomFilter must be nothrow move constructible");
+static_assert(std::is_nothrow_move_assignable<BloomFilter>::value,
+              "BloomFilter must be nothrow move assignable");
+
 TEST(BloomFilterUnitTest, CanInstantiateEmptyBloomFilter) {
   BloomFilter bloom_filter(ByteString{}, 0, 0);
   EXPECT_EQ(bloom_filter.bit_count(), 0);

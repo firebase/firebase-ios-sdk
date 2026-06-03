@@ -18,7 +18,7 @@
 /// allows them to reason through complex problems and plan a more coherent and accurate answer.
 /// See the [thinking documentation](https://firebase.google.com/docs/ai-logic/thinking) for more
 /// details.
-public struct ThinkingConfig: Sendable {
+public struct ThinkingConfig: Sendable, Equatable {
   /// The thinking budget in tokens.
   ///
   /// This parameter sets an upper limit on the number of tokens the model can use for its internal

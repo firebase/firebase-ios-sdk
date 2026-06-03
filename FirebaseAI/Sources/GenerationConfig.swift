@@ -16,48 +16,50 @@ import Foundation
 
 /// A struct defining model parameters to be used when sending generative AI
 /// requests to the backend model.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public struct GenerationConfig: Sendable {
+public struct GenerationConfig: Sendable, Equatable {
   /// Controls the degree of randomness in token selection.
-  let temperature: Float?
+  var temperature: Float?
 
   /// Controls diversity of generated text.
-  let topP: Float?
+  var topP: Float?
 
   /// Limits the number of highest probability words considered.
-  let topK: Int?
+  var topK: Int?
 
   /// The number of response variations to return.
-  let candidateCount: Int?
+  var candidateCount: Int?
 
   /// Maximum number of tokens that can be generated in the response.
-  let maxOutputTokens: Int?
+  var maxOutputTokens: Int?
 
   /// Controls the likelihood of repeating the same words or phrases already generated in the text.
-  let presencePenalty: Float?
+  var presencePenalty: Float?
 
   /// Controls the likelihood of repeating words, with the penalty increasing for each repetition.
-  let frequencyPenalty: Float?
+  var frequencyPenalty: Float?
 
   /// A set of up to 5 `String`s that will stop output generation.
-  let stopSequences: [String]?
+  var stopSequences: [String]?
 
   /// Output response MIME type of the generated candidate text.
-  let responseMIMEType: String?
+  var responseMIMEType: String?
 
   /// Output schema of the generated candidate text.
-  let responseSchema: Schema?
+  var responseSchema: Schema?
 
   /// Output schema of the generated response in [JSON Schema](https://json-schema.org/) format.
   ///
   /// If set, `responseSchema` must be omitted and `responseMIMEType` is required.
-  let responseJSONSchema: JSONObject?
+  var responseJSONSchema: JSONObject?
 
   /// Supported modalities of the response.
-  let responseModalities: [ResponseModality]?
+  var responseModalities: [ResponseModality]?
 
   /// Configuration for controlling the "thinking" behavior of compatible Gemini models.
-  let thinkingConfig: ThinkingConfig?
+  var thinkingConfig: ThinkingConfig?
+
+  /// Configuration options for generating images.
+  var imageConfig: ImageConfig?
 
   /// Configuration for controlling the voice of the model during conversation.
   public let speechConfig: SpeechConfig?
@@ -167,12 +169,13 @@ public struct GenerationConfig: Sendable {
   ///     models; see ``ThinkingConfig`` for more details.
   ///   - speechConfig: Configuration for controlling the voice of the model during conversation;
   /// see ``SpeechConfig`` for more details.
+  ///   - imageConfig: Configuration options for generating images.
   public init(temperature: Float? = nil, topP: Float? = nil, topK: Int? = nil,
               candidateCount: Int? = nil, maxOutputTokens: Int? = nil,
               presencePenalty: Float? = nil, frequencyPenalty: Float? = nil,
               stopSequences: [String]? = nil, responseMIMEType: String? = nil,
               responseSchema: Schema? = nil, responseModalities: [ResponseModality]? = nil,
-              thinkingConfig: ThinkingConfig? = nil, speechConfig: SpeechConfig? = nil) {
+              thinkingConfig: ThinkingConfig? = nil, imageConfig: ImageConfig? = nil) {
     // Explicit init because otherwise if we re-arrange the above variables it changes the API
     // surface.
     self.temperature = temperature
@@ -189,13 +192,14 @@ public struct GenerationConfig: Sendable {
     self.responseModalities = responseModalities
     self.thinkingConfig = thinkingConfig
     self.speechConfig = speechConfig
+    self.imageConfig = imageConfig
   }
 
   init(temperature: Float? = nil, topP: Float? = nil, topK: Int? = nil, candidateCount: Int? = nil,
        maxOutputTokens: Int? = nil, presencePenalty: Float? = nil, frequencyPenalty: Float? = nil,
        stopSequences: [String]? = nil, responseMIMEType: String, responseJSONSchema: JSONObject,
        responseModalities: [ResponseModality]? = nil, thinkingConfig: ThinkingConfig? = nil,
-       speechConfig: SpeechConfig? = nil) {
+       speechConfig: SpeechConfig? = nil, imageConfig: ImageConfig? = nil) {
     self.temperature = temperature
     self.topP = topP
     self.topK = topK
@@ -210,12 +214,61 @@ public struct GenerationConfig: Sendable {
     self.responseModalities = responseModalities
     self.thinkingConfig = thinkingConfig
     self.speechConfig = speechConfig
+    self.imageConfig = imageConfig
+  }
+
+  /// Merges two configurations, giving precedence to values found in the `overrides` parameter.
+  ///
+  /// - Parameters:
+  ///   - base: The foundational configuration (e.g., model-level defaults).
+  ///   - overrides: The configuration containing values that should supersede the base (e.g.,
+  /// request-level specific settings).
+  /// - Returns: A merged `GenerationConfig` prioritizing `overrides`, or `nil` if both inputs are
+  /// `nil`.
+  static func merge(_ base: GenerationConfig?,
+                    with overrides: GenerationConfig?) -> GenerationConfig? {
+    // 1. If the base config is missing, return the overrides (which might be nil).
+    guard let baseConfig = base else {
+      return overrides
+    }
+
+    // 2. If overrides are missing, strictly return the base.
+    guard let overrideConfig = overrides else {
+      return baseConfig
+    }
+
+    // 3. Start with a copy of the base config.
+    var config = baseConfig
+
+    // 4. Overwrite with any non-nil values found in the overrides.
+    config.temperature = overrideConfig.temperature ?? config.temperature
+    config.topP = overrideConfig.topP ?? config.topP
+    config.topK = overrideConfig.topK ?? config.topK
+    config.candidateCount = overrideConfig.candidateCount ?? config.candidateCount
+    config.maxOutputTokens = overrideConfig.maxOutputTokens ?? config.maxOutputTokens
+    config.presencePenalty = overrideConfig.presencePenalty ?? config.presencePenalty
+    config.frequencyPenalty = overrideConfig.frequencyPenalty ?? config.frequencyPenalty
+    config.stopSequences = overrideConfig.stopSequences ?? config.stopSequences
+    config.responseMIMEType = overrideConfig.responseMIMEType ?? config.responseMIMEType
+    config.responseModalities = overrideConfig.responseModalities ?? config.responseModalities
+    config.thinkingConfig = overrideConfig.thinkingConfig ?? config.thinkingConfig
+    config.imageConfig = overrideConfig.imageConfig ?? config.imageConfig
+
+    // 5. Handle Schema mutual exclusivity with precedence for `responseJSONSchema`.
+    if let responseJSONSchema = overrideConfig.responseJSONSchema {
+      config.responseJSONSchema = responseJSONSchema
+      config.responseSchema = nil
+    } else if let responseSchema = overrideConfig.responseSchema {
+      config.responseSchema = responseSchema
+      config.responseJSONSchema = nil
+    }
+
+    return config
   }
 }
 
 // MARK: - Codable Conformances
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GenerationConfig: Encodable {
   enum CodingKeys: String, CodingKey {
     case temperature
@@ -232,5 +285,6 @@ extension GenerationConfig: Encodable {
     case responseModalities
     case thinkingConfig
     case speechConfig
+    case imageConfig
   }
 }

@@ -14,6 +14,12 @@
 
 /// A filter level controlling how aggressively to filter sensitive content.
 ///
+/// @DeprecationSummary {
+///  All Imagen models are deprecated and will shut down as early as June 2026.
+///  As a replacement, you can [migrate your apps to use Gemini Image models
+///  (the "Nano Banana" models).](https://firebase.google.com/docs/ai-logic/imagen-models-migration)
+/// }
+///
 /// Text prompts provided as inputs and images (generated or uploaded) through Imagen on Vertex AI
 /// are assessed against a list of safety filters, which include 'harmful categories' (for example,
 /// `violence`, `sexual`, `derogatory`, and `toxic`). This filter level controls how aggressively to
@@ -22,7 +28,11 @@
 /// documentation and the [Responsible AI and usage
 /// guidelines](https://cloud.google.com/vertex-ai/generative-ai/docs/image/responsible-ai-imagen#safety-filters)
 /// for more details.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+@available(
+  *,
+  deprecated,
+  message: "All Imagen models are deprecated and will shut down as early as June 2026. As a replacement, you can migrate your apps to use Gemini Image models (the \"Nano Banana\" models)."
+)
 public struct ImagenSafetyFilterLevel: ProtoEnum, Sendable {
   enum Kind: String {
     case blockLowAndAbove = "block_low_and_above"

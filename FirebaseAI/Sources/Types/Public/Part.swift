@@ -13,11 +13,13 @@
 // limitations under the License.
 
 import Foundation
+#if canImport(FoundationModels)
+  import FoundationModels
+#endif // canImport(FoundationModels)
 
 /// A discrete piece of data in a media format interpretable by an AI model.
 ///
 /// Within a single value of ``Part``, different data types may not mix.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public protocol Part: PartsRepresentable, Codable, Sendable, Equatable {
   /// Indicates whether this `Part` is a summary of the model's internal thinking process.
   ///
@@ -28,7 +30,6 @@ public protocol Part: PartsRepresentable, Codable, Sendable, Equatable {
 }
 
 /// A text part containing a string value.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct TextPart: Part {
   /// Text value.
   public let text: String
@@ -61,7 +62,6 @@ public struct TextPart: Part {
 ///  see [input files and requirements
 ///  ](https://firebase.google.com/docs/vertex-ai/input-file-requirements#provide-file-as-inline-data)
 ///  for more details and size limits.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct InlineDataPart: Part {
   let inlineData: InlineData
   let _isThought: Bool?
@@ -102,7 +102,6 @@ public struct InlineDataPart: Part {
 }
 
 /// File data stored in Cloud Storage for Firebase, referenced by URI.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct FileDataPart: Part {
   let fileData: FileData
   let _isThought: Bool?
@@ -133,7 +132,6 @@ public struct FileDataPart: Part {
 }
 
 /// A predicted function call returned from the model.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct FunctionCallPart: Part {
   let functionCall: FunctionCall
   let _isThought: Bool?
@@ -190,7 +188,6 @@ public struct FunctionCallPart: Part {
 /// Contains a string representing the `FunctionDeclaration.name` and a structured JSON object
 /// containing any output from the function is used as context to the model. This should contain the
 /// result of a ``FunctionCallPart`` made based on model prediction.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct FunctionResponsePart: Part {
   let functionResponse: FunctionResponse
   let _isThought: Bool?
@@ -241,7 +238,6 @@ public struct FunctionResponsePart: Part {
 }
 
 /// A part containing code that was executed by the model.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct ExecutableCodePart: Part {
   /// The language of the code in an ``ExecutableCodePart``.
   public struct Language: Sendable, Equatable, CustomStringConvertible {
@@ -296,7 +292,6 @@ public struct ExecutableCodePart: Part {
 }
 
 /// The result of executing code.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct CodeExecutionResultPart: Part {
   /// The outcome of a code execution.
   public struct Outcome: Sendable, Equatable, CustomStringConvertible {
@@ -354,3 +349,43 @@ public struct CodeExecutionResultPart: Part {
     self.thoughtSignature = thoughtSignature
   }
 }
+
+#if compiler(>=6.2.3) && canImport(FoundationModels)
+  @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
+  @available(tvOS, unavailable)
+  @available(watchOS, unavailable)
+  extension [any Part] {
+    func toFoundationModelsPrompt() throws -> FoundationModels.Prompt {
+      let parts = ModelContent(parts: self)
+      let promptParts: [any FoundationModels.PromptRepresentable] = try parts.internalParts
+        .compactMap { part in
+          // Skip any `thought` parts since they are unused by Foundation Models.
+          guard !(part.isThought ?? false) else { return nil }
+
+          // Skip any parts without `data`, for example a `Part` containing only a thought
+          // signature, since they are unused by Foundation Models.
+          guard let data = part.data else { return nil }
+
+          // Currently only string types are supported.
+          guard case let .text(string) = data else {
+            throw GenerativeModelSession.GenerationError.unsupportedPromptContent(
+              GenerativeModelSession.GenerationError.Context(
+                debugDescription: """
+                Prompt data type "\(data)" is not supported by the on-device model; currently only \
+                text content is supported.
+                """
+              )
+            )
+          }
+
+          return string
+        }
+
+      return Prompt {
+        for part in promptParts {
+          part.promptRepresentation
+        }
+      }
+    }
+  }
+#endif // compiler(>=6.2.3) && canImport(FoundationModels)

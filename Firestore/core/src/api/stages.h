@@ -89,6 +89,9 @@ class EvaluableStage : public Stage {
 class CollectionSource : public EvaluableStage {
  public:
   explicit CollectionSource(std::string path);
+  explicit CollectionSource(std::string path,
+                            absl::optional<std::string> force_index);
+
   ~CollectionSource() override = default;
 
   google_firestore_v1_Pipeline_Stage to_proto() const override;
@@ -108,6 +111,27 @@ class CollectionSource : public EvaluableStage {
 
  private:
   model::ResourcePath path_;
+  absl::optional<std::string> force_index_;
+};
+
+class SubcollectionSource : public Stage {
+ public:
+  explicit SubcollectionSource(std::string path);
+  ~SubcollectionSource() override = default;
+
+  google_firestore_v1_Pipeline_Stage to_proto() const override;
+
+  const std::string& name() const override {
+    static const std::string kName = "subcollection";
+    return kName;
+  }
+
+  std::string path() const {
+    return path_;
+  }
+
+ private:
+  std::string path_;
 };
 
 class DatabaseSource : public EvaluableStage {
@@ -132,6 +156,11 @@ class CollectionGroupSource : public EvaluableStage {
   explicit CollectionGroupSource(std::string collection_id)
       : collection_id_(std::move(collection_id)) {
   }
+  explicit CollectionGroupSource(std::string collection_id,
+                                 absl::optional<std::string> force_index)
+      : collection_id_(std::move(collection_id)),
+        force_index_(std::move(force_index)) {
+  }
   ~CollectionGroupSource() override = default;
 
   google_firestore_v1_Pipeline_Stage to_proto() const override;
@@ -151,6 +180,7 @@ class CollectionGroupSource : public EvaluableStage {
 
  private:
   std::string collection_id_;
+  absl::optional<std::string> force_index_;
 };
 
 class DocumentsSource : public EvaluableStage {
@@ -196,6 +226,25 @@ class AddFields : public Stage {
 
  private:
   std::unordered_map<std::string, std::shared_ptr<Expr>> fields_;
+};
+
+class DefineStage : public Stage {
+ public:
+  explicit DefineStage(
+      std::unordered_map<std::string, std::shared_ptr<Expr>> variables)
+      : variables_(std::move(variables)) {
+  }
+  ~DefineStage() override = default;
+
+  google_firestore_v1_Pipeline_Stage to_proto() const override;
+
+  const std::string& name() const override {
+    static const std::string kName = "let";
+    return kName;
+  }
+
+ private:
+  std::unordered_map<std::string, std::shared_ptr<Expr>> variables_;
 };
 
 class AggregateStage : public Stage {
@@ -284,6 +333,34 @@ class FindNearestStage : public Stage {
   nanopb::SharedMessage<google_firestore_v1_Value> vector_;
   DistanceMeasure distance_measure_;
   std::unordered_map<std::string, google_firestore_v1_Value> options_;
+};
+
+class SearchStage : public Stage {
+ public:
+  SearchStage(std::unordered_map<std::string, std::shared_ptr<Expr>> options,
+              std::unordered_map<std::string, std::shared_ptr<Expr>> add_fields,
+              std::unordered_map<std::string, std::shared_ptr<Expr>> select,
+              std::vector<Ordering> sort)
+      : options_(std::move(options)),
+        add_fields_(std::move(add_fields)),
+        select_(std::move(select)),
+        sort_(std::move(sort)) {
+  }
+
+  ~SearchStage() override = default;
+
+  google_firestore_v1_Pipeline_Stage to_proto() const override;
+
+  const std::string& name() const override {
+    static const std::string kName = "search";
+    return kName;
+  }
+
+ private:
+  std::unordered_map<std::string, std::shared_ptr<Expr>> options_;
+  std::unordered_map<std::string, std::shared_ptr<Expr>> add_fields_;
+  std::unordered_map<std::string, std::shared_ptr<Expr>> select_;
+  std::vector<Ordering> sort_;
 };
 
 class LimitStage : public EvaluableStage {

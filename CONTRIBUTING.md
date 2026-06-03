@@ -119,7 +119,7 @@ the preferred workflow for Firebase development.
 
 To develop Firebase software, **install**:
 
-* [Xcode] (v16.2 or later) (for Googlers, visit [go/xcode](go/xcode)) to
+* [Xcode] (v26.2 or later) (for Googlers, visit [go/xcode](go/xcode)) to
   download.
 * <details>
   <summary>Code styling tools: <b>clang-format</b>, <b>swiftformat</b> and
@@ -132,7 +132,7 @@ To develop Firebase software, **install**:
    To install [clang-format] and [mint] using [Homebrew]:
 
     ```console
-    brew install clang-format@21
+    brew install clang-format@22
     brew install mint
     ```
 

@@ -26,7 +26,8 @@ list=$(git grep "${options[@]}" -- \
     CMakeLists.txt '**/CMakeLists.txt' \
     ':(exclude)Sources/ProtoGen' \
     ':(exclude)third_party/**' \
-    ':(exclude)**/third_party/**')
+    ':(exclude)**/third_party/**' \
+    ':(exclude)Carthage/**')
 
 # Allow copyrights before 2020 without LLC.
 if [[ $list ]]; then

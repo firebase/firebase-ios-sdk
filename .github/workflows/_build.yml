@@ -26,11 +26,11 @@ on:
       xcode:
         required: false
         type: string
-        default: 'Xcode_16.4'
+        default: 'Xcode_26.4'
       os:
         required: false
         type: string
-        default: 'macos-15'
+        default: 'macos-26'
       timeout_minutes:
         required: false
         type: number
@@ -135,7 +135,9 @@ jobs:
         timeout_minutes: ${{ inputs.timeout_minutes }}
         max_attempts: ${{ inputs.max_attempts }}
         retry_wait_seconds: 120
+        # For toolchains var, see https://github.com/actions/runner-images/issues/13135#issuecomment-3397914993
         command: |
+          export TOOLCHAINS=com.apple.dt.toolchain.XcodeDefault
           scripts/build.sh "${{ inputs.product }}" "${{ inputs.platform }}" "${{ inputs.method }}"
     - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
       if: ${{ failure() }}

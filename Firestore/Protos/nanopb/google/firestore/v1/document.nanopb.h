@@ -116,6 +116,7 @@ typedef struct _google_firestore_v1_Value {
         pb_bytes_array_t *field_reference_value;
         google_firestore_v1_Function function_value;
         google_firestore_v1_Pipeline pipeline_value;
+        pb_bytes_array_t *variable_reference_value;
     };
 
     std::string ToString(int indent = 0) const;
@@ -208,6 +209,7 @@ typedef struct _google_firestore_v1_Pipeline_Stage_OptionsEntry {
 #define google_firestore_v1_Value_field_reference_value_tag 19
 #define google_firestore_v1_Value_function_value_tag 20
 #define google_firestore_v1_Value_pipeline_value_tag 21
+#define google_firestore_v1_Value_variable_reference_value_tag 22
 #define google_firestore_v1_Document_FieldsEntry_key_tag 1
 #define google_firestore_v1_Document_FieldsEntry_value_tag 2
 #define google_firestore_v1_Function_OptionsEntry_key_tag 1
@@ -220,7 +222,7 @@ typedef struct _google_firestore_v1_Pipeline_Stage_OptionsEntry {
 /* Struct field encoding specification for nanopb */
 extern const pb_field_t google_firestore_v1_Document_fields[5];
 extern const pb_field_t google_firestore_v1_Document_FieldsEntry_fields[3];
-extern const pb_field_t google_firestore_v1_Value_fields[15];
+extern const pb_field_t google_firestore_v1_Value_fields[16];
 extern const pb_field_t google_firestore_v1_ArrayValue_fields[2];
 extern const pb_field_t google_firestore_v1_MapValue_fields[2];
 extern const pb_field_t google_firestore_v1_MapValue_FieldsEntry_fields[3];

@@ -32,6 +32,7 @@
 #include "Crashlytics/Crashlytics/Helpers/FIRCLSUtility.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSExecutionIdentifierModel.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSFileManager.h"
+#import "Crashlytics/Crashlytics/Models/FIRCLSNonFatalError.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSSettings.h"
 #import "Crashlytics/Crashlytics/Settings/Models/FIRCLSApplicationIdentifierModel.h"
 
@@ -311,7 +312,10 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
 
 #pragma mark - API: Logging
 - (void)log:(NSString *)msg {
-  FIRCLSLog(@"%@", msg);
+  [self waitForContextInit:@"log"
+                  callback:^{
+                    FIRCLSLog(@"%@", msg);
+                  }];
 }
 
 - (void)logWithFormat:(NSString *)format, ... {
@@ -354,17 +358,26 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
 
 #pragma mark - API: setUserID
 - (void)setUserID:(nullable NSString *)userID {
-  FIRCLSUserLoggingRecordInternalKeyValue(FIRCLSUserIdentifierKey, userID);
+  [self waitForContextInit:@"setUserID"
+                  callback:^{
+                    FIRCLSUserLoggingRecordInternalKeyValue(FIRCLSUserIdentifierKey, userID);
+                  }];
 }
 
 #pragma mark - API: setCustomValue
 
 - (void)setCustomValue:(nullable id)value forKey:(NSString *)key {
-  FIRCLSUserLoggingRecordUserKeyValue(key, value);
+  [self waitForContextInit:@"setCustomValue"
+                  callback:^{
+                    FIRCLSUserLoggingRecordUserKeyValue(key, value);
+                  }];
 }
 
 - (void)setCustomKeysAndValues:(NSDictionary *)keysAndValues {
-  FIRCLSUserLoggingRecordUserKeysAndValues(keysAndValues);
+  [self waitForContextInit:@"setCustomKeysAndValues"
+                  callback:^{
+                    FIRCLSUserLoggingRecordUserKeysAndValues(keysAndValues);
+                  }];
 }
 
 #pragma mark - API: Development Platform
@@ -413,20 +426,39 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
 }
 
 - (void)recordError:(NSError *)error userInfo:(NSDictionary<NSString *, id> *)userInfo {
+  if (!error) {
+    return;
+  }
+
   NSString *rolloutsInfoJSON = [_remoteConfigManager getRolloutAssignmentsEncodedJsonString];
-  FIRCLSUserLoggingRecordError(error, userInfo, rolloutsInfoJSON);
+
+  FIRCLSNonFatalError *nonFatalError = [[FIRCLSNonFatalError alloc] initWithError:error
+                                                                         userInfo:userInfo
+                                                                 rolloutsInfoJSON:rolloutsInfoJSON];
+
+  [self waitForContextInit:@"recordError"
+                  callback:^{
+                    [nonFatalError recordError];
+                  }];
 }
 
 - (void)recordExceptionModel:(FIRExceptionModel *)exceptionModel {
   NSString *rolloutsInfoJSON = [_remoteConfigManager getRolloutAssignmentsEncodedJsonString];
-  FIRCLSExceptionRecordModel(exceptionModel, rolloutsInfoJSON);
+  [self waitForContextInit:@"recordExceptionModel"
+                  callback:^{
+                    FIRCLSExceptionRecordModel(exceptionModel, rolloutsInfoJSON);
+                  }];
 }
 
 - (void)recordOnDemandExceptionModel:(FIRExceptionModel *)exceptionModel {
-  [self.managerData.onDemandModel
-      recordOnDemandExceptionIfQuota:exceptionModel
-           withDataCollectionEnabled:[self.dataArbiter isCrashlyticsCollectionEnabled]
-          usingExistingReportManager:self.existingReportManager];
+  [self waitForContextInit:@"recordOnDemandExceptionModel"
+                  callback:^{
+                    [self.managerData.onDemandModel
+                        recordOnDemandExceptionIfQuota:exceptionModel
+                             withDataCollectionEnabled:[self.dataArbiter
+                                                               isCrashlyticsCollectionEnabled]
+                            usingExistingReportManager:self.existingReportManager];
+                  }];
 }
 
 #pragma mark - FIRSessionsSubscriber
@@ -456,7 +488,7 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
                                                     reportID:currentReportID];
 }
 
-#pragma mark - Private Helpsers
+#pragma mark - Private Helpers
 - (void)waitForContextInit:(NSString *)contextLog callback:(void (^)(void))callback {
   if (!_contextInitPromise) {
     FIRCLSErrorLog(@"Crashlytics method called before SDK was initialized: %@", contextLog);

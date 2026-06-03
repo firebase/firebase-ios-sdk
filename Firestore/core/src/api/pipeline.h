@@ -54,6 +54,9 @@ class Pipeline {
   std::shared_ptr<Firestore> firestore_;
 };
 
+google_firestore_v1_Value PipelineStagesToProto(
+    const std::vector<std::shared_ptr<Stage>>& stages);
+
 }  // namespace api
 }  // namespace firestore
 }  // namespace firebase

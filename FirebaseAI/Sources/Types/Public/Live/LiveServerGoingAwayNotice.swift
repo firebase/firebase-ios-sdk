@@ -17,7 +17,6 @@ import Foundation
 /// Server will not be able to service client soon.
 ///
 /// To  learn more about session limits,  see the docs on [Maximum session duration](https://cloud.google.com/vertex-ai/generative-ai/docs/model-reference/multimodal-live#maximum-session-duration)\.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
 @available(watchOS, unavailable)
 public struct LiveServerGoingAwayNotice: Sendable {
   let goAway: GoAway

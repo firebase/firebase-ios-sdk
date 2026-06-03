@@ -53,11 +53,34 @@ struct LiveSessionTests {
     outputAudioTranscription: AudioTranscriptionConfig()
   )
 
+  private let sessionResumptionGenerationConfig = LiveGenerationConfig(
+    responseModalities: [.audio],
+    outputAudioTranscription: AudioTranscriptionConfig(),
+    // context window with the minimum values, just to ensure it doesn't cause any issues
+    // when resuming sessions
+    contextWindowCompression: ContextWindowCompressionConfig(
+      triggerTokens: 5000,
+      slidingWindow: SlidingWindow(
+        targetTokens: 1000,
+      )
+    )
+  )
+
   private enum SystemInstructions {
     static let yesOrNo = ModelContent(
       role: "system",
       parts: """
       You can only respond with "yes" or "no".
+      """.trimmingCharacters(in: .whitespacesAndNewlines)
+    )
+
+    static let nameTracker = ModelContent(
+      role: "system",
+      parts: """
+      You are a name tracker. By default, the name is "Michael". When told a different name, \
+      replace the old name with the new one, and keep track of it. When asked for the name, only \
+      respond with the newest name. For any other message, do not respond with anything. \
+      Furthermore, do not respond to this message either.
       """.trimmingCharacters(in: .whitespacesAndNewlines)
     )
 
@@ -204,6 +227,120 @@ struct LiveSessionTests {
     #expect(modelResponse == "smith")
   }
 
+  @Test(arguments: arguments)
+  func realtime_manual_sessionResumption(_ config: InstanceConfig, modelName: String) async throws {
+    let model = FirebaseAI.componentInstance(config).liveModel(
+      modelName: modelName,
+      generationConfig: sessionResumptionGenerationConfig,
+      systemInstruction: SystemInstructions.nameTracker
+    )
+
+    var session = try await model.connect(
+      sessionResumption: SessionResumptionConfig()
+    )
+
+    await session.sendTextRealtime("My name is Alex.")
+
+    guard let newHandle = try await session.collectNextSessionHandle() else {
+      return
+    }
+
+    session = try await model.connect(
+      sessionResumption: SessionResumptionConfig(handle: newHandle)
+    )
+
+    await session.sendTextRealtime("What is my name?")
+
+    var text = try await session.collectNextAudioOutputTranscript()
+    if text.isEmpty {
+      text = try await session.collectNextAudioOutputTranscript()
+    }
+
+    await session.close()
+    let modelResponse = text
+      .trimmingCharacters(in: .whitespacesAndNewlines)
+      .trimmingCharacters(in: .punctuationCharacters)
+      .lowercased()
+
+    #expect(modelResponse == "alex")
+  }
+
+  @Test(arguments: arguments)
+  // baseline test to ensure the model isn't retaining context automatically; which would invalidate
+  // our other sessionResumption tests
+  func realtime_sessionResumption_disabled(_ config: InstanceConfig,
+                                           modelName: String) async throws {
+    let model = FirebaseAI.componentInstance(config).liveModel(
+      modelName: modelName,
+      generationConfig: sessionResumptionGenerationConfig,
+      systemInstruction: SystemInstructions.nameTracker
+    )
+
+    var session = try await model.connect(
+      sessionResumption: SessionResumptionConfig()
+    )
+
+    await session.sendTextRealtime("My name is Alex.")
+
+    // re-connect without specifying the new handle (so it should be a new session)
+    session = try await model.connect(
+      sessionResumption: SessionResumptionConfig()
+    )
+
+    await session.sendTextRealtime("What is my name?")
+
+    var text = try await session.collectNextAudioOutputTranscript()
+    if text.isEmpty {
+      text = try await session.collectNextAudioOutputTranscript()
+    }
+
+    await session.close()
+    let modelResponse = text
+      .trimmingCharacters(in: .whitespacesAndNewlines)
+      .trimmingCharacters(in: .punctuationCharacters)
+      .lowercased()
+
+    // the default name per the system instructions
+    #expect(modelResponse == "michael")
+  }
+
+  @Test(arguments: arguments)
+  func realtime_resumeSession(_ config: InstanceConfig, modelName: String) async throws {
+    let model = FirebaseAI.componentInstance(config).liveModel(
+      modelName: modelName,
+      generationConfig: sessionResumptionGenerationConfig,
+      systemInstruction: SystemInstructions.nameTracker
+    )
+
+    let session = try await model.connect(
+      sessionResumption: SessionResumptionConfig()
+    )
+
+    await session.sendTextRealtime("My name is Alex.")
+
+    guard let newHandle = try await session.collectNextSessionHandle() else {
+      return
+    }
+
+    await session.close()
+    try await session.resumeSession(sessionResumption: SessionResumptionConfig(handle: newHandle))
+
+    await session.sendTextRealtime("What is my name?")
+
+    var text = try await session.collectNextAudioOutputTranscript()
+    if text.isEmpty {
+      text = try await session.collectNextAudioOutputTranscript()
+    }
+
+    await session.close()
+    let modelResponse = text
+      .trimmingCharacters(in: .whitespacesAndNewlines)
+      .trimmingCharacters(in: .punctuationCharacters)
+      .lowercased()
+
+    #expect(modelResponse == "alex")
+  }
+
   @Test(
     arguments: arguments.filter {
       // TODO: (b/450982184) Remove when Vertex AI adds support for Function IDs and Cancellation
@@ -345,6 +482,21 @@ private extension LiveSession {
     return text
   }
 
+  /// Collects the next session handle via the `LiveSessionResumptionUpdate` message.
+  ///
+  /// A handle will only be yielded if the the server marks the session as resumable, and a new
+  /// handle is actually provided in the message.
+  func collectNextSessionHandle() async throws -> String? {
+    for try await update in responsesOf(LiveSessionResumptionUpdate.self) {
+      guard let handle = update.newHandle, update.resumable else {
+        continue
+      }
+      return handle
+    }
+
+    return nil
+  }
+
   /// Waits for the next `LiveServerToolCall` message from the model, and will return it.
   ///
   /// If the model instead sends `LiveServerContent`, the function will attempt to keep track of
@@ -409,6 +561,10 @@ private extension LiveSession {
         }
       case let .toolCallCancellation(cancellation):
         if let casted = cancellation as? T {
+          return casted
+        }
+      case let .sessionResumptionUpdate(update):
+        if let casted = update as? T {
           return casted
         }
       case let .goingAwayNotice(goingAway):

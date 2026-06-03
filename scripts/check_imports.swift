@@ -33,7 +33,8 @@ let skipDirPatterns = ["/Sample/", "/Pods/",
                        "IntegrationTesting/CocoapodsIntegrationTest/",
                        "FirebasePerformance/Tests/TestApp/",
                        "cmake-build-debug/", "build/", "ObjCIntegration/",
-                       "FirebasePerformance/Tests/FIRPerfE2E/"] +
+                       "FirebasePerformance/Tests/FIRPerfE2E/",
+                       "Carthage/"] +
   [
     "CoreOnly/Sources", // Skip Firebase.h.
     "SwiftPMTests", // The SwiftPM tests test module imports.

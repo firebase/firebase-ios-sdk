@@ -1,4 +1,4 @@
-// swift-tools-version:6.0
+// swift-tools-version:6.1
 // The swift-tools-version declares the minimum version of Swift required to
 // build this package.
 
@@ -18,7 +18,7 @@
 
 import PackageDescription
 
-let firebaseVersion = "12.10.0"
+let firebaseVersion = "12.15.0"
 
 let shouldUseSourceFirestore = Context.environment["FIREBASE_SOURCE_FIRESTORE"] != nil
 
@@ -196,7 +196,10 @@ let package = Package(
         "FirebaseCore",
         "FirebaseCoreExtension",
       ],
-      path: "FirebaseAI/Sources"
+      path: "FirebaseAI/Sources",
+      swiftSettings: [
+        isFoundationModelsSupportedPlatformSwiftSetting(),
+      ]
     ),
     .testTarget(
       name: "FirebaseAILogicUnit",
@@ -211,6 +214,9 @@ let package = Package(
       ],
       cSettings: [
         .headerSearchPath("../../../"),
+      ],
+      swiftSettings: [
+        isFoundationModelsSupportedPlatformSwiftSetting(),
       ]
     ),
     .target(
@@ -350,8 +356,8 @@ let package = Package(
     ),
     .binaryTarget(
       name: "FirebaseAnalytics",
-      url: "https://dl.google.com/firebase/ios/swiftpm/12.10.0/FirebaseAnalytics.zip",
-      checksum: "454b51b9b1a85732ca4c6524843e7fb308078d0365a0c2e6f0810a5e2a2ab790"
+      url: "https://dl.google.com/firebase/ios/swiftpm/12.14.0/FirebaseAnalytics.zip",
+      checksum: "cf13c45dcae3c66ac8c00a340829c05ce226ec486ae533658b8915365acc9a4e"
     ),
     .testTarget(
       name: "AnalyticsSwiftUnit",
@@ -561,10 +567,7 @@ let package = Package(
     .target(
       name: "FirebaseCrashlyticsSwift",
       dependencies: ["FirebaseRemoteConfigInterop"],
-      path: "Crashlytics",
-      sources: [
-        "Crashlytics/Rollouts/",
-      ]
+      path: "Crashlytics/Crashlytics/Rollouts"
     ),
     .testTarget(
       name: "FirebaseCrashlyticsSwiftUnit",
@@ -1309,7 +1312,10 @@ let package = Package(
     ),
     .testTarget(
       name: "FirebaseAppCheckUnitSwift",
-      dependencies: ["FirebaseAppCheck"],
+      dependencies: [
+        "FirebaseAppCheck",
+        "FirebaseCoreExtension",
+      ],
       path: "FirebaseAppCheck/Tests/Unit/Swift",
       swiftSettings: [
         .swiftLanguageMode(SwiftLanguageMode.v5),
@@ -1334,6 +1340,18 @@ let package = Package(
       path: "FirebaseTestingSupport/Firestore/Tests",
       cSettings: [
         .headerSearchPath("../../.."),
+      ]
+    ),
+    .testTarget(
+      name: "FirebaseFirestoreTests",
+      dependencies: [
+        "Firebase",
+        "FirebaseCore",
+        "FirebaseFirestoreTarget",
+      ],
+      path: "Firestore/Swift/Tests/Unit",
+      cSettings: [
+        .headerSearchPath("../../../"),
       ]
     ),
   ] + firestoreTargets(),
@@ -1381,18 +1399,18 @@ func firebaseCrashlyticsTarget() -> Target {
       "CHANGELOG.md",
       "LICENSE",
       "README.md",
-      "ProtoSupport/",
-      "UnitTests/",
+      "ProtoSupport",
+      "UnitTests",
       "generate_project.sh",
       "upload-symbols",
       "CrashlyticsInputFiles.xcfilelist",
       "third_party/libunwind/LICENSE",
-      "Crashlytics/Rollouts/",
+      "Crashlytics/Rollouts",
     ],
     sources: [
-      "Crashlytics/",
-      "Protogen/",
-      "Shared/",
+      "Crashlytics",
+      "Protogen",
+      "Shared",
       "third_party/libunwind/dwarf.h",
     ],
     resources: [.process("Resources/PrivacyInfo.xcprivacy")],
@@ -1414,7 +1432,7 @@ func googleAppMeasurementDependency() -> Package.Dependency {
     return .package(url: appMeasurementURL, branch: "main")
   }
 
-  return .package(url: appMeasurementURL, branch: "main")
+  return .package(url: appMeasurementURL, exact: "12.14.0")
 }
 
 func abseilDependency() -> Package.Dependency {
@@ -1595,8 +1613,8 @@ func firestoreTargets() -> [Target] {
     } else {
       return .binaryTarget(
         name: "FirebaseFirestoreInternal",
-        url: "https://dl.google.com/firebase/ios/bin/firestore/12.9.0/rc0/FirebaseFirestoreInternal.zip",
-        checksum: "20d59ef59734ab7125273d6433aa32f1c48ac87a91bab6d169aeff089ef4faa6"
+        url: "https://dl.google.com/firebase/ios/bin/firestore/12.14.0/rc1/FirebaseFirestoreInternal.zip",
+        checksum: "28d4f75f8c07892157546a50151f5b6110e03d4f62dddadf35ef19197bf8b617"
       )
     }
   }()
@@ -1648,4 +1666,11 @@ func firestoreTargets() -> [Target] {
     ),
     firestoreInternalTarget,
   ]
+}
+
+func isFoundationModelsSupportedPlatformSwiftSetting() -> SwiftSetting {
+  return SwiftSetting.define(
+    "IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM",
+    .when(platforms: [.iOS, .macCatalyst, .macOS, .visionOS])
+  )
 }

@@ -155,6 +155,14 @@ message Value {
     //
     // * Not allowed to be used when writing documents.
     Pipeline pipeline_value = 21;
+
+    // Pointer to a variable defined elsewhere in a pipeline.
+    //
+    // Unlike `field_reference_value` which references a field within a
+    // document, this refers to a variable, defined in a separate namespace than
+    // the fields of a document.
+    //
+    string variable_reference_value = 22;
   }
 }
 

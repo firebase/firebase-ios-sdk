@@ -391,8 +391,8 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
     return;
   }
   id<UIApplicationDelegate> appDelegate = application.delegate;
-  SEL continueUserActivitySelector = @selector(application:
-                                      continueUserActivity:restorationHandler:);
+  SEL continueUserActivitySelector =
+      @selector(application:continueUserActivity:restorationHandler:);
 
   // Due to FIRAAppDelegateProxy swizzling, this selector will most likely get chosen, whether or
   // not the actual application has implemented
@@ -617,8 +617,8 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 // NOTE: Once |didReceiveRegistrationToken:| can be made a required method, this
 // check can be removed.
 - (void)validateDelegateConformsToTokenAvailabilityMethods {
-  if (self.delegate && ![self.delegate respondsToSelector:@selector(messaging:
-                                                              didReceiveRegistrationToken:)]) {
+  if (self.delegate &&
+      ![self.delegate respondsToSelector:@selector(messaging:didReceiveRegistrationToken:)]) {
     FIRMessagingLoggerWarn(kFIRMessagingMessageCodeTokenDelegateMethodsNotImplemented,
                            @"The object %@ does not respond to "
                            @"-messaging:didReceiveRegistrationToken:. Please implement "

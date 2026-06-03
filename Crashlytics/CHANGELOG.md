@@ -1,3 +1,16 @@
+# 12.13.0
+- [fixed] Fix race in FIRCLSContextMarkAndCheckIfCrashed. (#15384)
+- [fixed] Fix unfound file warnings from `swift build`. (#16012)
+- [fixed] Fix calling frame not being included in the stack trace for record(error:). (#16106)
+
+# 12.12.1
+- [changed] Updated `upload-symbols` to version 3.21, updated error logging in
+  `upload-symbols` and started reading the `DEVELOPER_DIR` environment
+  variable for the path to Xcode for CoreSymbolication (#15896).
+
+# 12.11.0
+- [fixed] Fixed an issue where Crashlytics API calls were silently dropped if invoked immediately after Firebase initialization.
+
 # 12.10.0
 - [fixed] Fixed a deadlock in Firebase Sessions where the main thread could
   block waiting for a lock held by a background thread during settings

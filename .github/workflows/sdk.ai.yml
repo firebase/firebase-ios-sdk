@@ -42,10 +42,26 @@ jobs:
         include:
           - os: macos-15
             target: iOS
-            xcode: Xcode_16.4
+            xcode: Xcode_26.2
+            test_filter_arg: --exclude IntegrationTests-SPM/LiveSessionTests
+            log_prefix: xcodebuild
+          - os: macos-15
+            target: iOS
+            xcode: Xcode_26.2
+            test_filter_arg: --filter IntegrationTests-SPM/LiveSessionTests
+            log_prefix: xcodebuild-live
           - os: macos-26
             target: iOS
-            xcode: Xcode_26.1
+            # TODO: Bump to 26.4 when "Unable to find a destination matching the provided destination specifier" is resolved.
+            xcode: Xcode_26.2
+            test_filter_arg: --exclude IntegrationTests-SPM/LiveSessionTests
+            log_prefix: xcodebuild
+          - os: macos-26
+            target: iOS
+            # TODO: Bump to 26.4 when "Unable to find a destination matching the provided destination specifier" is resolved.
+            xcode: Xcode_26.2
+            test_filter_arg: --filter IntegrationTests-SPM/LiveSessionTests
+            log_prefix: xcodebuild-live
     runs-on: ${{ matrix.os }}
     needs: spm
     env:
@@ -60,12 +76,12 @@ jobs:
         path: .build
         key: ${{ needs.spm.outputs.cache_key }}
     - name: Run integration tests
-      run: scripts/repo.sh tests run --secrets ./scripts/secrets/AI.json --platforms ${{ matrix.target }} --xcode ${{ matrix.xcode }} AI
+      run: scripts/repo.sh tests run --secrets ./scripts/secrets/AI.json --platforms ${{ matrix.target }} --xcode ${{ matrix.xcode }} ${{ matrix.test_filter_arg }} AI
     - name: Upload xcodebuild logs
       if: failure()
       uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
       with:
-        name: xcodebuild-${{ matrix.target }}-${{ matrix.os }}-${{ matrix.xcode }}.log
+        name: ${{ matrix.log_prefix }}-${{ matrix.target }}-${{ matrix.os }}-${{ matrix.xcode }}.log
         path: xcodebuild-*.log
         retention-days: 2
 
@@ -85,9 +101,10 @@ jobs:
       matrix:
         include:
           - os: macos-15
-            xcode: Xcode_16.4
+            xcode: Xcode_26.2
+          # TODO: Bump to 26.4 when "Unable to find a destination matching the provided destination specifier" is resolved.
           - os: macos-26
-            xcode: Xcode_26.1
+            xcode: Xcode_26.2
     runs-on: ${{ matrix.os }}
     env:
       BRANCH_NAME: ${{ github.head_ref || github.ref_name || 'main' }}

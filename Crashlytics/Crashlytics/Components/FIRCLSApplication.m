@@ -156,8 +156,8 @@ id FIRCLSApplicationSharedInstance(void) {
 #endif
 
 id<NSObject> FIRCLSApplicationBeginActivity(NSActivityOptions options, NSString* reason) {
-  if ([[NSProcessInfo processInfo] respondsToSelector:@selector(beginActivityWithOptions:
-                                                                                  reason:)]) {
+  if ([[NSProcessInfo processInfo]
+          respondsToSelector:@selector(beginActivityWithOptions:reason:)]) {
     return [[NSProcessInfo processInfo] beginActivityWithOptions:options reason:reason];
   }
 

@@ -63,4 +63,48 @@ public struct Field: Expression, Selectable, BridgeWrapper, SelectableWrapper,
     fieldName = fieldBridge.field_name()
     alias = fieldName
   }
+
+  /// Creates a condition that evaluates to true if the field matches the search query.
+  ///
+  /// - Note: This API is in beta.
+  ///
+  /// Example usage:
+  /// ```swift
+  /// firestore.pipeline().collection("restaurants")
+  /// .search(
+  ///   query: Field("menu").matches("waffles OR pancakes")
+  /// )
+  /// ```
+  ///
+  /// - Parameters:
+  ///   - query: The text to search for.
+  /// - Returns: A `BooleanExpression` representing the search predicate.
+  // TODO(search): enable with backend support
+  func matches(_ query: String) -> BooleanExpression {
+    let args: [Sendable] = [self, query]
+    let expressionArgs = args.map { Helper.sendableToExpr($0) }
+    return BooleanFunctionExpression(functionName: "matches", args: expressionArgs)
+  }
+
+  /// Calculates the distance between the GeoPoint in this field and a target location.
+  ///
+  /// - Note: This API is in beta.
+  ///
+  /// Example usage:
+  /// ```swift
+  /// firestore.pipeline().collection("restaurants")
+  /// .search(
+  ///   query: Field("location").geoDistance(GeoPoint(37.937946, -107.813806)).lessThan(1000 /*
+  /// meters */)
+  /// )
+  /// ```
+  ///
+  /// - Parameter location: The target `GeoPoint`.
+  /// - Returns: An `Expression` representing the distance in meters.
+  public func geoDistance(_ location: FirebaseFirestore.GeoPoint) -> Expression {
+    return FunctionExpression(
+      functionName: "geo_distance",
+      args: [self, Constant(location)]
+    )
+  }
 }

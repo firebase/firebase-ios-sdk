@@ -15,7 +15,6 @@
 @testable import FirebaseAILogic
 import XCTest
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 final class GenerateContentResponseTests: XCTestCase {
   let jsonDecoder = JSONDecoder()
 
@@ -109,6 +108,101 @@ final class GenerateContentResponseTests: XCTestCase {
     )
   }
 
+  func testGenerateContentResponse_noCandidates_logging() throws {
+    var loggedCodes: [AILog.MessageCode] = []
+    AILog.logInterceptor = { level, code, message in
+      loggedCodes.append(code)
+    }
+
+    let response = GenerateContentResponse(candidates: [])
+
+    _ = response.text
+    XCTAssertTrue(loggedCodes.contains(.generateContentResponseNoCandidates))
+
+    loggedCodes.removeAll()
+    _ = response.thoughtSummary
+    XCTAssertTrue(loggedCodes.contains(.generateContentResponseNoCandidates))
+  }
+
+  func testGenerateContentResponse_textIsThought_logging() throws {
+    var loggedCodes: [AILog.MessageCode] = []
+    AILog.logInterceptor = { level, code, message in
+      loggedCodes.append(code)
+    }
+
+    let imageData = Data("sample image data".utf8)
+    let inlineDataPart = InlineDataPart(data: imageData, mimeType: "image/png")
+    let candidate = Candidate(
+      content: ModelContent(parts: [inlineDataPart]),
+      safetyRatings: [],
+      finishReason: nil,
+      citationMetadata: nil
+    )
+    let response = GenerateContentResponse(candidates: [candidate])
+
+    _ = response.text
+    XCTAssertTrue(loggedCodes.contains(.generateContentResponseNoText))
+
+    loggedCodes.removeAll()
+    _ = response.thoughtSummary
+    XCTAssertTrue(loggedCodes.contains(.generateContentResponseNoText))
+  }
+
+  func testGenerateContentResponse_thoughtSummary_success() throws {
+    let thoughtPart = TextPart("This is a thought.", isThought: true, thoughtSignature: nil)
+    let modelContent = ModelContent(parts: [thoughtPart])
+    let candidate = Candidate(
+      content: modelContent,
+      safetyRatings: [],
+      finishReason: nil,
+      citationMetadata: nil
+    )
+    let response = GenerateContentResponse(candidates: [candidate])
+
+    XCTAssertEqual(response.thoughtSummary, "This is a thought.")
+  }
+
+  func testGenerateContentResponse_text_success() throws {
+    let textPart = TextPart("This is text.", isThought: false, thoughtSignature: nil)
+    let modelContent = ModelContent(parts: [textPart])
+    let candidate = Candidate(
+      content: modelContent,
+      safetyRatings: [],
+      finishReason: nil,
+      citationMetadata: nil
+    )
+    let response = GenerateContentResponse(candidates: [candidate])
+
+    XCTAssertEqual(response.text, "This is text.")
+  }
+
+  func testGenerateContentResponse_internalAccessor_doesNotLog() throws {
+    var loggedCodes: [AILog.MessageCode] = []
+    AILog.logInterceptor = { level, code, message in
+      loggedCodes.append(code)
+    }
+
+    // Case 1: No candidates
+    let noCandidatesResponse = GenerateContentResponse(candidates: [])
+    _ = noCandidatesResponse.text(isThought: false)
+    _ = noCandidatesResponse.text(isThought: true)
+    XCTAssertTrue(loggedCodes.isEmpty)
+
+    // Case 2: No text parts
+    let imageData = Data("sample image data".utf8)
+    let inlineDataPart = InlineDataPart(data: imageData, mimeType: "image/png")
+    let candidate = Candidate(
+      content: ModelContent(parts: [inlineDataPart]),
+      safetyRatings: [],
+      finishReason: nil,
+      citationMetadata: nil
+    )
+    let noTextResponse = GenerateContentResponse(candidates: [candidate])
+    _ = noTextResponse.text(isThought: false)
+    _ = noTextResponse.text(isThought: true)
+    XCTAssertTrue(loggedCodes.isEmpty)
+  }
+
   // MARK: - Decoding Tests
 
   func testDecodeCandidate_emptyURLMetadata_urlContextMetadataIsNil() throws {
@@ -158,6 +252,97 @@ final class GenerateContentResponseTests: XCTestCase {
     XCTAssertEqual(candidate.finishReason, .stop)
   }
 
+  func testDecodeCandidate_withFinishMessage() throws {
+    let json = """
+    {
+      "content": { "role": "model", "parts": [ { "text": "Some text." } ] },
+      "finishReason": "STOP",
+      "finishMessage": "Stopped due to something."
+    }
+    """
+    let jsonData = try XCTUnwrap(json.data(using: .utf8))
+
+    let candidate = try jsonDecoder.decode(Candidate.self, from: jsonData)
+
+    XCTAssertEqual(candidate.finishMessage, "Stopped due to something.")
+    XCTAssertEqual(candidate.finishReason, .stop)
+  }
+
+  func testDecodeGenerateContentResponse_withModelVersion() throws {
+    let json = """
+    {
+      "candidates": [],
+      "modelVersion": "gemini-2.5-flash"
+    }
+    """
+    let jsonData = try XCTUnwrap(json.data(using: .utf8))
+
+    let response = try jsonDecoder.decode(GenerateContentResponse.self, from: jsonData)
+
+    XCTAssertEqual(response.modelVersion, "gemini-2.5-flash")
+  }
+
+  func testDecodeGenerateContentResponse_withoutModelVersion() throws {
+    let json = """
+    {
+      "candidates": []
+    }
+    """
+    let jsonData = try XCTUnwrap(json.data(using: .utf8))
+
+    let response = try jsonDecoder.decode(GenerateContentResponse.self, from: jsonData)
+
+    XCTAssertEqual(response.modelVersion, GenerateContentResponse.unknownModelVersion)
+  }
+
+  func testDecodeGenerateContentResponse_withOnlyUsageMetadata() throws {
+    let json = """
+    {
+      "usageMetadata": {
+        "promptTokenCount": 10,
+        "candidatesTokenCount": 20,
+        "totalTokenCount": 30
+      },
+      "modelVersion": "gemini-2.5-flash"
+    }
+    """
+    let jsonData = try XCTUnwrap(json.data(using: .utf8))
+
+    let response = try jsonDecoder.decode(GenerateContentResponse.self, from: jsonData)
+
+    XCTAssertEqual(response.modelVersion, "gemini-2.5-flash")
+    XCTAssertEqual(response.usageMetadata?.promptTokenCount, 10)
+    XCTAssertEqual(response.usageMetadata?.candidatesTokenCount, 20)
+    XCTAssertEqual(response.usageMetadata?.totalTokenCount, 30)
+    XCTAssertTrue(response.candidates.isEmpty)
+  }
+
+  func testDecodeGenerateContentResponse_missingRequiredKeys_throwsError() throws {
+    let json = """
+    {
+      "responseId": "test-response-id",
+      "modelVersion": "gemini-2.5-flash"
+    }
+    """
+    let jsonData = try XCTUnwrap(json.data(using: .utf8))
+
+    XCTAssertThrowsError(try jsonDecoder.decode(
+      GenerateContentResponse.self,
+      from: jsonData
+    )) { error in
+      guard case let DecodingError.dataCorrupted(context) = error else {
+        XCTFail("Expected DecodingError.dataCorrupted, got \(error)")
+        return
+      }
+      XCTAssertEqual(context.codingPath.count, 0)
+      XCTAssertTrue(context.debugDescription.contains("Failed to decode GenerateContentResponse"))
+      XCTAssertTrue(context.debugDescription.contains(
+        "missing keys 'candidates', 'promptFeedback' or 'usageMetadata'"
+      ))
+      XCTAssertTrue(context.debugDescription.contains("Found keys: modelVersion, responseId"))
+    }
+  }
+
   // MARK: - Candidate.isEmpty
 
   func testCandidateIsEmpty_allEmpty_isTrue() throws {
@@ -191,6 +376,23 @@ final class GenerateContentResponseTests: XCTestCase {
     XCTAssertFalse(
       candidate.isEmpty,
       "A candidate with only `urlContextMetadata` should not be empty."
+    )
+  }
+
+  func testCandidateIsEmpty_withFinishMessage_isFalse() throws {
+    let candidate = Candidate(
+      content: ModelContent(parts: []),
+      safetyRatings: [],
+      finishReason: nil,
+      citationMetadata: nil,
+      groundingMetadata: nil,
+      urlContextMetadata: nil,
+      finishMessage: "Stopped"
+    )
+
+    XCTAssertFalse(
+      candidate.isEmpty,
+      "A candidate with only `finishMessage` should not be empty."
     )
   }
 }

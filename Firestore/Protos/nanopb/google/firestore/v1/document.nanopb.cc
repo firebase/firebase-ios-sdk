@@ -51,7 +51,7 @@ const pb_field_t google_firestore_v1_Document_FieldsEntry_fields[3] = {
     PB_LAST_FIELD
 };
 
-const pb_field_t google_firestore_v1_Value_fields[15] = {
+const pb_field_t google_firestore_v1_Value_fields[16] = {
     PB_ANONYMOUS_ONEOF_FIELD(value_type,   1, BOOL    , ONEOF, STATIC  , FIRST, google_firestore_v1_Value, boolean_value, boolean_value, 0),
     PB_ANONYMOUS_ONEOF_FIELD(value_type,   2, INT64   , ONEOF, STATIC  , UNION, google_firestore_v1_Value, integer_value, integer_value, 0),
     PB_ANONYMOUS_ONEOF_FIELD(value_type,   3, DOUBLE  , ONEOF, STATIC  , UNION, google_firestore_v1_Value, double_value, double_value, 0),
@@ -66,6 +66,7 @@ const pb_field_t google_firestore_v1_Value_fields[15] = {
     PB_ANONYMOUS_ONEOF_FIELD(value_type,  19, BYTES   , ONEOF, POINTER , UNION, google_firestore_v1_Value, field_reference_value, field_reference_value, 0),
     PB_ANONYMOUS_ONEOF_FIELD(value_type,  20, MESSAGE , ONEOF, STATIC  , UNION, google_firestore_v1_Value, function_value, function_value, &google_firestore_v1_Function_fields),
     PB_ANONYMOUS_ONEOF_FIELD(value_type,  21, MESSAGE , ONEOF, STATIC  , UNION, google_firestore_v1_Value, pipeline_value, pipeline_value, &google_firestore_v1_Pipeline_fields),
+    PB_ANONYMOUS_ONEOF_FIELD(value_type,  22, BYTES   , ONEOF, POINTER , UNION, google_firestore_v1_Value, variable_reference_value, variable_reference_value, 0),
     PB_LAST_FIELD
 };
 
@@ -238,6 +239,10 @@ std::string google_firestore_v1_Value::ToString(int indent) const {
     case google_firestore_v1_Value_pipeline_value_tag:
         tostring_result += PrintMessageField("pipeline_value ",
             pipeline_value, indent + 1, true);
+        break;
+    case google_firestore_v1_Value_variable_reference_value_tag:
+        tostring_result += PrintPrimitiveField("variable_reference_value: ",
+            variable_reference_value, indent + 1, true);
         break;
     }
 
