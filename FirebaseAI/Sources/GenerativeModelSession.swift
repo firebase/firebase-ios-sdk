@@ -53,7 +53,7 @@
   /// ```
   public final class GenerativeModelSession: Sendable {
     let sessionManager: SessionManager
-    let instructions: String?
+    let instructions: FirebaseAI.Instructions?
 
     // The maximum number of automatic back-and-forth turns the session will perform to resolve
     // function calls.
@@ -74,7 +74,7 @@
     ///     or instances conforming to ``ToolRepresentable`` for automatic function calling.
     ///   - instructions: System instructions that direct the model's behavior.
     init(model: any LanguageModel, tools: [any ToolRepresentable]? = nil,
-         instructions: String? = nil) {
+         instructions: FirebaseAI.Instructions? = nil) {
       sessionManager = SessionManager(model: model, tools: tools)
       self.instructions = instructions
     }
@@ -438,7 +438,7 @@
         }
       }
 
-      func getOrStartSession(instructions: String?) throws -> any _ModelSession {
+      func getOrStartSession(instructions: FirebaseAI.Instructions?) throws -> any _ModelSession {
         try _isResponding.withLock { isResponding in
           if let currentSession = _activeSession {
             return currentSession

@@ -23,8 +23,8 @@
     /// Returns a new session for this model.
     ///
     /// > Important: This method is for **internal use only** and may change at any time.
-    func _startSession(tools: [any ToolRepresentable]?, instructions: String?) throws
-      -> any _ModelSession
+    func _startSession(tools: [any ToolRepresentable]?,
+                       instructions: FirebaseAI.Instructions?) throws -> any _ModelSession
   }
 
   // Default implementation to allow a `LanguageModel` to conform to `LanguageModelProvider`.

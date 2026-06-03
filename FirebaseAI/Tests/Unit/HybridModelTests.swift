@@ -23,7 +23,7 @@
       let startSessionHandler: @Sendable () throws -> any _ModelSession
 
       func _startSession(tools: [any ToolRepresentable]?,
-                         instructions: String?) throws -> any _ModelSession {
+                         instructions: FirebaseAI.Instructions?) throws -> any _ModelSession {
         return try startSessionHandler()
       }
     }

@@ -122,17 +122,35 @@
         self.isComplete = isComplete
       }
 
-      #if canImport(FoundationModels)
-        /// The JSON string representation of the generated content.
-        ///
-        /// **Public Preview**: This API is a public preview and may be subject to change.
-        @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
-        @available(tvOS, unavailable)
-        @available(watchOS, unavailable)
-        public var jsonString: String {
-          return generatedContent.jsonString
+      /// The JSON string representation of the generated content.
+      ///
+      /// **Public Preview**: This API is a public preview and may be subject to change.
+      public var jsonString: String {
+        #if canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
+          if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
+            return generatedContent.jsonString
+          }
+        #endif // canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
+
+        switch kind {
+        case .null:
+          return "null"
+        case let .bool(value):
+          return String(value)
+        case let .number(value):
+          return String(value)
+        case let .string(string):
+          return "\"\(string)\""
+        case let .array(values):
+          return "[\(values.map { $0.jsonString }.joined(separator: ", "))]"
+        case let .structure(properties, orderedKeys):
+          let keyValuePairs = orderedKeys.compactMap { key -> String? in
+            guard let value = properties[key] else { return nil }
+            return "\"\(key)\": \(value.jsonString)"
+          }
+          return "{\(keyValuePairs.joined(separator: ", "))}"
         }
-      #endif // canImport(FoundationModels)
+      }
 
       // TODO: Replace `ConvertibleFromGeneratedContent` with custom protocol
 
@@ -246,6 +264,15 @@
     extension FirebaseAI.GeneratedContent: CustomDebugStringConvertible {
       public var debugDescription: String {
         return generatedContent.debugDescription
+      }
+    }
+
+    @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
+    @available(tvOS, unavailable)
+    @available(watchOS, unavailable)
+    extension FirebaseAI.GeneratedContent: FoundationModels.InstructionsRepresentable {
+      public var instructionsRepresentation: Instructions {
+        return Instructions(generatedContent)
       }
     }
 

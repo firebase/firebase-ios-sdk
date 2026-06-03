@@ -18,7 +18,7 @@
   #endif // canImport(FoundationModels)
 
   extension FirebaseAI {
-    protocol ConvertibleToGeneratedContent {
+    protocol ConvertibleToGeneratedContent: FirebaseAI.InstructionsRepresentable {
       var firebaseGeneratedContent: FirebaseAI.GeneratedContent { get }
     }
   }
