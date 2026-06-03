@@ -679,8 +679,6 @@ jobs:
       - sanitizers-mac
       - sanitizers-ubuntu
       - pod_lib_lint
-      - xcodetest_prod
-      - xcodetest_nightly
     steps:
       - name: Check test matrix
         if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
