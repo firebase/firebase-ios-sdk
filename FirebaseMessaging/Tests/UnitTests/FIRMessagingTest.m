@@ -320,6 +320,7 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
   OCMStub([mockOptions GCMSenderID]).andReturn(@"123456789123");
   OCMStub([mockOptions projectID]).andReturn(@"test-project-id");
   OCMStub([mockOptions APIKey]).andReturn(@"test-api-key");
+  OCMStub([mockOptions bundleID]).andReturn(@"com.google.FirebaseMessagingTest");
   OCMStub([(FIRApp *)self.mockFirebaseApp options]).andReturn(mockOptions);
 
   [self.messaging.tokenManager setValue:@"123456789123" forKey:@"fcmSenderID"];
@@ -389,6 +390,7 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
   OCMStub([mockOptions GCMSenderID]).andReturn(@"123456789123");
   OCMStub([mockOptions projectID]).andReturn(@"test-project-id");
   OCMStub([mockOptions APIKey]).andReturn(@"test-api-key");
+  OCMStub([mockOptions bundleID]).andReturn(@"com.google.FirebaseMessagingTest");
   OCMStub([(FIRApp *)self.mockFirebaseApp options]).andReturn(mockOptions);
 
   [self
@@ -439,6 +441,7 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
   OCMStub([mockOptions GCMSenderID]).andReturn(@"123456789123");
   OCMStub([mockOptions projectID]).andReturn(@"test-project-id");
   OCMStub([mockOptions APIKey]).andReturn(@"test-api-key");
+  OCMStub([mockOptions bundleID]).andReturn(@"com.google.FirebaseMessagingTest");
   OCMStub([mockOptions googleAppID]).andReturn(@"test-app-id");
   OCMStub([(FIRApp *)self.mockFirebaseApp options]).andReturn(mockOptions);
 

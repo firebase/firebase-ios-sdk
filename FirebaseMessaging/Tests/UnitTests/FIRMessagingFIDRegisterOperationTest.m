@@ -56,6 +56,7 @@
   OCMStub([(FIRApp *)self.mockFirebaseApp options]).andReturn(self.mockOptions);
   OCMStub([self.mockOptions projectID]).andReturn(@"test-project-id");
   OCMStub([self.mockOptions APIKey]).andReturn(@"test-api-key");
+  OCMStub([self.mockOptions bundleID]).andReturn(@"com.google.FirebaseMessagingTest");
 }
 
 - (void)tearDown {
