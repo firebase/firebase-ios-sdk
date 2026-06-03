@@ -1,4 +1,4 @@
-# Unreleased
+# 12.14.0
 - [fixed] Fixed a race condition crash in `FPRConfigurations` by making
   `remoteConfigFlags` atomic and explicitly nullable. (#16144)
 - [added] Added an `Info.plist` array key
