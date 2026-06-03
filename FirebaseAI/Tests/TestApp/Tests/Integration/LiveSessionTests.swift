@@ -445,6 +445,46 @@ struct LiveSessionTests {
     #expect(modelResponse == "yes")
   }
 
+  @Test(arguments: arguments)
+  func realtime_speechConfig(_ config: InstanceConfig, modelName: String) async throws {
+    let model = FirebaseAI.componentInstance(config).liveModel(
+      modelName: modelName,
+      generationConfig: LiveGenerationConfig(
+        responseModalities: [.audio],
+        speech: SpeechConfig(voiceName: "Charon", languageCode: "en-US")
+      )
+    )
+    let session = try await model.connect()
+    await session.close()
+  }
+
+  @Test(arguments: arguments)
+  func realtime_speechConfig_multiSpeaker(_ config: InstanceConfig,
+                                          modelName: String) async throws {
+    let model = FirebaseAI.componentInstance(config).liveModel(
+      modelName: modelName,
+      generationConfig: LiveGenerationConfig(
+        responseModalities: [.audio],
+        speech: SpeechConfig(
+          multiSpeakerConfig: MultiSpeakerVoiceConfig(
+            speakerVoiceConfigs: [
+              SpeakerVoiceConfig(
+                speaker: "speaker1",
+                voiceName: "Charon"
+              ),
+              SpeakerVoiceConfig(
+                speaker: "speaker2",
+                voiceName: "Aoede"
+              ),
+            ]
+          )
+        )
+      )
+    )
+    let session = try await model.connect()
+    await session.close()
+  }
+
   private func getLastName(args: JSONObject) -> String? {
     guard case let .string(firstName) = args["firstName"] else {
       Issue.record("Missing 'firstName' argument: \(String(describing: args))")

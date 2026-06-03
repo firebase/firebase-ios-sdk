@@ -14,13 +14,35 @@
 
 import Foundation
 
-/// The configuration for the multi-speaker setup.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public struct MultiSpeakerVoiceConfig: Encodable, Sendable {
-  /// All the enabled speaker voices.
-  public let speakerVoiceConfigs: [SpeakerVoiceConfig]
+/// Configuration for a multi-speaker audio generation setup.
+///
+/// Enables the model to generate audio containing multiple distinct speakers, alternating voices
+/// dynamically based on speaker labels in the prompt.
+///
+/// > Note: Multi-speaker configurations are not supported by the Live API (e.g.,
+/// > `LiveGenerationConfig`), and will be silently ignored by the backend.
+public struct MultiSpeakerVoiceConfig: Encodable, Sendable, Equatable {
+  let multiSpeakerVoiceConfig: BidiMultiSpeakerVoiceConfig
 
+  init(_ multiSpeakerVoiceConfig: BidiMultiSpeakerVoiceConfig) {
+    self.multiSpeakerVoiceConfig = multiSpeakerVoiceConfig
+  }
+
+  /// Creates a configuration for the multi-speaker setup.
+  ///
+  /// - Parameters:
+  ///   - speakerVoiceConfigs: A list of voice configurations for the participating speakers.
+  ///     Currently, the backend requires exactly **two** speaker voice configurations.
   public init(speakerVoiceConfigs: [SpeakerVoiceConfig]) {
-    self.speakerVoiceConfigs = speakerVoiceConfigs
+    self.init(
+      BidiMultiSpeakerVoiceConfig(
+        speakerVoiceConfigs: speakerVoiceConfigs.map(\.speakerVoiceConfig)
+      )
+    )
+  }
+
+  public func encode(to encoder: any Encoder) throws {
+    var container = encoder.singleValueContainer()
+    try container.encode(multiSpeakerVoiceConfig)
   }
 }

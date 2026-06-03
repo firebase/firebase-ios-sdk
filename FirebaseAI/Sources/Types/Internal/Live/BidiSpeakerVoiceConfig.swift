@@ -14,16 +14,12 @@
 
 import Foundation
 
-/// The configuration for the prebuilt speaker to use.
-///
-/// Not just a string on the parent proto, because there'll likely be a lot
-/// more options here.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public struct PrebuiltVoiceConfig: Encodable, Sendable {
-  /// The name of the preset voice to use.
-  public let voiceName: String
+struct BidiSpeakerVoiceConfig: Encodable, Sendable, Equatable {
+  let speaker: String
+  let voiceConfig: VoiceConfig
 
-  public init(voiceName: String) {
-    self.voiceName = voiceName
+  init(speaker: String, voiceName: String) {
+    self.speaker = speaker
+    voiceConfig = .prebuiltVoiceConfig(PrebuiltVoiceConfig(voiceName: voiceName))
   }
 }

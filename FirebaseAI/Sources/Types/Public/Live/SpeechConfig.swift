@@ -14,9 +14,12 @@
 
 import Foundation
 
-/// Configuration for controlling the voice of the model during conversation.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public struct SpeechConfig: Sendable, Encodable {
+/// Speech configuration class for controlling the model's speech and audio generation behaviors.
+///
+/// This allows you to configure the voice properties (single-speaker OR multi-speaker setup) and
+/// language preferences when requesting the model to generate spoken responses.
+@available(watchOS, unavailable)
+public struct SpeechConfig: Sendable, Equatable {
   let speechConfig: BidiSpeechConfig
 
   init(_ speechConfig: BidiSpeechConfig) {
@@ -30,7 +33,7 @@ public struct SpeechConfig: Sendable, Encodable {
   ///
   ///     To learn more about the available voices, see the docs on
   ///     [Voice options](https://ai.google.dev/gemini-api/docs/speech-generation#voices)\.
-  ///   - languageCode: ISO-639 language code to use when parsing text sent from the client, instead
+  ///   - languageCode: BCP-47 language code to use when parsing text sent from the client, instead
   ///     of audio. By default, the model will attempt to detect the input language automatically.
   ///
   ///     To learn which codes are supported, see the docs on
@@ -46,20 +49,19 @@ public struct SpeechConfig: Sendable, Encodable {
 
   /// Creates a new ``SpeechConfig`` value for a multi-speaker setup.
   ///
+  /// > Note: Multi-speaker configurations are not supported by the Live API (e.g.,
+  /// > `LiveGenerationConfig`), and will be silently ignored by the backend.
+  ///
   /// - Parameters:
-  ///   - multiSpeakerConfig: The configuration for the multi-speaker setup.
-  ///   - languageCode: ISO-639 language code to use when parsing text sent from the client.
+  ///   - multiSpeakerConfig: The configuration detailing multiple speakers and their
+  ///     corresponding voices.
+  ///   - languageCode: BCP-47 language code to use when parsing text sent from the client.
   public init(multiSpeakerConfig: MultiSpeakerVoiceConfig, languageCode: String? = nil) {
     self.init(
       BidiSpeechConfig(
-        multiSpeakerVoiceConfig: multiSpeakerConfig,
+        multiSpeakerConfig: multiSpeakerConfig.multiSpeakerVoiceConfig,
         languageCode: languageCode
       )
     )
-  }
-
-  public func encode(to encoder: any Encoder) throws {
-    var container = encoder.singleValueContainer()
-    try container.encode(speechConfig)
   }
 }

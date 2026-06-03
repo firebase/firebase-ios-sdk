@@ -294,11 +294,11 @@ final class GenerationConfigTests: XCTestCase {
       (SpeechConfig(multiSpeakerConfig: MultiSpeakerVoiceConfig(speakerVoiceConfigs: [
         SpeakerVoiceConfig(
           speaker: "Speaker1",
-          prebuiltVoiceConfig: PrebuiltVoiceConfig(voiceName: "Puck")
+          voiceName: "Puck"
         ),
         SpeakerVoiceConfig(
           speaker: "Speaker2",
-          prebuiltVoiceConfig: PrebuiltVoiceConfig(voiceName: "Charon")
+          voiceName: "Charon"
         ),
       ])), """
       "speechConfig" : {
@@ -336,7 +336,9 @@ final class GenerationConfigTests: XCTestCase {
       }
       """)
     }
-  // MARK: GenerationConfig Merging
+  }
+
+  // MARK: - GenerationConfig Merging
 
   func testMerge_bothNil() {
     let result = GenerationConfig.merge(nil, with: nil)
@@ -455,5 +457,27 @@ final class GenerationConfigTests: XCTestCase {
     XCTAssertEqual(schema.type, "STRING")
     XCTAssertEqual(schema.nullable, false)
     XCTAssertNil(result.responseJSONSchema)
+  }
+
+  func testMerge_speechConfig() throws {
+    let base = GenerationConfig(speechConfig: SpeechConfig(voiceName: "Kore"))
+    let overrides = GenerationConfig(speechConfig: SpeechConfig(
+      voiceName: "Puck",
+      languageCode: "en-US"
+    ))
+
+    let result = try XCTUnwrap(GenerationConfig.merge(base, with: overrides))
+    XCTAssertEqual(
+      result.speechConfig,
+      SpeechConfig(voiceName: "Puck", languageCode: "en-US").speechConfig
+    )
+  }
+
+  func testMerge_speechConfig_fallbackToBase() throws {
+    let base = GenerationConfig(speechConfig: SpeechConfig(voiceName: "Kore"))
+    let overrides = GenerationConfig(temperature: 0.5)
+
+    let result = try XCTUnwrap(GenerationConfig.merge(base, with: overrides))
+    XCTAssertEqual(result.speechConfig, SpeechConfig(voiceName: "Kore").speechConfig)
   }
 }

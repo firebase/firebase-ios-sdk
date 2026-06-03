@@ -15,26 +15,31 @@
 import Foundation
 
 /// Speech generation config.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-struct BidiSpeechConfig: Encodable, Sendable {
+struct BidiSpeechConfig: Encodable, Sendable, Equatable {
   /// The configuration for the speaker to use.
   let voiceConfig: VoiceConfig?
 
   /// The configuration for the multi-speaker setup.
-  let multiSpeakerVoiceConfig: MultiSpeakerVoiceConfig?
+  let multiSpeakerConfig: BidiMultiSpeakerVoiceConfig?
 
-  /// Language code (ISO 639. e.g. en-US) for the speech synthesization.
+  /// Language code (BCP-47. e.g. en-US) for the speech synthesization.
   let languageCode: String?
 
   init(voiceConfig: VoiceConfig, languageCode: String?) {
     self.voiceConfig = voiceConfig
-    multiSpeakerVoiceConfig = nil
+    multiSpeakerConfig = nil
     self.languageCode = languageCode
   }
 
-  init(multiSpeakerVoiceConfig: MultiSpeakerVoiceConfig, languageCode: String?) {
+  init(multiSpeakerConfig: BidiMultiSpeakerVoiceConfig, languageCode: String?) {
     voiceConfig = nil
-    self.multiSpeakerVoiceConfig = multiSpeakerVoiceConfig
+    self.multiSpeakerConfig = multiSpeakerConfig
     self.languageCode = languageCode
+  }
+
+  enum CodingKeys: String, CodingKey {
+    case voiceConfig
+    case multiSpeakerConfig = "multiSpeakerVoiceConfig"
+    case languageCode
   }
 }

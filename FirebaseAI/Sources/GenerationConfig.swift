@@ -62,7 +62,7 @@ public struct GenerationConfig: Sendable, Equatable {
   var imageConfig: ImageConfig?
 
   /// Configuration for controlling the voice of the model during conversation.
-  public let speechConfig: SpeechConfig?
+  var speechConfig: BidiSpeechConfig?
 
   /// Creates a new `GenerationConfig` value.
   ///
@@ -175,7 +175,8 @@ public struct GenerationConfig: Sendable, Equatable {
               presencePenalty: Float? = nil, frequencyPenalty: Float? = nil,
               stopSequences: [String]? = nil, responseMIMEType: String? = nil,
               responseSchema: Schema? = nil, responseModalities: [ResponseModality]? = nil,
-              thinkingConfig: ThinkingConfig? = nil, imageConfig: ImageConfig? = nil) {
+              thinkingConfig: ThinkingConfig? = nil, imageConfig: ImageConfig? = nil,
+              speechConfig: SpeechConfig? = nil) {
     // Explicit init because otherwise if we re-arrange the above variables it changes the API
     // surface.
     self.temperature = temperature
@@ -191,15 +192,15 @@ public struct GenerationConfig: Sendable, Equatable {
     responseJSONSchema = nil
     self.responseModalities = responseModalities
     self.thinkingConfig = thinkingConfig
-    self.speechConfig = speechConfig
     self.imageConfig = imageConfig
+    self.speechConfig = speechConfig?.speechConfig
   }
 
   init(temperature: Float? = nil, topP: Float? = nil, topK: Int? = nil, candidateCount: Int? = nil,
        maxOutputTokens: Int? = nil, presencePenalty: Float? = nil, frequencyPenalty: Float? = nil,
        stopSequences: [String]? = nil, responseMIMEType: String, responseJSONSchema: JSONObject,
        responseModalities: [ResponseModality]? = nil, thinkingConfig: ThinkingConfig? = nil,
-       speechConfig: SpeechConfig? = nil, imageConfig: ImageConfig? = nil) {
+       imageConfig: ImageConfig? = nil, speechConfig: SpeechConfig? = nil) {
     self.temperature = temperature
     self.topP = topP
     self.topK = topK
@@ -213,7 +214,7 @@ public struct GenerationConfig: Sendable, Equatable {
     self.responseJSONSchema = responseJSONSchema
     self.responseModalities = responseModalities
     self.thinkingConfig = thinkingConfig
-    self.speechConfig = speechConfig
+    self.speechConfig = speechConfig?.speechConfig
     self.imageConfig = imageConfig
   }
 
@@ -253,6 +254,7 @@ public struct GenerationConfig: Sendable, Equatable {
     config.responseModalities = overrideConfig.responseModalities ?? config.responseModalities
     config.thinkingConfig = overrideConfig.thinkingConfig ?? config.thinkingConfig
     config.imageConfig = overrideConfig.imageConfig ?? config.imageConfig
+    config.speechConfig = overrideConfig.speechConfig ?? config.speechConfig
 
     // 5. Handle Schema mutual exclusivity with precedence for `responseJSONSchema`.
     if let responseJSONSchema = overrideConfig.responseJSONSchema {
@@ -284,7 +286,7 @@ extension GenerationConfig: Encodable {
     case responseJSONSchema = "responseJsonSchema"
     case responseModalities
     case thinkingConfig
-    case speechConfig
     case imageConfig
+    case speechConfig
   }
 }

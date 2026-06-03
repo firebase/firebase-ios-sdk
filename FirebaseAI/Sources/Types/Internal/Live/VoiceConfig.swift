@@ -15,8 +15,7 @@
 import Foundation
 
 /// Configuration for the speaker to use.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-enum VoiceConfig {
+enum VoiceConfig: Equatable {
   /// Configuration for the prebuilt voice to use.
   case prebuiltVoiceConfig(PrebuiltVoiceConfig)
 
@@ -25,24 +24,8 @@ enum VoiceConfig {
 }
 
 /// The configuration for the custom voice to use.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-/// The configuration for the prebuilt speaker to use.
-///
-/// Not just a string on the parent proto, because there'll likely be a lot
-/// more options here.
 @available(watchOS, unavailable)
-struct PrebuiltVoiceConfig: Encodable, Sendable {
-  /// The name of the preset voice to use.
-  let voiceName: String
-
-  init(voiceName: String) {
-    self.voiceName = voiceName
-  }
-}
-
-/// The configuration for the custom voice to use.
-@available(watchOS, unavailable)
-struct CustomVoiceConfig: Encodable, Sendable {
+struct CustomVoiceConfig: Encodable, Sendable, Equatable {
   /// The sample of the custom voice, in pcm16 s16e format.
   let customVoiceSample: Data
 
@@ -52,7 +35,7 @@ struct CustomVoiceConfig: Encodable, Sendable {
 }
 
 // MARK: - Encodable conformance
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+
 extension VoiceConfig: Encodable {
   enum CodingKeys: CodingKey {
     case prebuiltVoiceConfig
@@ -67,5 +50,15 @@ extension VoiceConfig: Encodable {
     case let .customVoiceConfig(clientContent):
       try container.encode(clientContent, forKey: .customVoiceConfig)
     }
+  }
+}
+
+/// The configuration for the prebuilt speaker to use.
+struct PrebuiltVoiceConfig: Encodable, Sendable, Equatable {
+  /// The name of the preset voice to use.
+  let voiceName: String
+
+  init(voiceName: String) {
+    self.voiceName = voiceName
   }
 }

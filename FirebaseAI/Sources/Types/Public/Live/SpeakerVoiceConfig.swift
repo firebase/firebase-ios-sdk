@@ -14,18 +14,32 @@
 
 import Foundation
 
-/// The configuration for a single speaker in a multi speaker setup.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public struct SpeakerVoiceConfig: Encodable, Sendable {
-  /// The name of the speaker to use. Should be the same as in the prompt.
-  public let speaker: String
+/// Configures a participating speaker within a multi-speaker setup.
+///
+/// When generating multi-speaker conversational audio, each speaker must be configured with a
+/// unique
+/// name and a specific voice. Find the list of
+/// [supported voices](https://cloud.google.com/text-to-speech/docs/chirp3-hd).
+public struct SpeakerVoiceConfig: Encodable, Sendable, Equatable {
+  let speakerVoiceConfig: BidiSpeakerVoiceConfig
 
-  /// The configuration for the voice to use.
-  let voiceConfig: VoiceConfig
+  init(_ speakerVoiceConfig: BidiSpeakerVoiceConfig) {
+    self.speakerVoiceConfig = speakerVoiceConfig
+  }
 
-  /// Creates a configuration using a prebuilt voice.
-  public init(speaker: String, prebuiltVoiceConfig: PrebuiltVoiceConfig) {
-    self.speaker = speaker
-    voiceConfig = .prebuiltVoiceConfig(prebuiltVoiceConfig)
+  /// Creates a configuration for a speaker using a voice name.
+  ///
+  /// - Parameters:
+  ///   - speaker: The unique name/identifier of the speaker (e.g., `"Alice"`).
+  ///   - voiceName: The name of the preset voice to assign to this speaker.
+  public init(speaker: String, voiceName: String) {
+    self.init(
+      BidiSpeakerVoiceConfig(speaker: speaker, voiceName: voiceName)
+    )
+  }
+
+  public func encode(to encoder: any Encoder) throws {
+    var container = encoder.singleValueContainer()
+    try container.encode(speakerVoiceConfig)
   }
 }
