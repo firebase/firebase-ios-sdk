@@ -88,7 +88,7 @@ NS_ASSUME_NONNULL_BEGIN
     FIRLogWarning(kFIRLoggerAppCheck, kFIRLoggerAppCheckMessageCodeDebugTokenExchangeFailed,
                   @"Failed to exchange debug token. If you haven't registered it, "
                    "you can do so in the Firebase Console: "
-                   "https://firebase.google.com/project/%@/appcheck/apps?selectedAppId=%@",
+                   "https://console.firebase.google.com/project/%@/appcheck/apps?selectedAppId=%@",
                   self.projectID, self.googleAppID);
   }
 }
