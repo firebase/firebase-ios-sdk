@@ -1,5 +1,6 @@
 # Unreleased
-- [feature] Added support for `SpeechConfig` in `GenerationConfig`. Added `MultiSpeakerVoiceConfig` and `languageCode` in `SpeechConfig`. (#16226)
+- [feature] Added support for `SpeechConfig` in `GenerationConfig`, and `MultiSpeakerVoiceConfig`
+  in `SpeechConfig`. (#16226)
 - [changed] **Breaking Change**: Renamed `GeminiModel` to `GeminiLanguageModel`,
   and renamed the corresponding `geminiModel(...)` factory method to
   `geminiLanguageModel(...)`. (#16227)
