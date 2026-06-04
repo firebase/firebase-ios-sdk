@@ -63,7 +63,7 @@ if(CXX_CLANG OR CXX_GNU)
     list(
       APPEND common_flags
      -Wconditional-uninitialized -Werror=return-type -Winfinite-recursion -Wmove
-     -Wrange-loop-analysis -Wunreachable-code
+     -Wrange-loop-analysis -Wunreachable-code -Werror=c++20-extensions
 
      # Options added to match apple recommended project settings
      # TODO(wilhuff): re-enable -Wcomma once Abseil fixes the definition of
