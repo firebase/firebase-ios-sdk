@@ -15,7 +15,6 @@
 @testable import FirebaseAILogic
 import XCTest
 
-@available(watchOS, unavailable)
 final class SpeechConfigTests: XCTestCase {
   func testSingleSpeakerConstructor_setsVoiceAndLanguageCode() {
     let config = SpeechConfig(voiceName: "Charon", languageCode: "en-US")
