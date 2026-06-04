@@ -474,7 +474,8 @@ struct LiveSessionTests {
 
   /// Note: Multi-speaker configurations are not supported by the Live API, and will
   /// be silently ignored by the backend (falling back to a single speaker).
-  /// TODO: note that this is not actually true. I'm commenting out this test until we land on a resolution.
+  /// TODO: note that this is not actually true. I'm commenting out this test until we land on a
+  /// resolution.
 //  @Test(arguments: arguments)
 //  func realtime_speechConfig_multiSpeaker(_ config: InstanceConfig,
 //                                          modelName: String) async throws {

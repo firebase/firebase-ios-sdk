@@ -64,4 +64,3 @@ extension ProtoVoiceConfig: Encodable {
     }
   }
 }
-
