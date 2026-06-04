@@ -19,9 +19,9 @@ import Foundation
   ///
   /// **Public Preview**: This API is a public preview and may be subject to change.
   ///
-  /// To create a ``GeminiModel`` instance, see
-  /// ``FirebaseAI/geminiModel(name:safetySettings:requestOptions:)``.
-  public struct GeminiModel {
+  /// To create a ``GeminiLanguageModel`` instance, see
+  /// ``FirebaseAI/geminiLanguageModel(name:safetySettings:requestOptions:)``.
+  public struct GeminiLanguageModel {
     let modelName: String
     let modelResourceName: String
     let firebaseInfo: FirebaseInfo
@@ -50,7 +50,7 @@ import Foundation
     }
   }
 
-  extension GeminiModel: LanguageModel {
+  extension GeminiLanguageModel: FirebaseAI.LanguageModel {
     /// Returns the name of the model.
     ///
     /// > Important: This property is for **internal use only** and may change at any time.

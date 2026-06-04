@@ -1,6 +1,7 @@
 # Unreleased
 - [changed] The default App Check provider when running on a simulator is now
-  the debug provider; physical devices continue to default to DeviceCheck.
+  the debug provider; physical devices continue to default to DeviceCheck. (#16190)
+- [changed] Removed redundant debug token warning log. (#16197)
 
 # 12.14.0
 - [added] Added `AppAttestProviderFactory` to simplify App Check setup when
