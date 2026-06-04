@@ -19,8 +19,8 @@ import Foundation
 /// Enables the model to generate audio containing multiple distinct speakers, alternating voices
 /// dynamically based on speaker labels in the prompt.
 ///
-/// > Note: Multi-speaker configurations are not supported by the Live API (e.g.,
-/// > `LiveGenerationConfig`), and will be silently ignored by the backend.
+/// > Note: Multi-speaker configurations are not currently supported by the Live API (e.g.,
+/// > `LiveGenerationConfig`).
 public struct MultiSpeakerVoiceConfig: Sendable {
   let multiSpeakerVoiceConfig: ProtoMultiSpeakerVoiceConfig
 
