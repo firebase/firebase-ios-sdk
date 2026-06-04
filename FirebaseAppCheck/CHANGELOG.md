@@ -1,4 +1,9 @@
 # Unreleased
+- [changed] Updated `AppCheckDebugProvider` documentation to recommend the
+  generic `AppCheckDebugToken` environment variable instead of the legacy
+  `FIRAAppCheckDebugToken`. Note that `FIRAAppCheckDebugToken` remains
+  supported for backwards compatibility, with `AppCheckDebugToken` taking
+  priority if both are set. (#16230)
 - [changed] The default App Check provider when running on a simulator is now
   the debug provider; physical devices continue to default to DeviceCheck. (#16190)
 - [changed] Removed redundant debug token warning log. (#16197)
