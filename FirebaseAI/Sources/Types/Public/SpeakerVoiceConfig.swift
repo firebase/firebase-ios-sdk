@@ -17,9 +17,8 @@ import Foundation
 /// Configures a participating speaker within a multi-speaker setup.
 ///
 /// When generating multi-speaker conversational audio, each speaker must be configured with a
-/// unique
-/// name and a specific voice. Find the list of
-/// [supported voices](https://cloud.google.com/text-to-speech/docs/chirp3-hd).
+/// unique name and a specific voice. To learn more about the available voices, see the docs on
+/// [supported voices](https://cloud.google.com/text-to-speech/docs/chirp3-hd)\.
 public struct SpeakerVoiceConfig: Sendable {
   let speakerVoiceConfig: ProtoSpeakerVoiceConfig
 

@@ -48,7 +48,7 @@ public struct SpeechConfig: Sendable {
 
   /// Creates a new ``SpeechConfig`` value for a multi-speaker setup.
   ///
-  /// > Note: Multi-speaker configurations are not currently supported by the Live API (e.g.,
+  /// > Warning: Multi-speaker configurations are not currently supported by the Live API (e.g.,
   /// > `LiveGenerationConfig`).
   ///
   /// - Parameters:
