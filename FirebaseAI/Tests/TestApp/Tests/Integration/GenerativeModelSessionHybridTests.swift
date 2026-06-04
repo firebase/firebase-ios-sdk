@@ -27,9 +27,9 @@
     @Test(arguments: [InstanceConfig.vertexAI_v1beta_global])
     func respondText_fallbackOnGeminiModelError(_ config: InstanceConfig) async throws {
       let firebaseAI = FirebaseAI.componentInstance(config)
-      let invalidModel1 = firebaseAI.geminiModel(name: "invalid-model-name-1")
-      let invalidModel2 = firebaseAI.geminiModel(name: "invalid-model-name-2")
-      let validModel = firebaseAI.geminiModel(name: ModelNames.gemini2_5_FlashLite)
+      let invalidModel1 = firebaseAI.geminiLanguageModel(name: "invalid-model-name-1")
+      let invalidModel2 = firebaseAI.geminiLanguageModel(name: "invalid-model-name-2")
+      let validModel = firebaseAI.geminiLanguageModel(name: ModelNames.gemini2_5_FlashLite)
       let session = firebaseAI.generativeModelSession(
         model: .hybridModel(
           primary: invalidModel1,
@@ -63,9 +63,9 @@
     func respondText_fallbackOnFoundationModelsError(_ config: InstanceConfig) async throws {
       let firebaseAI = FirebaseAI.componentInstance(config)
       let systemModel = FirebaseAI.SystemLanguageModel.default
-      let geminiModel = firebaseAI.geminiModel(name: ModelNames.gemini2_5_FlashLite)
+      let geminiLanguageModel = firebaseAI.geminiLanguageModel(name: ModelNames.gemini2_5_FlashLite)
       let session = firebaseAI.generativeModelSession(
-        model: HybridModel(primary: systemModel, secondary: geminiModel)
+        model: HybridModel(primary: systemModel, secondary: geminiLanguageModel)
       )
       let prompt = "In one sentence, why is the sky blue?"
 
@@ -83,7 +83,7 @@
       if await foundationModelsIsAvailable() {
         #expect(response.rawResponse.modelVersion == systemModel._modelName)
       } else {
-        #expect(response.rawResponse.modelVersion == geminiModel._modelName)
+        #expect(response.rawResponse.modelVersion == geminiLanguageModel._modelName)
       }
     }
 
@@ -93,8 +93,8 @@
     @available(watchOS, unavailable)
     func respondGenerable_fallbackOnGeminiModelError(_ config: InstanceConfig) async throws {
       let firebaseAI = FirebaseAI.componentInstance(config)
-      let invalidModel = firebaseAI.geminiModel(name: "invalid-model-name-1")
-      let validModel = firebaseAI.geminiModel(name: ModelNames.gemini2_5_FlashLite)
+      let invalidModel = firebaseAI.geminiLanguageModel(name: "invalid-model-name-1")
+      let validModel = firebaseAI.geminiLanguageModel(name: ModelNames.gemini2_5_FlashLite)
       let session = firebaseAI.generativeModelSession(
         model: HybridModel(primary: invalidModel, secondary: validModel)
       )
@@ -118,8 +118,8 @@
     @Test(arguments: [InstanceConfig.vertexAI_v1beta_global])
     func streamResponseText_fallbackOnGeminiModelError(_ config: InstanceConfig) async throws {
       let firebaseAI = FirebaseAI.componentInstance(config)
-      let invalidModel = firebaseAI.geminiModel(name: "invalid-model-name")
-      let validModel = firebaseAI.geminiModel(name: ModelNames.gemini2_5_FlashLite)
+      let invalidModel = firebaseAI.geminiLanguageModel(name: "invalid-model-name")
+      let validModel = firebaseAI.geminiLanguageModel(name: ModelNames.gemini2_5_FlashLite)
       let session = firebaseAI.generativeModelSession(
         model: HybridModel(primary: invalidModel, secondary: validModel)
       )
@@ -168,8 +168,8 @@
     @available(watchOS, unavailable)
     func streamResponseGenerable_fallbackOnGeminiModelError(_ config: InstanceConfig) async throws {
       let firebaseAI = FirebaseAI.componentInstance(config)
-      let invalidModel = firebaseAI.geminiModel(name: "invalid-model-name")
-      let validModel = firebaseAI.geminiModel(name: ModelNames.gemini2_5_FlashLite)
+      let invalidModel = firebaseAI.geminiLanguageModel(name: "invalid-model-name")
+      let validModel = firebaseAI.geminiLanguageModel(name: ModelNames.gemini2_5_FlashLite)
       let session = firebaseAI.generativeModelSession(
         model: .hybridModel(primary: invalidModel, secondary: validModel)
       )
@@ -215,9 +215,9 @@
     func streamResponseText_fallbackOnFoundationModelsError(_ config: InstanceConfig) async throws {
       let firebaseAI = FirebaseAI.componentInstance(config)
       let systemModel = FirebaseAI.SystemLanguageModel.default
-      let geminiModel = firebaseAI.geminiModel(name: ModelNames.gemini2_5_FlashLite)
+      let geminiLanguageModel = firebaseAI.geminiLanguageModel(name: ModelNames.gemini2_5_FlashLite)
       let session = firebaseAI.generativeModelSession(
-        model: HybridModel(primary: systemModel, secondary: geminiModel)
+        model: HybridModel(primary: systemModel, secondary: geminiLanguageModel)
       )
       let prompt = "In one sentence, why is the sky blue?"
 
@@ -239,7 +239,7 @@
       if await foundationModelsIsAvailable() {
         #expect(response.rawResponse.modelVersion == systemModel._modelName)
       } else {
-        #expect(response.rawResponse.modelVersion == geminiModel._modelName)
+        #expect(response.rawResponse.modelVersion == geminiLanguageModel._modelName)
       }
     }
 
