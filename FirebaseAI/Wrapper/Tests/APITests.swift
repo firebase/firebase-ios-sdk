@@ -197,7 +197,7 @@ final class APITests: XCTestCase {
       voiceName: "Puck"
     )
     let multiSpeechConfig = SpeechConfig(
-      multiSpeakerConfig: MultiSpeakerVoiceConfig(
+      multiSpeakerVoiceConfig: MultiSpeakerVoiceConfig(
         speakerVoiceConfigs: [speaker1, speaker2]
       ),
       languageCode: "en-US"

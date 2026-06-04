@@ -53,9 +53,12 @@ final class LiveGenerationConfigTests: XCTestCase {
           }
         """
       ),
+      // Note: While multiSpeakerVoiceConfig is not supported by the Live API, we still
+      // test that the underlying model correctly encodes this configuration in case
+      // future support is added, or to verify encoding behavior.
       (
         LiveGenerationConfig(speech: SpeechConfig(
-          multiSpeakerConfig: MultiSpeakerVoiceConfig(speakerVoiceConfigs: [
+          multiSpeakerVoiceConfig: MultiSpeakerVoiceConfig(speakerVoiceConfigs: [
             SpeakerVoiceConfig(speaker: "Speaker1", voiceName: "Puck"),
             SpeakerVoiceConfig(speaker: "Speaker2", voiceName: "Charon"),
           ]),

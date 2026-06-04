@@ -784,7 +784,7 @@ struct GenerateContentIntegrationTests {
       generationConfig: GenerationConfig(
         responseModalities: [.audio],
         speechConfig: SpeechConfig(
-          multiSpeakerConfig: MultiSpeakerVoiceConfig(
+          multiSpeakerVoiceConfig: MultiSpeakerVoiceConfig(
             speakerVoiceConfigs: [
               SpeakerVoiceConfig(
                 speaker: "Speaker1",
@@ -813,7 +813,7 @@ struct GenerateContentIntegrationTests {
       generationConfig: GenerationConfig(
         responseModalities: [.audio],
         speechConfig: SpeechConfig(
-          multiSpeakerConfig: MultiSpeakerVoiceConfig(
+          multiSpeakerVoiceConfig: MultiSpeakerVoiceConfig(
             speakerVoiceConfigs: [
               SpeakerVoiceConfig(
                 speaker: "Speaker1",

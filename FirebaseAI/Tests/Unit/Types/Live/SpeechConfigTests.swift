@@ -24,7 +24,7 @@ final class SpeechConfigTests: XCTestCase {
       .prebuiltVoiceConfig(.init(voiceName: "Charon"))
     )
     XCTAssertEqual(config.speechConfig.languageCode, "en-US")
-    XCTAssertNil(config.speechConfig.multiSpeakerConfig)
+    XCTAssertNil(config.speechConfig.multiSpeakerVoiceConfig)
   }
 
   func testSingleSpeakerConstructor_defaultLanguageCode() {
@@ -34,7 +34,7 @@ final class SpeechConfigTests: XCTestCase {
       .prebuiltVoiceConfig(.init(voiceName: "Charon"))
     )
     XCTAssertNil(config.speechConfig.languageCode)
-    XCTAssertNil(config.speechConfig.multiSpeakerConfig)
+    XCTAssertNil(config.speechConfig.multiSpeakerVoiceConfig)
   }
 
   func testMultiSpeakerConstructor_setsConfigAndLanguageCode() {
@@ -43,8 +43,8 @@ final class SpeechConfigTests: XCTestCase {
       SpeakerVoiceConfig(speaker: "Jane", voiceName: "Charon"),
     ]
     let multiConfig = MultiSpeakerVoiceConfig(speakerVoiceConfigs: speakerConfigs)
-    let config = SpeechConfig(multiSpeakerConfig: multiConfig, languageCode: "en-US")
-    XCTAssertEqual(config.speechConfig.multiSpeakerConfig, multiConfig.multiSpeakerVoiceConfig)
+    let config = SpeechConfig(multiSpeakerVoiceConfig: multiConfig, languageCode: "en-US")
+    XCTAssertEqual(config.speechConfig.multiSpeakerVoiceConfig, multiConfig.multiSpeakerVoiceConfig)
     XCTAssertEqual(config.speechConfig.languageCode, "en-US")
     XCTAssertNil(config.speechConfig.voiceConfig)
   }
@@ -55,8 +55,8 @@ final class SpeechConfigTests: XCTestCase {
       SpeakerVoiceConfig(speaker: "Jane", voiceName: "Charon"),
     ]
     let multiConfig = MultiSpeakerVoiceConfig(speakerVoiceConfigs: speakerConfigs)
-    let config = SpeechConfig(multiSpeakerConfig: multiConfig)
-    XCTAssertEqual(config.speechConfig.multiSpeakerConfig, multiConfig.multiSpeakerVoiceConfig)
+    let config = SpeechConfig(multiSpeakerVoiceConfig: multiConfig)
+    XCTAssertEqual(config.speechConfig.multiSpeakerVoiceConfig, multiConfig.multiSpeakerVoiceConfig)
     XCTAssertNil(config.speechConfig.languageCode)
     XCTAssertNil(config.speechConfig.voiceConfig)
   }

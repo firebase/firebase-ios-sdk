@@ -53,13 +53,13 @@ public struct SpeechConfig: Sendable, Equatable {
   /// > `LiveGenerationConfig`), and will be silently ignored by the backend.
   ///
   /// - Parameters:
-  ///   - multiSpeakerConfig: The configuration detailing multiple speakers and their
+  ///   - multiSpeakerVoiceConfig: The configuration detailing multiple speakers and their
   ///     corresponding voices.
   ///   - languageCode: BCP-47 language code to use when parsing text sent from the client.
-  public init(multiSpeakerConfig: MultiSpeakerVoiceConfig, languageCode: String? = nil) {
+  public init(multiSpeakerVoiceConfig: MultiSpeakerVoiceConfig, languageCode: String? = nil) {
     self.init(
       BidiSpeechConfig(
-        multiSpeakerConfig: multiSpeakerConfig.multiSpeakerVoiceConfig,
+        multiSpeakerVoiceConfig: multiSpeakerVoiceConfig.multiSpeakerVoiceConfig,
         languageCode: languageCode
       )
     )

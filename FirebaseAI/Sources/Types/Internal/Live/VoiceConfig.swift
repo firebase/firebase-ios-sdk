@@ -15,7 +15,7 @@
 import Foundation
 
 /// Configuration for the speaker to use.
-enum VoiceConfig: Equatable {
+enum VoiceConfig: Sendable, Equatable {
   /// Configuration for the prebuilt voice to use.
   case prebuiltVoiceConfig(PrebuiltVoiceConfig)
 

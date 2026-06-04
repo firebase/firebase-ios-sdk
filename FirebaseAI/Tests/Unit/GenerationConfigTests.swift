@@ -291,7 +291,7 @@ final class GenerationConfigTests: XCTestCase {
           }
         }
       """),
-      (SpeechConfig(multiSpeakerConfig: MultiSpeakerVoiceConfig(speakerVoiceConfigs: [
+      (SpeechConfig(multiSpeakerVoiceConfig: MultiSpeakerVoiceConfig(speakerVoiceConfigs: [
         SpeakerVoiceConfig(
           speaker: "Speaker1",
           voiceName: "Puck"

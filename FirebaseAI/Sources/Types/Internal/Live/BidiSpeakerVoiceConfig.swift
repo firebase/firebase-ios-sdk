@@ -18,8 +18,8 @@ struct BidiSpeakerVoiceConfig: Encodable, Sendable, Equatable {
   let speaker: String
   let voiceConfig: VoiceConfig
 
-  init(speaker: String, voiceName: String) {
+  init(speaker: String, voiceConfig: VoiceConfig) {
     self.speaker = speaker
-    voiceConfig = .prebuiltVoiceConfig(PrebuiltVoiceConfig(voiceName: voiceName))
+    self.voiceConfig = voiceConfig
   }
 }

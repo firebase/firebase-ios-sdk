@@ -458,6 +458,10 @@ struct LiveSessionTests {
     await session.close()
   }
 
+  /// Note: Multi-speaker configurations are not supported by the Live API, and will
+  /// be silently ignored by the backend (falling back to a single speaker). This test
+  /// ensures that sending a multi-speaker configuration does not crash the connection
+  /// or cause build/runtime errors.
   @Test(arguments: arguments)
   func realtime_speechConfig_multiSpeaker(_ config: InstanceConfig,
                                           modelName: String) async throws {
@@ -466,7 +470,7 @@ struct LiveSessionTests {
       generationConfig: LiveGenerationConfig(
         responseModalities: [.audio],
         speech: SpeechConfig(
-          multiSpeakerConfig: MultiSpeakerVoiceConfig(
+          multiSpeakerVoiceConfig: MultiSpeakerVoiceConfig(
             speakerVoiceConfigs: [
               SpeakerVoiceConfig(
                 speaker: "speaker1",

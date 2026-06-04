@@ -1,3 +1,6 @@
+# Unreleased
+- [feature] Added support for `SpeechConfig` in `GenerationConfig`. Added `MultiSpeakerVoiceConfig` and `languageCode` in `SpeechConfig`. (#16226)
+
 # 12.14.0
 - [fixed] Fixed an issue in `GenerativeModelSession` where `String` generation
   used the wrong overload for `respond(to:)` and `streamResponse(to:)`,

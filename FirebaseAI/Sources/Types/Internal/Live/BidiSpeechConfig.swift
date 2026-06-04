@@ -20,26 +20,20 @@ struct BidiSpeechConfig: Encodable, Sendable, Equatable {
   let voiceConfig: VoiceConfig?
 
   /// The configuration for the multi-speaker setup.
-  let multiSpeakerConfig: BidiMultiSpeakerVoiceConfig?
+  let multiSpeakerVoiceConfig: BidiMultiSpeakerVoiceConfig?
 
   /// Language code (BCP-47. e.g. en-US) for the speech synthesization.
   let languageCode: String?
 
   init(voiceConfig: VoiceConfig, languageCode: String?) {
     self.voiceConfig = voiceConfig
-    multiSpeakerConfig = nil
+    multiSpeakerVoiceConfig = nil
     self.languageCode = languageCode
   }
 
-  init(multiSpeakerConfig: BidiMultiSpeakerVoiceConfig, languageCode: String?) {
+  init(multiSpeakerVoiceConfig: BidiMultiSpeakerVoiceConfig, languageCode: String?) {
     voiceConfig = nil
-    self.multiSpeakerConfig = multiSpeakerConfig
+    self.multiSpeakerVoiceConfig = multiSpeakerVoiceConfig
     self.languageCode = languageCode
-  }
-
-  enum CodingKeys: String, CodingKey {
-    case voiceConfig
-    case multiSpeakerConfig = "multiSpeakerVoiceConfig"
-    case languageCode
   }
 }

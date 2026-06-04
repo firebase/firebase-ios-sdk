@@ -34,7 +34,10 @@ public struct SpeakerVoiceConfig: Encodable, Sendable, Equatable {
   ///   - voiceName: The name of the preset voice to assign to this speaker.
   public init(speaker: String, voiceName: String) {
     self.init(
-      BidiSpeakerVoiceConfig(speaker: speaker, voiceName: voiceName)
+      BidiSpeakerVoiceConfig(
+        speaker: speaker,
+        voiceConfig: .prebuiltVoiceConfig(PrebuiltVoiceConfig(voiceName: voiceName))
+      )
     )
   }
 
