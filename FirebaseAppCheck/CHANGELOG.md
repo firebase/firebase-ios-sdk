@@ -1,5 +1,5 @@
 # Unreleased
-- [changed] Removed redundant debug token warning log.
+- [changed] Removed redundant debug token warning log. (#16197)
 
 # 12.14.0
 - [added] Added `AppAttestProviderFactory` to simplify App Check setup when
