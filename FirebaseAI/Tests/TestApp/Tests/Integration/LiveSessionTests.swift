@@ -474,46 +474,47 @@ struct LiveSessionTests {
 
   /// Note: Multi-speaker configurations are not supported by the Live API, and will
   /// be silently ignored by the backend (falling back to a single speaker).
-  @Test(arguments: arguments)
-  func realtime_speechConfig_multiSpeaker(_ config: InstanceConfig,
-                                          modelName: String) async throws {
-    let model = FirebaseAI.componentInstance(config).liveModel(
-      modelName: modelName,
-      generationConfig: LiveGenerationConfig(
-        responseModalities: [.audio],
-        speech: SpeechConfig(
-          multiSpeakerVoiceConfig: MultiSpeakerVoiceConfig(
-            speakerVoiceConfigs: [
-              SpeakerVoiceConfig(
-                speaker: "speaker1",
-                voiceName: "Charon"
-              ),
-              SpeakerVoiceConfig(
-                speaker: "speaker2",
-                voiceName: "Aoede"
-              ),
-            ]
-          )
-        ),
-        outputAudioTranscription: AudioTranscriptionConfig(),
-      ),
-      systemInstruction: SystemInstructions.yesOrNo
-    )
-
-    let session = try await model.connect()
-
-    await session.sendTextRealtime("does five plus five equal ten?")
-
-    let text = try await session.collectNextAudioOutputTranscript()
-
-    await session.close()
-    let modelResponse = text
-      .trimmingCharacters(in: .whitespacesAndNewlines)
-      .trimmingCharacters(in: .punctuationCharacters)
-      .lowercased()
-
-    #expect(modelResponse == "yes")
-  }
+  /// TODO: note that this is not actually true. I'm commenting out this test until we land on a resolution.
+//  @Test(arguments: arguments)
+//  func realtime_speechConfig_multiSpeaker(_ config: InstanceConfig,
+//                                          modelName: String) async throws {
+//    let model = FirebaseAI.componentInstance(config).liveModel(
+//      modelName: modelName,
+//      generationConfig: LiveGenerationConfig(
+//        responseModalities: [.audio],
+//        speech: SpeechConfig(
+//          multiSpeakerVoiceConfig: MultiSpeakerVoiceConfig(
+//            speakerVoiceConfigs: [
+//              SpeakerVoiceConfig(
+//                speaker: "speaker1",
+//                voiceName: "Charon"
+//              ),
+//              SpeakerVoiceConfig(
+//                speaker: "speaker2",
+//                voiceName: "Aoede"
+//              ),
+//            ]
+//          )
+//        ),
+//        outputAudioTranscription: AudioTranscriptionConfig(),
+//      ),
+//      systemInstruction: SystemInstructions.yesOrNo
+//    )
+//
+//    let session = try await model.connect()
+//
+//    await session.sendTextRealtime("does five plus five equal ten?")
+//
+//    let text = try await session.collectNextAudioOutputTranscript()
+//
+//    await session.close()
+//    let modelResponse = text
+//      .trimmingCharacters(in: .whitespacesAndNewlines)
+//      .trimmingCharacters(in: .punctuationCharacters)
+//      .lowercased()
+//
+//    #expect(modelResponse == "yes")
+//  }
 
   private func getLastName(args: JSONObject) -> String? {
     guard case let .string(firstName) = args["firstName"] else {
