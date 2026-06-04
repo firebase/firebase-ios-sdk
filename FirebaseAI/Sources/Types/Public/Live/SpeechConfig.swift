@@ -18,11 +18,10 @@ import Foundation
 ///
 /// This allows you to configure the voice properties (single-speaker OR multi-speaker setup) and
 /// language preferences when requesting the model to generate spoken responses.
-@available(watchOS, unavailable)
-public struct SpeechConfig: Sendable, Equatable {
-  let speechConfig: BidiSpeechConfig
+public struct SpeechConfig: Sendable {
+  let speechConfig: ProtoSpeechConfig
 
-  init(_ speechConfig: BidiSpeechConfig) {
+  init(_ speechConfig: ProtoSpeechConfig) {
     self.speechConfig = speechConfig
   }
 
@@ -40,7 +39,7 @@ public struct SpeechConfig: Sendable, Equatable {
   ///     [Supported languages](https://ai.google.dev/gemini-api/docs/speech-generation#languages)\.
   public init(voiceName: String, languageCode: String? = nil) {
     self.init(
-      BidiSpeechConfig(
+      ProtoSpeechConfig(
         voiceConfig: .prebuiltVoiceConfig(.init(voiceName: voiceName)),
         languageCode: languageCode
       )
@@ -58,7 +57,7 @@ public struct SpeechConfig: Sendable, Equatable {
   ///   - languageCode: BCP-47 language code to use when parsing text sent from the client.
   public init(multiSpeakerVoiceConfig: MultiSpeakerVoiceConfig, languageCode: String? = nil) {
     self.init(
-      BidiSpeechConfig(
+      ProtoSpeechConfig(
         multiSpeakerVoiceConfig: multiSpeakerVoiceConfig.multiSpeakerVoiceConfig,
         languageCode: languageCode
       )

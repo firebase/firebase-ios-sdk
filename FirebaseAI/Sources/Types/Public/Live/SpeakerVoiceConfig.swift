@@ -20,10 +20,10 @@ import Foundation
 /// unique
 /// name and a specific voice. Find the list of
 /// [supported voices](https://cloud.google.com/text-to-speech/docs/chirp3-hd).
-public struct SpeakerVoiceConfig: Encodable, Sendable, Equatable {
-  let speakerVoiceConfig: BidiSpeakerVoiceConfig
+public struct SpeakerVoiceConfig: Sendable {
+  let speakerVoiceConfig: ProtoSpeakerVoiceConfig
 
-  init(_ speakerVoiceConfig: BidiSpeakerVoiceConfig) {
+  init(_ speakerVoiceConfig: ProtoSpeakerVoiceConfig) {
     self.speakerVoiceConfig = speakerVoiceConfig
   }
 
@@ -34,15 +34,10 @@ public struct SpeakerVoiceConfig: Encodable, Sendable, Equatable {
   ///   - voiceName: The name of the preset voice to assign to this speaker.
   public init(speaker: String, voiceName: String) {
     self.init(
-      BidiSpeakerVoiceConfig(
+      ProtoSpeakerVoiceConfig(
         speaker: speaker,
-        voiceConfig: .prebuiltVoiceConfig(PrebuiltVoiceConfig(voiceName: voiceName))
+        voiceConfig: .prebuiltVoiceConfig(ProtoPrebuiltVoiceConfig(voiceName: voiceName))
       )
     )
-  }
-
-  public func encode(to encoder: any Encoder) throws {
-    var container = encoder.singleValueContainer()
-    try container.encode(speakerVoiceConfig)
   }
 }

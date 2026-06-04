@@ -21,10 +21,10 @@ import Foundation
 ///
 /// > Note: Multi-speaker configurations are not supported by the Live API (e.g.,
 /// > `LiveGenerationConfig`), and will be silently ignored by the backend.
-public struct MultiSpeakerVoiceConfig: Encodable, Sendable, Equatable {
-  let multiSpeakerVoiceConfig: BidiMultiSpeakerVoiceConfig
+public struct MultiSpeakerVoiceConfig: Sendable {
+  let multiSpeakerVoiceConfig: ProtoMultiSpeakerVoiceConfig
 
-  init(_ multiSpeakerVoiceConfig: BidiMultiSpeakerVoiceConfig) {
+  init(_ multiSpeakerVoiceConfig: ProtoMultiSpeakerVoiceConfig) {
     self.multiSpeakerVoiceConfig = multiSpeakerVoiceConfig
   }
 
@@ -35,14 +35,9 @@ public struct MultiSpeakerVoiceConfig: Encodable, Sendable, Equatable {
   ///     Currently, the backend requires exactly **two** speaker voice configurations.
   public init(speakerVoiceConfigs: [SpeakerVoiceConfig]) {
     self.init(
-      BidiMultiSpeakerVoiceConfig(
+      ProtoMultiSpeakerVoiceConfig(
         speakerVoiceConfigs: speakerVoiceConfigs.map(\.speakerVoiceConfig)
       )
     )
-  }
-
-  public func encode(to encoder: any Encoder) throws {
-    var container = encoder.singleValueContainer()
-    try container.encode(multiSpeakerVoiceConfig)
   }
 }

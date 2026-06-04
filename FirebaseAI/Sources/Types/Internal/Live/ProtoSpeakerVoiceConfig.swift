@@ -14,10 +14,12 @@
 
 import Foundation
 
-struct BidiMultiSpeakerVoiceConfig: Encodable, Sendable, Equatable {
-  let speakerVoiceConfigs: [BidiSpeakerVoiceConfig]
+struct ProtoSpeakerVoiceConfig: Encodable, Sendable, Equatable {
+  let speaker: String
+  let voiceConfig: ProtoVoiceConfig
 
-  init(speakerVoiceConfigs: [BidiSpeakerVoiceConfig]) {
-    self.speakerVoiceConfigs = speakerVoiceConfigs
+  init(speaker: String, voiceConfig: ProtoVoiceConfig) {
+    self.speaker = speaker
+    self.voiceConfig = voiceConfig
   }
 }

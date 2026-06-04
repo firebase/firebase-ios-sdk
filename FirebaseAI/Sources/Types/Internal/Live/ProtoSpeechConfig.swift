@@ -15,23 +15,23 @@
 import Foundation
 
 /// Speech generation config.
-struct BidiSpeechConfig: Encodable, Sendable, Equatable {
+struct ProtoSpeechConfig: Encodable, Sendable, Equatable {
   /// The configuration for the speaker to use.
-  let voiceConfig: VoiceConfig?
+  let voiceConfig: ProtoVoiceConfig?
 
   /// The configuration for the multi-speaker setup.
-  let multiSpeakerVoiceConfig: BidiMultiSpeakerVoiceConfig?
+  let multiSpeakerVoiceConfig: ProtoMultiSpeakerVoiceConfig?
 
   /// Language code (BCP-47. e.g. en-US) for the speech synthesization.
   let languageCode: String?
 
-  init(voiceConfig: VoiceConfig, languageCode: String?) {
+  init(voiceConfig: ProtoVoiceConfig, languageCode: String?) {
     self.voiceConfig = voiceConfig
     multiSpeakerVoiceConfig = nil
     self.languageCode = languageCode
   }
 
-  init(multiSpeakerVoiceConfig: BidiMultiSpeakerVoiceConfig, languageCode: String?) {
+  init(multiSpeakerVoiceConfig: ProtoMultiSpeakerVoiceConfig, languageCode: String?) {
     voiceConfig = nil
     self.multiSpeakerVoiceConfig = multiSpeakerVoiceConfig
     self.languageCode = languageCode
