@@ -451,17 +451,29 @@ struct LiveSessionTests {
       modelName: modelName,
       generationConfig: LiveGenerationConfig(
         responseModalities: [.audio],
-        speech: SpeechConfig(voiceName: "Charon", languageCode: "en-US")
-      )
+        speech: SpeechConfig(voiceName: "Charon", languageCode: "en-US"),
+        outputAudioTranscription: AudioTranscriptionConfig(),
+      ),
+      systemInstruction: SystemInstructions.yesOrNo
     )
+
     let session = try await model.connect()
+
+    await session.sendTextRealtime("does five plus five equal ten?")
+
+    let text = try await session.collectNextAudioOutputTranscript()
+
     await session.close()
+    let modelResponse = text
+      .trimmingCharacters(in: .whitespacesAndNewlines)
+      .trimmingCharacters(in: .punctuationCharacters)
+      .lowercased()
+
+    #expect(modelResponse == "yes")
   }
 
   /// Note: Multi-speaker configurations are not supported by the Live API, and will
-  /// be silently ignored by the backend (falling back to a single speaker). This test
-  /// ensures that sending a multi-speaker configuration does not crash the connection
-  /// or cause build/runtime errors.
+  /// be silently ignored by the backend (falling back to a single speaker).
   @Test(arguments: arguments)
   func realtime_speechConfig_multiSpeaker(_ config: InstanceConfig,
                                           modelName: String) async throws {
@@ -482,11 +494,25 @@ struct LiveSessionTests {
               ),
             ]
           )
-        )
-      )
+        ),
+        outputAudioTranscription: AudioTranscriptionConfig(),
+      ),
+      systemInstruction: SystemInstructions.yesOrNo
     )
+
     let session = try await model.connect()
+
+    await session.sendTextRealtime("does five plus five equal ten?")
+
+    let text = try await session.collectNextAudioOutputTranscript()
+
     await session.close()
+    let modelResponse = text
+      .trimmingCharacters(in: .whitespacesAndNewlines)
+      .trimmingCharacters(in: .punctuationCharacters)
+      .lowercased()
+
+    #expect(modelResponse == "yes")
   }
 
   private func getLastName(args: JSONObject) -> String? {
