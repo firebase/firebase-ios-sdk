@@ -15,6 +15,7 @@
  */
 
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRRecaptchaProvider.h"
+#import "FirebaseAppCheck/Sources/RecaptchaProvider/FIRRecaptchaProvider+Internal.h"
 
 #import <AppCheckCore/AppCheckCore.h>
 
@@ -46,6 +47,16 @@
 
 @implementation FIRRecaptchaProvider
 
++ (BOOL)isSupported {
+  // TODO(ncooke3): This implementation should also take into account
+  // OS versions based on whether we decorate the APIs with OS constraints.
+#if TARGET_OS_IOS || TARGET_OS_VISION
+  return [GACRecaptchaProvider isRecaptchaEnterpriseSDKLinked];
+#else
+  return NO;
+#endif
+}
+
 - (nullable instancetype)initWithApp:(FIRApp *)app {
   // 1. Validate options and raise exceptions on invalid configuration
   NSString *siteKey = app.options.recaptchaSiteKey;
@@ -76,8 +87,8 @@
   }
 
   // 2. Validate SDK Linkage
-#if TARGET_OS_IOS
-  if (![GACRecaptchaProvider isRecaptchaEnterpriseSDKLinked]) {
+#if TARGET_OS_IOS || TARGET_OS_VISION
+  if (![FIRRecaptchaProvider isSupported]) {
     NSString *message = [NSString
         stringWithFormat:
             @"Cannot instantiate `RecaptchaProvider` for app: %@. The reCAPTCHA Enterprise SDK "

@@ -17,6 +17,8 @@
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheck.h"
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckDebugProviderFactory.h"
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRDeviceCheckProviderFactory.h"
+#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRRecaptchaProviderFactory.h"
+#import "FirebaseAppCheck/Sources/RecaptchaProvider/FIRRecaptchaProvider+Internal.h"
 
 @implementation FIRDefaultProviderFactory
 
@@ -27,10 +29,13 @@
 - (nullable id<FIRAppCheckProvider>)createProviderWithApp:(nonnull FIRApp *)app {
 #if TARGET_OS_SIMULATOR
   return [[[FIRAppCheckDebugProviderFactory alloc] init] createProviderWithApp:app];
-// TODO(ncooke3): Add elif case for future reCAPTCHA provider.
-#else
-  return [[[FIRDeviceCheckProviderFactory alloc] init] createProviderWithApp:app];
 #endif
+
+  if ([FIRRecaptchaProvider isSupported]) {
+    return [[[FIRRecaptchaProviderFactory alloc] init] createProviderWithApp:app];
+  }
+
+  return [[[FIRDeviceCheckProviderFactory alloc] init] createProviderWithApp:app];
 }
 
 @end
