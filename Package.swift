@@ -1684,14 +1684,15 @@ func isFoundationModelsSupportedPlatformSwiftSetting() -> SwiftSetting {
 
 func appCheckDependency() -> Package.Dependency {
   let appCheckURL = "https://github.com/google/app-check.git"
+  return .package(url: appCheckURL, branch: "nc/target-split")
 
-  if let localPath = Context.environment["FIREBASE_APP_CHECK_LOCAL_PATH"] {
-    return .package(path: localPath)
-  }
-
-  if let branch = Context.environment["FIREBASE_APP_CHECK_BRANCH"] {
-    return .package(url: appCheckURL, branch: branch)
-  }
-
-  return .package(url: appCheckURL, "11.3.0" ..< "12.0.0")
+//  if let localPath = Context.environment["FIREBASE_APP_CHECK_LOCAL_PATH"] {
+//    return .package(path: localPath)
+//  }
+//
+//  if let branch = Context.environment["FIREBASE_APP_CHECK_BRANCH"] {
+//    return .package(url: appCheckURL, branch: branch)
+//  }
+//
+//  return .package(url: appCheckURL, "11.3.0" ..< "12.0.0")
 }
