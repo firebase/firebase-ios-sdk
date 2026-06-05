@@ -195,7 +195,7 @@
       // Verify first request succeeds.
       let response1 = try await session.respond(to: testPrompt)
       XCTAssertEqual(response1.content, "Mountain View")
-      XCTAssertEqual(response1.rawResponse.modelVersion, model1.modelName)
+      XCTAssertEqual(response1.rawResponse.modelVersion, model1.modelConfig.modelName)
 
       // Verify no fallback to model2 after successful request.
       await XCTAssertThrowsError({
@@ -241,7 +241,7 @@
       let response1 = try await session.respond(to: testPrompt)
 
       XCTAssertEqual(response1.content, "Mountain View")
-      XCTAssertEqual(response1.rawResponse.modelVersion, model2.modelName)
+      XCTAssertEqual(response1.rawResponse.modelVersion, model2.modelConfig.modelName)
       XCTAssertTrue(MockURLProtocol.requestHandlersQueue.isEmpty, """
       Expected the queue to be empty after automatically falling back to model2.
       """)

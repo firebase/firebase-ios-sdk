@@ -27,8 +27,19 @@ import XCTest
       // Initialize a session with a `GeminiModelProvider`
       _ = ai.generativeModelSession(model: .geminiLanguageModel(name: "gemini-flash-latest"))
 
-      // Initialize a session with a `GeminiLanguageModel`
+      // Initialize a `GeminiLanguageModel`
       let geminiLanguageModel = ai.geminiLanguageModel(name: "gemini-flash-latest")
+      _ = GeminiLanguageModel(name: "gemini-flash-latest")
+      _ = GeminiLanguageModel(name: "gemini-flash-latest", firebaseAI: ai)
+      _ = GeminiLanguageModel(
+        name: "gemini-flash-latest",
+        firebaseAI: .firebaseAI(backend: .vertexAI(location: "global")),
+        safetySettings: [
+          SafetySetting(harmCategory: .dangerousContent, threshold: .blockLowAndAbove),
+        ]
+      )
+
+      // Initialize a session with a `GeminiLanguageModel`
       _ = ai.generativeModelSession(model: geminiLanguageModel)
 
       // Initialize a session with a `SystemLanguageModel` as a `FirebaseAI.LanguageModel`
@@ -51,6 +62,12 @@ import XCTest
         model: .hybridModel(
           primary: .systemModel(),
           secondary: .geminiLanguageModel(name: "gemini-flash-lite-latest")
+        )
+      )
+      _ = ai.generativeModelSession(
+        model: .hybridModel(
+          primary: FirebaseAI.SystemLanguageModel(),
+          secondary: GeminiLanguageModel(name: "gemini-flash-lite-latest")
         )
       )
 
