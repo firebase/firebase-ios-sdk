@@ -1,4 +1,4 @@
-// swift-tools-version:6.0
+// swift-tools-version:6.1
 // The swift-tools-version declares the minimum version of Swift required to
 // build this package.
 
@@ -186,6 +186,11 @@ let package = Package(
     .target(
       name: "FirebaseAILogic",
       dependencies: [
+        // Direct dependency on AppCheck for automatic token acquisition and
+        // management.
+        "FirebaseAppCheck",
+        // Despite the direct dependency on App Check, the AI Logic SDK still
+        // uses AppCheck through the interop.
         "FirebaseAppCheckInterop",
         "FirebaseAuthInterop",
         "FirebaseCore",
