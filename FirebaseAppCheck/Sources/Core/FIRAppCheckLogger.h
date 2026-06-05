@@ -28,6 +28,7 @@ FOUNDATION_EXPORT NSString *const kFIRLoggerAppCheckMessageCodeProviderIsMissing
 
 // FIRAppCheckDebugProvider.m
 FOUNDATION_EXPORT NSString *const kFIRLoggerAppCheckMessageDebugProviderIncompleteFIROptions;
+FOUNDATION_EXPORT NSString *const kFIRLoggerAppCheckMessageCodeDebugTokenExchangeFailed;
 
 // FIRAppCheckDebugProviderFactory.m
 FOUNDATION_EXPORT NSString *const kFIRLoggerAppCheckMessageCodeDebugToken;
