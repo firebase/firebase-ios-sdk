@@ -104,7 +104,7 @@ static NSString *const kPendingSubscriptionsListKey =
                             options:(NSDictionary *)options
                        shouldDelete:(BOOL)shouldDelete
                             handler:(FIRMessagingTopicOperationCompletion)handler {
-  if ([_tokenManager hasValidCheckinInfo]) {
+  if ([FIRMessaging messaging].isInstallationIdEnabled || [_tokenManager hasValidCheckinInfo]) {
     FIRMessagingTopicAction action =
         shouldDelete ? FIRMessagingTopicActionUnsubscribe : FIRMessagingTopicActionSubscribe;
     FIRMessagingTopicOperation *operation = [[FIRMessagingTopicOperation alloc]
@@ -191,8 +191,7 @@ static NSString *const kPendingSubscriptionsListKey =
 }
 
 - (void)scheduleSync:(BOOL)immediately {
-  NSString *fcmToken = _tokenManager.defaultFCMToken;
-  if (fcmToken.length) {
+  if ([FIRMessaging messaging].isInstallationIdEnabled || _tokenManager.defaultFCMToken.length) {
     [self.pendingTopicUpdates resumeOperationsIfNeeded];
   }
 }
@@ -203,11 +202,14 @@ static NSString *const kPendingSubscriptionsListKey =
     requestedUpdateForTopic:(NSString *)topic
                      action:(FIRMessagingTopicAction)action
                  completion:(FIRMessagingTopicOperationCompletion)completion {
-  NSString *fcmToken = _tokenManager.defaultFCMToken;
+  NSString *token = nil;
+  if (![FIRMessaging messaging].isInstallationIdEnabled) {
+    token = _tokenManager.defaultFCMToken;
+  }
   if (action == FIRMessagingTopicActionSubscribe) {
-    [self subscribeWithToken:fcmToken topic:topic options:nil handler:completion];
+    [self subscribeWithToken:token topic:topic options:nil handler:completion];
   } else {
-    [self unsubscribeWithToken:fcmToken topic:topic options:nil handler:completion];
+    [self unsubscribeWithToken:token topic:topic options:nil handler:completion];
   }
 }
 
@@ -216,6 +218,9 @@ static NSString *const kPendingSubscriptionsListKey =
 }
 
 - (BOOL)pendingTopicsListCanRequestTopicUpdates:(FIRMessagingPendingTopicsList *)list {
+  if ([FIRMessaging messaging].isInstallationIdEnabled) {
+    return YES;
+  }
   NSString *fcmToken = _tokenManager.defaultFCMToken;
   return (fcmToken.length > 0);
 }

@@ -802,6 +802,21 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
                            @"subscribeToTopic.",
                            topic, [FIRMessagingPubSub removePrefixFromTopic:topic]);
   }
+  if (self.isInstallationIdEnabled) {
+    NSString *normalizeTopic = [[self class] normalizeTopic:topic];
+    if (normalizeTopic.length) {
+      [self.pubsub subscribeToTopic:normalizeTopic handler:completion];
+      return;
+    }
+    NSString *failureReason =
+        [NSString stringWithFormat:@"Cannot parse topic name: '%@'. Will not subscribe.", topic];
+    FIRMessagingLoggerError(kFIRMessagingMessageCodeMessaging009, @"%@", failureReason);
+    if (completion) {
+      completion([NSError messagingErrorWithCode:kFIRMessagingErrorCodeInvalidTopicName
+                                   failureReason:failureReason]);
+    }
+    return;
+  }
   FIRMessaging_WEAKIFY(self);
   [self
       retrieveFCMTokenForSenderID:self.tokenManager.fcmSenderID
@@ -846,6 +861,21 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
                            @"Format '%@' is deprecated. Only '%@' should be used in "
                            @"unsubscribeFromTopic.",
                            topic, [FIRMessagingPubSub removePrefixFromTopic:topic]);
+  }
+  if (self.isInstallationIdEnabled) {
+    NSString *normalizeTopic = [[self class] normalizeTopic:topic];
+    if (normalizeTopic.length) {
+      [self.pubsub unsubscribeFromTopic:normalizeTopic handler:completion];
+      return;
+    }
+    NSString *failureReason =
+        [NSString stringWithFormat:@"Cannot parse topic name: '%@'. Will not unsubscribe.", topic];
+    FIRMessagingLoggerError(kFIRMessagingMessageCodeMessaging011, @"%@", failureReason);
+    if (completion) {
+      completion([NSError messagingErrorWithCode:kFIRMessagingErrorCodeInvalidTopicName
+                                   failureReason:failureReason]);
+    }
+    return;
   }
   __weak FIRMessaging *weakSelf = self;
   [self retrieveFCMTokenForSenderID:self.tokenManager.fcmSenderID
