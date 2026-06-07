@@ -263,14 +263,6 @@ Database Emulator or against a production instance.
   your tests are running, but make sure to publish production-grade Security
   Rules before making your app public.
 
-### Firebase Dynamic Links
-
-Firebase Dynamic Links is **deprecated** and should not be used in new projects.
-The service will shut down on August 25, 2025.
-
-For more guidance, see our
-[Dynamic Links Deprecation FAQ documentation](https://firebase.google.com/support/dynamic-links-faq).
-
 ### Firebase Performance Monitoring
 
 See the [Performance README](FirebasePerformance/README.md) for instructions
