@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #if compiler(>=6.2.3)
-  /// Provides a ``GeminiLanguageModel`` for an instance of ``FirebaseAI``.
+  /// Provides a ``GeminiModel`` for an instance of ``FirebaseAI``.
   public struct GeminiModelProvider: LanguageModelProvider {
     let modelName: String
     let safetySettings: [SafetySetting]?
@@ -33,7 +33,7 @@
     /// - Parameter firebaseAI: A ``FirebaseAI`` instance that provides necessary context for
     ///   instantiating the model, such as the API configuration.
     public func _languageModel(firebaseAI: FirebaseAI) -> any FirebaseAI.LanguageModel {
-      return firebaseAI.geminiLanguageModel(
+      return firebaseAI.geminiModel(
         name: modelName,
         safetySettings: safetySettings,
         requestOptions: requestOptions
