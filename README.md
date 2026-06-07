@@ -161,7 +161,8 @@ plans and directions.
 
 ## Contributing
 
-For information on how to contribute, set up the development environment, build, or test the SDK, see the [Contributing Guide](CONTRIBUTING.md).
+For information on how to contribute, set up the development environment, build,
+or test the SDK, see the [Contributing Guide](CONTRIBUTING.md).
 
 
 ## License

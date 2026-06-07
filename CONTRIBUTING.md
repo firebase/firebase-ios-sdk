@@ -308,7 +308,7 @@ have installed the necessary code styling tools outlined in the
 #### Style compliance checking
 
 To ensure that the code is formatted consistently, run the script
-[./scripts/check.sh](https://github.com/firebase/firebase-ios-sdk/blob/main/scripts/check.sh)
+[./scripts/check.sh](scripts/check.sh)
 before creating a pull request (PR). GitHub Actions will verify that any code changes
 are done in a style-compliant way.
 
@@ -457,7 +457,7 @@ libraries.
 
 #### Firebase AI Logic
 
-See the [Firebase AI Logic README](FirebaseAI#development) for instructions
+See the [Firebase AI Logic README](FirebaseAI/README.md#development) for instructions
 about building and testing the SDK.
 
 #### Firebase Auth
