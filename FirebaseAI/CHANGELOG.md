@@ -1,8 +1,3 @@
-# Unreleased
-- [changed] **Breaking Change**: Renamed `GeminiModel` to `GeminiLanguageModel`,
-  and renamed the corresponding `geminiModel(...)` factory method to
-  `geminiLanguageModel(...)`. (#16227)
-
 # 12.14.0
 - [fixed] Fixed an issue in `GenerativeModelSession` where `String` generation
   used the wrong overload for `respond(to:)` and `streamResponse(to:)`,
