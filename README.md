@@ -16,7 +16,8 @@
   </a>
 </p>
 
-> [!WARNING] > **CocoaPods:** New versions of the Firebase Apple SDK will no longer be
+> [!WARNING]
+> **CocoaPods:** New versions of the Firebase Apple SDK will no longer be
 > published to CocoaPods after **October 2026**. Existing CocoaPods versions
 > will remain available and installations will remain functional. See the
 > [migration guide](https://firebase.google.com/docs/ios/cocoapods-deprecation)
@@ -256,7 +257,7 @@ Database Emulator or against a production instance.
   test.
 
 - To run against a production instance, provide a valid
-  `GoogleServices-Info.plist` and copy it to
+  `GoogleService-Info.plist` and copy it to
   `FirebaseDatabase/Tests/Resources/GoogleService-Info.plist`.\
   Your Firebase Security Rules must be set to
   [public](https://firebase.google.com/docs/database/security/quickstart) while
@@ -277,7 +278,7 @@ To run the Storage integration tests, follow the instructions in
 
 ## Building with Firebase on Apple platforms
 
-Firebase provides official beta support for macOS, Catalyst, and tvOS. visionOS,
+Firebase provides official beta support for macOS, Catalyst, and tvOS. visionOS
 and watchOS are community supported. Thanks to community contributions for many
 of the multi-platform PRs.
 
