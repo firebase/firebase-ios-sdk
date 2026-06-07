@@ -44,6 +44,7 @@ The following products are open-source and included in this repository:
 *   **Cloud Functions** (`FirebaseFunctions`)
 *   **Cloud Messaging** (`FirebaseMessaging`)
 *   **Crashlytics** (`FirebaseCrashlytics`)
+*   **In-App Messaging** (`FirebaseInAppMessaging`)
 *   **Performance Monitoring** (`FirebasePerformance`)
 *   **Realtime Database** (`FirebaseDatabase`)
 *   **Remote Config** (`FirebaseRemoteConfig`)
