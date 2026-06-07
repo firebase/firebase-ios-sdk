@@ -478,9 +478,9 @@ developer portal. Here's how to test receiving push notifications:
 3.  Make sure your iOS device is added to your Apple Developer portal as a test
     device.
 
-**Note:** The iOS simulator cannot register for remote notifications and will
-not receive push notifications. To receive push notifications, follow the steps
-above and run the app on a physical device.
+**Note:** Since iOS 16 and macOS 13, the iOS simulator supports remote push
+notifications. If you are using older versions, follow the steps above and run
+the app on a physical device.
 
 #### Firebase Database (Realtime Database)
 

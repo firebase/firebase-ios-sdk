@@ -32,6 +32,27 @@ Firebase is an app development platform with libraries, services, and tools to
 help you build, grow, and monetize your app. Learn more about Firebase at the
 [official Firebase website](https://firebase.google.com).
 
+### Supported Firebase Products
+
+The following products are open-source and included in this repository:
+
+*   **Firebase AI Logic** (`FirebaseAI`)
+*   **App Check** (`FirebaseAppCheck`)
+*   **App Distribution** (`FirebaseAppDistribution`)
+*   **Authentication** (`FirebaseAuth`)
+*   **Cloud Firestore** (`FirebaseFirestore`)
+*   **Cloud Functions** (`FirebaseFunctions`)
+*   **Cloud Messaging** (`FirebaseMessaging`)
+*   **Crashlytics** (`FirebaseCrashlytics`)
+*   **Performance Monitoring** (`FirebasePerformance`)
+*   **Realtime Database** (`FirebaseDatabase`)
+*   **Remote Config** (`FirebaseRemoteConfig`)
+*   **Storage** (`FirebaseStorage`)
+
+> [!NOTE]
+> **Firebase Analytics** is not open-source, but its pre-compiled binaries are
+included when installing Firebase via Swift Package Manager or CocoaPods.
+
 ## Installation
 
 See the subsections below for details about the different installation methods.
