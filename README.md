@@ -52,7 +52,7 @@ The following products are open-source and included in this repository:
 
 > [!NOTE]
 > **Firebase Analytics** is not open-source, but its pre-compiled binaries are
-included when installing Firebase via Swift Package Manager or CocoaPods.
+> included when installing Firebase via Swift Package Manager or CocoaPods.
 
 ## Installation
 
