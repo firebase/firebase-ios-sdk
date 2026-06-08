@@ -17,6 +17,7 @@
 #ifndef FIRESTORE_CORE_SRC_UTIL_JSON_READER_H_
 #define FIRESTORE_CORE_SRC_UTIL_JSON_READER_H_
 
+#include <limits>
 #include <string>
 #include <vector>
 
@@ -99,6 +100,28 @@ class JsonReader : public util::ReadContext {
   template <typename IntType>
   IntType ParseInt(const nlohmann::json& value, JsonReader& reader) {
     if (value.is_number_integer()) {
+      // nlohmann stores integers as int64_t or uint64_t, so `get<IntType>()`
+      // silently wraps a value that does not fit `IntType`. Reject it instead,
+      // matching the range checking the string branch below gets from
+      // `absl::SimpleAtoi`.
+      if (value.is_number_unsigned()) {
+        if (value.get<uint64_t>() >
+            static_cast<uint64_t>(std::numeric_limits<IntType>::max())) {
+          reader.Fail("Integer value out of range: " + value.dump());
+          return 0;
+        }
+      } else if (!std::numeric_limits<IntType>::is_signed) {
+        reader.Fail("Integer value out of range: " + value.dump());
+        return 0;
+      } else if (value.get<int64_t>() <
+                     static_cast<int64_t>(
+                         std::numeric_limits<IntType>::min()) ||
+                 value.get<int64_t>() >
+                     static_cast<int64_t>(
+                         std::numeric_limits<IntType>::max())) {
+        reader.Fail("Integer value out of range: " + value.dump());
+        return 0;
+      }
       return value.get<IntType>();
     }
 
