@@ -66,8 +66,8 @@
             @"Cannot instantiate `RecaptchaProvider` for app: %@. "
             @"`FirebaseOptions.recaptchaSiteKey` "
             @"is missing or empty. "
-            @"Please ensure you have added `RECAPTCHA_SITE_KEY` to your `GoogleService-Info.plist` "
-            @"or set `recaptchaSiteKey` on `FirebaseOptions` programmatically.",
+            @"Please ensure you have downloaded the latest `GoogleService-Info.plist` from the "
+            @"Firebase console or set `recaptchaSiteKey` on `FirebaseOptions` programmatically.",
             app.name];
     FIRLogError(kFIRLoggerAppCheck, kFIRLoggerAppCheckMessageRecaptchaProviderMissingSiteKey, @"%@",
                 message);
