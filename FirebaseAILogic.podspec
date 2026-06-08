@@ -51,6 +51,11 @@ Build AI-powered apps and features with the Gemini API using the Firebase AI Log
   s.ios.pod_target_xcconfig = swift_flags_xcconfig
   s.osx.pod_target_xcconfig = swift_flags_xcconfig
 
+  # Direct dependency on AppCheck for automatic token acquisition and
+  # management.
+  s.dependency 'FirebaseAppCheck', '~> 12.15.0'
+  # Despite the direct dependency on App Check, the AI Logic SDK still uses
+  # AppCheck through the interop.
   s.dependency 'FirebaseAppCheckInterop', '~> 12.15.0'
   s.dependency 'FirebaseAuthInterop', '~> 12.15.0'
   s.dependency 'FirebaseCore', '~> 12.15.0'
