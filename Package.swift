@@ -187,6 +187,11 @@ let package = Package(
     .target(
       name: "FirebaseAILogic",
       dependencies: [
+        // Direct dependency on AppCheck for automatic token acquisition and
+        // management.
+        "FirebaseAppCheck",
+        // Despite the direct dependency on App Check, the AI Logic SDK still
+        // uses AppCheck through the interop.
         "FirebaseAppCheckInterop",
         "FirebaseAuthInterop",
         "FirebaseCore",
