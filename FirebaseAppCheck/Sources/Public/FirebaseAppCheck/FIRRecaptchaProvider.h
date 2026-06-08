@@ -26,6 +26,8 @@ NS_ASSUME_NONNULL_BEGIN
 /// [reCAPTCHA Enterprise for iOS](https://cloud.google.com/recaptcha/docs/instrument-ios-apps)
 /// API.
 NS_SWIFT_NAME(RecaptchaProvider)
+API_AVAILABLE(ios(15.0), visionos(1.0))
+API_UNAVAILABLE(macos, tvos, watchos, macCatalyst)
 @interface FIRRecaptchaProvider : NSObject <FIRAppCheckProvider>
 
 - (instancetype)init NS_UNAVAILABLE;

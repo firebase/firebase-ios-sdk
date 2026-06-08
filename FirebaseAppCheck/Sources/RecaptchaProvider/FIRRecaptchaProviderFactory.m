@@ -21,7 +21,11 @@
 @implementation FIRRecaptchaProviderFactory
 
 - (nullable id<FIRAppCheckProvider>)createProviderWithApp:(nonnull FIRApp *)app {
+#if (TARGET_OS_IOS && !TARGET_OS_MACCATALYST) || TARGET_OS_VISION
   return [[FIRRecaptchaProvider alloc] initWithApp:app];
+#else
+  return nil;
+#endif
 }
 
 @end

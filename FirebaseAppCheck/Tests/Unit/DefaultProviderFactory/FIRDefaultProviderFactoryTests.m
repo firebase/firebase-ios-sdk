@@ -91,6 +91,21 @@ FIR_DEVICE_CHECK_PROVIDER_AVAILABILITY
 #endif
 }
 
+- (void)testCreateProvider_Device_RecaptchaNotLinked_WithSiteKey_Throws {
+#if TARGET_OS_IOS && !TARGET_OS_SIMULATOR
+  FIRApp *app = [self mockAppWithRecaptchaSiteKey:@"site_key"];
+
+  id recaptchaMock = OCMClassMock([FIRRecaptchaProvider class]);
+  OCMStub([recaptchaMock isSupported]).andReturn(NO);
+
+  FIRDefaultProviderFactory *factory = [[FIRDefaultProviderFactory alloc] init];
+
+  XCTAssertThrows([factory createProviderWithApp:app]);
+
+  [recaptchaMock stopMocking];
+#endif
+}
+
 - (void)testCreateProviderWithApp_PublicAPI {
   // Verifies that the public API doesn't crash and returns a provider.
   FIRApp *app = [self mockAppWithRecaptchaSiteKey:nil];

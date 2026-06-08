@@ -14,6 +14,7 @@
 
 #import "FirebaseAppCheck/Sources/DefaultProviderFactory/FIRDefaultProviderFactory.h"
 
+#import "FirebaseAppCheck/Sources/Core/FIRApp+AppCheck.h"
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheck.h"
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckDebugProviderFactory.h"
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRDeviceCheckProviderFactory.h"
@@ -31,9 +32,11 @@
   return [[[FIRAppCheckDebugProviderFactory alloc] init] createProviderWithApp:app];
 #endif
 
-  if ([FIRRecaptchaProvider isSupported]) {
+#if (TARGET_OS_IOS && !TARGET_OS_MACCATALYST) || TARGET_OS_VISION
+  if (app.options.recaptchaSiteKey.length > 0) {
     return [[[FIRRecaptchaProviderFactory alloc] init] createProviderWithApp:app];
   }
+#endif
 
   return [[[FIRDeviceCheckProviderFactory alloc] init] createProviderWithApp:app];
 }

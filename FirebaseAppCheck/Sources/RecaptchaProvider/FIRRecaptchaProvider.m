@@ -48,10 +48,8 @@
 @implementation FIRRecaptchaProvider
 
 + (BOOL)isSupported {
-  // TODO(ncooke3): This implementation should also take into account
-  // OS versions based on whether we decorate the APIs with OS constraints.
-#if TARGET_OS_IOS || TARGET_OS_VISION
-  return [GACRecaptchaProvider isRecaptchaEnterpriseSDKLinked];
+#if (TARGET_OS_IOS && !TARGET_OS_MACCATALYST) || TARGET_OS_VISION
+  return [GACRecaptchaProvider isSupported];
 #else
   return NO;
 #endif
@@ -87,7 +85,7 @@
   }
 
   // 2. Validate SDK Linkage
-#if TARGET_OS_IOS || TARGET_OS_VISION
+#if (TARGET_OS_IOS && !TARGET_OS_MACCATALYST) || TARGET_OS_VISION
   if (![FIRRecaptchaProvider isSupported]) {
     NSString *message = [NSString
         stringWithFormat:
