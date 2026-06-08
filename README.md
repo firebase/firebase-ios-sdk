@@ -36,19 +36,19 @@ help you build, grow, and monetize your app. Learn more about Firebase at the
 
 The following products are open-source and included in this repository:
 
-*   **Firebase AI Logic** (`FirebaseAI`)
-*   **App Check** (`FirebaseAppCheck`)
-*   **App Distribution** (`FirebaseAppDistribution`)
-*   **Authentication** (`FirebaseAuth`)
-*   **Cloud Firestore** (`FirebaseFirestore`)
-*   **Cloud Functions** (`FirebaseFunctions`)
-*   **Cloud Messaging** (`FirebaseMessaging`)
-*   **Crashlytics** (`FirebaseCrashlytics`)
-*   **In-App Messaging** (`FirebaseInAppMessaging`)
-*   **Performance Monitoring** (`FirebasePerformance`)
-*   **Realtime Database** (`FirebaseDatabase`)
-*   **Remote Config** (`FirebaseRemoteConfig`)
-*   **Storage** (`FirebaseStorage`)
+*   [Firebase AI Logic](https://firebase.google.com/docs/ai-logic) (`FirebaseAI`)
+*   [App Check](https://firebase.google.com/docs/app-check) (`FirebaseAppCheck`)
+*   [App Distribution](https://firebase.google.com/docs/app-distribution) (`FirebaseAppDistribution`)
+*   [Authentication](https://firebase.google.com/docs/auth) (`FirebaseAuth`)
+*   [Cloud Firestore](https://firebase.google.com/docs/firestore) (`FirebaseFirestore`)
+*   [Cloud Functions](https://firebase.google.com/docs/functions) (`FirebaseFunctions`)
+*   [Cloud Messaging](https://firebase.google.com/docs/cloud-messaging) (`FirebaseMessaging`)
+*   [Crashlytics](https://firebase.google.com/docs/crashlytics) (`FirebaseCrashlytics`)
+*   [In-App Messaging](https://firebase.google.com/docs/in-app-messaging) (`FirebaseInAppMessaging`)
+*   [Performance Monitoring](https://firebase.google.com/docs/perf-mon) (`FirebasePerformance`)
+*   [Realtime Database](https://firebase.google.com/docs/database) (`FirebaseDatabase`)
+*   [Remote Config](https://firebase.google.com/docs/remote-config) (`FirebaseRemoteConfig`)
+*   [Storage](https://firebase.google.com/docs/storage) (`FirebaseStorage`)
 
 > [!NOTE]
 > **Firebase Analytics** is not open-source, but its pre-compiled binaries are
