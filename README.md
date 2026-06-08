@@ -32,6 +32,28 @@ Firebase is an app development platform with libraries, services, and tools to
 help you build, grow, and monetize your app. Learn more about Firebase at the
 [official Firebase website](https://firebase.google.com).
 
+### Supported Firebase Products
+
+The following products are open-source and included in this repository:
+
+*   [Firebase AI Logic](https://firebase.google.com/docs/ai-logic) (`FirebaseAI`)
+*   [App Check](https://firebase.google.com/docs/app-check) (`FirebaseAppCheck`)
+*   [App Distribution](https://firebase.google.com/docs/app-distribution) (`FirebaseAppDistribution`)
+*   [Authentication](https://firebase.google.com/docs/auth) (`FirebaseAuth`)
+*   [Cloud Firestore](https://firebase.google.com/docs/firestore) (`FirebaseFirestore`)
+*   [Cloud Functions](https://firebase.google.com/docs/functions) (`FirebaseFunctions`)
+*   [Cloud Messaging](https://firebase.google.com/docs/cloud-messaging) (`FirebaseMessaging`)
+*   [Crashlytics](https://firebase.google.com/docs/crashlytics) (`FirebaseCrashlytics`)
+*   [In-App Messaging](https://firebase.google.com/docs/in-app-messaging) (`FirebaseInAppMessaging`)
+*   [Performance Monitoring](https://firebase.google.com/docs/perf-mon) (`FirebasePerformance`)
+*   [Realtime Database](https://firebase.google.com/docs/database) (`FirebaseDatabase`)
+*   [Remote Config](https://firebase.google.com/docs/remote-config) (`FirebaseRemoteConfig`)
+*   [Storage](https://firebase.google.com/docs/storage) (`FirebaseStorage`)
+
+> [!NOTE]
+> **Firebase Analytics** is not open-source, but its pre-compiled binaries are
+> included when installing Firebase via Swift Package Manager or CocoaPods.
+
 ## Installation
 
 See the subsections below for details about the different installation methods.
@@ -100,181 +122,6 @@ Find instructions for the experimental Carthage distribution (iOS only) at
 Find details about using Firebase from a Framework or a library at
 [firebase_in_libraries.md](docs/firebase_in_libraries.md) within this repo.
 
-## Development
-
-To develop Firebase software in this repository, make sure that you have at
-minimum the following software:
-
-- Xcode 26.2 (or later)
-
-### Development options
-
-CocoaPods is still the canonical way to develop, but much of the repo now
-supports development with Swift Package Manager.
-
-- [CocoaPods](#development-using-cocoapods)
-- [Swift Package Manager](#development-using-swift-package-manager)
-
-#### Development using CocoaPods
-
-Install the following:
-
-- CocoaPods 1.12.0 (or later)
-- [CocoaPods generate](https://github.com/square/cocoapods-generate)
-
-Run the following for the pod that you want to develop:
-
-```ruby
-pod gen Firebase{name here}.podspec --local-sources=./ --auto-open --platforms=ios
-```
-
-Note the following:
-
-- If the CocoaPods cache is out of date, you may need to run `pod repo update`
-  before the `pod gen` command.
-
-- Set the `--platforms` option to `macos` or `tvos` to develop or test for those
-  platforms. Since 10.2, Xcode does not properly handle multi-platform
-  CocoaPods workspaces.
-
-- Firestore has a self-contained Xcode project. For details, see
-  [Firestore/README](Firestore/README.md) within this repo.
-
-##### Development for Catalyst
-
-1.  Run `pod gen {name here}.podspec --local-sources=./ --auto-open --platforms=ios`
-2.  Check the Mac box in the App-iOS Build Settings.
-3.  Sign the App in the _Settings Signing & Capabilities_ tab.
-4.  Click _Pods_ in the Project Manager.
-5.  Add Signing to the iOS host app and unit test targets.
-6.  Select the Unit-unit scheme.
-7.  Run it to build and test.
-
-Alternatively, disable signing in each target:
-
-1.  Go to the _Build Settings_ tab.
-2.  Click `+`.
-3.  Select `Add User-Defined Setting`.
-4.  Add the `CODE_SIGNING_REQUIRED` setting with a value of `NO`.
-
-#### Development using Swift Package Manager
-
-1.  Enable test schemes: `./scripts/setup_spm_tests.sh`
-2.  Run `open Package.swift` or double-click `Package.swift` in Finder.
-3.  Xcode will open the project. Choose one of the following:
-    - Choose a scheme for a library to build or test suite to run.
-    - Choose a target platform by selecting the run destination along with the scheme.
-
-### Additional development information
-
-#### Add a new Firebase pod
-
-For information about adding a new Firebase pod, see
-[AddNewPod.md](docs/AddNewPod.md) within this repo.
-
-#### Manage headers and imports
-
-For information about managing headers and imports, see
-[HeadersImports](HeadersImports.md) within this repo.
-
-#### Code formatting
-
-To ensure that the code is formatted consistently, run the script
-[./scripts/check.sh](https://github.com/firebase/firebase-ios-sdk/blob/main/scripts/check.sh)
-before creating a pull request (PR).
-
-GitHub Actions will verify that any code changes are done in a style-compliant
-way. Install `clang-format` and `mint`:
-
-```console
-brew install clang-format@22
-brew install mint
-```
-
-#### Run unit tests
-
-Select a scheme and press Command-u to build a component and run its unit tests.
-
-#### Run sample apps
-
-To run the sample apps and integration tests, you'll need a valid
-`GoogleService-Info.plist` file. The Firebase Xcode project contains dummy plist
-files without real values, but they can be replaced with real plist files. To
-get your own `GoogleService-Info.plist` files:
-
-1.  Go to the [Firebase console](https://console.firebase.google.com/).
-2.  Create a new Firebase project, if you don't already have one.
-3.  For each sample app you want to test, create a new Firebase app with the
-    sample app's bundle identifier (e.g., `com.google.Database-Example`).
-4.  Download the resulting `GoogleService-Info.plist` and add it to the Xcode
-    project.
-
-#### Generate coverage reports
-
-For instructions about generating coverage reports, see
-[scripts/code_coverage_report/README](scripts/code_coverage_report/README.md)
-within this repo.
-
-## Special instructions for specific libraries
-
-The sections below describe special instructions for specific Firebase
-libraries.
-
-### Firebase AI Logic
-
-See the [Firebase AI Logic README](FirebaseAI#development) for instructions
-about building and testing the SDK.
-
-### Firebase Auth
-
-See the [Auth Sample README](FirebaseAuth/Tests/Sample/README.md) for
-instructions about building and running the `FirebaseAuth` pod along with
-various samples and tests.
-
-### Firebase Cloud Messaging - FCM (push notifications)
-
-Push notifications can only be delivered to specially provisioned App IDs in the
-developer portal. Here's how to test receiving push notifications:
-
-1.  Change the bundle identifier of the sample app to something you own in your
-    Apple Developer account and enable that App ID for push notifications.
-2.  [Upload your APNs Provider Authentication Key or certificate to the Firebase console](https://firebase.google.com/docs/cloud-messaging/ios/certs)
-    at **Project Settings > Cloud Messaging > [Your Firebase App]**.
-3.  Make sure your iOS device is added to your Apple Developer portal as a test
-    device.
-
-**Note:** The iOS simulator cannot register for remote notifications and will
-not receive push notifications. To receive push notifications, follow the steps
-above and run the app on a physical device.
-
-### Firebase Database (Realtime Database)
-
-The `FirebaseDatabase` integration tests can be run against a locally running
-Database Emulator or against a production instance.
-
-- To run against a local emulator instance, invoke
-  `./scripts/run_database_emulator.sh start` _before_ running the integration
-  test.
-
-- To run against a production instance, provide a valid
-  `GoogleService-Info.plist` and copy it to
-  `FirebaseDatabase/Tests/Resources/GoogleService-Info.plist`.\
-  Your Firebase Security Rules must be set to
-  [public](https://firebase.google.com/docs/database/security/quickstart) while
-  your tests are running, but make sure to publish production-grade Security
-  Rules before making your app public.
-
-### Firebase Performance Monitoring
-
-See the [Performance README](FirebasePerformance/README.md) for instructions
-about building the SDK. See the
-[Performance TestApp README](FirebasePerformance/Tests/TestApp/README.md)
-for instructions about integrating Performance with the dev test app.
-
-### Firebase Storage
-
-To run the Storage integration tests, follow the instructions in
-[StorageIntegration.swift](FirebaseStorage/Tests/Integration/StorageIntegration.swift).
 
 ## Building with Firebase on Apple platforms
 
@@ -336,8 +183,8 @@ plans and directions.
 
 ## Contributing
 
-See [Contributing](CONTRIBUTING.md) for more information on contributing to the
-Firebase Apple SDK.
+For information on how to contribute, set up the development environment, build,
+or test the SDK, see the [Contributing Guide](CONTRIBUTING.md).
 
 ## License
 
