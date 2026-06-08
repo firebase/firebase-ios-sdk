@@ -50,7 +50,7 @@ import Foundation
     }
   }
 
-  extension GeminiModel: LanguageModel {
+  extension GeminiModel: FirebaseAI.LanguageModel {
     /// Returns the name of the model.
     ///
     /// > Important: This property is for **internal use only** and may change at any time.
