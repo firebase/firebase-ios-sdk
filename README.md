@@ -186,7 +186,6 @@ plans and directions.
 For information on how to contribute, set up the development environment, build,
 or test the SDK, see the [Contributing Guide](CONTRIBUTING.md).
 
-
 ## License
 
 The contents of this repository are licensed under the
