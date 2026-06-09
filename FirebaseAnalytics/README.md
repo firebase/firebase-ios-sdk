@@ -1,5 +1,25 @@
 # Firebase Analytics SDK
 
+## Choosing the Right Analytics Product
+
+The Firebase iOS SDK ships **three** Swift Package products for Analytics. Pick the one whose ad-identifier and data-collection posture matches what your app is allowed to do — adding more than one is unnecessary and surface area you don't need.
+
+| Package product | Underlying measurement library | IDFA / advertising | When to use |
+|-----------------|--------------------------------|--------------------|-------------|
+| **`FirebaseAnalytics`** | `GoogleAppMeasurement` | Yes — collects IDFA when ATT-authorized; includes Google Signals + advertising features | Default for consumer apps that want full Analytics, audience targeting, and ad-network attribution |
+| **`FirebaseAnalyticsCore`** | `GoogleAppMeasurementCore` | No | Apps that must avoid IDFA collection entirely (e.g., kids apps, restricted enterprise distributions, or apps whose privacy posture rules out any advertising-related data) |
+| **`FirebaseAnalyticsIdentitySupport`** | `GoogleAppMeasurementCore` + `GoogleAppMeasurementIdentitySupport` | No IDFA, but enables privacy-respecting identity features (e.g., requestTrackingAuthorization integration without ad-targeting) | Apps that need user-deletion / identity-management integrations on top of Core but still don't want advertising-tier data collection |
+
+**Rule of thumb:** start with `FirebaseAnalytics` unless your app's privacy or store policy specifically requires you to avoid advertising features. Add `FirebaseAnalyticsCore` or `FirebaseAnalyticsIdentitySupport` instead — not in addition.
+
+All three depend on `FirebaseCore` and `FirebaseInstallations` transitively, so you don't need to add those manually.
+
+For the full setup steps (registering an app, adding the `GoogleService-Info.plist`, calling `FirebaseApp.configure()`), see the [Get started with Google Analytics](https://firebase.google.com/docs/analytics/get-started?platform=ios) guide.
+
+---
+
+## Manual Screen View Logging API
+
 Introduce a manual screen view event logging API that enable developers to log individual views in SwiftUI lifecycle.
 
 ## Code Samples
