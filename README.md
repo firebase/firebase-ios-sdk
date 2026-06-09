@@ -23,6 +23,11 @@
 > [migration guide](https://firebase.google.com/docs/ios/cocoapods-deprecation)
 > for more information.
 
+> [!TIP]
+> **Preview Release:** Firebase AI Logic's Gemini Foundation Models framework
+> adapter is now available in preview. Get started by visiting the
+> [documentation](https://firebase.google.com/docs/ai-logic/apple-foundation-models-framework/get-started).
+
 # Firebase Apple Open Source Development
 
 This repository contains the source code for all Apple platform Firebase
