@@ -30,4 +30,5 @@ API_UNAVAILABLE(macos, tvos, watchos, macCatalyst)
 - (instancetype)init;
 
 @end
+
 NS_ASSUME_NONNULL_END
