@@ -32,7 +32,6 @@ jobs:
       target: ${{  matrix.target }}
       env_vars: '{"FIREBASE_APP_CHECK_BRANCH": "nc/target-split"}'
 
-
   catalyst:
     uses: ./.github/workflows/_catalyst.yml
     with:
