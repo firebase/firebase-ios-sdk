@@ -18,7 +18,7 @@
   @testable import FirebaseAILogic
 
   final class HybridModelTests: XCTestCase {
-    struct MockModel: LanguageModel {
+    struct MockModel: FirebaseAI.LanguageModel {
       let _modelName: String
       let startSessionHandler: @Sendable () throws -> any _ModelSession
 

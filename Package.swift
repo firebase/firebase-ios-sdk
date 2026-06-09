@@ -1,4 +1,4 @@
-// swift-tools-version:6.0
+// swift-tools-version:6.1
 // The swift-tools-version declares the minimum version of Swift required to
 // build this package.
 
@@ -18,7 +18,7 @@
 
 import PackageDescription
 
-let firebaseVersion = "12.14.0"
+let firebaseVersion = "12.15.0"
 
 let shouldUseSourceFirestore = Context.environment["FIREBASE_SOURCE_FIRESTORE"] != nil
 
@@ -187,6 +187,11 @@ let package = Package(
     .target(
       name: "FirebaseAILogic",
       dependencies: [
+        // Direct dependency on AppCheck for automatic token acquisition and
+        // management.
+        "FirebaseAppCheck",
+        // Despite the direct dependency on App Check, the AI Logic SDK still
+        // uses AppCheck through the interop.
         "FirebaseAppCheckInterop",
         "FirebaseAuthInterop",
         "FirebaseCore",
@@ -352,8 +357,8 @@ let package = Package(
     ),
     .binaryTarget(
       name: "FirebaseAnalytics",
-      url: "https://dl.google.com/firebase/ios/swiftpm/12.13.0/FirebaseAnalytics.zip",
-      checksum: "fdb0ea5f06436a123da620e6f43e2ce7078a54f08b445f4987c4fb1b3c13f2fc"
+      url: "https://dl.google.com/firebase/ios/swiftpm/12.14.0/FirebaseAnalytics.zip",
+      checksum: "cf13c45dcae3c66ac8c00a340829c05ce226ec486ae533658b8915365acc9a4e"
     ),
     .testTarget(
       name: "AnalyticsSwiftUnit",
@@ -1428,7 +1433,7 @@ func googleAppMeasurementDependency() -> Package.Dependency {
     return .package(url: appMeasurementURL, branch: "main")
   }
 
-  return .package(url: appMeasurementURL, exact: "12.13.0")
+  return .package(url: appMeasurementURL, exact: "12.14.0")
 }
 
 func abseilDependency() -> Package.Dependency {
@@ -1609,8 +1614,8 @@ func firestoreTargets() -> [Target] {
     } else {
       return .binaryTarget(
         name: "FirebaseFirestoreInternal",
-        url: "https://dl.google.com/firebase/ios/bin/firestore/12.14.0/pre_rc0/FirebaseFirestoreInternal.zip",
-        checksum: "0fc29ebfa106c8f08f4939de7631f7e70548f256ba6f57eeb814c8b2e72a6866"
+        url: "https://dl.google.com/firebase/ios/bin/firestore/12.14.0/rc1/FirebaseFirestoreInternal.zip",
+        checksum: "28d4f75f8c07892157546a50151f5b6110e03d4f62dddadf35ef19197bf8b617"
       )
     }
   }()
