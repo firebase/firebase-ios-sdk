@@ -56,6 +56,7 @@
 }
 
 - (nullable instancetype)initWithApp:(FIRApp *)app {
+#if (TARGET_OS_IOS && !TARGET_OS_MACCATALYST) || TARGET_OS_VISION
   // 1. Validate options and raise exceptions on invalid configuration
   NSString *siteKey = app.options.recaptchaSiteKey;
   if (siteKey.length == 0) {
@@ -85,7 +86,6 @@
   }
 
   // 2. Validate SDK Linkage
-#if (TARGET_OS_IOS && !TARGET_OS_MACCATALYST) || TARGET_OS_VISION
   if (![FIRRecaptchaProvider isSupported]) {
     NSString *message = [NSString
         stringWithFormat:
