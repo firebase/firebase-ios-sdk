@@ -27,11 +27,13 @@ import XCTest
       // Initialize a session with a `GeminiModelProvider`
       _ = ai.generativeModelSession(model: .geminiModel(name: "gemini-flash-latest"))
 
-      // Initialize a session with a `GeminiModel`
-      let geminiModel = ai.geminiModel(name: "gemini-flash-latest")
-      _ = ai.generativeModelSession(model: geminiModel)
+      // Initialize a `GeminiModel`
+      let geminiLanguageModel = ai.geminiModel(name: "gemini-flash-latest")
 
-      // Initialize a session with a `SystemLanguageModel` as a `LanguageModel`
+      // Initialize a session with a `GeminiModel`
+      _ = ai.generativeModelSession(model: geminiLanguageModel)
+
+      // Initialize a session with a `SystemLanguageModel` as a `FirebaseAI.LanguageModel`
       let systemModel = FirebaseAI.SystemLanguageModel.default
       _ = ai.generativeModelSession(model: systemModel)
 
@@ -41,7 +43,7 @@ import XCTest
       // Initialize a session with a `HybridModelProvider` of cloud models
       _ = ai.generativeModelSession(
         model: .hybridModel(
-          primary: geminiModel,
+          primary: geminiLanguageModel,
           secondary: .geminiModel(name: "gemini-flash-lite-latest")
         )
       )
@@ -53,14 +55,20 @@ import XCTest
           secondary: .geminiModel(name: "gemini-flash-lite-latest")
         )
       )
+      _ = ai.generativeModelSession(
+        model: .hybridModel(
+          primary: FirebaseAI.SystemLanguageModel(),
+          secondary: ai.geminiModel(name: "gemini-flash-lite-latest")
+        )
+      )
 
       // Initialize a session with a `HybridModel` of cloud models
       let gemmaModel = ai.geminiModel(name: "gemma-4-31b-it")
-      let cloudHybridModel = HybridModel(primary: gemmaModel, secondary: geminiModel)
+      let cloudHybridModel = HybridModel(primary: gemmaModel, secondary: geminiLanguageModel)
       _ = ai.generativeModelSession(model: cloudHybridModel)
 
       // Initialize a session with a `HybridModel` of cloud and on-device models
-      let hybridModel = HybridModel(primary: systemModel, secondary: geminiModel)
+      let hybridModel = HybridModel(primary: systemModel, secondary: geminiLanguageModel)
       _ = ai.generativeModelSession(model: hybridModel)
     }
   }

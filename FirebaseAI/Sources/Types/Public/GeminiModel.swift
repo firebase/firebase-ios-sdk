@@ -15,7 +15,7 @@
 import Foundation
 
 #if compiler(>=6.2.3)
-  /// A Gemini or Gemma model accessed via the Gemini Developer API or the Vertex AI API.
+  /// A Gemini model accessed via the Gemini Developer API or the Vertex AI API.
   ///
   /// **Public Preview**: This API is a public preview and may be subject to change.
   ///
@@ -50,7 +50,7 @@ import Foundation
     }
   }
 
-  extension GeminiModel: LanguageModel {
+  extension GeminiModel: FirebaseAI.LanguageModel {
     /// Returns the name of the model.
     ///
     /// > Important: This property is for **internal use only** and may change at any time.

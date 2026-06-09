@@ -82,11 +82,14 @@ using firebase::firestore::util::MakeString;
 }
 
 - (void)testConvertsDoubles {
-  // Note that 0x1.0p-1074 is a hex floating point literal representing the minimum subnormal
-  // number: <https://en.wikipedia.org/wiki/Denormal_number>.
+  // Note 1: 0x1.0p-1074 is a hex floating point literal representing the minimum subnormal
+  //        number; see https://en.wikipedia.org/wiki/Denormal_number .
+  // Note 2: LLONG_MAX cannot be represented exactly by a double and is rounded up by 1 from
+  //         9223372036854775807 to 9223372036854775808.
   NSArray<NSNumber *> *values = @[
-    @(-INFINITY), @(-DBL_MAX), @(LLONG_MIN * -1.0), @(-1.1), @(-0x1.0p-1074), @(-0.0), @(0.0),
-    @(0x1.0p-1074), @(DBL_MIN), @(1.1), @((double)LLONG_MAX), @(DBL_MAX), @(INFINITY)
+    @(-INFINITY), @(-DBL_MAX), @(static_cast<double>(LLONG_MIN)), @(-1.1), @(-0x1.0p-1074), @(-0.0),
+    @(0.0), @(0x1.0p-1074), @(DBL_MIN), @(1.1), @(static_cast<double>(LLONG_MAX)), @(DBL_MAX),
+    @(INFINITY)
   ];
   for (NSNumber *value in values) {
     Message<google_firestore_v1_Value> wrapped = FSTTestFieldValue(value);

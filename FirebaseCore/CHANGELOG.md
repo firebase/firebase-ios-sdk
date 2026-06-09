@@ -1,3 +1,17 @@
+# Firebase 12.15.0
+- [changed] Firebase now requires Swift tools version 6.1 for the Swift Package.
+  The package will no longer resolve in Xcode versions older than 16.3. Note that
+  the minimum officially supported version for the SDK remains Xcode 26.2+.
+
+# Firebase 12.14.0
+- [fixed] Remove extra comma in Package.swift that caused SPM resolution
+  failures for some configurations.
+- [deprecated] New versions of the Firebase Apple SDK will no longer be
+  published to CocoaPods after October 2026. Existing CocoaPods versions will
+  remain available and installations will remain functional. See the
+  [migration guide](https://firebase.google.com/docs/ios/cocoapods-deprecation)
+  for more information.
+
 # Firebase 12.12.0
 - [changed] Firebase now requires at least Xcode 26.2 and the Swift
   6.2.3+ toolchain. This update allows Firebase to leverage new Swift
