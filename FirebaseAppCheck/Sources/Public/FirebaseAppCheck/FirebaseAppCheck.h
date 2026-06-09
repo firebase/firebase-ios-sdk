@@ -30,3 +30,4 @@
 
 // App Attest provider.
 #import "FIRAppAttestProvider.h"
+#import "FIRAppAttestProviderFactory.h"

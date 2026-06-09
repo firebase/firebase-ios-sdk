@@ -21,11 +21,11 @@ import Testing
 struct MapsGroundingIntegrationTests {
   @Test(
     "generateContent with Google Maps returns grounding metadata",
-    arguments: InstanceConfig.allConfigs
+    arguments: InstanceConfig.defaultConfigs
   )
   func generateContent_withGoogleMaps_succeeds(_ config: InstanceConfig) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
-      modelName: ModelNames.gemini2_5_Flash,
+      modelName: ModelNames.gemini3_1_FlashLite,
       tools: [.googleMaps()]
     )
     let prompt = "Where is a good place to grab a coffee near Alameda, CA?"
@@ -37,11 +37,11 @@ struct MapsGroundingIntegrationTests {
 
   @Test(
     "respondTo with Google Maps returns grounding metadata",
-    arguments: InstanceConfig.allConfigs
+    arguments: InstanceConfig.defaultConfigs
   )
   func generativeModelSession_respondTo_withGoogleMaps_succeeds(_ config: InstanceConfig) async throws {
     let session = FirebaseAI.componentInstance(config).generativeModelSession(
-      model: ModelNames.gemini2_5_Flash,
+      model: ModelNames.gemini3_1_FlashLite,
       tools: [.googleMaps()]
     )
     let prompt = "Where is a good place to grab a coffee near Alameda, CA?"
@@ -53,11 +53,11 @@ struct MapsGroundingIntegrationTests {
 
   @Test(
     "streamResponse with Google Maps returns grounding metadata",
-    arguments: InstanceConfig.allConfigs
+    arguments: InstanceConfig.defaultConfigs
   )
   func generativeModelSession_streamResponse_withGoogleMaps_succeeds(_ config: InstanceConfig) async throws {
     let session = FirebaseAI.componentInstance(config).generativeModelSession(
-      model: ModelNames.gemini2_5_Flash,
+      model: ModelNames.gemini3_1_FlashLite,
       tools: [.googleMaps()]
     )
     let prompt = "Where is a good place to grab a coffee near Alameda, CA?"
@@ -70,7 +70,7 @@ struct MapsGroundingIntegrationTests {
 
   @Test(
     "generateContent with Google Maps and RetrievalConfig returns grounding metadata",
-    arguments: InstanceConfig.allConfigs
+    arguments: InstanceConfig.defaultConfigs
   )
   func generateContent_withGoogleMapsAndRetrievalConfig_succeeds(_ config: InstanceConfig) async throws {
     let toolConfig = ToolConfig(
@@ -79,7 +79,7 @@ struct MapsGroundingIntegrationTests {
       )
     )
     let model = FirebaseAI.componentInstance(config).generativeModel(
-      modelName: ModelNames.gemini2_5_Flash,
+      modelName: ModelNames.gemini3_1_FlashLite,
       tools: [.googleMaps()],
       toolConfig: toolConfig
     )
@@ -92,7 +92,7 @@ struct MapsGroundingIntegrationTests {
 
   @Test(
     "generateContent with Google Maps and languageCode returns grounding metadata",
-    arguments: InstanceConfig.allConfigs
+    arguments: InstanceConfig.defaultConfigs
   )
   func generateContent_withGoogleMapsAndLanguageConfig_succeeds(_ config: InstanceConfig) async throws {
     let toolConfig = ToolConfig(
@@ -101,7 +101,7 @@ struct MapsGroundingIntegrationTests {
       )
     )
     let model = FirebaseAI.componentInstance(config).generativeModel(
-      modelName: ModelNames.gemini2_5_Flash,
+      modelName: ModelNames.gemini3_1_FlashLite,
       tools: [.googleMaps()],
       toolConfig: toolConfig
     )

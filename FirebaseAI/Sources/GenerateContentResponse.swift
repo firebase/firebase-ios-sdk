@@ -540,12 +540,16 @@ extension GenerateContentResponse: Decodable {
   public init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
 
-    guard container.contains(CodingKeys.candidates) || container
-      .contains(CodingKeys.promptFeedback) else {
+    guard container.contains(CodingKeys.candidates)
+      || container.contains(CodingKeys.promptFeedback)
+      || container.contains(CodingKeys.usageMetadata) else {
+      let keys = container.allKeys.map { $0.stringValue }.sorted().joined(separator: ", ")
       let context = DecodingError.Context(
-        codingPath: [],
-        debugDescription: "Failed to decode GenerateContentResponse;" +
-          " missing keys 'candidates' and 'promptFeedback'."
+        codingPath: decoder.codingPath,
+        debugDescription: """
+        Failed to decode GenerateContentResponse; missing keys 'candidates', 'promptFeedback' or \
+        'usageMetadata'. Found keys: \(keys.isEmpty ? "none" : keys)
+        """
       )
       throw DecodingError.dataCorrupted(context)
     }

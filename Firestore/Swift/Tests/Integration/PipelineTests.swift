@@ -2596,6 +2596,84 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 //    }
 //  }
 
+  func testCollectionForceIndexTableScan() async throws {
+    let collRef = collectionRef()
+    let docRef = collRef.document("doc")
+    try await docRef.setData(["foo": "bar"])
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path, forceIndex: "primary")
+      .select([
+        Field(FieldPath.documentID()).collectionId().as("collectionId"),
+      ])
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      ["collectionId": collRef.collectionID],
+    ]
+
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
+  }
+
+  func testCollectionForceIndexInvalid() async throws {
+    let collRef = collectionRef()
+    let pipeline = db.pipeline()
+      .collection(collRef.path, forceIndex: "doesnotexist")
+      .select([
+        Field(FieldPath.documentID()).collectionId().as("collectionId"),
+      ])
+
+    do {
+      _ = try await pipeline.execute()
+      XCTFail("Should have thrown an error")
+    } catch {
+      XCTAssert(
+        error.localizedDescription.contains("Invalid index"),
+        "Assertion failed: Expected description to contain 'Invalid index', but actual description was: '\(error.localizedDescription)'"
+      )
+    }
+  }
+
+  func testCollectionGroupForceIndexTableScan() async throws {
+    let collRef = collectionRef()
+    let docRef = collRef.document("doc")
+    try await docRef.setData(["foo": "bar"])
+
+    let pipeline = db.pipeline()
+      .collectionGroup(collRef.collectionID, forceIndex: "primary")
+      .select([
+        Field(FieldPath.documentID()).collectionId().as("collectionId"),
+      ])
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      ["collectionId": collRef.collectionID],
+    ]
+
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
+  }
+
+  func testCollectionGroupForceIndexInvalid() async throws {
+    let collRef = collectionRef()
+    let pipeline = db.pipeline()
+      .collectionGroup(collRef.collectionID, forceIndex: "doesnotexist")
+      .select([
+        Field(FieldPath.documentID()).collectionId().as("collectionId"),
+      ])
+
+    do {
+      _ = try await pipeline.execute()
+      XCTFail("Should have thrown an error")
+    } catch {
+      XCTAssert(
+        error.localizedDescription.contains("Invalid index"),
+        "Assertion failed: Expected description to contain 'Invalid index', but actual description was: '\(error.localizedDescription)'"
+      )
+    }
+  }
+
   func testComparisonOperators() async throws {
     let collRef = collectionRef(withDocuments: TestHelper.bookDocs)
     let db = collRef.firestore
