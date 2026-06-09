@@ -25,8 +25,6 @@
 
 #import "FirebaseAppCheck/Sources/RecaptchaProvider/FIRRecaptchaProvider+Internal.h"
 
-// No internal methods needed to be declared for testing anymore.
-
 FIR_DEVICE_CHECK_PROVIDER_AVAILABILITY
 @interface FIRDefaultProviderFactoryTests : XCTestCase
 @end
