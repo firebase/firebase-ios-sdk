@@ -65,16 +65,14 @@
         }
 
         #if canImport(FoundationModels)
-          @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
+          @available(iOS 26.0, macOS 26.0, visionOS 26.0, watchOS 27.0, *)
           @available(tvOS, unavailable)
-          @available(watchOS, unavailable)
           init(_ samplingMode: FoundationModels.GenerationOptions.SamplingMode) {
             kind = .foundationModelsSamplingMode(samplingMode)
           }
 
-          @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
+          @available(iOS 26.0, macOS 26.0, visionOS 26.0, watchOS 27.0, *)
           @available(tvOS, unavailable)
-          @available(watchOS, unavailable)
           var samplingMode: FoundationModels.GenerationOptions.SamplingMode {
             switch kind {
             case .greedy:
@@ -113,7 +111,7 @@
             return lhsP == rhsP && lhsSeed == rhsSeed
           case let (.foundationModelsSamplingMode(lhsMode), .foundationModelsSamplingMode(rhsMode)):
             #if canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
-              if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
+              if #available(iOS 26.0, macOS 26.0, visionOS 26.0, watchOS 27.0, *) {
                 if let lhsMode = lhsMode as? FoundationModels.GenerationOptions.SamplingMode,
                    let rhsMode = rhsMode as? FoundationModels.GenerationOptions.SamplingMode {
                   return lhsMode == rhsMode
@@ -153,9 +151,8 @@
         /// `FoundationModels.GenerationOptions`.
         ///
         /// - Parameter options: The `FoundationModels.GenerationOptions` to wrap.
-        @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
+        @available(iOS 26.0, macOS 26.0, visionOS 26.0, watchOS 27.0, *)
         @available(tvOS, unavailable)
-        @available(watchOS, unavailable)
         public init(_ options: FoundationModels.GenerationOptions) {
           _generationOptions = options
           // TODO: Remove `else` when Xcode 27 is the min. supported Xcode.
@@ -172,9 +169,8 @@
           maximumResponseTokens = options.maximumResponseTokens
         }
 
-        @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
+        @available(iOS 26.0, macOS 26.0, visionOS 26.0, watchOS 27.0, *)
         @available(tvOS, unavailable)
-        @available(watchOS, unavailable)
         func toFoundationModels() -> FoundationModels.GenerationOptions {
           if let generationOptions = _generationOptions as? FoundationModels.GenerationOptions {
             return generationOptions
@@ -199,7 +195,7 @@
 
       public static func == (lhs: GenerationOptions, rhs: GenerationOptions) -> Bool {
         #if canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
-          if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
+          if #available(iOS 26.0, macOS 26.0, visionOS 26.0, watchOS 27.0, *) {
             if let lhsOptions = lhs._generationOptions as? FoundationModels.GenerationOptions,
                let rhsOptions = rhs._generationOptions as? FoundationModels.GenerationOptions {
               return lhsOptions == rhsOptions
@@ -215,15 +211,13 @@
   }
 
   #if canImport(FoundationModels)
-    @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
+    @available(iOS 26.0, macOS 26.0, visionOS 26.0, watchOS 27.0, *)
     @available(tvOS, unavailable)
-    @available(watchOS, unavailable)
     extension FoundationModels.GenerationOptions: FirebaseAI.GenerationOptions
       .GenerationOptionsProtocol {}
 
-    @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
+    @available(iOS 26.0, macOS 26.0, visionOS 26.0, watchOS 27.0, *)
     @available(tvOS, unavailable)
-    @available(watchOS, unavailable)
     extension FoundationModels.GenerationOptions.SamplingMode: FirebaseAI.GenerationOptions
       .SamplingMode.SamplingModeProtocol {}
   #endif // canImport(FoundationModels)

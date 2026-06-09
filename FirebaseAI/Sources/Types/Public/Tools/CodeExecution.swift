@@ -16,6 +16,6 @@
 ///
 /// This tool can be used to solve complex problems, for example, by generating and executing Python
 /// code to solve a math problem.
-public struct CodeExecution: Sendable, Encodable {
+public struct CodeExecution: Sendable, Encodable, Hashable {
   init() {}
 }

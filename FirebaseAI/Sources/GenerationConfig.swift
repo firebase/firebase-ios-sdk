@@ -64,6 +64,9 @@ public struct GenerationConfig: Sendable, Equatable {
   /// Configuration for controlling the voice of the model during conversation.
   var speechConfig: ProtoSpeechConfig?
 
+  /// Optional random seed to make generation deterministic.
+  var seed: Int?
+
   /// Creates a new `GenerationConfig` value.
   ///
   /// See the
@@ -170,13 +173,14 @@ public struct GenerationConfig: Sendable, Equatable {
   ///   - speechConfig: Configuration for controlling the voice of the model during conversation;
   ///     see ``SpeechConfig`` for more details.
   ///   - imageConfig: Configuration options for generating images.
+  ///   - seed: Optional random seed to make generation deterministic.
   public init(temperature: Float? = nil, topP: Float? = nil, topK: Int? = nil,
               candidateCount: Int? = nil, maxOutputTokens: Int? = nil,
               presencePenalty: Float? = nil, frequencyPenalty: Float? = nil,
               stopSequences: [String]? = nil, responseMIMEType: String? = nil,
               responseSchema: Schema? = nil, responseModalities: [ResponseModality]? = nil,
               thinkingConfig: ThinkingConfig? = nil, imageConfig: ImageConfig? = nil,
-              speechConfig: SpeechConfig? = nil) {
+              speechConfig: SpeechConfig? = nil, seed: Int? = nil) {
     // Explicit init because otherwise if we re-arrange the above variables it changes the API
     // surface.
     self.temperature = temperature
@@ -194,13 +198,14 @@ public struct GenerationConfig: Sendable, Equatable {
     self.thinkingConfig = thinkingConfig
     self.imageConfig = imageConfig
     self.speechConfig = speechConfig?.speechConfig
+    self.seed = seed
   }
 
   init(temperature: Float? = nil, topP: Float? = nil, topK: Int? = nil, candidateCount: Int? = nil,
        maxOutputTokens: Int? = nil, presencePenalty: Float? = nil, frequencyPenalty: Float? = nil,
        stopSequences: [String]? = nil, responseMIMEType: String, responseJSONSchema: JSONObject,
        responseModalities: [ResponseModality]? = nil, thinkingConfig: ThinkingConfig? = nil,
-       imageConfig: ImageConfig? = nil, speechConfig: SpeechConfig? = nil) {
+       imageConfig: ImageConfig? = nil, speechConfig: SpeechConfig? = nil, seed: Int? = nil) {
     self.temperature = temperature
     self.topP = topP
     self.topK = topK
@@ -216,6 +221,7 @@ public struct GenerationConfig: Sendable, Equatable {
     self.thinkingConfig = thinkingConfig
     self.speechConfig = speechConfig?.speechConfig
     self.imageConfig = imageConfig
+    self.seed = seed
   }
 
   /// Merges two configurations, giving precedence to values found in the `overrides` parameter.
@@ -255,6 +261,7 @@ public struct GenerationConfig: Sendable, Equatable {
     config.thinkingConfig = overrideConfig.thinkingConfig ?? config.thinkingConfig
     config.imageConfig = overrideConfig.imageConfig ?? config.imageConfig
     config.speechConfig = overrideConfig.speechConfig ?? config.speechConfig
+    config.seed = overrideConfig.seed ?? config.seed
 
     // 5. Handle Schema mutual exclusivity with precedence for `responseJSONSchema`.
     if let responseJSONSchema = overrideConfig.responseJSONSchema {
@@ -288,5 +295,6 @@ extension GenerationConfig: Encodable {
     case thinkingConfig
     case imageConfig
     case speechConfig
+    case seed
   }
 }

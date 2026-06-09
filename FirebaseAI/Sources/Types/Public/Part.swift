@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import CryptoKit
 import Foundation
 #if canImport(FoundationModels)
   import FoundationModels
@@ -27,6 +28,8 @@ public protocol Part: PartsRepresentable, Codable, Sendable, Equatable {
   /// more "thought" parts that provide insight into how it reasoned through the prompt to arrive
   /// at the final answer. These parts will have `isThought` set to `true`.
   var isThought: Bool { get }
+
+  var thoughtSignature: String? { get }
 }
 
 /// A text part containing a string value.
@@ -36,7 +39,7 @@ public struct TextPart: Part {
 
   public var isThought: Bool { _isThought ?? false }
 
-  let thoughtSignature: String?
+  public let thoughtSignature: String?
 
   let _isThought: Bool?
 
@@ -74,7 +77,7 @@ public struct InlineDataPart: Part {
 
   public var isThought: Bool { _isThought ?? false }
 
-  let thoughtSignature: String?
+  public let thoughtSignature: String?
 
   /// Creates an inline data part from data and a MIME type.
   ///
@@ -105,7 +108,7 @@ public struct InlineDataPart: Part {
 public struct FileDataPart: Part {
   let fileData: FileData
   let _isThought: Bool?
-  let thoughtSignature: String?
+  public let thoughtSignature: String?
 
   public var uri: String { fileData.fileURI }
   public var mimeType: String { fileData.mimeType }
@@ -135,7 +138,7 @@ public struct FileDataPart: Part {
 public struct FunctionCallPart: Part {
   let functionCall: FunctionCall
   let _isThought: Bool?
-  let thoughtSignature: String?
+  public let thoughtSignature: String?
 
   /// The name of the function to call.
   public var name: String { functionCall.name }
@@ -191,7 +194,7 @@ public struct FunctionCallPart: Part {
 public struct FunctionResponsePart: Part {
   let functionResponse: FunctionResponse
   let _isThought: Bool?
-  let thoughtSignature: String?
+  public let thoughtSignature: String?
 
   /// Matching ``FunctionCallPart/functionId`` for a ``FunctionCallPart``, if one was provided.
   public var functionId: String? { functionResponse.id }
@@ -255,7 +258,7 @@ public struct ExecutableCodePart: Part {
 
   let executableCode: ExecutableCode
   let _isThought: Bool?
-  let thoughtSignature: String?
+  public let thoughtSignature: String?
 
   /// The language of the code.
   public var language: ExecutableCodePart.Language {
@@ -317,7 +320,7 @@ public struct CodeExecutionResultPart: Part {
 
   let codeExecutionResult: CodeExecutionResult
   let _isThought: Bool?
-  let thoughtSignature: String?
+  public let thoughtSignature: String?
 
   /// The outcome of the code execution.
   public var outcome: CodeExecutionResultPart.Outcome {
@@ -350,10 +353,52 @@ public struct CodeExecutionResultPart: Part {
   }
 }
 
-#if compiler(>=6.2.3) && canImport(FoundationModels)
-  @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
+#if compiler(>=6.4)
+  @available(iOS 27.0, macOS 27.0, visionOS 27.0, watchOS 27.0, *)
   @available(tvOS, unavailable)
-  @available(watchOS, unavailable)
+  extension InlineDataPart: FoundationModels.Transcript.CustomSegment, Identifiable {
+
+    public var id: String {
+      let hash = SHA256.hash(data: data)
+      // Convert the hash bytes directly into a lowercase hex string
+      return hash.map { String(format: "%02x", $0) }.joined()
+    }
+
+    public var content: InlineDataPart { self }
+  }
+
+  @available(iOS 27.0, macOS 27.0, visionOS 27.0, watchOS 27.0, *)
+  @available(tvOS, unavailable)
+  extension FileDataPart: FoundationModels.Transcript.CustomSegment, Identifiable {
+
+    public var id: String { fileData.fileURI }
+
+    public var content: FileDataPart { self }
+  }
+
+  @available(iOS 27.0, macOS 27.0, visionOS 27.0, watchOS 27.0, *)
+  @available(tvOS, unavailable)
+  extension ExecutableCodePart: FoundationModels.Transcript.CustomSegment, Identifiable {
+
+    public var id: String { self.code }
+
+    public var content: ExecutableCodePart { self }
+  }
+
+  @available(iOS 27.0, macOS 27.0, visionOS 27.0, watchOS 27.0, *)
+  @available(tvOS, unavailable)
+  extension CodeExecutionResultPart: FoundationModels.Transcript.CustomSegment, Identifiable {
+    public var id: String {
+      "\(codeExecutionResult.outcome?.rawValue ?? ""):\(codeExecutionResult.output ?? "")"
+    }
+
+    public var content: CodeExecutionResultPart { self }
+  }
+#endif // compiler(>=6.4)
+
+#if compiler(>=6.2.3) && canImport(FoundationModels)
+  @available(iOS 26.0, macOS 26.0, visionOS 26.0, watchOS 27.0, *)
+  @available(tvOS, unavailable)
   extension [any Part] {
     func toFoundationModelsPrompt() throws -> FoundationModels.Prompt {
       let parts = ModelContent(parts: self)
@@ -388,4 +433,5 @@ public struct CodeExecutionResultPart: Part {
       }
     }
   }
+
 #endif // compiler(>=6.2.3) && canImport(FoundationModels)

@@ -106,6 +106,25 @@ public final class FirebaseAI: Sendable {
     )
   }
 
+  #if compiler(>=6.4)
+    public func geminiLanguageModel(name: String, safetySettings: [SafetySetting]? = nil,
+                                    options: GeminiGenerationOptions? = nil,
+                                    serverTools: [any GeminiTool]? = nil,
+                                    requestOptions: RequestOptions = RequestOptions())
+      -> GeminiLanguageModel {
+      return GeminiLanguageModel(
+        modelName: name,
+        modelResourceName: modelResourceName(modelName: name),
+        firebaseInfo: firebaseInfo,
+        apiConfig: apiConfig,
+        safetySettings: safetySettings,
+        serverTools: serverTools,
+        geminiOptions: options,
+        requestOptions: requestOptions,
+      )
+    }
+  #endif // compiler(>=6.4)
+
   // TODO: Remove the `#if compiler(>=6.2.3)` when Xcode 26.2 is the minimum supported version.
   #if compiler(>=6.2.3)
 
@@ -169,9 +188,8 @@ public final class FirebaseAI: Sendable {
       ///   - tools: A list of tools that extend the capabilities of the model. These tools must be
       ///     instances conforming to `FoundationModels.Tool` for automatic function calling.
       ///   - instructions: System instructions that direct the model's behavior.
-      @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
+      @available(iOS 26.0, macOS 26.0, visionOS 26.0, watchOS 27.0, *)
       @available(tvOS, unavailable)
-      @available(watchOS, unavailable)
       public func generativeModelSession(model: any LanguageModelProvider,
                                          tools: [any FoundationModels.Tool],
                                          instructions: String? = nil) -> GenerativeModelSession {

@@ -22,9 +22,8 @@
 
   final class GenerationOptionsTests: XCTestCase {
     #if canImport(FoundationModels)
-      @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
+      @available(iOS 26.0, macOS 26.0, visionOS 26.0, watchOS 27.0, *)
       @available(tvOS, unavailable)
-      @available(watchOS, unavailable)
       func testConversionToFoundationModels() throws {
         // Skip this test on platforms that do not support Foundation Models. This is a
         // workaround for XCTest ignoring the `@available` attributes. See
@@ -41,8 +40,13 @@
 
         XCTAssertEqual(foundationModelsGenerationOptions.temperature, 0.5)
         XCTAssertEqual(foundationModelsGenerationOptions.maximumResponseTokens, 100)
-        XCTAssertNotNil(foundationModelsGenerationOptions.sampling)
-        XCTAssertEqual(foundationModelsGenerationOptions.sampling, .greedy)
+        #if compiler(>=6.4)
+          XCTAssertNotNil(foundationModelsGenerationOptions.samplingMode)
+          XCTAssertEqual(foundationModelsGenerationOptions.samplingMode, .greedy)
+        #else
+          XCTAssertNotNil(foundationModelsGenerationOptions.sampling)
+          XCTAssertEqual(foundationModelsGenerationOptions.sampling, .greedy)
+        #endif // compiler(>=6.4)
       }
     #endif // canImport(FoundationModels)
 

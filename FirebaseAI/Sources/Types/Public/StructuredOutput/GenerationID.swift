@@ -33,7 +33,7 @@ public extension FirebaseAI {
     public init() {
       responseID = UUID().uuidString
       #if canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
-        if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
+        if #available(iOS 26.0, macOS 26.0, visionOS 26.0, watchOS 27.0, *) {
           appleGenerationID = FoundationModels.GenerationID()
         } else {
           appleGenerationID = nil
@@ -49,9 +49,8 @@ public extension FirebaseAI {
     }
 
     #if canImport(FoundationModels)
-      @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
+      @available(iOS 26.0, macOS 26.0, visionOS 26.0, watchOS 27.0, *)
       @available(tvOS, unavailable)
-      @available(watchOS, unavailable)
       var generationID: FoundationModels.GenerationID? {
         guard let generationID = appleGenerationID as? FoundationModels.GenerationID else {
           return nil
@@ -64,9 +63,8 @@ public extension FirebaseAI {
 }
 
 #if canImport(FoundationModels)
-  @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
+  @available(iOS 26.0, macOS 26.0, visionOS 26.0, watchOS 27.0, *)
   @available(tvOS, unavailable)
-  @available(watchOS, unavailable)
   extension FoundationModels.GenerationID: FirebaseAI.GenerationID.GenerationIDProtocol {}
 #endif // canImport(FoundationModels)
 
@@ -77,7 +75,7 @@ extension FirebaseAI.GenerationID: Equatable {
     }
 
     #if canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
-      if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
+      if #available(iOS 26.0, macOS 26.0, visionOS 26.0, watchOS 27.0, *) {
         guard lhs.generationID == rhs.generationID else {
           return false
         }
@@ -93,7 +91,7 @@ extension FirebaseAI.GenerationID: Hashable {
     hasher.combine(responseID)
 
     #if canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
-      if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
+      if #available(iOS 26.0, macOS 26.0, visionOS 26.0, watchOS 27.0, *) {
         hasher.combine(generationID)
       }
     #endif // canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM

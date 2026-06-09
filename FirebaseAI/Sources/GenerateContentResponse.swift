@@ -192,6 +192,15 @@ public struct GenerateContentResponse: Sendable {
   }
 }
 
+public enum CandidateKeys {
+  public static let safetyRatings = "safetyRatings"
+  public static let finishReason = "finishReason"
+  public static let finishMessage = "finishMessage"
+  public static let citationMetadata = "citationMetadata"
+  public static let groundingMetadata = "groundingMetadata"
+  public static let urlContextMetadata = "urlContextMetadata"
+}
+
 /// A struct representing a possible reply to a content generation prompt. Each content generation
 /// prompt may produce multiple candidate responses.
 public struct Candidate: Sendable {
@@ -239,13 +248,13 @@ public struct Candidate: Sendable {
 }
 
 /// A collection of source attributions for a piece of content.
-public struct CitationMetadata: Sendable {
+public struct CitationMetadata: Sendable, Hashable {
   /// A list of individual cited sources and the parts of the content to which they apply.
   public let citations: [Citation]
 }
 
 /// A struct describing a source attribution.
-public struct Citation: Sendable, Equatable {
+public struct Citation: Sendable, Hashable {
   /// The inclusive beginning of a sequence in a model response that derives from a cited source.
   public let startIndex: Int
 
@@ -282,7 +291,7 @@ public struct Citation: Sendable, Equatable {
 }
 
 /// A value enumerating possible reasons for a model to terminate a content generation request.
-public struct FinishReason: DecodableProtoEnum, Hashable, Sendable {
+public struct FinishReason: CodableProtoEnum, Hashable, Sendable {
   enum Kind: String {
     case stop = "STOP"
     case maxTokens = "MAX_TOKENS"
@@ -691,6 +700,13 @@ extension CitationMetadata: Decodable {
   }
 }
 
+extension CitationMetadata: Encodable {
+  public func encode(to encoder: any Encoder) throws {
+    var container = encoder.container(keyedBy: CodingKeys.self)
+    try container.encode(citations, forKey: .citations)
+  }
+}
+
 extension Citation: Decodable {
   enum CodingKeys: CodingKey {
     case startIndex
@@ -751,6 +767,20 @@ extension Citation: Decodable {
   }
 }
 
+extension Citation: Encodable {
+  public func encode(to encoder: any Encoder) throws {
+    var container = encoder.container(keyedBy: CodingKeys.self)
+    try container.encode(startIndex, forKey: .startIndex)
+    try container.encode(endIndex, forKey: .endIndex)
+    try container.encodeIfPresent(uri, forKey: .uri)
+    try container.encodeIfPresent(title, forKey: .title)
+    try container.encodeIfPresent(license, forKey: .license)
+    if let publicationDate {
+      try container.encode(ProtoDate(dateComponents: publicationDate), forKey: .publicationDate)
+    }
+  }
+}
+
 extension PromptFeedback: Decodable {
   enum CodingKeys: CodingKey {
     case blockReason
@@ -776,7 +806,7 @@ extension PromptFeedback: Decodable {
   }
 }
 
-extension GroundingMetadata: Decodable {
+extension GroundingMetadata: Codable {
   enum CodingKeys: String, CodingKey {
     case webSearchQueries
     case groundingChunks
@@ -800,13 +830,34 @@ extension GroundingMetadata: Decodable {
       forKey: .searchEntryPoint
     )
   }
+
+  public func encode(to encoder: any Encoder) throws {
+    var container = encoder.container(keyedBy: CodingKeys.self)
+    try container.encode(webSearchQueries, forKey: .webSearchQueries)
+    try container.encode(groundingChunks, forKey: .groundingChunks)
+    try container.encode(groundingSupports, forKey: .groundingSupports)
+    try container.encodeIfPresent(searchEntryPoint, forKey: .searchEntryPoint)
+  }
 }
 
-extension GroundingMetadata.SearchEntryPoint: Decodable {}
+extension GroundingMetadata.SearchEntryPoint: Codable {}
 
-extension GroundingMetadata.GroundingChunk: Decodable {}
+extension GroundingMetadata.GroundingChunk: Codable {}
 
-extension GroundingMetadata.WebGroundingChunk: Decodable {}
+extension GroundingMetadata.WebGroundingChunk: Codable {}
+
+extension GroundingMetadata.GroundingSupport: Encodable {
+  enum CodingKeys: String, CodingKey {
+    case segment
+    case groundingChunkIndices
+  }
+
+  public func encode(to encoder: any Encoder) throws {
+    var container = encoder.container(keyedBy: CodingKeys.self)
+    try container.encode(segment, forKey: .segment)
+    try container.encode(groundingChunkIndices, forKey: .groundingChunkIndices)
+  }
+}
 
 extension GroundingMetadata.GroundingSupport.Internal: Decodable {
   enum CodingKeys: String, CodingKey {
@@ -838,5 +889,15 @@ extension Segment: Decodable {
     startIndex = try container.decodeIfPresent(Int.self, forKey: .startIndex) ?? 0
     endIndex = try container.decodeIfPresent(Int.self, forKey: .endIndex) ?? 0
     text = try container.decodeIfPresent(String.self, forKey: .text) ?? ""
+  }
+}
+
+extension Segment: Encodable {
+  public func encode(to encoder: any Encoder) throws {
+    var container = encoder.container(keyedBy: CodingKeys.self)
+    try container.encode(partIndex, forKey: .partIndex)
+    try container.encode(startIndex, forKey: .startIndex)
+    try container.encode(endIndex, forKey: .endIndex)
+    try container.encode(text, forKey: .text)
   }
 }
