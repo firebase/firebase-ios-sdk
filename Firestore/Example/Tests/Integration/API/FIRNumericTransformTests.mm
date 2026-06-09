@@ -18,7 +18,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import <math.h>
+#include <cmath>
 
 #import "Firestore/Source/API/FIRFieldValue+Internal.h"
 
@@ -310,10 +310,10 @@ double DOUBLE_EPSILON = 0.000001;
 - (void)expectLocalAndRemoteNaN {
   FIRDocumentSnapshot *snap = [_accumulator awaitLocalEvent];
   XCTAssertTrue([snap[@"sum"] isKindOfClass:[NSNumber class]]);
-  XCTAssertTrue(isnan([snap[@"sum"] doubleValue]));
+  XCTAssertTrue(std::isnan([snap[@"sum"] doubleValue]));
   snap = [_accumulator awaitRemoteEvent];
   XCTAssertTrue([snap[@"sum"] isKindOfClass:[NSNumber class]]);
-  XCTAssertTrue(isnan([snap[@"sum"] doubleValue]));
+  XCTAssertTrue(std::isnan([snap[@"sum"] doubleValue]));
 }
 
 - (void)testMinimumWithNaN {
