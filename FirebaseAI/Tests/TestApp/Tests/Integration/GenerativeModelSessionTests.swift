@@ -48,9 +48,8 @@
 
     #if canImport(FoundationModels)
       @Generable(description: "Basic profile information about a cat")
-      @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
+      @available(iOS 26.0, macOS 26.0, visionOS 26.0, watchOS 27.0, *)
       @available(tvOS, unavailable)
-      @available(watchOS, unavailable)
       struct CatProfile {
         // A guide isn't necessary for basic fields.
         var name: String
@@ -63,9 +62,8 @@
       }
 
       @Test(arguments: [InstanceConfig.vertexAI_v1beta_global, InstanceConfig.googleAI_v1beta])
-      @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
+      @available(iOS 26.0, macOS 26.0, visionOS 26.0, watchOS 27.0, *)
       @available(tvOS, unavailable)
-      @available(watchOS, unavailable)
       func respondGeneratedContent(_ config: InstanceConfig) async throws {
         let firebaseAI = FirebaseAI.componentInstance(config)
         let session = firebaseAI.generativeModelSession(model: ModelNames.gemini2_5_FlashLite)
@@ -91,9 +89,8 @@
       }
 
       @Test(arguments: [InstanceConfig.vertexAI_v1beta_global, InstanceConfig.googleAI_v1beta])
-      @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
+      @available(iOS 26.0, macOS 26.0, visionOS 26.0, watchOS 27.0, *)
       @available(tvOS, unavailable)
-      @available(watchOS, unavailable)
       func respondGenerable(_ config: InstanceConfig) async throws {
         let firebaseAI = FirebaseAI.componentInstance(config)
         let session = firebaseAI.generativeModelSession(model: ModelNames.gemini2_5_FlashLite)
@@ -122,9 +119,8 @@
       }
 
       @Generable
-      @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
+      @available(iOS 26.0, macOS 26.0, visionOS 26.0, watchOS 27.0, *)
       @available(tvOS, unavailable)
-      @available(watchOS, unavailable)
       enum Difficulty {
         case easy
         case medium
@@ -132,9 +128,8 @@
       }
 
       @Generable
-      @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
+      @available(iOS 26.0, macOS 26.0, visionOS 26.0, watchOS 27.0, *)
       @available(tvOS, unavailable)
-      @available(watchOS, unavailable)
       enum SuggestedCourse {
         case appetizer
         case main
@@ -142,9 +137,8 @@
       }
 
       @Generable(description: "A recipe for a delicious dish")
-      @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
+      @available(iOS 26.0, macOS 26.0, visionOS 26.0, watchOS 27.0, *)
       @available(tvOS, unavailable)
-      @available(watchOS, unavailable)
       struct Recipe {
         @Guide(description: "The name of the dish")
         var name: String
@@ -169,18 +163,16 @@
       }
 
       @Generable(description: "A list of recipes")
-      @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
+      @available(iOS 26.0, macOS 26.0, visionOS 26.0, watchOS 27.0, *)
       @available(tvOS, unavailable)
-      @available(watchOS, unavailable)
       struct RecipeList {
         @Guide(description: "A list of recipes for a three-course meal.", .count(3))
         var recipes: [Recipe]
       }
 
       @Test(arguments: [InstanceConfig.vertexAI_v1beta_global, InstanceConfig.googleAI_v1beta])
-      @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
+      @available(iOS 26.0, macOS 26.0, visionOS 26.0, watchOS 27.0, *)
       @available(tvOS, unavailable)
-      @available(watchOS, unavailable)
       func respondGenerableRecipe(_ config: InstanceConfig) async throws {
         let firebaseAI = FirebaseAI.componentInstance(config)
         let session = firebaseAI.generativeModelSession(model: ModelNames.gemini2_5_FlashLite)
@@ -206,9 +198,8 @@
       }
 
       @Test(arguments: [InstanceConfig.vertexAI_v1beta_global, InstanceConfig.googleAI_v1beta])
-      @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
+      @available(iOS 26.0, macOS 26.0, visionOS 26.0, watchOS 27.0, *)
       @available(tvOS, unavailable)
-      @available(watchOS, unavailable)
       func respondGenerableRecipeList(_ config: InstanceConfig) async throws {
         let firebaseAI = FirebaseAI.componentInstance(config)
         let session = firebaseAI.generativeModelSession(model: ModelNames.gemini2_5_FlashLite)
@@ -242,9 +233,8 @@
       }
     #endif // canImport(FoundationModels)
 
-    @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
+    @available(iOS 26.0, macOS 26.0, visionOS 26.0, watchOS 27.0, *)
     @available(tvOS, unavailable)
-    @available(watchOS, unavailable)
     struct GetTemperature: FoundationModels.Tool {
       let description = "Returns the current temperature for the specified location."
 
@@ -272,9 +262,8 @@
     }
 
     @Test(arguments: [InstanceConfig.vertexAI_v1beta_global, InstanceConfig.googleAI_v1beta])
-    @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
+    @available(iOS 26.0, macOS 26.0, visionOS 26.0, watchOS 27.0, *)
     @available(tvOS, unavailable)
-    @available(watchOS, unavailable)
     func respondTextWithAutomaticFunctionCalling(_ config: InstanceConfig) async throws {
       let temperatureTool = GetTemperature()
       let session = FirebaseAI.componentInstance(config).generativeModelSession(
@@ -306,9 +295,8 @@
     }
 
     @Test(arguments: [InstanceConfig.vertexAI_v1beta_global, InstanceConfig.googleAI_v1beta])
-    @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
+    @available(iOS 26.0, macOS 26.0, visionOS 26.0, watchOS 27.0, *)
     @available(tvOS, unavailable)
-    @available(watchOS, unavailable)
     func respondGenerableWithAutomaticFunctionCalling(_ config: InstanceConfig) async throws {
       let temperatureTool = GetTemperature()
       let session = FirebaseAI.componentInstance(config).generativeModelSession(
@@ -403,9 +391,8 @@
 
     #if canImport(FoundationModels)
       @Test(arguments: [InstanceConfig.vertexAI_v1beta_global, InstanceConfig.googleAI_v1beta])
-      @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
+      @available(iOS 26.0, macOS 26.0, visionOS 26.0, watchOS 27.0, *)
       @available(tvOS, unavailable)
-      @available(watchOS, unavailable)
       func streamResponseGeneratedContent(_ config: InstanceConfig) async throws {
         let firebaseAI = FirebaseAI.componentInstance(config)
         let session = firebaseAI.generativeModelSession(model: ModelNames.gemini2_5_FlashLite)
@@ -458,9 +445,8 @@
       }
 
       @Test(arguments: [InstanceConfig.vertexAI_v1beta_global, InstanceConfig.googleAI_v1beta])
-      @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
+      @available(iOS 26.0, macOS 26.0, visionOS 26.0, watchOS 27.0, *)
       @available(tvOS, unavailable)
-      @available(watchOS, unavailable)
       func streamResponseGenerable(_ config: InstanceConfig) async throws {
         let firebaseAI = FirebaseAI.componentInstance(config)
         let session = firebaseAI.generativeModelSession(model: ModelNames.gemini3_1_FlashLite)
@@ -532,9 +518,8 @@
       }
 
       @Test(arguments: [InstanceConfig.vertexAI_v1beta_global, InstanceConfig.googleAI_v1beta])
-      @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
+      @available(iOS 26.0, macOS 26.0, visionOS 26.0, watchOS 27.0, *)
       @available(tvOS, unavailable)
-      @available(watchOS, unavailable)
       func streamResponseTextWithAutomaticFunctionCalling(_ config: InstanceConfig) async throws {
         let temperatureTool = GetTemperature()
         let session = FirebaseAI.componentInstance(config).generativeModelSession(

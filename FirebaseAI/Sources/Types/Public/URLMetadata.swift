@@ -17,7 +17,7 @@ import Foundation
 /// Metadata for a single URL retrieved by the ``Tool/urlContext()`` tool.
 public struct URLMetadata: Sendable, Hashable {
   /// Status of the URL retrieval.
-  public struct URLRetrievalStatus: DecodableProtoEnum, Hashable {
+  public struct URLRetrievalStatus: CodableProtoEnum, Hashable {
     enum Kind: String {
       case unspecified = "URL_RETRIEVAL_STATUS_UNSPECIFIED"
       case success = "URL_RETRIEVAL_STATUS_SUCCESS"
@@ -81,3 +81,5 @@ extension URLMetadata: Decodable {
     )
   }
 }
+
+extension URLMetadata: Encodable {}

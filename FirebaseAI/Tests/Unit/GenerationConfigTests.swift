@@ -97,6 +97,19 @@ final class GenerationConfigTests: XCTestCase {
     """)
   }
 
+  func testEncodeGenerationConfig_seed() throws {
+    let generationConfig = GenerationConfig(seed: 42)
+
+    let jsonData = try encoder.encode(generationConfig)
+
+    let json = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
+    XCTAssertEqual(json, """
+    {
+      "seed" : 42
+    }
+    """)
+  }
+
   func testEncodeGenerationConfig_jsonResponse() throws {
     let mimeType = "application/json"
     let generationConfig = GenerationConfig(
@@ -360,6 +373,19 @@ final class GenerationConfigTests: XCTestCase {
     XCTAssertEqual(result.topP, 0.9)
     XCTAssertEqual(result.responseMIMEType, "application/json")
     XCTAssertEqual(result.thinkingConfig?.thinkingBudget, 1024)
+  }
+
+  func testMerge_seed() throws {
+    let base = GenerationConfig(seed: 42)
+    let overrides = GenerationConfig(seed: 100)
+    let result = try XCTUnwrap(GenerationConfig.merge(base, with: overrides))
+    XCTAssertEqual(result.seed, 100)
+
+    let resultNoOverride = try XCTUnwrap(GenerationConfig.merge(base, with: GenerationConfig()))
+    XCTAssertEqual(resultNoOverride.seed, 42)
+
+    let resultNoBase = try XCTUnwrap(GenerationConfig.merge(GenerationConfig(), with: overrides))
+    XCTAssertEqual(resultNoBase.seed, 100)
   }
 
   func testMerge_schemaPrecedence_overridesJSONSchema() throws {

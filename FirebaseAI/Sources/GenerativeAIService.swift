@@ -185,6 +185,9 @@ struct GenerativeAIService {
     if TaskLocals.isHybridRequest {
       apiClientHeaders.append("hybrid")
     }
+    if TaskLocals.isFoundationModelsRequest {
+      apiClientHeaders.append("fma")
+    }
     urlRequest.setValue(
       apiClientHeaders.joined(separator: " "),
       forHTTPHeaderField: "x-goog-api-client"

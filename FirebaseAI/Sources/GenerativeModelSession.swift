@@ -117,9 +117,8 @@
       /// generation configuration.
       /// - Returns: A `Response` containing the generated content as `GeneratedContent`.
       /// - Throws: A `GenerationError` if the model fails to generate a response.
-      @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
+      @available(iOS 26.0, macOS 26.0, visionOS 26.0, watchOS 27.0, *)
       @available(tvOS, unavailable)
-      @available(watchOS, unavailable)
       @discardableResult
       nonisolated(nonsending)
       func respond(to prompt: PartsRepresentable...,
@@ -153,9 +152,8 @@
       /// - Returns: A `Response` containing the generated content as the specified `Generable`
       /// type.
       /// - Throws: A `GenerationError` if the model fails to generate a response.
-      @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
+      @available(iOS 26.0, macOS 26.0, visionOS 26.0, watchOS 27.0, *)
       @available(tvOS, unavailable)
-      @available(watchOS, unavailable)
       @discardableResult
       public nonisolated(nonsending)
       func respond<Content>(to prompt: PartsRepresentable...,
@@ -183,9 +181,8 @@
       /// - Parameter options: An optional `GenerationConfig` to override the model's default
       /// generation configuration.
       /// - Returns: A `ResponseStream` that yields snapshots of the generated content.
-      @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
+      @available(iOS 26.0, macOS 26.0, visionOS 26.0, watchOS 27.0, *)
       @available(tvOS, unavailable)
-      @available(watchOS, unavailable)
       func streamResponse(to prompt: PartsRepresentable...,
                           schema: FoundationModels.GenerationSchema,
                           includeSchemaInPrompt: Bool = true,
@@ -215,9 +212,8 @@
       /// - Parameter options: An optional `GenerationConfig` to override the model's default
       /// generation configuration.
       /// - Returns: A `ResponseStream` that yields snapshots of the generated content.
-      @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
+      @available(iOS 26.0, macOS 26.0, visionOS 26.0, watchOS 27.0, *)
       @available(tvOS, unavailable)
-      @available(watchOS, unavailable)
       public func streamResponse<Content>(to prompt: PartsRepresentable...,
                                           generating type: Content.Type = Content.self,
                                           includeSchemaInPrompt: Bool = true,
@@ -351,7 +347,7 @@
       }
 
       #if canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
-        if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
+        if #available(iOS 26.0, macOS 26.0, visionOS 26.0, watchOS 27.0, *) {
           return FirebaseAI
             .GeneratedContent(
               kind: FoundationModels.GeneratedContent.Kind.string(text),
@@ -375,9 +371,11 @@
       }
 
       #if canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
-        if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *), let contentMetatype = T
-          .self as? (any FoundationModels.ConvertibleFromGeneratedContent.Type),
-          let content = try contentMetatype.init(rawContent) as? T {
+        if #available(iOS 26.0, macOS 26.0, visionOS 26.0, watchOS 27.0, *),
+           let contentMetatype = T.self as? (
+             any FoundationModels.ConvertibleFromGeneratedContent.Type
+           ),
+           let content = try contentMetatype.init(rawContent) as? T {
           return content
         }
       #endif // canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM

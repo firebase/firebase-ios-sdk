@@ -35,6 +35,7 @@ enum AILog {
     case generativeModelInitialized = 1000
     case unsupportedGeminiModel = 1001
     case invalidSchemaFormat = 1002
+    case unsupportedGeminiServerTool = 1003
 
     // Imagen Model Configuration
     case unsupportedImagenModel = 1200
@@ -79,6 +80,9 @@ enum AILog {
     case decodedInvalidProtoDurationString = 3028
     case decodedInvalidProtoDurationSeconds = 3029
     case decodedInvalidProtoDurationNanoseconds = 3030
+    case unrecognizedSegmentType = 3031
+    case unrecognizedTranscriptEntryType = 3032
+    case unrecognizedResponsePartType = 3033
 
     // SDK State Errors
     case generateContentResponseNoCandidates = 4000

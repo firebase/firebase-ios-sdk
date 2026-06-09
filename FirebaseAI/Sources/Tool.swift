@@ -66,11 +66,19 @@ public struct FunctionDeclaration: Sendable {
     kind = .manual
   }
 
+  init(name: String, description: String, parameters: FirebaseAI.GenerationSchema) {
+    self.name = name
+    self.description = description
+    self.parameters = nil
+    parametersJSONSchema = parameters
+    responseJSONSchema = nil
+    kind = .manual
+  }
+
   #if compiler(>=6.2.3)
     #if canImport(FoundationModels)
-      @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
+      @available(iOS 26.0, macOS 26.0, visionOS 26.0, watchOS 27.0, *)
       @available(tvOS, unavailable)
-      @available(watchOS, unavailable)
       init<T: FoundationModels.Tool>(foundationModelsTool: T) {
         name = foundationModelsTool.name
         description = foundationModelsTool.description
@@ -100,7 +108,7 @@ public struct FunctionDeclaration: Sendable {
 /// [Gemini Developer API](https://ai.google.dev/gemini-api/terms#grounding-with-google-search)
 /// or Vertex AI Gemini API (see [Service Terms](https://cloud.google.com/terms/service-terms)
 /// section within the Service Specific Terms).
-public struct GoogleSearch: Sendable {
+public struct GoogleSearch: Sendable, Hashable {
   public init() {}
 }
 
@@ -267,9 +275,8 @@ public extension ToolRepresentable where Self == FirebaseAILogic.Tool {
 
   #if compiler(>=6.2.3)
     #if canImport(FoundationModels)
-      @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
+      @available(iOS 26.0, macOS 26.0, visionOS 26.0, watchOS 27.0, *)
       @available(tvOS, unavailable)
-      @available(watchOS, unavailable)
       static func autoFunctionDeclaration(_ tool: any FoundationModels.Tool) -> Tool {
         return self.init(functionDeclarations: [FunctionDeclaration(foundationModelsTool: tool)])
       }
@@ -348,9 +355,8 @@ public extension ToolRepresentable where Self == FirebaseAILogic.Tool {
   }
 
   #if canImport(FoundationModels)
-    @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
+    @available(iOS 26.0, macOS 26.0, visionOS 26.0, watchOS 27.0, *)
     @available(tvOS, unavailable)
-    @available(watchOS, unavailable)
     extension FunctionDeclaration {
       static func call<T: FoundationModels.Tool>(tool: T,
                                                  functionCall: FunctionCallPart) async throws
@@ -400,7 +406,7 @@ extension FunctionDeclaration: Encodable {
     try container.encode(description, forKey: .description)
     try container.encodeIfPresent(parameters, forKey: .parameters)
     #if canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
-      if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
+      if #available(iOS 26.0, macOS 26.0, visionOS 26.0, watchOS 27.0, *) {
         try container.encodeIfPresent(parametersJSONSchema, forKey: .parametersJSONSchema)
         try container.encodeIfPresent(responseJSONSchema, forKey: .responseJSONSchema)
       }

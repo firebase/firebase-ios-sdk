@@ -115,3 +115,20 @@ extension ProtoDate: Decodable {
     }
   }
 }
+
+extension ProtoDate: Encodable {
+  func encode(to encoder: any Encoder) throws {
+    var container = encoder.container(keyedBy: CodingKeys.self)
+    try container.encodeIfPresent(year, forKey: .year)
+    try container.encodeIfPresent(month, forKey: .month)
+    try container.encodeIfPresent(day, forKey: .day)
+  }
+}
+
+extension ProtoDate {
+  init(dateComponents: DateComponents) {
+    year = dateComponents.year
+    month = dateComponents.month
+    day = dateComponents.day
+  }
+}

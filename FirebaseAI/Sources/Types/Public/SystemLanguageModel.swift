@@ -51,7 +51,7 @@
 
       /// The availability status for the on-device model.
       public var availability: SystemLanguageModel.Availability {
-        #if canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
+        #if canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM && !os(watchOS)
           if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
             if let model = _systemLanguageModel as? FoundationModels.SystemLanguageModel {
               switch model.availability {
@@ -71,7 +71,8 @@
               }
             }
           }
-        #endif // canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
+        #endif // canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM &&
+        // !os(watchOS)
         return .unavailable(.deviceNotEligible)
       }
 
@@ -79,13 +80,14 @@
       ///
       /// For specific availability details, see ``FirebaseAI/SystemLanguageModel/availability``.
       public var isAvailable: Bool {
-        #if canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
+        #if canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM && !os(watchOS)
           if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
             if let model = _systemLanguageModel as? FoundationModels.SystemLanguageModel {
               return model.isAvailable
             }
           }
-        #endif // canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
+        #endif // canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM &&
+        // !os(watchOS)
         return false
       }
 
@@ -231,12 +233,13 @@
     /// For more details, see the Apple
     /// [documentation](https://developer.apple.com/documentation/foundationmodels/systemlanguagemodel/default).
     static var `default`: FirebaseAI.SystemLanguageModel {
-      #if canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
+      #if canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM && !os(watchOS)
         if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
           return FirebaseAI
             .SystemLanguageModel(systemLanguageModel: FoundationModels.SystemLanguageModel.default)
         }
-      #endif // canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
+      #endif // canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM &&
+      // !os(watchOS)
       return FirebaseAI.SystemLanguageModel(systemLanguageModel: nil)
     }
 
@@ -251,7 +254,7 @@
     ///     content; defaults to ``Guardrails/default``.
     convenience init(useCase: FirebaseAI.SystemLanguageModel.UseCase = .general,
                      guardrails: FirebaseAI.SystemLanguageModel.Guardrails = .default) {
-      #if canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
+      #if canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM && !os(watchOS)
         if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
           let model = FoundationModels.SystemLanguageModel(
             useCase: useCase.toFoundationModels(),
@@ -260,7 +263,8 @@
           self.init(systemLanguageModel: model)
           return
         }
-      #endif // canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
+      #endif // canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM &&
+      // !os(watchOS)
       self.init(systemLanguageModel: nil)
     }
 
@@ -287,13 +291,14 @@
     /// [documentation](https://developer.apple.com/documentation/foundationmodels/systemlanguagemodel/supportedlanguages).
     @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
     var supportedLanguages: Set<Locale.Language> {
-      #if canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
+      #if canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM && !os(watchOS)
         if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
           if let model = _systemLanguageModel as? FoundationModels.SystemLanguageModel {
             return model.supportedLanguages
           }
         }
-      #endif // canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
+      #endif // canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM &&
+      // !os(watchOS)
       return []
     }
 
@@ -302,13 +307,14 @@
     /// Defaults to the device's current `Locale`. If the model is not available on the current
     /// platform, this returns `false`.
     func supportsLocale(_ locale: Locale = Locale.current) -> Bool {
-      #if canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
+      #if canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM && !os(watchOS)
         if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
           if let model = _systemLanguageModel as? FoundationModels.SystemLanguageModel {
             return model.supportsLocale(locale)
           }
         }
-      #endif // canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
+      #endif // canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM &&
+      // !os(watchOS)
       return false
     }
   }

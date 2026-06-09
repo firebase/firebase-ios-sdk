@@ -18,9 +18,8 @@ import Foundation
 #endif // canImport(FoundationModels)
 
 #if canImport(FoundationModels)
-  @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
+  @available(iOS 26.0, macOS 26.0, visionOS 26.0, watchOS 27.0, *)
   @available(tvOS, unavailable)
-  @available(watchOS, unavailable)
   extension FoundationModels.GenerationSchema: FirebaseAI.GenerationSchema
     .GenerationSchemaProtocol {}
 #endif // canImport(FoundationModels)
@@ -32,9 +31,8 @@ public extension FirebaseAI {
     private let _generationSchema: (any GenerationSchemaProtocol)?
 
     #if canImport(FoundationModels)
-      @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
+      @available(iOS 26.0, macOS 26.0, visionOS 26.0, watchOS 27.0, *)
       @available(tvOS, unavailable)
-      @available(watchOS, unavailable)
       var generationSchema: FoundationModels.GenerationSchema {
         guard let generationSchema = _generationSchema as? FoundationModels.GenerationSchema else {
           assertionFailure("Schema was nil in \(Self.self).#\(#function).")
@@ -45,9 +43,8 @@ public extension FirebaseAI {
         return generationSchema
       }
 
-      @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
+      @available(iOS 26.0, macOS 26.0, visionOS 26.0, watchOS 27.0, *)
       @available(tvOS, unavailable)
-      @available(watchOS, unavailable)
       init(_ generationSchema: FoundationModels.GenerationSchema) {
         _generationSchema = generationSchema
       }
@@ -56,9 +53,8 @@ public extension FirebaseAI {
 }
 
 #if canImport(FoundationModels)
-  @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
+  @available(iOS 26.0, macOS 26.0, visionOS 26.0, watchOS 27.0, *)
   @available(tvOS, unavailable)
-  @available(watchOS, unavailable)
   extension FirebaseAI.GenerationSchema: CustomDebugStringConvertible {
     // TODO: Add CustomDebugStringConvertible conformance for iOS < 26.
     public var debugDescription: String {
@@ -66,9 +62,8 @@ public extension FirebaseAI {
     }
   }
 
-  @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
+  @available(iOS 26.0, macOS 26.0, visionOS 26.0, watchOS 27.0, *)
   @available(tvOS, unavailable)
-  @available(watchOS, unavailable)
   extension FirebaseAI.GenerationSchema: Decodable {
     // TODO: Add Decodable conformance for iOS < 26.
     public init(from decoder: any Decoder) throws {
@@ -77,9 +72,8 @@ public extension FirebaseAI {
     }
   }
 
-  @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
+  @available(iOS 26.0, macOS 26.0, visionOS 26.0, watchOS 27.0, *)
   @available(tvOS, unavailable)
-  @available(watchOS, unavailable)
   extension FirebaseAI.GenerationSchema: Encodable {
     // TODO: Add Encodable conformance for iOS < 26.
     public func encode(to encoder: any Encoder) throws {

@@ -18,9 +18,8 @@
 
   @testable import FirebaseAILogic
 
-  @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
+  @available(iOS 26.0, macOS 26.0, visionOS 26.0, watchOS 27.0, *)
   @available(tvOS, unavailable)
-  @available(watchOS, unavailable)
   final class GenerativeModelSessionTests: XCTestCase {
     let testPrompt = "What sorts of questions can I ask you?"
     let testModelName = "test-model"

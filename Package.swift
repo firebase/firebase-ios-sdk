@@ -1670,8 +1670,12 @@ func firestoreTargets() -> [Target] {
 }
 
 func isFoundationModelsSupportedPlatformSwiftSetting() -> SwiftSetting {
+  var supportedPlatforms: [Platform] = [.iOS, .macCatalyst, .macOS, .visionOS]
+  #if compiler(>=6.4)
+    supportedPlatforms.append(.watchOS)
+  #endif // compiler(>=6.4)
   return SwiftSetting.define(
     "IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM",
-    .when(platforms: [.iOS, .macCatalyst, .macOS, .visionOS])
+    .when(platforms: supportedPlatforms)
   )
 }

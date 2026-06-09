@@ -23,4 +23,11 @@ enum TaskLocals {
   ///
   /// This is used to pass context down the call stack without modifying function signatures.
   @TaskLocal static var isHybridRequest = false
+
+  /// A task-local value indicating whether the current request originated from a
+  /// `LanguageModelExecutor`, such as
+  /// ``GeminiLanguageModel``, through the Foundation Models framework.
+  ///
+  /// This is used to pass context down the call stack without modifying function signatures.
+  @TaskLocal static var isFoundationModelsRequest = false
 }

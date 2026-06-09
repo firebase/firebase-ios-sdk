@@ -19,9 +19,8 @@
   #endif // canImport(FoundationModels)
 
   #if canImport(FoundationModels)
-    @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
+    @available(iOS 26.0, macOS 26.0, visionOS 26.0, watchOS 27.0, *)
     @available(tvOS, unavailable)
-    @available(watchOS, unavailable)
     extension FoundationModels.GeneratedContent: FirebaseAI.GeneratedContent
       .GeneratedContentProtocol {}
   #endif // canImport(FoundationModels)
@@ -38,9 +37,8 @@
       public let kind: Kind
 
       #if canImport(FoundationModels)
-        @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
+        @available(iOS 26.0, macOS 26.0, visionOS 26.0, watchOS 27.0, *)
         @available(tvOS, unavailable)
-        @available(watchOS, unavailable)
         var generatedContent: FoundationModels.GeneratedContent {
           guard let generatedContent = _generatedContent as? FoundationModels.GeneratedContent
           else {
@@ -70,7 +68,7 @@
 
       init(json: String, id: FirebaseAI.GenerationID?, isComplete: Bool?) throws {
         #if canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
-          if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
+          if #available(iOS 26.0, macOS 26.0, visionOS 26.0, watchOS 27.0, *) {
             var generatedContent = try FoundationModels.GeneratedContent(json: json)
             generatedContent.id = id?.generationID
             _generatedContent = generatedContent
@@ -91,9 +89,8 @@
       }
 
       #if canImport(FoundationModels)
-        @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
+        @available(iOS 26.0, macOS 26.0, visionOS 26.0, watchOS 27.0, *)
         @available(tvOS, unavailable)
-        @available(watchOS, unavailable)
         init(kind: FoundationModels.GeneratedContent.Kind, id: FirebaseAI.GenerationID? = nil,
              isComplete: Bool) {
           let generatedContent = FoundationModels.GeneratedContent(kind: kind, id: id?.generationID)
@@ -107,7 +104,7 @@
       init(kind: FirebaseAI.GeneratedContent.Kind, id: FirebaseAI.GenerationID? = nil,
            isComplete: Bool) {
         #if canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
-          if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
+          if #available(iOS 26.0, macOS 26.0, visionOS 26.0, watchOS 27.0, *) {
             _generatedContent = FoundationModels
               .GeneratedContent(kind: kind.toFoundationModels(), id: id?.generationID)
           } else {
@@ -126,9 +123,8 @@
         /// The JSON string representation of the generated content.
         ///
         /// **Public Preview**: This API is a public preview and may be subject to change.
-        @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
+        @available(iOS 26.0, macOS 26.0, visionOS 26.0, watchOS 27.0, *)
         @available(tvOS, unavailable)
-        @available(watchOS, unavailable)
         public var jsonString: String {
           return generatedContent.jsonString
         }
@@ -146,9 +142,8 @@
         ///   - type: The type to decode the content into.
         /// - Returns: The decoded value.
         /// - Throws: An error if decoding fails.
-        @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
+        @available(iOS 26.0, macOS 26.0, visionOS 26.0, watchOS 27.0, *)
         @available(tvOS, unavailable)
-        @available(watchOS, unavailable)
         public func value<Value>(_ type: Value.Type = Value.self) throws -> Value
           where Value: FoundationModels.ConvertibleFromGeneratedContent {
           return try generatedContent.value(type)
@@ -165,9 +160,8 @@
         ///   - property: The name of the property to decode.
         /// - Returns: The decoded value.
         /// - Throws: An error if decoding fails or the property does not exist.
-        @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
+        @available(iOS 26.0, macOS 26.0, visionOS 26.0, watchOS 27.0, *)
         @available(tvOS, unavailable)
-        @available(watchOS, unavailable)
         public func value<Value>(_ type: Value.Type = Value.self,
                                  forProperty property: String) throws -> Value
           where Value: FoundationModels.ConvertibleFromGeneratedContent {
@@ -185,9 +179,8 @@
         ///   - property: The name of the property to decode.
         /// - Returns: The decoded value, or `nil` if the property does not exist or is null.
         /// - Throws: An error if decoding fails.
-        @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
+        @available(iOS 26.0, macOS 26.0, visionOS 26.0, watchOS 27.0, *)
         @available(tvOS, unavailable)
-        @available(watchOS, unavailable)
         public func value<Value>(_ type: Value?.Type = Value?.self,
                                  forProperty property: String) throws -> Value?
           where Value: FoundationModels.ConvertibleFromGeneratedContent {
@@ -229,9 +222,8 @@
   }
 
   #if canImport(FoundationModels)
-    @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
+    @available(iOS 26.0, macOS 26.0, visionOS 26.0, watchOS 27.0, *)
     @available(tvOS, unavailable)
-    @available(watchOS, unavailable)
     extension FirebaseAI.GeneratedContent: Equatable {
       public static func == (lhs: FirebaseAI.GeneratedContent,
                              rhs: FirebaseAI.GeneratedContent) -> Bool {
@@ -240,23 +232,20 @@
       }
     }
 
-    @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
+    @available(iOS 26.0, macOS 26.0, visionOS 26.0, watchOS 27.0, *)
     @available(tvOS, unavailable)
-    @available(watchOS, unavailable)
     extension FirebaseAI.GeneratedContent: CustomDebugStringConvertible {
       public var debugDescription: String {
         return generatedContent.debugDescription
       }
     }
 
-    @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
+    @available(iOS 26.0, macOS 26.0, visionOS 26.0, watchOS 27.0, *)
     @available(tvOS, unavailable)
-    @available(watchOS, unavailable)
     extension FirebaseAI.GeneratedContent.Kind: Equatable {}
 
-    @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
+    @available(iOS 26.0, macOS 26.0, visionOS 26.0, watchOS 27.0, *)
     @available(tvOS, unavailable)
-    @available(watchOS, unavailable)
     extension FoundationModels.GeneratedContent.Kind {
       func toFirebase(isComplete: Bool) -> FirebaseAI.GeneratedContent.Kind {
         switch self {
@@ -288,9 +277,8 @@
       }
     }
 
-    @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
+    @available(iOS 26.0, macOS 26.0, visionOS 26.0, watchOS 27.0, *)
     @available(tvOS, unavailable)
-    @available(watchOS, unavailable)
     extension FirebaseAI.GeneratedContent.Kind {
       func toFoundationModels() -> FoundationModels.GeneratedContent.Kind {
         switch self {

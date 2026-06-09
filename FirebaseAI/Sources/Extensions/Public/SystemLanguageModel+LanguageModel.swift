@@ -44,7 +44,7 @@
         )
       }
 
-      #if canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
+      #if canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM && !os(watchOS)
         if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
           var afmTools = [any FoundationModels.Tool]()
           for tool in tools ?? [] {
@@ -84,7 +84,8 @@
             instructions: instructions
           )
         }
-      #endif // canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
+      #endif // canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM &&
+      // !os(watchOS)
 
       throw GenerativeModelSession.GenerationError.assetsUnavailable(
         GenerativeModelSession.GenerationError.Context(debugDescription: """

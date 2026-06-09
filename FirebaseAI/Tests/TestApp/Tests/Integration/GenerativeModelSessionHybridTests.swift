@@ -88,9 +88,8 @@
     }
 
     @Test(arguments: [InstanceConfig.vertexAI_v1beta_global])
-    @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
+    @available(iOS 26.0, macOS 26.0, visionOS 26.0, watchOS 27.0, *)
     @available(tvOS, unavailable)
-    @available(watchOS, unavailable)
     func respondGenerable_fallbackOnGeminiModelError(_ config: InstanceConfig) async throws {
       let firebaseAI = FirebaseAI.componentInstance(config)
       let invalidModel = firebaseAI.geminiModel(name: "invalid-model-name-1")
@@ -163,9 +162,8 @@
     }
 
     @Test(arguments: [InstanceConfig.vertexAI_v1beta_global])
-    @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
+    @available(iOS 26.0, macOS 26.0, visionOS 26.0, watchOS 27.0, *)
     @available(tvOS, unavailable)
-    @available(watchOS, unavailable)
     func streamResponseGenerable_fallbackOnGeminiModelError(_ config: InstanceConfig) async throws {
       let firebaseAI = FirebaseAI.componentInstance(config)
       let invalidModel = firebaseAI.geminiModel(name: "invalid-model-name")

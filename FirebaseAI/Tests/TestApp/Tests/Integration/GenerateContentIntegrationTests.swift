@@ -353,8 +353,8 @@ struct GenerateContentIntegrationTests {
     (InstanceConfig.vertexAI_v1beta, ModelNames.gemini2_5_FlashImage),
     (InstanceConfig.vertexAI_v1beta_global, ModelNames.gemini2_5_FlashImage),
     (InstanceConfig.googleAI_v1beta, ModelNames.gemini2_5_FlashImage),
-    (InstanceConfig.googleAI_v1beta, ModelNames.gemini3_1_FlashImagePreview),
-    (InstanceConfig.vertexAI_v1beta_global, ModelNames.gemini3_1_FlashImagePreview),
+    (InstanceConfig.googleAI_v1beta, ModelNames.gemini3_1_FlashImage),
+    (InstanceConfig.vertexAI_v1beta_global, ModelNames.gemini3_1_FlashImage),
   ])
   func generateImageWithAspectRatio(_ config: InstanceConfig, modelName: String) async throws {
     let imageConfig = ImageConfig(aspectRatio: .landscape16x9)
@@ -394,8 +394,8 @@ struct GenerateContentIntegrationTests {
   }
 
   @Test(arguments: [
-    (InstanceConfig.googleAI_v1beta, ModelNames.gemini3_1_FlashImagePreview),
-    (InstanceConfig.vertexAI_v1beta_global, ModelNames.gemini3_1_FlashImagePreview),
+    (InstanceConfig.googleAI_v1beta, ModelNames.gemini3_1_FlashImage),
+    (InstanceConfig.vertexAI_v1beta_global, ModelNames.gemini3_1_FlashImage),
   ])
   func generateImageWithCustomSize(_ config: InstanceConfig, modelName: String) async throws {
     let imageConfig = ImageConfig(
@@ -441,8 +441,8 @@ struct GenerateContentIntegrationTests {
     (InstanceConfig.vertexAI_v1beta, ModelNames.gemini2_5_FlashImage),
     (InstanceConfig.vertexAI_v1beta_global, ModelNames.gemini2_5_FlashImage),
     (InstanceConfig.googleAI_v1beta, ModelNames.gemini2_5_FlashImage),
-    (InstanceConfig.googleAI_v1beta, ModelNames.gemini3_1_FlashImagePreview),
-    (InstanceConfig.vertexAI_v1beta_global, ModelNames.gemini3_1_FlashImagePreview),
+    (InstanceConfig.googleAI_v1beta, ModelNames.gemini3_1_FlashImage),
+    (InstanceConfig.vertexAI_v1beta_global, ModelNames.gemini3_1_FlashImage),
   ])
   func generateContent_finishReason_imageSafety(_ config: InstanceConfig,
                                                 modelName: String) async throws {
@@ -458,7 +458,7 @@ struct GenerateContentIntegrationTests {
     do {
       let response = try await model.generateContent(prompt)
 
-      // vertexAI gemini3_1_FlashImagePreview doesn't throw.
+      // vertexAI gemini3_1_FlashImage doesn't throw.
       let candidate = try #require(response.candidates.first)
       #expect(candidate.finishReason == .stop)
     } catch {
