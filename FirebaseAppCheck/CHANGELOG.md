@@ -1,5 +1,9 @@
 # Unreleased
-- [added] Added reCAPTCHA provider.
+- [added] Added a reCAPTCHA attestation provider. Using this provider requires the
+  [reCAPTCHA Enterprise SDK to be installed](https://docs.cloud.google.com/recaptcha/docs/instrument-ios-apps#prepare-environment),
+  enabling the reCAPTCHA provider on the Firebase App Check console, and
+  replacing the local `GoogleService-Info.plist` with one redownloaded from
+  the project settings on the Firebase console.
 - [changed] Updated `AppCheckDebugProvider` documentation to recommend the
   generic `AppCheckDebugToken` environment variable instead of the legacy
   `FIRAAppCheckDebugToken`. Note that `FIRAAppCheckDebugToken` remains
