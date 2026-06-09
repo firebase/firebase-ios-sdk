@@ -59,4 +59,5 @@ API_UNAVAILABLE(macos, tvos, watchos, macCatalyst)
     NS_SWIFT_NAME(getLimitedUseToken(completion:));
 
 @end
+
 NS_ASSUME_NONNULL_END
