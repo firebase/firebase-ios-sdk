@@ -26,9 +26,6 @@ API_AVAILABLE(ios(15.0), visionos(1.0))
 API_UNAVAILABLE(macos, tvos, watchos, macCatalyst)
 @interface FIRRecaptchaProviderFactory : NSObject <FIRAppCheckProviderFactory>
 
-/// Initializes a factory that will use the site key from Firebase app options.
-- (instancetype)init;
-
 @end
 
 NS_ASSUME_NONNULL_END
