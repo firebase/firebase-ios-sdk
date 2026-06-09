@@ -18,7 +18,7 @@ import Foundation
 ///
 /// > Important: When using this feature, you are required to comply with the
 /// "Grounding with Google Maps" usage requirements for your chosen API provider.
-public struct GoogleMaps: Sendable, Encodable {
+public struct GoogleMaps: Sendable, Encodable, Hashable {
   init() {}
 }
 
@@ -43,5 +43,14 @@ public struct GoogleMapsGroundingChunk: Sendable, Equatable, Hashable, Decodable
 
     title = try container.decodeIfPresent(String.self, forKey: .title)
     placeID = try container.decodeIfPresent(String.self, forKey: .placeID)
+  }
+}
+
+extension GoogleMapsGroundingChunk: Encodable {
+  public func encode(to encoder: any Encoder) throws {
+    var container = encoder.container(keyedBy: CodingKeys.self)
+    try container.encodeIfPresent(url?.absoluteString, forKey: .url)
+    try container.encodeIfPresent(title, forKey: .title)
+    try container.encodeIfPresent(placeID, forKey: .placeID)
   }
 }

@@ -23,7 +23,7 @@ import Foundation
 ///
 /// > Important: Support for each response modality, or combination of modalities, depends on the
 /// > model.
-public struct ResponseModality: EncodableProtoEnum, Sendable, Equatable {
+public struct ResponseModality: EncodableProtoEnum, Sendable, Hashable {
   enum Kind: String {
     case text = "TEXT"
     case image = "IMAGE"

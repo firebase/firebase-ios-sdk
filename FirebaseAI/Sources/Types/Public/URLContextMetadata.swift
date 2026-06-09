@@ -30,3 +30,5 @@ extension URLContextMetadata: Decodable {
     urlMetadata = try container.decodeIfPresent([URLMetadata].self, forKey: .urlMetadata) ?? []
   }
 }
+
+extension URLContextMetadata: Encodable {}

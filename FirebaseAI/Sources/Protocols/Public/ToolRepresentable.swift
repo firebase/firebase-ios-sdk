@@ -22,9 +22,8 @@ public protocol ToolRepresentable: Sendable {
 
 #if compiler(>=6.2.3)
   #if canImport(FoundationModels)
-    @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
+    @available(iOS 26.0, macOS 26.0, visionOS 26.0, watchOS 27.0, *)
     @available(tvOS, unavailable)
-    @available(watchOS, unavailable)
     public extension FoundationModels.Tool
       where Self.Output: FoundationModels.ConvertibleToGeneratedContent {
       var toolRepresentation: FirebaseAILogic.Tool {
