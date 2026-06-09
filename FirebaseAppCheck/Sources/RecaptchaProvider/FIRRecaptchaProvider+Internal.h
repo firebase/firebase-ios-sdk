@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-// TODO(ncooke3): Should this be made public?
 
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRRecaptchaProvider.h"
 
