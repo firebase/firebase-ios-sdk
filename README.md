@@ -24,7 +24,7 @@
 > for more information.
 
 > [!IMPORTANT]
-> ***Preview Release: Firebase's Gemini Foundation Models framework adaptor is now available in preview. Get started by visiting the [documentation](https://firebase.google.com/docs/ai-logic/apple-foundation-models-framework/get-started).***
+> ***Preview Release: Firebase AI Logic's Gemini Foundation Models framework adaptor is now available in preview. Get started by visiting the [documentation](https://firebase.google.com/docs/ai-logic/apple-foundation-models-framework/get-started).***
 
 # Firebase Apple Open Source Development
 
