@@ -88,9 +88,9 @@ jobs:
               env_vars = json.loads(os.environ.get("CUSTOM_ENV_VARS", "{}"))
               if not isinstance(env_vars, dict):
                   raise ValueError("env_vars must be a JSON object")
-              with open(os.environ["GITHUB_ENV"], "a") as f:
-                  for k, v in env_vars.items():
-                      f.write(f"{k}={v}\n")
+              with open(os.environ["GITHUB_ENV"], "a") as file:
+                  for key, value in env_vars.items():
+                      file.write(f"{key}={value}\n")
           except json.JSONDecodeError:
               print("Warning: env_vars is not valid JSON. Skipping.")
           except Exception as e:
@@ -144,9 +144,9 @@ jobs:
             env_vars = json.loads(os.environ.get("CUSTOM_ENV_VARS", "{}"))
             if not isinstance(env_vars, dict):
                 raise ValueError("env_vars must be a JSON object")
-            with open(os.environ["GITHUB_ENV"], "a") as f:
-                for k, v in env_vars.items():
-                    f.write(f"{k}={v}\n")
+            with open(os.environ["GITHUB_ENV"], "a") as file:
+                for key, value in env_vars.items():
+                    file.write(f"{key}={value}\n")
         except json.JSONDecodeError:
             print("Warning: env_vars is not valid JSON. Skipping.")
         except Exception as e:
