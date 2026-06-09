@@ -30,7 +30,7 @@ jobs:
     uses: ./.github/workflows/_spm.yml
     with:
       target: ${{  matrix.target }}
-      env_vars: '{"FIREBASE_APP_CHECK_BRANCH": "nc/target-split"}'
+      env_vars: '{"FIREBASE_APP_CHECK_BRANCH": "main"}'
 
   catalyst:
     uses: ./.github/workflows/_catalyst.yml
