@@ -84,8 +84,21 @@ class StoragePathTests: XCTestCase {
     XCTAssertEqual(path.object, "#hashtag/no/token")
   }
 
+  func testHTTPURLObjectMarkerWithoutObject() throws {
+    // "/o" object marker present but no object path; must not index past the
+    // path components.
+    let httpURL = "http://firebasestorage.googleapis.com/v0/b/bucket/o"
+    let path = try StoragePath.path(string: httpURL)
+    XCTAssertEqual(path.bucket, "bucket")
+    XCTAssertNil(path.object)
+  }
+
   func testGSURIThrowsOnNoBucket() {
     XCTAssertThrowsError(try StoragePath.path(string: "gs://"))
+  }
+
+  func testGSURIThrowsOnOnlySlashes() {
+    XCTAssertThrowsError(try StoragePath.path(string: "gs:///"))
   }
 
   func testHTTPURLThrowsOnNoBucket() {

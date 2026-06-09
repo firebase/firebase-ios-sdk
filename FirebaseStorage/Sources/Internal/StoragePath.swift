@@ -58,8 +58,10 @@ class StoragePath: NSCopying, Equatable {
       let bucketObject = aURIString.dropFirst("gs://".count)
       if bucketObject.contains("/") {
         let splitStringArray = bucketObject.split(separator: "/", maxSplits: 1).map(String.init)
-        let object = splitStringArray.count == 2 ? splitStringArray[1] : nil
-        return StoragePath(with: splitStringArray[0], object: object)
+        if let bucketName = splitStringArray.first {
+          let object = splitStringArray.count == 2 ? splitStringArray[1] : nil
+          return StoragePath(with: bucketName, object: object)
+        }
       } else if bucketObject.count > 0 {
         return StoragePath(with: String(bucketObject))
       }
@@ -88,7 +90,7 @@ class StoragePath: NSCopying, Equatable {
     }
     let bucketName = pathComponents[3]
 
-    guard pathComponents.count > 4 else {
+    guard pathComponents.count > 5 else {
       return StoragePath(with: bucketName)
     }
     // Construct object name
