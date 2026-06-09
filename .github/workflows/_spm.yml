@@ -149,8 +149,8 @@ jobs:
                     file.write(f"{key}={value}\n")
         except json.JSONDecodeError:
             print("Warning: env_vars is not valid JSON. Skipping.")
-        except Exception as e:
-            print(f"Error setting env vars: {e}")
+        except Exception as error:
+            print(f"Error setting env vars: {error}")
         '
       env:
         CUSTOM_ENV_VARS: ${{ inputs.env_vars }}
