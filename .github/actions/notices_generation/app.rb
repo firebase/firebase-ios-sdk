@@ -78,10 +78,10 @@ def create_podfile(path: , sources: , target: , pods: [], min_ios_version: , sea
     if search_local_pod_version
       # `pod search` will search a pod locally and generate a corresonding pod
       # config in a Podfile with `grep`, e.g.
-      # pod search Firebase | grep "pod.*" -m 1
+      # pod search Firebase | grep "pod '.*" -m 1
       # will generate
       # pod 'Firebase', '~> 9.0.0'
-      output += `pod search "#{pod}" | grep "pod.*" -m 1`
+      output += `pod search "#{pod}" | grep "pod '.*" -m 1`
     else
       output += "pod \'#{pod}\'\n"
     end
