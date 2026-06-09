@@ -16,15 +16,15 @@
   private import FirebaseCoreInternal
 
   final class HybridModelSession: _ModelSession {
-    private let primaryModel: any LanguageModel
-    private let secondaryModel: any LanguageModel
+    private let primaryModel: any FirebaseAI.LanguageModel
+    private let secondaryModel: any FirebaseAI.LanguageModel
     private let tools: [any ToolRepresentable]?
     private let instructions: String?
 
     typealias SessionState = (primary: (any _ModelSession)?, secondary: (any _ModelSession)?)
     private let lock: UnfairLock<SessionState>
 
-    init(primaryModel: any LanguageModel, secondaryModel: any LanguageModel,
+    init(primaryModel: any FirebaseAI.LanguageModel, secondaryModel: any FirebaseAI.LanguageModel,
          tools: [any ToolRepresentable]?, instructions: String?) {
       self.primaryModel = primaryModel
       self.secondaryModel = secondaryModel

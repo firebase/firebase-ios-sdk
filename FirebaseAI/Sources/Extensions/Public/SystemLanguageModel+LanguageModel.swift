@@ -18,7 +18,7 @@
     import FoundationModels
   #endif // canImport(FoundationModels)
 
-  extension FirebaseAI.SystemLanguageModel: LanguageModel {
+  extension FirebaseAI.SystemLanguageModel: FirebaseAI.LanguageModel {
     static let modelName = "apple-foundation-models-system-language-model"
 
     /// Returns the name of the model.
