@@ -106,6 +106,8 @@ jobs:
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
     needs: [spm-package-resolved]
+    env:
+      FIREBASE_APP_CHECK_BRANCH: main
     strategy:
       matrix:
         include:
@@ -145,6 +147,8 @@ jobs:
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
     needs: [spm-package-resolved]
+    env:
+      FIREBASE_APP_CHECK_BRANCH: main
     strategy:
       matrix:
         # Full set of Firebase-Package tests only run on iOS. Run subset on other platforms.
