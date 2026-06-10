@@ -31,7 +31,7 @@
 - (nullable id<FIRAppCheckProvider>)createProviderWithApp:(nonnull FIRApp *)app {
 #if TARGET_OS_SIMULATOR
   return [[[FIRAppCheckDebugProviderFactory alloc] init] createProviderWithApp:app];
-#endif
+#else  // !TARGET_OS_SIMULATOR
 
 #if (TARGET_OS_IOS && !TARGET_OS_MACCATALYST) || TARGET_OS_VISION
   if (app.options.recaptchaSiteKey.length > 0) {
@@ -47,7 +47,16 @@
   }
 #endif
 
-  return [[[FIRDeviceCheckProviderFactory alloc] init] createProviderWithApp:app];
+  if (@available(watchOS 9.0, *)) {
+    return [[[FIRDeviceCheckProviderFactory alloc] init] createProviderWithApp:app];
+  } else {
+    FIRLogWarning(kFIRLoggerAppCheck, kFIRLoggerAppCheckMessageCodeDeviceCheckProviderUnavailable,
+                  @"DeviceCheck is not supported on this device/OS version. "
+                  @"App Check enforcement will fail.");
+    return nil;
+  }
+
+#endif  // TARGET_OS_SIMULATOR
 }
 
 @end
