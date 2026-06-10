@@ -1,4 +1,6 @@
 # 12.15.0
+- [changed] Made Firebase App Check a dependency of Firebase AI Logic to
+  simplify App Check setup. (#16185)
 - [fixed] Fixed a namespace collision with the new
   `FoundationModels.LanguageModelSession.Error` type introduced in Xcode 27 Beta. (#16252)
 
