@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRRecaptchaProvider.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
+API_AVAILABLE(ios(15.0), visionos(1.0))
+API_UNAVAILABLE(macos, tvos, watchos, macCatalyst)
 @interface FIRRecaptchaProvider (Internal)
 
 /// Returns `YES` if the reCAPTCHA Enterprise SDK is linked and available at runtime.
