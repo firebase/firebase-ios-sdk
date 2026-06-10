@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2026 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
+#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRRecaptchaProviderFactory.h"
 
-#if SWIFT_PACKAGE
-#import <FIRMessagingInterop.h>
+#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRRecaptchaProvider.h"
+
+@implementation FIRRecaptchaProviderFactory
+
+- (nullable id<FIRAppCheckProvider>)createProviderWithApp:(nonnull FIRApp *)app {
+#if (TARGET_OS_IOS && !TARGET_OS_MACCATALYST) || TARGET_OS_VISION
+  return [[FIRRecaptchaProvider alloc] initWithApp:app];
 #else
-#import "FirebaseMessaging/Interop/FIRMessagingInterop.h"
+  return nil;
 #endif
-
-NS_ASSUME_NONNULL_BEGIN
-
-@interface FIRMessagingInteropFake : NSObject <FIRMessagingInterop>
+}
 
 @end
-
-NS_ASSUME_NONNULL_END
