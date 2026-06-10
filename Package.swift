@@ -1432,14 +1432,15 @@ func firebaseCrashlyticsTarget() -> Target {
 
 func googleAppMeasurementDependency() -> Package.Dependency {
   let appMeasurementURL = "https://github.com/google/GoogleAppMeasurement.git"
+  return .package(url: appMeasurementURL, branch: "main")
 
-  // Point SPM CI to the tip of main of https://github.com/google/GoogleAppMeasurement so that the
-  // release process can defer publishing the GoogleAppMeasurement tag until after testing.
-  if Context.environment["FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT"] != nil {
-    return .package(url: appMeasurementURL, branch: "main")
-  }
+  // // Point SPM CI to the tip of main of https://github.com/google/GoogleAppMeasurement so that the
+  // // release process can defer publishing the GoogleAppMeasurement tag until after testing.
+  // if Context.environment["FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT"] != nil {
+  //   return .package(url: appMeasurementURL, branch: "main")
+  // }
 
-  return .package(url: appMeasurementURL, exact: "12.15.0")
+  // return .package(url: appMeasurementURL, exact: "12.15.0")
 }
 
 func abseilDependency() -> Package.Dependency {
@@ -1684,14 +1685,15 @@ func isFoundationModelsSupportedPlatformSwiftSetting() -> SwiftSetting {
 
 func appCheckDependency() -> Package.Dependency {
   let appCheckURL = "https://github.com/google/app-check.git"
+  return .package(url: appCheckURL, branch: "main")
 
-  if let localPath = Context.environment["FIREBASE_APP_CHECK_LOCAL_PATH"] {
-    return .package(path: localPath)
-  }
+  // if let localPath = Context.environment["FIREBASE_APP_CHECK_LOCAL_PATH"] {
+  //   return .package(path: localPath)
+  // }
 
-  if let branch = Context.environment["FIREBASE_APP_CHECK_BRANCH"] {
-    return .package(url: appCheckURL, branch: branch)
-  }
+  // if let branch = Context.environment["FIREBASE_APP_CHECK_BRANCH"] {
+  //   return .package(url: appCheckURL, branch: branch)
+  // }
 
-  return .package(url: appCheckURL, "11.3.0" ..< "12.0.0")
+  // return .package(url: appCheckURL, "11.3.0" ..< "12.0.0")
 }
