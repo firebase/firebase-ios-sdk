@@ -3,6 +3,8 @@
   simplify App Check setup. (#16185)
 - [fixed] Fixed a namespace collision with the new
   `FoundationModels.LanguageModelSession.Error` type introduced in Xcode 27 Beta. (#16252)
+- [feature] Added support for `SpeechConfig` in `GenerationConfig`, and `MultiSpeakerVoiceConfig`
+  in `SpeechConfig`. (#16226)
 
 # 12.14.0
 - [fixed] Fixed an issue in `GenerativeModelSession` where `String` generation
