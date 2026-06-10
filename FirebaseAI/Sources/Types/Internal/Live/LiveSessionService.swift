@@ -36,8 +36,8 @@ actor LiveSessionService {
     .Continuation
 
   // to ensure messages are sent in order, since swift actors are reentrant
-  private let messageQueue: AsyncStream<BidiGenerateContentClientMessage>
-  private let messageQueueContinuation: AsyncStream<BidiGenerateContentClientMessage>.Continuation
+  private var messageQueue: AsyncStream<BidiGenerateContentClientMessage>
+  private var messageQueueContinuation: AsyncStream<BidiGenerateContentClientMessage>.Continuation
 
   let modelResourceName: String
   let generationConfig: LiveGenerationConfig?
@@ -89,6 +89,11 @@ actor LiveSessionService {
     messageQueueTask?.cancel()
     webSocket?.disconnect()
 
+    // we only finish the streams when the actor deinits; while the actor is still in scope, the
+    // user could continue using the streams via resumeSession (even after calling close)
+    messageQueueContinuation.finish()
+    responseContinuation.finish()
+
     webSocket = nil
     responsesTask = nil
     messageQueueTask = nil
@@ -109,11 +114,11 @@ actor LiveSessionService {
   /// resuming the same session.
   ///
   /// This function will yield until the websocket is ready to communicate with the client.
-  func connect() async throws {
+  func connect(sessionResumption: SessionResumptionConfig? = nil) async throws {
     close()
 
     let stream = try await setupWebsocket()
-    try await waitForSetupComplete(stream: stream)
+    try await waitForSetupComplete(stream: stream, sessionResumption: sessionResumption)
     spawnMessageTasks(stream: stream)
   }
 
@@ -138,10 +143,8 @@ actor LiveSessionService {
   /// - Server sends back `BidiGenerateContentSetupComplete` when it's ready
   ///
   /// This function will yield until the setup is complete.
-  private func waitForSetupComplete(stream: MappedStream<
-    URLSessionWebSocketTask.Message,
-    Data
-  >) async throws {
+  private func waitForSetupComplete(stream: MappedStream<URLSessionWebSocketTask.Message, Data>,
+                                    sessionResumption: SessionResumptionConfig?) async throws {
     guard let webSocket else { return }
 
     do {
@@ -152,7 +155,9 @@ actor LiveSessionService {
         tools: tools,
         toolConfig: toolConfig,
         inputAudioTranscription: generationConfig?.inputAudioTranscription,
-        outputAudioTranscription: generationConfig?.outputAudioTranscription
+        outputAudioTranscription: generationConfig?.outputAudioTranscription,
+        sessionResumption: sessionResumption?.bidiSessionResumptionConfig,
+        contextWindowCompression: generationConfig?.contextWindowCompression
       )
       let data = try jsonEncoder.encode(BidiGenerateContentClientMessage.setup(setup))
       try await webSocket.send(.data(data))
@@ -229,6 +234,9 @@ actor LiveSessionService {
   ///  - `messageQueueTask`: Listen to messages from the client and send them through the websocket.
   private func spawnMessageTasks(stream: MappedStream<URLSessionWebSocketTask.Message, Data>) {
     guard let webSocket else { return }
+    // we create a new messageQueue since the iterator below will cancel the old one when the
+    // task is cancelled. this will cause issues when trying to restart a session via resumeSession
+    (messageQueue, messageQueueContinuation) = AsyncStream.makeStream()
 
     responsesTask = Task {
       do {

@@ -25,7 +25,7 @@ extension Tests {
     nonisolated(unsafe) static var configuration = CommandConfiguration(
       abstract: "Run the integration tests for a given SDK.",
       usage: """
-        tests run [--overwrite] [--secrets <file_path>] [--xcode <version_or_path>] [--platforms <platforms> ...] [<sdk>]
+        tests run [--overwrite] [--secrets <file_path>] [--xcode <version_or_path>] [--platforms <platforms> ...] [--filter <suite_or_function>] [--exclude <suite_or_function>] [<sdk>]
 
         tests run --xcode Xcode_16.4.0 --platforms iOS --platforms macOS AI
         tests run --xcode "/Applications/Xcode_15.0.0.app" --platforms tvOS Storage
@@ -70,6 +70,22 @@ extension Tests {
     @Option(help: "Path to a json file containing an array of secret files to use, if any.")
     var secrets: String? = nil
 
+    @Option(
+      help: """
+      Optional test target to run against.
+      Can be a test suite or test function identifier (eg; "IntegrationTests-SPM/LiveSessionTests" or "IntegrationTests-SPM/LiveSessionTests/realtime_functionCalling").
+      """
+    )
+    var filter: String? = nil
+
+    @Option(
+      help: """
+      Optional test target to exclude from running.
+      Can be a test suite or test function identifier (eg; "IntegrationTests-SPM/LiveSessionTests" or "IntegrationTests-SPM/LiveSessionTests/realtime_functionCalling").
+      """
+    )
+    var exclude: String? = nil
+
     @Flag(help: "Overwrite existing decrypted secret files.")
     var overwrite: Bool = false
 
@@ -95,6 +111,7 @@ extension Tests {
       } else {
         try validateProvidedXcode()
       }
+      try validateFilters()
     }
 
     /// When the `xcode` option isn't provided, try to find an installation on disk.
@@ -146,6 +163,16 @@ extension Tests {
       }
     }
 
+    private func validateFilters() throws {
+      // filter takes priority with xcodebuild, so we just don't allow them to be used in tandem
+      // to avoid any edge case issues
+      if filter != nil && exclude != nil {
+        throw ValidationError(
+          "Cannot supply both --filter and --exclude options, please only specify one."
+        )
+      }
+    }
+
     private func findXcodeVersions() throws -> [URL] {
       let applicationDirs = FileManager.default.urls(
         for: .applicationDirectory, in: .allDomainsMask
@@ -193,6 +220,20 @@ extension Tests {
       return xcodes
     }
 
+    private func buildExtraArguments() -> [String] {
+      var arguments: [String] = []
+      if let filter {
+        arguments.append(contentsOf: ["-only-testing", filter])
+        log.info("Filtering tests", metadata: ["filter": "\(filter)"])
+      }
+      if let exclude {
+        arguments.append(contentsOf: ["-skip-testing", exclude])
+        log.info("Excluding tests", metadata: ["exclude": "\(exclude)"])
+      }
+
+      return arguments
+    }
+
     mutating func run() throws {
       var secretFiles: [SecretFile] = []
 
@@ -231,6 +272,8 @@ extension Tests {
       }
 
       let buildScript = URL(filePath: "scripts/build.sh", relativeTo: URL.currentDirectory())
+      let extraArguments = buildExtraArguments()
+
       for platform in platforms {
         log.info(
           "Running integration tests",
@@ -246,8 +289,10 @@ extension Tests {
         )
 
         let exitCode = try build.runWithSignals([
-          "Firebase\(sdk)Integration", "\(platform)",
-        ])
+          "Firebase\(sdk)Integration",
+          "\(platform)",
+          "xcodebuild",
+        ] + extraArguments)
         guard exitCode == 0 else {
           log.error(
             "Failed to run integration tests.",

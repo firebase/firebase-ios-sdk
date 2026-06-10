@@ -21,12 +21,10 @@ import Foundation
   import GTMSessionFetcherCore
 #endif
 
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 protocol AuthBackendProtocol: Sendable {
   func call<T: AuthRPCRequest>(with request: T) async throws -> T.Response
 }
 
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 final class AuthBackend: AuthBackendProtocol {
   static func authUserAgent() -> String {
     return "FirebaseAuth.iOS/\(FirebaseVersion()) \(GTMFetcherStandardUserAgentString(nil))"

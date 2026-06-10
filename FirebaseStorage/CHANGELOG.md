@@ -1,4 +1,4 @@
-# Unreleased
+# 12.12.1
 - [fixed] Fixed `InstanceCache` keying by bucket only, which caused named apps sharing a
   storage bucket with the default app to use the wrong auth context. (#16039)
 

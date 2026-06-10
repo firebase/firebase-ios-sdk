@@ -181,8 +181,12 @@ struct GenerativeAIService {
     if let bundleID = Bundle.main.bundleIdentifier {
       urlRequest.setValue(bundleID, forHTTPHeaderField: "x-ios-bundle-identifier")
     }
+    var apiClientHeaders = [GenerativeAIService.languageTag, GenerativeAIService.firebaseVersionTag]
+    if TaskLocals.isHybridRequest {
+      apiClientHeaders.append("hybrid")
+    }
     urlRequest.setValue(
-      "\(GenerativeAIService.languageTag) \(GenerativeAIService.firebaseVersionTag)",
+      apiClientHeaders.joined(separator: " "),
       forHTTPHeaderField: "x-goog-api-client"
     )
     urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")

@@ -154,9 +154,9 @@ public struct SafetyRating: Equatable, Hashable, Sendable {
 /// See [safety settings for Gemini
 /// models](https://firebase.google.com/docs/vertex-ai/safety-settings?platform=ios#gemini) for
 /// more details.
-public struct SafetySetting: Sendable {
+public struct SafetySetting: Sendable, Hashable {
   /// Block at and beyond a specified ``SafetyRating/HarmProbability``.
-  public struct HarmBlockThreshold: EncodableProtoEnum, Sendable {
+  public struct HarmBlockThreshold: EncodableProtoEnum, Sendable, Hashable {
     enum Kind: String {
       case blockLowAndAbove = "BLOCK_LOW_AND_ABOVE"
       case blockMediumAndAbove = "BLOCK_MEDIUM_AND_ABOVE"
@@ -184,7 +184,7 @@ public struct SafetySetting: Sendable {
   }
 
   /// The method of computing whether the ``SafetySetting/HarmBlockThreshold`` has been exceeded.
-  public struct HarmBlockMethod: EncodableProtoEnum, Sendable {
+  public struct HarmBlockMethod: EncodableProtoEnum, Sendable, Hashable {
     enum Kind: String {
       case severity = "SEVERITY"
       case probability = "PROBABILITY"
