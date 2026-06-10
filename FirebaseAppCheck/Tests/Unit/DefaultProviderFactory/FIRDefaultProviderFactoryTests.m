@@ -18,8 +18,12 @@
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckAvailability.h"
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckDebugProvider.h"
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRDeviceCheckProvider.h"
+#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRRecaptchaProvider.h"
 
+#import <OCMock/OCMock.h>
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
+
+#import "FirebaseAppCheck/Sources/RecaptchaProvider/FIRRecaptchaProvider+Internal.h"
 
 FIR_DEVICE_CHECK_PROVIDER_AVAILABILITY
 @interface FIRDefaultProviderFactoryTests : XCTestCase
@@ -27,24 +31,104 @@ FIR_DEVICE_CHECK_PROVIDER_AVAILABILITY
 
 @implementation FIRDefaultProviderFactoryTests
 
-- (void)testCreateProviderWithApp {
+- (FIRApp *)mockAppWithRecaptchaSiteKey:(nullable NSString *)siteKey {
   FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:@"app_id" GCMSenderID:@"sender_id"];
   options.APIKey = @"api_key";
   options.projectID = @"project_id";
+  if (siteKey) {
+    options.recaptchaSiteKey = siteKey;
+  }
   FIRApp *app = [[FIRApp alloc] initInstanceWithName:@"testInitWithValidApp" options:options];
-  // The following disables automatic token refresh, which could interfere with tests.
   app.dataCollectionDefaultEnabled = NO;
+  return app;
+}
 
+- (void)testCreateProvider_Simulator {
+#if TARGET_OS_SIMULATOR
+  FIRApp *app = [self mockAppWithRecaptchaSiteKey:nil];
   FIRDefaultProviderFactory *factory = [[FIRDefaultProviderFactory alloc] init];
 
   id<FIRAppCheckProvider> provider = [factory createProviderWithApp:app];
 
   XCTAssertNotNil(provider);
+  XCTAssert([provider isKindOfClass:[FIRAppCheckDebugProvider class]]);
+#endif
+}
 
+- (void)testCreateProvider_Device_RecaptchaLinked {
+#if ((TARGET_OS_IOS && !TARGET_OS_MACCATALYST) || TARGET_OS_VISION) && !TARGET_OS_SIMULATOR
+  FIRApp *app = [self mockAppWithRecaptchaSiteKey:@"site_key"];
+
+  id recaptchaMock = OCMClassMock([FIRRecaptchaProvider class]);
+  OCMStub([recaptchaMock isSupported]).andReturn(YES);
+
+  FIRDefaultProviderFactory *factory = [[FIRDefaultProviderFactory alloc] init];
+  id<FIRAppCheckProvider> provider = [factory createProviderWithApp:app];
+
+  XCTAssertNotNil(provider);
+  XCTAssert([provider isKindOfClass:[FIRRecaptchaProvider class]]);
+
+  [recaptchaMock stopMocking];
+#endif
+}
+
+- (void)testCreateProvider_Device_RecaptchaNotLinked {
+#if !TARGET_OS_SIMULATOR
+  FIRApp *app = [self mockAppWithRecaptchaSiteKey:nil];
+
+#if (TARGET_OS_IOS && !TARGET_OS_MACCATALYST) || TARGET_OS_VISION
+  id recaptchaMock = OCMClassMock([FIRRecaptchaProvider class]);
+  OCMStub([recaptchaMock isSupported]).andReturn(NO);
+#endif
+
+  FIRDefaultProviderFactory *factory = [[FIRDefaultProviderFactory alloc] init];
+  id<FIRAppCheckProvider> provider = [factory createProviderWithApp:app];
+
+  XCTAssertNotNil(provider);
+  XCTAssert([provider isKindOfClass:[FIRDeviceCheckProvider class]]);
+
+#if (TARGET_OS_IOS && !TARGET_OS_MACCATALYST) || TARGET_OS_VISION
+  [recaptchaMock stopMocking];
+#endif
+#endif
+}
+
+- (void)testCreateProvider_Device_RecaptchaNotLinked_WithSiteKey_Throws {
+#if ((TARGET_OS_IOS && !TARGET_OS_MACCATALYST) || TARGET_OS_VISION) && !TARGET_OS_SIMULATOR
+  FIRApp *app = [self mockAppWithRecaptchaSiteKey:@"site_key"];
+
+  id recaptchaMock = OCMClassMock([FIRRecaptchaProvider class]);
+  OCMStub([recaptchaMock isSupported]).andReturn(NO);
+
+  FIRDefaultProviderFactory *factory = [[FIRDefaultProviderFactory alloc] init];
+
+  XCTAssertThrows([factory createProviderWithApp:app]);
+
+  [recaptchaMock stopMocking];
+#endif
+}
+
+- (void)testCreateProviderWithApp_PublicAPI {
+  // Verifies that the public API doesn't crash and returns a provider.
+  FIRApp *app = [self mockAppWithRecaptchaSiteKey:nil];
+
+#if (TARGET_OS_IOS && !TARGET_OS_MACCATALYST) || TARGET_OS_VISION
+  id recaptchaMock = OCMClassMock([FIRRecaptchaProvider class]);
+  OCMStub([recaptchaMock isSupported]).andReturn(NO);
+#endif
+
+  FIRDefaultProviderFactory *factory = [[FIRDefaultProviderFactory alloc] init];
+  id<FIRAppCheckProvider> provider = [factory createProviderWithApp:app];
+
+  XCTAssertNotNil(provider);
 #if TARGET_OS_SIMULATOR
   XCTAssert([provider isKindOfClass:[FIRAppCheckDebugProvider class]]);
 #else
   XCTAssert([provider isKindOfClass:[FIRDeviceCheckProvider class]]);
+#endif
+
+#if (TARGET_OS_IOS && !TARGET_OS_MACCATALYST) || TARGET_OS_VISION
+  [recaptchaMock stopMocking];
 #endif
 }
 

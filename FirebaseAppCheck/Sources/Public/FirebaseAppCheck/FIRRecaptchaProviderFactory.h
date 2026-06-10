@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2026 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,16 +15,16 @@
  */
 
 #import <Foundation/Foundation.h>
-
-#if SWIFT_PACKAGE
-#import <FIRMessagingInterop.h>
-#else
-#import "FirebaseMessaging/Interop/FIRMessagingInterop.h"
-#endif
+#import "FIRAppCheckProviderFactory.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRMessagingInteropFake : NSObject <FIRMessagingInterop>
+/// An implementation of `AppCheckProviderFactory` that creates a new instance of
+/// `AppCheckRecaptchaProvider` when requested.
+NS_SWIFT_NAME(RecaptchaProviderFactory)
+API_AVAILABLE(ios(15.0), visionos(1.0))
+API_UNAVAILABLE(macos, tvos, watchos, macCatalyst)
+@interface FIRRecaptchaProviderFactory : NSObject <FIRAppCheckProviderFactory>
 
 @end
 
