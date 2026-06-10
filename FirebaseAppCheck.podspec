@@ -95,6 +95,9 @@ Pod::Spec.new do |s|
       base_dir + 'Tests/Unit/Swift/**/*.swift',
       'SharedTestUtilities/ExceptionCatcher.[mh]'
     ]
+    swift_unit_tests.pod_target_xcconfig = {
+      'SWIFT_OBJC_BRIDGING_HEADER' => '$(PODS_TARGET_SRCROOT)/FirebaseAppCheck/Tests/Unit/Swift/FirebaseAppCheck-unit-Bridging-Header.h'
+    }
 
     swift_unit_tests.dependency 'FirebaseCoreExtension', '~> 12.15.0'
   end

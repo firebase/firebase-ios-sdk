@@ -17,7 +17,9 @@
   import AppCheckCore
   import FirebaseAppCheck
   import FirebaseCore
-  import SharedTestUtilities
+  #if SWIFT_PACKAGE
+    import SharedTestUtilities
+  #endif
   import XCTest
 
   class FakeInternalProvider: NSObject, AppCheckCoreProvider {
