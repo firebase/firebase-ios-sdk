@@ -56,7 +56,7 @@ FIR_DEVICE_CHECK_PROVIDER_AVAILABILITY
 }
 
 - (void)testCreateProvider_Device_RecaptchaLinked {
-#if TARGET_OS_IOS && !TARGET_OS_SIMULATOR
+#if ((TARGET_OS_IOS && !TARGET_OS_MACCATALYST) || TARGET_OS_VISION) && !TARGET_OS_SIMULATOR
   FIRApp *app = [self mockAppWithRecaptchaSiteKey:@"site_key"];
 
   id recaptchaMock = OCMClassMock([FIRRecaptchaProvider class]);
@@ -76,8 +76,10 @@ FIR_DEVICE_CHECK_PROVIDER_AVAILABILITY
 #if !TARGET_OS_SIMULATOR
   FIRApp *app = [self mockAppWithRecaptchaSiteKey:nil];
 
+#if (TARGET_OS_IOS && !TARGET_OS_MACCATALYST) || TARGET_OS_VISION
   id recaptchaMock = OCMClassMock([FIRRecaptchaProvider class]);
   OCMStub([recaptchaMock isSupported]).andReturn(NO);
+#endif
 
   FIRDefaultProviderFactory *factory = [[FIRDefaultProviderFactory alloc] init];
   id<FIRAppCheckProvider> provider = [factory createProviderWithApp:app];
@@ -85,12 +87,14 @@ FIR_DEVICE_CHECK_PROVIDER_AVAILABILITY
   XCTAssertNotNil(provider);
   XCTAssert([provider isKindOfClass:[FIRDeviceCheckProvider class]]);
 
+#if (TARGET_OS_IOS && !TARGET_OS_MACCATALYST) || TARGET_OS_VISION
   [recaptchaMock stopMocking];
+#endif
 #endif
 }
 
 - (void)testCreateProvider_Device_RecaptchaNotLinked_WithSiteKey_Throws {
-#if TARGET_OS_IOS && !TARGET_OS_SIMULATOR
+#if ((TARGET_OS_IOS && !TARGET_OS_MACCATALYST) || TARGET_OS_VISION) && !TARGET_OS_SIMULATOR
   FIRApp *app = [self mockAppWithRecaptchaSiteKey:@"site_key"];
 
   id recaptchaMock = OCMClassMock([FIRRecaptchaProvider class]);
@@ -108,8 +112,10 @@ FIR_DEVICE_CHECK_PROVIDER_AVAILABILITY
   // Verifies that the public API doesn't crash and returns a provider.
   FIRApp *app = [self mockAppWithRecaptchaSiteKey:nil];
 
+#if (TARGET_OS_IOS && !TARGET_OS_MACCATALYST) || TARGET_OS_VISION
   id recaptchaMock = OCMClassMock([FIRRecaptchaProvider class]);
   OCMStub([recaptchaMock isSupported]).andReturn(NO);
+#endif
 
   FIRDefaultProviderFactory *factory = [[FIRDefaultProviderFactory alloc] init];
   id<FIRAppCheckProvider> provider = [factory createProviderWithApp:app];
@@ -121,7 +127,9 @@ FIR_DEVICE_CHECK_PROVIDER_AVAILABILITY
   XCTAssert([provider isKindOfClass:[FIRDeviceCheckProvider class]]);
 #endif
 
+#if (TARGET_OS_IOS && !TARGET_OS_MACCATALYST) || TARGET_OS_VISION
   [recaptchaMock stopMocking];
+#endif
 }
 
 @end

@@ -12,21 +12,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import AppCheckCore
-import FirebaseAppCheck
+#if os(iOS) && !targetEnvironment(macCatalyst) || os(visionOS)
 
-/// Internal Objective-C interface for test helper methods.
-@objc protocol RecaptchaProviderTesting {
-  @objc(initWithRecaptchaProvider:)
-  func initWithRecaptchaProvider(_ recaptchaProvider: AppCheckCoreProvider) -> RecaptchaProvider
-}
+  import AppCheckCore
+  import FirebaseAppCheck
 
-@objc extension RecaptchaProvider {
-  /// Safe, compile-time checked test helper that bypasses production validation checks.
-  class func testInstance(recaptchaProvider: AppCheckCoreProvider) -> RecaptchaProvider {
-    let providerClass = RecaptchaProvider.self as AnyObject
-    let allocated = providerClass.perform(NSSelectorFromString("alloc")).takeUnretainedValue()
-    let uninitialized = unsafeBitCast(allocated, to: RecaptchaProviderTesting.self)
-    return uninitialized.initWithRecaptchaProvider(recaptchaProvider)
+  /// Internal Objective-C interface for test helper methods.
+  @objc protocol RecaptchaProviderTesting {
+    @objc(initWithRecaptchaProvider:)
+    func initWithRecaptchaProvider(_ recaptchaProvider: AppCheckCoreProvider) -> RecaptchaProvider
   }
-}
+
+  @objc extension RecaptchaProvider {
+    /// Safe, compile-time checked test helper that bypasses production validation checks.
+    class func testInstance(recaptchaProvider: AppCheckCoreProvider) -> RecaptchaProvider {
+      let providerClass = RecaptchaProvider.self as AnyObject
+      let allocated = providerClass.perform(NSSelectorFromString("alloc")).takeUnretainedValue()
+      let uninitialized = unsafeBitCast(allocated, to: RecaptchaProviderTesting.self)
+      return uninitialized.initWithRecaptchaProvider(recaptchaProvider)
+    }
+  }
+
+#endif
