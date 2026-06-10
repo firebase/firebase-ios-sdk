@@ -56,6 +56,9 @@ jobs:
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
     needs: [spm-package-resolved]
+    env:
+      FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
+      FIREBASE_APP_CHECK_BRANCH: main
     strategy:
       matrix:
         include:

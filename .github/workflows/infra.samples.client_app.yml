@@ -21,6 +21,7 @@ on:
 
 env:
   FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
+  FIREBASE_APP_CHECK_BRANCH: main
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
