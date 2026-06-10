@@ -698,6 +698,24 @@ TEST_F(BundleSerializerTest, DecodeQueriesFromOtherProjectsFails) {
   }
 }
 
+TEST_F(BundleSerializerTest, DecodeFromClauseWithWrongTypeFails) {
+  std::string json_string = NamedQueryJsonString(testutil::Query("colls"));
+  json parsed = Parse(json_string);
+  parsed["bundledQuery"]["structuredQuery"]["from"] = "colls";
+  JsonReader reader;
+  bundle_serializer.DecodeNamedQuery(reader, parsed);
+  EXPECT_NOT_OK(reader.status());
+}
+
+TEST_F(BundleSerializerTest, DecodeLimitObjectWithoutValueFails) {
+  std::string json_string = NamedQueryJsonString(testutil::Query("colls"));
+  json parsed = Parse(json_string);
+  parsed["bundledQuery"]["structuredQuery"]["limit"] = json::object();
+  JsonReader reader;
+  bundle_serializer.DecodeNamedQuery(reader, parsed);
+  EXPECT_NOT_OK(reader.status());
+}
+
 TEST_F(BundleSerializerTest, DecodesCollectionGroupQuery) {
   core::Query original = testutil::CollectionGroupQuery("bundles/docs/colls");
   VerifyNamedQueryRoundtrip(original);
