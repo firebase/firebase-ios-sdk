@@ -1,9 +1,11 @@
 # Unreleased
-- [feature] Added support for `minimum` and `maximum` FieldValue operations.
+- [fix] Remove use of designated initializers for `forceIndex` [#16229].
+- [feature] Added support for `minimum` and `maximum` FieldValue operations [#16159].
 
 # 12.13.0
 - [feature] Added search stage support for `languageCode`, `offset`, `limit`, and `retrievalDepth`.
 - [feature] Added support for Pipeline expressions `arraySlice`, `arrayFilter`, `arrayTransform` and `arrayTransformWithIndex`. (#16001)
+- [feature] Added support for the `forceIndex` option on Pipeline `collection` and `collectionGroup` stages.
 - [fixed] Add missing `noexcept` specifiers to move, hash, swap operations [#16117].
 
 # 12.12.0

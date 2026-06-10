@@ -30,6 +30,7 @@ jobs:
     uses: ./.github/workflows/_spm.yml
     with:
       target: ${{  matrix.target }}
+      env_vars: '{"FIREBASE_APP_CHECK_BRANCH": "main"}'
 
   catalyst:
     uses: ./.github/workflows/_catalyst.yml
@@ -57,6 +58,7 @@ jobs:
       method: spm
       sanitizers: ${{ matrix.diagnostic }}
       setup_command: scripts/setup_spm_tests.sh
+      env_vars: '{"FIREBASE_APP_CHECK_BRANCH": "main"}'
 
   app_check-cron-only:
     needs: pod_lib_lint

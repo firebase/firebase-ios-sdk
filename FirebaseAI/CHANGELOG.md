@@ -1,3 +1,12 @@
+# 12.15.0
+- [fixed] Fixed a namespace collision with the new
+  `FoundationModels.LanguageModelSession.Error` type introduced in Xcode 27 Beta. (#16252)
+
+# 12.14.0
+- [fixed] Fixed an issue in `GenerativeModelSession` where `String` generation
+  used the wrong overload for `respond(to:)` and `streamResponse(to:)`,
+  resulting in occasional prompt refusals. (#16165)
+
 # 12.13.0
 - [feature] **Public Preview**: Added support for hybrid inference, enabling
   fallback between on-device (Foundation Models) and cloud (Gemini) models. (#16111)
