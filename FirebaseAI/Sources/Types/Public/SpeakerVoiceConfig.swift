@@ -31,6 +31,7 @@ public struct SpeakerVoiceConfig: Sendable {
   /// Find the list of supported voices for:
   /// - [Gemini Developer API](https://ai.google.dev/gemini-api/docs/speech-generation)
   /// - [Vertex AI Gemini API](https://docs.cloud.google.com/text-to-speech/docs/gemini-tts)
+  // TODO(b/522397979): Update links to point to Firebase when they're live
   public init(speaker: String, voiceName: String) {
     self.init(
       ProtoSpeakerVoiceConfig(
