@@ -1,6 +1,6 @@
 # Unreleased
-
 - [fix] Remove use of designated initializers for `forceIndex` [#16229].
+- [feature] Added support for `minimum` and `maximum` FieldValue operations [#16159].
 
 # 12.13.0
 - [feature] Added search stage support for `languageCode`, `offset`, `limit`, and `retrievalDepth`.
