@@ -42,6 +42,9 @@ FOUNDATION_EXPORT NSString *const kFIRLoggerAppCheckMessageRecaptchaProviderMiss
 FOUNDATION_EXPORT NSString *const
     kFIRLoggerAppCheckMessageRecaptchaProviderMissingRecaptchaEnterpriseSDK;
 
+// FIRDefaultProviderFactory.m
+FOUNDATION_EXPORT NSString *const kFIRLoggerAppCheckMessageCodeRecaptchaFallbackToDeviceCheck;
+
 void FIRAppCheckDebugLog(NSString *messageCode, NSString *message, ...);
 
 GACAppCheckLogLevel FIRGetGACAppCheckLogLevel(void);
