@@ -1,3 +1,7 @@
+# Unreleased
+
+- [feature] Add support for 16MB documents. TODO(dlarocque): add more details
+
 # 12.15.0
 
 - [fix] Remove use of designated initializers for `forceIndex` [#16229].
