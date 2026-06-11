@@ -29,7 +29,6 @@ jobs:
   spm-package-resolved:
     env:
       FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
-      FIREBASE_APP_CHECK_BRANCH: main
     runs-on: macos-26
     outputs:
       cache_key: ${{ steps.generate_cache_key.outputs.cache_key }}
@@ -58,7 +57,6 @@ jobs:
     needs: [spm-package-resolved]
     env:
       FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
-      FIREBASE_APP_CHECK_BRANCH: main
     strategy:
       matrix:
         include:
@@ -109,8 +107,6 @@ jobs:
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
     needs: [spm-package-resolved]
-    env:
-      FIREBASE_APP_CHECK_BRANCH: main
     strategy:
       matrix:
         include:
@@ -150,8 +146,6 @@ jobs:
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
     needs: [spm-package-resolved]
-    env:
-      FIREBASE_APP_CHECK_BRANCH: main
     strategy:
       matrix:
         # Full set of Firebase-Package tests only run on iOS. Run subset on other platforms.
