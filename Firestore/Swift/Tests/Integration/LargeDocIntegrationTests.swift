@@ -84,7 +84,7 @@ final class LargeDocIntegrationTests: FSTIntegrationTestCase {
     // Execute offline query which requires full local index scan
     let query = colRef.order(by: FieldPath.documentID()).limit(to: 2)
     let cacheSnapshot = try await query.getDocuments(source: .cache)
-    
+
     XCTAssertEqual(cacheSnapshot.documents.count, 2)
     if let firstDoc = cacheSnapshot.documents.first {
       XCTAssertTrue(firstDoc.data().count > 0)
@@ -106,7 +106,7 @@ final class LargeDocIntegrationTests: FSTIntegrationTestCase {
     }
 
     listener.remove()
-    
+
     // TODO(dlarocque): Write streams for large docs are currently restricted in client SDKs.
     // Once fixed, update this test to trigger a small field mutation and assert the
     // listener fires a second time to test differential payload handling.
@@ -117,9 +117,9 @@ final class LargeDocIntegrationTests: FSTIntegrationTestCase {
     let docRef = collectionRef().document("temp_oversized_doc")
 
     // Generate ~16.1MB payload
-    let targetBytes = (16 * 1024 * 1024) + 102400
+    let targetBytes = (16 * 1024 * 1024) + 102_400
     let largePayload = generateString(sizeInBytes: targetBytes)
-    
+
     do {
       try await docRef.setData(["largeField": largePayload])
       XCTFail("Setting a document exceeding the 16MB limit should fail.")
@@ -133,13 +133,16 @@ final class LargeDocIntegrationTests: FSTIntegrationTestCase {
 
   func testTransactionReadModifyWrite() async throws {
     let docRef = collectionRef().document(DOC_15_9MB_UNICODE)
-    
+
     do {
-      _ = try await db.runTransaction { (transaction, errorPointer) -> Any? in
+      _ = try await db.runTransaction { transaction, errorPointer -> Any? in
         do {
           _ = try transaction.getDocument(docRef)
           // Minor write to test transaction commit payload limits
-          transaction.updateData(["transaction_timestamp": FieldValue.serverTimestamp()], forDocument: docRef)
+          transaction.updateData(
+            ["transaction_timestamp": FieldValue.serverTimestamp()],
+            forDocument: docRef
+          )
         } catch let fetchError as NSError {
           errorPointer?.pointee = fetchError
         }
