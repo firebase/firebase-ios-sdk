@@ -28,7 +28,6 @@ jobs:
     uses: ./.github/workflows/_spm.yml
     with:
       target: CoreUnit
-      env_vars: '{"FIREBASE_APP_CHECK_BRANCH": "main"}'
 
   catalyst:
     uses: ./.github/workflows/_catalyst.yml
