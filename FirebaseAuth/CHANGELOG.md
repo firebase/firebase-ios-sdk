@@ -1,9 +1,9 @@
 # Unreleased
 - [fixed] Refactored the integrated OAuth sign in UI to not rely on
-  the deprecated `UIScreen.main.bounds` API for Mac Catalyst rendering. 
-  (#????)
+  the deprecated `UIScreen.main.bounds` API for Mac Catalyst rendering.
+  (#16274)
 - [fixed] Fixed an issue where the integrated OAuth sign in UI wasn't
-  taking up the full screen when rendered in Mac Catalyst apps. (#????)
+  taking up the full screen when rendered in Mac Catalyst apps. (#16274)
 
 # 12.12.0
 - [added] Added `AsyncSequence` support to `Auth.authStateChanges` and
