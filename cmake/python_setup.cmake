@@ -152,14 +152,28 @@ function(FirebaseSetupPythonInterpreter)
       "${LOG_PREFIX}: Installing Python dependencies into "
       "${PYVENV_DIRECTORY}: ${ARG_REQUIREMENTS}"
     )
-    firebase_execute_process(
+    execute_process(
       COMMAND
         "${PYTHON_EXECUTABLE}"
         -m
         pip
         install
         ${ARG_REQUIREMENTS}
+      RESULT_VARIABLE PIP_INSTALL_STATUS
     )
+    if(NOT PIP_INSTALL_STATUS EQUAL 0)
+      message(STATUS "${LOG_PREFIX}: pip install failed. Retrying with public PyPI index...")
+      firebase_execute_process(
+        COMMAND
+          "${PYTHON_EXECUTABLE}"
+          -m
+          pip
+          install
+          --index-url
+          https://pypi.org/simple
+          ${ARG_REQUIREMENTS}
+      )
+    endif()
   endif()
 
   # Write the stamp files.

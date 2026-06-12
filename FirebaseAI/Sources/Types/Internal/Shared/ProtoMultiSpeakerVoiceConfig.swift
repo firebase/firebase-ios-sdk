@@ -1,4 +1,4 @@
-// Copyright 2025 Google LLC
+// Copyright 2026 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,17 +14,10 @@
 
 import Foundation
 
-/// Speech generation config.
-@available(watchOS, unavailable)
-struct BidiSpeechConfig: Encodable, Sendable {
-  /// The configuration for the speaker to use.
-  let voiceConfig: VoiceConfig
+struct ProtoMultiSpeakerVoiceConfig: Encodable, Sendable, Equatable {
+  let speakerVoiceConfigs: [ProtoSpeakerVoiceConfig]
 
-  /// Language code (ISO 639. e.g. en-US) for the speech synthesization.
-  let languageCode: String?
-
-  init(voiceConfig: VoiceConfig, languageCode: String?) {
-    self.voiceConfig = voiceConfig
-    self.languageCode = languageCode
+  init(speakerVoiceConfigs: [ProtoSpeakerVoiceConfig]) {
+    self.speakerVoiceConfigs = speakerVoiceConfigs
   }
 }

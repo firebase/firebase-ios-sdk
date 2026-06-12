@@ -12,20 +12,4 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import <Foundation/Foundation.h>
-
-#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckProviderFactory.h"
-
-NS_ASSUME_NONNULL_BEGIN
-
-/// The internal default provider factory that is set at +load time.
-///
-/// It returns the Debug provider for simulator builds. For device builds, it
-/// returns the reCAPTCHA provider if a reCAPTCHA site key is configured
-/// (supported on iOS and visionOS); otherwise, it returns the DeviceCheck
-/// provider (if supported).
-@interface FIRDefaultProviderFactory : NSObject <FIRAppCheckProviderFactory>
-
-@end
-
-NS_ASSUME_NONNULL_END
+#import "SharedTestUtilities/ExceptionCatcher.h"
