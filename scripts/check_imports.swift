@@ -135,8 +135,12 @@ private func checkFile(_ file: String, logger: ErrorLogger, inRepo repoURL: URL,
       let importFile = line.components(separatedBy: " ")[1]
       if inSwiftPackageElse {
         if importFile.first != "<" {
-          logger
-            .importLog("Import in SWIFT_PACKAGE #else should start with \"<\".", file, lineNum)
+          // SharedTestUtilities files are included directly in test targets and
+          // use repo-relative imports.
+          if !file.contains("SharedTestUtilities/") {
+            logger
+              .importLog("Import in SWIFT_PACKAGE #else should start with \"<\".", file, lineNum)
+          }
         }
         continue
       }

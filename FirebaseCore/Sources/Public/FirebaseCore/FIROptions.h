@@ -83,6 +83,11 @@ NS_SWIFT_NAME(FirebaseOptions)
 @property(nonatomic, copy, nullable) NSString *appGroupID;
 
 /**
+ * The reCAPTCHA site key used by App Check.
+ */
+@property(nonatomic, copy, nullable) NSString *recaptchaSiteKey;
+
+/**
  * Initializes a customized instance of FirebaseOptions from the file at the given plist file path.
  * This will read the file synchronously from disk.
  * For example:
