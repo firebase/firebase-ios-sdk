@@ -1,3 +1,7 @@
+# Unreleased
+- [fixed] Fixed a crash when Firebase Performance instruments NSProxy NSURLSession delegates
+  that report a wrapped object's class. (#16254)
+
 # 12.14.0
 - [fixed] Fixed a race condition crash in `FPRConfigurations` by making
   `remoteConfigFlags` atomic and explicitly nullable. (#16144)
