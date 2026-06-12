@@ -70,7 +70,7 @@
     // MARK: - View Lifecycle
 
     override func loadView() {
-      let webView = AuthWebView(frame: UIScreen.main.bounds)
+      let webView = AuthWebView()
       webView.webView.navigationDelegate = self
       view = webView
       self.webView = webView

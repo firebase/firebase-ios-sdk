@@ -19,57 +19,36 @@
 
   /// A class responsible for creating a WKWebView for use within Firebase Auth.
   class AuthWebView: UIView {
-    lazy var webView: WKWebView = createWebView()
-    lazy var spinner: UIActivityIndicatorView = createSpinner()
+    let webView: WKWebView = {
+      let view = WKWebView(frame: .zero)
+      view.isOpaque = false
+      view.backgroundColor = .clear
+      view.scrollView.isOpaque = false
+      view.scrollView.backgroundColor = .clear
+      view.scrollView.bounces = false
+      view.scrollView.alwaysBounceVertical = false
+      view.scrollView.alwaysBounceHorizontal = false
+      return view
+    }()
 
-    override init(frame: CGRect) {
-      super.init(frame: frame)
-      backgroundColor = .white
-      initializeSubviews()
-    }
+    let spinner = UIActivityIndicatorView(style: .medium)
 
-    @available(*, unavailable)
-    required init?(coder aDecoder: NSCoder) {
-      fatalError("init(coder:) has not been implemented")
-    }
+    override func willMove(toSuperview newSuperview: UIView?) {
+      super.willMove(toSuperview: newSuperview)
 
-    private func initializeSubviews() {
-      let webView = createWebView()
-      let spinner = createSpinner()
-
-      // The order of the following controls z-order.
-      addSubview(webView)
-      addSubview(spinner)
-
-      layoutSubviews()
-      self.webView = webView
-      self.spinner = spinner
+      // setup when added to a superview
+      if newSuperview != nil && webView.superview == nil {
+        backgroundColor = .white
+        autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        addSubview(webView)
+        addSubview(spinner)
+      }
     }
 
     override func layoutSubviews() {
       super.layoutSubviews()
-      let height = bounds.size.height
-      let width = bounds.size.width
-      webView.frame = CGRect(x: 0, y: 0, width: width, height: height)
-      spinner.center = webView.center
-    }
-
-    private func createWebView() -> WKWebView {
-      let webView = WKWebView(frame: .zero)
-      // Trickery to make the web view not do weird things (like showing a black background when
-      // the prompt in the navigation bar animates changes.)
-      webView.isOpaque = false
-      webView.backgroundColor = .clear
-      webView.scrollView.isOpaque = false
-      webView.scrollView.backgroundColor = .clear
-      webView.scrollView.bounces = false
-      webView.scrollView.alwaysBounceVertical = false
-      webView.scrollView.alwaysBounceHorizontal = false
-      return webView
-    }
-
-    private func createSpinner() -> UIActivityIndicatorView {
-      return UIActivityIndicatorView(style: .medium)
+      webView.frame = bounds
+      spinner.center = CGPoint(x: bounds.midX, y: bounds.midY)
     }
   }
 #endif
