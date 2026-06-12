@@ -21,46 +21,49 @@
 #endif // SWIFT_PACKAGE
 
 /**
- * A protocol describing the encodable properties of an BSONBinaryData.
+ * A protocol describing the encodable properties of a Blob.
  *
- * Note: this protocol exists as a workaround for the Swift compiler: if the BSONBinaryData class
+ * Note: this protocol exists as a workaround for the Swift compiler: if the Blob class
  * was extended directly to conform to Codable, the methods implementing the protocol would be need
  * to be marked required but that can't be done in an extension. Declaring the extension on the
  * protocol sidesteps this issue.
  */
-private protocol CodableBSONBinaryData: Codable {
+private protocol CodableBlob: Codable {
   var subtype: UInt8 { get }
-  var data: Data { get }
+  var bytes: Data { get }
+  var isBSON: Bool { get }
 
-  init(subtype: UInt8, data: Data)
+  init(bytes: Data)
+  init(bsonBinary: Data, subtype: UInt8)
 }
 
-/** The keys in an BSONBinaryData. Must match the properties of CodableBSONBinaryData. */
-private enum BSONBinaryDataKeys: String, CodingKey {
+/** The keys in a Blob. Must match the properties of CodableBlob. */
+private enum BlobKeys: String, CodingKey {
   case subtype
-  case data
+  case bytes
+  case isBSON
 }
 
-/**
- * An extension of BSONBinaryData that implements the behavior of the Codable protocol.
- *
- * Note: this is implemented manually here because the Swift compiler can't synthesize these methods
- * when declaring an extension to conform to Codable.
- */
-extension CodableBSONBinaryData {
+extension CodableBlob {
   public init(from decoder: Decoder) throws {
-    let container = try decoder.container(keyedBy: BSONBinaryDataKeys.self)
+    let container = try decoder.container(keyedBy: BlobKeys.self)
     let subtype = try container.decode(UInt8.self, forKey: .subtype)
-    let data = try container.decode(Data.self, forKey: .data)
-    self.init(subtype: subtype, data: data)
+    let bytes = try container.decode(Data.self, forKey: .bytes)
+    let isBSON = try container.decodeIfPresent(Bool.self, forKey: .isBSON) ?? false
+    if isBSON {
+      self.init(bsonBinary: bytes, subtype: subtype)
+    } else {
+      self.init(bytes: bytes)
+    }
   }
 
   public func encode(to encoder: Encoder) throws {
-    var container = encoder.container(keyedBy: BSONBinaryDataKeys.self)
+    var container = encoder.container(keyedBy: BlobKeys.self)
     try container.encode(subtype, forKey: .subtype)
-    try container.encode(data, forKey: .data)
+    try container.encode(bytes, forKey: .bytes)
+    try container.encode(isBSON, forKey: .isBSON)
   }
 }
 
-/** Extends BSONBinaryData to conform to Codable. */
-extension FirebaseFirestore.BSONBinaryData: FirebaseFirestore.CodableBSONBinaryData {}
+/** Extends Blob to conform to Codable. */
+extension FirebaseFirestore.Blob: FirebaseFirestore.CodableBlob {}

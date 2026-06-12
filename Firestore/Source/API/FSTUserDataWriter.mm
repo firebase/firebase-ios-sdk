@@ -23,9 +23,9 @@
 #include "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #include "Firestore/Source/API/FIRFieldValue+Internal.h"
 #include "Firestore/Source/API/converters.h"
-#include "Firestore/Source/Public/FirebaseFirestore/FIRBSONBinaryData.h"
 #include "Firestore/Source/Public/FirebaseFirestore/FIRBSONObjectId.h"
 #include "Firestore/Source/Public/FirebaseFirestore/FIRBSONTimestamp.h"
+#include "Firestore/Source/Public/FirebaseFirestore/FIRBlob.h"
 #include "Firestore/Source/Public/FirebaseFirestore/FIRDecimal128Value.h"
 #include "Firestore/Source/Public/FirebaseFirestore/FIRInt32Value.h"
 #include "Firestore/Source/Public/FirebaseFirestore/FIRMaxKey.h"
@@ -256,7 +256,7 @@ NS_ASSUME_NONNULL_BEGIN
   return [[FIRBSONTimestamp alloc] initWithSeconds:seconds increment:increment];
 }
 
-- (FIRBSONBinaryData *)convertedBsonBinaryData:(const google_firestore_v1_MapValue &)mapValue {
+- (FIRBlob *)convertedBsonBinaryData:(const google_firestore_v1_MapValue &)mapValue {
   uint8_t subtype = 0;
   NSData *data = [[NSData alloc] init];
 
@@ -275,7 +275,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
   }
 
-  return [[FIRBSONBinaryData alloc] initWithSubtype:subtype data:data];
+  return [FIRBlob blobWithBSONBinary:data subtype:subtype];
 }
 
 - (NSArray<id> *)convertedArray:(const google_firestore_v1_ArrayValue &)arrayValue {

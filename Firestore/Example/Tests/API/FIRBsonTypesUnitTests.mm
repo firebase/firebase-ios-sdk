@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import <FirebaseFirestore/FIRBSONBinaryData.h>
 #import <FirebaseFirestore/FIRBSONObjectId.h>
 #import <FirebaseFirestore/FIRBSONTimestamp.h>
+#import <FirebaseFirestore/FIRBlob.h>
 #import <FirebaseFirestore/FIRDecimal128Value.h>
 #import <FirebaseFirestore/FIRFieldValue.h>
 #import <FirebaseFirestore/FIRInt32Value.h>
@@ -138,27 +138,54 @@ NS_ASSUME_NONNULL_BEGIN
   XCTAssertFalse([val1 isEqual:val4]);
 }
 
-- (void)testCreateAndReadAndCompareBsonBinaryData {
+- (void)testCreateAndReadAndCompareBlob {
   uint8_t byteArray1[] = {0x01, 0x02, 0x03, 0x04, 0x05};
   uint8_t byteArray2[] = {0x01, 0x02, 0x03, 0x04, 0x99};
   NSData *data1 = [NSData dataWithBytes:byteArray1 length:sizeof(byteArray1)];
   NSData *data2 = [NSData dataWithBytes:byteArray1 length:sizeof(byteArray1)];
   NSData *data3 = [NSData dataWithBytes:byteArray2 length:sizeof(byteArray2)];
 
-  FIRBSONBinaryData *val1 = [[FIRBSONBinaryData alloc] initWithSubtype:128 data:data1];
-  FIRBSONBinaryData *val2 = [[FIRBSONBinaryData alloc] initWithSubtype:128 data:data2];
-  FIRBSONBinaryData *val3 = [[FIRBSONBinaryData alloc] initWithSubtype:128 data:data3];
-  FIRBSONBinaryData *val4 = [[FIRBSONBinaryData alloc] initWithSubtype:1 data:data1];
+  // Standard Blobs
+  FIRBlob *std1 = [FIRBlob blobWithBytes:data1];
+  FIRBlob *std2 = [FIRBlob blobWithBytes:data2];
+  FIRBlob *std3 = [FIRBlob blobWithBytes:data3];
 
-  // Test reading the values back.
-  XCTAssertEqual(128, val1.subtype);
-  XCTAssertEqual(data1, val1.data);
-  XCTAssertTrue([val1.data isEqualToData:data1]);
+  // BSON Blobs
+  FIRBlob *bson1 = [FIRBlob blobWithBSONBinary:data1 subtype:128];
+  FIRBlob *bson2 = [FIRBlob blobWithBSONBinary:data2 subtype:128];
+  FIRBlob *bson3 = [FIRBlob blobWithBSONBinary:data3 subtype:128];
+  FIRBlob *bson4 = [FIRBlob blobWithBSONBinary:data1 subtype:1];
+
+  // Test reading properties back
+  XCTAssertEqual(0, std1.subtype);
+  XCTAssertFalse(std1.isBSON);
+  XCTAssertEqual(data1, std1.bytes);
+
+  XCTAssertEqual(128, bson1.subtype);
+  XCTAssertTrue(bson1.isBSON);
+  XCTAssertEqual(data1, bson1.bytes);
 
   // Test isEqual
-  XCTAssertTrue([val1 isEqual:val2]);
-  XCTAssertFalse([val1 isEqual:val3]);
-  XCTAssertFalse([val1 isEqual:val4]);
+  XCTAssertTrue([std1 isEqual:std2]);
+  XCTAssertFalse([std1 isEqual:std3]);
+  XCTAssertFalse([std1 isEqual:bson1]);
+
+  XCTAssertTrue([bson1 isEqual:bson2]);
+  XCTAssertFalse([bson1 isEqual:bson3]);
+  XCTAssertFalse([bson1 isEqual:bson4]);
+
+  // Test compare
+  XCTAssertEqual(NSOrderedSame, [std1 compare:std2]);
+  XCTAssertEqual(NSOrderedAscending, [std1 compare:std3]);
+  XCTAssertEqual(NSOrderedDescending, [std3 compare:std1]);
+
+  XCTAssertEqual(NSOrderedSame, [bson1 compare:bson2]);
+  XCTAssertEqual(NSOrderedAscending, [bson1 compare:bson3]);
+
+  // Standard blob (subtype 0) compares less than BSON blob (subtype 1)
+  XCTAssertEqual(NSOrderedAscending, [std1 compare:bson4]);
+  // BSON blob (subtype 1) compares less than BSON blob (subtype 128)
+  XCTAssertEqual(NSOrderedAscending, [bson4 compare:bson1]);
 }
 
 - (void)testFieldValueMinKey {
@@ -205,14 +232,14 @@ NS_ASSUME_NONNULL_BEGIN
   XCTAssertEqual(100U, val2.increment);
 }
 
-- (void)testFieldValueBsonBinaryData {
+- (void)testFieldValueBlob {
   uint8_t byteArray[] = {0x01, 0x02, 0x03, 0x04, 0x05};
   NSData *data = [NSData dataWithBytes:byteArray length:sizeof(byteArray)];
-  FIRBSONBinaryData *val1 = [[FIRBSONBinaryData alloc] initWithSubtype:128 data:data];
-  FIRBSONBinaryData *val2 = [[FIRBSONBinaryData alloc] initWithSubtype:128 data:data];
+  FIRBlob *val1 = [FIRBlob blobWithBSONBinary:data subtype:128];
+  FIRBlob *val2 = [FIRBlob blobWithBSONBinary:data subtype:128];
   XCTAssertTrue([val1 isEqual:val2]);
   XCTAssertEqual(128, val2.subtype);
-  XCTAssertEqual(data, val2.data);
+  XCTAssertEqual(data, val2.bytes);
 }
 
 @end

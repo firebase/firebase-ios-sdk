@@ -761,7 +761,7 @@ class SnapshotListenerSourceTests: FSTIntegrationTestCase {
       "b": ["key": MinKey.shared],
       "c": ["key": BSONTimestamp(seconds: 1, increment: 2)],
       "d": ["key": BSONObjectId("507f191e810c19729de860ea")],
-      "e": ["key": BSONBinaryData(subtype: 1, data: Data([1, 2, 3]))],
+      "e": ["key": Blob(bsonBinary: Data([1, 2, 3]), subtype: 1)],
       "f": ["key": RegexValue(pattern: "^foo", options: "i")],
     ]
 
@@ -784,7 +784,7 @@ class SnapshotListenerSourceTests: FSTIntegrationTestCase {
       testData["c"]!["key"]
     )
     XCTAssertEqual(
-      querySnap.documents[2].data()["key"] as! BSONBinaryData,
+      querySnap.documents[2].data()["key"] as! Blob,
       testData["e"]!["key"]
     )
     XCTAssertEqual(
@@ -819,7 +819,7 @@ class SnapshotListenerSourceTests: FSTIntegrationTestCase {
       testData["c"]!["key"]
     )
     XCTAssertEqual(
-      querySnap.documents[3].data()["key"] as! BSONBinaryData,
+      querySnap.documents[3].data()["key"] as! Blob,
       testData["e"]!["key"]
     )
     XCTAssertEqual(
@@ -858,7 +858,7 @@ class SnapshotListenerSourceTests: FSTIntegrationTestCase {
       testData["c"]!["key"]
     )
     XCTAssertEqual(
-      querySnap.documents[4].data()["key"] as! BSONBinaryData,
+      querySnap.documents[4].data()["key"] as! Blob,
       testData["e"]!["key"]
     )
     XCTAssertEqual(

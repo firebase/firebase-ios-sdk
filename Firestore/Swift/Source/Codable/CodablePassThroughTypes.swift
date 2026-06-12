@@ -40,6 +40,6 @@ struct FirestorePassthroughTypes: StructureCodingPassthroughTypeResolver {
       t is Decimal128Value ||
       t is BSONObjectId ||
       t is BSONTimestamp ||
-      t is BSONBinaryData
+      t is Blob
   }
 }
