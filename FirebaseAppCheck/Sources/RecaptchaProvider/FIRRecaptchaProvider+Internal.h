@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2026 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,16 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
-
-#if SWIFT_PACKAGE
-#import <FIRMessagingInterop.h>
-#else
-#import "FirebaseMessaging/Interop/FIRMessagingInterop.h"
-#endif
+#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRRecaptchaProvider.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRMessagingInteropFake : NSObject <FIRMessagingInterop>
+API_AVAILABLE(ios(15.0), visionos(1.0))
+API_UNAVAILABLE(macos, tvos, watchos, macCatalyst)
+@interface FIRRecaptchaProvider (Internal)
+
+/// Returns `YES` if the reCAPTCHA Enterprise SDK is linked and available at runtime.
++ (BOOL)isSupported;
 
 @end
 

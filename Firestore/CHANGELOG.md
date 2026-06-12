@@ -1,3 +1,7 @@
+# 12.15.0
+
+- [fix] Remove use of designated initializers for `forceIndex` [#16229].
+
 # 12.13.0
 - [feature] Added search stage support for `languageCode`, `offset`, `limit`, and `retrievalDepth`.
 - [feature] Added support for Pipeline expressions `arraySlice`, `arrayFilter`, `arrayTransform` and `arrayTransformWithIndex`. (#16001)
