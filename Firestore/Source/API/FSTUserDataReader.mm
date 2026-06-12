@@ -24,9 +24,9 @@
 
 #import "Firestore/Source/API/FSTUserDataReader.h"
 
-#import "FIRBSONBinaryData.h"
 #import "FIRBSONObjectId.h"
 #import "FIRBSONTimestamp.h"
+#import "FIRBlob.h"
 #import "FIRDecimal128Value.h"
 #import "FIRGeoPoint.h"
 #import "FIRInt32Value.h"
@@ -515,26 +515,29 @@ NS_ASSUME_NONNULL_BEGIN
   return std::move(result);
 }
 
-- (Message<google_firestore_v1_Value>)parseBsonBinaryData:(FIRBSONBinaryData *)binaryData
-                                                  context:(ParseContext &&)context {
-  uint8_t subtypeByte = binaryData.subtype;
-  NSData *data = binaryData.data;
+- (Message<google_firestore_v1_Value>)parseBlob:(FIRBlob *)blob context:(ParseContext &&)context {
+  if (blob.isBSON) {
+    uint8_t subtypeByte = blob.subtype;
+    NSData *data = blob.bytes;
 
-  // We need to prepend the data with one byte representation of the subtype.
-  NSMutableData *concatData = [NSMutableData data];
-  [concatData appendBytes:&subtypeByte length:1];
-  [concatData appendData:data];
+    // We need to prepend the data with one byte representation of the subtype.
+    NSMutableData *concatData = [NSMutableData data];
+    [concatData appendBytes:&subtypeByte length:1];
+    [concatData appendData:data];
 
-  __block Message<google_firestore_v1_Value> result;
-  result->which_value_type = google_firestore_v1_Value_map_value_tag;
-  result->map_value = {};
-  result->map_value.fields_count = 1;
-  result->map_value.fields = nanopb::MakeArray<google_firestore_v1_MapValue_FieldsEntry>(1);
-  result->map_value.fields[0].key = nanopb::CopyBytesArray(model::kBsonBinaryDataTypeFieldValue);
-  result->map_value.fields[0].value =
-      *[self encodeBlob:(nanopb::MakeByteString(concatData))].release();
+    __block Message<google_firestore_v1_Value> result;
+    result->which_value_type = google_firestore_v1_Value_map_value_tag;
+    result->map_value = {};
+    result->map_value.fields_count = 1;
+    result->map_value.fields = nanopb::MakeArray<google_firestore_v1_MapValue_FieldsEntry>(1);
+    result->map_value.fields[0].key = nanopb::CopyBytesArray(model::kBsonBinaryDataTypeFieldValue);
+    result->map_value.fields[0].value =
+        *[self encodeBlob:(nanopb::MakeByteString(concatData))].release();
 
-  return std::move(result);
+    return std::move(result);
+  } else {
+    return [self encodeBlob:(nanopb::MakeByteString(blob.bytes))];
+  }
 }
 
 - (Message<google_firestore_v1_Value>)parseArray:(NSArray<id> *)array
@@ -747,9 +750,9 @@ NS_ASSUME_NONNULL_BEGIN
   } else if ([input isKindOfClass:[FIRBSONTimestamp class]]) {
     FIRBSONTimestamp *timestamp = input;
     return [self parseBsonTimestamp:timestamp context:std::move(context)];
-  } else if ([input isKindOfClass:[FIRBSONBinaryData class]]) {
-    FIRBSONBinaryData *binaryData = input;
-    return [self parseBsonBinaryData:binaryData context:std::move(context)];
+  } else if ([input isKindOfClass:[FIRBlob class]]) {
+    FIRBlob *blob = input;
+    return [self parseBlob:blob context:std::move(context)];
   } else {
     ThrowInvalidArgument("Unsupported type: %s%s", NSStringFromClass([input class]),
                          context.FieldDescription());

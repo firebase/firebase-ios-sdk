@@ -118,7 +118,7 @@ class CodableIntegrationTests: FSTIntegrationTestCase {
       var maxKey: MaxKey
       var bsonOjectId: BSONObjectId
       var bsonTimestamp: BSONTimestamp
-      var bsonBinaryData: BSONBinaryData
+      var bsonBinaryData: Blob
     }
     let docToWrite = documentRef()
     let model = Model(name: "test",
@@ -134,7 +134,7 @@ class CodableIntegrationTests: FSTIntegrationTestCase {
                       maxKey: MaxKey.shared,
                       bsonOjectId: BSONObjectId("507f191e810c19729de860ec"),
                       bsonTimestamp: BSONTimestamp(seconds: 123, increment: 456),
-                      bsonBinaryData: BSONBinaryData(subtype: 128, data: Data([1, 2])))
+                      bsonBinaryData: Blob(bsonBinary: Data([1, 2]), subtype: 128))
 
     for flavor in allFlavors {
       try setData(from: model, forDocument: docToWrite, withFlavor: flavor)
@@ -269,9 +269,9 @@ class CodableIntegrationTests: FSTIntegrationTestCase {
     )
   }
 
-  func testBsonBinaryData() throws {
+  func testBlob() throws {
     try assertCanWriteAndReadCodableValueWithAllFlavors(
-      value: BSONBinaryData(subtype: 128, data: Data([1, 2, 3]))
+      value: Blob(bsonBinary: Data([1, 2, 3]), subtype: 128)
     )
   }
 

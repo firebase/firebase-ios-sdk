@@ -104,7 +104,7 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
   func testCanWriteAndReadBsonTypes() async throws {
     let collection = collectionRef()
     let ref = try await collection.addDocument(data: [
-      "binary": BSONBinaryData(subtype: 1, data: Data([1, 2, 3])),
+      "binary": Blob(bsonBinary: Data([1, 2, 3]), subtype: 1),
       "objectId": BSONObjectId("507f191e810c19729de860ea"),
       "int32": Int32Value(1),
       "decimal128": Decimal128Value("1.2e3"),
@@ -114,7 +114,7 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
     ])
 
     try await ref.updateData([
-      "binary": BSONBinaryData(subtype: 1, data: Data([1, 2, 3])),
+      "binary": Blob(bsonBinary: Data([1, 2, 3]), subtype: 1),
       "timestamp": BSONTimestamp(seconds: 1, increment: 2),
       "int32": Int32Value(2),
     ])
@@ -141,8 +141,8 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
       MaxKey.shared
     )
     XCTAssertEqual(
-      snapshot.get("binary") as? BSONBinaryData,
-      BSONBinaryData(subtype: 1, data: Data([1, 2, 3]))
+      snapshot.get("binary") as? Blob,
+      Blob(bsonBinary: Data([1, 2, 3]), subtype: 1)
     )
     XCTAssertEqual(
       snapshot.get("timestamp") as? BSONTimestamp,
@@ -162,7 +162,7 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
 
     // Adding docs to cache, do not wait for promise to resolve.
     ref.setData([
-      "binary": BSONBinaryData(subtype: 1, data: Data([1, 2, 3])),
+      "binary": Blob(bsonBinary: Data([1, 2, 3]), subtype: 1),
       "objectId": BSONObjectId("507f191e810c19729de860ea"),
       "int32": Int32Value(1),
       "decimal128": Decimal128Value("-1.23e-4"),
@@ -171,7 +171,7 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
       "regex": RegexValue(pattern: "^foo", options: "i"),
     ])
     ref.updateData([
-      "binary": BSONBinaryData(subtype: 128, data: Data([1, 2, 3])),
+      "binary": Blob(bsonBinary: Data([1, 2, 3]), subtype: 128),
       "timestamp": BSONTimestamp(seconds: 1, increment: 2),
       "int32": Int32Value(2),
     ])
@@ -198,8 +198,8 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
       MaxKey.shared
     )
     XCTAssertEqual(
-      snapshot.get("binary") as? BSONBinaryData,
-      BSONBinaryData(subtype: 128, data: Data([1, 2, 3]))
+      snapshot.get("binary") as? Blob,
+      Blob(bsonBinary: Data([1, 2, 3]), subtype: 128)
     )
     XCTAssertEqual(
       snapshot.get("timestamp") as? BSONTimestamp,
@@ -514,9 +514,9 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
 
   func testCanFilterAndOrderBinaryValues() async throws {
     let testDocs: [String: [String: Any]] = [
-      "a": ["key": BSONBinaryData(subtype: 1, data: Data([1, 2, 3]))],
-      "b": ["key": BSONBinaryData(subtype: 1, data: Data([1, 2, 4]))],
-      "c": ["key": BSONBinaryData(subtype: 2, data: Data([1, 2, 3]))],
+      "a": ["key": Blob(bsonBinary: Data([1, 2, 3]), subtype: 1)],
+      "b": ["key": Blob(bsonBinary: Data([1, 2, 4]), subtype: 1)],
+      "c": ["key": Blob(bsonBinary: Data([1, 2, 3]), subtype: 2)],
     ]
 
     let collection = collectionRef()
@@ -525,7 +525,7 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
     var query = collection
       .whereField(
         "key",
-        isGreaterThan: BSONBinaryData(subtype: 1, data: Data([1, 2, 3]))
+        isGreaterThan: Blob(bsonBinary: Data([1, 2, 3]), subtype: 1)
       )
       .order(by: "key", descending: true)
     try await assertSdkQueryResultsConsistentWithBackend(
@@ -538,11 +538,11 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
     query = collection
       .whereField(
         "key",
-        isGreaterThanOrEqualTo: BSONBinaryData(subtype: 1, data: Data([1, 2, 3]))
+        isGreaterThanOrEqualTo: Blob(bsonBinary: Data([1, 2, 3]), subtype: 1)
       )
       .whereField(
         "key",
-        isLessThan: BSONBinaryData(subtype: 2, data: Data([1, 2, 3]))
+        isLessThan: Blob(bsonBinary: Data([1, 2, 3]), subtype: 2)
       )
       .order(by: "key", descending: true)
     try await assertSdkQueryResultsConsistentWithBackend(
@@ -790,9 +790,9 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
       "bsonTimestamp1": ["key": BSONTimestamp(seconds: 2, increment: 0)],
       "bsonTimestamp2": ["key": BSONTimestamp(seconds: 1, increment: 2)],
       "bsonTimestamp3": ["key": BSONTimestamp(seconds: 1, increment: 1)],
-      "bsonBinary1": ["key": BSONBinaryData(subtype: 1, data: Data([1, 2, 3]))],
-      "bsonBinary2": ["key": BSONBinaryData(subtype: 1, data: Data([1, 2, 4]))],
-      "bsonBinary3": ["key": BSONBinaryData(subtype: 2, data: Data([1, 2, 2]))],
+      "bsonBinary1": ["key": Blob(bsonBinary: Data([1, 2, 3]), subtype: 1)],
+      "bsonBinary2": ["key": Blob(bsonBinary: Data([1, 2, 4]), subtype: 1)],
+      "bsonBinary3": ["key": Blob(bsonBinary: Data([1, 2, 2]), subtype: 2)],
       "decimal128Value1": ["key": Decimal128Value("NaN")],
       "decimal128Value2": ["key": Decimal128Value("-Infinity")],
       "decimal128Value3": ["key": Decimal128Value("-1.0")],
@@ -867,7 +867,7 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
       "bsonTimestampValue": ["key": BSONTimestamp(seconds: 1, increment: 2)],
       "stringValue": ["key": "string"],
       "bytesValue": ["key": Data([0, 1, 255])],
-      "bsonBinaryValue": ["key": BSONBinaryData(subtype: 1, data: Data([1, 2, 3]))],
+      "bsonBinaryValue": ["key": Blob(bsonBinary: Data([1, 2, 3]), subtype: 1)],
       "referenceValue": ["key": collection.document("doc")],
       "objectIdValue": ["key": BSONObjectId("507f191e810c19729de860ea")],
       "geoPointValue": ["key": GeoPoint(latitude: 0, longitude: 0)],
@@ -923,7 +923,7 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
     let testDocs = [
       "a": ["key": BSONTimestamp(seconds: 1, increment: 2)],
       "b": ["key": "placeholder"],
-      "c": ["key": BSONBinaryData(subtype: 1, data: Data([1, 2, 3]))],
+      "c": ["key": Blob(bsonBinary: Data([1, 2, 3]), subtype: 1)],
     ]
 
     let collection = collectionRef()

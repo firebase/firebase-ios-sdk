@@ -182,11 +182,11 @@ class TypeTest: FSTIntegrationTestCase {
     XCTAssertTrue(v1 != v3)
   }
 
-  func testBsonBinaryDataEquality() {
-    let v1 = BSONBinaryData(subtype: 1, data: Data([1, 2, 3]))
-    let v2 = BSONBinaryData(subtype: 1, data: Data([1, 2, 3]))
-    let v3 = BSONBinaryData(subtype: 128, data: Data([1, 2, 3]))
-    let v4 = BSONBinaryData(subtype: 1, data: Data([1, 2, 3, 4]))
+  func testBlobEquality() {
+    let v1 = Blob(bsonBinary: Data([1, 2, 3]), subtype: 1)
+    let v2 = Blob(bsonBinary: Data([1, 2, 3]), subtype: 1)
+    let v3 = Blob(bsonBinary: Data([1, 2, 3]), subtype: 128)
+    let v4 = Blob(bsonBinary: Data([1, 2, 3, 4]), subtype: 1)
 
     XCTAssertTrue(v1 == v2)
     XCTAssertFalse(v1 == v3)
@@ -263,15 +263,15 @@ class TypeTest: FSTIntegrationTestCase {
   func testCanReadAndWriteBsonBinaryDataFields() async throws {
     _ = try await expectRoundtrip(
       coll: collectionRef(),
-      data: ["bsonBinaryData": BSONBinaryData(subtype: 1, data: Data([1, 2, 3]))]
+      data: ["bsonBinaryData": Blob(bsonBinary: Data([1, 2, 3]), subtype: 1)]
     )
     _ = try await expectRoundtrip(
       coll: collectionRef(),
-      data: ["bsonBinaryData": BSONBinaryData(subtype: 128, data: Data([1, 2, 3]))]
+      data: ["bsonBinaryData": Blob(bsonBinary: Data([1, 2, 3]), subtype: 128)]
     )
     _ = try await expectRoundtrip(
       coll: collectionRef(),
-      data: ["bsonBinaryData": BSONBinaryData(subtype: 255, data: Data([]))]
+      data: ["bsonBinaryData": Blob(bsonBinary: Data([]), subtype: 255)]
     )
   }
 
@@ -279,7 +279,7 @@ class TypeTest: FSTIntegrationTestCase {
     _ = try await expectRoundtrip(
       coll: collectionRef(),
       data: ["array": [
-        BSONBinaryData(subtype: 1, data: Data([1, 2, 3])),
+        Blob(bsonBinary: Data([1, 2, 3]), subtype: 1),
         BSONObjectId("507f191e810c19729de860ea"),
         BSONTimestamp(seconds: 123, increment: 456),
         Int32Value(1),
@@ -295,7 +295,7 @@ class TypeTest: FSTIntegrationTestCase {
     _ = try await expectRoundtrip(
       coll: collectionRef(),
       data: ["map": [
-        "binary": BSONBinaryData(subtype: 1, data: Data([1, 2, 3])),
+        "binary": Blob(bsonBinary: Data([1, 2, 3]), subtype: 1),
         "objectId": BSONObjectId("507f191e810c19729de860ea"),
         "bsonTimestamp": BSONTimestamp(seconds: 123, increment: 456),
         "int32": Int32Value(1),
@@ -406,7 +406,7 @@ class TypeTest: FSTIntegrationTestCase {
       "bsonTimestampValue": ["key": BSONTimestamp(seconds: 1, increment: 2)],
       "stringValue": ["key": "string"],
       "bytesValue": ["key": Data([0, 1, 255])],
-      "bsonBinaryValue": ["key": BSONBinaryData(subtype: 1, data: Data([1, 2, 3]))],
+      "bsonBinaryValue": ["key": Blob(bsonBinary: Data([1, 2, 3]), subtype: 1)],
       "referenceValue": ["key": collection.document("doc")],
       "objectIdValue": ["key": BSONObjectId("507f191e810c19729de860ea")],
       "geoPointValue": ["key": GeoPoint(latitude: 0, longitude: 0)],
