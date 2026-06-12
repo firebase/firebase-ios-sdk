@@ -294,6 +294,7 @@ const ::uint32_t TableStruct_google_2ffirestore_2fv1_2fdocument_2eproto::offsets
     ::_pbi::kInvalidFieldOffsetTag,
     ::_pbi::kInvalidFieldOffsetTag,
     ::_pbi::kInvalidFieldOffsetTag,
+    ::_pbi::kInvalidFieldOffsetTag,
     PROTOBUF_FIELD_OFFSET(::google::firestore::v1::Value, _impl_.value_type_),
     ~0u,  // no _has_bits_
     PROTOBUF_FIELD_OFFSET(::google::firestore::v1::ArrayValue, _internal_metadata_),
@@ -387,14 +388,14 @@ static const ::_pbi::MigrationSchema
         {0, 10, -1, sizeof(::google::firestore::v1::Document_FieldsEntry_DoNotUse)},
         {12, 24, -1, sizeof(::google::firestore::v1::Document)},
         {28, -1, -1, sizeof(::google::firestore::v1::Value)},
-        {51, -1, -1, sizeof(::google::firestore::v1::ArrayValue)},
-        {60, 70, -1, sizeof(::google::firestore::v1::MapValue_FieldsEntry_DoNotUse)},
-        {72, -1, -1, sizeof(::google::firestore::v1::MapValue)},
-        {81, 91, -1, sizeof(::google::firestore::v1::Function_OptionsEntry_DoNotUse)},
-        {93, -1, -1, sizeof(::google::firestore::v1::Function)},
-        {104, 114, -1, sizeof(::google::firestore::v1::Pipeline_Stage_OptionsEntry_DoNotUse)},
-        {116, -1, -1, sizeof(::google::firestore::v1::Pipeline_Stage)},
-        {127, -1, -1, sizeof(::google::firestore::v1::Pipeline)},
+        {52, -1, -1, sizeof(::google::firestore::v1::ArrayValue)},
+        {61, 71, -1, sizeof(::google::firestore::v1::MapValue_FieldsEntry_DoNotUse)},
+        {73, -1, -1, sizeof(::google::firestore::v1::MapValue)},
+        {82, 92, -1, sizeof(::google::firestore::v1::Function_OptionsEntry_DoNotUse)},
+        {94, -1, -1, sizeof(::google::firestore::v1::Function)},
+        {105, 115, -1, sizeof(::google::firestore::v1::Pipeline_Stage_OptionsEntry_DoNotUse)},
+        {117, -1, -1, sizeof(::google::firestore::v1::Pipeline_Stage)},
+        {128, -1, -1, sizeof(::google::firestore::v1::Pipeline)},
 };
 
 static const ::_pb::Message* const file_default_instances[] = {
@@ -421,7 +422,7 @@ const char descriptor_table_protodef_google_2ffirestore_2fv1_2fdocument_2eproto[
     "\030\003 \001(\0132\032.google.protobuf.Timestamp\022/\n\013up"
     "date_time\030\004 \001(\0132\032.google.protobuf.Timest"
     "amp\032I\n\013FieldsEntry\022\013\n\003key\030\001 \001(\t\022)\n\005value"
-    "\030\002 \001(\0132\032.google.firestore.v1.Value:\0028\001\"\301"
+    "\030\002 \001(\0132\032.google.firestore.v1.Value:\0028\001\"\345"
     "\004\n\005Value\0220\n\nnull_value\030\013 \001(\0162\032.google.pr"
     "otobuf.NullValueH\000\022\027\n\rboolean_value\030\001 \001("
     "\010H\000\022\027\n\rinteger_value\030\002 \001(\003H\000\022\026\n\014double_v"
@@ -436,30 +437,31 @@ const char descriptor_table_protodef_google_2ffirestore_2fv1_2fdocument_2eproto[
     "ue\030\023 \001(\tH\000\0227\n\016function_value\030\024 \001(\0132\035.goo"
     "gle.firestore.v1.FunctionH\000\0227\n\016pipeline_"
     "value\030\025 \001(\0132\035.google.firestore.v1.Pipeli"
-    "neH\000B\014\n\nvalue_type\"8\n\nArrayValue\022*\n\006valu"
-    "es\030\001 \003(\0132\032.google.firestore.v1.Value\"\220\001\n"
-    "\010MapValue\0229\n\006fields\030\001 \003(\0132).google.fires"
-    "tore.v1.MapValue.FieldsEntry\032I\n\013FieldsEn"
-    "try\022\013\n\003key\030\001 \001(\t\022)\n\005value\030\002 \001(\0132\032.google"
-    ".firestore.v1.Value:\0028\001\"\332\001\n\010Function\022\021\n\004"
-    "name\030\001 \001(\tB\003\340A\002\022-\n\004args\030\002 \003(\0132\032.google.f"
-    "irestore.v1.ValueB\003\340A\001\022@\n\007options\030\003 \003(\0132"
-    "*.google.firestore.v1.Function.OptionsEn"
-    "tryB\003\340A\001\032J\n\014OptionsEntry\022\013\n\003key\030\001 \001(\t\022)\n"
-    "\005value\030\002 \001(\0132\032.google.firestore.v1.Value"
-    ":\0028\001\"\244\002\n\010Pipeline\0228\n\006stages\030\001 \003(\0132#.goog"
-    "le.firestore.v1.Pipeline.StageB\003\340A\002\032\335\001\n\005"
-    "Stage\022\021\n\004name\030\001 \001(\tB\003\340A\002\022-\n\004args\030\002 \003(\0132\032"
-    ".google.firestore.v1.ValueB\003\340A\001\022F\n\007optio"
-    "ns\030\003 \003(\01320.google.firestore.v1.Pipeline."
-    "Stage.OptionsEntryB\003\340A\001\032J\n\014OptionsEntry\022"
+    "neH\000\022\"\n\030variable_reference_value\030\026 \001(\tH\000"
+    "B\014\n\nvalue_type\"8\n\nArrayValue\022*\n\006values\030\001"
+    " \003(\0132\032.google.firestore.v1.Value\"\220\001\n\010Map"
+    "Value\0229\n\006fields\030\001 \003(\0132).google.firestore"
+    ".v1.MapValue.FieldsEntry\032I\n\013FieldsEntry\022"
     "\013\n\003key\030\001 \001(\t\022)\n\005value\030\002 \001(\0132\032.google.fir"
-    "estore.v1.Value:\0028\001B\305\001\n\027com.google.fires"
-    "tore.v1B\rDocumentProtoP\001Z;cloud.google.c"
-    "om/go/firestore/apiv1/firestorepb;firest"
-    "orepb\242\002\004GCFS\252\002\031Google.Cloud.Firestore.V1"
-    "\312\002\031Google\\Cloud\\Firestore\\V1\352\002\034Google::C"
-    "loud::Firestore::V1b\006proto3"
+    "estore.v1.Value:\0028\001\"\332\001\n\010Function\022\021\n\004name"
+    "\030\001 \001(\tB\003\340A\002\022-\n\004args\030\002 \003(\0132\032.google.fires"
+    "tore.v1.ValueB\003\340A\001\022@\n\007options\030\003 \003(\0132*.go"
+    "ogle.firestore.v1.Function.OptionsEntryB"
+    "\003\340A\001\032J\n\014OptionsEntry\022\013\n\003key\030\001 \001(\t\022)\n\005val"
+    "ue\030\002 \001(\0132\032.google.firestore.v1.Value:\0028\001"
+    "\"\244\002\n\010Pipeline\0228\n\006stages\030\001 \003(\0132#.google.f"
+    "irestore.v1.Pipeline.StageB\003\340A\002\032\335\001\n\005Stag"
+    "e\022\021\n\004name\030\001 \001(\tB\003\340A\002\022-\n\004args\030\002 \003(\0132\032.goo"
+    "gle.firestore.v1.ValueB\003\340A\001\022F\n\007options\030\003"
+    " \003(\01320.google.firestore.v1.Pipeline.Stag"
+    "e.OptionsEntryB\003\340A\001\032J\n\014OptionsEntry\022\013\n\003k"
+    "ey\030\001 \001(\t\022)\n\005value\030\002 \001(\0132\032.google.firesto"
+    "re.v1.Value:\0028\001B\305\001\n\027com.google.firestore"
+    ".v1B\rDocumentProtoP\001Z;cloud.google.com/g"
+    "o/firestore/apiv1/firestorepb;firestorep"
+    "b\242\002\004GCFS\252\002\031Google.Cloud.Firestore.V1\312\002\031G"
+    "oogle\\Cloud\\Firestore\\V1\352\002\034Google::Cloud"
+    "::Firestore::V1b\006proto3"
 };
 static const ::_pbi::DescriptorTable* const descriptor_table_google_2ffirestore_2fv1_2fdocument_2eproto_deps[4] =
     {
@@ -472,7 +474,7 @@ static ::absl::once_flag descriptor_table_google_2ffirestore_2fv1_2fdocument_2ep
 const ::_pbi::DescriptorTable descriptor_table_google_2ffirestore_2fv1_2fdocument_2eproto = {
     false,
     false,
-    1947,
+    1983,
     descriptor_table_protodef_google_2ffirestore_2fv1_2fdocument_2eproto,
     "google/firestore/v1/document.proto",
     &descriptor_table_google_2ffirestore_2fv1_2fdocument_2eproto_once,
@@ -1066,6 +1068,9 @@ Value::Value(
       case kPipelineValue:
         _impl_.value_type_.pipeline_value_ = CreateMaybeMessage<::google::firestore::v1::Pipeline>(arena, *from._impl_.value_type_.pipeline_value_);
         break;
+      case kVariableReferenceValue:
+        new (&_impl_.value_type_.variable_reference_value_) decltype(_impl_.value_type_.variable_reference_value_){arena, from._impl_.value_type_.variable_reference_value_};
+        break;
   }
 
   // @@protoc_insertion_point(copy_constructor:google.firestore.v1.Value)
@@ -1165,6 +1170,10 @@ void Value::clear_value_type() {
       }
       break;
     }
+    case kVariableReferenceValue: {
+      _impl_.value_type_.variable_reference_value_.Destroy();
+      break;
+    }
     case VALUE_TYPE_NOT_SET: {
       break;
     }
@@ -1192,15 +1201,15 @@ const char* Value::_InternalParse(
 
 
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<0, 14, 6, 90, 2> Value::_table_ = {
+const ::_pbi::TcParseTable<0, 15, 6, 114, 2> Value::_table_ = {
   {
     0,  // no _has_bits_
     0, // no _extensions_
-    21, 0,  // max_field_number, fast_idx_mask
+    22, 0,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4292933704,  // skipmap
+    4290836552,  // skipmap
     offsetof(decltype(_table_), field_entries),
-    14,  // num_field_entries
+    15,  // num_field_entries
     6,  // num_aux_entries
     offsetof(decltype(_table_), aux_entries),
     &_Value_default_instance_._instance,
@@ -1252,6 +1261,9 @@ const ::_pbi::TcParseTable<0, 14, 6, 90, 2> Value::_table_ = {
     // .google.firestore.v1.Pipeline pipeline_value = 21;
     {PROTOBUF_FIELD_OFFSET(Value, _impl_.value_type_.pipeline_value_), _Internal::kOneofCaseOffset + 0, 5,
     (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
+    // string variable_reference_value = 22;
+    {PROTOBUF_FIELD_OFFSET(Value, _impl_.value_type_.variable_reference_value_), _Internal::kOneofCaseOffset + 0, 0,
+    (0 | ::_fl::kFcOneof | ::_fl::kUtf8String | ::_fl::kRepAString)},
   }}, {{
     {::_pbi::TcParser::GetTable<::google::firestore::v1::MapValue>()},
     {::_pbi::TcParser::GetTable<::google::type::LatLng>()},
@@ -1260,11 +1272,12 @@ const ::_pbi::TcParseTable<0, 14, 6, 90, 2> Value::_table_ = {
     {::_pbi::TcParser::GetTable<::google::firestore::v1::Function>()},
     {::_pbi::TcParser::GetTable<::google::firestore::v1::Pipeline>()},
   }}, {{
-    "\31\0\0\0\17\0\0\0\0\0\14\0\25\0\0\0"
+    "\31\0\0\0\17\0\0\0\0\0\14\0\25\0\0\30"
     "google.firestore.v1.Value"
     "reference_value"
     "string_value"
     "field_reference_value"
+    "variable_reference_value"
   }},
 };
 
@@ -1360,6 +1373,13 @@ const ::_pbi::TcParseTable<0, 14, 6, 90, 2> Value::_table_ = {
       target = ::google::protobuf::internal::WireFormatLite::InternalWriteMessage(
           21, _Internal::pipeline_value(this),
           _Internal::pipeline_value(this).GetCachedSize(), target, stream);
+      break;
+    }
+    case kVariableReferenceValue: {
+      const std::string& _s = this->_internal_variable_reference_value();
+      ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+          _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "google.firestore.v1.Value.variable_reference_value");
+      target = stream->WriteStringMaybeAliased(22, _s, target);
       break;
     }
     default:
@@ -1465,6 +1485,12 @@ const ::_pbi::TcParseTable<0, 14, 6, 90, 2> Value::_table_ = {
           2 + ::google::protobuf::internal::WireFormatLite::MessageSize(*_impl_.value_type_.pipeline_value_);
       break;
     }
+    // string variable_reference_value = 22;
+    case kVariableReferenceValue: {
+      total_size += 2 + ::google::protobuf::internal::WireFormatLite::StringSize(
+                                      this->_internal_variable_reference_value());
+      break;
+    }
     case VALUE_TYPE_NOT_SET: {
       break;
     }
@@ -1549,6 +1575,10 @@ void Value::MergeImpl(::google::protobuf::Message& to_msg, const ::google::proto
     case kPipelineValue: {
       _this->_internal_mutable_pipeline_value()->::google::firestore::v1::Pipeline::MergeFrom(
           from._internal_pipeline_value());
+      break;
+    }
+    case kVariableReferenceValue: {
+      _this->_internal_set_variable_reference_value(from._internal_variable_reference_value());
       break;
     }
     case VALUE_TYPE_NOT_SET: {

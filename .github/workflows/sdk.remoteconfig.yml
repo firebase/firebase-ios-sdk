@@ -75,6 +75,7 @@ jobs:
     uses: ./.github/workflows/_cocoapods.yml
     with:
       product: FirebaseRemoteConfig
+      timeout_minutes: 30
 
   quickstart:
     uses: ./.github/workflows/_quickstart.yml

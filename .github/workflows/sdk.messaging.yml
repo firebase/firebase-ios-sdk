@@ -97,8 +97,9 @@ jobs:
             platform: iOS
           - target: SwiftUISample
             platform: iOS
-          - target: MessagingSampleStandaloneWatchApp
-            platform: watchOS
+          # TODO(ncooke3): Re-enable post #15997
+          # - target: MessagingSampleStandaloneWatchApp
+          #   platform: watchOS
     uses: ./.github/workflows/_build.yml
     with:
       product: ${{ matrix.target }}
@@ -110,4 +111,3 @@ jobs:
         scripts/install_prereqs.sh ${{ matrix.target }} ${{ matrix.platform }}
     secrets:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-

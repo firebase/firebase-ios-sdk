@@ -154,6 +154,19 @@ extern NSString *const kFIRLibraryVersionID;
   XCTAssertFalse(options.usingOptionsFromDefaultPlist);
 }
 
+- (void)testRecaptchaSiteKey {
+  NSString *siteKey = @"placeholder_site_key";
+  NSDictionary *optionsDictionary = @{@"RECAPTCHA_SITE_KEY" : siteKey};
+  FIROptions *options = [[FIROptions alloc] initInternalWithOptionsDictionary:optionsDictionary];
+  XCTAssertEqualObjects(options.recaptchaSiteKey, siteKey);
+}
+
+- (void)testSetRecaptchaSiteKey {
+  FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:@"app_id" GCMSenderID:@"sender_id"];
+  options.recaptchaSiteKey = @"manual_site_key";
+  XCTAssertEqualObjects(options.recaptchaSiteKey, @"manual_site_key");
+}
+
 - (void)assertOptionsMatchDefaults:(FIROptions *)options andProjectID:(BOOL)matchProjectID {
   XCTAssertEqualObjects(options.googleAppID, kGoogleAppID);
   XCTAssertEqualObjects(options.APIKey, kAPIKey);

@@ -14,7 +14,6 @@
 
 import Foundation
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension [ModelContent] {
   // TODO: Rename and refactor this.
   func throwIfError() throws {
@@ -31,7 +30,6 @@ extension [ModelContent] {
   }
 }
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 struct InternalPart: Equatable, Sendable {
   enum OneOfData: Equatable, Sendable {
     case text(String)
@@ -67,7 +65,6 @@ struct InternalPart: Equatable, Sendable {
 /// A type describing data in media formats interpretable by an AI model. Each generative AI
 /// request or response contains an `Array` of ``ModelContent``s, and each ``ModelContent`` value
 /// may comprise multiple heterogeneous ``Part``s.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct ModelContent: Equatable, Sendable {
   /// The role of the entity creating the ``ModelContent``. For user-generated client requests,
   /// for example, the role is `user`.
@@ -173,7 +170,6 @@ public struct ModelContent: Equatable, Sendable {
 
 // MARK: Codable Conformances
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ModelContent: Codable {
   enum CodingKeys: String, CodingKey {
     case role
@@ -187,7 +183,6 @@ extension ModelContent: Codable {
   }
 }
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension InternalPart: Codable {
   enum CodingKeys: String, CodingKey {
     case isThought = "thought"
@@ -216,7 +211,6 @@ extension InternalPart: Codable {
   }
 }
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension InternalPart.OneOfData: Codable {
   enum CodingKeys: String, CodingKey {
     case text

@@ -1,3 +1,63 @@
+# 12.15.0
+- [changed] Made Firebase App Check a dependency of Firebase AI Logic to
+  simplify App Check setup. (#16185)
+- [fixed] Fixed a namespace collision with the new
+  `FoundationModels.LanguageModelSession.Error` type introduced in Xcode 27 Beta. (#16252)
+- [feature] Added support for `SpeechConfig` in `GenerationConfig`, and `MultiSpeakerVoiceConfig`
+  in `SpeechConfig`. (#16226)
+
+# 12.14.0
+- [fixed] Fixed an issue in `GenerativeModelSession` where `String` generation
+  used the wrong overload for `respond(to:)` and `streamResponse(to:)`,
+  resulting in occasional prompt refusals. (#16165)
+
+# 12.13.0
+- [feature] **Public Preview**: Added support for hybrid inference, enabling
+  fallback between on-device (Foundation Models) and cloud (Gemini) models. (#16111)
+- [feature] Added support for session resumption in the Live API via the `resumeSession` method on
+  [`LiveSession`](https://firebase.google.com/docs/reference/swift/firebaseai/api/reference/Classes/LiveSession).
+  (#15904)
+- [feature] Added support for context window compression in the Live API via
+  [`ContextWindowCompressionConfig`](https://firebase.google.com/docs/reference/swift/firebaseai/api/reference/Structs/ContextWindowCompressionConfig).
+  (#15904)
+- [feature] **Breaking Change**: Added a new Live API payload field for `LiveSessionResumptionUpdate` to
+  support the new session resumption feature. (#15904)
+- [feature] Adds support for configuring image generation properties,
+  such as aspect ratio and image size, through the new `ImageConfig` struct
+  and its integration with `GenerationConfig`. (#15923)
+- [feature] Added support for GoogleMaps grounding, including for Server Prompt Templates.
+- [fixed] Fix unfound file warnings from `swift build`. (#16012)
+- [fixed] Fixed a `no member 'autoFunctionDeclaration'` compilation error on
+  unofficially supported Xcode versions older than 26.2. (#16037)
+- [fixed] Fixed missing thought summary output in `GenerativeModelSession.streamResponse`. (#16075)
+- [fixed] Removed unnecessary log statements related to retrieving text parts during automatic function calling. (#16087, #16122)
+- [feature] Adds support for configuring image generation properties,
+  such as aspect ratio and image size, through the new `ImageConfig` struct
+  and its integration with `GenerationConfig`. (#15923)
+- [feature] Adds support for new `FinishReason` values including
+  image-related reasons like `imageSafety`, `noImage`, and others for
+  tool-use, language, and malformed responses. (#15931)
+
+# 12.12.0
+- [feature] Added support for automatic function calling in
+  `GenerativeModelSession`. You can create Gemini-compatible function
+  declarations by providing types conforming to the `FoundationModels.Tool`
+  protocol when initializing a session. (#15915)
+- [fixed] Updated `GenerativeModelSession` to handle intermediate JSON decoding
+  failures when streaming structured data. (#15960)
+- [changed] **Breaking Change**: `GenerativeModelSession.GenerationError` is now
+  marked `@nonexhaustive` to support additional cases in a non-breaking manner.
+  If switching on `GenerativeModelSession.GenerationError`, you must add an
+  [`@unknown default:`](https://github.com/swiftlang/swift-evolution/blob/main/proposals/0192-non-exhaustive-enums.md#unknown)
+  case to your `switch` statement. (#16011)
+- [deprecated] All Imagen models are deprecated and will shut down as early as June 2026.
+  As a replacement, you can [migrate your apps to use Gemini Image models (the "Nano Banana" models)](https://firebase.google.com/docs/ai-logic/imagen-models-migration).
+
+# 12.11.0
+- [feature] **Public Preview**: Introduces `GenerativeModelSession` providing
+  APIs for generating structured data from Gemini via the same `@Generable` and
+  `@Guide` macros that are used with Foundation Models.
+
 # 12.9.0
 - [changed] The URL context tool APIs are now GA.
 - [feature] Added support for implicit caching (context caching) metadata in `GenerateContentResponse`.

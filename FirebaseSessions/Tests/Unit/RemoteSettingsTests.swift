@@ -45,7 +45,8 @@ class RemoteSettingsTests: XCTestCase {
     super.setUp()
     appInfo = MockApplicationInfo()
     downloader = MockSettingsDownloader(successResponse: validSettings)
-    cache = SettingsCache()
+    // Use "app_quality" namespace to match the keys in validSettings/validSettings2
+    cache = SettingsCache(namespace: "app_quality")
     cache.removeCache() // just reinstantiating cache isn't enough because of persistence
     settings = RemoteSettings(appInfo: appInfo, downloader: downloader, cache: cache)
   }
@@ -53,8 +54,6 @@ class RemoteSettingsTests: XCTestCase {
   func test_noCacheSaved_returnsNilSettings() {
     downloader.shouldSucceed = false
     settings.updateSettings(currentTime: Date.distantFuture)
-    XCTAssertTrue(cache.cacheContent.isEmpty)
-    XCTAssertNil(cache.cacheKey)
     XCTAssertNil(settings.sessionsEnabled)
     XCTAssertNil(settings.samplingRate)
     XCTAssertNil(settings.sessionTimeout)
@@ -196,6 +195,10 @@ class RemoteSettingsTests: XCTestCase {
 
     // When
     write(jsonString: corruptedJSONString, isCacheKey: false)
+    // Recreate cache to simulate app restart after corruption
+    cache = SettingsCache(namespace: "app_quality")
+    settings = RemoteSettings(appInfo: appInfo, downloader: downloader, cache: cache)
+
     // Then
     // should provide default values
     XCTAssertNil(settings.sessionsEnabled)
@@ -226,6 +229,10 @@ class RemoteSettingsTests: XCTestCase {
     // When
     // cache key is corrupted, and fetch fails
     write(jsonString: corruptedJSONString, isCacheKey: true)
+    // Recreate cache to simulate app restart after corruption
+    cache = SettingsCache(namespace: "app_quality")
+    settings = RemoteSettings(appInfo: appInfo, downloader: downloader, cache: cache)
+
     downloader.shouldSucceed = false
     settings.updateSettings(currentTime: date)
     // Then

@@ -16,7 +16,6 @@ import FirebaseAILogic
 import Foundation
 import XCTest
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 final class SchemaTests: XCTestCase {
   let encoder = JSONEncoder()
 
@@ -496,5 +495,94 @@ final class SchemaTests: XCTestCase {
       ]
     }
     """)
+  }
+
+  // MARK: - Equatable Tests
+
+  func testEquatable_identicalSchemas() {
+    let schema1 = Schema.object(
+      properties: [
+        "id": .integer(format: .int64),
+        "name": .string(description: "User's full name"),
+        "tags": .array(items: .string()),
+      ],
+      optionalProperties: ["tags"],
+      description: "A user object",
+      nullable: true
+    )
+    let schema2 = Schema.object(
+      properties: [
+        "id": .integer(format: .int64),
+        "name": .string(description: "User's full name"),
+        "tags": .array(items: .string()),
+      ],
+      optionalProperties: ["tags"],
+      description: "A user object",
+      nullable: true
+    )
+
+    XCTAssertEqual(schema1, schema2)
+  }
+
+  func testEquatable_differentDataTypes() {
+    XCTAssertNotEqual(Schema.string(), Schema.integer())
+    XCTAssertNotEqual(Schema.float(), Schema.double())
+    XCTAssertNotEqual(Schema.boolean(), Schema.array(items: .string()))
+  }
+
+  func testEquatable_differentMetadata() {
+    XCTAssertNotEqual(
+      Schema.string(description: "A"),
+      Schema.string(description: "B")
+    )
+
+    XCTAssertNotEqual(
+      Schema.string(nullable: true),
+      Schema.string(nullable: false)
+    )
+
+    XCTAssertNotEqual(
+      Schema.integer(format: .int32),
+      Schema.integer(format: .int64)
+    )
+
+    XCTAssertNotEqual(
+      Schema.integer(minimum: 1, maximum: 10),
+      Schema.integer(minimum: 1, maximum: 20)
+    )
+
+    XCTAssertNotEqual(
+      Schema.enumeration(values: ["A", "B"]),
+      Schema.enumeration(values: ["A", "C"])
+    )
+  }
+
+  func testEquatable_differentArrayItems() {
+    let array1 = Schema.array(items: .string(), minItems: 1)
+    let array2 = Schema.array(items: .string(), minItems: 2)
+    let array3 = Schema.array(items: .integer(), minItems: 1)
+
+    XCTAssertNotEqual(array1, array2, "Differing bounds should not be equal")
+    XCTAssertNotEqual(array1, array3, "Differing item schemas should not be equal")
+  }
+
+  func testEquatable_differentObjectProperties() {
+    let obj1 = Schema.object(properties: ["a": .string()])
+    let obj2 = Schema.object(properties: ["b": .string()])
+    let obj3 = Schema.object(properties: ["a": .integer()])
+    let obj4 = Schema.object(properties: ["a": .string()], optionalProperties: ["a"])
+
+    XCTAssertNotEqual(obj1, obj2, "Differing property keys should not be equal")
+    XCTAssertNotEqual(obj1, obj3, "Differing property value schemas should not be equal")
+    XCTAssertNotEqual(obj1, obj4, "Differing required properties should not be equal")
+  }
+
+  func testEquatable_differentAnyOf() {
+    let anyOf1 = Schema.anyOf(schemas: [.string(), .integer()])
+    let anyOf2 = Schema.anyOf(schemas: [.string(), .boolean()])
+    let anyOf3 = Schema.anyOf(schemas: [.string()])
+
+    XCTAssertNotEqual(anyOf1, anyOf2, "Differing sub-schemas should not be equal")
+    XCTAssertNotEqual(anyOf1, anyOf3, "Differing sub-schema counts should not be equal")
   }
 }

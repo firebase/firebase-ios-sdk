@@ -221,8 +221,8 @@
   [self.proxy swizzleMethodsIfPossible];
 
 #if TARGET_OS_IOS || TARGET_OS_TV
-  SEL remoteNotificationWithFetchHandler = @selector(application:
-                                    didReceiveRemoteNotification:fetchCompletionHandler:);
+  SEL remoteNotificationWithFetchHandler =
+      @selector(application:didReceiveRemoteNotification:fetchCompletionHandler:);
   XCTAssertTrue([incompleteAppDelegate respondsToSelector:remoteNotificationWithFetchHandler]);
 #endif  // TARGET_OS_IOS || TARGET_OS_TV
 
@@ -319,11 +319,11 @@
     // Because the incomplete delete does not implement either of the optional delegate methods, we
     // should swizzle nothing. If we had swizzled them, then respondsToSelector: would return YES
     // even though the delegate does not implement the methods.
-    SEL willPresentSelector = @selector(userNotificationCenter:
-                                       willPresentNotification:withCompletionHandler:);
+    SEL willPresentSelector =
+        @selector(userNotificationCenter:willPresentNotification:withCompletionHandler:);
     XCTAssertFalse([delegate respondsToSelector:willPresentSelector]);
-    SEL didReceiveResponseSelector = @selector(userNotificationCenter:
-                                       didReceiveNotificationResponse:withCompletionHandler:);
+    SEL didReceiveResponseSelector =
+        @selector(userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:);
     XCTAssertFalse([delegate respondsToSelector:didReceiveResponseSelector]);
   }
 }

@@ -241,6 +241,8 @@ void FIRCLSUserLoggingRecordKeysAndValues(NSDictionary *keysAndValues,
                                           FIRCLSUserLoggingKVStorage *storage,
                                           uint32_t *counter) {
   if (!FIRCLSContextIsInitialized()) {
+    FIRCLSSDKLogWarn(
+        "Failed to write key/value pairs. Crashlytics context has not initialized yet.\n");
     return;
   }
 
@@ -317,6 +319,8 @@ static void FIRCLSUserLoggingWriteKeysAndValues(NSDictionary *keysAndValues,
 
 NSArray *FIRCLSUserLoggingStoredKeyValues(const char *path) {
   if (!FIRCLSContextIsInitialized()) {
+    FIRCLSSDKLogWarn(
+        "Failed to read key/value pairs. Crashlytics context has not initialized yet.\n");
     return nil;
   }
 
@@ -388,19 +392,17 @@ static void FIRCLSUserLoggingWriteError(FIRCLSFile *file,
 
 void FIRCLSUserLoggingRecordError(NSError *error,
                                   NSDictionary<NSString *, id> *additionalUserInfo,
-                                  NSString *rolloutsInfoJSON) {
+                                  NSString *rolloutsInfoJSON,
+                                  NSArray *addresses,
+                                  uint64_t timestamp) {
   if (!error) {
     return;
   }
 
   if (!FIRCLSContextIsInitialized()) {
+    FIRCLSSDKLogWarn("Failed to record error. Crashlytics context has not initialized yet.\n");
     return;
   }
-
-  // record the stacktrace and timestamp here, so we
-  // are as close as possible to the user's log statement
-  NSArray *addresses = [NSThread callStackReturnAddresses];
-  uint64_t timestamp = time(NULL);
 
   FIRCLSUserLoggingWriteAndCheckABFiles(
       &_firclsContext.readonly->logging.errorStorage,

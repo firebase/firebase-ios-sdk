@@ -19,7 +19,6 @@ import Foundation
 /// A chat session that allows for conversation with a model.
 ///
 /// **Public Preview**: This API is a public preview and may be subject to change.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 final class TemplateChatSession: Sendable {
   private let model: TemplateGenerativeModel
   private let templateID: String
@@ -102,6 +101,7 @@ final class TemplateChatSession: Sendable {
   /// request timeout.
   /// - Returns: An `AsyncThrowingStream` that yields `GenerateContentResponse` objects.
   /// - Throws: A ``GenerateContentError`` if the request failed.
+  @available(macOS 12.0, watchOS 8.0, *)
   func sendMessageStream(_ content: [ModelContent],
                          inputs: [String: Any],
                          options: RequestOptions = RequestOptions()) throws
@@ -157,6 +157,7 @@ final class TemplateChatSession: Sendable {
   /// request timeout.
   /// - Returns: An `AsyncThrowingStream` that yields `GenerateContentResponse` objects.
   /// - Throws: A ``GenerateContentError`` if the request failed.
+  @available(macOS 12.0, watchOS 8.0, *)
   func sendMessageStream(_ message: any PartsRepresentable,
                          inputs: [String: Any],
                          options: RequestOptions = RequestOptions()) throws

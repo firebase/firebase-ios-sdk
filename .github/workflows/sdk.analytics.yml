@@ -24,12 +24,12 @@ jobs:
     strategy:
       matrix:
         target: [ios, tvos, macos]
-        os: [macos-14, macos-15]
+        os: [macos-15, macos-26]
         include:
-          - os: macos-14
-            xcode: Xcode_16.2
           - os: macos-15
-            xcode: Xcode_16.4
+            xcode: Xcode_26.2
+          - os: macos-26
+            xcode: Xcode_26.4
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -39,6 +39,15 @@ jobs:
       run: scripts/setup_bundler.sh
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
+    - name: Install simulators in case they are missing.
+      if: matrix.target != 'macos'
+      uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
+      with:
+        timeout_minutes: 15
+        max_attempts: 5
+        retry_wait_seconds: 120
+        continue_on_error: true
+        command: xcodebuild -downloadPlatform ${{ matrix.target }}
     - name: GoogleAppMeasurement
       run: scripts/third_party/travis/retry.sh pod spec lint GoogleAppMeasurement.podspec --platforms=${{ matrix.target }} --sources=https://github.com/firebase/SpecsDev.git,https://github.com/firebase/SpecsStaging.git,https://cdn.cocoapods.org/
     - name: FirebaseAnalytics

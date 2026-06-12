@@ -18,7 +18,6 @@ import FirebaseCore
 import Foundation
 import os.log
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 struct GenerativeAIService {
   /// The language of the SDK in the format `gl-<language>/<version>`.
   static let languageTag = "gl-swift/5"
@@ -39,7 +38,9 @@ struct GenerativeAIService {
     let urlRequest = try await urlRequest(request: request)
 
     #if DEBUG
-      printCURLCommand(from: urlRequest)
+      if #available(macOS 11.0, *) {
+        printCURLCommand(from: urlRequest)
+      }
     #endif
 
     let data: Data
@@ -67,7 +68,7 @@ struct GenerativeAIService {
     return try parseResponse(T.Response.self, from: data)
   }
 
-  @available(macOS 12.0, *)
+  @available(macOS 12.0, watchOS 8.0, *)
   func loadRequestStream<T: GenerativeAIRequest>(request: T)
     -> AsyncThrowingStream<T.Response, Error> where T: Sendable {
     return AsyncThrowingStream { continuation in
@@ -125,8 +126,6 @@ struct GenerativeAIService {
         // Received lines that are not server-sent events (SSE); these are not prefixed with "data:"
         var extraLines = ""
 
-        let decoder = JSONDecoder()
-        decoder.keyDecodingStrategy = .convertFromSnakeCase
         for try await line in stream.lines {
           AILog.debug(code: .loadRequestStreamResponseLine, "Stream response: \(line)")
 
@@ -182,8 +181,12 @@ struct GenerativeAIService {
     if let bundleID = Bundle.main.bundleIdentifier {
       urlRequest.setValue(bundleID, forHTTPHeaderField: "x-ios-bundle-identifier")
     }
+    var apiClientHeaders = [GenerativeAIService.languageTag, GenerativeAIService.firebaseVersionTag]
+    if TaskLocals.isHybridRequest {
+      apiClientHeaders.append("hybrid")
+    }
     urlRequest.setValue(
-      "\(GenerativeAIService.languageTag) \(GenerativeAIService.firebaseVersionTag)",
+      apiClientHeaders.joined(separator: " "),
       forHTTPHeaderField: "x-goog-api-client"
     )
     urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -301,6 +304,7 @@ struct GenerativeAIService {
   }
 
   #if DEBUG
+    @available(macOS 11.0, *)
     private func cURLCommand(from request: URLRequest) -> String {
       var returnValue = "curl "
       if let allHeaders = request.allHTTPHeaderFields {
@@ -320,6 +324,7 @@ struct GenerativeAIService {
       return returnValue
     }
 
+    @available(macOS 11.0, *)
     private func printCURLCommand(from request: URLRequest) {
       guard AILog.additionalLoggingEnabled() else {
         return

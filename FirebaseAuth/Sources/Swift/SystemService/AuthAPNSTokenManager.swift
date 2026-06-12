@@ -30,7 +30,6 @@
   extension UIApplication: AuthAPNSTokenApplication {}
 
   /// A class to manage APNs token in memory.
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   class AuthAPNSTokenManager: @unchecked Sendable /* TODO: sendable */ {
     /// The timeout for registering for remote notification.
     ///

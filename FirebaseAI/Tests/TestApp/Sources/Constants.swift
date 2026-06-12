@@ -21,14 +21,14 @@ public enum FirebaseAppNames {
 }
 
 public enum ModelNames {
-  public static let gemini2Flash = "gemini-2.0-flash-001"
-  public static let gemini2FlashLite = "gemini-2.0-flash-lite-001"
   public static let gemini2_5_FlashImage = "gemini-2.5-flash-image"
   public static let gemini2_5_Flash = "gemini-2.5-flash"
   public static let gemini2_5_FlashLite = "gemini-2.5-flash-lite"
   public static let gemini2_5_FlashLive = "gemini-live-2.5-flash-native-audio"
   public static let gemini2_5_FlashLivePreview = "gemini-2.5-flash-native-audio-preview-12-2025"
   public static let gemini2_5_Pro = "gemini-2.5-pro"
-  public static let gemini3FlashPreview = "gemini-3-flash-preview"
-  public static let gemma3_4B = "gemma-3-4b-it"
+  public static let gemini3_1_FlashLite = "gemini-3.1-flash-lite"
+  public static let gemini3_1_FlashImagePreview = "gemini-3.1-flash-image-preview"
+  public static let gemini3_1_FlashTTSPreview = "gemini-3.1-flash-tts-preview"
+  public static let gemma4_31B = "gemma-4-31b-it"
 }

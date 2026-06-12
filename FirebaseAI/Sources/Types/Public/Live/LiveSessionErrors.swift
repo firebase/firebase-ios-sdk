@@ -22,7 +22,6 @@ import Foundation
 ///
 /// Check the `NSUnderlyingErrorKey` entry in ``LiveSessionUnsupportedMessageError/errorUserInfo``
 /// for the error that caused this.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
 @available(watchOS, unavailable)
 public struct LiveSessionUnsupportedMessageError: Error, Sendable, CustomNSError {
   let underlyingError: Error
@@ -43,7 +42,6 @@ public struct LiveSessionUnsupportedMessageError: Error, Sendable, CustomNSError
 ///
 /// Check the `NSUnderlyingErrorKey` entry in ``LiveSessionLostConnectionError/errorUserInfo`` for
 /// the error that caused this.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
 @available(watchOS, unavailable)
 public struct LiveSessionLostConnectionError: Error, Sendable, CustomNSError {
   let underlyingError: Error
@@ -64,7 +62,6 @@ public struct LiveSessionLostConnectionError: Error, Sendable, CustomNSError {
 ///
 /// Check the `NSUnderlyingErrorKey` entry in ``LiveSessionUnexpectedClosureError/errorUserInfo``
 /// for the error that caused this.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
 @available(watchOS, unavailable)
 public struct LiveSessionUnexpectedClosureError: Error, Sendable, CustomNSError {
   let underlyingError: WebSocketClosedError
@@ -88,7 +85,6 @@ public struct LiveSessionUnexpectedClosureError: Error, Sendable, CustomNSError 
 ///
 /// Check the `NSUnderlyingErrorKey` entry in ``LiveSessionSetupError/errorUserInfo`` for the error
 /// that caused this.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
 @available(watchOS, unavailable)
 public struct LiveSessionSetupError: Error, Sendable, CustomNSError {
   let underlyingError: Error

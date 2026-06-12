@@ -14,7 +14,6 @@
 
 import Foundation
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 struct TemplateGenerateContentRequest: Sendable {
   let template: String
   let inputs: [String: TemplateInput]
@@ -23,23 +22,24 @@ struct TemplateGenerateContentRequest: Sendable {
   let stream: Bool
   let apiConfig: APIConfig
   let options: RequestOptions
+  let toolConfig: TemplateToolConfig?
 }
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension TemplateGenerateContentRequest: Encodable {
   enum CodingKeys: String, CodingKey {
     case inputs
     case history
+    case toolConfig
   }
 
   func encode(to encoder: any Encoder) throws {
     var container = encoder.container(keyedBy: CodingKeys.self)
     try container.encode(inputs, forKey: .inputs)
     try container.encode(history, forKey: .history)
+    try container.encodeIfPresent(toolConfig, forKey: .toolConfig)
   }
 }
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension TemplateGenerateContentRequest: GenerativeAIRequest {
   typealias Response = GenerateContentResponse
 

@@ -15,10 +15,8 @@
 import Foundation
 
 /// The model's response to a generate content request.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct GenerateContentResponse: Sendable {
   /// Token usage metadata for processing the generate content request.
-  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
   public struct UsageMetadata: Sendable {
     /// The number of tokens in the request prompt.
     public let promptTokenCount: Int
@@ -71,11 +69,35 @@ public struct GenerateContentResponse: Sendable {
   /// Token usage metadata for processing the generate content request.
   public let usageMetadata: UsageMetadata?
 
+  let responseID: String?
+
+  static let unknownModelVersion = "unknown-model-version"
+
+  /// Returns the model version used to generate the response.
+  ///
+  /// - Note: If the model version is not specified by the backend, this returns
+  ///   "unknown-model-version".
+  public let modelVersion: String
+
   /// The response's content as text, if it exists.
   ///
   /// - Note: This does not include thought summaries; see ``thoughtSummary`` for more details.
   public var text: String? {
-    return text(isThought: false)
+    guard !candidates.isEmpty else {
+      AILog.error(
+        code: .generateContentResponseNoCandidates,
+        "Could not get text from a response that had no candidates."
+      )
+      return nil
+    }
+    guard let value = text(isThought: false) else {
+      AILog.error(
+        code: .generateContentResponseNoText,
+        "Could not get a text part from the first candidate."
+      )
+      return nil
+    }
+    return value
   }
 
   /// A summary of the model's thinking process, if available.
@@ -84,7 +106,21 @@ public struct GenerateContentResponse: Sendable {
   ///   ``ThinkingConfig``. For more information, see the
   ///   [Thinking](https://firebase.google.com/docs/ai-logic/thinking) documentation.
   public var thoughtSummary: String? {
-    return text(isThought: true)
+    guard candidates.first != nil else {
+      AILog.error(
+        code: .generateContentResponseNoCandidates,
+        "Could not get text from a response that had no candidates."
+      )
+      return nil
+    }
+    guard let value = text(isThought: true) else {
+      AILog.error(
+        code: .generateContentResponseNoText,
+        "Could not get a text part from any candidates."
+      )
+      return nil
+    }
+    return value
   }
 
   /// Returns function calls found in any `Part`s of the first candidate of the response, if any.
@@ -120,17 +156,27 @@ public struct GenerateContentResponse: Sendable {
   /// Initializer for SwiftUI previews or tests.
   public init(candidates: [Candidate], promptFeedback: PromptFeedback? = nil,
               usageMetadata: UsageMetadata? = nil) {
+    self = .init(
+      candidates: candidates,
+      promptFeedback: promptFeedback,
+      usageMetadata: usageMetadata,
+      responseID: nil,
+      modelVersion: nil
+    )
+  }
+
+  init(candidates: [Candidate], promptFeedback: PromptFeedback? = nil,
+       usageMetadata: UsageMetadata? = nil, responseID: String? = nil,
+       modelVersion: String? = nil) {
     self.candidates = candidates
     self.promptFeedback = promptFeedback
     self.usageMetadata = usageMetadata
+    self.responseID = responseID
+    self.modelVersion = modelVersion ?? GenerateContentResponse.unknownModelVersion
   }
 
   func text(isThought: Bool) -> String? {
     guard let candidate = candidates.first else {
-      AILog.error(
-        code: .generateContentResponseNoCandidates,
-        "Could not get text from a response that had no candidates."
-      )
       return nil
     }
     let textValues: [String] = candidate.content.parts.compactMap { part in
@@ -140,10 +186,6 @@ public struct GenerateContentResponse: Sendable {
       return textPart.text
     }
     guard textValues.count > 0 else {
-      AILog.error(
-        code: .generateContentResponseNoText,
-        "Could not get a text part from the first candidate."
-      )
       return nil
     }
     return textValues.joined(separator: " ")
@@ -152,7 +194,6 @@ public struct GenerateContentResponse: Sendable {
 
 /// A struct representing a possible reply to a content generation prompt. Each content generation
 /// prompt may produce multiple candidate responses.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct Candidate: Sendable {
   /// The response's content.
   public let content: ModelContent
@@ -164,21 +205,25 @@ public struct Candidate: Sendable {
   /// generated a predefined stop sequence.
   public let finishReason: FinishReason?
 
+  /// A human-readable description of why the model stopped generating content, if it exists.
+  public let finishMessage: String?
+
   /// Cited works in the model's response content, if it exists.
   public let citationMetadata: CitationMetadata?
 
   public let groundingMetadata: GroundingMetadata?
 
-  /// Metadata related to the ``URLContext`` tool.
+  /// Metadata related to the ``Tool/urlContext()`` tool.
   public let urlContextMetadata: URLContextMetadata?
 
   /// Initializer for SwiftUI previews or tests.
   public init(content: ModelContent, safetyRatings: [SafetyRating], finishReason: FinishReason?,
               citationMetadata: CitationMetadata?, groundingMetadata: GroundingMetadata? = nil,
-              urlContextMetadata: URLContextMetadata? = nil) {
+              urlContextMetadata: URLContextMetadata? = nil, finishMessage: String? = nil) {
     self.content = content
     self.safetyRatings = safetyRatings
     self.finishReason = finishReason
+    self.finishMessage = finishMessage
     self.citationMetadata = citationMetadata
     self.groundingMetadata = groundingMetadata
     self.urlContextMetadata = urlContextMetadata
@@ -187,20 +232,19 @@ public struct Candidate: Sendable {
   // Returns `true` if the candidate contains no information that a developer could use.
   var isEmpty: Bool {
     content.parts
-      .isEmpty && finishReason == nil && citationMetadata == nil && groundingMetadata == nil &&
+      .isEmpty && finishReason == nil && finishMessage == nil && citationMetadata == nil &&
+      groundingMetadata == nil &&
       urlContextMetadata == nil
   }
 }
 
 /// A collection of source attributions for a piece of content.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct CitationMetadata: Sendable {
   /// A list of individual cited sources and the parts of the content to which they apply.
   public let citations: [Citation]
 }
 
 /// A struct describing a source attribution.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct Citation: Sendable, Equatable {
   /// The inclusive beginning of a sequence in a model response that derives from a cited source.
   public let startIndex: Int
@@ -238,7 +282,6 @@ public struct Citation: Sendable, Equatable {
 }
 
 /// A value enumerating possible reasons for a model to terminate a content generation request.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct FinishReason: DecodableProtoEnum, Hashable, Sendable {
   enum Kind: String {
     case stop = "STOP"
@@ -250,6 +293,16 @@ public struct FinishReason: DecodableProtoEnum, Hashable, Sendable {
     case prohibitedContent = "PROHIBITED_CONTENT"
     case spii = "SPII"
     case malformedFunctionCall = "MALFORMED_FUNCTION_CALL"
+    case imageSafety = "IMAGE_SAFETY"
+    case imageProhibitedContent = "IMAGE_PROHIBITED_CONTENT"
+    case imageOther = "IMAGE_OTHER"
+    case noImage = "NO_IMAGE"
+    case imageRecitation = "IMAGE_RECITATION"
+    case language = "LANGUAGE"
+    case unexpectedToolCall = "UNEXPECTED_TOOL_CALL"
+    case tooManyToolCalls = "TOO_MANY_TOOL_CALLS"
+    case missingThoughtSignature = "MISSING_THOUGHT_SIGNATURE"
+    case malformedResponse = "MALFORMED_RESPONSE"
   }
 
   /// Natural stop point of the model or provided stop sequence.
@@ -282,6 +335,36 @@ public struct FinishReason: DecodableProtoEnum, Hashable, Sendable {
   /// Token generation was stopped because the function call generated by the model was invalid.
   public static let malformedFunctionCall = FinishReason(kind: .malformedFunctionCall)
 
+  /// Token generation stopped because generated images contain safety violations.
+  public static let imageSafety = FinishReason(kind: .imageSafety)
+
+  /// Image generation stopped because generated images have other prohibited content.
+  public static let imageProhibitedContent = FinishReason(kind: .imageProhibitedContent)
+
+  /// Image generation stopped because of other miscellaneous issue.
+  public static let imageOther = FinishReason(kind: .imageOther)
+
+  /// The model was expected to generate an image, but none was generated.
+  public static let noImage = FinishReason(kind: .noImage)
+
+  /// Image generation stopped due to recitation.
+  public static let imageRecitation = FinishReason(kind: .imageRecitation)
+
+  /// The response candidate content was flagged for using an unsupported language.
+  public static let language = FinishReason(kind: .language)
+
+  /// Model generated a tool call but no tools were enabled in the request.
+  public static let unexpectedToolCall = FinishReason(kind: .unexpectedToolCall)
+
+  /// Model called too many tools consecutively, thus the system exited execution.
+  public static let tooManyToolCalls = FinishReason(kind: .tooManyToolCalls)
+
+  /// Request has at least one thought signature missing.
+  public static let missingThoughtSignature = FinishReason(kind: .missingThoughtSignature)
+
+  /// Finished due to malformed response.
+  public static let malformedResponse = FinishReason(kind: .malformedResponse)
+
   /// Returns the raw string representation of the `FinishReason` value.
   ///
   /// > Note: This value directly corresponds to the values in the [REST
@@ -293,10 +376,8 @@ public struct FinishReason: DecodableProtoEnum, Hashable, Sendable {
 }
 
 /// A metadata struct containing any feedback the model had on the prompt it was provided.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct PromptFeedback: Sendable {
   /// A type describing possible reasons to block a prompt.
-  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
   public struct BlockReason: DecodableProtoEnum, Hashable, Sendable {
     enum Kind: String {
       case safety = "SAFETY"
@@ -352,7 +433,6 @@ public struct PromptFeedback: Sendable {
 /// [Gemini Developer API](https://ai.google.dev/gemini-api/terms#grounding-with-google-search)
 /// or Vertex AI Gemini API (see [Service Terms](https://cloud.google.com/terms/service-terms)
 /// section within the Service Specific Terms).
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct GroundingMetadata: Sendable, Equatable, Hashable {
   /// A list of web search queries that the model performed to gather the grounding information.
   /// These can be used to allow users to explore the search results themselves.
@@ -369,7 +449,6 @@ public struct GroundingMetadata: Sendable, Equatable, Hashable {
   public let searchEntryPoint: SearchEntryPoint?
 
   /// A struct representing the Google Search entry point.
-  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
   public struct SearchEntryPoint: Sendable, Equatable, Hashable {
     /// An HTML/CSS snippet that can be embedded in your app.
     ///
@@ -379,14 +458,14 @@ public struct GroundingMetadata: Sendable, Equatable, Hashable {
 
   /// Represents a chunk of retrieved data that supports a claim in the model's response. This is
   /// part of the grounding information provided when grounding is enabled.
-  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
   public struct GroundingChunk: Sendable, Equatable, Hashable {
     /// Contains details if the grounding chunk is from a web source.
     public let web: WebGroundingChunk?
+    /// Contains details if the grounding chunk is from a Google Maps source.
+    public let maps: GoogleMapsGroundingChunk?
   }
 
   /// A grounding chunk sourced from the web.
-  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
   public struct WebGroundingChunk: Sendable, Equatable, Hashable {
     /// The URI of the retrieved web page.
     public let uri: String?
@@ -400,7 +479,6 @@ public struct GroundingMetadata: Sendable, Equatable, Hashable {
 
   /// Provides information about how a specific segment of the model's response is supported by the
   /// retrieved grounding chunks.
-  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
   public struct GroundingSupport: Sendable, Equatable, Hashable {
     /// Specifies the segment of the model's response content that this grounding support pertains
     /// to.
@@ -433,7 +511,6 @@ public struct GroundingMetadata: Sendable, Equatable, Hashable {
 
 /// Represents a specific segment within a ``ModelContent`` struct, often used to pinpoint the
 /// exact location of text or data that grounding information refers to.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct Segment: Sendable, Equatable, Hashable {
   /// The zero-based index of the ``Part`` object within the `parts` array of its parent
   /// ``ModelContent`` object. This identifies which part of the content the segment belongs to.
@@ -451,23 +528,28 @@ public struct Segment: Sendable, Equatable, Hashable {
 
 // MARK: - Codable Conformances
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GenerateContentResponse: Decodable {
-  enum CodingKeys: CodingKey {
+  enum CodingKeys: String, CodingKey {
     case candidates
     case promptFeedback
     case usageMetadata
+    case responseID = "responseId"
+    case modelVersion
   }
 
   public init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
 
-    guard container.contains(CodingKeys.candidates) || container
-      .contains(CodingKeys.promptFeedback) else {
+    guard container.contains(CodingKeys.candidates)
+      || container.contains(CodingKeys.promptFeedback)
+      || container.contains(CodingKeys.usageMetadata) else {
+      let keys = container.allKeys.map { $0.stringValue }.sorted().joined(separator: ", ")
       let context = DecodingError.Context(
-        codingPath: [],
-        debugDescription: "Failed to decode GenerateContentResponse;" +
-          " missing keys 'candidates' and 'promptFeedback'."
+        codingPath: decoder.codingPath,
+        debugDescription: """
+        Failed to decode GenerateContentResponse; missing keys 'candidates', 'promptFeedback' or \
+        'usageMetadata'. Found keys: \(keys.isEmpty ? "none" : keys)
+        """
       )
       throw DecodingError.dataCorrupted(context)
     }
@@ -482,10 +564,14 @@ extension GenerateContentResponse: Decodable {
     }
     promptFeedback = try container.decodeIfPresent(PromptFeedback.self, forKey: .promptFeedback)
     usageMetadata = try container.decodeIfPresent(UsageMetadata.self, forKey: .usageMetadata)
+    responseID = try container.decodeIfPresent(String.self, forKey: .responseID)
+    modelVersion = try container.decodeIfPresent(
+      String.self,
+      forKey: .modelVersion
+    ) ?? GenerateContentResponse.unknownModelVersion
   }
 }
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GenerateContentResponse.UsageMetadata: Decodable {
   enum CodingKeys: CodingKey {
     case promptTokenCount
@@ -527,12 +613,12 @@ extension GenerateContentResponse.UsageMetadata: Decodable {
   }
 }
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension Candidate: Decodable {
   enum CodingKeys: CodingKey {
     case content
     case safetyRatings
     case finishReason
+    case finishMessage
     case citationMetadata
     case groundingMetadata
     case urlContextMetadata
@@ -567,6 +653,7 @@ extension Candidate: Decodable {
     }
 
     finishReason = try container.decodeIfPresent(FinishReason.self, forKey: .finishReason)
+    finishMessage = try container.decodeIfPresent(String.self, forKey: .finishMessage)
 
     citationMetadata = try container.decodeIfPresent(
       CitationMetadata.self,
@@ -588,7 +675,6 @@ extension Candidate: Decodable {
   }
 }
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension CitationMetadata: Decodable {
   enum CodingKeys: CodingKey {
     case citations // Vertex AI
@@ -607,7 +693,6 @@ extension CitationMetadata: Decodable {
   }
 }
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension Citation: Decodable {
   enum CodingKeys: CodingKey {
     case startIndex
@@ -659,7 +744,6 @@ extension Citation: Decodable {
   }
 }
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension PromptFeedback: Decodable {
   enum CodingKeys: CodingKey {
     case blockReason
@@ -685,7 +769,6 @@ extension PromptFeedback: Decodable {
   }
 }
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GroundingMetadata: Decodable {
   enum CodingKeys: String, CodingKey {
     case webSearchQueries
@@ -712,16 +795,12 @@ extension GroundingMetadata: Decodable {
   }
 }
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GroundingMetadata.SearchEntryPoint: Decodable {}
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GroundingMetadata.GroundingChunk: Decodable {}
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GroundingMetadata.WebGroundingChunk: Decodable {}
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GroundingMetadata.GroundingSupport.Internal: Decodable {
   enum CodingKeys: String, CodingKey {
     case segment
@@ -738,7 +817,6 @@ extension GroundingMetadata.GroundingSupport.Internal: Decodable {
   }
 }
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension Segment: Decodable {
   enum CodingKeys: String, CodingKey {
     case partIndex

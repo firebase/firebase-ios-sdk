@@ -88,9 +88,15 @@ enum AILog {
     case invalidWebsocketURL = 4004
     case duplicateLiveSessionSetupComplete = 4005
     case malformedURL = 4006
+    case invalidToolOutputType = 4007
+    case hybridPrimarySessionInitializationFailed = 4008
+    case hybridPrimaryModelRequestFailed = 4009
+    case hybridPrimaryModelStreamingRequestFailed = 4010
 
     // SDK Debugging
     case loadRequestStreamResponseLine = 5000
+    case foundationModelsResponseTranscript = 5001
+    case foundationModelsStreamResponseTranscript = 5002
   }
 
   /// Subsystem that should be used for all Loggers.
@@ -109,7 +115,20 @@ enum AILog {
   /// The argument required to enable additional logging.
   static let enableArgumentKey = "-FIRDebugEnabled"
 
+  #if DEBUG
+    /// A callback closure used to intercept log emissions during unit testing.
+    ///
+    /// This property is only available in debug builds to facilitate testing without external
+    /// dependencies.
+    nonisolated(unsafe) static var logInterceptor: ((FirebaseLoggerLevel, MessageCode, String)
+      -> Void)?
+  #endif
+
   static func log(level: FirebaseLoggerLevel, code: MessageCode, _ message: String) {
+    #if DEBUG
+      logInterceptor?(level, code, message)
+    #endif
+
     let messageCode = String(format: "I-VTX%06d", code.rawValue)
     FirebaseLogger.log(
       level: level,
@@ -139,7 +158,6 @@ enum AILog {
     log(level: .debug, code: code, message)
   }
 
-  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
   static func makeInternalError(message: String, code: MessageCode) -> GenerateContentError {
     let error = GenerateContentError.internalError(underlying: NSError(
       domain: "\(Constants.baseErrorDomain).Internal",

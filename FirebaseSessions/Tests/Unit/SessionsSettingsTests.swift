@@ -38,7 +38,7 @@ class SessionsSettingsTests: XCTestCase {
   override func setUp() {
     super.setUp()
     appInfo = MockApplicationInfo()
-    cache = SettingsCache()
+    cache = SettingsCache(namespace: "app_quality")
     cache.removeCache() // just reinstantiating cache isn't enough because of persistence
     downloader = MockSettingsDownloader(successResponse: validSettings)
     remoteSettings = RemoteSettings(appInfo: appInfo, downloader: downloader, cache: cache)

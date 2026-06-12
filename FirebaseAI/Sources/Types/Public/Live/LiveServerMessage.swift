@@ -13,7 +13,6 @@
 // limitations under the License.
 
 /// Update from the  server, generated from the model in response to client messages.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
 @available(watchOS, unavailable)
 public struct LiveServerMessage: Sendable {
   let serverMessage: BidiGenerateContentServerMessage
@@ -34,6 +33,9 @@ public struct LiveServerMessage: Sendable {
     /// cancelled.
     case toolCallCancellation(LiveServerToolCallCancellation)
 
+    /// Update with the session state needed to resume the session.
+    case sessionResumptionUpdate(LiveSessionResumptionUpdate)
+
     /// Server will disconnect soon.
     case goingAwayNotice(LiveServerGoingAwayNotice)
   }
@@ -47,7 +49,6 @@ public struct LiveServerMessage: Sendable {
 
 // MARK: - Internal parsing
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
 @available(watchOS, unavailable)
 extension LiveServerMessage {
   init?(from serverMessage: BidiGenerateContentServerMessage) {
@@ -60,7 +61,6 @@ extension LiveServerMessage {
   }
 }
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
 @available(watchOS, unavailable)
 extension LiveServerMessage.Payload {
   init?(from serverMessage: BidiGenerateContentServerMessage.MessageType) {
@@ -74,6 +74,8 @@ extension LiveServerMessage.Payload {
       self = .toolCall(LiveServerToolCall(msg))
     case let .toolCallCancellation(msg):
       self = .toolCallCancellation(LiveServerToolCallCancellation(msg))
+    case let .sessionResumptionUpdate(msg):
+      self = .sessionResumptionUpdate(LiveSessionResumptionUpdate(msg))
     case let .goAway(msg):
       self = .goingAwayNotice(LiveServerGoingAwayNotice(msg))
     }

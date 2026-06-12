@@ -21,7 +21,6 @@ import XCTest
   import UIKit // For UIImage extensions.
 #endif
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 final class APITests: XCTestCase {
   func codeSamples() async throws {
     let app = FirebaseApp.app()
@@ -232,5 +231,62 @@ final class APITests: XCTestCase {
     let cacheDetail = usageMetadata.cacheTokensDetails.first
     XCTAssertEqual(cacheDetail?.modality, .text)
     XCTAssertEqual(cacheDetail?.tokenCount, 50)
+  }
+
+  func testFinishReason_decoding() throws {
+    let decoder = JSONDecoder()
+    let testCases: [FinishReason] = [
+      .language,
+      .unexpectedToolCall,
+      .tooManyToolCalls,
+      .missingThoughtSignature,
+      .malformedResponse,
+      .imageSafety,
+      .imageProhibitedContent,
+      .imageOther,
+      .noImage,
+      .imageRecitation,
+    ]
+
+    for expectedReason in testCases {
+      let reasonString = expectedReason.rawValue
+      let json = createResponseJSON(finishReason: reasonString)
+      let response = try decoder.decode(GenerateContentResponse.self, from: json)
+      XCTAssertEqual(
+        response.candidates.first?.finishReason,
+        expectedReason,
+        "Failed to decode finishReason '\(reasonString)'"
+      )
+    }
+  }
+
+  // Helper function to create JSON for GenerateContentResponse with a specific finish reason
+  private func createResponseJSON(finishReason: String) -> Data {
+    return """
+    {
+      "candidates": [
+        {
+          "content": {
+            "parts": [
+              { "text": "Test reply" }
+            ],
+            "role": "model"
+          },
+          "finishReason": "\(finishReason)",
+          "index": 0,
+          "safetyRatings": []
+        }
+      ],
+      "usageMetadata": {
+        "promptTokenCount": 10,
+        "cachedContentTokenCount": 0,
+        "candidatesTokenCount": 5,
+        "totalTokenCount": 15,
+        "promptTokensDetails": [],
+        "cacheTokensDetails": [],
+        "candidatesTokensDetails": []
+      }
+    }
+    """.data(using: .utf8)!
   }
 }

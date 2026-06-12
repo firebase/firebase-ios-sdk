@@ -16,7 +16,7 @@ import XCTest
 
 @testable import FirebaseAILogic
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+@available(*, deprecated)
 final class ImagenGenerationRequestTests: XCTestCase {
   let encoder = JSONEncoder()
   let requestOptions = RequestOptions(timeout: 30.0)
@@ -66,60 +66,10 @@ final class ImagenGenerationRequestTests: XCTestCase {
     )
   }
 
-  func testInitializeRequest_fileDataImage() throws {
-    let request = ImagenGenerationRequest<ImagenGCSImage>(
-      model: modelName,
-      apiConfig: apiConfig,
-      options: requestOptions,
-      instances: [instance],
-      parameters: parameters
-    )
-
-    XCTAssertEqual(request.model, modelName)
-    XCTAssertEqual(request.options, requestOptions)
-    XCTAssertEqual(request.instances, [instance])
-    XCTAssertEqual(request.parameters, parameters)
-    XCTAssertEqual(
-      try request.getURL(),
-      URL(string:
-        "\(apiConfig.service.endpoint.rawValue)/\(apiConfig.version.rawValue)/\(modelName):predict")
-    )
-  }
-
   // MARK: - Encoding Tests
 
   func testEncodeRequest_inlineDataImage() throws {
     let request = ImagenGenerationRequest<ImagenInlineImage>(
-      model: modelName,
-      apiConfig: apiConfig,
-      options: RequestOptions(),
-      instances: [instance],
-      parameters: parameters
-    )
-
-    let jsonData = try encoder.encode(request)
-
-    let json = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
-    XCTAssertEqual(json, """
-    {
-      "instances" : [
-        {
-          "prompt" : "\(instance.prompt)"
-        }
-      ],
-      "parameters" : {
-        "aspectRatio" : "\(aspectRatio)",
-        "includeRaiReason" : \(includeResponsibleAIFilterReason),
-        "includeSafetyAttributes" : \(includeSafetyAttributes),
-        "safetySetting" : "\(safetyFilterLevel)",
-        "sampleCount" : \(sampleCount)
-      }
-    }
-    """)
-  }
-
-  func testEncodeRequest_fileDataImage() throws {
-    let request = ImagenGenerationRequest<ImagenGCSImage>(
       model: modelName,
       apiConfig: apiConfig,
       options: RequestOptions(),

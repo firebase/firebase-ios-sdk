@@ -45,7 +45,7 @@
  *
  * @return Instance of FPRCPUGaugeData.
  */
-FPRCPUGaugeData *fprCollectCPUMetric(void) {
+FPRCPUGaugeData *_Nullable fprCollectCPUMetric(void) {
   kern_return_t kernelReturnValue;
   mach_msg_type_number_t task_info_count;
   task_info_data_t taskInfo;
@@ -82,6 +82,7 @@ FPRCPUGaugeData *fprCollectCPUMetric(void) {
     kernelReturnValue =
         thread_info(threadList[i], THREAD_BASIC_INFO, (thread_info_t)threadInfo, &threadInfoCount);
     if (kernelReturnValue != KERN_SUCCESS) {
+      vm_deallocate(mach_task_self(), (vm_offset_t)threadList, threadCount * sizeof(thread_t));
       return nil;
     }
 
@@ -168,7 +169,9 @@ FPRCPUGaugeData *fprCollectCPUMetric(void) {
 
 - (void)collectMetric {
   FPRCPUGaugeData *gaugeMetric = fprCollectCPUMetric();
-  [self.delegate cpuGaugeCollector:self gaugeData:gaugeMetric];
+  if (gaugeMetric) {
+    [self.delegate cpuGaugeCollector:self gaugeData:gaugeMetric];
+  }
 }
 
 @end
