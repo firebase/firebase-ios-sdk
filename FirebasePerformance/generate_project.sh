@@ -50,9 +50,6 @@ fi
 
 readonly DIR="$(git rev-parse --show-toplevel)"
 
-# Enable Unswizzling in the development time (This is for unit test purposes).
-export FPR_UNSWIZZLE_AVAILABLE="1"
-
 # Enable AUTOPUSH to enable test App sending data to Autopush.
 # To enable sending data to Prod, remove the following line and regenerate the project.
 if [ "autopush" == "$env" ]

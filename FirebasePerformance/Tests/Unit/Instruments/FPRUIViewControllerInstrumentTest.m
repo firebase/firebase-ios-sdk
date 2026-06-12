@@ -14,8 +14,6 @@
 
 #pragma mark - Unswizzle based tests
 
-#if !SWIFT_PACKAGE
-
 #import "FirebasePerformance/Sources/Instrumentation/UIKit/FPRUIViewControllerInstrument.h"
 
 #import <XCTest/XCTest.h>
@@ -59,7 +57,16 @@ static BOOL originalViewDidDisappearInvoked = NO;
  */
 - (void)testViewDidAppearInvokesViewControllerDidAppearOnScreenTraceTracker {
   UIViewController *testViewController = [[UIViewController alloc] init];
-  [[UIApplication sharedApplication].keyWindow addSubview:[testViewController view]];
+
+  // The instrument only reports view controllers whose view is in the key window of a running
+  // application. Neither a shared application nor a key window exists in an unhosted test
+  // runner, so both are stubbed.
+  id applicationMock = OCMClassMock([UIApplication class]);
+  OCMStub(ClassMethod([applicationMock sharedApplication])).andReturn(applicationMock);
+  UIWindow *window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+  id windowMock = OCMPartialMock(window);
+  OCMStub([(UIWindow *)windowMock isKeyWindow]).andReturn(YES);
+  [window addSubview:[testViewController view]];
 
   FPRUIViewControllerInstrument *instrument = [[FPRUIViewControllerInstrument alloc] init];
   [instrument registerInstrumentors];
@@ -75,6 +82,8 @@ static BOOL originalViewDidDisappearInvoked = NO;
   [instrument deregisterInstrumentors];
 
   [[testViewController view] removeFromSuperview];
+  [windowMock stopMocking];
+  [applicationMock stopMocking];
 }
 
 /** Tests that the viewControllerDidAppear: of the FPRScreenTraceTracker sharedInstance is invoked
@@ -172,5 +181,3 @@ static BOOL originalViewDidDisappearInvoked = NO;
 }
 
 @end
-
-#endif  // SWIFT_PACKAGE
