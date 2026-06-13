@@ -80,7 +80,7 @@ jobs:
     - name: Xcode
       run: sudo xcode-select -s /Applications/Xcode_26.4.app/Contents/Developer
     - name: Install simulators
-      uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
+      uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
       with:
         timeout_minutes: 15
         max_attempts: 5
@@ -99,7 +99,7 @@ jobs:
             "$PLIST_DST_PATH" \
             "$plist_secret"
     - name: Build ${{ inputs.product }} Quickstart
-      uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
+      uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
       env:
         PRODUCT: ${{ inputs.product }}
         RUN_TESTS: ${{ inputs.run_tests }}
