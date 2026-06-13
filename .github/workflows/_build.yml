@@ -122,11 +122,11 @@ jobs:
         '
       env:
         CUSTOM_ENV_VARS: ${{ inputs.env_vars }}
-    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
+    - uses: ruby/setup-ruby@89f90524b88a01fe6e0b732220432cc6142926af # v1.313.0
       if: inputs.method != 'spm' && inputs.method != 'spmbuildonly' && inputs.method != 'cmake'
     - name: Setup Bundler
       if: inputs.method != 'spm' && inputs.method != 'spmbuildonly' && inputs.method != 'cmake'
-      uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
+      uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
       with:
         timeout_minutes: 10
         max_attempts: 5
@@ -140,7 +140,7 @@ jobs:
       if: inputs.platform != 'macOS' && inputs.platform != 'catalyst'
       env:
         PLATFORM_INPUT: ${{ inputs.platform }}
-      uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
+      uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
       with:
         timeout_minutes: 15
         max_attempts: 5
@@ -156,7 +156,7 @@ jobs:
       if: inputs.setup_command != ''
       run: ${{ inputs.setup_command }}
     - name: Build
-      uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
+      uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
       with:
         timeout_minutes: ${{ inputs.timeout_minutes }}
         max_attempts: ${{ inputs.max_attempts }}
