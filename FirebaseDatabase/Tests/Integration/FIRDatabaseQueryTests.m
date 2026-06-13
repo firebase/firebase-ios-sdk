@@ -3576,7 +3576,7 @@
         done = YES;
       }];
 
-  WAIT_FOR(done);
+  [self waitUntil:^BOOL{ return done; } timeout:30];
 
   __block int count = 0;
   [reader
@@ -3600,7 +3600,7 @@
   toSet = @{@"a" : @1, @"b" : @"b", @"c" : @{@"deep" : @"path", @"of" : @{@"stuff" : @YES}}};
   [writer setValue:toSet];
 
-  WAIT_FOR(count == 3);
+  [self waitUntil:^BOOL{ return count == 3; } timeout:30];
 }
 
 - (void)testListenForChildRemovedWithLimitEnsureEventsFireProperly {
