@@ -19,39 +19,22 @@ import FoundationModels
 #if compiler(>=6.4)
   public struct GeminiLanguageModel {
     public struct ModelConfig: Sendable, Hashable {
-      let firebaseAppName: String
       let apiConfig: APIConfig
-      let useLimitedUseAppCheckTokens: Bool
-
-      let modelName: String
+      let modelResourceName: String
       let safetySettings: [SafetySetting]?
       let serverTools: [InternalGeminiTool]
       let geminiOptions: GeminiGenerationOptions?
       let requestOptions: RequestOptions
-
-      var firebaseAI: FirebaseAI {
-        let firebaseApp = FirebaseApp.app(name: firebaseAppName)
-        return FirebaseAI.createInstance(
-          app: firebaseApp,
-          apiConfig: apiConfig,
-          useLimitedUseAppCheckTokens: useLimitedUseAppCheckTokens
-        )
-      }
     }
 
     let modelConfig: ModelConfig
-    let modelResourceName: String
-    let firebaseInfo: FirebaseInfo
-    let toolConfig: ToolConfig?
-    let urlSession: URLSession
+    let generativeAIService: GenerativeAIService
 
-    init(modelName: String,
-         modelResourceName: String,
+    init(modelResourceName: String,
          firebaseInfo: FirebaseInfo,
          apiConfig: APIConfig,
          safetySettings: [SafetySetting]? = nil,
          serverTools: [any GeminiTool]? = nil,
-         toolConfig: ToolConfig? = nil,
          geminiOptions: GeminiGenerationOptions? = nil,
          requestOptions: RequestOptions = RequestOptions(),
          urlSession: URLSession = GenAIURLSession.default) {
@@ -75,19 +58,17 @@ import FoundationModels
       }
 
       modelConfig = ModelConfig(
-        firebaseAppName: firebaseInfo.app.name,
         apiConfig: apiConfig,
-        useLimitedUseAppCheckTokens: firebaseInfo.useLimitedUseAppCheckTokens,
-        modelName: modelName,
+        modelResourceName: modelResourceName,
         safetySettings: safetySettings,
         serverTools: serverTools,
         geminiOptions: geminiOptions,
         requestOptions: requestOptions
       )
-      self.modelResourceName = modelResourceName
-      self.firebaseInfo = firebaseInfo
-      self.toolConfig = toolConfig
-      self.urlSession = urlSession
+      generativeAIService = GenerativeAIService(
+        firebaseInfo: firebaseInfo,
+        urlSession: urlSession
+      )
     }
   }
 

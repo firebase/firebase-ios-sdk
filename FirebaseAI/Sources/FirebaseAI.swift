@@ -113,7 +113,6 @@ public final class FirebaseAI: Sendable {
                                     requestOptions: RequestOptions = RequestOptions())
       -> GeminiLanguageModel {
       return GeminiLanguageModel(
-        modelName: name,
         modelResourceName: modelResourceName(modelName: name),
         firebaseInfo: firebaseInfo,
         apiConfig: apiConfig,

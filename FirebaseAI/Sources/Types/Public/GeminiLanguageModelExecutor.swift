@@ -38,13 +38,11 @@ import FoundationModels
   @available(iOS 27.0, macOS 27.0, visionOS 27.0, watchOS 27.0, *)
   public extension GeminiLanguageModel {
     struct Executor: LanguageModelExecutor {
-      let firebaseAI: FirebaseAI
       let configuration: GeminiLanguageModel.ModelConfig
 
       static let placeholderIDPrefix = "placeholder-id-"
 
       public init(configuration: GeminiLanguageModel.ModelConfig) throws {
-        firebaseAI = configuration.firebaseAI
         self.configuration = configuration
       }
 
@@ -283,21 +281,25 @@ import FoundationModels
           }
         }
 
-        let generativeModel = firebaseAI.generativeModel(
-          modelName: configuration.modelName,
+        let generateContentRequest = GenerateContentRequest(
+          model: configuration.modelResourceName,
+          contents: parts,
           generationConfig: generationConfig,
+          safetySettings: configuration.safetySettings,
           tools: tools,
           toolConfig: toolConfig,
           systemInstruction: systemInstruction,
-          requestOptions: configuration.requestOptions
+          apiConfig: configuration.apiConfig,
+          apiMethod: .streamGenerateContent,
+          options: configuration.requestOptions
         )
 
         // 2. Open the stream to your provider. The transport is your choice —
         //    URLSession.bytes, a vendored SDK, gRPC, WebSocket, anything that
         //    yields an async sequence of provider events.
 
-        let stream = try TaskLocals.$isFoundationModelsRequest.withValue(true) {
-          try generativeModel.generateContentStream(parts)
+        let stream = TaskLocals.$isFoundationModelsRequest.withValue(true) {
+          model.generativeAIService.loadRequestStream(request: generateContentRequest)
         }
 
         // 3. For each provider event, translate it into one or more channel

@@ -104,8 +104,8 @@
           }
         } errorHandler: { error in
           // Assert that the error is one of the expected decoding failure types.
-          if let genError = error as? GenerativeModelSession.GenerationError,
-             case .decodingFailure = genError {
+          if #available(iOS 27.0, macOS 27.0, visionOS 27.0, watchOS 27.0, *),
+             error is FoundationModels.GeneratedContent.ParsingError {
             return // Expected error.
           }
           #if !os(watchOS)
