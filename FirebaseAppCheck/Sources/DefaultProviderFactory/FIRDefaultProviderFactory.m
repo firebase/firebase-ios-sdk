@@ -14,9 +14,13 @@
 
 #import "FirebaseAppCheck/Sources/DefaultProviderFactory/FIRDefaultProviderFactory.h"
 
+#import "FirebaseAppCheck/Sources/Core/FIRApp+AppCheck.h"
+#import "FirebaseAppCheck/Sources/Core/FIRAppCheckLogger.h"
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheck.h"
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckDebugProviderFactory.h"
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRDeviceCheckProviderFactory.h"
+#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRRecaptchaProviderFactory.h"
+#import "FirebaseAppCheck/Sources/RecaptchaProvider/FIRRecaptchaProvider+Internal.h"
 
 @implementation FIRDefaultProviderFactory
 
@@ -27,10 +31,32 @@
 - (nullable id<FIRAppCheckProvider>)createProviderWithApp:(nonnull FIRApp *)app {
 #if TARGET_OS_SIMULATOR
   return [[[FIRAppCheckDebugProviderFactory alloc] init] createProviderWithApp:app];
-// TODO(ncooke3): Add elif case for future reCAPTCHA provider.
-#else
-  return [[[FIRDeviceCheckProviderFactory alloc] init] createProviderWithApp:app];
+#else  // !TARGET_OS_SIMULATOR
+
+#if (TARGET_OS_IOS && !TARGET_OS_MACCATALYST) || TARGET_OS_VISION
+  if (app.options.recaptchaSiteKey.length > 0) {
+    return [[[FIRRecaptchaProviderFactory alloc] init] createProviderWithApp:app];
+  } else {
+    FIRLogWarning(kFIRLoggerAppCheck, kFIRLoggerAppCheckMessageCodeRecaptchaFallbackToDeviceCheck,
+                  @"reCAPTCHA Enterprise site key not found in Firebase options for app: %@. "
+                  @"If you want to use reCAPTCHA, please ensure the provider is enabled in the "
+                  @"Firebase Console and redownload your GoogleService-Info.plist. "
+                  @"Default attestation provider is falling back to DeviceCheck. If DeviceCheck is "
+                  @"not configured, App Check enforcement will fail.",
+                  app.name);
+  }
 #endif
+
+  if (@available(watchOS 9.0, *)) {
+    return [[[FIRDeviceCheckProviderFactory alloc] init] createProviderWithApp:app];
+  } else {
+    FIRLogWarning(kFIRLoggerAppCheck, kFIRLoggerAppCheckMessageCodeDeviceCheckProviderUnavailable,
+                  @"DeviceCheck is not supported on this device/OS version. "
+                  @"App Check enforcement will fail.");
+    return nil;
+  }
+
+#endif  // TARGET_OS_SIMULATOR
 }
 
 @end

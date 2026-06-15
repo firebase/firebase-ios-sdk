@@ -761,6 +761,95 @@ struct GenerateContentIntegrationTests {
       return String(describing: underlyingError).contains("Firebase App Check token is invalid")
     }
   }
+
+  @Test(arguments: InstanceConfig.defaultConfigs)
+  func generateContent_speechConfig(_ config: InstanceConfig) async throws {
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: ModelNames.gemini3_1_FlashTTSPreview,
+      generationConfig: GenerationConfig(
+        responseModalities: [.audio],
+        speechConfig: SpeechConfig(voiceName: "Charon", languageCode: "en-US")
+      ),
+      safetySettings: safetySettings
+    )
+    let response = try await model.generateContent("Hello")
+    let candidate = try #require(response.candidates.first)
+    #expect(candidate.finishReason == .stop)
+  }
+
+  @Test(arguments: InstanceConfig.defaultConfigs)
+  func generateContent_speechConfig_multiSpeaker(_ config: InstanceConfig) async throws {
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: ModelNames.gemini3_1_FlashTTSPreview,
+      generationConfig: GenerationConfig(
+        responseModalities: [.audio],
+        speechConfig: SpeechConfig(
+          multiSpeakerVoiceConfig: MultiSpeakerVoiceConfig(
+            speakerVoiceConfigs: [
+              SpeakerVoiceConfig(
+                speaker: "Speaker1",
+                voiceName: "Puck"
+              ),
+              SpeakerVoiceConfig(
+                speaker: "Speaker2",
+                voiceName: "Charon"
+              ),
+            ]
+          ),
+          languageCode: "en-US"
+        )
+      ),
+      safetySettings: safetySettings
+    )
+    let response = try await model.generateContent("Hello")
+    let candidate = try #require(response.candidates.first)
+    #expect(candidate.finishReason == .stop)
+  }
+
+  @Test(arguments: InstanceConfig.defaultConfigs)
+  func generateContent_speechConfig_multiSpeaker_invalidSize(_ config: InstanceConfig) async throws {
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: ModelNames.gemini3_1_FlashTTSPreview,
+      generationConfig: GenerationConfig(
+        responseModalities: [.audio],
+        speechConfig: SpeechConfig(
+          multiSpeakerVoiceConfig: MultiSpeakerVoiceConfig(
+            speakerVoiceConfigs: [
+              SpeakerVoiceConfig(
+                speaker: "Speaker1",
+                voiceName: "Puck"
+              ),
+              SpeakerVoiceConfig(
+                speaker: "Speaker2",
+                voiceName: "Charon"
+              ),
+              SpeakerVoiceConfig(
+                speaker: "Speaker3",
+                voiceName: "Aoede"
+              ),
+            ]
+          ),
+          languageCode: "en-US"
+        )
+      ),
+      safetySettings: safetySettings
+    )
+    do {
+      _ = try await model.generateContent("Hello")
+      Issue.record("Expected an error from the backend for invalid multi-speaker list size.")
+    } catch {
+      guard let error = error as? GenerateContentError else {
+        Issue.record("Expected GenerateContentError; got \(error.self).")
+        throw error
+      }
+      guard case let .internalError(underlyingError) = error else {
+        Issue.record("Expected internalError; got \(error.self).")
+        throw error
+      }
+      #expect(String(describing: underlyingError)
+        .contains("the number of enabled_voices must equal 2"))
+    }
+  }
 }
 
 extension TextPart {
