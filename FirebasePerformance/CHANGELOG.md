@@ -3,6 +3,8 @@
   with `task_info(TASK_VM_INFO)` instead of `malloc_zone_statistics()`, which
   could abort the process inside the malloc subsystem on devices using the XZM
   allocator. (#16121)
+- [fixed] Fixed a crash when Firebase Performance instruments NSProxy NSURLSession delegates
+  that report a wrapped object's class. (#16254)
 
 # 12.14.0
 - [fixed] Fixed a race condition crash in `FPRConfigurations` by making
