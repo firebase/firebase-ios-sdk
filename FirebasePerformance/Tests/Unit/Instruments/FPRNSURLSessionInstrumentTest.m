@@ -68,6 +68,9 @@
 /** @return an instance of the delegate proxy. */
 - (instancetype)initWithDelegate:(id)delegate;
 
+/** @return the wrapped delegate object. */
+- (id)delegate;
+
 @end
 
 @implementation FPRNSURLSessionDelegateProxy
@@ -87,8 +90,23 @@
   return [_delegate respondsToSelector:aSelector];
 }
 
+- (id)delegate {
+  return _delegate;
+}
+
 - (void)forwardInvocation:(NSInvocation *)invocation {
   [invocation invokeWithTarget:_delegate];
+}
+
+@end
+
+@interface FPRNSURLSessionDelegateClassReportingProxy : FPRNSURLSessionDelegateProxy
+@end
+
+@implementation FPRNSURLSessionDelegateClassReportingProxy
+
+- (Class)class {
+  return [[self delegate] class];
 }
 
 @end
@@ -627,6 +645,23 @@
   XCTAssertEqual(instrument.delegateInstrument.instrumentedClasses.count, 1);
   XCTAssertTrue(
       [instrument.delegateInstrument.instrumentedClasses containsObject:[delegate class]]);
+  [instrument deregisterInstrumentors];
+}
+
+/** Tests that proxy delegate lookup uses the proxy's runtime class instead of -class. */
+- (void)testProxyDelegateUsesRuntimeClassWhenProxyReportsWrappedDelegateClass {
+  FPRNSURLSessionTestDelegate *delegate = [[FPRNSURLSessionTestDelegate alloc] init];
+  FPRNSURLSessionDelegateClassReportingProxy *proxyDelegate =
+      [[FPRNSURLSessionDelegateClassReportingProxy alloc] initWithDelegate:delegate];
+  FPRNSURLSessionInstrument *instrument = [[FPRNSURLSessionInstrument alloc] init];
+  [instrument registerInstrumentors];
+  NSURLSessionConfiguration *configuration =
+      [NSURLSessionConfiguration defaultSessionConfiguration];
+  XCTAssertFalse([delegate respondsToSelector:@selector(URLSession:task:didCompleteWithError:)]);
+  XCTAssertNoThrow([NSURLSession sessionWithConfiguration:configuration
+                                                 delegate:proxyDelegate
+                                            delegateQueue:nil]);
+  XCTAssertTrue([delegate respondsToSelector:@selector(URLSession:task:didCompleteWithError:)]);
   [instrument deregisterInstrumentors];
 }
 
