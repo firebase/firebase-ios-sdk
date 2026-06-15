@@ -1,5 +1,4 @@
 # 12.15.0
-
 - [fix] Remove use of designated initializers for `forceIndex` [#16229].
 
 # 12.13.0
