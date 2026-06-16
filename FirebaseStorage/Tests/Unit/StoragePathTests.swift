@@ -105,6 +105,13 @@ class StoragePathTests: XCTestCase {
     XCTAssertThrowsError(try StoragePath.path(string: "http://firebasestorage.googleapis.com/"))
   }
 
+  func testHTTPURLThrowsOnMissingObjectMarker() {
+    // A path segment in the "/o" marker position that isn't "o" is not a valid
+    // Storage URL and must throw rather than be parsed as an object.
+    let httpURL = "http://firebasestorage.googleapis.com/v0/b/bucket/x/path/to/object"
+    XCTAssertThrowsError(try StoragePath.path(string: httpURL))
+  }
+
   func testThrowsOnInvalidScheme() {
     let ftpURL = "ftp://firebasestorage.googleapis.com/v0/b/bucket/o/path/to/object"
     XCTAssertThrowsError(try StoragePath.path(string: ftpURL))

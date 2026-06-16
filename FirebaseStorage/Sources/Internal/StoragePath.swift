@@ -59,7 +59,7 @@ class StoragePath: NSCopying, Equatable {
       if bucketObject.contains("/") {
         let splitStringArray = bucketObject.split(separator: "/", maxSplits: 1).map(String.init)
         if let bucketName = splitStringArray.first {
-          let object = splitStringArray.count == 2 ? splitStringArray[1] : nil
+          let object = splitStringArray.dropFirst().first
           return StoragePath(with: bucketName, object: object)
         }
       } else if bucketObject.count > 0 {
@@ -92,6 +92,10 @@ class StoragePath: NSCopying, Equatable {
 
     guard pathComponents.count > 5 else {
       return StoragePath(with: bucketName)
+    }
+    guard pathComponents[4] == "o" else {
+      throw StoragePathError.storagePathError("Internal error: URL must be in the form of " +
+        "http[s]://<host>/v0/b/<bucket>/o/<path/to/object>[?token=signed_url_params]")
     }
     // Construct object name
     var objectName = pathComponents[5]
