@@ -52,20 +52,7 @@
 
     private var url: URL
     weak var delegate: AuthWebViewControllerDelegate?
-
-    private let webView: WKWebView = {
-      let webView = WKWebView(frame: .zero)
-      webView.isOpaque = false
-      webView.backgroundColor = .clear
-      webView.scrollView.isOpaque = false
-      webView.scrollView.backgroundColor = .clear
-      webView.scrollView.bounces = false
-      webView.scrollView.alwaysBounceVertical = false
-      webView.scrollView.alwaysBounceHorizontal = false
-      return webView
-    }()
-
-    private let spinner = UIActivityIndicatorView(style: .medium)
+    private weak var webView: AuthWebView?
 
     // MARK: - Initialization
 
@@ -82,14 +69,11 @@
 
     // MARK: - View Lifecycle
 
-    override func viewDidLoad() {
-      super.viewDidLoad()
-      view.backgroundColor = .white
-
-      webView.navigationDelegate = self
-      view.addSubview(webView)
-      view.addSubview(spinner)
-
+    override func loadView() {
+      let webView = AuthWebView(frame: UIScreen.main.bounds)
+      webView.webView.navigationDelegate = self
+      view = webView
+      self.webView = webView
       navigationItem.leftBarButtonItem = UIBarButtonItem(
         barButtonSystemItem: .cancel,
         target: self,
@@ -97,15 +81,9 @@
       )
     }
 
-    override func viewDidLayoutSubviews() {
-      super.viewDidLayoutSubviews()
-      webView.frame = view.bounds
-      spinner.center = CGPoint(x: view.bounds.midX, y: view.bounds.midY)
-    }
-
     override func viewDidAppear(_ animated: Bool) {
       super.viewDidAppear(animated)
-      webView.load(URLRequest(url: url))
+      webView?.webView.load(URLRequest(url: url))
     }
 
     // MARK: - Actions
@@ -128,13 +106,13 @@
 
     func webView(_ webView: WKWebView,
                  didStartProvisionalNavigation navigation: WKNavigation!) {
-      spinner.isHidden = false
-      spinner.startAnimating()
+      self.webView?.spinner.isHidden = false
+      self.webView?.spinner.startAnimating()
     }
 
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-      spinner.isHidden = true
-      spinner.stopAnimating()
+      self.webView?.spinner.isHidden = true
+      self.webView?.spinner.stopAnimating()
     }
 
     func webView(_ webView: WKWebView, didFail navigation: WKNavigation!,
