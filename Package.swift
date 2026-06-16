@@ -1438,8 +1438,7 @@ func googleAppMeasurementDependency() -> Package.Dependency {
   if Context.environment["FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT"] != nil {
     return .package(url: appMeasurementURL, branch: "main")
   }
-
-  return .package(url: appMeasurementURL, exact: "12.15.0")
+  return .package(url: appMeasurementURL, "12.15.0" ..< "12.16.0")
 }
 
 func abseilDependency() -> Package.Dependency {
