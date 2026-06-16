@@ -110,17 +110,24 @@ class JsonReader : public util::ReadContext {
           reader.Fail("Integer value out of range: " + value.dump());
           return 0;
         }
-      } else if (!std::numeric_limits<IntType>::is_signed) {
-        reader.Fail("Integer value out of range: " + value.dump());
-        return 0;
-      } else if (value.get<int64_t>() <
-                     static_cast<int64_t>(
-                         std::numeric_limits<IntType>::min()) ||
-                 value.get<int64_t>() >
-                     static_cast<int64_t>(
-                         std::numeric_limits<IntType>::max())) {
-        reader.Fail("Integer value out of range: " + value.dump());
-        return 0;
+      } else {
+        // A non-negative value may still be stored as a signed `int64_t`, so
+        // accept it when it fits an unsigned `IntType` rather than rejecting
+        // every signed representation outright.
+        const int64_t val = value.get<int64_t>();
+        if (std::numeric_limits<IntType>::is_signed) {
+          if (val < static_cast<int64_t>(std::numeric_limits<IntType>::min()) ||
+              val > static_cast<int64_t>(std::numeric_limits<IntType>::max())) {
+            reader.Fail("Integer value out of range: " + value.dump());
+            return 0;
+          }
+        } else if (val < 0 ||
+                   static_cast<uint64_t>(val) >
+                       static_cast<uint64_t>(
+                           std::numeric_limits<IntType>::max())) {
+          reader.Fail("Integer value out of range: " + value.dump());
+          return 0;
+        }
       }
       return value.get<IntType>();
     }
