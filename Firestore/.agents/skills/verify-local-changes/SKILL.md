@@ -5,11 +5,11 @@ description: Verifies local Firebase iOS SDK changes.
 
 # Verify Local Changes (iOS/Apple)
 
-This skill documents how to verify local code changes for the Firebase Apple SDKs.
+This skill documents how to verify local code changes for the Firebase Apple SDKs using command-line tools.
 
 ## Prerequisites
 
-- Xcode 26.2+
+- Xcode 16.2+
 - CocoaPods 1.12.0+
 - `cocoapods-generate` plugin
 
@@ -25,39 +25,68 @@ Run the style script before creating a PR:
 
 ---
 
-## Step 1: Build and Unit Test (CocoaPods)
+## Step 1: Boot the iOS Simulator
 
-For Firestore development:
+Ensure that an iOS Simulator is booted and ready to run tests.
 
 ```bash
-cd Firestore/Example
-pod update
-open Firestore.xcworkspace
-```
+# List available simulators and find their status
+xcrun simctl list devices | grep "iPhone 16"
 
-In Xcode:
-1. Select the `Firestore_Tests_iOS` scheme.
-2. Press `⌘U` to run unit tests.
+# Boot the simulator (e.g., "iPhone 16" for Xcode 16)
+xcrun simctl boot "iPhone 16"
+```
 
 ---
 
-## Step 2: Command-Line Build
+## Step 2: Install Dependencies (CocoaPods)
+
+Generate the CocoaPods workspace targeting the iOS platform:
 
 ```bash
 PLATFORM=iOS pod update --project-directory=Firestore/Example
-scripts/build.sh Firestore iOS
 ```
 
 ---
 
-## Step 3: Integration Testing (Emulator)
+## Step 3: Build and Run Unit Tests
 
-1. Start the emulator in a separate terminal:
-   ```bash
-   scripts/run_firestore_emulator.sh
-   ```
-2. In Xcode, select `Firestore_IntegrationTests_iOS`.
-3. Press `⌘U`.
+Use `xcodebuild` to build and run the unit tests.
+
+### Build Unit Tests:
+```bash
+xcodebuild \
+  -workspace Firestore/Example/Firestore.xcworkspace \
+  -scheme Firestore_Tests_iOS \
+  -destination "platform=iOS Simulator,name=iPhone 16" \
+  -jobs 4 \
+  build-for-testing
+```
+
+### Run Unit Tests:
+```bash
+xcodebuild \
+  -workspace Firestore/Example/Firestore.xcworkspace \
+  -scheme Firestore_Tests_iOS \
+  -destination "platform=iOS Simulator,name=iPhone 16" \
+  test-without-building
+```
+
+---
+
+## Step 4: Build and Run Integration Tests (Emulator)
+
+The integration tests run against the Cloud Firestore emulator. The build/test scripts automatically manage the emulator lifecycle.
+
+### Build Integration Tests:
+```bash
+scripts/build.sh Firestore iOS xcodebuild
+```
+
+### Run Integration Tests:
+```bash
+scripts/build.sh Firestore iOS xcodetest
+```
 
 ---
 
