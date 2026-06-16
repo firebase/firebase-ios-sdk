@@ -104,11 +104,13 @@
           }
         } errorHandler: { error in
           // Assert that the error is one of the expected decoding failure types.
-          if #available(iOS 27.0, macOS 27.0, visionOS 27.0, watchOS 27.0, *),
-             error is FoundationModels.GeneratedContent.ParsingError {
-            return // Expected error.
-          }
-          #if !os(watchOS)
+          #if compiler(>=6.4)
+            if #available(iOS 27.0, macOS 27.0, visionOS 27.0, watchOS 27.0, *),
+               error is FoundationModels.GeneratedContent.ParsingError {
+              return // Expected error.
+            }
+          #endif // compiler(>=6.4)
+          #if IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
             if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *),
                let foundationError = error as? FoundationModels.LanguageModelSession
                .GenerationError,
@@ -118,7 +120,7 @@
 
               return // Expected error.
             }
-          #endif // !os(watchOS)
+          #endif // IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
 
           XCTFail("Expected a decoding failure error, but got \(error) instead.")
         }

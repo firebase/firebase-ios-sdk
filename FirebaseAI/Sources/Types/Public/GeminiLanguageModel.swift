@@ -14,9 +14,13 @@
 
 import FirebaseCore
 import Foundation
-import FoundationModels
+#if canImport(FoundationModels)
+  import FoundationModels
+#endif // canImport(FoundationModels)
 
 #if compiler(>=6.4)
+  @available(iOS 27.0, macOS 27.0, visionOS 27.0, watchOS 27.0, *)
+  @available(tvOS, unavailable)
   public struct GeminiLanguageModel {
     public struct ModelConfig: Sendable, Hashable {
       let apiConfig: APIConfig
@@ -73,6 +77,7 @@ import FoundationModels
   }
 
   @available(iOS 27.0, macOS 27.0, visionOS 27.0, watchOS 27.0, *)
+  @available(tvOS, unavailable)
   extension GeminiLanguageModel: FoundationModels.LanguageModel {
     public var capabilities: LanguageModelCapabilities {
       return LanguageModelCapabilities(capabilities: [
@@ -88,6 +93,8 @@ import FoundationModels
     }
   }
 
+  @available(iOS 27.0, macOS 27.0, visionOS 27.0, watchOS 27.0, *)
+  @available(tvOS, unavailable)
   public struct GeminiGenerationOptions: Sendable, Equatable, Hashable {
     /// Supported modalities of the response.
     public var responseModalities: [ResponseModality]?

@@ -12,13 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if compiler(>=6.2.3) && canImport(FoundationModels)
+#if canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
   import Foundation
   import FoundationModels
 
-  @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
+  @available(iOS 26.0, macOS 26.0, visionOS 26.0, watchOS 27.0, *)
   @available(tvOS, unavailable)
-  @available(watchOS, unavailable)
   extension FoundationModels.LanguageModelSession: _ModelSession {
     /// Returns `true` if the session has history (i.e., it has already had one or more chat turns).
     ///
@@ -179,9 +178,8 @@
     }
   }
 
-  @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
+  @available(iOS 26.0, macOS 26.0, visionOS 26.0, watchOS 27.0, *)
   @available(tvOS, unavailable)
-  @available(watchOS, unavailable)
   private extension GenerationOptionsRepresentable {
     var generationOptions: FoundationModels.GenerationOptions {
       guard let options = responseGenerationOptions.foundationModelsGenerationOptions else {
@@ -191,4 +189,4 @@
       return options.toFoundationModels()
     }
   }
-#endif // compiler(>=6.2.3) && canImport(FoundationModels)
+#endif // canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM

@@ -14,10 +14,12 @@
 
 import CoreGraphics
 import Foundation
-import FoundationModels
+#if canImport(FoundationModels)
+  import FoundationModels
+#endif // canImport(FoundationModels)
+import ImageIO
 
-#if canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM && compiler(>=6.4)
-  import ImageIO
+#if compiler(>=6.4)
 
   @available(iOS 27.0, macOS 27.0, visionOS 27.0, watchOS 27.0, *)
   extension Transcript {
@@ -36,6 +38,7 @@ import FoundationModels
   }
 
   @available(iOS 27.0, macOS 27.0, visionOS 27.0, watchOS 27.0, *)
+  @available(tvOS, unavailable)
   public extension GeminiLanguageModel {
     struct Executor: LanguageModelExecutor {
       let configuration: GeminiLanguageModel.ModelConfig
@@ -537,6 +540,7 @@ import FoundationModels
   }
 
   @available(iOS 27.0, macOS 27.0, visionOS 27.0, watchOS 27.0, *)
+  @available(tvOS, unavailable)
   extension Transcript.Instructions {
     func toGeminiSystemInstruction() throws -> ModelContent? {
       var instructions = ""
@@ -584,6 +588,7 @@ import FoundationModels
   }
 
   @available(iOS 27.0, macOS 27.0, visionOS 27.0, watchOS 27.0, *)
+  @available(tvOS, unavailable)
   extension Transcript.Prompt {
     func toGeminiPrompt() throws -> ModelContent {
       var parts = [any Part]()
@@ -637,6 +642,7 @@ import FoundationModels
   }
 
   @available(iOS 27.0, macOS 27.0, visionOS 27.0, watchOS 27.0, *)
+  @available(tvOS, unavailable)
   extension Transcript.Response {
     func toGeminiResponse() throws -> ModelContent {
       var parts = [any Part]()
@@ -681,4 +687,4 @@ import FoundationModels
       return ModelContent(role: "model", parts: parts)
     }
   }
-#endif // canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM && compiler(>=6.4)
+#endif // compiler(>=6.4)
