@@ -12,14 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import CoreGraphics
-import Foundation
-#if canImport(FoundationModels)
+#if compiler(>=6.4) && canImport(FoundationModels)
+  import CoreGraphics
+  import Foundation
   import FoundationModels
-#endif // canImport(FoundationModels)
-import ImageIO
-
-#if compiler(>=6.4)
+  import ImageIO
 
   @available(iOS 27.0, macOS 27.0, visionOS 27.0, watchOS 27.0, *)
   extension Transcript {
@@ -687,4 +684,4 @@ import ImageIO
       return ModelContent(role: "model", parts: parts)
     }
   }
-#endif // compiler(>=6.4)
+#endif // compiler(>=6.4) && canImport(FoundationModels)
