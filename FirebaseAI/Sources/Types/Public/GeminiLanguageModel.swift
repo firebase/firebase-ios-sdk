@@ -12,46 +12,31 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import FirebaseCore
-import Foundation
-import FoundationModels
+#if compiler(>=6.4) && canImport(FoundationModels)
+  import FirebaseCore
+  import Foundation
+  import FoundationModels
 
-#if compiler(>=6.4)
+  @available(iOS 27.0, macOS 27.0, visionOS 27.0, watchOS 27.0, *)
+  @available(tvOS, unavailable)
   public struct GeminiLanguageModel {
     public struct ModelConfig: Sendable, Hashable {
-      let firebaseAppName: String
       let apiConfig: APIConfig
-      let useLimitedUseAppCheckTokens: Bool
-
-      let modelName: String
+      let modelResourceName: String
       let safetySettings: [SafetySetting]?
       let serverTools: [InternalGeminiTool]
       let geminiOptions: GeminiGenerationOptions?
       let requestOptions: RequestOptions
-
-      var firebaseAI: FirebaseAI {
-        let firebaseApp = FirebaseApp.app(name: firebaseAppName)
-        return FirebaseAI.createInstance(
-          app: firebaseApp,
-          apiConfig: apiConfig,
-          useLimitedUseAppCheckTokens: useLimitedUseAppCheckTokens
-        )
-      }
     }
 
     let modelConfig: ModelConfig
-    let modelResourceName: String
-    let firebaseInfo: FirebaseInfo
-    let toolConfig: ToolConfig?
-    let urlSession: URLSession
+    let generativeAIService: GenerativeAIService
 
-    init(modelName: String,
-         modelResourceName: String,
+    init(modelResourceName: String,
          firebaseInfo: FirebaseInfo,
          apiConfig: APIConfig,
          safetySettings: [SafetySetting]? = nil,
          serverTools: [any GeminiTool]? = nil,
-         toolConfig: ToolConfig? = nil,
          geminiOptions: GeminiGenerationOptions? = nil,
          requestOptions: RequestOptions = RequestOptions(),
          urlSession: URLSession = GenAIURLSession.default) {
@@ -75,23 +60,22 @@ import FoundationModels
       }
 
       modelConfig = ModelConfig(
-        firebaseAppName: firebaseInfo.app.name,
         apiConfig: apiConfig,
-        useLimitedUseAppCheckTokens: firebaseInfo.useLimitedUseAppCheckTokens,
-        modelName: modelName,
+        modelResourceName: modelResourceName,
         safetySettings: safetySettings,
         serverTools: serverTools,
         geminiOptions: geminiOptions,
         requestOptions: requestOptions
       )
-      self.modelResourceName = modelResourceName
-      self.firebaseInfo = firebaseInfo
-      self.toolConfig = toolConfig
-      self.urlSession = urlSession
+      generativeAIService = GenerativeAIService(
+        firebaseInfo: firebaseInfo,
+        urlSession: urlSession
+      )
     }
   }
 
   @available(iOS 27.0, macOS 27.0, visionOS 27.0, watchOS 27.0, *)
+  @available(tvOS, unavailable)
   extension GeminiLanguageModel: FoundationModels.LanguageModel {
     public var capabilities: LanguageModelCapabilities {
       return LanguageModelCapabilities(capabilities: [
@@ -107,6 +91,8 @@ import FoundationModels
     }
   }
 
+  @available(iOS 27.0, macOS 27.0, visionOS 27.0, watchOS 27.0, *)
+  @available(tvOS, unavailable)
   public struct GeminiGenerationOptions: Sendable, Equatable, Hashable {
     /// Supported modalities of the response.
     public var responseModalities: [ResponseModality]?
@@ -133,4 +119,4 @@ import FoundationModels
       self.includeThoughts = includeThoughts
     }
   }
-#endif // compiler(>=6.4)
+#endif // compiler(>=6.4) && canImport(FoundationModels)

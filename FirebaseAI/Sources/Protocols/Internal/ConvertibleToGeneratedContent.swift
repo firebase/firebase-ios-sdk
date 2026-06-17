@@ -30,9 +30,8 @@
   }
 
   #if canImport(FoundationModels)
-    @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
+    @available(iOS 26.0, macOS 26.0, visionOS 26.0, watchOS 27.0, *)
     @available(tvOS, unavailable)
-    @available(watchOS, unavailable)
     extension FoundationModels.ConvertibleToGeneratedContent {
       var firebaseGeneratedContent: FirebaseAI.GeneratedContent {
         return FirebaseAI.GeneratedContent(

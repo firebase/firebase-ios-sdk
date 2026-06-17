@@ -106,14 +106,15 @@ public final class FirebaseAI: Sendable {
     )
   }
 
-  #if compiler(>=6.4)
+  #if compiler(>=6.4) && canImport(FoundationModels)
+    @available(iOS 27.0, macOS 27.0, visionOS 27.0, watchOS 27.0, *)
+    @available(tvOS, unavailable)
     public func geminiLanguageModel(name: String, safetySettings: [SafetySetting]? = nil,
                                     options: GeminiGenerationOptions? = nil,
                                     serverTools: [any GeminiTool]? = nil,
                                     requestOptions: RequestOptions = RequestOptions())
       -> GeminiLanguageModel {
       return GeminiLanguageModel(
-        modelName: name,
         modelResourceName: modelResourceName(modelName: name),
         firebaseInfo: firebaseInfo,
         apiConfig: apiConfig,
@@ -123,7 +124,7 @@ public final class FirebaseAI: Sendable {
         requestOptions: requestOptions,
       )
     }
-  #endif // compiler(>=6.4)
+  #endif // compiler(>=6.4) && canImport(FoundationModels)
 
   // TODO: Remove the `#if compiler(>=6.2.3)` when Xcode 26.2 is the minimum supported version.
   #if compiler(>=6.2.3)
