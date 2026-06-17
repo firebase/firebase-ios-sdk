@@ -94,7 +94,7 @@ jobs:
       if: inputs.setup_command != ''
       env:
         plist_secret: ${{ secrets.plist_secret }}
-      run: ${{ inputs.setup_command }}
+      run: ${{ inputs.setup_command }} # zizmor: ignore[template-injection]
     - name: PodLibLint Cron
       uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
       with:

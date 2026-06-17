@@ -24,6 +24,8 @@ jobs:
       id: generate-token
       uses: actions/create-github-app-token@29824e69f54612133e76f7eaac726eef6c875baf #v2.2.1
       with:
+        permission-pull-requests: write
+        permission-contents: read
         app-id: ${{ secrets.DANGER_APP_ID }}
         private-key: ${{ secrets.DANGER_APP_PRIVATE_KEY }}
 
