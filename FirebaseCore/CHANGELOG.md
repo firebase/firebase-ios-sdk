@@ -2,6 +2,9 @@
 - [changed] Firebase now requires Swift tools version 6.1 for the Swift Package.
   The package will no longer resolve in Xcode versions older than 16.3. Note that
   the minimum officially supported version for the SDK remains Xcode 26.2+.
+- [fixed] Include `FirebaseRemoteConfigInternal` in the `FirebaseRemoteConfig`
+  SwiftPM product to fix builds that fail to resolve the internal clang module
+  when Swift explicit modules are enabled (e.g. Xcode 26+ and Tuist).
 
 # Firebase 12.14.0
 - [fixed] Remove extra comma in Package.swift that caused SPM resolution
