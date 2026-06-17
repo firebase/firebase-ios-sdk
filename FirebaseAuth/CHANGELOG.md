@@ -4,7 +4,7 @@
   (#16274)
 - [fixed] Fixed an issue where the integrated OAuth sign in UI wasn't
   taking up the full screen when rendered in Mac Catalyst apps. (#16274)
-- [changed] Changed error message for missing `FirebaseApp.configure()` to 
+- [changed] Changed error message for missing `FirebaseApp.configure()` to
   properly articulate supported methods. (#16294)
 
 # 12.12.0

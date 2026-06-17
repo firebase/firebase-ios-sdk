@@ -1,5 +1,5 @@
 # Unreleased
-- [changed] Changed error message for missing `FirebaseApp.configure()` to 
+- [changed] Changed error message for missing `FirebaseApp.configure()` to
   properly articulate supported methods. (#16294)
 
 # 9.0.0
