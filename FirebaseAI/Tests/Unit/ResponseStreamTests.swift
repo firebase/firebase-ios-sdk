@@ -109,18 +109,17 @@
                error is FoundationModels.GeneratedContent.ParsingError {
               return // Expected error.
             }
-          #endif // compiler(>=6.4)
-          #if IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
+          #else
             if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *),
                let foundationError = error as? FoundationModels.LanguageModelSession
                .GenerationError,
                case .decodingFailure = foundationError {
-              // TODO: Remove this else-if after wrapping `FoundationModels.GenerationError` errors
-              //       into equivalent `GenerativeModelSession.GenerationError` values.
-
+              return // Expected error.
+            } else if let generationError = error as? GenerativeModelSession.GenerationError,
+                      case .decodingFailure = generationError {
               return // Expected error.
             }
-          #endif // IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
+          #endif // compiler(>=6.4)
 
           XCTFail("Expected a decoding failure error, but got \(error) instead.")
         }
