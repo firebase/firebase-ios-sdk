@@ -87,7 +87,7 @@ import XCTest
       }
     }
 
-    func testGenerateContentStream_failure_midStreamError_swallowsError() async throws {
+    func testGenerateContentStream_failure_midStreamError_throwsError() async throws {
       let expectedStatusCode = 200
       // Send a large amount of data so URLSession doesn't buffer it and delay returning
       // urlSession.bytes
@@ -117,9 +117,8 @@ import XCTest
 
       let localModel = model!
 
-      let swallowsExpectation =
-        XCTestExpectation(description: "Stream should swallow the error without finishing")
-      swallowsExpectation.isInverted = true // We expect this to NEVER be fulfilled!
+      let throwsExpectation =
+        XCTestExpectation(description: "Stream should throw URLError(.networkConnectionLost)")
 
       Task {
         do {
@@ -127,18 +126,23 @@ import XCTest
           for try await _ in stream {
             // Read lines
           }
-          print("TEST LOG: Stream finished successfully without error!")
-          swallowsExpectation.fulfill()
+          XCTFail(
+            "Stream should not finish successfully; it should throw a mid-stream network error."
+          )
+          throwsExpectation.fulfill()
+        } catch let urlError as URLError where urlError.code == .networkConnectionLost {
+          // This is the expected behavior!
+          throwsExpectation.fulfill()
         } catch {
-          XCTFail("TEST LOG: Stream threw error: \(error)")
-          swallowsExpectation.fulfill()
+          XCTFail("Stream threw unexpected error: \(error)")
+          throwsExpectation.fulfill()
         }
       }
 
-      await fulfillment(of: [swallowsExpectation], timeout: 4.0)
+      await fulfillment(of: [throwsExpectation], timeout: 4.0)
     }
 
-    func testGenerateContentStream_failure_midStreamError_badResponse_swallowsError() async throws {
+    func testGenerateContentStream_failure_midStreamError_badResponse_throwsError() async throws {
       let expectedStatusCode = 400
       // Send a massive string so URLSession returns the stream immediately without waiting for more
       // data.
@@ -168,9 +172,8 @@ import XCTest
 
       let localModel = model!
 
-      let swallowsExpectation =
-        XCTestExpectation(description: "Stream should swallow the error without finishing")
-      swallowsExpectation.isInverted = true // We expect this to NEVER be fulfilled!
+      let throwsExpectation =
+        XCTestExpectation(description: "Stream should throw URLError(.networkConnectionLost)")
 
       Task {
         do {
@@ -178,15 +181,20 @@ import XCTest
           for try await _ in stream {
             // Read lines
           }
-          print("TEST LOG: Stream finished successfully without error!")
-          swallowsExpectation.fulfill()
+          XCTFail(
+            "Stream should not finish successfully; it should throw a mid-stream network error."
+          )
+          throwsExpectation.fulfill()
+        } catch let urlError as URLError where urlError.code == .networkConnectionLost {
+          // This is the expected behavior!
+          throwsExpectation.fulfill()
         } catch {
-          XCTFail("TEST LOG: Stream threw error: \(error)")
-          swallowsExpectation.fulfill()
+          XCTFail("Stream threw unexpected error: \(error)")
+          throwsExpectation.fulfill()
         }
       }
 
-      await fulfillment(of: [swallowsExpectation], timeout: 4.0)
+      await fulfillment(of: [throwsExpectation], timeout: 4.0)
     }
 
     func testGenerateContentStream_cancellation_resourceLeak() async throws {
@@ -223,8 +231,6 @@ import XCTest
 
       let stopLoadingExpectation =
         XCTestExpectation(description: "stopLoading should be called when task is cancelled")
-      stopLoadingExpectation
-        .isInverted = true // We expect this to NEVER be fulfilled on the buggy implementation!
       MockURLProtocol.stopLoadingExpectation = stopLoadingExpectation
 
       let localModel = model!
