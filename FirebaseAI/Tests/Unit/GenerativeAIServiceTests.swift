@@ -47,6 +47,9 @@ import XCTest
 
     override func tearDown() {
       MockURLProtocol.requestHandler = nil
+      MockURLProtocol.errorToThrowMidStream = nil
+      MockURLProtocol.stopLoadingExpectation = nil
+      MockURLProtocol.neverFinishes = false
     }
 
     func testGenerateContent_failure_unrecognizedErrorPayload() async throws {
@@ -82,6 +85,166 @@ import XCTest
       } catch {
         XCTFail("Caught unexpected error: \(error)")
       }
+    }
+
+    func testGenerateContentStream_failure_midStreamError_swallowsError() async throws {
+      let expectedStatusCode = 200
+      // Send a large amount of data so URLSession doesn't buffer it and delay returning
+      // urlSession.bytes
+      let validJSON = "{\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"Hello\"}]}}]}"
+      let responseBody = String(repeating: "data: \(validJSON)\n\n", count: 2000)
+
+      let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+      addTeardownBlock {
+        try? FileManager.default.removeItem(at: tempURL)
+      }
+
+      MockURLProtocol.requestHandler = { request in
+        let response = HTTPURLResponse(
+          url: request.url!,
+          statusCode: expectedStatusCode,
+          httpVersion: nil,
+          headerFields: nil
+        )!
+
+        try responseBody.write(to: tempURL, atomically: true, encoding: .utf8)
+        let stream = URL(fileURLWithPath: tempURL.path).lines
+        return (response, stream)
+      }
+
+      // Simulate a network drop mid-stream
+      MockURLProtocol.errorToThrowMidStream = URLError(.networkConnectionLost)
+
+      let localModel = model!
+
+      let swallowsExpectation =
+        XCTestExpectation(description: "Stream should swallow the error without finishing")
+      swallowsExpectation.isInverted = true // We expect this to NEVER be fulfilled!
+
+      Task {
+        do {
+          let stream = try localModel.generateContentStream("test")
+          for try await _ in stream {
+            // Read lines
+          }
+          print("TEST LOG: Stream finished successfully without error!")
+          swallowsExpectation.fulfill()
+        } catch {
+          XCTFail("TEST LOG: Stream threw error: \(error)")
+          swallowsExpectation.fulfill()
+        }
+      }
+
+      await fulfillment(of: [swallowsExpectation], timeout: 4.0)
+    }
+
+    func testGenerateContentStream_failure_midStreamError_badResponse_swallowsError() async throws {
+      let expectedStatusCode = 400
+      // Send a massive string so URLSession returns the stream immediately without waiting for more
+      // data.
+      let validJSON = "{\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"Hello\"}]}}]}"
+      let responseBody = String(repeating: "data: \(validJSON)\n\n", count: 2000)
+
+      let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+      addTeardownBlock {
+        try? FileManager.default.removeItem(at: tempURL)
+      }
+
+      MockURLProtocol.requestHandler = { request in
+        let response = HTTPURLResponse(
+          url: request.url!,
+          statusCode: expectedStatusCode,
+          httpVersion: nil,
+          headerFields: nil
+        )!
+
+        try responseBody.write(to: tempURL, atomically: true, encoding: .utf8)
+        let stream = URL(fileURLWithPath: tempURL.path).lines
+        return (response, stream)
+      }
+
+      // Simulate a network drop mid-stream while reading the error payload
+      MockURLProtocol.errorToThrowMidStream = URLError(.networkConnectionLost)
+
+      let localModel = model!
+
+      let swallowsExpectation =
+        XCTestExpectation(description: "Stream should swallow the error without finishing")
+      swallowsExpectation.isInverted = true // We expect this to NEVER be fulfilled!
+
+      Task {
+        do {
+          let stream = try localModel.generateContentStream("test")
+          for try await _ in stream {
+            // Read lines
+          }
+          print("TEST LOG: Stream finished successfully without error!")
+          swallowsExpectation.fulfill()
+        } catch {
+          XCTFail("TEST LOG: Stream threw error: \(error)")
+          swallowsExpectation.fulfill()
+        }
+      }
+
+      await fulfillment(of: [swallowsExpectation], timeout: 4.0)
+    }
+
+    func testGenerateContentStream_cancellation_resourceLeak() async throws {
+      let expectedStatusCode = 200
+
+      // We don't use responseBody here because we want to manually yield lines slowly
+      // to test that the mock continues sending them even after the stream is cancelled.
+      // But MockURLProtocol currently doesn't support manual line yielding.
+      // Let's rely on the fact that if it's NOT cancelled, the Task continues doing work.
+      // We can use a large payload and assert that MockURLProtocol finishes its sleep.
+
+      let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+      addTeardownBlock {
+        try? FileManager.default.removeItem(at: tempURL)
+      }
+
+      MockURLProtocol.requestHandler = { request in
+        let response = HTTPURLResponse(
+          url: request.url!,
+          statusCode: expectedStatusCode,
+          httpVersion: nil,
+          headerFields: nil
+        )!
+
+        let validJSON = "{\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"Hello\"}]}}]}"
+        let responseBody = String(repeating: "data: \(validJSON)\n\n", count: 100)
+        try responseBody.write(to: tempURL, atomically: true, encoding: .utf8)
+        let stream = URL(fileURLWithPath: tempURL.path).lines
+        return (response, stream)
+      }
+
+      // Prevent the mock server from finishing naturally so it keeps the connection open.
+      MockURLProtocol.neverFinishes = true
+
+      let stopLoadingExpectation =
+        XCTestExpectation(description: "stopLoading should be called when task is cancelled")
+      stopLoadingExpectation
+        .isInverted = true // We expect this to NEVER be fulfilled on the buggy implementation!
+      MockURLProtocol.stopLoadingExpectation = stopLoadingExpectation
+
+      let localModel = model!
+
+      do {
+        let stream = try localModel.generateContentStream("test")
+        var iterator = stream.makeAsyncIterator()
+        // Read just one item, then stop (which drops the iterator and cancels the stream)
+        _ = try await iterator.next()
+      } catch {
+        XCTFail("Unexpected error: \(error)")
+      }
+
+      // Now that we've stopped listening to the stream, the internal task *should* be cancelled,
+      // which would instantly fulfill the expectation.
+      // Because the current implementation is buggy, it leaks the background task and never
+      // cancels the URLSession task. Therefore, `stopLoading` is never called, and the expectation
+      // times out (passing the test because it is inverted).
+
+      await fulfillment(of: [stopLoadingExpectation], timeout: 2.0)
     }
   }
 #endif // !os(watchOS)
