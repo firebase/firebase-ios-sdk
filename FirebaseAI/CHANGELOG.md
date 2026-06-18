@@ -1,3 +1,9 @@
+# Unreleased
+- [fixed] Fixed an issue where `generateContentStream` could hang indefinitely
+  on mid-stream network drops. (#16298)
+- [fixed] Fixed a resource leak where background network requests would
+  continue downloading if the stream consumer terminated early. (#16298)
+
 # 12.15.0
 - [changed] Made Firebase App Check a dependency of Firebase AI Logic to
   simplify App Check setup. (#16185)
