@@ -130,7 +130,8 @@ import XCTest
             "Stream should not finish successfully; it should throw a mid-stream network error."
           )
           throwsExpectation.fulfill()
-        } catch let urlError as URLError where urlError.code == .networkConnectionLost {
+        } catch let GenerateContentError.internalError(underlying: urlError as URLError)
+          where urlError.code == .networkConnectionLost {
           // This is the expected behavior!
           throwsExpectation.fulfill()
         } catch {
@@ -185,7 +186,8 @@ import XCTest
             "Stream should not finish successfully; it should throw a mid-stream network error."
           )
           throwsExpectation.fulfill()
-        } catch let urlError as URLError where urlError.code == .networkConnectionLost {
+        } catch let GenerateContentError.internalError(underlying: urlError as URLError)
+          where urlError.code == .networkConnectionLost {
           // This is the expected behavior!
           throwsExpectation.fulfill()
         } catch {
