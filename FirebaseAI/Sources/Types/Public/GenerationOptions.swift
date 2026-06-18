@@ -180,13 +180,18 @@
 
           // TODO: Remove `else` when Xcode 27 is the min. supported Xcode.
           #if compiler(>=6.4)
-            let initializer = FoundationModels.GenerationOptions
-              .init(samplingMode:temperature:maximumResponseTokens:)
+            return FoundationModels.GenerationOptions(
+              samplingMode: sampling?.samplingMode,
+              temperature: temperature,
+              maximumResponseTokens: maximumResponseTokens
+            )
           #else
-            let initializer = FoundationModels.GenerationOptions
-              .init(sampling:temperature:maximumResponseTokens:)
+            return FoundationModels.GenerationOptions(
+              sampling: sampling?.samplingMode,
+              temperature: temperature,
+              maximumResponseTokens: maximumResponseTokens
+            )
           #endif
-          return initializer(sampling?.samplingMode, temperature, maximumResponseTokens)
         }
       #endif // canImport(FoundationModels)
 
