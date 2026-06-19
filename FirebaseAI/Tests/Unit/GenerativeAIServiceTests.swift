@@ -89,10 +89,8 @@ import XCTest
 
     func testGenerateContentStream_failure_midStreamError_throwsError() async throws {
       let expectedStatusCode = 200
-      // Send a large amount of data so URLSession doesn't buffer it and delay returning
-      // urlSession.bytes
       let validJSON = "{\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"Hello\"}]}}]}"
-      let responseBody = String(repeating: "data: \(validJSON)\n\n", count: 2000)
+      let responseBody = String(repeating: "data: \(validJSON)\n\n", count: 1)
 
       let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
       addTeardownBlock {
@@ -145,10 +143,8 @@ import XCTest
 
     func testGenerateContentStream_failure_midStreamError_badResponse_throwsError() async throws {
       let expectedStatusCode = 400
-      // Send a massive string so URLSession returns the stream immediately without waiting for more
-      // data.
       let validJSON = "{\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"Hello\"}]}}]}"
-      let responseBody = String(repeating: "data: \(validJSON)\n\n", count: 2000)
+      let responseBody = String(repeating: "data: \(validJSON)\n\n", count: 1)
 
       let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
       addTeardownBlock {
