@@ -64,26 +64,25 @@ class MockURLProtocol: URLProtocol, @unchecked Sendable {
     let requestHandler = MockURLProtocol.requestHandlersQueue.removeFirst()
 
     Task {
-      let (response, stream) = try requestHandler(self.request)
-      client.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
-      if let stream = stream {
-        do {
+      do {
+        let (response, stream) = try requestHandler(self.request)
+        client.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
+        if let stream {
           for try await line in stream {
             guard let data = line.data(using: .utf8) else {
               fatalError("Failed to convert \"\(line)\" to UTF8 data.")
             }
             client.urlProtocol(self, didLoad: data)
             // Add a newline character since AsyncLineSequence strips them when reading line by
-            // line;
-            // without the following, the whole file is delivered as a single line.
+            // line; without the following, the whole file is delivered as a single line.
             client.urlProtocol(self, didLoad: "\n".data(using: .utf8)!)
           }
-        } catch {
-          client.urlProtocol(self, didFailWithError: error)
-          XCTFail("Unexpected failure reading lines from stream: \(error.localizedDescription)")
         }
+        client.urlProtocolDidFinishLoading(self)
+      } catch {
+        client.urlProtocol(self, didFailWithError: error)
+        XCTFail("MockURLProtocol failed with error: \(error.localizedDescription)")
       }
-      client.urlProtocolDidFinishLoading(self)
     }
   }
 
