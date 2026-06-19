@@ -90,7 +90,7 @@ import XCTest
     func testGenerateContentStream_failure_midStreamError_throwsError() async throws {
       let expectedStatusCode = 200
       let validJSON = "{\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"Hello\"}]}}]}"
-      let responseBody = String(repeating: "data: \(validJSON)\n\n", count: 1)
+      let responseBody = String(repeating: "data: \(validJSON)\n\n", count: 100)
 
       let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
       addTeardownBlock {
@@ -130,7 +130,7 @@ import XCTest
           throwsExpectation.fulfill()
         } catch let GenerateContentError.internalError(underlying: urlError as URLError)
           where urlError.code == .networkConnectionLost {
-          // This is the expected behavior!
+          // This is the expected behavior.
           throwsExpectation.fulfill()
         } catch {
           XCTFail("Stream threw unexpected error: \(error)")
@@ -144,7 +144,7 @@ import XCTest
     func testGenerateContentStream_failure_midStreamError_badResponse_throwsError() async throws {
       let expectedStatusCode = 400
       let validJSON = "{\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"Hello\"}]}}]}"
-      let responseBody = String(repeating: "data: \(validJSON)\n\n", count: 1)
+      let responseBody = String(repeating: "data: \(validJSON)\n\n", count: 100)
 
       let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
       addTeardownBlock {
@@ -184,7 +184,7 @@ import XCTest
           throwsExpectation.fulfill()
         } catch let GenerateContentError.internalError(underlying: urlError as URLError)
           where urlError.code == .networkConnectionLost {
-          // This is the expected behavior!
+          // This is the expected behavior.
           throwsExpectation.fulfill()
         } catch {
           XCTFail("Stream threw unexpected error: \(error)")
