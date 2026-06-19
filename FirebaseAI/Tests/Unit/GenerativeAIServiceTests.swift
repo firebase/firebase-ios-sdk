@@ -246,11 +246,8 @@ import XCTest
         XCTFail("Unexpected error: \(error)")
       }
 
-      // Now that we've stopped listening to the stream, the internal task *should* be cancelled,
-      // which would instantly fulfill the expectation.
-      // Because the current implementation is buggy, it leaks the background task and never
-      // cancels the URLSession task. Therefore, `stopLoading` is never called, and the expectation
-      // times out (passing the test because it is inverted).
+      // Dropping the iterator cancels the stream. This cancellation should propagate
+      // down to the underlying URLSession task, instantly calling stopLoading().
 
       await fulfillment(of: [stopLoadingExpectation], timeout: 2.0)
     }
