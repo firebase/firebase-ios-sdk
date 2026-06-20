@@ -76,24 +76,9 @@ class StorageUtils {
     guard let fileExtension else {
       return "application/octet-stream"
     }
-    // TODO: Remove `else` when min. supported macOS is 11.0+.
-    if #available(macOS 11.0, iOS 14.0, tvOS 14.0, *) {
-      guard let mimeType = UTType(filenameExtension: fileExtension)?.preferredMIMEType else {
-        return "application/octet-stream"
-      }
-      return mimeType
-    } else {
-      if let type = UTTypeCreatePreferredIdentifierForTag(
-        kUTTagClassFilenameExtension,
-        fileExtension as NSString,
-        nil
-      )?.takeRetainedValue() {
-        if let mimeType = UTTypeCopyPreferredTagWithClass(type, kUTTagClassMIMEType)?
-          .takeRetainedValue() {
-          return mimeType as String
-        }
-      }
+    guard let mimeType = UTType(filenameExtension: fileExtension)?.preferredMIMEType else {
       return "application/octet-stream"
     }
+    return mimeType
   }
 }
