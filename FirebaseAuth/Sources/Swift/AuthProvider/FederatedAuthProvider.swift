@@ -24,7 +24,6 @@ import Foundation
     /// - Parameter completionHandler: Optionally; a block which is invoked
     /// asynchronously on the main thread when the mobile web flow is
     /// completed.
-    @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
     @objc(getCredentialWithUIDelegate:completion:)
     func credential(with uiDelegate: AuthUIDelegate?) async throws -> AuthCredential
   #endif
