@@ -58,7 +58,7 @@
  * last run of the app, this promise is immediately resolved so that the upload of any nonfatal
  * events can proceed.
  */
-- (void)registerMetricKitManager API_AVAILABLE(ios(14)) {
+- (void)registerMetricKitManager {
   [[MXMetricManager sharedManager] addSubscriber:self];
   self.metricKitDataAvailable = [FBLPromise pendingPromise];
 
@@ -97,8 +97,7 @@
  * immediately after the event. Since we send nonfatal events on the next run of the app, we can
  * write out the information but won't need to resolve the promise.
  */
-- (void)didReceiveDiagnosticPayloads:(NSArray<MXDiagnosticPayload *> *)payloads
-    API_AVAILABLE(ios(14)) {
+- (void)didReceiveDiagnosticPayloads:(NSArray<MXDiagnosticPayload *> *)payloads {
   BOOL processedFatalPayload = NO;
   for (MXDiagnosticPayload *diagnosticPayload in payloads) {
     if (!diagnosticPayload) {
@@ -121,7 +120,7 @@
 
 // Helper method to write a MetricKit payload's data to file.
 - (BOOL)processMetricKitPayload:(MXDiagnosticPayload *)diagnosticPayload
-                 skipCrashEvent:(BOOL)skipCrashEvent API_AVAILABLE(ios(14)) {
+                 skipCrashEvent:(BOOL)skipCrashEvent {
   BOOL writeFailed = NO;
 
   // Write out each type of diagnostic if it exists in the report
@@ -352,7 +351,7 @@
  * Required for MXMetricManager subscribers. Since we aren't currently collecting any MetricKit
  * metrics, this method is left empty.
  */
-- (void)didReceiveMetricPayloads:(NSArray<MXMetricPayload *> *)payloads API_AVAILABLE(ios(13)) {
+- (void)didReceiveMetricPayloads:(NSArray<MXMetricPayload *> *)payloads {
 }
 
 - (FBLPromise *)waitForMetricKitDataAvailable {
@@ -366,7 +365,7 @@
 /*
  * Helper method to convert threads for a MetricKit fatal diagnostic event to an array of threads.
  */
-- (NSArray *)convertThreadsToArray:(MXCallStackTree *)mxCallStackTree API_AVAILABLE(ios(14)) {
+- (NSArray *)convertThreadsToArray:(MXCallStackTree *)mxCallStackTree {
   FIRCLSCallStackTree *tree = [[FIRCLSCallStackTree alloc] initWithMXCallStackTree:mxCallStackTree];
   return [tree getArrayRepresentation];
 }
@@ -374,8 +373,7 @@
 /*
  * Helper method to convert threads for a MetricKit nonfatal diagnostic event to an array of frames.
  */
-- (NSArray *)convertThreadsToArrayForNonfatal:(MXCallStackTree *)mxCallStackTree
-    API_AVAILABLE(ios(14)) {
+- (NSArray *)convertThreadsToArrayForNonfatal:(MXCallStackTree *)mxCallStackTree {
   FIRCLSCallStackTree *tree = [[FIRCLSCallStackTree alloc] initWithMXCallStackTree:mxCallStackTree];
   return [tree getFramesOfBlamedThread];
 }
@@ -384,7 +382,7 @@
  * Helper method to convert metadata for a MetricKit diagnostic event to a dictionary. MXMetadata
  * has a dictionaryRepresentation method but it is deprecated.
  */
-- (NSDictionary *)convertMetadataToDictionary:(MXMetaData *)metadata API_AVAILABLE(ios(14)) {
+- (NSDictionary *)convertMetadataToDictionary:(MXMetaData *)metadata {
   NSError *error = nil;
   NSDictionary *metadataDictionary =
       [NSJSONSerialization JSONObjectWithData:[metadata JSONRepresentation] options:0 error:&error];
