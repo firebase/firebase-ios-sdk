@@ -134,9 +134,7 @@ typedef NS_ENUM(NSUInteger, FIRMessagingContextManagerMessageType) {
   return YES;
 }
 
-+ (void)scheduleiOS10LocalNotificationForMessage:(NSDictionary *)message
-                                          atDate:(NSDate *)date
-    API_AVAILABLE(macosx(10.14), ios(10.0), watchos(3.0), tvos(10.0)) {
++ (void)scheduleiOS10LocalNotificationForMessage:(NSDictionary *)message atDate:(NSDate *)date {
   NSCalendar *calendar = [NSCalendar currentCalendar];
   NSCalendarUnit unit = NSCalendarUnitYear | NSCalendarUnitMonth | NSCalendarUnitDay |
                         NSCalendarUnitHour | NSCalendarUnitMinute | NSCalendarUnitSecond;
@@ -164,8 +162,7 @@ typedef NS_ENUM(NSUInteger, FIRMessagingContextManagerMessageType) {
        }];
 }
 
-+ (UNMutableNotificationContent *)contentFromContextualMessage:(NSDictionary *)message
-    API_AVAILABLE(macosx(10.14), ios(10.0), watchos(3.0), tvos(10.0)) {
++ (UNMutableNotificationContent *)contentFromContextualMessage:(NSDictionary *)message {
   UNMutableNotificationContent *content = [[UNMutableNotificationContent alloc] init];
   NSDictionary *apsDictionary = message;
 
@@ -206,10 +203,7 @@ typedef NS_ENUM(NSUInteger, FIRMessagingContextManagerMessageType) {
 }
 
 + (void)scheduleLocalNotificationForMessage:(NSDictionary *)message atDate:(NSDate *)date {
-  if (@available(macOS 10.14, *)) {
-    [self scheduleiOS10LocalNotificationForMessage:message atDate:date];
-    return;
-  }
+  [self scheduleiOS10LocalNotificationForMessage:message atDate:date];
 }
 
 + (NSDictionary *)parseDataFromMessage:(NSDictionary *)message {

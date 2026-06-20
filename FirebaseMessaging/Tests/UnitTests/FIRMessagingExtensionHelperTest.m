@@ -23,7 +23,6 @@
 #import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessaging.h"
 #import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessagingExtensionHelper.h"
 
-API_AVAILABLE(macos(10.14), ios(10.0), watchos(3.0))
 typedef void (^FIRMessagingContentHandler)(UNNotificationContent *content);
 
 #if !TARGET_OS_TV
@@ -52,14 +51,10 @@ static NSString *const kValidImageURL =
 
 - (void)setUp {
   [super setUp];
-  if (@available(macOS 10.14, iOS 10.0, watchos 3.0, *)) {
-    FIRMessagingExtensionHelper *extensionHelper = [FIRMessaging extensionHelper];
-    _mockExtensionHelper = OCMPartialMock(extensionHelper);
-    _mockUtilClass = OCMClassMock([GULAppEnvironmentUtil class]);
-    _mockURLResponse = OCMClassMock([NSURLResponse class]);
-  } else {
-    // Fallback on earlier versions
-  }
+  FIRMessagingExtensionHelper *extensionHelper = [FIRMessaging extensionHelper];
+  _mockExtensionHelper = OCMPartialMock(extensionHelper);
+  _mockUtilClass = OCMClassMock([GULAppEnvironmentUtil class]);
+  _mockURLResponse = OCMClassMock([NSURLResponse class]);
 }
 
 - (void)tearDown {
@@ -71,90 +66,77 @@ static NSString *const kValidImageURL =
 #ifdef COCOAPODS
 // This test requires internet access.
 - (void)testModifyNotificationWithValidPayloadData {
-  if (@available(macOS 10.14, iOS 10.0, watchos 3.0, *)) {
-    XCTestExpectation *validPayloadExpectation =
-        [self expectationWithDescription:@"Test payload is valid."];
-    UNMutableNotificationContent *content = [[UNMutableNotificationContent alloc] init];
-    content.userInfo =
-        @{kFCMPayloadOptionsName : @{kFCMPayloadOptionsImageURLName : kValidImageURL}};
-    FIRMessagingContentHandler handler = ^(UNNotificationContent *content) {
-      [validPayloadExpectation fulfill];
-    };
-    [_mockExtensionHelper populateNotificationContent:content withContentHandler:handler];
-    OCMVerify([_mockExtensionHelper loadAttachmentForURL:[OCMArg any]
-                                       completionHandler:[OCMArg any]]);
-    // Wait longer to accommodate increased network latency when running on CI.
-    [self waitForExpectationsWithTimeout:5.0 handler:nil];
-  }
+  XCTestExpectation *validPayloadExpectation =
+      [self expectationWithDescription:@"Test payload is valid."];
+  UNMutableNotificationContent *content = [[UNMutableNotificationContent alloc] init];
+  content.userInfo = @{kFCMPayloadOptionsName : @{kFCMPayloadOptionsImageURLName : kValidImageURL}};
+  FIRMessagingContentHandler handler = ^(UNNotificationContent *content) {
+    [validPayloadExpectation fulfill];
+  };
+  [_mockExtensionHelper populateNotificationContent:content withContentHandler:handler];
+  OCMVerify([_mockExtensionHelper loadAttachmentForURL:[OCMArg any]
+                                     completionHandler:[OCMArg any]]);
+  // Wait longer to accommodate increased network latency when running on CI.
+  [self waitForExpectationsWithTimeout:5.0 handler:nil];
 }
 #endif  // COCOAPODS
 
 - (void)testModifyNotificationWithInvalidPayloadData {
-  if (@available(macOS 10.14, iOS 10.0, watchos 3.0, *)) {
-    XCTestExpectation *validPayloadExpectation =
-        [self expectationWithDescription:@"Test payload is valid."];
-    UNMutableNotificationContent *content = [[UNMutableNotificationContent alloc] init];
-    content.userInfo =
-        @{kFCMPayloadOptionsName : @{kFCMPayloadOptionsImageURLName : @"a invalid URL"}};
-    FIRMessagingContentHandler handler = ^(UNNotificationContent *content) {
-      [validPayloadExpectation fulfill];
-    };
-    [_mockExtensionHelper populateNotificationContent:content withContentHandler:handler];
+  XCTestExpectation *validPayloadExpectation =
+      [self expectationWithDescription:@"Test payload is valid."];
+  UNMutableNotificationContent *content = [[UNMutableNotificationContent alloc] init];
+  content.userInfo =
+      @{kFCMPayloadOptionsName : @{kFCMPayloadOptionsImageURLName : @"a invalid URL"}};
+  FIRMessagingContentHandler handler = ^(UNNotificationContent *content) {
+    [validPayloadExpectation fulfill];
+  };
+  [_mockExtensionHelper populateNotificationContent:content withContentHandler:handler];
 
-    OCMReject([_mockExtensionHelper loadAttachmentForURL:[OCMArg any]
-                                       completionHandler:[OCMArg any]]);
-    [self waitForExpectationsWithTimeout:1.0 handler:nil];
-  }
+  OCMReject([_mockExtensionHelper loadAttachmentForURL:[OCMArg any]
+                                     completionHandler:[OCMArg any]]);
+  [self waitForExpectationsWithTimeout:1.0 handler:nil];
 }
 
 - (void)testModifyNotificationWithEmptyPayloadData {
-  if (@available(macOS 10.14, iOS 10.0, watchos 3.0, *)) {
-    XCTestExpectation *handlerCalledExpectation =
-        [self expectationWithDescription:@"Content handler was called."];
-    UNMutableNotificationContent *content = [[UNMutableNotificationContent alloc] init];
-    // Simulate empty payload data relevant to image loading.
-    content.userInfo = @{kFCMPayloadOptionsName : @{}};
-    FIRMessagingContentHandler handler = ^(UNNotificationContent *content) {
-      [handlerCalledExpectation fulfill];
-    };
-    [_mockExtensionHelper populateNotificationContent:content withContentHandler:handler];
-    OCMReject([_mockExtensionHelper loadAttachmentForURL:[OCMArg any]
-                                       completionHandler:[OCMArg any]]);
-    [self waitForExpectationsWithTimeout:1.0 handler:nil];
-  }
+  XCTestExpectation *handlerCalledExpectation =
+      [self expectationWithDescription:@"Content handler was called."];
+  UNMutableNotificationContent *content = [[UNMutableNotificationContent alloc] init];
+  // Simulate empty payload data relevant to image loading.
+  content.userInfo = @{kFCMPayloadOptionsName : @{}};
+  FIRMessagingContentHandler handler = ^(UNNotificationContent *content) {
+    [handlerCalledExpectation fulfill];
+  };
+  [_mockExtensionHelper populateNotificationContent:content withContentHandler:handler];
+  OCMReject([_mockExtensionHelper loadAttachmentForURL:[OCMArg any]
+                                     completionHandler:[OCMArg any]]);
+  [self waitForExpectationsWithTimeout:1.0 handler:nil];
 }
 
 - (void)testModifyNotificationWithValidPayloadDataNoMimeType {
-  if (@available(macOS 10.14, iOS 10.0, *)) {
-    NSString *const kValidTestURL = @"test.jpg";
-    NSString *const kValidTestExtension = @".jpg";
-    OCMStub([_mockURLResponse suggestedFilename]).andReturn(kValidTestURL);
-    NSString *const extension = [_mockExtensionHelper fileExtensionForResponse:_mockURLResponse];
-    XCTAssertTrue([extension isEqualToString:kValidTestExtension]);
-  }
+  NSString *const kValidTestURL = @"test.jpg";
+  NSString *const kValidTestExtension = @".jpg";
+  OCMStub([_mockURLResponse suggestedFilename]).andReturn(kValidTestURL);
+  NSString *const extension = [_mockExtensionHelper fileExtensionForResponse:_mockURLResponse];
+  XCTAssertTrue([extension isEqualToString:kValidTestExtension]);
 }
 
 - (void)testModifyNotificationWithInvalidPayloadDataInvalidMimeType {
-  if (@available(macOS 10.14, iOS 10.0, *)) {
-    NSString *const kInvalidTestURL = @"test";
-    NSString *const kInvalidTestExtension = @"";
-    OCMStub([_mockURLResponse suggestedFilename]).andReturn(kInvalidTestURL);
-    OCMStub([_mockURLResponse MIMEType]).andReturn(nil);
-    NSString *const extension = [_mockExtensionHelper fileExtensionForResponse:_mockURLResponse];
-    XCTAssertTrue([extension isEqualToString:kInvalidTestExtension]);
-  }
+  NSString *const kInvalidTestURL = @"test";
+  NSString *const kInvalidTestExtension = @"";
+  OCMStub([_mockURLResponse suggestedFilename]).andReturn(kInvalidTestURL);
+  OCMStub([_mockURLResponse MIMEType]).andReturn(nil);
+  NSString *const extension = [_mockExtensionHelper fileExtensionForResponse:_mockURLResponse];
+  XCTAssertTrue([extension isEqualToString:kInvalidTestExtension]);
 }
 
 - (void)testModifyNotificationWithInvalidPayloadDataValidMimeType {
-  if (@available(macOS 10.14, iOS 10.0, *)) {
-    NSString *const kValidMIMETypeTestURL = @"test";
-    NSString *const kValidMIMETypeTestMIMEType = @"image/jpeg";
-    NSString *const kValidMIMETypeTestExtension = @".jpeg";
-    OCMStub([_mockURLResponse suggestedFilename]).andReturn(kValidMIMETypeTestURL);
-    OCMStub([_mockURLResponse MIMEType]).andReturn(kValidMIMETypeTestMIMEType);
-    NSString *const extension = [_mockExtensionHelper fileExtensionForResponse:_mockURLResponse];
-    XCTAssertTrue([extension isEqualToString:kValidMIMETypeTestExtension]);
-  }
+  NSString *const kValidMIMETypeTestURL = @"test";
+  NSString *const kValidMIMETypeTestMIMEType = @"image/jpeg";
+  NSString *const kValidMIMETypeTestExtension = @".jpeg";
+  OCMStub([_mockURLResponse suggestedFilename]).andReturn(kValidMIMETypeTestURL);
+  OCMStub([_mockURLResponse MIMEType]).andReturn(kValidMIMETypeTestMIMEType);
+  NSString *const extension = [_mockExtensionHelper fileExtensionForResponse:_mockURLResponse];
+  XCTAssertTrue([extension isEqualToString:kValidMIMETypeTestExtension]);
 }
 
 - (void)testDeliveryMetricsLoggingWithEmptyPayload {
