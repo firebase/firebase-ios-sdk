@@ -29,7 +29,7 @@
 ///          .toScalarExpression().as("averageRating")
 ///   ])
 /// ```
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+
 public class Subcollection: Pipeline, @unchecked Sendable {
   /// Initializes a Subcollection Pipeline centered on a target path.
   ///

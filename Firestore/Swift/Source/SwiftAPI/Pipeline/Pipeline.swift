@@ -71,7 +71,7 @@ import Foundation
 /// print("Error in example 3: \(error)")
 /// }
 /// ```
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+
 public class Pipeline: @unchecked Sendable {
   private(set) var stages: [Stage]
   let db: Firestore?

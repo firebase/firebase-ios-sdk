@@ -109,7 +109,7 @@ public extension DocumentReference {
   ///     (`Source.cache`), the server only (`Source.server`), or to attempt the
   ///     server and fall back to the cache (`Source.default`).
   /// - Returns: This instance of the supplied `Decodable` type `T`.
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+
   func getDocument<T: Decodable>(as type: T.Type,
                                  with serverTimestampBehavior: ServerTimestampBehavior =
                                    .none,

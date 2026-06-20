@@ -21,7 +21,7 @@ import FirebaseCore
 import FirebaseFirestore
 
 #if swift(>=5.5.2)
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+
   class DatabaseTests: FSTIntegrationTestCase {
     func testCanStillUseDisablePersistenceSettings() async throws {
       let settings = db.settings
