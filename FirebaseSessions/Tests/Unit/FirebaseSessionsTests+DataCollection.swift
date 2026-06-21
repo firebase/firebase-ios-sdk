@@ -81,7 +81,7 @@ final class FirebaseSessionsTestsBase_DataCollection: FirebaseSessionsTestsBase 
 
   // MARK: - Test Data Collection
 
-  func test_subscriberWithDataCollectionEnabled_logsSessionEvent() {
+  @MainActor func test_subscriberWithDataCollectionEnabled_logsSessionEvent() {
     runSessionsSDK(
       subscriberSDKs: [
         mockCrashlyticsSubscriber,
@@ -105,7 +105,7 @@ final class FirebaseSessionsTestsBase_DataCollection: FirebaseSessionsTestsBase 
     )
   }
 
-  func test_subscribersSomeDataCollectionDisabled_logsSessionEvent() {
+  @MainActor func test_subscribersSomeDataCollectionDisabled_logsSessionEvent() {
     runSessionsSDK(
       subscriberSDKs: [
         mockCrashlyticsSubscriber,
@@ -132,7 +132,7 @@ final class FirebaseSessionsTestsBase_DataCollection: FirebaseSessionsTestsBase 
     )
   }
 
-  func test_subscribersAllDataCollectionDisabled_doesNotLogSessionEvent() {
+  @MainActor func test_subscribersAllDataCollectionDisabled_doesNotLogSessionEvent() {
     runSessionsSDK(
       subscriberSDKs: [
         mockCrashlyticsSubscriber,
@@ -159,7 +159,7 @@ final class FirebaseSessionsTestsBase_DataCollection: FirebaseSessionsTestsBase 
     )
   }
 
-  func test_defaultSamplingRate_isSetInProto() {
+  @MainActor func test_defaultSamplingRate_isSetInProto() {
     runSessionsSDK(
       subscriberSDKs: [
         mockCrashlyticsSubscriber,

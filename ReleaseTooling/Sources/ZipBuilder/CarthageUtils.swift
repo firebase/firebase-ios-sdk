@@ -319,8 +319,6 @@ extension CarthageUtils {
     var jsonFileName: String
     if product == "GoogleSignIn" {
       jsonFileName = "FirebaseGoogleSignIn"
-    } else if product == "Google-Mobile-Ads-SDK" {
-      jsonFileName = "FirebaseAdMob"
     } else {
       jsonFileName = product
     }

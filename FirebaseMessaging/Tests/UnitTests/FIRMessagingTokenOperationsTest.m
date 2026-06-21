@@ -94,7 +94,16 @@ static NSString *kRegistrationToken = @"token-12345";
 
 - (void)log {
   // This API should not be used by the below tests because the Messaging
-  // SDK does not log heartbeats in it's networking context.
+  // SDK does not log heartbeats in its networking context.
+  [self doesNotRecognizeSelector:_cmd];
+}
+
+- (NSString *_Nullable)headerValue {
+  return @"unimplemented";
+}
+
+- (void)asyncHeaderValueWithCompletionHandler:
+    (nonnull void (^)(NSString *_Nullable))completionHandler {
   [self doesNotRecognizeSelector:_cmd];
 }
 
@@ -176,7 +185,7 @@ static NSString *kRegistrationToken = @"token-12345";
 
   [FIRURLSessionOCMockStub
       stubURLSessionDataTaskWithResponse:expectedResponse
-                                    body:[self dataForResponseWithValidToken:YES]
+                                    body:[self dataForResponseWithValidToken:@""]
                                    error:nil
                           URLSessionMock:self.URLSessionMock
                   requestValidationBlock:^BOOL(NSURLRequest *_Nonnull sentRequest) {
@@ -306,7 +315,7 @@ static NSString *kRegistrationToken = @"token-12345";
 
   [FIRURLSessionOCMockStub
       stubURLSessionDataTaskWithResponse:expectedResponse
-                                    body:[self dataForResponseWithValidToken:YES]
+                                    body:[self dataForResponseWithValidToken:@""]
                                    error:nil
                           URLSessionMock:self.URLSessionMock
                   requestValidationBlock:^BOOL(NSURLRequest *_Nonnull sentRequest) {
@@ -359,7 +368,7 @@ static NSString *kRegistrationToken = @"token-12345";
 
   [FIRURLSessionOCMockStub
       stubURLSessionDataTaskWithResponse:expectedResponse
-                                    body:[self dataForResponseWithValidToken:NO]
+                                    body:[self dataForResponseWithValidToken:@"RST"]
                                    error:nil
                           URLSessionMock:self.URLSessionMock
                   requestValidationBlock:^BOOL(NSURLRequest *_Nonnull sentRequest) {
@@ -371,6 +380,55 @@ static NSString *kRegistrationToken = @"token-12345";
     XCTAssertEqual(result, FIRMessagingTokenOperationError);
     XCTAssertNotNil(error);
     XCTAssertEqual(error.code, kFIRMessagingErrorCodeInvalidIdentity);
+
+    [shouldResetIdentityExpectation fulfill];
+  }];
+
+  [operation start];
+
+  [self waitForExpectationsWithTimeout:0.25
+                               handler:^(NSError *_Nullable error) {
+                                 XCTAssertNil(error.localizedDescription);
+                               }];
+}
+
+- (void)testTooManyRegistrationsError {
+  XCTestExpectation *shouldResetIdentityExpectation =
+      [self expectationWithDescription:@"When server returns TOO_MANY_REGISTRATIONS, the client "
+                                       @"should report the failure reason."];
+  int64_t tenHoursAgo = FIRMessagingCurrentTimestampInMilliseconds() - 10 * 60 * 60 * 1000;
+  FIRMessagingCheckinPreferences *checkinPreferences =
+      [self setCheckinPreferencesWithLastCheckinTime:tenHoursAgo];
+
+  FIRMessagingTokenFetchOperation *operation = [[FIRMessagingTokenFetchOperation alloc]
+      initWithAuthorizedEntity:kAuthorizedEntity
+                         scope:kScope
+                       options:nil
+            checkinPreferences:checkinPreferences
+                    instanceID:self.instanceID
+               heartbeatLogger:[[FIRHeartbeatLoggerFake alloc] init]];
+  NSURL *expectedRequestURL = [NSURL URLWithString:FIRMessagingTokenRegisterServer()];
+  NSHTTPURLResponse *expectedResponse = [[NSHTTPURLResponse alloc] initWithURL:expectedRequestURL
+                                                                    statusCode:200
+                                                                   HTTPVersion:@"HTTP/1.1"
+                                                                  headerFields:nil];
+
+  [FIRURLSessionOCMockStub
+      stubURLSessionDataTaskWithResponse:expectedResponse
+                                    body:[self dataForResponseWithValidToken:
+                                                   @"TOO_MANY_REGISTRATIONS"]
+                                   error:nil
+                          URLSessionMock:self.URLSessionMock
+                  requestValidationBlock:^BOOL(NSURLRequest *_Nonnull sentRequest) {
+                    return YES;
+                  }];
+
+  [operation addCompletionHandler:^(FIRMessagingTokenOperationResult result,
+                                    NSString *_Nullable token, NSError *_Nullable error) {
+    XCTAssertEqual(result, FIRMessagingTokenOperationError);
+    XCTAssertNotNil(error);
+    XCTAssertEqual(error.code, kFIRMessagingErrorCodeUnknown);
+    XCTAssertEqualObjects(error.localizedFailureReason, @"TOO_MANY_REGISTRATIONS");
 
     [shouldResetIdentityExpectation fulfill];
   }];
@@ -438,7 +496,7 @@ static NSString *kRegistrationToken = @"token-12345";
 
   [FIRURLSessionOCMockStub
       stubURLSessionDataTaskWithResponse:expectedResponse
-                                    body:[self dataForResponseWithValidToken:NO]
+                                    body:[self dataForResponseWithValidToken:@"RST"]
                                    error:nil
                           URLSessionMock:self.URLSessionMock
                   requestValidationBlock:^BOOL(NSURLRequest *_Nonnull sentRequest) {
@@ -462,12 +520,12 @@ static NSString *kRegistrationToken = @"token-12345";
                                }];
 }
 
-- (NSData *)dataForResponseWithValidToken:(BOOL)validToken {
+- (NSData *)dataForResponseWithValidToken:(NSString *)errorCode {
   NSString *response;
-  if (validToken) {
+  if (errorCode.length == 0) {
     response = [NSString stringWithFormat:@"token=%@", kRegistrationToken];
   } else {
-    response = @"Error=RST";
+    response = [NSString stringWithFormat:@"Error=%@", errorCode];
   }
   return [response dataUsingEncoding:NSUTF8StringEncoding];
 }

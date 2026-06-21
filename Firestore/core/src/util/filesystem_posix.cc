@@ -132,7 +132,7 @@ Path Filesystem::TempDir() {
 
 #if !__APPLE__
 Status Filesystem::IsDirectory(const Path& path) {
-  struct stat buffer {};
+  struct stat buffer{};
   if (::stat(path.c_str(), &buffer)) {
     if (errno == ENOENT) {
       // Expected common error case.
@@ -168,7 +168,7 @@ Status Filesystem::IsDirectory(const Path& path) {
 }
 
 StatusOr<int64_t> Filesystem::FileSize(const Path& path) {
-  struct stat st {};
+  struct stat st{};
   if (::stat(path.c_str(), &st) == 0) {
     return st.st_size;
   } else {

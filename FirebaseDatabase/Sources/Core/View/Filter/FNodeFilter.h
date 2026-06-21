@@ -59,7 +59,7 @@
                          forNode:(FIndexedNode *)oldSnap;
 
 /**
- * Returns true if children might be filtered due to query critiera
+ * Returns true if children might be filtered due to query criteria
  */
 - (BOOL)filtersNodes;
 

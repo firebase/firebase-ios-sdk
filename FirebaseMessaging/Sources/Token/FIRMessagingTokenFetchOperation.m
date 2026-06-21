@@ -108,7 +108,7 @@ NSString *const kFIRMessagingFirebaseHeartbeatKey = @"X-firebase-client-log-type
         FIRMessaging_STRONGIFY(self);
         [self handleResponseWithData:data response:response error:error];
       };
-  NSURLSessionConfiguration *config = NSURLSessionConfiguration.defaultSessionConfiguration;
+  NSURLSessionConfiguration *config = NSURLSessionConfiguration.ephemeralSessionConfiguration;
   config.timeoutIntervalForResource = 60.0f;  // 1 minute
   NSURLSession *session = [NSURLSession sessionWithConfiguration:config];
   self.dataTask = [session dataTaskWithRequest:request completionHandler:requestHandler];
@@ -172,6 +172,11 @@ NSString *const kFIRMessagingFirebaseHeartbeatKey = @"X-firebase-client-log-type
       FIRMessagingLoggerDebug(kFIRMessagingMessageCodeInternal001, @"%@", failureReason);
       responseError = [NSError messagingErrorWithCode:kFIRMessagingErrorCodeInvalidIdentity
                                         failureReason:failureReason];
+    } else {
+      FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTokenFetchOperationRequestError,
+                              @"Token fetch got an error from server: %@", errorValue);
+      responseError = [NSError messagingErrorWithCode:kFIRMessagingErrorCodeUnknown
+                                        failureReason:errorValue];
     }
   }
   if (!responseError) {

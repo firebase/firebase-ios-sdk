@@ -182,7 +182,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
                                      tokenError:(nullable NSError *)tokenError
                                        identity:(nullable NSString *)identity
                                   identityError:(nullable NSError *)identityError {
-  // Mock the installations retreival method.
+  // Mock the installations retrieval method.
   _installationsMock = OCMClassMock([FIRInstallations class]);
 
   id installationIDCompletionArg =

@@ -1,3 +1,59 @@
+# Unreleased
+- [fixed] Fixed a crash when Firebase Performance instruments NSProxy NSURLSession delegates
+  that report a wrapped object's class. (#16254)
+
+# 12.14.0
+- [fixed] Fixed a race condition crash in `FPRConfigurations` by making
+  `remoteConfigFlags` atomic and explicitly nullable. (#16144)
+- [added] Added an `Info.plist` array key
+  `firebase_performance_swizzle_denylist` listing class names to skip when
+  registering swizzling instrumentors. (#8277)
+
+# 12.13.0
+- [fixed] Fixed NSURLSession delegate instrumentation for NSProxy delegates. (#14478)
+- [fixed] Address crash by deferring class disposal in FPRObjectSwizzler. (#14473)
+- [fixed] Prevent race condition crashes in FPRScreenTraceTracker by replacing NSMapTable with
+  thread-safe NSMutableDictionary and locking.
+
+# 12.12.0
+- [fixed] Fix app_start trace not firing in SwiftUI apps using @UIApplicationDelegateAdaptor. (#15802)
+
+# 12.10.0
+- [fixed] Fix a race condition by replacing `mstats()` with `malloc_zone_statistics()`. (#15501)
+- [fixed] Fixed a deadlock in Firebase Sessions where the main thread could
+  block waiting for a lock held by a background thread during settings
+  updates. (#15394)
+
+# 12.8.0
+- [fixed] Use UIScreen.maximumFramesPerSecond for dynamic slow frame threshold. (#10220)
+
+# 12.5.0
+- [fixed] Prevent race condition crash in FPRTraceBackgroundActivityTracker. (#14273)
+- [fixed] Fix app start trace outliers from network delays. (#10733)
+
+# 12.3.0
+- [fixed] Add missing nanopb dependency to fix SwiftPM builds when building
+  dynamically linked libraries. (#15276)
+
+# 11.6.0
+- [fixed] Fix a crash related to registering for notifications when the app is between foreground or background states. (#13174)
+
+# 11.5.0
+- [fixed] Replaced usage of the deprecated `UIApplication.keyWindow` property
+  with `UIWindow.isKeyWindow`; this API is also available on visionOS. Note that
+  this fix will not be in the 11.5.0 zip and Carthage distributions, but will be
+  included from 11.6.0 onwards. (#14048)
+
+# 11.4.0
+- [fixed] Fix a crash related to thread sanitization on FPRNetworkTrace class (#13581).
+
+# 10.28.0
+- Fix Crash from InstrumentUploadTaskWithStreamedRequest (#12983).
+- Replace SystemConfiguration with a more recent network monitoring API by Apple (#13079).
+
+# 10.25.0
+- [changed] Removed usages of user defaults API to eliminate required reason impact.
+
 # 10.18.0
 - [fixed] Fix a Xcode 15.1 build warning (#12027).
 
@@ -89,7 +145,7 @@
 
 # 7.0.0
 - Fix issue related to crashes on specific kind of network requests #6713.
-- Fixed issue related to race condition on Firebase Remote Config initializaton #6287.
+- Fixed issue related to race condition on Firebase Remote Config initialization #6287.
 - Update Firebase dependencies to be latest and greatest.
 
 # 3.3.1

@@ -409,7 +409,7 @@ static void FIRCLSBinaryImageChanged(bool added,
   // fill imageDetails fields using slice & vmaddr_slide
   FIRCLSBinaryImageFillInImageDetails(&imageDetails);
 
-  FIRCLSImageChange* change = malloc(sizeof(FIRCLSImageChange));
+  FIRCLSImageChange* change = calloc(1, sizeof(FIRCLSImageChange));
   if (!change) return;
   change->added = added;
   change->details = imageDetails;
@@ -510,7 +510,7 @@ static void FIRCLSBinaryImageRecordLibraryFrameworkInfo(FIRCLSFile* file, const 
 
   // Because this function is so expensive, we've decided to omit this info for all Apple-supplied
   // frameworks. This really isn't that bad, because we can know their info ahead of time (within a
-  // small margin of error). With this implemenation, we will still record this info for any
+  // small margin of error). With this implementation, we will still record this info for any
   // user-built framework, which in the end is the most important thing.
   if (strncmp(path, "/System", 7) == 0) {
     return;

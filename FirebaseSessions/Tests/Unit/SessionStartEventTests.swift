@@ -20,9 +20,9 @@ import XCTest
 #endif // SWIFT_PACKAGE
 
 #if SWIFT_PACKAGE
-  @_implementationOnly import GoogleUtilities_Environment
+  internal import GoogleUtilities_Environment
 #else
-  @_implementationOnly import GoogleUtilities
+  internal import GoogleUtilities
 #endif // SWIFT_PACKAGE
 
 @testable import FirebaseSessions
@@ -216,7 +216,7 @@ class SessionStartEventTests: XCTestCase {
     }
   }
 
-  func test_newtworkInfo_onlyPresentWhenPerformanceInstalled() {
+  func test_networkInfo_onlyPresentWhenPerformanceInstalled() {
     let mockNetworkInfo = MockNetworkInfo()
     mockNetworkInfo.networkType = .mobile
     // Mobile Subtypes are always empty on non-iOS platforms, and

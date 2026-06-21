@@ -39,10 +39,6 @@
                                                     userInfo:@{name : value}];
 }
 
-- (void)setAnalyticsCollectionEnabled:(BOOL)analyticsCollectionEnabled {
-  [self setAnalyticsCollectionEnabled:analyticsCollectionEnabled persistSetting:YES];
-}
-
 - (void)setAnalyticsCollectionEnabled:(BOOL)analyticsCollectionEnabled
                        persistSetting:(BOOL)shouldPersist {
   // Persist the measurementEnabledState. Use FIRAnalyticsEnabledState values instead of YES/NO.

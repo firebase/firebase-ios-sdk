@@ -131,7 +131,7 @@ static NSString *trackedQueryKeysKey(NSUInteger trackedQueryId, NSString *key) {
                    error);
         }
     } else if ([oldVersion isEqualToString:kFPersistenceVersion]) {
-        // Everythings fine no need for migration
+        // Everything's fine, no need for migration
     } else if ([oldVersion length] == 0) {
         FFWarn(@"I-RDB076036",
                @"Version file empty. Assuming database version 1.");
@@ -275,8 +275,7 @@ static NSString *trackedQueryKeysKey(NSUInteger trackedQueryId, NSString *key) {
 }
 
 + (NSString *)firebaseDir {
-#if TARGET_OS_IOS || TARGET_OS_WATCH ||                                        \
-    (defined(TARGET_OS_VISION) && TARGET_OS_VISION)
+#if TARGET_OS_IOS || TARGET_OS_WATCH || TARGET_OS_VISION
     NSArray *dirPaths = NSSearchPathForDirectoriesInDomains(
         NSDocumentDirectory, NSUserDomainMask, YES);
     NSString *documentsDir = [dirPaths objectAtIndex:0];
@@ -978,17 +977,40 @@ static NSString *trackedQueryKeysKey(NSUInteger trackedQueryId, NSString *key) {
 }
 
 + (void)ensureDir:(NSString *)path markAsDoNotBackup:(BOOL)markAsDoNotBackup {
+    NSFileManager *fileManager = [NSFileManager defaultManager];
     NSError *error;
-    BOOL success =
-        [[NSFileManager defaultManager] createDirectoryAtPath:path
-                                  withIntermediateDirectories:YES
-                                                   attributes:nil
-                                                        error:&error];
+
+    // Create the directory if it doesn't exist. This call is a no-op if it
+    // already exists.
+    BOOL success = [fileManager createDirectoryAtPath:path
+                          withIntermediateDirectories:YES
+                                           attributes:nil
+                                                error:&error];
     if (!success) {
         @throw [NSException
             exceptionWithName:@"FailedToCreatePersistenceDir"
                        reason:@"Failed to create persistence directory."
-                     userInfo:@{@"path" : path}];
+                     userInfo:@{
+                         @"path" : path,
+                         @"error" : error ?: [NSNull null]
+                     }];
+    }
+
+    // Now, ensure the file protection attribute is set. This will apply it
+    // whether the directory was just created or already existed. Note, this
+    // attribute has no effect on simulators.
+    NSDictionary *attributes = @{
+        NSFileProtectionKey :
+            NSFileProtectionCompleteUntilFirstUserAuthentication
+    };
+    success = [fileManager setAttributes:attributes
+                            ofItemAtPath:path
+                                   error:&error];
+    if (!success) {
+        FFWarn(@"I-RDB076036",
+               @"Failed to set file protection attribute on persistence "
+               @"directory: %@",
+               error);
     }
 
     if (markAsDoNotBackup) {
@@ -1001,9 +1023,6 @@ static NSString *trackedQueryKeysKey(NSUInteger trackedQueryId, NSString *key) {
                 @"I-RDB076035",
                 @"Failed to mark firebase database folder as do not backup: %@",
                 error);
-            [NSException raise:@"Error marking as do not backup"
-                        format:@"Failed to mark folder %@ as do not backup",
-                               firebaseDirURL];
         }
     }
 }

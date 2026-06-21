@@ -43,6 +43,18 @@ NS_ASSUME_NONNULL_BEGIN
 extern "C" {
 #endif
 
+typedef NS_ENUM(NSInteger, FSTBackendEdition) {
+  FSTBackendEditionStandard,
+  FSTBackendEditionEnterprise,
+};
+
+typedef NS_ENUM(NSInteger, FSTTargetBackend) {
+  FSTTargetBackendProd,
+  FSTTargetBackendNightly,
+  FSTTargetBackendEmulator,
+  FSTTargetBackendQA,
+};
+
 @interface FSTIntegrationTestCase : XCTestCase
 
 /** Returns the default Firestore project ID for testing. */
@@ -50,6 +62,13 @@ extern "C" {
 
 /** Returns the default Firestore database ID for testing. */
 + (NSString *)databaseID;
+
+/** Returns the backend edition being used for testing. */
++ (FSTBackendEdition)backendEdition;
+
++ (FSTTargetBackend)targetBackend;
+
++ (void)switchToEnterpriseMode;
 
 + (bool)isRunningAgainstEmulator;
 
@@ -130,7 +149,9 @@ extern "C" {
 
 - (void)enableNetwork;
 
-- (void)checkOnlineAndOfflineQuery:(FIRQuery *)query matchesResult:(NSArray *)expectedDocs;
+- (void)checkOnlineAndOfflineCollection:(FIRQuery *)collection
+                                  query:(FIRQuery *)query
+                          matchesResult:(NSArray *)expectedDocs;
 
 /**
  * "Blocks" the current thread/run loop until the block returns YES.

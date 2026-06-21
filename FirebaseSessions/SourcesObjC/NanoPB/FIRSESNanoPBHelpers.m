@@ -87,12 +87,12 @@ NSData *_Nullable FIRSESEncodeProto(const pb_field_t fields[],
 }
 #pragma clang diagnostic pop
 
-/** Mallocs a pb_bytes_array and copies the given NSData bytes into the bytes array.
+/** Callocs a pb_bytes_array and copies the given NSData bytes into the bytes array.
  * @note Memory needs to be free manually, through pb_free or pb_release.
  * @param data The data to copy into the new bytes array.
  */
 pb_bytes_array_t *_Nullable FIRSESEncodeData(NSData *_Nullable data) {
-  pb_bytes_array_t *pbBytes = malloc(PB_BYTES_ARRAY_T_ALLOCSIZE(data.length));
+  pb_bytes_array_t *pbBytes = calloc(1, PB_BYTES_ARRAY_T_ALLOCSIZE(data.length));
   if (pbBytes == NULL) {
     return NULL;
   }
@@ -101,7 +101,7 @@ pb_bytes_array_t *_Nullable FIRSESEncodeData(NSData *_Nullable data) {
   return pbBytes;
 }
 
-/** Mallocs a pb_bytes_array and copies the given NSString's bytes into the bytes array.
+/** Callocs a pb_bytes_array and copies the given NSString's bytes into the bytes array.
  * @note Memory needs to be freed manually, through pb_free or pb_release.
  * @param string The string to encode as pb_bytes.
  */
@@ -174,7 +174,7 @@ NSString *_Nullable FIRSESGetSysctlEntry(const char *sysctlKey) {
   size_t size;
   sysctlbyname(sysctlKey, NULL, &size, NULL, 0);
   if (size > 0) {
-    char *entryValueCStr = malloc(size);
+    char *entryValueCStr = calloc(1, size);
     sysctlbyname(sysctlKey, entryValueCStr, &size, NULL, 0);
     entryValue = [NSString stringWithCString:entryValueCStr encoding:NSUTF8StringEncoding];
     free(entryValueCStr);

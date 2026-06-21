@@ -44,6 +44,10 @@ class DocumentReference;
 class DocumentSnapshot;
 class Firestore;
 class ListenerRegistration;
+class Pipeline;
+class PipelineSnapshot;
+class RealtimePipeline;
+class RealtimePipelineSnapshot;
 class Query;
 class QuerySnapshot;
 class Settings;
@@ -57,6 +61,9 @@ using DocumentSnapshotListener =
 
 using QuerySnapshotListener =
     std::unique_ptr<core::EventListener<QuerySnapshot>>;
+
+using RealtimePipelineSnapshotListener =
+    std::unique_ptr<core::EventListener<RealtimePipelineSnapshot>>;
 
 using QueryCallback = std::function<void(core::Query, bool)>;
 using AggregateQueryCallback =

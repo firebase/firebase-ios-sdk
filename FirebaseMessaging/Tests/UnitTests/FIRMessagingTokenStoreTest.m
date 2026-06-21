@@ -76,8 +76,8 @@ static NSString *const kFakeCheckinPlistName = @"com.google.test.TestTokenStore"
   [FIRMessaging createSubDirectory:kSubDirectoryName];
 
   self.checkinPlist =
-      [[FIRMessagingBackupExcludedPlist alloc] initWithFileName:kFakeCheckinPlistName
-                                                   subDirectory:kSubDirectoryName];
+      [[FIRMessagingBackupExcludedPlist alloc] initWithPlistFile:kFakeCheckinPlistName
+                                                    subDirectory:kSubDirectoryName];
 
   // checkin store
   FIRMessagingFakeKeychain *fakeKeychain = [[FIRMessagingFakeKeychain alloc] init];

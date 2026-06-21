@@ -64,9 +64,6 @@ For the rest of the documentation, it's important to be familiar with the variou
 provided by Core. Since the frameworks are written in Objective-C, we'll use the Objective-C names.
 The Swift names are identical but dropping the `FIR` prefix.
 
-- `@class FIRDependency`
-  - A dependency on a specific protocol's functionality. Created with the factory method
-      `[FIRDependency dependencyWithProtocol:isRequired:]`
 - `@class FIRComponent`
   - A component to register with Core to be consumed by other frameworks. It declares the protocol
     offered, dependencies, and a block for Core to instantiate it.
@@ -122,7 +119,7 @@ ways to do so depending on the product's offerings.
 
 #### Single Instance per `FIRApp`
 
-The registration for a single instance per `FIRApp` changes if the framwork provides functionality
+The registration for a single instance per `FIRApp` changes if the framework provides functionality
 to other frameworks or not.
 
 ##### Framework does not provide functionality (example: Functions)
@@ -388,12 +385,6 @@ After adding the dependency on `FIRAuthInterop`. See comments with "ADDED:".
       return [[FIRFunctions alloc] initWithApp:container.app auth:auth];
     };
 
-  // ADDED: Define a dependency on the `FIRAuthInteroperable` protocol. Declare if the
-  //        dependency is required or not.
-  FIRDependency *auth =
-      [FIRDependency dependencyWithProtocol:@protocol(FIRAuthInteroperable)
-                                 isRequired:NO];
-
   // ADDED: A longer constructor is used to instantiate the `FIRComponent`; this time
   //        it includes instantiation timing and an array of dependencies. The timing
   //        allows components to be initialized upon configure time or lazily, when
@@ -402,7 +393,6 @@ After adding the dependency on `FIRAuthInterop`. See comments with "ADDED:".
   FIRComponent *internalProvider =
       [FIRComponent componentWithProtocol:@protocol(FIRFunctionsInstanceProvider)
                       instantiationTiming:FIRInstantiationTimingLazy
-                             dependencies:@[ auth ]
                             creationBlock:creationBlock];
 
   return @[ internalProvider ];
@@ -449,11 +439,6 @@ An abbreviated code sample:
       return FIR_COMPONENT(FIRAuthCombinedInterop, container);
     };
 
-  // Declare a self dependency on the combined interop component.
-  FIRDependency *auth =
-      [FIRDependency dependencyWithProtocol:@protocol(FIRAuthCombinedInterop)
-                                 isRequired:YES];
-
   // Declare the three components provided.
   FIRComponent *authComponent =
       [FIRComponent componentWithProtocol:@protocol(FIRAuthCombinedInterop)
@@ -465,13 +450,11 @@ An abbreviated code sample:
   FIRComponent *userComponent =
       [FIRComponent componentWithProtocol:@protocol(FIRAuthUserInterop)
                       instantiationTiming:FIRInstantiationTimingLazy
-                             dependencies:@[ auth ]
                             creationBlock:combinedBlock];
 
   FIRComponent *signInComponent =
       [FIRComponent componentWithProtocol:@protocol(FIRAuthSignInInterop)
                       instantiationTiming:FIRInstantiationTimingLazy
-                             dependencies:@[ auth ]
                             creationBlock:combinedBlock];
 
   return @[ authComponent, userComponent, signInComponent ];

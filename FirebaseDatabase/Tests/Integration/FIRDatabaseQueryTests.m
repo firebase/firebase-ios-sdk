@@ -3563,7 +3563,6 @@
   WAIT_FOR(count == 3);
 }
 
-#ifdef FLAKY_TEST
 - (void)testListenForChildChangedWithLimitEnsureEventsFireProperly {
   FTupleFirebase* refs = [FTestHelpers getRandomNodePair];
   FIRDatabaseReference* writer = refs.one;
@@ -3603,7 +3602,6 @@
 
   WAIT_FOR(count == 3);
 }
-#endif
 
 - (void)testListenForChildRemovedWithLimitEnsureEventsFireProperly {
   FTupleFirebase* refs = [FTestHelpers getRandomNodePair];

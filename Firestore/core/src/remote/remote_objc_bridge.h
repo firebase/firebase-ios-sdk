@@ -19,6 +19,7 @@
 
 #include <memory>
 #include <string>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -32,6 +33,7 @@
 #include "Firestore/core/src/util/status_fwd.h"
 #include "grpcpp/support/byte_buffer.h"
 
+#include "Firestore/core/src/api/pipeline.h"
 #include "absl/container/flat_hash_map.h"
 
 namespace firebase {
@@ -136,19 +138,35 @@ class DatastoreSerializer {
   util::StatusOr<std::vector<model::Document>> MergeLookupResponses(
       const std::vector<grpc::ByteBuffer>& responses) const;
 
+  // TODO(b/443765747) Revert back to absl::flat_hash_map after the absl version
+  // is upgraded to later than 20250127.0
   nanopb::Message<google_firestore_v1_RunAggregationQueryRequest>
   EncodeAggregateQueryRequest(
       const core::Query& query,
       const std::vector<model::AggregateField>& aggregates,
-      absl::flat_hash_map<std::string, std::string>& aliasMap) const;
+      std::unordered_map<std::string, std::string>& aliasMap) const;
 
+  // TODO(b/443765747) Revert back to absl::flat_hash_map after the absl version
+  // is upgraded to later than 20250127.0
   util::StatusOr<model::ObjectValue> DecodeAggregateQueryResponse(
       const grpc::ByteBuffer& response,
-      const absl::flat_hash_map<std::string, std::string>& aliasMap) const;
+      const std::unordered_map<std::string, std::string>& aliasMap) const;
 
   const Serializer& serializer() const {
     return serializer_;
   }
+
+  nanopb::Message<google_firestore_v1_ExecutePipelineRequest>
+  EncodeExecutePipelineRequest(
+      const firebase::firestore::api::Pipeline& pipeline) const;
+
+  util::StatusOr<api::PipelineSnapshot> DecodeExecutePipelineResponse(
+      const grpc::ByteBuffer& response,
+      std::shared_ptr<api::Firestore> db) const;
+
+  util::StatusOr<api::PipelineSnapshot> MergeExecutePipelineResponses(
+      const std::vector<grpc::ByteBuffer>& responses,
+      std::shared_ptr<api::Firestore> db) const;
 
  private:
   Serializer serializer_;

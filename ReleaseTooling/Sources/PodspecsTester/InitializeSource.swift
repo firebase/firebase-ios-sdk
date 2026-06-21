@@ -74,7 +74,7 @@ enum InitializeSpecTesting {
     // ```
     // The tag should include `s.version`, e.g.
     // If "s.version = '8.11.0-beta'", the tag should include 8.11.0-beta to
-    // avoid trigerring the warning.
+    // avoid triggering the warning.
     for pod in manifest.pods {
       let testingTag = Constants.testingTagPrefix + manifest.versionString(pod)
       // Add or update the testing tag to the local sdk repo.
@@ -126,7 +126,7 @@ enum InitializeSpecTesting {
     for spec in specs {
       let specInfo = fetchPodVersion(from: URL(fileURLWithPath: spec))
       // Create directories `${HOME}/.cocoapods/${Pod}/${version}`
-      let podDirURL = createPodDirctory(
+      let podDirURL = createPodDirectory(
         specRepoPath: Constants.cocoapodsDir,
         podName: specInfo.name,
         version: specInfo.version
@@ -147,7 +147,7 @@ enum InitializeSpecTesting {
     }
     // Closed source podspecs, e.g. `GoogleAppMeasurement.podspec`.
     if path.pathExtension == "json" {
-      // Remove both extenstions of `podspec` and `json`.
+      // Remove both extensions of `podspec` and `json`.
       podName = path.deletingPathExtension().deletingPathExtension().lastPathComponent
     } else if path.pathExtension == "podspec" {
       podName = path.deletingPathExtension().lastPathComponent
@@ -197,8 +197,8 @@ enum InitializeSpecTesting {
     return versionMatches[0][1]
   }
 
-  private static func createPodDirctory(specRepoPath: String, podName: String,
-                                        version: String) -> URL {
+  private static func createPodDirectory(specRepoPath: String, podName: String,
+                                         version: String) -> URL {
     guard let specRepoURL = URL(string: specRepoPath) else {
       fatalError("\(specRepoPath) does not exist.")
     }

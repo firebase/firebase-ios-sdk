@@ -15,7 +15,7 @@
  */
 
 #import <TargetConditionals.h>
-#if TARGET_OS_IOS || TARGET_OS_TV || (defined(TARGET_OS_VISION) && TARGET_OS_VISION)
+#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
 
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
@@ -95,9 +95,9 @@ NSString *const kFIRIAMFetchIsDoneNotification = @"FIRIAMFetchIsDoneNotification
                                                       object:self];
 }
 
-- (void)handleSuccessullyFetchedMessages:(NSArray<FIRIAMMessageDefinition *> *)messagesInResponse
-                       withFetchWaitTime:(NSNumber *_Nullable)fetchWaitTime
-                      requestImpressions:(NSArray<FIRIAMImpressionRecord *> *)requestImpressions {
+- (void)handleSuccessfullyFetchedMessages:(NSArray<FIRIAMMessageDefinition *> *)messagesInResponse
+                        withFetchWaitTime:(NSNumber *_Nullable)fetchWaitTime
+                       requestImpressions:(NSArray<FIRIAMImpressionRecord *> *)requestImpressions {
   FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM700004", @"%lu messages were fetched successfully.",
               (unsigned long)messagesInResponse.count);
 
@@ -148,7 +148,7 @@ NSString *const kFIRIAMFetchIsDoneNotification = @"FIRIAMFetchIsDoneNotification
     if (sdkMode == FIRIAMSDKModeNewlyInstalled || sdkMode == FIRIAMSDKModeTesting) {
       FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM700007",
                   @"OK to fetch due to current SDK mode being %@",
-                  FIRIAMDescriptonStringForSDKMode(sdkMode));
+                  FIRIAMDescriptionStringForSDKMode(sdkMode));
       fetchIsAllowedNow = YES;
     } else {
       FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM700008",
@@ -233,9 +233,9 @@ NSString *const kFIRIAMFetchIsDoneNotification = @"FIRIAMFetchIsDoneNotification
                              [self.activityLogger addLogRecord:record];
 
                              // Now handle the fetched messages.
-                             [self handleSuccessullyFetchedMessages:messages
-                                                  withFetchWaitTime:nextFetchWaitTime
-                                                 requestImpressions:impressions];
+                             [self handleSuccessfullyFetchedMessages:messages
+                                                   withFetchWaitTime:nextFetchWaitTime
+                                                  requestImpressions:impressions];
 
                              if (forInitialAppLaunch) {
                                [self checkForAppLaunchMessage];
@@ -267,4 +267,4 @@ NSString *const kFIRIAMFetchIsDoneNotification = @"FIRIAMFetchIsDoneNotification
 }
 @end
 
-#endif  // TARGET_OS_IOS || TARGET_OS_TV || (defined(TARGET_OS_VISION) && TARGET_OS_VISION)
+#endif  // TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION

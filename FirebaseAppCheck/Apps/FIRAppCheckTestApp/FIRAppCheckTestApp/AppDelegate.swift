@@ -16,30 +16,74 @@
 
 import UIKit
 
+import AppCheckCore
 import FirebaseAppCheck
 import FirebaseCore
+import FirebaseStorage
 
-@main
 class AppDelegate: UIResponder, UIApplicationDelegate {
+  private(set) static var shared: AppDelegate?
+
+  override init() {
+    super.init()
+    AppDelegate.shared = self
+  }
+
   func application(_ application: UIApplication,
                    didFinishLaunchingWithOptions launchOptions: [UIApplication
                      .LaunchOptionsKey: Any]?) -> Bool {
-    let providerFactory = AppCheckDebugProviderFactory()
-    AppCheck.setAppCheckProviderFactory(providerFactory)
+    // Manual override for testing/debugging.
+    // Change this to explicitly set a provider, or leave nil to use environment variable.
+    let manualProviderOverride: String? = nil // e.g., "debug" or "recaptcha"
 
-    FirebaseApp.configure()
+    let options = setupAppCheck(overrideProvider: manualProviderOverride)
 
-    requestLimitedUseToken()
-
-    requestDeviceCheckToken()
-
-    requestDebugToken()
-
-    if #available(iOS 14.0, *) {
-      requestAppAttestToken()
-    }
+    FirebaseApp.configure(options: options)
 
     return true
+  }
+
+  private func setupAppCheck(overrideProvider: String?) -> FirebaseOptions {
+    // Note: If running via `xcodebuild test`, pass this with the `TEST_RUNNER_` prefix
+    // (e.g., `TEST_RUNNER_APP_CHECK_PROVIDER="debug"`). Xcode strips the prefix at runtime.
+    let providerType = overrideProvider ?? ProcessInfo.processInfo
+      .environment["APP_CHECK_PROVIDER"] ?? "debug"
+
+    if overrideProvider == nil && ProcessInfo.processInfo.environment["APP_CHECK_PROVIDER"] == nil {
+      print("⚠️ Warning: APP_CHECK_PROVIDER environment variable is missing. Defaulting to 'debug'.")
+    }
+
+    print("Info: Using App Check provider: '\(providerType)'")
+
+    guard let options = FirebaseOptions.defaultOptions() else {
+      fatalError(
+        "Failed to load default Firebase options. Ensure GoogleService-Info.plist is added to the project."
+      )
+    }
+
+    let providerFactory: AppCheckProviderFactory
+    switch providerType {
+    case "recaptcha":
+      guard let siteKey = ProcessInfo.processInfo.environment["RECAPTCHA_SITE_KEY"],
+            !siteKey.isEmpty else {
+        fatalError(
+          "Error: RECAPTCHA_SITE_KEY environment variable is missing or empty. E2E tests require this key."
+        )
+      }
+      options.recaptchaSiteKey = siteKey
+      providerFactory = RecaptchaProviderFactory()
+    case "debug":
+      providerFactory = AppCheckDebugProviderFactory()
+    default:
+      print(
+        "Warning: Unknown APP_CHECK_PROVIDER '\(providerType)'. Falling back to Debug provider."
+      )
+      providerFactory = AppCheckDebugProviderFactory()
+    }
+
+    AppCheck.setAppCheckProviderFactory(providerFactory)
+
+    return options
   }
 
   // MARK: UISceneSession Lifecycle
@@ -71,12 +115,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       return
     }
 
-    DeviceCheckProvider(app: firebaseApp)?.getToken { token, error in
-      if let token = token {
-        print("DeviceCheck token: \(token.token), expiration date: \(token.expirationDate)")
-      }
-
-      if let error = error {
+    Task {
+      do {
+        if let provider = DeviceCheckProvider(app: firebaseApp) {
+          let token = try await provider.getToken()
+          print("DeviceCheck token: \(token.token), expiration date: \(token.expirationDate)")
+        }
+      } catch {
         print("DeviceCheck error: \((error as NSError).userInfo)")
       }
     }
@@ -90,12 +135,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     if let debugProvider = AppCheckDebugProvider(app: firebaseApp) {
       print("Debug token: \(debugProvider.currentDebugToken())")
 
-      debugProvider.getToken { token, error in
-        if let token = token {
+      Task {
+        do {
+          let token = try await debugProvider.getToken()
           print("Debug FAC token: \(token.token), expiration date: \(token.expirationDate)")
-        }
-
-        if let error = error {
+        } catch {
           print("Debug error: \(error)")
         }
       }
@@ -104,19 +148,47 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
   // MARK: App Check API
 
-  func requestLimitedUseToken() {
-    AppCheck.appCheck().limitedUseToken { result, error in
-      if let result = result {
-        print("FAC limited-use token: \(result.token), expiration date: \(result.expirationDate)")
-      }
+  @discardableResult
+  func fetchAppCheckToken(forcingRefresh: Bool = false) async throws -> AppCheckToken {
+    let token = try await AppCheck.appCheck().token(forcingRefresh: forcingRefresh)
 
-      if let error = error {
-        print("Error: \(String(describing: error))")
-      }
-    }
+    let ttl = token.expirationDate.timeIntervalSinceNow
+    print("[NON-LIMITED USE] Token: \(token.token)")
+    print("  - Expiration date: \(token.expirationDate)")
+    print("  - TTL: \(Int(ttl)) seconds")
+
+    try await readFromStorage()
+
+    return token
   }
 
-  @available(iOS 14.0, *)
+  func readFromStorage() async throws {
+    print("Attempting to read from Cloud Storage...")
+    let storage = Storage.storage()
+    let storageRef = storage.reference()
+    // NOTE: This path corresponds to the security rules configured for the test project.
+    // The rules allow public read on '/cep/ping'. If these rules change, this test may fail.
+    let pingRef = storageRef.child("cep/ping")
+
+    let data = try await pingRef.data(maxSize: 1 * 1024 * 1024)
+
+    // This shouldn't be possible, but we want to know if it ever happens.
+    guard let string = String(data: data, encoding: .utf8) else {
+      fatalError(
+        "Unexpected state: data is not valid UTF-8. This shouldn't happen, but we want to know if it does."
+      )
+    }
+
+    print("Storage content: \(string)")
+  }
+
+  func requestLimitedUseToken() async throws -> String {
+    let result = try await AppCheck.appCheck().limitedUseToken()
+    print("[LIMITED USE] Token: \(result.token)")
+    print("  - Expiration date: \(result.expirationDate)")
+    return result.token
+  }
+
   func requestAppAttestToken() {
     guard let firebaseApp = FirebaseApp.app() else {
       return
@@ -127,12 +199,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       return
     }
 
-    appAttestProvider.getToken { token, error in
-      if let token = token {
+    Task {
+      do {
+        let token = try await appAttestProvider.getToken()
         print("App Attest FAC token: \(token.token), expiration date: \(token.expirationDate)")
-      }
-
-      if let error = error {
+      } catch {
         print("App Attest error: \(error)")
       }
     }

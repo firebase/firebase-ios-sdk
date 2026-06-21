@@ -84,8 +84,9 @@
                          continueUserActivity:[OCMArg checkWithBlock:^BOOL(id userActivity) {
                            // verifying the type and url field for the userActivity object
                            NSUserActivity *activity = (NSUserActivity *)userActivity;
-                           return [activity.activityType
-                                      isEqualToString:NSUserActivityTypeBrowsingWeb] &&
+                           // Use string literal to ensure compatibility with Xcode 26 and iOS 18
+                           NSString *browsingWebType = @"NSUserActivityTypeBrowsingWeb";
+                           return [activity.activityType isEqualToString:browsingWebType] &&
                                   [activity.webpageURL isEqual:url];
                          }]
                            restorationHandler:[OCMArg any]])

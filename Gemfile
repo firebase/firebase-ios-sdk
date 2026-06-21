@@ -2,7 +2,7 @@
 # commit Gemfile and Gemfile.lock.
 source 'https://rubygems.org'
 
-# To test CocoaPods pre-releases, update to a relevant commit or tag like below
+# To test CocoaPods pre-releases, update to a relevant commit or tag like below.
 # cocoapods-core and xcodeproj may or may not also need tags. For additional
 # testing, enable the cron jobs with a global search and replace from your
 # favorite editor. See https://github.com/firebase/firebase-ios-sdk/pull/8498
@@ -12,6 +12,6 @@ source 'https://rubygems.org'
 # gem 'cocoapods-core', git: "https://github.com/CocoaPods/Core.git", ref: "f7cf05720eab935d7d50e35224d263952176fb53"
 # gem 'xcodeproj', git: "https://github.com/CocoaPods/Xcodeproj.git", ref: "eeccae7275645753cbaf45d96fc4b23e4b8b3b9f"
 
-gem 'cocoapods', '1.15.2'
+gem 'cocoapods', '1.16.2'
 gem 'cocoapods-generate', '2.2.5'
-gem 'danger', '8.4.5'
+gem 'danger', '9.5.3'

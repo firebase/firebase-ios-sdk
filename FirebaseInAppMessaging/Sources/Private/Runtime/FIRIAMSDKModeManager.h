@@ -18,6 +18,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@class GULUserDefaults;
+
 extern NSInteger const kFIRIAMMaxFetchInNewlyInstalledMode;
 
 /**
@@ -39,7 +41,7 @@ typedef NS_ENUM(NSInteger, FIRIAMSDKMode) {
 };
 
 // turn the sdk mode enum integer value into a descriptive string
-NSString *FIRIAMDescriptonStringForSDKMode(FIRIAMSDKMode mode);
+NSString *FIRIAMDescriptionStringForSDKMode(FIRIAMSDKMode mode);
 
 extern NSString *const kFIRIAMUserDefaultKeyForSDKMode;
 extern NSString *const kFIRIAMUserDefaultKeyForServerFetchCount;
@@ -56,8 +58,8 @@ extern NSInteger const kFIRIAMMaxFetchInNewlyInstalledMode;
 
 - (instancetype)init NS_UNAVAILABLE;
 
-// having NSUserDefaults as passed-in to help with unit testing
-- (instancetype)initWithUserDefaults:(NSUserDefaults *)userDefaults
+// having GULUserDefaults as passed-in to help with unit testing
+- (instancetype)initWithUserDefaults:(GULUserDefaults *)userDefaults
                  testingModeListener:(id<FIRIAMTestingModeListener>)testingModeListener;
 
 // returns the current SDK mode

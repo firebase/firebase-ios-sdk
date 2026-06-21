@@ -50,7 +50,7 @@ static NSString *const FIRSecondFIRAppName = @"secondFIRApp";
 @property(strong, nonatomic) IBOutlet UISwitch *developerModeEnabled;
 /// Current selected namespace.
 @property(nonatomic, copy) NSString *currentNamespace;
-/// Curret selected FIRApp instance name.
+/// Current selected FIRApp instance name.
 @property(nonatomic, copy) NSString *FIRAppName;
 /// Selected namespace picker control view.
 @property(nonatomic, strong) IBOutlet UIPickerView *namespacePicker;

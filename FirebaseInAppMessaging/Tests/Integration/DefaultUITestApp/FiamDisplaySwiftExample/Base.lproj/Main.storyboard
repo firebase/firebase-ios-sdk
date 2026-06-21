@@ -148,7 +148,7 @@
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="2z0-64-rZk">
                                         <rect key="frame" x="0.0" y="222.33333333333334" width="414" height="55.666666666666657"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="11"/>
-                                        <state key="normal" title="Wthout Image or Action Button"/>
+                                        <state key="normal" title="Without Image or Action Button"/>
                                         <connections>
                                             <action selector="showWithoutImageAndButton:" destination="ttC-lg-4V1" eventType="touchUpInside" id="Sob-M5-UjN"/>
                                         </connections>

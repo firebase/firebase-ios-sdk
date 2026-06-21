@@ -1,3 +1,81 @@
+# 12.13.0
+- [fixed] Remote Config Realtime updates now trigger when a parameter's experiment
+  or variant assignment changes, ensuring more accurate A/B test analytics and
+  consistent user experiences.
+
+# 12.12.0
+- [added] Introduced a new `configUpdates` property to `RemoteConfig` that
+  provides an `AsyncSequence` for consuming real-time config updates.
+  This offers a modern, Swift Concurrency-native alternative to the existing
+  closure-based listener.
+
+# 12.10.0
+- [issue] A workaround to restore service if Remote Config data remains empty
+  after a device restore is to publish a new version of your Remote Config template
+  in the Firebase console to force a full synchronization. This issue can occur if
+  the app was opened with an older SDK version (< 12.6.0) before upgrading. An automatic
+  fix for this scenario is currently under development. (#15764)
+
+# 12.6.0
+- [fixed] Fixed a bug where Remote Config does not work after a restore
+  of a previous backup of the device. (#14459)
+- [fixed] Fixed a data race condition on the global database status flag
+  by synchronizing all read and write operations. (#14715)
+
+# 12.3.0
+- [fixed] Add missing GoogleUtilities dependency to fix SwiftPM builds when
+  building dynamically linked libraries. (#15276)
+
+# 12.2.0
+- [fixed] Fixed a race condition that could lead to a crash during network
+  session recreation. (#15087)
+
+# 12.0.0
+- [added] Improved how the SDK handles real-time requests when a Firebase
+  project has exceeded its available quota for real-time services.
+  Released in anticipation of future quota enforcement, this change is
+  designed to fetch the latest template even when the quota is exhausted.
+
+# 11.14.0
+- [fixed] Fix build warning from comparison of different enumeration types.
+
+# 11.13.0
+- [fixed] Fix an issue where network requests would fail in the iOS 18.4
+  simulator due to a URLSession bug introduced in Xcode 16.3. (#14728)
+
+# 11.10.0
+- [fixed] Fix intermittent `RCNConfigRealtime` crash due to incorrect parsing of fragmented JSON. (#14518)
+
+# 11.9.0
+- [fixed] Mark internal `fetchSession` property as `atomic` to prevent a concurrency
+  related crash. (#14449)
+
+# 11.8.0
+- [fixed] Mark completion handlers as Sendable in RemoteConfig class.
+  Some completions handlers were missed in the 11.7.0 update. (#14257)
+
+# 11.7.0
+- [fixed] Mark ConfigUpdateListenerRegistration Sendable. (#14215)
+- [fixed] Mark completion handlers as Sendable in RemoteConfig class. (#14257)
+- [feature] Added support for custom signal targeting in Remote Config. Use
+  `setCustomSignals` API for setting custom signals and use them to build
+  custom targeting conditions in Remote Config. (#13976)
+
+# 11.5.0
+- [fixed] Mark two internal properties as `atomic` to prevent concurrency
+  related crash. (#13898)
+
+# 11.0.0
+- [fixed] RemoteConfigValue stringValue is now `nonnull`. This may break some builds. (#10870)
+- [removed] **Breaking change**: The deprecated `FirebaseRemoteConfigSwift`
+  module has been removed. See
+  https://firebase.google.com/docs/ios/swift-migration for migration
+  instructions.
+
+  # 10.25.0
+- [fixed] Fixed bug preventing Remote Config from working with a custom sqlite3
+  dependency (#10884).
+
 # 10.23.0
 - [changed] Add support for other Firebase products to integrate with Remote Config.
 

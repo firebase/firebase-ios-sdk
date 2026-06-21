@@ -35,7 +35,7 @@ class ImageOnlyMessageViewController: CommonMessageTestVC {
   }
 
   override func messageDismissed(_ inAppMessage: InAppMessagingDisplayMessage,
-                                 dismissType: FIRInAppMessagingDismissType) {
+                                 dismissType: InAppMessagingDismissType) {
     super.messageDismissed(inAppMessage, dismissType: dismissType)
     verifyLabel.text = "message dismissed!"
   }

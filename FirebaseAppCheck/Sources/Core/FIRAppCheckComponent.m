@@ -46,7 +46,6 @@ NS_ASSUME_NONNULL_BEGIN
   FIRComponent *appCheckProvider =
       [FIRComponent componentWithProtocol:@protocol(FIRAppCheckInterop)
                       instantiationTiming:FIRInstantiationTimingAlwaysEager
-                             dependencies:@[]
                             creationBlock:creationBlock];
   return @[ appCheckProvider ];
 }

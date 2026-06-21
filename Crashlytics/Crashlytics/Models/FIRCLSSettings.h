@@ -31,7 +31,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (instancetype)new NS_UNAVAILABLE;
 - (instancetype)initWithFileManager:(FIRCLSFileManager *)fileManager
                          appIDModel:(FIRCLSApplicationIdentifierModel *)appIDModel
-    NS_DESIGNATED_INITIALIZER;
+                            appInfo:(NSDictionary *)appInfo;
 
 /**
  * Recreates the settings dictionary by re-reading the settings file from persistent storage. This
@@ -80,6 +80,12 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, readonly) BOOL customExceptionsEnabled;
 
 /**
+ * When this is true, Crashlytics will fallback to EXCEPTION_DEFAULT
+ * for mach exception handler instead of EXCEPTION_IDENTITY_PROTECTED
+ */
+@property(nonatomic) BOOL machExceptionDefaultBehavior;
+
+/**
  * When this is true, Crashlytics will collect data from MetricKit
  */
 @property(nonatomic, readonly) BOOL metricKitCollectionEnabled;
@@ -120,6 +126,11 @@ NS_ASSUME_NONNULL_BEGIN
  * Step duration to use with exponential backoff for on-demand reporting.
  */
 @property(nonatomic, readonly) uint32_t onDemandBackoffStepDuration;
+
+/**
+ * When this is true, Crashlytics will suspend all threads to do on-demand fatal recording.
+ */
+@property(nonatomic, readonly) BOOL onDemandThreadSuspensionEnabled;
 
 @end
 

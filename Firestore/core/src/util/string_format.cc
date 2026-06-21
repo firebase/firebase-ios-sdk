@@ -16,6 +16,10 @@
 
 #include "Firestore/core/src/util/string_format.h"
 
+#include <string>
+#include "absl/strings/escaping.h"
+#include "absl/strings/string_view.h"
+
 namespace firebase {
 namespace firestore {
 namespace util {
@@ -25,7 +29,7 @@ static const char* kMissing = "<missing>";
 static const char* kInvalid = "<invalid>";
 
 // Disable asan for this function because of the way it manages stack
-// (nested closure) is flaged with stack underflow by clang on Ubuntu.
+// (nested closure) is flagged with stack underflow by clang on Ubuntu.
 #if defined(_MSC_VER)
 __declspec(no_sanitize_address) std::string StringFormatPieces(
 #else
@@ -39,12 +43,23 @@ __attribute__((no_sanitize_address)) std::string StringFormatPieces(
 
   auto pieces_iter = pieces.begin();
   auto pieces_end = pieces.end();
-  auto append_next_piece = [&](std::string* dest) {
+  auto append_next_string_piece = [&](std::string* dest) {
     if (pieces_iter == pieces_end) {
       dest->append(kMissing);
     } else {
       // Pass a piece through
       dest->append(pieces_iter->data(), pieces_iter->size());
+      ++pieces_iter;
+    }
+  };
+
+  auto append_next_hex_piece = [&](std::string* dest) {
+    if (pieces_iter == pieces_end) {
+      dest->append(kMissing);
+    } else {
+      std::string hex =
+          absl::BytesToHexString(absl::string_view(pieces_iter->data()));
+      dest->append(hex.data(), hex.size());
       ++pieces_iter;
     }
   };
@@ -57,7 +72,12 @@ __attribute__((no_sanitize_address)) std::string StringFormatPieces(
         break;
 
       case 's': {
-        append_next_piece(&result);
+        append_next_string_piece(&result);
+        break;
+      }
+
+      case 'x': {
+        append_next_hex_piece(&result);
         break;
       }
 

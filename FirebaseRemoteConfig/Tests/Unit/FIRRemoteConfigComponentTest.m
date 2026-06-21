@@ -116,7 +116,7 @@
   XCTAssertEqual(provider, sameProvider);
   XCTAssertEqual(interop, sameInterop);
 
-  // Dynamic typing, both prototols are refering to the same component instance
+  // Dynamic typing, both prototols are referring to the same component instance
   id providerID = provider;
   id interopID = interop;
   XCTAssertEqualObjects(providerID, interopID);

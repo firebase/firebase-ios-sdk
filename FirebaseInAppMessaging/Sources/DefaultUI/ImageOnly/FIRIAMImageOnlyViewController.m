@@ -117,18 +117,14 @@
 
   // Calculate the size of the image view under the constraints:
   // 1 Retain the image ratio
-  // 2 Have at least 30 point of margines around four sides of the image view
+  // 2 Have at least 30 point of margins around four sides of the image view
 
   CGFloat minimalMargine = 30;  // 30 points
   CGFloat maxImageViewWidth = self.view.window.frame.size.width - minimalMargine * 2;
   CGFloat maxImageViewHeight = self.view.window.frame.size.height - minimalMargine * 2;
 
   // Factor in space for the top notch on iPhone X*.
-#if defined(__IPHONE_11_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 110000
-  if (@available(iOS 11.0, *)) {
-    maxImageViewHeight -= self.view.safeAreaInsets.top;
-  }
-#endif  // defined(__IPHONE_11_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 110000
+  maxImageViewHeight -= self.view.safeAreaInsets.top;
 
   CGFloat adjustedImageViewHeight = self.imageOriginalSize.height;
   CGFloat adjustedImageViewWidth = self.imageOriginalSize.width;
@@ -149,7 +145,7 @@
       adjustedImageViewWidth =
           adjustedImageViewHeight * self.imageOriginalSize.width / self.imageOriginalSize.height;
       FIRLogDebug(kFIRLoggerInAppMessagingDisplay, @"I-FID110003",
-                  @"Use max avilable image display height as %lf", adjustedImageViewHeight);
+                  @"Use max available image display height as %lf", adjustedImageViewHeight);
     }
   } else {
     // image can be rendered fully at its original size

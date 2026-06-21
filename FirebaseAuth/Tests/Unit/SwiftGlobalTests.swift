@@ -17,7 +17,7 @@ import XCTest
 
 import FirebaseAuth
 
-/// Tests globals defined in Objective C sources.  These globals are for backward compatibility and
+/// Tests globals defined in Objective-C sources.  These globals are for backward compatibility and
 /// should not be used in new code.
 class SwiftGlobalTests: XCTestCase {
   func GlobalSymbolBuildTest() {
@@ -38,9 +38,10 @@ class SwiftGlobalTests: XCTestCase {
     let _: String = GitHubAuthSignInMethod
     let _: String = GoogleAuthProviderID
     let _: String = GoogleAuthSignInMethod
-    #if os(iOS)
-      let _: String = PhoneMultiFactorID
+    #if os(iOS) || os(macOS)
       let _: String = TOTPMultiFactorID
+    #endif
+    #if os(iOS)
       let _: String = PhoneAuthProviderID
       let _: String = PhoneAuthSignInMethod
     #endif

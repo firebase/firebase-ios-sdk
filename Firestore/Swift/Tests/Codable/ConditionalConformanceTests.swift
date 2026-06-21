@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
+import class FirebaseCore.Timestamp
 import FirebaseFirestore
-import FirebaseFirestoreSwift
 import Foundation
 import XCTest
 

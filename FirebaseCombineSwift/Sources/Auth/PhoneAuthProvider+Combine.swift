@@ -54,9 +54,9 @@
       -> Future<String, Error> {
       Future<String, Error> { promise in
         self.verifyPhoneNumber(phoneNumber, uiDelegate: uiDelegate) { verificationID, error in
-          if let error = error {
+          if let error {
             promise(.failure(error))
-          } else if let verificationID = verificationID {
+          } else if let verificationID {
             promise(.success(verificationID))
           }
         }
@@ -99,9 +99,9 @@
           uiDelegate: uiDelegate,
           multiFactorSession: multiFactorSession
         ) { verificationID, error in
-          if let error = error {
+          if let error {
             promise(.failure(error))
-          } else if let verificationID = verificationID {
+          } else if let verificationID {
             promise(.success(verificationID))
           }
         }
@@ -131,9 +131,9 @@
         self.verifyPhoneNumber(with: phoneMultiFactorInfo,
                                uiDelegate: uiDelegate,
                                multiFactorSession: multiFactorSession) { verificationID, error in
-          if let error = error {
+          if let error {
             promise(.failure(error))
-          } else if let verificationID = verificationID {
+          } else if let verificationID {
             promise(.success(verificationID))
           }
         }

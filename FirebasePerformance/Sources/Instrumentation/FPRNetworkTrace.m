@@ -24,8 +24,7 @@
 #import "FirebasePerformance/Sources/FPRDataUtils.h"
 #import "FirebasePerformance/Sources/FPRURLFilter.h"
 #import "FirebasePerformance/Sources/Gauges/FPRGaugeManager.h"
-
-#import <GoogleUtilities/GULObjectSwizzler.h>
+#import "FirebasePerformance/Sources/ISASwizzler/FPRObjectSwizzler.h"
 
 NSString *const kFPRNetworkTracePropertyName = @"fpr_networkTrace";
 
@@ -234,7 +233,9 @@ NSString *const kFPRNetworkTracePropertyName = @"fpr_networkTrace";
 #pragma mark - Overrides
 
 - (void)setResponseCode:(int32_t)responseCode {
-  _responseCode = responseCode;
+  dispatch_sync(self.syncQueue, ^{
+    _responseCode = responseCode;
+  });
   if (responseCode != 0) {
     _hasValidResponseCode = YES;
   }
@@ -250,7 +251,9 @@ NSString *const kFPRNetworkTracePropertyName = @"fpr_networkTrace";
       self.responseCode = (int32_t)HTTPResponse.statusCode;
     }
     self.responseError = error;
-    self.responseContentType = response.MIMEType;
+    // Safely copy MIMEType to prevent use after free
+    NSString *mime = [response.MIMEType copy];
+    self.responseContentType = (mime.length ? mime : nil);
     [self checkpointState:FPRNetworkTraceCheckpointStateResponseCompleted];
 
     // Send the network trace for logging.
@@ -280,7 +283,9 @@ NSString *const kFPRNetworkTracePropertyName = @"fpr_networkTrace";
 }
 
 - (void)didReceiveData:(NSData *)data {
-  self.responseSize = data.length;
+  dispatch_sync(self.syncQueue, ^{
+    self.responseSize = data.length;
+  });
 }
 
 - (void)didReceiveFileURL:(NSURL *)URL {
@@ -291,7 +296,9 @@ NSString *const kFPRNetworkTracePropertyName = @"fpr_networkTrace";
     if (error) {
       FPRLogNotice(kFPRNetworkTraceFileError, @"Unable to determine the size of file.");
     } else {
-      self.responseSize = value.unsignedIntegerValue;
+      dispatch_sync(self.syncQueue, ^{
+        self.responseSize = value.unsignedIntegerValue;
+      });
     }
   }
 }
@@ -427,18 +434,20 @@ NSString *const kFPRNetworkTracePropertyName = @"fpr_networkTrace";
 
 + (void)addNetworkTrace:(FPRNetworkTrace *)networkTrace toObject:(id)object {
   if (object != nil && networkTrace != nil) {
-    [GULObjectSwizzler setAssociatedObject:object
-                                       key:kFPRNetworkTracePropertyName
-                                     value:networkTrace
-                               association:GUL_ASSOCIATION_RETAIN_NONATOMIC];
+    [FPRObjectSwizzler
+        setAssociatedObject:object
+                        key:(__bridge const void *_Nonnull)kFPRNetworkTracePropertyName
+                      value:networkTrace
+                association:GUL_ASSOCIATION_RETAIN_NONATOMIC];
   }
 }
 
 + (FPRNetworkTrace *)networkTraceFromObject:(id)object {
   FPRNetworkTrace *networkTrace = nil;
   if (object != nil) {
-    id traceObject = [GULObjectSwizzler getAssociatedObject:object
-                                                        key:kFPRNetworkTracePropertyName];
+    id traceObject = [FPRObjectSwizzler
+        getAssociatedObject:object
+                        key:(__bridge const void *_Nonnull)kFPRNetworkTracePropertyName];
     if ([traceObject isKindOfClass:[FPRNetworkTrace class]]) {
       networkTrace = (FPRNetworkTrace *)traceObject;
     }
@@ -449,10 +458,11 @@ NSString *const kFPRNetworkTracePropertyName = @"fpr_networkTrace";
 
 + (void)removeNetworkTraceFromObject:(id)object {
   if (object != nil) {
-    [GULObjectSwizzler setAssociatedObject:object
-                                       key:kFPRNetworkTracePropertyName
-                                     value:nil
-                               association:GUL_ASSOCIATION_RETAIN_NONATOMIC];
+    [FPRObjectSwizzler
+        setAssociatedObject:object
+                        key:(__bridge const void *_Nonnull)kFPRNetworkTracePropertyName
+                      value:nil
+                association:GUL_ASSOCIATION_RETAIN_NONATOMIC];
   }
 }
 

@@ -14,6 +14,8 @@
 
 #import <XCTest/XCTest.h>
 
+#import <GoogleUtilities/GULUserDefaults.h>
+
 #import "FirebasePerformance/Sources/Common/FPRConstants.h"
 
 #import "FirebasePerformance/Sources/Configurations/FPRConfigurations+Private.h"
@@ -29,6 +31,10 @@
 @end
 
 @implementation FPRConfigurationsTest
+
+- (GULUserDefaults *_Nonnull)makeEmptyUserDefaults {
+  return [[GULUserDefaults alloc] init];
+}
 
 /** Validates if instance creation works. */
 - (void)testInstanceCreation {
@@ -78,7 +84,7 @@
   FPRConfigurations *configurations =
       [[FPRConfigurations alloc] initWithSources:FPRConfigurationSourceRemoteConfig];
 
-  NSUserDefaults *userDefaults = [[NSUserDefaults alloc] init];
+  GULUserDefaults *_Nonnull userDefaults = [self makeEmptyUserDefaults];
   configurations.userDefaults = userDefaults;
 
   XCTAssertFalse(configurations.diagnosticsEnabled);
@@ -101,7 +107,7 @@
   configurations.remoteConfigFlags = configFlags;
   configFlags.lastFetchedTime = [NSDate date];
 
-  NSUserDefaults *userDefaults = [[NSUserDefaults alloc] init];
+  GULUserDefaults *_Nonnull userDefaults = [self makeEmptyUserDefaults];
   configFlags.userDefaults = userDefaults;
 
   [configFlags resetCache];
@@ -126,7 +132,7 @@
   configurations.remoteConfigFlags = configFlags;
   configFlags.lastFetchedTime = [NSDate date];
 
-  NSUserDefaults *userDefaults = [[NSUserDefaults alloc] init];
+  GULUserDefaults *_Nonnull userDefaults = [self makeEmptyUserDefaults];
   configFlags.userDefaults = userDefaults;
 
   [configFlags resetCache];
@@ -151,7 +157,7 @@
   configurations.remoteConfigFlags = configFlags;
   configFlags.lastFetchedTime = [NSDate date];
 
-  NSUserDefaults *userDefaults = [[NSUserDefaults alloc] init];
+  GULUserDefaults *_Nonnull userDefaults = [self makeEmptyUserDefaults];
   configFlags.userDefaults = userDefaults;
 
   [configFlags resetCache];
@@ -176,7 +182,7 @@
   configurations.remoteConfigFlags = configFlags;
   configFlags.lastFetchedTime = [NSDate date];
 
-  NSUserDefaults *userDefaults = [[NSUserDefaults alloc] init];
+  GULUserDefaults *_Nonnull userDefaults = [self makeEmptyUserDefaults];
   configFlags.userDefaults = userDefaults;
 
   [configFlags resetCache];
@@ -205,7 +211,7 @@
   configurations.remoteConfigFlags = configFlags;
   configFlags.lastFetchedTime = [NSDate date];
 
-  NSUserDefaults *userDefaults = [[NSUserDefaults alloc] init];
+  GULUserDefaults *_Nonnull userDefaults = [self makeEmptyUserDefaults];
   configFlags.userDefaults = userDefaults;
 
   [configFlags resetCache];
@@ -239,7 +245,7 @@
   configurations.remoteConfigFlags = configFlags;
   configFlags.lastFetchedTime = [NSDate date];
 
-  NSUserDefaults *userDefaults = [[NSUserDefaults alloc] init];
+  GULUserDefaults *_Nonnull userDefaults = [self makeEmptyUserDefaults];
   configFlags.userDefaults = userDefaults;
 
   NSSet<NSString *> *versionSet =
@@ -269,7 +275,7 @@
   configurations.remoteConfigFlags = configFlags;
   configFlags.lastFetchedTime = [NSDate date];
 
-  NSUserDefaults *userDefaults = [[NSUserDefaults alloc] init];
+  GULUserDefaults *_Nonnull userDefaults = [self makeEmptyUserDefaults];
   configFlags.userDefaults = userDefaults;
 
   NSString *configKey = [NSString stringWithFormat:@"%@.%@", kFPRConfigPrefix, @"fpr_enabled"];
@@ -299,7 +305,7 @@
   configurations.remoteConfigFlags = configFlags;
   configFlags.lastFetchedTime = [NSDate date];
 
-  NSUserDefaults *userDefaults = [[NSUserDefaults alloc] init];
+  GULUserDefaults *_Nonnull userDefaults = [self makeEmptyUserDefaults];
   configFlags.userDefaults = userDefaults;
 
   NSString *configKey = [NSString stringWithFormat:@"%@.%@", kFPRConfigPrefix, @"fpr_enabled"];
@@ -325,7 +331,7 @@
   configurations.remoteConfigFlags = configFlags;
   configFlags.lastFetchedTime = [NSDate date];
 
-  NSUserDefaults *userDefaults = [[NSUserDefaults alloc] init];
+  GULUserDefaults *_Nonnull userDefaults = [self makeEmptyUserDefaults];
   configFlags.userDefaults = userDefaults;
 
   NSString *configKey = [NSString stringWithFormat:@"%@.%@", kFPRConfigPrefix, @"fpr_enabled"];
@@ -351,7 +357,7 @@
   configurations.remoteConfigFlags = configFlags;
   configFlags.lastFetchedTime = [NSDate date];
 
-  NSUserDefaults *userDefaults = [[NSUserDefaults alloc] init];
+  GULUserDefaults *_Nonnull userDefaults = [self makeEmptyUserDefaults];
   configFlags.userDefaults = userDefaults;
 
   NSString *configKey =
@@ -375,7 +381,7 @@
   configurations.remoteConfigFlags = configFlags;
   configFlags.lastFetchedTime = [NSDate date];
 
-  NSUserDefaults *userDefaults = [[NSUserDefaults alloc] init];
+  GULUserDefaults *_Nonnull userDefaults = [self makeEmptyUserDefaults];
   configFlags.userDefaults = userDefaults;
 
   NSString *configKey =
@@ -399,7 +405,7 @@
   configurations.remoteConfigFlags = configFlags;
   configFlags.lastFetchedTime = [NSDate date];
 
-  NSUserDefaults *userDefaults = [[NSUserDefaults alloc] init];
+  GULUserDefaults *_Nonnull userDefaults = [self makeEmptyUserDefaults];
   configFlags.userDefaults = userDefaults;
 
   NSString *configKey = [NSString
@@ -423,7 +429,7 @@
   configurations.remoteConfigFlags = configFlags;
   configFlags.lastFetchedTime = [NSDate date];
 
-  NSUserDefaults *userDefaults = [[NSUserDefaults alloc] init];
+  GULUserDefaults *_Nonnull userDefaults = [self makeEmptyUserDefaults];
   configFlags.userDefaults = userDefaults;
 
   NSString *configKey = [NSString
@@ -447,7 +453,7 @@
   configurations.remoteConfigFlags = configFlags;
   configFlags.lastFetchedTime = [NSDate date];
 
-  NSUserDefaults *userDefaults = [[NSUserDefaults alloc] init];
+  GULUserDefaults *_Nonnull userDefaults = [self makeEmptyUserDefaults];
   configFlags.userDefaults = userDefaults;
 
   NSString *configKey =
@@ -477,7 +483,7 @@
   configurations.remoteConfigFlags = configFlags;
   configFlags.lastFetchedTime = [NSDate date];
 
-  NSUserDefaults *userDefaults = [[NSUserDefaults alloc] init];
+  GULUserDefaults *_Nonnull userDefaults = [self makeEmptyUserDefaults];
   configFlags.userDefaults = userDefaults;
 
   NSString *configKeyCPUFg =
@@ -526,7 +532,7 @@
   configurations.remoteConfigFlags = configFlags;
   configFlags.lastFetchedTime = [NSDate date];
 
-  NSUserDefaults *userDefaults = [[NSUserDefaults alloc] init];
+  GULUserDefaults *_Nonnull userDefaults = [self makeEmptyUserDefaults];
   configFlags.userDefaults = userDefaults;
 
   NSString *configKey =
@@ -549,7 +555,7 @@
   configurations.remoteConfigFlags = configFlags;
   configFlags.lastFetchedTime = [NSDate date];
 
-  NSUserDefaults *userDefaults = [[NSUserDefaults alloc] init];
+  GULUserDefaults *_Nonnull userDefaults = [self makeEmptyUserDefaults];
   configFlags.userDefaults = userDefaults;
 
   NSString *configKey =

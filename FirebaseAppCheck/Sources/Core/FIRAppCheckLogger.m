@@ -28,12 +28,23 @@ NSString *const kFIRLoggerAppCheckMessageCodeProviderIsMissing = @"I-FAA002002";
 
 // FIRAppCheckDebugProvider.m
 NSString *const kFIRLoggerAppCheckMessageDebugProviderIncompleteFIROptions = @"I-FAA004001";
+NSString *const kFIRLoggerAppCheckMessageCodeDebugTokenExchangeFailed = @"I-FAA004002";
 
 // FIRAppCheckDebugProviderFactory.m
 NSString *const kFIRLoggerAppCheckMessageCodeDebugToken = @"I-FAA005001";
 
 // FIRDeviceCheckProvider.m
 NSString *const kFIRLoggerAppCheckMessageDeviceCheckProviderIncompleteFIROptions = @"I-FAA006001";
+
+// FIRRecaptchaProvider.m
+NSString *const kFIRLoggerAppCheckMessageRecaptchaProviderIncompleteFIROptions = @"I-FAA007001";
+NSString *const kFIRLoggerAppCheckMessageRecaptchaProviderMissingSiteKey = @"I-FAA007002";
+NSString *const kFIRLoggerAppCheckMessageRecaptchaProviderMissingRecaptchaEnterpriseSDK =
+    @"I-FAA007003";
+
+// FIRDefaultProviderFactory.m
+NSString *const kFIRLoggerAppCheckMessageCodeRecaptchaFallbackToDeviceCheck = @"I-FAA008001";
+NSString *const kFIRLoggerAppCheckMessageCodeDeviceCheckProviderUnavailable = @"I-FAA008002";
 
 #pragma mark - Log functions
 

@@ -38,6 +38,7 @@ extern NSString *const _Nonnull FIRRemoteConfigThrottledEndTimeInSecondsKey NS_S
  * RC backend is closed. Subsequently calling `addOnConfigUpdateListener` will re-open the
  * connection.
  */
+NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(ConfigUpdateListenerRegistration)
 @interface FIRConfigUpdateListenerRegistration : NSObject
 /**
@@ -96,6 +97,19 @@ typedef NS_ERROR_ENUM(FIRRemoteConfigUpdateErrorDomain, FIRRemoteConfigUpdateErr
     FIRRemoteConfigUpdateErrorUnavailable = 8004,
 } NS_SWIFT_NAME(RemoteConfigUpdateError);
 
+/// Error domain for custom signals errors.
+extern NSString *const _Nonnull FIRRemoteConfigCustomSignalsErrorDomain NS_SWIFT_NAME(RemoteConfigCustomSignalsErrorDomain);
+
+/// Firebase Remote Config custom signals error.
+typedef NS_ERROR_ENUM(FIRRemoteConfigCustomSignalsErrorDomain, FIRRemoteConfigCustomSignalsError){
+    /// Unknown error.
+    FIRRemoteConfigCustomSignalsErrorUnknown = 8101,
+    /// Invalid value type in the custom signals dictionary.
+    FIRRemoteConfigCustomSignalsErrorInvalidValueType = 8102,
+    /// Limit exceeded for key length, value length, or number of signals.
+    FIRRemoteConfigCustomSignalsErrorLimitExceeded = 8103,
+} NS_SWIFT_NAME(RemoteConfigCustomSignalsError);
+
 /// Enumerated value that indicates the source of Remote Config data. Data can come from
 /// the Remote Config service, the DefaultConfig that is available when the app is first installed,
 /// or a static initialized value if data is not available from the service or DefaultConfig.
@@ -138,7 +152,7 @@ typedef void (^FIRRemoteConfigFetchAndActivateCompletion)(
 NS_SWIFT_NAME(RemoteConfigValue)
 @interface FIRRemoteConfigValue : NSObject <NSCopying>
 /// Gets the value as a string.
-@property(nonatomic, readonly, nullable) NSString *stringValue;
+@property(nonatomic, readonly, nonnull) NSString *stringValue;
 /// Gets the value as a number value.
 @property(nonatomic, readonly, nonnull) NSNumber *numberValue;
 /// Gets the value as a NSData object.
@@ -217,11 +231,35 @@ NS_SWIFT_NAME(RemoteConfig)
 /// Unavailable. Use +remoteConfig instead.
 - (nonnull instancetype)init __attribute__((unavailable("Use +remoteConfig instead.")));
 
+#if (defined(__IPHONE_OS_VERSION_MAX_ALLOWED) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 180000)
+/// Ensures initialization is complete and clients can begin querying for Remote Config values.
+/// @param completionHandler Initialization complete callback with error parameter.
+- (void)ensureInitializedWithCompletionHandler:
+    (void (^_Nonnull NS_SWIFT_SENDABLE)(NSError *_Nullable initializationError))completionHandler;
+#else
 /// Ensures initialization is complete and clients can begin querying for Remote Config values.
 /// @param completionHandler Initialization complete callback with error parameter.
 - (void)ensureInitializedWithCompletionHandler:
     (void (^_Nonnull)(NSError *_Nullable initializationError))completionHandler;
+#endif
+
 #pragma mark - Fetch
+
+#if (defined(__IPHONE_OS_VERSION_MAX_ALLOWED) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 180000)
+/// Fetches Remote Config data with a callback. Call `activate()` to make fetched data
+/// available to your app.
+///
+/// Note: This method uses a Firebase Installations token to identify the app instance, and once
+/// it's called, it periodically sends data to the Firebase backend. (see
+/// `Installations.authToken(completion:)`).
+/// To stop the periodic sync, call `Installations.delete(completion:)`
+/// and avoid calling this method again.
+///
+/// @param completionHandler Fetch operation callback with status and error parameters.
+- (void)fetchWithCompletionHandler:
+    (void (^_Nullable NS_SWIFT_SENDABLE)(FIRRemoteConfigFetchStatus status,
+                                         NSError *_Nullable error))completionHandler;
+#else
 /// Fetches Remote Config data with a callback. Call `activate()` to make fetched data
 /// available to your app.
 ///
@@ -234,7 +272,27 @@ NS_SWIFT_NAME(RemoteConfig)
 /// @param completionHandler Fetch operation callback with status and error parameters.
 - (void)fetchWithCompletionHandler:(void (^_Nullable)(FIRRemoteConfigFetchStatus status,
                                                       NSError *_Nullable error))completionHandler;
+#endif
 
+#if (defined(__IPHONE_OS_VERSION_MAX_ALLOWED) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 180000)
+/// Fetches Remote Config data and sets a duration that specifies how long config data lasts.
+/// Call `activateWithCompletion:` to make fetched data available to your app.
+///
+/// Note: This method uses a Firebase Installations token to identify the app instance, and once
+/// it's called, it periodically sends data to the Firebase backend. (see
+/// `Installations.authToken(completion:)`).
+/// To stop the periodic sync, call `Installations.delete(completion:)`
+/// and avoid calling this method again.
+///
+/// @param expirationDuration  Override the (default or optionally set `minimumFetchInterval`
+/// property in RemoteConfigSettings) `minimumFetchInterval` for only the current request, in
+/// seconds. Setting a value of 0 seconds will force a fetch to the backend.
+/// @param completionHandler   Fetch operation callback with status and error parameters.
+- (void)fetchWithExpirationDuration:(NSTimeInterval)expirationDuration
+                  completionHandler:(void (^_Nullable NS_SWIFT_SENDABLE)(
+                                        FIRRemoteConfigFetchStatus status,
+                                        NSError *_Nullable error))completionHandler;
+#else
 /// Fetches Remote Config data and sets a duration that specifies how long config data lasts.
 /// Call `activateWithCompletion:` to make fetched data available to your app.
 ///
@@ -251,7 +309,23 @@ NS_SWIFT_NAME(RemoteConfig)
 - (void)fetchWithExpirationDuration:(NSTimeInterval)expirationDuration
                   completionHandler:(void (^_Nullable)(FIRRemoteConfigFetchStatus status,
                                                        NSError *_Nullable error))completionHandler;
+#endif
 
+#if (defined(__IPHONE_OS_VERSION_MAX_ALLOWED) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 180000)
+/// Fetches Remote Config data and if successful, activates fetched data. Optional completion
+/// handler callback is invoked after the attempted activation of data, if the fetch call succeeded.
+///
+/// Note: This method uses a Firebase Installations token to identify the app instance, and once
+/// it's called, it periodically sends data to the Firebase backend. (see
+/// `Installations.authToken(completion:)`).
+/// To stop the periodic sync, call `Installations.delete(completion:)`
+/// and avoid calling this method again.
+///
+/// @param completionHandler Fetch operation callback with status and error parameters.
+- (void)fetchAndActivateWithCompletionHandler:
+    (void (^_Nullable NS_SWIFT_SENDABLE)(FIRRemoteConfigFetchAndActivateStatus status,
+                                         NSError *_Nullable error))completionHandler;
+#else
 /// Fetches Remote Config data and if successful, activates fetched data. Optional completion
 /// handler callback is invoked after the attempted activation of data, if the fetch call succeeded.
 ///
@@ -265,14 +339,23 @@ NS_SWIFT_NAME(RemoteConfig)
 - (void)fetchAndActivateWithCompletionHandler:
     (void (^_Nullable)(FIRRemoteConfigFetchAndActivateStatus status,
                        NSError *_Nullable error))completionHandler;
+#endif
 
 #pragma mark - Apply
 
+#if (defined(__IPHONE_OS_VERSION_MAX_ALLOWED) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 180000)
+/// Applies Fetched Config data to the Active Config, causing updates to the behavior and appearance
+/// of the app to take effect (depending on how config data is used in the app).
+/// @param completion Activate operation callback with changed and error parameters.
+- (void)activateWithCompletion:
+    (void (^_Nullable NS_SWIFT_SENDABLE)(BOOL changed, NSError *_Nullable error))completion;
+#else
 /// Applies Fetched Config data to the Active Config, causing updates to the behavior and appearance
 /// of the app to take effect (depending on how config data is used in the app).
 /// @param completion Activate operation callback with changed and error parameters.
 - (void)activateWithCompletion:(void (^_Nullable)(BOOL changed,
                                                   NSError *_Nullable error))completion;
+#endif
 
 #pragma mark - Get Config
 /// Enables access to configuration values by using object subscripting syntax.
@@ -339,6 +422,25 @@ typedef void (^FIRRemoteConfigUpdateCompletion)(FIRRemoteConfigUpdate *_Nullable
                                                 NSError *_Nullable error)
     NS_SWIFT_UNAVAILABLE("Use Swift's closure syntax instead.");
 
+#if (defined(__IPHONE_OS_VERSION_MAX_ALLOWED) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 180000)
+/// Start listening for real-time config updates from the Remote Config backend and automatically
+/// fetch updates when they're available.
+///
+/// If a connection to the Remote Config backend is not already open, calling this method will
+/// open it. Multiple listeners can be added by calling this method again, but subsequent calls
+/// re-use the same connection to the backend.
+///
+/// Note: Real-time Remote Config requires the Firebase Remote Config Realtime API. See Get started
+/// with Firebase Remote Config at https://firebase.google.com/docs/remote-config/get-started for
+/// more information.
+///
+/// @param listener              The configured listener that is called for every config update.
+/// @return              Returns a registration representing the listener. The registration contains
+/// a remove method, which can be used to stop receiving updates for the provided listener.
+- (FIRConfigUpdateListenerRegistration *_Nonnull)addOnConfigUpdateListener:
+    (FIRRemoteConfigUpdateCompletion _Nonnull NS_SWIFT_SENDABLE)listener
+    NS_SWIFT_NAME(addOnConfigUpdateListener(remoteConfigUpdateCompletion:));
+#else
 /// Start listening for real-time config updates from the Remote Config backend and automatically
 /// fetch updates when they're available.
 ///
@@ -356,5 +458,10 @@ typedef void (^FIRRemoteConfigUpdateCompletion)(FIRRemoteConfigUpdate *_Nullable
 - (FIRConfigUpdateListenerRegistration *_Nonnull)addOnConfigUpdateListener:
     (FIRRemoteConfigUpdateCompletion _Nonnull)listener
     NS_SWIFT_NAME(addOnConfigUpdateListener(remoteConfigUpdateCompletion:));
+#endif
+
+- (void)setCustomSignals:(nonnull NSDictionary<NSString *, NSObject *> *)customSignals
+          withCompletion:(void (^_Nullable)(NSError *_Nullable error))completionHandler
+    NS_REFINED_FOR_SWIFT;
 
 @end

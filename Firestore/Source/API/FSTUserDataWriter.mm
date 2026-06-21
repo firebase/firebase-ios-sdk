@@ -21,6 +21,7 @@
 
 #include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
 #include "Firestore/Source/API/FIRDocumentReference+Internal.h"
+#include "Firestore/Source/API/FIRFieldValue+Internal.h"
 #include "Firestore/Source/API/converters.h"
 #include "Firestore/core/include/firebase/firestore/geo_point.h"
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
@@ -105,6 +106,8 @@ NS_ASSUME_NONNULL_BEGIN
     case TypeOrder::kGeoPoint:
       return MakeFIRGeoPoint(
           GeoPoint(value.geo_point_value.latitude, value.geo_point_value.longitude));
+    case TypeOrder::kVector:
+      return [self convertedVector:value.map_value];
     case TypeOrder::kMaxValue:
       // It is not possible for users to construct a kMaxValue manually.
       break;
@@ -121,6 +124,18 @@ NS_ASSUME_NONNULL_BEGIN
     result[MakeNSString(key)] = [self convertedValue:value];
   }
   return result;
+}
+
+- (FIRVectorValue *)convertedVector:(const google_firestore_v1_MapValue &)mapValue {
+  for (pb_size_t i = 0; i < mapValue.fields_count; ++i) {
+    absl::string_view key = MakeStringView(mapValue.fields[i].key);
+    const google_firestore_v1_Value &value = mapValue.fields[i].value;
+    if ((0 == key.compare(absl::string_view("value"))) &&
+        value.which_value_type == google_firestore_v1_Value_array_value_tag) {
+      return [FIRFieldValue vectorWithArray:[self convertedArray:value.array_value]];
+    }
+  }
+  return [FIRFieldValue vectorWithArray:@[]];
 }
 
 - (NSArray<id> *)convertedArray:(const google_firestore_v1_ArrayValue &)arrayValue {

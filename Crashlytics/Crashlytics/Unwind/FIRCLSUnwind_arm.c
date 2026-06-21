@@ -291,7 +291,7 @@ bool FIRCLSDwarfUnwindSetRegisterValue(FIRCLSThreadContext* registers,
       // Here's what's going on. For x86, the "return register" is virtual. The architecture
       // doesn't actually have one, but DWARF does have the concept. So, when the system
       // tries to set the return register, we set the PC. You can see this behavior
-      // in the FIRCLSDwarfUnwindSetRegisterValue implemenation for that architecture. In the
+      // in the FIRCLSDwarfUnwindSetRegisterValue implementation for that architecture. In the
       // case of ARM64, the register is real. So, we have to be extra careful to make sure
       // we update the PC here. Otherwise, when a DWARF unwind completes, it won't have
       // changed the PC to the right value.

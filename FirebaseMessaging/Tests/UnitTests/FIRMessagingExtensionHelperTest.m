@@ -26,7 +26,7 @@
 API_AVAILABLE(macos(10.14), ios(10.0), watchos(3.0))
 typedef void (^FIRMessagingContentHandler)(UNNotificationContent *content);
 
-#if TARGET_OS_IOS || TARGET_OS_OSX || TARGET_OS_WATCH
+#if !TARGET_OS_TV
 static NSString *const kFCMPayloadOptionsName = @"fcm_options";
 static NSString *const kFCMPayloadOptionsImageURLName = @"image";
 static NSString *const kValidImageURL =
@@ -83,7 +83,7 @@ static NSString *const kValidImageURL =
     [_mockExtensionHelper populateNotificationContent:content withContentHandler:handler];
     OCMVerify([_mockExtensionHelper loadAttachmentForURL:[OCMArg any]
                                        completionHandler:[OCMArg any]]);
-    // Wait longer to accomodate increased network latency when running on CI.
+    // Wait longer to accommodate increased network latency when running on CI.
     [self waitForExpectationsWithTimeout:5.0 handler:nil];
   }
 }
@@ -109,13 +109,13 @@ static NSString *const kValidImageURL =
 
 - (void)testModifyNotificationWithEmptyPayloadData {
   if (@available(macOS 10.14, iOS 10.0, watchos 3.0, *)) {
-    XCTestExpectation *validPayloadExpectation =
-        [self expectationWithDescription:@"Test payload is valid."];
+    XCTestExpectation *handlerCalledExpectation =
+        [self expectationWithDescription:@"Content handler was called."];
     UNMutableNotificationContent *content = [[UNMutableNotificationContent alloc] init];
-    content.userInfo =
-        @{kFCMPayloadOptionsName : @{kFCMPayloadOptionsImageURLName : @"a invalid URL"}};
+    // Simulate empty payload data relevant to image loading.
+    content.userInfo = @{kFCMPayloadOptionsName : @{}};
     FIRMessagingContentHandler handler = ^(UNNotificationContent *content) {
-      [validPayloadExpectation fulfill];
+      [handlerCalledExpectation fulfill];
     };
     [_mockExtensionHelper populateNotificationContent:content withContentHandler:handler];
     OCMReject([_mockExtensionHelper loadAttachmentForURL:[OCMArg any]
@@ -221,4 +221,4 @@ static NSString *const kValidImageURL =
 
 @end
 
-#endif  // TARGET_OS_IOS || TARGET_OS_OSX || TARGET_OS_WATCH
+#endif  // !TARGET_OS_TV

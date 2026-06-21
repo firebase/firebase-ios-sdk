@@ -1,11 +1,11 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseRemoteConfigInterop'
-  s.version          = '10.25.0'
+  s.version          = '12.16.0'
   s.summary          = 'Interfaces that allow other Firebase SDKs to use Remote Config functionality.'
 
   s.description      = <<-DESC
   Not for public use.
-  A set of protocols that other Firebase SDKs can use to interoperate with FirebaseRemoetConfig in a safe
+  A set of protocols that other Firebase SDKs can use to interoperate with FirebaseRemoteConfig in a safe
   and reliable manner.
                        DESC
 
@@ -20,15 +20,17 @@ Pod::Spec.new do |s|
     :tag => 'CocoaPods-' + s.version.to_s
   }
 
-  s.swift_version = '5.3'
+  s.swift_version = '5.9'
   s.cocoapods_version = '>= 1.12.0'
   s.prefix_header_file = false
 
   s.social_media_url = 'https://twitter.com/Firebase'
-  s.ios.deployment_target = '11.0'
-  s.osx.deployment_target = '10.13'
-  s.tvos.deployment_target = '12.0'
-  s.watchos.deployment_target = '6.0'
+
+  # The ios deployment target must support Crashlytics.
+  s.ios.deployment_target = '15.0'
+  s.osx.deployment_target = '10.15'
+  s.tvos.deployment_target = '15.0'
+  s.watchos.deployment_target = '7.0'
 
   s.source_files = 'FirebaseRemoteConfig/Interop/*.swift'
 end

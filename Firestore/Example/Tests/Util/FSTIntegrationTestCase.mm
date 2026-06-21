@@ -34,7 +34,8 @@
 
 #import "FirebaseCore/Extension/FIRAppInternal.h"
 #import "FirebaseCore/Extension/FIRLogger.h"
-#import "FirebaseCore/Extension/FIROptionsInternal.h"
+#import "FirebaseCore/Sources/Public/FirebaseCore/FIRLoggerLevel.h"
+#import "FirebaseCore/Sources/Public/FirebaseCore/FIROptions.h"
 #import "Firestore/Example/Tests/Util/FIRFirestore+Testing.h"
 #import "Firestore/Example/Tests/Util/FSTEventAccumulator.h"
 #import "Firestore/Source/API/FIRAggregateQuery+Internal.h"
@@ -85,6 +86,7 @@ static const double kPrimingTimeout = 45.0;
 
 static NSString *defaultProjectId;
 static NSString *defaultDatabaseId = @"(default)";
+static NSString *enterpriseDatabaseId = @"enterprise";
 static FIRFirestoreSettings *defaultSettings;
 
 static bool runningAgainstEmulator = false;
@@ -182,6 +184,28 @@ class FakeAuthCredentialsProvider : public EmptyAuthCredentialsProvider {
  * See Firestore/README.md for detailed setup instructions or comments below for which specific
  * values trigger which configurations.
  */
++ (FSTBackendEdition)backendEdition {
+  NSString *backendEditionStr = [[NSProcessInfo processInfo] environment][@"BACKEND_EDITION"];
+  if (backendEditionStr && [backendEditionStr isEqualToString:@"enterprise"]) {
+    return FSTBackendEditionEnterprise;
+  } else {
+    return FSTBackendEditionStandard;
+  }
+}
+
++ (FSTTargetBackend)targetBackend {
+  NSString *targetBackendStr = [[NSProcessInfo processInfo] environment][@"TARGET_BACKEND"];
+  if ([targetBackendStr isEqualToString:@"nightly"]) {
+    return FSTTargetBackendNightly;
+  } else if ([targetBackendStr isEqualToString:@"emulator"]) {
+    return FSTTargetBackendEmulator;
+  } else if ([targetBackendStr isEqualToString:@"qa"]) {
+    return FSTTargetBackendQA;
+  } else {
+    return FSTTargetBackendProd;
+  }
+}
+
 + (void)setUpDefaults {
   if (defaultSettings) return;
 
@@ -191,6 +215,12 @@ class FakeAuthCredentialsProvider : public EmptyAuthCredentialsProvider {
   NSString *databaseId = [[NSProcessInfo processInfo] environment][@"TARGET_DATABASE_ID"];
   if (databaseId) {
     defaultDatabaseId = databaseId;
+  } else {
+    if ([FSTIntegrationTestCase backendEdition] == FSTBackendEditionEnterprise) {
+      defaultDatabaseId = enterpriseDatabaseId;
+    } else {
+      defaultDatabaseId = @"(default)";
+    }
   }
 
   // Check for a MobileHarness configuration, running against nightly or prod, which have live
@@ -270,6 +300,10 @@ class FakeAuthCredentialsProvider : public EmptyAuthCredentialsProvider {
     return @"(default)";
   }
   return defaultDatabaseId;
+}
+
++ (void)switchToEnterpriseMode {
+  defaultDatabaseId = enterpriseDatabaseId;
 }
 
 + (bool)isRunningAgainstEmulator {
@@ -622,21 +656,44 @@ class FakeAuthCredentialsProvider : public EmptyAuthCredentialsProvider {
 
 /**
  * Checks that running the query while online (against the backend/emulator) results in the same
- * documents as running the query while offline. It also checks that both online and offline
- * query result is equal to the expected documents.
+ * documents as running the query while offline. If `expectedDocs` is provided, it also checks
+ * that both online and offline query result is equal to the expected documents.
  *
- * @param query The query to check.
- * @param expectedDocs Array of document keys that are expected to match the query.
+ * This function first performs a "get" for the entire COLLECTION from the server.
+ * It then performs the QUERY from CACHE which, results in `executeFullCollectionScan()`
+ * It then performs the QUERY from SERVER.
+ * It then performs the QUERY from CACHE again, which results in `performQueryUsingRemoteKeys()`.
+ * It then ensure that all the above QUERY results are the same.
+ *
+ * @param collection The collection on which the query is performed.
+ * @param query The query to check
+ * @param expectedDocs Ordered list of document keys that are expected to match the query
  */
-- (void)checkOnlineAndOfflineQuery:(FIRQuery *)query matchesResult:(NSArray *)expectedDocs {
+- (void)checkOnlineAndOfflineCollection:(FIRQuery *)collection
+                                  query:(FIRQuery *)query
+                          matchesResult:(NSArray *)expectedDocs {
+  // Note: Order matters. The following has to be done in the specific order:
+
+  // 1- Pre-populate the cache with the entire collection.
+  [self readDocumentSetForRef:collection source:FIRFirestoreSourceServer];
+
+  // 2- This performs the query against the cache using full collection scan.
+  FIRQuerySnapshot *docsFromCacheFullCollectionScan =
+      [self readDocumentSetForRef:query source:FIRFirestoreSourceCache];
+
+  // 3- This goes to the server (backend/emulator).
   FIRQuerySnapshot *docsFromServer = [self readDocumentSetForRef:query
                                                           source:FIRFirestoreSourceServer];
-  FIRQuerySnapshot *docsFromCache = [self readDocumentSetForRef:query
-                                                         source:FIRFirestoreSourceCache];
+
+  // 4- This performs the query against the cache using remote keys.
+  FIRQuerySnapshot *docsFromCacheUsingRemoteKeys =
+      [self readDocumentSetForRef:query source:FIRFirestoreSourceCache];
 
   XCTAssertEqualObjects(FIRQuerySnapshotGetIDs(docsFromServer),
-                        FIRQuerySnapshotGetIDs(docsFromCache));
-  XCTAssertEqualObjects(FIRQuerySnapshotGetIDs(docsFromCache), expectedDocs);
+                        FIRQuerySnapshotGetIDs(docsFromCacheFullCollectionScan));
+  XCTAssertEqualObjects(FIRQuerySnapshotGetIDs(docsFromServer),
+                        FIRQuerySnapshotGetIDs(docsFromCacheUsingRemoteKeys));
+  XCTAssertEqualObjects(FIRQuerySnapshotGetIDs(docsFromServer), expectedDocs);
 }
 
 - (const std::shared_ptr<AsyncQueue> &)queueForFirestore:(FIRFirestore *)firestore {

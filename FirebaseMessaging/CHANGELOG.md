@@ -1,3 +1,35 @@
+# 12.8.0
+- [fixed] Fix missing database crash on launch. (#14880)
+
+# 12.1.0
+- [fixed] Fix Xcode 26 crash from missing `NSUserActivityTypeBrowsingWeb`
+  symbol. Note that this fix isn't in the 12.1.0 zip and Carthage
+  distributions, but will be included from 12.2.0 onwards. (#15159)
+
+# 11.14.0
+- [fixed] Fix a potential SQL injection issue. (#14846).
+
+# 11.9.0
+- [fixed] Migrate FCM codebase to new NSKeyedUnarchiver APIs. (#14424).
+
+# 11.8.0
+- [fixed] Don't cache FCM registration token operations. (#14352).
+
+# 11.5.0
+- [fixed] Improve token-fetch failure logging with detailed error info. (#13997).
+
+# 11.0.0
+- [fixed] Completed Messaging's transition to NSSecureCoding (#12343).
+
+# 10.29.0
+- [fixed] Renamed "initWithFileName" internal method that was causing submission issues for some
+  users. (#13134).
+- [fixed] Fixed the APS Environment key on visionOS. (#13173)
+
+# 10.27.0
+- [fixed] Fixed bug preventing Messaging from working with a custom sqlite3
+  dependency (#12900).
+
 # 10.23.0
 - [fixed] [CocoaPods] Fix "no rule" warning when running `pod install`. (#12511)
 
@@ -91,7 +123,7 @@
 - [changed] Changed the location of source under FirebaseMessaging folder to fit the current repository organization. (#5476)
 
 # 4.3.1
-- [fixed] Fixed an issue that when a token is deleted, the token refresh notificaiton and delegate is not triggered. (#5338)
+- [fixed] Fixed an issue that when a token is deleted, the token refresh notification and delegate is not triggered. (#5338)
 
 # 4.3.0
 - [changed] Deprecated FCM direct channel messaging via `shouldEstablishDirectChannel`. Instead, use APNs for downstream message delivery. Add `content_available` key to your payload if you want to continue use legacy APIs, but we strongly recommend HTTP v1 API as it provides full APNs support. The deprecated API will be removed in Firebase 7. (#4710)
@@ -145,11 +177,11 @@
 - [feature] Adding macOS support for Messaging. You can now send push notification to your mac app with Firebase Messaging.(#2880)
 
 # 4.0.2
-- [fixed] Disable data protection when opening the Rmq2PeristentStore. (#2963)
+- [fixed] Disable data protection when opening the Rmq2PersistentStore. (#2963)
 
 # 4.0.1
 - [fixed] Fixed race condition checkin is deleted before writing during app start. This cleans up the corrupted checkin and fixes #2438. (#2860)
-- [fixed] Separete APNS proxy methods in GULAppDelegateSwizzler so developers don't need to swizzle APNS related method unless explicitly requested, this fixes #2807. (#2835)
+- [fixed] Separate APNS proxy methods in GULAppDelegateSwizzler so developers don't need to swizzle APNS related method unless explicitly requested, this fixes #2807. (#2835)
 - [changed] Clean up code. Remove extra layer of class. (#2853)
 
 # 4.0.0

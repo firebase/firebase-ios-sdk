@@ -153,7 +153,7 @@
   XCTAssertEqualObjects(actual, expected);
 }
 
-- (void)testLeafsAreUpdatedWhenRangesIncludeDeeperPath {
+- (void)testLeavesAreUpdatedWhenRangesIncludeDeeperPath {
   id<FNode> node = NODE((@{@"foo" : @{@"bar" : @"bar-value"}}));
 
   id<FNode> updates = NODE((@{@"foo" : @{@"bar" : @"new-bar-value"}}));
@@ -167,7 +167,7 @@
   XCTAssertEqualObjects(actual, expected);
 }
 
-- (void)testLeafsAreNotUpdatedWhenRangesIncludeDeeperPaths {
+- (void)testLeavesAreNotUpdatedWhenRangesIncludeDeeperPaths {
   id<FNode> node = NODE((@{@"foo" : @{@"bar" : @"bar-value"}}));
 
   id<FNode> updates = NODE((@{@"foo" : @{@"bar" : @"new-bar-value"}}));

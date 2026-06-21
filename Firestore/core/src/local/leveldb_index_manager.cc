@@ -188,10 +188,15 @@ LevelDbIndexManager::LevelDbIndexManager(const User& user,
   // The contract for this comparison expected by priority queue is
   // `std::less`, but std::priority_queue's default order is descending.
   // We change the order to be ascending by doing left >= right instead.
+  // Note: priority queue has to have a strict ordering, so here using unique_id
+  // to order Field Indexes having same `sequence_number` and `collection_group`
   auto cmp = [](FieldIndex* left, FieldIndex* right) {
     if (left->index_state().sequence_number() ==
         right->index_state().sequence_number()) {
-      return left->collection_group() >= right->collection_group();
+      if (left->collection_group() == right->collection_group()) {
+        return left->unique_id() > right->unique_id();
+      }
+      return left->collection_group() > right->collection_group();
     }
     return left->index_state().sequence_number() >
            right->index_state().sequence_number();

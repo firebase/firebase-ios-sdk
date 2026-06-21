@@ -21,7 +21,7 @@ public extension String {
   /// Finds and returns the ranges of all occurrences of a given string within a given range of the
   /// String, subject to given options,
   /// using the specified locale, if any.
-  /// - Returns: An an optional array of ranges where each range corresponds to an occurence of the
+  /// - Returns: An an optional array of ranges where each range corresponds to an occurrence of the
   /// substring in the given string.
   func ranges<T: StringProtocol>(of substring: T, options: CompareOptions = .literal,
                                  locale: Locale? = nil) -> [Range<Index>] {

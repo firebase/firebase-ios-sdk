@@ -17,7 +17,7 @@
 #ifndef FIRESTORE_CORE_SRC_UTIL_EXECUTOR_H_
 #define FIRESTORE_CORE_SRC_UTIL_EXECUTOR_H_
 
-#include <chrono>  // NOLINT(build/c++11)
+#include <chrono>
 #include <functional>
 #include <memory>
 #include <string>
@@ -84,7 +84,7 @@ class Executor {
   // object prevents any tasks from running that could observe a partially
   // destroyed object graph.
   //
-  // Requirements for implementors:
+  // Requirements for implementers:
   //   * Dispose implementations must be idempotent.
   //   * Dispose implementations must exclude concurrent execution of other
   //     methods.

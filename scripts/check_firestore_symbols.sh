@@ -95,7 +95,7 @@ import PackageDescription
 
 let package = Package(
     name: "TestPkg",
-    platforms: [.macOS(.v10_13)],
+    platforms: [.macOS(.v10_15)],
     dependencies: [
         .package(path: "${FIREBASE_REPO_PATH}")
     ],

@@ -21,7 +21,7 @@
  */
 @interface FPRDiagnostics ()
 
-/** FPRCongiguration to check if diagnostic is enabled. */
+/** FPRConfiguration to check if diagnostic is enabled. */
 @property(class, nonatomic, readwrite) FPRConfigurations *configuration;
 
 @end

@@ -15,7 +15,7 @@
  */
 
 #import <TargetConditionals.h>
-#if TARGET_OS_IOS || TARGET_OS_TV || (defined(TARGET_OS_VISION) && TARGET_OS_VISION)
+#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
 
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
@@ -108,15 +108,15 @@
     }
   }
 
-  if (self.analycisEventDislayCheckFlow) {
+  if (self.analyticsEventDisplayCheckFlow) {
     if ([self.firebaseAnalyticEventsToWatch count] > 0) {
       FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM160010",
                   @"There are analytics event trigger based messages, enable listening");
-      [self.analycisEventDislayCheckFlow start];
+      [self.analyticsEventDisplayCheckFlow start];
     } else {
       FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM160011",
                   @"No analytics event trigger based messages, disable listening");
-      [self.analycisEventDislayCheckFlow stop];
+      [self.analyticsEventDisplayCheckFlow stop];
     }
   }
 }
@@ -238,4 +238,4 @@
 }
 @end
 
-#endif  // TARGET_OS_IOS || TARGET_OS_TV || (defined(TARGET_OS_VISION) && TARGET_OS_VISION)
+#endif  // TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION

@@ -91,7 +91,7 @@ static const double SEC_PER_MINUTE = 60;
              withDataCollectionEnabled:(BOOL)dataCollectionEnabled
             usingExistingReportManager:(FIRCLSExistingReportManager *)existingReportManager {
   // Record the exception model into a new report if there is unused on-demand quota. Otherwise,
-  // log the occurence but drop the event.
+  // log the occurrence but drop the event.
   @synchronized(self) {
     if ([self isQueueFull]) {
       FIRCLSDebugLog(@"No available on-demand quota, dropping report");
@@ -178,8 +178,10 @@ static const double SEC_PER_MINUTE = 60;
 }
 
 - (NSString *)recordOnDemandExceptionWithModel:(FIRExceptionModel *)exceptionModel {
+  BOOL shouldSuspendThread = self.settings.onDemandThreadSuspensionEnabled;
   return FIRCLSExceptionRecordOnDemandModel(exceptionModel, self.recordedOnDemandExceptionCount,
-                                            self.droppedOnDemandExceptionCount);
+                                            self.droppedOnDemandExceptionCount,
+                                            shouldSuspendThread);
 }
 
 - (int)droppedOnDemandExceptionCount {

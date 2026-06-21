@@ -15,8 +15,8 @@
 #import "FirebaseCore/Tests/Unit/FIRTestCase.h"
 
 #import "FirebaseCore/Extension/FIRAppInternal.h"
-#import "FirebaseCore/Extension/FIROptionsInternal.h"
 #import "FirebaseCore/Sources/FIRBundleUtil.h"
+#import "FirebaseCore/Sources/FIROptionsInternal.h"
 #import "FirebaseCore/Sources/Public/FirebaseCore/FIRVersion.h"
 #import "SharedTestUtilities/FIROptionsMock.h"
 
@@ -26,6 +26,18 @@ extern NSString *const kFIRIsAnalyticsCollectionDeactivated;
 extern NSString *const kFIRLibraryVersionID;
 
 @interface FIROptions (Test)
+
+/**
+ * The flag indicating whether this object was constructed with the values in the default plist
+ * file.
+ */
+@property(nonatomic) BOOL usingOptionsFromDefaultPlist;
+
+/**
+ * Whether or not Measurement was enabled. Measurement is enabled unless explicitly disabled in
+ * GoogleService-Info.plist.
+ */
+@property(nonatomic, readonly) BOOL isMeasurementEnabled;
 
 - (nullable NSDictionary *)analyticsOptionsDictionaryWithInfoDictionary:
     (nullable NSDictionary *)infoDictionary;
@@ -48,11 +60,7 @@ extern NSString *const kFIRLibraryVersionID;
   NSDictionary *optionsDictionary = [FIROptions defaultOptionsDictionary];
   FIROptions *options = [[FIROptions alloc] initInternalWithOptionsDictionary:optionsDictionary];
   [self assertOptionsMatchDefaults:options andProjectID:YES];
-  XCTAssertNil(options.deepLinkURLScheme);
   XCTAssertTrue(options.usingOptionsFromDefaultPlist);
-
-  options.deepLinkURLScheme = kDeepLinkURLScheme;
-  XCTAssertEqualObjects(options.deepLinkURLScheme, kDeepLinkURLScheme);
 }
 
 - (void)testDefaultOptionsDictionaryWithNilFilePath {
@@ -77,11 +85,7 @@ extern NSString *const kFIRLibraryVersionID;
   [FIROptionsMock mockFIROptions];
   FIROptions *options = [FIROptions defaultOptions];
   [self assertOptionsMatchDefaults:options andProjectID:YES];
-  XCTAssertNil(options.deepLinkURLScheme);
   XCTAssertTrue(options.usingOptionsFromDefaultPlist);
-
-  options.deepLinkURLScheme = kDeepLinkURLScheme;
-  XCTAssertEqualObjects(options.deepLinkURLScheme, kDeepLinkURLScheme);
 }
 
 #ifndef SWIFT_PACKAGE
@@ -124,7 +128,6 @@ extern NSString *const kFIRLibraryVersionID;
   NSString *filePath = [self validGoogleServicesInfoPlistPath];
   FIROptions *options = [[FIROptions alloc] initWithContentsOfFile:filePath];
   [self assertOptionsMatchDefaults:options andProjectID:YES];
-  XCTAssertNil(options.deepLinkURLScheme);
   XCTAssertFalse(options.usingOptionsFromDefaultPlist);
 
 #pragma clang diagnostic push
@@ -145,12 +148,23 @@ extern NSString *const kFIRLibraryVersionID;
   options.bundleID = kBundleID;
   options.clientID = kClientID;
   options.databaseURL = kDatabaseURL;
-  options.deepLinkURLScheme = kDeepLinkURLScheme;
   options.projectID = kProjectID;
   options.storageBucket = kStorageBucket;
   [self assertOptionsMatchDefaults:options andProjectID:YES];
-  XCTAssertEqualObjects(options.deepLinkURLScheme, kDeepLinkURLScheme);
   XCTAssertFalse(options.usingOptionsFromDefaultPlist);
+}
+
+- (void)testRecaptchaSiteKey {
+  NSString *siteKey = @"placeholder_site_key";
+  NSDictionary *optionsDictionary = @{@"RECAPTCHA_SITE_KEY" : siteKey};
+  FIROptions *options = [[FIROptions alloc] initInternalWithOptionsDictionary:optionsDictionary];
+  XCTAssertEqualObjects(options.recaptchaSiteKey, siteKey);
+}
+
+- (void)testSetRecaptchaSiteKey {
+  FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:@"app_id" GCMSenderID:@"sender_id"];
+  options.recaptchaSiteKey = @"manual_site_key";
+  XCTAssertEqualObjects(options.recaptchaSiteKey, @"manual_site_key");
 }
 
 - (void)assertOptionsMatchDefaults:(FIROptions *)options andProjectID:(BOOL)matchProjectID {
@@ -210,11 +224,6 @@ extern NSString *const kFIRLibraryVersionID;
   XCTAssertEqualObjects(options.databaseURL, @"1");
 
   mutableString = [[NSMutableString alloc] initWithString:@"1"];
-  options.deepLinkURLScheme = mutableString;
-  [mutableString appendString:@"2"];
-  XCTAssertEqualObjects(options.deepLinkURLScheme, @"1");
-
-  mutableString = [[NSMutableString alloc] initWithString:@"1"];
   options.storageBucket = mutableString;
   [mutableString appendString:@"2"];
   XCTAssertEqualObjects(options.storageBucket, @"1");
@@ -223,30 +232,6 @@ extern NSString *const kFIRLibraryVersionID;
   options.appGroupID = mutableString;
   [mutableString appendString:@"2"];
   XCTAssertEqualObjects(options.appGroupID, @"1");
-}
-
-- (void)testCopyWithZone {
-  [FIROptionsMock mockFIROptions];
-  // default options
-  FIROptions *options = [FIROptions defaultOptions];
-  options.deepLinkURLScheme = kDeepLinkURLScheme;
-  XCTAssertEqualObjects(options.deepLinkURLScheme, kDeepLinkURLScheme);
-
-  FIROptions *newOptions = [options copy];
-  XCTAssertEqualObjects(newOptions.deepLinkURLScheme, kDeepLinkURLScheme);
-
-  [options setDeepLinkURLScheme:kNewDeepLinkURLScheme];
-  XCTAssertEqualObjects(options.deepLinkURLScheme, kNewDeepLinkURLScheme);
-  XCTAssertEqualObjects(newOptions.deepLinkURLScheme, kDeepLinkURLScheme);
-
-  // customized options
-  FIROptions *customizedOptions = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
-                                                              GCMSenderID:kGCMSenderID];
-  customizedOptions.deepLinkURLScheme = kDeepLinkURLScheme;
-  FIROptions *copyCustomizedOptions = [customizedOptions copy];
-  [copyCustomizedOptions setDeepLinkURLScheme:kNewDeepLinkURLScheme];
-  XCTAssertEqualObjects(customizedOptions.deepLinkURLScheme, kDeepLinkURLScheme);
-  XCTAssertEqualObjects(copyCustomizedOptions.deepLinkURLScheme, kNewDeepLinkURLScheme);
 }
 
 - (void)testAnalyticsConstants {
@@ -588,7 +573,6 @@ extern NSString *const kFIRLibraryVersionID;
   XCTAssertThrows(options.bundleID = @"should_throw");
   XCTAssertThrows(options.clientID = @"should_throw");
   XCTAssertThrows(options.databaseURL = @"should_throw");
-  XCTAssertThrows(options.deepLinkURLScheme = @"should_throw");
   XCTAssertThrows(options.GCMSenderID = @"should_throw");
   XCTAssertThrows(options.googleAppID = @"should_throw");
   XCTAssertThrows(options.projectID = @"should_throw");
@@ -624,7 +608,7 @@ extern NSString *const kFIRLibraryVersionID;
   int minor = (versionString[2] - '0') * 10 + versionString[3] - '0';
   int patch = (versionString[4] - '0') * 10 + versionString[5] - '0';
   NSString *str = [NSString stringWithFormat:@"%d.%d.%d", major, minor, patch];
-  XCTAssertEqualObjects(str, FIRFirebaseVersion());
+  XCTAssertTrue([FIRFirebaseVersion() hasPrefix:str]);
 }
 
 // Repeat test with more Objective-C.
@@ -638,11 +622,11 @@ extern NSString *const kFIRLibraryVersionID;
   NSRange major = NSMakeRange(0, 2);
   NSRange minor = NSMakeRange(2, 2);
   NSRange patch = NSMakeRange(4, 2);
-  NSString *str =
-      [NSString stringWithFormat:@"%@.%d.%d", [kFIRLibraryVersionID substringWithRange:major],
-                                 [[kFIRLibraryVersionID substringWithRange:minor] intValue],
-                                 [[kFIRLibraryVersionID substringWithRange:patch] intValue]];
-  XCTAssertEqualObjects(str, FIRFirebaseVersion());
+  NSString *str = [NSString
+      stringWithFormat:@"%d.%d.%d", [[kFIRLibraryVersionID substringWithRange:major] intValue],
+                       [[kFIRLibraryVersionID substringWithRange:minor] intValue],
+                       [[kFIRLibraryVersionID substringWithRange:patch] intValue]];
+  XCTAssertTrue([FIRFirebaseVersion() hasPrefix:str]);
 }
 
 #pragma mark - Helpers

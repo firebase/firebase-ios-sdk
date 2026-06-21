@@ -1,4 +1,4 @@
-# Firebase Auth for iOS
+# Firebase Auth for iOS and macOS
 
 Firebase Auth enables apps to easily support multiple authentication options
 for their end users.
@@ -13,5 +13,5 @@ Example/Auth contains a set of samples and tests that integrate with
 FirebaseAuth.
 
 The unit tests run without any additional configuration along with the rest of
-Firebase. See [Tests/Sample/README.md](Tests/Sample/README.md) for
+Firebase. See [Tests/SampleSwift/README.md](Tests/SampleSwift/README.md) for
 information about setting up, running, and testing the samples.

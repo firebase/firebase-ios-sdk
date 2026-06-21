@@ -21,11 +21,14 @@
 #include <string>
 #include <vector>
 
+#include "Firestore/core/src/api/realtime_pipeline.h"  // Added for RealtimePipeline
 #include "Firestore/core/src/core/core_fwd.h"
+#include "Firestore/core/src/core/pipeline_util.h"  // Added for QueryOrPipeline
 #include "Firestore/core/src/local/local_store.h"
 #include "Firestore/core/src/local/query_engine.h"
 #include "Firestore/core/src/local/query_result.h"
 #include "Firestore/core/src/model/mutation_batch.h"
+#include "Firestore/core/src/remote/serializer.h"  // Added for Serializer
 #include "Firestore/core/test/unit/local/counting_query_engine.h"
 #include "gtest/gtest.h"
 
@@ -59,10 +62,19 @@ class LocalStoreTestHelper {
 
 using FactoryFunc = std::unique_ptr<LocalStoreTestHelper> (*)();
 
+// Parameters for LocalStore tests, combining helper factory and pipeline flag.
+struct LocalStoreTestParams {
+  FactoryFunc local_store_helper_factory;
+  bool use_pipeline;
+};
+
 class LocalStoreTestBase : public testing::Test {
  protected:
   explicit LocalStoreTestBase(
       std::unique_ptr<LocalStoreTestHelper>&& test_helper);
+
+  // Helper to convert a Query to a RealtimePipeline.
+  api::RealtimePipeline ConvertQueryToPipeline(const core::Query& query);
 
   bool IsGcEager() const {
     return test_helper_->IsGcEager();
@@ -108,6 +120,7 @@ class LocalStoreTestBase : public testing::Test {
   std::unique_ptr<Persistence> persistence_;
   CountingQueryEngine query_engine_;
   LocalStore local_store_;
+  bool should_use_pipeline_ = false;  // Flag for pipeline usage
   std::vector<model::MutationBatch> batches_;
   model::DocumentMap last_changes_;
 
@@ -126,10 +139,10 @@ class LocalStoreTestBase : public testing::Test {
  *                                 testing::Values(MyNewLocalStoreTestHelper));
  */
 
-class LocalStoreTest : public LocalStoreTestBase,
-                       public testing::WithParamInterface<FactoryFunc> {
+class LocalStoreTest
+    : public LocalStoreTestBase,
+      public testing::WithParamInterface<LocalStoreTestParams> {
  public:
-  // `GetParam()` must return a factory function.
   LocalStoreTest();
 };
 

@@ -203,7 +203,7 @@ static NSString *apiKey = @"Api-key";
 
   XCTAssertEqualObjects(osVersion, requestBodyDict[@"client_signals"][@"platform_version"]);
   XCTAssertEqualObjects(appVersion, requestBodyDict[@"client_signals"][@"app_version"]);
-  // not expexting language siganl since it's not mocked on mockclientInfoFetcher
+  // not expecting language signal since it's not mocked on mockclientInfoFetcher
   XCTAssertNil(requestBodyDict[@"client_signals"][@"language_code"]);
 }
 

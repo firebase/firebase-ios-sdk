@@ -23,6 +23,7 @@
 
 #import "FirebasePerformance/Sources/Common/FPRDiagnostics.h"
 #import "FirebasePerformance/Sources/Configurations/FPRConfigurations.h"
+#import "FirebasePerformance/Sources/ISASwizzler/FPRObjectSwizzler.h"
 #import "FirebasePerformance/Sources/Instrumentation/FPRClassInstrumentor.h"
 #import "FirebasePerformance/Sources/Instrumentation/FPRInstrument_Private.h"
 #import "FirebasePerformance/Sources/Instrumentation/FPRNetworkTrace.h"
@@ -30,8 +31,6 @@
 #import "FirebasePerformance/Sources/Instrumentation/FPRSelectorInstrumentor.h"
 #import "FirebasePerformance/Sources/Instrumentation/Network/Delegates/FPRNSURLSessionDelegate.h"
 #import "FirebasePerformance/Sources/Instrumentation/Network/FPRNetworkInstrumentHelpers.h"
-
-#import <GoogleUtilities/GULObjectSwizzler.h>
 
 // Declared for use in instrumentation functions below.
 @interface FPRNSURLSessionInstrument ()
@@ -150,31 +149,34 @@ void InstrumentSessionWithConfigurationDelegateDelegateQueue(
   FPRSelectorInstrumentor *selectorInstrumentor = SelectorInstrumentor(selector, instrumentor, YES);
   __weak FPRNSURLSessionInstrument *weakInstrument = instrument;
   IMP currentIMP = selectorInstrumentor.currentIMP;
-  [selectorInstrumentor
-      setReplacingBlock:^(id session, NSURLSessionConfiguration *configuration,
-                          id<NSURLSessionDelegate> delegate, NSOperationQueue *queue) {
-        __strong FPRNSURLSessionInstrument *strongInstrument = weakInstrument;
-        if (!strongInstrument) {
-          ThrowExceptionBecauseInstrumentHasBeenDeallocated(selector, instrumentedClass);
-        }
-        if (delegate) {
-          [delegateInstrument registerClass:[delegate class]];
-          [delegateInstrument registerObject:delegate];
-
-        } else {
-          delegate = [[FPRNSURLSessionDelegate alloc] init];
-        }
-        typedef NSURLSession *(*OriginalImp)(id, SEL, NSURLSessionConfiguration *,
-                                             id<NSURLSessionDelegate>, NSOperationQueue *);
-        NSURLSession *sessionInstance =
-            ((OriginalImp)currentIMP)([session class], selector, configuration, delegate, queue);
-        if ([sessionInstance isProxy]) {
-          [strongInstrument registerProxyObject:sessionInstance];
-        } else {
-          [strongInstrument registerInstrumentorForClass:[sessionInstance class]];
-        }
-        return sessionInstance;
-      }];
+  [selectorInstrumentor setReplacingBlock:^(id session, NSURLSessionConfiguration *configuration,
+                                            id<NSURLSessionDelegate> delegate,
+                                            NSOperationQueue *queue) {
+    __strong FPRNSURLSessionInstrument *strongInstrument = weakInstrument;
+    if (!strongInstrument) {
+      ThrowExceptionBecauseInstrumentHasBeenDeallocated(selector, instrumentedClass);
+    }
+    if (delegate) {
+      if ([delegate isProxy] && [delegateInstrument respondsToSelector:@selector(registerProxy:)]) {
+        [delegateInstrument registerProxy:delegate];
+      } else {
+        [delegateInstrument registerClass:[delegate class]];
+        [delegateInstrument registerObject:delegate];
+      }
+    } else {
+      delegate = [[FPRNSURLSessionDelegate alloc] init];
+    }
+    typedef NSURLSession *(*OriginalImp)(id, SEL, NSURLSessionConfiguration *,
+                                         id<NSURLSessionDelegate>, NSOperationQueue *);
+    NSURLSession *sessionInstance =
+        ((OriginalImp)currentIMP)([session class], selector, configuration, delegate, queue);
+    if ([sessionInstance isProxy]) {
+      [strongInstrument registerProxyObject:sessionInstance];
+    } else {
+      [strongInstrument registerInstrumentorForClass:[sessionInstance class]];
+    }
+    return sessionInstance;
+  }];
 }
 
 /** Wraps -dataTaskWithURL:.
@@ -482,8 +484,15 @@ void InstrumentUploadTaskWithStreamedRequest(FPRNSURLSessionInstrument *instrume
     if (!strongInstrument) {
       ThrowExceptionBecauseInstrumentHasBeenDeallocated(selector, instrumentor.instrumentedClass);
     }
-    typedef NSURLSessionUploadTask *(*OriginalImp)(id, SEL, NSURLRequest *);
-    NSURLSessionUploadTask *uploadTask = ((OriginalImp)currentIMP)(session, selector, request);
+    typedef NSURLSessionUploadTask *(*OriginalImp)(id, SEL, NSURLRequest *, NSData *);
+    // To avoid a runtime warning in Xcode 15, the given `URLRequest`
+    // should have a nil `HTTPBody`. To workaround this, the `HTTPBody` data is removed
+    // and requestData is replaced with it, if it bodyData was `nil`.
+    NSMutableURLRequest *requestWithoutHTTPBody = [request mutableCopy];
+    NSData *requestData = requestWithoutHTTPBody.HTTPBody;
+    requestWithoutHTTPBody.HTTPBody = nil;
+    NSURLSessionUploadTask *uploadTask =
+        ((OriginalImp)currentIMP)(session, selector, request, requestData);
     if (uploadTask.originalRequest) {
       FPRNetworkTrace *trace =
           [[FPRNetworkTrace alloc] initWithURLRequest:uploadTask.originalRequest];

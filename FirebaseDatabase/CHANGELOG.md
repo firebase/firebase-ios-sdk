@@ -1,3 +1,33 @@
+# 12.7.0
+- [fixed] Fix `Fatal Exception: FirebaseDatabasePersistenceFailure`. (#4493)
+- [fixed] Concurrency crash in FView. (#15514)
+
+# 11.9.0
+- [fixed] Fix connection failure issue introduced in 10.27.0 by restoring the
+  Socket Rocket implementation instead of `NSURLSessionWebSocket`. Note that
+  this may expose a Thread Performance Checker Warning (#12883).
+  (#14188, #13877, #13855, #13529)
+- [fixed] Added `Sendable` conformance to `DataSnapshot` (#14369).
+
+# 11.2.0
+- [fixed] Fix temporary disconnects when the app goes inactive. The issue was
+  introduced in 10.27.0. (#13529)
+
+# 11.0.0
+- [removed] **Breaking change**: The deprecated `FirebaseDatabaseSwift`
+  module has been removed. See
+  https://firebase.google.com/docs/ios/swift-migration for migration
+  instructions.
+- [removed] Socket Rocket has been removed from the implementation. There should
+  be no impact on functionality. (#13100)
+
+# 10.27.0
+- [changed] Update internal socket implementation to use `NSURLSessionWebSocket` where
+  available. (#12883)
+
+# 10.25.0
+- [changed] Removed usages of user defaults API to eliminate required reason impact.
+
 # 10.17.0
 - [feature] The `FirebaseDatabase` module now contains Firebase Database's
   Swift-only APIs that were previously only available via the

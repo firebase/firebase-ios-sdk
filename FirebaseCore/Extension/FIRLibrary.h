@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+#ifndef FIREBASECORE_FIRLIBRARY_H
+#define FIREBASECORE_FIRLIBRARY_H
+
 #ifndef FIRLibrary_h
 #define FIRLibrary_h
 
@@ -32,13 +35,10 @@ NS_SWIFT_NAME(Library)
 /// FirebaseApp and participate in dependency resolution and injection.
 + (NSArray<FIRComponent *> *)componentsToRegister;
 
-@optional
-/// Implement this method if the library needs notifications for lifecycle events. This method is
-/// called when the developer calls `FirebaseApp.configure()`.
-+ (void)configureWithApp:(FIRApp *)app;
-
 @end
 
 NS_ASSUME_NONNULL_END
 
 #endif /* FIRLibrary_h */
+
+#endif  // FIREBASECORE_FIRLIBRARY_H

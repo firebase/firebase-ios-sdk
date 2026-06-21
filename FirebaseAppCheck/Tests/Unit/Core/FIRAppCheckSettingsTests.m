@@ -16,6 +16,7 @@
 
 #import <XCTest/XCTest.h>
 
+#import <GoogleUtilities/GULUserDefaults.h>
 #import <OCMock/OCMock.h>
 
 #import "FirebaseAppCheck/Sources/Core/FIRAppCheckSettings.h"
@@ -46,7 +47,7 @@
 
   self.mockApp = OCMClassMock([FIRApp class]);
   OCMStub([self.mockApp name]).andReturn(self.appName);
-  self.mockUserDefaults = OCMClassMock([NSUserDefaults class]);
+  self.mockUserDefaults = OCMClassMock([GULUserDefaults class]);
   self.bundleMock = OCMClassMock([NSBundle class]);
 
   self.settings = [[FIRAppCheckSettings alloc] initWithApp:self.mockApp

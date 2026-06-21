@@ -62,7 +62,8 @@
 
   FIRCLSApplicationIdentifierModel *appIDModel = [[FIRCLSApplicationIdentifierModel alloc] init];
   _mockSettings = [[FIRCLSMockSettings alloc] initWithFileManager:self.fileManager
-                                                       appIDModel:appIDModel];
+                                                       appIDModel:appIDModel
+                                                          appInfo:[[NSDictionary alloc] init]];
   _onDemandModel = [[FIRCLSMockOnDemandModel alloc] initWithFIRCLSSettings:_mockSettings
                                                                fileManager:_fileManager
                                                                 sleepBlock:^(int delay){
@@ -98,9 +99,10 @@
                              executionIdentifier:@"TEST_EXECUTION_IDENTIFIER"];
 
   FIRCLSContextManager *contextManager = [[FIRCLSContextManager alloc] init];
-  [contextManager setupContextWithReport:report
-                                settings:self.mockSettings
-                             fileManager:self.fileManager];
+  FBLPromiseAwait([contextManager setupContextWithReport:report
+                                                settings:self.mockSettings
+                                             fileManager:self.fileManager],
+                  nil);
 }
 
 - (void)tearDown {

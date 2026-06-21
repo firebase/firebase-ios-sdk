@@ -295,7 +295,7 @@
         if (![viewFrom isEqualToString:kFQPViewFromLeft] &&
             ![viewFrom isEqualToString:kFQPViewFromRight]) {
             [NSException raise:NSInvalidArgumentException
-                        format:@"Unknown view from paramter: %@", viewFrom];
+                        format:@"Unknown view from parameter: %@", viewFrom];
         }
         params->_viewFrom = viewFrom;
     }

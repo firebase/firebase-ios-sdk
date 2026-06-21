@@ -183,7 +183,7 @@ static BOOL (^kFKeepPredicate)(id) = ^BOOL(NSNumber *pruneValue) {
         initWithForest:[self.pruneForest setTree:newSubtree atPath:path]];
 }
 
-- (void)enumarateKeptNodesUsingBlock:(void (^)(FPath *))block {
+- (void)enumerateKeptNodesUsingBlock:(void (^)(FPath *))block {
     [self.pruneForest forEach:^(FPath *path, id value) {
       if (value != nil && ![value boolValue]) {
           block(path);

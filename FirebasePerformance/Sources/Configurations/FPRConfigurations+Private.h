@@ -17,6 +17,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@class GULUserDefaults;
+
 /** List of gauges the gauge manager controls. */
 typedef NS_OPTIONS(NSUInteger, FPRConfigurationSource) {
   FPRConfigurationSourceNone = 0,
@@ -30,13 +32,13 @@ typedef NS_OPTIONS(NSUInteger, FPRConfigurationSource) {
 @property(nonatomic) FPRConfigurationSource sources;
 
 /** @brief Instance of remote config flags. */
-@property(nonatomic) FPRRemoteConfigFlags *remoteConfigFlags;
+@property(atomic, nullable) FPRRemoteConfigFlags *remoteConfigFlags;
 
 /** @brief The class to use when FIRApp is referenced. */
 @property(nonatomic) Class FIRAppClass;
 
 /** @brief User defaults used for user preference config fetches . */
-@property(nonatomic) NSUserDefaults *userDefaults;
+@property(nonatomic) GULUserDefaults *userDefaults;
 
 /** @brief The main bundle identifier used by config system. */
 @property(nonatomic) NSString *mainBundleIdentifier;

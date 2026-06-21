@@ -42,9 +42,9 @@
     func call() -> Future<HTTPSCallableResult, Error> {
       Future<HTTPSCallableResult, Error> { promise in
         self.call { callableResult, error in
-          if let error = error {
+          if let error {
             promise(.failure(error))
-          } else if let callableResult = callableResult {
+          } else if let callableResult {
             promise(.success(callableResult))
           }
         }
@@ -78,9 +78,9 @@
     func call(_ data: Any?) -> Future<HTTPSCallableResult, Error> {
       Future<HTTPSCallableResult, Error> { promise in
         self.call(data) { callableResult, error in
-          if let error = error {
+          if let error {
             promise(.failure(error))
-          } else if let callableResult = callableResult {
+          } else if let callableResult {
             promise(.success(callableResult))
           }
         }

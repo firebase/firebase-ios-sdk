@@ -1,4 +1,4 @@
-// Copyright 2023 Google
+// Copyright 2023 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, copy) NSString* betaToken;
 @property(nonatomic) BOOL errorsEnabled;
 @property(nonatomic) BOOL customExceptionsEnabled;
+@property(nonatomic) BOOL machExceptionDefaultBehavior;
 @property(nonatomic) uint32_t maxCustomExceptions;
 @property(nonatomic) uint32_t maxErrorLogSize;
 @property(nonatomic) uint32_t maxLogSize;

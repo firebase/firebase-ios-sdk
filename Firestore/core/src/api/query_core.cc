@@ -16,7 +16,7 @@
 
 #include "Firestore/core/src/api/query_core.h"
 
-#include <future>  // NOLINT(build/c++11)
+#include <future>
 #include <memory>
 #include <utility>
 #include <vector>
@@ -221,8 +221,8 @@ std::unique_ptr<ListenerRegistration> Query::AddSnapshotListener(
       firestore_->client()->user_executor(), std::move(view_listener));
 
   std::shared_ptr<QueryListener> query_listener =
-      firestore_->client()->ListenToQuery(this->query(), options,
-                                          async_listener);
+      firestore_->client()->ListenToQuery(core::QueryOrPipeline(this->query()),
+                                          options, async_listener);
 
   return absl::make_unique<QueryListenerRegistration>(
       firestore_->client(), std::move(async_listener),

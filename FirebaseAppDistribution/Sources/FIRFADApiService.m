@@ -107,7 +107,7 @@ NSString *const kResponseReleasesKey = @"releases";
                           response:(NSURLResponse *)response
                              error:(NSError **_Nullable)error {
   NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
-  FIRFADInfoLog(@"HTTPResonse status code %ld response %@", (long)[httpResponse statusCode],
+  FIRFADInfoLog(@"HTTPResponse status code %ld response %@", (long)[httpResponse statusCode],
                 httpResponse);
 
   if ([self handleHttpResponseError:httpResponse error:error]) {

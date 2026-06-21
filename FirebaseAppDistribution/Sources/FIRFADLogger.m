@@ -22,31 +22,27 @@ NSString *const AppDistributionMessageCode = @"I-FAD000000";
 void FIRFADDebugLog(NSString *message, ...) {
   va_list args_ptr;
   va_start(args_ptr, message);
-  FIRLogBasic(FIRLoggerLevelDebug, kFIRLoggerAppDistribution, AppDistributionMessageCode, message,
-              args_ptr);
+  FIRLogBasicDebug(kFIRLoggerAppDistribution, AppDistributionMessageCode, message, args_ptr);
   va_end(args_ptr);
 }
 
 void FIRFADInfoLog(NSString *message, ...) {
   va_list args_ptr;
   va_start(args_ptr, message);
-  FIRLogBasic(FIRLoggerLevelInfo, kFIRLoggerAppDistribution, AppDistributionMessageCode, message,
-              args_ptr);
+  FIRLogBasicInfo(kFIRLoggerAppDistribution, AppDistributionMessageCode, message, args_ptr);
   va_end(args_ptr);
 }
 
 void FIRFADWarningLog(NSString *message, ...) {
   va_list args_ptr;
   va_start(args_ptr, message);
-  FIRLogBasic(FIRLoggerLevelWarning, kFIRLoggerAppDistribution, AppDistributionMessageCode, message,
-              args_ptr);
+  FIRLogBasicWarning(kFIRLoggerAppDistribution, AppDistributionMessageCode, message, args_ptr);
   va_end(args_ptr);
 }
 
 void FIRFADErrorLog(NSString *message, ...) {
   va_list args_ptr;
   va_start(args_ptr, message);
-  FIRLogBasic(FIRLoggerLevelError, kFIRLoggerAppDistribution, AppDistributionMessageCode, message,
-              args_ptr);
+  FIRLogBasicError(kFIRLoggerAppDistribution, AppDistributionMessageCode, message, args_ptr);
   va_end(args_ptr);
 }

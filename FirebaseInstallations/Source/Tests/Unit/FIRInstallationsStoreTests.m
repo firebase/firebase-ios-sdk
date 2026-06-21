@@ -65,7 +65,8 @@
   // Check with empty keychain.
   OCMReject([self.mockSecureStorage getObjectForKey:[OCMArg any]
                                         objectClass:[OCMArg any]
-                                        accessGroup:[OCMArg any]]);
+                                        accessGroup:[OCMArg any]
+                                  completionHandler:[OCMArg any]]);
 
   [self assertInstallationIDNotFoundForAppID:appID appName:appName];
   OCMVerifyAll(self.mockSecureStorage);
@@ -79,11 +80,11 @@
   [self.userDefaults setObject:@(YES) forKey:itemID];
 
   FIRInstallationsStoredItem *storedItem = [self createValidStoredItem];
-
+  id completionArg = [OCMArg invokeBlockWithArgs:storedItem, [NSNull null], nil];
   OCMExpect([self.mockSecureStorage getObjectForKey:itemID
                                         objectClass:[FIRInstallationsStoredItem class]
-                                        accessGroup:self.accessGroup])
-      .andReturn([FBLPromise resolvedWith:storedItem]);
+                                        accessGroup:self.accessGroup
+                                  completionHandler:completionArg]);
 
   FBLPromise<FIRInstallationsItem *> *itemPromise = [self.store installationForAppID:appID
                                                                              appName:appName];
@@ -108,10 +109,11 @@
 
   [self.userDefaults setObject:@(YES) forKey:itemID];
 
+  id completionArg = [OCMArg invokeBlockWithArgs:[NSNull null], [NSNull null], nil];
   OCMExpect([self.mockSecureStorage getObjectForKey:itemID
                                         objectClass:[FIRInstallationsStoredItem class]
-                                        accessGroup:self.accessGroup])
-      .andReturn([FBLPromise resolvedWith:nil]);
+                                        accessGroup:self.accessGroup
+                                  completionHandler:completionArg]);
 
   FBLPromise<FIRInstallationsItem *> *itemPromise = [self.store installationForAppID:appID
                                                                              appName:appName];
@@ -126,7 +128,7 @@
   OCMVerifyAll(self.mockSecureStorage);
 }
 
-- (void)testSaveInstallationWhenKeychainSucceds {
+- (void)testSaveInstallationWhenKeychainSucceeds {
   FIRInstallationsItem *item = [FIRInstallationsItem createUnregisteredInstallationItem];
   NSString *itemID = [item identifier];
   // Reset user defaults key.
@@ -137,10 +139,11 @@
     [self assertStoredItem:obj correspondsToItem:item];
     return YES;
   }];
+  id completionArg = [OCMArg invokeBlockWithArgs:storedItemArg, [NSNull null], nil];
   OCMExpect([self.mockSecureStorage setObject:storedItemArg
                                        forKey:itemID
-                                  accessGroup:self.accessGroup])
-      .andReturn([FBLPromise resolvedWith:[NSNull null]]);
+                                  accessGroup:self.accessGroup
+                            completionHandler:completionArg]);
 
   FBLPromise<NSNull *> *promise = [self.store saveInstallation:item];
   XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
@@ -169,10 +172,11 @@
     [self assertStoredItem:obj correspondsToItem:item];
     return YES;
   }];
+  id completionArg = [OCMArg invokeBlockWithArgs:[NSNull null], keychainError, nil];
   OCMExpect([self.mockSecureStorage setObject:storedItemArg
                                        forKey:itemID
-                                  accessGroup:self.accessGroup])
-      .andReturn(rejectedPromise);
+                                  accessGroup:self.accessGroup
+                            completionHandler:completionArg]);
 
   FBLPromise<NSNull *> *promise = [self.store saveInstallation:item];
   XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
@@ -193,8 +197,10 @@
 
   [self.userDefaults setObject:@(YES) forKey:itemID];
 
-  OCMExpect([self.mockSecureStorage removeObjectForKey:itemID accessGroup:self.accessGroup])
-      .andReturn([FBLPromise resolvedWith:[NSNull null]]);
+  id completionArg = [OCMArg invokeBlockWithArgs:[NSNull null], nil];
+  OCMExpect([self.mockSecureStorage removeObjectForKey:itemID
+                                           accessGroup:self.accessGroup
+                                     completionHandler:completionArg]);
 
   FBLPromise<NSNull *> *promise = [self.store removeInstallationForAppID:appID appName:appName];
   XCTAssert(FBLWaitForPromisesWithTimeout(0.5));

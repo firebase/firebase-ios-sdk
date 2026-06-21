@@ -80,16 +80,11 @@ import Foundation
    */
   let dispatchQueue: DispatchQueue
 
-  let fetcherService: GTMSessionFetcherService
-
   let baseRequest: URLRequest
 
   init(reference: StorageReference,
-       service: GTMSessionFetcherService,
        queue: DispatchQueue) {
     self.reference = reference
-    fetcherService = service
-    fetcherService.maxRetryInterval = reference.storage.maxOperationRetryInterval
     dispatchQueue = queue
     state = .unknown
     progress = Progress(totalUnitCount: 0)
@@ -108,20 +103,20 @@ import Foundation
   /**
    * Prepares a task and begins execution.
    */
-  @objc func enqueue() -> Void
+  @objc func enqueue()
 
   /**
    * Pauses a task currently in progress.
    */
-  @objc optional func pause() -> Void
+  @objc optional func pause()
 
   /**
    * Cancels a task.
    */
-  @objc optional func cancel() -> Void
+  @objc optional func cancel()
 
   /**
    * Resumes a paused task.
    */
-  @objc optional func resume() -> Void
+  @objc optional func resume()
 }

@@ -117,8 +117,6 @@ class FieldFilter : public Filter {
       return false;
     }
 
-    const std::vector<FieldFilter>& GetFlattenedFilters() const override;
-
     std::vector<Filter> GetFilters() const override;
 
    protected:
@@ -139,6 +137,9 @@ class FieldFilter : public Filter {
         nanopb::SharedMessage<google_firestore_v1_Value> value_rhs);
 
     bool MatchesComparison(util::ComparisonResult comparison) const;
+
+    std::shared_ptr<std::vector<FieldFilter>> CalculateFlattenedFilters()
+        const override;
 
    private:
     friend class FieldFilter;

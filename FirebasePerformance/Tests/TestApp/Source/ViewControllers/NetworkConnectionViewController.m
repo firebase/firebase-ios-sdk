@@ -145,7 +145,7 @@
   PerfLog(@"Start perform network request");
   [self.connection
       makeNetworkRequestWithSuccessCallback:^{
-        PerfLog(@"Network operation complited with success");
+        PerfLog(@"Network operation completed with success");
         dispatch_async(dispatch_get_main_queue(), ^{
           [weakSelf updateUIForOperationCompleted];
           weakSelf.connectionView.progressViewColor = [UIColor greenColor];
@@ -155,7 +155,7 @@
       }
       failureCallback:^(NSError *error) {
         dispatch_async(dispatch_get_main_queue(), ^{
-          PerfLog(@"Network operation complited with fail: %@", error.localizedDescription);
+          PerfLog(@"Network operation completed with fail: %@", error.localizedDescription);
           [weakSelf updateUIForOperationCompleted];
           weakSelf.connectionView.progressViewColor = [UIColor redColor];
           self.connectionView.connectionStatus = ConnectionStatus_Fail;

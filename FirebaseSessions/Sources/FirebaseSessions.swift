@@ -15,10 +15,17 @@
 import Foundation
 
 // Avoids exposing internal FirebaseCore APIs to Swift users.
-@_implementationOnly import FirebaseCoreExtension
-@_implementationOnly import FirebaseInstallations
-@_implementationOnly import GoogleDataTransport
-@_implementationOnly import Promises
+internal import FirebaseCoreExtension
+internal import FirebaseInstallations
+internal import GoogleDataTransport
+
+#if swift(>=6.0)
+  internal import Promises
+#elseif swift(>=5.10)
+  import Promises
+#else
+  internal import Promises
+#endif
 
 private enum GoogleDataTransportConfig {
   static let sessionsLogSource = "1974"
@@ -55,13 +62,13 @@ private enum GoogleDataTransportConfig {
 
   // Initializes the SDK and top-level classes
   required convenience init(appID: String, installations: InstallationsProtocol) {
-    let googleDataTransport = GDTCORTransport(
+    let googleDataTransport = GoogleDataTransporter(
       mappingID: GoogleDataTransportConfig.sessionsLogSource,
       transformers: nil,
       target: GoogleDataTransportConfig.sessionsTarget
     )
 
-    let fireLogger = EventGDTLogger(googleDataTransport: googleDataTransport!)
+    let fireLogger = EventGDTLogger(googleDataTransport: googleDataTransport)
 
     let appInfo = ApplicationInfo(appID: appID)
     let settings = SessionsSettings(
@@ -127,11 +134,14 @@ private enum GoogleDataTransportConfig {
     }
   }
 
-  // Initializes the SDK and begines the process of listening for lifecycle events and logging
-  // events
+  // Initializes the SDK and begins the process of listening for lifecycle events and logging
+  // events. The given `logEventCallback` is invoked on a global background queue by default,
+  // but configurable via `loggedEventCallbackQueue` for providing a higher priority queue
+  // during tests to reduce flakes.
   init(appID: String, sessionGenerator: SessionGenerator, coordinator: SessionCoordinatorProtocol,
        initiator: SessionInitiator, appInfo: ApplicationInfoProtocol, settings: SettingsProtocol,
-       loggedEventCallback: @escaping (Result<Void, FirebaseSessionsError>) -> Void) {
+       loggedEventCallbackQueue: DispatchQueue = .global(qos: .background),
+       loggedEventCallback: @escaping @Sendable (Result<Void, FirebaseSessionsError>) -> Void) {
     self.appID = appID
 
     self.sessionGenerator = sessionGenerator
@@ -142,13 +152,14 @@ private enum GoogleDataTransportConfig {
 
     super.init()
 
-    for subscriberName in SessionsDependencies.dependencies {
+    let dependencies = SessionsDependencies.dependencies
+    for subscriberName in dependencies {
       subscriberPromises[subscriberName] = Promise<Void>.pending()
     }
 
     Logger
       .logDebug(
-        "Version \(FirebaseVersion()). Expecting subscriptions from: \(SessionsDependencies.dependencies)"
+        "Version \(FirebaseVersion()). Expecting subscriptions from: \(dependencies)"
       )
 
     self.initiator.beginListening {
@@ -171,7 +182,7 @@ private enum GoogleDataTransportConfig {
 
       // Wait until all subscriber promises have been fulfilled before
       // doing any data collection.
-      all(self.subscriberPromises.values).then(on: .global(qos: .background)) { _ in
+      all(self.subscriberPromises.values).then(on: loggedEventCallbackQueue) { _ in
         guard self.isAnyDataCollectionEnabled else {
           loggedEventCallback(.failure(.DataCollectionError))
           return
@@ -239,18 +250,40 @@ private enum GoogleDataTransportConfig {
     return SessionDetails(sessionId: sessionGenerator.currentSession?.sessionId)
   }
 
+  // This type is not actually sendable, but works around an issue below.
+  // It's safe only if executed on the main actor.
+  private struct MainActorNotificationCallback: @unchecked Sendable {
+    private let callback: (Notification) -> Void
+
+    init(_ callback: @escaping (Notification) -> Void) {
+      self.callback = callback
+    }
+
+    func invoke(notification: Notification) {
+      dispatchPrecondition(condition: .onQueue(.main))
+      callback(notification)
+    }
+  }
+
   func register(subscriber: SessionsSubscriber) {
     Logger
       .logDebug(
         "Registering Sessions SDK subscriber with name: \(subscriber.sessionsSubscriberName), data collection enabled: \(subscriber.isDataCollectionEnabled)"
       )
 
+    // TODO(Firebase 12): After bumping to iOS 13, this hack should be replaced
+    // with `Task { @MainActor in }`.
+    let callback = MainActorNotificationCallback { notification in
+      subscriber.onSessionChanged(self.currentSessionDetails)
+    }
+
+    // Guaranteed to execute its callback on the main queue because of the queue parameter.
     notificationCenter.addObserver(
       forName: Sessions.SessionIDChangedNotificationName,
       object: nil,
-      queue: nil
+      queue: OperationQueue.main
     ) { notification in
-      subscriber.onSessionChanged(self.currentSessionDetails)
+      callback.invoke(notification: notification)
     }
     // Immediately call the callback because the Sessions SDK starts
     // before subscribers, so subscribers will miss the first Notification
@@ -265,8 +298,7 @@ private enum GoogleDataTransportConfig {
 
   static func componentsToRegister() -> [Component] {
     return [Component(SessionsProvider.self,
-                      instantiationTiming: .alwaysEager,
-                      dependencies: []) { container, isCacheable in
+                      instantiationTiming: .alwaysEager) { container, isCacheable in
         // Sessions SDK only works for the default app
         guard let app = container.app, app.isDefaultApp else { return nil }
         isCacheable.pointee = true

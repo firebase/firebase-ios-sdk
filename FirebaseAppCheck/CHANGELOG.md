@@ -1,3 +1,39 @@
+# Unreleased
+- [changed] Changed error message for missing `FirebaseApp.configure()` to
+  properly articulate supported methods. (#16294)
+
+# 12.15.0
+- [added] Added a reCAPTCHA attestation provider. Using this provider requires the
+  [reCAPTCHA Enterprise SDK to be installed](https://docs.cloud.google.com/recaptcha/docs/instrument-ios-apps#prepare-environment),
+  enabling the reCAPTCHA provider on the Firebase App Check console, and
+  replacing the local `GoogleService-Info.plist` with one redownloaded from
+  the project settings on the Firebase console.
+- [changed] Updated `AppCheckDebugProvider` documentation to recommend the
+  generic `AppCheckDebugToken` environment variable instead of the legacy
+  `FIRAAppCheckDebugToken`. Note that `FIRAAppCheckDebugToken` remains
+  supported for backwards compatibility, with `AppCheckDebugToken` taking
+  priority if both are set. (#16230)
+- [changed] The default App Check provider when running on a simulator is now
+  the [debug provider](https://firebase.google.com/docs/app-check/ios/debug-provider);
+  physical devices now default to reCAPTCHA if the
+  [reCAPTCHA Enterprise SDK is
+  installed](https://docs.cloud.google.com/recaptcha/docs/instrument-ios-apps#prepare-environment),
+  and fall back to the
+  [DeviceCheck provider](https://firebase.google.com/docs/app-check/ios/devicecheck-provider)
+  otherwise. (#16190)
+- [changed] Removed redundant debug token warning log. (#16197)
+- [changed] Log an actionable warning when debug token exchange fails. (#16232)
+
+# 12.14.0
+- [added] Added `AppAttestProviderFactory` to simplify App Check setup when
+  using the App Attest provider. (#16182)
+
+# 10.27.0
+- [fixed] [CocoaPods] missing symbol error for FIRGetLoggerLevel. (#12899)
+
+# 10.25.0
+- [changed] Removed usages of user defaults API to eliminate required reason impact.
+
 # 10.19.1
 - [fixed] Fix bug in apps using both AppCheck and ARCore where AppCheck
   unnecessarily tries to create tokens for the ARCore SDK. This results in
@@ -38,7 +74,7 @@
 
 # 8.5.0
 - [changed] App Check SDK available for all supported platforms/OS versions, but App Attest and
-DeviceCheck providers availability changed to match underlying platfrom API availability. (#8388)
+DeviceCheck providers availability changed to match underlying platform API availability. (#8388)
 
 # 8.4.0
 - [fixed] Fixed build issues introduced in Xcode 13 beta 3. (#8401)

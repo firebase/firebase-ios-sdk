@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseCoreInternal'
-  s.version          = '10.25.0'
+  s.version          = '12.16.0'
   s.summary          = 'APIs for internal FirebaseCore usage.'
 
   s.description      = <<-DESC
@@ -18,10 +18,10 @@ Pod::Spec.new do |s|
   }
   s.social_media_url = 'https://twitter.com/Firebase'
 
-  ios_deployment_target = '10.0'
-  osx_deployment_target = '10.13'
-  tvos_deployment_target = '12.0'
-  watchos_deployment_target = '6.0'
+  ios_deployment_target = '15.0'
+  osx_deployment_target = '10.15'
+  tvos_deployment_target = '15.0'
+  watchos_deployment_target = '7.0'
 
   s.ios.deployment_target = ios_deployment_target
   s.osx.deployment_target = osx_deployment_target
@@ -36,9 +36,9 @@ Pod::Spec.new do |s|
     "#{s.module_name}_Privacy" => 'FirebaseCore/Internal/Sources/Resources/PrivacyInfo.xcprivacy'
   }
 
-  s.swift_version = '5.3'
+  s.swift_version = '5.9'
 
-  s.dependency 'GoogleUtilities/NSData+zlib', '~> 7.8'
+  s.dependency 'GoogleUtilities/NSData+zlib', '~> 8.1'
 
   s.test_spec 'Unit' do |unit_tests|
     unit_tests.scheme = { :code_coverage => true }

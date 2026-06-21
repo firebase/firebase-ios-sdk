@@ -26,6 +26,7 @@
 #include "Firestore/core/src/remote/grpc_stream_observer.h"
 #include "Firestore/core/src/util/status.h"
 #include "Firestore/core/src/util/status_fwd.h"
+#include "Firestore/core/src/util/statusor.h"
 #include "Firestore/core/src/util/warnings.h"
 #include "grpcpp/client_context.h"
 #include "grpcpp/support/byte_buffer.h"
@@ -62,7 +63,7 @@ class GrpcStreamingReader : public GrpcCall, public GrpcStreamObserver {
    * results of the call. If the call fails, the `callback` will be invoked with
    * a non-ok status.
    */
-  void Start(size_t expected_response_count,
+  void Start(util::StatusOr<size_t> expected_response_count,
              ResponsesCallback&& responses_callback,
              CloseCallback&& close_callback);
 
@@ -103,7 +104,7 @@ class GrpcStreamingReader : public GrpcCall, public GrpcStreamObserver {
   std::unique_ptr<GrpcStream> stream_;
   grpc::ByteBuffer request_;
 
-  size_t expected_response_count_;
+  util::StatusOr<size_t> expected_response_count_;
   bool callback_fired_ = false;
   ResponsesCallback responses_callback_;
   CloseCallback close_callback_;

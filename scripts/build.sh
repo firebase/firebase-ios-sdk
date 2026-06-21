@@ -27,10 +27,11 @@ set -euo pipefail
 
 if [[ $# -lt 1 ]]; then
   cat 1>&2 <<EOF
-USAGE: $0 product [platform] [method]
+USAGE: $0 product [platform] [method] [extra_flags...]
 product can be one of:
   Firebase
   Firestore
+  FirestoreEnterprise
   CombineSwift
   InAppMessaging
   Messaging
@@ -65,6 +66,8 @@ elements:
   asan
   tsan
   ubsan
+
+Optionally, any trailing arguments after 'method' are also appended as extra xcodebuild flags.
 EOF
   exit 1
 fi
@@ -93,7 +96,7 @@ database_emulator="${scripts_dir}/run_database_emulator.sh"
 system=$(uname -s)
 case "$system" in
   Darwin)
-    xcode_version=$(xcodebuild -version | head -n 1)
+    xcode_version=$(xcodebuild -version | grep Xcode)
     xcode_version="${xcode_version/Xcode /}"
     xcode_major="${xcode_version/.*/}"
     ;;
@@ -105,15 +108,33 @@ esac
 # Source function to check if CI secrets are available.
 source scripts/check_secrets.sh
 
-# Runs xcodebuild with the given flags, piping output to xcpretty
+# Runs xcodebuild with the given flags, piping output to xcbeautify
 # If xcodebuild fails with known error codes, retries once.
 function RunXcodebuild() {
-  echo xcodebuild "$@"
+  # Print the command in a copy-pasteable format
+  echo xcodebuild $(printf "%q " "$@")
 
-  xcpretty_cmd=(xcpretty)
+  if [[ -n "${DRY_RUN:-}" ]]; then
+    echo "DRY_RUN is set. Exiting before build."
+    return 0
+  fi
 
-  result=0
-  xcodebuild "$@" | tee xcodebuild.log | "${xcpretty_cmd[@]}" || result=$?
+  local xcodebuild_args=("$@")
+  local buildaction="${xcodebuild_args[$# - 1]}" # buildaction is the last arg
+  local log_filename="xcodebuild-${buildaction}.log"
+
+  local xcbeautify_cmd
+  if command -v xcbeautify &> /dev/null; then
+    xcbeautify_cmd=(xcbeautify --renderer github-actions --disable-logging)
+  else
+    echo "xcbeautify not found, using raw xcodebuild output."
+    xcbeautify_cmd=(cat)
+  fi
+
+  local result=0
+  NSUnbufferedIO=YES xcodebuild "$@" 2>&1 | tee "$log_filename" | \
+    "${xcbeautify_cmd[@]}" && CheckUnexpectedFailures "$log_filename" \
+    || result=$?
 
   if [[ $result == 65 ]]; then
     ExportLogs "$@"
@@ -122,7 +143,9 @@ function RunXcodebuild() {
     sleep 5
 
     result=0
-    xcodebuild "$@" | tee xcodebuild.log | "${xcpretty_cmd[@]}" || result=$?
+    NSUnbufferedIO=YES xcodebuild "$@" 2>&1 | tee "$log_filename" | \
+      "${xcbeautify_cmd[@]}" && CheckUnexpectedFailures "$log_filename" \
+      || result=$?
   fi
 
   if [[ $result != 0 ]]; then
@@ -138,44 +161,60 @@ function ExportLogs() {
   python "${scripts_dir}/xcresult_logs.py" "$@"
 }
 
-if [[ "$xcode_major" -lt 15 ]]; then
-  ios_flags=(
-    -sdk 'iphonesimulator'
-    -destination 'platform=iOS Simulator,name=iPhone 14'
-  )
+function CheckUnexpectedFailures() {
+  local log_file=$1
+
+  if grep -Eq "[1-9]\d* failures \([1-9]\d* unexpected\)" "$log_file"; then
+    echo "xcodebuild failed with unexpected failures." 1>&2
+    return 65
+  fi
+}
+
+if [[ "$xcode_major" -lt 16 && "$method" != "cmake" ]]; then
+  echo "Unsupported Xcode major version being used: $xcode_major"
+  exit 1
 else
+  iphone_simulator_name="iPhone 16"
+  if [[ "$xcode_major" -gt 16 ]]; then
+    iphone_simulator_name="iPhone 17"
+  fi
   ios_flags=(
-    -sdk 'iphonesimulator'
-    -destination 'platform=iOS Simulator,name=iPhone 15'
+    -destination "platform=iOS Simulator,name=${iphone_simulator_name}"
+  )
+  watchos_flags=(
+    -destination 'platform=watchOS Simulator,name=Apple Watch Series 11 (42mm)'
   )
 fi
 
 ios_device_flags=(
-  -sdk 'iphoneos'
   -destination 'generic/platform=iOS'
 )
 
 ipad_flags=(
-  -sdk 'iphonesimulator'
   -destination 'platform=iOS Simulator,name=iPad Pro (9.7-inch)'
 )
 
 macos_flags=(
-  -sdk 'macosx'
   -destination 'platform=OS X,arch=x86_64'
 )
 tvos_flags=(
-  -sdk "appletvsimulator"
   -destination 'platform=tvOS Simulator,name=Apple TV'
 )
-watchos_flags=(
-  -destination 'platform=watchOS Simulator,name=Apple Watch Series 7 (45mm)'
-)
-visionos_flags=(
-  -destination 'platform=visionOS Simulator'
-)
+if [[ "$xcode_major" -ge 26 ]]; then
+  visionos_flags=(
+    -destination "platform=visionOS Simulator,OS=${xcode_version},name=Apple Vision Pro"
+  )
+else
+  # TODO(ncooke3): Remove this else case when we no longer need to test against macOS 15.
+  visionos_flags=(
+    # As of Aug 15, 2025, the default OS "latest" was failing as it matched both
+    # the visionOS 26 beta and visionOS 2.5 (from Xcode 16.4) simulators;
+    # explicitly specifying OS=2.5 in destination as a workaround.
+    -destination 'platform=visionOS Simulator,OS=2.5,name=Apple Vision Pro'
+  )
+fi
 catalyst_flags=(
-  ARCHS=x86_64 VALID_ARCHS=x86_64 SUPPORTS_MACCATALYST=YES -sdk macosx
+  ARCHS=x86_64 VALID_ARCHS=x86_64 SUPPORTS_MACCATALYST=YES
   -destination platform="macOS,variant=Mac Catalyst,arch=x86_64" TARGETED_DEVICE_FAMILY=2
   CODE_SIGN_IDENTITY=- CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
 )
@@ -239,8 +278,12 @@ xcb_flags+=(
   COMPILER_INDEX_STORE_ENABLE=NO
 )
 
-source scripts/buildcache.sh
-xcb_flags=("${xcb_flags[@]}" "${buildcache_xcb_flags[@]}")
+# If running in Gemini CLI, pass -quiet to xcodebuild.
+# This reduces chance of exceeding the request token count.
+if [[ -n "${GEMINI_CLI:-}" ]]; then
+  echo "Running in Gemini CLI, adding -quiet to xcodebuild invocation."
+  xcb_flags+=(-quiet)
+fi
 
 # TODO(varconst): Add --warn-unused-vars and --warn-uninitialized.
 # Right now, it makes the log overflow on Travis because many of our
@@ -288,7 +331,12 @@ if [[ -n "${SANITIZERS:-}" ]]; then
   done
 fi
 
+# Append any trailing arguments as extra xcodebuild flags (the extra_flags argument)
+if [[ $# -gt 3 ]]; then
+  xcb_flags+=("${@:4}")
+fi
 
+# TODO(b/519178233): Find some way to modernize this or refactor the design for extensibility
 case "$product-$platform-$method" in
   FirebasePod-iOS-*)
     RunXcodebuild \
@@ -298,17 +346,11 @@ case "$product-$platform-$method" in
         build
     ;;
 
-  Auth-*-xcodebuild)
+  Auth-*-*)
     if check_secrets; then
       RunXcodebuild \
-        -workspace 'FirebaseAuth/Tests/Sample/AuthSample.xcworkspace' \
-        -scheme "Auth_ApiTests" \
-        "${xcb_flags[@]}" \
-        test
-
-      RunXcodebuild \
-        -workspace 'FirebaseAuth/Tests/Sample/AuthSample.xcworkspace' \
-        -scheme "SwiftApiTests" \
+        -project 'FirebaseAuth/Tests/SampleSwift/AuthenticationExample.xcodeproj' \
+        -scheme "$method" \
         "${xcb_flags[@]}" \
         test
     fi
@@ -320,29 +362,65 @@ case "$product-$platform-$method" in
       -workspace 'gen/FirebaseCombineSwift/FirebaseCombineSwift.xcworkspace' \
       -scheme "FirebaseCombineSwift-Unit-unit" \
       "${xcb_flags[@]}" \
-      build \
-      test
+      build
     ;;
 
+  # TODO(#14760): s/build/test after addressing UI test flakes on CI.
   InAppMessaging-*-xcodebuild)
     RunXcodebuild \
         -workspace 'FirebaseInAppMessaging/Tests/Integration/DefaultUITestApp/InAppMessagingDisplay-Sample.xcworkspace' \
         -scheme 'FiamDisplaySwiftExample' \
         "${xcb_flags[@]}" \
-        test
+        build
     ;;
 
   Firestore-*-xcodebuild)
-    "${firestore_emulator}" start
-    trap '"${firestore_emulator}" stop' ERR EXIT
+      # Memory intensive, so we limit jobs.
+      RunXcodebuild \
+          -workspace 'Firestore/Example/Firestore.xcworkspace' \
+          -scheme "Firestore_IntegrationTests_$platform" \
+          "${xcb_flags[@]}" \
+          -jobs 4 \
+          build-for-testing
+      ;;
 
-    RunXcodebuild \
-        -workspace 'Firestore/Example/Firestore.xcworkspace' \
-        -scheme "Firestore_IntegrationTests_$platform" \
-        -enableCodeCoverage YES \
-        "${xcb_flags[@]}" \
-        test
-    ;;
+  Firestore-*-xcodetest)
+      "${firestore_emulator}" start
+      trap '"${firestore_emulator}" stop' ERR EXIT
+
+      RunXcodebuild \
+          -workspace 'Firestore/Example/Firestore.xcworkspace' \
+          -scheme "Firestore_IntegrationTests_$platform" \
+          -enableCodeCoverage YES \
+          -retry-tests-on-failure \
+          -test-iterations 3 \
+          "${xcb_flags[@]}" \
+          test-without-building
+      ;;
+
+  FirestoreEnterprise-*-xcodebuild)
+      # Memory intensive, so we limit jobs
+      RunXcodebuild \
+          -workspace 'Firestore/Example/Firestore.xcworkspace' \
+          -scheme "Firestore_IntegrationTests_Enterprise_$platform" \
+          "${xcb_flags[@]}" \
+          -jobs 4 \
+          build-for-testing
+      ;;
+
+  FirestoreEnterprise-*-xcodetest)
+      "${firestore_emulator}" start
+      trap '"${firestore_emulator}" stop' ERR EXIT
+
+      RunXcodebuild \
+          -workspace 'Firestore/Example/Firestore.xcworkspace' \
+          -scheme "Firestore_IntegrationTests_Enterprise_$platform" \
+          -enableCodeCoverage YES \
+          -retry-tests-on-failure \
+          -test-iterations 3 \
+          "${xcb_flags[@]}" \
+          test-without-building
+      ;;
 
   Firestore-macOS-cmake | Firestore-Linux-cmake)
     "${firestore_emulator}" start
@@ -409,6 +487,10 @@ case "$product-$platform-$method" in
     fi
     ;;
 
+  # TODO: This is actually building for iOS instead of watchOS. Update to use
+  # watchOS xcb_flags along with the watchOS sdk option. Also nanopb and promises
+  # podspecs need minimum version updates.
+
   MessagingSampleStandaloneWatchApp-*-*)
     if check_secrets; then
       RunXcodebuild \
@@ -451,32 +533,33 @@ case "$product-$platform-$method" in
     ;;
 
   RemoteConfig-*-fakeconsole)
-    pod_gen FirebaseRemoteConfigSwift.podspec --platforms="${gen_platform}"
+    pod_gen FirebaseRemoteConfig.podspec --platforms="${gen_platform}"
 
     RunXcodebuild \
-      -workspace 'gen/FirebaseRemoteConfigSwift/FirebaseRemoteConfigSwift.xcworkspace' \
-      -scheme "FirebaseRemoteConfigSwift-Unit-fake-console-tests" \
+      -workspace 'gen/FirebaseRemoteConfig/FirebaseRemoteConfig.xcworkspace' \
+      -scheme "FirebaseRemoteConfig-Unit-fake-console-tests" \
       "${xcb_flags[@]}" \
       build \
       test
     ;;
 
   RemoteConfig-*-integration)
-    pod_gen FirebaseRemoteConfigSwift.podspec --platforms="${gen_platform}"
+    pod_gen FirebaseRemoteConfig.podspec --platforms="${gen_platform}"
 
     # Add GoogleService-Info.plist to generated Test Wrapper App.
-    ruby ./scripts/update_xcode_target.rb gen/FirebaseRemoteConfigSwift/Pods/Pods.xcodeproj \
-      AppHost-FirebaseRemoteConfigSwift-Unit-Tests \
-      ../../../FirebaseRemoteConfigSwift/Tests/SwiftAPI/GoogleService-Info.plist
+    ruby ./scripts/update_xcode_target.rb gen/FirebaseRemoteConfig/Pods/Pods.xcodeproj \
+      AppHost-FirebaseRemoteConfig-Unit-Tests \
+      ../../../FirebaseRemoteConfig/Tests/Swift/SwiftAPI/GoogleService-Info.plist
 
     # Add AccessToken to generated Test Wrapper App.
-    ruby ./scripts/update_xcode_target.rb gen/FirebaseRemoteConfigSwift/Pods/Pods.xcodeproj \
-      AppHost-FirebaseRemoteConfigSwift-Unit-Tests \
-      ../../../FirebaseRemoteConfigSwift/Tests/AccessToken.json
+    ruby ./scripts/update_xcode_target.rb gen/FirebaseRemoteConfig/Pods/Pods.xcodeproj \
+      AppHost-FirebaseRemoteConfig-Unit-Tests \
+      ../../../FirebaseRemoteConfig/Tests/Swift/AccessToken.json
 
+    # Integration tests are only run on iOS to minimize flake failures.
     RunXcodebuild \
-      -workspace 'gen/FirebaseRemoteConfigSwift/FirebaseRemoteConfigSwift.xcworkspace' \
-      -scheme "FirebaseRemoteConfigSwift-Unit-swift-api-tests" \
+      -workspace 'gen/FirebaseRemoteConfig/FirebaseRemoteConfig.xcworkspace' \
+      -scheme "FirebaseRemoteConfig-Unit-swift-api-tests" \
       "${xcb_flags[@]}" \
       build \
       test
@@ -488,6 +571,42 @@ case "$product-$platform-$method" in
       -scheme "RemoteConfigSampleApp" \
       "${xcb_flags[@]}" \
       build
+    ;;
+
+  FirebaseAIIntegration-*-*)
+    # Filter out test-only flags for the build-for-testing phase
+    # It's a bit hacky, but xcode doesn't generate a proper dependency graph
+    # when it's only targeting a single test file or filtering out files.
+    build_flags=()
+    skip_next=false
+    for arg in "${xcb_flags[@]}"; do
+      if [[ "$skip_next" == "true" ]]; then
+        skip_next=false
+        continue
+      fi
+      if [[ "$arg" == "-only-testing" || "$arg" == "-skip-testing" ]]; then
+        skip_next=true
+        continue
+      fi
+      build_flags+=("$arg")
+    done
+
+    # Build
+    RunXcodebuild \
+      -project 'FirebaseAI/Tests/TestApp/FirebaseAITestApp.xcodeproj' \
+      -scheme "FirebaseAITestApp-SPM" \
+      "${build_flags[@]}" \
+      build-for-testing
+
+    # Run tests
+    RunXcodebuild \
+      -project 'FirebaseAI/Tests/TestApp/FirebaseAITestApp.xcodeproj' \
+      -scheme "FirebaseAITestApp-SPM" \
+      "${xcb_flags[@]}" \
+      -parallel-testing-enabled NO \
+      -retry-tests-on-failure \
+      -test-iterations 3 \
+      test-without-building
     ;;
 
   Sessions-*-integration)
@@ -656,13 +775,23 @@ case "$product-$platform-$method" in
       test
     ;;
 
-  # Note that the combine tests require setting the minimum iOS and tvOS version to 13.0
+  FirebaseDataConnect-*-spm)
+    RunXcodebuild \
+      -scheme $product \
+      "${xcb_flags[@]}" \
+      IPHONEOS_DEPLOYMENT_TARGET=15.0 \
+      TVOS_DEPLOYMENT_TARGET=15.0 \
+      test
+    ;;
+
   *-*-spm)
     RunXcodebuild \
       -scheme $product \
       "${xcb_flags[@]}" \
-      IPHONEOS_DEPLOYMENT_TARGET=13.0 \
-      TVOS_DEPLOYMENT_TARGET=13.0 \
+      IPHONEOS_DEPLOYMENT_TARGET=15.0 \
+      MACOSX_DEPLOYMENT_TARGET=10.15 \
+      TVOS_DEPLOYMENT_TARGET=15.0 \
+      WATCHOS_DEPLOYMENT_TARGET=7.0 \
       test
     ;;
 

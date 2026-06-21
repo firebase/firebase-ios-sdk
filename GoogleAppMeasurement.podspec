@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
     s.name             = 'GoogleAppMeasurement'
-    s.version          = '10.25.0'
+    s.version          = '12.16.0'
     s.summary          = 'Shared measurement methods for Google libraries. Not intended for direct use.'
 
     s.description      = <<-DESC
@@ -16,33 +16,38 @@ Pod::Spec.new do |s|
     s.authors          = 'Google, Inc.'
 
     s.source           = {
-        :http => 'https://dl.google.com/firebase/ios/analytics/cc4d75392af34c62/GoogleAppMeasurement-10.24.0.tar.gz'
+        :http => 'https://dl.google.com/firebase/ios/analytics/59fe326eebd1a79c/GoogleAppMeasurement-12.15.0.tar.gz'
     }
 
     s.cocoapods_version = '>= 1.12.0'
 
-    s.ios.deployment_target  = '10.0'
-    s.osx.deployment_target  = '10.13'
-    s.tvos.deployment_target = '12.0'
+    s.ios.deployment_target = '15.0'
+    s.osx.deployment_target  = '10.15'
+    s.tvos.deployment_target = '15.0'
 
     s.libraries  = 'c++', 'sqlite3', 'z'
     s.frameworks = 'StoreKit'
 
-    s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 7.11'
-    s.dependency 'GoogleUtilities/MethodSwizzler', '~> 7.11'
-    s.dependency 'GoogleUtilities/NSData+zlib', '~> 7.11'
-    s.dependency 'GoogleUtilities/Network', '~> 7.11'
-    s.dependency 'nanopb', '>= 2.30908.0', '< 2.30911.0'
+    s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 8.1'
+    s.dependency 'GoogleUtilities/MethodSwizzler', '~> 8.1'
+    s.dependency 'GoogleUtilities/NSData+zlib', '~> 8.1'
+    s.dependency 'GoogleUtilities/Network', '~> 8.1'
+    s.dependency 'nanopb', '~> 3.30910.0'
 
-    s.default_subspecs = 'AdIdSupport'
+    s.default_subspecs = 'Default'
 
-    s.subspec 'AdIdSupport' do |ss|
-        ss.dependency 'GoogleAppMeasurement/WithoutAdIdSupport', '10.25.0'
-        ss.vendored_frameworks = 'Frameworks/GoogleAppMeasurementIdentitySupport.xcframework'
+    s.subspec 'Default' do |ss|
+        ss.dependency 'GoogleAppMeasurement/Core', '12.16.0'
+        ss.dependency 'GoogleAppMeasurement/IdentitySupport', '12.16.0'
+        ss.ios.dependency 'GoogleAdsOnDeviceConversion', '~> 3.6.0'
     end
 
-    s.subspec 'WithoutAdIdSupport' do |ss|
+    s.subspec 'Core' do |ss|
         ss.vendored_frameworks = 'Frameworks/GoogleAppMeasurement.xcframework'
     end
 
+    s.subspec 'IdentitySupport' do |ss|
+        ss.dependency 'GoogleAppMeasurement/Core', '12.16.0'
+        ss.vendored_frameworks = 'Frameworks/GoogleAppMeasurementIdentitySupport.xcframework'
+    end
 end

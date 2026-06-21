@@ -12,31 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import FirebaseAppCheckInterop
-import FirebaseAuthInterop
-import FirebaseMessagingInterop
+@preconcurrency import FirebaseAppCheckInterop
+@preconcurrency import FirebaseAuthInterop
+@preconcurrency import FirebaseMessagingInterop
 import Foundation
 
-/// FunctionsContext is a helper class for gathering metadata for a function call.
-class FunctionsContext: NSObject {
+/// `FunctionsContext` is a helper object that holds metadata for a function call.
+struct FunctionsContext {
   let authToken: String?
   let fcmToken: String?
   let appCheckToken: String?
   let limitedUseAppCheckToken: String?
-
-  init(authToken: String?, fcmToken: String?, appCheckToken: String?,
-       limitedUseAppCheckToken: String?) {
-    self.authToken = authToken
-    self.fcmToken = fcmToken
-    self.appCheckToken = appCheckToken
-    self.limitedUseAppCheckToken = limitedUseAppCheckToken
-  }
 }
 
-class FunctionsContextProvider: NSObject {
-  private var auth: AuthInterop?
-  private var messaging: MessagingInterop?
-  private var appCheck: AppCheckInterop?
+struct FunctionsContextProvider: Sendable {
+  private let auth: AuthInterop?
+  private let messaging: MessagingInterop?
+  private let appCheck: AppCheckInterop?
 
   init(auth: AuthInterop?, messaging: MessagingInterop?, appCheck: AppCheckInterop?) {
     self.auth = auth
@@ -44,60 +36,61 @@ class FunctionsContextProvider: NSObject {
     self.appCheck = appCheck
   }
 
-  // TODO: Implement async await version
-//  @available(macOS 10.15.0, *)
-//  internal func getContext() async throws -> FunctionsContext {
-//    return FunctionsContext(authToken: nil, fcmToken: nil, appCheckToken: nil)
-//
-//  }
+  func context(options: HTTPSCallableOptions?) async throws -> FunctionsContext {
+    // Previously, this section used `async let`, but that was changed for a
+    // `Task`-based approach to work around a Swift 6.3 regression in Xcode 26.4.
+    // - Context: https://github.com/firebase/firebase-ios-sdk/issues/15974
+    let authToken = Task { try await auth?.getToken(forcingRefresh: false) }
+    let appCheckToken = Task { await getAppCheckToken(options: options) }
+    let limitedUseAppCheckToken = Task { await getLimitedUseAppCheckToken(options: options) }
 
-  func getContext(options: HTTPSCallableOptions? = nil,
-                  _ completion: @escaping ((FunctionsContext, Error?) -> Void)) {
-    let dispatchGroup = DispatchGroup()
-
-    var authToken: String?
-    var appCheckToken: String?
-    var error: Error?
-    var limitedUseAppCheckToken: String?
-
-    if let auth = auth {
-      dispatchGroup.enter()
-
-      auth.getToken(forcingRefresh: false) { token, authError in
-        authToken = token
-        error = authError
-        dispatchGroup.leave()
+    return try await withTaskCancellationHandler {
+      defer {
+        authToken.cancel()
+        appCheckToken.cancel()
+        limitedUseAppCheckToken.cancel()
       }
+      // Only `authToken` is throwing, but the formatter script removes the `try`
+      // from `try authToken` and puts it in front of the initializer call.
+      return try await FunctionsContext(
+        authToken: authToken.value,
+        fcmToken: messaging?.fcmToken,
+        appCheckToken: appCheckToken.value,
+        limitedUseAppCheckToken: limitedUseAppCheckToken.value
+      )
+    } onCancel: {
+      authToken.cancel()
+      appCheckToken.cancel()
+      limitedUseAppCheckToken.cancel()
     }
+  }
 
-    if let appCheck = appCheck {
-      dispatchGroup.enter()
+  private func getAppCheckToken(options: HTTPSCallableOptions?) async -> String? {
+    guard
+      options?.requireLimitedUseAppCheckTokens != true,
+      let tokenResult = await appCheck?.getToken(forcingRefresh: false)
+    else { return nil }
+    // The placeholder token should be used in the case of App Check error.
+    return tokenResult.token
+  }
 
-      if options?.requireLimitedUseAppCheckTokens == true {
-        appCheck.getLimitedUseToken? { tokenResult in
-          // Send only valid token to functions.
-          if tokenResult.error == nil {
-            limitedUseAppCheckToken = tokenResult.token
-          }
-          dispatchGroup.leave()
-        }
-      } else {
-        appCheck.getToken(forcingRefresh: false) { tokenResult in
-          // Send only valid token to functions.
-          if tokenResult.error == nil {
-            appCheckToken = tokenResult.token
-          }
-          dispatchGroup.leave()
-        }
+  private func getLimitedUseAppCheckToken(options: HTTPSCallableOptions?) async -> String? {
+    // At the moment, `await` doesn’t get along with Objective-C’s optional protocol methods.
+    await withCheckedContinuation { (continuation: CheckedContinuation<String?, Never>) in
+      guard
+        options?.requireLimitedUseAppCheckTokens == true,
+        let appCheck,
+        // `getLimitedUseToken(completion:)` is an optional protocol method. Optional binding
+        // is performed to make sure `continuation` is called even if the method’s not implemented.
+        let limitedUseTokenClosure = appCheck.getLimitedUseToken
+      else {
+        return continuation.resume(returning: nil)
       }
-    }
 
-    dispatchGroup.notify(queue: .main) {
-      let context = FunctionsContext(authToken: authToken,
-                                     fcmToken: self.messaging?.fcmToken,
-                                     appCheckToken: appCheckToken,
-                                     limitedUseAppCheckToken: limitedUseAppCheckToken)
-      completion(context, error)
+      limitedUseTokenClosure { tokenResult in
+        // The placeholder token should be used in the case of App Check error.
+        continuation.resume(returning: tokenResult.token)
+      }
     }
   }
 }

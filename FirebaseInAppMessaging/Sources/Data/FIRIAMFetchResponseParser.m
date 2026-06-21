@@ -15,7 +15,7 @@
  */
 
 #import <TargetConditionals.h>
-#if TARGET_OS_IOS || TARGET_OS_TV || (defined(TARGET_OS_VISION) && TARGET_OS_VISION)
+#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
 
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
@@ -149,7 +149,7 @@
     NSString *messageID = payloadNode[@"campaignId"];
     if (!messageID) {
       FIRLogWarning(kFIRLoggerInAppMessaging, @"I-IAM900010",
-                    @"messsage id is missing in message node %@", messageNode);
+                    @"message id is missing in message node %@", messageNode);
       return nil;
     }
 
@@ -399,4 +399,4 @@
 
 @end
 
-#endif  // TARGET_OS_IOS || TARGET_OS_TV || (defined(TARGET_OS_VISION) && TARGET_OS_VISION)
+#endif  // TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION

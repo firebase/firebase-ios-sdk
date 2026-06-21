@@ -41,9 +41,9 @@
     func link(with credential: AuthCredential) -> Future<AuthDataResult, Error> {
       Future<AuthDataResult, Error> { promise in
         self.link(with: credential) { authDataResult, error in
-          if let error = error {
+          if let error {
             promise(.failure(error))
-          } else if let authDataResult = authDataResult {
+          } else if let authDataResult {
             promise(.success(authDataResult))
           }
         }
@@ -89,9 +89,9 @@
     func reauthenticate(with credential: AuthCredential) -> Future<AuthDataResult, Error> {
       Future<AuthDataResult, Error> { promise in
         self.reauthenticate(with: credential) { authDataResult, error in
-          if let error = error {
+          if let error {
             promise(.failure(error))
-          } else if let authDataResult = authDataResult {
+          } else if let authDataResult {
             promise(.success(authDataResult))
           }
         }
@@ -119,9 +119,9 @@
     func unlink(fromProvider provider: String) -> Future<User, Error> {
       Future<User, Error> { promise in
         self.unlink(fromProvider: provider) { user, error in
-          if let user = user {
+          if let user {
             promise(.success(user))
-          } else if let error = error {
+          } else if let error {
             promise(.failure(error))
           }
         }
@@ -149,7 +149,7 @@
     func sendEmailVerification() -> Future<Void, Error> {
       Future<Void, Error> { promise in
         self.sendEmailVerification { error in
-          if let error = error {
+          if let error {
             promise(.failure(error))
           } else {
             promise(.success(()))
@@ -188,7 +188,7 @@
       -> Future<Void, Error> {
       Future<Void, Error> { promise in
         self.sendEmailVerification(with: actionCodeSettings) { error in
-          if let error = error {
+          if let error {
             promise(.failure(error))
           } else {
             promise(.success(()))

@@ -16,12 +16,6 @@
 
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckDebugProvider.h"
 
-#if __has_include(<FBLPromises/FBLPromises.h>)
-#import <FBLPromises/FBLPromises.h>
-#else
-#import "FBLPromises.h"
-#endif
-
 #import <AppCheckCore/AppCheckCore.h>
 
 #import "FirebaseAppCheck/Sources/Core/FIRApp+AppCheck.h"
@@ -37,15 +31,21 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FIRAppCheckDebugProvider ()
 
 @property(nonatomic, readonly) GACAppCheckDebugProvider *debugProvider;
+@property(nonatomic, readonly, copy, nullable) NSString *projectID;
+@property(nonatomic, readonly, copy) NSString *googleAppID;
 
 @end
 
 @implementation FIRAppCheckDebugProvider
 
-- (instancetype)initWithDebugProvider:(GACAppCheckDebugProvider *)debugProvider {
+- (instancetype)initWithDebugProvider:(GACAppCheckDebugProvider *)debugProvider
+                            projectID:(nullable NSString *)projectID
+                          googleAppID:(NSString *)googleAppID {
   self = [super init];
   if (self) {
     _debugProvider = debugProvider;
+    _projectID = [projectID copy];
+    _googleAppID = [googleAppID copy];
   }
   return self;
 }
@@ -68,7 +68,9 @@ NS_ASSUME_NONNULL_BEGIN
                                                      APIKey:app.options.APIKey
                                                requestHooks:@[ [app.heartbeatLogger requestHook] ]];
 
-  return [self initWithDebugProvider:debugProvider];
+  return [self initWithDebugProvider:debugProvider
+                           projectID:app.options.projectID
+                         googleAppID:app.options.googleAppID];
 }
 
 - (NSString *)currentDebugToken {
@@ -79,6 +81,18 @@ NS_ASSUME_NONNULL_BEGIN
   return [self.debugProvider localDebugToken];
 }
 
+#pragma mark - Private Helpers
+
+- (void)logDebugTokenExchangeError {
+  if (self.projectID.length > 0 && self.googleAppID.length > 0) {
+    FIRLogWarning(kFIRLoggerAppCheck, kFIRLoggerAppCheckMessageCodeDebugTokenExchangeFailed,
+                  @"Failed to exchange debug token. If you haven't registered it, "
+                   "you can do so in the Firebase Console: "
+                   "https://console.firebase.google.com/project/%@/appcheck/apps?selectedAppId=%@",
+                  self.projectID, self.googleAppID);
+  }
+}
+
 #pragma mark - FIRAppCheckProvider
 
 - (void)getTokenWithCompletion:(void (^)(FIRAppCheckToken *_Nullable token,
@@ -86,6 +100,7 @@ NS_ASSUME_NONNULL_BEGIN
   [self.debugProvider getTokenWithCompletion:^(GACAppCheckToken *_Nullable internalToken,
                                                NSError *_Nullable error) {
     if (error) {
+      [self logDebugTokenExchangeError];
       handler(nil, error);
       return;
     }
@@ -99,6 +114,7 @@ NS_ASSUME_NONNULL_BEGIN
   [self.debugProvider getLimitedUseTokenWithCompletion:^(GACAppCheckToken *_Nullable internalToken,
                                                          NSError *_Nullable error) {
     if (error) {
+      [self logDebugTokenExchangeError];
       handler(nil, error);
       return;
     }

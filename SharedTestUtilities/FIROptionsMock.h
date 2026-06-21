@@ -27,9 +27,6 @@ extern NSString *const kGoogleAppID;
 extern NSString *const kDatabaseURL;
 extern NSString *const kStorageBucket;
 
-extern NSString *const kDeepLinkURLScheme;
-extern NSString *const kNewDeepLinkURLScheme;
-
 extern NSString *const kBundleID;
 extern NSString *const kProjectID;
 

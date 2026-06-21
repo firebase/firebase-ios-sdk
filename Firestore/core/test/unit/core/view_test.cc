@@ -81,7 +81,7 @@ inline Query QueryForMessages() {
 }
 
 TEST(ViewTest, AddsDocumentsBasedOnQuery) {
-  Query query = QueryForMessages();
+  auto query = QueryOrPipeline(QueryForMessages());
   View view(query, DocumentKeySet{});
 
   Document doc1 = Doc("rooms/eros/messages/1", 0, Map("text", "msg1"));
@@ -93,7 +93,7 @@ TEST(ViewTest, AddsDocumentsBasedOnQuery) {
   ASSERT_TRUE(maybe_snapshot.has_value());
   ViewSnapshot snapshot = std::move(maybe_snapshot).value();
 
-  ASSERT_EQ(snapshot.query(), query);
+  ASSERT_EQ(snapshot.query_or_pipeline(), query);
 
   ASSERT_THAT(snapshot.documents(), ElementsAre(doc1, doc2));
 
@@ -108,7 +108,7 @@ TEST(ViewTest, AddsDocumentsBasedOnQuery) {
 }
 
 TEST(ViewTest, RemovesDocuments) {
-  Query query = QueryForMessages();
+  auto query = QueryOrPipeline(QueryForMessages());
   View view(query, DocumentKeySet{});
 
   Document doc1 = Doc("rooms/eros/messages/1", 0, Map("text", "msg1"));
@@ -125,7 +125,7 @@ TEST(ViewTest, RemovesDocuments) {
   ASSERT_TRUE(maybe_snapshot.has_value());
   ViewSnapshot snapshot = std::move(maybe_snapshot).value();
 
-  ASSERT_EQ(snapshot.query(), query);
+  ASSERT_EQ(snapshot.query_or_pipeline(), query);
 
   ASSERT_THAT(snapshot.documents(), ElementsAre(doc1, doc3));
 
@@ -139,7 +139,7 @@ TEST(ViewTest, RemovesDocuments) {
 }
 
 TEST(ViewTest, ReturnsNilIfThereAreNoChanges) {
-  Query query = QueryForMessages();
+  auto query = QueryOrPipeline(QueryForMessages());
   View view(query, DocumentKeySet{});
 
   Document doc1 = Doc("rooms/eros/messages/1", 0, Map("text", "msg1"));
@@ -155,7 +155,7 @@ TEST(ViewTest, ReturnsNilIfThereAreNoChanges) {
 }
 
 TEST(ViewTest, DoesNotReturnNilForFirstChanges) {
-  Query query = QueryForMessages();
+  auto query = QueryOrPipeline(QueryForMessages());
   View view(query, DocumentKeySet{});
 
   absl::optional<ViewSnapshot> snapshot =
@@ -164,7 +164,8 @@ TEST(ViewTest, DoesNotReturnNilForFirstChanges) {
 }
 
 TEST(ViewTest, FiltersDocumentsBasedOnQueryWithFilter) {
-  Query query = QueryForMessages().AddingFilter(Filter("sort", "<=", 2));
+  auto query =
+      QueryOrPipeline(QueryForMessages().AddingFilter(Filter("sort", "<=", 2)));
 
   View view(query, DocumentKeySet{});
   Document doc1 = Doc("rooms/eros/messages/1", 0, Map("sort", 1));
@@ -178,7 +179,7 @@ TEST(ViewTest, FiltersDocumentsBasedOnQueryWithFilter) {
   ASSERT_TRUE(maybe_snapshot.has_value());
   ViewSnapshot snapshot = std::move(maybe_snapshot).value();
 
-  ASSERT_EQ(snapshot.query(), query);
+  ASSERT_EQ(snapshot.query_or_pipeline(), query);
 
   ASSERT_THAT(snapshot.documents(), ElementsAre(doc1, doc5, doc2));
 
@@ -193,7 +194,8 @@ TEST(ViewTest, FiltersDocumentsBasedOnQueryWithFilter) {
 }
 
 TEST(ViewTest, UpdatesDocumentsBasedOnQueryWithFilter) {
-  Query query = QueryForMessages().AddingFilter(Filter("sort", "<=", 2));
+  auto query =
+      QueryOrPipeline(QueryForMessages().AddingFilter(Filter("sort", "<=", 2)));
 
   View view(query, DocumentKeySet{});
   Document doc1 = Doc("rooms/eros/messages/1", 0, Map("sort", 1));
@@ -204,7 +206,7 @@ TEST(ViewTest, UpdatesDocumentsBasedOnQueryWithFilter) {
   ViewSnapshot snapshot =
       ApplyChanges(&view, {doc1, doc2, doc3, doc4}, absl::nullopt).value();
 
-  ASSERT_EQ(snapshot.query(), query);
+  ASSERT_EQ(snapshot.query_or_pipeline(), query);
 
   ASSERT_THAT(snapshot.documents(), ElementsAre(doc1, doc3));
 
@@ -215,7 +217,7 @@ TEST(ViewTest, UpdatesDocumentsBasedOnQueryWithFilter) {
   snapshot = ApplyChanges(&view, {new_doc2, new_doc3, new_doc4}, absl::nullopt)
                  .value();
 
-  ASSERT_EQ(snapshot.query(), query);
+  ASSERT_EQ(snapshot.query_or_pipeline(), query);
 
   ASSERT_THAT(snapshot.documents(), ElementsAre(new_doc4, doc1, new_doc2));
 
@@ -231,7 +233,7 @@ TEST(ViewTest, UpdatesDocumentsBasedOnQueryWithFilter) {
 }
 
 TEST(ViewTest, RemovesDocumentsForQueryWithLimit) {
-  Query query = QueryForMessages().WithLimitToFirst(2);
+  auto query = QueryOrPipeline(QueryForMessages().WithLimitToFirst(2));
   View view(query, DocumentKeySet{});
 
   Document doc1 = Doc("rooms/eros/messages/1", 0, Map("text", "msg1"));
@@ -245,7 +247,7 @@ TEST(ViewTest, RemovesDocumentsForQueryWithLimit) {
   ViewSnapshot snapshot =
       ApplyChanges(&view, {doc2}, AckTarget({doc1, doc2, doc3})).value();
 
-  ASSERT_EQ(snapshot.query(), query);
+  ASSERT_EQ(snapshot.query_or_pipeline(), query);
 
   ASSERT_THAT(snapshot.documents(), ElementsAre(doc1, doc2));
 
@@ -259,8 +261,8 @@ TEST(ViewTest, RemovesDocumentsForQueryWithLimit) {
 }
 
 TEST(ViewTest, DoesntReportChangesForDocumentBeyondLimitOfQuery) {
-  Query query =
-      QueryForMessages().AddingOrderBy(OrderBy("num")).WithLimitToFirst(2);
+  auto query = QueryOrPipeline(
+      QueryForMessages().AddingOrderBy(OrderBy("num")).WithLimitToFirst(2));
   View view(query, DocumentKeySet{});
 
   Document doc1 = Doc("rooms/eros/messages/1", 0, Map("num", 1));
@@ -288,7 +290,7 @@ TEST(ViewTest, DoesntReportChangesForDocumentBeyondLimitOfQuery) {
   ASSERT_TRUE(maybe_snapshot.has_value());
   ViewSnapshot snapshot = std::move(maybe_snapshot).value();
 
-  ASSERT_EQ(snapshot.query(), query);
+  ASSERT_EQ(snapshot.query_or_pipeline(), query);
 
   ASSERT_THAT(snapshot.documents(), ElementsAre(doc1, doc3));
 
@@ -302,7 +304,7 @@ TEST(ViewTest, DoesntReportChangesForDocumentBeyondLimitOfQuery) {
 }
 
 TEST(ViewTest, KeepsTrackOfLimboDocuments) {
-  Query query = QueryForMessages();
+  auto query = QueryOrPipeline(QueryForMessages());
   View view(query, DocumentKeySet{});
 
   Document doc1 = Doc("rooms/eros/messages/0", 0, Map());
@@ -338,7 +340,7 @@ TEST(ViewTest, KeepsTrackOfLimboDocuments) {
 }
 
 TEST(ViewTest, ResumingQueryCreatesNoLimbos) {
-  Query query = QueryForMessages();
+  auto query = QueryOrPipeline(QueryForMessages());
 
   Document doc1 = Doc("rooms/eros/messages/0", 0, Map());
   Document doc2 = Doc("rooms/eros/messages/1", 0, Map());
@@ -354,7 +356,7 @@ TEST(ViewTest, ResumingQueryCreatesNoLimbos) {
 }
 
 TEST(ViewTest, ReturnsNeedsRefillOnDeleteInLimitQuery) {
-  Query query = QueryForMessages().WithLimitToFirst(2);
+  auto query = QueryOrPipeline(QueryForMessages().WithLimitToFirst(2));
   Document doc1 = Doc("rooms/eros/messages/0", 0, Map());
   Document doc2 = Doc("rooms/eros/messages/1", 0, Map());
   View view(query, DocumentKeySet{});
@@ -382,8 +384,8 @@ TEST(ViewTest, ReturnsNeedsRefillOnDeleteInLimitQuery) {
 }
 
 TEST(ViewTest, ReturnsNeedsRefillOnReorderInLimitQuery) {
-  Query query =
-      QueryForMessages().AddingOrderBy(OrderBy("order")).WithLimitToFirst(2);
+  auto query = QueryOrPipeline(
+      QueryForMessages().AddingOrderBy(OrderBy("order")).WithLimitToFirst(2));
   Document doc1 = Doc("rooms/eros/messages/0", 0, Map("order", 1));
   Document doc2 = Doc("rooms/eros/messages/1", 0, Map("order", 2));
   Document doc3 = Doc("rooms/eros/messages/2", 0, Map("order", 3));
@@ -413,8 +415,8 @@ TEST(ViewTest, ReturnsNeedsRefillOnReorderInLimitQuery) {
 }
 
 TEST(ViewTest, DoesntNeedRefillOnReorderWithinLimit) {
-  Query query =
-      QueryForMessages().AddingOrderBy(OrderBy("order")).WithLimitToFirst(3);
+  auto query = QueryOrPipeline(
+      QueryForMessages().AddingOrderBy(OrderBy("order")).WithLimitToFirst(3));
   Document doc1 = Doc("rooms/eros/messages/0", 0, Map("order", 1));
   Document doc2 = Doc("rooms/eros/messages/1", 0, Map("order", 2));
   Document doc3 = Doc("rooms/eros/messages/2", 0, Map("order", 3));
@@ -440,8 +442,8 @@ TEST(ViewTest, DoesntNeedRefillOnReorderWithinLimit) {
 }
 
 TEST(ViewTest, DoesntNeedRefillOnReorderAfterLimitQuery) {
-  Query query =
-      QueryForMessages().AddingOrderBy(OrderBy("order")).WithLimitToFirst(3);
+  auto query = QueryOrPipeline(
+      QueryForMessages().AddingOrderBy(OrderBy("order")).WithLimitToFirst(3));
   Document doc1 = Doc("rooms/eros/messages/0", 0, Map("order", 1));
   Document doc2 = Doc("rooms/eros/messages/1", 0, Map("order", 2));
   Document doc3 = Doc("rooms/eros/messages/2", 0, Map("order", 3));
@@ -467,7 +469,7 @@ TEST(ViewTest, DoesntNeedRefillOnReorderAfterLimitQuery) {
 }
 
 TEST(ViewTest, DoesntNeedRefillForAdditionAfterTheLimit) {
-  Query query = QueryForMessages().WithLimitToFirst(2);
+  auto query = QueryOrPipeline(QueryForMessages().WithLimitToFirst(2));
   Document doc1 = Doc("rooms/eros/messages/0", 0, Map());
   Document doc2 = Doc("rooms/eros/messages/1", 0, Map());
   View view(query, DocumentKeySet{});
@@ -490,7 +492,7 @@ TEST(ViewTest, DoesntNeedRefillForAdditionAfterTheLimit) {
 }
 
 TEST(ViewTest, DoesntNeedRefillForDeletionsWhenNotNearTheLimit) {
-  Query query = QueryForMessages().WithLimitToFirst(20);
+  auto query = QueryOrPipeline(QueryForMessages().WithLimitToFirst(20));
   Document doc1 = Doc("rooms/eros/messages/0", 0, Map());
   Document doc2 = Doc("rooms/eros/messages/1", 0, Map());
   View view(query, DocumentKeySet{});
@@ -512,7 +514,7 @@ TEST(ViewTest, DoesntNeedRefillForDeletionsWhenNotNearTheLimit) {
 }
 
 TEST(ViewTest, HandlesApplyingIrrelevantDocs) {
-  Query query = QueryForMessages().WithLimitToFirst(2);
+  auto query = QueryOrPipeline(QueryForMessages().WithLimitToFirst(2));
   Document doc1 = Doc("rooms/eros/messages/0", 0, Map());
   Document doc2 = Doc("rooms/eros/messages/1", 0, Map());
   View view(query, DocumentKeySet{});
@@ -535,7 +537,7 @@ TEST(ViewTest, HandlesApplyingIrrelevantDocs) {
 }
 
 TEST(ViewTest, ComputesMutatedKeys) {
-  Query query = QueryForMessages();
+  auto query = QueryOrPipeline(QueryForMessages());
   Document doc1 = Doc("rooms/eros/messages/0", 0, Map());
   Document doc2 = Doc("rooms/eros/messages/1", 0, Map());
   View view(query, DocumentKeySet{});
@@ -552,7 +554,7 @@ TEST(ViewTest, ComputesMutatedKeys) {
 }
 
 TEST(ViewTest, RemovesKeysFromMutatedKeysWhenNewDocHasNoLocalChanges) {
-  Query query = QueryForMessages();
+  auto query = QueryOrPipeline(QueryForMessages());
   Document doc1 = Doc("rooms/eros/messages/0", 0, Map());
   Document doc2 = Doc("rooms/eros/messages/1", 0, Map()).SetHasLocalMutations();
   View view(query, DocumentKeySet{});
@@ -570,7 +572,7 @@ TEST(ViewTest, RemovesKeysFromMutatedKeysWhenNewDocHasNoLocalChanges) {
 }
 
 TEST(ViewTest, RemembersLocalMutationsFromPreviousSnapshot) {
-  Query query = QueryForMessages();
+  auto query = QueryOrPipeline(QueryForMessages());
   Document doc1 = Doc("rooms/eros/messages/0", 0, Map());
   Document doc2 = Doc("rooms/eros/messages/1", 0, Map()).SetHasLocalMutations();
   View view(query, DocumentKeySet{});
@@ -589,7 +591,7 @@ TEST(ViewTest, RemembersLocalMutationsFromPreviousSnapshot) {
 
 TEST(ViewTest,
      RemembersLocalMutationsFromPreviousCallToComputeDocumentChanges) {
-  Query query = QueryForMessages();
+  auto query = QueryOrPipeline(QueryForMessages());
   Document doc1 = Doc("rooms/eros/messages/0", 0, Map());
   Document doc2 = Doc("rooms/eros/messages/1", 0, Map()).SetHasLocalMutations();
   View view(query, DocumentKeySet{});
@@ -605,7 +607,7 @@ TEST(ViewTest,
 }
 
 TEST(ViewTest, RaisesHasPendingWritesForPendingMutationsInInitialSnapshot) {
-  Query query = QueryForMessages();
+  auto query = QueryOrPipeline(QueryForMessages());
   Document doc1 = Doc("rooms/eros/messages/1", 0, Map()).SetHasLocalMutations();
   View view(query, DocumentKeySet{});
   ViewDocumentChanges changes = view.ComputeDocumentChanges(DocUpdates({doc1}));
@@ -615,7 +617,7 @@ TEST(ViewTest, RaisesHasPendingWritesForPendingMutationsInInitialSnapshot) {
 
 TEST(ViewTest,
      DoesntRaiseHasPendingWritesForCommittedMutationsInInitialSnapshot) {
-  Query query = QueryForMessages();
+  auto query = QueryOrPipeline(QueryForMessages());
   Document doc1 =
       Doc("rooms/eros/messages/1", 0, Map()).SetHasCommittedMutations();
   View view(query, DocumentKeySet{});
@@ -629,7 +631,7 @@ TEST(ViewTest, SuppressesWriteAcknowledgementIfWatchHasNotCaughtUp) {
   // mutation. We suppress the event generated by the write acknowledgement and
   // instead wait for Watch to catch up.
 
-  Query query = QueryForMessages();
+  auto query = QueryOrPipeline(QueryForMessages());
   Document doc1 =
       Doc("rooms/eros/messages/1", 1, Map("time", 1)).SetHasLocalMutations();
   Document doc1_committed = Doc("rooms/eros/messages/1", 2, Map("time", 2))

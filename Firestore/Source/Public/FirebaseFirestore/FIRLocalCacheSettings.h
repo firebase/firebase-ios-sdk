@@ -44,14 +44,14 @@ NS_SWIFT_NAME(PersistentCacheSettings)
 /**
  * Creates `PersistentCacheSettings` with default cache size: 100MB.
  *
- * The cache size is not a hard limit, but a target for the SDK's gabarge collector to work towards.
+ * The cache size is not a hard limit, but a target for the SDK's garbage collector to work towards.
  */
 - (instancetype)init;
 
 /**
  * Creates `PersistentCacheSettings` with a custom cache size in bytes.
  *
- * The cache size is not a hard limit, but a target for the SDK's gabarge collector to work towards.
+ * The cache size is not a hard limit, but a target for the SDK's garbage collector to work towards.
  */
 - (instancetype)initWithSizeBytes:(NSNumber *)size;
 
@@ -132,7 +132,7 @@ NS_SWIFT_NAME(MemoryCacheSettings)
 
 /**
  * Creates an instance of `MemoryCacheSettings` with given `MemoryGarbageCollectorSettings` to
- * custom the gabarge collector.
+ * custom the garbage collector.
  */
 - (instancetype)initWithGarbageCollectorSettings:
     (id<FIRMemoryGarbageCollectorSettings, NSObject>)settings;

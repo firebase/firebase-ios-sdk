@@ -37,7 +37,7 @@ class SessionGeneratorTests: XCTestCase {
     }
 
     appInfo = MockApplicationInfo()
-    cache = SettingsCache()
+    cache = SettingsCache(namespace: "app_quality")
     cache.removeCache() // just reinstantiating cache isn't enough because of persistence
     downloader = MockSettingsDownloader(successResponse: validSettings)
     remoteSettings = RemoteSettings(appInfo: appInfo, downloader: downloader, cache: cache)
@@ -53,6 +53,7 @@ class SessionGeneratorTests: XCTestCase {
       localOverrides: localOverrideSettings,
       remoteSettings: remoteSettings
     )
+
     generator = SessionGenerator(collectEvents: Sessions
       .shouldCollectEvents(settings: sessionSettings))
   }

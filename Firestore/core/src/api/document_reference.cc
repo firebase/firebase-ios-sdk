@@ -16,7 +16,7 @@
 
 #include "Firestore/core/src/api/document_reference.h"
 
-#include <future>  // NOLINT(build/c++11)
+#include <future>
 #include <memory>
 
 #include "Firestore/core/src/api/collection_reference.h"
@@ -238,8 +238,8 @@ std::unique_ptr<ListenerRegistration> DocumentReference::AddSnapshotListener(
 
   core::Query query(key_.path());
   std::shared_ptr<QueryListener> query_listener =
-      firestore_->client()->ListenToQuery(std::move(query), options,
-                                          async_listener);
+      firestore_->client()->ListenToQuery(
+          core::QueryOrPipeline(std::move(query)), options, async_listener);
 
   return absl::make_unique<QueryListenerRegistration>(
       firestore_->client(), std::move(async_listener),

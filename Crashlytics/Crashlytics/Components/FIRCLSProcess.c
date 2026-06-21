@@ -558,7 +558,7 @@ void FIRCLSProcessRecordDispatchQueueNames(FIRCLSProcess *process, FIRCLSFile *f
   FIRCLSFileWriteSectionEnd(file);
 }
 
-#pragma mark - Othe Process Info
+#pragma mark - Other Process Info
 bool FIRCLSProcessGetMemoryUsage(uint64_t *active,
                                  uint64_t *inactive,
                                  uint64_t *wired,
@@ -782,7 +782,7 @@ static void FIRCLSProcessRecordCrashInfo(FIRCLSFile *file) {
     FIRCLSSDKLogDebug("Found crash info with version %d\n", info.version);
 
     // Currently support versions 0 through 5.
-    // 4 was in use for a long time, but it appears that with iOS 9 / swift 2.0, the verison has
+    // 4 was in use for a long time, but it appears that with iOS 9 / swift 2.0, the version has
     // been bumped.
     if (info.version > 5) {
       continue;

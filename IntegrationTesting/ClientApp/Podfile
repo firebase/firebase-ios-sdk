@@ -3,7 +3,7 @@ source 'https://github.com/firebase/SpecsStaging.git'
 source 'https://cdn.cocoapods.org/'
 
 target 'ClientApp-CocoaPods' do
-  platform :ios, '11.0'
+  platform :ios, '15.0'
 
   use_frameworks!
 
@@ -12,37 +12,23 @@ target 'ClientApp-CocoaPods' do
   pod 'FirebaseCoreExtension', :path => '../../'
   pod 'FirebaseInstallations', :path => '../../'
   pod 'FirebaseAnalytics' # Binary pods don't work with `:path`.
-  pod 'FirebaseAnalyticsOnDeviceConversion', :path => '../../'
   pod 'FirebaseABTesting', :path => '../../'
   pod 'FirebaseAppCheck', :path => '../../'
   pod 'FirebaseRemoteConfig', :path => '../../'
-  pod 'FirebaseRemoteConfigSwift', :path => '../../'
   pod 'FirebaseRemoteConfigInterop', :path => '../../'
   pod 'FirebaseAppDistribution', :path => '../../'
+  pod 'FirebaseAuthInterop', :path => '../../'
   pod 'FirebaseAuth', :path => '../../'
   pod 'FirebaseCrashlytics', :path => '../../'
   pod 'FirebaseDatabase', :path => '../../'
-  pod 'FirebaseDatabaseSwift', :path => '../../'
-  pod 'FirebaseDynamicLinks', :path => '../../'
   pod 'FirebaseFirestore', :path => '../../'
-  pod 'FirebaseFirestoreSwift', :path => '../../'
+  pod 'FirebaseFirestoreInternal', :path => '../../'
   pod 'FirebaseFunctions', :path => '../../'
   pod 'FirebaseInAppMessaging', :path => '../../'
   pod 'FirebaseMessaging', :path => '../../'
-  pod 'FirebasePerformance', :path => '../../'
+  pod 'FirebaseSessions', :path => '../../'
   pod 'FirebaseStorage', :path => '../../'
+  pod 'FirebasePerformance', :path => '../../'
   pod 'FirebaseMLModelDownloader', :path => '../../'
   pod 'Firebase', :path => '../../'
-end
-
-target 'ClientApp-CocoaPods-iOS13' do
-  platform :ios, '13.0'
-
-  use_frameworks!
-
-  pod 'FirebaseAnalytics' # Binary pods don't work with `:path`.
-  pod 'FirebaseAnalyticsSwift', :path => '../../' # Requires iOS 13.0+
-  pod 'FirebaseInAppMessaging', :path => '../../'
-  pod 'FirebaseInAppMessagingSwift', :path => '../../' # Requires iOS 13.0+
-
 end

@@ -25,7 +25,7 @@ import Foundation
 /// on each field manually. Instead you can read `<field>.description`.
 ///
 
-extension firebase_appquality_sessions_EventType: CustomStringConvertible {
+extension firebase_appquality_sessions_EventType: Swift.CustomStringConvertible {
   public var description: String {
     switch self {
     case firebase_appquality_sessions_EventType_SESSION_START:
@@ -38,7 +38,7 @@ extension firebase_appquality_sessions_EventType: CustomStringConvertible {
   }
 }
 
-extension firebase_appquality_sessions_DataCollectionState: CustomStringConvertible {
+extension firebase_appquality_sessions_DataCollectionState: Swift.CustomStringConvertible {
   public var description: String {
     switch self {
     case firebase_appquality_sessions_DataCollectionState_COLLECTION_ENABLED:
@@ -59,7 +59,7 @@ extension firebase_appquality_sessions_DataCollectionState: CustomStringConverti
   }
 }
 
-extension firebase_appquality_sessions_OsName: CustomStringConvertible {
+extension firebase_appquality_sessions_OsName: Swift.CustomStringConvertible {
   public var description: String {
     switch self {
     case firebase_appquality_sessions_OsName_IOS:
@@ -86,7 +86,7 @@ extension firebase_appquality_sessions_OsName: CustomStringConvertible {
   }
 }
 
-extension firebase_appquality_sessions_LogEnvironment: CustomStringConvertible {
+extension firebase_appquality_sessions_LogEnvironment: Swift.CustomStringConvertible {
   public var description: String {
     switch self {
     case firebase_appquality_sessions_LogEnvironment_LOG_ENVIRONMENT_PROD:
@@ -106,7 +106,7 @@ extension firebase_appquality_sessions_LogEnvironment: CustomStringConvertible {
 // This is written like this for Swift backwards-compatibility.
 // Once we upgrade to Xcode 14, this can be written as
 // UnsafeMutablePointer<pb_bytes_array_t>
-extension UnsafeMutablePointer: CustomStringConvertible where Pointee == pb_bytes_array_t {
+extension UnsafeMutablePointer: Swift.CustomStringConvertible where Pointee == pb_bytes_array_t {
   public var description: String {
     let decoded = FIRSESDecodeString(self)
     if decoded.count == 0 {
@@ -120,7 +120,7 @@ extension UnsafeMutablePointer: CustomStringConvertible where Pointee == pb_byte
 // This is written like this for Swift backwards-compatibility.
 // Once we upgrade to Xcode 14, this can be written as
 // UnsafeMutablePointer<pb_bytes_array_t>?
-extension Optional: CustomStringConvertible
+extension Optional: Swift.CustomStringConvertible
   where Wrapped == UnsafeMutablePointer<pb_bytes_array_t> {
   public var description: String {
     guard let this = self else {

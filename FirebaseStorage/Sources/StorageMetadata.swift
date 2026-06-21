@@ -102,11 +102,6 @@ import Foundation
   @objc public let updated: Date?
 
   /**
-   * Never used API
-   */
-  @available(*, deprecated) @objc public let storageReference: StorageReference? = nil
-
-  /**
    * Creates a Dictionary from the contents of the metadata.
    * @return A Dictionary that represents the contents of the metadata.
    */
@@ -230,7 +225,7 @@ import Foundation
     return 0
   }
 
-  private static var dateFormatter: DateFormatter = {
+  private static let dateFormatter: DateFormatter = {
     let dateFormatter = DateFormatter()
     dateFormatter.locale = Locale(identifier: "en_US_POSIX") // set locale to reliable US_POSIX
     dateFormatter.dateFormat = "yyyy'-'MM'-'dd'T'HH':'mm':'ss.SSSZZZZZ"

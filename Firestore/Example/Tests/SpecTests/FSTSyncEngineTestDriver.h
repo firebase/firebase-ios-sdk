@@ -26,6 +26,7 @@
 #include "Firestore/core/src/api/load_bundle_task.h"
 #include "Firestore/core/src/bundle/bundle_reader.h"
 #include "Firestore/core/src/core/database_info.h"
+#include "Firestore/core/src/core/pipeline_util.h"  // For QueryOrPipeline
 #include "Firestore/core/src/core/query.h"
 #include "Firestore/core/src/core/view_snapshot.h"
 #include "Firestore/core/src/credentials/user.h"
@@ -66,7 +67,7 @@ NS_ASSUME_NONNULL_BEGIN
  * given query.
  */
 @interface FSTQueryEvent : NSObject
-@property(nonatomic, assign) core::Query query;
+@property(nonatomic, assign) core::QueryOrPipeline queryOrPipeline;
 @property(nonatomic, strong, nullable) NSError *error;
 
 - (const absl::optional<core::ViewSnapshot> &)viewSnapshot;
@@ -115,7 +116,10 @@ typedef std::
  *
  * Each method on the driver injects a different event into the system.
  */
-@interface FSTSyncEngineTestDriver : NSObject
+@interface FSTSyncEngineTestDriver : NSObject {
+ @protected
+  BOOL _convertToPipeline;
+}
 
 /**
  * Initializes the underlying FSTSyncEngine with the given local persistence implementation and
@@ -124,6 +128,7 @@ typedef std::
  */
 - (instancetype)initWithPersistence:(std::unique_ptr<local::Persistence>)persistence
                             eagerGC:(BOOL)eagerGC
+                  convertToPipeline:(BOOL)convertToPipeline
                         initialUser:(const credentials::User &)initialUser
                   outstandingWrites:(const FSTOutstandingWriteQueues &)outstandingWrites
       maxConcurrentLimboResolutions:(size_t)maxConcurrentLimboResolutions NS_DESIGNATED_INITIALIZER;

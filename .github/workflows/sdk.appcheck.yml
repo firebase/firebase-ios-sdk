@@ -1,0 +1,67 @@
+name: sdk.appcheck
+
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+    - 'FirebaseAppCheck**'
+    - '.github/workflows/sdk.appcheck.yml'
+    - '.github/workflows/_spm.yml'
+    - '.github/workflows/_cocoapods.yml'
+    - '.github/workflows/_catalyst.yml'
+    - '.github/workflows/_cocoapods.cron.yml'
+    - 'Gemfile*'
+  schedule:
+    # Run every day at 12am (PDT) / 3am (EDT) - cron uses UTC times
+    - cron:  '0 7 * * *'
+
+concurrency:
+    group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+    cancel-in-progress: true
+
+jobs:
+  spm:
+    strategy:
+      matrix:
+        target: [FirebaseAppCheckUnit, FirebaseAppCheckUnitSwift]
+    uses: ./.github/workflows/_spm.yml
+    with:
+      target: ${{  matrix.target }}
+
+  catalyst:
+    uses: ./.github/workflows/_catalyst.yml
+    with:
+      product: FirebaseAppCheck
+      target: FirebaseAppCheck-Unit-unit
+
+  pod_lib_lint:
+    strategy:
+      matrix:
+        product: [FirebaseAppCheckInterop, FirebaseAppCheck]
+    uses: ./.github/workflows/_cocoapods.yml
+    with:
+      product: ${{ matrix.product }}
+      buildonly_platforms: macOS
+
+  diagnostics:
+    strategy:
+      matrix:
+        diagnostic: [tsan, asan, ubsan]
+    uses: ./.github/workflows/_build.yml
+    with:
+      product: FirebaseAppCheckUnit
+      platform: iOS
+      method: spm
+      sanitizers: ${{ matrix.diagnostic }}
+      setup_command: scripts/setup_spm_tests.sh
+
+  app_check-cron-only:
+    needs: pod_lib_lint
+    uses: ./.github/workflows/_cocoapods.cron.yml
+    with:
+      product: FirebaseAppCheck
+      platforms: '[ "ios" ]'
+      flags: '[ "--skip-tests --use-modular-headers" ]'

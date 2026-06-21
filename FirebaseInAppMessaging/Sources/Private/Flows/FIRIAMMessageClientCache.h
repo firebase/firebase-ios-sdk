@@ -50,13 +50,14 @@ NS_ASSUME_NONNULL_BEGIN
 // This class exists so that we can do message match more efficiently (in-memory search vs search
 // in local persistent storage) by using appropriate in-memory data structure.
 NS_EXTENSION_UNAVAILABLE("Firebase In App Messaging is not supported for iOS extensions.")
+API_AVAILABLE(ios(13.0), tvos(13.0))
 @interface FIRIAMMessageClientCache : NSObject
 
 // used to inform the analytics event display check flow about whether it should start/stop
 // analytics event listening based on the latest message definitions
 // make it weak to avoid retaining cycle
 @property(nonatomic, weak, nullable)
-    FIRIAMDisplayCheckOnAnalyticEventsFlow *analycisEventDislayCheckFlow;
+    FIRIAMDisplayCheckOnAnalyticEventsFlow *analyticsEventDisplayCheckFlow;
 
 - (instancetype)init NS_UNAVAILABLE;
 - (instancetype)initWithBookkeeper:(id<FIRIAMBookKeeper>)bookKeeper
@@ -83,7 +84,7 @@ NS_EXTENSION_UNAVAILABLE("Firebase In App Messaging is not supported for iOS ext
 - (nullable FIRIAMMessageDefinition *)nextOnFirebaseAnalyticEventDisplayMsg:(NSString *)eventName;
 
 // Call this after a message has been rendered to remove it from the cache.
-- (void)removeMessageWithId:(NSString *)messgeId;
+- (void)removeMessageWithId:(NSString *)messageId;
 
 // reset messages data
 - (void)setMessageData:(NSArray<FIRIAMMessageDefinition *> *)messages;

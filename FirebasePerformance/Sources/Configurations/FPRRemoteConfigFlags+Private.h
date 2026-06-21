@@ -18,6 +18,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@class GULUserDefaults;
+
 static NSString *const kFPRConfigPrefix = @"com.fireperf";
 
 /** Interval at which the configurations can be fetched. Specified in seconds. */
@@ -36,7 +38,7 @@ static NSInteger const kFPRMinAppStartConfigFetchDelayInSeconds = 5;
 @property(atomic, nullable) NSDate *lastFetchedTime;
 
 /** @brief User defaults used for caching. */
-@property(nonatomic) NSUserDefaults *userDefaults;
+@property(nonatomic) GULUserDefaults *userDefaults;
 
 /** @brief Last activated time of the configurations. */
 @property(nonatomic) NSDate *applicationStartTime;

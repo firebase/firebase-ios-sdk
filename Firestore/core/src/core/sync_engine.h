@@ -76,27 +76,28 @@ class QueryEventSource {
    *
    * @return the target ID assigned to the query.
    */
-  virtual model::TargetId Listen(Query query, bool should_listen_to_remote) = 0;
+  virtual model::TargetId Listen(QueryOrPipeline query,
+                                 bool should_listen_to_remote) = 0;
 
   /**
    * Sends the listen to the RemoteStore to get remote data. Invoked when a
    * Query starts listening to the remote store, while already listening to the
    * cache.
    */
-  virtual void ListenToRemoteStore(Query query) = 0;
+  virtual void ListenToRemoteStore(QueryOrPipeline query) = 0;
 
   /**
    * Stops listening to a query previously listened to via `Listen`. Un-listen
    * to remote store if there is a watch connection established and stayed open.
    */
-  virtual void StopListening(const Query& query,
+  virtual void StopListening(const QueryOrPipeline& query,
                              bool should_stop_remote_listening) = 0;
 
   /**
    * Stops listening to a query from watch. Invoked when a Query stops listening
    * to the remote store, while still listening to the cache.
    */
-  virtual void StopListeningToRemoteStoreOnly(const Query& query) = 0;
+  virtual void StopListeningToRemoteStoreOnly(const QueryOrPipeline& query) = 0;
 };
 
 /**
@@ -124,12 +125,12 @@ class SyncEngine : public remote::RemoteStoreCallback, public QueryEventSource {
   void SetCallback(SyncEngineCallback* callback) override {
     sync_engine_callback_ = callback;
   }
-  model::TargetId Listen(Query query,
+  model::TargetId Listen(QueryOrPipeline query,
                          bool should_listen_to_remote = true) override;
-  void ListenToRemoteStore(Query query) override;
-  void StopListening(const Query& query,
+  void ListenToRemoteStore(QueryOrPipeline query) override;
+  void StopListening(const QueryOrPipeline& query,
                      bool should_stop_remote_listening = true) override;
-  void StopListeningToRemoteStoreOnly(const Query& query) override;
+  void StopListeningToRemoteStoreOnly(const QueryOrPipeline& query) override;
 
   /**
    * Initiates the write of local mutation batch which involves adding the
@@ -204,13 +205,13 @@ class SyncEngine : public remote::RemoteStoreCallback, public QueryEventSource {
    */
   class QueryView {
    public:
-    QueryView(Query query, model::TargetId target_id, View view)
+    QueryView(QueryOrPipeline query, model::TargetId target_id, View view)
         : query_(std::move(query)),
           target_id_(target_id),
           view_(std::move(view)) {
     }
 
-    const Query& query() const {
+    const QueryOrPipeline& query() const {
       return query_;
     }
 
@@ -233,7 +234,7 @@ class SyncEngine : public remote::RemoteStoreCallback, public QueryEventSource {
     }
 
    private:
-    Query query_;
+    QueryOrPipeline query_;
     model::TargetId target_id_;
     View view_;
   };
@@ -260,12 +261,12 @@ class SyncEngine : public remote::RemoteStoreCallback, public QueryEventSource {
   void AssertCallbackExists(absl::string_view source);
 
   ViewSnapshot InitializeViewAndComputeSnapshot(
-      const Query& query,
+      const QueryOrPipeline& query,
       model::TargetId target_id,
       nanopb::ByteString resume_token);
 
   void RemoveAndCleanupTarget(model::TargetId target_id, util::Status status);
-  void StopListeningAndReleaseTarget(const Query& query,
+  void StopListeningAndReleaseTarget(const QueryOrPipeline& query,
                                      bool should_stop_remote_listening,
                                      bool last_listen);
 
@@ -337,10 +338,12 @@ class SyncEngine : public remote::RemoteStoreCallback, public QueryEventSource {
   // Shared pointers are used to avoid creating and storing two copies of the
   // same `QueryView` and for consistency with other platforms.
   /** QueryViews for all active queries, indexed by query. */
-  std::unordered_map<Query, std::shared_ptr<QueryView>> query_views_by_query_;
+  std::unordered_map<QueryOrPipeline, std::shared_ptr<QueryView>>
+      query_views_by_query_;
 
   /** Queries mapped to Targets, indexed by target ID. */
-  std::unordered_map<model::TargetId, std::vector<Query>> queries_by_target_;
+  std::unordered_map<model::TargetId, std::vector<QueryOrPipeline>>
+      queries_by_target_;
 
   const size_t max_concurrent_limbo_resolutions_;
 

@@ -99,19 +99,14 @@ static NSString *const kFIRMessagingTokenKeychainId = @"com.google.iid-tokens";
 + (nullable FIRMessagingTokenInfo *)tokenInfoFromKeychainItem:(NSData *)item {
   // Check if it is saved as an archived FIRMessagingTokenInfo, otherwise return nil.
   FIRMessagingTokenInfo *tokenInfo = nil;
-  // NOTE: Passing in nil to unarchiveObjectWithData will result in an iOS error logged
-  // in the console on iOS 10 and below. Avoid by checking item.data's existence.
   if (item) {
-    // TODO(chliangGoogle: Use the new API and secureCoding protocol.
     @try {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-      [NSKeyedUnarchiver setClass:[FIRMessagingTokenInfo class]
-                     forClassName:@"FIRInstanceIDTokenInfo"];
-      tokenInfo = [NSKeyedUnarchiver unarchiveObjectWithData:item];
-
-#pragma clang diagnostic pop
-
+      NSKeyedUnarchiver *unarchiver = [[NSKeyedUnarchiver alloc] initForReadingFromData:item
+                                                                                  error:nil];
+      unarchiver.requiresSecureCoding = NO;
+      [unarchiver setClass:[FIRMessagingTokenInfo class] forClassName:@"FIRInstanceIDTokenInfo"];
+      tokenInfo = [unarchiver decodeObjectForKey:NSKeyedArchiveRootObjectKey];
+      [unarchiver finishDecoding];
     } @catch (NSException *exception) {
       FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTokenStoreExceptionUnarchivingTokenInfo,
                               @"Unable to parse token info from Keychain item; item was in an "

@@ -32,6 +32,10 @@ static NSString *const kFirebaseAppID = @"firebaseAppID";
 static NSString *const kIID = @"eMP633ZkDYA";
 static BOOL const kAPNSSandbox = NO;
 
+@interface FIROptions ()
++ (NSDictionary *)defaultOptionsDictionary;
+@end
+
 @interface FIRMessagingTokenInfoTest : XCTestCase
 
 @property(nonatomic, strong) NSData *APNSDeviceToken;

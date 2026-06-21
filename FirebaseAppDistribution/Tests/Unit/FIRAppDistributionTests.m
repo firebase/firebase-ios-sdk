@@ -244,7 +244,7 @@
   [self mockFetchReleasesCompletion:_mockReleases error:nil];
   XCTestExpectation *expectation =
       [self expectationWithDescription:
-                @"Persist sign in state fails when the delegate recieves a failure."];
+                @"Persist sign in state fails when the delegate receives a failure."];
 
   [[self appDistribution] signInTesterWithCompletion:^(NSError *_Nullable error) {
     XCTAssertNotNil(error);

@@ -40,9 +40,9 @@
   return self;
 }
 
-- (BOOL)setupContextWithReport:(FIRCLSInternalReport *)report
-                      settings:(FIRCLSSettings *)settings
-                   fileManager:(FIRCLSFileManager *)fileManager {
+- (FBLPromise *)setupContextWithReport:(FIRCLSInternalReport *)report
+                              settings:(FIRCLSSettings *)settings
+                           fileManager:(FIRCLSFileManager *)fileManager {
   _report = report;
   _settings = settings;
   _fileManager = fileManager;

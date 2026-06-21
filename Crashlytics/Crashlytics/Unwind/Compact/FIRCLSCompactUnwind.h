@@ -33,8 +33,8 @@
 #define GET_BITS_WITH_MASK(value, mask) ((value & mask) >> (mask == 0 ? 0 : __builtin_ctz(mask)))
 
 typedef struct {
-  const void* unwindInfo;
-  const void* ehFrame;
+  const void *unwindInfo;
+  const void *ehFrame;
   uintptr_t loadAddress;
 
   struct unwind_info_section_header unwindHeader;
@@ -51,18 +51,18 @@ typedef struct {
 
 } FIRCLSCompactUnwindResult;
 
-bool FIRCLSCompactUnwindInit(FIRCLSCompactUnwindContext* context,
-                             const void* unwindInfo,
-                             const void* ehFrame,
+bool FIRCLSCompactUnwindInit(FIRCLSCompactUnwindContext *context,
+                             const void *unwindInfo,
+                             const void *ehFrame,
                              uintptr_t loadAddress);
-void* FIRCLSCompactUnwindGetIndexData(FIRCLSCompactUnwindContext* context);
-void* FIRCLSCompactUnwindGetSecondLevelData(FIRCLSCompactUnwindContext* context);
-bool FIRCLSCompactUnwindFindFirstLevelIndex(FIRCLSCompactUnwindContext* context,
+void *FIRCLSCompactUnwindGetIndexData(FIRCLSCompactUnwindContext *context);
+void *FIRCLSCompactUnwindGetSecondLevelData(FIRCLSCompactUnwindContext *context);
+bool FIRCLSCompactUnwindFindFirstLevelIndex(FIRCLSCompactUnwindContext *context,
                                             uintptr_t pc,
-                                            uint32_t* index);
+                                            uint32_t *index);
 
-bool FIRCLSCompactUnwindDwarfFrame(FIRCLSCompactUnwindContext* context,
+bool FIRCLSCompactUnwindDwarfFrame(FIRCLSCompactUnwindContext *context,
                                    uintptr_t dwarfOffset,
-                                   FIRCLSThreadContext* registers);
-bool FIRCLSCompactUnwindLookupAndCompute(FIRCLSCompactUnwindContext* context,
-                                         FIRCLSThreadContext* registers);
+                                   FIRCLSThreadContext *registers);
+bool FIRCLSCompactUnwindLookupAndCompute(FIRCLSCompactUnwindContext *context,
+                                         FIRCLSThreadContext *registers);

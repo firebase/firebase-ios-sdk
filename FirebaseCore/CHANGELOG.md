@@ -1,3 +1,124 @@
+# Firebase 12.15.0
+- [changed] Firebase now requires Swift tools version 6.1 for the Swift Package.
+  The package will no longer resolve in Xcode versions older than 16.3. Note that
+  the minimum officially supported version for the SDK remains Xcode 26.2+.
+
+# Firebase 12.14.0
+- [fixed] Remove extra comma in Package.swift that caused SPM resolution
+  failures for some configurations.
+- [deprecated] New versions of the Firebase Apple SDK will no longer be
+  published to CocoaPods after October 2026. Existing CocoaPods versions will
+  remain available and installations will remain functional. See the
+  [migration guide](https://firebase.google.com/docs/ios/cocoapods-deprecation)
+  for more information.
+
+# Firebase 12.12.0
+- [changed] Firebase now requires at least Xcode 26.2 and the Swift
+  6.2.3+ toolchain. This update allows Firebase to leverage new Swift
+  features like [Extensible Enums](https://github.com/swiftlang/swift-evolution/blob/main/proposals/0487-extensible-enums.md)
+  to build more resilient APIs. Note that Xcode 26.2 continues to be
+  supported on macOS 15. See https://developer.apple.com/news/?id=ueeok6yw for
+  more info.
+
+# Firebase 12.7.0
+- [fixed] [CocoaPods] Enable module map generation for Firebase pods. This
+  resolves build failures when using static linking
+  (`use_frameworks! :linkage => :static`) in projects using frameworks like
+  React Native (#15506).
+
+# Firebase 12.0.0
+- [changed] **Breaking change**: Firebase's minimum supported versions have
+  updated for the following platforms:
+    - | Platform  | Firebase 12 |
+      | ------------- | ------------- |
+      | iOS  | **15.0**  |
+      | tvOS  | **15.0**  |
+      | macOS  | 10.15  |
+      | watchOS  | 7.0  |
+- [removed] **Breaking change**: FirebaseDynamicLinks has been removed. See
+  https://firebase.google.com/support/dynamic-links-faq for more info.
+- [removed] **Breaking change**: Removed the `Options.deepLinkURLScheme`
+  property. This API was exclusively used by the Dynamic Links SDK, which
+  has been removed.
+- [removed] **Breaking change**: Removed the following unused API.
+  - `Options.androidClientID`
+  - `Options.trackingID`
+- [removed] **Breaking change**: Firebase's zip and Carthage distributions of
+  the Google Mobile Ads SDK has been removed. Instead, the Google
+  Mobile Ads SDK binary distribution should be accessed from
+  https://developers.google.com/admob/ios/download. Note that _any existing
+  versions of the Firebase zip or Carthage distributions will
+  continue to be available and functional_. Learn more about this change
+  in our FAQ: https://firebase.google.com/support/faq/#admob-which-sdk. (#14408)
+- [removed] The deprecated Vertex AI in Firebase SDK (`FirebaseVertexAI`) has
+  been removed. It has been replaced by the Firebase AI Logic
+  SDK (`FirebaseAI`) to
+  accommodate the evolving set of supported features and services.
+  To start using the new SDK, import the `FirebaseAI` module and use the
+  top-level `FirebaseAI` class. See details in the [migration guide
+  ](https://firebase.google.com/docs/ai-logic/migrate-to-latest-sdk).
+- [changed] **Breaking change** The Firebase Swift package now requires the
+  Swift 6.0 toolchain (Xcode 16.2+).
+- [changed] Update GTMSessionFetcher dependency specifications to enable
+  support for the compatible GTMSessionFetcher 5.x versions.
+
+# Firebase 11.15.0
+- [fixed] Remove c99 as the required C language standard. (#14950)
+- [deprecated] Deprecated the `Options.deepLinkURLScheme` property. This
+  property will be removed in a future release. This is related to the
+  overall Firebase Dynamic Links deprecation. For more details, see
+  the [Dynamic Links deprecation FAQ](https://firebase.google.com/support/dynamic-links-faq).
+
+# Firebase 11.12.0
+- [changed] Firebase now requires at least Xcode 16.2. See
+  https://developer.apple.com/news/?id=9s0rgdy9 for more info.
+
+# Firebase 11.8.0
+- [deprecated] The zip and Carthage distributions of the Google Mobile Ads SDK
+  with Firebase are deprecated and will be removed in the next major release.
+  Instead, the Google Mobile Ads SDK binary distribution should be accessed
+  from https://developers.google.com/admob/ios/download. Note that
+  _any existing versions of the Firebase zip or Carthage distributions will
+  continue to be available and functional_. Learn more about this change
+  in our FAQ: https://firebase.google.com/support/faq/#admob-which-sdk. (#14408)
+
+# Firebase 11.4.2
+- [fixed] CocoaPods only release to fix iOS 12 build failure resulting from
+  incomplete implementation in the FirebaseCoreInternal CocoaPod.
+
+# Firebase 11.4.1
+- [fixed] CocoaPods only release to revert breaking change in
+  `FirebaseCoreExtension` SDK. (#13942)
+
+# Firebase 11.4.0
+- [fixed] Fixed issue building documentation with some Firebase products. (#13756)
+
+# Firebase 11.0.0
+- [changed] **Breaking change**: Firebase's minimum supported versions have
+  updated for the following platforms:
+    - | Platform  | Firebase 11 |
+      | ------------- | ------------- |
+      | iOS  | **13.0**  |
+      | tvOS  | **13.0**  |
+      | macOS  | **10.15**  |
+      | watchOS  | 7.0  |
+  - FirebaseAnalytics and FirebaseCrashlytics also continue to support iOS 12.0.
+- [removed] **Breaking change**: The deprecated Swift extension SDKs for
+  Analytics, Firestore, Database, Remote Config and In App Messaging have
+  been removed. See
+  https://firebase.google.com/docs/ios/swift-migration for migration
+  instructions.
+- Update underlying FIRLogger implementation from `asl` to `os_log`.
+- Remove `FIRLoggerForceSTDERR` configuration option.
+- [changed] Move `Timestamp` class into `FirebaseCore`. `FirebaseFirestore.Timestamp`
+  was changed to `FirebaseCore.Timestamp`. (#13221)
+
+# Firebase 10.25.0
+- [changed] Firebase now requires at least Xcode 15.2. See
+  https://developer.apple.com/news/?id=fxu2qp7b for more info.
+- [Zip Distribution] Update zip integration instructions with tips for
+  preserving symlinks and protecting code signatures.
+
 # Firebase 10.24.0
 - Fix validation issue for macOS and macCatalyst XCFrameworks related to
   framework directory structure. (#12587)
@@ -180,7 +301,7 @@
   libraries, an error like `Missing package product 'FirebaseSwift-Beta'` will appear. In your
   project's settings, go to "General" and scroll down to `Frameworks, Libraries, and Embedded
   Content`. Select the missing package, and remove it. Then, click the `+` button to add the
-  assocciated library without the `-Beta` suffix. Any `import` statements in your project
+  associated library without the `-Beta` suffix. Any `import` statements in your project
   should be changed accordingly.
 - [changed] The `FirebaseStorageSwift-Beta` and `FirebaseFunctionsSwift-Beta` libraries have been
   merged into `FirebaseStorage` and `FirebaseFunctions` respectively and should be removed from your
@@ -461,7 +582,7 @@ The Firebase Installations SDK introduces the [Firebase Installations API](https
 
 # 2019-04-02 -- v5.4.1 -- M46
 - [changed] Avoid using NSRegularExpression in FIRApp.
-- [changed] Improve error meessage for invalid app names. (#2614)
+- [changed] Improve error message for invalid app names. (#2614)
 - [changed] FIRApp thread safety fixes. (#2639)
 
 # 2019-03-19 -- v5.4.0 -- M45

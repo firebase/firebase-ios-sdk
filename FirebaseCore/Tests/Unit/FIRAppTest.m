@@ -31,8 +31,8 @@
 #import "FirebaseCore/Extension/FIRAppInternal.h"
 #import "FirebaseCore/Extension/FIRComponentType.h"
 #import "FirebaseCore/Extension/FIRHeartbeatLogger.h"
-#import "FirebaseCore/Extension/FIROptionsInternal.h"
 #import "FirebaseCore/Sources/FIRAnalyticsConfiguration.h"
+#import "FirebaseCore/Sources/FIROptionsInternal.h"
 #import "SharedTestUtilities/FIROptionsMock.h"
 
 NSString *const kFIRTestAppName1 = @"test_app_name_1";
@@ -43,7 +43,6 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 + (void)resetApps;
 - (instancetype)initInstanceWithName:(NSString *)name options:(FIROptions *)options;
 - (BOOL)configureCore;
-+ (NSError *)errorForInvalidAppID;
 - (BOOL)isAppIDValid;
 + (NSString *)actualBundleID;
 + (NSNumber *)mapFromServiceStringToTypeEnum:(NSString *)serviceString;
@@ -115,7 +114,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   // We stop mocking `FIRHeartbeatLogger` in the class `tearDown` method to
   // prevent interfering with other tests that use the real `FIRHeartbeatLogger`.
   // Doing this in the instance `tearDown` causes test failures due to a race
-  // condition between `NSNoticationCenter` and `OCMVerifyAllWithDelay`.
+  // condition between `NSNotificationCenter` and `OCMVerifyAllWithDelay`.
   // Affected tests:
   // - testHeartbeatLogIsAttemptedWhenAppDidBecomeActive
   [OCMClassMock([FIRHeartbeatLogger class]) stopMocking];
@@ -222,8 +221,6 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 - (void)testConfigureWithMultipleApps {
   FIROptions *options1 = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
                                                      GCMSenderID:kGCMSenderID];
-  options1.deepLinkURLScheme = kDeepLinkURLScheme;
-
   NSDictionary *expectedUserInfo1 = [self expectedUserInfoWithAppName:kFIRTestAppName1
                                                          isDefaultApp:NO];
   XCTestExpectation *configExpectation1 =
@@ -301,7 +298,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   XCTAssertThrows([FIRApp configureWithOptions:differentOptions]);
   XCTAssertEqual([FIRApp allApps].count, 1);
 
-  // Explicily stop the environmentMock.
+  // Explicitly stop the environmentMock.
   [environmentMock stopMocking];
   environmentMock = nil;
 }
@@ -330,7 +327,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   XCTAssertThrows([FIRApp configureWithName:kFIRTestAppName1 options:differentOptions]);
   XCTAssertEqual([FIRApp allApps].count, 1);
 
-  // Explicily stop the environmentMock.
+  // Explicitly stop the environmentMock.
   [environmentMock stopMocking];
   environmentMock = nil;
 }
@@ -601,7 +598,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 // Uncomment if you need to measure performance of [FIRApp validateAppID:].
 // It is commented because measures are heavily dependent on a build agent configuration,
 // so it cannot produce reliable resault on CI
-//- (void)testAppIDValidationPerfomance {
+//- (void)testAppIDValidationPerformance {
 //  [self measureBlock:^{
 //    for (NSInteger i = 0; i < 100; ++i) {
 //      [self testAppIDPrefix];
@@ -862,7 +859,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 }
 
 - (NSNotificationName)appDidBecomeActiveNotificationName {
-#if TARGET_OS_IOS || TARGET_OS_TV || (defined(TARGET_OS_VISION) && TARGET_OS_VISION)
+#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
   return UIApplicationDidBecomeActiveNotification;
 #elif TARGET_OS_OSX
   return NSApplicationDidBecomeActiveNotification;

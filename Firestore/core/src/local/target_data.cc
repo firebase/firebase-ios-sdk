@@ -26,6 +26,7 @@ namespace local {
 namespace {
 
 using core::Target;
+using core::TargetOrPipeline;
 using model::ListenSequenceNumber;
 using model::SnapshotVersion;
 using model::TargetId;
@@ -56,7 +57,7 @@ std::ostream& operator<<(std::ostream& os, QueryPurpose purpose) {
 
 // MARK: - TargetData
 
-TargetData::TargetData(Target target,
+TargetData::TargetData(TargetOrPipeline target,
                        TargetId target_id,
                        ListenSequenceNumber sequence_number,
                        QueryPurpose purpose,
@@ -75,7 +76,7 @@ TargetData::TargetData(Target target,
       expected_count_(std::move(expected_count)) {
 }
 
-TargetData::TargetData(Target target,
+TargetData::TargetData(TargetOrPipeline target,
                        int target_id,
                        ListenSequenceNumber sequence_number,
                        QueryPurpose purpose)
@@ -128,7 +129,8 @@ TargetData TargetData::WithLastLimboFreeSnapshotVersion(
 }
 
 bool operator==(const TargetData& lhs, const TargetData& rhs) {
-  return lhs.target() == rhs.target() && lhs.target_id() == rhs.target_id() &&
+  return lhs.target_or_pipeline() == rhs.target_or_pipeline() &&
+         lhs.target_id() == rhs.target_id() &&
          lhs.sequence_number() == rhs.sequence_number() &&
          lhs.purpose() == rhs.purpose() &&
          lhs.snapshot_version() == rhs.snapshot_version() &&
@@ -148,7 +150,7 @@ std::string TargetData::ToString() const {
 }
 
 std::ostream& operator<<(std::ostream& os, const TargetData& value) {
-  return os << "TargetData(target=" << value.target_
+  return os << "TargetData(target=" << value.target_.ToString()
             << ", target_id=" << value.target_id_
             << ", purpose=" << value.purpose_
             << ", version=" << value.snapshot_version_

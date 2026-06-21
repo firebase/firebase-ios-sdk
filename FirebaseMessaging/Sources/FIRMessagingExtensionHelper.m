@@ -111,7 +111,7 @@ pb_bytes_array_t *FIRMessagingEncodeString(NSString *string) {
   self.bestAttemptContent = content;
 
   // The `userInfo` property isn't available on newer versions of tvOS.
-#if TARGET_OS_IOS || TARGET_OS_OSX || TARGET_OS_WATCH
+#if !TARGET_OS_TV
   NSObject *currentImageURL = content.userInfo[kPayloadOptionsName][kPayloadOptionsImageURLName];
   if (!currentImageURL || currentImageURL == [NSNull null]) {
     [self deliverNotification];
@@ -131,12 +131,12 @@ pb_bytes_array_t *FIRMessagingEncodeString(NSString *string) {
                             @"The Image URL provided is invalid %@.", currentImageURL);
     [self deliverNotification];
   }
-#else
+#else   // !TARGET_OS_TV
   [self deliverNotification];
-#endif
+#endif  // !TARGET_OS_TV
 }
 
-#if TARGET_OS_IOS || TARGET_OS_OSX || TARGET_OS_WATCH
+#if !TARGET_OS_TV
 - (NSString *)fileExtensionForResponse:(NSURLResponse *)response {
   NSString *suggestedPathExtension = [response.suggestedFilename pathExtension];
   if (suggestedPathExtension.length > 0) {
@@ -194,7 +194,7 @@ pb_bytes_array_t *FIRMessagingEncodeString(NSString *string) {
           completionHandler(attachment);
         }] resume];
 }
-#endif
+#endif  // !TARGET_OS_TV
 
 - (void)deliverNotification {
   if (self.contentHandler) {

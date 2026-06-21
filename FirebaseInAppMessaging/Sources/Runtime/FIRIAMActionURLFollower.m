@@ -15,7 +15,7 @@
  */
 
 #import <TargetConditionals.h>
-#if TARGET_OS_IOS || TARGET_OS_TV || (defined(TARGET_OS_VISION) && TARGET_OS_VISION)
+#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
@@ -66,13 +66,13 @@ NS_EXTENSION_UNAVAILABLE("Firebase In App Messaging is not supported for iOS ext
                 @"Detected %d custom URL schemes from environment", (int)customSchemeURLs.count);
 
     if ([NSThread isMainThread]) {
-      // We can not dispatch sychronously to main queue if we are already in main queue. That
+      // We can not dispatch synchronously to main queue if we are already in main queue. That
       // can cause deadlock.
       URLFollower = [[FIRIAMActionURLFollower alloc]
           initWithCustomURLSchemeArray:customSchemeURLs
                        withApplication:UIApplication.sharedApplication];
     } else {
-      // If we are not on main thread, dispatch it to main queue since it invovles calling UIKit
+      // If we are not on main thread, dispatch it to main queue since it involves calling UIKit
       // methods, which are required to be carried out on main queue.
       dispatch_sync(dispatch_get_main_queue(), ^{
         URLFollower = [[FIRIAMActionURLFollower alloc]
@@ -162,7 +162,7 @@ NS_EXTENSION_UNAVAILABLE("Firebase In App Messaging is not supported for iOS ext
   }
 
   FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM240010",
-              @"No approriate openURL method defined for App Delegate");
+              @"No appropriate openURL method defined for App Delegate");
   return NO;
 }
 
@@ -175,8 +175,9 @@ NS_EXTENSION_UNAVAILABLE("Firebase In App Messaging is not supported for iOS ext
     FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM240004",
                 @"App delegate responds to application:continueUserActivity:restorationHandler:."
                  "Simulating action url opening from a web browser.");
-    NSUserActivity *userActivity =
-        [[NSUserActivity alloc] initWithActivityType:NSUserActivityTypeBrowsingWeb];
+    // Use string literal to ensure compatibility with Xcode 26 and iOS 18
+    NSString *browsingWebType = @"NSUserActivityTypeBrowsingWeb";
+    NSUserActivity *userActivity = [[NSUserActivity alloc] initWithActivityType:browsingWebType];
     userActivity.webpageURL = url;
     BOOL handled = [self.appDelegate application:self.mainApplication
                             continueUserActivity:userActivity
@@ -227,4 +228,4 @@ NS_EXTENSION_UNAVAILABLE("Firebase In App Messaging is not supported for iOS ext
 }
 @end
 
-#endif  // TARGET_OS_IOS || TARGET_OS_TV || (defined(TARGET_OS_VISION) && TARGET_OS_VISION)
+#endif  // TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION

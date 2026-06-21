@@ -46,7 +46,7 @@ class SessionsSettings: SettingsProtocol {
   }
 
   var sessionsEnabled: Bool {
-    // Order of precendence LocalOverrides > Remote Settings > SDK Defaults
+    // Order of precedence LocalOverrides > Remote Settings > SDK Defaults
     if let sessionEnabled = localOverrides.sessionsEnabled {
       return sessionEnabled
     } else if let sessionEnabled = remoteSettings.sessionsEnabled {
@@ -56,7 +56,7 @@ class SessionsSettings: SettingsProtocol {
   }
 
   var sessionTimeout: TimeInterval {
-    // Order of precendence LocalOverrides > Remote Settings > SDK Defaults
+    // Order of precedence LocalOverrides > Remote Settings > SDK Defaults
     if let sessionTimeout = localOverrides.sessionTimeout {
       return sessionTimeout
     } else if let sessionTimeout = remoteSettings.sessionTimeout {
@@ -66,7 +66,7 @@ class SessionsSettings: SettingsProtocol {
   }
 
   var samplingRate: Double {
-    // Order of precendence LocalOverrides > Remote Settings > SDK Defaults
+    // Order of precedence LocalOverrides > Remote Settings > SDK Defaults
     if let samplingRate = localOverrides.samplingRate {
       return samplingRate
     } else if let samplingRate = remoteSettings.samplingRate {

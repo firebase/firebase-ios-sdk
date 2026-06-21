@@ -45,8 +45,7 @@ Status Filesystem::ExcludeFromBackups(const Path& dir) {
 }
 
 StatusOr<Path> Filesystem::AppDataDir(absl::string_view app_name) {
-#if TARGET_OS_IOS || TARGET_OS_OSX || \
-    (defined(TARGET_OS_VISION) && TARGET_OS_VISION)
+#if TARGET_OS_IOS || TARGET_OS_OSX || TARGET_OS_VISION
   NSArray<NSString*>* directories = NSSearchPathForDirectoriesInDomains(
       NSApplicationSupportDirectory, NSUserDomainMask, YES);
   return Path::FromNSString(directories[0]).AppendUtf8(app_name);
@@ -62,7 +61,7 @@ StatusOr<Path> Filesystem::AppDataDir(absl::string_view app_name) {
 }
 
 StatusOr<Path> Filesystem::LegacyDocumentsDir(absl::string_view app_name) {
-#if TARGET_OS_IOS || (defined(TARGET_OS_VISION) && TARGET_OS_VISION)
+#if TARGET_OS_IOS || TARGET_OS_VISION
   NSArray<NSString*>* directories = NSSearchPathForDirectoriesInDomains(
       NSDocumentDirectory, NSUserDomainMask, YES);
   return Path::FromNSString(directories[0]).AppendUtf8(app_name);

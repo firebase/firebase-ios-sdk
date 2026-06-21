@@ -16,8 +16,6 @@
 
 #import <Foundation/Foundation.h>
 
-@class FIRAuthCredential;
-
 NS_ASSUME_NONNULL_BEGIN
 
 /**
@@ -28,27 +26,5 @@ extern NSString *const FIRTwitterAuthProviderID NS_SWIFT_NAME(TwitterAuthProvide
     @brief A string constant identifying the Twitter sign-in method.
  */
 extern NSString *const _Nonnull FIRTwitterAuthSignInMethod NS_SWIFT_NAME(TwitterAuthSignInMethod);
-
-/** @class FIRTwitterAuthProvider
-    @brief Utility class for constructing Twitter credentials.
- */
-NS_SWIFT_NAME(TwitterAuthProvider)
-@interface FIRTwitterAuthProvider : NSObject
-
-/** @fn credentialWithToken:secret:
-    @brief Creates an `AuthCredential` for a Twitter sign in.
-
-    @param token The Twitter OAuth token.
-    @param secret The Twitter OAuth secret.
-    @return An AuthCredential containing the Twitter credential.
- */
-+ (FIRAuthCredential *)credentialWithToken:(NSString *)token secret:(NSString *)secret;
-
-/** @fn init
-    @brief This class is not meant to be initialized.
- */
-- (instancetype)init NS_UNAVAILABLE;
-
-@end
 
 NS_ASSUME_NONNULL_END

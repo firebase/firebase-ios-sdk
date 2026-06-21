@@ -19,12 +19,10 @@
 
 #include <cstdint>
 #include <ctime>
+
+#include <chrono>
 #include <iosfwd>
 #include <string>
-
-#if !defined(_STLPORT_VERSION)
-#include <chrono>  // NOLINT(build/c++11)
-#endif             // !defined(_STLPORT_VERSION)
 
 namespace firebase {
 
@@ -117,7 +115,6 @@ class Timestamp {
    */
   static Timestamp FromTimeT(time_t seconds_since_unix_epoch);
 
-#if !defined(_STLPORT_VERSION)
   /**
    * Converts `std::chrono::time_point` to a `Timestamp`.
    *
@@ -145,7 +142,6 @@ class Timestamp {
   template <typename Clock = std::chrono::system_clock,
             typename Duration = std::chrono::microseconds>
   std::chrono::time_point<Clock, Duration> ToTimePoint() const;
-#endif  // !defined(_STLPORT_VERSION)
 
   /**
    * Returns a string representation of this `Timestamp` for logging/debugging
@@ -205,8 +201,6 @@ inline bool operator==(const Timestamp& lhs, const Timestamp& rhs) {
   return !(lhs != rhs);
 }
 
-#if !defined(_STLPORT_VERSION)
-
 // Make sure the header compiles even when included after `<windows.h>` without
 // `NOMINMAX` defined. `push/pop_macro` pragmas are supported by Visual Studio
 // as well as Clang and GCC.
@@ -238,8 +232,6 @@ std::chrono::time_point<Clock, Duration> Timestamp::ToTimePoint() const {
 
 #pragma pop_macro("max")
 #pragma pop_macro("min")
-
-#endif  // !defined(_STLPORT_VERSION)
 
 }  // namespace firebase
 

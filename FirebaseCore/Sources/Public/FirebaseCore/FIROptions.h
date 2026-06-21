@@ -50,11 +50,6 @@ NS_SWIFT_NAME(FirebaseOptions)
 @property(nonatomic, copy, nullable) NSString *clientID;
 
 /**
- * Unused.
- */
-@property(nonatomic, copy, nullable) NSString *trackingID DEPRECATED_ATTRIBUTE;
-
-/**
  * The Project Number from the Google Developer's console, for example @"012345678901", used to
  * configure Firebase Cloud Messaging.
  */
@@ -66,11 +61,6 @@ NS_SWIFT_NAME(FirebaseOptions)
 @property(nonatomic, copy, nullable) NSString *projectID;
 
 /**
- * Unused.
- */
-@property(nonatomic, copy, nullable) NSString *androidClientID DEPRECATED_ATTRIBUTE;
-
-/**
  * The Google App ID that is used to uniquely identify an instance of an app.
  */
 @property(nonatomic, copy) NSString *googleAppID;
@@ -79,11 +69,6 @@ NS_SWIFT_NAME(FirebaseOptions)
  * The database root URL, e.g. @"http://abc-xyz-123.firebaseio.com".
  */
 @property(nonatomic, copy, nullable) NSString *databaseURL;
-
-/**
- * The URL scheme used to set up Durable Deep Link service.
- */
-@property(nonatomic, copy, nullable) NSString *deepLinkURLScheme;
 
 /**
  * The Google Cloud Storage bucket name, e.g. @"abc-xyz-123.storage.firebase.com".
@@ -98,16 +83,21 @@ NS_SWIFT_NAME(FirebaseOptions)
 @property(nonatomic, copy, nullable) NSString *appGroupID;
 
 /**
+ * The reCAPTCHA site key used by App Check.
+ */
+@property(nonatomic, copy, nullable) NSString *recaptchaSiteKey;
+
+/**
  * Initializes a customized instance of FirebaseOptions from the file at the given plist file path.
  * This will read the file synchronously from disk.
  * For example:
  * ```swift
- *   if let path = Bundle.main.path(forResource:"GoogleServices-Info", ofType:"plist") {
+ *   if let path = Bundle.main.path(forResource:"GoogleService-Info", ofType:"plist") {
  *       let options = FirebaseOptions(contentsOfFile: path)
  *   }
  * ```
  * Note that it is not possible to customize `FirebaseOptions` for Firebase Analytics which expects
- * a static file named `GoogleServices-Info.plist` -
+ * a static file named `GoogleService-Info.plist` -
  * https://github.com/firebase/firebase-ios-sdk/issues/230.
  * Returns `nil` if the plist file does not exist or is invalid.
  */

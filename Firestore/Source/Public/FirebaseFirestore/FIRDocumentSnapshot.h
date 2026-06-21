@@ -55,6 +55,7 @@ typedef NS_ENUM(NSInteger, FIRServerTimestampBehavior) {
  * For a `DocumentSnapshot` that points to a non-existing document, any data access will return
  * `nil`. You can use the `exists` property to explicitly verify a documents existence.
  */
+NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(DocumentSnapshot)
 @interface FIRDocumentSnapshot : NSObject
 

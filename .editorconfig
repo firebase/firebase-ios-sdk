@@ -1,0 +1,20 @@
+# See https://github.com/editorconfig/editorconfig/wiki/EditorConfig-Properties
+# for all available properties.
+
+# Top-most EditorConfig file for the firebase-ios-sdk repo.
+root = true
+
+# Defaults for all files
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# ObjC and Swift files
+# See https://developer.apple.com/documentation/xcode-release-notes/xcode-16-release-notes#New-Features-in-Xcode-16-Beta
+# for the subset of properties supported by Xcode.
+[*.{h,m,mm,swift}]
+indent_style = space
+indent_size = 2
+max_line_length = 100

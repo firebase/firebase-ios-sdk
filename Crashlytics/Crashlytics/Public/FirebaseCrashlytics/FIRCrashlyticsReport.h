@@ -56,8 +56,8 @@ NS_SWIFT_NAME(CrashlyticsReport)
  * Adds logging that is sent with your crash data. The logging does not appear  in the
  * system.log and is only visible in the Crashlytics dashboard.
  *
- * @param format Format of string
- * @param ... A comma-separated list of arguments to substitute into format
+ * @param format The format of the string, followed by a comma-separated list
+ * of arguments to substitute into the format.
  */
 - (void)logWithFormat:(NSString *)format, ... NS_FORMAT_FUNCTION(1, 2);
 

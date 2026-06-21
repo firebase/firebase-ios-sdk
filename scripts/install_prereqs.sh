@@ -71,12 +71,6 @@ case "$project-$platform-$method" in
     bundle exec pod install --project-directory=CoreOnly/Tests/FirebasePodTest --repo-update
     ;;
 
-  Auth-*)
-    # Install the workspace for integration testing.
-    install_xcpretty
-    bundle exec pod install --project-directory=FirebaseAuth/Tests/Sample --repo-update
-    ;;
-
   Crashlytics-*)
     ;;
 
@@ -110,7 +104,13 @@ case "$project-$platform-$method" in
     ;;
 
   Firestore-iOS-cmake | Firestore-tvOS-cmake | Firestore-macOS-cmake)
-    brew outdated cmake || brew upgrade cmake
+    # Only skip upgrade when explicitly ask for
+    if [[ "${USE_LATEST_CMAKE:-true}" == "true" ]]; then
+      echo "Use latest CMake because USE_LATEST_CMAKE=true"
+      brew outdated cmake || brew upgrade cmake
+    else
+      echo "Skipping CMake upgrade"
+    fi
     brew outdated go || brew upgrade go # Somehow the build for Abseil requires this.
     brew install ccache
     brew install ninja

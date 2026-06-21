@@ -53,7 +53,8 @@ typedef void (^RCNConfigFetchCompletion)(FIRRemoteConfigFetchStatus status,
 /// @param expirationDuration  Expiration duration, in seconds.
 /// @param completionHandler   Callback handler.
 - (void)fetchConfigWithExpirationDuration:(NSTimeInterval)expirationDuration
-                        completionHandler:(FIRRemoteConfigFetchCompletion)completionHandler;
+                        completionHandler:
+                            (_Nullable FIRRemoteConfigFetchCompletion)completionHandler;
 
 /// Fetches config data immediately, keyed by namespace. Completion block will be called on the main
 /// queue.
@@ -66,7 +67,7 @@ typedef void (^RCNConfigFetchCompletion)(FIRRemoteConfigFetchStatus status,
 - (void)recreateNetworkSession;
 
 /// Provide fetchSession for tests to override.
-@property(nonatomic, readwrite, strong, nonnull) NSURLSession *fetchSession;
+@property(atomic, readwrite, strong, nonnull) NSURLSession *fetchSession;
 
 /// Provide config template version number for Realtime config client.
 @property(nonatomic, copy, nonnull) NSString *templateVersionNumber;

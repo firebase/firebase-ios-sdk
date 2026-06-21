@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+include(CheckCXXCompilerFlag)
+
 # C++ Compiler setup
 
 # We use C++14
@@ -75,6 +77,14 @@ if(CXX_CLANG OR CXX_GNU)
     if(CXX_CLANG OR CXX_GNU)
       list(APPEND common_flags -fdiagnostics-color)
     endif()
+  endif()
+
+  # Disable treating "redundant-move" as an error since it's not really a problem,
+  # and is even a valid coding style to over-use std::move() in case the type is
+  # ever changed to become non-trivially moveable.
+  CHECK_CXX_COMPILER_FLAG("-Wno-error=redundant-move" FIREBASE_CXX_COMPILER_FLAG_REDUNDANT_MOVE_SUPPORTED)
+  if(FIREBASE_CXX_COMPILER_FLAG_REDUNDANT_MOVE_SUPPORTED)
+    list(APPEND common_flags -Wno-error=redundant-move)
   endif()
 endif()
 

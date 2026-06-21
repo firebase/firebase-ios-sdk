@@ -59,9 +59,6 @@
 #pragma mark - Component registration system
 
 + (nonnull NSArray<FIRComponent *> *)componentsToRegister {
-  FIRDependency *sessionsDep =
-      [FIRDependency dependencyWithProtocol:@protocol(FIRSessionsProvider)];
-
   FIRComponentCreationBlock creationBlock =
       ^id _Nullable(FIRComponentContainer *container, BOOL *isCacheable) {
     if (!container.app.isDefaultApp) {
@@ -108,7 +105,6 @@
   FIRComponent *component =
       [FIRComponent componentWithProtocol:@protocol(FIRPerformanceProvider)
                       instantiationTiming:FIRInstantiationTimingEagerInDefaultApp
-                             dependencies:@[ sessionsDep ]
                             creationBlock:creationBlock];
 
   return @[ component ];

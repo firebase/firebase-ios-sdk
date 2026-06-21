@@ -178,7 +178,7 @@ bool FIRCLSDwarfParseFDERecord(DWARFFDERecord* fdeRecord,
   if (parseCIE) {
     // The CIE offset is really weird. It appears to be an offset from the
     // beginning of its field. This isn't what the documentation says, but it is
-    // a little ambigious. This is what DwarfParser.hpp does.
+    // a little ambiguous. This is what DwarfParser.hpp does.
     // Note that we have to back up one sizeof(uint32_t), because we've advanced
     // by parsing the offset
     const void* ciePointer = ptr - fdeRecord->cieOffset - sizeof(uint32_t);

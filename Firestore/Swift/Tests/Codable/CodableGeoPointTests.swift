@@ -15,7 +15,6 @@
  */
 
 import FirebaseFirestore
-import FirebaseFirestoreSwift
 import Foundation
 import XCTest
 

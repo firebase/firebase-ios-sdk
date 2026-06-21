@@ -74,10 +74,10 @@ class GrpcStreamingReaderTest : public testing::Test {
     tester.KeepPollingGrpcQueue();
   }
 
-  void StartReader(size_t expected_response_count) {
+  void StartReader(util::StatusOr<size_t> expected_response_count) {
     worker_queue->EnqueueBlocking([&] {
       reader->Start(
-          expected_response_count,
+          std::move(expected_response_count),
           [&](std::vector<ResponsesT> result) {
             responses = std::move(result);
           },
@@ -101,7 +101,7 @@ TEST_F(GrpcStreamingReaderTest, FinishImmediatelyIsIdempotent) {
   worker_queue->EnqueueBlocking(
       [&] { EXPECT_NO_THROW(reader->FinishImmediately()); });
 
-  StartReader(0);
+  StartReader(util::StatusOr<size_t>(0));
 
   KeepPollingGrpcQueue();
   worker_queue->EnqueueBlocking([&] {
@@ -114,12 +114,12 @@ TEST_F(GrpcStreamingReaderTest, FinishImmediatelyIsIdempotent) {
 // Method prerequisites -- correct usage of `GetResponseHeaders`
 
 TEST_F(GrpcStreamingReaderTest, CanGetResponseHeadersAfterStarting) {
-  StartReader(0);
+  StartReader(util::StatusOr<size_t>(0));
   EXPECT_NO_THROW(reader->GetResponseHeaders());
 }
 
 TEST_F(GrpcStreamingReaderTest, CanGetResponseHeadersAfterFinishing) {
-  StartReader(0);
+  StartReader(util::StatusOr<size_t>(0));
 
   KeepPollingGrpcQueue();
   worker_queue->EnqueueBlocking([&] {
@@ -139,7 +139,7 @@ TEST_F(GrpcStreamingReaderTest, CannotFinishAndNotifyBeforeStarting) {
 // Normal operation
 
 TEST_F(GrpcStreamingReaderTest, OneSuccessfulRead) {
-  StartReader(1);
+  StartReader(util::StatusOr<size_t>(1));
 
   ForceFinishAnyTypeOrder({
       {Type::Write, CompletionResult::Ok},
@@ -158,7 +158,7 @@ TEST_F(GrpcStreamingReaderTest, OneSuccessfulRead) {
 }
 
 TEST_F(GrpcStreamingReaderTest, TwoSuccessfulReads) {
-  StartReader(2);
+  StartReader(util::StatusOr<size_t>(2));
 
   ForceFinishAnyTypeOrder({
       {Type::Write, CompletionResult::Ok},
@@ -178,7 +178,7 @@ TEST_F(GrpcStreamingReaderTest, TwoSuccessfulReads) {
 }
 
 TEST_F(GrpcStreamingReaderTest, FinishWhileReading) {
-  StartReader(1);
+  StartReader(util::StatusOr<size_t>(1));
 
   ForceFinishAnyTypeOrder({{Type::Write, CompletionResult::Ok},
                            {Type::Read, CompletionResult::Ok}});
@@ -194,7 +194,7 @@ TEST_F(GrpcStreamingReaderTest, FinishWhileReading) {
 // Errors
 
 TEST_F(GrpcStreamingReaderTest, ErrorOnWrite) {
-  StartReader(1);
+  StartReader(util::StatusOr<size_t>(1));
 
   bool failed_write = false;
   auto future = tester.ForceFinishAsync([&](GrpcCompletion* completion) {
@@ -230,7 +230,7 @@ TEST_F(GrpcStreamingReaderTest, ErrorOnWrite) {
 }
 
 TEST_F(GrpcStreamingReaderTest, ErrorOnFirstRead) {
-  StartReader(1);
+  StartReader(util::StatusOr<size_t>(1));
 
   ForceFinishAnyTypeOrder({
       {Type::Write, CompletionResult::Ok},
@@ -245,7 +245,7 @@ TEST_F(GrpcStreamingReaderTest, ErrorOnFirstRead) {
 }
 
 TEST_F(GrpcStreamingReaderTest, ErrorOnSecondRead) {
-  StartReader(2);
+  StartReader(util::StatusOr<size_t>(2));
 
   ForceFinishAnyTypeOrder({
       {Type::Write, CompletionResult::Ok},
@@ -259,12 +259,81 @@ TEST_F(GrpcStreamingReaderTest, ErrorOnSecondRead) {
   EXPECT_TRUE(responses.empty());
 }
 
+TEST_F(GrpcStreamingReaderTest,
+       UnknownResponseCountReceivesAllMessagesOnFinish) {
+  // Use Status(Error::kErrorUnknown) to signify unknown response count
+  StartReader(util::Status(Error::kErrorUnknown, "Unknown response count"));
+
+  // Send some messages
+  ForceFinishAnyTypeOrder({
+      {Type::Write, CompletionResult::Ok},
+      {Type::Read, MakeByteBuffer("msg1")},
+      {Type::Read, MakeByteBuffer("msg2")},
+      /*Read after last*/ {Type::Read, CompletionResult::Error},
+  });
+
+  // At this point, responses_callback_ should NOT have been fired because
+  // expected_response_count_ is not 'ok'.
+  EXPECT_TRUE(responses.empty());
+  EXPECT_FALSE(status.has_value());
+
+  // Now, finish the stream successfully. This should trigger the
+  // responses_callback_ with all accumulated messages.
+  ForceFinish({{Type::Finish, grpc::Status::OK}});
+
+  ASSERT_TRUE(status.has_value());
+  EXPECT_EQ(status.value(), Status::OK());
+  ASSERT_EQ(responses.size(), 2);
+  EXPECT_EQ(ByteBufferToString(responses[0]), std::string{"msg1"});
+  EXPECT_EQ(ByteBufferToString(responses[1]), std::string{"msg2"});
+}
+
+TEST_F(GrpcStreamingReaderTest,
+       UnknownResponseCountReceivesEmptyOnFinishWithNoReads) {
+  StartReader(util::Status(Error::kErrorUnknown, "Unknown response count"));
+
+  ForceFinishAnyTypeOrder({
+      {Type::Write, CompletionResult::Ok},
+      /*Read after last*/ {Type::Read, CompletionResult::Error},
+  });
+
+  EXPECT_TRUE(responses.empty());
+  EXPECT_FALSE(status.has_value());
+
+  ForceFinish({{Type::Finish, grpc::Status::OK}});
+
+  ASSERT_TRUE(status.has_value());
+  EXPECT_EQ(status.value(), Status::OK());
+  ASSERT_TRUE(responses.empty());  // Should still be empty, but callback fired
+}
+
+TEST_F(GrpcStreamingReaderTest, UnknownResponseCountErrorOnFinish) {
+  StartReader(util::Status(Error::kErrorUnknown, "Unknown response count"));
+
+  ForceFinishAnyTypeOrder({
+      {Type::Write, CompletionResult::Ok},
+      {Type::Read, MakeByteBuffer("msg1")},
+      /*Read after last*/ {Type::Read, CompletionResult::Error},
+  });
+
+  EXPECT_TRUE(responses.empty());
+  EXPECT_FALSE(status.has_value());
+
+  grpc::Status error_status{grpc::StatusCode::DATA_LOSS, "Bad stream"};
+  ForceFinish({{Type::Finish, error_status}});
+
+  ASSERT_TRUE(status.has_value());
+  EXPECT_EQ(status.value().code(), Error::kErrorDataLoss);
+  EXPECT_TRUE(
+      responses.empty());  // responses_callback_ should not be fired on error
+}
+
 // Callback destroys reader
 
 TEST_F(GrpcStreamingReaderTest, CallbackCanDestroyReaderOnSuccess) {
   worker_queue->EnqueueBlocking([&] {
     reader->Start(
-        1, [&](std::vector<ResponsesT>) {},
+        util::StatusOr<size_t>(1), [&](std::vector<ResponsesT>) {},
         [&](const util::Status&, bool) { reader.reset(); });
   });
 
@@ -282,7 +351,7 @@ TEST_F(GrpcStreamingReaderTest, CallbackCanDestroyReaderOnSuccess) {
 TEST_F(GrpcStreamingReaderTest, CallbackCanDestroyReaderOnError) {
   worker_queue->EnqueueBlocking([&] {
     reader->Start(
-        1, [&](std::vector<ResponsesT>) {},
+        util::StatusOr<size_t>(1), [&](std::vector<ResponsesT>) {},
         [&](const util::Status&, bool) { reader.reset(); });
   });
 

@@ -23,6 +23,8 @@ static NSTimeInterval RCNUserDefaultsSampleTimeStamp = 0;
 static NSString* const AppName = @"testApp";
 static NSString* const FQNamespace1 = @"testNamespace1:testApp";
 static NSString* const FQNamespace2 = @"testNamespace2:testApp";
+static NSMutableDictionary<NSString*, NSString*>* customSignals1 = nil;
+static NSMutableDictionary<NSString*, NSString*>* customSignals2 = nil;
 
 @interface RCNUserDefaultsManagerTests : XCTestCase
 
@@ -36,6 +38,13 @@ static NSString* const FQNamespace2 = @"testNamespace2:testApp";
   [[NSUserDefaults standardUserDefaults]
       removePersistentDomainForName:[NSBundle mainBundle].bundleIdentifier];
   RCNUserDefaultsSampleTimeStamp = [[NSDate date] timeIntervalSince1970];
+
+  customSignals1 = [[NSMutableDictionary alloc] initWithDictionary:@{
+    @"signal1" : @"stringValue",
+  }];
+  customSignals2 = [[NSMutableDictionary alloc] initWithDictionary:@{
+    @"signal2" : @"stringValue2",
+  }];
 }
 
 - (void)testUserDefaultsEtagWriteAndRead {
@@ -168,6 +177,18 @@ static NSString* const FQNamespace2 = @"testNamespace2:testApp";
                  RCNUserDefaultsSampleTimeStamp - 2.0);
 }
 
+- (void)testUserDefaultsCustomSignalsWriteAndRead {
+  RCNUserDefaultsManager* manager =
+      [[RCNUserDefaultsManager alloc] initWithAppName:AppName
+                                             bundleID:[NSBundle mainBundle].bundleIdentifier
+                                            namespace:FQNamespace1];
+  [manager setCustomSignals:customSignals1];
+  XCTAssertEqualObjects([manager customSignals], customSignals1);
+
+  [manager setCustomSignals:customSignals2];
+  XCTAssertEqualObjects([manager customSignals], customSignals2);
+}
+
 - (void)testUserDefaultsForMultipleNamespaces {
   RCNUserDefaultsManager* manager1 =
       [[RCNUserDefaultsManager alloc] initWithAppName:AppName
@@ -248,6 +269,12 @@ static NSString* const FQNamespace2 = @"testNamespace2:testApp";
   [manager2 setLastActiveTemplateVersion:@"2"];
   XCTAssertEqualObjects([manager1 lastActiveTemplateVersion], @"1");
   XCTAssertEqualObjects([manager2 lastActiveTemplateVersion], @"2");
+
+  /// Custom Signals
+  [manager1 setCustomSignals:customSignals1];
+  [manager2 setCustomSignals:customSignals2];
+  XCTAssertEqualObjects([manager1 customSignals], customSignals1);
+  XCTAssertEqualObjects([manager2 customSignals], customSignals2);
 }
 
 - (void)testUserDefaultsReset {

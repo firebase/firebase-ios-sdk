@@ -300,10 +300,10 @@ static NSString *kUserNotificationDidReceiveResponseSelectorString =
     IMP originalMethodImplementation =
         method_setImplementation(originalMethod, swizzledImplementation);
 
-    IMP nonexistantMethodImplementation = [self nonExistantMethodImplementationForClass:klass];
+    IMP nonexistentMethodImplementation = [self nonExistentMethodImplementationForClass:klass];
 
     if (originalMethodImplementation &&
-        originalMethodImplementation != nonexistantMethodImplementation &&
+        originalMethodImplementation != nonexistentMethodImplementation &&
         originalMethodImplementation != swizzledImplementation) {
       [self saveOriginalImplementation:originalMethodImplementation forSelector:originalSelector];
     }
@@ -344,8 +344,8 @@ static NSString *kUserNotificationDidReceiveResponseSelectorString =
     // behavior as if the method was not implemented.
     // See: http://stackoverflow.com/a/8276527/9849
 
-    IMP nonExistantMethodImplementation = [self nonExistantMethodImplementationForClass:klass];
-    method_setImplementation(swizzledMethod, nonExistantMethodImplementation);
+    IMP nonExistentMethodImplementation = [self nonExistentMethodImplementationForClass:klass];
+    method_setImplementation(swizzledMethod, nonExistentMethodImplementation);
   }
 }
 
@@ -353,11 +353,11 @@ static NSString *kUserNotificationDidReceiveResponseSelectorString =
 
 // This is useful to generate from a stable, "known missing" selector, as the IMP can be compared
 // in case we are setting an implementation for a class that was previously "unswizzled" into a
-// non-existant implementation.
-- (IMP)nonExistantMethodImplementationForClass:(Class)klass {
-  SEL nonExistantSelector = NSSelectorFromString(@"aNonExistantMethod");
-  IMP nonExistantMethodImplementation = class_getMethodImplementation(klass, nonExistantSelector);
-  return nonExistantMethodImplementation;
+// non-existent implementation.
+- (IMP)nonExistentMethodImplementationForClass:(Class)klass {
+  SEL nonExistentSelector = NSSelectorFromString(@"aNonExistentMethod");
+  IMP nonExistentMethodImplementation = class_getMethodImplementation(klass, nonExistentSelector);
+  return nonExistentMethodImplementation;
 }
 
 // A safe, non-leaky way return a property object by its name
@@ -384,15 +384,8 @@ id FIRMessagingPropertyNameFromObject(id object, NSString *propertyName, Class k
 }
 
 #pragma mark - GULApplicationDelegate
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-implementations"
-- (void)application:(GULApplication *)application
-    didReceiveRemoteNotification:(NSDictionary *)userInfo {
-  [[FIRMessaging messaging] appDidReceiveMessage:userInfo];
-}
-#pragma clang diagnostic pop
 
-#if TARGET_OS_IOS || TARGET_OS_TV
+#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
 - (void)application:(UIApplication *)application
     didReceiveRemoteNotification:(NSDictionary *)userInfo
           fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
@@ -408,7 +401,7 @@ id FIRMessagingPropertyNameFromObject(id object, NSString *propertyName, Class k
                           @"application:didFailToRegisterForRemoteNotificationsWithError: %@",
                           error.localizedDescription);
 }
-#endif
+#endif  // TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
 
 - (void)application:(GULApplication *)application
     didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {

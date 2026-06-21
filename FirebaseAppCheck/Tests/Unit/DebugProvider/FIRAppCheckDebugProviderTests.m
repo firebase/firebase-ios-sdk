@@ -33,7 +33,11 @@ static NSString *const kProjectNumber = @"123456789";
 
 @interface FIRAppCheckDebugProvider (Tests)
 
-- (instancetype)initWithDebugProvider:(GACAppCheckDebugProvider *)debugProvider;
+- (instancetype)initWithDebugProvider:(GACAppCheckDebugProvider *)debugProvider
+                            projectID:(nullable NSString *)projectID
+                          googleAppID:(NSString *)googleAppID;
+@property(nonatomic, readonly, copy, nullable) NSString *projectID;
+@property(nonatomic, readonly, copy) NSString *googleAppID;
 
 @end
 
@@ -50,7 +54,9 @@ static NSString *const kProjectNumber = @"123456789";
 - (void)setUp {
   self.resourceName = [NSString stringWithFormat:@"projects/%@/apps/%@", kProjectID, kAppID];
   self.debugProviderMock = OCMStrictClassMock([GACAppCheckDebugProvider class]);
-  self.provider = [[FIRAppCheckDebugProvider alloc] initWithDebugProvider:self.debugProviderMock];
+  self.provider = [[FIRAppCheckDebugProvider alloc] initWithDebugProvider:self.debugProviderMock
+                                                                projectID:nil
+                                                              googleAppID:kAppID];
 }
 
 - (void)tearDown {
@@ -69,7 +75,15 @@ static NSString *const kProjectNumber = @"123456789";
   // The following disables automatic token refresh, which could interfere with tests.
   app.dataCollectionDefaultEnabled = NO;
 
-  XCTAssertNotNil([[FIRAppCheckDebugProvider alloc] initWithApp:app]);
+  FIRAppCheckDebugProvider *provider = [[FIRAppCheckDebugProvider alloc] initWithApp:app];
+  XCTAssertNotNil(provider);
+  XCTAssertEqualObjects(provider.projectID, kProjectID);
+  XCTAssertEqualObjects(provider.googleAppID, kAppID);
+}
+
+- (void)testInitWithDebugProvider {
+  XCTAssertNil(self.provider.projectID);
+  XCTAssertEqualObjects(self.provider.googleAppID, kAppID);
 }
 
 - (void)testInitWithIncompleteApp {
@@ -96,6 +110,17 @@ static NSString *const kProjectNumber = @"123456789";
   OCMExpect([self.debugProviderMock currentDebugToken]).andReturn(currentToken);
 
   XCTAssertEqualObjects([self.provider currentDebugToken], currentToken);
+
+  OCMVerifyAll(self.debugProviderMock);
+}
+
+#pragma mark - Local Debug Token
+
+- (void)testLocalDebugToken {
+  NSString *localToken = @"TEST_LocalDebugToken";
+  OCMExpect([self.debugProviderMock localDebugToken]).andReturn(localToken);
+
+  XCTAssertEqualObjects([self.provider localDebugToken], localToken);
 
   OCMVerifyAll(self.debugProviderMock);
 }
@@ -138,6 +163,44 @@ static NSString *const kProjectNumber = @"123456789";
       }];
 
   // 3. Verify mock debug provider.
+  OCMVerifyAll(self.debugProviderMock);
+}
+
+#pragma mark - Limited-Use Token
+
+- (void)testGetLimitedUseTokenSuccess {
+  GACAppCheckToken *validInternalToken = [[GACAppCheckToken alloc] initWithToken:@"TEST_ValidToken"
+                                                                  expirationDate:[NSDate date]
+                                                                  receivedAtDate:[NSDate date]];
+  OCMExpect([self.debugProviderMock
+      getLimitedUseTokenWithCompletion:([OCMArg invokeBlockWithArgs:validInternalToken,
+                                                                    [NSNull null], nil])]);
+
+  [self.provider getLimitedUseTokenWithCompletion:^(FIRAppCheckToken *_Nullable token,
+                                                    NSError *_Nullable error) {
+    XCTAssertEqualObjects(token.token, validInternalToken.token);
+    XCTAssertEqualObjects(token.expirationDate, validInternalToken.expirationDate);
+    XCTAssertEqualObjects(token.receivedAtDate, validInternalToken.receivedAtDate);
+    XCTAssertNil(error);
+  }];
+
+  OCMVerifyAll(self.debugProviderMock);
+}
+
+- (void)testGetLimitedUseTokenProviderError {
+  NSError *expectedError = [NSError errorWithDomain:@"TEST_LimitedUseToken_Error"
+                                               code:-1
+                                           userInfo:nil];
+  OCMExpect([self.debugProviderMock
+      getLimitedUseTokenWithCompletion:([OCMArg invokeBlockWithArgs:[NSNull null], expectedError,
+                                                                    nil])]);
+
+  [self.provider getLimitedUseTokenWithCompletion:^(FIRAppCheckToken *_Nullable token,
+                                                    NSError *_Nullable error) {
+    XCTAssertNil(token);
+    XCTAssertIdentical(error, expectedError);
+  }];
+
   OCMVerifyAll(self.debugProviderMock);
 }
 

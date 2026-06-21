@@ -85,7 +85,7 @@ func apis() {
   @unknown default: ()
   }
 
-  // TODO: Mark the initializer as unavialable, as devs shouldn't be able to instantiate this.
+  // TODO: Mark the initializer as unavailable, as devs shouldn't be able to instantiate this.
   _ = MessagingMessageInfo().status
 
   NotificationCenter.default.post(name: .MessagingRegistrationTokenRefreshed, object: nil)
@@ -94,7 +94,7 @@ func apis() {
   messaging.subscribe(toTopic: topic)
   messaging.unsubscribe(fromTopic: topic)
   messaging.unsubscribe(fromTopic: topic, completion: { error in
-    if let error = error {
+    if let error {
       switch error {
       // Handle errors in the new format.
       case MessagingError.timeout:
@@ -123,7 +123,6 @@ class CustomDelegate: NSObject, MessagingDelegate {
   func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {}
 }
 
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 func apiAsync() async throws {
   let messaging = Messaging.messaging()
   let topic = "cat_video"

@@ -81,6 +81,21 @@ static NSString *const kRmqDatabaseName = @"rmq-test-db";
   XCTAssertFalse(persistentMessage.mcsReceived);
 }
 
+- (void)testQuerySyncMessageWithRmqID {
+  // This is to make sure there is no sql injection vulnerability.
+  // Otherwise, this would generate an SQL like this:
+  // SELECT ... FROM ... WHERE rmq_id = '' --';
+  // Which is a valid SQL and matches empty rmq_id.
+  NSString *rmqID = @"' --";
+  int64_t expirationTime = FIRMessagingCurrentTimestampInSeconds() + 1;
+  [self.rmqManager saveSyncMessageWithRmqID:rmqID expirationTime:expirationTime];
+
+  FIRMessagingPersistentSyncMessage *persistentMessage =
+      [self.rmqManager querySyncMessageWithRmqID:rmqID];
+  XCTAssertEqual(persistentMessage.expirationTime, expirationTime);
+  XCTAssertEqualObjects(persistentMessage.rmqID, rmqID);
+}
+
 /**
  *  Test updating a sync message initially received via MCS, now being received via APNS.
  */

@@ -1,3 +1,7 @@
+# 12.0.0
+- [removed] Removed `fetchSignInMethods` Combine wrapper as the underlying API
+  is deprecated.
+
 # 10.8.0
 - [fixed] Use caller's encoder when setting document data (#11033).
 

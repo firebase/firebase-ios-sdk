@@ -13,11 +13,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-@_implementationOnly import FirebaseInstallations
+internal import FirebaseInstallations
 
 @testable import FirebaseSessions
 
-class MockInstallationsProtocol: InstallationsProtocol {
+class MockInstallationsProtocol: InstallationsProtocol, @unchecked Sendable {
   static let testInstallationId = "testInstallationId"
   static let testAuthToken = "testAuthToken"
   var result: Result<(String, String), Error> = .success((testInstallationId, testAuthToken))

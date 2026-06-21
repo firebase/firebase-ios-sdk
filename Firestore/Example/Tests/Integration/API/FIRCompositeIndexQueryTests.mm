@@ -15,6 +15,9 @@
  */
 
 #import <FirebaseFirestore/FirebaseFirestore.h>
+
+#import "FirebaseCore/Sources/Public/FirebaseCore/FIRTimestamp.h"
+
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 
 #include "Firestore/core/src/util/autoid.h"
@@ -119,9 +122,16 @@ static NSString *const COMPOSITE_INDEX_TEST_COLLECTION = @"composite-index-test-
 // Asserts that the result of running the query while online (against the backend/emulator) is
 // the same as running it while offline. The expected document Ids are hashed to match the
 // actual document IDs created by the test helper.
-- (void)assertOnlineAndOfflineResultsMatch:(FIRQuery *)query
+- (void)assertOnlineAndOfflineResultsMatch:(FIRCollectionReference *)collection
+                                 withQuery:(FIRQuery *)query
                               expectedDocs:(NSArray<NSString *> *)expectedDocs {
-  [self checkOnlineAndOfflineQuery:query matchesResult:[self toHashedIds:expectedDocs]];
+  // `checkOnlineAndOfflineCollection` first makes sure all documents needed for
+  // `query` are in the cache. It does so making a `get` on the first argument.
+  // Since *all* composite index tests use the same collection, this is very inefficient to do.
+  // Therefore, we should only do so for tests where `TEST_ID_FIELD` matches the current test.
+  [self checkOnlineAndOfflineCollection:[self compositeIndexQuery:collection]
+                                  query:query
+                          matchesResult:[self toHashedIds:expectedDocs]];
 }
 
 // Asserts that the IDs in the query snapshot matches the expected Ids. The expected document
@@ -216,7 +226,8 @@ static NSString *const COMPOSITE_INDEX_TEST_COLLECTION = @"composite-index-test-
         [FIRFilter filterWhereField:@"a" isGreaterThan:@2], [FIRFilter filterWhereField:@"b"
                                                                               isEqualTo:@1]
       ]]];
-  [self assertOnlineAndOfflineResultsMatch:[self compositeIndexQuery:query1]
+  [self assertOnlineAndOfflineResultsMatch:collRef
+                                 withQuery:[self compositeIndexQuery:query1]
                               expectedDocs:@[ @"doc5", @"doc2", @"doc3" ]];
 
   // Test with limits (implicit order by ASC): (a==1) || (b > 0) LIMIT 2
@@ -225,7 +236,8 @@ static NSString *const COMPOSITE_INDEX_TEST_COLLECTION = @"composite-index-test-
                  [FIRFilter filterWhereField:@"a" isEqualTo:@1], [FIRFilter filterWhereField:@"b"
                                                                                isGreaterThan:@0]
                ]]];
-  [self assertOnlineAndOfflineResultsMatch:[[self compositeIndexQuery:query2] queryLimitedTo:2]
+  [self assertOnlineAndOfflineResultsMatch:collRef
+                                 withQuery:[[self compositeIndexQuery:query2] queryLimitedTo:2]
                               expectedDocs:@[ @"doc1", @"doc2" ]];
 
   // Test with limits (explicit order by): (a==1) || (b > 0) LIMIT_TO_LAST 2
@@ -235,7 +247,8 @@ static NSString *const COMPOSITE_INDEX_TEST_COLLECTION = @"composite-index-test-
                  [FIRFilter filterWhereField:@"a" isEqualTo:@1], [FIRFilter filterWhereField:@"b"
                                                                                isGreaterThan:@0]
                ]]];
-  [self assertOnlineAndOfflineResultsMatch:[[[self compositeIndexQuery:query3] queryLimitedToLast:2]
+  [self assertOnlineAndOfflineResultsMatch:collRef
+                                 withQuery:[[[self compositeIndexQuery:query3] queryLimitedToLast:2]
                                                queryOrderedByField:@"b"]
                               expectedDocs:@[ @"doc3", @"doc4" ]];
 
@@ -245,7 +258,8 @@ static NSString *const COMPOSITE_INDEX_TEST_COLLECTION = @"composite-index-test-
                  [FIRFilter filterWhereField:@"a" isEqualTo:@2], [FIRFilter filterWhereField:@"b"
                                                                                    isEqualTo:@1]
                ]]];
-  [self assertOnlineAndOfflineResultsMatch:[[[self compositeIndexQuery:query4] queryLimitedTo:1]
+  [self assertOnlineAndOfflineResultsMatch:collRef
+                                 withQuery:[[[self compositeIndexQuery:query4] queryLimitedTo:1]
                                                queryOrderedByField:@"a"]
                               expectedDocs:@[ @"doc5" ]];
 
@@ -255,7 +269,8 @@ static NSString *const COMPOSITE_INDEX_TEST_COLLECTION = @"composite-index-test-
                  [FIRFilter filterWhereField:@"a" isEqualTo:@2], [FIRFilter filterWhereField:@"b"
                                                                                    isEqualTo:@1]
                ]]];
-  [self assertOnlineAndOfflineResultsMatch:[[[self compositeIndexQuery:query5] queryLimitedToLast:1]
+  [self assertOnlineAndOfflineResultsMatch:collRef
+                                 withQuery:[[[self compositeIndexQuery:query5] queryLimitedToLast:1]
                                                queryOrderedByField:@"a"]
                               expectedDocs:@[ @"doc2" ]];
 }
@@ -402,6 +417,9 @@ static NSString *const COMPOSITE_INDEX_TEST_COLLECTION = @"composite-index-test-
 }
 
 - (void)testPerformsAggregationWhenUsingArrayContainsAnyOperator {
+  XCTSkipIf([FSTIntegrationTestCase backendEdition] == FSTBackendEditionEnterprise,
+            @"Skipping this test in enterprise mode.");
+
   FIRCollectionReference *testCollection = [self collectionRefwithTestDocs:@{
     @"a" : @{
       @"author" : @"authorA",
@@ -558,6 +576,9 @@ static NSString *const COMPOSITE_INDEX_TEST_COLLECTION = @"composite-index-test-
 }
 
 - (void)testMultipleInequalityWithArrayMembership {
+  XCTSkipIf([FSTIntegrationTestCase backendEdition] == FSTBackendEditionEnterprise,
+            @"Skipping this test in enterprise mode.");
+
   FIRCollectionReference *collRef = [self collectionRefwithTestDocs:@{
     @"doc1" : @{@"key" : @"a", @"sort" : @0, @"v" : @[ @0 ]},
     @"doc2" : @{@"key" : @"b", @"sort" : @1, @"v" : @[ @0, @1, @3 ]},
@@ -883,7 +904,8 @@ static NSString *const COMPOSITE_INDEX_TEST_COLLECTION = @"composite-index-test-
   // implicit AND: a != 1 && b < 2
   FIRQuery *query = [[collRef queryWhereField:@"a" isNotEqualTo:@1] queryWhereField:@"b"
                                                                          isLessThan:@2];
-  [self assertOnlineAndOfflineResultsMatch:[self compositeIndexQuery:query]
+  [self assertOnlineAndOfflineResultsMatch:collRef
+                                 withQuery:[self compositeIndexQuery:query]
                               expectedDocs:@[ @"doc2" ]];
 
   // explicit AND: a != 1 && b < 2
@@ -892,7 +914,8 @@ static NSString *const COMPOSITE_INDEX_TEST_COLLECTION = @"composite-index-test-
                  [FIRFilter filterWhereField:@"a" isNotEqualTo:@1], [FIRFilter filterWhereField:@"b"
                                                                                      isLessThan:@2]
                ]]];
-  [self assertOnlineAndOfflineResultsMatch:[self compositeIndexQuery:query]
+  [self assertOnlineAndOfflineResultsMatch:collRef
+                                 withQuery:[self compositeIndexQuery:query]
                               expectedDocs:@[ @"doc2" ]];
 
   // explicit AND: a < 3 && b not-in [2, 3]
@@ -902,14 +925,16 @@ static NSString *const COMPOSITE_INDEX_TEST_COLLECTION = @"composite-index-test-
         [FIRFilter filterWhereField:@"a" isLessThan:@3], [FIRFilter filterWhereField:@"b"
                                                                                notIn:@[ @2, @3 ]]
       ]]];
-  [self assertOnlineAndOfflineResultsMatch:[self compositeIndexQuery:query]
+  [self assertOnlineAndOfflineResultsMatch:collRef
+                                 withQuery:[self compositeIndexQuery:query]
                               expectedDocs:@[ @"doc1", @"doc5", @"doc2" ]];
 
   // a <3 && b != 0, ordered by: b desc, a desc, __name__ desc
   query = [[[[collRef queryWhereField:@"a" isLessThan:@3] queryWhereField:@"b" isNotEqualTo:@0]
       queryOrderedByField:@"b"
                descending:YES] queryLimitedTo:2];
-  [self assertOnlineAndOfflineResultsMatch:[self compositeIndexQuery:query]
+  [self assertOnlineAndOfflineResultsMatch:collRef
+                                 withQuery:[self compositeIndexQuery:query]
                               expectedDocs:@[ @"doc4", @"doc2" ]];
 
   // explicit OR: a>2 || b<1.
@@ -918,7 +943,8 @@ static NSString *const COMPOSITE_INDEX_TEST_COLLECTION = @"composite-index-test-
         [FIRFilter filterWhereField:@"a" isGreaterThan:@2], [FIRFilter filterWhereField:@"b"
                                                                              isLessThan:@1]
       ]]];
-  [self assertOnlineAndOfflineResultsMatch:[self compositeIndexQuery:query]
+  [self assertOnlineAndOfflineResultsMatch:collRef
+                                 withQuery:[self compositeIndexQuery:query]
                               expectedDocs:@[ @"doc1", @"doc3" ]];
 }
 
@@ -939,6 +965,9 @@ static NSString *const COMPOSITE_INDEX_TEST_COLLECTION = @"composite-index-test-
 }
 
 - (void)testMultipleInequalityRejectsIfDocumentKeyAppearsOnlyInEqualityFilter {
+  XCTSkipIf([FSTIntegrationTestCase backendEdition] == FSTBackendEditionEnterprise,
+            @"Skipping this test in enterprise mode.");
+
   FIRCollectionReference *collRef = [self collectionRef];
 
   FIRQuery *query = [[collRef queryWhereField:@"key"

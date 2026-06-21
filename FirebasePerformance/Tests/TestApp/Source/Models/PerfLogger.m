@@ -19,7 +19,7 @@ static NSString *const kPerfLogPrefix = @"PerfTestAppLog_";
 
 @implementation PerfLogger
 
-#pragma mark - Initializtion
+#pragma mark - Initialization
 
 + (instancetype)sharedInstance {
   static PerfLogger *logger = nil;

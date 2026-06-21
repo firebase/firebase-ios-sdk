@@ -18,8 +18,6 @@
 
 #import <OCMock/OCMock.h>
 
-#import "FBLPromise+Testing.h"
-
 #import <FirebaseAppCheckInterop/FirebaseAppCheckInterop.h>
 
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheck.h"

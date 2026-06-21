@@ -97,12 +97,10 @@
 #pragma mark - Initialization
 
 - (void)testInitWhenProjectIDSetThenItIsPassedToAPIService {
-  FIROptions *options = [[FIROptions alloc] initInternalWithOptionsDictionary:@{
-    kFIRAPIKey : @"api-key",
-    kFIRProjectID : @"project-id",
-    kFIRGoogleAppID : @"app-id",
-    kFIRGCMSenderID : @"sender-id"
-  }];
+  FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:@"app-id" GCMSenderID:@"sender-id"];
+  options.projectID = @"project-id";
+  options.APIKey = @"api-key";
+
   FIRApp *app = [[FIRApp alloc] initInstanceWithName:@"app-name" options:options];
 
   OCMExpect([self.mockAPIService alloc]).andReturn(self.mockAPIService);

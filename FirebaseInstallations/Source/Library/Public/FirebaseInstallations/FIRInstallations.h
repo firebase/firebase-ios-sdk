@@ -57,8 +57,7 @@ typedef void (^FIRInstallationsTokenHandler)(
  * as the ability to delete it. A Firebase Installation is unique by `FirebaseApp.name` and
  * `FirebaseApp.options.googleAppID` .
  */
-NS_SWIFT_NAME(Installations)
-@interface FIRInstallations : NSObject
+NS_SWIFT_NAME(Installations) NS_SWIFT_SENDABLE @interface FIRInstallations : NSObject
 
 - (instancetype)init NS_UNAVAILABLE;
 

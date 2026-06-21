@@ -23,6 +23,8 @@
 #import "FBLPromises.h"
 #endif
 
+#import "FBLPromise+Testing.h"
+
 #include "Crashlytics/Crashlytics/Components/FIRCLSContext.h"
 #include "Crashlytics/Crashlytics/Components/FIRCLSCrashedMarkerFile.h"
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSAnalyticsManager.h"
@@ -92,7 +94,8 @@
       [[FIRMockGDTCORTransport alloc] initWithMappingID:@"id" transformers:nil target:0];
   self.appIDModel = [[FIRCLSApplicationIdentifierModel alloc] init];
   self.mockSettings = [[FIRCLSMockSettings alloc] initWithFileManager:self.fileManager
-                                                           appIDModel:self.appIDModel];
+                                                           appIDModel:self.appIDModel
+                                                              appInfo:[[NSDictionary alloc] init]];
 
   // Allow nil values only in tests
 #pragma clang diagnostic push
@@ -201,17 +204,10 @@
 #pragma mark - File/Directory Handling
 - (void)testCreatesNewReportOnStart {
   FBLPromise<NSNumber *> *promise = [self->_reportManager startWithProfiling];
+  FBLWaitForPromisesWithTimeout(1.0);
 
-  XCTestExpectation *expectation =
-      [[XCTestExpectation alloc] initWithDescription:@"waiting on promise"];
-  [promise then:^id _Nullable(NSNumber *_Nullable value) {
-    XCTAssertTrue([value boolValue]);
-    XCTAssertEqual([[self contentsOfActivePath] count], 1);
-    [expectation fulfill];
-    return value;
-  }];
-
-  [self waitForExpectations:@[ expectation ] timeout:1.0];
+  XCTAssertTrue([promise.value boolValue]);
+  XCTAssertEqual([[self contentsOfActivePath] count], 1);
 }
 
 - (void)waitForPromise:(FBLPromise<NSNumber *> *)promise {
@@ -314,10 +310,11 @@
 
 - (void)testExistingUnimportantReportOnStartWithDataCollectionDisabled {
   // create a report and put it in place
-  [self createActiveReport];
+  XCTAssertNotNil([self createActiveReport]);
 
   // Starting with data collection disabled should report in nothing changing
   [self startReportManagerWithDataCollectionEnabled:NO];
+  FBLWaitForPromisesWithTimeout(1.0);
 
   XCTAssertEqual([[self contentsOfActivePath] count], 1);
 

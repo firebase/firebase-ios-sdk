@@ -26,6 +26,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 NS_EXTENSION_UNAVAILABLE("Firebase In App Messaging is not supported for iOS extensions.")
+API_AVAILABLE(ios(13.0), tvos(13.0))
 @interface FIRIAMBannerViewController : FIRIAMBaseRenderingViewController
 + (FIRIAMBannerViewController *)
     instantiateViewControllerWithResourceBundle:(NSBundle *)resourceBundle

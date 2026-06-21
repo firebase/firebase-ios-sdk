@@ -89,7 +89,7 @@
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ZUt-bH-BSp">
                                         <rect key="frame" x="10" y="89.5" width="355" height="28"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
-                                        <state key="normal" title="Apply Displa/Fetch Frequency Change"/>
+                                        <state key="normal" title="Apply Display/Fetch Frequency Change"/>
                                         <connections>
                                             <action selector="changeAutoFetchDisplaySettings:" destination="pEd-Cp-eSk" eventType="touchUpInside" id="3BJ-aG-3AT"/>
                                         </connections>
@@ -342,10 +342,10 @@
             </objects>
             <point key="canvasLocation" x="-562.31884057971024" y="635.86956521739137"/>
         </scene>
-        <!--Auto Display Mesages TableVC-->
+        <!--Auto Display Messages TableVC-->
         <scene sceneID="q5h-FN-tiy">
             <objects>
-                <tableViewController id="PsL-F0-NPD" customClass="AutoDisplayMesagesTableVC" sceneMemberID="viewController">
+                <tableViewController id="PsL-F0-NPD" customClass="AutoDisplayMessagesTableVC" sceneMemberID="viewController">
                     <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" id="qfr-gm-4ZH">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="237.5"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>

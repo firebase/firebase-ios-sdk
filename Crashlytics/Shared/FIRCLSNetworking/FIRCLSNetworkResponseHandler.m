@@ -138,7 +138,7 @@ NSInteger const FIRCLSNetworkErrorUnknownURLCancelReason = -1;
 
   // NSURLErrorCancelled is a potential special-case. I believe there are
   // situations where a cancelled request cannot be successfully restarted. But,
-  // until I can prove it, we'll retry. There are defnitely many cases where
+  // until I can prove it, we'll retry. There are definitely many cases where
   // a cancelled request definitely can be restarted and will work.
 
   return YES;

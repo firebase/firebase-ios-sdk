@@ -16,7 +16,6 @@ import SwiftUI
 
 import FirebaseCore
 import FirebaseInAppMessaging
-import FirebaseInAppMessagingSwift
 
 @main
 struct FIAMSwiftUIApp: App {

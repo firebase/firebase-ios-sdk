@@ -44,7 +44,7 @@ FOUNDATION_EXPORT NSString *const kFIRMessagingDeviceDataVersionKey;
  *  gService data.
  *
  *  @param existingCheckin An existing checkin preference object, if available.
- *  @param completion Completion hander called on success or failure of device checkin.
+ *  @param completion Completion handler called on success or failure of device checkin.
  */
 - (void)checkinWithExistingCheckin:(nullable FIRMessagingCheckinPreferences *)existingCheckin
                         completion:

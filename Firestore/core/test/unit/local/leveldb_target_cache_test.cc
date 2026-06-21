@@ -85,8 +85,9 @@ TEST_F(LevelDbTargetCacheTest, MetadataPersistedAcrossRestarts) {
 
   db1->Run("add target data", [&] {
     Query query = testutil::Query("some/path");
-    TargetData target_data(query.ToTarget(), last_target_id,
-                           minimum_sequence_number, QueryPurpose::Listen);
+    TargetData target_data(core::TargetOrPipeline(query.ToTarget()),
+                           last_target_id, minimum_sequence_number,
+                           QueryPurpose::Listen);
     target_cache->AddTarget(target_data);
     target_cache->SetLastRemoteSnapshotVersion(last_version);
   });
@@ -146,7 +147,8 @@ TEST_F(LevelDbTargetCacheTest, SurvivesMissingTargetData) {
     std::string key = LevelDbTargetKey::Key(target_id);
     leveldb_persistence()->current_transaction()->Delete(key);
 
-    auto result = cache_->GetTarget(query_rooms_.ToTarget());
+    auto result =
+        cache_->GetTarget(core::TargetOrPipeline(query_rooms_.ToTarget()));
     ASSERT_EQ(result, absl::nullopt);
   });
 }

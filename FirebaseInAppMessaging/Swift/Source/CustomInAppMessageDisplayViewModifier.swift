@@ -205,7 +205,7 @@ class DelegateBridge: NSObject, InAppMessagingDisplay, InAppMessagingDisplayDele
   }
 
   func messageDismissed(_ inAppMessage: InAppMessagingDisplayMessage,
-                        dismissType: FIRInAppMessagingDismissType) {
+                        dismissType: InAppMessagingDismissType) {
     DispatchQueue.main.async {
       self.inAppMessageData = nil
     }

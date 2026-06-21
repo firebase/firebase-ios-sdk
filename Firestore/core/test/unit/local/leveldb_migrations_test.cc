@@ -470,7 +470,7 @@ TEST_F(LevelDbMigrationsTest, CreateCollectionParentsIndex) {
 TEST_F(LevelDbMigrationsTest, RewritesCanonicalIds) {
   LevelDbMigrations::RunMigrations(db_.get(), 6, *serializer_);
   auto query = Query("collection").AddingFilter(Filter("foo", "==", "bar"));
-  TargetData initial_target_data(query.ToTarget(),
+  TargetData initial_target_data(core::TargetOrPipeline(query.ToTarget()),
                                  /* target_id= */ 2,
                                  /* sequence_number= */ 1,
                                  QueryPurpose::Listen);
@@ -498,9 +498,9 @@ TEST_F(LevelDbMigrationsTest, RewritesCanonicalIds) {
     LevelDbTransaction transaction(
         db_.get(), "Read target to verify canonical ID rewritten");
 
-    auto query_target_key =
-        LevelDbQueryTargetKey::Key(initial_target_data.target().CanonicalId(),
-                                   initial_target_data.target_id());
+    auto query_target_key = LevelDbQueryTargetKey::Key(
+        initial_target_data.target_or_pipeline().CanonicalId(),
+        initial_target_data.target_id());
     auto it = transaction.NewIterator();
     // Verify we are able to seek to the key built with proper canonical ID.
     it->Seek(query_target_key);

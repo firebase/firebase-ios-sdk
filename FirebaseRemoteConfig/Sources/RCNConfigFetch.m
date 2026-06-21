@@ -24,6 +24,7 @@
 #import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigContent.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigExperiment.h"
+#import "FirebaseRemoteConfig/Sources/RCNConfigSessionConfiguration.h"
 #import "FirebaseRemoteConfig/Sources/RCNDevice.h"
 @import FirebaseRemoteConfigInterop;
 
@@ -112,6 +113,7 @@ static NSInteger const kRCNFetchResponseHTTPStatusCodeGatewayTimeout = 504;
 }
 
 /// Force a new NSURLSession creation for updated config.
+/// - Warning: This API is **not** thread-safe.
 - (void)recreateNetworkSession {
   if (_fetchSession) {
     [_fetchSession invalidateAndCancel];
@@ -131,7 +133,8 @@ static NSInteger const kRCNFetchResponseHTTPStatusCodeGatewayTimeout = 504;
 #pragma mark - Fetch Config API
 
 - (void)fetchConfigWithExpirationDuration:(NSTimeInterval)expirationDuration
-                        completionHandler:(FIRRemoteConfigFetchCompletion)completionHandler {
+                        completionHandler:
+                            (_Nullable FIRRemoteConfigFetchCompletion)completionHandler {
   // Note: We expect the googleAppID to always be available.
   BOOL hasDeviceContextChanged =
       FIRRemoteConfigHasDeviceContextChanged(_settings.deviceContext, _options.googleAppID);
@@ -513,13 +516,16 @@ static NSInteger const kRCNFetchResponseHTTPStatusCodeGatewayTimeout = 504;
       if (!data) {
         FIRLogInfo(kFIRLoggerRemoteConfig, @"I-RCN000043", @"RCN Fetch: No data in fetch response");
         // There may still be a difference between fetched and active config
-        FIRRemoteConfigUpdate *update =
-            [strongSelf->_content getConfigUpdateForNamespace:strongSelf->_FIRNamespace];
-        return [strongSelf reportCompletionWithStatus:FIRRemoteConfigFetchStatusSuccess
-                                           withUpdate:update
-                                            withError:nil
-                                    completionHandler:completionHandler
-                              updateCompletionHandler:updateCompletionHandler];
+        [strongSelf->_content
+            getConfigUpdateForNamespace:strongSelf->_FIRNamespace
+                      completionHandler:^(FIRRemoteConfigUpdate *update) {
+                        [strongSelf reportCompletionWithStatus:FIRRemoteConfigFetchStatusSuccess
+                                                    withUpdate:update
+                                                     withError:nil
+                                             completionHandler:completionHandler
+                                       updateCompletionHandler:updateCompletionHandler];
+                      }];
+        return;
       }
 
       // Config fetch succeeded.
@@ -578,7 +584,9 @@ static NSInteger const kRCNFetchResponseHTTPStatusCodeGatewayTimeout = 504;
                                        fetchedConfig[RCNFetchResponseKeyExperimentDescriptions]];
         }
 
-        strongSelf->_templateVersionNumber = [strongSelf getTemplateVersionNumber:fetchedConfig];
+        @synchronized(strongSelf) {
+          strongSelf->_templateVersionNumber = [strongSelf getTemplateVersionNumber:fetchedConfig];
+        }
       } else {
         FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000063",
                     @"Empty response with no fetched config.");
@@ -591,17 +599,22 @@ static NSInteger const kRCNFetchResponseHTTPStatusCodeGatewayTimeout = 504;
         strongSelf->_settings.lastETag = latestETag;
       }
       // Compute config update after successful fetch
-      FIRRemoteConfigUpdate *update =
-          [strongSelf->_content getConfigUpdateForNamespace:strongSelf->_FIRNamespace];
-
-      [strongSelf->_settings
-          updateMetadataWithFetchSuccessStatus:YES
-                               templateVersion:strongSelf->_templateVersionNumber];
-      return [strongSelf reportCompletionWithStatus:FIRRemoteConfigFetchStatusSuccess
-                                         withUpdate:update
-                                          withError:nil
-                                  completionHandler:completionHandler
-                            updateCompletionHandler:updateCompletionHandler];
+      NSString *templateVersionNumber;
+      @synchronized(strongSelf) {
+        templateVersionNumber = strongSelf->_templateVersionNumber;
+      }
+      [strongSelf->_content
+          getConfigUpdateForNamespace:strongSelf->_FIRNamespace
+                    completionHandler:^(FIRRemoteConfigUpdate *update) {
+                      [strongSelf->_settings
+                          updateMetadataWithFetchSuccessStatus:YES
+                                               templateVersion:templateVersionNumber];
+                      [strongSelf reportCompletionWithStatus:FIRRemoteConfigFetchStatusSuccess
+                                                  withUpdate:update
+                                                   withError:nil
+                                           completionHandler:completionHandler
+                                     updateCompletionHandler:updateCompletionHandler];
+                    }];
     });
   };
 
@@ -640,7 +653,7 @@ static NSInteger const kRCNFetchResponseHTTPStatusCodeGatewayTimeout = 504;
 
 - (NSURLSession *)newFetchSession {
   NSURLSessionConfiguration *config =
-      [[NSURLSessionConfiguration defaultSessionConfiguration] copy];
+      [RCNConfigSessionConfiguration remoteConfigSessionConfiguration];
   config.timeoutIntervalForRequest = _settings.fetchTimeout;
   config.timeoutIntervalForResource = _settings.fetchTimeout;
   NSURLSession *session = [NSURLSession sessionWithConfiguration:config];

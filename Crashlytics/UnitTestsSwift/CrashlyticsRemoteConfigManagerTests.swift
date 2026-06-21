@@ -25,7 +25,7 @@ class RemoteConfigConfigMock: RemoteConfigInterop {
     for namespace: String) {}
 }
 
-class PersistanceManagerMock: CrashlyticsPersistenceLog {
+class PersistenceManagerMock: CrashlyticsPersistenceLog {
   func updateRolloutsStateToPersistence(rollouts: Data, reportID: String) {}
   func debugLog(message: String) {}
 }
@@ -67,7 +67,7 @@ final class CrashlyticsRemoteConfigManagerTests: XCTestCase {
   func testRemoteConfigManagerProperlyProcessRolloutsState() throws {
     let rcManager = CrashlyticsRemoteConfigManager(
       remoteConfig: rcInterop,
-      persistenceDelegate: PersistanceManagerMock()
+      persistenceDelegate: PersistenceManagerMock()
     )
     rcManager.updateRolloutsState(rolloutsState: rollouts, reportID: "12R")
     XCTAssertEqual(rcManager.rolloutAssignment.count, 2)
@@ -88,7 +88,7 @@ final class CrashlyticsRemoteConfigManagerTests: XCTestCase {
 
     let rcManager = CrashlyticsRemoteConfigManager(
       remoteConfig: rcInterop,
-      persistenceDelegate: PersistanceManagerMock()
+      persistenceDelegate: PersistenceManagerMock()
     )
     rcManager.updateRolloutsState(rolloutsState: singleRollout, reportID: "456")
 
@@ -99,7 +99,7 @@ final class CrashlyticsRemoteConfigManagerTests: XCTestCase {
   func testMultiThreadsUpdateRolloutAssignments() throws {
     let rcManager = CrashlyticsRemoteConfigManager(
       remoteConfig: rcInterop,
-      persistenceDelegate: PersistanceManagerMock()
+      persistenceDelegate: PersistenceManagerMock()
     )
     DispatchQueue.main.async { [weak self] in
       if let singleRollout = self?.singleRollout {
@@ -119,7 +119,7 @@ final class CrashlyticsRemoteConfigManagerTests: XCTestCase {
   func testMultiThreadsReadAndWriteRolloutAssignments() throws {
     let rcManager = CrashlyticsRemoteConfigManager(
       remoteConfig: rcInterop,
-      persistenceDelegate: PersistanceManagerMock()
+      persistenceDelegate: PersistenceManagerMock()
     )
     rcManager.updateRolloutsState(rolloutsState: singleRollout, reportID: "456")
 

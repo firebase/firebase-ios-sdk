@@ -23,9 +23,6 @@
 // this should eventually be in FIRLogger.h
 extern FIRLoggerService kFIRLoggerInAppMessaging;
 
-// this should eventually be in FIRError.h
-extern NSString *const kFirebaseInAppMessagingErrorDomain;
-
 // InAppMessaging doesn't provide any functionality to other components,
 // so it provides a private, empty protocol that it conforms to and use it for registration.
 

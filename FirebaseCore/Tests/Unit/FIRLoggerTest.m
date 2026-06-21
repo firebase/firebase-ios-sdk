@@ -21,6 +21,7 @@
 // No test should include both includes.
 #import <GoogleUtilities/GULLogger.h>
 #import "FirebaseCore/Extension/FIRLogger.h"
+#import "FirebaseCore/Sources/Public/FirebaseCore/FIRLoggerLevel.h"
 
 #import <asl.h>
 
@@ -70,7 +71,7 @@ static NSString *const kMessageCode = @"I-COR000001";
   _defaults = nil;
 }
 
-// Test some stable variables to make sure they weren't accidently changed.
+// Test some stable variables to make sure they weren't accidentally changed.
 - (void)testStableVariables {
   // Strings of type FIRLoggerServices.
   XCTAssertEqualObjects(kFIRLoggerAnalytics, @"[FirebaseAnalytics]");
@@ -117,13 +118,13 @@ static NSString *const kMessageCode = @"I-COR000001";
   [processInfoMock stopMocking];
 }
 
-- (void)testInitializeASLForDebugModeWithUserDefaults {
+- (void)testInitializeForDebugModeWithUserDefaults {
   // Stub.
   NSNumber *debugMode = @YES;
   [self.defaults setBool:debugMode.boolValue forKey:kFIRPersistedDebugModeKey];
 
   // Test.
-  GULLogError(@"my service", NO, kMessageCode, @"Some error.");
+  FIRLogError(kFIRLoggerCore, kMessageCode, @"Some error.");
 
   // Assert.
   debugMode = [self.defaults objectForKey:kFIRPersistedDebugModeKey];

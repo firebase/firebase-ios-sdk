@@ -15,14 +15,16 @@
  */
 
 #import <TargetConditionals.h>
-#if TARGET_OS_IOS || TARGET_OS_TV || (defined(TARGET_OS_VISION) && TARGET_OS_VISION)
+#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
+
+#import <GoogleUtilities/GULUserDefaults.h>
 
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
 #import "FirebaseInAppMessaging/Sources/FIRCore+InAppMessaging.h"
 #import "FirebaseInAppMessaging/Sources/Private/Runtime/FIRIAMSDKModeManager.h"
 
-NSString *FIRIAMDescriptonStringForSDKMode(FIRIAMSDKMode mode) {
+NSString *FIRIAMDescriptionStringForSDKMode(FIRIAMSDKMode mode) {
   switch (mode) {
     case FIRIAMSDKModeTesting:
       return @"Testing Instance";
@@ -38,7 +40,7 @@ NSString *FIRIAMDescriptonStringForSDKMode(FIRIAMSDKMode mode) {
 }
 
 @interface FIRIAMSDKModeManager ()
-@property(nonatomic, nonnull, readonly) NSUserDefaults *userDefaults;
+@property(nonatomic, nonnull, readonly) GULUserDefaults *userDefaults;
 // Make it weak so that we don't depend on its existence to avoid circular reference.
 @property(nonatomic, readonly, weak) id<FIRIAMTestingModeListener> testingModeListener;
 @end
@@ -52,7 +54,7 @@ NSInteger const kFIRIAMMaxFetchInNewlyInstalledMode = 5;
   NSInteger _fetchCount;
 }
 
-- (instancetype)initWithUserDefaults:(NSUserDefaults *)userDefaults
+- (instancetype)initWithUserDefaults:(GULUserDefaults *)userDefaults
                  testingModeListener:(id<FIRIAMTestingModeListener>)testingModeListener {
   if (self = [super init]) {
     _userDefaults = userDefaults;
@@ -74,7 +76,7 @@ NSInteger const kFIRIAMMaxFetchInNewlyInstalledMode = 5;
 
     FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM290001",
                 @"SDK is in mode of %@ and has seen %d fetches.",
-                FIRIAMDescriptonStringForSDKMode(_sdkMode), (int)_fetchCount);
+                FIRIAMDescriptionStringForSDKMode(_sdkMode), (int)_fetchCount);
   }
   return self;
 }
@@ -115,4 +117,4 @@ NSInteger const kFIRIAMMaxFetchInNewlyInstalledMode = 5;
 }
 @end
 
-#endif  // TARGET_OS_IOS || TARGET_OS_TV || (defined(TARGET_OS_VISION) && TARGET_OS_VISION)
+#endif  // TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION

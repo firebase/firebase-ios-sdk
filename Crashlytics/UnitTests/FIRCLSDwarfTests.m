@@ -33,7 +33,7 @@
 - (void)setUp {
   [super setUp];
 
-  _firclsContext.readonly = malloc(sizeof(FIRCLSReadOnlyContext));
+  _firclsContext.readonly = calloc(1, sizeof(FIRCLSReadOnlyContext));
   _firclsContext.readonly->logPath = "/tmp/test.log";
 }
 
@@ -46,7 +46,7 @@
   NSBundle* bundle = SWIFTPM_MODULE_BUNDLE;
   return [bundle.resourcePath stringByAppendingPathComponent:@"Data"];
 #else
-  NSBundle *bundle = [NSBundle bundleForClass:[self class]];
+  NSBundle* bundle = [NSBundle bundleForClass:[self class]];
   return bundle.resourcePath;
 #endif
 }
@@ -73,7 +73,7 @@
   FIRCLSMachOSliceInitSectionByName(&slice, SEG_TEXT, "__eh_frame", &section);
 
   // This computation is a little funny. Because we've just opened this dylib as a file,
-  // the "slide" is really whereever the file ended up being mapped in memory.
+  // the "slide" is really wherever the file ended up being mapped in memory.
   ehFrame = (void*)(section.addr + (uintptr_t)slice.startAddress);
 
   XCTAssertTrue(ehFrame != NULL, @"");
@@ -110,7 +110,7 @@
 #endif
 
 - (void)testGetSavedRegisterWithInvalidValues {
-  FIRCLSThreadContext registers;
+  FIRCLSThreadContext registers = {0};
   const FIRCLSDwarfRegister dRegister = {FIRCLSDwarfRegisterUnused, 0};
 
   XCTAssertEqual(FIRCLSDwarfGetSavedRegister(NULL, 0, dRegister), 0, @"");
@@ -119,7 +119,7 @@
 
 - (void)testGetSavedRegisterWithInCFA {
   uintptr_t memoryBuffer[2] = {45, 46};
-  FIRCLSThreadContext registers;
+  FIRCLSThreadContext registers = {0};
   const FIRCLSDwarfRegister dRegister = {FIRCLSDwarfRegisterInCFA, sizeof(uintptr_t)};
 
   // this should compute *(memoryBuffer + sizeof(uintptr_t)) = 46
@@ -154,7 +154,7 @@
   state.registers[CLS_DWARF_REG_RETURN].location = FIRCLSDwarfRegisterInRegister;
 
   // Setup our arch-specific values. Be careful not to use the 0 register enum value
-  // because that can artifically pass.
+  // because that can artificially pass.
 #if CLS_CPU_X86_64
   state.registers[CLS_DWARF_REG_RETURN].value = CLS_DWARF_X86_64_RDX;
   FIRCLSDwarfUnwindSetRegisterValue(&inputRegisters, CLS_DWARF_X86_64_RDX, 777);

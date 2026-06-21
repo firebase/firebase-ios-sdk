@@ -85,14 +85,14 @@ void RemoteStore::Start() {
       [this](ConnectivityMonitor::NetworkStatus network_status) {
         if (network_status == ConnectivityMonitor::NetworkStatus::Unavailable) {
           LOG_DEBUG(
-              "RemoteStore %s ignoring connectivity callback for unavailable "
+              "RemoteStore %x ignoring connectivity callback for unavailable "
               "network",
               this);
           return;
         }
 
         if (CanUseNetwork()) {
-          LOG_DEBUG("RemoteStore %s restarting streams as connectivity changed",
+          LOG_DEBUG("RemoteStore %x restarting streams as connectivity changed",
                     this);
           RestartNetwork();
         }
@@ -139,7 +139,7 @@ void RemoteStore::DisableNetworkInternal() {
 }
 
 void RemoteStore::Shutdown() {
-  LOG_DEBUG("RemoteStore %s shutting down", this);
+  LOG_DEBUG("RemoteStore %x shutting down", this);
   is_network_enabled_ = false;
   DisableNetworkInternal();
 
@@ -342,7 +342,7 @@ void RemoteStore::RaiseWatchSnapshot(const SnapshotVersion& snapshot_version) {
     // Clear the resume token for the query, since we're in a known mismatch
     // state.
     target_data =
-        TargetData(target_data.target(), target_id,
+        TargetData(target_data.target_or_pipeline(), target_id,
                    target_data.sequence_number(), target_data.purpose());
     listen_targets_[target_id] = target_data;
 
@@ -354,7 +354,7 @@ void RemoteStore::RaiseWatchSnapshot(const SnapshotVersion& snapshot_version) {
     // mismatch, but don't actually retain that in listen_targets_. This ensures
     // that we flag the first re-listen this way without impacting future
     // listens of this target (that might happen e.g. on reconnect).
-    TargetData request_target_data(target_data.target(), target_id,
+    TargetData request_target_data(target_data.target_or_pipeline(), target_id,
                                    target_data.sequence_number(), purpose);
     SendWatchRequest(request_target_data);
   }
@@ -384,6 +384,17 @@ void RemoteStore::RunAggregateQuery(
   if (CanUseNetwork()) {
     datastore_->RunAggregateQuery(query, aggregates,
                                   std::move(result_callback));
+  } else {
+    result_callback(Status::FromErrno(Error::kErrorUnavailable,
+                                      "Failed to get result from server."));
+  }
+}
+
+void RemoteStore::RunPipeline(
+    const api::Pipeline& pipeline,
+    util::StatusOrCallback<api::PipelineSnapshot> result_callback) {
+  if (CanUseNetwork()) {
+    datastore_->RunPipeline(pipeline, std::move(result_callback));
   } else {
     result_callback(Status::FromErrno(Error::kErrorUnavailable,
                                       "Failed to get result from server."));
@@ -514,7 +525,7 @@ void RemoteStore::HandleHandshakeError(const Status& status) {
   if (Datastore::IsPermanentError(status)) {
     std::string token = util::ToString(write_stream_->last_stream_token());
     LOG_DEBUG(
-        "RemoteStore %s error before completed handshake; resetting "
+        "RemoteStore %x error before completed handshake; resetting "
         "stream token %s: "
         "error code: '%s', details: '%s'",
         this, token, status.code(), status.error_message());
@@ -590,7 +601,7 @@ void RemoteStore::HandleCredentialChange() {
     // Tear down and re-create our network streams. This will ensure we get a
     // fresh auth token for the new user and re-fill the write pipeline with new
     // mutations from the `LocalStore` (since mutations are per-user).
-    LOG_DEBUG("RemoteStore %s restarting streams for new credential", this);
+    LOG_DEBUG("RemoteStore %x restarting streams for new credential", this);
     RestartNetwork();
   }
 }

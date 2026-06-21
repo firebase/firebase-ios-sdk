@@ -137,7 +137,6 @@ target_compile_definitions(
 target_link_libraries(
   firestore_util PUBLIC
   absl::base
-  absl::flat_hash_map
   absl::memory
   absl::meta
   absl::optional
@@ -246,11 +245,19 @@ target_include_directories(
   ${PROJECT_SOURCE_DIR}/Firestore/core/include
 )
 
+# Add the gRPC include directories as SYSTEM directories to silence warnings
+target_include_directories(
+  firestore_core
+  SYSTEM       # The SYSTEM keyword applies to all directories in this block
+  PUBLIC
+    # This generator expression automatically gets the correct include path(s) from the grpc++ target
+    $<TARGET_PROPERTY:grpc++,INTERFACE_INCLUDE_DIRECTORIES>
+)
+
 target_link_libraries(
   firestore_core PUBLIC
   LevelDB::LevelDB
   absl::base
-  absl::flat_hash_map
   absl::memory
   absl::meta
   absl::optional

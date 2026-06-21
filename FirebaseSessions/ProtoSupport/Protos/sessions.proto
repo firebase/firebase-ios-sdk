@@ -17,7 +17,7 @@
 //
 // 1. Get the session_event.proto from the backend
 // 2. Copy everything below the options, and past it here below the package
-//    declaraction.
+//    declaration.
 // 3. Remove all the datapol.semantic_type tags
 // 4. Remove "wireless_android_play_playlog." from
 //    "wireless_android_play_playlog.NetworkConnectionInfo"

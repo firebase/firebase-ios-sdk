@@ -176,7 +176,7 @@
     return children;
 }
 
-// TODO: change into enumarate method
+// TODO: change into enumerate method
 - (NSDictionary *)childCompoundWrites {
     NSMutableDictionary *dict = [NSMutableDictionary dictionary];
     [self.writeTree.children

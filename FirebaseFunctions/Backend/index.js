@@ -13,9 +13,18 @@
 // limitations under the License.
 
 const assert = require('assert');
-const functions = require('firebase-functions');
+const functionsV1 = require('firebase-functions/v1');
+const functionsV2 = require('firebase-functions/v2');
 
-exports.dataTest = functions.https.onRequest((request, response) => {
+// MARK: - Utilities
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+};
+
+// MARK: - Callable Functions
+
+exports.dataTest = functionsV1.https.onRequest((request, response) => {
   assert.deepEqual(request.body, {
     data: {
       bool: true,
@@ -41,39 +50,39 @@ exports.dataTest = functions.https.onRequest((request, response) => {
   });
 });
 
-exports.scalarTest = functions.https.onRequest((request, response) => {
+exports.scalarTest = functionsV1.https.onRequest((request, response) => {
   assert.deepEqual(request.body, { data: 17 });
   response.send({ data: 76 });
 });
 
-exports.tokenTest = functions.https.onRequest((request, response) => {
+exports.tokenTest = functionsV1.https.onRequest((request, response) => {
   assert.equal('Bearer token', request.get('Authorization'));
   assert.deepEqual(request.body, { data: {} });
   response.send({ data: {} });
 });
 
-exports.FCMTokenTest = functions.https.onRequest((request, response) => {
+exports.FCMTokenTest = functionsV1.https.onRequest((request, response) => {
   assert.equal(request.get('Firebase-Instance-ID-Token'), 'fakeFCMToken');
   assert.deepEqual(request.body, { data: {} });
   response.send({ data: {} });
 });
 
-exports.nullTest = functions.https.onRequest((request, response) => {
+exports.nullTest = functionsV1.https.onRequest((request, response) => {
   assert.deepEqual(request.body, { data: null });
   response.send({ data: null });
 });
 
-exports.missingResultTest = functions.https.onRequest((request, response) => {
+exports.missingResultTest = functionsV1.https.onRequest((request, response) => {
   assert.deepEqual(request.body, { data: null });
   response.send({});
 });
 
-exports.unhandledErrorTest = functions.https.onRequest((request, response) => {
+exports.unhandledErrorTest = functionsV1.https.onRequest((request, response) => {
   // Fail in a way that the client shouldn't see.
   throw 'nope';
 });
 
-exports.unknownErrorTest = functions.https.onRequest((request, response) => {
+exports.unknownErrorTest = functionsV1.https.onRequest((request, response) => {
   // Send an http error with a body with an explicit code.
   response.status(400).send({
     error: {
@@ -83,7 +92,7 @@ exports.unknownErrorTest = functions.https.onRequest((request, response) => {
   });
 });
 
-exports.explicitErrorTest = functions.https.onRequest((request, response) => {
+exports.explicitErrorTest = functionsV1.https.onRequest((request, response) => {
   // Send an http error with a body with an explicit code.
   // Note that eventually the SDK will have a helper to automatically return
   // the appropriate http status code for an error.
@@ -103,18 +112,118 @@ exports.explicitErrorTest = functions.https.onRequest((request, response) => {
   });
 });
 
-exports.httpErrorTest = functions.https.onRequest((request, response) => {
+exports.httpErrorTest = functionsV1.https.onRequest((request, response) => {
   // Send an http error with no body.
   response.status(400).send();
 });
 
 // Regression test for https://github.com/firebase/firebase-ios-sdk/issues/9855
-exports.throwTest = functions.https.onCall((data) => {
-  throw new functions.https.HttpsError('invalid-argument', 'Invalid test requested.');
+exports.throwTest = functionsV1.https.onCall((data) => {
+  throw new functionsV1.https.HttpsError('invalid-argument', 'Invalid test requested.');
 });
 
-exports.timeoutTest = functions.https.onRequest((request, response) => {
+exports.timeoutTest = functionsV1.https.onRequest((request, response) => {
   // Wait for longer than 500ms.
-  setTimeout(() => response.send({data: true}), 500);
+  setTimeout(() => response.send({ data: true }), 500);
 });
 
+const streamData = ["hello", "world", "this", "is", "cool"]
+
+async function* generateText() {
+  for (const chunk of streamData) {
+    yield chunk;
+    await sleep(100);
+  }
+};
+
+exports.genStream = functionsV2.https.onCall(
+  async (request, response) => {
+    if (request.acceptsStreaming) {
+      for await (const chunk of generateText()) {
+        response.sendChunk(chunk);
+      }
+    }
+    return streamData.join(" ");
+  }
+);
+
+exports.genStreamError = functionsV2.https.onCall(
+  async (request, response) => {
+    // Note: The functions backend does not pass the error message to the
+    // client at this time.
+    throw Error("BOOM")
+  }
+);
+
+const weatherForecasts = {
+  Toronto: { conditions: 'snowy', temperature: 25 },
+  London: { conditions: 'rainy', temperature: 50 },
+  Dubai: { conditions: 'sunny', temperature: 75 }
+};
+
+async function* generateForecast(locations) {
+  for (const location of locations) {
+    yield { 'location': location,  ...weatherForecasts[location.name] };
+    await sleep(100);
+  }
+};
+
+exports.genStreamWeather = functionsV2.https.onCall(
+  async (request, response) => {
+    const forecasts = [];
+    if (request.acceptsStreaming) {
+      for await (const chunk of generateForecast(request.data)) {
+        forecasts.push(chunk)
+        response.sendChunk(chunk);
+      }
+    }
+    return { forecasts };
+  }
+);
+
+exports.genStreamWeatherError = functionsV2.https.onCall(
+  async (request, response) => {
+    if (request.acceptsStreaming) {
+      for await (const chunk of generateForecast(request.data)) {
+        // Remove the location field, since the SDK cannot decode the message
+        // if it's there.
+        delete chunk.location;
+        response.sendChunk(chunk);
+      }
+    }
+    return "Number of forecasts generated: " + request.data.length;
+  }
+);
+
+exports.genStreamEmpty = functionsV2.https.onCall(
+  async (request, response) => {
+    if (request.acceptsStreaming) {
+      // Send no chunks
+    }
+    // Implicitly return null.
+  }
+);
+
+exports.genStreamResultOnly = functionsV2.https.onCall(
+  async (request, response) => {
+    if (request.acceptsStreaming) {
+      // Do not send any chunks.
+    }
+    return "Only a result";
+  }
+);
+
+exports.genStreamLargeData = functionsV2.https.onCall(
+  async (request, response) => {
+    if (request.acceptsStreaming) {
+      const largeString = 'A'.repeat(10000);
+      const chunkSize = 1024;
+      for (let i = 0; i < largeString.length; i += chunkSize) {
+        const chunk = largeString.substring(i, i + chunkSize);
+        response.sendChunk(chunk);
+        await sleep(100);
+      }
+    }
+    return "Stream Completed";
+  }
+);

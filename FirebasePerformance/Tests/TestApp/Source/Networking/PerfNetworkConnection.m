@@ -50,7 +50,7 @@
 
 - (void)makeNetworkRequestWithSuccessCallback:(SuccessNetworkCallback)success
                               failureCallback:(FailureNetworkCallback)fail {
-  NSAssert(NO, @"Abstract class. The method must be overriden.");
+  NSAssert(NO, @"Abstract class. The method must be overridden.");
 }
 
 @end

@@ -488,4 +488,4 @@ static FakeAnalyticsLogEventHandler _userPropertyHandler;
 }
 @end
 
-#endif
+#endif  // TARGET_OS_IOS

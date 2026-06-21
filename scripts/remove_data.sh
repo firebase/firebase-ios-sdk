@@ -15,17 +15,21 @@
 set -xe
 
 SDK="$1"
-MODE=${2-}
+
+if [[ -z "$SDK" ]]; then
+  echo "Error: SDK name not provided." >&2
+  echo "Usage: $0 <SDKName>" >&2
+  exit 1
+fi
 
 DIR="${SDK}"
 
-if [[ ! -z "$LEGACY" ]]; then
-  DIR="${SDK}/Legacy${SDK}Quickstart"
+TARGET_DIR="quickstart-ios/${DIR}"
+
+if [[ ! -d "$TARGET_DIR" ]]; then
+  echo "Error: Directory '$TARGET_DIR' not found." >&2
+  echo "Please provide a valid SDK name." >&2
+  exit 1
 fi
 
-
-if [ "$MODE" == "release_testing" ]; then
-  echo "Update podfiles release_testing."
-  sed -i "" "s/https:\/\/.*@github.com\/FirebasePrivate\/SpecsTesting.git/https:\/\/github.com\/FirebasePrivate\/SpecsTesting.git/g" quickstart-ios/"${DIR}"/Podfile quickstart-ios/"${DIR}"/Podfile.lock
-fi
-rm -f quickstart-ios/"${DIR}"/GoogleService-Info.plist
+rm -f "${TARGET_DIR}"/GoogleService-Info.plist

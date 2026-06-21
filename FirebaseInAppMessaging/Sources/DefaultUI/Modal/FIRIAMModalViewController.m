@@ -185,7 +185,7 @@ static CGFloat LandScapePaddingBetweenImageAndTextColumn = 24;
 // In both landscape or portrait mode, the title, body & button are aligned vertically and they form
 // together have an impact on the height for that column. Many times, we need to calculate a
 // suitable heights for them to help decide the layout. The height calculation is influced by quite
-// a few factors: the text lenght of title and body, the presence/absense of body & button and
+// a few factors: the text length of title and body, the presence/absence of body & button and
 // available card/window sizes. So these are wrapped within
 // estimateTextButtomColumnHeightWithDisplayWidth which produce a TitleBodyButtonHeightInfo struct
 // to give the estimates of the heights of different elements.
@@ -288,11 +288,7 @@ struct TitleBodyButtonHeightInfo {
                           TopBottomPaddingAroundMsgCard * 2;
 
     // Factor in space for the top notch on iPhone X*.
-#if defined(__IPHONE_11_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 110000
-    if (@available(iOS 11.0, *)) {
-      heightCalcReference -= self.view.safeAreaInsets.top;
-    }
-#endif  // defined(__IPHONE_11_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 110000
+    heightCalcReference -= self.view.safeAreaInsets.top;
   }
 
   FIRLogDebug(kFIRLoggerInAppMessagingDisplay, @"I-FID300004",
@@ -300,7 +296,7 @@ struct TitleBodyButtonHeightInfo {
                "with frame height as %lf",
               heightCalcReference, self.view.window.frame.size.height);
 
-  // this makes sure titleLable gets correct width to be ready for later's height estimate for the
+  // this makes sure titleLabel gets correct width to be ready for later's height estimate for the
   // text & button column
   [self.messageCardView layoutIfNeeded];
 
@@ -393,7 +389,7 @@ struct TitleBodyButtonHeightInfo {
 
     // now we can estimate the new card width given the desired image size
 
-    // this assumes we use half of the window width for diplaying the text/button column
+    // this assumes we use half of the window width for displaying the text/button column
     CGFloat cardFitWidth = imageDisplaySize.width + self.view.window.frame.size.width / 2 +
                            LandScapePaddingBetweenImageAndTextColumn;
 
@@ -407,7 +403,7 @@ struct TitleBodyButtonHeightInfo {
     self.cardLeadingMarginInLandscapeMode.constant = self.view.window.frame.size.width / 5;
   }
 
-  // this makes sure titleLable gets correct width to be ready for later's height estimate for the
+  // this makes sure titleLabel gets correct width to be ready for later's height estimate for the
   // text & button column
   [self.messageCardView layoutIfNeeded];
 

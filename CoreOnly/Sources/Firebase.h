@@ -32,6 +32,13 @@
 
   #if __has_include(<FirebaseAuth/FirebaseAuth.h>)
     #import <FirebaseAuth/FirebaseAuth.h>
+    #if __has_include("FirebaseAuth-umbrella.h")
+      #if __has_include(<UIKit/UIKit.h>)
+        #import <UIKit/UIKit.h>
+      #endif
+      #import <FirebaseAuthInterop/FIRAuthInterop.h>
+      #import <FirebaseAuth/FirebaseAuth-Swift.h>
+    #endif
   #endif
 
   #if __has_include(<FirebaseCrashlytics/FirebaseCrashlytics.h>)
@@ -40,10 +47,6 @@
 
   #if __has_include(<FirebaseDatabase/FirebaseDatabase.h>)
     #import <FirebaseDatabase/FirebaseDatabase.h>
-  #endif
-
-  #if __has_include(<FirebaseDynamicLinks/FirebaseDynamicLinks.h>)
-    #import <FirebaseDynamicLinks/FirebaseDynamicLinks.h>
   #endif
 
   #if __has_include(<FirebaseFirestore/FirebaseFirestore.h>)

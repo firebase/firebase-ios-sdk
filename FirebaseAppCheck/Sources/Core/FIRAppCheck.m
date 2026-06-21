@@ -18,6 +18,7 @@
 
 #import <AppCheckCore/AppCheckCore.h>
 #import <FirebaseAppCheckInterop/FirebaseAppCheckInterop.h>
+#import <GoogleUtilities/GULUserDefaults.h>
 
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckErrors.h"
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckProvider.h"
@@ -92,7 +93,7 @@ static id<FIRAppCheckProviderFactory> _providerFactory;
       [[FIRInternalAppCheckProvider alloc] initWithAppCheckProvider:appCheckProvider];
   FIRAppCheckSettings *settings =
       [[FIRAppCheckSettings alloc] initWithApp:app
-                                   userDefault:[NSUserDefaults standardUserDefaults]
+                                   userDefault:[GULUserDefaults standardUserDefaults]
                                     mainBundle:[NSBundle mainBundle]];
 
   GACAppCheck *appCheckCore = [[GACAppCheck alloc] initWithServiceName:serviceName
@@ -133,8 +134,7 @@ static id<FIRAppCheckProviderFactory> _providerFactory;
                 format:@"The default FirebaseApp instance must be configured before the default"
                        @"AppCheck instance can be initialized. One way to ensure this is to "
                        @"call `FirebaseApp.configure()` in the App Delegate's "
-                       @"`application(_:didFinishLaunchingWithOptions:)` (or the `@main` struct's "
-                       @"initializer in SwiftUI)."];
+                       @"`application(_:didFinishLaunchingWithOptions:)`."];
   }
   return [self appCheckWithApp:defaultApp];
 }
@@ -264,6 +264,20 @@ static id<FIRAppCheckProviderFactory> _providerFactory;
 - (NSString *)resourceNameForApp:(FIRApp *)app {
   return [NSString
       stringWithFormat:@"projects/%@/apps/%@", app.options.projectID, app.options.googleAppID];
+}
+
+#pragma mark - Force Category Linking
+
+extern void FIRInclude_FIRApp_AppCheck_Category(void);
+extern void FIRInclude_FIRHeartbeatLogger_AppCheck_Category(void);
+
+/// Does nothing when called, and not meant to be called.
+///
+/// This method forces the linker to include categories even if
+/// users do not include the '-ObjC' linker flag in their project.
++ (void)noop {
+  FIRInclude_FIRApp_AppCheck_Category();
+  FIRInclude_FIRHeartbeatLogger_AppCheck_Category();
 }
 
 @end

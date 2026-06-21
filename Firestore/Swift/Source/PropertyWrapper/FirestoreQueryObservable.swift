@@ -47,7 +47,7 @@ class FirestoreQueryObservable<T>: ObservableObject {
     self.configuration = configuration
     setupListener = createListener { [weak self] querySnapshot, error in
       guard let self = self else { return }
-      if let error = error {
+      if let error {
         self.animated {
           self.items = []
           self.projectError(error)
@@ -104,7 +104,7 @@ class FirestoreQueryObservable<T>: ObservableObject {
     self.configuration = configuration
     setupListener = createListener { [weak self] querySnapshot, error in
       guard let self = self else { return }
-      if let error = error {
+      if let error {
         self.animated {
           self.items = .failure(error)
           self.projectError(error)

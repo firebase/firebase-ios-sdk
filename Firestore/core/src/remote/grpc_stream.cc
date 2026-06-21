@@ -16,8 +16,8 @@
 
 #include "Firestore/core/src/remote/grpc_stream.h"
 
-#include <chrono>  // NOLINT(build/c++11)
-#include <future>  // NOLINT(build/c++11)
+#include <chrono>
+#include <future>
 
 #include "Firestore/core/src/remote/grpc_connection.h"
 #include "Firestore/core/src/remote/grpc_util.h"
@@ -98,7 +98,7 @@ GrpcStream::GrpcStream(
 }
 
 GrpcStream::~GrpcStream() {
-  LOG_DEBUG("GrpcStream('%s'): destroying stream", this);
+  LOG_DEBUG("GrpcStream('%x'): destroying stream", this);
   HARD_ASSERT(completions_.empty(),
               "GrpcStream is being destroyed without proper shutdown");
   MaybeUnregister();
@@ -160,14 +160,14 @@ void GrpcStream::MaybeWrite(absl::optional<BufferedWrite> maybe_write) {
 }
 
 void GrpcStream::FinishImmediately() {
-  LOG_DEBUG("GrpcStream('%s'): finishing without notifying observers", this);
+  LOG_DEBUG("GrpcStream('%x'): finishing without notifying observers", this);
 
   Shutdown();
   UnsetObserver();
 }
 
 void GrpcStream::FinishAndNotify(const Status& status) {
-  LOG_DEBUG("GrpcStream('%s'): finishing and notifying observers", this);
+  LOG_DEBUG("GrpcStream('%x'): finishing and notifying observers", this);
 
   Shutdown();
 
@@ -181,7 +181,7 @@ void GrpcStream::FinishAndNotify(const Status& status) {
 }
 
 void GrpcStream::Shutdown() {
-  LOG_DEBUG("GrpcStream('%s'): shutting down; completions: %s, is finished: %s",
+  LOG_DEBUG("GrpcStream('%x'): shutting down; completions: %s, is finished: %s",
             this, completions_.size(), is_grpc_call_finished_);
 
   MaybeUnregister();
@@ -216,7 +216,7 @@ void GrpcStream::MaybeUnregister() {
 }
 
 void GrpcStream::FinishGrpcCall(const OnSuccess& callback) {
-  LOG_DEBUG("GrpcStream('%s'): finishing the underlying call", this);
+  LOG_DEBUG("GrpcStream('%x'): finishing the underlying call", this);
 
   HARD_ASSERT(!is_grpc_call_finished_, "FinishGrpcCall called twice");
   is_grpc_call_finished_ = true;
@@ -229,7 +229,7 @@ void GrpcStream::FinishGrpcCall(const OnSuccess& callback) {
 }
 
 void GrpcStream::FastFinishCompletionsBlocking() {
-  LOG_DEBUG("GrpcStream('%s'): fast finishing %s completion(s)", this,
+  LOG_DEBUG("GrpcStream('%x'): fast finishing %s completion(s)", this,
             completions_.size());
 
   // TODO(varconst): reset buffered_writer_? Should not be necessary, because it
@@ -344,7 +344,7 @@ std::shared_ptr<GrpcCompletion> GrpcStream::NewCompletion(
         } else {
           // Use the same error-handling for all operations; all errors are
           // unrecoverable.
-          LOG_DEBUG("GrpcStream('%s'): operation of type %s failed", this,
+          LOG_DEBUG("GrpcStream('%x'): operation of type %s failed", this,
                     completion->type());
           OnOperationFailed();
         }

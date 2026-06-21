@@ -18,7 +18,7 @@ import Foundation
 /// Sessions Subscriber is an interface that dependent SDKs
 /// must implement.
 @objc(FIRSessionsSubscriber)
-public protocol SessionsSubscriber {
+public protocol SessionsSubscriber: Sendable {
   func onSessionChanged(_ session: SessionDetails)
   var isDataCollectionEnabled: Bool { get }
   var sessionsSubscriberName: SessionsSubscriberName { get }
@@ -27,8 +27,8 @@ public protocol SessionsSubscriber {
 /// Session Payload is a container for Session Data passed to Subscribers
 /// whenever the Session changes
 @objc(FIRSessionDetails)
-public class SessionDetails: NSObject {
-  @objc public var sessionId: String?
+public final class SessionDetails: NSObject, Sendable {
+  @objc public let sessionId: String?
 
   public init(sessionId: String?) {
     self.sessionId = sessionId
@@ -38,7 +38,7 @@ public class SessionDetails: NSObject {
 
 /// Session Subscriber Names are used for identifying subscribers
 @objc(FIRSessionsSubscriberName)
-public enum SessionsSubscriberName: Int, CustomStringConvertible {
+public enum SessionsSubscriberName: Int, CustomStringConvertible, Sendable {
   case Unknown
   case Crashlytics
   case Performance

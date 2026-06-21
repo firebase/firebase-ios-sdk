@@ -66,7 +66,6 @@ static const NSUInteger kExpectedAPIKeyLength = 39;
   FIRComponent *installationsProvider =
       [FIRComponent componentWithProtocol:@protocol(FIRInstallationsInstanceProvider)
                       instantiationTiming:FIRInstantiationTimingAlwaysEager
-                             dependencies:@[]
                             creationBlock:creationBlock];
   return @[ installationsProvider ];
 }
@@ -182,8 +181,7 @@ static const NSUInteger kExpectedAPIKeyLength = 39;
                 format:@"The default FirebaseApp instance must be configured before the default"
                        @"FirebaseApp instance can be initialized. One way to ensure this is to "
                        @"call `FirebaseApp.configure()` in the App  Delegate's "
-                       @"`application(_:didFinishLaunchingWithOptions:)` "
-                       @"(or the `@main` struct's initializer in SwiftUI)."];
+                       @"`application(_:didFinishLaunchingWithOptions:)`."];
   }
 
   return [self installationsWithApp:defaultApp];
@@ -266,6 +264,18 @@ static const NSUInteger kExpectedAPIKeyLength = 39;
   // We expect a compatible version having the method `+[FIRInstanceID usesFIS]` defined.
   BOOL isCompatibleVersion = [IIDClass respondsToSelector:NSSelectorFromString(@"usesFIS")];
   return isCompatibleVersion;
+}
+
+#pragma mark - Force Category Linking
+
+extern void FIRInclude_FIRInstallationsItem_RegisterInstallationAPI_Category(void);
+
+/// Does nothing when called, and not meant to be called.
+///
+/// This method forces the linker to include categories even if
+/// users do not include the '-ObjC' linker flag in their project.
++ (void)noop {
+  FIRInclude_FIRInstallationsItem_RegisterInstallationAPI_Category();
 }
 
 @end

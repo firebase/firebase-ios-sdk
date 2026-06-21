@@ -17,10 +17,12 @@
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
+@class FIRVectorValue;
 
 /**
  * Sentinel values that can be used when writing document fields with `setData()` or `updateData()`.
  */
+NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(FieldValue)
 @interface FIRFieldValue : NSObject
 
@@ -89,6 +91,14 @@ NS_SWIFT_NAME(FieldValue)
  * @return The `FieldValue` sentinel for use in a call to `setData()` or `updateData()`.
  */
 + (instancetype)fieldValueForIntegerIncrement:(int64_t)l NS_SWIFT_NAME(increment(_:));
+
+/**
+ * Creates a new `VectorValue` constructed with a copy of the given array of NSNumbers.
+ *
+ * @param array Create a `VectorValue` instance with a copy of this array of NSNumbers.
+ * @return A new `VectorValue` constructed with a copy of the given array of NSNumbers.
+ */
++ (FIRVectorValue *)vectorWithArray:(NSArray<NSNumber *> *)array NS_REFINED_FOR_SWIFT;
 
 @end
 

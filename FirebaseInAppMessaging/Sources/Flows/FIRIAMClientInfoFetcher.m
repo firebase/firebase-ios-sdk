@@ -15,7 +15,7 @@
  */
 
 #import <TargetConditionals.h>
-#if TARGET_OS_IOS || TARGET_OS_TV || (defined(TARGET_OS_VISION) && TARGET_OS_VISION)
+#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
 
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 #import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
@@ -48,7 +48,7 @@
   if (!self.installations) {
     NSString *errorDesc = @"Couldn't generate Firebase Installation info";
     FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM190010", @"%@", errorDesc);
-    NSError *error = [NSError errorWithDomain:kFirebaseInAppMessagingErrorDomain
+    NSError *error = [NSError errorWithDomain:FIRInAppMessagingErrorDomain
                                          code:FIRIAMSDKRuntimeErrorNoFirebaseInstallationsObject
                                      userInfo:@{NSLocalizedDescriptionKey : errorDesc}];
     completion(nil, nil, error);
@@ -133,4 +133,4 @@
 }
 @end
 
-#endif  // TARGET_OS_IOS || TARGET_OS_TV || (defined(TARGET_OS_VISION) && TARGET_OS_VISION)
+#endif  // TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION

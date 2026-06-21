@@ -42,7 +42,7 @@ typedef void (^MockDelegateSubscriptionHandler)(NSString *topic,
 
 @property(nonatomic, assign) BOOL isReady;
 @property(nonatomic, copy) MockDelegateSubscriptionHandler subscriptionHandler;
-@property(nonatomic, copy) void (^updateHandler)(void);
+@property(nonatomic, copy, nullable) void (^updateHandler)(void);
 
 @end
 

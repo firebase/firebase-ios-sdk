@@ -104,15 +104,15 @@ NSSet<NSString*>* _Nullable LoadXCTestConfigurationTestsToRun() {
   }
 
   if (!config) {
-    NSLog(@"Failed to load any configuaration from %@=%@. %@", configEnvVar,
+    NSLog(@"Failed to load any configuration from %@=%@. %@", configEnvVar,
           filePath, error);
     return nil;
   }
 
   SEL testsToRunSelector = NSSelectorFromString(@"testsToRun");
   if (![config respondsToSelector:testsToRunSelector]) {
-    NSLog(@"Invalid configuaration from %@=%@: missing testsToRun",
-          configEnvVar, filePath);
+    NSLog(@"Invalid configuration from %@=%@: missing testsToRun", configEnvVar,
+          filePath);
     return nil;
   }
 
@@ -235,12 +235,8 @@ void XCTestMethod(XCTestCase* self, SEL _cmd) {
     XCTAssertTrue(true);
     return;
   } else if (result->Skipped()) {
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130400 || \
-    __TV_OS_VERSION_MAX_ALLOWED >= 130400 ||     \
-    __MAC_OS_X_VERSION_MAX_ALLOWED >= 101504
     // Let Xcode know that the test was skipped.
     XCTSkip();
-#endif
   }
 
   // Test failed :-(. Record the failure such that Xcode will navigate directly
@@ -251,28 +247,25 @@ void XCTestMethod(XCTestCase* self, SEL _cmd) {
     const char* path = part.file_name() ? part.file_name() : "";
     int line = part.line_number() > 0 ? part.line_number() : 0;
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 140000 || \
-    __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500
-    // Xcode 12
-    auto* location = [[XCTSourceCodeLocation alloc] initWithFilePath:@(path)
-                                                          lineNumber:line];
-    auto* context = [[XCTSourceCodeContext alloc] initWithLocation:location];
-    auto* issue = [[XCTIssue alloc] initWithType:XCTIssueTypeAssertionFailure
-                              compactDescription:@(part.summary())
-                             detailedDescription:@(part.message())
-                               sourceCodeContext:context
-                                 associatedError:nil
-                                     attachments:@[]];
-    [self recordIssue:issue];
+    NSString* pathString = @(path);
+    NSURL* fileURL = [NSURL fileURLWithPath:pathString];
+    NSString* absolutePath = fileURL.path;
 
-#else
-    // Xcode 11 and prior. recordFailureWithDescription:inFile:atLine:expected:
-    // is deprecated in Xcode 12.
-    [self recordFailureWithDescription:@(part.message())
-                                inFile:@(path)
-                                atLine:line
-                              expected:true];
-#endif
+    if (absolutePath) {
+      auto* location =
+          [[XCTSourceCodeLocation alloc] initWithFilePath:absolutePath
+                                               lineNumber:line];
+      auto* context = [[XCTSourceCodeContext alloc] initWithLocation:location];
+      auto* issue = [[XCTIssue alloc] initWithType:XCTIssueTypeAssertionFailure
+                                compactDescription:@(part.summary())
+                               detailedDescription:@(part.message())
+                                 sourceCodeContext:context
+                                   associatedError:nil
+                                       attachments:@[]];
+      [self recordIssue:issue];
+    } else {
+      XCTFail(@"(%s:%d) %s", path, line, part.summary());
+    }
   }
 }
 

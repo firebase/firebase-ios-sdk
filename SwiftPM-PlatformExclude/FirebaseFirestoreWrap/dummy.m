@@ -17,7 +17,7 @@
 #warning "Firebase Firestore does not support watchOS"
 #endif
 
-#if (defined(TARGET_OS_VISION) && TARGET_OS_VISION) && FIREBASE_BINARY_FIRESTORE
+#if TARGET_OS_VISION && FIREBASE_BINARY_FIRESTORE
 #error "Firebase Firestore's binary SPM distribution does not support \
 visionOS. To enable the source distribution, quit Xcode and open the desired \
 project from the command line with the FIREBASE_SOURCE_FIRESTORE environment \

@@ -18,8 +18,7 @@
 
 #if defined(__APPLE__)
 
-#if TARGET_OS_IOS || TARGET_OS_TV || \
-    (defined(TARGET_OS_VISION) && TARGET_OS_VISION)
+#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
 #import <UIKit/UIKit.h>
 #endif
 
@@ -37,6 +36,11 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+// TODO(#12593): SCNetworkReachability was deprecated in macOS 14.4.
+// Migrate to NWPathMonitor.
+
 namespace {
 
 using NetworkStatus = ConnectivityMonitor::NetworkStatus;
@@ -50,7 +54,7 @@ NetworkStatus ToNetworkStatus(SCNetworkReachabilityFlags flags) {
     return NetworkStatus::Unavailable;
   }
 
-#if TARGET_OS_IPHONE || (defined(TARGET_OS_VISION) && TARGET_OS_VISION)
+#if TARGET_OS_IPHONE || TARGET_OS_VISION
   if (flags & kSCNetworkReachabilityFlagsIsWWAN) {
     return NetworkStatus::AvailableViaCellular;
   }
@@ -113,8 +117,7 @@ class ConnectivityMonitorApple : public ConnectivityMonitor {
       return;
     }
 
-#if TARGET_OS_IOS || TARGET_OS_TV || \
-    (defined(TARGET_OS_VISION) && TARGET_OS_VISION)
+#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
     this->observer_ = [[NSNotificationCenter defaultCenter]
         addObserverForName:UIApplicationWillEnterForegroundNotification
                     object:nil
@@ -126,8 +129,7 @@ class ConnectivityMonitorApple : public ConnectivityMonitor {
   }
 
   ~ConnectivityMonitorApple() {
-#if TARGET_OS_IOS || TARGET_OS_TV || \
-    (defined(TARGET_OS_VISION) && TARGET_OS_VISION)
+#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
     [[NSNotificationCenter defaultCenter] removeObserver:this->observer_];
 #endif
 
@@ -142,8 +144,7 @@ class ConnectivityMonitorApple : public ConnectivityMonitor {
     }
   }
 
-#if TARGET_OS_IOS || TARGET_OS_TV || \
-    (defined(TARGET_OS_VISION) && TARGET_OS_VISION)
+#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
   void OnEnteredForeground() {
     SCNetworkReachabilityFlags flags{};
     if (!SCNetworkReachabilityGetFlags(reachability_, &flags)) return;
@@ -171,8 +172,7 @@ class ConnectivityMonitorApple : public ConnectivityMonitor {
 
  private:
   SCNetworkReachabilityRef reachability_ = nil;
-#if TARGET_OS_IOS || TARGET_OS_TV || \
-    (defined(TARGET_OS_VISION) && TARGET_OS_VISION)
+#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
   id<NSObject> observer_ = nil;
 #endif
 };
@@ -193,6 +193,8 @@ std::unique_ptr<ConnectivityMonitor> ConnectivityMonitor::Create(
     const std::shared_ptr<AsyncQueue>& worker_queue) {
   return absl::make_unique<ConnectivityMonitorApple>(worker_queue);
 }
+
+#pragma clang diagnostic pop
 
 }  // namespace remote
 }  // namespace firestore

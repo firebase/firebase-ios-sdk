@@ -59,13 +59,9 @@ Script used by CI jobs to wrap xcodebuild invocations with options.
 
 CI script to build binary versions of non-Firebase SDKs for QuickStart testing.
 
-### [build_zip.sh](https://github.com/firebase/firebase-ios-sdk/blob/main/scripts/build_zip.sh)
+### [build_zip.sh](https://github.com/firebase/firebase-ios-sdk/blob/main/scripts/zip/build_zip.sh)
 
 CI script for building the zip distribution.
-
-### [buildcache.sh](https://github.com/firebase/firebase-ios-sdk/blob/main/scripts/buildcache.sh)
-
-Clang options for the buildcache GitHub action.
 
 ### [change_headers.swift](https://github.com/firebase/firebase-ios-sdk/blob/main/scripts/change_headers.swift)
 
@@ -98,10 +94,6 @@ CI script to decrypt a GitHub Actions secret.
 ### [encrypt_gha_secret.sh](https://github.com/firebase/firebase-ios-sdk/blob/main/scripts/encrypt_gha_secret.sh)
 
 CI script to encrypt a GitHub Actions secret.
-
-### [fuzzing_ci.sh](https://github.com/firebase/firebase-ios-sdk/blob/main/scripts/fuzzing_ci.sh)
-
-Firestore CI script to run fuzz testing.
 
 ### [generate_access_token.sh](https://github.com/firebase/firebase-ios-sdk/blob/main/scripts/generate_access_token.sh)
 
@@ -151,7 +143,7 @@ Install tooling for the check workflow.
 
 Set up a QuickStart for integration testing.
 
-### [setup_quickstart_framework.sh](https://github.com/firebase/firebase-ios-sdk/blob/main/scripts/setup_quickstart_framework.sh)
+### [setup_quickstart_framework.sh](https://github.com/firebase/firebase-ios-sdk/blob/main/scripts/zip/setup_quickstart_framework.sh)
 
 Set up a QuickStart for zip distribution testing.
 
@@ -183,11 +175,15 @@ Test QuickStart with the zip distribution.
 
 Script to add a file to an Xcode target.
 
+### [update_vertexai_responses.sh](https://github.com/firebase/firebase-ios-sdk/blob/main/scripts/update_vertexai_responses.sh)
+
+Downloads mock response files for the Firebase AI Logic unit tests.
+
 ### [xcresult_logs.py](https://github.com/firebase/firebase-ios-sdk/blob/main/scripts/xcresult_logs.py)
 
 Tooling used by `build.sh` to get the log output for an `xcodebuild` invocation.
 
-### [zip_quickstart_test.sh](https://github.com/firebase/firebase-ios-sdk/blob/main/scripts/zip_quickstart_test.sh)
+### [zip_quickstart_test.sh](https://github.com/firebase/firebase-ios-sdk/blob/main/scripts/zip/zip_quickstart_test.sh)
 
 Run the tests associated with a QuickStart with a zip distribution.
 

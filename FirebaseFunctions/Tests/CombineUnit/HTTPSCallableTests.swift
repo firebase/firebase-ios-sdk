@@ -28,28 +28,23 @@ import XCTest
 private let timeoutInterval: TimeInterval = 70.0
 private let expectationTimeout: TimeInterval = 2
 
-class MockFunctions: Functions {
+class MockFunctions: Functions, @unchecked Sendable {
   let mockCallFunction: () throws -> HTTPSCallableResult
-  var verifyParameters: ((_ name: String, _ data: Any?, _ timeout: TimeInterval) throws -> Void)?
-  override func callFunction(name: String,
+  var verifyParameters: ((_ url: URL, _ data: Any?, _ timeout: TimeInterval) throws -> Void)?
+
+  override func callFunction(at url: URL,
                              withObject data: Any?,
                              options: HTTPSCallableOptions?,
-                             timeout: TimeInterval,
-                             completion: @escaping ((Result<HTTPSCallableResult, Error>) -> Void)) {
-    do {
-      try verifyParameters?(name, data, timeout)
-      let result = try mockCallFunction()
-      completion(.success(result))
-    } catch {
-      completion(.failure(error))
-    }
+                             timeout: TimeInterval) async throws -> sending HTTPSCallableResult {
+    try verifyParameters?(url, data, timeout)
+    return try mockCallFunction()
   }
 
   init(mockCallFunction: @escaping () throws -> HTTPSCallableResult) {
     self.mockCallFunction = mockCallFunction
     super.init(
       projectID: "dummy-project",
-      region: "",
+      region: "test-region",
       customDomain: nil,
       auth: nil,
       messaging: nil,
@@ -59,15 +54,6 @@ class MockFunctions: Functions {
   }
 }
 
-public class HTTPSCallableResultFake: HTTPSCallableResult {
-  let fakeData: String
-  init(data: String) {
-    fakeData = data
-    super.init(data: data)
-  }
-}
-
-@available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, watchOS 6.0, *)
 class HTTPSCallableTests: XCTestCase {
   func testCallWithoutParametersSuccess() {
     // given
@@ -78,7 +64,7 @@ class HTTPSCallableTests: XCTestCase {
 
     let functions = MockFunctions {
       httpsFunctionWasCalledExpectation.fulfill()
-      return HTTPSCallableResultFake(data: expectedResult)
+      return HTTPSCallableResult(data: expectedResult)
     }
 
     let dummyFunction = functions.httpsCallable("dummyFunction")
@@ -120,10 +106,13 @@ class HTTPSCallableTests: XCTestCase {
     let expectedResult = "mockResult w/ parameters: \(inputParameter)"
     let functions = MockFunctions {
       httpsFunctionWasCalledExpectation.fulfill()
-      return HTTPSCallableResultFake(data: expectedResult)
+      return HTTPSCallableResult(data: expectedResult)
     }
-    functions.verifyParameters = { name, data, timeout in
-      XCTAssertEqual(name as String, "dummyFunction")
+    functions.verifyParameters = { url, data, timeout in
+      XCTAssertEqual(
+        url.absoluteString,
+        "https://test-region-dummy-project.cloudfunctions.net/dummyFunction"
+      )
       XCTAssertEqual(data as? String, inputParameter)
       XCTAssertEqual(timeout as TimeInterval, timeoutInterval)
     }
@@ -169,8 +158,11 @@ class HTTPSCallableTests: XCTestCase {
                     code: FunctionsErrorCode.internal.rawValue,
                     userInfo: [NSLocalizedDescriptionKey: "Response is missing data field."])
     }
-    functions.verifyParameters = { name, data, timeout in
-      XCTAssertEqual(name as String, "dummyFunction")
+    functions.verifyParameters = { url, data, timeout in
+      XCTAssertEqual(
+        url.absoluteString,
+        "https://test-region-dummy-project.cloudfunctions.net/dummyFunction"
+      )
       XCTAssertEqual(data as? String, inputParameter)
       XCTAssertEqual(timeout as TimeInterval, timeoutInterval)
     }

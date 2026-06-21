@@ -64,7 +64,7 @@
   NSString *s = [codeSettings iOSBundleID];
   s = [codeSettings androidPackageName];
   s = [codeSettings androidMinimumVersion];
-  s = [codeSettings dynamicLinkDomain];
+  s = [codeSettings linkDomain];
 }
 
 - (void)FIRAuthAdditionalUserInfo_h:(FIRAdditionalUserInfo *)additionalUserInfo {
@@ -103,7 +103,8 @@
   [auth setCustomAuthDomain:s];
 #if TARGET_OS_IOS
   __unused NSData *d = [auth APNSToken];
-  auth.APNSToken = [[NSData alloc] init];
+  // TODO: It seems like a no-op and a bug to have this API in Objective-C
+  // auth.APNSToken = [[NSData alloc] init];
 #endif
 }
 
@@ -274,11 +275,10 @@
   c = FIRAuthErrorCodeWebSignInUserInteractionFailure;
   c = FIRAuthErrorCodeLocalPlayerNotAuthenticated;
   c = FIRAuthErrorCodeNullUser;
-  c = FIRAuthErrorCodeDynamicLinkNotActivated;
   c = FIRAuthErrorCodeInvalidProviderID;
   c = FIRAuthErrorCodeTenantIDMismatch;
   c = FIRAuthErrorCodeUnsupportedTenantOperation;
-  c = FIRAuthErrorCodeInvalidDynamicLinkDomain;
+  c = FIRAuthErrorCodeInvalidHostingLinkDomain;
   c = FIRAuthErrorCodeRejectedCredential;
   c = FIRAuthErrorCodeGameKitNotLinked;
   c = FIRAuthErrorCodeSecondFactorRequired;
@@ -372,7 +372,7 @@
                                                                    accessToken:@"token"];
 }
 
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS || TARGET_OS_OSX
 - (void)FIRMultiFactor_h:(FIRMultiFactor *)mf mfa:(FIRMultiFactorAssertion *)mfa {
   [mf getSessionWithCompletion:^(FIRMultiFactorSession *_Nullable credential,
                                  NSError *_Nullable error){
@@ -416,6 +416,9 @@
 
 #if TARGET_OS_IOS
 - (void)FIROAuthProvider_h:(FIROAuthProvider *)provider {
+  FIROAuthProvider *p = [FIROAuthProvider providerWithProviderID:@""];
+  p = [FIROAuthProvider providerWithProviderID:@"" auth:[FIRAuth auth]];
+
   FIROAuthCredential *c = [FIROAuthProvider credentialWithProviderID:@"id" accessToken:@"token"];
   c = [FIROAuthProvider credentialWithProviderID:@"id"
                                          IDToken:@"idToken"
@@ -463,7 +466,9 @@
 - (void)phoneMultiFactorInfo:(FIRPhoneMultiFactorInfo *)info {
   __unused NSString *s = [info phoneNumber];
 }
+#endif
 
+#if TARGET_OS_IOS || TARGET_OS_OSX
 - (void)FIRTOTPSecret_h:(FIRTOTPSecret *)secret {
   NSString *s = [secret sharedSecretKey];
   s = [secret generateQRCodeURLWithAccountName:@"name" issuer:@"issuer"];
@@ -568,7 +573,7 @@
   b = [user isEmailVerified];
   __unused NSArray<NSObject<FIRUserInfo> *> *userInfo = [user providerData];
   __unused FIRUserMetadata *meta = [user metadata];
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS || TARGET_OS_OSX
   __unused FIRMultiFactor *mf = [user multiFactor];
 #endif
   NSString *s = [user refreshToken];

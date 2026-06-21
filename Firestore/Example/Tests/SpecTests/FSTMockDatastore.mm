@@ -75,12 +75,9 @@ class MockWatchStream : public WatchStream {
                   GrpcConnection* grpc_connection,
                   WatchStreamCallback* callback,
                   MockDatastore* datastore)
-      : WatchStream{worker_queue,
-                    auth_credentials_provider,
-                    app_check_credentials_provider,
-                    std::move(serializer),
-                    grpc_connection,
-                    callback},
+      : WatchStream{
+            worker_queue,          auth_credentials_provider, app_check_credentials_provider,
+            std::move(serializer), grpc_connection,           callback},
         datastore_{datastore},
         callback_{callback} {
   }
@@ -109,7 +106,7 @@ class MockWatchStream : public WatchStream {
   }
 
   void WatchQuery(const TargetData& query) override {
-    LOG_DEBUG("WatchQuery: %s: %s, %s", query.target_id(), query.target().ToString(),
+    LOG_DEBUG("WatchQuery: %s: %s, %s", query.target_id(), query.target_or_pipeline().ToString(),
               query.resume_token().ToString());
 
     // Snapshot version is ignored on the wire
@@ -177,12 +174,9 @@ class MockWriteStream : public WriteStream {
                   GrpcConnection* grpc_connection,
                   WriteStreamCallback* callback,
                   MockDatastore* datastore)
-      : WriteStream{worker_queue,
-                    auth_credentials_provider,
-                    app_check_credentials_provider,
-                    std::move(serializer),
-                    grpc_connection,
-                    callback},
+      : WriteStream{
+            worker_queue,          auth_credentials_provider, app_check_credentials_provider,
+            std::move(serializer), grpc_connection,           callback},
         datastore_{datastore},
         callback_{callback} {
   }

@@ -23,6 +23,7 @@
 
 #include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
 #include "Firestore/core/src/nanopb/message.h"
+#include "Firestore/core/src/nanopb/nanopb_util.h"
 #include "absl/types/optional.h"
 
 namespace firebase {
@@ -36,6 +37,25 @@ namespace model {
 
 class DocumentKey;
 class DatabaseId;
+
+/** The smallest reference value. */
+extern pb_bytes_array_s* kMinimumReferenceValue;
+
+/** The field type of a special object type. */
+extern const char* kRawTypeValueFieldKey;
+extern pb_bytes_array_s* kTypeValueFieldKey;
+
+/** The field value of a maximum proto value. */
+extern const char* kRawMaxValueFieldValue;
+extern pb_bytes_array_s* kMaxValueFieldValue;
+
+/** The type of a VectorValue proto. */
+extern const char* kRawVectorTypeFieldValue;
+extern pb_bytes_array_s* kVectorTypeFieldValue;
+
+/** The  value key of a VectorValue proto. */
+extern const char* kRawVectorValueFieldKey;
+extern pb_bytes_array_s* kVectorValueFieldKey;
 
 /**
  * The order of types in Firestore. This order is based on the backend's
@@ -52,9 +72,13 @@ enum class TypeOrder {
   kReference = 7,
   kGeoPoint = 8,
   kArray = 9,
-  kMap = 10,
-  kMaxValue = 11
+  kVector = 10,
+  kMap = 11,
+  kMaxValue = 12
 };
+
+/** Result type for StrictEquals comparison. */
+enum class StrictEqualsResult { kEq, kNotEq, kNull };
 
 /** Returns the backend's type order of the given Value type. */
 TypeOrder GetTypeOrder(const google_firestore_v1_Value& value);
@@ -83,6 +107,15 @@ bool Equals(const google_firestore_v1_ArrayValue& left,
             const google_firestore_v1_ArrayValue& right);
 
 /**
+ * Performs a strict equality comparison used in Pipeline expressions
+ * evaluations. The main difference to Equals is its handling of null
+ * propagation, and it uses direct double value comparison (as opposed to Equals
+ * which use bits comparison).
+ */
+StrictEqualsResult StrictEquals(const google_firestore_v1_Value& left,
+                                const google_firestore_v1_Value& right);
+
+/**
  * Generates the canonical ID for the provided field value (as used in Target
  * serialization).
  */
@@ -94,7 +127,7 @@ std::string CanonicalId(const google_firestore_v1_Value& value);
  * The returned value might point to heap allocated memory that is owned by
  * this function. To take ownership of this memory, call `DeepClone`.
  */
-google_firestore_v1_Value GetLowerBound(pb_size_t value_tag);
+google_firestore_v1_Value GetLowerBound(const google_firestore_v1_Value& value);
 
 /**
  * Returns the largest value for the given value type (exclusive).
@@ -102,7 +135,7 @@ google_firestore_v1_Value GetLowerBound(pb_size_t value_tag);
  * The returned value might point to heap allocated memory that is owned by
  * this function. To take ownership of this memory, call `DeepClone`.
  */
-google_firestore_v1_Value GetUpperBound(pb_size_t value_tag);
+google_firestore_v1_Value GetUpperBound(const google_firestore_v1_Value& value);
 
 /**
  * Generates the canonical ID for the provided array value (as used in Target
@@ -156,6 +189,22 @@ google_firestore_v1_Value MaxValue();
 bool IsMaxValue(const google_firestore_v1_Value& value);
 
 /**
+ * Returns `true` if `value` represents a VectorValue..
+ */
+bool IsVectorValue(const google_firestore_v1_Value& value);
+
+/**
+ * Returns the index of the specified key (`kRawTypeValueFieldKey`) in the
+ * map (`mapValue`). `kTypeValueFieldKey` is an alternative representation
+ * of the key specified in `kRawTypeValueFieldKey`.
+ * If the key is not found, then `absl::nullopt` is returned.
+ */
+absl::optional<pb_size_t> IndexOfKey(
+    const google_firestore_v1_MapValue& mapValue,
+    const char* kRawTypeValueFieldKey,
+    pb_bytes_array_s* kTypeValueFieldKey);
+
+/**
  * Returns `NaN` in its Protobuf representation.
  *
  * The returned value might point to heap allocated memory that is owned by
@@ -166,6 +215,30 @@ google_firestore_v1_Value NaNValue();
 /** Returns `true` if `value` is `NaN` in its Protobuf representation. */
 bool IsNaNValue(const google_firestore_v1_Value& value);
 
+google_firestore_v1_Value TrueValue();
+
+google_firestore_v1_Value FalseValue();
+
+google_firestore_v1_Value MinBoolean();
+
+google_firestore_v1_Value MinNumber();
+
+google_firestore_v1_Value MinTimestamp();
+
+google_firestore_v1_Value MinString();
+
+google_firestore_v1_Value MinBytes();
+
+google_firestore_v1_Value MinReference();
+
+google_firestore_v1_Value MinGeoPoint();
+
+google_firestore_v1_Value MinArray();
+
+google_firestore_v1_Value MinVector();
+
+google_firestore_v1_Value MinMap();
+
 /**
  * Returns a Protobuf reference value representing the given location.
  *
@@ -174,6 +247,25 @@ bool IsNaNValue(const google_firestore_v1_Value& value);
  */
 nanopb::Message<google_firestore_v1_Value> RefValue(
     const DatabaseId& database_id, const DocumentKey& document_key);
+
+/**
+ * Returns a Protobuf string value.
+ *
+ * The returned value might point to heap allocated memory that is owned by
+ * this function. To take ownership of this memory, call `DeepClone`.
+ */
+nanopb::Message<google_firestore_v1_Value> StringValue(
+    const std::string& value);
+
+nanopb::Message<google_firestore_v1_Value> StringValue(absl::string_view value);
+
+/**
+ * Returns a Protobuf array value representing the given values.
+ *
+ * This function owns the passed in vector and might move the values out.
+ */
+nanopb::Message<google_firestore_v1_Value> ArrayValue(
+    std::vector<nanopb::Message<google_firestore_v1_Value>> values);
 
 /** Creates a copy of the contents of the Value proto. */
 nanopb::Message<google_firestore_v1_Value> DeepClone(
@@ -215,6 +307,19 @@ inline bool IsMap(const absl::optional<google_firestore_v1_Value>& value) {
   return value &&
          value->which_value_type == google_firestore_v1_Value_map_value_tag;
 }
+
+/**
+ * Extracts the integer value if the input is an integer type.
+ * Returns nullopt otherwise.
+ */
+absl::optional<int64_t> GetInteger(const google_firestore_v1_Value& value);
+
+/**
+ * Finds an entry by key in the provided map value. Returns `nullptr` if the
+ * entry does not exist.
+ */
+google_firestore_v1_MapValue_FieldsEntry* FindEntry(
+    const google_firestore_v1_Value& value, absl::string_view field);
 
 }  // namespace model
 

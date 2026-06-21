@@ -35,39 +35,46 @@ namespace {
 
 const FIRLoggerService kFIRLoggerFirestore = @"[FirebaseFirestore]";
 
-// Translates a C++ LogLevel to the equivalent Objective-C FIRLoggerLevel
-FIRLoggerLevel ToFIRLoggerLevel(LogLevel level) {
-  switch (level) {
-    case kLogLevelDebug:
-      return FIRLoggerLevelDebug;
-    case kLogLevelNotice:
-      return FIRLoggerLevelNotice;
-    case kLogLevelWarning:
-      return FIRLoggerLevelWarning;
-    case kLogLevelError:
-      return FIRLoggerLevelError;
-    default:
-      // Unsupported log level. FIRSetLoggerLevel will deal with it.
-      return static_cast<FIRLoggerLevel>(-1);
-  }
-}
-
 // Actually logs a message via FIRLogger. This must be a C varargs function
 // so that we can call FIRLogBasic which takes a `va_list`.
 void LogMessageV(LogLevel level, NSString* format, ...) {
   va_list list;
   va_start(list, format);
 
-  FIRLogBasic(ToFIRLoggerLevel(level), kFIRLoggerFirestore, @"I-FST000001",
-              format, list);
-
+  switch (level) {
+    case kLogLevelDebug:
+      FIRLogBasicDebug(kFIRLoggerFirestore, @"I-FST000001", format, list);
+      break;
+    case kLogLevelNotice:
+      FIRLogBasicNotice(kFIRLoggerFirestore, @"I-FST000001", format, list);
+      break;
+    case kLogLevelWarning:
+      FIRLogBasicWarning(kFIRLoggerFirestore, @"I-FST000001", format, list);
+      break;
+    case kLogLevelError:
+      FIRLogBasicError(kFIRLoggerFirestore, @"I-FST000001", format, list);
+      break;
+  }
   va_end(list);
 }
 
 }  // namespace
 
 void LogSetLevel(LogLevel level) {
-  FIRSetLoggerLevel(ToFIRLoggerLevel(level));
+  switch (level) {
+    case kLogLevelDebug:
+      FIRSetLoggerLevelDebug();
+      break;
+    case kLogLevelNotice:
+      FIRSetLoggerLevelNotice();
+      break;
+    case kLogLevelWarning:
+      FIRSetLoggerLevelWarning();
+      break;
+    case kLogLevelError:
+      FIRSetLoggerLevelError();
+      break;
+  }
 }
 
 // Note that FIRLogger's default level can be changed by persisting a
@@ -81,7 +88,17 @@ void LogSetLevel(LogLevel level) {
 //   defaults write firestore_util_test /google/firebase/debug_mode NO
 
 bool LogIsLoggable(LogLevel level) {
-  return FIRIsLoggableLevel(ToFIRLoggerLevel(level), false);
+  switch (level) {
+    case kLogLevelDebug:
+      return FIRIsLoggableLevelDebug();
+    case kLogLevelNotice:
+      return FIRIsLoggableLevelNotice();
+    case kLogLevelWarning:
+      return FIRIsLoggableLevelWarning();
+    case kLogLevelError:
+      return FIRIsLoggableLevelError();
+  }
+  return false;
 }
 
 void LogMessage(LogLevel level, const std::string& message) {

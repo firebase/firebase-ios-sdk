@@ -15,18 +15,34 @@
 
 import Foundation
 
-// Sessions Dependencies determines when a dependent SDK is
-// installed in the app. The Sessions SDK uses this to figure
-// out which dependencies to wait for to getting the data
-// collection state.
-//
-// This is important because the Sessions SDK starts up before
-// dependent SDKs
+private import FirebaseCoreInternal
+
+/// Sessions Dependencies determines when a dependent SDK is
+/// installed in the app. The Sessions SDK uses this to figure
+/// out which dependencies to wait for to getting the data
+/// collection state.
+///
+/// This is important because the Sessions SDK starts up before
+/// dependent SDKs
 @objc(FIRSessionsDependencies)
 public class SessionsDependencies: NSObject {
-  static var dependencies: Set<SessionsSubscriberName> = .init()
+  private static let _dependencies =
+    UnfairLock<Set<SessionsSubscriberName>>(Set())
+
+  static var dependencies: Set<SessionsSubscriberName> {
+    _dependencies.value()
+  }
 
   @objc public static func addDependency(name: SessionsSubscriberName) {
-    SessionsDependencies.dependencies.insert(name)
+    _dependencies.withLock { dependencies in
+      dependencies.insert(name)
+    }
+  }
+
+  /// For testing only.
+  static func removeAll() {
+    _dependencies.withLock { dependencies in
+      dependencies.removeAll()
+    }
   }
 }

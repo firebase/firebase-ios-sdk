@@ -47,7 +47,8 @@ NSString *const TestContextSessionID2 = @"TestContextSessionID2";
 
   FIRCLSApplicationIdentifierModel *appIDModel = [[FIRCLSApplicationIdentifierModel alloc] init];
   _mockSettings = [[FIRCLSMockSettings alloc] initWithFileManager:self.fileManager
-                                                       appIDModel:appIDModel];
+                                                       appIDModel:appIDModel
+                                                          appInfo:[[NSDictionary alloc] init]];
 
   //  NSString *name = @"exception_model_report";
   NSString *reportPath =
@@ -68,9 +69,10 @@ NSString *const TestContextSessionID2 = @"TestContextSessionID2";
 }
 
 - (void)test_notSettingSessionID_protoHasNilSessionID {
-  [self.contextManager setupContextWithReport:self.report
-                                     settings:self.mockSettings
-                                  fileManager:self.fileManager];
+  FBLPromiseAwait([self.contextManager setupContextWithReport:self.report
+                                                     settings:self.mockSettings
+                                                  fileManager:self.fileManager],
+                  nil);
 
   FIRCLSReportAdapter *adapter = [[FIRCLSReportAdapter alloc] initWithPath:self.report.path
                                                                googleAppId:@"TestGoogleAppID"
@@ -84,9 +86,10 @@ NSString *const TestContextSessionID2 = @"TestContextSessionID2";
 - (void)test_settingSessionIDMultipleTimes_protoHasLastSessionID {
   [self.contextManager setAppQualitySessionId:TestContextSessionID];
 
-  [self.contextManager setupContextWithReport:self.report
-                                     settings:self.mockSettings
-                                  fileManager:self.fileManager];
+  FBLPromiseAwait([self.contextManager setupContextWithReport:self.report
+                                                     settings:self.mockSettings
+                                                  fileManager:self.fileManager],
+                  nil);
 
   [self.contextManager setAppQualitySessionId:TestContextSessionID2];
 
@@ -101,9 +104,10 @@ NSString *const TestContextSessionID2 = @"TestContextSessionID2";
 }
 
 - (void)test_settingSessionIDOutOfOrder_protoHasLastSessionID {
-  [self.contextManager setupContextWithReport:self.report
-                                     settings:self.mockSettings
-                                  fileManager:self.fileManager];
+  FBLPromiseAwait([self.contextManager setupContextWithReport:self.report
+                                                     settings:self.mockSettings
+                                                  fileManager:self.fileManager],
+                  nil);
 
   [self.contextManager setAppQualitySessionId:TestContextSessionID];
 
@@ -119,4 +123,27 @@ NSString *const TestContextSessionID2 = @"TestContextSessionID2";
   XCTAssertEqualObjects(adapter.identity.app_quality_session_id, TestContextSessionID2);
 }
 
+// This test is for chain on init promise for development platform related setters
+- (void)test_promisesChainOnInitPromiseInOrder {
+  NSMutableArray<NSString *> *result = @[].mutableCopy;
+  NSMutableArray<NSString *> *expectation = @[].mutableCopy;
+
+  for (int j = 0; j < 100; j++) {
+    [expectation addObject:[NSString stringWithFormat:@"%d", j]];
+  }
+
+  FBLPromise *promise = [self.contextManager setupContextWithReport:self.report
+                                                           settings:self.mockSettings
+                                                        fileManager:self.fileManager];
+
+  for (int i = 0; i < 100; i++) {
+    [promise then:^id _Nullable(id _Nullable value) {
+      [result addObject:[NSString stringWithFormat:@"%d", i]];
+      if (i == 99) {
+        XCTAssertTrue([result isEqualToArray:expectation]);
+      }
+      return nil;
+    }];
+  }
+}
 @end

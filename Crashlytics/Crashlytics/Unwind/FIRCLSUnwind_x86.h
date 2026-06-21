@@ -65,12 +65,12 @@
 bool FIRCLSCompactUnwindComputeStackSize(const compact_unwind_encoding_t encoding,
                                          const uintptr_t functionStart,
                                          const bool indirect,
-                                         uint32_t* const stackSize);
+                                         uint32_t *const stackSize);
 bool FIRCLSCompactUnwindDecompressPermutation(const compact_unwind_encoding_t encoding,
                                               uintptr_t permutatedRegisters[const static 6]);
 bool FIRCLSCompactUnwindRestoreRegisters(compact_unwind_encoding_t encoding,
-                                         FIRCLSThreadContext* registers,
+                                         FIRCLSThreadContext *registers,
                                          uint32_t stackSize,
                                          const uintptr_t savedRegisters[const static 6],
-                                         uintptr_t* address);
+                                         uintptr_t *address);
 #endif

@@ -41,7 +41,7 @@ You can override the Settings values fetched from the server using the app's Inf
  - **FirebaseSessionsSampingRate**: Float between 0 and 1 representing how often events are sent. 0 is drop everything, 1 is send everything.
 
 ### Updating the Proto
-#### Prerequesites
+#### Prerequisites
 To update the Sessions Proto, Protobuf is required. To install run:
 
 ```

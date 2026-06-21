@@ -27,3 +27,7 @@
 }
 
 @end
+
+/// Stub used to force the linker to include the categories in this file.
+void FIRInclude_NSError_FIRMessaging_Category(void) {
+}

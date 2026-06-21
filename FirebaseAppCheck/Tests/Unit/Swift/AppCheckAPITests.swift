@@ -33,6 +33,14 @@ final class AppCheckAPITests {
       }
     }
 
+    // MARK: - AppAttestProviderFactory
+
+    if #available(iOS 14.0, macOS 11.3, macCatalyst 14.5, tvOS 15.0, watchOS 9.0, *),
+       let app = FirebaseApp.app() {
+      let factory = AppAttestProviderFactory()
+      _ = factory.createProvider(with: app)
+    }
+
     // MARK: - AppCheck
 
     // `AppCheckTokenDidChange` & associated notification keys
@@ -119,7 +127,7 @@ final class AppCheckAPITests {
     // MARK: - AppCheckErrors
 
     AppCheck.appCheck().token(forcingRefresh: false) { _, error in
-      if let error = error {
+      if let error {
         switch error {
         case AppCheckErrorCode.unknown:
           break

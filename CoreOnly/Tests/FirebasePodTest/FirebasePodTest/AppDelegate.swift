@@ -15,9 +15,8 @@
 import Firebase
 
 // Verify that the following Firebase Swift APIs can be found.
-import FirebaseAnalyticsSwift
-import FirebaseFirestoreSwift
-import FirebaseInAppMessagingSwift
+import FirebaseAnalytics
+import FirebaseInAppMessaging
 import UIKit
 
 class CoreExists: FirebaseApp {}
@@ -26,7 +25,6 @@ class AuthExists: Auth {}
 // Uncomment next line if ABTesting gets added to Firebase.h.
 // class ABTestingExists : LifecycleEvents {}
 class DatabaseExists: Database {}
-class DynamicLinksExists: DynamicLinks {}
 class FirestoreExists: Firestore {}
 class FunctionsExists: Functions {}
 class InAppMessagingExists: InAppMessaging {}

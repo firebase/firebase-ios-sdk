@@ -126,6 +126,7 @@ LevelDbPersistence::LevelDbPersistence(std::unique_ptr<leveldb::DB> db,
   reference_delegate_ =
       absl::make_unique<LevelDbLruReferenceDelegate>(this, lru_params);
   bundle_cache_ = absl::make_unique<LevelDbBundleCache>(this, &serializer_);
+  globals_cache_ = absl::make_unique<LevelDbGlobalsCache>(this);
 
   // TODO(gsoltis): set up a leveldb transaction for these operations.
   target_cache_->Start();
@@ -248,6 +249,10 @@ LevelDbMutationQueue* LevelDbPersistence::GetMutationQueue(
 
 LevelDbTargetCache* LevelDbPersistence::target_cache() {
   return target_cache_.get();
+}
+
+LevelDbGlobalsCache* LevelDbPersistence::globals_cache() {
+  return globals_cache_.get();
 }
 
 LevelDbRemoteDocumentCache* LevelDbPersistence::remote_document_cache() {

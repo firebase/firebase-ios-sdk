@@ -14,7 +14,6 @@
 
 import Foundation
 
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 public extension StorageReference {
   /// Asynchronously downloads the object at the StorageReference to a Data object in memory.
   /// A Data object of the provided max size will be allocated, so ensure that the device has
@@ -22,7 +21,7 @@ public extension StorageReference {
   /// API may be a better option.
   ///
   /// - Parameters:
-  ///   - size: The maximum size in bytes to download. If the download exceeds this size,
+  ///   - maxSize: The maximum size in bytes to download. If the download exceeds this size,
   ///           the task will be cancelled and an error will be thrown.
   /// - Throws: An error if the operation failed, for example if the data exceeded `maxSize`.
   /// - Returns: Data object.
@@ -66,7 +65,8 @@ public extension StorageReference {
       }
       uploadTask.observe(.failure) { snapshot in
         continuation.resume(with: .failure(
-          snapshot.error ?? StorageError.internalError("Internal Storage Error in putDataAsync")
+          snapshot.error ?? StorageError
+            .internalError(message: "Internal Storage Error in putDataAsync")
         ))
       }
     }
@@ -103,7 +103,8 @@ public extension StorageReference {
       }
       uploadTask.observe(.failure) { snapshot in
         continuation.resume(with: .failure(
-          snapshot.error ?? StorageError.internalError("Internal Storage Error in putFileAsync")
+          snapshot.error ?? StorageError
+            .internalError(message: "Internal Storage Error in putFileAsync")
         ))
       }
     }
@@ -112,7 +113,7 @@ public extension StorageReference {
   /// Asynchronously downloads the object at the current path to a specified system filepath.
   ///
   /// - Parameters:
-  ///   - fileUrl: A URL representing the system file path of the object to be uploaded.
+  ///   - fileURL: A URL representing the system file path of the object to be uploaded.
   ///   - onProgress: An optional closure function to return a `Progress` instance while the
   /// download proceeds.
   /// - Throws: An error if the operation failed, for example if Storage was unreachable
@@ -137,7 +138,8 @@ public extension StorageReference {
       }
       downloadTask.observe(.failure) { snapshot in
         continuation.resume(with: .failure(
-          snapshot.error ?? StorageError.internalError("Internal Storage Error in writeAsync")
+          snapshot.error ?? StorageError
+            .internalError(message: "Internal Storage Error in writeAsync")
         ))
       }
     }

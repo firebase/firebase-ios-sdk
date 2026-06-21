@@ -277,7 +277,8 @@ struct ZipBuilder {
     for groupedFramework in groupedFrameworks {
       let name = groupedFramework.key
       let xcframework = FrameworkBuilder.makeXCFramework(withName: name,
-                                                         frameworks: groupedFramework.value,
+                                                         frameworks: postProcessFrameworks(groupedFramework
+                                                           .value),
                                                          xcframeworksDir: xcframeworksDir,
                                                          resourceContents: resources[name])
       xcframeworks[name] = [xcframework]
@@ -299,11 +300,58 @@ struct ZipBuilder {
 
     let carthageGoogleUtilitiesXcframework = FrameworkBuilder.makeXCFramework(
       withName: "GoogleUtilities",
-      frameworks: carthageGoogleUtilitiesFrameworks,
+      frameworks: postProcessFrameworks(carthageGoogleUtilitiesFrameworks),
       xcframeworksDir: xcframeworksCarthageDir,
       resourceContents: nil
     )
     return (podsBuilt, xcframeworks, carthageGoogleUtilitiesXcframework)
+  }
+
+  func postProcessFrameworks(_ frameworks: [URL]) -> [URL] {
+    for framework in frameworks {
+      // CocoaPods creates a `_CodeSignature` directory. Delete it.
+      // Note that the build only produces a `_CodeSignature` directory for
+      // macOS and macCatalyst (`Versions/A/`), but we try to delete it for
+      // other platforms just in case it were to appear.
+      for path in ["", "Versions/A/"] {
+        let codeSignatureDir = framework
+          .appendingPathComponent(path)
+          .appendingPathComponent("_CodeSignature")
+          .resolvingSymlinksInPath()
+        try? FileManager.default.removeItem(at: codeSignatureDir)
+      }
+
+      // Delete `gRPCCertificates-Cpp.bundle` since it is not needed (#9184).
+      // Depending on the platform, it may be at the root of the framework or
+      // in a symlinked `Resources` directory (for macOS, macCatalyst). Attempt
+      // to delete at either patch for each framework.
+      for path in ["", "Resources"] {
+        let grpcCertsBundle = framework
+          .appendingPathComponent(path)
+          .appendingPathComponent("gRPCCertificates-Cpp.bundle")
+          .resolvingSymlinksInPath()
+        try? FileManager.default.removeItem(at: grpcCertsBundle)
+      }
+
+      // The macOS slice's `PrivateHeaders` directory may have a
+      // `PrivateHeaders` file in it that symbolically links to nowhere. Delete
+      // it here to avoid putting it in the zip or crashing the Carthage hash
+      // generation. Because this will throw an error for cases where the file
+      // does not exist, the error is ignored.
+      let privateHeadersDir = framework.appendingPathComponent("PrivateHeaders")
+      if !FileManager.default.directoryExists(at: privateHeadersDir.resolvingSymlinksInPath()) {
+        try? FileManager.default.removeItem(at: privateHeadersDir)
+      }
+
+      // The `Headers` and `PrivateHeaders` directories may contain a symlink
+      // of the same name. Delete it here to avoid putting it in the zip or
+      // crashing the Carthage hash generation.
+      for path in ["Headers", "PrivateHeaders"] {
+        let headersDir = framework.appendingPathComponent(path).resolvingSymlinksInPath()
+        try? FileManager.default.removeItem(at: headersDir.appendingPathComponent(path))
+      }
+    }
+    return frameworks
   }
 
   /// Try to build and package the contents of the Zip file. This will throw an error as soon as it
@@ -313,7 +361,7 @@ struct ZipBuilder {
   /// - Throws: One of many errors that could have happened during the build phase.
   func buildAndAssembleFirebaseRelease(templateDir: URL) throws -> ReleaseArtifacts {
     let manifest = FirebaseManifest.shared
-    var podsToInstall = manifest.pods.map {
+    var podsToInstall = manifest.pods.filter { $0.releasing }.map {
       CocoaPodUtils.VersionedPod(name: $0.name,
                                  version: manifest.versionString($0),
                                  platforms: $0.platforms)
@@ -321,11 +369,8 @@ struct ZipBuilder {
     guard !podsToInstall.isEmpty else {
       fatalError("Failed to find versions for Firebase release")
     }
-    // We don't release Google-Mobile-Ads-SDK and GoogleSignIn, but we include their latest
+    // We don't release GoogleSignIn, but we include its latest
     // version for convenience in the Zip and Carthage builds.
-    podsToInstall.append(CocoaPodUtils.VersionedPod(name: "Google-Mobile-Ads-SDK",
-                                                    version: nil,
-                                                    platforms: ["ios"]))
     podsToInstall.append(CocoaPodUtils.VersionedPod(name: "GoogleSignIn",
                                                     version: nil,
                                                     platforms: ["ios"]))
@@ -438,8 +483,7 @@ struct ZipBuilder {
 
     // Skip Analytics and the pods bundled with it.
     let remainingPods = installedPods.filter {
-      $0.key == "Google-Mobile-Ads-SDK" ||
-        $0.key == "GoogleSignIn" ||
+      $0.key == "GoogleSignIn" ||
         (firebaseZipPods.contains($0.key) &&
           $0.key != "FirebaseAnalytics" &&
           $0.key != "Firebase" &&

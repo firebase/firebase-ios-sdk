@@ -1,3 +1,94 @@
+# 12.15.0
+- [fix] Remove use of designated initializers for `forceIndex` [#16229].
+
+# 12.13.0
+- [feature] Added search stage support for `languageCode`, `offset`, `limit`, and `retrievalDepth`.
+- [feature] Added support for Pipeline expressions `arraySlice`, `arrayFilter`, `arrayTransform` and `arrayTransformWithIndex`. (#16001)
+- [feature] Added support for the `forceIndex` option on Pipeline `collection` and `collectionGroup` stages.
+- [fixed] Add missing `noexcept` specifiers to move, hash, swap operations [#16117].
+
+# 12.12.0
+- [feature] Added support for the `parent` Pipeline expression. (#16010)
+- [feature] Added support for `timestampTruncate`, `timestampDiff`, and `timestampExtract` Pipeline expressions. (#15984)
+- [feature] Added support for Firestore Pipeline Subqueries and scope bridging with `Subcollection`, `define()`, `toArrayExpression()`, `toScalarExpression()`, `Variable`, and `CurrentDocument` APIs.
+- [feature] Added support for Pipeline expressions `ltrim`, `rtrim`, `stringIndexOf`, `stringReplaceOne`, `stringReplaceAll`, and `stringRepeat`.
+- [feature] Add preview support for full-text search and geo search.
+- [feature] Added support for Pipeline expressions `nor` and `switchOn`. (#15943)
+- [feature] Added support for Pipeline expressions `ifNull` and `coalesce`. (#15989)
+- [feature] Added support for Pipeline expression `isType`.
+- [feature] Added support for Pipeline expressions `mapSet`, `mapKeys`, `mapEntries`, `mapValues`.
+
+# 12.11.0
+- [removed] **Breaking change:** Removed the `then(_:else:)` Beta API in `BooleanExpression` from the Pipeline Swift API. Use `ConditionalExpression` instead. (#15926)
+- [feature] Added support for `first`, `last`, `arrayAgg`, and `arrayAggDistinct` Pipeline expressions. (#15941)
+- [feature] Added support for `trunc` and `rand` Pipeline expressions. (#15938)
+- [changed] Minor refactor to avoid using an absl internal function. (#15889)
+- [feature] Added support for Pipeline expressions `arrayFirst`, `arrayFirstN`, `arrayLast`,
+  `arrayLastN`, `arrayMinimumN`, `arrayMaximumN`, `arrayIndexOf`, `arrayLastIndexOf` and `arrayIndexOfAll`. (#15900)
+
+# 12.10.0
+- [feature] Added support for `regexFind` and `regexFindAll` Pipeline expressions.
+
+# 12.8.0
+- [fixed] Fix crash while fetching Auth and App Check tokens. (#15281)
+- [feature] `Pipeline` support is now available for the `Enterprise edition` as a public preview feature. (#15625)
+- [fixed] Fixed an issue where the returned object in transaction blocks could not
+  pass across actor boundaries in Swift 6 (#15467).
+
+# 12.4.0
+- [fixed] Implemented an internal workaround to fix
+  [CVE-2025-0838](https://nvd.nist.gov/vuln/detail/CVE-2025-0838). (#15300)
+
+# 12.1.0
+- [fixed] Fixed accidental removal of `pod "Firebase/Firestore"` for tvOS in 12.0.0.
+
+# 11.12.0
+- [fixed] Fixed the `null` value handling in `isNotEqualTo` and `notIn` filters.
+
+# 11.11.0
+- [fixed] Fixed the customized priority queue compare function used cache index manager. (#14496)
+
+# 11.9.0
+- [fixed] Fixed memory leak in `Query.whereField()`. (#13978)
+
+# 11.8.0
+- [fixed] Fixed use-after-free bug when internally formatting strings. (#14306)
+- [changed] Update gRPC dependency to 1.69.
+
+# 11.6.0
+- [fixed] Add conditional `Sendable` conformance so `ServerTimestamp<T>` is
+  `Sendable` if `T` is `Sendable`. (#14042)
+
+# 11.4.0
+- [changed] Prepare Firestore cache to support session token.
+
+# 11.3.0
+- [changed] Improve efficiency of memory persistence when processing a large number of writes. (#13572)
+
+# 11.2.0
+- [fixed] Marked all public classes with only readonly properties as `Sendable` to address
+  Swift Concurrency Check warning. (#12666)
+
+# 11.1.0
+- [feature] Add `VectorValue` type support.
+
+# 11.0.0
+- [removed] **Breaking change**: The deprecated `FirebaseFirestoreSwift` module
+  has been removed. See
+  https://firebase.google.com/docs/ios/swift-migration for migration
+  instructions.
+- [changed] **Breaking change**: LRU Garbage Collector is now the default GC for memory cache, eager GC is now
+  opt-in (via MemoryCacheSettings(garbageCollectorSettings: MemoryEagerGCSettings())) instead of the default one.
+- [changed] Move `Timestamp` class into `FirebaseCore`. `FirebaseFirestore.Timestamp`
+  was changed to `FirebaseCore.Timestamp`. (#13221)
+- [changed] Update gRPC dependency to 1.65.
+
+# 10.25.0
+- [fixed] Allow blob of data with zero length. (#11773, #12620)
+- [changed] Passing a non-nil value to the `@DocumentID` property wrapper's
+  setter no longer logs a warning since it discouraged valid patterns,
+  e.g., updating the document ID after the document is created in Firestore. (#12756)
+
 # 10.24.0
 - [feature] Enable queries with range & inequality filters on multiple fields. (#12416)
 

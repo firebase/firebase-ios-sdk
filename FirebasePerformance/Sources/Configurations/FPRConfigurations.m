@@ -14,6 +14,8 @@
 
 #import <UIKit/UIKit.h>
 
+#import <GoogleUtilities/GULUserDefaults.h>
+
 #import "FirebasePerformance/Sources/Common/FPRConstants.h"
 #import "FirebasePerformance/Sources/Configurations/FPRConfigurations+Private.h"
 #import "FirebasePerformance/Sources/Configurations/FPRConfigurations.h"
@@ -31,6 +33,8 @@ NSString *const kFPRConfigInstrumentationUserPreference =
     @"com.firebase.performanceInsrumentationEnabled";
 NSString *const kFPRConfigInstrumentationPlistKey = @"firebase_performance_instrumentation_enabled";
 
+NSString *const kFPRConfigSwizzleDenylistPlistKey = @"firebase_performance_swizzle_denylist";
+
 NSString *const kFPRConfigCollectionUserPreference = @"com.firebase.performanceCollectionEnabled";
 NSString *const kFPRConfigCollectionPlistKey = @"firebase_performance_collection_enabled";
 
@@ -43,6 +47,8 @@ NSString *const kFPRConfigCollectionDeactivationPlistKey =
 NSString *const kFPRConfigLogSource = @"com.firebase.performanceLogSource";
 
 @implementation FPRConfigurations
+
+@synthesize swizzleClassDenylist = _swizzleClassDenylist;
 
 static dispatch_once_t gSharedInstanceToken;
 
@@ -58,9 +64,9 @@ static dispatch_once_t gSharedInstanceToken;
 + (void)reset {
   // TODO(b/120032990): Reset the singletons that this singleton uses.
   gSharedInstanceToken = 0;
-  [[NSUserDefaults standardUserDefaults]
+  [[GULUserDefaults standardUserDefaults]
       removeObjectForKey:kFPRConfigInstrumentationUserPreference];
-  [[NSUserDefaults standardUserDefaults] removeObjectForKey:kFPRConfigCollectionUserPreference];
+  [[GULUserDefaults standardUserDefaults] removeObjectForKey:kFPRConfigCollectionUserPreference];
 }
 
 - (instancetype)initWithSources:(FPRConfigurationSource)source {
@@ -73,7 +79,7 @@ static dispatch_once_t gSharedInstanceToken;
     [self registerForNotifications];
 
     self.FIRAppClass = [FIRApp class];
-    self.userDefaults = [NSUserDefaults standardUserDefaults];
+    self.userDefaults = [GULUserDefaults standardUserDefaults];
     self.infoDictionary = [NSBundle mainBundle].infoDictionary;
     self.mainBundleIdentifier = [NSBundle mainBundle].bundleIdentifier;
     self.updateQueue = dispatch_queue_create("com.google.perf.configUpdate", DISPATCH_QUEUE_SERIAL);
@@ -141,8 +147,8 @@ static dispatch_once_t gSharedInstanceToken;
 
 // The data collection flag is determined by this order:
 //   1. A plist flag for permanently disabling data collection
-//   2. The runtime flag (NSUserDefaults)
-//   3. A plist flag for enabling/disabling (overrideable)
+//   2. The runtime flag (GULUserDefaults)
+//   3. A plist flag for enabling/disabling (overridable)
 //   4. The global data collection switch from Core.
 - (BOOL)isDataCollectionEnabled {
   /**
@@ -165,7 +171,7 @@ static dispatch_once_t gSharedInstanceToken;
     }
   }
   /**
-   * Check if the performance collection preference key is available in NSUserDefaults.
+   * Check if the performance collection preference key is available in GULUserDefaults.
    * If it exists - Just honor that and return that value.
    * If it does not exist - Check if firebase_performance_collection_enabled exists in Info.plist.
    * If it exists - honor that and return that value.
@@ -196,7 +202,7 @@ static dispatch_once_t gSharedInstanceToken;
       [self.userDefaults objectForKey:kFPRConfigInstrumentationUserPreference];
 
   /**
-   * Check if the performance instrumentation preference key is available in NSUserDefaults.
+   * Check if the performance instrumentation preference key is available in GULUserDefaults.
    * If it exists - Just honor that and return that value.
    * If not - Check if firebase_performance_instrumentation_enabled exists in Info.plist.
    * If it exists - honor that and return that value.
@@ -213,6 +219,16 @@ static dispatch_once_t gSharedInstanceToken;
   }
 
   return instrumentationPreference;
+}
+
+- (NSArray<NSString *> *)swizzleClassDenylist {
+  NSArray<NSString *> *denylist = _swizzleClassDenylist;
+  if (denylist == nil) {
+    id plistObject = [self objectForInfoDictionaryKey:kFPRConfigSwizzleDenylistPlistKey];
+    denylist = [plistObject isKindOfClass:[NSArray class]] ? plistObject : @[];
+    _swizzleClassDenylist = denylist;
+  }
+  return denylist;
 }
 
 #pragma mark - Fireperf SDK configurations.
@@ -242,7 +258,7 @@ static dispatch_once_t gSharedInstanceToken;
   BOOL enabled = NO;
 
   /**
-   * Check if the diagnostics preference key is available in NSUserDefaults.
+   * Check if the diagnostics preference key is available in GULUserDefaults.
    * If it exists - Just honor that and return that value.
    * If not - Check if firebase_performance_instrumentation_enabled exists in Info.plist.
    * If it exists - honor that and return that value.
@@ -282,8 +298,8 @@ static dispatch_once_t gSharedInstanceToken;
    * Order of preference of returning the log source.
    * If it is an autopush build (based on environment variable), always return
    * LogRequest_LogSource_FireperfAutopush (461). If there is a recent value of remote config fetch,
-   * honor that value. If logSource cached value (NSUserDefaults value) exists, honor that. Fallback
-   * to the default value LogRequest_LogSource_Fireperf (462).
+   * honor that value. If logSource cached value (GULUserDefaults value) exists, honor that.
+   * Fallback to the default value LogRequest_LogSource_Fireperf (462).
    */
   int logSource = 462;
 

@@ -13,21 +13,13 @@
 // limitations under the License.
 
 import Foundation
-#if os(iOS) || os(tvOS)
+private import UniformTypeIdentifiers
+
+#if os(iOS) || os(tvOS) || os(visionOS)
   import MobileCoreServices
 #elseif os(macOS) || os(watchOS)
   import CoreServices
 #endif // os(iOS) || os(tvOS)
-
-// swift(>=5.9) implies Xcode 15+
-// Need to have this Swift version check to use os(visionOS) macro, VisionOS support.
-// TODO: Remove this check and add `os(visionOS)` to the `os(iOS) || os(tvOS)` conditional above
-// when Xcode 15 is the minimum supported by Firebase.
-#if swift(>=5.9)
-  #if os(visionOS)
-    import MobileCoreServices
-  #endif // os(visionOS)
-#endif // swift(>=5.9)
 
 class StorageUtils {
   class func defaultRequestForReference(reference: StorageReference,
@@ -38,7 +30,7 @@ class StorageUtils {
     components.host = reference.storage.host
     components.port = reference.storage.port
 
-    if let queryParams = queryParams {
+    if let queryParams {
       var queryItems = [URLQueryItem]()
       for (key, value) in queryParams {
         queryItems.append(URLQueryItem(name: key, value: value))
@@ -80,21 +72,28 @@ class StorageUtils {
     return string.addingPercentEncoding(withAllowedCharacters: allowedSet)!
   }
 
-  class func MIMETypeForExtension(_ fileExtension: String?) -> String {
-    guard let fileExtension = fileExtension else {
+  static func MIMETypeForExtension(_ fileExtension: String?) -> String {
+    guard let fileExtension else {
       return "application/octet-stream"
     }
-
-    if let type = UTTypeCreatePreferredIdentifierForTag(
-      kUTTagClassFilenameExtension,
-      fileExtension as NSString,
-      nil
-    )?.takeRetainedValue() {
-      if let mimeType = UTTypeCopyPreferredTagWithClass(type, kUTTagClassMIMEType)?
-        .takeRetainedValue() {
-        return mimeType as String
+    // TODO: Remove `else` when min. supported macOS is 11.0+.
+    if #available(macOS 11.0, iOS 14.0, tvOS 14.0, *) {
+      guard let mimeType = UTType(filenameExtension: fileExtension)?.preferredMIMEType else {
+        return "application/octet-stream"
       }
+      return mimeType
+    } else {
+      if let type = UTTypeCreatePreferredIdentifierForTag(
+        kUTTagClassFilenameExtension,
+        fileExtension as NSString,
+        nil
+      )?.takeRetainedValue() {
+        if let mimeType = UTTypeCopyPreferredTagWithClass(type, kUTTagClassMIMEType)?
+          .takeRetainedValue() {
+          return mimeType as String
+        }
+      }
+      return "application/octet-stream"
     }
-    return "application/octet-stream"
   }
 }

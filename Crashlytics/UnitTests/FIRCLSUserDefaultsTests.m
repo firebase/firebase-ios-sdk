@@ -72,8 +72,6 @@
   NSDictionary* testDict = [_userDefaults dictionaryRepresentation];
   NSLog(@"%@", testDict);
 
-  NSLog(@"foooo");
-
   XCTAssertEqualObjects(testDict, expectedTestDict, @"");
 }
 

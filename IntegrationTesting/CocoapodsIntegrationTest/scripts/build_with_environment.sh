@@ -20,23 +20,20 @@
 
 set -euo pipefail
 
-source scripts/buildcache.sh
 #
 function runXcodebuild() {
   parameters=(
     -workspace 'CocoapodsIntegrationTest.xcworkspace'
     -scheme 'CocoapodsIntegrationTest'
     -sdk 'iphonesimulator'
-    -destination 'platform=iOS Simulator,name=iPhone 14'
+    -destination 'platform=iOS Simulator,name=iPhone 16'
     CODE_SIGNING_REQUIRED=NO
     clean
     build
   )
 
-  parameters=("${buildcache_xcb_flags[@]}" "${parameters[@]}")
-
   echo xcodebuild "${parameters[@]}"
-  xcodebuild "${parameters[@]}" | xcpretty; result=$?
+  xcodebuild "${parameters[@]}" | xcbeautify --renderer github-actions; result=$?
 }
 
 # Configures bundler environment using Gemfile at the specified path.
@@ -92,17 +89,17 @@ fi
 
 # Convert path to absolute one in case the script is run from another directory.
 RESOLVED_GEMFILE="$(realpath ${GEMFILE})"
-RESLOVED_PODFILE="$(realpath ${PODFILE})"
+RESOLVED_PODFILE="$(realpath ${PODFILE})"
 
 echo "Gemfile  = ${RESOLVED_GEMFILE}"
-echo "Podfile     = ${RESLOVED_PODFILE}"
+echo "Podfile     = ${RESOLVED_PODFILE}"
 
 # Make sure we build from the project root dir.
 scriptDir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 pushd "${scriptDir}/.."
 
 prepareBundle "${RESOLVED_GEMFILE}"
-prepareCocoapods "${RESLOVED_PODFILE}"
+prepareCocoapods "${RESOLVED_PODFILE}"
 runXcodebuild
 
 # Recover original directory just in case

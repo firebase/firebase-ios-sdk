@@ -169,10 +169,6 @@
   [metadata size];
   [metadata timeCreated];
   [metadata updated];
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  [metadata storageReference];
-#pragma clang diagnostic pop
   FIRStorageMetadata __unused *ref2 = [metadata initWithDictionary:@{}];
   NSDictionary<NSString *, id> __unused *dict = [metadata dictionaryRepresentation];
   [metadata isFile];
@@ -207,7 +203,7 @@
   [task resume];
 }
 
-- (void)FIRStorageTaskSnaphotApis:(FIRStorageTaskSnapshot *)snapshot {
+- (void)FIRStorageTaskSnapshotApis:(FIRStorageTaskSnapshot *)snapshot {
   [snapshot task];
   [snapshot metadata];
   [snapshot reference];

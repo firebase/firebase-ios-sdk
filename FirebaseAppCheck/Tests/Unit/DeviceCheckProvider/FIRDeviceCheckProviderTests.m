@@ -17,7 +17,6 @@
 #import <XCTest/XCTest.h>
 
 #import <OCMock/OCMock.h>
-#import "FBLPromise+Testing.h"
 
 #import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckErrorUtil.h"
 #import "FirebaseAppCheck/Sources/Core/FIRAppCheckToken+Internal.h"
@@ -128,6 +127,44 @@ FIR_DEVICE_CHECK_PROVIDER_AVAILABILITY
       }];
 
   // 3. Verify mock DeviceCheck provider.
+  OCMVerifyAll(self.deviceCheckProviderMock);
+}
+
+#pragma mark - Limited-Use Token
+
+- (void)testGetLimitedUseTokenSuccess {
+  GACAppCheckToken *validInternalToken = [[GACAppCheckToken alloc] initWithToken:@"TEST_ValidToken"
+                                                                  expirationDate:[NSDate date]
+                                                                  receivedAtDate:[NSDate date]];
+  OCMExpect([self.deviceCheckProviderMock
+      getLimitedUseTokenWithCompletion:([OCMArg invokeBlockWithArgs:validInternalToken,
+                                                                    [NSNull null], nil])]);
+
+  [self.provider getLimitedUseTokenWithCompletion:^(FIRAppCheckToken *_Nullable token,
+                                                    NSError *_Nullable error) {
+    XCTAssertEqualObjects(token.token, validInternalToken.token);
+    XCTAssertEqualObjects(token.expirationDate, validInternalToken.expirationDate);
+    XCTAssertEqualObjects(token.receivedAtDate, validInternalToken.receivedAtDate);
+    XCTAssertNil(error);
+  }];
+
+  OCMVerifyAll(self.deviceCheckProviderMock);
+}
+
+- (void)testGetLimitedUseTokenProviderError {
+  NSError *expectedError = [NSError errorWithDomain:@"TEST_LimitedUseToken_Error"
+                                               code:-1
+                                           userInfo:nil];
+  OCMExpect([self.deviceCheckProviderMock
+      getLimitedUseTokenWithCompletion:([OCMArg invokeBlockWithArgs:[NSNull null], expectedError,
+                                                                    nil])]);
+
+  [self.provider getLimitedUseTokenWithCompletion:^(FIRAppCheckToken *_Nullable token,
+                                                    NSError *_Nullable error) {
+    XCTAssertNil(token);
+    XCTAssertIdentical(error, expectedError);
+  }];
+
   OCMVerifyAll(self.deviceCheckProviderMock);
 }
 

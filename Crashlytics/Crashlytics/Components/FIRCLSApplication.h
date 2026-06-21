@@ -44,7 +44,7 @@ NSString* FIRCLSApplicationGetSDKBundleID(void);
 /**
  * Returns the platform identifier, either: ios, mac, or tvos.
  * Catalyst apps are treated as mac.
- * This is a legacy function, for platform identificaiton please use
+ * This is a legacy function, for platform identification please use
  * FIRCLSApplicationGetFirebasePlatform.
  */
 NSString* FIRCLSApplicationGetPlatform(void);
@@ -82,10 +82,6 @@ UIApplication* FIRCLSApplicationSharedInstance(void);
 #else
 id FIRCLSApplicationSharedInstance(void);
 #endif
-
-void FIRCLSApplicationOpenURL(NSURL* url,
-                              NSExtensionContext* extensionContext,
-                              void (^completionBlock)(BOOL success));
 
 id<NSObject> FIRCLSApplicationBeginActivity(NSActivityOptions options, NSString* reason);
 void FIRCLSApplicationEndActivity(id<NSObject> activity);

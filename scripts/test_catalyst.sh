@@ -37,6 +37,9 @@ else
   scheme="$pod"
 fi
 
+# Define timestamp before args array
+timestamp=$(date +%s)
+
 bundle exec pod gen --local-sources=./ --sources=https://github.com/firebase/SpecsDev.git,https://github.com/firebase/SpecsStaging.git,https://cdn.cocoapods.org/ \
   "$pod".podspec --platforms=ios
 
@@ -50,18 +53,17 @@ args=(
   # Specify the app if all test should run. Otherwise, specify the test scheme.
   "-scheme" "$scheme"
   # Specify Catalyst.
-  "ARCHS=x86_64" "VALID_ARCHS=x86_64" "SUPPORTS_MACCATALYST=YES"
+  "SUPPORTS_MACCATALYST=YES"
   # Run on macOS.
   "-sdk" "macosx" "-destination platform=\"OS X\"" "TARGETED_DEVICE_FAMILY=2"
   # Disable signing.
   "CODE_SIGN_IDENTITY=-" "CODE_SIGNING_REQUIRED=NO" "CODE_SIGNING_ALLOWED=NO"
   # GHA is still running 10.15.
   "MACOSX_DEPLOYMENT_TARGET=10.15"
+  "-resultBundlePath" "xcresults/$scheme-${timestamp}.xcresult"
 )
-
-source scripts/buildcache.sh
-args=("${args[@]}" "${buildcache_xcb_flags[@]}")
 
 xcodebuild -version
 gem install xcpretty
-xcodebuild "${args[@]}" | xcpretty
+log_filename="xcodebuild-${build_mode}-${timestamp}.log"
+xcodebuild "${args[@]}" | tee "$log_filename" | xcpretty

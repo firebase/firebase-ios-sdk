@@ -176,7 +176,7 @@ TEST_F(IndexBackfillerTest, WritesLatestReadTimeToFieldIndexOnCompletion) {
   AddFieldIndex("coll2", "bar");
   AddDoc("coll1/docA", Version(10), "foo", 1);
   AddDoc("coll2/docA", Version(20), "bar", 1);
-  int documents_processed = local_store_.Backfill();
+  int documents_processed = static_cast<int>(local_store_.Backfill());
   ASSERT_EQ(2, documents_processed);
 
   auto field_index1 = index_manager_->GetFieldIndexes("coll1").at(0);
@@ -189,7 +189,7 @@ TEST_F(IndexBackfillerTest, WritesLatestReadTimeToFieldIndexOnCompletion) {
   AddDoc("coll2/docB", Version(60), "bar", 1);
   AddDoc("coll2/docC", Version(60, 10), "bar", 1);
 
-  documents_processed = local_store_.Backfill();
+  documents_processed = static_cast<int>(local_store_.Backfill());
   ASSERT_EQ(4, documents_processed);
 
   field_index1 = index_manager_->GetFieldIndexes("coll1").at(0);
@@ -205,7 +205,7 @@ TEST_F(IndexBackfillerTest, FetchesDocumentsAfterEarliestReadTime) {
 
   // Documents before read time should not be fetched.
   AddDoc("coll1/docA", Version(9), "foo", 1);
-  int documents_processed = local_store_.Backfill();
+  int documents_processed = static_cast<int>(local_store_.Backfill());
   ASSERT_EQ(0, documents_processed);
 
   // Read time should be the highest read time from the cache.
@@ -217,7 +217,7 @@ TEST_F(IndexBackfillerTest, FetchesDocumentsAfterEarliestReadTime) {
   // Documents that are after the earliest read time
   // but before field index read time are fetched.
   AddDoc("coll1/docB", Version(19), "boo", 1);
-  documents_processed = local_store_.Backfill();
+  documents_processed = static_cast<int>(local_store_.Backfill());
   ASSERT_EQ(1, documents_processed);
 
   // Field indexes should now hold the latest read time
@@ -233,7 +233,7 @@ TEST_F(IndexBackfillerTest, WritesIndexEntries) {
   AddDoc("coll2/docA", Version(10), "bar", 1);
   AddDoc("coll2/docB", Version(10), "car", 1);
 
-  int documents_processed = local_store_.Backfill();
+  int documents_processed = static_cast<int>(local_store_.Backfill());
   ASSERT_EQ(4, documents_processed);
 }
 
@@ -245,12 +245,12 @@ TEST_F(IndexBackfillerTest, WritesOldestDocumentFirst) {
   AddDoc("coll1/docB", Version(3), "foo", 1);
   AddDoc("coll1/docC", Version(10), "foo", 1);
 
-  int documents_processed = local_store_.Backfill();
+  int documents_processed = static_cast<int>(local_store_.Backfill());
   ASSERT_EQ(2, documents_processed);
 
   VerifyQueryResults("coll1", {"coll1/docA", "coll1/docB"});
 
-  documents_processed = local_store_.Backfill();
+  documents_processed = static_cast<int>(local_store_.Backfill());
   ASSERT_EQ(1, documents_processed);
 
   VerifyQueryResults("coll1", {"coll1/docA", "coll1/docB", "coll1/docC"});
@@ -264,12 +264,12 @@ TEST_F(IndexBackfillerTest, UsesDocumentKeyOffsetForLargeSnapshots) {
   AddDoc("coll1/docB", Version(1), "foo", 1);
   AddDoc("coll1/docC", Version(1), "foo", 1);
 
-  int documents_processed = local_store_.Backfill();
+  int documents_processed = static_cast<int>(local_store_.Backfill());
   ASSERT_EQ(2, documents_processed);
 
   VerifyQueryResults("coll1", {"coll1/docA", "coll1/docB"});
 
-  documents_processed = local_store_.Backfill();
+  documents_processed = static_cast<int>(local_store_.Backfill());
   ASSERT_EQ(1, documents_processed);
 
   VerifyQueryResults("coll1", {"coll1/docA", "coll1/docB", "coll1/docC"});
@@ -290,7 +290,7 @@ TEST_F(IndexBackfillerTest, UpdatesCollectionGroups) {
   ASSERT_TRUE(collection_group.has_value());
   ASSERT_EQ("coll1", collection_group.value());
 
-  int documents_processed = local_store_.Backfill();
+  int documents_processed = static_cast<int>(local_store_.Backfill());
   ASSERT_EQ(2, documents_processed);
 
   // Check that coll1 was backfilled and that coll2 is next
@@ -318,7 +318,7 @@ TEST_F(IndexBackfillerTest, PrioritizesNewCollectionGroups) {
   ASSERT_TRUE(collection_group.has_value());
   ASSERT_EQ("coll3", collection_group.value());
 
-  int documents_processed = local_store_.Backfill();
+  int documents_processed = static_cast<int>(local_store_.Backfill());
   ASSERT_EQ(1, documents_processed);
 
   VerifyQueryResults("coll3", {"coll3/doc"});
@@ -334,7 +334,7 @@ TEST_F(IndexBackfillerTest, WritesUntilCap) {
   AddDoc("coll2/docA", Version(30), "foo", 1);
   AddDoc("coll2/docA", Version(40), "foo", 1);
 
-  int documents_processed = local_store_.Backfill();
+  int documents_processed = static_cast<int>(local_store_.Backfill());
   ASSERT_EQ(3, documents_processed);
 
   VerifyQueryResults("coll1", {"coll1/docA", "coll1/docB"});
@@ -345,13 +345,13 @@ TEST_F(IndexBackfillerTest, UsesLatestReadTimeForEmptyCollections) {
   AddFieldIndex("coll", "foo", Version(1));
   AddDoc("readtime/doc", Version(1), "foo", 1);
 
-  int documents_processed = local_store_.Backfill();
+  int documents_processed = static_cast<int>(local_store_.Backfill());
   ASSERT_EQ(0, documents_processed);
 
   AddDoc("coll/ignored", Version(2), "foo", 1);
   AddDoc("coll/added", Version(3), "foo", 1);
 
-  documents_processed = local_store_.Backfill();
+  documents_processed = static_cast<int>(local_store_.Backfill());
   ASSERT_EQ(2, documents_processed);
 }
 
@@ -364,11 +364,11 @@ TEST_F(IndexBackfillerTest, HandlesLocalMutationsAfterRemoteDocs) {
   AddDoc("coll1/docC", Version(30), "foo", 1);
   AddSetMutationsToOverlay(1, {"coll1/docD"});
 
-  int documents_processed = local_store_.Backfill();
+  int documents_processed = static_cast<int>(local_store_.Backfill());
   ASSERT_EQ(2, documents_processed);
   VerifyQueryResults("coll1", {"coll1/docA", "coll1/docB"});
 
-  documents_processed = local_store_.Backfill();
+  documents_processed = static_cast<int>(local_store_.Backfill());
   ASSERT_EQ(2, documents_processed);
   VerifyQueryResults("coll1",
                      {"coll1/docA", "coll1/docB", "coll1/docC", "coll1/docD"});
@@ -383,13 +383,13 @@ TEST_F(IndexBackfillerTest,
   AddSetMutationsToOverlay(3, {"coll1/docC"});
   AddSetMutationsToOverlay(4, {"coll1/docD"});
 
-  int documents_processed = local_store_.Backfill();
+  int documents_processed = static_cast<int>(local_store_.Backfill());
   ASSERT_EQ(2, documents_processed);
   VerifyQueryResults("coll1", {"coll1/docA", "coll1/docB"});
   auto field_index = index_manager_->GetFieldIndexes("coll1").at(0);
   ASSERT_EQ(2, field_index.index_state().index_offset().largest_batch_id());
 
-  documents_processed = local_store_.Backfill();
+  documents_processed = static_cast<int>(local_store_.Backfill());
   ASSERT_EQ(2, documents_processed);
   VerifyQueryResults("coll1",
                      {"coll1/docA", "coll1/docB", "coll1/docC", "coll1/docD"});
@@ -404,7 +404,7 @@ TEST_F(IndexBackfillerTest, MutationFinishesMutationBatchEvenIfItExceedsLimit) {
   AddSetMutationsToOverlay(2, {"coll1/docB", "coll1/docC", "coll1/docD"});
   AddSetMutationsToOverlay(3, {"coll1/docE"});
 
-  int documents_processed = local_store_.Backfill();
+  int documents_processed = static_cast<int>(local_store_.Backfill());
   ASSERT_EQ(4, documents_processed);
   VerifyQueryResults("coll1",
                      {"coll1/docA", "coll1/docB", "coll1/docC", "coll1/docD"});
@@ -416,13 +416,13 @@ TEST_F(IndexBackfillerTest, MutationsFromHighWaterMark) {
   AddDoc("coll1/docA", Version(10), "foo", 1);
   AddSetMutationsToOverlay(3, {"coll1/docB"});
 
-  int documents_processed = local_store_.Backfill();
+  int documents_processed = static_cast<int>(local_store_.Backfill());
   ASSERT_EQ(2, documents_processed);
   VerifyQueryResults("coll1", {"coll1/docA", "coll1/docB"});
 
   AddSetMutationsToOverlay(1, {"coll1/docC"});
   AddSetMutationsToOverlay(2, {"coll1/docD"});
-  documents_processed = local_store_.Backfill();
+  documents_processed = static_cast<int>(local_store_.Backfill());
   ASSERT_EQ(0, documents_processed);
 }
 
@@ -432,7 +432,7 @@ TEST_F(IndexBackfillerTest, UpdatesExistingDocToNewValue) {
 
   AddDoc("coll/doc", Version(10), "foo", 1);
 
-  int documents_processed = local_store_.Backfill();
+  int documents_processed = static_cast<int>(local_store_.Backfill());
   ASSERT_EQ(1, documents_processed);
   VerifyQueryResults(query, {});
 
@@ -448,7 +448,7 @@ TEST_F(IndexBackfillerTest, UpdatesDocsThatNoLongerMatch) {
   AddFieldIndex("coll", "foo");
   AddDoc("coll/doc", Version(10), "foo", 1);
 
-  int documents_processed = local_store_.Backfill();
+  int documents_processed = static_cast<int>(local_store_.Backfill());
   ASSERT_EQ(1, documents_processed);
   VerifyQueryResults(query, {"coll/doc"});
 
@@ -456,7 +456,7 @@ TEST_F(IndexBackfillerTest, UpdatesDocsThatNoLongerMatch) {
   // index.
   AddDoc("coll/doc", Version(40), "foo", -1);
 
-  documents_processed = local_store_.Backfill();
+  documents_processed = static_cast<int>(local_store_.Backfill());
   ASSERT_EQ(1, documents_processed);
   VerifyQueryResults(query, {});
 }
@@ -466,7 +466,7 @@ TEST_F(IndexBackfillerTest, DoesNotProcessSameDocumentTwice) {
   AddDoc("coll/doc", Version(5), "foo", 1);
   AddSetMutationsToOverlay(1, {"coll/doc"});
 
-  int documents_processed = local_store_.Backfill();
+  int documents_processed = static_cast<int>(local_store_.Backfill());
   ASSERT_EQ(1, documents_processed);
 
   const auto field_index = index_manager_->GetFieldIndexes("coll").at(0);
@@ -478,13 +478,13 @@ TEST_F(IndexBackfillerTest, AppliesSetToRemoteDoc) {
   AddFieldIndex("coll", "foo");
   AddDoc("coll/doc", Version(5), "boo", 1);
 
-  int documents_processed = local_store_.Backfill();
+  int documents_processed = static_cast<int>(local_store_.Backfill());
   ASSERT_EQ(1, documents_processed);
 
   model::Mutation patch = PatchMutation("coll/doc", Map("foo", "bar"));
   AddMutationToOverlay("coll/doc", patch);
 
-  documents_processed = local_store_.Backfill();
+  documents_processed = static_cast<int>(local_store_.Backfill());
   ASSERT_EQ(1, documents_processed);
 
   VerifyQueryResults("coll", {"coll/doc"});
@@ -498,7 +498,7 @@ TEST_F(IndexBackfillerTest, AppliesPatchToRemoteDoc) {
   AddFieldIndex("coll", "b");
   AddDoc("coll/doc", Version(5), "a", 1);
 
-  int documents_processed = local_store_.Backfill();
+  int documents_processed = static_cast<int>(local_store_.Backfill());
   ASSERT_EQ(1, documents_processed);
 
   VerifyQueryResults(query_a, {"coll/doc"});
@@ -506,7 +506,7 @@ TEST_F(IndexBackfillerTest, AppliesPatchToRemoteDoc) {
 
   model::Mutation patch = PatchMutation("coll/doc", Map("b", 1));
   AddMutationToOverlay("coll/doc", patch);
-  documents_processed = local_store_.Backfill();
+  documents_processed = static_cast<int>(local_store_.Backfill());
   ASSERT_EQ(1, documents_processed);
 
   VerifyQueryResults(query_a, {"coll/doc"});
@@ -517,12 +517,12 @@ TEST_F(IndexBackfillerTest, AppliesDeleteToRemoteDoc) {
   AddFieldIndex("coll", "foo");
   AddDoc("coll/doc", Version(5), "foo", 1);
 
-  int documents_processed = local_store_.Backfill();
+  int documents_processed = static_cast<int>(local_store_.Backfill());
   ASSERT_EQ(1, documents_processed);
 
   const model::DeleteMutation delete_mutation = DeleteMutation("coll/doc");
   AddMutationToOverlay("coll/doc", delete_mutation);
-  documents_processed = local_store_.Backfill();
+  documents_processed = static_cast<int>(local_store_.Backfill());
   ASSERT_EQ(1, documents_processed);
 
   persistence_->Run("BackfillAppliesDeleteToRemoteDoc", [&] {
@@ -541,13 +541,13 @@ TEST_F(IndexBackfillerTest, ReindexesDocumentsWhenNewIndexIsAdded) {
   AddDoc("coll/doc1", Version(1), "a", 1);
   AddDoc("coll/doc2", Version(1), "b", 1);
 
-  int documents_processed = local_store_.Backfill();
+  int documents_processed = static_cast<int>(local_store_.Backfill());
   ASSERT_EQ(2, documents_processed);
   VerifyQueryResults(query_a, {"coll/doc1"});
   VerifyQueryResults(query_b, {});
 
   AddFieldIndex("coll", "b");
-  documents_processed = local_store_.Backfill();
+  documents_processed = static_cast<int>(local_store_.Backfill());
   ASSERT_EQ(2, documents_processed);
 
   VerifyQueryResults(query_a, {"coll/doc1"});

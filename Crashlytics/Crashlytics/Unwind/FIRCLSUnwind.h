@@ -39,15 +39,15 @@ typedef struct {
 } FIRCLSUnwindContext;
 
 // API
-bool FIRCLSUnwindInit(FIRCLSUnwindContext* context, FIRCLSThreadContext threadContext);
+bool FIRCLSUnwindInit(FIRCLSUnwindContext *context, FIRCLSThreadContext threadContext);
 
-bool FIRCLSUnwindNextFrame(FIRCLSUnwindContext* context);
-uintptr_t FIRCLSUnwindGetPC(FIRCLSUnwindContext* context);
-uintptr_t FIRCLSUnwindGetStackPointer(FIRCLSUnwindContext* context);
-uint32_t FIRCLSUnwindGetFrameRepeatCount(FIRCLSUnwindContext* context);
+bool FIRCLSUnwindNextFrame(FIRCLSUnwindContext *context);
+uintptr_t FIRCLSUnwindGetPC(FIRCLSUnwindContext *context);
+uintptr_t FIRCLSUnwindGetStackPointer(FIRCLSUnwindContext *context);
+uint32_t FIRCLSUnwindGetFrameRepeatCount(FIRCLSUnwindContext *context);
 
 // utility functions
 bool FIRCLSUnwindIsAddressExecutable(vm_address_t address);
 bool FIRCLSUnwindFirstExecutableAddress(vm_address_t start,
                                         vm_address_t end,
-                                        vm_address_t* foundAddress);
+                                        vm_address_t *foundAddress);

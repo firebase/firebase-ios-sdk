@@ -17,6 +17,7 @@
 #ifndef FIRESTORE_CORE_SRC_LOCAL_MEMORY_MUTATION_QUEUE_H_
 #define FIRESTORE_CORE_SRC_LOCAL_MEMORY_MUTATION_QUEUE_H_
 
+#include <deque>
 #include <set>
 #include <vector>
 
@@ -59,7 +60,7 @@ class MemoryMutationQueue : public MutationQueue {
   void RemoveMutationBatch(const model::MutationBatch& batch) override;
 
   std::vector<model::MutationBatch> AllMutationBatches() override {
-    return queue_;
+    return std::vector<model::MutationBatch>(queue_.begin(), queue_.end());
   }
 
   std::vector<model::MutationBatch> AllMutationBatchesAffectingDocumentKeys(
@@ -128,7 +129,7 @@ class MemoryMutationQueue : public MutationQueue {
    * Once the held write acknowledgements become visible they are removed from
    * the head of the queue along with any tombstones that follow.
    */
-  std::vector<model::MutationBatch> queue_;
+  std::deque<model::MutationBatch> queue_;
 
   /**
    * The next value to use when assigning sequential IDs to each mutation

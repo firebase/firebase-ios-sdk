@@ -28,7 +28,6 @@ public enum Constants {
     static let projectID = "abc-xyz-123"
     static let googleAppID = "1:123:ios:123abc"
     static let databaseURL = "https://abc-xyz-123.firebaseio.com"
-    static let deepLinkURLScheme = "comgoogledeeplinkurl"
     static let storageBucket = "project-id-123.storage.firebase.com"
     static let appGroupID: String? = nil
   }

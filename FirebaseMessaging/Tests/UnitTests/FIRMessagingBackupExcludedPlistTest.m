@@ -44,8 +44,8 @@ static NSString *const kTestPlistFileName = @"com.google.test.IIDBackupExcludedP
 - (void)setUp {
   [super setUp];
   [FIRMessaging createSubDirectory:kSubDirectoryName];
-  self.plist = [[FIRMessagingBackupExcludedPlist alloc] initWithFileName:kTestPlistFileName
-                                                            subDirectory:kSubDirectoryName];
+  self.plist = [[FIRMessagingBackupExcludedPlist alloc] initWithPlistFile:kTestPlistFileName
+                                                             subDirectory:kSubDirectoryName];
 }
 
 - (void)tearDown {
@@ -89,10 +89,10 @@ static NSString *const kTestPlistFileName = @"com.google.test.IIDBackupExcludedP
 #if TARGET_OS_TV
   NSArray *directoryPaths =
       NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
-#else
+#else   // TARGET_OS_TV
   NSArray *directoryPaths =
       NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
-#endif
+#endif  // TARGET_OS_TV
   NSString *dirPath = directoryPaths.lastObject;
   NSArray *components =
       @[ dirPath, kSubDirectoryName, [NSString stringWithFormat:@"%@.plist", kTestPlistFileName] ];

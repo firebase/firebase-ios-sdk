@@ -24,7 +24,7 @@ import XCTest
 final class FirebaseSessionsTestsBase_BaseBehaviors: FirebaseSessionsTestsBase {
   // MARK: - Test Settings & Sampling
 
-  func test_settingsDisabled_doesNotLogSessionEventButDoesFetchSettings() {
+  @MainActor func test_settingsDisabled_doesNotLogSessionEventButDoesFetchSettings() {
     runSessionsSDK(
       subscriberSDKs: [
         mockPerformanceSubscriber,
@@ -49,7 +49,7 @@ final class FirebaseSessionsTestsBase_BaseBehaviors: FirebaseSessionsTestsBase {
     )
   }
 
-  func test_sessionSampled_doesNotLogSessionEventButDoesFetchSettings() {
+  @MainActor func test_sessionSampled_doesNotLogSessionEventButDoesFetchSettings() {
     runSessionsSDK(
       subscriberSDKs: [
         mockPerformanceSubscriber,
@@ -87,7 +87,7 @@ final class FirebaseSessionsTestsBase_BaseBehaviors: FirebaseSessionsTestsBase {
     // We wanted to make sure that since we've introduced promises,
     // once the promise has been fulfilled, that .then'ing on the promise
     // in future initiations still results in a log
-    func test_multipleInitiations_logsSessionEventEachInitiation() {
+    @MainActor func test_multipleInitiations_logsSessionEventEachInitiation() {
       var loggedCount = 0
       var lastLoggedSessionID = ""
       let loggedTwiceExpectation = expectation(description: "Sessions SDK logged events twice")
@@ -128,9 +128,9 @@ final class FirebaseSessionsTestsBase_BaseBehaviors: FirebaseSessionsTestsBase {
             // then bring the app to the foreground to generate another session.
             //
             // This postLogEvent callback will be called again after this
-            self.postBackgroundedNotification()
+            postBackgroundedNotification()
             self.pausedClock.addTimeInterval(30 * 60 + 1)
-            self.postForegroundedNotification()
+            postForegroundedNotification()
 
           } else {
             loggedTwiceExpectation.fulfill()

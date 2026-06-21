@@ -18,6 +18,6 @@
 #define Firebase_FTestContants_h
 
 #define kFirebaseTestTimeout 7
-#define kFirebaseTestWaitUntilTimeout 5
+#define kFirebaseTestWaitUntilTimeout 10
 
 #endif

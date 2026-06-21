@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+#ifndef FIREBASECORE_FIRCOMPONENT_H
+#define FIREBASECORE_FIRCOMPONENT_H
+
 #import <Foundation/Foundation.h>
 
 @class FIRApp;
@@ -31,8 +34,6 @@ NS_SWIFT_NAME(ComponentLifecycleMaintainer)
 typedef _Nullable id (^FIRComponentCreationBlock)(FIRComponentContainer *container,
                                                   BOOL *isCacheable)
     NS_SWIFT_NAME(ComponentCreationBlock);
-
-@class FIRDependency;
 
 /// Describes the timing of instantiation. Note: new components should default to lazy unless there
 /// is a strong reason to be eager.
@@ -52,9 +53,6 @@ NS_SWIFT_NAME(Component)
 /// The timing of instantiation.
 @property(nonatomic, readonly) FIRInstantiationTiming instantiationTiming;
 
-/// An array of dependencies for the component.
-@property(nonatomic, copy, readonly) NSArray<FIRDependency *> *dependencies;
-
 /// A block to instantiate an instance of the component with the appropriate dependencies.
 @property(nonatomic, copy, readonly) FIRComponentCreationBlock creationBlock;
 
@@ -72,14 +70,12 @@ NS_SWIFT_NAME(init(_:creationBlock:));
 /// @param protocol - The protocol describing functionality provided by the component.
 /// @param instantiationTiming - When the component should be initialized. Use .lazy unless there's
 ///                              a good reason to be instantiated earlier.
-/// @param dependencies - Any dependencies the `implementingClass` has, optional or required.
 /// @param creationBlock - A block to instantiate the component with a container, and if
 /// @return A component that can be registered with the component container.
 + (instancetype)componentWithProtocol:(Protocol *)protocol
                   instantiationTiming:(FIRInstantiationTiming)instantiationTiming
-                         dependencies:(NSArray<FIRDependency *> *)dependencies
                         creationBlock:(FIRComponentCreationBlock)creationBlock
-NS_SWIFT_NAME(init(_:instantiationTiming:dependencies:creationBlock:));
+NS_SWIFT_NAME(init(_:instantiationTiming:creationBlock:));
 
 // clang-format on
 
@@ -89,3 +85,5 @@ NS_SWIFT_NAME(init(_:instantiationTiming:dependencies:creationBlock:));
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif  // FIREBASECORE_FIRCOMPONENT_H

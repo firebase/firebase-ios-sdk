@@ -15,7 +15,7 @@
  */
 
 #import <TargetConditionals.h>
-#if TARGET_OS_IOS || TARGET_OS_TV || (defined(TARGET_OS_VISION) && TARGET_OS_VISION)
+#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
 
 #import "FirebaseInAppMessaging/Sources/Private/Util/UIApplication+FIRForegroundWindowScene.h"
 
@@ -37,4 +37,8 @@
 
 @end
 
-#endif  // TARGET_OS_IOS || TARGET_OS_TV || (defined(TARGET_OS_VISION) && TARGET_OS_VISION)
+/// Stub used to force the linker to include the categories in this file.
+void FIRInclude_UIApplication_FIRForegroundWindowScene_Category(void) {
+}
+
+#endif  // TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION

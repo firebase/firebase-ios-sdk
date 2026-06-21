@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#import <GoogleUtilities/GULUserDefaults.h>
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
@@ -27,7 +28,7 @@
 @property(nonatomic) FIRIAMClearcutHttpRequestSender *mockRequestSender;
 @property(nonatomic) FIRIAMClearcutLogStorage *mockLogStorage;
 @property(nonatomic) FIRIAMClearcutStrategy *defaultStrategy;
-@property(nonatomic) NSUserDefaults *mockUserDefaults;
+@property(nonatomic) GULUserDefaults *mockUserDefaults;
 @property(nonatomic) NSString *cachePath;
 @end
 
@@ -65,7 +66,7 @@
                                                           failureBackoffTimeInMills:1000
                                                                       batchSendSize:10];
 
-  self.mockUserDefaults = OCMClassMock(NSUserDefaults.class);
+  self.mockUserDefaults = OCMClassMock(GULUserDefaults.class);
   self.cachePath = [self generatedCachePath];
   OCMStub([self.mockUserDefaults integerForKey:[OCMArg any]]).andReturn(0);
 }
@@ -376,7 +377,7 @@
   NSNumber *waitTime =
       [NSNumber numberWithLongLong:self.defaultStrategy.maximumWaitTimeInMills + 200];
 
-  // Notice that it's invoking completion with falure flag and a flag to re-push those logs
+  // Notice that it's invoking completion with failure flag and a flag to re-push those logs
   OCMStub(
       [self.mockRequestSender
           sendClearcutHttpRequestForLogs:[OCMArg any]

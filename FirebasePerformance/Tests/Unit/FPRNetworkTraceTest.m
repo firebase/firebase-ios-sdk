@@ -14,6 +14,8 @@
 
 #import <XCTest/XCTest.h>
 
+#import <GoogleUtilities/GULUserDefaults.h>
+
 #import "FirebasePerformance/Sources/AppActivity/FPRSessionManager.h"
 #import "FirebasePerformance/Sources/Common/FPRConstants.h"
 #import "FirebasePerformance/Sources/Configurations/FPRConfigurations+Private.h"
@@ -141,7 +143,7 @@
       [[FPRRemoteConfigFlags alloc] initWithRemoteConfig:(FIRRemoteConfig *)remoteConfig];
   configurations.remoteConfigFlags = configFlags;
 
-  NSUserDefaults *userDefaults = [[NSUserDefaults alloc] init];
+  GULUserDefaults *userDefaults = [[GULUserDefaults alloc] init];
   configFlags.userDefaults = userDefaults;
 
   NSString *configKey = [NSString stringWithFormat:@"%@.%@", kFPRConfigPrefix, @"fpr_enabled"];
@@ -191,7 +193,7 @@
   FPRNetworkTrace *trace = [[FPRNetworkTrace alloc] initWithURLRequest:sampleURLRequest];
   XCTAssertNotNil(trace);
 
-  // Expected lenght of the URL should be the domainLength, number of times path was appended which
+  // Expected length of the URL should be the domainLength, number of times path was appended which
   // does not make the length go beyond the max limit.
   NSInteger expectedLength = domainString.length + (numberOfAppends - 1) * appendString.length;
   XCTAssertEqual(trace.trimmedURLString.length, expectedLength);

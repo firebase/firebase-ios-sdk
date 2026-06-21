@@ -16,7 +16,7 @@
 #
 # Options for sessions.proto
 #
-# Important: Any strings or repeated fields should be speficied in this file as
+# Important: Any strings or repeated fields should be specified in this file as
 # type:FT_POINTER
 #
 # Eg: `# google_crashlytics.Report.sdk_version type:FT_POINTER`

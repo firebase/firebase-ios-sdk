@@ -71,13 +71,15 @@ class FirebaseSessionsTestsBase: XCTestCase {
   /// is a good place for Subscribers to call register on the Sessions SDK
   ///  - `postLogEvent` is called whenever an event is logged via the Sessions SDK. This is where
   /// most assertions will happen.
-  func runSessionsSDK(subscriberSDKs: [SessionsSubscriber],
-                      preSessionsInit: (MockSettingsProtocol) -> Void,
-                      postSessionsInit: () -> Void,
-                      postLogEvent: @escaping (Result<Void, FirebaseSessionsError>,
-                                               [SessionsSubscriber]) -> Void) {
+  @MainActor func runSessionsSDK(subscriberSDKs: [SessionsSubscriber],
+                                 preSessionsInit: (MockSettingsProtocol) -> Void,
+                                 postSessionsInit: () -> Void,
+                                 postLogEvent: @escaping @MainActor (Result<Void,
+                                   FirebaseSessionsError>,
+                                 [SessionsSubscriber])
+                                   -> Void) {
     // This class is static, so we need to clear global state
-    SessionsDependencies.dependencies.removeAll()
+    SessionsDependencies.removeAll()
 
     for subscriberSDK in subscriberSDKs {
       SessionsDependencies.addDependency(name: subscriberSDK.sessionsSubscriberName)
@@ -108,13 +110,16 @@ class FirebaseSessionsTestsBase: XCTestCase {
                         coordinator: mockCoordinator,
                         initiator: initiator,
                         appInfo: mockAppInfo,
-                        settings: mockSettings) { result in
+                        settings: mockSettings,
+                        // Execute the callback on a higher priority queue to avoid test flakes.
+                        loggedEventCallbackQueue: .global(qos: .userInteractive)) { result in
+      DispatchQueue.main.async {
+        // Provide the result for tests to test against
+        postLogEvent(result, subscriberSDKs)
 
-      // Provide the result for tests to test against
-      postLogEvent(result, subscriberSDKs)
-
-      // Fulfil the expectation so the test can continue
-      loggedEventExpectation.fulfill()
+        // Fulfil the expectation so the test can continue
+        loggedEventExpectation.fulfill()
+      }
     }
 
     // Execute test cases after Sessions is initialized. This is a good

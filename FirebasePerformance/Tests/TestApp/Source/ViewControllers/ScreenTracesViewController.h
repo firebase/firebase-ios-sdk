@@ -15,7 +15,7 @@
 #import <UIKit/UIKit.h>
 
 /** This is a split view controller subclass that sets up everything needed to display the catalog
- *  of all the screen trace test screens availble.
+ *  of all the screen trace test screens available.
  */
 @interface ScreenTracesViewController : UISplitViewController
 

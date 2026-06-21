@@ -45,11 +45,6 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
   /// Custom variables (aka App context digest). This is the pending custom variables request before
   /// fetching.
   NSMutableDictionary *_customVariables;
-  /// Cached internal metadata from internal metadata table. It contains customized information such
-  /// as HTTP connection timeout, HTTP read timeout, success/failure throttling rate and time
-  /// interval. Client has the default value of each parameters, they are only saved in
-  /// internalMetadata if they have been customize by developers.
-  NSMutableDictionary *_internalMetadata;
   /// Last fetch status.
   FIRRemoteConfigFetchStatus _lastFetchStatus;
   /// Last fetch Error.
@@ -66,8 +61,6 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
   NSString *_googleAppID;
   /// The user defaults manager scoped to this RC instance of FIRApp and namespace.
   RCNUserDefaultsManager *_userDefaultsManager;
-  /// The timestamp of last eTag update.
-  NSTimeInterval _lastETagUpdateTime;
 }
 @end
 
@@ -93,11 +86,6 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
     _successFetchTimes = [[NSMutableArray alloc] init];
     _failureFetchTimes = [[NSMutableArray alloc] init];
     _DBManager = manager;
-
-    _internalMetadata = [[_DBManager loadInternalMetadataTable] mutableCopy];
-    if (!_internalMetadata) {
-      _internalMetadata = [[NSMutableDictionary alloc] init];
-    }
     _userDefaultsManager = [[RCNUserDefaultsManager alloc] initWithAppName:appName
                                                                   bundleID:_bundleIdentifier
                                                                  namespace:_FIRNamespace];
@@ -184,32 +172,6 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
 }
 
 #pragma mark - update DB/cached
-
-// Update internal metadata content to cache and DB.
-- (void)updateInternalContentWithResponse:(NSDictionary *)response {
-  // Remove all the keys with current pakcage name.
-  [_DBManager deleteRecordWithBundleIdentifier:_bundleIdentifier
-                                     namespace:_FIRNamespace
-                                  isInternalDB:YES];
-
-  for (NSString *key in _internalMetadata.allKeys) {
-    if ([key hasPrefix:_bundleIdentifier]) {
-      [_internalMetadata removeObjectForKey:key];
-    }
-  }
-
-  for (NSString *entry in response) {
-    NSData *val = [response[entry] dataUsingEncoding:NSUTF8StringEncoding];
-    NSArray *values = @[ entry, val ];
-    _internalMetadata[entry] = response[entry];
-    [self updateInternalMetadataTableWithValues:values];
-  }
-}
-
-- (void)updateInternalMetadataTableWithValues:(NSArray *)values {
-  [_DBManager insertInternalMetadataTableWithValues:values completionHandler:nil];
-}
-
 /// If the last fetch was not successful, update the (exponential backoff) period that we wait until
 /// fetching again. Any subsequent fetch requests will be checked and allowed only if past this
 /// throttle end time.
@@ -272,6 +234,16 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
       setCurrentRealtimeThrottlingRetryIntervalSeconds:_realtimeExponentialBackoffRetryInterval];
 }
 
+/// Increase the real-time stream's backoff period from the current time plus the retry interval.
+/// Any subsequent Realtime requests will be checked and allowed only if past this throttle end
+/// time.
+- (void)updateRealtimeBackoffTimeWithInterval:(NSTimeInterval)realtimeRetryInterval {
+  _realtimeExponentialBackoffThrottleEndTime =
+      [[NSDate date] timeIntervalSince1970] + realtimeRetryInterval;
+
+  [_userDefaultsManager setRealtimeThrottleEndTime:_realtimeExponentialBackoffThrottleEndTime];
+}
+
 - (void)setRealtimeRetryCount:(int)realtimeRetryCount {
   _realtimeRetryCount = realtimeRetryCount;
   [_userDefaultsManager setRealtimeRetryCount:_realtimeRetryCount];
@@ -310,9 +282,7 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
 }
 
 - (void)updateMetadataTable {
-  [_DBManager deleteRecordWithBundleIdentifier:_bundleIdentifier
-                                     namespace:_FIRNamespace
-                                  isInternalDB:NO];
+  [_DBManager deleteRecordWithBundleIdentifier:_bundleIdentifier namespace:_FIRNamespace];
   NSError *error;
   // Objects to be serialized cannot be invalid.
   if (!_bundleIdentifier) {
@@ -444,6 +414,25 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
       }
     }
   }
+
+  NSDictionary<NSString *, NSString *> *customSignals = [self customSignals];
+  if (customSignals.count > 0) {
+    NSError *error;
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:customSignals
+                                                       options:0
+                                                         error:&error];
+    if (!error) {
+      ret = [ret
+          stringByAppendingString:[NSString
+                                      stringWithFormat:@", custom_signals:%@",
+                                                       [[NSString alloc]
+                                                           initWithData:jsonData
+                                                               encoding:NSUTF8StringEncoding]]];
+      // Log the keys of the custom signals sent during fetch.
+      FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000078",
+                  @"Keys of custom signals during fetch: %@", [customSignals allKeys]);
+    }
+  }
   ret = [ret stringByAppendingString:@"}"];
   return ret;
 }
@@ -470,10 +459,6 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
 
 - (NSDictionary *)customVariables {
   return [_customVariables copy];
-}
-
-- (NSDictionary *)internalMetadata {
-  return [_internalMetadata copy];
 }
 
 - (NSDictionary *)deviceContext {
@@ -515,6 +500,14 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
                              namespace:_FIRNamespace
                                 values:@[ @(lastSetDefaultsTimestamp) ]
                      completionHandler:nil];
+}
+
+- (NSDictionary<NSString *, NSString *> *)customSignals {
+  return [_userDefaultsManager customSignals];
+}
+
+- (void)setCustomSignals:(NSDictionary<NSString *, NSString *> *)customSignals {
+  [_userDefaultsManager setCustomSignals:customSignals];
 }
 
 #pragma mark Throttling

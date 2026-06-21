@@ -4,13 +4,22 @@ This directory contains the full Firebase Apple distribution, packaged as static
 xcframeworks that include support for the iOS, tvOS, macOS, watchOS and Catalyst
 platforms.
 
+# Tips for Integrating
+- It's recommended to remove your existing Firebase XCFramework
+installation before integrating a new version of XCFrameworks. This ensures
+that outdated files and directories from the existing installation do not
+break the code signature of the new installation.
+- If the integration is performed programmatically, ensure that the
+XCFrameworks are copied in a way that preserves symlinks (e.g. `cp -rP`,
+`rsync -a`).
+
 # Integration Instructions
 
 Each Firebase component requires several xcframeworks in order to function
 properly. Each section below lists the xcframeworks you'll need to include
 in your project in order to use that Firebase SDK in your application.
 
-Xcode 14.1 or newer is required.
+Xcode 26.2 or newer is required.
 
 To integrate a Firebase SDK with your app:
 
@@ -34,18 +43,13 @@ To integrate a Firebase SDK with your app:
    box that appears, make sure the target you want this framework to be added to
    has a checkmark next to it, and that you've selected "Copy items if needed."
 
-7. If using Xcode 15, embed each framework that was dragged in. Navigate to the
+7. Embed each framework that was dragged in. Navigate to the
    target's _General_ settings and find _Frameworks, Libraries, & Embedded
    Content_. For each framework dragged in from the `Firebase.zip`, select
    **Embed & Sign**. This step will enable privacy manifests to be picked up by
    Xcode's tooling.
 
-8. If the SDK has resources, go into the Resources folders, which will be in
-   the SDK folder. Drag all of those resources into the Project Navigator, just
-   like the frameworks, again making sure that the target you want to add these
-   resources to has a checkmark next to it, and that you've selected "Copy items
-   if needed".
-9. Add the `-ObjC` flag to **Other Linker Settings**:
+8. Add the `-ObjC` flag to **Other Linker Settings**:
 
    a. In your project settings, open the **Settings** panel for your target.
 
@@ -54,7 +58,7 @@ To integrate a Firebase SDK with your app:
 
    c. Double-click the setting, click the '+' button, and add `-ObjC`
 
-10. Add the `-lc++` flag to **Other Linker Settings**:
+9. Add the `-lc++` flag to **Other Linker Settings**:
 
    a. In your project settings, open the **Settings** panel for your target.
 
@@ -62,6 +66,19 @@ To integrate a Firebase SDK with your app:
      in the **Linking** section.
 
    c. Double-click the setting, click the '+' button, and add `-lc++`
+
+10. If you're using Firebase Analytics, disable
+    GoogleAdsOnDeviceConversion.xcframework for Mac Catalyst:
+
+    a. In your project settings, open the **Settings** panel for your target.
+
+    b. Go to the Build Phases tab and find the
+       **GoogleAdsOnDeviceConversion.xcframework** setting in the **Link Binary
+       With Libraries** section.
+
+    c. Click on the filter icon button in the
+       **GoogleAdsOnDeviceConversion.xcframework** row and deselect the Mac Catalyst
+       checkbox.
 
 11. Drag the `Firebase.h` header in this directory into your project. This will
    allow you to `#import "Firebase.h"` and start using any Firebase SDK that you

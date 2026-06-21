@@ -56,7 +56,7 @@ version="${version/ (*)/}"
 version="${version/.*/}"
 
 case "$version" in
-  18)
+  22)
     ;;
   google3-trunk)
     echo "Please use a publicly released clang-format; a recent LLVM release"
@@ -65,13 +65,12 @@ case "$version" in
     exit 1
     ;;
   *)
-    echo "Please upgrade to clang-format version 18."
+    echo "Please upgrade to clang-format version 22."
     echo "If it's installed via homebrew you can run:"
     echo "brew upgrade clang-format"
     exit 1
     ;;
 esac
-
 # Ensure that tools in `Mintfile` are installed locally to avoid permissions
 # problems that would otherwise arise from the default of installing in
 # /usr/local.
@@ -93,28 +92,10 @@ function join() {
 
 clang_options=(-style=file)
 
-# Rules to disable in swiftformat:
-swift_disable=(
-  # sortedImports is broken, sorting into the middle of the copyright notice.
-  sortedImports
-
-  # Too many of our swift files have simplistic examples. While technically
-  # it's correct to remove the unused argument labels, it makes our examples
-  # look wrong.
-  unusedArguments
-
-  # We prefer trailing braces.
-  wrapMultilineStatementBraces
-)
-
-swift_options=(
-  # Mimic Objective-C style.
-  --indent 2
-  --maxwidth 100
-  --wrapparameters afterfirst
-
-  --disable $(join , "${swift_disable[@]}")
-)
+# Swift formatting options for the repo should be configured in
+# https://github.com/firebase/firebase-ios-sdk/blob/main/.swiftformat.
+# These may be overridden with additional `.swiftformat` files in subdirectories.
+swift_options=()
 
 if [[ $# -gt 0 && "$1" == "test-only" ]]; then
   test_only=true
@@ -170,6 +151,10 @@ s%^./%%
 
 # Generated source
 \%/Firestore/core/src/util/config.h% d
+\%^GeneratedFirebaseAI/% d
+
+# Generated Code for Data Connect sample
+\%/Examples/FriendlyFlix/app/FriendlyFlixSDK/% d
 
 # Sources pulled in by travis bundler, with and without a leading slash
 \%^/?vendor/bundle/% d
@@ -196,14 +181,10 @@ s%^./%%
 needs_formatting=false
 for f in $files; do
   if [[ "${f: -6}" == '.swift' ]]; then
-    if [[ "$system" == 'Darwin' ]]; then
-      # Match output that says:
-      # 1/1 files would have been formatted.  (with --dryrun)
-      # 1/1 files formatted.                  (without --dryrun)
-      mint run swiftformat "${swift_options[@]}" "$f" 2>&1 | grep '^1/1 files' > /dev/null
-    else
-      false
-    fi
+    # Match output that says:
+    # 1/1 files would have been formatted.  (with --dryrun)
+    # 1/1 files formatted.                  (without --dryrun)
+    mint run swiftformat "${swift_options[@]}" "$f" 2>&1 | grep '^1/1 files' > /dev/null
   else
     "$clang_format_bin" "${clang_options[@]}" "$f" | grep "<replacement " > /dev/null
   fi

@@ -20,8 +20,6 @@
 
 #if defined(__APPLE__)
 #import <CoreFoundation/CoreFoundation.h>
-#elif defined(_STLPORT_VERSION)
-#include <ctime>
 #endif
 
 #include "Firestore/core/src/util/hard_assert.h"
@@ -76,29 +74,16 @@ Timestamp Timestamp::Now() {
   auto nanos = static_cast<int32_t>(fraction * kNanosPerSecond);
   return MakeNormalizedTimestamp(seconds, nanos);
 
-#elif !defined(_STLPORT_VERSION)
-  // Use the standard <chrono> library from C++11 if possible.
-  return FromTimePoint(std::chrono::system_clock::now());
 #else
-  // If <chrono> is unavailable, use clock_gettime from POSIX, which supports
-  // up to nanosecond resolution. Note that it's a non-standard function
-  // contained in <time.h>.
-  //
-  // Note: it's possible to check for availability of POSIX clock_gettime using
-  // macros (see "Availability" at https://linux.die.net/man/3/clock_gettime).
-  // However, the only platform where <chrono> isn't available is Android with
-  // STLPort standard library, where clock_gettime is known to be available.
-  timespec now;
-  clock_gettime(CLOCK_REALTIME, &now);
-  return MakeNormalizedTimestamp(now.tv_sec, now.tv_nsec);
-#endif  // !defined(_STLPORT_VERSION)
+  // Use the standard <chrono> library from C++11.
+  return FromTimePoint(std::chrono::system_clock::now());
+#endif  // defined(__APPLE__)
 }
 
 Timestamp Timestamp::FromTimeT(const time_t seconds_since_unix_epoch) {
   return {seconds_since_unix_epoch, 0};
 }
 
-#if !defined(_STLPORT_VERSION)
 Timestamp Timestamp::FromTimePoint(
     const std::chrono::time_point<std::chrono::system_clock> time_point) {
   namespace chr = std::chrono;
@@ -110,8 +95,6 @@ Timestamp Timestamp::FromTimePoint(
   result.ValidateBounds();
   return result;
 }
-
-#endif  // !defined(_STLPORT_VERSION)
 
 std::string Timestamp::ToString() const {
   return absl::StrCat("Timestamp(seconds=", seconds_,

@@ -14,7 +14,7 @@
 
 #import "FirebasePerformance/Sources/Instrumentation/FPRInstrument.h"
 
-#import <GoogleUtilities/GULSwizzledObject.h>
+#import "FirebasePerformance/Sources/ISASwizzler/FPRSwizzledObject.h"
 
 @class FPRSelectorInstrumentor;
 
@@ -32,6 +32,15 @@ NS_ASSUME_NONNULL_BEGIN
  *  @param object The instance to instrument.
  */
 - (void)registerObject:(id)object;
+
+@optional
+
+/** Registers an NSProxy instance that wraps a delegate object to be instrumented.
+ *
+ *  @param proxy The NSProxy instance to instrument. This proxy should wrap another delegate object
+ *               that will receive the forwarded method calls.
+ */
+- (void)registerProxy:(id)proxy;
 
 @end
 

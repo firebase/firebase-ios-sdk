@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-// Targetted compilation is ONLY for testing. UIKit is weak-linked in actual
+// Targeted compilation is ONLY for testing. UIKit is weak-linked in actual
 // release build.
 
 #import <Foundation/Foundation.h>
@@ -113,18 +113,16 @@ static NSString *const kGoogleAppIDHeader = @"X-Firebase-GMPID";
             [session webSocketTaskWithRequest:req];
         self.webSocketTask = task;
 
-        if (@available(watchOS 7.0, *)) {
-            [[NSNotificationCenter defaultCenter]
-                addObserverForName:WKApplicationWillResignActiveNotification
-                            object:nil
-                             queue:opQueue
-                        usingBlock:^(NSNotification *_Nonnull note) {
-                          FFLog(@"I-RDB083015",
-                                @"Received watchOS background notification, "
-                                @"closing web socket.");
-                          [self onClosed];
-                        }];
-        }
+        [[NSNotificationCenter defaultCenter]
+            addObserverForName:WKApplicationWillResignActiveNotification
+                        object:nil
+                         queue:opQueue
+                    usingBlock:^(NSNotification *_Nonnull note) {
+                      FFLog(@"I-RDB083015",
+                            @"Received watchOS background notification, "
+                            @"closing web socket.");
+                      [self onClosed];
+                    }];
 #else
         // TODO(mmaksym): Remove googleAppID and userAgent from FSRWebSocket as
         // they are passed via NSURLRequest.
@@ -144,10 +142,9 @@ static NSString *const kGoogleAppIDHeader = @"X-Firebase-GMPID";
     NSString *deviceName;
     BOOL hasUiDeviceClass = NO;
 
-// Targetted compilation is ONLY for testing. UIKit is weak-linked in actual
+// Targeted compilation is ONLY for testing. UIKit is weak-linked in actual
 // release build.
-#if TARGET_OS_IOS || TARGET_OS_TV ||                                           \
-    (defined(TARGET_OS_VISION) && TARGET_OS_VISION)
+#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
     Class uiDeviceClass = NSClassFromString(@"UIDevice");
     if (uiDeviceClass) {
         systemVersion = [uiDeviceClass currentDevice].systemVersion;

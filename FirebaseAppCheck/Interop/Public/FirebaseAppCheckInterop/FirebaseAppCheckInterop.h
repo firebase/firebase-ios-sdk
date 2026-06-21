@@ -15,5 +15,4 @@
  */
 
 #import "FIRAppCheckInterop.h"
-#import "FIRAppCheckProtocol.h"
 #import "FIRAppCheckTokenResultInterop.h"

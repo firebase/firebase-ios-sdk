@@ -17,7 +17,7 @@ import Foundation
 
 @testable import FirebaseSessions
 
-class MockSettingsDownloader: SettingsDownloadClient {
+class MockSettingsDownloader: SettingsDownloadClient, @unchecked Sendable {
   public var shouldSucceed: Bool = true
   public var successResponse: [String: Any]
 

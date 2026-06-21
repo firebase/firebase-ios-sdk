@@ -140,7 +140,8 @@ std::string FromBytes(pb_bytes_array_t*&& ptr) {
 }
 
 TargetData CreateTargetData(core::Query query) {
-  return TargetData(query.ToTarget(), 1, 0, QueryPurpose::Listen);
+  return TargetData(core::TargetOrPipeline(query.ToTarget()), 1, 0,
+                    QueryPurpose::Listen);
 }
 
 TargetData CreateTargetData(absl::string_view str) {
@@ -526,7 +527,7 @@ class SerializerTest : public ::testing::Test {
           std::mem_fn(&Serializer::DecodeQueryTarget), proto.query());
     }
 
-    EXPECT_EQ(model.target(), actual_model);
+    EXPECT_EQ(model.target_or_pipeline(), core::TargetOrPipeline(actual_model));
   }
 
   void ExpectSerializationRoundTrip(const Mutation& model,
@@ -821,6 +822,24 @@ TEST_F(SerializerTest, EncodesNestedObjects) {
   ExpectRoundTrip(model, proto, TypeOrder::kMap);
 }
 
+TEST_F(SerializerTest, EncodesVectorValue) {
+  Message<google_firestore_v1_Value> model =
+      Map("__type__", "__vector__", "value", Array(1.0, 2.0, 3.0));
+
+  v1::Value array_proto;
+  *array_proto.mutable_array_value()->add_values() = ValueProto(1.0);
+  *array_proto.mutable_array_value()->add_values() = ValueProto(2.0);
+  *array_proto.mutable_array_value()->add_values() = ValueProto(3.0);
+
+  v1::Value proto;
+  google::protobuf::Map<std::string, v1::Value>* fields =
+      proto.mutable_map_value()->mutable_fields();
+  (*fields)["__type__"] = ValueProto("__vector__");
+  (*fields)["value"] = array_proto;
+
+  ExpectRoundTrip(model, proto, TypeOrder::kVector);
+}
+
 TEST_F(SerializerTest, EncodesFieldValuesWithRepeatedEntries) {
   // Technically, serialized Value protos can contain multiple values. (The last
   // one "wins".) However, well-behaved proto emitters (such as libprotobuf)
@@ -1060,13 +1079,13 @@ TEST_F(SerializerTest, EncodesEmptyDocument) {
 TEST_F(SerializerTest, EncodesNonEmptyDocument) {
   DocumentKey key = DocumentKey::FromPathString("path/to/the/doc");
   ObjectValue fields{
-      Map("foo", "bar", "two", 2, "nested", Map("fourty-two", 42))};
+      Map("foo", "bar", "two", 2, "nested", Map("forty-two", 42))};
   SnapshotVersion update_time = SnapshotVersion{{1234, 5678}};
 
   v1::Value inner_proto;
   google::protobuf::Map<std::string, v1::Value>& inner_fields =
       *inner_proto.mutable_map_value()->mutable_fields();
-  inner_fields["fourty-two"] = ValueProto(int64_t{42});
+  inner_fields["forty-two"] = ValueProto(int64_t{42});
 
   v1::BatchGetDocumentsResponse proto;
   v1::Document* doc_proto = proto.mutable_found();
@@ -1524,9 +1543,10 @@ TEST_F(SerializerTest, EncodesLimits) {
 
 TEST_F(SerializerTest, EncodesResumeTokens) {
   core::Query q = Query("docs");
-  TargetData model(q.ToTarget(), 1, 0, QueryPurpose::Listen,
-                   SnapshotVersion::None(), SnapshotVersion::None(),
-                   Bytes({1, 2, 3}), /*expected_count=*/absl::nullopt);
+  TargetData model(core::TargetOrPipeline(q.ToTarget()), 1, 0,
+                   QueryPurpose::Listen, SnapshotVersion::None(),
+                   SnapshotVersion::None(), Bytes({1, 2, 3}),
+                   /*expected_count=*/absl::nullopt);
 
   v1::Target proto;
   proto.mutable_query()->set_parent(ResourceName(""));
@@ -1551,9 +1571,10 @@ TEST_F(SerializerTest, EncodesResumeTokens) {
 
 TEST_F(SerializerTest, EncodesExpectedCount) {
   core::Query q = Query("docs");
-  TargetData model(q.ToTarget(), 1, 0, QueryPurpose::Listen,
-                   SnapshotVersion::None(), SnapshotVersion::None(),
-                   Bytes({1, 2, 3}), /*expected_count=*/1234);
+  TargetData model(core::TargetOrPipeline(q.ToTarget()), 1, 0,
+                   QueryPurpose::Listen, SnapshotVersion::None(),
+                   SnapshotVersion::None(), Bytes({1, 2, 3}),
+                   /*expected_count=*/1234);
 
   v1::Target proto;
   proto.mutable_query()->set_parent(ResourceName(""));
@@ -1583,9 +1604,10 @@ TEST_F(SerializerTest, EncodesExpectedCount) {
 
 TEST_F(SerializerTest, EncodeExpectedCountSkippedWithoutResumeToken) {
   core::Query q = Query("docs");
-  TargetData model(q.ToTarget(), 1, 0, QueryPurpose::Listen,
-                   SnapshotVersion::None(), SnapshotVersion::None(),
-                   ByteString(), /*expected_count=*/1234);
+  TargetData model(core::TargetOrPipeline(q.ToTarget()), 1, 0,
+                   QueryPurpose::Listen, SnapshotVersion::None(),
+                   SnapshotVersion::None(), ByteString(),
+                   /*expected_count=*/1234);
 
   v1::Target proto;
   proto.mutable_query()->set_parent(ResourceName(""));
@@ -1619,7 +1641,7 @@ TEST_F(SerializerTest, EncodesListenRequestLabels) {
       };
 
   for (const auto& p : purpose_to_label) {
-    TargetData model(q.ToTarget(), 1, 0, p.first);
+    TargetData model(core::TargetOrPipeline(q.ToTarget()), 1, 0, p.first);
 
     auto result = serializer.EncodeListenRequestLabels(model);
     std::unordered_map<std::string, std::string> result_in_map;

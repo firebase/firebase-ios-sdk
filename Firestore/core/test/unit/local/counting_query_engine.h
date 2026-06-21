@@ -197,13 +197,13 @@ class WrappedRemoteDocumentCache : public RemoteDocumentCache {
                                    size_t limit) const override;
 
   model::MutableDocumentMap GetDocumentsMatchingQuery(
-      const core::Query& query,
+      const core::QueryOrPipeline& query,
       const model::IndexOffset& offset,
       absl::optional<size_t>,
       const model::OverlayByDocumentKeyMap& mutated_docs) const override;
 
   model::MutableDocumentMap GetDocumentsMatchingQuery(
-      const core::Query& query,
+      const core::QueryOrPipeline& query,
       const model::IndexOffset& offset,
       absl::optional<QueryContext>& context,
       absl::optional<size_t> limit,

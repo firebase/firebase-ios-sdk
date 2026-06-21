@@ -19,7 +19,8 @@ import Foundation
 import XCTest
 
 class GetDocumentsTests: XCTestCase {
-  class MockQuery: QueryFake {
+  let expectationTimeout: TimeInterval = 2
+  class MockQuery: QueryFake, @unchecked Sendable {
     var mockGetDocuments: () throws -> QuerySnapshot = {
       fatalError("You need to implement \(#function) in your mock.")
     }

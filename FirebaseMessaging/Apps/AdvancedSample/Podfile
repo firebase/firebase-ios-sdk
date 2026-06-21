@@ -12,24 +12,24 @@ def shared_pods
 end
 
 target 'AdvancedSample' do
-  platform :ios, '13.0'
+  platform :ios, '15.0'
   pod 'FirebaseAnalytics'
   shared_pods
 end
 
 target 'NotificationServiceExtension' do
-  platform :ios, '13.0'
+  platform :ios, '15.0'
   shared_pods
 end
 
 target 'AppClips' do
-  platform :ios, '13.0'
+  platform :ios, '15.0'
   pod 'FirebaseAnalytics'
   shared_pods
 end
 
 target 'SampleWatchWatchKitExtension' do
-  platform :watchos, '6.0'
+  platform :watchos, '7.0'
   shared_pods
 end
 

@@ -76,7 +76,7 @@
 - (void)autoFetch:(NSInteger)remainingAttempts targetVersion:(NSInteger)targetVersion;
 - (void)beginRealtimeStream;
 - (void)pauseRealtimeStream;
-- (NSData *)createRequestBody;
+- (void)createRequestBodyWithCompletion:(void (^)(NSData *_Nonnull requestBody))completion;
 
 - (FIRConfigUpdateListenerRegistration *_Nonnull)addConfigUpdateListener:
     (RCNConfigUpdateCompletion _Nonnull)listener;
@@ -311,7 +311,6 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
   _userDefaultsMock = nil;
   for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
     [(id)_configInstances[i] stopMocking];
-    [(id)_configFetch[i] stopMocking];
   }
   [_configInstances removeAllObjects];
   [_configFetch removeAllObjects];
@@ -1785,9 +1784,46 @@ static NSString *UTCToLocal(NSString *utcTime) {
   }
 }
 
+- (void)testRealtimeUpdatesBackoffMetadataWhenRetryIntervalIsProvided {
+  NSMutableArray<XCTestExpectation *> *expectations =
+      [[NSMutableArray alloc] initWithCapacity:RCNTestRCNumTotalInstances];
+  for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
+    expectations[i] =
+        [self expectationWithDescription:
+                  [NSString stringWithFormat:@"Test backoff metadata updates with a provided retry "
+                                             @"interval in the stream response - instance %d",
+                                             i]];
+    NSTimeInterval realtimeRetryInterval = 240;
+    NSMutableDictionary *dictionary = [[NSMutableDictionary alloc] init];
+    [dictionary setValue:@"1" forKey:@"latestTemplateVersionNumber"];
+    [dictionary setValue:@(realtimeRetryInterval) forKey:@"retryIntervalSeconds"];
+
+    NSTimeInterval expectedThrottleEndTime =
+        [[NSDate date] timeIntervalSince1970] + realtimeRetryInterval;
+
+    [_configRealtime[i] evaluateStreamResponse:dictionary error:nil];
+    dispatch_after(
+        dispatch_time(DISPATCH_TIME_NOW, (int64_t)(_checkCompletionTimeout * NSEC_PER_SEC)),
+        dispatch_get_main_queue(), ^{
+          NSTimeInterval retrievedThrottleEndTime =
+              self->_configInstances[i].settings.realtimeExponentialBackoffThrottleEndTime;
+          XCTAssertEqualWithAccuracy(retrievedThrottleEndTime, expectedThrottleEndTime, 1.0);
+          [expectations[i] fulfill];
+        });
+
+    [self waitForExpectationsWithTimeout:_expectationTimeout handler:nil];
+  }
+}
+
 - (void)testRealtimeStreamRequestBody {
+  XCTestExpectation *requestBodyExpectation = [self expectationWithDescription:@"requestBody"];
+  __block NSData *requestBody;
+  [_configRealtime[0] createRequestBodyWithCompletion:^(NSData *_Nonnull data) {
+    requestBody = data;
+    [requestBodyExpectation fulfill];
+  }];
+  [self waitForExpectations:@[ requestBodyExpectation ] timeout:5.0];
   NSError *error;
-  NSData *requestBody = [_configRealtime[0] createRequestBody];
   NSData *uncompressedRequest = [NSData gul_dataByInflatingGzippedData:requestBody error:&error];
   NSString *strData = [[NSString alloc] initWithData:uncompressedRequest
                                             encoding:NSUTF8StringEncoding];
@@ -1826,6 +1862,145 @@ static NSString *UTCToLocal(NSString *utcTime) {
   [_configInstances[RCNTestRCInstanceDefault]
       fetchAndActivateWithCompletionHandler:fetchAndActivateCompletion];
   [self waitForExpectations:@[ notificationExpectation ] timeout:_expectationTimeout];
+}
+
+- (void)testURLSessionDelegateHandlesChunkedJSON {
+  NSString *testString = @"} {\"testKey\":\"testValue\"}";
+  NSData *testData = [testString dataUsingEncoding:NSUTF8StringEncoding];
+
+  NSMutableArray<XCTestExpectation *> *expectations =
+      [[NSMutableArray alloc] initWithCapacity:RCNTestRCNumTotalInstances];
+  for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
+    expectations[i] = [self
+        expectationWithDescription:
+            [NSString
+                stringWithFormat:@"Test delegate method handling chunked JSON - instance %d", i]];
+
+    NSURLSession *networkSession = [_configFetch[i] currentNetworkSession];
+    NSURLSessionDataTask *dataTask = [_configFetch[i] URLSessionDataTaskWithContent:[OCMArg any]
+                                                                    fetchTypeHeader:[OCMArg any]
+                                                                  completionHandler:nil];
+
+    XCTAssertNoThrow([_configRealtime[i] URLSession:networkSession
+                                           dataTask:dataTask
+                                     didReceiveData:testData]);
+    [expectations[i] fulfill];
+  }
+  [self waitForExpectationsWithTimeout:_expectationTimeout handler:nil];
+}
+
+- (void)testSetCustomSignals {
+  NSMutableArray<XCTestExpectation *> *expectations =
+      [[NSMutableArray alloc] initWithCapacity:RCNTestRCNumTotalInstances];
+
+  for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
+    expectations[i] = [self
+        expectationWithDescription:[NSString
+                                       stringWithFormat:@"Set custom signals - instance %d", i]];
+
+    NSDictionary<NSString *, NSObject *> *testSignals = @{
+      @"signal1" : @"stringValue",
+      @"signal2" : @"stringValue2",
+    };
+
+    [_configInstances[i] setCustomSignals:testSignals
+                           withCompletion:^(NSError *_Nullable error) {
+                             XCTAssertNil(error);
+                             NSDictionary<NSString *, NSString *> *retrievedSignals =
+                                 self->_configInstances[i].settings.customSignals;
+                             XCTAssertEqualObjects(retrievedSignals, testSignals);
+                             [expectations[i] fulfill];
+                           }];
+  }
+  [self waitForExpectationsWithTimeout:_expectationTimeout handler:nil];
+}
+
+- (void)testSetCustomSignalsMultipleTimes {
+  NSMutableArray<XCTestExpectation *> *expectations =
+      [[NSMutableArray alloc] initWithCapacity:RCNTestRCNumTotalInstances];
+
+  for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
+    expectations[i] = [self
+        expectationWithDescription:
+            [NSString stringWithFormat:@"Set custom signals multiple times - instance %d", i]];
+
+    // First set of signals
+    NSDictionary<NSString *, NSObject *> *testSignals1 = @{
+      @"signal1" : @"stringValue1",
+      @"signal2" : @"stringValue2",
+    };
+
+    // Second set of signals (overwrites, remove and adds new)
+    NSDictionary<NSString *, NSObject *> *testSignals2 = @{
+      @"signal1" : @"updatedValue1",
+      @"signal2" : [NSNull null],
+      @"signal3" : @5,
+    };
+
+    // Expected final set of signals
+    NSDictionary<NSString *, NSString *> *expectedSignals = @{
+      @"signal1" : @"updatedValue1",
+      @"signal3" : @"5",
+    };
+
+    [_configInstances[i] setCustomSignals:testSignals1
+                           withCompletion:^(NSError *_Nullable error) {
+                             XCTAssertNil(error);
+                             [self->_configInstances[i]
+                                 setCustomSignals:testSignals2
+                                   withCompletion:^(NSError *_Nullable error) {
+                                     XCTAssertNil(error);
+                                     NSDictionary<NSString *, NSString *> *retrievedSignals =
+                                         self->_configInstances[i].settings.customSignals;
+                                     XCTAssertEqualObjects(retrievedSignals, expectedSignals);
+                                     [expectations[i] fulfill];
+                                   }];
+                           }];
+  }
+  [self waitForExpectationsWithTimeout:_expectationTimeout handler:nil];
+}
+
+- (void)testSetCustomSignals_invalidInput_throwsException {
+  NSMutableArray<XCTestExpectation *> *expectations =
+      [[NSMutableArray alloc] initWithCapacity:RCNTestRCNumTotalInstances];
+
+  for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
+    expectations[i] =
+        [self expectationWithDescription:
+                  [NSString stringWithFormat:@"Set custom signals expects error - instance %d", i]];
+
+    // Invalid value type.
+    NSDictionary<NSString *, NSObject *> *invalidSignals1 = @{@"name" : [NSDate date]};
+
+    // Key length exceeds limit.
+    NSDictionary<NSString *, NSObject *> *invalidSignals2 =
+        @{[@"a" stringByPaddingToLength:251 withString:@"a" startingAtIndex:0] : @"value"};
+
+    // Value length exceeds limit.
+    NSDictionary<NSString *, NSObject *> *invalidSignals3 =
+        @{@"key" : [@"a" stringByPaddingToLength:501 withString:@"a" startingAtIndex:0]};
+
+    [_configInstances[i]
+        setCustomSignals:invalidSignals1
+          withCompletion:^(NSError *_Nullable error) {
+            XCTAssertNotNil(error);
+            XCTAssertEqual(error.code, FIRRemoteConfigCustomSignalsErrorInvalidValueType);
+          }];
+    [_configInstances[i]
+        setCustomSignals:invalidSignals2
+          withCompletion:^(NSError *_Nullable error) {
+            XCTAssertNotNil(error);
+            XCTAssertEqual(error.code, FIRRemoteConfigCustomSignalsErrorLimitExceeded);
+          }];
+    [_configInstances[i]
+        setCustomSignals:invalidSignals3
+          withCompletion:^(NSError *_Nullable error) {
+            XCTAssertNotNil(error);
+            XCTAssertEqual(error.code, FIRRemoteConfigCustomSignalsErrorLimitExceeded);
+            [expectations[i] fulfill];
+          }];
+  }
+  [self waitForExpectationsWithTimeout:_expectationTimeout handler:nil];
 }
 
 #pragma mark - Test Helpers

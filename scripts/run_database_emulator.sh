@@ -16,11 +16,11 @@
 
 # USAGE: run_database_emulator.sh { run | start | stop }
 #
-# Downloads and runs the Firebase Realtime Databas emulator
+# Downloads and runs the Firebase Realtime Database emulator
 
 set -euo pipefail
 
-VERSION='4.7.2'
+VERSION='4.12.0'
 FILENAME="firebase-database-emulator-v${VERSION}.jar"
 URL="https://storage.googleapis.com/firebase-preview-drop/emulator/${FILENAME}"
 

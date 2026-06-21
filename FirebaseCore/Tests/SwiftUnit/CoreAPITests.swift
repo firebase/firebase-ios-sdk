@@ -47,7 +47,7 @@ final class CoreAPITests {
 
     // Delete Firebase app
     if let app = FirebaseApp.app() {
-      app.delete { _ /* succes */ in
+      app.delete { _ /* success */ in
         // ...
       }
 
@@ -126,10 +126,6 @@ final class CoreAPITests {
       }
 
       if let _ /* databaseURL */ = options.databaseURL {
-        // ...
-      }
-
-      if let _ /* deepLinkURLScheme */ = options.deepLinkURLScheme {
         // ...
       }
 

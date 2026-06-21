@@ -20,7 +20,7 @@ option(WITH_ASAN "Build with Address Sanitizer" OFF)
 # - it requires all dependencies to be compiled with msan enabled (see
 #   https://github.com/google/sanitizers/wiki/MemorySanitizerLibcxxHowTo);
 # - AppleClang doesn't support it.
-option(WITH_TSAN "Build with Thread Sanitizer (mutually exculsive with other sanitizers)" OFF)
+option(WITH_TSAN "Build with Thread Sanitizer (mutually exclusive with other sanitizers)" OFF)
 option(WITH_UBSAN "Build with Undefined Behavior sanitizer" OFF)
 
 macro(add_to_compile_and_link_flags flag)
@@ -38,7 +38,7 @@ if(CXX_CLANG OR CXX_GNU)
 
   if(WITH_TSAN)
     if(WITH_ASAN OR WITH_UBSAN)
-      message(FATAL_ERROR "Cannot combine TSan with other santizers")
+      message(FATAL_ERROR "Cannot combine TSan with other sanitizers")
     endif()
     add_to_compile_and_link_flags("-fsanitize=thread")
   endif()

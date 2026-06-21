@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import FirebaseFirestore
-@testable import FirebaseFirestoreSwift
+import class FirebaseCore.Timestamp
+@testable import FirebaseFirestore
 import Foundation
 
 class CodableIntegrationTests: FSTIntegrationTestCase {
@@ -36,18 +36,18 @@ class CodableIntegrationTests: FSTIntegrationTestCase {
 
     switch flavor {
     case .docRef:
-      if let merge = merge {
+      if let merge {
         try doc.setData(from: value, merge: merge, completion: completion)
-      } else if let mergeFields = mergeFields {
+      } else if let mergeFields {
         try doc.setData(from: value, mergeFields: mergeFields, completion: completion)
       } else {
         try doc.setData(from: value, completion: completion)
       }
     case .writeBatch:
-      if let merge = merge {
+      if let merge {
         try doc.firestore.batch().setData(from: value, forDocument: doc, merge: merge)
           .commit(completion: completion)
-      } else if let mergeFields = mergeFields {
+      } else if let mergeFields {
         try doc.firestore.batch().setData(from: value, forDocument: doc, mergeFields: mergeFields)
           .commit(completion: completion)
       } else {
@@ -57,9 +57,9 @@ class CodableIntegrationTests: FSTIntegrationTestCase {
     case .transaction:
       doc.firestore.runTransaction({ transaction, errorPointer -> Any? in
         do {
-          if let merge = merge {
+          if let merge {
             try transaction.setData(from: value, forDocument: doc, merge: merge)
-          } else if let mergeFields = mergeFields {
+          } else if let mergeFields {
             try transaction.setData(from: value, forDocument: doc, mergeFields: mergeFields)
           } else {
             try transaction.setData(from: value, forDocument: doc)
@@ -83,13 +83,15 @@ class CodableIntegrationTests: FSTIntegrationTestCase {
       var ts: Timestamp
       var geoPoint: GeoPoint
       var docRef: DocumentReference
+      var vector: VectorValue
     }
     let docToWrite = documentRef()
     let model = Model(name: "test",
                       age: 42,
                       ts: Timestamp(seconds: 987_654_321, nanoseconds: 0),
                       geoPoint: GeoPoint(latitude: 45, longitude: 54),
-                      docRef: docToWrite)
+                      docRef: docToWrite,
+                      vector: FieldValue.vector([0.7, 0.6]))
 
     for flavor in allFlavors {
       try setData(from: model, forDocument: docToWrite, withFlavor: flavor)
@@ -183,6 +185,65 @@ class CodableIntegrationTests: FSTIntegrationTestCase {
       XCTAssertEqual(data["array"] as! [Int], [1, 2, 3], "Failed with flavor \(flavor)")
       XCTAssertEqual(data["intValue"] as! Int, 3, "Failed with flavor \(flavor)")
     }
+  }
+
+  func testVectorValue() throws {
+    struct Model: Codable {
+      var name: String
+      var embedding: VectorValue
+    }
+    let model = Model(
+      name: "name",
+      embedding: VectorValue([0.1, 0.3, 0.4])
+    )
+
+    let docToWrite = documentRef()
+
+    for flavor in allFlavors {
+      try setData(from: model, forDocument: docToWrite, withFlavor: flavor)
+
+      let data = try readDocument(forRef: docToWrite).data(as: Model.self)
+
+      XCTAssertEqual(
+        data.embedding,
+        VectorValue([0.1, 0.3, 0.4]),
+        "Failed with flavor \(flavor)"
+      )
+    }
+  }
+
+  func testDataBlob() throws {
+    struct Model: Encodable {
+      var name: String
+      var data: Data
+      var emptyData: Data
+    }
+    let model = Model(
+      name: "name",
+      data: Data([1, 2, 3, 4]),
+      emptyData: Data()
+    )
+
+    let docToWrite = documentRef()
+
+    for flavor in allFlavors {
+      try setData(from: model, forDocument: docToWrite, withFlavor: flavor)
+
+      let data = readDocument(forRef: docToWrite)
+
+      XCTAssertEqual(data["data"] as! Data, Data([1, 2, 3, 4]), "Failed with flavor \(flavor)")
+      XCTAssertEqual(data["emptyData"] as! Data, Data(), "Failed with flavor \(flavor)")
+    }
+
+    disableNetwork()
+    defer {
+      enableNetwork()
+    }
+
+    try docToWrite.setData(from: model)
+    let data = readDocument(forRef: docToWrite)
+    XCTAssertEqual(data["data"] as! Data, Data([1, 2, 3, 4]), "Failed with flavor offline docRef")
+    XCTAssertEqual(data["emptyData"] as! Data, Data(), "Failed with flavor offline docRef")
   }
 
   func testExplicitNull() throws {

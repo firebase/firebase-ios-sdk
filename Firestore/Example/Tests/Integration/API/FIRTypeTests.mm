@@ -18,6 +18,8 @@
 
 #import <XCTest/XCTest.h>
 
+#import "FirebaseCore/Sources/Public/FirebaseCore/FIRTimestamp.h"
+
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 
 @interface FIRTypeTests : FSTIntegrationTestCase
@@ -26,7 +28,7 @@
 @implementation FIRTypeTests
 
 - (void)assertSuccessfulRoundtrip:(NSDictionary *)data {
-  FIRDocumentReference *doc = [self.db documentWithPath:@"rooms/eros"];
+  FIRDocumentReference *doc = [self documentRef];
 
   [self writeDocumentRef:doc data:data];
   FIRDocumentSnapshot *document = [self readDocumentForRef:doc];
@@ -58,7 +60,7 @@
   NSDate *date = [NSDate dateWithTimeIntervalSince1970:1491847082.125];
 
   // NSDates are read back as FIRTimestamps, so assertSuccessfulRoundtrip cannot be used here.
-  FIRDocumentReference *doc = [self.db documentWithPath:@"rooms/eros"];
+  FIRDocumentReference *doc = [self documentRef];
   [self writeDocumentRef:doc data:@{@"date" : date}];
   FIRDocumentSnapshot *document = [self readDocumentForRef:doc];
   XCTAssertTrue(document.exists);

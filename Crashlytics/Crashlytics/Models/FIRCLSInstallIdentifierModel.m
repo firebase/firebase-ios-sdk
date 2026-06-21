@@ -86,7 +86,7 @@ static unsigned long long FIRCLSInstallationsWaitTime = 10 * NSEC_PER_SEC;
 
 /**
  * Generates a new UUID and saves it in persistent storage.
- * Does not sychronize the user defaults (to allow optimized
+ * Does not synchronize the user defaults (to allow optimized
  * batching of user default synchronizing)
  */
 - (NSString *)generateInstallationUUID {

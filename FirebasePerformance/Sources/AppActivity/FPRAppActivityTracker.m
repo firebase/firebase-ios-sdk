@@ -15,9 +15,11 @@
 #import "FirebasePerformance/Sources/AppActivity/FPRAppActivityTracker.h"
 
 #import <Foundation/Foundation.h>
+#import <Network/Network.h>
 #import <UIKit/UIKit.h>
 
 #import "FirebasePerformance/Sources/AppActivity/FPRSessionManager.h"
+#import "FirebasePerformance/Sources/Common/FPRDiagnostics.h"
 #import "FirebasePerformance/Sources/Configurations/FPRConfigurations.h"
 #import "FirebasePerformance/Sources/Gauges/CPU/FPRCPUGaugeCollector+Private.h"
 #import "FirebasePerformance/Sources/Gauges/FPRGaugeManager.h"
@@ -32,6 +34,7 @@ static NSTimeInterval gAppStartMaxValidDuration = 60 * 60;  // 60 minutes.
 static FPRCPUGaugeData *gAppStartCPUGaugeData = nil;
 static FPRMemoryGaugeData *gAppStartMemoryGaugeData = nil;
 static BOOL isActivePrewarm = NO;
+static BOOL sLaunchedInBackgroundState = NO;
 
 NSString *const kFPRAppStartTraceName = @"_as";
 NSString *const kFPRAppStartStageNameTimeToUI = @"_astui";
@@ -55,11 +58,23 @@ NSString *const kFPRAppCounterNameActivePrewarm = @"_fsapc";
 /** Current running state of the application. */
 @property(nonatomic, readwrite) FPRApplicationState applicationState;
 
+/** Current network connection type of the application. */
+@property(nonatomic, readwrite) firebase_perf_v1_NetworkConnectionInfo_NetworkType networkType;
+
+/** Network monitor object to track network movements. */
+@property(nonatomic, readwrite) nw_path_monitor_t monitor;
+
+/** Queue used to track the network monitoring changes. */
+@property(nonatomic, readwrite) dispatch_queue_t monitorQueue;
+
 /** Trace to measure the app start performance. */
 @property(nonatomic) FIRTrace *appStartTrace;
 
 /** Tracks if the gauge metrics are dispatched. */
 @property(nonatomic) BOOL appStartGaugeMetricDispatched;
+
+/** Tracks if app start trace completion logic has been executed. */
+@property(nonatomic) BOOL appStartTraceCompleted;
 
 /** Firebase Performance Configuration object */
 @property(nonatomic) FPRConfigurations *configurations;
@@ -103,6 +118,24 @@ NSString *const kFPRAppCounterNameActivePrewarm = @"_fsapc";
 
 + (void)applicationDidFinishLaunching:(NSNotification *)notification {
   applicationDidFinishLaunchTime = [NSDate date];
+
+  UIApplicationState state = [UIApplication sharedApplication].applicationState;
+  if (state == UIApplicationStateBackground) {
+    // Check if the app uses the UIScene lifecycle. Scene-based apps (SwiftUI or UIKit with scenes)
+    // connect scenes after didFinishLaunching, so applicationState may report .background even on
+    // normal foreground launches. Non-scene apps report .background reliably.
+    NSDictionary *sceneManifest =
+        [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIApplicationSceneManifest"];
+    if (sceneManifest) {
+      // Scene-based apps may report .background here even on foreground launches
+      // because scenes haven't connected yet. Defer decision to didBecomeActive.
+      sLaunchedInBackgroundState = YES;
+    } else {
+      // Non-scene app - .background is reliable, invalidate app start.
+      appStartTime = nil;
+    }
+  }
+
   [[NSNotificationCenter defaultCenter] removeObserver:self
                                                   name:UIApplicationDidFinishLaunchingNotification
                                                 object:nil];
@@ -122,9 +155,13 @@ NSString *const kFPRAppCounterNameActivePrewarm = @"_fsapc";
  */
 - (instancetype)initAppActivityTracker {
   self = [super init];
-  _applicationState = FPRApplicationStateUnknown;
-  _appStartGaugeMetricDispatched = NO;
-  _configurations = [FPRConfigurations sharedInstance];
+  if (self != nil) {
+    _applicationState = FPRApplicationStateUnknown;
+    _appStartGaugeMetricDispatched = NO;
+    _appStartTraceCompleted = NO;
+    _configurations = [FPRConfigurations sharedInstance];
+    [self startTrackingNetwork];
+  }
   return self;
 }
 
@@ -147,19 +184,40 @@ NSString *const kFPRAppCounterNameActivePrewarm = @"_fsapc";
   return self.backgroundSessionTrace;
 }
 
+- (void)startTrackingNetwork {
+  self.networkType = firebase_perf_v1_NetworkConnectionInfo_NetworkType_NONE;
+
+  dispatch_queue_attr_t attrs = dispatch_queue_attr_make_with_qos_class(
+      DISPATCH_QUEUE_SERIAL, QOS_CLASS_UTILITY, DISPATCH_QUEUE_PRIORITY_DEFAULT);
+  self.monitorQueue = dispatch_queue_create("com.google.firebase.perf.network.monitor", attrs);
+
+  self.monitor = nw_path_monitor_create();
+  nw_path_monitor_set_queue(self.monitor, self.monitorQueue);
+  __weak FPRAppActivityTracker *weakSelf = self;
+  nw_path_monitor_set_update_handler(self.monitor, ^(nw_path_t _Nonnull path) {
+    BOOL isWiFi = nw_path_uses_interface_type(path, nw_interface_type_wifi);
+    BOOL isCellular = nw_path_uses_interface_type(path, nw_interface_type_cellular);
+    BOOL isEthernet = nw_path_uses_interface_type(path, nw_interface_type_wired);
+
+    if (isWiFi) {
+      weakSelf.networkType = firebase_perf_v1_NetworkConnectionInfo_NetworkType_WIFI;
+    } else if (isCellular) {
+      weakSelf.networkType = firebase_perf_v1_NetworkConnectionInfo_NetworkType_MOBILE;
+    } else if (isEthernet) {
+      weakSelf.networkType = firebase_perf_v1_NetworkConnectionInfo_NetworkType_ETHERNET;
+    }
+  });
+
+  nw_path_monitor_start(self.monitor);
+}
+
 /**
  * Checks if the prewarming feature is available on the current device.
  *
  * @return true if the OS could prewarm apps on the current device
  */
 - (BOOL)isPrewarmAvailable {
-  BOOL canPrewarm = NO;
-  // Guarding for double dispatch which does not work below iOS 13, and 0.1% of app start also show
-  // signs of prewarming on iOS 14 go/paste/5533761933410304
-  if (@available(iOS 13, *)) {
-    canPrewarm = YES;
-  }
-  return canPrewarm;
+  return YES;
 }
 
 /**
@@ -208,6 +266,28 @@ NSString *const kFPRAppCounterNameActivePrewarm = @"_fsapc";
 
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
+    if (appStartTime == nil) {
+      FPRLogDebug(kFPRTraceNotCreated, @"App start trace skipped due to background launch.");
+      return;
+    }
+
+    // Only applies to scene-based apps where .background at launch may be a false positive.
+    // Distinguish genuine background launches by checking how long ago +load captured appStartTime.
+    // A real foreground launch reaches didBecomeActive within seconds; a background launch that is
+    // later opened by the user will have a much larger gap.
+    NSDictionary *sceneManifest =
+        [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIApplicationSceneManifest"];
+    if (sLaunchedInBackgroundState && sceneManifest) {
+      NSTimeInterval timeSinceStart = [[NSDate date] timeIntervalSinceDate:appStartTime];
+      // App launched in background so we invalidate the captured app start time
+      // to prevent incorrect measurement when user later opens the app
+      if (timeSinceStart > gAppStartMaxValidDuration) {
+        FPRLogDebug(kFPRTraceNotCreated,
+                    @"Background launch detected. App start measurement will be skipped.");
+        return;
+      }
+    }
+
     self.appStartTrace = [[FIRTrace alloc] initInternalTraceWithName:kFPRAppStartTraceName];
     [self.appStartTrace startWithStartTime:appStartTime];
     [self.appStartTrace startStageNamed:kFPRAppStartStageNameTimeToUI startTime:appStartTime];
@@ -216,9 +296,12 @@ NSString *const kFPRAppCounterNameActivePrewarm = @"_fsapc";
     [self.appStartTrace startStageNamed:kFPRAppStartStageNameTimeToFirstDraw];
   });
 
-  // If ever the app start trace had it life in background stage, do not send the trace.
-  if (self.appStartTrace.backgroundTraceState != FPRTraceStateForegroundOnly) {
+  // If ever the app start trace had its life in background stage, do not send the trace.
+  if (self.appStartTrace &&
+      self.appStartTrace.backgroundTraceState != FPRTraceStateForegroundOnly) {
+    [self.appStartTrace cancel];
     self.appStartTrace = nil;
+    FPRLogDebug(kFPRTraceNotCreated, @"App start trace cancelled. Trace had background state.");
   }
 
   // Stop the active background session trace.
@@ -232,28 +315,44 @@ NSString *const kFPRAppCounterNameActivePrewarm = @"_fsapc";
   self.foregroundSessionTrace = appTrace;
 
   // Start measuring time to make the app interactive on the App start trace.
-  static BOOL TTIStageStarted = NO;
-  if (!TTIStageStarted) {
+  if (!self.appStartTraceCompleted && self.appStartTrace) {
     [self.appStartTrace startStageNamed:kFPRAppStartStageNameTimeToUserInteraction];
-    TTIStageStarted = YES;
+    self.appStartTraceCompleted = YES;
 
     // Assumption here is that - the app becomes interactive in the next runloop cycle.
     // It is possible that the app does more things later, but for now we are not measuring that.
+    __weak typeof(self) weakSelf = self;
     dispatch_async(dispatch_get_main_queue(), ^{
-      NSTimeInterval startTimeSinceEpoch = [self.appStartTrace startTimeSinceEpoch];
-      NSTimeInterval currentTimeSinceEpoch = [[NSDate date] timeIntervalSince1970];
+      __strong typeof(weakSelf) strongSelf = weakSelf;
+      if (!strongSelf || !strongSelf.appStartTrace) {
+        return;
+      }
 
-      // The below check is to account for 2 scenarios.
-      // 1. The app gets started in the background and might come to foreground a lot later.
-      // 2. The app is launched, but immediately backgrounded for some reason and the actual launch
+      NSTimeInterval startTimeSinceEpoch = [strongSelf.appStartTrace startTimeSinceEpoch];
+      NSTimeInterval currentTimeSinceEpoch = [[NSDate date] timeIntervalSince1970];
+      NSTimeInterval measuredAppStartTime = currentTimeSinceEpoch - startTimeSinceEpoch;
+
+      // The below check accounts for multiple scenarios:
+      // 1. App started in background and comes to foreground later
+      // 2. App launched but immediately backgroundedfor some reason and the actual launch
       // happens a lot later.
-      // Dropping the app start trace in such situations where the launch time is taking more than
-      // 60 minutes. This is an approximation, but a more agreeable timelimit for app start.
-      if ((currentTimeSinceEpoch - startTimeSinceEpoch < gAppStartMaxValidDuration) &&
-          [self isAppStartEnabled] && ![self isApplicationPreWarmed]) {
-        [self.appStartTrace stop];
+      // 3. Network delays during startup inflating metrics
+      // 4. iOS prewarm scenarios
+      // 5. Dropping the app start trace in such situations where the launch time is taking more
+      // than 60 minutes. This is an approximation, but a more agreeable timelimit for app start.
+      BOOL shouldDispatchAppStartTrace = (measuredAppStartTime < gAppStartMaxValidDuration) &&
+                                         [strongSelf isAppStartEnabled] &&
+                                         ![strongSelf isApplicationPreWarmed];
+
+      if (shouldDispatchAppStartTrace) {
+        [strongSelf.appStartTrace stop];
       } else {
-        [self.appStartTrace cancel];
+        [strongSelf.appStartTrace cancel];
+        if (measuredAppStartTime >= gAppStartMaxValidDuration) {
+          FPRLogDebug(kFPRTraceInvalidName,
+                      @"App start trace cancelled due to excessive duration: %.2fs",
+                      measuredAppStartTime);
+        }
       }
     });
   }
@@ -286,6 +385,8 @@ NSString *const kFPRAppCounterNameActivePrewarm = @"_fsapc";
 }
 
 - (void)dealloc {
+  nw_path_monitor_cancel(self.monitor);
+
   [[NSNotificationCenter defaultCenter] removeObserver:self
                                                   name:UIApplicationDidBecomeActiveNotification
                                                 object:[UIApplication sharedApplication]];

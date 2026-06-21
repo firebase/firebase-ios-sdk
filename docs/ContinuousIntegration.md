@@ -72,16 +72,16 @@ candidate.
 Currently we have two workflows running nightly to test podspecs:
 
 #### Release workflow
-[release.yml](https://github.com/firebase/firebase-ios-sdk/tree/main/.github/workflows/release.yml)
+[release_cocoapods.yml](https://github.com/firebase/firebase-ios-sdk/tree/main/.github/workflows/release_cocoapods.yml)
 
 The release workflow is to test podspecs corresponding to the latest release tag in the repo, and
 create a CocoaPods spec testing repo. Podspecs in this testing repo
 will have tags `Cocoapods-X.Y.Z`. This is to mimic a real released candidate.
 
-#### Prerelease workflow
-[prerelease.yml](https://github.com/firebase/firebase-ios-sdk/tree/main/.github/workflows/prerelease.yml)
+#### Prerelease cocoapods workflow
+[prerelease_cocoapods.yml](https://github.com/firebase/firebase-ios-sdk/tree/main/.github/workflows/prerelease_cocoapods.yml)
 
-The prerelease workflow is to test podspecs on the `main` branch, and create a testing repo. This is
+The prerelease_cocoapods workflow is to test podspecs on the `main` branch, and create a testing repo. This is
 to make sure podspecs are releasable, which means podspecs in the head can pass all tests and build
 up a candidate.
 
@@ -97,14 +97,14 @@ repo.
 The previous setup will run podspecs testing nightly. This enables presubmits of pod spec lint
 podspecs and accelerates the testing process. This is to run presubmit tests for Firebase Apple SDKs
 in the SDK repo. A job to run `pod spec lint` is added to SDK testing workflows, including ABTesting,
-Analytics, Auth, Core, Crashlytics, Database, DynamicLinks, Firestore, Functions, GoogleUtilities,
+Analytics, Auth, Core, Crashlytics, Database, Firestore, Functions, GoogleUtilities,
 InAppMessaging, Installations, Messaging, MLModelDownloader, Performance, RemoteConfig and Storage.
 These jobs will be triggered in presubmit and run pod spec lint with a source of
-Firebase/SpecsTesting repo, which is updated to the head of main nightly in the prerelease
+Firebase/SpecsTesting repo, which is updated to the head of main nightly in the prerelease_cocoapods
 workflow.
 
 When these PRs are merged, then changed podspecs will be pod repo push to the Firebase/SpecsTesting
-repo, through `update_SpecTesting_repo` job in the prerelease workflow, to make sure the podspec
+repo, through `update_SpecTesting_repo` job in the prerelease_cocoapods workflow, to make sure the podspec
 repo is up-to-date.
 
 ### Daily Test Status Notification
@@ -113,15 +113,3 @@ repo is up-to-date.
 Generates a testing report for all nightly jobs, like #7797, so developers from the iOS SDK repo do
 not have to go through workflows to get all results.
 
-### Code coverage
-[test_coverage.yml](https://github.com/firebase/firebase-ios-sdk/tree/main/.github/workflows/test_coverage.yml)
-
-Generates code coverage reports in PRs (see
-[example](https://github.com/firebase/firebase-ios-sdk/pull/7788#issuecomment-807690514)).
-The workflow will trigger podspec
-tests if changed files follow file patterns. Tests will create xcresult bundles, which contain all
-code coverage data. These bundles will be gathered in the last job and generate a json report which
-will be sent to the Metrics Service, which will create a code coverage report in a PR. Currently
-code coverage can generate diff between commits. Incremental code coverage support is in progress.
-Details
-[here](https://github.com/firebase/firebase-ios-sdk/blob/main/.github/workflows/health-metrics-presubmit.yml#L417).

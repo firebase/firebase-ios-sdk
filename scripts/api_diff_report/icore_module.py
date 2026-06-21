@@ -24,34 +24,26 @@ OBJECTIVE_C = 'Objective-C'
 MODULE_LIST = [
     'FirebaseABTesting',
     'FirebaseAnalytics',  # Not buildable from source
-    'FirebaseAnalyticsOnDeviceConversion',  # Not buildable.
-    'FirebaseAnalyticsSwift',
     'FirebaseAppCheck',
     'FirebaseAppDistribution',
     'FirebaseAuth',
     'FirebaseCore',
     'FirebaseCrashlytics',
     'FirebaseDatabase',
-    'FirebaseDatabaseSwift',
-    'FirebaseDynamicLinks',
+    'FirebaseFirestoreInternal',
     'FirebaseFirestore',
-    'FirebaseFirestoreSwift',
     'FirebaseFunctions',
     'FirebaseInAppMessaging'
-    'FirebaseInAppMessagingSwift',
     'FirebaseInstallations',
     'FirebaseMessaging',
     'FirebaseMLModelDownloader',
     'FirebasePerformance',
     'FirebaseRemoteConfig',
-    'FirebaseRemoteConfigSwift',
     # Not buildable. No scheme named "FirebaseSharedSwift"
     'FirebaseSharedSwift',
     'FirebaseStorage',
     # Not buildable. NO "source_files"
     'GoogleAppMeasurement',
-    # Not buildable. NO "source_files"
-    'GoogleAppMeasurementOnDeviceConversion'
 ]
 
 
@@ -102,9 +94,7 @@ def get_scheme(module_name):
     Get scheme from module name in .podspecs Assume the scheme is the
     same as the module name:
     """
-  MODULE_SCHEME_PATCH = {
-      'FirebaseInAppMessagingSwift': 'FirebaseInAppMessagingSwift-Beta',
-  }
+  MODULE_SCHEME_PATCH = {}
   if module_name in MODULE_SCHEME_PATCH:
     return MODULE_SCHEME_PATCH[module_name]
   return module_name
@@ -132,10 +122,9 @@ def get_root_dir(module_name, source_files):
     {module_name}/Sources or {module_name}/Source
     """
   MODULE_ROOT_PATCH = {
-      'FirebaseFirestore': 'Firestore/Source',
-      'FirebaseFirestoreSwift': 'Firestore/Swift/Source',
+      'FirebaseFirestoreInternal': 'Firestore/Source',
+      'FirebaseFirestore': 'Firestore/Swift/Source',
       'FirebaseCrashlytics': 'Crashlytics/Crashlytics',
-      'FirebaseInAppMessagingSwift': 'FirebaseInAppMessaging/Swift/Source',
   }
   if module_name in MODULE_ROOT_PATCH:
     return MODULE_ROOT_PATCH[module_name]

@@ -173,7 +173,7 @@
 
   XCTAssertTrue([map count] == 0, @"Check if all 100 objects were removed");
   // We can't check the depth here because the map no longer contains values, so we check that it
-  // doesn't responsd to this check
+  // doesn't responds to this check
   XCTAssertTrue([map.root isMemberOfClass:[FLLRBEmptyNode class]], @"Root is an empty node");
   XCTAssertFalse([map respondsToSelector:@selector(checkMaxDepth)],
                  @"The empty node doesn't respond to this selector.");
@@ -458,7 +458,7 @@
   XCTAssertEqualObjects([map getPredecessorKey:@7], @4, @"@4");
   XCTAssertEqualObjects([map getPredecessorKey:@9], @7, @"@7");
   XCTAssertEqualObjects([map getPredecessorKey:@50], @9, @"@9");
-  XCTAssertThrows([map getPredecessorKey:@777], @"Expect exception about nonexistant key");
+  XCTAssertThrows([map getPredecessorKey:@777], @"Expect exception about nonexistent key");
 }
 
 - (void)testEnumerator {

@@ -101,7 +101,6 @@ NSString *const kFIRFADSignInStateKey = @"FIRFADSignInState";
   FIRComponent *component =
       [FIRComponent componentWithProtocol:@protocol(FIRAppDistributionInstanceProvider)
                       instantiationTiming:FIRInstantiationTimingEagerInDefaultApp
-                             dependencies:@[]
                             creationBlock:creationBlock];
   return @[ component ];
 }

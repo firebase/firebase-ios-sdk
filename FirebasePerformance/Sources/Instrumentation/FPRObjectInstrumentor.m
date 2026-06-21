@@ -15,14 +15,13 @@
 #import "FirebasePerformance/Sources/Instrumentation/FPRObjectInstrumentor.h"
 
 #import "FirebasePerformance/Sources/Common/FPRDiagnostics.h"
+#import "FirebasePerformance/Sources/ISASwizzler/FPRObjectSwizzler.h"
 #import "FirebasePerformance/Sources/Instrumentation/FPRInstrument_Private.h"
 #import "FirebasePerformance/Sources/Instrumentation/FPRSelectorInstrumentor.h"
 
-#import <GoogleUtilities/GULObjectSwizzler.h>
-
 @interface FPRObjectInstrumentor () {
   // The object swizzler instance this instrumentor will use.
-  GULObjectSwizzler *_objectSwizzler;
+  FPRObjectSwizzler *_objectSwizzler;
 }
 
 @end
@@ -37,7 +36,7 @@
 - (instancetype)initWithObject:(id)object {
   self = [super init];
   if (self) {
-    _objectSwizzler = [[GULObjectSwizzler alloc] initWithObject:object];
+    _objectSwizzler = [[FPRObjectSwizzler alloc] initWithObject:object];
     _instrumentedObject = object;
   }
   return self;

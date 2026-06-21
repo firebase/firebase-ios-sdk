@@ -35,7 +35,7 @@
 
 // The writable size is our handler stack plus whatever scratch we need.  We have to use this space
 // extremely carefully, however, because thread stacks always needs to be page-aligned.  Only the
-// first allocation is gauranteed to be page-aligned.
+// first allocation is guaranteed to be page-aligned.
 //
 // CLS_SIGNAL_HANDLER_STACK_SIZE and CLS_MACH_EXCEPTION_HANDLER_STACK_SIZE are platform dependant,
 // defined as 0 for tv/watch.
@@ -45,8 +45,6 @@
 
 // We need enough space here for the context, plus storage for strings.
 #define CLS_MINIMUM_READABLE_SIZE (sizeof(FIRCLSReadOnlyContext) + 4096 * 4)
-
-static const int64_t FIRCLSContextInitWaitTime = 5LL * NSEC_PER_SEC;
 
 static const char* FIRCLSContextAppendToRoot(NSString* root, NSString* component);
 static void FIRCLSContextAllocate(FIRCLSContext* context);
@@ -67,6 +65,7 @@ FIRCLSContextInitData* FIRCLSContextBuildInitData(FIRCLSInternalReport* report,
   initData.previouslyCrashedFileRootPath = [fileManager rootPath];
   initData.errorsEnabled = [settings errorReportingEnabled];
   initData.customExceptionsEnabled = [settings customExceptionsEnabled];
+  initData.machExceptionDefaultBehavior = [settings machExceptionDefaultBehavior];
   initData.maxCustomExceptions = [settings maxCustomExceptions];
   initData.maxErrorLogSize = [settings errorLogBufferSize];
   initData.maxLogSize = [settings logBufferSize];
@@ -76,7 +75,8 @@ FIRCLSContextInitData* FIRCLSContextBuildInitData(FIRCLSInternalReport* report,
   return initData;
 }
 
-bool FIRCLSContextInitialize(FIRCLSContextInitData* initData, FIRCLSFileManager* fileManager) {
+FBLPromise* FIRCLSContextInitialize(FIRCLSContextInitData* initData,
+                                    FIRCLSFileManager* fileManager) {
   if (!initData) {
     return false;
   }
@@ -101,6 +101,8 @@ bool FIRCLSContextInitialize(FIRCLSContextInitData* initData, FIRCLSFileManager*
 
   // some values that aren't tied to particular subsystem
   _firclsContext.readonly->debuggerAttached = FIRCLSProcessDebuggerAttached();
+
+  __block FBLPromise* initPromise = [FBLPromise pendingPromise];
 
   dispatch_group_async(group, queue, ^{
     FIRCLSHostInitialize(&_firclsContext.readonly->host);
@@ -184,6 +186,15 @@ bool FIRCLSContextInitialize(FIRCLSContextInitData* initData, FIRCLSFileManager*
       _firclsContext.readonly->machException.path =
           FIRCLSContextAppendToRoot(rootPath, FIRCLSReportMachExceptionFile);
 
+      // MacOS12 below does not support identity protected behavior
+      // check releases here: https://opensource.apple.com/releases/
+      // TODO: remove EXCEPTION_DEFAULT support when we bump min MacOS support to 12+
+      _firclsContext.readonly->machException.behavior = EXCEPTION_DEFAULT;
+      if (@available(macOS 12, *)) {
+        if (!initData.machExceptionDefaultBehavior) {
+          _firclsContext.readonly->machException.behavior = EXCEPTION_IDENTITY_PROTECTED;
+        }
+      }
       FIRCLSMachExceptionInit(&_firclsContext.readonly->machException);
     });
 #endif
@@ -220,14 +231,10 @@ bool FIRCLSContextInitialize(FIRCLSContextInitData* initData, FIRCLSFileManager*
     if (!FIRCLSAllocatorProtect(_firclsContext.allocator)) {
       FIRCLSSDKLog("Error: Memory protection failed\n");
     }
+    [initPromise fulfill:nil];
   });
 
-  if (dispatch_group_wait(group, dispatch_time(DISPATCH_TIME_NOW, FIRCLSContextInitWaitTime)) !=
-      0) {
-    FIRCLSSDKLog("Error: Delayed initialization\n");
-  }
-
-  return true;
+  return initPromise;
 }
 
 void FIRCLSContextBaseInit(void) {
@@ -334,14 +341,8 @@ bool FIRCLSContextMarkAndCheckIfCrashed(void) {
     return false;
   }
 
-  if (_firclsContext.writable->crashOccurred) {
-    return true;
-  }
-
-  _firclsContext.writable->crashOccurred = true;
-  __sync_synchronize();
-
-  return false;
+  // Atomic compare-and-swap: only one thread can set false -> true
+  return !__sync_bool_compare_and_swap(&_firclsContext.writable->crashOccurred, false, true);
 }
 
 static const char* FIRCLSContextAppendToRoot(NSString* root, NSString* component) {

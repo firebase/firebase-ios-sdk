@@ -22,7 +22,6 @@
 @import FirebaseCrashlytics;
 @import FirebaseCore;
 @import FirebaseDatabase;
-@import FirebaseDynamicLinks;
 @import FirebaseFirestore;
 @import FirebaseFunctions;
 @import FirebaseInstallations;

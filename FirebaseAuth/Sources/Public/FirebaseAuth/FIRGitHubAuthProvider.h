@@ -16,8 +16,6 @@
 
 #import <Foundation/Foundation.h>
 
-@class FIRAuthCredential;
-
 NS_ASSUME_NONNULL_BEGIN
 
 /**
@@ -29,26 +27,5 @@ extern NSString *const FIRGitHubAuthProviderID NS_SWIFT_NAME(GitHubAuthProviderI
     @brief A string constant identifying the GitHub sign-in method.
  */
 extern NSString *const _Nonnull FIRGitHubAuthSignInMethod NS_SWIFT_NAME(GitHubAuthSignInMethod);
-
-/** @class FIRGitHubAuthProvider
-    @brief Utility class for constructing GitHub credentials.
- */
-NS_SWIFT_NAME(GitHubAuthProvider)
-@interface FIRGitHubAuthProvider : NSObject
-
-/** @fn credentialWithToken:
-    @brief Creates an `AuthCredential` for a GitHub sign in.
-
-    @param token The GitHub OAuth access token.
-    @return An AuthCredential containing the GitHub credential.
- */
-+ (FIRAuthCredential *)credentialWithToken:(NSString *)token;
-
-/** @fn init
-    @brief This class is not meant to be initialized.
- */
-- (instancetype)init NS_UNAVAILABLE;
-
-@end
 
 NS_ASSUME_NONNULL_END

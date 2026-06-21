@@ -25,8 +25,11 @@
 #import "FirebaseDatabase/Sources/Snapshot/FSnapshotUtilities.h"
 #import "FirebaseDatabase/Tests/Helpers/FTestHelpers.h"
 
-@interface FLevelDBStorageEngineTests : XCTestCase
+@interface FLevelDBStorageEngine (Tests)
++ (void)ensureDir:(NSString *)path markAsDoNotBackup:(BOOL)markAsDoNotBackup;
+@end
 
+@interface FLevelDBStorageEngineTests : XCTestCase
 @end
 
 @implementation FLevelDBStorageEngineTests
@@ -685,4 +688,49 @@
                         ([NSSet setWithArray:@[ @"b", @"c" ]]));
 }
 
+- (void)testEnsureDirSetsCorrectFileProtection {
+  NSString *testDirName =
+      [NSString stringWithFormat:@"fdb_persistence_test_%lu", (unsigned long)arc4random()];
+  NSString *testPath = [NSTemporaryDirectory() stringByAppendingPathComponent:testDirName];
+  NSFileManager *fileManager = [NSFileManager defaultManager];
+
+  // --- Test creation ---
+  [fileManager removeItemAtPath:testPath error:nil];
+  [FLevelDBStorageEngine ensureDir:testPath markAsDoNotBackup:NO];
+
+  NSError *error = nil;
+  NSDictionary<NSFileAttributeKey, id> *attributes = [fileManager attributesOfItemAtPath:testPath
+                                                                                   error:&error];
+  XCTAssertNil(error, @"Failed to get attributes of directory: %@", error);
+
+#if !TARGET_OS_SIMULATOR
+  // On a physical device, file protection should be set.
+  XCTAssertEqualObjects(attributes[NSFileProtectionKey],
+                        NSFileProtectionCompleteUntilFirstUserAuthentication);
+#else
+  XCTAssertNil(attributes[NSFileProtectionKey]);
+#endif
+
+  // --- Test update on existing directory ---
+#if !TARGET_OS_SIMULATOR
+  // This part of the test is only relevant on devices where file protection is supported.
+  [fileManager removeItemAtPath:testPath error:nil];
+  NSDictionary *initialAttributes = @{NSFileProtectionKey : NSFileProtectionNone};
+  XCTAssertTrue([fileManager createDirectoryAtPath:testPath
+                       withIntermediateDirectories:YES
+                                        attributes:initialAttributes
+                                             error:&error],
+                @"Failed to create directory for update test: %@", error);
+
+  [FLevelDBStorageEngine ensureDir:testPath markAsDoNotBackup:NO];
+
+  attributes = [fileManager attributesOfItemAtPath:testPath error:&error];
+  XCTAssertNil(error, @"Failed to get attributes after update: %@", error);
+  XCTAssertEqualObjects(attributes[NSFileProtectionKey],
+                        NSFileProtectionCompleteUntilFirstUserAuthentication);
+#endif  // !TARGET_OS_SIMULATOR
+
+  // Clean up
+  [fileManager removeItemAtPath:testPath error:nil];
+}
 @end

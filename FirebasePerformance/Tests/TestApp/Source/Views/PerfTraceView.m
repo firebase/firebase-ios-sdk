@@ -35,7 +35,7 @@
 /** A button to increment a second metric on the currently running trace. */
 @property(nonatomic) UIButton *metricTwoButton;
 
-/** A button to add a custom attribute to the currrently running trace. */
+/** A button to add a custom attribute to the currently running trace. */
 @property(nonatomic) UIButton *customAttributeButton;
 
 /** A label for the current stage state. */

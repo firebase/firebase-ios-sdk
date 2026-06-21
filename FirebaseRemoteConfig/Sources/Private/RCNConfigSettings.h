@@ -22,7 +22,7 @@
 
 /// This internal class contains a set of variables that are unique among all the config instances.
 /// It also handles all metadata and internal metadata. This class is not thread safe and does not
-/// inherently allow for synchronized accesss. Callers are responsible for synchronization
+/// inherently allow for synchronized access. Callers are responsible for synchronization
 /// (currently using serial dispatch queues).
 @interface RCNConfigSettings : NSObject
 
@@ -41,9 +41,11 @@
 /// Device data version of checkin information.
 @property(nonatomic, copy) NSString *deviceDataVersion;
 /// InstallationsID.
-@property(nonatomic, copy) NSString *configInstallationsIdentifier;
+/// @note The property is atomic because it is accessed across multiple threads.
+@property(atomic, copy) NSString *configInstallationsIdentifier;
 /// Installations token.
-@property(nonatomic, copy) NSString *configInstallationsToken;
+/// @note The property is atomic because it is accessed across multiple threads.
+@property(atomic, copy) NSString *configInstallationsToken;
 
 /// A list of successful fetch timestamps in milliseconds.
 /// TODO Not used anymore. Safe to remove.
@@ -53,11 +55,6 @@
 /// Custom variable (aka App context digest). This is the pending custom variables request before
 /// fetching.
 @property(nonatomic, copy) NSDictionary *customVariables;
-/// Cached internal metadata from internal metadata table. It contains customized information such
-/// as HTTP connection timeout, HTTP read timeout, success/failure throttling rate and time
-/// interval. Client has the default value of each parameters, they are only saved in
-/// internalMetadata if they have been customize by developers.
-@property(nonatomic, readonly, copy) NSDictionary *internalMetadata;
 /// Device conditions since last successful fetch from the backend. Device conditions including
 /// app
 /// version, iOS version, device localte, language, GMP project ID and Game project ID. Used for
@@ -83,6 +80,11 @@
 @property(nonatomic, readwrite, assign) NSString *lastFetchedTemplateVersion;
 /// Last active template version.
 @property(nonatomic, readwrite, assign) NSString *lastActiveTemplateVersion;
+
+#pragma mark - Custom Signals
+
+/// A dictionary to hold custom signals that are set by the developer.
+@property(nonatomic, readwrite, strong) NSDictionary<NSString *, NSString *> *customSignals;
 
 #pragma mark Throttling properties
 
@@ -120,9 +122,6 @@
 /// Returns metadata from metadata table.
 - (NSDictionary *)loadConfigFromMetadataTable;
 
-/// Updates internal content with the latest successful config response.
-- (void)updateInternalContentWithResponse:(NSDictionary *)response;
-
 /// Updates the metadata table with the current fetch status.
 /// @param fetchSuccess True if fetch was successful.
 - (void)updateMetadataWithFetchSuccessStatus:(BOOL)fetchSuccess
@@ -135,6 +134,10 @@
 /// Increases the throttling time for Realtime. Should only be called if the Realtime error
 /// indicates a server issue.
 - (void)updateRealtimeExponentialBackoffTime;
+
+/// Increases the throttling time for Realtime. Should only be called if we receive a Realtime
+/// retry interval in the response.
+- (void)updateRealtimeBackoffTimeWithInterval:(NSTimeInterval)realtimeRetryInterval;
 
 /// Update last active template version from last fetched template version.
 - (void)updateLastActiveTemplateVersion;

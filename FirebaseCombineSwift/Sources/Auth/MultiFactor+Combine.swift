@@ -12,13 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if os(iOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || targetEnvironment(macCatalyst) || os(macOS)
 
   import Combine
   import FirebaseAuth
 
-  @available(iOS 13.0, macCatalyst 13.0, *)
-  @available(macOS, unavailable)
+  @available(iOS 13.0, macCatalyst 13.0, macOS 10.15, *)
   @available(tvOS, unavailable)
   @available(watchOS, unavailable)
   public extension MultiFactor {
@@ -34,9 +33,9 @@
     func getSession() -> Future<MultiFactorSession, Error> {
       Future<MultiFactorSession, Error> { promise in
         self.getSessionWithCompletion { session, error in
-          if let session = session {
+          if let session {
             promise(.success(session))
-          } else if let error = error {
+          } else if let error {
             promise(.failure(error))
           }
         }
@@ -59,7 +58,7 @@
                 displayName: String?) -> Future<Void, Error> {
       Future<Void, Error> { promise in
         self.enroll(with: assertion, displayName: displayName) { error in
-          if let error = error {
+          if let error {
             promise(.failure(error))
           } else {
             promise(.success(()))
@@ -81,7 +80,7 @@
     func unenroll(with factorInfo: MultiFactorInfo) -> Future<Void, Error> {
       Future<Void, Error> { promise in
         self.unenroll(with: factorInfo) { error in
-          if let error = error {
+          if let error {
             promise(.failure(error))
           } else {
             promise(.success(()))
@@ -101,7 +100,7 @@
     func unenroll(withFactorUID factorUID: String) -> Future<Void, Error> {
       Future<Void, Error> { promise in
         self.unenroll(withFactorUID: factorUID) { error in
-          if let error = error {
+          if let error {
             promise(.failure(error))
           } else {
             promise(.success(()))
@@ -111,4 +110,4 @@
     }
   }
 
-#endif // os(iOS) || targetEnvironment(macCatalyst)
+#endif // os(iOS) || targetEnvironment(macCatalyst) || os(macOS)

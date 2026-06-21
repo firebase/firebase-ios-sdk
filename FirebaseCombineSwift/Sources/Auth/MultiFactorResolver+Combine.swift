@@ -12,13 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if os(iOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || targetEnvironment(macCatalyst) || os(macOS)
 
   import Combine
   import FirebaseAuth
 
-  @available(iOS 13.0, macCatalyst 13.0, *)
-  @available(macOS, unavailable)
+  @available(iOS 13.0, macCatalyst 13.0, macOS 10.15, *)
   @available(tvOS, unavailable)
   @available(watchOS, unavailable)
   public extension MultiFactorResolver {
@@ -33,9 +32,9 @@
       -> Future<AuthDataResult, Error> {
       Future<AuthDataResult, Error> { promise in
         self.resolveSignIn(with: assertion) { authDataResult, error in
-          if let error = error {
+          if let error {
             promise(.failure(error))
-          } else if let authDataResult = authDataResult {
+          } else if let authDataResult {
             promise(.success(authDataResult))
           }
         }
@@ -43,4 +42,4 @@
     }
   }
 
-#endif // os(iOS) || targetEnvironment(macCatalyst)
+#endif // os(iOS) || targetEnvironment(macCatalyst) || os(macOS)

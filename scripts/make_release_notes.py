@@ -27,7 +27,8 @@ NO_HEADING = 'PRODUCT HAS NO HEADING'
 
 PRODUCTS = {
     'FirebaseABTesting/CHANGELOG.md': '{{ab_testing}}',
-    'FirebaseAppCheck/CHANGELOG.md': 'App Check',
+    'FirebaseAI/CHANGELOG.md': '{{firebase_ai_logic}}',
+    'FirebaseAppCheck/CHANGELOG.md': '{{ app_check }}',
     'FirebaseAppDistribution/CHANGELOG.md': 'App Distribution',
     'FirebaseAuth/CHANGELOG.md': '{{auth}}',
     'FirebaseCore/CHANGELOG.md': NO_HEADING,
@@ -42,14 +43,17 @@ PRODUCTS = {
     'FirebaseFunctions/CHANGELOG.md': '{{cloud_functions}}',
     'FirebaseRemoteConfig/CHANGELOG.md': '{{remote_config}}',
     'FirebasePerformance/CHANGELOG.md': '{{perfmon}}',
+
+    # Assumes firebase-ios-sdk and data-connect-ios-sdk are cloned to the same
+    # directory.
+    '../data-connect-ios-sdk/CHANGELOG.md': '{{data_connect_short}}',
 }
 
 
 def main():
-  local_repo = find_local_repo()
 
   parser = argparse.ArgumentParser(description='Create release notes.')
-  parser.add_argument('--repo', '-r', default=local_repo,
+  parser.add_argument('--repo', '-r',
                       help='Specify which GitHub repo is local.')
   parser.add_argument('--only', metavar='VERSION',
                       help='Convert only a specific version')
@@ -58,6 +62,10 @@ def main():
   parser.add_argument('changelog',
                       help='The CHANGELOG.md file to parse')
   args = parser.parse_args()
+
+  repo = args.repo
+  if repo is None:
+    repo = find_local_repo()
 
   if args.all:
     text = read_file(args.changelog)
@@ -68,7 +76,7 @@ def main():
   if not args.all:
     product = PRODUCTS.get(args.changelog)
 
-  renderer = Renderer(args.repo, product)
+  renderer = Renderer(repo, product)
   translator = Translator(renderer)
 
   result = translator.translate(text)

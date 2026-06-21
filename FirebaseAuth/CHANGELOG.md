@@ -1,3 +1,159 @@
+# Unreleased
+- [fixed] Refactored the integrated OAuth sign in UI to not rely on
+  the deprecated `UIScreen.main.bounds` API for Mac Catalyst rendering.
+  (#16274)
+- [fixed] Fixed an issue where the integrated OAuth sign in UI wasn't
+  taking up the full screen when rendered in Mac Catalyst apps. (#16274)
+- [changed] Changed error message for missing `FirebaseApp.configure()` to
+  properly articulate supported methods. (#16294)
+
+# 12.12.0
+- [added] Added `AsyncSequence` support to `Auth.authStateChanges` and
+  `Auth.idTokenChanges`, providing a modern, structured-concurrency
+  alternative to `addStateDidChangeListener` and `addIDTokenDidChangeListener`.
+- [fixed] Fix a race condition with User.providerData getter. (#15950)
+- [fixed] Fixed a release-build crash in networking code when using
+  Xcode 26.4 (Swift 6.3) that was caused by a Swift regression in `async let`
+  teardown. (#15974)
+
+# 12.9.0
+- [fixed] Stop doing unnecessary AppCheck token refreshes. Introduced
+  in 11.0.0. (#15372)
+
+# 12.7.0
+- [fixed] Add a mechanism to prevent concurrent token refreshes. (#15474)
+- [fixed] Fix "weak never mutated" build warning introduced in Xcode 26.2.
+
+# 12.2.0
+- [added] Added TOTP support for macOS.
+
+# 12.1.0
+- [fixed] Fix a formatting issue with generated TOTP URLs that prevented them
+  from working with the Google Authenticator app. (#15128)
+
+# 12.0.0
+- [removed] **Breaking Change**: Removed the following Dynamic Links related
+  APIs:
+  - `ActionCodeSettings.dynamicLinkDomain`
+  - `AuthErrorCode.dynamicLinkNotActivated`
+  - `AuthErrorCode.invalidDynamicLinkDomain`
+- [removed] **Breaking Change**: Remove deprecated Swift APIs using
+  `String`-typed `productID`s that were  in favor of API that leverages the
+  `AuthProviderID` enum. Note, this only affects Swift clients.
+- [changed] **Breaking Change**: `TOTPSecret.openInOTPApp(withQRCodeURL:)` is
+  now labeled with `@MainActor` and requires the `await` keyword when called
+  off of the main actor or main thread.
+- [fixed] Simplified completion handler memory management in Auth interop
+  (#14962).
+
+# 11.15.0
+- [fixed] Fixed `Sendable` warnings introduced in the Xcode 26 beta. (#14996)
+
+# 11.14.0
+- [fixed] Synchronize internal `AuthKeychainServices` class to prevent
+  crashes from concurrent access. (#14835)
+
+# 11.12.0
+- [fixed] Fix a `fatalError` unenrolling from MFA. An invalid user token now throws an
+  `invalidUserToken` error instead of crashing. (#14663)
+- [fixed] Fix the parameter from "languageCode" to "lang" in ActionCodeURL. (#14664)
+- [fixed] Fix the parameters for requestType in ActionCodeOperation. (#14665)
+
+# 11.9.0
+- [changed] Using reCAPTCHA Enterprise and Firebase Auth requires reCAPTCHA
+  Enterprise 18.7.0 or later.
+
+# 11.8.1
+- [fixed] Suppress deprecation build warning introduced in 11.8.0.
+
+# 11.8.0
+- [added] Added `ActionCodeSettings.linkDomain` to customize the Firebase Hosting link domain
+  that is used in out-of-band email action flows.
+- [deprecated] Deprecated `ActionCodeSettings.dynamicLinkDomain`.
+
+# 11.7.0
+- [fixed] Fix Multi-factor session crash on second Firebase app. (#14238)
+- [fixed] Updated most decoders to be consistent with Firebase 10's behavior
+  for decoding `nil` values. (#14212)
+- [fixed] Address Xcode 16.2 concurrency compile time issues. (#14279)
+- [fixed] Fix handling of cloud blocking function errors. (#14052)
+- [fixed] Fix phone auth flow to skip RCE verification if appVerificationDisabledForTesting is set. (#14242)
+- [fixed] Avoid over release crash by making concurrently accessed properties
+  atomic (#14308).
+
+# 11.6.0
+- [added] Added reCAPTCHA Enterprise support for app verification during phone
+  authentication for Firebase Authentication (#14114)
+- [fixed] Restore Firebase 10 behavior by synchronizing access to the
+  `Auth.currentUser` API. This resolves some Firebase 11 issues where the
+  current user is unexpectedly `nil` at startup.
+- [fixed] Restore Firebase 10 decoding behavior to prevent user provider data
+  from always being decoded as `nil` . Note that this fix was only needed for
+  cases where Firebase 11 was reading data written by Firebase 10. (#14011)
+- [fixed] Restore Firebase 10 decoding behavior to prevent user provider data
+  from being decoded as `nil` when a user has multiple linked providers. Note
+  that this fix was only needed for cases where Firebase 11 was reading data
+  written by Firebase 10. Note that this fix will not be in the 11.6.0 zip and
+  Carthage distributions, but will be included from 11.6.0 onwards. (#14011)
+
+# 11.5.0
+- [fixed] Restore pre-Firebase 11 decoding behavior to prevent users getting
+  logged out when upgrading from Firebase 8.10.0 or earlier to Firebase 11.
+  Note that this fix will not be in the 11.5.0 zip and Carthage
+  distributions, but will be included from 11.6.0 onwards. (#14011)
+- [fixed] Restore Firebase 10 keychain error handling behavior when retrieving
+  Firebase Auth tokens, potentially causing user sign-out on Firebase 11. Note
+  that this fix will not be in the 11.5.0 zip and Carthage distributions, but
+  will be included from 11.6.0 onwards. (#14067)
+
+# 11.4.0
+- [fixed] Restore Firebase 10 behavior by ignoring `nil` display names used
+  during multi factor enrollment. (#13856)
+- [fixed] Fix crash when enrolling account with TOTP MFA. (#13880)
+
+# 11.3.0
+- [fixed] Restore Firebase 10 behavior by querying with the
+  `kSecAttrSynchronizable` key when auth state is set to be shared across
+  devices. (#13584)
+- [fixed] Prevent a bad memory access crash by using non-ObjC, native Swift
+  types in the SDK's networking layer, and moving synchronous work off of
+  the shared Swift concurrency queue. (#13650)
+- [fixed] Restore Firebase 10 behavior by forwarding errors from interrupted
+  reCAPTCHA or OIDC login flows. (#13645)
+
+# 11.2.0
+- [fixed] Fixed crashes that could occur in Swift continuation blocks running in the Xcode 16
+  betas. (#13480)
+- [fixed] Fixed Phone Auth via Sandbox APNS tokens that broke in 11.0.0. (#13479)
+- [fixed] Fixed crash when fetching sign in methods due to unexpected nil.
+  Previously, fetching sign in methods could return both a `nil` array of sign
+  in methods and a `nil` error. In such cases, an empty array is instead
+  returned with the `nil` error. (#13550)
+- [fixed] Fixed user session persistence in multi tenant projects. Introduced in 11.0.0. (#13565)
+- [fixed] Fixed encoding crash that occurs when using TOTP multi-factor
+  authentication. Note that this fix will not be in the 11.2.0 zip and Carthage
+  distributions, but will be included from 11.3.0 onwards. (#13591)
+
+# 11.1.0
+- [fixed] Fixed `Swift.error` conformance for `AuthErrorCode`. (#13430)
+- [added] Added custom provider support to `AuthProviderID`. Note that this change will be breaking
+  to any code that implemented an exhaustive `switch` on `AuthProviderID` in 11.0.0 - the `switch`
+  will need expansion. (#13429)
+- [fixed] Fix crash introduced in 11.0.0 in phone authentication flow from
+  implicitly unwrapping `nil` error after a token timeout. (#13470)
+- [fixed] Objective-C only: `[OAuthProvider getCredentialWithUIDelegate]` was not calling its
+  completion handler in the main thread. Regressed in 11.0.0. The fix is only for CocoaPods and
+  Swift Package Manager. The zip and Carthage fix will roll out in 11.2.0.
+  (https://github.com/firebase/FirebaseUI-iOS/issues/1199)
+
+# 11.0.0
+- [fixed] Fixed auth domain matching code to prioritize matching `firebaseapp.com` over `web.app`
+  even if the server returns the `web.app` domain listed first. (#7992)
+- [added] Introduced the Swift enum `AuthProviderID` for the Auth Provider IDs. (#9236)
+- [deprecated] Swift APIs using `String`-typed `productID`s have been deprecated in favor
+  of newly added API that leverages the `AuthProviderID` enum.
+- [fixed] Breaking API: The `email` property in `ActionCodeInfo` is now non-optional.
+
 # 10.21.0
 - [fixed] Fixed multifactor resolver to use the correct Auth instance instead of
   always the default. (#12265)
@@ -377,7 +533,7 @@
 # 3.0.3
 - [added] Adds documentation for all possible errors returned by each method.
 - [fixed] Improves error handling and messages for a variety of error conditions.
-- [fixed] Whether or not an user is considered anonymous is now consistent with other
+- [fixed] Whether or not a user is considered anonymous is now consistent with other
   platforms.
 - [changed] A saved signed in user is now siloed between different Firebase projects
   within the same app.

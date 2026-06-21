@@ -16,12 +16,38 @@
 
 #include "Firestore/core/src/util/string_format.h"
 
+#include <algorithm>
+#include <sstream>
+#include <string>
+
 #include "absl/strings/string_view.h"
+#include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
 namespace firebase {
 namespace firestore {
 namespace util {
+
+namespace {
+
+using testing::HasSubstr;
+using testing::MatchesRegex;
+
+std::string lowercase(const std::string& str) {
+  std::string lower_str = str;
+  std::transform(lower_str.begin(), lower_str.end(), lower_str.begin(),
+                 [](auto c) { return std::tolower(c); });
+  return lower_str;
+}
+
+template <typename T>
+std::string hex_address(const T* ptr) {
+  std::ostringstream os;
+  os << std::hex << reinterpret_cast<uintptr_t>(ptr);
+  return os.str();
+}
+
+}  // namespace
 
 TEST(StringFormatTest, Empty) {
   EXPECT_EQ("", StringFormat(""));
@@ -72,12 +98,21 @@ TEST(StringFormatTest, Bool) {
   EXPECT_EQ("Hello false", StringFormat("Hello %s", false));
 }
 
-TEST(StringFormatTest, Pointer) {
-  // pointers implicitly convert to bool. Make sure this doesn't happen in
-  // this API.
-  int value = 4;
-  EXPECT_NE("Hello true", StringFormat("Hello %s", &value));
+TEST(StringFormatTest, NullPointer) {
+  // pointers implicitly convert to bool. Make sure this doesn't happen here.
   EXPECT_EQ("Hello null", StringFormat("Hello %s", nullptr));
+}
+
+TEST(StringFormatTest, NonNullPointer) {
+  // pointers implicitly convert to bool. Make sure this doesn't happen here.
+  int value = 4;
+
+  const std::string formatted_string = StringFormat("Hello %s", &value);
+
+  const std::string hex_address_regex = "(0x)?[0123456789abcdefABCDEF]+";
+  EXPECT_THAT(formatted_string, MatchesRegex("Hello " + hex_address_regex));
+  const std::string expected_hex_address = lowercase(hex_address(&value));
+  EXPECT_THAT(lowercase(formatted_string), HasSubstr(expected_hex_address));
 }
 
 TEST(StringFormatTest, Mixed) {
@@ -86,6 +121,10 @@ TEST(StringFormatTest, Mixed) {
                          42, 1.5));
   EXPECT_EQ("World%true%42%1.5",
             StringFormat("%s%%%s%%%s%%%s", "World", true, 42, 1.5));
+}
+
+TEST(StringFormatTest, Hex) {
+  EXPECT_EQ("test=42", StringFormat("test=%x", "B"));
 }
 
 TEST(StringFormatTest, Literal) {

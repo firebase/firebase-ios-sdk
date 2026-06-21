@@ -15,7 +15,7 @@
 import Foundation
 
 /// Contains the list of errors that are localized for Firebase Sessions Library
-enum FirebaseSessionsError: Error {
+enum FirebaseSessionsError: Error, Sendable {
   /// Event sampling related error
   case SessionSamplingError
   /// Firebase Installation ID related error

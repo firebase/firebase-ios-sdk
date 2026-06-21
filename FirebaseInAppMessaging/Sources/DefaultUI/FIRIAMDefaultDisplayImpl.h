@@ -26,6 +26,7 @@ NS_SWIFT_NAME(InAppMessagingDefaultDisplayImpl)
  * to help UI Testing app access the UI layer directly.
  */
 NS_EXTENSION_UNAVAILABLE("Firebase In App Messaging is not supported for iOS extensions.")
+API_AVAILABLE(ios(13.0), tvos(13.0))
 @interface FIRIAMDefaultDisplayImpl : NSObject <FIRInAppMessagingDisplay>
 
 /// Conforms to display delegate for rendering of in-app messages.

@@ -39,6 +39,7 @@ NS_ASSUME_NONNULL_BEGIN
 //   1 No current in-app message is being displayed
 //   2 For non-contextual messages, the display interval in display setting is met.
 NS_EXTENSION_UNAVAILABLE("Firebase In App Messaging is not supported for iOS extensions.")
+API_AVAILABLE(ios(13.0), tvos(13.0))
 @interface FIRIAMDisplayExecutor : NSObject
 
 - (instancetype)initWithInAppMessaging:(FIRInAppMessaging *)inAppMessaging

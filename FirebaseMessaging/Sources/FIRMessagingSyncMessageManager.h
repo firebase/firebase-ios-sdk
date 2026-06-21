@@ -39,7 +39,7 @@
 - (void)removeExpiredSyncMessages;
 
 /**
- *  App did recive a sync message via APNS.
+ *  App did receive a sync message via APNS.
  *
  *  @param message The sync message received.
  *

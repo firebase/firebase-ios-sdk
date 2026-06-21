@@ -43,6 +43,7 @@ typedef NS_ENUM(NSInteger, FIRDocumentChangeType)
  * A `DocumentChange` represents a change to the documents matching a query. It contains the
  * document affected and the type of change that occurred (added, modified, or removed).
  */
+NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(DocumentChange)
 @interface FIRDocumentChange : NSObject
 

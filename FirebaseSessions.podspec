@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseSessions'
-  s.version          = '10.25.0'
+  s.version          = '12.16.0'
   s.summary          = 'Firebase Sessions'
 
   s.description      = <<-DESC
@@ -18,12 +18,12 @@ Pod::Spec.new do |s|
   }
   s.social_media_url = 'https://twitter.com/Firebase'
 
-  ios_deployment_target = '11.0'
-  osx_deployment_target = '10.13'
-  tvos_deployment_target = '12.0'
-  watchos_deployment_target = '6.0'
+  ios_deployment_target = '15.0'
+  osx_deployment_target = '10.15'
+  tvos_deployment_target = '15.0'
+  watchos_deployment_target = '7.0'
 
-  s.swift_version = '5.3'
+  s.swift_version = '5.9'
 
   s.ios.deployment_target = ios_deployment_target
   s.osx.deployment_target = osx_deployment_target
@@ -39,17 +39,16 @@ Pod::Spec.new do |s|
     base_dir + 'SourcesObjC/**/*.{c,h,m,mm}',
   ]
 
-  s.dependency 'FirebaseCore', '~> 10.5'
-  s.dependency 'FirebaseCoreExtension', '~> 10.0'
-  s.dependency 'FirebaseInstallations', '~> 10.0'
-  s.dependency 'GoogleDataTransport', '~> 9.2'
-  s.dependency 'GoogleUtilities/Environment', '~> 7.13'
-  s.dependency 'GoogleUtilities/UserDefaults', '~> 7.13'
-  s.dependency 'nanopb', '>= 2.30908.0', '< 2.30911.0'
+  s.dependency 'FirebaseCore', '~> 12.16.0'
+  s.dependency 'FirebaseCoreExtension', '~> 12.16.0'
+  s.dependency 'FirebaseInstallations', '~> 12.16.0'
+  s.dependency 'GoogleDataTransport', '~> 10.1'
+  s.dependency 'GoogleUtilities/Environment', '~> 8.1'
+  s.dependency 'GoogleUtilities/UserDefaults', '~> 8.1'
+  s.dependency 'nanopb', '~> 3.30910.0'
   s.dependency 'PromisesSwift', '~> 2.1'
 
   s.pod_target_xcconfig = {
-    'GCC_C_LANGUAGE_STANDARD' => 'c99',
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"',
     'GCC_PREPROCESSOR_DEFINITIONS' =>
       # For nanopb:

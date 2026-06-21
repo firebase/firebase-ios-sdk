@@ -24,7 +24,7 @@
 #import <Foundation/Foundation.h>
 
 #include <memory>
-#include <mutex>  // NOLINT(build/c++11)
+#include <mutex>
 #include <string>
 #include <utility>
 
@@ -38,7 +38,8 @@ namespace firestore {
 namespace credentials {
 
 class FirebaseAppCheckCredentialsProvider
-    : public CredentialsProvider<std::string, std::string> {
+    : public CredentialsProvider<std::string, std::string>,
+      public std::enable_shared_from_this<FirebaseAppCheckCredentialsProvider> {
  public:
   FirebaseAppCheckCredentialsProvider(FIRApp* app,
                                       id<FIRAppCheckInterop> app_check);

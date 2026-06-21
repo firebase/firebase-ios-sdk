@@ -34,6 +34,9 @@
 /// Remote Config Error Domain.
 /// TODO: Rename according to obj-c style for constants.
 NSString *const FIRRemoteConfigErrorDomain = @"com.google.remoteconfig.ErrorDomain";
+// Remote Config Custom Signals Error Domain
+NSString *const FIRRemoteConfigCustomSignalsErrorDomain =
+    @"com.google.remoteconfig.customsignals.ErrorDomain";
 // Remote Config Realtime Error Domain
 NSString *const FIRRemoteConfigUpdateErrorDomain = @"com.google.remoteconfig.update.ErrorDomain";
 /// Remote Config Error Info End Time Seconds;
@@ -47,6 +50,12 @@ const NSNotificationName FIRRemoteConfigActivateNotification =
     @"FIRRemoteConfigActivateNotification";
 static NSNotificationName FIRRolloutsStateDidChangeNotificationName =
     @"FIRRolloutsStateDidChangeNotification";
+/// Maximum allowed length for a custom signal key (in characters).
+static const NSUInteger FIRRemoteConfigCustomSignalsMaxKeyLength = 250;
+/// Maximum allowed length for a string value in custom signals (in characters).
+static const NSUInteger FIRRemoteConfigCustomSignalsMaxStringValueLength = 500;
+/// Maximum number of custom signals allowed.
+static const NSUInteger FIRRemoteConfigCustomSignalsMaxCount = 100;
 
 /// Listener for the get methods.
 typedef void (^FIRRemoteConfigListener)(NSString *_Nonnull, NSDictionary *_Nonnull);
@@ -151,6 +160,10 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
 
     // Initialize RCConfigContent if not already.
     _configContent = configContent;
+
+    // We must ensure the DBManager's asynchronous setup (which sets gIsNewDatabase)
+    // completes before RCNConfigSettings tries to read that state for the resetUserDefaults logic.
+    [_DBManager waitForDatabaseOperationQueue];
     _settings = [[RCNConfigSettings alloc] initWithDatabaseManager:_DBManager
                                                          namespace:_FIRNamespace
                                                    firebaseAppName:appName
@@ -235,6 +248,103 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
       });
     }
   }
+}
+
+- (void)setCustomSignals:(nonnull NSDictionary<NSString *, NSObject *> *)customSignals
+          withCompletion:(void (^_Nullable)(NSError *_Nullable error))completionHandler {
+  void (^setCustomSignalsBlock)(void) = ^{
+    // Validate value type, and key and value length
+    for (NSString *key in customSignals) {
+      NSObject *value = customSignals[key];
+      if (![value isKindOfClass:[NSNull class]] && ![value isKindOfClass:[NSString class]] &&
+          ![value isKindOfClass:[NSNumber class]]) {
+        if (completionHandler) {
+          dispatch_async(dispatch_get_main_queue(), ^{
+            NSError *error =
+                [NSError errorWithDomain:FIRRemoteConfigCustomSignalsErrorDomain
+                                    code:FIRRemoteConfigCustomSignalsErrorInvalidValueType
+                                userInfo:@{
+                                  NSLocalizedDescriptionKey :
+                                      @"Invalid value type. Must be NSString, NSNumber or NSNull"
+                                }];
+            completionHandler(error);
+          });
+        }
+        return;
+      }
+
+      if (key.length > FIRRemoteConfigCustomSignalsMaxKeyLength ||
+          ([value isKindOfClass:[NSString class]] &&
+           [(NSString *)value length] > FIRRemoteConfigCustomSignalsMaxStringValueLength)) {
+        if (completionHandler) {
+          dispatch_async(dispatch_get_main_queue(), ^{
+            NSError *error = [NSError
+                errorWithDomain:FIRRemoteConfigCustomSignalsErrorDomain
+                           code:FIRRemoteConfigCustomSignalsErrorLimitExceeded
+                       userInfo:@{
+                         NSLocalizedDescriptionKey : [NSString
+                             stringWithFormat:@"Custom signal keys and string values must be "
+                                              @"%lu and %lu characters or less respectively.",
+                                              FIRRemoteConfigCustomSignalsMaxKeyLength,
+                                              FIRRemoteConfigCustomSignalsMaxStringValueLength]
+                       }];
+            completionHandler(error);
+          });
+        }
+        return;
+      }
+    }
+
+    // Merge new signals with existing ones, overwriting existing keys.
+    // Also, remove entries where the new value is null.
+    NSMutableDictionary<NSString *, NSString *> *newCustomSignals =
+        [[NSMutableDictionary alloc] initWithDictionary:self->_settings.customSignals];
+
+    for (NSString *key in customSignals) {
+      NSObject *value = customSignals[key];
+      if (![value isKindOfClass:[NSNull class]]) {
+        NSString *stringValue = [value isKindOfClass:[NSNumber class]]
+                                    ? [(NSNumber *)value stringValue]
+                                    : (NSString *)value;
+        [newCustomSignals setObject:stringValue forKey:key];
+      } else {
+        [newCustomSignals removeObjectForKey:key];
+      }
+    }
+
+    // Check the size limit.
+    if (newCustomSignals.count > FIRRemoteConfigCustomSignalsMaxCount) {
+      if (completionHandler) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+          NSError *error = [NSError
+              errorWithDomain:FIRRemoteConfigCustomSignalsErrorDomain
+                         code:FIRRemoteConfigCustomSignalsErrorLimitExceeded
+                     userInfo:@{
+                       NSLocalizedDescriptionKey : [NSString
+                           stringWithFormat:@"Custom signals count exceeds the limit of %lu.",
+                                            FIRRemoteConfigCustomSignalsMaxCount]
+                     }];
+          completionHandler(error);
+        });
+      }
+      return;
+    }
+
+    // Update only if there are changes.
+    if (![newCustomSignals isEqualToDictionary:self->_settings.customSignals]) {
+      self->_settings.customSignals = newCustomSignals;
+    }
+    // Log the keys of the updated custom signals.
+    FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000078", @"Keys of updated custom signals: %@",
+                [newCustomSignals allKeys]);
+
+    if (completionHandler) {
+      dispatch_async(dispatch_get_main_queue(), ^{
+        completionHandler(nil);
+      });
+    }
+  };
+  dispatch_async(_queue, setCustomSignalsBlock);
 }
 
 #pragma mark - fetch
@@ -594,6 +704,8 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
   dispatch_sync(_queue, ^{
     minimumFetchInterval = self->_settings.minimumFetchInterval;
     fetchTimeout = self->_settings.fetchTimeout;
+    // The NSURLSession needs to be recreated whenever the fetch timeout may be updated.
+    [_configFetch recreateNetworkSession];
   });
   FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000066",
               @"Successfully read configSettings. Minimum Fetch Interval:%f, "
@@ -602,8 +714,6 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
   FIRRemoteConfigSettings *settings = [[FIRRemoteConfigSettings alloc] init];
   settings.minimumFetchInterval = minimumFetchInterval;
   settings.fetchTimeout = fetchTimeout;
-  /// The NSURLSession needs to be recreated whenever the fetch timeout may be updated.
-  [_configFetch recreateNetworkSession];
   return settings;
 }
 
@@ -615,7 +725,7 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
 
     self->_settings.minimumFetchInterval = configSettings.minimumFetchInterval;
     self->_settings.fetchTimeout = configSettings.fetchTimeout;
-    /// The NSURLSession needs to be recreated whenever the fetch timeout may be updated.
+    // The NSURLSession needs to be recreated whenever the fetch timeout may be updated.
     [self->_configFetch recreateNetworkSession];
     FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000067",
                 @"Successfully set configSettings. Minimum Fetch Interval:%f, "

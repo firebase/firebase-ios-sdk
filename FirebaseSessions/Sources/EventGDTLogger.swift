@@ -15,10 +15,11 @@
 
 import Foundation
 
-@_implementationOnly import GoogleDataTransport
+internal import GoogleDataTransport
 
-protocol EventGDTLoggerProtocol {
-  func logEvent(event: SessionStartEvent, completion: @escaping (Result<Void, Error>) -> Void)
+protocol EventGDTLoggerProtocol: Sendable {
+  func logEvent(event: SessionStartEvent,
+                completion: @escaping @Sendable (Result<Void, Error>) -> Void)
 }
 
 ///
@@ -26,7 +27,7 @@ protocol EventGDTLoggerProtocol {
 ///   1) Creating GDT Events and logging them to the GoogleDataTransport SDK
 ///   2) Handling debugging situations (eg. running in Simulator or printing the event to console)
 ///
-class EventGDTLogger: EventGDTLoggerProtocol {
+final class EventGDTLogger: EventGDTLoggerProtocol {
   let googleDataTransport: GoogleDataTransportProtocol
   let devEventConsoleLogger: EventGDTLoggerProtocol
 
@@ -38,7 +39,8 @@ class EventGDTLogger: EventGDTLoggerProtocol {
 
   /// Logs the event to FireLog, taking into account debugging cases such as running
   /// in simulator.
-  func logEvent(event: SessionStartEvent, completion: @escaping (Result<Void, Error>) -> Void) {
+  func logEvent(event: SessionStartEvent,
+                completion: @escaping @Sendable (Result<Void, Error>) -> Void) {
     let gdtEvent = googleDataTransport.eventForTransport()
     gdtEvent.dataObject = event
     gdtEvent.qosTier = GDTCOREventQoS.qosDefault

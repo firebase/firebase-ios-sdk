@@ -63,7 +63,7 @@ TEST(StringWindowsTest, InvalidUtf8) {
 }
 
 /**
- * Temporarily sets the curent language for the current thread to the given
+ * Temporarily sets the current language for the current thread to the given
  * language. Restores the previously current language when the instance is
  * destructed.
  */

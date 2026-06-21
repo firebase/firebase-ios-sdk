@@ -21,6 +21,8 @@
 
 #import <XCTest/XCTest.h>
 
+#import "FirebaseCore/Sources/Public/FirebaseCore/FIRTimestamp.h"
+
 #import "FirebaseCore/Extension/FIRAppInternal.h"
 #import "Firestore/Example/Tests/Util/FSTEventAccumulator.h"
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
@@ -187,13 +189,13 @@ using firebase::firestore::util::TimerId;
 
   NSDictionary<NSString *, id> *initialData =
       @{@"desc" : @"Description", @"owner" : @{@"name" : @"Jonny", @"email" : @"abc@xyz.com"}};
-  NSDictionary<NSString *, id> *udpateData = @{@"desc" : @"NewDescription"};
+  NSDictionary<NSString *, id> *updateData = @{@"desc" : @"NewDescription"};
 
   [self writeDocumentRef:doc data:initialData];
-  [self writeDocumentRef:doc data:udpateData];
+  [self writeDocumentRef:doc data:updateData];
 
   FIRDocumentSnapshot *document = [self readDocumentForRef:doc];
-  XCTAssertEqualObjects(document.data, udpateData);
+  XCTAssertEqualObjects(document.data, updateData);
 }
 
 - (void)testCanMergeDataWithAnExistingDocumentUsingSet {
@@ -1193,7 +1195,7 @@ using firebase::firestore::util::TimerId;
 }
 
 - (void)testCanQueueWritesWhileOffline {
-  XCTestExpectation *writeEpectation = [self expectationWithDescription:@"successfull write"];
+  XCTestExpectation *writeEpectation = [self expectationWithDescription:@"successful write"];
   XCTestExpectation *networkExpectation = [self expectationWithDescription:@"enable network"];
 
   FIRDocumentReference *doc = [self documentRef];
@@ -1217,7 +1219,7 @@ using firebase::firestore::util::TimerId;
 
   [self awaitExpectations];
 
-  XCTestExpectation *getExpectation = [self expectationWithDescription:@"successfull get"];
+  XCTestExpectation *getExpectation = [self expectationWithDescription:@"successful get"];
   [doc getDocumentWithCompletion:^(FIRDocumentSnapshot *snapshot, NSError *error) {
     XCTAssertNil(error);
     XCTAssertEqualObjects(snapshot.data, data);

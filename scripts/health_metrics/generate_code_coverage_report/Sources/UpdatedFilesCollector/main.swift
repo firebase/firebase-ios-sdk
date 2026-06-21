@@ -103,7 +103,7 @@ struct UpdatedFilesCollector: ParsableCommand {
     }
     if let outputPath = outputSDKFileURL {
       do {
-        // Instead of directly writing Data to a file, trasnferring Data to
+        // Instead of directly writing Data to a file, transferring Data to
         // String can help trimming whitespaces and newlines in advance.
         let str = try String(
           decoding: JSONEncoder().encode(podspecsWithChangedFiles),
@@ -115,7 +115,7 @@ struct UpdatedFilesCollector: ParsableCommand {
           encoding: String.Encoding.utf8
         )
       } catch {
-        fatalError("Error while writting in \(outputPath.path).\n\(error)")
+        fatalError("Error while writing in \(outputPath.path).\n\(error)")
       }
     }
   }

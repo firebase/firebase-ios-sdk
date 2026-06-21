@@ -13,6 +13,11 @@
 // limitations under the License.
 
 import Foundation
+#if SWIFT_PACKAGE
+  internal import GoogleUtilities_UserDefaults
+#else
+  internal import GoogleUtilities
+#endif // SWIFT_PACKAGE
 
 /// Task to download model file to device.
 class ModelDownloadTask {
@@ -23,16 +28,13 @@ class ModelDownloadTask {
   private(set) var remoteModelInfo: RemoteModelInfo
 
   /// User defaults to which local model info should ultimately be written.
-  private let defaults: UserDefaults
+  private let defaults: GULUserDefaults
 
   /// Keeps track of download associated with this model download task.
   private(set) var downloadStatus: ModelDownloadStatus = .ready
 
   /// Downloader instance.
   private let downloader: FileDownloader
-
-  /// Telemetry logger.
-  private let telemetryLogger: TelemetryLogger?
 
   /// Download progress handler.
   typealias ProgressHandler = (Float) -> Void
@@ -44,18 +46,16 @@ class ModelDownloadTask {
 
   init(remoteModelInfo: RemoteModelInfo,
        appName: String,
-       defaults: UserDefaults,
+       defaults: GULUserDefaults,
        downloader: FileDownloader,
        progressHandler: ProgressHandler? = nil,
-       completion: @escaping Completion,
-       telemetryLogger: TelemetryLogger? = nil) {
+       completion: @escaping Completion) {
     self.remoteModelInfo = remoteModelInfo
     self.appName = appName
     self.defaults = defaults
     self.downloader = downloader
     self.progressHandler = progressHandler
     self.completion = completion
-    self.telemetryLogger = telemetryLogger
   }
 }
 
@@ -91,23 +91,9 @@ extension ModelDownloadTask {
       DeviceLogger.logEvent(level: .debug,
                             message: ModelDownloadTask.ErrorDescription.anotherDownloadInProgress,
                             messageCode: .anotherDownloadInProgressError)
-      telemetryLogger?.logModelDownloadEvent(eventName: .modelDownload,
-                                             status: .failed,
-                                             model: CustomModel(name: remoteModelInfo.name,
-                                                                size: remoteModelInfo.size,
-                                                                path: "",
-                                                                hash: remoteModelInfo.modelHash),
-                                             downloadErrorCode: .downloadFailed)
       return
     }
     downloadStatus = .downloading
-    telemetryLogger?.logModelDownloadEvent(eventName: .modelDownload,
-                                           status: .downloading,
-                                           model: CustomModel(name: remoteModelInfo.name,
-                                                              size: remoteModelInfo.size,
-                                                              path: "",
-                                                              hash: remoteModelInfo.modelHash),
-                                           downloadErrorCode: .noError)
     downloader.downloadFile(with: remoteModelInfo.downloadURL,
                             progressHandler: { downloadedBytes, totalBytes in
                               /// Fraction of model file downloaded.
@@ -136,45 +122,18 @@ extension ModelDownloadTask {
           DeviceLogger.logEvent(level: .debug,
                                 message: description,
                                 messageCode: .hostnameError)
-          self.telemetryLogger?.logModelDownloadEvent(
-            eventName: .modelDownload,
-            status: .failed,
-            model: CustomModel(name: self.remoteModelInfo.name,
-                               size: self.remoteModelInfo.size,
-                               path: "",
-                               hash: self.remoteModelInfo.modelHash),
-            downloadErrorCode: .noConnection
-          )
         case FileDownloaderError.unexpectedResponseType:
           let description = ModelDownloadTask.ErrorDescription.invalidHTTPResponse
           downloadError = .internalError(description: description)
           DeviceLogger.logEvent(level: .debug,
                                 message: description,
                                 messageCode: .invalidHTTPResponse)
-          self.telemetryLogger?.logModelDownloadEvent(
-            eventName: .modelDownload,
-            status: .failed,
-            model: CustomModel(name: self.remoteModelInfo.name,
-                               size: self.remoteModelInfo.size,
-                               path: "",
-                               hash: self.remoteModelInfo.modelHash),
-            downloadErrorCode: .downloadFailed
-          )
         default:
           let description = ModelDownloadTask.ErrorDescription.unknownDownloadError
           downloadError = .internalError(description: description)
           DeviceLogger.logEvent(level: .debug,
                                 message: description,
                                 messageCode: .modelDownloadError)
-          self.telemetryLogger?.logModelDownloadEvent(
-            eventName: .modelDownload,
-            status: .failed,
-            model: CustomModel(name: self.remoteModelInfo.name,
-                               size: self.remoteModelInfo.size,
-                               path: "",
-                               hash: self.remoteModelInfo.modelHash),
-            downloadErrorCode: .downloadFailed
-          )
         }
         self.completion(.failure(downloadError))
       }
@@ -192,59 +151,23 @@ extension ModelDownloadTask {
                                 message: ModelDownloadTask.ErrorDescription
                                   .invalidArgument(remoteModelInfo.name),
                                 messageCode: .invalidArgument)
-          telemetryLogger?.logModelDownloadEvent(
-            eventName: .modelDownload,
-            status: .failed,
-            model: CustomModel(name: remoteModelInfo.name,
-                               size: remoteModelInfo.size,
-                               path: "",
-                               hash: remoteModelInfo.modelHash),
-            downloadErrorCode: .httpError(code: response.statusCode)
-          )
           completion(.failure(.invalidArgument))
           return
         }
         DeviceLogger.logEvent(level: .debug,
                               message: ModelDownloadTask.ErrorDescription.expiredModelInfo,
                               messageCode: .expiredModelInfo)
-        telemetryLogger?.logModelDownloadEvent(
-          eventName: .modelDownload,
-          status: .failed,
-          model: CustomModel(name: remoteModelInfo.name,
-                             size: remoteModelInfo.size,
-                             path: "",
-                             hash: remoteModelInfo.modelHash),
-          downloadErrorCode: .urlExpired
-        )
         completion(.failure(.expiredDownloadURL))
       case 401, 403:
         DeviceLogger.logEvent(level: .debug,
                               message: ModelDownloadTask.ErrorDescription.permissionDenied,
                               messageCode: .permissionDenied)
-        telemetryLogger?.logModelDownloadEvent(
-          eventName: .modelDownload,
-          status: .failed,
-          model: CustomModel(name: remoteModelInfo.name,
-                             size: remoteModelInfo.size,
-                             path: "",
-                             hash: remoteModelInfo.modelHash),
-          downloadErrorCode: .httpError(code: response.statusCode)
-        )
         completion(.failure(.permissionDenied))
       case 404:
         DeviceLogger.logEvent(level: .debug,
                               message: ModelDownloadTask.ErrorDescription
                                 .modelNotFound(remoteModelInfo.name),
                               messageCode: .modelNotFound)
-        telemetryLogger?.logModelDownloadEvent(
-          eventName: .modelDownload,
-          status: .failed,
-          model: CustomModel(name: remoteModelInfo.name,
-                             size: remoteModelInfo.size,
-                             path: "",
-                             hash: remoteModelInfo.modelHash),
-          downloadErrorCode: .httpError(code: response.statusCode)
-        )
         completion(.failure(.notFound))
       default:
         let description = ModelDownloadTask.ErrorDescription
@@ -252,15 +175,6 @@ extension ModelDownloadTask {
         DeviceLogger.logEvent(level: .debug,
                               message: description,
                               messageCode: .modelDownloadError)
-        telemetryLogger?.logModelDownloadEvent(
-          eventName: .modelDownload,
-          status: .failed,
-          model: CustomModel(name: remoteModelInfo.name,
-                             size: remoteModelInfo.size,
-                             path: "",
-                             hash: remoteModelInfo.modelHash),
-          downloadErrorCode: .httpError(code: response.statusCode)
-        )
         completion(.failure(.internalError(description: description)))
       }
       return
@@ -277,13 +191,6 @@ extension ModelDownloadTask {
                             message: description,
                             messageCode: .downloadedModelSaveError)
       // Downloading the file succeeding but saving failed.
-      telemetryLogger?.logModelDownloadEvent(eventName: .modelDownload,
-                                             status: .succeeded,
-                                             model: CustomModel(name: remoteModelInfo.name,
-                                                                size: remoteModelInfo.size,
-                                                                path: "",
-                                                                hash: remoteModelInfo.modelHash),
-                                             downloadErrorCode: .downloadFailed)
       completion(.failure(.internalError(description: description)))
       return
     }
@@ -320,12 +227,6 @@ extension ModelDownloadTask {
       DeviceLogger.logEvent(level: .debug,
                             message: ModelDownloadTask.DebugDescription.modelDownloaded,
                             messageCode: .modelDownloaded)
-      telemetryLogger?.logModelDownloadEvent(
-        eventName: .modelDownload,
-        status: .succeeded,
-        model: model,
-        downloadErrorCode: .noError
-      )
       completion(.success(model))
     } catch let error as DownloadError {
       if error == .notEnoughSpace {
@@ -338,13 +239,6 @@ extension ModelDownloadTask {
                               messageCode: .downloadedModelSaveError)
       }
       // Downloading the file succeeding but saving failed.
-      telemetryLogger?.logModelDownloadEvent(eventName: .modelDownload,
-                                             status: .succeeded,
-                                             model: CustomModel(name: remoteModelInfo.name,
-                                                                size: remoteModelInfo.size,
-                                                                path: "",
-                                                                hash: remoteModelInfo.modelHash),
-                                             downloadErrorCode: .downloadFailed)
       completion(.failure(error))
       return
     } catch {
@@ -352,13 +246,6 @@ extension ModelDownloadTask {
                             message: ModelDownloadTask.ErrorDescription.modelSaveError,
                             messageCode: .downloadedModelSaveError)
       // Downloading the file succeeding but saving failed.
-      telemetryLogger?.logModelDownloadEvent(eventName: .modelDownload,
-                                             status: .succeeded,
-                                             model: CustomModel(name: remoteModelInfo.name,
-                                                                size: remoteModelInfo.size,
-                                                                path: "",
-                                                                hash: remoteModelInfo.modelHash),
-                                             downloadErrorCode: .downloadFailed)
       completion(.failure(.internalError(description: error.localizedDescription)))
       return
     }

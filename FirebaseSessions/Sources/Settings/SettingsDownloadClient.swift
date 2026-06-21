@@ -16,17 +16,18 @@
 import Foundation
 
 #if SWIFT_PACKAGE
-  @_implementationOnly import GoogleUtilities_Environment
+  internal import GoogleUtilities_Environment
 #else
-  @_implementationOnly import GoogleUtilities
+  internal import GoogleUtilities
 #endif // SWIFT_PACKAGE
 
-protocol SettingsDownloadClient {
-  func fetch(completion: @escaping (Result<[String: Any], SettingsDownloaderError>) -> Void)
+protocol SettingsDownloadClient: Sendable {
+  func fetch(completion: @Sendable @escaping (Result<[String: Any], SettingsDownloaderError>)
+    -> Void)
 }
 
 enum SettingsDownloaderError: Error {
-  /// Error contructing the URL
+  /// Error constructing the URL
   case URLError(String)
   /// Error from the URLSession task
   case URLSessionError(String)
@@ -36,7 +37,7 @@ enum SettingsDownloaderError: Error {
   case InstallationIDError(String)
 }
 
-class SettingsDownloader: SettingsDownloadClient {
+final class SettingsDownloader: SettingsDownloadClient {
   private let appInfo: ApplicationInfoProtocol
   private let installations: InstallationsProtocol
 
@@ -45,7 +46,8 @@ class SettingsDownloader: SettingsDownloadClient {
     self.installations = installations
   }
 
-  func fetch(completion: @escaping (Result<[String: Any], SettingsDownloaderError>) -> Void) {
+  func fetch(completion: @Sendable @escaping (Result<[String: Any], SettingsDownloaderError>)
+    -> Void) {
     guard let validURL = url else {
       completion(.failure(.URLError("Invalid URL")))
       return
@@ -56,7 +58,7 @@ class SettingsDownloader: SettingsDownloadClient {
       case let .success(installationsInfo):
         let request = self.buildRequest(url: validURL, fiid: installationsInfo.0)
         let task = URLSession.shared.dataTask(with: request) { data, response, error in
-          if let data = data {
+          if let data {
             if let dict = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
               completion(.success(dict))
             } else {
@@ -64,7 +66,7 @@ class SettingsDownloader: SettingsDownloadClient {
                 .JSONParseError("Failed to parse JSON to dictionary")
               ))
             }
-          } else if let error = error {
+          } else if let error {
             completion(.failure(.URLSessionError(error.localizedDescription)))
           }
         }

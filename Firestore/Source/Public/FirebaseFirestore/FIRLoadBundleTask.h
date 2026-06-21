@@ -36,6 +36,7 @@ typedef NS_ENUM(NSInteger, FIRLoadBundleTaskState) {
 
 /** Represents a progress update or a final state from loading bundles. */
 NS_SWIFT_NAME(LoadBundleTaskProgress)
+NS_SWIFT_SENDABLE
 @interface FIRLoadBundleTaskProgress : NSObject
 
 /** How many documents have been loaded. */

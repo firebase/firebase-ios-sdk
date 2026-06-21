@@ -25,7 +25,8 @@
 
 @interface FIRCLSRolloutsPersistenceManager : NSObject <FIRCLSPersistenceLog>
 
-- (instancetype _Nullable)initWithFileManager:(FIRCLSFileManager *_Nonnull)fileManager;
+- (instancetype _Nullable)initWithFileManager:(FIRCLSFileManager *_Nonnull)fileManager
+                                     andQueue:(dispatch_queue_t _Nonnull)queue;
 - (instancetype _Nonnull)init NS_UNAVAILABLE;
 + (instancetype _Nonnull)new NS_UNAVAILABLE;
 
