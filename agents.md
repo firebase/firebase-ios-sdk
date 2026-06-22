@@ -1,8 +1,8 @@
 # agents.md - Context for AI Assisted Development
 
-This document provides essential context and guidelines for AI agents to effectively understand,
-navigate, and make changes within the `firebase-ios-sdk` repository. It highlights key aspects of the
-development environment, coding practices, and architectural patterns.
+This file highlights key aspects of the development environment, coding practices, and
+architectural patterns covered in this repo. When an agents.md file is present in a product's
+subdirectory, prefer using the workflow defined there.
 
 ## Setup Commands
 
