@@ -1,3 +1,7 @@
+# Unreleased
+- [changed] Changed error message for missing `FirebaseApp.configure()` to
+  properly articulate supported methods. (#16294)
+
 # 12.15.0
 - [added] Added a reCAPTCHA attestation provider. Using this provider requires the
   [reCAPTCHA Enterprise SDK to be installed](https://docs.cloud.google.com/recaptcha/docs/instrument-ios-apps#prepare-environment),

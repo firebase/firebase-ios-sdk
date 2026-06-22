@@ -23,8 +23,8 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /// App Check provider that verifies app integrity using
-/// [reCAPTCHA Enterprise for iOS](https://cloud.google.com/recaptcha/docs/instrument-ios-apps)
-/// API.
+/// [reCAPTCHA Enterprise for
+/// iOS](https://firebase.google.com/docs/app-check/ios/recaptcha-enterprise-provider) API.
 NS_SWIFT_NAME(RecaptchaProvider)
 API_AVAILABLE(ios(15.0), visionos(1.0))
 API_UNAVAILABLE(macos, tvos, watchos, macCatalyst)

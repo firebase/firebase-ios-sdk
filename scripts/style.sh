@@ -173,8 +173,8 @@ s%^./%%
 \%\.pb\.% d
 \%\.nanopb\.% d
 
-# Format C-ish sources only
-\%\.(h|m|mm|cc|swift)$% p
+# Format C-ish sources and shell scripts only
+\%\.(h|m|mm|cc|swift|sh)$% p
 '
 )
 
@@ -185,6 +185,16 @@ for f in $files; do
     # 1/1 files would have been formatted.  (with --dryrun)
     # 1/1 files formatted.                  (without --dryrun)
     mint run swiftformat "${swift_options[@]}" "$f" 2>&1 | grep '^1/1 files' > /dev/null
+  elif [[ "${f: -3}" == '.sh' ]]; then
+    if [[ "$test_only" == true ]]; then
+      grep -E '[[:space:]]+$' "$f" > /dev/null
+    else
+      if [[ "$(uname -s)" == "Darwin" ]]; then
+        sed -i '' -E 's/[[:space:]]+$//' "$f"
+      else
+        sed -i -E 's/[[:space:]]+$//' "$f"
+      fi
+    fi
   else
     "$clang_format_bin" "${clang_options[@]}" "$f" | grep "<replacement " > /dev/null
   fi
