@@ -516,7 +516,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (Message<google_firestore_v1_Value>)parseBlob:(FIRBlob *)blob context:(ParseContext &&)context {
-  if (blob.isBSON) {
+  if (blob.subtype != 0) {
     uint8_t subtypeByte = blob.subtype;
     NSData *data = blob.bytes;
 

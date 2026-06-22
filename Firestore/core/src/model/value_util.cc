@@ -219,7 +219,7 @@ TypeOrder GetTypeOrder(const google_firestore_v1_Value& value) {
         case MapType::kBsonTimestamp:
           return TypeOrder::kBsonTimestamp;
         case MapType::kBsonBinaryData:
-          return TypeOrder::kBsonBinaryData;
+          return TypeOrder::kBlob;
         case MapType::kNormal:
         default:
           return TypeOrder::kMap;
@@ -348,21 +348,41 @@ ComparisonResult CompareStrings(const google_firestore_v1_Value& left,
   return util::Compare(left_string, right_string);
 }
 
+int GetBinarySubtype(const google_firestore_v1_Value& value) {
+  if (value.which_value_type == google_firestore_v1_Value_bytes_value_tag) {
+    return 0;
+  }
+  HARD_ASSERT(IsBsonBinaryData(value), "Expected binary value");
+  const pb_bytes_array_t* bytes = value.map_value.fields[0].value.bytes_value;
+  if (!bytes || bytes->size == 0) {
+    return 0;
+  }
+  return bytes->bytes[0];
+}
+
+absl::string_view GetBinaryData(const google_firestore_v1_Value& value) {
+  if (value.which_value_type == google_firestore_v1_Value_bytes_value_tag) {
+    if (!value.bytes_value) {
+      return {};
+    }
+    return nanopb::MakeStringView(value.bytes_value);
+  }
+  HARD_ASSERT(IsBsonBinaryData(value), "Expected binary value");
+  const pb_bytes_array_t* bytes = value.map_value.fields[0].value.bytes_value;
+  if (!bytes || bytes->size <= 1) {
+    return {};
+  }
+  return nanopb::MakeStringView(bytes).substr(1);
+}
+
 ComparisonResult CompareBlobs(const google_firestore_v1_Value& left,
                               const google_firestore_v1_Value& right) {
-  if (left.bytes_value && right.bytes_value) {
-    size_t size = std::min(left.bytes_value->size, right.bytes_value->size);
-    int cmp =
-        std::memcmp(left.bytes_value->bytes, right.bytes_value->bytes, size);
-    return cmp != 0
-               ? util::ComparisonResultFromInt(cmp)
-               : util::Compare(left.bytes_value->size, right.bytes_value->size);
-  } else {
-    // An empty blob is represented by a nullptr (or an empty byte array)
-    return util::Compare(
-        !(left.bytes_value == nullptr || left.bytes_value->size == 0),
-        !(right.bytes_value == nullptr || right.bytes_value->size == 0));
+  int left_subtype = GetBinarySubtype(left);
+  int right_subtype = GetBinarySubtype(right);
+  if (left_subtype != right_subtype) {
+    return util::Compare(left_subtype, right_subtype);
   }
+  return util::Compare(GetBinaryData(left), GetBinaryData(right));
 }
 
 ComparisonResult CompareReferences(const google_firestore_v1_Value& left,
@@ -642,9 +662,6 @@ ComparisonResult Compare(const google_firestore_v1_Value& left,
     case TypeOrder::kBsonTimestamp:
       return CompareBsonTimestamp(left, right);
 
-    case TypeOrder::kBsonBinaryData:
-      return CompareBsonBinaryData(left, right);
-
     case TypeOrder::kArray:
       return CompareArrays(left, right);
 
@@ -795,9 +812,6 @@ bool Equals(const google_firestore_v1_Value& lhs,
 
     case TypeOrder::kBsonTimestamp:
       return CompareBsonTimestamp(lhs, rhs) == ComparisonResult::Same;
-
-    case TypeOrder::kBsonBinaryData:
-      return CompareBsonBinaryData(lhs, rhs) == ComparisonResult::Same;
 
     case TypeOrder::kVector:
     case TypeOrder::kMap:
@@ -959,7 +973,7 @@ google_firestore_v1_Value GetLowerBound(
       } else if (IsBsonTimestamp(value)) {
         return MinBsonTimestamp();
       } else if (IsBsonBinaryData(value)) {
-        return MinBsonBinaryData();
+        return MinBytes();
       } else if (IsRegexValue(value)) {
         return MinRegex();
       } else if (IsInt32Value(value) || IsDecimal128Value(value)) {
@@ -995,7 +1009,7 @@ google_firestore_v1_Value GetUpperBound(
     case google_firestore_v1_Value_string_value_tag:
       return MinBytes();
     case google_firestore_v1_Value_bytes_value_tag:
-      return MinBsonBinaryData();
+      return MinReference();
     case google_firestore_v1_Value_reference_value_tag:
       return MinBsonObjectId();
     case google_firestore_v1_Value_geo_point_value_tag:

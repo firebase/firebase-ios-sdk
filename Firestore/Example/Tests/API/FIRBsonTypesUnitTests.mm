@@ -158,11 +158,9 @@ NS_ASSUME_NONNULL_BEGIN
 
   // Test reading properties back
   XCTAssertEqual(0, std1.subtype);
-  XCTAssertFalse(std1.isBSON);
   XCTAssertEqual(data1, std1.bytes);
 
   XCTAssertEqual(128, bson1.subtype);
-  XCTAssertTrue(bson1.isBSON);
   XCTAssertEqual(data1, bson1.bytes);
 
   // Test isEqual

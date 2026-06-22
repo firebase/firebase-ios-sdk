@@ -31,7 +31,6 @@
 private protocol CodableBlob: Codable {
   var subtype: UInt8 { get }
   var bytes: Data { get }
-  var isBSON: Bool { get }
 
   init(bytes: Data)
   init(bsonBinary: Data, subtype: UInt8)
@@ -41,7 +40,6 @@ private protocol CodableBlob: Codable {
 private enum BlobKeys: String, CodingKey {
   case subtype
   case bytes
-  case isBSON
 }
 
 extension CodableBlob {
@@ -49,8 +47,7 @@ extension CodableBlob {
     let container = try decoder.container(keyedBy: BlobKeys.self)
     let subtype = try container.decode(UInt8.self, forKey: .subtype)
     let bytes = try container.decode(Data.self, forKey: .bytes)
-    let isBSON = try container.decodeIfPresent(Bool.self, forKey: .isBSON) ?? false
-    if isBSON {
+    if subtype != 0 {
       self.init(bsonBinary: bytes, subtype: subtype)
     } else {
       self.init(bytes: bytes)
@@ -61,7 +58,6 @@ extension CodableBlob {
     var container = encoder.container(keyedBy: BlobKeys.self)
     try container.encode(subtype, forKey: .subtype)
     try container.encode(bytes, forKey: .bytes)
-    try container.encode(isBSON, forKey: .isBSON)
   }
 }
 

@@ -32,9 +32,6 @@ __attribute__((objc_subclassing_restricted))
 /** The binary data. */
 @property(nonatomic, copy, readonly) NSData *bytes;
 
-/** True if this Blob represents BSON binary data. */
-@property(nonatomic, readonly, getter=isBSON) BOOL BSON;
-
 /** :nodoc: */
 - (instancetype)init NS_UNAVAILABLE;
 

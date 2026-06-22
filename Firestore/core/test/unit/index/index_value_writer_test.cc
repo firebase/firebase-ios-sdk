@@ -142,6 +142,21 @@ TEST(IndexValueWriterTest, writeIndexValueSupportsBsonBinaryData) {
   EXPECT_EQ(actual_bytes, expected_bytes);
 }
 
+TEST(IndexValueWriterTest, writeIndexValueSupportsBsonBinarySubtype0) {
+  auto bson_value = BsonBinaryData(0, {1, 2, 3});
+  auto blob_value = testutil::BlobValue(1, 2, 3);
+
+  IndexEncodingBuffer bson_encoder;
+  WriteIndexValue(*bson_value,
+                  bson_encoder.ForKind(model::Segment::Kind::kAscending));
+
+  IndexEncodingBuffer blob_encoder;
+  WriteIndexValue(*blob_value,
+                  blob_encoder.ForKind(model::Segment::Kind::kAscending));
+
+  EXPECT_EQ(bson_encoder.GetEncodedBytes(), blob_encoder.GetEncodedBytes());
+}
+
 TEST(IndexValueWriterTest, writeIndexValueSupportsBsonBinaryWithEmptyData) {
   // Value
   auto value = BsonBinaryData(1, {});

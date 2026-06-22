@@ -18,26 +18,25 @@
 
 @implementation FIRBlob
 
-- (instancetype)initWithBytes:(NSData *)bytes subtype:(uint8_t)subtype isBSON:(BOOL)isBSON {
+- (instancetype)initWithBytes:(NSData *)bytes subtype:(uint8_t)subtype {
   self = [super init];
   if (self) {
     _subtype = subtype;
     _bytes = [bytes copy];
-    _BSON = isBSON;
   }
   return self;
 }
 
 + (instancetype)blobWithBytes:(NSData *)bytes {
-  return [[FIRBlob alloc] initWithBytes:bytes subtype:0 isBSON:NO];
+  return [[FIRBlob alloc] initWithBytes:bytes subtype:0];
 }
 
 + (instancetype)blobWithBSONBinary:(NSData *)bytes {
-  return [[FIRBlob alloc] initWithBytes:bytes subtype:0 isBSON:YES];
+  return [[FIRBlob alloc] initWithBytes:bytes subtype:0];
 }
 
 + (instancetype)blobWithBSONBinary:(NSData *)bytes subtype:(uint8_t)subtype {
-  return [[FIRBlob alloc] initWithBytes:bytes subtype:subtype isBSON:YES];
+  return [[FIRBlob alloc] initWithBytes:bytes subtype:subtype];
 }
 
 - (BOOL)isEqual:(nullable id)object {
@@ -58,7 +57,7 @@
 }
 
 - (id)copyWithZone:(__unused NSZone *_Nullable)zone {
-  return [[FIRBlob alloc] initWithBytes:self.bytes subtype:self.subtype isBSON:self.isBSON];
+  return [[FIRBlob alloc] initWithBytes:self.bytes subtype:self.subtype];
 }
 
 - (NSComparisonResult)compare:(FIRBlob *)other {
@@ -87,9 +86,8 @@
 }
 
 - (NSString *)description {
-  return [NSString stringWithFormat:@"<FIRBlob: isBSON:%@, subtype:%u, bytes:%@>",
-                                    self.isBSON ? @"YES" : @"NO", (unsigned int)self.subtype,
-                                    self.bytes];
+  return [NSString
+      stringWithFormat:@"<FIRBlob: subtype:%u, bytes:%@>", (unsigned int)self.subtype, self.bytes];
 }
 
 @end

@@ -133,8 +133,21 @@ void WriteIndexMap(google_firestore_v1_MapValue map_index_value,
 void WriteIndexBsonBinaryData(
     const google_firestore_v1_MapValue& map_index_value,
     DirectionalIndexByteEncoder* encoder) {
-  WriteValueTypeLabel(encoder, IndexType::kBsonBinaryData);
-  encoder->WriteBytes(map_index_value.fields[0].value.bytes_value);
+  const pb_bytes_array_t* bytes = map_index_value.fields[0].value.bytes_value;
+  if (!bytes || bytes->size == 0) {
+    WriteValueTypeLabel(encoder, IndexType::kBlob);
+    encoder->WriteBytes(const_cast<pb_bytes_array_t*>(bytes));
+    WriteTruncationMarker(encoder);
+    return;
+  }
+  uint8_t subtype = bytes->bytes[0];
+  if (subtype == 0) {
+    WriteValueTypeLabel(encoder, IndexType::kBlob);
+    encoder->WriteString(nanopb::MakeStringView(bytes).substr(1));
+  } else {
+    WriteValueTypeLabel(encoder, IndexType::kBsonBinaryData);
+    encoder->WriteBytes(const_cast<pb_bytes_array_t*>(bytes));
+  }
   WriteTruncationMarker(encoder);
 }
 
