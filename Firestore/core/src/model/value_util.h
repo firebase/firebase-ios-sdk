@@ -123,16 +123,15 @@ enum class TypeOrder {
   kServerTimestamp = 6,
   kString = 7,
   kBlob = 8,
-  kBsonBinaryData = 9,
-  kReference = 10,
-  kBsonObjectId = 11,
-  kGeoPoint = 12,
-  kRegex = 13,
-  kArray = 14,
-  kVector = 15,
-  kMap = 16,
-  kMaxKey = 17,
-  kInternalMaxValue = 18
+  kReference = 9,
+  kBsonObjectId = 10,
+  kGeoPoint = 11,
+  kRegex = 12,
+  kArray = 13,
+  kVector = 14,
+  kMap = 15,
+  kMaxKey = 16,
+  kInternalMaxValue = 17
 };
 
 /**

@@ -236,7 +236,7 @@ TEST(FieldValueTest, ValueHelpers) {
   ASSERT_EQ(DetectMapType(*bson_timestamp_value), MapType::kBsonTimestamp);
 
   auto bson_binary_data_value = BsonBinaryData(1, {1, 2, 3});
-  ASSERT_EQ(GetTypeOrder(*bson_binary_data_value), TypeOrder::kBsonBinaryData);
+  ASSERT_EQ(GetTypeOrder(*bson_binary_data_value), TypeOrder::kBlob);
   ASSERT_EQ(DetectMapType(*bson_binary_data_value), MapType::kBsonBinaryData);
 }
 
@@ -315,6 +315,7 @@ TEST_F(ValueUtilTest, Equality) {
   Add(equals_group, Decimal128("Infinity"));
   Add(equals_group, BlobValue(0, 1, 1));
   Add(equals_group, BlobValue(0, 1));
+  Add(equals_group, BlobValue(7, 8, 9), BsonBinaryData(0, {7, 8, 9}));
   Add(equals_group, "string", "string");
   Add(equals_group, "strin");
   Add(equals_group, std::string("strin\0", 6));
@@ -425,15 +426,12 @@ TEST_F(ValueUtilTest, StrictOrdering) {
   // latin small letter e with acute accent + latin small letter a
   Add(comparison_groups, "\u00e9a");
 
-  // blobs
-  Add(comparison_groups, BlobValue());
+  // blobs (native & BSON binary merged)
+  Add(comparison_groups, BlobValue(), DeepClone(MinBsonBinaryData()));
   Add(comparison_groups, BlobValue(0));
   Add(comparison_groups, BlobValue(0, 1, 2, 3, 4));
   Add(comparison_groups, BlobValue(0, 1, 2, 4, 3));
   Add(comparison_groups, BlobValue(255));
-
-  // BSON Binary Data
-  Add(comparison_groups, DeepClone(MinBsonBinaryData()));
   Add(comparison_groups, BsonBinaryData(5, {1, 2, 3}),
       BsonBinaryData(5, {1, 2, 3}));
   Add(comparison_groups, BsonBinaryData(7, {1}));
@@ -589,16 +587,13 @@ TEST_F(ValueUtilTest, RelaxedOrdering) {
   Add(comparison_groups, "\u00e9a");
   Add(comparison_groups, DeepClone(MinBytes()));
 
-  // blobs
+  // blobs (native & BSON binary merged)
   Add(comparison_groups, DeepClone(MinBytes()));
-  Add(comparison_groups, BlobValue());
+  Add(comparison_groups, BlobValue(), DeepClone(MinBsonBinaryData()));
   Add(comparison_groups, BlobValue(0));
   Add(comparison_groups, BlobValue(0, 1, 2, 3, 4));
   Add(comparison_groups, BlobValue(0, 1, 2, 4, 3));
   Add(comparison_groups, BlobValue(255));
-
-  // BSON Binary Data
-  Add(comparison_groups, DeepClone(MinBsonBinaryData()));
   Add(comparison_groups, BsonBinaryData(5, {1, 2, 3}),
       BsonBinaryData(5, {1, 2, 3}));
   Add(comparison_groups, BsonBinaryData(7, {1}));
@@ -720,15 +715,11 @@ TEST_F(ValueUtilTest, ComputesLowerBound) {
   Add(groups, GetLowerBoundMessage(Value("Z")), "", DeepClone(MinString()));
   Add(groups, "\u0000");
 
-  // Blobs
-  Add(groups, GetLowerBoundMessage(BlobValue(1, 2, 3)), BlobValue(),
-      DeepClone(MinBytes()));
-  Add(groups, BlobValue(0));
-
-  // BSON Binary Data
-  Add(groups, GetLowerBoundMessage(BsonBinaryData(128, {128, 128})),
-      DeepClone(MinBsonBinaryData()));
-  Add(groups, BsonBinaryData(0, {0}));
+  // Blobs (native & BSON binary merged)
+  Add(groups, GetLowerBoundMessage(BlobValue(1, 2, 3)),
+      GetLowerBoundMessage(BsonBinaryData(128, {128, 128})), BlobValue(),
+      DeepClone(MinBytes()), DeepClone(MinBsonBinaryData()));
+  Add(groups, BlobValue(0), BsonBinaryData(0, {0}));
 
   // References
   Add(groups, GetLowerBoundMessage(RefValue(DbId("p1/d1"), Key("c1/doc1"))),
@@ -818,13 +809,11 @@ TEST_F(ValueUtilTest, ComputesUpperBound) {
   Add(groups, "\u0000");
   Add(groups, GetUpperBoundMessage(DeepClone(MinString())));
 
-  // Blobs
+  // Blobs (native & BSON binary merged)
   Add(groups, BlobValue(255));
-  Add(groups, GetUpperBoundMessage(BlobValue()));
-
-  // BSON Binary Data
   Add(groups, BsonBinaryData(255, {255, 255}));
-  Add(groups, GetUpperBoundMessage(DeepClone(MinBsonBinaryData())));
+  Add(groups, GetUpperBoundMessage(BlobValue()),
+      GetUpperBoundMessage(DeepClone(MinBsonBinaryData())));
 
   // References
   Add(groups, DeepClone(MinReference()));

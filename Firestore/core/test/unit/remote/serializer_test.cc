@@ -930,7 +930,7 @@ TEST_F(SerializerTest, EncodesBsonBinaryData) {
   (*fields)["__binary__"] =
       ValueProto(ByteString(concat.data(), concat.size()));
 
-  ExpectRoundTrip(model, proto, TypeOrder::kBsonBinaryData);
+  ExpectRoundTrip(model, proto, TypeOrder::kBlob);
 }
 
 TEST_F(SerializerTest, EncodesVectorValue) {

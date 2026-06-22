@@ -125,6 +125,9 @@ NS_ASSUME_NONNULL_BEGIN
     case TypeOrder::kString:
       return MakeNSString(MakeStringView(value.string_value));
     case TypeOrder::kBlob:
+      if (value.which_value_type == google_firestore_v1_Value_map_value_tag) {
+        return [self convertedBsonBinaryData:value.map_value];
+      }
       return MakeNSData(value.bytes_value);
     case TypeOrder::kGeoPoint:
       return MakeFIRGeoPoint(
@@ -139,8 +142,6 @@ NS_ASSUME_NONNULL_BEGIN
       return [self convertedBsonObjectId:value.map_value];
     case TypeOrder::kBsonTimestamp:
       return [self convertedBsonTimestamp:value.map_value];
-    case TypeOrder::kBsonBinaryData:
-      return [self convertedBsonBinaryData:value.map_value];
     case TypeOrder::kVector:
       return [self convertedVector:value.map_value];
     case TypeOrder::kInternalMaxValue:
