@@ -34,7 +34,17 @@ git clone https://github.com/firebase/quickstart-ios.git
 
 cd quickstart-ios
 
-source "$scripts_dir/update_firebase_spm_dependency.sh" "$SAMPLE_XCODEPROJ" --branch "$BRANCH_NAME"
+firebase_sdk_branch="${BRANCH_NAME:-main}"
+if [[ "${GITHUB_EVENT_NAME:-}" == "pull_request" ]] && \
+   [[ -n "${GITHUB_EVENT_PATH:-}" ]] && \
+   command -v jq >/dev/null 2>&1; then
+  firebase_sdk_revision=$(jq -er .pull_request.head.sha "${GITHUB_EVENT_PATH}")
+  source "$scripts_dir/update_firebase_spm_dependency.sh" \
+    "$SAMPLE_XCODEPROJ" --revision "$firebase_sdk_revision"
+else
+  source "$scripts_dir/update_firebase_spm_dependency.sh" \
+    "$SAMPLE_XCODEPROJ" --branch "$firebase_sdk_branch"
+fi
 
 # Placeholder GoogleService-Info.plist good enough for build only testing.
 cp ./mock-GoogleService-Info.plist ./firebaseai/GoogleService-Info.plist

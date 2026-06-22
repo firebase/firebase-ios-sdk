@@ -165,6 +165,20 @@
   }
 }
 
+/** Waits for a condition to become true while spinning the current runloop.
+ *
+ * @param condition A block returning YES once the desired state is reached.
+ * @param timeoutSeconds Maximum time to wait in seconds.
+ * @return YES if the condition was met before timing out, NO otherwise.
+ */
+- (BOOL)waitForCondition:(BOOL (^)(void))condition timeout:(NSTimeInterval)timeoutSeconds {
+  NSDate *timeoutDate = [NSDate dateWithTimeIntervalSinceNow:timeoutSeconds];
+  while (!condition() && [timeoutDate timeIntervalSinceNow] > 0) {
+    [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.05]];
+  }
+  return condition();
+}
+
 #pragma mark - Testing infrastructure and subclass instrumenting
 
 /** Tests initing of FPRNSURLSessionInstrument also inits NSURLSessionDelegate instrument. */
@@ -525,6 +539,9 @@
   XCTAssertNotNil([FPRNetworkTrace networkTraceFromObject:downloadTask]);
   [self waitAndRunBlockAfterResponse:^(id self, GCDWebServerRequest *_Nonnull request,
                                        GCDWebServerResponse *_Nonnull response) {
+    XCTAssertTrue([self waitForCondition:^BOOL {
+      return delegate.URLSessionDownloadTaskDidFinishDownloadingToURLCalled;
+    } timeout:3.0]);
     XCTAssertTrue(delegate.URLSessionDownloadTaskDidFinishDownloadingToURLCalled);
     XCTAssertNil([FPRNetworkTrace networkTraceFromObject:downloadTask]);
   }];
@@ -575,7 +592,9 @@
   NSURL *URL = [self.testServer.serverURL URLByAppendingPathComponent:@"testBigDownload"];
   NSURLSessionDownloadTask *downloadTask = [session downloadTaskWithURL:URL];
   [downloadTask resume];
-  [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:5.0]];
+  XCTAssertTrue([self waitForCondition:^BOOL {
+    return delegate.URLSessionDownloadTaskDidResumeAtOffsetExpectedTotalBytesCalled;
+  } timeout:5.0]);
   XCTAssertNil([FPRNetworkTrace networkTraceFromObject:downloadTask]);
   XCTAssertTrue(delegate.URLSessionDownloadTaskDidResumeAtOffsetExpectedTotalBytesCalled);
   [instrument deregisterInstrumentors];
@@ -598,6 +617,9 @@
   XCTAssertNotNil([FPRNetworkTrace networkTraceFromObject:downloadTask]);
   [self waitAndRunBlockAfterResponse:^(id self, GCDWebServerRequest *_Nonnull request,
                                        GCDWebServerResponse *_Nonnull response) {
+    XCTAssertTrue([self waitForCondition:^BOOL {
+      return delegate.URLSessionDownloadTaskDidWriteDataTotalBytesWrittenTotalBytesCalled;
+    } timeout:3.0]);
     XCTAssertTrue(delegate.URLSessionDownloadTaskDidWriteDataTotalBytesWrittenTotalBytesCalled);
     [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
     XCTAssertNil([FPRNetworkTrace networkTraceFromObject:downloadTask]);
@@ -802,6 +824,9 @@
   XCTAssertNotNil([FPRNetworkTrace networkTraceFromObject:downloadTask]);
   [self waitAndRunBlockAfterResponse:^(id self, GCDWebServerRequest *_Nonnull request,
                                        GCDWebServerResponse *_Nonnull response) {
+    XCTAssertTrue([self waitForCondition:^BOOL {
+      return delegate.URLSessionDownloadTaskDidFinishDownloadingToURLCalled;
+    } timeout:3.0]);
     XCTAssertTrue(delegate.URLSessionDownloadTaskDidFinishDownloadingToURLCalled);
     XCTAssertNil([FPRNetworkTrace networkTraceFromObject:downloadTask]);
   }];
@@ -857,6 +882,9 @@
   XCTAssertNotNil([FPRNetworkTrace networkTraceFromObject:downloadTask]);
   [self waitAndRunBlockAfterResponse:^(id self, GCDWebServerRequest *_Nonnull request,
                                        GCDWebServerResponse *_Nonnull response) {
+    XCTAssertTrue([self waitForCondition:^BOOL {
+      return delegate.URLSessionDownloadTaskDidWriteDataTotalBytesWrittenTotalBytesCalled;
+    } timeout:3.0]);
     XCTAssertTrue(delegate.URLSessionDownloadTaskDidWriteDataTotalBytesWrittenTotalBytesCalled);
     [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
     XCTAssertNil([FPRNetworkTrace networkTraceFromObject:downloadTask]);
