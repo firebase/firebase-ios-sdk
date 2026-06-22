@@ -92,7 +92,8 @@ jobs:
         timeout_minutes: 15
         max_attempts: 5
         retry_wait_seconds: 120
-        command: xcodebuild -downloadPlatform iOS
+        continue_on_error: true
+        command: scripts/install_simulators.sh "iOS"
     - uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
       with:
         timeout_minutes: 15
