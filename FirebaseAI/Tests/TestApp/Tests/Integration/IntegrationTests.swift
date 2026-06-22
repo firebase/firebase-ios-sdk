@@ -100,7 +100,7 @@ final class IntegrationTests: XCTestCase {
 
       let response = try await model.countTokens(image)
 
-      XCTAssertEqual(response.totalTokens, 266)
+      XCTAssertEqual(response.totalTokens, 1128)
       XCTAssertEqual(response.promptTokensDetails.count, 2) // Image prompt + system instruction
       let textPromptTokensDetails = try XCTUnwrap(response.promptTokensDetails.first {
         $0.modality == .text
@@ -109,7 +109,7 @@ final class IntegrationTests: XCTestCase {
       let imagePromptTokenDetails = try XCTUnwrap(response.promptTokensDetails.first {
         $0.modality == .image
       })
-      XCTAssertEqual(imagePromptTokenDetails.tokenCount, 258)
+      XCTAssertEqual(imagePromptTokenDetails.tokenCount, 1120)
     }
   #endif // canImport(UIKit)
 
@@ -119,7 +119,7 @@ final class IntegrationTests: XCTestCase {
 
     let response = try await model.countTokens(fileData)
 
-    XCTAssertEqual(response.totalTokens, 266)
+    XCTAssertEqual(response.totalTokens, 1128)
     XCTAssertEqual(response.promptTokensDetails.count, 2) // Image prompt + system instruction
     let textPromptTokensDetails = try XCTUnwrap(response.promptTokensDetails.first {
       $0.modality == .text
@@ -128,7 +128,7 @@ final class IntegrationTests: XCTestCase {
     let imagePromptTokenDetails = try XCTUnwrap(response.promptTokensDetails.first {
       $0.modality == .image
     })
-    XCTAssertEqual(imagePromptTokenDetails.tokenCount, 258)
+    XCTAssertEqual(imagePromptTokenDetails.tokenCount, 1120)
   }
 
   func testCountTokens_image_fileData_requiresAuth_signedIn() async throws {
@@ -137,7 +137,7 @@ final class IntegrationTests: XCTestCase {
 
     let response = try await model.countTokens(fileData)
 
-    XCTAssertEqual(response.totalTokens, 266)
+    XCTAssertEqual(response.totalTokens, 1128)
   }
 
   func testCountTokens_image_fileData_requiresUserAuth_userSignedIn() async throws {
@@ -147,7 +147,7 @@ final class IntegrationTests: XCTestCase {
 
     let response = try await model.countTokens(fileData)
 
-    XCTAssertEqual(response.totalTokens, 266)
+    XCTAssertEqual(response.totalTokens, 1128)
   }
 
   func testCountTokens_image_fileData_requiresUserAuth_wrongUser_permissionDenied() async throws {
