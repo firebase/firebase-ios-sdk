@@ -1,9 +1,8 @@
-# Jules.md - Context for AI Assisted Development
+# agents.md - Context for AI Assisted Development
 
-This document provides essential context and guidelines for Jules, an AI software engineering
-agent, to effectively understand, navigate, and make changes within the `firebase-ios-sdk`
-repository. It highlights key aspects of the development environment, coding practices, and
-architectural patterns.
+This document provides essential context and guidelines for AI agents to effectively understand,
+navigate, and make changes within the `firebase-ios-sdk` repository. It highlights key aspects of the
+development environment, coding practices, and architectural patterns.
 
 ## Setup Commands
 
@@ -14,11 +13,11 @@ following setup is beneficial.
 
 1.  **Xcode**: The development environment relies on Xcode 26.2 or above.
 2.  **Command-Line Tools**:
-    *   `clang-format`: Used for C, C++, and Objective-C code formatting. Version 20 is
+    *   `clang-format`: Used for C, C++, and Objective-C code formatting. Version 22 is
         specifically mentioned.
     *   `mint`: Used to install and run Swift command-line tools, including `swiftformat` for
         Swift code styling.
-    *   Note: The build environment uses `clang-format` (version 20) and `mint` (for
+    *   Note: The build environment uses `clang-format` (version 22) and `mint` (for
         `swiftformat`) for code styling. Ensure any generated or modified code adheres to these
         styling requirements.
 
