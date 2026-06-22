@@ -153,8 +153,7 @@ extension Auth: AuthInterop {
       fatalError("The default FirebaseApp instance must be configured before the default Auth " +
         "instance can be initialized. One way to ensure this is to call " +
         "`FirebaseApp.configure()` in the App Delegate's " +
-        "`application(_:didFinishLaunchingWithOptions:)` (or the `@main` struct's " +
-        "initializer in SwiftUI).")
+        "`application(_:didFinishLaunchingWithOptions:)`.")
     }
     return auth(app: defaultApp)
   }
