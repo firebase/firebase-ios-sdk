@@ -139,10 +139,6 @@ s%^./%%
 # pod gen output
 \%^gen/% d
 
-# FirestoreEncoder is under 'third_party' for licensing reasons but should be
-# formatted.
-\%Firestore/third_party/FirestoreEncoder/.*\.swift% p
-
 # Sources controlled outside this tree
 \%/third_party/% d
 
@@ -151,19 +147,9 @@ s%^./%%
 
 # Generated source
 \%/Firestore/core/src/util/config.h% d
-\%^GeneratedFirebaseAI/% d
-
-# Generated Code for Data Connect sample
-\%/Examples/FriendlyFlix/app/FriendlyFlixSDK/% d
-
-# Sources pulled in by travis bundler, with and without a leading slash
-\%^/?vendor/bundle/% d
 
 # Sources pulled in by the Mint package manager
 \%^mint% d
-
-# Auth Sample Objective-C does not format well
-\%^(FirebaseAuth/Tests/Sample/Sample)/% d
 
 # Keep Firebase.h indenting
 \%^CoreOnly/Sources/Firebase.h% d
