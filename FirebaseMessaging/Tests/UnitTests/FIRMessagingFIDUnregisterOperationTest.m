@@ -23,6 +23,10 @@
 #import "FirebaseMessaging/Sources/Token/FIRMessagingFIDUnregisterOperation.h"
 #import "SharedTestUtilities/URLSession/FIRURLSessionOCMockStub.h"
 
+@interface FIRMessagingFIDUnregisterOperation (ExposedForTest)
++ (void)resetSharedSession;
+@end
+
 @interface FIRInstallationsAuthTokenResult (Tests)
 - (instancetype)initWithToken:(NSString *)token expirationDate:(NSDate *)expirationDate;
 @end
@@ -40,6 +44,7 @@
 
 - (void)setUp {
   [super setUp];
+  [FIRMessagingFIDUnregisterOperation resetSharedSession];
 
   self.URLSessionMock = OCMClassMock([NSURLSession class]);
   OCMStub(ClassMethod([self.URLSessionMock sessionWithConfiguration:[OCMArg any]]))
@@ -62,6 +67,7 @@
   [self.mockInstallations stopMocking];
   [self.mockFirebaseApp stopMocking];
   [self.mockOptions stopMocking];
+  [FIRMessagingFIDUnregisterOperation resetSharedSession];
   [super tearDown];
 }
 

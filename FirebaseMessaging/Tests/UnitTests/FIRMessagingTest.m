@@ -26,10 +26,20 @@
 #import "FirebaseMessaging/Sources/FIRMessaging_Private.h"
 #import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessaging.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingAPNSInfo.h"
+#import "FirebaseMessaging/Sources/Token/FIRMessagingFIDRegisterOperation.h"
+#import "FirebaseMessaging/Sources/Token/FIRMessagingFIDUnregisterOperation.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingTokenManager.h"
 #import "FirebaseMessaging/Tests/UnitTests/FIRMessagingTestUtilities.h"
 #import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 #import "SharedTestUtilities/URLSession/FIRURLSessionOCMockStub.h"
+
+@interface FIRMessagingFIDRegisterOperation (ExposedForTest)
++ (void)resetSharedSession;
+@end
+
+@interface FIRMessagingFIDUnregisterOperation (ExposedForTest)
++ (void)resetSharedSession;
+@end
 
 @interface FIRInstallationsAuthTokenResult (Tests)
 - (instancetype)initWithToken:(NSString *)token expirationDate:(NSDate *)expirationDate;
@@ -72,6 +82,8 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
 
 - (void)setUp {
   [super setUp];
+  [FIRMessagingFIDRegisterOperation resetSharedSession];
+  [FIRMessagingFIDUnregisterOperation resetSharedSession];
 
   // Create the messaging instance with all the necessary dependencies.
   NSUserDefaults *defaults =
@@ -93,6 +105,8 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
   _messaging = nil;
   [[[NSUserDefaults alloc] initWithSuiteName:kFIRMessagingDefaultsTestDomain]
       removePersistentDomainForName:kFIRMessagingDefaultsTestDomain];
+  [FIRMessagingFIDRegisterOperation resetSharedSession];
+  [FIRMessagingFIDUnregisterOperation resetSharedSession];
   [super tearDown];
 }
 
@@ -304,11 +318,13 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
                                  HTTPVersion:@"HTTP/1.1"
                                 headerFields:nil];
 
-  [FIRURLSessionOCMockStub stubURLSessionDataTaskWithResponse:response
-                                                         body:responseBody
-                                                        error:nil
-                                               URLSessionMock:URLSessionMock
-                                       requestValidationBlock:requestValidationBlock];
+  id mockDataTask =
+      [FIRURLSessionOCMockStub stubURLSessionDataTaskWithResponse:response
+                                                             body:responseBody
+                                                            error:nil
+                                                   URLSessionMock:URLSessionMock
+                                           requestValidationBlock:requestValidationBlock];
+  OCMStub([mockDataTask setTaskDescription:OCMOCK_ANY]);
 }
 
 - (void)testRegisterNotifiesDelegateWhenInstallationIdEnabled {

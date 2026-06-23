@@ -48,7 +48,25 @@ static BOOL isServerError(NSURLResponse *response) {
   return NO;
 }
 
+static NSURLSession *sharedUnregistrationSession;
+
 @implementation FIRMessagingFIDUnregisterOperation
+
++ (NSURLSession *)sharedSession {
+  @synchronized(self) {
+    if (!sharedUnregistrationSession) {
+      NSURLSessionConfiguration *config = NSURLSessionConfiguration.ephemeralSessionConfiguration;
+      sharedUnregistrationSession = [NSURLSession sessionWithConfiguration:config];
+    }
+    return sharedUnregistrationSession;
+  }
+}
+
++ (void)resetSharedSession {
+  @synchronized(self) {
+    sharedUnregistrationSession = nil;
+  }
+}
 
 - (instancetype)initWithAuthorizedEntity:(nullable NSString *)authorizedEntity
                                    scope:(nullable NSString *)scope
@@ -85,6 +103,9 @@ static BOOL isServerError(NSURLResponse *response) {
       authTokenWithCompletion:^(FIRInstallationsAuthTokenResult *_Nullable tokenResult,
                                 NSError *_Nullable error) {
         FIRMessaging_STRONGIFY(self);
+        if (!self) {
+          return;
+        }
         if (error) {
           FIRMessagingLoggerError(kFIRMessagingMessageCodeTokenOperationInstallationIdNotAvailable,
                                   @"Failed to get Installation ID: %@", error);
@@ -127,8 +148,7 @@ static BOOL isServerError(NSURLResponse *response) {
   [request setValue:apiKey forHTTPHeaderField:@"X-Goog-Api-Key"];
   [request setValue:authToken forHTTPHeaderField:@"X-Goog-Firebase-Installations-Auth"];
 
-  NSURLSessionConfiguration *config = NSURLSessionConfiguration.ephemeralSessionConfiguration;
-  NSURLSession *session = [NSURLSession sessionWithConfiguration:config];
+  NSURLSession *session = [[self class] sharedSession];
   FIRMessagingLoggerDebug(kFIRMessagingMessageCodeDebug, @"FCM FID Unregistration Request to %@",
                           urlString);
 
@@ -138,6 +158,9 @@ static BOOL isServerError(NSURLResponse *response) {
         completionHandler:^(NSData *_Nullable data, NSURLResponse *_Nullable response,
                             NSError *_Nullable error) {
           FIRMessaging_STRONGIFY(self);
+          if (!self) {
+            return;
+          }
 
           // Retry on network error or backend server 5xx error.
           if ((error || isServerError(response)) && self->_retryCount < kMaxRetries) {
@@ -147,6 +170,9 @@ static BOOL isServerError(NSURLResponse *response) {
                 dispatch_time(DISPATCH_TIME_NOW, (int64_t)(nextRetryInterval * NSEC_PER_SEC)),
                 dispatch_get_main_queue(), ^{
                   FIRMessaging_STRONGIFY(self);
+                  if (!self) {
+                    return;
+                  }
                   self->_retryCount++;
                   [self makeUnregistrationRequestWithAuthToken:authToken];
                 });

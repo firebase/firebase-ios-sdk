@@ -19,6 +19,7 @@
 #import <GoogleUtilities/GULUserDefaults.h>
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 #import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
+#import "FirebaseMessaging/Sources/FIRMessagingPendingTopicsList.h"
 #import "FirebaseMessaging/Sources/FIRMessagingPubSub.h"
 #import "FirebaseMessaging/Sources/FIRMessagingRmqManager.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingTokenManager.h"
@@ -47,6 +48,13 @@ static NSString *const kFakeSenderID = @"123456789123";
 /// Kicks off required calls for some messaging tests.
 - (void)start;
 - (void)setupRmqManager;
+
+@end
+
+@interface FIRMessagingPubSub (ExposedForTest)
+
+@property(nonatomic, readonly, strong) NSOperationQueue *topicOperations;
+@property(nonatomic, readwrite, strong) FIRMessagingPendingTopicsList *pendingTopicUpdates;
 
 @end
 
@@ -114,6 +122,10 @@ static NSString *const kFakeSenderID = @"123456789123";
 }
 
 - (void)cleanupAfterTest:(XCTestCase *)testCase {
+  _messaging.pubsub.pendingTopicUpdates.delegate = nil;
+  [_messaging.tokenManager stopAllTokenOperations];
+  [_messaging.pubsub.topicOperations cancelAllOperations];
+
   [_messaging.rmq2Manager removeDatabase];
   [testCase waitForDrainDatabaseQueueForRmqManager:_messaging.rmq2Manager];
   [_messaging.messagingUserDefaults removePersistentDomainForName:kFIRMessagingDefaultsTestDomain];

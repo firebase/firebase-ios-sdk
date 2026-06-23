@@ -53,7 +53,25 @@ static BOOL isServerError(NSURLResponse *response) {
   return NO;
 }
 
+static NSURLSession *sharedRegistrationSession;
+
 @implementation FIRMessagingFIDRegisterOperation
+
++ (NSURLSession *)sharedSession {
+  @synchronized(self) {
+    if (!sharedRegistrationSession) {
+      NSURLSessionConfiguration *config = NSURLSessionConfiguration.ephemeralSessionConfiguration;
+      sharedRegistrationSession = [NSURLSession sessionWithConfiguration:config];
+    }
+    return sharedRegistrationSession;
+  }
+}
+
++ (void)resetSharedSession {
+  @synchronized(self) {
+    sharedRegistrationSession = nil;
+  }
+}
 
 - (instancetype)initWithAuthorizedEntity:(nullable NSString *)authorizedEntity
                                    scope:(NSString *)scope
@@ -90,6 +108,9 @@ static BOOL isServerError(NSURLResponse *response) {
       authTokenWithCompletion:^(FIRInstallationsAuthTokenResult *_Nullable tokenResult,
                                 NSError *_Nullable error) {
         FIRMessaging_STRONGIFY(self);
+        if (!self) {
+          return;
+        }
         if (error) {
           FIRMessagingLoggerError(
               kFIRMessagingMessageCodeTokenOperationInstallationAuthTokenNotAvailable,
@@ -174,8 +195,7 @@ static BOOL isServerError(NSURLResponse *response) {
   FIRMessagingLoggerDebug(kFIRMessagingMessageCodeDebug,
                           @"FCM FID Registration Request to %@ Body: %@", urlString, bodyString);
 
-  NSURLSessionConfiguration *config = NSURLSessionConfiguration.ephemeralSessionConfiguration;
-  NSURLSession *session = [NSURLSession sessionWithConfiguration:config];
+  NSURLSession *session = [[self class] sharedSession];
 
   FIRMessaging_WEAKIFY(self);
   self.dataTask = [session
@@ -183,6 +203,9 @@ static BOOL isServerError(NSURLResponse *response) {
         completionHandler:^(NSData *_Nullable data, NSURLResponse *_Nullable response,
                             NSError *_Nullable error) {
           FIRMessaging_STRONGIFY(self);
+          if (!self) {
+            return;
+          }
           // Retry on network error or backend server 5xx error.
           if ((error || isServerError(response)) && self->_retryCount < kMaxRetries) {
             const int nextRetryInterval = 1 << self->_retryCount;
@@ -191,6 +214,9 @@ static BOOL isServerError(NSURLResponse *response) {
                 dispatch_time(DISPATCH_TIME_NOW, (int64_t)(nextRetryInterval * NSEC_PER_SEC)),
                 dispatch_get_main_queue(), ^{
                   FIRMessaging_STRONGIFY(self);
+                  if (!self) {
+                    return;
+                  }
                   self->_retryCount++;
                   [self makeRegistrationRequestWithAuthToken:authToken];
                 });
@@ -250,7 +276,7 @@ static BOOL isServerError(NSURLResponse *response) {
   // The response body looks like: {"name": "projects/<project_id>/registrations/<fid>", ...}
   NSString *name = responseDict[@"name"];
   NSString *fid = nil;
-  if (name.length) {
+  if ([name isKindOfClass:[NSString class]] && name.length) {
     NSRange range = [name rangeOfString:@"/registrations/"];
     if (range.location != NSNotFound) {
       fid = [name substringFromIndex:range.location + range.length];
