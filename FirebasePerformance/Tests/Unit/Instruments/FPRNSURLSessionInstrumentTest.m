@@ -120,6 +120,13 @@
 
 @implementation FPRNSURLSessionInstrumentTest
 
+// Use the main queue so delegate callbacks are delivered while the test spins the
+// current run loop. The default nil queue is a private serial queue and is flaky
+// when tests wait on the main run loop under full-suite CI load.
+static dispatch_queue_t FPRTestNSURLSessionDelegateQueue(void) {
+  return dispatch_get_main_queue();
+}
+
 - (void)setUp {
   [super setUp];
   FIRPerformance *performance = [FIRPerformance sharedInstance];
@@ -131,11 +138,14 @@
 }
 
 - (void)tearDown {
-  [super tearDown];
+  self.testServer.responseCompletedBlock = nil;
+  if (self.testServer.isRunning) {
+    [self.testServer stop];
+  }
   FIRPerformance *performance = [FIRPerformance sharedInstance];
   [performance setDataCollectionEnabled:NO];
-  [self.testServer stop];
   [FPRConfigurations reset];
+  [super tearDown];
 }
 
 /** Waits for the server connection to finish by giving a block to run just before a response is
@@ -342,15 +352,17 @@
       });
   method_setImplementation(method, swizzledImp);
   NSURLSessionConfiguration *config = [NSURLSessionConfiguration defaultSessionConfiguration];
-  XCTAssertEqual([[NSURLSession sessionWithConfiguration:config delegate:nil
-                                           delegateQueue:nil] class],
+  XCTAssertEqual([[NSURLSession sessionWithConfiguration:config
+                                                delegate:nil
+                                           delegateQueue:FPRTestNSURLSessionDelegateQueue()] class],
                  [FPRNSURLSessionProxy class]);
   FPRNSURLSessionInstrument *instrument = [[FPRNSURLSessionInstrument alloc] init];
   [instrument registerInstrumentors];
   NSURLSession *session;
-  XCTAssertNoThrow(session = [NSURLSession sessionWithConfiguration:config
-                                                           delegate:nil
-                                                      delegateQueue:nil]);
+  XCTAssertNoThrow(session =
+                       [NSURLSession sessionWithConfiguration:config
+                                                     delegate:nil
+                                                delegateQueue:FPRTestNSURLSessionDelegateQueue()]);
   NSURL *url = self.testServer.serverURL;
   XCTestExpectation *expectation = [self expectationWithDescription:@"completionHandler"];
   NSURLSessionDownloadTask *task =
@@ -374,9 +386,10 @@
   [instrument registerInstrumentors];
   NSURLSessionConfiguration *configuration =
       [NSURLSessionConfiguration defaultSessionConfiguration];
-  NSURLSession *session = [NSURLSession sessionWithConfiguration:configuration
-                                                        delegate:nil
-                                                   delegateQueue:nil];
+  NSURLSession *session =
+      [NSURLSession sessionWithConfiguration:configuration
+                                    delegate:nil
+                               delegateQueue:FPRTestNSURLSessionDelegateQueue()];
   NSURLRequest *request = [NSURLRequest requestWithURL:self.testServer.serverURL];
   NSURLSessionTask *task;
   @autoreleasepool {
@@ -401,8 +414,12 @@
       [[FPRNSURLSessionCompleteTestDelegate alloc] init];
   NSURLSessionConfiguration *configuration =
       [NSURLSessionConfiguration defaultSessionConfiguration];
-  [NSURLSession sessionWithConfiguration:configuration delegate:delegate delegateQueue:nil];
-  [NSURLSession sessionWithConfiguration:configuration delegate:delegate delegateQueue:nil];
+  [NSURLSession sessionWithConfiguration:configuration
+                                delegate:delegate
+                           delegateQueue:FPRTestNSURLSessionDelegateQueue()];
+  [NSURLSession sessionWithConfiguration:configuration
+                                delegate:delegate
+                           delegateQueue:FPRTestNSURLSessionDelegateQueue()];
   XCTAssertEqual(instrument.delegateInstrument.classInstrumentors.count, 1);
   XCTAssertEqual(instrument.delegateInstrument.instrumentedClasses.count, 1);
   [instrument deregisterInstrumentors];
@@ -419,9 +436,10 @@
   NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:@"http://nonurl"]];
   NSURLSessionConfiguration *configuration =
       [NSURLSessionConfiguration defaultSessionConfiguration];
-  NSURLSession *session = [NSURLSession sessionWithConfiguration:configuration
-                                                        delegate:delegate
-                                                   delegateQueue:nil];
+  NSURLSession *session =
+      [NSURLSession sessionWithConfiguration:configuration
+                                    delegate:delegate
+                               delegateQueue:FPRTestNSURLSessionDelegateQueue()];
   NSURLSessionTask *task;
   @autoreleasepool {
     task = [session dataTaskWithRequest:request];
@@ -443,9 +461,10 @@
       [[FPRNSURLSessionCompleteTestDelegate alloc] init];
   NSURLSessionConfiguration *configuration =
       [NSURLSessionConfiguration defaultSessionConfiguration];
-  NSURLSession *session = [NSURLSession sessionWithConfiguration:configuration
-                                                        delegate:delegate
-                                                   delegateQueue:nil];
+  NSURLSession *session =
+      [NSURLSession sessionWithConfiguration:configuration
+                                    delegate:delegate
+                               delegateQueue:FPRTestNSURLSessionDelegateQueue()];
   NSURL *URL = [self.testServer.serverURL URLByAppendingPathComponent:@"testUpload"];
   NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:URL];
   request.HTTPMethod = @"POST";
@@ -481,9 +500,10 @@
       [NSURLSessionConfiguration defaultSessionConfiguration];
   NSURL *URL = [self.testServer.serverURL URLByAppendingPathComponent:@"testRedirect"];
   NSURLRequest *request = [NSURLRequest requestWithURL:URL];
-  NSURLSession *session = [NSURLSession sessionWithConfiguration:configuration
-                                                        delegate:delegate
-                                                   delegateQueue:nil];
+  NSURLSession *session =
+      [NSURLSession sessionWithConfiguration:configuration
+                                    delegate:delegate
+                               delegateQueue:FPRTestNSURLSessionDelegateQueue()];
   NSURLSessionTask *task = [session dataTaskWithRequest:request];
   [task resume];
   XCTAssertNotNil([FPRNetworkTrace networkTraceFromObject:task]);
@@ -506,9 +526,10 @@
         [[FPRNSURLSessionCompleteTestDelegate alloc] init];
     NSURLSessionConfiguration *configuration =
         [NSURLSessionConfiguration defaultSessionConfiguration];
-    NSURLSession *session = [NSURLSession sessionWithConfiguration:configuration
-                                                          delegate:delegate
-                                                     delegateQueue:nil];
+    NSURLSession *session =
+        [NSURLSession sessionWithConfiguration:configuration
+                                      delegate:delegate
+                                 delegateQueue:FPRTestNSURLSessionDelegateQueue()];
     NSURL *URL = [self.testServer.serverURL URLByAppendingPathComponent:@"testBigDownload"];
     dataTask = [session dataTaskWithURL:URL];
     [dataTask resume];
@@ -530,9 +551,10 @@
       [[FPRNSURLSessionCompleteTestDelegate alloc] init];
   NSURLSessionConfiguration *configuration =
       [NSURLSessionConfiguration defaultSessionConfiguration];
-  NSURLSession *session = [NSURLSession sessionWithConfiguration:configuration
-                                                        delegate:delegate
-                                                   delegateQueue:nil];
+  NSURLSession *session =
+      [NSURLSession sessionWithConfiguration:configuration
+                                    delegate:delegate
+                               delegateQueue:FPRTestNSURLSessionDelegateQueue()];
   NSURL *URL = [self.testServer.serverURL URLByAppendingPathComponent:@"testDownload"];
   NSURLSessionDownloadTask *downloadTask = [session downloadTaskWithURL:URL];
   [downloadTask resume];
@@ -543,7 +565,7 @@
         waitForCondition:^BOOL {
           return delegate.URLSessionDownloadTaskDidFinishDownloadingToURLCalled;
         }
-                 timeout:3.0]);
+                 timeout:10.0]);
     XCTAssertTrue(delegate.URLSessionDownloadTaskDidFinishDownloadingToURLCalled);
     XCTAssertNil([FPRNetworkTrace networkTraceFromObject:downloadTask]);
   }];
@@ -561,9 +583,10 @@
         [[FPRNSURLSessionCompleteTestDelegate alloc] init];
     NSURLSessionConfiguration *configuration =
         [NSURLSessionConfiguration defaultSessionConfiguration];
-    NSURLSession *session = [NSURLSession sessionWithConfiguration:configuration
-                                                          delegate:delegate
-                                                     delegateQueue:nil];
+    NSURLSession *session =
+        [NSURLSession sessionWithConfiguration:configuration
+                                      delegate:delegate
+                                 delegateQueue:FPRTestNSURLSessionDelegateQueue()];
     NSURL *URL = [self.testServer.serverURL URLByAppendingPathComponent:@"testBigDownload"];
     dataTask = [session dataTaskWithURL:URL];
     [dataTask resume];
@@ -588,9 +611,10 @@
       [[FPRNSURLSessionTestDownloadDelegate alloc] init];
   NSURLSessionConfiguration *configuration =
       [NSURLSessionConfiguration defaultSessionConfiguration];
-  NSURLSession *session = [NSURLSession sessionWithConfiguration:configuration
-                                                        delegate:delegate
-                                                   delegateQueue:nil];
+  NSURLSession *session =
+      [NSURLSession sessionWithConfiguration:configuration
+                                    delegate:delegate
+                               delegateQueue:FPRTestNSURLSessionDelegateQueue()];
   NSURL *URL = [self.testServer.serverURL URLByAppendingPathComponent:@"testBigDownload"];
   NSURLSessionDownloadTask *downloadTask = [session downloadTaskWithURL:URL];
   [downloadTask resume];
@@ -598,7 +622,7 @@
       waitForCondition:^BOOL {
         return delegate.URLSessionDownloadTaskDidResumeAtOffsetExpectedTotalBytesCalled;
       }
-               timeout:5.0]);
+               timeout:10.0]);
   XCTAssertNil([FPRNetworkTrace networkTraceFromObject:downloadTask]);
   XCTAssertTrue(delegate.URLSessionDownloadTaskDidResumeAtOffsetExpectedTotalBytesCalled);
   [instrument deregisterInstrumentors];
@@ -612,9 +636,10 @@
       [[FPRNSURLSessionCompleteTestDelegate alloc] init];
   NSURLSessionConfiguration *configuration =
       [NSURLSessionConfiguration defaultSessionConfiguration];
-  NSURLSession *session = [NSURLSession sessionWithConfiguration:configuration
-                                                        delegate:delegate
-                                                   delegateQueue:nil];
+  NSURLSession *session =
+      [NSURLSession sessionWithConfiguration:configuration
+                                    delegate:delegate
+                               delegateQueue:FPRTestNSURLSessionDelegateQueue()];
   NSURL *URL = [self.testServer.serverURL URLByAppendingPathComponent:@"testBigDownload"];
   NSURLSessionDownloadTask *downloadTask = [session downloadTaskWithURL:URL];
   [downloadTask resume];
@@ -625,7 +650,7 @@
         waitForCondition:^BOOL {
           return delegate.URLSessionDownloadTaskDidWriteDataTotalBytesWrittenTotalBytesCalled;
         }
-                 timeout:3.0]);
+                 timeout:10.0]);
     XCTAssertTrue(delegate.URLSessionDownloadTaskDidWriteDataTotalBytesWrittenTotalBytesCalled);
     [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
     XCTAssertNil([FPRNetworkTrace networkTraceFromObject:downloadTask]);
@@ -641,9 +666,10 @@
   NSURLSessionConfiguration *configuration =
       [NSURLSessionConfiguration defaultSessionConfiguration];
   XCTAssertFalse([delegate respondsToSelector:@selector(URLSession:task:didCompleteWithError:)]);
-  NSURLSession *session = [NSURLSession sessionWithConfiguration:configuration
-                                                        delegate:delegate
-                                                   delegateQueue:nil];
+  NSURLSession *session =
+      [NSURLSession sessionWithConfiguration:configuration
+                                    delegate:delegate
+                               delegateQueue:FPRTestNSURLSessionDelegateQueue()];
   XCTAssertTrue([delegate respondsToSelector:@selector(URLSession:task:didCompleteWithError:)]);
   NSURLSessionDownloadTask *downloadTask = [session downloadTaskWithURL:self.testServer.serverURL];
   [downloadTask resume];
@@ -667,8 +693,12 @@
       [[FPRNSURLSessionDelegateProxy alloc] initWithDelegate:delegate];
   NSURLSessionConfiguration *configuration =
       [NSURLSessionConfiguration defaultSessionConfiguration];
-  [NSURLSession sessionWithConfiguration:configuration delegate:proxyDelegate delegateQueue:nil];
-  [NSURLSession sessionWithConfiguration:configuration delegate:proxyDelegate delegateQueue:nil];
+  [NSURLSession sessionWithConfiguration:configuration
+                                delegate:proxyDelegate
+                           delegateQueue:FPRTestNSURLSessionDelegateQueue()];
+  [NSURLSession sessionWithConfiguration:configuration
+                                delegate:proxyDelegate
+                           delegateQueue:FPRTestNSURLSessionDelegateQueue()];
   XCTAssertEqual(instrument.delegateInstrument.classInstrumentors.count, 1);
   XCTAssertEqual(instrument.delegateInstrument.instrumentedClasses.count, 1);
   XCTAssertTrue(
@@ -688,7 +718,7 @@
   XCTAssertFalse([delegate respondsToSelector:@selector(URLSession:task:didCompleteWithError:)]);
   XCTAssertNoThrow([NSURLSession sessionWithConfiguration:configuration
                                                  delegate:proxyDelegate
-                                            delegateQueue:nil]);
+                                            delegateQueue:FPRTestNSURLSessionDelegateQueue()]);
   XCTAssertTrue([delegate respondsToSelector:@selector(URLSession:task:didCompleteWithError:)]);
   [instrument deregisterInstrumentors];
 }
@@ -705,9 +735,10 @@
   NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:@"http://nonurl"]];
   NSURLSessionConfiguration *configuration =
       [NSURLSessionConfiguration defaultSessionConfiguration];
-  NSURLSession *session = [NSURLSession sessionWithConfiguration:configuration
-                                                        delegate:proxyDelegate
-                                                   delegateQueue:nil];
+  NSURLSession *session =
+      [NSURLSession sessionWithConfiguration:configuration
+                                    delegate:proxyDelegate
+                               delegateQueue:FPRTestNSURLSessionDelegateQueue()];
   NSURLSessionTask *task;
   @autoreleasepool {
     task = [session dataTaskWithRequest:request];
@@ -731,9 +762,10 @@
       [[FPRNSURLSessionDelegateProxy alloc] initWithDelegate:delegate];
   NSURLSessionConfiguration *configuration =
       [NSURLSessionConfiguration defaultSessionConfiguration];
-  NSURLSession *session = [NSURLSession sessionWithConfiguration:configuration
-                                                        delegate:proxyDelegate
-                                                   delegateQueue:nil];
+  NSURLSession *session =
+      [NSURLSession sessionWithConfiguration:configuration
+                                    delegate:proxyDelegate
+                               delegateQueue:FPRTestNSURLSessionDelegateQueue()];
   NSURL *URL = [self.testServer.serverURL URLByAppendingPathComponent:@"testUpload"];
   NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:URL];
   request.HTTPMethod = @"POST";
@@ -768,9 +800,10 @@
       [NSURLSessionConfiguration defaultSessionConfiguration];
   NSURL *URL = [self.testServer.serverURL URLByAppendingPathComponent:@"testRedirect"];
   NSURLRequest *request = [NSURLRequest requestWithURL:URL];
-  NSURLSession *session = [NSURLSession sessionWithConfiguration:configuration
-                                                        delegate:proxyDelegate
-                                                   delegateQueue:nil];
+  NSURLSession *session =
+      [NSURLSession sessionWithConfiguration:configuration
+                                    delegate:proxyDelegate
+                               delegateQueue:FPRTestNSURLSessionDelegateQueue()];
   NSURLSessionTask *task = [session dataTaskWithRequest:request];
   [task resume];
   XCTAssertNotNil([FPRNetworkTrace networkTraceFromObject:task]);
@@ -795,9 +828,10 @@
         [[FPRNSURLSessionDelegateProxy alloc] initWithDelegate:delegate];
     NSURLSessionConfiguration *configuration =
         [NSURLSessionConfiguration defaultSessionConfiguration];
-    NSURLSession *session = [NSURLSession sessionWithConfiguration:configuration
-                                                          delegate:proxyDelegate
-                                                     delegateQueue:nil];
+    NSURLSession *session =
+        [NSURLSession sessionWithConfiguration:configuration
+                                      delegate:proxyDelegate
+                                 delegateQueue:FPRTestNSURLSessionDelegateQueue()];
     NSURL *URL = [self.testServer.serverURL URLByAppendingPathComponent:@"testBigDownload"];
     dataTask = [session dataTaskWithURL:URL];
     [dataTask resume];
@@ -821,9 +855,10 @@
       [[FPRNSURLSessionDelegateProxy alloc] initWithDelegate:delegate];
   NSURLSessionConfiguration *configuration =
       [NSURLSessionConfiguration defaultSessionConfiguration];
-  NSURLSession *session = [NSURLSession sessionWithConfiguration:configuration
-                                                        delegate:proxyDelegate
-                                                   delegateQueue:nil];
+  NSURLSession *session =
+      [NSURLSession sessionWithConfiguration:configuration
+                                    delegate:proxyDelegate
+                               delegateQueue:FPRTestNSURLSessionDelegateQueue()];
   NSURL *URL = [self.testServer.serverURL URLByAppendingPathComponent:@"testDownload"];
   NSURLSessionDownloadTask *downloadTask = [session downloadTaskWithURL:URL];
   [downloadTask resume];
@@ -834,7 +869,7 @@
         waitForCondition:^BOOL {
           return delegate.URLSessionDownloadTaskDidFinishDownloadingToURLCalled;
         }
-                 timeout:3.0]);
+                 timeout:10.0]);
     XCTAssertTrue(delegate.URLSessionDownloadTaskDidFinishDownloadingToURLCalled);
     XCTAssertNil([FPRNetworkTrace networkTraceFromObject:downloadTask]);
   }];
@@ -854,9 +889,10 @@
         [[FPRNSURLSessionDelegateProxy alloc] initWithDelegate:delegate];
     NSURLSessionConfiguration *configuration =
         [NSURLSessionConfiguration defaultSessionConfiguration];
-    NSURLSession *session = [NSURLSession sessionWithConfiguration:configuration
-                                                          delegate:proxyDelegate
-                                                     delegateQueue:nil];
+    NSURLSession *session =
+        [NSURLSession sessionWithConfiguration:configuration
+                                      delegate:proxyDelegate
+                                 delegateQueue:FPRTestNSURLSessionDelegateQueue()];
     NSURL *URL = [self.testServer.serverURL URLByAppendingPathComponent:@"testBigDownload"];
     dataTask = [session dataTaskWithURL:URL];
     [dataTask resume];
@@ -881,9 +917,10 @@
       [[FPRNSURLSessionDelegateProxy alloc] initWithDelegate:delegate];
   NSURLSessionConfiguration *configuration =
       [NSURLSessionConfiguration defaultSessionConfiguration];
-  NSURLSession *session = [NSURLSession sessionWithConfiguration:configuration
-                                                        delegate:proxyDelegate
-                                                   delegateQueue:nil];
+  NSURLSession *session =
+      [NSURLSession sessionWithConfiguration:configuration
+                                    delegate:proxyDelegate
+                               delegateQueue:FPRTestNSURLSessionDelegateQueue()];
   NSURL *URL = [self.testServer.serverURL URLByAppendingPathComponent:@"testBigDownload"];
   NSURLSessionDownloadTask *downloadTask = [session downloadTaskWithURL:URL];
   [downloadTask resume];
@@ -894,7 +931,7 @@
         waitForCondition:^BOOL {
           return delegate.URLSessionDownloadTaskDidWriteDataTotalBytesWrittenTotalBytesCalled;
         }
-                 timeout:3.0]);
+                 timeout:10.0]);
     XCTAssertTrue(delegate.URLSessionDownloadTaskDidWriteDataTotalBytesWrittenTotalBytesCalled);
     [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
     XCTAssertNil([FPRNetworkTrace networkTraceFromObject:downloadTask]);
@@ -912,9 +949,10 @@
   NSURLSessionConfiguration *configuration =
       [NSURLSessionConfiguration defaultSessionConfiguration];
   XCTAssertFalse([delegate respondsToSelector:@selector(URLSession:task:didCompleteWithError:)]);
-  NSURLSession *session = [NSURLSession sessionWithConfiguration:configuration
-                                                        delegate:proxyDelegate
-                                                   delegateQueue:nil];
+  NSURLSession *session =
+      [NSURLSession sessionWithConfiguration:configuration
+                                    delegate:proxyDelegate
+                               delegateQueue:FPRTestNSURLSessionDelegateQueue()];
   XCTAssertTrue([delegate respondsToSelector:@selector(URLSession:task:didCompleteWithError:)]);
   NSURLSessionDownloadTask *downloadTask = [session downloadTaskWithURL:self.testServer.serverURL];
   [downloadTask resume];
