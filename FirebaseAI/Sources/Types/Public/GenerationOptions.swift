@@ -160,12 +160,14 @@
           _generationOptions = options
           // TODO: Remove `else` when Xcode 27 is the min. supported Xcode.
           #if compiler(>=6.4)
-            sampling = options.samplingMode
-              .map { SamplingMode(kind: .foundationModelsSamplingMode($0)) }
+            sampling = options.samplingMode.map {
+              SamplingMode(kind: .foundationModelsSamplingMode($0))
+            }
           #else
-            sampling = options.sampling
-              .map { SamplingMode(kind: .foundationModelsSamplingMode($0)) }
-          #endif
+            sampling = options.sampling.map {
+              SamplingMode(kind: .foundationModelsSamplingMode($0))
+            }
+          #endif // compiler(>=6.4)
           temperature = options.temperature
           maximumResponseTokens = options.maximumResponseTokens
         }
@@ -191,7 +193,7 @@
               temperature: temperature,
               maximumResponseTokens: maximumResponseTokens
             )
-          #endif
+          #endif // compiler(>=6.4)
         }
       #endif // canImport(FoundationModels)
 
