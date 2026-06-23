@@ -120,11 +120,11 @@
 
 @implementation FPRNSURLSessionInstrumentTest
 
-// Use the main queue so delegate callbacks are delivered while the test spins the
-// current run loop. The default nil queue is a private serial queue and is flaky
-// when tests wait on the main run loop under full-suite CI load.
-static dispatch_queue_t FPRTestNSURLSessionDelegateQueue(void) {
-  return dispatch_get_main_queue();
+// Use the main operation queue so delegate callbacks are delivered while the test
+// spins the current run loop. The default nil queue is a private serial queue and
+// is flaky when tests wait on the main run loop under full-suite CI load.
+static NSOperationQueue *FPRTestNSURLSessionDelegateQueue(void) {
+  return [NSOperationQueue mainQueue];
 }
 
 - (void)setUp {
