@@ -1570,6 +1570,7 @@ func firestoreTargets() -> [Target] {
             .when(platforms: [.iOS, .macOS, .tvOS, .visionOS])
           ),
           .linkedFramework("UIKit", .when(platforms: [.iOS, .tvOS, .visionOS])),
+          .linkedFramework("Network"),
           .linkedLibrary("c++"),
         ]
       ),
@@ -1659,6 +1660,7 @@ func firestoreTargets() -> [Target] {
       linkerSettings: [
         .linkedFramework("SystemConfiguration", .when(platforms: [.iOS, .macOS, .tvOS])),
         .linkedFramework("UIKit", .when(platforms: [.iOS, .tvOS])),
+        .linkedFramework("Network"),
         .linkedLibrary("c++"),
       ]
     ),
