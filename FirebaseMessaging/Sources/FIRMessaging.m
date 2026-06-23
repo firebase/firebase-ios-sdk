@@ -709,7 +709,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 }
 
 - (void)setupInstallationIDObserver {
-  if (self.installationIDObserver) {
+  if (self.installationIDObserver || !self.isInstallationIdEnabled) {
     return;
   }
   // Monitor FID rotation events. When FID rotates, register with the new FID.
