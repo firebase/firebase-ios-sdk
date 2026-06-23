@@ -342,6 +342,14 @@ void FirestoreClient::TerminateInternal() {
 
   // Clear the remote store to indicate terminate is complete.
   remote_store_.reset();
+
+  // Destroy connectivity monitor LAST, after remote_store_ which holds
+  // callbacks registered into it. ConnectivityMonitor's destruction must
+  // happen on this AsyncQueue (see class comment in
+  // connectivity_monitor_apple.h) and must happen after all callback
+  // registrants are gone, because the monitor does not deregister callbacks on
+  // registrant destruction.
+  connectivity_monitor_.reset();
 }
 
 void FirestoreClient::ScheduleLruGarbageCollection() {
