@@ -57,9 +57,9 @@ static NSString *const kPendingSubscriptionsListKey =
   return self;
 }
 
-- (void)subscribeWithToken:(NSString *)token
+- (void)subscribeWithToken:(nullable NSString *)token
                      topic:(NSString *)topic
-                   options:(NSDictionary *)options
+                   options:(nullable NSDictionary *)options
                    handler:(FIRMessagingTopicOperationCompletion)handler {
   token = [token copy];
   topic = [topic copy];
@@ -99,9 +99,9 @@ static NSString *const kPendingSubscriptionsListKey =
 
 #pragma mark - FIRMessaging subscribe
 
-- (void)updateSubscriptionWithToken:(NSString *)token
+- (void)updateSubscriptionWithToken:(nullable NSString *)token
                               topic:(NSString *)topic
-                            options:(NSDictionary *)options
+                            options:(nullable NSDictionary *)options
                        shouldDelete:(BOOL)shouldDelete
                             handler:(FIRMessagingTopicOperationCompletion)handler {
   if ([FIRMessaging messaging].isInstallationIdEnabled || [_tokenManager hasValidCheckinInfo]) {
@@ -140,9 +140,9 @@ static NSString *const kPendingSubscriptionsListKey =
   }
 }
 
-- (void)unsubscribeWithToken:(NSString *)token
+- (void)unsubscribeWithToken:(nullable NSString *)token
                        topic:(NSString *)topic
-                     options:(NSDictionary *)options
+                     options:(nullable NSDictionary *)options
                      handler:(FIRMessagingTopicOperationCompletion)handler {
   token = [token copy];
   topic = [topic copy];
