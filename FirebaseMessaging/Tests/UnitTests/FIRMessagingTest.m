@@ -75,6 +75,8 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
 @property(nonatomic, readwrite, strong) id mockFirebaseApp;
 @property(nonatomic, readwrite, strong) id mockTokenManager;
 @property(nonatomic, strong) FIRMessagingTestUtilities *testUtil;
+@property(nonatomic, readwrite, strong) id urlSessionMock;
+@property(nonatomic, readwrite, strong) id bundleMock;
 
 @end
 
@@ -102,6 +104,10 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
 - (void)tearDown {
   [_testUtil cleanupAfterTest:self];
   [_mockFirebaseApp stopMocking];
+  [self.urlSessionMock stopMocking];
+  self.urlSessionMock = nil;
+  [self.bundleMock stopMocking];
+  self.bundleMock = nil;
   _messaging = nil;
   [[[NSUserDefaults alloc] initWithSuiteName:kFIRMessagingDefaultsTestDomain]
       removePersistentDomainForName:kFIRMessagingDefaultsTestDomain];
@@ -121,42 +127,42 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
 
 - (void)testAutoInitEnableFlagOverrideGlobalTrue {
   OCMStub([_mockFirebaseApp isDataCollectionDefaultEnabled]).andReturn(YES);
-  id bundleMock = OCMPartialMock([NSBundle mainBundle]);
-  OCMStub([bundleMock objectForInfoDictionaryKey:kFIRMessagingPlistAutoInitEnabled]).andReturn(nil);
+  self.bundleMock = OCMPartialMock([NSBundle mainBundle]);
+  OCMStub([self.bundleMock objectForInfoDictionaryKey:kFIRMessagingPlistAutoInitEnabled])
+      .andReturn(nil);
   XCTAssertTrue(self.messaging.isAutoInitEnabled);
 
   self.messaging.autoInitEnabled = NO;
   XCTAssertFalse(self.messaging.isAutoInitEnabled);
-  [bundleMock stopMocking];
 }
 
 - (void)testAutoInitEnableFlagOverrideGlobalFalse {
   OCMStub([_mockFirebaseApp isDataCollectionDefaultEnabled]).andReturn(YES);
-  id bundleMock = OCMPartialMock([NSBundle mainBundle]);
-  OCMStub([bundleMock objectForInfoDictionaryKey:kFIRMessagingPlistAutoInitEnabled]).andReturn(nil);
+  self.bundleMock = OCMPartialMock([NSBundle mainBundle]);
+  OCMStub([self.bundleMock objectForInfoDictionaryKey:kFIRMessagingPlistAutoInitEnabled])
+      .andReturn(nil);
   XCTAssertTrue(self.messaging.isAutoInitEnabled);
 
   self.messaging.autoInitEnabled = NO;
   XCTAssertFalse(self.messaging.isAutoInitEnabled);
-  [bundleMock stopMocking];
 }
 
 - (void)testAutoInitEnableGlobalDefaultTrue {
   OCMStub([_mockFirebaseApp isDataCollectionDefaultEnabled]).andReturn(YES);
-  id bundleMock = OCMPartialMock([NSBundle mainBundle]);
-  OCMStub([bundleMock objectForInfoDictionaryKey:kFIRMessagingPlistAutoInitEnabled]).andReturn(nil);
+  self.bundleMock = OCMPartialMock([NSBundle mainBundle]);
+  OCMStub([self.bundleMock objectForInfoDictionaryKey:kFIRMessagingPlistAutoInitEnabled])
+      .andReturn(nil);
 
   XCTAssertTrue(self.messaging.isAutoInitEnabled);
-  [bundleMock stopMocking];
 }
 
 - (void)testAutoInitEnableGlobalDefaultFalse {
   OCMStub([_mockFirebaseApp isDataCollectionDefaultEnabled]).andReturn(NO);
-  id bundleMock = OCMPartialMock([NSBundle mainBundle]);
-  OCMStub([bundleMock objectForInfoDictionaryKey:kFIRMessagingPlistAutoInitEnabled]).andReturn(nil);
+  self.bundleMock = OCMPartialMock([NSBundle mainBundle]);
+  OCMStub([self.bundleMock objectForInfoDictionaryKey:kFIRMessagingPlistAutoInitEnabled])
+      .andReturn(nil);
 
   XCTAssertFalse(self.messaging.isAutoInitEnabled);
-  [bundleMock stopMocking];
 }
 
 - (void)testAutoInitEnabledMatchesStaticMethod {
@@ -307,9 +313,9 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
   OCMStub(
       [(FIRInstallations *)self.testUtil.mockInstallations authTokenWithCompletion:authTokenArg]);
 
-  id URLSessionMock = OCMClassMock([NSURLSession class]);
-  OCMStub(ClassMethod([URLSessionMock sessionWithConfiguration:[OCMArg any]]))
-      .andReturn(URLSessionMock);
+  self.urlSessionMock = OCMClassMock([NSURLSession class]);
+  OCMStub(ClassMethod([self.urlSessionMock sessionWithConfiguration:[OCMArg any]]))
+      .andReturn(self.urlSessionMock);
 
   // Setup the HTTP response.
   NSHTTPURLResponse *response =
@@ -322,15 +328,15 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
       [FIRURLSessionOCMockStub stubURLSessionDataTaskWithResponse:response
                                                              body:responseBody
                                                             error:nil
-                                                   URLSessionMock:URLSessionMock
+                                                   URLSessionMock:self.urlSessionMock
                                            requestValidationBlock:requestValidationBlock];
   OCMStub([mockDataTask setTaskDescription:OCMOCK_ANY]);
 }
 
 - (void)testRegisterNotifiesDelegateWhenInstallationIdEnabled {
-  id bundleMock = OCMPartialMock([NSBundle mainBundle]);
+  self.bundleMock = OCMPartialMock([NSBundle mainBundle]);
   // FirebaseMessaging.isInstallationIdEnabled should return YES.
-  OCMStub([bundleMock objectForInfoDictionaryKey:kFIRMessagingPlistInstallationIdEnabled])
+  OCMStub([self.bundleMock objectForInfoDictionaryKey:kFIRMessagingPlistInstallationIdEnabled])
       .andReturn(@YES);
 
   id mockOptions = OCMClassMock([FIROptions class]);
@@ -398,9 +404,9 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
 }
 
 - (void)testUnregisterNotifiesDelegateWhenInstallationIdEnabled {
-  id bundleMock = OCMPartialMock([NSBundle mainBundle]);
+  self.bundleMock = OCMPartialMock([NSBundle mainBundle]);
   // FirebaseMessaging.isInstallationIdEnabled should return YES.
-  OCMStub([bundleMock objectForInfoDictionaryKey:kFIRMessagingPlistInstallationIdEnabled])
+  OCMStub([self.bundleMock objectForInfoDictionaryKey:kFIRMessagingPlistInstallationIdEnabled])
       .andReturn(@YES);
 
   id mockOptions = OCMClassMock([FIROptions class]);
@@ -447,11 +453,11 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
 }
 
 - (void)testAppStartNotifiesDelegateWhenBothAutoInitAndInstallationIdEnabled {
-  id bundleMock = OCMPartialMock([NSBundle mainBundle]);
+  self.bundleMock = OCMPartialMock([NSBundle mainBundle]);
   // Both isInstallationIdEnabled and autoInitEnabled are YES.
-  OCMStub([bundleMock objectForInfoDictionaryKey:kFIRMessagingPlistInstallationIdEnabled])
+  OCMStub([self.bundleMock objectForInfoDictionaryKey:kFIRMessagingPlistInstallationIdEnabled])
       .andReturn(@YES);
-  OCMStub([bundleMock objectForInfoDictionaryKey:kFIRMessagingPlistAutoInitEnabled])
+  OCMStub([self.bundleMock objectForInfoDictionaryKey:kFIRMessagingPlistAutoInitEnabled])
       .andReturn(@YES);
 
   id mockOptions = OCMClassMock([FIROptions class]);
@@ -492,9 +498,9 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
 }
 
 - (void)testSubscribeToTopicWhenInstallationIdEnabled {
-  id bundleMock = OCMPartialMock([NSBundle mainBundle]);
+  self.bundleMock = OCMPartialMock([NSBundle mainBundle]);
   // FirebaseMessaging.isInstallationIdEnabled should return YES.
-  OCMStub([bundleMock objectForInfoDictionaryKey:kFIRMessagingPlistInstallationIdEnabled])
+  OCMStub([self.bundleMock objectForInfoDictionaryKey:kFIRMessagingPlistInstallationIdEnabled])
       .andReturn(@YES);
 
   id mockOptions = OCMClassMock([FIROptions class]);
@@ -566,14 +572,13 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
                         }];
 
   [self waitForExpectationsWithTimeout:5.0 handler:nil];
-  [bundleMock stopMocking];
   [topicOperationMock stopMocking];
 }
 
 - (void)testUnsubscribeFromTopicWhenInstallationIdEnabled {
-  id bundleMock = OCMPartialMock([NSBundle mainBundle]);
+  self.bundleMock = OCMPartialMock([NSBundle mainBundle]);
   // FirebaseMessaging.isInstallationIdEnabled should return YES.
-  OCMStub([bundleMock objectForInfoDictionaryKey:kFIRMessagingPlistInstallationIdEnabled])
+  OCMStub([self.bundleMock objectForInfoDictionaryKey:kFIRMessagingPlistInstallationIdEnabled])
       .andReturn(@YES);
 
   id mockOptions = OCMClassMock([FIROptions class]);
@@ -645,7 +650,6 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
                             }];
 
   [self waitForExpectationsWithTimeout:5.0 handler:nil];
-  [bundleMock stopMocking];
   [topicOperationMock stopMocking];
 }
 
