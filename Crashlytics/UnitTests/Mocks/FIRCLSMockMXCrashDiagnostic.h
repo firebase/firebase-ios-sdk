@@ -24,7 +24,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(ios(14))
 @interface FIRCLSMockMXCrashDiagnostic : MXCrashDiagnostic
 
 - (instancetype)initWithCallStackTree:(FIRCLSMockMXCallStackTree *)callStackTree
