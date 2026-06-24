@@ -103,23 +103,20 @@ final class InstallationsAPITests {
       }
     }
 
-    #if swift(>=5.5)
-      // async/await is a Swift Concurrency feature available on iOS 13+ and macOS 10.15+
-      Task {
-        do {
-          _ = try await Installations.installations().delete()
-        } catch let error as NSError
-          where error.domain == InstallationsErrorDomain && error.code == InstallationsErrorCode
-          .unknown.rawValue {
-          // Above is the old way to handle errors.
-        } catch InstallationsErrorCode.unknown {
-          // Above is the new way to handle errors.
-        } catch {
-          // ...
-        }
+    // async/await is a Swift Concurrency feature available on iOS 13+ and macOS 10.15+
+    Task {
+      do {
+        _ = try await Installations.installations().delete()
+      } catch let error as NSError
+        where error.domain == InstallationsErrorDomain && error.code == InstallationsErrorCode
+        .unknown.rawValue {
+        // Above is the old way to handle errors.
+      } catch InstallationsErrorCode.unknown {
+        // Above is the new way to handle errors.
+      } catch {
+        // ...
       }
-
-    #endif // swift(>=5.5)
+    }
 
     // MARK: -  InstallationsAuthTokenResult
 
