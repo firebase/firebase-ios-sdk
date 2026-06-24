@@ -32,18 +32,18 @@ jobs:
     - name: Set Xcode version
       run: sudo xcode-select -s /Applications/Xcode_26.4.app/Contents/Developer
     - name: Install iOS SDK
-      uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
+      uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
       with:
         timeout_minutes: 15
         max_attempts: 5
         retry_wait_seconds: 120
         continue_on_error: true
         command: xcodebuild -downloadPlatform iOS
-    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
+    - uses: ruby/setup-ruby@89f90524b88a01fe6e0b732220432cc6142926af # v1.313.0
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Setup project and archive
-      uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
+      uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
       with:
         timeout_minutes: 20
         max_attempts: 3
@@ -67,7 +67,7 @@ jobs:
       run: sudo xcode-select -s /Applications/Xcode_26.4.app/Contents/Developer
     - name: Install SDK
       if: matrix.target != 'macos'
-      uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
+      uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
       with:
         timeout_minutes: 15
         max_attempts: 5
@@ -79,11 +79,11 @@ jobs:
           elif [[ "${{ matrix.target }}" == "tvos" ]]; then
             xcodebuild -downloadPlatform tvOS
           fi
-    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
+    - uses: ruby/setup-ruby@89f90524b88a01fe6e0b732220432cc6142926af # v1.313.0
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Setup project and archive
-      uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
+      uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
       with:
         # Firestore gets a 60 min. timeout, everything else gets 20 min.
         timeout_minutes: ${{ matrix.pod == 'FirebaseFirestore' && 60 || 20 }}
