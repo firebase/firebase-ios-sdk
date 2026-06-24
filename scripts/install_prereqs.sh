@@ -64,7 +64,6 @@ if [[ "$method" != "cmake" ]]; then
   scripts/setup_bundler.sh
 fi
 
-
 case "$project-$platform-$method" in
 
   FirebasePod-iOS-*)
