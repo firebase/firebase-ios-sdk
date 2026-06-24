@@ -583,16 +583,14 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref,
 
 - (void)setupNotifications {
 #if TARGET_OS_WATCH
-    if (@available(watchOS 7.0, *)) {
-        __weak FPersistentConnection *weakSelf = self;
-        NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
-        [center addObserverForName:WKApplicationWillEnterForegroundNotification
-                            object:nil
-                             queue:nil
-                        usingBlock:^(NSNotification *_Nonnull note) {
-                          [weakSelf enteringForeground];
-                        }];
-    }
+    __weak FPersistentConnection *weakSelf = self;
+    NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
+    [center addObserverForName:WKApplicationWillEnterForegroundNotification
+                        object:nil
+                         queue:nil
+                    usingBlock:^(NSNotification *_Nonnull note) {
+                      [weakSelf enteringForeground];
+                    }];
 #else
     NSString *const *foregroundConstant = (NSString *const *)dlsym(
         RTLD_DEFAULT, "UIApplicationWillEnterForegroundNotification");
