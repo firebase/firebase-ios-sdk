@@ -51,16 +51,16 @@ struct GenerateContentIntegrationTests {
     (InstanceConfig.vertexAI_v1beta, ModelNames.gemini2_5_FlashLite),
     (InstanceConfig.vertexAI_v1beta_global, ModelNames.gemini2_5_FlashLite),
     (InstanceConfig.vertexAI_v1beta_global_appCheckLimitedUse, ModelNames.gemini2_5_FlashLite),
-    (InstanceConfig.googleAI_v1beta, ModelNames.gemini3_1_FlashLitePreview),
-    (InstanceConfig.googleAI_v1beta_appCheckLimitedUse, ModelNames.gemini3_1_FlashLitePreview),
-    (InstanceConfig.googleAI_v1beta, ModelNames.gemma3_4B),
-    (InstanceConfig.googleAI_v1beta_freeTier, ModelNames.gemma3_4B),
+    (InstanceConfig.googleAI_v1beta, ModelNames.gemini3_1_FlashLite),
+    (InstanceConfig.googleAI_v1beta_appCheckLimitedUse, ModelNames.gemini3_1_FlashLite),
+    (InstanceConfig.googleAI_v1beta, ModelNames.gemma4_31B),
+    (InstanceConfig.googleAI_v1beta_freeTier, ModelNames.gemma4_31B),
     // Note: The following configs are commented out for easy one-off manual testing.
     // (InstanceConfig.googleAI_v1beta_freeTier, ModelNames.gemini2_5_FlashLite),
     // (InstanceConfig.googleAI_v1beta_staging, ModelNames.gemini2_5_FlashLite),
-    // (InstanceConfig.googleAI_v1beta_staging, ModelNames.gemma3_4B),
+    // (InstanceConfig.googleAI_v1beta_staging, ModelNames.gemma4_31B),
     // (InstanceConfig.googleAI_v1beta_freeTier_bypassProxy, ModelNames.gemini2_5_FlashLite),
-    // (InstanceConfig.googleAI_v1beta_freeTier_bypassProxy, ModelNames.gemma3_4B),
+    // (InstanceConfig.googleAI_v1beta_freeTier_bypassProxy, ModelNames.gemma4_31B),
   ])
   func generateContent(_ config: InstanceConfig, modelName: String) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
@@ -82,14 +82,12 @@ struct GenerateContentIntegrationTests {
     #expect(promptTokensDetails.modality == .text)
     #expect(promptTokensDetails.tokenCount == usageMetadata.promptTokenCount)
     // No thoughts in Flash Lite.
-    #expect(usageMetadata.thoughtsTokenCount == 0)
-    // The fields `candidatesTokenCount` and `candidatesTokensDetails` are not included when using
-    // Gemma models.
-    if modelName.hasPrefix("gemini-3") {
+    if !modelName.contains("flash-lite") {
+      #expect(usageMetadata.thoughtsTokenCount > 0)
+    }
+    // The `candidatesTokensDetails` field is not included when using Gemini 3 or Gemma models.
+    if modelName.hasPrefix("gemini-3") || modelName.hasPrefix("gemma") {
       #expect(usageMetadata.candidatesTokenCount == 2)
-      #expect(usageMetadata.candidatesTokensDetails.isEmpty)
-    } else if modelName.hasPrefix("gemma") {
-      #expect(usageMetadata.candidatesTokenCount == 0)
       #expect(usageMetadata.candidatesTokensDetails.isEmpty)
     } else {
       #expect(usageMetadata.candidatesTokenCount.isEqual(to: 3, accuracy: tokenCountAccuracy))
@@ -107,7 +105,7 @@ struct GenerateContentIntegrationTests {
 
   @Test(
     "Generate an enum and provide a system instruction",
-    arguments: InstanceConfig.allConfigs
+    arguments: InstanceConfig.defaultConfigs
   )
   func generateContentEnum(_ config: InstanceConfig) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
@@ -161,47 +159,18 @@ struct GenerateContentIntegrationTests {
       (.vertexAI_v1beta_global, ModelNames.gemini2_5_Pro, ThinkingConfig(
         thinkingBudget: 32768, includeThoughts: true
       )),
-      (.googleAI_v1beta, ModelNames.gemini2_5_Flash, ThinkingConfig(thinkingBudget: 0)),
-      (.googleAI_v1beta, ModelNames.gemini2_5_Flash, ThinkingConfig(thinkingBudget: 24576)),
-      (.googleAI_v1beta, ModelNames.gemini2_5_Flash, ThinkingConfig(
+      (.googleAI_v1beta, ModelNames.gemini2_5_FlashLite, ThinkingConfig(thinkingBudget: 0)),
+      (.googleAI_v1beta, ModelNames.gemini2_5_FlashLite, ThinkingConfig(thinkingBudget: 24576)),
+      (.googleAI_v1beta, ModelNames.gemini2_5_FlashLite, ThinkingConfig(
         thinkingBudget: 24576, includeThoughts: true
       )),
-      (.googleAI_v1beta, ModelNames.gemini2_5_Pro, ThinkingConfig(thinkingBudget: 128)),
-      (.googleAI_v1beta, ModelNames.gemini2_5_Pro, ThinkingConfig(thinkingBudget: 32768)),
-      (.googleAI_v1beta, ModelNames.gemini2_5_Pro, ThinkingConfig(
-        thinkingBudget: 32768, includeThoughts: true
-      )),
-      (
-        .googleAI_v1beta,
-        ModelNames.gemini3_1_FlashLitePreview,
-        ThinkingConfig(thinkingLevel: .minimal)
-      ),
-      (
-        .googleAI_v1beta,
-        ModelNames.gemini3_1_FlashLitePreview,
-        ThinkingConfig(thinkingLevel: .low)
-      ),
-      (
-        .googleAI_v1beta,
-        ModelNames.gemini3_1_FlashLitePreview,
-        ThinkingConfig(thinkingLevel: .medium)
-      ),
-      (
-        .googleAI_v1beta,
-        ModelNames.gemini3_1_FlashLitePreview,
-        ThinkingConfig(thinkingLevel: .high)
-      ),
-      (
-        .googleAI_v1beta,
-        ModelNames.gemini3_1_FlashLitePreview,
-        ThinkingConfig(thinkingBudget: 0)
-      ),
-      (
-        .googleAI_v1beta,
-        ModelNames.gemini3_1_FlashLitePreview,
-        ThinkingConfig(thinkingBudget: 32768)
-      ),
-      (.googleAI_v1beta, ModelNames.gemini3_1_FlashLitePreview, ThinkingConfig(
+      (.googleAI_v1beta, ModelNames.gemini3_1_FlashLite, ThinkingConfig(thinkingLevel: .minimal)),
+      (.googleAI_v1beta, ModelNames.gemini3_1_FlashLite, ThinkingConfig(thinkingLevel: .low)),
+      (.googleAI_v1beta, ModelNames.gemini3_1_FlashLite, ThinkingConfig(thinkingLevel: .medium)),
+      (.googleAI_v1beta, ModelNames.gemini3_1_FlashLite, ThinkingConfig(thinkingLevel: .high)),
+      (.googleAI_v1beta, ModelNames.gemini3_1_FlashLite, ThinkingConfig(thinkingBudget: 0)),
+      (.googleAI_v1beta, ModelNames.gemini3_1_FlashLite, ThinkingConfig(thinkingBudget: 32768)),
+      (.googleAI_v1beta, ModelNames.gemini3_1_FlashLite, ThinkingConfig(
         thinkingBudget: 32768, includeThoughts: true
       )),
       // Note: The following configs are commented out for easy one-off manual testing.
@@ -306,16 +275,12 @@ struct GenerateContentIntegrationTests {
       (.vertexAI_v1beta_global, ModelNames.gemini2_5_Pro, ThinkingConfig(
         thinkingBudget: -1, includeThoughts: true
       )),
-      (.googleAI_v1beta, ModelNames.gemini2_5_Flash, ThinkingConfig(thinkingBudget: -1)),
-      (.googleAI_v1beta, ModelNames.gemini2_5_Flash, ThinkingConfig(
+      (.googleAI_v1beta, ModelNames.gemini2_5_FlashLite, ThinkingConfig(thinkingBudget: -1)),
+      (.googleAI_v1beta, ModelNames.gemini2_5_FlashLite, ThinkingConfig(
         thinkingBudget: -1, includeThoughts: true
       )),
-      (.googleAI_v1beta, ModelNames.gemini2_5_Pro, ThinkingConfig(thinkingBudget: -1)),
-      (.googleAI_v1beta, ModelNames.gemini2_5_Pro, ThinkingConfig(
-        thinkingBudget: -1, includeThoughts: true
-      )),
-      (.googleAI_v1beta, ModelNames.gemini3_1_FlashLitePreview, ThinkingConfig(thinkingBudget: -1)),
-      (.googleAI_v1beta, ModelNames.gemini3_1_FlashLitePreview, ThinkingConfig(
+      (.googleAI_v1beta, ModelNames.gemini3_1_FlashLite, ThinkingConfig(thinkingBudget: -1)),
+      (.googleAI_v1beta, ModelNames.gemini3_1_FlashLite, ThinkingConfig(
         thinkingBudget: -1, includeThoughts: true
       )),
     ] as [(InstanceConfig, String, ThinkingConfig)]
@@ -388,6 +353,132 @@ struct GenerateContentIntegrationTests {
     (InstanceConfig.vertexAI_v1beta, ModelNames.gemini2_5_FlashImage),
     (InstanceConfig.vertexAI_v1beta_global, ModelNames.gemini2_5_FlashImage),
     (InstanceConfig.googleAI_v1beta, ModelNames.gemini2_5_FlashImage),
+    (InstanceConfig.googleAI_v1beta, ModelNames.gemini3_1_FlashImagePreview),
+    (InstanceConfig.vertexAI_v1beta_global, ModelNames.gemini3_1_FlashImagePreview),
+  ])
+  func generateImageWithAspectRatio(_ config: InstanceConfig, modelName: String) async throws {
+    let imageConfig = ImageConfig(aspectRatio: .landscape16x9)
+    let generationConfig = GenerationConfig(
+      temperature: 0.0,
+      topP: 0.0,
+      topK: 1,
+      responseModalities: [.image],
+      imageConfig: imageConfig
+    )
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: modelName,
+      generationConfig: generationConfig,
+      safetySettings: safetySettings
+    )
+    let prompt = "Generate an image of a cute cartoon kitten playing with a ball of yarn."
+
+    let response = try await model.generateContent(prompt)
+
+    let candidate = try #require(response.candidates.first)
+    let inlineDataPart = try #require(candidate.content.parts
+      .first { $0 is InlineDataPart } as? InlineDataPart)
+    let inlineDataPartsViaAccessor = response.inlineDataParts
+    #expect(inlineDataPartsViaAccessor.count == 1)
+    let inlineDataPartViaAccessor = try #require(inlineDataPartsViaAccessor.first)
+    #expect(inlineDataPart == inlineDataPartViaAccessor)
+    #expect(inlineDataPart.mimeType.starts(with: "image/"))
+    #expect(inlineDataPart.data.count > 0)
+    #if canImport(UIKit)
+      let uiImage = try #require(UIImage(data: inlineDataPart.data))
+      // Note: Images are not exactly 16:9 but align with the documented sizes
+      // (https://ai.google.dev/gemini-api/docs/image-generation#aspect_ratios_and_image_size)
+      #expect(uiImage.size.width >= 1344) // Gemini 2.5 produces images slightly narrower than 16:9
+      #expect(uiImage.size.width <= 1376) // Gemini 3 produces images slightly wider than 16:9
+      #expect(uiImage.size.height == 768)
+    #endif // canImport(UIKit)
+  }
+
+  @Test(arguments: [
+    (InstanceConfig.googleAI_v1beta, ModelNames.gemini3_1_FlashImagePreview),
+    (InstanceConfig.vertexAI_v1beta_global, ModelNames.gemini3_1_FlashImagePreview),
+  ])
+  func generateImageWithCustomSize(_ config: InstanceConfig, modelName: String) async throws {
+    let imageConfig = ImageConfig(
+      // Specifying aspectRatio explicitly to ensure consistent results, as the
+      // default behavior seems to be random aspect ratio despite documentation
+      // stating 1:1 is the default.
+      aspectRatio: .square1x1,
+      imageSize: .size2K
+    )
+    let generationConfig = GenerationConfig(
+      temperature: 0.0,
+      topP: 0.0,
+      topK: 1,
+      responseModalities: [.image],
+      imageConfig: imageConfig
+    )
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: modelName,
+      generationConfig: generationConfig,
+      safetySettings: safetySettings
+    )
+    let prompt = "Generate an image of a cute cartoon puppy catching a ball in the air."
+
+    let response = try await model.generateContent(prompt)
+
+    let candidate = try #require(response.candidates.first)
+    let inlineDataPart = try #require(candidate.content.parts
+      .first { $0 is InlineDataPart } as? InlineDataPart)
+    let inlineDataPartsViaAccessor = response.inlineDataParts
+    #expect(inlineDataPartsViaAccessor.count == 1)
+    let inlineDataPartViaAccessor = try #require(inlineDataPartsViaAccessor.first)
+    #expect(inlineDataPart == inlineDataPartViaAccessor)
+    #expect(inlineDataPart.mimeType.starts(with: "image/"))
+    #expect(inlineDataPart.data.count > 0)
+    #if canImport(UIKit)
+      let uiImage = try #require(UIImage(data: inlineDataPart.data))
+      #expect(uiImage.size.width == 2048)
+      #expect(uiImage.size.height == 2048)
+    #endif // canImport(UIKit)
+  }
+
+  @Test(arguments: [
+    (InstanceConfig.vertexAI_v1beta, ModelNames.gemini2_5_FlashImage),
+    (InstanceConfig.vertexAI_v1beta_global, ModelNames.gemini2_5_FlashImage),
+    (InstanceConfig.googleAI_v1beta, ModelNames.gemini2_5_FlashImage),
+    (InstanceConfig.googleAI_v1beta, ModelNames.gemini3_1_FlashImagePreview),
+    (InstanceConfig.vertexAI_v1beta_global, ModelNames.gemini3_1_FlashImagePreview),
+  ])
+  func generateContent_finishReason_imageSafety(_ config: InstanceConfig,
+                                                modelName: String) async throws {
+    let generationConfig = GenerationConfig(
+      responseModalities: [.image]
+    )
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: modelName,
+      generationConfig: generationConfig,
+    )
+    let prompt = "A graphic image of violence" // This prompt should trigger safety violation
+
+    do {
+      let response = try await model.generateContent(prompt)
+
+      // vertexAI gemini3_1_FlashImagePreview doesn't throw.
+      let candidate = try #require(response.candidates.first)
+      #expect(candidate.finishReason == .stop)
+    } catch {
+      guard let error = error as? GenerateContentError else {
+        Issue.record("Expected a \(GenerateContentError.self); got \(error.self).")
+        throw error
+      }
+      guard case let .responseStoppedEarly(reason, response) = error else {
+        Issue.record("Expected a GenerateContentError.responseStoppedEarly; got \(error.self).")
+        throw error
+      }
+      #expect(reason == .imageSafety || reason == .noImage)
+      #expect(response.candidates.first?.content.parts.isEmpty == true) // Ensure no content
+    }
+  }
+
+  @Test(arguments: [
+    (InstanceConfig.vertexAI_v1beta, ModelNames.gemini2_5_FlashImage),
+    (InstanceConfig.vertexAI_v1beta_global, ModelNames.gemini2_5_FlashImage),
+    (InstanceConfig.googleAI_v1beta, ModelNames.gemini2_5_FlashImage),
     // Note: The following configs are commented out for easy one-off manual testing.
     // (InstanceConfig.googleAI_v1beta_staging, ModelNames.gemini2_5_FlashImage)
   ])
@@ -398,11 +489,6 @@ struct GenerateContentIntegrationTests {
       topK: 1,
       responseModalities: [.text, .image]
     )
-    let safetySettings = safetySettings.filter {
-      // HARM_CATEGORY_CIVIC_INTEGRITY is deprecated in Vertex AI but only rejected when using the
-      // 'gemini-2.0-flash-preview-image-generation' model.
-      $0.harmCategory != .civicIntegrity
-    }
     let model = FirebaseAI.componentInstance(config).generativeModel(
       modelName: modelName,
       generationConfig: generationConfig,
@@ -430,11 +516,11 @@ struct GenerateContentIntegrationTests {
 
   @Test(
     "generateContent with Google Search returns grounding metadata",
-    arguments: InstanceConfig.allConfigs
+    arguments: InstanceConfig.defaultConfigs
   )
   func generateContent_withGoogleSearch_succeeds(_ config: InstanceConfig) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
-      modelName: ModelNames.gemini2_5_Flash,
+      modelName: ModelNames.gemini3_1_FlashLite,
       tools: [.googleSearch()]
     )
     let prompt = "What is the weather in Toronto today?"
@@ -469,11 +555,11 @@ struct GenerateContentIntegrationTests {
 
   @Test(
     "generateContent with URL Context",
-    arguments: InstanceConfig.allConfigs
+    arguments: InstanceConfig.defaultConfigs
   )
   func generateContent_withURLContext_succeeds(_ config: InstanceConfig) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
-      modelName: ModelNames.gemini2_5_Flash,
+      modelName: ModelNames.gemini3_1_FlashLite,
       tools: [.urlContext()]
     )
     let url = "https://developers.googleblog.com/en/introducing-gemma-3-270m/"
@@ -488,10 +574,10 @@ struct GenerateContentIntegrationTests {
     #expect(retrievedURL == URL(string: url))
   }
 
-  @Test(arguments: InstanceConfig.allConfigs)
+  @Test(arguments: InstanceConfig.defaultConfigs)
   func generateContent_codeExecution_succeeds(_ config: InstanceConfig) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
-      modelName: ModelNames.gemini2_5_FlashLite,
+      modelName: ModelNames.gemini3_1_FlashLite,
       generationConfig: generationConfig,
       tools: [.codeExecution()]
     )
@@ -521,22 +607,19 @@ struct GenerateContentIntegrationTests {
 
   @Test(arguments: [
     (InstanceConfig.vertexAI_v1beta, ModelNames.gemini2_5_FlashLite),
-    (InstanceConfig.vertexAI_v1beta_global, ModelNames.gemini3_1_FlashLitePreview),
-    (
-      InstanceConfig.vertexAI_v1beta_global_appCheckLimitedUse,
-      ModelNames.gemini3_1_FlashLitePreview
-    ),
+    (InstanceConfig.vertexAI_v1beta_global, ModelNames.gemini3_1_FlashLite),
+    (InstanceConfig.vertexAI_v1beta_global_appCheckLimitedUse, ModelNames.gemini3_1_FlashLite),
     (InstanceConfig.googleAI_v1beta, ModelNames.gemini2_5_FlashLite),
     (InstanceConfig.googleAI_v1beta_appCheckLimitedUse, ModelNames.gemini2_5_FlashLite),
-    (InstanceConfig.googleAI_v1beta, ModelNames.gemma3_4B),
+    (InstanceConfig.googleAI_v1beta, ModelNames.gemma4_31B),
     // Note: The following configs are commented out for easy one-off manual testing.
     // (InstanceConfig.vertexAI_v1beta_staging, ModelNames.gemini2_5_FlashLite),
     // (InstanceConfig.googleAI_v1beta_staging, ModelNames.gemini2_5_FlashLite),
-    // (InstanceConfig.googleAI_v1beta_staging, ModelNames.gemma3_4B),
+    // (InstanceConfig.googleAI_v1beta_staging, ModelNames.gemma4_31B),
     // (InstanceConfig.googleAI_v1beta_freeTier_bypassProxy, ModelNames.gemini2_5_FlashLite),
-    // (InstanceConfig.googleAI_v1beta_freeTier_bypassProxy, ModelNames.gemma3_4B),
+    // (InstanceConfig.googleAI_v1beta_freeTier_bypassProxy, ModelNames.gemma4_31B),
 //    (InstanceConfig.googleAI_v1beta_freeTier, ModelNames.gemini2_5_FlashLite),
-//    (InstanceConfig.googleAI_v1beta_freeTier, ModelNames.gemma3_4B),
+//    (InstanceConfig.googleAI_v1beta_freeTier, ModelNames.gemma4_31B),
   ])
   func generateContentStream(_ config: InstanceConfig, modelName: String) async throws {
     let expectedResponse = [
@@ -566,10 +649,17 @@ struct GenerateContentIntegrationTests {
         textValues.append(text)
       } else if let finishReason = value.candidates.first?.finishReason {
         #expect(finishReason == .stop)
+      } else if let thoughtSummary = value.thoughtSummary {
+        #expect(!thoughtSummary.isEmpty)
       } else {
         Issue.record("Expected a candidate with a `TextPart` or a `finishReason`; got \(value).")
       }
     }
+
+    // Tests the text derived from streaming directly
+    let modelJSONData = try #require(textValues.joined().data(using: .utf8))
+    let response = try JSONDecoder().decode([String].self, from: modelJSONData)
+    #expect(response == expectedResponse)
 
     let userHistory = try #require(chat.history.first)
     #expect(userHistory.role == "user")
@@ -578,15 +668,22 @@ struct GenerateContentIntegrationTests {
     #expect(promptTextPart.text == prompt)
     let modelHistory = try #require(chat.history.last)
     #expect(modelHistory.role == "model")
-    if modelName.hasPrefix("gemini-3.1-") {
-      #expect(modelHistory.parts.count == 2)
-    } else {
-      #expect(modelHistory.parts.count == 1)
+    let textParts = modelHistory.parts.compactMap { $0 as? TextPart }.filter {
+      !$0.isThoughtOrRelated()
     }
-    let modelTextPart = try #require(modelHistory.parts.first as? TextPart)
-    let modelJSONData = try #require(modelTextPart.text.data(using: .utf8))
-    let response = try JSONDecoder().decode([String].self, from: modelJSONData)
-    #expect(response == expectedResponse)
+    if textParts.count > 1 {
+      Issue.record("Found multiple text parts: \(textParts)")
+    }
+    #expect(
+      textParts.count == 1,
+      "The model should reply with exactly one (non thought) text response."
+    )
+
+    // Tests the text derived from the chat history
+    let historyTextPart = try #require(textParts.first)
+    let historyModelJSONData = try #require(historyTextPart.text.data(using: .utf8))
+    let historyResponse = try JSONDecoder().decode([String].self, from: historyModelJSONData)
+    #expect(historyResponse == expectedResponse)
   }
 
   @Test(arguments: [
@@ -645,7 +742,7 @@ struct GenerateContentIntegrationTests {
   @Test(arguments: InstanceConfig.appCheckNotConfiguredConfigs)
   func generateContent_appCheckNotConfigured_shouldFail(_ config: InstanceConfig) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
-      modelName: ModelNames.gemini2_5_Flash
+      modelName: ModelNames.gemini3_1_FlashLite
     )
     let prompt = "Where is Google headquarters located? Answer with the city name only."
 
@@ -663,5 +760,107 @@ struct GenerateContentIntegrationTests {
 
       return String(describing: underlyingError).contains("Firebase App Check token is invalid")
     }
+  }
+
+  @Test(arguments: InstanceConfig.defaultConfigs)
+  func generateContent_speechConfig(_ config: InstanceConfig) async throws {
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: ModelNames.gemini3_1_FlashTTSPreview,
+      generationConfig: GenerationConfig(
+        responseModalities: [.audio],
+        speechConfig: SpeechConfig(voiceName: "Charon", languageCode: "en-US")
+      ),
+      safetySettings: safetySettings
+    )
+    let response = try await model.generateContent("Hello")
+    let candidate = try #require(response.candidates.first)
+    #expect(candidate.finishReason == .stop)
+  }
+
+  @Test(arguments: InstanceConfig.defaultConfigs)
+  func generateContent_speechConfig_multiSpeaker(_ config: InstanceConfig) async throws {
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: ModelNames.gemini3_1_FlashTTSPreview,
+      generationConfig: GenerationConfig(
+        responseModalities: [.audio],
+        speechConfig: SpeechConfig(
+          multiSpeakerVoiceConfig: MultiSpeakerVoiceConfig(
+            speakerVoiceConfigs: [
+              SpeakerVoiceConfig(
+                speaker: "Speaker1",
+                voiceName: "Puck"
+              ),
+              SpeakerVoiceConfig(
+                speaker: "Speaker2",
+                voiceName: "Charon"
+              ),
+            ]
+          ),
+          languageCode: "en-US"
+        )
+      ),
+      safetySettings: safetySettings
+    )
+    let response = try await model.generateContent("Hello")
+    let candidate = try #require(response.candidates.first)
+    #expect(candidate.finishReason == .stop)
+  }
+
+  @Test(arguments: InstanceConfig.defaultConfigs)
+  func generateContent_speechConfig_multiSpeaker_invalidSize(_ config: InstanceConfig) async throws {
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: ModelNames.gemini3_1_FlashTTSPreview,
+      generationConfig: GenerationConfig(
+        responseModalities: [.audio],
+        speechConfig: SpeechConfig(
+          multiSpeakerVoiceConfig: MultiSpeakerVoiceConfig(
+            speakerVoiceConfigs: [
+              SpeakerVoiceConfig(
+                speaker: "Speaker1",
+                voiceName: "Puck"
+              ),
+              SpeakerVoiceConfig(
+                speaker: "Speaker2",
+                voiceName: "Charon"
+              ),
+              SpeakerVoiceConfig(
+                speaker: "Speaker3",
+                voiceName: "Aoede"
+              ),
+            ]
+          ),
+          languageCode: "en-US"
+        )
+      ),
+      safetySettings: safetySettings
+    )
+    do {
+      _ = try await model.generateContent("Hello")
+      Issue.record("Expected an error from the backend for invalid multi-speaker list size.")
+    } catch {
+      guard let error = error as? GenerateContentError else {
+        Issue.record("Expected GenerateContentError; got \(error.self).")
+        throw error
+      }
+      guard case let .internalError(underlyingError) = error else {
+        Issue.record("Expected internalError; got \(error.self).")
+        throw error
+      }
+      #expect(String(describing: underlyingError)
+        .contains("the number of enabled_voices must equal 2"))
+    }
+  }
+}
+
+extension TextPart {
+  /// Whether this text part is a thought or thought related text part.
+  ///
+  /// In such cases, it can be ignored for display and testing purposes.
+  ///
+  /// We use this over just a standard `isThought` check so that we can
+  /// catch cases where the gemini model sends a text part with empty text that just
+  /// acts as the last thought of the model.
+  func isThoughtOrRelated() -> Bool {
+    return isThought || (thoughtSignature != nil && text.isEmpty)
   }
 }

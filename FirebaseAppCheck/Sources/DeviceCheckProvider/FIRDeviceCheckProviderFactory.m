@@ -16,14 +16,9 @@
 
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRDeviceCheckProviderFactory.h"
 
-#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheck.h"
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRDeviceCheckProvider.h"
 
 @implementation FIRDeviceCheckProviderFactory
-
-+ (void)load {
-  [FIRAppCheck setAppCheckProviderFactory:[[self alloc] init]];
-}
 
 - (nullable id<FIRAppCheckProvider>)createProviderWithApp:(nonnull FIRApp *)app {
   return [[FIRDeviceCheckProvider alloc] initWithApp:app];

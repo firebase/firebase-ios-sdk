@@ -26,11 +26,11 @@ on:
       xcode:
         required: false
         type: string
-        default: 'Xcode_16.4'
+        default: 'Xcode_26.4'
       os:
         required: false
         type: string
-        default: 'macos-15'
+        default: 'macos-26'
       timeout_minutes:
         required: false
         type: number
@@ -39,6 +39,14 @@ on:
         required: false
         type: number
         default: 3
+
+      # Custom environment variables to inject into the jobs.
+      # Expected to be a JSON-formatted string.
+      # Example: '{"FIREBASE_APP_CHECK_BRANCH": "nc/target-split"}'
+      env_vars:
+        type: string
+        required: false
+        default: "{}"
 
     # IMPORTANT: When adding new secrets to this workflow, update the
     # 'has_secrets' logic in the 'check_secrets' job to include the new secret.
@@ -96,11 +104,29 @@ jobs:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       with:
         persist-credentials: false
-    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
+    - name: Set Custom Environment Variables
+      run: |
+        python3 -c '
+        import os, json
+        try:
+            env_vars = json.loads(os.environ.get("CUSTOM_ENV_VARS", "{}"))
+            if not isinstance(env_vars, dict):
+                raise ValueError("env_vars must be a JSON object")
+            with open(os.environ["GITHUB_ENV"], "a") as file:
+                for key, value in env_vars.items():
+                    file.write(f"{key}={value}\n")
+        except json.JSONDecodeError:
+            print("Warning: env_vars is not valid JSON. Skipping.")
+        except Exception as error:
+            print(f"Error setting env vars: {error}")
+        '
+      env:
+        CUSTOM_ENV_VARS: ${{ inputs.env_vars }}
+    - uses: ruby/setup-ruby@89f90524b88a01fe6e0b732220432cc6142926af # v1.313.0
       if: inputs.method != 'spm' && inputs.method != 'spmbuildonly' && inputs.method != 'cmake'
     - name: Setup Bundler
       if: inputs.method != 'spm' && inputs.method != 'spmbuildonly' && inputs.method != 'cmake'
-      uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
+      uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
       with:
         timeout_minutes: 10
         max_attempts: 5
@@ -114,7 +140,7 @@ jobs:
       if: inputs.platform != 'macOS' && inputs.platform != 'catalyst'
       env:
         PLATFORM_INPUT: ${{ inputs.platform }}
-      uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
+      uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
       with:
         timeout_minutes: 15
         max_attempts: 5
@@ -130,12 +156,14 @@ jobs:
       if: inputs.setup_command != ''
       run: ${{ inputs.setup_command }}
     - name: Build
-      uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
+      uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
       with:
         timeout_minutes: ${{ inputs.timeout_minutes }}
         max_attempts: ${{ inputs.max_attempts }}
         retry_wait_seconds: 120
+        # For toolchains var, see https://github.com/actions/runner-images/issues/13135#issuecomment-3397914993
         command: |
+          export TOOLCHAINS=com.apple.dt.toolchain.XcodeDefault
           scripts/build.sh "${{ inputs.product }}" "${{ inputs.platform }}" "${{ inputs.method }}"
     - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
       if: ${{ failure() }}

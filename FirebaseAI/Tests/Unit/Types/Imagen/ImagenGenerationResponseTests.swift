@@ -16,6 +16,7 @@ import XCTest
 
 @testable import FirebaseAILogic
 
+@available(*, deprecated)
 final class ImagenGenerationResponseTests: XCTestCase {
   let decoder = JSONDecoder()
 
@@ -131,37 +132,6 @@ final class ImagenGenerationResponseTests: XCTestCase {
     XCTAssertEqual(response.filteredReason, raiFilteredReason)
   }
 
-  func testDecodeResponse_multipleGCSImages_noneFiltered() throws {
-    let mimeType = "image/png"
-    let gcsURI1 = "gs://test-bucket/images/123456789/sample_0.png"
-    let gcsURI2 = "gs://test-bucket/images/123456789/sample_1.png"
-    let image1 = ImagenGCSImage(mimeType: mimeType, gcsURI: gcsURI1)
-    let image2 = ImagenGCSImage(mimeType: mimeType, gcsURI: gcsURI2)
-    let json = """
-    {
-      "predictions": [
-        {
-          "gcsUri": "\(gcsURI1)",
-          "mimeType": "\(mimeType)"
-        },
-        {
-          "gcsUri": "\(gcsURI2)",
-          "mimeType": "\(mimeType)"
-        },
-      ]
-    }
-    """
-    let jsonData = try XCTUnwrap(json.data(using: .utf8))
-
-    let response = try decoder.decode(
-      ImagenGenerationResponse<ImagenGCSImage>.self,
-      from: jsonData
-    )
-
-    XCTAssertEqual(response.images, [image1, image2])
-    XCTAssertNil(response.filteredReason)
-  }
-
   func testDecodeResponse_noImages_allFiltered() throws {
     let raiFilteredReason = """
     Unable to show generated images. All images were filtered out because they violated Vertex \
@@ -181,7 +151,7 @@ final class ImagenGenerationResponseTests: XCTestCase {
 
     do {
       let response = try decoder.decode(
-        ImagenGenerationResponse<ImagenGCSImage>.self,
+        ImagenGenerationResponse<ImagenInlineImage>.self,
         from: jsonData
       )
       XCTFail("Expected a ImagenImagesBlockedError, got response: \(response)")
@@ -228,7 +198,7 @@ final class ImagenGenerationResponseTests: XCTestCase {
 
     do {
       let response = try decoder.decode(
-        ImagenGenerationResponse<ImagenGCSImage>.self,
+        ImagenGenerationResponse<ImagenInlineImage>.self,
         from: jsonData
       )
       XCTFail("Expected an ImagenImagesBlockedError, got response: \(response)")
@@ -253,7 +223,7 @@ final class ImagenGenerationResponseTests: XCTestCase {
 
     do {
       let response = try decoder.decode(
-        ImagenGenerationResponse<ImagenGCSImage>.self,
+        ImagenGenerationResponse<ImagenInlineImage>.self,
         from: jsonData
       )
       XCTFail("Expected a DecodingError.dataCorrupted, got response: \(response)")

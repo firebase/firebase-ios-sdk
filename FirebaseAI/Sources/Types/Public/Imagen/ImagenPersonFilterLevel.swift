@@ -14,9 +14,20 @@
 
 /// A filter level controlling whether generation of images containing people or faces is allowed.
 ///
+/// @DeprecationSummary {
+///  All Imagen models are deprecated and will shut down as early as June 2026.
+///  As a replacement, you can [migrate your apps to use Gemini Image models
+///  (the "Nano Banana" models).](https://firebase.google.com/docs/ai-logic/imagen-models-migration)
+/// }
+///
 /// See the
 /// [`personGeneration`](https://cloud.google.com/vertex-ai/generative-ai/docs/model-reference/imagen-api#parameter_list)
 /// documentation for more details.
+@available(
+  *,
+  deprecated,
+  message: "All Imagen models are deprecated and will shut down as early as June 2026. As a replacement, you can migrate your apps to use Gemini Image models (the \"Nano Banana\" models)."
+)
 public struct ImagenPersonFilterLevel: ProtoEnum {
   enum Kind: String {
     case blockAll = "dont_allow"

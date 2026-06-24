@@ -72,6 +72,14 @@
   self.URLSessionDataTaskDidReceiveDataCalled = YES;
 }
 
+- (void)URLSession:(NSURLSession *)session
+              dataTask:(NSURLSessionDataTask *)dataTask
+    didReceiveResponse:(NSURLResponse *)response
+     completionHandler:(void (^)(NSURLSessionResponseDisposition disposition))completionHandler {
+  self.URLSessionDataTaskDidReceiveResponseCompletionHandlerCalled = YES;
+  completionHandler(NSURLSessionResponseAllow);
+}
+
 #pragma mark - NSURLSessionDownloadDelegate methods
 
 - (void)URLSession:(NSURLSession *)session

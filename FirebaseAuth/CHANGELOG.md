@@ -1,5 +1,20 @@
 # Unreleased
+- [fixed] Refactored the integrated OAuth sign in UI to not rely on
+  the deprecated `UIScreen.main.bounds` API for Mac Catalyst rendering.
+  (#16274)
+- [fixed] Fixed an issue where the integrated OAuth sign in UI wasn't
+  taking up the full screen when rendered in Mac Catalyst apps. (#16274)
+- [changed] Changed error message for missing `FirebaseApp.configure()` to
+  properly articulate supported methods. (#16294)
+
+# 12.12.0
+- [added] Added `AsyncSequence` support to `Auth.authStateChanges` and
+  `Auth.idTokenChanges`, providing a modern, structured-concurrency
+  alternative to `addStateDidChangeListener` and `addIDTokenDidChangeListener`.
 - [fixed] Fix a race condition with User.providerData getter. (#15950)
+- [fixed] Fixed a release-build crash in networking code when using
+  Xcode 26.4 (Swift 6.3) that was caused by a Swift regression in `async let`
+  teardown. (#15974)
 
 # 12.9.0
 - [fixed] Stop doing unnecessary AppCheck token refreshes. Introduced

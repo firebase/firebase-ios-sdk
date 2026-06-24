@@ -29,14 +29,14 @@ extension FirebaseAI.GenerationSchema {
       return lastKey
     }
 
-    #if canImport(FoundationModels)
+    #if canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
       if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
         let generationSchemaData = try encoder.encode(self)
         let jsonSchema = try JSONDecoder().decode(JSONObject.self, from: generationSchemaData)
 
         return jsonSchema
       }
-    #endif // canImport(FoundationModels)
+    #endif // canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
 
     // TODO: Implement FirebaseAI.GenerationSchema encoding for iOS < 26.
     throw EncodingError.invalidValue(self, .init(codingPath: [], debugDescription: """

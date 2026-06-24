@@ -113,18 +113,16 @@ static NSString *const kGoogleAppIDHeader = @"X-Firebase-GMPID";
             [session webSocketTaskWithRequest:req];
         self.webSocketTask = task;
 
-        if (@available(watchOS 7.0, *)) {
-            [[NSNotificationCenter defaultCenter]
-                addObserverForName:WKApplicationWillResignActiveNotification
-                            object:nil
-                             queue:opQueue
-                        usingBlock:^(NSNotification *_Nonnull note) {
-                          FFLog(@"I-RDB083015",
-                                @"Received watchOS background notification, "
-                                @"closing web socket.");
-                          [self onClosed];
-                        }];
-        }
+        [[NSNotificationCenter defaultCenter]
+            addObserverForName:WKApplicationWillResignActiveNotification
+                        object:nil
+                         queue:opQueue
+                    usingBlock:^(NSNotification *_Nonnull note) {
+                      FFLog(@"I-RDB083015",
+                            @"Received watchOS background notification, "
+                            @"closing web socket.");
+                      [self onClosed];
+                    }];
 #else
         // TODO(mmaksym): Remove googleAppID and userAgent from FSRWebSocket as
         // they are passed via NSURLRequest.

@@ -16,6 +16,16 @@ import Foundation
 
 // TODO(andrewheard): Make this public when the SDK supports Imagen operations that take images as
 // input (upscaling / editing).
+/// @DeprecationSummary {
+///  All Imagen models are deprecated and will shut down as early as June 2026.
+///  As a replacement, you can [migrate your apps to use Gemini Image models
+///  (the "Nano Banana" models).](https://firebase.google.com/docs/ai-logic/imagen-models-migration)
+/// }
+@available(
+  *,
+  deprecated,
+  message: "All Imagen models are deprecated and will shut down as early as June 2026. As a replacement, you can migrate your apps to use Gemini Image models (the \"Nano Banana\" models)."
+)
 protocol ImagenImageRepresentable: Sendable {
   /// Internal representation of the image for use with the Imagen model.
   ///

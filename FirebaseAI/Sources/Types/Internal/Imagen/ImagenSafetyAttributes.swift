@@ -16,8 +16,19 @@ import Foundation
 
 /// A `safetyAttributes` "prediction" from Imagen.
 ///
+/// @DeprecationSummary {
+///  All Imagen models are deprecated and will shut down as early as June 2026.
+///  As a replacement, you can [migrate your apps to use Gemini Image models
+///  (the "Nano Banana" models).](https://firebase.google.com/docs/ai-logic/imagen-models-migration)
+/// }
+///
 /// This prediction is currently unused by the SDK and is only checked to be valid JSON. This type
 /// is currently only used to avoid logging unsupported prediction types.
+@available(
+  *,
+  deprecated,
+  message: "All Imagen models are deprecated and will shut down as early as June 2026. As a replacement, you can migrate your apps to use Gemini Image models (the \"Nano Banana\" models)."
+)
 struct ImagenSafetyAttributes: Decodable {
   let safetyAttributes: JSONObject
 }

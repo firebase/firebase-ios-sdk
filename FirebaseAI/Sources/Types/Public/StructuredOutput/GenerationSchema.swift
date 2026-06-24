@@ -32,7 +32,7 @@ public extension FirebaseAI {
     private let _generationSchema: (any GenerationSchemaProtocol)?
 
     #if canImport(FoundationModels)
-      @available(iOS 26.0, macOS 26.0, *)
+      @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
       @available(tvOS, unavailable)
       @available(watchOS, unavailable)
       var generationSchema: FoundationModels.GenerationSchema {
@@ -45,7 +45,7 @@ public extension FirebaseAI {
         return generationSchema
       }
 
-      @available(iOS 26.0, macOS 26.0, *)
+      @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
       @available(tvOS, unavailable)
       @available(watchOS, unavailable)
       init(_ generationSchema: FoundationModels.GenerationSchema) {

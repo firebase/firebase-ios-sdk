@@ -110,7 +110,7 @@
 #endif
 
 - (void)testGetSavedRegisterWithInvalidValues {
-  FIRCLSThreadContext registers;
+  FIRCLSThreadContext registers = {0};
   const FIRCLSDwarfRegister dRegister = {FIRCLSDwarfRegisterUnused, 0};
 
   XCTAssertEqual(FIRCLSDwarfGetSavedRegister(NULL, 0, dRegister), 0, @"");
@@ -119,7 +119,7 @@
 
 - (void)testGetSavedRegisterWithInCFA {
   uintptr_t memoryBuffer[2] = {45, 46};
-  FIRCLSThreadContext registers;
+  FIRCLSThreadContext registers = {0};
   const FIRCLSDwarfRegister dRegister = {FIRCLSDwarfRegisterInCFA, sizeof(uintptr_t)};
 
   // this should compute *(memoryBuffer + sizeof(uintptr_t)) = 46

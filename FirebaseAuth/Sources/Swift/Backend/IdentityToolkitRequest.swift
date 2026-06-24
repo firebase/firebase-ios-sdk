@@ -31,7 +31,6 @@ private let kIdentityPlatformStagingAPIHost =
   "staging-identitytoolkit.sandbox.googleapis.com"
 
 /// Represents a request to an identity toolkit endpoint.
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class IdentityToolkitRequest {
   /// Gets the RPC's endpoint.
   let endpoint: String

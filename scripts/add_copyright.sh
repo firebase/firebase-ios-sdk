@@ -16,6 +16,14 @@
 
 set -u
 
+if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
+  echo "Usage: $0 [BASE_BRANCH]"
+  echo ""
+  echo "Finds newly added files compared to BASE_BRANCH (defaults to 'main')"
+  echo "and automatically prepends or updates the Google copyright header."
+  exit 0
+fi
+
 # Check if git is available.
 if ! command -v git &> /dev/null; then
     echo "git command could not be found."

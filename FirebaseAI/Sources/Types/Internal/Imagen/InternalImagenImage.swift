@@ -16,11 +16,22 @@ import Foundation
 
 /// Internal representation of an image for the Imagen model.
 ///
+/// @DeprecationSummary {
+///  All Imagen models are deprecated and will shut down as early as June 2026.
+///  As a replacement, you can [migrate your apps to use Gemini Image models
+///  (the "Nano Banana" models).](https://firebase.google.com/docs/ai-logic/imagen-models-migration)
+/// }
+///
 /// - Important: For internal use by types conforming to ``ImagenImageRepresentable``; all
 /// properties are `internal` and are not needed by SDK users.
 ///
 /// TODO(andrewheard): Make this public when the SDK supports Imagen operations that take images as
 /// input (upscaling / editing).
+@available(
+  *,
+  deprecated,
+  message: "All Imagen models are deprecated and will shut down as early as June 2026. As a replacement, you can migrate your apps to use Gemini Image models (the \"Nano Banana\" models)."
+)
 struct _InternalImagenImage {
   let mimeType: String
   let bytesBase64Encoded: String?

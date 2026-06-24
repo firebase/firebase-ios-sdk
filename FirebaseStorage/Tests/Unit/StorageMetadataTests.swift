@@ -19,7 +19,6 @@ import GTMSessionFetcherCore
 
 import XCTest
 
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class StorageMetadataTests: StorageTestHelpers {
   func testInitializeNoMetadata() {
     let metadata = StorageMetadata(dictionary: [:])

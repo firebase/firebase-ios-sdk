@@ -17,7 +17,6 @@
   import UIKit
 
   /// A class represents a credential that proves the identity of the app.
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   @preconcurrency
   class AuthNotificationManager {
     /// The key to locate payload data in the remote notification.

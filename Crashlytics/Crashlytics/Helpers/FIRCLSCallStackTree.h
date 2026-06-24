@@ -28,7 +28,7 @@
  */
 @interface FIRCLSCallStackTree : NSObject
 
-- (instancetype)initWithMXCallStackTree:(MXCallStackTree *)callStackTree API_AVAILABLE(ios(14.0));
+- (instancetype)initWithMXCallStackTree:(MXCallStackTree *)callStackTree;
 - (NSArray *)getArrayRepresentation;
 - (NSArray *)getFramesOfBlamedThread;
 - (instancetype)init NS_UNAVAILABLE;

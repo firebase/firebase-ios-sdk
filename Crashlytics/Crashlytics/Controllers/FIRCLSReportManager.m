@@ -192,13 +192,11 @@ typedef NSNumber FIRCLSWrappedReportAction;
   [self.settings reloadFromCacheWithGoogleAppID:self.googleAppID currentTimestamp:currentTimestamp];
 
 #if CLS_METRICKIT_SUPPORTED
-  if (@available(iOS 15, *)) {
-    if (self.settings.metricKitCollectionEnabled) {
-      FIRCLSDebugLog(@"MetricKit data collection enabled.");
-      _metricKitManager = [[FIRCLSMetricKitManager alloc] initWithManagerData:managerData
-                                                        existingReportManager:existingReportManager
-                                                                  fileManager:_fileManager];
-    }
+  if (self.settings.metricKitCollectionEnabled) {
+    FIRCLSDebugLog(@"MetricKit data collection enabled.");
+    _metricKitManager = [[FIRCLSMetricKitManager alloc] initWithManagerData:managerData
+                                                      existingReportManager:existingReportManager
+                                                                fileManager:_fileManager];
   }
 #endif
 
@@ -238,10 +236,8 @@ typedef NSNumber FIRCLSWrappedReportAction;
   // since no MetricKit diagnostics will be available.
   FBLPromise *promise = [FBLPromise resolvedWith:nil];
 #if CLS_METRICKIT_SUPPORTED
-  if (@available(iOS 15, *)) {
-    if (self.settings.metricKitCollectionEnabled) {
-      promise = [self.metricKitManager waitForMetricKitDataAvailable];
-    }
+  if (self.settings.metricKitCollectionEnabled) {
+    promise = [self.metricKitManager waitForMetricKitDataAvailable];
   }
   return promise;
 #endif
@@ -311,10 +307,8 @@ typedef NSNumber FIRCLSWrappedReportAction;
       }];
 
 #if CLS_METRICKIT_SUPPORTED
-  if (@available(iOS 15, *)) {
-    if (self.settings.metricKitCollectionEnabled) {
-      [self.metricKitManager registerMetricKitManager];
-    }
+  if (self.settings.metricKitCollectionEnabled) {
+    [self.metricKitManager registerMetricKitManager];
   }
 #endif
 

@@ -27,7 +27,7 @@ set -euo pipefail
 
 if [[ $# -lt 1 ]]; then
   cat 1>&2 <<EOF
-USAGE: $0 product [platform] [method]
+USAGE: $0 product [platform] [method] [extra_flags...]
 product can be one of:
   Firebase
   Firestore
@@ -66,6 +66,8 @@ elements:
   asan
   tsan
   ubsan
+
+Optionally, any trailing arguments after 'method' are also appended as extra xcodebuild flags.
 EOF
   exit 1
 fi
@@ -174,7 +176,7 @@ if [[ "$xcode_major" -lt 16 && "$method" != "cmake" ]]; then
 else
   iphone_simulator_name="iPhone 16"
   if [[ "$xcode_major" -gt 16 ]]; then
-    iphone_simulator_name="iPhone 16e"
+    iphone_simulator_name="iPhone 17"
   fi
   ios_flags=(
     -destination "platform=iOS Simulator,name=${iphone_simulator_name}"
@@ -200,7 +202,7 @@ tvos_flags=(
 )
 if [[ "$xcode_major" -ge 26 ]]; then
   visionos_flags=(
-    -destination 'platform=visionOS Simulator,OS=latest,name=Apple Vision Pro'
+    -destination "platform=visionOS Simulator,OS=${xcode_version},name=Apple Vision Pro"
   )
 else
   # TODO(ncooke3): Remove this else case when we no longer need to test against macOS 15.
@@ -329,7 +331,12 @@ if [[ -n "${SANITIZERS:-}" ]]; then
   done
 fi
 
+# Append any trailing arguments as extra xcodebuild flags (the extra_flags argument)
+if [[ $# -gt 3 ]]; then
+  xcb_flags+=("${@:4}")
+fi
 
+# TODO(b/519178233): Find some way to modernize this or refactor the design for extensibility
 case "$product-$platform-$method" in
   FirebasePod-iOS-*)
     RunXcodebuild \
@@ -368,18 +375,6 @@ case "$product-$platform-$method" in
     ;;
 
   Firestore-*-xcodebuild)
-    "${firestore_emulator}" start
-    trap '"${firestore_emulator}" stop' ERR EXIT
-
-    RunXcodebuild \
-        -workspace 'Firestore/Example/Firestore.xcworkspace' \
-        -scheme "Firestore_IntegrationTests_$platform" \
-        -enableCodeCoverage YES \
-        "${xcb_flags[@]}" \
-        test
-    ;;
-
-  Firestore-*-xcodebuild)
       # Memory intensive, so we limit jobs.
       RunXcodebuild \
           -workspace 'Firestore/Example/Firestore.xcworkspace' \
@@ -397,14 +392,13 @@ case "$product-$platform-$method" in
           -workspace 'Firestore/Example/Firestore.xcworkspace' \
           -scheme "Firestore_IntegrationTests_$platform" \
           -enableCodeCoverage YES \
+          -retry-tests-on-failure \
+          -test-iterations 3 \
           "${xcb_flags[@]}" \
           test-without-building
       ;;
 
   FirestoreEnterprise-*-xcodebuild)
-      "${firestore_emulator}" start
-      trap '"${firestore_emulator}" stop' ERR EXIT
-
       # Memory intensive, so we limit jobs
       RunXcodebuild \
           -workspace 'Firestore/Example/Firestore.xcworkspace' \
@@ -415,10 +409,15 @@ case "$product-$platform-$method" in
       ;;
 
   FirestoreEnterprise-*-xcodetest)
+      "${firestore_emulator}" start
+      trap '"${firestore_emulator}" stop' ERR EXIT
+
       RunXcodebuild \
           -workspace 'Firestore/Example/Firestore.xcworkspace' \
           -scheme "Firestore_IntegrationTests_Enterprise_$platform" \
           -enableCodeCoverage YES \
+          -retry-tests-on-failure \
+          -test-iterations 3 \
           "${xcb_flags[@]}" \
           test-without-building
       ;;
@@ -497,7 +496,7 @@ case "$product-$platform-$method" in
       RunXcodebuild \
         -workspace 'FirebaseMessaging/Apps/SampleStandaloneWatchApp/SampleStandaloneWatchApp.xcworkspace' \
         -scheme "SampleStandaloneWatchApp Watch App" \
-        -destination 'platform=watchOS Simulator,name=Apple Watch Series 10 (42mm)' \
+        "${xcb_flags[@]}" \
         build
     fi
     ;;
@@ -575,11 +574,28 @@ case "$product-$platform-$method" in
     ;;
 
   FirebaseAIIntegration-*-*)
+    # Filter out test-only flags for the build-for-testing phase
+    # It's a bit hacky, but xcode doesn't generate a proper dependency graph
+    # when it's only targeting a single test file or filtering out files.
+    build_flags=()
+    skip_next=false
+    for arg in "${xcb_flags[@]}"; do
+      if [[ "$skip_next" == "true" ]]; then
+        skip_next=false
+        continue
+      fi
+      if [[ "$arg" == "-only-testing" || "$arg" == "-skip-testing" ]]; then
+        skip_next=true
+        continue
+      fi
+      build_flags+=("$arg")
+    done
+
     # Build
     RunXcodebuild \
       -project 'FirebaseAI/Tests/TestApp/FirebaseAITestApp.xcodeproj' \
       -scheme "FirebaseAITestApp-SPM" \
-      "${xcb_flags[@]}" \
+      "${build_flags[@]}" \
       build-for-testing
 
     # Run tests

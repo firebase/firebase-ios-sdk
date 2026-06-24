@@ -74,7 +74,6 @@ import FirebaseCoreExtension
   }
 #endif
 
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 extension Auth: AuthInterop {
   /// Retrieves the Firebase authentication token, possibly refreshing it if it has expired.
   ///
@@ -144,7 +143,6 @@ extension Auth: AuthInterop {
 /// Manages authentication for Firebase apps.
 ///
 /// This class is thread-safe.
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @preconcurrency
 @objc(FIRAuth) open class Auth: NSObject {
   /// Gets the auth object for the default Firebase app.
@@ -155,8 +153,7 @@ extension Auth: AuthInterop {
       fatalError("The default FirebaseApp instance must be configured before the default Auth " +
         "instance can be initialized. One way to ensure this is to call " +
         "`FirebaseApp.configure()` in the App Delegate's " +
-        "`application(_:didFinishLaunchingWithOptions:)` (or the `@main` struct's " +
-        "initializer in SwiftUI).")
+        "`application(_:didFinishLaunchingWithOptions:)`.")
     }
     return auth(app: defaultApp)
   }
@@ -261,7 +258,6 @@ extension Auth: AuthInterop {
 
   /// Sets the `currentUser` on the receiver to the provided user object.
   /// - Parameter user: The user object to be set as the current user of the calling Auth instance.
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   open func updateCurrentUser(_ user: User) async throws {
     return try await withCheckedThrowingContinuation { continuation in
       self.updateCurrentUser(user) { error in
@@ -427,7 +423,6 @@ extension Auth: AuthInterop {
   /// - Parameter email: The user's email address.
   /// - Parameter password: The user's password.
   ///  - Returns: The `AuthDataResult` after a successful signin.
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   @discardableResult
   open func signIn(withEmail email: String, password: String) async throws -> AuthDataResult {
     return try await withCheckedThrowingContinuation { continuation in
@@ -485,7 +480,6 @@ extension Auth: AuthInterop {
   /// - Parameter email: The user's email address.
   /// - Parameter link: The email sign-in link.
   ///  - Returns: The `AuthDataResult` after a successful signin.
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   open func signIn(withEmail email: String, link: String) async throws -> AuthDataResult {
     return try await withCheckedThrowingContinuation { continuation in
       self.signIn(withEmail: email, link: link) { result, error in
@@ -584,7 +578,6 @@ extension Auth: AuthInterop {
     /// protocol, this is used for presenting the web context. If nil, a default AuthUIDelegate
     /// will be used.
     /// - Returns: The `AuthDataResult` after the successful signin.
-    @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     @available(tvOS, unavailable)
     @available(macOS, unavailable)
     @available(watchOS, unavailable)
@@ -683,7 +676,6 @@ extension Auth: AuthInterop {
   /// * `AuthErrorCodeSessionExpired` - Indicates that the SMS code has expired.
   /// - Parameter credential: The credential supplied by the IdP.
   /// - Returns: The `AuthDataResult` after the successful signin.
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   @discardableResult
   open func signIn(with credential: AuthCredential) async throws -> AuthDataResult {
     return try await withCheckedThrowingContinuation { continuation in
@@ -749,7 +741,6 @@ extension Auth: AuthInterop {
   /// * `AuthErrorCodeOperationNotAllowed` - Indicates that anonymous accounts are
   /// not enabled. Enable them in the Auth section of the Firebase console.
   /// - Returns: The `AuthDataResult` after the successful signin.
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   @discardableResult
   @objc open func signInAnonymously() async throws -> AuthDataResult {
     return try await withCheckedThrowingContinuation { continuation in
@@ -812,7 +803,6 @@ extension Auth: AuthInterop {
   /// belong to different projects.
   /// - Parameter token: A self-signed custom auth token.
   /// - Returns: The `AuthDataResult` after the successful signin.
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   @discardableResult
   open func signIn(withCustomToken token: String) async throws -> AuthDataResult {
     return try await withCheckedThrowingContinuation { continuation in
@@ -941,7 +931,6 @@ extension Auth: AuthInterop {
   /// - Parameter email: The user's email address.
   /// - Parameter password: The user's desired password.
   /// - Returns: The `AuthDataResult` after the successful signin.
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   @discardableResult
   open func createUser(withEmail email: String, password: String) async throws -> AuthDataResult {
     return try await withCheckedThrowingContinuation { continuation in
@@ -991,7 +980,6 @@ extension Auth: AuthInterop {
   /// * `AuthErrorCodeInvalidActionCode` - Indicates the OOB code is invalid.
   /// - Parameter code: The reset code.
   ///  - Parameter newPassword: The new password.
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   open func confirmPasswordReset(withCode code: String, newPassword: String) async throws {
     return try await withCheckedThrowingContinuation { continuation in
       self.confirmPasswordReset(withCode: code, newPassword: newPassword) { error in
@@ -1037,7 +1025,6 @@ extension Auth: AuthInterop {
   /// Checks the validity of an out of band code.
   /// - Parameter code: The out of band code to check validity.
   /// - Returns:  An `ActionCodeInfo`.
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   open func checkActionCode(_ code: String) async throws -> ActionCodeInfo {
     return try await withCheckedThrowingContinuation { continuation in
       self.checkActionCode(code) { info, error in
@@ -1068,7 +1055,6 @@ extension Auth: AuthInterop {
   /// Checks the validity of a verify password reset code.
   /// - Parameter code: The password reset code to be verified.
   /// - Returns: An email.
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   open func verifyPasswordResetCode(_ code: String) async throws -> String {
     return try await withCheckedThrowingContinuation { continuation in
       self.verifyPasswordResetCode(code) { code, error in
@@ -1101,7 +1087,6 @@ extension Auth: AuthInterop {
   /// This method will not work for out of band codes which require an additional parameter,
   /// such as password reset code.
   /// - Parameter code: The out of band code to be applied.
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   open func applyActionCode(_ code: String) async throws {
     return try await withCheckedThrowingContinuation { continuation in
       self.applyActionCode(code) { error in
@@ -1216,7 +1201,6 @@ extension Auth: AuthInterop {
   /// - Parameter email: The email address of the user.
   /// - Parameter actionCodeSettings: An `ActionCodeSettings` object containing settings related to
   /// handling action codes.
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   open func sendPasswordReset(withEmail email: String,
                               actionCodeSettings: ActionCodeSettings? = nil) async throws {
     return try await withCheckedThrowingContinuation { continuation in
@@ -1271,7 +1255,6 @@ extension Auth: AuthInterop {
   /// - Parameter email: The email address of the user.
   /// - Parameter actionCodeSettings: An `ActionCodeSettings` object containing settings related to
   /// handling action codes.
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   open func sendSignInLink(toEmail email: String,
                            actionCodeSettings: ActionCodeSettings) async throws {
     return try await withCheckedThrowingContinuation { continuation in
@@ -1480,7 +1463,6 @@ extension Auth: AuthInterop {
 
   /// Revoke the users token with authorization code.
   /// - Parameter authorizationCode: The authorization code used to perform the revocation.
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   open func revokeToken(withAuthorizationCode authorizationCode: String) async throws {
     return try await withCheckedThrowingContinuation { continuation in
       self.revokeToken(withAuthorizationCode: authorizationCode) { error in

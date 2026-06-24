@@ -270,7 +270,75 @@ final class GenerationConfigTests: XCTestCase {
     }
   }
 
-  // MARK: GenerationConfig Merging
+  func testEncodeGenerationConfig_speechConfig() throws {
+    let testCases: [(SpeechConfig, String)] = [
+      (SpeechConfig(voiceName: "Aoede"), """
+      "speechConfig" : {
+          "voiceConfig" : {
+            "prebuiltVoiceConfig" : {
+              "voiceName" : "Aoede"
+            }
+          }
+        }
+      """),
+      (SpeechConfig(voiceName: "Aoede", languageCode: "en-US"), """
+      "speechConfig" : {
+          "languageCode" : "en-US",
+          "voiceConfig" : {
+            "prebuiltVoiceConfig" : {
+              "voiceName" : "Aoede"
+            }
+          }
+        }
+      """),
+      (SpeechConfig(multiSpeakerVoiceConfig: MultiSpeakerVoiceConfig(speakerVoiceConfigs: [
+        SpeakerVoiceConfig(
+          speaker: "Speaker1",
+          voiceName: "Puck"
+        ),
+        SpeakerVoiceConfig(
+          speaker: "Speaker2",
+          voiceName: "Charon"
+        ),
+      ])), """
+      "speechConfig" : {
+          "multiSpeakerVoiceConfig" : {
+            "speakerVoiceConfigs" : [
+              {
+                "speaker" : "Speaker1",
+                "voiceConfig" : {
+                  "prebuiltVoiceConfig" : {
+                    "voiceName" : "Puck"
+                  }
+                }
+              },
+              {
+                "speaker" : "Speaker2",
+                "voiceConfig" : {
+                  "prebuiltVoiceConfig" : {
+                    "voiceName" : "Charon"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      """),
+    ]
+
+    for (speechConfig, expectedJSONSnippet) in testCases {
+      let generationConfig = GenerationConfig(speechConfig: speechConfig)
+      let jsonData = try encoder.encode(generationConfig)
+      let json = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
+      XCTAssertEqual(json, """
+      {
+        \(expectedJSONSnippet)
+      }
+      """)
+    }
+  }
+
+  // MARK: - GenerationConfig Merging
 
   func testMerge_bothNil() {
     let result = GenerationConfig.merge(nil, with: nil)
@@ -389,5 +457,27 @@ final class GenerationConfigTests: XCTestCase {
     XCTAssertEqual(schema.type, "STRING")
     XCTAssertEqual(schema.nullable, false)
     XCTAssertNil(result.responseJSONSchema)
+  }
+
+  func testMerge_speechConfig() throws {
+    let base = GenerationConfig(speechConfig: SpeechConfig(voiceName: "Kore"))
+    let overrides = GenerationConfig(speechConfig: SpeechConfig(
+      voiceName: "Puck",
+      languageCode: "en-US"
+    ))
+
+    let result = try XCTUnwrap(GenerationConfig.merge(base, with: overrides))
+    XCTAssertEqual(
+      result.speechConfig,
+      SpeechConfig(voiceName: "Puck", languageCode: "en-US").speechConfig
+    )
+  }
+
+  func testMerge_speechConfig_fallbackToBase() throws {
+    let base = GenerationConfig(speechConfig: SpeechConfig(voiceName: "Kore"))
+    let overrides = GenerationConfig(temperature: 0.5)
+
+    let result = try XCTUnwrap(GenerationConfig.merge(base, with: overrides))
+    XCTAssertEqual(result.speechConfig, SpeechConfig(voiceName: "Kore").speechConfig)
   }
 }
