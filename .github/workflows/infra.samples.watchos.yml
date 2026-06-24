@@ -21,6 +21,9 @@ on:
     # Run every day at 11pm (PDT) / 2am (EDT) - cron uses UTC times
     - cron:  '0 6 * * *'
 
+permissions:
+  contents: read
+
 concurrency:
     group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
     cancel-in-progress: true
