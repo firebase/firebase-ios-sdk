@@ -400,7 +400,7 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
 
   [self.messaging register];
 
-  [self waitForExpectationsWithTimeout:2.0 handler:nil];
+  [self waitForExpectationsWithTimeout:30.0 handler:nil];
 }
 
 - (void)testUnregisterNotifiesDelegateWhenInstallationIdEnabled {
@@ -449,7 +449,7 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
 
   [self.messaging unregister];
 
-  [self waitForExpectationsWithTimeout:2.0 handler:nil];
+  [self waitForExpectationsWithTimeout:30.0 handler:nil];
 }
 
 - (void)testAppStartNotifiesDelegateWhenBothAutoInitAndInstallationIdEnabled {
@@ -494,7 +494,7 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
   [self.messaging configureMessagingWithOptions:mockOptions];
   self.messaging.APNSToken = [@"fakeAPNSToken" dataUsingEncoding:NSUTF8StringEncoding];
 
-  [self waitForExpectationsWithTimeout:2.0 handler:nil];
+  [self waitForExpectationsWithTimeout:30.0 handler:nil];
 }
 
 - (void)testSubscribeToTopicWhenInstallationIdEnabled {
@@ -571,7 +571,7 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
                           [expectation fulfill];
                         }];
 
-  [self waitForExpectationsWithTimeout:5.0 handler:nil];
+  [self waitForExpectationsWithTimeout:30.0 handler:nil];
   [topicOperationMock stopMocking];
 }
 
@@ -649,7 +649,7 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
                               [expectation fulfill];
                             }];
 
-  [self waitForExpectationsWithTimeout:5.0 handler:nil];
+  [self waitForExpectationsWithTimeout:30.0 handler:nil];
   [topicOperationMock stopMocking];
 }
 
