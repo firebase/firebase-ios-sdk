@@ -125,6 +125,7 @@ static NSString *const kFakeSenderID = @"123456789123";
   _messaging.pubsub.pendingTopicUpdates.delegate = nil;
   [_messaging.tokenManager stopAllTokenOperations];
   [_messaging.pubsub.topicOperations cancelAllOperations];
+  [_messaging.pubsub.topicOperations waitUntilAllOperationsAreFinished];
 
   [_messaging.rmq2Manager removeDatabase];
   [testCase waitForDrainDatabaseQueueForRmqManager:_messaging.rmq2Manager];

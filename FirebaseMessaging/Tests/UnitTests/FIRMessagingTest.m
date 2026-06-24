@@ -82,8 +82,14 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
 
 @implementation FIRMessagingTest
 
+- (void)clearPendingTopicSubscriptions {
+  [[GULUserDefaults standardUserDefaults]
+      removeObjectForKey:@"com.firebase.messaging.pending-subscriptions"];
+}
+
 - (void)setUp {
   [super setUp];
+  [self clearPendingTopicSubscriptions];
   [FIRMessagingFIDRegisterOperation resetSharedSession];
   [FIRMessagingFIDUnregisterOperation resetSharedSession];
 
@@ -109,6 +115,7 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
   [self.bundleMock stopMocking];
   self.bundleMock = nil;
   _messaging = nil;
+  [self clearPendingTopicSubscriptions];
   [[[NSUserDefaults alloc] initWithSuiteName:kFIRMessagingDefaultsTestDomain]
       removePersistentDomainForName:kFIRMessagingDefaultsTestDomain];
   [FIRMessagingFIDRegisterOperation resetSharedSession];
