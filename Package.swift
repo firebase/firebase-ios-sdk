@@ -18,7 +18,7 @@
 
 import PackageDescription
 
-let firebaseVersion = "12.15.0"
+let firebaseVersion = "12.16.0"
 
 let shouldUseSourceFirestore = Context.environment["FIREBASE_SOURCE_FIRESTORE"] != nil
 
@@ -1439,7 +1439,7 @@ func googleAppMeasurementDependency() -> Package.Dependency {
     return .package(url: appMeasurementURL, branch: "main")
   }
 
-  return .package(url: appMeasurementURL, exact: "12.15.0")
+  return .package(url: appMeasurementURL, "12.15.0" ..< "12.16.0")
 }
 
 func abseilDependency() -> Package.Dependency {
@@ -1570,6 +1570,7 @@ func firestoreTargets() -> [Target] {
             .when(platforms: [.iOS, .macOS, .tvOS, .visionOS])
           ),
           .linkedFramework("UIKit", .when(platforms: [.iOS, .tvOS, .visionOS])),
+          .linkedFramework("Network"),
           .linkedLibrary("c++"),
         ]
       ),
@@ -1620,8 +1621,8 @@ func firestoreTargets() -> [Target] {
     } else {
       return .binaryTarget(
         name: "FirebaseFirestoreInternal",
-        url: "https://dl.google.com/firebase/ios/bin/firestore/12.14.0/rc1/FirebaseFirestoreInternal.zip",
-        checksum: "28d4f75f8c07892157546a50151f5b6110e03d4f62dddadf35ef19197bf8b617"
+        url: "https://dl.google.com/firebase/ios/bin/firestore/12.15.0/rc0/FirebaseFirestoreInternal.zip",
+        checksum: "a9b2cd1e062bcc001c302df4a5857d5250142ad394cfb153749b88f184df44f1"
       )
     }
   }()
@@ -1659,6 +1660,7 @@ func firestoreTargets() -> [Target] {
       linkerSettings: [
         .linkedFramework("SystemConfiguration", .when(platforms: [.iOS, .macOS, .tvOS])),
         .linkedFramework("UIKit", .when(platforms: [.iOS, .tvOS])),
+        .linkedFramework("Network"),
         .linkedLibrary("c++"),
       ]
     ),
