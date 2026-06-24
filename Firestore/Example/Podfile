@@ -32,6 +32,14 @@ post_install do |installer|
   if !$?.success?
     raise "sync_project.rb failed with status #{$?.exitstatus}"
   end
+
+  installer.generated_projects.each do |project|
+    project.targets.each do |target|
+      target.build_configurations.each do |config|
+        config.build_settings['CLANG_CXX_LANGUAGE_STANDARD'] = 'c++17'
+      end
+    end
+  end
 end
 
 # Returns true if the user has explicitly requested local sources or if this is
@@ -100,8 +108,8 @@ if is_platform(:ios)
     configure_local_pods()
 
     pod 'abseil', '~> 1.20250512.1'
-    pod 'gRPC-Core', :git => 'https://github.com/grpc/grpc-ios.git', :tag => 'v1.80.0'
-    pod 'gRPC-C++', :git => 'https://github.com/grpc/grpc-ios.git', :tag => 'v1.80.0'
+    pod 'gRPC-Core', :git => 'https://github.com/grpc/grpc-ios.git', :tag => 'v1.81.1'
+    pod 'gRPC-C++', :git => 'https://github.com/grpc/grpc-ios.git', :tag => 'v1.81.1'
 
     target 'Firestore_Tests_iOS' do
       inherit! :search_paths
@@ -138,8 +146,8 @@ if is_platform(:osx)
     configure_local_pods()
 
     pod 'abseil', '~> 1.20250512.1'
-    pod 'gRPC-Core', :git => 'https://github.com/grpc/grpc-ios.git', :tag => 'v1.80.0'
-    pod 'gRPC-C++', :git => 'https://github.com/grpc/grpc-ios.git', :tag => 'v1.80.0'
+    pod 'gRPC-Core', :git => 'https://github.com/grpc/grpc-ios.git', :tag => 'v1.81.1'
+    pod 'gRPC-C++', :git => 'https://github.com/grpc/grpc-ios.git', :tag => 'v1.81.1'
 
     target 'Firestore_Tests_macOS' do
       inherit! :search_paths
@@ -170,8 +178,8 @@ if is_platform(:tvos)
     configure_local_pods()
 
     pod 'abseil', '~> 1.20250512.1'
-    pod 'gRPC-Core', :git => 'https://github.com/grpc/grpc-ios.git', :tag => 'v1.80.0'
-    pod 'gRPC-C++', :git => 'https://github.com/grpc/grpc-ios.git', :tag => 'v1.80.0'
+    pod 'gRPC-Core', :git => 'https://github.com/grpc/grpc-ios.git', :tag => 'v1.81.1'
+    pod 'gRPC-C++', :git => 'https://github.com/grpc/grpc-ios.git', :tag => 'v1.81.1'
 
     target 'Firestore_Tests_tvOS' do
       inherit! :search_paths
