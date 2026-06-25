@@ -519,14 +519,13 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
   OCMStub([mockOptions bundleID]).andReturn(@"com.google.FirebaseMessagingTest");
   OCMStub([(FIRApp *)self.mockFirebaseApp options]).andReturn(mockOptions);
 
-  OCMStub([_mockMessaging
-      retrieveTokenOrFidForSenderID:[OCMArg any]
-                         completion:([OCMArg
-                                        invokeBlockWithArgs:@"fake-fid", [NSNull null], nil])]);
-
   [self.messaging.tokenManager setValue:@"123456789123" forKey:@"fcmSenderID"];
   [self.messaging.tokenManager deleteAllTokensLocallyWithHandler:nil];
   [self.messaging.tokenManager setValue:nil forKey:@"defaultFCMToken"];
+
+  // Configure messaging and set APNs token.
+  [self.messaging configureMessagingWithOptions:mockOptions];
+  self.messaging.APNSToken = [@"fakeAPNSToken" dataUsingEncoding:NSUTF8StringEncoding];
 
   // Setup installations ID & auth token.
   id installationIDArg = [OCMArg invokeBlockWithArgs:@"fake-fid", [NSNull null], nil];
@@ -542,10 +541,47 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
 
   id URLSessionMock = OCMClassMock([NSURLSession class]);
 
+  id registrationOperationMock = OCMClassMock([FIRMessagingFIDRegisterOperation class]);
+  OCMStub(ClassMethod([registrationOperationMock sharedSession])).andReturn(URLSessionMock);
+
   id topicOperationMock = OCMClassMock([FIRMessagingTopicOperation class]);
   OCMStub(ClassMethod([topicOperationMock sharedSession])).andReturn(URLSessionMock);
 
-  // Setup the HTTP response.
+  // Setup the registration HTTP response.
+  NSHTTPURLResponse *registrationResponse =
+      [[NSHTTPURLResponse alloc] initWithURL:[NSURL URLWithString:@"https://example.com"]
+                                  statusCode:200
+                                 HTTPVersion:@"HTTP/1.1"
+                                headerFields:nil];
+  NSData *registrationResponseBody =
+      [@"{\"name\":\"projects/test-project-id/registrations/fake-fid\"}"
+          dataUsingEncoding:NSUTF8StringEncoding];
+
+  __block NSInteger callOrder = 0;
+  __block NSInteger registrationCallIndex = -1;
+  __block NSInteger subscriptionCallIndex = -1;
+
+  id mockRegistrationDataTask = [FIRURLSessionOCMockStub
+      stubURLSessionDataTaskWithResponse:registrationResponse
+                                    body:registrationResponseBody
+                                   error:nil
+                          URLSessionMock:URLSessionMock
+                  requestValidationBlock:^BOOL(NSURLRequest *_Nonnull sentRequest) {
+                    registrationCallIndex = ++callOrder;
+                    XCTAssertEqualObjects(sentRequest.URL.absoluteString,
+                                          @"https://fcmregistrations.googleapis.com/v1/projects/"
+                                          @"test-project-id/registrations");
+                    XCTAssertEqualObjects(sentRequest.HTTPMethod, @"POST");
+                    XCTAssertEqualObjects(sentRequest.allHTTPHeaderFields[@"X-Goog-Api-Key"],
+                                          @"test-api-key");
+                    XCTAssertEqualObjects(
+                        sentRequest.allHTTPHeaderFields[@"X-Goog-Firebase-Installations-Auth"],
+                        @"fis-auth-token");
+                    return YES;
+                  }];
+  OCMStub([mockRegistrationDataTask setTaskDescription:OCMOCK_ANY]);
+
+  // Setup the topic subscription HTTP response.
   NSHTTPURLResponse *response =
       [[NSHTTPURLResponse alloc] initWithURL:[NSURL URLWithString:@"https://example.com"]
                                   statusCode:200
@@ -562,6 +598,7 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
                                    error:nil
                           URLSessionMock:URLSessionMock
                   requestValidationBlock:^BOOL(NSURLRequest *_Nonnull sentRequest) {
+                    subscriptionCallIndex = ++callOrder;
                     XCTAssertEqualObjects(sentRequest.URL.absoluteString,
                                           @"https://fcmregistrations.googleapis.com/v1/projects/"
                                           @"test-project-id/registrations/fake-fid/"
@@ -586,7 +623,11 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
                         }];
 
   [self waitForExpectationsWithTimeout:30.0 handler:nil];
+  // Registration should be called first, then the topic subscription.
+  XCTAssertEqual(registrationCallIndex, 1);
+  XCTAssertEqual(subscriptionCallIndex, 2);
   [topicOperationMock stopMocking];
+  [registrationOperationMock stopMocking];
 }
 
 - (void)testUnsubscribeFromTopicWhenInstallationIdEnabled {
