@@ -23,6 +23,7 @@
 #import "FirebaseMessaging/Sources/FIRMessagingPubSub.h"
 #import "FirebaseMessaging/Sources/FIRMessagingRmqManager.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingTokenManager.h"
+#import "FirebaseMessaging/Tests/UnitTests/FIRMessagingFakeKeychain.h"
 #import "FirebaseMessaging/Tests/UnitTests/FIRMessagingTestUtilities.h"
 #import "FirebaseMessaging/Tests/UnitTests/XCTestCase+FIRMessagingRmqManagerTests.h"
 #import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
@@ -104,6 +105,14 @@ static NSString *const kFakeSenderID = @"123456789123";
     _messaging = [[FIRMessaging alloc] initWithAnalytics:nil
                                             userDefaults:userDefaults
                                          heartbeatLogger:nil];
+
+    // Inject fake keychain to prevent Keychain operations hitting the real system keychain,
+    // which fails on headless CI environments (e.g. error -34018).
+    FIRMessagingFakeKeychain *fakeKeychain = [[FIRMessagingFakeKeychain alloc] init];
+    id tokenStore = [_messaging.tokenManager valueForKey:@"_tokenStore"];
+    [tokenStore setValue:fakeKeychain forKey:@"keychain"];
+    id checkinStore = [_messaging.tokenManager valueForKey:@"checkinStore"];
+    [checkinStore setValue:fakeKeychain forKey:@"keychain"];
     if (withRMQManager) {
       [_messaging start];
     }
