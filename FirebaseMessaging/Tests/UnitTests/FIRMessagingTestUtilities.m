@@ -122,7 +122,10 @@ static NSString *const kFakeSenderID = @"123456789123";
 }
 
 - (void)cleanupAfterTest:(XCTestCase *)testCase {
-  _messaging.pubsub.pendingTopicUpdates.delegate = nil;
+  FIRMessagingPendingTopicsList *pendingTopicUpdates = _messaging.pubsub.pendingTopicUpdates;
+  @synchronized(pendingTopicUpdates) {
+    pendingTopicUpdates.delegate = nil;
+  }
   [_messaging.tokenManager stopAllTokenOperations];
   [_messaging.pubsub.topicOperations cancelAllOperations];
   [_messaging.pubsub.topicOperations waitUntilAllOperationsAreFinished];

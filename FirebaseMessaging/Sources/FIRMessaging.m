@@ -761,7 +761,13 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
                             @"No Sender ID is available to register");
     return;
   }
-  [self.tokenManager tokenAndRequestIfNotExist];
+  NSString *fid = [self.tokenManager tokenAndRequestIfNotExist];
+  if (fid.length > 0) {
+    // We always want to notify the delegate of the FID. If the FID is available now we notify
+    // immediately, otherwise we will notify once the FID is available inside
+    // |tokenAndRequestIfNotExist|.
+    [self notifyDelegateOfFCMTokenAvailability];
+  }
 }
 
 - (void)unregister {

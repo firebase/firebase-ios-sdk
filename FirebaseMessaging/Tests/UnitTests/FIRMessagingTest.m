@@ -412,6 +412,38 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
   [self waitForExpectationsWithTimeout:30.0 handler:nil];
 }
 
+- (void)testRegisterNotifiesDelegateWhenCachedFidExists {
+  self.bundleMock = OCMPartialMock([NSBundle mainBundle]);
+  // FirebaseMessaging.isInstallationIdEnabled should return YES.
+  OCMStub([self.bundleMock objectForInfoDictionaryKey:kFIRMessagingPlistInstallationIdEnabled])
+      .andReturn(@YES);
+
+  id mockOptions = OCMClassMock([FIROptions class]);
+  OCMStub([mockOptions GCMSenderID]).andReturn(@"123456789123");
+  OCMStub([(FIRApp *)self.mockFirebaseApp options]).andReturn(mockOptions);
+
+  [self.messaging.tokenManager setValue:@"123456789123" forKey:@"fcmSenderID"];
+  [self.messaging.tokenManager setValue:@"fake-cached-fid" forKey:@"defaultFCMToken"];
+
+  // Setup message delegate.
+  id mockDelegate = OCMProtocolMock(@protocol(FIRMessagingDelegate));
+  self.messaging.delegate = mockDelegate;
+
+  XCTestExpectation *expectation =
+      [self expectationWithDescription:@"Delegate received registration notification."];
+  OCMStub([mockDelegate messaging:OCMOCK_ANY didReceiveRegistration:OCMOCK_ANY])
+      .andDo(^(NSInvocation *invocation) {
+        __unsafe_unretained NSString *installationId;
+        [invocation getArgument:&installationId atIndex:3];
+        XCTAssertEqualObjects(installationId, @"fake-cached-fid");
+        [expectation fulfill];
+      });
+
+  [self.messaging register];
+
+  [self waitForExpectationsWithTimeout:30.0 handler:nil];
+}
+
 - (void)testUnregisterNotifiesDelegateWhenInstallationIdEnabled {
   self.bundleMock = OCMPartialMock([NSBundle mainBundle]);
   // FirebaseMessaging.isInstallationIdEnabled should return YES.
