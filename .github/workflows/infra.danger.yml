@@ -24,10 +24,12 @@ jobs:
       id: generate-token
       uses: actions/create-github-app-token@29824e69f54612133e76f7eaac726eef6c875baf #v2.2.1
       with:
-        permission-pull-requests: write
-        permission-contents: read
         app-id: ${{ secrets.DANGER_APP_ID }}
         private-key: ${{ secrets.DANGER_APP_PRIVATE_KEY }}
+        permissions:
+          contents: read
+          issues: write
+          pull-requests: write
 
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Setup Bundler
