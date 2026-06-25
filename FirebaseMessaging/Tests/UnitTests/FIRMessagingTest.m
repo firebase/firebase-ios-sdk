@@ -65,6 +65,8 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
 - (BOOL)shouldBeConnectedAutomatically;
 - (void)configureMessagingWithOptions:(FIROptions *)options;
 
+- (void)retrieveTokenOrFidForSenderID:(nonnull NSString *)senderID
+                           completion:(nullable FIRMessagingFCMTokenFetchCompletion)completion;
 @end
 
 @interface FIRMessagingTest : XCTestCase
@@ -516,6 +518,11 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
   OCMStub([mockOptions APIKey]).andReturn(@"test-api-key");
   OCMStub([mockOptions bundleID]).andReturn(@"com.google.FirebaseMessagingTest");
   OCMStub([(FIRApp *)self.mockFirebaseApp options]).andReturn(mockOptions);
+
+  OCMStub([_mockMessaging
+      retrieveTokenOrFidForSenderID:[OCMArg any]
+                         completion:([OCMArg
+                                        invokeBlockWithArgs:@"fake-fid", [NSNull null], nil])]);
 
   [self.messaging.tokenManager setValue:@"123456789123" forKey:@"fcmSenderID"];
   [self.messaging.tokenManager deleteAllTokensLocallyWithHandler:nil];
