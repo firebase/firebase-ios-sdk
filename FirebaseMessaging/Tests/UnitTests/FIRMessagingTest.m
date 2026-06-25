@@ -67,6 +67,7 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
 
 - (void)retrieveTokenOrFidForSenderID:(nonnull NSString *)senderID
                            completion:(nullable FIRMessagingFCMTokenFetchCompletion)completion;
+- (void)handleInstallationIDDidChangeNotification:(NSNotification *)notification;
 @end
 
 @interface FIRMessagingTest : XCTestCase
@@ -738,6 +739,49 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
 
   [self waitForExpectationsWithTimeout:30.0 handler:nil];
   [topicOperationMock stopMocking];
+}
+
+- (void)testFIDChangeNotificationWhenDefaultFCMTokenIsNil {
+  OCMStub([self.mockTokenManager defaultFCMToken]).andReturn(nil);
+
+  id installationIDArg = [OCMArg invokeBlockWithArgs:@"fake-fid", [NSNull null], nil];
+  OCMStub([(FIRInstallations *)self.testUtil.mockInstallations
+      installationIDWithCompletion:installationIDArg]);
+
+  // `defaultFCMToken` is nil, meaning the app hasn't registered with FCM yet.
+  // Expect `retrieveTokenOrFidForSenderID` NOT to be called.
+  [[self.mockMessaging reject] retrieveTokenOrFidForSenderID:OCMOCK_ANY completion:OCMOCK_ANY];
+
+  [self.messaging handleInstallationIDDidChangeNotification:
+                      [NSNotification notificationWithName:FIRInstallationIDDidChangeNotification
+                                                    object:nil]];
+  XCTestExpectation *expectation = [self expectationWithDescription:@"Wait for main queue"];
+  dispatch_async(dispatch_get_main_queue(), ^{
+    [expectation fulfill];
+  });
+  [self waitForExpectationsWithTimeout:30 handler:nil];
+}
+
+- (void)testFIDChangeNotificationWhenDefaultFCMTokenIsNotNil {
+  OCMStub([self.mockTokenManager defaultFCMToken]).andReturn(@"old-fake-fid");
+
+  id installationIDArg = [OCMArg invokeBlockWithArgs:@"new-fake-fid", [NSNull null], nil];
+  OCMStub([(FIRInstallations *)self.testUtil.mockInstallations
+      installationIDWithCompletion:installationIDArg]);
+
+  // `defaultFCMToken` is not nil, meaning the app has already registered with FCM.
+  // Expect `retrieveTokenOrFidForSenderID` to be called to retrieve the new FID.
+  XCTestExpectation *retrieveTokenExpectation =
+      [self expectationWithDescription:@"retrieveTokenOrFidForSenderID should be called"];
+  [[[self.mockMessaging expect] andDo:^(NSInvocation *invocation) {
+    [retrieveTokenExpectation fulfill];
+  }] retrieveTokenOrFidForSenderID:OCMOCK_ANY completion:OCMOCK_ANY];
+
+  [self.messaging handleInstallationIDDidChangeNotification:
+                      [NSNotification notificationWithName:FIRInstallationIDDidChangeNotification
+                                                    object:nil]];
+
+  [self waitForExpectationsWithTimeout:30 handler:nil];
 }
 
 @end

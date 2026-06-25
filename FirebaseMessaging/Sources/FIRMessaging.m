@@ -718,15 +718,21 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
       installationIDWithCompletion:^(NSString *_Nullable identifier, NSError *_Nullable error) {
         dispatch_async(dispatch_get_main_queue(), ^{
           FIRMessaging_STRONGIFY(self);
-          if (error || !identifier.length) {
+          if (!self || error || !identifier.length) {
             return;
           }
-          // Registration will only be triggered if FID is changed
+
+          // Registration will be triggered only if an FID exists and it has changed.
           if (![identifier isEqualToString:self.lastKnownFID]) {
-            FIRMessagingLoggerInfo(kFIRMessagingMessageCodeInstallationIdRotation,
-                                   @"FID rotated. Registering with the new FID '%@'", identifier);
             self.lastKnownFID = identifier;
-            [self retrieveTokenOrFidForSenderID:self.tokenManager.fcmSenderID completion:nil];
+            if (self.tokenManager.defaultFCMToken.length > 0) {
+              FIRMessagingLoggerInfo(kFIRMessagingMessageCodeInstallationIdRotation,
+                                     @"FID rotated. Registering with the new FID '%@'", identifier);
+              [self retrieveTokenOrFidForSenderID:self.tokenManager.fcmSenderID completion:nil];
+            } else {
+              FIRMessagingLoggerInfo(kFIRMessagingMessageCodeInstallationIdRotation,
+                                     @"FID rotated. But no FCM registration is available, ignore.");
+            }
           }
         });
       }];
