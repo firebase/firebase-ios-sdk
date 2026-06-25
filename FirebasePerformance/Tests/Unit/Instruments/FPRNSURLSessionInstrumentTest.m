@@ -131,6 +131,12 @@ static NSOperationQueue *FPRTestNSURLSessionDelegateQueue(void) {
   [super setUp];
   FIRPerformance *performance = [FIRPerformance sharedInstance];
   [performance setDataCollectionEnabled:YES];
+  NSError *error;
+  [[NSFileManager defaultManager] createDirectoryAtPath:NSTemporaryDirectory()
+                            withIntermediateDirectories:YES
+                                             attributes:nil
+                                                  error:&error];
+  XCTAssertNil(error);
   XCTAssertFalse(self.testServer.isRunning);
   self.testServer = [[FPRHermeticTestServer alloc] init];
   [self.testServer registerTestPaths];
