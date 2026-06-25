@@ -63,7 +63,7 @@ static BOOL originalViewDidDisappearInvoked = NO;
   // runner, so both are stubbed.
   id applicationMock = OCMClassMock([UIApplication class]);
   OCMStub(ClassMethod([applicationMock sharedApplication])).andReturn(applicationMock);
-  UIWindow *window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+  UIWindow *window = [[UIWindow alloc] initWithFrame:CGRectMake(0, 0, 320, 480)];
   id windowMock = OCMPartialMock(window);
   OCMStub([(UIWindow *)windowMock isKeyWindow]).andReturn(YES);
   [window addSubview:[testViewController view]];
