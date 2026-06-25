@@ -228,18 +228,18 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
   // This error is innocuous since we refetch after APNS token is set but it can seem alarming
   if (cachedToken) {
     // Clean up expired tokens by checking the token refresh policy.
-    [self.installations installationIDWithCompletion:^(NSString *_Nullable identifier,
-                                                       NSError *_Nullable error) {
-      if ([self.tokenManager checkTokenRefreshPolicyWithIID:identifier] && self.APNSToken) {
-        // Default token is expired, fetch default token from server.
-        [self retrieveTokenOrFidForSenderID:self.tokenManager.fcmSenderID completion:nil];
-      }
-      // Set the default FCM token, there's an issue that FIRApp configure
-      // happens before developers able to set the delegate
-      // Hence first token set must be happen here after listener is set
-      // TODO(chliangGoogle) Need to investigate better solution.
-      [self updateDefaultFCMToken:[self.tokenManager tokenAndRequestIfNotExist]];
-    }];
+    [self.installations
+        installationIDWithCompletion:^(NSString *_Nullable identifier, NSError *_Nullable error) {
+          if ([self.tokenManager checkTokenRefreshPolicyWithIID:identifier] && self.APNSToken) {
+            // Default token is expired, fetch default token from server.
+            [self retrieveTokenOrFidForSenderID:self.tokenManager.fcmSenderID completion:nil];
+          }
+          // Set the default FCM token, there's an issue that FIRApp configure
+          // happens before developers able to set the delegate
+          // Hence first token set must be happen here after listener is set
+          // TODO(chliangGoogle) Need to investigate better solution.
+          [self updateDefaultFCMToken:[self.tokenManager tokenAndRequestIfNotExist]];
+        }];
   } else if (self.isAutoInitEnabled && self.APNSToken) {
     // When there is no cached token, must check auto init is enabled.
     // If it's disabled, don't initiate token generation/refresh.
@@ -714,22 +714,22 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 
 - (void)handleInstallationIDDidChangeNotification:(NSNotification *)notification {
   FIRMessaging_WEAKIFY(self);
-  [self.installations installationIDWithCompletion:^(NSString *_Nullable identifier,
-                                                     NSError *_Nullable error) {
-    dispatch_async(dispatch_get_main_queue(), ^{
-      FIRMessaging_STRONGIFY(self);
-      if (error || !identifier.length) {
-        return;
-      }
-      // Registration will only be triggered if FID is changed
-      if (![identifier isEqualToString:self.lastKnownFID]) {
-        FIRMessagingLoggerInfo(kFIRMessagingMessageCodeInstallationIdRotation,
-                               @"FID rotated. Registering with the new FID '%@'", identifier);
-        self.lastKnownFID = identifier;
-        [self retrieveTokenOrFidForSenderID:self.tokenManager.fcmSenderID completion:nil];
-      }
-    });
-  }];
+  [self.installations
+      installationIDWithCompletion:^(NSString *_Nullable identifier, NSError *_Nullable error) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+          FIRMessaging_STRONGIFY(self);
+          if (error || !identifier.length) {
+            return;
+          }
+          // Registration will only be triggered if FID is changed
+          if (![identifier isEqualToString:self.lastKnownFID]) {
+            FIRMessagingLoggerInfo(kFIRMessagingMessageCodeInstallationIdRotation,
+                                   @"FID rotated. Registering with the new FID '%@'", identifier);
+            self.lastKnownFID = identifier;
+            [self retrieveTokenOrFidForSenderID:self.tokenManager.fcmSenderID completion:nil];
+          }
+        });
+      }];
 }
 
 - (void)setupInstallationIDObserver {
