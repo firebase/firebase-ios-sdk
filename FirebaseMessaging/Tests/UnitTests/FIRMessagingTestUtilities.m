@@ -106,13 +106,6 @@ static NSString *const kFakeSenderID = @"123456789123";
                                             userDefaults:userDefaults
                                          heartbeatLogger:nil];
 
-    // Inject fake keychain to prevent Keychain operations hitting the real system keychain,
-    // which fails on headless CI environments (e.g. error -34018).
-    FIRMessagingFakeKeychain *fakeKeychain = [[FIRMessagingFakeKeychain alloc] init];
-    id tokenStore = [_messaging.tokenManager valueForKey:@"_tokenStore"];
-    [tokenStore setValue:fakeKeychain forKey:@"keychain"];
-    id checkinStore = [_messaging.tokenManager valueForKey:@"checkinStore"];
-    [checkinStore setValue:fakeKeychain forKey:@"keychain"];
     if (withRMQManager) {
       [_messaging start];
     }
@@ -126,6 +119,14 @@ static NSString *const kFakeSenderID = @"123456789123";
     _mockMessagingClass = OCMClassMock([FIRMessaging class]);
     OCMStub([_mockMessagingClass messaging]).andReturn(_mockMessaging);
     OCMStub([_mockTokenManager fcmSenderID]).andReturn(kFakeSenderID);
+
+    // Inject fake keychain to prevent Keychain operations hitting the real system keychain,
+    // which fails on headless CI environments (e.g. error -34018).
+    FIRMessagingFakeKeychain *fakeKeychain = [[FIRMessagingFakeKeychain alloc] init];
+    id tokenStore = [_messaging.tokenManager valueForKey:@"_tokenStore"];
+    [tokenStore setValue:fakeKeychain forKey:@"keychain"];
+    id checkinStore = [_messaging.tokenManager valueForKey:@"checkinStore"];
+    [checkinStore setValue:fakeKeychain forKey:@"keychain"];
   }
   return self;
 }
