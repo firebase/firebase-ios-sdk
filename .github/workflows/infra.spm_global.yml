@@ -18,6 +18,9 @@ on:
 # This workflow builds and tests the Swift Package Manager. Only iOS runs on PRs
 # because each platform takes 15-20 minutes after adding Firestore.
 
+permissions:
+  contents: read
+
 concurrency:
     group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
     cancel-in-progress: true
