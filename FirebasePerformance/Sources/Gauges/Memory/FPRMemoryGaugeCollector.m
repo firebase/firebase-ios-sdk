@@ -38,10 +38,12 @@ FPRMemoryGaugeData *fprCollectMemoryMetric(void) {
   NSDate *collectionTime = [NSDate date];
 
   // Avoid the malloc zone APIs here: they can crash on the XZM allocator.
-  // phys_footprint reports only used memory, so heapAvailable is 0.
+  // phys_footprint reports used memory, and limit_bytes_remaining reports
+  // bytes remaining before the process hits its dirty memory limit.
   task_vm_info_data_t vmInfo = {0};
   mach_msg_type_number_t count = TASK_VM_INFO_COUNT;
   u_long usedBytes = 0;
+  u_long availableBytes = 0;
   kern_return_t kr = task_info(mach_task_self(), TASK_VM_INFO, (task_info_t)&vmInfo, &count);
   if (kr == KERN_SUCCESS) {
     if (count >= TASK_VM_INFO_REV1_COUNT) {
@@ -51,14 +53,23 @@ FPRMemoryGaugeData *fprCollectMemoryMetric(void) {
                   @"Failed to collect memory metric: task_info returned insufficient count %d",
                   count);
     }
+    if (count >= TASK_VM_INFO_REV4_COUNT) {
+      availableBytes = (u_long)vmInfo.limit_bytes_remaining;
+    } else {
+      FPRLogDebug(kFPRMemoryCollection,
+                  @"Failed to collect available memory metric: task_info returned insufficient "
+                  @"count %d",
+                  count);
+    }
   } else {
     FPRLogDebug(kFPRMemoryCollection, @"Failed to collect memory metric: task_info returned %d",
                 kr);
   }
 
-  FPRMemoryGaugeData *gaugeData = [[FPRMemoryGaugeData alloc] initWithCollectionTime:collectionTime
-                                                                            heapUsed:usedBytes
-                                                                       heapAvailable:0];
+  FPRMemoryGaugeData *gaugeData =
+      [[FPRMemoryGaugeData alloc] initWithCollectionTime:collectionTime
+                                                heapUsed:usedBytes
+                                           heapAvailable:availableBytes];
   return gaugeData;
 }
 

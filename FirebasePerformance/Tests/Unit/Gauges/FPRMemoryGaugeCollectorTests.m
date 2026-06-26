@@ -72,13 +72,10 @@ extern uint64_t dispatch_benchmark(size_t count, void (^block)(void));
   XCTAssertGreaterThan(gaugeData.heapUsed, 0);
 }
 
-/**
- * Validates that available memory is reported as 0. The physical memory
- * footprint has no separate free value, so heapAvailable is not measured.
- */
-- (void)testMemoryMetricReportsZeroAvailableMemory {
+/** Validates that available memory is reported from the process memory limit. */
+- (void)testMemoryMetricReportsAvailableMemory {
   FPRMemoryGaugeData *gaugeData = fprCollectMemoryMetric();
-  XCTAssertEqual(gaugeData.heapAvailable, 0);
+  XCTAssertGreaterThan(gaugeData.heapAvailable, 0);
 }
 
 /** Validates the performance of the memory measurement. */
