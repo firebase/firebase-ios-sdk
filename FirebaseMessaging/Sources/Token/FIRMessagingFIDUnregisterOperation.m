@@ -107,8 +107,9 @@ static NSURLSession *sharedUnregistrationSession;
           return;
         }
         if (error) {
-          FIRMessagingLoggerError(kFIRMessagingMessageCodeTokenOperationInstallationIdNotAvailable,
-                                  @"Failed to get Installation ID: %@", error);
+          FIRMessagingLoggerError(
+              kFIRMessagingMessageCodeTokenOperationInstallationAuthTokenNotAvailable,
+              @"Failed to get Installation auth token: %@", error);
           [self finishWithResult:FIRMessagingTokenOperationError token:nil error:error];
           return;
         }
@@ -127,6 +128,11 @@ static NSURLSession *sharedUnregistrationSession;
 }
 
 - (void)makeUnregistrationRequestWithAuthToken:(NSString *)authToken {
+  if (self.isCancelled) {
+    [self finishWithResult:FIRMessagingTokenOperationCancelled token:nil error:nil];
+    return;
+  }
+
   FIROptions *options = FIRApp.defaultApp.options;
   NSString *projectID = options.projectID;
   NSString *apiKey = options.APIKey;
@@ -135,6 +141,14 @@ static NSURLSession *sharedUnregistrationSession;
     NSError *missingInfoError = [NSError messagingErrorWithCode:kFIRMessagingErrorCodeUnknown
                                                   failureReason:@"Missing project ID or API key."];
     [self finishWithResult:FIRMessagingTokenOperationError token:nil error:missingInfoError];
+    return;
+  }
+
+  if (!self.instanceID.length) {
+    NSError *missingInstanceIDError =
+        [NSError messagingErrorWithCode:kFIRMessagingErrorCodeMissingFid
+                          failureReason:@"FID is empty."];
+    [self finishWithResult:FIRMessagingTokenOperationError token:nil error:missingInstanceIDError];
     return;
   }
 

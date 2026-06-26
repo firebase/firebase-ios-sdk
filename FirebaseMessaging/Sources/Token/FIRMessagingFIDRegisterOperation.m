@@ -133,6 +133,11 @@ static NSURLSession *sharedRegistrationSession;
 }
 
 - (void)makeRegistrationRequestWithAuthToken:(NSString *)authToken {
+  if (self.isCancelled) {
+    [self finishWithResult:FIRMessagingTokenOperationCancelled token:nil error:nil];
+    return;
+  }
+
   FIROptions *options = FIRApp.defaultApp.options;
   NSString *projectID = options.projectID;
   NSString *apiKey = options.APIKey;
@@ -171,14 +176,14 @@ static NSURLSession *sharedRegistrationSession;
       [NSString stringWithFormat:@"fcm-%@", [FIRMessaging FIRMessagingSDKVersion]];
 
   BOOL isSandbox = [self.options[kFIRMessagingTokenOptionsAPNSIsSandboxKey] boolValue];
-  NSString *apnsEnvironment = !isSandbox ? @"PROD" : @"SANDBOX";
+  NSString *apnsEnvironment = isSandbox ? @"SANDBOX" : @"PROD";
 
   NSDictionary *body = @{
     @"ios" : @{
       @"apns_token" : apnsTokenString,
       @"app_version" : appVersion,
       @"apns_environment" : apnsEnvironment,
-      @"bundle_id" : options.bundleID,
+      @"bundle_id" : options.bundleID ?: @"",
     },
     @"fcm_sdk_version" : sdkVersion
   };
@@ -270,6 +275,21 @@ static NSURLSession *sharedRegistrationSession;
                                                                  error:&parseError];
   if (parseError) {
     if (outError) *outError = parseError;
+    return nil;
+  }
+
+  if (![responseDict isKindOfClass:[NSDictionary class]]) {
+    NSString *actualType = responseDict ? NSStringFromClass([responseDict class]) : @"nil";
+    if (outError) {
+      *outError = [NSError
+          messagingErrorWithCode:kFIRMessagingErrorCodeUnknown
+                   failureReason:
+                       [NSString stringWithFormat:@"Expected a dictionary response, but got: %@",
+                                                  actualType]];
+    } else {
+      FIRMessagingLoggerWarn(kFIRMessagingMessageCodeFIDRegisterOperationBadResponse,
+                             @"Expected a dictionary response, but got: %@", actualType);
+    }
     return nil;
   }
 

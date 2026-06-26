@@ -244,6 +244,7 @@ typedef NS_ENUM(NSInteger, FIRMessagingMessageCode) {
   kFIRMessagingMessageCodeTokenOperationFailedToSignParams = 39000,
   kFIRMessagingMessageCodeTokenOperationInstallationAuthTokenNotAvailable = 39001,
   kFIRMessagingMessageCodeTokenOperationInstallationIdNotAvailable = 39002,
+  kFIRMessagingMessageCodeFIDRegisterOperationBadResponse = 39003,
   // FIRMessagingTokenFetchOperation.m
   // DO NOT USE 40004, 40005
   kFIRMessagingMessageCodeTokenFetchOperationFetchRequest = 40000,

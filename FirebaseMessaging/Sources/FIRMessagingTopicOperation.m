@@ -335,6 +335,9 @@ NSString *FIRMessagingSubscriptionsServer(void) {
   void (^requestHandler)(NSData *, NSURLResponse *, NSError *) = ^(
       NSData *data, NSURLResponse *URLResponse, NSError *error) {
     FIRMessaging_STRONGIFY(self);
+    if (!self) {
+      return;
+    }
     if (error) {
       if (error.code == NSURLErrorCancelled) {
         return;
