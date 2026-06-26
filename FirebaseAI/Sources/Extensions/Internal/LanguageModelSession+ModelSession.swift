@@ -92,7 +92,7 @@
     public func _streamResponse(to prompt: [any Part], schema: FirebaseAI.GenerationSchema?,
                                 includeSchemaInPrompt: Bool,
                                 options: any GenerationOptionsRepresentable)
-      -> sending AsyncThrowingStream<_ModelSessionResponse, any Error> {
+      -> sending AsyncThrowingStream<_ModelSessionResponse, any Swift.Error> {
       return AsyncThrowingStream { continuation in
         let foundationModelsPrompt: Prompt
         do {

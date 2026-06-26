@@ -15,21 +15,19 @@
 import Foundation
 
 /// Configuration for the speaker to use.
-@available(watchOS, unavailable)
-enum VoiceConfig {
+enum ProtoVoiceConfig: Sendable, Equatable {
   /// Configuration for the prebuilt voice to use.
-  case prebuiltVoiceConfig(PrebuiltVoiceConfig)
+  case prebuiltVoiceConfig(ProtoPrebuiltVoiceConfig)
 
   /// Configuration for the custom voice to use.
-  case customVoiceConfig(CustomVoiceConfig)
+  case customVoiceConfig(ProtoCustomVoiceConfig)
 }
 
 /// The configuration for the prebuilt speaker to use.
 ///
 /// Not just a string on the parent proto, because there'll likely be a lot
 /// more options here.
-@available(watchOS, unavailable)
-struct PrebuiltVoiceConfig: Encodable, Sendable {
+struct ProtoPrebuiltVoiceConfig: Encodable, Sendable, Equatable {
   /// The name of the preset voice to use.
   let voiceName: String
 
@@ -39,8 +37,7 @@ struct PrebuiltVoiceConfig: Encodable, Sendable {
 }
 
 /// The configuration for the custom voice to use.
-@available(watchOS, unavailable)
-struct CustomVoiceConfig: Encodable, Sendable {
+struct ProtoCustomVoiceConfig: Encodable, Sendable, Equatable {
   /// The sample of the custom voice, in pcm16 s16e format.
   let customVoiceSample: Data
 
@@ -51,8 +48,7 @@ struct CustomVoiceConfig: Encodable, Sendable {
 
 // MARK: - Encodable conformance
 
-@available(watchOS, unavailable)
-extension VoiceConfig: Encodable {
+extension ProtoVoiceConfig: Encodable {
   enum CodingKeys: CodingKey {
     case prebuiltVoiceConfig
     case customVoiceConfig

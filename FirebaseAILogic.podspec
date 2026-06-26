@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseAILogic'
-  s.version          = '12.14.0'
+  s.version          = '12.16.0'
   s.summary          = 'Firebase AI Logic SDK'
 
   s.description      = <<-DESC
@@ -51,10 +51,15 @@ Build AI-powered apps and features with the Gemini API using the Firebase AI Log
   s.ios.pod_target_xcconfig = swift_flags_xcconfig
   s.osx.pod_target_xcconfig = swift_flags_xcconfig
 
-  s.dependency 'FirebaseAppCheckInterop', '~> 12.14.0'
-  s.dependency 'FirebaseAuthInterop', '~> 12.14.0'
-  s.dependency 'FirebaseCore', '~> 12.14.0'
-  s.dependency 'FirebaseCoreExtension', '~> 12.14.0'
+  # Direct dependency on AppCheck for automatic token acquisition and
+  # management.
+  s.dependency 'FirebaseAppCheck', '~> 12.16.0'
+  # Despite the direct dependency on App Check, the AI Logic SDK still uses
+  # AppCheck through the interop.
+  s.dependency 'FirebaseAppCheckInterop', '~> 12.16.0'
+  s.dependency 'FirebaseAuthInterop', '~> 12.16.0'
+  s.dependency 'FirebaseCore', '~> 12.16.0'
+  s.dependency 'FirebaseCoreExtension', '~> 12.16.0'
 
   s.test_spec 'unit' do |unit_tests|
     unit_tests_dir = 'FirebaseAI/Tests/Unit/'
