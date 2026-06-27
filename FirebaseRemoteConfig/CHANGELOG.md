@@ -1,3 +1,7 @@
+# Unreleased
+- [fixed] Fixed a data race condition in `RCNConfigExperiment` when `activate` is called
+  concurrently with database loading of experiment payloads. (#16303)
+
 # 12.13.0
 - [fixed] Remote Config Realtime updates now trigger when a parameter's experiment
   or variant assignment changes, ensuring more accurate A/B test analytics and

@@ -239,6 +239,37 @@
   }];
 }
 
+- (void)testConcurrentAccess {
+  RCNConfigExperiment *experiment = _configExperiment;
+
+  dispatch_group_t group = dispatch_group_create();
+  dispatch_queue_t queue1 =
+      dispatch_queue_create("com.google.RCConfigExperiment.testQueue1", DISPATCH_QUEUE_CONCURRENT);
+  dispatch_queue_t queue2 =
+      dispatch_queue_create("com.google.RCConfigExperiment.testQueue2", DISPATCH_QUEUE_CONCURRENT);
+
+  NSDictionary<NSString *, NSString *> *payload =
+      @{@"experimentStartTime" : @"2019-04-04T21:54:38.555Z"};
+  NSArray *response = @[ payload ];
+
+  for (int i = 0; i < 100; i++) {
+    dispatch_group_enter(group);
+    dispatch_async(queue1, ^{
+      [experiment updateExperimentsWithResponse:response];
+      [experiment updateExperimentStartTime];
+      dispatch_group_leave(group);
+    });
+
+    dispatch_group_enter(group);
+    dispatch_async(queue2, ^{
+      [experiment loadExperimentFromTable];
+      dispatch_group_leave(group);
+    });
+  }
+
+  dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
+}
+
 #pragma mark Helpers.
 
 - (ABTExperimentPayload *)deserializeABTData:(NSData *)payload {
