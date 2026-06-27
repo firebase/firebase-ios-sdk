@@ -47,7 +47,7 @@ static NSString *const kMethodNameLatestStartTime =
 
 - (NSMutableArray<NSData *> *)experimentPayloads {
   @synchronized(self) {
-    return _experimentPayloads;
+    return [_experimentPayloads mutableCopy];
   }
 }
 
@@ -59,7 +59,7 @@ static NSString *const kMethodNameLatestStartTime =
 
 - (NSMutableDictionary<NSString *, id> *)experimentMetadata {
   @synchronized(self) {
-    return _experimentMetadata;
+    return [_experimentMetadata mutableCopy];
   }
 }
 
@@ -71,7 +71,7 @@ static NSString *const kMethodNameLatestStartTime =
 
 - (NSMutableArray<NSData *> *)activeExperimentPayloads {
   @synchronized(self) {
-    return _activeExperimentPayloads;
+    return [_activeExperimentPayloads mutableCopy];
   }
 }
 
@@ -204,7 +204,7 @@ static NSString *const kMethodNameLatestStartTime =
                        completionHandler:handler];
 
   /// Update activated experiments payload and metadata in DB.
-  [self updateActiveExperimentsInDB];
+  [self updateActiveExperimentsInDBWithPayloads:payloadsCopy];
 }
 
 - (void)updateExperimentStartTime {
@@ -233,12 +233,12 @@ static NSString *const kMethodNameLatestStartTime =
   }
 }
 
-- (void)updateActiveExperimentsInDB {
+- (void)updateActiveExperimentsInDBWithPayloads:(NSArray<NSData *> *)payloads {
   @synchronized(self) {
     /// Put current fetched experiment payloads into activated experiment DB.
     [_activeExperimentPayloads removeAllObjects];
     [_DBManager deleteExperimentTableForKey:@RCNExperimentTableKeyActivePayload];
-    for (NSData *experiment in _experimentPayloads) {
+    for (NSData *experiment in payloads) {
       [_activeExperimentPayloads addObject:experiment];
       [_DBManager insertExperimentTableWithKey:@RCNExperimentTableKeyActivePayload
                                          value:experiment

@@ -42,7 +42,7 @@
 @property(nonatomic, strong) RCNConfigDBManager *DBManager;
 - (NSTimeInterval)updateExperimentStartTime;
 - (void)loadExperimentFromTable;
-- (void)updateActiveExperimentsInDB;
+- (void)updateActiveExperimentsInDBWithPayloads:(NSArray<NSData *> *)payloads;
 @end
 
 @interface RCNConfigExperimentTest : XCTestCase {
@@ -234,7 +234,7 @@
     XCTAssertNil(error);
     XCTAssertEqualObjects(experiment.experimentMetadata[@"last_experiment_start_time"],
                           @(12345678));
-    OCMVerify([experiment updateActiveExperimentsInDB]);
+    OCMVerify([experiment updateActiveExperimentsInDBWithPayloads:[OCMArg any]]);
     XCTAssertEqualObjects(experiment.activeExperimentPayloads, @[ payloadData ]);
   }];
 }
