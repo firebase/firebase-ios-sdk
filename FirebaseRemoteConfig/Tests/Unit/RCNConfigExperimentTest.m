@@ -108,8 +108,7 @@
                                      completionHandler:nil])
       .andDo(nil);
 
-  _experimentController =
-      [[FIRExperimentController alloc] initWithAnalytics:nil];
+  _experimentController = [[FIRExperimentController alloc] initWithAnalytics:nil];
   _configExperiment = [[RCNConfigExperiment alloc] initWithDBManager:_DBManagerMock
                                                 experimentController:_experimentController];
 }
@@ -292,7 +291,9 @@
     });
   }
 
-  dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
+  dispatch_time_t timeout = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(10 * NSEC_PER_SEC));
+  intptr_t result = dispatch_group_wait(group, timeout);
+  XCTAssertEqual(result, 0, @"Concurrent access test timed out, possible deadlock.");
 }
 
 #pragma mark Helpers.

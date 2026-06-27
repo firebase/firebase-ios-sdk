@@ -255,7 +255,7 @@ static NSString *const kMethodNameLatestStartTime =
   @synchronized(self) {
     return [self.experimentController
         latestExperimentStartTimestampBetweenTimestamp:existingLastStartTime
-                                           andPayloads:self.experimentPayloads];
+                                           andPayloads:_experimentPayloads];
   }
 }
 @end
