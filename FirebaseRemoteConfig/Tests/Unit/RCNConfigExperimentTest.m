@@ -263,8 +263,9 @@
 
 - (void)testConcurrentAccess {
   RCNConfigDBManagerFake *fakeDBManager = [[RCNConfigDBManagerFake alloc] init];
-  RCNConfigExperiment *experiment = [[RCNConfigExperiment alloc] initWithDBManager:fakeDBManager
-                                                              experimentController:_experimentController];
+  RCNConfigExperiment *experiment =
+      [[RCNConfigExperiment alloc] initWithDBManager:fakeDBManager
+                                experimentController:_experimentController];
 
   dispatch_group_t group = dispatch_group_create();
   dispatch_queue_t queue1 =
@@ -274,7 +275,7 @@
 
   NSDictionary<NSString *, NSString *> *payload =
       @{@"experimentStartTime" : @"2019-04-04T21:54:38.555Z"};
-  NSArray *response = @[payload];
+  NSArray *response = @[ payload ];
 
   for (int i = 0; i < 100; i++) {
     dispatch_group_enter(group);
