@@ -108,10 +108,10 @@
                                      completionHandler:nil])
       .andDo(nil);
 
-  FIRExperimentController *experimentController =
+  _experimentController =
       [[FIRExperimentController alloc] initWithAnalytics:nil];
   _configExperiment = [[RCNConfigExperiment alloc] initWithDBManager:_DBManagerMock
-                                                experimentController:experimentController];
+                                                experimentController:_experimentController];
 }
 
 - (void)tearDown {
