@@ -28,56 +28,59 @@ static NSString *const kMethodNameLatestStartTime =
     @"latestExperimentStartTimestampBetweenTimestamp:andPayloads:";
 
 @interface RCNConfigExperiment ()
-@property(nonatomic, strong)
-    NSMutableArray<NSData *> *experimentPayloads;  ///< Experiment payloads.
-@property(nonatomic, strong)
-    NSMutableDictionary<NSString *, id> *experimentMetadata;  ///< Experiment metadata
-@property(nonatomic, strong)
-    NSMutableArray<NSData *> *activeExperimentPayloads;      ///< Activated experiment payloads.
+@property(nonatomic, copy) NSArray<NSData *> *experimentPayloads;  ///< Experiment payloads.
+@property(nonatomic, copy)
+    NSDictionary<NSString *, id> *experimentMetadata;  ///< Experiment metadata
+@property(nonatomic, copy)
+    NSArray<NSData *> *activeExperimentPayloads;      ///< Activated experiment payloads.
 @property(nonatomic, strong) RCNConfigDBManager *DBManager;  ///< Database Manager.
 @property(nonatomic, strong) FIRExperimentController *experimentController;
 @property(nonatomic, strong) NSDateFormatter *experimentStartTimeDateFormatter;
 @end
 
-@implementation RCNConfigExperiment
+@implementation RCNConfigExperiment {
+  NSMutableArray<NSData *> *_experimentPayloads;
+  NSMutableDictionary<NSString *, id> *_experimentMetadata;
+  NSMutableArray<NSData *> *_activeExperimentPayloads;
+}
 
 @synthesize experimentPayloads = _experimentPayloads;
 @synthesize experimentMetadata = _experimentMetadata;
 @synthesize activeExperimentPayloads = _activeExperimentPayloads;
 
-- (NSMutableArray<NSData *> *)experimentPayloads {
+- (NSArray<NSData *> *)experimentPayloads {
   @synchronized(self) {
-    return [_experimentPayloads mutableCopy];
+    return [_experimentPayloads copy];
   }
 }
 
-- (void)setExperimentPayloads:(NSMutableArray<NSData *> *)experimentPayloads {
+- (void)setExperimentPayloads:(NSArray<NSData *> *)experimentPayloads {
   @synchronized(self) {
-    _experimentPayloads = experimentPayloads;
+    _experimentPayloads = [experimentPayloads mutableCopy] ?: [[NSMutableArray alloc] init];
   }
 }
 
-- (NSMutableDictionary<NSString *, id> *)experimentMetadata {
+- (NSDictionary<NSString *, id> *)experimentMetadata {
   @synchronized(self) {
-    return [_experimentMetadata mutableCopy];
+    return [_experimentMetadata copy];
   }
 }
 
-- (void)setExperimentMetadata:(NSMutableDictionary<NSString *, id> *)experimentMetadata {
+- (void)setExperimentMetadata:(NSDictionary<NSString *, id> *)experimentMetadata {
   @synchronized(self) {
-    _experimentMetadata = experimentMetadata;
+    _experimentMetadata = [experimentMetadata mutableCopy] ?: [[NSMutableDictionary alloc] init];
   }
 }
 
-- (NSMutableArray<NSData *> *)activeExperimentPayloads {
+- (NSArray<NSData *> *)activeExperimentPayloads {
   @synchronized(self) {
-    return [_activeExperimentPayloads mutableCopy];
+    return [_activeExperimentPayloads copy];
   }
 }
 
-- (void)setActiveExperimentPayloads:(NSMutableArray<NSData *> *)activeExperimentPayloads {
+- (void)setActiveExperimentPayloads:(NSArray<NSData *> *)activeExperimentPayloads {
   @synchronized(self) {
-    _activeExperimentPayloads = activeExperimentPayloads;
+    _activeExperimentPayloads = [activeExperimentPayloads mutableCopy] ?: [[NSMutableArray alloc] init];
   }
 }
 
