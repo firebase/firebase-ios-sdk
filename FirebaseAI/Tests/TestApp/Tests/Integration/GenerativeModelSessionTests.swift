@@ -338,7 +338,8 @@
       #expect(response.rawResponse.functionCalls.isEmpty)
     }
 
-    @Test(arguments: [InstanceConfig.vertexAI_v1beta_global]) // TODO: b/524685673 - Re-enable googleAI_v1beta once backend bug is fixed.
+    // TODO: b/524685673 - Re-enable googleAI_v1beta once backend bug is fixed.
+    @Test(arguments: [InstanceConfig.vertexAI_v1beta_global])
     func respondTextWithURLContext(_ config: InstanceConfig) async throws {
       let session = FirebaseAI.componentInstance(config).generativeModelSession(
         model: ModelNames.gemini3_1_FlashLite,
