@@ -555,7 +555,7 @@ struct GenerateContentIntegrationTests {
 
   @Test(
     "generateContent with URL Context",
-    arguments: [InstanceConfig.vertexAI_v1beta_global]
+    arguments: [InstanceConfig.vertexAI_v1beta_global] // TODO: b/524685673 - Re-enable googleAI_v1beta once backend bug is fixed.
   )
   func generateContent_withURLContext_succeeds(_ config: InstanceConfig) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
