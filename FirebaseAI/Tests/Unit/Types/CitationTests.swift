@@ -99,7 +99,7 @@ final class CitationTests: XCTestCase {
     XCTAssertNil(citation.publicationDate)
   }
 
-  func testDecodeCitation_missingEndIndex_throws() throws {
+  func testDecodeCitation_missingEndIndex_success() throws {
     let json = """
     {
       "startIndex" : 10
@@ -107,6 +107,8 @@ final class CitationTests: XCTestCase {
     """
     let jsonData = try XCTUnwrap(json.data(using: .utf8))
 
-    XCTAssertThrowsError(try decoder.decode(Citation.self, from: jsonData))
+    let citation = try decoder.decode(Citation.self, from: jsonData)
+    XCTAssertEqual(citation.startIndex, 10)
+    XCTAssertEqual(citation.endIndex, 0)
   }
 }
