@@ -706,7 +706,7 @@ extension Citation: Decodable {
   public init(from decoder: any Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
     startIndex = try container.decodeIfPresent(Int.self, forKey: .startIndex) ?? 0
-    endIndex = try container.decode(Int.self, forKey: .endIndex)
+    endIndex = try container.decodeIfPresent(Int.self, forKey: .endIndex) ?? 0
 
     if let uri = try container.decodeIfPresent(String.self, forKey: .uri), !uri.isEmpty {
       self.uri = uri

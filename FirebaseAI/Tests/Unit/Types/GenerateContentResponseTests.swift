@@ -343,6 +343,64 @@ final class GenerateContentResponseTests: XCTestCase {
     }
   }
 
+  func testDecodeGenerateContentResponse_missingCitationEndIndex_success() throws {
+    let json = """
+    {
+      "candidates": [
+        {
+          "content": { "role": "model", "parts": [ { "text": "Some text." } ] },
+          "finishReason": "STOP",
+          "citationMetadata": {
+            "citations": [
+              {
+                "uri": "https://example.com/source"
+              }
+            ]
+          }
+        }
+      ]
+    }
+    """
+    let jsonData = try XCTUnwrap(json.data(using: .utf8))
+
+    let response = try jsonDecoder.decode(GenerateContentResponse.self, from: jsonData)
+
+    XCTAssertEqual(response.candidates.count, 1)
+    let candidate = try XCTUnwrap(response.candidates.first)
+    let citation = try XCTUnwrap(candidate.citationMetadata?.citations.first)
+    XCTAssertEqual(citation.uri, "https://example.com/source")
+    XCTAssertEqual(citation.endIndex, 0)
+    XCTAssertEqual(citation.startIndex, 0)
+  }
+
+  func testDecodeGenerateContentResponse_emptyCitation_success() throws {
+    let json = """
+    {
+      "candidates": [
+        {
+          "content": { "role": "model", "parts": [ { "text": "Some text." } ] },
+          "finishReason": "STOP",
+          "citationMetadata": {
+            "citations": [
+              {}
+            ]
+          }
+        }
+      ]
+    }
+    """
+    let jsonData = try XCTUnwrap(json.data(using: .utf8))
+
+    let response = try jsonDecoder.decode(GenerateContentResponse.self, from: jsonData)
+
+    XCTAssertEqual(response.candidates.count, 1)
+    let candidate = try XCTUnwrap(response.candidates.first)
+    let citation = try XCTUnwrap(candidate.citationMetadata?.citations.first)
+    XCTAssertNil(citation.uri)
+    XCTAssertEqual(citation.endIndex, 0)
+    XCTAssertEqual(citation.startIndex, 0)
+  }
+
   // MARK: - Candidate.isEmpty
 
   func testCandidateIsEmpty_allEmpty_isTrue() throws {
