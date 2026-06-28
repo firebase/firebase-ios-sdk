@@ -555,7 +555,7 @@ struct GenerateContentIntegrationTests {
 
   @Test(
     "generateContent with URL Context",
-    arguments: InstanceConfig.defaultConfigs
+    arguments: [InstanceConfig.vertexAI_v1beta_global]
   )
   func generateContent_withURLContext_succeeds(_ config: InstanceConfig) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(

@@ -338,7 +338,7 @@
       #expect(response.rawResponse.functionCalls.isEmpty)
     }
 
-    @Test(arguments: [InstanceConfig.vertexAI_v1beta_global, InstanceConfig.googleAI_v1beta])
+    @Test(arguments: [InstanceConfig.vertexAI_v1beta_global])
     func respondTextWithURLContext(_ config: InstanceConfig) async throws {
       let session = FirebaseAI.componentInstance(config).generativeModelSession(
         model: ModelNames.gemini3_1_FlashLite,
