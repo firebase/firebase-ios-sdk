@@ -684,9 +684,10 @@ extension CitationMetadata: Decodable {
   public init(from decoder: any Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
 
-    let sources = try container.decodeIfPresent([Citation].self, forKey: .citationSources)
-    let vertexCitations = try container.decodeIfPresent([Citation].self, forKey: .citations)
-    citations = (sources ?? vertexCitations ?? []).filter { !$0.isEmpty }
+    let decodedCitations = try container.decodeIfPresent([Citation].self, forKey: .citationSources)
+      ?? container.decodeIfPresent([Citation].self, forKey: .citations)
+      ?? []
+    citations = decodedCitations.filter { !$0.isEmpty }
   }
 }
 
