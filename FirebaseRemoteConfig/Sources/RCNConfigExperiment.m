@@ -129,7 +129,7 @@ static NSString *const kMethodNameLatestStartTime =
                                                                        error:&error];
           if (!experimentPayloadJSON || error) {
             FIRLogWarning(kFIRLoggerRemoteConfig, @"I-RCN000031",
-                          @"Experiment payload could not be parsed as JSON.");
+                          @"Experiment payload could not be parsed as JSON: %@.", error);
           } else {
             [strongSelf->_experimentPayloads addObject:experiment];
           }
@@ -169,7 +169,7 @@ static NSString *const kMethodNameLatestStartTime =
                                                             error:&error];
     if (!JSONPayload || error) {
       FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000030",
-                  @"Invalid experiment payload to be serialized.");
+                  @"Invalid experiment payload to be serialized: %@.", error);
     } else {
       [serializedPayloads addObject:JSONPayload];
     }
