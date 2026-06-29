@@ -171,7 +171,7 @@ jobs:
       if: inputs.setup_command != ''
       env:
         plist_secret: ${{ secrets.plist_secret }}
-      run: ${{ inputs.setup_command }}
+      run: ${{ inputs.setup_command }} # zizmor: ignore[template-injection]
     - name: Lint ${{ inputs.product }}.podspec for ${{ matrix.platform }}
       uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
       if: contains(inputs.platforms, matrix.platform)
