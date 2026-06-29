@@ -104,30 +104,35 @@ class JsonReader : public util::ReadContext {
       // silently wraps a value that does not fit `IntType`. Reject it instead,
       // matching the range checking the string branch below gets from
       // `absl::SimpleAtoi`.
+      bool out_of_range = false;
       if (value.is_number_unsigned()) {
-        if (value.get<uint64_t>() >
-            static_cast<uint64_t>(std::numeric_limits<IntType>::max())) {
-          reader.Fail("Integer value out of range: " + value.dump());
-          return 0;
-        }
+        out_of_range =
+            value.get<uint64_t>() >
+            static_cast<uint64_t>(std::numeric_limits<IntType>::max());
       } else {
         // A non-negative value may still be stored as a signed `int64_t`, so
         // accept it when it fits an unsigned `IntType` rather than rejecting
-        // every signed representation outright.
+        // every signed representation outright. Compute the bounds as
+        // `int64_t`/`uint64_t` so the comparisons never narrow `IntType::max()`
+        // into a signed type, which would warn for unsigned instantiations.
         const int64_t val = value.get<int64_t>();
+        const int64_t min_limit =
+            std::numeric_limits<IntType>::is_signed
+                ? static_cast<int64_t>(std::numeric_limits<IntType>::min())
+                : 0;
+        const uint64_t max_limit =
+            static_cast<uint64_t>(std::numeric_limits<IntType>::max());
         if (std::numeric_limits<IntType>::is_signed) {
-          if (val < static_cast<int64_t>(std::numeric_limits<IntType>::min()) ||
-              val > static_cast<int64_t>(std::numeric_limits<IntType>::max())) {
-            reader.Fail("Integer value out of range: " + value.dump());
-            return 0;
-          }
-        } else if (val < 0 ||
-                   static_cast<uint64_t>(val) >
-                       static_cast<uint64_t>(
-                           std::numeric_limits<IntType>::max())) {
-          reader.Fail("Integer value out of range: " + value.dump());
-          return 0;
+          out_of_range = val < min_limit ||
+                         (val > 0 && static_cast<uint64_t>(val) > max_limit);
+        } else {
+          out_of_range = val < 0 || static_cast<uint64_t>(val) > max_limit;
         }
+      }
+
+      if (out_of_range) {
+        reader.Fail("Integer value out of range: " + value.dump());
+        return 0;
       }
       return value.get<IntType>();
     }
