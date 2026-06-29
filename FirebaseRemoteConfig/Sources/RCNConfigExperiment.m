@@ -119,41 +119,56 @@ static NSString *const kMethodNameLatestStartTime =
     if (strongSelf == nil) {
       return;
     }
-    @synchronized(strongSelf) {
-      if (result[@RCNExperimentTableKeyPayload]) {
-        [strongSelf->_experimentPayloads removeAllObjects];
-        for (NSData *experiment in result[@RCNExperimentTableKeyPayload]) {
-          NSError *error;
-          id experimentPayloadJSON = [NSJSONSerialization JSONObjectWithData:experiment
-                                                                     options:kNilOptions
-                                                                       error:&error];
-          if (!experimentPayloadJSON || error) {
-            FIRLogWarning(kFIRLoggerRemoteConfig, @"I-RCN000031",
-                          @"Experiment payload could not be parsed as JSON: %@.", error);
-          } else {
-            [strongSelf->_experimentPayloads addObject:experiment];
-          }
+    NSMutableArray<NSData *> *parsedPayloads = nil;
+    if (result[@RCNExperimentTableKeyPayload]) {
+      parsedPayloads = [[NSMutableArray alloc] init];
+      for (NSData *experiment in result[@RCNExperimentTableKeyPayload]) {
+        NSError *error;
+        id experimentPayloadJSON = [NSJSONSerialization JSONObjectWithData:experiment
+                                                                   options:kNilOptions
+                                                                     error:&error];
+        if (!experimentPayloadJSON || error) {
+          FIRLogWarning(kFIRLoggerRemoteConfig, @"I-RCN000031",
+                        @"Experiment payload could not be parsed as JSON: %@.", error);
+        } else {
+          [parsedPayloads addObject:experiment];
         }
       }
-      if (result[@RCNExperimentTableKeyMetadata]) {
-        strongSelf->_experimentMetadata = [result[@RCNExperimentTableKeyMetadata] mutableCopy];
-      }
+    }
 
-      /// Load activated experiments payload and metadata.
-      if (result[@RCNExperimentTableKeyActivePayload]) {
-        [strongSelf->_activeExperimentPayloads removeAllObjects];
-        for (NSData *experiment in result[@RCNExperimentTableKeyActivePayload]) {
-          NSError *error;
-          id experimentPayloadJSON = [NSJSONSerialization JSONObjectWithData:experiment
-                                                                     options:kNilOptions
-                                                                       error:&error];
-          if (!experimentPayloadJSON || error) {
-            FIRLogWarning(kFIRLoggerRemoteConfig, @"I-RCN000031",
-                          @"Activated experiment payload could not be parsed as JSON.");
-          } else {
-            [strongSelf->_activeExperimentPayloads addObject:experiment];
-          }
+    NSMutableDictionary<NSString *, id> *parsedMetadata = nil;
+    if (result[@RCNExperimentTableKeyMetadata]) {
+      parsedMetadata = [result[@RCNExperimentTableKeyMetadata] mutableCopy];
+    }
+
+    NSMutableArray<NSData *> *parsedActivePayloads = nil;
+    if (result[@RCNExperimentTableKeyActivePayload]) {
+      parsedActivePayloads = [[NSMutableArray alloc] init];
+      for (NSData *experiment in result[@RCNExperimentTableKeyActivePayload]) {
+        NSError *error;
+        id experimentPayloadJSON = [NSJSONSerialization JSONObjectWithData:experiment
+                                                                   options:kNilOptions
+                                                                     error:&error];
+        if (!experimentPayloadJSON || error) {
+          FIRLogWarning(kFIRLoggerRemoteConfig, @"I-RCN000031",
+                        @"Activated experiment payload could not be parsed as JSON.");
+        } else {
+          [parsedActivePayloads addObject:experiment];
         }
+      }
+    }
+
+    @synchronized(strongSelf) {
+      if (parsedPayloads) {
+        [strongSelf->_experimentPayloads removeAllObjects];
+        [strongSelf->_experimentPayloads addObjectsFromArray:parsedPayloads];
+      }
+      if (parsedMetadata) {
+        strongSelf->_experimentMetadata = parsedMetadata;
+      }
+      if (parsedActivePayloads) {
+        [strongSelf->_activeExperimentPayloads removeAllObjects];
+        [strongSelf->_activeExperimentPayloads addObjectsFromArray:parsedActivePayloads];
       }
     }
   };
@@ -228,9 +243,21 @@ static NSString *const kMethodNameLatestStartTime =
       [self latestStartTimeWithExistingLastStartTime:existingLastStartTime];
 
   NSDictionary *metadataCopy = nil;
+  BOOL shouldUpdate = NO;
   @synchronized(self) {
-    _experimentMetadata[kExperimentMetadataKeyLastStartTime] = @(latestStartTime);
-    metadataCopy = [_experimentMetadata copy];
+    // Check if the calculated start time is newer or equal to what is currently stored,
+    // avoiding out-of-order overwrites from logical races during concurrent operations.
+    NSTimeInterval currentStoredTime =
+        [_experimentMetadata[kExperimentMetadataKeyLastStartTime] doubleValue];
+    if (latestStartTime >= currentStoredTime) {
+      _experimentMetadata[kExperimentMetadataKeyLastStartTime] = @(latestStartTime);
+      metadataCopy = [_experimentMetadata copy];
+      shouldUpdate = YES;
+    }
+  }
+
+  if (!shouldUpdate) {
+    return;
   }
 
   if (![NSJSONSerialization isValidJSONObject:metadataCopy]) {
