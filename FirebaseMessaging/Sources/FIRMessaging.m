@@ -154,6 +154,10 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 - (void)dealloc {
   [self.reachability stop];
   [[NSNotificationCenter defaultCenter] removeObserver:self];
+  if (self.installationIDObserver) {
+    [[NSNotificationCenter defaultCenter] removeObserver:self.installationIDObserver];
+    self.installationIDObserver = nil;
+  }
   [self teardown];
 }
 
