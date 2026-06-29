@@ -204,8 +204,6 @@ static NSString *const kFIRInstallationsIIDCreationTimePlistKey = @"|S|cre";
   plistContent[kFIRInstallationsIIDCreationTimePlistKey] = nil;
 
   return [plistContent writeToURL:[NSURL fileURLWithPath:path] error:outError];
-
-  return [plistContent writeToFile:path atomically:YES];
 }
 
 - (BOOL)hasPlistIIDFlag {

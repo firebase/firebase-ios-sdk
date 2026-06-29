@@ -866,7 +866,6 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 #elif TARGET_OS_WATCH
   // See comment in `- [FIRApp subscribeForAppDidBecomeActiveNotifications]`.
   return WKApplicationDidBecomeActiveNotification;
-
 #endif
 }
 
