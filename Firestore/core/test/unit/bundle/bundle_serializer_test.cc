@@ -1166,6 +1166,39 @@ TEST_F(BundleSerializerTest, DecodeInvalidBundledDocumentMetadataFails) {
   }
 }
 
+TEST_F(BundleSerializerTest, DecodeNonDocumentKeyResourceNameFails) {
+  // A resource name that points at a collection (odd number of segments after
+  // the `documents` prefix) passes the local-resource-name check but is not a
+  // valid `DocumentKey`. It must be rejected gracefully instead of tripping the
+  // `HARD_ASSERT` inside the `DocumentKey` constructor.
+  {
+    ProtoDocument document = TestDocument(ProtoValue());
+    document.set_name(FullPath("bundle"));
+    std::string json_string;
+    MessageToJsonString(document, &json_string);
+
+    JsonReader reader;
+    bundle_serializer.DecodeDocument(reader, Parse(json_string));
+    EXPECT_NOT_OK(reader.status());
+  }
+
+  {
+    ProtoBundledDocumentMetadata metadata;
+    metadata.set_name(FullPath("bundle"));
+    metadata.set_exists(true);
+    google::protobuf::Timestamp t1;
+    t1.set_seconds(0);
+    t1.set_nanos(0);
+    *metadata.mutable_read_time() = t1;
+    std::string json_string;
+    MessageToJsonString(metadata, &json_string);
+
+    JsonReader reader;
+    bundle_serializer.DecodeDocumentMetadata(reader, Parse(json_string));
+    EXPECT_NOT_OK(reader.status());
+  }
+}
+
 TEST_F(BundleSerializerTest, DecodeTargetWithoutImplicitOrderByOnName) {
   std::string json(
       R"({"name":"myNamedQuery",
