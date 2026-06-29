@@ -43,7 +43,7 @@ jobs:
         # the workflow.
         # If multiple podspecs need to be excluded, escaping space is required
         # to split podspecs, e.g. get_updated_files.sh ... -e Firebase.podspec\ FirebaseABTesting.podspec
-        ./scripts/health_metrics/get_updated_files.sh -p output.json -e Firebase.podspec\ FirebaseFunctions.podspec
+        ./scripts/spec_testing/get_updated_files.sh -p output.json -e Firebase.podspec\ FirebaseFunctions.podspec
         echo "matrix={\"include\":$( cat output.json )}" >> "$GITHUB_OUTPUT"
         # `podspecs` is to help determine if specs_testing job should be run.
         echo "podspecs=$(cat output.json)" >> "$GITHUB_OUTPUT"
