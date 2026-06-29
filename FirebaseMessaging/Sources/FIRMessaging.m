@@ -845,7 +845,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
                            if (error) {
                              FIRMessagingLoggerError(kFIRMessagingMessageCodeMessaging010,
                                                      @"The subscription operation failed due to an "
-                                                     @"error getting the FCM token: %@.",
+                                                     @"error getting the FCM registration: %@.",
                                                      error);
                              if (completion) {
                                completion(error);
