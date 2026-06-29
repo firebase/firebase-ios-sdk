@@ -191,7 +191,7 @@ class TestFirebaseDataEncoder: XCTestCase {
 //    let model = Model.testValue
 //    // This following test would fail as it attempts to re-encode into already encoded container is invalid. This will always fail
 ////      _testEncodeFailure(of: model)
-//    
+//
 
 //  }
 
