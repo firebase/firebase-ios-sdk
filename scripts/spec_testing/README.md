@@ -4,6 +4,6 @@ This directory contains tooling to determine which podspecs have been modified i
 
 ## Updated Files Collector
 
-The `get_updated_files.sh` script utilizes the `updated_files_collector/Sources/UpdatedFilesCollector` Swift tool. 
+The `get_updated_files.sh` script utilizes the `updated_files_collector/Sources/UpdatedFilesCollector` Swift tool.
 
 The file `file_patterns.json` defines the mapping between file paths and SDK names.
