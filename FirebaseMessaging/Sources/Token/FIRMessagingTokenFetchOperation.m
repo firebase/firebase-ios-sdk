@@ -163,13 +163,13 @@ NSString *const kFIRMessagingFirebaseHeartbeatKey = @"X-firebase-client-log-type
 
       if (phoneRegistrationErrorRetryCount < kMaxPhoneRegistrationErrorRetryCount) {
         const int nextRetryInterval = 1 << phoneRegistrationErrorRetryCount;
+        phoneRegistrationErrorRetryCount++;
         FIRMessaging_WEAKIFY(self);
 
         dispatch_after(
             dispatch_time(DISPATCH_TIME_NOW, (int64_t)(nextRetryInterval * NSEC_PER_SEC)),
-            dispatch_get_main_queue(), ^{
+            dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
               FIRMessaging_STRONGIFY(self);
-              phoneRegistrationErrorRetryCount++;
               [self performTokenOperation];
             });
         return;

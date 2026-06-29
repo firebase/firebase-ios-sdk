@@ -179,15 +179,15 @@ static NSURLSession *sharedUnregistrationSession;
           // Retry on network error or backend server 5xx error.
           if ((error || isServerError(response)) && self->_retryCount < kMaxRetries) {
             const int nextRetryInterval = 1 << self->_retryCount;
+            self->_retryCount++;
             FIRMessaging_WEAKIFY(self);
             dispatch_after(
                 dispatch_time(DISPATCH_TIME_NOW, (int64_t)(nextRetryInterval * NSEC_PER_SEC)),
-                dispatch_get_main_queue(), ^{
+                dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
                   FIRMessaging_STRONGIFY(self);
                   if (!self) {
                     return;
                   }
-                  self->_retryCount++;
                   [self makeUnregistrationRequestWithAuthToken:authToken];
                 });
             return;
