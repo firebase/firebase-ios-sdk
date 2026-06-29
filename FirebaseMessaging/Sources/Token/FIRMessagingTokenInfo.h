@@ -75,12 +75,6 @@ NS_ASSUME_NONNULL_BEGIN
                            firebaseAppID:(nullable NSString *)firebaseAppID
                                tokenType:(NSString *)tokenType;
 
-- (instancetype)initWithAuthorizedEntity:(NSString *)authorizedEntity
-                                   scope:(NSString *)scope
-                                   token:(NSString *)token
-                              appVersion:(nullable NSString *)appVersion
-                           firebaseAppID:(nullable NSString *)firebaseAppID;
-
 /**
  * Check whether the token is still fresh based on:
  * 1. Last fetch token is within the 7 days.

@@ -61,7 +61,8 @@ static BOOL const kAPNSSandbox = NO;
                                                         scope:kScope
                                                         token:kToken
                                                    appVersion:FIRMessagingCurrentAppVersion()
-                                                firebaseAppID:FIRMessagingFirebaseAppID()];
+                                                firebaseAppID:FIRMessagingFirebaseAppID()
+                                                    tokenType:@"V4"];
   self.validTokenInfo.APNSInfo =
       [[FIRMessagingAPNSInfo alloc] initWithDeviceToken:self.APNSDeviceToken
                                               isSandbox:kAPNSSandbox];
@@ -110,7 +111,8 @@ static BOOL const kAPNSSandbox = NO;
                                                         scope:kScope
                                                         token:kToken
                                                    appVersion:nil
-                                                firebaseAppID:nil];
+                                                firebaseAppID:nil
+                                                    tokenType:@"V4"];
   NSError *error;
   NSData *archive = [NSKeyedArchiver archivedDataWithRootObject:sparseInfo
                                           requiringSecureCoding:YES
@@ -180,7 +182,8 @@ static BOOL const kAPNSSandbox = NO;
                                                         scope:kScope
                                                         token:kToken
                                                    appVersion:@"1.1"
-                                                firebaseAppID:FIRMessagingFirebaseAppID()];
+                                                firebaseAppID:FIRMessagingFirebaseAppID()
+                                                    tokenType:@"V4"];
   XCTAssertFalse([self.validTokenInfo isFreshWithIID:kIID]);
 }
 
@@ -194,7 +197,8 @@ static BOOL const kAPNSSandbox = NO;
                                @"9Qvhy9XljAI62QPw307rgA0MaFHPnrU5sFxGZvsncRnkfuciwTUeyRpPNDZMFhNXt7"
                                @"h1BKq9Wb2A0LAANpQefrPHVUp4p"
                     appVersion:@"1.1"
-                 firebaseAppID:FIRMessagingFirebaseAppID()];
+                 firebaseAppID:FIRMessagingFirebaseAppID()
+                     tokenType:@"V4"];
   XCTAssertFalse([self.validTokenInfo isFreshWithIID:kIID]);
 }
 @end
