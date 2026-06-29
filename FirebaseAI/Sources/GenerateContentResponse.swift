@@ -685,13 +685,13 @@ extension CitationMetadata: Decodable {
     let container = try decoder.container(keyedBy: CodingKeys.self)
 
     // Decode for Google API if `citationSources` key is present.
+    let decodedCitations: [Citation]
     if container.contains(.citationSources) {
-      let decodedCitations = try container.decode([Citation].self, forKey: .citationSources)
-      citations = decodedCitations.filter { !$0.isEmpty }
+      decodedCitations = try container.decode([Citation].self, forKey: .citationSources)
     } else { // Fallback to default Vertex AI decoding.
-      let decodedCitations = try container.decode([Citation].self, forKey: .citations)
-      citations = decodedCitations.filter { !$0.isEmpty }
+      decodedCitations = try container.decode([Citation].self, forKey: .citations)
     }
+    citations = decodedCitations.filter { !$0.isEmpty }
   }
 }
 
@@ -706,7 +706,7 @@ extension Citation: Decodable {
   }
 
   var isEmpty: Bool {
-    return startIndex == 0 &&
+    startIndex == 0 &&
       endIndex == 0 &&
       uri == nil &&
       title == nil &&
@@ -716,9 +716,8 @@ extension Citation: Decodable {
 
   public init(from decoder: any Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
-    let parsedStartIndex = try container.decodeIfPresent(Int.self, forKey: .startIndex) ?? 0
-    startIndex = parsedStartIndex
-    endIndex = try container.decodeIfPresent(Int.self, forKey: .endIndex) ?? parsedStartIndex
+    startIndex = try container.decodeIfPresent(Int.self, forKey: .startIndex) ?? 0
+    endIndex = try container.decodeIfPresent(Int.self, forKey: .endIndex) ?? startIndex
 
     if let uri = try container.decodeIfPresent(String.self, forKey: .uri), !uri.isEmpty {
       self.uri = uri
