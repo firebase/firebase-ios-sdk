@@ -221,8 +221,7 @@ static NSString *const kMethodNameLatestStartTime =
 - (void)updateExperimentStartTime {
   NSTimeInterval existingLastStartTime;
   @synchronized(self) {
-    existingLastStartTime =
-        [_experimentMetadata[kExperimentMetadataKeyLastStartTime] doubleValue];
+    existingLastStartTime = [_experimentMetadata[kExperimentMetadataKeyLastStartTime] doubleValue];
   }
 
   NSTimeInterval latestStartTime =
