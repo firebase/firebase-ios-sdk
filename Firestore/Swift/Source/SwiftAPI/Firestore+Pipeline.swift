@@ -47,7 +47,6 @@ import Foundation
   /// - They do not support realtime snapshot listeners.
   ///
   /// - Returns: A `PipelineSource` to begin defining the pipeline's stages.
-
   @nonobjc func pipeline() -> PipelineSource {
     return PipelineSource(db: self) { stages, db in
       Pipeline(stages: stages, db: db)
@@ -59,7 +58,6 @@ import Foundation
   /// This is an internal method and should not be used directly.
   ///
   /// - Returns: A `RealtimePipelineSource` for building a realtime pipeline.
-
   @nonobjc internal func realtimePipeline() -> RealtimePipelineSource {
     return RealtimePipelineSource(db: self) { stages, db in
       RealtimePipeline(stages: stages, db: db)

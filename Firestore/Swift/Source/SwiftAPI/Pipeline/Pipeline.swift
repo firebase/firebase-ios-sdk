@@ -71,7 +71,6 @@ import Foundation
 /// print("Error in example 3: \(error)")
 /// }
 /// ```
-
 public class Pipeline: @unchecked Sendable {
   private(set) var stages: [Stage]
   let db: Firestore?

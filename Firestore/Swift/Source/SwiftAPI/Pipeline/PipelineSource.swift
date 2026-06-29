@@ -15,7 +15,6 @@
 /// A `PipelineSource` is the entry point for building a Firestore pipeline. It allows you to
 /// specify the source of the data for the pipeline, which can be a collection, a collection group,
 /// a list of documents, or the entire database.
-
 public struct PipelineSource: @unchecked Sendable {
   let db: Firestore
   let factory: ([Stage], Firestore) -> Pipeline

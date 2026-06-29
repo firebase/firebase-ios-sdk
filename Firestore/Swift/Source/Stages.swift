@@ -83,7 +83,6 @@ class CollectionGroupSource: Stage {
 }
 
 // Represents the entire database as a source.
-
 class DatabaseSource: Stage {
   let name: String = "database"
   let bridge: StageBridge
@@ -98,7 +97,6 @@ class DatabaseSource: Stage {
 }
 
 // Represents a list of document references as a source.
-
 class DocumentsSource: Stage {
   let name: String = "documents"
   let bridge: StageBridge

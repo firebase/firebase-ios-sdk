@@ -19,7 +19,6 @@ import FirebaseFirestore
 import Foundation
 
 // iOS 15 required for test implementation, not vector feature
-
 class VectorIntegrationTests: FSTIntegrationTestCase {
   func testWriteAndReadVectorEmbeddings() async throws {
     let collection = collectionRef()

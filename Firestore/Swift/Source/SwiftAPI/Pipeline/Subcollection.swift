@@ -29,7 +29,6 @@
 ///          .toScalarExpression().as("averageRating")
 ///   ])
 /// ```
-
 public class Subcollection: Pipeline, @unchecked Sendable {
   /// Initializes a Subcollection Pipeline centered on a target path.
   ///
