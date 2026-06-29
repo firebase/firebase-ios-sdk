@@ -161,26 +161,31 @@ static NSString *const kMethodNameLatestStartTime =
 }
 
 - (void)updateExperimentsWithResponse:(NSArray<NSDictionary<NSString *, id> *> *)response {
+  NSMutableArray<NSData *> *serializedPayloads = [[NSMutableArray alloc] init];
+  for (NSDictionary<NSString *, id> *experiment in response) {
+    NSError *error;
+    NSData *JSONPayload = [NSJSONSerialization dataWithJSONObject:experiment
+                                                          options:kNilOptions
+                                                            error:&error];
+    if (!JSONPayload || error) {
+      FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000030",
+                  @"Invalid experiment payload to be serialized.");
+    } else {
+      [serializedPayloads addObject:JSONPayload];
+    }
+  }
+
   @synchronized(self) {
     // cache fetched experiment payloads.
     [_experimentPayloads removeAllObjects];
-    [_DBManager deleteExperimentTableForKey:@RCNExperimentTableKeyPayload];
+    [_experimentPayloads addObjectsFromArray:serializedPayloads];
+  }
 
-    for (NSDictionary<NSString *, id> *experiment in response) {
-      NSError *error;
-      NSData *JSONPayload = [NSJSONSerialization dataWithJSONObject:experiment
-                                                            options:kNilOptions
-                                                              error:&error];
-      if (!JSONPayload || error) {
-        FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000030",
-                    @"Invalid experiment payload to be serialized.");
-      } else {
-        [_experimentPayloads addObject:JSONPayload];
-        [_DBManager insertExperimentTableWithKey:@RCNExperimentTableKeyPayload
-                                           value:JSONPayload
-                               completionHandler:nil];
-      }
-    }
+  [_DBManager deleteExperimentTableForKey:@RCNExperimentTableKeyPayload];
+  for (NSData *JSONPayload in serializedPayloads) {
+    [_DBManager insertExperimentTableWithKey:@RCNExperimentTableKeyPayload
+                                       value:JSONPayload
+                           completionHandler:nil];
   }
 }
 
@@ -189,13 +194,15 @@ static NSString *const kMethodNameLatestStartTime =
 
   // Get the last experiment start time prior to the latest payload.
   NSTimeInterval lastStartTime;
-  NSArray<NSData *> *payloadsCopy;
   @synchronized(self) {
     lastStartTime = [_experimentMetadata[kExperimentMetadataKeyLastStartTime] doubleValue];
+  }
 
-    // Update the last experiment start time with the latest payload.
-    [self updateExperimentStartTime];
+  // Update the last experiment start time with the latest payload.
+  [self updateExperimentStartTime];
 
+  NSArray<NSData *> *payloadsCopy;
+  @synchronized(self) {
     payloadsCopy = [_experimentPayloads copy];
   }
 
@@ -212,25 +219,32 @@ static NSString *const kMethodNameLatestStartTime =
 }
 
 - (void)updateExperimentStartTime {
+  NSTimeInterval existingLastStartTime;
   @synchronized(self) {
-    NSTimeInterval existingLastStartTime =
+    existingLastStartTime =
         [_experimentMetadata[kExperimentMetadataKeyLastStartTime] doubleValue];
+  }
 
-    NSTimeInterval latestStartTime =
-        [self latestStartTimeWithExistingLastStartTime:existingLastStartTime];
+  NSTimeInterval latestStartTime =
+      [self latestStartTimeWithExistingLastStartTime:existingLastStartTime];
 
+  NSDictionary *metadataCopy = nil;
+  @synchronized(self) {
     _experimentMetadata[kExperimentMetadataKeyLastStartTime] = @(latestStartTime);
+    metadataCopy = [_experimentMetadata copy];
+  }
 
-    if (![NSJSONSerialization isValidJSONObject:_experimentMetadata]) {
-      FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000028",
-                  @"Invalid fetched experiment metadata to be serialized.");
-      return;
-    }
-    NSError *error;
-    NSData *serializedExperimentMetadata =
-        [NSJSONSerialization dataWithJSONObject:_experimentMetadata
-                                        options:NSJSONWritingPrettyPrinted
-                                          error:&error];
+  if (![NSJSONSerialization isValidJSONObject:metadataCopy]) {
+    FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000028",
+                @"Invalid fetched experiment metadata to be serialized.");
+    return;
+  }
+  NSError *error;
+  NSData *serializedExperimentMetadata =
+      [NSJSONSerialization dataWithJSONObject:metadataCopy
+                                      options:NSJSONWritingPrettyPrinted
+                                        error:&error];
+  if (serializedExperimentMetadata) {
     [_DBManager insertExperimentTableWithKey:@RCNExperimentTableKeyMetadata
                                        value:serializedExperimentMetadata
                            completionHandler:nil];
@@ -241,21 +255,23 @@ static NSString *const kMethodNameLatestStartTime =
   @synchronized(self) {
     /// Put current fetched experiment payloads into activated experiment DB.
     [_activeExperimentPayloads removeAllObjects];
-    [_DBManager deleteExperimentTableForKey:@RCNExperimentTableKeyActivePayload];
-    for (NSData *experiment in payloads) {
-      [_activeExperimentPayloads addObject:experiment];
-      [_DBManager insertExperimentTableWithKey:@RCNExperimentTableKeyActivePayload
-                                         value:experiment
-                             completionHandler:nil];
-    }
+    [_activeExperimentPayloads addObjectsFromArray:payloads];
+  }
+  [_DBManager deleteExperimentTableForKey:@RCNExperimentTableKeyActivePayload];
+  for (NSData *experiment in payloads) {
+    [_DBManager insertExperimentTableWithKey:@RCNExperimentTableKeyActivePayload
+                                       value:experiment
+                           completionHandler:nil];
   }
 }
 
 - (NSTimeInterval)latestStartTimeWithExistingLastStartTime:(NSTimeInterval)existingLastStartTime {
+  NSArray<NSData *> *payloadsCopy;
   @synchronized(self) {
-    return [self.experimentController
-        latestExperimentStartTimestampBetweenTimestamp:existingLastStartTime
-                                           andPayloads:_experimentPayloads];
+    payloadsCopy = [_experimentPayloads copy];
   }
+  return [self.experimentController
+      latestExperimentStartTimestampBetweenTimestamp:existingLastStartTime
+                                         andPayloads:payloadsCopy];
 }
 @end
