@@ -90,12 +90,15 @@ class StoragePath: NSCopying, Equatable {
     }
     let bucketName = pathComponents[3]
 
-    guard pathComponents.count > 5 else {
+    guard pathComponents.count > 4 else {
       return StoragePath(with: bucketName)
     }
     guard pathComponents[4] == "o" else {
       throw StoragePathError.storagePathError("Internal error: URL must be in the form of " +
         "http[s]://<host>/v0/b/<bucket>/o/<path/to/object>[?token=signed_url_params]")
+    }
+    guard pathComponents.count > 5 else {
+      return StoragePath(with: bucketName)
     }
     // Construct object name
     var objectName = pathComponents[5]

@@ -110,6 +110,11 @@ class StoragePathTests: XCTestCase {
     // Storage URL and must throw rather than be parsed as an object.
     let httpURL = "http://firebasestorage.googleapis.com/v0/b/bucket/x/path/to/object"
     XCTAssertThrowsError(try StoragePath.path(string: httpURL))
+
+    // Same invalid marker but with no object path (exactly five components) must
+    // also throw rather than be parsed as a bucket-only path.
+    let shortHTTPURL = "http://firebasestorage.googleapis.com/v0/b/bucket/x"
+    XCTAssertThrowsError(try StoragePath.path(string: shortHTTPURL))
   }
 
   func testThrowsOnInvalidScheme() {
