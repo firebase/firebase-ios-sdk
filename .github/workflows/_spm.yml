@@ -162,7 +162,7 @@ jobs:
       run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
     - name: Install simulators in case they are missing.
       if: matrix.platform != 'macOS' && matrix.platform != 'catalyst'
-      uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
+      uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
       with:
         timeout_minutes: 15
         max_attempts: 5
@@ -171,10 +171,10 @@ jobs:
         command: xcodebuild -downloadPlatform ${{ matrix.platform }}
     - name: Run setup command, if needed.
       if: inputs.setup_command != ''
-      run: ${{ inputs.setup_command }}
+      run: ${{ inputs.setup_command }} # zizmor: ignore[template-injection]
     - name: Initialize xcodebuild
       run: scripts/setup_spm_tests.sh
-    - uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
+    - uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
       if: contains(inputs.platforms, matrix.platform)
       env:
         FIREBASE_IS_NIGHTLY_TESTING: ${{ inputs.is_nightly && '1' || '' }}

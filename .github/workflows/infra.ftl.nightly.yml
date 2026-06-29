@@ -77,7 +77,7 @@ jobs:
           #   build_command: scripts/test_quickstart_ftl.sh RemoteConfig
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
-    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
+    - uses: ruby/setup-ruby@89f90524b88a01fe6e0b732220432cc6142926af # v1.313.0
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Install xcpretty
@@ -88,7 +88,7 @@ jobs:
     - name: Xcode
       run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
     - name: Setup quickstart
-      run: ${{ matrix.setup_command }}
+      run: ${{ matrix.setup_command }} # zizmor: ignore[template-injection]
     - name: Install Secret GoogleService-Info.plist
       run: |
         scripts/decrypt_gha_secret.sh \
