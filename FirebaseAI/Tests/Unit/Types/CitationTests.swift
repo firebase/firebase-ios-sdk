@@ -109,6 +109,6 @@ final class CitationTests: XCTestCase {
 
     let citation = try decoder.decode(Citation.self, from: jsonData)
     XCTAssertEqual(citation.startIndex, 10)
-    XCTAssertEqual(citation.endIndex, 0)
+    XCTAssertEqual(citation.endIndex, 10)
   }
 }

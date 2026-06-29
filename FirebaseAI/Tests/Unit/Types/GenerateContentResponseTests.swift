@@ -395,10 +395,8 @@ final class GenerateContentResponseTests: XCTestCase {
 
     XCTAssertEqual(response.candidates.count, 1)
     let candidate = try XCTUnwrap(response.candidates.first)
-    let citation = try XCTUnwrap(candidate.citationMetadata?.citations.first)
-    XCTAssertNil(citation.uri)
-    XCTAssertEqual(citation.endIndex, 0)
-    XCTAssertEqual(citation.startIndex, 0)
+    let citations = try XCTUnwrap(candidate.citationMetadata?.citations)
+    XCTAssertTrue(citations.isEmpty)
   }
 
   // MARK: - Candidate.isEmpty
