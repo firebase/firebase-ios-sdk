@@ -684,14 +684,9 @@ extension CitationMetadata: Decodable {
   public init(from decoder: any Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
 
-    // Decode for Google API if `citationSources` key is present.
-    let decodedCitations: [Citation]
-    if container.contains(.citationSources) {
-      decodedCitations = try container.decode([Citation].self, forKey: .citationSources)
-    } else { // Fallback to default Vertex AI decoding.
-      decodedCitations = try container.decode([Citation].self, forKey: .citations)
-    }
-    citations = decodedCitations.filter { !$0.isEmpty }
+    let sources = try container.decodeIfPresent([Citation].self, forKey: .citationSources)
+    let vertexCitations = try container.decodeIfPresent([Citation].self, forKey: .citations)
+    citations = (sources ?? vertexCitations ?? []).filter { !$0.isEmpty }
   }
 }
 
