@@ -88,7 +88,7 @@ jobs:
         continue_on_error: true
         command: xcodebuild -downloadPlatform iOS
     - name: Run setup command.
-      run: ${{ inputs.setup_command }}
+      run: ${{ inputs.setup_command }} # zizmor: ignore[template-injection]
     - name: Install Secret GoogleService-Info.plist
       env:
         PLIST_SRC_PATH: ${{ inputs.plist_src_path }}
