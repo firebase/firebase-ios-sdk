@@ -32,6 +32,18 @@ post_install do |installer|
   if !$?.success?
     raise "sync_project.rb failed with status #{$?.exitstatus}"
   end
+
+  # Configure CLANG_CXX_LANGUAGE_STANDARD = c++17 specifically for Abseil targets
+  installer.generated_projects.each do |project|
+    if project.path.basename.to_s.include?("abseil")
+      puts "Configuring C++17 for Abseil project: #{project.path.basename}"
+      project.targets.each do |target|
+        target.build_configurations.each do |config|
+          config.build_settings['CLANG_CXX_LANGUAGE_STANDARD'] = 'c++17'
+        end
+      end
+    end
+  end
 end
 
 # Returns true if the user has explicitly requested local sources or if this is
@@ -99,7 +111,9 @@ if is_platform(:ios)
 
     configure_local_pods()
 
-    pod 'abseil', '~> 1.20240722.0'
+    pod 'abseil', '~> 1.20250512.1'
+    pod 'gRPC-Core', :git => 'https://github.com/grpc/grpc-ios.git', :tag => 'v1.81.1'
+    pod 'gRPC-C++', :git => 'https://github.com/grpc/grpc-ios.git', :tag => 'v1.81.1'
 
     target 'Firestore_Tests_iOS' do
       inherit! :search_paths
@@ -131,11 +145,13 @@ end
 
 if is_platform(:osx)
   target 'Firestore_Example_macOS' do
-    platform :osx, '10.15'
+    platform :osx, '11.0'
 
     configure_local_pods()
 
-    pod 'abseil', '~> 1.20240722.0'
+    pod 'abseil', '~> 1.20250512.1'
+    pod 'gRPC-Core', :git => 'https://github.com/grpc/grpc-ios.git', :tag => 'v1.81.1'
+    pod 'gRPC-C++', :git => 'https://github.com/grpc/grpc-ios.git', :tag => 'v1.81.1'
 
     target 'Firestore_Tests_macOS' do
       inherit! :search_paths
@@ -165,7 +181,9 @@ if is_platform(:tvos)
 
     configure_local_pods()
 
-    pod 'abseil', '~> 1.20240722.0'
+    pod 'abseil', '~> 1.20250512.1'
+    pod 'gRPC-Core', :git => 'https://github.com/grpc/grpc-ios.git', :tag => 'v1.81.1'
+    pod 'gRPC-C++', :git => 'https://github.com/grpc/grpc-ios.git', :tag => 'v1.81.1'
 
     target 'Firestore_Tests_tvOS' do
       inherit! :search_paths

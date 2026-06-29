@@ -1,4 +1,5 @@
 # Unreleased
+- [changed] Drop C++14 support, Firestore SDK now requires at least C++17.
 - [changed] Migrates the network connectivity monitoring implementation for
   Apple platforms from the legacy SCNetworkReachability API to the modern
   NWPathMonitor API.
