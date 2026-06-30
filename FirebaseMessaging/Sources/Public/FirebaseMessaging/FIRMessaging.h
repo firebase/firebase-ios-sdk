@@ -71,7 +71,7 @@ FOUNDATION_EXPORT const NSNotificationName FIRMessagingRegistrationTokenRefreshe
  *  Notification sent when the FCM installation id has been unregistered.
  */
 FOUNDATION_EXPORT const NSNotificationName FIRMessagingInstallationIdUnregisteredNotification
-    NS_SWIFT_NAME(MessagingInstallationIdUnregistered);
+    NS_SWIFT_NAME(messagingInstallationIdUnregistered);
 // clang-format on
 
 /**
