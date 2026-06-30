@@ -1,3 +1,6 @@
+# 12.16.0
+- [added] Add support for the new FCM registration API. (#16133)
+
 # 12.8.0
 - [fixed] Fix missing database crash on launch. (#14880)
 
