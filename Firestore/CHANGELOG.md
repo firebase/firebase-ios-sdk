@@ -1,4 +1,4 @@
-# Unreleased
+# 12.16.0
 - [changed] Migrates the network connectivity monitoring implementation for
   Apple platforms from the legacy SCNetworkReachability API to the modern
   NWPathMonitor API.
