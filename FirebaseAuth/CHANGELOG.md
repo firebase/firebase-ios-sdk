@@ -1,4 +1,4 @@
-# Unreleased
+# 12.16.0
 - [fixed] Refactored the integrated OAuth sign in UI to not rely on
   the deprecated `UIScreen.main.bounds` API for Mac Catalyst rendering.
   (#16274)
