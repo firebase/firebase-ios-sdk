@@ -36,9 +36,9 @@
 @end
 
 @interface RCNConfigExperiment ()
-@property(nonatomic, copy) NSArray *experimentPayloads;
-@property(nonatomic, copy) NSDictionary *experimentMetadata;
-@property(nonatomic, copy) NSArray *activeExperimentPayloads;
+@property(nonatomic, copy) NSArray<NSData *> *experimentPayloads;
+@property(nonatomic, copy) NSDictionary<NSString *, id> *experimentMetadata;
+@property(nonatomic, copy) NSArray<NSData *> *activeExperimentPayloads;
 @property(nonatomic, strong) RCNConfigDBManager *DBManager;
 - (NSTimeInterval)updateExperimentStartTime;
 - (void)loadExperimentFromTable;

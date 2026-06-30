@@ -36,6 +36,8 @@ static NSString *const kMethodNameLatestStartTime =
 @property(nonatomic, strong) RCNConfigDBManager *DBManager;  ///< Database Manager.
 @property(nonatomic, strong) FIRExperimentController *experimentController;
 @property(nonatomic, strong) NSDateFormatter *experimentStartTimeDateFormatter;
+@property(nonatomic, strong)
+    dispatch_queue_t experimentDBQueue;  ///< Serial queue for DB atomicity.
 @end
 
 @implementation RCNConfigExperiment {
@@ -101,6 +103,9 @@ static NSString *const kMethodNameLatestStartTime =
     [_experimentStartTimeDateFormatter
         setLocale:[[NSLocale alloc] initWithLocaleIdentifier:@"en_US_POSIX"]];
     [_experimentStartTimeDateFormatter setTimeZone:[NSTimeZone timeZoneWithAbbreviation:@"UTC"]];
+
+    _experimentDBQueue = dispatch_queue_create("com.google.FirebaseRemoteConfig.ExperimentDBQueue",
+                                               DISPATCH_QUEUE_SERIAL);
 
     _DBManager = DBManager;
     _experimentController = controller;
@@ -196,30 +201,29 @@ static NSString *const kMethodNameLatestStartTime =
     [_experimentPayloads addObjectsFromArray:serializedPayloads];
   }
 
-  [_DBManager deleteExperimentTableForKey:@RCNExperimentTableKeyPayload];
-  for (NSData *JSONPayload in serializedPayloads) {
-    [_DBManager insertExperimentTableWithKey:@RCNExperimentTableKeyPayload
-                                       value:JSONPayload
-                           completionHandler:nil];
-  }
+  dispatch_async(self.experimentDBQueue, ^{
+    [self->_DBManager deleteExperimentTableForKey:@RCNExperimentTableKeyPayload];
+    for (NSData *JSONPayload in serializedPayloads) {
+      [self->_DBManager insertExperimentTableWithKey:@RCNExperimentTableKeyPayload
+                                               value:JSONPayload
+                                   completionHandler:nil];
+    }
+  });
 }
 
 - (void)updateExperimentsWithHandler:(void (^)(NSError *_Nullable))handler {
   FIRLifecycleEvents *lifecycleEvent = [[FIRLifecycleEvents alloc] init];
 
-  // Get the last experiment start time prior to the latest payload.
+  // Capture a consistent snapshot of the current state before processing.
   NSTimeInterval lastStartTime;
+  NSArray<NSData *> *payloadsCopy;
   @synchronized(self) {
     lastStartTime = [_experimentMetadata[kExperimentMetadataKeyLastStartTime] doubleValue];
+    payloadsCopy = [_experimentPayloads copy];
   }
 
   // Update the last experiment start time with the latest payload.
   [self updateExperimentStartTime];
-
-  NSArray<NSData *> *payloadsCopy;
-  @synchronized(self) {
-    payloadsCopy = [_experimentPayloads copy];
-  }
 
   [self.experimentController
       updateExperimentsWithServiceOrigin:kServiceOrigin
@@ -271,9 +275,11 @@ static NSString *const kMethodNameLatestStartTime =
                                       options:NSJSONWritingPrettyPrinted
                                         error:&error];
   if (serializedExperimentMetadata) {
-    [_DBManager insertExperimentTableWithKey:@RCNExperimentTableKeyMetadata
-                                       value:serializedExperimentMetadata
-                           completionHandler:nil];
+    dispatch_async(self.experimentDBQueue, ^{
+      [self->_DBManager insertExperimentTableWithKey:@RCNExperimentTableKeyMetadata
+                                               value:serializedExperimentMetadata
+                                   completionHandler:nil];
+    });
   }
 }
 
@@ -283,12 +289,14 @@ static NSString *const kMethodNameLatestStartTime =
     [_activeExperimentPayloads removeAllObjects];
     [_activeExperimentPayloads addObjectsFromArray:payloads];
   }
-  [_DBManager deleteExperimentTableForKey:@RCNExperimentTableKeyActivePayload];
-  for (NSData *experiment in payloads) {
-    [_DBManager insertExperimentTableWithKey:@RCNExperimentTableKeyActivePayload
-                                       value:experiment
-                           completionHandler:nil];
-  }
+  dispatch_async(self.experimentDBQueue, ^{
+    [self->_DBManager deleteExperimentTableForKey:@RCNExperimentTableKeyActivePayload];
+    for (NSData *experiment in payloads) {
+      [self->_DBManager insertExperimentTableWithKey:@RCNExperimentTableKeyActivePayload
+                                               value:experiment
+                                   completionHandler:nil];
+    }
+  });
 }
 
 - (NSTimeInterval)latestStartTimeWithExistingLastStartTime:(NSTimeInterval)existingLastStartTime {

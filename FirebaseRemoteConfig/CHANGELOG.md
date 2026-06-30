@@ -1,4 +1,4 @@
-# Unreleased
+# 12.16.0
 - [fixed] Fixed a data race condition in `RCNConfigExperiment` when `activate` is called
   concurrently with database loading of experiment payloads. (#16303)
 
