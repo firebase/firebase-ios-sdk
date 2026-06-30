@@ -156,7 +156,7 @@ static NSString *const kMethodNameLatestStartTime =
                                                                      error:&error];
         if (!experimentPayloadJSON || error) {
           FIRLogWarning(kFIRLoggerRemoteConfig, @"I-RCN000031",
-                        @"Activated experiment payload could not be parsed as JSON.");
+                        @"Activated experiment payload could not be parsed as JSON: %@.", error);
         } else {
           [parsedActivePayloads addObject:experiment];
         }
@@ -215,6 +215,17 @@ static NSString *const kMethodNameLatestStartTime =
 }
 
 - (void)updateExperimentsWithHandler:(void (^)(NSError *_Nullable))handler {
+  if (!self.experimentController) {
+    if (handler) {
+      NSError *error = [NSError
+          errorWithDomain:@"com.google.FirebaseRemoteConfig"
+                     code:-1
+                 userInfo:@{NSLocalizedDescriptionKey : @"Experiment controller is unavailable."}];
+      handler(error);
+    }
+    return;
+  }
+
   FIRLifecycleEvents *lifecycleEvent = [[FIRLifecycleEvents alloc] init];
 
   // Capture a consistent snapshot of the current state before processing.
@@ -227,17 +238,6 @@ static NSString *const kMethodNameLatestStartTime =
 
   // Update the last experiment start time with the latest payload.
   [self updateExperimentStartTime];
-
-  if (!self.experimentController) {
-    if (handler) {
-      NSError *error = [NSError
-          errorWithDomain:@"com.google.FirebaseRemoteConfig"
-                     code:-1
-                 userInfo:@{NSLocalizedDescriptionKey : @"Experiment controller is unavailable."}];
-      handler(error);
-    }
-    return;
-  }
 
   [self.experimentController
       updateExperimentsWithServiceOrigin:kServiceOrigin

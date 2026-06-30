@@ -40,7 +40,7 @@
 @property(nonatomic, copy) NSDictionary<NSString *, id> *experimentMetadata;
 @property(nonatomic, copy) NSArray<NSData *> *activeExperimentPayloads;
 @property(nonatomic, strong) RCNConfigDBManager *DBManager;
-- (NSTimeInterval)updateExperimentStartTime;
+- (void)updateExperimentStartTime;
 - (void)loadExperimentFromTable;
 - (void)updateActiveExperimentsInDBWithPayloads:(NSArray<NSData *> *)payloads;
 @end
