@@ -201,12 +201,15 @@ static NSString *const kMethodNameLatestStartTime =
     [_experimentPayloads addObjectsFromArray:serializedPayloads];
   }
 
+  __weak __typeof__(self) weakSelf = self;
   dispatch_async(self.experimentDBQueue, ^{
-    [self->_DBManager deleteExperimentTableForKey:@RCNExperimentTableKeyPayload];
+    __typeof__(self) strongSelf = weakSelf;
+    if (!strongSelf) return;
+    [strongSelf->_DBManager deleteExperimentTableForKey:@RCNExperimentTableKeyPayload];
     for (NSData *JSONPayload in serializedPayloads) {
-      [self->_DBManager insertExperimentTableWithKey:@RCNExperimentTableKeyPayload
-                                               value:JSONPayload
-                                   completionHandler:nil];
+      [strongSelf->_DBManager insertExperimentTableWithKey:@RCNExperimentTableKeyPayload
+                                                     value:JSONPayload
+                                         completionHandler:nil];
     }
   });
 }
@@ -286,10 +289,13 @@ static NSString *const kMethodNameLatestStartTime =
                                       options:NSJSONWritingPrettyPrinted
                                         error:&error];
   if (serializedExperimentMetadata) {
+    __weak __typeof__(self) weakSelf = self;
     dispatch_async(self.experimentDBQueue, ^{
-      [self->_DBManager insertExperimentTableWithKey:@RCNExperimentTableKeyMetadata
-                                               value:serializedExperimentMetadata
-                                   completionHandler:nil];
+      __typeof__(self) strongSelf = weakSelf;
+      if (!strongSelf) return;
+      [strongSelf->_DBManager insertExperimentTableWithKey:@RCNExperimentTableKeyMetadata
+                                                     value:serializedExperimentMetadata
+                                         completionHandler:nil];
     });
   }
 }
@@ -300,12 +306,15 @@ static NSString *const kMethodNameLatestStartTime =
     [_activeExperimentPayloads removeAllObjects];
     [_activeExperimentPayloads addObjectsFromArray:payloads];
   }
+  __weak __typeof__(self) weakSelf = self;
   dispatch_async(self.experimentDBQueue, ^{
-    [self->_DBManager deleteExperimentTableForKey:@RCNExperimentTableKeyActivePayload];
+    __typeof__(self) strongSelf = weakSelf;
+    if (!strongSelf) return;
+    [strongSelf->_DBManager deleteExperimentTableForKey:@RCNExperimentTableKeyActivePayload];
     for (NSData *experiment in payloads) {
-      [self->_DBManager insertExperimentTableWithKey:@RCNExperimentTableKeyActivePayload
-                                               value:experiment
-                                   completionHandler:nil];
+      [strongSelf->_DBManager insertExperimentTableWithKey:@RCNExperimentTableKeyActivePayload
+                                                     value:experiment
+                                         completionHandler:nil];
     }
   });
 }
