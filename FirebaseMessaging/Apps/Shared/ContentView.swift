@@ -149,8 +149,13 @@ struct ContentView: View {
 
   func getFCMToken() {
     if Messaging.messaging().isInstallationIdEnabled {
-      Messaging.messaging().register()
-      log = "Called register()"
+      Messaging.messaging().register { error in
+        if let error = error {
+          self.log = "Failed registering: \(error)"
+          return
+        }
+        self.log = "Successfully registered."
+      }
     } else {
       Messaging.messaging().token { token, error in
         guard let token = token, error == nil else {
@@ -166,8 +171,13 @@ struct ContentView: View {
 
   func deleteFCMToken() {
     if Messaging.messaging().isInstallationIdEnabled {
-      Messaging.messaging().unregister()
-      log = "Called unregister()"
+      Messaging.messaging().unregister { error in
+        if let error = error {
+          self.log = "Failed unregistering: \(error)"
+          return
+        }
+        self.log = "Successfully unregistered."
+      }
     } else {
       Messaging.messaging().deleteToken { error in
         if let error = error as NSError? {
