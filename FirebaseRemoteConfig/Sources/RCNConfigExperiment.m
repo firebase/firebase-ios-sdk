@@ -44,6 +44,7 @@ static NSString *const kMethodNameLatestStartTime =
   NSMutableArray<NSData *> *_experimentPayloads;
   NSMutableDictionary<NSString *, id> *_experimentMetadata;
   NSMutableArray<NSData *> *_activeExperimentPayloads;
+  BOOL _databaseLoadCompleted;
 }
 
 @synthesize experimentPayloads = _experimentPayloads;
@@ -164,16 +165,19 @@ static NSString *const kMethodNameLatestStartTime =
     }
 
     @synchronized(strongSelf) {
-      if (parsedPayloads) {
-        [strongSelf->_experimentPayloads removeAllObjects];
-        [strongSelf->_experimentPayloads addObjectsFromArray:parsedPayloads];
-      }
-      if (parsedMetadata) {
-        strongSelf->_experimentMetadata = parsedMetadata;
-      }
-      if (parsedActivePayloads) {
-        [strongSelf->_activeExperimentPayloads removeAllObjects];
-        [strongSelf->_activeExperimentPayloads addObjectsFromArray:parsedActivePayloads];
+      if (!strongSelf->_databaseLoadCompleted) {
+        if (parsedPayloads) {
+          [strongSelf->_experimentPayloads removeAllObjects];
+          [strongSelf->_experimentPayloads addObjectsFromArray:parsedPayloads];
+        }
+        if (parsedMetadata) {
+          strongSelf->_experimentMetadata = parsedMetadata;
+        }
+        if (parsedActivePayloads) {
+          [strongSelf->_activeExperimentPayloads removeAllObjects];
+          [strongSelf->_activeExperimentPayloads addObjectsFromArray:parsedActivePayloads];
+        }
+        strongSelf->_databaseLoadCompleted = YES;
       }
     }
   };
@@ -183,6 +187,11 @@ static NSString *const kMethodNameLatestStartTime =
 - (void)updateExperimentsWithResponse:(NSArray<NSDictionary<NSString *, id> *> *)response {
   NSMutableArray<NSData *> *serializedPayloads = [[NSMutableArray alloc] init];
   for (NSDictionary<NSString *, id> *experiment in response) {
+    if (![NSJSONSerialization isValidJSONObject:experiment]) {
+      FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000030",
+                  @"Invalid experiment payload to be serialized (not a valid JSON object).");
+      continue;
+    }
     NSError *error;
     NSData *JSONPayload = [NSJSONSerialization dataWithJSONObject:experiment
                                                           options:kNilOptions
@@ -196,6 +205,7 @@ static NSString *const kMethodNameLatestStartTime =
   }
 
   @synchronized(self) {
+    _databaseLoadCompleted = YES;
     // cache fetched experiment payloads.
     [_experimentPayloads removeAllObjects];
     [_experimentPayloads addObjectsFromArray:serializedPayloads];

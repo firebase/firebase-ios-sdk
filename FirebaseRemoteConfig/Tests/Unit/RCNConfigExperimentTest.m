@@ -40,6 +40,7 @@
 @property(nonatomic, copy) NSDictionary<NSString *, id> *experimentMetadata;
 @property(nonatomic, copy) NSArray<NSData *> *activeExperimentPayloads;
 @property(nonatomic, strong) RCNConfigDBManager *DBManager;
+@property(nonatomic, strong) dispatch_queue_t experimentDBQueue;
 - (void)updateExperimentStartTime;
 - (void)loadExperimentFromTable;
 - (void)updateActiveExperimentsInDBWithPayloads:(NSArray<NSData *> *)payloads;
@@ -294,6 +295,11 @@
   dispatch_time_t timeout = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(10 * NSEC_PER_SEC));
   intptr_t result = dispatch_group_wait(group, timeout);
   XCTAssertEqual(result, 0, @"Concurrent access test timed out, possible deadlock.");
+
+  // Flush the serial DB queue to ensure all background operations are completed before the test
+  // finishes.
+  dispatch_sync(experiment.experimentDBQueue, ^{
+                });
 }
 
 #pragma mark Helpers.
