@@ -137,9 +137,6 @@ struct GenerativeAIService {
       continuation.onTermination = { @Sendable _ in
         task.cancel()
       }
-      continuation.onTermination = { _ in
-        task.cancel()
-      }
     }
   }
 
