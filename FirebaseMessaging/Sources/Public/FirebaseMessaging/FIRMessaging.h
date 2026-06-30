@@ -162,16 +162,28 @@ NS_SWIFT_NAME(MessagingDelegate)
     didReceiveRegistrationToken:(nullable NSString *)fcmToken
     NS_SWIFT_NAME(messaging(_:didReceiveRegistrationToken:));
 
-/// This method is similar to `messaging(_:didReceiveRegistrationToken:)` above, but will be called
-/// instead when `isInstallationIdEnabled` is `YES`.
+/// This method will be called once the registration is created or refreshed. When
+/// auto init is enabled, it will be automatically called once per app start, but may be called
+/// more often, if registration is invalidated or updated.
+///
+/// Furthermore, this method also serves as the callback for a direct call to
+/// `registerWithCompletion`. In this method, you should perform operations such as:
+///
+/// * Uploading the FCM token to your application server, so targeted notifications can be sent.
+/// * Subscribing to any topics.
 - (void)messaging:(FIRMessaging *)messaging
     didReceiveRegistration:(nullable NSString *)installationId
     NS_SWIFT_NAME(messaging(_:didReceiveRegistration:));
 
-/// This method will be called once an installation id is unregistered. After this call, the app
-/// will not receive any more notifications until a new installation id is registered.
+/// This method will be called once the unregistration is been successfully unregistered from FCM
+/// via a call to `unregisterWithCompletion`.
 ///
-/// - Note: This method works only when `FirebaseMessaging.isInstallationIdEnabled` is set to `YES`.
+/// <p>This method confirms that the specified FID is no longer active for receiving FCM
+/// messages. In this method, you should consider notifying your backend server about the
+/// unregistration.
+///
+/// @param installationId The Firebase Installation ID of the current app instance that was
+/// unregistered with FCM.
 - (void)messaging:(FIRMessaging *)messaging
     didUnregister:(NSString *)installationId NS_SWIFT_NAME(messaging(_:didUnregister:));
 @end
