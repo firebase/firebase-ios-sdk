@@ -173,7 +173,7 @@ NS_SWIFT_NAME(MessagingDelegate)
 ///
 /// - Note: This method works only when `FirebaseMessaging.isInstallationIdEnabled` is set to `YES`.
 - (void)messaging:(FIRMessaging *)messaging
-    didUnregister:(nonnull NSString *)installationId NS_SWIFT_NAME(messaging(_:didUnregister:));
+    didUnregister:(NSString *)installationId NS_SWIFT_NAME(messaging(_:didUnregister:));
 @end
 
 /**
