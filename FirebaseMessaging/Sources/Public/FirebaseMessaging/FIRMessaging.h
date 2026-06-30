@@ -171,6 +171,9 @@ NS_SWIFT_NAME(MessagingDelegate)
 ///
 /// * Uploading the FCM token to your application server, so targeted notifications can be sent.
 /// * Subscribing to any topics.
+///
+/// @param messaging The Firebase Messaging instance.
+/// @param installationId The Firebase Installation ID of the current app instance.
 - (void)messaging:(FIRMessaging *)messaging
     didReceiveRegistration:(nullable NSString *)installationId
     NS_SWIFT_NAME(messaging(_:didReceiveRegistration:));
@@ -182,6 +185,7 @@ NS_SWIFT_NAME(MessagingDelegate)
 /// messages. In this method, you should consider notifying your backend server about the
 /// unregistration.
 ///
+/// @param messaging The Firebase Messaging instance.
 /// @param installationId The Firebase Installation ID of the current app instance that was
 /// unregistered with FCM.
 - (void)messaging:(FIRMessaging *)messaging
