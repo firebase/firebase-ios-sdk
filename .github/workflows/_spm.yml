@@ -171,7 +171,8 @@ jobs:
         command: xcodebuild -downloadPlatform ${{ matrix.platform }}
     - name: Run setup command, if needed.
       if: inputs.setup_command != ''
-      run: ${{ inputs.setup_command }} # zizmor: ignore[template-injection]
+      # zizmor: ignore[template-injection]
+      run: ${{ inputs.setup_command }}
     - name: Initialize xcodebuild
       run: scripts/setup_spm_tests.sh
     - uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0

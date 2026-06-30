@@ -157,8 +157,8 @@ jobs:
       # This file is used as a template for other workflows, so
       # using a template include here is necessary; however, this
       # means downstream consumers must be careful not to accept user
-      # input into their setup_commands.
-      run: ${{ inputs.setup_command }} # zizmor: ignore[template-injection]
+      # zizmor: ignore[template-injection]
+      run: ${{ inputs.setup_command }}
     - name: Build
       uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
       with:
