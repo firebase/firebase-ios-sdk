@@ -528,17 +528,60 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
   id mockDelegate = OCMProtocolMock(@protocol(FIRMessagingDelegate));
   self.messaging.delegate = mockDelegate;
 
-  XCTestExpectation *expectation =
+  XCTestExpectation *delegateExpectation =
       [self expectationWithDescription:@"Delegate received unregister notification."];
   OCMStub([mockDelegate messaging:OCMOCK_ANY didUnregister:OCMOCK_ANY])
       .andDo(^(NSInvocation *invocation) {
         __unsafe_unretained NSString *installationId;
         [invocation getArgument:&installationId atIndex:3];
         XCTAssertEqualObjects(installationId, @"fake-fid");
-        [expectation fulfill];
+        [delegateExpectation fulfill];
       });
 
-  [self.messaging unregister];
+  XCTestExpectation *completionExpectation =
+      [self expectationWithDescription:@"Unregister completion called."];
+  [self.messaging unregisterWithCompletion:^(NSError *error) {
+    XCTAssertNil(error);
+    [completionExpectation fulfill];
+  }];
+
+  [self waitForExpectationsWithTimeout:30.0 handler:nil];
+}
+
+- (void)testUnregisterWithCompletionFailsWhenInstallationIdDisabled {
+  self.bundleMock = OCMPartialMock([NSBundle mainBundle]);
+  // FirebaseMessaging.isInstallationIdEnabled should return NO.
+  OCMStub([self.bundleMock objectForInfoDictionaryKey:kFIRMessagingPlistInstallationIdEnabled])
+      .andReturn(@NO);
+
+  XCTestExpectation *completionExpectation =
+      [self expectationWithDescription:@"Unregister completion called."];
+  [self.messaging unregisterWithCompletion:^(NSError *error) {
+    XCTAssertNotNil(error);
+    XCTAssertEqual(error.code, kFIRMessagingErrorCodeInvalidRequest);
+    [completionExpectation fulfill];
+  }];
+
+  [self waitForExpectationsWithTimeout:30.0 handler:nil];
+}
+
+- (void)testUnregisterWithCompletionFailsWhenSenderIDMissing {
+  self.bundleMock = OCMPartialMock([NSBundle mainBundle]);
+  // FirebaseMessaging.isInstallationIdEnabled should return YES.
+  OCMStub([self.bundleMock objectForInfoDictionaryKey:kFIRMessagingPlistInstallationIdEnabled])
+      .andReturn(@YES);
+
+  id mockOptions = OCMClassMock([FIROptions class]);
+  OCMStub([mockOptions GCMSenderID]).andReturn(nil);
+  OCMStub([(FIRApp *)self.mockFirebaseApp options]).andReturn(mockOptions);
+
+  XCTestExpectation *completionExpectation =
+      [self expectationWithDescription:@"Unregister completion called."];
+  [self.messaging unregisterWithCompletion:^(NSError *error) {
+    XCTAssertNotNil(error);
+    XCTAssertEqual(error.code, kFIRMessagingErrorCodeMissingAuthorizedEntity);
+    [completionExpectation fulfill];
+  }];
 
   [self waitForExpectationsWithTimeout:30.0 handler:nil];
 }

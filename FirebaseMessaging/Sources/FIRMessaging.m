@@ -784,6 +784,19 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
     return;
   }
 
+  __block BOOL completionCalled = NO;
+  void (^safeCompletion)(NSError *_Nullable) = ^(NSError *_Nullable error) {
+    @synchronized(self) {
+      if (completionCalled) {
+        return;
+      }
+      completionCalled = YES;
+    }
+    if (completion) {
+      completion(error);
+    }
+  };
+
   NSString *cachedToken = self.tokenManager.defaultFCMToken;
   if (!cachedToken.length) {
     FIRMessagingTokenInfo *cachedTokenInfo =
@@ -796,35 +809,55 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
     // We always want to notify the delegate of the FID. If the FID is available now we notify
     // immediately.
     [self notifyDelegateOfFCMTokenAvailability];
-    if (completion) {
-      dispatch_async(dispatch_get_main_queue(), ^{
-        completion(nil);
-      });
-    }
+    dispatch_async(dispatch_get_main_queue(), ^{
+      safeCompletion(nil);
+    });
     return;
   }
 
   [self retrieveTokenOrFidForSenderID:senderID
                            completion:^(NSString *_Nullable FCMToken, NSError *_Nullable error) {
-                             if (completion) {
-                               completion(error);
-                             }
+                             safeCompletion(error);
                            }];
 }
 
-- (void)unregister {
+- (void)unregisterWithCompletion:(void (^)(NSError *_Nullable error))completion {
   if (!self.isInstallationIdEnabled) {
-    FIRMessagingLoggerError(kFIRMessagingMessageCodeInstallationIdDisabled,
-                            @"FirebaseMessagingInstallationIdEnabled is not set to YES, so "
-                            @"FID operations are not supported.");
+    NSString *description = @"FirebaseMessagingInstallationIdEnabled is not set to YES, so "
+                            @"FID operations are not supported.";
+    FIRMessagingLoggerError(kFIRMessagingMessageCodeInstallationIdDisabled, @"%@", description);
+    if (completion) {
+      NSError *error = [NSError messagingErrorWithCode:kFIRMessagingErrorCodeInvalidRequest
+                                         failureReason:description];
+      completion(error);
+    }
     return;
   }
   NSString *senderID = FIRApp.defaultApp.options.GCMSenderID;
   if (!senderID.length) {
-    FIRMessagingLoggerError(kFIRMessagingMessageCodeSenderIDNotSuppliedForTokenDelete,
-                            @"No Sender ID is available to unregister");
+    NSString *description = @"No Sender ID is available to unregister";
+    FIRMessagingLoggerError(kFIRMessagingMessageCodeSenderIDNotSuppliedForTokenDelete, @"%@",
+                            description);
+    if (completion) {
+      NSError *error = [NSError messagingErrorWithCode:kFIRMessagingErrorCodeMissingAuthorizedEntity
+                                         failureReason:description];
+      completion(error);
+    }
     return;
   }
+
+  __block BOOL completionCalled = NO;
+  void (^safeCompletion)(NSError *_Nullable) = ^(NSError *_Nullable error) {
+    @synchronized(self) {
+      if (completionCalled) {
+        return;
+      }
+      completionCalled = YES;
+    }
+    if (completion) {
+      completion(error);
+    }
+  };
 
   FIRMessaging_WEAKIFY(self);
   [self.installations
@@ -833,6 +866,11 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
         if (error || !identifier.length) {
           FIRMessagingLoggerError(kFIRMessagingMessageCodeTokenOperationInstallationIdNotAvailable,
                                   @"Failed to get installation ID.");
+          NSError *installationsError =
+              error
+                  ?: [NSError messagingErrorWithCode:kFIRMessagingErrorCodeMissingFid
+                                       failureReason:@"Failed to get installation ID."];
+          safeCompletion(installationsError);
         } else {
           [self.tokenManager
               deleteTokenWithAuthorizedEntity:senderID
@@ -842,6 +880,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
                                         if (!error) {
                                           [self notifyInstallationIdUnregistered:identifier];
                                         }
+                                        safeCompletion(error);
                                       }];
         }
       }];

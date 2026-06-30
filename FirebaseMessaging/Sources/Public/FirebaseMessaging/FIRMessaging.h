@@ -373,11 +373,21 @@ NS_SWIFT_NAME(Messaging)
 - (void)registerWithCompletion:(void (^)(NSError *_Nullable error))completion;
 
 /**
- * Asynchronously unregisters from the FCM backend.
+ * Asynchronously unregisters the Firebase app instance with FCM.
  *
- * This method works only when `FirebaseMessaging.isInstallationIdEnabled` is set to `YES`.
+ * <p>Upon completion, the delegate method `messaging(_:didUnregister:)` in your Messaging
+ * delegate is triggered. Afterwards, any attempt to send FCM messages using the current
+ * Firebase installation ID will result in a 404 error.
+ *
+ * <p>Note that if auto-init is enabled, the app instance will be re-registered the next
+ * time the app is started. Disable auto-init (`Messaging.isAutoInitEnabled`) to avoid this.
+ *
+ * <p>Note that this does not delete the Firebase Installations ID that may have been
+ * created during registration. To delete the FID, see `Installations.delete(completion:)`.
+ *
+ * @param completion The completion handler to handle the unregistration.
  */
-- (void)unregister;
+- (void)unregisterWithCompletion:(void (^)(NSError *_Nullable error))completion;
 
 #pragma mark - Topics
 
