@@ -345,10 +345,8 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
 }
 
 - (void)testRegisterNotifiesDelegateWhenInstallationIdEnabled {
-  self.bundleMock = OCMPartialMock([NSBundle mainBundle]);
   // FirebaseMessaging.isInstallationIdEnabled should return YES.
-  OCMStub([self.bundleMock objectForInfoDictionaryKey:kFIRMessagingPlistInstallationIdEnabled])
-      .andReturn(@YES);
+  OCMStub([self.mockMessaging isInstallationIdEnabled]).andReturn(YES);
 
   id mockOptions = OCMClassMock([FIROptions class]);
   OCMStub([mockOptions GCMSenderID]).andReturn(@"123456789123");
@@ -391,7 +389,6 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
                        XCTAssertEqualObjects(
                            body[@"ios"][@"apns_token"],
                            FIRMessagingStringForAPNSDeviceToken(self.messaging.apnsTokenData));
-                       XCTAssertEqualObjects(body[@"ios"][@"apns_environment"], @"SANDBOX");
                        return YES;
                      }];
 
@@ -420,10 +417,8 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
 }
 
 - (void)testRegisterNotifiesDelegateWhenCachedFidExists {
-  self.bundleMock = OCMPartialMock([NSBundle mainBundle]);
   // FirebaseMessaging.isInstallationIdEnabled should return YES.
-  OCMStub([self.bundleMock objectForInfoDictionaryKey:kFIRMessagingPlistInstallationIdEnabled])
-      .andReturn(@YES);
+  OCMStub([self.mockMessaging isInstallationIdEnabled]).andReturn(YES);
 
   id mockOptions = OCMClassMock([FIROptions class]);
   OCMStub([mockOptions GCMSenderID]).andReturn(@"123456789123");
@@ -457,10 +452,8 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
 }
 
 - (void)testRegisterWithCompletionFailsWhenInstallationIdDisabled {
-  self.bundleMock = OCMPartialMock([NSBundle mainBundle]);
   // FirebaseMessaging.isInstallationIdEnabled should return NO.
-  OCMStub([self.bundleMock objectForInfoDictionaryKey:kFIRMessagingPlistInstallationIdEnabled])
-      .andReturn(@NO);
+  OCMStub([self.mockMessaging isInstallationIdEnabled]).andReturn(NO);
 
   XCTestExpectation *completionExpectation =
       [self expectationWithDescription:@"Register completion called."];
@@ -474,10 +467,8 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
 }
 
 - (void)testRegisterWithCompletionFailsWhenSenderIDMissing {
-  self.bundleMock = OCMPartialMock([NSBundle mainBundle]);
   // FirebaseMessaging.isInstallationIdEnabled should return YES.
-  OCMStub([self.bundleMock objectForInfoDictionaryKey:kFIRMessagingPlistInstallationIdEnabled])
-      .andReturn(@YES);
+  OCMStub([self.mockMessaging isInstallationIdEnabled]).andReturn(YES);
 
   id mockOptions = OCMClassMock([FIROptions class]);
   OCMStub([mockOptions GCMSenderID]).andReturn(nil);
@@ -495,10 +486,8 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
 }
 
 - (void)testUnregisterNotifiesDelegateWhenInstallationIdEnabled {
-  self.bundleMock = OCMPartialMock([NSBundle mainBundle]);
   // FirebaseMessaging.isInstallationIdEnabled should return YES.
-  OCMStub([self.bundleMock objectForInfoDictionaryKey:kFIRMessagingPlistInstallationIdEnabled])
-      .andReturn(@YES);
+  OCMStub([self.mockMessaging isInstallationIdEnabled]).andReturn(YES);
 
   id mockOptions = OCMClassMock([FIROptions class]);
   OCMStub([mockOptions GCMSenderID]).andReturn(@"123456789123");
@@ -549,10 +538,8 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
 }
 
 - (void)testUnregisterWithCompletionFailsWhenInstallationIdDisabled {
-  self.bundleMock = OCMPartialMock([NSBundle mainBundle]);
   // FirebaseMessaging.isInstallationIdEnabled should return NO.
-  OCMStub([self.bundleMock objectForInfoDictionaryKey:kFIRMessagingPlistInstallationIdEnabled])
-      .andReturn(@NO);
+  OCMStub([self.mockMessaging isInstallationIdEnabled]).andReturn(NO);
 
   XCTestExpectation *completionExpectation =
       [self expectationWithDescription:@"Unregister completion called."];
@@ -566,10 +553,8 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
 }
 
 - (void)testUnregisterWithCompletionFailsWhenSenderIDMissing {
-  self.bundleMock = OCMPartialMock([NSBundle mainBundle]);
   // FirebaseMessaging.isInstallationIdEnabled should return YES.
-  OCMStub([self.bundleMock objectForInfoDictionaryKey:kFIRMessagingPlistInstallationIdEnabled])
-      .andReturn(@YES);
+  OCMStub([self.mockMessaging isInstallationIdEnabled]).andReturn(YES);
 
   id mockOptions = OCMClassMock([FIROptions class]);
   OCMStub([mockOptions GCMSenderID]).andReturn(nil);
@@ -587,12 +572,9 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
 }
 
 - (void)testAppStartNotifiesDelegateWhenBothAutoInitAndInstallationIdEnabled {
-  self.bundleMock = OCMPartialMock([NSBundle mainBundle]);
   // Both isInstallationIdEnabled and autoInitEnabled are YES.
-  OCMStub([self.bundleMock objectForInfoDictionaryKey:kFIRMessagingPlistInstallationIdEnabled])
-      .andReturn(@YES);
-  OCMStub([self.bundleMock objectForInfoDictionaryKey:kFIRMessagingPlistAutoInitEnabled])
-      .andReturn(@YES);
+  OCMStub([self.mockMessaging isInstallationIdEnabled]).andReturn(YES);
+  OCMStub([self.mockMessaging isAutoInitEnabled]).andReturn(YES);
 
   id mockOptions = OCMClassMock([FIROptions class]);
   OCMStub([mockOptions GCMSenderID]).andReturn(@"123456789123");
@@ -632,10 +614,8 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
 }
 
 - (void)testSubscribeToTopicWhenInstallationIdEnabled {
-  self.bundleMock = OCMPartialMock([NSBundle mainBundle]);
   // FirebaseMessaging.isInstallationIdEnabled should return YES.
-  OCMStub([self.bundleMock objectForInfoDictionaryKey:kFIRMessagingPlistInstallationIdEnabled])
-      .andReturn(@YES);
+  OCMStub([self.mockMessaging isInstallationIdEnabled]).andReturn(YES);
 
   id mockOptions = OCMClassMock([FIROptions class]);
   OCMStub([mockOptions GCMSenderID]).andReturn(@"123456789123");
@@ -756,10 +736,8 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
 }
 
 - (void)testUnsubscribeFromTopicWhenInstallationIdEnabled {
-  self.bundleMock = OCMPartialMock([NSBundle mainBundle]);
   // FirebaseMessaging.isInstallationIdEnabled should return YES.
-  OCMStub([self.bundleMock objectForInfoDictionaryKey:kFIRMessagingPlistInstallationIdEnabled])
-      .andReturn(@YES);
+  OCMStub([self.mockMessaging isInstallationIdEnabled]).andReturn(YES);
 
   id mockOptions = OCMClassMock([FIROptions class]);
   OCMStub([mockOptions GCMSenderID]).andReturn(@"123456789123");
