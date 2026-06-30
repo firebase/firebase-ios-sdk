@@ -178,7 +178,7 @@ NS_SWIFT_NAME(MessagingDelegate)
 /// This method will be called once the unregistration is been successfully unregistered from FCM
 /// via a call to `unregisterWithCompletion`.
 ///
-/// <p>This method confirms that the specified FID is no longer active for receiving FCM
+/// This method confirms that the specified FID is no longer active for receiving FCM
 /// messages. In this method, you should consider notifying your backend server about the
 /// unregistration.
 ///
@@ -366,16 +366,16 @@ NS_SWIFT_NAME(Messaging)
 /**
  * Asynchronously registers the Firebase app instance with FCM.
  *
- * <p>This process ensures the FCM backend is aware of the app instance, linking it to
+ * This process ensures the FCM backend is aware of the app instance, linking it to
  * its Firebase Installation ID (FID). The FID can then be used to target
  * this app instance for notifications.
  *
- * <p>Upon completion, the delegate method `messaging(_:didReceiveRegistration:)` in your
+ * Upon completion, the delegate method `messaging(_:didReceiveRegistration:)` in your
  * Messaging delegate will be called to provide the Firebase Installation ID (FID). Calling
  * this method when already registered will still invoke the delegate method
  * `messaging(_:didReceiveRegistration:)` with the existing FID.
  *
- * <p>This creates a Firebase Installations ID, if one does not exist, and sends information
+ * This creates a Firebase Installations ID, if one does not exist, and sends information
  * about the application and the device to the FCM backend. A network connection is required
  * for the method to succeed. To stop this, see `Messaging.isAutoInitEnabled`
  * and `Installations.delete(completion:)`.
@@ -387,14 +387,14 @@ NS_SWIFT_NAME(Messaging)
 /**
  * Asynchronously unregisters the Firebase app instance with FCM.
  *
- * <p>Upon completion, the delegate method `messaging(_:didUnregister:)` in your Messaging
+ * Upon completion, the delegate method `messaging(_:didUnregister:)` in your Messaging
  * delegate is triggered. Afterwards, any attempt to send FCM messages using the current
  * Firebase installation ID will result in a 404 error.
  *
- * <p>Note that if auto-init is enabled, the app instance will be re-registered the next
+ * Note that if auto-init is enabled, the app instance will be re-registered the next
  * time the app is started. Disable auto-init (`Messaging.isAutoInitEnabled`) to avoid this.
  *
- * <p>Note that this does not delete the Firebase Installations ID that may have been
+ * Note that this does not delete the Firebase Installations ID that may have been
  * created during registration. To delete the FID, see `Installations.delete(completion:)`.
  *
  * @param completion The completion handler to handle the unregistration.
