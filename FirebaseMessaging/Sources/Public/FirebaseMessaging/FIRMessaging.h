@@ -277,7 +277,13 @@ NS_SWIFT_NAME(Messaging)
  * Is Firebase Messaging registration via Firebase installation ID enabled? It's the
  * `FirebaseMessagingInstallationIdEnabled` property in `Info.plist` file. The default value is
  * `NO`.
+ * Whether Firebase Messaging registration via Firebase installation ID is enabled. 
  *
+ * This can be set using the `FirebaseMessagingInstallationIdEnabled` property in
+ * the app's `Info.plist` file.
+ * 
+ * The default value is `NO`. To enable, set to `YES`.
+ 
  * When enabled, there are several behavior changes:
  *
  *    1. An FCM registration token is no longer generated. Instead, the app instance is registered
