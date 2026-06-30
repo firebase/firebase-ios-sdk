@@ -301,17 +301,18 @@ static NSString *const kMethodNameLatestStartTime =
 }
 
 - (void)updateActiveExperimentsInDBWithPayloads:(NSArray<NSData *> *)payloads {
+  NSArray<NSData *> *payloadsCopy = [payloads copy] ?: @[];
   @synchronized(self) {
     /// Put current fetched experiment payloads into activated experiment DB.
     [_activeExperimentPayloads removeAllObjects];
-    [_activeExperimentPayloads addObjectsFromArray:payloads];
+    [_activeExperimentPayloads addObjectsFromArray:payloadsCopy];
   }
   __weak __typeof__(self) weakSelf = self;
   dispatch_async(self.experimentDBQueue, ^{
     __typeof__(self) strongSelf = weakSelf;
     if (!strongSelf) return;
     [strongSelf->_DBManager deleteExperimentTableForKey:@RCNExperimentTableKeyActivePayload];
-    for (NSData *experiment in payloads) {
+    for (NSData *experiment in payloadsCopy) {
       [strongSelf->_DBManager insertExperimentTableWithKey:@RCNExperimentTableKeyActivePayload
                                                      value:experiment
                                          completionHandler:nil];
