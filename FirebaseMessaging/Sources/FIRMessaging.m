@@ -759,25 +759,57 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
               }];
 }
 
-- (void)register {
+- (void)registerWithCompletion:(void (^)(NSError *_Nullable error))completion {
   if (!self.isInstallationIdEnabled) {
-    FIRMessagingLoggerError(kFIRMessagingMessageCodeInstallationIdDisabled,
-                            @"FirebaseMessagingInstallationIdEnabled is not set to YES, so "
-                            @"FID operations are not supported.");
+    NSString *description = @"FirebaseMessagingInstallationIdEnabled is not set to YES, so "
+                            @"FID operations are not supported.";
+    FIRMessagingLoggerError(kFIRMessagingMessageCodeInstallationIdDisabled, @"%@", description);
+    if (completion) {
+      NSError *error = [NSError messagingErrorWithCode:kFIRMessagingErrorCodeInvalidRequest
+                                         failureReason:description];
+      completion(error);
+    }
     return;
   }
-  if (!FIRApp.defaultApp.options.GCMSenderID.length) {
-    FIRMessagingLoggerError(kFIRMessagingMessageCodeSenderIDNotSuppliedForTokenFetch,
-                            @"No Sender ID is available to register");
+  NSString *senderID = FIRApp.defaultApp.options.GCMSenderID;
+  if (!senderID.length) {
+    NSString *description = @"No Sender ID is available to register";
+    FIRMessagingLoggerError(kFIRMessagingMessageCodeSenderIDNotSuppliedForTokenFetch, @"%@",
+                            description);
+    if (completion) {
+      NSError *error = [NSError messagingErrorWithCode:kFIRMessagingErrorCodeMissingAuthorizedEntity
+                                         failureReason:description];
+      completion(error);
+    }
     return;
   }
-  NSString *fid = [self.tokenManager tokenAndRequestIfNotExist];
-  if (fid.length > 0) {
+
+  NSString *cachedToken = self.tokenManager.defaultFCMToken;
+  if (!cachedToken.length) {
+    FIRMessagingTokenInfo *cachedTokenInfo =
+        [self.tokenManager cachedTokenInfoWithAuthorizedEntity:senderID
+                                                         scope:kFIRMessagingDefaultTokenScope];
+    cachedToken = cachedTokenInfo.token;
+  }
+
+  if (cachedToken.length > 0) {
     // We always want to notify the delegate of the FID. If the FID is available now we notify
-    // immediately, otherwise we will notify once the FID is available inside
-    // |tokenAndRequestIfNotExist|.
+    // immediately.
     [self notifyDelegateOfFCMTokenAvailability];
+    if (completion) {
+      dispatch_async(dispatch_get_main_queue(), ^{
+        completion(nil);
+      });
+    }
+    return;
   }
+
+  [self retrieveTokenOrFidForSenderID:senderID
+                           completion:^(NSString *_Nullable FCMToken, NSError *_Nullable error) {
+                             if (completion) {
+                               completion(error);
+                             }
+                           }];
 }
 
 - (void)unregister {

@@ -24,6 +24,7 @@
 #import "FirebaseMessaging/Sources/FIRMessagingTopicOperation.h"
 #import "FirebaseMessaging/Sources/FIRMessagingUtilities.h"
 #import "FirebaseMessaging/Sources/FIRMessaging_Private.h"
+#import "FirebaseMessaging/Sources/NSError+FIRMessaging.h"
 #import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessaging.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingAPNSInfo.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingFIDRegisterOperation.h"
@@ -398,17 +399,22 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
   id mockDelegate = OCMProtocolMock(@protocol(FIRMessagingDelegate));
   self.messaging.delegate = mockDelegate;
 
-  XCTestExpectation *expectation =
+  XCTestExpectation *delegateExpectation =
       [self expectationWithDescription:@"Delegate received registration notification."];
   OCMStub([mockDelegate messaging:OCMOCK_ANY didReceiveRegistration:OCMOCK_ANY])
       .andDo(^(NSInvocation *invocation) {
         __unsafe_unretained NSString *installationId;
         [invocation getArgument:&installationId atIndex:3];
         XCTAssertEqualObjects(installationId, @"fake-fid");
-        [expectation fulfill];
+        [delegateExpectation fulfill];
       });
 
-  [self.messaging register];
+  XCTestExpectation *completionExpectation =
+      [self expectationWithDescription:@"Register completion called."];
+  [self.messaging registerWithCompletion:^(NSError *error) {
+    XCTAssertNil(error);
+    [completionExpectation fulfill];
+  }];
 
   [self waitForExpectationsWithTimeout:30.0 handler:nil];
 }
@@ -430,17 +436,60 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
   id mockDelegate = OCMProtocolMock(@protocol(FIRMessagingDelegate));
   self.messaging.delegate = mockDelegate;
 
-  XCTestExpectation *expectation =
+  XCTestExpectation *delegateExpectation =
       [self expectationWithDescription:@"Delegate received registration notification."];
   OCMStub([mockDelegate messaging:OCMOCK_ANY didReceiveRegistration:OCMOCK_ANY])
       .andDo(^(NSInvocation *invocation) {
         __unsafe_unretained NSString *installationId;
         [invocation getArgument:&installationId atIndex:3];
         XCTAssertEqualObjects(installationId, @"fake-cached-fid");
-        [expectation fulfill];
+        [delegateExpectation fulfill];
       });
 
-  [self.messaging register];
+  XCTestExpectation *completionExpectation =
+      [self expectationWithDescription:@"Register completion called."];
+  [self.messaging registerWithCompletion:^(NSError *error) {
+    XCTAssertNil(error);
+    [completionExpectation fulfill];
+  }];
+
+  [self waitForExpectationsWithTimeout:30.0 handler:nil];
+}
+
+- (void)testRegisterWithCompletionFailsWhenInstallationIdDisabled {
+  self.bundleMock = OCMPartialMock([NSBundle mainBundle]);
+  // FirebaseMessaging.isInstallationIdEnabled should return NO.
+  OCMStub([self.bundleMock objectForInfoDictionaryKey:kFIRMessagingPlistInstallationIdEnabled])
+      .andReturn(@NO);
+
+  XCTestExpectation *completionExpectation =
+      [self expectationWithDescription:@"Register completion called."];
+  [self.messaging registerWithCompletion:^(NSError *error) {
+    XCTAssertNotNil(error);
+    XCTAssertEqual(error.code, kFIRMessagingErrorCodeInvalidRequest);
+    [completionExpectation fulfill];
+  }];
+
+  [self waitForExpectationsWithTimeout:30.0 handler:nil];
+}
+
+- (void)testRegisterWithCompletionFailsWhenSenderIDMissing {
+  self.bundleMock = OCMPartialMock([NSBundle mainBundle]);
+  // FirebaseMessaging.isInstallationIdEnabled should return YES.
+  OCMStub([self.bundleMock objectForInfoDictionaryKey:kFIRMessagingPlistInstallationIdEnabled])
+      .andReturn(@YES);
+
+  id mockOptions = OCMClassMock([FIROptions class]);
+  OCMStub([mockOptions GCMSenderID]).andReturn(nil);
+  OCMStub([(FIRApp *)self.mockFirebaseApp options]).andReturn(mockOptions);
+
+  XCTestExpectation *completionExpectation =
+      [self expectationWithDescription:@"Register completion called."];
+  [self.messaging registerWithCompletion:^(NSError *error) {
+    XCTAssertNotNil(error);
+    XCTAssertEqual(error.code, kFIRMessagingErrorCodeMissingAuthorizedEntity);
+    [completionExpectation fulfill];
+  }];
 
   [self waitForExpectationsWithTimeout:30.0 handler:nil];
 }

@@ -352,15 +352,25 @@ NS_SWIFT_NAME(Messaging)
 #pragma mark - FID
 
 /**
- * Asynchronously registers to the FCM backend.
+ * Asynchronously registers the Firebase app instance with FCM.
  *
- * Please use the FIRMessaging delegate method
- * `messaging:didReceiveRegistration:` to receive the registered FID. The FID can be used to send
- * messages to this app instance.
+ * <p>This process ensures the FCM backend is aware of the app instance, linking it to
+ * its Firebase Installation ID (FID). The FID can then be used to target
+ * this app instance for notifications.
  *
- * This method works only when `FirebaseMessaging.isInstallationIdEnabled` is set to `YES`.
+ * <p>Upon completion, the delegate method `messaging(_:didReceiveRegistration:)` in your
+ * Messaging delegate will be called to provide the Firebase Installation ID (FID). Calling
+ * this method when already registered will still invoke the delegate method
+ * `messaging(_:didReceiveRegistration:)` with the existing FID.
+ *
+ * <p>This creates a Firebase Installations ID, if one does not exist, and sends information
+ * about the application and the device to the FCM backend. A network connection is required
+ * for the method to succeed. To stop this, see `Messaging.isAutoInitEnabled`
+ * and `Installations.delete(completion:)`.
+ *
+ * @param completion The completion handler to handle the registration request.
  */
-- (void)register;
+- (void)registerWithCompletion:(void (^)(NSError *_Nullable error))completion;
 
 /**
  * Asynchronously unregisters from the FCM backend.
