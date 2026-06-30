@@ -15,13 +15,13 @@
 #if compiler(>=6.2.3)
   /// A type that represents a large language model (LLM).
   public protocol LanguageModelProvider: Sendable {
-    /// Returns an instance of the ``LanguageModel`` corresponding to this provider.
+    /// Returns an instance of the ``FirebaseAI/LanguageModel`` corresponding to this provider.
     ///
     /// > Important: This method is for **internal use only** and may change at any time.
     ///
     /// - Parameter firebaseAI: A ``FirebaseAI`` instance that provides necessary context for
     ///   instantiating the model, such as the API configuration.
-    func _languageModel(firebaseAI: FirebaseAI) -> any LanguageModel
+    func _languageModel(firebaseAI: FirebaseAI) -> any FirebaseAI.LanguageModel
   }
 
   public extension LanguageModelProvider where Self == GeminiModelProvider {
@@ -57,9 +57,11 @@
     /// [documentation](https://developer.apple.com/documentation/foundationmodels/systemlanguagemodel/init(usecase:guardrails:)).
     ///
     /// - Parameters:
-    ///   - useCase: The ``UseCase`` that the model is tuned for; defaults to ``UseCase/general``.
-    ///   - guardrails: The ``Guardrails`` that configure how the model handles potentially harmful
-    ///     content; defaults to ``Guardrails/default``.
+    ///   - useCase: The ``FirebaseAI/SystemLanguageModel/UseCase`` that the model is tuned for;
+    ///     defaults to ``FirebaseAI/SystemLanguageModel/UseCase/general``.
+    ///   - guardrails: The ``FirebaseAI/SystemLanguageModel/Guardrails`` that configure how the
+    ///     model handles potentially harmful content; defaults to
+    ///     ``FirebaseAI/SystemLanguageModel/Guardrails/default``.
     static func systemModel(useCase: FirebaseAI.SystemLanguageModel.UseCase = .general,
                             guardrails: FirebaseAI.SystemLanguageModel.Guardrails = .default)
       -> FirebaseAI.SystemLanguageModel {
@@ -85,7 +87,7 @@
   // `FirebaseAI.generativeModelSession(model:tools:instructions:)` method where `model` was a
   // simple `String` containing a Gemini model name.
   extension String: LanguageModelProvider {
-    public func _languageModel(firebaseAI: FirebaseAI) -> any LanguageModel {
+    public func _languageModel(firebaseAI: FirebaseAI) -> any FirebaseAI.LanguageModel {
       return firebaseAI.geminiModel(name: self)
     }
   }

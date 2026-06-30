@@ -365,10 +365,10 @@ public final class GenerativeModel: Sendable {
           }
         } catch {
           continuation.finish(throwing: GenerativeModel.generateContentError(from: error))
-          return
         }
       }
-      continuation.onTermination = { _ in
+
+      continuation.onTermination = { @Sendable _ in
         task.cancel()
       }
     }

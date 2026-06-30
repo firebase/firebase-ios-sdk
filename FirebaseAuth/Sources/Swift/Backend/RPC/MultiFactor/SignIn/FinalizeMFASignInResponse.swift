@@ -14,7 +14,6 @@
 
 import Foundation
 
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 struct FinalizeMFASignInResponse: AuthRPCResponse {
   var IDToken: String?
   var refreshToken: String?

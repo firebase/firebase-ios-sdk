@@ -152,7 +152,7 @@ jobs:
     - name: Setup cmake
       uses: jwlawson/actions-setup-cmake@802fa1a2c4e212495c05bf94dba2704a92a472be
       with:
-        cmake-version: '3.31.1'
+        cmake-version: '3.31.2'
 
     - name: Setup build
       run: scripts/install_prereqs.sh Firestore ${{ runner.os }} cmake
@@ -198,7 +198,7 @@ jobs:
     - name: Setup cmake
       uses: jwlawson/actions-setup-cmake@802fa1a2c4e212495c05bf94dba2704a92a472be
       with:
-        cmake-version: '3.31.1'
+        cmake-version: '3.31.2'
 
     - name: Setup build
       run: scripts/install_prereqs.sh Firestore ${{ runner.os }} cmake
@@ -249,7 +249,7 @@ jobs:
     - name: Setup cmake
       uses: jwlawson/actions-setup-cmake@802fa1a2c4e212495c05bf94dba2704a92a472be
       with:
-        cmake-version: '3.31.1'
+        cmake-version: '3.31.2'
 
     - name: Setup build
       run: scripts/install_prereqs.sh Firestore ${{ runner.os }} cmake
@@ -279,7 +279,7 @@ jobs:
     steps:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
-      - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
+      - uses: ruby/setup-ruby@89f90524b88a01fe6e0b732220432cc6142926af # v1.313.0
 
       - name: Install Secret GoogleService-Info.plist for prod
         run: |
@@ -291,7 +291,7 @@ jobs:
 
       - name: Install simulators in case they are missing.
         if: matrix.target != 'macOS'
-        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
+        uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
         with:
           timeout_minutes: 15
           max_attempts: 5
@@ -311,13 +311,19 @@ jobs:
         run: scripts/install_prereqs.sh Firestore ${{ matrix.target }} xcodebuild
 
       - name: Build
-        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
+        uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
         with:
           timeout_minutes: 60
           command: scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodebuild
 
       - name: Test
         run: scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodetest
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        if: ${{ failure() }}
+        with:
+          name: xcresults-${{ matrix.target }}-${{ matrix.scheme }}
+          path: xcresults/*
+          if-no-files-found: error
 
   xcodetest_nightly:
     needs: check
@@ -338,7 +344,7 @@ jobs:
     steps:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
-      - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
+      - uses: ruby/setup-ruby@89f90524b88a01fe6e0b732220432cc6142926af # v1.313.0
 
       - name: Install Secret GoogleService-Info.plist for nightly
         run: |
@@ -350,7 +356,7 @@ jobs:
 
       - name: Install simulators in case they are missing.
         if: matrix.target != 'macOS'
-        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
+        uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
         with:
           timeout_minutes: 15
           max_attempts: 5
@@ -383,13 +389,19 @@ jobs:
           '
 
       - name: Build
-        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
+        uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
         with:
           timeout_minutes: 60
           command: scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodebuild
 
       - name: Test
         run: scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodetest
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        if: ${{ failure() }}
+        with:
+          name: xcresults-${{ matrix.target }}-${{ matrix.scheme }}-nightly
+          path: xcresults/*
+          if-no-files-found: error
 
 
   xcodetest_emulator:
@@ -409,14 +421,14 @@ jobs:
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
-    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
+    - uses: ruby/setup-ruby@89f90524b88a01fe6e0b732220432cc6142926af # v1.313.0
 
     - name: Select Xcode
       run: sudo xcode-select -s /Applications/Xcode_26.4.app/Contents/Developer
 
     - name: Install simulators in case they are missing.
       if: matrix.target != 'macOS'
-      uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
+      uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
       with:
         timeout_minutes: 15
         max_attempts: 5
@@ -436,13 +448,19 @@ jobs:
       run: scripts/install_prereqs.sh Firestore ${{ matrix.target }} xcodebuild
 
     - name: Build
-      uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
+      uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
       with:
         timeout_minutes: 60
         command: scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodebuild
 
     - name: Test
       run: scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodetest
+    - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+      if: ${{ failure() }}
+      with:
+        name: xcresults-${{ matrix.target }}-${{ matrix.scheme }}-emulator
+        path: xcresults/*
+        if-no-files-found: error
 
 
   pod_lib_lint:
@@ -492,7 +510,7 @@ jobs:
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
-    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
+    - uses: ruby/setup-ruby@89f90524b88a01fe6e0b732220432cc6142926af # v1.313.0
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
     - name: Xcode
@@ -500,7 +518,7 @@ jobs:
 
     - name: Install simulators in case they are missing.
       if: matrix.platforms != 'macos'
-      uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
+      uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
       with:
         timeout_minutes: 15
         max_attempts: 5
@@ -517,6 +535,7 @@ jobs:
           --no-analyze
 
   spm-package-resolved:
+    needs: check
     runs-on: macos-26
     env:
       FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
@@ -578,7 +597,7 @@ jobs:
       run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
     - name: Install simulators in case they are missing.
       if: matrix.target != 'macOS' && matrix.target != 'catalyst'
-      uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
+      uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
       with:
         timeout_minutes: 15
         max_attempts: 5
@@ -590,6 +609,7 @@ jobs:
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestore ${{ matrix.target }} spmbuildonly
 
   spm-binary:
+    needs: check
     uses: ./.github/workflows/_spm.yml
     with:
       target: FirebaseFirestoreTests
@@ -610,7 +630,7 @@ jobs:
       run: sudo xcode-select -s /Applications/Xcode_26.2.app/Contents/Developer
     - name: Install simulators in case they are missing.
       if: matrix.target != 'macOS' && matrix.target != 'catalyst'
-      uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
+      uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
       with:
         timeout_minutes: 15
         max_attempts: 5
@@ -634,7 +654,7 @@ jobs:
       run: sudo xcode-select -s /Applications/Xcode_26.4.app/Contents/Developer
     - name: Install simulators in case they are missing.
       if: matrix.target != 'macOS' && matrix.target != 'catalyst'
-      uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
+      uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
       with:
         timeout_minutes: 15
         max_attempts: 5
@@ -655,6 +675,7 @@ jobs:
       - cmake
       - xcodetest_emulator
       - spm-source
+      - spm-binary
       - sanitizers-mac
       - sanitizers-ubuntu
       - pod_lib_lint

@@ -1,4 +1,4 @@
-// swift-tools-version:6.0
+// swift-tools-version:6.1
 // The swift-tools-version declares the minimum version of Swift required to
 // build this package.
 
@@ -18,7 +18,7 @@
 
 import PackageDescription
 
-let firebaseVersion = "12.13.0"
+let firebaseVersion = "12.16.0"
 
 let shouldUseSourceFirestore = Context.environment["FIREBASE_SOURCE_FIRESTORE"] != nil
 
@@ -172,8 +172,7 @@ let package = Package(
       url: "https://github.com/google/interop-ios-for-google-sdks.git",
       "101.0.0" ..< "102.0.0"
     ),
-    .package(url: "https://github.com/google/app-check.git",
-             "11.0.1" ..< "12.0.0"),
+    appCheckDependency(),
   ],
   targets: [
     .target(
@@ -187,6 +186,11 @@ let package = Package(
     .target(
       name: "FirebaseAILogic",
       dependencies: [
+        // Direct dependency on AppCheck for automatic token acquisition and
+        // management.
+        "FirebaseAppCheck",
+        // Despite the direct dependency on App Check, the AI Logic SDK still
+        // uses AppCheck through the interop.
         "FirebaseAppCheckInterop",
         "FirebaseAuthInterop",
         "FirebaseCore",
@@ -195,7 +199,7 @@ let package = Package(
       path: "FirebaseAI/Sources",
       swiftSettings: [
         isFoundationModelsSupportedPlatformSwiftSetting(),
-      ],
+      ]
     ),
     .testTarget(
       name: "FirebaseAILogicUnit",
@@ -352,8 +356,8 @@ let package = Package(
     ),
     .binaryTarget(
       name: "FirebaseAnalytics",
-      url: "https://dl.google.com/firebase/ios/swiftpm/12.12.1/FirebaseAnalytics.zip",
-      checksum: "82f57ee93f1d34d6827a3ad148a37630e828e6cb47639bc297981c28152fd454"
+      url: "https://dl.google.com/firebase/ios/swiftpm/12.15.0/FirebaseAnalytics.zip",
+      checksum: "ba21a1b13404d96d4b6686eff250ce4088305d6d5c860bb07319118bae8b97b7"
     ),
     .testTarget(
       name: "AnalyticsSwiftUnit",
@@ -940,6 +944,7 @@ let package = Package(
     .target(
       name: "SharedTestUtilities",
       dependencies: ["FirebaseCore",
+                     "FirebaseCoreExtension",
                      "FirebaseAppCheckInterop",
                      "FirebaseAuthInterop",
                      "FirebaseMessagingInterop",
@@ -1263,6 +1268,7 @@ let package = Package(
               "FirebaseAppCheckInterop",
               "FirebaseCore",
               .product(name: "AppCheckCore", package: "app-check"),
+              .product(name: "AppCheckRecaptchaProvider", package: "app-check"),
               .product(name: "GULEnvironment", package: "GoogleUtilities"),
               .product(name: "GULUserDefaults", package: "GoogleUtilities"),
             ],
@@ -1308,8 +1314,16 @@ let package = Package(
     ),
     .testTarget(
       name: "FirebaseAppCheckUnitSwift",
-      dependencies: ["FirebaseAppCheck"],
+      dependencies: [
+        "FirebaseAppCheck",
+        "FirebaseCoreExtension",
+        "SharedTestUtilities",
+        .product(name: "AppCheckCore", package: "app-check"),
+      ],
       path: "FirebaseAppCheck/Tests/Unit/Swift",
+      cSettings: [
+        .headerSearchPath("../../../"),
+      ],
       swiftSettings: [
         .swiftLanguageMode(SwiftLanguageMode.v5),
       ]
@@ -1425,7 +1439,7 @@ func googleAppMeasurementDependency() -> Package.Dependency {
     return .package(url: appMeasurementURL, branch: "main")
   }
 
-  return .package(url: appMeasurementURL, exact: "12.12.1")
+  return .package(url: appMeasurementURL, "12.15.0" ..< "12.16.0")
 }
 
 func abseilDependency() -> Package.Dependency {
@@ -1556,6 +1570,7 @@ func firestoreTargets() -> [Target] {
             .when(platforms: [.iOS, .macOS, .tvOS, .visionOS])
           ),
           .linkedFramework("UIKit", .when(platforms: [.iOS, .tvOS, .visionOS])),
+          .linkedFramework("Network"),
           .linkedLibrary("c++"),
         ]
       ),
@@ -1606,8 +1621,8 @@ func firestoreTargets() -> [Target] {
     } else {
       return .binaryTarget(
         name: "FirebaseFirestoreInternal",
-        url: "https://dl.google.com/firebase/ios/bin/firestore/12.12.0/rc2/FirebaseFirestoreInternal.zip",
-        checksum: "67b8d3aadfc35a325dc642d36e32fe4ef3c2d7da8a233ac8cc706a8a1148f239"
+        url: "https://dl.google.com/firebase/ios/bin/firestore/12.15.0/rc0/FirebaseFirestoreInternal.zip",
+        checksum: "a9b2cd1e062bcc001c302df4a5857d5250142ad394cfb153749b88f184df44f1"
       )
     }
   }()
@@ -1645,6 +1660,7 @@ func firestoreTargets() -> [Target] {
       linkerSettings: [
         .linkedFramework("SystemConfiguration", .when(platforms: [.iOS, .macOS, .tvOS])),
         .linkedFramework("UIKit", .when(platforms: [.iOS, .tvOS])),
+        .linkedFramework("Network"),
         .linkedLibrary("c++"),
       ]
     ),
@@ -1666,4 +1682,18 @@ func isFoundationModelsSupportedPlatformSwiftSetting() -> SwiftSetting {
     "IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM",
     .when(platforms: [.iOS, .macCatalyst, .macOS, .visionOS])
   )
+}
+
+func appCheckDependency() -> Package.Dependency {
+  let appCheckURL = "https://github.com/google/app-check.git"
+
+  if let localPath = Context.environment["FIREBASE_APP_CHECK_LOCAL_PATH"] {
+    return .package(path: localPath)
+  }
+
+  if let branch = Context.environment["FIREBASE_APP_CHECK_BRANCH"] {
+    return .package(url: appCheckURL, branch: branch)
+  }
+
+  return .package(url: appCheckURL, "11.3.0" ..< "12.0.0")
 }

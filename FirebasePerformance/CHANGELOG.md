@@ -1,4 +1,19 @@
-# Unreleased
+# 12.16.0
+- [fixed] Fixed a crash in `FPRMemoryGaugeCollector` by collecting memory usage
+  with `task_info(TASK_VM_INFO)` instead of `malloc_zone_statistics()`, which
+  could abort the process inside the malloc subsystem on devices using the XZM
+  allocator. (#16121)
+- [fixed] Fixed a crash when Firebase Performance instruments NSProxy NSURLSession delegates
+  that report a wrapped object's class. (#16254)
+
+# 12.14.0
+- [fixed] Fixed a race condition crash in `FPRConfigurations` by making
+  `remoteConfigFlags` atomic and explicitly nullable. (#16144)
+- [added] Added an `Info.plist` array key
+  `firebase_performance_swizzle_denylist` listing class names to skip when
+  registering swizzling instrumentors. (#8277)
+
+# 12.13.0
 - [fixed] Fixed NSURLSession delegate instrumentation for NSProxy delegates. (#14478)
 - [fixed] Address crash by deferring class disposal in FPRObjectSwizzler. (#14473)
 - [fixed] Prevent race condition crashes in FPRScreenTraceTracker by replacing NSMapTable with

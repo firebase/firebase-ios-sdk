@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseAppCheck'
-  s.version          = '12.13.0'
+  s.version          = '12.16.0'
   s.summary          = 'Firebase App Check SDK.'
 
   s.description      = <<-DESC
@@ -44,9 +44,9 @@ Pod::Spec.new do |s|
   s.osx.weak_framework = 'DeviceCheck'
   s.tvos.weak_framework = 'DeviceCheck'
 
-  s.dependency 'AppCheckCore', '~> 11.0'
-  s.dependency 'FirebaseAppCheckInterop', '~> 12.13.0'
-  s.dependency 'FirebaseCore', '~> 12.13.0'
+  s.dependency 'AppCheckCore', '~> 11.3'
+  s.dependency 'FirebaseAppCheckInterop', '~> 12.16.0'
+  s.dependency 'FirebaseCore', '~> 12.16.0'
   s.dependency 'GoogleUtilities/Environment', '~> 8.1'
   s.dependency 'GoogleUtilities/UserDefaults', '~> 8.1'
 
@@ -93,7 +93,13 @@ Pod::Spec.new do |s|
     }
     swift_unit_tests.source_files = [
       base_dir + 'Tests/Unit/Swift/**/*.swift',
+      'SharedTestUtilities/ExceptionCatcher.[mh]'
     ]
+    swift_unit_tests.pod_target_xcconfig = {
+      'SWIFT_OBJC_BRIDGING_HEADER' => '$(PODS_TARGET_SRCROOT)/FirebaseAppCheck/Tests/Unit/Swift/FirebaseAppCheck-unit-Bridging-Header.h'
+    }
+
+    swift_unit_tests.dependency 'FirebaseCoreExtension', '~> 12.16.0'
   end
 
 end

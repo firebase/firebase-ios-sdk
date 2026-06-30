@@ -31,7 +31,6 @@ private let kRecaptchaVersion = "recaptchaVersion"
 /// The key for the tenant id value in the request.
 private let kTenantIDKey = "tenantId"
 
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class StartMFAEnrollmentRequest: IdentityToolkitRequest, AuthRPCRequest {
   typealias Response = StartMFAEnrollmentResponse
 
