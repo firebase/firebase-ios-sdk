@@ -227,9 +227,10 @@ static NSString *const kMethodNameLatestStartTime =
 
   if (!self.experimentController) {
     if (handler) {
-      NSError *error = [NSError errorWithDomain:@"com.google.FirebaseRemoteConfig"
-                                           code:-1
-                                       userInfo:@{NSLocalizedDescriptionKey: @"Experiment controller is unavailable."}];
+      NSError *error = [NSError
+          errorWithDomain:@"com.google.FirebaseRemoteConfig"
+                     code:-1
+                 userInfo:@{NSLocalizedDescriptionKey : @"Experiment controller is unavailable."}];
       handler(error);
     }
     return;
