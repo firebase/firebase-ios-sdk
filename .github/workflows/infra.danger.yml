@@ -19,6 +19,8 @@ jobs:
       contents: read # Required to read the Dangerfile
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      with:
+        persist-credentials: false
 
     - name: Generate GitHub App Token
       id: generate-token
@@ -26,6 +28,10 @@ jobs:
       with:
         app-id: ${{ secrets.DANGER_APP_ID }}
         private-key: ${{ secrets.DANGER_APP_PRIVATE_KEY }}
+        repositories: ${{ github.event.repository.name }}
+        permission-pull-requests: write
+        permission-issues: write
+        permission-contents: read
 
     - uses: ruby/setup-ruby@89f90524b88a01fe6e0b732220432cc6142926af # v1.313.0
     - name: Setup Bundler
