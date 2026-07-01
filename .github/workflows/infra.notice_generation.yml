@@ -23,6 +23,9 @@ jobs:
       NOTICES_PATH: "CoreOnly/NOTICES"
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      with:
+        # Ignored since the GITHUB_TOKEN needs to be persisted for this workflow.
+        persist-credentials: true # zizmor: ignore[artipacked]
     - name: Get all pod names
       run: |
         cd "${GITHUB_WORKSPACE}/ReleaseTooling/"
