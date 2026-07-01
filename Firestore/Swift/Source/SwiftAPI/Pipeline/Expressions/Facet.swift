@@ -31,7 +31,7 @@ public enum RangeBoundType: String, Sendable {
 /// Represents a single bucket within a search facet.
 ///
 /// - Note: This API is in beta.
-public enum FacetBucket: Sendable {
+public enum FacetBucket: Equatable, Sendable {
   case scalar(Sendable)
   case range(
     lowerBound: Sendable,
@@ -55,6 +55,20 @@ public enum FacetBucket: Sendable {
       upperBoundType: .open
     )
   }
+
+  public static func == (lhs: FacetBucket, rhs: FacetBucket) -> Bool {
+    switch (lhs, rhs) {
+    case let (.scalar(lVal), .scalar(rVal)):
+      return areSendablesEqual(lVal, rVal)
+    case let (.range(lMin, lMinType, lMax, lMaxType), .range(rMin, rMinType, rMax, rMaxType)):
+      return lMinType == rMinType && lMaxType == rMaxType &&
+        areSendablesEqual(lMin, rMin) && areSendablesEqual(lMax, rMax)
+    case (.default, .default):
+      return true
+    default:
+      return false
+    }
+  }
 }
 
 /// Represents the definition of a search facet.
@@ -69,4 +83,34 @@ public struct FacetDefinition: Sendable {
     self.buckets = buckets
   }
 }
+
+// MARK: - Equatable Helpers for Type-Erased Sendables
+
+private func areSendablesEqual(_ lhs: Sendable, _ rhs: Sendable) -> Bool {
+  if let l = lhs as? String, let r = rhs as? String { return l == r }
+  if let l = lhs as? Bool, let r = rhs as? Bool { return l == r }
+  if let l = lhs as? Date, let r = rhs as? Date { return l == r }
+  if let l = lhs as? Timestamp, let r = rhs as? Timestamp { return l == r }
+  if let l = lhs as? GeoPoint, let r = rhs as? GeoPoint { return l == r }
+  if let l = lhs as? DocumentReference, let r = rhs as? DocumentReference { return l == r }
+  if let l = lhs as? Data, let r = rhs as? Data { return l == r }
+
+  // Handle numeric comparison
+  if let lNum = asDouble(lhs), let rNum = asDouble(rhs) {
+    return lNum == rNum
+  }
+
+  return false
+}
+
+private func asDouble(_ value: Sendable) -> Double? {
+  if let d = value as? Double { return d }
+  if let f = value as? Float { return Double(f) }
+  if let i = value as? Int { return Double(i) }
+  if let i64 = value as? Int64 { return Double(i64) }
+  if let i32 = value as? Int32 { return Double(i32) }
+  if let u = value as? UInt { return Double(u) }
+  return nil
+}
+
 
