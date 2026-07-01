@@ -40,7 +40,7 @@ jobs:
       uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       with:
         fetch-depth: 0 # Required for pulling down repo tags.
-        persist-credentials: false
+        persist-credentials: true # zizmor: ignore[artipacked]
     - name: Xcode
       run: sudo xcode-select -s /Applications/Xcode_26.2.app/Contents/Developer
     - name: Generate matrix
