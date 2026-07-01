@@ -61,6 +61,8 @@ func main() {
 
   addSnapshotsInSyncListener(database: db)
 
+  testFacetedSearchCompile()
+
   terminateDb(database: db)
 }
 
@@ -529,3 +531,50 @@ actor regression12666 {
     _ = try await Firestore.firestore().collection("users").getDocuments()
   }
 }
+
+func testFacetedSearchCompile() {
+  let db = Firestore.firestore()
+  
+  let priceFacetDef = Field("average_price_per_person").numberFacet(0, 10, 20, 30, 100)
+  let cuisineFacetDef =
+    Field("cuisine")
+      .stringFacet(
+        "American",
+        "Italian",
+        "Mexican",
+        "Chinese",
+        "Japanese",
+        "Indian",
+        "Mediterranean",
+        "Thai",
+        "French",
+        "Turkish"
+      )
+
+  let _ = db.pipeline()
+    .collection("restaurants")
+    .search(
+      query: DocumentMatches("waffles"),
+      facets: [priceFacetDef, cuisineFacetDef]
+    )
+
+  // Verify bucket creation helpers
+  let _ = FacetBucket.scalar("American")
+  let _ = FacetBucket.range(lowerBound: 0, upperBound: 10)
+  let _ = FacetBucket.range(lowerBound: 0, lowerBoundType: .closed, upperBound: 10, upperBoundType: .open)
+  let _ = FacetBucket.default
+  
+  // Verify chaining and methods on Field
+  let _ = Field("rating").numberFacet(numBuckets: 5)
+  let _ = Field("cuisine").stringFacet(numBuckets: 10)
+  let _ = Field("open_date").dateFacet(Date(), Date())
+  let _ = Field("open_date").dateFacet(numBuckets: 3)
+  
+  let _ = Field("cuisine").facet(.scalar("American"), .default)
+  let _ = Field("cuisine").facet(buckets: [.scalar("American")])
+  let _ = Field("cuisine").facet(numBuckets: 5, bucketDataTypes: ["string"])
+  
+  let _ = Field("price").inBuckets(.range(lowerBound: 10, lowerBoundType: .closed, upperBound: 20, upperBoundType: .open))
+  let _ = Field("price").inBuckets([.range(lowerBound: 10, lowerBoundType: .closed, upperBound: 20, upperBoundType: .open)])
+}
+

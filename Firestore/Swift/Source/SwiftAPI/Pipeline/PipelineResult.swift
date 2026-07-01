@@ -88,3 +88,35 @@ public struct PipelineResult: @unchecked Sendable {
     ))
   }
 }
+
+/// Represents the result count of a single facet bucket.
+///
+/// - Note: This API is in beta.
+public struct FacetBucketResult: Sendable {
+  public let bucket: FacetBucket
+  public let count: Int
+
+  public init(bucket: FacetBucket, count: Int) {
+    self.bucket = bucket
+    self.count = count
+  }
+}
+
+/// Represents the results of search facet discovery.
+///
+/// - Note: This API is in beta.
+public struct FacetResult: Sendable {
+  public let fieldName: String
+  public let buckets: [FacetBucketResult]
+
+  public init(fieldName: String, buckets: [FacetBucketResult]) {
+    self.fieldName = fieldName
+    self.buckets = buckets
+  }
+
+  /// Converts this result back into a definition.
+  public func toDefinition() -> FacetDefinition {
+    return FacetDefinition(fieldName: fieldName, buckets: buckets.map { $0.bucket })
+  }
+}
+

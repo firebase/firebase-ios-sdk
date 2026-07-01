@@ -100,6 +100,13 @@ public class Pipeline: @unchecked Sendable {
     /// The time at which the pipeline producing this result was executed.
     public let executionTime: Timestamp
 
+    /// The facet results of the pipeline execution.
+    ///
+    /// - Note: This API is in beta.
+    public var facetResults: [FacetResult] {
+      fatalError("not implemented")
+    }
+
     let bridge: __PipelineSnapshotBridge
 
     init(_ bridge: __PipelineSnapshotBridge) {
@@ -653,7 +660,8 @@ public class Pipeline: @unchecked Sendable {
                      //   - select: An array of `Selectable` fields or field names to include in the
                      //   result.
                      // select: [Selectable]? = nil,
-                     addFields: [Selectable]? = nil
+                     addFields: [Selectable]? = nil,
+                     facets: [FacetDefinition]? = nil
                      // TODO(search): enable with backend support
                      //   - queryEnhancement: specify if query expansion should be applied to the
                      //   query
@@ -668,7 +676,8 @@ public class Pipeline: @unchecked Sendable {
       limit: limit,
       // TODO(search): enable with backend support
       // select: select,
-      addFields: addFields
+      addFields: addFields,
+      facets: facets
       // TODO(search): enable with backend support
       // queryEnhancement: queryEnhancement
     )
@@ -709,6 +718,7 @@ public class Pipeline: @unchecked Sendable {
   ///   - limit: The maximum number of documents to return. The `limit` is applied after documents
   /// are scored and sorted.
   ///   - addFields: An array of `Selectable` fields to compute and add to the result.
+  ///   - facets: The search facets to discover.
   /// - Returns: A new `Pipeline` with the search stage appended.
   public func search(query: String,
                      languageCode: String? = nil,
@@ -718,7 +728,8 @@ public class Pipeline: @unchecked Sendable {
                      limit: Int? = nil,
                      // TODO(search): enable with backend support
                      // select: [Selectable]? = nil,
-                     addFields: [Selectable]? = nil
+                     addFields: [Selectable]? = nil,
+                     facets: [FacetDefinition]? = nil
                      // TODO(search): enable with backend support
                      // queryEnhancement: QueryEnhancement? = nil
   ) -> Pipeline {
@@ -731,7 +742,8 @@ public class Pipeline: @unchecked Sendable {
       limit: limit,
       // TODO(search): enable with backend support
       // select: select,
-      addFields: addFields
+      addFields: addFields,
+      facets: facets
       // TODO(search): enable with backend support
       // queryEnhancement: queryEnhancement
     )

@@ -320,6 +320,7 @@ class Search: Stage {
   let name: String = "search"
   let bridge: StageBridge
   let errorMessage: String?
+  let facets: [FacetDefinition]?
 
   init(query: Expression? = nil,
        languageCode: String? = nil,
@@ -329,7 +330,10 @@ class Search: Stage {
        limit: Int? = nil,
        select: [Selectable]? = nil,
        addFields: [Selectable]? = nil,
-       queryEnhancement: QueryEnhancement? = nil) {
+       queryEnhancement: QueryEnhancement? = nil,
+       facets: [FacetDefinition]? = nil) {
+    self.facets = facets
+
     // Options represented as a Sendable (e.g. primitive data type or Expression)
     // can be added to this options map. Map and array values will be repsented
     // with the map and array function expressions.

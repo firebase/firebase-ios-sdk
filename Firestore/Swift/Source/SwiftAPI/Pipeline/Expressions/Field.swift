@@ -107,4 +107,119 @@ public struct Field: Expression, Selectable, BridgeWrapper, SelectableWrapper,
       args: [self, Constant(location)]
     )
   }
+
+  /// Creates a string search facet definition with explicit bucket values.
+  ///
+  /// - Note: This API is in beta.
+  ///
+  /// - Parameter values: The values for string bucket discovery.
+  /// - Returns: A `FacetDefinition`.
+  public func stringFacet(_ values: String...) -> FacetDefinition {
+    fatalError("not implemented")
+  }
+
+  /// Creates a string search facet definition with a set number of buckets.
+  ///
+  /// - Note: This API is in beta.
+  ///
+  /// - Parameters:
+  ///   - numBuckets: The number of buckets.
+  ///   - bucketDataTypes: The data types of buckets.
+  /// - Returns: A `FacetDefinition`.
+  public func stringFacet(numBuckets: Int, bucketDataTypes: [String]? = nil) -> FacetDefinition {
+    fatalError("not implemented")
+  }
+
+  /// Creates a number search facet definition with explicit bounds.
+  ///
+  /// - Note: This API is in beta.
+  ///
+  /// - Parameter bounds: The boundary values.
+  /// - Returns: A `FacetDefinition`.
+  public func numberFacet(_ bounds: Double...) -> FacetDefinition {
+    fatalError("not implemented")
+  }
+
+  /// Creates a number search facet definition with a set number of buckets.
+  ///
+  /// - Note: This API is in beta.
+  ///
+  /// - Parameter numBuckets: The number of buckets.
+  /// - Returns: A `FacetDefinition`.
+  public func numberFacet(numBuckets: Int) -> FacetDefinition {
+    fatalError("not implemented")
+  }
+
+  /// Creates a date search facet definition with explicit bounds.
+  ///
+  /// - Note: This API is in beta.
+  ///
+  /// - Parameter bounds: The boundary date values.
+  /// - Returns: A `FacetDefinition`.
+  public func dateFacet(_ bounds: Date...) -> FacetDefinition {
+    fatalError("not implemented")
+  }
+
+  /// Creates a date search facet definition with a set number of buckets.
+  ///
+  /// - Note: This API is in beta.
+  ///
+  /// - Parameter numBuckets: The number of buckets.
+  /// - Returns: A `FacetDefinition`.
+  public func dateFacet(numBuckets: Int) -> FacetDefinition {
+    fatalError("not implemented")
+  }
+
+  /// Creates a search facet definition using explicit buckets.
+  ///
+  /// - Note: This API is in beta.
+  ///
+  /// - Parameter buckets: The buckets to use.
+  /// - Returns: A `FacetDefinition`.
+  public func facet(_ buckets: FacetBucket...) -> FacetDefinition {
+    fatalError("not implemented")
+  }
+
+  /// Creates a search facet definition using explicit buckets.
+  ///
+  /// - Note: This API is in beta.
+  ///
+  /// - Parameter buckets: The list of buckets to use.
+  /// - Returns: A `FacetDefinition`.
+  public func facet(buckets: [FacetBucket]) -> FacetDefinition {
+    fatalError("not implemented")
+  }
+
+  /// Creates a search facet definition with a set number of buckets.
+  ///
+  /// - Note: This API is in beta.
+  ///
+  /// - Parameters:
+  ///   - numBuckets: The number of buckets.
+  ///   - bucketDataTypes: The data types of buckets.
+  /// - Returns: A `FacetDefinition`.
+  public func facet(numBuckets: Int, bucketDataTypes: [String]? = nil) -> FacetDefinition {
+    fatalError("not implemented")
+  }
+
+  /// Creates a boolean expression checking if this field falls within the specified buckets.
+  ///
+  /// - Note: This API is in beta.
+  ///
+  /// - Parameter buckets: The buckets to check.
+  /// - Returns: A `BooleanExpression`.
+  public func inBuckets(_ buckets: FacetBucket...) -> BooleanExpression {
+    fatalError("not implemented")
+  }
+
+  /// Creates a boolean expression checking if this field falls within the specified buckets.
+  ///
+  /// - Note: This API is in beta.
+  ///
+  /// - Parameter buckets: The list of buckets to check.
+  /// - Returns: A `BooleanExpression`.
+  public func inBuckets(_ buckets: [FacetBucket]) -> BooleanExpression {
+    fatalError("not implemented")
+  }
 }
+
