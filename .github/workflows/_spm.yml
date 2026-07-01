@@ -1,5 +1,8 @@
 name: _spm
 
+env:
+  FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
+
 permissions:
   contents: read
 
@@ -73,8 +76,6 @@ on:
 
 jobs:
   spm-package-resolved:
-    env:
-      FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
     runs-on: macos-26
     outputs:
       cache_key: ${{ steps.generate_cache_key.outputs.cache_key }}
