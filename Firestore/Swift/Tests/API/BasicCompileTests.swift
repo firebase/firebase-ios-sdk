@@ -564,15 +564,14 @@ func testFacetedSearchCompile() {
   let _ = FacetBucket.range(lowerBound: 0, lowerBoundType: .closed, upperBound: 10, upperBoundType: .open)
   let _ = FacetBucket.default
   
-  // Verify chaining and methods on Field
   let _ = Field("rating").numberFacet(numBuckets: 5)
   let _ = Field("cuisine").stringFacet(numBuckets: 10)
   let _ = Field("open_date").dateFacet(Date(), Date())
   let _ = Field("open_date").dateFacet(numBuckets: 3)
   
-  let _ = Field("cuisine").facet(.scalar("American"), .default)
   let _ = Field("cuisine").facet(buckets: [.scalar("American")])
   let _ = Field("cuisine").facet(numBuckets: 5, bucketDataTypes: ["string"])
+  
   
   let _ = Field("price").inBuckets(.range(lowerBound: 10, lowerBoundType: .closed, upperBound: 20, upperBoundType: .open))
   let _ = Field("price").inBuckets([.range(lowerBound: 10, lowerBoundType: .closed, upperBound: 20, upperBoundType: .open)])

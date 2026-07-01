@@ -174,16 +174,6 @@ public struct Field: Expression, Selectable, BridgeWrapper, SelectableWrapper,
   ///
   /// - Note: This API is in beta.
   ///
-  /// - Parameter buckets: The buckets to use.
-  /// - Returns: A `FacetDefinition`.
-  public func facet(_ buckets: FacetBucket...) -> FacetDefinition {
-    fatalError("not implemented")
-  }
-
-  /// Creates a search facet definition using explicit buckets.
-  ///
-  /// - Note: This API is in beta.
-  ///
   /// - Parameter buckets: The list of buckets to use.
   /// - Returns: A `FacetDefinition`.
   public func facet(buckets: [FacetBucket]) -> FacetDefinition {
@@ -201,6 +191,8 @@ public struct Field: Expression, Selectable, BridgeWrapper, SelectableWrapper,
   public func facet(numBuckets: Int, bucketDataTypes: [String]? = nil) -> FacetDefinition {
     fatalError("not implemented")
   }
+
+
 
   /// Creates a boolean expression checking if this field falls within the specified buckets.
   ///
