@@ -69,6 +69,30 @@ public enum FacetBucket: Equatable, Sendable {
       return false
     }
   }
+
+  /// Exposes the value if this bucket is a scalar bucket.
+  public var value: Sendable? {
+    if case let .scalar(val) = self {
+      return val
+    }
+    return nil
+  }
+
+  /// Exposes the lower bound if this bucket is a range bucket.
+  public var lowerBound: Sendable? {
+    if case let .range(lower, _, _, _) = self {
+      return lower
+    }
+    return nil
+  }
+
+  /// Exposes the upper bound if this bucket is a range bucket.
+  public var upperBound: Sendable? {
+    if case let .range(_, _, upper, _) = self {
+      return upper
+    }
+    return nil
+  }
 }
 
 public struct FacetDefinition: Sendable {

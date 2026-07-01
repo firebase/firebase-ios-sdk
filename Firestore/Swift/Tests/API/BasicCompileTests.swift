@@ -564,6 +564,11 @@ func testFacetedSearchCompile() {
   let _ = FacetBucket.range(lowerBound: 0, lowerBoundType: .closed, upperBound: 10, upperBoundType: .open)
   let _ = FacetBucket.default
   
+  let bucket = FacetBucket.scalar("test")
+  let _ = bucket.value
+  let _ = bucket.lowerBound
+  let _ = bucket.upperBound
+  
   let _ = Field("rating").numberFacet(numBuckets: 5)
   let _ = Field("cuisine").stringFacet(numBuckets: 10)
   let _ = Field("open_date").dateFacet(Date(), Date())
