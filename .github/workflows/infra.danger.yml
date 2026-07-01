@@ -26,10 +26,8 @@ jobs:
       id: generate-token
       uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
       with:
-        app-id: ${{ secrets.DANGER_APP_ID }}
+        client-id: ${{ secrets.DANGER_CLIENT_ID }}
         private-key: ${{ secrets.DANGER_APP_PRIVATE_KEY }}
-        repositories: ${{ github.event.repository.name }}
-        permission-pull-requests: write
         permission-contents: read
 
     - uses: ruby/setup-ruby@89f90524b88a01fe6e0b732220432cc6142926af # v1.313.0
