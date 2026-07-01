@@ -71,16 +71,24 @@ public enum FacetBucket: Equatable, Sendable {
   }
 }
 
-/// Represents the definition of a search facet.
-///
-/// - Note: This API is in beta.
 public struct FacetDefinition: Sendable {
   public let fieldName: String
-  public let buckets: [FacetBucket]
+  public let buckets: [FacetBucket]?
+  public let numBuckets: Int?
+  public let bucketDataTypes: [String]?
 
   public init(fieldName: String, buckets: [FacetBucket]) {
     self.fieldName = fieldName
     self.buckets = buckets
+    self.numBuckets = nil
+    self.bucketDataTypes = nil
+  }
+
+  public init(fieldName: String, numBuckets: Int, bucketDataTypes: [String]? = nil) {
+    self.fieldName = fieldName
+    self.buckets = nil
+    self.numBuckets = numBuckets
+    self.bucketDataTypes = bucketDataTypes
   }
 }
 

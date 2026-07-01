@@ -572,6 +572,8 @@ func testFacetedSearchCompile() {
   let _ = Field("cuisine").facet(buckets: [.scalar("American")])
   let _ = Field("cuisine").facet(numBuckets: 5, bucketDataTypes: ["string"])
   
+  let _ = FacetDefinition(fieldName: "cuisine", numBuckets: 10, bucketDataTypes: ["string"])
+  
   
   let _ = Field("price").inBuckets(.range(lowerBound: 10, lowerBoundType: .closed, upperBound: 20, upperBoundType: .open))
   let _ = Field("price").inBuckets([.range(lowerBound: 10, lowerBoundType: .closed, upperBound: 20, upperBoundType: .open)])
