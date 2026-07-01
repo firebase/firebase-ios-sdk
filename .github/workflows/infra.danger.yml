@@ -29,7 +29,7 @@ jobs:
         client-id: ${{ secrets.DANGER_CLIENT_ID }}
         private-key: ${{ secrets.DANGER_APP_PRIVATE_KEY }}
         owner: firebase
-        repositories: [firebase-ios-sdk]
+        repositories: firebase-ios-sdk
 
     - uses: ruby/setup-ruby@89f90524b88a01fe6e0b732220432cc6142926af # v1.313.0
     - name: Setup Bundler
