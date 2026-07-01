@@ -9,11 +9,11 @@ Pod::Spec.new do |s|
     DESC
 
     s.homepage         = 'https://firebase.google.com/features/analytics/'
-    s.license          = { :type => 'Copyright', :text => 'Copyright 2022 Google' }
+    s.license          = { :type => 'Apache-2.0', :file => 'LICENSE' }
     s.authors          = 'Google, Inc.'
 
     s.source           = {
-        :http => 'https://dl.google.com/firebase/ios/analytics/4157b0f8016e6ec3/FirebaseAnalytics-12.15.0.tar.gz'
+        :http => 'https://dl.google.com/firebase/ios/analytics/fde230ef9469d037/FirebaseAnalytics-12.16.0.tar.gz'
     }
 
     s.cocoapods_version = '>= 1.12.0'

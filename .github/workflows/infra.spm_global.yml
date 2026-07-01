@@ -27,11 +27,10 @@ concurrency:
 
 env:
   FIREBASE_CI: true
+  FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
 
 jobs:
   spm-package-resolved:
-    env:
-      FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
     runs-on: macos-26
     outputs:
       cache_key: ${{ steps.generate_cache_key.outputs.cache_key }}
@@ -60,8 +59,6 @@ jobs:
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
     needs: [spm-package-resolved]
-    env:
-      FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
     strategy:
       matrix:
         include:

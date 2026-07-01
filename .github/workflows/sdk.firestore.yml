@@ -14,6 +14,9 @@
 
 name: sdk.firestore
 
+env:
+  FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
+
 permissions:
   contents: read
 
@@ -556,7 +559,6 @@ jobs:
     needs: check
     runs-on: macos-26
     env:
-      FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
       FIREBASE_SOURCE_FIRESTORE: 1
     outputs:
       cache_key: ${{ steps.generate_cache_key.outputs.cache_key }}

@@ -12,11 +12,11 @@ Pod::Spec.new do |s|
     DESC
 
     s.homepage         = 'https://developers.google.com/ios'
-    s.license          = { :type => 'Copyright', :text => 'Copyright 2022 Google' }
+    s.license          = { :type => 'Apache-2.0', :file => 'LICENSE' }
     s.authors          = 'Google, Inc.'
 
     s.source           = {
-        :http => 'https://dl.google.com/firebase/ios/analytics/59fe326eebd1a79c/GoogleAppMeasurement-12.15.0.tar.gz'
+        :http => 'https://dl.google.com/firebase/ios/analytics/55d011d9e0f71e0a/GoogleAppMeasurement-12.16.0.tar.gz'
     }
 
     s.cocoapods_version = '>= 1.12.0'
