@@ -148,24 +148,44 @@ struct ContentView: View {
   }
 
   func getFCMToken() {
-    Messaging.messaging().token { token, error in
-      guard let token = token, error == nil else {
-        self.log = "Failed getting iid and token: \(String(describing: error))"
-        return
+    if Messaging.messaging().isInstallationIdEnabled {
+      Messaging.messaging().register { error in
+        if let error = error {
+          self.log = "Failed registering: \(error)"
+          return
+        }
+        self.log = "Successfully registered."
       }
-      self.identity.token = token
-      self.log = "Successfully got token."
-      print("Token: ", self.identity.token ?? "")
+    } else {
+      Messaging.messaging().token { token, error in
+        guard let token = token, error == nil else {
+          self.log = "Failed getting iid and token: \(String(describing: error))"
+          return
+        }
+        self.identity.token = token
+        self.log = "Successfully got token."
+        print("Token: ", self.identity.token ?? "")
+      }
     }
   }
 
   func deleteFCMToken() {
-    Messaging.messaging().deleteToken { error in
-      if let error = error as NSError? {
-        self.log = "Failed deleting token: \(error)"
-        return
+    if Messaging.messaging().isInstallationIdEnabled {
+      Messaging.messaging().unregister { error in
+        if let error = error {
+          self.log = "Failed unregistering: \(error)"
+          return
+        }
+        self.log = "Successfully unregistered."
       }
-      self.log = "Successfully deleted token."
+    } else {
+      Messaging.messaging().deleteToken { error in
+        if let error = error as NSError? {
+          self.log = "Failed deleting token: \(error)"
+          return
+        }
+        self.log = "Successfully deleted token."
+      }
     }
   }
 
@@ -210,6 +230,7 @@ struct ActivityViewController: UIViewControllerRepresentable {
 }
 
 struct SettingsView: View {
+  @EnvironmentObject var identity: Identity
   @EnvironmentObject var settings: UserSettings
   @State var shouldUseDelegate = true
   @State private var isSharePresented: Bool = false
@@ -235,7 +256,7 @@ struct SettingsView: View {
         .sheet(isPresented: $isSharePresented, onDismiss: {
           print("Dismiss")
         }, content: {
-          let items = [Messaging.messaging().fcmToken]
+          let items = [identity.token ?? "None"]
           ActivityViewController(activityItems: items as [Any])
         })
       }

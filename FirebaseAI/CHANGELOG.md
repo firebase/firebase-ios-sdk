@@ -1,4 +1,4 @@
-# Unreleased
+# 12.16.0
 - [fixed] Fixed a decoding failure in `GenerateContentResponse` when the Vertex AI
   backend returns citation metadata with a missing `endIndex`. (#16328)
 - [fixed] Fixed an issue where `generateContentStream` could stall indefinitely
