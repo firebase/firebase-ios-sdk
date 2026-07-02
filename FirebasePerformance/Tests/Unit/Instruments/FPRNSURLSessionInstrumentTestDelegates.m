@@ -103,6 +103,19 @@
   self.URLSessionDownloadTaskDidWriteDataTotalBytesWrittenTotalBytesCalled = YES;
 }
 
+#pragma mark - Async/await support
+
+- (void)URLSession:(NSURLSession *)session
+     didCreateTask:(NSURLSessionTask *)task API_AVAILABLE(ios(16.0), tvos(16.0)) {
+  self.URLSessionDidCreateTaskCalled = YES;
+}
+
+- (void)URLSession:(NSURLSession *)session
+                          task:(NSURLSessionTask *)task
+    didFinishCollectingMetrics:(NSURLSessionTaskMetrics *)metrics {
+  self.URLSessionTaskDidFinishCollectingMetricsCalled = YES;
+}
+
 @end
 
 @interface FPRNSURLSessionTestDownloadDelegate ()

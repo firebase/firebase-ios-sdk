@@ -1,3 +1,6 @@
+# Unreleased
+- [Performance] Fix missing network traces for Swift async/await URLSession requests on iOS 16+. (#11861)
+
 # 12.16.0
 - [fixed] Fixed a crash in `FPRMemoryGaugeCollector` by collecting memory usage
   with `task_info(TASK_VM_INFO)` instead of `malloc_zone_statistics()`, which

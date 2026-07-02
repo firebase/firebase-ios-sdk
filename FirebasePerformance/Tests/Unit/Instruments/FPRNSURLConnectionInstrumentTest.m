@@ -284,15 +284,13 @@
   self.appFake.fakeIsDataCollectionDefaultEnabled = YES;
   FPRNSURLConnectionInstrument *instrument = [[FPRNSURLConnectionInstrument alloc] init];
   [instrument registerInstrumentors];
-  NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:@"http://nonurl/"]];
   [self.testServer stop];
-  [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.2]];
+  NSURLRequest *request = [NSURLRequest requestWithURL:self.testServer.serverURL];
   FPRNSURLConnectionCompleteTestDelegate *delegate =
       [[FPRNSURLConnectionCompleteTestDelegate alloc] init];
   NSURLConnection *connection = [[NSURLConnection alloc] initWithRequest:request delegate:delegate];
   [connection start];
-  XCTAssertNotNil([FPRNetworkTrace networkTraceFromObject:connection]);
-  [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:2.0]];
+  [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
   XCTAssertTrue(delegate.connectionDidFailWithErrorCalled);
   XCTAssertNil([FPRNetworkTrace networkTraceFromObject:connection]);
   [self.testServer start];

@@ -25,3 +25,24 @@ NS_EXTENSION_UNAVAILABLE("Firebase Performance is not supported for extensions."
                                                NSURLSessionDownloadDelegate>
 
 @end
+
+@class FPRNetworkTrace;
+
+/** Attaches a new FPRNetworkTrace to task if one has not already been attached.
+ *  Called from both FPRNSURLSessionDelegate and FPRNSURLSessionDelegateInstrument.
+ *
+ *  @param task The task that was created.
+ */
+FOUNDATION_EXTERN
+NS_EXTENSION_UNAVAILABLE("Firebase Performance is not supported for extensions.")
+void FPRHandleDidCreateTask(NSURLSessionTask *task);
+
+/** Completes and removes the FPRNetworkTrace attached to task using data from metrics.
+ *  Called from both FPRNSURLSessionDelegate and FPRNSURLSessionDelegateInstrument.
+ *
+ *  @param task    The task that finished.
+ *  @param metrics The metrics collected for the task.
+ */
+FOUNDATION_EXTERN
+NS_EXTENSION_UNAVAILABLE("Firebase Performance is not supported for extensions.")
+void FPRHandleDidFinishCollectingMetrics(NSURLSessionTask *task, NSURLSessionTaskMetrics *metrics);
