@@ -101,6 +101,7 @@ TEST(StringFormatTest, Bool) {
 TEST(StringFormatTest, NullPointer) {
   // pointers implicitly convert to bool. Make sure this doesn't happen here.
   EXPECT_EQ("Hello null", StringFormat("Hello %s", nullptr));
+  EXPECT_EQ("test=6e756c6c", StringFormat("test=%x", nullptr));
 }
 
 TEST(StringFormatTest, NonNullPointer) {
@@ -125,6 +126,8 @@ TEST(StringFormatTest, Mixed) {
 
 TEST(StringFormatTest, Hex) {
   EXPECT_EQ("test=42", StringFormat("test=%x", "B"));
+  EXPECT_EQ("test=", StringFormat("test=%x", absl::string_view()));
+  EXPECT_EQ("test=0041", StringFormat("test=%x", absl::string_view("\0A", 2)));
 }
 
 TEST(StringFormatTest, Literal) {
