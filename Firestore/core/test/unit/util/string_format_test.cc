@@ -21,6 +21,7 @@
 #include <string>
 
 #include "absl/strings/string_view.h"
+#include "absl/strings/escaping.h"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
@@ -128,6 +129,16 @@ TEST(StringFormatTest, Hex) {
   EXPECT_EQ("test=42", StringFormat("test=%x", "B"));
   EXPECT_EQ("test=", StringFormat("test=%x", absl::string_view()));
   EXPECT_EQ("test=0041", StringFormat("test=%x", absl::string_view("\0A", 2)));
+
+  char buffer[] = {'A', 'B'}; // no null terminator
+  absl::string_view slice(buffer, 2);
+  EXPECT_EQ("test=4142", StringFormat("test=%x", slice));
+}
+
+TEST(StringFormatTest, BytesToHexStringEmpty) {
+  absl::string_view empty;
+  std::string hex = absl::BytesToHexString(empty);
+  EXPECT_EQ("", hex);
 }
 
 TEST(StringFormatTest, Literal) {
