@@ -163,12 +163,12 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement, @u
           }
       }
     }
-    self.fetcher = fetcher
     dispatchQueue.async { [weak self] in
+      self?.fetcher = fetcher
       self?.state = .running
     }
     do {
-      let data = try await self.fetcher?.beginFetch()
+      let data = try await fetcher.beginFetch()
       dispatchQueue.async { [weak self] in
         guard let self = self, self.state == .running else { return }
         // Fire last progress updates
@@ -176,18 +176,13 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement, @u
 
         // Download completed successfully, fire completion callbacks
         self.state = .success
-        if let data {
-          self.downloadData = data
-        }
+        self.downloadData = data
         self.fire(for: .success, snapshot: self.snapshot)
         self.removeAllObservers()
       }
     } catch {
       dispatchQueue.async { [weak self] in
-        guard let self = self, self.state == .running || self.state == .pausing else { return }
-        if self.state == .pausing {
-          return
-        }
+        guard let self = self, self.state == .running else { return }
         self.fire(for: .progress, snapshot: self.snapshot)
         self.state = .failed
         self.error = StorageErrorCode.error(

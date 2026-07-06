@@ -117,12 +117,14 @@ import Foundation
               self.state = .running
             }
         }
-        self.uploadFetcher = uploadFetcher
+        dispatchQueue.async { [weak self] in
+          self?.uploadFetcher = uploadFetcher
+          self?.state = .running
+        }
 
         // Process fetches
-        self.state = .running
         do {
-          let data = try await self.uploadFetcher?.beginFetch()
+          let data = try await uploadFetcher.beginFetch()
           self.dispatchQueue.async { [self] in
             guard self.state == .running else { return }
 
@@ -132,9 +134,6 @@ import Foundation
             // Upload completed successfully, fire completion callbacks
             self.state = .success
 
-            guard let data = data else {
-              fatalError("Internal Error: uploadFetcher returned with nil data and no error")
-            }
 
             if let responseDictionary = try? JSONSerialization
               .jsonObject(with: data) as? [String: AnyHashable] {

@@ -1,3 +1,6 @@
+# Unreleased
+- [fixed] Fixed a deadlock that occurred when canceling a Storage upload or download task from the main thread. (#16353)
+
 # 12.12.1
 - [fixed] Fixed `InstanceCache` keying by bucket only, which caused named apps sharing a
   storage bucket with the default app to use the wrong auth context. (#16039)

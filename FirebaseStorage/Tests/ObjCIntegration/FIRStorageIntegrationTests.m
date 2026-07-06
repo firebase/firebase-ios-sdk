@@ -641,7 +641,7 @@ NSString *const kTestPassword = KPASSWORD;
 
   FIRStorageReference *ref =
       [self.storage referenceWithPath:@"ios/public/helloworldtestCancelUpload"];
-  NSData *data = [NSData dataWithLength:1024 * 1024];
+  NSData *data = [NSMutableData dataWithLength:1024 * 1024];
 
   FIRStorageUploadTask *task = [ref putData:data];
   // Don't fulfill twice if a second observe failure happens before the cancel completes.
