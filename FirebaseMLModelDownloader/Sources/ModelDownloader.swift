@@ -25,7 +25,7 @@ import Foundation
 @available(
   *,
   deprecated,
-  message: "FirebaseMLModelDownloader is deprecated and the service will shut down on June 15, 2027. Use other custom model downloading alternatives. For more info, see https://firebase.google.com/docs/ml"
+  message: "Firebase ML is deprecated and will be shut down on June 15, 2027. To host custom models, you must migrate to another solution. You can use Cloud Storage for Firebase as an alternative for hosting custom models. For more info, see https://firebase.google.com/docs/ml/migrate-to-cloud-storage"
 )
 public enum ModelDownloadType {
   /// Get local model stored on device if available. If no local model on device, this is the same
@@ -43,7 +43,7 @@ public enum ModelDownloadType {
 @available(
   *,
   deprecated,
-  message: "FirebaseMLModelDownloader is deprecated and the service will shut down on June 15, 2027. Use other custom model downloading alternatives. For more info, see https://firebase.google.com/docs/ml"
+  message: "Firebase ML is deprecated and will be shut down on June 15, 2027. To host custom models, you must migrate to another solution. You can use Cloud Storage for Firebase as an alternative for hosting custom models. For more info, see https://firebase.google.com/docs/ml/migrate-to-cloud-storage"
 )
 public class ModelDownloader {
   /// Name of the app associated with this instance of ModelDownloader.
@@ -517,7 +517,7 @@ extension ModelDownloader {
 @available(
   *,
   deprecated,
-  message: "FirebaseMLModelDownloader is deprecated and the service will shut down on June 15, 2027. Use other custom model downloading alternatives. For more info, see https://firebase.google.com/docs/ml"
+  message: "Firebase ML is deprecated and will be shut down on June 15, 2027. To host custom models, you must migrate to another solution. You can use Cloud Storage for Firebase as an alternative for hosting custom models. For more info, see https://firebase.google.com/docs/ml/migrate-to-cloud-storage"
 )
 public enum DownloadError: Error, Equatable {
   /// No model with this name exists on server.
@@ -542,7 +542,7 @@ public enum DownloadError: Error, Equatable {
 @available(
   *,
   deprecated,
-  message: "FirebaseMLModelDownloader is deprecated and the service will shut down on June 15, 2027. Use other custom model downloading alternatives. For more info, see https://firebase.google.com/docs/ml"
+  message: "Firebase ML is deprecated and will be shut down on June 15, 2027. To host custom models, you must migrate to another solution. You can use Cloud Storage for Firebase as an alternative for hosting custom models. For more info, see https://firebase.google.com/docs/ml/migrate-to-cloud-storage"
 )
 public enum DownloadedModelError: Error {
   /// No model with this name exists on device.
