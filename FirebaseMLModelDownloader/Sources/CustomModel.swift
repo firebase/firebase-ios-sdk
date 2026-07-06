@@ -15,6 +15,11 @@
 import Foundation
 
 /// A custom model that is stored remotely on the server and downloaded to the device.
+@available(
+  *,
+  deprecated,
+  message: "FirebaseMLModelDownloader is deprecated and the service will shut down on June 15, 2027. Use other custom model downloading alternatives. For more info, see https://firebase.google.com/docs/ml"
+)
 public struct CustomModel: Hashable {
   /// Name of the model.
   public let name: String

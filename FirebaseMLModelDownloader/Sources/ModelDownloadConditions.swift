@@ -15,12 +15,22 @@
 import Foundation
 
 /// Model download conditions.
+@available(
+  *,
+  deprecated,
+  message: "FirebaseMLModelDownloader is deprecated and the service will shut down on June 15, 2027. Use other custom model downloading alternatives. For more info, see https://firebase.google.com/docs/ml"
+)
 public struct ModelDownloadConditions {
   let allowsCellularAccess: Bool
 
   /// Conditions that need to be met to start a model file download.
   /// - Parameter allowsCellularAccess: Allow model downloading on a cellular connection. Default is
   /// `true`.
+  @available(
+    *,
+    deprecated,
+    message: "FirebaseMLModelDownloader is deprecated and the service will shut down on June 15, 2027. Use other custom model downloading alternatives. For more info, see https://firebase.google.com/docs/ml"
+  )
   public init(allowsCellularAccess: Bool = true) {
     self.allowsCellularAccess = allowsCellularAccess
   }

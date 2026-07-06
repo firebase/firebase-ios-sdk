@@ -2,6 +2,7 @@ Pod::Spec.new do |s|
   s.name             = 'FirebaseMLModelDownloader'
   s.version          = '12.16.0-beta'
   s.summary          = 'Firebase ML Model Downloader'
+  s.deprecated       = true
 
   s.description      = <<-DESC
   This is the new ML Model Downloader CocoaPod.
