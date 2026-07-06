@@ -109,11 +109,6 @@ public class ModelDownloader {
   }
 
   /// Model downloader with default app.
-  @available(
-    *,
-    deprecated,
-    message: "FirebaseMLModelDownloader is deprecated and the service will shut down on June 15, 2027. Use other custom model downloading alternatives. For more info, see https://firebase.google.com/docs/ml"
-  )
   public static func modelDownloader() -> ModelDownloader {
     guard let defaultApp = FirebaseApp.app() else {
       fatalError(ModelDownloader.ErrorDescription.defaultAppNotConfigured)
@@ -122,11 +117,6 @@ public class ModelDownloader {
   }
 
   /// Model Downloader with custom app.
-  @available(
-    *,
-    deprecated,
-    message: "FirebaseMLModelDownloader is deprecated and the service will shut down on June 15, 2027. Use other custom model downloading alternatives. For more info, see https://firebase.google.com/docs/ml"
-  )
   public static func modelDownloader(app: FirebaseApp) -> ModelDownloader {
     if let downloader = modelDownloaderDictionary[app.name] {
       DeviceLogger.logEvent(level: .debug,
@@ -153,11 +143,6 @@ public class ModelDownloader {
   /// download progress.
   ///   - completion: Returns either a `CustomModel` on success, or a `DownloadError` on failure, at
   /// the end of a model download.
-  @available(
-    *,
-    deprecated,
-    message: "FirebaseMLModelDownloader is deprecated and the service will shut down on June 15, 2027. Use other custom model downloading alternatives. For more info, see https://firebase.google.com/docs/ml"
-  )
   public func getModel(name modelName: String,
                        downloadType: ModelDownloadType,
                        conditions: ModelDownloadConditions,
@@ -234,11 +219,6 @@ public class ModelDownloader {
   /// Gets the set of all downloaded models saved on device.
   /// - Parameter completion: Returns either a set of `CustomModel` models on success, or a
   /// `DownloadedModelError` on failure.
-  @available(
-    *,
-    deprecated,
-    message: "FirebaseMLModelDownloader is deprecated and the service will shut down on June 15, 2027. Use other custom model downloading alternatives. For more info, see https://firebase.google.com/docs/ml"
-  )
   public func listDownloadedModels(completion: @escaping (Result<Set<CustomModel>,
     DownloadedModelError>) -> Void) {
     do {
@@ -304,11 +284,6 @@ public class ModelDownloader {
   ///   - modelName: The name of the model, matching Firebase console and already downloaded to
   /// device.
   ///   - completion: Returns a `DownloadedModelError` on failure.
-  @available(
-    *,
-    deprecated,
-    message: "FirebaseMLModelDownloader is deprecated and the service will shut down on June 15, 2027. Use other custom model downloading alternatives. For more info, see https://firebase.google.com/docs/ml"
-  )
   public func deleteDownloadedModel(name modelName: String,
                                     completion: @escaping (Result<Void, DownloadedModelError>)
                                       -> Void) {
