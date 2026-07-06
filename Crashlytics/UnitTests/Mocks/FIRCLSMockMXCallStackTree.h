@@ -22,7 +22,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(ios(14))
 @interface FIRCLSMockMXCallStackTree : MXCallStackTree
 
 - (instancetype)initWithStringData:(NSString *)stringData;

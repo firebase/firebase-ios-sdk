@@ -1,9 +1,14 @@
+# 12.16.0
+- [changed] Changed error message for missing `FirebaseApp.configure()` to
+  properly articulate supported methods. (#16294)
+
 # 12.15.0
 - [added] Added a reCAPTCHA attestation provider. Using this provider requires the
   [reCAPTCHA Enterprise SDK to be installed](https://docs.cloud.google.com/recaptcha/docs/instrument-ios-apps#prepare-environment),
   enabling the reCAPTCHA provider on the Firebase App Check console, and
   replacing the local `GoogleService-Info.plist` with one redownloaded from
-  the project settings on the Firebase console.
+  the project settings on the Firebase console. **Note:** Backend support for this
+  capability is not yet available, but it's coming soon.
 - [changed] Updated `AppCheckDebugProvider` documentation to recommend the
   generic `AppCheckDebugToken` environment variable instead of the legacy
   `FIRAAppCheckDebugToken`. Note that `FIRAAppCheckDebugToken` remains
@@ -16,7 +21,8 @@
   installed](https://docs.cloud.google.com/recaptcha/docs/instrument-ios-apps#prepare-environment),
   and fall back to the
   [DeviceCheck provider](https://firebase.google.com/docs/app-check/ios/devicecheck-provider)
-  otherwise. (#16190)
+  otherwise. **Note:** Backend support for the reCAPTCHA provider
+  is not yet available, but it's coming soon. (#16190)
 - [changed] Removed redundant debug token warning log. (#16197)
 - [changed] Log an actionable warning when debug token exchange fails. (#16232)
 

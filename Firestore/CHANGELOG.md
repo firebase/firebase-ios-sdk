@@ -1,9 +1,13 @@
 # Unreleased
 
-- [feature] Add support for 16MB documents. TODO(dlarocque): add more details
+- [feature] Added support for 16 MB documents by increasing gRPC message size limit to 17MB [#16206].
+
+# 12.16.0
+- [changed] Migrates the network connectivity monitoring implementation for
+  Apple platforms from the legacy SCNetworkReachability API to the modern
+  NWPathMonitor API.
 
 # 12.15.0
-
 - [fix] Remove use of designated initializers for `forceIndex` [#16229].
 
 # 12.13.0
