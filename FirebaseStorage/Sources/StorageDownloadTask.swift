@@ -49,16 +49,16 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement, @u
   @objc open func pause() {
     dispatchQueue.async { [weak self] in
       guard let self = self else { return }
-      guard self.state == .queueing || self.state == .running || self.state == .resuming
+      guard self.transition(to: .pausing, validFrom: [.queueing, .running, .resuming])
       else { return }
-      self.state = .pausing
       // Use the resume callback to confirm pause status since it always runs after the last
       // NSURLSession update.
       self.fetcher?.resumeDataBlock = { [weak self] (data: Data) in
         guard let self = self else { return }
         self.downloadData = data
-        self.state = .paused
-        self.fire(for: .pause, snapshot: self.snapshot)
+        if self.transition(to: .paused, validFrom: [.pausing]) {
+          self.fire(for: .pause, snapshot: self.snapshot)
+        }
       }
       self.fetcher?.stopFetching()
     }
@@ -77,10 +77,9 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement, @u
   @objc open func resume() {
     dispatchQueue.async { [weak self] in
       guard let self = self else { return }
-      guard self.state == .paused || self.state == .pausing else { return }
-      self.state = .resuming
+      guard self.transition(to: .resuming, validFrom: [.paused, .pausing]) else { return }
       self.fire(for: .resume, snapshot: self.snapshot)
-      self.state = .running
+      self.transition(to: .running, validFrom: [.resuming])
       Task {
         await self.enqueueImplementation(resumeWith: self.downloadData)
       }
@@ -108,10 +107,7 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement, @u
   private func enqueueImplementation(resumeWith resumeData: Data? = nil) async {
     dispatchQueue.async { [weak self] in
       guard let self = self else { return }
-      guard self.state != .cancelled, self.state != .failed, self.state != .success else { return }
-      guard self.state == .unknown || self.state == .queueing || self.state == .running || self
-        .state == .resuming else { return }
-      self.state = .queueing
+      self.transition(to: .queueing, validFrom: [.unknown, .queueing, .running, .resuming])
     }
 
     var request = baseRequest
@@ -142,12 +138,13 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement, @u
                                                      totalBytesExpectedToWrite: Int64) in
           guard let self = self else { return }
           self.dispatchQueue.async { [self] in
-            guard self.state == .running else { return }
-            self.state = .progress
-            self.progress.completedUnitCount = totalBytesWritten
-            self.progress.totalUnitCount = totalBytesExpectedToWrite
+            guard self.transition(to: .progress, validFrom: [.running]) else { return }
+            self.updateProgress(
+              completedUnitCount: totalBytesWritten,
+              totalUnitCount: totalBytesExpectedToWrite
+            )
             self.fire(for: .progress, snapshot: self.snapshot)
-            self.state = .running
+            self.transition(to: .running, validFrom: [.progress])
           }
       }
     } else {
@@ -156,48 +153,42 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement, @u
                                                      totalBytesWritten: Int64) in
           guard let self = self else { return }
           self.dispatchQueue.async { [self] in
-            guard self.state == .running else { return }
-            self.state = .progress
-            self.progress.completedUnitCount = totalBytesWritten
-            if let totalLength = self.fetcher?.response?.expectedContentLength {
-              self.progress.totalUnitCount = totalLength
-            }
+            guard self.transition(to: .progress, validFrom: [.running]) else { return }
+            let totalLength = self.fetcher?.response?.expectedContentLength
+            self.updateProgress(completedUnitCount: totalBytesWritten, totalUnitCount: totalLength)
             self.fire(for: .progress, snapshot: self.snapshot)
-            self.state = .running
+            self.transition(to: .running, validFrom: [.progress])
           }
       }
     }
     dispatchQueue.async { [weak self] in
       guard let self = self else { return }
-      guard self.state == .queueing else {
-        if self.state == .pausing {
-          self.state = .paused
+      guard self.transition(to: .running, validFrom: [.queueing]) else {
+        if self.transition(to: .paused, validFrom: [.pausing]) {
           self.fire(for: .pause, snapshot: self.snapshot)
         }
         fetcher.stopFetching()
         return
       }
       self.fetcher = fetcher
-      self.state = .running
     }
     do {
       let data = try await fetcher.beginFetch()
       dispatchQueue.async { [weak self] in
-        guard let self = self, self.state == .running else { return }
+        guard let self = self else { return }
+        guard self.transition(to: .success, validFrom: [.running]) else { return }
         // Fire last progress updates
         self.fire(for: .progress, snapshot: self.snapshot)
 
-        // Download completed successfully, fire completion callbacks
-        self.state = .success
         self.downloadData = data
         self.fire(for: .success, snapshot: self.snapshot)
         self.removeAllObservers()
       }
     } catch {
       dispatchQueue.async { [weak self] in
-        guard let self = self, self.state == .running else { return }
+        guard let self = self else { return }
+        guard self.transition(to: .failed, validFrom: [.running]) else { return }
         self.fire(for: .progress, snapshot: self.snapshot)
-        self.state = .failed
         self.error = StorageErrorCode.error(
           withServerError: error as NSError,
           ref: self.reference
@@ -211,8 +202,10 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement, @u
   func cancel(withError error: NSError) {
     dispatchQueue.async { [weak self] in
       guard let self = self else { return }
-      guard self.state != .success, self.state != .failed, self.state != .cancelled else { return }
-      self.state = .cancelled
+      guard self.transition(
+        to: .cancelled,
+        validFrom: [.unknown, .queueing, .running, .progress, .pausing, .paused, .resuming]
+      ) else { return }
       self.fetcher?.stopFetching()
       self.error = error
       self.fire(for: .failure, snapshot: self.snapshot)

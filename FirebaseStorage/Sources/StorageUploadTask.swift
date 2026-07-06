@@ -52,7 +52,7 @@ import Foundation
         return
       }
 
-      self.state = .queueing
+      self.transition(to: .queueing, validFrom: [.unknown])
 
       let dataRepresentation = self.uploadMetadata.dictionaryRepresentation()
       let bodyData = try? JSONSerialization.data(withJSONObject: dataRepresentation)
@@ -108,18 +108,19 @@ import Foundation
                                                          totalBytesExpectedToSend: Int64) in
             guard let self = self else { return }
             self.dispatchQueue.async { [self] in
-              guard self.state == .running else { return }
-              self.state = .progress
-              self.progress.completedUnitCount = totalBytesSent
-              self.progress.totalUnitCount = totalBytesExpectedToSend
+              guard self.transition(to: .progress, validFrom: [.running]) else { return }
+              self.updateProgress(
+                completedUnitCount: totalBytesSent,
+                totalUnitCount: totalBytesExpectedToSend
+              )
               self.metadata = self.uploadMetadata
               self.fire(for: .progress, snapshot: self.snapshot)
-              self.state = .running
+              self.transition(to: .running, validFrom: [.progress])
             }
         }
         dispatchQueue.async { [weak self] in
           guard let self = self else { return }
-          guard self.state == .queueing else {
+          guard self.transition(to: .running, validFrom: [.queueing]) else {
             if self.state == .paused {
               self.uploadFetcher = uploadFetcher
               uploadFetcher.pauseFetching()
@@ -129,20 +130,16 @@ import Foundation
             return
           }
           self.uploadFetcher = uploadFetcher
-          self.state = .running
         }
 
         // Process fetches
         do {
           let data = try await uploadFetcher.beginFetch()
           self.dispatchQueue.async { [self] in
-            guard self.state == .running else { return }
+            guard self.transition(to: .success, validFrom: [.running]) else { return }
 
             // Fire last progress updates
             self.fire(for: .progress, snapshot: self.snapshot)
-
-            // Upload completed successfully, fire completion callbacks
-            self.state = .success
 
             if let responseDictionary = try? JSONSerialization
               .jsonObject(with: data) as? [String: AnyHashable] {
@@ -156,10 +153,9 @@ import Foundation
           }
         } catch {
           self.dispatchQueue.async { [self] in
-            guard self.state == .running else { return }
+            guard self.transition(to: .failed, validFrom: [.running]) else { return }
 
             self.fire(for: .progress, snapshot: self.snapshot)
-            self.state = .failed
             self.error = StorageErrorCode.error(withServerError: error as NSError,
                                                 ref: self.reference)
             self.metadata = self.uploadMetadata
@@ -176,9 +172,8 @@ import Foundation
   @objc open func pause() {
     dispatchQueue.async { [weak self] in
       guard let self = self else { return }
-      guard self.state == .queueing || self.state == .running || self.state == .resuming || self
-        .state == .progress else { return }
-      self.state = .paused
+      guard self.transition(to: .paused, validFrom: [.queueing, .running, .resuming, .progress])
+      else { return }
       self.uploadFetcher?.pauseFetching()
       self.metadata = self.uploadMetadata
       self.fire(for: .pause, snapshot: self.snapshot)
@@ -191,8 +186,10 @@ import Foundation
   @objc open func cancel() {
     dispatchQueue.async { [weak self] in
       guard let self = self else { return }
-      guard self.state != .success, self.state != .failed, self.state != .cancelled else { return }
-      self.state = .cancelled
+      guard self.transition(
+        to: .cancelled,
+        validFrom: [.unknown, .queueing, .running, .progress, .paused]
+      ) else { return }
       self.uploadFetcher?.stopFetching()
       self.metadata = self.uploadMetadata
       self.error = StorageError.cancelled as NSError
@@ -207,12 +204,11 @@ import Foundation
   @objc open func resume() {
     dispatchQueue.async { [weak self] in
       guard let self = self else { return }
-      guard self.state == .paused || self.state == .pausing else { return }
-      self.state = .resuming
+      guard self.transition(to: .resuming, validFrom: [.paused]) else { return }
       self.uploadFetcher?.resumeFetching()
       self.metadata = self.uploadMetadata
       self.fire(for: .resume, snapshot: self.snapshot)
-      self.state = .running
+      self.transition(to: .running, validFrom: [.resuming])
     }
   }
 

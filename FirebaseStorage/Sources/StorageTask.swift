@@ -34,8 +34,8 @@ import Foundation
    * An immutable view of the task and associated metadata, progress, error, etc.
    */
   @objc public var snapshot: StorageTaskSnapshot {
-    objc_sync_enter(StorageTask.self)
-    defer { objc_sync_exit(StorageTask.self) }
+    objc_sync_enter(self)
+    defer { objc_sync_exit(self) }
     let progress = Progress(totalUnitCount: self.progress.totalUnitCount)
     progress.completedUnitCount = self.progress.completedUnitCount
     return StorageTaskSnapshot(
@@ -53,13 +53,13 @@ import Foundation
   private var _state: StorageTaskState = .unknown
   var state: StorageTaskState {
     get {
-      objc_sync_enter(StorageTask.self)
-      defer { objc_sync_exit(StorageTask.self) }
+      objc_sync_enter(self)
+      defer { objc_sync_exit(self) }
       return _state
     }
     set {
-      objc_sync_enter(StorageTask.self)
-      defer { objc_sync_exit(StorageTask.self) }
+      objc_sync_enter(self)
+      defer { objc_sync_exit(self) }
       _state = newValue
     }
   }
@@ -67,13 +67,13 @@ import Foundation
   private var _metadata: StorageMetadata?
   var metadata: StorageMetadata? {
     get {
-      objc_sync_enter(StorageTask.self)
-      defer { objc_sync_exit(StorageTask.self) }
+      objc_sync_enter(self)
+      defer { objc_sync_exit(self) }
       return _metadata
     }
     set {
-      objc_sync_enter(StorageTask.self)
-      defer { objc_sync_exit(StorageTask.self) }
+      objc_sync_enter(self)
+      defer { objc_sync_exit(self) }
       _metadata = newValue
     }
   }
@@ -81,13 +81,13 @@ import Foundation
   private var _error: NSError?
   var error: NSError? {
     get {
-      objc_sync_enter(StorageTask.self)
-      defer { objc_sync_exit(StorageTask.self) }
+      objc_sync_enter(self)
+      defer { objc_sync_exit(self) }
       return _error
     }
     set {
-      objc_sync_enter(StorageTask.self)
-      defer { objc_sync_exit(StorageTask.self) }
+      objc_sync_enter(self)
+      defer { objc_sync_exit(self) }
       _error = newValue
     }
   }
@@ -115,6 +115,26 @@ import Foundation
     dispatchQueue = queue
     progress = Progress(totalUnitCount: 0)
     baseRequest = StorageUtils.defaultRequestForReference(reference: reference)
+  }
+
+  @discardableResult
+  func transition(to newState: StorageTaskState, validFrom states: Set<StorageTaskState>) -> Bool {
+    objc_sync_enter(self)
+    defer { objc_sync_exit(self) }
+    if states.contains(_state) {
+      _state = newState
+      return true
+    }
+    return false
+  }
+
+  func updateProgress(completedUnitCount: Int64, totalUnitCount: Int64? = nil) {
+    objc_sync_enter(self)
+    defer { objc_sync_exit(self) }
+    progress.completedUnitCount = completedUnitCount
+    if let totalUnitCount {
+      progress.totalUnitCount = totalUnitCount
+    }
   }
 }
 
