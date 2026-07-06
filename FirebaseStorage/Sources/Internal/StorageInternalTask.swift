@@ -22,7 +22,7 @@ import Foundation
 
 /// Implement StorageTasks that are not directly exposed via the public API.
 @preconcurrency
-class StorageInternalTask: StorageTask {
+class StorageInternalTask: StorageTask, @unchecked Sendable {
   private var fetcher: GTMSessionFetcher?
 
   @discardableResult

@@ -33,7 +33,7 @@ import Foundation
  * specified `callbackQueue` in Storage, or the main queue if left unspecified.
  */
 @objc(FIRStorageDownloadTask)
-open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement {
+open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement, @unchecked Sendable {
   /**
    * Prepares a task and begins execution.
    */
@@ -49,9 +49,8 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement {
   @objc open func pause() {
     dispatchQueue.async { [weak self] in
       guard let self = self else { return }
-      if self.state == .paused || self.state == .pausing {
-        return
-      }
+      guard self.state == .queueing || self.state == .running || self.state == .resuming
+      else { return }
       self.state = .pausing
       // Use the resume callback to confirm pause status since it always runs after the last
       // NSURLSession update.
@@ -78,6 +77,7 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement {
   @objc open func resume() {
     dispatchQueue.async { [weak self] in
       guard let self = self else { return }
+      guard self.state == .paused || self.state == .pausing else { return }
       self.state = .resuming
       self.fire(for: .resume, snapshot: self.snapshot)
       self.state = .running
@@ -106,7 +106,9 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement {
   }
 
   private func enqueueImplementation(resumeWith resumeData: Data? = nil) async {
-    state = .queueing
+    dispatchQueue.async { [weak self] in
+      self?.state = .queueing
+    }
 
     var request = baseRequest
     request.httpMethod = "GET"
@@ -126,6 +128,7 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement {
       fetcher.comment = "Starting DownloadTask"
     }
     fetcher.maxRetryInterval = reference.storage.maxDownloadRetryInterval
+    fetcher.stopFetchingTriggersCompletionHandler = true
 
     if let fileURL {
       // Handle file downloads
@@ -134,54 +137,73 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement {
                                                      totalBytesWritten: Int64,
                                                      totalBytesExpectedToWrite: Int64) in
           guard let self = self else { return }
-          self.state = .progress
-          self.progress.completedUnitCount = totalBytesWritten
-          self.progress.totalUnitCount = totalBytesExpectedToWrite
-          self.fire(for: .progress, snapshot: self.snapshot)
-          self.state = .running
+          self.dispatchQueue.async { [self] in
+            guard self.state == .running else { return }
+            self.state = .progress
+            self.progress.completedUnitCount = totalBytesWritten
+            self.progress.totalUnitCount = totalBytesExpectedToWrite
+            self.fire(for: .progress, snapshot: self.snapshot)
+            self.state = .running
+          }
       }
     } else {
       // Handle data downloads
       fetcher.receivedProgressBlock = { [weak self] (bytesWritten: Int64,
                                                      totalBytesWritten: Int64) in
           guard let self = self else { return }
-          self.state = .progress
-          self.progress.completedUnitCount = totalBytesWritten
-          if let totalLength = self.fetcher?.response?.expectedContentLength {
-            self.progress.totalUnitCount = totalLength
+          self.dispatchQueue.async { [self] in
+            guard self.state == .running else { return }
+            self.state = .progress
+            self.progress.completedUnitCount = totalBytesWritten
+            if let totalLength = self.fetcher?.response?.expectedContentLength {
+              self.progress.totalUnitCount = totalLength
+            }
+            self.fire(for: .progress, snapshot: self.snapshot)
+            self.state = .running
           }
-          self.fire(for: .progress, snapshot: self.snapshot)
-          self.state = .running
       }
     }
     self.fetcher = fetcher
-    state = .running
+    dispatchQueue.async { [weak self] in
+      self?.state = .running
+    }
     do {
       let data = try await self.fetcher?.beginFetch()
-      // Fire last progress updates
-      fire(for: .progress, snapshot: snapshot)
+      dispatchQueue.async { [weak self] in
+        guard let self = self, self.state == .running else { return }
+        // Fire last progress updates
+        self.fire(for: .progress, snapshot: self.snapshot)
 
-      // Download completed successfully, fire completion callbacks
-      state = .success
-      if let data {
-        downloadData = data
+        // Download completed successfully, fire completion callbacks
+        self.state = .success
+        if let data {
+          self.downloadData = data
+        }
+        self.fire(for: .success, snapshot: self.snapshot)
+        self.removeAllObservers()
       }
-      fire(for: .success, snapshot: snapshot)
     } catch {
-      fire(for: .progress, snapshot: snapshot)
-      state = .failed
-      self.error = StorageErrorCode.error(
-        withServerError: error as NSError,
-        ref: reference
-      )
-      fire(for: .failure, snapshot: snapshot)
+      dispatchQueue.async { [weak self] in
+        guard let self = self, self.state == .running || self.state == .pausing else { return }
+        if self.state == .pausing {
+          return
+        }
+        self.fire(for: .progress, snapshot: self.snapshot)
+        self.state = .failed
+        self.error = StorageErrorCode.error(
+          withServerError: error as NSError,
+          ref: self.reference
+        )
+        self.fire(for: .failure, snapshot: self.snapshot)
+        self.removeAllObservers()
+      }
     }
-    removeAllObservers()
   }
 
   func cancel(withError error: NSError) {
     dispatchQueue.async { [weak self] in
       guard let self = self else { return }
+      guard self.state != .success, self.state != .failed, self.state != .cancelled else { return }
       self.state = .cancelled
       self.fetcher?.stopFetching()
       self.error = error

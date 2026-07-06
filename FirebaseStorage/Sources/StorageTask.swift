@@ -29,7 +29,7 @@ import Foundation
  * If no queue is specified, it defaults to the main queue.
  * This class is thread-safe.
  */
-@objc(FIRStorageTask) open class StorageTask: NSObject {
+@objc(FIRStorageTask) open class StorageTask: NSObject, @unchecked Sendable {
   /**
    * An immutable view of the task and associated metadata, progress, error, etc.
    */

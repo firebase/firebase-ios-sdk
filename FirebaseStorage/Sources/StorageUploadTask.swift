@@ -39,7 +39,7 @@ import Foundation
  * specified `callbackQueue` in Storage, or the main queue if unspecified.
  */
 @objc(FIRStorageUploadTask) open class StorageUploadTask: StorageObservableTask,
-  StorageTaskManagement {
+  StorageTaskManagement, @unchecked Sendable {
   /**
    * Prepares a task and begins execution.
    */
@@ -103,15 +103,19 @@ import Foundation
         }
         uploadFetcher.maxRetryInterval = self.reference.storage.maxUploadRetryInterval
 
+        uploadFetcher.stopFetchingTriggersCompletionHandler = true
         uploadFetcher.sendProgressBlock = { [weak self] (bytesSent: Int64, totalBytesSent: Int64,
                                                          totalBytesExpectedToSend: Int64) in
             guard let self = self else { return }
-            self.state = .progress
-            self.progress.completedUnitCount = totalBytesSent
-            self.progress.totalUnitCount = totalBytesExpectedToSend
-            self.metadata = self.uploadMetadata
-            self.fire(for: .progress, snapshot: self.snapshot)
-            self.state = .running
+            self.dispatchQueue.async { [self] in
+              guard self.state == .running else { return }
+              self.state = .progress
+              self.progress.completedUnitCount = totalBytesSent
+              self.progress.totalUnitCount = totalBytesExpectedToSend
+              self.metadata = self.uploadMetadata
+              self.fire(for: .progress, snapshot: self.snapshot)
+              self.state = .running
+            }
         }
         self.uploadFetcher = uploadFetcher
 
@@ -119,32 +123,40 @@ import Foundation
         self.state = .running
         do {
           let data = try await self.uploadFetcher?.beginFetch()
-          // Fire last progress updates
-          self.fire(for: .progress, snapshot: self.snapshot)
+          self.dispatchQueue.async { [self] in
+            guard self.state == .running else { return }
 
-          // Upload completed successfully, fire completion callbacks
-          self.state = .success
+            // Fire last progress updates
+            self.fire(for: .progress, snapshot: self.snapshot)
 
-          guard let data = data else {
-            fatalError("Internal Error: uploadFetcher returned with nil data and no error")
+            // Upload completed successfully, fire completion callbacks
+            self.state = .success
+
+            guard let data = data else {
+              fatalError("Internal Error: uploadFetcher returned with nil data and no error")
+            }
+
+            if let responseDictionary = try? JSONSerialization
+              .jsonObject(with: data) as? [String: AnyHashable] {
+              let metadata = StorageMetadata(dictionary: responseDictionary)
+              metadata.fileType = .file
+              self.metadata = metadata
+            } else {
+              self.error = StorageErrorCode.error(withInvalidRequest: data)
+            }
+            self.finishTaskWithStatus(status: .success, snapshot: self.snapshot)
           }
-
-          if let responseDictionary = try? JSONSerialization
-            .jsonObject(with: data) as? [String: AnyHashable] {
-            let metadata = StorageMetadata(dictionary: responseDictionary)
-            metadata.fileType = .file
-            self.metadata = metadata
-          } else {
-            self.error = StorageErrorCode.error(withInvalidRequest: data)
-          }
-          self.finishTaskWithStatus(status: .success, snapshot: self.snapshot)
         } catch {
-          self.fire(for: .progress, snapshot: self.snapshot)
-          self.state = .failed
-          self.error = StorageErrorCode.error(withServerError: error as NSError,
-                                              ref: self.reference)
-          self.metadata = self.uploadMetadata
-          self.finishTaskWithStatus(status: .failure, snapshot: self.snapshot)
+          self.dispatchQueue.async { [self] in
+            guard self.state == .running else { return }
+
+            self.fire(for: .progress, snapshot: self.snapshot)
+            self.state = .failed
+            self.error = StorageErrorCode.error(withServerError: error as NSError,
+                                                ref: self.reference)
+            self.metadata = self.uploadMetadata
+            self.finishTaskWithStatus(status: .failure, snapshot: self.snapshot)
+          }
         }
       }
     }
@@ -156,11 +168,11 @@ import Foundation
   @objc open func pause() {
     dispatchQueue.async { [weak self] in
       guard let self = self else { return }
+      guard self.state == .queueing || self.state == .running || self.state == .resuming || self
+        .state == .progress else { return }
       self.state = .paused
       self.uploadFetcher?.pauseFetching()
-      if self.state != .success {
-        self.metadata = self.uploadMetadata
-      }
+      self.metadata = self.uploadMetadata
       self.fire(for: .pause, snapshot: self.snapshot)
     }
   }
@@ -171,16 +183,13 @@ import Foundation
   @objc open func cancel() {
     dispatchQueue.async { [weak self] in
       guard let self = self else { return }
+      guard self.state != .success, self.state != .failed, self.state != .cancelled else { return }
       self.state = .cancelled
       self.uploadFetcher?.stopFetching()
-      if self.state != .success {
-        self.metadata = self.uploadMetadata
-      }
-      self.error = StorageErrorCode.error(
-        withServerError: StorageErrorCode.cancelled as NSError,
-        ref: self.reference
-      )
+      self.metadata = self.uploadMetadata
+      self.error = StorageError.cancelled as NSError
       self.fire(for: .failure, snapshot: self.snapshot)
+      self.removeAllObservers()
     }
   }
 
@@ -190,11 +199,10 @@ import Foundation
   @objc open func resume() {
     dispatchQueue.async { [weak self] in
       guard let self = self else { return }
+      guard self.state == .paused || self.state == .pausing else { return }
       self.state = .resuming
       self.uploadFetcher?.resumeFetching()
-      if self.state != .success {
-        self.metadata = self.uploadMetadata
-      }
+      self.metadata = self.uploadMetadata
       self.fire(for: .resume, snapshot: self.snapshot)
       self.state = .running
     }

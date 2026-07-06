@@ -21,7 +21,7 @@ import Foundation
  * Observers produce a `StorageHandle`, which is used to keep track of and remove specific
  * observers at a later date.
  */
-@objc(FIRStorageObservableTask) open class StorageObservableTask: StorageTask {
+@objc(FIRStorageObservableTask) open class StorageObservableTask: StorageTask, @unchecked Sendable {
   /**
    * Observes changes in the upload status: Resume, Pause, Progress, Success, and Failure.
    * - Parameters:
