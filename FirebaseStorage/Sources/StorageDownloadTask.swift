@@ -107,7 +107,9 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement, @u
 
   private func enqueueImplementation(resumeWith resumeData: Data? = nil) async {
     dispatchQueue.async { [weak self] in
-      self?.state = .queueing
+      guard let self = self else { return }
+      guard self.state != .cancelled, self.state != .failed, self.state != .success else { return }
+      self.state = .queueing
     }
 
     var request = baseRequest
@@ -164,8 +166,17 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement, @u
       }
     }
     dispatchQueue.async { [weak self] in
-      self?.fetcher = fetcher
-      self?.state = .running
+      guard let self = self else { return }
+      guard self.state == .queueing else {
+        if self.state == .pausing {
+          self.state = .paused
+          self.fire(for: .pause, snapshot: self.snapshot)
+        }
+        fetcher.stopFetching()
+        return
+      }
+      self.fetcher = fetcher
+      self.state = .running
     }
     do {
       let data = try await fetcher.beginFetch()

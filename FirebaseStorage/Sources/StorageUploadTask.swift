@@ -118,8 +118,13 @@ import Foundation
             }
         }
         dispatchQueue.async { [weak self] in
-          self?.uploadFetcher = uploadFetcher
-          self?.state = .running
+          guard let self = self else { return }
+          guard self.state == .queueing else {
+            uploadFetcher.stopFetching()
+            return
+          }
+          self.uploadFetcher = uploadFetcher
+          self.state = .running
         }
 
         // Process fetches
@@ -133,7 +138,6 @@ import Foundation
 
             // Upload completed successfully, fire completion callbacks
             self.state = .success
-
 
             if let responseDictionary = try? JSONSerialization
               .jsonObject(with: data) as? [String: AnyHashable] {
