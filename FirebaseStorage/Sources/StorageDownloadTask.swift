@@ -55,9 +55,11 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement, @u
       // NSURLSession update.
       self.fetcher?.resumeDataBlock = { [weak self] (data: Data) in
         guard let self = self else { return }
-        self.downloadData = data
-        if self.transition(to: .paused, validFrom: [.pausing]) {
-          self.fire(for: .pause, snapshot: self.snapshot)
+        self.dispatchQueue.async {
+          self.downloadData = data
+          if self.transition(to: .paused, validFrom: [.pausing]) {
+            self.fire(for: .pause, snapshot: self.snapshot)
+          }
         }
       }
       self.fetcher?.stopFetching()
@@ -149,12 +151,12 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement, @u
       }
     } else {
       // Handle data downloads
-      fetcher.receivedProgressBlock = { [weak self] (bytesWritten: Int64,
-                                                     totalBytesWritten: Int64) in
+      fetcher.receivedProgressBlock = { [weak self, fetcher] (bytesWritten: Int64,
+                                                              totalBytesWritten: Int64) in
           guard let self = self else { return }
           self.dispatchQueue.async { [self] in
             guard self.transition(to: .progress, validFrom: [.running]) else { return }
-            let totalLength = self.fetcher?.response?.expectedContentLength
+            let totalLength = fetcher.response?.expectedContentLength
             self.updateProgress(completedUnitCount: totalBytesWritten, totalUnitCount: totalLength)
             self.fire(for: .progress, snapshot: self.snapshot)
             self.transition(to: .running, validFrom: [.progress])
