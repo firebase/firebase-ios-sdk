@@ -109,6 +109,8 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement, @u
     dispatchQueue.async { [weak self] in
       guard let self = self else { return }
       guard self.state != .cancelled, self.state != .failed, self.state != .success else { return }
+      guard self.state == .unknown || self.state == .queueing || self.state == .running || self
+        .state == .resuming else { return }
       self.state = .queueing
     }
 

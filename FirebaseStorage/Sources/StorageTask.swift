@@ -40,30 +40,57 @@ import Foundation
     progress.completedUnitCount = self.progress.completedUnitCount
     return StorageTaskSnapshot(
       task: self,
-      state: state,
+      state: _state,
       reference: reference,
       progress: progress,
-      metadata: metadata,
-      error: error
+      metadata: _metadata,
+      error: _error
     )
   }
 
   // MARK: - Internal Implementations
 
-  /**
-   * State for the current task in progress.
-   */
-  var state: StorageTaskState
+  private var _state: StorageTaskState = .unknown
+  var state: StorageTaskState {
+    get {
+      objc_sync_enter(StorageTask.self)
+      defer { objc_sync_exit(StorageTask.self) }
+      return _state
+    }
+    set {
+      objc_sync_enter(StorageTask.self)
+      defer { objc_sync_exit(StorageTask.self) }
+      _state = newValue
+    }
+  }
 
-  /**
-   * StorageMetadata for the task in progress, or nil if none present.
-   */
-  var metadata: StorageMetadata?
+  private var _metadata: StorageMetadata?
+  var metadata: StorageMetadata? {
+    get {
+      objc_sync_enter(StorageTask.self)
+      defer { objc_sync_exit(StorageTask.self) }
+      return _metadata
+    }
+    set {
+      objc_sync_enter(StorageTask.self)
+      defer { objc_sync_exit(StorageTask.self) }
+      _metadata = newValue
+    }
+  }
 
-  /**
-   * Error which occurred during task execution, or nil if no error occurred.
-   */
-  var error: NSError?
+  private var _error: NSError?
+  var error: NSError? {
+    get {
+      objc_sync_enter(StorageTask.self)
+      defer { objc_sync_exit(StorageTask.self) }
+      return _error
+    }
+    set {
+      objc_sync_enter(StorageTask.self)
+      defer { objc_sync_exit(StorageTask.self) }
+      _error = newValue
+    }
+  }
 
   /**
    * NSProgress object which tracks the progress of an observable task.
@@ -86,7 +113,6 @@ import Foundation
        queue: DispatchQueue) {
     self.reference = reference
     dispatchQueue = queue
-    state = .unknown
     progress = Progress(totalUnitCount: 0)
     baseRequest = StorageUtils.defaultRequestForReference(reference: reference)
   }

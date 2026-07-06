@@ -120,7 +120,12 @@ import Foundation
         dispatchQueue.async { [weak self] in
           guard let self = self else { return }
           guard self.state == .queueing else {
-            uploadFetcher.stopFetching()
+            if self.state == .paused {
+              self.uploadFetcher = uploadFetcher
+              uploadFetcher.pauseFetching()
+            } else {
+              uploadFetcher.stopFetching()
+            }
             return
           }
           self.uploadFetcher = uploadFetcher
