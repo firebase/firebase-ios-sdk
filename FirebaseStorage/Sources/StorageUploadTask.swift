@@ -106,12 +106,17 @@ import Foundation
         uploadFetcher.sendProgressBlock = { [weak self] (bytesSent: Int64, totalBytesSent: Int64,
                                                          totalBytesExpectedToSend: Int64) in
             guard let self = self else { return }
-            self.state = .progress
-            self.progress.completedUnitCount = totalBytesSent
-            self.progress.totalUnitCount = totalBytesExpectedToSend
-            self.metadata = self.uploadMetadata
-            self.fire(for: .progress, snapshot: self.snapshot)
-            self.state = .running
+            self.dispatchQueue.async { [weak self] in
+              guard let self = self else { return }
+              if self.state == .cancelled || self.state == .pausing || self
+                .state == .paused { return }
+              self.state = .progress
+              self.progress.completedUnitCount = totalBytesSent
+              self.progress.totalUnitCount = totalBytesExpectedToSend
+              self.metadata = self.uploadMetadata
+              self.fire(for: .progress, snapshot: self.snapshot)
+              self.state = .running
+            }
         }
         self.uploadFetcher = uploadFetcher
 
@@ -119,32 +124,40 @@ import Foundation
         self.state = .running
         do {
           let data = try await self.uploadFetcher?.beginFetch()
-          // Fire last progress updates
-          self.fire(for: .progress, snapshot: self.snapshot)
+          self.dispatchQueue.async { [weak self] in
+            guard let self = self else { return }
+            if self.state == .cancelled { return }
+            // Fire last progress updates
+            self.fire(for: .progress, snapshot: self.snapshot)
 
-          // Upload completed successfully, fire completion callbacks
-          self.state = .success
+            // Upload completed successfully, fire completion callbacks
+            self.state = .success
 
-          guard let data = data else {
-            fatalError("Internal Error: uploadFetcher returned with nil data and no error")
+            guard let data = data else {
+              fatalError("Internal Error: uploadFetcher returned with nil data and no error")
+            }
+
+            if let responseDictionary = try? JSONSerialization
+              .jsonObject(with: data) as? [String: AnyHashable] {
+              let metadata = StorageMetadata(dictionary: responseDictionary)
+              metadata.fileType = .file
+              self.metadata = metadata
+            } else {
+              self.error = StorageErrorCode.error(withInvalidRequest: data)
+            }
+            self.finishTaskWithStatus(status: .success, snapshot: self.snapshot)
           }
-
-          if let responseDictionary = try? JSONSerialization
-            .jsonObject(with: data) as? [String: AnyHashable] {
-            let metadata = StorageMetadata(dictionary: responseDictionary)
-            metadata.fileType = .file
-            self.metadata = metadata
-          } else {
-            self.error = StorageErrorCode.error(withInvalidRequest: data)
-          }
-          self.finishTaskWithStatus(status: .success, snapshot: self.snapshot)
         } catch {
-          self.fire(for: .progress, snapshot: self.snapshot)
-          self.state = .failed
-          self.error = StorageErrorCode.error(withServerError: error as NSError,
-                                              ref: self.reference)
-          self.metadata = self.uploadMetadata
-          self.finishTaskWithStatus(status: .failure, snapshot: self.snapshot)
+          self.dispatchQueue.async { [weak self] in
+            guard let self = self else { return }
+            if self.state == .cancelled { return }
+            self.fire(for: .progress, snapshot: self.snapshot)
+            self.state = .failed
+            self.error = StorageErrorCode.error(withServerError: error as NSError,
+                                                ref: self.reference)
+            self.metadata = self.uploadMetadata
+            self.finishTaskWithStatus(status: .failure, snapshot: self.snapshot)
+          }
         }
       }
     }
@@ -181,6 +194,7 @@ import Foundation
         ref: self.reference
       )
       self.fire(for: .failure, snapshot: self.snapshot)
+      self.removeAllObservers()
     }
   }
 

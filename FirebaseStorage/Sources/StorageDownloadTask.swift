@@ -134,49 +134,68 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement {
                                                      totalBytesWritten: Int64,
                                                      totalBytesExpectedToWrite: Int64) in
           guard let self = self else { return }
-          self.state = .progress
-          self.progress.completedUnitCount = totalBytesWritten
-          self.progress.totalUnitCount = totalBytesExpectedToWrite
-          self.fire(for: .progress, snapshot: self.snapshot)
-          self.state = .running
+          self.dispatchQueue.async { [weak self] in
+            guard let self = self else { return }
+            if self.state == .cancelled || self.state == .pausing || self
+              .state == .paused { return }
+            self.state = .progress
+            self.progress.completedUnitCount = totalBytesWritten
+            self.progress.totalUnitCount = totalBytesExpectedToWrite
+            self.fire(for: .progress, snapshot: self.snapshot)
+            self.state = .running
+          }
       }
     } else {
       // Handle data downloads
       fetcher.receivedProgressBlock = { [weak self] (bytesWritten: Int64,
                                                      totalBytesWritten: Int64) in
           guard let self = self else { return }
-          self.state = .progress
-          self.progress.completedUnitCount = totalBytesWritten
-          if let totalLength = self.fetcher?.response?.expectedContentLength {
-            self.progress.totalUnitCount = totalLength
+          self.dispatchQueue.async { [weak self] in
+            guard let self = self else { return }
+            if self.state == .cancelled || self.state == .pausing || self
+              .state == .paused { return }
+            self.state = .progress
+            self.progress.completedUnitCount = totalBytesWritten
+            if let totalLength = self.fetcher?.response?.expectedContentLength {
+              self.progress.totalUnitCount = totalLength
+            }
+            self.fire(for: .progress, snapshot: self.snapshot)
+            self.state = .running
           }
-          self.fire(for: .progress, snapshot: self.snapshot)
-          self.state = .running
       }
     }
     self.fetcher = fetcher
     state = .running
     do {
       let data = try await self.fetcher?.beginFetch()
-      // Fire last progress updates
-      fire(for: .progress, snapshot: snapshot)
+      dispatchQueue.async { [weak self] in
+        guard let self = self else { return }
+        if self.state == .cancelled { return }
+        // Fire last progress updates
+        self.fire(for: .progress, snapshot: self.snapshot)
 
-      // Download completed successfully, fire completion callbacks
-      state = .success
-      if let data {
-        downloadData = data
+        // Download completed successfully, fire completion callbacks
+        self.state = .success
+        if let data {
+          self.downloadData = data
+        }
+        self.fire(for: .success, snapshot: self.snapshot)
+        self.removeAllObservers()
       }
-      fire(for: .success, snapshot: snapshot)
     } catch {
-      fire(for: .progress, snapshot: snapshot)
-      state = .failed
-      self.error = StorageErrorCode.error(
-        withServerError: error as NSError,
-        ref: reference
-      )
-      fire(for: .failure, snapshot: snapshot)
+      dispatchQueue.async { [weak self] in
+        guard let self = self else { return }
+        if self.state == .cancelled { return }
+        self.fire(for: .progress, snapshot: self.snapshot)
+        self.state = .failed
+        self.error = StorageErrorCode.error(
+          withServerError: error as NSError,
+          ref: self.reference
+        )
+        self.fire(for: .failure, snapshot: self.snapshot)
+        self.removeAllObservers()
+      }
     }
-    removeAllObservers()
   }
 
   func cancel(withError error: NSError) {
