@@ -146,8 +146,10 @@ import Foundation
             }
         }
         // Process fetches
+        var isPaused = false
         let shouldContinue = self.stateLock.withLock { () -> Bool in
           if self.state == .cancelled || self.state == .pausing || self.state == .paused {
+            isPaused = self.state == .paused || self.state == .pausing
             return false
           }
           self.uploadFetcher = uploadFetcher
@@ -155,7 +157,6 @@ import Foundation
           return true
         }
         if !shouldContinue {
-          let isPaused = self.stateLock.withLock { self.state == .paused || self.state == .pausing }
           if isPaused {
             uploadFetcher.pauseFetching()
           } else {

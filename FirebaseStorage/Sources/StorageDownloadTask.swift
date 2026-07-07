@@ -226,8 +226,10 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement, @u
           }
       }
     }
+    var isPausing = false
     let shouldContinue = stateLock.withLock { () -> Bool in
       if state == .cancelled || state == .pausing || state == .paused {
+        isPausing = state == .pausing
         return false
       }
       self.fetcher = fetcher
@@ -235,7 +237,6 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement, @u
       return true
     }
     if !shouldContinue {
-      let isPausing = stateLock.withLock { state == .pausing }
       if isPausing {
         fetcher.resumeDataBlock = { [weak self] (data: Data) in
           guard let self = self else { return }
