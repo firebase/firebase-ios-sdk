@@ -66,9 +66,9 @@ import Foundation
           "of: Pause, Resume, Progress, Complete, or Failure")
       }
     }
-    objc_sync_enter(StorageObservableTask.self)
+    stateLock.lock()
     handleToStatusMap[uuidString] = status
-    objc_sync_exit(StorageObservableTask.self)
+    stateLock.unlock()
 
     return uuidString
   }
@@ -79,10 +79,10 @@ import Foundation
    */
   @objc(removeObserverWithHandle:) open func removeObserver(withHandle handle: String) {
     if let status = handleToStatusMap[handle] {
-      objc_sync_enter(StorageObservableTask.self)
+      stateLock.lock()
       handlerDictionaries[status]?.removeValue(forKey: handle)
       handleToStatusMap.removeValue(forKey: handle)
-      objc_sync_exit(StorageObservableTask.self)
+      stateLock.unlock()
     }
   }
 
@@ -93,12 +93,12 @@ import Foundation
   @objc(removeAllObserversForStatus:)
   open func removeAllObservers(for status: StorageTaskStatus) {
     if let handlerDictionary = handlerDictionaries[status] {
-      objc_sync_enter(StorageObservableTask.self)
+      stateLock.lock()
       for (key, _) in handlerDictionary {
         handleToStatusMap.removeValue(forKey: key)
       }
       handlerDictionaries[status]?.removeAll()
-      objc_sync_exit(StorageObservableTask.self)
+      stateLock.unlock()
     }
   }
 
@@ -106,12 +106,12 @@ import Foundation
    * Removes all observers.
    */
   @objc open func removeAllObservers() {
-    objc_sync_enter(StorageObservableTask.self)
+    stateLock.lock()
     for (status, _) in handlerDictionaries {
       handlerDictionaries[status]?.removeAll()
     }
     handleToStatusMap.removeAll()
-    objc_sync_exit(StorageObservableTask.self)
+    stateLock.unlock()
   }
 
   // MARK: - Private Handler Dictionaries
@@ -146,9 +146,9 @@ import Foundation
     -> String {
     // TODO: use an increasing counter instead of a random UUID
     let uuidString = NSUUID().uuidString
-    objc_sync_enter(StorageObservableTask.self)
+    stateLock.lock()
     handlerDictionaries[status]?[uuidString] = handler
-    objc_sync_exit(StorageObservableTask.self)
+    stateLock.unlock()
     return uuidString
   }
 
@@ -160,9 +160,9 @@ import Foundation
 
   func fire(handlers: [String: (StorageTaskSnapshot) -> Void],
             snapshot: StorageTaskSnapshot) {
-    objc_sync_enter(StorageObservableTask.self)
+    stateLock.lock()
     let enumeration = handlers.enumerated()
-    objc_sync_exit(StorageObservableTask.self)
+    stateLock.unlock()
     for (_, handler) in enumeration {
       reference.storage.callbackQueue.async {
         handler.value(snapshot)

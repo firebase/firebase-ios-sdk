@@ -34,8 +34,8 @@ import Foundation
    * An immutable view of the task and associated metadata, progress, error, etc.
    */
   @objc public var snapshot: StorageTaskSnapshot {
-    objc_sync_enter(StorageTask.self)
-    defer { objc_sync_exit(StorageTask.self) }
+    stateLock.lock()
+    defer { stateLock.unlock() }
     let progress = Progress(totalUnitCount: self.progress.totalUnitCount)
     progress.completedUnitCount = self.progress.completedUnitCount
     return StorageTaskSnapshot(
@@ -49,6 +49,11 @@ import Foundation
   }
 
   // MARK: - Internal Implementations
+
+  /**
+   * Lock to protect mutable state (state, progress, metadata, error).
+   */
+  let stateLock = NSLock()
 
   /**
    * State for the current task in progress.

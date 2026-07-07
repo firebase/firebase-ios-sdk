@@ -46,13 +46,15 @@ import Foundation
   @objc open func enqueue() {
     // Capturing self so that the upload is done whether or not there is a callback.
     dispatchQueue.async { [self] in
+      stateLock.lock()
       if let contentValidationError = self.contentUploadError() {
         self.error = contentValidationError
+        stateLock.unlock()
         self.finishTaskWithStatus(status: .failure, snapshot: self.snapshot)
         return
       }
-
       self.state = .queueing
+      stateLock.unlock()
 
       let dataRepresentation = self.uploadMetadata.dictionaryRepresentation()
       let bodyData = try? JSONSerialization.data(withJSONObject: dataRepresentation)
@@ -106,58 +108,90 @@ import Foundation
         uploadFetcher.sendProgressBlock = { [weak self] (bytesSent: Int64, totalBytesSent: Int64,
                                                          totalBytesExpectedToSend: Int64) in
             guard let self = self else { return }
-            self.dispatchQueue.async { [weak self] in
-              guard let self = self else { return }
-              if self.state == .cancelled || self.state == .pausing || self
-                .state == .paused { return }
-              self.state = .progress
-              self.progress.completedUnitCount = totalBytesSent
-              self.progress.totalUnitCount = totalBytesExpectedToSend
-              self.metadata = self.uploadMetadata
-              self.fire(for: .progress, snapshot: self.snapshot)
-              self.state = .running
+            self.stateLock.lock()
+            if self.state == .cancelled || self.state == .pausing || self.state == .paused {
+              self.stateLock.unlock()
+              return
             }
+            self.state = .progress
+            self.progress.completedUnitCount = totalBytesSent
+            self.progress.totalUnitCount = totalBytesExpectedToSend
+            self.metadata = self.uploadMetadata
+            self.stateLock.unlock()
+
+            self.fire(for: .progress, snapshot: self.snapshot)
+
+            self.stateLock.lock()
+            if self.state == .cancelled || self.state == .pausing || self.state == .paused {
+              self.stateLock.unlock()
+              return
+            }
+            self.state = .running
+            self.stateLock.unlock()
         }
         self.uploadFetcher = uploadFetcher
 
         // Process fetches
+        self.stateLock.lock()
         self.state = .running
+        self.stateLock.unlock()
         do {
           let data = try await self.uploadFetcher?.beginFetch()
-          self.dispatchQueue.async { [weak self] in
-            guard let self = self else { return }
-            if self.state == .cancelled { return }
-            // Fire last progress updates
-            self.fire(for: .progress, snapshot: self.snapshot)
-
-            // Upload completed successfully, fire completion callbacks
-            self.state = .success
-
-            guard let data = data else {
-              fatalError("Internal Error: uploadFetcher returned with nil data and no error")
-            }
-
-            if let responseDictionary = try? JSONSerialization
-              .jsonObject(with: data) as? [String: AnyHashable] {
-              let metadata = StorageMetadata(dictionary: responseDictionary)
-              metadata.fileType = .file
-              self.metadata = metadata
-            } else {
-              self.error = StorageErrorCode.error(withInvalidRequest: data)
-            }
-            self.finishTaskWithStatus(status: .success, snapshot: self.snapshot)
+          self.stateLock.lock()
+          if self.state == .cancelled {
+            self.stateLock.unlock()
+            return
           }
+          self.stateLock.unlock()
+
+          // Fire last progress updates
+          self.fire(for: .progress, snapshot: self.snapshot)
+
+          // Upload completed successfully, fire completion callbacks
+          self.stateLock.lock()
+          if self.state == .cancelled {
+            self.stateLock.unlock()
+            return
+          }
+          self.state = .success
+
+          guard let data = data else {
+            self.stateLock.unlock()
+            fatalError("Internal Error: uploadFetcher returned with nil data and no error")
+          }
+
+          if let responseDictionary = try? JSONSerialization
+            .jsonObject(with: data) as? [String: AnyHashable] {
+            let metadata = StorageMetadata(dictionary: responseDictionary)
+            metadata.fileType = .file
+            self.metadata = metadata
+          } else {
+            self.error = StorageErrorCode.error(withInvalidRequest: data)
+          }
+          self.stateLock.unlock()
+          self.finishTaskWithStatus(status: .success, snapshot: self.snapshot)
         } catch {
-          self.dispatchQueue.async { [weak self] in
-            guard let self = self else { return }
-            if self.state == .cancelled { return }
-            self.fire(for: .progress, snapshot: self.snapshot)
-            self.state = .failed
-            self.error = StorageErrorCode.error(withServerError: error as NSError,
-                                                ref: self.reference)
-            self.metadata = self.uploadMetadata
-            self.finishTaskWithStatus(status: .failure, snapshot: self.snapshot)
+          self.stateLock.lock()
+          if self.state == .cancelled {
+            self.stateLock.unlock()
+            return
           }
+          self.stateLock.unlock()
+
+          self.fire(for: .progress, snapshot: self.snapshot)
+
+          self.stateLock.lock()
+          if self.state == .cancelled {
+            self.stateLock.unlock()
+            return
+          }
+          self.state = .failed
+          self.error = StorageErrorCode.error(withServerError: error as NSError,
+                                              ref: self.reference)
+          self.metadata = self.uploadMetadata
+          self.stateLock.unlock()
+
+          self.finishTaskWithStatus(status: .failure, snapshot: self.snapshot)
         }
       }
     }
@@ -167,51 +201,67 @@ import Foundation
    * Pauses a task currently in progress.
    */
   @objc open func pause() {
-    dispatchQueue.async { [weak self] in
-      guard let self = self else { return }
-      self.state = .paused
-      self.uploadFetcher?.pauseFetching()
-      if self.state != .success {
-        self.metadata = self.uploadMetadata
-      }
-      self.fire(for: .pause, snapshot: self.snapshot)
+    stateLock.lock()
+    if state == .paused || state == .pausing || state == .success || state == .cancelled || state ==
+      .failed {
+      stateLock.unlock()
+      return
     }
+    state = .paused
+    uploadFetcher?.pauseFetching()
+    metadata = uploadMetadata
+    stateLock.unlock()
+
+    fire(for: .pause, snapshot: snapshot)
   }
 
   /**
    * Cancels a task.
    */
   @objc open func cancel() {
-    dispatchQueue.async { [weak self] in
-      guard let self = self else { return }
-      self.state = .cancelled
-      self.uploadFetcher?.stopFetching()
-      if self.state != .success {
-        self.metadata = self.uploadMetadata
-      }
-      self.error = StorageErrorCode.error(
-        withServerError: StorageErrorCode.cancelled as NSError,
-        ref: self.reference
-      )
-      self.fire(for: .failure, snapshot: self.snapshot)
-      self.removeAllObservers()
+    stateLock.lock()
+    if state == .cancelled || state == .success || state == .failed {
+      stateLock.unlock()
+      return
     }
+    state = .cancelled
+    uploadFetcher?.stopFetching()
+    metadata = uploadMetadata
+    error = StorageErrorCode.error(
+      withServerError: StorageErrorCode.cancelled as NSError,
+      ref: reference
+    )
+    stateLock.unlock()
+
+    fire(for: .failure, snapshot: snapshot)
+    removeAllObservers()
   }
 
   /**
    * Resumes a paused task.
    */
   @objc open func resume() {
-    dispatchQueue.async { [weak self] in
-      guard let self = self else { return }
-      self.state = .resuming
-      self.uploadFetcher?.resumeFetching()
-      if self.state != .success {
-        self.metadata = self.uploadMetadata
-      }
-      self.fire(for: .resume, snapshot: self.snapshot)
-      self.state = .running
+    stateLock.lock()
+    if state == .running || state == .resuming || state == .success || state == .cancelled ||
+      state ==
+      .failed {
+      stateLock.unlock()
+      return
     }
+    state = .resuming
+    uploadFetcher?.resumeFetching()
+    metadata = uploadMetadata
+    stateLock.unlock()
+
+    fire(for: .resume, snapshot: snapshot)
+
+    stateLock.lock()
+    if state == .cancelled || state == .paused || state == .pausing {
+      stateLock.unlock()
+      return
+    }
+    state = .running
+    stateLock.unlock()
   }
 
   private var uploadFetcher: GTMSessionUploadFetcher?
