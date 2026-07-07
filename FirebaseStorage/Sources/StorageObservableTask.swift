@@ -40,30 +40,25 @@ import Foundation
 
     // TODO: use an increasing counter instead of a random UUID
     let uuidString = updateHandlerDictionary(for: status, with: callback)
-    if let handlerDictionary = stateLock.withLock({ handlerDictionaries[status] }) {
-      switch status {
-      case .pause:
-        if snapshot.state == .pausing || snapshot.state == .paused {
-          fire(handlers: handlerDictionary, snapshot: snapshot)
-        }
-      case .resume:
-        if snapshot.state == .resuming || snapshot.state == .running {
-          fire(handlers: handlerDictionary, snapshot: snapshot)
-        }
-      case .progress:
-        if snapshot.state == .running || snapshot.state == .progress {
-          fire(handlers: handlerDictionary, snapshot: snapshot)
-        }
-      case .success:
-        if snapshot.state == .success {
-          fire(handlers: handlerDictionary, snapshot: snapshot)
-        }
-      case .failure:
-        if snapshot.state == .failed || snapshot.state == .failing {
-          fire(handlers: handlerDictionary, snapshot: snapshot)
-        }
-      case .unknown: fatalError("Invalid observer status requested, use one " +
-          "of: Pause, Resume, Progress, Complete, or Failure")
+    var shouldFire = false
+    switch status {
+    case .pause:
+      shouldFire = snapshot.state == .pausing || snapshot.state == .paused
+    case .resume:
+      shouldFire = snapshot.state == .resuming || snapshot.state == .running
+    case .progress:
+      shouldFire = snapshot.state == .running || snapshot.state == .progress
+    case .success:
+      shouldFire = snapshot.state == .success
+    case .failure:
+      shouldFire = snapshot.state == .failed || snapshot.state == .failing
+    case .unknown:
+      fatalError("Invalid observer status requested, use one of: Pause, Resume, Progress, Complete, or Failure")
+    }
+
+    if shouldFire {
+      reference.storage.callbackQueue.async {
+        callback(snapshot)
       }
     }
     stateLock.withLock {

@@ -58,11 +58,17 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement, @u
       // NSURLSession update.
       fetcher?.resumeDataBlock = { [weak self] (data: Data) in
         guard let self = self else { return }
-        self.stateLock.withLock {
+        let shouldFire = self.stateLock.withLock { () -> Bool in
+          if self.state == .cancelled || self.state == .failed || self.state == .success {
+            return false
+          }
           self.downloadData = data
           self.state = .paused
+          return true
         }
-        self.fire(for: .pause, snapshot: self.snapshot)
+        if shouldFire {
+          self.fire(for: .pause, snapshot: self.snapshot)
+        }
       }
       fetcherToStop = fetcher
     }
@@ -126,9 +132,15 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement, @u
   }
 
   private func enqueueImplementation(resumeWith resumeData: Data? = nil) async {
-    stateLock.withLock {
+    let shouldProceed = stateLock.withLock { () -> Bool in
+      if state == .cancelled || state == .pausing || state == .paused || state == .success ||
+         state == .failed {
+        return false
+      }
       state = .queueing
+      return true
     }
+    if !shouldProceed { return }
 
     var request = baseRequest
     request.httpMethod = "GET"
@@ -157,7 +169,8 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement, @u
                                                      totalBytesExpectedToWrite: Int64) in
           guard let self = self else { return }
           let shouldReturn = self.stateLock.withLock { () -> Bool in
-            if self.state == .cancelled || self.state == .pausing || self.state == .paused {
+            if self.state == .cancelled || self.state == .pausing || self.state == .paused ||
+               self.state == .success || self.state == .failed {
               return true
             }
             self.state = .progress
@@ -217,11 +230,17 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement, @u
       if isPausing {
         fetcher.resumeDataBlock = { [weak self] (data: Data) in
           guard let self = self else { return }
-          self.stateLock.withLock {
+          let shouldFire = self.stateLock.withLock { () -> Bool in
+            if self.state == .cancelled || self.state == .failed || self.state == .success {
+              return false
+            }
             self.downloadData = data
             self.state = .paused
+            return true
           }
-          self.fire(for: .pause, snapshot: self.snapshot)
+          if shouldFire {
+            self.fire(for: .pause, snapshot: self.snapshot)
+          }
         }
       }
       fetcher.stopFetching()
