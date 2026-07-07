@@ -260,40 +260,52 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement, @u
       let isCancelled = stateLock.withLock { state == .cancelled }
       if isCancelled { return }
 
-      // Fire last progress updates
-      fire(for: .progress, snapshot: snapshot)
+      var progressSnapshot: StorageTaskSnapshot?
+      var successSnapshot: StorageTaskSnapshot?
 
-      // Download completed successfully, fire completion callbacks
-      let shouldReturn = stateLock.withLock { () -> Bool in
-        if state == .cancelled { return true }
+      stateLock.withLock {
+        if state == .cancelled { return }
+
+        state = .progress
+        progressSnapshot = snapshotUnderLock()
+
         state = .success
         downloadData = data
-        return false
+        successSnapshot = snapshotUnderLock()
       }
-      if shouldReturn { return }
 
-      fire(for: .success, snapshot: snapshot)
-      removeAllObservers()
+      if let progressSnapshot {
+        fire(for: .progress, snapshot: progressSnapshot)
+      }
+      if let successSnapshot {
+        fire(for: .success, snapshot: successSnapshot)
+        removeAllObservers()
+      }
     } catch {
-      let shouldReturnEarly = stateLock
-        .withLock { state == .cancelled || state == .paused || state == .pausing }
-      if shouldReturnEarly { return }
+      var progressSnapshot: StorageTaskSnapshot?
+      var failureSnapshot: StorageTaskSnapshot?
 
-      fire(for: .progress, snapshot: snapshot)
+      stateLock.withLock {
+        if state == .cancelled || state == .paused || state == .pausing { return }
 
-      let shouldReturn = stateLock.withLock { () -> Bool in
-        if state == .cancelled { return true }
+        state = .progress
+        progressSnapshot = snapshotUnderLock()
+
         state = .failed
         self.error = StorageErrorCode.error(
           withServerError: error as NSError,
           ref: reference
         )
-        return false
+        failureSnapshot = snapshotUnderLock()
       }
-      if shouldReturn { return }
 
-      fire(for: .failure, snapshot: snapshot)
-      removeAllObservers()
+      if let progressSnapshot {
+        fire(for: .progress, snapshot: progressSnapshot)
+      }
+      if let failureSnapshot {
+        fire(for: .failure, snapshot: failureSnapshot)
+        removeAllObservers()
+      }
     }
   }
 

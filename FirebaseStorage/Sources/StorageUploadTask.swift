@@ -46,13 +46,14 @@ import Foundation
   @objc open func enqueue() {
     // Capturing self so that the upload is done whether or not there is a callback.
     dispatchQueue.async { [self] in
+      let contentValidationError = self.contentUploadError()
       var failureSnapshot: StorageTaskSnapshot?
       let shouldProceed = stateLock.withLock { () -> Bool in
         if state == .cancelled || state == .pausing || state == .paused || state == .success ||
           state == .failed {
           return false
         }
-        if let contentValidationError = self.contentUploadError() {
+        if let contentValidationError {
           self.error = contentValidationError
           self.state = .failed
           failureSnapshot = self.snapshotUnderLock()
