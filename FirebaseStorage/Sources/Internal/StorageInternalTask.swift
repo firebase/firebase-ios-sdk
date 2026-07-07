@@ -66,3 +66,5 @@ class StorageInternalTask: StorageTask {
     self.fetcher?.stopFetching()
   }
 }
+
+extension StorageInternalTask: @unchecked Sendable {}

@@ -258,3 +258,5 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement {
     removeAllObservers()
   }
 }
+
+extension StorageDownloadTask: @unchecked Sendable {}

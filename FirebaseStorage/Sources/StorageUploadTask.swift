@@ -309,3 +309,5 @@ import Foundation
     return input.addingPercentEncoding(withAllowedCharacters: allowedCharacters)
   }
 }
+
+extension StorageUploadTask: @unchecked Sendable {}

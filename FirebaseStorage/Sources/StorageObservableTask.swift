@@ -168,3 +168,5 @@ import Foundation
     }
   }
 }
+
+extension StorageObservableTask: @unchecked Sendable {}
