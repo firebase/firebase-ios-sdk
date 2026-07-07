@@ -206,9 +206,9 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement, @u
       }
     } else {
       // Handle data downloads
-      fetcher.receivedProgressBlock = { [weak self] (bytesWritten: Int64,
-                                                     totalBytesWritten: Int64) in
-          guard let self = self else { return }
+      fetcher.receivedProgressBlock = { [weak self, weak fetcher] (bytesWritten: Int64,
+                                                                   totalBytesWritten: Int64) in
+          guard let self = self, let fetcher = fetcher else { return }
           var snapshotToFire: StorageTaskSnapshot?
           self.stateLock.withLock {
             if self.state == .cancelled || self.state == .pausing || self.state == .paused ||
@@ -217,7 +217,7 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement, @u
             }
             self.state = .progress
             self.progress.completedUnitCount = totalBytesWritten
-            if let totalLength = self.fetcher?.response?.expectedContentLength {
+            if let totalLength = fetcher.response?.expectedContentLength {
               self.progress.totalUnitCount = totalLength
             }
             snapshotToFire = self.snapshotUnderLock()

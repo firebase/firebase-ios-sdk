@@ -34,7 +34,7 @@ import Foundation
   open func observe(_ status: StorageTaskStatus,
                     handler: @escaping (StorageTaskSnapshot) -> Void) -> String {
     let callback = handler
-    let uuidString = NSUUID().uuidString
+    let uuidString = UUID().uuidString
 
     let snapshot = stateLock.withLock { () -> StorageTaskSnapshot in
       handlerDictionaries[status]?[uuidString] = callback
