@@ -35,7 +35,7 @@ import Foundation
    */
   @objc public var snapshot: StorageTaskSnapshot {
     stateLock.withLock {
-      return snapshotUnderLock()
+      snapshotUnderLock()
     }
   }
 

@@ -196,7 +196,8 @@ import Foundation
           var failureSnapshot: StorageTaskSnapshot?
 
           self.stateLock.withLock {
-            if self.state == .cancelled || self.state == .paused || self.state == .pausing { return }
+            if self.state == .cancelled || self.state == .paused || self
+              .state == .pausing { return }
 
             self.state = .progress
             progressSnapshot = self.snapshotUnderLock()
