@@ -35,17 +35,21 @@ import Foundation
    */
   @objc public var snapshot: StorageTaskSnapshot {
     stateLock.withLock {
-      let progress = Progress(totalUnitCount: self.progress.totalUnitCount)
-      progress.completedUnitCount = self.progress.completedUnitCount
-      return StorageTaskSnapshot(
-        task: self,
-        state: state,
-        reference: reference,
-        progress: progress,
-        metadata: metadata,
-        error: error
-      )
+      return snapshotUnderLock()
     }
+  }
+
+  func snapshotUnderLock() -> StorageTaskSnapshot {
+    let progress = Progress(totalUnitCount: self.progress.totalUnitCount)
+    progress.completedUnitCount = self.progress.completedUnitCount
+    return StorageTaskSnapshot(
+      task: self,
+      state: state,
+      reference: reference,
+      progress: progress,
+      metadata: metadata,
+      error: error
+    )
   }
 
   // MARK: - Internal Implementations

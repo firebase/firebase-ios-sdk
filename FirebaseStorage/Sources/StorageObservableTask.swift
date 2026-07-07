@@ -39,16 +39,7 @@ import Foundation
     let snapshot = stateLock.withLock { () -> StorageTaskSnapshot in
       handlerDictionaries[status]?[uuidString] = callback
       handleToStatusMap[uuidString] = status
-      let progressCopy = Progress(totalUnitCount: self.progress.totalUnitCount)
-      progressCopy.completedUnitCount = self.progress.completedUnitCount
-      return StorageTaskSnapshot(
-        task: self,
-        state: state,
-        reference: reference,
-        progress: progressCopy,
-        metadata: metadata,
-        error: error
-      )
+      return snapshotUnderLock()
     }
 
     var shouldFire = false

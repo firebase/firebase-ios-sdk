@@ -46,7 +46,7 @@ import Foundation
   @objc open func enqueue() {
     // Capturing self so that the upload is done whether or not there is a callback.
     dispatchQueue.async { [self] in
-      var isValidationError = false
+      var failureSnapshot: StorageTaskSnapshot?
       let shouldProceed = stateLock.withLock { () -> Bool in
         if state == .cancelled || state == .pausing || state == .paused || state == .success ||
           state == .failed {
@@ -54,15 +54,16 @@ import Foundation
         }
         if let contentValidationError = self.contentUploadError() {
           self.error = contentValidationError
-          isValidationError = true
+          self.state = .failed
+          failureSnapshot = self.snapshotUnderLock()
           return false
         }
         self.state = .queueing
         return true
       }
       if !shouldProceed {
-        if isValidationError {
-          self.finishTaskWithStatus(status: .failure, snapshot: self.snapshot)
+        if let failureSnapshot {
+          self.finishTaskWithStatus(status: .failure, snapshot: failureSnapshot)
         }
         return
       }
@@ -119,20 +120,21 @@ import Foundation
         uploadFetcher.sendProgressBlock = { [weak self] (bytesSent: Int64, totalBytesSent: Int64,
                                                          totalBytesExpectedToSend: Int64) in
             guard let self = self else { return }
-            let shouldReturn = self.stateLock.withLock { () -> Bool in
+            var snapshotToFire: StorageTaskSnapshot?
+            self.stateLock.withLock {
               if self.state == .cancelled || self.state == .pausing || self.state == .paused ||
                 self.state == .success || self.state == .failed {
-                return true
+                return
               }
               self.state = .progress
               self.progress.completedUnitCount = totalBytesSent
               self.progress.totalUnitCount = totalBytesExpectedToSend
               self.metadata = self.uploadMetadata
-              return false
+              snapshotToFire = self.snapshotUnderLock()
             }
-            if shouldReturn { return }
-
-            self.fire(for: .progress, snapshot: self.snapshot)
+            if let snapshotToFire {
+              self.fire(for: .progress, snapshot: snapshotToFire)
+            }
 
             self.stateLock.withLock {
               if self.state == .cancelled || self.state == .pausing || self.state == .paused ||
@@ -162,17 +164,16 @@ import Foundation
         }
         do {
           let data = try await uploadFetcher.beginFetch()
-          let isCancelled = self.stateLock.withLock { self.state == .cancelled }
-          if isCancelled { return }
+          var progressSnapshot: StorageTaskSnapshot?
+          var successSnapshot: StorageTaskSnapshot?
 
-          // Fire last progress updates
-          self.fire(for: .progress, snapshot: self.snapshot)
+          self.stateLock.withLock {
+            if self.state == .cancelled { return }
 
-          // Upload completed successfully, fire completion callbacks
-          let shouldReturn = self.stateLock.withLock { () -> Bool in
-            if self.state == .cancelled { return true }
+            self.state = .progress
+            progressSnapshot = self.snapshotUnderLock()
+
             self.state = .success
-
             if let responseDictionary = try? JSONSerialization
               .jsonObject(with: data) as? [String: AnyHashable] {
               let metadata = StorageMetadata(dictionary: responseDictionary)
@@ -181,29 +182,38 @@ import Foundation
             } else {
               self.error = StorageErrorCode.error(withInvalidRequest: data)
             }
-            return false
+            successSnapshot = self.snapshotUnderLock()
           }
-          if shouldReturn { return }
-          self.finishTaskWithStatus(status: .success, snapshot: self.snapshot)
+
+          if let progressSnapshot {
+            self.fire(for: .progress, snapshot: progressSnapshot)
+          }
+          if let successSnapshot {
+            self.finishTaskWithStatus(status: .success, snapshot: successSnapshot)
+          }
         } catch {
-          let shouldReturnEarly = self.stateLock.withLock { self.state == .cancelled ||
-            self.state == .paused || self.state == .pausing
-          }
-          if shouldReturnEarly { return }
+          var progressSnapshot: StorageTaskSnapshot?
+          var failureSnapshot: StorageTaskSnapshot?
 
-          self.fire(for: .progress, snapshot: self.snapshot)
+          self.stateLock.withLock {
+            if self.state == .cancelled || self.state == .paused || self.state == .pausing { return }
 
-          let shouldReturn = self.stateLock.withLock { () -> Bool in
-            if self.state == .cancelled { return true }
+            self.state = .progress
+            progressSnapshot = self.snapshotUnderLock()
+
             self.state = .failed
             self.error = StorageErrorCode.error(withServerError: error as NSError,
                                                 ref: self.reference)
             self.metadata = self.uploadMetadata
-            return false
+            failureSnapshot = self.snapshotUnderLock()
           }
-          if shouldReturn { return }
 
-          self.finishTaskWithStatus(status: .failure, snapshot: self.snapshot)
+          if let progressSnapshot {
+            self.fire(for: .progress, snapshot: progressSnapshot)
+          }
+          if let failureSnapshot {
+            self.finishTaskWithStatus(status: .failure, snapshot: failureSnapshot)
+          }
         }
       }
     }
@@ -214,21 +224,21 @@ import Foundation
    */
   @objc open func pause() {
     var fetcherToPause: GTMSessionUploadFetcher?
-    let shouldPause = stateLock.withLock { () -> Bool in
+    var pauseSnapshot: StorageTaskSnapshot?
+    stateLock.withLock {
       if state == .paused || state == .pausing || state == .success || state == .cancelled ||
         state == .failed {
-        return false
+        return
       }
       state = .paused
       metadata = uploadMetadata
       fetcherToPause = uploadFetcher
-      return true
+      pauseSnapshot = snapshotUnderLock()
     }
-    if !shouldPause { return }
-
-    fetcherToPause?.pauseFetching()
-
-    fire(for: .pause, snapshot: snapshot)
+    if let pauseSnapshot {
+      fetcherToPause?.pauseFetching()
+      fire(for: .pause, snapshot: pauseSnapshot)
+    }
   }
 
   /**
@@ -236,22 +246,22 @@ import Foundation
    */
   @objc open func cancel() {
     var fetcherToStop: GTMSessionUploadFetcher?
-    let shouldCancel = stateLock.withLock { () -> Bool in
+    var failureSnapshot: StorageTaskSnapshot?
+    stateLock.withLock {
       if state == .cancelled || state == .success || state == .failed {
-        return false
+        return
       }
       state = .cancelled
       metadata = uploadMetadata
       error = StorageError.cancelled as NSError
       fetcherToStop = uploadFetcher
-      return true
+      failureSnapshot = snapshotUnderLock()
     }
-    if !shouldCancel { return }
-
-    fetcherToStop?.stopFetching()
-
-    fire(for: .failure, snapshot: snapshot)
-    removeAllObservers()
+    if let failureSnapshot {
+      fetcherToStop?.stopFetching()
+      fire(for: .failure, snapshot: failureSnapshot)
+      removeAllObservers()
+    }
   }
 
   /**
@@ -260,6 +270,7 @@ import Foundation
   @objc open func resume() {
     var fetcherToResume: GTMSessionUploadFetcher?
     var shouldReenqueue = false
+    var resumeSnapshot: StorageTaskSnapshot?
     let shouldResume = stateLock.withLock { () -> Bool in
       if state == .running || state == .resuming || state == .success || state == .cancelled ||
         state == .failed {
@@ -272,11 +283,14 @@ import Foundation
       } else {
         fetcherToResume = uploadFetcher
       }
+      resumeSnapshot = snapshotUnderLock()
       return true
     }
     if !shouldResume { return }
 
-    fire(for: .resume, snapshot: snapshot)
+    if let resumeSnapshot {
+      fire(for: .resume, snapshot: resumeSnapshot)
+    }
 
     let shouldProceed = stateLock.withLock { () -> Bool in
       if state == .cancelled || state == .paused || state == .pausing { return false }

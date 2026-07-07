@@ -58,16 +58,16 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement, @u
       // NSURLSession update.
       fetcher?.resumeDataBlock = { [weak self] (data: Data) in
         guard let self = self else { return }
-        let shouldFire = self.stateLock.withLock { () -> Bool in
-          if self.state != .pausing {
-            return false
+        var snapshotToFire: StorageTaskSnapshot?
+        self.stateLock.withLock {
+          if self.state == .pausing {
+            self.downloadData = data
+            self.state = .paused
+            snapshotToFire = self.snapshotUnderLock()
           }
-          self.downloadData = data
-          self.state = .paused
-          return true
         }
-        if shouldFire {
-          self.fire(for: .pause, snapshot: self.snapshot)
+        if let snapshotToFire {
+          self.fire(for: .pause, snapshot: snapshotToFire)
         }
       }
       fetcherToStop = fetcher
@@ -87,6 +87,7 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement, @u
    */
   @objc open func resume() {
     var downloadDataToResume: Data?
+    var snapshotToFire: StorageTaskSnapshot?
     let shouldReturn1 = stateLock.withLock { () -> Bool in
       if state == .running || state == .resuming || state == .success || state == .cancelled ||
         state == .failed {
@@ -94,11 +95,14 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement, @u
       }
       state = .resuming
       downloadDataToResume = downloadData
+      snapshotToFire = snapshotUnderLock()
       return false
     }
     if shouldReturn1 { return }
 
-    fire(for: .resume, snapshot: snapshot)
+    if let snapshotToFire {
+      fire(for: .resume, snapshot: snapshotToFire)
+    }
 
     let shouldEnqueue = stateLock.withLock { () -> Bool in
       if state == .cancelled || state == .paused || state == .pausing { return false }
@@ -168,19 +172,20 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement, @u
                                                      totalBytesWritten: Int64,
                                                      totalBytesExpectedToWrite: Int64) in
           guard let self = self else { return }
-          let shouldReturn = self.stateLock.withLock { () -> Bool in
+          var snapshotToFire: StorageTaskSnapshot?
+          self.stateLock.withLock {
             if self.state == .cancelled || self.state == .pausing || self.state == .paused ||
               self.state == .success || self.state == .failed {
-              return true
+              return
             }
             self.state = .progress
             self.progress.completedUnitCount = totalBytesWritten
             self.progress.totalUnitCount = totalBytesExpectedToWrite
-            return false
+            snapshotToFire = self.snapshotUnderLock()
           }
-          if shouldReturn { return }
-
-          self.fire(for: .progress, snapshot: self.snapshot)
+          if let snapshotToFire {
+            self.fire(for: .progress, snapshot: snapshotToFire)
+          }
 
           self.stateLock.withLock {
             if self.state == .cancelled || self.state == .pausing || self.state == .paused ||
@@ -195,21 +200,22 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement, @u
       fetcher.receivedProgressBlock = { [weak self] (bytesWritten: Int64,
                                                      totalBytesWritten: Int64) in
           guard let self = self else { return }
-          let shouldReturn = self.stateLock.withLock { () -> Bool in
+          var snapshotToFire: StorageTaskSnapshot?
+          self.stateLock.withLock {
             if self.state == .cancelled || self.state == .pausing || self.state == .paused ||
               self.state == .success || self.state == .failed {
-              return true
+              return
             }
             self.state = .progress
             self.progress.completedUnitCount = totalBytesWritten
             if let totalLength = self.fetcher?.response?.expectedContentLength {
               self.progress.totalUnitCount = totalLength
             }
-            return false
+            snapshotToFire = self.snapshotUnderLock()
           }
-          if shouldReturn { return }
-
-          self.fire(for: .progress, snapshot: self.snapshot)
+          if let snapshotToFire {
+            self.fire(for: .progress, snapshot: snapshotToFire)
+          }
 
           self.stateLock.withLock {
             if self.state == .cancelled || self.state == .pausing || self.state == .paused ||
@@ -233,16 +239,16 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement, @u
       if isPausing {
         fetcher.resumeDataBlock = { [weak self] (data: Data) in
           guard let self = self else { return }
-          let shouldFire = self.stateLock.withLock { () -> Bool in
-            if self.state != .pausing {
-              return false
+          var snapshotToFire: StorageTaskSnapshot?
+          self.stateLock.withLock {
+            if self.state == .pausing {
+              self.downloadData = data
+              self.state = .paused
+              snapshotToFire = self.snapshotUnderLock()
             }
-            self.downloadData = data
-            self.state = .paused
-            return true
           }
-          if shouldFire {
-            self.fire(for: .pause, snapshot: self.snapshot)
+          if let snapshotToFire {
+            self.fire(for: .pause, snapshot: snapshotToFire)
           }
         }
       }
@@ -293,20 +299,20 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement, @u
 
   func cancel(withError error: NSError) {
     var fetcherToStop: GTMSessionFetcher?
-    let shouldCancel = stateLock.withLock { () -> Bool in
+    var failureSnapshot: StorageTaskSnapshot?
+    stateLock.withLock {
       if state == .cancelled || state == .success || state == .failed {
-        return false
+        return
       }
       state = .cancelled
       self.error = error
       fetcherToStop = fetcher
-      return true
+      failureSnapshot = snapshotUnderLock()
     }
-    if !shouldCancel { return }
-
-    fetcherToStop?.stopFetching()
-
-    fire(for: .failure, snapshot: snapshot)
-    removeAllObservers()
+    if let failureSnapshot {
+      fetcherToStop?.stopFetching()
+      fire(for: .failure, snapshot: failureSnapshot)
+      removeAllObservers()
+    }
   }
 }
