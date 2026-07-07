@@ -47,10 +47,12 @@ class StorageInternalTask: StorageTask, @unchecked Sendable {
 
         let fetcher = fetcherService.fetcher(with: request)
         fetcher.comment = fetcherComment
-        self.fetcher = fetcher
+        self.stateLock.withLock {
+          self.fetcher = fetcher
+        }
         let callbackQueue = reference.storage.callbackQueue
         do {
-          let data = try await self.fetcher?.beginFetch()
+          let data = try await fetcher.beginFetch()
           callbackQueue.async {
             completion?(data, nil)
           }

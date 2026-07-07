@@ -46,16 +46,24 @@ import Foundation
   @objc open func enqueue() {
     // Capturing self so that the upload is done whether or not there is a callback.
     dispatchQueue.async { [self] in
-      let shouldReturn = stateLock.withLock { () -> Bool in
+      var isValidationError = false
+      let shouldProceed = stateLock.withLock { () -> Bool in
+        if state == .cancelled || state == .pausing || state == .paused || state == .success ||
+          state == .failed {
+          return false
+        }
         if let contentValidationError = self.contentUploadError() {
           self.error = contentValidationError
-          return true
+          isValidationError = true
+          return false
         }
         self.state = .queueing
-        return false
+        return true
       }
-      if shouldReturn {
-        self.finishTaskWithStatus(status: .failure, snapshot: self.snapshot)
+      if !shouldProceed {
+        if isValidationError {
+          self.finishTaskWithStatus(status: .failure, snapshot: self.snapshot)
+        }
         return
       }
 
@@ -251,6 +259,7 @@ import Foundation
    */
   @objc open func resume() {
     var fetcherToResume: GTMSessionUploadFetcher?
+    var shouldReenqueue = false
     let shouldResume = stateLock.withLock { () -> Bool in
       if state == .running || state == .resuming || state == .success || state == .cancelled ||
         state == .failed {
@@ -258,18 +267,29 @@ import Foundation
       }
       state = .resuming
       metadata = uploadMetadata
-      fetcherToResume = uploadFetcher
+      if uploadFetcher == nil {
+        shouldReenqueue = true
+      } else {
+        fetcherToResume = uploadFetcher
+      }
       return true
     }
     if !shouldResume { return }
 
-    fetcherToResume?.resumeFetching()
-
     fire(for: .resume, snapshot: snapshot)
 
-    stateLock.withLock {
-      if state == .cancelled || state == .paused || state == .pausing { return }
+    let shouldProceed = stateLock.withLock { () -> Bool in
+      if state == .cancelled || state == .paused || state == .pausing { return false }
       state = .running
+      return true
+    }
+
+    if shouldProceed {
+      if shouldReenqueue {
+        enqueue()
+      } else {
+        fetcherToResume?.resumeFetching()
+      }
     }
   }
 
