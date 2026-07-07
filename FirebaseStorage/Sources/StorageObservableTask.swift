@@ -34,12 +34,23 @@ import Foundation
   open func observe(_ status: StorageTaskStatus,
                     handler: @escaping (StorageTaskSnapshot) -> Void) -> String {
     let callback = handler
+    let uuidString = NSUUID().uuidString
 
-    // Note: self.snapshot is synchronized
-    let snapshot = self.snapshot
+    let snapshot = stateLock.withLock { () -> StorageTaskSnapshot in
+      handlerDictionaries[status]?[uuidString] = callback
+      handleToStatusMap[uuidString] = status
+      let progressCopy = Progress(totalUnitCount: self.progress.totalUnitCount)
+      progressCopy.completedUnitCount = self.progress.completedUnitCount
+      return StorageTaskSnapshot(
+        task: self,
+        state: state,
+        reference: reference,
+        progress: progressCopy,
+        metadata: metadata,
+        error: error
+      )
+    }
 
-    // TODO: use an increasing counter instead of a random UUID
-    let uuidString = updateHandlerDictionary(for: status, with: callback)
     var shouldFire = false
     switch status {
     case .pause:
@@ -53,16 +64,15 @@ import Foundation
     case .failure:
       shouldFire = snapshot.state == .failed || snapshot.state == .failing
     case .unknown:
-      fatalError("Invalid observer status requested, use one of: Pause, Resume, Progress, Complete, or Failure")
+      fatalError(
+        "Invalid observer status requested, use one of: Pause, Resume, Progress, Complete, or Failure"
+      )
     }
 
     if shouldFire {
       reference.storage.callbackQueue.async {
         callback(snapshot)
       }
-    }
-    stateLock.withLock {
-      handleToStatusMap[uuidString] = status
     }
 
     return uuidString
@@ -134,17 +144,6 @@ import Foundation
     handleToStatusMap = [:]
     fileURL = file
     super.init(reference: reference, queue: queue)
-  }
-
-  func updateHandlerDictionary(for status: StorageTaskStatus,
-                               with handler: @escaping ((StorageTaskSnapshot) -> Void))
-    -> String {
-    // TODO: use an increasing counter instead of a random UUID
-    let uuidString = NSUUID().uuidString
-    stateLock.withLock {
-      handlerDictionaries[status]?[uuidString] = handler
-    }
-    return uuidString
   }
 
   func fire(for status: StorageTaskStatus, snapshot: StorageTaskSnapshot) {

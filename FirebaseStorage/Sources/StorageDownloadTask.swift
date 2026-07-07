@@ -59,7 +59,7 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement, @u
       fetcher?.resumeDataBlock = { [weak self] (data: Data) in
         guard let self = self else { return }
         let shouldFire = self.stateLock.withLock { () -> Bool in
-          if self.state == .cancelled || self.state == .failed || self.state == .success {
+          if self.state != .pausing {
             return false
           }
           self.downloadData = data
@@ -134,7 +134,7 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement, @u
   private func enqueueImplementation(resumeWith resumeData: Data? = nil) async {
     let shouldProceed = stateLock.withLock { () -> Bool in
       if state == .cancelled || state == .pausing || state == .paused || state == .success ||
-         state == .failed {
+        state == .failed {
         return false
       }
       state = .queueing
@@ -170,7 +170,7 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement, @u
           guard let self = self else { return }
           let shouldReturn = self.stateLock.withLock { () -> Bool in
             if self.state == .cancelled || self.state == .pausing || self.state == .paused ||
-               self.state == .success || self.state == .failed {
+              self.state == .success || self.state == .failed {
               return true
             }
             self.state = .progress
@@ -183,7 +183,8 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement, @u
           self.fire(for: .progress, snapshot: self.snapshot)
 
           self.stateLock.withLock {
-            if self.state == .cancelled || self.state == .pausing || self.state == .paused {
+            if self.state == .cancelled || self.state == .pausing || self.state == .paused ||
+              self.state == .success || self.state == .failed {
               return
             }
             self.state = .running
@@ -195,7 +196,8 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement, @u
                                                      totalBytesWritten: Int64) in
           guard let self = self else { return }
           let shouldReturn = self.stateLock.withLock { () -> Bool in
-            if self.state == .cancelled || self.state == .pausing || self.state == .paused {
+            if self.state == .cancelled || self.state == .pausing || self.state == .paused ||
+              self.state == .success || self.state == .failed {
               return true
             }
             self.state = .progress
@@ -210,7 +212,8 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement, @u
           self.fire(for: .progress, snapshot: self.snapshot)
 
           self.stateLock.withLock {
-            if self.state == .cancelled || self.state == .pausing || self.state == .paused {
+            if self.state == .cancelled || self.state == .pausing || self.state == .paused ||
+              self.state == .success || self.state == .failed {
               return
             }
             self.state = .running
@@ -231,7 +234,7 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement, @u
         fetcher.resumeDataBlock = { [weak self] (data: Data) in
           guard let self = self else { return }
           let shouldFire = self.stateLock.withLock { () -> Bool in
-            if self.state == .cancelled || self.state == .failed || self.state == .success {
+            if self.state != .pausing {
               return false
             }
             self.downloadData = data

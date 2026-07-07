@@ -112,7 +112,8 @@ import Foundation
                                                          totalBytesExpectedToSend: Int64) in
             guard let self = self else { return }
             let shouldReturn = self.stateLock.withLock { () -> Bool in
-              if self.state == .cancelled || self.state == .pausing || self.state == .paused {
+              if self.state == .cancelled || self.state == .pausing || self.state == .paused ||
+                self.state == .success || self.state == .failed {
                 return true
               }
               self.state = .progress
@@ -126,7 +127,8 @@ import Foundation
             self.fire(for: .progress, snapshot: self.snapshot)
 
             self.stateLock.withLock {
-              if self.state == .cancelled || self.state == .pausing || self.state == .paused {
+              if self.state == .cancelled || self.state == .pausing || self.state == .paused ||
+                self.state == .success || self.state == .failed {
                 return
               }
               self.state = .running
