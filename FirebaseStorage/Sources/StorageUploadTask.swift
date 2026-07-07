@@ -194,7 +194,8 @@ import Foundation
    */
   @objc open func pause() {
     let shouldReturn = stateLock.withLock { () -> Bool in
-      if state == .paused || state == .pausing || state == .success || state == .cancelled || state == .failed {
+      if state == .paused || state == .pausing || state == .success || state == .cancelled ||
+        state == .failed {
         return true
       }
       state = .paused
@@ -235,7 +236,8 @@ import Foundation
    */
   @objc open func resume() {
     let shouldReturn1 = stateLock.withLock { () -> Bool in
-      if state == .running || state == .resuming || state == .success || state == .cancelled || state == .failed {
+      if state == .running || state == .resuming || state == .success || state == .cancelled ||
+        state == .failed {
         return true
       }
       state = .resuming

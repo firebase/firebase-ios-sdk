@@ -48,7 +48,8 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement, @u
    */
   @objc open func pause() {
     stateLock.withLock {
-      if state == .paused || state == .pausing || state == .success || state == .cancelled || state == .failed {
+      if state == .paused || state == .pausing || state == .success || state == .cancelled ||
+        state == .failed {
         return
       }
       state = .pausing
@@ -78,7 +79,8 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement, @u
    */
   @objc open func resume() {
     let shouldReturn1 = stateLock.withLock { () -> Bool in
-      if state == .running || state == .resuming || state == .success || state == .cancelled || state == .failed {
+      if state == .running || state == .resuming || state == .success || state == .cancelled ||
+        state == .failed {
         return true
       }
       state = .resuming
