@@ -132,11 +132,23 @@ import Foundation
               self.state = .running
             }
         }
-        self.uploadFetcher = uploadFetcher
-
         // Process fetches
-        self.stateLock.withLock {
+        let shouldContinue = self.stateLock.withLock { () -> Bool in
+          if self.state == .cancelled || self.state == .pausing || self.state == .paused {
+            return false
+          }
+          self.uploadFetcher = uploadFetcher
           self.state = .running
+          return true
+        }
+        if !shouldContinue {
+          let isPaused = self.stateLock.withLock { self.state == .paused || self.state == .pausing }
+          if isPaused {
+            uploadFetcher.pauseFetching()
+          } else {
+            uploadFetcher.stopFetching()
+          }
+          return
         }
         do {
           let data = try await self.uploadFetcher?.beginFetch()
@@ -168,8 +180,10 @@ import Foundation
           if shouldReturn { return }
           self.finishTaskWithStatus(status: .success, snapshot: self.snapshot)
         } catch {
-          let isCancelled = self.stateLock.withLock { self.state == .cancelled }
-          if isCancelled { return }
+          let shouldReturnEarly = self.stateLock.withLock { self.state == .cancelled ||
+            self.state == .paused || self.state == .pausing
+          }
+          if shouldReturnEarly { return }
 
           self.fire(for: .progress, snapshot: self.snapshot)
 

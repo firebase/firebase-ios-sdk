@@ -96,13 +96,16 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement, @u
 
     fire(for: .resume, snapshot: snapshot)
 
-    stateLock.withLock {
-      if state == .cancelled || state == .paused || state == .pausing { return }
+    let shouldEnqueue = stateLock.withLock { () -> Bool in
+      if state == .cancelled || state == .paused || state == .pausing { return false }
       state = .running
+      return true
     }
 
-    Task {
-      await self.enqueueImplementation(resumeWith: downloadDataToResume)
+    if shouldEnqueue {
+      Task {
+        await self.enqueueImplementation(resumeWith: downloadDataToResume)
+      }
     }
   }
 
@@ -203,9 +206,28 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement, @u
           }
       }
     }
-    stateLock.withLock {
+    let shouldContinue = stateLock.withLock { () -> Bool in
+      if state == .cancelled || state == .pausing || state == .paused {
+        return false
+      }
       self.fetcher = fetcher
       state = .running
+      return true
+    }
+    if !shouldContinue {
+      let isPausing = stateLock.withLock { state == .pausing }
+      if isPausing {
+        fetcher.resumeDataBlock = { [weak self] (data: Data) in
+          guard let self = self else { return }
+          self.stateLock.withLock {
+            self.downloadData = data
+            self.state = .paused
+          }
+          self.fire(for: .pause, snapshot: self.snapshot)
+        }
+      }
+      fetcher.stopFetching()
+      return
     }
     do {
       let data = try await self.fetcher?.beginFetch()
@@ -229,8 +251,9 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement, @u
       fire(for: .success, snapshot: snapshot)
       removeAllObservers()
     } catch {
-      let isCancelled = stateLock.withLock { state == .cancelled }
-      if isCancelled { return }
+      let shouldReturnEarly = stateLock
+        .withLock { state == .cancelled || state == .paused || state == .pausing }
+      if shouldReturnEarly { return }
 
       fire(for: .progress, snapshot: snapshot)
 

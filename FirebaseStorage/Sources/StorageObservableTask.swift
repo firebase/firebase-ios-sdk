@@ -40,7 +40,7 @@ import Foundation
 
     // TODO: use an increasing counter instead of a random UUID
     let uuidString = updateHandlerDictionary(for: status, with: callback)
-    if let handlerDictionary = handlerDictionaries[status] {
+    if let handlerDictionary = stateLock.withLock({ handlerDictionaries[status] }) {
       switch status {
       case .pause:
         if state == .pausing || state == .paused {
@@ -153,7 +153,7 @@ import Foundation
   }
 
   func fire(for status: StorageTaskStatus, snapshot: StorageTaskSnapshot) {
-    if let observerDictionary = handlerDictionaries[status] {
+    if let observerDictionary = stateLock.withLock({ handlerDictionaries[status] }) {
       fire(handlers: observerDictionary, snapshot: snapshot)
     }
   }
