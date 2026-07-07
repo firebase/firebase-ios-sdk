@@ -39,7 +39,7 @@ import Foundation
  * specified `callbackQueue` in Storage, or the main queue if unspecified.
  */
 @objc(FIRStorageUploadTask) open class StorageUploadTask: StorageObservableTask,
-  StorageTaskManagement {
+  StorageTaskManagement, @unchecked Sendable {
   /**
    * Prepares a task and begins execution.
    */
@@ -309,5 +309,3 @@ import Foundation
     return input.addingPercentEncoding(withAllowedCharacters: allowedCharacters)
   }
 }
-
-extension StorageUploadTask: @unchecked Sendable {}

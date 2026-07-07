@@ -33,7 +33,7 @@ import Foundation
  * specified `callbackQueue` in Storage, or the main queue if left unspecified.
  */
 @objc(FIRStorageDownloadTask)
-open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement {
+open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement, @unchecked Sendable {
   /**
    * Prepares a task and begins execution.
    */
@@ -258,5 +258,3 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement {
     removeAllObservers()
   }
 }
-
-extension StorageDownloadTask: @unchecked Sendable {}
