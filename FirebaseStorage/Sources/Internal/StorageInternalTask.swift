@@ -36,7 +36,9 @@ class StorageInternalTask: StorageTask, @unchecked Sendable {
 
     // Prepare a task and begins execution.
     dispatchQueue.async { [self] in
-      self.state = .queueing
+      stateLock.withLock {
+        self.state = .queueing
+      }
       Task {
         let fetcherService = await StorageFetcherService.shared.service(reference.storage)
         var request = request ?? self.baseRequest

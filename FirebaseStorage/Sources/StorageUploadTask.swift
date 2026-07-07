@@ -193,17 +193,18 @@ import Foundation
    * Pauses a task currently in progress.
    */
   @objc open func pause() {
-    let shouldReturn = stateLock.withLock { () -> Bool in
+    let shouldPause = stateLock.withLock { () -> Bool in
       if state == .paused || state == .pausing || state == .success || state == .cancelled ||
         state == .failed {
-        return true
+        return false
       }
       state = .paused
-      uploadFetcher?.pauseFetching()
       metadata = uploadMetadata
-      return false
+      return true
     }
-    if shouldReturn { return }
+    if !shouldPause { return }
+
+    uploadFetcher?.pauseFetching()
 
     fire(for: .pause, snapshot: snapshot)
   }
@@ -212,17 +213,18 @@ import Foundation
    * Cancels a task.
    */
   @objc open func cancel() {
-    let shouldReturn = stateLock.withLock { () -> Bool in
+    let shouldCancel = stateLock.withLock { () -> Bool in
       if state == .cancelled || state == .success || state == .failed {
-        return true
+        return false
       }
       state = .cancelled
-      uploadFetcher?.stopFetching()
       metadata = uploadMetadata
       error = StorageError.cancelled as NSError
-      return false
+      return true
     }
-    if shouldReturn { return }
+    if !shouldCancel { return }
+
+    uploadFetcher?.stopFetching()
 
     fire(for: .failure, snapshot: snapshot)
     removeAllObservers()
@@ -232,17 +234,18 @@ import Foundation
    * Resumes a paused task.
    */
   @objc open func resume() {
-    let shouldReturn1 = stateLock.withLock { () -> Bool in
+    let shouldResume = stateLock.withLock { () -> Bool in
       if state == .running || state == .resuming || state == .success || state == .cancelled ||
         state == .failed {
-        return true
+        return false
       }
       state = .resuming
-      uploadFetcher?.resumeFetching()
       metadata = uploadMetadata
-      return false
+      return true
     }
-    if shouldReturn1 { return }
+    if !shouldResume { return }
+
+    uploadFetcher?.resumeFetching()
 
     fire(for: .resume, snapshot: snapshot)
 

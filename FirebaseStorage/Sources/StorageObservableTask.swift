@@ -78,8 +78,8 @@ import Foundation
    * - Parameter handle: The handle of the task to remove.
    */
   @objc(removeObserverWithHandle:) open func removeObserver(withHandle handle: String) {
-    if let status = handleToStatusMap[handle] {
-      stateLock.withLock {
+    stateLock.withLock {
+      if let status = handleToStatusMap[handle] {
         handlerDictionaries[status]?.removeValue(forKey: handle)
         handleToStatusMap.removeValue(forKey: handle)
       }
@@ -92,8 +92,8 @@ import Foundation
    */
   @objc(removeAllObserversForStatus:)
   open func removeAllObservers(for status: StorageTaskStatus) {
-    if let handlerDictionary = handlerDictionaries[status] {
-      stateLock.withLock {
+    stateLock.withLock {
+      if let handlerDictionary = handlerDictionaries[status] {
         for (key, _) in handlerDictionary {
           handleToStatusMap.removeValue(forKey: key)
         }
@@ -160,10 +160,9 @@ import Foundation
 
   func fire(handlers: [String: (StorageTaskSnapshot) -> Void],
             snapshot: StorageTaskSnapshot) {
-    let enumeration = stateLock.withLock { handlers.enumerated() }
-    for (_, handler) in enumeration {
+    for handler in handlers.values {
       reference.storage.callbackQueue.async {
-        handler.value(snapshot)
+        handler(snapshot)
       }
     }
   }

@@ -47,6 +47,7 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement, @u
    * Pauses a task currently in progress. Calling this on a paused task has no effect.
    */
   @objc open func pause() {
+    var shouldStop = false
     stateLock.withLock {
       if state == .paused || state == .pausing || state == .success || state == .cancelled ||
         state == .failed {
@@ -63,6 +64,9 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement, @u
         }
         self.fire(for: .pause, snapshot: self.snapshot)
       }
+      shouldStop = true
+    }
+    if shouldStop {
       fetcher?.stopFetching()
     }
   }
@@ -78,12 +82,14 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement, @u
    * Resumes a paused task. Calling this on a running task has no effect.
    */
   @objc open func resume() {
+    var downloadDataToResume: Data?
     let shouldReturn1 = stateLock.withLock { () -> Bool in
       if state == .running || state == .resuming || state == .success || state == .cancelled ||
         state == .failed {
         return true
       }
       state = .resuming
+      downloadDataToResume = downloadData
       return false
     }
     if shouldReturn1 { return }
@@ -96,7 +102,7 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement, @u
     }
 
     Task {
-      await self.enqueueImplementation(resumeWith: self.downloadData)
+      await self.enqueueImplementation(resumeWith: downloadDataToResume)
     }
   }
 
@@ -197,8 +203,8 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement, @u
           }
       }
     }
-    self.fetcher = fetcher
     stateLock.withLock {
+      self.fetcher = fetcher
       state = .running
     }
     do {
@@ -245,16 +251,17 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement, @u
   }
 
   func cancel(withError error: NSError) {
-    let shouldReturn = stateLock.withLock { () -> Bool in
+    let shouldCancel = stateLock.withLock { () -> Bool in
       if state == .cancelled || state == .success || state == .failed {
-        return true
+        return false
       }
       state = .cancelled
-      fetcher?.stopFetching()
       self.error = error
-      return false
+      return true
     }
-    if shouldReturn { return }
+    if !shouldCancel { return }
+
+    fetcher?.stopFetching()
 
     fire(for: .failure, snapshot: snapshot)
     removeAllObservers()
