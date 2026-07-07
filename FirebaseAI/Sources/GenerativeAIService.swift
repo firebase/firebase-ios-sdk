@@ -72,7 +72,7 @@ struct GenerativeAIService {
   func loadRequestStream<T: GenerativeAIRequest>(request: T)
     -> AsyncThrowingStream<T.Response, Error> where T: Sendable {
     return AsyncThrowingStream { continuation in
-      Task {
+      let task = Task {
         let urlRequest: URLRequest
         do {
           urlRequest = try await self.urlRequest(request: request)
@@ -159,6 +159,10 @@ struct GenerativeAIService {
         }
 
         continuation.finish(throwing: nil)
+      }
+
+      continuation.onTermination = { @Sendable _ in
+        task.cancel()
       }
     }
   }
