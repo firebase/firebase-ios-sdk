@@ -230,7 +230,7 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement, @u
       return
     }
     do {
-      let data = try await self.fetcher?.beginFetch()
+      let data = try await fetcher.beginFetch()
       let isCancelled = stateLock.withLock { state == .cancelled }
       if isCancelled { return }
 
@@ -241,9 +241,7 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement, @u
       let shouldReturn = stateLock.withLock { () -> Bool in
         if state == .cancelled { return true }
         state = .success
-        if let data {
-          downloadData = data
-        }
+        downloadData = data
         return false
       }
       if shouldReturn { return }
@@ -274,17 +272,19 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement, @u
   }
 
   func cancel(withError error: NSError) {
+    var fetcherToStop: GTMSessionFetcher?
     let shouldCancel = stateLock.withLock { () -> Bool in
       if state == .cancelled || state == .success || state == .failed {
         return false
       }
       state = .cancelled
       self.error = error
+      fetcherToStop = fetcher
       return true
     }
     if !shouldCancel { return }
 
-    fetcher?.stopFetching()
+    fetcherToStop?.stopFetching()
 
     fire(for: .failure, snapshot: snapshot)
     removeAllObservers()

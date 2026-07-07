@@ -151,7 +151,7 @@ import Foundation
           return
         }
         do {
-          let data = try await self.uploadFetcher?.beginFetch()
+          let data = try await uploadFetcher.beginFetch()
           let isCancelled = self.stateLock.withLock { self.state == .cancelled }
           if isCancelled { return }
 
@@ -162,10 +162,6 @@ import Foundation
           let shouldReturn = self.stateLock.withLock { () -> Bool in
             if self.state == .cancelled { return true }
             self.state = .success
-
-            guard let data = data else {
-              fatalError("Internal Error: uploadFetcher returned with nil data and no error")
-            }
 
             if let responseDictionary = try? JSONSerialization
               .jsonObject(with: data) as? [String: AnyHashable] {
@@ -207,6 +203,7 @@ import Foundation
    * Pauses a task currently in progress.
    */
   @objc open func pause() {
+    var fetcherToPause: GTMSessionUploadFetcher?
     let shouldPause = stateLock.withLock { () -> Bool in
       if state == .paused || state == .pausing || state == .success || state == .cancelled ||
         state == .failed {
@@ -214,11 +211,12 @@ import Foundation
       }
       state = .paused
       metadata = uploadMetadata
+      fetcherToPause = uploadFetcher
       return true
     }
     if !shouldPause { return }
 
-    uploadFetcher?.pauseFetching()
+    fetcherToPause?.pauseFetching()
 
     fire(for: .pause, snapshot: snapshot)
   }
@@ -227,6 +225,7 @@ import Foundation
    * Cancels a task.
    */
   @objc open func cancel() {
+    var fetcherToStop: GTMSessionUploadFetcher?
     let shouldCancel = stateLock.withLock { () -> Bool in
       if state == .cancelled || state == .success || state == .failed {
         return false
@@ -234,11 +233,12 @@ import Foundation
       state = .cancelled
       metadata = uploadMetadata
       error = StorageError.cancelled as NSError
+      fetcherToStop = uploadFetcher
       return true
     }
     if !shouldCancel { return }
 
-    uploadFetcher?.stopFetching()
+    fetcherToStop?.stopFetching()
 
     fire(for: .failure, snapshot: snapshot)
     removeAllObservers()
@@ -248,6 +248,7 @@ import Foundation
    * Resumes a paused task.
    */
   @objc open func resume() {
+    var fetcherToResume: GTMSessionUploadFetcher?
     let shouldResume = stateLock.withLock { () -> Bool in
       if state == .running || state == .resuming || state == .success || state == .cancelled ||
         state == .failed {
@@ -255,11 +256,12 @@ import Foundation
       }
       state = .resuming
       metadata = uploadMetadata
+      fetcherToResume = uploadFetcher
       return true
     }
     if !shouldResume { return }
 
-    uploadFetcher?.resumeFetching()
+    fetcherToResume?.resumeFetching()
 
     fire(for: .resume, snapshot: snapshot)
 
