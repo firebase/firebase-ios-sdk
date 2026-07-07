@@ -219,10 +219,7 @@ import Foundation
       state = .cancelled
       uploadFetcher?.stopFetching()
       metadata = uploadMetadata
-      error = StorageErrorCode.error(
-        withServerError: StorageErrorCode.cancelled as NSError,
-        ref: reference
-      )
+      error = StorageError.cancelled as NSError
       return false
     }
     if shouldReturn { return }
