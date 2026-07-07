@@ -66,9 +66,9 @@ import Foundation
           "of: Pause, Resume, Progress, Complete, or Failure")
       }
     }
-    stateLock.lock()
-    handleToStatusMap[uuidString] = status
-    stateLock.unlock()
+    stateLock.withLock {
+      handleToStatusMap[uuidString] = status
+    }
 
     return uuidString
   }
@@ -79,10 +79,10 @@ import Foundation
    */
   @objc(removeObserverWithHandle:) open func removeObserver(withHandle handle: String) {
     if let status = handleToStatusMap[handle] {
-      stateLock.lock()
-      handlerDictionaries[status]?.removeValue(forKey: handle)
-      handleToStatusMap.removeValue(forKey: handle)
-      stateLock.unlock()
+      stateLock.withLock {
+        handlerDictionaries[status]?.removeValue(forKey: handle)
+        handleToStatusMap.removeValue(forKey: handle)
+      }
     }
   }
 
@@ -93,12 +93,12 @@ import Foundation
   @objc(removeAllObserversForStatus:)
   open func removeAllObservers(for status: StorageTaskStatus) {
     if let handlerDictionary = handlerDictionaries[status] {
-      stateLock.lock()
-      for (key, _) in handlerDictionary {
-        handleToStatusMap.removeValue(forKey: key)
+      stateLock.withLock {
+        for (key, _) in handlerDictionary {
+          handleToStatusMap.removeValue(forKey: key)
+        }
+        handlerDictionaries[status]?.removeAll()
       }
-      handlerDictionaries[status]?.removeAll()
-      stateLock.unlock()
     }
   }
 
@@ -106,12 +106,12 @@ import Foundation
    * Removes all observers.
    */
   @objc open func removeAllObservers() {
-    stateLock.lock()
-    for (status, _) in handlerDictionaries {
-      handlerDictionaries[status]?.removeAll()
+    stateLock.withLock {
+      for (status, _) in handlerDictionaries {
+        handlerDictionaries[status]?.removeAll()
+      }
+      handleToStatusMap.removeAll()
     }
-    handleToStatusMap.removeAll()
-    stateLock.unlock()
   }
 
   // MARK: - Private Handler Dictionaries
@@ -146,9 +146,9 @@ import Foundation
     -> String {
     // TODO: use an increasing counter instead of a random UUID
     let uuidString = NSUUID().uuidString
-    stateLock.lock()
-    handlerDictionaries[status]?[uuidString] = handler
-    stateLock.unlock()
+    stateLock.withLock {
+      handlerDictionaries[status]?[uuidString] = handler
+    }
     return uuidString
   }
 
@@ -160,9 +160,7 @@ import Foundation
 
   func fire(handlers: [String: (StorageTaskSnapshot) -> Void],
             snapshot: StorageTaskSnapshot) {
-    stateLock.lock()
-    let enumeration = handlers.enumerated()
-    stateLock.unlock()
+    let enumeration = stateLock.withLock { handlers.enumerated() }
     for (_, handler) in enumeration {
       reference.storage.callbackQueue.async {
         handler.value(snapshot)

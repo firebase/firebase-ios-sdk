@@ -34,18 +34,18 @@ import Foundation
    * An immutable view of the task and associated metadata, progress, error, etc.
    */
   @objc public var snapshot: StorageTaskSnapshot {
-    stateLock.lock()
-    defer { stateLock.unlock() }
-    let progress = Progress(totalUnitCount: self.progress.totalUnitCount)
-    progress.completedUnitCount = self.progress.completedUnitCount
-    return StorageTaskSnapshot(
-      task: self,
-      state: state,
-      reference: reference,
-      progress: progress,
-      metadata: metadata,
-      error: error
-    )
+    stateLock.withLock {
+      let progress = Progress(totalUnitCount: self.progress.totalUnitCount)
+      progress.completedUnitCount = self.progress.completedUnitCount
+      return StorageTaskSnapshot(
+        task: self,
+        state: state,
+        reference: reference,
+        progress: progress,
+        metadata: metadata,
+        error: error
+      )
+    }
   }
 
   // MARK: - Internal Implementations
@@ -125,3 +125,5 @@ import Foundation
    */
   @objc optional func resume()
 }
+
+extension StorageTask: @unchecked Sendable {}
