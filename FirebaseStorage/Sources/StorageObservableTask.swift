@@ -43,23 +43,23 @@ import Foundation
     if let handlerDictionary = stateLock.withLock({ handlerDictionaries[status] }) {
       switch status {
       case .pause:
-        if state == .pausing || state == .paused {
+        if snapshot.state == .pausing || snapshot.state == .paused {
           fire(handlers: handlerDictionary, snapshot: snapshot)
         }
       case .resume:
-        if state == .resuming || state == .running {
+        if snapshot.state == .resuming || snapshot.state == .running {
           fire(handlers: handlerDictionary, snapshot: snapshot)
         }
       case .progress:
-        if state == .running || state == .progress {
+        if snapshot.state == .running || snapshot.state == .progress {
           fire(handlers: handlerDictionary, snapshot: snapshot)
         }
       case .success:
-        if state == .success {
+        if snapshot.state == .success {
           fire(handlers: handlerDictionary, snapshot: snapshot)
         }
       case .failure:
-        if state == .failed || state == .failing {
+        if snapshot.state == .failed || snapshot.state == .failing {
           fire(handlers: handlerDictionary, snapshot: snapshot)
         }
       case .unknown: fatalError("Invalid observer status requested, use one " +

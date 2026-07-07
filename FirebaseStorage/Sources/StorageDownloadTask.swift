@@ -47,7 +47,7 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement, @u
    * Pauses a task currently in progress. Calling this on a paused task has no effect.
    */
   @objc open func pause() {
-    var shouldStop = false
+    var fetcherToStop: GTMSessionFetcher?
     stateLock.withLock {
       if state == .paused || state == .pausing || state == .success || state == .cancelled ||
         state == .failed {
@@ -64,11 +64,9 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement, @u
         }
         self.fire(for: .pause, snapshot: self.snapshot)
       }
-      shouldStop = true
+      fetcherToStop = fetcher
     }
-    if shouldStop {
-      fetcher?.stopFetching()
-    }
+    fetcherToStop?.stopFetching()
   }
 
   /**
