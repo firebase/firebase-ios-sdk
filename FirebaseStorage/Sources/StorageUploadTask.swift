@@ -168,6 +168,7 @@ import Foundation
           let data = try await uploadFetcher.beginFetch()
           var progressSnapshot: StorageTaskSnapshot?
           var successSnapshot: StorageTaskSnapshot?
+          var failureSnapshot: StorageTaskSnapshot?
 
           self.stateLock.withLock {
             if self.state == .cancelled { return }
@@ -175,16 +176,18 @@ import Foundation
             self.state = .progress
             progressSnapshot = self.snapshotUnderLock()
 
-            self.state = .success
             if let responseDictionary = try? JSONSerialization
               .jsonObject(with: data) as? [String: AnyHashable] {
+              self.state = .success
               let metadata = StorageMetadata(dictionary: responseDictionary)
               metadata.fileType = .file
               self.metadata = metadata
+              successSnapshot = self.snapshotUnderLock()
             } else {
+              self.state = .failed
               self.error = StorageErrorCode.error(withInvalidRequest: data)
+              failureSnapshot = self.snapshotUnderLock()
             }
-            successSnapshot = self.snapshotUnderLock()
           }
 
           if let progressSnapshot {
@@ -192,6 +195,8 @@ import Foundation
           }
           if let successSnapshot {
             self.finishTaskWithStatus(status: .success, snapshot: successSnapshot)
+          } else if let failureSnapshot {
+            self.finishTaskWithStatus(status: .failure, snapshot: failureSnapshot)
           }
         } catch {
           var progressSnapshot: StorageTaskSnapshot?

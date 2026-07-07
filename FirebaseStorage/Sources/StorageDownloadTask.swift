@@ -48,29 +48,38 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement, @u
    */
   @objc open func pause() {
     var fetcherToStop: GTMSessionFetcher?
+    var snapshotToFire: StorageTaskSnapshot?
     stateLock.withLock {
       if state == .paused || state == .pausing || state == .success || state == .cancelled ||
         state == .failed {
         return
       }
-      state = .pausing
-      // Use the resume callback to confirm pause status since it always runs after the last
-      // NSURLSession update.
-      fetcher?.resumeDataBlock = { [weak self] (data: Data) in
-        guard let self = self else { return }
-        var snapshotToFire: StorageTaskSnapshot?
-        self.stateLock.withLock {
-          if self.state == .pausing {
-            self.downloadData = data
-            self.state = .paused
-            snapshotToFire = self.snapshotUnderLock()
+      if let fetcher {
+        state = .pausing
+        // Use the resume callback to confirm pause status since it always runs after the last
+        // NSURLSession update.
+        fetcher.resumeDataBlock = { [weak self] (data: Data) in
+          guard let self = self else { return }
+          var snapshotToFire: StorageTaskSnapshot?
+          self.stateLock.withLock {
+            if self.state == .pausing {
+              self.downloadData = data
+              self.state = .paused
+              snapshotToFire = self.snapshotUnderLock()
+            }
+          }
+          if let snapshotToFire {
+            self.fire(for: .pause, snapshot: snapshotToFire)
           }
         }
-        if let snapshotToFire {
-          self.fire(for: .pause, snapshot: snapshotToFire)
-        }
+        fetcherToStop = fetcher
+      } else {
+        state = .paused
+        snapshotToFire = snapshotUnderLock()
       }
-      fetcherToStop = fetcher
+    }
+    if let snapshotToFire {
+      fire(for: .pause, snapshot: snapshotToFire)
     }
     fetcherToStop?.stopFetching()
   }
