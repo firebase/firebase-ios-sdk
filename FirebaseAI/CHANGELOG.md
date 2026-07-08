@@ -1,4 +1,5 @@
 # 12.16.0
+- [changed] Deprecated `Backend.vertexAI` in favor of `Backend.agentPlatform` (supporting `"global"` as the default location instead of `"us-central1"`).
 - [fixed] Fixed a decoding failure in `GenerateContentResponse` when the Vertex AI
   backend returns citation metadata with a missing `endIndex`. (#16328)
 - [fixed] Fixed an issue where `generateContentStream` could stall indefinitely
