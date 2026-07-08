@@ -172,7 +172,7 @@ private protocol StreamResponseProtocol {}
 ///
 /// This can be used as the generic `Response` parameter to ``Callable`` to receive both the
 /// yielded messages and final return value of the streaming callable function.
-@available(iOS 15.0, tvOS 15.0, macOS 12.0, watchOS 8.0, visionOS 1.0, *)
+@available(macOS 12.0, watchOS 8.0, *)
 public enum StreamResponse<Message: Decodable & Sendable, Result: Decodable & Sendable>: Decodable,
   Sendable,
   StreamResponseProtocol {
@@ -217,7 +217,7 @@ public enum StreamResponse<Message: Decodable & Sendable, Result: Decodable & Se
   }
 }
 
-@available(iOS 15.0, tvOS 15.0, macOS 12.0, watchOS 8.0, visionOS 1.0, *)
+@available(macOS 12.0, watchOS 8.0, *)
 public extension Callable where Request: Sendable, Response: Sendable {
   /// Creates a stream that yields responses from the streaming callable function.
   ///
