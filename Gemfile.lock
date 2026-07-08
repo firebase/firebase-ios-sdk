@@ -118,6 +118,7 @@ GEM
     logger (1.7.0)
     minitest (5.27.0)
     molinillo (0.8.0)
+    mutex_m (0.3.0)
     nanaimo (0.4.0)
     nap (1.1.0)
     net-http (0.9.1)
@@ -164,6 +165,7 @@ DEPENDENCIES
   cocoapods (= 1.17.0)
   cocoapods-generate (= 2.2.5)
   danger (>= 9.5.3)
+  mutex_m
 
 BUNDLED WITH
    2.6.2

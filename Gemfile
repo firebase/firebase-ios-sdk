@@ -13,5 +13,8 @@ source 'https://rubygems.org'
 # gem 'xcodeproj', git: "https://github.com/CocoaPods/Xcodeproj.git", ref: "eeccae7275645753cbaf45d96fc4b23e4b8b3b9f"
 
 gem 'cocoapods', '1.17.0'
+# Explicitly added to support Ruby 3.4+, where mutex_m was removed from the standard library
+# and causes CocoaPods to fail on load if not present.
+gem 'mutex_m'
 gem 'cocoapods-generate', '2.2.5'
 gem 'danger', '>= 9.5.3'
