@@ -22,39 +22,39 @@ import Testing
 struct InstanceConfig: Equatable, Encodable {
   static let agentPlatform_v1beta = InstanceConfig(
     apiConfig: APIConfig(
-      service: .vertexAI(endpoint: .firebaseProxyProd, location: "us-central1"),
+      service: .agentPlatform(endpoint: .firebaseProxyProd, location: "us-central1"),
       version: .v1beta
     )
   )
   static let agentPlatform_v1beta_appCheckLimitedUse = InstanceConfig(
     useLimitedUseAppCheckTokens: true,
     apiConfig: APIConfig(
-      service: .vertexAI(endpoint: .firebaseProxyProd, location: "us-central1"),
+      service: .agentPlatform(endpoint: .firebaseProxyProd, location: "us-central1"),
       version: .v1beta
     )
   )
   static let agentPlatform_v1beta_global = InstanceConfig(
     apiConfig: APIConfig(
-      service: .vertexAI(endpoint: .firebaseProxyProd, location: "global"),
+      service: .agentPlatform(endpoint: .firebaseProxyProd, location: "global"),
       version: .v1beta
     )
   )
   static let agentPlatform_v1beta_global_appCheckLimitedUse = InstanceConfig(
     useLimitedUseAppCheckTokens: true,
     apiConfig: APIConfig(
-      service: .vertexAI(endpoint: .firebaseProxyProd, location: "global"),
+      service: .agentPlatform(endpoint: .firebaseProxyProd, location: "global"),
       version: .v1beta
     )
   )
   static let agentPlatform_v1beta_staging = InstanceConfig(
     apiConfig: APIConfig(
-      service: .vertexAI(endpoint: .firebaseProxyStaging, location: "us-central1"),
+      service: .agentPlatform(endpoint: .firebaseProxyStaging, location: "us-central1"),
       version: .v1beta
     )
   )
   static let agentPlatform_v1beta_staging_global_bypassProxy = InstanceConfig(
     apiConfig: APIConfig(
-      service: .vertexAI(endpoint: .vertexAIStagingBypassProxy, location: "global"),
+      service: .agentPlatform(endpoint: .vertexAIStagingBypassProxy, location: "global"),
       version: .v1beta1
     )
   )
@@ -103,7 +103,7 @@ struct InstanceConfig: Equatable, Encodable {
   static let agentPlatform_v1beta_appCheckNotConfigured = InstanceConfig(
     appName: FirebaseAppNames.appCheckNotConfigured,
     apiConfig: APIConfig(
-      service: .vertexAI(endpoint: .firebaseProxyProd, location: "us-central1"),
+      service: .agentPlatform(endpoint: .firebaseProxyProd, location: "us-central1"),
       version: .v1beta
     )
   )
@@ -111,7 +111,7 @@ struct InstanceConfig: Equatable, Encodable {
     appName: FirebaseAppNames.appCheckNotConfigured,
     useLimitedUseAppCheckTokens: true,
     apiConfig: APIConfig(
-      service: .vertexAI(endpoint: .firebaseProxyProd, location: "us-central1"),
+      service: .agentPlatform(endpoint: .firebaseProxyProd, location: "us-central1"),
       version: .v1beta
     )
   )
@@ -148,7 +148,7 @@ struct InstanceConfig: Equatable, Encodable {
 
   var serviceName: String {
     switch apiConfig.service {
-    case .vertexAI:
+    case .agentPlatform:
       return "Agent Platform"
     case .googleAI:
       return "Google AI"
@@ -174,7 +174,7 @@ extension InstanceConfig: CustomTestStringConvertible {
       " - Staging - Bypass Proxy"
     }
     let locationSuffix: String
-    if case let .vertexAI(_, location: location) = apiConfig.service {
+    if case let .agentPlatform(_, location: location) = apiConfig.service {
       locationSuffix = " - (\(location))"
     } else {
       locationSuffix = ""
@@ -191,7 +191,7 @@ extension InstanceConfig: CustomTestStringConvertible {
 extension FirebaseAI {
   static func componentInstance(_ instanceConfig: InstanceConfig) -> FirebaseAI {
     switch instanceConfig.apiConfig.service {
-    case .vertexAI:
+    case .agentPlatform:
       return FirebaseAI.createInstance(
         app: instanceConfig.app,
         apiConfig: instanceConfig.apiConfig,

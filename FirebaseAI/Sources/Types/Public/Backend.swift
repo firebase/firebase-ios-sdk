@@ -27,7 +27,7 @@ public struct Backend {
   public static func vertexAI() -> Backend {
     return Backend(
       apiConfig: APIConfig(
-        service: .vertexAI(endpoint: .firebaseProxyProd, location: "us-central1"),
+        service: .agentPlatform(endpoint: .firebaseProxyProd, location: "us-central1"),
         version: .v1beta
       )
     )
@@ -45,7 +45,7 @@ public struct Backend {
   public static func vertexAI(location: String) -> Backend {
     return Backend(
       apiConfig: APIConfig(
-        service: .vertexAI(endpoint: .firebaseProxyProd, location: location),
+        service: .agentPlatform(endpoint: .firebaseProxyProd, location: location),
         version: .v1beta
       )
     )
@@ -62,7 +62,7 @@ public struct Backend {
   public static func agentPlatform(location: String = "global") -> Backend {
     return Backend(
       apiConfig: APIConfig(
-        service: .vertexAI(endpoint: .firebaseProxyProd, location: location),
+        service: .agentPlatform(endpoint: .firebaseProxyProd, location: location),
         version: .v1beta
       )
     )

@@ -379,7 +379,7 @@ public final class FirebaseAI: Sendable {
     }
 
     switch apiConfig.service {
-    case let .vertexAI(endpoint: _, location: location):
+    case let .agentPlatform(endpoint: _, location: location):
       return vertexAIModelResourceName(modelName: modelName, location: location)
     case .googleAI:
       return developerModelResourceName(modelName: modelName)

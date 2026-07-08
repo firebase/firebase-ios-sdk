@@ -207,7 +207,7 @@ public final class GenerativeModel: Sendable {
   /// ``CountTokensResponse/totalTokens``.
   public func countTokens(_ content: [ModelContent]) async throws -> CountTokensResponse {
     let requestContent = switch apiConfig.service {
-    case .vertexAI:
+    case .agentPlatform:
       content
     case .googleAI:
       // The `role` defaults to "user" but is ignored in `countTokens`. However, it is erroneously
@@ -222,7 +222,7 @@ public final class GenerativeModel: Sendable {
     // "models/model-name". This field is unaltered by the Firebase backend before forwarding the
     // request to the Generative Language backend, which expects the form "models/model-name".
     let generateContentRequestModelResourceName = switch apiConfig.service {
-    case .vertexAI:
+    case .agentPlatform:
       modelResourceName
     case .googleAI(endpoint: .firebaseProxyProd):
       "models/\(modelName)"
