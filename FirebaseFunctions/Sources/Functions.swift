@@ -407,7 +407,7 @@ enum FunctionsConstants {
     }
   }
 
-  @available(macOS 12.0, watchOS 8.0, *)
+  @available(iOS 15.0, tvOS 15.0, macOS 12.0, watchOS 8.0, visionOS 1.0, *)
   func stream(at url: URL,
               data: SendableWrapper?,
               options: HTTPSCallableOptions?,
@@ -512,7 +512,7 @@ enum FunctionsConstants {
     }
   }
 
-  @available(macOS 12.0, watchOS 8.0, *)
+  @available(iOS 15.0, tvOS 15.0, macOS 12.0, watchOS 8.0, visionOS 1.0, *)
   private func callableStreamResult(fromResponseData data: Data,
                                     endpointURL url: URL) throws -> sending JSONStreamResponse {
     let data = try processedData(fromResponseData: data, endpointURL: url)
