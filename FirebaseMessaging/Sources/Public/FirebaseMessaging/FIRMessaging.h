@@ -66,6 +66,12 @@ typedef void (^FIRMessagingTopicOperationCompletion)(NSError *_Nullable error)
 // clang-format12 merges the next two lines.
 FOUNDATION_EXPORT const NSNotificationName FIRMessagingRegistrationTokenRefreshedNotification
     NS_SWIFT_NAME(MessagingRegistrationTokenRefreshed);
+
+/**
+ *  Notification sent when the FCM installation id has been unregistered.
+ */
+FOUNDATION_EXPORT const NSNotificationName FIRMessagingInstallationIdUnregisteredNotification
+    NS_SWIFT_NAME(messagingInstallationIdUnregistered);
 // clang-format on
 
 /**
@@ -155,6 +161,35 @@ NS_SWIFT_NAME(MessagingDelegate)
 - (void)messaging:(FIRMessaging *)messaging
     didReceiveRegistrationToken:(nullable NSString *)fcmToken
     NS_SWIFT_NAME(messaging(_:didReceiveRegistrationToken:));
+
+/// This method will be called once the registration is created or refreshed. When
+/// auto init is enabled, it will be automatically called once per app start, but may be called
+/// more often, if registration is invalidated or updated.
+///
+/// Furthermore, this method also serves as the callback for a direct call to
+/// `registerWithCompletion`. In this method, you should perform operations such as:
+///
+/// * Uploading the FCM token to your application server, so targeted notifications can be sent.
+/// * Subscribing to any topics.
+///
+/// @param messaging The Firebase Messaging instance.
+/// @param installationId The Firebase Installation ID of the current app instance.
+- (void)messaging:(FIRMessaging *)messaging
+    didReceiveRegistration:(nullable NSString *)installationId
+    NS_SWIFT_NAME(messaging(_:didReceiveRegistration:));
+
+/// This method will be called once the unregistration is been successfully unregistered from FCM
+/// via a call to `unregisterWithCompletion`.
+///
+/// This method confirms that the specified FID is no longer active for receiving FCM
+/// messages. In this method, you should consider notifying your backend server about the
+/// unregistration.
+///
+/// @param messaging The Firebase Messaging instance.
+/// @param installationId The Firebase Installation ID of the current app instance that was
+/// unregistered with FCM.
+- (void)messaging:(FIRMessaging *)messaging
+    didUnregister:(NSString *)installationId NS_SWIFT_NAME(messaging(_:didUnregister:));
 @end
 
 /**
@@ -239,6 +274,27 @@ NS_SWIFT_NAME(Messaging)
 @property(nonatomic, assign, getter=isAutoInitEnabled) BOOL autoInitEnabled;
 
 /**
+ * Is Firebase Messaging registration via Firebase installation ID enabled? It's the
+ * `FirebaseMessagingInstallationIdEnabled` property in `Info.plist` file. The default value is
+ * `NO`.
+ * Whether Firebase Messaging registration via Firebase installation ID is enabled.
+ *
+ * This can be set using the `FirebaseMessagingInstallationIdEnabled` property in
+ * the app's `Info.plist` file.
+ *
+ * The default value is `NO`. To enable, set to `YES`.
+ * When enabled, there are several behavior changes:
+ *
+ *    1. An FCM registration token is no longer generated. Instead, the app instance is registered
+ *       with FCM through the Firebase Installation ID to receive messages.
+ *    2. All token related operations like `tokenWithCompletion`, `deleteTokenWithCompletion`,
+ *       `retrieveFCMTokenForSenderID`, and `deleteFCMTokenForSenderID` will always fail
+ *       with an error indicating that the operation is not supported.
+ *    3. You should call `register()` and `unregister()` instead.
+ */
+@property(nonatomic, readonly, getter=isInstallationIdEnabled) BOOL installationIdEnabled;
+
+/**
  * The FCM registration token is used to identify this device so that FCM can send notifications to
  * it. It is associated with your APNs token when the APNs token is supplied, so messages sent to
  * the FCM token will be delivered over APNs.
@@ -313,6 +369,46 @@ NS_SWIFT_NAME(Messaging)
 - (void)deleteFCMTokenForSenderID:(NSString *)senderID
                        completion:(void (^)(NSError *_Nullable error))completion
     NS_SWIFT_NAME(deleteFCMToken(forSenderID:completion:));
+
+#pragma mark - FID
+
+/**
+ * Asynchronously registers the Firebase app instance with FCM.
+ *
+ * This process ensures the FCM backend is aware of the app instance, linking it to
+ * its Firebase Installation ID (FID). The FID can then be used to target
+ * this app instance for notifications.
+ *
+ * Upon completion, the delegate method `messaging(_:didReceiveRegistration:)` in your
+ * Messaging delegate will be called to provide the Firebase Installation ID (FID). Calling
+ * this method when already registered will still invoke the delegate method
+ * `messaging(_:didReceiveRegistration:)` with the existing FID.
+ *
+ * This creates a Firebase Installations ID, if one does not exist, and sends information
+ * about the application and the device to the FCM backend. A network connection is required
+ * for the method to succeed. To stop this, see `Messaging.isAutoInitEnabled`
+ * and `Installations.delete(completion:)`.
+ *
+ * @param completion The completion handler to handle the registration request.
+ */
+- (void)registerWithCompletion:(void (^)(NSError *_Nullable error))completion;
+
+/**
+ * Asynchronously unregisters the Firebase app instance with FCM.
+ *
+ * Upon completion, the delegate method `messaging(_:didUnregister:)` in your Messaging
+ * delegate is triggered. Afterwards, any attempt to send FCM messages using the current
+ * Firebase installation ID will result in a 404 error.
+ *
+ * Note that if auto-init is enabled, the app instance will be re-registered the next
+ * time the app is started. Disable auto-init (`Messaging.isAutoInitEnabled`) to avoid this.
+ *
+ * Note that this does not delete the Firebase Installations ID that may have been
+ * created during registration. To delete the FID, see `Installations.delete(completion:)`.
+ *
+ * @param completion The completion handler to handle the unregistration.
+ */
+- (void)unregisterWithCompletion:(void (^)(NSError *_Nullable error))completion;
 
 #pragma mark - Topics
 

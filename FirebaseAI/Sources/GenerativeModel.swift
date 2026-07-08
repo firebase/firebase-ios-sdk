@@ -322,7 +322,7 @@ public final class GenerativeModel: Sendable {
 
     return AsyncThrowingStream { continuation in
       let responseStream = generativeAIService.loadRequestStream(request: generateContentRequest)
-      Task {
+      let task = Task {
         do {
           var didYieldResponse = false
           for try await response in responseStream {
@@ -365,8 +365,11 @@ public final class GenerativeModel: Sendable {
           }
         } catch {
           continuation.finish(throwing: GenerativeModel.generateContentError(from: error))
-          return
         }
+      }
+
+      continuation.onTermination = { @Sendable _ in
+        task.cancel()
       }
     }
   }

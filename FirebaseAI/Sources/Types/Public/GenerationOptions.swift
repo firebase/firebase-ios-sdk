@@ -155,6 +155,7 @@
         @available(tvOS, unavailable)
         public init(_ options: FoundationModels.GenerationOptions) {
           _generationOptions = options
+          // TODO: Remove `else` when Xcode 27 is the min. supported Xcode.
           #if compiler(>=6.4)
             sampling = options.samplingMode.map {
               SamplingMode(kind: .foundationModelsSamplingMode($0))
@@ -175,6 +176,7 @@
             return generationOptions
           }
 
+          // TODO: Remove `else` when Xcode 27 is the min. supported Xcode.
           #if compiler(>=6.4)
             return FoundationModels.GenerationOptions(
               samplingMode: sampling?.samplingMode,

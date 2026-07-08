@@ -71,9 +71,11 @@ google_firestore_v1_Pipeline_Stage CollectionSource::to_proto() const {
         nanopb::MakeArray<google_firestore_v1_Pipeline_Stage_OptionsEntry>(1);
 
     result.options[0].key = nanopb::MakeBytesArray("force_index");
-    result.options[0].value = google_firestore_v1_Value{
-        .which_value_type = google_firestore_v1_Value_string_value_tag,
-        .string_value = nanopb::MakeBytesArray(force_index_.value())};
+
+    google_firestore_v1_Value value = {};
+    value.which_value_type = google_firestore_v1_Value_string_value_tag;
+    value.string_value = nanopb::MakeBytesArray(force_index_.value());
+    result.options[0].value = value;
   } else {
     result.options_count = 0;
     result.options = nullptr;
@@ -136,9 +138,11 @@ google_firestore_v1_Pipeline_Stage CollectionGroupSource::to_proto() const {
         nanopb::MakeArray<google_firestore_v1_Pipeline_Stage_OptionsEntry>(1);
 
     result.options[0].key = nanopb::MakeBytesArray("force_index");
-    result.options[0].value = google_firestore_v1_Value{
-        .which_value_type = google_firestore_v1_Value_string_value_tag,
-        .string_value = nanopb::MakeBytesArray(force_index_.value())};
+
+    google_firestore_v1_Value value = {};
+    value.which_value_type = google_firestore_v1_Value_string_value_tag;
+    value.string_value = nanopb::MakeBytesArray(force_index_.value());
+    result.options[0].value = value;
   } else {
     result.options_count = 0;
     result.options = nullptr;

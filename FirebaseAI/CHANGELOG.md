@@ -1,3 +1,19 @@
+# 12.16.0
+- [fixed] Fixed a decoding failure in `GenerateContentResponse` when the Vertex AI
+  backend returns citation metadata with a missing `endIndex`. (#16328)
+- [fixed] Fixed an issue where `generateContentStream` could stall indefinitely
+  on mid-stream network drops. (#16298)
+- [fixed] Fixed a resource leak where background network requests would
+  continue downloading if the stream consumer terminated early. (#16298)
+
+# 12.15.0
+- [changed] Made Firebase App Check a dependency of Firebase AI Logic to
+  simplify App Check setup. (#16185)
+- [fixed] Fixed a namespace collision with the new
+  `FoundationModels.LanguageModelSession.Error` type introduced in Xcode 27 Beta. (#16252)
+- [feature] Added support for `SpeechConfig` in `GenerationConfig`, and `MultiSpeakerVoiceConfig`
+  in `SpeechConfig`. (#16226)
+
 # 12.14.0
 - [fixed] Fixed an issue in `GenerativeModelSession` where `String` generation
   used the wrong overload for `respond(to:)` and `streamResponse(to:)`,
