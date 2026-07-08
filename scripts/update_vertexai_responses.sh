@@ -14,8 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# This script replaces mock response files for Vertex AI unit tests with a fresh
-# clone of the shared repository of Vertex AI test data.
+# This script replaces mock response files for Gemini Enterprise Agent Platform unit tests with a fresh
+# clone of the shared repository of mock test data.
 
 cd "$(dirname "$0")/../FirebaseAI/Tests/Unit" || exit
 rm -rf vertexai-sdk-test-data || exit

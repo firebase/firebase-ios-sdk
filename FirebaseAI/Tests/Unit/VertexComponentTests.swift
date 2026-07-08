@@ -95,6 +95,53 @@ class VertexComponentTests: XCTestCase {
     XCTAssertEqual(vertex.apiConfig.version, .v1beta)
   }
 
+  /// Tests that an agentPlatform instance can be created properly using the default Firebase app.
+  func testAgentPlatformInstanceCreation_defaultApp() throws {
+    let vertex = FirebaseAI.firebaseAI(backend: .agentPlatform())
+
+    XCTAssertNotNil(vertex)
+    XCTAssertEqual(vertex.firebaseInfo.projectID, VertexComponentTests.projectID)
+    XCTAssertEqual(vertex.firebaseInfo.apiKey, VertexComponentTests.apiKey)
+    XCTAssertEqual(
+      vertex.apiConfig.service, .vertexAI(endpoint: .firebaseProxyProd, location: "global")
+    )
+    XCTAssertEqual(vertex.apiConfig.service.endpoint, .firebaseProxyProd)
+    XCTAssertEqual(vertex.apiConfig.version, .v1beta)
+  }
+
+  /// Tests that an agentPlatform instance can be created properly using the default Firebase app
+  /// and custom
+  /// location.
+  func testAgentPlatformInstanceCreation_defaultApp_customLocation() throws {
+    let vertex = FirebaseAI.firebaseAI(backend: .agentPlatform(location: location))
+
+    XCTAssertNotNil(vertex)
+    XCTAssertEqual(vertex.firebaseInfo.projectID, VertexComponentTests.projectID)
+    XCTAssertEqual(vertex.firebaseInfo.apiKey, VertexComponentTests.apiKey)
+    XCTAssertEqual(
+      vertex.apiConfig.service, .vertexAI(endpoint: .firebaseProxyProd, location: location)
+    )
+    XCTAssertEqual(vertex.apiConfig.service.endpoint, .firebaseProxyProd)
+    XCTAssertEqual(vertex.apiConfig.version, .v1beta)
+  }
+
+  /// Tests that an agentPlatform instance can be created properly.
+  func testAgentPlatformInstanceCreation_customApp() throws {
+    let vertex = FirebaseAI.firebaseAI(
+      app: VertexComponentTests.app,
+      backend: .agentPlatform(location: location)
+    )
+
+    XCTAssertNotNil(vertex)
+    XCTAssertEqual(vertex.firebaseInfo.projectID, VertexComponentTests.projectID)
+    XCTAssertEqual(vertex.firebaseInfo.apiKey, VertexComponentTests.apiKey)
+    XCTAssertEqual(
+      vertex.apiConfig.service, .vertexAI(endpoint: .firebaseProxyProd, location: location)
+    )
+    XCTAssertEqual(vertex.apiConfig.service.endpoint, .firebaseProxyProd)
+    XCTAssertEqual(vertex.apiConfig.version, .v1beta)
+  }
+
   /// Tests that Vertex instances are reused properly.
   func testSameAppAndLocation_instanceReused() throws {
     let app = try XCTUnwrap(VertexComponentTests.app)
@@ -263,6 +310,42 @@ class VertexComponentTests: XCTestCase {
   func testGenerativeModel_vertexAI_customLocation() async throws {
     let app = try XCTUnwrap(VertexComponentTests.app)
     let vertex = FirebaseAI.firebaseAI(app: app, backend: .vertexAI(location: location))
+    let modelResourceName = vertex.modelResourceName(modelName: modelName)
+    let expectedAPIConfig = APIConfig(
+      service: .vertexAI(endpoint: .firebaseProxyProd, location: location), version: .v1beta
+    )
+    let expectedSystemInstruction = ModelContent(role: nil, parts: systemInstruction.parts)
+
+    let generativeModel = vertex.generativeModel(
+      modelName: modelName, systemInstruction: systemInstruction
+    )
+
+    XCTAssertEqual(generativeModel.modelResourceName, modelResourceName)
+    XCTAssertEqual(generativeModel.systemInstruction, expectedSystemInstruction)
+    XCTAssertEqual(generativeModel.apiConfig, expectedAPIConfig)
+  }
+
+  func testGenerativeModel_agentPlatform_defaultLocation() async throws {
+    let app = try XCTUnwrap(VertexComponentTests.app)
+    let vertex = FirebaseAI.firebaseAI(app: app, backend: .agentPlatform())
+    let modelResourceName = vertex.modelResourceName(modelName: modelName)
+    let expectedAPIConfig = APIConfig(
+      service: .vertexAI(endpoint: .firebaseProxyProd, location: "global"), version: .v1beta
+    )
+    let expectedSystemInstruction = ModelContent(role: nil, parts: systemInstruction.parts)
+
+    let generativeModel = vertex.generativeModel(
+      modelName: modelName, systemInstruction: systemInstruction
+    )
+
+    XCTAssertEqual(generativeModel.modelResourceName, modelResourceName)
+    XCTAssertEqual(generativeModel.systemInstruction, expectedSystemInstruction)
+    XCTAssertEqual(generativeModel.apiConfig, expectedAPIConfig)
+  }
+
+  func testGenerativeModel_agentPlatform_customLocation() async throws {
+    let app = try XCTUnwrap(VertexComponentTests.app)
+    let vertex = FirebaseAI.firebaseAI(app: app, backend: .agentPlatform(location: location))
     let modelResourceName = vertex.modelResourceName(modelName: modelName)
     let expectedAPIConfig = APIConfig(
       service: .vertexAI(endpoint: .firebaseProxyProd, location: location), version: .v1beta

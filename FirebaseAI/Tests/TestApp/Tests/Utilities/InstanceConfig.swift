@@ -20,39 +20,39 @@ import Testing
 @testable import struct FirebaseAILogic.APIConfig
 
 struct InstanceConfig: Equatable, Encodable {
-  static let vertexAI_v1beta = InstanceConfig(
+  static let agentPlatform_v1beta = InstanceConfig(
     apiConfig: APIConfig(
       service: .vertexAI(endpoint: .firebaseProxyProd, location: "us-central1"),
       version: .v1beta
     )
   )
-  static let vertexAI_v1beta_appCheckLimitedUse = InstanceConfig(
+  static let agentPlatform_v1beta_appCheckLimitedUse = InstanceConfig(
     useLimitedUseAppCheckTokens: true,
     apiConfig: APIConfig(
       service: .vertexAI(endpoint: .firebaseProxyProd, location: "us-central1"),
       version: .v1beta
     )
   )
-  static let vertexAI_v1beta_global = InstanceConfig(
+  static let agentPlatform_v1beta_global = InstanceConfig(
     apiConfig: APIConfig(
       service: .vertexAI(endpoint: .firebaseProxyProd, location: "global"),
       version: .v1beta
     )
   )
-  static let vertexAI_v1beta_global_appCheckLimitedUse = InstanceConfig(
+  static let agentPlatform_v1beta_global_appCheckLimitedUse = InstanceConfig(
     useLimitedUseAppCheckTokens: true,
     apiConfig: APIConfig(
       service: .vertexAI(endpoint: .firebaseProxyProd, location: "global"),
       version: .v1beta
     )
   )
-  static let vertexAI_v1beta_staging = InstanceConfig(
+  static let agentPlatform_v1beta_staging = InstanceConfig(
     apiConfig: APIConfig(
       service: .vertexAI(endpoint: .firebaseProxyStaging, location: "us-central1"),
       version: .v1beta
     )
   )
-  static let vertexAI_v1beta_staging_global_bypassProxy = InstanceConfig(
+  static let agentPlatform_v1beta_staging_global_bypassProxy = InstanceConfig(
     apiConfig: APIConfig(
       service: .vertexAI(endpoint: .vertexAIStagingBypassProxy, location: "global"),
       version: .v1beta1
@@ -78,13 +78,13 @@ struct InstanceConfig: Equatable, Encodable {
   )
 
   static let defaultConfigs = [
-    vertexAI_v1beta_global,
+    agentPlatform_v1beta_global,
     googleAI_v1beta,
     // Note: The following configs are commented out for easy one-off manual testing.
-    // vertexAI_v1beta,
-    // vertexAI_v1beta_global_appCheckLimitedUse,
-    // vertexAI_v1beta_staging,
-    // vertexAI_v1beta_staging_global_bypassProxy,
+    // agentPlatform_v1beta,
+    // agentPlatform_v1beta_global_appCheckLimitedUse,
+    // agentPlatform_v1beta_staging,
+    // agentPlatform_v1beta_staging_global_bypassProxy,
     // googleAI_v1beta_appCheckLimitedUse,
     // googleAI_v1beta_staging,
     // googleAI_v1beta_freeTier,
@@ -92,22 +92,22 @@ struct InstanceConfig: Equatable, Encodable {
   ]
 
   static let liveConfigs = [
-    vertexAI_v1beta,
+    agentPlatform_v1beta,
     googleAI_v1beta,
     // Note: The following configs are commented out for easy one-off manual testing.
-    // vertexAI_v1beta_appCheckLimitedUse,
+    // agentPlatform_v1beta_appCheckLimitedUse,
     // googleAI_v1beta_appCheckLimitedUse,
     // googleAI_v1beta_freeTier,
   ]
 
-  static let vertexAI_v1beta_appCheckNotConfigured = InstanceConfig(
+  static let agentPlatform_v1beta_appCheckNotConfigured = InstanceConfig(
     appName: FirebaseAppNames.appCheckNotConfigured,
     apiConfig: APIConfig(
       service: .vertexAI(endpoint: .firebaseProxyProd, location: "us-central1"),
       version: .v1beta
     )
   )
-  static let vertexAI_v1beta_appCheckNotConfigured_limitedUseTokens = InstanceConfig(
+  static let agentPlatform_v1beta_appCheckNotConfigured_limitedUseTokens = InstanceConfig(
     appName: FirebaseAppNames.appCheckNotConfigured,
     useLimitedUseAppCheckTokens: true,
     apiConfig: APIConfig(
@@ -126,8 +126,8 @@ struct InstanceConfig: Equatable, Encodable {
   )
 
   static let appCheckNotConfiguredConfigs = [
-    vertexAI_v1beta_appCheckNotConfigured,
-    vertexAI_v1beta_appCheckNotConfigured_limitedUseTokens,
+    agentPlatform_v1beta_appCheckNotConfigured,
+    agentPlatform_v1beta_appCheckNotConfigured_limitedUseTokens,
     googleAI_v1beta_appCheckNotConfigured,
     googleAI_v1beta_appCheckNotConfigured_limitedUseTokens,
   ]
@@ -149,7 +149,7 @@ struct InstanceConfig: Equatable, Encodable {
   var serviceName: String {
     switch apiConfig.service {
     case .vertexAI:
-      return "Vertex AI"
+      return "Agent Platform"
     case .googleAI:
       return "Google AI"
     }

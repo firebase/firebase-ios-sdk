@@ -50,4 +50,27 @@ final class BackendTests: XCTestCase {
 
     XCTAssertEqual(backend.apiConfig, expectedAPIConfig)
   }
+
+  func testAgentPlatform_defaultLocation() {
+    let expectedAPIConfig = APIConfig(
+      service: .vertexAI(endpoint: .firebaseProxyProd, location: "global"),
+      version: .v1beta
+    )
+
+    let backend = Backend.agentPlatform()
+
+    XCTAssertEqual(backend.apiConfig, expectedAPIConfig)
+  }
+
+  func testAgentPlatform_customLocation() {
+    let customLocation = "europe-west1"
+    let expectedAPIConfig = APIConfig(
+      service: .vertexAI(endpoint: .firebaseProxyProd, location: customLocation),
+      version: .v1beta
+    )
+
+    let backend = Backend.agentPlatform(location: customLocation)
+
+    XCTAssertEqual(backend.apiConfig, expectedAPIConfig)
+  }
 }

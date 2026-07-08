@@ -24,10 +24,10 @@ import Testing
 struct ServerPromptTemplateIntegrationTests {
   private static let testConfigs: [InstanceConfig] = [
     .googleAI_v1beta,
-    .vertexAI_v1beta,
-    .vertexAI_v1beta_global,
+    .agentPlatform_v1beta,
+    .agentPlatform_v1beta_global,
   ]
-  private static let imageGenerationTestConfigs: [InstanceConfig] = [.vertexAI_v1beta]
+  private static let imageGenerationTestConfigs: [InstanceConfig] = [.agentPlatform_v1beta]
 
   @Test(arguments: testConfigs)
   func generateContentWithText(_ config: InstanceConfig) async throws {
@@ -66,7 +66,7 @@ struct ServerPromptTemplateIntegrationTests {
 
   @Test(arguments: [
     InstanceConfig.googleAI_v1beta,
-    InstanceConfig.vertexAI_v1beta,
+    InstanceConfig.agentPlatform_v1beta,
   ])
   func generateContentWithTemplateMapsGrounding(_ config: InstanceConfig) async throws {
     let toolConfig = TemplateToolConfig(
@@ -90,7 +90,7 @@ struct ServerPromptTemplateIntegrationTests {
 
   @Test(arguments: [
     InstanceConfig.googleAI_v1beta,
-    InstanceConfig.vertexAI_v1beta,
+    InstanceConfig.agentPlatform_v1beta,
   ])
   @available(*, deprecated)
   func generateImages(_ config: InstanceConfig) async throws {

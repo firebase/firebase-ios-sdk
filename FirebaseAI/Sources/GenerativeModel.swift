@@ -61,7 +61,7 @@ public final class GenerativeModel: Sendable {
   ///   - modelName: The name of the model.
   ///   - modelResourceName: The model resource name corresponding with `modelName` in the backend.
   ///     The form depends on the backend and will be one of:
-  ///       - Vertex AI via Firebase AI SDK:
+  ///       - Gemini Enterprise Agent Platform via Firebase AI SDK:
   ///       `"projects/{projectID}/locations/{locationID}/publishers/google/models/{modelName}"`
   ///       - Developer API via Firebase AI SDK: `"projects/{projectID}/models/{modelName}"`
   ///       - Developer API via Generative Language: `"models/{modelName}"`
