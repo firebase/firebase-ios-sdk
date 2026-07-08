@@ -1198,6 +1198,39 @@ TEST_F(BundleSerializerTest,
   EXPECT_EQ(core::LimitType::Last, named_query.bundled_query().limit_type());
 }
 
+TEST_F(BundleSerializerTest, DecodeCollectionSourceFromNotArrayFails) {
+  std::string json(
+      R"({"name":"myNamedQuery",
+"bundledQuery":{"parent":"projects/p/databases/default/documents",
+"structuredQuery":{"from":"not-an-array"},"limitType":"FIRST"},
+"readTime":{"seconds":"1679674432","nanos":579934000}})");
+  JsonReader reader;
+  bundle_serializer.DecodeNamedQuery(reader, Parse(json));
+  EXPECT_NOT_OK(reader.status());
+}
+
+TEST_F(BundleSerializerTest, DecodeLimitEmptyObjectFails) {
+  std::string json(
+      R"({"name":"myNamedQuery",
+"bundledQuery":{"parent":"projects/p/databases/default/documents",
+"structuredQuery":{"from":[{"collectionId":"foo"}],
+"limit":{}},"limitType":"FIRST"},
+"readTime":{"seconds":"1679674432","nanos":579934000}})");
+  JsonReader reader;
+  bundle_serializer.DecodeNamedQuery(reader, Parse(json));
+  EXPECT_NOT_OK(reader.status());
+}
+
+TEST_F(BundleSerializerTest, DecodePrimitiveAsObjectFails) {
+  std::string json(
+      R"({"name":"myNamedQuery",
+"bundledQuery":123,
+"readTime":{"seconds":"1679674432","nanos":579934000}})");
+  JsonReader reader;
+  bundle_serializer.DecodeNamedQuery(reader, Parse(json));
+  EXPECT_NOT_OK(reader.status());
+}
+
 }  //  namespace
 }  //  namespace bundle
 }  //  namespace firestore
