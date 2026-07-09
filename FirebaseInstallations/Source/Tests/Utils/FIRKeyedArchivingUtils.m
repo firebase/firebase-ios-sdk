@@ -19,12 +19,9 @@
 @implementation FIRKeyedArchivingUtils
 
 + (nullable NSData *)archivedDataWithRootObject:(id)object error:(NSError **)outError {
-  NSData *archivedData;
-  archivedData = [NSKeyedArchiver archivedDataWithRootObject:object
-                                       requiringSecureCoding:YES
-                                                       error:outError];
-
-  return archivedData;
+  return [NSKeyedArchiver archivedDataWithRootObject:object
+                               requiringSecureCoding:YES
+                                               error:outError];
 }
 
 + (nullable id)unarchivedObjectOfClass:(Class)class
