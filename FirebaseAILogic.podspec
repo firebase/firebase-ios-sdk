@@ -77,6 +77,7 @@ Build AI-powered apps and features with the Gemini API using the Firebase AI Log
       'FirebaseAI/Wrapper/Tests/APITests.swift',
       'FirebaseAI/Tests/Unit/APITests.swift',
       'FirebaseAI/Tests/Unit/Types/BackendTests.swift',
+      'FirebaseAI/Tests/Unit/VertexComponentTests.swift',
     ]
     unit_tests.resources = [
       unit_tests_dir + 'vertexai-sdk-test-data/mock-responses',
