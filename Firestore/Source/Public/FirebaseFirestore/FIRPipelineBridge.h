@@ -145,6 +145,25 @@ NS_SWIFT_NAME(AddFieldsStageBridge)
 @end
 
 NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(WindowSpecBridge)
+@interface FIRWindowSpecBridge : NSObject
+- (id)initWithGroups:(NSArray<FIRExprBridge *> *)groups
+                sort:(NSArray<FIROrderingBridge *> *_Nullable)sort
+           preceding:(id _Nullable)preceding
+           following:(id _Nullable)following
+                type:(NSString *_Nullable)type
+                unit:(NSString *_Nullable)unit;
+@end
+
+NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(AddWindowFieldsStageBridge)
+@interface FIRAddWindowFieldsStageBridge : FIRStageBridge
+- (id)initWithWindow:(FIRWindowSpecBridge *)window
+              fields:(NSDictionary<NSString *, FIRAggregateFunctionBridge *> *)fields;
+@end
+
+
+NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(RemoveFieldsStageBridge)
 @interface FIRRemoveFieldsStageBridge : FIRStageBridge
 - (id)initWithFields:(NSArray<NSString *> *)fields;

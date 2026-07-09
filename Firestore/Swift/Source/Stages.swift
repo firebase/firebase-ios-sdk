@@ -181,6 +181,37 @@ class AddFields: Stage {
   }
 }
 
+class AddWindowFields: Stage {
+  let name: String = "add_window_fields"
+  let bridge: StageBridge
+  private var window: FinalWindowSpec
+  private var fields: [AliasedAggregate]
+  let errorMessage: String?
+
+  init(window: FinalWindowSpec, fields: [AliasedAggregate]) {
+    self.window = window
+    self.fields = fields
+
+    let (fieldsMap, error) = Helper.aliasedAggregatesToMap(accumulators: fields)
+    if let error = error {
+      errorMessage = error.localizedDescription
+      // Return a dummy bridge to prevent crash during invalid setup
+      bridge = AddWindowFieldsStageBridge(
+        window: WindowSpec.overPartition([] as [Expression]).toBridge(),
+        fields: [:]
+      )
+    } else {
+      errorMessage = nil
+      let fieldsBridgeMap = fieldsMap.mapValues { $0.bridge }
+      bridge = AddWindowFieldsStageBridge(
+        window: window.toBridge(),
+        fields: fieldsBridgeMap
+      )
+    }
+  }
+}
+
+
 class RemoveFieldsStage: Stage {
   let name: String = "remove_fields"
   let bridge: StageBridge

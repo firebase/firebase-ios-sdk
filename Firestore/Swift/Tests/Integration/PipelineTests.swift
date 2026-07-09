@@ -5487,4 +5487,97 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       XCTAssertEqual(nsError.domain, FirestoreErrorDomain, "length must be non-negative")
     }
   }
+
+  func testWindowFunctionsGroupAverage() async throws {
+    let salesDocs: [String: [String: Any]] = [
+      "sale1": ["product": "phone", "salesPrice": 12],
+      "sale2": ["product": "phone", "salesPrice": 30],
+      "sale3": ["product": "tablet", "salesPrice": 30],
+      "sale4": ["product": "tablet", "salesPrice": 60],
+    ]
+    let collRef = collectionRef(withDocuments: salesDocs)
+    let db = collRef.firestore
+
+    let snapshot = try await db.pipeline()
+      .collection(collRef.path)
+      .addWindowFields(
+        window: .overPartition("product"),
+        fields: [
+          Field("salesPrice").average().as("productAveragePrice"),
+          countAll().as("windowCount")
+        ]
+      )
+      .sort([Field("product").ascending(), Field("salesPrice").ascending()])
+      .execute()
+
+    let expectedResults: [[String: Any]] = [
+      ["product": "phone", "salesPrice": 12, "productAveragePrice": 21.0, "windowCount": 2],
+      ["product": "phone", "salesPrice": 30, "productAveragePrice": 21.0, "windowCount": 2],
+      ["product": "tablet", "salesPrice": 30, "productAveragePrice": 45.0, "windowCount": 2],
+      ["product": "tablet", "salesPrice": 60, "productAveragePrice": 45.0, "windowCount": 2],
+    ]
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
+  }
+
+  func testWindowFunctionsDocumentMovingAverage() async throws {
+    let salesDocs: [String: [String: Any]] = [
+      "sale1": ["product": "phone", "salesPrice": 12],
+      "sale2": ["product": "phone", "salesPrice": 30],
+      "sale3": ["product": "tablet", "salesPrice": 30],
+      "sale4": ["product": "tablet", "salesPrice": 60],
+    ]
+    let collRef = collectionRef(withDocuments: salesDocs)
+    let db = collRef.firestore
+
+    let snapshot = try await db.pipeline()
+      .collection(collRef.path)
+      .addWindowFields(
+        window: .overDocuments(sort: Field("salesPrice").ascending(), preceding: 1, following: 1)
+          .overPartition("product"),
+        fields: [
+          Field("salesPrice").average().as("movingAverage")
+        ]
+      )
+      .sort([Field("product").ascending(), Field("salesPrice").ascending()])
+      .execute()
+
+    let expectedResults: [[String: Any]] = [
+      ["product": "phone", "salesPrice": 12, "movingAverage": 21.0],
+      ["product": "phone", "salesPrice": 30, "movingAverage": 21.0],
+      ["product": "tablet", "salesPrice": 30, "movingAverage": 45.0],
+      ["product": "tablet", "salesPrice": 60, "movingAverage": 45.0],
+    ]
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
+  }
+
+  func testWindowFunctionsRange() async throws {
+    let salesDocs: [String: [String: Any]] = [
+      "sale1": ["product": "phone", "salesPrice": 12],
+      "sale2": ["product": "phone", "salesPrice": 30],
+      "sale3": ["product": "tablet", "salesPrice": 30],
+      "sale4": ["product": "tablet", "salesPrice": 60],
+    ]
+    let collRef = collectionRef(withDocuments: salesDocs)
+    let db = collRef.firestore
+
+    let snapshot = try await db.pipeline()
+      .collection(collRef.path)
+      .addWindowFields(
+        window: .overRange(sort: Field("salesPrice").ascending(), preceding: 30, following: WindowSpec.CURRENT)
+          .overPartition("product"),
+        fields: [
+          Field("salesPrice").sum().as("runningSum")
+        ]
+      )
+      .sort([Field("product").ascending(), Field("salesPrice").ascending()])
+      .execute()
+
+    let expectedResults: [[String: Any]] = [
+      ["product": "phone", "salesPrice": 12, "runningSum": 12],
+      ["product": "phone", "salesPrice": 30, "runningSum": 42],
+      ["product": "tablet", "salesPrice": 30, "runningSum": 30],
+      ["product": "tablet", "salesPrice": 60, "runningSum": 90],
+    ]
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
+  }
 }
