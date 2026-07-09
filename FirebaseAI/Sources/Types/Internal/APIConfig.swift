@@ -98,7 +98,7 @@ extension APIConfig.Service {
       /// Platform backend. This
       /// endpoint only supports the Gemini API in Gemini Enterprise Agent Platform, not the Gemini
       /// Developer API.
-      case vertexAIStagingBypassProxy = "https://staging-aiplatform.sandbox.googleapis.com"
+      case agentPlatformStagingBypassProxy = "https://staging-aiplatform.sandbox.googleapis.com"
     #endif // DEBUG
   }
 }

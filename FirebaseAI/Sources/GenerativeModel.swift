@@ -231,9 +231,9 @@ public final class GenerativeModel: Sendable {
         "models/\(modelName)"
       case .googleAI(endpoint: .googleAIBypassProxy):
         modelResourceName
-      case .googleAI(endpoint: .vertexAIStagingBypassProxy):
+      case .googleAI(endpoint: .agentPlatformStagingBypassProxy):
         fatalError(
-          "The Vertex AI staging endpoint does not support the Gemini Developer API (Google AI)."
+          "The Gemini Enterprise Agent Platform staging endpoint does not support the Gemini Developer API (Google AI)."
         )
     #endif // DEBUG
     }

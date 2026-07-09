@@ -51,7 +51,7 @@ class VertexComponentTests: XCTestCase {
 
   /// Tests that a vertex instance can be created properly using the default Firebase app.
   func testVertexInstanceCreation_defaultApp() throws {
-    let vertex = FirebaseAI.firebaseAI(backend: .vertexAI())
+    let vertex = FirebaseAI.firebaseAI(backend: .agentPlatform(location: "us-central1"))
 
     XCTAssertNotNil(vertex)
     XCTAssertEqual(vertex.firebaseInfo.projectID, VertexComponentTests.projectID)
@@ -69,7 +69,7 @@ class VertexComponentTests: XCTestCase {
   /// Tests that a vertex instance can be created properly using the default Firebase app and custom
   /// location.
   func testVertexInstanceCreation_defaultApp_customLocation() throws {
-    let vertex = FirebaseAI.firebaseAI(backend: .vertexAI(location: location))
+    let vertex = FirebaseAI.firebaseAI(backend: .agentPlatform(location: location))
 
     XCTAssertNotNil(vertex)
     XCTAssertEqual(vertex.firebaseInfo.projectID, VertexComponentTests.projectID)
@@ -85,7 +85,7 @@ class VertexComponentTests: XCTestCase {
   func testVertexInstanceCreation_customApp() throws {
     let vertex = FirebaseAI.firebaseAI(
       app: VertexComponentTests.app,
-      backend: .vertexAI(location: location)
+      backend: .agentPlatform(location: location)
     )
 
     XCTAssertNotNil(vertex)
@@ -149,8 +149,8 @@ class VertexComponentTests: XCTestCase {
   func testSameAppAndLocation_instanceReused() throws {
     let app = try XCTUnwrap(VertexComponentTests.app)
 
-    let vertex1 = FirebaseAI.firebaseAI(app: app, backend: .vertexAI(location: location))
-    let vertex2 = FirebaseAI.firebaseAI(app: app, backend: .vertexAI(location: location))
+    let vertex1 = FirebaseAI.firebaseAI(app: app, backend: .agentPlatform(location: location))
+    let vertex2 = FirebaseAI.firebaseAI(app: app, backend: .agentPlatform(location: location))
 
     // Ensure they're the same instance.
     XCTAssert(vertex1 === vertex2)
@@ -159,11 +159,11 @@ class VertexComponentTests: XCTestCase {
   func testSameAppAndDifferentLocation_newInstanceCreated() throws {
     let vertex1 = FirebaseAI.firebaseAI(
       app: VertexComponentTests.app,
-      backend: .vertexAI(location: location)
+      backend: .agentPlatform(location: location)
     )
     let vertex2 = FirebaseAI.firebaseAI(
       app: VertexComponentTests.app,
-      backend: .vertexAI(location: "differentLocation")
+      backend: .agentPlatform(location: "differentLocation")
     )
 
     // Ensure they are different instances.
@@ -177,9 +177,9 @@ class VertexComponentTests: XCTestCase {
 
     let vertex1 = FirebaseAI.firebaseAI(
       app: VertexComponentTests.app,
-      backend: .vertexAI(location: location)
+      backend: .agentPlatform(location: location)
     )
-    let vertex2 = FirebaseAI.firebaseAI(app: app2, backend: .vertexAI(location: location))
+    let vertex2 = FirebaseAI.firebaseAI(app: app2, backend: .agentPlatform(location: location))
 
     XCTAssert(VertexComponentTests.app != app2)
     XCTAssert(vertex1 !== vertex2) // Ensure they are different instances.
@@ -192,11 +192,11 @@ class VertexComponentTests: XCTestCase {
 
     let vertex1 = FirebaseAI.firebaseAI(
       app: VertexComponentTests.app,
-      backend: .vertexAI(location: location)
+      backend: .agentPlatform(location: location)
     )
     let vertex2 = FirebaseAI.firebaseAI(
       app: app2,
-      backend: .vertexAI(location: "differentLocation")
+      backend: .agentPlatform(location: "differentLocation")
     )
 
     XCTAssert(VertexComponentTests.app != app2)
@@ -250,10 +250,10 @@ class VertexComponentTests: XCTestCase {
     XCTAssertNil(weakVertex)
   }
 
-  func testModelResourceName_vertexAI() throws {
+  func testModelResourceName_agentPlatform() throws {
     let app = try XCTUnwrap(VertexComponentTests.app)
     let location = "test-location"
-    let vertex = FirebaseAI.firebaseAI(app: app, backend: .vertexAI(location: location))
+    let vertex = FirebaseAI.firebaseAI(app: app, backend: .agentPlatform(location: location))
     let model = "test-model-name"
     let projectID = vertex.firebaseInfo.projectID
 
@@ -295,9 +295,9 @@ class VertexComponentTests: XCTestCase {
     XCTAssertEqual(modelResourceName, "projects/\(projectID)/models/\(model)")
   }
 
-  func testGenerativeModel_vertexAI_defaultLocation() async throws {
+  func testGenerativeModel_deprecatedVertexAI_defaultLocation() async throws {
     let app = try XCTUnwrap(VertexComponentTests.app)
-    let vertex = FirebaseAI.firebaseAI(app: app, backend: .vertexAI())
+    let vertex = FirebaseAI.firebaseAI(app: app, backend: .agentPlatform(location: "us-central1"))
     let modelResourceName = vertex.modelResourceName(modelName: modelName)
     let expectedSystemInstruction = ModelContent(role: nil, parts: systemInstruction.parts)
 
@@ -310,9 +310,9 @@ class VertexComponentTests: XCTestCase {
     XCTAssertEqual(generativeModel.apiConfig, FirebaseAI.defaultVertexAIAPIConfig)
   }
 
-  func testGenerativeModel_vertexAI_customLocation() async throws {
+  func testGenerativeModel_deprecatedVertexAI_customLocation() async throws {
     let app = try XCTUnwrap(VertexComponentTests.app)
-    let vertex = FirebaseAI.firebaseAI(app: app, backend: .vertexAI(location: location))
+    let vertex = FirebaseAI.firebaseAI(app: app, backend: .agentPlatform(location: location))
     let modelResourceName = vertex.modelResourceName(modelName: modelName)
     let expectedAPIConfig = APIConfig(
       service: .agentPlatform(endpoint: .firebaseProxyProd, location: location), version: .v1beta

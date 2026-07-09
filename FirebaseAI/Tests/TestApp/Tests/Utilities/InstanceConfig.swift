@@ -54,7 +54,7 @@ struct InstanceConfig: Equatable, Encodable {
   )
   static let agentPlatform_v1beta_staging_global_bypassProxy = InstanceConfig(
     apiConfig: APIConfig(
-      service: .agentPlatform(endpoint: .vertexAIStagingBypassProxy, location: "global"),
+      service: .agentPlatform(endpoint: .agentPlatformStagingBypassProxy, location: "global"),
       version: .v1beta1
     )
   )
@@ -170,7 +170,7 @@ extension InstanceConfig: CustomTestStringConvertible {
       " - Staging"
     case .googleAIBypassProxy:
       " - Bypass Proxy"
-    case .vertexAIStagingBypassProxy:
+    case .agentPlatformStagingBypassProxy:
       " - Staging - Bypass Proxy"
     }
     let locationSuffix: String

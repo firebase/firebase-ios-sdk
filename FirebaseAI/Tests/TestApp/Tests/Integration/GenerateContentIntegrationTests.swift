@@ -466,7 +466,7 @@ struct GenerateContentIntegrationTests {
     do {
       let response = try await model.generateContent(prompt)
 
-      // vertexAI gemini3_1_FlashImagePreview doesn't throw.
+      // agentPlatform gemini3_1_FlashImagePreview doesn't throw.
       let candidate = try #require(response.candidates.first)
       #expect(candidate.finishReason == .stop)
     } catch {
