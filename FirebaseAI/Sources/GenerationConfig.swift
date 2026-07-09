@@ -277,14 +277,14 @@ public struct GenerationConfig: Sendable, Equatable {
 
   static func validateSeed<T: BinaryInteger>(_ seed: T?) -> Int32? {
     guard let seed else { return nil }
-    if let validatedSeed = Int32(exactly: seed) {
-      return validatedSeed
-    } else {
+    guard let validatedSeed = Int32(exactly: seed) else {
       AILog.log(level: .error, code: .invalidSeedValue, """
       Ignoring invalid seed value: \(seed); must be in range [\(Int32.min), \(Int32.max)].
       """)
       return nil
     }
+  
+    return validatedSeed
   }
 }
 
