@@ -50,8 +50,8 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement, @u
     var fetcherToStop: GTMSessionFetcher?
     var snapshotToFire: StorageTaskSnapshot?
     stateLock.withLock {
-      if state == .paused || state == .pausing || state == .success || state == .cancelled ||
-        state == .failed {
+      guard state == .unknown || state == .queueing || state == .resuming || state == .running ||
+        state == .progress else {
         return
       }
       if let fetcher {
@@ -98,8 +98,8 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement, @u
     var downloadDataToResume: Data?
     var snapshotToFire: StorageTaskSnapshot?
     let shouldReturn1 = stateLock.withLock { () -> Bool in
-      if state == .running || state == .resuming || state == .success || state == .cancelled ||
-        state == .failed {
+      guard state == .unknown || state == .queueing || state == .pausing || state == .paused ||
+        state == .progress else {
         return true
       }
       state = .resuming
@@ -146,8 +146,8 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement, @u
 
   private func enqueueImplementation(resumeWith resumeData: Data? = nil) async {
     let shouldProceed = stateLock.withLock { () -> Bool in
-      if state == .cancelled || state == .pausing || state == .paused || state == .success ||
-        state == .failed {
+      guard state == .unknown || state == .queueing || state == .resuming || state == .running ||
+        state == .progress else {
         return false
       }
       state = .queueing
@@ -183,8 +183,8 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement, @u
           guard let self = self else { return }
           var snapshotToFire: StorageTaskSnapshot?
           self.stateLock.withLock {
-            if self.state == .cancelled || self.state == .pausing || self.state == .paused ||
-              self.state == .success || self.state == .failed {
+            guard self.state == .unknown || self.state == .queueing || self.state == .resuming ||
+              self.state == .running || self.state == .progress else {
               return
             }
             self.state = .progress
@@ -197,8 +197,8 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement, @u
           }
 
           self.stateLock.withLock {
-            if self.state == .cancelled || self.state == .pausing || self.state == .paused ||
-              self.state == .success || self.state == .failed {
+            guard self.state == .unknown || self.state == .queueing || self.state == .resuming ||
+              self.state == .running || self.state == .progress else {
               return
             }
             self.state = .running
@@ -211,8 +211,8 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement, @u
           guard let self = self, let fetcher = fetcher else { return }
           var snapshotToFire: StorageTaskSnapshot?
           self.stateLock.withLock {
-            if self.state == .cancelled || self.state == .pausing || self.state == .paused ||
-              self.state == .success || self.state == .failed {
+            guard self.state == .unknown || self.state == .queueing || self.state == .resuming ||
+              self.state == .running || self.state == .progress else {
               return
             }
             self.state = .progress
@@ -227,8 +227,8 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement, @u
           }
 
           self.stateLock.withLock {
-            if self.state == .cancelled || self.state == .pausing || self.state == .paused ||
-              self.state == .success || self.state == .failed {
+            guard self.state == .unknown || self.state == .queueing || self.state == .resuming ||
+              self.state == .running || self.state == .progress else {
               return
             }
             self.state = .running

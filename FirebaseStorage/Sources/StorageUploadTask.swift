@@ -49,8 +49,8 @@ import Foundation
       let contentValidationError = self.contentUploadError()
       var failureSnapshot: StorageTaskSnapshot?
       let shouldProceed = stateLock.withLock { () -> Bool in
-        if state == .cancelled || state == .pausing || state == .paused || state == .success ||
-          state == .failed {
+        guard state == .unknown || state == .queueing || state == .resuming || state == .running ||
+          state == .progress else {
           return false
         }
         if let contentValidationError {
@@ -123,8 +123,8 @@ import Foundation
             guard let self = self else { return }
             var snapshotToFire: StorageTaskSnapshot?
             self.stateLock.withLock {
-              if self.state == .cancelled || self.state == .pausing || self.state == .paused ||
-                self.state == .success || self.state == .failed {
+              guard self.state == .unknown || self.state == .queueing || self.state == .resuming ||
+                self.state == .running || self.state == .progress else {
                 return
               }
               self.state = .progress
@@ -138,8 +138,8 @@ import Foundation
             }
 
             self.stateLock.withLock {
-              if self.state == .cancelled || self.state == .pausing || self.state == .paused ||
-                self.state == .success || self.state == .failed {
+              guard self.state == .unknown || self.state == .queueing || self.state == .resuming ||
+                self.state == .running || self.state == .progress else {
                 return
               }
               self.state = .running
@@ -234,8 +234,8 @@ import Foundation
     var fetcherToPause: GTMSessionUploadFetcher?
     var pauseSnapshot: StorageTaskSnapshot?
     stateLock.withLock {
-      if state == .paused || state == .pausing || state == .success || state == .cancelled ||
-        state == .failed {
+      guard state == .unknown || state == .queueing || state == .resuming || state == .running ||
+        state == .progress else {
         return
       }
       state = .paused
@@ -280,8 +280,8 @@ import Foundation
     var shouldReenqueue = false
     var resumeSnapshot: StorageTaskSnapshot?
     let shouldResume = stateLock.withLock { () -> Bool in
-      if state == .running || state == .resuming || state == .success || state == .cancelled ||
-        state == .failed {
+      guard state == .unknown || state == .queueing || state == .pausing || state == .paused ||
+        state == .progress else {
         return false
       }
       state = .resuming
