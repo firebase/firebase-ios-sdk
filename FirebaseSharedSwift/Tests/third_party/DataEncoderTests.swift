@@ -153,7 +153,6 @@ class TestFirebaseDataEncoder: XCTestCase {
     let model = Model.testValue
     let expected = ["top": ["first": "Johnny Appleseed", "second": "appleseed@apple.com"]]
     _testRoundTrip(of: model, expected: expected)
-
   }
 
   // NOTE: This test causes a precondition error, so I am uncertain about how it ought to be tested.

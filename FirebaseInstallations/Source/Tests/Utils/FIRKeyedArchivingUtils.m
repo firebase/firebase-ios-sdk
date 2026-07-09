@@ -30,10 +30,7 @@
 + (nullable id)unarchivedObjectOfClass:(Class)class
                               fromData:(NSData *)data
                                  error:(NSError **)outError {
-  id object;
-  object = [NSKeyedUnarchiver unarchivedObjectOfClass:class fromData:data error:outError];
-
-  return object;
+  return [NSKeyedUnarchiver unarchivedObjectOfClass:class fromData:data error:outError];
 }
 
 @end
