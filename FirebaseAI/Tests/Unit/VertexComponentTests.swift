@@ -298,9 +298,10 @@ class VertexComponentTests: XCTestCase {
     XCTAssertEqual(modelResourceName, "projects/\(projectID)/models/\(model)")
   }
 
+  @available(*, deprecated)
   func testGenerativeModel_deprecatedVertexAI_defaultLocation() async throws {
     let app = try XCTUnwrap(VertexComponentTests.app)
-    let vertex = FirebaseAI.firebaseAI(app: app, backend: .agentPlatform(location: "us-central1"))
+    let vertex = FirebaseAI.firebaseAI(app: app, backend: .vertexAI())
     let modelResourceName = vertex.modelResourceName(modelName: modelName)
     let expectedSystemInstruction = ModelContent(role: nil, parts: systemInstruction.parts)
 
