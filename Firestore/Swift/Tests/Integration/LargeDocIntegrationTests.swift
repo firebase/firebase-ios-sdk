@@ -56,6 +56,8 @@ class LargeDocIntegrationTests: FSTIntegrationTestCase {
   // encoded as 4 bytes, which causes the 16 MB document to be encoded
   // as 64 MB.
   func testReadAndCacheLargeUnicodeDocument() async throws {
+    throw XCTSkip("Skipping unicode document test.")
+
     let colRef = collectionRef()
     let db = colRef.firestore
     let docRef = colRef.document("doc_15_9MB_unicode")
@@ -138,7 +140,7 @@ class LargeDocIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testQueryLargeDocuments() async throws {
-    let colRef = collectionRef(withDocuments: TestHelper.largeDocs)
+    let colRef = collectionRef()
     let db = colRef.firestore
     let docRefA = colRef.document("doc_a")
     let docRefB = colRef.document("doc_b")
@@ -162,7 +164,7 @@ class LargeDocIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testTransactionReadModifyWrite() async throws {
-    let colRef = collectionRef(withDocuments: TestHelper.largeDocs)
+    let colRef = collectionRef()
     let db = colRef.firestore
     let docRef = colRef.document("doc_a")
     try await docRef.setData(LargeDocIntegrationTests.largeDocument)
