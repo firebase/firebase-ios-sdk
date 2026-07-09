@@ -1,3 +1,6 @@
+# Unreleased
+- [fixed] Fixed a race condition in Storage task cancellation and improved Swift 6 strict concurrency compliance for `StorageTask`. (#16353)
+
 # 12.12.1
 - [fixed] Fixed `InstanceCache` keying by bucket only, which caused named apps sharing a
   storage bucket with the default app to use the wrong auth context. (#16039)
