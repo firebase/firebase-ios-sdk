@@ -283,7 +283,7 @@ public struct GenerationConfig: Sendable, Equatable {
       """)
       return nil
     }
-  
+
     return validatedSeed
   }
 }
