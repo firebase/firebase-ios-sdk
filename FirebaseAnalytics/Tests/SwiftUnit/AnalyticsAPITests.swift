@@ -41,7 +41,7 @@ final class AnalyticsAPITests {
       let _: Int64? = try? await Analytics.sessionID()
     }
 
-    @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
+    @available(macOS 12.0, *)
     @available(watchOS, unavailable)
     func logTransactionUsage() {
       let transaction: StoreKit.Transaction! = nil
