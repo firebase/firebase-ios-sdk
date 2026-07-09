@@ -50,6 +50,7 @@ class VertexComponentTests: XCTestCase {
   }
 
   /// Tests that a vertex instance can be created properly using the default Firebase app.
+  @available(*, deprecated)
   func testVertexInstanceCreation_defaultApp() throws {
     let vertex = FirebaseAI.firebaseAI(backend: .vertexAI(location: "us-central1"))
 
@@ -68,6 +69,7 @@ class VertexComponentTests: XCTestCase {
 
   /// Tests that a vertex instance can be created properly using the default Firebase app and custom
   /// location.
+  @available(*, deprecated)
   func testVertexInstanceCreation_defaultApp_customLocation() throws {
     let vertex = FirebaseAI.firebaseAI(backend: .vertexAI(location: location))
 
@@ -82,6 +84,7 @@ class VertexComponentTests: XCTestCase {
   }
 
   /// Tests that a vertex instance can be created properly.
+  @available(*, deprecated)
   func testVertexInstanceCreation_customApp() throws {
     let vertex = FirebaseAI.firebaseAI(
       app: VertexComponentTests.app,
@@ -310,6 +313,7 @@ class VertexComponentTests: XCTestCase {
     XCTAssertEqual(generativeModel.apiConfig, FirebaseAI.defaultVertexAIAPIConfig)
   }
 
+  @available(*, deprecated)
   func testGenerativeModel_deprecatedVertexAI_customLocation() async throws {
     let app = try XCTUnwrap(VertexComponentTests.app)
     let vertex = FirebaseAI.firebaseAI(app: app, backend: .vertexAI(location: location))

@@ -21,6 +21,7 @@ import XCTest
   import UIKit // For UIImage extensions.
 #endif
 
+@available(*, deprecated)
 final class APITests: XCTestCase {
   func codeSamples() async throws {
     let app = FirebaseApp.app()

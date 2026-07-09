@@ -17,6 +17,7 @@ import XCTest
 @testable import FirebaseAILogic
 
 final class BackendTests: XCTestCase {
+  @available(*, deprecated)
   func testVertexAI_defaultLocation() {
     let expectedAPIConfig = APIConfig(
       service: .agentPlatform(endpoint: .firebaseProxyProd, location: "us-central1"),
@@ -28,6 +29,7 @@ final class BackendTests: XCTestCase {
     XCTAssertEqual(backend.apiConfig, expectedAPIConfig)
   }
 
+  @available(*, deprecated)
   func testVertexAI_customLocation() {
     let customLocation = "europe-west1"
     let expectedAPIConfig = APIConfig(
