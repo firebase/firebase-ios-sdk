@@ -1,7 +1,8 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseMLModelDownloader'
-  s.version          = '12.15.0-beta'
+  s.version          = '12.16.0-beta'
   s.summary          = 'Firebase ML Model Downloader'
+  s.deprecated       = true
 
   s.description      = <<-DESC
   This is the new ML Model Downloader CocoaPod.
@@ -36,9 +37,9 @@ Pod::Spec.new do |s|
   ]
 
   s.framework = 'Foundation'
-  s.dependency 'FirebaseCore', '~> 12.15.0'
-  s.dependency 'FirebaseCoreExtension', '~> 12.15.0'
-  s.dependency 'FirebaseInstallations', '~> 12.15.0'
+  s.dependency 'FirebaseCore', '~> 12.16.0'
+  s.dependency 'FirebaseCoreExtension', '~> 12.16.0'
+  s.dependency 'FirebaseInstallations', '~> 12.16.0'
   s.dependency 'GoogleUtilities/UserDefaults', '~> 8.1'
 
   s.pod_target_xcconfig = {

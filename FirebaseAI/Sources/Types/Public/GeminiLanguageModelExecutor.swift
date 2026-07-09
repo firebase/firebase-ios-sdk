@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import CoreGraphics
-import Foundation
-import FoundationModels
-
-#if canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM && compiler(>=6.4)
+#if compiler(>=6.4) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
+  import CoreGraphics
+  import Foundation
+  import FoundationModels
   import ImageIO
 
   @available(iOS 27.0, macOS 27.0, visionOS 27.0, watchOS 27.0, *)
+  @available(tvOS, unavailable)
   extension Transcript {
     func thoughtSignature(forEntry id: String) -> String? {
       for entry in self {
@@ -36,6 +36,7 @@ import FoundationModels
   }
 
   @available(iOS 27.0, macOS 27.0, visionOS 27.0, watchOS 27.0, *)
+  @available(tvOS, unavailable)
   public extension GeminiLanguageModel {
     struct Executor: LanguageModelExecutor {
       let firebaseAI: FirebaseAI
@@ -506,6 +507,8 @@ import FoundationModels
     }
   }
 
+  @available(iOS 27.0, macOS 27.0, visionOS 27.0, watchOS 27.0, *)
+  @available(tvOS, unavailable)
   extension JSONObject {
     init(_ jsonString: String) throws {
       guard let jsonData = jsonString.data(using: .utf8) else {
@@ -535,6 +538,7 @@ import FoundationModels
   }
 
   @available(iOS 27.0, macOS 27.0, visionOS 27.0, watchOS 27.0, *)
+  @available(tvOS, unavailable)
   extension Transcript.Instructions {
     func toGeminiSystemInstruction() throws -> ModelContent? {
       var instructions = ""
@@ -582,6 +586,7 @@ import FoundationModels
   }
 
   @available(iOS 27.0, macOS 27.0, visionOS 27.0, watchOS 27.0, *)
+  @available(tvOS, unavailable)
   extension Transcript.Prompt {
     func toGeminiPrompt() throws -> ModelContent {
       var parts = [any Part]()
@@ -635,6 +640,7 @@ import FoundationModels
   }
 
   @available(iOS 27.0, macOS 27.0, visionOS 27.0, watchOS 27.0, *)
+  @available(tvOS, unavailable)
   extension Transcript.Response {
     func toGeminiResponse() throws -> ModelContent {
       var parts = [any Part]()
@@ -679,4 +685,4 @@ import FoundationModels
       return ModelContent(role: "model", parts: parts)
     }
   }
-#endif // canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM && compiler(>=6.4)
+#endif // compiler(>=6.4) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM

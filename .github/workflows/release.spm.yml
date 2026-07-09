@@ -33,7 +33,7 @@ jobs:
   #   runs-on: macos-12
   #   steps:
   #   - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
-  #   - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
+  #   - uses: ruby/setup-ruby@89f90524b88a01fe6e0b732220432cc6142926af # v1.313.0
   #   - name: Setup testing repo and quickstart
   #     run: BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh functions nightly_release_testing
   #   - name: install secret googleservice-info.plist
@@ -95,9 +95,10 @@ jobs:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       with:
         fetch-depth: 0 # Required for pulling down repo tags.
+        persist-credentials: false
     - name: Set Xcode version
       run: sudo xcode-select -s /Applications/Xcode_26.2.app
-    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
+    - uses: ruby/setup-ruby@89f90524b88a01fe6e0b732220432cc6142926af # v1.313.0
     - name: Prereqs
       run: gem install xcpretty
     - name: Setup testing repo and quickstart
@@ -107,7 +108,7 @@ jobs:
         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-${{ matrix.product }}.plist.gpg \
           quickstart-ios/${{ matrix.product }}/GoogleService-Info.plist "$plist_secret"
     - name: Build Quickstart
-      uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
+      uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
       with:
         timeout_minutes: 15
         max_attempts: 3
