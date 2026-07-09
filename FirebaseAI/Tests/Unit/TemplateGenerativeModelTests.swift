@@ -127,7 +127,7 @@ final class TemplateGenerativeModelTests: XCTestCase {
       urlSession: urlSession
     )
     let apiConfig = APIConfig(
-      service: .vertexAI(endpoint: .firebaseProxyProd, location: "us-central1"),
+      service: .agentPlatform(endpoint: .firebaseProxyProd, location: "us-central1"),
       version: .v1beta
     )
     let model = TemplateGenerativeModel(

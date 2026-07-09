@@ -74,6 +74,7 @@ Build AI-powered apps and features with the Gemini API using the Firebase AI Log
     ]
     unit_tests.exclude_files = [
       unit_tests_dir + 'Snippets/**/*.swift',
+      'FirebaseAI/Wrapper/Tests/APITests.swift',
     ]
     unit_tests.resources = [
       unit_tests_dir + 'vertexai-sdk-test-data/mock-responses',

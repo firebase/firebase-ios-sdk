@@ -57,7 +57,10 @@ class VertexComponentTests: XCTestCase {
     XCTAssertEqual(vertex.firebaseInfo.projectID, VertexComponentTests.projectID)
     XCTAssertEqual(vertex.firebaseInfo.apiKey, VertexComponentTests.apiKey)
     XCTAssertEqual(
-      vertex.apiConfig.service, .vertexAI(endpoint: .firebaseProxyProd, location: "us-central1")
+      vertex.apiConfig.service, .agentPlatform(
+        endpoint: .firebaseProxyProd,
+        location: "us-central1"
+      )
     )
     XCTAssertEqual(vertex.apiConfig.service.endpoint, .firebaseProxyProd)
     XCTAssertEqual(vertex.apiConfig.version, .v1beta)
@@ -72,7 +75,7 @@ class VertexComponentTests: XCTestCase {
     XCTAssertEqual(vertex.firebaseInfo.projectID, VertexComponentTests.projectID)
     XCTAssertEqual(vertex.firebaseInfo.apiKey, VertexComponentTests.apiKey)
     XCTAssertEqual(
-      vertex.apiConfig.service, .vertexAI(endpoint: .firebaseProxyProd, location: location)
+      vertex.apiConfig.service, .agentPlatform(endpoint: .firebaseProxyProd, location: location)
     )
     XCTAssertEqual(vertex.apiConfig.service.endpoint, .firebaseProxyProd)
     XCTAssertEqual(vertex.apiConfig.version, .v1beta)
@@ -89,7 +92,7 @@ class VertexComponentTests: XCTestCase {
     XCTAssertEqual(vertex.firebaseInfo.projectID, VertexComponentTests.projectID)
     XCTAssertEqual(vertex.firebaseInfo.apiKey, VertexComponentTests.apiKey)
     XCTAssertEqual(
-      vertex.apiConfig.service, .vertexAI(endpoint: .firebaseProxyProd, location: location)
+      vertex.apiConfig.service, .agentPlatform(endpoint: .firebaseProxyProd, location: location)
     )
     XCTAssertEqual(vertex.apiConfig.service.endpoint, .firebaseProxyProd)
     XCTAssertEqual(vertex.apiConfig.version, .v1beta)
@@ -103,7 +106,7 @@ class VertexComponentTests: XCTestCase {
     XCTAssertEqual(vertex.firebaseInfo.projectID, VertexComponentTests.projectID)
     XCTAssertEqual(vertex.firebaseInfo.apiKey, VertexComponentTests.apiKey)
     XCTAssertEqual(
-      vertex.apiConfig.service, .vertexAI(endpoint: .firebaseProxyProd, location: "global")
+      vertex.apiConfig.service, .agentPlatform(endpoint: .firebaseProxyProd, location: "global")
     )
     XCTAssertEqual(vertex.apiConfig.service.endpoint, .firebaseProxyProd)
     XCTAssertEqual(vertex.apiConfig.version, .v1beta)
@@ -119,7 +122,7 @@ class VertexComponentTests: XCTestCase {
     XCTAssertEqual(vertex.firebaseInfo.projectID, VertexComponentTests.projectID)
     XCTAssertEqual(vertex.firebaseInfo.apiKey, VertexComponentTests.apiKey)
     XCTAssertEqual(
-      vertex.apiConfig.service, .vertexAI(endpoint: .firebaseProxyProd, location: location)
+      vertex.apiConfig.service, .agentPlatform(endpoint: .firebaseProxyProd, location: location)
     )
     XCTAssertEqual(vertex.apiConfig.service.endpoint, .firebaseProxyProd)
     XCTAssertEqual(vertex.apiConfig.version, .v1beta)
@@ -136,7 +139,7 @@ class VertexComponentTests: XCTestCase {
     XCTAssertEqual(vertex.firebaseInfo.projectID, VertexComponentTests.projectID)
     XCTAssertEqual(vertex.firebaseInfo.apiKey, VertexComponentTests.apiKey)
     XCTAssertEqual(
-      vertex.apiConfig.service, .vertexAI(endpoint: .firebaseProxyProd, location: location)
+      vertex.apiConfig.service, .agentPlatform(endpoint: .firebaseProxyProd, location: location)
     )
     XCTAssertEqual(vertex.apiConfig.service.endpoint, .firebaseProxyProd)
     XCTAssertEqual(vertex.apiConfig.version, .v1beta)
@@ -204,7 +207,7 @@ class VertexComponentTests: XCTestCase {
     let vertex1 = FirebaseAI.createInstance(
       app: VertexComponentTests.app,
       apiConfig: APIConfig(
-        service: .vertexAI(endpoint: .firebaseProxyProd, location: location),
+        service: .agentPlatform(endpoint: .firebaseProxyProd, location: location),
         version: .v1beta
       ),
       useLimitedUseAppCheckTokens: false
@@ -212,7 +215,7 @@ class VertexComponentTests: XCTestCase {
     let vertex2 = FirebaseAI.createInstance(
       app: VertexComponentTests.app,
       apiConfig: APIConfig(
-        service: .vertexAI(endpoint: .firebaseProxyProd, location: location), version: .v1
+        service: .agentPlatform(endpoint: .firebaseProxyProd, location: location), version: .v1
       ),
       useLimitedUseAppCheckTokens: false
     )
@@ -235,7 +238,7 @@ class VertexComponentTests: XCTestCase {
       let vertex = FirebaseAI(
         app: app1,
         apiConfig: APIConfig(
-          service: .vertexAI(endpoint: .firebaseProxyProd, location: "transitory location"),
+          service: .agentPlatform(endpoint: .firebaseProxyProd, location: "transitory location"),
           version: .v1beta
         ),
         useLimitedUseAppCheckTokens: false
@@ -312,7 +315,7 @@ class VertexComponentTests: XCTestCase {
     let vertex = FirebaseAI.firebaseAI(app: app, backend: .vertexAI(location: location))
     let modelResourceName = vertex.modelResourceName(modelName: modelName)
     let expectedAPIConfig = APIConfig(
-      service: .vertexAI(endpoint: .firebaseProxyProd, location: location), version: .v1beta
+      service: .agentPlatform(endpoint: .firebaseProxyProd, location: location), version: .v1beta
     )
     let expectedSystemInstruction = ModelContent(role: nil, parts: systemInstruction.parts)
 
@@ -330,7 +333,7 @@ class VertexComponentTests: XCTestCase {
     let vertex = FirebaseAI.firebaseAI(app: app, backend: .agentPlatform())
     let modelResourceName = vertex.modelResourceName(modelName: modelName)
     let expectedAPIConfig = APIConfig(
-      service: .vertexAI(endpoint: .firebaseProxyProd, location: "global"), version: .v1beta
+      service: .agentPlatform(endpoint: .firebaseProxyProd, location: "global"), version: .v1beta
     )
     let expectedSystemInstruction = ModelContent(role: nil, parts: systemInstruction.parts)
 
@@ -348,7 +351,7 @@ class VertexComponentTests: XCTestCase {
     let vertex = FirebaseAI.firebaseAI(app: app, backend: .agentPlatform(location: location))
     let modelResourceName = vertex.modelResourceName(modelName: modelName)
     let expectedAPIConfig = APIConfig(
-      service: .vertexAI(endpoint: .firebaseProxyProd, location: location), version: .v1beta
+      service: .agentPlatform(endpoint: .firebaseProxyProd, location: location), version: .v1beta
     )
     let expectedSystemInstruction = ModelContent(role: nil, parts: systemInstruction.parts)
 

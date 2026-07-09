@@ -97,6 +97,7 @@ jobs:
     with:
       product: ${{  matrix.product }}
       supports_swift6: true
+      allow_warnings: ${{ matrix.product == 'FirebaseAI' }}
       setup_command: scripts/update_vertexai_responses.sh
 
   quickstart:
