@@ -19,13 +19,9 @@ import Foundation
 import XCTest
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-final class LargeDocIntegrationTests: FSTIntegrationTestCase {
-  private static var seedCollection: String?
-  private static var sharedDb: Firestore?
-
-  override func setUp() async throws {
-    try await super.setUp()
-    LargeDocIntegrationTests.sharedDb = self.db 
+class LargeDocIntegrationTests: FSTIntegrationTestCase {
+  override func setUpWithError() throws {
+    try super.setUpWithError()
 
     // Skip by default to prevent slowing down CI.
     // Add environment variable FIRESTORE_RUN_LARGE_DOC_TESTS = YES.
@@ -39,60 +35,37 @@ final class LargeDocIntegrationTests: FSTIntegrationTestCase {
       .backendEdition() == .standard {
       throw XCTSkip("Skipping large document tests because backend is not compatible.")
     }
-
-    if LargeDocIntegrationTests.seedCollection == nil {
-      LargeDocIntegrationTests.seedCollection = "large_doc_tests_ios_\(UUID().uuidString)"
-    }
-    let col = LargeDocIntegrationTests.seedCollection!
-
-    // Self-seeding check: ensure prerequisite documents exist for read tests.
-    let docRef = db.collection(col).document("doc_15_9MB_unicode")
-    let docA = db.collection(col).document("doc_a")
-    let docB = db.collection(col).document("doc_b")
-
-    if try await docRef.getDocument(source: .server).exists != true {
-      let targetBytes = Int(15.9 * 1024 * 1024)
-      let payload = generateString(sizeInBytes: targetBytes)
-      try await docRef.setData(["chunk": payload])
-      try await docA.setData(["chunk": payload])
-      try await docB.setData(["chunk": payload])
-    }
   }
 
   override class func tearDown() {
-    if let db = sharedDb, let col = seedCollection {
-      let sem = DispatchSemaphore(value: 0)
-      Task {
-        try? await db.collection(col).document("doc_15_9MB_unicode").delete()
-        try? await db.collection(col).document("doc_a").delete()
-        try? await db.collection(col).document("doc_b").delete()
-        sem.signal()
-      }
-      _ = sem.wait(timeout: .now() + 30)
-    }
     super.tearDown()
   }
 
   // MARK: - Helper Methods
 
-  private func generateString(sizeInBytes: Int) -> String {
-    return String(repeating: "a", count: sizeInBytes)
+  private func generateString(sizeInBytes: Int, character: Character = "a") -> String {
+    return String(repeating: character, count: sizeInBytes)
   }
-
-  override func collectionRef() -> CollectionReference {
-    return db.collection(LargeDocIntegrationTests.seedCollection!)
-  }
+  
+  private static var largeDocument: [String: Sendable] = ["chunk": String(repeating: "a", count: Int(15.9 * 1024 * 1024))]
 
   // MARK: - Test Cases
 
+  // NOTE: This test is currently expected to fail, because the payload
+  // size exceeds the gRPC message size limit. The Unicode character is
+  // encoded as 4 bytes, which causes the 16 MB document to be encoded
+  // as 64 MB.
   func testReadAndCacheLargeUnicodeDocument() async throws {
-    let docRef = collectionRef().document("doc_15_9MB_unicode")
-    defer { Task { try? await db.enableNetwork() } }
+    let colRef = collectionRef()
+    let db = colRef.firestore
+    let docRef = colRef.document("doc_15_9MB_unicode")
+    try await docRef.setData(["chunk": generateString(sizeInBytes: Int(15.9 * 1024 * 1024), character: "🚀")])
 
     let serverSnapshot = try await docRef.getDocument(source: .server)
     XCTAssertTrue(serverSnapshot.exists)
 
     try await db.disableNetwork()
+    defer { Task { try? await db.enableNetwork() } }
 
     let cacheSnapshot = try await docRef.getDocument(source: .cache)
     XCTAssertTrue(cacheSnapshot.exists)
@@ -104,18 +77,22 @@ final class LargeDocIntegrationTests: FSTIntegrationTestCase {
 
   func testQueryLargeDocumentsForcesLocalScan() async throws {
     let colRef = collectionRef()
-    defer { Task { try? await db.enableNetwork() } }
+    let db = colRef.firestore
+    let docRefA = colRef.document("doc_a")
+    let docRefB = colRef.document("doc_b")
+    try await docRefA.setData(LargeDocIntegrationTests.largeDocument)
+    try await docRefB.setData(LargeDocIntegrationTests.largeDocument)
 
-    // Populate cache
-    _ = try await colRef.document("doc_a").getDocument(source: .server)
-    _ = try await colRef.document("doc_b").getDocument(source: .server)
+    try await docRefA.getDocument(source: .server)
+    try await docRefB.getDocument(source: .server)
 
     try await db.disableNetwork()
+    defer { Task { try? await db.enableNetwork() } }
 
     // Execute offline query which requires full local index scan
     let query = colRef.order(by: FieldPath.documentID()).limit(to: 2)
     let cacheSnapshot = try await query.getDocuments(source: .cache)
-
+    
     XCTAssertEqual(cacheSnapshot.documents.count, 2)
     if let firstDoc = cacheSnapshot.documents.first {
       XCTAssertTrue(firstDoc.data().count > 0)
@@ -123,10 +100,13 @@ final class LargeDocIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testWatchStreamInitializationAndDiff() async throws {
-    let docRef = collectionRef().document("doc_15_9MB_unicode")
+    let colRef = collectionRef()
+    let db = colRef.firestore
+    let docRef = colRef.document("doc_a")
+    try await docRef.setData(LargeDocIntegrationTests.largeDocument)
+
     let expectation = XCTestExpectation(description: "Wait for differential update payload")
 
-    // Attach listener, must not enter a CANCELLED retry loop
     let listener = docRef.addSnapshotListener { snapshot, error in
       XCTAssertNil(error)
       guard let snapshot = snapshot else { return }
@@ -152,28 +132,19 @@ final class LargeDocIntegrationTests: FSTIntegrationTestCase {
     } catch {
       let nsError = error as NSError
       XCTAssertEqual(nsError.domain, FirestoreErrorDomain)
-      // Must map to standard InvalidArgument/MongoDB compatibility error, not a crash.
+      // Must map to standard InvalidArgument error, not a crash.
       XCTAssertEqual(nsError.code, FirestoreErrorCode.invalidArgument.rawValue)
     }
   }
 
-  func testWriteValidLargeDocument() async throws {
-    let tempDocId = "temp_valid_large_doc_\(UUID().uuidString)"
-    let docRef = collectionRef().document(tempDocId)
-    defer { Task { try? await docRef.delete() } }
-
-    let targetBytes = Int(15.9 * 1024 * 1024)
-    let largePayload = generateString(sizeInBytes: targetBytes)
-
-    try await docRef.setData(["chunk": largePayload])
-
-    let snapshot = try await docRef.getDocument(source: .server)
-    XCTAssertTrue(snapshot.exists)
-    XCTAssertEqual(snapshot.data()?["chunk"] as? String, largePayload)
-  }
-
   func testQueryLargeDocuments() async throws {
-    let colRef = collectionRef()
+    let colRef = collectionRef(withDocuments: TestHelper.largeDocs)
+    let db = colRef.firestore
+    let docRefA = colRef.document("doc_a")
+    let docRefB = colRef.document("doc_b")
+    try await docRefA.setData(LargeDocIntegrationTests.largeDocument)
+    try await docRefB.setData(LargeDocIntegrationTests.largeDocument)
+    
     let query = colRef.whereField(FieldPath.documentID(), in: ["doc_a", "doc_b"])
 
     let serverSnapshot = try await query.getDocuments(source: .server)
@@ -191,8 +162,11 @@ final class LargeDocIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testTransactionReadModifyWrite() async throws {
-    let docRef = collectionRef().document("doc_15_9MB_unicode")
-
+    let colRef = collectionRef(withDocuments: TestHelper.largeDocs)
+    let db = colRef.firestore
+    let docRef = colRef.document("doc_a")
+    try await docRef.setData(LargeDocIntegrationTests.largeDocument)
+    
     do {
       _ = try await db.runTransaction { transaction, errorPointer -> Any? in
         do {
