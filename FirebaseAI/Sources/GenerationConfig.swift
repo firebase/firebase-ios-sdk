@@ -65,7 +65,7 @@ public struct GenerationConfig: Sendable, Equatable {
   var speechConfig: ProtoSpeechConfig?
 
   /// Optional random seed to make generation deterministic.
-  var seed: Int?
+  var seed: Int32?
 
   /// Creates a new `GenerationConfig` value.
   ///
@@ -198,7 +198,7 @@ public struct GenerationConfig: Sendable, Equatable {
     self.thinkingConfig = thinkingConfig
     self.imageConfig = imageConfig
     self.speechConfig = speechConfig?.speechConfig
-    self.seed = seed
+    self.seed = GenerationConfig.validateSeed(seed)
   }
 
   init(temperature: Float? = nil, topP: Float? = nil, topK: Int? = nil, candidateCount: Int? = nil,
@@ -221,7 +221,7 @@ public struct GenerationConfig: Sendable, Equatable {
     self.thinkingConfig = thinkingConfig
     self.imageConfig = imageConfig
     self.speechConfig = speechConfig?.speechConfig
-    self.seed = seed
+    self.seed = GenerationConfig.validateSeed(seed)
   }
 
   /// Merges two configurations, giving precedence to values found in the `overrides` parameter.
@@ -273,6 +273,18 @@ public struct GenerationConfig: Sendable, Equatable {
     }
 
     return config
+  }
+
+  static func validateSeed<T: BinaryInteger>(_ seed: T?) -> Int32? {
+    guard let seed else { return nil }
+    if let validatedSeed = Int32(exactly: seed) {
+      return validatedSeed
+    } else {
+      AILog.log(level: .error, code: .invalidSeedValue, """
+      Ignoring invalid seed value: \(seed); must be in range [\(Int32.min), \(Int32.max)].
+      """)
+      return nil
+    }
   }
 }
 

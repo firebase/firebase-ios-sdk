@@ -108,6 +108,17 @@
              case .decodingFailure = genError {
             return // Expected error.
           }
+
+          // TODO: Remove `compiler(>=6.4)` when Xcode 27 is our minimum supported version.
+          #if compiler(>=6.4)
+            if #available(iOS 27.0, macOS 27.0, visionOS 27.0, watchOS 27.0, *) {
+              if let genError = error as? FoundationModels.GeneratedContent.ParsingError {
+                XCTAssertEqual(genError.rawContent, "null")
+                return // Expected error.
+              }
+            }
+          #endif // compiler(>=6.4)
+
           #if !os(watchOS)
             if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *),
                let foundationError = error as? FoundationModels.LanguageModelSession
