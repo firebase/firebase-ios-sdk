@@ -46,8 +46,9 @@ class LargeDocIntegrationTests: FSTIntegrationTestCase {
   private func generateString(sizeInBytes: Int, character: Character = "a") -> String {
     return String(repeating: character, count: sizeInBytes)
   }
-  
-  private static var largeDocument: [String: Sendable] = ["chunk": String(repeating: "a", count: Int(15.9 * 1024 * 1024))]
+
+  private static var largeDocument: [String: Sendable] =
+    ["chunk": String(repeating: "a", count: Int(15.9 * 1024 * 1024))]
 
   // MARK: - Test Cases
 
@@ -61,7 +62,8 @@ class LargeDocIntegrationTests: FSTIntegrationTestCase {
     let colRef = collectionRef()
     let db = colRef.firestore
     let docRef = colRef.document("doc_15_9MB_unicode")
-    try await docRef.setData(["chunk": generateString(sizeInBytes: Int(15.9 * 1024 * 1024), character: "🚀")])
+    try await docRef
+      .setData(["chunk": generateString(sizeInBytes: Int(15.9 * 1024 * 1024), character: "🚀")])
 
     let serverSnapshot = try await docRef.getDocument(source: .server)
     XCTAssertTrue(serverSnapshot.exists)
@@ -94,7 +96,7 @@ class LargeDocIntegrationTests: FSTIntegrationTestCase {
     // Execute offline query which requires full local index scan
     let query = colRef.order(by: FieldPath.documentID()).limit(to: 2)
     let cacheSnapshot = try await query.getDocuments(source: .cache)
-    
+
     XCTAssertEqual(cacheSnapshot.documents.count, 2)
     if let firstDoc = cacheSnapshot.documents.first {
       XCTAssertTrue(firstDoc.data().count > 0)
@@ -146,7 +148,7 @@ class LargeDocIntegrationTests: FSTIntegrationTestCase {
     let docRefB = colRef.document("doc_b")
     try await docRefA.setData(LargeDocIntegrationTests.largeDocument)
     try await docRefB.setData(LargeDocIntegrationTests.largeDocument)
-    
+
     let query = colRef.whereField(FieldPath.documentID(), in: ["doc_a", "doc_b"])
 
     let serverSnapshot = try await query.getDocuments(source: .server)
@@ -168,7 +170,7 @@ class LargeDocIntegrationTests: FSTIntegrationTestCase {
     let db = colRef.firestore
     let docRef = colRef.document("doc_a")
     try await docRef.setData(LargeDocIntegrationTests.largeDocument)
-    
+
     do {
       _ = try await db.runTransaction { transaction, errorPointer -> Any? in
         do {
