@@ -97,7 +97,7 @@
   @available(tvOS, unavailable)
   extension GeminiLanguageModel: FoundationModels.LanguageModel {
     public var capabilities: LanguageModelCapabilities {
-      return LanguageModelCapabilities(capabilities: [
+      return LanguageModelCapabilities([
         .toolCalling,
         .vision,
         .reasoning,

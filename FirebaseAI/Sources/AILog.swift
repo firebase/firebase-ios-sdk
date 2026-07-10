@@ -36,6 +36,7 @@ enum AILog {
     case unsupportedGeminiModel = 1001
     case invalidSchemaFormat = 1002
     case unsupportedGeminiServerTool = 1003
+    case invalidSeedValue = 1004
 
     // Imagen Model Configuration
     case unsupportedImagenModel = 1200
