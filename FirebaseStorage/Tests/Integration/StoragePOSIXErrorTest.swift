@@ -30,6 +30,9 @@ class StoragePOSIXErrorTest: StorageIntegrationCommon {
     let tmpDirURL = URL(fileURLWithPath: NSTemporaryDirectory())
     let fileURL = tmpDirURL.appendingPathComponent(#function + "hello.txt")
     try data.write(to: fileURL, options: .atomicWrite)
+    defer {
+      try? FileManager.default.removeItem(at: fileURL)
+    }
 
     do {
       let metadata = try await ref.putFileAsync(from: fileURL)
