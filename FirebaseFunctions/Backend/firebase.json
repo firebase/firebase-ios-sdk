@@ -1,0 +1,10 @@
+{
+  "functions": {
+    "source": "."
+  },
+  "emulators": {
+    "functions": {
+      "port": 5005
+    }
+  }
+}
