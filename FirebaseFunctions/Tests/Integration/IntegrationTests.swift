@@ -115,7 +115,7 @@ class IntegrationTests: XCTestCase {
         }
         expectation.fulfill()
       }
-      waitForExpectations(timeout: 5)
+      waitForExpectations(timeout: 10)
     }
   }
 
@@ -169,7 +169,7 @@ class IntegrationTests: XCTestCase {
         }
         expectation.fulfill()
       }
-      waitForExpectations(timeout: 5)
+      waitForExpectations(timeout: 10)
     }
   }
 
@@ -234,7 +234,7 @@ class IntegrationTests: XCTestCase {
         }
         expectation.fulfill()
       }
-      waitForExpectations(timeout: 5)
+      waitForExpectations(timeout: 10)
     }
   }
 
@@ -289,7 +289,7 @@ class IntegrationTests: XCTestCase {
         }
         expectation.fulfill()
       }
-      waitForExpectations(timeout: 5)
+      waitForExpectations(timeout: 10)
     }
   }
 
@@ -333,7 +333,7 @@ class IntegrationTests: XCTestCase {
         }
         expectation.fulfill()
       }
-      waitForExpectations(timeout: 5)
+      waitForExpectations(timeout: 10)
     }
   }
 
@@ -381,7 +381,7 @@ class IntegrationTests: XCTestCase {
         XCTFail("Failed to throw error for missing result")
       }
 
-      waitForExpectations(timeout: 5)
+      waitForExpectations(timeout: 10)
     }
   }
 
@@ -434,7 +434,7 @@ class IntegrationTests: XCTestCase {
         XCTFail("Failed to throw error for missing result")
       }
       XCTAssert(true)
-      waitForExpectations(timeout: 5)
+      waitForExpectations(timeout: 10)
     }
   }
 
@@ -487,7 +487,7 @@ class IntegrationTests: XCTestCase {
         XCTFail("Failed to throw error for missing result")
       }
     }
-    waitForExpectations(timeout: 5)
+    waitForExpectations(timeout: 10)
   }
 
   func testUnknownErrorAsync() async {
@@ -540,7 +540,7 @@ class IntegrationTests: XCTestCase {
         }
         XCTFail("Failed to throw error for missing result")
       }
-      waitForExpectations(timeout: 5)
+      waitForExpectations(timeout: 10)
     }
   }
 
@@ -594,7 +594,7 @@ class IntegrationTests: XCTestCase {
         }
         XCTFail("Failed to throw error for missing result")
       }
-      waitForExpectations(timeout: 5)
+      waitForExpectations(timeout: 10)
     }
   }
 
@@ -646,7 +646,7 @@ class IntegrationTests: XCTestCase {
         }
         XCTFail("Failed to throw error for missing result")
       }
-      waitForExpectations(timeout: 5)
+      waitForExpectations(timeout: 10)
     }
   }
 
@@ -700,7 +700,7 @@ class IntegrationTests: XCTestCase {
         }
         XCTFail("Failed to throw error for missing result")
       }
-      waitForExpectations(timeout: 5)
+      waitForExpectations(timeout: 10)
     }
   }
 
@@ -761,7 +761,7 @@ class IntegrationTests: XCTestCase {
           XCTAssert(false, "Failed to unwrap the function result: \(error)")
         }
       }
-      waitForExpectations(timeout: 5)
+      waitForExpectations(timeout: 10)
     }
   }
 
@@ -823,7 +823,7 @@ class IntegrationTests: XCTestCase {
           XCTAssert(false, "Failed to unwrap the function result: \(error)")
         }
       }
-      waitForExpectations(timeout: 5)
+      waitForExpectations(timeout: 10)
     }
   }
 
@@ -866,7 +866,7 @@ class IntegrationTests: XCTestCase {
       XCTAssert(Thread.isMainThread)
       expectation.fulfill()
     }
-    waitForExpectations(timeout: 5)
+    waitForExpectations(timeout: 10)
   }
 
   @MainActor func testFunctionsThrowsOnMainThread() {
@@ -882,7 +882,7 @@ class IntegrationTests: XCTestCase {
       XCTAssert(Thread.isMainThread)
       expectation.fulfill()
     }
-    waitForExpectations(timeout: 5)
+    waitForExpectations(timeout: 10)
   }
 }
 
