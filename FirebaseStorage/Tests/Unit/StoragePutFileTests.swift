@@ -27,19 +27,26 @@ class StoragePutFileTests: StorageTestHelpers {
     // `StorageFetcherService.updateTestBlock` correctly updates pre-existing instances.
     let storageInstance = storage()
     let ref = storageInstance.reference(withPath: "ios/public/testPOSIX40")
-    
-    let testBlock: GTMSessionFetcherTestBlock = { (fetcher, response) in
+
+    let testBlock: GTMSessionFetcherTestBlock = { fetcher, response in
       let error = NSError(domain: NSPOSIXErrorDomain, code: 40, userInfo: nil)
       response(nil, nil, error)
     }
-    
     await StorageFetcherService.shared.updateTestBlock(testBlock)
-    
+    addTeardownBlock {
+      await StorageFetcherService.shared.updateTestBlock(nil)
+    }
+
+    await StorageFetcherService.shared.updateTestBlock(testBlock)
+
     let data = try XCTUnwrap("Hello".data(using: .utf8))
     let tmpDirURL = URL(fileURLWithPath: NSTemporaryDirectory())
     let fileURL = tmpDirURL.appendingPathComponent(#function + "hello.txt")
     try data.write(to: fileURL, options: .atomicWrite)
-    
+    defer {
+      try? FileManager.default.removeItem(at: fileURL)
+    }
+
     do {
       _ = try await ref.putFileAsync(from: fileURL)
       XCTFail("Unexpected success")
@@ -50,7 +57,7 @@ class StoragePutFileTests: StorageTestHelpers {
       XCTAssertTrue(message.contains("POSIX errno 40 (Message too long)"),
                     "Error message should contain 'POSIX errno 40 (Message too long)', but got \(message)")
     }
-    
+
     try? FileManager.default.removeItem(at: fileURL)
     await StorageFetcherService.shared.updateTestBlock(nil)
   }
