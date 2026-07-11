@@ -34,11 +34,7 @@ class StoragePOSIXErrorTest: StorageIntegrationCommon {
       try? FileManager.default.removeItem(at: fileURL)
     }
 
-    do {
-      let metadata = try await ref.putFileAsync(from: fileURL)
-      XCTAssertEqual(metadata.size, Int64(data.count))
-    } catch {
-      XCTFail("Unexpected failure: \(error)")
-    }
+    let metadata = try await ref.putFileAsync(from: fileURL)
+    XCTAssertEqual(metadata.size, Int64(data.count))
   }
 }
