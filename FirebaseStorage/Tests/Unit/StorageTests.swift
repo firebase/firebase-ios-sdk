@@ -264,7 +264,10 @@ class StorageTests: XCTestCase {
     let storageError = StorageErrorCode.error(withServerError: posixError, ref: ref)
     XCTAssertEqual(storageError.domain, StorageErrorDomain)
     XCTAssertEqual(storageError.code, StorageErrorCode.unknown.rawValue)
-    XCTAssertEqual(storageError.userInfo[NSLocalizedDescriptionKey] as? String, "POSIX errno 40 (Message too long)")
+    XCTAssertEqual(
+      storageError.userInfo[NSLocalizedDescriptionKey] as? String,
+      "POSIX errno 40 (Message too long)"
+    )
   }
 
   // MARK: Private Helpers

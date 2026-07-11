@@ -78,19 +78,22 @@ public let StorageErrorDomain: String = "FIRStorageErrorDomain"
         object: ref.path.object ?? "<object-entity-internal-error>", serverError: errorDictionary
       )
     default:
-      if serverError.domain == NSPOSIXErrorDomain {
-        let errorCode = Int32(truncatingIfNeeded: serverError.code)
-        var buffer = [CChar](repeating: 0, count: 128)
-        _ = strerror_r(errorCode, &buffer, buffer.count)
-        StorageError.unknown(
-          message: "POSIX errno \(serverError.code) (\(String(cString: buffer)))",
-          serverError: errorDictionary
-        )
-      } else {
-        StorageError.unknown(
-          message: "Unexpected \(serverError.code) code from backend", serverError: errorDictionary
-        )
-      }
+      { () -> StorageError in
+        if serverError.domain == NSPOSIXErrorDomain {
+          let errorCode = Int32(truncatingIfNeeded: serverError.code)
+          var buffer = [CChar](repeating: 0, count: 128)
+          _ = strerror_r(errorCode, &buffer, buffer.count)
+          return StorageError.unknown(
+            message: "POSIX errno \(serverError.code) (\(String(cString: buffer)))",
+            serverError: errorDictionary
+          )
+        } else {
+          return StorageError.unknown(
+            message: "Unexpected \(serverError.code) code from backend",
+            serverError: errorDictionary
+          )
+        }
+      }()
     }
     return storageError as NSError
   }

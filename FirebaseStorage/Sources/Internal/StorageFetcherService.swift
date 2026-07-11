@@ -63,8 +63,8 @@ actor StorageFetcherService {
     if let _fetcherService {
       _fetcherService.testBlock = testBlock
     }
-    for (_, bucketMap) in fetcherServiceMap {
-      for (_, fetcherService) in bucketMap {
+    for bucketMap in fetcherServiceMap.values {
+      for fetcherService in bucketMap.values {
         fetcherService.testBlock = testBlock
       }
     }
