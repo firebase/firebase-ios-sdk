@@ -79,8 +79,11 @@ public let StorageErrorDomain: String = "FIRStorageErrorDomain"
       )
     default:
       if serverError.domain == NSPOSIXErrorDomain {
+        let errorCode = Int32(truncatingIfNeeded: serverError.code)
+        var buffer = [CChar](repeating: 0, count: 128)
+        _ = strerror_r(errorCode, &buffer, buffer.count)
         StorageError.unknown(
-          message: "POSIX errno \(serverError.code) (\(String(cString: strerror(Int32(truncatingIfNeeded: serverError.code)))))",
+          message: "POSIX errno \(serverError.code) (\(String(cString: buffer)))",
           serverError: errorDictionary
         )
       } else {

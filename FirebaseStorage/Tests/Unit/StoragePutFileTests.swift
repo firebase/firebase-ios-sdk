@@ -37,8 +37,6 @@ class StoragePutFileTests: StorageTestHelpers {
       await StorageFetcherService.shared.updateTestBlock(nil)
     }
 
-    await StorageFetcherService.shared.updateTestBlock(testBlock)
-
     let data = try XCTUnwrap("Hello".data(using: .utf8))
     let tmpDirURL = URL(fileURLWithPath: NSTemporaryDirectory())
     let fileURL = tmpDirURL.appendingPathComponent(#function + "hello.txt")
@@ -57,8 +55,5 @@ class StoragePutFileTests: StorageTestHelpers {
       XCTAssertTrue(message.contains("POSIX errno 40 (Message too long)"),
                     "Error message should contain 'POSIX errno 40 (Message too long)', but got \(message)")
     }
-
-    try? FileManager.default.removeItem(at: fileURL)
-    await StorageFetcherService.shared.updateTestBlock(nil)
   }
 }
