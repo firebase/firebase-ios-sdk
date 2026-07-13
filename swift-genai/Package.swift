@@ -38,5 +38,44 @@ let package = Package(
               .enableUpcomingFeature("NonescapableTypes")
             ],
         ),
+        .target(
+            name: "SharedDataModels",
+            swiftSettings: [
+              .swiftLanguageMode(.v6),
+              .enableUpcomingFeature("InternalImportsByDefault"),
+              .enableUpcomingFeature("InferIsolatedConformances"),
+              .enableUpcomingFeature("MemberImportVisibility"),
+              .enableUpcomingFeature("NonisolatedNonsendingByDefault"),
+              .enableUpcomingFeature("NonescapableTypes")
+            ],
+        ),
+        .target(
+            name: "AgentPlatformDataModels",
+            dependencies: [
+              "SharedDataModels"
+            ],
+            swiftSettings: [
+              .swiftLanguageMode(.v6),
+              .enableUpcomingFeature("InternalImportsByDefault"),
+              .enableUpcomingFeature("InferIsolatedConformances"),
+              .enableUpcomingFeature("MemberImportVisibility"),
+              .enableUpcomingFeature("NonisolatedNonsendingByDefault"),
+              .enableUpcomingFeature("NonescapableTypes")
+            ],
+        ),
+        .target(
+            name: "GoogleAIDataModels",
+            dependencies: [
+              "SharedDataModels"
+            ],
+            swiftSettings: [
+              .swiftLanguageMode(.v6),
+              .enableUpcomingFeature("InternalImportsByDefault"),
+              .enableUpcomingFeature("InferIsolatedConformances"),
+              .enableUpcomingFeature("MemberImportVisibility"),
+              .enableUpcomingFeature("NonisolatedNonsendingByDefault"),
+              .enableUpcomingFeature("NonescapableTypes")
+            ],
+        ),
     ]
 )

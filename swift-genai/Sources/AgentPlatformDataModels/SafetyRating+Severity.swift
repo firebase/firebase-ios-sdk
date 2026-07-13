@@ -1,0 +1,61 @@
+// Copyright 2026 Google LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+import Foundation
+
+extension AgentPlatform.SafetyRating {
+  /// Output only. The severity of harm for this category.
+  package enum Severity: Codable, Sendable, Equatable, Hashable {
+    /// The harm severity is negligible.
+    case negligible
+    
+    /// The harm severity is low.
+    case low
+    
+    /// The harm severity is medium.
+    case medium
+    
+    /// The harm severity is high.
+    case high
+    
+    /// Unrecognized case.
+    ///
+    /// - Parameter value: The raw string value of the unrecognized enum case.
+    case unrecognized(_ value: String)
+  }
+}
+
+// MARK: - RawRepresentable Conformance
+
+extension AgentPlatform.SafetyRating.Severity: RawRepresentable {
+  package var rawValue: String {
+    switch self {
+    case .negligible: "HARM_SEVERITY_NEGLIGIBLE"
+    case .low: "HARM_SEVERITY_LOW"
+    case .medium: "HARM_SEVERITY_MEDIUM"
+    case .high: "HARM_SEVERITY_HIGH"
+    case .unrecognized(let value): value
+    }
+  }
+
+  package init(rawValue: String) {
+    switch rawValue {
+    case "HARM_SEVERITY_NEGLIGIBLE": self = .negligible
+    case "HARM_SEVERITY_LOW": self = .low
+    case "HARM_SEVERITY_MEDIUM": self = .medium
+    case "HARM_SEVERITY_HIGH": self = .high
+    default: self = .unrecognized(rawValue)
+    }
+  }
+}

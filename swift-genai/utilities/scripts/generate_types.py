@@ -239,7 +239,7 @@ def strip_enum_prefix(cases):
     return prefix, filtered_cases
 
 
-def process_resolved_schemas(resolved_schemas, cycle_nodes):
+def process_resolved_schemas(resolved_schemas, cycle_nodes, namespace):
     swift_types = []
     
     def process_schema(name, data, namespace):
@@ -341,12 +341,41 @@ def process_resolved_schemas(resolved_schemas, cycle_nodes):
         return "JSONValue"
         
     for name, data in resolved_schemas.items():
-        process_schema(name, data, "GoogleAI")
+        process_schema(name, data, namespace)
         
     return swift_types
 
 
-def write_types(swift_types, output_dir, templates_dir, access_level):
+def strip_prefix_from_schemas(schemas, prefix):
+    if not prefix:
+        return schemas
+        
+    def strip_prefix_from_value(val):
+        if isinstance(val, dict):
+            new_dict = {}
+            for k, v in val.items():
+                if k == "$ref" and isinstance(v, str) and v.startswith(prefix):
+                    new_dict[k] = v[len(prefix):]
+                else:
+                    new_dict[k] = strip_prefix_from_value(v)
+            return new_dict
+        elif isinstance(val, list):
+            return [strip_prefix_from_value(item) for item in val]
+        return val
+
+    new_schemas = {}
+    for schema_name, schema_data in schemas.items():
+        new_name = schema_name
+        if schema_name.startswith(prefix):
+            new_name = schema_name[len(prefix):]
+        new_schemas[new_name] = strip_prefix_from_value(schema_data)
+        if "id" in new_schemas[new_name] and isinstance(new_schemas[new_name]["id"], str) and new_schemas[new_name]["id"].startswith(prefix):
+            new_schemas[new_name]["id"] = new_schemas[new_name]["id"][len(prefix):]
+            
+    return new_schemas
+
+
+def write_types(swift_types, output_dir, templates_dir, access_level, root_namespace):
     env = Environment(loader=FileSystemLoader(templates_dir))
     
     struct_tmpl = env.get_template("struct.swift.jinja")
@@ -358,7 +387,7 @@ def write_types(swift_types, output_dir, templates_dir, access_level):
     
     for st in swift_types:
         parts = st.namespace.split(".")
-        if parts and parts[0] == "GoogleAI":
+        if parts and parts[0] == root_namespace:
             parts = parts[1:]
         
         filename_parts = parts + [st.name.replace("`", "")]
@@ -373,6 +402,7 @@ def write_types(swift_types, output_dir, templates_dir, access_level):
                 is_deprecated=st.is_deprecated,
                 properties=st.properties,
                 uses_foundation_types=any("Date" in p.swift_type for p in st.properties),
+                uses_shared_data_models=any("JSONValue" in p.swift_type or "APIError" in p.swift_type for p in st.properties),
                 access_level=access_level
             )
         elif st.kind == "class":
@@ -383,6 +413,7 @@ def write_types(swift_types, output_dir, templates_dir, access_level):
                 is_deprecated=st.is_deprecated,
                 properties=st.properties,
                 uses_foundation_types=any("Date" in p.swift_type for p in st.properties),
+                uses_shared_data_models=any("JSONValue" in p.swift_type or "APIError" in p.swift_type for p in st.properties),
                 access_level=access_level
             )
         elif st.kind == "enum":
@@ -405,7 +436,7 @@ def write_types(swift_types, output_dir, templates_dir, access_level):
         
     # Clean up old generated files
     for existing in os.listdir(output_dir):
-        if existing.endswith(".swift") and existing != "GoogleAI.swift":
+        if existing.endswith(".swift") and existing != f"{root_namespace}.swift":
             full_path = os.path.join(output_dir, existing)
             if full_path not in written_files:
                 os.remove(full_path)
@@ -426,6 +457,10 @@ def main():
                         help="Root schema names to resolve transitively.")
     parser.add_argument("--access-level", default="public",
                         help="Access level keyword for generated types (e.g. public, package, internal).")
+    parser.add_argument("--strip-prefix", default="",
+                        help="Prefix to strip from schema IDs and reference names.")
+    parser.add_argument("--namespace", default="GoogleAI",
+                        help="Root Swift namespace for the generated types.")
     args = parser.parse_args()
     
     if not os.path.exists(args.discovery_doc):
@@ -438,6 +473,11 @@ def main():
     schemas = doc.get("schemas", {})
     print(f"Loaded discovery document with {len(schemas)} schemas.")
     
+    # Strip prefix if requested
+    if args.strip_prefix:
+        schemas = strip_prefix_from_schemas(schemas, args.strip_prefix)
+        print(f"Stripped prefix '{args.strip_prefix}'. Remaining schema count: {len(schemas)}")
+    
     # Resolve Transitively
     resolved = resolve_all_types(schemas, args.roots)
     print(f"Resolved {len(resolved)} schemas from roots {args.roots}.")
@@ -449,11 +489,11 @@ def main():
         print(f"Detected self-referential cycle types (generating as classes): {list(cycle_nodes)}")
         
     # Process types
-    swift_types = process_resolved_schemas(resolved, cycle_nodes)
+    swift_types = process_resolved_schemas(resolved, cycle_nodes, args.namespace)
     print(f"Processing generated {len(swift_types)} distinct types (including nested enums/structs).")
     
     # Write types
-    write_types(swift_types, args.output_dir, args.templates_dir, args.access_level)
+    write_types(swift_types, args.output_dir, args.templates_dir, args.access_level, args.namespace)
     print("Code generation completed successfully.")
 
 

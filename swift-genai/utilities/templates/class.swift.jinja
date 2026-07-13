@@ -21,6 +21,15 @@ import Foundation
 {% else -%}
 import Foundation
 {%- endif %}
+{% if uses_shared_data_models -%}
+{% if access_level == 'public' -%}
+public import SharedDataModels
+{% elif access_level == 'package' -%}
+package import SharedDataModels
+{% else -%}
+import SharedDataModels
+{%- endif %}
+{%- endif %}
 
 extension {{ namespace }} {
   {%- if description %}
