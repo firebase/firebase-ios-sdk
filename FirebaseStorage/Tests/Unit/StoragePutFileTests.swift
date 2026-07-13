@@ -52,8 +52,10 @@ class StoragePutFileTests: StorageTestHelpers {
       XCTAssertEqual(error.domain, StorageErrorDomain)
       XCTAssertEqual(error.code, StorageErrorCode.unknown.rawValue)
       let message = error.localizedDescription
-      XCTAssertTrue(message.contains("POSIX errno 40 (The operation couldn’t be completed. Message too long)"),
-                    "Error message should contain 'POSIX errno 40 (The operation couldn’t be completed. Message too long)', but got \(message)")
+      XCTAssertTrue(
+        message.contains("POSIX errno 40 (The operation couldn’t be completed. Message too long)"),
+        "Error message should contain 'POSIX errno 40 (The operation couldn’t be completed. Message too long)', but got \(message)"
+      )
     }
   }
 }
