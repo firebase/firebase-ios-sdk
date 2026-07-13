@@ -84,7 +84,7 @@ class FunctionsStreamTests: XCTestCase {
 
     // Give the stream a moment to initiate the URLSession request
     try? await Task.sleep(nanoseconds: 100_000_000)
-    
+
     // Cancelling the consumer task should cascade down and stop the URLSession task,
     // which should trigger MockURLProtocol.stopLoading()
     consumerTask.cancel()
