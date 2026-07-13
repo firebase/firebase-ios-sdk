@@ -1,0 +1,61 @@
+// Copyright 2026 Google LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+{% if uses_foundation_types -%}
+{% if access_level == 'public' or access_level == 'package' -%}
+public import Foundation
+{% else -%}
+import Foundation
+{%- endif %}
+{% else -%}
+import Foundation
+{%- endif %}
+
+extension {{ namespace }} {
+  {%- if description %}
+  /// {{ description | replace('\n', '\n  /// ') }}
+  {%- endif %}
+  {%- if is_deprecated %}
+  @available(*, deprecated)
+  {%- endif %}
+  {{ access_level }} struct {{ name }}: Codable, Sendable, Equatable, Hashable {
+    {%- for prop in properties %}
+    {%- if prop.description %}
+    /// {{ prop.description | replace('\n', '\n    /// ') }}
+    {%- endif %}
+    {%- if prop.is_deprecated %}
+    @available(*, deprecated)
+    {%- endif %}
+    {{ access_level }} var {{ prop.swift_name }}: {{ prop.swift_type }}?
+    {% endfor %}
+    /// Creates a new `{{ name }}`.
+    {{ access_level }} init(
+      {%- for prop in properties %}
+      {{ prop.swift_name }}: {{ prop.swift_type }}? = nil{% if not loop.last %},{% endif %}
+      {%- endfor %}
+    ) {
+      {%- for prop in properties %}
+      self.{{ prop.swift_name }} = {{ prop.swift_name }}
+      {%- endfor %}
+    }
+
+    {%- if properties %}
+    enum CodingKeys: String, CodingKey {
+      {%- for prop in properties %}
+      case {{ prop.swift_name }} = "{{ prop.json_name }}"
+      {%- endfor %}
+    }
+    {%- endif %}
+  }
+}
