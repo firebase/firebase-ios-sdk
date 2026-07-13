@@ -157,6 +157,17 @@ static NSString *const kValidImageURL =
   }
 }
 
+- (void)testFileExtensionRejectsPathSeparatorInMimeType {
+  if (@available(macOS 10.14, iOS 10.0, *)) {
+    // suggestedFilename has no extension so the MIME type branch is used.
+    OCMStub([_mockURLResponse suggestedFilename]).andReturn(@"image");
+    OCMStub([_mockURLResponse MIMEType]).andReturn(@"image/../../../../evil");
+    NSString *const extension = [_mockExtensionHelper fileExtensionForResponse:_mockURLResponse];
+    XCTAssertFalse([extension containsString:@"/"]);
+    XCTAssertTrue([extension isEqualToString:@""]);
+  }
+}
+
 - (void)testDeliveryMetricsLoggingWithEmptyPayload {
   OCMStub([_mockUtilClass isAppExtension]).andReturn(YES);
   NSDictionary *fakeMessageInfo = @{@"aps" : @{}};

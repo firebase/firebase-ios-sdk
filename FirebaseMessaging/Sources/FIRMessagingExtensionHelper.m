@@ -143,8 +143,14 @@ pb_bytes_array_t *FIRMessagingEncodeString(NSString *string) {
     return [NSString stringWithFormat:@".%@", suggestedPathExtension];
   }
   if ([response.MIMEType containsString:kImagePathPrefix]) {
-    return [response.MIMEType stringByReplacingOccurrencesOfString:kImagePathPrefix
-                                                        withString:@"."];
+    NSString *fileExtension =
+        [response.MIMEType stringByReplacingOccurrencesOfString:kImagePathPrefix withString:@"."];
+    // A MIME subtype does not contain a path separator. A server can set an arbitrary
+    // Content-Type on the downloaded image, so reject a value that carries one before it
+    // is appended to the temporary file path.
+    if (![fileExtension containsString:@"/"]) {
+      return fileExtension;
+    }
   }
   return kNoExtension;
 }
