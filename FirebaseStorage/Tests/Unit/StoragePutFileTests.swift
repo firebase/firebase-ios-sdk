@@ -41,7 +41,7 @@ class StoragePutFileTests: StorageTestHelpers {
     let tmpDirURL = URL(fileURLWithPath: NSTemporaryDirectory())
     let fileURL = tmpDirURL.appendingPathComponent(#function + "hello.txt")
     try data.write(to: fileURL, options: .atomicWrite)
-    defer {
+    addTeardownBlock {
       try? FileManager.default.removeItem(at: fileURL)
     }
 
@@ -52,8 +52,8 @@ class StoragePutFileTests: StorageTestHelpers {
       XCTAssertEqual(error.domain, StorageErrorDomain)
       XCTAssertEqual(error.code, StorageErrorCode.unknown.rawValue)
       let message = error.localizedDescription
-      XCTAssertTrue(message.contains("POSIX errno 40 (Message too long)"),
-                    "Error message should contain 'POSIX errno 40 (Message too long)', but got \(message)")
+      XCTAssertTrue(message.contains("POSIX errno 40 (The operation couldn’t be completed. Message too long)"),
+                    "Error message should contain 'POSIX errno 40 (The operation couldn’t be completed. Message too long)', but got \(message)")
     }
   }
 }

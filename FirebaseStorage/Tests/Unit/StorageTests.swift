@@ -266,7 +266,7 @@ class StorageTests: XCTestCase {
     XCTAssertEqual(storageError.code, StorageErrorCode.unknown.rawValue)
     XCTAssertEqual(
       storageError.userInfo[NSLocalizedDescriptionKey] as? String,
-      "POSIX errno 40 (Message too long)"
+      "POSIX errno 40 (The operation couldn’t be completed. Message too long)"
     )
   }
 
