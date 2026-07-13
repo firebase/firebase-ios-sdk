@@ -15,13 +15,15 @@
 # limitations under the License.
 
 # Usage:
-# ./scripts/style.sh [branch-name | filenames]
+# ./scripts/style.sh [branch-name | filenames | -b]
 #
 # With no arguments, formats all eligible files in the repo
+# Pass -b (or --branch) to format all files changed on the current branch (all commits + uncommitted changes)
 # Pass a branch name to format all eligible files changed since that branch
 # Pass a specific file or directory name to format just files found there
 #
 # Commonly
+# ./scripts/style.sh -b
 # ./scripts/style.sh main
 
 # Set the environment variable FIR_CLANG_FORMAT_PATH to use a specific version
@@ -112,7 +114,10 @@ fi
 files=$(
 (
   if [[ $# -gt 0 ]]; then
-    if git rev-parse "$1" -- >& /dev/null; then
+    if [[ "$1" == "-b" || "$1" == "--branch" ]]; then
+      merge_base=$(git merge-base HEAD origin/main 2>/dev/null || git merge-base HEAD main 2>/dev/null || echo "main")
+      git diff --name-only --relative --diff-filter=ACMR "$merge_base"
+    elif git rev-parse "$1" -- >& /dev/null; then
       # Argument was a branch name show files changed since that branch
       git diff --name-only --relative --diff-filter=ACMR "$1"
     else
@@ -121,6 +126,9 @@ files=$(
     fi
   else
     # Do everything by default
+    if [[ -t 2 && "$test_only" == false ]]; then
+      echo "Formatting all eligible files... (Tip: run './scripts/style.sh -b' to format only files changed on this branch)" >&2
+    fi
     find . -type f
   fi
 ) | sed -E -n '
