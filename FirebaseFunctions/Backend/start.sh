@@ -36,14 +36,33 @@ cd "${TEMP_DIR}"
 npm install
 
 # Start the server.
-npx firebase emulators:start --only functions --project functions-integration-test &
+nohup npx firebase emulators:start --only functions --project functions-integration-test > firebase-emulator.log 2>&1 &
 EMULATOR_PID=$!
+
+# Wait for the emulator to be ready.
+echo "Waiting for emulator to start..."
+timeout=30
+while [ $timeout -gt 0 ]; do
+  if curl -s http://localhost:5005 > /dev/null; then
+    echo "Emulator is ready!"
+    break
+  fi
+  sleep 1
+  timeout=$((timeout - 1))
+done
+
+if [ $timeout -eq 0 ]; then
+  echo "Emulator failed to start within 30 seconds."
+  cat firebase-emulator.log
+  exit 1
+fi
 
 if [ "$1" != "synchronous" ]; then
   # Wait for the user to tell us to stop the server.
   echo "Functions emulator now running in ${TEMP_DIR}."
   read -n 1 -p "*** Press any key to stop the server. ***"
   echo -e "\nStopping the emulator..."
-  kill $EMULATOR_PID
-  wait $EMULATOR_PID 2>/dev/null || true
+  kill $EMULATOR_PID 2>/dev/null || true
+else
+  disown $EMULATOR_PID
 fi
