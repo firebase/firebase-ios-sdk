@@ -114,7 +114,7 @@ fi
 files=$(
 (
   if [[ $# -gt 0 ]]; then
-    if [[ "$1" =~ ^(-b|--branch)$ ]]; then
+    if [[ "$1" == "-b" || "$1" == "--branch" ]]; then
       merge_base=$(git merge-base HEAD origin/main 2>/dev/null || git merge-base HEAD main 2>/dev/null || echo "main")
       git diff --name-only --relative --diff-filter=ACMR "$merge_base"
     elif git rev-parse "$1" -- >& /dev/null; then
