@@ -145,6 +145,10 @@ void DecodeCollectionSource(JsonReader& reader,
                             const json& from_json,
                             ResourcePath& parent,
                             std::string& group) {
+  if (!from_json.is_array()) {
+    reader.Fail("'from' clause is not an array as expected.");
+    return;
+  }
   const auto& from = from_json.get_ref<const std::vector<json>&>();
   if (from.size() != 1) {
     reader.Fail(
@@ -275,8 +279,9 @@ int32_t DecodeLimit(JsonReader& reader, const json& query) {
     if (limit_object.is_number_integer()) {
       return limit_object.get<int32_t>();
     } else if (limit_object.is_object()) {
-      if (limit_object.at("value").is_number_integer()) {
-        return limit_object.at("value").get<int32_t>();
+      auto value = limit_object.find("value");
+      if (value != limit_object.end() && value->is_number_integer()) {
+        return value->get<int32_t>();
       }
     }
     reader.Fail("'limit' is not encoded as a valid integer");
