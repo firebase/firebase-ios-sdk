@@ -17,6 +17,11 @@ let package = Package(
         // Targets can depend on other targets in this package and products from dependencies.
         .target(
             name: "GeminiAPIClient",
+            dependencies: [
+              "GoogleAIDataModels",
+              "AgentPlatformDataModels",
+              "SharedDataModels"
+            ],
             swiftSettings: [
               .swiftLanguageMode(.v6),
               .enableUpcomingFeature("InternalImportsByDefault"),
