@@ -34,7 +34,7 @@ jobs:
     with:
       product: FirebaseFunctions
       supports_swift6: true
-      setup_command: FirebaseFunctions/Backend/start.sh synchronous
+      setup_command: node FirebaseFunctions/Backend/start.js synchronous
 
   spm-integration:
     uses: ./.github/workflows/_spm.yml
@@ -44,7 +44,7 @@ jobs:
     with:
       target: ${{ matrix.target }}
       platforms: iOS
-      setup_command: FirebaseFunctions/Backend/start.sh synchronous
+      setup_command: node FirebaseFunctions/Backend/start.js synchronous
 
   spm-unit:
     uses: ./.github/workflows/_spm.yml
@@ -63,6 +63,6 @@ jobs:
       # For toolchains var, see https://github.com/actions/runner-images/issues/13135#issuecomment-3397914993
       setup_command: |
         echo "TOOLCHAINS=com.apple.dt.toolchain.XcodeDefault" >> $GITHUB_ENV
-        FirebaseFunctions/Backend/start.sh synchronous
+        node FirebaseFunctions/Backend/start.js synchronous
       runs_on: macos-26
       xcode: Xcode_26.4
