@@ -89,15 +89,15 @@ echo "========================================"
 echo "1. Styling code..."
 echo "========================================"
 # style.sh accepts a list of files/directories
-"$FIREBASE_SDK_DIR/scripts/style.sh" "${ALL_MODIFIED[@]}"
+bash "$FIREBASE_SDK_DIR/scripts/style.sh" "${ALL_MODIFIED[@]}"
 
 echo "========================================"
 echo "2. Checking and formatting copyrights..."
 echo "========================================"
-if [ -x "$FIREBASE_SDK_DIR/scripts/add_copyright.sh" ]; then
+if [ -f "$FIREBASE_SDK_DIR/scripts/add_copyright.sh" ]; then
   # add_copyright.sh checks 'git diff --diff-filter=A' against a base branch.
   # By passing HEAD, we restrict it to only newly added files in the uncommitted working directory/staging area.
-  "$FIREBASE_SDK_DIR/scripts/add_copyright.sh" HEAD
+  bash "$FIREBASE_SDK_DIR/scripts/add_copyright.sh" HEAD
 else
   echo "No scripts/add_copyright.sh found in $FIREBASE_SDK_DIR, skipping."
 fi
@@ -106,7 +106,7 @@ echo "========================================"
 echo "3. Formatting markdown..."
 echo "========================================"
 # Pass the modified files to the markdown formatter
-"$SCRIPT_DIR/format_markdown.sh" "${ALL_MODIFIED[@]}"
+bash "$SCRIPT_DIR/format_markdown.sh" "${ALL_MODIFIED[@]}"
 
 echo "========================================"
 echo "4. Linting shell scripts..."
@@ -114,7 +114,7 @@ echo "========================================"
 if command -v shellcheck &> /dev/null; then
   SH_FILES=()
   for file in "${ALL_MODIFIED[@]}"; do
-    if [[ "$file" == *.sh ]]; then
+    if [[ "$file" == *.sh && -f "$file" ]]; then
       SH_FILES+=("$file")
     fi
   done
