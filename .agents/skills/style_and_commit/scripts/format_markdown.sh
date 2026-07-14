@@ -40,7 +40,7 @@ fi
 
 echo "Formatting markdown files (removing trailing whitespace)..."
 for file in "${MD_FILES[@]}"; do
-  perl -pi -e 's/[[:space:]]+$//' "$file"
+  perl -pi -e 's/[ \t]+$//' "$file"
 done
 
 echo "Checking for markdown lines exceeding 80 characters..."

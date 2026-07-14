@@ -9,8 +9,8 @@ This skill orchestrates a multi-agent workflow to implement code changes while
 strictly enforcing test validation and code quality standards.
 
 ## Requirements
-*   An `agents.md` file at the root of the repository must be present to define the Verifier and Reviewer
-    personas for the current repository.
+*   An `agents.md` file at the root of the repository must be present to define
+    the Verifier and Reviewer personas for the current repository.
 
 ## The Workflow
 
