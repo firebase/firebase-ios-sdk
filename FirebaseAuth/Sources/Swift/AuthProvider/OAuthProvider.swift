@@ -427,10 +427,12 @@ import Foundation
       : "https://\(authDomain)/__/auth/handler"
     var components = URLComponents(string: urlString)
     components?.queryItems = queryItems
-    components?.percentEncodedQuery = components?.percentEncodedQuery?.replacingOccurrences(
-      of: "+",
-      with: "%2B"
-    )
+    if let percentEncodedQuery = components?.percentEncodedQuery {
+      components?.percentEncodedQuery = percentEncodedQuery.replacingOccurrences(
+        of: "+",
+        with: "%2B"
+      )
+    }
 
     if let appCheck {
       let tokenResult = await appCheck.getToken(forcingRefresh: false)
