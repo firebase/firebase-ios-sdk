@@ -394,9 +394,13 @@ import Foundation
                       URLQueryItem(name: "providerId", value: providerID)]
 
     if usingClientIDScheme {
-      queryItems.append(URLQueryItem(name: "clientId", value: clientID))
+      if let clientID {
+        queryItems.append(URLQueryItem(name: "clientId", value: clientID))
+      }
     } else {
-      queryItems.append(URLQueryItem(name: "appId", value: appID))
+      if let appID {
+        queryItems.append(URLQueryItem(name: "appId", value: appID))
+      }
     }
     if let tenantID {
       queryItems.append(URLQueryItem(name: "tid", value: tenantID))
