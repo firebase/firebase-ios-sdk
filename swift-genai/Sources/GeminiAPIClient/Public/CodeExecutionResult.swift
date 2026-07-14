@@ -13,8 +13,8 @@
 // limitations under the License.
 
 import Foundation
-package import GoogleAIDataModels
-package import AgentPlatformDataModels
+package import InternalGoogleAIDataModels
+package import InternalAgentPlatformDataModels
 
 /// Represents a result of code execution.
 public struct CodeExecutionResult: Codable, Sendable, Equatable, Hashable {

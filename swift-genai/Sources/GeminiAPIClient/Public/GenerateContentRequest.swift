@@ -13,9 +13,9 @@
 // limitations under the License.
 
 import Foundation
-package import SharedDataModels
-package import GoogleAIDataModels
-package import AgentPlatformDataModels
+package import InternalSharedDataModels
+package import InternalGoogleAIDataModels
+package import InternalAgentPlatformDataModels
 
 // MARK: - GenerateContentRequest
 
@@ -58,7 +58,7 @@ public struct GenerateContentRequest: Codable, Sendable, Equatable, Hashable {
   public var labels: [String: String]?
 
   /// - Note: Only supported on AgentPlatform backend.
-  package var modelArmorConfig: AgentPlatformDataModels.AgentPlatform.ModelArmorConfig?
+  package var modelArmorConfig: InternalAgentPlatformDataModels.AgentPlatform.ModelArmorConfig?
 
   public init(
     model: String? = nil,
@@ -99,7 +99,7 @@ public struct GenerateContentRequest: Codable, Sendable, Equatable, Hashable {
     serviceTier: ServiceTier? = nil,
     store: Bool? = nil,
     labels: [String: String]? = nil,
-    modelArmorConfig: AgentPlatformDataModels.AgentPlatform.ModelArmorConfig? = nil
+    modelArmorConfig: InternalAgentPlatformDataModels.AgentPlatform.ModelArmorConfig? = nil
   ) {
     self.model = model
     self.contents = contents

@@ -13,8 +13,8 @@
 // limitations under the License.
 
 import Foundation
-package import GoogleAIDataModels
-package import AgentPlatformDataModels
+package import InternalGoogleAIDataModels
+package import InternalAgentPlatformDataModels
 
 /// Configuration for specifying function calling behavior.
 public struct FunctionCallingConfig: Codable, Sendable, Equatable, Hashable {

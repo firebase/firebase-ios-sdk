@@ -13,9 +13,9 @@
 // limitations under the License.
 
 import Foundation
-public import SharedDataModels
-package import GoogleAIDataModels
-package import AgentPlatformDataModels
+public import InternalSharedDataModels
+package import InternalGoogleAIDataModels
+package import InternalAgentPlatformDataModels
 
 /// Represents a function call.
 public struct FunctionCall: Codable, Sendable, Equatable, Hashable {

@@ -13,16 +13,16 @@
 // limitations under the License.
 
 public import Foundation
-package import GoogleAIDataModels
-package import AgentPlatformDataModels
+package import InternalGoogleAIDataModels
+package import InternalAgentPlatformDataModels
 
 /// Metadata for a video part.
 public struct VideoMetadata: Codable, Sendable, Equatable, Hashable {
-  public var endOffset: Duration?
+  public var endOffset: String?
   public var fps: Double?
-  public var startOffset: Duration?
+  public var startOffset: String?
 
-  public init(endOffset: Duration? = nil, fps: Double? = nil, startOffset: Duration? = nil) {
+  public init(endOffset: String? = nil, fps: Double? = nil, startOffset: String? = nil) {
     self.endOffset = endOffset
     self.fps = fps
     self.startOffset = startOffset

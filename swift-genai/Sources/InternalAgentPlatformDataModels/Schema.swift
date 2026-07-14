@@ -13,82 +13,93 @@
 // limitations under the License.
 
 import Foundation
-public import SharedDataModels
+public import InternalSharedDataModels
 
 
-extension GoogleAI {
-  /// The `Schema` object allows the definition of input and output data types. These types can be objects, but also primitives and arrays. Represents a select subset of an [OpenAPI 3.0 schema object](https://spec.openapis.org/oas/v3.0.3#schema).
+extension AgentPlatform {
+  /// Defines the schema of input and output data. This is a subset of the [OpenAPI 3.0 Schema Object](https://spec.openapis.org/oas/v3.0.3#schema-object).
   public final class Schema: Codable, Sendable {
-    /// Optional. The value should be validated against any (one or more) of the subschemas in the list.
+    /// Optional. If `type` is `OBJECT`, specifies how to handle properties not defined in `properties`. If it is a boolean `false`, no additional properties are allowed. If it is a schema, additional properties are allowed if they conform to the schema.
+    public let additionalProperties: JSONValue?
+    
+    /// Optional. The instance must be valid against any (one or more) of the subschemas listed in `any_of`.
     public let anyOf: [Schema]?
     
-    /// Optional. Default value of the field. Per JSON Schema, this field is intended for documentation generators and doesn't affect validation. Thus it's included here and ignored so that developers who send schemas with a `default` field don't get unknown-field errors.
+    /// Optional. Default value to use if the field is not specified.
     public let `default`: JSONValue?
     
-    /// Optional. A brief description of the parameter. This could contain examples of use. Parameter description may be formatted as Markdown.
+    /// Optional. `defs` provides a map of schema definitions that can be reused by `ref` elsewhere in the schema. Only allowed at root level of the schema.
+    public let defs: [String: Schema]?
+    
+    /// Optional. Describes the data. The model uses this field to understand the purpose of the schema and how to use it. It is a best practice to provide a clear and descriptive explanation for the schema and its properties here, rather than in the prompt.
     public let description: String?
     
-    /// Optional. Possible values of the element of Type.STRING with enum format. For example we can define an Enum Direction as : {type:STRING, format:enum, enum:["EAST", NORTH", "SOUTH", "WEST"]}
+    /// Optional. Possible values of the field. This field can be used to restrict a value to a fixed set of values. To mark a field as an enum, set `format` to `enum` and provide the list of possible values in `enum`. For example: 1. To define directions: `{type:STRING, format:enum, enum:["EAST", "NORTH", "SOUTH", "WEST"]}` 2. To define apartment numbers: `{type:INTEGER, format:enum, enum:["101", "201", "301"]}`
     public let `enum`: [String]?
     
-    /// Optional. Example of the object. Will only populated when the object is the root.
+    /// Optional. Example of an instance of this schema.
     public let example: JSONValue?
     
-    /// Optional. The format of the data. Any value is allowed, but most do not trigger any special functionality.
+    /// Optional. The format of the data. For `NUMBER` type, format can be `float` or `double`. For `INTEGER` type, format can be `int32` or `int64`. For `STRING` type, format can be `email`, `byte`, `date`, `date-time`, `password`, and other formats to further refine the data type.
     public let format: String?
     
-    /// Optional. Schema of the elements of Type.ARRAY.
+    /// Optional. If type is `ARRAY`, `items` specifies the schema of elements in the array.
     public let items: Schema?
     
-    /// Optional. Maximum number of the elements for Type.ARRAY.
+    /// Optional. If type is `ARRAY`, `max_items` specifies the maximum number of items in an array.
     public let maxItems: String?
     
-    /// Optional. Maximum length of the Type.STRING
+    /// Optional. If type is `STRING`, `max_length` specifies the maximum length of the string.
     public let maxLength: String?
     
-    /// Optional. Maximum number of the properties for Type.OBJECT.
+    /// Optional. If type is `OBJECT`, `max_properties` specifies the maximum number of properties that can be provided.
     public let maxProperties: String?
     
-    /// Optional. Maximum value of the Type.INTEGER and Type.NUMBER
+    /// Optional. If type is `INTEGER` or `NUMBER`, `maximum` specifies the maximum allowed value.
     public let maximum: Double?
     
-    /// Optional. Minimum number of the elements for Type.ARRAY.
+    /// Optional. If type is `ARRAY`, `min_items` specifies the minimum number of items in an array.
     public let minItems: String?
     
-    /// Optional. SCHEMA FIELDS FOR TYPE STRING Minimum length of the Type.STRING
+    /// Optional. If type is `STRING`, `min_length` specifies the minimum length of the string.
     public let minLength: String?
     
-    /// Optional. Minimum number of the properties for Type.OBJECT.
+    /// Optional. If type is `OBJECT`, `min_properties` specifies the minimum number of properties that can be provided.
     public let minProperties: String?
     
-    /// Optional. SCHEMA FIELDS FOR TYPE INTEGER and NUMBER Minimum value of the Type.INTEGER and Type.NUMBER
+    /// Optional. If type is `INTEGER` or `NUMBER`, `minimum` specifies the minimum allowed value.
     public let minimum: Double?
     
-    /// Optional. Indicates if the value may be null.
+    /// Optional. Indicates if the value of this field can be null.
     public let nullable: Bool?
     
-    /// Optional. Pattern of the Type.STRING to restrict a string to a regular expression.
+    /// Optional. If type is `STRING`, `pattern` specifies a regular expression that the string must match.
     public let pattern: String?
     
-    /// Optional. Properties of Type.OBJECT.
+    /// Optional. If type is `OBJECT`, `properties` is a map of property names to schema definitions for each property of the object.
     public let properties: [String: Schema]?
     
-    /// Optional. The order of the properties. Not a standard field in open api spec. Used to determine the order of the properties in the response.
+    /// Optional. Order of properties displayed or used where order matters. This is not a standard field in OpenAPI specification, but can be used to control the order of properties.
     public let propertyOrdering: [String]?
     
-    /// Optional. Required properties of Type.OBJECT.
+    /// Optional. Allows referencing another schema definition to use in place of this schema. The value must be a valid reference to a schema in `defs`. For example, the following schema defines a reference to a schema node named "Pet": type: object properties: pet: ref: #/defs/Pet defs: Pet: type: object properties: name: type: string The value of the "pet" property is a reference to the schema node named "Pet". See details in https://json-schema.org/understanding-json-schema/structuring
+    public let ref: String?
+    
+    /// Optional. If type is `OBJECT`, `required` lists the names of properties that must be present.
     public let required: [String]?
     
-    /// Optional. The title of the schema.
+    /// Optional. Title for the schema.
     public let title: String?
     
-    /// Required. Data type.
+    /// Optional. Data type of the schema field.
     public let type: `Type`?
     
     /// Creates a new `Schema`.
     public init(
+      additionalProperties: JSONValue? = nil,
       anyOf: [Schema]? = nil,
       `default`: JSONValue? = nil,
+      defs: [String: Schema]? = nil,
       description: String? = nil,
       `enum`: [String]? = nil,
       example: JSONValue? = nil,
@@ -106,12 +117,15 @@ extension GoogleAI {
       pattern: String? = nil,
       properties: [String: Schema]? = nil,
       propertyOrdering: [String]? = nil,
+      ref: String? = nil,
       required: [String]? = nil,
       title: String? = nil,
       type: `Type`? = nil
     ) {
+      self.additionalProperties = additionalProperties
       self.anyOf = anyOf
       self.`default` = `default`
+      self.defs = defs
       self.description = description
       self.`enum` = `enum`
       self.example = example
@@ -129,13 +143,16 @@ extension GoogleAI {
       self.pattern = pattern
       self.properties = properties
       self.propertyOrdering = propertyOrdering
+      self.ref = ref
       self.required = required
       self.title = title
       self.type = type
     }
     enum CodingKeys: String, CodingKey {
+      case additionalProperties = "additionalProperties"
       case anyOf = "anyOf"
       case `default` = "default"
+      case defs = "defs"
       case description = "description"
       case `enum` = "enum"
       case example = "example"
@@ -153,6 +170,7 @@ extension GoogleAI {
       case pattern = "pattern"
       case properties = "properties"
       case propertyOrdering = "propertyOrdering"
+      case ref = "ref"
       case required = "required"
       case title = "title"
       case type = "type"
@@ -162,11 +180,13 @@ extension GoogleAI {
 
 // MARK: - Equatable & Hashable Conformance
 
-extension GoogleAI.Schema: Equatable, Hashable {
-  public static func == (lhs: GoogleAI.Schema, rhs: GoogleAI.Schema) -> Bool {
+extension AgentPlatform.Schema: Equatable, Hashable {
+  public static func == (lhs: AgentPlatform.Schema, rhs: AgentPlatform.Schema) -> Bool {
     return
+      lhs.additionalProperties == rhs.additionalProperties &&
       lhs.anyOf == rhs.anyOf &&
       lhs.`default` == rhs.`default` &&
+      lhs.defs == rhs.defs &&
       lhs.description == rhs.description &&
       lhs.`enum` == rhs.`enum` &&
       lhs.example == rhs.example &&
@@ -184,14 +204,17 @@ extension GoogleAI.Schema: Equatable, Hashable {
       lhs.pattern == rhs.pattern &&
       lhs.properties == rhs.properties &&
       lhs.propertyOrdering == rhs.propertyOrdering &&
+      lhs.ref == rhs.ref &&
       lhs.required == rhs.required &&
       lhs.title == rhs.title &&
       lhs.type == rhs.type
   }
 
   public func hash(into hasher: inout Hasher) {
+    hasher.combine(additionalProperties)
     hasher.combine(anyOf)
     hasher.combine(`default`)
+    hasher.combine(defs)
     hasher.combine(description)
     hasher.combine(`enum`)
     hasher.combine(example)
@@ -209,6 +232,7 @@ extension GoogleAI.Schema: Equatable, Hashable {
     hasher.combine(pattern)
     hasher.combine(properties)
     hasher.combine(propertyOrdering)
+    hasher.combine(ref)
     hasher.combine(required)
     hasher.combine(title)
     hasher.combine(type)

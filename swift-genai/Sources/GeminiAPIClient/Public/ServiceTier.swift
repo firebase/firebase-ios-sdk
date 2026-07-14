@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import Foundation
-package import GoogleAIDataModels
+package import InternalGoogleAIDataModels
 
 /// Service tier options for model requests.
 public enum ServiceTier: Codable, Sendable, Equatable, Hashable {

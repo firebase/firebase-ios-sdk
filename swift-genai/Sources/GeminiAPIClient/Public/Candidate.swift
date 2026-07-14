@@ -13,9 +13,9 @@
 // limitations under the License.
 
 import Foundation
-package import SharedDataModels
-package import GoogleAIDataModels
-package import AgentPlatformDataModels
+package import InternalSharedDataModels
+package import InternalGoogleAIDataModels
+package import InternalAgentPlatformDataModels
 
 /// A candidate response from the model.
 public struct Candidate: Codable, Sendable, Equatable, Hashable {
@@ -27,9 +27,9 @@ public struct Candidate: Codable, Sendable, Equatable, Hashable {
   public var safetyRatings: [SafetyRating]?
 
   // Unified metadata fields (optional wrappers)
-  package var citationMetadata: GoogleAIDataModels.GoogleAI.CitationMetadata?
-  package var groundingMetadata: GoogleAIDataModels.GoogleAI.GroundingMetadata?
-  package var urlContextMetadata: GoogleAIDataModels.GoogleAI.UrlContextMetadata?
+  package var citationMetadata: InternalGoogleAIDataModels.GoogleAI.CitationMetadata?
+  package var groundingMetadata: InternalGoogleAIDataModels.GoogleAI.GroundingMetadata?
+  package var urlContextMetadata: InternalGoogleAIDataModels.GoogleAI.UrlContextMetadata?
 
   public init(
     avgLogprobs: Double? = nil,
@@ -57,9 +57,9 @@ public struct Candidate: Codable, Sendable, Equatable, Hashable {
     finishReason: FinishReason? = nil,
     index: Int? = nil,
     safetyRatings: [SafetyRating]? = nil,
-    citationMetadata: GoogleAIDataModels.GoogleAI.CitationMetadata? = nil,
-    groundingMetadata: GoogleAIDataModels.GoogleAI.GroundingMetadata? = nil,
-    urlContextMetadata: GoogleAIDataModels.GoogleAI.UrlContextMetadata? = nil
+    citationMetadata: InternalGoogleAIDataModels.GoogleAI.CitationMetadata? = nil,
+    groundingMetadata: InternalGoogleAIDataModels.GoogleAI.GroundingMetadata? = nil,
+    urlContextMetadata: InternalGoogleAIDataModels.GoogleAI.UrlContextMetadata? = nil
   ) {
     self.avgLogprobs = avgLogprobs
     self.content = content

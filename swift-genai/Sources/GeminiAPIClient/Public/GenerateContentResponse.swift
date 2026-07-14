@@ -13,9 +13,9 @@
 // limitations under the License.
 
 public import Foundation
-package import SharedDataModels
-package import GoogleAIDataModels
-package import AgentPlatformDataModels
+package import InternalSharedDataModels
+package import InternalGoogleAIDataModels
+package import InternalAgentPlatformDataModels
 
 // MARK: - GenerateContentResponse
 
@@ -38,7 +38,7 @@ public struct GenerateContentResponse: Codable, Sendable, Equatable, Hashable {
 
   // GoogleAI Exclusives
   /// - Note: Only supported on GoogleAI backend.
-  package var modelStatus: GoogleAIDataModels.GoogleAI.ModelStatus?
+  package var modelStatus: InternalGoogleAIDataModels.GoogleAI.ModelStatus?
 
   // AgentPlatform Exclusives
   /// - Note: Only supported on AgentPlatform backend.
@@ -67,7 +67,7 @@ public struct GenerateContentResponse: Codable, Sendable, Equatable, Hashable {
     promptFeedback: PromptFeedback? = nil,
     responseId: String? = nil,
     usageMetadata: UsageMetadata? = nil,
-    modelStatus: GoogleAIDataModels.GoogleAI.ModelStatus? = nil,
+    modelStatus: InternalGoogleAIDataModels.GoogleAI.ModelStatus? = nil,
     createTime: Date? = nil
   ) {
     self.candidates = candidates

@@ -20,19 +20,19 @@ extension GoogleAI {
   @available(*, deprecated)
   public struct VideoMetadata: Codable, Sendable, Equatable, Hashable {
     /// Optional. The end offset of the video.
-    public var endOffset: Duration?
+    public var endOffset: String?
     
     /// Optional. The frame rate of the video sent to the model. If not specified, the default value will be 1.0. The fps range is (0.0, 24.0].
     public var fps: Double?
     
     /// Optional. The start offset of the video.
-    public var startOffset: Duration?
+    public var startOffset: String?
     
     /// Creates a new `VideoMetadata`.
     public init(
-      endOffset: Duration? = nil,
+      endOffset: String? = nil,
       fps: Double? = nil,
-      startOffset: Duration? = nil
+      startOffset: String? = nil
     ) {
       self.endOffset = endOffset
       self.fps = fps

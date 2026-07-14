@@ -13,8 +13,8 @@
 // limitations under the License.
 
 import Foundation
-package import GoogleAIDataModels
-package import AgentPlatformDataModels
+package import InternalGoogleAIDataModels
+package import InternalAgentPlatformDataModels
 
 /// Tool config. This config is shared for all tools provided in the request.
 public struct ToolConfig: Codable, Sendable, Equatable, Hashable {

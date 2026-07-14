@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import Foundation
-public import SharedDataModels
+public import InternalSharedDataModels
 
 
 extension AgentPlatform {

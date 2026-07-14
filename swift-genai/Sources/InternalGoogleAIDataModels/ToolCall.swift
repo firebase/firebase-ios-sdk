@@ -13,34 +13,34 @@
 // limitations under the License.
 
 import Foundation
-public import SharedDataModels
+public import InternalSharedDataModels
 
 
 extension GoogleAI {
-  /// The output from a server-side `ToolCall` execution. This message contains the results of a tool invocation that was initiated by a `ToolCall` from the model. The client should pass this `ToolResponse` back to the API in a subsequent turn within a `Content` message, along with the corresponding `ToolCall`.
-  public struct ToolResponse: Codable, Sendable, Equatable, Hashable {
-    /// Optional. The identifier of the tool call this response is for.
+  /// A predicted server-side `ToolCall` returned from the model. This message contains information about a tool that the model wants to invoke. The client is NOT expected to execute this `ToolCall`. Instead, the client should pass this `ToolCall` back to the API in a subsequent turn within a `Content` message, along with the corresponding `ToolResponse`.
+  public struct ToolCall: Codable, Sendable, Equatable, Hashable {
+    /// Optional. The tool call arguments. Example: {"arg1" : "value1", "arg2" : "value2" , ...}
+    public var args: [String: JSONValue]?
+    
+    /// Optional. Unique identifier of the tool call. The server returns the tool response with the matching `id`.
     public var id: String?
     
-    /// Optional. The tool response.
-    public var response: [String: JSONValue]?
-    
-    /// Required. The type of tool that was called, matching the `tool_type` in the corresponding `ToolCall`.
+    /// Required. The type of tool that was called.
     public var toolType: ToolType?
     
-    /// Creates a new `ToolResponse`.
+    /// Creates a new `ToolCall`.
     public init(
+      args: [String: JSONValue]? = nil,
       id: String? = nil,
-      response: [String: JSONValue]? = nil,
       toolType: ToolType? = nil
     ) {
+      self.args = args
       self.id = id
-      self.response = response
       self.toolType = toolType
     }
     enum CodingKeys: String, CodingKey {
+      case args = "args"
       case id = "id"
-      case response = "response"
       case toolType = "toolType"
     }
   }

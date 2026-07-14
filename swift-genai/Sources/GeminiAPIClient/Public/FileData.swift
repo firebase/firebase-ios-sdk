@@ -13,8 +13,8 @@
 // limitations under the License.
 
 import Foundation
-package import GoogleAIDataModels
-package import AgentPlatformDataModels
+package import InternalGoogleAIDataModels
+package import InternalAgentPlatformDataModels
 
 /// Represents a reference to file data.
 public struct FileData: Codable, Sendable, Equatable, Hashable {

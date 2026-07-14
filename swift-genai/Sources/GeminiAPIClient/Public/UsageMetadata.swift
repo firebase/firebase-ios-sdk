@@ -13,8 +13,8 @@
 // limitations under the License.
 
 import Foundation
-package import GoogleAIDataModels
-package import AgentPlatformDataModels
+package import InternalGoogleAIDataModels
+package import InternalAgentPlatformDataModels
 
 /// Metadata on token usage.
 public struct UsageMetadata: Codable, Sendable, Equatable, Hashable {

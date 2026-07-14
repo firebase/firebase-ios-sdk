@@ -13,17 +13,17 @@
 // limitations under the License.
 
 import Foundation
-public import SharedDataModels
-package import GoogleAIDataModels
-package import AgentPlatformDataModels
+public import InternalSharedDataModels
+package import InternalGoogleAIDataModels
+package import InternalAgentPlatformDataModels
 
 /// Represents a function declaration.
 public struct FunctionDeclaration: Codable, Sendable, Equatable, Hashable {
   public var name: String?
   public var description: String?
-  package var parameters: GoogleAIDataModels.GoogleAI.Schema?
+  package var parameters: InternalGoogleAIDataModels.GoogleAI.Schema?
   public var parametersJsonSchema: JSONValue?
-  package var response: GoogleAIDataModels.GoogleAI.Schema?
+  package var response: InternalGoogleAIDataModels.GoogleAI.Schema?
   public var responseJsonSchema: JSONValue?
   public var behavior: FunctionDeclarationBehavior?
 
@@ -46,9 +46,9 @@ public struct FunctionDeclaration: Codable, Sendable, Equatable, Hashable {
   package init(
     name: String? = nil,
     description: String? = nil,
-    parameters: GoogleAIDataModels.GoogleAI.Schema? = nil,
+    parameters: InternalGoogleAIDataModels.GoogleAI.Schema? = nil,
     parametersJsonSchema: JSONValue? = nil,
-    response: GoogleAIDataModels.GoogleAI.Schema? = nil,
+    response: InternalGoogleAIDataModels.GoogleAI.Schema? = nil,
     responseJsonSchema: JSONValue? = nil,
     behavior: FunctionDeclarationBehavior? = nil
   ) {

@@ -25,7 +25,7 @@ extension AgentPlatform {
     public var delivery: Delivery?
     
     /// Optional. The duration for the video output.
-    public var duration: Duration?
+    public var duration: String?
     
     /// Optional. The Google Cloud Storage URI to store the video output. Required for Vertex if delivery is URI.
     public var gcsUri: String?
@@ -34,7 +34,7 @@ extension AgentPlatform {
     public init(
       aspectRatio: AspectRatio? = nil,
       delivery: Delivery? = nil,
-      duration: Duration? = nil,
+      duration: String? = nil,
       gcsUri: String? = nil
     ) {
       self.aspectRatio = aspectRatio

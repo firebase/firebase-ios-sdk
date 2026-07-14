@@ -13,8 +13,8 @@
 // limitations under the License.
 
 import Foundation
-package import GoogleAIDataModels
-package import AgentPlatformDataModels
+package import InternalGoogleAIDataModels
+package import InternalAgentPlatformDataModels
 
 // MARK: - GenerationConfig
 
@@ -47,7 +47,7 @@ public struct GenerationConfig: Codable, Sendable, Equatable, Hashable {
 
   /// Optional. Schema for the model's response.
   /// - Note: Only supported on GoogleAI backend. Excluded on AgentPlatform.
-  package var responseSchema: GoogleAIDataModels.GoogleAI.Schema?
+  package var responseSchema: InternalGoogleAIDataModels.GoogleAI.Schema?
 
   /// Optional. The requested modalities of the response.
   public var responseModalities: [String]?
@@ -126,7 +126,7 @@ public struct GenerationConfig: Codable, Sendable, Equatable, Hashable {
     presencePenalty: Double? = nil,
     responseFormat: [ResponseFormat]? = nil,
     responseMimeType: String? = nil,
-    responseSchema: GoogleAIDataModels.GoogleAI.Schema? = nil,
+    responseSchema: InternalGoogleAIDataModels.GoogleAI.Schema? = nil,
     responseModalities: [String]? = nil,
     seed: Int? = nil,
     stopSequences: [String]? = nil,

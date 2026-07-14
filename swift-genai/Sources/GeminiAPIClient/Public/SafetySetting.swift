@@ -13,9 +13,9 @@
 // limitations under the License.
 
 import Foundation
-package import SharedDataModels
-package import GoogleAIDataModels
-package import AgentPlatformDataModels
+package import InternalSharedDataModels
+package import InternalGoogleAIDataModels
+package import InternalAgentPlatformDataModels
 
 // MARK: - SafetySetting
 

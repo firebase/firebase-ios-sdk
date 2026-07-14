@@ -22,13 +22,13 @@ extension GoogleAI {
     public var headers: [String: String]?
     
     /// Timeout for SSE read operations.
-    public var sseReadTimeout: Duration?
+    public var sseReadTimeout: String?
     
     /// Whether to close the client session when the transport closes.
     public var terminateOnClose: Bool?
     
     /// HTTP timeout for regular operations.
-    public var timeout: Duration?
+    public var timeout: String?
     
     /// The full URL for the MCPServer endpoint. Example: "https://api.example.com/mcp"
     public var url: String?
@@ -36,9 +36,9 @@ extension GoogleAI {
     /// Creates a new `StreamableHttpTransport`.
     public init(
       headers: [String: String]? = nil,
-      sseReadTimeout: Duration? = nil,
+      sseReadTimeout: String? = nil,
       terminateOnClose: Bool? = nil,
-      timeout: Duration? = nil,
+      timeout: String? = nil,
       url: String? = nil
     ) {
       self.headers = headers

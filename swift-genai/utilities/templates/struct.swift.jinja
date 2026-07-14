@@ -23,11 +23,11 @@ import Foundation
 {%- endif %}
 {% if uses_shared_data_models -%}
 {% if access_level == 'public' -%}
-public import SharedDataModels
+public import InternalSharedDataModels
 {% elif access_level == 'package' -%}
-package import SharedDataModels
+package import InternalSharedDataModels
 {% else -%}
-import SharedDataModels
+import InternalSharedDataModels
 {%- endif %}
 {%- endif %}
 

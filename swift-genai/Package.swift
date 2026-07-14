@@ -13,7 +13,7 @@ let package = Package(
         ),
         .library(
             name: "InternalGeminiDataModels",
-            targets: ["GoogleAIDataModels", "AgentPlatformDataModels", "SharedDataModels"]
+            targets: ["InternalGoogleAIDataModels", "InternalAgentPlatformDataModels", "InternalSharedDataModels"]
         ),
     ],
     targets: [
@@ -22,9 +22,9 @@ let package = Package(
         .target(
             name: "GeminiAPIClient",
             dependencies: [
-              "GoogleAIDataModels",
-              "AgentPlatformDataModels",
-              "SharedDataModels"
+              "InternalGoogleAIDataModels",
+              "InternalAgentPlatformDataModels",
+              "InternalSharedDataModels"
             ],
             swiftSettings: [
               .swiftLanguageMode(.v6),
@@ -48,7 +48,7 @@ let package = Package(
             ],
         ),
         .target(
-            name: "SharedDataModels",
+            name: "InternalSharedDataModels",
             swiftSettings: [
               .swiftLanguageMode(.v6),
               .enableUpcomingFeature("InternalImportsByDefault"),
@@ -59,9 +59,9 @@ let package = Package(
             ],
         ),
         .target(
-            name: "AgentPlatformDataModels",
+            name: "InternalAgentPlatformDataModels",
             dependencies: [
-              "SharedDataModels"
+              "InternalSharedDataModels"
             ],
             swiftSettings: [
               .swiftLanguageMode(.v6),
@@ -73,9 +73,9 @@ let package = Package(
             ],
         ),
         .target(
-            name: "GoogleAIDataModels",
+            name: "InternalGoogleAIDataModels",
             dependencies: [
-              "SharedDataModels"
+              "InternalSharedDataModels"
             ],
             swiftSettings: [
               .swiftLanguageMode(.v6),

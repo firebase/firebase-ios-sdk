@@ -110,7 +110,7 @@ def get_primitive_type(prop_data):
         if fmt in ("google-datetime", "date-time"):
             return "Date"
         elif fmt == "google-duration":
-            return "Duration"
+            return "String"
         else:
             return "String"
     elif t == "integer":
@@ -451,7 +451,7 @@ def main():
                         help="Path to the Google Discovery Document JSON file.")
     parser.add_argument("--templates-dir", default="utilities/templates",
                         help="Directory containing the Jinja templates.")
-    parser.add_argument("--output-dir", default="Sources/GeminiAPIClient/DataModels/GoogleAI",
+    parser.add_argument("--output-dir", default="Sources/InternalGoogleAIDataModels",
                         help="Target output directory for the Swift source files.")
     parser.add_argument("--roots", nargs="+", default=["GenerateContentRequest", "GenerateContentResponse"],
                         help="Root schema names to resolve transitively.")

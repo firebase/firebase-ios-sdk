@@ -12,8 +12,8 @@
 // See the License for the 1.0 license.
 
 import Foundation
-package import GoogleAIDataModels
-package import AgentPlatformDataModels
+package import InternalGoogleAIDataModels
+package import InternalAgentPlatformDataModels
 
 /// Configuration options for thinking features.
 public struct ThinkingConfig: Codable, Sendable, Equatable, Hashable {

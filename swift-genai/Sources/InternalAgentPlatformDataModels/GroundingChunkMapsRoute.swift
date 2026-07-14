@@ -22,7 +22,7 @@ extension AgentPlatform {
     public var distanceMeters: Int?
     
     /// The total duration of the route.
-    public var duration: Duration?
+    public var duration: String?
     
     /// An encoded polyline of the route. See https://developers.google.com/maps/documentation/utilities/polylinealgorithm
     public var encodedPolyline: String?
@@ -30,7 +30,7 @@ extension AgentPlatform {
     /// Creates a new `GroundingChunkMapsRoute`.
     public init(
       distanceMeters: Int? = nil,
-      duration: Duration? = nil,
+      duration: String? = nil,
       encodedPolyline: String? = nil
     ) {
       self.distanceMeters = distanceMeters

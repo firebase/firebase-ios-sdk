@@ -13,29 +13,29 @@
 // limitations under the License.
 
 import Foundation
-public import SharedDataModels
+public import InternalSharedDataModels
 
 
 extension AgentPlatform {
-  /// Configuration for text-specific output formatting.
-  public struct TextResponseFormat: Codable, Sendable, Equatable, Hashable {
-    /// Optional. The IANA standard MIME type of the response.
-    public var mimeType: MimeType?
+  /// ExaAiSearch tool type. A tool that uses the Exa.ai search engine for grounding.
+  public struct ToolExaAiSearch: Codable, Sendable, Equatable, Hashable {
+    /// Required. The API key for ExaAiSearch.
+    public var apiKey: String?
     
-    /// Optional. The JSON schema that the output should conform to. Only applicable when mime_type is APPLICATION_JSON.
-    public var schema: JSONValue?
+    /// Optional. This field can be used to pass any parameter from the Exa.ai Search API.
+    public var customConfigs: [String: JSONValue]?
     
-    /// Creates a new `TextResponseFormat`.
+    /// Creates a new `ToolExaAiSearch`.
     public init(
-      mimeType: MimeType? = nil,
-      schema: JSONValue? = nil
+      apiKey: String? = nil,
+      customConfigs: [String: JSONValue]? = nil
     ) {
-      self.mimeType = mimeType
-      self.schema = schema
+      self.apiKey = apiKey
+      self.customConfigs = customConfigs
     }
     enum CodingKeys: String, CodingKey {
-      case mimeType = "mimeType"
-      case schema = "schema"
+      case apiKey = "apiKey"
+      case customConfigs = "customConfigs"
     }
   }
 }
