@@ -192,6 +192,7 @@ class StorageAuthorizerTests: StorageTestHelpers {
     appCheck?.tokenResult = appCheckTokenSuccess!
     let insecureRequest = URLRequest(url: URL(string: "http://10.0.0.1/v0/b/bucket/o/object")!)
     fetcher = GTMSessionFetcher(request: insecureRequest)
+    fetcher?.allowedInsecureSchemes = ["http"]
     fetcher?.authorizer = StorageTokenAuthorizer(
       googleAppID: "dummyAppID",
       callbackQueue: DispatchQueue.main,
@@ -212,6 +213,7 @@ class StorageAuthorizerTests: StorageTestHelpers {
     appCheck?.tokenResult = appCheckTokenSuccess!
     let localRequest = URLRequest(url: URL(string: "http://localhost/v0/b/bucket/o/object")!)
     fetcher = GTMSessionFetcher(request: localRequest)
+    fetcher?.allowedInsecureSchemes = ["http"]
     fetcher?.authorizer = StorageTokenAuthorizer(
       googleAppID: "dummyAppID",
       callbackQueue: DispatchQueue.main,

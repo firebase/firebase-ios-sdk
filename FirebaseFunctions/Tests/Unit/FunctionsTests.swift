@@ -361,12 +361,13 @@ class FunctionsTests: XCTestCase {
     let functionsInsecure = Functions(
       projectID: "my-project",
       region: "my-region",
-      customDomain: "http://10.0.0.1",
+      customDomain: nil,
       auth: authFake,
       messaging: nil,
       appCheck: appCheckFake,
       fetcherService: fetcherService
     )
+    functionsInsecure.useEmulator(withHost: "10.0.0.1", port: 5005)
     appCheckFake.tokenResult = FIRAppCheckTokenResultFake(token: "shared_valid_token", error: nil)
 
     let httpRequestExpectation = expectation(description: "HTTPRequestExpectation")
@@ -392,12 +393,13 @@ class FunctionsTests: XCTestCase {
     let functionsLocal = Functions(
       projectID: "my-project",
       region: "my-region",
-      customDomain: "http://localhost",
+      customDomain: nil,
       auth: authFake,
       messaging: nil,
       appCheck: appCheckFake,
       fetcherService: fetcherService
     )
+    functionsLocal.useEmulator(withHost: "localhost", port: 5005)
     appCheckFake.tokenResult = FIRAppCheckTokenResultFake(token: "shared_valid_token", error: nil)
 
     let httpRequestExpectation = expectation(description: "HTTPRequestExpectation")
