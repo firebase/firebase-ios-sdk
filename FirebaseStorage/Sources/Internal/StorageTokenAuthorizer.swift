@@ -42,40 +42,7 @@ class StorageTokenAuthorizer: NSObject, GTMSessionFetcherAuthorizer {
     let host = request?.url?.host?.lowercased() ?? ""
     let isLoopback = host == "localhost" || host == "127.0.0.1" || host == "::1" || host == "[::1]"
     let shouldFetchTokens = isHttps || isLoopback
-
-    if shouldFetchTokens {
-      if let auth {
-        fetchTokenGroup.enter()
-        auth.getToken(forcingRefresh: false) { token, error in
-          if let error = error as? NSError {
-            var errorDictionary = error.userInfo
-            errorDictionary["ResponseErrorDomain"] = error.domain
-            errorDictionary["ResponseErrorCode"] = error.code
-            tokenError = StorageError.unauthenticated(serverError: errorDictionary) as NSError
-          } else if let token {
-            let firebaseToken = "Firebase \(token)"
-            request?.setValue(firebaseToken, forHTTPHeaderField: "Authorization")
-          }
-          fetchTokenGroup.leave()
-        }
-      }
-      if let appCheck {
-        fetchTokenGroup.enter()
-        appCheck.getToken(forcingRefresh: false) { tokenResult in
-          request?.setValue(tokenResult.token, forHTTPHeaderField: "X-Firebase-AppCheck")
-
-          if let error = tokenResult.error {
-            FirebaseLogger.log(
-              level: .debug,
-              service: "[FirebaseStorage]",
-              code: "I-STR000001",
-              message: "Failed to fetch AppCheck token. Error: \(error)"
-            )
-          }
-          fetchTokenGroup.leave()
-        }
-      }
-    } else {
+    guard shouldFetchTokens else {
       if request?.url?.scheme?.lowercased() == "http" {
         FirebaseLogger.log(
           level: .warning,
@@ -83,6 +50,42 @@ class StorageTokenAuthorizer: NSObject, GTMSessionFetcherAuthorizer {
           code: "I-STR000002",
           message: "Refusing to send Auth and AppCheck tokens over HTTP to non-loopback host."
         )
+      }
+      fetchTokenGroup.notify(queue: callbackQueue) {
+        handler(tokenError)
+      }
+      return
+    }
+
+    if let auth {
+      fetchTokenGroup.enter()
+      auth.getToken(forcingRefresh: false) { token, error in
+        if let error = error as? NSError {
+          var errorDictionary = error.userInfo
+          errorDictionary["ResponseErrorDomain"] = error.domain
+          errorDictionary["ResponseErrorCode"] = error.code
+          tokenError = StorageError.unauthenticated(serverError: errorDictionary) as NSError
+        } else if let token {
+          let firebaseToken = "Firebase \(token)"
+          request?.setValue(firebaseToken, forHTTPHeaderField: "Authorization")
+        }
+        fetchTokenGroup.leave()
+      }
+    }
+    if let appCheck {
+      fetchTokenGroup.enter()
+      appCheck.getToken(forcingRefresh: false) { tokenResult in
+        request?.setValue(tokenResult.token, forHTTPHeaderField: "X-Firebase-AppCheck")
+
+        if let error = tokenResult.error {
+          FirebaseLogger.log(
+            level: .debug,
+            service: "[FirebaseStorage]",
+            code: "I-STR000001",
+            message: "Failed to fetch AppCheck token. Error: \(error)"
+          )
+        }
+        fetchTokenGroup.leave()
       }
     }
 

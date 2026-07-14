@@ -578,35 +578,38 @@ enum FunctionsConstants {
 
     let shouldAttachTokens = url.isSecureOrLoopback
 
-    if shouldAttachTokens {
-      if let authToken = context.authToken {
-        let value = "Bearer \(authToken)"
-        urlRequest.setValue(value, forHTTPHeaderField: "Authorization")
+    guard shouldAttachTokens else {
+      if url.scheme?.lowercased() == "http" {
+        FirebaseLogger.log(
+          level: .warning,
+          service: "[FirebaseFunctions]",
+          code: "I-FUN000001",
+          message: "Refusing to send Auth, FCM, and AppCheck tokens over HTTP to non-loopback host."
+        )
       }
+      return urlRequest
+    }
 
-      if let fcmToken = context.fcmToken {
-        urlRequest.setValue(fcmToken, forHTTPHeaderField: Constants.fcmTokenHeader)
-      }
+    if let authToken = context.authToken {
+      let value = "Bearer \(authToken)"
+      urlRequest.setValue(value, forHTTPHeaderField: "Authorization")
+    }
 
-      if options?.requireLimitedUseAppCheckTokens == true {
-        if let appCheckToken = context.limitedUseAppCheckToken {
-          urlRequest.setValue(
-            appCheckToken,
-            forHTTPHeaderField: Constants.appCheckTokenHeader
-          )
-        }
-      } else if let appCheckToken = context.appCheckToken {
+    if let fcmToken = context.fcmToken {
+      urlRequest.setValue(fcmToken, forHTTPHeaderField: Constants.fcmTokenHeader)
+    }
+
+    if options?.requireLimitedUseAppCheckTokens == true {
+      if let appCheckToken = context.limitedUseAppCheckToken {
         urlRequest.setValue(
           appCheckToken,
           forHTTPHeaderField: Constants.appCheckTokenHeader
         )
       }
-    } else if url.scheme?.lowercased() == "http" {
-      FirebaseLogger.log(
-        level: .warning,
-        service: "[FirebaseFunctions]",
-        code: "I-FUN000001",
-        message: "Refusing to send Auth, FCM, and AppCheck tokens over HTTP to non-loopback host."
+    } else if let appCheckToken = context.appCheckToken {
+      urlRequest.setValue(
+        appCheckToken,
+        forHTTPHeaderField: Constants.appCheckTokenHeader
       )
     }
 
@@ -633,44 +636,47 @@ enum FunctionsConstants {
 
     // Set the headers.
     fetcher.setRequestValue("application/json", forHTTPHeaderField: "Content-Type")
+    // Override normal security rules if this is a local test.
+    if emulatorOrigin != nil {
+      fetcher.allowLocalhostRequest = true
+      fetcher.allowedInsecureSchemes = ["http"]
+    }
+
     let shouldAttachTokens = url.isSecureOrLoopback
 
-    if shouldAttachTokens {
-      if let authToken = context.authToken {
-        let value = "Bearer \(authToken)"
-        fetcher.setRequestValue(value, forHTTPHeaderField: "Authorization")
+    guard shouldAttachTokens else {
+      if url.scheme?.lowercased() == "http" {
+        FirebaseLogger.log(
+          level: .warning,
+          service: "[FirebaseFunctions]",
+          code: "I-FUN000002",
+          message: "Refusing to send Auth, FCM, and AppCheck tokens over HTTP to non-loopback host."
+        )
       }
+      return fetcher
+    }
 
-      if let fcmToken = context.fcmToken {
-        fetcher.setRequestValue(fcmToken, forHTTPHeaderField: Constants.fcmTokenHeader)
-      }
+    if let authToken = context.authToken {
+      let value = "Bearer \(authToken)"
+      fetcher.setRequestValue(value, forHTTPHeaderField: "Authorization")
+    }
 
-      if options?.requireLimitedUseAppCheckTokens == true {
-        if let appCheckToken = context.limitedUseAppCheckToken {
-          fetcher.setRequestValue(
-            appCheckToken,
-            forHTTPHeaderField: Constants.appCheckTokenHeader
-          )
-        }
-      } else if let appCheckToken = context.appCheckToken {
+    if let fcmToken = context.fcmToken {
+      fetcher.setRequestValue(fcmToken, forHTTPHeaderField: Constants.fcmTokenHeader)
+    }
+
+    if options?.requireLimitedUseAppCheckTokens == true {
+      if let appCheckToken = context.limitedUseAppCheckToken {
         fetcher.setRequestValue(
           appCheckToken,
           forHTTPHeaderField: Constants.appCheckTokenHeader
         )
       }
-    } else if url.scheme?.lowercased() == "http" {
-      FirebaseLogger.log(
-        level: .warning,
-        service: "[FirebaseFunctions]",
-        code: "I-FUN000002",
-        message: "Refusing to send Auth, FCM, and AppCheck tokens over HTTP to non-loopback host."
+    } else if let appCheckToken = context.appCheckToken {
+      fetcher.setRequestValue(
+        appCheckToken,
+        forHTTPHeaderField: Constants.appCheckTokenHeader
       )
-    }
-
-    // Override normal security rules if this is a local test.
-    if emulatorOrigin != nil {
-      fetcher.allowLocalhostRequest = true
-      fetcher.allowedInsecureSchemes = ["http"]
     }
 
     return fetcher
