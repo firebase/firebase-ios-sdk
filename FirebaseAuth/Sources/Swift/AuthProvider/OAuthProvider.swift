@@ -418,12 +418,10 @@ import Foundation
       queryItems.append(URLQueryItem(name: "hl", value: languageCode))
     }
 
-    var components: URLComponents?
-    if (auth.requestConfiguration.emulatorHostAndPort) != nil {
-      components = URLComponents(string: "http://\(authDomain)/emulator/auth/handler")
-    } else {
-      components = URLComponents(string: "https://\(authDomain)/__/auth/handler")
-    }
+    let urlString = auth.requestConfiguration.emulatorHostAndPort != nil
+      ? "http://\(authDomain)/emulator/auth/handler"
+      : "https://\(authDomain)/__/auth/handler"
+    var components = URLComponents(string: urlString)
     components?.queryItems = queryItems
 
     if let appCheck {

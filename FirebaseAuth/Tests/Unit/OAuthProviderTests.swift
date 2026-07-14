@@ -235,8 +235,10 @@ import FirebaseCore
     func testGetCredentialWithUIDelegateWithCustomParametersInjection() throws {
       initApp(#function)
       OAuthProviderTests.testCustomParametersInjection = true
+      defer {
+        OAuthProviderTests.testCustomParametersInjection = false
+      }
       try testOAuthFlow(description: #function)
-      OAuthProviderTests.testCustomParametersInjection = false
     }
 
     /** @fn testOAuthCredentialCoding
