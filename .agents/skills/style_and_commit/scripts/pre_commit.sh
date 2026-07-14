@@ -46,7 +46,7 @@ else
 
   if [ -t 0 ]; then
     # Try to grab tty in case we are deep in a hook
-    read -r -p "Please enter the absolute path to your firebase-ios-sdk repository: " INPUT_PATH < /dev/tty || true
+    read -r -p "Please enter the path to your firebase-ios-sdk repository: " INPUT_PATH < /dev/tty || true
     if [ -d "$INPUT_PATH" ]; then
       ABS_PATH="$(cd "$INPUT_PATH" && pwd)"
       if [ -f "$ABS_PATH/scripts/style.sh" ]; then
