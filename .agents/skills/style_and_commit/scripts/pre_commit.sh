@@ -80,7 +80,7 @@ fi
 ALL_MODIFIED=()
 while IFS= read -r -d $'\0' file; do
   [[ -n "$file" && -f "$file" ]] && ALL_MODIFIED+=("$file")
-done < <({ git diff -z --name-only --cached --diff-filter=ACMR 2>/dev/null || true; git diff -z --name-only --diff-filter=ACMR 2>/dev/null || true; } | perl -0 -ne 'print unless $seen{$_}++')
+done < <(git diff -z --name-only --diff-filter=ACMR HEAD 2>/dev/null || { git diff -z --name-only --cached --diff-filter=ACMR 2>/dev/null || true; git diff -z --name-only --diff-filter=ACMR 2>/dev/null || true; })
 
 if [ ${#ALL_MODIFIED[@]} -eq 0 ]; then
   echo "No modified files to check. Exiting cleanly."

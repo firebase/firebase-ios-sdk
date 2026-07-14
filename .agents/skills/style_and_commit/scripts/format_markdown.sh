@@ -40,7 +40,11 @@ fi
 
 echo "Formatting markdown files (removing trailing whitespace)..."
 for file in "${MD_FILES[@]}"; do
-  perl -pi -e 's/[ \t]+$//' "$file"
+  if [[ "$(uname -s)" == "Darwin" ]]; then
+    sed -i '' -E 's/[[:space:]]+$//' "$file"
+  else
+    sed -i -E 's/[[:space:]]+$//' "$file"
+  fi
 done
 
 echo "Checking for markdown lines exceeding 80 characters..."
