@@ -91,7 +91,7 @@ for filepath in sys.argv[1:]:
     if check_file(filepath):
         failed = True
 
-sys.exit(0)
+sys.exit(1 if failed else 0)
 ' "${MD_FILES[@]}"; then
     echo "Warning: Markdown files contain lines exceeding 80 characters."
     echo "This is just a warning, but please consider wrapping them."
