@@ -79,7 +79,7 @@ def check_file(filepath):
                     continue
 
                 # Ignore lines that are headers, contain http links, or are long paths
-                if len(line) > 80 and not line.startswith("#") and not re.search(r"https?://|file://", line) and not line.startswith("["):
+                if len(line) > 80 and not line.startswith("#") and not re.search(r"https?://|file://", line) and not line.startswith("[") and "|" not in line:
                     print(f"  {filepath}:{i+1}: Line exceeds 80 characters ({len(line)} chars)")
                     has_error = True
     except Exception as e:

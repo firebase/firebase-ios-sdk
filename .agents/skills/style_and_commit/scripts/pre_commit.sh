@@ -46,8 +46,7 @@ else
 
   if [ -t 0 ]; then
     # Try to grab tty in case we are deep in a hook
-    exec < /dev/tty || true
-    read -r -p "Please enter the absolute path to your firebase-ios-sdk repository: " INPUT_PATH
+    read -r -p "Please enter the absolute path to your firebase-ios-sdk repository: " INPUT_PATH < /dev/tty || true
     if [ -f "$INPUT_PATH/scripts/style.sh" ]; then
       FIREBASE_SDK_DIR="$INPUT_PATH"
       mkdir -p "$HOME/.gemini/config"
@@ -67,11 +66,12 @@ else
 fi
 
 # Gather all modified files (both staged and unstaged)
-MODIFIED_FILES=$(git diff --name-only --cached --diff-filter=AM || true)
-UNSTAGED_FILES=$(git diff --name-only --diff-filter=AM || true)
-ALL_MODIFIED=$(printf "%s\n%s\n" "$MODIFIED_FILES" "$UNSTAGED_FILES" | sort -u | grep -v '^$')
+ALL_MODIFIED=()
+while IFS= read -r file; do
+  [[ -n "$file" ]] && ALL_MODIFIED+=("$file")
+done < <({ git diff --name-only --cached --diff-filter=AM || true; git diff --name-only --diff-filter=AM || true; } | sort -u)
 
-if [ -z "$ALL_MODIFIED" ]; then
+if [ ${#ALL_MODIFIED[@]} -eq 0 ]; then
   echo "No modified files to check. Exiting cleanly."
   exit 0
 fi
@@ -80,8 +80,7 @@ echo "========================================"
 echo "1. Styling code..."
 echo "========================================"
 # style.sh accepts a list of files/directories
-# shellcheck disable=SC2086
-"$FIREBASE_SDK_DIR/scripts/style.sh" $ALL_MODIFIED
+"$FIREBASE_SDK_DIR/scripts/style.sh" "${ALL_MODIFIED[@]}"
 
 echo "========================================"
 echo "2. Checking and formatting copyrights..."
@@ -98,17 +97,21 @@ echo "========================================"
 echo "3. Formatting markdown..."
 echo "========================================"
 # Pass the modified files to the markdown formatter
-# shellcheck disable=SC2086
-"$SCRIPT_DIR/format_markdown.sh" $ALL_MODIFIED
+"$SCRIPT_DIR/format_markdown.sh" "${ALL_MODIFIED[@]}"
 
 echo "========================================"
 echo "4. Linting shell scripts..."
 echo "========================================"
 if command -v shellcheck &> /dev/null; then
-  SH_FILES=$(echo "$ALL_MODIFIED" | grep '\.sh$' || true)
-  if [ -n "$SH_FILES" ]; then
+  SH_FILES=()
+  for file in "${ALL_MODIFIED[@]}"; do
+    if [[ "$file" == *.sh ]]; then
+      SH_FILES+=("$file")
+    fi
+  done
+  if [ ${#SH_FILES[@]} -gt 0 ]; then
     echo "Running shellcheck on modified scripts..."
-    echo "$SH_FILES" | xargs shellcheck
+    shellcheck "${SH_FILES[@]}"
     echo "Shellcheck passed!"
   else
     echo "No modified shell scripts to lint."
