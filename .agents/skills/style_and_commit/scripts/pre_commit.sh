@@ -91,7 +91,7 @@ echo "========================================"
 echo "1. Styling code..."
 echo "========================================"
 # style.sh accepts a list of files/directories
-bash "$FIREBASE_SDK_DIR/scripts/style.sh" test-only "${ALL_MODIFIED[@]}"
+bash "$FIREBASE_SDK_DIR/scripts/style.sh" "${ALL_MODIFIED[@]}"
 
 echo "========================================"
 echo "2. Checking and formatting copyrights..."
