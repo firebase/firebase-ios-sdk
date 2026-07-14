@@ -355,4 +355,74 @@ class FunctionsTests: XCTestCase {
       XCTAssertEqual(error as NSError, networkError)
     }
   }
+
+  @MainActor func testCallFunctionOverHttpWithoutLocalhostDoesNotAttachTokens() {
+    let authFake = FIRAuthInteropFake(token: "fake_auth_token", userID: nil, error: nil)
+    let functionsInsecure = Functions(
+      projectID: "my-project",
+      region: "my-region",
+      customDomain: nil,
+      auth: authFake,
+      messaging: nil,
+      appCheck: appCheckFake,
+      fetcherService: fetcherService
+    )
+    functionsInsecure.useEmulator(withHost: "10.0.0.1", port: 5005)
+    appCheckFake.tokenResult = FIRAppCheckTokenResultFake(token: "shared_valid_token", error: nil)
+
+    let httpRequestExpectation = expectation(description: "HTTPRequestExpectation")
+    fetcherService.testBlock = { fetcherToTest, testResponse in
+      XCTAssertNil(fetcherToTest.request?.value(forHTTPHeaderField: "Authorization"))
+      XCTAssertNil(fetcherToTest.request?.value(forHTTPHeaderField: "X-Firebase-AppCheck"))
+      testResponse(nil, "{\"data\":\"success\"}".data(using: .utf8), nil)
+      httpRequestExpectation.fulfill()
+    }
+
+    let completionExpectation = expectation(description: "completionExpectation")
+    functionsInsecure
+      .httpsCallable("fake_func")
+      .call { result, error in
+        completionExpectation.fulfill()
+      }
+
+    waitForExpectations(timeout: 1.5)
+  }
+
+  @MainActor func testCallFunctionOverHttpWithLocalhostDoesAttachTokens() {
+    let authFake = FIRAuthInteropFake(token: "fake_auth_token", userID: nil, error: nil)
+    let functionsLocal = Functions(
+      projectID: "my-project",
+      region: "my-region",
+      customDomain: nil,
+      auth: authFake,
+      messaging: nil,
+      appCheck: appCheckFake,
+      fetcherService: fetcherService
+    )
+    functionsLocal.useEmulator(withHost: "localhost", port: 5005)
+    appCheckFake.tokenResult = FIRAppCheckTokenResultFake(token: "shared_valid_token", error: nil)
+
+    let httpRequestExpectation = expectation(description: "HTTPRequestExpectation")
+    fetcherService.testBlock = { fetcherToTest, testResponse in
+      XCTAssertEqual(
+        fetcherToTest.request?.value(forHTTPHeaderField: "Authorization"),
+        "Bearer fake_auth_token"
+      )
+      XCTAssertEqual(
+        fetcherToTest.request?.value(forHTTPHeaderField: "X-Firebase-AppCheck"),
+        "shared_valid_token"
+      )
+      testResponse(nil, "{\"data\":\"success\"}".data(using: .utf8), nil)
+      httpRequestExpectation.fulfill()
+    }
+
+    let completionExpectation = expectation(description: "completionExpectation")
+    functionsLocal
+      .httpsCallable("fake_func")
+      .call { result, error in
+        completionExpectation.fulfill()
+      }
+
+    waitForExpectations(timeout: 1.5)
+  }
 }
