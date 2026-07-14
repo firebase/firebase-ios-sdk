@@ -139,7 +139,15 @@ NS_EXTENSION_UNAVAILABLE("Firebase In App Messaging is not supported for iOS ext
       return;  // following the url has been fully handled by App Delegate's
                // continueUserActivity method
     }
+    if ([self followURLWithSceneContinueUserActivity:actionURL]) {
+      completion(YES);
+      return;  // following the url has been fully handled by Scene Delegate's
+               // continueUserActivity method
+    }
   } else if ([self isCustomSchemeForCurrentApp:actionURL]) {
+    // for scene delegates, we can't reasonably support this. as such, we just follow
+    // apple's security guidance of "developers should use universal links instead".
+    // if folks want to use url schemes, it's up to them to properly support them.
     FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM240002", @"Custom URL scheme matches.");
     if ([self followURLWithAppDelegateOpenURLActivity:actionURL]) {
       completion(YES);
@@ -168,35 +176,9 @@ NS_EXTENSION_UNAVAILABLE("Firebase In App Messaging is not supported for iOS ext
 
 // Try to handle the url as a universal link by triggering
 // application:continueUserActivity:restorationHandler: on App's delegate object directly.
-// Will also look for scene delegates in the foreground that implement scene:continueUserActivity:.
 // @return YES if that delegate method is defined and seeing a YES being returned from
 // trigging it
 - (BOOL)followURLWithContinueUserActivity:(NSURL *)url {
-  // First try to find a scene delegate to trigger, falling back to app delegate
-  for (UIScene *scene in self.mainApplication.connectedScenes) {
-    if (scene.activationState == UISceneActivationStateForegroundActive ||
-        scene.activationState == UISceneActivationStateForegroundInactive) {
-      id<UISceneDelegate> sceneDelegate = (id<UISceneDelegate>)scene.delegate;
-      if ([sceneDelegate respondsToSelector:@selector(scene:continueUserActivity:)]) {
-        FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM240004",
-                    @"Scene delegate responds to scene:continueUserActivity."
-                     "Simulating action url opening from a web browser.");
-        // Use string literal to ensure compatibility with Xcode 26 and iOS 18
-        NSString *browsingWebType = @"NSUserActivityTypeBrowsingWeb";
-        NSUserActivity *userActivity =
-            [[NSUserActivity alloc] initWithActivityType:browsingWebType];
-        userActivity.webpageURL = url;
-
-        [sceneDelegate scene:scene continueUserActivity:userActivity];
-
-        // The scene delegate method doesn't return anything, so we assume the response is YES
-        FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM240005",
-                    @"Scene handling action URL returns YES, no more further action taken");
-        return YES;
-      }
-    }
-  }
-
   if (self.isContinueUserActivityMethodDefined) {
     FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM240004",
                 @"App delegate responds to application:continueUserActivity:restorationHandler:."
@@ -227,6 +209,65 @@ NS_EXTENSION_UNAVAILABLE("Firebase In App Messaging is not supported for iOS ext
   } else {
     return NO;
   }
+}
+
+// Try to handle the url as a universal link by triggering
+// scene:continueUserActivity: on any active scene delegate object directly.
+// @return YES if an scene delegate implementing that method was found and
+// invoked
+- (BOOL)followURLWithSceneContinueUserActivity:(NSURL *)url {
+  NSString *browsingWebType = @"NSUserActivityTypeBrowsingWeb";
+  NSUserActivity *userActivity = [[NSUserActivity alloc] initWithActivityType:browsingWebType];
+  userActivity.webpageURL = url;
+
+  __block BOOL handled = NO;
+  void (^executionBlock)(void) = ^{
+    NSSet<UIScene *> *connectedScenes = self.mainApplication.connectedScenes;
+    UIScene *targetScene = nil;
+    id<UISceneDelegate> targetDelegate = nil;
+    for (UIScene *scene in connectedScenes) {
+      id<UISceneDelegate> sceneDelegate = scene.delegate;
+      if ([sceneDelegate respondsToSelector:@selector(scene:continueUserActivity:)]) {
+        if (scene.activationState == UISceneActivationStateForegroundActive) {
+          targetScene = scene;
+          targetDelegate = sceneDelegate;
+          break;
+        } else if (scene.activationState == UISceneActivationStateForegroundInactive) {
+          // a scene in the `ForegroundInactive` state is visible and loaded
+          // in the foreground, but is temporarily not receiving touch events for
+          // whatever reason (eg; because a system dialog, permission prompt,
+          // or notification center overlay is covering it).
+          // So we fall back to any scene in this state, if we don't find
+          // a better alternative (a scene that's in the foreground and also
+          // active).
+          targetScene = scene;
+          targetDelegate = sceneDelegate;
+        }
+      }
+    }
+
+    if (targetScene && targetDelegate) {
+      FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM240004",
+                  @"Scene delegate responds to scene:continueUserActivity."
+                   "Simulating action url opening.");
+      [targetDelegate scene:targetScene continueUserActivity:userActivity];
+      handled = YES;
+      // since scene:continueUserActivity: returns void, we assume it is handled
+      // once we find an active scene delegate implementing it.
+    }
+  };
+
+  if ([NSThread isMainThread]) {
+    executionBlock();
+  } else {
+    // shouldn't happen in our cases, but might happen if the developer
+    // invokes the display delegate methods from a background thread in
+    // a custom UI component or something akin
+    FIRLogWarning(kFIRLoggerInAppMessaging, @"I-IAM240011",
+                  @"URL following was triggered on a background thread. Moving to main thread.");
+    dispatch_sync(dispatch_get_main_queue(), executionBlock);
+  }
+  return handled;
 }
 
 - (void)followURLViaIOS:(NSURL *)url withCompletionBlock:(void (^)(BOOL success))completion {
