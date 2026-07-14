@@ -64,26 +64,3 @@ public struct SpeechConfig: Sendable {
     )
   }
 }
-
-// MARK: - Mappings
-
-import GoogleAIDataModels
-import AgentPlatformDataModels
-
-extension SpeechConfig {
-  package func toGoogleAI() -> GoogleAI.SpeechConfig {
-    speechConfig.toGoogleAI()
-  }
-
-  package func toAgentPlatform() -> AgentPlatform.SpeechConfig {
-    speechConfig.toAgentPlatform()
-  }
-
-  package init(fromGoogleAI config: GoogleAI.SpeechConfig) {
-    self.init(ProtoSpeechConfig(fromGoogleAI: config))
-  }
-
-  package init(fromAgentPlatform config: AgentPlatform.SpeechConfig) {
-    self.init(ProtoSpeechConfig(fromAgentPlatform: config))
-  }
-}

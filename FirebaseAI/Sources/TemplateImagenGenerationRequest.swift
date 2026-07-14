@@ -68,10 +68,6 @@ struct TemplateImagenGenerationRequest<ImageType: ImagenImageRepresentable>: Sen
   message: "All Imagen models are deprecated and will shut down as early as June 2026. As a replacement, you can migrate your apps to use Gemini Image models (the \"Nano Banana\" models)."
 )
 extension TemplateImagenGenerationRequest: GenerativeAIRequest where ImageType: Decodable {
-  func decodeResponse(from data: Data) throws -> ImagenGenerationResponse<ImageType> {
-    try JSONDecoder().decode(ImagenGenerationResponse<ImageType>.self, from: data)
-  }
-
   func getURL() throws -> URL {
     var urlString =
       "\(apiConfig.service.endpoint.rawValue)/\(apiConfig.version.rawValue)/projects/\(projectID)"

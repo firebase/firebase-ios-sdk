@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import Foundation
-import AgentPlatformDataModels
 
 struct TemplateGenerateContentRequest: Sendable {
   let template: String
@@ -43,11 +42,6 @@ extension TemplateGenerateContentRequest: Encodable {
 
 extension TemplateGenerateContentRequest: GenerativeAIRequest {
   typealias Response = GenerateContentResponse
-
-  func decodeResponse(from data: Data) throws -> GenerateContentResponse {
-    let wire = try JSONDecoder().decode(AgentPlatform.GenerateContentResponse.self, from: data)
-    return GenerateContentResponse(fromAgentPlatform: wire)
-  }
 
   func getURL() throws -> URL {
     var urlString =

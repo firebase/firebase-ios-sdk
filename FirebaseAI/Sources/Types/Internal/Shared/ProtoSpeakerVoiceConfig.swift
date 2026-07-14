@@ -14,44 +14,11 @@
 
 import Foundation
 
-struct ProtoSpeakerVoiceConfig: Sendable, Equatable {
+struct ProtoSpeakerVoiceConfig: Encodable, Sendable, Equatable {
   let speaker: String
   let voiceConfig: ProtoVoiceConfig
 
   init(speaker: String, voiceConfig: ProtoVoiceConfig) {
-    self.speaker = speaker
-    self.voiceConfig = voiceConfig
-  }
-}
-
-// MARK: - Mappings
-
-import GoogleAIDataModels
-import AgentPlatformDataModels
-
-extension ProtoSpeakerVoiceConfig {
-  func toGoogleAI() -> GoogleAI.SpeakerVoiceConfig {
-    GoogleAI.SpeakerVoiceConfig(
-      speaker: speaker,
-      voiceConfig: voiceConfig.toGoogleAI()
-    )
-  }
-
-  func toAgentPlatform() -> AgentPlatform.SpeakerVoiceConfig {
-    AgentPlatform.SpeakerVoiceConfig(
-      speaker: speaker,
-      voiceConfig: voiceConfig.toAgentPlatform()
-    )
-  }
-
-  init?(fromGoogleAI config: GoogleAI.SpeakerVoiceConfig) {
-    guard let speaker = config.speaker, let voice = config.voiceConfig, let voiceConfig = ProtoVoiceConfig(fromGoogleAI: voice) else { return nil }
-    self.speaker = speaker
-    self.voiceConfig = voiceConfig
-  }
-
-  init?(fromAgentPlatform config: AgentPlatform.SpeakerVoiceConfig) {
-    guard let speaker = config.speaker, let voice = config.voiceConfig, let voiceConfig = ProtoVoiceConfig(fromAgentPlatform: voice) else { return nil }
     self.speaker = speaker
     self.voiceConfig = voiceConfig
   }

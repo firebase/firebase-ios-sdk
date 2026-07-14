@@ -21,7 +21,7 @@ import Foundation
 /// A discrete piece of data in a media format interpretable by an AI model.
 ///
 /// Within a single value of ``Part``, different data types may not mix.
-public protocol Part: PartsRepresentable, Sendable, Equatable {
+public protocol Part: PartsRepresentable, Codable, Sendable, Equatable {
   /// Indicates whether this `Part` is a summary of the model's internal thinking process.
   ///
   /// When `includeThoughts` is set to `true` in ``ThinkingConfig``, the model may return one or

@@ -27,7 +27,7 @@ enum ProtoVoiceConfig: Sendable, Equatable {
 ///
 /// Not just a string on the parent proto, because there'll likely be a lot
 /// more options here.
-struct ProtoPrebuiltVoiceConfig: Sendable, Equatable {
+struct ProtoPrebuiltVoiceConfig: Encodable, Sendable, Equatable {
   /// The name of the preset voice to use.
   let voiceName: String
 
@@ -37,7 +37,7 @@ struct ProtoPrebuiltVoiceConfig: Sendable, Equatable {
 }
 
 /// The configuration for the custom voice to use.
-struct ProtoCustomVoiceConfig: Sendable, Equatable {
+struct ProtoCustomVoiceConfig: Encodable, Sendable, Equatable {
   /// The sample of the custom voice, in pcm16 s16e format.
   let customVoiceSample: Data
 
@@ -46,43 +46,21 @@ struct ProtoCustomVoiceConfig: Sendable, Equatable {
   }
 }
 
-// MARK: - Mappings
+// MARK: - Encodable conformance
 
-import GoogleAIDataModels
-import AgentPlatformDataModels
+extension ProtoVoiceConfig: Encodable {
+  enum CodingKeys: CodingKey {
+    case prebuiltVoiceConfig
+    case customVoiceConfig
+  }
 
-extension ProtoVoiceConfig {
-  func toGoogleAI() -> GoogleAI.VoiceConfig {
+  func encode(to encoder: any Encoder) throws {
+    var container = encoder.container(keyedBy: CodingKeys.self)
     switch self {
     case let .prebuiltVoiceConfig(setup):
-      return GoogleAI.VoiceConfig(prebuiltVoiceConfig: GoogleAI.PrebuiltVoiceConfig(voiceName: setup.voiceName))
-    case .customVoiceConfig:
-      return GoogleAI.VoiceConfig()
-    }
-  }
-
-  func toAgentPlatform() -> AgentPlatform.VoiceConfig {
-    switch self {
-    case let .prebuiltVoiceConfig(setup):
-      return AgentPlatform.VoiceConfig(prebuiltVoiceConfig: AgentPlatform.PrebuiltVoiceConfig(voiceName: setup.voiceName))
-    case .customVoiceConfig:
-      return AgentPlatform.VoiceConfig()
-    }
-  }
-
-  init?(fromGoogleAI config: GoogleAI.VoiceConfig) {
-    if let prebuilt = config.prebuiltVoiceConfig, let name = prebuilt.voiceName {
-      self = .prebuiltVoiceConfig(ProtoPrebuiltVoiceConfig(voiceName: name))
-    } else {
-      return nil
-    }
-  }
-
-  init?(fromAgentPlatform config: AgentPlatform.VoiceConfig) {
-    if let prebuilt = config.prebuiltVoiceConfig, let name = prebuilt.voiceName {
-      self = .prebuiltVoiceConfig(ProtoPrebuiltVoiceConfig(voiceName: name))
-    } else {
-      return nil
+      try container.encode(setup, forKey: .prebuiltVoiceConfig)
+    case let .customVoiceConfig(clientContent):
+      try container.encode(clientContent, forKey: .customVoiceConfig)
     }
   }
 }

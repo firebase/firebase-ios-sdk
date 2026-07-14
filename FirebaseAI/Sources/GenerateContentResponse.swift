@@ -13,8 +13,6 @@
 // limitations under the License.
 
 import Foundation
-import GoogleAIDataModels
-import AgentPlatformDataModels
 
 /// The model's response to a generate content request.
 public struct GenerateContentResponse: Sendable {
@@ -293,7 +291,7 @@ public struct Citation: Sendable, Hashable {
 }
 
 /// A value enumerating possible reasons for a model to terminate a content generation request.
-public struct FinishReason: ProtoEnum, Hashable, Sendable {
+public struct FinishReason: CodableProtoEnum, Hashable, Sendable {
   enum Kind: String {
     case stop = "STOP"
     case maxTokens = "MAX_TOKENS"
@@ -389,7 +387,7 @@ public struct FinishReason: ProtoEnum, Hashable, Sendable {
 /// A metadata struct containing any feedback the model had on the prompt it was provided.
 public struct PromptFeedback: Sendable {
   /// A type describing possible reasons to block a prompt.
-  public struct BlockReason: ProtoEnum, Hashable, Sendable {
+  public struct BlockReason: DecodableProtoEnum, Hashable, Sendable {
     enum Kind: String {
       case safety = "SAFETY"
       case other = "OTHER"
@@ -537,431 +535,369 @@ public struct Segment: Sendable, Equatable, Hashable {
   public let text: String
 }
 
-// MARK: - Mappings
+// MARK: - Codable Conformances
 
-extension FinishReason {
-  func toGoogleAI() -> GoogleAI.Candidate.FinishReason {
-    GoogleAI.Candidate.FinishReason(rawValue: rawValue) ?? .unrecognized(rawValue)
+extension GenerateContentResponse: Decodable {
+  enum CodingKeys: String, CodingKey {
+    case candidates
+    case promptFeedback
+    case usageMetadata
+    case responseID = "responseId"
+    case modelVersion
   }
 
-  func toAgentPlatform() -> AgentPlatform.Candidate.FinishReason {
-    AgentPlatform.Candidate.FinishReason(rawValue: rawValue) ?? .unrecognized(rawValue)
-  }
+  public init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
 
-  init(fromGoogleAI reason: GoogleAI.Candidate.FinishReason) {
-    self.init(rawValue: reason.rawValue)
-  }
-
-  init(fromAgentPlatform reason: AgentPlatform.Candidate.FinishReason) {
-    self.init(rawValue: reason.rawValue)
-  }
-}
-
-extension PromptFeedback.BlockReason {
-  func toGoogleAI() -> GoogleAI.PromptFeedback.BlockReason {
-    GoogleAI.PromptFeedback.BlockReason(rawValue: rawValue) ?? .unrecognized(rawValue)
-  }
-
-  func toAgentPlatform() -> AgentPlatform.PromptFeedback.BlockReason {
-    AgentPlatform.PromptFeedback.BlockReason(rawValue: rawValue) ?? .unrecognized(rawValue)
-  }
-
-  init(fromGoogleAI reason: GoogleAI.PromptFeedback.BlockReason) {
-    self.init(rawValue: reason.rawValue)
-  }
-
-  init(fromAgentPlatform reason: AgentPlatform.PromptFeedback.BlockReason) {
-    self.init(rawValue: reason.rawValue)
-  }
-}
-
-extension Citation {
-  func toGoogleAI() -> GoogleAI.CitationSource {
-    GoogleAI.CitationSource(
-      endIndex: endIndex,
-      license: license,
-      startIndex: startIndex,
-      uri: uri
-    )
-  }
-
-  func toAgentPlatform() -> AgentPlatform.Citation {
-    AgentPlatform.Citation(
-      endIndex: endIndex,
-      license: license,
-      publicationDate: publicationDate.map { AgentPlatform.GoogleTypeDate(day: $0.day, month: $0.month, year: $0.year) },
-      startIndex: startIndex,
-      title: title,
-      uri: uri
-    )
-  }
-
-  init(fromGoogleAI citation: GoogleAI.CitationSource) {
-    self.startIndex = citation.startIndex ?? 0
-    self.endIndex = citation.endIndex ?? startIndex
-    self.uri = citation.uri
-    self.title = nil
-    self.license = citation.license
-    self.publicationDate = nil
-  }
-
-  init(fromAgentPlatform citation: AgentPlatform.Citation) {
-    self.startIndex = citation.startIndex ?? 0
-    self.endIndex = citation.endIndex ?? startIndex
-    self.uri = citation.uri
-    self.title = citation.title
-    self.license = citation.license
-    self.publicationDate = citation.publicationDate.map {
-      DateComponents(
-        calendar: Calendar(identifier: .gregorian),
-        year: $0.year,
-        month: $0.month,
-        day: $0.day
+    guard container.contains(CodingKeys.candidates)
+      || container.contains(CodingKeys.promptFeedback)
+      || container.contains(CodingKeys.usageMetadata) else {
+      let keys = container.allKeys.map { $0.stringValue }.sorted().joined(separator: ", ")
+      let context = DecodingError.Context(
+        codingPath: decoder.codingPath,
+        debugDescription: """
+        Failed to decode GenerateContentResponse; missing keys 'candidates', 'promptFeedback' or \
+        'usageMetadata'. Found keys: \(keys.isEmpty ? "none" : keys)
+        """
       )
+      throw DecodingError.dataCorrupted(context)
     }
-  }
-}
 
-extension CitationMetadata {
-  func toGoogleAI() -> GoogleAI.CitationMetadata {
-    GoogleAI.CitationMetadata(
-      citationSources: citations.map { $0.toGoogleAI() }
-    )
-  }
-
-  func toAgentPlatform() -> AgentPlatform.CitationMetadata {
-    AgentPlatform.CitationMetadata(
-      citations: citations.map { $0.toAgentPlatform() }
-    )
-  }
-
-  init(fromGoogleAI metadata: GoogleAI.CitationMetadata) {
-    self.citations = metadata.citationSources?.map { Citation(fromGoogleAI: $0) } ?? []
-  }
-
-  init(fromAgentPlatform metadata: AgentPlatform.CitationMetadata) {
-    self.citations = metadata.citations?.map { Citation(fromAgentPlatform: $0) } ?? []
-  }
-}
-
-extension PromptFeedback {
-  package func toGoogleAI() -> GoogleAI.PromptFeedback {
-    GoogleAI.PromptFeedback(
-      blockReason: blockReason?.toGoogleAI(),
-      safetyRatings: safetyRatings.map { $0.toGoogleAI() }
-    )
-  }
-
-  package func toAgentPlatform() -> AgentPlatform.PromptFeedback {
-    AgentPlatform.PromptFeedback(
-      blockReason: blockReason?.toAgentPlatform(),
-      safetyRatings: safetyRatings.map { $0.toAgentPlatform() }
-    )
-  }
-
-  package init(fromGoogleAI feedback: GoogleAI.PromptFeedback) {
-    self.blockReason = feedback.blockReason.map { BlockReason(fromGoogleAI: $0) }
-    self.blockReasonMessage = nil
-    self.safetyRatings = feedback.safetyRatings?.map { SafetyRating(fromGoogleAI: $0) } ?? []
-  }
-
-  package init(fromAgentPlatform feedback: AgentPlatform.PromptFeedback) {
-    self.blockReason = feedback.blockReason.map { BlockReason(fromAgentPlatform: $0) }
-    self.blockReasonMessage = nil
-    self.safetyRatings = feedback.safetyRatings?.map { SafetyRating(fromAgentPlatform: $0) } ?? []
-  }
-}
-
-extension Candidate {
-  package func toGoogleAI() -> GoogleAI.Candidate {
-    GoogleAI.Candidate(
-      citationMetadata: citationMetadata?.toGoogleAI(),
-      content: content.toGoogleAI(),
-      finishMessage: finishMessage,
-      finishReason: finishReason?.toGoogleAI(),
-      groundingMetadata: groundingMetadata?.toGoogleAI(),
-      safetyRatings: safetyRatings.map { $0.toGoogleAI() },
-      urlContextMetadata: urlContextMetadata?.toGoogleAI()
-    )
-  }
-
-  package func toAgentPlatform() -> AgentPlatform.Candidate {
-    AgentPlatform.Candidate(
-      citationMetadata: citationMetadata?.toAgentPlatform(),
-      content: content.toAgentPlatform(),
-      finishMessage: finishMessage,
-      finishReason: finishReason?.toAgentPlatform(),
-      groundingMetadata: groundingMetadata?.toAgentPlatform(),
-      safetyRatings: safetyRatings.map { $0.toAgentPlatform() },
-      urlContextMetadata: urlContextMetadata?.toAgentPlatform()
-    )
-  }
-
-  package init(fromGoogleAI candidate: GoogleAI.Candidate) {
-    self.content = candidate.content.map { ModelContent(fromGoogleAI: $0) } ?? ModelContent(parts: [])
-    self.safetyRatings = candidate.safetyRatings?.map { SafetyRating(fromGoogleAI: $0) } ?? []
-    self.finishReason = candidate.finishReason.map { FinishReason(fromGoogleAI: $0) }
-    self.finishMessage = candidate.finishMessage
-    self.citationMetadata = candidate.citationMetadata.map { CitationMetadata(fromGoogleAI: $0) }
-    self.groundingMetadata = candidate.groundingMetadata.map { GroundingMetadata(fromGoogleAI: $0) }
-    self.urlContextMetadata = candidate.urlContextMetadata.map { URLContextMetadata(fromGoogleAI: $0) }
-  }
-
-  package init(fromAgentPlatform candidate: AgentPlatform.Candidate) {
-    self.content = candidate.content.map { ModelContent(fromAgentPlatform: $0) } ?? ModelContent(parts: [])
-    self.safetyRatings = candidate.safetyRatings?.map { SafetyRating(fromAgentPlatform: $0) } ?? []
-    self.finishReason = candidate.finishReason.map { FinishReason(fromAgentPlatform: $0) }
-    self.finishMessage = candidate.finishMessage
-    self.citationMetadata = candidate.citationMetadata.map { CitationMetadata(fromAgentPlatform: $0) }
-    self.groundingMetadata = candidate.groundingMetadata.map { GroundingMetadata(fromAgentPlatform: $0) }
-    self.urlContextMetadata = candidate.urlContextMetadata.map { URLContextMetadata(fromAgentPlatform: $0) }
-  }
-}
-
-extension GenerateContentResponse.UsageMetadata {
-  func toGoogleAI() -> GoogleAI.UsageMetadata {
-    GoogleAI.UsageMetadata(
-      cacheTokensDetails: cacheTokensDetails.map { $0.toGoogleAI() },
-      cachedContentTokenCount: cachedContentTokenCount,
-      candidatesTokenCount: candidatesTokenCount,
-      candidatesTokensDetails: candidatesTokensDetails.map { $0.toGoogleAI() },
-      promptTokenCount: promptTokenCount,
-      promptTokensDetails: promptTokensDetails.map { $0.toGoogleAI() },
-      thoughtsTokenCount: thoughtsTokenCount,
-      toolUsePromptTokenCount: toolUsePromptTokenCount,
-      toolUsePromptTokensDetails: toolUsePromptTokensDetails.map { $0.toGoogleAI() },
-      totalTokenCount: totalTokenCount
-    )
-  }
-
-  func toAgentPlatform() -> AgentPlatform.UsageMetadata {
-    AgentPlatform.UsageMetadata(
-      cacheTokensDetails: cacheTokensDetails.map { $0.toAgentPlatform() },
-      cachedContentTokenCount: cachedContentTokenCount,
-      candidatesTokenCount: candidatesTokenCount,
-      candidatesTokensDetails: candidatesTokensDetails.map { $0.toAgentPlatform() },
-      promptTokenCount: promptTokenCount,
-      promptTokensDetails: promptTokensDetails.map { $0.toAgentPlatform() },
-      thoughtsTokenCount: thoughtsTokenCount,
-      toolUsePromptTokenCount: toolUsePromptTokenCount,
-      toolUsePromptTokensDetails: toolUsePromptTokensDetails.map { $0.toAgentPlatform() },
-      totalTokenCount: totalTokenCount
-    )
-  }
-
-  init(fromGoogleAI metadata: GoogleAI.UsageMetadata) {
-    self.promptTokenCount = metadata.promptTokenCount ?? 0
-    self.cachedContentTokenCount = metadata.cachedContentTokenCount ?? 0
-    self.candidatesTokenCount = metadata.candidatesTokenCount ?? 0
-    self.toolUsePromptTokenCount = metadata.toolUsePromptTokenCount ?? 0
-    self.thoughtsTokenCount = metadata.thoughtsTokenCount ?? 0
-    self.totalTokenCount = metadata.totalTokenCount ?? 0
-    self.promptTokensDetails = metadata.promptTokensDetails?.map { ModalityTokenCount(fromGoogleAI: $0) } ?? []
-    self.cacheTokensDetails = metadata.cacheTokensDetails?.map { ModalityTokenCount(fromGoogleAI: $0) } ?? []
-    self.candidatesTokensDetails = metadata.candidatesTokensDetails?.map { ModalityTokenCount(fromGoogleAI: $0) } ?? []
-    self.toolUsePromptTokensDetails = metadata.toolUsePromptTokensDetails?.map { ModalityTokenCount(fromGoogleAI: $0) } ?? []
-  }
-
-  init(fromAgentPlatform metadata: AgentPlatform.UsageMetadata) {
-    self.promptTokenCount = metadata.promptTokenCount ?? 0
-    self.cachedContentTokenCount = metadata.cachedContentTokenCount ?? 0
-    self.candidatesTokenCount = metadata.candidatesTokenCount ?? 0
-    self.toolUsePromptTokenCount = metadata.toolUsePromptTokenCount ?? 0
-    self.thoughtsTokenCount = metadata.thoughtsTokenCount ?? 0
-    self.totalTokenCount = metadata.totalTokenCount ?? 0
-    self.promptTokensDetails = metadata.promptTokensDetails?.map { ModalityTokenCount(fromAgentPlatform: $0) } ?? []
-    self.cacheTokensDetails = metadata.cacheTokensDetails?.map { ModalityTokenCount(fromAgentPlatform: $0) } ?? []
-    self.candidatesTokensDetails = metadata.candidatesTokensDetails?.map { ModalityTokenCount(fromAgentPlatform: $0) } ?? []
-    self.toolUsePromptTokensDetails = metadata.toolUsePromptTokensDetails?.map { ModalityTokenCount(fromAgentPlatform: $0) } ?? []
-  }
-}
-
-extension Segment {
-  func toGoogleAI() -> GoogleAI.GoogleAiGenerativelanguageV1betaSegment {
-    GoogleAI.GoogleAiGenerativelanguageV1betaSegment(
-      endIndex: endIndex,
-      partIndex: partIndex,
-      startIndex: startIndex,
-      text: text
-    )
-  }
-
-  func toAgentPlatform() -> AgentPlatform.Segment {
-    AgentPlatform.Segment(
-      endIndex: endIndex,
-      partIndex: partIndex,
-      startIndex: startIndex,
-      text: text
-    )
-  }
-
-  init(fromGoogleAI segment: GoogleAI.GoogleAiGenerativelanguageV1betaSegment) {
-    self.partIndex = segment.partIndex ?? 0
-    self.startIndex = segment.startIndex ?? 0
-    self.endIndex = segment.endIndex ?? 0
-    self.text = segment.text ?? ""
-  }
-
-  init(fromAgentPlatform segment: AgentPlatform.Segment) {
-    self.partIndex = segment.partIndex ?? 0
-    self.startIndex = segment.startIndex ?? 0
-    self.endIndex = segment.endIndex ?? 0
-    self.text = segment.text ?? ""
-  }
-}
-
-extension GroundingMetadata.SearchEntryPoint {
-  func toGoogleAI() -> GoogleAI.SearchEntryPoint {
-    GoogleAI.SearchEntryPoint(htmlContent: htmlContent)
-  }
-
-  func toAgentPlatform() -> AgentPlatform.SearchEntryPoint {
-    AgentPlatform.SearchEntryPoint(htmlContent: htmlContent)
-  }
-
-  init(fromGoogleAI entry: GoogleAI.SearchEntryPoint) {
-    self.htmlContent = entry.htmlContent ?? ""
-  }
-
-  init(fromAgentPlatform entry: AgentPlatform.SearchEntryPoint) {
-    self.htmlContent = entry.htmlContent ?? ""
-  }
-}
-
-extension GroundingMetadata.GroundingSupport {
-  func toGoogleAI() -> GoogleAI.GoogleAiGenerativelanguageV1betaGroundingSupport {
-    GoogleAI.GoogleAiGenerativelanguageV1betaGroundingSupport(
-      groundingChunkIndices: groundingChunkIndices,
-      segment: segment.toGoogleAI()
-    )
-  }
-
-  func toAgentPlatform() -> AgentPlatform.GroundingSupport {
-    AgentPlatform.GroundingSupport(
-      groundingChunkIndices: groundingChunkIndices,
-      segment: segment.toAgentPlatform()
-    )
-  }
-
-  init(fromGoogleAI support: GoogleAI.GoogleAiGenerativelanguageV1betaGroundingSupport) {
-    self.groundingChunkIndices = support.groundingChunkIndices ?? []
-    self.segment = support.segment.map { Segment(fromGoogleAI: $0) } ?? Segment(partIndex: 0, startIndex: 0, endIndex: 0, text: "")
-  }
-
-  init(fromAgentPlatform support: AgentPlatform.GroundingSupport) {
-    self.groundingChunkIndices = support.groundingChunkIndices ?? []
-    self.segment = support.segment.map { Segment(fromAgentPlatform: $0) } ?? Segment(partIndex: 0, startIndex: 0, endIndex: 0, text: "")
-  }
-}
-
-extension GroundingMetadata.GroundingChunk {
-  func toGoogleAI() -> GoogleAI.GroundingChunk {
-    switch self {
-    case let .web(web):
-      return GoogleAI.GroundingChunk(web: GoogleAI.Web(title: web.title, uri: web.url?.absoluteString))
-    case let .maps(maps):
-      return GoogleAI.GroundingChunk(maps: maps.toGoogleAI())
-    }
-  }
-
-  func toAgentPlatform() -> AgentPlatform.GroundingChunk {
-    switch self {
-    case let .web(web):
-      return AgentPlatform.GroundingChunk(web: AgentPlatform.Web(title: web.title, uri: web.url?.absoluteString))
-    case let .maps(maps):
-      return AgentPlatform.GroundingChunk(maps: maps.toAgentPlatform())
-    }
-  }
-
-  init?(fromGoogleAI chunk: GoogleAI.GroundingChunk) {
-    if let web = chunk.web {
-      self = .web(GroundingMetadata.WebGroundingChunk(title: web.title ?? "", url: web.uri.flatMap { URL(string: $0) }))
-    } else if let maps = chunk.maps {
-      self = .maps(GoogleMapsGroundingChunk(fromGoogleAI: maps))
+    if let candidates = try container.decodeIfPresent(
+      [Candidate].self,
+      forKey: .candidates
+    ) {
+      self.candidates = candidates
     } else {
-      return nil
+      candidates = []
     }
+    promptFeedback = try container.decodeIfPresent(PromptFeedback.self, forKey: .promptFeedback)
+    usageMetadata = try container.decodeIfPresent(UsageMetadata.self, forKey: .usageMetadata)
+    responseID = try container.decodeIfPresent(String.self, forKey: .responseID)
+    modelVersion = try container.decodeIfPresent(
+      String.self,
+      forKey: .modelVersion
+    ) ?? GenerateContentResponse.unknownModelVersion
+  }
+}
+
+extension GenerateContentResponse.UsageMetadata: Decodable {
+  enum CodingKeys: CodingKey {
+    case promptTokenCount
+    case cachedContentTokenCount
+    case candidatesTokenCount
+    case toolUsePromptTokenCount
+    case thoughtsTokenCount
+    case totalTokenCount
+    case promptTokensDetails
+    case cacheTokensDetails
+    case candidatesTokensDetails
+    case toolUsePromptTokensDetails
   }
 
-  init?(fromAgentPlatform chunk: AgentPlatform.GroundingChunk) {
-    if let web = chunk.web {
-      self = .web(GroundingMetadata.WebGroundingChunk(title: web.title ?? "", url: web.uri.flatMap { URL(string: $0) }))
-    } else if let maps = chunk.maps {
-      self = .maps(GoogleMapsGroundingChunk(fromAgentPlatform: maps))
+  public init(from decoder: any Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    promptTokenCount = try container.decodeIfPresent(Int.self, forKey: .promptTokenCount) ?? 0
+    cachedContentTokenCount = try container.decodeIfPresent(
+      Int.self,
+      forKey: .cachedContentTokenCount
+    ) ?? 0
+    candidatesTokenCount =
+      try container.decodeIfPresent(Int.self, forKey: .candidatesTokenCount) ?? 0
+    toolUsePromptTokenCount =
+      try container.decodeIfPresent(Int.self, forKey: .toolUsePromptTokenCount) ?? 0
+    thoughtsTokenCount = try container.decodeIfPresent(Int.self, forKey: .thoughtsTokenCount) ?? 0
+    totalTokenCount = try container.decodeIfPresent(Int.self, forKey: .totalTokenCount) ?? 0
+    promptTokensDetails =
+      try container.decodeIfPresent([ModalityTokenCount].self, forKey: .promptTokensDetails) ?? []
+    cacheTokensDetails =
+      try container.decodeIfPresent([ModalityTokenCount].self, forKey: .cacheTokensDetails) ?? []
+    candidatesTokensDetails = try container.decodeIfPresent(
+      [ModalityTokenCount].self,
+      forKey: .candidatesTokensDetails
+    ) ?? []
+    toolUsePromptTokensDetails = try container.decodeIfPresent(
+      [ModalityTokenCount].self, forKey: .toolUsePromptTokensDetails
+    ) ?? []
+  }
+}
+
+extension Candidate: Decodable {
+  enum CodingKeys: CodingKey {
+    case content
+    case safetyRatings
+    case finishReason
+    case finishMessage
+    case citationMetadata
+    case groundingMetadata
+    case urlContextMetadata
+  }
+
+  /// Initializes a response from a decoder. Used for decoding server responses; not for public
+  /// use.
+  public init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+
+    do {
+      if let content = try container.decodeIfPresent(ModelContent.self, forKey: .content) {
+        self.content = content
+      } else {
+        content = ModelContent(parts: [])
+      }
+    } catch {
+      throw InvalidCandidateError.malformedContent(underlyingError: error)
+    }
+
+    if let safetyRatings = try container.decodeIfPresent(
+      [SafetyRating].self, forKey: .safetyRatings
+    ) {
+      self.safetyRatings = safetyRatings.filter {
+        // Due to a bug in the backend, the SDK may receive invalid `SafetyRating` values that do
+        // not include a category or probability; these are filtered out of the safety ratings.
+        $0.category != HarmCategory.unspecified
+          && $0.probability != SafetyRating.HarmProbability.unspecified
+      }
     } else {
-      return nil
+      safetyRatings = []
+    }
+
+    finishReason = try container.decodeIfPresent(FinishReason.self, forKey: .finishReason)
+    finishMessage = try container.decodeIfPresent(String.self, forKey: .finishMessage)
+
+    citationMetadata = try container.decodeIfPresent(
+      CitationMetadata.self,
+      forKey: .citationMetadata
+    )
+
+    groundingMetadata = try container.decodeIfPresent(
+      GroundingMetadata.self,
+      forKey: .groundingMetadata
+    )
+
+    if let urlContextMetadata =
+      try container.decodeIfPresent(URLContextMetadata.self, forKey: .urlContextMetadata),
+      !urlContextMetadata.urlMetadata.isEmpty {
+      self.urlContextMetadata = urlContextMetadata
+    } else {
+      urlContextMetadata = nil
     }
   }
 }
 
-extension GroundingMetadata {
-  package func toGoogleAI() -> GoogleAI.GroundingMetadata {
-    GoogleAI.GroundingMetadata(
-      groundingChunks: groundingChunks.map { $0.toGoogleAI() },
-      groundingSupports: groundingSupports.map { $0.toGoogleAI() },
-      searchEntryPoint: searchEntryPoint?.toGoogleAI(),
-      webSearchQueries: webSearchQueries
-    )
+extension CitationMetadata: Decodable {
+  enum CodingKeys: CodingKey {
+    case citations // Vertex AI
+    case citationSources // Google AI
   }
 
-  package func toAgentPlatform() -> AgentPlatform.GroundingMetadata {
-    AgentPlatform.GroundingMetadata(
-      groundingChunks: groundingChunks.map { $0.toAgentPlatform() },
-      groundingSupports: groundingSupports.map { $0.toAgentPlatform() },
-      searchEntryPoint: searchEntryPoint?.toAgentPlatform(),
-      webSearchQueries: webSearchQueries
-    )
-  }
+  public init(from decoder: any Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
 
-  package init(fromGoogleAI metadata: GoogleAI.GroundingMetadata) {
-    self.webSearchQueries = metadata.webSearchQueries ?? []
-    self.groundingChunks = metadata.groundingChunks?.compactMap { GroundingChunk(fromGoogleAI: $0) } ?? []
-    self.groundingSupports = metadata.groundingSupports?.map { GroundingSupport(fromGoogleAI: $0) } ?? []
-    self.searchEntryPoint = metadata.searchEntryPoint.map { SearchEntryPoint(fromGoogleAI: $0) }
-  }
-
-  package init(fromAgentPlatform metadata: AgentPlatform.GroundingMetadata) {
-    self.webSearchQueries = metadata.webSearchQueries ?? []
-    self.groundingChunks = metadata.groundingChunks?.compactMap { GroundingChunk(fromAgentPlatform: $0) } ?? []
-    self.groundingSupports = metadata.groundingSupports?.map { GroundingSupport(fromAgentPlatform: $0) } ?? []
-    self.searchEntryPoint = metadata.searchEntryPoint.map { SearchEntryPoint(fromAgentPlatform: $0) }
+    let decodedCitations = try container.decodeIfPresent([Citation].self, forKey: .citationSources)
+      ?? container.decodeIfPresent([Citation].self, forKey: .citations)
+      ?? []
+    citations = decodedCitations.filter { !$0.isEmpty }
   }
 }
 
-extension GenerateContentResponse {
-  package func toGoogleAI() -> GoogleAI.GenerateContentResponse {
-    GoogleAI.GenerateContentResponse(
-      candidates: candidates.map { $0.toGoogleAI() },
-      modelVersion: modelVersion,
-      promptFeedback: promptFeedback?.toGoogleAI(),
-      responseId: responseID,
-      usageMetadata: usageMetadata?.toGoogleAI()
+extension CitationMetadata: Encodable {
+  public func encode(to encoder: any Encoder) throws {
+    var container = encoder.container(keyedBy: CodingKeys.self)
+    try container.encode(citations, forKey: .citations)
+  }
+}
+
+extension Citation: Decodable {
+  enum CodingKeys: CodingKey {
+    case startIndex
+    case endIndex
+    case uri
+    case title
+    case license
+    case publicationDate
+  }
+
+  var isEmpty: Bool {
+    startIndex == 0 &&
+      endIndex == 0 &&
+      uri == nil &&
+      title == nil &&
+      license == nil &&
+      publicationDate == nil
+  }
+
+  public init(from decoder: any Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    startIndex = try container.decodeIfPresent(Int.self, forKey: .startIndex) ?? 0
+    endIndex = try container.decodeIfPresent(Int.self, forKey: .endIndex) ?? startIndex
+
+    if let uri = try container.decodeIfPresent(String.self, forKey: .uri), !uri.isEmpty {
+      self.uri = uri
+    } else {
+      uri = nil
+    }
+
+    if let title = try container.decodeIfPresent(String.self, forKey: .title), !title.isEmpty {
+      self.title = title
+    } else {
+      title = nil
+    }
+
+    if let license = try container.decodeIfPresent(String.self, forKey: .license),
+       !license.isEmpty {
+      self.license = license
+    } else {
+      license = nil
+    }
+
+    if let publicationProtoDate = try container.decodeIfPresent(
+      ProtoDate.self,
+      forKey: .publicationDate
+    ) {
+      publicationDate = publicationProtoDate.dateComponents
+      if let publicationDate, !publicationDate.isValidDate {
+        AILog.warning(
+          code: .decodedInvalidCitationPublicationDate,
+          "Decoded an invalid citation publication date: \(publicationDate)"
+        )
+      }
+    } else {
+      publicationDate = nil
+    }
+  }
+}
+
+extension Citation: Encodable {
+  public func encode(to encoder: any Encoder) throws {
+    var container = encoder.container(keyedBy: CodingKeys.self)
+    try container.encode(startIndex, forKey: .startIndex)
+    try container.encode(endIndex, forKey: .endIndex)
+    try container.encodeIfPresent(uri, forKey: .uri)
+    try container.encodeIfPresent(title, forKey: .title)
+    try container.encodeIfPresent(license, forKey: .license)
+    if let publicationDate {
+      try container.encode(ProtoDate(dateComponents: publicationDate), forKey: .publicationDate)
+    }
+  }
+}
+
+extension PromptFeedback: Decodable {
+  enum CodingKeys: CodingKey {
+    case blockReason
+    case blockReasonMessage
+    case safetyRatings
+  }
+
+  public init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    blockReason = try container.decodeIfPresent(
+      PromptFeedback.BlockReason.self,
+      forKey: .blockReason
+    )
+    blockReasonMessage = try container.decodeIfPresent(String.self, forKey: .blockReasonMessage)
+    if let safetyRatings = try container.decodeIfPresent(
+      [SafetyRating].self,
+      forKey: .safetyRatings
+    ) {
+      self.safetyRatings = safetyRatings
+    } else {
+      safetyRatings = []
+    }
+  }
+}
+
+extension GroundingMetadata: Codable {
+  enum CodingKeys: String, CodingKey {
+    case webSearchQueries
+    case groundingChunks
+    case groundingSupports
+    case searchEntryPoint
+  }
+
+  public init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    webSearchQueries = try container.decodeIfPresent([String].self, forKey: .webSearchQueries) ?? []
+    groundingChunks = try container.decodeIfPresent(
+      [GroundingChunk].self,
+      forKey: .groundingChunks
+    ) ?? []
+    groundingSupports = try container.decodeIfPresent(
+      [GroundingSupport.Internal].self,
+      forKey: .groundingSupports
+    )?.compactMap { $0.toPublic() } ?? []
+    searchEntryPoint = try container.decodeIfPresent(
+      SearchEntryPoint.self,
+      forKey: .searchEntryPoint
     )
   }
 
-  package func toAgentPlatform() -> AgentPlatform.GenerateContentResponse {
-    AgentPlatform.GenerateContentResponse(
-      candidates: candidates.map { $0.toAgentPlatform() },
-      modelVersion: modelVersion,
-      promptFeedback: promptFeedback?.toAgentPlatform(),
-      responseId: responseID,
-      usageMetadata: usageMetadata?.toAgentPlatform()
-    )
+  public func encode(to encoder: any Encoder) throws {
+    var container = encoder.container(keyedBy: CodingKeys.self)
+    try container.encode(webSearchQueries, forKey: .webSearchQueries)
+    try container.encode(groundingChunks, forKey: .groundingChunks)
+    try container.encode(groundingSupports, forKey: .groundingSupports)
+    try container.encodeIfPresent(searchEntryPoint, forKey: .searchEntryPoint)
+  }
+}
+
+extension GroundingMetadata.SearchEntryPoint: Codable {}
+
+extension GroundingMetadata.GroundingChunk: Codable {}
+
+extension GroundingMetadata.WebGroundingChunk: Codable {}
+
+extension GroundingMetadata.GroundingSupport: Encodable {
+  enum CodingKeys: String, CodingKey {
+    case segment
+    case groundingChunkIndices
   }
 
-  package init(fromGoogleAI response: GoogleAI.GenerateContentResponse) {
-    self.candidates = response.candidates?.map { Candidate(fromGoogleAI: $0) } ?? []
-    self.promptFeedback = response.promptFeedback.map { PromptFeedback(fromGoogleAI: $0) }
-    self.usageMetadata = response.usageMetadata.map { UsageMetadata(fromGoogleAI: $0) }
-    self.responseID = response.responseId
-    self.modelVersion = response.modelVersion ?? GenerateContentResponse.unknownModelVersion
+  public func encode(to encoder: any Encoder) throws {
+    var container = encoder.container(keyedBy: CodingKeys.self)
+    try container.encode(segment, forKey: .segment)
+    try container.encode(groundingChunkIndices, forKey: .groundingChunkIndices)
+  }
+}
+
+extension GroundingMetadata.GroundingSupport.Internal: Decodable {
+  enum CodingKeys: String, CodingKey {
+    case segment
+    case groundingChunkIndices
   }
 
-  package init(fromAgentPlatform response: AgentPlatform.GenerateContentResponse) {
-    self.candidates = response.candidates?.map { Candidate(fromAgentPlatform: $0) } ?? []
-    self.promptFeedback = response.promptFeedback.map { PromptFeedback(fromAgentPlatform: $0) }
-    self.usageMetadata = response.usageMetadata.map { UsageMetadata(fromAgentPlatform: $0) }
-    self.responseID = response.responseId
-    self.modelVersion = response.modelVersion ?? GenerateContentResponse.unknownModelVersion
+  public init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    segment = try container.decodeIfPresent(Segment.self, forKey: .segment)
+    groundingChunkIndices = try container.decodeIfPresent(
+      [Int].self,
+      forKey: .groundingChunkIndices
+    ) ?? []
+  }
+}
+
+extension Segment: Decodable {
+  enum CodingKeys: String, CodingKey {
+    case partIndex
+    case startIndex
+    case endIndex
+    case text
+  }
+
+  public init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    partIndex = try container.decodeIfPresent(Int.self, forKey: .partIndex) ?? 0
+    startIndex = try container.decodeIfPresent(Int.self, forKey: .startIndex) ?? 0
+    endIndex = try container.decodeIfPresent(Int.self, forKey: .endIndex) ?? 0
+    text = try container.decodeIfPresent(String.self, forKey: .text) ?? ""
+  }
+}
+
+extension Segment: Encodable {
+  public func encode(to encoder: any Encoder) throws {
+    var container = encoder.container(keyedBy: CodingKeys.self)
+    try container.encode(partIndex, forKey: .partIndex)
+    try container.encode(startIndex, forKey: .startIndex)
+    try container.encode(endIndex, forKey: .endIndex)
+    try container.encode(text, forKey: .text)
   }
 }

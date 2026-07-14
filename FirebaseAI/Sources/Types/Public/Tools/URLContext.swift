@@ -12,24 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public struct URLContext: Sendable, Hashable {
+public struct URLContext: Sendable, Encodable, Hashable {
   init() {}
-}
-
-// MARK: - Mappings
-
-import GoogleAIDataModels
-import AgentPlatformDataModels
-
-extension URLContext {
-  func toGoogleAI() -> GoogleAI.UrlContext {
-    GoogleAI.UrlContext()
-  }
-
-  func toAgentPlatform() -> AgentPlatform.UrlContext {
-    AgentPlatform.UrlContext()
-  }
-
-  init(fromGoogleAI context: GoogleAI.UrlContext) {}
-  init(fromAgentPlatform context: AgentPlatform.UrlContext) {}
 }

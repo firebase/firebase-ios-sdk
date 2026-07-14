@@ -17,7 +17,7 @@ import Foundation
 /// Metadata for a single URL retrieved by the ``Tool/urlContext()`` tool.
 public struct URLMetadata: Sendable, Hashable {
   /// Status of the URL retrieval.
-  public struct URLRetrievalStatus: ProtoEnum, Hashable {
+  public struct URLRetrievalStatus: CodableProtoEnum, Hashable {
     enum Kind: String {
       case unspecified = "URL_RETRIEVAL_STATUS_UNSPECIFIED"
       case success = "URL_RETRIEVAL_STATUS_SUCCESS"
@@ -55,51 +55,31 @@ public struct URLMetadata: Sendable, Hashable {
   public let retrievalStatus: URLRetrievalStatus
 }
 
-// MARK: - Mappings
+// MARK: - Codable Conformances
 
-import GoogleAIDataModels
-import AgentPlatformDataModels
-
-extension URLMetadata.URLRetrievalStatus {
-  func toGoogleAI() -> GoogleAI.UrlMetadata.UrlRetrievalStatus {
-    GoogleAI.UrlMetadata.UrlRetrievalStatus(rawValue: rawValue) ?? .unspecified
+extension URLMetadata: Decodable {
+  enum CodingKeys: String, CodingKey {
+    case retrievedURL = "retrievedUrl"
+    case retrievalStatus = "urlRetrievalStatus"
   }
 
-  func toAgentPlatform() -> AgentPlatform.UrlMetadata.UrlRetrievalStatus {
-    AgentPlatform.UrlMetadata.UrlRetrievalStatus(rawValue: rawValue) ?? .unspecified
-  }
+  public init(from decoder: any Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
 
-  init(fromGoogleAI status: GoogleAI.UrlMetadata.UrlRetrievalStatus) {
-    self.rawValue = status.rawValue
-  }
+    if let retrievedURLString = try container.decodeIfPresent(String.self, forKey: .retrievedURL),
+       let retrievedURL = URL(string: retrievedURLString) {
+      self.retrievedURL = retrievedURL
+    } else {
+      retrievedURL = nil
+    }
+    let retrievalStatus = try container.decodeIfPresent(
+      URLMetadata.URLRetrievalStatus.self, forKey: .retrievalStatus
+    )
 
-  init(fromAgentPlatform status: AgentPlatform.UrlMetadata.UrlRetrievalStatus) {
-    self.rawValue = status.rawValue
+    self.retrievalStatus = AILog.safeUnwrap(
+      retrievalStatus, fallback: URLMetadata.URLRetrievalStatus(kind: .unspecified)
+    )
   }
 }
 
-extension URLMetadata {
-  package func toGoogleAI() -> GoogleAI.UrlMetadata {
-    GoogleAI.UrlMetadata(
-      retrievedUrl: retrievedURL?.absoluteString,
-      urlRetrievalStatus: retrievalStatus.toGoogleAI()
-    )
-  }
-
-  package func toAgentPlatform() -> AgentPlatform.UrlMetadata {
-    AgentPlatform.UrlMetadata(
-      retrievedUrl: retrievedURL?.absoluteString,
-      urlRetrievalStatus: retrievalStatus.toAgentPlatform()
-    )
-  }
-
-  package init(fromGoogleAI metadata: GoogleAI.UrlMetadata) {
-    self.retrievedURL = metadata.retrievedUrl.flatMap { URL(string: $0) }
-    self.retrievalStatus = metadata.urlRetrievalStatus.map { URLRetrievalStatus(fromGoogleAI: $0) } ?? .unspecified
-  }
-
-  package init(fromAgentPlatform metadata: AgentPlatform.UrlMetadata) {
-    self.retrievedURL = metadata.retrievedUrl.flatMap { URL(string: $0) }
-    self.retrievalStatus = metadata.urlRetrievalStatus.map { URLRetrievalStatus(fromAgentPlatform: $0) } ?? .unspecified
-  }
-}
+extension URLMetadata: Encodable {}

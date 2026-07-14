@@ -24,7 +24,7 @@ public struct ModalityTokenCount: Sendable {
 }
 
 /// Content part modality.
-public struct ContentModality: ProtoEnum, Hashable, Sendable {
+public struct ContentModality: DecodableProtoEnum, Hashable, Sendable {
   enum Kind: String {
     case text = "TEXT"
     case image = "IMAGE"
@@ -55,51 +55,17 @@ public struct ContentModality: ProtoEnum, Hashable, Sendable {
     AILog.MessageCode.generateContentResponseUnrecognizedContentModality
 }
 
-// MARK: - Mappings
+// MARK: Codable Conformances
 
-import GoogleAIDataModels
-import AgentPlatformDataModels
-
-extension ContentModality {
-  func toGoogleAI() -> GoogleAI.ModalityTokenCount.Modality {
-    GoogleAI.ModalityTokenCount.Modality(rawValue: rawValue)
+extension ModalityTokenCount: Decodable {
+  enum CodingKeys: CodingKey {
+    case modality
+    case tokenCount
   }
 
-  func toAgentPlatform() -> AgentPlatform.ModalityTokenCount.Modality {
-    AgentPlatform.ModalityTokenCount.Modality(rawValue: rawValue)
-  }
-
-  init(fromGoogleAI modality: GoogleAI.ModalityTokenCount.Modality) {
-    self.init(rawValue: modality.rawValue)
-  }
-
-  init(fromAgentPlatform modality: AgentPlatform.ModalityTokenCount.Modality) {
-    self.init(rawValue: modality.rawValue)
-  }
-}
-
-extension ModalityTokenCount {
-  package func toGoogleAI() -> GoogleAI.ModalityTokenCount {
-    GoogleAI.ModalityTokenCount(
-      modality: modality.toGoogleAI(),
-      tokenCount: tokenCount
-    )
-  }
-
-  package func toAgentPlatform() -> AgentPlatform.ModalityTokenCount {
-    AgentPlatform.ModalityTokenCount(
-      modality: modality.toAgentPlatform(),
-      tokenCount: tokenCount
-    )
-  }
-
-  package init(fromGoogleAI count: GoogleAI.ModalityTokenCount) {
-    self.modality = count.modality.map { ContentModality(fromGoogleAI: $0) } ?? .text
-    self.tokenCount = count.tokenCount ?? 0
-  }
-
-  package init(fromAgentPlatform count: AgentPlatform.ModalityTokenCount) {
-    self.modality = count.modality.map { ContentModality(fromAgentPlatform: $0) } ?? .text
-    self.tokenCount = count.tokenCount ?? 0
+  public init(from decoder: any Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    modality = try container.decode(ContentModality.self, forKey: .modality)
+    tokenCount = try container.decodeIfPresent(Int.self, forKey: .tokenCount) ?? 0
   }
 }

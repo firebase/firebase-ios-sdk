@@ -57,10 +57,6 @@ struct ImagenGenerationRequest<ImageType: ImagenImageRepresentable>: Sendable {
 extension ImagenGenerationRequest: GenerativeAIRequest where ImageType: Decodable {
   typealias Response = ImagenGenerationResponse<ImageType>
 
-  func decodeResponse(from data: Data) throws -> ImagenGenerationResponse<ImageType> {
-    try JSONDecoder().decode(ImagenGenerationResponse<ImageType>.self, from: data)
-  }
-
   func getURL() throws -> URL {
     let urlString =
       "\(apiConfig.service.endpoint.rawValue)/\(apiConfig.version.rawValue)/\(model):predict"
