@@ -576,10 +576,7 @@ enum FunctionsConstants {
     urlRequest.setValue("text/event-stream", forHTTPHeaderField: "Accept")
     urlRequest.httpMethod = "POST"
 
-    let isHttps = url.scheme?.lowercased() == "https"
-    let host = url.host?.lowercased() ?? ""
-    let isLoopback = host == "localhost" || host == "127.0.0.1" || host == "::1"
-    let shouldAttachTokens = isHttps || isLoopback
+    let shouldAttachTokens = url.isSecureOrLoopback
 
     if shouldAttachTokens {
       if let authToken = context.authToken {
@@ -629,10 +626,7 @@ enum FunctionsConstants {
 
     // Set the headers.
     fetcher.setRequestValue("application/json", forHTTPHeaderField: "Content-Type")
-    let isHttps = url.scheme?.lowercased() == "https"
-    let host = url.host?.lowercased() ?? ""
-    let isLoopback = host == "localhost" || host == "127.0.0.1" || host == "::1"
-    let shouldAttachTokens = isHttps || isLoopback
+    let shouldAttachTokens = url.isSecureOrLoopback
 
     if shouldAttachTokens {
       if let authToken = context.authToken {
@@ -724,5 +718,14 @@ enum FunctionsConstants {
     }
 
     return dataJSON
+  }
+}
+
+private extension URL {
+  var isSecureOrLoopback: Bool {
+    let scheme = scheme?.lowercased()
+    let host = host?.lowercased() ?? ""
+    let isLoopback = host == "localhost" || host == "127.0.0.1" || host == "::1"
+    return scheme == "https" || isLoopback
   }
 }

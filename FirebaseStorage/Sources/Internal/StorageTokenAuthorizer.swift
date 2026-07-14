@@ -76,12 +76,14 @@ class StorageTokenAuthorizer: NSObject, GTMSessionFetcherAuthorizer {
         }
       }
     } else {
-      FirebaseLogger.log(
-        level: .warning,
-        service: "[FirebaseStorage]",
-        code: "I-STR000002",
-        message: "Refusing to send Auth and AppCheck tokens over HTTP to non-loopback host."
-      )
+      if request?.url?.scheme?.lowercased() == "http" {
+        FirebaseLogger.log(
+          level: .warning,
+          service: "[FirebaseStorage]",
+          code: "I-STR000002",
+          message: "Refusing to send Auth and AppCheck tokens over HTTP to non-loopback host."
+        )
+      }
     }
 
     fetchTokenGroup.notify(queue: callbackQueue) {
