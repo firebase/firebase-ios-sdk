@@ -53,6 +53,16 @@
 }
 @end
 
+// this delegate implements scene:continueUserActivity: for testing scene-based URL handling
+@interface MockSceneDelegate : NSObject <UISceneDelegate>
+- (void)scene:(UIScene *)scene continueUserActivity:(NSUserActivity *)userActivity;
+@end
+@implementation MockSceneDelegate
+- (void)scene:(UIScene *)scene continueUserActivity:(NSUserActivity *)userActivity {
+  // no-op
+}
+@end
+
 @interface FIRIAMActionURLFollowerTests : XCTestCase
 @property FIRIAMActionURLFollower *actionFollower;
 @property UIApplication *mockApplication;
@@ -263,5 +273,180 @@
           [expectation fulfill];
         }];
   [self waitForExpectationsWithTimeout:5.0 handler:nil];
+}
+
+- (void)testSceneContinueUserActivityHandling {
+  // Delegate2 does not define application:continueUserActivity:restorationHandler
+  self.mockAppDelegate = OCMClassMock([Delegate2 class]);
+  OCMStub([self.mockApplication delegate]).andReturn(self.mockAppDelegate);
+
+  // Mock UIScene and MockSceneDelegate
+  id mockScene = OCMClassMock([UIScene class]);
+  OCMStub([mockScene activationState]).andReturn(UISceneActivationStateForegroundActive);
+
+  id mockSceneDelegate = OCMClassMock([MockSceneDelegate class]);
+  OCMStub([mockScene delegate]).andReturn(mockSceneDelegate);
+
+  // Mock the mainApplication.connectedScenes NSSet
+  NSSet *connectedScenes = [NSSet setWithObject:mockScene];
+  OCMStub([self.mockApplication connectedScenes]).andReturn(connectedScenes);
+
+  FIRIAMActionURLFollower *follower =
+      [[FIRIAMActionURLFollower alloc] initWithCustomURLSchemeArray:@[]
+                                                    withApplication:self.mockApplication];
+
+  NSURL *url = [NSURL URLWithString:@"http://test.com"];
+
+  // Expect sceneDelegate's scene:continueUserActivity: to be called
+  OCMExpect([mockSceneDelegate scene:mockScene
+                continueUserActivity:[OCMArg checkWithBlock:^BOOL(id userActivity) {
+                  NSUserActivity *activity = (NSUserActivity *)userActivity;
+                  NSString *browsingWebType = @"NSUserActivityTypeBrowsingWeb";
+                  return [activity.activityType isEqualToString:browsingWebType] &&
+                         [activity.webpageURL isEqual:url];
+                }]]);
+
+  XCTestExpectation *expectation =
+      [self expectationWithDescription:@"Completion Callback Triggered"];
+
+  [follower followActionURL:url
+        withCompletionBlock:^(BOOL success) {
+          XCTAssertTrue(success);
+          [expectation fulfill];
+        }];
+
+  [self waitForExpectationsWithTimeout:5.0 handler:nil];
+  OCMVerifyAll(mockSceneDelegate);
+}
+
+- (void)testSceneContinueUserActivityHandlingFallback {
+  // Delegate2 does not define application:continueUserActivity:restorationHandler
+  self.mockAppDelegate = OCMClassMock([Delegate2 class]);
+  OCMStub([self.mockApplication delegate]).andReturn(self.mockAppDelegate);
+
+  // Mock UIScene but with a delegate that does NOT implement scene:continueUserActivity:
+  id mockScene = OCMClassMock([UIScene class]);
+  OCMStub([mockScene activationState]).andReturn(UISceneActivationStateForegroundActive);
+
+  // Delegate2 does not implement UISceneDelegate
+  id mockSceneDelegate = OCMClassMock([Delegate2 class]);
+  OCMStub([mockScene delegate]).andReturn(mockSceneDelegate);
+
+  NSSet *connectedScenes = [NSSet setWithObject:mockScene];
+  OCMStub([self.mockApplication connectedScenes]).andReturn(connectedScenes);
+
+  FIRIAMActionURLFollower *follower =
+      [[FIRIAMActionURLFollower alloc] initWithCustomURLSchemeArray:@[]
+                                                    withApplication:self.mockApplication];
+
+  NSURL *url = [NSURL URLWithString:@"http://test.com"];
+
+  // It should fallback to openURL on UIApplication
+  [self setupOpenURLViaIOSForUIApplicationWithReturnValue:YES];
+
+  XCTestExpectation *expectation =
+      [self expectationWithDescription:@"Completion Callback Triggered"];
+
+  [follower followActionURL:url
+        withCompletionBlock:^(BOOL success) {
+          XCTAssertTrue(success);
+          [expectation fulfill];
+        }];
+
+  [self waitForExpectationsWithTimeout:5.0 handler:nil];
+}
+
+- (void)testSceneContinueUserActivityHandlingForegroundInactiveFallback {
+  self.mockAppDelegate = OCMClassMock([Delegate2 class]);
+  OCMStub([self.mockApplication delegate]).andReturn(self.mockAppDelegate);
+
+  // Scene A is background state (should be skipped)
+  id mockSceneA = OCMClassMock([UIScene class]);
+  OCMStub([mockSceneA activationState]).andReturn(UISceneActivationStateBackground);
+  id mockSceneDelegateA = OCMClassMock([MockSceneDelegate class]);
+  OCMStub([mockSceneA delegate]).andReturn(mockSceneDelegateA);
+
+  // Scene B is foreground inactive (should be selected as fallback)
+  id mockSceneB = OCMClassMock([UIScene class]);
+  OCMStub([mockSceneB activationState]).andReturn(UISceneActivationStateForegroundInactive);
+  id mockSceneDelegateB = OCMClassMock([MockSceneDelegate class]);
+  OCMStub([mockSceneB delegate]).andReturn(mockSceneDelegateB);
+
+  NSSet *connectedScenes = [NSSet setWithObjects:mockSceneA, mockSceneB, nil];
+  OCMStub([self.mockApplication connectedScenes]).andReturn(connectedScenes);
+
+  FIRIAMActionURLFollower *follower =
+      [[FIRIAMActionURLFollower alloc] initWithCustomURLSchemeArray:@[]
+                                                    withApplication:self.mockApplication];
+
+  NSURL *url = [NSURL URLWithString:@"http://test.com"];
+
+  // Expect sceneDelegateB's (inactive) scene:continueUserActivity: to be called,
+  // but NOT sceneDelegateA's (background)
+  OCMExpect([mockSceneDelegateB scene:mockSceneB
+                 continueUserActivity:[OCMArg checkWithBlock:^BOOL(id userActivity) {
+                   NSUserActivity *activity = (NSUserActivity *)userActivity;
+                   return [activity.webpageURL isEqual:url];
+                 }]]);
+  OCMReject([mockSceneDelegateA scene:mockSceneA continueUserActivity:[OCMArg any]]);
+
+  XCTestExpectation *expectation =
+      [self expectationWithDescription:@"Completion Callback Triggered"];
+
+  [follower followActionURL:url
+        withCompletionBlock:^(BOOL success) {
+          XCTAssertTrue(success);
+          [expectation fulfill];
+        }];
+
+  [self waitForExpectationsWithTimeout:5.0 handler:nil];
+  OCMVerifyAll(mockSceneDelegateB);
+}
+
+- (void)testSceneContinueUserActivityHandlingActivePriorityOverInactive {
+  self.mockAppDelegate = OCMClassMock([Delegate2 class]);
+  OCMStub([self.mockApplication delegate]).andReturn(self.mockAppDelegate);
+
+  // Scene A is foreground inactive
+  id mockSceneA = OCMClassMock([UIScene class]);
+  OCMStub([mockSceneA activationState]).andReturn(UISceneActivationStateForegroundInactive);
+  id mockSceneDelegateA = OCMClassMock([MockSceneDelegate class]);
+  OCMStub([mockSceneA delegate]).andReturn(mockSceneDelegateA);
+
+  // Scene B is foreground active (should be preferred)
+  id mockSceneB = OCMClassMock([UIScene class]);
+  OCMStub([mockSceneB activationState]).andReturn(UISceneActivationStateForegroundActive);
+  id mockSceneDelegateB = OCMClassMock([MockSceneDelegate class]);
+  OCMStub([mockSceneB delegate]).andReturn(mockSceneDelegateB);
+
+  // Order them so inactive is listed first in the set to test priority search
+  NSSet *connectedScenes = [NSSet setWithObjects:mockSceneA, mockSceneB, nil];
+  OCMStub([self.mockApplication connectedScenes]).andReturn(connectedScenes);
+
+  FIRIAMActionURLFollower *follower =
+      [[FIRIAMActionURLFollower alloc] initWithCustomURLSchemeArray:@[]
+                                                    withApplication:self.mockApplication];
+
+  NSURL *url = [NSURL URLWithString:@"http://test.com"];
+
+  // Expect active scene delegate (B) to be called, NOT inactive (A)
+  OCMExpect([mockSceneDelegateB scene:mockSceneB
+                 continueUserActivity:[OCMArg checkWithBlock:^BOOL(id userActivity) {
+                   NSUserActivity *activity = (NSUserActivity *)userActivity;
+                   return [activity.webpageURL isEqual:url];
+                 }]]);
+  OCMReject([mockSceneDelegateA scene:mockSceneA continueUserActivity:[OCMArg any]]);
+
+  XCTestExpectation *expectation =
+      [self expectationWithDescription:@"Completion Callback Triggered"];
+
+  [follower followActionURL:url
+        withCompletionBlock:^(BOOL success) {
+          XCTAssertTrue(success);
+          [expectation fulfill];
+        }];
+
+  [self waitForExpectationsWithTimeout:5.0 handler:nil];
+  OCMVerifyAll(mockSceneDelegateB);
 }
 @end
