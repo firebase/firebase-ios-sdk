@@ -576,27 +576,34 @@ enum FunctionsConstants {
     urlRequest.setValue("text/event-stream", forHTTPHeaderField: "Accept")
     urlRequest.httpMethod = "POST"
 
-    if let authToken = context.authToken {
-      let value = "Bearer \(authToken)"
-      urlRequest.setValue(value, forHTTPHeaderField: "Authorization")
-    }
+    let isHttps = url.scheme?.lowercased() == "https"
+    let host = url.host?.lowercased() ?? ""
+    let isLoopback = host == "localhost" || host == "127.0.0.1" || host == "::1"
+    let shouldAttachTokens = isHttps || isLoopback
 
-    if let fcmToken = context.fcmToken {
-      urlRequest.setValue(fcmToken, forHTTPHeaderField: Constants.fcmTokenHeader)
-    }
+    if shouldAttachTokens {
+      if let authToken = context.authToken {
+        let value = "Bearer \(authToken)"
+        urlRequest.setValue(value, forHTTPHeaderField: "Authorization")
+      }
 
-    if options?.requireLimitedUseAppCheckTokens == true {
-      if let appCheckToken = context.limitedUseAppCheckToken {
+      if let fcmToken = context.fcmToken {
+        urlRequest.setValue(fcmToken, forHTTPHeaderField: Constants.fcmTokenHeader)
+      }
+
+      if options?.requireLimitedUseAppCheckTokens == true {
+        if let appCheckToken = context.limitedUseAppCheckToken {
+          urlRequest.setValue(
+            appCheckToken,
+            forHTTPHeaderField: Constants.appCheckTokenHeader
+          )
+        }
+      } else if let appCheckToken = context.appCheckToken {
         urlRequest.setValue(
           appCheckToken,
           forHTTPHeaderField: Constants.appCheckTokenHeader
         )
       }
-    } else if let appCheckToken = context.appCheckToken {
-      urlRequest.setValue(
-        appCheckToken,
-        forHTTPHeaderField: Constants.appCheckTokenHeader
-      )
     }
 
     return urlRequest
@@ -622,27 +629,34 @@ enum FunctionsConstants {
 
     // Set the headers.
     fetcher.setRequestValue("application/json", forHTTPHeaderField: "Content-Type")
-    if let authToken = context.authToken {
-      let value = "Bearer \(authToken)"
-      fetcher.setRequestValue(value, forHTTPHeaderField: "Authorization")
-    }
+    let isHttps = url.scheme?.lowercased() == "https"
+    let host = url.host?.lowercased() ?? ""
+    let isLoopback = host == "localhost" || host == "127.0.0.1" || host == "::1"
+    let shouldAttachTokens = isHttps || isLoopback
 
-    if let fcmToken = context.fcmToken {
-      fetcher.setRequestValue(fcmToken, forHTTPHeaderField: Constants.fcmTokenHeader)
-    }
+    if shouldAttachTokens {
+      if let authToken = context.authToken {
+        let value = "Bearer \(authToken)"
+        fetcher.setRequestValue(value, forHTTPHeaderField: "Authorization")
+      }
 
-    if options?.requireLimitedUseAppCheckTokens == true {
-      if let appCheckToken = context.limitedUseAppCheckToken {
+      if let fcmToken = context.fcmToken {
+        fetcher.setRequestValue(fcmToken, forHTTPHeaderField: Constants.fcmTokenHeader)
+      }
+
+      if options?.requireLimitedUseAppCheckTokens == true {
+        if let appCheckToken = context.limitedUseAppCheckToken {
+          fetcher.setRequestValue(
+            appCheckToken,
+            forHTTPHeaderField: Constants.appCheckTokenHeader
+          )
+        }
+      } else if let appCheckToken = context.appCheckToken {
         fetcher.setRequestValue(
           appCheckToken,
           forHTTPHeaderField: Constants.appCheckTokenHeader
         )
       }
-    } else if let appCheckToken = context.appCheckToken {
-      fetcher.setRequestValue(
-        appCheckToken,
-        forHTTPHeaderField: Constants.appCheckTokenHeader
-      )
     }
 
     // Override normal security rules if this is a local test.
