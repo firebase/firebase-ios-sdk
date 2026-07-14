@@ -385,4 +385,36 @@ class FunctionsTests: XCTestCase {
 
     waitForExpectations(timeout: 1.5)
   }
+
+  @MainActor func testCallFunctionOverHttpWithLocalhostDoesAttachTokens() {
+    let functionsLocal = Functions(
+      projectID: "my-project",
+      region: "my-region",
+      customDomain: "http://localhost",
+      auth: nil,
+      messaging: nil,
+      appCheck: appCheckFake,
+      fetcherService: fetcherService
+    )
+    appCheckFake.tokenResult = FIRAppCheckTokenResultFake(token: "shared_valid_token", error: nil)
+
+    let httpRequestExpectation = expectation(description: "HTTPRequestExpectation")
+    fetcherService.testBlock = { fetcherToTest, testResponse in
+      XCTAssertEqual(
+        fetcherToTest.request?.value(forHTTPHeaderField: "X-Firebase-AppCheck"),
+        "shared_valid_token"
+      )
+      testResponse(nil, "{\"data\":\"success\"}".data(using: .utf8), nil)
+      httpRequestExpectation.fulfill()
+    }
+
+    let completionExpectation = expectation(description: "completionExpectation")
+    functionsLocal
+      .httpsCallable("fake_func")
+      .call { result, error in
+        completionExpectation.fulfill()
+      }
+
+    waitForExpectations(timeout: 1.5)
+  }
 }

@@ -601,6 +601,13 @@ enum FunctionsConstants {
           forHTTPHeaderField: Constants.appCheckTokenHeader
         )
       }
+    } else if url.scheme?.lowercased() == "http" {
+      FirebaseLogger.log(
+        level: .warning,
+        service: "[FirebaseFunctions]",
+        code: "I-FUN000001",
+        message: "Refusing to send Auth, FCM, and AppCheck tokens over HTTP to non-loopback host."
+      )
     }
 
     return urlRequest
@@ -651,6 +658,13 @@ enum FunctionsConstants {
           forHTTPHeaderField: Constants.appCheckTokenHeader
         )
       }
+    } else if url.scheme?.lowercased() == "http" {
+      FirebaseLogger.log(
+        level: .warning,
+        service: "[FirebaseFunctions]",
+        code: "I-FUN000002",
+        message: "Refusing to send Auth, FCM, and AppCheck tokens over HTTP to non-loopback host."
+      )
     }
 
     // Override normal security rules if this is a local test.
