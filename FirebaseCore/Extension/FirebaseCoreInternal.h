@@ -24,5 +24,6 @@
 #import "FIRHeartbeatLogger.h"
 #import "FIRLibrary.h"
 #import "FIRLogger.h"
+#import "UIApplication+FIRSceneDelegateFinder.h"
 
 #endif  // FIREBASECORE_FIREBASECOREINTERNAL_H
