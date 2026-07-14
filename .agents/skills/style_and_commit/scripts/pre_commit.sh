@@ -23,6 +23,7 @@ set -e
 
 # Operate on the repository where the command is invoked from
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+cd "$REPO_ROOT"
 
 # The directory where this pre_commit script lives
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
