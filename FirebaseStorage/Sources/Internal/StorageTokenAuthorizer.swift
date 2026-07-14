@@ -38,12 +38,13 @@ class StorageTokenAuthorizer: NSObject, GTMSessionFetcherAuthorizer {
     var tokenError: NSError?
     let fetchTokenGroup = DispatchGroup()
 
-    let isHttps = request?.url?.scheme?.lowercased() == "https"
+    let scheme = request?.url?.scheme?.lowercased()
+    let isHttps = scheme == "https"
     let host = request?.url?.host?.lowercased() ?? ""
     let isLoopback = host == "localhost" || host == "127.0.0.1" || host == "::1" || host == "[::1]"
     let shouldFetchTokens = isHttps || isLoopback
     guard shouldFetchTokens else {
-      if request?.url?.scheme?.lowercased() == "http" {
+      if scheme == "http" {
         FirebaseLogger.log(
           level: .warning,
           service: "[FirebaseStorage]",
