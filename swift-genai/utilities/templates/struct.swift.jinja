@@ -46,7 +46,7 @@ extension {{ namespace }} {
     {%- if prop.is_deprecated %}
     @available(*, deprecated)
     {%- endif %}
-    {{ access_level }} var {{ prop.swift_name }}: {{ prop.swift_type }}?
+    {{ access_level }} let {{ prop.swift_name }}: {{ prop.swift_type }}?
     {% endfor %}
     /// Creates a new `{{ name }}`.
     {{ access_level }} init(

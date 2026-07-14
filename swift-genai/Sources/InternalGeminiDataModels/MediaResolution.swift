@@ -12,14 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Testing
-import InternalSharedDataModels
-import InternalGeminiDataModels
-@testable import GeminiAPIClient
+import Foundation
 
-@Suite struct GeminiDataModelTests {
-  @Test func testPlaceholder() throws {
-    // Basic compilation and import verification
-    #expect(true)
+
+extension GeminiDataModels {
+  /// Media resolution for tokenization.
+  package struct MediaResolution: Codable, Sendable, Equatable, Hashable {
+    /// The tokenization quality used for given media. for Gemini API support .
+    package let level: Level?
+    
+    /// Creates a new `MediaResolution`.
+    package init(
+      level: Level? = nil
+    ) {
+      self.level = level
+    }
+    enum CodingKeys: String, CodingKey {
+      case level = "level"
+    }
   }
 }

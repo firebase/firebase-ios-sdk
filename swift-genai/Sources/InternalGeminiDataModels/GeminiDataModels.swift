@@ -12,14 +12,5 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Testing
-import InternalSharedDataModels
-import InternalGeminiDataModels
-@testable import GeminiAPIClient
-
-@Suite struct GeminiDataModelTests {
-  @Test func testPlaceholder() throws {
-    // Basic compilation and import verification
-    #expect(true)
-  }
-}
+/// Namespace for Gemini Developer API and Agent Platform API wire types.
+package enum GeminiDataModels {}

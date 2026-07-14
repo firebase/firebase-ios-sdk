@@ -12,14 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Testing
-import InternalSharedDataModels
-import InternalGeminiDataModels
-@testable import GeminiAPIClient
+import Foundation
 
-@Suite struct GeminiDataModelTests {
-  @Test func testPlaceholder() throws {
-    // Basic compilation and import verification
-    #expect(true)
+
+extension GeminiDataModels {
+  /// Tool config. This config is shared for all tools provided in the request.
+  package struct ToolConfig: Codable, Sendable, Equatable, Hashable {
+    /// Optional. Retrieval config.
+    package let retrievalConfig: RetrievalConfig?
+    
+    /// Creates a new `ToolConfig`.
+    package init(
+      retrievalConfig: RetrievalConfig? = nil
+    ) {
+      self.retrievalConfig = retrievalConfig
+    }
+    enum CodingKeys: String, CodingKey {
+      case retrievalConfig = "retrievalConfig"
+    }
   }
 }
