@@ -357,11 +357,12 @@ class FunctionsTests: XCTestCase {
   }
 
   @MainActor func testCallFunctionOverHttpWithoutLocalhostDoesNotAttachTokens() {
+    let authFake = FIRAuthInteropFake(token: "fake_auth_token", userID: nil, error: nil)
     let functionsInsecure = Functions(
       projectID: "my-project",
       region: "my-region",
       customDomain: "http://10.0.0.1",
-      auth: nil,
+      auth: authFake,
       messaging: nil,
       appCheck: appCheckFake,
       fetcherService: fetcherService
@@ -387,11 +388,12 @@ class FunctionsTests: XCTestCase {
   }
 
   @MainActor func testCallFunctionOverHttpWithLocalhostDoesAttachTokens() {
+    let authFake = FIRAuthInteropFake(token: "fake_auth_token", userID: nil, error: nil)
     let functionsLocal = Functions(
       projectID: "my-project",
       region: "my-region",
       customDomain: "http://localhost",
-      auth: nil,
+      auth: authFake,
       messaging: nil,
       appCheck: appCheckFake,
       fetcherService: fetcherService
@@ -400,6 +402,10 @@ class FunctionsTests: XCTestCase {
 
     let httpRequestExpectation = expectation(description: "HTTPRequestExpectation")
     fetcherService.testBlock = { fetcherToTest, testResponse in
+      XCTAssertEqual(
+        fetcherToTest.request?.value(forHTTPHeaderField: "Authorization"),
+        "Bearer fake_auth_token"
+      )
       XCTAssertEqual(
         fetcherToTest.request?.value(forHTTPHeaderField: "X-Firebase-AppCheck"),
         "shared_valid_token"
