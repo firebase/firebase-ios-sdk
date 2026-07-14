@@ -13,6 +13,8 @@
 // limitations under the License.
 
 import Foundation
+import GoogleAIDataModels
+import AgentPlatformDataModels
 
 extension [ModelContent] {
   // TODO: Rename and refactor this.
@@ -168,106 +170,128 @@ public struct ModelContent: Equatable, Sendable {
   }
 }
 
-// MARK: Codable Conformances
+// MARK: - Mappings
 
-extension ModelContent: Codable {
-  enum CodingKeys: String, CodingKey {
-    case role
-    case internalParts = "parts"
-  }
-
-  public init(from decoder: any Decoder) throws {
-    let container = try decoder.container(keyedBy: CodingKeys.self)
-    role = try container.decodeIfPresent(String.self, forKey: .role)
-    internalParts = try container.decodeIfPresent([InternalPart].self, forKey: .internalParts) ?? []
-  }
-}
-
-extension InternalPart: Codable {
-  enum CodingKeys: String, CodingKey {
-    case isThought = "thought"
-    case thoughtSignature
-  }
-
-  public func encode(to encoder: Encoder) throws {
-    try data.encode(to: encoder)
-    var container = encoder.container(keyedBy: CodingKeys.self)
-    try container.encodeIfPresent(isThought, forKey: .isThought)
-    try container.encodeIfPresent(thoughtSignature, forKey: .thoughtSignature)
-  }
-
-  public init(from decoder: Decoder) throws {
-    do {
-      data = try OneOfData(from: decoder)
-    } catch let error as OneOfData.UnsupportedDataError {
-      AILog.error(code: .decodedUnsupportedPartData, error.localizedDescription)
-      data = nil
-    } catch { // Re-throw any other error types
-      throw error
+extension InternalPart {
+  func toGoogleAI() -> GoogleAI.Part {
+    var thoughtBool: Bool? = nil
+    if let isThought = isThought {
+      thoughtBool = isThought
     }
-    let container = try decoder.container(keyedBy: CodingKeys.self)
-    isThought = try container.decodeIfPresent(Bool.self, forKey: .isThought)
-    thoughtSignature = try container.decodeIfPresent(String.self, forKey: .thoughtSignature)
-  }
-}
-
-extension InternalPart.OneOfData: Codable {
-  enum CodingKeys: String, CodingKey {
-    case text
-    case inlineData
-    case fileData
-    case functionCall
-    case functionResponse
-    case executableCode
-    case codeExecutionResult
-  }
-
-  public func encode(to encoder: Encoder) throws {
-    var container = encoder.container(keyedBy: CodingKeys.self)
-    switch self {
+    switch data {
     case let .text(text):
-      try container.encode(text, forKey: .text)
-    case let .inlineData(inlineData):
-      try container.encode(inlineData, forKey: .inlineData)
-    case let .fileData(fileData):
-      try container.encode(fileData, forKey: .fileData)
-    case let .functionCall(functionCall):
-      try container.encode(functionCall, forKey: .functionCall)
-    case let .functionResponse(functionResponse):
-      try container.encode(functionResponse, forKey: .functionResponse)
-    case let .executableCode(executableCode):
-      try container.encode(executableCode, forKey: .executableCode)
-    case let .codeExecutionResult(codeExecutionResult):
-      try container.encode(codeExecutionResult, forKey: .codeExecutionResult)
+      return GoogleAI.Part(text: text, thought: thoughtBool, thoughtSignature: thoughtSignature)
+    case let .inlineData(blob):
+      return GoogleAI.Part(inlineData: blob.toShared(), thought: thoughtBool, thoughtSignature: thoughtSignature)
+    case let .fileData(file):
+      return GoogleAI.Part(fileData: file.toShared(), thought: thoughtBool, thoughtSignature: thoughtSignature)
+    case let .functionCall(fc):
+      return GoogleAI.Part(functionCall: fc.toGoogleAI(), thought: thoughtBool, thoughtSignature: thoughtSignature)
+    case let .functionResponse(fr):
+      return GoogleAI.Part(functionResponse: fr.toGoogleAI(), thought: thoughtBool, thoughtSignature: thoughtSignature)
+    case let .executableCode(ec):
+      return GoogleAI.Part(executableCode: ec.toGoogleAI(), thought: thoughtBool, thoughtSignature: thoughtSignature)
+    case let .codeExecutionResult(cer):
+      return GoogleAI.Part(codeExecutionResult: cer.toGoogleAI(), thought: thoughtBool, thoughtSignature: thoughtSignature)
+    case .none:
+      return GoogleAI.Part(thought: thoughtBool, thoughtSignature: thoughtSignature)
     }
   }
 
-  public init(from decoder: Decoder) throws {
-    let values = try decoder.container(keyedBy: CodingKeys.self)
-    if values.contains(.text) {
-      self = try .text(values.decode(String.self, forKey: .text))
-    } else if values.contains(.inlineData) {
-      self = try .inlineData(values.decode(InlineData.self, forKey: .inlineData))
-    } else if values.contains(.fileData) {
-      self = try .fileData(values.decode(FileData.self, forKey: .fileData))
-    } else if values.contains(.functionCall) {
-      self = try .functionCall(values.decode(FunctionCall.self, forKey: .functionCall))
-    } else if values.contains(.functionResponse) {
-      self = try .functionResponse(values.decode(FunctionResponse.self, forKey: .functionResponse))
-    } else if values.contains(.executableCode) {
-      self = try .executableCode(values.decode(ExecutableCode.self, forKey: .executableCode))
-    } else if values.contains(.codeExecutionResult) {
-      self = try .codeExecutionResult(
-        values.decode(CodeExecutionResult.self, forKey: .codeExecutionResult)
-      )
-    } else {
-      let unexpectedKeys = values.allKeys.map { $0.stringValue }
-      throw UnsupportedDataError(decodingError: DecodingError.dataCorrupted(
-        DecodingError.Context(
-          codingPath: values.codingPath,
-          debugDescription: "Unexpected Part type(s): \(unexpectedKeys)"
-        )
-      ))
+  func toAgentPlatform() -> AgentPlatform.Part {
+    var thoughtBool: Bool? = nil
+    if let isThought = isThought {
+      thoughtBool = isThought
     }
+    switch data {
+    case let .text(text):
+      return AgentPlatform.Part(text: text, thought: thoughtBool, thoughtSignature: thoughtSignature)
+    case let .inlineData(blob):
+      return AgentPlatform.Part(inlineData: blob.toShared(), thought: thoughtBool, thoughtSignature: thoughtSignature)
+    case let .fileData(file):
+      return AgentPlatform.Part(fileData: file.toShared(), thought: thoughtBool, thoughtSignature: thoughtSignature)
+    case let .functionCall(fc):
+      return AgentPlatform.Part(functionCall: fc.toAgentPlatform(), thought: thoughtBool, thoughtSignature: thoughtSignature)
+    case let .functionResponse(fr):
+      return AgentPlatform.Part(functionResponse: fr.toAgentPlatform(), thought: thoughtBool, thoughtSignature: thoughtSignature)
+    case let .executableCode(ec):
+      return AgentPlatform.Part(executableCode: ec.toAgentPlatform(), thought: thoughtBool, thoughtSignature: thoughtSignature)
+    case let .codeExecutionResult(cer):
+      return AgentPlatform.Part(codeExecutionResult: cer.toAgentPlatform(), thought: thoughtBool, thoughtSignature: thoughtSignature)
+    case .none:
+      return AgentPlatform.Part(thought: thoughtBool, thoughtSignature: thoughtSignature)
+    }
+  }
+
+  init(fromGoogleAI part: GoogleAI.Part) {
+    self.isThought = part.thought
+    self.thoughtSignature = part.thoughtSignature
+    
+    if let text = part.text {
+      self.data = .text(text)
+    } else if let inlineData = part.inlineData {
+      self.data = .inlineData(InlineData(fromShared: inlineData))
+    } else if let fileData = part.fileData {
+      self.data = .fileData(FileData(fromShared: fileData))
+    } else if let functionCall = part.functionCall {
+      self.data = .functionCall(FunctionCall(fromGoogleAI: functionCall))
+    } else if let functionResponse = part.functionResponse {
+      self.data = .functionResponse(FunctionResponse(fromGoogleAI: functionResponse))
+    } else if let executableCode = part.executableCode {
+      self.data = .executableCode(ExecutableCode(fromGoogleAI: executableCode))
+    } else if let codeExecutionResult = part.codeExecutionResult {
+      self.data = .codeExecutionResult(CodeExecutionResult(fromGoogleAI: codeExecutionResult))
+    } else {
+      self.data = nil
+    }
+  }
+
+  init(fromAgentPlatform part: AgentPlatform.Part) {
+    self.isThought = part.thought
+    self.thoughtSignature = part.thoughtSignature
+    
+    if let text = part.text {
+      self.data = .text(text)
+    } else if let inlineData = part.inlineData {
+      self.data = .inlineData(InlineData(fromShared: inlineData))
+    } else if let fileData = part.fileData {
+      self.data = .fileData(FileData(fromShared: fileData))
+    } else if let functionCall = part.functionCall {
+      self.data = .functionCall(FunctionCall(fromAgentPlatform: functionCall))
+    } else if let functionResponse = part.functionResponse {
+      self.data = .functionResponse(FunctionResponse(fromAgentPlatform: functionResponse))
+    } else if let executableCode = part.executableCode {
+      self.data = .executableCode(ExecutableCode(fromAgentPlatform: executableCode))
+    } else if let codeExecutionResult = part.codeExecutionResult {
+      self.data = .codeExecutionResult(CodeExecutionResult(fromAgentPlatform: codeExecutionResult))
+    } else {
+      self.data = nil
+    }
+  }
+}
+
+extension ModelContent {
+  package func toGoogleAI() -> GoogleAI.Content {
+    GoogleAI.Content(
+      parts: internalParts.map { $0.toGoogleAI() },
+      role: role
+    )
+  }
+
+  package func toAgentPlatform() -> AgentPlatform.Content {
+    AgentPlatform.Content(
+      parts: internalParts.map { $0.toAgentPlatform() },
+      role: role
+    )
+  }
+
+  package init(fromGoogleAI content: GoogleAI.Content) {
+    self.role = content.role
+    self.internalParts = content.parts?.map { InternalPart(fromGoogleAI: $0) } ?? []
+  }
+
+  package init(fromAgentPlatform content: AgentPlatform.Content) {
+    self.role = content.role
+    self.internalParts = content.parts?.map { InternalPart(fromAgentPlatform: $0) } ?? []
   }
 }

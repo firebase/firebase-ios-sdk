@@ -16,7 +16,7 @@ import Foundation
 
 extension AgentPlatform.PartialArg {
   /// Optional. Represents a null value.
-  package enum NullValue: Codable, Sendable, Equatable, Hashable {
+  public enum NullValue: Codable, Sendable, Equatable, Hashable {
     /// Null value.
     case value
     
@@ -30,14 +30,14 @@ extension AgentPlatform.PartialArg {
 // MARK: - RawRepresentable Conformance
 
 extension AgentPlatform.PartialArg.NullValue: RawRepresentable {
-  package var rawValue: String {
+  public var rawValue: String {
     switch self {
     case .value: "NULL_VALUE"
     case .unrecognized(let value): value
     }
   }
 
-  package init(rawValue: String) {
+  public init(rawValue: String) {
     switch rawValue {
     case "NULL_VALUE": self = .value
     default: self = .unrecognized(rawValue)

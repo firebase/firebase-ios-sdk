@@ -16,7 +16,7 @@ import Foundation
 
 extension GoogleAI.ImageResponseFormat {
   /// Optional. The size of the image output.
-  package enum ImageSize: Codable, Sendable, Equatable, Hashable {
+  public enum ImageSize: Codable, Sendable, Equatable, Hashable {
     /// 512px image size.
     case fiveTwelve
     
@@ -39,7 +39,7 @@ extension GoogleAI.ImageResponseFormat {
 // MARK: - RawRepresentable Conformance
 
 extension GoogleAI.ImageResponseFormat.ImageSize: RawRepresentable {
-  package var rawValue: String {
+  public var rawValue: String {
     switch self {
     case .fiveTwelve: "IMAGE_SIZE_FIVE_TWELVE"
     case .oneK: "IMAGE_SIZE_ONE_K"
@@ -49,7 +49,7 @@ extension GoogleAI.ImageResponseFormat.ImageSize: RawRepresentable {
     }
   }
 
-  package init(rawValue: String) {
+  public init(rawValue: String) {
     switch rawValue {
     case "IMAGE_SIZE_FIVE_TWELVE": self = .fiveTwelve
     case "IMAGE_SIZE_ONE_K": self = .oneK

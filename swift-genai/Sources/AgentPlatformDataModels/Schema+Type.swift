@@ -16,7 +16,7 @@ import Foundation
 
 extension AgentPlatform.Schema {
   /// Optional. Data type of the schema field.
-  package enum `Type`: Codable, Sendable, Equatable, Hashable {
+  public enum `Type`: Codable, Sendable, Equatable, Hashable {
     /// OpenAPI string type
     case string
     
@@ -48,7 +48,7 @@ extension AgentPlatform.Schema {
 // MARK: - RawRepresentable Conformance
 
 extension AgentPlatform.Schema.`Type`: RawRepresentable {
-  package var rawValue: String {
+  public var rawValue: String {
     switch self {
     case .string: "STRING"
     case .number: "NUMBER"
@@ -61,7 +61,7 @@ extension AgentPlatform.Schema.`Type`: RawRepresentable {
     }
   }
 
-  package init(rawValue: String) {
+  public init(rawValue: String) {
     switch rawValue {
     case "STRING": self = .string
     case "NUMBER": self = .number

@@ -16,7 +16,7 @@ import Foundation
 
 extension AgentPlatform.SafetyRating {
   /// Output only. The harm category of this rating.
-  package enum Category: Codable, Sendable, Equatable, Hashable {
+  public enum Category: Codable, Sendable, Equatable, Hashable {
     /// Content that promotes violence or incites hatred against individuals or groups based on certain attributes.
     case hateSpeech
     
@@ -58,7 +58,7 @@ extension AgentPlatform.SafetyRating {
 // MARK: - RawRepresentable Conformance
 
 extension AgentPlatform.SafetyRating.Category: RawRepresentable {
-  package var rawValue: String {
+  public var rawValue: String {
     switch self {
     case .hateSpeech: "HARM_CATEGORY_HATE_SPEECH"
     case .dangerousContent: "HARM_CATEGORY_DANGEROUS_CONTENT"
@@ -74,7 +74,7 @@ extension AgentPlatform.SafetyRating.Category: RawRepresentable {
     }
   }
 
-  package init(rawValue: String) {
+  public init(rawValue: String) {
     switch rawValue {
     case "HARM_CATEGORY_HATE_SPEECH": self = .hateSpeech
     case "HARM_CATEGORY_DANGEROUS_CONTENT": self = .dangerousContent

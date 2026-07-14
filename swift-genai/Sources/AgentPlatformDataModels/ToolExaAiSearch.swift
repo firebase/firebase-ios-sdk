@@ -13,20 +13,20 @@
 // limitations under the License.
 
 import Foundation
-package import SharedDataModels
+public import SharedDataModels
 
 
 extension AgentPlatform {
   /// ExaAiSearch tool type. A tool that uses the Exa.ai search engine for grounding.
-  package struct ToolExaAiSearch: Codable, Sendable, Equatable, Hashable {
+  public struct ToolExaAiSearch: Codable, Sendable, Equatable, Hashable {
     /// Required. The API key for ExaAiSearch.
-    package var apiKey: String?
+    public var apiKey: String?
     
     /// Optional. This field can be used to pass any parameter from the Exa.ai Search API.
-    package var customConfigs: [String: JSONValue]?
+    public var customConfigs: [String: JSONValue]?
     
     /// Creates a new `ToolExaAiSearch`.
-    package init(
+    public init(
       apiKey: String? = nil,
       customConfigs: [String: JSONValue]? = nil
     ) {

@@ -17,18 +17,18 @@ import Foundation
 
 extension GoogleAI {
   /// Configuration for the response output format. This is a flat object where each optional sub-field configures a specific output modality.
-  package struct ResponseFormatConfig: Codable, Sendable, Equatable, Hashable {
+  public struct ResponseFormatConfig: Codable, Sendable, Equatable, Hashable {
     /// Optional. Audio output format configuration.
-    package var audio: AudioResponseFormat?
+    public var audio: AudioResponseFormat?
     
     /// Optional. Image output format configuration.
-    package var image: ImageResponseFormat?
+    public var image: ImageResponseFormat?
     
     /// Optional. Text output format configuration.
-    package var text: TextResponseFormat?
+    public var text: TextResponseFormat?
     
     /// Creates a new `ResponseFormatConfig`.
-    package init(
+    public init(
       audio: AudioResponseFormat? = nil,
       image: ImageResponseFormat? = nil,
       text: TextResponseFormat? = nil

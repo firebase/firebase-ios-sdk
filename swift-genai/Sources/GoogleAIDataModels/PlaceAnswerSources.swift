@@ -17,12 +17,12 @@ import Foundation
 
 extension GoogleAI {
   /// Collection of sources that provide answers about the features of a given place in Google Maps. Each PlaceAnswerSources message corresponds to a specific place in Google Maps. The Google Maps tool used these sources in order to answer questions about features of the place (e.g: "does Bar Foo have Wifi" or "is Foo Bar wheelchair accessible?"). Currently we only support review snippets as sources.
-  package struct PlaceAnswerSources: Codable, Sendable, Equatable, Hashable {
+  public struct PlaceAnswerSources: Codable, Sendable, Equatable, Hashable {
     /// Snippets of reviews that are used to generate answers about the features of a given place in Google Maps.
-    package var reviewSnippets: [ReviewSnippet]?
+    public var reviewSnippets: [ReviewSnippet]?
     
     /// Creates a new `PlaceAnswerSources`.
-    package init(
+    public init(
       reviewSnippets: [ReviewSnippet]? = nil
     ) {
       self.reviewSnippets = reviewSnippets

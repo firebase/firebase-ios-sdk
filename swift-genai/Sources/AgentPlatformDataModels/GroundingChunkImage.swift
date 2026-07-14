@@ -17,21 +17,21 @@ import Foundation
 
 extension AgentPlatform {
   /// An `Image` chunk is a piece of evidence that comes from an image search result. It contains the URI of the image search result and the URI of the image. This is used to provide the user with a link to the source of the information.
-  package struct GroundingChunkImage: Codable, Sendable, Equatable, Hashable {
+  public struct GroundingChunkImage: Codable, Sendable, Equatable, Hashable {
     /// The domain of the image search result page.
-    package var domain: String?
+    public var domain: String?
     
     /// The URI of the image.
-    package var imageUri: String?
+    public var imageUri: String?
     
     /// The URI of the image search result page.
-    package var sourceUri: String?
+    public var sourceUri: String?
     
     /// The title of the image search result page.
-    package var title: String?
+    public var title: String?
     
     /// Creates a new `GroundingChunkImage`.
-    package init(
+    public init(
       domain: String? = nil,
       imageUri: String? = nil,
       sourceUri: String? = nil,

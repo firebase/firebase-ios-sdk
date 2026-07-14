@@ -16,7 +16,7 @@ import Foundation
 
 extension GoogleAI.DynamicRetrievalConfig {
   /// The mode of the predictor to be used in dynamic retrieval.
-  package enum Mode: Codable, Sendable, Equatable, Hashable {
+  public enum Mode: Codable, Sendable, Equatable, Hashable {
     /// Run retrieval only when system decides it is necessary.
     case dynamic
     
@@ -30,14 +30,14 @@ extension GoogleAI.DynamicRetrievalConfig {
 // MARK: - RawRepresentable Conformance
 
 extension GoogleAI.DynamicRetrievalConfig.Mode: RawRepresentable {
-  package var rawValue: String {
+  public var rawValue: String {
     switch self {
     case .dynamic: "MODE_DYNAMIC"
     case .unrecognized(let value): value
     }
   }
 
-  package init(rawValue: String) {
+  public init(rawValue: String) {
     switch rawValue {
     case "MODE_DYNAMIC": self = .dynamic
     default: self = .unrecognized(rawValue)

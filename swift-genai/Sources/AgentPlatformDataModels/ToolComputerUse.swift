@@ -17,18 +17,18 @@ import Foundation
 
 extension AgentPlatform {
   /// Tool to support computer use.
-  package struct ToolComputerUse: Codable, Sendable, Equatable, Hashable {
+  public struct ToolComputerUse: Codable, Sendable, Equatable, Hashable {
     /// Optional. Enables the prompt injection detection check on computer-use request.
-    package var enablePromptInjectionDetection: Bool?
+    public var enablePromptInjectionDetection: Bool?
     
     /// Required. The environment being operated.
-    package var environment: Environment?
+    public var environment: Environment?
     
     /// Optional. By default, [predefined functions](https://cloud.google.com/vertex-ai/generative-ai/docs/computer-use#supported-actions) are included in the final model call. Some of them can be explicitly excluded from being automatically included. This can serve two purposes: 1. Using a more restricted / different action space. 2. Improving the definitions / instructions of predefined functions.
-    package var excludedPredefinedFunctions: [String]?
+    public var excludedPredefinedFunctions: [String]?
     
     /// Creates a new `ToolComputerUse`.
-    package init(
+    public init(
       enablePromptInjectionDetection: Bool? = nil,
       environment: Environment? = nil,
       excludedPredefinedFunctions: [String]? = nil

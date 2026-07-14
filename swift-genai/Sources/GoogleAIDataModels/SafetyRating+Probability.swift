@@ -16,7 +16,7 @@ import Foundation
 
 extension GoogleAI.SafetyRating {
   /// Required. The probability of harm for this content.
-  package enum Probability: Codable, Sendable, Equatable, Hashable {
+  public enum Probability: Codable, Sendable, Equatable, Hashable {
     /// Content has a negligible chance of being unsafe.
     case negligible
     
@@ -39,7 +39,7 @@ extension GoogleAI.SafetyRating {
 // MARK: - RawRepresentable Conformance
 
 extension GoogleAI.SafetyRating.Probability: RawRepresentable {
-  package var rawValue: String {
+  public var rawValue: String {
     switch self {
     case .negligible: "NEGLIGIBLE"
     case .low: "LOW"
@@ -49,7 +49,7 @@ extension GoogleAI.SafetyRating.Probability: RawRepresentable {
     }
   }
 
-  package init(rawValue: String) {
+  public init(rawValue: String) {
     switch rawValue {
     case "NEGLIGIBLE": self = .negligible
     case "LOW": self = .low

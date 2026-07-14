@@ -17,21 +17,21 @@ import Foundation
 
 extension AgentPlatform {
   /// Configuration for the model to configure output formatting and delivery.
-  package struct ResponseFormat: Codable, Sendable, Equatable, Hashable {
+  public struct ResponseFormat: Codable, Sendable, Equatable, Hashable {
     /// Audio output format.
-    package var audio: AudioResponseFormat?
+    public var audio: AudioResponseFormat?
     
     /// Image output format.
-    package var image: ImageResponseFormat?
+    public var image: ImageResponseFormat?
     
     /// Text output format.
-    package var text: TextResponseFormat?
+    public var text: TextResponseFormat?
     
     /// Video output format.
-    package var video: VideoResponseFormat?
+    public var video: VideoResponseFormat?
     
     /// Creates a new `ResponseFormat`.
-    package init(
+    public init(
       audio: AudioResponseFormat? = nil,
       image: ImageResponseFormat? = nil,
       text: TextResponseFormat? = nil,

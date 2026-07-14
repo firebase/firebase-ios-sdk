@@ -17,18 +17,18 @@ import Foundation
 
 extension GoogleAI {
   /// Candidate for the logprobs token and score.
-  package struct LogprobsResultCandidate: Codable, Sendable, Equatable, Hashable {
+  public struct LogprobsResultCandidate: Codable, Sendable, Equatable, Hashable {
     /// The candidate's log probability.
-    package var logProbability: Double?
+    public var logProbability: Double?
     
     /// The candidate’s token string value.
-    package var token: String?
+    public var token: String?
     
     /// The candidate’s token id value.
-    package var tokenId: Int?
+    public var tokenId: Int?
     
     /// Creates a new `LogprobsResultCandidate`.
-    package init(
+    public init(
       logProbability: Double? = nil,
       token: String? = nil,
       tokenId: Int? = nil

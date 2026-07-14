@@ -17,15 +17,15 @@ import Foundation
 
 extension AgentPlatform {
   /// Configuration for a voice.
-  package struct VoiceConfig: Codable, Sendable, Equatable, Hashable {
+  public struct VoiceConfig: Codable, Sendable, Equatable, Hashable {
     /// The configuration for a prebuilt voice.
-    package var prebuiltVoiceConfig: PrebuiltVoiceConfig?
+    public var prebuiltVoiceConfig: PrebuiltVoiceConfig?
     
     /// Optional. The configuration for a replicated voice. This enables users to replicate a voice from an audio sample.
-    package var replicatedVoiceConfig: ReplicatedVoiceConfig?
+    public var replicatedVoiceConfig: ReplicatedVoiceConfig?
     
     /// Creates a new `VoiceConfig`.
-    package init(
+    public init(
       prebuiltVoiceConfig: PrebuiltVoiceConfig? = nil,
       replicatedVoiceConfig: ReplicatedVoiceConfig? = nil
     ) {

@@ -17,18 +17,18 @@ import Foundation
 
 extension GoogleAI {
   /// Result of executing the `ExecutableCode`. Generated only when the `CodeExecution` tool is used.
-  package struct CodeExecutionResult: Codable, Sendable, Equatable, Hashable {
+  public struct CodeExecutionResult: Codable, Sendable, Equatable, Hashable {
     /// Optional. The identifier of the `ExecutableCode` part this result is for. Only populated if the corresponding `ExecutableCode` has an id.
-    package var id: String?
+    public var id: String?
     
     /// Required. Outcome of the code execution.
-    package var outcome: Outcome?
+    public var outcome: Outcome?
     
     /// Optional. Contains stdout when code execution is successful, stderr or other description otherwise.
-    package var output: String?
+    public var output: String?
     
     /// Creates a new `CodeExecutionResult`.
-    package init(
+    public init(
       id: String? = nil,
       outcome: Outcome? = nil,
       output: String? = nil

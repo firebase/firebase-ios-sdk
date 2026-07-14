@@ -17,12 +17,12 @@ import Foundation
 
 extension AgentPlatform {
   /// The generic reusable api auth config. Deprecated. Please use AuthConfig (google/cloud/aiplatform/master/auth.proto) instead.
-  package struct ApiAuth: Codable, Sendable, Equatable, Hashable {
+  public struct ApiAuth: Codable, Sendable, Equatable, Hashable {
     /// The API secret.
-    package var apiKeyConfig: ApiAuthApiKeyConfig?
+    public var apiKeyConfig: ApiAuthApiKeyConfig?
     
     /// Creates a new `ApiAuth`.
-    package init(
+    public init(
       apiKeyConfig: ApiAuthApiKeyConfig? = nil
     ) {
       self.apiKeyConfig = apiKeyConfig

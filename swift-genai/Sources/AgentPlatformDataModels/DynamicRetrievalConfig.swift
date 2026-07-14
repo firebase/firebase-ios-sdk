@@ -17,15 +17,15 @@ import Foundation
 
 extension AgentPlatform {
   /// Describes the options to customize dynamic retrieval.
-  package struct DynamicRetrievalConfig: Codable, Sendable, Equatable, Hashable {
+  public struct DynamicRetrievalConfig: Codable, Sendable, Equatable, Hashable {
     /// Optional. The threshold to be used in dynamic retrieval. If not set, a system default value is used.
-    package var dynamicThreshold: Double?
+    public var dynamicThreshold: Double?
     
     /// The mode of the predictor to be used in dynamic retrieval.
-    package var mode: Mode?
+    public var mode: Mode?
     
     /// Creates a new `DynamicRetrievalConfig`.
-    package init(
+    public init(
       dynamicThreshold: Double? = nil,
       mode: Mode? = nil
     ) {

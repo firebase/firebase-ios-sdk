@@ -16,7 +16,7 @@ import Foundation
 
 extension AgentPlatform.VideoResponseFormat {
   /// The aspect ratio for the video output.
-  package enum AspectRatio: Codable, Sendable, Equatable, Hashable {
+  public enum AspectRatio: Codable, Sendable, Equatable, Hashable {
     /// 16:9 aspect ratio.
     case sixteenByNine
     
@@ -33,7 +33,7 @@ extension AgentPlatform.VideoResponseFormat {
 // MARK: - RawRepresentable Conformance
 
 extension AgentPlatform.VideoResponseFormat.AspectRatio: RawRepresentable {
-  package var rawValue: String {
+  public var rawValue: String {
     switch self {
     case .sixteenByNine: "ASPECT_RATIO_SIXTEEN_BY_NINE"
     case .nineBySixteen: "ASPECT_RATIO_NINE_BY_SIXTEEN"
@@ -41,7 +41,7 @@ extension AgentPlatform.VideoResponseFormat.AspectRatio: RawRepresentable {
     }
   }
 
-  package init(rawValue: String) {
+  public init(rawValue: String) {
     switch rawValue {
     case "ASPECT_RATIO_SIXTEEN_BY_NINE": self = .sixteenByNine
     case "ASPECT_RATIO_NINE_BY_SIXTEEN": self = .nineBySixteen

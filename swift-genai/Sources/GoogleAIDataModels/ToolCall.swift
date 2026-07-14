@@ -13,23 +13,23 @@
 // limitations under the License.
 
 import Foundation
-package import SharedDataModels
+public import SharedDataModels
 
 
 extension GoogleAI {
   /// A predicted server-side `ToolCall` returned from the model. This message contains information about a tool that the model wants to invoke. The client is NOT expected to execute this `ToolCall`. Instead, the client should pass this `ToolCall` back to the API in a subsequent turn within a `Content` message, along with the corresponding `ToolResponse`.
-  package struct ToolCall: Codable, Sendable, Equatable, Hashable {
+  public struct ToolCall: Codable, Sendable, Equatable, Hashable {
     /// Optional. The tool call arguments. Example: {"arg1" : "value1", "arg2" : "value2" , ...}
-    package var args: [String: JSONValue]?
+    public var args: [String: JSONValue]?
     
     /// Optional. Unique identifier of the tool call. The server returns the tool response with the matching `id`.
-    package var id: String?
+    public var id: String?
     
     /// Required. The type of tool that was called.
-    package var toolType: ToolType?
+    public var toolType: ToolType?
     
     /// Creates a new `ToolCall`.
-    package init(
+    public init(
       args: [String: JSONValue]? = nil,
       id: String? = nil,
       toolType: ToolType? = nil

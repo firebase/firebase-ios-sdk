@@ -17,9 +17,9 @@ import Foundation
 
 extension GoogleAI {
   /// Standard web search for grounding and related configurations.
-  package struct WebSearch: Codable, Sendable, Equatable, Hashable {
+  public struct WebSearch: Codable, Sendable, Equatable, Hashable {
     /// Creates a new `WebSearch`.
-    package init(
+    public init(
     ) {
     }
   }

@@ -13,29 +13,29 @@
 // limitations under the License.
 
 import Foundation
-package import SharedDataModels
+public import SharedDataModels
 
 
 extension AgentPlatform {
   /// The result output from a FunctionCall that contains a string representing the FunctionDeclaration.name and a structured JSON object containing any output from the function is used as context to the model. This should contain the result of a `FunctionCall` made based on model prediction.
-  package struct FunctionResponse: Codable, Sendable, Equatable, Hashable {
+  public struct FunctionResponse: Codable, Sendable, Equatable, Hashable {
     /// Optional. The id of the function call this response is for. Populated by the client to match the corresponding function call `id`.
-    package var id: String?
+    public var id: String?
     
     /// Required. The name of the function to call. Matches FunctionDeclaration.name and FunctionCall.name.
-    package var name: String?
+    public var name: String?
     
     /// Optional. Ordered `Parts` that constitute a function response. Parts may have different IANA MIME types.
-    package var parts: [FunctionResponsePart]?
+    public var parts: [FunctionResponsePart]?
     
     /// Required. The function response in JSON object format. Use "output" key to specify function output and "error" key to specify error details (if any). If "output" and "error" keys are not specified, then whole "response" is treated as function output.
-    package var response: [String: JSONValue]?
+    public var response: [String: JSONValue]?
     
     /// Optional. Specifies how the response should be scheduled in the conversation. Only applicable to NON_BLOCKING function calls, is ignored otherwise. Defaults to WHEN_IDLE.
-    package var scheduling: Scheduling?
+    public var scheduling: Scheduling?
     
     /// Creates a new `FunctionResponse`.
-    package init(
+    public init(
       id: String? = nil,
       name: String? = nil,
       parts: [FunctionResponsePart]? = nil,

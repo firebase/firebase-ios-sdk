@@ -17,18 +17,18 @@ import Foundation
 
 extension GoogleAI {
   /// Config for speech generation and transcription.
-  package struct SpeechConfig: Codable, Sendable, Equatable, Hashable {
+  public struct SpeechConfig: Codable, Sendable, Equatable, Hashable {
     /// Optional. The IETF [BCP-47](https://www.rfc-editor.org/rfc/bcp/bcp47.txt) language code that the user configured the app to use. Used for speech recognition and synthesis. Valid values are: `de-DE`, `en-AU`, `en-GB`, `en-IN`, `en-US`, `es-US`, `fr-FR`, `hi-IN`, `pt-BR`, `ar-XA`, `es-ES`, `fr-CA`, `id-ID`, `it-IT`, `ja-JP`, `tr-TR`, `vi-VN`, `bn-IN`, `gu-IN`, `kn-IN`, `ml-IN`, `mr-IN`, `ta-IN`, `te-IN`, `nl-NL`, `ko-KR`, `cmn-CN`, `pl-PL`, `ru-RU`, and `th-TH`.
-    package var languageCode: String?
+    public var languageCode: String?
     
     /// Optional. The configuration for the multi-speaker setup. It is mutually exclusive with the voice_config field.
-    package var multiSpeakerVoiceConfig: MultiSpeakerVoiceConfig?
+    public var multiSpeakerVoiceConfig: MultiSpeakerVoiceConfig?
     
     /// The configuration in case of single-voice output.
-    package var voiceConfig: VoiceConfig?
+    public var voiceConfig: VoiceConfig?
     
     /// Creates a new `SpeechConfig`.
-    package init(
+    public init(
       languageCode: String? = nil,
       multiSpeakerVoiceConfig: MultiSpeakerVoiceConfig? = nil,
       voiceConfig: VoiceConfig? = nil

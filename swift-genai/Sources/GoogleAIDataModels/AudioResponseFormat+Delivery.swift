@@ -16,7 +16,7 @@ import Foundation
 
 extension GoogleAI.AudioResponseFormat {
   /// Optional. The delivery mode for the audio output.
-  package enum Delivery: Codable, Sendable, Equatable, Hashable {
+  public enum Delivery: Codable, Sendable, Equatable, Hashable {
     /// Audio data is returned inline in the response.
     case inline
     
@@ -33,7 +33,7 @@ extension GoogleAI.AudioResponseFormat {
 // MARK: - RawRepresentable Conformance
 
 extension GoogleAI.AudioResponseFormat.Delivery: RawRepresentable {
-  package var rawValue: String {
+  public var rawValue: String {
     switch self {
     case .inline: "INLINE"
     case .uri: "URI"
@@ -41,7 +41,7 @@ extension GoogleAI.AudioResponseFormat.Delivery: RawRepresentable {
     }
   }
 
-  package init(rawValue: String) {
+  public init(rawValue: String) {
     switch rawValue {
     case "INLINE": self = .inline
     case "URI": self = .uri

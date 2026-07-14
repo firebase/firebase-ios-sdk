@@ -17,9 +17,9 @@ import Foundation
 
 extension AgentPlatform {
   /// Image search for grounding and related configurations.
-  package struct ToolGoogleSearchImageSearch: Codable, Sendable, Equatable, Hashable {
+  public struct ToolGoogleSearchImageSearch: Codable, Sendable, Equatable, Hashable {
     /// Creates a new `ToolGoogleSearchImageSearch`.
-    package init(
+    public init(
     ) {
     }
   }

@@ -17,24 +17,24 @@ import Foundation
 
 extension GoogleAI {
   /// A grounding chunk from Google Maps. A Maps chunk corresponds to a single place.
-  package struct Maps: Codable, Sendable, Equatable, Hashable {
+  public struct Maps: Codable, Sendable, Equatable, Hashable {
     /// Sources that provide answers about the features of a given place in Google Maps.
-    package var placeAnswerSources: PlaceAnswerSources?
+    public var placeAnswerSources: PlaceAnswerSources?
     
     /// The ID of the place, in `places/{place_id}` format. A user can use this ID to look up that place.
-    package var placeId: String?
+    public var placeId: String?
     
     /// Text description of the place answer.
-    package var text: String?
+    public var text: String?
     
     /// Title of the place.
-    package var title: String?
+    public var title: String?
     
     /// URI reference of the place.
-    package var uri: String?
+    public var uri: String?
     
     /// Creates a new `Maps`.
-    package init(
+    public init(
       placeAnswerSources: PlaceAnswerSources? = nil,
       placeId: String? = nil,
       text: String? = nil,

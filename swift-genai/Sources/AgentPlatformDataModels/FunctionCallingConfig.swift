@@ -17,18 +17,18 @@ import Foundation
 
 extension AgentPlatform {
   /// Function calling config.
-  package struct FunctionCallingConfig: Codable, Sendable, Equatable, Hashable {
+  public struct FunctionCallingConfig: Codable, Sendable, Equatable, Hashable {
     /// Optional. Function names to call. Only set when the Mode is ANY. Function names should match FunctionDeclaration.name. With mode set to ANY, model will predict a function call from the set of function names provided.
-    package var allowedFunctionNames: [String]?
+    public var allowedFunctionNames: [String]?
     
     /// Optional. Function calling mode.
-    package var mode: Mode?
+    public var mode: Mode?
     
     /// Optional. When set to true, arguments of a single function call will be streamed out in multiple parts/contents/responses. Partial parameter results will be returned in the `FunctionCall.partial_args` field.
-    package var streamFunctionCallArguments: Bool?
+    public var streamFunctionCallArguments: Bool?
     
     /// Creates a new `FunctionCallingConfig`.
-    package init(
+    public init(
       allowedFunctionNames: [String]? = nil,
       mode: Mode? = nil,
       streamFunctionCallArguments: Bool? = nil

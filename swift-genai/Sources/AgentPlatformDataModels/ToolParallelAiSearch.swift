@@ -13,27 +13,27 @@
 // limitations under the License.
 
 import Foundation
-package import SharedDataModels
+public import SharedDataModels
 
 
 extension AgentPlatform {
   /// ParallelAiSearch tool type. A tool that uses the Parallel.ai search engine for grounding.
-  package struct ToolParallelAiSearch: Codable, Sendable, Equatable, Hashable {
+  public struct ToolParallelAiSearch: Codable, Sendable, Equatable, Hashable {
     /// Optional. The API key for ParallelAiSearch. If an API key is not provided, the system will attempt to verify access by checking for an active Parallel.ai subscription through the Google Cloud Marketplace. See https://docs.parallel.ai/search/search-quickstart for more details.
-    package var apiKey: String?
+    public var apiKey: String?
     
     /// Optional. Custom configs for ParallelAiSearch. This field can be used to pass any parameter from the Parallel.ai Search API. See the Parallel.ai documentation for the full list of available parameters and their usage: https://docs.parallel.ai/api-reference/search-beta/search Currently only `source_policy`, `excerpts`, `max_results`, `mode`, `fetch_policy` can be set via this field. For example: { "source_policy": { "include_domains": ["google.com", "wikipedia.org"], "exclude_domains": ["example.com"] }, "fetch_policy": { "max_age_seconds": 3600 } }
-    package var customConfigs: [String: JSONValue]?
+    public var customConfigs: [String: JSONValue]?
     
     /// Optional. Deprecated: Use `enable_zero_data_retention` instead. Instructs Vertex Grounding to use Parallel's Zero Data Retention Marketplace product. If this value is "false" or omitted, the Parallel Web Search for Grounding standard subscription will be used. If this value is "true", the Parallel Web Search for Grounding - ZDR subscription will be used.
     @available(*, deprecated)
-    package var enableDataRetention: Bool?
+    public var enableDataRetention: Bool?
     
     /// Optional. Instructs Vertex Grounding to use Parallel's Zero Data Retention Marketplace product. If this value is "false" or omitted, the Parallel Web Search for Grounding standard subscription will be used. If this value is "true", the Parallel Web Search for Grounding - ZDR subscription will be used.
-    package var enableZeroDataRetention: Bool?
+    public var enableZeroDataRetention: Bool?
     
     /// Creates a new `ToolParallelAiSearch`.
-    package init(
+    public init(
       apiKey: String? = nil,
       customConfigs: [String: JSONValue]? = nil,
       enableDataRetention: Bool? = nil,

@@ -17,42 +17,42 @@ import Foundation
 
 extension GoogleAI {
   /// Metadata on the generation request's token usage.
-  package struct UsageMetadata: Codable, Sendable, Equatable, Hashable {
+  public struct UsageMetadata: Codable, Sendable, Equatable, Hashable {
     /// Output only. List of modalities of the cached content in the request input.
-    package var cacheTokensDetails: [ModalityTokenCount]?
+    public var cacheTokensDetails: [ModalityTokenCount]?
     
     /// Number of tokens in the cached part of the prompt (the cached content)
-    package var cachedContentTokenCount: Int?
+    public var cachedContentTokenCount: Int?
     
     /// Total number of tokens across all the generated response candidates.
-    package var candidatesTokenCount: Int?
+    public var candidatesTokenCount: Int?
     
     /// Output only. List of modalities that were returned in the response.
-    package var candidatesTokensDetails: [ModalityTokenCount]?
+    public var candidatesTokensDetails: [ModalityTokenCount]?
     
     /// Number of tokens in the prompt. When `cached_content` is set, this is still the total effective prompt size meaning this includes the number of tokens in the cached content.
-    package var promptTokenCount: Int?
+    public var promptTokenCount: Int?
     
     /// Output only. List of modalities that were processed in the request input.
-    package var promptTokensDetails: [ModalityTokenCount]?
+    public var promptTokensDetails: [ModalityTokenCount]?
     
     /// Output only. Service tier of the request.
-    package var serviceTier: ServiceTier?
+    public var serviceTier: ServiceTier?
     
     /// Output only. Number of tokens of thoughts for thinking models.
-    package var thoughtsTokenCount: Int?
+    public var thoughtsTokenCount: Int?
     
     /// Output only. Number of tokens present in tool-use prompt(s).
-    package var toolUsePromptTokenCount: Int?
+    public var toolUsePromptTokenCount: Int?
     
     /// Output only. List of modalities that were processed for tool-use request inputs.
-    package var toolUsePromptTokensDetails: [ModalityTokenCount]?
+    public var toolUsePromptTokensDetails: [ModalityTokenCount]?
     
     /// Total token count for the generation request (prompt + thoughts + response candidates).
-    package var totalTokenCount: Int?
+    public var totalTokenCount: Int?
     
     /// Creates a new `UsageMetadata`.
-    package init(
+    public init(
       cacheTokensDetails: [ModalityTokenCount]? = nil,
       cachedContentTokenCount: Int? = nil,
       candidatesTokenCount: Int? = nil,

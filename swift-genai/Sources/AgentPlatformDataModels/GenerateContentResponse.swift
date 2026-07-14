@@ -19,27 +19,27 @@ public import Foundation
 
 extension AgentPlatform {
   /// Response message for [PredictionService.GenerateContent].
-  package struct GenerateContentResponse: Codable, Sendable, Equatable, Hashable {
+  public struct GenerateContentResponse: Codable, Sendable, Equatable, Hashable {
     /// Output only. Generated candidates.
-    package var candidates: [Candidate]?
+    public var candidates: [Candidate]?
     
     /// Output only. Timestamp when the request is made to the server.
-    package var createTime: Date?
+    public var createTime: Date?
     
     /// Output only. The model version used to generate the response.
-    package var modelVersion: String?
+    public var modelVersion: String?
     
     /// Output only. Content filter results for a prompt sent in the request. Note: Sent only in the first stream chunk. Only happens when no candidates were generated due to content violations.
-    package var promptFeedback: GenerateContentResponsePromptFeedback?
+    public var promptFeedback: GenerateContentResponsePromptFeedback?
     
     /// Output only. response_id is used to identify each response. It is the encoding of the event_id.
-    package var responseId: String?
+    public var responseId: String?
     
     /// Usage metadata about the response(s).
-    package var usageMetadata: GenerateContentResponseUsageMetadata?
+    public var usageMetadata: GenerateContentResponseUsageMetadata?
     
     /// Creates a new `GenerateContentResponse`.
-    package init(
+    public init(
       candidates: [Candidate]? = nil,
       createTime: Date? = nil,
       modelVersion: String? = nil,

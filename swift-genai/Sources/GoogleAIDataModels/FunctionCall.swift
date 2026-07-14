@@ -13,23 +13,23 @@
 // limitations under the License.
 
 import Foundation
-package import SharedDataModels
+public import SharedDataModels
 
 
 extension GoogleAI {
   /// A predicted `FunctionCall` returned from the model that contains a string representing the `FunctionDeclaration.name` with the arguments and their values.
-  package struct FunctionCall: Codable, Sendable, Equatable, Hashable {
+  public struct FunctionCall: Codable, Sendable, Equatable, Hashable {
     /// Optional. The function parameters and values in JSON object format.
-    package var args: [String: JSONValue]?
+    public var args: [String: JSONValue]?
     
     /// Optional. Unique identifier of the function call. If populated, the client to execute the `function_call` and return the response with the matching `id`.
-    package var id: String?
+    public var id: String?
     
     /// Required. The name of the function to call. Must be a-z, A-Z, 0-9, or contain underscores and dashes, with a maximum length of 128.
-    package var name: String?
+    public var name: String?
     
     /// Creates a new `FunctionCall`.
-    package init(
+    public init(
       args: [String: JSONValue]? = nil,
       id: String? = nil,
       name: String? = nil

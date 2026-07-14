@@ -17,22 +17,22 @@ import Foundation
 
 extension AgentPlatform {
   /// Defines a retrieval tool that model can call to access external knowledge.
-  package struct Retrieval: Codable, Sendable, Equatable, Hashable {
+  public struct Retrieval: Codable, Sendable, Equatable, Hashable {
     /// Optional. Deprecated. This option is no longer supported.
     @available(*, deprecated)
-    package var disableAttribution: Bool?
+    public var disableAttribution: Bool?
     
     /// Use data source powered by external API for grounding.
-    package var externalApi: ExternalApi?
+    public var externalApi: ExternalApi?
     
     /// Set to use data source powered by Vertex AI Search.
-    package var vertexAiSearch: VertexAISearch?
+    public var vertexAiSearch: VertexAISearch?
     
     /// Set to use data source powered by Vertex RAG store. User data is uploaded via the VertexRagDataService.
-    package var vertexRagStore: VertexRagStore?
+    public var vertexRagStore: VertexRagStore?
     
     /// Creates a new `Retrieval`.
-    package init(
+    public init(
       disableAttribution: Bool? = nil,
       externalApi: ExternalApi? = nil,
       vertexAiSearch: VertexAISearch? = nil,

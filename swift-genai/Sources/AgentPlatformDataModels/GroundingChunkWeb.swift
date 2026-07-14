@@ -17,18 +17,18 @@ import Foundation
 
 extension AgentPlatform {
   /// A `Web` chunk is a piece of evidence that comes from a web page. It contains the URI of the web page, the title of the page, and the domain of the page. This is used to provide the user with a link to the source of the information.
-  package struct GroundingChunkWeb: Codable, Sendable, Equatable, Hashable {
+  public struct GroundingChunkWeb: Codable, Sendable, Equatable, Hashable {
     /// The domain of the web page that contains the evidence. This can be used to filter out low-quality sources.
-    package var domain: String?
+    public var domain: String?
     
     /// The title of the web page that contains the evidence.
-    package var title: String?
+    public var title: String?
     
     /// The URI of the web page that contains the evidence.
-    package var uri: String?
+    public var uri: String?
     
     /// Creates a new `GroundingChunkWeb`.
-    package init(
+    public init(
       domain: String? = nil,
       title: String? = nil,
       uri: String? = nil

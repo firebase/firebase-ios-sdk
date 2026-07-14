@@ -17,15 +17,15 @@ import Foundation
 
 extension AgentPlatform {
   /// The API secret.
-  package struct ApiAuthApiKeyConfig: Codable, Sendable, Equatable, Hashable {
+  public struct ApiAuthApiKeyConfig: Codable, Sendable, Equatable, Hashable {
     /// Required. The SecretManager secret version resource name storing API key. e.g. projects/{project}/secrets/{secret}/versions/{version}
-    package var apiKeySecretVersion: String?
+    public var apiKeySecretVersion: String?
     
     /// The API key string. Either this or `api_key_secret_version` must be set.
-    package var apiKeyString: String?
+    public var apiKeyString: String?
     
     /// Creates a new `ApiAuthApiKeyConfig`.
-    package init(
+    public init(
       apiKeySecretVersion: String? = nil,
       apiKeyString: String? = nil
     ) {

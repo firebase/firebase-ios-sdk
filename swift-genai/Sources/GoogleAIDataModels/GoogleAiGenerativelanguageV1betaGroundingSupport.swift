@@ -17,21 +17,21 @@ import Foundation
 
 extension GoogleAI {
   /// Grounding support.
-  package struct GoogleAiGenerativelanguageV1betaGroundingSupport: Codable, Sendable, Equatable, Hashable {
+  public struct GoogleAiGenerativelanguageV1betaGroundingSupport: Codable, Sendable, Equatable, Hashable {
     /// Optional. Confidence score of the support references. Ranges from 0 to 1. 1 is the most confident. This list must have the same size as the grounding_chunk_indices.
-    package var confidenceScores: [Double]?
+    public var confidenceScores: [Double]?
     
     /// Optional. A list of indices (into 'grounding_chunk' in `response.candidate.grounding_metadata`) specifying the citations associated with the claim. For instance [1,3,4] means that grounding_chunk[1], grounding_chunk[3], grounding_chunk[4] are the retrieved content attributed to the claim. If the response is streaming, the grounding_chunk_indices refer to the indices across all responses. It is the client's responsibility to accumulate the grounding chunks from all responses (while maintaining the same order).
-    package var groundingChunkIndices: [Int]?
+    public var groundingChunkIndices: [Int]?
     
     /// Output only. Indices into the `parts` field of the candidate's content. These indices specify which rendered parts are associated with this support source.
-    package var renderedParts: [Int]?
+    public var renderedParts: [Int]?
     
     /// Segment of the content this support belongs to.
-    package var segment: GoogleAiGenerativelanguageV1betaSegment?
+    public var segment: GoogleAiGenerativelanguageV1betaSegment?
     
     /// Creates a new `GoogleAiGenerativelanguageV1betaGroundingSupport`.
-    package init(
+    public init(
       confidenceScores: [Double]? = nil,
       groundingChunkIndices: [Int]? = nil,
       renderedParts: [Int]? = nil,

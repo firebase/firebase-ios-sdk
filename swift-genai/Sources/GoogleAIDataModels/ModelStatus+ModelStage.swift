@@ -16,7 +16,7 @@ import Foundation
 
 extension GoogleAI.ModelStatus {
   /// The stage of the underlying model.
-  package enum ModelStage: Codable, Sendable, Equatable, Hashable {
+  public enum ModelStage: Codable, Sendable, Equatable, Hashable {
     /// The underlying model is subject to lots of tunings.
     @available(*, deprecated)
     case unstableExperimental
@@ -50,7 +50,7 @@ extension GoogleAI.ModelStatus {
 // MARK: - RawRepresentable Conformance
 
 extension GoogleAI.ModelStatus.ModelStage: RawRepresentable {
-  package var rawValue: String {
+  public var rawValue: String {
     switch self {
     case .unstableExperimental: "UNSTABLE_EXPERIMENTAL"
     case .experimental: "EXPERIMENTAL"
@@ -63,7 +63,7 @@ extension GoogleAI.ModelStatus.ModelStage: RawRepresentable {
     }
   }
 
-  package init(rawValue: String) {
+  public init(rawValue: String) {
     switch rawValue {
     case "UNSTABLE_EXPERIMENTAL": self = .unstableExperimental
     case "EXPERIMENTAL": self = .experimental

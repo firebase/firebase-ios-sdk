@@ -17,21 +17,21 @@ import Foundation
 
 extension GoogleAI {
   /// Computer Use tool type.
-  package struct ComputerUse: Codable, Sendable, Equatable, Hashable {
+  public struct ComputerUse: Codable, Sendable, Equatable, Hashable {
     /// Optional. Disabled safety policies for computer use.
-    package var disabledSafetyPolicies: [String]?
+    public var disabledSafetyPolicies: [String]?
     
     /// Optional. Whether enable the prompt injection detection check on computer-use request.
-    package var enablePromptInjectionDetection: Bool?
+    public var enablePromptInjectionDetection: Bool?
     
     /// Required. The environment being operated.
-    package var environment: Environment?
+    public var environment: Environment?
     
     /// Optional. By default, predefined functions are included in the final model call. Some of them can be explicitly excluded from being automatically included. This can serve two purposes: 1. Using a more restricted / different action space. 2. Improving the definitions / instructions of predefined functions.
-    package var excludedPredefinedFunctions: [String]?
+    public var excludedPredefinedFunctions: [String]?
     
     /// Creates a new `ComputerUse`.
-    package init(
+    public init(
       disabledSafetyPolicies: [String]? = nil,
       enablePromptInjectionDetection: Bool? = nil,
       environment: Environment? = nil,

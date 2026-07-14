@@ -17,12 +17,12 @@ import Foundation
 
 extension GoogleAI {
   /// A list of string values.
-  package struct GroundingChunkStringList: Codable, Sendable, Equatable, Hashable {
+  public struct GroundingChunkStringList: Codable, Sendable, Equatable, Hashable {
     /// The string values of the list.
-    package var values: [String]?
+    public var values: [String]?
     
     /// Creates a new `GroundingChunkStringList`.
-    package init(
+    public init(
       values: [String]? = nil
     ) {
       self.values = values

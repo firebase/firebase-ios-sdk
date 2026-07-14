@@ -15,7 +15,7 @@
 import Foundation
 
 /// Speech generation config.
-struct ProtoSpeechConfig: Encodable, Sendable, Equatable {
+struct ProtoSpeechConfig: Sendable, Equatable {
   /// The configuration for the speaker to use.
   let voiceConfig: ProtoVoiceConfig?
 
@@ -35,5 +35,40 @@ struct ProtoSpeechConfig: Encodable, Sendable, Equatable {
     voiceConfig = nil
     self.multiSpeakerVoiceConfig = multiSpeakerVoiceConfig
     self.languageCode = languageCode
+  }
+}
+
+// MARK: - Mappings
+
+import GoogleAIDataModels
+import AgentPlatformDataModels
+
+extension ProtoSpeechConfig {
+  func toGoogleAI() -> GoogleAI.SpeechConfig {
+    GoogleAI.SpeechConfig(
+      languageCode: languageCode,
+      multiSpeakerVoiceConfig: multiSpeakerVoiceConfig?.toGoogleAI(),
+      voiceConfig: voiceConfig?.toGoogleAI()
+    )
+  }
+
+  func toAgentPlatform() -> AgentPlatform.SpeechConfig {
+    AgentPlatform.SpeechConfig(
+      languageCode: languageCode,
+      multiSpeakerVoiceConfig: multiSpeakerVoiceConfig?.toAgentPlatform(),
+      voiceConfig: voiceConfig?.toAgentPlatform()
+    )
+  }
+
+  init(fromGoogleAI config: GoogleAI.SpeechConfig) {
+    self.languageCode = config.languageCode
+    self.multiSpeakerVoiceConfig = config.multiSpeakerVoiceConfig.map { ProtoMultiSpeakerVoiceConfig(fromGoogleAI: $0) }
+    self.voiceConfig = config.voiceConfig.flatMap { ProtoVoiceConfig(fromGoogleAI: $0) }
+  }
+
+  init(fromAgentPlatform config: AgentPlatform.SpeechConfig) {
+    self.languageCode = config.languageCode
+    self.multiSpeakerVoiceConfig = config.multiSpeakerVoiceConfig.map { ProtoMultiSpeakerVoiceConfig(fromAgentPlatform: $0) }
+    self.voiceConfig = config.voiceConfig.flatMap { ProtoVoiceConfig(fromAgentPlatform: $0) }
   }
 }

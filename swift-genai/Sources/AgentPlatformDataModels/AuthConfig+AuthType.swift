@@ -16,7 +16,7 @@ import Foundation
 
 extension AgentPlatform.AuthConfig {
   /// Type of auth scheme.
-  package enum AuthType: Codable, Sendable, Equatable, Hashable {
+  public enum AuthType: Codable, Sendable, Equatable, Hashable {
     /// No Auth.
     case noAuth
     
@@ -45,7 +45,7 @@ extension AgentPlatform.AuthConfig {
 // MARK: - RawRepresentable Conformance
 
 extension AgentPlatform.AuthConfig.AuthType: RawRepresentable {
-  package var rawValue: String {
+  public var rawValue: String {
     switch self {
     case .noAuth: "NO_AUTH"
     case .apiKeyAuth: "API_KEY_AUTH"
@@ -57,7 +57,7 @@ extension AgentPlatform.AuthConfig.AuthType: RawRepresentable {
     }
   }
 
-  package init(rawValue: String) {
+  public init(rawValue: String) {
     switch rawValue {
     case "NO_AUTH": self = .noAuth
     case "API_KEY_AUTH": self = .apiKeyAuth

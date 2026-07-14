@@ -17,18 +17,18 @@ import Foundation
 
 extension GoogleAI {
   /// The Tool configuration containing parameters for specifying `Tool` use in the request.
-  package struct ToolConfig: Codable, Sendable, Equatable, Hashable {
+  public struct ToolConfig: Codable, Sendable, Equatable, Hashable {
     /// Optional. Function calling config.
-    package var functionCallingConfig: FunctionCallingConfig?
+    public var functionCallingConfig: FunctionCallingConfig?
     
     /// Optional. If true, the API response will include the server-side tool calls and responses within the `Content` message. This allows clients to observe the server's tool interactions.
-    package var includeServerSideToolInvocations: Bool?
+    public var includeServerSideToolInvocations: Bool?
     
     /// Optional. Retrieval config.
-    package var retrievalConfig: RetrievalConfig?
+    public var retrievalConfig: RetrievalConfig?
     
     /// Creates a new `ToolConfig`.
-    package init(
+    public init(
       functionCallingConfig: FunctionCallingConfig? = nil,
       includeServerSideToolInvocations: Bool? = nil,
       retrievalConfig: RetrievalConfig? = nil

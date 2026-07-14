@@ -17,9 +17,9 @@ import Foundation
 
 extension AgentPlatform {
   /// Tool to support URL context.
-  package struct UrlContext: Codable, Sendable, Equatable, Hashable {
+  public struct UrlContext: Codable, Sendable, Equatable, Hashable {
     /// Creates a new `UrlContext`.
-    package init(
+    public init(
     ) {
     }
   }

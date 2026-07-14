@@ -173,6 +173,7 @@ let package = Package(
       "101.0.0" ..< "102.0.0"
     ),
     appCheckDependency(),
+    .package(path: "swift-genai"),
   ],
   targets: [
     .target(
@@ -195,6 +196,7 @@ let package = Package(
         "FirebaseAuthInterop",
         "FirebaseCore",
         "FirebaseCoreExtension",
+        .product(name: "InternalGeminiDataModels", package: "swift-genai"),
       ],
       path: "FirebaseAI/Sources",
       swiftSettings: [
@@ -206,6 +208,7 @@ let package = Package(
       dependencies: [
         "FirebaseAILogic",
         "FirebaseStorage",
+        .product(name: "InternalGeminiDataModels", package: "swift-genai"),
       ],
       path: "FirebaseAI/Tests/Unit",
       resources: [

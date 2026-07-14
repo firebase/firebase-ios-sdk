@@ -17,30 +17,30 @@ import Foundation
 
 extension GoogleAI {
   /// Metadata returned to client when grounding is enabled.
-  package struct GroundingMetadata: Codable, Sendable, Equatable, Hashable {
+  public struct GroundingMetadata: Codable, Sendable, Equatable, Hashable {
     /// Optional. Resource name of the Google Maps widget context token that can be used with the PlacesContextElement widget in order to render contextual data. Only populated in the case that grounding with Google Maps is enabled.
-    package var googleMapsWidgetContextToken: String?
+    public var googleMapsWidgetContextToken: String?
     
     /// List of supporting references retrieved from specified grounding source. When streaming, this only contains the grounding chunks that have not been included in the grounding metadata of previous responses.
-    package var groundingChunks: [GroundingChunk]?
+    public var groundingChunks: [GroundingChunk]?
     
     /// List of grounding support.
-    package var groundingSupports: [GoogleAiGenerativelanguageV1betaGroundingSupport]?
+    public var groundingSupports: [GoogleAiGenerativelanguageV1betaGroundingSupport]?
     
     /// Image search queries used for grounding.
-    package var imageSearchQueries: [String]?
+    public var imageSearchQueries: [String]?
     
     /// Metadata related to retrieval in the grounding flow.
-    package var retrievalMetadata: RetrievalMetadata?
+    public var retrievalMetadata: RetrievalMetadata?
     
     /// Optional. Google search entry for the following-up web searches.
-    package var searchEntryPoint: SearchEntryPoint?
+    public var searchEntryPoint: SearchEntryPoint?
     
     /// Web search queries for the following-up web search.
-    package var webSearchQueries: [String]?
+    public var webSearchQueries: [String]?
     
     /// Creates a new `GroundingMetadata`.
-    package init(
+    public init(
       googleMapsWidgetContextToken: String? = nil,
       groundingChunks: [GroundingChunk]? = nil,
       groundingSupports: [GoogleAiGenerativelanguageV1betaGroundingSupport]? = nil,

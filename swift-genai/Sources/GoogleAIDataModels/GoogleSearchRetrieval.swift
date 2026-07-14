@@ -17,12 +17,12 @@ import Foundation
 
 extension GoogleAI {
   /// Tool to retrieve public web data for grounding, powered by Google.
-  package struct GoogleSearchRetrieval: Codable, Sendable, Equatable, Hashable {
+  public struct GoogleSearchRetrieval: Codable, Sendable, Equatable, Hashable {
     /// Specifies the dynamic retrieval configuration for the given source.
-    package var dynamicRetrievalConfig: DynamicRetrievalConfig?
+    public var dynamicRetrievalConfig: DynamicRetrievalConfig?
     
     /// Creates a new `GoogleSearchRetrieval`.
-    package init(
+    public init(
       dynamicRetrievalConfig: DynamicRetrievalConfig? = nil
     ) {
       self.dynamicRetrievalConfig = dynamicRetrievalConfig

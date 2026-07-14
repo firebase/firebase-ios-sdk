@@ -17,21 +17,21 @@ import Foundation
 
 extension AgentPlatform {
   /// Configuration for image-specific output formatting.
-  package struct ImageResponseFormat: Codable, Sendable, Equatable, Hashable {
+  public struct ImageResponseFormat: Codable, Sendable, Equatable, Hashable {
     /// Optional. The aspect ratio for the image output.
-    package var aspectRatio: AspectRatio?
+    public var aspectRatio: AspectRatio?
     
     /// Optional. Delivery mode for the generated content.
-    package var delivery: Delivery?
+    public var delivery: Delivery?
     
     /// Optional. The size of the image output.
-    package var imageSize: ImageSize?
+    public var imageSize: ImageSize?
     
     /// Optional. The MIME type of the image output.
-    package var mimeType: MimeType?
+    public var mimeType: MimeType?
     
     /// Creates a new `ImageResponseFormat`.
-    package init(
+    public init(
       aspectRatio: AspectRatio? = nil,
       delivery: Delivery? = nil,
       imageSize: ImageSize? = nil,

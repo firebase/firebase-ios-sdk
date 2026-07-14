@@ -17,15 +17,15 @@ import Foundation
 
 extension AgentPlatform {
   /// Tool config. This config is shared for all tools provided in the request.
-  package struct ToolConfig: Codable, Sendable, Equatable, Hashable {
+  public struct ToolConfig: Codable, Sendable, Equatable, Hashable {
     /// Optional. Function calling config.
-    package var functionCallingConfig: FunctionCallingConfig?
+    public var functionCallingConfig: FunctionCallingConfig?
     
     /// Optional. Retrieval config.
-    package var retrievalConfig: RetrievalConfig?
+    public var retrievalConfig: RetrievalConfig?
     
     /// Creates a new `ToolConfig`.
-    package init(
+    public init(
       functionCallingConfig: FunctionCallingConfig? = nil,
       retrievalConfig: RetrievalConfig? = nil
     ) {

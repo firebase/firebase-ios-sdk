@@ -17,15 +17,15 @@ import Foundation
 
 extension AgentPlatform {
   /// The configuration for routing the request to a specific model. This can be used to control which model is used for the generation, either automatically or by specifying a model name.
-  package struct GenerationConfigRoutingConfig: Codable, Sendable, Equatable, Hashable {
+  public struct GenerationConfigRoutingConfig: Codable, Sendable, Equatable, Hashable {
     /// In this mode, the model is selected automatically based on the content of the request.
-    package var autoMode: GenerationConfigRoutingConfigAutoRoutingMode?
+    public var autoMode: GenerationConfigRoutingConfigAutoRoutingMode?
     
     /// In this mode, the model is specified manually.
-    package var manualMode: GenerationConfigRoutingConfigManualRoutingMode?
+    public var manualMode: GenerationConfigRoutingConfigManualRoutingMode?
     
     /// Creates a new `GenerationConfigRoutingConfig`.
-    package init(
+    public init(
       autoMode: GenerationConfigRoutingConfigAutoRoutingMode? = nil,
       manualMode: GenerationConfigRoutingConfigManualRoutingMode? = nil
     ) {

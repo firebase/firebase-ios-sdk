@@ -17,15 +17,15 @@ import Foundation
 
 extension AgentPlatform {
   /// Different types of search that can be enabled on the GoogleSearch tool.
-  package struct ToolGoogleSearchSearchTypes: Codable, Sendable, Equatable, Hashable {
+  public struct ToolGoogleSearchSearchTypes: Codable, Sendable, Equatable, Hashable {
     /// Optional. Setting this field enables image search. Image bytes are returned.
-    package var imageSearch: ToolGoogleSearchImageSearch?
+    public var imageSearch: ToolGoogleSearchImageSearch?
     
     /// Optional. Setting this field enables web search. Only text results are returned.
-    package var webSearch: ToolGoogleSearchWebSearch?
+    public var webSearch: ToolGoogleSearchWebSearch?
     
     /// Creates a new `ToolGoogleSearchSearchTypes`.
-    package init(
+    public init(
       imageSearch: ToolGoogleSearchImageSearch? = nil,
       webSearch: ToolGoogleSearchWebSearch? = nil
     ) {

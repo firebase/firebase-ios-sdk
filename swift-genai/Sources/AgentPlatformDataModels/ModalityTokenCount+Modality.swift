@@ -16,7 +16,7 @@ import Foundation
 
 extension AgentPlatform.ModalityTokenCount {
   /// The modality that this token count applies to.
-  package enum Modality: Codable, Sendable, Equatable, Hashable {
+  public enum Modality: Codable, Sendable, Equatable, Hashable {
     /// The `Part` contains plain text.
     case text
     
@@ -42,7 +42,7 @@ extension AgentPlatform.ModalityTokenCount {
 // MARK: - RawRepresentable Conformance
 
 extension AgentPlatform.ModalityTokenCount.Modality: RawRepresentable {
-  package var rawValue: String {
+  public var rawValue: String {
     switch self {
     case .text: "TEXT"
     case .image: "IMAGE"
@@ -53,7 +53,7 @@ extension AgentPlatform.ModalityTokenCount.Modality: RawRepresentable {
     }
   }
 
-  package init(rawValue: String) {
+  public init(rawValue: String) {
     switch rawValue {
     case "TEXT": self = .text
     case "IMAGE": self = .image

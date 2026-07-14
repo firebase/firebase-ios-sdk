@@ -17,12 +17,12 @@ import Foundation
 
 extension AgentPlatform {
   /// Config for model selection.
-  package struct GenerationConfigModelConfig: Codable, Sendable, Equatable, Hashable {
+  public struct GenerationConfigModelConfig: Codable, Sendable, Equatable, Hashable {
     /// Required. Feature selection preference.
-    package var featureSelectionPreference: FeatureSelectionPreference?
+    public var featureSelectionPreference: FeatureSelectionPreference?
     
     /// Creates a new `GenerationConfigModelConfig`.
-    package init(
+    public init(
       featureSelectionPreference: FeatureSelectionPreference? = nil
     ) {
       self.featureSelectionPreference = featureSelectionPreference

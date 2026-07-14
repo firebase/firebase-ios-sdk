@@ -17,12 +17,12 @@ import Foundation
 
 extension AgentPlatform {
   /// The configuration for automated routing. When automated routing is specified, the routing will be determined by the pretrained routing model and customer provided model routing preference.
-  package struct GenerationConfigRoutingConfigAutoRoutingMode: Codable, Sendable, Equatable, Hashable {
+  public struct GenerationConfigRoutingConfigAutoRoutingMode: Codable, Sendable, Equatable, Hashable {
     /// The model routing preference.
-    package var modelRoutingPreference: ModelRoutingPreference?
+    public var modelRoutingPreference: ModelRoutingPreference?
     
     /// Creates a new `GenerationConfigRoutingConfigAutoRoutingMode`.
-    package init(
+    public init(
       modelRoutingPreference: ModelRoutingPreference? = nil
     ) {
       self.modelRoutingPreference = modelRoutingPreference

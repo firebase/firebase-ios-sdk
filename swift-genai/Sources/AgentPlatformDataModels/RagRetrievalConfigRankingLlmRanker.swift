@@ -17,12 +17,12 @@ import Foundation
 
 extension AgentPlatform {
   /// Config for LlmRanker.
-  package struct RagRetrievalConfigRankingLlmRanker: Codable, Sendable, Equatable, Hashable {
+  public struct RagRetrievalConfigRankingLlmRanker: Codable, Sendable, Equatable, Hashable {
     /// Optional. The model name used for ranking. See [Supported models](https://cloud.google.com/vertex-ai/generative-ai/docs/model-reference/inference#supported-models).
-    package var modelName: String?
+    public var modelName: String?
     
     /// Creates a new `RagRetrievalConfigRankingLlmRanker`.
-    package init(
+    public init(
       modelName: String? = nil
     ) {
       self.modelName = modelName

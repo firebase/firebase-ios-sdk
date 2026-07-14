@@ -16,7 +16,7 @@ import Foundation
 
 extension GoogleAI.FunctionDeclaration {
   /// Optional. Specifies the function Behavior. Currently only supported by the BidiGenerateContent method.
-  package enum Behavior: Codable, Sendable, Equatable, Hashable {
+  public enum Behavior: Codable, Sendable, Equatable, Hashable {
     /// If set, the system will wait to receive the function response before continuing the conversation.
     case blocking
     
@@ -33,7 +33,7 @@ extension GoogleAI.FunctionDeclaration {
 // MARK: - RawRepresentable Conformance
 
 extension GoogleAI.FunctionDeclaration.Behavior: RawRepresentable {
-  package var rawValue: String {
+  public var rawValue: String {
     switch self {
     case .blocking: "BLOCKING"
     case .nonBlocking: "NON_BLOCKING"
@@ -41,7 +41,7 @@ extension GoogleAI.FunctionDeclaration.Behavior: RawRepresentable {
     }
   }
 
-  package init(rawValue: String) {
+  public init(rawValue: String) {
     switch rawValue {
     case "BLOCKING": self = .blocking
     case "NON_BLOCKING": self = .nonBlocking

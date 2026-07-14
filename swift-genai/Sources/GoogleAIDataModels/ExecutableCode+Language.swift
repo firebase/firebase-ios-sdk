@@ -16,7 +16,7 @@ import Foundation
 
 extension GoogleAI.ExecutableCode {
   /// Required. Programming language of the `code`.
-  package enum Language: Codable, Sendable, Equatable, Hashable {
+  public enum Language: Codable, Sendable, Equatable, Hashable {
     /// Python >= 3.10, with numpy and simpy available. Python is the default language.
     case python
     
@@ -30,14 +30,14 @@ extension GoogleAI.ExecutableCode {
 // MARK: - RawRepresentable Conformance
 
 extension GoogleAI.ExecutableCode.Language: RawRepresentable {
-  package var rawValue: String {
+  public var rawValue: String {
     switch self {
     case .python: "PYTHON"
     case .unrecognized(let value): value
     }
   }
 
-  package init(rawValue: String) {
+  public init(rawValue: String) {
     switch rawValue {
     case "PYTHON": self = .python
     default: self = .unrecognized(rawValue)

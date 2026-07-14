@@ -17,15 +17,15 @@ import Foundation
 
 extension AgentPlatform {
   /// The image output format for generated images.
-  package struct ImageConfigImageOutputOptions: Codable, Sendable, Equatable, Hashable {
+  public struct ImageConfigImageOutputOptions: Codable, Sendable, Equatable, Hashable {
     /// Optional. The compression quality of the output image.
-    package var compressionQuality: Int?
+    public var compressionQuality: Int?
     
     /// Optional. The image format that the output should be saved as.
-    package var mimeType: String?
+    public var mimeType: String?
     
     /// Creates a new `ImageConfigImageOutputOptions`.
-    package init(
+    public init(
       compressionQuality: Int? = nil,
       mimeType: String? = nil
     ) {

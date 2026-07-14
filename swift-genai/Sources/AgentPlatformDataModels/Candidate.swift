@@ -17,39 +17,39 @@ import Foundation
 
 extension AgentPlatform {
   /// A response candidate generated from the model.
-  package struct Candidate: Codable, Sendable, Equatable, Hashable {
+  public struct Candidate: Codable, Sendable, Equatable, Hashable {
     /// Output only. The average log probability of the tokens in this candidate. This is a length-normalized score that can be used to compare the quality of candidates of different lengths. A higher average log probability suggests a more confident and coherent response.
-    package var avgLogprobs: Double?
+    public var avgLogprobs: Double?
     
     /// Output only. A collection of citations that apply to the generated content.
-    package var citationMetadata: CitationMetadata?
+    public var citationMetadata: CitationMetadata?
     
     /// Output only. The content of the candidate.
-    package var content: Content?
+    public var content: Content?
     
     /// Output only. Describes the reason the model stopped generating tokens in more detail. This field is returned only when `finish_reason` is set.
-    package var finishMessage: String?
+    public var finishMessage: String?
     
     /// Output only. The reason why the model stopped generating tokens. If empty, the model has not stopped generating.
-    package var finishReason: FinishReason?
+    public var finishReason: FinishReason?
     
     /// Output only. Metadata returned when grounding is enabled. It contains the sources used to ground the generated content.
-    package var groundingMetadata: GroundingMetadata?
+    public var groundingMetadata: GroundingMetadata?
     
     /// Output only. The 0-based index of this candidate in the list of generated responses. This is useful for distinguishing between multiple candidates when `candidate_count` > 1.
-    package var index: Int?
+    public var index: Int?
     
     /// Output only. The detailed log probability information for the tokens in this candidate. This is useful for debugging, understanding model uncertainty, and identifying potential "hallucinations".
-    package var logprobsResult: LogprobsResult?
+    public var logprobsResult: LogprobsResult?
     
     /// Output only. A list of ratings for the safety of a response candidate. There is at most one rating per category.
-    package var safetyRatings: [SafetyRating]?
+    public var safetyRatings: [SafetyRating]?
     
     /// Output only. Metadata returned when the model uses the `url_context` tool to get information from a user-provided URL.
-    package var urlContextMetadata: UrlContextMetadata?
+    public var urlContextMetadata: UrlContextMetadata?
     
     /// Creates a new `Candidate`.
-    package init(
+    public init(
       avgLogprobs: Double? = nil,
       citationMetadata: CitationMetadata? = nil,
       content: Content? = nil,

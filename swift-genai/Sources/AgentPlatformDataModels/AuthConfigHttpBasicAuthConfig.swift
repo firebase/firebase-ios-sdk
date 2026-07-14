@@ -17,12 +17,12 @@ import Foundation
 
 extension AgentPlatform {
   /// Config for HTTP Basic Authentication.
-  package struct AuthConfigHttpBasicAuthConfig: Codable, Sendable, Equatable, Hashable {
+  public struct AuthConfigHttpBasicAuthConfig: Codable, Sendable, Equatable, Hashable {
     /// Required. The name of the SecretManager secret version resource storing the base64 encoded credentials. Format: `projects/{project}/secrets/{secrete}/versions/{version}` - If specified, the `secretmanager.versions.access` permission should be granted to Vertex AI Extension Service Agent (https://cloud.google.com/vertex-ai/docs/general/access-control#service-agents) on the specified resource.
-    package var credentialSecret: String?
+    public var credentialSecret: String?
     
     /// Creates a new `AuthConfigHttpBasicAuthConfig`.
-    package init(
+    public init(
       credentialSecret: String? = nil
     ) {
       self.credentialSecret = credentialSecret

@@ -17,12 +17,12 @@ import Foundation
 
 extension AgentPlatform {
   /// Metadata returned when the model uses the `url_context` tool to get information from a user-provided URL.
-  package struct UrlContextMetadata: Codable, Sendable, Equatable, Hashable {
+  public struct UrlContextMetadata: Codable, Sendable, Equatable, Hashable {
     /// Output only. A list of URL metadata, with one entry for each URL retrieved by the tool.
-    package var urlMetadata: [UrlMetadata]?
+    public var urlMetadata: [UrlMetadata]?
     
     /// Creates a new `UrlContextMetadata`.
-    package init(
+    public init(
       urlMetadata: [UrlMetadata]? = nil
     ) {
       self.urlMetadata = urlMetadata

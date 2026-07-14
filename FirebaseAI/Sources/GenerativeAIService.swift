@@ -65,7 +65,7 @@ struct GenerativeAIService {
       throw parseError(responseData: data)
     }
 
-    return try parseResponse(T.Response.self, from: data)
+    return try request.decodeResponse(from: data)
   }
 
   @available(macOS 12.0, watchOS 8.0, *)
@@ -116,7 +116,7 @@ struct GenerativeAIService {
               // We can assume 5 characters since it's utf-8 encoded, removing `data:`.
               let jsonText = String(line.dropFirst(5))
               let data = try jsonData(jsonText: jsonText)
-              let content = try parseResponse(T.Response.self, from: data)
+              let content = try request.decodeResponse(from: data)
               continuation.yield(content)
             } else {
               extraLines += line

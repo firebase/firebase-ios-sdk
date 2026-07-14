@@ -17,12 +17,12 @@ import Foundation
 
 extension GoogleAI {
   /// The configuration for the multi-speaker setup.
-  package struct MultiSpeakerVoiceConfig: Codable, Sendable, Equatable, Hashable {
+  public struct MultiSpeakerVoiceConfig: Codable, Sendable, Equatable, Hashable {
     /// Required. All the enabled speaker voices.
-    package var speakerVoiceConfigs: [SpeakerVoiceConfig]?
+    public var speakerVoiceConfigs: [SpeakerVoiceConfig]?
     
     /// Creates a new `MultiSpeakerVoiceConfig`.
-    package init(
+    public init(
       speakerVoiceConfigs: [SpeakerVoiceConfig]? = nil
     ) {
       self.speakerVoiceConfigs = speakerVoiceConfigs

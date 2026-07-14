@@ -17,21 +17,21 @@ import Foundation
 
 extension AgentPlatform {
   /// Specifies the context retrieval config.
-  package struct RagRetrievalConfig: Codable, Sendable, Equatable, Hashable {
+  public struct RagRetrievalConfig: Codable, Sendable, Equatable, Hashable {
     /// Optional. Config for filters.
-    package var filter: RagRetrievalConfigFilter?
+    public var filter: RagRetrievalConfigFilter?
     
     /// Optional. Config for Hybrid Search.
-    package var hybridSearch: RagRetrievalConfigHybridSearch?
+    public var hybridSearch: RagRetrievalConfigHybridSearch?
     
     /// Optional. Config for ranking and reranking.
-    package var ranking: RagRetrievalConfigRanking?
+    public var ranking: RagRetrievalConfigRanking?
     
     /// Optional. The number of contexts to retrieve.
-    package var topK: Int?
+    public var topK: Int?
     
     /// Creates a new `RagRetrievalConfig`.
-    package init(
+    public init(
       filter: RagRetrievalConfigFilter? = nil,
       hybridSearch: RagRetrievalConfigHybridSearch? = nil,
       ranking: RagRetrievalConfigRanking? = nil,

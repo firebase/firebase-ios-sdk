@@ -16,7 +16,7 @@ import Foundation
 
 extension GoogleAI.GenerateContentRequest {
   /// Optional. The service tier of the request.
-  package enum ServiceTier: Codable, Sendable, Equatable, Hashable {
+  public enum ServiceTier: Codable, Sendable, Equatable, Hashable {
     /// Default service tier, which is standard.
     case unspecified
     
@@ -39,7 +39,7 @@ extension GoogleAI.GenerateContentRequest {
 // MARK: - RawRepresentable Conformance
 
 extension GoogleAI.GenerateContentRequest.ServiceTier: RawRepresentable {
-  package var rawValue: String {
+  public var rawValue: String {
     switch self {
     case .unspecified: "unspecified"
     case .standard: "standard"
@@ -49,7 +49,7 @@ extension GoogleAI.GenerateContentRequest.ServiceTier: RawRepresentable {
     }
   }
 
-  package init(rawValue: String) {
+  public init(rawValue: String) {
     switch rawValue {
     case "unspecified": self = .unspecified
     case "standard": self = .standard

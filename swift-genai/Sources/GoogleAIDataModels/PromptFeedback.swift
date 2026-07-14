@@ -17,15 +17,15 @@ import Foundation
 
 extension GoogleAI {
   /// A set of the feedback metadata the prompt specified in `GenerateContentRequest.content`.
-  package struct PromptFeedback: Codable, Sendable, Equatable, Hashable {
+  public struct PromptFeedback: Codable, Sendable, Equatable, Hashable {
     /// Optional. If set, the prompt was blocked and no candidates are returned. Rephrase the prompt.
-    package var blockReason: BlockReason?
+    public var blockReason: BlockReason?
     
     /// Ratings for safety of the prompt. There is at most one rating per category.
-    package var safetyRatings: [SafetyRating]?
+    public var safetyRatings: [SafetyRating]?
     
     /// Creates a new `PromptFeedback`.
-    package init(
+    public init(
       blockReason: BlockReason? = nil,
       safetyRatings: [SafetyRating]? = nil
     ) {

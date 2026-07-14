@@ -13,6 +13,8 @@
 // limitations under the License.
 
 import Foundation
+import GoogleAIDataModels
+import AgentPlatformDataModels
 
 struct CountTokensRequest {
   let modelResourceName: String
@@ -26,6 +28,32 @@ extension CountTokensRequest: GenerativeAIRequest {
   var options: RequestOptions { generateContentRequest.options }
 
   var apiConfig: APIConfig { generateContentRequest.apiConfig }
+
+  func decodeResponse(from data: Data) throws -> CountTokensResponse {
+    let decoder = JSONDecoder()
+    switch apiConfig.service {
+    case .googleAI:
+      struct WireResponse: Decodable {
+        let totalTokens: Int?
+        let promptTokensDetails: [GoogleAI.ModalityTokenCount]?
+      }
+      let wire = try decoder.decode(WireResponse.self, from: data)
+      return CountTokensResponse(
+        totalTokens: wire.totalTokens ?? 0,
+        promptTokensDetails: wire.promptTokensDetails?.map { ModalityTokenCount(fromGoogleAI: $0) } ?? []
+      )
+    case .vertexAI:
+      struct WireResponse: Decodable {
+        let totalTokens: Int?
+        let promptTokensDetails: [AgentPlatform.ModalityTokenCount]?
+      }
+      let wire = try decoder.decode(WireResponse.self, from: data)
+      return CountTokensResponse(
+        totalTokens: wire.totalTokens ?? 0,
+        promptTokensDetails: wire.promptTokensDetails?.map { ModalityTokenCount(fromAgentPlatform: $0) } ?? []
+      )
+    }
+  }
 
   func getURL() throws -> URL {
     let version = apiConfig.version.rawValue
@@ -45,6 +73,11 @@ public struct CountTokensResponse: Sendable {
 
   /// The breakdown, by modality, of how many tokens are consumed by the prompt.
   public let promptTokensDetails: [ModalityTokenCount]
+
+  init(totalTokens: Int, promptTokensDetails: [ModalityTokenCount]) {
+    self.totalTokens = totalTokens
+    self.promptTokensDetails = promptTokensDetails
+  }
 }
 
 // MARK: - Codable Conformances
@@ -71,33 +104,19 @@ extension CountTokensRequest: Encodable {
   }
 
   private func encodeForVertexAI(to encoder: any Encoder) throws {
+    let wire = generateContentRequest.toAgentPlatform()
     var container = encoder.container(keyedBy: VertexCodingKeys.self)
-    try container.encode(generateContentRequest.contents, forKey: .contents)
-    try container.encodeIfPresent(
-      generateContentRequest.systemInstruction, forKey: .systemInstruction
-    )
-    try container.encodeIfPresent(generateContentRequest.tools, forKey: .tools)
-    try container.encodeIfPresent(
-      generateContentRequest.generationConfig, forKey: .generationConfig
-    )
+    try container.encode(wire.contents, forKey: .contents)
+    try container.encodeIfPresent(wire.systemInstruction, forKey: .systemInstruction)
+    try container.encodeIfPresent(wire.tools, forKey: .tools)
+    try container.encodeIfPresent(wire.generationConfig, forKey: .generationConfig)
   }
 
   private func encodeForDeveloper(to encoder: any Encoder) throws {
     var container = encoder.container(keyedBy: DeveloperCodingKeys.self)
-    try container.encode(generateContentRequest, forKey: .generateContentRequest)
+    let wire = generateContentRequest.toGoogleAI()
+    try container.encode(wire, forKey: .generateContentRequest)
   }
 }
 
-extension CountTokensResponse: Decodable {
-  enum CodingKeys: CodingKey {
-    case totalTokens
-    case promptTokensDetails
-  }
 
-  public init(from decoder: any Decoder) throws {
-    let container = try decoder.container(keyedBy: CodingKeys.self)
-    totalTokens = try container.decodeIfPresent(Int.self, forKey: .totalTokens) ?? 0
-    promptTokensDetails =
-      try container.decodeIfPresent([ModalityTokenCount].self, forKey: .promptTokensDetails) ?? []
-  }
-}

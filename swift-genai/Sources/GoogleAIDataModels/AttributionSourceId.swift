@@ -17,15 +17,15 @@ import Foundation
 
 extension GoogleAI {
   /// Identifier for the source contributing to this attribution.
-  package struct AttributionSourceId: Codable, Sendable, Equatable, Hashable {
+  public struct AttributionSourceId: Codable, Sendable, Equatable, Hashable {
     /// Identifier for an inline passage.
-    package var groundingPassage: GroundingPassageId?
+    public var groundingPassage: GroundingPassageId?
     
     /// Identifier for a `Chunk` fetched via Semantic Retriever.
-    package var semanticRetrieverChunk: SemanticRetrieverChunk?
+    public var semanticRetrieverChunk: SemanticRetrieverChunk?
     
     /// Creates a new `AttributionSourceId`.
-    package init(
+    public init(
       groundingPassage: GroundingPassageId? = nil,
       semanticRetrieverChunk: SemanticRetrieverChunk? = nil
     ) {

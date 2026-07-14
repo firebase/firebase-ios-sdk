@@ -17,18 +17,18 @@ import Foundation
 
 extension AgentPlatform {
   /// Raw media bytes for function response. Text should not be sent as raw bytes, use the 'text' field.
-  package struct FunctionResponseBlob: Codable, Sendable, Equatable, Hashable {
+  public struct FunctionResponseBlob: Codable, Sendable, Equatable, Hashable {
     /// Required. Raw bytes.
-    package var data: String?
+    public var data: String?
     
     /// Optional. Display name of the blob. Used to provide a label or filename to distinguish blobs. This field is only returned in PromptMessage for prompt management. It is currently used in the Gemini GenerateContent calls only when server side tools (code_execution, google_search, and url_context) are enabled.
-    package var displayName: String?
+    public var displayName: String?
     
     /// Required. The IANA standard MIME type of the source data.
-    package var mimeType: String?
+    public var mimeType: String?
     
     /// Creates a new `FunctionResponseBlob`.
-    package init(
+    public init(
       data: String? = nil,
       displayName: String? = nil,
       mimeType: String? = nil

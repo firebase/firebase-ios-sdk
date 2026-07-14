@@ -17,18 +17,18 @@ import Foundation
 
 extension AgentPlatform {
   /// Config for filters.
-  package struct RagRetrievalConfigFilter: Codable, Sendable, Equatable, Hashable {
+  public struct RagRetrievalConfigFilter: Codable, Sendable, Equatable, Hashable {
     /// Optional. String for metadata filtering.
-    package var metadataFilter: String?
+    public var metadataFilter: String?
     
     /// Optional. Only returns contexts with vector distance smaller than the threshold.
-    package var vectorDistanceThreshold: Double?
+    public var vectorDistanceThreshold: Double?
     
     /// Optional. Only returns contexts with vector similarity larger than the threshold.
-    package var vectorSimilarityThreshold: Double?
+    public var vectorSimilarityThreshold: Double?
     
     /// Creates a new `RagRetrievalConfigFilter`.
-    package init(
+    public init(
       metadataFilter: String? = nil,
       vectorDistanceThreshold: Double? = nil,
       vectorSimilarityThreshold: Double? = nil

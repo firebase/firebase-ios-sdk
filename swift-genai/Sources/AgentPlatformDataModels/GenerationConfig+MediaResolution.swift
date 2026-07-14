@@ -16,7 +16,7 @@ import Foundation
 
 extension AgentPlatform.GenerationConfig {
   /// Optional. The token resolution at which input media content is sampled. This is used to control the trade-off between the quality of the response and the number of tokens used to represent the media. A higher resolution allows the model to perceive more detail, which can lead to a more nuanced response, but it will also use more tokens. This does not affect the image dimensions sent to the model.
-  package enum MediaResolution: Codable, Sendable, Equatable, Hashable {
+  public enum MediaResolution: Codable, Sendable, Equatable, Hashable {
     /// Media resolution set to low (64 tokens).
     case low
     
@@ -36,7 +36,7 @@ extension AgentPlatform.GenerationConfig {
 // MARK: - RawRepresentable Conformance
 
 extension AgentPlatform.GenerationConfig.MediaResolution: RawRepresentable {
-  package var rawValue: String {
+  public var rawValue: String {
     switch self {
     case .low: "MEDIA_RESOLUTION_LOW"
     case .medium: "MEDIA_RESOLUTION_MEDIUM"
@@ -45,7 +45,7 @@ extension AgentPlatform.GenerationConfig.MediaResolution: RawRepresentable {
     }
   }
 
-  package init(rawValue: String) {
+  public init(rawValue: String) {
     switch rawValue {
     case "MEDIA_RESOLUTION_LOW": self = .low
     case "MEDIA_RESOLUTION_MEDIUM": self = .medium

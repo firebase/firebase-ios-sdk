@@ -16,7 +16,7 @@ import Foundation
 
 extension AgentPlatform.SafetySetting {
   /// Required. The threshold for blocking content. If the harm probability exceeds this threshold, the content will be blocked.
-  package enum Threshold: Codable, Sendable, Equatable, Hashable {
+  public enum Threshold: Codable, Sendable, Equatable, Hashable {
     /// Block content with a low harm probability or higher.
     case blockLowAndAbove
     
@@ -42,7 +42,7 @@ extension AgentPlatform.SafetySetting {
 // MARK: - RawRepresentable Conformance
 
 extension AgentPlatform.SafetySetting.Threshold: RawRepresentable {
-  package var rawValue: String {
+  public var rawValue: String {
     switch self {
     case .blockLowAndAbove: "BLOCK_LOW_AND_ABOVE"
     case .blockMediumAndAbove: "BLOCK_MEDIUM_AND_ABOVE"
@@ -53,7 +53,7 @@ extension AgentPlatform.SafetySetting.Threshold: RawRepresentable {
     }
   }
 
-  package init(rawValue: String) {
+  public init(rawValue: String) {
     switch rawValue {
     case "BLOCK_LOW_AND_ABOVE": self = .blockLowAndAbove
     case "BLOCK_MEDIUM_AND_ABOVE": self = .blockMediumAndAbove

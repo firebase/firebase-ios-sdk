@@ -17,24 +17,24 @@ import Foundation
 
 extension AgentPlatform {
   /// Retrieve from Vertex AI Search datastore or engine for grounding. datastore and engine are mutually exclusive. See https://cloud.google.com/products/agent-builder
-  package struct VertexAISearch: Codable, Sendable, Equatable, Hashable {
+  public struct VertexAISearch: Codable, Sendable, Equatable, Hashable {
     /// Specifications that define the specific DataStores to be searched, along with configurations for those data stores. This is only considered for Engines with multiple data stores. It should only be set if engine is used.
-    package var dataStoreSpecs: [VertexAISearchDataStoreSpec]?
+    public var dataStoreSpecs: [VertexAISearchDataStoreSpec]?
     
     /// Optional. Fully-qualified Vertex AI Search data store resource ID. Format: `projects/{project}/locations/{location}/collections/{collection}/dataStores/{dataStore}`
-    package var datastore: String?
+    public var datastore: String?
     
     /// Optional. Fully-qualified Vertex AI Search engine resource ID. Format: `projects/{project}/locations/{location}/collections/{collection}/engines/{engine}`
-    package var engine: String?
+    public var engine: String?
     
     /// Optional. Filter strings to be passed to the search API.
-    package var filter: String?
+    public var filter: String?
     
     /// Optional. Number of search results to return per query. The default value is 10. The maximumm allowed value is 10.
-    package var maxResults: Int?
+    public var maxResults: Int?
     
     /// Creates a new `VertexAISearch`.
-    package init(
+    public init(
       dataStoreSpecs: [VertexAISearchDataStoreSpec]? = nil,
       datastore: String? = nil,
       engine: String? = nil,

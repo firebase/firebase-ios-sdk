@@ -17,15 +17,15 @@ import Foundation
 
 extension GoogleAI {
   /// A MCPServer is a server that can be called by the model to perform actions. It is a server that implements the MCP protocol. Next ID: 6
-  package struct McpServer: Codable, Sendable, Equatable, Hashable {
+  public struct McpServer: Codable, Sendable, Equatable, Hashable {
     /// The name of the MCPServer.
-    package var name: String?
+    public var name: String?
     
     /// A transport that can stream HTTP requests and responses.
-    package var streamableHttpTransport: StreamableHttpTransport?
+    public var streamableHttpTransport: StreamableHttpTransport?
     
     /// Creates a new `McpServer`.
-    package init(
+    public init(
       name: String? = nil,
       streamableHttpTransport: StreamableHttpTransport? = nil
     ) {

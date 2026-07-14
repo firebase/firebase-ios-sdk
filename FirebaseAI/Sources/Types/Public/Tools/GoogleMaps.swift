@@ -13,17 +13,19 @@
 // limitations under the License.
 
 import Foundation
+import GoogleAIDataModels
+import AgentPlatformDataModels
 
 /// A tool that allows the model to ground its responses in data from Google Maps.
 ///
 /// > Important: When using this feature, you are required to comply with the
 /// "Grounding with Google Maps" usage requirements for your chosen API provider.
-public struct GoogleMaps: Sendable, Encodable, Hashable {
+public struct GoogleMaps: Sendable, Hashable {
   init() {}
 }
 
 /// A grounding chunk sourced from Google Maps.
-public struct GoogleMapsGroundingChunk: Sendable, Equatable, Hashable, Decodable {
+public struct GoogleMapsGroundingChunk: Sendable, Equatable, Hashable {
   /// The URL of the retrieved map data.
   public let url: URL?
   /// The title of the retrieved map data.
@@ -37,20 +39,49 @@ public struct GoogleMapsGroundingChunk: Sendable, Equatable, Hashable, Decodable
     case placeID = "placeId"
   }
 
-  public init(from decoder: any Decoder) throws {
-    let container = try decoder.container(keyedBy: CodingKeys.self)
-    url = try container.decodeIfPresent(String.self, forKey: .url).flatMap { URL(string: $0) }
-
-    title = try container.decodeIfPresent(String.self, forKey: .title)
-    placeID = try container.decodeIfPresent(String.self, forKey: .placeID)
-  }
 }
 
-extension GoogleMapsGroundingChunk: Encodable {
-  public func encode(to encoder: any Encoder) throws {
-    var container = encoder.container(keyedBy: CodingKeys.self)
-    try container.encodeIfPresent(url?.absoluteString, forKey: .url)
-    try container.encodeIfPresent(title, forKey: .title)
-    try container.encodeIfPresent(placeID, forKey: .placeID)
+// MARK: - Mappings
+
+extension GoogleMaps {
+  func toGoogleAI() -> GoogleAI.GoogleMaps {
+    GoogleAI.GoogleMaps()
+  }
+
+  func toAgentPlatform() -> AgentPlatform.GoogleMaps {
+    AgentPlatform.GoogleMaps()
+  }
+
+  init(fromGoogleAI maps: GoogleAI.GoogleMaps) {}
+  init(fromAgentPlatform maps: AgentPlatform.GoogleMaps) {}
+}
+
+extension GoogleMapsGroundingChunk {
+  func toGoogleAI() -> GoogleAI.Maps {
+    GoogleAI.Maps(
+      placeId: placeID,
+      title: title,
+      uri: url?.absoluteString
+    )
+  }
+
+  func toAgentPlatform() -> AgentPlatform.GroundingChunkMaps {
+    AgentPlatform.GroundingChunkMaps(
+      placeId: placeID,
+      title: title,
+      uri: url?.absoluteString
+    )
+  }
+
+  init(fromGoogleAI maps: GoogleAI.Maps) {
+    self.url = maps.uri.flatMap { URL(string: $0) }
+    self.title = maps.title
+    self.placeID = maps.placeId
+  }
+
+  init(fromAgentPlatform maps: AgentPlatform.GroundingChunkMaps) {
+    self.url = maps.uri.flatMap { URL(string: $0) }
+    self.title = maps.title
+    self.placeID = maps.placeId
   }
 }

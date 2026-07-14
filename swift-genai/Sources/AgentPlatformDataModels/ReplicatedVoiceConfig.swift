@@ -17,15 +17,15 @@ import Foundation
 
 extension AgentPlatform {
   /// The configuration for the replicated voice to use.
-  package struct ReplicatedVoiceConfig: Codable, Sendable, Equatable, Hashable {
+  public struct ReplicatedVoiceConfig: Codable, Sendable, Equatable, Hashable {
     /// Optional. The mimetype of the voice sample. The only currently supported value is `audio/wav`. This represents 16-bit signed little-endian wav data, with a 24kHz sampling rate. `mime_type` will default to `audio/wav` if not set.
-    package var mimeType: String?
+    public var mimeType: String?
     
     /// Optional. The sample of the custom voice.
-    package var voiceSampleAudio: String?
+    public var voiceSampleAudio: String?
     
     /// Creates a new `ReplicatedVoiceConfig`.
-    package init(
+    public init(
       mimeType: String? = nil,
       voiceSampleAudio: String? = nil
     ) {

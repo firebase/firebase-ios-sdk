@@ -15,11 +15,13 @@
 import Foundation
 
 protocol GenerativeAIRequest: Sendable, Encodable {
-  associatedtype Response: Sendable, Decodable
+  associatedtype Response: Sendable
 
   func getURL() throws -> URL
 
   var options: RequestOptions { get }
+
+  func decodeResponse(from data: Data) throws -> Response
 }
 
 /// Configuration parameters for sending requests to the backend.

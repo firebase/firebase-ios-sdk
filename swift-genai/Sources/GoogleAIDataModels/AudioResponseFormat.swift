@@ -17,21 +17,21 @@ import Foundation
 
 extension GoogleAI {
   /// Configuration for audio output format.
-  package struct AudioResponseFormat: Codable, Sendable, Equatable, Hashable {
+  public struct AudioResponseFormat: Codable, Sendable, Equatable, Hashable {
     /// Optional. Bit rate in bits per second (bps). Only applicable for compressed formats (MP3, Opus).
-    package var bitRate: Int?
+    public var bitRate: Int?
     
     /// Optional. The delivery mode for the audio output.
-    package var delivery: Delivery?
+    public var delivery: Delivery?
     
     /// Optional. The MIME type of the audio output.
-    package var mimeType: MimeType?
+    public var mimeType: MimeType?
     
     /// Optional. Sample rate in Hz.
-    package var sampleRate: Int?
+    public var sampleRate: Int?
     
     /// Creates a new `AudioResponseFormat`.
-    package init(
+    public init(
       bitRate: Int? = nil,
       delivery: Delivery? = nil,
       mimeType: MimeType? = nil,

@@ -17,18 +17,18 @@ import Foundation
 
 extension GoogleAI {
   /// The FileSearch tool that retrieves knowledge from Semantic Retrieval corpora. Files are imported to Semantic Retrieval corpora using the ImportFile API.
-  package struct FileSearch: Codable, Sendable, Equatable, Hashable {
+  public struct FileSearch: Codable, Sendable, Equatable, Hashable {
     /// Required. The names of the file_search_stores to retrieve from. Example: `fileSearchStores/my-file-search-store-123`
-    package var fileSearchStoreNames: [String]?
+    public var fileSearchStoreNames: [String]?
     
     /// Optional. Metadata filter to apply to the semantic retrieval documents and chunks.
-    package var metadataFilter: String?
+    public var metadataFilter: String?
     
     /// Optional. The number of semantic retrieval chunks to retrieve.
-    package var topK: Int?
+    public var topK: Int?
     
     /// Creates a new `FileSearch`.
-    package init(
+    public init(
       fileSearchStoreNames: [String]? = nil,
       metadataFilter: String? = nil,
       topK: Int? = nil

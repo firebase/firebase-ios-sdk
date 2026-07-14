@@ -17,12 +17,12 @@ import Foundation
 
 extension AgentPlatform {
   /// Config for Rank Service.
-  package struct RagRetrievalConfigRankingRankService: Codable, Sendable, Equatable, Hashable {
+  public struct RagRetrievalConfigRankingRankService: Codable, Sendable, Equatable, Hashable {
     /// Optional. The model name of the rank service. Format: `semantic-ranker-512@latest`
-    package var modelName: String?
+    public var modelName: String?
     
     /// Creates a new `RagRetrievalConfigRankingRankService`.
-    package init(
+    public init(
       modelName: String? = nil
     ) {
       self.modelName = modelName

@@ -17,15 +17,15 @@ import Foundation
 
 extension AgentPlatform {
   /// Result of executing the ExecutableCode. Generated only when the `CodeExecution` tool is used.
-  package struct CodeExecutionResult: Codable, Sendable, Equatable, Hashable {
+  public struct CodeExecutionResult: Codable, Sendable, Equatable, Hashable {
     /// Required. Outcome of the code execution.
-    package var outcome: Outcome?
+    public var outcome: Outcome?
     
     /// Optional. Contains stdout when code execution is successful, stderr or other description otherwise.
-    package var output: String?
+    public var output: String?
     
     /// Creates a new `CodeExecutionResult`.
-    package init(
+    public init(
       outcome: Outcome? = nil,
       output: String? = nil
     ) {

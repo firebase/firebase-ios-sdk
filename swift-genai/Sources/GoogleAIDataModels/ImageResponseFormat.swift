@@ -17,21 +17,21 @@ import Foundation
 
 extension GoogleAI {
   /// Configuration for image output format.
-  package struct ImageResponseFormat: Codable, Sendable, Equatable, Hashable {
+  public struct ImageResponseFormat: Codable, Sendable, Equatable, Hashable {
     /// Optional. The aspect ratio for the image output.
-    package var aspectRatio: AspectRatio?
+    public var aspectRatio: AspectRatio?
     
     /// Optional. The delivery mode for the image output.
-    package var delivery: Delivery?
+    public var delivery: Delivery?
     
     /// Optional. The size of the image output.
-    package var imageSize: ImageSize?
+    public var imageSize: ImageSize?
     
     /// Optional. The MIME type of the image output.
-    package var mimeType: MimeType?
+    public var mimeType: MimeType?
     
     /// Creates a new `ImageResponseFormat`.
-    package init(
+    public init(
       aspectRatio: AspectRatio? = nil,
       delivery: Delivery? = nil,
       imageSize: ImageSize? = nil,

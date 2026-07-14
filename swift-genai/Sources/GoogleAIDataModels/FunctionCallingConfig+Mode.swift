@@ -16,7 +16,7 @@ import Foundation
 
 extension GoogleAI.FunctionCallingConfig {
   /// Optional. Specifies the mode in which function calling should execute. If unspecified, the default value will be set to AUTO.
-  package enum Mode: Codable, Sendable, Equatable, Hashable {
+  public enum Mode: Codable, Sendable, Equatable, Hashable {
     /// Default model behavior, model decides to predict either a function call or a natural language response.
     case auto
     
@@ -39,7 +39,7 @@ extension GoogleAI.FunctionCallingConfig {
 // MARK: - RawRepresentable Conformance
 
 extension GoogleAI.FunctionCallingConfig.Mode: RawRepresentable {
-  package var rawValue: String {
+  public var rawValue: String {
     switch self {
     case .auto: "AUTO"
     case .`any`: "ANY"
@@ -49,7 +49,7 @@ extension GoogleAI.FunctionCallingConfig.Mode: RawRepresentable {
     }
   }
 
-  package init(rawValue: String) {
+  public init(rawValue: String) {
     switch rawValue {
     case "AUTO": self = .auto
     case "ANY": self = .`any`

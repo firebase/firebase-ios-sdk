@@ -17,15 +17,15 @@ import Foundation
 
 extension AgentPlatform {
   /// Configuration for Model Armor. Model Armor is a Google Cloud service that provides safety and security filtering for prompts and responses. It helps protect your AI applications from risks such as harmful content, sensitive data leakage, and prompt injection attacks.
-  package struct ModelArmorConfig: Codable, Sendable, Equatable, Hashable {
+  public struct ModelArmorConfig: Codable, Sendable, Equatable, Hashable {
     /// Optional. The resource name of the Model Armor template to use for prompt screening. A Model Armor template is a set of customized filters and thresholds that define how Model Armor screens content. If specified, Model Armor will use this template to check the user's prompt for safety and security risks before it is sent to the model. The name must be in the format `projects/{project}/locations/{location}/templates/{template}`.
-    package var promptTemplateName: String?
+    public var promptTemplateName: String?
     
     /// Optional. The resource name of the Model Armor template to use for response screening. A Model Armor template is a set of customized filters and thresholds that define how Model Armor screens content. If specified, Model Armor will use this template to check the model's response for safety and security risks before it is returned to the user. The name must be in the format `projects/{project}/locations/{location}/templates/{template}`.
-    package var responseTemplateName: String?
+    public var responseTemplateName: String?
     
     /// Creates a new `ModelArmorConfig`.
-    package init(
+    public init(
       promptTemplateName: String? = nil,
       responseTemplateName: String? = nil
     ) {

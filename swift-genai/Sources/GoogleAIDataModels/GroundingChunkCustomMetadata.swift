@@ -17,21 +17,21 @@ import Foundation
 
 extension GoogleAI {
   /// User provided metadata about the GroundingFact.
-  package struct GroundingChunkCustomMetadata: Codable, Sendable, Equatable, Hashable {
+  public struct GroundingChunkCustomMetadata: Codable, Sendable, Equatable, Hashable {
     /// The key of the metadata.
-    package var key: String?
+    public var key: String?
     
     /// Optional. The numeric value of the metadata. The expected range for this value depends on the specific `key` used.
-    package var numericValue: Double?
+    public var numericValue: Double?
     
     /// Optional. A list of string values for the metadata.
-    package var stringListValue: GroundingChunkStringList?
+    public var stringListValue: GroundingChunkStringList?
     
     /// Optional. The string value of the metadata.
-    package var stringValue: String?
+    public var stringValue: String?
     
     /// Creates a new `GroundingChunkCustomMetadata`.
-    package init(
+    public init(
       key: String? = nil,
       numericValue: Double? = nil,
       stringListValue: GroundingChunkStringList? = nil,

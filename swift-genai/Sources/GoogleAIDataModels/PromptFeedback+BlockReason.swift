@@ -16,7 +16,7 @@ import Foundation
 
 extension GoogleAI.PromptFeedback {
   /// Optional. If set, the prompt was blocked and no candidates are returned. Rephrase the prompt.
-  package enum BlockReason: Codable, Sendable, Equatable, Hashable {
+  public enum BlockReason: Codable, Sendable, Equatable, Hashable {
     /// Prompt was blocked due to safety reasons. Inspect `safety_ratings` to understand which safety category blocked it.
     case safety
     
@@ -42,7 +42,7 @@ extension GoogleAI.PromptFeedback {
 // MARK: - RawRepresentable Conformance
 
 extension GoogleAI.PromptFeedback.BlockReason: RawRepresentable {
-  package var rawValue: String {
+  public var rawValue: String {
     switch self {
     case .safety: "SAFETY"
     case .other: "OTHER"
@@ -53,7 +53,7 @@ extension GoogleAI.PromptFeedback.BlockReason: RawRepresentable {
     }
   }
 
-  package init(rawValue: String) {
+  public init(rawValue: String) {
     switch rawValue {
     case "SAFETY": self = .safety
     case "OTHER": self = .other

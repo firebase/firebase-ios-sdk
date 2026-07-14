@@ -17,12 +17,12 @@ import Foundation
 
 extension AgentPlatform {
   /// Configuration for a multi-speaker text-to-speech request.
-  package struct MultiSpeakerVoiceConfig: Codable, Sendable, Equatable, Hashable {
+  public struct MultiSpeakerVoiceConfig: Codable, Sendable, Equatable, Hashable {
     /// Required. A list of configurations for the voices of the speakers. Exactly two speaker voice configurations must be provided.
-    package var speakerVoiceConfigs: [SpeakerVoiceConfig]?
+    public var speakerVoiceConfigs: [SpeakerVoiceConfig]?
     
     /// Creates a new `MultiSpeakerVoiceConfig`.
-    package init(
+    public init(
       speakerVoiceConfigs: [SpeakerVoiceConfig]? = nil
     ) {
       self.speakerVoiceConfigs = speakerVoiceConfigs

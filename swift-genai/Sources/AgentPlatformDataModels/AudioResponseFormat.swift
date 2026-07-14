@@ -17,21 +17,21 @@ import Foundation
 
 extension AgentPlatform {
   /// Configuration for audio-specific output formatting.
-  package struct AudioResponseFormat: Codable, Sendable, Equatable, Hashable {
+  public struct AudioResponseFormat: Codable, Sendable, Equatable, Hashable {
     /// Optional. Bit rate in bits per second (bps). Only applicable for compressed formats (MP3, Opus).
-    package var bitRate: Int?
+    public var bitRate: Int?
     
     /// Optional. Delivery mode for the generated content.
-    package var delivery: Delivery?
+    public var delivery: Delivery?
     
     /// Optional. The MIME type of the audio output.
-    package var mimeType: MimeType?
+    public var mimeType: MimeType?
     
     /// Optional. Sample rate for the generated audio in Hertz.
-    package var sampleRate: Int?
+    public var sampleRate: Int?
     
     /// Creates a new `AudioResponseFormat`.
-    package init(
+    public init(
       bitRate: Int? = nil,
       delivery: Delivery? = nil,
       mimeType: MimeType? = nil,

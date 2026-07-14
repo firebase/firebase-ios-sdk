@@ -17,15 +17,15 @@ import Foundation
 
 extension GoogleAI {
   /// Represents token counting info for a single modality.
-  package struct ModalityTokenCount: Codable, Sendable, Equatable, Hashable {
+  public struct ModalityTokenCount: Codable, Sendable, Equatable, Hashable {
     /// The modality associated with this token count.
-    package var modality: Modality?
+    public var modality: Modality?
     
     /// Number of tokens.
-    package var tokenCount: Int?
+    public var tokenCount: Int?
     
     /// Creates a new `ModalityTokenCount`.
-    package init(
+    public init(
       modality: Modality? = nil,
       tokenCount: Int? = nil
     ) {

@@ -17,15 +17,15 @@ import Foundation
 
 extension GoogleAI {
   /// GoogleSearch tool type. Tool to support Google Search in Model. Powered by Google.
-  package struct GoogleSearch: Codable, Sendable, Equatable, Hashable {
+  public struct GoogleSearch: Codable, Sendable, Equatable, Hashable {
     /// Optional. The set of search types to enable. If not set, web search is enabled by default.
-    package var searchTypes: SearchTypes?
+    public var searchTypes: SearchTypes?
     
     /// Optional. Filter search results to a specific time range. If customers set a start time, they must set an end time (and vice versa).
-    package var timeRangeFilter: Interval?
+    public var timeRangeFilter: Interval?
     
     /// Creates a new `GoogleSearch`.
-    package init(
+    public init(
       searchTypes: SearchTypes? = nil,
       timeRangeFilter: Interval? = nil
     ) {

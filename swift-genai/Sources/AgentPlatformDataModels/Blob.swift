@@ -17,18 +17,18 @@ import Foundation
 
 extension AgentPlatform {
   /// A content blob. A Blob contains data of a specific media type. It is used to represent images, audio, and video.
-  package struct Blob: Codable, Sendable, Equatable, Hashable {
+  public struct Blob: Codable, Sendable, Equatable, Hashable {
     /// Required. The raw bytes of the data.
-    package var data: String?
+    public var data: String?
     
     /// Optional. The display name of the blob. Used to provide a label or filename to distinguish blobs. This field is only returned in `PromptMessage` for prompt management. It is used in the Gemini calls only when server-side tools (`code_execution`, `google_search`, and `url_context`) are enabled.
-    package var displayName: String?
+    public var displayName: String?
     
     /// Required. The IANA standard MIME type of the source data.
-    package var mimeType: String?
+    public var mimeType: String?
     
     /// Creates a new `Blob`.
-    package init(
+    public init(
       data: String? = nil,
       displayName: String? = nil,
       mimeType: String? = nil

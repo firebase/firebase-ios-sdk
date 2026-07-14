@@ -16,7 +16,7 @@ import Foundation
 
 extension AgentPlatform.ImageResponseFormat {
   /// Optional. The aspect ratio for the image output.
-  package enum AspectRatio: Codable, Sendable, Equatable, Hashable {
+  public enum AspectRatio: Codable, Sendable, Equatable, Hashable {
     /// 1:1 aspect ratio.
     case oneByOne
     
@@ -69,7 +69,7 @@ extension AgentPlatform.ImageResponseFormat {
 // MARK: - RawRepresentable Conformance
 
 extension AgentPlatform.ImageResponseFormat.AspectRatio: RawRepresentable {
-  package var rawValue: String {
+  public var rawValue: String {
     switch self {
     case .oneByOne: "ASPECT_RATIO_ONE_BY_ONE"
     case .twoByThree: "ASPECT_RATIO_TWO_BY_THREE"
@@ -89,7 +89,7 @@ extension AgentPlatform.ImageResponseFormat.AspectRatio: RawRepresentable {
     }
   }
 
-  package init(rawValue: String) {
+  public init(rawValue: String) {
     switch rawValue {
     case "ASPECT_RATIO_ONE_BY_ONE": self = .oneByOne
     case "ASPECT_RATIO_TWO_BY_THREE": self = .twoByThree

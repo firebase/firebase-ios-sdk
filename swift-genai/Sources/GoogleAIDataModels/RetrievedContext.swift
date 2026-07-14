@@ -17,30 +17,30 @@ import Foundation
 
 extension GoogleAI {
   /// Chunk from context retrieved by the file search tool.
-  package struct RetrievedContext: Codable, Sendable, Equatable, Hashable {
+  public struct RetrievedContext: Codable, Sendable, Equatable, Hashable {
     /// Optional. User-provided metadata about the retrieved context.
-    package var customMetadata: [GroundingChunkCustomMetadata]?
+    public var customMetadata: [GroundingChunkCustomMetadata]?
     
     /// Optional. Name of the `FileSearchStore` containing the document. Example: `fileSearchStores/123`
-    package var fileSearchStore: String?
+    public var fileSearchStore: String?
     
     /// Optional. The media blob resource name for multimodal file search results. Format: fileSearchStores/{file_search_store_id}/media/{blob_id}
-    package var mediaId: String?
+    public var mediaId: String?
     
     /// Optional. Page number of the retrieved context, if applicable.
-    package var pageNumber: Int?
+    public var pageNumber: Int?
     
     /// Optional. Text of the chunk.
-    package var text: String?
+    public var text: String?
     
     /// Optional. Title of the document.
-    package var title: String?
+    public var title: String?
     
     /// Optional. URI reference of the semantic retrieval document.
-    package var uri: String?
+    public var uri: String?
     
     /// Creates a new `RetrievedContext`.
-    package init(
+    public init(
       customMetadata: [GroundingChunkCustomMetadata]? = nil,
       fileSearchStore: String? = nil,
       mediaId: String? = nil,

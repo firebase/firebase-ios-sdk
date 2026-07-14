@@ -17,12 +17,12 @@ import Foundation
 
 extension AgentPlatform {
   /// Config for Hybrid Search.
-  package struct RagRetrievalConfigHybridSearch: Codable, Sendable, Equatable, Hashable {
+  public struct RagRetrievalConfigHybridSearch: Codable, Sendable, Equatable, Hashable {
     /// Optional. Alpha value controls the weight between dense and sparse vector search results. The range is [0, 1], while 0 means sparse vector search only and 1 means dense vector search only. The default value is 0.5 which balances sparse and dense vector search equally.
-    package var alpha: Double?
+    public var alpha: Double?
     
     /// Creates a new `RagRetrievalConfigHybridSearch`.
-    package init(
+    public init(
       alpha: Double? = nil
     ) {
       self.alpha = alpha

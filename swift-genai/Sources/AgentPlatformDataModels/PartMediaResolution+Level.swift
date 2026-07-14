@@ -16,7 +16,7 @@ import Foundation
 
 extension AgentPlatform.PartMediaResolution {
   /// The tokenization quality used for given media.
-  package enum Level: Codable, Sendable, Equatable, Hashable {
+  public enum Level: Codable, Sendable, Equatable, Hashable {
     /// Media resolution set to low.
     case low
     
@@ -39,7 +39,7 @@ extension AgentPlatform.PartMediaResolution {
 // MARK: - RawRepresentable Conformance
 
 extension AgentPlatform.PartMediaResolution.Level: RawRepresentable {
-  package var rawValue: String {
+  public var rawValue: String {
     switch self {
     case .low: "MEDIA_RESOLUTION_LOW"
     case .medium: "MEDIA_RESOLUTION_MEDIUM"
@@ -49,7 +49,7 @@ extension AgentPlatform.PartMediaResolution.Level: RawRepresentable {
     }
   }
 
-  package init(rawValue: String) {
+  public init(rawValue: String) {
     switch rawValue {
     case "MEDIA_RESOLUTION_LOW": self = .low
     case "MEDIA_RESOLUTION_MEDIUM": self = .medium

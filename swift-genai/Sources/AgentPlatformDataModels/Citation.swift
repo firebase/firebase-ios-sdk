@@ -19,27 +19,27 @@ public import Foundation
 
 extension AgentPlatform {
   /// A citation for a piece of generatedcontent.
-  package struct Citation: Codable, Sendable, Equatable, Hashable {
+  public struct Citation: Codable, Sendable, Equatable, Hashable {
     /// Output only. The end index of the citation in the content.
-    package var endIndex: Int?
+    public var endIndex: Int?
     
     /// Output only. The license of the source of the citation.
-    package var license: String?
+    public var license: String?
     
     /// Output only. The publication date of the source of the citation.
-    package var publicationDate: GoogleTypeDate?
+    public var publicationDate: GoogleTypeDate?
     
     /// Output only. The start index of the citation in the content.
-    package var startIndex: Int?
+    public var startIndex: Int?
     
     /// Output only. The title of the source of the citation.
-    package var title: String?
+    public var title: String?
     
     /// Output only. The URI of the source of the citation.
-    package var uri: String?
+    public var uri: String?
     
     /// Creates a new `Citation`.
-    package init(
+    public init(
       endIndex: Int? = nil,
       license: String? = nil,
       publicationDate: GoogleTypeDate? = nil,

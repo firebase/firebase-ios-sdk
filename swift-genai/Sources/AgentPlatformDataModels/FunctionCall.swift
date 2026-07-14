@@ -13,29 +13,29 @@
 // limitations under the License.
 
 import Foundation
-package import SharedDataModels
+public import SharedDataModels
 
 
 extension AgentPlatform {
   /// A predicted FunctionCall returned from the model that contains a string representing the FunctionDeclaration.name and a structured JSON object containing the parameters and their values.
-  package struct FunctionCall: Codable, Sendable, Equatable, Hashable {
+  public struct FunctionCall: Codable, Sendable, Equatable, Hashable {
     /// Optional. The function parameters and values in JSON object format. See FunctionDeclaration.parameters for parameter details.
-    package var args: [String: JSONValue]?
+    public var args: [String: JSONValue]?
     
     /// Optional. The unique id of the function call. If populated, the client to execute the `function_call` and return the response with the matching `id`.
-    package var id: String?
+    public var id: String?
     
     /// Optional. The name of the function to call. Matches FunctionDeclaration.name.
-    package var name: String?
+    public var name: String?
     
     /// Optional. The partial argument value of the function call. If provided, represents the arguments/fields that are streamed incrementally.
-    package var partialArgs: [PartialArg]?
+    public var partialArgs: [PartialArg]?
     
     /// Optional. Whether this is the last part of the FunctionCall. If true, another partial message for the current FunctionCall is expected to follow.
-    package var willContinue: Bool?
+    public var willContinue: Bool?
     
     /// Creates a new `FunctionCall`.
-    package init(
+    public init(
       args: [String: JSONValue]? = nil,
       id: String? = nil,
       name: String? = nil,

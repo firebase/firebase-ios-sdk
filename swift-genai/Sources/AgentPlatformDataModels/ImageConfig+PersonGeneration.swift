@@ -16,7 +16,7 @@ import Foundation
 
 extension AgentPlatform.ImageConfig {
   /// Optional. Controls whether the model can generate people.
-  package enum PersonGeneration: Codable, Sendable, Equatable, Hashable {
+  public enum PersonGeneration: Codable, Sendable, Equatable, Hashable {
     /// Allows the model to generate images of people, including adults and children.
     case all
     
@@ -36,7 +36,7 @@ extension AgentPlatform.ImageConfig {
 // MARK: - RawRepresentable Conformance
 
 extension AgentPlatform.ImageConfig.PersonGeneration: RawRepresentable {
-  package var rawValue: String {
+  public var rawValue: String {
     switch self {
     case .all: "ALLOW_ALL"
     case .adult: "ALLOW_ADULT"
@@ -45,7 +45,7 @@ extension AgentPlatform.ImageConfig.PersonGeneration: RawRepresentable {
     }
   }
 
-  package init(rawValue: String) {
+  public init(rawValue: String) {
     switch rawValue {
     case "ALLOW_ALL": self = .all
     case "ALLOW_ADULT": self = .adult

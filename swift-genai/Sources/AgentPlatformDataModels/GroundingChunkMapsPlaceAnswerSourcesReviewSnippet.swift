@@ -17,18 +17,18 @@ import Foundation
 
 extension AgentPlatform {
   /// A review snippet that is used to generate the answer.
-  package struct GroundingChunkMapsPlaceAnswerSourcesReviewSnippet: Codable, Sendable, Equatable, Hashable {
+  public struct GroundingChunkMapsPlaceAnswerSourcesReviewSnippet: Codable, Sendable, Equatable, Hashable {
     /// A link to show the review on Google Maps.
-    package var googleMapsUri: String?
+    public var googleMapsUri: String?
     
     /// The ID of the review that is being referenced.
-    package var reviewId: String?
+    public var reviewId: String?
     
     /// The title of the review.
-    package var title: String?
+    public var title: String?
     
     /// Creates a new `GroundingChunkMapsPlaceAnswerSourcesReviewSnippet`.
-    package init(
+    public init(
       googleMapsUri: String? = nil,
       reviewId: String? = nil,
       title: String? = nil

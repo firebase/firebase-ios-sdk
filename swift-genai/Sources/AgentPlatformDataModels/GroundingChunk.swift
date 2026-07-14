@@ -17,21 +17,21 @@ import Foundation
 
 extension AgentPlatform {
   /// A piece of evidence that supports a claim made by the model. This is used to show a citation for a claim made by the model. When grounding is enabled, the model returns a `GroundingChunk` that contains a reference to the source of the information.
-  package struct GroundingChunk: Codable, Sendable, Equatable, Hashable {
+  public struct GroundingChunk: Codable, Sendable, Equatable, Hashable {
     /// A grounding chunk from an image search result. See the `Image` message for details.
-    package var image: GroundingChunkImage?
+    public var image: GroundingChunkImage?
     
     /// A grounding chunk from Google Maps. See the `Maps` message for details.
-    package var maps: GroundingChunkMaps?
+    public var maps: GroundingChunkMaps?
     
     /// A grounding chunk from a data source retrieved by a retrieval tool, such as Vertex AI Search. See the `RetrievedContext` message for details
-    package var retrievedContext: GroundingChunkRetrievedContext?
+    public var retrievedContext: GroundingChunkRetrievedContext?
     
     /// A grounding chunk from a web page, typically from Google Search. See the `Web` message for details.
-    package var web: GroundingChunkWeb?
+    public var web: GroundingChunkWeb?
     
     /// Creates a new `GroundingChunk`.
-    package init(
+    public init(
       image: GroundingChunkImage? = nil,
       maps: GroundingChunkMaps? = nil,
       retrievedContext: GroundingChunkRetrievedContext? = nil,

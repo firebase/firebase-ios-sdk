@@ -17,15 +17,15 @@ import Foundation
 
 extension GoogleAI {
   /// Different types of search that can be enabled on the GoogleSearch tool.
-  package struct SearchTypes: Codable, Sendable, Equatable, Hashable {
+  public struct SearchTypes: Codable, Sendable, Equatable, Hashable {
     /// Optional. Enables image search. Image bytes are returned.
-    package var imageSearch: ImageSearch?
+    public var imageSearch: ImageSearch?
     
     /// Optional. Enables web search. Only text results are returned.
-    package var webSearch: WebSearch?
+    public var webSearch: WebSearch?
     
     /// Creates a new `SearchTypes`.
-    package init(
+    public init(
       imageSearch: ImageSearch? = nil,
       webSearch: WebSearch? = nil
     ) {

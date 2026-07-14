@@ -17,15 +17,15 @@ import Foundation
 
 extension GoogleAI {
   /// Context of the a single url retrieval.
-  package struct UrlMetadata: Codable, Sendable, Equatable, Hashable {
+  public struct UrlMetadata: Codable, Sendable, Equatable, Hashable {
     /// Retrieved url by the tool.
-    package var retrievedUrl: String?
+    public var retrievedUrl: String?
     
     /// Status of the url retrieval.
-    package var urlRetrievalStatus: UrlRetrievalStatus?
+    public var urlRetrievalStatus: UrlRetrievalStatus?
     
     /// Creates a new `UrlMetadata`.
-    package init(
+    public init(
       retrievedUrl: String? = nil,
       urlRetrievalStatus: UrlRetrievalStatus? = nil
     ) {

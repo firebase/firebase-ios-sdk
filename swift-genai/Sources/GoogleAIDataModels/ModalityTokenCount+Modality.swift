@@ -16,7 +16,7 @@ import Foundation
 
 extension GoogleAI.ModalityTokenCount {
   /// The modality associated with this token count.
-  package enum Modality: Codable, Sendable, Equatable, Hashable {
+  public enum Modality: Codable, Sendable, Equatable, Hashable {
     /// Plain text.
     case text
     
@@ -42,7 +42,7 @@ extension GoogleAI.ModalityTokenCount {
 // MARK: - RawRepresentable Conformance
 
 extension GoogleAI.ModalityTokenCount.Modality: RawRepresentable {
-  package var rawValue: String {
+  public var rawValue: String {
     switch self {
     case .text: "TEXT"
     case .image: "IMAGE"
@@ -53,7 +53,7 @@ extension GoogleAI.ModalityTokenCount.Modality: RawRepresentable {
     }
   }
 
-  package init(rawValue: String) {
+  public init(rawValue: String) {
     switch rawValue {
     case "TEXT": self = .text
     case "IMAGE": self = .image

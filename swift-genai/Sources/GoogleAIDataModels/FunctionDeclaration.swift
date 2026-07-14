@@ -13,35 +13,35 @@
 // limitations under the License.
 
 import Foundation
-package import SharedDataModels
+public import SharedDataModels
 
 
 extension GoogleAI {
   /// Structured representation of a function declaration as defined by the [OpenAPI 3.03 specification](https://spec.openapis.org/oas/v3.0.3). Included in this declaration are the function name and parameters. This FunctionDeclaration is a representation of a block of code that can be used as a `Tool` by the model and executed by the client.
-  package struct FunctionDeclaration: Codable, Sendable, Equatable, Hashable {
+  public struct FunctionDeclaration: Codable, Sendable, Equatable, Hashable {
     /// Optional. Specifies the function Behavior. Currently only supported by the BidiGenerateContent method.
-    package var behavior: Behavior?
+    public var behavior: Behavior?
     
     /// Required. A brief description of the function.
-    package var description: String?
+    public var description: String?
     
     /// Required. The name of the function. Must be a-z, A-Z, 0-9, or contain underscores, colons, dots, and dashes, with a maximum length of 128.
-    package var name: String?
+    public var name: String?
     
     /// Optional. Describes the parameters to this function. Reflects the Open API 3.03 Parameter Object string Key: the name of the parameter. Parameter names are case sensitive. Schema Value: the Schema defining the type used for the parameter.
-    package var parameters: Schema?
+    public var parameters: Schema?
     
     /// Optional. Describes the parameters to the function in JSON Schema format. The schema must describe an object where the properties are the parameters to the function. For example: ``` { "type": "object", "properties": { "name": { "type": "string" }, "age": { "type": "integer" } }, "additionalProperties": false, "required": ["name", "age"], "propertyOrdering": ["name", "age"] } ``` This field is mutually exclusive with `parameters`.
-    package var parametersJsonSchema: JSONValue?
+    public var parametersJsonSchema: JSONValue?
     
     /// Optional. Describes the output from this function in JSON Schema format. Reflects the Open API 3.03 Response Object. The Schema defines the type used for the response value of the function.
-    package var response: Schema?
+    public var response: Schema?
     
     /// Optional. Describes the output from this function in JSON Schema format. The value specified by the schema is the response value of the function. This field is mutually exclusive with `response`.
-    package var responseJsonSchema: JSONValue?
+    public var responseJsonSchema: JSONValue?
     
     /// Creates a new `FunctionDeclaration`.
-    package init(
+    public init(
       behavior: Behavior? = nil,
       description: String? = nil,
       name: String? = nil,

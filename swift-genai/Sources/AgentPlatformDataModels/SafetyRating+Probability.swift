@@ -16,7 +16,7 @@ import Foundation
 
 extension AgentPlatform.SafetyRating {
   /// Output only. The probability of harm for this category.
-  package enum Probability: Codable, Sendable, Equatable, Hashable {
+  public enum Probability: Codable, Sendable, Equatable, Hashable {
     /// The harm probability is negligible.
     case negligible
     
@@ -39,7 +39,7 @@ extension AgentPlatform.SafetyRating {
 // MARK: - RawRepresentable Conformance
 
 extension AgentPlatform.SafetyRating.Probability: RawRepresentable {
-  package var rawValue: String {
+  public var rawValue: String {
     switch self {
     case .negligible: "NEGLIGIBLE"
     case .low: "LOW"
@@ -49,7 +49,7 @@ extension AgentPlatform.SafetyRating.Probability: RawRepresentable {
     }
   }
 
-  package init(rawValue: String) {
+  public init(rawValue: String) {
     switch rawValue {
     case "NEGLIGIBLE": self = .negligible
     case "LOW": self = .low

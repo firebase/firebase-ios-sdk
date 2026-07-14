@@ -13,80 +13,80 @@
 // limitations under the License.
 
 import Foundation
-package import SharedDataModels
+public import SharedDataModels
 
 
 extension GoogleAI {
   /// The `Schema` object allows the definition of input and output data types. These types can be objects, but also primitives and arrays. Represents a select subset of an [OpenAPI 3.0 schema object](https://spec.openapis.org/oas/v3.0.3#schema).
-  package final class Schema: Codable, Sendable {
+  public final class Schema: Codable, Sendable {
     /// Optional. The value should be validated against any (one or more) of the subschemas in the list.
-    package let anyOf: [Schema]?
+    public let anyOf: [Schema]?
     
     /// Optional. Default value of the field. Per JSON Schema, this field is intended for documentation generators and doesn't affect validation. Thus it's included here and ignored so that developers who send schemas with a `default` field don't get unknown-field errors.
-    package let `default`: JSONValue?
+    public let `default`: JSONValue?
     
     /// Optional. A brief description of the parameter. This could contain examples of use. Parameter description may be formatted as Markdown.
-    package let description: String?
+    public let description: String?
     
     /// Optional. Possible values of the element of Type.STRING with enum format. For example we can define an Enum Direction as : {type:STRING, format:enum, enum:["EAST", NORTH", "SOUTH", "WEST"]}
-    package let `enum`: [String]?
+    public let `enum`: [String]?
     
     /// Optional. Example of the object. Will only populated when the object is the root.
-    package let example: JSONValue?
+    public let example: JSONValue?
     
     /// Optional. The format of the data. Any value is allowed, but most do not trigger any special functionality.
-    package let format: String?
+    public let format: String?
     
     /// Optional. Schema of the elements of Type.ARRAY.
-    package let items: Schema?
+    public let items: Schema?
     
     /// Optional. Maximum number of the elements for Type.ARRAY.
-    package let maxItems: String?
+    public let maxItems: String?
     
     /// Optional. Maximum length of the Type.STRING
-    package let maxLength: String?
+    public let maxLength: String?
     
     /// Optional. Maximum number of the properties for Type.OBJECT.
-    package let maxProperties: String?
+    public let maxProperties: String?
     
     /// Optional. Maximum value of the Type.INTEGER and Type.NUMBER
-    package let maximum: Double?
+    public let maximum: Double?
     
     /// Optional. Minimum number of the elements for Type.ARRAY.
-    package let minItems: String?
+    public let minItems: String?
     
     /// Optional. SCHEMA FIELDS FOR TYPE STRING Minimum length of the Type.STRING
-    package let minLength: String?
+    public let minLength: String?
     
     /// Optional. Minimum number of the properties for Type.OBJECT.
-    package let minProperties: String?
+    public let minProperties: String?
     
     /// Optional. SCHEMA FIELDS FOR TYPE INTEGER and NUMBER Minimum value of the Type.INTEGER and Type.NUMBER
-    package let minimum: Double?
+    public let minimum: Double?
     
     /// Optional. Indicates if the value may be null.
-    package let nullable: Bool?
+    public let nullable: Bool?
     
     /// Optional. Pattern of the Type.STRING to restrict a string to a regular expression.
-    package let pattern: String?
+    public let pattern: String?
     
     /// Optional. Properties of Type.OBJECT.
-    package let properties: [String: Schema]?
+    public let properties: [String: Schema]?
     
     /// Optional. The order of the properties. Not a standard field in open api spec. Used to determine the order of the properties in the response.
-    package let propertyOrdering: [String]?
+    public let propertyOrdering: [String]?
     
     /// Optional. Required properties of Type.OBJECT.
-    package let required: [String]?
+    public let required: [String]?
     
     /// Optional. The title of the schema.
-    package let title: String?
+    public let title: String?
     
     /// Required. Data type.
-    package let type: `Type`?
+    public let type: `Type`?
     
     /// Creates a new `Schema`.
-    package init(
+    public init(
       anyOf: [Schema]? = nil,
       `default`: JSONValue? = nil,
       description: String? = nil,
@@ -163,7 +163,7 @@ extension GoogleAI {
 // MARK: - Equatable & Hashable Conformance
 
 extension GoogleAI.Schema: Equatable, Hashable {
-  package static func == (lhs: GoogleAI.Schema, rhs: GoogleAI.Schema) -> Bool {
+  public static func == (lhs: GoogleAI.Schema, rhs: GoogleAI.Schema) -> Bool {
     return
       lhs.anyOf == rhs.anyOf &&
       lhs.`default` == rhs.`default` &&
@@ -189,7 +189,7 @@ extension GoogleAI.Schema: Equatable, Hashable {
       lhs.type == rhs.type
   }
 
-  package func hash(into hasher: inout Hasher) {
+  public func hash(into hasher: inout Hasher) {
     hasher.combine(anyOf)
     hasher.combine(`default`)
     hasher.combine(description)

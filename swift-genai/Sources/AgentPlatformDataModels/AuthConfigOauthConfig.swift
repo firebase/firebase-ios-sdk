@@ -17,15 +17,15 @@ import Foundation
 
 extension AgentPlatform {
   /// Config for user oauth.
-  package struct AuthConfigOauthConfig: Codable, Sendable, Equatable, Hashable {
+  public struct AuthConfigOauthConfig: Codable, Sendable, Equatable, Hashable {
     /// Access token for extension endpoint. Only used to propagate token from [[ExecuteExtensionRequest.runtime_auth_config]] at request time.
-    package var accessToken: String?
+    public var accessToken: String?
     
     /// The service account used to generate access tokens for executing the Extension. - If the service account is specified, the `iam.serviceAccounts.getAccessToken` permission should be granted to Vertex AI Extension Service Agent (https://cloud.google.com/vertex-ai/docs/general/access-control#service-agents) on the provided service account.
-    package var serviceAccount: String?
+    public var serviceAccount: String?
     
     /// Creates a new `AuthConfigOauthConfig`.
-    package init(
+    public init(
       accessToken: String? = nil,
       serviceAccount: String? = nil
     ) {

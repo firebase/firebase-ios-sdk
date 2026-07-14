@@ -17,15 +17,15 @@ import Foundation
 
 extension GoogleAI {
   /// Chunk from the web.
-  package struct Web: Codable, Sendable, Equatable, Hashable {
+  public struct Web: Codable, Sendable, Equatable, Hashable {
     /// Output only. Title of the chunk.
-    package var title: String?
+    public var title: String?
     
     /// Output only. URI reference of the chunk.
-    package var uri: String?
+    public var uri: String?
     
     /// Creates a new `Web`.
-    package init(
+    public init(
       title: String? = nil,
       uri: String? = nil
     ) {

@@ -16,7 +16,7 @@ import Foundation
 
 extension GoogleAI.AudioResponseFormat {
   /// Optional. The MIME type of the audio output.
-  package enum MimeType: Codable, Sendable, Equatable, Hashable {
+  public enum MimeType: Codable, Sendable, Equatable, Hashable {
     /// MP3 audio format.
     case mp3
     
@@ -45,7 +45,7 @@ extension GoogleAI.AudioResponseFormat {
 // MARK: - RawRepresentable Conformance
 
 extension GoogleAI.AudioResponseFormat.MimeType: RawRepresentable {
-  package var rawValue: String {
+  public var rawValue: String {
     switch self {
     case .mp3: "AUDIO_MP3"
     case .oggOpus: "AUDIO_OGG_OPUS"
@@ -57,7 +57,7 @@ extension GoogleAI.AudioResponseFormat.MimeType: RawRepresentable {
     }
   }
 
-  package init(rawValue: String) {
+  public init(rawValue: String) {
     switch rawValue {
     case "AUDIO_MP3": self = .mp3
     case "AUDIO_OGG_OPUS": self = .oggOpus

@@ -17,18 +17,18 @@ import Foundation
 
 extension GoogleAI {
   /// Logprobs Result
-  package struct LogprobsResult: Codable, Sendable, Equatable, Hashable {
+  public struct LogprobsResult: Codable, Sendable, Equatable, Hashable {
     /// Length = total number of decoding steps. The chosen candidates may or may not be in top_candidates.
-    package var chosenCandidates: [LogprobsResultCandidate]?
+    public var chosenCandidates: [LogprobsResultCandidate]?
     
     /// Sum of log probabilities for all tokens.
-    package var logProbabilitySum: Double?
+    public var logProbabilitySum: Double?
     
     /// Length = total number of decoding steps.
-    package var topCandidates: [TopCandidates]?
+    public var topCandidates: [TopCandidates]?
     
     /// Creates a new `LogprobsResult`.
-    package init(
+    public init(
       chosenCandidates: [LogprobsResultCandidate]? = nil,
       logProbabilitySum: Double? = nil,
       topCandidates: [TopCandidates]? = nil

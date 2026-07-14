@@ -17,15 +17,15 @@ import Foundation
 
 extension GoogleAI {
   /// Identifier for a `Chunk` retrieved via Semantic Retriever specified in the `GenerateAnswerRequest` using `SemanticRetrieverConfig`.
-  package struct SemanticRetrieverChunk: Codable, Sendable, Equatable, Hashable {
+  public struct SemanticRetrieverChunk: Codable, Sendable, Equatable, Hashable {
     /// Output only. Name of the `Chunk` containing the attributed text. Example: `corpora/123/documents/abc/chunks/xyz`
-    package var chunk: String?
+    public var chunk: String?
     
     /// Output only. Name of the source matching the request's `SemanticRetrieverConfig.source`. Example: `corpora/123` or `corpora/123/documents/abc`
-    package var source: String?
+    public var source: String?
     
     /// Creates a new `SemanticRetrieverChunk`.
-    package init(
+    public init(
       chunk: String? = nil,
       source: String? = nil
     ) {

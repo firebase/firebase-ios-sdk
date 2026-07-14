@@ -17,30 +17,30 @@ import Foundation
 
 extension AgentPlatform {
   /// Retrieve from Vertex RAG Store for grounding.
-  package struct VertexRagStore: Codable, Sendable, Equatable, Hashable {
+  public struct VertexRagStore: Codable, Sendable, Equatable, Hashable {
     /// Optional. Deprecated. Please use rag_resources instead.
     @available(*, deprecated)
-    package var ragCorpora: [String]?
+    public var ragCorpora: [String]?
     
     /// Optional. The representation of the rag source. It can be used to specify corpus only or ragfiles. Currently only support one corpus or multiple files from one corpus. In the future we may open up multiple corpora support.
-    package var ragResources: [VertexRagStoreRagResource]?
+    public var ragResources: [VertexRagStoreRagResource]?
     
     /// Optional. The retrieval config for the Rag query.
-    package var ragRetrievalConfig: RagRetrievalConfig?
+    public var ragRetrievalConfig: RagRetrievalConfig?
     
     /// Optional. Number of top k results to return from the selected corpora.
     @available(*, deprecated)
-    package var similarityTopK: Int?
+    public var similarityTopK: Int?
     
     /// Optional. Currently only supported for Gemini Multimodal Live API. In Gemini Multimodal Live API, if `store_context` bool is specified, Gemini will leverage it to automatically memorize the interactions between the client and Gemini, and retrieve context when needed to augment the response generation for users' ongoing and future interactions.
-    package var storeContext: Bool?
+    public var storeContext: Bool?
     
     /// Optional. Only return results with vector distance smaller than the threshold.
     @available(*, deprecated)
-    package var vectorDistanceThreshold: Double?
+    public var vectorDistanceThreshold: Double?
     
     /// Creates a new `VertexRagStore`.
-    package init(
+    public init(
       ragCorpora: [String]? = nil,
       ragResources: [VertexRagStoreRagResource]? = nil,
       ragRetrievalConfig: RagRetrievalConfig? = nil,

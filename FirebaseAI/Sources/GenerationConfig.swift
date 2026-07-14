@@ -13,6 +13,8 @@
 // limitations under the License.
 
 import Foundation
+import GoogleAIDataModels
+import AgentPlatformDataModels
 
 /// A struct defining model parameters to be used when sending generative AI
 /// requests to the backend model.
@@ -288,25 +290,90 @@ public struct GenerationConfig: Sendable, Equatable {
   }
 }
 
-// MARK: - Codable Conformances
+// MARK: - Mappings
 
-extension GenerationConfig: Encodable {
-  enum CodingKeys: String, CodingKey {
-    case temperature
-    case topP
-    case topK
-    case candidateCount
-    case maxOutputTokens
-    case presencePenalty
-    case frequencyPenalty
-    case stopSequences
-    case responseMIMEType = "responseMimeType"
-    case responseSchema
-    case responseJSONSchema = "responseJsonSchema"
-    case responseModalities
-    case thinkingConfig
-    case imageConfig
-    case speechConfig
-    case seed
+extension GenerationConfig {
+  package func toGoogleAI() -> GoogleAI.GenerationConfig {
+    GoogleAI.GenerationConfig(
+      candidateCount: candidateCount,
+      frequencyPenalty: frequencyPenalty.map { Double($0) },
+      imageConfig: imageConfig?.toGoogleAI(),
+      maxOutputTokens: maxOutputTokens,
+      presencePenalty: presencePenalty.map { Double($0) },
+      responseMimeType: responseMIMEType,
+      responseModalities: responseModalities?.map { $0.rawValue },
+      responseSchema: responseSchema?.toGoogleAI(),
+      seed: seed.map { Int($0) },
+      speechConfig: speechConfig?.toGoogleAI(),
+      stopSequences: stopSequences,
+      temperature: temperature.map { Double($0) },
+      thinkingConfig: thinkingConfig?.toGoogleAI(),
+      topK: topK,
+      topP: topP.map { Double($0) }
+    )
+  }
+
+  package init(fromGoogleAI config: GoogleAI.GenerationConfig) {
+    self.init(
+      temperature: config.temperature.map { Float($0) },
+      topP: config.topP.map { Float($0) },
+      topK: config.topK,
+      candidateCount: config.candidateCount,
+      maxOutputTokens: config.maxOutputTokens,
+      presencePenalty: config.presencePenalty.map { Float($0) },
+      frequencyPenalty: config.frequencyPenalty.map { Float($0) },
+      stopSequences: config.stopSequences,
+      responseMIMEType: config.responseMimeType,
+      responseSchema: config.responseSchema.map { Schema(fromGoogleAI: $0) },
+      responseModalities: config.responseModalities?.compactMap { ResponseModality(rawValue: $0) },
+      thinkingConfig: config.thinkingConfig.map { ThinkingConfig(fromGoogleAI: $0) },
+      imageConfig: config.imageConfig.map { ImageConfig(fromGoogleAI: $0) },
+      speechConfig: config.speechConfig.flatMap { SpeechConfig(fromGoogleAI: $0) },
+      seed: config.seed
+    )
+  }
+
+  package func toAgentPlatform() -> AgentPlatform.GenerationConfig {
+    AgentPlatform.GenerationConfig(
+      candidateCount: candidateCount,
+      frequencyPenalty: frequencyPenalty.map { Double($0) },
+      imageConfig: imageConfig?.toAgentPlatform(),
+      maxOutputTokens: maxOutputTokens,
+      presencePenalty: presencePenalty.map { Double($0) },
+      responseJsonSchema: responseJSONSchema.map { SharedDataModels.JSONValue.object($0.toShared()) },
+      responseMimeType: responseMIMEType,
+      responseModalities: responseModalities?.map { $0.rawValue },
+      responseSchema: responseSchema?.toAgentPlatform(),
+      seed: seed.map { Int($0) },
+      speechConfig: speechConfig?.toAgentPlatform(),
+      stopSequences: stopSequences,
+      temperature: temperature.map { Double($0) },
+      thinkingConfig: thinkingConfig?.toAgentPlatform(),
+      topK: topK.map { Double($0) },
+      topP: topP.map { Double($0) }
+    )
+  }
+
+  package init(fromAgentPlatform config: AgentPlatform.GenerationConfig) {
+    self.init(
+      temperature: config.temperature.map { Float($0) },
+      topP: config.topP.map { Float($0) },
+      topK: config.topK.map { Int($0) },
+      candidateCount: config.candidateCount,
+      maxOutputTokens: config.maxOutputTokens,
+      presencePenalty: config.presencePenalty.map { Float($0) },
+      frequencyPenalty: config.frequencyPenalty.map { Float($0) },
+      stopSequences: config.stopSequences,
+      responseMIMEType: config.responseMimeType,
+      responseSchema: config.responseSchema.map { Schema(fromAgentPlatform: $0) },
+      responseModalities: config.responseModalities?.compactMap { ResponseModality(rawValue: $0) },
+      thinkingConfig: config.thinkingConfig.map { ThinkingConfig(fromAgentPlatform: $0) },
+      imageConfig: config.imageConfig.map { ImageConfig(fromAgentPlatform: $0) },
+      speechConfig: config.speechConfig.flatMap { SpeechConfig(fromAgentPlatform: $0) },
+      seed: config.seed
+    )
+    if let jsonSchema = config.responseJsonSchema, case let .object(obj) = jsonSchema {
+      self.responseJSONSchema = JSONObject(fromShared: obj)
+    }
   }
 }

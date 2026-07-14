@@ -16,7 +16,7 @@ import Foundation
 
 extension GoogleAI.SafetyRating {
   /// Required. The category for this rating.
-  package enum Category: Codable, Sendable, Equatable, Hashable {
+  public enum Category: Codable, Sendable, Equatable, Hashable {
     /// **PaLM** - Negative or harmful comments targeting identity and/or protected attribute.
     case derogatory
     
@@ -64,7 +64,7 @@ extension GoogleAI.SafetyRating {
 // MARK: - RawRepresentable Conformance
 
 extension GoogleAI.SafetyRating.Category: RawRepresentable {
-  package var rawValue: String {
+  public var rawValue: String {
     switch self {
     case .derogatory: "HARM_CATEGORY_DEROGATORY"
     case .toxicity: "HARM_CATEGORY_TOXICITY"
@@ -82,7 +82,7 @@ extension GoogleAI.SafetyRating.Category: RawRepresentable {
     }
   }
 
-  package init(rawValue: String) {
+  public init(rawValue: String) {
     switch rawValue {
     case "HARM_CATEGORY_DEROGATORY": self = .derogatory
     case "HARM_CATEGORY_TOXICITY": self = .toxicity

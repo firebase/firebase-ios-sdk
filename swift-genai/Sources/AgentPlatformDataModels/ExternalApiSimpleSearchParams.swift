@@ -17,9 +17,9 @@ import Foundation
 
 extension AgentPlatform {
   /// The search parameters to use for SIMPLE_SEARCH spec.
-  package struct ExternalApiSimpleSearchParams: Codable, Sendable, Equatable, Hashable {
+  public struct ExternalApiSimpleSearchParams: Codable, Sendable, Equatable, Hashable {
     /// Creates a new `ExternalApiSimpleSearchParams`.
-    package init(
+    public init(
     ) {
     }
   }

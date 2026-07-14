@@ -17,18 +17,18 @@ import Foundation
 
 extension AgentPlatform {
   /// Configuration for the model's thinking features. "Thinking" is a process where the model breaks down a complex task into smaller, manageable steps. This allows the model to reason about the task, plan its approach, and execute the plan to generate a high-quality response.
-  package struct GenerationConfigThinkingConfig: Codable, Sendable, Equatable, Hashable {
+  public struct GenerationConfigThinkingConfig: Codable, Sendable, Equatable, Hashable {
     /// Optional. If true, the model will include its thoughts in the response. "Thoughts" are the intermediate steps the model takes to arrive at the final response. They can provide insights into the model's reasoning process and help with debugging. If this is true, thoughts are returned only when available.
-    package var includeThoughts: Bool?
+    public var includeThoughts: Bool?
     
     /// Optional. The token budget for the model's thinking process. The model will make a best effort to stay within this budget. This can be used to control the trade-off between response quality and latency.
-    package var thinkingBudget: Int?
+    public var thinkingBudget: Int?
     
     /// Optional. The number of thoughts tokens that the model should generate.
-    package var thinkingLevel: ThinkingLevel?
+    public var thinkingLevel: ThinkingLevel?
     
     /// Creates a new `GenerationConfigThinkingConfig`.
-    package init(
+    public init(
       includeThoughts: Bool? = nil,
       thinkingBudget: Int? = nil,
       thinkingLevel: ThinkingLevel? = nil

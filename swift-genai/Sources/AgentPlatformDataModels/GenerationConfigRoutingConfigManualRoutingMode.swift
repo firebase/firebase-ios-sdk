@@ -17,12 +17,12 @@ import Foundation
 
 extension AgentPlatform {
   /// The configuration for manual routing. When manual routing is specified, the model will be selected based on the model name provided.
-  package struct GenerationConfigRoutingConfigManualRoutingMode: Codable, Sendable, Equatable, Hashable {
+  public struct GenerationConfigRoutingConfigManualRoutingMode: Codable, Sendable, Equatable, Hashable {
     /// The name of the model to use. Only public LLM models are accepted.
-    package var modelName: String?
+    public var modelName: String?
     
     /// Creates a new `GenerationConfigRoutingConfigManualRoutingMode`.
-    package init(
+    public init(
       modelName: String? = nil
     ) {
       self.modelName = modelName

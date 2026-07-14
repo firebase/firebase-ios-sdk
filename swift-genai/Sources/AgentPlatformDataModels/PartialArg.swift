@@ -17,27 +17,27 @@ import Foundation
 
 extension AgentPlatform {
   /// Partial argument value of the function call.
-  package struct PartialArg: Codable, Sendable, Equatable, Hashable {
+  public struct PartialArg: Codable, Sendable, Equatable, Hashable {
     /// Optional. Represents a boolean value.
-    package var boolValue: Bool?
+    public var boolValue: Bool?
     
     /// Required. A JSON Path (RFC 9535) to the argument being streamed. https://datatracker.ietf.org/doc/html/rfc9535. e.g. "$.foo.bar[0].data".
-    package var jsonPath: String?
+    public var jsonPath: String?
     
     /// Optional. Represents a null value.
-    package var nullValue: NullValue?
+    public var nullValue: NullValue?
     
     /// Optional. Represents a double value.
-    package var numberValue: Double?
+    public var numberValue: Double?
     
     /// Optional. Represents a string value.
-    package var stringValue: String?
+    public var stringValue: String?
     
     /// Optional. Whether this is not the last part of the same json_path. If true, another PartialArg message for the current json_path is expected to follow.
-    package var willContinue: Bool?
+    public var willContinue: Bool?
     
     /// Creates a new `PartialArg`.
-    package init(
+    public init(
       boolValue: Bool? = nil,
       jsonPath: String? = nil,
       nullValue: NullValue? = nil,

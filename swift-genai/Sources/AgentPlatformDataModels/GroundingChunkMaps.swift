@@ -17,27 +17,27 @@ import Foundation
 
 extension AgentPlatform {
   /// A `Maps` chunk is a piece of evidence that comes from Google Maps, containing information about places or routes. This is used to provide the user with rich, location-based information.
-  package struct GroundingChunkMaps: Codable, Sendable, Equatable, Hashable {
+  public struct GroundingChunkMaps: Codable, Sendable, Equatable, Hashable {
     /// The sources that were used to generate the place answer. This includes review snippets and photos that were used to generate the answer, as well as URIs to flag content.
-    package var placeAnswerSources: GroundingChunkMapsPlaceAnswerSources?
+    public var placeAnswerSources: GroundingChunkMapsPlaceAnswerSources?
     
     /// This Place's resource name, in `places/{place_id}` format. This can be used to look up the place in the Google Maps API.
-    package var placeId: String?
+    public var placeId: String?
     
     /// Output only. Route information.
-    package var route: GroundingChunkMapsRoute?
+    public var route: GroundingChunkMapsRoute?
     
     /// The text of the place answer.
-    package var text: String?
+    public var text: String?
     
     /// The title of the place.
-    package var title: String?
+    public var title: String?
     
     /// The URI of the place.
-    package var uri: String?
+    public var uri: String?
     
     /// Creates a new `GroundingChunkMaps`.
-    package init(
+    public init(
       placeAnswerSources: GroundingChunkMapsPlaceAnswerSources? = nil,
       placeId: String? = nil,
       route: GroundingChunkMapsRoute? = nil,

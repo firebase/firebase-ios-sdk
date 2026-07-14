@@ -17,21 +17,21 @@ import Foundation
 
 extension AgentPlatform {
   /// Configuration for video-specific output formatting.
-  package struct VideoResponseFormat: Codable, Sendable, Equatable, Hashable {
+  public struct VideoResponseFormat: Codable, Sendable, Equatable, Hashable {
     /// The aspect ratio for the video output.
-    package var aspectRatio: AspectRatio?
+    public var aspectRatio: AspectRatio?
     
     /// Optional. Delivery mode for the generated content.
-    package var delivery: Delivery?
+    public var delivery: Delivery?
     
     /// Optional. The duration for the video output.
-    package var duration: Duration?
+    public var duration: Duration?
     
     /// Optional. The Google Cloud Storage URI to store the video output. Required for Vertex if delivery is URI.
-    package var gcsUri: String?
+    public var gcsUri: String?
     
     /// Creates a new `VideoResponseFormat`.
-    package init(
+    public init(
       aspectRatio: AspectRatio? = nil,
       delivery: Delivery? = nil,
       duration: Duration? = nil,

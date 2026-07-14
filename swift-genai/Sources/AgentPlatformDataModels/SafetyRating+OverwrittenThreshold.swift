@@ -16,7 +16,7 @@ import Foundation
 
 extension AgentPlatform.SafetyRating {
   /// Output only. The overwritten threshold for the safety category of Gemini 2.0 image out. If minors are detected in the output image, the threshold of each safety category will be overwritten if user sets a lower threshold.
-  package enum OverwrittenThreshold: Codable, Sendable, Equatable, Hashable {
+  public enum OverwrittenThreshold: Codable, Sendable, Equatable, Hashable {
     /// Block content with a low harm probability or higher.
     case blockLowAndAbove
     
@@ -42,7 +42,7 @@ extension AgentPlatform.SafetyRating {
 // MARK: - RawRepresentable Conformance
 
 extension AgentPlatform.SafetyRating.OverwrittenThreshold: RawRepresentable {
-  package var rawValue: String {
+  public var rawValue: String {
     switch self {
     case .blockLowAndAbove: "BLOCK_LOW_AND_ABOVE"
     case .blockMediumAndAbove: "BLOCK_MEDIUM_AND_ABOVE"
@@ -53,7 +53,7 @@ extension AgentPlatform.SafetyRating.OverwrittenThreshold: RawRepresentable {
     }
   }
 
-  package init(rawValue: String) {
+  public init(rawValue: String) {
     switch rawValue {
     case "BLOCK_LOW_AND_ABOVE": self = .blockLowAndAbove
     case "BLOCK_MEDIUM_AND_ABOVE": self = .blockMediumAndAbove

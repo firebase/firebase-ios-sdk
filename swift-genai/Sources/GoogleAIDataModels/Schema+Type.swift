@@ -16,7 +16,7 @@ import Foundation
 
 extension GoogleAI.Schema {
   /// Required. Data type.
-  package enum `Type`: Codable, Sendable, Equatable, Hashable {
+  public enum `Type`: Codable, Sendable, Equatable, Hashable {
     /// String type.
     case string
     
@@ -48,7 +48,7 @@ extension GoogleAI.Schema {
 // MARK: - RawRepresentable Conformance
 
 extension GoogleAI.Schema.`Type`: RawRepresentable {
-  package var rawValue: String {
+  public var rawValue: String {
     switch self {
     case .string: "STRING"
     case .number: "NUMBER"
@@ -61,7 +61,7 @@ extension GoogleAI.Schema.`Type`: RawRepresentable {
     }
   }
 
-  package init(rawValue: String) {
+  public init(rawValue: String) {
     switch rawValue {
     case "STRING": self = .string
     case "NUMBER": self = .number

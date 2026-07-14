@@ -17,24 +17,24 @@ import Foundation
 
 extension AgentPlatform {
   /// Context retrieved from a data source to ground the model's response. This is used when a retrieval tool fetches information from a user-provided corpus or a public dataset.
-  package struct GroundingChunkRetrievedContext: Codable, Sendable, Equatable, Hashable {
+  public struct GroundingChunkRetrievedContext: Codable, Sendable, Equatable, Hashable {
     /// Output only. The full resource name of the referenced Vertex AI Search document. This is used to identify the specific document that was retrieved. The format is `projects/{project}/locations/{location}/collections/{collection}/dataStores/{data_store}/branches/{branch}/documents/{document}`.
-    package var documentName: String?
+    public var documentName: String?
     
     /// Additional context for a Retrieval-Augmented Generation (RAG) retrieval result. This is populated only when the RAG retrieval tool is used.
-    package var ragChunk: RagChunk?
+    public var ragChunk: RagChunk?
     
     /// The content of the retrieved data source.
-    package var text: String?
+    public var text: String?
     
     /// The title of the retrieved data source.
-    package var title: String?
+    public var title: String?
     
     /// The URI of the retrieved data source.
-    package var uri: String?
+    public var uri: String?
     
     /// Creates a new `GroundingChunkRetrievedContext`.
-    package init(
+    public init(
       documentName: String? = nil,
       ragChunk: RagChunk? = nil,
       text: String? = nil,

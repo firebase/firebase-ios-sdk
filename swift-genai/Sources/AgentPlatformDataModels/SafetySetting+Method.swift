@@ -16,7 +16,7 @@ import Foundation
 
 extension AgentPlatform.SafetySetting {
   /// Optional. The method for blocking content. If not specified, the default behavior is to use the probability score.
-  package enum Method: Codable, Sendable, Equatable, Hashable {
+  public enum Method: Codable, Sendable, Equatable, Hashable {
     /// The harm block method uses both probability and severity scores.
     case severity
     
@@ -33,7 +33,7 @@ extension AgentPlatform.SafetySetting {
 // MARK: - RawRepresentable Conformance
 
 extension AgentPlatform.SafetySetting.Method: RawRepresentable {
-  package var rawValue: String {
+  public var rawValue: String {
     switch self {
     case .severity: "SEVERITY"
     case .probability: "PROBABILITY"
@@ -41,7 +41,7 @@ extension AgentPlatform.SafetySetting.Method: RawRepresentable {
     }
   }
 
-  package init(rawValue: String) {
+  public init(rawValue: String) {
     switch rawValue {
     case "SEVERITY": self = .severity
     case "PROBABILITY": self = .probability

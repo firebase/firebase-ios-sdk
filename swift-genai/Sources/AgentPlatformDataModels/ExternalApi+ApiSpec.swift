@@ -16,7 +16,7 @@ import Foundation
 
 extension AgentPlatform.ExternalApi {
   /// The API spec that the external API implements.
-  package enum ApiSpec: Codable, Sendable, Equatable, Hashable {
+  public enum ApiSpec: Codable, Sendable, Equatable, Hashable {
     /// Simple search API spec.
     case simpleSearch
     
@@ -33,7 +33,7 @@ extension AgentPlatform.ExternalApi {
 // MARK: - RawRepresentable Conformance
 
 extension AgentPlatform.ExternalApi.ApiSpec: RawRepresentable {
-  package var rawValue: String {
+  public var rawValue: String {
     switch self {
     case .simpleSearch: "SIMPLE_SEARCH"
     case .elasticSearch: "ELASTIC_SEARCH"
@@ -41,7 +41,7 @@ extension AgentPlatform.ExternalApi.ApiSpec: RawRepresentable {
     }
   }
 
-  package init(rawValue: String) {
+  public init(rawValue: String) {
     switch rawValue {
     case "SIMPLE_SEARCH": self = .simpleSearch
     case "ELASTIC_SEARCH": self = .elasticSearch

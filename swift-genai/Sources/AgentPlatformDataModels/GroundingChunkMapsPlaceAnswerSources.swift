@@ -17,12 +17,12 @@ import Foundation
 
 extension AgentPlatform {
   /// The sources that were used to generate the place answer. This includes review snippets and photos that were used to generate the answer, as well as URIs to flag content.
-  package struct GroundingChunkMapsPlaceAnswerSources: Codable, Sendable, Equatable, Hashable {
+  public struct GroundingChunkMapsPlaceAnswerSources: Codable, Sendable, Equatable, Hashable {
     /// Snippets of reviews that were used to generate the answer.
-    package var reviewSnippets: [GroundingChunkMapsPlaceAnswerSourcesReviewSnippet]?
+    public var reviewSnippets: [GroundingChunkMapsPlaceAnswerSourcesReviewSnippet]?
     
     /// Creates a new `GroundingChunkMapsPlaceAnswerSources`.
-    package init(
+    public init(
       reviewSnippets: [GroundingChunkMapsPlaceAnswerSourcesReviewSnippet]? = nil
     ) {
       self.reviewSnippets = reviewSnippets

@@ -134,7 +134,7 @@ public extension ImageConfig {
   }
 }
 
-extension ImageConfig.AspectRatio: EncodableProtoEnum {
+extension ImageConfig.AspectRatio: ProtoEnum {
   enum Kind: String {
     case square1x1 = "1:1"
     case portrait9x16 = "9:16"
@@ -153,7 +153,7 @@ extension ImageConfig.AspectRatio: EncodableProtoEnum {
   }
 }
 
-extension ImageConfig.ImageSize: EncodableProtoEnum {
+extension ImageConfig.ImageSize: ProtoEnum {
   enum Kind: String {
     case size512 = "512"
     case size1K = "1K"
@@ -162,6 +162,33 @@ extension ImageConfig.ImageSize: EncodableProtoEnum {
   }
 }
 
-// MARK: - Codable Conformances
+// MARK: - Mappings
 
-extension ImageConfig: Encodable {}
+import GoogleAIDataModels
+import AgentPlatformDataModels
+
+extension ImageConfig {
+  package func toGoogleAI() -> GoogleAI.ImageConfig {
+    GoogleAI.ImageConfig(
+      aspectRatio: aspectRatio?.rawValue,
+      imageSize: imageSize?.rawValue
+    )
+  }
+
+  package func toAgentPlatform() -> AgentPlatform.ImageConfig {
+    AgentPlatform.ImageConfig(
+      aspectRatio: aspectRatio?.rawValue,
+      imageSize: imageSize?.rawValue
+    )
+  }
+
+  package init(fromGoogleAI config: GoogleAI.ImageConfig) {
+    self.aspectRatio = config.aspectRatio.map { AspectRatio(rawValue: $0) }
+    self.imageSize = config.imageSize.map { ImageSize(rawValue: $0) }
+  }
+
+  package init(fromAgentPlatform config: AgentPlatform.ImageConfig) {
+    self.aspectRatio = config.aspectRatio.map { AspectRatio(rawValue: $0) }
+    self.imageSize = config.imageSize.map { ImageSize(rawValue: $0) }
+  }
+}

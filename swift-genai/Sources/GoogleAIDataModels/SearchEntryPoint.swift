@@ -17,15 +17,15 @@ import Foundation
 
 extension GoogleAI {
   /// Google search entry point.
-  package struct SearchEntryPoint: Codable, Sendable, Equatable, Hashable {
+  public struct SearchEntryPoint: Codable, Sendable, Equatable, Hashable {
     /// Optional. Web content snippet that can be embedded in a web page or an app webview.
-    package var renderedContent: String?
+    public var renderedContent: String?
     
     /// Optional. Base64 encoded JSON representing array of tuple.
-    package var sdkBlob: String?
+    public var sdkBlob: String?
     
     /// Creates a new `SearchEntryPoint`.
-    package init(
+    public init(
       renderedContent: String? = nil,
       sdkBlob: String? = nil
     ) {

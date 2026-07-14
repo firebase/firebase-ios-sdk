@@ -17,15 +17,15 @@ import Foundation
 
 extension AgentPlatform {
   /// The definition of the Rag resource.
-  package struct VertexRagStoreRagResource: Codable, Sendable, Equatable, Hashable {
+  public struct VertexRagStoreRagResource: Codable, Sendable, Equatable, Hashable {
     /// Optional. RagCorpora resource name. Format: `projects/{project}/locations/{location}/ragCorpora/{rag_corpus}`
-    package var ragCorpus: String?
+    public var ragCorpus: String?
     
     /// Optional. rag_file_id. The files should be in the same rag_corpus set in rag_corpus field.
-    package var ragFileIds: [String]?
+    public var ragFileIds: [String]?
     
     /// Creates a new `VertexRagStoreRagResource`.
-    package init(
+    public init(
       ragCorpus: String? = nil,
       ragFileIds: [String]? = nil
     ) {

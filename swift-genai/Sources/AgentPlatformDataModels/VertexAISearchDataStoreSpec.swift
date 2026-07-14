@@ -17,15 +17,15 @@ import Foundation
 
 extension AgentPlatform {
   /// Define data stores within engine to filter on in a search call and configurations for those data stores. For more information, see https://cloud.google.com/generative-ai-app-builder/docs/reference/rpc/google.cloud.discoveryengine.v1#datastorespec
-  package struct VertexAISearchDataStoreSpec: Codable, Sendable, Equatable, Hashable {
+  public struct VertexAISearchDataStoreSpec: Codable, Sendable, Equatable, Hashable {
     /// Full resource name of DataStore, such as Format: `projects/{project}/locations/{location}/collections/{collection}/dataStores/{dataStore}`
-    package var dataStore: String?
+    public var dataStore: String?
     
     /// Optional. Filter specification to filter documents in the data store specified by data_store field. For more information on filtering, see [Filtering](https://cloud.google.com/generative-ai-app-builder/docs/filter-search-metadata)
-    package var filter: String?
+    public var filter: String?
     
     /// Creates a new `VertexAISearchDataStoreSpec`.
-    package init(
+    public init(
       dataStore: String? = nil,
       filter: String? = nil
     ) {

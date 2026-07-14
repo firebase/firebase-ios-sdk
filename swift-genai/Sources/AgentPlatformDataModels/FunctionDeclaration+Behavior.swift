@@ -16,7 +16,7 @@ import Foundation
 
 extension AgentPlatform.FunctionDeclaration {
   /// Optional. Specifies the function Behavior. If not specified, the system keeps the current function call behavior. This field is currently only supported by the BidiGenerateContent method.
-  package enum Behavior: Codable, Sendable, Equatable, Hashable {
+  public enum Behavior: Codable, Sendable, Equatable, Hashable {
     /// If set, the system will wait to receive the function response before continuing the conversation.
     case blocking
     
@@ -33,7 +33,7 @@ extension AgentPlatform.FunctionDeclaration {
 // MARK: - RawRepresentable Conformance
 
 extension AgentPlatform.FunctionDeclaration.Behavior: RawRepresentable {
-  package var rawValue: String {
+  public var rawValue: String {
     switch self {
     case .blocking: "BLOCKING"
     case .nonBlocking: "NON_BLOCKING"
@@ -41,7 +41,7 @@ extension AgentPlatform.FunctionDeclaration.Behavior: RawRepresentable {
     }
   }
 
-  package init(rawValue: String) {
+  public init(rawValue: String) {
     switch rawValue {
     case "BLOCKING": self = .blocking
     case "NON_BLOCKING": self = .nonBlocking

@@ -17,21 +17,21 @@ import Foundation
 
 extension GoogleAI {
   /// A `GroundingChunk` represents a segment of supporting evidence that grounds the model's response. It can be a chunk from the web, a retrieved context from a file, or information from Google Maps.
-  package struct GroundingChunk: Codable, Sendable, Equatable, Hashable {
+  public struct GroundingChunk: Codable, Sendable, Equatable, Hashable {
     /// Optional. Grounding chunk from image search.
-    package var image: Image?
+    public var image: Image?
     
     /// Optional. Grounding chunk from Google Maps.
-    package var maps: Maps?
+    public var maps: Maps?
     
     /// Optional. Grounding chunk from context retrieved by the file search tool.
-    package var retrievedContext: RetrievedContext?
+    public var retrievedContext: RetrievedContext?
     
     /// Grounding chunk from the web.
-    package var web: Web?
+    public var web: Web?
     
     /// Creates a new `GroundingChunk`.
-    package init(
+    public init(
       image: Image? = nil,
       maps: Maps? = nil,
       retrievedContext: RetrievedContext? = nil,

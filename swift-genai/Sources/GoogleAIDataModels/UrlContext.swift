@@ -17,9 +17,9 @@ import Foundation
 
 extension GoogleAI {
   /// Tool to support URL context retrieval.
-  package struct UrlContext: Codable, Sendable, Equatable, Hashable {
+  public struct UrlContext: Codable, Sendable, Equatable, Hashable {
     /// Creates a new `UrlContext`.
-    package init(
+    public init(
     ) {
     }
   }

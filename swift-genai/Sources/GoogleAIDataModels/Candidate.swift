@@ -17,45 +17,45 @@ import Foundation
 
 extension GoogleAI {
   /// A response candidate generated from the model.
-  package struct Candidate: Codable, Sendable, Equatable, Hashable {
+  public struct Candidate: Codable, Sendable, Equatable, Hashable {
     /// Output only. Average log probability score of the candidate.
-    package var avgLogprobs: Double?
+    public var avgLogprobs: Double?
     
     /// Output only. Citation information for model-generated candidate. This field may be populated with recitation information for any text included in the `content`. These are passages that are "recited" from copyrighted material in the foundational LLM's training data.
-    package var citationMetadata: CitationMetadata?
+    public var citationMetadata: CitationMetadata?
     
     /// Output only. Generated content returned from the model.
-    package var content: Content?
+    public var content: Content?
     
     /// Optional. Output only. Details the reason why the model stopped generating tokens. This is populated only when `finish_reason` is set.
-    package var finishMessage: String?
+    public var finishMessage: String?
     
     /// Optional. Output only. The reason why the model stopped generating tokens. If empty, the model has not stopped generating tokens.
-    package var finishReason: FinishReason?
+    public var finishReason: FinishReason?
     
     /// Output only. Attribution information for sources that contributed to a grounded answer. This field is populated for `GenerateAnswer` calls.
-    package var groundingAttributions: [GroundingAttribution]?
+    public var groundingAttributions: [GroundingAttribution]?
     
     /// Output only. Grounding metadata for the candidate. This field is populated for `GenerateContent` calls.
-    package var groundingMetadata: GroundingMetadata?
+    public var groundingMetadata: GroundingMetadata?
     
     /// Output only. Index of the candidate in the list of response candidates.
-    package var index: Int?
+    public var index: Int?
     
     /// Output only. Log-likelihood scores for the response tokens and top tokens
-    package var logprobsResult: LogprobsResult?
+    public var logprobsResult: LogprobsResult?
     
     /// List of ratings for the safety of a response candidate. There is at most one rating per category.
-    package var safetyRatings: [SafetyRating]?
+    public var safetyRatings: [SafetyRating]?
     
     /// Output only. Token count for this candidate.
-    package var tokenCount: Int?
+    public var tokenCount: Int?
     
     /// Output only. Metadata related to url context retrieval tool.
-    package var urlContextMetadata: UrlContextMetadata?
+    public var urlContextMetadata: UrlContextMetadata?
     
     /// Creates a new `Candidate`.
-    package init(
+    public init(
       avgLogprobs: Double? = nil,
       citationMetadata: CitationMetadata? = nil,
       content: Content? = nil,

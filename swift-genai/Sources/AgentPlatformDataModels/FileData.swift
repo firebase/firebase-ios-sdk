@@ -17,18 +17,18 @@ import Foundation
 
 extension AgentPlatform {
   /// URI-based data. A FileData message contains a URI pointing to data of a specific media type. It is used to represent images, audio, and video stored in Google Cloud Storage.
-  package struct FileData: Codable, Sendable, Equatable, Hashable {
+  public struct FileData: Codable, Sendable, Equatable, Hashable {
     /// Optional. The display name of the file. Used to provide a label or filename to distinguish files. This field is only returned in `PromptMessage` for prompt management. It is used in the Gemini calls only when server side tools (`code_execution`, `google_search`, and `url_context`) are enabled.
-    package var displayName: String?
+    public var displayName: String?
     
     /// Required. The URI of the file in Google Cloud Storage.
-    package var fileUri: String?
+    public var fileUri: String?
     
     /// Required. The IANA standard MIME type of the source data.
-    package var mimeType: String?
+    public var mimeType: String?
     
     /// Creates a new `FileData`.
-    package init(
+    public init(
       displayName: String? = nil,
       fileUri: String? = nil,
       mimeType: String? = nil

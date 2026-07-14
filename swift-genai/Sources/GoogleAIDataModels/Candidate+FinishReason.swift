@@ -16,7 +16,7 @@ import Foundation
 
 extension GoogleAI.Candidate {
   /// Optional. Output only. The reason why the model stopped generating tokens. If empty, the model has not stopped generating tokens.
-  package enum FinishReason: Codable, Sendable, Equatable, Hashable {
+  public enum FinishReason: Codable, Sendable, Equatable, Hashable {
     /// Natural stop point of the model or provided stop sequence.
     case stop
     
@@ -87,7 +87,7 @@ extension GoogleAI.Candidate {
 // MARK: - RawRepresentable Conformance
 
 extension GoogleAI.Candidate.FinishReason: RawRepresentable {
-  package var rawValue: String {
+  public var rawValue: String {
     switch self {
     case .stop: "STOP"
     case .maxTokens: "MAX_TOKENS"
@@ -113,7 +113,7 @@ extension GoogleAI.Candidate.FinishReason: RawRepresentable {
     }
   }
 
-  package init(rawValue: String) {
+  public init(rawValue: String) {
     switch rawValue {
     case "STOP": self = .stop
     case "MAX_TOKENS": self = .maxTokens

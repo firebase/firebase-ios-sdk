@@ -17,21 +17,21 @@ import Foundation
 
 extension AgentPlatform {
   /// A RagChunk includes the content of a chunk of a RagFile, and associated metadata.
-  package struct RagChunk: Codable, Sendable, Equatable, Hashable {
+  public struct RagChunk: Codable, Sendable, Equatable, Hashable {
     /// The ID of the chunk.
-    package var chunkId: String?
+    public var chunkId: String?
     
     /// The ID of the file that the chunk belongs to.
-    package var fileId: String?
+    public var fileId: String?
     
     /// If populated, represents where the chunk starts and ends in the document.
-    package var pageSpan: RagChunkPageSpan?
+    public var pageSpan: RagChunkPageSpan?
     
     /// The content of the chunk.
-    package var text: String?
+    public var text: String?
     
     /// Creates a new `RagChunk`.
-    package init(
+    public init(
       chunkId: String? = nil,
       fileId: String? = nil,
       pageSpan: RagChunkPageSpan? = nil,

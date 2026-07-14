@@ -13,6 +13,8 @@
 // limitations under the License.
 
 import Foundation
+import GoogleAIDataModels
+import AgentPlatformDataModels
 
 /// A `Schema` object allows the definition of input and output data types.
 ///
@@ -20,7 +22,7 @@ import Foundation
 /// [OpenAPI 3.0 schema object](https://spec.openapis.org/oas/v3.0.3#schema).
 public final class Schema: Sendable {
   /// Modifiers describing the expected format of a string `Schema`.
-  public struct StringFormat: EncodableProtoEnum {
+  public struct StringFormat: ProtoEnum {
     // This enum is currently only used to conform `StringFormat` to `ProtoEnum`, which requires
     // `associatedtype Kind: RawRepresentable<String>`.
     enum Kind: String {
@@ -37,7 +39,7 @@ public final class Schema: Sendable {
   }
 
   /// Modifiers describing the expected format of an integer `Schema`.
-  public struct IntegerFormat: EncodableProtoEnum, Sendable {
+  public struct IntegerFormat: ProtoEnum, Sendable {
     enum Kind: String {
       case int32
       case int64
@@ -457,28 +459,6 @@ public final class Schema: Sendable {
   }
 }
 
-// MARK: - Codable Conformance
-
-extension Schema: Encodable {
-  enum CodingKeys: String, CodingKey {
-    case dataType = "type"
-    case format
-    case description
-    case title
-    case nullable
-    case enumValues = "enum"
-    case items
-    case minItems
-    case maxItems
-    case minimum
-    case maximum
-    case anyOf
-    case properties
-    case requiredProperties = "required"
-    case propertyOrdering
-  }
-}
-
 // MARK: - Equatable Conformance
 
 extension Schema: Equatable {
@@ -498,5 +478,89 @@ extension Schema: Equatable {
       lhs.anyOf == rhs.anyOf &&
       lhs.requiredProperties == rhs.requiredProperties &&
       lhs.propertyOrdering == rhs.propertyOrdering
+  }
+}
+
+// MARK: - Mappings
+
+extension Schema {
+  package func toGoogleAI() -> GoogleAI.Schema {
+    GoogleAI.Schema(
+      anyOf: anyOf?.map { $0.toGoogleAI() },
+      description: description,
+      `enum`: enumValues,
+      format: format,
+      items: items?.toGoogleAI(),
+      maxItems: maxItems.map { String($0) },
+      maximum: maximum,
+      minItems: minItems.map { String($0) },
+      minimum: minimum,
+      nullable: nullable,
+      properties: properties?.mapValues { $0.toGoogleAI() },
+      propertyOrdering: propertyOrdering,
+      required: requiredProperties,
+      title: title,
+      type: dataType?.toGoogleAI()
+    )
+  }
+
+  package func toAgentPlatform() -> AgentPlatform.Schema {
+    AgentPlatform.Schema(
+      anyOf: anyOf?.map { $0.toAgentPlatform() },
+      description: description,
+      `enum`: enumValues,
+      format: format,
+      items: items?.toAgentPlatform(),
+      maxItems: maxItems.map { String($0) },
+      maximum: maximum,
+      minItems: minItems.map { String($0) },
+      minimum: minimum,
+      nullable: nullable,
+      properties: properties?.mapValues { $0.toAgentPlatform() },
+      propertyOrdering: propertyOrdering,
+      required: requiredProperties,
+      title: title,
+      type: dataType?.toAgentPlatform()
+    )
+  }
+
+  package convenience init(fromGoogleAI schema: GoogleAI.Schema) {
+    self.init(
+      type: schema.type.flatMap { DataType(fromGoogleAI: $0) },
+      format: schema.format,
+      description: schema.description,
+      title: schema.title,
+      nullable: schema.nullable,
+      enumValues: schema.`enum`,
+      items: schema.items.map { Schema(fromGoogleAI: $0) },
+      minItems: schema.minItems.flatMap { Int($0) },
+      maxItems: schema.maxItems.flatMap { Int($0) },
+      minimum: schema.minimum,
+      maximum: schema.maximum,
+      anyOf: schema.anyOf?.map { Schema(fromGoogleAI: $0) },
+      properties: schema.properties?.mapValues { Schema(fromGoogleAI: $0) },
+      requiredProperties: schema.required,
+      propertyOrdering: schema.propertyOrdering
+    )
+  }
+
+  package convenience init(fromAgentPlatform schema: AgentPlatform.Schema) {
+    self.init(
+      type: schema.type.flatMap { DataType(fromAgentPlatform: $0) },
+      format: schema.format,
+      description: schema.description,
+      title: schema.title,
+      nullable: schema.nullable,
+      enumValues: schema.`enum`,
+      items: schema.items.map { Schema(fromAgentPlatform: $0) },
+      minItems: schema.minItems.flatMap { Int($0) },
+      maxItems: schema.maxItems.flatMap { Int($0) },
+      minimum: schema.minimum,
+      maximum: schema.maximum,
+      anyOf: schema.anyOf?.map { Schema(fromAgentPlatform: $0) },
+      properties: schema.properties?.mapValues { Schema(fromAgentPlatform: $0) },
+      requiredProperties: schema.required,
+      propertyOrdering: schema.propertyOrdering
+    )
   }
 }

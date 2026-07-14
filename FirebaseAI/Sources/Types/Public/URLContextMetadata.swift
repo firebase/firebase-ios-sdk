@@ -18,17 +18,29 @@ public struct URLContextMetadata: Sendable, Hashable {
   public let urlMetadata: [URLMetadata]
 }
 
-// MARK: - Codable Conformances
+// MARK: - Mappings
 
-extension URLContextMetadata: Decodable {
-  enum CodingKeys: CodingKey {
-    case urlMetadata
+import GoogleAIDataModels
+import AgentPlatformDataModels
+
+extension URLContextMetadata {
+  package func toGoogleAI() -> GoogleAI.UrlContextMetadata {
+    GoogleAI.UrlContextMetadata(
+      urlMetadata: urlMetadata.map { $0.toGoogleAI() }
+    )
   }
 
-  public init(from decoder: any Decoder) throws {
-    let container = try decoder.container(keyedBy: CodingKeys.self)
-    urlMetadata = try container.decodeIfPresent([URLMetadata].self, forKey: .urlMetadata) ?? []
+  package func toAgentPlatform() -> AgentPlatform.UrlContextMetadata {
+    AgentPlatform.UrlContextMetadata(
+      urlMetadata: urlMetadata.map { $0.toAgentPlatform() }
+    )
+  }
+
+  package init(fromGoogleAI metadata: GoogleAI.UrlContextMetadata) {
+    self.urlMetadata = metadata.urlMetadata?.map { URLMetadata(fromGoogleAI: $0) } ?? []
+  }
+
+  package init(fromAgentPlatform metadata: AgentPlatform.UrlContextMetadata) {
+    self.urlMetadata = metadata.urlMetadata?.map { URLMetadata(fromAgentPlatform: $0) } ?? []
   }
 }
-
-extension URLContextMetadata: Encodable {}

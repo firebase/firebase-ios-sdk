@@ -17,15 +17,15 @@ import Foundation
 
 extension GoogleAI {
   /// Safety setting, affecting the safety-blocking behavior. Passing a safety setting for a category changes the allowed probability that content is blocked.
-  package struct SafetySetting: Codable, Sendable, Equatable, Hashable {
+  public struct SafetySetting: Codable, Sendable, Equatable, Hashable {
     /// Required. The category for this setting.
-    package var category: Category?
+    public var category: Category?
     
     /// Required. Controls the probability threshold at which harm is blocked.
-    package var threshold: Threshold?
+    public var threshold: Threshold?
     
     /// Creates a new `SafetySetting`.
-    package init(
+    public init(
       category: Category? = nil,
       threshold: Threshold? = nil
     ) {

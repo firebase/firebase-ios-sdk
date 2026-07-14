@@ -16,7 +16,7 @@ import Foundation
 
 extension GoogleAI.ThinkingConfig {
   /// Optional. Controls the maximum depth of the model's internal reasoning process before it produces a response. The default value is model-dependent. Refer to the [Thinking levels guide](https://ai.google.dev/gemini-api/docs/thinking#thinking-levels) for more details. Recommended for Gemini 3 or later models. Use with earlier models results in an error.
-  package enum ThinkingLevel: Codable, Sendable, Equatable, Hashable {
+  public enum ThinkingLevel: Codable, Sendable, Equatable, Hashable {
     /// Little to no thinking.
     case minimal
     
@@ -39,7 +39,7 @@ extension GoogleAI.ThinkingConfig {
 // MARK: - RawRepresentable Conformance
 
 extension GoogleAI.ThinkingConfig.ThinkingLevel: RawRepresentable {
-  package var rawValue: String {
+  public var rawValue: String {
     switch self {
     case .minimal: "MINIMAL"
     case .low: "LOW"
@@ -49,7 +49,7 @@ extension GoogleAI.ThinkingConfig.ThinkingLevel: RawRepresentable {
     }
   }
 
-  package init(rawValue: String) {
+  public init(rawValue: String) {
     switch rawValue {
     case "MINIMAL": self = .minimal
     case "LOW": self = .low

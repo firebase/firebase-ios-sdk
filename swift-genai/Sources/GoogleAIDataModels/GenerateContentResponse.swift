@@ -17,27 +17,27 @@ import Foundation
 
 extension GoogleAI {
   /// Response from the model supporting multiple candidate responses. Safety ratings and content filtering are reported for both prompt in `GenerateContentResponse.prompt_feedback` and for each candidate in `finish_reason` and in `safety_ratings`. The API: - Returns either all requested candidates or none of them - Returns no candidates at all only if there was something wrong with the prompt (check `prompt_feedback`) - Reports feedback on each candidate in `finish_reason` and `safety_ratings`.
-  package struct GenerateContentResponse: Codable, Sendable, Equatable, Hashable {
+  public struct GenerateContentResponse: Codable, Sendable, Equatable, Hashable {
     /// Candidate responses from the model.
-    package var candidates: [Candidate]?
+    public var candidates: [Candidate]?
     
     /// Output only. The current model status of this model.
-    package var modelStatus: ModelStatus?
+    public var modelStatus: ModelStatus?
     
     /// Output only. The model version used to generate the response.
-    package var modelVersion: String?
+    public var modelVersion: String?
     
     /// Returns the prompt's feedback related to the content filters.
-    package var promptFeedback: PromptFeedback?
+    public var promptFeedback: PromptFeedback?
     
     /// Output only. response_id is used to identify each response.
-    package var responseId: String?
+    public var responseId: String?
     
     /// Output only. Metadata on the generation requests' token usage.
-    package var usageMetadata: UsageMetadata?
+    public var usageMetadata: UsageMetadata?
     
     /// Creates a new `GenerateContentResponse`.
-    package init(
+    public init(
       candidates: [Candidate]? = nil,
       modelStatus: ModelStatus? = nil,
       modelVersion: String? = nil,

@@ -17,15 +17,15 @@ import Foundation
 
 extension AgentPlatform {
   /// Config for ranking and reranking.
-  package struct RagRetrievalConfigRanking: Codable, Sendable, Equatable, Hashable {
+  public struct RagRetrievalConfigRanking: Codable, Sendable, Equatable, Hashable {
     /// Optional. Config for LlmRanker.
-    package var llmRanker: RagRetrievalConfigRankingLlmRanker?
+    public var llmRanker: RagRetrievalConfigRankingLlmRanker?
     
     /// Optional. Config for Rank Service.
-    package var rankService: RagRetrievalConfigRankingRankService?
+    public var rankService: RagRetrievalConfigRankingRankService?
     
     /// Creates a new `RagRetrievalConfigRanking`.
-    package init(
+    public init(
       llmRanker: RagRetrievalConfigRankingLlmRanker? = nil,
       rankService: RagRetrievalConfigRankingRankService? = nil
     ) {

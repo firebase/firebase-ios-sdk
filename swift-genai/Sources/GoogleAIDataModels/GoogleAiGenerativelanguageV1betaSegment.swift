@@ -17,21 +17,21 @@ import Foundation
 
 extension GoogleAI {
   /// Segment of the content.
-  package struct GoogleAiGenerativelanguageV1betaSegment: Codable, Sendable, Equatable, Hashable {
+  public struct GoogleAiGenerativelanguageV1betaSegment: Codable, Sendable, Equatable, Hashable {
     /// End index in the given Part, measured in bytes. Offset from the start of the Part, exclusive, starting at zero.
-    package var endIndex: Int?
+    public var endIndex: Int?
     
     /// The index of a Part object within its parent Content object.
-    package var partIndex: Int?
+    public var partIndex: Int?
     
     /// Start index in the given Part, measured in bytes. Offset from the start of the Part, inclusive, starting at zero.
-    package var startIndex: Int?
+    public var startIndex: Int?
     
     /// The text corresponding to the segment from the response.
-    package var text: String?
+    public var text: String?
     
     /// Creates a new `GoogleAiGenerativelanguageV1betaSegment`.
-    package init(
+    public init(
       endIndex: Int? = nil,
       partIndex: Int? = nil,
       startIndex: Int? = nil,

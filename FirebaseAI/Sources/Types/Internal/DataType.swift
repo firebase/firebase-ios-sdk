@@ -35,6 +35,25 @@ enum DataType: String {
   case object = "OBJECT"
 }
 
-// MARK: - Codable Conformance
+// MARK: - Mappings
 
-extension DataType: Encodable {}
+import GoogleAIDataModels
+import AgentPlatformDataModels
+
+extension DataType {
+  func toGoogleAI() -> GoogleAI.Schema.`Type` {
+    GoogleAI.Schema.`Type`(rawValue: rawValue)
+  }
+
+  func toAgentPlatform() -> AgentPlatform.Schema.`Type` {
+    AgentPlatform.Schema.`Type`(rawValue: rawValue)
+  }
+
+  init?(fromGoogleAI type: GoogleAI.Schema.`Type`) {
+    self.init(rawValue: type.rawValue)
+  }
+
+  init?(fromAgentPlatform type: AgentPlatform.Schema.`Type`) {
+    self.init(rawValue: type.rawValue)
+  }
+}

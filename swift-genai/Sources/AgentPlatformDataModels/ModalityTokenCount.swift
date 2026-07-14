@@ -17,15 +17,15 @@ import Foundation
 
 extension AgentPlatform {
   /// Represents a breakdown of token usage by modality. This message is used in CountTokensResponse and GenerateContentResponse.UsageMetadata to provide a detailed view of how many tokens are used by each modality (e.g., text, image, video) in a request. This is particularly useful for multimodal models, allowing you to track and manage token consumption for billing and quota purposes.
-  package struct ModalityTokenCount: Codable, Sendable, Equatable, Hashable {
+  public struct ModalityTokenCount: Codable, Sendable, Equatable, Hashable {
     /// The modality that this token count applies to.
-    package var modality: Modality?
+    public var modality: Modality?
     
     /// The number of tokens counted for this modality.
-    package var tokenCount: Int?
+    public var tokenCount: Int?
     
     /// Creates a new `ModalityTokenCount`.
-    package init(
+    public init(
       modality: Modality? = nil,
       tokenCount: Int? = nil
     ) {

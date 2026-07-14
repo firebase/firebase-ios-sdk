@@ -17,15 +17,15 @@ import Foundation
 
 extension GoogleAI {
   /// The base structured datatype containing multi-part content of a message. A `Content` includes a `role` field designating the producer of the `Content` and a `parts` field containing multi-part data that contains the content of the message turn.
-  package struct Content: Codable, Sendable, Equatable, Hashable {
+  public struct Content: Codable, Sendable, Equatable, Hashable {
     /// Ordered `Parts` that constitute a single message. Parts may have different MIME types.
-    package var parts: [Part]?
+    public var parts: [Part]?
     
     /// Optional. The producer of the content. Must be either 'user' or 'model'. Useful to set for multi-turn conversations, otherwise can be left blank or unset.
-    package var role: String?
+    public var role: String?
     
     /// Creates a new `Content`.
-    package init(
+    public init(
       parts: [Part]? = nil,
       role: String? = nil
     ) {

@@ -30,31 +30,34 @@ struct GenerateContentRequest: Sendable {
   let options: RequestOptions
 }
 
-extension GenerateContentRequest: Encodable {
-  enum CodingKeys: String, CodingKey {
-    case model
-    case contents
-    case generationConfig
-    case safetySettings
-    case tools
-    case toolConfig
-    case systemInstruction
+// MARK: - Mappings
+
+import GoogleAIDataModels
+import AgentPlatformDataModels
+
+extension GenerateContentRequest {
+  package func toGoogleAI() -> GoogleAI.GenerateContentRequest {
+    GoogleAI.GenerateContentRequest(
+      contents: contents.map { $0.toGoogleAI() },
+      generationConfig: generationConfig?.toGoogleAI(),
+      model: apiMethod == .countTokens ? model : nil,
+      safetySettings: safetySettings?.map { $0.toGoogleAI() },
+      systemInstruction: systemInstruction?.toGoogleAI(),
+      toolConfig: toolConfig?.toGoogleAI(),
+      tools: tools?.map { $0.toGoogleAI() }
+    )
   }
 
-  func encode(to encoder: any Encoder) throws {
-    var container = encoder.container(keyedBy: CodingKeys.self)
-    // The model name only needs to be encoded when this `GenerateContentRequest` instance is used
-    // in a `CountTokensRequest` (calling `countTokens`). When calling `generateContent` or
-    // `generateContentStream`, the `model` field is populated in the backend from the `url`.
-    if apiMethod == .countTokens {
-      try container.encode(model, forKey: .model)
-    }
-    try container.encode(contents, forKey: .contents)
-    try container.encodeIfPresent(generationConfig, forKey: .generationConfig)
-    try container.encodeIfPresent(safetySettings, forKey: .safetySettings)
-    try container.encodeIfPresent(tools, forKey: .tools)
-    try container.encodeIfPresent(toolConfig, forKey: .toolConfig)
-    try container.encodeIfPresent(systemInstruction, forKey: .systemInstruction)
+  package func toAgentPlatform() -> AgentPlatform.GenerateContentRequest {
+    AgentPlatform.GenerateContentRequest(
+      contents: contents.map { $0.toAgentPlatform() },
+      generationConfig: generationConfig?.toAgentPlatform(),
+      model: apiMethod == .countTokens ? model : nil,
+      safetySettings: safetySettings?.map { $0.toAgentPlatform() },
+      systemInstruction: systemInstruction?.toAgentPlatform(),
+      toolConfig: toolConfig?.toAgentPlatform(),
+      tools: tools?.map { $0.toAgentPlatform() }
+    )
   }
 }
 
@@ -68,6 +71,18 @@ extension GenerateContentRequest {
 
 extension GenerateContentRequest: GenerativeAIRequest {
   typealias Response = GenerateContentResponse
+
+  func decodeResponse(from data: Data) throws -> GenerateContentResponse {
+    let decoder = JSONDecoder()
+    switch apiConfig.service {
+    case .googleAI:
+      let wire = try decoder.decode(GoogleAI.GenerateContentResponse.self, from: data)
+      return GenerateContentResponse(fromGoogleAI: wire)
+    case .vertexAI:
+      let wire = try decoder.decode(AgentPlatform.GenerateContentResponse.self, from: data)
+      return GenerateContentResponse(fromAgentPlatform: wire)
+    }
+  }
 
   func getURL() throws -> URL {
     let modelURL = "\(apiConfig.service.endpoint.rawValue)/\(apiConfig.version.rawValue)/\(model)"

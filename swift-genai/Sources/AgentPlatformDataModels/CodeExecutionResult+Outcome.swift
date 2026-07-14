@@ -16,7 +16,7 @@ import Foundation
 
 extension AgentPlatform.CodeExecutionResult {
   /// Required. Outcome of the code execution.
-  package enum Outcome: Codable, Sendable, Equatable, Hashable {
+  public enum Outcome: Codable, Sendable, Equatable, Hashable {
     /// Code execution completed successfully. `output` contains the stdout, if any.
     case ok
     
@@ -36,7 +36,7 @@ extension AgentPlatform.CodeExecutionResult {
 // MARK: - RawRepresentable Conformance
 
 extension AgentPlatform.CodeExecutionResult.Outcome: RawRepresentable {
-  package var rawValue: String {
+  public var rawValue: String {
     switch self {
     case .ok: "OUTCOME_OK"
     case .failed: "OUTCOME_FAILED"
@@ -45,7 +45,7 @@ extension AgentPlatform.CodeExecutionResult.Outcome: RawRepresentable {
     }
   }
 
-  package init(rawValue: String) {
+  public init(rawValue: String) {
     switch rawValue {
     case "OUTCOME_OK": self = .ok
     case "OUTCOME_FAILED": self = .failed

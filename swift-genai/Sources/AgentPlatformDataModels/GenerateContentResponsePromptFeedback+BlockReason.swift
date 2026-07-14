@@ -16,7 +16,7 @@ import Foundation
 
 extension AgentPlatform.GenerateContentResponsePromptFeedback {
   /// Output only. The reason why the prompt was blocked.
-  package enum BlockReason: Codable, Sendable, Equatable, Hashable {
+  public enum BlockReason: Codable, Sendable, Equatable, Hashable {
     /// The prompt was blocked for safety reasons.
     case safety
     
@@ -48,7 +48,7 @@ extension AgentPlatform.GenerateContentResponsePromptFeedback {
 // MARK: - RawRepresentable Conformance
 
 extension AgentPlatform.GenerateContentResponsePromptFeedback.BlockReason: RawRepresentable {
-  package var rawValue: String {
+  public var rawValue: String {
     switch self {
     case .safety: "SAFETY"
     case .other: "OTHER"
@@ -61,7 +61,7 @@ extension AgentPlatform.GenerateContentResponsePromptFeedback.BlockReason: RawRe
     }
   }
 
-  package init(rawValue: String) {
+  public init(rawValue: String) {
     switch rawValue {
     case "SAFETY": self = .safety
     case "OTHER": self = .other

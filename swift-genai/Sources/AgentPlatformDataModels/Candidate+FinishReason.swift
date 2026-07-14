@@ -16,7 +16,7 @@ import Foundation
 
 extension AgentPlatform.Candidate {
   /// Output only. The reason why the model stopped generating tokens. If empty, the model has not stopped generating.
-  package enum FinishReason: Codable, Sendable, Equatable, Hashable {
+  public enum FinishReason: Codable, Sendable, Equatable, Hashable {
     /// The model reached a natural stopping point or a configured stop sequence.
     case stop
     
@@ -75,7 +75,7 @@ extension AgentPlatform.Candidate {
 // MARK: - RawRepresentable Conformance
 
 extension AgentPlatform.Candidate.FinishReason: RawRepresentable {
-  package var rawValue: String {
+  public var rawValue: String {
     switch self {
     case .stop: "STOP"
     case .maxTokens: "MAX_TOKENS"
@@ -97,7 +97,7 @@ extension AgentPlatform.Candidate.FinishReason: RawRepresentable {
     }
   }
 
-  package init(rawValue: String) {
+  public init(rawValue: String) {
     switch rawValue {
     case "STOP": self = .stop
     case "MAX_TOKENS": self = .maxTokens

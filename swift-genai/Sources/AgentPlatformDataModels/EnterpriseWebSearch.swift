@@ -17,15 +17,15 @@ import Foundation
 
 extension AgentPlatform {
   /// Tool to search public web data, powered by Vertex AI Search and Sec4 compliance.
-  package struct EnterpriseWebSearch: Codable, Sendable, Equatable, Hashable {
+  public struct EnterpriseWebSearch: Codable, Sendable, Equatable, Hashable {
     /// Optional. Sites with confidence level chosen & above this value will be blocked from the search results.
-    package var blockingConfidence: BlockingConfidence?
+    public var blockingConfidence: BlockingConfidence?
     
     /// Optional. List of domains to be excluded from the search results. The default limit is 2000 domains.
-    package var excludeDomains: [String]?
+    public var excludeDomains: [String]?
     
     /// Creates a new `EnterpriseWebSearch`.
-    package init(
+    public init(
       blockingConfidence: BlockingConfidence? = nil,
       excludeDomains: [String]? = nil
     ) {

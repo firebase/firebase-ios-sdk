@@ -16,7 +16,7 @@ import Foundation
 
 extension AgentPlatform.UrlMetadata {
   /// The status of the URL retrieval.
-  package enum UrlRetrievalStatus: Codable, Sendable, Equatable, Hashable {
+  public enum UrlRetrievalStatus: Codable, Sendable, Equatable, Hashable {
     /// The URL was retrieved successfully.
     case success
     
@@ -33,7 +33,7 @@ extension AgentPlatform.UrlMetadata {
 // MARK: - RawRepresentable Conformance
 
 extension AgentPlatform.UrlMetadata.UrlRetrievalStatus: RawRepresentable {
-  package var rawValue: String {
+  public var rawValue: String {
     switch self {
     case .success: "URL_RETRIEVAL_STATUS_SUCCESS"
     case .error: "URL_RETRIEVAL_STATUS_ERROR"
@@ -41,7 +41,7 @@ extension AgentPlatform.UrlMetadata.UrlRetrievalStatus: RawRepresentable {
     }
   }
 
-  package init(rawValue: String) {
+  public init(rawValue: String) {
     switch rawValue {
     case "URL_RETRIEVAL_STATUS_SUCCESS": self = .success
     case "URL_RETRIEVAL_STATUS_ERROR": self = .error

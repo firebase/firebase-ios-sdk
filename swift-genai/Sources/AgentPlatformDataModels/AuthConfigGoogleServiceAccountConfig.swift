@@ -17,12 +17,12 @@ import Foundation
 
 extension AgentPlatform {
   /// Config for Google Service Account Authentication.
-  package struct AuthConfigGoogleServiceAccountConfig: Codable, Sendable, Equatable, Hashable {
+  public struct AuthConfigGoogleServiceAccountConfig: Codable, Sendable, Equatable, Hashable {
     /// Optional. The service account that the extension execution service runs as. - If the service account is specified, the `iam.serviceAccounts.getAccessToken` permission should be granted to Vertex AI Extension Service Agent (https://cloud.google.com/vertex-ai/docs/general/access-control#service-agents) on the specified service account. - If not specified, the Vertex AI Extension Service Agent will be used to execute the Extension.
-    package var serviceAccount: String?
+    public var serviceAccount: String?
     
     /// Creates a new `AuthConfigGoogleServiceAccountConfig`.
-    package init(
+    public init(
       serviceAccount: String? = nil
     ) {
       self.serviceAccount = serviceAccount

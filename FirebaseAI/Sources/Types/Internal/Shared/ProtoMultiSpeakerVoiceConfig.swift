@@ -14,10 +14,37 @@
 
 import Foundation
 
-struct ProtoMultiSpeakerVoiceConfig: Encodable, Sendable, Equatable {
+struct ProtoMultiSpeakerVoiceConfig: Sendable, Equatable {
   let speakerVoiceConfigs: [ProtoSpeakerVoiceConfig]
 
   init(speakerVoiceConfigs: [ProtoSpeakerVoiceConfig]) {
     self.speakerVoiceConfigs = speakerVoiceConfigs
+  }
+}
+
+// MARK: - Mappings
+
+import GoogleAIDataModels
+import AgentPlatformDataModels
+
+extension ProtoMultiSpeakerVoiceConfig {
+  func toGoogleAI() -> GoogleAI.MultiSpeakerVoiceConfig {
+    GoogleAI.MultiSpeakerVoiceConfig(
+      speakerVoiceConfigs: speakerVoiceConfigs.map { $0.toGoogleAI() }
+    )
+  }
+
+  func toAgentPlatform() -> AgentPlatform.MultiSpeakerVoiceConfig {
+    AgentPlatform.MultiSpeakerVoiceConfig(
+      speakerVoiceConfigs: speakerVoiceConfigs.map { $0.toAgentPlatform() }
+    )
+  }
+
+  init(fromGoogleAI config: GoogleAI.MultiSpeakerVoiceConfig) {
+    self.speakerVoiceConfigs = config.speakerVoiceConfigs?.compactMap { ProtoSpeakerVoiceConfig(fromGoogleAI: $0) } ?? []
+  }
+
+  init(fromAgentPlatform config: AgentPlatform.MultiSpeakerVoiceConfig) {
+    self.speakerVoiceConfigs = config.speakerVoiceConfigs?.compactMap { ProtoSpeakerVoiceConfig(fromAgentPlatform: $0) } ?? []
   }
 }

@@ -16,7 +16,7 @@ import Foundation
 
 extension AgentPlatform.AuthConfigApiKeyConfig {
   /// Optional. The location of the API key.
-  package enum HttpElementLocation: Codable, Sendable, Equatable, Hashable {
+  public enum HttpElementLocation: Codable, Sendable, Equatable, Hashable {
     /// Element is in the HTTP request query.
     case query
     
@@ -42,7 +42,7 @@ extension AgentPlatform.AuthConfigApiKeyConfig {
 // MARK: - RawRepresentable Conformance
 
 extension AgentPlatform.AuthConfigApiKeyConfig.HttpElementLocation: RawRepresentable {
-  package var rawValue: String {
+  public var rawValue: String {
     switch self {
     case .query: "HTTP_IN_QUERY"
     case .header: "HTTP_IN_HEADER"
@@ -53,7 +53,7 @@ extension AgentPlatform.AuthConfigApiKeyConfig.HttpElementLocation: RawRepresent
     }
   }
 
-  package init(rawValue: String) {
+  public init(rawValue: String) {
     switch rawValue {
     case "HTTP_IN_QUERY": self = .query
     case "HTTP_IN_HEADER": self = .header

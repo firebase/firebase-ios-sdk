@@ -17,9 +17,9 @@ import Foundation
 
 extension AgentPlatform {
   /// Standard web search for grounding and related configurations. Only text results are returned.
-  package struct ToolGoogleSearchWebSearch: Codable, Sendable, Equatable, Hashable {
+  public struct ToolGoogleSearchWebSearch: Codable, Sendable, Equatable, Hashable {
     /// Creates a new `ToolGoogleSearchWebSearch`.
-    package init(
+    public init(
     ) {
     }
   }

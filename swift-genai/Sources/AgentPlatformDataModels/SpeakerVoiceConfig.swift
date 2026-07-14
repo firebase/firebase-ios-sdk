@@ -17,15 +17,15 @@ import Foundation
 
 extension AgentPlatform {
   /// Configuration for a single speaker in a multi-speaker setup.
-  package struct SpeakerVoiceConfig: Codable, Sendable, Equatable, Hashable {
+  public struct SpeakerVoiceConfig: Codable, Sendable, Equatable, Hashable {
     /// Required. The name of the speaker. This should be the same as the speaker name used in the prompt.
-    package var speaker: String?
+    public var speaker: String?
     
     /// Required. The configuration for the voice of this speaker.
-    package var voiceConfig: VoiceConfig?
+    public var voiceConfig: VoiceConfig?
     
     /// Creates a new `SpeakerVoiceConfig`.
-    package init(
+    public init(
       speaker: String? = nil,
       voiceConfig: VoiceConfig? = nil
     ) {

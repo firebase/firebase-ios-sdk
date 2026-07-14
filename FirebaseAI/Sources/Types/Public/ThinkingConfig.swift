@@ -87,7 +87,7 @@ public struct ThinkingConfig: Sendable, Equatable {
 public extension ThinkingConfig {
   /// A preset that balances the trade-off between reasoning quality and response speed for a
   /// model's "thinking" process.
-  struct ThinkingLevel: EncodableProtoEnum, Equatable {
+  struct ThinkingLevel: ProtoEnum, Equatable {
     enum Kind: String {
       case minimal = "MINIMAL"
       case low = "LOW"
@@ -116,6 +116,55 @@ public extension ThinkingConfig {
   }
 }
 
-// MARK: - Codable Conformances
+// MARK: - Mappings
 
-extension ThinkingConfig: Encodable {}
+import GoogleAIDataModels
+import AgentPlatformDataModels
+
+extension ThinkingConfig.ThinkingLevel {
+  func toGoogleAI() -> GoogleAI.ThinkingConfig.ThinkingLevel {
+    GoogleAI.ThinkingConfig.ThinkingLevel(rawValue: rawValue)
+  }
+
+  func toAgentPlatform() -> AgentPlatform.ThinkingConfig.ThinkingLevel {
+    AgentPlatform.ThinkingConfig.ThinkingLevel(rawValue: rawValue)
+  }
+
+  init(fromGoogleAI level: GoogleAI.ThinkingConfig.ThinkingLevel) {
+    self.rawValue = level.rawValue
+  }
+
+  init(fromAgentPlatform level: AgentPlatform.ThinkingConfig.ThinkingLevel) {
+    self.rawValue = level.rawValue
+  }
+}
+
+extension ThinkingConfig {
+  package func toGoogleAI() -> GoogleAI.ThinkingConfig {
+    GoogleAI.ThinkingConfig(
+      includeThoughts: includeThoughts,
+      thinkingBudget: thinkingBudget,
+      thinkingLevel: thinkingLevel?.toGoogleAI()
+    )
+  }
+
+  package func toAgentPlatform() -> AgentPlatform.ThinkingConfig {
+    AgentPlatform.ThinkingConfig(
+      includeThoughts: includeThoughts,
+      thinkingBudget: thinkingBudget,
+      thinkingLevel: thinkingLevel?.toAgentPlatform()
+    )
+  }
+
+  package init(fromGoogleAI config: GoogleAI.ThinkingConfig) {
+    self.thinkingBudget = config.thinkingBudget
+    self.thinkingLevel = config.thinkingLevel.map { ThinkingLevel(fromGoogleAI: $0) }
+    self.includeThoughts = config.includeThoughts
+  }
+
+  package init(fromAgentPlatform config: AgentPlatform.ThinkingConfig) {
+    self.thinkingBudget = config.thinkingBudget
+    self.thinkingLevel = config.thinkingLevel.map { ThinkingLevel(fromAgentPlatform: $0) }
+    self.includeThoughts = config.includeThoughts
+  }
+}

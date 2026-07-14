@@ -17,18 +17,18 @@ import Foundation
 
 extension GoogleAI {
   /// Safety rating for a piece of content. The safety rating contains the category of harm and the harm probability level in that category for a piece of content. Content is classified for safety across a number of harm categories and the probability of the harm classification is included here.
-  package struct SafetyRating: Codable, Sendable, Equatable, Hashable {
+  public struct SafetyRating: Codable, Sendable, Equatable, Hashable {
     /// Was this content blocked because of this rating?
-    package var blocked: Bool?
+    public var blocked: Bool?
     
     /// Required. The category for this rating.
-    package var category: Category?
+    public var category: Category?
     
     /// Required. The probability of harm for this content.
-    package var probability: Probability?
+    public var probability: Probability?
     
     /// Creates a new `SafetyRating`.
-    package init(
+    public init(
       blocked: Bool? = nil,
       category: Category? = nil,
       probability: Probability? = nil

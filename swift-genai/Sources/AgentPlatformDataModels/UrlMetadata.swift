@@ -17,15 +17,15 @@ import Foundation
 
 extension AgentPlatform {
   /// The metadata for a single URL retrieval.
-  package struct UrlMetadata: Codable, Sendable, Equatable, Hashable {
+  public struct UrlMetadata: Codable, Sendable, Equatable, Hashable {
     /// The URL retrieved by the tool.
-    package var retrievedUrl: String?
+    public var retrievedUrl: String?
     
     /// The status of the URL retrieval.
-    package var urlRetrievalStatus: UrlRetrievalStatus?
+    public var urlRetrievalStatus: UrlRetrievalStatus?
     
     /// Creates a new `UrlMetadata`.
-    package init(
+    public init(
       retrievedUrl: String? = nil,
       urlRetrievalStatus: UrlRetrievalStatus? = nil
     ) {

@@ -16,7 +16,7 @@ import Foundation
 
 extension AgentPlatform.GenerationConfigModelConfig {
   /// Required. Feature selection preference.
-  package enum FeatureSelectionPreference: Codable, Sendable, Equatable, Hashable {
+  public enum FeatureSelectionPreference: Codable, Sendable, Equatable, Hashable {
     /// Prefer higher quality over lower cost.
     case prioritizeQuality
     
@@ -36,7 +36,7 @@ extension AgentPlatform.GenerationConfigModelConfig {
 // MARK: - RawRepresentable Conformance
 
 extension AgentPlatform.GenerationConfigModelConfig.FeatureSelectionPreference: RawRepresentable {
-  package var rawValue: String {
+  public var rawValue: String {
     switch self {
     case .prioritizeQuality: "PRIORITIZE_QUALITY"
     case .balanced: "BALANCED"
@@ -45,7 +45,7 @@ extension AgentPlatform.GenerationConfigModelConfig.FeatureSelectionPreference: 
     }
   }
 
-  package init(rawValue: String) {
+  public init(rawValue: String) {
     switch rawValue {
     case "PRIORITIZE_QUALITY": self = .prioritizeQuality
     case "BALANCED": self = .balanced

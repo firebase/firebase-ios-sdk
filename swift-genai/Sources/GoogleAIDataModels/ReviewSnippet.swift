@@ -17,18 +17,18 @@ import Foundation
 
 extension GoogleAI {
   /// Encapsulates a snippet of a user review that answers a question about the features of a specific place in Google Maps.
-  package struct ReviewSnippet: Codable, Sendable, Equatable, Hashable {
+  public struct ReviewSnippet: Codable, Sendable, Equatable, Hashable {
     /// A link that corresponds to the user review on Google Maps.
-    package var googleMapsUri: String?
+    public var googleMapsUri: String?
     
     /// The ID of the review snippet.
-    package var reviewId: String?
+    public var reviewId: String?
     
     /// Title of the review.
-    package var title: String?
+    public var title: String?
     
     /// Creates a new `ReviewSnippet`.
-    package init(
+    public init(
       googleMapsUri: String? = nil,
       reviewId: String? = nil,
       title: String? = nil

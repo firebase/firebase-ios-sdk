@@ -17,18 +17,18 @@ import Foundation
 
 extension AgentPlatform {
   /// GoogleSearch tool type. Tool to support Google Search in Model. Powered by Google.
-  package struct ToolGoogleSearch: Codable, Sendable, Equatable, Hashable {
+  public struct ToolGoogleSearch: Codable, Sendable, Equatable, Hashable {
     /// Optional. Sites with confidence level chosen & above this value will be blocked from the search results.
-    package var blockingConfidence: BlockingConfidence?
+    public var blockingConfidence: BlockingConfidence?
     
     /// Optional. List of domains to be excluded from the search results. The default limit is 2000 domains. Example: ["amazon.com", "facebook.com"].
-    package var excludeDomains: [String]?
+    public var excludeDomains: [String]?
     
     /// Optional. The set of search types to enable. If not set, web search is enabled by default.
-    package var searchTypes: ToolGoogleSearchSearchTypes?
+    public var searchTypes: ToolGoogleSearchSearchTypes?
     
     /// Creates a new `ToolGoogleSearch`.
-    package init(
+    public init(
       blockingConfidence: BlockingConfidence? = nil,
       excludeDomains: [String]? = nil,
       searchTypes: ToolGoogleSearchSearchTypes? = nil

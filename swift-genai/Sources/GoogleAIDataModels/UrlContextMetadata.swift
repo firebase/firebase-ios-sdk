@@ -17,12 +17,12 @@ import Foundation
 
 extension GoogleAI {
   /// Metadata related to url context retrieval tool.
-  package struct UrlContextMetadata: Codable, Sendable, Equatable, Hashable {
+  public struct UrlContextMetadata: Codable, Sendable, Equatable, Hashable {
     /// List of url context.
-    package var urlMetadata: [UrlMetadata]?
+    public var urlMetadata: [UrlMetadata]?
     
     /// Creates a new `UrlContextMetadata`.
-    package init(
+    public init(
       urlMetadata: [UrlMetadata]? = nil
     ) {
       self.urlMetadata = urlMetadata

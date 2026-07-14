@@ -17,12 +17,12 @@ import Foundation
 
 extension GoogleAI {
   /// A collection of source attributions for a piece of content.
-  package struct CitationMetadata: Codable, Sendable, Equatable, Hashable {
+  public struct CitationMetadata: Codable, Sendable, Equatable, Hashable {
     /// Citations to sources for a specific response.
-    package var citationSources: [CitationSource]?
+    public var citationSources: [CitationSource]?
     
     /// Creates a new `CitationMetadata`.
-    package init(
+    public init(
       citationSources: [CitationSource]? = nil
     ) {
       self.citationSources = citationSources

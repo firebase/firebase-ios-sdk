@@ -16,7 +16,7 @@ import Foundation
 
 extension AgentPlatform.GenerateContentResponseUsageMetadata {
   /// Output only. The traffic type for this request.
-  package enum TrafficType: Codable, Sendable, Equatable, Hashable {
+  public enum TrafficType: Codable, Sendable, Equatable, Hashable {
     /// The request was processed using Pay-As-You-Go quota.
     case onDemand
     
@@ -39,7 +39,7 @@ extension AgentPlatform.GenerateContentResponseUsageMetadata {
 // MARK: - RawRepresentable Conformance
 
 extension AgentPlatform.GenerateContentResponseUsageMetadata.TrafficType: RawRepresentable {
-  package var rawValue: String {
+  public var rawValue: String {
     switch self {
     case .onDemand: "ON_DEMAND"
     case .onDemandPriority: "ON_DEMAND_PRIORITY"
@@ -49,7 +49,7 @@ extension AgentPlatform.GenerateContentResponseUsageMetadata.TrafficType: RawRep
     }
   }
 
-  package init(rawValue: String) {
+  public init(rawValue: String) {
     switch rawValue {
     case "ON_DEMAND": self = .onDemand
     case "ON_DEMAND_PRIORITY": self = .onDemandPriority

@@ -16,7 +16,7 @@ import Foundation
 
 extension GoogleAI.ComputerUse {
   /// Required. The environment being operated.
-  package enum Environment: Codable, Sendable, Equatable, Hashable {
+  public enum Environment: Codable, Sendable, Equatable, Hashable {
     /// Operates in a web browser.
     case browser
     
@@ -36,7 +36,7 @@ extension GoogleAI.ComputerUse {
 // MARK: - RawRepresentable Conformance
 
 extension GoogleAI.ComputerUse.Environment: RawRepresentable {
-  package var rawValue: String {
+  public var rawValue: String {
     switch self {
     case .browser: "ENVIRONMENT_BROWSER"
     case .mobile: "ENVIRONMENT_MOBILE"
@@ -45,7 +45,7 @@ extension GoogleAI.ComputerUse.Environment: RawRepresentable {
     }
   }
 
-  package init(rawValue: String) {
+  public init(rawValue: String) {
     switch rawValue {
     case "ENVIRONMENT_BROWSER": self = .browser
     case "ENVIRONMENT_MOBILE": self = .mobile

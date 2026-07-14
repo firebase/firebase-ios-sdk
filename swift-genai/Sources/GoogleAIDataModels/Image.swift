@@ -17,21 +17,21 @@ import Foundation
 
 extension GoogleAI {
   /// Chunk from image search.
-  package struct Image: Codable, Sendable, Equatable, Hashable {
+  public struct Image: Codable, Sendable, Equatable, Hashable {
     /// The root domain of the web page that the image is from, e.g. "example.com".
-    package var domain: String?
+    public var domain: String?
     
     /// The image asset URL.
-    package var imageUri: String?
+    public var imageUri: String?
     
     /// The web page URI for attribution.
-    package var sourceUri: String?
+    public var sourceUri: String?
     
     /// The title of the web page that the image is from.
-    package var title: String?
+    public var title: String?
     
     /// Creates a new `Image`.
-    package init(
+    public init(
       domain: String? = nil,
       imageUri: String? = nil,
       sourceUri: String? = nil,

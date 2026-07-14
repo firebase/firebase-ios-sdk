@@ -16,7 +16,7 @@ import Foundation
 
 extension AgentPlatform.GenerationConfigThinkingConfig {
   /// Optional. The number of thoughts tokens that the model should generate.
-  package enum ThinkingLevel: Codable, Sendable, Equatable, Hashable {
+  public enum ThinkingLevel: Codable, Sendable, Equatable, Hashable {
     /// Low thinking level.
     case low
     
@@ -39,7 +39,7 @@ extension AgentPlatform.GenerationConfigThinkingConfig {
 // MARK: - RawRepresentable Conformance
 
 extension AgentPlatform.GenerationConfigThinkingConfig.ThinkingLevel: RawRepresentable {
-  package var rawValue: String {
+  public var rawValue: String {
     switch self {
     case .low: "LOW"
     case .medium: "MEDIUM"
@@ -49,7 +49,7 @@ extension AgentPlatform.GenerationConfigThinkingConfig.ThinkingLevel: RawReprese
     }
   }
 
-  package init(rawValue: String) {
+  public init(rawValue: String) {
     switch rawValue {
     case "LOW": self = .low
     case "MEDIUM": self = .medium

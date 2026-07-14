@@ -17,42 +17,42 @@ import Foundation
 
 extension AgentPlatform {
   /// Usage metadata about the content generation request and response. This message provides a detailed breakdown of token usage and other relevant metrics.
-  package struct GenerateContentResponseUsageMetadata: Codable, Sendable, Equatable, Hashable {
+  public struct GenerateContentResponseUsageMetadata: Codable, Sendable, Equatable, Hashable {
     /// Output only. A detailed breakdown of the token count for each modality in the cached content.
-    package var cacheTokensDetails: [ModalityTokenCount]?
+    public var cacheTokensDetails: [ModalityTokenCount]?
     
     /// Output only. The number of tokens in the cached content that was used for this request.
-    package var cachedContentTokenCount: Int?
+    public var cachedContentTokenCount: Int?
     
     /// The total number of tokens in the generated candidates.
-    package var candidatesTokenCount: Int?
+    public var candidatesTokenCount: Int?
     
     /// Output only. A detailed breakdown of the token count for each modality in the generated candidates.
-    package var candidatesTokensDetails: [ModalityTokenCount]?
+    public var candidatesTokensDetails: [ModalityTokenCount]?
     
     /// The total number of tokens in the prompt. This includes any text, images, or other media provided in the request. When `cached_content` is set, this also includes the number of tokens in the cached content.
-    package var promptTokenCount: Int?
+    public var promptTokenCount: Int?
     
     /// Output only. A detailed breakdown of the token count for each modality in the prompt.
-    package var promptTokensDetails: [ModalityTokenCount]?
+    public var promptTokensDetails: [ModalityTokenCount]?
     
     /// Output only. The number of tokens that were part of the model's generated "thoughts" output, if applicable.
-    package var thoughtsTokenCount: Int?
+    public var thoughtsTokenCount: Int?
     
     /// Output only. The number of tokens in the results from tool executions, which are provided back to the model as input, if applicable.
-    package var toolUsePromptTokenCount: Int?
+    public var toolUsePromptTokenCount: Int?
     
     /// Output only. A detailed breakdown by modality of the token counts from the results of tool executions, which are provided back to the model as input.
-    package var toolUsePromptTokensDetails: [ModalityTokenCount]?
+    public var toolUsePromptTokensDetails: [ModalityTokenCount]?
     
     /// The total number of tokens for the entire request. This is the sum of `prompt_token_count`, `candidates_token_count`, `tool_use_prompt_token_count`, and `thoughts_token_count`.
-    package var totalTokenCount: Int?
+    public var totalTokenCount: Int?
     
     /// Output only. The traffic type for this request.
-    package var trafficType: TrafficType?
+    public var trafficType: TrafficType?
     
     /// Creates a new `GenerateContentResponseUsageMetadata`.
-    package init(
+    public init(
       cacheTokensDetails: [ModalityTokenCount]? = nil,
       cachedContentTokenCount: Int? = nil,
       candidatesTokenCount: Int? = nil,

@@ -17,15 +17,15 @@ import Foundation
 
 extension GoogleAI {
   /// Config for translation features.
-  package struct TranslationConfig: Codable, Sendable, Equatable, Hashable {
+  public struct TranslationConfig: Codable, Sendable, Equatable, Hashable {
     /// Optional. If true, the model will generate audio when the target language is spoken, essentially it will parrot the input. If false, we will not produce audio for the target language.
-    package var echoTargetLanguage: Bool?
+    public var echoTargetLanguage: Bool?
     
     /// Required. The target language for translation. Supported values are BCP-47 language codes (e.g. "en", "es", "fr").
-    package var targetLanguageCode: String?
+    public var targetLanguageCode: String?
     
     /// Creates a new `TranslationConfig`.
-    package init(
+    public init(
       echoTargetLanguage: Bool? = nil,
       targetLanguageCode: String? = nil
     ) {

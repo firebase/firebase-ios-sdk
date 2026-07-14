@@ -17,12 +17,12 @@ import Foundation
 
 extension AgentPlatform {
   /// A collection of citations that apply to a piece of generated content.
-  package struct CitationMetadata: Codable, Sendable, Equatable, Hashable {
+  public struct CitationMetadata: Codable, Sendable, Equatable, Hashable {
     /// Output only. A list of citations for the content.
-    package var citations: [Citation]?
+    public var citations: [Citation]?
     
     /// Creates a new `CitationMetadata`.
-    package init(
+    public init(
       citations: [Citation]? = nil
     ) {
       self.citations = citations

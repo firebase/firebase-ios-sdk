@@ -17,12 +17,12 @@ import Foundation
 
 extension GoogleAI {
   /// The configuration for the voice to use.
-  package struct VoiceConfig: Codable, Sendable, Equatable, Hashable {
+  public struct VoiceConfig: Codable, Sendable, Equatable, Hashable {
     /// The configuration for the prebuilt voice to use.
-    package var prebuiltVoiceConfig: PrebuiltVoiceConfig?
+    public var prebuiltVoiceConfig: PrebuiltVoiceConfig?
     
     /// Creates a new `VoiceConfig`.
-    package init(
+    public init(
       prebuiltVoiceConfig: PrebuiltVoiceConfig? = nil
     ) {
       self.prebuiltVoiceConfig = prebuiltVoiceConfig

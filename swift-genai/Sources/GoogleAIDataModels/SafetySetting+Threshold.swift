@@ -16,7 +16,7 @@ import Foundation
 
 extension GoogleAI.SafetySetting {
   /// Required. Controls the probability threshold at which harm is blocked.
-  package enum Threshold: Codable, Sendable, Equatable, Hashable {
+  public enum Threshold: Codable, Sendable, Equatable, Hashable {
     /// Content with NEGLIGIBLE will be allowed.
     case blockLowAndAbove
     
@@ -42,7 +42,7 @@ extension GoogleAI.SafetySetting {
 // MARK: - RawRepresentable Conformance
 
 extension GoogleAI.SafetySetting.Threshold: RawRepresentable {
-  package var rawValue: String {
+  public var rawValue: String {
     switch self {
     case .blockLowAndAbove: "BLOCK_LOW_AND_ABOVE"
     case .blockMediumAndAbove: "BLOCK_MEDIUM_AND_ABOVE"
@@ -53,7 +53,7 @@ extension GoogleAI.SafetySetting.Threshold: RawRepresentable {
     }
   }
 
-  package init(rawValue: String) {
+  public init(rawValue: String) {
     switch rawValue {
     case "BLOCK_LOW_AND_ABOVE": self = .blockLowAndAbove
     case "BLOCK_MEDIUM_AND_ABOVE": self = .blockMediumAndAbove

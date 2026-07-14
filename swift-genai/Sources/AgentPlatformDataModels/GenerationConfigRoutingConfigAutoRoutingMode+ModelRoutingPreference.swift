@@ -16,7 +16,7 @@ import Foundation
 
 extension AgentPlatform.GenerationConfigRoutingConfigAutoRoutingMode {
   /// The model routing preference.
-  package enum ModelRoutingPreference: Codable, Sendable, Equatable, Hashable {
+  public enum ModelRoutingPreference: Codable, Sendable, Equatable, Hashable {
     /// The model will be selected to prioritize the quality of the response.
     case prioritizeQuality
     
@@ -36,7 +36,7 @@ extension AgentPlatform.GenerationConfigRoutingConfigAutoRoutingMode {
 // MARK: - RawRepresentable Conformance
 
 extension AgentPlatform.GenerationConfigRoutingConfigAutoRoutingMode.ModelRoutingPreference: RawRepresentable {
-  package var rawValue: String {
+  public var rawValue: String {
     switch self {
     case .prioritizeQuality: "PRIORITIZE_QUALITY"
     case .balanced: "BALANCED"
@@ -45,7 +45,7 @@ extension AgentPlatform.GenerationConfigRoutingConfigAutoRoutingMode.ModelRoutin
     }
   }
 
-  package init(rawValue: String) {
+  public init(rawValue: String) {
     switch rawValue {
     case "PRIORITIZE_QUALITY": self = .prioritizeQuality
     case "BALANCED": self = .balanced

@@ -17,12 +17,12 @@ import Foundation
 
 extension GoogleAI {
   /// Candidates with top log probabilities at each decoding step.
-  package struct TopCandidates: Codable, Sendable, Equatable, Hashable {
+  public struct TopCandidates: Codable, Sendable, Equatable, Hashable {
     /// Sorted by log probability in descending order.
-    package var candidates: [LogprobsResultCandidate]?
+    public var candidates: [LogprobsResultCandidate]?
     
     /// Creates a new `TopCandidates`.
-    package init(
+    public init(
       candidates: [LogprobsResultCandidate]? = nil
     ) {
       self.candidates = candidates

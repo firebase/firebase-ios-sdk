@@ -17,6 +17,8 @@ import Foundation
 #if canImport(FoundationModels)
   import FoundationModels
 #endif // canImport(FoundationModels)
+import GoogleAIDataModels
+import AgentPlatformDataModels
 
 /// Structured representation of a function declaration.
 ///
@@ -207,7 +209,7 @@ public struct ToolConfig: Sendable {
 }
 
 /// Retrieval configuration.
-public struct RetrievalConfig: Sendable, Encodable {
+public struct RetrievalConfig: Sendable {
   /// The location for the search.
   let location: CLLocationCoordinate2D?
   /// The language code of the user.
@@ -389,37 +391,237 @@ public extension ToolRepresentable where Self == FirebaseAILogic.Tool {
   #endif // canImport(FoundationModels)
 #endif // compiler(>=6.2.3)
 
-// MARK: - Codable Conformance
+// MARK: - Mappings
 
-extension FunctionDeclaration: Encodable {
-  enum CodingKeys: String, CodingKey {
-    case name
-    case description
-    case parameters
-    case parametersJSONSchema = "parametersJsonSchema"
-    case responseJSONSchema = "responseJsonSchema"
+extension FunctionDeclaration {
+  func toGoogleAI() -> GoogleAI.FunctionDeclaration {
+    #if canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
+      var jsonSchema: SharedDataModels.JSONValue? = nil
+      if let schema = parametersJSONSchema {
+        if let data = try? JSONEncoder().encode(schema),
+           let jValue = try? JSONDecoder().decode(SharedDataModels.JSONValue.self) {
+          jsonSchema = jValue
+        }
+      }
+      var respSchema: SharedDataModels.JSONValue? = nil
+      if let resp = responseJSONSchema {
+        respSchema = .object(resp.toShared())
+      }
+      return GoogleAI.FunctionDeclaration(
+        description: description,
+        name: name,
+        parameters: parameters?.toGoogleAI(),
+        parametersJsonSchema: jsonSchema,
+        responseJsonSchema: respSchema
+      )
+    #else
+      return GoogleAI.FunctionDeclaration(
+        description: description,
+        name: name,
+        parameters: parameters?.toGoogleAI()
+      )
+    #endif
   }
 
-  public func encode(to encoder: Encoder) throws {
-    var container = encoder.container(keyedBy: CodingKeys.self)
-    try container.encode(name, forKey: .name)
-    try container.encode(description, forKey: .description)
-    try container.encodeIfPresent(parameters, forKey: .parameters)
+  func toAgentPlatform() -> AgentPlatform.FunctionDeclaration {
     #if canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
-      if #available(iOS 26.0, macOS 26.0, visionOS 26.0, watchOS 27.0, *) {
-        try container.encodeIfPresent(parametersJSONSchema, forKey: .parametersJSONSchema)
-        try container.encodeIfPresent(responseJSONSchema, forKey: .responseJSONSchema)
+      var jsonSchema: SharedDataModels.JSONValue? = nil
+      if let schema = parametersJSONSchema {
+        if let data = try? JSONEncoder().encode(schema),
+           let jValue = try? JSONDecoder().decode(SharedDataModels.JSONValue.self) {
+          jsonSchema = jValue
+        }
       }
-    #endif // canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
+      var respSchema: SharedDataModels.JSONValue? = nil
+      if let resp = responseJSONSchema {
+        respSchema = .object(resp.toShared())
+      }
+      return AgentPlatform.FunctionDeclaration(
+        description: description,
+        name: name,
+        parameters: parameters?.toAgentPlatform(),
+        parametersJsonSchema: jsonSchema,
+        responseJsonSchema: respSchema
+      )
+    #else
+      return AgentPlatform.FunctionDeclaration(
+        description: description,
+        name: name,
+        parameters: parameters?.toAgentPlatform()
+      )
+    #endif
+  }
+
+  init(fromGoogleAI decl: GoogleAI.FunctionDeclaration) {
+    self.name = decl.name ?? ""
+    self.description = decl.description ?? ""
+    self.parameters = decl.parameters.map { Schema(fromGoogleAI: $0) }
+    self.parametersJSONSchema = nil
+    self.responseJSONSchema = nil
+    self.kind = .manual
+  }
+
+  init(fromAgentPlatform decl: AgentPlatform.FunctionDeclaration) {
+    self.name = decl.name ?? ""
+    self.description = decl.description ?? ""
+    self.parameters = decl.parameters.map { Schema(fromAgentPlatform: $0) }
+    self.parametersJSONSchema = nil
+    self.responseJSONSchema = nil
+    self.kind = .manual
   }
 }
 
-extension Tool: Encodable {}
+extension GoogleSearch {
+  func toGoogleAI() -> GoogleAI.GoogleSearch {
+    GoogleAI.GoogleSearch()
+  }
 
-extension FunctionCallingConfig: Encodable {}
+  func toAgentPlatform() -> AgentPlatform.ToolGoogleSearch {
+    AgentPlatform.ToolGoogleSearch()
+  }
 
-extension FunctionCallingConfig.Mode: Encodable {}
+  init(fromGoogleAI gs: GoogleAI.GoogleSearch) {}
+  init(fromAgentPlatform gs: AgentPlatform.ToolGoogleSearch) {}
+}
 
-extension GoogleSearch: Encodable {}
+extension Tool {
+  package func toGoogleAI() -> GoogleAI.Tool {
+    GoogleAI.Tool(
+      codeExecution: codeExecution.map { _ in GoogleAI.CodeExecution() },
+      functionDeclarations: functionDeclarations?.map { $0.toGoogleAI() },
+      googleSearch: googleSearch?.toGoogleAI(),
+      googleMaps: googleMaps?.toGoogleAI(),
+      urlContext: urlContext?.toGoogleAI()
+    )
+  }
 
-extension ToolConfig: Encodable {}
+  package func toAgentPlatform() -> AgentPlatform.Tool {
+    AgentPlatform.Tool(
+      codeExecution: codeExecution.map { _ in AgentPlatform.ToolCodeExecution() },
+      functionDeclarations: functionDeclarations?.map { $0.toAgentPlatform() },
+      googleSearch: googleSearch?.toAgentPlatform(),
+      googleMaps: googleMaps?.toAgentPlatform(),
+      urlContext: urlContext?.toAgentPlatform()
+    )
+  }
+
+  package init(fromGoogleAI tool: GoogleAI.Tool) {
+    self.functionDeclarations = tool.functionDeclarations?.map { FunctionDeclaration(fromGoogleAI: $0) }
+    self.googleSearch = tool.googleSearch.map { _ in GoogleSearch() }
+    self.googleMaps = tool.googleMaps.map { GoogleMaps(fromGoogleAI: $0) }
+    self.codeExecution = tool.codeExecution.map { _ in CodeExecution() }
+    self.urlContext = tool.urlContext.map { URLContext(fromGoogleAI: $0) }
+  }
+
+  package init(fromAgentPlatform tool: AgentPlatform.Tool) {
+    self.functionDeclarations = tool.functionDeclarations?.map { FunctionDeclaration(fromAgentPlatform: $0) }
+    self.googleSearch = tool.googleSearch.map { _ in GoogleSearch() }
+    self.googleMaps = tool.googleMaps.map { GoogleMaps(fromAgentPlatform: $0) }
+    self.codeExecution = tool.codeExecution.map { _ in CodeExecution() }
+    self.urlContext = tool.urlContext.map { URLContext(fromAgentPlatform: $0) }
+  }
+}
+
+extension FunctionCallingConfig.Mode {
+  func toGoogleAI() -> GoogleAI.FunctionCallingConfig.Mode {
+    GoogleAI.FunctionCallingConfig.Mode(rawValue: rawValue) ?? .auto
+  }
+
+  func toAgentPlatform() -> AgentPlatform.FunctionCallingConfig.Mode {
+    AgentPlatform.FunctionCallingConfig.Mode(rawValue: rawValue) ?? .auto
+  }
+
+  init(fromGoogleAI mode: GoogleAI.FunctionCallingConfig.Mode) {
+    self = FunctionCallingConfig.Mode(rawValue: mode.rawValue) ?? .auto
+  }
+
+  init(fromAgentPlatform mode: AgentPlatform.FunctionCallingConfig.Mode) {
+    self = FunctionCallingConfig.Mode(rawValue: mode.rawValue) ?? .auto
+  }
+}
+
+extension FunctionCallingConfig {
+  func toGoogleAI() -> GoogleAI.FunctionCallingConfig {
+    GoogleAI.FunctionCallingConfig(
+      allowedFunctionNames: allowedFunctionNames,
+      mode: mode?.toGoogleAI()
+    )
+  }
+
+  func toAgentPlatform() -> AgentPlatform.FunctionCallingConfig {
+    AgentPlatform.FunctionCallingConfig(
+      allowedFunctionNames: allowedFunctionNames,
+      mode: mode?.toAgentPlatform()
+    )
+  }
+
+  init(fromGoogleAI config: GoogleAI.FunctionCallingConfig) {
+    self.mode = config.mode.map { FunctionCallingConfig.Mode(fromGoogleAI: $0) }
+    self.allowedFunctionNames = config.allowedFunctionNames
+  }
+
+  init(fromAgentPlatform config: AgentPlatform.FunctionCallingConfig) {
+    self.mode = config.mode.map { FunctionCallingConfig.Mode(fromAgentPlatform: $0) }
+    self.allowedFunctionNames = config.allowedFunctionNames
+  }
+}
+
+extension ToolConfig {
+  package func toGoogleAI() -> GoogleAI.ToolConfig {
+    GoogleAI.ToolConfig(
+      functionCallingConfig: functionCallingConfig?.toGoogleAI(),
+      retrievalConfig: retrievalConfig?.toGoogleAI()
+    )
+  }
+
+  package func toAgentPlatform() -> AgentPlatform.ToolConfig {
+    AgentPlatform.ToolConfig(
+      functionCallingConfig: functionCallingConfig?.toAgentPlatform(),
+      retrievalConfig: retrievalConfig?.toAgentPlatform()
+    )
+  }
+
+  package init(fromGoogleAI config: GoogleAI.ToolConfig) {
+    self.functionCallingConfig = config.functionCallingConfig.map { FunctionCallingConfig(fromGoogleAI: $0) }
+    self.retrievalConfig = config.retrievalConfig.map { RetrievalConfig(fromGoogleAI: $0) }
+  }
+
+  package init(fromAgentPlatform config: AgentPlatform.ToolConfig) {
+    self.functionCallingConfig = config.functionCallingConfig.map { FunctionCallingConfig(fromAgentPlatform: $0) }
+    self.retrievalConfig = config.retrievalConfig.map { RetrievalConfig(fromAgentPlatform: $0) }
+  }
+}
+
+extension RetrievalConfig {
+  func toGoogleAI() -> GoogleAI.RetrievalConfig {
+    GoogleAI.RetrievalConfig(
+      languageCode: languageCode,
+      latLng: location.map { GoogleAI.LatLng(latitude: $0.latitude, longitude: $0.longitude) }
+    )
+  }
+
+  func toAgentPlatform() -> AgentPlatform.RetrievalConfig {
+    AgentPlatform.RetrievalConfig(
+      languageCode: languageCode,
+      latLng: location.map { AgentPlatform.LatLng(latitude: $0.latitude, longitude: $0.longitude) }
+    )
+  }
+
+  init(fromGoogleAI config: GoogleAI.RetrievalConfig) {
+    if let latLng = config.latLng, let lat = latLng.latitude, let lng = latLng.longitude {
+      self.location = CLLocationCoordinate2D(latitude: lat, longitude: lng)
+    } else {
+      self.location = nil
+    }
+    self.languageCode = config.languageCode
+  }
+
+  init(fromAgentPlatform config: AgentPlatform.RetrievalConfig) {
+    if let latLng = config.latLng, let lat = latLng.latitude, let lng = latLng.longitude {
+      self.location = CLLocationCoordinate2D(latitude: lat, longitude: lng)
+    } else {
+      self.location = nil
+    }
+    self.languageCode = config.languageCode
+  }
+}

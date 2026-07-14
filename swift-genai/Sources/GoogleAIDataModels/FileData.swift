@@ -17,15 +17,15 @@ import Foundation
 
 extension GoogleAI {
   /// URI based data.
-  package struct FileData: Codable, Sendable, Equatable, Hashable {
+  public struct FileData: Codable, Sendable, Equatable, Hashable {
     /// Required. URI.
-    package var fileUri: String?
+    public var fileUri: String?
     
     /// Optional. The IANA standard MIME type of the source data.
-    package var mimeType: String?
+    public var mimeType: String?
     
     /// Creates a new `FileData`.
-    package init(
+    public init(
       fileUri: String? = nil,
       mimeType: String? = nil
     ) {

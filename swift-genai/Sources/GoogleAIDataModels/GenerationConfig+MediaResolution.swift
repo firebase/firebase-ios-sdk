@@ -16,7 +16,7 @@ import Foundation
 
 extension GoogleAI.GenerationConfig {
   /// Optional. If specified, the media resolution specified will be used.
-  package enum MediaResolution: Codable, Sendable, Equatable, Hashable {
+  public enum MediaResolution: Codable, Sendable, Equatable, Hashable {
     /// Media resolution set to low (64 tokens).
     case low
     
@@ -36,7 +36,7 @@ extension GoogleAI.GenerationConfig {
 // MARK: - RawRepresentable Conformance
 
 extension GoogleAI.GenerationConfig.MediaResolution: RawRepresentable {
-  package var rawValue: String {
+  public var rawValue: String {
     switch self {
     case .low: "MEDIA_RESOLUTION_LOW"
     case .medium: "MEDIA_RESOLUTION_MEDIUM"
@@ -45,7 +45,7 @@ extension GoogleAI.GenerationConfig.MediaResolution: RawRepresentable {
     }
   }
 
-  package init(rawValue: String) {
+  public init(rawValue: String) {
     switch rawValue {
     case "MEDIA_RESOLUTION_LOW": self = .low
     case "MEDIA_RESOLUTION_MEDIUM": self = .medium

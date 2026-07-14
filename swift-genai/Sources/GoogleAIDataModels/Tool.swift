@@ -17,36 +17,36 @@ import Foundation
 
 extension GoogleAI {
   /// Tool details that the model may use to generate response. A `Tool` is a piece of code that enables the system to interact with external systems to perform an action, or set of actions, outside of knowledge and scope of the model. Next ID: 16
-  package struct Tool: Codable, Sendable, Equatable, Hashable {
+  public struct Tool: Codable, Sendable, Equatable, Hashable {
     /// Optional. Enables the model to execute code as part of generation.
-    package var codeExecution: CodeExecution?
+    public var codeExecution: CodeExecution?
     
     /// Optional. Tool to support the model interacting directly with the computer. If enabled, it automatically populates computer-use specific Function Declarations.
-    package var computerUse: ComputerUse?
+    public var computerUse: ComputerUse?
     
     /// Optional. FileSearch tool type. Tool to retrieve knowledge from Semantic Retrieval corpora.
-    package var fileSearch: FileSearch?
+    public var fileSearch: FileSearch?
     
     /// Optional. A list of `FunctionDeclarations` available to the model that can be used for function calling. The model or system does not execute the function. Instead the defined function may be returned as a FunctionCall with arguments to the client side for execution. The model may decide to call a subset of these functions by populating FunctionCall in the response. The next conversation turn may contain a FunctionResponse with the Content.role "function" generation context for the next model turn.
-    package var functionDeclarations: [FunctionDeclaration]?
+    public var functionDeclarations: [FunctionDeclaration]?
     
     /// Optional. Tool that allows grounding the model's response with geospatial context related to the user's query.
-    package var googleMaps: GoogleMaps?
+    public var googleMaps: GoogleMaps?
     
     /// Optional. GoogleSearch tool type. Tool to support Google Search in Model. Powered by Google.
-    package var googleSearch: GoogleSearch?
+    public var googleSearch: GoogleSearch?
     
     /// Optional. Retrieval tool that is powered by Google search.
-    package var googleSearchRetrieval: GoogleSearchRetrieval?
+    public var googleSearchRetrieval: GoogleSearchRetrieval?
     
     /// Optional. MCP Servers to connect to.
-    package var mcpServers: [McpServer]?
+    public var mcpServers: [McpServer]?
     
     /// Optional. Tool to support URL context retrieval.
-    package var urlContext: UrlContext?
+    public var urlContext: UrlContext?
     
     /// Creates a new `Tool`.
-    package init(
+    public init(
       codeExecution: CodeExecution? = nil,
       computerUse: ComputerUse? = nil,
       fileSearch: FileSearch? = nil,

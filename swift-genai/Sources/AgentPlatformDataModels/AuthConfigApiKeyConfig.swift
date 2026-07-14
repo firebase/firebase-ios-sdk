@@ -17,21 +17,21 @@ import Foundation
 
 extension AgentPlatform {
   /// Config for authentication with API key.
-  package struct AuthConfigApiKeyConfig: Codable, Sendable, Equatable, Hashable {
+  public struct AuthConfigApiKeyConfig: Codable, Sendable, Equatable, Hashable {
     /// Optional. The name of the SecretManager secret version resource storing the API key. Format: `projects/{project}/secrets/{secrete}/versions/{version}` - If both `api_key_secret` and `api_key_string` are specified, this field takes precedence over `api_key_string`. - If specified, the `secretmanager.versions.access` permission should be granted to Vertex AI Extension Service Agent (https://cloud.google.com/vertex-ai/docs/general/access-control#service-agents) on the specified resource.
-    package var apiKeySecret: String?
+    public var apiKeySecret: String?
     
     /// Optional. The API key to be used in the request directly.
-    package var apiKeyString: String?
+    public var apiKeyString: String?
     
     /// Optional. The location of the API key.
-    package var httpElementLocation: HttpElementLocation?
+    public var httpElementLocation: HttpElementLocation?
     
     /// Optional. The parameter name of the API key. E.g. If the API request is "https://example.com/act?api_key=", "api_key" would be the parameter name.
-    package var name: String?
+    public var name: String?
     
     /// Creates a new `AuthConfigApiKeyConfig`.
-    package init(
+    public init(
       apiKeySecret: String? = nil,
       apiKeyString: String? = nil,
       httpElementLocation: HttpElementLocation? = nil,

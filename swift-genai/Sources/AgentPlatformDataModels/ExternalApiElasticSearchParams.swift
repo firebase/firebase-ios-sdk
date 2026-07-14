@@ -17,18 +17,18 @@ import Foundation
 
 extension AgentPlatform {
   /// The search parameters to use for the ELASTIC_SEARCH spec.
-  package struct ExternalApiElasticSearchParams: Codable, Sendable, Equatable, Hashable {
+  public struct ExternalApiElasticSearchParams: Codable, Sendable, Equatable, Hashable {
     /// The ElasticSearch index to use.
-    package var index: String?
+    public var index: String?
     
     /// Optional. Number of hits (chunks) to request. When specified, it is passed to Elasticsearch as the `num_hits` param.
-    package var numHits: Int?
+    public var numHits: Int?
     
     /// The ElasticSearch search template to use.
-    package var searchTemplate: String?
+    public var searchTemplate: String?
     
     /// Creates a new `ExternalApiElasticSearchParams`.
-    package init(
+    public init(
       index: String? = nil,
       numHits: Int? = nil,
       searchTemplate: String? = nil

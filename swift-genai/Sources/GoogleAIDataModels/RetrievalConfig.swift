@@ -17,15 +17,15 @@ import Foundation
 
 extension GoogleAI {
   /// Retrieval config.
-  package struct RetrievalConfig: Codable, Sendable, Equatable, Hashable {
+  public struct RetrievalConfig: Codable, Sendable, Equatable, Hashable {
     /// Optional. The language code of the user. Language code for content. Use language tags defined by [BCP47](https://www.rfc-editor.org/rfc/bcp/bcp47.txt).
-    package var languageCode: String?
+    public var languageCode: String?
     
     /// Optional. The location of the user.
-    package var latLng: LatLng?
+    public var latLng: LatLng?
     
     /// Creates a new `RetrievalConfig`.
-    package init(
+    public init(
       languageCode: String? = nil,
       latLng: LatLng? = nil
     ) {

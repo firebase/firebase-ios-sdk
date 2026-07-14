@@ -17,12 +17,12 @@ import Foundation
 
 extension AgentPlatform {
   /// per part media resolution. Media resolution for the input media.
-  package struct PartMediaResolution: Codable, Sendable, Equatable, Hashable {
+  public struct PartMediaResolution: Codable, Sendable, Equatable, Hashable {
     /// The tokenization quality used for given media.
-    package var level: Level?
+    public var level: Level?
     
     /// Creates a new `PartMediaResolution`.
-    package init(
+    public init(
       level: Level? = nil
     ) {
       self.level = level

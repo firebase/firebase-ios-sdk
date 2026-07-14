@@ -17,30 +17,30 @@ import Foundation
 
 extension AgentPlatform {
   /// A safety rating for a piece of content. The safety rating contains the harm category and the harm probability level.
-  package struct SafetyRating: Codable, Sendable, Equatable, Hashable {
+  public struct SafetyRating: Codable, Sendable, Equatable, Hashable {
     /// Output only. Indicates whether the content was blocked because of this rating.
-    package var blocked: Bool?
+    public var blocked: Bool?
     
     /// Output only. The harm category of this rating.
-    package var category: Category?
+    public var category: Category?
     
     /// Output only. The overwritten threshold for the safety category of Gemini 2.0 image out. If minors are detected in the output image, the threshold of each safety category will be overwritten if user sets a lower threshold.
-    package var overwrittenThreshold: OverwrittenThreshold?
+    public var overwrittenThreshold: OverwrittenThreshold?
     
     /// Output only. The probability of harm for this category.
-    package var probability: Probability?
+    public var probability: Probability?
     
     /// Output only. The probability score of harm for this category.
-    package var probabilityScore: Double?
+    public var probabilityScore: Double?
     
     /// Output only. The severity of harm for this category.
-    package var severity: Severity?
+    public var severity: Severity?
     
     /// Output only. The severity score of harm for this category.
-    package var severityScore: Double?
+    public var severityScore: Double?
     
     /// Creates a new `SafetyRating`.
-    package init(
+    public init(
       blocked: Bool? = nil,
       category: Category? = nil,
       overwrittenThreshold: OverwrittenThreshold? = nil,

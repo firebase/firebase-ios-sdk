@@ -17,18 +17,18 @@ import Foundation
 
 extension AgentPlatform {
   /// Configuration for speech generation.
-  package struct SpeechConfig: Codable, Sendable, Equatable, Hashable {
+  public struct SpeechConfig: Codable, Sendable, Equatable, Hashable {
     /// Optional. The language code (ISO 639-1) for the speech synthesis.
-    package var languageCode: String?
+    public var languageCode: String?
     
     /// The configuration for a multi-speaker text-to-speech request. This field is mutually exclusive with `voice_config`.
-    package var multiSpeakerVoiceConfig: MultiSpeakerVoiceConfig?
+    public var multiSpeakerVoiceConfig: MultiSpeakerVoiceConfig?
     
     /// The configuration for the voice to use.
-    package var voiceConfig: VoiceConfig?
+    public var voiceConfig: VoiceConfig?
     
     /// Creates a new `SpeechConfig`.
-    package init(
+    public init(
       languageCode: String? = nil,
       multiSpeakerVoiceConfig: MultiSpeakerVoiceConfig? = nil,
       voiceConfig: VoiceConfig? = nil

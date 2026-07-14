@@ -17,27 +17,27 @@ import Foundation
 
 extension AgentPlatform {
   /// Auth configuration to run the extension.
-  package struct AuthConfig: Codable, Sendable, Equatable, Hashable {
+  public struct AuthConfig: Codable, Sendable, Equatable, Hashable {
     /// Config for API key auth.
-    package var apiKeyConfig: AuthConfigApiKeyConfig?
+    public var apiKeyConfig: AuthConfigApiKeyConfig?
     
     /// Type of auth scheme.
-    package var authType: AuthType?
+    public var authType: AuthType?
     
     /// Config for Google Service Account auth.
-    package var googleServiceAccountConfig: AuthConfigGoogleServiceAccountConfig?
+    public var googleServiceAccountConfig: AuthConfigGoogleServiceAccountConfig?
     
     /// Config for HTTP Basic auth.
-    package var httpBasicAuthConfig: AuthConfigHttpBasicAuthConfig?
+    public var httpBasicAuthConfig: AuthConfigHttpBasicAuthConfig?
     
     /// Config for user oauth.
-    package var oauthConfig: AuthConfigOauthConfig?
+    public var oauthConfig: AuthConfigOauthConfig?
     
     /// Config for user OIDC auth.
-    package var oidcConfig: AuthConfigOidcConfig?
+    public var oidcConfig: AuthConfigOidcConfig?
     
     /// Creates a new `AuthConfig`.
-    package init(
+    public init(
       apiKeyConfig: AuthConfigApiKeyConfig? = nil,
       authType: AuthType? = nil,
       googleServiceAccountConfig: AuthConfigGoogleServiceAccountConfig? = nil,

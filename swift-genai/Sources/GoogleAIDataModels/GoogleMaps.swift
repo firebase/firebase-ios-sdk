@@ -17,12 +17,12 @@ import Foundation
 
 extension GoogleAI {
   /// The GoogleMaps Tool that provides geospatial context for the user's query.
-  package struct GoogleMaps: Codable, Sendable, Equatable, Hashable {
+  public struct GoogleMaps: Codable, Sendable, Equatable, Hashable {
     /// Optional. Whether to return a widget context token in the GroundingMetadata of the response. Developers can use the widget context token to render a Google Maps widget with geospatial context related to the places that the model references in the response.
-    package var enableWidget: Bool?
+    public var enableWidget: Bool?
     
     /// Creates a new `GoogleMaps`.
-    package init(
+    public init(
       enableWidget: Bool? = nil
     ) {
       self.enableWidget = enableWidget

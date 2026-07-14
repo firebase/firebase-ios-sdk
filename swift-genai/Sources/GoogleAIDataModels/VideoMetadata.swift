@@ -18,18 +18,18 @@ import Foundation
 extension GoogleAI {
   /// Deprecated: Use `GenerateContentRequest.processing_options` instead. Metadata describes the input video content.
   @available(*, deprecated)
-  package struct VideoMetadata: Codable, Sendable, Equatable, Hashable {
+  public struct VideoMetadata: Codable, Sendable, Equatable, Hashable {
     /// Optional. The end offset of the video.
-    package var endOffset: Duration?
+    public var endOffset: Duration?
     
     /// Optional. The frame rate of the video sent to the model. If not specified, the default value will be 1.0. The fps range is (0.0, 24.0].
-    package var fps: Double?
+    public var fps: Double?
     
     /// Optional. The start offset of the video.
-    package var startOffset: Duration?
+    public var startOffset: Duration?
     
     /// Creates a new `VideoMetadata`.
-    package init(
+    public init(
       endOffset: Duration? = nil,
       fps: Double? = nil,
       startOffset: Duration? = nil

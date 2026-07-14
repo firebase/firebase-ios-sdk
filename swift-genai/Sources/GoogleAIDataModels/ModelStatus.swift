@@ -19,18 +19,18 @@ public import Foundation
 
 extension GoogleAI {
   /// The status of the underlying model. This is used to indicate the stage of the underlying model and the retirement time if applicable.
-  package struct ModelStatus: Codable, Sendable, Equatable, Hashable {
+  public struct ModelStatus: Codable, Sendable, Equatable, Hashable {
     /// A message explaining the model status.
-    package var message: String?
+    public var message: String?
     
     /// The stage of the underlying model.
-    package var modelStage: ModelStage?
+    public var modelStage: ModelStage?
     
     /// The time at which the model will be retired.
-    package var retirementTime: Date?
+    public var retirementTime: Date?
     
     /// Creates a new `ModelStatus`.
-    package init(
+    public init(
       message: String? = nil,
       modelStage: ModelStage? = nil,
       retirementTime: Date? = nil

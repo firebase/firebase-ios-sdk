@@ -16,7 +16,7 @@ import Foundation
 
 extension AgentPlatform.ToolGoogleSearch {
   /// Optional. Sites with confidence level chosen & above this value will be blocked from the search results.
-  package enum BlockingConfidence: Codable, Sendable, Equatable, Hashable {
+  public enum BlockingConfidence: Codable, Sendable, Equatable, Hashable {
     /// Blocks Low and above confidence URL that is risky.
     case lowAndAbove
     
@@ -45,7 +45,7 @@ extension AgentPlatform.ToolGoogleSearch {
 // MARK: - RawRepresentable Conformance
 
 extension AgentPlatform.ToolGoogleSearch.BlockingConfidence: RawRepresentable {
-  package var rawValue: String {
+  public var rawValue: String {
     switch self {
     case .lowAndAbove: "BLOCK_LOW_AND_ABOVE"
     case .mediumAndAbove: "BLOCK_MEDIUM_AND_ABOVE"
@@ -57,7 +57,7 @@ extension AgentPlatform.ToolGoogleSearch.BlockingConfidence: RawRepresentable {
     }
   }
 
-  package init(rawValue: String) {
+  public init(rawValue: String) {
     switch rawValue {
     case "BLOCK_LOW_AND_ABOVE": self = .lowAndAbove
     case "BLOCK_MEDIUM_AND_ABOVE": self = .mediumAndAbove

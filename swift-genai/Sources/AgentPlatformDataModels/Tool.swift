@@ -17,43 +17,43 @@ import Foundation
 
 extension AgentPlatform {
   /// Tool details that the model may use to generate response. A `Tool` is a piece of code that enables the system to interact with external systems to perform an action, or set of actions, outside of knowledge and scope of the model. A Tool object should contain exactly one type of Tool (e.g FunctionDeclaration, Retrieval or GoogleSearchRetrieval).
-  package struct Tool: Codable, Sendable, Equatable, Hashable {
+  public struct Tool: Codable, Sendable, Equatable, Hashable {
     /// Optional. CodeExecution tool type. Enables the model to execute code as part of generation.
-    package var codeExecution: ToolCodeExecution?
+    public var codeExecution: ToolCodeExecution?
     
     /// Optional. Tool to support the model interacting directly with the computer. If enabled, it automatically populates computer-use specific Function Declarations.
-    package var computerUse: ToolComputerUse?
+    public var computerUse: ToolComputerUse?
     
     /// Optional. Tool to support searching public web data, powered by Vertex AI Search and Sec4 compliance.
-    package var enterpriseWebSearch: EnterpriseWebSearch?
+    public var enterpriseWebSearch: EnterpriseWebSearch?
     
     /// Optional. Uses Exa.ai to search for information to answer user queries. The search results will be grounded on Exa.ai and presented to the model for response generation
-    package var exaAiSearch: ToolExaAiSearch?
+    public var exaAiSearch: ToolExaAiSearch?
     
     /// Optional. Function tool type. One or more function declarations to be passed to the model along with the current user query. Model may decide to call a subset of these functions by populating FunctionCall in the response. User should provide a FunctionResponse for each function call in the next turn. Based on the function responses, Model will generate the final response back to the user. Maximum 512 function declarations can be provided.
-    package var functionDeclarations: [FunctionDeclaration]?
+    public var functionDeclarations: [FunctionDeclaration]?
     
     /// Optional. GoogleMaps tool type. Tool to support Google Maps in Model.
-    package var googleMaps: GoogleMaps?
+    public var googleMaps: GoogleMaps?
     
     /// Optional. GoogleSearch tool type. Tool to support Google Search in Model. Powered by Google.
-    package var googleSearch: ToolGoogleSearch?
+    public var googleSearch: ToolGoogleSearch?
     
     /// Optional. Specialized retrieval tool that is powered by Google Search.
     @available(*, deprecated)
-    package var googleSearchRetrieval: GoogleSearchRetrieval?
+    public var googleSearchRetrieval: GoogleSearchRetrieval?
     
     /// Optional. If specified, Vertex AI will use Parallel.ai to search for information to answer user queries. The search results will be grounded on Parallel.ai and presented to the model for response generation
-    package var parallelAiSearch: ToolParallelAiSearch?
+    public var parallelAiSearch: ToolParallelAiSearch?
     
     /// Optional. Retrieval tool type. System will always execute the provided retrieval tool(s) to get external knowledge to answer the prompt. Retrieval results are presented to the model for generation.
-    package var retrieval: Retrieval?
+    public var retrieval: Retrieval?
     
     /// Optional. Tool to support URL context retrieval.
-    package var urlContext: UrlContext?
+    public var urlContext: UrlContext?
     
     /// Creates a new `Tool`.
-    package init(
+    public init(
       codeExecution: ToolCodeExecution? = nil,
       computerUse: ToolComputerUse? = nil,
       enterpriseWebSearch: EnterpriseWebSearch? = nil,

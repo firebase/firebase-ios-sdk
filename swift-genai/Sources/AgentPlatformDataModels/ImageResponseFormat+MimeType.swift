@@ -16,7 +16,7 @@ import Foundation
 
 extension AgentPlatform.ImageResponseFormat {
   /// Optional. The MIME type of the image output.
-  package enum MimeType: Codable, Sendable, Equatable, Hashable {
+  public enum MimeType: Codable, Sendable, Equatable, Hashable {
     /// JPEG image format.
     case jpeg
     
@@ -30,14 +30,14 @@ extension AgentPlatform.ImageResponseFormat {
 // MARK: - RawRepresentable Conformance
 
 extension AgentPlatform.ImageResponseFormat.MimeType: RawRepresentable {
-  package var rawValue: String {
+  public var rawValue: String {
     switch self {
     case .jpeg: "IMAGE_JPEG"
     case .unrecognized(let value): value
     }
   }
 
-  package init(rawValue: String) {
+  public init(rawValue: String) {
     switch rawValue {
     case "IMAGE_JPEG": self = .jpeg
     default: self = .unrecognized(rawValue)

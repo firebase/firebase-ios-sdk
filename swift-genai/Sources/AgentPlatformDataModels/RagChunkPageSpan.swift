@@ -17,15 +17,15 @@ import Foundation
 
 extension AgentPlatform {
   /// Represents where the chunk starts and ends in the document.
-  package struct RagChunkPageSpan: Codable, Sendable, Equatable, Hashable {
+  public struct RagChunkPageSpan: Codable, Sendable, Equatable, Hashable {
     /// Page where chunk starts in the document. Inclusive. 1-indexed.
-    package var firstPage: Int?
+    public var firstPage: Int?
     
     /// Page where chunk ends in the document. Inclusive. 1-indexed.
-    package var lastPage: Int?
+    public var lastPage: Int?
     
     /// Creates a new `RagChunkPageSpan`.
-    package init(
+    public init(
       firstPage: Int? = nil,
       lastPage: Int? = nil
     ) {

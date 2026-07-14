@@ -17,24 +17,24 @@ import Foundation
 
 extension GoogleAI {
   /// A transport that can stream HTTP requests and responses. Next ID: 6
-  package struct StreamableHttpTransport: Codable, Sendable, Equatable, Hashable {
+  public struct StreamableHttpTransport: Codable, Sendable, Equatable, Hashable {
     /// Optional: Fields for authentication headers, timeouts, etc., if needed.
-    package var headers: [String: String]?
+    public var headers: [String: String]?
     
     /// Timeout for SSE read operations.
-    package var sseReadTimeout: Duration?
+    public var sseReadTimeout: Duration?
     
     /// Whether to close the client session when the transport closes.
-    package var terminateOnClose: Bool?
+    public var terminateOnClose: Bool?
     
     /// HTTP timeout for regular operations.
-    package var timeout: Duration?
+    public var timeout: Duration?
     
     /// The full URL for the MCPServer endpoint. Example: "https://api.example.com/mcp"
-    package var url: String?
+    public var url: String?
     
     /// Creates a new `StreamableHttpTransport`.
-    package init(
+    public init(
       headers: [String: String]? = nil,
       sseReadTimeout: Duration? = nil,
       terminateOnClose: Bool? = nil,

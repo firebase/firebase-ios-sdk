@@ -16,7 +16,7 @@ import Foundation
 
 extension AgentPlatform.FunctionResponse {
   /// Optional. Specifies how the response should be scheduled in the conversation. Only applicable to NON_BLOCKING function calls, is ignored otherwise. Defaults to WHEN_IDLE.
-  package enum Scheduling: Codable, Sendable, Equatable, Hashable {
+  public enum Scheduling: Codable, Sendable, Equatable, Hashable {
     /// Only add the result to the conversation context, do not interrupt or trigger generation.
     case silent
     
@@ -36,7 +36,7 @@ extension AgentPlatform.FunctionResponse {
 // MARK: - RawRepresentable Conformance
 
 extension AgentPlatform.FunctionResponse.Scheduling: RawRepresentable {
-  package var rawValue: String {
+  public var rawValue: String {
     switch self {
     case .silent: "SILENT"
     case .whenIdle: "WHEN_IDLE"
@@ -45,7 +45,7 @@ extension AgentPlatform.FunctionResponse.Scheduling: RawRepresentable {
     }
   }
 
-  package init(rawValue: String) {
+  public init(rawValue: String) {
     switch rawValue {
     case "SILENT": self = .silent
     case "WHEN_IDLE": self = .whenIdle

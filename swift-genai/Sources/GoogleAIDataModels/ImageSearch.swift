@@ -17,9 +17,9 @@ import Foundation
 
 extension GoogleAI {
   /// Image search for grounding and related configurations.
-  package struct ImageSearch: Codable, Sendable, Equatable, Hashable {
+  public struct ImageSearch: Codable, Sendable, Equatable, Hashable {
     /// Creates a new `ImageSearch`.
-    package init(
+    public init(
     ) {
     }
   }

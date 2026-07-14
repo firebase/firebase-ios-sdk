@@ -13,20 +13,20 @@
 // limitations under the License.
 
 import Foundation
-package import SharedDataModels
+public import SharedDataModels
 
 
 extension GoogleAI {
   /// Configuration for text output format.
-  package struct TextResponseFormat: Codable, Sendable, Equatable, Hashable {
+  public struct TextResponseFormat: Codable, Sendable, Equatable, Hashable {
     /// Optional. The MIME type of the text output.
-    package var mimeType: MimeType?
+    public var mimeType: MimeType?
     
     /// Optional. The JSON schema that the output should conform to. Only applicable when mime_type is APPLICATION_JSON.
-    package var schema: JSONValue?
+    public var schema: JSONValue?
     
     /// Creates a new `TextResponseFormat`.
-    package init(
+    public init(
       mimeType: MimeType? = nil,
       schema: JSONValue? = nil
     ) {

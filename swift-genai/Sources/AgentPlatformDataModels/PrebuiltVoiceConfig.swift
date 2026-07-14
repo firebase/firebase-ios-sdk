@@ -17,12 +17,12 @@ import Foundation
 
 extension AgentPlatform {
   /// Configuration for a prebuilt voice.
-  package struct PrebuiltVoiceConfig: Codable, Sendable, Equatable, Hashable {
+  public struct PrebuiltVoiceConfig: Codable, Sendable, Equatable, Hashable {
     /// The name of the prebuilt voice to use.
-    package var voiceName: String?
+    public var voiceName: String?
     
     /// Creates a new `PrebuiltVoiceConfig`.
-    package init(
+    public init(
       voiceName: String? = nil
     ) {
       self.voiceName = voiceName

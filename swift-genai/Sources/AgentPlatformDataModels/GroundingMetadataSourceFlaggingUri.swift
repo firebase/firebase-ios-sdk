@@ -17,15 +17,15 @@ import Foundation
 
 extension AgentPlatform {
   /// A URI that can be used to flag a place or review for inappropriate content. This is populated only when the grounding source is Google Maps.
-  package struct GroundingMetadataSourceFlaggingUri: Codable, Sendable, Equatable, Hashable {
+  public struct GroundingMetadataSourceFlaggingUri: Codable, Sendable, Equatable, Hashable {
     /// The URI that can be used to flag the content.
-    package var flagContentUri: String?
+    public var flagContentUri: String?
     
     /// The ID of the place or review.
-    package var sourceId: String?
+    public var sourceId: String?
     
     /// Creates a new `GroundingMetadataSourceFlaggingUri`.
-    package init(
+    public init(
       flagContentUri: String? = nil,
       sourceId: String? = nil
     ) {

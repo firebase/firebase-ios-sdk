@@ -17,18 +17,18 @@ import Foundation
 
 extension AgentPlatform {
   /// Provides metadata for a video, including the start and end offsets for clipping and the frame rate.
-  package struct VideoMetadata: Codable, Sendable, Equatable, Hashable {
+  public struct VideoMetadata: Codable, Sendable, Equatable, Hashable {
     /// Optional. The end offset of the video.
-    package var endOffset: Duration?
+    public var endOffset: Duration?
     
     /// Optional. The frame rate of the video sent to the model. If not specified, the default value is 1.0. The valid range is (0.0, 24.0].
-    package var fps: Double?
+    public var fps: Double?
     
     /// Optional. The start offset of the video.
-    package var startOffset: Duration?
+    public var startOffset: Duration?
     
     /// Creates a new `VideoMetadata`.
-    package init(
+    public init(
       endOffset: Duration? = nil,
       fps: Double? = nil,
       startOffset: Duration? = nil

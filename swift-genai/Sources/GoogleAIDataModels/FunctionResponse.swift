@@ -13,32 +13,32 @@
 // limitations under the License.
 
 import Foundation
-package import SharedDataModels
+public import SharedDataModels
 
 
 extension GoogleAI {
   /// The result output from a `FunctionCall` that contains a string representing the `FunctionDeclaration.name` and a structured JSON object containing any output from the function is used as context to the model. This should contain the result of a`FunctionCall` made based on model prediction.
-  package struct FunctionResponse: Codable, Sendable, Equatable, Hashable {
+  public struct FunctionResponse: Codable, Sendable, Equatable, Hashable {
     /// Optional. The identifier of the function call this response is for. Populated by the client to match the corresponding function call `id`.
-    package var id: String?
+    public var id: String?
     
     /// Required. The name of the function to call. Must be a-z, A-Z, 0-9, or contain underscores and dashes, with a maximum length of 128.
-    package var name: String?
+    public var name: String?
     
     /// Optional. Ordered `Parts` that constitute a function response. Parts may have different IANA MIME types.
-    package var parts: [FunctionResponsePart]?
+    public var parts: [FunctionResponsePart]?
     
     /// Required. The function response in JSON object format. Callers can use any keys of their choice that fit the function's syntax to return the function output, e.g. "output", "result", etc. In particular, if the function call failed to execute, the response can have an "error" key to return error details to the model. Multimedia can be included by using a subobject containing a single "$ref" key whose value is the `inline_data.display_name` of a `FunctionResponsePart` holding the multimedia. See https://ai.google.dev/gemini-api/docs/function-calling#multimodal.
-    package var response: [String: JSONValue]?
+    public var response: [String: JSONValue]?
     
     /// Optional. Specifies how the response should be scheduled in the conversation. Only applicable to NON_BLOCKING function calls, is ignored otherwise. Defaults to WHEN_IDLE.
-    package var scheduling: Scheduling?
+    public var scheduling: Scheduling?
     
     /// Optional. Signals that function call continues, and more responses will be returned, turning the function call into a generator. Is only applicable to NON_BLOCKING function calls, is ignored otherwise. If set to false, future responses will not be considered. It is allowed to return empty `response` with `will_continue=False` to signal that the function call is finished. This may still trigger the model generation. To avoid triggering the generation and finish the function call, additionally set `scheduling` to `SILENT`.
-    package var willContinue: Bool?
+    public var willContinue: Bool?
     
     /// Creates a new `FunctionResponse`.
-    package init(
+    public init(
       id: String? = nil,
       name: String? = nil,
       parts: [FunctionResponsePart]? = nil,

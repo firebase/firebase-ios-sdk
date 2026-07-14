@@ -17,15 +17,15 @@ import Foundation
 
 extension GoogleAI {
   /// Identifier for a part within a `GroundingPassage`.
-  package struct GroundingPassageId: Codable, Sendable, Equatable, Hashable {
+  public struct GroundingPassageId: Codable, Sendable, Equatable, Hashable {
     /// Output only. Index of the part within the `GenerateAnswerRequest`'s `GroundingPassage.content`.
-    package var partIndex: Int?
+    public var partIndex: Int?
     
     /// Output only. ID of the passage matching the `GenerateAnswerRequest`'s `GroundingPassage.id`.
-    package var passageId: String?
+    public var passageId: String?
     
     /// Creates a new `GroundingPassageId`.
-    package init(
+    public init(
       partIndex: Int? = nil,
       passageId: String? = nil
     ) {

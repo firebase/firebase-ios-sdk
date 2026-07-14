@@ -17,18 +17,18 @@ import Foundation
 
 extension AgentPlatform {
   /// A safety setting that affects the safety-blocking behavior. A SafetySetting consists of a harm category and a threshold for that category.
-  package struct SafetySetting: Codable, Sendable, Equatable, Hashable {
+  public struct SafetySetting: Codable, Sendable, Equatable, Hashable {
     /// Required. The harm category to be blocked.
-    package var category: Category?
+    public var category: Category?
     
     /// Optional. The method for blocking content. If not specified, the default behavior is to use the probability score.
-    package var method: Method?
+    public var method: Method?
     
     /// Required. The threshold for blocking content. If the harm probability exceeds this threshold, the content will be blocked.
-    package var threshold: Threshold?
+    public var threshold: Threshold?
     
     /// Creates a new `SafetySetting`.
-    package init(
+    public init(
       category: Category? = nil,
       method: Method? = nil,
       threshold: Threshold? = nil

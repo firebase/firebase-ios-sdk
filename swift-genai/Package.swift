@@ -11,6 +11,10 @@ let package = Package(
             name: "GoogleGenerativeAI",
             targets: ["GeminiAPIClient"]
         ),
+        .library(
+            name: "InternalGeminiDataModels",
+            targets: ["GoogleAIDataModels", "AgentPlatformDataModels", "SharedDataModels"]
+        ),
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.

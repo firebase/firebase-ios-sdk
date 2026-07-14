@@ -17,18 +17,18 @@ import Foundation
 
 extension AgentPlatform {
   /// Content filter results for a prompt sent in the request. Note: This is sent only in the first stream chunk and only if no candidates were generated due to content violations.
-  package struct GenerateContentResponsePromptFeedback: Codable, Sendable, Equatable, Hashable {
+  public struct GenerateContentResponsePromptFeedback: Codable, Sendable, Equatable, Hashable {
     /// Output only. The reason why the prompt was blocked.
-    package var blockReason: BlockReason?
+    public var blockReason: BlockReason?
     
     /// Output only. A readable message that explains the reason why the prompt was blocked.
-    package var blockReasonMessage: String?
+    public var blockReasonMessage: String?
     
     /// Output only. A list of safety ratings for the prompt. There is one rating per category.
-    package var safetyRatings: [SafetyRating]?
+    public var safetyRatings: [SafetyRating]?
     
     /// Creates a new `GenerateContentResponsePromptFeedback`.
-    package init(
+    public init(
       blockReason: BlockReason? = nil,
       blockReasonMessage: String? = nil,
       safetyRatings: [SafetyRating]? = nil

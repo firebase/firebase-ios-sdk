@@ -16,7 +16,7 @@ import Foundation
 
 extension GoogleAI.TextResponseFormat {
   /// Optional. The MIME type of the text output.
-  package enum MimeType: Codable, Sendable, Equatable, Hashable {
+  public enum MimeType: Codable, Sendable, Equatable, Hashable {
     /// JSON output format.
     case applicationJson
     
@@ -33,7 +33,7 @@ extension GoogleAI.TextResponseFormat {
 // MARK: - RawRepresentable Conformance
 
 extension GoogleAI.TextResponseFormat.MimeType: RawRepresentable {
-  package var rawValue: String {
+  public var rawValue: String {
     switch self {
     case .applicationJson: "APPLICATION_JSON"
     case .textPlain: "TEXT_PLAIN"
@@ -41,7 +41,7 @@ extension GoogleAI.TextResponseFormat.MimeType: RawRepresentable {
     }
   }
 
-  package init(rawValue: String) {
+  public init(rawValue: String) {
     switch rawValue {
     case "APPLICATION_JSON": self = .applicationJson
     case "TEXT_PLAIN": self = .textPlain

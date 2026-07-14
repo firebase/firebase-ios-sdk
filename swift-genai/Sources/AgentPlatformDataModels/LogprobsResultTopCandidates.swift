@@ -17,12 +17,12 @@ import Foundation
 
 extension AgentPlatform {
   /// A list of the top candidate tokens and their log probabilities at each decoding step. This can be used to see what other tokens the model considered.
-  package struct LogprobsResultTopCandidates: Codable, Sendable, Equatable, Hashable {
+  public struct LogprobsResultTopCandidates: Codable, Sendable, Equatable, Hashable {
     /// The list of candidate tokens, sorted by log probability in descending order.
-    package var candidates: [LogprobsResultCandidate]?
+    public var candidates: [LogprobsResultCandidate]?
     
     /// Creates a new `LogprobsResultTopCandidates`.
-    package init(
+    public init(
       candidates: [LogprobsResultCandidate]? = nil
     ) {
       self.candidates = candidates

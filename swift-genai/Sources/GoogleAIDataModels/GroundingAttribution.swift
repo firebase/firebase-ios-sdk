@@ -17,15 +17,15 @@ import Foundation
 
 extension GoogleAI {
   /// Attribution for a source that contributed to an answer.
-  package struct GroundingAttribution: Codable, Sendable, Equatable, Hashable {
+  public struct GroundingAttribution: Codable, Sendable, Equatable, Hashable {
     /// Grounding source content that makes up this attribution.
-    package var content: Content?
+    public var content: Content?
     
     /// Output only. Identifier for the source contributing to this attribution.
-    package var sourceId: AttributionSourceId?
+    public var sourceId: AttributionSourceId?
     
     /// Creates a new `GroundingAttribution`.
-    package init(
+    public init(
       content: Content? = nil,
       sourceId: AttributionSourceId? = nil
     ) {

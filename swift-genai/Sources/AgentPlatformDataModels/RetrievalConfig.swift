@@ -17,15 +17,15 @@ import Foundation
 
 extension AgentPlatform {
   /// Retrieval config.
-  package struct RetrievalConfig: Codable, Sendable, Equatable, Hashable {
+  public struct RetrievalConfig: Codable, Sendable, Equatable, Hashable {
     /// The language code of the user.
-    package var languageCode: String?
+    public var languageCode: String?
     
     /// The location of the user.
-    package var latLng: GoogleTypeLatLng?
+    public var latLng: GoogleTypeLatLng?
     
     /// Creates a new `RetrievalConfig`.
-    package init(
+    public init(
       languageCode: String? = nil,
       latLng: GoogleTypeLatLng? = nil
     ) {

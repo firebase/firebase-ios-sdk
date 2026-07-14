@@ -13,8 +13,10 @@
 // limitations under the License.
 
 import Foundation
+import GoogleAIDataModels
+import AgentPlatformDataModels
 
-struct InlineData: Codable, Equatable, Sendable {
+struct InlineData: Equatable, Sendable {
   let mimeType: String
   let data: Data
 
@@ -24,18 +26,13 @@ struct InlineData: Codable, Equatable, Sendable {
   }
 }
 
-struct FileData: Codable, Equatable, Sendable {
+struct FileData: Equatable, Sendable {
   let fileURI: String
   let mimeType: String
 
   init(fileURI: String, mimeType: String) {
     self.fileURI = fileURI
     self.mimeType = mimeType
-  }
-
-  enum CodingKeys: String, CodingKey {
-    case fileURI = "fileUri"
-    case mimeType
   }
 }
 
@@ -51,7 +48,7 @@ struct FunctionCall: Equatable, Sendable {
   }
 }
 
-struct FunctionResponse: Codable, Equatable, Sendable {
+struct FunctionResponse: Equatable, Sendable {
   let name: String
   let response: JSONObject
   let id: String?
@@ -63,8 +60,8 @@ struct FunctionResponse: Codable, Equatable, Sendable {
   }
 }
 
-struct ExecutableCode: Codable, Equatable, Sendable {
-  struct Language: CodableProtoEnum, Sendable, Equatable {
+struct ExecutableCode: Equatable, Sendable {
+  struct Language: ProtoEnum, Sendable, Equatable {
     enum Kind: String {
       case unspecified = "LANGUAGE_UNSPECIFIED"
       case python = "PYTHON"
@@ -85,8 +82,8 @@ struct ExecutableCode: Codable, Equatable, Sendable {
   }
 }
 
-struct CodeExecutionResult: Codable, Equatable, Sendable {
-  struct Outcome: CodableProtoEnum, Sendable, Equatable {
+struct CodeExecutionResult: Equatable, Sendable {
+  struct Outcome: ProtoEnum, Sendable, Equatable {
     enum Kind: String {
       case unspecified = "OUTCOME_UNSPECIFIED"
       case ok = "OUTCOME_OK"
@@ -120,35 +117,198 @@ struct ErrorPart: Part, Error {
   }
 }
 
-// MARK: - Codable Conformances
-
-extension FunctionCall: Codable {
-  init(from decoder: Decoder) throws {
-    let container = try decoder.container(keyedBy: CodingKeys.self)
-    name = try container.decode(String.self, forKey: .name)
-    if let args = try container.decodeIfPresent(JSONObject.self, forKey: .args) {
-      self.args = args
-    } else {
-      args = JSONObject()
-    }
-    id = try container.decodeIfPresent(String.self, forKey: .id)
-  }
-}
-
-extension ErrorPart: Codable {
-  init(from decoder: any Decoder) throws {
-    fatalError("Decoding an ErrorPart is not supported.")
-  }
-
-  func encode(to encoder: any Encoder) throws {
-    fatalError("Encoding an ErrorPart is not supported.")
-  }
-}
-
 // MARK: - Equatable Conformances
 
 extension ErrorPart: Equatable {
   static func == (lhs: ErrorPart, rhs: ErrorPart) -> Bool {
     fatalError("Comparing ErrorParts for equality is not supported.")
+  }
+}
+
+// MARK: - Mappings
+
+extension InlineData {
+  func toShared() -> SharedDataModels.Blob {
+    SharedDataModels.Blob(mimeType: mimeType, data: data)
+  }
+
+  init(fromShared blob: SharedDataModels.Blob) {
+    self.data = blob.data ?? Data()
+    self.mimeType = blob.mimeType ?? ""
+  }
+}
+
+extension FileData {
+  func toShared() -> SharedDataModels.FileData {
+    SharedDataModels.FileData(fileUri: fileURI, mimeType: mimeType)
+  }
+
+  init(fromShared file: SharedDataModels.FileData) {
+    self.fileURI = file.fileUri ?? ""
+    self.mimeType = file.mimeType ?? ""
+  }
+}
+
+extension FunctionCall {
+  func toGoogleAI() -> GoogleAI.FunctionCall {
+    GoogleAI.FunctionCall(
+      args: args.toShared(),
+      id: id,
+      name: name
+    )
+  }
+
+  func toAgentPlatform() -> AgentPlatform.FunctionCall {
+    AgentPlatform.FunctionCall(
+      args: args.toShared(),
+      id: id,
+      name: name
+    )
+  }
+
+  init(fromGoogleAI fc: GoogleAI.FunctionCall) {
+    self.name = fc.name ?? ""
+    self.id = fc.id
+    if let args = fc.args {
+      self.args = JSONObject(fromShared: args)
+    } else {
+      self.args = JSONObject()
+    }
+  }
+
+  init(fromAgentPlatform fc: AgentPlatform.FunctionCall) {
+    self.name = fc.name ?? ""
+    self.id = fc.id
+    if let args = fc.args {
+      self.args = JSONObject(fromShared: args)
+    } else {
+      self.args = JSONObject()
+    }
+  }
+}
+
+extension FunctionResponse {
+  func toGoogleAI() -> GoogleAI.FunctionResponse {
+    GoogleAI.FunctionResponse(
+      id: id,
+      name: name,
+      response: response.toShared()
+    )
+  }
+
+  func toAgentPlatform() -> AgentPlatform.FunctionResponse {
+    AgentPlatform.FunctionResponse(
+      id: id,
+      name: name,
+      response: response.toShared()
+    )
+  }
+
+  init(fromGoogleAI fr: GoogleAI.FunctionResponse) {
+    self.name = fr.name ?? ""
+    self.id = fr.id
+    if let response = fr.response {
+      self.response = JSONObject(fromShared: response)
+    } else {
+      self.response = JSONObject()
+    }
+  }
+
+  init(fromAgentPlatform fr: AgentPlatform.FunctionResponse) {
+    self.name = fr.name ?? ""
+    self.id = fr.id
+    if let response = fr.response {
+      self.response = JSONObject(fromShared: response)
+    } else {
+      self.response = JSONObject()
+    }
+  }
+}
+
+extension ExecutableCode.Language {
+  func toGoogleAI() -> GoogleAI.ExecutableCode.Language {
+    GoogleAI.ExecutableCode.Language(rawValue: rawValue) ?? .unspecified
+  }
+
+  func toAgentPlatform() -> AgentPlatform.ExecutableCode.Language {
+    AgentPlatform.ExecutableCode.Language(rawValue: rawValue) ?? .unspecified
+  }
+
+  init(fromGoogleAI lang: GoogleAI.ExecutableCode.Language) {
+    self.rawValue = lang.rawValue
+  }
+
+  init(fromAgentPlatform lang: AgentPlatform.ExecutableCode.Language) {
+    self.rawValue = lang.rawValue
+  }
+}
+
+extension ExecutableCode {
+  func toGoogleAI() -> GoogleAI.ExecutableCode {
+    GoogleAI.ExecutableCode(
+      code: code,
+      language: language?.toGoogleAI()
+    )
+  }
+
+  func toAgentPlatform() -> AgentPlatform.ExecutableCode {
+    AgentPlatform.ExecutableCode(
+      code: code,
+      language: language?.toAgentPlatform()
+    )
+  }
+
+  init(fromGoogleAI ec: GoogleAI.ExecutableCode) {
+    self.code = ec.code
+    self.language = ec.language.map { ExecutableCode.Language(fromGoogleAI: $0) }
+  }
+
+  init(fromAgentPlatform ec: AgentPlatform.ExecutableCode) {
+    self.code = ec.code
+    self.language = ec.language.map { ExecutableCode.Language(fromAgentPlatform: $0) }
+  }
+}
+
+extension CodeExecutionResult.Outcome {
+  func toGoogleAI() -> GoogleAI.CodeExecutionResult.Outcome {
+    GoogleAI.CodeExecutionResult.Outcome(rawValue: rawValue) ?? .unspecified
+  }
+
+  func toAgentPlatform() -> AgentPlatform.CodeExecutionResult.Outcome {
+    AgentPlatform.CodeExecutionResult.Outcome(rawValue: rawValue) ?? .unspecified
+  }
+
+  init(fromGoogleAI out: GoogleAI.CodeExecutionResult.Outcome) {
+    self.rawValue = out.rawValue
+  }
+
+  init(fromAgentPlatform out: AgentPlatform.CodeExecutionResult.Outcome) {
+    self.rawValue = out.rawValue
+  }
+}
+
+extension CodeExecutionResult {
+  func toGoogleAI() -> GoogleAI.CodeExecutionResult {
+    GoogleAI.CodeExecutionResult(
+      outcome: outcome?.toGoogleAI(),
+      output: output
+    )
+  }
+
+  func toAgentPlatform() -> AgentPlatform.CodeExecutionResult {
+    AgentPlatform.CodeExecutionResult(
+      outcome: outcome?.toAgentPlatform(),
+      output: output
+    )
+  }
+
+  init(fromGoogleAI cer: GoogleAI.CodeExecutionResult) {
+    self.output = cer.output
+    self.outcome = cer.outcome.map { CodeExecutionResult.Outcome(fromGoogleAI: $0) }
+  }
+
+  init(fromAgentPlatform cer: AgentPlatform.CodeExecutionResult) {
+    self.output = cer.output
+    self.outcome = cer.outcome.map { CodeExecutionResult.Outcome(fromAgentPlatform: $0) }
   }
 }

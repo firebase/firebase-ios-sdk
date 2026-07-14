@@ -17,13 +17,13 @@ import Foundation
 
 extension AgentPlatform {
   /// Tool to retrieve public maps data for grounding, powered by Google.
-  package struct GoogleMaps: Codable, Sendable, Equatable, Hashable {
+  public struct GoogleMaps: Codable, Sendable, Equatable, Hashable {
     /// Optional. Deprecated: The Google Maps contextual widget behavior in Grounding with Google Maps is being deprecated; this field is planned for removal and no longer has any effect once removed. If true, include the widget context token in the response.
     @available(*, deprecated)
-    package var enableWidget: Bool?
+    public var enableWidget: Bool?
     
     /// Creates a new `GoogleMaps`.
-    package init(
+    public init(
       enableWidget: Bool? = nil
     ) {
       self.enableWidget = enableWidget

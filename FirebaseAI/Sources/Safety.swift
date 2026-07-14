@@ -13,6 +13,8 @@
 // limitations under the License.
 
 import Foundation
+import GoogleAIDataModels
+import AgentPlatformDataModels
 
 /// A type defining potentially harmful media categories and their model-assigned ratings. A value
 /// of this type may be assigned to a category for every model-generated response, not just
@@ -74,7 +76,7 @@ public struct SafetyRating: Equatable, Hashable, Sendable {
   /// The probability that a given model output falls under a harmful content category.
   ///
   /// > Note: This does not indicate the severity of harm for a piece of content.
-  public struct HarmProbability: CodableProtoEnum, Hashable, Sendable {
+  public struct HarmProbability: ProtoEnum, Hashable, Sendable {
     enum Kind: String {
       case unspecified = "HARM_PROBABILITY_UNSPECIFIED"
       case negligible = "NEGLIGIBLE"
@@ -113,7 +115,7 @@ public struct SafetyRating: Equatable, Hashable, Sendable {
   }
 
   /// The magnitude of how harmful a model response might be for the respective ``HarmCategory``.
-  public struct HarmSeverity: CodableProtoEnum, Hashable, Sendable {
+  public struct HarmSeverity: ProtoEnum, Hashable, Sendable {
     enum Kind: String {
       case unspecified = "HARM_SEVERITY_UNSPECIFIED"
       case negligible = "HARM_SEVERITY_NEGLIGIBLE"
@@ -156,7 +158,7 @@ public struct SafetyRating: Equatable, Hashable, Sendable {
 /// more details.
 public struct SafetySetting: Sendable, Hashable {
   /// Block at and beyond a specified ``SafetyRating/HarmProbability``.
-  public struct HarmBlockThreshold: EncodableProtoEnum, Sendable, Hashable {
+  public struct HarmBlockThreshold: ProtoEnum, Sendable, Hashable {
     enum Kind: String {
       case blockLowAndAbove = "BLOCK_LOW_AND_ABOVE"
       case blockMediumAndAbove = "BLOCK_MEDIUM_AND_ABOVE"
@@ -184,7 +186,7 @@ public struct SafetySetting: Sendable, Hashable {
   }
 
   /// The method of computing whether the ``SafetySetting/HarmBlockThreshold`` has been exceeded.
-  public struct HarmBlockMethod: EncodableProtoEnum, Sendable, Hashable {
+  public struct HarmBlockMethod: ProtoEnum, Sendable, Hashable {
     enum Kind: String {
       case severity = "SEVERITY"
       case probability = "PROBABILITY"
@@ -234,7 +236,7 @@ public struct SafetySetting: Sendable, Hashable {
 }
 
 /// Categories describing the potential harm a piece of content may pose.
-public struct HarmCategory: CodableProtoEnum, Hashable, Sendable {
+public struct HarmCategory: ProtoEnum, Hashable, Sendable {
   enum Kind: String {
     case unspecified = "HARM_CATEGORY_UNSPECIFIED"
     case harassment = "HARM_CATEGORY_HARASSMENT"
@@ -272,49 +274,162 @@ public struct HarmCategory: CodableProtoEnum, Hashable, Sendable {
     AILog.MessageCode.generateContentResponseUnrecognizedHarmCategory
 }
 
-// MARK: - Codable Conformances
+// MARK: - Mappings
 
-extension SafetyRating: Decodable {
-  enum CodingKeys: CodingKey {
-    case category
-    case probability
-    case probabilityScore
-    case severity
-    case severityScore
-    case blocked
+extension HarmCategory {
+  func toGoogleAI() -> GoogleAI.SafetySetting.Category {
+    GoogleAI.SafetySetting.Category(rawValue: rawValue)
   }
 
-  public init(from decoder: any Decoder) throws {
-    let container = try decoder.container(keyedBy: CodingKeys.self)
-    category = try container.decodeIfPresent(HarmCategory.self, forKey: .category) ?? .unspecified
-    probability = try container.decodeIfPresent(
-      HarmProbability.self, forKey: .probability
-    ) ?? .unspecified
-
-    // The following 3 fields are only provided when using the Vertex AI backend (not Google AI).
-    probabilityScore = try container.decodeIfPresent(Float.self, forKey: .probabilityScore) ?? 0.0
-    severity = try container.decodeIfPresent(HarmSeverity.self, forKey: .severity) ?? .unspecified
-    severityScore = try container.decodeIfPresent(Float.self, forKey: .severityScore) ?? 0.0
-
-    // The blocked field is only included when true.
-    blocked = try container.decodeIfPresent(Bool.self, forKey: .blocked) ?? false
+  func toAgentPlatform() -> AgentPlatform.SafetySetting.Category {
+    AgentPlatform.SafetySetting.Category(rawValue: rawValue)
   }
-}
 
-extension SafetyRating: Encodable {
-  public func encode(to encoder: any Encoder) throws {
-    var container = encoder.container(keyedBy: CodingKeys.self)
-    try container.encode(category, forKey: .category)
-    try container.encode(probability, forKey: .probability)
-    try container.encode(probabilityScore, forKey: .probabilityScore)
-    try container.encode(severity, forKey: .severity)
-    try container.encode(severityScore, forKey: .severityScore)
-    if blocked {
-      try container.encode(blocked, forKey: .blocked)
-    }
+  init(fromGoogleAI category: GoogleAI.SafetySetting.Category) {
+    self.init(rawValue: category.rawValue)
+  }
+
+  init(fromAgentPlatform category: AgentPlatform.SafetySetting.Category) {
+    self.init(rawValue: category.rawValue)
+  }
+
+  init(fromGoogleAI category: GoogleAI.SafetyRating.Category) {
+    self.init(rawValue: category.rawValue)
+  }
+
+  init(fromAgentPlatform category: AgentPlatform.SafetyRating.Category) {
+    self.init(rawValue: category.rawValue)
   }
 }
 
-extension SafetySetting.HarmBlockThreshold: Encodable {}
+extension SafetySetting.HarmBlockThreshold {
+  func toGoogleAI() -> GoogleAI.SafetySetting.Threshold {
+    GoogleAI.SafetySetting.Threshold(rawValue: rawValue)
+  }
 
-extension SafetySetting: Encodable {}
+  func toAgentPlatform() -> AgentPlatform.SafetySetting.Threshold {
+    AgentPlatform.SafetySetting.Threshold(rawValue: rawValue)
+  }
+
+  init(fromGoogleAI threshold: GoogleAI.SafetySetting.Threshold) {
+    self.init(rawValue: threshold.rawValue)
+  }
+
+  init(fromAgentPlatform threshold: AgentPlatform.SafetySetting.Threshold) {
+    self.init(rawValue: threshold.rawValue)
+  }
+}
+
+extension SafetySetting.HarmBlockMethod {
+  func toGoogleAI() -> String {
+    rawValue
+  }
+
+  func toAgentPlatform() -> AgentPlatform.SafetySetting.Method {
+    AgentPlatform.SafetySetting.Method(rawValue: rawValue)
+  }
+
+  init?(fromAgentPlatform method: AgentPlatform.SafetySetting.Method) {
+    self.init(rawValue: method.rawValue)
+  }
+}
+
+extension SafetySetting {
+  package func toGoogleAI() -> GoogleAI.SafetySetting {
+    GoogleAI.SafetySetting(
+      category: harmCategory.toGoogleAI(),
+      threshold: threshold.toGoogleAI()
+    )
+  }
+
+  package func toAgentPlatform() -> AgentPlatform.SafetySetting {
+    AgentPlatform.SafetySetting(
+      category: harmCategory.toAgentPlatform(),
+      method: method?.toAgentPlatform(),
+      threshold: threshold.toAgentPlatform()
+    )
+  }
+
+  package init(fromGoogleAI setting: GoogleAI.SafetySetting) {
+    self.harmCategory = HarmCategory(fromGoogleAI: setting.category ?? .unspecified)
+    self.threshold = SafetySetting.HarmBlockThreshold(fromGoogleAI: setting.threshold ?? .blockNone)
+    self.method = nil
+  }
+
+  package init(fromAgentPlatform setting: AgentPlatform.SafetySetting) {
+    self.harmCategory = HarmCategory(fromAgentPlatform: setting.category ?? .unspecified)
+    self.threshold = SafetySetting.HarmBlockThreshold(fromAgentPlatform: setting.threshold ?? .blockNone)
+    self.method = setting.method.flatMap { HarmBlockMethod(fromAgentPlatform: $0) }
+  }
+}
+
+extension HarmProbability {
+  func toGoogleAI() -> GoogleAI.SafetyRating.Probability {
+    GoogleAI.SafetyRating.Probability(rawValue: rawValue)
+  }
+
+  func toAgentPlatform() -> AgentPlatform.SafetyRating.Probability {
+    AgentPlatform.SafetyRating.Probability(rawValue: rawValue)
+  }
+
+  init(fromGoogleAI prob: GoogleAI.SafetyRating.Probability) {
+    self.init(rawValue: prob.rawValue)
+  }
+
+  init(fromAgentPlatform prob: AgentPlatform.SafetyRating.Probability) {
+    self.init(rawValue: prob.rawValue)
+  }
+}
+
+extension HarmSeverity {
+  func toGoogleAI() -> GoogleAI.SafetyRating.Severity? {
+    nil
+  }
+
+  func toAgentPlatform() -> AgentPlatform.SafetyRating.Severity {
+    AgentPlatform.SafetyRating.Severity(rawValue: rawValue)
+  }
+
+  init(fromAgentPlatform sev: AgentPlatform.SafetyRating.Severity) {
+    self.init(rawValue: sev.rawValue)
+  }
+}
+
+extension SafetyRating {
+  package init(fromGoogleAI rating: GoogleAI.SafetyRating) {
+    self.category = HarmCategory(fromGoogleAI: rating.category ?? .unspecified)
+    self.probability = HarmProbability(fromGoogleAI: rating.probability ?? .unspecified)
+    self.probabilityScore = 0.0
+    self.severity = .unspecified
+    self.severityScore = 0.0
+    self.blocked = rating.blocked ?? false
+  }
+
+  package init(fromAgentPlatform rating: AgentPlatform.SafetyRating) {
+    self.category = HarmCategory(fromAgentPlatform: rating.category ?? .unspecified)
+    self.probability = HarmProbability(fromAgentPlatform: rating.probability ?? .unspecified)
+    self.probabilityScore = Float(rating.probabilityScore ?? 0.0)
+    self.severity = rating.severity.map { HarmSeverity(fromAgentPlatform: $0) } ?? .unspecified
+    self.severityScore = Float(rating.severityScore ?? 0.0)
+    self.blocked = rating.blocked ?? false
+  }
+
+  package func toGoogleAI() -> GoogleAI.SafetyRating {
+    GoogleAI.SafetyRating(
+      blocked: blocked,
+      category: category.toGoogleAI(),
+      probability: probability.toGoogleAI()
+    )
+  }
+
+  package func toAgentPlatform() -> AgentPlatform.SafetyRating {
+    AgentPlatform.SafetyRating(
+      blocked: blocked,
+      category: category.toAgentPlatform(),
+      probability: probability.toAgentPlatform(),
+      probabilityScore: Double(probabilityScore),
+      severity: severity.toAgentPlatform(),
+      severityScore: Double(severityScore)
+    )
+  }
+}

@@ -16,7 +16,7 @@ import Foundation
 
 extension GoogleAI.ToolResponse {
   /// Required. The type of tool that was called, matching the `tool_type` in the corresponding `ToolCall`.
-  package enum ToolType: Codable, Sendable, Equatable, Hashable {
+  public enum ToolType: Codable, Sendable, Equatable, Hashable {
     /// Google search tool, maps to Tool.google_search.search_types.web_search.
     case googleSearchWeb
     
@@ -42,7 +42,7 @@ extension GoogleAI.ToolResponse {
 // MARK: - RawRepresentable Conformance
 
 extension GoogleAI.ToolResponse.ToolType: RawRepresentable {
-  package var rawValue: String {
+  public var rawValue: String {
     switch self {
     case .googleSearchWeb: "GOOGLE_SEARCH_WEB"
     case .googleSearchImage: "GOOGLE_SEARCH_IMAGE"
@@ -53,7 +53,7 @@ extension GoogleAI.ToolResponse.ToolType: RawRepresentable {
     }
   }
 
-  package init(rawValue: String) {
+  public init(rawValue: String) {
     switch rawValue {
     case "GOOGLE_SEARCH_WEB": self = .googleSearchWeb
     case "GOOGLE_SEARCH_IMAGE": self = .googleSearchImage

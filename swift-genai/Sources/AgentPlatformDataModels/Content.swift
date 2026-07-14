@@ -17,15 +17,15 @@ import Foundation
 
 extension AgentPlatform {
   /// The structured data content of a message. A Content message contains a `role` field, which indicates the producer of the content, and a `parts` field, which contains the multi-part data of the message.
-  package struct Content: Codable, Sendable, Equatable, Hashable {
+  public struct Content: Codable, Sendable, Equatable, Hashable {
     /// Required. A list of Part objects that make up a single message. Parts of a message can have different MIME types. A Content message must have at least one Part.
-    package var parts: [Part]?
+    public var parts: [Part]?
     
     /// Optional. The producer of the content. Must be either 'user' or 'model'. If not set, the service will default to 'user'.
-    package var role: String?
+    public var role: String?
     
     /// Creates a new `Content`.
-    package init(
+    public init(
       parts: [Part]? = nil,
       role: String? = nil
     ) {

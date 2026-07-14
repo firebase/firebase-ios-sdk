@@ -17,18 +17,18 @@ import Foundation
 
 extension AgentPlatform {
   /// Route information from Google Maps.
-  package struct GroundingChunkMapsRoute: Codable, Sendable, Equatable, Hashable {
+  public struct GroundingChunkMapsRoute: Codable, Sendable, Equatable, Hashable {
     /// The total distance of the route, in meters.
-    package var distanceMeters: Int?
+    public var distanceMeters: Int?
     
     /// The total duration of the route.
-    package var duration: Duration?
+    public var duration: Duration?
     
     /// An encoded polyline of the route. See https://developers.google.com/maps/documentation/utilities/polylinealgorithm
-    package var encodedPolyline: String?
+    public var encodedPolyline: String?
     
     /// Creates a new `GroundingChunkMapsRoute`.
-    package init(
+    public init(
       distanceMeters: Int? = nil,
       duration: Duration? = nil,
       encodedPolyline: String? = nil
