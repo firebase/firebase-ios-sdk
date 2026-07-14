@@ -79,7 +79,7 @@ fi
 # Gather all modified files (both staged and unstaged)
 ALL_MODIFIED=()
 while IFS= read -r -d $'\0' file; do
-  [[ -n "$file" ]] && ALL_MODIFIED+=("$file")
+  [[ -n "$file" && -f "$file" ]] && ALL_MODIFIED+=("$file")
 done < <({ git diff -z --name-only --cached --diff-filter=ACMR 2>/dev/null || true; git diff -z --name-only --diff-filter=ACMR 2>/dev/null || true; } | perl -0 -ne 'print unless $seen{$_}++')
 
 if [ ${#ALL_MODIFIED[@]} -eq 0 ]; then
