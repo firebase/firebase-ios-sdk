@@ -22,7 +22,7 @@
 set -e
 
 # Operate on the repository where the command is invoked from
-REPO_ROOT="$PWD"
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 
 # The directory where this pre_commit script lives
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -75,7 +75,7 @@ fi
 ALL_MODIFIED=()
 while IFS= read -r file; do
   [[ -n "$file" ]] && ALL_MODIFIED+=("$file")
-done < <({ git diff --name-only --cached --diff-filter=AM 2>/dev/null || true; git diff --name-only --diff-filter=AM 2>/dev/null || true; } | sort -u)
+done < <({ git diff --name-only --cached --diff-filter=ACMR 2>/dev/null || true; git diff --name-only --diff-filter=ACMR 2>/dev/null || true; } | sort -u)
 
 if [ ${#ALL_MODIFIED[@]} -eq 0 ]; then
   echo "No modified files to check. Exiting cleanly."

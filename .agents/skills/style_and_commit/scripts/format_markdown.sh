@@ -54,7 +54,7 @@ def check_file(filepath):
     in_code_block = False
     in_frontmatter = False
     try:
-        with open(filepath, "r", encoding="utf-8") as f:
+        with open(filepath, "r", encoding="utf-8-sig") as f:
             for i, line in enumerate(f):
                 line = line.rstrip()
 
@@ -80,6 +80,7 @@ def check_file(filepath):
                     has_error = True
     except Exception as e:
         print(f"Could not read {filepath}: {e}")
+        has_error = True
     return has_error
 
 failed = False
