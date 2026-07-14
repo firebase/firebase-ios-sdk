@@ -420,9 +420,9 @@ import Foundation
 
     var components: URLComponents?
     if (auth.requestConfiguration.emulatorHostAndPort) != nil {
-      components = URLComponents(string: "http://\(authDomain)/emulator/auth/handler?")
+      components = URLComponents(string: "http://\(authDomain)/emulator/auth/handler")
     } else {
-      components = URLComponents(string: "https://\(authDomain)/__/auth/handler?")
+      components = URLComponents(string: "https://\(authDomain)/__/auth/handler")
     }
     components?.queryItems = queryItems
 
