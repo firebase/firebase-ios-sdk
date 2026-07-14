@@ -405,10 +405,10 @@ import Foundation
     if let tenantID {
       queryItems.append(URLQueryItem(name: "tid", value: tenantID))
     }
-    if let scopes, scopes.count > 0 {
+    if let scopes, !scopes.isEmpty {
       queryItems.append(URLQueryItem(name: "scopes", value: scopes.joined(separator: ",")))
     }
-    if let customParameters, customParameters.count > 0 {
+    if let customParameters, !customParameters.isEmpty {
       do {
         let customParametersJSONData = try JSONSerialization
           .data(withJSONObject: customParameters)
