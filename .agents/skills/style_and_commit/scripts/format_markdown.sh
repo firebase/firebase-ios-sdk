@@ -46,7 +46,8 @@ done
 echo "Checking for markdown lines exceeding 80 characters..."
 
 # Native Python script to validate line lengths (ignoring code blocks, frontmatter, and links)
-if ! python3 -c '
+if command -v python3 &> /dev/null; then
+  if ! python3 -c '
 import sys, re
 
 def check_file(filepath):
@@ -89,9 +90,12 @@ for filepath in sys.argv[1:]:
         failed = True
 
 sys.exit(1 if failed else 0)
-' "${MD_FILES[@]}"; then
-    echo "Warning: Markdown files contain lines exceeding 80 characters."
-    echo "This is just a warning, but please consider wrapping them."
+  ' "${MD_FILES[@]}"; then
+      echo "Warning: Markdown files contain lines exceeding 80 characters."
+      echo "This is just a warning, but please consider wrapping them."
+  fi
+else
+  echo "Warning: python3 not found. Skipping markdown line length checks."
 fi
 
 echo "Markdown checks passed."
