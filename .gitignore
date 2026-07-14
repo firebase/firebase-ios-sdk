@@ -168,3 +168,5 @@ Firestore/Example/App/GoogleService-Info.plist
 # FirebaseVertexAI test data
 vertexai-sdk-test-data
 
+/ai_metrics.jsonl
+/.agents/MEMORY.md
