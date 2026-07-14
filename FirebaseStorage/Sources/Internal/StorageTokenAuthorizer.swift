@@ -40,7 +40,7 @@ class StorageTokenAuthorizer: NSObject, GTMSessionFetcherAuthorizer {
 
     let isHttps = request?.url?.scheme?.lowercased() == "https"
     let host = request?.url?.host?.lowercased() ?? ""
-    let isLoopback = host == "localhost" || host == "127.0.0.1" || host == "::1"
+    let isLoopback = host == "localhost" || host == "127.0.0.1" || host == "::1" || host == "[::1]"
     let shouldFetchTokens = isHttps || isLoopback
 
     if shouldFetchTokens {

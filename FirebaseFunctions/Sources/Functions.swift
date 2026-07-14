@@ -725,7 +725,7 @@ private extension URL {
   var isSecureOrLoopback: Bool {
     let scheme = scheme?.lowercased()
     let host = host?.lowercased() ?? ""
-    let isLoopback = host == "localhost" || host == "127.0.0.1" || host == "::1"
+    let isLoopback = host == "localhost" || host == "127.0.0.1" || host == "::1" || host == "[::1]"
     return scheme == "https" || isLoopback
   }
 }
