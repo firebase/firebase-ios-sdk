@@ -14,10 +14,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# scripts/ai-infra/format_markdown.sh
+# .agents/skills/style_and_commit/scripts/format_markdown.sh
 #
 # Removes trailing whitespace and checks 80-character limits.
 # STRICTLY operates on the files passed as arguments to prevent PR scope creep.
+
+set -e
 
 FILES=("$@")
 if [ ${#FILES[@]} -eq 0 ]; then

@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# scripts/ai-infra/pre_commit.sh
+# .agents/skills/style_and_commit/scripts/pre_commit.sh
 #
 # Unified script to run all pre-commit formatting and linting tasks.
 # Operates STRICTLY on modified/staged files to prevent PR scope creep.
