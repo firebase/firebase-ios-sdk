@@ -47,13 +47,19 @@ else
   if [ -t 0 ]; then
     # Try to grab tty in case we are deep in a hook
     read -r -p "Please enter the absolute path to your firebase-ios-sdk repository: " INPUT_PATH < /dev/tty || true
-    if [ -f "$INPUT_PATH/scripts/style.sh" ]; then
-      FIREBASE_SDK_DIR="$INPUT_PATH"
-      mkdir -p "$HOME/.gemini/config"
-      echo "$FIREBASE_SDK_DIR" > "$FIREBASE_SDK_CONFIG_FILE"
-      echo "Saved path to $FIREBASE_SDK_CONFIG_FILE for future use."
+    if [ -d "$INPUT_PATH" ]; then
+      ABS_PATH="$(cd "$INPUT_PATH" && pwd)"
+      if [ -f "$ABS_PATH/scripts/style.sh" ]; then
+        FIREBASE_SDK_DIR="$ABS_PATH"
+        mkdir -p "$HOME/.gemini/config"
+        echo "$FIREBASE_SDK_DIR" > "$FIREBASE_SDK_CONFIG_FILE"
+        echo "Saved path to $FIREBASE_SDK_CONFIG_FILE for future use."
+      else
+        echo "Error: Could not find scripts/style.sh in '$INPUT_PATH'."
+        exit 1
+      fi
     else
-      echo "Error: Could not find scripts/style.sh in '$INPUT_PATH'."
+      echo "Error: '$INPUT_PATH' is not a valid directory."
       exit 1
     fi
   else
@@ -69,7 +75,7 @@ fi
 ALL_MODIFIED=()
 while IFS= read -r file; do
   [[ -n "$file" ]] && ALL_MODIFIED+=("$file")
-done < <({ git diff --name-only --cached --diff-filter=AM || true; git diff --name-only --diff-filter=AM || true; } | sort -u)
+done < <({ git diff --name-only --cached --diff-filter=AM 2>/dev/null || true; git diff --name-only --diff-filter=AM 2>/dev/null || true; } | sort -u)
 
 if [ ${#ALL_MODIFIED[@]} -eq 0 ]; then
   echo "No modified files to check. Exiting cleanly."
