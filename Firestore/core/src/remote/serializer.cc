@@ -1515,14 +1515,20 @@ ExistenceFilter Serializer::DecodeExistenceFilter(
 }
 
 bool Serializer::IsLocalResourceName(const ResourcePath& path) const {
-  return IsValidResourceName(path) && path[1] == database_id_.project_id() &&
-         path[3] == database_id_.database_id();
+  // A local document resource name is
+  // `projects/{p}/databases/{d}/documents/...`, so it needs the `documents`
+  // segment in addition to the project and database. Requiring it here keeps
+  // callers that strip the five-segment prefix with `PopFirst(5)` from
+  // asserting on a shorter name such as `projects/{p}/databases/{d}`.
+  return IsValidResourceName(path) && path.size() >= 5 &&
+         path[1] == database_id_.project_id() &&
+         path[3] == database_id_.database_id() && path[4] == "documents";
 }
 
 bool Serializer::IsLocalDocumentKey(absl::string_view path) const {
   auto resource = ResourcePath::FromStringView(path);
-  return IsLocalResourceName(resource) && resource.size() >= 5 &&
-         resource[4] == "documents" && (resource.size() - 5) % 2 == 0;
+  return IsLocalResourceName(resource) &&
+         DocumentKey::IsDocumentKey(resource.PopFirst(5));
 }
 
 api::PipelineSnapshot Serializer::DecodePipelineResponse(

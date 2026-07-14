@@ -405,8 +405,7 @@ ResourcePath BundleSerializer::DecodeName(JsonReader& reader,
   }
   auto path =
       ResourcePath::FromString(document_name.get_ref<const std::string&>());
-  if (!rpc_serializer_.IsLocalResourceName(path) || path.size() < 5 ||
-      path[4] != "documents") {
+  if (!rpc_serializer_.IsLocalResourceName(path)) {
     reader.Fail("Resource name is not valid for current instance: " +
                 path.CanonicalString());
     return {};
