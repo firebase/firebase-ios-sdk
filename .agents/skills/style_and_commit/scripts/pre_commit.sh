@@ -36,8 +36,8 @@ if [ -f "$REPO_ROOT/scripts/style.sh" ]; then
   FIREBASE_SDK_DIR="$REPO_ROOT"
 elif [ -d "$HOME/Developer/firebase-ios-sdk" ] && [ -f "$HOME/Developer/firebase-ios-sdk/scripts/style.sh" ]; then
   FIREBASE_SDK_DIR="$HOME/Developer/firebase-ios-sdk"
-elif [ -f "$FIREBASE_SDK_CONFIG_FILE" ] && [ -f "$(cat "$FIREBASE_SDK_CONFIG_FILE")/scripts/style.sh" ]; then
-  FIREBASE_SDK_DIR="$(cat "$FIREBASE_SDK_CONFIG_FILE")"
+elif [ -f "$FIREBASE_SDK_CONFIG_FILE" ] && SDK_PATH="$(cat "$FIREBASE_SDK_CONFIG_FILE")" && [ -f "$SDK_PATH/scripts/style.sh" ]; then
+  FIREBASE_SDK_DIR="$SDK_PATH"
 else
   echo "========================================"
   echo "Configuration Required"
