@@ -16,31 +16,57 @@ import Foundation
 
 
 extension GeminiDataModels {
-  /// A URI that can be used to flag a place or review for inappropriate content. This is populated only when the grounding source is Google Maps.
+  /// An internal data model for `GroundingMetadataSourceFlaggingUri`.
   /// 
-  /// > Important: This type is only available in the Gemini Enterprise Agent Platform.
+  /// ### Gemini Developer API
+  /// 
+  /// > Important: This type is not supported in the Gemini Developer API.
+  /// 
+  /// ### Gemini Enterprise Agent Platform
+  /// 
+  /// Type: `GoogleCloudAiplatformV1beta1GroundingMetadataSourceFlaggingUri`
+  /// 
+  /// A URI that can be used to flag a place or review for inappropriate
+  /// content. This is populated only when the grounding source is Google Maps.
   package struct GroundingMetadataSourceFlaggingUri: Codable, Sendable, Equatable, Hashable {
-    /// The URI that can be used to flag the content.
-    /// 
-    /// > Important: `flagContentUri` is only available in the Gemini Enterprise Agent Platform.
-    package let flagContentUri: String?
-    
     /// The ID of the place or review.
     /// 
-    /// > Important: `sourceId` is only available in the Gemini Enterprise Agent Platform.
+    /// ### Gemini Developer API
+    /// 
+    /// > Important: This property is not supported in the Gemini Developer API.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// The ID of the place or review.
     package let sourceId: String?
     
+    /// The URI that can be used to flag the content.
+    /// 
+    /// ### Gemini Developer API
+    /// 
+    /// > Important: This property is not supported in the Gemini Developer API.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// The URI that can be used to flag the content.
+    package let flagContentUri: String?
+    
+
     /// Creates a new `GroundingMetadataSourceFlaggingUri`.
+    ///
+    /// - Parameters:
+    ///   - sourceId: The ID of the place or review. (Gemini Enterprise Agent Platform only). For more details, see ``sourceId``.
+    ///   - flagContentUri: The URI that can be used to flag the content. (Gemini Enterprise Agent Platform only). For more details, see ``flagContentUri``.
     package init(
-      flagContentUri: String? = nil,
-      sourceId: String? = nil
+      sourceId: String? = nil,
+      flagContentUri: String? = nil
     ) {
-      self.flagContentUri = flagContentUri
       self.sourceId = sourceId
+      self.flagContentUri = flagContentUri
     }
     enum CodingKeys: String, CodingKey {
-      case flagContentUri = "flagContentUri"
       case sourceId = "sourceId"
+      case flagContentUri = "flagContentUri"
     }
   }
 }

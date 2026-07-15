@@ -16,7 +16,25 @@ import Foundation
 
 
 extension GeminiDataModels {
-  /// An object that represents a latitude/longitude pair. This is expressed as a pair of doubles to represent degrees latitude and degrees longitude. Unless specified otherwise, this object must conform to the WGS84 standard. Values must be within normalized ranges.
+  /// An internal data model for `LatLng`.
+  /// 
+  /// ### Gemini Developer API
+  /// 
+  /// Type: `LatLng`
+  /// 
+  /// An object that represents a latitude/longitude pair. This is expressed as a
+  /// pair of doubles to represent degrees latitude and degrees longitude. Unless
+  /// specified otherwise, this object must conform to the
+  /// WGS84 standard. Values must be within normalized ranges.
+  /// 
+  /// ### Gemini Enterprise Agent Platform
+  /// 
+  /// Type: `LatLng`
+  /// 
+  /// An object that represents a latitude/longitude pair. This is expressed as a
+  /// pair of doubles to represent degrees latitude and degrees longitude. Unless
+  /// specified otherwise, this object must conform to the
+  /// WGS84 standard. Values must be within normalized ranges.
   package struct LatLng: Codable, Sendable, Equatable, Hashable {
     /// The latitude in degrees. It must be in the range [-90.0, +90.0].
     package let latitude: Double?
@@ -24,7 +42,12 @@ extension GeminiDataModels {
     /// The longitude in degrees. It must be in the range [-180.0, +180.0].
     package let longitude: Double?
     
+
     /// Creates a new `LatLng`.
+    ///
+    /// - Parameters:
+    ///   - latitude: The latitude in degrees. It must be in the range [-90.0, +90.0].
+    ///   - longitude: The longitude in degrees. It must be in the range [-180.0, +180.0].
     package init(
       latitude: Double? = nil,
       longitude: Double? = nil

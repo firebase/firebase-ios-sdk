@@ -17,38 +17,76 @@ package import InternalSharedDataModels
 
 
 extension GeminiDataModels {
-  /// A predicted server-side `ToolCall` returned from the model. This message contains information about a tool that the model wants to invoke. The client is NOT expected to execute this `ToolCall`. Instead, the client should pass this `ToolCall` back to the API in a subsequent turn within a `Content` message, along with the corresponding `ToolResponse`.
+  /// An internal data model for `ToolCall`.
   /// 
-  /// > Important: This type is only available in the Gemini Developer API.
+  /// ### Gemini Developer API
+  /// 
+  /// Type: `GoogleAiGenerativelanguageV1betaToolCall`
+  /// 
+  /// A predicted server-side `ToolCall` returned from the model. This message
+  /// contains information about a tool that the model wants to invoke.
+  /// The client is NOT expected to execute this `ToolCall`. Instead, the
+  /// client should pass this `ToolCall` back to the API in a subsequent turn
+  /// within a `Content` message, along with the corresponding `ToolResponse`.
+  /// 
+  /// ### Gemini Enterprise Agent Platform
+  /// 
+  /// > Important: This type is not supported in the Gemini Enterprise Agent Platform.
   package struct ToolCall: Codable, Sendable, Equatable, Hashable {
-    /// Required. The type of tool that was called.
+    /// Optional. Unique identifier of the tool call.
     /// 
-    /// > Important: `toolType` is only available in the Gemini Developer API.
-    package let toolType: ToolType?
-    
-    /// Optional. Unique identifier of the tool call. The server returns the tool response with the matching `id`.
+    /// ### Gemini Developer API
     /// 
-    /// > Important: `id` is only available in the Gemini Developer API.
+    /// Optional. Unique identifier of the tool call.
+    /// The server returns the tool response with the matching `id`.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
     package let id: String?
     
-    /// Optional. The tool call arguments. Example: {"arg1" : "value1", "arg2" : "value2" , ...}
+    /// Required. The type of tool that was called.
     /// 
-    /// > Important: `args` is only available in the Gemini Developer API.
+    /// ### Gemini Developer API
+    /// 
+    /// Required. The type of tool that was called.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
+    package let toolType: ToolType
+    
+    /// Optional. The tool call arguments.
+    /// 
+    /// ### Gemini Developer API
+    /// 
+    /// Optional. The tool call arguments.
+    /// Example: {"arg1" : "value1", "arg2" : "value2" , ...}
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
     package let args: [String: JSONValue]?
     
+
     /// Creates a new `ToolCall`.
+    ///
+    /// - Parameters:
+    ///   - id: Optional. Unique identifier of the tool call. (Gemini Developer API only). For more details, see ``id``.
+    ///   - toolType: Required. The type of tool that was called. (Gemini Developer API only). For more details, see ``toolType``.
+    ///   - args: Optional. The tool call arguments. (Gemini Developer API only). For more details, see ``args``.
     package init(
-      toolType: ToolType? = nil,
       id: String? = nil,
+      toolType: ToolType,
       args: [String: JSONValue]? = nil
     ) {
-      self.toolType = toolType
       self.id = id
+      self.toolType = toolType
       self.args = args
     }
     enum CodingKeys: String, CodingKey {
-      case toolType = "toolType"
       case id = "id"
+      case toolType = "toolType"
       case args = "args"
     }
   }

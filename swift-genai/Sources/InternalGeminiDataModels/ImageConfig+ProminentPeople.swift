@@ -15,9 +15,19 @@
 import Foundation
 
 extension GeminiDataModels.ImageConfig {
-  /// Optional. Controls whether prominent people (celebrities) generation is allowed. If used with personGeneration, personGeneration enum would take precedence. For instance, if ALLOW_NONE is set, all person generation would be blocked. If this field is unspecified, the default behavior is to allow prominent people.
+  /// Optional. Controls whether prominent people (celebrities) generation is allowed. If
   /// 
-  /// > Important: `prominentPeople` is only available in the Gemini Enterprise Agent Platform.
+  /// ### Gemini Developer API
+  /// 
+  /// > Important: This property is not supported in the Gemini Developer API.
+  /// 
+  /// ### Gemini Enterprise Agent Platform
+  /// 
+  /// Optional. Controls whether prominent people (celebrities) generation is allowed. If
+  /// used with personGeneration, personGeneration enum would take precedence.
+  /// For instance, if ALLOW_NONE is set, all person generation would be blocked.
+  /// If this field is unspecified, the default behavior is to allow prominent
+  /// people.
   package enum ProminentPeople: Codable, Sendable, Equatable, Hashable {
     /// Allows the model to generate images of prominent people.
     case allowProminentPeople

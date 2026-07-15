@@ -16,21 +16,49 @@ import Foundation
 
 
 extension GeminiDataModels {
-  /// The configuration for routing the request to a specific model. This can be used to control which model is used for the generation, either automatically or by specifying a model name.
+  /// An internal data model for `GenerationConfigRoutingConfig`.
   /// 
-  /// > Important: This type is only available in the Gemini Enterprise Agent Platform.
+  /// ### Gemini Developer API
+  /// 
+  /// > Important: This type is not supported in the Gemini Developer API.
+  /// 
+  /// ### Gemini Enterprise Agent Platform
+  /// 
+  /// Type: `GoogleCloudAiplatformV1beta1GenerationConfigRoutingConfig`
+  /// 
+  /// The configuration for routing the request to a specific model.
+  /// This can be used to control which model is used for the generation, either
+  /// automatically or by specifying a model name.
   package struct GenerationConfigRoutingConfig: Codable, Sendable, Equatable, Hashable {
-    /// In this mode, the model is selected automatically based on the content of the request.
+    /// In this mode, the model is selected automatically based on the
     /// 
-    /// > Important: `autoMode` is only available in the Gemini Enterprise Agent Platform.
+    /// ### Gemini Developer API
+    /// 
+    /// > Important: This property is not supported in the Gemini Developer API.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// In this mode, the model is selected automatically based on the
+    /// content of the request.
     package let autoMode: GenerationConfigRoutingConfigAutoRoutingMode?
     
     /// In this mode, the model is specified manually.
     /// 
-    /// > Important: `manualMode` is only available in the Gemini Enterprise Agent Platform.
+    /// ### Gemini Developer API
+    /// 
+    /// > Important: This property is not supported in the Gemini Developer API.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// In this mode, the model is specified manually.
     package let manualMode: GenerationConfigRoutingConfigManualRoutingMode?
     
+
     /// Creates a new `GenerationConfigRoutingConfig`.
+    ///
+    /// - Parameters:
+    ///   - autoMode: In this mode, the model is selected automatically based on the (Gemini Enterprise Agent Platform only). For more details, see ``autoMode``.
+    ///   - manualMode: In this mode, the model is specified manually. (Gemini Enterprise Agent Platform only). For more details, see ``manualMode``.
     package init(
       autoMode: GenerationConfigRoutingConfigAutoRoutingMode? = nil,
       manualMode: GenerationConfigRoutingConfigManualRoutingMode? = nil

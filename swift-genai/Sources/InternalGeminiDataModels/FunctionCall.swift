@@ -17,59 +17,114 @@ package import InternalSharedDataModels
 
 
 extension GeminiDataModels {
-  /// An element in the history the represents the model asking the client to invoke a client-side function.
+  /// An internal data model for `FunctionCall`.
   /// 
-  /// Variant:
-  /// A predicted FunctionCall returned from the model that contains a string representing the FunctionDeclaration.name and a structured JSON object containing the parameters and their values.
+  /// ### Gemini Developer API
+  /// 
+  /// Type: `FunctionCall`
+  /// 
+  /// An element in the history the represents the model asking the client to
+  /// invoke a client-side function.
+  /// 
+  /// ### Gemini Enterprise Agent Platform
+  /// 
+  /// Type: `GoogleCloudAiplatformV1beta1FunctionCall`
+  /// 
+  /// A predicted FunctionCall returned from the model that
+  /// contains a string representing the FunctionDeclaration.name and
+  /// a structured JSON object containing the parameters and their values.
   package struct FunctionCall: Codable, Sendable, Equatable, Hashable {
-    /// Required. The name of the function to be invoked.
+    /// Required. ID of the individual function invocation assigned by the model when it
     /// 
-    /// Variant:
-    /// Optional. The name of the function to call. Matches FunctionDeclaration.name.
-    package let name: String?
-    
-    /// Optional. The partial argument value of the function call. If provided, represents the arguments/fields that are streamed incrementally.
+    /// ### Gemini Developer API
     /// 
-    /// > Important: `partialArgs` is only available in the Gemini Enterprise Agent Platform.
-    package let partialArgs: [PartialArg]?
-    
-    /// Required. ID of the individual function invocation assigned by the model when it requests the function invocation.
+    /// Required. ID of the individual function invocation assigned by the model when it
+    /// requests the function invocation.
     /// 
-    /// Variant:
-    /// Optional. The unique id of the function call. If populated, the client to execute the `function_call` and return the response with the matching `id`.
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// Optional. The unique id of the function call. If populated, the client to execute the
+    /// `function_call` and return the response with the matching `id`.
     package let id: String?
     
-    /// Optional. Whether this is the last part of the FunctionCall. If true, another partial message for the current FunctionCall is expected to follow.
+    /// Required. The name of the function to be invoked.
     /// 
-    /// > Important: `willContinue` is only available in the Gemini Enterprise Agent Platform.
-    package let willContinue: Bool?
+    /// ### Gemini Developer API
+    /// 
+    /// Required. The name of the function to be invoked.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// Optional. The name of the function to call.
+    /// Matches FunctionDeclaration.name.
+    package let name: String
     
     /// Optional. Inputs to the function passed by the model
     /// 
-    /// Variant:
-    /// Optional. The function parameters and values in JSON object format. See FunctionDeclaration.parameters for parameter details.
+    /// ### Gemini Developer API
+    /// 
+    /// Optional. Inputs to the function passed by the model
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// Optional. The function parameters and values in JSON object format.
+    /// See FunctionDeclaration.parameters for parameter details.
     package let args: [String: JSONValue]?
     
+    /// Optional. The partial argument value of the function call.
+    /// 
+    /// ### Gemini Developer API
+    /// 
+    /// > Important: This property is not supported in the Gemini Developer API.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// Optional. The partial argument value of the function call.
+    /// If provided, represents the arguments/fields that are streamed
+    /// incrementally.
+    package let partialArgs: [PartialArg]?
+    
+    /// Optional. Whether this is the last part of the FunctionCall.
+    /// 
+    /// ### Gemini Developer API
+    /// 
+    /// > Important: This property is not supported in the Gemini Developer API.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// Optional. Whether this is the last part of the FunctionCall.
+    /// If true, another partial message for the current FunctionCall is expected
+    /// to follow.
+    package let willContinue: Bool?
+    
+
     /// Creates a new `FunctionCall`.
+    ///
+    /// - Parameters:
+    ///   - id: Required. ID of the individual function invocation assigned by the model when it (behavior varies by backend). For more details, see ``id``.
+    ///   - name: Required. The name of the function to be invoked. (behavior varies by backend). For more details, see ``name``.
+    ///   - args: Optional. Inputs to the function passed by the model (behavior varies by backend). For more details, see ``args``.
+    ///   - partialArgs: Optional. The partial argument value of the function call. (Gemini Enterprise Agent Platform only). For more details, see ``partialArgs``.
+    ///   - willContinue: Optional. Whether this is the last part of the FunctionCall. (Gemini Enterprise Agent Platform only). For more details, see ``willContinue``.
     package init(
-      name: String? = nil,
-      partialArgs: [PartialArg]? = nil,
       id: String? = nil,
-      willContinue: Bool? = nil,
-      args: [String: JSONValue]? = nil
+      name: String,
+      args: [String: JSONValue]? = nil,
+      partialArgs: [PartialArg]? = nil,
+      willContinue: Bool? = nil
     ) {
-      self.name = name
-      self.partialArgs = partialArgs
       self.id = id
-      self.willContinue = willContinue
+      self.name = name
       self.args = args
+      self.partialArgs = partialArgs
+      self.willContinue = willContinue
     }
     enum CodingKeys: String, CodingKey {
-      case name = "name"
-      case partialArgs = "partialArgs"
       case id = "id"
-      case willContinue = "willContinue"
+      case name = "name"
       case args = "args"
+      case partialArgs = "partialArgs"
+      case willContinue = "willContinue"
     }
   }
 }

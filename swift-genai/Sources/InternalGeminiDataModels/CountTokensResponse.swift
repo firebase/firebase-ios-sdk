@@ -16,25 +16,43 @@ import Foundation
 
 
 extension GeminiDataModels {
-  /// A response from `CountTokens`. It returns the model's `token_count` for the `prompt`.
+  /// An internal data model for `CountTokensResponse`.
   /// 
-  /// Variant:
+  /// ### Gemini Developer API
+  /// 
+  /// Type: `GoogleAiGenerativelanguageV1betaCountTokensResponse`
+  /// 
+  /// A response from `CountTokens`.
+  /// 
+  /// It returns the model's `token_count` for the `prompt`.
+  /// 
+  /// ### Gemini Enterprise Agent Platform
+  /// 
+  /// Type: `GoogleCloudAiplatformV1beta1CountTokensResponse`
+  /// 
   /// Response message for PredictionService.CountTokens.
   package struct CountTokensResponse: Codable, Sendable, Equatable, Hashable {
-    /// The total number of billable characters counted across all instances from the request.
+    /// The number of tokens that the `Model` tokenizes the `prompt` into. Always
     /// 
-    /// > Important: `totalBillableCharacters` is only available in the Gemini Enterprise Agent Platform.
-    package let totalBillableCharacters: Int?
-    
-    /// The number of tokens that the `Model` tokenizes the `prompt` into. Always non-negative.
+    /// ### Gemini Developer API
     /// 
-    /// Variant:
+    /// The number of tokens that the `Model` tokenizes the `prompt` into. Always
+    /// non-negative.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
     /// The total number of tokens counted across all instances from the request.
     package let totalTokens: Int?
     
     /// Number of tokens in the cached part of the prompt (the cached content).
     /// 
-    /// > Important: `cachedContentTokenCount` is only available in the Gemini Developer API.
+    /// ### Gemini Developer API
+    /// 
+    /// Number of tokens in the cached part of the prompt (the cached content).
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
     package let cachedContentTokenCount: Int?
     
     /// Output only. List of modalities that were processed in the request input.
@@ -42,29 +60,55 @@ extension GeminiDataModels {
     
     /// Output only. List of modalities that were processed in the cached content.
     /// 
-    /// > Important: `cacheTokensDetails` is only available in the Gemini Developer API.
+    /// ### Gemini Developer API
+    /// 
+    /// Output only. List of modalities that were processed in the cached content.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
     package let cacheTokensDetails: [ModalityTokenCount]?
     
+    /// The total number of billable characters counted across all instances from
+    /// 
+    /// ### Gemini Developer API
+    /// 
+    /// > Important: This property is not supported in the Gemini Developer API.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// The total number of billable characters counted across all instances from
+    /// the request.
+    package let totalBillableCharacters: Int?
+    
+
     /// Creates a new `CountTokensResponse`.
+    ///
+    /// - Parameters:
+    ///   - totalTokens: The number of tokens that the `Model` tokenizes the `prompt` into. Always (behavior varies by backend). For more details, see ``totalTokens``.
+    ///   - cachedContentTokenCount: Number of tokens in the cached part of the prompt (the cached content). (Gemini Developer API only). For more details, see ``cachedContentTokenCount``.
+    ///   - promptTokensDetails: Output only. List of modalities that were processed in the request input.
+    ///   - cacheTokensDetails: Output only. List of modalities that were processed in the cached content. (Gemini Developer API only). For more details, see ``cacheTokensDetails``.
+    ///   - totalBillableCharacters: The total number of billable characters counted across all instances from (Gemini Enterprise Agent Platform only). For more details, see ``totalBillableCharacters``.
     package init(
-      totalBillableCharacters: Int? = nil,
       totalTokens: Int? = nil,
       cachedContentTokenCount: Int? = nil,
       promptTokensDetails: [ModalityTokenCount]? = nil,
-      cacheTokensDetails: [ModalityTokenCount]? = nil
+      cacheTokensDetails: [ModalityTokenCount]? = nil,
+      totalBillableCharacters: Int? = nil
     ) {
-      self.totalBillableCharacters = totalBillableCharacters
       self.totalTokens = totalTokens
       self.cachedContentTokenCount = cachedContentTokenCount
       self.promptTokensDetails = promptTokensDetails
       self.cacheTokensDetails = cacheTokensDetails
+      self.totalBillableCharacters = totalBillableCharacters
     }
     enum CodingKeys: String, CodingKey {
-      case totalBillableCharacters = "totalBillableCharacters"
       case totalTokens = "totalTokens"
       case cachedContentTokenCount = "cachedContentTokenCount"
       case promptTokensDetails = "promptTokensDetails"
       case cacheTokensDetails = "cacheTokensDetails"
+      case totalBillableCharacters = "totalBillableCharacters"
     }
   }
 }

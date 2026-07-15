@@ -17,7 +17,13 @@ import Foundation
 extension GeminiDataModels.SafetyRating {
   /// Output only. The severity of harm for this category.
   /// 
-  /// > Important: `severity` is only available in the Gemini Enterprise Agent Platform.
+  /// ### Gemini Developer API
+  /// 
+  /// > Important: This property is not supported in the Gemini Developer API.
+  /// 
+  /// ### Gemini Enterprise Agent Platform
+  /// 
+  /// Output only. The severity of harm for this category.
   package enum Severity: Codable, Sendable, Equatable, Hashable {
     /// The harm severity is negligible.
     case negligible

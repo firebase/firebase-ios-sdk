@@ -14,11 +14,17 @@
 
 import Foundation
 
-extension GeminiDataModels.ExecutableCode {
-  /// Required. Programming language of the `code`.
-  package enum Language: Codable, Sendable, Equatable, Hashable {
-    /// Python >= 3.10, with numpy and simpy available. Python is the default language.
-    case python
+extension GeminiDataModels.ComputerUse {
+  /// Required. The environment being operated.
+  package enum Environment: Codable, Sendable, Equatable, Hashable {
+    /// Operates in a web browser.
+    case browser
+    
+    /// Operates in a mobile environment.
+    case mobile
+    
+    /// Operates in a desktop environment.
+    case desktop
     
     /// Unrecognized case.
     ///
@@ -29,17 +35,21 @@ extension GeminiDataModels.ExecutableCode {
 
 // MARK: - RawRepresentable Conformance
 
-extension GeminiDataModels.ExecutableCode.Language: RawRepresentable {
+extension GeminiDataModels.ComputerUse.Environment: RawRepresentable {
   package var rawValue: String {
     switch self {
-    case .python: "PYTHON"
+    case .browser: "ENVIRONMENT_BROWSER"
+    case .mobile: "ENVIRONMENT_MOBILE"
+    case .desktop: "ENVIRONMENT_DESKTOP"
     case .unrecognized(let value): value
     }
   }
 
   package init(rawValue: String) {
     switch rawValue {
-    case "PYTHON": self = .python
+    case "ENVIRONMENT_BROWSER": self = .browser
+    case "ENVIRONMENT_MOBILE": self = .mobile
+    case "ENVIRONMENT_DESKTOP": self = .desktop
     default: self = .unrecognized(rawValue)
     }
   }

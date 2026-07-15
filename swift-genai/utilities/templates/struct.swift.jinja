@@ -46,24 +46,121 @@ extension {{ namespace }} {
     {%- if prop.is_deprecated %}
     @available(*, deprecated)
     {%- endif %}
-    {{ access_level }} let {{ prop.swift_name }}: {{ prop.swift_type }}?
+    {{ access_level }} let {{ prop.swift_name }}: {{ prop.swift_type }}{% if not prop.is_required %}?{% endif %}
     {% endfor %}
+    {%- if has_oneof %}
+    {{ access_level }} enum {{ oneof_name }}: Sendable, Equatable, Hashable {
+      {%- for prop in oneof_properties %}
+      case {{ prop.swift_name }}({{ prop.swift_type }})
+      {%- endfor %}
+      case unrecognized([String: JSONValue])
+    }
+
+    {{ access_level }} let data: {{ oneof_name }}?
+    {%- endif %}
+
     /// Creates a new `{{ name }}`.
+    ///
+    {%- if properties or has_oneof %}
+    /// - Parameters:
+    {%- for prop in properties %}
+    ///   - {{ prop.swift_name }}: {{ prop.init_description | replace('\n', '\n    ///     ') }}
+    {%- endfor %}
+    {%- if has_oneof %}
+    ///   - data: One of the oneof data variants.
+    {%- endif %}
+    {%- endif %}
     {{ access_level }} init(
+      {%- if has_oneof %}
+      data: {{ oneof_name }}? = nil{% if properties %},{% endif %}
+      {%- endif %}
       {%- for prop in properties %}
-      {{ prop.swift_name }}: {{ prop.swift_type }}? = nil{% if not loop.last %},{% endif %}
+      {{ prop.swift_name }}: {{ prop.swift_type }}{% if not prop.is_required %}? = nil{% endif %}{% if not loop.last %},{% endif %}
       {%- endfor %}
     ) {
+      {%- if has_oneof %}
+      self.data = data
+      {%- endif %}
       {%- for prop in properties %}
       self.{{ prop.swift_name }} = {{ prop.swift_name }}
       {%- endfor %}
     }
 
-    {%- if properties %}
+    {%- if properties or has_oneof %}
     enum CodingKeys: String, CodingKey {
       {%- for prop in properties %}
       case {{ prop.swift_name }} = "{{ prop.json_name }}"
       {%- endfor %}
+      {%- if has_oneof %}
+      {%- for prop in oneof_properties %}
+      case {{ prop.swift_name }} = "{{ prop.json_name }}"
+      {%- endfor %}
+      {%- endif %}
+    }
+    {%- endif %}
+
+    {%- if has_oneof %}
+    private struct DynamicCodingKey: CodingKey {
+      var stringValue: String
+      var intValue: Int? { nil }
+      init?(stringValue: String) { self.stringValue = stringValue }
+      init?(intValue: Int) { nil }
+    }
+
+    {{ access_level }} init(from decoder: Decoder) throws {
+      let container = try decoder.container(keyedBy: CodingKeys.self)
+      {%- for prop in properties %}
+      {%- if prop.is_required %}
+      self.{{ prop.swift_name }} = try container.decode({{ prop.swift_type }}.self, forKey: .{{ prop.swift_name }})
+      {%- else %}
+      self.{{ prop.swift_name }} = try container.decodeIfPresent({{ prop.swift_type }}.self, forKey: .{{ prop.swift_name }})
+      {%- endif %}
+      {%- endfor %}
+
+      if false {
+        self.data = nil
+      }
+      {%- for prop in oneof_properties %}
+      else if let {{ prop.swift_name }} = try container.decodeIfPresent({{ prop.swift_type }}.self, forKey: .{{ prop.swift_name }}) {
+        self.data = .{{ prop.swift_name }}({{ prop.swift_name }})
+      }
+      {%- endfor %}
+      else {
+        let dynamicContainer = try decoder.container(keyedBy: DynamicCodingKey.self)
+        var unrecognizedFields = [String: JSONValue]()
+        for key in dynamicContainer.allKeys {
+          if CodingKeys(stringValue: key.stringValue) == nil,
+             let value = try? dynamicContainer.decode(JSONValue.self, forKey: key) {
+            unrecognizedFields[key.stringValue] = value
+          }
+        }
+        self.data = unrecognizedFields.isEmpty ? nil : .unrecognized(unrecognizedFields)
+      }
+    }
+
+    {{ access_level }} func encode(to encoder: Encoder) throws {
+      var container = encoder.container(keyedBy: CodingKeys.self)
+      {%- for prop in properties %}
+      {%- if prop.is_required %}
+      try container.encode({{ prop.swift_name }}, forKey: .{{ prop.swift_name }})
+      {%- else %}
+      try container.encodeIfPresent({{ prop.swift_name }}, forKey: .{{ prop.swift_name }})
+      {%- endif %}
+      {%- endfor %}
+
+      switch data {
+      case .none: break
+      {%- for prop in oneof_properties %}
+      case let .{{ prop.swift_name }}(val): try container.encode(val, forKey: .{{ prop.swift_name }})
+      {%- endfor %}
+      case let .unrecognized(unrecognizedFields):
+        var dynamicContainer = encoder.container(keyedBy: DynamicCodingKey.self)
+        for (key, value) in unrecognizedFields {
+          if let codingKey = DynamicCodingKey(stringValue: key) {
+            try dynamicContainer.encode(value, forKey: codingKey)
+          }
+        }
+      }
     }
     {%- endif %}
   }

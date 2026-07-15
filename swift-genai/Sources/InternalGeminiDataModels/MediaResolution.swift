@@ -16,12 +16,38 @@ import Foundation
 
 
 extension GeminiDataModels {
+  /// An internal data model for `MediaResolution`.
+  /// 
+  /// ### Gemini Developer API
+  /// 
+  /// Type: `MediaResolution`
+  /// 
   /// Media resolution for tokenization.
+  /// 
+  /// ### Gemini Enterprise Agent Platform
+  /// 
+  /// Type: `GoogleCloudAiplatformV1beta1PartMediaResolution`
+  /// 
+  /// per part media resolution.
+  /// Media resolution for the input media.
   package struct MediaResolution: Codable, Sendable, Equatable, Hashable {
-    /// The tokenization quality used for given media. for Gemini API support .
+    /// The tokenization quality used for given media.
+    /// 
+    /// ### Gemini Developer API
+    /// 
+    /// The tokenization quality used for given media.
+    ///  for Gemini API support .
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// The tokenization quality used for given media.
     package let level: Level?
     
+
     /// Creates a new `MediaResolution`.
+    ///
+    /// - Parameters:
+    ///   - level: The tokenization quality used for given media. (behavior varies by backend). For more details, see ``level``.
     package init(
       level: Level? = nil
     ) {

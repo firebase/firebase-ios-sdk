@@ -16,31 +16,59 @@ import Foundation
 
 
 extension GeminiDataModels {
+  /// An internal data model for `TranslationConfig`.
+  /// 
+  /// ### Gemini Developer API
+  /// 
+  /// Type: `GoogleAiGenerativelanguageV1betaTranslationConfig`
+  /// 
   /// Config for translation features.
   /// 
-  /// > Important: This type is only available in the Gemini Developer API.
+  /// ### Gemini Enterprise Agent Platform
+  /// 
+  /// > Important: This type is not supported in the Gemini Enterprise Agent Platform.
   package struct TranslationConfig: Codable, Sendable, Equatable, Hashable {
-    /// Required. The target language for translation. Supported values are BCP-47 language codes (e.g. "en", "es", "fr").
+    /// Optional. If true, the model will generate audio when the target language is spoken,
     /// 
-    /// > Important: `targetLanguageCode` is only available in the Gemini Developer API.
-    package let targetLanguageCode: String?
-    
-    /// Optional. If true, the model will generate audio when the target language is spoken, essentially it will parrot the input. If false, we will not produce audio for the target language.
+    /// ### Gemini Developer API
     /// 
-    /// > Important: `echoTargetLanguage` is only available in the Gemini Developer API.
+    /// Optional. If true, the model will generate audio when the target language is spoken,
+    /// essentially it will parrot the input. If false, we will not produce audio
+    /// for the target language.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
     package let echoTargetLanguage: Bool?
     
+    /// Required. The target language for translation. Supported values are BCP-47 language
+    /// 
+    /// ### Gemini Developer API
+    /// 
+    /// Required. The target language for translation. Supported values are BCP-47 language
+    /// codes (e.g. "en", "es", "fr").
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
+    package let targetLanguageCode: String
+    
+
     /// Creates a new `TranslationConfig`.
+    ///
+    /// - Parameters:
+    ///   - echoTargetLanguage: Optional. If true, the model will generate audio when the target language is spoken, (Gemini Developer API only). For more details, see ``echoTargetLanguage``.
+    ///   - targetLanguageCode: Required. The target language for translation. Supported values are BCP-47 language (Gemini Developer API only). For more details, see ``targetLanguageCode``.
     package init(
-      targetLanguageCode: String? = nil,
-      echoTargetLanguage: Bool? = nil
+      echoTargetLanguage: Bool? = nil,
+      targetLanguageCode: String
     ) {
-      self.targetLanguageCode = targetLanguageCode
       self.echoTargetLanguage = echoTargetLanguage
+      self.targetLanguageCode = targetLanguageCode
     }
     enum CodingKeys: String, CodingKey {
-      case targetLanguageCode = "targetLanguageCode"
       case echoTargetLanguage = "echoTargetLanguage"
+      case targetLanguageCode = "targetLanguageCode"
     }
   }
 }

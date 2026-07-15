@@ -16,21 +16,50 @@ import Foundation
 
 
 extension GeminiDataModels {
-  /// The configuration for the replicated voice to use.
+  /// An internal data model for `ReplicatedVoiceConfig`.
   /// 
-  /// > Important: This type is only available in the Gemini Enterprise Agent Platform.
+  /// ### Gemini Developer API
+  /// 
+  /// > Important: This type is not supported in the Gemini Developer API.
+  /// 
+  /// ### Gemini Enterprise Agent Platform
+  /// 
+  /// Type: `GoogleCloudAiplatformV1beta1ReplicatedVoiceConfig`
+  /// 
+  /// The configuration for the replicated voice to use.
   package struct ReplicatedVoiceConfig: Codable, Sendable, Equatable, Hashable {
-    /// Optional. The mimetype of the voice sample. The only currently supported value is `audio/wav`. This represents 16-bit signed little-endian wav data, with a 24kHz sampling rate. `mime_type` will default to `audio/wav` if not set.
+    /// Optional. The mimetype of the voice sample. The only currently supported value is
     /// 
-    /// > Important: `mimeType` is only available in the Gemini Enterprise Agent Platform.
+    /// ### Gemini Developer API
+    /// 
+    /// > Important: This property is not supported in the Gemini Developer API.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// Optional. The mimetype of the voice sample. The only currently supported value is
+    /// `audio/wav`.
+    /// This represents 16-bit signed little-endian wav data, with a 24kHz
+    /// sampling rate.
+    /// `mime_type` will default to `audio/wav` if not set.
     package let mimeType: String?
     
     /// Optional. The sample of the custom voice.
     /// 
-    /// > Important: `voiceSampleAudio` is only available in the Gemini Enterprise Agent Platform.
+    /// ### Gemini Developer API
+    /// 
+    /// > Important: This property is not supported in the Gemini Developer API.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// Optional. The sample of the custom voice.
     package let voiceSampleAudio: String?
     
+
     /// Creates a new `ReplicatedVoiceConfig`.
+    ///
+    /// - Parameters:
+    ///   - mimeType: Optional. The mimetype of the voice sample. The only currently supported value is (Gemini Enterprise Agent Platform only). For more details, see ``mimeType``.
+    ///   - voiceSampleAudio: Optional. The sample of the custom voice. (Gemini Enterprise Agent Platform only). For more details, see ``voiceSampleAudio``.
     package init(
       mimeType: String? = nil,
       voiceSampleAudio: String? = nil

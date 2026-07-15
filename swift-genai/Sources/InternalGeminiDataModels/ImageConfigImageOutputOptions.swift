@@ -16,21 +16,46 @@ import Foundation
 
 
 extension GeminiDataModels {
-  /// The image output format for generated images.
+  /// An internal data model for `ImageConfigImageOutputOptions`.
   /// 
-  /// > Important: This type is only available in the Gemini Enterprise Agent Platform.
+  /// ### Gemini Developer API
+  /// 
+  /// > Important: This type is not supported in the Gemini Developer API.
+  /// 
+  /// ### Gemini Enterprise Agent Platform
+  /// 
+  /// Type: `GoogleCloudAiplatformV1beta1ImageConfigImageOutputOptions`
+  /// 
+  /// The image output format for generated images.
   package struct ImageConfigImageOutputOptions: Codable, Sendable, Equatable, Hashable {
     /// Optional. The image format that the output should be saved as.
     /// 
-    /// > Important: `mimeType` is only available in the Gemini Enterprise Agent Platform.
+    /// ### Gemini Developer API
+    /// 
+    /// > Important: This property is not supported in the Gemini Developer API.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// Optional. The image format that the output should be saved as.
     package let mimeType: String?
     
     /// Optional. The compression quality of the output image.
     /// 
-    /// > Important: `compressionQuality` is only available in the Gemini Enterprise Agent Platform.
+    /// ### Gemini Developer API
+    /// 
+    /// > Important: This property is not supported in the Gemini Developer API.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// Optional. The compression quality of the output image.
     package let compressionQuality: Int?
     
+
     /// Creates a new `ImageConfigImageOutputOptions`.
+    ///
+    /// - Parameters:
+    ///   - mimeType: Optional. The image format that the output should be saved as. (Gemini Enterprise Agent Platform only). For more details, see ``mimeType``.
+    ///   - compressionQuality: Optional. The compression quality of the output image. (Gemini Enterprise Agent Platform only). For more details, see ``compressionQuality``.
     package init(
       mimeType: String? = nil,
       compressionQuality: Int? = nil

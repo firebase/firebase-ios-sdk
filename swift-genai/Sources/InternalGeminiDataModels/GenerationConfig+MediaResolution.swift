@@ -17,8 +17,18 @@ import Foundation
 extension GeminiDataModels.GenerationConfig {
   /// Optional. If specified, the media resolution specified will be used.
   /// 
-  /// Variant:
-  /// Optional. The token resolution at which input media content is sampled. This is used to control the trade-off between the quality of the response and the number of tokens used to represent the media. A higher resolution allows the model to perceive more detail, which can lead to a more nuanced response, but it will also use more tokens. This does not affect the image dimensions sent to the model.
+  /// ### Gemini Developer API
+  /// 
+  /// Optional. If specified, the media resolution specified will be used.
+  /// 
+  /// ### Gemini Enterprise Agent Platform
+  /// 
+  /// Optional. The token resolution at which input media content is sampled. This is
+  /// used to control the trade-off between the quality of the response and the
+  /// number of tokens used to represent the media. A higher resolution allows
+  /// the model to perceive more detail, which can lead to a more nuanced
+  /// response, but it will also use more tokens. This does not affect the
+  /// image dimensions sent to the model.
   package enum MediaResolution: Codable, Sendable, Equatable, Hashable {
     /// Media resolution set to low (64 tokens).
     case low

@@ -14,22 +14,22 @@
 
 import Foundation
 
-extension GeminiDataModels.UsageMetadata {
-  /// Output only. Service tier of the request.
+extension GeminiDataModels.ExternalApi {
+  /// The API spec that the external API implements.
   /// 
-  /// > Important: `serviceTier` is only available in the Gemini Developer API.
-  package enum ServiceTier: Codable, Sendable, Equatable, Hashable {
-    /// Default service tier, which is standard.
-    case unspecified
+  /// ### Gemini Developer API
+  /// 
+  /// > Important: This property is not supported in the Gemini Developer API.
+  /// 
+  /// ### Gemini Enterprise Agent Platform
+  /// 
+  /// The API spec that the external API implements.
+  package enum ApiSpec: Codable, Sendable, Equatable, Hashable {
+    /// Simple search API spec.
+    case simpleSearch
     
-    /// Standard service tier.
-    case standard
-    
-    /// Flex service tier.
-    case flex
-    
-    /// Priority service tier.
-    case priority
+    /// Elastic search API spec.
+    case elasticSearch
     
     /// Unrecognized case.
     ///
@@ -40,23 +40,19 @@ extension GeminiDataModels.UsageMetadata {
 
 // MARK: - RawRepresentable Conformance
 
-extension GeminiDataModels.UsageMetadata.ServiceTier: RawRepresentable {
+extension GeminiDataModels.ExternalApi.ApiSpec: RawRepresentable {
   package var rawValue: String {
     switch self {
-    case .unspecified: "unspecified"
-    case .standard: "standard"
-    case .flex: "flex"
-    case .priority: "priority"
+    case .simpleSearch: "SIMPLE_SEARCH"
+    case .elasticSearch: "ELASTIC_SEARCH"
     case .unrecognized(let value): value
     }
   }
 
   package init(rawValue: String) {
     switch rawValue {
-    case "unspecified": self = .unspecified
-    case "standard": self = .standard
-    case "flex": self = .flex
-    case "priority": self = .priority
+    case "SIMPLE_SEARCH": self = .simpleSearch
+    case "ELASTIC_SEARCH": self = .elasticSearch
     default: self = .unrecognized(rawValue)
     }
   }

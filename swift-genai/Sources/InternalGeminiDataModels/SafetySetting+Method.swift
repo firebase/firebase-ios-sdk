@@ -15,9 +15,16 @@
 import Foundation
 
 extension GeminiDataModels.SafetySetting {
-  /// Optional. The method for blocking content. If not specified, the default behavior is to use the probability score.
+  /// Optional. The method for blocking content. If not specified, the default
   /// 
-  /// > Important: `method` is only available in the Gemini Enterprise Agent Platform.
+  /// ### Gemini Developer API
+  /// 
+  /// > Important: This property is not supported in the Gemini Developer API.
+  /// 
+  /// ### Gemini Enterprise Agent Platform
+  /// 
+  /// Optional. The method for blocking content. If not specified, the default
+  /// behavior is to use the probability score.
   package enum Method: Codable, Sendable, Equatable, Hashable {
     /// The harm block method uses both probability and severity scores.
     case severity

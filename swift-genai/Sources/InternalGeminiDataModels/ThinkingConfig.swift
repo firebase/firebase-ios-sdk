@@ -16,43 +16,90 @@ import Foundation
 
 
 extension GeminiDataModels {
+  /// An internal data model for `ThinkingConfig`.
+  /// 
+  /// ### Gemini Developer API
+  /// 
+  /// Type: `GoogleAiGenerativelanguageV1betaThinkingConfig`
+  /// 
   /// Config for thinking features.
   /// 
-  /// Variant:
-  /// Configuration for the model's thinking features. "Thinking" is a process where the model breaks down a complex task into smaller, manageable steps. This allows the model to reason about the task, plan its approach, and execute the plan to generate a high-quality response.
+  /// ### Gemini Enterprise Agent Platform
+  /// 
+  /// Type: `GoogleCloudAiplatformV1beta1GenerationConfigThinkingConfig`
+  /// 
+  /// Configuration for the model's thinking features.
+  /// 
+  /// "Thinking" is a process where the model breaks down a complex task into
+  /// smaller, manageable steps. This allows the model to reason about the task,
+  /// plan its approach, and execute the plan to generate a high-quality
+  /// response.
   package struct ThinkingConfig: Codable, Sendable, Equatable, Hashable {
-    /// Optional. Controls the maximum depth of the model's internal reasoning process before it produces a response. The default value is model-dependent. Refer to the [Thinking levels guide](https://ai.google.dev/gemini-api/docs/thinking#thinking-levels) for more details. Recommended for Gemini 3 or later models. Use with earlier models results in an error.
+    /// Indicates whether to include thoughts in the response.
     /// 
-    /// Variant:
-    /// Optional. The number of thoughts tokens that the model should generate.
-    package let thinkingLevel: ThinkingLevel?
-    
-    /// Indicates whether to include thoughts in the response. If true, thoughts are returned only when available.
+    /// ### Gemini Developer API
     /// 
-    /// Variant:
-    /// Optional. If true, the model will include its thoughts in the response. "Thoughts" are the intermediate steps the model takes to arrive at the final response. They can provide insights into the model's reasoning process and help with debugging. If this is true, thoughts are returned only when available.
+    /// Indicates whether to include thoughts in the response.
+    /// If true, thoughts are returned only when available.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// Optional. If true, the model will include its thoughts in the response. "Thoughts"
+    /// are the intermediate steps the model takes to arrive at the final
+    /// response. They can provide insights into the model's reasoning process
+    /// and help with debugging. If this is true, thoughts are returned only when
+    /// available.
     package let includeThoughts: Bool?
     
     /// The number of thoughts tokens that the model should generate.
     /// 
-    /// Variant:
-    /// Optional. The token budget for the model's thinking process. The model will make a best effort to stay within this budget. This can be used to control the trade-off between response quality and latency.
+    /// ### Gemini Developer API
+    /// 
+    /// The number of thoughts tokens that the model should generate.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// Optional. The token budget for the model's thinking process. The model will make a
+    /// best effort to stay within this budget. This can be used to control the
+    /// trade-off between response quality and latency.
     package let thinkingBudget: Int?
     
+    /// Optional. Controls the maximum depth of the model's internal reasoning process before
+    /// 
+    /// ### Gemini Developer API
+    /// 
+    /// Optional. Controls the maximum depth of the model's internal reasoning process before
+    /// it produces a response. The default value is model-dependent. Refer to the
+    /// [Thinking levels
+    /// guide](https://ai.google.dev/gemini-api/docs/thinking#thinking-levels) for
+    /// more details. Recommended for Gemini 3 or later models. Use with earlier
+    /// models results in an error.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// Optional. The number of thoughts tokens that the model should generate.
+    package let thinkingLevel: ThinkingLevel?
+    
+
     /// Creates a new `ThinkingConfig`.
+    ///
+    /// - Parameters:
+    ///   - includeThoughts: Indicates whether to include thoughts in the response. (behavior varies by backend). For more details, see ``includeThoughts``.
+    ///   - thinkingBudget: The number of thoughts tokens that the model should generate. (behavior varies by backend). For more details, see ``thinkingBudget``.
+    ///   - thinkingLevel: Optional. Controls the maximum depth of the model's internal reasoning process before (behavior varies by backend). For more details, see ``thinkingLevel``.
     package init(
-      thinkingLevel: ThinkingLevel? = nil,
       includeThoughts: Bool? = nil,
-      thinkingBudget: Int? = nil
+      thinkingBudget: Int? = nil,
+      thinkingLevel: ThinkingLevel? = nil
     ) {
-      self.thinkingLevel = thinkingLevel
       self.includeThoughts = includeThoughts
       self.thinkingBudget = thinkingBudget
+      self.thinkingLevel = thinkingLevel
     }
     enum CodingKeys: String, CodingKey {
-      case thinkingLevel = "thinkingLevel"
       case includeThoughts = "includeThoughts"
       case thinkingBudget = "thinkingBudget"
+      case thinkingLevel = "thinkingLevel"
     }
   }
 }

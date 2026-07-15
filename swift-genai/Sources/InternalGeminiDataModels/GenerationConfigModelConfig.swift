@@ -16,18 +16,36 @@ import Foundation
 
 
 extension GeminiDataModels {
-  /// Config for model selection.
+  /// An internal data model for `GenerationConfigModelConfig`.
   /// 
-  /// > Important: This type is only available in the Gemini Enterprise Agent Platform.
+  /// ### Gemini Developer API
+  /// 
+  /// > Important: This type is not supported in the Gemini Developer API.
+  /// 
+  /// ### Gemini Enterprise Agent Platform
+  /// 
+  /// Type: `GoogleCloudAiplatformV1beta1GenerationConfigModelConfig`
+  /// 
+  /// Config for model selection.
   package struct GenerationConfigModelConfig: Codable, Sendable, Equatable, Hashable {
     /// Required. Feature selection preference.
     /// 
-    /// > Important: `featureSelectionPreference` is only available in the Gemini Enterprise Agent Platform.
-    package let featureSelectionPreference: FeatureSelectionPreference?
+    /// ### Gemini Developer API
+    /// 
+    /// > Important: This property is not supported in the Gemini Developer API.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// Required. Feature selection preference.
+    package let featureSelectionPreference: FeatureSelectionPreference
     
+
     /// Creates a new `GenerationConfigModelConfig`.
+    ///
+    /// - Parameters:
+    ///   - featureSelectionPreference: Required. Feature selection preference. (Gemini Enterprise Agent Platform only). For more details, see ``featureSelectionPreference``.
     package init(
-      featureSelectionPreference: FeatureSelectionPreference? = nil
+      featureSelectionPreference: FeatureSelectionPreference
     ) {
       self.featureSelectionPreference = featureSelectionPreference
     }

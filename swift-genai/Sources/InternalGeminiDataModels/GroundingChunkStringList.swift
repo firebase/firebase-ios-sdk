@@ -16,16 +16,34 @@ import Foundation
 
 
 extension GeminiDataModels {
+  /// An internal data model for `GroundingChunkStringList`.
+  /// 
+  /// ### Gemini Developer API
+  /// 
+  /// Type: `GoogleAiGenerativelanguageV1betaGroundingChunkStringList`
+  /// 
   /// A list of string values.
   /// 
-  /// > Important: This type is only available in the Gemini Developer API.
+  /// ### Gemini Enterprise Agent Platform
+  /// 
+  /// > Important: This type is not supported in the Gemini Enterprise Agent Platform.
   package struct GroundingChunkStringList: Codable, Sendable, Equatable, Hashable {
     /// The string values of the list.
     /// 
-    /// > Important: `values` is only available in the Gemini Developer API.
+    /// ### Gemini Developer API
+    /// 
+    /// The string values of the list.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
     package let values: [String]?
     
+
     /// Creates a new `GroundingChunkStringList`.
+    ///
+    /// - Parameters:
+    ///   - values: The string values of the list. (Gemini Developer API only). For more details, see ``values``.
     package init(
       values: [String]? = nil
     ) {

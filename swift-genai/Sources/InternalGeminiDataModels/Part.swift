@@ -17,134 +17,265 @@ package import InternalSharedDataModels
 
 
 extension GeminiDataModels {
-  /// A datatype containing media that is part of a multi-part `Content` message. A `Part` consists of data which has an associated datatype. A `Part` can only contain one of the accepted types in `Part.data`. A `Part` must have a fixed IANA MIME type identifying the type and subtype of the media if the `inline_data` field is filled with raw bytes.
+  /// An internal data model for `Part`.
   /// 
-  /// Variant:
-  /// A datatype containing media that is part of a multi-part Content message. A `Part` consists of data which has an associated datatype. A `Part` can only contain one of the accepted types in `Part.data`. For media types that are not text, `Part` must have a fixed IANA MIME type identifying the type and subtype of the media if `inline_data` or `file_data` field is filled with raw bytes.
+  /// ### Gemini Developer API
+  /// 
+  /// Type: `GoogleAiGenerativelanguageV1betaPart`
+  /// 
+  /// A datatype containing media that is part of a multi-part `Content` message.
+  /// 
+  /// A `Part` consists of data which has an associated datatype. A `Part` can only
+  /// contain one of the accepted types in `Part.data`.
+  /// 
+  /// A `Part` must have a fixed IANA MIME type identifying the type and subtype
+  /// of the media if the `inline_data` field is filled with raw bytes.
+  /// 
+  /// ### Gemini Enterprise Agent Platform
+  /// 
+  /// Type: `GoogleCloudAiplatformV1beta1Part`
+  /// 
+  /// A datatype containing media that is part of a multi-part
+  /// Content message.
+  /// 
+  /// A `Part` consists of data which has an associated datatype. A `Part` can only
+  /// contain one of the accepted types in `Part.data`.
+  /// 
+  /// For media types that are not text, `Part` must have a fixed IANA MIME type
+  /// identifying the type and subtype of the media if `inline_data` or
+  /// `file_data` field is filled with raw bytes.
   package struct Part: Codable, Sendable, Equatable, Hashable {
-    /// A predicted `FunctionCall` returned from the model that contains a string representing the `FunctionDeclaration.name` with the arguments and their values.
+    /// Server-side tool call. This field is populated when the model
     /// 
-    /// Variant:
-    /// Optional. A predicted function call returned from the model. This contains the name of the function to call and the arguments to pass to the function.
-    package let functionCall: FunctionCall?
-    
-    /// Optional. Indicates if the part is thought from the model.
+    /// ### Gemini Developer API
     /// 
-    /// Variant:
-    /// Optional. Indicates whether the `part` represents the model's thought process or reasoning.
-    package let thought: Bool?
-    
-    /// Optional. Media resolution for the input media.
+    /// Server-side tool call. This field is populated when the model
+    /// predicts a tool invocation that should be executed on the server.
+    /// The client is expected to echo this message back to the API.
     /// 
-    /// Variant:
-    /// per part media resolution. Media resolution for the input media.
-    package let mediaResolution: GenerationConfig.MediaResolution?
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
+    package let toolCall: ToolCall?
     
-    /// Optional. Video metadata. The metadata should only be specified while the video data is presented in inline_data or file_data.
+    /// The output from a server-side `ToolCall` execution. This field is
+    /// 
+    /// ### Gemini Developer API
+    /// 
+    /// The output from a server-side `ToolCall` execution. This field is
+    /// populated by the client with the results of executing the
+    /// corresponding `ToolCall`.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
+    package let toolResponse: ToolResponse?
+    
+    /// Optional. Video metadata. The metadata should only be specified while the video
+    /// 
+    /// ### Gemini Developer API
+    /// 
+    /// Optional. Video metadata. The metadata should only be specified while the video
+    /// data is presented in inline_data or file_data.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// Optional. Video metadata. The metadata should only be specified while the
+    /// video data is presented in inline_data or file_data.
     @available(*, deprecated)
     package let videoMetadata: VideoMetadata?
     
-    /// Result of executing the `ExecutableCode`.
+    /// Optional. Indicates if the part is thought from the model.
     /// 
-    /// Variant:
-    /// Optional. The result of executing the ExecutableCode.
-    package let codeExecutionResult: CodeExecutionResult?
+    /// ### Gemini Developer API
+    /// 
+    /// Optional. Indicates if the part is thought from the model.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// Optional. Indicates whether the `part` represents the model's thought
+    /// process or reasoning.
+    package let thought: Bool?
     
-    /// Optional. An opaque signature for the thought so it can be reused in subsequent requests.
+    /// Optional. An opaque signature for the thought so it can be reused in subsequent
+    /// 
+    /// ### Gemini Developer API
+    /// 
+    /// Optional. An opaque signature for the thought so it can be reused in subsequent
+    /// requests.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// Optional. An opaque signature for the thought so it can be reused in
+    /// subsequent requests.
     package let thoughtSignature: String?
     
-    /// The output from a server-side `ToolCall` execution. This field is populated by the client with the results of executing the corresponding `ToolCall`.
+    /// Custom metadata associated with the Part.
     /// 
-    /// > Important: `toolResponse` is only available in the Gemini Developer API.
-    package let toolResponse: ToolResponse?
-    
-    /// Inline media bytes.
+    /// ### Gemini Developer API
     /// 
-    /// Variant:
-    /// Optional. The inline data content of the part. This can be used to include images, audio, or video in a request.
-    package let inlineData: Blob?
-    
-    /// Inline text.
+    /// Custom metadata associated with the Part.
+    /// Agents using genai.Part as content representation may need to keep track
+    /// of the additional information. For example it can be name of a file/source
+    /// from which the Part originates or a way to multiplex multiple Part streams.
     /// 
-    /// Variant:
-    /// Optional. The text content of the part. When sent from the VSCode Gemini Code Assist extension, references to @mentioned items will be converted to markdown boldface text. For example `@my-repo` will be converted to and sent as `**my-repo**` by the IDE agent.
-    package let text: String?
-    
-    /// Custom metadata associated with the Part. Agents using genai.Part as content representation may need to keep track of the additional information. For example it can be name of a file/source from which the Part originates or a way to multiplex multiple Part streams.
+    /// ### Gemini Enterprise Agent Platform
     /// 
-    /// > Important: `partMetadata` is only available in the Gemini Developer API.
+    /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
     package let partMetadata: [String: JSONValue]?
     
-    /// The result output of a `FunctionCall` that contains a string representing the `FunctionDeclaration.name` and a structured JSON object containing any output from the function is used as context to the model.
+    /// Optional. Media resolution for the input media.
     /// 
-    /// Variant:
-    /// Optional. The result of a function call. This is used to provide the model with the result of a function call that it predicted.
-    package let functionResponse: FunctionResponse?
-    
-    /// URI based data.
+    /// ### Gemini Developer API
     /// 
-    /// Variant:
-    /// Optional. The URI-based data of the part. This can be used to include files from Google Cloud Storage.
-    package let fileData: FileData?
-    
-    /// Server-side tool call. This field is populated when the model predicts a tool invocation that should be executed on the server. The client is expected to echo this message back to the API.
+    /// Optional. Media resolution for the input media.
     /// 
-    /// > Important: `toolCall` is only available in the Gemini Developer API.
-    package let toolCall: ToolCall?
-    
-    /// Code generated by the model that is meant to be executed.
+    /// ### Gemini Enterprise Agent Platform
     /// 
-    /// Variant:
-    /// Optional. Code generated by the model that is intended to be executed.
-    package let executableCode: ExecutableCode?
+    /// per part media resolution.
+    /// Media resolution for the input media.
+    package let mediaResolution: GenerationConfig.MediaResolution?
     
+    package enum PartData: Sendable, Equatable, Hashable {
+      case text(String)
+      case inlineData(Blob)
+      case functionCall(FunctionCall)
+      case functionResponse(FunctionResponse)
+      case fileData(FileData)
+      case executableCode(ExecutableCode)
+      case codeExecutionResult(CodeExecutionResult)
+      case unrecognized([String: JSONValue])
+    }
+
+    package let data: PartData?
+
     /// Creates a new `Part`.
+    ///
+    /// - Parameters:
+    ///   - toolCall: Server-side tool call. This field is populated when the model (Gemini Developer API only). For more details, see ``toolCall``.
+    ///   - toolResponse: The output from a server-side `ToolCall` execution. This field is (Gemini Developer API only). For more details, see ``toolResponse``.
+    ///   - videoMetadata: Optional. Video metadata. The metadata should only be specified while the video (behavior varies by backend). For more details, see ``videoMetadata``.
+    ///   - thought: Optional. Indicates if the part is thought from the model. (behavior varies by backend). For more details, see ``thought``.
+    ///   - thoughtSignature: Optional. An opaque signature for the thought so it can be reused in subsequent (behavior varies by backend). For more details, see ``thoughtSignature``.
+    ///   - partMetadata: Custom metadata associated with the Part. (Gemini Developer API only). For more details, see ``partMetadata``.
+    ///   - mediaResolution: Optional. Media resolution for the input media. (behavior varies by backend). For more details, see ``mediaResolution``.
+    ///   - data: One of the oneof data variants.
     package init(
-      functionCall: FunctionCall? = nil,
-      thought: Bool? = nil,
-      mediaResolution: GenerationConfig.MediaResolution? = nil,
-      videoMetadata: VideoMetadata? = nil,
-      codeExecutionResult: CodeExecutionResult? = nil,
-      thoughtSignature: String? = nil,
-      toolResponse: ToolResponse? = nil,
-      inlineData: Blob? = nil,
-      text: String? = nil,
-      partMetadata: [String: JSONValue]? = nil,
-      functionResponse: FunctionResponse? = nil,
-      fileData: FileData? = nil,
+      data: PartData? = nil,
       toolCall: ToolCall? = nil,
-      executableCode: ExecutableCode? = nil
+      toolResponse: ToolResponse? = nil,
+      videoMetadata: VideoMetadata? = nil,
+      thought: Bool? = nil,
+      thoughtSignature: String? = nil,
+      partMetadata: [String: JSONValue]? = nil,
+      mediaResolution: GenerationConfig.MediaResolution? = nil
     ) {
-      self.functionCall = functionCall
-      self.thought = thought
-      self.mediaResolution = mediaResolution
-      self.videoMetadata = videoMetadata
-      self.codeExecutionResult = codeExecutionResult
-      self.thoughtSignature = thoughtSignature
-      self.toolResponse = toolResponse
-      self.inlineData = inlineData
-      self.text = text
-      self.partMetadata = partMetadata
-      self.functionResponse = functionResponse
-      self.fileData = fileData
+      self.data = data
       self.toolCall = toolCall
-      self.executableCode = executableCode
+      self.toolResponse = toolResponse
+      self.videoMetadata = videoMetadata
+      self.thought = thought
+      self.thoughtSignature = thoughtSignature
+      self.partMetadata = partMetadata
+      self.mediaResolution = mediaResolution
     }
     enum CodingKeys: String, CodingKey {
-      case functionCall = "functionCall"
-      case thought = "thought"
-      case mediaResolution = "mediaResolution"
-      case videoMetadata = "videoMetadata"
-      case codeExecutionResult = "codeExecutionResult"
-      case thoughtSignature = "thoughtSignature"
+      case toolCall = "toolCall"
       case toolResponse = "toolResponse"
-      case inlineData = "inlineData"
-      case text = "text"
+      case videoMetadata = "videoMetadata"
+      case thought = "thought"
+      case thoughtSignature = "thoughtSignature"
       case partMetadata = "partMetadata"
+      case mediaResolution = "mediaResolution"
+      case text = "text"
+      case inlineData = "inlineData"
+      case functionCall = "functionCall"
       case functionResponse = "functionResponse"
       case fileData = "fileData"
-      case toolCall = "toolCall"
       case executableCode = "executableCode"
+      case codeExecutionResult = "codeExecutionResult"
+    }
+    private struct DynamicCodingKey: CodingKey {
+      var stringValue: String
+      var intValue: Int? { nil }
+      init?(stringValue: String) { self.stringValue = stringValue }
+      init?(intValue: Int) { nil }
+    }
+
+    package init(from decoder: Decoder) throws {
+      let container = try decoder.container(keyedBy: CodingKeys.self)
+      self.toolCall = try container.decodeIfPresent(ToolCall.self, forKey: .toolCall)
+      self.toolResponse = try container.decodeIfPresent(ToolResponse.self, forKey: .toolResponse)
+      self.videoMetadata = try container.decodeIfPresent(VideoMetadata.self, forKey: .videoMetadata)
+      self.thought = try container.decodeIfPresent(Bool.self, forKey: .thought)
+      self.thoughtSignature = try container.decodeIfPresent(String.self, forKey: .thoughtSignature)
+      self.partMetadata = try container.decodeIfPresent([String: JSONValue].self, forKey: .partMetadata)
+      self.mediaResolution = try container.decodeIfPresent(GenerationConfig.MediaResolution.self, forKey: .mediaResolution)
+
+      if false {
+        self.data = nil
+      }
+      else if let text = try container.decodeIfPresent(String.self, forKey: .text) {
+        self.data = .text(text)
+      }
+      else if let inlineData = try container.decodeIfPresent(Blob.self, forKey: .inlineData) {
+        self.data = .inlineData(inlineData)
+      }
+      else if let functionCall = try container.decodeIfPresent(FunctionCall.self, forKey: .functionCall) {
+        self.data = .functionCall(functionCall)
+      }
+      else if let functionResponse = try container.decodeIfPresent(FunctionResponse.self, forKey: .functionResponse) {
+        self.data = .functionResponse(functionResponse)
+      }
+      else if let fileData = try container.decodeIfPresent(FileData.self, forKey: .fileData) {
+        self.data = .fileData(fileData)
+      }
+      else if let executableCode = try container.decodeIfPresent(ExecutableCode.self, forKey: .executableCode) {
+        self.data = .executableCode(executableCode)
+      }
+      else if let codeExecutionResult = try container.decodeIfPresent(CodeExecutionResult.self, forKey: .codeExecutionResult) {
+        self.data = .codeExecutionResult(codeExecutionResult)
+      }
+      else {
+        let dynamicContainer = try decoder.container(keyedBy: DynamicCodingKey.self)
+        var unrecognizedFields = [String: JSONValue]()
+        for key in dynamicContainer.allKeys {
+          if CodingKeys(stringValue: key.stringValue) == nil,
+             let value = try? dynamicContainer.decode(JSONValue.self, forKey: key) {
+            unrecognizedFields[key.stringValue] = value
+          }
+        }
+        self.data = unrecognizedFields.isEmpty ? nil : .unrecognized(unrecognizedFields)
+      }
+    }
+
+    package func encode(to encoder: Encoder) throws {
+      var container = encoder.container(keyedBy: CodingKeys.self)
+      try container.encodeIfPresent(toolCall, forKey: .toolCall)
+      try container.encodeIfPresent(toolResponse, forKey: .toolResponse)
+      try container.encodeIfPresent(videoMetadata, forKey: .videoMetadata)
+      try container.encodeIfPresent(thought, forKey: .thought)
+      try container.encodeIfPresent(thoughtSignature, forKey: .thoughtSignature)
+      try container.encodeIfPresent(partMetadata, forKey: .partMetadata)
+      try container.encodeIfPresent(mediaResolution, forKey: .mediaResolution)
+
+      switch data {
+      case .none: break
+      case let .text(val): try container.encode(val, forKey: .text)
+      case let .inlineData(val): try container.encode(val, forKey: .inlineData)
+      case let .functionCall(val): try container.encode(val, forKey: .functionCall)
+      case let .functionResponse(val): try container.encode(val, forKey: .functionResponse)
+      case let .fileData(val): try container.encode(val, forKey: .fileData)
+      case let .executableCode(val): try container.encode(val, forKey: .executableCode)
+      case let .codeExecutionResult(val): try container.encode(val, forKey: .codeExecutionResult)
+      case let .unrecognized(unrecognizedFields):
+        var dynamicContainer = encoder.container(keyedBy: DynamicCodingKey.self)
+        for (key, value) in unrecognizedFields {
+          if let codingKey = DynamicCodingKey(stringValue: key) {
+            try dynamicContainer.encode(value, forKey: codingKey)
+          }
+        }
+      }
     }
   }
 }

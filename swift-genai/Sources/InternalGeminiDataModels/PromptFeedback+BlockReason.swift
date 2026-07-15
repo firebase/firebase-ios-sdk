@@ -15,18 +15,26 @@
 import Foundation
 
 extension GeminiDataModels.PromptFeedback {
-  /// Optional. If set, the prompt was blocked and no candidates are returned. Rephrase the prompt.
+  /// Optional. If set, the prompt was blocked and no candidates are returned.
   /// 
-  /// Variant:
+  /// ### Gemini Developer API
+  /// 
+  /// Optional. If set, the prompt was blocked and no candidates are returned.
+  /// Rephrase the prompt.
+  /// 
+  /// ### Gemini Enterprise Agent Platform
+  /// 
   /// Output only. The reason why the prompt was blocked.
   package enum BlockReason: Codable, Sendable, Equatable, Hashable {
-    /// Prompt was blocked due to safety reasons. Inspect `safety_ratings` to understand which safety category blocked it.
+    /// Prompt was blocked due to safety reasons. Inspect `safety_ratings`
+    /// to understand which safety category blocked it.
     case safety
     
     /// Prompt was blocked due to unknown reasons.
     case other
     
-    /// Prompt was blocked due to the terms which are included from the terminology blocklist.
+    /// Prompt was blocked due to the terms which are included from the
+    /// terminology blocklist.
     case blocklist
     
     /// Prompt was blocked due to prohibited content.

@@ -16,21 +16,69 @@ import Foundation
 
 
 extension GeminiDataModels {
-  /// Configuration for Model Armor. Model Armor is a Google Cloud service that provides safety and security filtering for prompts and responses. It helps protect your AI applications from risks such as harmful content, sensitive data leakage, and prompt injection attacks.
+  /// An internal data model for `ModelArmorConfig`.
   /// 
-  /// > Important: This type is only available in the Gemini Enterprise Agent Platform.
+  /// ### Gemini Developer API
+  /// 
+  /// > Important: This type is not supported in the Gemini Developer API.
+  /// 
+  /// ### Gemini Enterprise Agent Platform
+  /// 
+  /// Type: `GoogleCloudAiplatformV1beta1ModelArmorConfig`
+  /// 
+  /// Configuration for Model Armor.
+  /// 
+  /// Model Armor is a Google Cloud service that provides safety and security
+  /// filtering for prompts and responses. It helps protect your AI applications
+  /// from risks such as harmful content, sensitive data leakage, and prompt
+  /// injection attacks.
   package struct ModelArmorConfig: Codable, Sendable, Equatable, Hashable {
-    /// Optional. The resource name of the Model Armor template to use for prompt screening. A Model Armor template is a set of customized filters and thresholds that define how Model Armor screens content. If specified, Model Armor will use this template to check the user's prompt for safety and security risks before it is sent to the model. The name must be in the format `projects/{project}/locations/{location}/templates/{template}`.
+    /// Optional. The resource name of the Model Armor template to use for prompt
     /// 
-    /// > Important: `promptTemplateName` is only available in the Gemini Enterprise Agent Platform.
+    /// ### Gemini Developer API
+    /// 
+    /// > Important: This property is not supported in the Gemini Developer API.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// Optional. The resource name of the Model Armor template to use for prompt
+    /// screening.
+    /// 
+    /// A Model Armor template is a set of customized filters and thresholds that
+    /// define how Model Armor screens content. If specified, Model Armor will use
+    /// this template to check the user's prompt for safety and security risks
+    /// before it is sent to the model.
+    /// 
+    /// The name must be in the format
+    /// `projects/{project}/locations/{location}/templates/{template}`.
     package let promptTemplateName: String?
     
-    /// Optional. The resource name of the Model Armor template to use for response screening. A Model Armor template is a set of customized filters and thresholds that define how Model Armor screens content. If specified, Model Armor will use this template to check the model's response for safety and security risks before it is returned to the user. The name must be in the format `projects/{project}/locations/{location}/templates/{template}`.
+    /// Optional. The resource name of the Model Armor template to use for response
     /// 
-    /// > Important: `responseTemplateName` is only available in the Gemini Enterprise Agent Platform.
+    /// ### Gemini Developer API
+    /// 
+    /// > Important: This property is not supported in the Gemini Developer API.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// Optional. The resource name of the Model Armor template to use for response
+    /// screening.
+    /// 
+    /// A Model Armor template is a set of customized filters and thresholds that
+    /// define how Model Armor screens content. If specified, Model Armor will use
+    /// this template to check the model's response for safety and security risks
+    /// before it is returned to the user.
+    /// 
+    /// The name must be in the format
+    /// `projects/{project}/locations/{location}/templates/{template}`.
     package let responseTemplateName: String?
     
+
     /// Creates a new `ModelArmorConfig`.
+    ///
+    /// - Parameters:
+    ///   - promptTemplateName: Optional. The resource name of the Model Armor template to use for prompt (Gemini Enterprise Agent Platform only). For more details, see ``promptTemplateName``.
+    ///   - responseTemplateName: Optional. The resource name of the Model Armor template to use for response (Gemini Enterprise Agent Platform only). For more details, see ``responseTemplateName``.
     package init(
       promptTemplateName: String? = nil,
       responseTemplateName: String? = nil

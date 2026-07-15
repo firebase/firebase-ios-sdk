@@ -1,0 +1,134 @@
+# Manual overrides to be merged into the OpenAPI 3.1.0 specification.
+# Because the overrides are applied before prefix-stripping, we use the original
+# prefixed names.
+
+schemas:
+  # Gemini Developer API
+  GoogleAiGenerativelanguageV1betaGenerateContentRequest:
+    required:
+      - contents
+  GoogleAiGenerativelanguageV1betaSafetyRating:
+    required: []
+  FunctionCall:
+    required:
+      - name
+  GoogleAiGenerativelanguageV1betaContent:
+    required: []
+  GoogleAiGenerativelanguageV1betaPart:
+    oneOf:
+      - required: [text]
+        properties:
+          text:
+            type: string
+      - required: [inlineData]
+        properties:
+          inlineData:
+            $ref: "#/components/schemas/GoogleAiGenerativelanguageV1betaBlob"
+      - required: [functionCall]
+        properties:
+          functionCall:
+            $ref: "#/components/schemas/GoogleAiGenerativelanguageV1betaFunctionCall"
+      - required: [functionResponse]
+        properties:
+          functionResponse:
+            $ref: "#/components/schemas/GoogleAiGenerativelanguageV1betaFunctionResponse"
+      - required: [fileData]
+        properties:
+          fileData:
+            $ref: "#/components/schemas/GoogleAiGenerativelanguageV1betaFileData"
+      - required: [executableCode]
+        properties:
+          executableCode:
+            $ref: "#/components/schemas/GoogleAiGenerativelanguageV1betaExecutableCode"
+      - required: [codeExecutionResult]
+        properties:
+          codeExecutionResult:
+            $ref: "#/components/schemas/GoogleAiGenerativelanguageV1betaCodeExecutionResult"
+  GoogleAiGenerativelanguageV1betaGenerationConfig:
+    properties:
+      topK:
+        type: integer
+        format: int32
+      responseFormat:
+        $ref: "#/components/schemas/GoogleAiGenerativelanguageV1betaResponseFormatConfig"
+
+  # Vertex AI
+  GoogleCloudAiplatformV1beta1GenerateContentRequest:
+    required:
+      - contents
+  GoogleCloudAiplatformV1beta1Content:
+    required: []
+  GoogleCloudAiplatformV1beta1Part:
+    oneOf:
+      - required: [text]
+        properties:
+          text:
+            type: string
+      - required: [inlineData]
+        properties:
+          inlineData:
+            $ref: "#/components/schemas/GoogleCloudAiplatformV1beta1Blob"
+      - required: [functionCall]
+        properties:
+          functionCall:
+            $ref: "#/components/schemas/GoogleCloudAiplatformV1beta1FunctionCall"
+      - required: [functionResponse]
+        properties:
+          functionResponse:
+            $ref: "#/components/schemas/GoogleCloudAiplatformV1beta1FunctionResponse"
+      - required: [fileData]
+        properties:
+          fileData:
+            $ref: "#/components/schemas/GoogleCloudAiplatformV1beta1FileData"
+      - required: [executableCode]
+        properties:
+          executableCode:
+            $ref: "#/components/schemas/GoogleCloudAiplatformV1beta1ExecutableCode"
+      - required: [codeExecutionResult]
+        properties:
+          codeExecutionResult:
+            $ref: "#/components/schemas/GoogleCloudAiplatformV1beta1CodeExecutionResult"
+  GoogleCloudAiplatformV1beta1GenerationConfig:
+    properties:
+      topK:
+        type: integer
+        format: int32
+      responseFormat:
+        $ref: "#/components/schemas/GoogleCloudAiplatformV1beta1ResponseFormat"
+
+
+# Code generator configurations (used by generate_types.py)
+generatorConfig:
+  typeOverrides:
+    MediaResolution: GenerationConfig.MediaResolution
+  excludedSchemas:
+    - FileSearch
+  excludedProperties:
+    Tool:
+      - fileSearch
+  manualOverrideSchemas:
+    - ResponseFormatConfig
+  renameMappings:
+    ResponseFormat: ResponseFormatConfig
+    GenerateContentResponsePromptFeedback: PromptFeedback
+    GenerateContentResponseUsageMetadata: UsageMetadata
+    ToolGoogleSearch: GoogleSearch
+    ToolComputerUse: ComputerUse
+    ToolCodeExecution: CodeExecution
+    GenerationConfigThinkingConfig: ThinkingConfig
+    GoogleTypeLatLng: LatLng
+    PartMediaResolution: MediaResolution
+    LogprobsResultTopCandidates: TopCandidates
+    GoogleAiGenerativelanguageV1betaGroundingSupport: GroundingSupport
+    GoogleAiGenerativelanguageV1betaSegment: Segment
+    GroundingChunkImage: ImageChunk
+    GroundingChunkRetrievedContext: RetrievedContextChunk
+    GroundingChunkWeb: WebChunk
+    GroundingChunkMaps: MapsChunk
+    ToolGoogleSearchSearchTypes: SearchTypes
+    ToolGoogleSearchWebSearch: WebSearch
+    ToolGoogleSearchImageSearch: ImageSearch
+    GroundingChunkMapsPlaceAnswerSources: PlaceAnswerSources
+    GroundingChunkMapsPlaceAnswerSourcesReviewSnippet: ReviewSnippet
+    GroundingChunkMapsRoute: MapsRoute
+    Type: DataType

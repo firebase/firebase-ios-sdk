@@ -16,21 +16,48 @@ import Foundation
 
 
 extension GeminiDataModels {
+  /// An internal data model for `AttributionSourceIdGroundingPassageId`.
+  /// 
+  /// ### Gemini Developer API
+  /// 
+  /// Type: `GoogleAiGenerativelanguageV1betaAttributionSourceIdGroundingPassageId`
+  /// 
   /// Identifier for a part within a `GroundingPassage`.
   /// 
-  /// > Important: This type is only available in the Gemini Developer API.
+  /// ### Gemini Enterprise Agent Platform
+  /// 
+  /// > Important: This type is not supported in the Gemini Enterprise Agent Platform.
   package struct AttributionSourceIdGroundingPassageId: Codable, Sendable, Equatable, Hashable {
-    /// Output only. ID of the passage matching the `GenerateAnswerRequest`'s `GroundingPassage.id`.
+    /// Output only. ID of the passage matching the `GenerateAnswerRequest`'s
     /// 
-    /// > Important: `passageId` is only available in the Gemini Developer API.
+    /// ### Gemini Developer API
+    /// 
+    /// Output only. ID of the passage matching the `GenerateAnswerRequest`'s
+    /// `GroundingPassage.id`.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
     package let passageId: String?
     
-    /// Output only. Index of the part within the `GenerateAnswerRequest`'s `GroundingPassage.content`.
+    /// Output only. Index of the part within the `GenerateAnswerRequest`'s
     /// 
-    /// > Important: `partIndex` is only available in the Gemini Developer API.
+    /// ### Gemini Developer API
+    /// 
+    /// Output only. Index of the part within the `GenerateAnswerRequest`'s
+    /// `GroundingPassage.content`.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
     package let partIndex: Int?
     
+
     /// Creates a new `AttributionSourceIdGroundingPassageId`.
+    ///
+    /// - Parameters:
+    ///   - passageId: Output only. ID of the passage matching the `GenerateAnswerRequest`'s (Gemini Developer API only). For more details, see ``passageId``.
+    ///   - partIndex: Output only. Index of the part within the `GenerateAnswerRequest`'s (Gemini Developer API only). For more details, see ``partIndex``.
     package init(
       passageId: String? = nil,
       partIndex: Int? = nil

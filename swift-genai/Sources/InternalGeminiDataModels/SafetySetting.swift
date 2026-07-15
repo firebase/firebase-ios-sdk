@@ -16,42 +16,83 @@ import Foundation
 
 
 extension GeminiDataModels {
-  /// Safety setting, affecting the safety-blocking behavior. Passing a safety setting for a category changes the allowed probability that content is blocked.
+  /// An internal data model for `SafetySetting`.
   /// 
-  /// Variant:
-  /// A safety setting that affects the safety-blocking behavior. A SafetySetting consists of a harm category and a threshold for that category.
+  /// ### Gemini Developer API
+  /// 
+  /// Type: `GoogleAiGenerativelanguageV1betaSafetySetting`
+  /// 
+  /// Safety setting, affecting the safety-blocking behavior.
+  /// 
+  /// Passing a safety setting for a category changes the allowed probability that
+  /// content is blocked.
+  /// 
+  /// ### Gemini Enterprise Agent Platform
+  /// 
+  /// Type: `GoogleCloudAiplatformV1beta1SafetySetting`
+  /// 
+  /// A safety setting that affects the safety-blocking behavior.
+  /// 
+  /// A SafetySetting consists of a
+  /// harm category and a
+  /// threshold for that
+  /// category.
   package struct SafetySetting: Codable, Sendable, Equatable, Hashable {
-    /// Optional. The method for blocking content. If not specified, the default behavior is to use the probability score.
+    /// Required. The category for this setting.
     /// 
-    /// > Important: `method` is only available in the Gemini Enterprise Agent Platform.
-    package let method: Method?
+    /// ### Gemini Developer API
+    /// 
+    /// Required. The category for this setting.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// Required. The harm category to be blocked.
+    package let category: HarmCategory
     
     /// Required. Controls the probability threshold at which harm is blocked.
     /// 
-    /// Variant:
-    /// Required. The threshold for blocking content. If the harm probability exceeds this threshold, the content will be blocked.
-    package let threshold: Threshold?
-    
-    /// Required. The category for this setting.
+    /// ### Gemini Developer API
     /// 
-    /// Variant:
-    /// Required. The harm category to be blocked.
-    package let category: Category?
+    /// Required. Controls the probability threshold at which harm is blocked.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// Required. The threshold for blocking content. If the harm probability
+    /// exceeds this threshold, the content will be blocked.
+    package let threshold: Threshold
     
+    /// Optional. The method for blocking content. If not specified, the default
+    /// 
+    /// ### Gemini Developer API
+    /// 
+    /// > Important: This property is not supported in the Gemini Developer API.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// Optional. The method for blocking content. If not specified, the default
+    /// behavior is to use the probability score.
+    package let method: Method?
+    
+
     /// Creates a new `SafetySetting`.
+    ///
+    /// - Parameters:
+    ///   - category: Required. The category for this setting. (behavior varies by backend). For more details, see ``category``.
+    ///   - threshold: Required. Controls the probability threshold at which harm is blocked. (behavior varies by backend). For more details, see ``threshold``.
+    ///   - method: Optional. The method for blocking content. If not specified, the default (Gemini Enterprise Agent Platform only). For more details, see ``method``.
     package init(
-      method: Method? = nil,
-      threshold: Threshold? = nil,
-      category: Category? = nil
+      category: HarmCategory,
+      threshold: Threshold,
+      method: Method? = nil
     ) {
-      self.method = method
-      self.threshold = threshold
       self.category = category
+      self.threshold = threshold
+      self.method = method
     }
     enum CodingKeys: String, CodingKey {
-      case method = "method"
-      case threshold = "threshold"
       case category = "category"
+      case threshold = "threshold"
+      case method = "method"
     }
   }
 }

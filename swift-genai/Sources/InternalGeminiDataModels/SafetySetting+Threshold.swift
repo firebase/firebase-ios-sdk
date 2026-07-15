@@ -17,8 +17,14 @@ import Foundation
 extension GeminiDataModels.SafetySetting {
   /// Required. Controls the probability threshold at which harm is blocked.
   /// 
-  /// Variant:
-  /// Required. The threshold for blocking content. If the harm probability exceeds this threshold, the content will be blocked.
+  /// ### Gemini Developer API
+  /// 
+  /// Required. Controls the probability threshold at which harm is blocked.
+  /// 
+  /// ### Gemini Enterprise Agent Platform
+  /// 
+  /// Required. The threshold for blocking content. If the harm probability
+  /// exceeds this threshold, the content will be blocked.
   package enum Threshold: Codable, Sendable, Equatable, Hashable {
     /// Content with NEGLIGIBLE will be allowed.
     case blockLowAndAbove

@@ -17,7 +17,12 @@ import Foundation
 extension GeminiDataModels.SafetyRating {
   /// Required. The probability of harm for this content.
   /// 
-  /// Variant:
+  /// ### Gemini Developer API
+  /// 
+  /// Required. The probability of harm for this content.
+  /// 
+  /// ### Gemini Enterprise Agent Platform
+  /// 
   /// Output only. The probability of harm for this category.
   package enum Probability: Codable, Sendable, Equatable, Hashable {
     /// Content has a negligible chance of being unsafe.

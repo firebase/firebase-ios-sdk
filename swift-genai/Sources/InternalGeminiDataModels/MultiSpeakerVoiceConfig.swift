@@ -16,20 +16,39 @@ import Foundation
 
 
 extension GeminiDataModels {
+  /// An internal data model for `MultiSpeakerVoiceConfig`.
+  /// 
+  /// ### Gemini Developer API
+  /// 
+  /// Type: `GoogleAiGenerativelanguageV1betaMultiSpeakerVoiceConfig`
+  /// 
   /// The configuration for the multi-speaker setup.
   /// 
-  /// Variant:
+  /// ### Gemini Enterprise Agent Platform
+  /// 
+  /// Type: `GoogleCloudAiplatformV1beta1MultiSpeakerVoiceConfig`
+  /// 
   /// Configuration for a multi-speaker text-to-speech request.
   package struct MultiSpeakerVoiceConfig: Codable, Sendable, Equatable, Hashable {
     /// Required. All the enabled speaker voices.
     /// 
-    /// Variant:
-    /// Required. A list of configurations for the voices of the speakers. Exactly two speaker voice configurations must be provided.
-    package let speakerVoiceConfigs: [SpeakerVoiceConfig]?
+    /// ### Gemini Developer API
+    /// 
+    /// Required. All the enabled speaker voices.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// Required. A list of configurations for the voices of the speakers. Exactly
+    /// two speaker voice configurations must be provided.
+    package let speakerVoiceConfigs: [SpeakerVoiceConfig]
     
+
     /// Creates a new `MultiSpeakerVoiceConfig`.
+    ///
+    /// - Parameters:
+    ///   - speakerVoiceConfigs: Required. All the enabled speaker voices. (behavior varies by backend). For more details, see ``speakerVoiceConfigs``.
     package init(
-      speakerVoiceConfigs: [SpeakerVoiceConfig]? = nil
+      speakerVoiceConfigs: [SpeakerVoiceConfig]
     ) {
       self.speakerVoiceConfigs = speakerVoiceConfigs
     }

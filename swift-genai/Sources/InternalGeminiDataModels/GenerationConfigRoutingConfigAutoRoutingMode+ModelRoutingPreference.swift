@@ -17,7 +17,13 @@ import Foundation
 extension GeminiDataModels.GenerationConfigRoutingConfigAutoRoutingMode {
   /// The model routing preference.
   /// 
-  /// > Important: `modelRoutingPreference` is only available in the Gemini Enterprise Agent Platform.
+  /// ### Gemini Developer API
+  /// 
+  /// > Important: This property is not supported in the Gemini Developer API.
+  /// 
+  /// ### Gemini Enterprise Agent Platform
+  /// 
+  /// The model routing preference.
   package enum ModelRoutingPreference: Codable, Sendable, Equatable, Hashable {
     /// The model will be selected to prioritize the quality of the response.
     case prioritizeQuality

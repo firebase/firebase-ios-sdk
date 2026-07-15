@@ -16,46 +16,86 @@ import Foundation
 
 
 extension GeminiDataModels {
+  /// An internal data model for `GroundingChunkCustomMetadata`.
+  /// 
+  /// ### Gemini Developer API
+  /// 
+  /// Type: `GoogleAiGenerativelanguageV1betaGroundingChunkCustomMetadata`
+  /// 
   /// User provided metadata about the GroundingFact.
   /// 
-  /// > Important: This type is only available in the Gemini Developer API.
+  /// ### Gemini Enterprise Agent Platform
+  /// 
+  /// > Important: This type is not supported in the Gemini Enterprise Agent Platform.
   package struct GroundingChunkCustomMetadata: Codable, Sendable, Equatable, Hashable {
     /// Optional. The string value of the metadata.
     /// 
-    /// > Important: `stringValue` is only available in the Gemini Developer API.
-    package let stringValue: String?
-    
-    /// Optional. The numeric value of the metadata. The expected range for this value depends on the specific `key` used.
+    /// ### Gemini Developer API
     /// 
-    /// > Important: `numericValue` is only available in the Gemini Developer API.
-    package let numericValue: Double?
+    /// Optional. The string value of the metadata.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
+    package let stringValue: String?
     
     /// Optional. A list of string values for the metadata.
     /// 
-    /// > Important: `stringListValue` is only available in the Gemini Developer API.
+    /// ### Gemini Developer API
+    /// 
+    /// Optional. A list of string values for the metadata.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
     package let stringListValue: GroundingChunkStringList?
+    
+    /// Optional. The numeric value of the metadata.
+    /// 
+    /// ### Gemini Developer API
+    /// 
+    /// Optional. The numeric value of the metadata.
+    /// The expected range for this value depends on the specific `key` used.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
+    package let numericValue: Double?
     
     /// The key of the metadata.
     /// 
-    /// > Important: `key` is only available in the Gemini Developer API.
+    /// ### Gemini Developer API
+    /// 
+    /// The key of the metadata.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
     package let key: String?
     
+
     /// Creates a new `GroundingChunkCustomMetadata`.
+    ///
+    /// - Parameters:
+    ///   - stringValue: Optional. The string value of the metadata. (Gemini Developer API only). For more details, see ``stringValue``.
+    ///   - stringListValue: Optional. A list of string values for the metadata. (Gemini Developer API only). For more details, see ``stringListValue``.
+    ///   - numericValue: Optional. The numeric value of the metadata. (Gemini Developer API only). For more details, see ``numericValue``.
+    ///   - key: The key of the metadata. (Gemini Developer API only). For more details, see ``key``.
     package init(
       stringValue: String? = nil,
-      numericValue: Double? = nil,
       stringListValue: GroundingChunkStringList? = nil,
+      numericValue: Double? = nil,
       key: String? = nil
     ) {
       self.stringValue = stringValue
-      self.numericValue = numericValue
       self.stringListValue = stringListValue
+      self.numericValue = numericValue
       self.key = key
     }
     enum CodingKeys: String, CodingKey {
       case stringValue = "stringValue"
-      case numericValue = "numericValue"
       case stringListValue = "stringListValue"
+      case numericValue = "numericValue"
       case key = "key"
     }
   }

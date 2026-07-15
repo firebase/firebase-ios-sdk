@@ -16,24 +16,48 @@ import Foundation
 
 
 extension GeminiDataModels {
+  /// An internal data model for `UrlMetadata`.
+  /// 
+  /// ### Gemini Developer API
+  /// 
+  /// Type: `GoogleAiGenerativelanguageV1betaUrlMetadata`
+  /// 
   /// Context of the a single url retrieval.
   /// 
-  /// Variant:
+  /// ### Gemini Enterprise Agent Platform
+  /// 
+  /// Type: `GoogleCloudAiplatformV1beta1UrlMetadata`
+  /// 
   /// The metadata for a single URL retrieval.
   package struct UrlMetadata: Codable, Sendable, Equatable, Hashable {
     /// Retrieved url by the tool.
     /// 
-    /// Variant:
+    /// ### Gemini Developer API
+    /// 
+    /// Retrieved url by the tool.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
     /// The URL retrieved by the tool.
     package let retrievedUrl: String?
     
     /// Status of the url retrieval.
     /// 
-    /// Variant:
+    /// ### Gemini Developer API
+    /// 
+    /// Status of the url retrieval.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
     /// The status of the URL retrieval.
     package let urlRetrievalStatus: UrlRetrievalStatus?
     
+
     /// Creates a new `UrlMetadata`.
+    ///
+    /// - Parameters:
+    ///   - retrievedUrl: Retrieved url by the tool. (behavior varies by backend). For more details, see ``retrievedUrl``.
+    ///   - urlRetrievalStatus: Status of the url retrieval. (behavior varies by backend). For more details, see ``urlRetrievalStatus``.
     package init(
       retrievedUrl: String? = nil,
       urlRetrievalStatus: UrlRetrievalStatus? = nil

@@ -12,44 +12,75 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public import Foundation
-
-
+import Foundation
 
 
 extension GeminiDataModels {
-  /// The status of the underlying model. This is used to indicate the stage of the underlying model and the retirement time if applicable.
+  /// An internal data model for `ModelStatus`.
   /// 
-  /// > Important: This type is only available in the Gemini Developer API.
+  /// ### Gemini Developer API
+  /// 
+  /// Type: `GoogleAiGenerativelanguageV1betaModelStatus`
+  /// 
+  /// The status of the underlying model. This is used to indicate the stage of the
+  /// underlying model and the retirement time if applicable.
+  /// 
+  /// ### Gemini Enterprise Agent Platform
+  /// 
+  /// > Important: This type is not supported in the Gemini Enterprise Agent Platform.
   package struct ModelStatus: Codable, Sendable, Equatable, Hashable {
-    /// The time at which the model will be retired.
-    /// 
-    /// > Important: `retirementTime` is only available in the Gemini Developer API.
-    package let retirementTime: Date?
-    
     /// The stage of the underlying model.
     /// 
-    /// > Important: `modelStage` is only available in the Gemini Developer API.
+    /// ### Gemini Developer API
+    /// 
+    /// The stage of the underlying model.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
     package let modelStage: ModelStage?
+    
+    /// The time at which the model will be retired.
+    /// 
+    /// ### Gemini Developer API
+    /// 
+    /// The time at which the model will be retired.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
+    package let retirementTime: String?
     
     /// A message explaining the model status.
     /// 
-    /// > Important: `message` is only available in the Gemini Developer API.
+    /// ### Gemini Developer API
+    /// 
+    /// A message explaining the model status.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
     package let message: String?
     
+
     /// Creates a new `ModelStatus`.
+    ///
+    /// - Parameters:
+    ///   - modelStage: The stage of the underlying model. (Gemini Developer API only). For more details, see ``modelStage``.
+    ///   - retirementTime: The time at which the model will be retired. (Gemini Developer API only). For more details, see ``retirementTime``.
+    ///   - message: A message explaining the model status. (Gemini Developer API only). For more details, see ``message``.
     package init(
-      retirementTime: Date? = nil,
       modelStage: ModelStage? = nil,
+      retirementTime: String? = nil,
       message: String? = nil
     ) {
-      self.retirementTime = retirementTime
       self.modelStage = modelStage
+      self.retirementTime = retirementTime
       self.message = message
     }
     enum CodingKeys: String, CodingKey {
-      case retirementTime = "retirementTime"
       case modelStage = "modelStage"
+      case retirementTime = "retirementTime"
       case message = "message"
     }
   }

@@ -16,30 +16,70 @@ import Foundation
 
 
 extension GeminiDataModels {
+  /// An internal data model for `SpeechConfig`.
+  /// 
+  /// ### Gemini Developer API
+  /// 
+  /// Type: `GoogleAiGenerativelanguageV1betaSpeechConfig`
+  /// 
   /// Config for speech generation and transcription.
   /// 
-  /// Variant:
+  /// ### Gemini Enterprise Agent Platform
+  /// 
+  /// Type: `GoogleCloudAiplatformV1beta1SpeechConfig`
+  /// 
   /// Configuration for speech generation.
   package struct SpeechConfig: Codable, Sendable, Equatable, Hashable {
     /// The configuration in case of single-voice output.
     /// 
-    /// Variant:
+    /// ### Gemini Developer API
+    /// 
+    /// The configuration in case of single-voice output.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
     /// The configuration for the voice to use.
     package let voiceConfig: VoiceConfig?
     
-    /// Optional. The configuration for the multi-speaker setup. It is mutually exclusive with the voice_config field.
+    /// Optional. The configuration for the multi-speaker setup.
     /// 
-    /// Variant:
-    /// The configuration for a multi-speaker text-to-speech request. This field is mutually exclusive with `voice_config`.
+    /// ### Gemini Developer API
+    /// 
+    /// Optional. The configuration for the multi-speaker setup.
+    /// It is mutually exclusive with the voice_config field.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// The configuration for a multi-speaker text-to-speech request.
+    /// This field is mutually exclusive with `voice_config`.
     package let multiSpeakerVoiceConfig: MultiSpeakerVoiceConfig?
     
-    /// Optional. The IETF [BCP-47](https://www.rfc-editor.org/rfc/bcp/bcp47.txt) language code that the user configured the app to use. Used for speech recognition and synthesis. Valid values are: `de-DE`, `en-AU`, `en-GB`, `en-IN`, `en-US`, `es-US`, `fr-FR`, `hi-IN`, `pt-BR`, `ar-XA`, `es-ES`, `fr-CA`, `id-ID`, `it-IT`, `ja-JP`, `tr-TR`, `vi-VN`, `bn-IN`, `gu-IN`, `kn-IN`, `ml-IN`, `mr-IN`, `ta-IN`, `te-IN`, `nl-NL`, `ko-KR`, `cmn-CN`, `pl-PL`, `ru-RU`, and `th-TH`.
+    /// Optional. The IETF [BCP-47](https://www.rfc-editor.org/rfc/bcp/bcp47.txt) language
     /// 
-    /// Variant:
+    /// ### Gemini Developer API
+    /// 
+    /// Optional. The IETF [BCP-47](https://www.rfc-editor.org/rfc/bcp/bcp47.txt) language
+    /// code that the user configured the app to use. Used for speech recognition
+    /// and synthesis.
+    /// 
+    /// Valid values are: `de-DE`, `en-AU`, `en-GB`, `en-IN`, `en-US`, `es-US`,
+    /// `fr-FR`, `hi-IN`, `pt-BR`, `ar-XA`, `es-ES`, `fr-CA`, `id-ID`, `it-IT`,
+    /// `ja-JP`, `tr-TR`, `vi-VN`, `bn-IN`, `gu-IN`, `kn-IN`, `ml-IN`, `mr-IN`,
+    /// `ta-IN`, `te-IN`, `nl-NL`, `ko-KR`, `cmn-CN`, `pl-PL`, `ru-RU`, and
+    /// `th-TH`.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
     /// Optional. The language code (ISO 639-1) for the speech synthesis.
     package let languageCode: String?
     
+
     /// Creates a new `SpeechConfig`.
+    ///
+    /// - Parameters:
+    ///   - voiceConfig: The configuration in case of single-voice output. (behavior varies by backend). For more details, see ``voiceConfig``.
+    ///   - multiSpeakerVoiceConfig: Optional. The configuration for the multi-speaker setup. (behavior varies by backend). For more details, see ``multiSpeakerVoiceConfig``.
+    ///   - languageCode: Optional. The IETF [BCP-47](https://www.rfc-editor.org/rfc/bcp/bcp47.txt) language (behavior varies by backend). For more details, see ``languageCode``.
     package init(
       voiceConfig: VoiceConfig? = nil,
       multiSpeakerVoiceConfig: MultiSpeakerVoiceConfig? = nil,

@@ -16,26 +16,59 @@ import Foundation
 
 
 extension GeminiDataModels {
-  /// Route information from Google Maps.
+  /// An internal data model for `MapsRoute`.
   /// 
-  /// > Important: This type is only available in the Gemini Enterprise Agent Platform.
+  /// ### Gemini Developer API
+  /// 
+  /// > Important: This type is not supported in the Gemini Developer API.
+  /// 
+  /// ### Gemini Enterprise Agent Platform
+  /// 
+  /// Type: `GoogleCloudAiplatformV1beta1GroundingChunkMapsRoute`
+  /// 
+  /// Route information from Google Maps.
   package struct MapsRoute: Codable, Sendable, Equatable, Hashable {
     /// The total distance of the route, in meters.
     /// 
-    /// > Important: `distanceMeters` is only available in the Gemini Enterprise Agent Platform.
+    /// ### Gemini Developer API
+    /// 
+    /// > Important: This property is not supported in the Gemini Developer API.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// The total distance of the route, in meters.
     package let distanceMeters: Int?
     
     /// The total duration of the route.
     /// 
-    /// > Important: `duration` is only available in the Gemini Enterprise Agent Platform.
+    /// ### Gemini Developer API
+    /// 
+    /// > Important: This property is not supported in the Gemini Developer API.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// The total duration of the route.
     package let duration: String?
     
-    /// An encoded polyline of the route. See https://developers.google.com/maps/documentation/utilities/polylinealgorithm
+    /// An encoded polyline of the route. See
     /// 
-    /// > Important: `encodedPolyline` is only available in the Gemini Enterprise Agent Platform.
+    /// ### Gemini Developer API
+    /// 
+    /// > Important: This property is not supported in the Gemini Developer API.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// An encoded polyline of the route. See
+    /// https://developers.google.com/maps/documentation/utilities/polylinealgorithm
     package let encodedPolyline: String?
     
+
     /// Creates a new `MapsRoute`.
+    ///
+    /// - Parameters:
+    ///   - distanceMeters: The total distance of the route, in meters. (Gemini Enterprise Agent Platform only). For more details, see ``distanceMeters``.
+    ///   - duration: The total duration of the route. (Gemini Enterprise Agent Platform only). For more details, see ``duration``.
+    ///   - encodedPolyline: An encoded polyline of the route. See (Gemini Enterprise Agent Platform only). For more details, see ``encodedPolyline``.
     package init(
       distanceMeters: Int? = nil,
       duration: String? = nil,

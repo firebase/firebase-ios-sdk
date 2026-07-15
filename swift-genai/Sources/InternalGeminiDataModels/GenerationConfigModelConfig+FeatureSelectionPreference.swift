@@ -17,7 +17,13 @@ import Foundation
 extension GeminiDataModels.GenerationConfigModelConfig {
   /// Required. Feature selection preference.
   /// 
-  /// > Important: `featureSelectionPreference` is only available in the Gemini Enterprise Agent Platform.
+  /// ### Gemini Developer API
+  /// 
+  /// > Important: This property is not supported in the Gemini Developer API.
+  /// 
+  /// ### Gemini Enterprise Agent Platform
+  /// 
+  /// Required. Feature selection preference.
   package enum FeatureSelectionPreference: Codable, Sendable, Equatable, Hashable {
     /// Prefer higher quality over lower cost.
     case prioritizeQuality

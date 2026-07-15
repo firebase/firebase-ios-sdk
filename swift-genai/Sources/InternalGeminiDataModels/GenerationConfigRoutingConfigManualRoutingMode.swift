@@ -16,16 +16,37 @@ import Foundation
 
 
 extension GeminiDataModels {
-  /// The configuration for manual routing. When manual routing is specified, the model will be selected based on the model name provided.
+  /// An internal data model for `GenerationConfigRoutingConfigManualRoutingMode`.
   /// 
-  /// > Important: This type is only available in the Gemini Enterprise Agent Platform.
+  /// ### Gemini Developer API
+  /// 
+  /// > Important: This type is not supported in the Gemini Developer API.
+  /// 
+  /// ### Gemini Enterprise Agent Platform
+  /// 
+  /// Type: `GoogleCloudAiplatformV1beta1GenerationConfigRoutingConfigManualRoutingMode`
+  /// 
+  /// The configuration for manual routing.
+  /// 
+  /// When manual routing is specified, the model will be selected based on the
+  /// model name provided.
   package struct GenerationConfigRoutingConfigManualRoutingMode: Codable, Sendable, Equatable, Hashable {
     /// The name of the model to use. Only public LLM models are accepted.
     /// 
-    /// > Important: `modelName` is only available in the Gemini Enterprise Agent Platform.
+    /// ### Gemini Developer API
+    /// 
+    /// > Important: This property is not supported in the Gemini Developer API.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// The name of the model to use. Only public LLM models are accepted.
     package let modelName: String?
     
+
     /// Creates a new `GenerationConfigRoutingConfigManualRoutingMode`.
+    ///
+    /// - Parameters:
+    ///   - modelName: The name of the model to use. Only public LLM models are accepted. (Gemini Enterprise Agent Platform only). For more details, see ``modelName``.
     package init(
       modelName: String? = nil
     ) {

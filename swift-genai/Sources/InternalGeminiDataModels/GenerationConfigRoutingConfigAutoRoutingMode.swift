@@ -16,16 +16,38 @@ import Foundation
 
 
 extension GeminiDataModels {
-  /// The configuration for automated routing. When automated routing is specified, the routing will be determined by the pretrained routing model and customer provided model routing preference.
+  /// An internal data model for `GenerationConfigRoutingConfigAutoRoutingMode`.
   /// 
-  /// > Important: This type is only available in the Gemini Enterprise Agent Platform.
+  /// ### Gemini Developer API
+  /// 
+  /// > Important: This type is not supported in the Gemini Developer API.
+  /// 
+  /// ### Gemini Enterprise Agent Platform
+  /// 
+  /// Type: `GoogleCloudAiplatformV1beta1GenerationConfigRoutingConfigAutoRoutingMode`
+  /// 
+  /// The configuration for automated routing.
+  /// 
+  /// When automated routing is specified, the routing will be determined by
+  /// the pretrained routing model and customer provided model routing
+  /// preference.
   package struct GenerationConfigRoutingConfigAutoRoutingMode: Codable, Sendable, Equatable, Hashable {
     /// The model routing preference.
     /// 
-    /// > Important: `modelRoutingPreference` is only available in the Gemini Enterprise Agent Platform.
+    /// ### Gemini Developer API
+    /// 
+    /// > Important: This property is not supported in the Gemini Developer API.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// The model routing preference.
     package let modelRoutingPreference: ModelRoutingPreference?
     
+
     /// Creates a new `GenerationConfigRoutingConfigAutoRoutingMode`.
+    ///
+    /// - Parameters:
+    ///   - modelRoutingPreference: The model routing preference. (Gemini Enterprise Agent Platform only). For more details, see ``modelRoutingPreference``.
     package init(
       modelRoutingPreference: ModelRoutingPreference? = nil
     ) {

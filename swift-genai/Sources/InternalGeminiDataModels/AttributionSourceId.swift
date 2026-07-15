@@ -16,21 +16,46 @@ import Foundation
 
 
 extension GeminiDataModels {
+  /// An internal data model for `AttributionSourceId`.
+  /// 
+  /// ### Gemini Developer API
+  /// 
+  /// Type: `GoogleAiGenerativelanguageV1betaAttributionSourceId`
+  /// 
   /// Identifier for the source contributing to this attribution.
   /// 
-  /// > Important: This type is only available in the Gemini Developer API.
+  /// ### Gemini Enterprise Agent Platform
+  /// 
+  /// > Important: This type is not supported in the Gemini Enterprise Agent Platform.
   package struct AttributionSourceId: Codable, Sendable, Equatable, Hashable {
     /// Identifier for an inline passage.
     /// 
-    /// > Important: `groundingPassage` is only available in the Gemini Developer API.
+    /// ### Gemini Developer API
+    /// 
+    /// Identifier for an inline passage.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
     package let groundingPassage: AttributionSourceIdGroundingPassageId?
     
     /// Identifier for a `Chunk` fetched via Semantic Retriever.
     /// 
-    /// > Important: `semanticRetrieverChunk` is only available in the Gemini Developer API.
+    /// ### Gemini Developer API
+    /// 
+    /// Identifier for a `Chunk` fetched via Semantic Retriever.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
     package let semanticRetrieverChunk: AttributionSourceIdSemanticRetrieverChunk?
     
+
     /// Creates a new `AttributionSourceId`.
+    ///
+    /// - Parameters:
+    ///   - groundingPassage: Identifier for an inline passage. (Gemini Developer API only). For more details, see ``groundingPassage``.
+    ///   - semanticRetrieverChunk: Identifier for a `Chunk` fetched via Semantic Retriever. (Gemini Developer API only). For more details, see ``semanticRetrieverChunk``.
     package init(
       groundingPassage: AttributionSourceIdGroundingPassageId? = nil,
       semanticRetrieverChunk: AttributionSourceIdSemanticRetrieverChunk? = nil

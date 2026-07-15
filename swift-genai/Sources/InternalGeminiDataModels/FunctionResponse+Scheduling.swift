@@ -14,26 +14,22 @@
 
 import Foundation
 
-extension GeminiDataModels.ModalityTokenCount {
-  /// The modality associated with this token count.
-  /// 
-  /// Variant:
-  /// The modality that this token count applies to.
-  package enum Modality: Codable, Sendable, Equatable, Hashable {
-    /// Plain text.
-    case text
+extension GeminiDataModels.FunctionResponse {
+  /// Optional. Specifies how the response should be scheduled in the conversation.
+  /// Only applicable to NON_BLOCKING function calls, is ignored otherwise.
+  /// Defaults to WHEN_IDLE.
+  package enum Scheduling: Codable, Sendable, Equatable, Hashable {
+    /// Only add the result to the conversation context, do not interrupt or
+    /// trigger generation.
+    case silent
     
-    /// Image.
-    case image
+    /// Add the result to the conversation context, and prompt to generate output
+    /// without interrupting ongoing generation.
+    case whenIdle
     
-    /// Video.
-    case video
-    
-    /// Audio.
-    case audio
-    
-    /// Document, e.g. PDF.
-    case document
+    /// Add the result to the conversation context, interrupt ongoing generation
+    /// and prompt to generate output.
+    case interrupt
     
     /// Unrecognized case.
     ///
@@ -44,25 +40,21 @@ extension GeminiDataModels.ModalityTokenCount {
 
 // MARK: - RawRepresentable Conformance
 
-extension GeminiDataModels.ModalityTokenCount.Modality: RawRepresentable {
+extension GeminiDataModels.FunctionResponse.Scheduling: RawRepresentable {
   package var rawValue: String {
     switch self {
-    case .text: "TEXT"
-    case .image: "IMAGE"
-    case .video: "VIDEO"
-    case .audio: "AUDIO"
-    case .document: "DOCUMENT"
+    case .silent: "SILENT"
+    case .whenIdle: "WHEN_IDLE"
+    case .interrupt: "INTERRUPT"
     case .unrecognized(let value): value
     }
   }
 
   package init(rawValue: String) {
     switch rawValue {
-    case "TEXT": self = .text
-    case "IMAGE": self = .image
-    case "VIDEO": self = .video
-    case "AUDIO": self = .audio
-    case "DOCUMENT": self = .document
+    case "SILENT": self = .silent
+    case "WHEN_IDLE": self = .whenIdle
+    case "INTERRUPT": self = .interrupt
     default: self = .unrecognized(rawValue)
     }
   }

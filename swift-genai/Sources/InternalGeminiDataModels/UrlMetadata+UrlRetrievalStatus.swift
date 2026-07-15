@@ -17,7 +17,12 @@ import Foundation
 extension GeminiDataModels.UrlMetadata {
   /// Status of the url retrieval.
   /// 
-  /// Variant:
+  /// ### Gemini Developer API
+  /// 
+  /// Status of the url retrieval.
+  /// 
+  /// ### Gemini Enterprise Agent Platform
+  /// 
   /// The status of the URL retrieval.
   package enum UrlRetrievalStatus: Codable, Sendable, Equatable, Hashable {
     /// Url retrieval is successful.

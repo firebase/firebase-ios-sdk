@@ -16,15 +16,40 @@ import Foundation
 
 
 extension GeminiDataModels {
+  /// An internal data model for `GoogleMaps`.
+  /// 
+  /// ### Gemini Developer API
+  /// 
+  /// Type: `GoogleMaps`
+  /// 
+  /// Tool to retrieve public maps data for grounding, powered by Google.
+  /// 
+  /// ### Gemini Enterprise Agent Platform
+  /// 
+  /// Type: `GoogleCloudAiplatformV1beta1GoogleMaps`
+  /// 
   /// Tool to retrieve public maps data for grounding, powered by Google.
   package struct GoogleMaps: Codable, Sendable, Equatable, Hashable {
     /// Optional. If true, include the widget context token in the response.
     /// 
-    /// Variant:
-    /// Optional. Deprecated: The Google Maps contextual widget behavior in Grounding with Google Maps is being deprecated; this field is planned for removal and no longer has any effect once removed. If true, include the widget context token in the response.
+    /// ### Gemini Developer API
+    /// 
+    /// Optional. If true, include the widget context token in the response.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// Optional. Deprecated: The Google Maps contextual widget behavior in Grounding with
+    /// Google Maps is being deprecated; this field is planned for removal and no
+    /// longer has any effect once removed.
+    /// 
+    /// If true, include the widget context token in the response.
     package let enableWidget: Bool?
     
+
     /// Creates a new `GoogleMaps`.
+    ///
+    /// - Parameters:
+    ///   - enableWidget: Optional. If true, include the widget context token in the response. (behavior varies by backend). For more details, see ``enableWidget``.
     package init(
       enableWidget: Bool? = nil
     ) {

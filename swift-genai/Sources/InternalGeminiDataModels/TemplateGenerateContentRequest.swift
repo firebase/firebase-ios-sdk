@@ -17,37 +17,58 @@ package import InternalSharedDataModels
 
 
 extension GeminiDataModels {
+  /// An internal data model for `TemplateGenerateContentRequest`.
+  /// 
+  /// ### Gemini Developer API
+  /// 
+  /// Type: `TemplateGenerateContentRequest`
+  /// 
+  /// Request for performing a GenerateContent operation.
+  /// 
+  /// ### Gemini Enterprise Agent Platform
+  /// 
+  /// Type: `TemplateGenerateContentRequest`
+  /// 
   /// Request for performing a GenerateContent operation.
   package struct TemplateGenerateContentRequest: Codable, Sendable, Equatable, Hashable {
-    /// Optional. Tool configuration for any tool specified in the request.
-    package let toolConfig: ToolConfig?
+    /// Optional. Client provided data that can be used when rendering the template.
+    /// When calling via JSON/http surfaces this should be wire compatible with
+    /// an arbitrary JSON object.
+    package let inputs: [String: JSONValue]?
     
     /// Optional. Conversation history for multi-turn prompts and function calling.
     package let history: [HistoryContent]?
     
-    /// Optional. Client provided data that can be used when rendering the template. When calling via JSON/http surfaces this should be wire compatible with an arbitrary JSON object.
-    package let inputs: [String: JSONValue]?
-    
     /// Optional. A list of tools that the model may use to generate the response.
     package let tools: [Tool]?
     
+    /// Optional. Tool configuration for any tool specified in the request.
+    package let toolConfig: ToolConfig?
+    
+
     /// Creates a new `TemplateGenerateContentRequest`.
+    ///
+    /// - Parameters:
+    ///   - inputs: Optional. Client provided data that can be used when rendering the template.
+    ///   - history: Optional. Conversation history for multi-turn prompts and function calling.
+    ///   - tools: Optional. A list of tools that the model may use to generate the response.
+    ///   - toolConfig: Optional. Tool configuration for any tool specified in the request.
     package init(
-      toolConfig: ToolConfig? = nil,
-      history: [HistoryContent]? = nil,
       inputs: [String: JSONValue]? = nil,
-      tools: [Tool]? = nil
+      history: [HistoryContent]? = nil,
+      tools: [Tool]? = nil,
+      toolConfig: ToolConfig? = nil
     ) {
-      self.toolConfig = toolConfig
-      self.history = history
       self.inputs = inputs
+      self.history = history
       self.tools = tools
+      self.toolConfig = toolConfig
     }
     enum CodingKeys: String, CodingKey {
-      case toolConfig = "toolConfig"
-      case history = "history"
       case inputs = "inputs"
+      case history = "history"
       case tools = "tools"
+      case toolConfig = "toolConfig"
     }
   }
 }

@@ -16,90 +16,170 @@ import Foundation
 
 
 extension GeminiDataModels {
+  /// An internal data model for `RetrievedContextChunk`.
+  /// 
+  /// ### Gemini Developer API
+  /// 
+  /// Type: `GoogleAiGenerativelanguageV1betaGroundingChunkRetrievedContext`
+  /// 
   /// Chunk from context retrieved by the file search tool.
   /// 
-  /// Variant:
-  /// Context retrieved from a data source to ground the model's response. This is used when a retrieval tool fetches information from a user-provided corpus or a public dataset.
+  /// ### Gemini Enterprise Agent Platform
+  /// 
+  /// Type: `GoogleCloudAiplatformV1beta1GroundingChunkRetrievedContext`
+  /// 
+  /// Context retrieved from a data source to ground the model's response. This
+  /// is used when a retrieval tool fetches information from a user-provided
+  /// corpus or a public dataset.
   package struct RetrievedContextChunk: Codable, Sendable, Equatable, Hashable {
-    /// Optional. The media blob resource name for multimodal file search results. Format: fileSearchStores/{file_search_store_id}/media/{blob_id}
-    /// 
-    /// > Important: `mediaId` is only available in the Gemini Developer API.
-    package let mediaId: String?
-    
-    /// Optional. User-provided metadata about the retrieved context.
-    /// 
-    /// > Important: `customMetadata` is only available in the Gemini Developer API.
-    package let customMetadata: [GroundingChunkCustomMetadata]?
-    
-    /// Optional. Text of the chunk.
-    /// 
-    /// Variant:
-    /// The content of the retrieved data source.
-    package let text: String?
-    
-    /// Additional context for a Retrieval-Augmented Generation (RAG) retrieval result. This is populated only when the RAG retrieval tool is used.
-    /// 
-    /// > Important: `ragChunk` is only available in the Gemini Enterprise Agent Platform.
-    package let ragChunk: RagChunk?
-    
-    /// Optional. Page number of the retrieved context, if applicable.
-    /// 
-    /// > Important: `pageNumber` is only available in the Gemini Developer API.
-    package let pageNumber: Int?
-    
-    /// Optional. Name of the `FileSearchStore` containing the document. Example: `fileSearchStores/123`
-    /// 
-    /// > Important: `fileSearchStore` is only available in the Gemini Developer API.
-    package let fileSearchStore: String?
-    
-    /// Optional. Title of the document.
-    /// 
-    /// Variant:
-    /// The title of the retrieved data source.
-    package let title: String?
-    
     /// Optional. URI reference of the semantic retrieval document.
     /// 
-    /// Variant:
+    /// ### Gemini Developer API
+    /// 
+    /// Optional. URI reference of the semantic retrieval document.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
     /// The URI of the retrieved data source.
     package let uri: String?
     
-    /// Output only. The full resource name of the referenced Vertex AI Search document. This is used to identify the specific document that was retrieved. The format is `projects/{project}/locations/{location}/collections/{collection}/dataStores/{data_store}/branches/{branch}/documents/{document}`.
+    /// Optional. Title of the document.
     /// 
-    /// > Important: `documentName` is only available in the Gemini Enterprise Agent Platform.
+    /// ### Gemini Developer API
+    /// 
+    /// Optional. Title of the document.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// The title of the retrieved data source.
+    package let title: String?
+    
+    /// Optional. Text of the chunk.
+    /// 
+    /// ### Gemini Developer API
+    /// 
+    /// Optional. Text of the chunk.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// The content of the retrieved data source.
+    package let text: String?
+    
+    /// Optional. Name of the `FileSearchStore` containing the document.
+    /// 
+    /// ### Gemini Developer API
+    /// 
+    /// Optional. Name of the `FileSearchStore` containing the document.
+    /// Example: `fileSearchStores/123`
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
+    package let fileSearchStore: String?
+    
+    /// Optional. User-provided metadata about the retrieved context.
+    /// 
+    /// ### Gemini Developer API
+    /// 
+    /// Optional. User-provided metadata about the retrieved context.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
+    package let customMetadata: [GroundingChunkCustomMetadata]?
+    
+    /// Optional. Page number of the retrieved context, if applicable.
+    /// 
+    /// ### Gemini Developer API
+    /// 
+    /// Optional. Page number of the retrieved context, if applicable.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
+    package let pageNumber: Int?
+    
+    /// Optional. The media blob resource name for multimodal file search results.
+    /// 
+    /// ### Gemini Developer API
+    /// 
+    /// Optional. The media blob resource name for multimodal file search results.
+    /// Format: fileSearchStores/{file_search_store_id}/media/{blob_id}
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
+    package let mediaId: String?
+    
+    /// Additional context for a Retrieval-Augmented Generation (RAG) retrieval
+    /// 
+    /// ### Gemini Developer API
+    /// 
+    /// > Important: This property is not supported in the Gemini Developer API.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// Additional context for a Retrieval-Augmented Generation (RAG) retrieval
+    /// result. This is populated only when the RAG retrieval tool is used.
+    package let ragChunk: RagChunk?
+    
+    /// Output only. The full resource name of the referenced Vertex AI Search
+    /// 
+    /// ### Gemini Developer API
+    /// 
+    /// > Important: This property is not supported in the Gemini Developer API.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// Output only. The full resource name of the referenced Vertex AI Search
+    /// document. This is used to identify the specific document that was
+    /// retrieved. The format is
+    /// `projects/{project}/locations/{location}/collections/{collection}/dataStores/{data_store}/branches/{branch}/documents/{document}`.
     package let documentName: String?
     
+
     /// Creates a new `RetrievedContextChunk`.
+    ///
+    /// - Parameters:
+    ///   - uri: Optional. URI reference of the semantic retrieval document. (behavior varies by backend). For more details, see ``uri``.
+    ///   - title: Optional. Title of the document. (behavior varies by backend). For more details, see ``title``.
+    ///   - text: Optional. Text of the chunk. (behavior varies by backend). For more details, see ``text``.
+    ///   - fileSearchStore: Optional. Name of the `FileSearchStore` containing the document. (Gemini Developer API only). For more details, see ``fileSearchStore``.
+    ///   - customMetadata: Optional. User-provided metadata about the retrieved context. (Gemini Developer API only). For more details, see ``customMetadata``.
+    ///   - pageNumber: Optional. Page number of the retrieved context, if applicable. (Gemini Developer API only). For more details, see ``pageNumber``.
+    ///   - mediaId: Optional. The media blob resource name for multimodal file search results. (Gemini Developer API only). For more details, see ``mediaId``.
+    ///   - ragChunk: Additional context for a Retrieval-Augmented Generation (RAG) retrieval (Gemini Enterprise Agent Platform only). For more details, see ``ragChunk``.
+    ///   - documentName: Output only. The full resource name of the referenced Vertex AI Search (Gemini Enterprise Agent Platform only). For more details, see ``documentName``.
     package init(
-      mediaId: String? = nil,
-      customMetadata: [GroundingChunkCustomMetadata]? = nil,
-      text: String? = nil,
-      ragChunk: RagChunk? = nil,
-      pageNumber: Int? = nil,
-      fileSearchStore: String? = nil,
-      title: String? = nil,
       uri: String? = nil,
+      title: String? = nil,
+      text: String? = nil,
+      fileSearchStore: String? = nil,
+      customMetadata: [GroundingChunkCustomMetadata]? = nil,
+      pageNumber: Int? = nil,
+      mediaId: String? = nil,
+      ragChunk: RagChunk? = nil,
       documentName: String? = nil
     ) {
-      self.mediaId = mediaId
-      self.customMetadata = customMetadata
-      self.text = text
-      self.ragChunk = ragChunk
-      self.pageNumber = pageNumber
-      self.fileSearchStore = fileSearchStore
-      self.title = title
       self.uri = uri
+      self.title = title
+      self.text = text
+      self.fileSearchStore = fileSearchStore
+      self.customMetadata = customMetadata
+      self.pageNumber = pageNumber
+      self.mediaId = mediaId
+      self.ragChunk = ragChunk
       self.documentName = documentName
     }
     enum CodingKeys: String, CodingKey {
-      case mediaId = "mediaId"
-      case customMetadata = "customMetadata"
-      case text = "text"
-      case ragChunk = "ragChunk"
-      case pageNumber = "pageNumber"
-      case fileSearchStore = "fileSearchStore"
-      case title = "title"
       case uri = "uri"
+      case title = "title"
+      case text = "text"
+      case fileSearchStore = "fileSearchStore"
+      case customMetadata = "customMetadata"
+      case pageNumber = "pageNumber"
+      case mediaId = "mediaId"
+      case ragChunk = "ragChunk"
       case documentName = "documentName"
     }
   }

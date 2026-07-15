@@ -15,7 +15,16 @@
 import Foundation
 
 extension GeminiDataModels.MediaResolution {
-  /// The tokenization quality used for given media. for Gemini API support .
+  /// The tokenization quality used for given media.
+  /// 
+  /// ### Gemini Developer API
+  /// 
+  /// The tokenization quality used for given media.
+  ///  for Gemini API support .
+  /// 
+  /// ### Gemini Enterprise Agent Platform
+  /// 
+  /// The tokenization quality used for given media.
   package enum Level: Codable, Sendable, Equatable, Hashable {
     /// Media resolution set to low.
     case low

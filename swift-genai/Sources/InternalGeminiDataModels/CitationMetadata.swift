@@ -16,32 +16,58 @@ import Foundation
 
 
 extension GeminiDataModels {
+  /// An internal data model for `CitationMetadata`.
+  /// 
+  /// ### Gemini Developer API
+  /// 
+  /// Type: `GoogleAiGenerativelanguageV1betaCitationMetadata`
+  /// 
   /// A collection of source attributions for a piece of content.
   /// 
-  /// Variant:
+  /// ### Gemini Enterprise Agent Platform
+  /// 
+  /// Type: `GoogleCloudAiplatformV1beta1CitationMetadata`
+  /// 
   /// A collection of citations that apply to a piece of generated content.
   package struct CitationMetadata: Codable, Sendable, Equatable, Hashable {
-    /// Output only. A list of citations for the content.
-    /// 
-    /// > Important: `citations` is only available in the Gemini Enterprise Agent Platform.
-    package let citations: [Citation]?
-    
     /// Citations to sources for a specific response.
     /// 
-    /// > Important: `citationSources` is only available in the Gemini Developer API.
+    /// ### Gemini Developer API
+    /// 
+    /// Citations to sources for a specific response.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
     package let citationSources: [CitationSource]?
     
+    /// Output only. A list of citations for the content.
+    /// 
+    /// ### Gemini Developer API
+    /// 
+    /// > Important: This property is not supported in the Gemini Developer API.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// Output only. A list of citations for the content.
+    package let citations: [Citation]?
+    
+
     /// Creates a new `CitationMetadata`.
+    ///
+    /// - Parameters:
+    ///   - citationSources: Citations to sources for a specific response. (Gemini Developer API only). For more details, see ``citationSources``.
+    ///   - citations: Output only. A list of citations for the content. (Gemini Enterprise Agent Platform only). For more details, see ``citations``.
     package init(
-      citations: [Citation]? = nil,
-      citationSources: [CitationSource]? = nil
+      citationSources: [CitationSource]? = nil,
+      citations: [Citation]? = nil
     ) {
-      self.citations = citations
       self.citationSources = citationSources
+      self.citations = citations
     }
     enum CodingKeys: String, CodingKey {
-      case citations = "citations"
       case citationSources = "citationSources"
+      case citations = "citations"
     }
   }
 }

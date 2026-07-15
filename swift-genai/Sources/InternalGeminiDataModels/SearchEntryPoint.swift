@@ -16,24 +16,56 @@ import Foundation
 
 
 extension GeminiDataModels {
+  /// An internal data model for `SearchEntryPoint`.
+  /// 
+  /// ### Gemini Developer API
+  /// 
+  /// Type: `GoogleAiGenerativelanguageV1betaSearchEntryPoint`
+  /// 
   /// Google search entry point.
   /// 
-  /// Variant:
-  /// An entry point for displaying Google Search results. A `SearchEntryPoint` is populated when the grounding source for a model's response is Google Search. It provides information that you can use to display the search results in your application.
+  /// ### Gemini Enterprise Agent Platform
+  /// 
+  /// Type: `GoogleCloudAiplatformV1beta1SearchEntryPoint`
+  /// 
+  /// An entry point for displaying Google Search results.
+  /// 
+  /// A `SearchEntryPoint` is populated when the grounding source for a model's
+  /// response is Google Search. It provides information that you can use to
+  /// display the search results in your application.
   package struct SearchEntryPoint: Codable, Sendable, Equatable, Hashable {
     /// Optional. Web content snippet that can be embedded in a web page or an app webview.
     /// 
-    /// Variant:
-    /// Optional. An HTML snippet that can be embedded in a web page or an application's webview. This snippet displays a search result, including the title, URL, and a brief description of the search result.
+    /// ### Gemini Developer API
+    /// 
+    /// Optional. Web content snippet that can be embedded in a web page or an app webview.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// Optional. An HTML snippet that can be embedded in a web page or an
+    /// application's webview. This snippet displays a search result, including the
+    /// title, URL, and a brief description of the search result.
     package let renderedContent: String?
     
-    /// Optional. Base64 encoded JSON representing array of tuple.
+    /// Optional. Base64 encoded JSON representing array of  tuple.
     /// 
-    /// Variant:
-    /// Optional. A base64-encoded JSON object that contains a list of search queries and their corresponding search URLs. This information can be used to build a custom search UI.
+    /// ### Gemini Developer API
+    /// 
+    /// Optional. Base64 encoded JSON representing array of  tuple.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// Optional. A base64-encoded JSON object that contains a list of search
+    /// queries and their corresponding search URLs. This information can be used
+    /// to build a custom search UI.
     package let sdkBlob: String?
     
+
     /// Creates a new `SearchEntryPoint`.
+    ///
+    /// - Parameters:
+    ///   - renderedContent: Optional. Web content snippet that can be embedded in a web page or an app webview. (behavior varies by backend). For more details, see ``renderedContent``.
+    ///   - sdkBlob: Optional. Base64 encoded JSON representing array of  tuple. (behavior varies by backend). For more details, see ``sdkBlob``.
     package init(
       renderedContent: String? = nil,
       sdkBlob: String? = nil

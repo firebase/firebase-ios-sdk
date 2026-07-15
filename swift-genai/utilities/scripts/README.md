@@ -12,52 +12,68 @@ installed:
 # From the project root directory
 source utilities/.venv/bin/activate
 pip install -r utilities/requirements.txt # Installs jinja2 if not present
+pip install pyyaml --index-url https://pypi.org/simple # Installs pyyaml
 ```
 
 ---
 
-## Usage Instructions
+## 1. Upgrading Specification (`upgrade_spec.py`)
 
-Use [generate_types.py](generate_types.py) to parse API discovery docs and write
-clean Swift types into target folders.
+Before generating types, you must upgrade the base specification and apply
+manual overrides:
+
+```bash
+python utilities/scripts/upgrade_spec.py
+```
+This script loads the base specification
+`firebasevertexai_public_openapi3_0_v1beta.json`, upgrades it to OpenAPI 3.1.0
+(standardizing nullable fields and allOf references), merges overrides from
+`firebasevertexai-overrides.yaml`, and outputs `firebasevertexai-openapi.yaml`.
+
+---
+
+## 2. Generating Types (`generate_types.py`)
+
+Use [generate_types.py](generate_types.py) to parse the upgraded OpenAPI 3.1.0
+specification and write clean Swift types into target folders.
 
 ### Command-Line Arguments Reference
 
 | Argument | Default | Description |
 | :--- | :--- | :--- |
-| `--discovery-doc` | `utilities/discovery_documents/generativelanguage-discovery.json` | Path to the source discovery JSON file. |
-| `--output-dir` | `Sources/GeminiAPIClient/DataModels/GoogleAI` | Target directory for the generated Swift files. |
-| `--roots` | `["GenerateContentRequest", "GenerateContentResponse"]` | Starting schemas to resolve transitively. |
-| `--access-level` | `public` | Access keyword for generated declarations (`public`, `package`, etc.). |
-| `--strip-prefix` | `""` | Optional prefix to strip from schema names/references. |
-| `--namespace` | `GoogleAI` | Root Swift namespace enclosing the generated types. |
-| `--templates-dir` | `utilities/templates` | Directory containing the Jinja2 Swift template files. |
+| `--openapi-spec` | `.../firebasevertexai-openapi.yaml` | Upgraded spec YAML paths. |
+| `--overrides-file` | `.../firebasevertexai-overrides.yaml` | YAML overrides file path. |
+| `--output-dir` | `Sources/InternalGeminiDataModels` | Output directory. |
+| `--roots` | `["GenerateContentRequest", ...]` | Roots to resolve. |
+| `--access-level` | `package` | Swift access control. |
+| `--strip-prefix` | `["GoogleAi...", "GoogleCloud..."]` | Prefixes to strip. |
+| `--namespace` | `GeminiDataModels` | Swift root namespace. |
+| `--templates-dir` | `utilities/templates` | Jinja2 templates folder. |
 
 ---
 
 ## Copy-Paste Recipes
 
-Use the following recipes from the project root to regenerate the SPM targets:
+Use the following recipe from the project root to regenerate the unified
+`InternalGeminiDataModels` SPM target:
 
-### 1. Regenerating `GoogleAIDataModels`
+### Regenerating `InternalGeminiDataModels`
 ```bash
-python utilities/scripts/generate_types.py \
-  --discovery-doc \
-    utilities/discovery_documents/generativelanguage-discovery.json \
-  --output-dir Sources/GoogleAIDataModels \
-  --roots GenerateContentRequest GenerateContentResponse \
-  --namespace GoogleAI \
-  --access-level package
-```
+# 1. Upgrade spec & apply overrides
+python utilities/scripts/upgrade_spec.py
 
-### 2. Regenerating `AgentPlatformDataModels`
-```bash
+# 2. Generate Swift types
 python utilities/scripts/generate_types.py \
-  --discovery-doc \
-    utilities/discovery_documents/aiplatform-discovery.json \
-  --output-dir Sources/AgentPlatformDataModels \
+  --openapi-spec \
+    utilities/discovery_documents/firebasevertexai-openapi.yaml \
+    utilities/discovery_documents/firebasevertexai-openapi.yaml \
+  --overrides-file \
+    utilities/discovery_documents/firebasevertexai-overrides.yaml \
+  --output-dir Sources/InternalGeminiDataModels \
   --roots GenerateContentRequest GenerateContentResponse \
-  --strip-prefix GoogleCloudAiplatformV1beta1 \
-  --namespace AgentPlatform \
+    TemplateGenerateContentRequest CountTokensRequest CountTokensResponse \
+  --strip-prefix GoogleAiGenerativelanguageV1beta \
+    GoogleCloudAiplatformV1beta1 \
+  --namespace GeminiDataModels \
   --access-level package
 ```

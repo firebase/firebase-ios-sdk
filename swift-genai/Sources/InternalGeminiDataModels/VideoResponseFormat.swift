@@ -16,45 +16,85 @@ import Foundation
 
 
 extension GeminiDataModels {
-  /// Configuration for video-specific output formatting.
+  /// An internal data model for `VideoResponseFormat`.
   /// 
-  /// > Important: This type is only available in the Gemini Enterprise Agent Platform.
+  /// ### Gemini Developer API
+  /// 
+  /// > Important: This type is not supported in the Gemini Developer API.
+  /// 
+  /// ### Gemini Enterprise Agent Platform
+  /// 
+  /// Type: `GoogleCloudAiplatformV1beta1VideoResponseFormat`
+  /// 
+  /// Configuration for video-specific output formatting.
   package struct VideoResponseFormat: Codable, Sendable, Equatable, Hashable {
-    /// Optional. The Google Cloud Storage URI to store the video output. Required for Vertex if delivery is URI.
-    /// 
-    /// > Important: `gcsUri` is only available in the Gemini Enterprise Agent Platform.
-    package let gcsUri: String?
-    
     /// Optional. Delivery mode for the generated content.
     /// 
-    /// > Important: `delivery` is only available in the Gemini Enterprise Agent Platform.
+    /// ### Gemini Developer API
+    /// 
+    /// > Important: This property is not supported in the Gemini Developer API.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// Optional. Delivery mode for the generated content.
     package let delivery: Delivery?
+    
+    /// Optional. The Google Cloud Storage URI to store the video output. Required for Vertex
+    /// 
+    /// ### Gemini Developer API
+    /// 
+    /// > Important: This property is not supported in the Gemini Developer API.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// Optional. The Google Cloud Storage URI to store the video output. Required for Vertex
+    /// if delivery is URI.
+    package let gcsUri: String?
     
     /// The aspect ratio for the video output.
     /// 
-    /// > Important: `aspectRatio` is only available in the Gemini Enterprise Agent Platform.
+    /// ### Gemini Developer API
+    /// 
+    /// > Important: This property is not supported in the Gemini Developer API.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// The aspect ratio for the video output.
     package let aspectRatio: AspectRatio?
     
     /// Optional. The duration for the video output.
     /// 
-    /// > Important: `duration` is only available in the Gemini Enterprise Agent Platform.
+    /// ### Gemini Developer API
+    /// 
+    /// > Important: This property is not supported in the Gemini Developer API.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// Optional. The duration for the video output.
     package let duration: String?
     
+
     /// Creates a new `VideoResponseFormat`.
+    ///
+    /// - Parameters:
+    ///   - delivery: Optional. Delivery mode for the generated content. (Gemini Enterprise Agent Platform only). For more details, see ``delivery``.
+    ///   - gcsUri: Optional. The Google Cloud Storage URI to store the video output. Required for Vertex (Gemini Enterprise Agent Platform only). For more details, see ``gcsUri``.
+    ///   - aspectRatio: The aspect ratio for the video output. (Gemini Enterprise Agent Platform only). For more details, see ``aspectRatio``.
+    ///   - duration: Optional. The duration for the video output. (Gemini Enterprise Agent Platform only). For more details, see ``duration``.
     package init(
-      gcsUri: String? = nil,
       delivery: Delivery? = nil,
+      gcsUri: String? = nil,
       aspectRatio: AspectRatio? = nil,
       duration: String? = nil
     ) {
-      self.gcsUri = gcsUri
       self.delivery = delivery
+      self.gcsUri = gcsUri
       self.aspectRatio = aspectRatio
       self.duration = duration
     }
     enum CodingKeys: String, CodingKey {
-      case gcsUri = "gcsUri"
       case delivery = "delivery"
+      case gcsUri = "gcsUri"
       case aspectRatio = "aspectRatio"
       case duration = "duration"
     }

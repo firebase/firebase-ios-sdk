@@ -16,10 +16,21 @@ import Foundation
 
 
 extension GeminiDataModels {
-  /// Deprecated: Use `GenerateContentRequest.processing_options` instead. Metadata describes the input video content.
+  /// An internal data model for `VideoMetadata`.
   /// 
-  /// Variant:
-  /// Provides metadata for a video, including the start and end offsets for clipping and the frame rate.
+  /// ### Gemini Developer API
+  /// 
+  /// Type: `GoogleAiGenerativelanguageV1betaVideoMetadata`
+  /// 
+  /// Deprecated: Use `GenerateContentRequest.processing_options` instead. Metadata
+  /// describes the input video content.
+  /// 
+  /// ### Gemini Enterprise Agent Platform
+  /// 
+  /// Type: `GoogleCloudAiplatformV1beta1VideoMetadata`
+  /// 
+  /// Provides metadata for a video, including the start and end offsets for
+  /// clipping and the frame rate.
   @available(*, deprecated)
   package struct VideoMetadata: Codable, Sendable, Equatable, Hashable {
     /// Optional. The start offset of the video.
@@ -28,13 +39,27 @@ extension GeminiDataModels {
     /// Optional. The end offset of the video.
     package let endOffset: String?
     
-    /// Optional. The frame rate of the video sent to the model. If not specified, the default value will be 1.0. The fps range is (0.0, 24.0].
+    /// Optional. The frame rate of the video sent to the model. If not specified, the
     /// 
-    /// Variant:
-    /// Optional. The frame rate of the video sent to the model. If not specified, the default value is 1.0. The valid range is (0.0, 24.0].
+    /// ### Gemini Developer API
+    /// 
+    /// Optional. The frame rate of the video sent to the model. If not specified, the
+    /// default value will be 1.0.
+    /// The fps range is (0.0, 24.0].
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// Optional. The frame rate of the video sent to the model. If not specified,
+    /// the default value is 1.0. The valid range is (0.0, 24.0].
     package let fps: Double?
     
+
     /// Creates a new `VideoMetadata`.
+    ///
+    /// - Parameters:
+    ///   - startOffset: Optional. The start offset of the video.
+    ///   - endOffset: Optional. The end offset of the video.
+    ///   - fps: Optional. The frame rate of the video sent to the model. If not specified, the (behavior varies by backend). For more details, see ``fps``.
     package init(
       startOffset: String? = nil,
       endOffset: String? = nil,

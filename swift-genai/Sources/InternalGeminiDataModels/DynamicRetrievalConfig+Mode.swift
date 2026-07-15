@@ -14,17 +14,11 @@
 
 import Foundation
 
-extension GeminiDataModels.CodeExecutionResult {
-  /// Required. Outcome of the code execution.
-  package enum Outcome: Codable, Sendable, Equatable, Hashable {
-    /// Code execution completed successfully. `output` contains the stdout, if any.
-    case ok
-    
-    /// Code execution failed. `output` contains the stderr and stdout, if any.
-    case failed
-    
-    /// Code execution ran for too long, and was cancelled. There may or may not be a partial `output` present.
-    case deadlineExceeded
+extension GeminiDataModels.DynamicRetrievalConfig {
+  /// The mode of the predictor to be used in dynamic retrieval.
+  package enum Mode: Codable, Sendable, Equatable, Hashable {
+    /// Run retrieval only when system decides it is necessary.
+    case dynamic
     
     /// Unrecognized case.
     ///
@@ -35,21 +29,17 @@ extension GeminiDataModels.CodeExecutionResult {
 
 // MARK: - RawRepresentable Conformance
 
-extension GeminiDataModels.CodeExecutionResult.Outcome: RawRepresentable {
+extension GeminiDataModels.DynamicRetrievalConfig.Mode: RawRepresentable {
   package var rawValue: String {
     switch self {
-    case .ok: "OUTCOME_OK"
-    case .failed: "OUTCOME_FAILED"
-    case .deadlineExceeded: "OUTCOME_DEADLINE_EXCEEDED"
+    case .dynamic: "MODE_DYNAMIC"
     case .unrecognized(let value): value
     }
   }
 
   package init(rawValue: String) {
     switch rawValue {
-    case "OUTCOME_OK": self = .ok
-    case "OUTCOME_FAILED": self = .failed
-    case "OUTCOME_DEADLINE_EXCEEDED": self = .deadlineExceeded
+    case "MODE_DYNAMIC": self = .dynamic
     default: self = .unrecognized(rawValue)
     }
   }

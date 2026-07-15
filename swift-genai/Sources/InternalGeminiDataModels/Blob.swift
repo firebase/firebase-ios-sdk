@@ -16,34 +16,84 @@ import Foundation
 
 
 extension GeminiDataModels {
-  /// Raw media bytes. Text should not be sent as raw bytes, use the 'text' field.
+  /// An internal data model for `Blob`.
   /// 
-  /// Variant:
+  /// ### Gemini Developer API
+  /// 
+  /// Type: `Blob`
+  /// 
   /// An element in the history the represents raw binary data.
+  /// 
+  /// ### Gemini Enterprise Agent Platform
+  /// 
+  /// Type: `GoogleCloudAiplatformV1beta1Blob`
+  /// 
+  /// A content blob.
+  /// 
+  /// A Blob contains data of a specific
+  /// media type. It is used to represent images, audio, and video.
   package struct Blob: Codable, Sendable, Equatable, Hashable {
-    /// Raw bytes for media formats.
+    /// Required. The IANA standard MIME type of the source data.
     /// 
-    /// Variant:
+    /// ### Gemini Developer API
+    /// 
+    /// Required. The IANA standard MIME type of the source data.
+    /// Examples:
+    ///   - image/png
+    ///   - image/jpeg
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// Required. The IANA standard MIME type of the source data.
+    package let mimeType: String
+    
     /// Required. Raw bytes for media formats.
-    package let data: String?
-    
-    /// The IANA standard MIME type of the source data. Examples of supported types: - Images: image/png, image/jpeg, image/jpg, image/webp, image/heic, image/heif, image/gif, image/avif - Audio: audio/*, video/audio/s16le, video/audio/wav - Video: video/* - Text: text/plain, text/html, text/css, text/javascript, text/x-typescript, text/csv, text/markdown, text/x-python, text/xml, text/rtf, video/text/timestamp - Applications: application/x-javascript, application/x-typescript, application/x-python-code, application/json, application/x-ipynb+json, application/rtf, application/pdf For additional context, see [Supported file formats](https://ai.google.dev/gemini-api/docs/file-input-methods#supported-content-types). //
     /// 
-    /// Variant:
-    /// Required. The IANA standard MIME type of the source data. Examples: - image/png - image/jpeg
-    package let mimeType: String?
+    /// ### Gemini Developer API
+    /// 
+    /// Required. Raw bytes for media formats.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// Required. The raw bytes of the data.
+    package let data: String
     
+    /// Optional. The display name of the blob. Used to provide a label or filename
+    /// 
+    /// ### Gemini Developer API
+    /// 
+    /// > Important: This property is not supported in the Gemini Developer API.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// Optional. The display name of the blob. Used to provide a label or filename
+    /// to distinguish blobs.
+    /// 
+    /// This field is only returned in `PromptMessage` for prompt management. It is
+    /// used in the Gemini calls only when server-side tools (`code_execution`,
+    /// `google_search`, and `url_context`) are enabled.
+    package let displayName: String?
+    
+
     /// Creates a new `Blob`.
+    ///
+    /// - Parameters:
+    ///   - mimeType: Required. The IANA standard MIME type of the source data. (behavior varies by backend). For more details, see ``mimeType``.
+    ///   - data: Required. Raw bytes for media formats. (behavior varies by backend). For more details, see ``data``.
+    ///   - displayName: Optional. The display name of the blob. Used to provide a label or filename (Gemini Enterprise Agent Platform only). For more details, see ``displayName``.
     package init(
-      data: String? = nil,
-      mimeType: String? = nil
+      mimeType: String,
+      data: String,
+      displayName: String? = nil
     ) {
-      self.data = data
       self.mimeType = mimeType
+      self.data = data
+      self.displayName = displayName
     }
     enum CodingKeys: String, CodingKey {
-      case data = "data"
       case mimeType = "mimeType"
+      case data = "data"
+      case displayName = "displayName"
     }
   }
 }

@@ -17,7 +17,12 @@ import Foundation
 extension GeminiDataModels.AudioResponseFormat {
   /// Optional. The delivery mode for the audio output.
   /// 
-  /// Variant:
+  /// ### Gemini Developer API
+  /// 
+  /// Optional. The delivery mode for the audio output.
+  /// 
+  /// ### Gemini Enterprise Agent Platform
+  /// 
   /// Optional. Delivery mode for the generated content.
   package enum Delivery: Codable, Sendable, Equatable, Hashable {
     /// Audio data is returned inline in the response.

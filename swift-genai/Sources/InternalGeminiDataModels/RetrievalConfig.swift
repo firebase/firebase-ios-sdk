@@ -16,18 +16,48 @@ import Foundation
 
 
 extension GeminiDataModels {
+  /// An internal data model for `RetrievalConfig`.
+  /// 
+  /// ### Gemini Developer API
+  /// 
+  /// Type: `RetrievalConfig`
+  /// 
+  /// Retrieval config.
+  /// 
+  /// ### Gemini Enterprise Agent Platform
+  /// 
+  /// Type: `GoogleCloudAiplatformV1beta1RetrievalConfig`
+  /// 
   /// Retrieval config.
   package struct RetrievalConfig: Codable, Sendable, Equatable, Hashable {
     /// Optional. The location of the user.
+    /// 
+    /// ### Gemini Developer API
+    /// 
+    /// Optional. The location of the user.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// The location of the user.
     package let latLng: LatLng?
     
-    /// Optional. The language code of the user. Language code for content. Use language tags defined by [BCP47](https://www.rfc-editor.org/rfc/bcp/bcp47.txt).
-    /// 
-    /// Variant:
     /// Optional. The language code of the user.
+    /// 
+    /// ### Gemini Developer API
+    /// 
+    /// Optional. The language code of the user.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// The language code of the user.
     package let languageCode: String?
     
+
     /// Creates a new `RetrievalConfig`.
+    ///
+    /// - Parameters:
+    ///   - latLng: Optional. The location of the user. (behavior varies by backend). For more details, see ``latLng``.
+    ///   - languageCode: Optional. The language code of the user. (behavior varies by backend). For more details, see ``languageCode``.
     package init(
       latLng: LatLng? = nil,
       languageCode: String? = nil

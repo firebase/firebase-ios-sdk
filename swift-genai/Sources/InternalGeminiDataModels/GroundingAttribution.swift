@@ -16,31 +16,56 @@ import Foundation
 
 
 extension GeminiDataModels {
+  /// An internal data model for `GroundingAttribution`.
+  /// 
+  /// ### Gemini Developer API
+  /// 
+  /// Type: `GoogleAiGenerativelanguageV1betaGroundingAttribution`
+  /// 
   /// Attribution for a source that contributed to an answer.
   /// 
-  /// > Important: This type is only available in the Gemini Developer API.
+  /// ### Gemini Enterprise Agent Platform
+  /// 
+  /// > Important: This type is not supported in the Gemini Enterprise Agent Platform.
   package struct GroundingAttribution: Codable, Sendable, Equatable, Hashable {
-    /// Grounding source content that makes up this attribution.
-    /// 
-    /// > Important: `content` is only available in the Gemini Developer API.
-    package let content: Content?
-    
     /// Output only. Identifier for the source contributing to this attribution.
     /// 
-    /// > Important: `sourceId` is only available in the Gemini Developer API.
+    /// ### Gemini Developer API
+    /// 
+    /// Output only. Identifier for the source contributing to this attribution.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
     package let sourceId: AttributionSourceId?
     
+    /// Grounding source content that makes up this attribution.
+    /// 
+    /// ### Gemini Developer API
+    /// 
+    /// Grounding source content that makes up this attribution.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
+    package let content: Content?
+    
+
     /// Creates a new `GroundingAttribution`.
+    ///
+    /// - Parameters:
+    ///   - sourceId: Output only. Identifier for the source contributing to this attribution. (Gemini Developer API only). For more details, see ``sourceId``.
+    ///   - content: Grounding source content that makes up this attribution. (Gemini Developer API only). For more details, see ``content``.
     package init(
-      content: Content? = nil,
-      sourceId: AttributionSourceId? = nil
+      sourceId: AttributionSourceId? = nil,
+      content: Content? = nil
     ) {
-      self.content = content
       self.sourceId = sourceId
+      self.content = content
     }
     enum CodingKeys: String, CodingKey {
-      case content = "content"
       case sourceId = "sourceId"
+      case content = "content"
     }
   }
 }

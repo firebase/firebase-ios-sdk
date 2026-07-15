@@ -16,18 +16,44 @@ import Foundation
 
 
 extension GeminiDataModels {
-  /// Collection of sources that provide answers about the features of a given place in Google Maps. Each PlaceAnswerSources message corresponds to a specific place in Google Maps. The Google Maps tool used these sources in order to answer questions about features of the place (e.g: "does Bar Foo have Wifi" or "is Foo Bar wheelchair accessible?"). Currently we only support review snippets as sources.
+  /// An internal data model for `PlaceAnswerSources`.
   /// 
-  /// Variant:
-  /// The sources that were used to generate the place answer. This includes review snippets and photos that were used to generate the answer, as well as URIs to flag content.
+  /// ### Gemini Developer API
+  /// 
+  /// Type: `GoogleAiGenerativelanguageV1betaGroundingChunkMapsPlaceAnswerSources`
+  /// 
+  /// Collection of sources that provide answers about the features of a given
+  /// place in Google Maps. Each PlaceAnswerSources message corresponds to a
+  /// specific place in Google Maps. The Google Maps tool used these sources in
+  /// order to answer questions about features of the place (e.g: "does Bar Foo
+  /// have Wifi" or "is Foo Bar wheelchair accessible?"). Currently we only
+  /// support review snippets as sources.
+  /// 
+  /// ### Gemini Enterprise Agent Platform
+  /// 
+  /// Type: `GoogleCloudAiplatformV1beta1GroundingChunkMapsPlaceAnswerSources`
+  /// 
+  /// The sources that were used to generate the place answer. This includes
+  /// review snippets and photos that were used to generate the answer, as well
+  /// as URIs to flag content.
   package struct PlaceAnswerSources: Codable, Sendable, Equatable, Hashable {
-    /// Snippets of reviews that are used to generate answers about the features of a given place in Google Maps.
+    /// Snippets of reviews that are used to generate answers about the
     /// 
-    /// Variant:
+    /// ### Gemini Developer API
+    /// 
+    /// Snippets of reviews that are used to generate answers about the
+    /// features of a given place in Google Maps.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
     /// Snippets of reviews that were used to generate the answer.
     package let reviewSnippets: [ReviewSnippet]?
     
+
     /// Creates a new `PlaceAnswerSources`.
+    ///
+    /// - Parameters:
+    ///   - reviewSnippets: Snippets of reviews that are used to generate answers about the (behavior varies by backend). For more details, see ``reviewSnippets``.
     package init(
       reviewSnippets: [ReviewSnippet]? = nil
     ) {

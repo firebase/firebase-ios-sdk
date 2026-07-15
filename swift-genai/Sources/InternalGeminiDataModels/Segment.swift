@@ -16,52 +16,97 @@ import Foundation
 
 
 extension GeminiDataModels {
+  /// An internal data model for `Segment`.
+  /// 
+  /// ### Gemini Developer API
+  /// 
+  /// Type: `GoogleAiGenerativelanguageV1betaSegment`
+  /// 
   /// Segment of the content.
   /// 
-  /// Variant:
+  /// ### Gemini Enterprise Agent Platform
+  /// 
+  /// Type: `GoogleCloudAiplatformV1beta1Segment`
+  /// 
   /// A segment of the content.
   package struct Segment: Codable, Sendable, Equatable, Hashable {
     /// The index of a Part object within its parent Content object.
     /// 
-    /// Variant:
-    /// Output only. The index of the `Part` object that this segment belongs to. This is useful for associating the segment with a specific part of the content.
+    /// ### Gemini Developer API
+    /// 
+    /// The index of a Part object within its parent Content object.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// Output only. The index of the `Part` object that this segment belongs to.
+    /// This is useful for associating the segment with a specific part of the
+    /// content.
     package let partIndex: Int?
     
-    /// End index in the given Part, measured in bytes. Offset from the start of the Part, exclusive, starting at zero.
+    /// Start index in the given Part, measured in bytes. Offset from the start of
     /// 
-    /// Variant:
-    /// Output only. The end index of the segment in the `Part`, measured in bytes. This marks the end of the segment and is exclusive, meaning the segment includes content up to, but not including, the byte at this index.
+    /// ### Gemini Developer API
+    /// 
+    /// Start index in the given Part, measured in bytes. Offset from the start of
+    /// the Part, inclusive, starting at zero.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// Output only. The start index of the segment in the `Part`, measured in
+    /// bytes. This marks the beginning of the segment and is inclusive, meaning
+    /// the byte at this index is the first byte of the segment.
+    package let startIndex: Int?
+    
+    /// End index in the given Part, measured in bytes. Offset from the start of
+    /// 
+    /// ### Gemini Developer API
+    /// 
+    /// End index in the given Part, measured in bytes. Offset from the start of
+    /// the Part, exclusive, starting at zero.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// Output only. The end index of the segment in the `Part`, measured in
+    /// bytes. This marks the end of the segment and is exclusive, meaning the
+    /// segment includes content up to, but not including, the byte at this
+    /// index.
     package let endIndex: Int?
     
     /// The text corresponding to the segment from the response.
     /// 
-    /// Variant:
+    /// ### Gemini Developer API
+    /// 
+    /// The text corresponding to the segment from the response.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
     /// Output only. The text of the segment.
     package let text: String?
     
-    /// Start index in the given Part, measured in bytes. Offset from the start of the Part, inclusive, starting at zero.
-    /// 
-    /// Variant:
-    /// Output only. The start index of the segment in the `Part`, measured in bytes. This marks the beginning of the segment and is inclusive, meaning the byte at this index is the first byte of the segment.
-    package let startIndex: Int?
-    
+
     /// Creates a new `Segment`.
+    ///
+    /// - Parameters:
+    ///   - partIndex: The index of a Part object within its parent Content object. (behavior varies by backend). For more details, see ``partIndex``.
+    ///   - startIndex: Start index in the given Part, measured in bytes. Offset from the start of (behavior varies by backend). For more details, see ``startIndex``.
+    ///   - endIndex: End index in the given Part, measured in bytes. Offset from the start of (behavior varies by backend). For more details, see ``endIndex``.
+    ///   - text: The text corresponding to the segment from the response. (behavior varies by backend). For more details, see ``text``.
     package init(
       partIndex: Int? = nil,
+      startIndex: Int? = nil,
       endIndex: Int? = nil,
-      text: String? = nil,
-      startIndex: Int? = nil
+      text: String? = nil
     ) {
       self.partIndex = partIndex
+      self.startIndex = startIndex
       self.endIndex = endIndex
       self.text = text
-      self.startIndex = startIndex
     }
     enum CodingKeys: String, CodingKey {
       case partIndex = "partIndex"
+      case startIndex = "startIndex"
       case endIndex = "endIndex"
       case text = "text"
-      case startIndex = "startIndex"
     }
   }
 }

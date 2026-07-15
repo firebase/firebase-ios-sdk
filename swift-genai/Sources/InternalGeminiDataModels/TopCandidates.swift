@@ -16,18 +16,39 @@ import Foundation
 
 
 extension GeminiDataModels {
+  /// An internal data model for `TopCandidates`.
+  /// 
+  /// ### Gemini Developer API
+  /// 
+  /// Type: `GoogleAiGenerativelanguageV1betaLogprobsResultTopCandidates`
+  /// 
   /// Candidates with top log probabilities at each decoding step.
   /// 
-  /// Variant:
-  /// A list of the top candidate tokens and their log probabilities at each decoding step. This can be used to see what other tokens the model considered.
+  /// ### Gemini Enterprise Agent Platform
+  /// 
+  /// Type: `GoogleCloudAiplatformV1beta1LogprobsResultTopCandidates`
+  /// 
+  /// A list of the top candidate tokens and their log probabilities
+  /// at each decoding step. This can be used to see what other tokens the model
+  /// considered.
   package struct TopCandidates: Codable, Sendable, Equatable, Hashable {
     /// Sorted by log probability in descending order.
     /// 
-    /// Variant:
-    /// The list of candidate tokens, sorted by log probability in descending order.
+    /// ### Gemini Developer API
+    /// 
+    /// Sorted by log probability in descending order.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// The list of candidate tokens, sorted by log probability in
+    /// descending order.
     package let candidates: [LogprobsResultCandidate]?
     
+
     /// Creates a new `TopCandidates`.
+    ///
+    /// - Parameters:
+    ///   - candidates: Sorted by log probability in descending order. (behavior varies by backend). For more details, see ``candidates``.
     package init(
       candidates: [LogprobsResultCandidate]? = nil
     ) {

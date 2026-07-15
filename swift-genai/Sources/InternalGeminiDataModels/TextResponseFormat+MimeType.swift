@@ -17,7 +17,12 @@ import Foundation
 extension GeminiDataModels.TextResponseFormat {
   /// Optional. The MIME type of the text output.
   /// 
-  /// Variant:
+  /// ### Gemini Developer API
+  /// 
+  /// Optional. The MIME type of the text output.
+  /// 
+  /// ### Gemini Enterprise Agent Platform
+  /// 
   /// Optional. The IANA standard MIME type of the response.
   package enum MimeType: Codable, Sendable, Equatable, Hashable {
     /// JSON output format.

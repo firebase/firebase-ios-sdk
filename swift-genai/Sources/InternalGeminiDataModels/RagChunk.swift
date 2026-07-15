@@ -16,47 +16,87 @@ import Foundation
 
 
 extension GeminiDataModels {
-  /// A RagChunk includes the content of a chunk of a RagFile, and associated metadata.
+  /// An internal data model for `RagChunk`.
   /// 
-  /// > Important: This type is only available in the Gemini Enterprise Agent Platform.
+  /// ### Gemini Developer API
+  /// 
+  /// > Important: This type is not supported in the Gemini Developer API.
+  /// 
+  /// ### Gemini Enterprise Agent Platform
+  /// 
+  /// Type: `GoogleCloudAiplatformV1beta1RagChunk`
+  /// 
+  /// A RagChunk includes the content of a chunk of a RagFile, and associated
+  /// metadata.
   package struct RagChunk: Codable, Sendable, Equatable, Hashable {
     /// The content of the chunk.
     /// 
-    /// > Important: `text` is only available in the Gemini Enterprise Agent Platform.
+    /// ### Gemini Developer API
+    /// 
+    /// > Important: This property is not supported in the Gemini Developer API.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// The content of the chunk.
     package let text: String?
+    
+    /// If populated, represents where the chunk starts and ends in the document.
+    /// 
+    /// ### Gemini Developer API
+    /// 
+    /// > Important: This property is not supported in the Gemini Developer API.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// If populated, represents where the chunk starts and ends in the document.
+    package let pageSpan: RagChunkPageSpan?
     
     /// The ID of the file that the chunk belongs to.
     /// 
-    /// > Important: `fileId` is only available in the Gemini Enterprise Agent Platform.
+    /// ### Gemini Developer API
+    /// 
+    /// > Important: This property is not supported in the Gemini Developer API.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// The ID of the file that the chunk belongs to.
     package let fileId: String?
     
     /// The ID of the chunk.
     /// 
-    /// > Important: `chunkId` is only available in the Gemini Enterprise Agent Platform.
+    /// ### Gemini Developer API
+    /// 
+    /// > Important: This property is not supported in the Gemini Developer API.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// The ID of the chunk.
     package let chunkId: String?
     
-    /// If populated, represents where the chunk starts and ends in the document.
-    /// 
-    /// > Important: `pageSpan` is only available in the Gemini Enterprise Agent Platform.
-    package let pageSpan: RagChunkPageSpan?
-    
+
     /// Creates a new `RagChunk`.
+    ///
+    /// - Parameters:
+    ///   - text: The content of the chunk. (Gemini Enterprise Agent Platform only). For more details, see ``text``.
+    ///   - pageSpan: If populated, represents where the chunk starts and ends in the document. (Gemini Enterprise Agent Platform only). For more details, see ``pageSpan``.
+    ///   - fileId: The ID of the file that the chunk belongs to. (Gemini Enterprise Agent Platform only). For more details, see ``fileId``.
+    ///   - chunkId: The ID of the chunk. (Gemini Enterprise Agent Platform only). For more details, see ``chunkId``.
     package init(
       text: String? = nil,
+      pageSpan: RagChunkPageSpan? = nil,
       fileId: String? = nil,
-      chunkId: String? = nil,
-      pageSpan: RagChunkPageSpan? = nil
+      chunkId: String? = nil
     ) {
       self.text = text
+      self.pageSpan = pageSpan
       self.fileId = fileId
       self.chunkId = chunkId
-      self.pageSpan = pageSpan
     }
     enum CodingKeys: String, CodingKey {
       case text = "text"
+      case pageSpan = "pageSpan"
       case fileId = "fileId"
       case chunkId = "chunkId"
-      case pageSpan = "pageSpan"
     }
   }
 }

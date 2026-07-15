@@ -16,69 +16,126 @@ import Foundation
 
 
 extension GeminiDataModels {
-  /// A grounding chunk from Google Maps. A Maps chunk corresponds to a single place.
+  /// An internal data model for `MapsChunk`.
   /// 
-  /// Variant:
-  /// A `Maps` chunk is a piece of evidence that comes from Google Maps, containing information about places or routes. This is used to provide the user with rich, location-based information.
+  /// ### Gemini Developer API
+  /// 
+  /// Type: `GoogleAiGenerativelanguageV1betaGroundingChunkMaps`
+  /// 
+  /// A grounding chunk from Google Maps. A Maps chunk corresponds to a single
+  /// place.
+  /// 
+  /// ### Gemini Enterprise Agent Platform
+  /// 
+  /// Type: `GoogleCloudAiplatformV1beta1GroundingChunkMaps`
+  /// 
+  /// A `Maps` chunk is a piece of evidence that comes from Google Maps,
+  /// containing information about places or routes. This is used to provide
+  /// the user with rich, location-based information.
   package struct MapsChunk: Codable, Sendable, Equatable, Hashable {
-    /// Text description of the place answer.
-    /// 
-    /// Variant:
-    /// The text of the place answer.
-    package let text: String?
-    
     /// URI reference of the place.
     /// 
-    /// Variant:
+    /// ### Gemini Developer API
+    /// 
+    /// URI reference of the place.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
     /// The URI of the place.
     package let uri: String?
     
     /// Title of the place.
     /// 
-    /// Variant:
+    /// ### Gemini Developer API
+    /// 
+    /// Title of the place.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
     /// The title of the place.
     package let title: String?
     
-    /// Output only. Route information.
+    /// Text description of the place answer.
     /// 
-    /// > Important: `route` is only available in the Gemini Enterprise Agent Platform.
-    package let route: MapsRoute?
+    /// ### Gemini Developer API
+    /// 
+    /// Text description of the place answer.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// The text of the place answer.
+    package let text: String?
     
-    /// Sources that provide answers about the features of a given place in Google Maps.
+    /// The ID of the place, in `places/{place_id}` format. A user can use this
     /// 
-    /// Variant:
-    /// The sources that were used to generate the place answer. This includes review snippets and photos that were used to generate the answer, as well as URIs to flag content.
-    package let placeAnswerSources: PlaceAnswerSources?
-    
-    /// The ID of the place, in `places/{place_id}` format. A user can use this ID to look up that place.
+    /// ### Gemini Developer API
     /// 
-    /// Variant:
-    /// This Place's resource name, in `places/{place_id}` format. This can be used to look up the place in the Google Maps API.
+    /// The ID of the place, in `places/{place_id}` format. A user can use this
+    /// ID to look up that place.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// This Place's resource name, in `places/{place_id}` format. This can be
+    /// used to look up the place in the Google Maps API.
     package let placeId: String?
     
+    /// Sources that provide answers about the features of a given place in
+    /// 
+    /// ### Gemini Developer API
+    /// 
+    /// Sources that provide answers about the features of a given place in
+    /// Google Maps.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// The sources that were used to generate the place answer. This includes
+    /// review snippets and photos that were used to generate the answer, as well
+    /// as URIs to flag content.
+    package let placeAnswerSources: PlaceAnswerSources?
+    
+    /// Output only. Route information.
+    /// 
+    /// ### Gemini Developer API
+    /// 
+    /// > Important: This property is not supported in the Gemini Developer API.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// Output only. Route information.
+    package let route: MapsRoute?
+    
+
     /// Creates a new `MapsChunk`.
+    ///
+    /// - Parameters:
+    ///   - uri: URI reference of the place. (behavior varies by backend). For more details, see ``uri``.
+    ///   - title: Title of the place. (behavior varies by backend). For more details, see ``title``.
+    ///   - text: Text description of the place answer. (behavior varies by backend). For more details, see ``text``.
+    ///   - placeId: The ID of the place, in `places/{place_id}` format. A user can use this (behavior varies by backend). For more details, see ``placeId``.
+    ///   - placeAnswerSources: Sources that provide answers about the features of a given place in (behavior varies by backend). For more details, see ``placeAnswerSources``.
+    ///   - route: Output only. Route information. (Gemini Enterprise Agent Platform only). For more details, see ``route``.
     package init(
-      text: String? = nil,
       uri: String? = nil,
       title: String? = nil,
-      route: MapsRoute? = nil,
+      text: String? = nil,
+      placeId: String? = nil,
       placeAnswerSources: PlaceAnswerSources? = nil,
-      placeId: String? = nil
+      route: MapsRoute? = nil
     ) {
-      self.text = text
       self.uri = uri
       self.title = title
-      self.route = route
-      self.placeAnswerSources = placeAnswerSources
+      self.text = text
       self.placeId = placeId
+      self.placeAnswerSources = placeAnswerSources
+      self.route = route
     }
     enum CodingKeys: String, CodingKey {
-      case text = "text"
       case uri = "uri"
       case title = "title"
-      case route = "route"
-      case placeAnswerSources = "placeAnswerSources"
+      case text = "text"
       case placeId = "placeId"
+      case placeAnswerSources = "placeAnswerSources"
+      case route = "route"
     }
   }
 }

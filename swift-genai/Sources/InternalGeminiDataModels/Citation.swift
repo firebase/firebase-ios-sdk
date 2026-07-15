@@ -18,63 +18,116 @@ public import Foundation
 
 
 extension GeminiDataModels {
-  /// A citation for a piece of generatedcontent.
+  /// An internal data model for `Citation`.
   /// 
-  /// > Important: This type is only available in the Gemini Enterprise Agent Platform.
+  /// ### Gemini Developer API
+  /// 
+  /// > Important: This type is not supported in the Gemini Developer API.
+  /// 
+  /// ### Gemini Enterprise Agent Platform
+  /// 
+  /// Type: `GoogleCloudAiplatformV1beta1Citation`
+  /// 
+  /// A citation for a piece of generatedcontent.
   package struct Citation: Codable, Sendable, Equatable, Hashable {
-    /// Output only. The URI of the source of the citation.
+    /// Output only. The start index of the citation in the content.
     /// 
-    /// > Important: `uri` is only available in the Gemini Enterprise Agent Platform.
-    package let uri: String?
+    /// ### Gemini Developer API
+    /// 
+    /// > Important: This property is not supported in the Gemini Developer API.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// Output only. The start index of the citation in the content.
+    package let startIndex: Int?
     
     /// Output only. The end index of the citation in the content.
     /// 
-    /// > Important: `endIndex` is only available in the Gemini Enterprise Agent Platform.
+    /// ### Gemini Developer API
+    /// 
+    /// > Important: This property is not supported in the Gemini Developer API.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// Output only. The end index of the citation in the content.
     package let endIndex: Int?
+    
+    /// Output only. The URI of the source of the citation.
+    /// 
+    /// ### Gemini Developer API
+    /// 
+    /// > Important: This property is not supported in the Gemini Developer API.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// Output only. The URI of the source of the citation.
+    package let uri: String?
+    
+    /// Output only. The title of the source of the citation.
+    /// 
+    /// ### Gemini Developer API
+    /// 
+    /// > Important: This property is not supported in the Gemini Developer API.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// Output only. The title of the source of the citation.
+    package let title: String?
     
     /// Output only. The license of the source of the citation.
     /// 
-    /// > Important: `license` is only available in the Gemini Enterprise Agent Platform.
+    /// ### Gemini Developer API
+    /// 
+    /// > Important: This property is not supported in the Gemini Developer API.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// Output only. The license of the source of the citation.
     package let license: String?
     
     /// Output only. The publication date of the source of the citation.
     /// 
-    /// > Important: `publicationDate` is only available in the Gemini Enterprise Agent Platform.
+    /// ### Gemini Developer API
+    /// 
+    /// > Important: This property is not supported in the Gemini Developer API.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// Output only. The publication date of the source of the citation.
     package let publicationDate: Date?
     
-    /// Output only. The title of the source of the citation.
-    /// 
-    /// > Important: `title` is only available in the Gemini Enterprise Agent Platform.
-    package let title: String?
-    
-    /// Output only. The start index of the citation in the content.
-    /// 
-    /// > Important: `startIndex` is only available in the Gemini Enterprise Agent Platform.
-    package let startIndex: Int?
-    
+
     /// Creates a new `Citation`.
+    ///
+    /// - Parameters:
+    ///   - startIndex: Output only. The start index of the citation in the content. (Gemini Enterprise Agent Platform only). For more details, see ``startIndex``.
+    ///   - endIndex: Output only. The end index of the citation in the content. (Gemini Enterprise Agent Platform only). For more details, see ``endIndex``.
+    ///   - uri: Output only. The URI of the source of the citation. (Gemini Enterprise Agent Platform only). For more details, see ``uri``.
+    ///   - title: Output only. The title of the source of the citation. (Gemini Enterprise Agent Platform only). For more details, see ``title``.
+    ///   - license: Output only. The license of the source of the citation. (Gemini Enterprise Agent Platform only). For more details, see ``license``.
+    ///   - publicationDate: Output only. The publication date of the source of the citation. (Gemini Enterprise Agent Platform only). For more details, see ``publicationDate``.
     package init(
-      uri: String? = nil,
+      startIndex: Int? = nil,
       endIndex: Int? = nil,
-      license: String? = nil,
-      publicationDate: Date? = nil,
+      uri: String? = nil,
       title: String? = nil,
-      startIndex: Int? = nil
+      license: String? = nil,
+      publicationDate: Date? = nil
     ) {
-      self.uri = uri
+      self.startIndex = startIndex
       self.endIndex = endIndex
+      self.uri = uri
+      self.title = title
       self.license = license
       self.publicationDate = publicationDate
-      self.title = title
-      self.startIndex = startIndex
     }
     enum CodingKeys: String, CodingKey {
-      case uri = "uri"
+      case startIndex = "startIndex"
       case endIndex = "endIndex"
+      case uri = "uri"
+      case title = "title"
       case license = "license"
       case publicationDate = "publicationDate"
-      case title = "title"
-      case startIndex = "startIndex"
     }
   }
 }

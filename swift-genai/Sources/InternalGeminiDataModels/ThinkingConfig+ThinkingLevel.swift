@@ -15,9 +15,19 @@
 import Foundation
 
 extension GeminiDataModels.ThinkingConfig {
-  /// Optional. Controls the maximum depth of the model's internal reasoning process before it produces a response. The default value is model-dependent. Refer to the [Thinking levels guide](https://ai.google.dev/gemini-api/docs/thinking#thinking-levels) for more details. Recommended for Gemini 3 or later models. Use with earlier models results in an error.
+  /// Optional. Controls the maximum depth of the model's internal reasoning process before
   /// 
-  /// Variant:
+  /// ### Gemini Developer API
+  /// 
+  /// Optional. Controls the maximum depth of the model's internal reasoning process before
+  /// it produces a response. The default value is model-dependent. Refer to the
+  /// [Thinking levels
+  /// guide](https://ai.google.dev/gemini-api/docs/thinking#thinking-levels) for
+  /// more details. Recommended for Gemini 3 or later models. Use with earlier
+  /// models results in an error.
+  /// 
+  /// ### Gemini Enterprise Agent Platform
+  /// 
   /// Optional. The number of thoughts tokens that the model should generate.
   package enum ThinkingLevel: Codable, Sendable, Equatable, Hashable {
     /// Little to no thinking.

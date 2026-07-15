@@ -16,63 +16,119 @@ import Foundation
 
 
 extension GeminiDataModels {
-  /// Partial argument value of the function call.
+  /// An internal data model for `PartialArg`.
   /// 
-  /// > Important: This type is only available in the Gemini Enterprise Agent Platform.
+  /// ### Gemini Developer API
+  /// 
+  /// > Important: This type is not supported in the Gemini Developer API.
+  /// 
+  /// ### Gemini Enterprise Agent Platform
+  /// 
+  /// Type: `GoogleCloudAiplatformV1beta1PartialArg`
+  /// 
+  /// Partial argument value of the function call.
   package struct PartialArg: Codable, Sendable, Equatable, Hashable {
-    /// Optional. Whether this is not the last part of the same json_path. If true, another PartialArg message for the current json_path is expected to follow.
-    /// 
-    /// > Important: `willContinue` is only available in the Gemini Enterprise Agent Platform.
-    package let willContinue: Bool?
-    
     /// Optional. Represents a null value.
     /// 
-    /// > Important: `nullValue` is only available in the Gemini Enterprise Agent Platform.
-    package let nullValue: NullValue?
-    
-    /// Optional. Represents a boolean value.
+    /// ### Gemini Developer API
     /// 
-    /// > Important: `boolValue` is only available in the Gemini Enterprise Agent Platform.
-    package let boolValue: Bool?
+    /// > Important: This property is not supported in the Gemini Developer API.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// Optional. Represents a null value.
+    package let nullValue: NullValue?
     
     /// Optional. Represents a double value.
     /// 
-    /// > Important: `numberValue` is only available in the Gemini Enterprise Agent Platform.
-    package let numberValue: Double?
-    
-    /// Required. A JSON Path (RFC 9535) to the argument being streamed. https://datatracker.ietf.org/doc/html/rfc9535. e.g. "$.foo.bar[0].data".
+    /// ### Gemini Developer API
     /// 
-    /// > Important: `jsonPath` is only available in the Gemini Enterprise Agent Platform.
-    package let jsonPath: String?
+    /// > Important: This property is not supported in the Gemini Developer API.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// Optional. Represents a double value.
+    package let numberValue: Double?
     
     /// Optional. Represents a string value.
     /// 
-    /// > Important: `stringValue` is only available in the Gemini Enterprise Agent Platform.
+    /// ### Gemini Developer API
+    /// 
+    /// > Important: This property is not supported in the Gemini Developer API.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// Optional. Represents a string value.
     package let stringValue: String?
     
+    /// Optional. Represents a boolean value.
+    /// 
+    /// ### Gemini Developer API
+    /// 
+    /// > Important: This property is not supported in the Gemini Developer API.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// Optional. Represents a boolean value.
+    package let boolValue: Bool?
+    
+    /// Required. A JSON Path (RFC 9535) to the argument being streamed.
+    /// 
+    /// ### Gemini Developer API
+    /// 
+    /// > Important: This property is not supported in the Gemini Developer API.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// Required. A JSON Path (RFC 9535) to the argument being streamed.
+    /// https://datatracker.ietf.org/doc/html/rfc9535. e.g. "$.foo.bar[0].data".
+    package let jsonPath: String
+    
+    /// Optional. Whether this is not the last part of the same json_path.
+    /// 
+    /// ### Gemini Developer API
+    /// 
+    /// > Important: This property is not supported in the Gemini Developer API.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// Optional. Whether this is not the last part of the same json_path.
+    /// If true, another PartialArg message for the current json_path is expected
+    /// to follow.
+    package let willContinue: Bool?
+    
+
     /// Creates a new `PartialArg`.
+    ///
+    /// - Parameters:
+    ///   - nullValue: Optional. Represents a null value. (Gemini Enterprise Agent Platform only). For more details, see ``nullValue``.
+    ///   - numberValue: Optional. Represents a double value. (Gemini Enterprise Agent Platform only). For more details, see ``numberValue``.
+    ///   - stringValue: Optional. Represents a string value. (Gemini Enterprise Agent Platform only). For more details, see ``stringValue``.
+    ///   - boolValue: Optional. Represents a boolean value. (Gemini Enterprise Agent Platform only). For more details, see ``boolValue``.
+    ///   - jsonPath: Required. A JSON Path (RFC 9535) to the argument being streamed. (Gemini Enterprise Agent Platform only). For more details, see ``jsonPath``.
+    ///   - willContinue: Optional. Whether this is not the last part of the same json_path. (Gemini Enterprise Agent Platform only). For more details, see ``willContinue``.
     package init(
-      willContinue: Bool? = nil,
       nullValue: NullValue? = nil,
-      boolValue: Bool? = nil,
       numberValue: Double? = nil,
-      jsonPath: String? = nil,
-      stringValue: String? = nil
+      stringValue: String? = nil,
+      boolValue: Bool? = nil,
+      jsonPath: String,
+      willContinue: Bool? = nil
     ) {
-      self.willContinue = willContinue
       self.nullValue = nullValue
-      self.boolValue = boolValue
       self.numberValue = numberValue
-      self.jsonPath = jsonPath
       self.stringValue = stringValue
+      self.boolValue = boolValue
+      self.jsonPath = jsonPath
+      self.willContinue = willContinue
     }
     enum CodingKeys: String, CodingKey {
-      case willContinue = "willContinue"
       case nullValue = "nullValue"
-      case boolValue = "boolValue"
       case numberValue = "numberValue"
-      case jsonPath = "jsonPath"
       case stringValue = "stringValue"
+      case boolValue = "boolValue"
+      case jsonPath = "jsonPath"
+      case willContinue = "willContinue"
     }
   }
 }

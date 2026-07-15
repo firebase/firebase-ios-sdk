@@ -16,21 +16,46 @@ import Foundation
 
 
 extension GeminiDataModels {
-  /// Represents where the chunk starts and ends in the document.
+  /// An internal data model for `RagChunkPageSpan`.
   /// 
-  /// > Important: This type is only available in the Gemini Enterprise Agent Platform.
+  /// ### Gemini Developer API
+  /// 
+  /// > Important: This type is not supported in the Gemini Developer API.
+  /// 
+  /// ### Gemini Enterprise Agent Platform
+  /// 
+  /// Type: `GoogleCloudAiplatformV1beta1RagChunkPageSpan`
+  /// 
+  /// Represents where the chunk starts and ends in the document.
   package struct RagChunkPageSpan: Codable, Sendable, Equatable, Hashable {
     /// Page where chunk starts in the document. Inclusive. 1-indexed.
     /// 
-    /// > Important: `firstPage` is only available in the Gemini Enterprise Agent Platform.
+    /// ### Gemini Developer API
+    /// 
+    /// > Important: This property is not supported in the Gemini Developer API.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// Page where chunk starts in the document. Inclusive. 1-indexed.
     package let firstPage: Int?
     
     /// Page where chunk ends in the document. Inclusive. 1-indexed.
     /// 
-    /// > Important: `lastPage` is only available in the Gemini Enterprise Agent Platform.
+    /// ### Gemini Developer API
+    /// 
+    /// > Important: This property is not supported in the Gemini Developer API.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// Page where chunk ends in the document. Inclusive. 1-indexed.
     package let lastPage: Int?
     
+
     /// Creates a new `RagChunkPageSpan`.
+    ///
+    /// - Parameters:
+    ///   - firstPage: Page where chunk starts in the document. Inclusive. 1-indexed. (Gemini Enterprise Agent Platform only). For more details, see ``firstPage``.
+    ///   - lastPage: Page where chunk ends in the document. Inclusive. 1-indexed. (Gemini Enterprise Agent Platform only). For more details, see ``lastPage``.
     package init(
       firstPage: Int? = nil,
       lastPage: Int? = nil

@@ -16,46 +16,89 @@ import Foundation
 
 
 extension GeminiDataModels {
+  /// An internal data model for `CitationSource`.
+  /// 
+  /// ### Gemini Developer API
+  /// 
+  /// Type: `GoogleAiGenerativelanguageV1betaCitationSource`
+  /// 
   /// A citation to a source for a portion of a specific response.
   /// 
-  /// > Important: This type is only available in the Gemini Developer API.
+  /// ### Gemini Enterprise Agent Platform
+  /// 
+  /// > Important: This type is not supported in the Gemini Enterprise Agent Platform.
   package struct CitationSource: Codable, Sendable, Equatable, Hashable {
-    /// Optional. Start of segment of the response that is attributed to this source. Index indicates the start of the segment, measured in bytes.
+    /// Optional. Start of segment of the response that is attributed to this source.
     /// 
-    /// > Important: `startIndex` is only available in the Gemini Developer API.
+    /// ### Gemini Developer API
+    /// 
+    /// Optional. Start of segment of the response that is attributed to this source.
+    /// 
+    /// Index indicates the start of the segment, measured in bytes.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
     package let startIndex: Int?
-    
-    /// Optional. URI that is attributed as a source for a portion of the text.
-    /// 
-    /// > Important: `uri` is only available in the Gemini Developer API.
-    package let uri: String?
     
     /// Optional. End of the attributed segment, exclusive.
     /// 
-    /// > Important: `endIndex` is only available in the Gemini Developer API.
+    /// ### Gemini Developer API
+    /// 
+    /// Optional. End of the attributed segment, exclusive.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
     package let endIndex: Int?
     
-    /// Optional. License for the GitHub project that is attributed as a source for segment. License info is required for code citations.
+    /// Optional. URI that is attributed as a source for a portion of the text.
     /// 
-    /// > Important: `license` is only available in the Gemini Developer API.
+    /// ### Gemini Developer API
+    /// 
+    /// Optional. URI that is attributed as a source for a portion of the text.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
+    package let uri: String?
+    
+    /// Optional. License for the GitHub project that is attributed as a source for segment.
+    /// 
+    /// ### Gemini Developer API
+    /// 
+    /// Optional. License for the GitHub project that is attributed as a source for segment.
+    /// 
+    /// License info is required for code citations.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
     package let license: String?
     
+
     /// Creates a new `CitationSource`.
+    ///
+    /// - Parameters:
+    ///   - startIndex: Optional. Start of segment of the response that is attributed to this source. (Gemini Developer API only). For more details, see ``startIndex``.
+    ///   - endIndex: Optional. End of the attributed segment, exclusive. (Gemini Developer API only). For more details, see ``endIndex``.
+    ///   - uri: Optional. URI that is attributed as a source for a portion of the text. (Gemini Developer API only). For more details, see ``uri``.
+    ///   - license: Optional. License for the GitHub project that is attributed as a source for segment. (Gemini Developer API only). For more details, see ``license``.
     package init(
       startIndex: Int? = nil,
-      uri: String? = nil,
       endIndex: Int? = nil,
+      uri: String? = nil,
       license: String? = nil
     ) {
       self.startIndex = startIndex
-      self.uri = uri
       self.endIndex = endIndex
+      self.uri = uri
       self.license = license
     }
     enum CodingKeys: String, CodingKey {
       case startIndex = "startIndex"
-      case uri = "uri"
       case endIndex = "endIndex"
+      case uri = "uri"
       case license = "license"
     }
   }

@@ -16,25 +16,43 @@ import Foundation
 
 
 extension GeminiDataModels {
+  /// An internal data model for `HistoryContent`.
+  /// 
+  /// ### Gemini Developer API
+  /// 
+  /// Type: `HistoryContent`
+  /// 
+  /// A single content block from the conversation history list.
+  /// 
+  /// ### Gemini Enterprise Agent Platform
+  /// 
+  /// Type: `HistoryContent`
+  /// 
   /// A single content block from the conversation history list.
   package struct HistoryContent: Codable, Sendable, Equatable, Hashable {
+    /// Optional. Indicates who generated these messages in the history. Generally this will
+    /// be either 'user' or 'model'.
+    package let role: String?
+    
     /// List of consecutive messages from a given party.
     package let parts: [HistoryPart]?
     
-    /// Optional. Indicates who generated these messages in the history. Generally this will be either 'user' or 'model'.
-    package let role: String?
-    
+
     /// Creates a new `HistoryContent`.
+    ///
+    /// - Parameters:
+    ///   - role: Optional. Indicates who generated these messages in the history. Generally this will
+    ///   - parts: List of consecutive messages from a given party.
     package init(
-      parts: [HistoryPart]? = nil,
-      role: String? = nil
+      role: String? = nil,
+      parts: [HistoryPart]? = nil
     ) {
-      self.parts = parts
       self.role = role
+      self.parts = parts
     }
     enum CodingKeys: String, CodingKey {
-      case parts = "parts"
       case role = "role"
+      case parts = "parts"
     }
   }
 }

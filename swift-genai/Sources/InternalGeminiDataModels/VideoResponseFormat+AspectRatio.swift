@@ -17,7 +17,13 @@ import Foundation
 extension GeminiDataModels.VideoResponseFormat {
   /// The aspect ratio for the video output.
   /// 
-  /// > Important: `aspectRatio` is only available in the Gemini Enterprise Agent Platform.
+  /// ### Gemini Developer API
+  /// 
+  /// > Important: This property is not supported in the Gemini Developer API.
+  /// 
+  /// ### Gemini Enterprise Agent Platform
+  /// 
+  /// The aspect ratio for the video output.
   package enum AspectRatio: Codable, Sendable, Equatable, Hashable {
     /// 16:9 aspect ratio.
     case sixteenByNine

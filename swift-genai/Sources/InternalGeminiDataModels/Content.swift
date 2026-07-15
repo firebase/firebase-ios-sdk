@@ -16,24 +16,67 @@ import Foundation
 
 
 extension GeminiDataModels {
-  /// The base structured datatype containing multi-part content of a message. A `Content` includes a `role` field designating the producer of the `Content` and a `parts` field containing multi-part data that contains the content of the message turn.
+  /// An internal data model for `Content`.
   /// 
-  /// Variant:
-  /// The structured data content of a message. A Content message contains a `role` field, which indicates the producer of the content, and a `parts` field, which contains the multi-part data of the message.
+  /// ### Gemini Developer API
+  /// 
+  /// Type: `GoogleAiGenerativelanguageV1betaContent`
+  /// 
+  /// The base structured datatype containing multi-part content of a message.
+  /// 
+  /// A `Content` includes a `role` field designating the producer of the `Content`
+  /// and a `parts` field containing multi-part data that contains the content of
+  /// the message turn.
+  /// 
+  /// ### Gemini Enterprise Agent Platform
+  /// 
+  /// Type: `GoogleCloudAiplatformV1beta1Content`
+  /// 
+  /// The structured data content of a message.
+  /// 
+  /// A Content message contains a `role`
+  /// field, which indicates the producer of the content, and a `parts` field,
+  /// which contains the multi-part data of the message.
   package struct Content: Codable, Sendable, Equatable, Hashable {
-    /// Ordered `Parts` that constitute a single message. Parts may have different MIME types.
+    /// Ordered `Parts` that constitute a single message. Parts may have different
     /// 
-    /// Variant:
-    /// Required. A list of Part objects that make up a single message. Parts of a message can have different MIME types. A Content message must have at least one Part.
+    /// ### Gemini Developer API
+    /// 
+    /// Ordered `Parts` that constitute a single message. Parts may have different
+    /// MIME types.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// Required. A list of Part objects
+    /// that make up a single message. Parts of a message can have different MIME
+    /// types.
+    /// 
+    /// A Content message must have at
+    /// least one Part.
     package let parts: [Part]?
     
-    /// Optional. The producer of the content. Must be either 'user' or 'model'. Useful to set for multi-turn conversations, otherwise can be left blank or unset.
+    /// Optional. The producer of the content. Must be either 'user' or 'model'.
     /// 
-    /// Variant:
-    /// Optional. The producer of the content. Must be either 'user' or 'model'. If not set, the service will default to 'user'.
+    /// ### Gemini Developer API
+    /// 
+    /// Optional. The producer of the content. Must be either 'user' or 'model'.
+    /// 
+    /// Useful to set for multi-turn conversations, otherwise can be left blank
+    /// or unset.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
+    /// Optional. The producer of the content. Must be either 'user' or 'model'.
+    /// 
+    /// If not set, the service will default to 'user'.
     package let role: String?
     
+
     /// Creates a new `Content`.
+    ///
+    /// - Parameters:
+    ///   - parts: Ordered `Parts` that constitute a single message. Parts may have different (behavior varies by backend). For more details, see ``parts``.
+    ///   - role: Optional. The producer of the content. Must be either 'user' or 'model'. (behavior varies by backend). For more details, see ``role``.
     package init(
       parts: [Part]? = nil,
       role: String? = nil

@@ -17,7 +17,13 @@ import Foundation
 extension GeminiDataModels.UsageMetadata {
   /// Output only. The traffic type for this request.
   /// 
-  /// > Important: `trafficType` is only available in the Gemini Enterprise Agent Platform.
+  /// ### Gemini Developer API
+  /// 
+  /// > Important: This property is not supported in the Gemini Developer API.
+  /// 
+  /// ### Gemini Enterprise Agent Platform
+  /// 
+  /// Output only. The traffic type for this request.
   package enum TrafficType: Codable, Sendable, Equatable, Hashable {
     /// The request was processed using Pay-As-You-Go quota.
     case onDemand

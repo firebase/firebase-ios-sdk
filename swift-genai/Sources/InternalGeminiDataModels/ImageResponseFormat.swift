@@ -16,42 +16,63 @@ import Foundation
 
 
 extension GeminiDataModels {
+  /// An internal data model for `ImageResponseFormat`.
+  /// 
+  /// ### Gemini Developer API
+  /// 
+  /// Type: `GoogleAiGenerativelanguageV1betaImageResponseFormat`
+  /// 
   /// Configuration for image output format.
   /// 
-  /// Variant:
+  /// ### Gemini Enterprise Agent Platform
+  /// 
+  /// Type: `GoogleCloudAiplatformV1beta1ImageResponseFormat`
+  /// 
   /// Configuration for image-specific output formatting.
   package struct ImageResponseFormat: Codable, Sendable, Equatable, Hashable {
     /// Optional. The MIME type of the image output.
     package let mimeType: MimeType?
     
-    /// Optional. The aspect ratio for the image output.
-    package let aspectRatio: AspectRatio?
-    
     /// Optional. The delivery mode for the image output.
     /// 
-    /// Variant:
+    /// ### Gemini Developer API
+    /// 
+    /// Optional. The delivery mode for the image output.
+    /// 
+    /// ### Gemini Enterprise Agent Platform
+    /// 
     /// Optional. Delivery mode for the generated content.
     package let delivery: Delivery?
+    
+    /// Optional. The aspect ratio for the image output.
+    package let aspectRatio: AspectRatio?
     
     /// Optional. The size of the image output.
     package let imageSize: ImageSize?
     
+
     /// Creates a new `ImageResponseFormat`.
+    ///
+    /// - Parameters:
+    ///   - mimeType: Optional. The MIME type of the image output.
+    ///   - delivery: Optional. The delivery mode for the image output. (behavior varies by backend). For more details, see ``delivery``.
+    ///   - aspectRatio: Optional. The aspect ratio for the image output.
+    ///   - imageSize: Optional. The size of the image output.
     package init(
       mimeType: MimeType? = nil,
-      aspectRatio: AspectRatio? = nil,
       delivery: Delivery? = nil,
+      aspectRatio: AspectRatio? = nil,
       imageSize: ImageSize? = nil
     ) {
       self.mimeType = mimeType
-      self.aspectRatio = aspectRatio
       self.delivery = delivery
+      self.aspectRatio = aspectRatio
       self.imageSize = imageSize
     }
     enum CodingKeys: String, CodingKey {
       case mimeType = "mimeType"
-      case aspectRatio = "aspectRatio"
       case delivery = "delivery"
+      case aspectRatio = "aspectRatio"
       case imageSize = "imageSize"
     }
   }
