@@ -9,12 +9,26 @@ This skill orchestrates a multi-agent workflow to implement code changes while
 strictly enforcing test validation and code quality standards.
 
 ## Requirements
-*   An `agents.md` file at the root of the repository must be present to define
-    the Verifier and Reviewer personas for the current repository.
+*   Ideally, an `agents.md` file at the root of the repository defines the
+    Verifier and Reviewer personas and test commands. If absent, the workflow
+    will prompt the user for this information.
 
 ## The Workflow
 
 When this skill is invoked, follow these exact phases in order:
+
+### Phase 0: Environment Check
+Before invoking the Verifier or Reviewer subagents, you MUST verify the
+environment:
+1.  **Check Documentation:** Check if the repository contains an `AGENTS.md`,
+    `agents.md`, or `REVIEW_GUIDELINES.md` file at the root.
+2.  **Fallback to User:** If none of these files exist, you MUST pause your
+    work and explicitly ask the user to provide the exact commands needed to
+    build and run tests for this project. Do not proceed until you have this
+    information.
+3.  **Use Commands:** Use the commands provided by the user to instruct the
+    Verifier in subsequent phases, rather than guessing or assuming the
+    environment.
 
 ### Phase 1: Applicability & Test Creation (Worker)
 1.  **Assess:** Determine if a unit/regression test is applicable for the
@@ -40,23 +54,27 @@ When this skill is invoked, follow these exact phases in order:
 ### Phase 2: Sanity Check 1 (Verifier)
 1.  Invoke a **Verifier** subagent using `invoke_subagent` (Role: "Objective
     Code Verifier").
-2.  **Instruction to Verifier:** "Read the Root `agents.md` for this repo to
-    find the test execution command. Run the tests. Your ONLY goal is to verify
-    that the specific test I just added currently **FAILS**. Do not try to fix
-    it. Return a binary pass/fail result based on this."
+2.  **Instruction to Verifier:** "Read the Root `agents.md` for this repo (or
+    use the test commands provided by the user) to find the test execution
+    command. Run the tests. Your ONLY goal is to verify that the specific test
+    I just added currently **FAILS**. Do not try to fix it. Return a binary
+    pass/fail result based on this."
 3.  Wait for the Verifier's response. If the test does not fail, revise the
     test until it does.
 
 ### Phase 3: Implementation (Worker)
-1.  Apply the code fix for the issue.
+1.  **Consult Guidelines:** Read `REVIEW_GUIDELINES.md` (if it exists) to ensure
+    your implementation adheres to repository-specific coding standards.
+2.  **Apply Fix:** Apply the code fix for the issue.
 
 ### Phase 4: Sanity Check 2 (Verifier)
 1.  Send a message to the existing **Verifier** subagent.
 2.  **Instruction to Verifier:** "I have applied a fix. Please run the
-    tests/checks using the command from `agents.md`, but optimize for the
-    **validation scope** I determined in Phase 1 (e.g., if it's just a
-    whitespace fix, only run the style script instead of the full test suite).
-    Verify that the required checks now **PASS**."
+    tests/checks using the command from `agents.md` (or the commands provided
+    by the user), but optimize for the **validation scope** I determined in
+    Phase 1 (e.g., if it's just a whitespace fix, only run the style script
+    instead of the full test suite). Verify that the required checks now
+    **PASS**."
 3.  If the Verifier reports failures, iterate on the implementation and repeat
     this phase.
 
@@ -71,9 +89,9 @@ When this skill is invoked, follow these exact phases in order:
 1.  Invoke a **Reviewer** subagent using `invoke_subagent` (Role: "Rigorous
     Code Reviewer").
 2.  **Instruction to Reviewer:** "Read the Root `agents.md` and any
-    `REVIEW_GUIDELINES.md` for this repo. Perform a rigorous, subjective code
-    review on my changes. Focus on concurrency, memory management, and API
-    design. Flag any issues."
+    `REVIEW_GUIDELINES.md` for this repo (if they exist). Perform a rigorous,
+    subjective code review on my changes. Focus on concurrency, memory
+    management, and API design. Flag any issues."
 3.  Iterate with the Reviewer until it approves the changes based on the rubric.
 
 ### Phase 7: Key Learnings & Completion
