@@ -19,7 +19,7 @@ import ArgumentParser
 public struct Tests: ParsableCommand {
   public init() {}
 
-  public nonisolated(unsafe) static var configuration = CommandConfiguration(
+  public static let configuration = CommandConfiguration(
     abstract: "Commands for running and interacting with integration tests.",
     subcommands: [Decrypt.self, Run.self],
     defaultSubcommand: Run.self
