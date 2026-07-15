@@ -1175,8 +1175,8 @@ TEST_F(BundleSerializerTest, DecodeNonDocumentKeyResourceNameFails) {
   //      prefix),
   //   2. a root `documents` path (resolves to an empty key), and
   //   3. a short path (fewer than five segments, would crash `PopFirst(5)`).
-  const std::vector<std::string> names = {
-      FullPath("bundle"), FullPath(""), "projects/p/databases/default"};
+  const std::vector<std::string> names = {FullPath("bundle"), FullPath(""),
+                                          "projects/p/databases/default"};
 
   for (const auto& name : names) {
     {
