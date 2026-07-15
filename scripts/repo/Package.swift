@@ -25,7 +25,7 @@ let package = Package(
   name: "RepoScripts",
   platforms: [.macOS(.v15)],
   products: [
-    .executable(name: "tests", targets: ["Tests"]),
+    .executable(name: "repo", targets: ["Repo"]),
   ],
   dependencies: [
     .package(url: "https://github.com/apple/swift-argument-parser", exact: "1.6.2"),
@@ -33,11 +33,19 @@ let package = Package(
   ],
   targets: [
     .executableTarget(
+      name: "Repo",
+      dependencies: [
+        .product(name: "ArgumentParser", package: "swift-argument-parser"),
+        "Tests",
+        "Util",
+      ]
+    ),
+    .target(
       name: "Tests",
       dependencies: [
         .product(name: "ArgumentParser", package: "swift-argument-parser"),
         .product(name: "Logging", package: "swift-log"),
-        .byName(name: "Util"),
+        "Util",
       ]
     ),
     .target(
