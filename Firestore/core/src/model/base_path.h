@@ -27,6 +27,8 @@
 #include "Firestore/core/src/util/comparison.h"
 #include "Firestore/core/src/util/hard_assert.h"
 #include "Firestore/core/src/util/hashing.h"
+#include "absl/strings/numbers.h"
+#include "absl/strings/string_view.h"
 
 namespace firebase {
 namespace firestore {
@@ -206,15 +208,33 @@ class BasePath {
     }
   }
 
+  // Parses a segment of the form "__id<n>__" where <n> is a base-10 integer.
+  // Returns false (leaving *value untouched) when the segment is not a
+  // well-formed numeric id, including when <n> is absent, non-numeric, or does
+  // not fit in an int64_t. Segments reach this path from document names decoded
+  // out of untrusted server responses and bundles, so a malformed "__id...__"
+  // must be rejected here rather than reaching a throwing conversion.
+  static bool ParseNumericId(const std::string& segment, int64_t* value) {
+    if (segment.size() <= kNumericIdTotalOverhead ||
+        segment.compare(0, kNumericIdPrefixLength, "__id") != 0 ||
+        segment.compare(segment.size() - kNumericIdSuffixLength,
+                        kNumericIdSuffixLength, "__") != 0) {
+      return false;
+    }
+    absl::string_view numeric_part(segment.data() + kNumericIdPrefixLength,
+                                   segment.size() - kNumericIdTotalOverhead);
+    return absl::SimpleAtoi(numeric_part, value);
+  }
+
   static bool IsNumericId(const std::string& segment) {
-    return segment.size() > kNumericIdTotalOverhead &&
-           segment.substr(0, kNumericIdPrefixLength) == "__id" &&
-           segment.substr(segment.size() - kNumericIdSuffixLength) == "__";
+    int64_t value = 0;
+    return ParseNumericId(segment, &value);
   }
 
   static int64_t ExtractNumericId(const std::string& segment) {
-    return std::stol(segment.substr(kNumericIdPrefixLength,
-                                    segment.size() - kNumericIdSuffixLength));
+    int64_t value = 0;
+    ParseNumericId(segment, &value);
+    return value;
   }
 };
 

@@ -72,6 +72,26 @@ TEST(ResourcePath, Comparison) {
   EXPECT_TRUE(ab > a);
 }
 
+TEST(ResourcePath, ComparisonWithMalformedNumericIds) {
+  // Segments shaped like "__id<n>__" are ordered numerically, but the numeric
+  // part must be a real integer. A crafted document name whose middle is not a
+  // valid int64 (non-numeric, or larger than an int64 can hold) must not abort
+  // when two such paths are compared.
+  const ResourcePath non_numeric_a{"__idABC__"};
+  const ResourcePath non_numeric_b{"__idXYZ__"};
+  const ResourcePath overflow{"__id99999999999999999999__"};
+  const ResourcePath numeric{"__id123__"};
+
+  EXPECT_TRUE(non_numeric_a < non_numeric_b);
+  EXPECT_TRUE(non_numeric_b > non_numeric_a);
+  EXPECT_EQ(non_numeric_a, ResourcePath{"__idABC__"});
+  EXPECT_NE(numeric, non_numeric_a);
+  EXPECT_NE(numeric, overflow);
+  // Real numeric ids still sort ahead of ones that fail to parse.
+  EXPECT_TRUE(numeric < non_numeric_a);
+  EXPECT_TRUE(overflow > numeric);
+}
+
 TEST(ResourcePath, Parsing) {
   const auto parse = [](const std::pair<std::string, size_t> expected) {
     const auto path = ResourcePath::FromString(expected.first);
