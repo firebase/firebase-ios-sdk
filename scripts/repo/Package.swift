@@ -44,7 +44,6 @@ let package = Package(
       name: "Tests",
       dependencies: [
         .product(name: "ArgumentParser", package: "swift-argument-parser"),
-        .product(name: "Logging", package: "swift-log"),
         "Util",
       ]
     ),
