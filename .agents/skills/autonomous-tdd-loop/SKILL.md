@@ -40,7 +40,7 @@ When this skill is invoked, follow these exact phases in order:
 ### Phase 2: Sanity Check 1 (Verifier)
 1.  Invoke a **Verifier** subagent using `invoke_subagent` (Role: "Objective
     Code Verifier").
-2.  **Instruction to Verifier:** "Read the Root `AGENTS.md` for this repo to
+2.  **Instruction to Verifier:** "Read the Root `agents.md` for this repo to
     find the test execution command. Run the tests. Your ONLY goal is to verify
     that the specific test I just added currently **FAILS**. Do not try to fix
     it. Return a binary pass/fail result based on this."
@@ -53,7 +53,7 @@ When this skill is invoked, follow these exact phases in order:
 ### Phase 4: Sanity Check 2 (Verifier)
 1.  Send a message to the existing **Verifier** subagent.
 2.  **Instruction to Verifier:** "I have applied a fix. Please run the
-    tests/checks using the command from `AGENTS.md`, but optimize for the
+    tests/checks using the command from `agents.md`, but optimize for the
     **validation scope** I determined in Phase 1 (e.g., if it's just a
     whitespace fix, only run the style script instead of the full test suite).
     Verify that the required checks now **PASS**."
@@ -70,7 +70,7 @@ When this skill is invoked, follow these exact phases in order:
 ### Phase 6: Qualitative Review (Reviewer)
 1.  Invoke a **Reviewer** subagent using `invoke_subagent` (Role: "Rigorous
     Code Reviewer").
-2.  **Instruction to Reviewer:** "Read the Root `AGENTS.md` and any
+2.  **Instruction to Reviewer:** "Read the Root `agents.md` and any
     `REVIEW_GUIDELINES.md` for this repo. Perform a rigorous, subjective code
     review on my changes. Focus on concurrency, memory management, and API
     design. Flag any issues."
@@ -85,7 +85,7 @@ When this skill is invoked, follow these exact phases in order:
     quirk of the repository that all contributors should know about (rather
     than a transient local machine issue), explicitly prompt the user: "I added
     a note about [Topic] to your local `.agents/MEMORY.md`. I recommend we
-    permanently add this to the repository's `AGENTS.md` file so all
+    permanently add this to the repository's `agents.md` file so all
     contributors benefit from this knowledge. Would you like me to do that?"
 3.  If the user requested PR creation, use the `gh` CLI to create a PR and wait
     for CI/human feedback. Otherwise, notify the user that the loop is

@@ -5,9 +5,9 @@ agent (like the TDD Reviewer or PR Reviewer) operating in this repository must
 rigorously critique code against these guidelines.
 
 ## 1. Swift-First & Concurrency
-* **No New Objective-C**: Reject any PR that introduces new Objective-C code
-  unless there is a strong, explicitly documented justification (e.g.,
-  C-interop).
+* **No New Objective-C**: Reject any PR that introduces new Objective-C public APIs
+  or new Objective-C files unless there is a strong, explicitly documented justification (e.g.,
+  C-interop). General code updates to existing Objective-C files are perfectly acceptable.
 * **Async/Await**: All new asynchronous APIs must use Swift Concurrency
   (`async/await`). Reject new callback-based APIs unless they are specifically
   for event streams.

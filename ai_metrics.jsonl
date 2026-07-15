@@ -1,0 +1,1 @@
+{"goal": "Remove recaptcha related docs, warnings, and impl from the default app check provider factory.", "iterations_in_verifier": 2, "iterations_in_reviewer": 1, "time_to_resolution_minutes": 8, "timestamp": "2026-07-13T11:10:00-04:00"}
