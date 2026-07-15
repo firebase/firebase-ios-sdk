@@ -67,5 +67,10 @@ fi
 # Clean up the old skills.json inheritance file if it exists,
 # as we have shifted to a direct copy model for reliable re-exports.
 if [ -f "$HOME/.gemini/config/skills.json" ]; then
-  rm -f "$HOME/.gemini/config/skills.json"
+  if command -v jq >/dev/null 2>&1; then
+    # Safely remove only the firebase-ios-sdk entry from inherits
+    jq 'if .inherits then .inherits |= map(select(.path | contains("firebase-ios-sdk") | not)) else . end' "$HOME/.gemini/config/skills.json" > "$HOME/.gemini/config/skills.json.tmp" && mv "$HOME/.gemini/config/skills.json.tmp" "$HOME/.gemini/config/skills.json"
+  else
+    echo "Warning: jq is not installed. Please manually remove any firebase-ios-sdk inheritance entries from $HOME/.gemini/config/skills.json."
+  fi
 fi
