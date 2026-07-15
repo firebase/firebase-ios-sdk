@@ -48,7 +48,7 @@
   id mockScene = OCMClassMock([UIScene class]);
   OCMStub([mockScene activationState]).andReturn(UISceneActivationStateForegroundActive);
   // Delegate does NOT respond to target selector
-  id mockDelegate = OCMClassMock([NSObject class]);
+  id mockDelegate = OCMProtocolMock(@protocol(UIApplicationDelegate));
   OCMStub([mockScene delegate]).andReturn(mockDelegate);
 
   NSSet *connectedScenes = [NSSet setWithObject:mockScene];
