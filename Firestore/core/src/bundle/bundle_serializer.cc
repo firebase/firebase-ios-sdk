@@ -648,7 +648,7 @@ BundledDocumentMetadata BundleSerializer::DecodeDocumentMetadata(
   if (!reader.ok()) {
     return {};
   }
-  if (!DocumentKey::IsDocumentKey(path)) {
+  if (path.empty() || !DocumentKey::IsDocumentKey(path)) {
     reader.Fail("Resource name is not a valid document key: " +
                 path.CanonicalString());
     return {};
@@ -684,7 +684,7 @@ BundleDocument BundleSerializer::DecodeDocument(JsonReader& reader,
   if (!reader.ok()) {
     return {};
   }
-  if (!DocumentKey::IsDocumentKey(path)) {
+  if (path.empty() || !DocumentKey::IsDocumentKey(path)) {
     reader.Fail("Resource name is not a valid document key: " +
                 path.CanonicalString());
     return {};

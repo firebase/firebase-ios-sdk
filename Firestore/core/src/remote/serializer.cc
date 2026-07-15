@@ -1522,8 +1522,7 @@ bool Serializer::IsLocalResourceName(const ResourcePath& path) const {
 bool Serializer::IsLocalDocumentKey(absl::string_view path) const {
   auto resource = ResourcePath::FromStringView(path);
   return IsLocalResourceName(resource) && resource.size() >= 5 &&
-         resource[4] == "documents" &&
-         DocumentKey::IsDocumentKey(resource.PopFirst(5));
+         resource[4] == "documents" && (resource.size() - 5) % 2 == 0;
 }
 
 api::PipelineSnapshot Serializer::DecodePipelineResponse(
