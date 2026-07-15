@@ -28,7 +28,7 @@ let package = Package(
     .executable(name: "repo", targets: ["Repo"]),
   ],
   dependencies: [
-    .package(url: "https://github.com/apple/swift-argument-parser", exact: "1.6.2"),
+    .package(url: "https://github.com/apple/swift-argument-parser", exact: "1.8.2"),
     .package(url: "https://github.com/apple/swift-log", exact: "1.6.2"),
   ],
   targets: [
