@@ -1,7 +1,7 @@
 import ArgumentParser
-import Tests
-import Logging
 import Foundation
+import Logging
+import Tests
 
 @main
 struct Repo: AsyncParsableCommand {
