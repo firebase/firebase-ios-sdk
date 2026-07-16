@@ -405,7 +405,8 @@ ResourcePath BundleSerializer::DecodeName(JsonReader& reader,
   }
   auto path =
       ResourcePath::FromString(document_name.get_ref<const std::string&>());
-  if (!rpc_serializer_.IsLocalResourceName(path)) {
+  if (!rpc_serializer_.IsLocalResourceName(path) || path.size() < 5 ||
+      path[4] != "documents") {
     reader.Fail("Resource name is not valid for current instance: " +
                 path.CanonicalString());
     return {};
@@ -648,8 +649,9 @@ BundledDocumentMetadata BundleSerializer::DecodeDocumentMetadata(
     JsonReader& reader, const json& document_metadata) const {
   ResourcePath path =
       DecodeName(reader, reader.RequiredObject("name", document_metadata));
-  // Return early if !ok(), `DocumentKey` aborts with invalid inputs.
-  if (!reader.ok()) {
+  if (path.empty() || !DocumentKey::IsDocumentKey(path)) {
+    reader.Fail("Resource name is not a valid document key: " +
+                path.CanonicalString());
     return {};
   }
   DocumentKey key = DocumentKey(path);
@@ -679,8 +681,9 @@ BundleDocument BundleSerializer::DecodeDocument(JsonReader& reader,
                                                 const json& document) const {
   ResourcePath path =
       DecodeName(reader, reader.RequiredObject("name", document));
-  // Return early if !ok(), `DocumentKey` aborts with invalid inputs.
-  if (!reader.ok()) {
+  if (path.empty() || !DocumentKey::IsDocumentKey(path)) {
+    reader.Fail("Resource name is not a valid document key: " +
+                path.CanonicalString());
     return {};
   }
   DocumentKey key = DocumentKey(path);
