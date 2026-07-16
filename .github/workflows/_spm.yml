@@ -126,14 +126,22 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-15, macos-26]
-        xcode: [Xcode_26.2, Xcode_26.4]
+        os: [macos-15, macos-26, xcode-27]
+        xcode: [Xcode_26.2, Xcode_26.4, Xcode_27.0]
         platform: [iOS, tvOS, macOS, watchOS, catalyst, visionOS]
         exclude:
           - os: macos-15
             xcode: Xcode_26.4
+          - os: macos-15
+            xcode: Xcode_27.0
           - os: macos-26
             xcode: Xcode_26.2
+          - os: macos-26
+            xcode: Xcode_27.0
+          - os: xcode-27
+            xcode: Xcode_26.2
+          - os: xcode-27
+            xcode: Xcode_26.4
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
