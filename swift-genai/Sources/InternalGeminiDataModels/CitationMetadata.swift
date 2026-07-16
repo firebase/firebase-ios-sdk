@@ -39,7 +39,7 @@ extension GeminiDataModels {
     /// ### Gemini Enterprise Agent Platform
     /// 
     /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
-    package let citationSources: [CitationSource]?
+    package let citationSources: [Citation]?
     
     /// Output only. A list of citations for the content.
     /// 
@@ -59,7 +59,7 @@ extension GeminiDataModels {
     ///   - citationSources: Citations to sources for a specific response. (Gemini Developer API only). For more details, see ``citationSources``.
     ///   - citations: Output only. A list of citations for the content. (Gemini Enterprise Agent Platform only). For more details, see ``citations``.
     package init(
-      citationSources: [CitationSource]? = nil,
+      citationSources: [Citation]? = nil,
       citations: [Citation]? = nil
     ) {
       self.citationSources = citationSources

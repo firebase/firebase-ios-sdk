@@ -14,6 +14,7 @@
 # limitations under the License.
 
 import argparse
+import copy
 import json
 import os
 import sys
@@ -906,11 +907,8 @@ def merge_schemas(name, schema1, schema2):
 
 def main():
     parser = argparse.ArgumentParser(description="Generate Swift types from one or more OpenAPI Specifications.")
-    parser.add_argument("--openapi-spec", nargs="+", default=[
-                            "utilities/discovery_documents/firebasevertexai-openapi.yaml",
-                            "utilities/discovery_documents/firebasevertexai-openapi.yaml"
-                        ],
-                        help="Path(s) to the OpenAPI specification YAML file(s).")
+    parser.add_argument("--openapi-spec", default="utilities/discovery_documents/firebasevertexai-openapi.yaml",
+                        help="Path to the OpenAPI specification YAML file.")
     parser.add_argument("--templates-dir", default="utilities/templates",
                         help="Directory containing the Jinja templates.")
     parser.add_argument("--output-dir", default="Sources/InternalGeminiDataModels",
@@ -951,29 +949,31 @@ def main():
             print(f"Loaded generator configuration from {args.overrides_file}")
     
     resolved_by_doc = []
-    for idx, doc_path in enumerate(args.openapi_spec):
-        if not os.path.exists(doc_path):
-            print(f"Error: Specification file not found at {doc_path}")
-            sys.exit(1)
-            
-        with open(doc_path, "r") as f:
-            doc = yaml.safe_load(f)
-            
-        doc_schemas = doc.get("components", {}).get("schemas", {})
-        print(f"Loaded specification {doc_path} with {len(doc_schemas)} schemas.")
+    
+    if not os.path.exists(args.openapi_spec):
+        print(f"Error: Specification file not found at {args.openapi_spec}")
+        sys.exit(1)
         
-        # Strip prefix if requested for this document
-        prefix = args.strip_prefix[idx] if idx < len(args.strip_prefix) else ""
+    with open(args.openapi_spec, "r") as f:
+        doc = yaml.safe_load(f)
+        
+    base_schemas = doc.get("components", {}).get("schemas", {})
+    print(f"Loaded specification {args.openapi_spec} with {len(base_schemas)} schemas.")
+    
+    prefixes = args.strip_prefix if args.strip_prefix else [""]
+    for prefix in prefixes:
+        # Deep copy base schemas to prevent side-effects across prefix-stripping runs
+        doc_schemas = copy.deepcopy(base_schemas)
         if prefix:
             doc_schemas = strip_prefix_from_schemas(doc_schemas, prefix)
-            print(f"Stripped prefix '{prefix}' for {doc_path}. Remaining schema count: {len(doc_schemas)}")
+            print(f"Stripped prefix '{prefix}'. Remaining schema count: {len(doc_schemas)}")
             
         # Rename/align schemas to match across backends
         doc_schemas = rename_schemas_and_refs(doc_schemas, SCHEMA_RENAME_MAPPINGS)
             
         # Resolve transitively for this document
         doc_resolved = resolve_all_types(doc_schemas, args.roots)
-        print(f"Resolved {len(doc_resolved)} schemas for {doc_path} from roots {args.roots}.")
+        print(f"Resolved {len(doc_resolved)} schemas for prefix '{prefix}' from roots {args.roots}.")
         resolved_by_doc.append(doc_resolved)
         
     # Merge resolved schemas from all documents

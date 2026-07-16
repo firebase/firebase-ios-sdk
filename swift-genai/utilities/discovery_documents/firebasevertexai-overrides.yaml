@@ -52,7 +52,7 @@ schemas:
       responseFormat:
         $ref: "#/components/schemas/GoogleAiGenerativelanguageV1betaResponseFormatConfig"
 
-  # Vertex AI
+  # Gemini Enterprise Agent Platform (formerly Vertex AI)
   GoogleCloudAiplatformV1beta1GenerateContentRequest:
     required:
       - contents
@@ -108,6 +108,7 @@ generatorConfig:
   manualOverrideSchemas:
     - ResponseFormatConfig
   renameMappings:
+    CitationSource: Citation
     ResponseFormat: ResponseFormatConfig
     GenerateContentResponsePromptFeedback: PromptFeedback
     GenerateContentResponseUsageMetadata: UsageMetadata

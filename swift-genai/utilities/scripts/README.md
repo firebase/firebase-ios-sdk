@@ -41,7 +41,7 @@ specification and write clean Swift types into target folders.
 
 | Argument | Default | Description |
 | :--- | :--- | :--- |
-| `--openapi-spec` | `.../firebasevertexai-openapi.yaml` | Upgraded spec YAML paths. |
+| `--openapi-spec` | `.../firebasevertexai-openapi.yaml` | Upgraded spec YAML path. |
 | `--overrides-file` | `.../firebasevertexai-overrides.yaml` | YAML overrides file path. |
 | `--output-dir` | `Sources/InternalGeminiDataModels` | Output directory. |
 | `--roots` | `["GenerateContentRequest", ...]` | Roots to resolve. |
@@ -64,9 +64,7 @@ python utilities/scripts/upgrade_spec.py
 
 # 2. Generate Swift types
 python utilities/scripts/generate_types.py \
-  --openapi-spec \
-    utilities/discovery_documents/firebasevertexai-openapi.yaml \
-    utilities/discovery_documents/firebasevertexai-openapi.yaml \
+  --openapi-spec utilities/discovery_documents/firebasevertexai-openapi.yaml \
   --overrides-file \
     utilities/discovery_documents/firebasevertexai-overrides.yaml \
   --output-dir Sources/InternalGeminiDataModels \
