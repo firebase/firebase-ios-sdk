@@ -88,17 +88,6 @@ extension GeminiDataModels {
     /// Maximum 512 function declarations can be provided.
     package let functionDeclarations: [FunctionDeclaration]?
     
-    /// Optional. Retrieval tool that is powered by Google search.
-    /// 
-    /// ### Gemini Developer API
-    /// 
-    /// Optional. Retrieval tool that is powered by Google search.
-    /// 
-    /// ### Gemini Enterprise Agent Platform
-    /// 
-    /// Optional. Specialized retrieval tool that is powered by Google Search.
-    package let googleSearchRetrieval: GoogleSearchRetrieval?
-    
     /// Optional. Enables the model to execute code as part of generation.
     /// 
     /// ### Gemini Developer API
@@ -115,76 +104,8 @@ extension GeminiDataModels {
     /// Tool to support Google Search in Model. Powered by Google.
     package let googleSearch: GoogleSearch?
     
-    /// Optional. Tool to support the model interacting directly with the computer.
-    /// If enabled, it automatically populates computer-use specific Function
-    /// Declarations.
-    package let computerUse: ComputerUse?
-    
     /// Optional. Tool to support URL context retrieval.
     package let urlContext: UrlContext?
-    
-    /// Optional. MCP Servers to connect to.
-    /// 
-    /// ### Gemini Developer API
-    /// 
-    /// Optional. MCP Servers to connect to.
-    /// 
-    /// ### Gemini Enterprise Agent Platform
-    /// 
-    /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
-    package let mcpServers: [ToolMcpServer]?
-    
-    /// Optional. Retrieval tool type.
-    /// 
-    /// ### Gemini Developer API
-    /// 
-    /// > Important: This property is not supported in the Gemini Developer API.
-    /// 
-    /// ### Gemini Enterprise Agent Platform
-    /// 
-    /// Optional. Retrieval tool type.
-    /// System will always execute the provided retrieval tool(s) to get external
-    /// knowledge to answer the prompt. Retrieval results are presented to the
-    /// model for generation.
-    package let retrieval: Retrieval?
-    
-    /// Optional. Tool to support searching public web data, powered by Vertex AI Search and
-    /// 
-    /// ### Gemini Developer API
-    /// 
-    /// > Important: This property is not supported in the Gemini Developer API.
-    /// 
-    /// ### Gemini Enterprise Agent Platform
-    /// 
-    /// Optional. Tool to support searching public web data, powered by Vertex AI Search and
-    /// Sec4 compliance.
-    package let enterpriseWebSearch: EnterpriseWebSearch?
-    
-    /// Optional. If specified, Vertex AI will use Parallel.ai to search for information to
-    /// 
-    /// ### Gemini Developer API
-    /// 
-    /// > Important: This property is not supported in the Gemini Developer API.
-    /// 
-    /// ### Gemini Enterprise Agent Platform
-    /// 
-    /// Optional. If specified, Vertex AI will use Parallel.ai to search for information to
-    /// answer user queries. The search results will be grounded on Parallel.ai
-    /// and presented to the model for response generation
-    package let parallelAiSearch: ToolParallelAiSearch?
-    
-    /// Optional. Uses Exa.ai to search for information to
-    /// 
-    /// ### Gemini Developer API
-    /// 
-    /// > Important: This property is not supported in the Gemini Developer API.
-    /// 
-    /// ### Gemini Enterprise Agent Platform
-    /// 
-    /// Optional. Uses Exa.ai to search for information to
-    /// answer user queries. The search results will be grounded on Exa.ai
-    /// and presented to the model for response generation
-    package let exaAiSearch: ToolExaAiSearch?
     
 
     /// Creates a new `Tool`.
@@ -193,59 +114,31 @@ extension GeminiDataModels {
     ///   - templateFunctions: Optional. A list of user-provided functions for function calling. For functions whose
     ///   - googleMaps: Optional. Tool to retrieve public maps data for grounding, powered by Google. (behavior varies by backend). For more details, see ``googleMaps``.
     ///   - functionDeclarations: Optional. A list of `FunctionDeclarations` available to the model that can be used (behavior varies by backend). For more details, see ``functionDeclarations``.
-    ///   - googleSearchRetrieval: Optional. Retrieval tool that is powered by Google search. (behavior varies by backend). For more details, see ``googleSearchRetrieval``.
     ///   - codeExecution: Optional. Enables the model to execute code as part of generation. (behavior varies by backend). For more details, see ``codeExecution``.
     ///   - googleSearch: Optional. GoogleSearch tool type.
-    ///   - computerUse: Optional. Tool to support the model interacting directly with the computer.
     ///   - urlContext: Optional. Tool to support URL context retrieval.
-    ///   - mcpServers: Optional. MCP Servers to connect to. (Gemini Developer API only). For more details, see ``mcpServers``.
-    ///   - retrieval: Optional. Retrieval tool type. (Gemini Enterprise Agent Platform only). For more details, see ``retrieval``.
-    ///   - enterpriseWebSearch: Optional. Tool to support searching public web data, powered by Vertex AI Search and (Gemini Enterprise Agent Platform only). For more details, see ``enterpriseWebSearch``.
-    ///   - parallelAiSearch: Optional. If specified, Vertex AI will use Parallel.ai to search for information to (Gemini Enterprise Agent Platform only). For more details, see ``parallelAiSearch``.
-    ///   - exaAiSearch: Optional. Uses Exa.ai to search for information to (Gemini Enterprise Agent Platform only). For more details, see ``exaAiSearch``.
     package init(
       templateFunctions: [TemplateFunction]? = nil,
       googleMaps: GoogleMaps? = nil,
       functionDeclarations: [FunctionDeclaration]? = nil,
-      googleSearchRetrieval: GoogleSearchRetrieval? = nil,
       codeExecution: CodeExecution? = nil,
       googleSearch: GoogleSearch? = nil,
-      computerUse: ComputerUse? = nil,
-      urlContext: UrlContext? = nil,
-      mcpServers: [ToolMcpServer]? = nil,
-      retrieval: Retrieval? = nil,
-      enterpriseWebSearch: EnterpriseWebSearch? = nil,
-      parallelAiSearch: ToolParallelAiSearch? = nil,
-      exaAiSearch: ToolExaAiSearch? = nil
+      urlContext: UrlContext? = nil
     ) {
       self.templateFunctions = templateFunctions
       self.googleMaps = googleMaps
       self.functionDeclarations = functionDeclarations
-      self.googleSearchRetrieval = googleSearchRetrieval
       self.codeExecution = codeExecution
       self.googleSearch = googleSearch
-      self.computerUse = computerUse
       self.urlContext = urlContext
-      self.mcpServers = mcpServers
-      self.retrieval = retrieval
-      self.enterpriseWebSearch = enterpriseWebSearch
-      self.parallelAiSearch = parallelAiSearch
-      self.exaAiSearch = exaAiSearch
     }
     enum CodingKeys: String, CodingKey {
       case templateFunctions = "templateFunctions"
       case googleMaps = "googleMaps"
       case functionDeclarations = "functionDeclarations"
-      case googleSearchRetrieval = "googleSearchRetrieval"
       case codeExecution = "codeExecution"
       case googleSearch = "googleSearch"
-      case computerUse = "computerUse"
       case urlContext = "urlContext"
-      case mcpServers = "mcpServers"
-      case retrieval = "retrieval"
-      case enterpriseWebSearch = "enterpriseWebSearch"
-      case parallelAiSearch = "parallelAiSearch"
-      case exaAiSearch = "exaAiSearch"
     }
   }
 }

@@ -14,7 +14,6 @@
 
 import Foundation
 
-
 extension GeminiDataModels {
   /// An internal data model for `DataType`.
   /// 
@@ -25,12 +24,61 @@ extension GeminiDataModels {
   /// ### Gemini Enterprise Agent Platform
   /// 
   /// > Important: This type is not supported in the Gemini Enterprise Agent Platform.
-  package struct DataType: Codable, Sendable, Equatable, Hashable {
-
-    /// Creates a new `DataType`.
+  package enum DataType: Codable, Sendable, Equatable, Hashable {
+    /// String type.
+    case string
+    
+    /// Number type.
+    case number
+    
+    /// Integer type.
+    case integer
+    
+    /// Boolean type.
+    case boolean
+    
+    /// Array type.
+    case array
+    
+    /// Object type.
+    case object
+    
+    /// Null type.
+    case null
+    
+    /// Unrecognized case.
     ///
-    package init(
-    ) {
+    /// - Parameter value: The raw string value of the unrecognized enum case.
+    case unrecognized(_ value: String)
+  }
+}
+
+// MARK: - RawRepresentable Conformance
+
+extension GeminiDataModels.DataType: RawRepresentable {
+  package var rawValue: String {
+    switch self {
+    case .string: "STRING"
+    case .number: "NUMBER"
+    case .integer: "INTEGER"
+    case .boolean: "BOOLEAN"
+    case .array: "ARRAY"
+    case .object: "OBJECT"
+    case .null: "NULL"
+    case .unrecognized(let value): value
+    }
+  }
+
+  package init(rawValue: String) {
+    switch rawValue {
+    case "STRING": self = .string
+    case "NUMBER": self = .number
+    case "INTEGER": self = .integer
+    case "BOOLEAN": self = .boolean
+    case "ARRAY": self = .array
+    case "OBJECT": self = .object
+    case "NULL": self = .null
+    default: self = .unrecognized(rawValue)
     }
   }
 }

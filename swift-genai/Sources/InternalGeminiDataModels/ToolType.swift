@@ -14,7 +14,6 @@
 
 import Foundation
 
-
 extension GeminiDataModels {
   /// An internal data model for `ToolType`.
   /// 
@@ -25,12 +24,51 @@ extension GeminiDataModels {
   /// ### Gemini Enterprise Agent Platform
   /// 
   /// > Important: This type is not supported in the Gemini Enterprise Agent Platform.
-  package struct ToolType: Codable, Sendable, Equatable, Hashable {
-
-    /// Creates a new `ToolType`.
+  package enum ToolType: Codable, Sendable, Equatable, Hashable {
+    /// Google search tool, maps to Tool.google_search.search_types.web_search.
+    case googleSearchWeb
+    
+    /// Image search tool, maps to Tool.google_search.search_types.image_search.
+    case googleSearchImage
+    
+    /// URL context tool, maps to Tool.url_context.
+    case urlContext
+    
+    /// Google maps tool, maps to Tool.google_maps.
+    case googleMaps
+    
+    /// File search tool, maps to Tool.file_search.
+    case fileSearch
+    
+    /// Unrecognized case.
     ///
-    package init(
-    ) {
+    /// - Parameter value: The raw string value of the unrecognized enum case.
+    case unrecognized(_ value: String)
+  }
+}
+
+// MARK: - RawRepresentable Conformance
+
+extension GeminiDataModels.ToolType: RawRepresentable {
+  package var rawValue: String {
+    switch self {
+    case .googleSearchWeb: "GOOGLE_SEARCH_WEB"
+    case .googleSearchImage: "GOOGLE_SEARCH_IMAGE"
+    case .urlContext: "URL_CONTEXT"
+    case .googleMaps: "GOOGLE_MAPS"
+    case .fileSearch: "FILE_SEARCH"
+    case .unrecognized(let value): value
+    }
+  }
+
+  package init(rawValue: String) {
+    switch rawValue {
+    case "GOOGLE_SEARCH_WEB": self = .googleSearchWeb
+    case "GOOGLE_SEARCH_IMAGE": self = .googleSearchImage
+    case "URL_CONTEXT": self = .urlContext
+    case "GOOGLE_MAPS": self = .googleMaps
+    case "FILE_SEARCH": self = .fileSearch
+    default: self = .unrecognized(rawValue)
     }
   }
 }

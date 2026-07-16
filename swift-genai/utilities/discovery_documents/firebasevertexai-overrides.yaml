@@ -101,10 +101,32 @@ schemas:
 generatorConfig:
   typeOverrides: {}
   excludedSchemas:
+    - ApiAuth
+    - AuthConfig
+    - DynamicRetrievalConfig
+    - EnterpriseWebSearch
+    - ExternalApi
     - FileSearch
+    - GenerationConfigModelConfig
+    - GenerationConfigRoutingConfig
+    - ModelArmorConfig
+    - PartialArg
+    - RagChunk
+    - RagRetrievalConfig
+    - Retrieval
+    - RetrievedContextChunk
+    - TranslationConfig
   excludedProperties:
+    Candidate:
+      - groundingAttributions
     Tool:
+      - computerUse
+      - enterpriseWebSearch
+      - exaAiSearch
       - fileSearch
+      - googleSearchRetrieval
+      - mcpServers
+      - parallelAiSearch
   manualOverrideSchemas:
     - ResponseFormatConfig
   renameMappings:

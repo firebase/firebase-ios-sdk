@@ -60,19 +60,6 @@ extension GeminiDataModels {
     /// for details.
     package let image: ImageChunk?
     
-    /// Optional. Grounding chunk from context retrieved by the file search tool.
-    /// 
-    /// ### Gemini Developer API
-    /// 
-    /// Optional. Grounding chunk from context retrieved by the file search tool.
-    /// 
-    /// ### Gemini Enterprise Agent Platform
-    /// 
-    /// A grounding chunk from a data source retrieved by a
-    /// retrieval tool, such as Vertex AI Search. See the `RetrievedContext`
-    /// message for details
-    package let retrievedContext: RetrievedContextChunk?
-    
     /// Optional. Grounding chunk from Google Maps.
     /// 
     /// ### Gemini Developer API
@@ -91,23 +78,19 @@ extension GeminiDataModels {
     /// - Parameters:
     ///   - web: Grounding chunk from the web. (behavior varies by backend). For more details, see ``web``.
     ///   - image: Optional. Grounding chunk from image search. (behavior varies by backend). For more details, see ``image``.
-    ///   - retrievedContext: Optional. Grounding chunk from context retrieved by the file search tool. (behavior varies by backend). For more details, see ``retrievedContext``.
     ///   - maps: Optional. Grounding chunk from Google Maps. (behavior varies by backend). For more details, see ``maps``.
     package init(
       web: WebChunk? = nil,
       image: ImageChunk? = nil,
-      retrievedContext: RetrievedContextChunk? = nil,
       maps: MapsChunk? = nil
     ) {
       self.web = web
       self.image = image
-      self.retrievedContext = retrievedContext
       self.maps = maps
     }
     enum CodingKeys: String, CodingKey {
       case web = "web"
       case image = "image"
-      case retrievedContext = "retrievedContext"
       case maps = "maps"
     }
   }

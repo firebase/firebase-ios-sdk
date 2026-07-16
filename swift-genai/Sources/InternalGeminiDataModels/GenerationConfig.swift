@@ -486,28 +486,6 @@ extension GeminiDataModels {
     /// delivery.
     package let responseFormat: ResponseFormatConfig?
     
-    /// Optional. Config for translation.
-    /// 
-    /// ### Gemini Developer API
-    /// 
-    /// Optional. Config for translation.
-    /// 
-    /// ### Gemini Enterprise Agent Platform
-    /// 
-    /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
-    package let translationConfig: TranslationConfig?
-    
-    /// Optional. Routing configuration.
-    /// 
-    /// ### Gemini Developer API
-    /// 
-    /// > Important: This property is not supported in the Gemini Developer API.
-    /// 
-    /// ### Gemini Enterprise Agent Platform
-    /// 
-    /// Optional. Routing configuration.
-    package let routingConfig: GenerationConfigRoutingConfig?
-    
     /// Optional. If enabled, audio timestamps will be included in the request to
     /// 
     /// ### Gemini Developer API
@@ -520,18 +498,6 @@ extension GeminiDataModels {
     /// the model. This can be useful for synchronizing audio with other modalities
     /// in the response.
     package let audioTimestamp: Bool?
-    
-    /// Optional. Config for model selection.
-    /// 
-    /// ### Gemini Developer API
-    /// 
-    /// > Important: This property is not supported in the Gemini Developer API.
-    /// 
-    /// ### Gemini Enterprise Agent Platform
-    /// 
-    /// Optional. Config for model selection.
-    @available(*, deprecated)
-    package let modelConfig: GenerationConfigModelConfig?
     
 
     /// Creates a new `GenerationConfig`.
@@ -560,10 +526,7 @@ extension GeminiDataModels {
     ///   - mediaResolution: Optional. If specified, the media resolution specified will be used. (behavior varies by backend). For more details, see ``mediaResolution``.
     ///   - enableAffectiveDialog: Optional. If enabled, the model will detect emotions and adapt its responses (behavior varies by backend). For more details, see ``enableAffectiveDialog``.
     ///   - responseFormat: Optional. Configuration for the response output format. Allows specifying output (behavior varies by backend). For more details, see ``responseFormat``.
-    ///   - translationConfig: Optional. Config for translation. (Gemini Developer API only). For more details, see ``translationConfig``.
-    ///   - routingConfig: Optional. Routing configuration. (Gemini Enterprise Agent Platform only). For more details, see ``routingConfig``.
     ///   - audioTimestamp: Optional. If enabled, audio timestamps will be included in the request to (Gemini Enterprise Agent Platform only). For more details, see ``audioTimestamp``.
-    ///   - modelConfig: Optional. Config for model selection. (Gemini Enterprise Agent Platform only). For more details, see ``modelConfig``.
     package init(
       candidateCount: Int? = nil,
       stopSequences: [String]? = nil,
@@ -588,10 +551,7 @@ extension GeminiDataModels {
       mediaResolution: MediaResolution? = nil,
       enableAffectiveDialog: Bool? = nil,
       responseFormat: ResponseFormatConfig? = nil,
-      translationConfig: TranslationConfig? = nil,
-      routingConfig: GenerationConfigRoutingConfig? = nil,
-      audioTimestamp: Bool? = nil,
-      modelConfig: GenerationConfigModelConfig? = nil
+      audioTimestamp: Bool? = nil
     ) {
       self.candidateCount = candidateCount
       self.stopSequences = stopSequences
@@ -616,10 +576,7 @@ extension GeminiDataModels {
       self.mediaResolution = mediaResolution
       self.enableAffectiveDialog = enableAffectiveDialog
       self.responseFormat = responseFormat
-      self.translationConfig = translationConfig
-      self.routingConfig = routingConfig
       self.audioTimestamp = audioTimestamp
-      self.modelConfig = modelConfig
     }
     enum CodingKeys: String, CodingKey {
       case candidateCount = "candidateCount"
@@ -645,10 +602,7 @@ extension GeminiDataModels {
       case mediaResolution = "mediaResolution"
       case enableAffectiveDialog = "enableAffectiveDialog"
       case responseFormat = "responseFormat"
-      case translationConfig = "translationConfig"
-      case routingConfig = "routingConfig"
       case audioTimestamp = "audioTimestamp"
-      case modelConfig = "modelConfig"
     }
   }
 }

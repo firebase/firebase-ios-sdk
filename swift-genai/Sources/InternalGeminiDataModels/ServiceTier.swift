@@ -14,7 +14,6 @@
 
 import Foundation
 
-
 extension GeminiDataModels {
   /// An internal data model for `ServiceTier`.
   /// 
@@ -25,12 +24,41 @@ extension GeminiDataModels {
   /// ### Gemini Enterprise Agent Platform
   /// 
   /// > Important: This type is not supported in the Gemini Enterprise Agent Platform.
-  package struct ServiceTier: Codable, Sendable, Equatable, Hashable {
-
-    /// Creates a new `ServiceTier`.
+  package enum ServiceTier: Codable, Sendable, Equatable, Hashable {
+    /// Standard service tier.
+    case standard
+    
+    /// Flex service tier.
+    case flex
+    
+    /// Priority service tier.
+    case priority
+    
+    /// Unrecognized case.
     ///
-    package init(
-    ) {
+    /// - Parameter value: The raw string value of the unrecognized enum case.
+    case unrecognized(_ value: String)
+  }
+}
+
+// MARK: - RawRepresentable Conformance
+
+extension GeminiDataModels.ServiceTier: RawRepresentable {
+  package var rawValue: String {
+    switch self {
+    case .standard: "standard"
+    case .flex: "flex"
+    case .priority: "priority"
+    case .unrecognized(let value): value
+    }
+  }
+
+  package init(rawValue: String) {
+    switch rawValue {
+    case "standard": self = .standard
+    case "flex": self = .flex
+    case "priority": self = .priority
+    default: self = .unrecognized(rawValue)
     }
   }
 }

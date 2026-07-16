@@ -14,7 +14,6 @@
 
 import Foundation
 
-
 extension GeminiDataModels {
   /// An internal data model for `Modality`.
   /// 
@@ -25,12 +24,51 @@ extension GeminiDataModels {
   /// ### Gemini Enterprise Agent Platform
   /// 
   /// > Important: This type is not supported in the Gemini Enterprise Agent Platform.
-  package struct Modality: Codable, Sendable, Equatable, Hashable {
-
-    /// Creates a new `Modality`.
+  package enum Modality: Codable, Sendable, Equatable, Hashable {
+    /// Plain text.
+    case text
+    
+    /// Image.
+    case image
+    
+    /// Video.
+    case video
+    
+    /// Audio.
+    case audio
+    
+    /// Document, e.g. PDF.
+    case document
+    
+    /// Unrecognized case.
     ///
-    package init(
-    ) {
+    /// - Parameter value: The raw string value of the unrecognized enum case.
+    case unrecognized(_ value: String)
+  }
+}
+
+// MARK: - RawRepresentable Conformance
+
+extension GeminiDataModels.Modality: RawRepresentable {
+  package var rawValue: String {
+    switch self {
+    case .text: "TEXT"
+    case .image: "IMAGE"
+    case .video: "VIDEO"
+    case .audio: "AUDIO"
+    case .document: "DOCUMENT"
+    case .unrecognized(let value): value
+    }
+  }
+
+  package init(rawValue: String) {
+    switch rawValue {
+    case "TEXT": self = .text
+    case "IMAGE": self = .image
+    case "VIDEO": self = .video
+    case "AUDIO": self = .audio
+    case "DOCUMENT": self = .document
+    default: self = .unrecognized(rawValue)
     }
   }
 }

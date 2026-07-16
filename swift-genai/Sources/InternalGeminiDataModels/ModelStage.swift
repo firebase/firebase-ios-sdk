@@ -14,7 +14,6 @@
 
 import Foundation
 
-
 extension GeminiDataModels {
   /// An internal data model for `ModelStage`.
   /// 
@@ -25,12 +24,64 @@ extension GeminiDataModels {
   /// ### Gemini Enterprise Agent Platform
   /// 
   /// > Important: This type is not supported in the Gemini Enterprise Agent Platform.
-  package struct ModelStage: Codable, Sendable, Equatable, Hashable {
-
-    /// Creates a new `ModelStage`.
+  package enum ModelStage: Codable, Sendable, Equatable, Hashable {
+    /// The underlying model is subject to lots of tunings.
+    @available(*, deprecated)
+    case unstableExperimental
+    
+    /// Models in this stage are for experimental purposes only.
+    case experimental
+    
+    /// Models in this stage are more mature than experimental models.
+    case preview
+    
+    /// Models in this stage are considered stable and ready for production use.
+    case stable
+    
+    /// If the model is on this stage, it means that this model is on the path to
+    /// deprecation in near future. Only existing customers can use this model.
+    case legacy
+    
+    /// Models in this stage are deprecated. These models cannot be used.
+    @available(*, deprecated)
+    case deprecated
+    
+    /// Models in this stage are retired. These models cannot be used.
+    case retired
+    
+    /// Unrecognized case.
     ///
-    package init(
-    ) {
+    /// - Parameter value: The raw string value of the unrecognized enum case.
+    case unrecognized(_ value: String)
+  }
+}
+
+// MARK: - RawRepresentable Conformance
+
+extension GeminiDataModels.ModelStage: RawRepresentable {
+  package var rawValue: String {
+    switch self {
+    case .unstableExperimental: "UNSTABLE_EXPERIMENTAL"
+    case .experimental: "EXPERIMENTAL"
+    case .preview: "PREVIEW"
+    case .stable: "STABLE"
+    case .legacy: "LEGACY"
+    case .deprecated: "DEPRECATED"
+    case .retired: "RETIRED"
+    case .unrecognized(let value): value
+    }
+  }
+
+  package init(rawValue: String) {
+    switch rawValue {
+    case "UNSTABLE_EXPERIMENTAL": self = .unstableExperimental
+    case "EXPERIMENTAL": self = .experimental
+    case "PREVIEW": self = .preview
+    case "STABLE": self = .stable
+    case "LEGACY": self = .legacy
+    case "DEPRECATED": self = .deprecated
+    case "RETIRED": self = .retired
+    default: self = .unrecognized(rawValue)
     }
   }
 }

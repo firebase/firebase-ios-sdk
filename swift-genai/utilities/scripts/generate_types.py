@@ -110,6 +110,11 @@ def to_camel_case(s, lower=True):
 
 def get_primitive_type(prop_data):
     t = prop_data.get("type")
+    if isinstance(t, list):
+        # Filter out 'null' to get the actual primitive type
+        t_non_null = [item for item in t if item != "null"]
+        t = t_non_null[0] if t_non_null else None
+        
     fmt = prop_data.get("format")
     if t == "string":
         if fmt in ("google-datetime", "date-time"):
@@ -148,6 +153,41 @@ def find_refs_in_json(data):
     return refs
 
 
+def find_refs_in_schema(schema_name, data):
+    refs = set()
+    if not isinstance(data, dict):
+        return refs
+        
+    for k, v in data.items():
+        if k == "properties" and isinstance(v, dict):
+            for prop_name, prop_data in v.items():
+                # Skip manually excluded properties
+                if schema_name in EXCLUDED_PROPERTIES and prop_name in EXCLUDED_PROPERTIES[schema_name]:
+                    continue
+                
+                # Skip auto-excluded properties (referencing excluded schemas)
+                is_ref_excluded = False
+                if "$ref" in prop_data:
+                    ref_name = resolve_ref(prop_data["$ref"])
+                    if ref_name in EXCLUDED_SCHEMAS:
+                        is_ref_excluded = True
+                elif prop_data.get("type") == "array" and "items" in prop_data:
+                    items_data = prop_data["items"]
+                    if "$ref" in items_data:
+                        ref_name = resolve_ref(items_data["$ref"])
+                        if ref_name in EXCLUDED_SCHEMAS:
+                            is_ref_excluded = True
+                            
+                if is_ref_excluded:
+                    continue
+                    
+                refs.update(find_refs_in_json(prop_data))
+        else:
+            refs.update(find_refs_in_json(v))
+            
+    return refs
+
+
 def resolve_all_types(schemas, roots):
     to_visit = list(roots)
     visited = set()
@@ -165,8 +205,8 @@ def resolve_all_types(schemas, roots):
             
         resolved_schemas[name] = schema_data
         
-        # Traverse the entire schema data to find dependencies (including top-level oneOf)
-        for ref in find_refs_in_json(schema_data):
+        # Traverse the schema to find dependencies, skipping excluded properties
+        for ref in find_refs_in_schema(name, schema_data):
             if ref not in visited:
                 to_visit.append(ref)
                         
@@ -383,6 +423,41 @@ def process_resolved_schemas(resolved_schemas, cycle_nodes, namespace):
             actual_name = name_parts[-1]
             actual_namespace = f"{namespace}." + ".".join(name_parts[:-1])
             
+        # Check if the schema itself is an Enum (standalone top-level enum)
+        if "enum" in data:
+            enum_deprecated_list = data.get("enumDeprecated", data.get("x-google-enum-deprecated", []))
+            enum_descriptions = data.get("enumDescriptions", data.get("x-google-enum-descriptions", []))
+            
+            cases = []
+            prefix, filtered_raw_cases = strip_enum_prefix(data["enum"])
+            
+            for idx, raw_val in enumerate(data["enum"]):
+                val_upper = raw_val.upper()
+                if val_upper.endswith("_UNSPECIFIED") or val_upper.endswith("_UNKNOWN") or val_upper == "UNSPECIFIED" or val_upper == "UNKNOWN":
+                    continue
+                
+                case_swift_name = to_camel_case(raw_val[len(prefix):], lower=True)
+                case_description = enum_descriptions[idx] if idx < len(enum_descriptions) else None
+                case_is_deprecated = enum_deprecated_list[idx] if idx < len(enum_deprecated_list) else False
+                
+                cases.append(SwiftEnumCase(
+                    swift_name=case_swift_name,
+                    raw_value=raw_val,
+                    description=case_description,
+                    is_deprecated=case_is_deprecated
+                ))
+                
+            enum_st = SwiftType(
+                name=actual_name,
+                namespace=actual_namespace,
+                kind="enum",
+                description=format_schema_docc(name, data),
+                is_deprecated=data.get("deprecated", False)
+            )
+            enum_st.cases = cases
+            swift_types.append(enum_st)
+            return
+
         st = SwiftType(
             name=actual_name,
             namespace=actual_namespace,
@@ -409,6 +484,22 @@ def process_resolved_schemas(resolved_schemas, cycle_nodes, namespace):
             if name in EXCLUDED_PROPERTIES and prop_name in EXCLUDED_PROPERTIES[name]:
                 continue
                 
+            # Check if property references an excluded schema
+            is_ref_excluded = False
+            if "$ref" in prop_data:
+                ref_name = resolve_ref(prop_data["$ref"])
+                if ref_name in EXCLUDED_SCHEMAS:
+                    is_ref_excluded = True
+            elif prop_data.get("type") == "array" and "items" in prop_data:
+                items_data = prop_data["items"]
+                if "$ref" in items_data:
+                    ref_name = resolve_ref(items_data["$ref"])
+                    if ref_name in EXCLUDED_SCHEMAS:
+                        is_ref_excluded = True
+                        
+            if is_ref_excluded:
+                continue
+                
             swift_prop_name = to_camel_case(prop_name, lower=True)
             
             # Inline Enum
@@ -423,7 +514,8 @@ def process_resolved_schemas(resolved_schemas, cycle_nodes, namespace):
                 prefix, filtered_raw_cases = strip_enum_prefix(prop_data["enum"])
                 
                 for idx, raw_val in enumerate(prop_data["enum"]):
-                    if raw_val.endswith("_UNSPECIFIED") or raw_val.endswith("_UNKNOWN") or raw_val == "UNSPECIFIED" or raw_val == "UNKNOWN":
+                    val_upper = raw_val.upper()
+                    if val_upper.endswith("_UNSPECIFIED") or val_upper.endswith("_UNKNOWN") or val_upper == "UNSPECIFIED" or val_upper == "UNKNOWN":
                         continue
                     
                     case_swift_name = to_camel_case(raw_val[len(prefix):], lower=True)

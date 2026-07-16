@@ -211,18 +211,6 @@ extension GeminiDataModels {
     /// Label values are optional. Label keys must start with a letter.
     package let labels: [String: String]?
     
-    /// Optional. Settings for prompt and response sanitization using the Model Armor
-    /// 
-    /// ### Gemini Developer API
-    /// 
-    /// > Important: This property is not supported in the Gemini Developer API.
-    /// 
-    /// ### Gemini Enterprise Agent Platform
-    /// 
-    /// Optional. Settings for prompt and response sanitization using the Model Armor
-    /// service. If supplied, safety_settings must not be supplied.
-    package let modelArmorConfig: ModelArmorConfig?
-    
 
     /// Creates a new `GenerateContentRequest`.
     ///
@@ -238,7 +226,6 @@ extension GeminiDataModels {
     ///   - serviceTier: Optional. The service tier of the request. (Gemini Developer API only). For more details, see ``serviceTier``.
     ///   - store: Optional. Configures the logging behavior for a given request. If set, it takes (Gemini Developer API only). For more details, see ``store``.
     ///   - labels: Optional. The labels with user-defined metadata for the request. It is used for (Gemini Enterprise Agent Platform only). For more details, see ``labels``.
-    ///   - modelArmorConfig: Optional. Settings for prompt and response sanitization using the Model Armor (Gemini Enterprise Agent Platform only). For more details, see ``modelArmorConfig``.
     package init(
       model: String? = nil,
       systemInstruction: Content? = nil,
@@ -250,8 +237,7 @@ extension GeminiDataModels {
       cachedContent: String? = nil,
       serviceTier: ServiceTier? = nil,
       store: Bool? = nil,
-      labels: [String: String]? = nil,
-      modelArmorConfig: ModelArmorConfig? = nil
+      labels: [String: String]? = nil
     ) {
       self.model = model
       self.systemInstruction = systemInstruction
@@ -264,7 +250,6 @@ extension GeminiDataModels {
       self.serviceTier = serviceTier
       self.store = store
       self.labels = labels
-      self.modelArmorConfig = modelArmorConfig
     }
     enum CodingKeys: String, CodingKey {
       case model = "model"
@@ -278,7 +263,6 @@ extension GeminiDataModels {
       case serviceTier = "serviceTier"
       case store = "store"
       case labels = "labels"
-      case modelArmorConfig = "modelArmorConfig"
     }
   }
 }

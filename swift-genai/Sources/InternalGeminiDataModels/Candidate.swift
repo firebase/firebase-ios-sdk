@@ -122,19 +122,6 @@ extension GeminiDataModels {
     /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
     package let tokenCount: Int?
     
-    /// Output only. Attribution information for sources that contributed to a grounded answer.
-    /// 
-    /// ### Gemini Developer API
-    /// 
-    /// Output only. Attribution information for sources that contributed to a grounded answer.
-    /// 
-    /// This field is populated for `GenerateAnswer` calls.
-    /// 
-    /// ### Gemini Enterprise Agent Platform
-    /// 
-    /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
-    package let groundingAttributions: [GroundingAttribution]?
-    
     /// Output only. Grounding metadata for the candidate.
     /// 
     /// ### Gemini Developer API
@@ -199,7 +186,6 @@ extension GeminiDataModels {
     ///   - safetyRatings: List of ratings for the safety of a response candidate. (behavior varies by backend). For more details, see ``safetyRatings``.
     ///   - citationMetadata: Output only. Citation information for model-generated candidate. (behavior varies by backend). For more details, see ``citationMetadata``.
     ///   - tokenCount: Output only. Token count for this candidate. (Gemini Developer API only). For more details, see ``tokenCount``.
-    ///   - groundingAttributions: Output only. Attribution information for sources that contributed to a grounded answer. (Gemini Developer API only). For more details, see ``groundingAttributions``.
     ///   - groundingMetadata: Output only. Grounding metadata for the candidate. (behavior varies by backend). For more details, see ``groundingMetadata``.
     ///   - avgLogprobs: Output only. Average log probability score of the candidate. (behavior varies by backend). For more details, see ``avgLogprobs``.
     ///   - logprobsResult: Output only. Log-likelihood scores for the response tokens and top tokens (behavior varies by backend). For more details, see ``logprobsResult``.
@@ -212,7 +198,6 @@ extension GeminiDataModels {
       safetyRatings: [SafetyRating]? = nil,
       citationMetadata: CitationMetadata? = nil,
       tokenCount: Int? = nil,
-      groundingAttributions: [GroundingAttribution]? = nil,
       groundingMetadata: GroundingMetadata? = nil,
       avgLogprobs: Double? = nil,
       logprobsResult: LogprobsResult? = nil,
@@ -225,7 +210,6 @@ extension GeminiDataModels {
       self.safetyRatings = safetyRatings
       self.citationMetadata = citationMetadata
       self.tokenCount = tokenCount
-      self.groundingAttributions = groundingAttributions
       self.groundingMetadata = groundingMetadata
       self.avgLogprobs = avgLogprobs
       self.logprobsResult = logprobsResult
@@ -239,7 +223,6 @@ extension GeminiDataModels {
       case safetyRatings = "safetyRatings"
       case citationMetadata = "citationMetadata"
       case tokenCount = "tokenCount"
-      case groundingAttributions = "groundingAttributions"
       case groundingMetadata = "groundingMetadata"
       case avgLogprobs = "avgLogprobs"
       case logprobsResult = "logprobsResult"

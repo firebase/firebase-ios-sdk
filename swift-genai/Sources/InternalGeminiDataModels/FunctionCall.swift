@@ -71,19 +71,6 @@ extension GeminiDataModels {
     /// See FunctionDeclaration.parameters for parameter details.
     package let args: [String: JSONValue]?
     
-    /// Optional. The partial argument value of the function call.
-    /// 
-    /// ### Gemini Developer API
-    /// 
-    /// > Important: This property is not supported in the Gemini Developer API.
-    /// 
-    /// ### Gemini Enterprise Agent Platform
-    /// 
-    /// Optional. The partial argument value of the function call.
-    /// If provided, represents the arguments/fields that are streamed
-    /// incrementally.
-    package let partialArgs: [PartialArg]?
-    
     /// Optional. Whether this is the last part of the FunctionCall.
     /// 
     /// ### Gemini Developer API
@@ -104,26 +91,22 @@ extension GeminiDataModels {
     ///   - id: Required. ID of the individual function invocation assigned by the model when it (behavior varies by backend). For more details, see ``id``.
     ///   - name: Required. The name of the function to be invoked. (behavior varies by backend). For more details, see ``name``.
     ///   - args: Optional. Inputs to the function passed by the model (behavior varies by backend). For more details, see ``args``.
-    ///   - partialArgs: Optional. The partial argument value of the function call. (Gemini Enterprise Agent Platform only). For more details, see ``partialArgs``.
     ///   - willContinue: Optional. Whether this is the last part of the FunctionCall. (Gemini Enterprise Agent Platform only). For more details, see ``willContinue``.
     package init(
       id: String? = nil,
       name: String,
       args: [String: JSONValue]? = nil,
-      partialArgs: [PartialArg]? = nil,
       willContinue: Bool? = nil
     ) {
       self.id = id
       self.name = name
       self.args = args
-      self.partialArgs = partialArgs
       self.willContinue = willContinue
     }
     enum CodingKeys: String, CodingKey {
       case id = "id"
       case name = "name"
       case args = "args"
-      case partialArgs = "partialArgs"
       case willContinue = "willContinue"
     }
   }
