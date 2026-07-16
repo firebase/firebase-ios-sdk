@@ -125,12 +125,7 @@ on:
 jobs:
   pod-lib-lint:
     # Run on the main repo's scheduled jobs or pull requests and manual workflow invocations.
-    if: >-
-      ((github.repository == 'firebase/firebase-ios-sdk' &&
-        github.event_name == 'schedule') ||
-       contains(fromJSON('["pull_request", "workflow_dispatch"]'),
-                github.event_name)) &&
-      (matrix.xcode != 'Xcode_27.0' || inputs.test_xcode27)
+    if: (github.repository == 'firebase/firebase-ios-sdk' && github.event_name == 'schedule') || contains(fromJSON('["pull_request", "workflow_dispatch"]'), github.event_name)
     strategy:
       fail-fast: false
       matrix:
@@ -150,6 +145,7 @@ jobs:
             xcode: Xcode_26.2
           - os: xcode-27
             xcode: Xcode_26.4
+          - xcode: ${{ !inputs.test_xcode27 && 'Xcode_27.0' || 'none' }}
     runs-on: ${{ matrix.os }}
     steps:
     - name: Skip, if applicable.
