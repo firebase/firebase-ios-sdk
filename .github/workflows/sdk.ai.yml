@@ -63,6 +63,11 @@ jobs:
             xcode: Xcode_26.2
             test_filter_arg: --filter IntegrationTests-SPM/LiveSessionTests
             log_prefix: xcodebuild-live
+          - os: xcode-27
+            target: iOS
+            xcode: Xcode_27.0
+            test_filter_arg: --exclude IntegrationTests-SPM/LiveSessionTests
+            log_prefix: xcodebuild
     runs-on: ${{ matrix.os }}
     needs: spm
     env:
@@ -109,6 +114,8 @@ jobs:
           # TODO: Bump to 26.4 when "Unable to find a destination matching the provided destination specifier" is resolved.
           - os: macos-26
             xcode: Xcode_26.2
+          - os: xcode-27
+            xcode: Xcode_27.0
     runs-on: ${{ matrix.os }}
     env:
       BRANCH_NAME: ${{ github.head_ref || github.ref_name || 'main' }}
