@@ -374,9 +374,17 @@ def process_resolved_schemas(resolved_schemas, cycle_nodes, namespace):
     def process_schema(name, data, namespace):
         is_class = name in cycle_nodes
         
+        # Resolve dotted nesting names (e.g. Part.MediaResolution)
+        actual_name = name
+        actual_namespace = namespace
+        if "." in name:
+            name_parts = name.split(".")
+            actual_name = name_parts[-1]
+            actual_namespace = f"{namespace}." + ".".join(name_parts[:-1])
+            
         st = SwiftType(
-            name=name,
-            namespace=namespace,
+            name=actual_name,
+            namespace=actual_namespace,
             kind="class" if is_class else "struct",
             description=format_schema_docc(name, data),
             is_deprecated=data.get("deprecated", False)
@@ -392,7 +400,7 @@ def process_resolved_schemas(resolved_schemas, cycle_nodes, namespace):
         
         if oneof_keys:
             st.has_oneof = True
-            st.oneof_name = f"{name}Data"
+            st.oneof_name = f"{actual_name}Data"
             
         properties = data.get("properties", {})
         required_props = data.get("required", [])
@@ -405,7 +413,7 @@ def process_resolved_schemas(resolved_schemas, cycle_nodes, namespace):
             # Inline Enum
             if "enum" in prop_data:
                 enum_name = to_camel_case(prop_name, lower=False)
-                enum_namespace = f"{namespace}.{name}"
+                enum_namespace = f"{actual_namespace}.{actual_name}"
                 
                 enum_deprecated_list = prop_data.get("enumDeprecated", prop_data.get("x-google-enum-deprecated", []))
                 enum_descriptions = prop_data.get("enumDescriptions", prop_data.get("x-google-enum-descriptions", []))
@@ -443,13 +451,13 @@ def process_resolved_schemas(resolved_schemas, cycle_nodes, namespace):
             # Inline Object (Nested Struct)
             elif prop_data.get("type") == "object" and "properties" in prop_data:
                 nested_name = to_camel_case(prop_name, lower=False)
-                nested_namespace = f"{namespace}.{name}"
+                nested_namespace = f"{actual_namespace}.{actual_name}"
                 
                 process_schema(nested_name, prop_data, nested_namespace)
                 swift_type_str = nested_name
                 
             else:
-                swift_type_str = resolve_swift_type_string(prop_name, prop_data, name, namespace)
+                swift_type_str = resolve_swift_type_string(prop_name, prop_data, actual_name, actual_namespace)
                 
             is_prop_deprecated = prop_data.get("deprecated", False)
             if not is_prop_deprecated:

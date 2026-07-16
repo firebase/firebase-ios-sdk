@@ -14,7 +14,7 @@
 
 import Foundation
 
-extension GeminiDataModels.MediaResolution {
+extension GeminiDataModels.Part.MediaResolution {
   /// The tokenization quality used for given media.
   /// 
   /// ### Gemini Developer API
@@ -47,7 +47,7 @@ extension GeminiDataModels.MediaResolution {
 
 // MARK: - RawRepresentable Conformance
 
-extension GeminiDataModels.MediaResolution.Level: RawRepresentable {
+extension GeminiDataModels.Part.MediaResolution.Level: RawRepresentable {
   package var rawValue: String {
     switch self {
     case .low: "MEDIA_RESOLUTION_LOW"

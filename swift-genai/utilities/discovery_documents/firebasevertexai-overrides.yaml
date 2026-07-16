@@ -99,8 +99,7 @@ schemas:
 
 # Code generator configurations (used by generate_types.py)
 generatorConfig:
-  typeOverrides:
-    MediaResolution: GenerationConfig.MediaResolution
+  typeOverrides: {}
   excludedSchemas:
     - FileSearch
   excludedProperties:
@@ -117,7 +116,8 @@ generatorConfig:
     ToolCodeExecution: CodeExecution
     GenerationConfigThinkingConfig: ThinkingConfig
     GoogleTypeLatLng: LatLng
-    PartMediaResolution: MediaResolution
+    PartMediaResolution: Part.MediaResolution
+    MediaResolution: Part.MediaResolution
     LogprobsResultTopCandidates: TopCandidates
     GoogleAiGenerativelanguageV1betaGroundingSupport: GroundingSupport
     GoogleAiGenerativelanguageV1betaSegment: Segment

@@ -134,7 +134,7 @@ extension GeminiDataModels {
     /// 
     /// per part media resolution.
     /// Media resolution for the input media.
-    package let mediaResolution: GenerationConfig.MediaResolution?
+    package let mediaResolution: Part.MediaResolution?
     
     package enum PartData: Sendable, Equatable, Hashable {
       case text(String)
@@ -168,7 +168,7 @@ extension GeminiDataModels {
       thought: Bool? = nil,
       thoughtSignature: String? = nil,
       partMetadata: [String: JSONValue]? = nil,
-      mediaResolution: GenerationConfig.MediaResolution? = nil
+      mediaResolution: Part.MediaResolution? = nil
     ) {
       self.data = data
       self.toolCall = toolCall
@@ -210,7 +210,7 @@ extension GeminiDataModels {
       self.thought = try container.decodeIfPresent(Bool.self, forKey: .thought)
       self.thoughtSignature = try container.decodeIfPresent(String.self, forKey: .thoughtSignature)
       self.partMetadata = try container.decodeIfPresent([String: JSONValue].self, forKey: .partMetadata)
-      self.mediaResolution = try container.decodeIfPresent(GenerationConfig.MediaResolution.self, forKey: .mediaResolution)
+      self.mediaResolution = try container.decodeIfPresent(Part.MediaResolution.self, forKey: .mediaResolution)
 
       if false {
         self.data = nil

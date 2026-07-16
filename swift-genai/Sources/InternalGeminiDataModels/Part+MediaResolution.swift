@@ -15,8 +15,8 @@
 import Foundation
 
 
-extension GeminiDataModels {
-  /// An internal data model for `MediaResolution`.
+extension GeminiDataModels.Part {
+  /// An internal data model for `Part.MediaResolution`.
   /// 
   /// ### Gemini Developer API
   /// 
