@@ -125,12 +125,7 @@ jobs:
 
   spm:
     # Run on the main repo's scheduled jobs or pull requests and manual workflow invocations.
-    if: >-
-      ((github.repository == 'firebase/firebase-ios-sdk' &&
-        github.event_name == 'schedule') ||
-       contains(fromJSON('["pull_request", "workflow_dispatch"]'),
-                github.event_name)) &&
-      (matrix.xcode != 'Xcode_27.0' || inputs.test_xcode27)
+    if: (github.repository == 'firebase/firebase-ios-sdk' && github.event_name == 'schedule') || contains(fromJSON('["pull_request", "workflow_dispatch"]'), github.event_name)
     needs: [spm-package-resolved]
     env:
         FIREBASE_IS_NIGHTLY_TESTING: ${{ inputs.is_nightly && '1' || '' }}
@@ -153,6 +148,7 @@ jobs:
             xcode: Xcode_26.2
           - os: xcode-27
             xcode: Xcode_26.4
+          - xcode: ${{ !inputs.test_xcode27 && 'Xcode_27.0' || 'none' }}
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
