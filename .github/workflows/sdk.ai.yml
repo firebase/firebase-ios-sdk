@@ -33,6 +33,7 @@ jobs:
     uses: ./.github/workflows/_spm.yml
     with:
       target: ${{  matrix.target }}
+      test_xcode27: true
       setup_command: scripts/update_vertexai_responses.sh
       env_vars: '{"FIREBASE_APP_CHECK_BRANCH": "main"}'
 
@@ -101,6 +102,7 @@ jobs:
     uses: ./.github/workflows/_cocoapods.yml
     with:
       product: ${{  matrix.product }}
+      test_xcode27: true
       supports_swift6: true
       setup_command: scripts/update_vertexai_responses.sh
 

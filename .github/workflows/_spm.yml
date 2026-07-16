@@ -61,6 +61,12 @@ on:
         required: false
         default: false
 
+      # Whether to test Xcode 27. Defaults to false.
+      test_xcode27:
+        type: boolean
+        required: false
+        default: false
+
       # Custom environment variables to inject into the jobs.
       # Expected to be a JSON-formatted string.
       # Example: '{"FIREBASE_APP_CHECK_BRANCH": "nc/target-split"}'
@@ -119,7 +125,12 @@ jobs:
 
   spm:
     # Run on the main repo's scheduled jobs or pull requests and manual workflow invocations.
-    if: (github.repository == 'firebase/firebase-ios-sdk' && github.event_name == 'schedule') || contains(fromJSON('["pull_request", "workflow_dispatch"]'), github.event_name)
+    if: >-
+      ((github.repository == 'firebase/firebase-ios-sdk' &&
+        github.event_name == 'schedule') ||
+       contains(fromJSON('["pull_request", "workflow_dispatch"]'),
+                github.event_name)) &&
+      (matrix.xcode != 'Xcode_27.0' || inputs.test_xcode27)
     needs: [spm-package-resolved]
     env:
         FIREBASE_IS_NIGHTLY_TESTING: ${{ inputs.is_nightly && '1' || '' }}
