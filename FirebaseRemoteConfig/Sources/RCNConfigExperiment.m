@@ -158,9 +158,7 @@ static NSString *const kMethodNameLatestStartTime =
                          completionHandler:handler];
   } else {
     if (handler) {
-      dispatch_async(dispatch_get_global_queue(QOS_CLASS_DEFAULT, 0), ^{
-        handler(nil);
-      });
+      handler(nil);
     }
   }
 }
