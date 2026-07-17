@@ -2,7 +2,7 @@
 - [changed] Firebase now requires Swift tools version 6.1 for the Swift Package.
   The package will no longer resolve in Xcode versions older than 16.3. Note that
   the minimum officially supported version for the SDK remains Xcode 26.2+.
-- [changed] Removed the `recaptchaSiteKey` property from `FirebaseOptions`.
+- [changed] Removed the  (never activated) `recaptchaSiteKey` property from `FirebaseOptions`.
   This feature is part of the public preview reCAPTCHA provider.
 
 # Firebase 12.14.0
