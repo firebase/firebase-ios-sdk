@@ -1,4 +1,6 @@
 # Unreleased
+- [fixed] Fixed a memory leak in Remote Config where `activateWithCompletion:`
+  retained the `FIRRemoteConfig` instance indefinitely.
 - [fixed] Fixed an issue where Remote Config activation would hang indefinitely
   when used with a named Firebase app instance. (#16354)
 
