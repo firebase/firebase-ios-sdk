@@ -144,6 +144,10 @@ static NSString *const kMethodNameLatestStartTime =
 
   // Update the last experiment start time with the latest payload.
   [self updateExperimentStartTime];
+
+  /// Update activated experiments payload and metadata in DB.
+  [self updateActiveExperimentsInDB];
+
   if (self.experimentController) {
     [self.experimentController
         updateExperimentsWithServiceOrigin:kServiceOrigin
@@ -157,9 +161,6 @@ static NSString *const kMethodNameLatestStartTime =
       handler(nil);
     }
   }
-
-  /// Update activated experiments payload and metadata in DB.
-  [self updateActiveExperimentsInDB];
 }
 
 - (void)updateExperimentStartTime {
