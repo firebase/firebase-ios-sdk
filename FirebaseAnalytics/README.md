@@ -6,9 +6,9 @@ The Firebase iOS SDK ships **three** Swift Package products for Analytics. Pick 
 
 | Package product | Underlying measurement library | IDFA / advertising | When to use |
 |-----------------|--------------------------------|--------------------|-------------|
-| **`FirebaseAnalytics`** | `GoogleAppMeasurement` | Yes — collects IDFA when ATT-authorized; includes Google Signals + advertising features | Default for consumer apps that want full Analytics, audience targeting, and ad-network attribution |
+| **`FirebaseAnalytics`** | `GoogleAppMeasurement` | Yes — collects IDFA when ATT-authorized; includes on-device conversion measurement | Default for consumer apps that want full Analytics, audience targeting, and ad-network attribution |
 | **`FirebaseAnalyticsCore`** | `GoogleAppMeasurementCore` | No | Apps that must avoid IDFA collection entirely (e.g., kids apps, restricted enterprise distributions, or apps whose privacy posture rules out any advertising-related data) |
-| **`FirebaseAnalyticsIdentitySupport`** | `GoogleAppMeasurementCore` + `GoogleAppMeasurementIdentitySupport` | No IDFA, but enables privacy-respecting identity features (e.g., requestTrackingAuthorization integration without ad-targeting) | Apps that need user-deletion / identity-management integrations on top of Core but still don't want advertising-tier data collection |
+| **`FirebaseAnalyticsIdentitySupport`** | `GoogleAppMeasurementCore` + `GoogleAppMeasurementIdentitySupport` | Yes - collects IDFA when ATT-authorized; excludes on-device conversion measurement | Apps that collect IDFA, but don't run any Google Ad campaigns |
 
 **Rule of thumb:** start with `FirebaseAnalytics` unless your app's privacy or store policy specifically requires you to avoid advertising features. Add `FirebaseAnalyticsCore` or `FirebaseAnalyticsIdentitySupport` instead — not in addition.
 
