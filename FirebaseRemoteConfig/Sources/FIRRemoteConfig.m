@@ -436,20 +436,19 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
       }
       return;
     }
-    [strongSelf->_configContent copyFromDictionary:self->_configContent.fetchedConfig
+    [strongSelf->_configContent copyFromDictionary:strongSelf->_configContent.fetchedConfig
                                           toSource:RCNDBSourceActive
-                                      forNamespace:self->_FIRNamespace];
+                                      forNamespace:strongSelf->_FIRNamespace];
     strongSelf->_settings.lastApplyTimeInterval = [[NSDate date] timeIntervalSince1970];
     // New config has been activated at this point
     FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000069", @"Config activated.");
     [strongSelf->_configContent activatePersonalization];
     // Update last active template version number in setting and userDefaults.
     [strongSelf->_settings updateLastActiveTemplateVersion];
-    // Update activeRolloutMetadata
     [strongSelf->_configContent activateRolloutMetadata:^(BOOL success) {
       if (success) {
-        [self notifyRolloutsStateChange:strongSelf->_configContent.activeRolloutMetadata
-                          versionNumber:strongSelf->_settings.lastActiveTemplateVersion];
+        [strongSelf notifyRolloutsStateChange:strongSelf->_configContent.activeRolloutMetadata
+                                versionNumber:strongSelf->_settings.lastActiveTemplateVersion];
       }
     }];
 
@@ -458,7 +457,7 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
         substringToIndex:[strongSelf->_FIRNamespace rangeOfString:@":"].location];
     if ([namespace isEqualToString:FIRRemoteConfigConstants.FIRNamespaceGoogleMobilePlatform]) {
       dispatch_async(dispatch_get_main_queue(), ^{
-        [self notifyConfigHasActivated];
+        [strongSelf notifyConfigHasActivated];
       });
       [strongSelf->_configExperiment updateExperimentsWithHandler:^(NSError *_Nullable error) {
         if (completion) {
