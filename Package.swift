@@ -24,7 +24,7 @@ let shouldUseSourceFirestore = Context.environment["FIREBASE_SOURCE_FIRESTORE"] 
 
 let package = Package(
   name: "Firebase",
-  platforms: [.iOS(.v15), .macCatalyst(.v15), .macOS(.v10_15), .tvOS(.v15), .watchOS(.v7)],
+  platforms: supportedPlatforms(),
   products: [
     .library(
       name: "FirebaseAI",
@@ -1366,6 +1366,20 @@ let package = Package(
 )
 
 // MARK: - Helper Functions
+
+/// Returns the list of platforms supported by the package.
+///
+/// Under Xcode 27 (Swift 6.4+), watchOS 9 and macOS 12 are now the minimum deployment targets. For
+/// Xcode 26.x and earlier, the deployment targets are watchOS 7 and macOS 10.15. The iOS, tvOS and
+/// Mac Catalyst minimums remain the same for both.
+func supportedPlatforms() -> [SupportedPlatform] {
+  // TODO: Remove the `compiler(>=6.4)` check when Xcode 27.x is the minimum supported version.
+  #if compiler(>=6.4)
+    return [.iOS(.v15), .macCatalyst(.v15), .macOS(.v12), .tvOS(.v15), .watchOS(.v9)]
+  #else
+    return [.iOS(.v15), .macCatalyst(.v15), .macOS(.v10_15), .tvOS(.v15), .watchOS(.v7)]
+  #endif
+}
 
 func firebaseCrashlyticsTarget() -> Target {
   var cSettings: [CSetting] = [
