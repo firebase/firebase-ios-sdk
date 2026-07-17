@@ -19,10 +19,15 @@
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRRecaptchaProvider.h"
 
 @interface FIRRecaptchaProviderFactory ()
-@property(nonatomic, copy) NSString *siteKey;
+@property(nonatomic, readonly, copy) NSString *siteKey;
 @end
 
 @implementation FIRRecaptchaProviderFactory
+
+- (instancetype)init {
+  [self doesNotRecognizeSelector:_cmd];
+  return nil;
+}
 
 - (instancetype)initWithSiteKey:(NSString *)siteKey {
   if (siteKey.length == 0) {

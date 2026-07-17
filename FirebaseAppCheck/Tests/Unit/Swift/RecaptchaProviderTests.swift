@@ -111,6 +111,17 @@
       }
     }
 
+    func testFactoryInitWithEmptySiteKeyThrows() {
+      XCTAssertThrowsError(try ExceptionCatcher.catchException {
+        _ = RecaptchaProviderFactory(siteKey: "")
+      }) { error in
+        let nsError = error as NSError
+        XCTAssertEqual(nsError.domain, NSExceptionName.invalidArgumentException.rawValue)
+        XCTAssertTrue((nsError.userInfo["ExceptionReason"] as? String)?
+          .contains("The siteKey parameter is missing or empty") ?? false)
+      }
+    }
+
     func testInitWithMissingSDKThrows() {
       let options = FirebaseOptions(googleAppID: "1:123456789:ios:abc123", gcmSenderID: "sender_id")
       options.apiKey = "api_key"
