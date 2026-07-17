@@ -6,6 +6,8 @@
 - [fixed] Remote Config Realtime updates now trigger when a parameter's experiment
   or variant assignment changes, ensuring more accurate A/B test analytics and
   consistent user experiences.
+- [fixed] Fixed an issue where Remote Config activation would hang indefinitely
+  when used with a named Firebase app instance. (#16354)
 
 # 12.12.0
 - [added] Introduced a new `configUpdates` property to `RemoteConfig` that
