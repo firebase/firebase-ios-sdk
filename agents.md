@@ -494,7 +494,6 @@ document current will improve the efficiency and accuracy of future AI-assisted 
 ## Technical Debt & Known Issues
 
 *   **Remote Config Memory & Concurrency**:
-    *   `FIRRemoteConfig` has pre-existing retain cycles in `activateWithCompletion:` (where `applyBlock` strongly captures `self`) and `activateRolloutMetadata:` (where the completion block strongly captures `self` and is held by the DBManager's queue).
     *   `setCustomSignals:` also strongly captures `self` via `self->_settings.customSignals`.
     *   There is a deadlock hazard in `configValueForKey:` due to synchronous dispatch to `_queue` which then dispatches asynchronously back to `_queue` via `callListeners:`.
     *   `RCNConfigExperiment` has data race risks on `_experimentPayloads` and other mutable collections as they are mutated from different queues (e.g., `loadExperimentFromTable` vs `updateExperimentsWithResponse:`).
