@@ -6,6 +6,8 @@
   explicitly require a `siteKey` parameter on initialization, rather than
   reading it from `FirebaseOptions`. Note that the reCAPTCHA provider feature
   is in public preview.
+  **Note:** Backend support for this capability is not yet available, but
+  it's coming soon.
 
 # 12.16.0
 - [changed] Changed error message for missing `FirebaseApp.configure()` to
