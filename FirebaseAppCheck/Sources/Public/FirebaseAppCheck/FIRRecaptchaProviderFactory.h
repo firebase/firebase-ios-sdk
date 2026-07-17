@@ -31,7 +31,7 @@ API_UNAVAILABLE(macos, tvos, watchos, macCatalyst)
 
 /// Initializes a factory that will use the provided site key.
 /// @param siteKey The reCAPTCHA Enterprise iOS site key.
-- (nullable instancetype)initWithSiteKey:(NSString *)siteKey;
+- (instancetype)initWithSiteKey:(NSString *)siteKey;
 
 @end
 

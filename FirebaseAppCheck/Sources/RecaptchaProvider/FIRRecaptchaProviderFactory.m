@@ -24,7 +24,12 @@
 
 @implementation FIRRecaptchaProviderFactory
 
-- (nullable instancetype)initWithSiteKey:(NSString *)siteKey {
+- (instancetype)initWithSiteKey:(NSString *)siteKey {
+  if (siteKey.length == 0) {
+    [NSException raise:NSInvalidArgumentException
+                format:@"Cannot instantiate RecaptchaProviderFactory. The siteKey parameter is "
+                       @"missing or empty."];
+  }
   self = [super init];
   if (self) {
     _siteKey = [siteKey copy];
