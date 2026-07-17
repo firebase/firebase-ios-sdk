@@ -2017,12 +2017,18 @@ static NSString *UTCToLocal(NSString *utcTime) {
     }
 
     RCNConfigContent *configContent = [[RCNConfigContent alloc] initWithDBManager:_DBManager];
+    NSString *fullyQualifiedNamespace = [NSString stringWithFormat:@"test_namespace:%@", app.name];
+    RCNConfigSettings *settings =
+        [[RCNConfigSettings alloc] initWithDatabaseManager:_DBManager
+                                                 namespace:fullyQualifiedNamespace
+                                           firebaseAppName:app.name
+                                               googleAppID:app.options.googleAppID];
     FIRRemoteConfig *instance =
         [[FIRRemoteConfig alloc] initWithAppName:app.name
                                       FIROptions:app.options
                                        namespace:@"test_namespace"
                                        DBManager:_DBManager
-                                        settings:_settings
+                                        settings:settings
                                    configContent:configContent
                                 configExperiment:nil
                                            queue:dispatch_queue_create("test", nil)

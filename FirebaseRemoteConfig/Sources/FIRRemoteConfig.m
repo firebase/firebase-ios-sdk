@@ -446,9 +446,11 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
     // Update last active template version number in setting and userDefaults.
     [strongSelf->_settings updateLastActiveTemplateVersion];
     [strongSelf->_configContent activateRolloutMetadata:^(BOOL success) {
-      if (success) {
-        [strongSelf notifyRolloutsStateChange:strongSelf->_configContent.activeRolloutMetadata
-                                versionNumber:strongSelf->_settings.lastActiveTemplateVersion];
+      FIRRemoteConfig *strongSelfForRollout = weakSelf;
+      if (strongSelfForRollout && success) {
+        [strongSelfForRollout
+            notifyRolloutsStateChange:strongSelfForRollout->_configContent.activeRolloutMetadata
+                        versionNumber:strongSelfForRollout->_settings.lastActiveTemplateVersion];
       }
     }];
 
