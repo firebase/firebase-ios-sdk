@@ -18,11 +18,23 @@
 
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRRecaptchaProvider.h"
 
+@interface FIRRecaptchaProviderFactory ()
+@property(nonatomic, copy) NSString *siteKey;
+@end
+
 @implementation FIRRecaptchaProviderFactory
+
+- (nullable instancetype)initWithSiteKey:(NSString *)siteKey {
+  self = [super init];
+  if (self) {
+    _siteKey = [siteKey copy];
+  }
+  return self;
+}
 
 - (nullable id<FIRAppCheckProvider>)createProviderWithApp:(nonnull FIRApp *)app {
 #if (TARGET_OS_IOS && !TARGET_OS_MACCATALYST) || TARGET_OS_VISION
-  return [[FIRRecaptchaProvider alloc] initWithApp:app];
+  return [[FIRRecaptchaProvider alloc] initWithApp:app siteKey:self.siteKey];
 #else
   return nil;
 #endif

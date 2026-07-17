@@ -2,6 +2,7 @@
 - [changed] The default App Check provider for iOS physical devices no longer
   attempts to configure the reCAPTCHA provider before falling back to
   DeviceCheck. This reverts a change introduced in 12.15.0.
+- [changed] Changed `RecaptchaProvider` and `RecaptchaProviderFactory` to explicitly require a `siteKey` parameter on initialization, rather than reading it from `FirebaseOptions`. Per previous release note disclaimer, this API was not intended for use.
 
 # 12.16.0
 - [changed] Changed error message for missing `FirebaseApp.configure()` to

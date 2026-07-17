@@ -19,12 +19,19 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/// > Warning: This API is a public preview and may be subject to change.
 /// An implementation of `AppCheckProviderFactory` that creates a new instance of
-/// `AppCheckRecaptchaProvider` when requested.
+/// `RecaptchaProvider` when requested.
 NS_SWIFT_NAME(RecaptchaProviderFactory)
 API_AVAILABLE(ios(15.0), visionos(1.0))
 API_UNAVAILABLE(macos, tvos, watchos, macCatalyst)
 @interface FIRRecaptchaProviderFactory : NSObject <FIRAppCheckProviderFactory>
+
+- (instancetype)init NS_UNAVAILABLE;
+
+/// Initializes a factory that will use the provided site key.
+/// @param siteKey The reCAPTCHA Enterprise iOS site key.
+- (nullable instancetype)initWithSiteKey:(NSString *)siteKey;
 
 @end
 
