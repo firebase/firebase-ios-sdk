@@ -2017,15 +2017,16 @@ static NSString *UTCToLocal(NSString *utcTime) {
     }
 
     RCNConfigContent *configContent = [[RCNConfigContent alloc] initWithDBManager:_DBManager];
-    FIRRemoteConfig *instance = [[FIRRemoteConfig alloc] initWithAppName:app.name
-                                                              FIROptions:app.options
-                                                               namespace:@"test_namespace"
-                                                               DBManager:_DBManager
-                                                           configContent:configContent
-                                                               analytics:nil];
+    __block FIRRemoteConfig *instance = [[FIRRemoteConfig alloc] initWithAppName:app.name
+                                                                      FIROptions:app.options
+                                                                       namespace:@"test_namespace"
+                                                                       DBManager:_DBManager
+                                                                   configContent:configContent
+                                                                       analytics:nil];
     weakInstance = instance;
 
     [instance activateWithCompletion:^(BOOL changed, NSError *_Nullable error) {
+      instance = nil;
       [expectation fulfill];
     }];
   }
