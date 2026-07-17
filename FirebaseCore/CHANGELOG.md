@@ -3,7 +3,7 @@
   The package will no longer resolve in Xcode versions older than 16.3. Note that
   the minimum officially supported version for the SDK remains Xcode 26.2+.
 - [changed] Removed the `recaptchaSiteKey` property from `FirebaseOptions`.
-  This feature was part of the public preview reCAPTCHA provider.
+  This feature is part of the public preview reCAPTCHA provider.
 
 # Firebase 12.14.0
 - [fixed] Remove extra comma in Package.swift that caused SPM resolution
