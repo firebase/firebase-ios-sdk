@@ -2025,6 +2025,11 @@ static NSString *UTCToLocal(NSString *utcTime) {
                                                                        analytics:nil];
     weakInstance = instance;
 
+    // Set settings to ensure the activation path is fully executed and does not return early.
+    RCNConfigSettings *settings = [instance valueForKey:@"_settings"];
+    settings.lastETagUpdateTime = 100;
+    settings.lastApplyTimeInterval = 0;
+
     [instance activateWithCompletion:^(BOOL changed, NSError *_Nullable error) {
       instance = nil;
       [expectation fulfill];
