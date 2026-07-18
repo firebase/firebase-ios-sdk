@@ -51,14 +51,12 @@ final class InstallationsAPITests {
       }
     }
 
-    if #available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, watchOS 7.0, *) {
-      // async/await is a Swift Concurrency feature available on iOS 13+ and macOS 10.15+
-      Task {
-        do {
-          try await Installations.installations().installationID()
-        } catch {
-          // ...
-        }
+    // async/await is a Swift Concurrency feature available on iOS 13+ and macOS 10.15+
+    Task {
+      do {
+        try await Installations.installations().installationID()
+      } catch {
+        // ...
       }
     }
 
@@ -71,14 +69,12 @@ final class InstallationsAPITests {
       }
     }
 
-    if #available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, watchOS 7.0, *) {
-      // async/await is a Swift Concurrency feature available on iOS 13+ and macOS 10.15+
-      Task {
-        do {
-          _ = try await Installations.installations().authToken()
-        } catch {
-          // ...
-        }
+    // async/await is a Swift Concurrency feature available on iOS 13+ and macOS 10.15+
+    Task {
+      do {
+        _ = try await Installations.installations().authToken()
+      } catch {
+        // ...
       }
     }
 
@@ -91,14 +87,12 @@ final class InstallationsAPITests {
       }
     }
 
-    if #available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, watchOS 7.0, *) {
-      // async/await is a Swift Concurrency feature available on iOS 13+ and macOS 10.15+
-      Task {
-        do {
-          _ = try await Installations.installations().authTokenForcingRefresh(true)
-        } catch {
-          // ...
-        }
+    // async/await is a Swift Concurrency feature available on iOS 13+ and macOS 10.15+
+    Task {
+      do {
+        _ = try await Installations.installations().authTokenForcingRefresh(true)
+      } catch {
+        // ...
       }
     }
 
@@ -109,20 +103,18 @@ final class InstallationsAPITests {
       }
     }
 
-    if #available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, watchOS 7.0, *) {
-      // async/await is a Swift Concurrency feature available on iOS 13+ and macOS 10.15+
-      Task {
-        do {
-          _ = try await Installations.installations().delete()
-        } catch let error as NSError
-          where error.domain == InstallationsErrorDomain && error.code == InstallationsErrorCode
-          .unknown.rawValue {
-          // Above is the old way to handle errors.
-        } catch InstallationsErrorCode.unknown {
-          // Above is the new way to handle errors.
-        } catch {
-          // ...
-        }
+    // async/await is a Swift Concurrency feature available on iOS 13+ and macOS 10.15+
+    Task {
+      do {
+        _ = try await Installations.installations().delete()
+      } catch let error as NSError
+        where error.domain == InstallationsErrorDomain && error.code == InstallationsErrorCode
+        .unknown.rawValue {
+        // Above is the old way to handle errors.
+      } catch InstallationsErrorCode.unknown {
+        // Above is the new way to handle errors.
+      } catch {
+        // ...
       }
     }
 

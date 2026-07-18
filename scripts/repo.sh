@@ -26,15 +26,4 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-if [[ $# -eq 0 ]]; then
-  cat 1>&2 <<EOF
-OVERVIEW: Small script for running repo commands.
-
- Repo commands live under the scripts/repo swift package.
-
-USAGE: $0 <subcommand> [args...]
-EOF
-  exit 1
-fi
-
-swift run --package-path "${ROOT}/repo" "$@"
+swift run --package-path "${ROOT}/repo" repo "$@"

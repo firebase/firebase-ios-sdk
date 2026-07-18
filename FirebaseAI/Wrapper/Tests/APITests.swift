@@ -22,6 +22,7 @@ import XCTest
 #endif
 
 @available(macOS 12.0, watchOS 8.0, *)
+@available(*, deprecated)
 final class APITests: XCTestCase {
   func codeSamples() async throws {
     let app = FirebaseApp.app()

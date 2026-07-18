@@ -5,19 +5,18 @@ GEM
       base64
       nkf
       rexml
-    activesupport (7.1.6)
+    activesupport (7.2.3.1)
       base64
       benchmark (>= 0.3)
       bigdecimal
-      concurrent-ruby (~> 1.0, >= 1.0.2)
+      concurrent-ruby (~> 1.0, >= 1.3.1)
       connection_pool (>= 2.2.5)
       drb
       i18n (>= 1.6, < 2)
       logger (>= 1.4.2)
-      minitest (>= 5.1)
-      mutex_m
+      minitest (>= 5.1, < 6)
       securerandom (>= 0.3)
-      tzinfo (~> 2.0)
+      tzinfo (~> 2.0, >= 2.0.5)
     addressable (2.9.0)
       public_suffix (>= 2.0.2, < 8.0)
     algoliasearch (1.27.5)
@@ -32,10 +31,10 @@ GEM
       cork
       nap
       open4 (~> 1.3)
-    cocoapods (1.16.2)
+    cocoapods (1.17.0)
       addressable (~> 2.8)
       claide (>= 1.0.2, < 2.0)
-      cocoapods-core (= 1.16.2)
+      cocoapods-core (= 1.17.0)
       cocoapods-deintegrate (>= 1.0.3, < 2.0)
       cocoapods-downloader (>= 2.1, < 3.0)
       cocoapods-plugins (>= 1.0.0, < 2.0)
@@ -43,14 +42,13 @@ GEM
       cocoapods-trunk (>= 1.6.0, < 2.0)
       cocoapods-try (>= 1.1.0, < 2.0)
       colored2 (~> 3.1)
-      escape (~> 0.0.4)
       fourflusher (>= 2.3.0, < 3.0)
       gh_inspector (~> 1.0)
       molinillo (~> 0.8.0)
       nap (~> 1.0)
-      ruby-macho (>= 2.3.0, < 3.0)
-      xcodeproj (>= 1.27.0, < 2.0)
-    cocoapods-core (1.16.2)
+      ruby-macho (~> 4.1.0)
+      xcodeproj (>= 1.28.1, < 2.0)
+    cocoapods-core (1.17.0)
       activesupport (>= 5.0, < 8)
       addressable (~> 2.8)
       algoliasearch (~> 1.0)
@@ -74,7 +72,7 @@ GEM
     cocoapods-try (1.2.0)
     colored2 (3.1.2)
     concurrent-ruby (1.3.7)
-    connection_pool (2.5.5)
+    connection_pool (3.0.2)
     cork (0.3.0)
       colored2 (~> 3.1)
     danger (9.5.3)
@@ -92,16 +90,16 @@ GEM
       pstore (~> 0.1)
       terminal-table (>= 1, < 5)
     drb (2.2.3)
-    escape (0.0.4)
     ethon (0.16.0)
       ffi (>= 1.15.0)
-    faraday (2.8.1)
-      base64
-      faraday-net_http (>= 2.0, < 3.1)
-      ruby2_keywords (>= 0.0.4)
+    faraday (2.14.3)
+      faraday-net_http (>= 2.0, < 3.5)
+      json
+      logger
     faraday-http-cache (2.5.1)
       faraday (>= 0.8)
-    faraday-net_http (3.0.2)
+    faraday-net_http (3.4.4)
+      net-http (~> 0.5)
     ffi (1.17.0)
     fourflusher (2.3.1)
     fuzzy_match (2.0.4)
@@ -110,7 +108,7 @@ GEM
       addressable (~> 2.8)
       rchardet (~> 1.8)
     httpclient (2.8.3)
-    i18n (1.14.8)
+    i18n (1.15.2)
       concurrent-ruby (~> 1.0)
     json (2.7.5)
     kramdown (2.5.1)
@@ -118,11 +116,13 @@ GEM
     kramdown-parser-gfm (1.1.0)
       kramdown (~> 2.0)
     logger (1.7.0)
-    minitest (5.26.1)
+    minitest (5.27.0)
     molinillo (0.8.0)
     mutex_m (0.3.0)
     nanaimo (0.4.0)
     nap (1.1.0)
+    net-http (0.9.1)
+      uri (>= 0.11.1)
     netrc (0.11.0)
     nkf (0.2.0)
     octokit (10.0.0)
@@ -133,12 +133,11 @@ GEM
     public_suffix (4.0.7)
     rchardet (1.8.0)
     rexml (3.4.2)
-    ruby-macho (2.5.1)
-    ruby2_keywords (0.0.5)
+    ruby-macho (4.1.0)
     sawyer (0.9.3)
       addressable (>= 2.3.5)
       faraday (>= 0.17.3, < 3)
-    securerandom (0.3.2)
+    securerandom (0.4.1)
     terminal-table (4.0.0)
       unicode-display_width (>= 1.1.1, < 4)
     typhoeus (1.4.1)
@@ -148,21 +147,25 @@ GEM
     unicode-display_width (3.2.0)
       unicode-emoji (~> 4.1)
     unicode-emoji (4.2.0)
-    xcodeproj (1.27.0)
+    uri (1.1.1)
+    xcodeproj (1.28.1)
       CFPropertyList (>= 2.3.3, < 4.0)
       atomos (~> 0.1.3)
+      base64
       claide (>= 1.0.2, < 2.0)
       colored2 (~> 3.1)
       nanaimo (~> 0.4.0)
+      nkf
       rexml (>= 3.3.6, < 4.0)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
-  cocoapods (= 1.16.2)
+  cocoapods (= 1.17.0)
   cocoapods-generate (= 2.2.5)
-  danger (= 9.5.3)
+  danger (>= 9.5.3)
+  mutex_m
 
 BUNDLED WITH
-   2.1.4
+   2.6.2

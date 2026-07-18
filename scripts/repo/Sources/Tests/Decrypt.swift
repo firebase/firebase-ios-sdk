@@ -22,7 +22,7 @@ import Util
 extension Tests {
   /// Command for decrypting the secret files needed for a test run.
   struct Decrypt: ParsableCommand {
-    nonisolated(unsafe) static var configuration = CommandConfiguration(
+    static let configuration = CommandConfiguration(
       abstract: "Decrypt the secret files for a test run.",
       usage: """
         tests decrypt [--json] [--overwrite] [<json-file>]

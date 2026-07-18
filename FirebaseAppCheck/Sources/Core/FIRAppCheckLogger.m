@@ -43,7 +43,6 @@ NSString *const kFIRLoggerAppCheckMessageRecaptchaProviderMissingRecaptchaEnterp
     @"I-FAA007003";
 
 // FIRDefaultProviderFactory.m
-NSString *const kFIRLoggerAppCheckMessageCodeRecaptchaFallbackToDeviceCheck = @"I-FAA008001";
 NSString *const kFIRLoggerAppCheckMessageCodeDeviceCheckProviderUnavailable = @"I-FAA008002";
 
 #pragma mark - Log functions

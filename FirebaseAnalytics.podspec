@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
     s.name             = 'FirebaseAnalytics'
-    s.version          = '12.16.0'
+    s.version          = '12.17.0'
     s.summary          = 'Firebase Analytics for iOS'
 
     s.description      = <<-DESC
@@ -9,11 +9,11 @@ Pod::Spec.new do |s|
     DESC
 
     s.homepage         = 'https://firebase.google.com/features/analytics/'
-    s.license          = { :type => 'Copyright', :text => 'Copyright 2022 Google' }
+    s.license          = { :type => 'Apache-2.0', :file => 'LICENSE' }
     s.authors          = 'Google, Inc.'
 
     s.source           = {
-        :http => 'https://dl.google.com/firebase/ios/analytics/4157b0f8016e6ec3/FirebaseAnalytics-12.15.0.tar.gz'
+        :http => 'https://dl.google.com/firebase/ios/analytics/fde230ef9469d037/FirebaseAnalytics-12.16.0.tar.gz'
     }
 
     s.cocoapods_version = '>= 1.12.0'
@@ -26,8 +26,8 @@ Pod::Spec.new do |s|
     s.libraries  = 'c++', 'sqlite3', 'z'
     s.frameworks = 'StoreKit'
 
-    s.dependency 'FirebaseCore', '~> 12.16.0'
-    s.dependency 'FirebaseInstallations', '~> 12.16.0'
+    s.dependency 'FirebaseCore', '~> 12.17.0'
+    s.dependency 'FirebaseInstallations', '~> 12.17.0'
     s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 8.1'
     s.dependency 'GoogleUtilities/MethodSwizzler', '~> 8.1'
     s.dependency 'GoogleUtilities/NSData+zlib', '~> 8.1'
@@ -37,17 +37,17 @@ Pod::Spec.new do |s|
     s.default_subspecs = 'Default'
 
     s.subspec 'Default' do |ss|
-        ss.dependency 'GoogleAppMeasurement/Default', '12.16.0'
+        ss.dependency 'GoogleAppMeasurement/Default', '12.17.0'
         ss.vendored_frameworks = 'Frameworks/FirebaseAnalytics.xcframework'
     end
 
     s.subspec 'Core' do |ss|
-        ss.dependency 'GoogleAppMeasurement/Core', '12.16.0'
+        ss.dependency 'GoogleAppMeasurement/Core', '12.17.0'
         ss.vendored_frameworks = 'Frameworks/FirebaseAnalytics.xcframework'
     end
 
     s.subspec 'IdentitySupport' do |ss|
-        ss.dependency 'GoogleAppMeasurement/IdentitySupport', '12.16.0'
+        ss.dependency 'GoogleAppMeasurement/IdentitySupport', '12.17.0'
         ss.vendored_frameworks = 'Frameworks/FirebaseAnalytics.xcframework'
     end
 

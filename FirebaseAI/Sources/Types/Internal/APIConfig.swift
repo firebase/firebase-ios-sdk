@@ -36,16 +36,16 @@ struct APIConfig: Sendable, Hashable, Encodable {
 extension APIConfig {
   /// API services providing generative AI functionality.
   ///
-  /// See [Vertex AI and Google AI
+  /// See [Gemini Enterprise Agent Platform and Google AI
   /// differences](https://cloud.google.com/vertex-ai/generative-ai/docs/overview#how-gemini-vertex-different-gemini-aistudio)
   /// for a comparison of the two [API services](https://google.aip.dev/9#api-service).
   enum Service: Hashable, Encodable {
-    /// Vertex AI Gemini API.
+    /// Gemini Enterprise Agent Platform Gemini API.
     ///
     /// See the [Cloud
     /// docs](https://cloud.google.com/vertex-ai/generative-ai/docs/model-reference/inference) for
     /// more details.
-    case vertexAI(endpoint: Endpoint, location: String)
+    case agentPlatform(endpoint: Endpoint, location: String)
 
     /// The Gemini Developer API provided by Google AI.
     ///
@@ -57,7 +57,7 @@ extension APIConfig {
     /// This must correspond with the API set in `service`.
     var endpoint: Endpoint {
       switch self {
-      case let .vertexAI(endpoint: endpoint, _):
+      case let .agentPlatform(endpoint: endpoint, _):
         return endpoint
       case let .googleAI(endpoint: endpoint):
         return endpoint
@@ -72,28 +72,33 @@ extension APIConfig.Service {
   enum Endpoint: String, Encodable {
     /// The Firebase proxy production endpoint.
     ///
-    /// This endpoint supports both Google AI and Vertex AI.
+    /// This endpoint supports both Google AI and Gemini Enterprise Agent Platform.
     case firebaseProxyProd = "https://firebasevertexai.googleapis.com"
 
     #if DEBUG
       /// The Firebase proxy staging endpoint; for SDK development and testing only.
       ///
       /// This endpoint supports both the Gemini Developer API (commonly referred to as Google AI)
-      /// and the Gemini API in Vertex AI (commonly referred to simply as Vertex AI).
+      /// and the Gemini API in Gemini Enterprise Agent Platform (commonly referred to simply as
+      /// Gemini Enterprise Agent Platform).
       case firebaseProxyStaging = "https://staging-firebasevertexai.sandbox.googleapis.com"
 
       /// The Gemini Developer API (Google AI) direct production endpoint; for SDK development and
       /// testing only.
       ///
       /// This bypasses the Firebase proxy and directly connects to the Gemini Developer API
-      /// (Google AI) backend. This endpoint only supports the Gemini Developer API, not Vertex AI.
+      /// (Google AI) backend. This endpoint only supports the Gemini Developer API, not Gemini
+      /// Enterprise Agent Platform.
       case googleAIBypassProxy = "https://generativelanguage.googleapis.com"
 
-      /// The Vertex AI direct staging endpoint; for SDK development and testing only.
+      /// The Gemini Enterprise Agent Platform direct staging endpoint; for SDK development and
+      /// testing only.
       ///
-      /// This bypasses the Firebase proxy and directly connects to the Vertex AI backend. This
-      /// endpoint only supports the Gemini API in Vertex AI, not the Gemini Developer API.
-      case vertexAIStagingBypassProxy = "https://staging-aiplatform.sandbox.googleapis.com"
+      /// This bypasses the Firebase proxy and directly connects to the Gemini Enterprise Agent
+      /// Platform backend. This
+      /// endpoint only supports the Gemini API in Gemini Enterprise Agent Platform, not the Gemini
+      /// Developer API.
+      case agentPlatformStagingBypassProxy = "https://staging-aiplatform.sandbox.googleapis.com"
     #endif // DEBUG
   }
 }
@@ -109,7 +114,8 @@ extension APIConfig {
       /// only.
       case v1
 
-      /// The beta channel for version 1 of the direct Vertex AI API, when bypassing the Firebase
+      /// The beta channel for version 1 of the direct Gemini Enterprise Agent Platform API, when
+      /// bypassing the Firebase
       /// proxy; for SDK development and testing only.
       case v1beta1
     #endif // DEBUG

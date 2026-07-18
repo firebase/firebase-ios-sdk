@@ -379,14 +379,14 @@ public final class FirebaseAI: Sendable {
     }
 
     switch apiConfig.service {
-    case let .vertexAI(endpoint: _, location: location):
-      return vertexAIModelResourceName(modelName: modelName, location: location)
+    case let .agentPlatform(endpoint: _, location: location):
+      return agentPlatformModelResourceName(modelName: modelName, location: location)
     case .googleAI:
       return developerModelResourceName(modelName: modelName)
     }
   }
 
-  private func vertexAIModelResourceName(modelName: String, location: String) -> String {
+  private func agentPlatformModelResourceName(modelName: String, location: String) -> String {
     guard !location.isEmpty && location
       .allSatisfy({ !$0.isWhitespace && !$0.isNewline && $0 != "/" }) else {
       fatalError("""
@@ -409,9 +409,9 @@ public final class FirebaseAI: Sendable {
         return "models/\(modelName)"
       case .firebaseProxyStaging:
         return "projects/\(firebaseInfo.projectID)/models/\(modelName)"
-      case .vertexAIStagingBypassProxy:
+      case .agentPlatformStagingBypassProxy:
         fatalError(
-          "The Vertex AI staging endpoint does not support the Gemini Developer API (Google AI)."
+          "The Gemini Enterprise Agent Platform staging endpoint does not support the Gemini Developer API (Google AI)."
         )
     #endif // DEBUG
     }
