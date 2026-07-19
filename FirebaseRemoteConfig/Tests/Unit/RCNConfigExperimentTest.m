@@ -36,13 +36,36 @@
 @end
 
 @interface RCNConfigExperiment ()
-@property(nonatomic, copy) NSMutableArray *experimentPayloads;
-@property(nonatomic, copy) NSMutableDictionary *experimentMetadata;
-@property(nonatomic, copy) NSMutableArray *activeExperimentPayloads;
+@property(nonatomic, copy) NSArray<NSData *> *experimentPayloads;
+@property(nonatomic, copy) NSDictionary<NSString *, id> *experimentMetadata;
+@property(nonatomic, copy) NSArray<NSData *> *activeExperimentPayloads;
 @property(nonatomic, strong) RCNConfigDBManager *DBManager;
-- (NSTimeInterval)updateExperimentStartTime;
+@property(nonatomic, strong) dispatch_queue_t experimentDBQueue;
+- (void)updateExperimentStartTime;
 - (void)loadExperimentFromTable;
-- (void)updateActiveExperimentsInDB;
+- (void)updateActiveExperimentsInDBWithPayloads:(NSArray<NSData *> *)payloads;
+@end
+
+@interface RCNConfigDBManagerFake : RCNConfigDBManager
+@end
+
+@implementation RCNConfigDBManagerFake
+- (void)createOrOpenDatabase {
+}
+- (void)loadExperimentWithCompletionHandler:(RCNDBCompletion)handler {
+  if (handler) {
+    handler(YES, @{});
+  }
+}
+- (void)deleteExperimentTableForKey:(NSString *)key {
+}
+- (void)insertExperimentTableWithKey:(NSString *)key
+                               value:(NSData *)value
+                   completionHandler:(RCNDBCompletion)handler {
+  if (handler) {
+    handler(YES, @{});
+  }
+}
 @end
 
 @interface RCNConfigExperimentTest : XCTestCase {
@@ -86,10 +109,9 @@
                                      completionHandler:nil])
       .andDo(nil);
 
-  FIRExperimentController *experimentController =
-      [[FIRExperimentController alloc] initWithAnalytics:nil];
+  _experimentController = [[FIRExperimentController alloc] initWithAnalytics:nil];
   _configExperiment = [[RCNConfigExperiment alloc] initWithDBManager:_DBManagerMock
-                                                experimentController:experimentController];
+                                                experimentController:_experimentController];
 }
 
 - (void)tearDown {
@@ -234,9 +256,50 @@
     XCTAssertNil(error);
     XCTAssertEqualObjects(experiment.experimentMetadata[@"last_experiment_start_time"],
                           @(12345678));
-    OCMVerify([experiment updateActiveExperimentsInDB]);
+    OCMVerify([experiment updateActiveExperimentsInDBWithPayloads:[OCMArg any]]);
     XCTAssertEqualObjects(experiment.activeExperimentPayloads, @[ payloadData ]);
   }];
+}
+
+- (void)testConcurrentAccess {
+  RCNConfigDBManagerFake *fakeDBManager = [[RCNConfigDBManagerFake alloc] init];
+  RCNConfigExperiment *experiment =
+      [[RCNConfigExperiment alloc] initWithDBManager:fakeDBManager
+                                experimentController:_experimentController];
+
+  dispatch_group_t group = dispatch_group_create();
+  dispatch_queue_t queue1 =
+      dispatch_queue_create("com.google.RCConfigExperiment.testQueue1", DISPATCH_QUEUE_CONCURRENT);
+  dispatch_queue_t queue2 =
+      dispatch_queue_create("com.google.RCConfigExperiment.testQueue2", DISPATCH_QUEUE_CONCURRENT);
+
+  NSDictionary<NSString *, NSString *> *payload =
+      @{@"experimentStartTime" : @"2019-04-04T21:54:38.555Z"};
+  NSArray *response = @[ payload ];
+
+  for (int i = 0; i < 100; i++) {
+    dispatch_group_enter(group);
+    dispatch_async(queue1, ^{
+      [experiment updateExperimentsWithResponse:response];
+      [experiment updateExperimentStartTime];
+      dispatch_group_leave(group);
+    });
+
+    dispatch_group_enter(group);
+    dispatch_async(queue2, ^{
+      [experiment loadExperimentFromTable];
+      dispatch_group_leave(group);
+    });
+  }
+
+  dispatch_time_t timeout = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(10 * NSEC_PER_SEC));
+  intptr_t result = dispatch_group_wait(group, timeout);
+  XCTAssertEqual(result, 0, @"Concurrent access test timed out, possible deadlock.");
+
+  // Flush the serial DB queue to ensure all background operations are completed before the test
+  // finishes.
+  dispatch_sync(experiment.experimentDBQueue, ^{
+                });
 }
 
 #pragma mark Helpers.
