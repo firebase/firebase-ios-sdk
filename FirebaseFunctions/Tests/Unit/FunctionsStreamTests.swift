@@ -17,7 +17,7 @@ import XCTest
 
 @testable import FirebaseFunctions
 
-@available(iOS 15.0, tvOS 15.0, macOS 12.0, watchOS 8.0, visionOS 1.0, *)
+@available(macOS 12.0, watchOS 8.0, *)
 class FunctionsStreamTests: XCTestCase {
   private struct EmptyRequest: Encodable, Sendable {}
 
