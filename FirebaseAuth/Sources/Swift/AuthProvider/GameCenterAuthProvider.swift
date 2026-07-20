@@ -16,6 +16,16 @@
   import Foundation
   import GameKit
 
+  // TODO: Delete this when minimum macOS version passes 10.15.5.
+  /// WarningWorkaround is needed because playerID is deprecated in macOS 10.15.0 but still needed until
+  /// 10.15.5 when the fetchItems API was introduced.
+  private protocol WarningWorkaround {
+    static func pre135Credential(localPlayer: GKLocalPlayer,
+                                 completion: @escaping (AuthCredential?, Error?) -> Void)
+  }
+
+  extension GameCenterAuthProvider: WarningWorkaround {}
+
   /// A concrete implementation of `AuthProvider` for Game Center Sign In. Not available on watchOS.
   @objc(FIRGameCenterAuthProvider) open class GameCenterAuthProvider: NSObject {
     /// A string constant identifying the Game Center identity provider.
@@ -40,21 +50,55 @@
         return
       }
 
-      localPlayer.fetchItems { publicKeyURL, signature, salt, timestamp, error in
-        if let error = error {
-          completion(nil, error)
-        } else {
-          let credential = GameCenterAuthCredential(withPlayerID: "",
-                                                    teamPlayerID: localPlayer.teamPlayerID,
-                                                    gamePlayerID: localPlayer.gamePlayerID,
-                                                    publicKeyURL: publicKeyURL,
-                                                    signature: signature,
-                                                    salt: salt,
-                                                    timestamp: timestamp,
-                                                    displayName: localPlayer.displayName)
-          completion(credential, nil)
+      if #available(macOS 10.15.5, *) {
+        localPlayer.fetchItems { publicKeyURL, signature, salt, timestamp, error in
+          if let error = error {
+            completion(nil, error)
+          } else {
+            let credential = GameCenterAuthCredential(withPlayerID: "",
+                                                      teamPlayerID: localPlayer.teamPlayerID,
+                                                      gamePlayerID: localPlayer.gamePlayerID,
+                                                      publicKeyURL: publicKeyURL,
+                                                      signature: signature,
+                                                      salt: salt,
+                                                      timestamp: timestamp,
+                                                      displayName: localPlayer.displayName)
+            completion(credential, nil)
+          }
         }
+      } else {
+        (GameCenterAuthProvider.self as WarningWorkaround.Type).pre135Credential(
+          localPlayer: localPlayer, completion: completion
+        )
       }
+    }
+
+    @available(macOS, deprecated: 10.15.0)
+    fileprivate class func pre135Credential(localPlayer: GKLocalPlayer,
+                                            completion: @escaping (AuthCredential?, Error?)
+                                              -> Void) {
+      localPlayer
+        .generateIdentityVerificationSignature { publicKeyURL, signature, salt, timestamp, error in
+          if error != nil {
+            completion(nil, error)
+          } else {
+            /**
+             `localPlayer.alias` is actually the displayname needed, instead of
+             `localPlayer.displayname`. For more information, check
+             https://developer.apple.com/documentation/gamekit/gkplayer
+             **/
+            let displayName = localPlayer.alias
+            let credential = GameCenterAuthCredential(withPlayerID: localPlayer.playerID,
+                                                      teamPlayerID: nil,
+                                                      gamePlayerID: nil,
+                                                      publicKeyURL: publicKeyURL,
+                                                      signature: signature,
+                                                      salt: salt,
+                                                      timestamp: timestamp,
+                                                      displayName: displayName)
+            completion(credential, nil)
+          }
+        }
     }
 
     /// Creates an `AuthCredential` for a Game Center sign in.
