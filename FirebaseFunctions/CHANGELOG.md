@@ -1,5 +1,8 @@
 # Unreleased
 - [fixed] Resolved a concurrency resource leak in Functions stream cancellation. (#16392)
+- [changed] Enforced stricter transport layer security when using the emulator:
+  Auth, FCM, and AppCheck tokens are no longer attached to outbound requests if
+  the connection is made over HTTP to a non-loopback host. (#16395)
 
 # 12.13.0
 - [fixed] Fixed a release-build crash in `HTTPSCallable.call()` when using

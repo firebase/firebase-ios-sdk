@@ -147,6 +147,22 @@ static NSInteger MAX_KEY_LEN = 786;
   }
 }
 
+- (void)testPredecessorOrderingForSurrogatePairAfterPrefix {
+  // The surrogate pair handling rewrites the high surrogate at index i - 1, where i is the
+  // index of the trailing low surrogate. Keys that are a single code point have i == 1, so
+  // they do not exercise the case where the pair is preceded by other characters. The stride
+  // still covers every low surrogate that ends in 0x00, which is where the range went bad.
+  for (UTF32Char i = 0x10000; i <= 0x10FFFF; i += 0x100) {
+    UniChar c[2];
+    CFStringGetSurrogatePairForLongCharacter(i, c);
+    NSString *pair = [[NSString alloc] initWithCharacters:c length:2];
+    NSString *key = [@"abc" stringByAppendingString:pair];
+    NSString *predecessor = [FNextPushId from:@"test" predecessor:key];
+    NSComparisonResult r = [FUtilities compareKey:key toKey:predecessor];
+    XCTAssertEqual(r, NSOrderedDescending);
+  }
+}
+
 - (void)testSuccessorOrdering {
   for (unichar i = 0x20; i < 0xD800; i++) {
     NSString *key = [[NSString alloc] initWithFormat:@"%C", i];
@@ -173,6 +189,20 @@ static NSInteger MAX_KEY_LEN = 786;
     NSComparisonResult r = [FUtilities compareKey:key toKey:successor];
     XCTAssertEqual(r, NSOrderedAscending);
   }
+}
+
+- (void)testSuccessorOrderingForSurrogatePairAfterPrefix {
+  // Keys shorter than MAX_KEY_LEN return early, so reaching the surrogate pair handling
+  // needs a full length key. U+107FF encodes as D801 DFFF: the low surrogate is the highest
+  // one, and the high surrogate is not the highest, which is the branch that rewrites it.
+  NSString *pair = @"\U000107FF";
+  NSString *key = [[@"" stringByPaddingToLength:MAX_KEY_LEN - pair.length
+                                     withString:@"a"
+                                startingAtIndex:0] stringByAppendingString:pair];
+  XCTAssertEqual(key.length, (NSUInteger)MAX_KEY_LEN);
+  NSString *successor = [FNextPushId from:@"test" successor:key];
+  NSComparisonResult r = [FUtilities compareKey:key toKey:successor];
+  XCTAssertEqual(r, NSOrderedAscending);
 }
 
 @end

@@ -579,6 +579,20 @@ enum FunctionsConstants {
     urlRequest.setValue("text/event-stream", forHTTPHeaderField: "Accept")
     urlRequest.httpMethod = "POST"
 
+    let shouldAttachTokens = url.isSecureOrLoopback
+
+    guard shouldAttachTokens else {
+      if url.scheme?.lowercased() == "http" {
+        FirebaseLogger.log(
+          level: .warning,
+          service: "[FirebaseFunctions]",
+          code: "I-FUN000001",
+          message: "Refusing to send Auth, FCM, and AppCheck tokens over HTTP to non-loopback host."
+        )
+      }
+      return urlRequest
+    }
+
     if let authToken = context.authToken {
       let value = "Bearer \(authToken)"
       urlRequest.setValue(value, forHTTPHeaderField: "Authorization")
@@ -625,6 +639,26 @@ enum FunctionsConstants {
 
     // Set the headers.
     fetcher.setRequestValue("application/json", forHTTPHeaderField: "Content-Type")
+    // Override normal security rules if this is a local test.
+    if emulatorOrigin != nil {
+      fetcher.allowLocalhostRequest = true
+      fetcher.allowedInsecureSchemes = ["http"]
+    }
+
+    let shouldAttachTokens = url.isSecureOrLoopback
+
+    guard shouldAttachTokens else {
+      if url.scheme?.lowercased() == "http" {
+        FirebaseLogger.log(
+          level: .warning,
+          service: "[FirebaseFunctions]",
+          code: "I-FUN000002",
+          message: "Refusing to send Auth, FCM, and AppCheck tokens over HTTP to non-loopback host."
+        )
+      }
+      return fetcher
+    }
+
     if let authToken = context.authToken {
       let value = "Bearer \(authToken)"
       fetcher.setRequestValue(value, forHTTPHeaderField: "Authorization")
@@ -646,12 +680,6 @@ enum FunctionsConstants {
         appCheckToken,
         forHTTPHeaderField: Constants.appCheckTokenHeader
       )
-    }
-
-    // Override normal security rules if this is a local test.
-    if emulatorOrigin != nil {
-      fetcher.allowLocalhostRequest = true
-      fetcher.allowedInsecureSchemes = ["http"]
     }
 
     return fetcher
@@ -713,5 +741,14 @@ enum FunctionsConstants {
     }
 
     return dataJSON
+  }
+}
+
+private extension URL {
+  var isSecureOrLoopback: Bool {
+    let scheme = scheme?.lowercased()
+    let host = host?.lowercased() ?? ""
+    let isLoopback = host == "localhost" || host == "127.0.0.1" || host == "::1" || host == "[::1]"
+    return scheme == "https" || isLoopback
   }
 }

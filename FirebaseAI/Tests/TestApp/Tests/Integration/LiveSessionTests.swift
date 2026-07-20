@@ -23,7 +23,7 @@ import Testing
 struct LiveSessionTests {
   private static let arguments = InstanceConfig.liveConfigs.flatMap { config in
     switch config.apiConfig.service {
-    case .vertexAI:
+    case .agentPlatform:
       [
         (config, ModelNames.gemini2_5_FlashLive),
       ]
@@ -347,7 +347,7 @@ struct LiveSessionTests {
       switch $0.0.apiConfig.service {
       case .googleAI:
         true
-      case .vertexAI:
+      case .agentPlatform:
         false
       }
     }

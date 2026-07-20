@@ -24,7 +24,7 @@
 
   @Suite(.serialized)
   struct GenerativeModelSessionHybridTests {
-    @Test(arguments: [InstanceConfig.vertexAI_v1beta_global])
+    @Test(arguments: [InstanceConfig.agentPlatform_v1beta_global])
     func respondText_fallbackOnGeminiModelError(_ config: InstanceConfig) async throws {
       let firebaseAI = FirebaseAI.componentInstance(config)
       let invalidModel1 = firebaseAI.geminiModel(name: "invalid-model-name-1")
@@ -56,7 +56,7 @@
       #expect(response.rawResponse.modelVersion == validModel._modelName)
     }
 
-    @Test(arguments: [InstanceConfig.vertexAI_v1beta_global])
+    @Test(arguments: [InstanceConfig.agentPlatform_v1beta_global])
     @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
@@ -87,7 +87,7 @@
       }
     }
 
-    @Test(arguments: [InstanceConfig.vertexAI_v1beta_global])
+    @Test(arguments: [InstanceConfig.agentPlatform_v1beta_global])
     @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
@@ -115,7 +115,7 @@
       #expect(response.rawResponse.modelVersion == validModel._modelName)
     }
 
-    @Test(arguments: [InstanceConfig.vertexAI_v1beta_global])
+    @Test(arguments: [InstanceConfig.agentPlatform_v1beta_global])
     func streamResponseText_fallbackOnGeminiModelError(_ config: InstanceConfig) async throws {
       let firebaseAI = FirebaseAI.componentInstance(config)
       let invalidModel = firebaseAI.geminiModel(name: "invalid-model-name")
@@ -162,7 +162,7 @@
       #expect(response.rawResponse.modelVersion == validModel._modelName)
     }
 
-    @Test(arguments: [InstanceConfig.vertexAI_v1beta_global])
+    @Test(arguments: [InstanceConfig.agentPlatform_v1beta_global])
     @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
@@ -208,7 +208,7 @@
       #expect(response.rawResponse.modelVersion == validModel._modelName)
     }
 
-    @Test(arguments: [InstanceConfig.vertexAI_v1beta_global])
+    @Test(arguments: [InstanceConfig.agentPlatform_v1beta_global])
     @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)

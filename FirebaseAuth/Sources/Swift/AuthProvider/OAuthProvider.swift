@@ -385,51 +385,55 @@ import Foundation
     let appCheck = auth.requestConfiguration.appCheck
 
     // TODO: Should we fail if these strings are empty? Only ibi was explicit in ObjC.
-    var urlArguments = ["apiKey": apiKey,
-                        "authType": "signInWithRedirect",
-                        "ibi": bundleID ?? "",
-                        "sessionId": hash(forString: sessionID),
-                        "v": AuthBackend.authUserAgent(),
-                        "eventId": eventID,
-                        "providerId": providerID]
+    var queryItems = [URLQueryItem(name: "apiKey", value: apiKey),
+                      URLQueryItem(name: "authType", value: "signInWithRedirect"),
+                      URLQueryItem(name: "ibi", value: bundleID ?? ""),
+                      URLQueryItem(name: "sessionId", value: hash(forString: sessionID)),
+                      URLQueryItem(name: "v", value: AuthBackend.authUserAgent()),
+                      URLQueryItem(name: "eventId", value: eventID),
+                      URLQueryItem(name: "providerId", value: providerID)]
 
     if usingClientIDScheme {
-      urlArguments["clientId"] = clientID
+      if let clientID {
+        queryItems.append(URLQueryItem(name: "clientId", value: clientID))
+      }
     } else {
-      urlArguments["appId"] = appID
+      if let appID {
+        queryItems.append(URLQueryItem(name: "appId", value: appID))
+      }
     }
     if let tenantID {
-      urlArguments["tid"] = tenantID
+      queryItems.append(URLQueryItem(name: "tid", value: tenantID))
     }
-    if let scopes, scopes.count > 0 {
-      urlArguments["scopes"] = scopes.joined(separator: ",")
+    if let scopes, !scopes.isEmpty {
+      queryItems.append(URLQueryItem(name: "scopes", value: scopes.joined(separator: ",")))
     }
-    if let customParameters, customParameters.count > 0 {
+    if let customParameters, !customParameters.isEmpty {
       do {
         let customParametersJSONData = try JSONSerialization
           .data(withJSONObject: customParameters)
         let rawJson = String(decoding: customParametersJSONData, as: UTF8.self)
-        urlArguments["customParameters"] = rawJson
+        queryItems.append(URLQueryItem(name: "customParameters", value: rawJson))
       } catch {
         throw AuthErrorUtils.JSONSerializationError(underlyingError: error)
       }
     }
     if let languageCode = auth.requestConfiguration.languageCode {
-      urlArguments["hl"] = languageCode
+      queryItems.append(URLQueryItem(name: "hl", value: languageCode))
     }
-    let argumentsString = httpArgumentsString(forArgsDictionary: urlArguments)
-    var urlString: String
-    if (auth.requestConfiguration.emulatorHostAndPort) != nil {
-      urlString = "http://\(authDomain)/emulator/auth/handler?\(argumentsString)"
-    } else {
-      urlString = "https://\(authDomain)/__/auth/handler?\(argumentsString)"
+
+    let urlString = auth.requestConfiguration.emulatorHostAndPort != nil
+      ? "http://\(authDomain)/emulator/auth/handler"
+      : "https://\(authDomain)/__/auth/handler"
+    var components = URLComponents(string: urlString)
+    components?.queryItems = queryItems
+    if let percentEncodedQuery = components?.percentEncodedQuery {
+      components?.percentEncodedQuery = percentEncodedQuery.replacingOccurrences(
+        of: "+",
+        with: "%2B"
+      )
     }
-    guard let percentEncoded = urlString.addingPercentEncoding(
-      withAllowedCharacters: CharacterSet.urlFragmentAllowed
-    ) else {
-      fatalError("Internal Auth Error: failed to percent encode a string")
-    }
-    var components = URLComponents(string: percentEncoded)
+
     if let appCheck {
       let tokenResult = await appCheck.getToken(forcingRefresh: false)
       if let error = tokenResult.error {
@@ -462,16 +466,6 @@ import Foundation
       hexString += String(format: "%02x", UInt8(byte))
     }
     return hexString
-  }
-
-  private func httpArgumentsString(forArgsDictionary argsDictionary: [String: String]) -> String {
-    var argsString: [String] = []
-    for (key, value) in argsDictionary {
-      let keyString = AuthWebUtils.string(byUnescapingFromURLArgument: key)
-      let valueString = AuthWebUtils.string(byUnescapingFromURLArgument: value.description)
-      argsString.append("\(keyString)=\(valueString)")
-    }
-    return argsString.joined(separator: "&")
   }
 
   private let auth: Auth

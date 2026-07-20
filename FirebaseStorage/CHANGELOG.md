@@ -1,4 +1,10 @@
 # Unreleased
+- [changed] Enforced stricter transport layer security when using the emulator: Auth and AppCheck
+  tokens are no longer attached to outbound requests if the connection is made over HTTP to a
+  non-loopback host. (#16395)
+- [fixed] Fixed an issue where `putFile` could fail on the iOS Simulator with `POSIX errno 40`
+  (`EMSGSIZE`) due to a QUIC bug in background sessions, and improved error formatting
+  for `NSPOSIXErrorDomain` errors. (#16351)
 - [fixed] Fixed a race condition in Storage task cancellation and improved Swift 6 strict
   concurrency compliance for `StorageTask`. (#16353)
 - [fixed] Fixed a crash that could occur when parsing malformed `gs://` URLs, and improved
