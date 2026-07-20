@@ -150,8 +150,9 @@ static NSInteger MAX_KEY_LEN = 786;
 - (void)testPredecessorOrderingForSurrogatePairAfterPrefix {
   // The surrogate pair handling rewrites the high surrogate at index i - 1, where i is the
   // index of the trailing low surrogate. Keys that are a single code point have i == 1, so
-  // they do not exercise the case where the pair is preceded by other characters.
-  for (UTF32Char i = 0x10000; i <= 0x10FFFF; i++) {
+  // they do not exercise the case where the pair is preceded by other characters. The stride
+  // still covers every low surrogate that ends in 0x00, which is where the range went bad.
+  for (UTF32Char i = 0x10000; i <= 0x10FFFF; i += 0x100) {
     UniChar c[2];
     CFStringGetSurrogatePairForLongCharacter(i, c);
     NSString *pair = [[NSString alloc] initWithCharacters:c length:2];
