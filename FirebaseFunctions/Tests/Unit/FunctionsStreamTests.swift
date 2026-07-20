@@ -137,35 +137,23 @@ class FunctionsStreamTests: XCTestCase {
     )
     let callable: Callable<EmptyRequest, String> = functions.httpsCallable("testStream")
 
-    let throwsExpectation =
-      XCTestExpectation(
-        description: "Stream should throw dataLoss wrapping URLError(.networkConnectionLost)"
-      )
-
-    Task {
-      do {
-        let stream = try callable.stream()
-        for try await _ in stream {
-          // Read lines
-        }
-        XCTFail(
-          "Stream should not finish successfully; it should throw a mid-stream network error."
-        )
-        throwsExpectation.fulfill()
-      } catch let error as FunctionsError {
-        XCTAssertEqual(error.code, .dataLoss)
-        if let underlying = error.errorUserInfo[NSUnderlyingErrorKey] as? URLError {
-          XCTAssertEqual(underlying.code, .networkConnectionLost)
-        } else {
-          XCTFail("Expected underlying URLError(.networkConnectionLost)")
-        }
-        throwsExpectation.fulfill()
-      } catch {
-        XCTFail("Stream threw unexpected error type: \(error)")
-        throwsExpectation.fulfill()
+    do {
+      let stream = try callable.stream()
+      for try await _ in stream {
+        // Read lines
       }
+      XCTFail(
+        "Stream should not finish successfully; it should throw a mid-stream network error."
+      )
+    } catch let error as FunctionsError {
+      XCTAssertEqual(error.code, .dataLoss)
+      if let underlying = error.errorUserInfo[NSUnderlyingErrorKey] as? URLError {
+        XCTAssertEqual(underlying.code, .networkConnectionLost)
+      } else {
+        XCTFail("Expected underlying URLError(.networkConnectionLost)")
+      }
+    } catch {
+      XCTFail("Stream threw unexpected error type: \(error)")
     }
-
-    await fulfillment(of: [throwsExpectation], timeout: 4.0)
   }
 }

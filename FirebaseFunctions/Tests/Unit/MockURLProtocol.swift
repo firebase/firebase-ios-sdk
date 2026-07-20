@@ -68,10 +68,10 @@ class MockURLProtocol: URLProtocol, @unchecked Sendable {
     let requestHandler = MockURLProtocol.requestHandlersQueue.removeFirst()
 
     Task {
-      let (response, stream) = try requestHandler(self.request)
-      client.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
-      if let stream = stream {
-        do {
+      do {
+        let (response, stream) = try requestHandler(self.request)
+        client.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
+        if let stream = stream {
           for try await line in stream {
             guard let data = line.data(using: .utf8) else {
               fatalError("Failed to convert \"\(line)\" to UTF8 data.")
@@ -82,19 +82,20 @@ class MockURLProtocol: URLProtocol, @unchecked Sendable {
             // without the following, the whole file is delivered as a single line.
             client.urlProtocol(self, didLoad: "\n".data(using: .utf8)!)
           }
-        } catch {
-          client.urlProtocol(self, didFailWithError: error)
-          XCTFail("Unexpected failure reading lines from stream: \(error.localizedDescription)")
         }
-      }
-      if let errorToThrow = MockURLProtocol.errorToThrowMidStream {
-        // Sleep guarantees the error is thrown mid-stream (after URLSession yields the stream to
-        // the consumer) rather than pre-stream, preventing test coupling to undocumented URLSession
-        // internal buffer sizes.
-        try? await Task.sleep(nanoseconds: 2_000_000_000)
-        client.urlProtocol(self, didFailWithError: errorToThrow)
-      } else if !MockURLProtocol.neverFinishes {
-        client.urlProtocolDidFinishLoading(self)
+        if let errorToThrow = MockURLProtocol.errorToThrowMidStream {
+          // Sleep guarantees the error is thrown mid-stream (after URLSession yields the stream to
+          // the consumer) rather than pre-stream, preventing test coupling to undocumented
+          // URLSession
+          // internal buffer sizes.
+          try? await Task.sleep(nanoseconds: 2_000_000_000)
+          client.urlProtocol(self, didFailWithError: errorToThrow)
+        } else if !MockURLProtocol.neverFinishes {
+          client.urlProtocolDidFinishLoading(self)
+        }
+      } catch {
+        client.urlProtocol(self, didFailWithError: error)
+        XCTFail("Unexpected failure in MockURLProtocol: \(error.localizedDescription)")
       }
     }
   }
