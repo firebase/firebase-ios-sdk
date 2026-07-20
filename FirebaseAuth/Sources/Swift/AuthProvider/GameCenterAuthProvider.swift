@@ -106,6 +106,7 @@
     }
 
     /// Creates an `AuthCredential` for a Game Center sign in.
+    @available(watchOS 8, *)
     open class func getCredential() async throws -> AuthCredential {
       return try await withCheckedThrowingContinuation { continuation in
         getCredential { credential, error in
