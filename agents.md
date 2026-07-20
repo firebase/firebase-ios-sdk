@@ -498,6 +498,7 @@ document current will improve the efficiency and accuracy of future AI-assisted 
     *   `setCustomSignals:` also strongly captures `self` via `self->_settings.customSignals`.
     *   There is a deadlock hazard in `configValueForKey:` due to synchronous dispatch to `_queue` which then dispatches asynchronously back to `_queue` via `callListeners:`.
     *   `RCNConfigExperiment` has data race risks on `_experimentPayloads` and other mutable collections as they are mutated from different queues (e.g., `loadExperimentFromTable` vs `updateExperimentsWithResponse:`).
+    *   In `RCNConfigExperiment`, `updateActiveExperimentsInDB` performs asynchronous DB operations. Subsequent code in `updateExperimentsWithHandler:` (such as `updateExperimentsWithServiceOrigin:`) is not guaranteed to execute after the DB updates complete, leading to a potential race condition.
 
 ## AI Subagent Personas
 
