@@ -93,9 +93,7 @@ class StorageUtils {
           return mimeType as String
         }
       }
-    guard let mimeType = UTType(filenameExtension: fileExtension)?.preferredMIMEType else {
       return "application/octet-stream"
     }
-    return mimeType
   }
 }
