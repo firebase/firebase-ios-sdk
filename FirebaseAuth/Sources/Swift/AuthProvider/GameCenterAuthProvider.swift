@@ -17,7 +17,8 @@
   import GameKit
 
   // TODO: Delete this when minimum macOS version passes 10.15.5.
-  /// WarningWorkaround is needed because playerID is deprecated in macOS 10.15.0 but still needed until
+  /// WarningWorkaround is needed because playerID is deprecated in macOS 10.15.0 but still needed
+  /// until
   /// 10.15.5 when the fetchItems API was introduced.
   private protocol WarningWorkaround {
     static func pre135Credential(localPlayer: GKLocalPlayer,
@@ -73,7 +74,10 @@
       }
     }
 
+    @available(iOS, deprecated: 13.0)
+    @available(tvOS, deprecated: 13.0)
     @available(macOS, deprecated: 10.15.0)
+    @available(macCatalyst, deprecated: 13.0)
     fileprivate class func pre135Credential(localPlayer: GKLocalPlayer,
                                             completion: @escaping (AuthCredential?, Error?)
                                               -> Void) {
