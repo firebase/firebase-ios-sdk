@@ -1,3 +1,7 @@
+# Unreleased
+- [fixed] Fixed a stream leak in the Live API where the WebSocket connection
+  would remain open indefinitely if the consumer cancelled the stream. (#16393)
+
 # 12.16.0
 - [changed] Deprecated `Backend.vertexAI` in favor of `Backend.agentPlatform` to
   reflect the renaming of Vertex AI to Gemini Enterprise Agent Platform.
