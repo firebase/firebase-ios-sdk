@@ -1,6 +1,8 @@
-# 12.16.0
+# Unreleased
 - [fixed] Fixed a stream leak in the Live API where the WebSocket connection
   would remain open indefinitely if the consumer cancelled the stream. (#16393)
+
+# 12.16.0
 - [fixed] Fixed a decoding failure in `GenerateContentResponse` when the Vertex AI
   backend returns citation metadata with a missing `endIndex`. (#16328)
 - [fixed] Fixed an issue where `generateContentStream` could stall indefinitely
