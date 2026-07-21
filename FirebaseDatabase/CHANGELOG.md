@@ -1,4 +1,4 @@
-# Unreleased
+# 12.17.0
 - [fixed] Fixed an issue where surrogate pair replacement ranges were incorrect
   in push ID generation. (#16415)
 - [fixed] Fixed a potential crash when receiving non-text WebSocket frames.
