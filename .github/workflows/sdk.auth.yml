@@ -33,6 +33,7 @@ jobs:
     uses: ./.github/workflows/_spm.yml
     with:
       target: AuthUnit
+      test_xcode27: true
       buildonly_platforms: macOS
 
   catalyst:
