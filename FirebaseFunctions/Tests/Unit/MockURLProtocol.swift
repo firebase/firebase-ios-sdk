@@ -46,6 +46,22 @@ class MockURLProtocol: URLProtocol, @unchecked Sendable {
     set { _requestHandlers = newValue }
   }
 
+  private var _loadingTask: Task<Void, Never>?
+  private let lock = NSLock()
+
+  private var loadingTask: Task<Void, Never>? {
+    get {
+      lock.lock()
+      defer { lock.unlock() }
+      return _loadingTask
+    }
+    set {
+      lock.lock()
+      _loadingTask = newValue
+      lock.unlock()
+    }
+  }
+
   override class func canInit(with request: URLRequest) -> Bool {
     #if os(watchOS)
       print("MockURLProtocol cannot be used on watchOS.")
@@ -67,12 +83,13 @@ class MockURLProtocol: URLProtocol, @unchecked Sendable {
     }
     let requestHandler = MockURLProtocol.requestHandlersQueue.removeFirst()
 
-    Task {
+    loadingTask = Task {
       do {
         let (response, stream) = try requestHandler(self.request)
         client.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
         if let stream = stream {
           for try await line in stream {
+            if Task.isCancelled { return }
             guard let data = line.data(using: .utf8) else {
               fatalError("Failed to convert \"\(line)\" to UTF8 data.")
             }
@@ -89,18 +106,30 @@ class MockURLProtocol: URLProtocol, @unchecked Sendable {
           // URLSession
           // internal buffer sizes.
           try? await Task.sleep(nanoseconds: 2_000_000_000)
+          if Task.isCancelled { return }
           client.urlProtocol(self, didFailWithError: errorToThrow)
         } else if !MockURLProtocol.neverFinishes {
+          if Task.isCancelled { return }
           client.urlProtocolDidFinishLoading(self)
         }
       } catch {
+        if Task.isCancelled { return }
+
         client.urlProtocol(self, didFailWithError: error)
-        XCTFail("Unexpected failure in MockURLProtocol: \(error.localizedDescription)")
+
+        let nsError = error as NSError
+        let isMissingFile = nsError.domain == NSCocoaErrorDomain && nsError
+          .code == NSFileReadNoSuchFileError
+
+        if !isMissingFile {
+          XCTFail("Unexpected failure in MockURLProtocol: \(error.localizedDescription)")
+        }
       }
     }
   }
 
   override func stopLoading() {
+    loadingTask?.cancel()
     MockURLProtocol.stopLoadingExpectation?.fulfill()
   }
 }
