@@ -1,5 +1,4 @@
 # Unreleased
-
 - [fixed] Fixed a potential crash when parsing malformed bundle payloads.
   (#16221)
 - [feature] Added support for 16 MB documents by increasing gRPC message size
