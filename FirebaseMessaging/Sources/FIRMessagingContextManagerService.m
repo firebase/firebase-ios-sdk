@@ -61,6 +61,12 @@ typedef NS_ENUM(NSUInteger, FIRMessagingContextManagerMessageType) {
   FIRMessagingContextManagerMessageTypeLocalTime,
 };
 
+@interface FIRMessagingContextManagerService ()
+
++ (void)scheduleLocalNotificationForMessage:(NSDictionary *)message atDate:(NSDate *)date;
+
+@end
+
 @implementation FIRMessagingContextManagerService
 
 + (BOOL)isContextManagerMessage:(NSDictionary *)message {
