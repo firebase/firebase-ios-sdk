@@ -362,7 +362,9 @@ experience for both contributors and users of the Firebase SDK.
         for applications using Firebase Analytics (and often transitively, other Firebase SDKs)
         to correctly link Objective-C categories.
 *   **Changelogs**: `CHANGELOG.md` files (root and product-specific) must be updated with
-    meaningful descriptions of changes for any pull request. The changelog entry should always go into a new top-level `# Unreleased` section. If this section does not already exist, you must create it at the top of the file.
+    meaningful descriptions of changes for any pull request. The changelog
+    entry should always go into a new top-level `# Unreleased` section. If this
+    section does not already exist, you must create it at the top of the file.
 *   **Minimize Breaking Changes**: Breaking changes are avoided if possible and require careful
     consideration, typically aligning with major version releases.
 *   **Platform Support**: Different levels of support exist for Apple platforms (macOS, Catalyst,
