@@ -134,7 +134,7 @@ typedef NS_ENUM(NSUInteger, FIRMessagingContextManagerMessageType) {
   return YES;
 }
 
-+ (void)scheduleiOS10LocalNotificationForMessage:(NSDictionary *)message atDate:(NSDate *)date {
++ (void)scheduleLocalNotificationForMessage:(NSDictionary *)message atDate:(NSDate *)date {
   NSCalendar *calendar = [NSCalendar currentCalendar];
   NSCalendarUnit unit = NSCalendarUnitYear | NSCalendarUnitMonth | NSCalendarUnitDay |
                         NSCalendarUnitHour | NSCalendarUnitMinute | NSCalendarUnitSecond;
@@ -200,10 +200,6 @@ typedef NS_ENUM(NSUInteger, FIRMessagingContextManagerMessageType) {
   }
 #endif  // !TARGET_OS_TV
   return content;
-}
-
-+ (void)scheduleLocalNotificationForMessage:(NSDictionary *)message atDate:(NSDate *)date {
-  [self scheduleiOS10LocalNotificationForMessage:message atDate:date];
 }
 
 + (NSDictionary *)parseDataFromMessage:(NSDictionary *)message {

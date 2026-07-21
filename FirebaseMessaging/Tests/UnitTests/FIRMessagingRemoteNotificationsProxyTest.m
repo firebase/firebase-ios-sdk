@@ -331,7 +331,7 @@
   // Use non-nil, proper classes, otherwise our SDK bails out.
   [delegate userNotificationCenter:self.mockUserNotificationCenter
            willPresentNotification:[self userNotificationWithMessage:message]
-             withCompletionHandler:^(NSUInteger options){
+             withCompletionHandler:^(UNNotificationPresentationOptions options){
              }];
 
   // Verify our original method was called
