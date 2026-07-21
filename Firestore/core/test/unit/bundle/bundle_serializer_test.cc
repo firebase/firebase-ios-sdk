@@ -1166,6 +1166,48 @@ TEST_F(BundleSerializerTest, DecodeInvalidBundledDocumentMetadataFails) {
   }
 }
 
+TEST_F(BundleSerializerTest, DecodeNonDocumentKeyResourceNameFails) {
+  // Resource names that pass the local-resource-name check but are not valid
+  // `DocumentKey`s must be rejected gracefully instead of tripping the
+  // `HARD_ASSERT` inside the `DocumentKey` constructor or the length assert
+  // inside `PopFirst`. Three malformed shapes are covered:
+  //   1. a collection path (odd number of segments after the `documents`
+  //      prefix),
+  //   2. a root `documents` path (resolves to an empty key), and
+  //   3. a short path (fewer than five segments, would crash `PopFirst(5)`).
+  const std::vector<std::string> names = {FullPath("bundle"), FullPath(""),
+                                          "projects/p/databases/default"};
+
+  for (const auto& name : names) {
+    {
+      ProtoDocument document = TestDocument(ProtoValue());
+      document.set_name(name);
+      std::string json_string;
+      MessageToJsonString(document, &json_string);
+
+      JsonReader reader;
+      bundle_serializer.DecodeDocument(reader, Parse(json_string));
+      EXPECT_NOT_OK(reader.status());
+    }
+
+    {
+      ProtoBundledDocumentMetadata metadata;
+      metadata.set_name(name);
+      metadata.set_exists(true);
+      google::protobuf::Timestamp t1;
+      t1.set_seconds(0);
+      t1.set_nanos(0);
+      *metadata.mutable_read_time() = t1;
+      std::string json_string;
+      MessageToJsonString(metadata, &json_string);
+
+      JsonReader reader;
+      bundle_serializer.DecodeDocumentMetadata(reader, Parse(json_string));
+      EXPECT_NOT_OK(reader.status());
+    }
+  }
+}
+
 TEST_F(BundleSerializerTest, DecodeTargetWithoutImplicitOrderByOnName) {
   std::string json(
       R"({"name":"myNamedQuery",
@@ -1196,6 +1238,39 @@ TEST_F(BundleSerializerTest,
   EXPECT_EQ(testutil::Query("foo").WithLimitToFirst(10).ToTarget(),
             named_query.bundled_query().target());
   EXPECT_EQ(core::LimitType::Last, named_query.bundled_query().limit_type());
+}
+
+TEST_F(BundleSerializerTest, DecodeCollectionSourceFromNotArrayFails) {
+  std::string json(
+      R"({"name":"myNamedQuery",
+"bundledQuery":{"parent":"projects/p/databases/default/documents",
+"structuredQuery":{"from":"not-an-array"},"limitType":"FIRST"},
+"readTime":{"seconds":"1679674432","nanos":579934000}})");
+  JsonReader reader;
+  bundle_serializer.DecodeNamedQuery(reader, Parse(json));
+  EXPECT_NOT_OK(reader.status());
+}
+
+TEST_F(BundleSerializerTest, DecodeLimitEmptyObjectFails) {
+  std::string json(
+      R"({"name":"myNamedQuery",
+"bundledQuery":{"parent":"projects/p/databases/default/documents",
+"structuredQuery":{"from":[{"collectionId":"foo"}],
+"limit":{}},"limitType":"FIRST"},
+"readTime":{"seconds":"1679674432","nanos":579934000}})");
+  JsonReader reader;
+  bundle_serializer.DecodeNamedQuery(reader, Parse(json));
+  EXPECT_NOT_OK(reader.status());
+}
+
+TEST_F(BundleSerializerTest, DecodePrimitiveAsObjectFails) {
+  std::string json(
+      R"({"name":"myNamedQuery",
+"bundledQuery":123,
+"readTime":{"seconds":"1679674432","nanos":579934000}})");
+  JsonReader reader;
+  bundle_serializer.DecodeNamedQuery(reader, Parse(json));
+  EXPECT_NOT_OK(reader.status());
 }
 
 }  //  namespace

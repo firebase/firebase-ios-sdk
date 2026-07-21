@@ -44,19 +44,15 @@
         return nil
       }
       var topViewController: UIViewController?
-      if #available(iOS 13.0, tvOS 13.0, *) {
-        let connectedScenes = application.connectedScenes
-        for scene in connectedScenes {
-          if let windowScene = scene as? UIWindowScene {
-            for window in windowScene.windows {
-              if window.isKeyWindow {
-                topViewController = window.rootViewController
-              }
+      let connectedScenes = application.connectedScenes
+      for scene in connectedScenes {
+        if let windowScene = scene as? UIWindowScene {
+          for window in windowScene.windows {
+            if window.isKeyWindow {
+              topViewController = window.rootViewController
             }
           }
         }
-      } else {
-        topViewController = application.keyWindow?.rootViewController
       }
       while true {
         if let controller = topViewController?.presentedViewController {

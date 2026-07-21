@@ -1,4 +1,11 @@
-# Unreleased
+# 12.17.0
+- [fixed] Fixed an array out-of-bounds access in `ActionCodeURL` query parsing.
+  (#16382)
+- [fixed] Fixed a bug in `OAuthProvider` where custom parameters containing
+  special URL characters (such as `&` and `=`) were not being properly
+  URL-encoded. (#16394)
+
+# 12.16.0
 - [fixed] Refactored the integrated OAuth sign in UI to not rely on
   the deprecated `UIScreen.main.bounds` API for Mac Catalyst rendering.
   (#16274)

@@ -37,7 +37,7 @@ final class CountTokensRequestTests: XCTestCase {
 
   // MARK: CountTokensRequest Encoding
 
-  func testEncodeCountTokensRequest_vertexAI_minimal() throws {
+  func testEncodeCountTokensRequest_agentPlatform_minimal() throws {
     let content = ModelContent(role: nil, parts: [textPart])
     let generateContentRequest = GenerateContentRequest(
       model: modelResourceName,

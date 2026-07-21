@@ -1,3 +1,10 @@
+# 12.17.0
+- [fixed] Fixed an issue where binary image details weren't properly
+  initialized. (#16407)
+
+# 12.16.0
+- [fixed] Fix deadlock in user logging on reentrant queue access. (#16163)
+
 # 12.13.0
 - [fixed] Fix race in FIRCLSContextMarkAndCheckIfCrashed. (#15384)
 - [fixed] Fix unfound file warnings from `swift build`. (#16012)

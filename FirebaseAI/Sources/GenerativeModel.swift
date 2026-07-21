@@ -61,7 +61,7 @@ public final class GenerativeModel: Sendable {
   ///   - modelName: The name of the model.
   ///   - modelResourceName: The model resource name corresponding with `modelName` in the backend.
   ///     The form depends on the backend and will be one of:
-  ///       - Vertex AI via Firebase AI SDK:
+  ///       - Gemini Enterprise Agent Platform via Firebase AI SDK:
   ///       `"projects/{projectID}/locations/{locationID}/publishers/google/models/{modelName}"`
   ///       - Developer API via Firebase AI SDK: `"projects/{projectID}/models/{modelName}"`
   ///       - Developer API via Generative Language: `"models/{modelName}"`
@@ -207,7 +207,7 @@ public final class GenerativeModel: Sendable {
   /// ``CountTokensResponse/totalTokens``.
   public func countTokens(_ content: [ModelContent]) async throws -> CountTokensResponse {
     let requestContent = switch apiConfig.service {
-    case .vertexAI:
+    case .agentPlatform:
       content
     case .googleAI:
       // The `role` defaults to "user" but is ignored in `countTokens`. However, it is erroneously
@@ -222,7 +222,7 @@ public final class GenerativeModel: Sendable {
     // "models/model-name". This field is unaltered by the Firebase backend before forwarding the
     // request to the Generative Language backend, which expects the form "models/model-name".
     let generateContentRequestModelResourceName = switch apiConfig.service {
-    case .vertexAI:
+    case .agentPlatform:
       modelResourceName
     case .googleAI(endpoint: .firebaseProxyProd):
       "models/\(modelName)"
@@ -231,9 +231,9 @@ public final class GenerativeModel: Sendable {
         "models/\(modelName)"
       case .googleAI(endpoint: .googleAIBypassProxy):
         modelResourceName
-      case .googleAI(endpoint: .vertexAIStagingBypassProxy):
+      case .googleAI(endpoint: .agentPlatformStagingBypassProxy):
         fatalError(
-          "The Vertex AI staging endpoint does not support the Gemini Developer API (Google AI)."
+          "The Gemini Enterprise Agent Platform staging endpoint does not support the Gemini Developer API (Google AI)."
         )
     #endif // DEBUG
     }
@@ -322,7 +322,7 @@ public final class GenerativeModel: Sendable {
 
     return AsyncThrowingStream { continuation in
       let responseStream = generativeAIService.loadRequestStream(request: generateContentRequest)
-      Task {
+      let task = Task {
         do {
           var didYieldResponse = false
           for try await response in responseStream {
@@ -365,8 +365,11 @@ public final class GenerativeModel: Sendable {
           }
         } catch {
           continuation.finish(throwing: GenerativeModel.generateContentError(from: error))
-          return
         }
+      }
+
+      continuation.onTermination = { @Sendable _ in
+        task.cancel()
       }
     }
   }

@@ -37,13 +37,11 @@ final class AnalyticsAPITests {
     Analytics.setDefaultEventParameters(["default": 100])
 
     Analytics.sessionID { sessionID, error in }
-    if #available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, watchOS 7.0, *) {
-      Task {
-        let _: Int64? = try? await Analytics.sessionID()
-      }
+    Task {
+      let _: Int64? = try? await Analytics.sessionID()
     }
 
-    @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
+    @available(macOS 12.0, *)
     @available(watchOS, unavailable)
     func logTransactionUsage() {
       let transaction: StoreKit.Transaction! = nil
@@ -53,11 +51,10 @@ final class AnalyticsAPITests {
     // MARK: - AppDelegate
 
     Analytics.handleEvents(forBackgroundURLSession: "session_id", completionHandler: {})
-    if #available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, watchOS 7.0, *) {
-      Task {
-        await Analytics.handleEvents(forBackgroundURLSession: "session_id")
-      }
+    Task {
+      await Analytics.handleEvents(forBackgroundURLSession: "session_id")
     }
+
     Analytics.handleOpen(URL(string: "https://google.com")!)
     Analytics.handleUserActivity(NSUserActivity(activityType: "editing"))
 
@@ -198,7 +195,6 @@ final class AnalyticsAPITests {
 
     // MARK: - Analytics + SwiftUI
 
-    @available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, *)
     @available(watchOS, unavailable)
     struct MyView: View {
       let name: String

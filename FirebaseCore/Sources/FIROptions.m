@@ -29,7 +29,6 @@ NSString *const kFIRStorageBucket = @"STORAGE_BUCKET";
 NSString *const kFIRBundleID = @"BUNDLE_ID";
 // The key to locate the project identifier in the plist file.
 NSString *const kFIRProjectID = @"PROJECT_ID";
-NSString *const kFIRRecaptchaSiteKey = @"RECAPTCHA_SITE_KEY";
 
 NSString *const kFIRIsMeasurementEnabled = @"IS_MEASUREMENT_ENABLED";
 NSString *const kFIRIsAnalyticsCollectionEnabled = @"FIREBASE_ANALYTICS_COLLECTION_ENABLED";
@@ -305,15 +304,6 @@ static dispatch_once_t sDefaultOptionsDictionaryOnceToken;
 - (void)setStorageBucket:(NSString *)storageBucket {
   [self checkEditingLocked];
   _optionsDictionary[kFIRStorageBucket] = [storageBucket copy];
-}
-
-- (NSString *)recaptchaSiteKey {
-  return self.optionsDictionary[kFIRRecaptchaSiteKey];
-}
-
-- (void)setRecaptchaSiteKey:(NSString *)recaptchaSiteKey {
-  [self checkEditingLocked];
-  _optionsDictionary[kFIRRecaptchaSiteKey] = [recaptchaSiteKey copy];
 }
 
 - (NSString *)bundleID {

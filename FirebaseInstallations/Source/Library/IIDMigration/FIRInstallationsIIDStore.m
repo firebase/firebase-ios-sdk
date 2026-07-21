@@ -203,11 +203,7 @@ static NSString *const kFIRInstallationsIIDCreationTimePlistKey = @"|S|cre";
   NSMutableDictionary *plistContent = [[NSMutableDictionary alloc] initWithContentsOfFile:path];
   plistContent[kFIRInstallationsIIDCreationTimePlistKey] = nil;
 
-  if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
-    return [plistContent writeToURL:[NSURL fileURLWithPath:path] error:outError];
-  }
-
-  return [plistContent writeToFile:path atomically:YES];
+  return [plistContent writeToURL:[NSURL fileURLWithPath:path] error:outError];
 }
 
 - (BOOL)hasPlistIIDFlag {

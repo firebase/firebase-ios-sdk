@@ -35,7 +35,6 @@ import FirebaseCoreExtension
 #endif // SWIFT_PACKAGE
 
 #if os(iOS)
-  @available(iOS 13.0, *)
   extension Auth: UISceneDelegate {
     open func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
       for urlContext in URLContexts {
@@ -44,7 +43,6 @@ import FirebaseCoreExtension
     }
   }
 
-  @available(iOS 13.0, *)
   extension Auth: UIApplicationDelegate {
     open func application(_ application: UIApplication,
                           didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {

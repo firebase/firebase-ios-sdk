@@ -25,6 +25,8 @@
 #import "FirebaseMessaging/Sources/Token/FIRMessagingAuthService.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingCheckinPreferences.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingCheckinStore.h"
+#import "FirebaseMessaging/Sources/Token/FIRMessagingFIDRegisterOperation.h"
+#import "FirebaseMessaging/Sources/Token/FIRMessagingFIDUnregisterOperation.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingTokenDeleteOperation.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingTokenFetchOperation.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingTokenInfo.h"
@@ -107,13 +109,18 @@
 
 - (void)saveDefaultTokenInfoInKeychain:(NSString *)defaultFcmToken {
   if ([self hasTokenChangedFromOldToken:_defaultFCMToken toNewToken:defaultFcmToken]) {
+    FIRMessagingLoggerDebug(kFIRMessagingMessageCodeDebug,
+                            @"Update default token from '%@' to '%@'", _defaultFCMToken,
+                            defaultFcmToken);
     _defaultFCMToken = [defaultFcmToken copy];
+    NSString *tokenType = [FIRMessaging messaging].isInstallationIdEnabled ? @"FID" : @"V4";
     FIRMessagingTokenInfo *tokenInfo =
         [[FIRMessagingTokenInfo alloc] initWithAuthorizedEntity:_fcmSenderID
                                                           scope:kFIRMessagingDefaultTokenScope
                                                           token:defaultFcmToken
                                                      appVersion:FIRMessagingCurrentAppVersion()
-                                                  firebaseAppID:_firebaseAppID];
+                                                  firebaseAppID:_firebaseAppID
+                                                      tokenType:tokenType];
     tokenInfo.APNSInfo =
         [[FIRMessagingAPNSInfo alloc] initWithTokenOptionsDictionary:[self tokenOptions]];
 
@@ -239,27 +246,11 @@
   }
 
   FIRMessaging_WEAKIFY(self);
-  [_authService fetchCheckinInfoWithHandler:^(FIRMessagingCheckinPreferences *preferences,
-                                              NSError *error) {
-    FIRMessaging_STRONGIFY(self);
-    if (error) {
-      newHandler(nil, error);
-      return;
-    }
-
-    if (!self) {
-      NSError *derefErr =
-          [NSError messagingErrorWithCode:kFIRMessagingErrorCodeInternal
-                            failureReason:@"Unable to fetch token. Lost Reference to TokenManager"];
-      handler(nil, derefErr);
-      return;
-    }
-
-    FIRMessaging_WEAKIFY(self);
+  BOOL isInstallationIdEnabled = [FIRMessaging messaging].isInstallationIdEnabled;
+  if (isInstallationIdEnabled) {
     [self->_installations
         installationIDWithCompletion:^(NSString *_Nullable identifier, NSError *_Nullable error) {
           FIRMessaging_STRONGIFY(self);
-
           if (error) {
             newHandler(nil, error);
           } else {
@@ -283,7 +274,53 @@
                                             handler:newHandler];
           }
         }];
-  }];
+  } else {
+    [_authService
+        fetchCheckinInfoWithHandler:^(FIRMessagingCheckinPreferences *preferences, NSError *error) {
+          FIRMessaging_STRONGIFY(self);
+          if (error) {
+            newHandler(nil, error);
+            return;
+          }
+
+          if (!self) {
+            NSError *derefErr = [NSError
+                messagingErrorWithCode:kFIRMessagingErrorCodeInternal
+                         failureReason:@"Unable to fetch token. Lost Reference to TokenManager"];
+            handler(nil, derefErr);
+            return;
+          }
+
+          FIRMessaging_WEAKIFY(self);
+          [self->_installations installationIDWithCompletion:^(NSString *_Nullable identifier,
+                                                               NSError *_Nullable error) {
+            FIRMessaging_STRONGIFY(self);
+
+            if (error) {
+              newHandler(nil, error);
+            } else {
+              FIRMessagingTokenInfo *cachedTokenInfo =
+                  [self cachedTokenInfoWithAuthorizedEntity:authorizedEntity scope:scope];
+              FIRMessagingAPNSInfo *optionsAPNSInfo =
+                  [[FIRMessagingAPNSInfo alloc] initWithTokenOptionsDictionary:tokenOptions];
+              // Check if APNS Info is changed
+              if ((!cachedTokenInfo.APNSInfo && !optionsAPNSInfo) ||
+                  [cachedTokenInfo.APNSInfo isEqualToAPNSInfo:optionsAPNSInfo]) {
+                // check if token is fresh
+                if ([cachedTokenInfo isFreshWithIID:identifier]) {
+                  newHandler(cachedTokenInfo.token, nil);
+                  return;
+                }
+              }
+              [self fetchNewTokenWithAuthorizedEntity:[authorizedEntity copy]
+                                                scope:[scope copy]
+                                           instanceID:identifier
+                                              options:tokenOptions
+                                              handler:newHandler];
+            }
+          }];
+        }];
+  }
 }
 
 - (void)fetchNewTokenWithAuthorizedEntity:(NSString *)authorizedEntity
@@ -294,11 +331,22 @@
   FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTokenManager000,
                           @"Fetch new token for authorizedEntity: %@, scope: %@", authorizedEntity,
                           scope);
-  FIRMessagingTokenFetchOperation *operation =
-      [self createFetchOperationWithAuthorizedEntity:authorizedEntity
-                                               scope:scope
-                                             options:options
-                                          instanceID:instanceID];
+  FIRMessagingTokenOperation *operation;
+  BOOL isInstallationIdEnabled = [FIRMessaging messaging].isInstallationIdEnabled;
+  if (isInstallationIdEnabled) {
+    operation =
+        [[FIRMessagingFIDRegisterOperation alloc] initWithAuthorizedEntity:authorizedEntity
+                                                                     scope:scope
+                                                                   options:options
+                                                                instanceID:instanceID
+                                                             installations:self.installations];
+  } else {
+    operation = [self createFetchOperationWithAuthorizedEntity:authorizedEntity
+                                                         scope:scope
+                                                       options:options
+                                                    instanceID:instanceID];
+  }
+
   FIRMessaging_WEAKIFY(self);
   FIRMessagingTokenOperationCompletion completion = ^(FIRMessagingTokenOperationResult result,
                                                       NSString *_Nullable token,
@@ -320,12 +368,14 @@
       [self postTokenRefreshNotificationWithDefaultFCMToken:token];
     }
     NSString *firebaseAppID = options[kFIRMessagingTokenOptionsFirebaseAppIDKey];
+    NSString *tokenType = isInstallationIdEnabled ? @"FID" : @"V4";
     FIRMessagingTokenInfo *tokenInfo =
         [[FIRMessagingTokenInfo alloc] initWithAuthorizedEntity:authorizedEntity
                                                           scope:scope
                                                           token:token
                                                      appVersion:FIRMessagingCurrentAppVersion()
-                                                  firebaseAppID:firebaseAppID];
+                                                  firebaseAppID:firebaseAppID
+                                                      tokenType:tokenType];
     tokenInfo.APNSInfo = [[FIRMessagingAPNSInfo alloc] initWithTokenOptionsDictionary:options];
 
     [self->_tokenStore
@@ -391,7 +441,7 @@
   // Does not matter if we cannot find it in the cache. Still make an effort to unregister
   // from the server.
   FIRMessagingCheckinPreferences *checkinPreferences = self.authService.checkinPreferences;
-  FIRMessagingTokenDeleteOperation *operation =
+  FIRMessagingTokenOperation *operation =
       [self createDeleteOperationWithAuthorizedEntity:authorizedEntity
                                                 scope:scope
                                    checkinPreferences:checkinPreferences
@@ -436,7 +486,7 @@
           });
           return;
         }
-        FIRMessagingTokenDeleteOperation *operation = [self
+        FIRMessagingTokenOperation *operation = [self
             createDeleteOperationWithAuthorizedEntity:kFIRMessagingKeychainWildcardIdentifier
                                                 scope:kFIRMessagingKeychainWildcardIdentifier
                                    checkinPreferences:checkinPreferences
@@ -549,7 +599,7 @@
   // pubsub notifications if he is again subscribed to the same topic.
   //
   // The client state should be cleared on the server for the provided checkin preferences.
-  FIRMessagingTokenDeleteOperation *operation =
+  FIRMessagingTokenOperation *operation =
       [self createDeleteOperationWithAuthorizedEntity:nil
                                                 scope:nil
                                    checkinPreferences:checkin
@@ -589,19 +639,28 @@
 }
 
 // We really have this method so that we can more easily stub it out for unit testing
-- (FIRMessagingTokenDeleteOperation *)
+- (FIRMessagingTokenOperation *)
     createDeleteOperationWithAuthorizedEntity:(NSString *)authorizedEntity
                                         scope:(NSString *)scope
                            checkinPreferences:(FIRMessagingCheckinPreferences *)checkinPreferences
                                    instanceID:(NSString *)instanceID
                                        action:(FIRMessagingTokenAction)action {
-  FIRMessagingTokenDeleteOperation *operation =
-      [[FIRMessagingTokenDeleteOperation alloc] initWithAuthorizedEntity:authorizedEntity
-                                                                   scope:scope
-                                                      checkinPreferences:checkinPreferences
-                                                              instanceID:instanceID
-                                                                  action:action
-                                                         heartbeatLogger:self.heartbeatLogger];
+  FIRMessagingTokenOperation *operation;
+  if ([FIRMessaging messaging].isInstallationIdEnabled) {
+    operation =
+        [[FIRMessagingFIDUnregisterOperation alloc] initWithAuthorizedEntity:authorizedEntity
+                                                                       scope:scope
+                                                                     options:nil
+                                                                  instanceID:instanceID
+                                                               installations:self.installations];
+  } else {
+    operation =
+        [[FIRMessagingTokenDeleteOperation alloc] initWithAuthorizedEntity:authorizedEntity
+                                                                     scope:scope
+                                                        checkinPreferences:checkinPreferences
+                                                                instanceID:instanceID
+                                                                    action:action];
+  }
   return operation;
 }
 

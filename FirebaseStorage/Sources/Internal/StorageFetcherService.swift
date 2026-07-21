@@ -63,6 +63,11 @@ actor StorageFetcherService {
     if let _fetcherService {
       _fetcherService.testBlock = testBlock
     }
+    for bucketMap in fetcherServiceMap.values {
+      for fetcherService in bucketMap.values {
+        fetcherService.testBlock = testBlock
+      }
+    }
   }
 
   private var testBlock: GTMSessionFetcherTestBlock?

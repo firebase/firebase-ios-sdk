@@ -37,6 +37,27 @@ class StorageTokenAuthorizer: NSObject, GTMSessionFetcherAuthorizer {
 
     var tokenError: NSError?
     let fetchTokenGroup = DispatchGroup()
+
+    let scheme = request?.url?.scheme?.lowercased()
+    let isHttps = scheme == "https"
+    let host = request?.url?.host?.lowercased() ?? ""
+    let isLoopback = host == "localhost" || host == "127.0.0.1" || host == "::1" || host == "[::1]"
+    let shouldFetchTokens = isHttps || isLoopback
+    guard shouldFetchTokens else {
+      if scheme == "http" {
+        FirebaseLogger.log(
+          level: .warning,
+          service: "[FirebaseStorage]",
+          code: "I-STR000002",
+          message: "Refusing to send Auth and AppCheck tokens over HTTP to non-loopback host."
+        )
+      }
+      fetchTokenGroup.notify(queue: callbackQueue) {
+        handler(tokenError)
+      }
+      return
+    }
+
     if let auth {
       fetchTokenGroup.enter()
       auth.getToken(forcingRefresh: false) { token, error in
@@ -68,6 +89,7 @@ class StorageTokenAuthorizer: NSObject, GTMSessionFetcherAuthorizer {
         fetchTokenGroup.leave()
       }
     }
+
     fetchTokenGroup.notify(queue: callbackQueue) {
       handler(tokenError)
     }

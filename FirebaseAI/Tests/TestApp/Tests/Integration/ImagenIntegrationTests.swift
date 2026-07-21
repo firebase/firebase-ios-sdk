@@ -37,7 +37,7 @@ struct ImagenIntegrationTests {
 
   init() async throws {
     userID1 = try await TestHelpers.getUserID()
-    vertex = FirebaseAI.firebaseAI(backend: .vertexAI())
+    vertex = FirebaseAI.firebaseAI(backend: .agentPlatform(location: "us-central1"))
     storage = Storage.storage()
   }
 

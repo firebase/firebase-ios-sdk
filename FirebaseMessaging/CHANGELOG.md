@@ -1,3 +1,10 @@
+# 12.17.0
+- [fixed] Reject path separators in file extensions for downloaded image
+  attachments. (#16387)
+
+# 12.16.0
+- [added] Add support for the new FCM registration API. (#16133)
+
 # 12.8.0
 - [fixed] Fix missing database crash on launch. (#14880)
 

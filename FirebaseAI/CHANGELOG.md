@@ -1,3 +1,23 @@
+# 12.17.0
+- [fixed] Fixed a stream leak in the Live API where the WebSocket connection
+  would remain open indefinitely if the consumer cancelled the stream. (#16393)
+
+# 12.16.0
+- [changed] Deprecated `Backend.vertexAI` in favor of `Backend.agentPlatform` to
+  reflect the renaming of Vertex AI to Gemini Enterprise Agent Platform.
+  (#16372)
+
+  Note: The default location is now `global` instead of `us-central1` (no other
+  functionality has changed). To continue using `us-central1`, specify
+  `FirebaseAI.firebaseAI(backend: .agentPlatform(location: "us-central1"))` when
+  initializing the SDK.
+- [fixed] Fixed a decoding failure in `GenerateContentResponse` when the Vertex AI
+  backend returns citation metadata with a missing `endIndex`. (#16328)
+- [fixed] Fixed an issue where `generateContentStream` could stall indefinitely
+  on mid-stream network drops. (#16298)
+- [fixed] Fixed a resource leak where background network requests would
+  continue downloading if the stream consumer terminated early. (#16298)
+
 # 12.15.0
 - [changed] Made Firebase App Check a dependency of Firebase AI Logic to
   simplify App Check setup. (#16185)
