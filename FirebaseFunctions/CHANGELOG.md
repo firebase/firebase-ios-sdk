@@ -1,4 +1,4 @@
-# Unreleased
+# 12.17.0
 - [fixed] Resolved a concurrency resource leak in Functions stream cancellation. (#16392)
 - [changed] Enforced stricter transport layer security when using the emulator:
   Auth, FCM, and AppCheck tokens are no longer attached to outbound requests if

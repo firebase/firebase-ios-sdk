@@ -1,4 +1,4 @@
-# Unreleased
+# 12.17.0
 - [fixed] Fixed an issue where Remote Config activation would hang indefinitely
   when used with a named Firebase app instance. (#16354)
 
