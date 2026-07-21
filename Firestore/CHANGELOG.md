@@ -1,6 +1,9 @@
 # Unreleased
 
-- [feature] Added support for 16 MB documents by increasing gRPC message size limit to 17MB [#16206].
+- [fixed] Fixed a potential crash when parsing malformed bundle payloads.
+  (#16221)
+- [feature] Added support for 16 MB documents by increasing gRPC message size
+  limit to 17MB (#16206).
 
 # 12.16.0
 - [changed] Migrates the network connectivity monitoring implementation for
