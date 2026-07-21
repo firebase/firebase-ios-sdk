@@ -1,4 +1,4 @@
-# Unreleased
+# 12.17.0
 - [fixed] Fixed a memory leak in Remote Config where `activateWithCompletion:`
   retained the `FIRRemoteConfig` instance indefinitely (#16413).
 - [fixed] Fixed an issue where Remote Config activation would hang indefinitely

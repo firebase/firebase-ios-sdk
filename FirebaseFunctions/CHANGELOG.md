@@ -1,4 +1,4 @@
-# Unreleased
+# 12.17.0
 - [changed] Enforced stricter transport layer security when using the emulator:
   Auth, FCM, and AppCheck tokens are no longer attached to outbound requests if
   the connection is made over HTTP to a non-loopback host. (#16395)
