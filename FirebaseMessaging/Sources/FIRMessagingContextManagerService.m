@@ -135,6 +135,12 @@ typedef NS_ENUM(NSUInteger, FIRMessagingContextManagerMessageType) {
 }
 
 + (void)scheduleLocalNotificationForMessage:(NSDictionary *)message atDate:(NSDate *)date {
+  if (!date) {
+    FIRMessagingLoggerError(kFIRMessagingMessageCodeContextManagerServiceFailedLocalSchedule,
+                            @"Cannot schedule local timezone notification with a nil date.");
+    return;
+  }
+
   NSCalendar *calendar = [NSCalendar currentCalendar];
   NSCalendarUnit unit = NSCalendarUnitYear | NSCalendarUnitMonth | NSCalendarUnitDay |
                         NSCalendarUnitHour | NSCalendarUnitMinute | NSCalendarUnitSecond;
