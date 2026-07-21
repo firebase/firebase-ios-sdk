@@ -1,4 +1,4 @@
-# Unreleased
+# 12.17.0
 - [fixed] Reject path separators in file extensions for downloaded image
   attachments. (#16387)
 

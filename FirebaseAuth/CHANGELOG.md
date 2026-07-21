@@ -1,4 +1,4 @@
-# Unreleased
+# 12.17.0
 - [fixed] Fixed an array out-of-bounds access in `ActionCodeURL` query parsing.
   (#16382)
 - [fixed] Fixed a bug in `OAuthProvider` where custom parameters containing
