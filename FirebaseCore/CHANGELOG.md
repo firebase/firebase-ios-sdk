@@ -1,3 +1,7 @@
+# Firebase 12.17.0
+- [fixed] Updated Swift Package Manager minimum deployment targets when building
+  with Xcode 27 betas (Swift 6.4+) to watchOS 9.0 and macOS 12.0. (#16408)
+
 # Firebase 12.15.0
 - [changed] Firebase now requires Swift tools version 6.1 for the Swift Package.
   The package will no longer resolve in Xcode versions older than 16.3. Note that
