@@ -16,6 +16,8 @@ import Foundation
 
 /// Configuration for a multi-speaker audio generation setup.
 ///
+/// **Public Preview**: This API is a public preview and may be subject to change.
+///
 /// Enables the model to generate audio containing multiple distinct speakers, alternating voices
 /// dynamically based on speaker labels in the prompt.
 ///
