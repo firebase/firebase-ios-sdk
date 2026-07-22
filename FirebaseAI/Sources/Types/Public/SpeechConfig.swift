@@ -16,6 +16,8 @@ import Foundation
 
 /// Speech configuration class for controlling the model's speech and audio generation behaviors.
 ///
+/// **Public Preview**: This API is a public preview and may be subject to change.
+///
 /// This allows you to configure the voice properties (single-speaker OR multi-speaker setup) and
 /// language preferences when requesting the model to generate spoken responses.
 public struct SpeechConfig: Sendable {
