@@ -15,6 +15,8 @@
 /// Configuration options for audio transcriptions when communicating with a model that supports the
 /// Gemini Live API.
 ///
+/// **Public Preview**: This API is a public preview and may be subject to change.
+///
 /// While there are not currently any options, this will likely change in the future. For now, just
 /// providing an instance of this struct will enable audio transcriptions for the corresponding
 /// input or output fields.
