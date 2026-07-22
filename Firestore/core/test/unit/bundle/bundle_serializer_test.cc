@@ -1273,6 +1273,15 @@ TEST_F(BundleSerializerTest, DecodePrimitiveAsObjectFails) {
   EXPECT_NOT_OK(reader.status());
 }
 
+TEST_F(BundleSerializerTest, DecodeReferenceValueMissingDocumentsSegmentFails) {
+  // The reference matches the local project and database but stops before the
+  // "documents" segment, so `IsLocalDocumentKey` must reject it rather than
+  // stripping a five-segment prefix off a four-segment path.
+  ProtoValue value;
+  value.set_reference_value("projects/p/databases/default");
+  VerifyFieldValueDecodeFails(value);
+}
+
 }  //  namespace
 }  //  namespace bundle
 }  //  namespace firestore
