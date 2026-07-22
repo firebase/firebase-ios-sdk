@@ -216,7 +216,7 @@ jobs:
       with:
         persist-credentials: false
     - name: Initialize CodeQL
-      uses: github/codeql-action/init@v3
+      uses: github/codeql-action/init@3b0bd1d116c0bde30213346b22d4f634d96a2fb0 # v3
       with:
         languages: ${{ matrix.language }}
     - uses: actions/cache/restore@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
@@ -238,6 +238,6 @@ jobs:
     - name: Build for CodeQL
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh Firebase-Package iOS-device spmbuildonly
     - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v3
+      uses: github/codeql-action/analyze@3b0bd1d116c0bde30213346b22d4f634d96a2fb0 # v3
       with:
         category: "/language:${{matrix.language}}"

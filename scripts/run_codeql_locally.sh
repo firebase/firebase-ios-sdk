@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -euo pipefail
 
 # Make sure CodeQL CLI is installed and in your PATH
 if ! command -v codeql &> /dev/null; then
@@ -17,13 +17,13 @@ rm -rf "$DB_DIR"
 rm -f "$RESULTS_FILE"
 
 echo "🏗️ Initializing CodeQL database and running build..."
-# We use the exact same build command that was added to the GitHub Action
+# We use the build command directly without the Travis retry script for faster local feedback
 codeql database create "$DB_DIR" \
     --language=swift \
-    --command="scripts/third_party/travis/retry.sh ./scripts/build.sh Firebase-Package iOS-device spmbuildonly"
+    --command="./scripts/build.sh Firebase-Package iOS-device spmbuildonly"
 
 echo "🔍 Downloading Swift query pack..."
-codeql pack download codeql/swift-queries
+codeql pack download codeql/swift-queries || echo "⚠️ Warning: Failed to download/update Swift query pack. Proceeding with cached version if available..."
 
 echo "🔍 Analyzing the database..."
 # Run the standard default queries for Swift using the official query pack
