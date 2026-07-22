@@ -53,7 +53,7 @@ final class IntegrationTests: XCTestCase {
     userID1 = try await TestHelpers.getUserID()
     vertex = FirebaseAI.firebaseAI(backend: .agentPlatform())
     model = vertex.generativeModel(
-      modelName: ModelNames.gemini3_1_FlashLite,
+      modelName: ModelNames.gemini3_5_FlashLite,
       generationConfig: generationConfig,
       safetySettings: safetySettings,
       tools: [],
@@ -69,7 +69,7 @@ final class IntegrationTests: XCTestCase {
   func testCountTokens_text() async throws {
     let prompt = "Why is the sky blue?"
     model = vertex.generativeModel(
-      modelName: ModelNames.gemini3_1_FlashLite,
+      modelName: ModelNames.gemini3_5_FlashLite,
       generationConfig: generationConfig,
       safetySettings: [
         SafetySetting(harmCategory: .harassment, threshold: .blockLowAndAbove, method: .severity),
@@ -173,7 +173,7 @@ final class IntegrationTests: XCTestCase {
       parameters: ["x": .integer(), "y": .integer()]
     )
     model = vertex.generativeModel(
-      modelName: ModelNames.gemini3_1_FlashLite,
+      modelName: ModelNames.gemini3_5_FlashLite,
       tools: [.functionDeclarations([sumDeclaration])],
       toolConfig: .init(functionCallingConfig: .any(allowedFunctionNames: ["sum"]))
     )

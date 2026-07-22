@@ -25,7 +25,7 @@ struct MapsGroundingIntegrationTests {
   )
   func generateContent_withGoogleMaps_succeeds(_ config: InstanceConfig) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
-      modelName: ModelNames.gemini3_1_FlashLite,
+      modelName: ModelNames.gemini3_5_FlashLite,
       tools: [.googleMaps()]
     )
     let prompt = "Where is a good place to grab a coffee near Alameda, CA?"
@@ -41,7 +41,7 @@ struct MapsGroundingIntegrationTests {
   )
   func generativeModelSession_respondTo_withGoogleMaps_succeeds(_ config: InstanceConfig) async throws {
     let session = FirebaseAI.componentInstance(config).generativeModelSession(
-      model: ModelNames.gemini3_1_FlashLite,
+      model: ModelNames.gemini3_5_FlashLite,
       tools: [.googleMaps()]
     )
     let prompt = "Where is a good place to grab a coffee near Alameda, CA?"
@@ -57,7 +57,7 @@ struct MapsGroundingIntegrationTests {
   )
   func generativeModelSession_streamResponse_withGoogleMaps_succeeds(_ config: InstanceConfig) async throws {
     let session = FirebaseAI.componentInstance(config).generativeModelSession(
-      model: ModelNames.gemini3_1_FlashLite,
+      model: ModelNames.gemini3_5_FlashLite,
       tools: [.googleMaps()]
     )
     let prompt = "Where is a good place to grab a coffee near Alameda, CA?"
@@ -79,7 +79,7 @@ struct MapsGroundingIntegrationTests {
       )
     )
     let model = FirebaseAI.componentInstance(config).generativeModel(
-      modelName: ModelNames.gemini3_1_FlashLite,
+      modelName: ModelNames.gemini3_5_FlashLite,
       tools: [.googleMaps()],
       toolConfig: toolConfig
     )
@@ -101,7 +101,7 @@ struct MapsGroundingIntegrationTests {
       )
     )
     let model = FirebaseAI.componentInstance(config).generativeModel(
-      modelName: ModelNames.gemini3_1_FlashLite,
+      modelName: ModelNames.gemini3_5_FlashLite,
       tools: [.googleMaps()],
       toolConfig: toolConfig
     )
