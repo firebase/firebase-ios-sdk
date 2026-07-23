@@ -1,3 +1,8 @@
+# Unreleased
+- [feature] Added support for `RealtimeInputConfig` in `LiveGenerationConfig`. (#TODO)
+- [feature] Added support for `sendStartActivityRealtime` and `sendStopActivityRealtime`
+  in `LiveSession`. (#TODO)
+
 # 12.16.0
 - [changed] Deprecated `Backend.vertexAI` in favor of `Backend.agentPlatform` to
   reflect the renaming of Vertex AI to Gemini Enterprise Agent Platform.
