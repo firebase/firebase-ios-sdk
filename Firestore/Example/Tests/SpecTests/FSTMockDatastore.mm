@@ -82,8 +82,12 @@ class MockWatchStream : public WatchStream {
         callback_{callback} {
   }
 
-  const std::unordered_map<TargetId, TargetData>& ActiveTargets() const {
+  const std::unordered_map<model::RemoteTargetId, local::RemoteTargetData>& ActiveTargets() const {
     return active_targets_;
+  }
+
+  void set_allow_unlisted_target_removal(bool allow) {
+    allow_unlisted_target_removal_ = allow;
   }
 
   void Start() override {
@@ -105,12 +109,12 @@ class MockWatchStream : public WatchStream {
     return open_;
   }
 
-  void WatchQuery(const TargetData& query) override {
+  void WatchQuery(const local::RemoteTargetData& query) override {
     LOG_DEBUG("WatchQuery: %s: %s, %s", query.target_id(), query.target_or_pipeline().ToString(),
               query.resume_token().ToString());
 
     // Snapshot version is ignored on the wire
-    TargetData sentTargetData =
+    local::RemoteTargetData sentTargetData =
         query.WithResumeToken(query.resume_token(), SnapshotVersion::None());
 
     if (query.expected_count().has_value()) {
@@ -121,7 +125,7 @@ class MockWatchStream : public WatchStream {
     active_targets_[query.target_id()] = sentTargetData;
   }
 
-  void UnwatchTargetId(model::TargetId target_id) override {
+  void UnwatchTargetId(model::RemoteTargetId target_id) override {
     LOG_DEBUG("UnwatchTargetId: %s", target_id);
     active_targets_.erase(target_id);
   }
@@ -135,16 +139,18 @@ class MockWatchStream : public WatchStream {
     if (change.type() == WatchChange::Type::TargetChange) {
       const auto& targetChange = static_cast<const WatchTargetChange&>(change);
       if (!targetChange.cause().ok()) {
-        for (TargetId target_id : targetChange.target_ids()) {
+        for (model::RemoteTargetId target_id : targetChange.target_ids()) {
           auto found = active_targets_.find(target_id);
           if (found == active_targets_.end()) {
             // Technically removing an unknown target is valid (e.g. it could race with a
             // server-side removal), but we want to pay extra careful attention in tests
             // that we only remove targets we listened to.
-            HARD_FAIL("Removing a non-active target");
+            if (!allow_unlisted_target_removal_) {
+              HARD_FAIL("Removing a non-active target");
+            }
+          } else {
+            active_targets_.erase(found);
           }
-
-          active_targets_.erase(found);
         }
       }
 
@@ -160,7 +166,8 @@ class MockWatchStream : public WatchStream {
 
  private:
   bool open_ = false;
-  std::unordered_map<TargetId, TargetData> active_targets_;
+  bool allow_unlisted_target_removal_ = false;
+  std::unordered_map<model::RemoteTargetId, local::RemoteTargetData> active_targets_;
   MockDatastore* datastore_ = nullptr;
   WatchStreamCallback* callback_ = nullptr;
 };
@@ -291,8 +298,13 @@ void MockDatastore::FailWatchStream(const Status& error) {
   watch_stream_->FailStream(error);
 }
 
-const std::unordered_map<TargetId, TargetData>& MockDatastore::ActiveTargets() const {
+const std::unordered_map<model::RemoteTargetId, local::RemoteTargetData>&
+MockDatastore::ActiveTargets() const {
   return watch_stream_->ActiveTargets();
+}
+
+void MockDatastore::set_allow_unlisted_target_removal(bool allow) {
+  watch_stream_->set_allow_unlisted_target_removal(allow);
 }
 
 bool MockDatastore::IsWatchStreamOpen() const {

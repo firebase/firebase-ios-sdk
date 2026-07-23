@@ -87,15 +87,16 @@ void FakeTargetMetadataProvider::SetSyncedKeys(DocumentKeySet keys,
 }
 
 DocumentKeySet FakeTargetMetadataProvider::GetRemoteKeysForTarget(
-    TargetId target_id) const {
+    model::RemoteTargetId target_id) const {
   auto it = synced_keys_.find(target_id);
   HARD_ASSERT(it != synced_keys_.end(), "Cannot process unknown target %s",
               target_id);
   return it->second;
 }
 
-absl::optional<TargetData> FakeTargetMetadataProvider::GetTargetDataForTarget(
-    TargetId target_id) const {
+absl::optional<local::RemoteTargetData>
+FakeTargetMetadataProvider::GetTargetDataForTarget(
+    model::RemoteTargetId target_id) const {
   auto it = target_data_.find(target_id);
   HARD_ASSERT(it != target_data_.end(), "Cannot process unknown target %s",
               target_id);

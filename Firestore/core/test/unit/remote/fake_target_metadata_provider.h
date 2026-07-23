@@ -71,9 +71,9 @@ class FakeTargetMetadataProvider : public TargetMetadataProvider {
   void SetSyncedKeys(model::DocumentKeySet keys, local::TargetData target_data);
 
   model::DocumentKeySet GetRemoteKeysForTarget(
-      model::TargetId target_id) const override;
-  absl::optional<local::TargetData> GetTargetDataForTarget(
-      model::TargetId target_id) const override;
+      model::RemoteTargetId target_id) const override;
+  absl::optional<local::RemoteTargetData> GetTargetDataForTarget(
+      model::RemoteTargetId target_id) const override;
   const model::DatabaseId& GetDatabaseId() const override;
 
   /**

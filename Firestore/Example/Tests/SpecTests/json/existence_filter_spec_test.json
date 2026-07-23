@@ -4909,6 +4909,9 @@
         }
       },
       {
+        "watchUsesTargetIndex": 0
+      },
+      {
         "watchFilter": {
           "keys": [
           ],
@@ -4923,6 +4926,9 @@
             2
           ]
         }
+      },
+      {
+        "watchUsesTargetIndex": "latest"
       },
       {
         "watchAck": [

@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google LLC
+ * Copyright 2026 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ namespace {
 using core::Target;
 using core::TargetOrPipeline;
 using model::ListenSequenceNumber;
+using model::RemoteTargetId;
 using model::SnapshotVersion;
 using model::TargetId;
 using nanopb::ByteString;
@@ -57,14 +58,16 @@ std::ostream& operator<<(std::ostream& os, QueryPurpose purpose) {
 
 // MARK: - TargetData
 
-TargetData::TargetData(TargetOrPipeline target,
-                       TargetId target_id,
-                       ListenSequenceNumber sequence_number,
-                       QueryPurpose purpose,
-                       SnapshotVersion snapshot_version,
-                       SnapshotVersion last_limbo_free_snapshot_version,
-                       ByteString resume_token,
-                       absl::optional<int32_t> expected_count)
+template <typename TargetIdType>
+TargetDataTemplate<TargetIdType>::TargetDataTemplate(
+    TargetOrPipeline target,
+    TargetIdType target_id,
+    ListenSequenceNumber sequence_number,
+    QueryPurpose purpose,
+    SnapshotVersion snapshot_version,
+    SnapshotVersion last_limbo_free_snapshot_version,
+    ByteString resume_token,
+    absl::optional<int32_t> expected_count)
     : target_(std::move(target)),
       target_id_(target_id),
       sequence_number_(sequence_number),
@@ -76,92 +79,125 @@ TargetData::TargetData(TargetOrPipeline target,
       expected_count_(std::move(expected_count)) {
 }
 
-TargetData::TargetData(TargetOrPipeline target,
-                       int target_id,
-                       ListenSequenceNumber sequence_number,
-                       QueryPurpose purpose)
-    : TargetData(std::move(target),
-                 target_id,
-                 sequence_number,
-                 purpose,
-                 SnapshotVersion::None(),
-                 SnapshotVersion::None(),
-                 ByteString(),
-                 /*expected_count=*/absl::nullopt) {
+template <typename TargetIdType>
+TargetDataTemplate<TargetIdType>::TargetDataTemplate(
+    TargetOrPipeline target,
+    TargetIdType target_id,
+    ListenSequenceNumber sequence_number,
+    QueryPurpose purpose)
+    : TargetDataTemplate(std::move(target),
+                         target_id,
+                         sequence_number,
+                         purpose,
+                         SnapshotVersion::None(),
+                         SnapshotVersion::None(),
+                         ByteString(),
+                         /*expected_count=*/absl::nullopt) {
 }
 
-TargetData TargetData::Invalid() {
-  return TargetData({}, /*target_id=*/-1, /*sequence_number=*/-1,
-                    QueryPurpose::Listen,
-                    SnapshotVersion(SnapshotVersion::None()),
-                    SnapshotVersion(SnapshotVersion::None()), {},
-                    /*expected_count=*/absl::nullopt);
+template <typename TargetIdType>
+TargetDataTemplate<TargetIdType> TargetDataTemplate<TargetIdType>::Invalid() {
+  return TargetDataTemplate({}, /*target_id=*/-1, /*sequence_number=*/-1,
+                            QueryPurpose::Listen,
+                            SnapshotVersion(SnapshotVersion::None()),
+                            SnapshotVersion(SnapshotVersion::None()), {},
+                            /*expected_count=*/absl::nullopt);
 }
 
-TargetData TargetData::WithSequenceNumber(
+template <typename TargetIdType>
+TargetDataTemplate<TargetIdType>
+TargetDataTemplate<TargetIdType>::WithSequenceNumber(
     ListenSequenceNumber sequence_number) const {
-  return TargetData(target_, target_id_, sequence_number, purpose_,
-                    snapshot_version_, last_limbo_free_snapshot_version_,
-                    resume_token_, expected_count_);
+  return TargetDataTemplate(
+      target_, target_id_, sequence_number, purpose_, snapshot_version_,
+      last_limbo_free_snapshot_version_, resume_token_, expected_count_);
 }
 
-TargetData TargetData::WithResumeToken(ByteString resume_token,
-                                       SnapshotVersion snapshot_version) const {
-  return TargetData(target_, target_id_, sequence_number_, purpose_,
-                    std::move(snapshot_version),
-                    last_limbo_free_snapshot_version_, std::move(resume_token),
-                    /*expected_count=*/absl::nullopt);
+template <typename TargetIdType>
+TargetDataTemplate<TargetIdType>
+TargetDataTemplate<TargetIdType>::WithResumeToken(
+    ByteString resume_token, SnapshotVersion snapshot_version) const {
+  return TargetDataTemplate(target_, target_id_, sequence_number_, purpose_,
+                            std::move(snapshot_version),
+                            last_limbo_free_snapshot_version_,
+                            std::move(resume_token),
+                            /*expected_count=*/absl::nullopt);
 }
 
-TargetData TargetData::WithExpectedCount(
+template <typename TargetIdType>
+TargetDataTemplate<TargetIdType>
+TargetDataTemplate<TargetIdType>::WithExpectedCount(
     absl::optional<int32_t> expected_count) const {
-  return TargetData(target_, target_id_, sequence_number_, purpose_,
-                    snapshot_version_, last_limbo_free_snapshot_version_,
-                    resume_token_, std::move(expected_count));
+  return TargetDataTemplate(target_, target_id_, sequence_number_, purpose_,
+                            snapshot_version_,
+                            last_limbo_free_snapshot_version_, resume_token_,
+                            std::move(expected_count));
 }
 
-TargetData TargetData::WithLastLimboFreeSnapshotVersion(
+template <typename TargetIdType>
+TargetDataTemplate<TargetIdType>
+TargetDataTemplate<TargetIdType>::WithLastLimboFreeSnapshotVersion(
     SnapshotVersion last_limbo_free_snapshot_version) const {
-  return TargetData(target_, target_id_, sequence_number_, purpose_,
-                    snapshot_version_,
-                    std::move(last_limbo_free_snapshot_version), resume_token_,
-                    expected_count_);
+  return TargetDataTemplate(target_, target_id_, sequence_number_, purpose_,
+                            snapshot_version_,
+                            std::move(last_limbo_free_snapshot_version),
+                            resume_token_, expected_count_);
 }
 
-bool operator==(const TargetData& lhs, const TargetData& rhs) {
-  return lhs.target_or_pipeline() == rhs.target_or_pipeline() &&
-         lhs.target_id() == rhs.target_id() &&
-         lhs.sequence_number() == rhs.sequence_number() &&
-         lhs.purpose() == rhs.purpose() &&
-         lhs.snapshot_version() == rhs.snapshot_version() &&
-         lhs.resume_token() == rhs.resume_token() &&
-         lhs.expected_count() == rhs.expected_count();
+template <typename TargetIdType>
+bool TargetDataTemplate<TargetIdType>::Equals(
+    const TargetDataTemplate& rhs) const {
+  return target_or_pipeline() == rhs.target_or_pipeline() &&
+         target_id() == rhs.target_id() &&
+         sequence_number() == rhs.sequence_number() &&
+         purpose() == rhs.purpose() &&
+         snapshot_version() == rhs.snapshot_version() &&
+         resume_token() == rhs.resume_token() &&
+         expected_count() == rhs.expected_count();
 }
 
-size_t TargetData::Hash() const {
+template <typename TargetIdType>
+bool operator==(const TargetDataTemplate<TargetIdType>& lhs,
+                const TargetDataTemplate<TargetIdType>& rhs) {
+  return lhs.Equals(rhs);
+}
+
+template <typename TargetIdType>
+size_t TargetDataTemplate<TargetIdType>::Hash() const {
   return util::Hash(target_, target_id_, sequence_number_, purpose_,
                     snapshot_version_, resume_token_, expected_count_);
 }
 
-std::string TargetData::ToString() const {
+template <typename TargetIdType>
+std::string TargetDataTemplate<TargetIdType>::ToString() const {
   std::ostringstream ss;
   ss << *this;
   return ss.str();
 }
 
-std::ostream& operator<<(std::ostream& os, const TargetData& value) {
-  return os << "TargetData(target=" << value.target_.ToString()
-            << ", target_id=" << value.target_id_
-            << ", purpose=" << value.purpose_
-            << ", version=" << value.snapshot_version_
+template <typename TargetIdType>
+std::ostream& operator<<(std::ostream& os,
+                         const TargetDataTemplate<TargetIdType>& value) {
+  return os << "TargetData(target=" << value.target_or_pipeline().ToString()
+            << ", target_id=" << value.target_id()
+            << ", purpose=" << value.purpose()
+            << ", version=" << value.snapshot_version()
             << ", last_limbo_free_snapshot_version="
-            << value.last_limbo_free_snapshot_version_
-            << ", resume_token=" << value.resume_token_ << ", expected_count="
-            << (value.expected_count_.has_value()
-                    ? std::to_string(value.expected_count_.value())
+            << value.last_limbo_free_snapshot_version()
+            << ", resume_token=" << value.resume_token() << ", expected_count="
+            << (value.expected_count().has_value()
+                    ? std::to_string(value.expected_count().value())
                     : "null")
             << ")";
 }
+
+template class TargetDataTemplate<TargetId>;
+
+template bool operator==(const TargetDataTemplate<TargetId>& lhs,
+                         const TargetDataTemplate<TargetId>& rhs);
+
+template std::ostream& operator<<(std::ostream& os,
+                                  const TargetDataTemplate<TargetId>& value);
 
 }  // namespace local
 }  // namespace firestore

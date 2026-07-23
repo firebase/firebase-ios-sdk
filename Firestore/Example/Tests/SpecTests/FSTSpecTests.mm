@@ -167,14 +167,6 @@ NSString *const kDurablePersistence = @"durable-persistence";
 
 namespace {
 
-std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
-  std::vector<TargetId> result;
-  for (NSNumber *targetID in from) {
-    result.push_back(targetID.intValue);
-  }
-  return result;
-}
-
 ByteString MakeResumeToken(NSString *specString) {
   return MakeByteString([specString dataUsingEncoding:NSUTF8StringEncoding]);
 }
@@ -220,6 +212,7 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
   BOOL _networkEnabled;
   FSTUserDataReader *_reader;
   std::shared_ptr<Executor> user_executor_;
+  NSDictionary *_config;
 }
 
 #define FSTAbstractMethodException()                                                               \
@@ -246,6 +239,7 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
 }
 
 - (void)setUpForSpecWithConfig:(NSDictionary *)config {
+  _config = config;
   _convertToPipeline = [self usePipelineMode];  // Call new method
   _reader = FSTTestUserDataReader();
   std::unique_ptr<Executor> user_executor = Executor::CreateSerial("user executor");
@@ -272,6 +266,9 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
                                          outstandingWrites:{}
                              maxConcurrentLimboResolutions:_maxConcurrentLimboResolutions];
   [self.driver start];
+  if (_config[@"allowUnlistedTargetRemoval"]) {
+    [self.driver setAllowUnlistedTargetRemoval:[_config[@"allowUnlistedTargetRemoval"] boolValue]];
+  }
 }
 
 - (void)tearDownForSpec {
@@ -464,16 +461,24 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
   [self.driver removeSnapshotsInSyncListener];
 }
 
+- (std::vector<model::RemoteTargetId>)convertTargetsArray:(NSArray<NSNumber *> *)from {
+  std::vector<model::RemoteTargetId> result;
+  for (NSNumber *targetID in from) {
+    result.push_back([self.driver getRemoteTargetId:targetID.intValue isWatchStep:YES]);
+  }
+  return result;
+}
+
 - (void)doWatchAck:(NSArray<NSNumber *> *)ackedTargets {
-  WatchTargetChange change{WatchTargetChangeState::Added, ConvertTargetsArray(ackedTargets)};
+  WatchTargetChange change{WatchTargetChangeState::Added, [self convertTargetsArray:ackedTargets]};
   [self.driver receiveWatchChange:change snapshotVersion:SnapshotVersion::None()];
 }
 
 - (void)doWatchCurrent:(NSArray<id> *)currentSpec {
   NSArray<NSNumber *> *currentTargets = currentSpec[0];
   ByteString resumeToken = MakeResumeToken(currentSpec[1]);
-  WatchTargetChange change{WatchTargetChangeState::Current, ConvertTargetsArray(currentTargets),
-                           resumeToken};
+  WatchTargetChange change{WatchTargetChangeState::Current,
+                           [self convertTargetsArray:currentTargets], resumeToken};
   [self.driver receiveWatchChange:change snapshotVersion:SnapshotVersion::None()];
 }
 
@@ -488,7 +493,7 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
     error = Status{static_cast<Error>(code), MakeString([userInfo description])};
   }
   WatchTargetChange change{WatchTargetChangeState::Removed,
-                           ConvertTargetsArray(watchRemoveSpec[@"targetIds"]), error};
+                           [self convertTargetsArray:watchRemoveSpec[@"targetIds"]], error};
   [self.driver receiveWatchChange:change snapshotVersion:SnapshotVersion::None()];
   // Unlike web, the FSTMockDatastore detects a watch removal with cause and will remove active
   // targets
@@ -522,14 +527,14 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
     } else {
       doc = MutableDocument::NoDocument(key, version);
     }
-    DocumentWatchChange change{ConvertTargetsArray(watchEntity[@"targets"]),
-                               ConvertTargetsArray(watchEntity[@"removedTargets"]), std::move(key),
-                               std::move(doc)};
+    DocumentWatchChange change{[self convertTargetsArray:watchEntity[@"targets"]],
+                               [self convertTargetsArray:watchEntity[@"removedTargets"]],
+                               std::move(key), std::move(doc)};
     [self.driver receiveWatchChange:change snapshotVersion:SnapshotVersion::None()];
   } else if (watchEntity[@"key"]) {
     DocumentKey docKey = FSTTestDocKey(watchEntity[@"key"]);
     DocumentWatchChange change{
-        {}, ConvertTargetsArray(watchEntity[@"removedTargets"]), docKey, absl::nullopt};
+        {}, [self convertTargetsArray:watchEntity[@"removedTargets"]], docKey, absl::nullopt};
     [self.driver receiveWatchChange:change snapshotVersion:SnapshotVersion::None()];
   } else {
     HARD_FAIL("Either key, doc or docs must be set.");
@@ -545,12 +550,13 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
       [self parseBloomFilterParameter:watchFilter[@"bloomFilter"]];
 
   ExistenceFilter filter{static_cast<int>(keys.count), std::move(bloomFilterParameters)};
-  ExistenceFilterWatchChange change{std::move(filter), targets[0].intValue};
+  ExistenceFilterWatchChange change{
+      std::move(filter), [self.driver getRemoteTargetId:targets[0].intValue isWatchStep:YES]};
   [self.driver receiveWatchChange:change snapshotVersion:SnapshotVersion::None()];
 }
 
 - (void)doWatchReset:(NSArray<NSNumber *> *)watchReset {
-  WatchTargetChange change{WatchTargetChangeState::Reset, ConvertTargetsArray(watchReset)};
+  WatchTargetChange change{WatchTargetChangeState::Reset, [self convertTargetsArray:watchReset]};
   [self.driver receiveWatchChange:change snapshotVersion:SnapshotVersion::None()];
 }
 
@@ -560,7 +566,7 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
   NSArray<NSNumber *> *targetIDs =
       watchSnapshot[@"targetIds"] ? watchSnapshot[@"targetIds"] : [NSArray array];
   ByteString resumeToken = MakeResumeToken(watchSnapshot[@"resumeToken"]);
-  WatchTargetChange change{WatchTargetChangeState::NoChange, ConvertTargetsArray(targetIDs),
+  WatchTargetChange change{WatchTargetChangeState::NoChange, [self convertTargetsArray:targetIDs],
                            resumeToken};
   [self.driver receiveWatchChange:change
                   snapshotVersion:[self parseVersion:watchSnapshot[@"version"]]];
@@ -662,6 +668,9 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
                                          outstandingWrites:outstandingWrites
                              maxConcurrentLimboResolutions:_maxConcurrentLimboResolutions];
   [self.driver start];
+  if (_config[@"allowUnlistedTargetRemoval"]) {
+    [self.driver setAllowUnlistedTargetRemoval:[_config[@"allowUnlistedTargetRemoval"] boolValue]];
+  }
 }
 
 - (void)doStep:(NSDictionary *)step {
@@ -725,6 +734,14 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
     [self doTriggerLruGC:step[@"triggerLruGC"]];
   } else if (step[@"restart"]) {
     [self doRestart];
+  } else if (step[@"watchUsesTargetIndex"]) {
+    if ([step[@"watchUsesTargetIndex"] isEqual:@"latest"]) {
+      [self.driver setWatchUsesTargetIndex:absl::nullopt];
+    } else {
+      [self.driver setWatchUsesTargetIndex:[step[@"watchUsesTargetIndex"] intValue]];
+    }
+  } else if (step[@"allowUnlistedTargetRemoval"]) {
+    [self.driver setAllowUnlistedTargetRemoval:[step[@"allowUnlistedTargetRemoval"] boolValue]];
   } else if (step[@"applyClientState"]) {
     XCTFail(@"'applyClientState' is not supported on iOS and should only be used in multi-client "
             @"tests");
@@ -1053,14 +1070,17 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
   }
 
   // Create a copy so we can modify it below
-  std::unordered_map<TargetId, TargetData> actualTargets = [self.driver activeTargets];
+  std::unordered_map<model::RemoteTargetId, local::RemoteTargetData> actualTargets =
+      [self.driver activeTargets];
 
   for (const auto &kv : [self.driver expectedActiveTargets]) {
     TargetId targetID = kv.first;
     const std::vector<TargetData> &queries = kv.second;
     const TargetData &targetData = queries[0];
 
-    auto found = actualTargets.find(targetID);
+    model::RemoteTargetId remoteTargetID = [self.driver getRemoteTargetId:targetID isWatchStep:NO];
+
+    auto found = actualTargets.find(remoteTargetID);
     XCTAssertNotEqual(found, actualTargets.end(), @"Expected active target not found: %s",
                       targetData.ToString().c_str());
 
@@ -1068,7 +1088,7 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
     // below with the single assertEquals on the TargetData objects themselves if the sequenceNumber
     // is ever made to be consistent.
     // XCTAssertEqualObjects(actualTargets[targetID], TargetData);
-    const TargetData &actual = found->second;
+    const local::RemoteTargetData &actual = found->second;
     auto left = actual.target_or_pipeline();
     auto right = targetData.target_or_pipeline();
     auto left_p = left.IsPipeline();
@@ -1076,7 +1096,7 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
     XCTAssertEqual(left_p, right_p);
     XCTAssertEqual(left, right);
     XCTAssertEqual(actual.purpose(), targetData.purpose());
-    XCTAssertEqual(actual.target_id(), targetData.target_id());
+    XCTAssertEqual(actual.target_id(), remoteTargetID);
     XCTAssertEqual(actual.snapshot_version(), targetData.snapshot_version());
     XCTAssertEqual(actual.resume_token(), targetData.resume_token());
     if (targetData.expected_count().has_value()) {
@@ -1086,7 +1106,7 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
         XCTAssertEqual(actual.expected_count().value(), targetData.expected_count().value());
       }
     }
-    actualTargets.erase(targetID);
+    actualTargets.erase(remoteTargetID);
   }
 
   XCTAssertTrue(actualTargets.empty(), "Unexpected active targets: %s",

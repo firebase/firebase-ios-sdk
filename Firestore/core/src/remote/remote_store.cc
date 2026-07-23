@@ -19,6 +19,7 @@
 #include <string>
 #include <utility>
 
+#include "Firestore/core/src/core/target_id_generator.h"
 #include "Firestore/core/src/core/transaction.h"
 #include "Firestore/core/src/local/local_store.h"
 #include "Firestore/core/src/local/target_data.h"
@@ -47,6 +48,7 @@ using model::MutationBatch;
 using model::MutationBatchResult;
 using model::MutationResult;
 using model::OnlineState;
+using model::RemoteTargetId;
 using model::SnapshotVersion;
 using model::TargetId;
 using nanopb::ByteString;
@@ -67,6 +69,10 @@ RemoteStore::RemoteStore(
     std::function<void(model::OnlineState)> online_state_handler)
     : local_store_{local_store},
       datastore_{std::move(datastore)},
+      target_cache_target_id_generator_{
+          core::RemoteTargetIdGenerator::TargetCacheTargetIdGenerator(1000)},
+      sync_engine_target_id_generator_{
+          core::RemoteTargetIdGenerator::SyncEngineTargetIdGenerator(1001)},
       online_state_tracker_{worker_queue, std::move(online_state_handler)},
       connectivity_monitor_{NOT_NULL(connectivity_monitor)} {
   datastore_->Start();
@@ -152,64 +158,104 @@ void RemoteStore::Shutdown() {
 
 // Watch Stream
 
-void RemoteStore::Listen(TargetData target_data) {
-  TargetId target_key = target_data.target_id();
-  if (listen_targets_.find(target_key) != listen_targets_.end()) {
-    return;
+model::RemoteTargetId RemoteStore::GenerateRemoteTargetId(
+    model::TargetId sdk_target_id) {
+  if (sdk_target_id % 2 != 0) {
+    return sync_engine_target_id_generator_.NextId();
+  } else {
+    return target_cache_target_id_generator_.NextId();
+  }
+}
+
+model::RemoteTargetId RemoteStore::AllocateRemoteTargetId(
+    model::TargetId sdk_target_id) {
+  auto found_map = target_id_map_sdk_to_remote_.find(sdk_target_id);
+  if (found_map != target_id_map_sdk_to_remote_.end()) {
+    model::RemoteTargetId existing_remote_id = found_map->second;
+    target_id_map_remote_to_sdk_.erase(existing_remote_id);
   }
 
-  // Mark this as something the client is currently listening for.
-  listen_targets_[target_key] = std::move(target_data);
+  model::RemoteTargetId new_remote_id = GenerateRemoteTargetId(sdk_target_id);
+  target_id_map_sdk_to_remote_[sdk_target_id] = new_remote_id;
+  target_id_map_remote_to_sdk_[new_remote_id] = sdk_target_id;
+  return new_remote_id;
+}
+
+void RemoteStore::Listen(TargetData target_data) {
+  TargetId sdk_target_id = target_data.target_id();
+  auto found_map = target_id_map_sdk_to_remote_.find(sdk_target_id);
+  if (found_map != target_id_map_sdk_to_remote_.end()) {
+    model::RemoteTargetId existing_remote_id = found_map->second;
+    if (listen_targets_.find(existing_remote_id) != listen_targets_.end()) {
+      return;
+    }
+  }
+
+  model::RemoteTargetId new_remote_id = AllocateRemoteTargetId(sdk_target_id);
+
+  local::RemoteTargetData remote_target_data(
+      target_data.target_or_pipeline(), new_remote_id,
+      target_data.sequence_number(), target_data.purpose(),
+      target_data.snapshot_version(),
+      target_data.last_limbo_free_snapshot_version(),
+      target_data.resume_token(), target_data.expected_count());
+
+  listen_targets_[new_remote_id] = std::move(remote_target_data);
 
   if (ShouldStartWatchStream()) {
-    // The listen will be sent in `OnWatchStreamOpen`
     StartWatchStream();
   } else if (watch_stream_->IsOpen()) {
-    SendWatchRequest(listen_targets_[target_key]);
+    SendWatchRequest(listen_targets_[new_remote_id]);
   }
 }
 
 void RemoteStore::StopListening(TargetId target_id) {
-  size_t num_erased = listen_targets_.erase(target_id);
-  HARD_ASSERT(num_erased == 1,
-              "StopListening: target not currently watched: %s", target_id);
+  auto found_map = target_id_map_sdk_to_remote_.find(target_id);
+  if (found_map == target_id_map_sdk_to_remote_.end()) {
+    return;
+  }
+  model::RemoteTargetId remote_target_id = found_map->second;
 
-  // The watch stream might not be started if we're in a disconnected state
+  listen_targets_.erase(remote_target_id);
+
+  target_id_map_sdk_to_remote_.erase(target_id);
+  target_id_map_remote_to_sdk_.erase(remote_target_id);
+
   if (watch_stream_->IsOpen()) {
-    SendUnwatchRequest(target_id);
+    SendUnwatchRequest(remote_target_id);
   }
   if (listen_targets_.empty()) {
     if (watch_stream_->IsOpen()) {
       watch_stream_->MarkIdle();
     } else if (CanUseNetwork()) {
-      // Revert to `OnlineState::Unknown` if the watch stream is not open and we
-      // have no listeners, since without any listens to send we cannot confirm
-      // if the stream is healthy and upgrade to `OnlineState::Online`.
       online_state_tracker_.UpdateState(OnlineState::Unknown);
     }
   }
 }
 
-void RemoteStore::SendWatchRequest(const TargetData& target_data) {
-  // We need to increment the expected number of pending responses we're due
-  // from watch so we wait for the ack to process any messages from this target.
+absl::optional<model::RemoteTargetId> RemoteStore::GetRemoteTargetId(
+    model::TargetId sdk_target_id) const {
+  auto found = target_id_map_sdk_to_remote_.find(sdk_target_id);
+  return found != target_id_map_sdk_to_remote_.end()
+             ? found->second
+             : absl::optional<model::RemoteTargetId>{};
+}
+
+void RemoteStore::SendWatchRequest(const local::RemoteTargetData& target_data) {
   watch_change_aggregator_->RecordPendingTargetRequest(target_data.target_id());
 
-  // Add expectedCount to target if there is a resume token.
   if (!target_data.resume_token().empty()) {
     int32_t expectedCount =
         GetRemoteKeysForTarget(target_data.target_id()).size();
-    TargetData new_target_data = target_data.WithExpectedCount(expectedCount);
+    local::RemoteTargetData new_target_data =
+        target_data.WithExpectedCount(expectedCount);
     watch_stream_->WatchQuery(new_target_data);
   } else {
     watch_stream_->WatchQuery(target_data);
   }
 }
 
-void RemoteStore::SendUnwatchRequest(TargetId target_id) {
-  // We need to increment the expected number of pending responses we're due
-  // from watch so we wait for the removal on the server before we process any
-  // messages from this target.
+void RemoteStore::SendUnwatchRequest(model::RemoteTargetId target_id) {
   watch_change_aggregator_->RecordPendingTargetRequest(target_id);
   watch_stream_->UnwatchTargetId(target_id);
 }
@@ -297,11 +343,38 @@ void RemoteStore::OnWatchStreamChange(const WatchChange& change,
   }
 }
 
+remote::RemoteEvent RemoteStore::ToSdkRemoteEvent(
+    remote::RemoteEventTemplate<model::RemoteTargetId> remote_event) const {
+  remote::RemoteEvent::TargetChangeMap sdk_target_changes;
+  for (auto& entry : remote_event.target_changes()) {
+    model::RemoteTargetId remote_target_id = entry.first;
+    auto found = target_id_map_remote_to_sdk_.find(remote_target_id);
+    if (found != target_id_map_remote_to_sdk_.end()) {
+      sdk_target_changes[found->second] = std::move(entry.second);
+    }
+  }
+
+  remote::RemoteEvent::TargetMismatchMap sdk_target_mismatches;
+  for (auto& entry : remote_event.target_mismatches()) {
+    model::RemoteTargetId remote_target_id = entry.first;
+    auto found = target_id_map_remote_to_sdk_.find(remote_target_id);
+    if (found != target_id_map_remote_to_sdk_.end()) {
+      sdk_target_mismatches[found->second] = entry.second;
+    }
+  }
+
+  return remote::RemoteEvent{remote_event.snapshot_version(),
+                             std::move(sdk_target_changes),
+                             std::move(sdk_target_mismatches),
+                             std::move(remote_event.document_updates()),
+                             std::move(remote_event.limbo_document_changes())};
+}
+
 void RemoteStore::RaiseWatchSnapshot(const SnapshotVersion& snapshot_version) {
   HARD_ASSERT(snapshot_version != SnapshotVersion::None(),
               "Can't raise event for unknown SnapshotVersion");
 
-  RemoteEvent remote_event =
+  RemoteEventTemplate<model::RemoteTargetId> remote_event =
       watch_change_aggregator_->CreateRemoteEvent(snapshot_version);
 
   // Update in-memory resume tokens. `LocalStore` will update the persistent
@@ -311,9 +384,9 @@ void RemoteStore::RaiseWatchSnapshot(const SnapshotVersion& snapshot_version) {
     const ByteString& resume_token = target_change.resume_token();
 
     if (!resume_token.empty()) {
-      TargetId target_id = entry.first;
+      model::RemoteTargetId target_id = entry.first;
       auto found = listen_targets_.find(target_id);
-      absl::optional<TargetData> target_data;
+      absl::optional<local::RemoteTargetData> target_data;
       if (found != listen_targets_.end()) {
         target_data = found->second;
       }
@@ -329,7 +402,7 @@ void RemoteStore::RaiseWatchSnapshot(const SnapshotVersion& snapshot_version) {
   // Re-establish listens for the targets that have been invalidated by
   // existence filter mismatches.
   for (const auto& entry : remote_event.target_mismatches()) {
-    const TargetId& target_id = entry.first;
+    const model::RemoteTargetId& target_id = entry.first;
     const QueryPurpose& purpose = entry.second;
 
     auto found = listen_targets_.find(target_id);
@@ -337,13 +410,13 @@ void RemoteStore::RaiseWatchSnapshot(const SnapshotVersion& snapshot_version) {
       // A watched target might have been removed already.
       continue;
     }
-    TargetData target_data = found->second;
+    local::RemoteTargetData target_data = found->second;
 
     // Clear the resume token for the query, since we're in a known mismatch
     // state.
-    target_data =
-        TargetData(target_data.target_or_pipeline(), target_id,
-                   target_data.sequence_number(), target_data.purpose());
+    target_data = local::RemoteTargetData(
+        target_data.target_or_pipeline(), target_id,
+        target_data.sequence_number(), target_data.purpose());
     listen_targets_[target_id] = target_data;
 
     // Cause a hard reset by unwatching and rewatching immediately, but
@@ -354,25 +427,33 @@ void RemoteStore::RaiseWatchSnapshot(const SnapshotVersion& snapshot_version) {
     // mismatch, but don't actually retain that in listen_targets_. This ensures
     // that we flag the first re-listen this way without impacting future
     // listens of this target (that might happen e.g. on reconnect).
-    TargetData request_target_data(target_data.target_or_pipeline(), target_id,
-                                   target_data.sequence_number(), purpose);
+    local::RemoteTargetData request_target_data(
+        target_data.target_or_pipeline(), target_id,
+        target_data.sequence_number(), purpose);
     SendWatchRequest(request_target_data);
   }
 
   // Finally handle remote event
-  sync_engine_->ApplyRemoteEvent(remote_event);
+  RemoteEvent sdk_event = ToSdkRemoteEvent(std::move(remote_event));
+  sync_engine_->ApplyRemoteEvent(sdk_event);
 }
 
 void RemoteStore::ProcessTargetError(const WatchTargetChange& change) {
   HARD_ASSERT(!change.cause().ok(), "Handling target error without a cause");
 
-  // Ignore targets that have been removed already.
-  for (TargetId target_id : change.target_ids()) {
-    auto found = listen_targets_.find(target_id);
+  for (model::RemoteTargetId remote_target_id : change.target_ids()) {
+    auto found = listen_targets_.find(remote_target_id);
     if (found != listen_targets_.end()) {
+      auto found_map = target_id_map_remote_to_sdk_.find(remote_target_id);
+      if (found_map != target_id_map_remote_to_sdk_.end()) {
+        model::TargetId sdk_target_id = found_map->second;
+        target_id_map_sdk_to_remote_.erase(sdk_target_id);
+        target_id_map_remote_to_sdk_.erase(found_map);
+        sync_engine_->HandleRejectedListen(sdk_target_id, change.cause());
+      }
+
       listen_targets_.erase(found);
-      watch_change_aggregator_->RemoveTarget(target_id);
-      sync_engine_->HandleRejectedListen(target_id, change.cause());
+      watch_change_aggregator_->RemoveTarget(remote_target_id);
     }
   }
 }
@@ -572,15 +653,21 @@ std::shared_ptr<Transaction> RemoteStore::CreateTransaction() {
   return std::make_shared<Transaction>(datastore_);
 }
 
-DocumentKeySet RemoteStore::GetRemoteKeysForTarget(TargetId target_id) const {
-  return sync_engine_->GetRemoteKeys(target_id);
+DocumentKeySet RemoteStore::GetRemoteKeysForTarget(
+    model::RemoteTargetId target_id) const {
+  auto found = target_id_map_remote_to_sdk_.find(target_id);
+  if (found != target_id_map_remote_to_sdk_.end()) {
+    return sync_engine_->GetRemoteKeys(found->second);
+  }
+  return DocumentKeySet{};
 }
 
-absl::optional<TargetData> RemoteStore::GetTargetDataForTarget(
-    TargetId target_id) const {
+absl::optional<local::RemoteTargetData> RemoteStore::GetTargetDataForTarget(
+    model::RemoteTargetId target_id) const {
   auto found = listen_targets_.find(target_id);
-  return found != listen_targets_.end() ? found->second
-                                        : absl::optional<TargetData>{};
+  return found != listen_targets_.end()
+             ? found->second
+             : absl::optional<local::RemoteTargetData>{};
 }
 
 const model::DatabaseId& RemoteStore::GetDatabaseId() const {

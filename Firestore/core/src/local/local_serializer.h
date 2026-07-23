@@ -27,6 +27,8 @@
 #include "Firestore/core/src/remote/serializer.h"
 #include "Firestore/core/src/util/status_fwd.h"
 
+#include "Firestore/core/src/local/target_data_fwd.h"
+
 namespace firebase {
 namespace firestore {
 
@@ -59,8 +61,6 @@ class NamedQuery;
 }  // namespace bundle
 
 namespace local {
-
-class TargetData;
 
 /**
  * @brief Serializer for values stored in the LocalStore.
