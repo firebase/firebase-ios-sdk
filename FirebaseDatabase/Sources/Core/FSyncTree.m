@@ -737,11 +737,12 @@ static const NSUInteger kFSizeThresholdForCompoundHash = 1024;
 - (id<FNode>)getServerValue:(FQuerySpec *)query {
     __block id<FNode> serverCacheNode = nil;
     __block FSyncPoint *targetSyncPoint = nil;
+    __block FPath *relativePath = nil;
     [self.syncPointTree
         forEachOnPath:query.path
            whileBlock:^BOOL(FPath *pathToSyncPoint, FSyncPoint *syncPoint) {
-             FPath *relativePath = [FPath relativePathFrom:pathToSyncPoint
-                                                        to:query.path];
+             relativePath = [FPath relativePathFrom:pathToSyncPoint
+                                                 to:query.path];
              serverCacheNode =
                  [syncPoint completeEventCacheAtPath:relativePath];
              targetSyncPoint = syncPoint;
@@ -772,7 +773,7 @@ static const NSUInteger kFSizeThresholdForCompoundHash = 1024;
             getView:query
         writesCache:[_pendingWriteTree childWritesForPath:[query path]]
         serverCache:serverCache];
-    return [view completeEventCache];
+    return [view completeEventCacheFor: relativePath];
 }
 
 /**
