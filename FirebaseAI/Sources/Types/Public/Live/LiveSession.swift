@@ -98,14 +98,15 @@ public final class LiveSession: Sendable {
 
   /// Manually marks the start of user activity, using the realtime API.
   ///
-  /// The start of user activity is effectively the start of a user's turn, but depending on the configuration defined
-  /// in ``RealtimeInputConfig``, it may not be interpreted as an interruption. An example of
-  /// the start of user activity could be the user speaking (not silence).
+  /// The start of user activity is effectively the start of a user's turn, but depending on the
+  /// configuration defined in ``RealtimeInputConfig``, it may not be interpreted as an interruption.
+  /// An example of the start of user activity could be the user speaking (not silence).
   ///
-  /// Should be followed with a call to ``LiveSession/sendStopActivityRealtime()``; after all the data
-  /// has been sent for the user's turn.
+  /// Should be followed with a call to ``LiveSession/sendStopActivityRealtime()``; after all the
+  /// data has been sent for the user's turn.
   ///
-  /// Only required when automatic activity detection is disabled via ``ActivityDetectionConfig/disabled()``.
+  /// Only required when automatic activity detection is disabled via
+  /// ``ActivityDetectionConfig/disabled()``.
   public func sendStartActivityRealtime() async {
     let message = BidiGenerateContentRealtimeInput(activityStart: .init())
     await service.send(.realtimeInput(message))
@@ -113,12 +114,13 @@ public final class LiveSession: Sendable {
 
   /// Manually marks the end of user activity, using the realtime API.
   ///
-  /// The end of user activity is effectively the end of a user's turn, and signals that the model can start
-  /// sending responses.
+  /// The end of user activity is effectively the end of a user's turn, and signals that the model
+  /// can start sending responses.
   ///
   /// Should follow after a previous call to ``LiveSession/sendStartActivityRealtime()``.
   ///
-  /// Only required when automatic activity detection is disabled via ``ActivityDetectionConfig/disabled()``.
+  /// Only required when automatic activity detection is disabled via
+  /// ``ActivityDetectionConfig/disabled()``.
   public func sendStopActivityRealtime() async {
     let message = BidiGenerateContentRealtimeInput(activityEnd: .init())
     await service.send(.realtimeInput(message))

@@ -602,13 +602,15 @@ struct LiveSessionTests {
 }
 
 private extension LiveSession {
-  /// Collects the next non empty audio output transcript that the model sends, returning nil if it takes longer than the timeout.
+  /// Collects the next non empty audio output transcript that the model sends, returning nil if it
+  /// takes longer than the timeout.
   ///
-  /// Basically the same as ``collectNextAudioOutputTranscript``, but this method will timeout if it takes too long, and
+  /// Basically the same as ``collectNextAudioOutputTranscript``, but this method will timeout if it
+  /// takes too long, and
   /// will make sure you don't get an empty intermediary response back.
   func tryCollectNextValidAudioOutputTranscript(timeout: TimeInterval = 5.0) async throws
     -> String? {
-      let response = try await TestHelpers.withTimeout(seconds: timeout) {
+    let response = try await TestHelpers.withTimeout(seconds: timeout) {
       var text = ""
       for try await content in self.responsesOf(LiveServerContent.self) {
         text += content.outputAudioText()

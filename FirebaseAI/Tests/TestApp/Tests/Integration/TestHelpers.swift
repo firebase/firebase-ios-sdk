@@ -30,7 +30,8 @@ enum TestHelpers {
 
   /// Run a callback, returning nil if it takes longer than the specified amount of seconds.
   static func withTimeout<T>(seconds: Double,
-                      operation: @escaping @Sendable () async throws -> T) async throws -> T? {
+                             operation: @escaping @Sendable () async throws -> T) async throws
+    -> T? {
     try await withThrowingTaskGroup(of: T?.self) { group in
       group.addTask {
         try await operation()

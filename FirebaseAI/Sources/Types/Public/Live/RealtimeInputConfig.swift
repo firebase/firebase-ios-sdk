@@ -12,21 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/// Configures model input behavior when generating content in the Live API via the realtime supported methods
+/// Configures model input behavior when generating content in the Live API via the realtime
+/// supported methods
 public struct RealtimeInputConfig: Sendable {
   let bidiRealtimeInputConfig: BidiRealtimeInputConfig
 
   /// How a model handles user input activity.
   public enum ActivityHandling: Sendable {
-    /// When the user sends input marking the start of activity, the model's current response will be cut-off immediately.
+    /// When the user sends input marking the start of activity, the model's current response will
+    /// be cut-off immediately.
     ///
-    /// The start of activity could be manually specified in the call, or the model could interpret it
-    /// automatically (depending on the value of `automaticActivityDetectionConfig`).
+    /// The start of activity could be manually specified in the call, or the model could interpret
+    /// it automatically (depending on the value of `automaticActivityDetectionConfig`).
     ///
     /// An example of activity starting implicitly could be the user speaking over the model.
     case interrupt
 
-    /// When the user sends input marking the start of activity, the model will process it, but won't cut-off its current response.
+    /// When the user sends input marking the start of activity, the model will process it, but
+    /// won't cut-off its current response.
     ///
     /// This is the inverse of `interrupt`.
     case noInterrupt
@@ -37,7 +40,8 @@ public struct RealtimeInputConfig: Sendable {
     /// The model will exclude inactivity (e.g, silence on the audio stream) from the user's input.
     case onlyActivity
 
-    /// The model will include all input (including inactivity) since the last turn as the user's input.
+    /// The model will include all input (including inactivity) since the last turn as the user's
+    /// input.
     case allInput
 
     /// Includes audio activity and all video since the last turn. With automatic
@@ -54,9 +58,11 @@ public struct RealtimeInputConfig: Sendable {
   /// - Parameters:
   ///   - automaticActivityDetection:Configures automatic activity detection on the model.
   ///
-  ///     When not set, automatic activity detection is enabled by default. If set, the user must send activity signals.
+  ///     When not set, automatic activity detection is enabled by default. If set, the user must
+  ///     send activity signals.
   ///   - activityHandling: Defines how the model treats user input activity.
-  ///   - turnCoverage: Defines which input is included in the user's turn, relative to the starting and ending of the activity.
+  ///   - turnCoverage: Defines which input is included in the user's turn, relative to the starting
+  ///     and ending of the activity.
   public init(automaticActivityDetection: ActivityDetectionConfig? = nil,
               activityHandling: ActivityHandling? = nil,
               turnCoverage: TurnCoverage? = nil) {

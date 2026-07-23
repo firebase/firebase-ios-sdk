@@ -44,14 +44,16 @@ public struct ActivityDetectionConfig: Sendable {
   /// - Parameters:
   ///   - startSensitivity: Determines how likely the start of speech is detected.
   ///   - endSensitivity: Determines how likely the end of speech is detected.
-  ///   - prefixPadding: How long detected speech should be present before start-of-speech is commited.
+  ///   - prefixPadding: How long detected speech should be present before start-of-speech is
+  ///     commited.
   ///
   ///     The lower this value, the more sensitive the start-of-speech detection is and the shorter
   ///     speech can be recognized. However, this also increases the probability of false positives.
-  ///   - silenceDuration: How long silence (or non-speech) should be present before end-of-speech is committed.
+  ///   - silenceDuration: How long silence (or non-speech) should be present before end-of-speech
+  ///     is committed.
   ///
-  ///     The larger this value, the longer speech gaps can be without interrupting the user's activity
-  ///     but this will increase the model's latency.
+  ///     The larger this value, the longer speech gaps can be without interrupting the user's
+  ///     activity but this will increase the model's latency.
   ///  - seealso: ``ActivityDetectionConfig/init(startSensitivity:endSensitivity:prefixPadding:silenceDuration:)-(_,_,Duration?,_)``
   ///  - seealso: ``ActivityDetectionConfig/disabled()``
   public init(startSensitivity: Sensitivity? = nil,
@@ -69,20 +71,23 @@ public struct ActivityDetectionConfig: Sendable {
 
   /// Creates a new ``ActivityDetectionConfig`` value.
   ///
-  /// This method uses `Duration` for timing related properties instead of `TimeInterval`. See the "See Also" section for
+  /// This method uses `Duration` for timing related properties instead of `TimeInterval`. See the
+  /// "See Also" section for
   /// the alternative initializer if you don't have access to the `Duration` API.
   ///
   /// - Parameters:
   ///   - startSensitivity: Determines how likely the start of speech is detected.
   ///   - endSensitivity: Determines how likely the end of speech is detected.
-  ///   - prefixPadding: How long detected speech should be present before start-of-speech is commited.
+  ///   - prefixPadding: How long detected speech should be present before start-of-speech is
+  ///     commited.
   ///
   ///     The lower this value, the more sensitive the start-of-speech detection is and the shorter
   ///     speech can be recognized. However, this also increases the probability of false positives.
-  ///   - silenceDuration: How long silence (or non-speech) should be present before end-of-speech is committed.
+  ///   - silenceDuration: How long silence (or non-speech) should be present before end-of-speech
+  ///     is committed.
   ///
-  ///     The larger this value, the longer speech gaps can be without interrupting the user's activity
-  ///     but this will increase the model's latency.
+  ///     The larger this value, the longer speech gaps can be without interrupting the user's
+  ///     activity but this will increase the model's latency.
   ///  - seealso: ``ActivityDetectionConfig/init(startSensitivity:endSensitivity:prefixPadding:silenceDuration:)-(_,_,TimeInterval?,_)``
   ///  - seealso: ``ActivityDetectionConfig/disabled()``
   @available(iOS 16.0, macOS 13.0, *)
