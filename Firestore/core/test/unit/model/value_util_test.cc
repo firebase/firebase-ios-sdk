@@ -186,6 +186,24 @@ TEST(FieldValueTest, ValueHelpers) {
   EXPECT_EQ(double_value->double_value, 2.0);
 }
 
+TEST(FieldValueTest, ServerTimestampSentinelRequiresLocalWriteTime) {
+  // A genuine server timestamp always carries both the sentinel and a write
+  // time, so it still classifies as a server timestamp.
+  auto server_timestamp = EncodeServerTimestamp(kTimestamp1, absl::nullopt);
+  EXPECT_EQ(GetTypeOrder(*server_timestamp), TypeOrder::kServerTimestamp);
+
+  // A user map that only happens to contain the sentinel key is ordinary data
+  // and must be treated as a map. Classifying it as a server timestamp would
+  // route it to GetLocalWriteTime, which aborts when the write time is absent.
+  auto user_map = Map("__type__", "server_timestamp");
+  EXPECT_EQ(GetTypeOrder(*user_map), TypeOrder::kMap);
+  EXPECT_EQ(Compare(*user_map, *user_map), ComparisonResult::Same);
+
+  auto with_wrong_write_time =
+      Map("__type__", "server_timestamp", "__local_write_time__", "not a time");
+  EXPECT_EQ(GetTypeOrder(*with_wrong_write_time), TypeOrder::kMap);
+}
+
 #if __APPLE__
 // Validates that NSNumber/CFNumber normalize NaNs to the same values that
 // Firestore does. This uses CoreFoundation's CFNumber instead of NSNumber just
