@@ -1,23 +1,18 @@
-# For most projects, this workflow file will not need changing; you simply need
-# to commit it to your repository.
-#
-# You may wish to alter this file to override the set of languages analyzed,
-# or to provide custom queries or build logic.
-#
-# ******** NOTE ********
-# We have attempted to detect the languages in your repository. Please check
-# the `language` matrix defined below to confirm you have the correct set of
-# supported CodeQL languages.
-#
+# This is an auto-generated file that is replaces the defaults run by the
+# default enterprise codeQL languages.
+
+# The explicit file is required to enable swift to be tested with codeQL in
+# infra.spm_global.yml.
 name: "CodeQL Advanced"
 
 on:
-  push:
-    branches: [ "main", "6.31-spm-beta", "6.32-spm-beta", "6.33-spm-beta", "6.34-spm-beta", "7.0-spm-beta", "auth-exchange", "firebase-ai", "firebase7-main", "firebaseai-hybrid", "ml-model-downloader", "release-1[0-1].*", "release-[0-9].*", "release-[1-9][2-9].*", "staging-4.13.1", "swizzler-master", "v9", "vertex-ai", "vertex-imagen", "vertexai-preview-0.1.0", "vertexai-release", "wwdc26-preview*" ]
+  workflow_dispatch:
   pull_request:
-    branches: [ "main", "6.31-spm-beta", "6.32-spm-beta", "6.33-spm-beta", "6.34-spm-beta", "7.0-spm-beta", "auth-exchange", "firebase-ai", "firebase7-main", "firebaseai-hybrid", "ml-model-downloader", "release-1[0-1].*", "release-[0-9].*", "release-[1-9][2-9].*", "staging-4.13.1", "swizzler-master", "v9", "vertex-ai", "vertex-imagen", "vertexai-preview-0.1.0", "vertexai-release", "wwdc26-preview*" ]
+    paths:
+    - '.github/workflows/infra.codeql.yml'
   schedule:
-    - cron: '29 17 * * 1'
+    # Run every day at 1am (PDT) / 4am (EDT) - cron uses UTC times
+    - cron:  '0 8 * * *'
 
 jobs:
   analyze:
@@ -53,8 +48,6 @@ jobs:
           build-mode: none
         - language: ruby
           build-mode: none
-        - language: swift
-          build-mode: autobuild
         # CodeQL supports the following values keywords for 'language': 'actions', 'c-cpp', 'csharp', 'go', 'java-kotlin', 'javascript-typescript', 'python', 'ruby', 'rust', 'swift'
         # Use `c-cpp` to analyze code written in C, C++ or both
         # Use 'java-kotlin' to analyze code written in Java, Kotlin or both
