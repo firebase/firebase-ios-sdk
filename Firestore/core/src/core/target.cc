@@ -16,6 +16,7 @@
 
 #include "Firestore/core/src/core/target.h"
 
+#include <algorithm>
 #include <ostream>
 #include <set>
 #include <unordered_map>
@@ -251,10 +252,14 @@ Target::IndexBoundValue Target::GetAscendingBound(
   // If there is an additional bound, compare the values against the existing
   // range to see if we can narrow the scope.
   if (bound.has_value()) {
-    for (size_t i = 0; i < order_bys_.size(); ++i) {
+    const auto& position = *bound.value().position();
+    // A cursor may have fewer components than the target has order-bys; only
+    // the leading order-bys have a corresponding cursor value.
+    size_t count = std::min<size_t>(order_bys_.size(), position.values_count);
+    for (size_t i = 0; i < count; ++i) {
       const auto& order_by = order_bys_[i];
       if (order_by.field() == segment.field_path()) {
-        auto cursor_value = bound.value().position()->values[i];
+        auto cursor_value = position.values[i];
         // Increase segment_value to cursor_value if cursor_value is larger.
         if (model::LowerBoundCompare(segment_value, segment_inclusive,
                                      cursor_value, bound.value().inclusive()) ==
@@ -316,10 +321,14 @@ Target::IndexBoundValue Target::GetDescendingBound(
   // If there is an additional bound, compare the values against the existing
   // range to see if we can narrow the scope.
   if (bound.has_value()) {
-    for (size_t i = 0; i < order_bys_.size(); ++i) {
+    const auto& position = *bound.value().position();
+    // A cursor may have fewer components than the target has order-bys; only
+    // the leading order-bys have a corresponding cursor value.
+    size_t count = std::min<size_t>(order_bys_.size(), position.values_count);
+    for (size_t i = 0; i < count; ++i) {
       const auto& order_by = order_bys_[i];
       if (order_by.field() == segment.field_path()) {
-        auto cursor_value = bound.value().position()->values[i];
+        auto cursor_value = position.values[i];
         // Decrease segment_value to cursor_value if cursor_value is smaller.
         if (model::UpperBoundCompare(segment_value, segment_inclusive,
                                      cursor_value, bound.value().inclusive()) ==
