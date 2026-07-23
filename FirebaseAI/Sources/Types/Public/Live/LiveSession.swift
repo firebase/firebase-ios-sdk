@@ -59,7 +59,6 @@ public final class LiveSession: Sendable {
   ///   - audio: Raw 16-bit PCM audio at 16Hz, used to update the model on the client's
   ///     conversation.
   public func sendAudioRealtime(_ audio: Data) async {
-    // TODO: (b/443984790) address when we add RealtimeInputConfig support
     let message = BidiGenerateContentRealtimeInput(
       audio: InlineData(data: audio, mimeType: "audio/pcm")
     )
