@@ -316,7 +316,7 @@ struct SchemaTests {
   ))
   func generateContentAnyOfSchema(_ config: InstanceConfig, _ schema: SchemaType) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
-      modelName: ModelNames.gemini3_1_FlashLite,
+      modelName: ModelNames.gemini3_6_Flash,
       generationConfig: SchemaTests.generationConfig(schema: schema),
       safetySettings: safetySettings
     )

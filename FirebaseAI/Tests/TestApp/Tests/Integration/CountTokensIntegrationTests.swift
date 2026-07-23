@@ -49,7 +49,7 @@ struct CountTokensIntegrationTests {
   func countTokens_text(_ config: InstanceConfig) async throws {
     let prompt = "Why is the sky blue?"
     let model = FirebaseAI.componentInstance(config).generativeModel(
-      modelName: ModelNames.gemini3_1_FlashLite,
+      modelName: ModelNames.gemini3_5_FlashLite,
       generationConfig: generationConfig,
       safetySettings: safetySettings
     )
@@ -66,7 +66,7 @@ struct CountTokensIntegrationTests {
   @Test(arguments: InstanceConfig.defaultConfigs)
   func countTokens_text_systemInstruction(_ config: InstanceConfig) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
-      modelName: ModelNames.gemini3_1_FlashLite,
+      modelName: ModelNames.gemini3_5_FlashLite,
       generationConfig: generationConfig,
       safetySettings: safetySettings,
       systemInstruction: systemInstruction
@@ -84,7 +84,7 @@ struct CountTokensIntegrationTests {
   @Test(arguments: InstanceConfig.defaultConfigs)
   func countTokens_jsonSchema(_ config: InstanceConfig) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
-      modelName: ModelNames.gemini3_1_FlashLite,
+      modelName: ModelNames.gemini3_5_FlashLite,
       generationConfig: GenerationConfig(
         responseMIMEType: "application/json",
         responseSchema: Schema.object(properties: [
