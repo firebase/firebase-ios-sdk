@@ -10,6 +10,7 @@ on:
   pull_request:
     paths:
     - '.github/workflows/infra.codeql.yml'
+    branches: [ "main" ]
   schedule:
     # Run every day at 1am (PDT) / 4am (EDT) - cron uses UTC times
     - cron:  '0 8 * * *'
