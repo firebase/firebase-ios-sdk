@@ -33,10 +33,12 @@ jobs:
         #TODO(ncooke3): Add multi-platform support: tvOS, macOS, catalyst
         platform: [iOS]
         scheme: [ClientApp]
-        os: [macos-15]
+        os: [macos-15, xcode-27]
         include:
           - os: macos-15
             xcode: Xcode_26.2
+          - os: xcode-27
+            xcode: Xcode_27.0
     uses: ./.github/workflows/_build.yml
     with:
       product: ${{ matrix.scheme }}
@@ -51,10 +53,12 @@ jobs:
         #TODO(ncooke3): Add multi-platform support: tvOS, macOS, catalyst
         platform: [iOS]
         scheme: [ClientApp]
-        os: [macos-15]
+        os: [macos-15, xcode-27]
         include:
           - os: macos-15
             xcode: Xcode_26.2
+          - os: xcode-27
+            xcode: Xcode_27.0
     uses: ./.github/workflows/_build.yml
     with:
       product: ${{ matrix.scheme }}
