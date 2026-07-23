@@ -27,4 +27,27 @@ enum TestHelpers {
       return authResult.user.uid
     }
   }
+
+  /// Run a callback, returning nil if it takes longer than the specified amount of seconds.
+  static func withTimeout<T>(seconds: Double,
+                      operation: @escaping @Sendable () async throws -> T) async throws -> T? {
+    try await withThrowingTaskGroup(of: T?.self) { group in
+      group.addTask {
+        try await operation()
+      }
+      group.addTask {
+        try await Task.sleep(nanoseconds: UInt64(seconds * 1_000_000_000))
+        return nil
+      }
+
+      guard let firstResult = try await group.next() else {
+        group.cancelAll()
+        return nil
+      }
+
+      group.cancelAll()
+
+      return firstResult
+    }
+  }
 }
