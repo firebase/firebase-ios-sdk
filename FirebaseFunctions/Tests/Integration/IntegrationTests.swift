@@ -24,7 +24,7 @@ import XCTest
 /// which itself was ported from the Objective-C
 /// `FirebaseFunctions/Tests/Integration/FIRIntegrationTests.m`
 ///
-/// The tests require the emulator to be running with `FirebaseFunctions/Backend/start.sh
+/// The tests require the emulator to be running with `node FirebaseFunctions/Backend/start.js
 /// synchronous`
 /// The Firebase Functions called in the tests are implemented in
 /// `FirebaseFunctions/Backend/index.js`.
@@ -65,7 +65,7 @@ struct DataTestResponse: Decodable, Equatable {
   var code: Int32
 }
 
-/// - Important: These tests require the emulator. Run `./FirebaseFunctions/Backend/start.sh`
+/// - Important: These tests require the emulator. Run `node ./FirebaseFunctions/Backend/start.js`
 class IntegrationTests: XCTestCase {
   let functions = Functions(projectID: "functions-integration-test",
                             region: "us-central1",
