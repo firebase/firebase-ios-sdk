@@ -99,8 +99,9 @@ public final class LiveSession: Sendable {
   /// Manually marks the start of user activity, using the realtime API.
   ///
   /// The start of user activity is effectively the start of a user's turn, but depending on the
-  /// configuration defined in ``RealtimeInputConfig``, it may not be interpreted as an interruption.
-  /// An example of the start of user activity could be the user speaking (not silence).
+  /// configuration defined in ``RealtimeInputConfig``, it may not be interpreted as an
+  /// interruption. An example of the start of user activity could be the user speaking
+  /// (not silence).
   ///
   /// Should be followed with a call to ``LiveSession/sendStopActivityRealtime()``; after all the
   /// data has been sent for the user's turn.
