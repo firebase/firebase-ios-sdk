@@ -32,7 +32,10 @@ script:
    - Runs `shellcheck` on any modified shell scripts
 2. If the script fails (e.g., shellcheck reports an error), you MUST read the
    error, fix the issues, and re-run the script until it succeeds.
-3. Once the script passes, stage the intended changes (`git add ...`) and
+3. If the markdown formatter fails due to line length, you MUST wrap the lines.
+   If wrapping is impossible without breaking correctness (e.g., long URLs or
+   symbols), append ` <!-- ignore-wrap -->` to the end of the line.
+4. Once the script passes, stage the intended changes (`git add ...`) and
    commit using `git commit -m "..."`.
 
 ## Rules
