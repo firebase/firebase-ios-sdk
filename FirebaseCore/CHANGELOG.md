@@ -1,6 +1,4 @@
 # Firebase 12.17.0
-- [fixed] Updated Swift Package Manager minimum deployment targets when building
-  with Xcode 27 betas (Swift 6.4+) to watchOS 9.0 and macOS 12.0. (#16408)
 - [changed] Removed the  (never activated) `recaptchaSiteKey` property from `FirebaseOptions`.
   This feature is part of the public preview reCAPTCHA provider.
 
