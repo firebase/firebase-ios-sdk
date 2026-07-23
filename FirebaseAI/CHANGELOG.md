@@ -1,3 +1,8 @@
+# Unreleased
+- [feature] Added support for `RealtimeInputConfig` in `LiveGenerationConfig`. (#16441)
+- [feature] Added support for `sendStartActivityRealtime` and `sendStopActivityRealtime`
+  in `LiveSession`. (#16441)
+
 # 12.17.0
 - [fixed] Fixed a stream leak in the Live API where the WebSocket connection
   would remain open indefinitely if the consumer cancelled the stream. (#16393)

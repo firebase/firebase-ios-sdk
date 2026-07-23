@@ -21,6 +21,7 @@ public struct LiveGenerationConfig: Sendable {
   let inputAudioTranscription: BidiAudioTranscriptionConfig?
   let outputAudioTranscription: BidiAudioTranscriptionConfig?
   let contextWindowCompression: BidiContextWindowCompressionConfig?
+  let realtimeInputConfig: BidiRealtimeInputConfig?
 
   /// Creates a new ``LiveGenerationConfig`` value.
   ///
@@ -123,6 +124,8 @@ public struct LiveGenerationConfig: Sendable {
   ///     context window.
   ///
   ///     This mechanism prevents the context from exceeding a given length.
+  ///   - realtimeInputConfig: Configures model input behavior when generating content via the
+  ///     realtime supported methods
   public init(temperature: Float? = nil, topP: Float? = nil, topK: Int? = nil,
               candidateCount: Int? = nil, maxOutputTokens: Int? = nil,
               presencePenalty: Float? = nil, frequencyPenalty: Float? = nil,
@@ -130,7 +133,8 @@ public struct LiveGenerationConfig: Sendable {
               speech: SpeechConfig? = nil,
               inputAudioTranscription: AudioTranscriptionConfig? = nil,
               outputAudioTranscription: AudioTranscriptionConfig? = nil,
-              contextWindowCompression: ContextWindowCompressionConfig? = nil) {
+              contextWindowCompression: ContextWindowCompressionConfig? = nil,
+              realtimeInputConfig: RealtimeInputConfig? = nil) {
     self.init(
       BidiGenerationConfig(
         temperature: temperature,
@@ -145,17 +149,20 @@ public struct LiveGenerationConfig: Sendable {
       ),
       inputAudioTranscription: inputAudioTranscription?.audioTranscriptionConfig,
       outputAudioTranscription: outputAudioTranscription?.audioTranscriptionConfig,
-      contextWindowCompression: contextWindowCompression?.bidiContextWindowCompressionConfig
+      contextWindowCompression: contextWindowCompression?.bidiContextWindowCompressionConfig,
+      realtimeInputConfig: realtimeInputConfig?.bidiRealtimeInputConfig
     )
   }
 
   init(_ bidiGenerationConfig: BidiGenerationConfig,
        inputAudioTranscription: BidiAudioTranscriptionConfig? = nil,
        outputAudioTranscription: BidiAudioTranscriptionConfig? = nil,
-       contextWindowCompression: BidiContextWindowCompressionConfig? = nil) {
+       contextWindowCompression: BidiContextWindowCompressionConfig? = nil,
+       realtimeInputConfig: BidiRealtimeInputConfig? = nil) {
     self.bidiGenerationConfig = bidiGenerationConfig
     self.inputAudioTranscription = inputAudioTranscription
     self.outputAudioTranscription = outputAudioTranscription
     self.contextWindowCompression = contextWindowCompression
+    self.realtimeInputConfig = realtimeInputConfig
   }
 }

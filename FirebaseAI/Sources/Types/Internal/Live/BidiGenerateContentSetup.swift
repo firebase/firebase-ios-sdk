@@ -61,6 +61,8 @@ struct BidiGenerateContentSetup: Encodable {
   /// If included, the server will compress the context window to fit the given length.
   let contextWindowCompression: BidiContextWindowCompressionConfig?
 
+  let realtimeInputConfig: BidiRealtimeInputConfig?
+
   init(model: String,
        generationConfig: BidiGenerationConfig? = nil,
        systemInstruction: ModelContent? = nil,
@@ -69,7 +71,8 @@ struct BidiGenerateContentSetup: Encodable {
        inputAudioTranscription: BidiAudioTranscriptionConfig? = nil,
        outputAudioTranscription: BidiAudioTranscriptionConfig? = nil,
        sessionResumption: BidiSessionResumptionConfig? = nil,
-       contextWindowCompression: BidiContextWindowCompressionConfig? = nil) {
+       contextWindowCompression: BidiContextWindowCompressionConfig? = nil,
+       realtimeInputConfig: BidiRealtimeInputConfig? = nil) {
     self.model = model
     self.generationConfig = generationConfig
     self.systemInstruction = systemInstruction
@@ -79,6 +82,7 @@ struct BidiGenerateContentSetup: Encodable {
     self.outputAudioTranscription = outputAudioTranscription
     self.sessionResumption = sessionResumption
     self.contextWindowCompression = contextWindowCompression
+    self.realtimeInputConfig = realtimeInputConfig
   }
 }
 
