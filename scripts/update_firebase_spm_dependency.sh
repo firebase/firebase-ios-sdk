@@ -57,12 +57,13 @@ REQUIREMENT_REGEX='({'\
 '(\s*};'\
 '\s*};)'
 
-# Define the replacement regex based on the selected mode.
+# Define the replacement requirement based on the selected mode. The new
+# requirement is a kind (branch or revision) plus its value.
 case "$MODE" in
   --version)
     if [[ $# -lt 1 ]]; then echo "Error: Missing version for --version"; exit 1; fi
-    VERSION="$1"
-    REPLACEMENT_REGEX="\1kind = branch;\n\t\t\t\tbranch = \"$VERSION\";\2"
+    SPM_KIND="branch"
+    SPM_VALUE="$1"
     ;;
   --prerelease)
     COMMIT_HASH=$(git ls-remote https://github.com/firebase/firebase-ios-sdk.git refs/heads/main | cut -f1)
@@ -70,23 +71,32 @@ case "$MODE" in
         echo "Error: Failed to get remote revision for main branch."
         exit 1
     fi
-    REPLACEMENT_REGEX="\1kind = revision;\n\t\t\t\trevision = \"$COMMIT_HASH\";\2"
+    SPM_KIND="revision"
+    SPM_VALUE="$COMMIT_HASH"
     ;;
   --revision)
     if [[ $# -lt 1 ]]; then echo "Error: Missing revision for --revision"; exit 1; fi
-    REVISION="$1"
-    REPLACEMENT_REGEX="\1kind = revision;\n\t\t\t\trevision = \"$REVISION\";\2"
+    SPM_KIND="revision"
+    SPM_VALUE="$1"
     ;;
   --branch)
     if [[ $# -lt 1 ]]; then echo "Error: Missing branch name for --branch"; exit 1; fi
-    BRANCH_NAME="$1"
-    REPLACEMENT_REGEX="\1kind = branch;\n\t\t\t\tbranch = \"$BRANCH_NAME\";\2"
+    SPM_KIND="branch"
+    SPM_VALUE="$1"
     ;;
   *)
     echo "Invalid mode: $MODE"
     exit 1
     ;;
 esac
+
+# The kind and value reach Perl through the environment rather than being
+# interpolated into the expression's source text, so characters that are
+# special to Perl (such as the `#` delimiter, which can appear in branch
+# names) cannot break the substitution. Single quotes keep `$ENV{...}` and
+# `${1}` for Perl rather than the shell.
+export SPM_KIND SPM_VALUE
+REPLACEMENT='${1}kind = $ENV{SPM_KIND};\n\t\t\t\t$ENV{SPM_KIND} = "$ENV{SPM_VALUE}";${2}'
 
 # Make a temporary backup of the original file.
 # This will be used to check if any changes were made.
@@ -99,7 +109,7 @@ cp "$PBXPROJ_PATH" "$TEMP_FILE"
 # -p Causes Perl to loop through the input line by line.
 # -i Edits the file in place.
 # -e Provides the expression to execute.
-perl -0777 -i -pe "s#$REQUIREMENT_REGEX#$REPLACEMENT_REGEX#g" "$PBXPROJ_PATH" || {
+perl -0777 -i -pe "s#$REQUIREMENT_REGEX#$REPLACEMENT#g" "$PBXPROJ_PATH" || {
   echo "Failed to update the Xcode project's SPM dependency."
   exit 1
 }

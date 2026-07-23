@@ -925,6 +925,8 @@ let package = Package(
         "FirebasePerformanceTarget",
         "SharedTestUtilities",
         "GCDWebServer",
+        .product(name: "GULMethodSwizzler", package: "GoogleUtilities"),
+        .product(name: "GULSwizzlerTestHelpers", package: "GoogleUtilities"),
         .product(name: "OCMock", package: "ocmock"),
       ],
       path: "FirebasePerformance/Tests/Unit",

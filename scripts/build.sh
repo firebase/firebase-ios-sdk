@@ -723,8 +723,7 @@ case "$product-$platform-$method" in
     ;;
 
   Performance-*-unit)
-    # Run unit tests on prod environment with unswizzle capabilities.
-    export FPR_UNSWIZZLE_AVAILABLE="1"
+    # Run unit tests on prod environment.
     export FPR_AUTOPUSH_ENV="0"
     pod_gen FirebasePerformance.podspec --platforms="${gen_platform}"
     RunXcodebuild \
@@ -737,7 +736,6 @@ case "$product-$platform-$method" in
 
   Performance-*-proddev)
     # Build the prod dev test app.
-    export FPR_UNSWIZZLE_AVAILABLE="0"
     export FPR_AUTOPUSH_ENV="0"
     pod_gen FirebasePerformance.podspec --platforms="${gen_platform}"
     RunXcodebuild \
@@ -749,7 +747,6 @@ case "$product-$platform-$method" in
 
   Performance-*-integration)
     # Generate the workspace for the SDK to generate Protobuf files.
-    export FPR_UNSWIZZLE_AVAILABLE="0"
     pod_gen FirebasePerformance.podspec --platforms=ios --clean
 
     # Perform "pod install" to install the relevant dependencies
