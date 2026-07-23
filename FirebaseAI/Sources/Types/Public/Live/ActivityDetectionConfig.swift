@@ -94,7 +94,7 @@ public struct ActivityDetectionConfig: Sendable {
   ///     activity but this will increase the model's latency.
   ///  - seealso: ``ActivityDetectionConfig/init(startSensitivity:endSensitivity:prefixPadding:silenceDuration:)-(_,_,TimeInterval?,_)``
   ///  - seealso: ``ActivityDetectionConfig/disabled()``
-  @available(iOS 16.0, macOS 13.0, *)
+  @available(iOS 16.0, macOS 13.0, tvOS 16.0, *)
   public init(startSensitivity: Sensitivity? = nil,
               endSensitivity: Sensitivity? = nil,
               prefixPadding: Duration? = nil,
@@ -148,7 +148,7 @@ private extension TimeInterval {
   }
 }
 
-@available(iOS 16.0, macOS 13.0, *)
+@available(iOS 16.0, macOS 13.0, tvOS 16.0, *)
 private extension Duration {
   var milliseconds: Int32 {
     return Int32(self / .milliseconds(1))
