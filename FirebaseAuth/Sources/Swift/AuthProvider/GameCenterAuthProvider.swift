@@ -16,9 +16,10 @@
   import Foundation
   import GameKit
 
-  // TODO: Delete this when minimum iOS version passes 13.5.
-  /// WarningWorkaround is needed because playerID is deprecated in iOS 13.0 but still needed until
-  /// 13.5 when the fetchItems API was introduced.
+  // TODO: Delete this when minimum macOS version passes 10.15.5.
+  /// WarningWorkaround is needed because playerID is deprecated in macOS 10.15.0 but still needed
+  /// until
+  /// 10.15.5 when the fetchItems API was introduced.
   private protocol WarningWorkaround {
     static func pre135Credential(localPlayer: GKLocalPlayer,
                                  completion: @escaping (AuthCredential?, Error?) -> Void)
@@ -50,7 +51,7 @@
         return
       }
 
-      if #available(iOS 13.5, macOS 10.15.5, macCatalyst 13.5, tvOS 13.4.8, *) {
+      if #available(macOS 10.15.5, *) {
         localPlayer.fetchItems { publicKeyURL, signature, salt, timestamp, error in
           if let error = error {
             completion(nil, error)
@@ -105,7 +106,7 @@
     }
 
     /// Creates an `AuthCredential` for a Game Center sign in.
-    @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
+    @available(watchOS 8, *)
     open class func getCredential() async throws -> AuthCredential {
       return try await withCheckedThrowingContinuation { continuation in
         getCredential { credential, error in

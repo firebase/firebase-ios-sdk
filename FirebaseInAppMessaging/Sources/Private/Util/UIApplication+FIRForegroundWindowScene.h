@@ -22,7 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
 // Extension on UIApplication to get the first foreground connected scene
 @interface UIApplication (FIRForegroundWindowScene)
 
-- (nullable UIWindowScene *)fir_foregroundWindowScene API_AVAILABLE(ios(13.0));
+- (nullable UIWindowScene *)fir_foregroundWindowScene;
 
 @end
 

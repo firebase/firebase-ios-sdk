@@ -414,7 +414,7 @@ enum FunctionsConstants {
               timeout: TimeInterval)
     -> AsyncThrowingStream<JSONStreamResponse, Error> {
     AsyncThrowingStream { continuation in
-      Task {
+      let task = Task {
         let urlRequest: URLRequest
         do {
           let context = try await contextProvider.context(options: options)
@@ -508,6 +508,9 @@ enum FunctionsConstants {
         }
 
         continuation.finish()
+      }
+      continuation.onTermination = { @Sendable _ in
+        task.cancel()
       }
     }
   }

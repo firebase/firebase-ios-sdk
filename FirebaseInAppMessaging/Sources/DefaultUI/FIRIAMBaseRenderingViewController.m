@@ -55,17 +55,15 @@ static const NSTimeInterval kMinValidImpressionTime = 3.0;
                                            selector:@selector(appDidBecomeActive:)
                                                name:UIApplicationDidBecomeActiveNotification
                                              object:nil];
-  if (@available(iOS 13.0, tvOS 13.0, *)) {
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(appWillBecomeInactive:)
-                                                 name:UISceneWillDeactivateNotification
-                                               object:nil];
+  [[NSNotificationCenter defaultCenter] addObserver:self
+                                           selector:@selector(appWillBecomeInactive:)
+                                               name:UISceneWillDeactivateNotification
+                                             object:nil];
 
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(appDidBecomeActive:)
-                                                 name:UISceneDidActivateNotification
-                                               object:nil];
-  }
+  [[NSNotificationCenter defaultCenter] addObserver:self
+                                           selector:@selector(appDidBecomeActive:)
+                                               name:UISceneDidActivateNotification
+                                             object:nil];
   self.aggregateImpressionTimeInSeconds = 0;
 }
 

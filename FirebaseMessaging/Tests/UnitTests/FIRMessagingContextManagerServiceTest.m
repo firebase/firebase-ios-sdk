@@ -32,7 +32,7 @@ static NSString *const kMessageIdentifierKey = @"gcm.message_id";
 static NSString *const kMessageIdentifierValue = @"1584748495200141";
 
 @interface FIRMessagingContextManagerService (ExposedForTest)
-+ (void)scheduleiOS10LocalNotificationForMessage:(NSDictionary *)message atDate:(NSDate *)date;
++ (void)scheduleLocalNotificationForMessage:(NSDictionary *)message atDate:(NSDate *)date;
 + (UNMutableNotificationContent *)contentFromContextualMessage:(NSDictionary *)message
     API_AVAILABLE(macos(10.14));
 @end
@@ -207,12 +207,12 @@ API_AVAILABLE(macos(10.14))
       }];
 }
 
-- (void)testScheduleiOS10LocalNotification {
+- (void)testScheduleLocalNotification {
   id mockContextManagerService = OCMClassMock([FIRMessagingContextManagerService class]);
   NSDictionary *message = @{};
 
-  [FIRMessagingContextManagerService scheduleiOS10LocalNotificationForMessage:message
-                                                                       atDate:[NSDate date]];
+  [FIRMessagingContextManagerService scheduleLocalNotificationForMessage:message
+                                                                  atDate:[NSDate date]];
   OCMVerify([mockContextManagerService contentFromContextualMessage:message]);
   [mockContextManagerService stopMocking];
 }

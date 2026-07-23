@@ -29,12 +29,10 @@
                                            selector:@selector(appWillEnterForeground:)
                                                name:UIApplicationWillEnterForegroundNotification
                                              object:nil];
-  if (@available(iOS 13.0, tvOS 13.0, *)) {
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(appWillEnterForeground:)
-                                                 name:UISceneWillEnterForegroundNotification
-                                               object:nil];
-  }
+  [[NSNotificationCenter defaultCenter] addObserver:self
+                                           selector:@selector(appWillEnterForeground:)
+                                               name:UISceneWillEnterForegroundNotification
+                                             object:nil];
 }
 
 - (void)appWillEnterForeground:(NSNotification *)notification {

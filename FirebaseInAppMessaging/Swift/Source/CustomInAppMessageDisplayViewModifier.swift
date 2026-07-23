@@ -20,7 +20,6 @@ import SwiftUI
 
 // MARK: Image-only messages.
 
-@available(iOS 13, tvOS 13, *)
 @available(iOSApplicationExtension, unavailable)
 @available(tvOSApplicationExtension, unavailable)
 struct ImageOnlyInAppMessageDisplayViewModifier<DisplayMessage: View>: ViewModifier {
@@ -43,7 +42,6 @@ struct ImageOnlyInAppMessageDisplayViewModifier<DisplayMessage: View>: ViewModif
   }
 }
 
-@available(iOS 13, tvOS 13, *)
 @available(iOSApplicationExtension, unavailable)
 @available(tvOSApplicationExtension, unavailable)
 public extension View {
@@ -59,7 +57,6 @@ public extension View {
 
 // MARK: Banner messages.
 
-@available(iOS 13, tvOS 13, *)
 @available(iOSApplicationExtension, unavailable)
 @available(tvOSApplicationExtension, unavailable)
 struct BannerInAppMessageDisplayViewModifier<DisplayMessage: View>: ViewModifier {
@@ -81,7 +78,6 @@ struct BannerInAppMessageDisplayViewModifier<DisplayMessage: View>: ViewModifier
   }
 }
 
-@available(iOS 13, tvOS 13, *)
 @available(iOSApplicationExtension, unavailable)
 @available(tvOSApplicationExtension, unavailable)
 public extension View {
@@ -96,7 +92,6 @@ public extension View {
 
 // MARK: Modal messages.
 
-@available(iOS 13, tvOS 13, *)
 @available(iOSApplicationExtension, unavailable)
 @available(tvOSApplicationExtension, unavailable)
 struct ModalInAppMessageDisplayViewModifier<DisplayMessage: View>: ViewModifier {
@@ -118,7 +113,6 @@ struct ModalInAppMessageDisplayViewModifier<DisplayMessage: View>: ViewModifier 
   }
 }
 
-@available(iOS 13, tvOS 13, *)
 @available(iOSApplicationExtension, unavailable)
 @available(tvOSApplicationExtension, unavailable)
 public extension View {
@@ -133,7 +127,6 @@ public extension View {
 
 // MARK: Card messages.
 
-@available(iOS 13, tvOS 13, *)
 @available(iOSApplicationExtension, unavailable)
 @available(tvOSApplicationExtension, unavailable)
 struct CardInAppMessageDisplayViewModifier<DisplayMessage: View>: ViewModifier {
@@ -155,7 +148,6 @@ struct CardInAppMessageDisplayViewModifier<DisplayMessage: View>: ViewModifier {
   }
 }
 
-@available(iOS 13, tvOS 13, *)
 @available(iOSApplicationExtension, unavailable)
 @available(tvOSApplicationExtension, unavailable)
 public extension View {
@@ -174,7 +166,6 @@ public extension View {
  * A singleton that acts as the bridge between view modifiers for displaying custom in-app messages and the
  * in-app message fetch/display/interaction flow.
  */
-@available(iOS 13, tvOS 13, *)
 @available(iOSApplicationExtension, unavailable)
 @available(tvOSApplicationExtension, unavailable)
 class DelegateBridge: NSObject, InAppMessagingDisplay, InAppMessagingDisplayDelegate,

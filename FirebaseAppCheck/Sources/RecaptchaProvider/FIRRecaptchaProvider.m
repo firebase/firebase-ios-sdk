@@ -55,19 +55,15 @@
 #endif
 }
 
-- (nullable instancetype)initWithApp:(FIRApp *)app {
+- (nullable instancetype)initWithApp:(FIRApp *)app siteKey:(NSString *)siteKey {
 #if (TARGET_OS_IOS && !TARGET_OS_MACCATALYST) || TARGET_OS_VISION
   // 1. Validate options and raise exceptions on invalid configuration
-  NSString *siteKey = app.options.recaptchaSiteKey;
   if (siteKey.length == 0) {
     NSString *message = [NSString
-        stringWithFormat:
-            @"Cannot instantiate `RecaptchaProvider` for app: %@. "
-            @"`FirebaseOptions.recaptchaSiteKey` "
-            @"is missing or empty. "
-            @"Please ensure you have downloaded the latest `GoogleService-Info.plist` from the "
-            @"Firebase console or set `recaptchaSiteKey` on `FirebaseOptions` programmatically.",
-            app.name];
+        stringWithFormat:@"Cannot instantiate `RecaptchaProvider` for app: %@. "
+                         @"The `siteKey` parameter is missing or empty. "
+                         @"Please ensure you have provided a valid reCAPTCHA Enterprise site key.",
+                         app.name];
     FIRLogError(kFIRLoggerAppCheck, kFIRLoggerAppCheckMessageRecaptchaProviderMissingSiteKey, @"%@",
                 message);
     [NSException raise:NSInvalidArgumentException format:@"%@", message];

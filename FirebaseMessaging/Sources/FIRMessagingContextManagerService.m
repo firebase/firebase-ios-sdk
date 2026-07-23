@@ -61,6 +61,12 @@ typedef NS_ENUM(NSUInteger, FIRMessagingContextManagerMessageType) {
   FIRMessagingContextManagerMessageTypeLocalTime,
 };
 
+@interface FIRMessagingContextManagerService ()
+
++ (void)scheduleLocalNotificationForMessage:(NSDictionary *)message atDate:(NSDate *)date;
+
+@end
+
 @implementation FIRMessagingContextManagerService
 
 + (BOOL)isContextManagerMessage:(NSDictionary *)message {
@@ -134,9 +140,13 @@ typedef NS_ENUM(NSUInteger, FIRMessagingContextManagerMessageType) {
   return YES;
 }
 
-+ (void)scheduleiOS10LocalNotificationForMessage:(NSDictionary *)message
-                                          atDate:(NSDate *)date
-    API_AVAILABLE(macosx(10.14), ios(10.0), watchos(3.0), tvos(10.0)) {
++ (void)scheduleLocalNotificationForMessage:(NSDictionary *)message atDate:(NSDate *)date {
+  if (!date) {
+    FIRMessagingLoggerError(kFIRMessagingMessageCodeContextManagerServiceFailedLocalSchedule,
+                            @"Cannot schedule local timezone notification with a nil date.");
+    return;
+  }
+
   NSCalendar *calendar = [NSCalendar currentCalendar];
   NSCalendarUnit unit = NSCalendarUnitYear | NSCalendarUnitMonth | NSCalendarUnitDay |
                         NSCalendarUnitHour | NSCalendarUnitMinute | NSCalendarUnitSecond;
@@ -164,8 +174,7 @@ typedef NS_ENUM(NSUInteger, FIRMessagingContextManagerMessageType) {
        }];
 }
 
-+ (UNMutableNotificationContent *)contentFromContextualMessage:(NSDictionary *)message
-    API_AVAILABLE(macosx(10.14), ios(10.0), watchos(3.0), tvos(10.0)) {
++ (UNMutableNotificationContent *)contentFromContextualMessage:(NSDictionary *)message {
   UNMutableNotificationContent *content = [[UNMutableNotificationContent alloc] init];
   NSDictionary *apsDictionary = message;
 
@@ -203,13 +212,6 @@ typedef NS_ENUM(NSUInteger, FIRMessagingContextManagerMessageType) {
   }
 #endif  // !TARGET_OS_TV
   return content;
-}
-
-+ (void)scheduleLocalNotificationForMessage:(NSDictionary *)message atDate:(NSDate *)date {
-  if (@available(macOS 10.14, *)) {
-    [self scheduleiOS10LocalNotificationForMessage:message atDate:date];
-    return;
-  }
 }
 
 + (NSDictionary *)parseDataFromMessage:(NSDictionary *)message {

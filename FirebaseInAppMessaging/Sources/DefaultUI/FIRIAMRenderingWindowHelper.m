@@ -28,11 +28,7 @@
   static dispatch_once_t onceToken;
 
   dispatch_once(&onceToken, ^{
-    if (@available(iOS 13.0, tvOS 13.0, *)) {
-      UIWindowForModal = [[self class] iOS13PlusWindow];
-    } else {
-      UIWindowForModal = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
-    }
+    UIWindowForModal = [[self class] iOS13PlusWindow];
     UIWindowForModal.windowLevel = UIWindowLevelNormal;
   });
   return UIWindowForModal;
@@ -43,19 +39,14 @@
   static dispatch_once_t onceToken;
 
   dispatch_once(&onceToken, ^{
-    if (@available(iOS 13.0, tvOS 13.0, *)) {
-      UIWindowForBanner = [[self class] iOS13PlusBannerWindow];
-    } else {
-      UIWindowForBanner =
-          [[FIRIAMBannerViewUIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
-    }
+    UIWindowForBanner = [[self class] iOS13PlusBannerWindow];
     UIWindowForBanner.windowLevel = UIWindowLevelNormal;
   });
 
   return UIWindowForBanner;
 }
 
-+ (UIWindow *)iOS13PlusWindow API_AVAILABLE(ios(13.0)) {
++ (UIWindow *)iOS13PlusWindow {
   UIWindowScene *foregroundedScene = [[UIApplication sharedApplication] fir_foregroundWindowScene];
   if (foregroundedScene.delegate) {
     return [[UIWindow alloc] initWithWindowScene:foregroundedScene];
@@ -64,7 +55,7 @@
   }
 }
 
-+ (FIRIAMBannerViewUIWindow *)iOS13PlusBannerWindow API_AVAILABLE(ios(13.0)) {
++ (FIRIAMBannerViewUIWindow *)iOS13PlusBannerWindow {
   UIWindowScene *foregroundedScene = [[UIApplication sharedApplication] fir_foregroundWindowScene];
   if (foregroundedScene.delegate) {
     return [[FIRIAMBannerViewUIWindow alloc] initWithWindowScene:foregroundedScene];

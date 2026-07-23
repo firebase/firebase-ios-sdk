@@ -163,6 +163,7 @@ bool FIRCLSBinaryImageFindImageForUUID(const char* uuidString,
     const struct mach_header* mh = _dyld_get_image_header(i);
 
     FIRCLSBinaryImageDetails image;
+    memset(&image, 0, sizeof(FIRCLSBinaryImageDetails));
 
     image.slice = FIRCLSMachOSliceWithHeader((void*)mh);
     FIRCLSBinaryImageFillInImageDetails(&image);

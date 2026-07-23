@@ -24,7 +24,7 @@ let shouldUseSourceFirestore = Context.environment["FIREBASE_SOURCE_FIRESTORE"] 
 
 let package = Package(
   name: "Firebase",
-  platforms: [.iOS(.v15), .macCatalyst(.v15), .macOS(.v10_15), .tvOS(.v15), .watchOS(.v7)],
+  platforms: supportedPlatforms(),
   products: [
     .library(
       name: "FirebaseAI",
@@ -356,8 +356,8 @@ let package = Package(
     ),
     .binaryTarget(
       name: "FirebaseAnalytics",
-      url: "https://dl.google.com/firebase/ios/swiftpm/12.16.0/FirebaseAnalytics.zip",
-      checksum: "134cbe0be9b05e4506e8c6cb693049a5d2d0bd7f4026608daa0a7388a1914ed4"
+      url: "https://dl.google.com/firebase/ios/swiftpm/12.17.0/FirebaseAnalytics.zip",
+      checksum: "e9d8457c05640706c5e80f81e46235bf929d55321a127802f8dd7a3c7a98aebb"
     ),
     .testTarget(
       name: "AnalyticsSwiftUnit",
@@ -1367,6 +1367,20 @@ let package = Package(
 
 // MARK: - Helper Functions
 
+/// Returns the list of platforms supported by the package.
+///
+/// Under Xcode 27 (Swift 6.4+), watchOS 9 and macOS 12 are now the minimum deployment targets. For
+/// Xcode 26.x and earlier, the deployment targets are watchOS 7 and macOS 10.15. The iOS, tvOS and
+/// Mac Catalyst minimums remain the same for both.
+func supportedPlatforms() -> [SupportedPlatform] {
+  // TODO: Remove the `compiler(>=6.4)` check when Xcode 27.x is the minimum supported version.
+  #if compiler(>=6.4)
+    return [.iOS(.v15), .macCatalyst(.v15), .macOS(.v12), .tvOS(.v15), .watchOS(.v9)]
+  #else
+    return [.iOS(.v15), .macCatalyst(.v15), .macOS(.v10_15), .tvOS(.v15), .watchOS(.v7)]
+  #endif
+}
+
 func firebaseCrashlyticsTarget() -> Target {
   var cSettings: [CSetting] = [
     .headerSearchPath(".."),
@@ -1439,7 +1453,7 @@ func googleAppMeasurementDependency() -> Package.Dependency {
     return .package(url: appMeasurementURL, branch: "main")
   }
 
-  return .package(url: appMeasurementURL, "12.16.0" ..< "12.17.0")
+  return .package(url: appMeasurementURL, "12.17.0" ..< "12.18.0")
 }
 
 func abseilDependency() -> Package.Dependency {

@@ -1,3 +1,9 @@
+# 12.17.0
+- [fixed] Fixed an issue where surrogate pair replacement ranges were incorrect
+  in push ID generation. (#16415)
+- [fixed] Fixed a potential crash when receiving non-text WebSocket frames.
+  (#16414)
+
 # 12.7.0
 - [fixed] Fix `Fatal Exception: FirebaseDatabasePersistenceFailure`. (#4493)
 - [fixed] Concurrency crash in FView. (#15514)
