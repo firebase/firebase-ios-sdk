@@ -137,7 +137,10 @@ struct LiveSessionTests {
     // The model can't infer that we're done speaking until we send null bytes
     await session.sendAudioRealtime(Data(repeating: 0, count: audioFile.data.count))
 
-    let text = try await session.collectNextAudioOutputTranscript()
+    let text = try #require(
+      try await session.tryCollectNextValidAudioOutputTranscript(),
+      "Model did not respond in time with a non empty response"
+    )
 
     await session.close()
     let modelResponse = text
@@ -178,7 +181,10 @@ struct LiveSessionTests {
     await session.sendAudioRealtime(audioFile.data)
     await session.sendAudioRealtime(Data(repeating: 0, count: audioFile.data.count))
 
-    let text = try await session.collectNextAudioOutputTranscript()
+    let text = try #require(
+      try await session.tryCollectNextValidAudioOutputTranscript(),
+      "Model did not respond in time with a non empty response"
+    )
 
     await session.close()
     let modelResponse = text
@@ -222,10 +228,10 @@ struct LiveSessionTests {
         functionId: functionCall.functionId
       ),
     ])
-    var text = try await session.collectNextAudioOutputTranscript()
-    if text.isEmpty {
-      text = try await session.collectNextAudioOutputTranscript()
-    }
+    let text = try #require(
+      try await session.tryCollectNextValidAudioOutputTranscript(),
+      "Model did not respond in time with a non empty response"
+    )
 
     await session.close()
     let modelResponse = text
@@ -260,10 +266,10 @@ struct LiveSessionTests {
 
     await session.sendTextRealtime("What is my name?")
 
-    var text = try await session.collectNextAudioOutputTranscript()
-    if text.isEmpty {
-      text = try await session.collectNextAudioOutputTranscript()
-    }
+    let text = try #require(
+      try await session.tryCollectNextValidAudioOutputTranscript(),
+      "Model did not respond in time with a non empty response"
+    )
 
     await session.close()
     let modelResponse = text
@@ -298,10 +304,10 @@ struct LiveSessionTests {
 
     await session.sendTextRealtime("What is my name?")
 
-    var text = try await session.collectNextAudioOutputTranscript()
-    if text.isEmpty {
-      text = try await session.collectNextAudioOutputTranscript()
-    }
+    let text = try #require(
+      try await session.tryCollectNextValidAudioOutputTranscript(),
+      "Model did not respond in time with a non empty response"
+    )
 
     await session.close()
     let modelResponse = text
@@ -336,10 +342,10 @@ struct LiveSessionTests {
 
     await session.sendTextRealtime("What is my name?")
 
-    var text = try await session.collectNextAudioOutputTranscript()
-    if text.isEmpty {
-      text = try await session.collectNextAudioOutputTranscript()
-    }
+    let text = try #require(
+      try await session.tryCollectNextValidAudioOutputTranscript(),
+      "Model did not respond in time with a non empty response"
+    )
 
     await session.close()
     let modelResponse = text
@@ -439,11 +445,10 @@ struct LiveSessionTests {
     await session.sendContent("Does five plus")
     await session.sendContent(" five equal ten?", turnComplete: true)
 
-    var text = try await session.collectNextAudioOutputTranscript()
-    if text.isEmpty {
-      // The model sometimes sends an empty text response first
-      text = try await session.collectNextAudioOutputTranscript()
-    }
+    let text = try #require(
+      try await session.tryCollectNextValidAudioOutputTranscript(),
+      "Model did not respond in time with a non empty response"
+    )
 
     await session.close()
     let modelResponse = text
@@ -470,7 +475,10 @@ struct LiveSessionTests {
 
     await session.sendTextRealtime("does five plus five equal ten?")
 
-    let text = try await session.collectNextAudioOutputTranscript()
+    let text = try #require(
+      try await session.tryCollectNextValidAudioOutputTranscript(),
+      "Model did not respond in time with a non empty response"
+    )
 
     await session.close()
     let modelResponse = text
