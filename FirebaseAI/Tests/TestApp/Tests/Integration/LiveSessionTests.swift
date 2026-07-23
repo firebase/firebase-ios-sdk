@@ -17,6 +17,7 @@ import FirebaseAITestApp
 import SwiftUI
 import Testing
 
+import AVFoundation
 @testable import struct FirebaseAILogic.APIConfig
 
 @Suite(.serialized)
@@ -89,6 +90,14 @@ struct LiveSessionTests {
       parts: """
       When you hear "Hello" say "Goodbye". If you hear anything else, say "The audio file is \
       broken".
+      """.trimmingCharacters(in: .whitespacesAndNewlines)
+    )
+
+    static let helloCount = ModelContent(
+      role: "system",
+      parts: """
+      Tell me how many times you hear "Hello" (not including these instructions). Only respond with \
+      the number, nothing else. If you hear anything else, say "The audio file is broken".
       """.trimmingCharacters(in: .whitespacesAndNewlines)
     )
 
@@ -486,9 +495,132 @@ struct LiveSessionTests {
       return nil
     }
   }
+
+  @Test(arguments: arguments)
+  func realtime_automaticActivityDetection_disabled(_ config: InstanceConfig,
+                                                    modelName: String) async throws {
+    let model = FirebaseAI.componentInstance(config).liveModel(
+      modelName: modelName,
+      generationConfig: LiveGenerationConfig(
+        responseModalities: [.audio],
+        outputAudioTranscription: AudioTranscriptionConfig(),
+        realtimeInputConfig: RealtimeInputConfig(
+          automaticActivityDetection: ActivityDetectionConfig.disabled()
+        )
+      ),
+      systemInstruction: SystemInstructions.helloCount
+    )
+
+    let session = try await model.connect()
+
+    let audioFile = try #require(
+      NSDataAsset(name: "hello"), "Missing audio file 'hello.wav' in Assets"
+    )
+    let silentData = generateRawPCMSilence(duration: 1)
+
+    await session.sendStartActivityRealtime()
+
+    await session.sendAudioRealtime(audioFile.data)
+    await session.sendAudioRealtime(silentData)
+
+    try await Task.sleep(nanoseconds: oneSecondInNanoseconds)
+
+    await session.sendAudioRealtime(audioFile.data)
+    await session.sendAudioRealtime(silentData)
+
+    await session.sendStopActivityRealtime()
+
+    let text = try #require(
+      try await session.tryCollectNextValidAudioOutputTranscript(),
+      "Model did not respond in time with a non empty response"
+    )
+
+    await session.close()
+    let modelResponse = text
+      .trimmingCharacters(in: .whitespacesAndNewlines)
+      .trimmingCharacters(in: .punctuationCharacters)
+      .lowercased()
+
+    #expect(modelResponse == "2")
+  }
+
+  @Test(arguments: arguments)
+  func realtime_automaticActivityDetection_enabled(_ config: InstanceConfig,
+                                                   modelName: String) async throws {
+    let model = FirebaseAI.componentInstance(config).liveModel(
+      modelName: modelName,
+      generationConfig: LiveGenerationConfig(
+        responseModalities: [.audio],
+        outputAudioTranscription: AudioTranscriptionConfig(),
+        realtimeInputConfig: RealtimeInputConfig(
+          automaticActivityDetection: ActivityDetectionConfig(
+            silenceDuration: 0.1,
+          ),
+          activityHandling: .noInterrupt
+        )
+      ),
+      systemInstruction: SystemInstructions.helloCount
+    )
+
+    let session = try await model.connect()
+
+    let audioFile = try #require(
+      NSDataAsset(name: "hello"), "Missing audio file 'hello.wav' in Assets"
+    )
+
+    let silentData = generateRawPCMSilence(duration: 1)
+
+    await session.sendAudioRealtime(audioFile.data)
+    await session.sendAudioRealtime(silentData)
+
+    try await Task.sleep(nanoseconds: oneSecondInNanoseconds)
+
+    await session.sendAudioRealtime(audioFile.data)
+    await session.sendAudioRealtime(silentData)
+
+    let text = try #require(
+      try await session.tryCollectNextValidAudioOutputTranscript(),
+      "Model did not respond in time with a non empty response"
+    )
+
+    await session.close()
+    let modelResponse = text
+      .trimmingCharacters(in: .whitespacesAndNewlines)
+      .trimmingCharacters(in: .punctuationCharacters)
+      .lowercased()
+
+    #expect(modelResponse == "1")
+  }
 }
 
 private extension LiveSession {
+  /// Collects the next non empty audio output transcript that the model sends, returning nil if it takes longer than the timeout.
+  ///
+  /// Basically the same as ``collectNextAudioOutputTranscript``, but this method will timeout if it takes too long, and
+  /// will make sure you don't get an empty intermediary response back.
+  func tryCollectNextValidAudioOutputTranscript(timeout: TimeInterval = 5.0) async throws
+    -> String? {
+      let response = try await TestHelpers.withTimeout(seconds: timeout) {
+      var text = ""
+      for try await content in self.responsesOf(LiveServerContent.self) {
+        text += content.outputAudioText()
+        if content.isTurnComplete {
+          if !text.isEmpty {
+            break
+          }
+        }
+      }
+      return text
+    }
+
+    // if the model terminated early, we could get an empty string back
+    guard let response, !response.isEmpty else {
+      return nil
+    }
+
+    return response
+  }
+
   /// Collects the audio output transcripts that the model sends for the next turn.
   ///
   /// Will listen for `LiveServerContent` messages from the model,
@@ -614,4 +746,16 @@ extension LiveServerContent {
   func outputAudioText() -> String {
     outputAudioTranscription?.text ?? ""
   }
+}
+
+/// Generate silent audio data that has a specific duration.
+func generateRawPCMSilence(duration: TimeInterval) -> Data {
+  // gemini uses 16khz mono
+  let sampleRate = 16000
+  // gemini uses 16-bit
+  let bytesPerSample = 2
+
+  let totalSamples = Int(duration * Double(sampleRate))
+  let totalBytes = totalSamples * bytesPerSample
+  return Data(repeating: 0, count: totalBytes)
 }
