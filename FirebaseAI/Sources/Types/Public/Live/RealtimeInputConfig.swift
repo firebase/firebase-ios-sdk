@@ -14,10 +14,14 @@
 
 /// Configures model input behavior when generating content in the Live API via the realtime
 /// supported methods
+///
+/// **Public Preview**: This API is a public preview and may be subject to change.
 public struct RealtimeInputConfig: Sendable {
   let bidiRealtimeInputConfig: BidiRealtimeInputConfig
 
   /// How a model handles user input activity.
+  ///
+  /// **Public Preview**: This API is a public preview and may be subject to change.
   public enum ActivityHandling: Sendable {
     /// When the user sends input marking the start of activity, the model's current response will
     /// be cut-off immediately.
@@ -36,6 +40,8 @@ public struct RealtimeInputConfig: Sendable {
   }
 
   /// How the model considers which input is included in the user's turn.
+  ///
+  /// **Public Preview**: This API is a public preview and may be subject to change.
   public enum TurnCoverage: Sendable {
     /// The model will exclude inactivity (e.g, silence on the audio stream) from the user's input.
     case onlyActivity

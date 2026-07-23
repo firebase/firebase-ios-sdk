@@ -16,11 +16,15 @@ import Foundation
 
 /// Configures the model's automatic detection of user activity.
 ///
+/// **Public Preview**: This API is a public preview and may be subject to change.
+///
 ///  - seealso: ``RealtimeInputConfig``
 public struct ActivityDetectionConfig: Sendable {
   let bidiActivitiyDetectionConfig: BidiActivityDetectionConfig
 
   /// How sensitive the model interprets speech activity.
+  ///
+  /// **Public Preview**: This API is a public preview and may be subject to change.
   public enum Sensitivity: Sendable {
     /// The model will detect speech less often.
     ///
