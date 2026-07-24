@@ -116,7 +116,6 @@ NSInteger compareNewer(FIRCLSInternalReport *reportA,
   }
 
   [reports sortUsingFunction:compareNewer context:nil];
-  NSString *newestReportPath = [reports firstObject].path;
 
   for (FIRCLSInternalReport *report in reports) {
     // Delete reports without any crashes or non-fatals
