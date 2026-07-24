@@ -91,13 +91,12 @@ let nanosecondsPerSecond: Double = 1_000_000_000
 ///   you won't get proper timeout support.
 ///
 /// - Parameters:
-///   - seconds: The amount of seconds to wait before cancelling the callback and considering it a timeout. Must be
-///   **positive**, and at **max one hour**.
+///   - seconds: The amount of seconds to wait before cancelling the callback and considering it a
+///     timeout. Must be **positive**, and at **max one hour**.
 ///   - operation: The callback to execute. **Must** be cancellation-aware.
-func withTimeout<T: Sendable>(
-  seconds: TimeInterval,
-  operation: @escaping @Sendable () async throws -> T
-) async throws -> T? {
+func withTimeout<T: Sendable>(seconds: TimeInterval,
+                              operation: @escaping @Sendable () async throws -> T) async throws
+  -> T? {
   guard seconds > 0 else {
     fatalError("seconds must be a postive number, but we got \(seconds) instead")
   }
@@ -106,7 +105,7 @@ func withTimeout<T: Sendable>(
     fatalError("the maximum amount of seconds you can pass is 1 hour, but you passed \(seconds)")
   }
 
-  let nanoseconds = UInt64(seconds  * nanosecondsPerSecond)
+  let nanoseconds = UInt64(seconds * nanosecondsPerSecond)
 
   return try await withThrowingTaskGroup(of: TimeoutResult<T>.self) { group in
     group.addTask {
