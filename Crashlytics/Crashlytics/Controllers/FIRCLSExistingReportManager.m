@@ -118,13 +118,6 @@ NSInteger compareNewer(FIRCLSInternalReport *reportA,
   [reports sortUsingFunction:compareNewer context:nil];
   NSString *newestReportPath = [reports firstObject].path;
 
-  // If there was a MetricKit event recorded on the last run of the app, add it to the newest
-  // report.
-  if (self.settings.metricKitCollectionEnabled &&
-      [self.fileManager metricKitDiagnosticFileExists]) {
-    [self.fileManager createEmptyMetricKitFile:newestReportPath];
-  }
-
   for (FIRCLSInternalReport *report in reports) {
     // Delete reports without any crashes or non-fatals
     if (![report hasAnyEvents]) {
