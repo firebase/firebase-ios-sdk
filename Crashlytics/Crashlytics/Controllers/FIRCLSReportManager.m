@@ -285,16 +285,17 @@ typedef NSNumber FIRCLSWrappedReportAction;
 
     [self beginSettingsWithToken:dataCollectionToken];
 
-    promise = [reportProfilingPromise
-        onQueue:_dispatchQueue
-           then:^id _Nullable(id _Nullable value) {
-             [self beginReportUploadsWithToken:dataCollectionToken blockingSend:launchFailure];
+    promise = [reportProfilingPromise onQueue:_dispatchQueue
+                                         then:^id _Nullable(id _Nullable value) {
+                                           [self beginReportUploadsWithToken:dataCollectionToken
+                                                                blockingSend:launchFailure];
 
-             // If data collection is enabled, the SDK will not notify the user
-             // when unsent reports are available, or respect Send / DeleteUnsentReports
-             [self->_unsentReportsAvailable fulfill:nil];
-             return @(report != nil);
-           }];
+                                           // If data collection is enabled, the SDK will not notify
+                                           // the user when unsent reports are available, or respect
+                                           // Send / DeleteUnsentReports
+                                           [self->_unsentReportsAvailable fulfill:nil];
+                                           return @(report != nil);
+                                         }];
   } else {
     FIRCLSDebugLog(@"Automatic data collection is disabled.");
     FIRCLSDebugLog(@"[Crashlytics:Crash] %d unsent reports are available. Waiting for "
@@ -302,32 +303,32 @@ typedef NSNumber FIRCLSWrappedReportAction;
                    self.existingReportManager.unsentReportsCount);
 
     // Wait for an action to get sent, either from processReports: or automatic data collection.
-    promise = [[reportProfilingPromise
+    promise = [[reportProfilingPromise onQueue:_dispatchQueue
+                                          then:^id _Nullable(id _Nullable value) {
+                                            return [self waitForReportAction];
+                                          }]
         onQueue:_dispatchQueue
-           then:^id _Nullable(id _Nullable value) {
-             return [self waitForReportAction];
-           }] onQueue:_dispatchQueue
-                 then:^id _Nullable(id _Nullable reportAction) {
-                   // Process the actions for the reports on disk.
-                   FIRCLSReportAction action = [reportAction reportActionValue];
+           then:^id _Nullable(id _Nullable reportAction) {
+             // Process the actions for the reports on disk.
+             FIRCLSReportAction action = [reportAction reportActionValue];
 
-                   if (action == FIRCLSReportActionSend) {
-                     FIRCLSDebugLog(@"Sending unsent reports.");
-                     FIRCLSDataCollectionToken *dataCollectionToken =
-                         [FIRCLSDataCollectionToken validToken];
+             if (action == FIRCLSReportActionSend) {
+               FIRCLSDebugLog(@"Sending unsent reports.");
+               FIRCLSDataCollectionToken *dataCollectionToken =
+                   [FIRCLSDataCollectionToken validToken];
 
-                     [self beginSettingsWithToken:dataCollectionToken];
+               [self beginSettingsWithToken:dataCollectionToken];
 
-                     [self beginReportUploadsWithToken:dataCollectionToken blockingSend:NO];
+               [self beginReportUploadsWithToken:dataCollectionToken blockingSend:NO];
 
-                   } else if (action == FIRCLSReportActionDelete) {
-                     FIRCLSDebugLog(@"Deleting unsent reports.");
-                     [self.existingReportManager deleteUnsentReports];
-                   } else {
-                     FIRCLSErrorLog(@"Unknown report action: %d", action);
-                   }
-                   return @(report != nil);
-                 }];
+             } else if (action == FIRCLSReportActionDelete) {
+               FIRCLSDebugLog(@"Deleting unsent reports.");
+               [self.existingReportManager deleteUnsentReports];
+             } else {
+               FIRCLSErrorLog(@"Unknown report action: %d", action);
+             }
+             return @(report != nil);
+           }];
   }
 
   // To make the code more predictable and therefore testable, don't resolve the startup promise
