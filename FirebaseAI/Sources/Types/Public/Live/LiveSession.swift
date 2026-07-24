@@ -103,7 +103,7 @@ public final class LiveSession: Sendable {
   /// interruption. An example of the start of user activity could be the user speaking
   /// (not silence).
   ///
-  /// Should be followed with a call to ``LiveSession/sendStopActivityRealtime()``; after all the
+  /// Should be followed with a call to ``LiveSession/sendStopActivityRealtime()``, after all the
   /// data has been sent for the user's turn.
   ///
   /// Only required when automatic activity detection is disabled via
