@@ -62,7 +62,7 @@ public struct RealtimeInputConfig: Sendable {
   /// Creates a new ``RealtimeInputConfig`` value.
   ///
   /// - Parameters:
-  ///   - automaticActivityDetection:Configures automatic activity detection on the model.
+  ///   - automaticActivityDetection: Configures automatic activity detection on the model.
   ///
   ///     When not set, automatic activity detection is enabled by default. If set, the user must
   ///     send activity signals.
@@ -73,7 +73,7 @@ public struct RealtimeInputConfig: Sendable {
               activityHandling: ActivityHandling? = nil,
               turnCoverage: TurnCoverage? = nil) {
     self.init(BidiRealtimeInputConfig(
-      automaticActivityDetection: automaticActivityDetection?.bidiActivitiyDetectionConfig,
+      automaticActivityDetection: automaticActivityDetection?.bidiActivityDetectionConfig,
       activityHandling: activityHandling.flatMap(BidiRealtimeInputConfig.ActivityHandling.init),
       turnCoverage: turnCoverage.flatMap(BidiRealtimeInputConfig.TurnCoverage.init)
     ))

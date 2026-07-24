@@ -20,7 +20,7 @@ import Foundation
 ///
 ///  - seealso: ``RealtimeInputConfig``
 public struct ActivityDetectionConfig: Sendable {
-  let bidiActivitiyDetectionConfig: BidiActivityDetectionConfig
+  let bidiActivityDetectionConfig: BidiActivityDetectionConfig
 
   /// How sensitive the model interprets speech activity.
   ///
@@ -40,7 +40,7 @@ public struct ActivityDetectionConfig: Sendable {
   }
 
   init(_ bidiActivityDetectionConfig: BidiActivityDetectionConfig) {
-    bidiActivitiyDetectionConfig = bidiActivityDetectionConfig
+    self.bidiActivityDetectionConfig = bidiActivityDetectionConfig
   }
 
   /// Creates a new ``ActivityDetectionConfig`` value.
@@ -49,7 +49,7 @@ public struct ActivityDetectionConfig: Sendable {
   ///   - startSensitivity: Determines how likely the start of speech is detected.
   ///   - endSensitivity: Determines how likely the end of speech is detected.
   ///   - prefixPadding: How long detected speech should be present before start-of-speech is
-  ///     commited.
+  ///     committed.
   ///
   ///     The lower this value, the more sensitive the start-of-speech detection is and the shorter
   ///     speech can be recognized. However, this also increases the probability of false positives.
@@ -83,7 +83,7 @@ public struct ActivityDetectionConfig: Sendable {
   ///   - startSensitivity: Determines how likely the start of speech is detected.
   ///   - endSensitivity: Determines how likely the end of speech is detected.
   ///   - prefixPadding: How long detected speech should be present before start-of-speech is
-  ///     commited.
+  ///     committed.
   ///
   ///     The lower this value, the more sensitive the start-of-speech detection is and the shorter
   ///     speech can be recognized. However, this also increases the probability of false positives.
@@ -110,7 +110,7 @@ public struct ActivityDetectionConfig: Sendable {
 
   /// Disables automatic activity detection.
   ///
-  /// When automatic activity detection is enabled, the model will interpet detected voices and text
+  /// When automatic activity detection is enabled, the model will interpret detected voices and text
   /// as the start of activity.
   ///
   /// When automatic activity detection is disabled, the user must send activity signals manually.
