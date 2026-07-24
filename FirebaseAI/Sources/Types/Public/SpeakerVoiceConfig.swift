@@ -15,6 +15,8 @@
 import Foundation
 
 /// Configures a speaker with a unique name/identifier and a specific voice.
+///
+/// **Public Preview**: This API is a public preview and may be subject to change.
 public struct SpeakerVoiceConfig: Sendable {
   let speakerVoiceConfig: ProtoSpeakerVoiceConfig
 

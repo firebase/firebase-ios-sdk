@@ -1,9 +1,11 @@
+# Firebase 12.17.0
+- [changed] Removed the  (never activated) `recaptchaSiteKey` property from `FirebaseOptions`.
+  This feature is part of the public preview reCAPTCHA provider.
+
 # Firebase 12.15.0
 - [changed] Firebase now requires Swift tools version 6.1 for the Swift Package.
   The package will no longer resolve in Xcode versions older than 16.3. Note that
   the minimum officially supported version for the SDK remains Xcode 26.2+.
-- [changed] Removed the  (never activated) `recaptchaSiteKey` property from `FirebaseOptions`.
-  This feature is part of the public preview reCAPTCHA provider.
 
 # Firebase 12.14.0
 - [fixed] Remove extra comma in Package.swift that caused SPM resolution

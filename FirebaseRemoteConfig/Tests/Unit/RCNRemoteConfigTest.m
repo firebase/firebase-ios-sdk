@@ -2003,6 +2003,44 @@ static NSString *UTCToLocal(NSString *utcTime) {
   [self waitForExpectationsWithTimeout:_expectationTimeout handler:nil];
 }
 
+#pragma mark - Memory Leak Tests
+
+- (void)testActivateWithCompletionMemoryLeak {
+  XCTestExpectation *expectation = [self expectationWithDescription:@"activate completes"];
+  __weak FIRRemoteConfig *weakInstance = nil;
+
+  @autoreleasepool {
+    FIRApp *app = [FIRApp appNamed:@"fir-app-name-test"];
+    if (!app) {
+      [FIRApp configureWithName:@"fir-app-name-test" options:[self firstAppOptions]];
+      app = [FIRApp appNamed:@"fir-app-name-test"];
+    }
+
+    RCNConfigContent *configContent = [[RCNConfigContent alloc] initWithDBManager:_DBManager];
+    __block FIRRemoteConfig *instance = [[FIRRemoteConfig alloc] initWithAppName:app.name
+                                                                      FIROptions:app.options
+                                                                       namespace:@"test_namespace"
+                                                                       DBManager:_DBManager
+                                                                   configContent:configContent
+                                                                       analytics:nil];
+    weakInstance = instance;
+
+    // Set settings to ensure the activation path is fully executed and does not return early.
+    RCNConfigSettings *settings = [instance valueForKey:@"_settings"];
+    settings.lastETagUpdateTime = 100;
+    settings.lastApplyTimeInterval = 0;
+
+    [instance activateWithCompletion:^(BOOL changed, NSError *_Nullable error) {
+      instance = nil;
+      [expectation fulfill];
+    }];
+  }
+
+  [self waitForExpectationsWithTimeout:_expectationTimeout handler:nil];
+  XCTAssertNil(weakInstance,
+               @"FIRRemoteConfig instance was not deallocated. Retain cycle present!");
+}
+
 #pragma mark - Test Helpers
 
 - (FIROptions *)firstAppOptions {
