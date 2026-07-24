@@ -610,7 +610,7 @@ private extension LiveSession {
   /// will make sure you don't get an empty intermediary response back.
   func tryCollectNextValidAudioOutputTranscript(timeout: TimeInterval = 5.0) async throws
     -> String? {
-    let response = try await TestHelpers.withTimeout(seconds: timeout) {
+    let response = try await withTimeout(seconds: timeout) {
       var text = ""
       for try await content in self.responsesOf(LiveServerContent.self) {
         text += content.outputAudioText()
