@@ -40,7 +40,7 @@ public struct ActivityDetectionConfig: Sendable {
   }
 
   init(_ bidiActivityDetectionConfig: BidiActivityDetectionConfig) {
-    bidiActivityDetectionConfig = bidiActivityDetectionConfig
+    self.bidiActivityDetectionConfig = bidiActivityDetectionConfig
   }
 
   /// Creates a new ``ActivityDetectionConfig`` value.
