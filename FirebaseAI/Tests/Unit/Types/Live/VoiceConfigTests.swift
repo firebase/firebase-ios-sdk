@@ -13,8 +13,8 @@
 // limitations under the License.
 
 import XCTest
-
 @testable import FirebaseAILogic
+internal import GenerateContentAPI
 
 @available(watchOS, unavailable)
 final class VoiceConfigTests: XCTestCase {
@@ -26,8 +26,8 @@ final class VoiceConfigTests: XCTestCase {
   }
 
   func testEncodeVoiceConfig_prebuiltVoice() throws {
-    let voice = ProtoVoiceConfig.prebuiltVoiceConfig(
-      ProtoPrebuiltVoiceConfig(voiceName: "Zephyr")
+    let voice = GenerateContentAPI.VoiceConfig(
+      prebuiltVoiceConfig: GenerateContentAPI.PrebuiltVoiceConfig(voiceName: "Zephyr")
     )
 
     let jsonData = try encoder.encode(voice)
@@ -43,8 +43,10 @@ final class VoiceConfigTests: XCTestCase {
   }
 
   func testEncodeVoiceConfig_customVoice() throws {
-    let voice = ProtoVoiceConfig.customVoiceConfig(
-      ProtoCustomVoiceConfig(customVoiceSample: Data(repeating: 5, count: 5))
+    let voice = GenerateContentAPI.VoiceConfig(
+      replicatedVoiceConfig: GenerateContentAPI.ReplicatedVoiceConfig(
+        voiceSampleAudio: Data(repeating: 5, count: 5)
+      )
     )
 
     let jsonData = try encoder.encode(voice)
@@ -52,8 +54,8 @@ final class VoiceConfigTests: XCTestCase {
     let json = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
     XCTAssertEqual(json, """
     {
-      "customVoiceConfig" : {
-        "customVoiceSample" : "BQUFBQU="
+      "replicatedVoiceConfig" : {
+        "voiceSampleAudio" : "BQUFBQU="
       }
     }
     """)

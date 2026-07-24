@@ -14,6 +14,7 @@
 
 #if compiler(>=6.2.3) && canImport(FoundationModels)
   import FoundationModels
+  internal import GenerateContentAPI
   import XCTest
 
   @testable import FirebaseAILogic
@@ -91,14 +92,11 @@
       )
       let geminiSession = try XCTUnwrap(modelSession as? GeminiModelSession)
       for content in geminiSession.chat.history {
-        for part in content.internalParts {
-          switch part.data {
-          case let .functionCall(functionCall):
-            functionCalls.append(functionCall)
-          case let .functionResponse(functionResponse):
-            functionResponses.append(functionResponse)
-          default:
-            continue
+        for part in content.parts {
+          if let functionCallPart = part as? FunctionCallPart {
+            functionCalls.append(functionCallPart.functionCall)
+          } else if let functionResponsePart = part as? FunctionResponsePart {
+            functionResponses.append(functionResponsePart.functionResponse)
           }
         }
       }
@@ -145,14 +143,11 @@
       )
       let geminiSession = try XCTUnwrap(modelSession as? GeminiModelSession)
       for content in geminiSession.chat.history {
-        for part in content.internalParts {
-          switch part.data {
-          case let .functionCall(functionCall):
-            functionCalls.append(functionCall)
-          case let .functionResponse(functionResponse):
-            functionResponses.append(functionResponse)
-          default:
-            continue
+        for part in content.parts {
+          if let functionCallPart = part as? FunctionCallPart {
+            functionCalls.append(functionCallPart.functionCall)
+          } else if let functionResponsePart = part as? FunctionResponsePart {
+            functionResponses.append(functionResponsePart.functionResponse)
           }
         }
       }
@@ -297,14 +292,11 @@
       )
       let geminiSession = try XCTUnwrap(modelSession as? GeminiModelSession)
       for content in geminiSession.chat.history {
-        for part in content.internalParts {
-          switch part.data {
-          case let .functionCall(functionCall):
-            functionCalls.append(functionCall)
-          case let .functionResponse(functionResponse):
-            functionResponses.append(functionResponse)
-          default:
-            continue
+        for part in content.parts {
+          if let functionCallPart = part as? FunctionCallPart {
+            functionCalls.append(functionCallPart.functionCall)
+          } else if let functionResponsePart = part as? FunctionResponsePart {
+            functionResponses.append(functionResponsePart.functionResponse)
           }
         }
       }
@@ -338,7 +330,7 @@
           headerFields: nil
         ))
 
-        let json = try JSONDecoder().decode(JSONObject.self, from: requestBody)
+        let json = try JSONDecoder().decode(FirebaseAILogic.JSONObject.self, from: requestBody)
         guard case let .object(generationConfig) = json["generationConfig"] else {
           XCTFail("Expected an object for JSON key 'generationConfig', got: \(json)")
           return (response, nil)
@@ -399,14 +391,11 @@
       )
       let geminiSession = try XCTUnwrap(modelSession as? GeminiModelSession)
       for content in geminiSession.chat.history {
-        for part in content.internalParts {
-          switch part.data {
-          case let .functionCall(functionCall):
-            functionCalls.append(functionCall)
-          case let .functionResponse(functionResponse):
-            functionResponses.append(functionResponse)
-          default:
-            continue
+        for part in content.parts {
+          if let functionCallPart = part as? FunctionCallPart {
+            functionCalls.append(functionCallPart.functionCall)
+          } else if let functionResponsePart = part as? FunctionResponsePart {
+            functionResponses.append(functionResponsePart.functionResponse)
           }
         }
       }
@@ -458,14 +447,11 @@
       )
       let geminiSession = try XCTUnwrap(modelSession as? GeminiModelSession)
       for content in geminiSession.chat.history {
-        for part in content.internalParts {
-          switch part.data {
-          case let .functionCall(functionCall):
-            functionCalls.append(functionCall)
-          case let .functionResponse(functionResponse):
-            functionResponses.append(functionResponse)
-          default:
-            continue
+        for part in content.parts {
+          if let functionCallPart = part as? FunctionCallPart {
+            functionCalls.append(functionCallPart.functionCall)
+          } else if let functionResponsePart = part as? FunctionResponsePart {
+            functionResponses.append(functionResponsePart.functionResponse)
           }
         }
       }
@@ -533,14 +519,11 @@
       )
       let geminiSession = try XCTUnwrap(modelSession as? GeminiModelSession)
       for content in geminiSession.chat.history {
-        for part in content.internalParts {
-          switch part.data {
-          case let .functionCall(functionCall):
-            functionCalls.append(functionCall)
-          case let .functionResponse(functionResponse):
-            functionResponses.append(functionResponse)
-          default:
-            continue
+        for part in content.parts {
+          if let functionCallPart = part as? FunctionCallPart {
+            functionCalls.append(functionCallPart.functionCall)
+          } else if let functionResponsePart = part as? FunctionResponsePart {
+            functionResponses.append(functionResponsePart.functionResponse)
           }
         }
       }
@@ -621,7 +604,7 @@
 
     func mockGeminiModel(modelName: String? = nil, modelResourceName: String? = nil,
                          firebaseInfo: FirebaseInfo? = nil, apiConfig: APIConfig? = nil,
-                         safetySettings: [SafetySetting]? = nil,
+                         safetySettings: [FirebaseAILogic.SafetySetting]? = nil,
                          requestOptions: RequestOptions? = nil, urlSession: URLSession? = nil)
       throws -> GeminiModel {
       return GeminiModel(

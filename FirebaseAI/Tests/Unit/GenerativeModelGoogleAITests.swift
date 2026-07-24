@@ -305,7 +305,7 @@ final class GenerativeModelGoogleAITests: XCTestCase {
     XCTAssertEqual(functionCallPart.name, "now")
     XCTAssertTrue(functionCallPart.args.isEmpty)
     let thoughtSignature = try XCTUnwrap(functionCallPart.thoughtSignature)
-    XCTAssertTrue(thoughtSignature.hasPrefix("CtQOAVSoXO74PmYr9AFu"))
+    XCTAssertTrue(thoughtSignature.base64EncodedString().hasPrefix("CtQOAVSoXO74PmYr9AFu"))
   }
 
   func testGenerateContent_success_codeExecution() async throws {
@@ -582,7 +582,7 @@ final class GenerativeModelGoogleAITests: XCTestCase {
     XCTAssertEqual(functionCall.name, "now")
     XCTAssertTrue(functionCall.args.isEmpty)
     let thoughtSignature = try XCTUnwrap(functionCall.thoughtSignature)
-    XCTAssertTrue(thoughtSignature.hasPrefix("CiIBVKhc7vB+vaaq6rA"))
+    XCTAssertTrue(thoughtSignature.base64EncodedString().hasPrefix("CiIBVKhc7vB+vaaq6rA"))
   }
 
   func testGenerateContentStream_success_ignoresEmptyParts() async throws {

@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import Foundation
+internal import GenerateContentAPI
 
 /// A collection of name-value pairs representing a JSON object.
 ///
@@ -155,3 +156,48 @@ extension JSONValue: Equatable {}
     }
   }
 #endif // compiler(>=6.2.3)
+
+// MARK: - Payload Convertible Conformances
+
+extension JSONValue: ConvertibleToRequestPayload {
+  func toRequestPayload() -> GenerateContentAPI.JSONValue {
+    switch self {
+    case .null:
+      return .null
+    case let .number(value):
+      return .number(value)
+    case let .string(value):
+      return .string(value)
+    case let .bool(value):
+      return .bool(value)
+    case let .object(objectValue):
+      let convertedObject = objectValue.mapValues { $0.toRequestPayload() }
+      return .object(convertedObject)
+    case let .array(arrayValue):
+      let convertedArray = arrayValue.map { $0.toRequestPayload() }
+      return .array(convertedArray)
+    }
+  }
+}
+
+extension JSONValue: ConvertibleFromResponsePayload {
+  init(_ responsePayload: GenerateContentAPI.JSONValue) {
+    switch responsePayload {
+    case .null:
+      self = .null
+    case let .number(value):
+      self = .number(value)
+    case let .string(value):
+      self = .string(value)
+    case let .bool(value):
+      self = .bool(value)
+    case let .object(objectValue):
+      let convertedObject = objectValue.mapValues { JSONValue($0) }
+      self = .object(convertedObject)
+    case let .array(arrayValue):
+      let convertedArray = arrayValue.map { JSONValue($0) }
+      self = .array(convertedArray)
+    }
+  }
+}
+

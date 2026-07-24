@@ -30,3 +30,15 @@ extension URLContextMetadata: Decodable {
     urlMetadata = try container.decodeIfPresent([URLMetadata].self, forKey: .urlMetadata) ?? []
   }
 }
+
+// MARK: - Payload Convertible Conformances
+
+internal import GenerateContentAPI
+
+extension URLContextMetadata: ConvertibleFromResponsePayload {
+  init(_ responsePayload: GenerateContentAPI.UrlContextMetadata) throws {
+    let list = try responsePayload.urlMetadata?.map { try URLMetadata($0) } ?? []
+    self.init(urlMetadata: list)
+  }
+}
+

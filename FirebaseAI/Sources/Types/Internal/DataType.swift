@@ -38,3 +38,14 @@ enum DataType: String {
 // MARK: - Codable Conformance
 
 extension DataType: Encodable {}
+
+// MARK: - Payload Convertible Conformance
+
+internal import GenerateContentAPI
+
+extension DataType: ConvertibleToRequestPayload {
+  func toRequestPayload() throws -> GenerateContentAPI.DataType? {
+    return GenerateContentAPI.DataType(rawValue: rawValue)
+  }
+}
+

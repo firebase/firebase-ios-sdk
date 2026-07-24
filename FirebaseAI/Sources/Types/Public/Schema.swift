@@ -500,3 +500,30 @@ extension Schema: Equatable {
       lhs.propertyOrdering == rhs.propertyOrdering
   }
 }
+
+// MARK: - Payload Convertible Conformances
+
+internal import GenerateContentAPI
+
+extension Schema: ConvertibleToRequestPayload {
+  func toRequestPayload() throws -> GenerateContentAPI.Schema {
+    return GenerateContentAPI.Schema(
+      type: try dataType?.toRequestPayload(),
+      format: format,
+      title: title,
+      description: description,
+      nullable: nullable,
+      enum: enumValues,
+      items: try items?.toRequestPayload(),
+      maxItems: maxItems.map { Int64($0) },
+      minItems: minItems.map { Int64($0) },
+      properties: try properties?.mapValues { try $0.toRequestPayload() },
+      required: requiredProperties,
+      minimum: minimum,
+      maximum: maximum,
+      anyOf: try anyOf?.map { try $0.toRequestPayload() },
+      propertyOrdering: propertyOrdering
+    )
+  }
+}
+

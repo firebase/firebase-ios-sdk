@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import Foundation
+internal import GenerateContentAPI
 
 /// Client generated response to a `ToolCall` received from the server.
 /// Individual `FunctionResponse` objects are matched to the respective
@@ -25,5 +26,5 @@ import Foundation
 @available(watchOS, unavailable)
 struct BidiGenerateContentToolResponse: Encodable {
   /// The response to the function calls.
-  let functionResponses: [FunctionResponse]?
+  let functionResponses: [GenerateContentAPI.FunctionResponse]?
 }

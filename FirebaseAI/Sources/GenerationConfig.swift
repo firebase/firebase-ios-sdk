@@ -62,7 +62,7 @@ public struct GenerationConfig: Sendable, Equatable {
   var imageConfig: ImageConfig?
 
   /// Configuration for controlling the voice of the model during conversation.
-  var speechConfig: ProtoSpeechConfig?
+  var speechConfig: SpeechConfig?
 
   /// Creates a new `GenerationConfig` value.
   ///
@@ -197,7 +197,7 @@ public struct GenerationConfig: Sendable, Equatable {
     self.responseModalities = responseModalities
     self.thinkingConfig = thinkingConfig
     self.imageConfig = imageConfig
-    self.speechConfig = speechConfig?.speechConfig
+    self.speechConfig = speechConfig
   }
 
   init(temperature: Float? = nil, topP: Float? = nil, topK: Int? = nil, candidateCount: Int? = nil,
@@ -218,7 +218,7 @@ public struct GenerationConfig: Sendable, Equatable {
     self.responseJSONSchema = responseJSONSchema
     self.responseModalities = responseModalities
     self.thinkingConfig = thinkingConfig
-    self.speechConfig = speechConfig?.speechConfig
+    self.speechConfig = speechConfig
     self.imageConfig = imageConfig
   }
 
@@ -276,21 +276,38 @@ public struct GenerationConfig: Sendable, Equatable {
 // MARK: - Codable Conformances
 
 extension GenerationConfig: Encodable {
-  enum CodingKeys: String, CodingKey {
-    case temperature
-    case topP
-    case topK
-    case candidateCount
-    case maxOutputTokens
-    case presencePenalty
-    case frequencyPenalty
-    case stopSequences
-    case responseMIMEType = "responseMimeType"
-    case responseSchema
-    case responseJSONSchema = "responseJsonSchema"
-    case responseModalities
-    case thinkingConfig
-    case imageConfig
-    case speechConfig
+  public func encode(to encoder: any Encoder) throws {
+    try defaultEncode(to: encoder)
   }
 }
+
+// MARK: - Payload Convertible Conformances
+
+internal import GenerateContentAPI
+
+extension GenerationConfig: ConvertibleToRequestPayload {
+  func toRequestPayload() throws -> GenerateContentAPI.GenerationConfig {
+    let payloadSchema = try responseSchema?.toRequestPayload()
+    let payloadJsonSchema = responseJSONSchema.map { JSONValue.object($0).toRequestPayload() }
+    let payloadModalities = responseModalities?.map { $0.rawValue }
+
+    return GenerateContentAPI.GenerationConfig(
+      candidateCount: candidateCount,
+      stopSequences: stopSequences,
+      maxOutputTokens: maxOutputTokens,
+      temperature: temperature.map { Double($0) },
+      topP: topP.map { Double($0) },
+      topK: topK,
+      responseMimeType: responseMIMEType,
+      responseSchema: payloadSchema,
+      responseJsonSchema: payloadJsonSchema,
+      presencePenalty: presencePenalty.map { Double($0) },
+      frequencyPenalty: frequencyPenalty.map { Double($0) },
+      responseModalities: payloadModalities,
+      speechConfig: try speechConfig?.toRequestPayload(),
+      thinkingConfig: try thinkingConfig?.toRequestPayload(),
+      imageConfig: try imageConfig?.toRequestPayload()
+    )
+  }
+}
+

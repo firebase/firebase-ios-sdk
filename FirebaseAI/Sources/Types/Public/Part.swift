@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import Foundation
+internal import GenerateContentAPI
 #if canImport(FoundationModels)
   import FoundationModels
 #endif // canImport(FoundationModels)
@@ -36,7 +37,7 @@ public struct TextPart: Part {
 
   public var isThought: Bool { _isThought ?? false }
 
-  let thoughtSignature: String?
+  let thoughtSignature: Data?
 
   let _isThought: Bool?
 
@@ -44,7 +45,7 @@ public struct TextPart: Part {
     self.init(text, isThought: nil, thoughtSignature: nil)
   }
 
-  init(_ text: String, isThought: Bool?, thoughtSignature: String?) {
+  init(_ text: String, isThought: Bool?, thoughtSignature: Data?) {
     self.text = text
     _isThought = isThought
     self.thoughtSignature = thoughtSignature
@@ -63,18 +64,20 @@ public struct TextPart: Part {
 ///  ](https://firebase.google.com/docs/vertex-ai/input-file-requirements#provide-file-as-inline-data)
 ///  for more details and size limits.
 public struct InlineDataPart: Part {
-  let inlineData: InlineData
+  let inlineData: GenerateContentAPI.Blob
   let _isThought: Bool?
 
   /// The data provided in the inline data part.
-  public var data: Data { inlineData.data }
+  public var data: Data { AILog.safeUnwrap(inlineData.data, fallback: Data()) }
 
   /// The IANA standard MIME type of the data.
-  public var mimeType: String { inlineData.mimeType }
+  public var mimeType: String {
+    AILog.safeUnwrap(inlineData.mimeType, fallback: Constants.unknownDataMIMEType)
+  }
 
   public var isThought: Bool { _isThought ?? false }
 
-  let thoughtSignature: String?
+  let thoughtSignature: Data?
 
   /// Creates an inline data part from data and a MIME type.
   ///
@@ -91,10 +94,14 @@ public struct InlineDataPart: Part {
   ///     requirements](https://firebase.google.com/docs/vertex-ai/input-file-requirements) for
   ///     supported values.
   public init(data: Data, mimeType: String) {
-    self.init(InlineData(data: data, mimeType: mimeType), isThought: nil, thoughtSignature: nil)
+    self.init(
+      GenerateContentAPI.Blob(mimeType: mimeType, data: data),
+      isThought: nil,
+      thoughtSignature: nil
+    )
   }
 
-  init(_ inlineData: InlineData, isThought: Bool?, thoughtSignature: String?) {
+  init(_ inlineData: GenerateContentAPI.Blob, isThought: Bool?, thoughtSignature: Data?) {
     self.inlineData = inlineData
     _isThought = isThought
     self.thoughtSignature = thoughtSignature
@@ -105,10 +112,16 @@ public struct InlineDataPart: Part {
 public struct FileDataPart: Part {
   let fileData: FileData
   let _isThought: Bool?
-  let thoughtSignature: String?
+  let thoughtSignature: Data?
 
-  public var uri: String { fileData.fileURI }
-  public var mimeType: String { fileData.mimeType }
+  public var uri: String {
+    AILog.safeUnwrap(fileData.fileUri, fallback: Constants.unknownFileURI)
+  }
+
+  public var mimeType: String {
+    AILog.safeUnwrap(fileData.mimeType, fallback: Constants.unknownDataMIMEType)
+  }
+
   public var isThought: Bool { _isThought ?? false }
 
   /// Constructs a new file data part.
@@ -121,10 +134,14 @@ public struct FileDataPart: Part {
   ///     requirements](https://firebase.google.com/docs/vertex-ai/input-file-requirements) for
   ///     supported values.
   public init(uri: String, mimeType: String) {
-    self.init(FileData(fileURI: uri, mimeType: mimeType), isThought: nil, thoughtSignature: nil)
+    self.init(
+      GenerateContentAPI.FileData(mimeType: mimeType, fileUri: uri),
+      isThought: nil,
+      thoughtSignature: nil
+    )
   }
 
-  init(_ fileData: FileData, isThought: Bool?, thoughtSignature: String?) {
+  init(_ fileData: GenerateContentAPI.FileData, isThought: Bool?, thoughtSignature: Data?) {
     self.fileData = fileData
     _isThought = isThought
     self.thoughtSignature = thoughtSignature
@@ -133,15 +150,17 @@ public struct FileDataPart: Part {
 
 /// A predicted function call returned from the model.
 public struct FunctionCallPart: Part {
-  let functionCall: FunctionCall
+  let functionCall: GenerateContentAPI.FunctionCall
   let _isThought: Bool?
-  let thoughtSignature: String?
+  let thoughtSignature: Data?
 
   /// The name of the function to call.
-  public var name: String { functionCall.name }
+  public var name: String {
+    AILog.safeUnwrap(functionCall.name, fallback: Constants.unknownFunctionName)
+  }
 
   /// The function parameters and values.
-  public var args: JSONObject { functionCall.args }
+  public var args: JSONObject { functionCall.args?.mapValues { JSONValue($0) } ?? [:] }
 
   public var isThought: Bool { _isThought ?? false }
 
@@ -158,25 +177,21 @@ public struct FunctionCallPart: Part {
   /// - Parameters:
   ///   - name: The name of the function to call.
   ///   - args: The function parameters and values.
-  public init(name: String, args: JSONObject) {
-    self.init(FunctionCall(name: name, args: args, id: nil), isThought: nil, thoughtSignature: nil)
-  }
-
-  /// Constructs a new function call part.
-  ///
-  /// > Note: A `FunctionCallPart` is typically received from the model, rather than created
-  /// manually.
-  ///
-  /// - Parameters:
-  ///   - name: The name of the function to call.
-  ///   - args: The function parameters and values.
   ///   - id: Unique id of the function call. If present, the returned ``FunctionResponsePart``
   ///     should have a matching ``FunctionResponsePart/functionId`` field.
   public init(name: String, args: JSONObject, id: String? = nil) {
-    self.init(FunctionCall(name: name, args: args, id: id), isThought: nil, thoughtSignature: nil)
+    self.init(
+      GenerateContentAPI.FunctionCall(
+        id: id,
+        name: name,
+        args: args.mapValues { $0.toRequestPayload() }
+      ),
+      isThought: nil,
+      thoughtSignature: nil
+    )
   }
 
-  init(_ functionCall: FunctionCall, isThought: Bool? = nil, thoughtSignature: String? = nil) {
+  init(_ functionCall: GenerateContentAPI.FunctionCall, isThought: Bool? = nil, thoughtSignature: Data? = nil) {
     self.functionCall = functionCall
     _isThought = isThought
     self.thoughtSignature = thoughtSignature
@@ -189,31 +204,22 @@ public struct FunctionCallPart: Part {
 /// containing any output from the function is used as context to the model. This should contain the
 /// result of a ``FunctionCallPart`` made based on model prediction.
 public struct FunctionResponsePart: Part {
-  let functionResponse: FunctionResponse
+  let functionResponse: GenerateContentAPI.FunctionResponse
   let _isThought: Bool?
-  let thoughtSignature: String?
+  let thoughtSignature: Data?
 
   /// Matching ``FunctionCallPart/functionId`` for a ``FunctionCallPart``, if one was provided.
   public var functionId: String? { functionResponse.id }
 
   /// The name of the function that was called.
-  public var name: String { functionResponse.name }
+  public var name: String {
+    AILog.safeUnwrap(functionResponse.name, fallback: Constants.unknownFunctionName)
+  }
 
   /// The function's response or return value.
-  public var response: JSONObject { functionResponse.response }
+  public var response: JSONObject { functionResponse.response?.mapValues { JSONValue($0) } ?? [:] }
 
   public var isThought: Bool { _isThought ?? false }
-
-  /// Constructs a new `FunctionResponse`.
-  ///
-  /// - Parameters:
-  ///   - name: The name of the function that was called.
-  ///   - response: The function's response.
-  public init(name: String, response: JSONObject) {
-    self.init(
-      FunctionResponse(name: name, response: response), isThought: nil, thoughtSignature: nil
-    )
-  }
 
   /// Constructs a new `FunctionResponse`.
   ///
@@ -224,13 +230,17 @@ public struct FunctionResponsePart: Part {
   ///     was provided.
   public init(name: String, response: JSONObject, functionId: String? = nil) {
     self.init(
-      FunctionResponse(name: name, response: response, id: functionId),
+      GenerateContentAPI.FunctionResponse(
+        id: functionId,
+        name: name,
+        response: response.mapValues { $0.toRequestPayload() }
+      ),
       isThought: nil,
       thoughtSignature: nil
     )
   }
 
-  init(_ functionResponse: FunctionResponse, isThought: Bool?, thoughtSignature: String?) {
+  init(_ functionResponse: FunctionResponse, isThought: Bool?, thoughtSignature: Data?) {
     self.functionResponse = functionResponse
     _isThought = isThought
     self.thoughtSignature = thoughtSignature
@@ -241,29 +251,29 @@ public struct FunctionResponsePart: Part {
 public struct ExecutableCodePart: Part {
   /// The language of the code in an ``ExecutableCodePart``.
   public struct Language: Sendable, Equatable, CustomStringConvertible {
-    let internalLanguage: ExecutableCode.Language
+    let internalLanguage: GenerateContentAPI.ExecutableCode.Language
 
     /// The Python programming language.
-    public static let python = ExecutableCodePart.Language(ExecutableCode.Language(kind: .python))
+    public static let python = ExecutableCodePart.Language(.python)
 
     public var description: String { internalLanguage.rawValue }
 
-    init(_ language: ExecutableCode.Language) {
+    init(_ language: GenerateContentAPI.ExecutableCode.Language) {
       internalLanguage = language
     }
   }
 
-  let executableCode: ExecutableCode
+  let executableCode: GenerateContentAPI.ExecutableCode
   let _isThought: Bool?
-  let thoughtSignature: String?
+  let thoughtSignature: Data?
 
   /// The language of the code.
   public var language: ExecutableCodePart.Language {
+    // Fallback to "LANGUAGE_UNSPECIFIED" if the value is ever omitted by the backend; this should
+    // never happen.
     ExecutableCodePart.Language(
-      // Fallback to "LANGUAGE_UNSPECIFIED" if the value is ever omitted by the backend; this should
-      // never happen.
       AILog.safeUnwrap(
-        executableCode.language, fallback: ExecutableCode.Language(kind: .unspecified)
+        executableCode.language, fallback: .unrecognized("LANGUAGE_UNSPECIFIED")
       )
     )
   }
@@ -278,13 +288,13 @@ public struct ExecutableCodePart: Part {
 
   public init(language: ExecutableCodePart.Language, code: String) {
     self.init(
-      ExecutableCode(language: language.internalLanguage, code: code),
+      GenerateContentAPI.ExecutableCode(language: language.internalLanguage, code: code),
       isThought: nil,
       thoughtSignature: nil
     )
   }
 
-  init(_ executableCode: ExecutableCode, isThought: Bool?, thoughtSignature: String?) {
+  init(_ executableCode: ExecutableCode, isThought: Bool?, thoughtSignature: Data?) {
     self.executableCode = executableCode
     _isThought = isThought
     self.thoughtSignature = thoughtSignature
@@ -298,35 +308,31 @@ public struct CodeExecutionResultPart: Part {
     let internalOutcome: CodeExecutionResult.Outcome
 
     /// The code executed without errors.
-    public static let ok = CodeExecutionResultPart.Outcome(CodeExecutionResult.Outcome(kind: .ok))
+    public static let ok = CodeExecutionResultPart.Outcome(.ok)
 
     /// The code failed to execute.
-    public static let failed =
-      CodeExecutionResultPart.Outcome(CodeExecutionResult.Outcome(kind: .failed))
+    public static let failed = CodeExecutionResultPart.Outcome(.failed)
 
     /// The code took too long to execute.
-    public static let deadlineExceeded =
-      CodeExecutionResultPart.Outcome(CodeExecutionResult.Outcome(kind: .deadlineExceeded))
+    public static let deadlineExceeded = CodeExecutionResultPart.Outcome(.deadlineExceeded)
 
     public var description: String { internalOutcome.rawValue }
 
-    init(_ outcome: CodeExecutionResult.Outcome) {
+    init(_ outcome: GenerateContentAPI.CodeExecutionResult.Outcome) {
       internalOutcome = outcome
     }
   }
 
-  let codeExecutionResult: CodeExecutionResult
+  let codeExecutionResult: GenerateContentAPI.CodeExecutionResult
   let _isThought: Bool?
-  let thoughtSignature: String?
+  let thoughtSignature: Data?
 
   /// The outcome of the code execution.
   public var outcome: CodeExecutionResultPart.Outcome {
     CodeExecutionResultPart.Outcome(
       // Fallback to "OUTCOME_UNSPECIFIED" if this value is ever omitted by the backend; this should
       // never happen.
-      AILog.safeUnwrap(
-        codeExecutionResult.outcome, fallback: CodeExecutionResult.Outcome(kind: .unspecified)
-      )
+      AILog.safeUnwrap(codeExecutionResult.outcome, fallback: .unrecognized("OUTCOME_UNSPECIFIED"))
     )
   }
 
@@ -343,7 +349,7 @@ public struct CodeExecutionResultPart: Part {
     )
   }
 
-  init(codeExecutionResult: CodeExecutionResult, isThought: Bool?, thoughtSignature: String?) {
+  init(codeExecutionResult: CodeExecutionResult, isThought: Bool?, thoughtSignature: Data?) {
     self.codeExecutionResult = codeExecutionResult
     _isThought = isThought
     self.thoughtSignature = thoughtSignature
@@ -356,29 +362,23 @@ public struct CodeExecutionResultPart: Part {
   @available(watchOS, unavailable)
   extension [any Part] {
     func toFoundationModelsPrompt() throws -> FoundationModels.Prompt {
-      let parts = ModelContent(parts: self)
-      let promptParts: [any FoundationModels.PromptRepresentable] = try parts.internalParts
+      let promptParts: [any FoundationModels.PromptRepresentable] = try self
         .compactMap { part in
           // Skip any `thought` parts since they are unused by Foundation Models.
-          guard !(part.isThought ?? false) else { return nil }
+          guard !part.isThought else { return nil }
 
-          // Skip any parts without `data`, for example a `Part` containing only a thought
-          // signature, since they are unused by Foundation Models.
-          guard let data = part.data else { return nil }
-
-          // Currently only string types are supported.
-          guard case let .text(string) = data else {
+          guard let textPart = part as? TextPart else {
             throw GenerativeModelSession.GenerationError.unsupportedPromptContent(
               GenerativeModelSession.GenerationError.Context(
                 debugDescription: """
-                Prompt data type "\(data)" is not supported by the on-device model; currently only \
+                Prompt data type "\(type(of: part))" is not supported by the on-device model; currently only \
                 text content is supported.
                 """
               )
             )
           }
 
-          return string
+          return textPart.text
         }
 
       return Prompt {
@@ -389,3 +389,105 @@ public struct CodeExecutionResultPart: Part {
     }
   }
 #endif // compiler(>=6.2.3) && canImport(FoundationModels)
+
+// MARK: - Payload Convertible Conformances
+
+extension TextPart: ConvertibleToRequestPayload {
+  public func encode(to encoder: any Encoder) throws {
+    try defaultEncode(to: encoder)
+  }
+
+  func toRequestPayload() throws -> GenerateContentAPI.Part {
+    return GenerateContentAPI.Part(
+      data: .text(text),
+      thought: _isThought,
+      thoughtSignature: thoughtSignature
+    )
+  }
+}
+
+extension InlineDataPart: ConvertibleToRequestPayload {
+  public func encode(to encoder: any Encoder) throws {
+    try defaultEncode(to: encoder)
+  }
+
+  func toRequestPayload() throws -> GenerateContentAPI.Part {
+    return GenerateContentAPI.Part(
+      data: .inlineData(inlineData),
+      thought: _isThought,
+      thoughtSignature: thoughtSignature
+    )
+  }
+}
+
+extension FileDataPart: ConvertibleToRequestPayload {
+  public func encode(to encoder: any Encoder) throws {
+    try defaultEncode(to: encoder)
+  }
+
+  func toRequestPayload() throws -> GenerateContentAPI.Part {
+    let fileDataPayload = GenerateContentAPI.FileData(mimeType: mimeType, fileUri: uri)
+    return GenerateContentAPI.Part(
+      data: .fileData(fileDataPayload),
+      thought: _isThought,
+      thoughtSignature: thoughtSignature
+    )
+  }
+}
+
+extension FunctionCallPart: ConvertibleToRequestPayload {
+  public func encode(to encoder: any Encoder) throws {
+    try defaultEncode(to: encoder)
+  }
+
+  func toRequestPayload() throws -> GenerateContentAPI.Part {
+    return GenerateContentAPI.Part(
+      data: .functionCall(functionCall),
+      thought: _isThought,
+      thoughtSignature: thoughtSignature
+    )
+  }
+}
+
+extension FunctionResponsePart: ConvertibleToRequestPayload {
+  public func encode(to encoder: any Encoder) throws {
+    try defaultEncode(to: encoder)
+  }
+
+  func toRequestPayload() throws -> GenerateContentAPI.Part {
+    return GenerateContentAPI.Part(
+      data: .functionResponse(functionResponse),
+      thought: _isThought,
+      thoughtSignature: thoughtSignature
+    )
+  }
+}
+
+extension ExecutableCodePart: ConvertibleToRequestPayload {
+  public func encode(to encoder: any Encoder) throws {
+    try defaultEncode(to: encoder)
+  }
+
+  func toRequestPayload() throws -> GenerateContentAPI.Part {
+    return GenerateContentAPI.Part(
+      data: .executableCode(executableCode),
+      thought: _isThought,
+      thoughtSignature: thoughtSignature
+    )
+  }
+}
+
+extension CodeExecutionResultPart: ConvertibleToRequestPayload {
+  public func encode(to encoder: any Encoder) throws {
+    try defaultEncode(to: encoder)
+  }
+
+  func toRequestPayload() throws -> GenerateContentAPI.Part {
+    return GenerateContentAPI.Part(
+      data: .codeExecutionResult(codeExecutionResult),
+      thought: _isThought,
+      thoughtSignature: thoughtSignature
+    )
+  }
+}
+

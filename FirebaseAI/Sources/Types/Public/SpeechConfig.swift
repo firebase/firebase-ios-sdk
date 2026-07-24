@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import Foundation
+internal import GenerateContentAPI
 
 /// Speech configuration class for controlling the model's speech and audio generation behaviors.
 ///
@@ -20,12 +21,8 @@ import Foundation
 ///
 /// This allows you to configure the voice properties (single-speaker OR multi-speaker setup) and
 /// language preferences when requesting the model to generate spoken responses.
-public struct SpeechConfig: Sendable {
-  let speechConfig: ProtoSpeechConfig
-
-  init(_ speechConfig: ProtoSpeechConfig) {
-    self.speechConfig = speechConfig
-  }
+public struct SpeechConfig: Sendable, Equatable {
+  let speechConfig: GenerateContentAPI.SpeechConfig
 
   /// Creates a new ``SpeechConfig`` value for a single voice.
   ///
@@ -40,11 +37,11 @@ public struct SpeechConfig: Sendable {
   ///     To learn which codes are supported, see the docs on
   ///     [Supported languages](https://ai.google.dev/gemini-api/docs/speech-generation#languages)\.
   public init(voiceName: String, languageCode: String? = nil) {
-    self.init(
-      ProtoSpeechConfig(
-        voiceConfig: .prebuiltVoiceConfig(.init(voiceName: voiceName)),
-        languageCode: languageCode
-      )
+    self.speechConfig = GenerateContentAPI.SpeechConfig(
+      voiceConfig: GenerateContentAPI.VoiceConfig(
+        prebuiltVoiceConfig: GenerateContentAPI.PrebuiltVoiceConfig(voiceName: voiceName)
+      ),
+      languageCode: languageCode
     )
   }
 
@@ -58,11 +55,17 @@ public struct SpeechConfig: Sendable {
   ///     corresponding voices.
   ///   - languageCode: BCP-47 language code to use when parsing text sent from the client.
   public init(multiSpeakerVoiceConfig: MultiSpeakerVoiceConfig, languageCode: String? = nil) {
-    self.init(
-      ProtoSpeechConfig(
-        multiSpeakerVoiceConfig: multiSpeakerVoiceConfig.multiSpeakerVoiceConfig,
-        languageCode: languageCode
-      )
+    self.speechConfig = GenerateContentAPI.SpeechConfig(
+      multiSpeakerVoiceConfig: multiSpeakerVoiceConfig.multiSpeakerVoiceConfig,
+      languageCode: languageCode
     )
+  }
+}
+
+// MARK: - Payload Convertible Conformances
+
+extension SpeechConfig: ConvertibleToRequestPayload {
+  func toRequestPayload() throws -> GenerateContentAPI.SpeechConfig {
+    return speechConfig
   }
 }

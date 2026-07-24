@@ -118,4 +118,29 @@ public extension ThinkingConfig {
 
 // MARK: - Codable Conformances
 
-extension ThinkingConfig: Encodable {}
+extension ThinkingConfig: Encodable {
+  public func encode(to encoder: any Encoder) throws {
+    try defaultEncode(to: encoder)
+  }
+}
+
+// MARK: - Payload Convertible Conformances
+
+internal import GenerateContentAPI
+
+extension ThinkingConfig.ThinkingLevel: ConvertibleToRequestPayload {
+  func toRequestPayload() throws -> GenerateContentAPI.ThinkingConfig.ThinkingLevel {
+    return GenerateContentAPI.ThinkingConfig.ThinkingLevel(rawValue: rawValue)
+  }
+}
+
+extension ThinkingConfig: ConvertibleToRequestPayload {
+  func toRequestPayload() throws -> GenerateContentAPI.ThinkingConfig {
+    return GenerateContentAPI.ThinkingConfig(
+      includeThoughts: includeThoughts,
+      thinkingBudget: thinkingBudget,
+      thinkingLevel: try thinkingLevel?.toRequestPayload()
+    )
+  }
+}
+

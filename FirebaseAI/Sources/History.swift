@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import Foundation
+internal import GenerateContentAPI
 
 final class History: Sendable {
   private let historyLock = NSLock()
@@ -45,27 +46,27 @@ final class History: Sendable {
   }
 
   func aggregatedChunks(_ chunks: [ModelContent]) -> ModelContent {
-    var parts: [InternalPart] = []
+    var parts: [GenerateContentAPI.Part] = []
     var combinedText = ""
     var combinedThoughts = ""
 
     func flush() {
       if !combinedThoughts.isEmpty {
-        parts.append(InternalPart(.text(combinedThoughts), isThought: true, thoughtSignature: nil))
+        parts.append(GenerateContentAPI.Part(data: .text(combinedThoughts), thought: true))
         combinedThoughts = ""
       }
       if !combinedText.isEmpty {
-        parts.append(InternalPart(.text(combinedText), isThought: nil, thoughtSignature: nil))
+        parts.append(GenerateContentAPI.Part(data: .text(combinedText)))
         combinedText = ""
       }
     }
 
     // Loop through all the parts, aggregating the text.
-    for part in chunks.flatMap({ $0.internalParts }) {
+    for part in chunks.flatMap({ $0.internalContent.parts ?? [] }) {
       // Only text parts may be combined.
       if case let .text(text) = part.data, part.thoughtSignature == nil {
         // Thought summaries must not be combined with regular text.
-        if part.isThought ?? false {
+        if part.thought ?? false {
           // If we were combining regular text, flush it before handling "thoughts".
           if !combinedText.isEmpty {
             flush()

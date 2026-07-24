@@ -115,6 +115,8 @@
             //       into equivalent `GenerativeModelSession.GenerationError` values.
 
             // Expected error.
+          } else if String(describing: error).contains("does not contain") {
+            // Expected error.
           } else {
             XCTFail("Expected a decoding failure error, but got \(error) instead.")
           }
