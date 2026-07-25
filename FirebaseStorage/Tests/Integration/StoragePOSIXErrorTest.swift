@@ -29,7 +29,8 @@ class StoragePOSIXErrorTest: StorageIntegrationCommon {
     let data = try XCTUnwrap("Hello".data(using: .utf8))
     let sanitizedTestName = #function.replacingOccurrences(of: "()", with: "")
     let tmpDirURL = FileManager.default.temporaryDirectory
-    // createDirectory is necessary because SPM tests on CI can fail with ENOENT if the temporary directory doesn't exist yet.
+    // createDirectory is necessary because SPM tests on CI can fail with ENOENT if the temporary
+    // directory doesn't exist yet.
     try? FileManager.default.createDirectory(at: tmpDirURL, withIntermediateDirectories: true)
     let fileURL = tmpDirURL.appendingPathComponent("\(sanitizedTestName)-\(UUID().uuidString).txt")
     try data.write(to: fileURL)
