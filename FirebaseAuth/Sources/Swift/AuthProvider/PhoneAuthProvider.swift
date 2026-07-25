@@ -371,10 +371,6 @@ import Foundation
                                                               uiDelegate: AuthUIDelegate?,
                                                               recaptchaVerifier: AuthRecaptchaVerifier) async throws
       -> String? {
-      if let settings = auth.settings,
-         settings.isAppVerificationDisabledForTesting {
-        return try await verifyInTestMode(phoneNumber: phoneNumber, multiFactorSession: session)
-      }
       guard let session else {
         return try await verifyClAndSendVerificationCodeWithRecaptcha(
           toPhoneNumber: phoneNumber,
