@@ -327,20 +327,19 @@
       session.multiFactorInfo = mfi
 
       let requestExpectation = expectation(description: "respondBlock")
-      rpcIssuer?.respondBlock = {
-        guard let request = self.rpcIssuer?.request as? StartMFASignInRequest else {
+      rpcIssuer?.respondBlock = { [weak self] in
+        guard let self = self, let rpcIssuer = self.rpcIssuer else {
+          return (nil, nil)
+        }
+        guard let request = rpcIssuer.request as? StartMFASignInRequest else {
           XCTFail(
-            "Expected StartMFASignInRequest, got \(String(describing: self.rpcIssuer?.request))"
+            "Expected StartMFASignInRequest, got \(String(describing: rpcIssuer.request))"
           )
           return (nil, nil)
         }
         XCTAssertEqual(request.signInInfo?.phoneNumber, "+1******4444")
         XCTAssertEqual(request.MFAEnrollmentID, "enrollment-id")
         requestExpectation.fulfill()
-        guard let rpcIssuer = self.rpcIssuer else {
-          XCTFail("rpcIssuer is nil")
-          return (nil, nil)
-        }
         return try rpcIssuer.respond(withJSON: [
           "phoneResponseInfo": ["sessionInfo": "fake-session-info"],
         ])

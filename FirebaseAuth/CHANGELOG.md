@@ -1,3 +1,6 @@
+# Unreleased
+- [fixed] Fixed a bug in `PhoneAuthProvider` where the test mode logic would fail if multi-factor authentication was enabled. (#16438)
+
 # 12.17.0
 - [fixed] Fixed an array out-of-bounds access in `ActionCodeURL` query parsing.
   (#16382)
