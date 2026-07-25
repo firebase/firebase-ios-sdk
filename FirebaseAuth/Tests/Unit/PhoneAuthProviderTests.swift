@@ -62,6 +62,47 @@
       }
     }
 
+    /**
+     @fn testIssue16416_NoInfiniteRecursionInCompletionHandler
+     @brief Tests that calling verifyPhoneNumber with a completion handler does not cause an infinite recursion (issue 16416).
+     */
+    func testIssue16416_NoInfiniteRecursionInCompletionHandler() {
+      initApp(#function)
+      guard let auth = PhoneAuthProviderTests.auth else {
+        XCTFail("Auth not initialized")
+        return
+      }
+
+      // Provide a fake credential so it doesn't wait for reCAPTCHA/push
+      auth.appCredentialManager?.credential = AuthAppCredential(
+        receipt: "receipt",
+        secret: "secret"
+      )
+
+      rpcIssuer.verifyRequester = { request in
+        do {
+          return try self.rpcIssuer.respond(withJSON: ["sessionInfo": "fakeVerificationID"])
+        } catch {
+          XCTFail("Failure sending response: \(error)")
+          return (nil, nil)
+        }
+      }
+
+      let provider = PhoneAuthProvider.provider(auth: auth)
+      let expectation = self
+        .expectation(description: "Completion should be called without crashing")
+
+      provider
+        .verifyPhoneNumber("123456", uiDelegate: nil,
+                           multiFactorSession: nil) { verificationID, error in
+          // If there is no infinite recursion, this block will be executed.
+          XCTAssertNil(error, "Expected error to be nil but got \(String(describing: error))")
+          XCTAssertEqual(verificationID, "fakeVerificationID")
+          expectation.fulfill()
+        }
+      waitForExpectations(timeout: 2.0)
+    }
+
     /** @fn testVerifyEmptyPhoneNumber
      @brief Tests a failed invocation verifyPhoneNumber because an empty phone
      number was provided.
