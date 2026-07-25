@@ -56,6 +56,12 @@
 
     private let lock = NSLock()
 
+    private func sync<T>(_ block: () throws -> T) rethrows -> T {
+      lock.lock()
+      defer { lock.unlock() }
+      return try block()
+    }
+
     /// The timeout for checking for notification forwarding.
     ///
     /// Only tests should access this property.
@@ -66,14 +72,10 @@
     /// Only tests should access this property.
     var immediateCallbackForTestFaking: (() -> Bool)? {
       get {
-        lock.lock()
-        defer { lock.unlock() }
-        return _immediateCallbackForTestFaking
+        return sync { _immediateCallbackForTestFaking }
       }
       set {
-        lock.lock()
-        defer { lock.unlock() }
-        _immediateCallbackForTestFaking = newValue
+        sync { _immediateCallbackForTestFaking = newValue }
       }
     }
 
@@ -106,7 +108,7 @@
 
     /// Checks whether or not remote notifications are being forwarded to this class.
     func checkNotificationForwarding() async -> Bool {
-      let (getValueFunc, checked, forwarded) = lock.withLock {
+      let (getValueFunc, checked, forwarded) = sync {
         (
           _immediateCallbackForTestFaking,
           hasCheckedNotificationForwarding,
@@ -145,7 +147,7 @@
         }
       }
       await condition.wait()
-      return lock.withLock {
+      return sync {
         hasCheckedNotificationForwarding = true
         return isNotificationBeingForwarded
       }
@@ -170,7 +172,7 @@
         return false
       }
       if dictionary[kNotificationProberKey] != nil {
-        let shouldForward = lock.withLock {
+        let shouldForward = sync {
           if hasCheckedNotificationForwarding {
             return false
           }

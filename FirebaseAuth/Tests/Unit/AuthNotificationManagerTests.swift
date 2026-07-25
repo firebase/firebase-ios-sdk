@@ -141,7 +141,7 @@
     }
 
     private class FakeApplication: AuthNotificationApplication, @unchecked Sendable {
-      var delegate: UIApplicationDelegate?
+      weak var delegate: UIApplicationDelegate?
       var applicationState: UIApplication.State = .active
     }
 

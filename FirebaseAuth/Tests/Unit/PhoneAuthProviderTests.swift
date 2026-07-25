@@ -1017,7 +1017,7 @@
 
     private class FakeApplication: AuthNotificationApplication, AuthAPNSTokenApplication,
       @unchecked Sendable {
-      var delegate: UIApplicationDelegate?
+      weak var delegate: UIApplicationDelegate?
       var applicationState: UIApplication.State = .active
       @MainActor func registerForRemoteNotifications() {}
     }
