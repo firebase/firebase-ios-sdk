@@ -1010,7 +1010,7 @@
           auth.tokenManager?.tokenStore = AuthAPNSToken(withData: data, type: .prod)
         } else {
           // Skip APNS token fetching.
-          auth.tokenManager = FakeTokenManager(withApplication: UIApplication.shared)
+          auth.tokenManager = FakeTokenManager(withApplication: FakeApplication())
         }
       }
     }

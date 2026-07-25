@@ -54,6 +54,8 @@
     /// Whether or not notification is being forwarded
     private var isNotificationBeingForwarded: Bool = false
 
+    private let lock = NSLock()
+
     /// The timeout for checking for notification forwarding.
     ///
     /// Only tests should access this property.
@@ -62,7 +64,20 @@
     /// Disable callback waiting for tests.
     ///
     /// Only tests should access this property.
-    var immediateCallbackForTestFaking: (() -> Bool)?
+    var immediateCallbackForTestFaking: (() -> Bool)? {
+      get {
+        lock.lock()
+        defer { lock.unlock() }
+        return _immediateCallbackForTestFaking
+      }
+      set {
+        lock.lock()
+        defer { lock.unlock() }
+        _immediateCallbackForTestFaking = newValue
+      }
+    }
+
+    private var _immediateCallbackForTestFaking: (() -> Bool)?
 
     private let condition: AuthCondition
 
@@ -91,11 +106,17 @@
 
     /// Checks whether or not remote notifications are being forwarded to this class.
     func checkNotificationForwarding() async -> Bool {
-      if let getValueFunc = immediateCallbackForTestFaking {
+      lock.lock()
+      let getValueFunc = _immediateCallbackForTestFaking
+      let checked = hasCheckedNotificationForwarding
+      let forwarded = isNotificationBeingForwarded
+      lock.unlock()
+
+      if let getValueFunc = getValueFunc {
         return getValueFunc()
       }
-      if hasCheckedNotificationForwarding {
-        return isNotificationBeingForwarded
+      if checked {
+        return forwarded
       }
       if await pendingCount.increment() == 1 {
         DispatchQueue.main.async {
@@ -122,8 +143,11 @@
         }
       }
       await condition.wait()
+      lock.lock()
       hasCheckedNotificationForwarding = true
-      return isNotificationBeingForwarded
+      let finalForwarded = isNotificationBeingForwarded
+      lock.unlock()
+      return finalForwarded
     }
 
     /// Attempts to handle the remote notification.
@@ -145,11 +169,14 @@
         return false
       }
       if dictionary[kNotificationProberKey] != nil {
+        lock.lock()
         if hasCheckedNotificationForwarding {
+          lock.unlock()
           // The prober notification probably comes from another instance, so pass it along.
           return false
         }
         isNotificationBeingForwarded = true
+        lock.unlock()
         condition.signal()
         return true
       }
