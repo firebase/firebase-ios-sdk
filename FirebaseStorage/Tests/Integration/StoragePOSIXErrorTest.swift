@@ -28,7 +28,7 @@ class StoragePOSIXErrorTest: StorageIntegrationCommon {
 
     let data = try XCTUnwrap("Hello".data(using: .utf8))
     let tmpDirURL = URL(fileURLWithPath: NSTemporaryDirectory())
-    let fileURL = tmpDirURL.appendingPathComponent(#function + "hello.txt")
+    let fileURL = tmpDirURL.appendingPathComponent(UUID().uuidString + ".txt")
     try data.write(to: fileURL, options: .atomicWrite)
     addTeardownBlock {
       try? FileManager.default.removeItem(at: fileURL)
