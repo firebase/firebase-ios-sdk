@@ -1153,7 +1153,6 @@ let package = Package(
         .swiftLanguageMode(SwiftLanguageMode.v5),
       ]
     ),
-    // Touch to test.
     .testTarget(
       name: "FirebaseStorageUnit",
       dependencies: ["FirebaseStorage",
