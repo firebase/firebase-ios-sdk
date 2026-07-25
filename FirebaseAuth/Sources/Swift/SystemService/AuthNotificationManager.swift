@@ -106,11 +106,13 @@
 
     /// Checks whether or not remote notifications are being forwarded to this class.
     func checkNotificationForwarding() async -> Bool {
-      lock.lock()
-      let getValueFunc = _immediateCallbackForTestFaking
-      let checked = hasCheckedNotificationForwarding
-      let forwarded = isNotificationBeingForwarded
-      lock.unlock()
+      let (getValueFunc, checked, forwarded) = lock.withLock {
+        (
+          _immediateCallbackForTestFaking,
+          hasCheckedNotificationForwarding,
+          isNotificationBeingForwarded
+        )
+      }
 
       if let getValueFunc = getValueFunc {
         return getValueFunc()
@@ -143,11 +145,10 @@
         }
       }
       await condition.wait()
-      lock.lock()
-      hasCheckedNotificationForwarding = true
-      let finalForwarded = isNotificationBeingForwarded
-      lock.unlock()
-      return finalForwarded
+      return lock.withLock {
+        hasCheckedNotificationForwarding = true
+        return isNotificationBeingForwarded
+      }
     }
 
     /// Attempts to handle the remote notification.
@@ -169,16 +170,19 @@
         return false
       }
       if dictionary[kNotificationProberKey] != nil {
-        lock.lock()
-        if hasCheckedNotificationForwarding {
-          lock.unlock()
-          // The prober notification probably comes from another instance, so pass it along.
+        let shouldForward = lock.withLock {
+          if hasCheckedNotificationForwarding {
+            return false
+          }
+          isNotificationBeingForwarded = true
+          return true
+        }
+        if shouldForward {
+          condition.signal()
+          return true
+        } else {
           return false
         }
-        isNotificationBeingForwarded = true
-        lock.unlock()
-        condition.signal()
-        return true
       }
       guard let receipt = dictionary[kNotificationReceiptKey] as? String,
             let secret = dictionary[kNotificationSecretKey] as? String else {
