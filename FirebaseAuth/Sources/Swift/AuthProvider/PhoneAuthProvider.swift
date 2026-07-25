@@ -314,16 +314,7 @@ import Foundation
                                      -> Void)? = nil,
                                    signInInjector: ((StartMFASignInRequest) async throws -> Void)? =
                                      nil) async throws -> String? {
-      if let idToken = session.idToken {
-        let request = StartMFAEnrollmentRequest(
-          idToken: idToken,
-          enrollmentInfo: startMFARequestInfo,
-          requestConfiguration: auth.requestConfiguration
-        )
-        try await enrollmentInjector?(request)
-        let response = try await auth.backend.call(with: request)
-        return response.phoneSessionInfo?.sessionInfo
-      } else {
+      guard let idToken = session.idToken else {
         let request = StartMFASignInRequest(
           MFAPendingCredential: session.mfaPendingCredential,
           MFAEnrollmentID: session.multiFactorInfo?.uid,
@@ -334,21 +325,21 @@ import Foundation
         let response = try await auth.backend.call(with: request)
         return response.responseInfo.sessionInfo
       }
+
+      let request = StartMFAEnrollmentRequest(
+        idToken: idToken,
+        enrollmentInfo: startMFARequestInfo,
+        requestConfiguration: auth.requestConfiguration
+      )
+      try await enrollmentInjector?(request)
+      let response = try await auth.backend.call(with: request)
+      return response.phoneSessionInfo?.sessionInfo
     }
 
     private func verifyInTestMode(phoneNumber: String,
                                   multiFactorSession session: MultiFactorSession?) async throws
       -> String? {
-      if let session {
-        let startMFARequestInfo = AuthProtoStartMFAPhoneRequestInfo(
-          phoneNumber: phoneNumber,
-          codeIdentity: CodeIdentity.empty
-        )
-        return try await executeMFARequest(
-          startMFARequestInfo: startMFARequestInfo,
-          multiFactorSession: session
-        )
-      } else {
+      guard let session else {
         let request = SendVerificationCodeRequest(
           phoneNumber: phoneNumber,
           codeIdentity: CodeIdentity.empty,
@@ -357,6 +348,15 @@ import Foundation
         let response = try await auth.backend.call(with: request)
         return response.verificationID
       }
+
+      let startMFARequestInfo = AuthProtoStartMFAPhoneRequestInfo(
+        phoneNumber: phoneNumber,
+        codeIdentity: CodeIdentity.empty
+      )
+      return try await executeMFARequest(
+        startMFARequestInfo: startMFARequestInfo,
+        multiFactorSession: session
+      )
     }
 
     /// Starts the flow to verify the client via silent push notification. This is used in both
