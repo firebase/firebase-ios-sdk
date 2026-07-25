@@ -27,8 +27,9 @@ namespace nanopb {
 namespace internal {
 
 std::string Indent(int level, int indent_width) {
-  size_t safe_level = static_cast<size_t>(std::max(0, level));
-  size_t safe_width = static_cast<size_t>(std::max(0, indent_width));
+  size_t safe_level = static_cast<size_t>(std::max(0, std::min(1000, level)));
+  size_t safe_width =
+      static_cast<size_t>(std::max(0, std::min(100, indent_width)));
   return std::string(safe_level * safe_width, ' ');
 }
 
