@@ -39,7 +39,8 @@ class StoragePutFileTests: StorageTestHelpers {
 
     let data = try XCTUnwrap("Hello".data(using: .utf8))
     let tmpDirURL = URL(fileURLWithPath: NSTemporaryDirectory())
-    let fileURL = tmpDirURL.appendingPathComponent(UUID().uuidString + ".txt")
+    let sanitizedTestName = #function.replacingOccurrences(of: "()", with: "")
+    let fileURL = tmpDirURL.appendingPathComponent("\(sanitizedTestName)-\(UUID().uuidString).txt")
     try data.write(to: fileURL, options: .atomicWrite)
     addTeardownBlock {
       try? FileManager.default.removeItem(at: fileURL)
