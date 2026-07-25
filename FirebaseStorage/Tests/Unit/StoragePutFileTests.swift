@@ -40,7 +40,6 @@ class StoragePutFileTests: StorageTestHelpers {
     let data = try XCTUnwrap("Hello".data(using: .utf8))
     let sanitizedTestName = #function.replacingOccurrences(of: "()", with: "")
     let tmpDirURL = FileManager.default.temporaryDirectory
-    try? FileManager.default.createDirectory(at: tmpDirURL, withIntermediateDirectories: true)
     let fileURL = tmpDirURL.appendingPathComponent("\(sanitizedTestName)-\(UUID().uuidString).txt")
     try data.write(to: fileURL)
     addTeardownBlock {
