@@ -2325,7 +2325,7 @@ class AuthTests: RPCBaseTests {
     }
 
     func testAppDidReceiveRemoteNotificationWithCompletion_NotificationManagerHandleCanNotification() {
-      class FakeNotificationManager: AuthNotificationManager {
+      class FakeNotificationManager: AuthNotificationManager, @unchecked Sendable {
         var canHandled = false
         override func canHandle(notification: [AnyHashable: Any]) -> Bool {
           canHandled = true

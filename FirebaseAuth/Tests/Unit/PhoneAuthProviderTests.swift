@@ -983,9 +983,25 @@
           settings.appVerificationDisabledForTesting = true
           auth.settings = settings
         }
+        if auth.appCredentialManager == nil {
+          let fakeKeychain = AuthKeychainServices(
+            service: "PhoneAuthProviderTests",
+            storage: FakeAuthKeychainStorage()
+          )
+          auth.appCredentialManager = AuthAppCredentialManager(withKeychain: fakeKeychain)
+        }
+        if auth.notificationManager == nil {
+          auth.notificationManager = AuthNotificationManager(
+            withApplication: FakeApplication(),
+            appCredentialManager: auth.appCredentialManager
+          )
+        }
         auth.notificationManager?.immediateCallbackForTestFaking = { forwardingNotification }
         auth.mainBundleUrlTypes = [["CFBundleURLSchemes": [scheme]]]
 
+        if auth.tokenManager == nil {
+          auth.tokenManager = AuthAPNSTokenManager(withApplication: FakeApplication())
+        }
         if fakeToken {
           guard let data = "!@#$%^".data(using: .utf8) else {
             XCTFail("Failed to encode data for fake token")
@@ -997,6 +1013,13 @@
           auth.tokenManager = FakeTokenManager(withApplication: UIApplication.shared)
         }
       }
+    }
+
+    private class FakeApplication: AuthNotificationApplication, AuthAPNSTokenApplication,
+      @unchecked Sendable {
+      var delegate: UIApplicationDelegate?
+      var applicationState: UIApplication.State = .active
+      @MainActor func registerForRemoteNotifications() {}
     }
 
     class FakeAuthRecaptchaVerifier: AuthRecaptchaVerifier, @unchecked Sendable {

@@ -18,7 +18,15 @@
 
   /// A class represents a credential that proves the identity of the app.
   @preconcurrency
-  class AuthNotificationManager {
+  // Protocol to help with unit tests.
+  protocol AuthNotificationApplication: Sendable {
+    var delegate: UIApplicationDelegate? { get }
+    var applicationState: UIApplication.State { get }
+  }
+
+  extension UIApplication: AuthNotificationApplication {}
+
+  class AuthNotificationManager: @unchecked Sendable {
     /// The key to locate payload data in the remote notification.
     private let kNotificationDataKey = "com.google.firebase.auth"
 
@@ -35,7 +43,7 @@
     private let kProbingTimeout = 1.0
 
     /// The application.
-    private let application: UIApplication
+    private let application: AuthNotificationApplication
 
     /// The object to handle app credentials delivered via notification.
     private let appCredentialManager: AuthAppCredentialManager
@@ -63,7 +71,7 @@
     /// - Parameter appCredentialManager: The object to handle app credentials delivered via
     /// notification.
     /// - Returns: The initialized instance.
-    init(withApplication application: UIApplication,
+    init(withApplication application: AuthNotificationApplication,
          appCredentialManager: AuthAppCredentialManager) {
       self.application = application
       self.appCredentialManager = appCredentialManager
@@ -97,7 +105,8 @@
              delegate
              .responds(to: #selector(UIApplicationDelegate
                  .application(_:didReceiveRemoteNotification:fetchCompletionHandler:))) {
-            delegate.application?(self.application,
+            let appObj = (self.application as? UIApplication) ?? UIApplication.shared
+            delegate.application?(appObj,
                                   didReceiveRemoteNotification: proberNotification) { _ in
             }
           } else {
