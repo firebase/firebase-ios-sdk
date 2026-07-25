@@ -313,40 +313,50 @@
       initApp(#function, testMode: true)
       let auth = try XCTUnwrap(PhoneAuthProviderTests.auth)
       let provider = PhoneAuthProvider.provider(auth: auth)
-      
+
       let dictionary: [String: AnyHashable] = [
         "mfaEnrollmentId": "enrollment-id",
         "phoneInfo": "+1******4444",
         "displayName": "test phone",
-        "enrolledAt": "2023-01-01T00:00:00Z"
+        "enrolledAt": "2023-01-01T00:00:00Z",
       ]
       let proto = AuthProtoMFAEnrollment(dictionary: dictionary)
       let mfi = PhoneMultiFactorInfo(proto: proto)
-      
+
       let session = MultiFactorSession(mfaCredential: "pending-credential")
       session.multiFactorInfo = mfi
-      
-      let requestExpectation = expectation(description: "verifyRequester")
-      rpcIssuer?.verifyRequester = { request in
-        // It incorrectly sends SendVerificationCodeRequest with the obfuscated phone number!
-        XCTAssertEqual(request.phoneNumber, "+1******4444")
-        requestExpectation.fulfill()
-        do {
-          // The backend rejects obfuscated numbers
-          return try self.rpcIssuer.respond(serverErrorMessage: "INVALID_PHONE_NUMBER")
-        } catch {
-          XCTFail("Failure sending response")
+
+      let requestExpectation = expectation(description: "respondBlock")
+      rpcIssuer?.respondBlock = {
+        guard let request = self.rpcIssuer?.request as? StartMFASignInRequest else {
+          XCTFail(
+            "Expected StartMFASignInRequest, got \(String(describing: self.rpcIssuer?.request))"
+          )
           return (nil, nil)
         }
+        XCTAssertEqual(request.signInInfo?.phoneNumber, "+1******4444")
+        XCTAssertEqual(request.MFAEnrollmentID, "enrollment-id")
+        requestExpectation.fulfill()
+        guard let rpcIssuer = self.rpcIssuer else {
+          XCTFail("rpcIssuer is nil")
+          return (nil, nil)
+        }
+        return try rpcIssuer.respond(withJSON: [
+          "phoneResponseInfo": ["sessionInfo": "fake-session-info"],
+        ])
       }
-      
+
       do {
-        _ = try await provider.verifyPhoneNumber(with: mfi, uiDelegate: nil, multiFactorSession: session)
-        XCTFail("We expect it to fail here because of issue #16438")
+        let verificationID = try await provider.verifyPhoneNumber(
+          with: mfi,
+          uiDelegate: nil,
+          multiFactorSession: session
+        )
+        XCTAssertEqual(verificationID, "fake-session-info")
       } catch {
-        XCTFail("verifyPhoneNumber failed with error: \(error). This demonstrates issue #16438 where it incorrectly calls SendVerificationCodeRequest.")
+        XCTFail("verifyPhoneNumber failed with error: \(error)")
       }
-      
+
       await fulfillment(of: [requestExpectation], timeout: 5.0)
     }
 

@@ -308,6 +308,43 @@ import Foundation
       }
     }
 
+    private func verifyInTestMode(phoneNumber: String,
+                                  multiFactorSession session: MultiFactorSession?) async throws
+      -> String? {
+      if let session {
+        let startMFARequestInfo = AuthProtoStartMFAPhoneRequestInfo(
+          phoneNumber: phoneNumber,
+          codeIdentity: CodeIdentity.empty
+        )
+        if let idToken = session.idToken {
+          let request = StartMFAEnrollmentRequest(
+            idToken: idToken,
+            enrollmentInfo: startMFARequestInfo,
+            requestConfiguration: auth.requestConfiguration
+          )
+          let response = try await auth.backend.call(with: request)
+          return response.phoneSessionInfo?.sessionInfo
+        } else {
+          let request = StartMFASignInRequest(
+            MFAPendingCredential: session.mfaPendingCredential,
+            MFAEnrollmentID: session.multiFactorInfo?.uid,
+            signInInfo: startMFARequestInfo,
+            requestConfiguration: auth.requestConfiguration
+          )
+          let response = try await auth.backend.call(with: request)
+          return response.responseInfo.sessionInfo
+        }
+      } else {
+        let request = SendVerificationCodeRequest(
+          phoneNumber: phoneNumber,
+          codeIdentity: CodeIdentity.empty,
+          requestConfiguration: auth.requestConfiguration
+        )
+        let response = try await auth.backend.call(with: request)
+        return response.verificationID
+      }
+    }
+
     /// Starts the flow to verify the client via silent push notification. This is used in both
     /// .Audit and .Enforce mode
     /// - Parameter retryOnInvalidAppCredential: Whether or not the flow should be retried if an
@@ -321,13 +358,7 @@ import Foundation
       -> String? {
       if let settings = auth.settings,
          settings.isAppVerificationDisabledForTesting {
-        let request = SendVerificationCodeRequest(
-          phoneNumber: phoneNumber,
-          codeIdentity: CodeIdentity.empty,
-          requestConfiguration: auth.requestConfiguration
-        )
-        let response = try await auth.backend.call(with: request)
-        return response.verificationID
+        return try await verifyInTestMode(phoneNumber: phoneNumber, multiFactorSession: session)
       }
       guard let session else {
         return try await verifyClAndSendVerificationCodeWithRecaptcha(
@@ -390,14 +421,7 @@ import Foundation
       -> String? {
       if let settings = auth.settings,
          settings.isAppVerificationDisabledForTesting {
-        let request = SendVerificationCodeRequest(
-          phoneNumber: phoneNumber,
-          codeIdentity: CodeIdentity.empty,
-          requestConfiguration: auth.requestConfiguration
-        )
-
-        let response = try await auth.backend.call(with: request)
-        return response.verificationID
+        return try await verifyInTestMode(phoneNumber: phoneNumber, multiFactorSession: session)
       }
       guard let session else {
         // Phone MFA flow
