@@ -307,7 +307,7 @@
     }
 
     /** @fn testVerifyPhoneNumberWithMultiFactorInfoInTestMode
-     @brief Tests a failed invocation of @c verifyPhoneNumber(with:uiDelegate:multiFactorSession:completion:) when app verification is disabled due to #16438
+     @brief Tests a successful invocation of @c verifyPhoneNumber(with:uiDelegate:multiFactorSession:completion:) when app verification is disabled due to #16438
      */
     func testVerifyPhoneNumberWithMultiFactorInfoInTestMode() async throws {
       initApp(#function, testMode: true)
