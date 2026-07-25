@@ -308,13 +308,12 @@ import Foundation
       }
     }
 
-    private func executeMFARequest(startMFARequestInfo: AuthProtoStartMFAPhoneRequestInfo,
-                                   multiFactorSession session: MultiFactorSession,
-                                   enrollmentInjector: (
-                                     (StartMFAEnrollmentRequest) async throws -> Void
-                                   )? = nil,
-                                   signInInjector: ((StartMFASignInRequest) async throws -> Void)? =
-                                     nil) async throws -> String? {
+    private func executeMFARequest
+    (startMFARequestInfo: AuthProtoStartMFAPhoneRequestInfo,
+     multiFactorSession session: MultiFactorSession,
+     enrollmentInjector: ((StartMFAEnrollmentRequest) async throws -> Void)? = nil,
+     signInInjector: ((StartMFASignInRequest) async throws -> Void)? = nil) async throws
+      -> String? {
       guard let idToken = session.idToken else {
         let request = StartMFASignInRequest(
           MFAPendingCredential: session.mfaPendingCredential,
