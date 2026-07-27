@@ -56,7 +56,6 @@ import Testing
     }
 
     #expect(decodeCount > 0, "No unary mock responses were found and decoded.")
-    print("Successfully decoded \(decodeCount) unary golden mock responses.")
   }
 
   @Test func testDecodeStreamingSuccessMockResponses() throws {
@@ -109,17 +108,16 @@ import Testing
             _ = try decoder.decode(GenerateContentResponse.self, from: jsonData)
             chunkCount += 1
           } catch {
-            Issue
-              .record(
-                "Failed to decode streaming chunk at line \(lineIndex + 1) in \(subDir)/\(filename): \(error)"
-              )
+            Issue.record("""
+            Failed to decode streaming chunk at line \(lineIndex + 1) in \(subDir)/\(filename): \
+            \(error)
+            """)
           }
         }
       }
     }
 
     #expect(chunkCount > 0, "No streaming mock response chunks were found and decoded.")
-    print("Successfully decoded \(chunkCount) streaming golden mock response chunks.")
   }
 
   func mockResponsesDirectory() -> URL {
@@ -128,8 +126,9 @@ import Testing
       .deletingLastPathComponent() // GeminiAPIClientTests
       .deletingLastPathComponent() // Tests
       .deletingLastPathComponent() // Root
-    return packageDir.appending(
-      path: "FirebaseAI/Tests/Unit/vertexai-sdk-test-data/mock-responses"
+
+    return packageDir.appendingPathComponent(
+      "FirebaseAI/Tests/Unit/vertexai-sdk-test-data/mock-responses"
     )
   }
 }

@@ -27,7 +27,7 @@ package extension Part {
   ///
   /// per part media resolution.
   /// Media resolution for the input media.
-  package struct MediaResolution: Codable, Sendable, Equatable, Hashable {
+  struct MediaResolution: Codable, Sendable, Equatable, Hashable {
     /// The tokenization quality used for given media.
     ///
     /// ### Gemini Developer API
