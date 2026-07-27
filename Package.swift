@@ -173,7 +173,7 @@ let package = Package(
       "101.0.0" ..< "102.0.0"
     ),
     appCheckDependency(),
-    .package(path: "Packages/GeminiAPIClients"),
+    .package(path: "Packages/genai-swift"),
   ],
   targets: [
     .target(
@@ -196,7 +196,7 @@ let package = Package(
         "FirebaseAuthInterop",
         "FirebaseCore",
         "FirebaseCoreExtension",
-        .product(name: "InternalGeminiGenerateContentClient", package: "GeminiAPIClients"),
+        .product(name: "GoogleGenAI", package: "genai-swift"),
       ],
       path: "FirebaseAI/Sources",
       swiftSettings: [
