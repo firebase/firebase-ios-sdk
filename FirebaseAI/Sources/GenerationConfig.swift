@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import Foundation
+internal import InternalGoogleGenAI
 
 /// A struct defining model parameters to be used when sending generative AI
 /// requests to the backend model.
@@ -283,15 +284,13 @@ extension GenerationConfig: Encodable {
 
 // MARK: - Payload Convertible Conformances
 
-internal import GenerateContentAPI
-
 extension GenerationConfig: ConvertibleToRequestPayload {
-  func toRequestPayload() throws -> GenerateContentAPI.GenerationConfig {
+  func toRequestPayload() throws -> GenAITypes.GenerationConfig {
     let payloadSchema = try responseSchema?.toRequestPayload()
     let payloadJsonSchema = responseJSONSchema.map { JSONValue.object($0).toRequestPayload() }
     let payloadModalities = responseModalities?.map { $0.rawValue }
 
-    return GenerateContentAPI.GenerationConfig(
+    return try GenAITypes.GenerationConfig(
       candidateCount: candidateCount,
       stopSequences: stopSequences,
       maxOutputTokens: maxOutputTokens,
@@ -304,10 +303,9 @@ extension GenerationConfig: ConvertibleToRequestPayload {
       presencePenalty: presencePenalty.map { Double($0) },
       frequencyPenalty: frequencyPenalty.map { Double($0) },
       responseModalities: payloadModalities,
-      speechConfig: try speechConfig?.toRequestPayload(),
-      thinkingConfig: try thinkingConfig?.toRequestPayload(),
-      imageConfig: try imageConfig?.toRequestPayload()
+      speechConfig: speechConfig?.toRequestPayload(),
+      thinkingConfig: thinkingConfig?.toRequestPayload(),
+      imageConfig: imageConfig?.toRequestPayload()
     )
   }
 }
-

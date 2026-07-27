@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import Foundation
-internal import GenerateContentAPI
+internal import InternalGoogleGenAI
 
 /// User input that is sent in real time.
 ///
@@ -32,7 +32,7 @@ internal import GenerateContentAPI
 @available(watchOS, unavailable)
 struct BidiGenerateContentRealtimeInput: Encodable {
   /// These form the realtime audio input stream.
-  let audio: GenerateContentAPI.Blob?
+  let audio: GenAITypes.Blob?
 
   /// Indicates that the audio stream has ended, e.g. because the microphone was
   /// turned off.
@@ -44,7 +44,7 @@ struct BidiGenerateContentRealtimeInput: Encodable {
   let audioStreamEnd: Bool?
 
   /// These form the realtime video input stream.
-  let video: GenerateContentAPI.Blob?
+  let video: GenAITypes.Blob?
 
   /// These form the realtime text input stream.
   let text: String?
@@ -63,7 +63,7 @@ struct BidiGenerateContentRealtimeInput: Encodable {
   /// server-side) activity detection is disabled.
   let activityEnd: ActivityEnd?
 
-  init(audio: GenerateContentAPI.Blob? = nil, video: GenerateContentAPI.Blob? = nil,
+  init(audio: GenAITypes.Blob? = nil, video: GenAITypes.Blob? = nil,
        text: String? = nil, activityStart: ActivityStart? = nil, activityEnd: ActivityEnd? = nil,
        audioStreamEnd: Bool? = nil) {
     self.audio = audio

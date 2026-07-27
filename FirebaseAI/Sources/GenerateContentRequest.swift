@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import Foundation
+internal import InternalGoogleGenAI
 
 struct GenerateContentRequest: Sendable {
   /// Model name.
@@ -92,10 +93,8 @@ extension GenerateContentRequest: GenerativeAIRequest {
 
 // MARK: - Payload Convertible Conformances
 
-internal import GenerateContentAPI
-
 extension GenerateContentRequest: ConvertibleToRequestPayload {
-  func toRequestPayload() throws -> GenerateContentAPI.GenerateContentRequest {
+  func toRequestPayload() throws -> GenAITypes.GenerateContentRequest {
     let payloadModel = apiMethod == .countTokens ? model : nil
     let payloadContents = try contents.map { try $0.toRequestPayload() }
     let payloadGenConfig = try generationConfig?.toRequestPayload()
@@ -104,7 +103,7 @@ extension GenerateContentRequest: ConvertibleToRequestPayload {
     let payloadToolConfig = try toolConfig?.toRequestPayload()
     let payloadSysInst = try systemInstruction?.toRequestPayload()
 
-    return GenerateContentAPI.GenerateContentRequest(
+    return GenAITypes.GenerateContentRequest(
       model: payloadModel,
       systemInstruction: payloadSysInst,
       contents: payloadContents,
@@ -115,4 +114,3 @@ extension GenerateContentRequest: ConvertibleToRequestPayload {
     )
   }
 }
-

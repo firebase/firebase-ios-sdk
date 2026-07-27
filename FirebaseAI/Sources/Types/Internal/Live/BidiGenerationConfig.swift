@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import Foundation
-internal import GenerateContentAPI
+internal import InternalGoogleGenAI
 
 /// Configuration options for live content generation.
 @available(watchOS, unavailable)
@@ -26,13 +26,13 @@ struct BidiGenerationConfig: Encodable, Sendable {
   let presencePenalty: Float?
   let frequencyPenalty: Float?
   let responseModalities: [ResponseModality]?
-  let speechConfig: GenerateContentAPI.SpeechConfig?
+  let speechConfig: GenAITypes.SpeechConfig?
 
   init(temperature: Float? = nil, topP: Float? = nil, topK: Int? = nil,
        candidateCount: Int? = nil, maxOutputTokens: Int? = nil,
        presencePenalty: Float? = nil, frequencyPenalty: Float? = nil,
        responseModalities: [ResponseModality]? = nil,
-       speechConfig: GenerateContentAPI.SpeechConfig? = nil) {
+       speechConfig: GenAITypes.SpeechConfig? = nil) {
     self.temperature = temperature
     self.topP = topP
     self.topK = topK

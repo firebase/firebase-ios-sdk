@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import Foundation
+internal import InternalGoogleGenAI
 
 /// Represents token counting info for a single modality.
 public struct ModalityTokenCount: Sendable {
@@ -72,34 +73,32 @@ extension ModalityTokenCount: Decodable {
 
 // MARK: - Payload Convertible Conformances
 
-internal import GenerateContentAPI
-
 extension ContentModality: ConvertibleFromResponsePayload {
-  init(_ responsePayload: GenerateContentAPI.Modality) throws {
+  init(_ responsePayload: GenAITypes.Modality) throws {
     self.init(rawValue: responsePayload.rawValue)
   }
 }
 
 extension ContentModality: ConvertibleToRequestPayload {
-  func toRequestPayload() throws -> GenerateContentAPI.Modality {
-    return GenerateContentAPI.Modality(rawValue: rawValue)
+  func toRequestPayload() throws -> GenAITypes.Modality {
+    return GenAITypes.Modality(rawValue: rawValue)
   }
 }
 
 extension ModalityTokenCount: ConvertibleFromResponsePayload {
-  init(_ responsePayload: GenerateContentAPI.ModalityTokenCount) throws {
-    let modality = try responsePayload.modality.map { try ContentModality($0) } ?? .init(rawValue: "MODALITY_UNSPECIFIED")
+  init(_ responsePayload: GenAITypes.ModalityTokenCount) throws {
+    let modality = try responsePayload.modality
+      .map { try ContentModality($0) } ?? .init(rawValue: "MODALITY_UNSPECIFIED")
     let tokenCount = responsePayload.tokenCount ?? 0
     self.init(modality: modality, tokenCount: tokenCount)
   }
 }
 
 extension ModalityTokenCount: ConvertibleToRequestPayload {
-  func toRequestPayload() throws -> GenerateContentAPI.ModalityTokenCount {
-    return GenerateContentAPI.ModalityTokenCount(
-      modality: try modality.toRequestPayload(),
+  func toRequestPayload() throws -> GenAITypes.ModalityTokenCount {
+    return try GenAITypes.ModalityTokenCount(
+      modality: modality.toRequestPayload(),
       tokenCount: tokenCount
     )
   }
 }
-

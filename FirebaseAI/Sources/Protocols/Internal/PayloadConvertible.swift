@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 protocol ConvertibleToRequestPayload {
   associatedtype Payload: Encodable
 
@@ -22,7 +21,7 @@ protocol ConvertibleToRequestPayload {
 extension ConvertibleToRequestPayload {
   func defaultEncode(to encoder: any Encoder) throws {
     var container = encoder.singleValueContainer()
-    try container.encode(try toRequestPayload())
+    try container.encode(toRequestPayload())
   }
 }
 
@@ -39,4 +38,3 @@ extension ConvertibleFromResponsePayload {
     try self.init(payload)
   }
 }
-

@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import Foundation
+internal import InternalGoogleGenAI
 
 /// Metadata for a single URL retrieved by the ``Tool/urlContext()`` tool.
 public struct URLMetadata: Sendable, Hashable {
@@ -84,19 +85,17 @@ extension URLMetadata: Decodable {
 
 // MARK: - Payload Convertible Conformances
 
-internal import GenerateContentAPI
-
 extension URLMetadata.URLRetrievalStatus: ConvertibleFromResponsePayload {
-  init(_ responsePayload: GenerateContentAPI.UrlMetadata.UrlRetrievalStatus) throws {
+  init(_ responsePayload: GenAITypes.UrlMetadata.UrlRetrievalStatus) throws {
     self.init(rawValue: responsePayload.rawValue)
   }
 }
 
 extension URLMetadata: ConvertibleFromResponsePayload {
-  init(_ responsePayload: GenerateContentAPI.UrlMetadata) throws {
+  init(_ responsePayload: GenAITypes.UrlMetadata) throws {
     let retrievedURL = responsePayload.retrievedUrl.flatMap { URL(string: $0) }
-    let status = try responsePayload.urlRetrievalStatus.map { try URLMetadata.URLRetrievalStatus($0) } ?? .unspecified
+    let status = try responsePayload.urlRetrievalStatus
+      .map { try URLMetadata.URLRetrievalStatus($0) } ?? .unspecified
     self.init(retrievedURL: retrievedURL, retrievalStatus: status)
   }
 }
-

@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import Foundation
-internal import GenerateContentAPI
+internal import InternalGoogleGenAI
 
 /// A collection of name-value pairs representing a JSON object.
 ///
@@ -160,7 +160,7 @@ extension JSONValue: Equatable {}
 // MARK: - Payload Convertible Conformances
 
 extension JSONValue: ConvertibleToRequestPayload {
-  func toRequestPayload() -> GenerateContentAPI.JSONValue {
+  func toRequestPayload() -> GenAITypes.JSONValue {
     switch self {
     case .null:
       return .null
@@ -181,7 +181,7 @@ extension JSONValue: ConvertibleToRequestPayload {
 }
 
 extension JSONValue: ConvertibleFromResponsePayload {
-  init(_ responsePayload: GenerateContentAPI.JSONValue) {
+  init(_ responsePayload: GenAITypes.JSONValue) {
     switch responsePayload {
     case .null:
       self = .null
@@ -200,4 +200,3 @@ extension JSONValue: ConvertibleFromResponsePayload {
     }
   }
 }
-

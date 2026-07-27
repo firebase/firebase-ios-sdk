@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import XCTest
 @testable import FirebaseAILogic
-internal import GenerateContentAPI
+import XCTest
+internal import InternalGoogleGenAI
 
 @available(watchOS, unavailable)
 final class VoiceConfigTests: XCTestCase {
@@ -26,8 +26,8 @@ final class VoiceConfigTests: XCTestCase {
   }
 
   func testEncodeVoiceConfig_prebuiltVoice() throws {
-    let voice = GenerateContentAPI.VoiceConfig(
-      prebuiltVoiceConfig: GenerateContentAPI.PrebuiltVoiceConfig(voiceName: "Zephyr")
+    let voice = GenAITypes.VoiceConfig(
+      prebuiltVoiceConfig: GenAITypes.PrebuiltVoiceConfig(voiceName: "Zephyr")
     )
 
     let jsonData = try encoder.encode(voice)
@@ -43,8 +43,8 @@ final class VoiceConfigTests: XCTestCase {
   }
 
   func testEncodeVoiceConfig_customVoice() throws {
-    let voice = GenerateContentAPI.VoiceConfig(
-      replicatedVoiceConfig: GenerateContentAPI.ReplicatedVoiceConfig(
+    let voice = GenAITypes.VoiceConfig(
+      replicatedVoiceConfig: GenAITypes.ReplicatedVoiceConfig(
         voiceSampleAudio: Data(repeating: 5, count: 5)
       )
     )

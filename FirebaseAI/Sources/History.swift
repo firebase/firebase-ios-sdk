@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import Foundation
-internal import GenerateContentAPI
+internal import InternalGoogleGenAI
 
 final class History: Sendable {
   private let historyLock = NSLock()
@@ -46,17 +46,17 @@ final class History: Sendable {
   }
 
   func aggregatedChunks(_ chunks: [ModelContent]) -> ModelContent {
-    var parts: [GenerateContentAPI.Part] = []
+    var parts: [GenAITypes.Part] = []
     var combinedText = ""
     var combinedThoughts = ""
 
     func flush() {
       if !combinedThoughts.isEmpty {
-        parts.append(GenerateContentAPI.Part(data: .text(combinedThoughts), thought: true))
+        parts.append(GenAITypes.Part(data: .text(combinedThoughts), thought: true))
         combinedThoughts = ""
       }
       if !combinedText.isEmpty {
-        parts.append(GenerateContentAPI.Part(data: .text(combinedText)))
+        parts.append(GenAITypes.Part(data: .text(combinedText)))
         combinedText = ""
       }
     }

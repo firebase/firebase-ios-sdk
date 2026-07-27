@@ -13,13 +13,13 @@
 // limitations under the License.
 
 import Foundation
-internal import GenerateContentAPI
+internal import InternalGoogleGenAI
 
 /// Configures a speaker with a unique name/identifier and a specific voice.
 ///
 /// **Public Preview**: This API is a public preview and may be subject to change.
 public struct SpeakerVoiceConfig: Sendable {
-  let speakerVoiceConfig: GenerateContentAPI.SpeakerVoiceConfig
+  let speakerVoiceConfig: GenAITypes.SpeakerVoiceConfig
 
   /// Creates a configuration for a speaker using a voice name.
   ///
@@ -32,10 +32,10 @@ public struct SpeakerVoiceConfig: Sendable {
   /// - [Agent Platform Gemini API](https://docs.cloud.google.com/text-to-speech/docs/gemini-tts)
   // TODO(b/522397979): Update links to point to Firebase when they're live
   public init(speaker: String, voiceName: String) {
-    self.speakerVoiceConfig = GenerateContentAPI.SpeakerVoiceConfig(
+    speakerVoiceConfig = GenAITypes.SpeakerVoiceConfig(
       speaker: speaker,
-      voiceConfig: GenerateContentAPI.VoiceConfig(
-        prebuiltVoiceConfig: GenerateContentAPI.PrebuiltVoiceConfig(voiceName: voiceName)
+      voiceConfig: GenAITypes.VoiceConfig(
+        prebuiltVoiceConfig: GenAITypes.PrebuiltVoiceConfig(voiceName: voiceName)
       )
     )
   }

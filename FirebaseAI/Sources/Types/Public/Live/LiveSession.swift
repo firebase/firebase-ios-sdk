@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import Foundation
-internal import GenerateContentAPI
+internal import InternalGoogleGenAI
 
 /// A live WebSocket session, capable of streaming content to and from the model.
 ///
@@ -62,7 +62,7 @@ public final class LiveSession: Sendable {
   public func sendAudioRealtime(_ audio: Data) async {
     // TODO: (b/443984790) address when we add RealtimeInputConfig support
     let message = BidiGenerateContentRealtimeInput(
-      audio: GenerateContentAPI.Blob(mimeType: "audio/pcm", data: audio)
+      audio: GenAITypes.Blob(mimeType: "audio/pcm", data: audio)
     )
     await service.send(.realtimeInput(message))
   }
@@ -84,7 +84,7 @@ public final class LiveSession: Sendable {
   ///     `images/jpeg`etc.,).
   public func sendVideoRealtime(_ video: Data, mimeType: String) async {
     let message = BidiGenerateContentRealtimeInput(
-      video: GenerateContentAPI.Blob(mimeType: mimeType, data: video)
+      video: GenAITypes.Blob(mimeType: mimeType, data: video)
     )
     await service.send(.realtimeInput(message))
   }

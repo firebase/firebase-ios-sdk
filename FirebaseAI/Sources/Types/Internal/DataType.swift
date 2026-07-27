@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+internal import InternalGoogleGenAI
+
 /// A data type.
 ///
 /// Contains the set of OpenAPI [data types](https://spec.openapis.org/oas/v3.0.3#data-types).
@@ -41,11 +43,8 @@ extension DataType: Encodable {}
 
 // MARK: - Payload Convertible Conformance
 
-internal import GenerateContentAPI
-
 extension DataType: ConvertibleToRequestPayload {
-  func toRequestPayload() throws -> GenerateContentAPI.DataType? {
-    return GenerateContentAPI.DataType(rawValue: rawValue)
+  func toRequestPayload() throws -> GenAITypes.DataType? {
+    return GenAITypes.DataType(rawValue: rawValue)
   }
 }
-

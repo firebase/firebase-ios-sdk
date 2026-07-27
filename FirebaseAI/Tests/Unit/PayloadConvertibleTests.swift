@@ -12,13 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+@testable import FirebaseAILogic
 import Foundation
 import XCTest
-@testable import FirebaseAILogic
-internal import GenerateContentAPI
+internal import InternalGoogleGenAI
 
 final class PayloadConvertibleTests: XCTestCase {
-
   // MARK: - Schema and DataType
 
   func testSchemaConversion() throws {
@@ -98,7 +97,7 @@ final class PayloadConvertibleTests: XCTestCase {
     XCTAssertEqual(settingPayload.category, .hateSpeech)
     XCTAssertEqual(settingPayload.threshold, .blockLowAndAbove)
 
-    let ratingPayload = GenerateContentAPI.SafetyRating(
+    let ratingPayload = GenAITypes.SafetyRating(
       category: .harassment,
       probability: .medium,
       blocked: true,
@@ -207,36 +206,36 @@ final class PayloadConvertibleTests: XCTestCase {
   // MARK: - GenerateContentResponse
 
   func testGenerateContentResponseConversion() throws {
-    let responsePayload = GenerateContentAPI.GenerateContentResponse(
+    let responsePayload = GenAITypes.GenerateContentResponse(
       candidates: [
-        GenerateContentAPI.Candidate(
-          content: GenerateContentAPI.Content(
-            parts: [GenerateContentAPI.Part(data: .text("Here is a joke"))],
+        GenAITypes.Candidate(
+          content: GenAITypes.Content(
+            parts: [GenAITypes.Part(data: .text("Here is a joke"))],
             role: "model"
           ),
           finishReason: .stop,
           safetyRatings: [
-            GenerateContentAPI.SafetyRating(
+            GenAITypes.SafetyRating(
               category: .hateSpeech,
               probability: .negligible
-            )
+            ),
           ],
-          citationMetadata: GenerateContentAPI.CitationMetadata(
+          citationMetadata: GenAITypes.CitationMetadata(
             citationSources: [
-              GenerateContentAPI.Citation(
+              GenAITypes.Citation(
                 startIndex: 0,
                 endIndex: 10,
                 uri: "https://example.com"
-              )
+              ),
             ]
           )
-        )
+        ),
       ],
-      promptFeedback: GenerateContentAPI.PromptFeedback(
+      promptFeedback: GenAITypes.PromptFeedback(
         blockReason: .safety,
         blockReasonMessage: "Blocked for safety"
       ),
-      usageMetadata: GenerateContentAPI.UsageMetadata(
+      usageMetadata: GenAITypes.UsageMetadata(
         promptTokenCount: 10,
         candidatesTokenCount: 20,
         totalTokenCount: 30

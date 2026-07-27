@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import Foundation
-internal import GenerateContentAPI
+internal import InternalGoogleGenAI
 
 /// Client generated response to a `ToolCall` received from the server.
 /// Individual `FunctionResponse` objects are matched to the respective
@@ -26,5 +26,5 @@ internal import GenerateContentAPI
 @available(watchOS, unavailable)
 struct BidiGenerateContentToolResponse: Encodable {
   /// The response to the function calls.
-  let functionResponses: [GenerateContentAPI.FunctionResponse]?
+  let functionResponses: [GenAITypes.FunctionResponse]?
 }

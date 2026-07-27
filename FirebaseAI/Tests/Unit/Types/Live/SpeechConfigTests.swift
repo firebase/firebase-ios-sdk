@@ -14,15 +14,15 @@
 
 @testable import FirebaseAILogic
 import XCTest
-internal import GenerateContentAPI
+internal import InternalGoogleGenAI
 
 final class SpeechConfigTests: XCTestCase {
   func testSingleSpeakerConstructor_setsVoiceAndLanguageCode() {
     let config = SpeechConfig(voiceName: "Charon", languageCode: "en-US")
     XCTAssertEqual(
       config.speechConfig.voiceConfig,
-      GenerateContentAPI.VoiceConfig(
-        prebuiltVoiceConfig: GenerateContentAPI.PrebuiltVoiceConfig(voiceName: "Charon")
+      GenAITypes.VoiceConfig(
+        prebuiltVoiceConfig: GenAITypes.PrebuiltVoiceConfig(voiceName: "Charon")
       )
     )
     XCTAssertEqual(config.speechConfig.languageCode, "en-US")
@@ -33,8 +33,8 @@ final class SpeechConfigTests: XCTestCase {
     let config = SpeechConfig(voiceName: "Charon")
     XCTAssertEqual(
       config.speechConfig.voiceConfig,
-      GenerateContentAPI.VoiceConfig(
-        prebuiltVoiceConfig: GenerateContentAPI.PrebuiltVoiceConfig(voiceName: "Charon")
+      GenAITypes.VoiceConfig(
+        prebuiltVoiceConfig: GenAITypes.PrebuiltVoiceConfig(voiceName: "Charon")
       )
     )
     XCTAssertNil(config.speechConfig.languageCode)

@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import Foundation
-internal import GenerateContentAPI
+internal import InternalGoogleGenAI
 
 extension [ModelContent] {
   // TODO: Rename and refactor this.
@@ -30,7 +30,7 @@ extension [ModelContent] {
 /// request or response contains an `Array` of ``ModelContent``s, and each ``ModelContent`` value
 /// may comprise multiple heterogeneous ``Part``s.
 public struct ModelContent: Equatable, Sendable {
-  let internalContent: GenerateContentAPI.Content
+  let internalContent: GenAITypes.Content
   let errorParts: [ErrorPart]
 
   /// The role of the entity creating the ``ModelContent``. For user-generated client requests,
@@ -78,7 +78,7 @@ public struct ModelContent: Equatable, Sendable {
         )
       case let .executableCode(executableCode):
         return ExecutableCodePart(
-          ExecutableCode(language: executableCode.language, code: executableCode.code),
+          GenAITypes.ExecutableCode(language: executableCode.language, code: executableCode.code),
           isThought: isThought,
           thoughtSignature: payloadPart.thoughtSignature
         )
@@ -99,18 +99,19 @@ public struct ModelContent: Equatable, Sendable {
   /// Creates a new value from a list of ``Part``s.
   public init(role: String? = "user", parts: [any Part]) {
     var errorParts = [ErrorPart]()
-    var payloadParts = [GenerateContentAPI.Part]()
+    var payloadParts = [GenAITypes.Part]()
 
     for part in parts {
       if let errorPart = part as? ErrorPart {
         errorParts.append(errorPart)
       } else if let payloadConvertible = part as? any ConvertibleToRequestPayload,
-                let payload = (try? payloadConvertible.toRequestPayload()) as? GenerateContentAPI.Part {
+                let payload = (try? payloadConvertible.toRequestPayload()) as? GenAITypes
+                .Part {
         payloadParts.append(payload)
       }
     }
 
-    self.internalContent = GenerateContentAPI.Content(parts: payloadParts, role: role)
+    internalContent = GenAITypes.Content(parts: payloadParts, role: role)
     self.errorParts = errorParts
   }
 
@@ -121,14 +122,14 @@ public struct ModelContent: Equatable, Sendable {
     self.init(role: role, parts: content)
   }
 
-  init(role: String?, parts: [GenerateContentAPI.Part]) {
-    self.internalContent = GenerateContentAPI.Content(parts: parts, role: role)
-    self.errorParts = []
+  init(role: String?, parts: [GenAITypes.Part]) {
+    internalContent = GenAITypes.Content(parts: parts, role: role)
+    errorParts = []
   }
 
-  init(content: GenerateContentAPI.Content) {
-    self.internalContent = content
-    self.errorParts = []
+  init(content: GenAITypes.Content) {
+    internalContent = content
+    errorParts = []
   }
 }
 
@@ -136,7 +137,7 @@ public struct ModelContent: Equatable, Sendable {
 
 extension ModelContent: Codable {
   public init(from decoder: any Decoder) throws {
-    let content = try GenerateContentAPI.Content(from: decoder)
+    let content = try GenAITypes.Content(from: decoder)
     self.init(content: content)
   }
 
@@ -148,16 +149,13 @@ extension ModelContent: Codable {
 // MARK: - Payload Convertible Conformances
 
 extension ModelContent: ConvertibleToRequestPayload {
-  func toRequestPayload() throws -> GenerateContentAPI.Content {
+  func toRequestPayload() throws -> GenAITypes.Content {
     return internalContent
   }
 }
 
 extension ModelContent: ConvertibleFromResponsePayload {
-  init(_ responsePayload: GenerateContentAPI.Content) throws {
+  init(_ responsePayload: GenAITypes.Content) throws {
     self.init(content: responsePayload)
   }
 }
-
-
-

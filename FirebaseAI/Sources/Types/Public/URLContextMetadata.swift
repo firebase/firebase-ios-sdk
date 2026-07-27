@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+internal import InternalGoogleGenAI
+
 /// Metadata related to the ``Tool/urlContext()`` tool.
 public struct URLContextMetadata: Sendable, Hashable {
   /// List of URL metadata used to provide context to the Gemini model.
@@ -33,12 +35,9 @@ extension URLContextMetadata: Decodable {
 
 // MARK: - Payload Convertible Conformances
 
-internal import GenerateContentAPI
-
 extension URLContextMetadata: ConvertibleFromResponsePayload {
-  init(_ responsePayload: GenerateContentAPI.UrlContextMetadata) throws {
+  init(_ responsePayload: GenAITypes.UrlContextMetadata) throws {
     let list = try responsePayload.urlMetadata?.map { try URLMetadata($0) } ?? []
     self.init(urlMetadata: list)
   }
 }
-

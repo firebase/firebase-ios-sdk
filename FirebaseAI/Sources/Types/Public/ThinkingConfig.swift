@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+internal import InternalGoogleGenAI
+
 /// Configuration for controlling the "thinking" behavior of compatible Gemini models.
 ///
 /// Gemini 2.5 series models and newer utilize a thinking process before generating a response. This
@@ -126,21 +128,18 @@ extension ThinkingConfig: Encodable {
 
 // MARK: - Payload Convertible Conformances
 
-internal import GenerateContentAPI
-
 extension ThinkingConfig.ThinkingLevel: ConvertibleToRequestPayload {
-  func toRequestPayload() throws -> GenerateContentAPI.ThinkingConfig.ThinkingLevel {
-    return GenerateContentAPI.ThinkingConfig.ThinkingLevel(rawValue: rawValue)
+  func toRequestPayload() throws -> GenAITypes.ThinkingConfig.ThinkingLevel {
+    return GenAITypes.ThinkingConfig.ThinkingLevel(rawValue: rawValue)
   }
 }
 
 extension ThinkingConfig: ConvertibleToRequestPayload {
-  func toRequestPayload() throws -> GenerateContentAPI.ThinkingConfig {
-    return GenerateContentAPI.ThinkingConfig(
+  func toRequestPayload() throws -> GenAITypes.ThinkingConfig {
+    return try GenAITypes.ThinkingConfig(
       includeThoughts: includeThoughts,
       thinkingBudget: thinkingBudget,
-      thinkingLevel: try thinkingLevel?.toRequestPayload()
+      thinkingLevel: thinkingLevel?.toRequestPayload()
     )
   }
 }
-

@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+internal import InternalGoogleGenAI
+
 /// Configuration options for generating images with Gemini models.
 ///
 /// See the [documentation](https://ai.google.dev/gemini-api/docs/image-generation#aspect_ratios_and_image_size)
@@ -172,8 +174,6 @@ extension ImageConfig: Encodable {
 
 // MARK: - Payload Convertible Conformances
 
-internal import GenerateContentAPI
-
 extension ImageConfig.AspectRatio: ConvertibleToRequestPayload {
   func toRequestPayload() throws -> String {
     return rawValue
@@ -187,11 +187,10 @@ extension ImageConfig.ImageSize: ConvertibleToRequestPayload {
 }
 
 extension ImageConfig: ConvertibleToRequestPayload {
-  func toRequestPayload() throws -> GenerateContentAPI.ImageConfig {
-    return GenerateContentAPI.ImageConfig(
-      aspectRatio: try aspectRatio?.toRequestPayload(),
-      imageSize: try imageSize?.toRequestPayload()
+  func toRequestPayload() throws -> GenAITypes.ImageConfig {
+    return try GenAITypes.ImageConfig(
+      aspectRatio: aspectRatio?.toRequestPayload(),
+      imageSize: imageSize?.toRequestPayload()
     )
   }
 }
-
