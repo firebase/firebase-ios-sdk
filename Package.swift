@@ -173,6 +173,7 @@ let package = Package(
       "101.0.0" ..< "102.0.0"
     ),
     appCheckDependency(),
+    .package(path: "Packages/GeminiAPIClients"),
   ],
   targets: [
     .target(
@@ -195,7 +196,7 @@ let package = Package(
         "FirebaseAuthInterop",
         "FirebaseCore",
         "FirebaseCoreExtension",
-        "GenerateContentAPI",
+        .product(name: "InternalGeminiGenerateContentClient", package: "GeminiAPIClients"),
       ],
       path: "FirebaseAI/Sources",
       swiftSettings: [
@@ -229,29 +230,6 @@ let package = Package(
       name: "FirebaseAIUnit",
       dependencies: ["FirebaseAI"],
       path: "FirebaseAI/Wrapper/Tests"
-    ),
-    .target(
-      name: "GenerateContentAPI",
-      swiftSettings: [
-        .swiftLanguageMode(.v6),
-        .enableUpcomingFeature("InternalImportsByDefault"),
-        .enableUpcomingFeature("InferIsolatedConformances"),
-        .enableUpcomingFeature("MemberImportVisibility"),
-        .enableUpcomingFeature("NonisolatedNonsendingByDefault"),
-        .enableUpcomingFeature("NonescapableTypes"),
-      ],
-    ),
-    .testTarget(
-      name: "GenerateContentAPITests",
-      dependencies: ["GenerateContentAPI"],
-      swiftSettings: [
-        .swiftLanguageMode(.v6),
-        .enableUpcomingFeature("InternalImportsByDefault"),
-        .enableUpcomingFeature("InferIsolatedConformances"),
-        .enableUpcomingFeature("MemberImportVisibility"),
-        .enableUpcomingFeature("NonisolatedNonsendingByDefault"),
-        .enableUpcomingFeature("NonescapableTypes"),
-      ],
     ),
 
     // MARK: - Firebase Core
