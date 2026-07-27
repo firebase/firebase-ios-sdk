@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
-
 package extension SafetyRating {
   /// Output only. The overwritten threshold for the safety category of
   ///
@@ -27,7 +25,7 @@ package extension SafetyRating {
   /// Gemini 2.0 image out. If minors are detected in the output image, the
   /// threshold of each safety category will be overwritten if user sets a lower
   /// threshold.
-  package enum OverwrittenThreshold: Codable, Sendable, Equatable, Hashable {
+  enum OverwrittenThreshold: Codable, Sendable, Equatable, Hashable {
     /// Block content with a low harm probability or higher.
     case blockLowAndAbove
 

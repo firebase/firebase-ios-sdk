@@ -12,11 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
-
 package extension AudioResponseFormat {
   /// Optional. The MIME type of the audio output.
-  package enum MimeType: Codable, Sendable, Equatable, Hashable {
+  enum MimeType: Codable, Sendable, Equatable, Hashable {
     /// MP3 audio format.
     case mp3
 

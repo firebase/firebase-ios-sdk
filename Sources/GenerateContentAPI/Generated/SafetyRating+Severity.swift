@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
-
 package extension SafetyRating {
   /// Output only. The severity of harm for this category.
   ///
@@ -24,7 +22,7 @@ package extension SafetyRating {
   /// ### Gemini Enterprise Agent Platform
   ///
   /// Output only. The severity of harm for this category.
-  package enum Severity: Codable, Sendable, Equatable, Hashable {
+  enum Severity: Codable, Sendable, Equatable, Hashable {
     /// The harm severity is negligible.
     case negligible
 

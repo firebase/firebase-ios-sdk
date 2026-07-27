@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
-
 /// An internal data model for `SafetySetting`.
 ///
 /// ### Gemini Developer API
@@ -80,8 +78,8 @@ package struct SafetySetting: Codable, Sendable, Equatable, Hashable {
   /// (behavior varies by backend). For more details, see ``threshold``.
   ///   - method: Optional. The method for blocking content. If not specified, the default (Gemini
   /// Enterprise Agent Platform only). For more details, see ``method``.
-  package init(category: HarmCategory? = nil,
-               threshold: Threshold? = nil,
+  package init(category: HarmCategory?,
+               threshold: Threshold?,
                method: Method? = nil) {
     self.category = category
     self.threshold = threshold

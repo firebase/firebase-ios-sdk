@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
-
 /// An internal data model for `ToolResponse`.
 ///
 /// ### Gemini Developer API
@@ -74,7 +72,7 @@ package struct ToolResponse: Codable, Sendable, Equatable, Hashable {
   ///   - response: Optional. The tool response. (Gemini Developer API only). For more details, see
   /// ``response``.
   package init(id: String? = nil,
-               toolType: ToolType? = nil,
+               toolType: ToolType?,
                response: [String: JSONValue]? = nil) {
     self.id = id
     self.toolType = toolType

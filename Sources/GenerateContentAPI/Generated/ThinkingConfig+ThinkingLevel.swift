@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
-
 package extension ThinkingConfig {
   /// Optional. Controls the maximum depth of the model's internal reasoning process before
   ///
@@ -29,7 +27,7 @@ package extension ThinkingConfig {
   /// ### Gemini Enterprise Agent Platform
   ///
   /// Optional. The number of thoughts tokens that the model should generate.
-  package enum ThinkingLevel: Codable, Sendable, Equatable, Hashable {
+  enum ThinkingLevel: Codable, Sendable, Equatable, Hashable {
     /// Little to no thinking.
     case minimal
 

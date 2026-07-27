@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public import Foundation
+package import Foundation
 
 /// An internal data model for `Blob`.
 ///
@@ -81,8 +81,8 @@ package struct Blob: Codable, Sendable, Equatable, Hashable {
   /// details, see ``data``.
   ///   - displayName: Optional. The display name of the blob. Used to provide a label or filename
   /// (Gemini Enterprise Agent Platform only). For more details, see ``displayName``.
-  package init(mimeType: String? = nil,
-               data: Data? = nil,
+  package init(mimeType: String?,
+               data: Data?,
                displayName: String? = nil) {
     self.mimeType = mimeType
     self.data = data

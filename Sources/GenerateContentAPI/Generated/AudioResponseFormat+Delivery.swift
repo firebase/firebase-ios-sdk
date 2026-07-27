@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
-
 package extension AudioResponseFormat {
   /// Optional. The delivery mode for the audio output.
   ///
@@ -24,7 +22,7 @@ package extension AudioResponseFormat {
   /// ### Gemini Enterprise Agent Platform
   ///
   /// Optional. Delivery mode for the generated content.
-  package enum Delivery: Codable, Sendable, Equatable, Hashable {
+  enum Delivery: Codable, Sendable, Equatable, Hashable {
     /// Audio data is returned inline in the response.
     case inline
 

@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
-
 package extension Candidate {
   /// Optional. Output only. The reason why the model stopped generating tokens.
   ///
@@ -27,7 +25,7 @@ package extension Candidate {
   ///
   /// Output only. The reason why the model stopped generating tokens. If empty,
   /// the model has not stopped generating.
-  package enum FinishReason: Codable, Sendable, Equatable, Hashable {
+  enum FinishReason: Codable, Sendable, Equatable, Hashable {
     /// Natural stop point of the model or provided stop sequence.
     case stop
 

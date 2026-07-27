@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
-
 package extension Part.MediaResolution {
   /// The tokenization quality used for given media.
   ///
@@ -25,7 +23,7 @@ package extension Part.MediaResolution {
   /// ### Gemini Enterprise Agent Platform
   ///
   /// The tokenization quality used for given media.
-  package enum Level: Codable, Sendable, Equatable, Hashable {
+  enum Level: Codable, Sendable, Equatable, Hashable {
     /// Media resolution set to low.
     case low
 

@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
-
 package extension SafetySetting {
   /// Required. Controls the probability threshold at which harm is blocked.
   ///
@@ -25,7 +23,7 @@ package extension SafetySetting {
   ///
   /// Required. The threshold for blocking content. If the harm probability
   /// exceeds this threshold, the content will be blocked.
-  package enum Threshold: Codable, Sendable, Equatable, Hashable {
+  enum Threshold: Codable, Sendable, Equatable, Hashable {
     /// Content with NEGLIGIBLE will be allowed.
     case blockLowAndAbove
 

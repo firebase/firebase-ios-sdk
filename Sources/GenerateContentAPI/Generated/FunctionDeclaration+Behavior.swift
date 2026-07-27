@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
-
 package extension FunctionDeclaration {
   /// Optional. Specifies the function Behavior.
   ///
@@ -27,7 +25,7 @@ package extension FunctionDeclaration {
   /// Optional. Specifies the function Behavior.
   /// If not specified, the system keeps the current function call behavior.
   /// This field is currently only supported by the BidiGenerateContent method.
-  package enum Behavior: Codable, Sendable, Equatable, Hashable {
+  enum Behavior: Codable, Sendable, Equatable, Hashable {
     /// If set, the system will wait to receive the function response before
     /// continuing the conversation.
     case blocking

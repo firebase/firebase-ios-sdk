@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
-
 /// An internal data model for `SpeakerVoiceConfig`.
 ///
 /// ### Gemini Developer API
@@ -58,8 +56,8 @@ package struct SpeakerVoiceConfig: Codable, Sendable, Equatable, Hashable {
   /// (behavior varies by backend). For more details, see ``speaker``.
   ///   - voiceConfig: Required. The configuration for the voice to use. (behavior varies by
   /// backend). For more details, see ``voiceConfig``.
-  package init(speaker: String? = nil,
-               voiceConfig: VoiceConfig? = nil) {
+  package init(speaker: String?,
+               voiceConfig: VoiceConfig?) {
     self.speaker = speaker
     self.voiceConfig = voiceConfig
   }

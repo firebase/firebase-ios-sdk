@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
-
 package extension TextResponseFormat {
   /// Optional. The MIME type of the text output.
   ///
@@ -24,7 +22,7 @@ package extension TextResponseFormat {
   /// ### Gemini Enterprise Agent Platform
   ///
   /// Optional. The IANA standard MIME type of the response.
-  package enum MimeType: Codable, Sendable, Equatable, Hashable {
+  enum MimeType: Codable, Sendable, Equatable, Hashable {
     /// JSON output format.
     case applicationJson
 

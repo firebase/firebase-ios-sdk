@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
-
 /// An internal data model for `ExecutableCode`.
 ///
 /// ### Gemini Developer API
@@ -70,8 +68,8 @@ package struct ExecutableCode: Codable, Sendable, Equatable, Hashable {
   ///   - code: Required. The code to be executed.
   ///   - id: Optional. Unique identifier of the `ExecutableCode` part. (Gemini Developer API only).
   /// For more details, see ``id``.
-  package init(language: Language? = nil,
-               code: String? = nil,
+  package init(language: Language?,
+               code: String?,
                id: String? = nil) {
     self.language = language
     self.code = code

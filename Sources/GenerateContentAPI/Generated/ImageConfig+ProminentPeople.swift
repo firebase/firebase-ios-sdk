@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
-
 package extension ImageConfig {
   /// Optional. Controls whether prominent people (celebrities) generation is allowed. If
   ///
@@ -28,7 +26,7 @@ package extension ImageConfig {
   /// For instance, if ALLOW_NONE is set, all person generation would be blocked.
   /// If this field is unspecified, the default behavior is to allow prominent
   /// people.
-  package enum ProminentPeople: Codable, Sendable, Equatable, Hashable {
+  enum ProminentPeople: Codable, Sendable, Equatable, Hashable {
     /// Allows the model to generate images of prominent people.
     case allowProminentPeople
 

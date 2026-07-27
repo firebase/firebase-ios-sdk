@@ -12,13 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
-
 package extension FunctionResponse {
   /// Optional. Specifies how the response should be scheduled in the conversation.
   /// Only applicable to NON_BLOCKING function calls, is ignored otherwise.
   /// Defaults to WHEN_IDLE.
-  package enum Scheduling: Codable, Sendable, Equatable, Hashable {
+  enum Scheduling: Codable, Sendable, Equatable, Hashable {
     /// Only add the result to the conversation context, do not interrupt or
     /// trigger generation.
     case silent

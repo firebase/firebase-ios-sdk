@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
-
 package extension GenerationConfig {
   /// Optional. If specified, the media resolution specified will be used.
   ///
@@ -29,7 +27,7 @@ package extension GenerationConfig {
   /// the model to perceive more detail, which can lead to a more nuanced
   /// response, but it will also use more tokens. This does not affect the
   /// image dimensions sent to the model.
-  package enum MediaResolution: Codable, Sendable, Equatable, Hashable {
+  enum MediaResolution: Codable, Sendable, Equatable, Hashable {
     /// Media resolution set to low (64 tokens).
     case low
 

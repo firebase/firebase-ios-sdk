@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
-
 /// An internal data model for `ToolCall`.
 ///
 /// ### Gemini Developer API
@@ -75,7 +73,7 @@ package struct ToolCall: Codable, Sendable, Equatable, Hashable {
   ///   - args: Optional. The tool call arguments. (Gemini Developer API only). For more details,
   /// see ``args``.
   package init(id: String? = nil,
-               toolType: ToolType? = nil,
+               toolType: ToolType?,
                args: [String: JSONValue]? = nil) {
     self.id = id
     self.toolType = toolType

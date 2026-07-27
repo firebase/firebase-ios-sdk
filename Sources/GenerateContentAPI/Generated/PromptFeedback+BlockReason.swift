@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
-
 package extension PromptFeedback {
   /// Optional. If set, the prompt was blocked and no candidates are returned.
   ///
@@ -25,7 +23,7 @@ package extension PromptFeedback {
   /// ### Gemini Enterprise Agent Platform
   ///
   /// Output only. The reason why the prompt was blocked.
-  package enum BlockReason: Codable, Sendable, Equatable, Hashable {
+  enum BlockReason: Codable, Sendable, Equatable, Hashable {
     /// Prompt was blocked due to safety reasons. Inspect `safety_ratings`
     /// to understand which safety category blocked it.
     case safety

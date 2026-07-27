@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
-
 package extension SafetyRating {
   /// Required. The probability of harm for this content.
   ///
@@ -24,7 +22,7 @@ package extension SafetyRating {
   /// ### Gemini Enterprise Agent Platform
   ///
   /// Output only. The probability of harm for this category.
-  package enum Probability: Codable, Sendable, Equatable, Hashable {
+  enum Probability: Codable, Sendable, Equatable, Hashable {
     /// Content has a negligible chance of being unsafe.
     case negligible
 

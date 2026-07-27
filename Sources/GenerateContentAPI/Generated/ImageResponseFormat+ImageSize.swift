@@ -12,11 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
-
 package extension ImageResponseFormat {
   /// Optional. The size of the image output.
-  package enum ImageSize: Codable, Sendable, Equatable, Hashable {
+  enum ImageSize: Codable, Sendable, Equatable, Hashable {
     /// 512px image size.
     case fiveTwelve
 

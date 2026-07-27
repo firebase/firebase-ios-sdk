@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
-
 package extension ExecutableCode {
   /// Required. Programming language of the `code`.
   ///
@@ -26,7 +24,7 @@ package extension ExecutableCode {
   /// ### Gemini Enterprise Agent Platform
   ///
   /// Required. Programming language of the `code`.
-  package enum Language: Codable, Sendable, Equatable, Hashable {
+  enum Language: Codable, Sendable, Equatable, Hashable {
     /// Python >= 3.10, with numpy and simpy available.
     /// Python is the default language.
     case python

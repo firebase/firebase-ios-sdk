@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
-
 /// An internal data model for `CodeExecutionResult`.
 ///
 /// ### Gemini Developer API
@@ -78,7 +76,7 @@ package struct CodeExecutionResult: Codable, Sendable, Equatable, Hashable {
   /// (behavior varies by backend). For more details, see ``output``.
   ///   - id: Optional. The identifier of the `ExecutableCode` part this result is for. (Gemini
   /// Developer API only). For more details, see ``id``.
-  package init(outcome: Outcome? = nil,
+  package init(outcome: Outcome?,
                output: String? = nil,
                id: String? = nil) {
     self.outcome = outcome

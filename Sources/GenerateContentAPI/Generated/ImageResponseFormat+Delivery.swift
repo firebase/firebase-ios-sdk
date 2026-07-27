@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
-
 package extension ImageResponseFormat {
   /// Optional. The delivery mode for the image output.
   ///
@@ -24,7 +22,7 @@ package extension ImageResponseFormat {
   /// ### Gemini Enterprise Agent Platform
   ///
   /// Optional. Delivery mode for the generated content.
-  package enum Delivery: Codable, Sendable, Equatable, Hashable {
+  enum Delivery: Codable, Sendable, Equatable, Hashable {
     /// Image data is returned inline in the response.
     case inline
 

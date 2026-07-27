@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
-
 /// An internal data model for `FunctionCall`.
 ///
 /// ### Gemini Developer API
@@ -93,7 +91,7 @@ package struct FunctionCall: Codable, Sendable, Equatable, Hashable {
   ///   - willContinue: Optional. Whether this is the last part of the FunctionCall. (Gemini
   /// Enterprise Agent Platform only). For more details, see ``willContinue``.
   package init(id: String? = nil,
-               name: String? = nil,
+               name: String?,
                args: [String: JSONValue]? = nil,
                willContinue: Bool? = nil) {
     self.id = id

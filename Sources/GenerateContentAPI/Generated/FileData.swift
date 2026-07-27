@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
-
 /// An internal data model for `FileData`.
 ///
 /// ### Gemini Developer API
@@ -81,8 +79,8 @@ package struct FileData: Codable, Sendable, Equatable, Hashable {
   ///   - fileUri: Required. URI. (behavior varies by backend). For more details, see ``fileUri``.
   ///   - displayName: Optional. The display name of the file. Used to provide a label or filename
   /// (Gemini Enterprise Agent Platform only). For more details, see ``displayName``.
-  package init(mimeType: String? = nil,
-               fileUri: String? = nil,
+  package init(mimeType: String?,
+               fileUri: String?,
                displayName: String? = nil) {
     self.mimeType = mimeType
     self.fileUri = fileUri

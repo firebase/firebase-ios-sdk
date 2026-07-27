@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
-
 /// An internal data model for `GenerateContentRequest`.
 ///
 /// ### Gemini Developer API
@@ -234,9 +232,9 @@ package struct GenerateContentRequest: Codable, Sendable, Equatable, Hashable {
   /// (Gemini Developer API only). For more details, see ``store``.
   ///   - labels: Optional. The labels with user-defined metadata for the request. It is used for
   /// (Gemini Enterprise Agent Platform only). For more details, see ``labels``.
-  package init(model: String? = nil,
+  package init(model: String?,
                systemInstruction: Content? = nil,
-               contents: [Content]? = nil,
+               contents: [Content]?,
                tools: [Tool]? = nil,
                toolConfig: ToolConfig? = nil,
                safetySettings: [SafetySetting]? = nil,

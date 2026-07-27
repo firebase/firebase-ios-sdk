@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
-
 package extension FunctionCallingConfig {
   /// Optional. Specifies the mode in which function calling should execute. If
   ///
@@ -25,7 +23,7 @@ package extension FunctionCallingConfig {
   /// ### Gemini Enterprise Agent Platform
   ///
   /// Optional. Function calling mode.
-  package enum Mode: Codable, Sendable, Equatable, Hashable {
+  enum Mode: Codable, Sendable, Equatable, Hashable {
     /// Default model behavior, model decides to predict either a function call
     /// or a natural language response.
     case auto

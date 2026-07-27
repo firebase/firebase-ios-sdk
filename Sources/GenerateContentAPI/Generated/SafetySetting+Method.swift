@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
-
 package extension SafetySetting {
   /// Optional. The method for blocking content. If not specified, the default
   ///
@@ -25,7 +23,7 @@ package extension SafetySetting {
   ///
   /// Optional. The method for blocking content. If not specified, the default
   /// behavior is to use the probability score.
-  package enum Method: Codable, Sendable, Equatable, Hashable {
+  enum Method: Codable, Sendable, Equatable, Hashable {
     /// The harm block method uses both probability and severity scores.
     case severity
 

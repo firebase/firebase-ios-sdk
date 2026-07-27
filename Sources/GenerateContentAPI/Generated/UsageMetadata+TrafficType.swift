@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
-
 package extension UsageMetadata {
   /// Output only. The traffic type for this request.
   ///
@@ -24,7 +22,7 @@ package extension UsageMetadata {
   /// ### Gemini Enterprise Agent Platform
   ///
   /// Output only. The traffic type for this request.
-  package enum TrafficType: Codable, Sendable, Equatable, Hashable {
+  enum TrafficType: Codable, Sendable, Equatable, Hashable {
     /// The request was processed using Pay-As-You-Go quota.
     case onDemand
 

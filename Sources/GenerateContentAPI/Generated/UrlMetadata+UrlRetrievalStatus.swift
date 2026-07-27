@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
-
 package extension UrlMetadata {
   /// Status of the url retrieval.
   ///
@@ -24,7 +22,7 @@ package extension UrlMetadata {
   /// ### Gemini Enterprise Agent Platform
   ///
   /// The status of the URL retrieval.
-  package enum UrlRetrievalStatus: Codable, Sendable, Equatable, Hashable {
+  enum UrlRetrievalStatus: Codable, Sendable, Equatable, Hashable {
     /// Url retrieval is successful.
     case success
 

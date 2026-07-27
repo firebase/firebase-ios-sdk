@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
-
 package extension CodeExecutionResult {
   /// Required. Outcome of the code execution.
   ///
@@ -26,7 +24,7 @@ package extension CodeExecutionResult {
   /// ### Gemini Enterprise Agent Platform
   ///
   /// Required. Outcome of the code execution.
-  package enum Outcome: Codable, Sendable, Equatable, Hashable {
+  enum Outcome: Codable, Sendable, Equatable, Hashable {
     /// Code execution completed successfully. `output` contains the stdout, if
     /// any.
     case ok

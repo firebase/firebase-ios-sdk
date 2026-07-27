@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
-
 /// An internal data model for `TemplateFunction`.
 ///
 /// ### Gemini Developer API
@@ -69,7 +67,7 @@ package struct TemplateFunction: Codable, Sendable, Equatable, Hashable {
   /// schema
   ///   - outputSchema: Optional. Describes the output from this function in JSON Schema format. The
   /// value
-  package init(name: String? = nil,
+  package init(name: String?,
                inputSchema: [String: JSONValue]? = nil,
                outputSchema: [String: JSONValue]? = nil) {
     self.name = name

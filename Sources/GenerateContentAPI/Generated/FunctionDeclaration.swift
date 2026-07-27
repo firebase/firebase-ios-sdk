@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
-
 /// An internal data model for `FunctionDeclaration`.
 ///
 /// ### Gemini Developer API
@@ -155,8 +153,8 @@ package struct FunctionDeclaration: Codable, Sendable, Equatable, Hashable {
   /// format. The value
   ///   - behavior: Optional. Specifies the function Behavior. (behavior varies by backend). For
   /// more details, see ``behavior``.
-  package init(name: String? = nil,
-               description: String? = nil,
+  package init(name: String?,
+               description: String?,
                parameters: Schema? = nil,
                parametersJsonSchema: JSONValue? = nil,
                response: Schema? = nil,

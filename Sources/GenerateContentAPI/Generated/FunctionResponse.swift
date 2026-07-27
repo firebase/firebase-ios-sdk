@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
-
 /// An internal data model for `FunctionResponse`.
 ///
 /// ### Gemini Developer API
@@ -108,7 +106,7 @@ package struct FunctionResponse: Codable, Sendable, Equatable, Hashable {
   /// (Gemini Developer API only). For more details, see ``willContinue``.
   ///   - scheduling: Optional. Specifies how the response should be scheduled in the conversation.
   package init(id: String? = nil,
-               name: String? = nil,
+               name: String?,
                response: [String: JSONValue]? = nil,
                willContinue: Bool? = nil,
                scheduling: Scheduling? = nil) {

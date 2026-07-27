@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
-
 package extension ImageConfig {
   /// Optional. Controls whether the model can generate people.
   ///
@@ -24,7 +22,7 @@ package extension ImageConfig {
   /// ### Gemini Enterprise Agent Platform
   ///
   /// Optional. Controls whether the model can generate people.
-  package enum PersonGeneration: Codable, Sendable, Equatable, Hashable {
+  enum PersonGeneration: Codable, Sendable, Equatable, Hashable {
     /// Allows the model to generate images of people, including adults and
     /// children.
     case all

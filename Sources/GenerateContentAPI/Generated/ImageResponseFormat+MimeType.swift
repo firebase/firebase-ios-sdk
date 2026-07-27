@@ -12,11 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
-
 package extension ImageResponseFormat {
   /// Optional. The MIME type of the image output.
-  package enum MimeType: Codable, Sendable, Equatable, Hashable {
+  enum MimeType: Codable, Sendable, Equatable, Hashable {
     /// JPEG image format.
     case jpeg
 

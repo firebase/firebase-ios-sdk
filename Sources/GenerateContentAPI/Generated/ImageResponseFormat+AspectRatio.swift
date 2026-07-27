@@ -12,11 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
-
 package extension ImageResponseFormat {
   /// Optional. The aspect ratio for the image output.
-  package enum AspectRatio: Codable, Sendable, Equatable, Hashable {
+  enum AspectRatio: Codable, Sendable, Equatable, Hashable {
     /// 1:1 aspect ratio.
     case oneByOne
 

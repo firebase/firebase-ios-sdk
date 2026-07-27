@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
-
 /// An internal data model for `MultiSpeakerVoiceConfig`.
 ///
 /// ### Gemini Developer API
@@ -45,7 +43,7 @@ package struct MultiSpeakerVoiceConfig: Codable, Sendable, Equatable, Hashable {
   /// - Parameters:
   ///   - speakerVoiceConfigs: Required. All the enabled speaker voices. (behavior varies by
   /// backend). For more details, see ``speakerVoiceConfigs``.
-  package init(speakerVoiceConfigs: [SpeakerVoiceConfig]? = nil) {
+  package init(speakerVoiceConfigs: [SpeakerVoiceConfig]?) {
     self.speakerVoiceConfigs = speakerVoiceConfigs
   }
 
