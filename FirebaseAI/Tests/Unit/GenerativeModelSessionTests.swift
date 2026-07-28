@@ -14,7 +14,7 @@
 
 #if compiler(>=6.2.3) && canImport(FoundationModels)
   import FoundationModels
-  internal import InternalGoogleGenAI
+
   import XCTest
 
   @testable import FirebaseAILogic

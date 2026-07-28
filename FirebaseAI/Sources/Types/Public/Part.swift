@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import Foundation
-internal import InternalGoogleGenAI
+
 #if canImport(FoundationModels)
   import FoundationModels
 #endif // canImport(FoundationModels)

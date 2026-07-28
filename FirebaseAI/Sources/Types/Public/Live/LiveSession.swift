@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import Foundation
-internal import InternalGoogleGenAI
 
 /// A live WebSocket session, capable of streaming content to and from the model.
 ///

@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import Foundation
-internal import InternalGoogleGenAI
 
 /// Client generated response to a `ToolCall` received from the server.
 /// Individual `FunctionResponse` objects are matched to the respective

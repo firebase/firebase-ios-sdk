@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import Foundation
-internal import InternalGoogleGenAI
 
 /// The model's response to a generate content request.
 public struct GenerateContentResponse: Sendable {

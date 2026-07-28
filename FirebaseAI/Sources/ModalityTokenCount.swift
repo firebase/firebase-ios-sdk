@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import Foundation
-internal import InternalGoogleGenAI
 
 /// Represents token counting info for a single modality.
 public struct ModalityTokenCount: Sendable {

@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import Foundation
-internal import InternalGoogleGenAI
 
 /// Metadata for a single URL retrieved by the ``Tool/urlContext()`` tool.
 public struct URLMetadata: Sendable, Hashable {

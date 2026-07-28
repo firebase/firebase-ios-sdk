@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import Foundation
-internal import InternalGoogleGenAI
 
 /// Configuration options for live content generation.
 @available(watchOS, unavailable)

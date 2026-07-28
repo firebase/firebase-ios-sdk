@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-internal import InternalGoogleGenAI
-
 /// Configuration for controlling the "thinking" behavior of compatible Gemini models.
 ///
 /// Gemini 2.5 series models and newer utilize a thinking process before generating a response. This

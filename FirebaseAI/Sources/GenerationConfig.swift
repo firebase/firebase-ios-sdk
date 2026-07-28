@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import Foundation
-internal import InternalGoogleGenAI
 
 /// A struct defining model parameters to be used when sending generative AI
 /// requests to the backend model.

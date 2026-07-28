@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import Foundation
-internal import InternalGoogleGenAI
 
 final class History: Sendable {
   private let historyLock = NSLock()

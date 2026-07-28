@@ -17,7 +17,6 @@ import Foundation
 #if canImport(FoundationModels)
   import FoundationModels
 #endif // canImport(FoundationModels)
-internal import InternalGoogleGenAI
 
 /// Structured representation of a function declaration.
 ///

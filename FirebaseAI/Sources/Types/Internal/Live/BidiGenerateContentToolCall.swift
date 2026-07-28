@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import Foundation
-internal import InternalGoogleGenAI
 
 /// Request for the client to execute the `function_calls` and return the
 /// responses with the matching `id`s.

@@ -14,7 +14,6 @@
 
 @testable import FirebaseAILogic
 import XCTest
-internal import InternalGoogleGenAI
 
 @available(watchOS, unavailable)
 final class VoiceConfigTests: XCTestCase {

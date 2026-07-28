@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import Foundation
-internal import InternalGoogleGenAI
 
 struct GenerateContentRequest: Sendable {
   /// Model name.

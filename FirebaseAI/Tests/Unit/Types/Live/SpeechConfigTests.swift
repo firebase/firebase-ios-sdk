@@ -14,7 +14,6 @@
 
 @testable import FirebaseAILogic
 import XCTest
-internal import InternalGoogleGenAI
 
 final class SpeechConfigTests: XCTestCase {
   func testSingleSpeakerConstructor_setsVoiceAndLanguageCode() {

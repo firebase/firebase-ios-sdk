@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import Foundation
-internal import InternalGoogleGenAI
 
 /// Configures a speaker with a unique name/identifier and a specific voice.
 ///

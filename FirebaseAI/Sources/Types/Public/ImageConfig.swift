@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-internal import InternalGoogleGenAI
-
 /// Configuration options for generating images with Gemini models.
 ///
 /// See the [documentation](https://ai.google.dev/gemini-api/docs/image-generation#aspect_ratios_and_image_size)

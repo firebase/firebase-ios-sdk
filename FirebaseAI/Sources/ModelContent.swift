@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import Foundation
-internal import InternalGoogleGenAI
 
 extension [ModelContent] {
   // TODO: Rename and refactor this.

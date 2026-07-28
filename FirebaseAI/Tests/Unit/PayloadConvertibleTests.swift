@@ -15,7 +15,6 @@
 @testable import FirebaseAILogic
 import Foundation
 import XCTest
-internal import InternalGoogleGenAI
 
 final class PayloadConvertibleTests: XCTestCase {
   // MARK: - Schema and DataType

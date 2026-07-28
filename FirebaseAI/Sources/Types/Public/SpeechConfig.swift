@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import Foundation
-internal import InternalGoogleGenAI
 
 /// Speech configuration class for controlling the model's speech and audio generation behaviors.
 ///

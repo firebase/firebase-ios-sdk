@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import Foundation
-internal import InternalGoogleGenAI
 
 /// A type defining potentially harmful media categories and their model-assigned ratings. A value
 /// of this type may be assigned to a category for every model-generated response, not just
