@@ -61,7 +61,7 @@ public final class GenerativeModel: Sendable {
   ///   - modelName: The name of the model.
   ///   - modelResourceName: The model resource name corresponding with `modelName` in the backend.
   ///     The form depends on the backend and will be one of:
-  ///       - Gemini Enterprise Agent Platform via Firebase AI SDK:
+  ///       - Agent Platform Gemini API via Firebase AI SDK:
   ///       `"projects/{projectID}/locations/{locationID}/publishers/google/models/{modelName}"`
   ///       - Developer API via Firebase AI SDK: `"projects/{projectID}/models/{modelName}"`
   ///       - Developer API via Generative Language: `"models/{modelName}"`
@@ -233,7 +233,7 @@ public final class GenerativeModel: Sendable {
         modelResourceName
       case .googleAI(endpoint: .agentPlatformStagingBypassProxy):
         fatalError(
-          "The Gemini Enterprise Agent Platform staging endpoint does not support the Gemini Developer API (Google AI)."
+          "The Agent Platform Gemini API staging endpoint does not support the Gemini Developer API."
         )
     #endif // DEBUG
     }
