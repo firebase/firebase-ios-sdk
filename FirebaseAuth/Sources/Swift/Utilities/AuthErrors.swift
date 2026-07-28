@@ -1006,4 +1006,3 @@ private let kErrorRecaptchaActionCreationFailed =
 
 private let kErrorPasswordDoesNotMeetRequirements =
   "The password does not meet the requirements."
-
