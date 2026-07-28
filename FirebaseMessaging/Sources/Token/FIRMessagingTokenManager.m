@@ -83,7 +83,8 @@
   FIRMessagingTokenInfo *cachedTokenInfo =
       [self cachedTokenInfoWithAuthorizedEntity:self.fcmSenderID
                                           scope:kFIRMessagingDefaultTokenScope];
-  if ([cachedTokenInfo.tokenType isEqualToString:expectedTokenType]) {
+  if (cachedTokenInfo.token.length > 0 &&
+      [cachedTokenInfo.tokenType isEqualToString:expectedTokenType]) {
     _defaultFCMToken = [cachedTokenInfo.token copy];
     return _defaultFCMToken;
   } else {
