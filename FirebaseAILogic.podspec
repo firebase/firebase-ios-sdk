@@ -33,7 +33,6 @@ Build AI-powered apps and features with the Gemini API using the Firebase AI Log
 
   s.source_files = [
     'FirebaseAI/Sources/**/*.swift',
-    'GoogleGenAI/Sources/**/*.swift'
   ]
 
   s.swift_version = '6.0'

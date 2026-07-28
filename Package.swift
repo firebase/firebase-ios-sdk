@@ -195,7 +195,6 @@ let package = Package(
         "FirebaseAuthInterop",
         "FirebaseCore",
         "FirebaseCoreExtension",
-        "InternalGoogleGenAI",
       ],
       path: "FirebaseAI/Sources",
       swiftSettings: [
@@ -229,16 +228,6 @@ let package = Package(
       name: "FirebaseAIUnit",
       dependencies: ["FirebaseAI"],
       path: "FirebaseAI/Wrapper/Tests"
-    ),
-    .target(
-      name: "InternalGoogleGenAI",
-      path: "GoogleGenAI/Sources",
-      swiftSettings: [
-        .swiftLanguageMode(.v6),
-        .enableUpcomingFeature("InternalImportsByDefault"),
-        .enableUpcomingFeature("MemberImportVisibility"),
-        .enableUpcomingFeature("NonisolatedNonsendingByDefault"),
-      ],
     ),
 
     // MARK: - Firebase Core
