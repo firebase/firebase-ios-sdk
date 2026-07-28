@@ -85,8 +85,8 @@
       let response = try await session.respond(to: testPrompt)
 
       XCTAssertEqual(response.content, "Mountain View")
-      var functionCalls = [GenAITypes.FunctionCall]()
-      var functionResponses = [GenAITypes.FunctionResponse]()
+      var functionCalls = [GenerateContentAPI.FunctionCall]()
+      var functionResponses = [GenerateContentAPI.FunctionResponse]()
       let modelSession = try XCTUnwrap(
         session.sessionManager.getOrStartSession(instructions: nil)
       )
@@ -136,8 +136,8 @@
       let response = try await session.respond(to: testPrompt)
 
       XCTAssertEqual(response.content, "Mountain View")
-      var functionCalls = [GenAITypes.FunctionCall]()
-      var functionResponses = [GenAITypes.FunctionResponse]()
+      var functionCalls = [GenerateContentAPI.FunctionCall]()
+      var functionResponses = [GenerateContentAPI.FunctionResponse]()
       let modelSession = try XCTUnwrap(
         session.sessionManager.getOrStartSession(instructions: nil)
       )
@@ -285,8 +285,8 @@
         )
       }
 
-      var functionCalls = [GenAITypes.FunctionCall]()
-      var functionResponses = [GenAITypes.FunctionResponse]()
+      var functionCalls = [GenerateContentAPI.FunctionCall]()
+      var functionResponses = [GenerateContentAPI.FunctionResponse]()
       let modelSession = try XCTUnwrap(
         session.sessionManager.getOrStartSession(instructions: nil)
       )
@@ -384,8 +384,8 @@
       gas molecules in Earth's atmosphere scatter blue light from the sun more efficiently than \
       other colors. Blue light has shorter
       """)
-      var functionCalls = [GenAITypes.FunctionCall]()
-      var functionResponses = [GenAITypes.FunctionResponse]()
+      var functionCalls = [GenerateContentAPI.FunctionCall]()
+      var functionResponses = [GenerateContentAPI.FunctionResponse]()
       let modelSession = try XCTUnwrap(
         session.sessionManager.getOrStartSession(instructions: nil)
       )
@@ -440,8 +440,8 @@
       gas molecules in Earth's atmosphere scatter blue light from the sun more efficiently than \
       other colors. Blue light has shorter
       """)
-      var functionCalls = [GenAITypes.FunctionCall]()
-      var functionResponses = [GenAITypes.FunctionResponse]()
+      var functionCalls = [GenerateContentAPI.FunctionCall]()
+      var functionResponses = [GenerateContentAPI.FunctionResponse]()
       let modelSession = try XCTUnwrap(
         session.sessionManager.getOrStartSession(instructions: nil)
       )
@@ -512,8 +512,8 @@
         )
       }
 
-      var functionCalls = [GenAITypes.FunctionCall]()
-      var functionResponses = [GenAITypes.FunctionResponse]()
+      var functionCalls = [GenerateContentAPI.FunctionCall]()
+      var functionResponses = [GenerateContentAPI.FunctionResponse]()
       let modelSession = try XCTUnwrap(
         session.sessionManager.getOrStartSession(instructions: nil)
       )

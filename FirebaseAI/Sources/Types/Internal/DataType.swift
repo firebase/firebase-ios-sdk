@@ -44,7 +44,7 @@ extension DataType: Encodable {}
 // MARK: - Payload Convertible Conformance
 
 extension DataType: ConvertibleToRequestPayload {
-  func toRequestPayload() throws -> GenAITypes.DataType? {
-    return GenAITypes.DataType(rawValue: rawValue)
+  func toRequestPayload() throws -> GenerateContentAPI.DataType? {
+    return GenerateContentAPI.DataType(rawValue: rawValue)
   }
 }

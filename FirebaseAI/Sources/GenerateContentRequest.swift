@@ -94,7 +94,7 @@ extension GenerateContentRequest: GenerativeAIRequest {
 // MARK: - Payload Convertible Conformances
 
 extension GenerateContentRequest: ConvertibleToRequestPayload {
-  func toRequestPayload() throws -> GenAITypes.GenerateContentRequest {
+  func toRequestPayload() throws -> GenerateContentAPI.GenerateContentRequest {
     let payloadModel = apiMethod == .countTokens ? model : nil
     let payloadContents = try contents.map { try $0.toRequestPayload() }
     let payloadGenConfig = try generationConfig?.toRequestPayload()
@@ -103,7 +103,7 @@ extension GenerateContentRequest: ConvertibleToRequestPayload {
     let payloadToolConfig = try toolConfig?.toRequestPayload()
     let payloadSysInst = try systemInstruction?.toRequestPayload()
 
-    return GenAITypes.GenerateContentRequest(
+    return GenerateContentAPI.GenerateContentRequest(
       model: payloadModel,
       systemInstruction: payloadSysInst,
       contents: payloadContents,

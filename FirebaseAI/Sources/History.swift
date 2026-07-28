@@ -46,17 +46,17 @@ final class History: Sendable {
   }
 
   func aggregatedChunks(_ chunks: [ModelContent]) -> ModelContent {
-    var parts: [GenAITypes.Part] = []
+    var parts: [GenerateContentAPI.Part] = []
     var combinedText = ""
     var combinedThoughts = ""
 
     func flush() {
       if !combinedThoughts.isEmpty {
-        parts.append(GenAITypes.Part(data: .text(combinedThoughts), thought: true))
+        parts.append(GenerateContentAPI.Part(data: .text(combinedThoughts), thought: true))
         combinedThoughts = ""
       }
       if !combinedText.isEmpty {
-        parts.append(GenAITypes.Part(data: .text(combinedText)))
+        parts.append(GenerateContentAPI.Part(data: .text(combinedText)))
         combinedText = ""
       }
     }

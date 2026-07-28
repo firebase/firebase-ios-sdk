@@ -846,7 +846,7 @@ extension Segment: Decodable {
 // MARK: - Payload Convertible Conformances
 
 extension Segment: ConvertibleFromResponsePayload {
-  init(_ responsePayload: GenAITypes.Segment) throws {
+  init(_ responsePayload: GenerateContentAPI.Segment) throws {
     let partIndex = responsePayload.partIndex ?? 0
     let startIndex = responsePayload.startIndex ?? 0
     let endIndex = responsePayload.endIndex ?? 0
@@ -856,13 +856,13 @@ extension Segment: ConvertibleFromResponsePayload {
 }
 
 extension GroundingMetadata.SearchEntryPoint: ConvertibleFromResponsePayload {
-  init(_ responsePayload: GenAITypes.SearchEntryPoint) throws {
+  init(_ responsePayload: GenerateContentAPI.SearchEntryPoint) throws {
     self.init(renderedContent: responsePayload.renderedContent ?? "")
   }
 }
 
 extension GroundingMetadata.WebGroundingChunk: ConvertibleFromResponsePayload {
-  init(_ responsePayload: GenAITypes.WebChunk) throws {
+  init(_ responsePayload: GenerateContentAPI.WebChunk) throws {
     self.init(
       uri: responsePayload.uri,
       title: responsePayload.title,
@@ -872,14 +872,14 @@ extension GroundingMetadata.WebGroundingChunk: ConvertibleFromResponsePayload {
 }
 
 extension GroundingMetadata.GroundingChunk: ConvertibleFromResponsePayload {
-  init(_ responsePayload: GenAITypes.GroundingChunk) throws {
+  init(_ responsePayload: GenerateContentAPI.GroundingChunk) throws {
     let web = try responsePayload.web.map { try GroundingMetadata.WebGroundingChunk($0) }
     self.init(web: web, maps: nil)
   }
 }
 
 extension GroundingMetadata.GroundingSupport: ConvertibleFromResponsePayload {
-  init(_ responsePayload: GenAITypes.GroundingSupport) throws {
+  init(_ responsePayload: GenerateContentAPI.GroundingSupport) throws {
     guard let segmentPayload = responsePayload.segment else {
       throw AILog.makeInternalError(
         message: "GroundingSupport segment is missing",
@@ -893,7 +893,7 @@ extension GroundingMetadata.GroundingSupport: ConvertibleFromResponsePayload {
 }
 
 extension GroundingMetadata: ConvertibleFromResponsePayload {
-  init(_ responsePayload: GenAITypes.GroundingMetadata) throws {
+  init(_ responsePayload: GenerateContentAPI.GroundingMetadata) throws {
     let queries = responsePayload.webSearchQueries ?? []
     let chunks = try responsePayload.groundingChunks?.map { try GroundingChunk($0) } ?? []
     let supports = responsePayload.groundingSupports?.compactMap { try? GroundingSupport($0) } ?? []
@@ -908,7 +908,7 @@ extension GroundingMetadata: ConvertibleFromResponsePayload {
 }
 
 extension Citation: ConvertibleFromResponsePayload {
-  init(_ responsePayload: GenAITypes.Citation) throws {
+  init(_ responsePayload: GenerateContentAPI.Citation) throws {
     let startIndex = responsePayload.startIndex ?? 0
     let endIndex = responsePayload.endIndex ?? startIndex
     let uri = responsePayload.uri?.isEmpty == false ? responsePayload.uri : nil
@@ -933,7 +933,7 @@ extension Citation: ConvertibleFromResponsePayload {
 }
 
 extension CitationMetadata: ConvertibleFromResponsePayload {
-  init(_ responsePayload: GenAITypes.CitationMetadata) throws {
+  init(_ responsePayload: GenerateContentAPI.CitationMetadata) throws {
     let payloadCitations = responsePayload.citationSources ?? responsePayload.citations ?? []
     let decodedCitations = try payloadCitations.map { try Citation($0) }
     citations = decodedCitations.filter { !$0.isEmpty }
@@ -941,19 +941,19 @@ extension CitationMetadata: ConvertibleFromResponsePayload {
 }
 
 extension FinishReason: ConvertibleFromResponsePayload {
-  init(_ responsePayload: GenAITypes.Candidate.FinishReason) throws {
+  init(_ responsePayload: GenerateContentAPI.Candidate.FinishReason) throws {
     self.init(rawValue: responsePayload.rawValue)
   }
 }
 
 extension PromptFeedback.BlockReason: ConvertibleFromResponsePayload {
-  init(_ responsePayload: GenAITypes.PromptFeedback.BlockReason) throws {
+  init(_ responsePayload: GenerateContentAPI.PromptFeedback.BlockReason) throws {
     self.init(rawValue: responsePayload.rawValue)
   }
 }
 
 extension PromptFeedback: ConvertibleFromResponsePayload {
-  init(_ responsePayload: GenAITypes.PromptFeedback) throws {
+  init(_ responsePayload: GenerateContentAPI.PromptFeedback) throws {
     let blockReason = try responsePayload.blockReason.map { try BlockReason($0) }
     let safetyRatings = try responsePayload.safetyRatings?.map { try SafetyRating($0) } ?? []
     self.init(
@@ -965,7 +965,7 @@ extension PromptFeedback: ConvertibleFromResponsePayload {
 }
 
 extension GenerateContentResponse.UsageMetadata: ConvertibleFromResponsePayload {
-  init(_ responsePayload: GenAITypes.UsageMetadata) throws {
+  init(_ responsePayload: GenerateContentAPI.UsageMetadata) throws {
     let promptTokenCount = responsePayload.promptTokenCount ?? 0
     let cachedContentTokenCount = responsePayload.cachedContentTokenCount ?? 0
     let candidatesTokenCount = responsePayload.candidatesTokenCount ?? 0
@@ -998,7 +998,7 @@ extension GenerateContentResponse.UsageMetadata: ConvertibleFromResponsePayload 
 }
 
 extension Candidate: ConvertibleFromResponsePayload {
-  init(_ responsePayload: GenAITypes.Candidate) throws {
+  init(_ responsePayload: GenerateContentAPI.Candidate) throws {
     let content: ModelContent
     if let contentPayload = responsePayload.content {
       content = try ModelContent(contentPayload)
@@ -1038,7 +1038,7 @@ extension Candidate: ConvertibleFromResponsePayload {
 }
 
 extension GenerateContentResponse: ConvertibleFromResponsePayload {
-  init(_ responsePayload: GenAITypes.GenerateContentResponse) throws {
+  init(_ responsePayload: GenerateContentAPI.GenerateContentResponse) throws {
     let candidates = try responsePayload.candidates?.map { try Candidate($0) } ?? []
     let promptFeedback = try responsePayload.promptFeedback.map { try PromptFeedback($0) }
     let usageMetadata = try responsePayload.usageMetadata.map { try UsageMetadata($0) }

@@ -97,7 +97,7 @@ final class PayloadConvertibleTests: XCTestCase {
     XCTAssertEqual(settingPayload.category, .hateSpeech)
     XCTAssertEqual(settingPayload.threshold, .blockLowAndAbove)
 
-    let ratingPayload = GenAITypes.SafetyRating(
+    let ratingPayload = GenerateContentAPI.SafetyRating(
       category: .harassment,
       probability: .medium,
       blocked: true,
@@ -206,23 +206,23 @@ final class PayloadConvertibleTests: XCTestCase {
   // MARK: - GenerateContentResponse
 
   func testGenerateContentResponseConversion() throws {
-    let responsePayload = GenAITypes.GenerateContentResponse(
+    let responsePayload = GenerateContentAPI.GenerateContentResponse(
       candidates: [
-        GenAITypes.Candidate(
-          content: GenAITypes.Content(
-            parts: [GenAITypes.Part(data: .text("Here is a joke"))],
+        GenerateContentAPI.Candidate(
+          content: GenerateContentAPI.Content(
+            parts: [GenerateContentAPI.Part(data: .text("Here is a joke"))],
             role: "model"
           ),
           finishReason: .stop,
           safetyRatings: [
-            GenAITypes.SafetyRating(
+            GenerateContentAPI.SafetyRating(
               category: .hateSpeech,
               probability: .negligible
             ),
           ],
-          citationMetadata: GenAITypes.CitationMetadata(
+          citationMetadata: GenerateContentAPI.CitationMetadata(
             citationSources: [
-              GenAITypes.Citation(
+              GenerateContentAPI.Citation(
                 startIndex: 0,
                 endIndex: 10,
                 uri: "https://example.com"
@@ -231,11 +231,11 @@ final class PayloadConvertibleTests: XCTestCase {
           )
         ),
       ],
-      promptFeedback: GenAITypes.PromptFeedback(
+      promptFeedback: GenerateContentAPI.PromptFeedback(
         blockReason: .safety,
         blockReasonMessage: "Blocked for safety"
       ),
-      usageMetadata: GenAITypes.UsageMetadata(
+      usageMetadata: GenerateContentAPI.UsageMetadata(
         promptTokenCount: 10,
         candidatesTokenCount: 20,
         totalTokenCount: 30

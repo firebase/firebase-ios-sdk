@@ -285,12 +285,12 @@ extension GenerationConfig: Encodable {
 // MARK: - Payload Convertible Conformances
 
 extension GenerationConfig: ConvertibleToRequestPayload {
-  func toRequestPayload() throws -> GenAITypes.GenerationConfig {
+  func toRequestPayload() throws -> GenerateContentAPI.GenerationConfig {
     let payloadSchema = try responseSchema?.toRequestPayload()
     let payloadJsonSchema = responseJSONSchema.map { JSONValue.object($0).toRequestPayload() }
     let payloadModalities = responseModalities?.map { $0.rawValue }
 
-    return try GenAITypes.GenerationConfig(
+    return try GenerateContentAPI.GenerationConfig(
       candidateCount: candidateCount,
       stopSequences: stopSequences,
       maxOutputTokens: maxOutputTokens,

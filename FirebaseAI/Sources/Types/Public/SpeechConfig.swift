@@ -22,7 +22,7 @@ internal import InternalGoogleGenAI
 /// This allows you to configure the voice properties (single-speaker OR multi-speaker setup) and
 /// language preferences when requesting the model to generate spoken responses.
 public struct SpeechConfig: Sendable, Equatable {
-  let speechConfig: GenAITypes.SpeechConfig
+  let speechConfig: GenerateContentAPI.SpeechConfig
 
   /// Creates a new ``SpeechConfig`` value for a single voice.
   ///
@@ -37,9 +37,9 @@ public struct SpeechConfig: Sendable, Equatable {
   ///     To learn which codes are supported, see the docs on
   ///     [Supported languages](https://ai.google.dev/gemini-api/docs/speech-generation#languages)\.
   public init(voiceName: String, languageCode: String? = nil) {
-    speechConfig = GenAITypes.SpeechConfig(
-      voiceConfig: GenAITypes.VoiceConfig(
-        prebuiltVoiceConfig: GenAITypes.PrebuiltVoiceConfig(voiceName: voiceName)
+    speechConfig = GenerateContentAPI.SpeechConfig(
+      voiceConfig: GenerateContentAPI.VoiceConfig(
+        prebuiltVoiceConfig: GenerateContentAPI.PrebuiltVoiceConfig(voiceName: voiceName)
       ),
       languageCode: languageCode
     )
@@ -55,7 +55,7 @@ public struct SpeechConfig: Sendable, Equatable {
   ///     corresponding voices.
   ///   - languageCode: BCP-47 language code to use when parsing text sent from the client.
   public init(multiSpeakerVoiceConfig: MultiSpeakerVoiceConfig, languageCode: String? = nil) {
-    speechConfig = GenAITypes.SpeechConfig(
+    speechConfig = GenerateContentAPI.SpeechConfig(
       multiSpeakerVoiceConfig: multiSpeakerVoiceConfig.multiSpeakerVoiceConfig,
       languageCode: languageCode
     )
@@ -65,7 +65,7 @@ public struct SpeechConfig: Sendable, Equatable {
 // MARK: - Payload Convertible Conformances
 
 extension SpeechConfig: ConvertibleToRequestPayload {
-  func toRequestPayload() throws -> GenAITypes.SpeechConfig {
+  func toRequestPayload() throws -> GenerateContentAPI.SpeechConfig {
     return speechConfig
   }
 }

@@ -26,8 +26,8 @@ final class VoiceConfigTests: XCTestCase {
   }
 
   func testEncodeVoiceConfig_prebuiltVoice() throws {
-    let voice = GenAITypes.VoiceConfig(
-      prebuiltVoiceConfig: GenAITypes.PrebuiltVoiceConfig(voiceName: "Zephyr")
+    let voice = GenerateContentAPI.VoiceConfig(
+      prebuiltVoiceConfig: GenerateContentAPI.PrebuiltVoiceConfig(voiceName: "Zephyr")
     )
 
     let jsonData = try encoder.encode(voice)
@@ -43,8 +43,8 @@ final class VoiceConfigTests: XCTestCase {
   }
 
   func testEncodeVoiceConfig_customVoice() throws {
-    let voice = GenAITypes.VoiceConfig(
-      replicatedVoiceConfig: GenAITypes.ReplicatedVoiceConfig(
+    let voice = GenerateContentAPI.VoiceConfig(
+      replicatedVoiceConfig: GenerateContentAPI.ReplicatedVoiceConfig(
         voiceSampleAudio: Data(repeating: 5, count: 5)
       )
     )

@@ -129,14 +129,14 @@ extension ThinkingConfig: Encodable {
 // MARK: - Payload Convertible Conformances
 
 extension ThinkingConfig.ThinkingLevel: ConvertibleToRequestPayload {
-  func toRequestPayload() throws -> GenAITypes.ThinkingConfig.ThinkingLevel {
-    return GenAITypes.ThinkingConfig.ThinkingLevel(rawValue: rawValue)
+  func toRequestPayload() throws -> GenerateContentAPI.ThinkingConfig.ThinkingLevel {
+    return GenerateContentAPI.ThinkingConfig.ThinkingLevel(rawValue: rawValue)
   }
 }
 
 extension ThinkingConfig: ConvertibleToRequestPayload {
-  func toRequestPayload() throws -> GenAITypes.ThinkingConfig {
-    return try GenAITypes.ThinkingConfig(
+  func toRequestPayload() throws -> GenerateContentAPI.ThinkingConfig {
+    return try GenerateContentAPI.ThinkingConfig(
       includeThoughts: includeThoughts,
       thinkingBudget: thinkingBudget,
       thinkingLevel: thinkingLevel?.toRequestPayload()

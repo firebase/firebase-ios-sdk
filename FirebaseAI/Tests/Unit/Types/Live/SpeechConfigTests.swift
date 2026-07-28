@@ -21,8 +21,8 @@ final class SpeechConfigTests: XCTestCase {
     let config = SpeechConfig(voiceName: "Charon", languageCode: "en-US")
     XCTAssertEqual(
       config.speechConfig.voiceConfig,
-      GenAITypes.VoiceConfig(
-        prebuiltVoiceConfig: GenAITypes.PrebuiltVoiceConfig(voiceName: "Charon")
+      GenerateContentAPI.VoiceConfig(
+        prebuiltVoiceConfig: GenerateContentAPI.PrebuiltVoiceConfig(voiceName: "Charon")
       )
     )
     XCTAssertEqual(config.speechConfig.languageCode, "en-US")
@@ -33,8 +33,8 @@ final class SpeechConfigTests: XCTestCase {
     let config = SpeechConfig(voiceName: "Charon")
     XCTAssertEqual(
       config.speechConfig.voiceConfig,
-      GenAITypes.VoiceConfig(
-        prebuiltVoiceConfig: GenAITypes.PrebuiltVoiceConfig(voiceName: "Charon")
+      GenerateContentAPI.VoiceConfig(
+        prebuiltVoiceConfig: GenerateContentAPI.PrebuiltVoiceConfig(voiceName: "Charon")
       )
     )
     XCTAssertNil(config.speechConfig.languageCode)

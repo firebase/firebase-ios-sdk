@@ -440,21 +440,21 @@ extension ToolConfig: Encodable {
 // MARK: - Payload Convertible Conformances
 
 extension FunctionDeclaration: ConvertibleToRequestPayload {
-  func toRequestPayload() throws -> GenAITypes.FunctionDeclaration {
+  func toRequestPayload() throws -> GenerateContentAPI.FunctionDeclaration {
     let payloadParams = try parameters?.toRequestPayload()
 
-    var payloadParamsSchema: GenAITypes.JSONValue? = nil
+    var payloadParamsSchema: ProtobufValue? = nil
     if let parametersJSONSchema = parametersJSONSchema {
       let geminiSchema = try parametersJSONSchema.toGeminiJSONSchema()
       payloadParamsSchema = FirebaseAILogic.JSONValue.object(geminiSchema).toRequestPayload()
     }
 
-    var payloadRespSchema: GenAITypes.JSONValue? = nil
+    var payloadRespSchema: ProtobufValue? = nil
     if let responseJSONSchema = responseJSONSchema {
       payloadRespSchema = FirebaseAILogic.JSONValue.object(responseJSONSchema).toRequestPayload()
     }
 
-    return GenAITypes.FunctionDeclaration(
+    return GenerateContentAPI.FunctionDeclaration(
       name: name,
       description: description,
       parameters: payloadParams,
@@ -465,14 +465,14 @@ extension FunctionDeclaration: ConvertibleToRequestPayload {
 }
 
 extension Tool: ConvertibleToRequestPayload {
-  func toRequestPayload() throws -> GenAITypes.Tool {
+  func toRequestPayload() throws -> GenerateContentAPI.Tool {
     let payloadDecls = try functionDeclarations?.map { try $0.toRequestPayload() }
-    let payloadSearch = googleSearch != nil ? GenAITypes.GoogleSearch() : nil
-    let payloadMaps = googleMaps != nil ? GenAITypes.GoogleMaps() : nil
-    let payloadUrlCtx = urlContext != nil ? GenAITypes.UrlContext() : nil
-    let payloadCodeExec = codeExecution != nil ? GenAITypes.CodeExecution() : nil
+    let payloadSearch = googleSearch != nil ? GenerateContentAPI.GoogleSearch() : nil
+    let payloadMaps = googleMaps != nil ? GenerateContentAPI.GoogleMaps() : nil
+    let payloadUrlCtx = urlContext != nil ? GenerateContentAPI.UrlContext() : nil
+    let payloadCodeExec = codeExecution != nil ? GenerateContentAPI.CodeExecution() : nil
 
-    return GenAITypes.Tool(
+    return GenerateContentAPI.Tool(
       googleMaps: payloadMaps,
       functionDeclarations: payloadDecls,
       codeExecution: payloadCodeExec,
@@ -483,14 +483,14 @@ extension Tool: ConvertibleToRequestPayload {
 }
 
 extension FunctionCallingConfig.Mode: ConvertibleToRequestPayload {
-  func toRequestPayload() throws -> GenAITypes.FunctionCallingConfig.Mode {
-    return GenAITypes.FunctionCallingConfig.Mode(rawValue: rawValue)
+  func toRequestPayload() throws -> GenerateContentAPI.FunctionCallingConfig.Mode {
+    return GenerateContentAPI.FunctionCallingConfig.Mode(rawValue: rawValue)
   }
 }
 
 extension FunctionCallingConfig: ConvertibleToRequestPayload {
-  func toRequestPayload() throws -> GenAITypes.FunctionCallingConfig {
-    return try GenAITypes.FunctionCallingConfig(
+  func toRequestPayload() throws -> GenerateContentAPI.FunctionCallingConfig {
+    return try GenerateContentAPI.FunctionCallingConfig(
       mode: mode?.toRequestPayload(),
       allowedFunctionNames: allowedFunctionNames
     )
@@ -498,18 +498,18 @@ extension FunctionCallingConfig: ConvertibleToRequestPayload {
 }
 
 extension RetrievalConfig: ConvertibleToRequestPayload {
-  func toRequestPayload() throws -> GenAITypes.RetrievalConfig {
-    let latLng = location.map { GenAITypes.LatLng(
+  func toRequestPayload() throws -> GenerateContentAPI.RetrievalConfig {
+    let latLng = location.map { GenerateContentAPI.LatLng(
       latitude: $0.latitude,
       longitude: $0.longitude
     ) }
-    return GenAITypes.RetrievalConfig(latLng: latLng, languageCode: languageCode)
+    return GenerateContentAPI.RetrievalConfig(latLng: latLng, languageCode: languageCode)
   }
 }
 
 extension ToolConfig: ConvertibleToRequestPayload {
-  func toRequestPayload() throws -> GenAITypes.ToolConfig {
-    return try GenAITypes.ToolConfig(
+  func toRequestPayload() throws -> GenerateContentAPI.ToolConfig {
+    return try GenerateContentAPI.ToolConfig(
       retrievalConfig: retrievalConfig?.toRequestPayload(),
       functionCallingConfig: functionCallingConfig?.toRequestPayload()
     )

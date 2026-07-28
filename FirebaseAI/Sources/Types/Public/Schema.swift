@@ -505,8 +505,8 @@ extension Schema: Equatable {
 // MARK: - Payload Convertible Conformances
 
 extension Schema: ConvertibleToRequestPayload {
-  func toRequestPayload() throws -> GenAITypes.Schema {
-    return try GenAITypes.Schema(
+  func toRequestPayload() throws -> GenerateContentAPI.Schema {
+    return try GenerateContentAPI.Schema(
       type: dataType?.toRequestPayload(),
       format: format,
       title: title,

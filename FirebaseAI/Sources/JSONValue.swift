@@ -160,7 +160,7 @@ extension JSONValue: Equatable {}
 // MARK: - Payload Convertible Conformances
 
 extension JSONValue: ConvertibleToRequestPayload {
-  func toRequestPayload() -> GenAITypes.JSONValue {
+  func toRequestPayload() -> ProtobufValue {
     switch self {
     case .null:
       return .null
@@ -181,7 +181,7 @@ extension JSONValue: ConvertibleToRequestPayload {
 }
 
 extension JSONValue: ConvertibleFromResponsePayload {
-  init(_ responsePayload: GenAITypes.JSONValue) {
+  init(_ responsePayload: ProtobufValue) {
     switch responsePayload {
     case .null:
       self = .null

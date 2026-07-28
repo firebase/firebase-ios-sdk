@@ -25,9 +25,9 @@ internal import InternalGoogleGenAI
 /// > Warning: Multi-speaker configurations are not currently supported by the Live API (e.g.,
 /// > `LiveGenerationConfig`).
 public struct MultiSpeakerVoiceConfig: Sendable {
-  let multiSpeakerVoiceConfig: GenAITypes.MultiSpeakerVoiceConfig
+  let multiSpeakerVoiceConfig: GenerateContentAPI.MultiSpeakerVoiceConfig
 
-  init(_ multiSpeakerVoiceConfig: GenAITypes.MultiSpeakerVoiceConfig) {
+  init(_ multiSpeakerVoiceConfig: GenerateContentAPI.MultiSpeakerVoiceConfig) {
     self.multiSpeakerVoiceConfig = multiSpeakerVoiceConfig
   }
 
@@ -38,7 +38,7 @@ public struct MultiSpeakerVoiceConfig: Sendable {
   ///     Currently, the backend requires exactly **two** speaker voice configurations.
   public init(speakerVoiceConfigs: [SpeakerVoiceConfig]) {
     self.init(
-      GenAITypes.MultiSpeakerVoiceConfig(
+      GenerateContentAPI.MultiSpeakerVoiceConfig(
         speakerVoiceConfigs: speakerVoiceConfigs.map(\.speakerVoiceConfig)
       )
     )

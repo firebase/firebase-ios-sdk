@@ -187,8 +187,8 @@ extension ImageConfig.ImageSize: ConvertibleToRequestPayload {
 }
 
 extension ImageConfig: ConvertibleToRequestPayload {
-  func toRequestPayload() throws -> GenAITypes.ImageConfig {
-    return try GenAITypes.ImageConfig(
+  func toRequestPayload() throws -> GenerateContentAPI.ImageConfig {
+    return try GenerateContentAPI.ImageConfig(
       aspectRatio: aspectRatio?.toRequestPayload(),
       imageSize: imageSize?.toRequestPayload()
     )

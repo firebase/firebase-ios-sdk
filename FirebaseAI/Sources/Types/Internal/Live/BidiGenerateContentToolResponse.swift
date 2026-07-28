@@ -26,5 +26,5 @@ internal import InternalGoogleGenAI
 @available(watchOS, unavailable)
 struct BidiGenerateContentToolResponse: Encodable {
   /// The response to the function calls.
-  let functionResponses: [GenAITypes.FunctionResponse]?
+  let functionResponses: [GenerateContentAPI.FunctionResponse]?
 }

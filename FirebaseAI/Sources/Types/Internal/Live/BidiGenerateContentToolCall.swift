@@ -20,5 +20,5 @@ internal import InternalGoogleGenAI
 @available(watchOS, unavailable)
 struct BidiGenerateContentToolCall: Decodable, Sendable {
   /// The function call to be executed.
-  let functionCalls: [GenAITypes.FunctionCall]?
+  let functionCalls: [GenerateContentAPI.FunctionCall]?
 }

@@ -276,32 +276,32 @@ public struct HarmCategory: CodableProtoEnum, Hashable, Sendable {
 // MARK: - Payload Convertible Conformances
 
 extension HarmCategory: ConvertibleFromResponsePayload {
-  init(_ responsePayload: GenAITypes.HarmCategory) throws {
+  init(_ responsePayload: GenerateContentAPI.HarmCategory) throws {
     rawValue = responsePayload.rawValue
   }
 }
 
 extension HarmCategory: ConvertibleToRequestPayload {
-  func toRequestPayload() throws -> GenAITypes.HarmCategory {
-    return GenAITypes.HarmCategory(rawValue: rawValue)
+  func toRequestPayload() throws -> GenerateContentAPI.HarmCategory {
+    return GenerateContentAPI.HarmCategory(rawValue: rawValue)
   }
 }
 
 extension SafetySetting.HarmBlockThreshold: ConvertibleToRequestPayload {
-  func toRequestPayload() throws -> GenAITypes.SafetySetting.Threshold {
-    return GenAITypes.SafetySetting.Threshold(rawValue: rawValue)
+  func toRequestPayload() throws -> GenerateContentAPI.SafetySetting.Threshold {
+    return GenerateContentAPI.SafetySetting.Threshold(rawValue: rawValue)
   }
 }
 
 extension SafetySetting.HarmBlockMethod: ConvertibleToRequestPayload {
-  func toRequestPayload() throws -> GenAITypes.SafetySetting.Method {
-    return GenAITypes.SafetySetting.Method(rawValue: rawValue)
+  func toRequestPayload() throws -> GenerateContentAPI.SafetySetting.Method {
+    return GenerateContentAPI.SafetySetting.Method(rawValue: rawValue)
   }
 }
 
 extension SafetySetting: ConvertibleToRequestPayload {
-  func toRequestPayload() throws -> GenAITypes.SafetySetting {
-    return try GenAITypes.SafetySetting(
+  func toRequestPayload() throws -> GenerateContentAPI.SafetySetting {
+    return try GenerateContentAPI.SafetySetting(
       category: harmCategory.toRequestPayload(),
       threshold: threshold.toRequestPayload(),
       method: method?.toRequestPayload()
@@ -310,19 +310,19 @@ extension SafetySetting: ConvertibleToRequestPayload {
 }
 
 extension SafetyRating.HarmProbability: ConvertibleFromResponsePayload {
-  init(_ responsePayload: GenAITypes.SafetyRating.Probability) throws {
+  init(_ responsePayload: GenerateContentAPI.SafetyRating.Probability) throws {
     self.init(rawValue: responsePayload.rawValue)
   }
 }
 
 extension SafetyRating.HarmSeverity: ConvertibleFromResponsePayload {
-  init(_ responsePayload: GenAITypes.SafetyRating.Severity) throws {
+  init(_ responsePayload: GenerateContentAPI.SafetyRating.Severity) throws {
     self.init(rawValue: responsePayload.rawValue)
   }
 }
 
 extension SafetyRating: ConvertibleFromResponsePayload {
-  init(_ responsePayload: GenAITypes.SafetyRating) throws {
+  init(_ responsePayload: GenerateContentAPI.SafetyRating) throws {
     let category = try responsePayload.category.map { try HarmCategory($0) } ?? .unspecified
     let probability = try responsePayload.probability
       .map { try HarmProbability($0) } ?? .unspecified

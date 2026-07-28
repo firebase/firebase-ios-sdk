@@ -64,7 +64,7 @@ public struct TextPart: Part {
 ///  ](https://firebase.google.com/docs/vertex-ai/input-file-requirements#provide-file-as-inline-data)
 ///  for more details and size limits.
 public struct InlineDataPart: Part {
-  let inlineData: GenAITypes.Blob
+  let inlineData: GenerateContentAPI.Blob
   let _isThought: Bool?
 
   /// The data provided in the inline data part.
@@ -95,13 +95,13 @@ public struct InlineDataPart: Part {
   ///     supported values.
   public init(data: Data, mimeType: String) {
     self.init(
-      GenAITypes.Blob(mimeType: mimeType, data: data),
+      GenerateContentAPI.Blob(mimeType: mimeType, data: data),
       isThought: nil,
       thoughtSignature: nil
     )
   }
 
-  init(_ inlineData: GenAITypes.Blob, isThought: Bool?, thoughtSignature: Data?) {
+  init(_ inlineData: GenerateContentAPI.Blob, isThought: Bool?, thoughtSignature: Data?) {
     self.inlineData = inlineData
     _isThought = isThought
     self.thoughtSignature = thoughtSignature
@@ -110,7 +110,7 @@ public struct InlineDataPart: Part {
 
 /// File data stored in Cloud Storage for Firebase, referenced by URI.
 public struct FileDataPart: Part {
-  let fileData: GenAITypes.FileData
+  let fileData: GenerateContentAPI.FileData
   let _isThought: Bool?
   let thoughtSignature: Data?
 
@@ -135,13 +135,13 @@ public struct FileDataPart: Part {
   ///     supported values.
   public init(uri: String, mimeType: String) {
     self.init(
-      GenAITypes.FileData(mimeType: mimeType, fileUri: uri),
+      GenerateContentAPI.FileData(mimeType: mimeType, fileUri: uri),
       isThought: nil,
       thoughtSignature: nil
     )
   }
 
-  init(_ fileData: GenAITypes.FileData, isThought: Bool?, thoughtSignature: Data?) {
+  init(_ fileData: GenerateContentAPI.FileData, isThought: Bool?, thoughtSignature: Data?) {
     self.fileData = fileData
     _isThought = isThought
     self.thoughtSignature = thoughtSignature
@@ -150,7 +150,7 @@ public struct FileDataPart: Part {
 
 /// A predicted function call returned from the model.
 public struct FunctionCallPart: Part {
-  let functionCall: GenAITypes.FunctionCall
+  let functionCall: GenerateContentAPI.FunctionCall
   let _isThought: Bool?
   let thoughtSignature: Data?
 
@@ -181,7 +181,7 @@ public struct FunctionCallPart: Part {
   ///     should have a matching ``FunctionResponsePart/functionId`` field.
   public init(name: String, args: JSONObject, id: String? = nil) {
     self.init(
-      GenAITypes.FunctionCall(
+      GenerateContentAPI.FunctionCall(
         id: id,
         name: name,
         args: args.mapValues { $0.toRequestPayload() }
@@ -191,7 +191,7 @@ public struct FunctionCallPart: Part {
     )
   }
 
-  init(_ functionCall: GenAITypes.FunctionCall, isThought: Bool? = nil,
+  init(_ functionCall: GenerateContentAPI.FunctionCall, isThought: Bool? = nil,
        thoughtSignature: Data? = nil) {
     self.functionCall = functionCall
     _isThought = isThought
@@ -205,7 +205,7 @@ public struct FunctionCallPart: Part {
 /// containing any output from the function is used as context to the model. This should contain the
 /// result of a ``FunctionCallPart`` made based on model prediction.
 public struct FunctionResponsePart: Part {
-  let functionResponse: GenAITypes.FunctionResponse
+  let functionResponse: GenerateContentAPI.FunctionResponse
   let _isThought: Bool?
   let thoughtSignature: Data?
 
@@ -231,7 +231,7 @@ public struct FunctionResponsePart: Part {
   ///     was provided.
   public init(name: String, response: JSONObject, functionId: String? = nil) {
     self.init(
-      GenAITypes.FunctionResponse(
+      GenerateContentAPI.FunctionResponse(
         id: functionId,
         name: name,
         response: response.mapValues { $0.toRequestPayload() }
@@ -241,7 +241,8 @@ public struct FunctionResponsePart: Part {
     )
   }
 
-  init(_ functionResponse: GenAITypes.FunctionResponse, isThought: Bool?, thoughtSignature: Data?) {
+  init(_ functionResponse: GenerateContentAPI.FunctionResponse, isThought: Bool?,
+       thoughtSignature: Data?) {
     self.functionResponse = functionResponse
     _isThought = isThought
     self.thoughtSignature = thoughtSignature
@@ -252,19 +253,19 @@ public struct FunctionResponsePart: Part {
 public struct ExecutableCodePart: Part {
   /// The language of the code in an ``ExecutableCodePart``.
   public struct Language: Sendable, Equatable, CustomStringConvertible {
-    let internalLanguage: GenAITypes.ExecutableCode.Language
+    let internalLanguage: GenerateContentAPI.ExecutableCode.Language
 
     /// The Python programming language.
     public static let python = ExecutableCodePart.Language(.python)
 
     public var description: String { internalLanguage.rawValue }
 
-    init(_ language: GenAITypes.ExecutableCode.Language) {
+    init(_ language: GenerateContentAPI.ExecutableCode.Language) {
       internalLanguage = language
     }
   }
 
-  let executableCode: GenAITypes.ExecutableCode
+  let executableCode: GenerateContentAPI.ExecutableCode
   let _isThought: Bool?
   let thoughtSignature: Data?
 
@@ -289,13 +290,14 @@ public struct ExecutableCodePart: Part {
 
   public init(language: ExecutableCodePart.Language, code: String) {
     self.init(
-      GenAITypes.ExecutableCode(language: language.internalLanguage, code: code),
+      GenerateContentAPI.ExecutableCode(language: language.internalLanguage, code: code),
       isThought: nil,
       thoughtSignature: nil
     )
   }
 
-  init(_ executableCode: GenAITypes.ExecutableCode, isThought: Bool?, thoughtSignature: Data?) {
+  init(_ executableCode: GenerateContentAPI.ExecutableCode, isThought: Bool?,
+       thoughtSignature: Data?) {
     self.executableCode = executableCode
     _isThought = isThought
     self.thoughtSignature = thoughtSignature
@@ -306,7 +308,7 @@ public struct ExecutableCodePart: Part {
 public struct CodeExecutionResultPart: Part {
   /// The outcome of a code execution.
   public struct Outcome: Sendable, Equatable, CustomStringConvertible {
-    let internalOutcome: GenAITypes.CodeExecutionResult.Outcome
+    let internalOutcome: GenerateContentAPI.CodeExecutionResult.Outcome
 
     /// The code executed without errors.
     public static let ok = CodeExecutionResultPart.Outcome(.ok)
@@ -319,12 +321,12 @@ public struct CodeExecutionResultPart: Part {
 
     public var description: String { internalOutcome.rawValue }
 
-    init(_ outcome: GenAITypes.CodeExecutionResult.Outcome) {
+    init(_ outcome: GenerateContentAPI.CodeExecutionResult.Outcome) {
       internalOutcome = outcome
     }
   }
 
-  let codeExecutionResult: GenAITypes.CodeExecutionResult
+  let codeExecutionResult: GenerateContentAPI.CodeExecutionResult
   let _isThought: Bool?
   let thoughtSignature: Data?
 
@@ -344,7 +346,7 @@ public struct CodeExecutionResultPart: Part {
 
   public init(outcome: CodeExecutionResultPart.Outcome, output: String) {
     self.init(
-      codeExecutionResult: GenAITypes.CodeExecutionResult(
+      codeExecutionResult: GenerateContentAPI.CodeExecutionResult(
         outcome: outcome.internalOutcome,
         output: output
       ),
@@ -353,7 +355,7 @@ public struct CodeExecutionResultPart: Part {
     )
   }
 
-  init(codeExecutionResult: GenAITypes.CodeExecutionResult, isThought: Bool?,
+  init(codeExecutionResult: GenerateContentAPI.CodeExecutionResult, isThought: Bool?,
        thoughtSignature: Data?) {
     self.codeExecutionResult = codeExecutionResult
     _isThought = isThought
@@ -404,8 +406,8 @@ extension TextPart: ConvertibleToRequestPayload {
     try defaultEncode(to: encoder)
   }
 
-  func toRequestPayload() throws -> GenAITypes.Part {
-    return GenAITypes.Part(
+  func toRequestPayload() throws -> GenerateContentAPI.Part {
+    return GenerateContentAPI.Part(
       data: .text(text),
       thought: _isThought,
       thoughtSignature: thoughtSignature
@@ -418,8 +420,8 @@ extension InlineDataPart: ConvertibleToRequestPayload {
     try defaultEncode(to: encoder)
   }
 
-  func toRequestPayload() throws -> GenAITypes.Part {
-    return GenAITypes.Part(
+  func toRequestPayload() throws -> GenerateContentAPI.Part {
+    return GenerateContentAPI.Part(
       data: .inlineData(inlineData),
       thought: _isThought,
       thoughtSignature: thoughtSignature
@@ -432,9 +434,9 @@ extension FileDataPart: ConvertibleToRequestPayload {
     try defaultEncode(to: encoder)
   }
 
-  func toRequestPayload() throws -> GenAITypes.Part {
-    let fileDataPayload = GenAITypes.FileData(mimeType: mimeType, fileUri: uri)
-    return GenAITypes.Part(
+  func toRequestPayload() throws -> GenerateContentAPI.Part {
+    let fileDataPayload = GenerateContentAPI.FileData(mimeType: mimeType, fileUri: uri)
+    return GenerateContentAPI.Part(
       data: .fileData(fileDataPayload),
       thought: _isThought,
       thoughtSignature: thoughtSignature
@@ -447,8 +449,8 @@ extension FunctionCallPart: ConvertibleToRequestPayload {
     try defaultEncode(to: encoder)
   }
 
-  func toRequestPayload() throws -> GenAITypes.Part {
-    return GenAITypes.Part(
+  func toRequestPayload() throws -> GenerateContentAPI.Part {
+    return GenerateContentAPI.Part(
       data: .functionCall(functionCall),
       thought: _isThought,
       thoughtSignature: thoughtSignature
@@ -461,8 +463,8 @@ extension FunctionResponsePart: ConvertibleToRequestPayload {
     try defaultEncode(to: encoder)
   }
 
-  func toRequestPayload() throws -> GenAITypes.Part {
-    return GenAITypes.Part(
+  func toRequestPayload() throws -> GenerateContentAPI.Part {
+    return GenerateContentAPI.Part(
       data: .functionResponse(functionResponse),
       thought: _isThought,
       thoughtSignature: thoughtSignature
@@ -475,8 +477,8 @@ extension ExecutableCodePart: ConvertibleToRequestPayload {
     try defaultEncode(to: encoder)
   }
 
-  func toRequestPayload() throws -> GenAITypes.Part {
-    return GenAITypes.Part(
+  func toRequestPayload() throws -> GenerateContentAPI.Part {
+    return GenerateContentAPI.Part(
       data: .executableCode(executableCode),
       thought: _isThought,
       thoughtSignature: thoughtSignature
@@ -489,8 +491,8 @@ extension CodeExecutionResultPart: ConvertibleToRequestPayload {
     try defaultEncode(to: encoder)
   }
 
-  func toRequestPayload() throws -> GenAITypes.Part {
-    return GenAITypes.Part(
+  func toRequestPayload() throws -> GenerateContentAPI.Part {
+    return GenerateContentAPI.Part(
       data: .codeExecutionResult(codeExecutionResult),
       thought: _isThought,
       thoughtSignature: thoughtSignature
