@@ -1,3 +1,6 @@
+# Unreleased
+- [added] Added `FIRAuthErrorCodePasswordDoesNotMeetRequirements` error code for handling password policy requirement errors.
+
 # 12.17.0
 - [fixed] Fixed an array out-of-bounds access in `ActionCodeURL` query parsing.
   (#16382)

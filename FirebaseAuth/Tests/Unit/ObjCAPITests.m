@@ -307,6 +307,7 @@
   c = FIRAuthErrorCodeKeychainError;
   c = FIRAuthErrorCodeInternalError;
   c = FIRAuthErrorCodeMalformedJWT;
+  c = FIRAuthErrorCodePasswordDoesNotMeetRequirements;
 }
 
 - (void)authSettings:(FIRAuthSettings *)settings {

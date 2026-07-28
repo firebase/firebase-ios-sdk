@@ -389,6 +389,32 @@ class AuthBackendTests: RPCBaseTests {
     }
   }
 
+  /// Test Password doesnt meet requirements Function Error Response Flow.
+  func testPasswordDoesNotMeetRequirementsResponse() async throws {
+    let kErrorMessagePasswordDoesNotMeetRequirements =
+      "PASSWORD_DOES_NOT_MEET_REQUIREMENTS : Password does not meet requirements"
+    let responseError = NSError(domain: kFakeErrorDomain, code: kFakeErrorCode)
+    let request = FakeRequest(withRequestBody: [:])
+    rpcIssuer.respondBlock = {
+      try self.rpcIssuer.respond(
+        serverErrorMessage: kErrorMessagePasswordDoesNotMeetRequirements,
+        error: responseError
+      )
+    }
+    do {
+      let _ = try await authBackend.call(with: request)
+      XCTFail("Expected to throw")
+    } catch {
+      let rpcError = error as NSError
+      XCTAssertEqual(rpcError.domain, AuthErrors.domain)
+      XCTAssertEqual(rpcError.code, AuthErrorCode.passwordDoesNotMeetRequirements.rawValue)
+      XCTAssertEqual(
+        rpcError.localizedDescription,
+        "Password does not meet requirements"
+      )
+    }
+  }
+
   /// Test Blocking Function Error Response flow - including JSON parsing.
   /// Regression Test for #14052
   func testBlockingFunctionErrorWithJSON() async throws {
