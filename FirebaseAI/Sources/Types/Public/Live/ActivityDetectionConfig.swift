@@ -110,8 +110,8 @@ public struct ActivityDetectionConfig: Sendable {
 
   /// Disables automatic activity detection.
   ///
-  /// When automatic activity detection is enabled, the model will interpret detected voices and text
-  /// as the start of activity.
+  /// When automatic activity detection is enabled, the model will interpret detected voices and
+  /// text as the start of activity.
   ///
   /// When automatic activity detection is disabled, the user must send activity signals manually.
   ///
