@@ -37,13 +37,13 @@ extension APIConfig {
   /// API services providing generative AI functionality.
   ///
   /// See [Agent Platform Gemini API and Gemini Developer API
-  /// differences](https://cloud.google.com/vertex-ai/generative-ai/docs/overview#how-gemini-vertex-different-gemini-aistudio)
+  /// differences](https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/migrate/migrate-google-ai#google-ai)
   /// for a comparison of the two [API services](https://google.aip.dev/9#api-service).
   enum Service: Hashable, Encodable {
     /// Agent Platform Gemini API.
     ///
     /// See the [Cloud
-    /// docs](https://cloud.google.com/vertex-ai/generative-ai/docs/model-reference/inference) for
+    /// docs](https://docs.cloud.google.com/gemini-enterprise-agent-platform/reference/models/inference) for
     /// more details.
     case agentPlatform(endpoint: Endpoint, location: String)
 
