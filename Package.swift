@@ -173,7 +173,6 @@ let package = Package(
       "101.0.0" ..< "102.0.0"
     ),
     appCheckDependency(),
-    .package(path: "Packages/genai-swift"),
   ],
   targets: [
     .target(
@@ -196,7 +195,7 @@ let package = Package(
         "FirebaseAuthInterop",
         "FirebaseCore",
         "FirebaseCoreExtension",
-        .product(name: "GoogleGenAI", package: "genai-swift"),
+        "InternalGoogleGenAI",
       ],
       path: "FirebaseAI/Sources",
       swiftSettings: [
@@ -230,6 +229,16 @@ let package = Package(
       name: "FirebaseAIUnit",
       dependencies: ["FirebaseAI"],
       path: "FirebaseAI/Wrapper/Tests"
+    ),
+    .target(
+      name: "InternalGoogleGenAI",
+      path: "GoogleGenAI/Sources",
+      swiftSettings: [
+        .swiftLanguageMode(.v6),
+        .enableUpcomingFeature("InternalImportsByDefault"),
+        .enableUpcomingFeature("MemberImportVisibility"),
+        .enableUpcomingFeature("NonisolatedNonsendingByDefault"),
+      ],
     ),
 
     // MARK: - Firebase Core
