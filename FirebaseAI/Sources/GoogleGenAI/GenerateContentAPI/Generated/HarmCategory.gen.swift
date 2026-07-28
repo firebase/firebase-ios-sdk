@@ -56,11 +56,6 @@ extension GenerateContentAPI {
     /// **Gemini** - Dangerous content.
     case dangerousContent
 
-    /// **Gemini** - Content that may be used to harm civic integrity.
-    /// DEPRECATED: use enable_enhanced_civic_answers instead.
-    @available(*, deprecated)
-    case civicIntegrity
-
     /// **Gemini** - Prompts attempting to bypass or subvert the model's safety
     /// guidelines (jailbreak attempts).
     case jailbreak
@@ -87,7 +82,6 @@ extension GenerateContentAPI.HarmCategory: RawRepresentable {
     case .hateSpeech: "HARM_CATEGORY_HATE_SPEECH"
     case .sexuallyExplicit: "HARM_CATEGORY_SEXUALLY_EXPLICIT"
     case .dangerousContent: "HARM_CATEGORY_DANGEROUS_CONTENT"
-    case .civicIntegrity: "HARM_CATEGORY_CIVIC_INTEGRITY"
     case .jailbreak: "HARM_CATEGORY_JAILBREAK"
     case let .unrecognized(value): value
     }
@@ -105,7 +99,6 @@ extension GenerateContentAPI.HarmCategory: RawRepresentable {
     case "HARM_CATEGORY_HATE_SPEECH": self = .hateSpeech
     case "HARM_CATEGORY_SEXUALLY_EXPLICIT": self = .sexuallyExplicit
     case "HARM_CATEGORY_DANGEROUS_CONTENT": self = .dangerousContent
-    case "HARM_CATEGORY_CIVIC_INTEGRITY": self = .civicIntegrity
     case "HARM_CATEGORY_JAILBREAK": self = .jailbreak
     default: self = .unrecognized(rawValue)
     }
