@@ -43,8 +43,8 @@ extension APIConfig {
     /// Agent Platform Gemini API.
     ///
     /// See the [Cloud
-    /// docs](https://docs.cloud.google.com/gemini-enterprise-agent-platform/reference/models/inference) for
-    /// more details.
+    /// docs](https://docs.cloud.google.com/gemini-enterprise-agent-platform/reference/models/inference)
+    /// for more details.
     case agentPlatform(endpoint: Endpoint, location: String)
 
     /// The Gemini Developer API provided by Google AI.
