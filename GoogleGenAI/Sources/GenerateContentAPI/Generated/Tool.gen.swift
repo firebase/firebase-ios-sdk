@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI {
+package extension GenerateContentAPI {
   /// An internal data model for `Tool`.
   ///
   /// ### Gemini Developer API
@@ -42,7 +42,7 @@ public extension GenerateContentAPI {
     /// call a subset of these functions by populating `FunctionCall` in the
     /// response. User should provide a `FunctionResponse` for each function call
     /// in the next turn.
-    public let templateFunctions: [TemplateFunction]?
+    package let templateFunctions: [TemplateFunction]?
 
     /// Optional. Tool to retrieve public maps data for grounding, powered by Google.
     ///
@@ -54,7 +54,7 @@ public extension GenerateContentAPI {
     ///
     /// Optional. GoogleMaps tool type.
     /// Tool to support Google Maps in Model.
-    public let googleMaps: GoogleMaps?
+    package let googleMaps: GoogleMaps?
 
     /// Optional. A list of `FunctionDeclarations` available to the model that can be used
     ///
@@ -83,7 +83,7 @@ public extension GenerateContentAPI {
     /// for each function call in the next turn. Based on the function responses,
     /// Model will generate the final response back to the user.
     /// Maximum 512 function declarations can be provided.
-    public let functionDeclarations: [FunctionDeclaration]?
+    package let functionDeclarations: [FunctionDeclaration]?
 
     /// Optional. Enables the model to execute code as part of generation.
     ///
@@ -95,14 +95,14 @@ public extension GenerateContentAPI {
     ///
     /// Optional. CodeExecution tool type.
     /// Enables the model to execute code as part of generation.
-    public let codeExecution: CodeExecution?
+    package let codeExecution: CodeExecution?
 
     /// Optional. GoogleSearch tool type.
     /// Tool to support Google Search in Model. Powered by Google.
-    public let googleSearch: GoogleSearch?
+    package let googleSearch: GoogleSearch?
 
     /// Optional. Tool to support URL context retrieval.
-    public let urlContext: UrlContext?
+    package let urlContext: UrlContext?
 
     /// Creates a new `Tool`.
     ///
@@ -118,12 +118,12 @@ public extension GenerateContentAPI {
     /// (behavior varies by backend). For more details, see ``codeExecution``.
     ///   - googleSearch: Optional. GoogleSearch tool type.
     ///   - urlContext: Optional. Tool to support URL context retrieval.
-    public init(templateFunctions: [TemplateFunction]? = nil,
-                googleMaps: GoogleMaps? = nil,
-                functionDeclarations: [FunctionDeclaration]? = nil,
-                codeExecution: CodeExecution? = nil,
-                googleSearch: GoogleSearch? = nil,
-                urlContext: UrlContext? = nil) {
+    package init(templateFunctions: [TemplateFunction]? = nil,
+                 googleMaps: GoogleMaps? = nil,
+                 functionDeclarations: [FunctionDeclaration]? = nil,
+                 codeExecution: CodeExecution? = nil,
+                 googleSearch: GoogleSearch? = nil,
+                 urlContext: UrlContext? = nil) {
       self.templateFunctions = templateFunctions
       self.googleMaps = googleMaps
       self.functionDeclarations = functionDeclarations

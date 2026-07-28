@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI {
+package extension GenerateContentAPI {
   /// An internal data model for `UsageMetadata`.
   ///
   /// ### Gemini Developer API
@@ -42,7 +42,7 @@ public extension GenerateContentAPI {
     /// The total number of tokens in the prompt. This includes any text, images,
     /// or other media provided in the request. When `cached_content` is set,
     /// this also includes the number of tokens in the cached content.
-    public let promptTokenCount: Int?
+    package let promptTokenCount: Int?
 
     /// Number of tokens in the cached part of the prompt (the cached content)
     ///
@@ -54,7 +54,7 @@ public extension GenerateContentAPI {
     ///
     /// Output only. The number of tokens in the cached content that was used for this
     /// request.
-    public let cachedContentTokenCount: Int?
+    package let cachedContentTokenCount: Int?
 
     /// Total number of tokens across all the generated response candidates.
     ///
@@ -65,7 +65,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// The total number of tokens in the generated candidates.
-    public let candidatesTokenCount: Int?
+    package let candidatesTokenCount: Int?
 
     /// Output only. Number of tokens present in tool-use prompt(s).
     ///
@@ -77,7 +77,7 @@ public extension GenerateContentAPI {
     ///
     /// Output only. The number of tokens in the results from tool executions, which are
     /// provided back to the model as input, if applicable.
-    public let toolUsePromptTokenCount: Int?
+    package let toolUsePromptTokenCount: Int?
 
     /// Output only. Number of tokens of thoughts for thinking models.
     ///
@@ -89,7 +89,7 @@ public extension GenerateContentAPI {
     ///
     /// Output only. The number of tokens that were part of the model's generated "thoughts"
     /// output, if applicable.
-    public let thoughtsTokenCount: Int?
+    package let thoughtsTokenCount: Int?
 
     /// Total token count for the generation request (prompt + thoughts +
     ///
@@ -103,7 +103,7 @@ public extension GenerateContentAPI {
     /// The total number of tokens for the entire request. This is the sum of
     /// `prompt_token_count`, `candidates_token_count`,
     /// `tool_use_prompt_token_count`, and `thoughts_token_count`.
-    public let totalTokenCount: Int?
+    package let totalTokenCount: Int?
 
     /// Output only. List of modalities that were processed in the request input.
     ///
@@ -114,7 +114,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// Output only. A detailed breakdown of the token count for each modality in the prompt.
-    public let promptTokensDetails: [ModalityTokenCount]?
+    package let promptTokensDetails: [ModalityTokenCount]?
 
     /// Output only. List of modalities of the cached content in the request input.
     ///
@@ -126,7 +126,7 @@ public extension GenerateContentAPI {
     ///
     /// Output only. A detailed breakdown of the token count for each modality in the cached
     /// content.
-    public let cacheTokensDetails: [ModalityTokenCount]?
+    package let cacheTokensDetails: [ModalityTokenCount]?
 
     /// Output only. List of modalities that were returned in the response.
     ///
@@ -138,7 +138,7 @@ public extension GenerateContentAPI {
     ///
     /// Output only. A detailed breakdown of the token count for each modality in the
     /// generated candidates.
-    public let candidatesTokensDetails: [ModalityTokenCount]?
+    package let candidatesTokensDetails: [ModalityTokenCount]?
 
     /// Output only. List of modalities that were processed for tool-use request inputs.
     ///
@@ -150,7 +150,7 @@ public extension GenerateContentAPI {
     ///
     /// Output only. A detailed breakdown by modality of the token counts from the results
     /// of tool executions, which are provided back to the model as input.
-    public let toolUsePromptTokensDetails: [ModalityTokenCount]?
+    package let toolUsePromptTokensDetails: [ModalityTokenCount]?
 
     /// Output only. Service tier of the request.
     ///
@@ -161,7 +161,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
-    public let serviceTier: ServiceTier?
+    package let serviceTier: ServiceTier?
 
     /// Output only. The traffic type for this request.
     ///
@@ -172,7 +172,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// Output only. The traffic type for this request.
-    public let trafficType: TrafficType?
+    package let trafficType: TrafficType?
 
     /// Creates a new `UsageMetadata`.
     ///
@@ -202,18 +202,18 @@ public extension GenerateContentAPI {
     /// more details, see ``serviceTier``.
     ///   - trafficType: Output only. The traffic type for this request. (Gemini Enterprise Agent
     /// Platform only). For more details, see ``trafficType``.
-    public init(promptTokenCount: Int? = nil,
-                cachedContentTokenCount: Int? = nil,
-                candidatesTokenCount: Int? = nil,
-                toolUsePromptTokenCount: Int? = nil,
-                thoughtsTokenCount: Int? = nil,
-                totalTokenCount: Int? = nil,
-                promptTokensDetails: [ModalityTokenCount]? = nil,
-                cacheTokensDetails: [ModalityTokenCount]? = nil,
-                candidatesTokensDetails: [ModalityTokenCount]? = nil,
-                toolUsePromptTokensDetails: [ModalityTokenCount]? = nil,
-                serviceTier: ServiceTier? = nil,
-                trafficType: TrafficType? = nil) {
+    package init(promptTokenCount: Int? = nil,
+                 cachedContentTokenCount: Int? = nil,
+                 candidatesTokenCount: Int? = nil,
+                 toolUsePromptTokenCount: Int? = nil,
+                 thoughtsTokenCount: Int? = nil,
+                 totalTokenCount: Int? = nil,
+                 promptTokensDetails: [ModalityTokenCount]? = nil,
+                 cacheTokensDetails: [ModalityTokenCount]? = nil,
+                 candidatesTokensDetails: [ModalityTokenCount]? = nil,
+                 toolUsePromptTokensDetails: [ModalityTokenCount]? = nil,
+                 serviceTier: ServiceTier? = nil,
+                 trafficType: TrafficType? = nil) {
       self.promptTokenCount = promptTokenCount
       self.cachedContentTokenCount = cachedContentTokenCount
       self.candidatesTokenCount = candidatesTokenCount

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI {
+package extension GenerateContentAPI {
   /// An internal data model for `ToolType`.
   ///
   /// ### Gemini Developer API
@@ -48,7 +48,7 @@ public extension GenerateContentAPI {
 // MARK: - RawRepresentable Conformance
 
 extension GenerateContentAPI.ToolType: RawRepresentable {
-  public var rawValue: String {
+  package var rawValue: String {
     switch self {
     case .googleSearchWeb: "GOOGLE_SEARCH_WEB"
     case .googleSearchImage: "GOOGLE_SEARCH_IMAGE"
@@ -59,7 +59,7 @@ extension GenerateContentAPI.ToolType: RawRepresentable {
     }
   }
 
-  public init(rawValue: String) {
+  package init(rawValue: String) {
     switch rawValue {
     case "GOOGLE_SEARCH_WEB": self = .googleSearchWeb
     case "GOOGLE_SEARCH_IMAGE": self = .googleSearchImage

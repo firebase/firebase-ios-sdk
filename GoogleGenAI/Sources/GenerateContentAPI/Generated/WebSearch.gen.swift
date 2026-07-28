@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI {
+package extension GenerateContentAPI {
   /// An internal data model for `WebSearch`.
   ///
   /// ### Gemini Developer API
@@ -30,7 +30,7 @@ public extension GenerateContentAPI {
   struct WebSearch: Codable, Sendable, Equatable, Hashable {
     /// Creates a new `WebSearch`.
     ///
-    public init(
+    package init(
     ) {}
   }
 }

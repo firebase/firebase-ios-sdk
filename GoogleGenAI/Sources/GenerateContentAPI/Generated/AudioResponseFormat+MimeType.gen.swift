@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI.AudioResponseFormat {
+package extension GenerateContentAPI.AudioResponseFormat {
   /// Optional. The MIME type of the audio output.
   enum MimeType: Codable, Sendable, Equatable, Hashable {
     /// MP3 audio format.
@@ -43,7 +43,7 @@ public extension GenerateContentAPI.AudioResponseFormat {
 // MARK: - RawRepresentable Conformance
 
 extension GenerateContentAPI.AudioResponseFormat.MimeType: RawRepresentable {
-  public var rawValue: String {
+  package var rawValue: String {
     switch self {
     case .mp3: "AUDIO_MP3"
     case .oggOpus: "AUDIO_OGG_OPUS"
@@ -55,7 +55,7 @@ extension GenerateContentAPI.AudioResponseFormat.MimeType: RawRepresentable {
     }
   }
 
-  public init(rawValue: String) {
+  package init(rawValue: String) {
     switch rawValue {
     case "AUDIO_MP3": self = .mp3
     case "AUDIO_OGG_OPUS": self = .oggOpus

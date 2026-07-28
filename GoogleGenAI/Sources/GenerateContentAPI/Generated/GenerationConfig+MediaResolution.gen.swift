@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI.GenerationConfig {
+package extension GenerateContentAPI.GenerationConfig {
   /// Optional. If specified, the media resolution specified will be used.
   ///
   /// ### Gemini Developer API
@@ -47,7 +47,7 @@ public extension GenerateContentAPI.GenerationConfig {
 // MARK: - RawRepresentable Conformance
 
 extension GenerateContentAPI.GenerationConfig.MediaResolution: RawRepresentable {
-  public var rawValue: String {
+  package var rawValue: String {
     switch self {
     case .low: "MEDIA_RESOLUTION_LOW"
     case .medium: "MEDIA_RESOLUTION_MEDIUM"
@@ -56,7 +56,7 @@ extension GenerateContentAPI.GenerationConfig.MediaResolution: RawRepresentable 
     }
   }
 
-  public init(rawValue: String) {
+  package init(rawValue: String) {
     switch rawValue {
     case "MEDIA_RESOLUTION_LOW": self = .low
     case "MEDIA_RESOLUTION_MEDIUM": self = .medium

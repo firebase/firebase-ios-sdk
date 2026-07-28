@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI {
+package extension GenerateContentAPI {
   /// An internal data model for `VoiceConfig`.
   ///
   /// ### Gemini Developer API
@@ -36,7 +36,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// The configuration for a prebuilt voice.
-    public let prebuiltVoiceConfig: PrebuiltVoiceConfig?
+    package let prebuiltVoiceConfig: PrebuiltVoiceConfig?
 
     /// Optional. The configuration for a replicated voice. This enables users to replicate
     ///
@@ -48,7 +48,7 @@ public extension GenerateContentAPI {
     ///
     /// Optional. The configuration for a replicated voice. This enables users to replicate
     /// a voice from an audio sample.
-    public let replicatedVoiceConfig: ReplicatedVoiceConfig?
+    package let replicatedVoiceConfig: ReplicatedVoiceConfig?
 
     /// Creates a new `VoiceConfig`.
     ///
@@ -58,8 +58,8 @@ public extension GenerateContentAPI {
     ///   - replicatedVoiceConfig: Optional. The configuration for a replicated voice. This enables
     /// users to replicate (Gemini Enterprise Agent Platform only). For more details, see
     /// ``replicatedVoiceConfig``.
-    public init(prebuiltVoiceConfig: PrebuiltVoiceConfig? = nil,
-                replicatedVoiceConfig: ReplicatedVoiceConfig? = nil) {
+    package init(prebuiltVoiceConfig: PrebuiltVoiceConfig? = nil,
+                 replicatedVoiceConfig: ReplicatedVoiceConfig? = nil) {
       self.prebuiltVoiceConfig = prebuiltVoiceConfig
       self.replicatedVoiceConfig = replicatedVoiceConfig
     }

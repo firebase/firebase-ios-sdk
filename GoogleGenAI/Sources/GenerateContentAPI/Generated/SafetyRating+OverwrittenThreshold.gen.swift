@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI.SafetyRating {
+package extension GenerateContentAPI.SafetyRating {
   /// Output only. The overwritten threshold for the safety category of
   ///
   /// ### Gemini Developer API
@@ -51,7 +51,7 @@ public extension GenerateContentAPI.SafetyRating {
 // MARK: - RawRepresentable Conformance
 
 extension GenerateContentAPI.SafetyRating.OverwrittenThreshold: RawRepresentable {
-  public var rawValue: String {
+  package var rawValue: String {
     switch self {
     case .blockLowAndAbove: "BLOCK_LOW_AND_ABOVE"
     case .blockMediumAndAbove: "BLOCK_MEDIUM_AND_ABOVE"
@@ -62,7 +62,7 @@ extension GenerateContentAPI.SafetyRating.OverwrittenThreshold: RawRepresentable
     }
   }
 
-  public init(rawValue: String) {
+  package init(rawValue: String) {
     switch rawValue {
     case "BLOCK_LOW_AND_ABOVE": self = .blockLowAndAbove
     case "BLOCK_MEDIUM_AND_ABOVE": self = .blockMediumAndAbove

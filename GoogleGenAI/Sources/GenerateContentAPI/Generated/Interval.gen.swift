@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI {
+package extension GenerateContentAPI {
   /// An internal data model for `Interval`.
   ///
   /// ### Gemini Developer API
@@ -42,7 +42,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
-    public let startTime: String?
+    package let startTime: String?
 
     /// Optional. Exclusive end of the interval.
     ///
@@ -56,7 +56,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
-    public let endTime: String?
+    package let endTime: String?
 
     /// Creates a new `Interval`.
     ///
@@ -65,8 +65,8 @@ public extension GenerateContentAPI {
     /// more details, see ``startTime``.
     ///   - endTime: Optional. Exclusive end of the interval. (Gemini Developer API only). For more
     /// details, see ``endTime``.
-    public init(startTime: String? = nil,
-                endTime: String? = nil) {
+    package init(startTime: String? = nil,
+                 endTime: String? = nil) {
       self.startTime = startTime
       self.endTime = endTime
     }

@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public import Foundation
+package import Foundation
 
-public extension GenerateContentAPI {
+package extension GenerateContentAPI {
   /// An internal data model for `SearchEntryPoint`.
   ///
   /// ### Gemini Developer API
@@ -44,7 +44,7 @@ public extension GenerateContentAPI {
     /// Optional. An HTML snippet that can be embedded in a web page or an
     /// application's webview. This snippet displays a search result, including the
     /// title, URL, and a brief description of the search result.
-    public let renderedContent: String?
+    package let renderedContent: String?
 
     /// Optional. Base64 encoded JSON representing array of  tuple.
     ///
@@ -57,7 +57,7 @@ public extension GenerateContentAPI {
     /// Optional. A base64-encoded JSON object that contains a list of search
     /// queries and their corresponding search URLs. This information can be used
     /// to build a custom search UI.
-    public let sdkBlob: Data?
+    package let sdkBlob: Data?
 
     /// Creates a new `SearchEntryPoint`.
     ///
@@ -66,8 +66,8 @@ public extension GenerateContentAPI {
     /// app webview. (behavior varies by backend). For more details, see ``renderedContent``.
     ///   - sdkBlob: Optional. Base64 encoded JSON representing array of  tuple. (behavior varies by
     /// backend). For more details, see ``sdkBlob``.
-    public init(renderedContent: String? = nil,
-                sdkBlob: Data? = nil) {
+    package init(renderedContent: String? = nil,
+                 sdkBlob: Data? = nil) {
       self.renderedContent = renderedContent
       self.sdkBlob = sdkBlob
     }

@@ -14,35 +14,35 @@
 
 import Foundation
 
-public extension GenerateContentAPI {
+package extension GenerateContentAPI {
   /// Configuration for the response output format.
   /// Handles single object serialization for Gemini Developer API and array-wrapped serialization
   /// for the Gemini Enterprise Agent Platform (Vertex AI).
   struct ResponseFormat: Codable, Sendable, Equatable, Hashable {
     /// Optional. Text output format configuration.
-    public var text: TextResponseFormat?
+    package var text: TextResponseFormat?
 
     /// Optional. Audio output format configuration.
-    public var audio: AudioResponseFormat?
+    package var audio: AudioResponseFormat?
 
     /// Optional. Image output format configuration.
-    public var image: ImageResponseFormat?
+    package var image: ImageResponseFormat?
 
     /// Optional. Video output format configuration.
-    public var video: VideoResponseFormat?
+    package var video: VideoResponseFormat?
 
     /// Creates a new `ResponseFormatConfig`.
-    public init(text: TextResponseFormat? = nil,
-                audio: AudioResponseFormat? = nil,
-                image: ImageResponseFormat? = nil,
-                video: VideoResponseFormat? = nil) {
+    package init(text: TextResponseFormat? = nil,
+                 audio: AudioResponseFormat? = nil,
+                 image: ImageResponseFormat? = nil,
+                 video: VideoResponseFormat? = nil) {
       self.text = text
       self.audio = audio
       self.image = image
       self.video = video
     }
 
-    public init(from decoder: Decoder) throws {
+    package init(from decoder: Decoder) throws {
       let container = try decoder.singleValueContainer()
       if let array = try? container.decode([ResponseFormat].self), let first = array.first {
         text = first.text
@@ -58,7 +58,7 @@ public extension GenerateContentAPI {
       }
     }
 
-    public func encode(to encoder: Encoder) throws {
+    package func encode(to encoder: Encoder) throws {
       if let useArrayFormat = encoder.userInfo[ResponseFormat.useArrayFormatKey] as? Bool,
          useArrayFormat {
         var container = encoder.unkeyedContainer()

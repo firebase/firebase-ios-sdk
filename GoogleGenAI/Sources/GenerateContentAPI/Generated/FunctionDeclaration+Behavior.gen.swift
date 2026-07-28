@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI.FunctionDeclaration {
+package extension GenerateContentAPI.FunctionDeclaration {
   /// Optional. Specifies the function Behavior.
   ///
   /// ### Gemini Developer API
@@ -46,7 +46,7 @@ public extension GenerateContentAPI.FunctionDeclaration {
 // MARK: - RawRepresentable Conformance
 
 extension GenerateContentAPI.FunctionDeclaration.Behavior: RawRepresentable {
-  public var rawValue: String {
+  package var rawValue: String {
     switch self {
     case .blocking: "BLOCKING"
     case .nonBlocking: "NON_BLOCKING"
@@ -54,7 +54,7 @@ extension GenerateContentAPI.FunctionDeclaration.Behavior: RawRepresentable {
     }
   }
 
-  public init(rawValue: String) {
+  package init(rawValue: String) {
     switch rawValue {
     case "BLOCKING": self = .blocking
     case "NON_BLOCKING": self = .nonBlocking

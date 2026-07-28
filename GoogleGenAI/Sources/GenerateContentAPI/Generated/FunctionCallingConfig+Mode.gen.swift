@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI.FunctionCallingConfig {
+package extension GenerateContentAPI.FunctionCallingConfig {
   /// Optional. Specifies the mode in which function calling should execute. If
   ///
   /// ### Gemini Developer API
@@ -56,7 +56,7 @@ public extension GenerateContentAPI.FunctionCallingConfig {
 // MARK: - RawRepresentable Conformance
 
 extension GenerateContentAPI.FunctionCallingConfig.Mode: RawRepresentable {
-  public var rawValue: String {
+  package var rawValue: String {
     switch self {
     case .auto: "AUTO"
     case .any: "ANY"
@@ -66,7 +66,7 @@ extension GenerateContentAPI.FunctionCallingConfig.Mode: RawRepresentable {
     }
   }
 
-  public init(rawValue: String) {
+  package init(rawValue: String) {
     switch rawValue {
     case "AUTO": self = .auto
     case "ANY": self = .any

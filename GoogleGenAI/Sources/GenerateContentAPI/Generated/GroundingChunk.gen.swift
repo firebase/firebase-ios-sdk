@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI {
+package extension GenerateContentAPI {
   /// An internal data model for `GroundingChunk`.
   ///
   /// ### Gemini Developer API
@@ -43,7 +43,7 @@ public extension GenerateContentAPI {
     ///
     /// A grounding chunk from a web page, typically from Google
     /// Search. See the `Web` message for details.
-    public let web: WebChunk?
+    package let web: WebChunk?
 
     /// Optional. Grounding chunk from image search.
     ///
@@ -55,7 +55,7 @@ public extension GenerateContentAPI {
     ///
     /// A grounding chunk from an image search result. See the `Image` message
     /// for details.
-    public let image: ImageChunk?
+    package let image: ImageChunk?
 
     /// Optional. Grounding chunk from Google Maps.
     ///
@@ -67,7 +67,7 @@ public extension GenerateContentAPI {
     ///
     /// A grounding chunk from Google Maps. See the `Maps` message
     /// for details.
-    public let maps: MapsChunk?
+    package let maps: MapsChunk?
 
     /// Creates a new `GroundingChunk`.
     ///
@@ -78,9 +78,9 @@ public extension GenerateContentAPI {
     /// more details, see ``image``.
     ///   - maps: Optional. Grounding chunk from Google Maps. (behavior varies by backend). For more
     /// details, see ``maps``.
-    public init(web: WebChunk? = nil,
-                image: ImageChunk? = nil,
-                maps: MapsChunk? = nil) {
+    package init(web: WebChunk? = nil,
+                 image: ImageChunk? = nil,
+                 maps: MapsChunk? = nil) {
       self.web = web
       self.image = image
       self.maps = maps

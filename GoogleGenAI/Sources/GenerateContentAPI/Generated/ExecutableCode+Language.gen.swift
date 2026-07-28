@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI.ExecutableCode {
+package extension GenerateContentAPI.ExecutableCode {
   /// Required. Programming language of the `code`.
   ///
   /// ### Gemini Developer API
@@ -39,14 +39,14 @@ public extension GenerateContentAPI.ExecutableCode {
 // MARK: - RawRepresentable Conformance
 
 extension GenerateContentAPI.ExecutableCode.Language: RawRepresentable {
-  public var rawValue: String {
+  package var rawValue: String {
     switch self {
     case .python: "PYTHON"
     case let .unrecognized(value): value
     }
   }
 
-  public init(rawValue: String) {
+  package init(rawValue: String) {
     switch rawValue {
     case "PYTHON": self = .python
     default: self = .unrecognized(rawValue)

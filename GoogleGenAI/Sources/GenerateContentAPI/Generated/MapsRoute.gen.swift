@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI {
+package extension GenerateContentAPI {
   /// An internal data model for `MapsRoute`.
   ///
   /// ### Gemini Developer API
@@ -34,7 +34,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// The total distance of the route, in meters.
-    public let distanceMeters: Int?
+    package let distanceMeters: Int?
 
     /// The total duration of the route.
     ///
@@ -45,7 +45,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// The total duration of the route.
-    public let duration: ProtobufDuration?
+    package let duration: ProtobufDuration?
 
     /// An encoded polyline of the route. See
     ///
@@ -57,7 +57,7 @@ public extension GenerateContentAPI {
     ///
     /// An encoded polyline of the route. See
     /// https://developers.google.com/maps/documentation/utilities/polylinealgorithm
-    public let encodedPolyline: String?
+    package let encodedPolyline: String?
 
     /// Creates a new `MapsRoute`.
     ///
@@ -68,9 +68,9 @@ public extension GenerateContentAPI {
     /// more details, see ``duration``.
     ///   - encodedPolyline: An encoded polyline of the route. See (Gemini Enterprise Agent Platform
     /// only). For more details, see ``encodedPolyline``.
-    public init(distanceMeters: Int? = nil,
-                duration: ProtobufDuration? = nil,
-                encodedPolyline: String? = nil) {
+    package init(distanceMeters: Int? = nil,
+                 duration: ProtobufDuration? = nil,
+                 encodedPolyline: String? = nil) {
       self.distanceMeters = distanceMeters
       self.duration = duration
       self.encodedPolyline = encodedPolyline

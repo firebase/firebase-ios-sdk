@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI {
+package extension GenerateContentAPI {
   /// An internal data model for `TemplateFunction`.
   ///
   /// ### Gemini Developer API
@@ -36,7 +36,7 @@ public extension GenerateContentAPI {
   /// the template frontmatter for the model to be able to call it.
   struct TemplateFunction: Codable, Sendable, Equatable, Hashable {
     /// Required. The name of the function to call.
-    public let name: String?
+    package let name: String?
 
     /// Optional. Describes the parameters to the function in JSON Schema format. The schema
     /// must describe an object where the properties are the parameters to the
@@ -54,11 +54,11 @@ public extension GenerateContentAPI {
     ///   "propertyOrdering": ["name", "age"]
     /// }
     /// ```
-    public let inputSchema: [String: ProtobufValue]?
+    package let inputSchema: [String: ProtobufValue]?
 
     /// Optional. Describes the output from this function in JSON Schema format. The value
     /// specified by the schema is the response value of the function.
-    public let outputSchema: [String: ProtobufValue]?
+    package let outputSchema: [String: ProtobufValue]?
 
     /// Creates a new `TemplateFunction`.
     ///
@@ -68,9 +68,9 @@ public extension GenerateContentAPI {
     /// The schema
     ///   - outputSchema: Optional. Describes the output from this function in JSON Schema format.
     /// The value
-    public init(name: String?,
-                inputSchema: [String: ProtobufValue]? = nil,
-                outputSchema: [String: ProtobufValue]? = nil) {
+    package init(name: String?,
+                 inputSchema: [String: ProtobufValue]? = nil,
+                 outputSchema: [String: ProtobufValue]? = nil) {
       self.name = name
       self.inputSchema = inputSchema
       self.outputSchema = outputSchema

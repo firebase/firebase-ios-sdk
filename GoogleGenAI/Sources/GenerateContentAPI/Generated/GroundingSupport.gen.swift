@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI {
+package extension GenerateContentAPI {
   /// An internal data model for `GroundingSupport`.
   ///
   /// ### Gemini Developer API
@@ -37,7 +37,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// The content segment that this support message applies to.
-    public let segment: Segment?
+    package let segment: Segment?
 
     /// Optional. A list of indices (into 'grounding_chunk' in
     ///
@@ -61,7 +61,7 @@ public extension GenerateContentAPI {
     /// For example, if this field has the values `[1, 3]`, it means that
     /// `grounding_chunks[1]` and `grounding_chunks[3]` are the sources for the
     /// claim in the content segment.
-    public let groundingChunkIndices: [Int]?
+    package let groundingChunkIndices: [Int]?
 
     /// Optional. Confidence score of the support references. Ranges from 0 to 1. 1 is the
     ///
@@ -81,7 +81,7 @@ public extension GenerateContentAPI {
     /// For Gemini 2.0 and before, this list has the same size as
     /// `grounding_chunk_indices`. For Gemini 2.5 and later, this list is empty
     /// and should be ignored.
-    public let confidenceScores: [Double]?
+    package let confidenceScores: [Double]?
 
     /// Output only. Indices into the `parts` field of the candidate's content. These indices
     ///
@@ -95,7 +95,7 @@ public extension GenerateContentAPI {
     /// Indices into the `rendered_parts` field of the `GroundingMetadata`
     /// message. These indices specify which rendered parts are associated with
     /// this support message.
-    public let renderedParts: [Int]?
+    package let renderedParts: [Int]?
 
     /// Creates a new `GroundingSupport`.
     ///
@@ -108,10 +108,10 @@ public extension GenerateContentAPI {
     /// 1. 1 is the (behavior varies by backend). For more details, see ``confidenceScores``.
     ///   - renderedParts: Output only. Indices into the `parts` field of the candidate's content.
     /// These indices (behavior varies by backend). For more details, see ``renderedParts``.
-    public init(segment: Segment? = nil,
-                groundingChunkIndices: [Int]? = nil,
-                confidenceScores: [Double]? = nil,
-                renderedParts: [Int]? = nil) {
+    package init(segment: Segment? = nil,
+                 groundingChunkIndices: [Int]? = nil,
+                 confidenceScores: [Double]? = nil,
+                 renderedParts: [Int]? = nil) {
       self.segment = segment
       self.groundingChunkIndices = groundingChunkIndices
       self.confidenceScores = confidenceScores

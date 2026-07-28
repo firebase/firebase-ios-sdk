@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI {
+package extension GenerateContentAPI {
   /// An internal data model for `Schema`.
   ///
   /// ### Gemini Developer API
@@ -41,7 +41,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// Optional. Data type of the schema field.
-    public let type: DataType?
+    package let type: DataType?
 
     /// Optional. The format of the data. Any value is allowed, but most do not trigger any
     ///
@@ -57,7 +57,7 @@ public extension GenerateContentAPI {
     /// For `INTEGER` type, format can be `int32` or `int64`.
     /// For `STRING` type, format can be `email`, `byte`, `date`, `date-time`,
     /// `password`, and other formats to further refine the data type.
-    public let format: String?
+    package let format: String?
 
     /// Optional. The title of the schema.
     ///
@@ -68,7 +68,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// Optional. Title for the schema.
-    public let title: String?
+    package let title: String?
 
     /// Optional. A brief description of the parameter. This could contain examples of use.
     ///
@@ -83,7 +83,7 @@ public extension GenerateContentAPI {
     /// the purpose of the schema and how to use it. It is a best practice to
     /// provide a clear and descriptive explanation for the schema and its
     /// properties here, rather than in the prompt.
-    public let description: String?
+    package let description: String?
 
     /// Optional. Indicates if the value may be null.
     ///
@@ -94,7 +94,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// Optional. Indicates if the value of this field can be null.
-    public let nullable: Bool?
+    package let nullable: Bool?
 
     /// Optional. Possible values of the element of Type.STRING with enum format.
     ///
@@ -115,7 +115,7 @@ public extension GenerateContentAPI {
     /// `{type:STRING, format:enum, enum:["EAST", "NORTH", "SOUTH", "WEST"]}`
     /// 2. To define apartment numbers:
     /// `{type:INTEGER, format:enum, enum:["101", "201", "301"]}`
-    public let `enum`: [String]?
+    package let `enum`: [String]?
 
     /// Optional. Schema of the elements of Type.ARRAY.
     ///
@@ -126,7 +126,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// Optional. If type is `ARRAY`, `items` specifies the schema of elements in the array.
-    public let items: Schema?
+    package let items: Schema?
 
     /// Optional. Maximum number of the elements for Type.ARRAY.
     ///
@@ -138,7 +138,7 @@ public extension GenerateContentAPI {
     ///
     /// Optional. If type is `ARRAY`, `max_items` specifies the maximum number of items in an
     /// array.
-    public let maxItems: Int64?
+    package let maxItems: Int64?
 
     /// Optional. Minimum number of the elements for Type.ARRAY.
     ///
@@ -150,7 +150,7 @@ public extension GenerateContentAPI {
     ///
     /// Optional. If type is `ARRAY`, `min_items` specifies the minimum number of items in an
     /// array.
-    public let minItems: Int64?
+    package let minItems: Int64?
 
     /// Optional. Properties of Type.OBJECT.
     ///
@@ -162,7 +162,7 @@ public extension GenerateContentAPI {
     ///
     /// Optional. If type is `OBJECT`, `properties` is a map of property names to schema
     /// definitions for each property of the object.
-    public let properties: [String: Schema]?
+    package let properties: [String: Schema]?
 
     /// Optional. Required properties of Type.OBJECT.
     ///
@@ -174,7 +174,7 @@ public extension GenerateContentAPI {
     ///
     /// Optional. If type is `OBJECT`, `required` lists the names of properties that must be
     /// present.
-    public let required: [String]?
+    package let required: [String]?
 
     /// Optional. Minimum number of the properties for Type.OBJECT.
     ///
@@ -186,7 +186,7 @@ public extension GenerateContentAPI {
     ///
     /// Optional. If type is `OBJECT`, `min_properties` specifies the minimum number of
     /// properties that can be provided.
-    public let minProperties: Int64?
+    package let minProperties: Int64?
 
     /// Optional. Maximum number of the properties for Type.OBJECT.
     ///
@@ -198,7 +198,7 @@ public extension GenerateContentAPI {
     ///
     /// Optional. If type is `OBJECT`, `max_properties` specifies the maximum number of
     /// properties that can be provided.
-    public let maxProperties: Int64?
+    package let maxProperties: Int64?
 
     /// Optional. SCHEMA FIELDS FOR TYPE INTEGER and NUMBER
     ///
@@ -211,7 +211,7 @@ public extension GenerateContentAPI {
     ///
     /// Optional. If type is `INTEGER` or `NUMBER`, `minimum` specifies the minimum allowed
     /// value.
-    public let minimum: Double?
+    package let minimum: Double?
 
     /// Optional. Maximum value of the Type.INTEGER and Type.NUMBER
     ///
@@ -223,7 +223,7 @@ public extension GenerateContentAPI {
     ///
     /// Optional. If type is `INTEGER` or `NUMBER`, `maximum` specifies the maximum allowed
     /// value.
-    public let maximum: Double?
+    package let maximum: Double?
 
     /// Optional. SCHEMA FIELDS FOR TYPE STRING
     ///
@@ -236,7 +236,7 @@ public extension GenerateContentAPI {
     ///
     /// Optional. If type is `STRING`, `min_length` specifies the minimum length of the
     /// string.
-    public let minLength: Int64?
+    package let minLength: Int64?
 
     /// Optional. Maximum length of the Type.STRING
     ///
@@ -248,7 +248,7 @@ public extension GenerateContentAPI {
     ///
     /// Optional. If type is `STRING`, `max_length` specifies the maximum length of the
     /// string.
-    public let maxLength: Int64?
+    package let maxLength: Int64?
 
     /// Optional. Pattern of the Type.STRING to restrict a string to a regular expression.
     ///
@@ -260,7 +260,7 @@ public extension GenerateContentAPI {
     ///
     /// Optional. If type is `STRING`, `pattern` specifies a regular expression that the
     /// string must match.
-    public let pattern: String?
+    package let pattern: String?
 
     /// Optional. Example of the object. Will only populated when the object is the root.
     ///
@@ -271,7 +271,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// Optional. Example of an instance of this schema.
-    public let example: ProtobufValue?
+    package let example: ProtobufValue?
 
     /// Optional. The value should be validated against any (one or more) of the subschemas
     ///
@@ -284,7 +284,7 @@ public extension GenerateContentAPI {
     ///
     /// Optional. The instance must be valid against any (one or more) of the subschemas
     /// listed in `any_of`.
-    public let anyOf: [Schema]?
+    package let anyOf: [Schema]?
 
     /// Optional. The order of the properties.
     ///
@@ -299,7 +299,7 @@ public extension GenerateContentAPI {
     /// Optional. Order of properties displayed or used where order matters.
     /// This is not a standard field in OpenAPI specification, but can be used to
     /// control the order of properties.
-    public let propertyOrdering: [String]?
+    package let propertyOrdering: [String]?
 
     /// Optional. Default value of the field. Per JSON Schema, this field is intended for
     ///
@@ -313,7 +313,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// Optional. Default value to use if the field is not specified.
-    public let `default`: ProtobufValue?
+    package let `default`: ProtobufValue?
 
     /// Optional. If `type` is `OBJECT`, specifies how to handle properties not defined in
     ///
@@ -328,7 +328,7 @@ public extension GenerateContentAPI {
     /// If it is a boolean `false`, no additional properties are allowed.
     /// If it is a schema, additional properties are allowed if they conform to the
     /// schema.
-    public let additionalProperties: ProtobufValue?
+    package let additionalProperties: ProtobufValue?
 
     /// Optional. Allows referencing another schema definition to use in place of this
     ///
@@ -359,7 +359,7 @@ public extension GenerateContentAPI {
     /// named "Pet".
     /// See details in
     /// https://json-schema.org/understanding-json-schema/structuring
-    public let ref: String?
+    package let ref: String?
 
     /// Optional. `defs` provides a map of schema definitions that can be reused by `ref`
     ///
@@ -372,7 +372,7 @@ public extension GenerateContentAPI {
     /// Optional. `defs` provides a map of schema definitions that can be reused by `ref`
     /// elsewhere in the schema.
     /// Only allowed at root level of the schema.
-    public let defs: [String: Schema]?
+    package let defs: [String: Schema]?
 
     /// Creates a new `Schema`.
     ///
@@ -427,31 +427,31 @@ public extension GenerateContentAPI {
     /// (Gemini Enterprise Agent Platform only). For more details, see ``ref``.
     ///   - defs: Optional. `defs` provides a map of schema definitions that can be reused by `ref`
     /// (Gemini Enterprise Agent Platform only). For more details, see ``defs``.
-    public init(type: DataType? = nil,
-                format: String? = nil,
-                title: String? = nil,
-                description: String? = nil,
-                nullable: Bool? = nil,
-                enum: [String]? = nil,
-                items: Schema? = nil,
-                maxItems: Int64? = nil,
-                minItems: Int64? = nil,
-                properties: [String: Schema]? = nil,
-                required: [String]? = nil,
-                minProperties: Int64? = nil,
-                maxProperties: Int64? = nil,
-                minimum: Double? = nil,
-                maximum: Double? = nil,
-                minLength: Int64? = nil,
-                maxLength: Int64? = nil,
-                pattern: String? = nil,
-                example: ProtobufValue? = nil,
-                anyOf: [Schema]? = nil,
-                propertyOrdering: [String]? = nil,
-                default: ProtobufValue? = nil,
-                additionalProperties: ProtobufValue? = nil,
-                ref: String? = nil,
-                defs: [String: Schema]? = nil) {
+    package init(type: DataType? = nil,
+                 format: String? = nil,
+                 title: String? = nil,
+                 description: String? = nil,
+                 nullable: Bool? = nil,
+                 enum: [String]? = nil,
+                 items: Schema? = nil,
+                 maxItems: Int64? = nil,
+                 minItems: Int64? = nil,
+                 properties: [String: Schema]? = nil,
+                 required: [String]? = nil,
+                 minProperties: Int64? = nil,
+                 maxProperties: Int64? = nil,
+                 minimum: Double? = nil,
+                 maximum: Double? = nil,
+                 minLength: Int64? = nil,
+                 maxLength: Int64? = nil,
+                 pattern: String? = nil,
+                 example: ProtobufValue? = nil,
+                 anyOf: [Schema]? = nil,
+                 propertyOrdering: [String]? = nil,
+                 default: ProtobufValue? = nil,
+                 additionalProperties: ProtobufValue? = nil,
+                 ref: String? = nil,
+                 defs: [String: Schema]? = nil) {
       self.type = type
       self.format = format
       self.title = title
@@ -512,7 +512,7 @@ public extension GenerateContentAPI {
 // MARK: - Equatable & Hashable Conformance
 
 extension GenerateContentAPI.Schema: Equatable, Hashable {
-  public static func == (lhs: GenerateContentAPI.Schema, rhs: GenerateContentAPI.Schema) -> Bool {
+  package static func == (lhs: GenerateContentAPI.Schema, rhs: GenerateContentAPI.Schema) -> Bool {
     return
       lhs.type == rhs.type &&
       lhs.format == rhs.format &&
@@ -541,7 +541,7 @@ extension GenerateContentAPI.Schema: Equatable, Hashable {
       lhs.defs == rhs.defs
   }
 
-  public func hash(into hasher: inout Hasher) {
+  package func hash(into hasher: inout Hasher) {
     hasher.combine(type)
     hasher.combine(format)
     hasher.combine(title)

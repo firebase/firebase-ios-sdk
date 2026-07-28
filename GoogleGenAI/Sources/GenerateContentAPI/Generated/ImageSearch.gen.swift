@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI {
+package extension GenerateContentAPI {
   /// An internal data model for `ImageSearch`.
   ///
   /// ### Gemini Developer API
@@ -29,7 +29,7 @@ public extension GenerateContentAPI {
   struct ImageSearch: Codable, Sendable, Equatable, Hashable {
     /// Creates a new `ImageSearch`.
     ///
-    public init(
+    package init(
     ) {}
   }
 }

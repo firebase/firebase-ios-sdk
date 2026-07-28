@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI {
+package extension GenerateContentAPI {
   /// An internal data model for `PlaceAnswerSources`.
   ///
   /// ### Gemini Developer API
@@ -44,14 +44,14 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// Snippets of reviews that were used to generate the answer.
-    public let reviewSnippets: [ReviewSnippet]?
+    package let reviewSnippets: [ReviewSnippet]?
 
     /// Creates a new `PlaceAnswerSources`.
     ///
     /// - Parameters:
     ///   - reviewSnippets: Snippets of reviews that are used to generate answers about the
     /// (behavior varies by backend). For more details, see ``reviewSnippets``.
-    public init(reviewSnippets: [ReviewSnippet]? = nil) {
+    package init(reviewSnippets: [ReviewSnippet]? = nil) {
       self.reviewSnippets = reviewSnippets
     }
 

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI {
+package extension GenerateContentAPI {
   /// An internal data model for `SafetySetting`.
   ///
   /// ### Gemini Developer API
@@ -44,7 +44,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// Required. The harm category to be blocked.
-    public let category: HarmCategory?
+    package let category: HarmCategory?
 
     /// Required. Controls the probability threshold at which harm is blocked.
     ///
@@ -56,7 +56,7 @@ public extension GenerateContentAPI {
     ///
     /// Required. The threshold for blocking content. If the harm probability
     /// exceeds this threshold, the content will be blocked.
-    public let threshold: Threshold?
+    package let threshold: Threshold?
 
     /// Optional. The method for blocking content. If not specified, the default
     ///
@@ -68,7 +68,7 @@ public extension GenerateContentAPI {
     ///
     /// Optional. The method for blocking content. If not specified, the default
     /// behavior is to use the probability score.
-    public let method: Method?
+    package let method: Method?
 
     /// Creates a new `SafetySetting`.
     ///
@@ -79,9 +79,9 @@ public extension GenerateContentAPI {
     /// (behavior varies by backend). For more details, see ``threshold``.
     ///   - method: Optional. The method for blocking content. If not specified, the default (Gemini
     /// Enterprise Agent Platform only). For more details, see ``method``.
-    public init(category: HarmCategory?,
-                threshold: Threshold?,
-                method: Method? = nil) {
+    package init(category: HarmCategory?,
+                 threshold: Threshold?,
+                 method: Method? = nil) {
       self.category = category
       self.threshold = threshold
       self.method = method

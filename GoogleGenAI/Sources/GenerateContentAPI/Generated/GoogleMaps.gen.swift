@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI {
+package extension GenerateContentAPI {
   /// An internal data model for `GoogleMaps`.
   ///
   /// ### Gemini Developer API
@@ -40,14 +40,14 @@ public extension GenerateContentAPI {
     /// longer has any effect once removed.
     ///
     /// If true, include the widget context token in the response.
-    public let enableWidget: Bool?
+    package let enableWidget: Bool?
 
     /// Creates a new `GoogleMaps`.
     ///
     /// - Parameters:
     ///   - enableWidget: Optional. If true, include the widget context token in the response.
     /// (behavior varies by backend). For more details, see ``enableWidget``.
-    public init(enableWidget: Bool? = nil) {
+    package init(enableWidget: Bool? = nil) {
       self.enableWidget = enableWidget
     }
 

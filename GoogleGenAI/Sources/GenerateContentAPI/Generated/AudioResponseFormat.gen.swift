@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI {
+package extension GenerateContentAPI {
   /// An internal data model for `AudioResponseFormat`.
   ///
   /// ### Gemini Developer API
@@ -28,7 +28,7 @@ public extension GenerateContentAPI {
   /// Configuration for audio-specific output formatting.
   struct AudioResponseFormat: Codable, Sendable, Equatable, Hashable {
     /// Optional. The MIME type of the audio output.
-    public let mimeType: MimeType?
+    package let mimeType: MimeType?
 
     /// Optional. The delivery mode for the audio output.
     ///
@@ -39,7 +39,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// Optional. Delivery mode for the generated content.
-    public let delivery: Delivery?
+    package let delivery: Delivery?
 
     /// Optional. Sample rate in Hz.
     ///
@@ -50,11 +50,11 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// Optional. Sample rate for the generated audio in Hertz.
-    public let sampleRate: Int?
+    package let sampleRate: Int?
 
     /// Optional. Bit rate in bits per second (bps). Only applicable for compressed formats
     /// (MP3, Opus).
-    public let bitRate: Int?
+    package let bitRate: Int?
 
     /// Creates a new `AudioResponseFormat`.
     ///
@@ -66,10 +66,10 @@ public extension GenerateContentAPI {
     /// see ``sampleRate``.
     ///   - bitRate: Optional. Bit rate in bits per second (bps). Only applicable for compressed
     /// formats
-    public init(mimeType: MimeType? = nil,
-                delivery: Delivery? = nil,
-                sampleRate: Int? = nil,
-                bitRate: Int? = nil) {
+    package init(mimeType: MimeType? = nil,
+                 delivery: Delivery? = nil,
+                 sampleRate: Int? = nil,
+                 bitRate: Int? = nil) {
       self.mimeType = mimeType
       self.delivery = delivery
       self.sampleRate = sampleRate

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI {
+package extension GenerateContentAPI {
   /// An internal data model for `ServiceTier`.
   ///
   /// ### Gemini Developer API
@@ -42,7 +42,7 @@ public extension GenerateContentAPI {
 // MARK: - RawRepresentable Conformance
 
 extension GenerateContentAPI.ServiceTier: RawRepresentable {
-  public var rawValue: String {
+  package var rawValue: String {
     switch self {
     case .standard: "standard"
     case .flex: "flex"
@@ -51,7 +51,7 @@ extension GenerateContentAPI.ServiceTier: RawRepresentable {
     }
   }
 
-  public init(rawValue: String) {
+  package init(rawValue: String) {
     switch rawValue {
     case "standard": self = .standard
     case "flex": self = .flex

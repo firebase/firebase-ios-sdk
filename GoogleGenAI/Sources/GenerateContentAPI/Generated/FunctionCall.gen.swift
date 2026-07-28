@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI {
+package extension GenerateContentAPI {
   /// An internal data model for `FunctionCall`.
   ///
   /// ### Gemini Developer API
@@ -41,7 +41,7 @@ public extension GenerateContentAPI {
     ///
     /// Optional. The unique id of the function call. If populated, the client to execute the
     /// `function_call` and return the response with the matching `id`.
-    public let id: String?
+    package let id: String?
 
     /// Required. The name of the function to be invoked.
     ///
@@ -53,7 +53,7 @@ public extension GenerateContentAPI {
     ///
     /// Optional. The name of the function to call.
     /// Matches FunctionDeclaration.name.
-    public let name: String?
+    package let name: String?
 
     /// Optional. Inputs to the function passed by the model
     ///
@@ -65,7 +65,7 @@ public extension GenerateContentAPI {
     ///
     /// Optional. The function parameters and values in JSON object format.
     /// See FunctionDeclaration.parameters for parameter details.
-    public let args: [String: ProtobufValue]?
+    package let args: [String: ProtobufValue]?
 
     /// Optional. Whether this is the last part of the FunctionCall.
     ///
@@ -78,7 +78,7 @@ public extension GenerateContentAPI {
     /// Optional. Whether this is the last part of the FunctionCall.
     /// If true, another partial message for the current FunctionCall is expected
     /// to follow.
-    public let willContinue: Bool?
+    package let willContinue: Bool?
 
     /// Creates a new `FunctionCall`.
     ///
@@ -91,10 +91,10 @@ public extension GenerateContentAPI {
     /// For more details, see ``args``.
     ///   - willContinue: Optional. Whether this is the last part of the FunctionCall. (Gemini
     /// Enterprise Agent Platform only). For more details, see ``willContinue``.
-    public init(id: String? = nil,
-                name: String?,
-                args: [String: ProtobufValue]? = nil,
-                willContinue: Bool? = nil) {
+    package init(id: String? = nil,
+                 name: String?,
+                 args: [String: ProtobufValue]? = nil,
+                 willContinue: Bool? = nil) {
       self.id = id
       self.name = name
       self.args = args

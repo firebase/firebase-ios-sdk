@@ -14,41 +14,40 @@
 
 import Foundation
 
-  /// A collection of name-value pairs representing a JSON object.
-  ///
-  /// This may be decoded from, or encoded to, a `google.protobuf.Struct`
-  /// (https://protobuf.dev/reference/protobuf/google.protobuf/#struct).
-  public typealias ProtobufStruct = [String: ProtobufValue]
+/// A collection of name-value pairs representing a JSON object.
+///
+/// This may be decoded from, or encoded to, a `google.protobuf.Struct`
+/// (https://protobuf.dev/reference/protobuf/google.protobuf/#struct).
+package typealias ProtobufStruct = [String: ProtobufValue]
 
-  /// Represents a value in one of JSON's data types.
-  ///
-  /// This may be decoded from, or encoded to, a `google.protobuf.Value`
-  /// (https://protobuf.dev/reference/protobuf/google.protobuf/#value).
-  public enum ProtobufValue: Sendable, Hashable {
-    /// A `null` value.
-    case null
+/// Represents a value in one of JSON's data types.
+///
+/// This may be decoded from, or encoded to, a `google.protobuf.Value`
+/// (https://protobuf.dev/reference/protobuf/google.protobuf/#value).
+package enum ProtobufValue: Sendable, Hashable {
+  /// A `null` value.
+  case null
 
-    /// A numeric value.
-    case number(Double)
+  /// A numeric value.
+  case number(Double)
 
-    /// A string value.
-    case string(String)
+  /// A string value.
+  case string(String)
 
-    /// A boolean value.
-    case bool(Bool)
+  /// A boolean value.
+  case bool(Bool)
 
-    /// A JSON object.
-    case object(ProtobufStruct)
+  /// A JSON object.
+  case object(ProtobufStruct)
 
-    /// An array of `JSONValue`s.
-    case array([ProtobufValue])
-  }
-
+  /// An array of `JSONValue`s.
+  case array([ProtobufValue])
+}
 
 // MARK: - Codable Conformances
 
 extension ProtobufValue: Decodable {
-  public init(from decoder: Decoder) throws {
+  package init(from decoder: Decoder) throws {
     let container = try decoder.singleValueContainer()
     if container.decodeNil() {
       self = .null
@@ -72,7 +71,7 @@ extension ProtobufValue: Decodable {
 }
 
 extension ProtobufValue: Encodable {
-  public func encode(to encoder: Encoder) throws {
+  package func encode(to encoder: Encoder) throws {
     var container = encoder.singleValueContainer()
     switch self {
     case .null:

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI.ImageResponseFormat {
+package extension GenerateContentAPI.ImageResponseFormat {
   /// Optional. The MIME type of the image output.
   enum MimeType: Codable, Sendable, Equatable, Hashable {
     /// JPEG image format.
@@ -28,14 +28,14 @@ public extension GenerateContentAPI.ImageResponseFormat {
 // MARK: - RawRepresentable Conformance
 
 extension GenerateContentAPI.ImageResponseFormat.MimeType: RawRepresentable {
-  public var rawValue: String {
+  package var rawValue: String {
     switch self {
     case .jpeg: "IMAGE_JPEG"
     case let .unrecognized(value): value
     }
   }
 
-  public init(rawValue: String) {
+  package init(rawValue: String) {
     switch rawValue {
     case "IMAGE_JPEG": self = .jpeg
     default: self = .unrecognized(rawValue)

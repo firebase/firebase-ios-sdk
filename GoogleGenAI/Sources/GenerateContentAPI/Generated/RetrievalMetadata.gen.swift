@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI {
+package extension GenerateContentAPI {
   /// An internal data model for `RetrievalMetadata`.
   ///
   /// ### Gemini Developer API
@@ -46,7 +46,7 @@ public extension GenerateContentAPI {
     /// helpful, and 0 means it is not. This score is populated only when Google
     /// Search grounding and dynamic retrieval are enabled. The score is used to
     /// determine whether to trigger a search.
-    public let googleSearchDynamicRetrievalScore: Double?
+    package let googleSearchDynamicRetrievalScore: Double?
 
     /// Creates a new `RetrievalMetadata`.
     ///
@@ -54,7 +54,7 @@ public extension GenerateContentAPI {
     ///   - googleSearchDynamicRetrievalScore: Optional. Score indicating how likely information
     /// from google search could help (behavior varies by backend). For more details, see
     /// ``googleSearchDynamicRetrievalScore``.
-    public init(googleSearchDynamicRetrievalScore: Double? = nil) {
+    package init(googleSearchDynamicRetrievalScore: Double? = nil) {
       self.googleSearchDynamicRetrievalScore = googleSearchDynamicRetrievalScore
     }
 

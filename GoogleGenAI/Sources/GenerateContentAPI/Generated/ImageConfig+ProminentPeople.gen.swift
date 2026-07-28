@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI.ImageConfig {
+package extension GenerateContentAPI.ImageConfig {
   /// Optional. Controls whether prominent people (celebrities) generation is allowed. If
   ///
   /// ### Gemini Developer API
@@ -43,7 +43,7 @@ public extension GenerateContentAPI.ImageConfig {
 // MARK: - RawRepresentable Conformance
 
 extension GenerateContentAPI.ImageConfig.ProminentPeople: RawRepresentable {
-  public var rawValue: String {
+  package var rawValue: String {
     switch self {
     case .allowProminentPeople: "ALLOW_PROMINENT_PEOPLE"
     case .blockProminentPeople: "BLOCK_PROMINENT_PEOPLE"
@@ -51,7 +51,7 @@ extension GenerateContentAPI.ImageConfig.ProminentPeople: RawRepresentable {
     }
   }
 
-  public init(rawValue: String) {
+  package init(rawValue: String) {
     switch rawValue {
     case "ALLOW_PROMINENT_PEOPLE": self = .allowProminentPeople
     case "BLOCK_PROMINENT_PEOPLE": self = .blockProminentPeople

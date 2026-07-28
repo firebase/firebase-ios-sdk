@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI.VideoResponseFormat {
+package extension GenerateContentAPI.VideoResponseFormat {
   /// The aspect ratio for the video output.
   ///
   /// ### Gemini Developer API
@@ -39,7 +39,7 @@ public extension GenerateContentAPI.VideoResponseFormat {
 // MARK: - RawRepresentable Conformance
 
 extension GenerateContentAPI.VideoResponseFormat.AspectRatio: RawRepresentable {
-  public var rawValue: String {
+  package var rawValue: String {
     switch self {
     case .sixteenByNine: "ASPECT_RATIO_SIXTEEN_BY_NINE"
     case .nineBySixteen: "ASPECT_RATIO_NINE_BY_SIXTEEN"
@@ -47,7 +47,7 @@ extension GenerateContentAPI.VideoResponseFormat.AspectRatio: RawRepresentable {
     }
   }
 
-  public init(rawValue: String) {
+  package init(rawValue: String) {
     switch rawValue {
     case "ASPECT_RATIO_SIXTEEN_BY_NINE": self = .sixteenByNine
     case "ASPECT_RATIO_NINE_BY_SIXTEEN": self = .nineBySixteen

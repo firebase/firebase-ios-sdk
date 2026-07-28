@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI {
+package extension GenerateContentAPI {
   /// An internal data model for `WebChunk`.
   ///
   /// ### Gemini Developer API
@@ -39,7 +39,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// The URI of the web page that contains the evidence.
-    public let uri: String?
+    package let uri: String?
 
     /// Output only. Title of the chunk.
     ///
@@ -50,7 +50,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// The title of the web page that contains the evidence.
-    public let title: String?
+    package let title: String?
 
     /// The domain of the web page that contains the evidence. This
     ///
@@ -62,7 +62,7 @@ public extension GenerateContentAPI {
     ///
     /// The domain of the web page that contains the evidence. This
     /// can be used to filter out low-quality sources.
-    public let domain: String?
+    package let domain: String?
 
     /// Creates a new `WebChunk`.
     ///
@@ -73,9 +73,9 @@ public extension GenerateContentAPI {
     /// see ``title``.
     ///   - domain: The domain of the web page that contains the evidence. This (Gemini Enterprise
     /// Agent Platform only). For more details, see ``domain``.
-    public init(uri: String? = nil,
-                title: String? = nil,
-                domain: String? = nil) {
+    package init(uri: String? = nil,
+                 title: String? = nil,
+                 domain: String? = nil) {
       self.uri = uri
       self.title = title
       self.domain = domain

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI.ImageResponseFormat {
+package extension GenerateContentAPI.ImageResponseFormat {
   /// Optional. The size of the image output.
   enum ImageSize: Codable, Sendable, Equatable, Hashable {
     /// 512px image size.
@@ -37,7 +37,7 @@ public extension GenerateContentAPI.ImageResponseFormat {
 // MARK: - RawRepresentable Conformance
 
 extension GenerateContentAPI.ImageResponseFormat.ImageSize: RawRepresentable {
-  public var rawValue: String {
+  package var rawValue: String {
     switch self {
     case .fiveTwelve: "IMAGE_SIZE_FIVE_TWELVE"
     case .oneK: "IMAGE_SIZE_ONE_K"
@@ -47,7 +47,7 @@ extension GenerateContentAPI.ImageResponseFormat.ImageSize: RawRepresentable {
     }
   }
 
-  public init(rawValue: String) {
+  package init(rawValue: String) {
     switch rawValue {
     case "IMAGE_SIZE_FIVE_TWELVE": self = .fiveTwelve
     case "IMAGE_SIZE_ONE_K": self = .oneK

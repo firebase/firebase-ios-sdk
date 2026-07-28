@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI {
+package extension GenerateContentAPI {
   /// An internal data model for `ToolConfig`.
   ///
   /// ### Gemini Developer API
@@ -28,10 +28,10 @@ public extension GenerateContentAPI {
   /// Tool config. This config is shared for all tools provided in the request.
   struct ToolConfig: Codable, Sendable, Equatable, Hashable {
     /// Optional. Retrieval config.
-    public let retrievalConfig: RetrievalConfig?
+    package let retrievalConfig: RetrievalConfig?
 
     /// Optional. Function calling config.
-    public let functionCallingConfig: FunctionCallingConfig?
+    package let functionCallingConfig: FunctionCallingConfig?
 
     /// Optional. If true, the API response will include the server-side tool calls and
     ///
@@ -44,7 +44,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
-    public let includeServerSideToolInvocations: Bool?
+    package let includeServerSideToolInvocations: Bool?
 
     /// Creates a new `ToolConfig`.
     ///
@@ -54,9 +54,9 @@ public extension GenerateContentAPI {
     ///   - includeServerSideToolInvocations: Optional. If true, the API response will include the
     /// server-side tool calls and (Gemini Developer API only). For more details, see
     /// ``includeServerSideToolInvocations``.
-    public init(retrievalConfig: RetrievalConfig? = nil,
-                functionCallingConfig: FunctionCallingConfig? = nil,
-                includeServerSideToolInvocations: Bool? = nil) {
+    package init(retrievalConfig: RetrievalConfig? = nil,
+                 functionCallingConfig: FunctionCallingConfig? = nil,
+                 includeServerSideToolInvocations: Bool? = nil) {
       self.retrievalConfig = retrievalConfig
       self.functionCallingConfig = functionCallingConfig
       self.includeServerSideToolInvocations = includeServerSideToolInvocations

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI.SafetyRating {
+package extension GenerateContentAPI.SafetyRating {
   /// Required. The probability of harm for this content.
   ///
   /// ### Gemini Developer API
@@ -45,7 +45,7 @@ public extension GenerateContentAPI.SafetyRating {
 // MARK: - RawRepresentable Conformance
 
 extension GenerateContentAPI.SafetyRating.Probability: RawRepresentable {
-  public var rawValue: String {
+  package var rawValue: String {
     switch self {
     case .negligible: "NEGLIGIBLE"
     case .low: "LOW"
@@ -55,7 +55,7 @@ extension GenerateContentAPI.SafetyRating.Probability: RawRepresentable {
     }
   }
 
-  public init(rawValue: String) {
+  package init(rawValue: String) {
     switch rawValue {
     case "NEGLIGIBLE": self = .negligible
     case "LOW": self = .low

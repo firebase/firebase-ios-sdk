@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI.TextResponseFormat {
+package extension GenerateContentAPI.TextResponseFormat {
   /// Optional. The MIME type of the text output.
   ///
   /// ### Gemini Developer API
@@ -39,7 +39,7 @@ public extension GenerateContentAPI.TextResponseFormat {
 // MARK: - RawRepresentable Conformance
 
 extension GenerateContentAPI.TextResponseFormat.MimeType: RawRepresentable {
-  public var rawValue: String {
+  package var rawValue: String {
     switch self {
     case .applicationJson: "APPLICATION_JSON"
     case .textPlain: "TEXT_PLAIN"
@@ -47,7 +47,7 @@ extension GenerateContentAPI.TextResponseFormat.MimeType: RawRepresentable {
     }
   }
 
-  public init(rawValue: String) {
+  package init(rawValue: String) {
     switch rawValue {
     case "APPLICATION_JSON": self = .applicationJson
     case "TEXT_PLAIN": self = .textPlain

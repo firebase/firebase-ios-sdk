@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI.SafetyRating {
+package extension GenerateContentAPI.SafetyRating {
   /// Output only. The severity of harm for this category.
   ///
   /// ### Gemini Developer API
@@ -45,7 +45,7 @@ public extension GenerateContentAPI.SafetyRating {
 // MARK: - RawRepresentable Conformance
 
 extension GenerateContentAPI.SafetyRating.Severity: RawRepresentable {
-  public var rawValue: String {
+  package var rawValue: String {
     switch self {
     case .negligible: "HARM_SEVERITY_NEGLIGIBLE"
     case .low: "HARM_SEVERITY_LOW"
@@ -55,7 +55,7 @@ extension GenerateContentAPI.SafetyRating.Severity: RawRepresentable {
     }
   }
 
-  public init(rawValue: String) {
+  package init(rawValue: String) {
     switch rawValue {
     case "HARM_SEVERITY_NEGLIGIBLE": self = .negligible
     case "HARM_SEVERITY_LOW": self = .low

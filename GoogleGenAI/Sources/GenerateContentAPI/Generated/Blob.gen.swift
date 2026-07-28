@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public import Foundation
+package import Foundation
 
-public extension GenerateContentAPI {
+package extension GenerateContentAPI {
   /// An internal data model for `Blob`.
   ///
   /// ### Gemini Developer API
@@ -44,7 +44,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// Required. The IANA standard MIME type of the source data.
-    public let mimeType: String?
+    package let mimeType: String?
 
     /// Required. Raw bytes for media formats.
     ///
@@ -55,7 +55,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// Required. The raw bytes of the data.
-    public let data: Data?
+    package let data: Data?
 
     /// Optional. The display name of the blob. Used to provide a label or filename
     ///
@@ -71,7 +71,7 @@ public extension GenerateContentAPI {
     /// This field is only returned in `PromptMessage` for prompt management. It is
     /// used in the Gemini calls only when server-side tools (`code_execution`,
     /// `google_search`, and `url_context`) are enabled.
-    public let displayName: String?
+    package let displayName: String?
 
     /// Creates a new `Blob`.
     ///
@@ -82,9 +82,9 @@ public extension GenerateContentAPI {
     /// details, see ``data``.
     ///   - displayName: Optional. The display name of the blob. Used to provide a label or filename
     /// (Gemini Enterprise Agent Platform only). For more details, see ``displayName``.
-    public init(mimeType: String?,
-                data: Data?,
-                displayName: String? = nil) {
+    package init(mimeType: String?,
+                 data: Data?,
+                 displayName: String? = nil) {
       self.mimeType = mimeType
       self.data = data
       self.displayName = displayName

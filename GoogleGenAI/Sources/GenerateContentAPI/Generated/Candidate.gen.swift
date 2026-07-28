@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI {
+package extension GenerateContentAPI {
   /// An internal data model for `Candidate`.
   ///
   /// ### Gemini Developer API
@@ -38,7 +38,7 @@ public extension GenerateContentAPI {
     /// Output only. The 0-based index of this candidate in the list of generated
     /// responses. This is useful for distinguishing between multiple candidates
     /// when `candidate_count` > 1.
-    public let index: Int?
+    package let index: Int?
 
     /// Output only. Generated content returned from the model.
     ///
@@ -49,7 +49,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// Output only. The content of the candidate.
-    public let content: Content?
+    package let content: Content?
 
     /// Optional. Output only. The reason why the model stopped generating tokens.
     ///
@@ -63,7 +63,7 @@ public extension GenerateContentAPI {
     ///
     /// Output only. The reason why the model stopped generating tokens. If empty,
     /// the model has not stopped generating.
-    public let finishReason: FinishReason?
+    package let finishReason: FinishReason?
 
     /// Optional. Output only. Details the reason why the model stopped generating tokens.
     ///
@@ -76,7 +76,7 @@ public extension GenerateContentAPI {
     ///
     /// Output only. Describes the reason the model stopped generating tokens in
     /// more detail. This field is returned only when `finish_reason` is set.
-    public let finishMessage: String?
+    package let finishMessage: String?
 
     /// List of ratings for the safety of a response candidate.
     ///
@@ -91,7 +91,7 @@ public extension GenerateContentAPI {
     /// Output only. A list of ratings for the safety of a response candidate.
     ///
     /// There is at most one rating per category.
-    public let safetyRatings: [SafetyRating]?
+    package let safetyRatings: [SafetyRating]?
 
     /// Output only. Citation information for model-generated candidate.
     ///
@@ -106,7 +106,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// Output only. A collection of citations that apply to the generated content.
-    public let citationMetadata: CitationMetadata?
+    package let citationMetadata: CitationMetadata?
 
     /// Output only. Token count for this candidate.
     ///
@@ -117,7 +117,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
-    public let tokenCount: Int?
+    package let tokenCount: Int?
 
     /// Output only. Grounding metadata for the candidate.
     ///
@@ -131,7 +131,7 @@ public extension GenerateContentAPI {
     ///
     /// Output only. Metadata returned when grounding is enabled. It contains the
     /// sources used to ground the generated content.
-    public let groundingMetadata: GroundingMetadata?
+    package let groundingMetadata: GroundingMetadata?
 
     /// Output only. Average log probability score of the candidate.
     ///
@@ -145,7 +145,7 @@ public extension GenerateContentAPI {
     /// This is a length-normalized score that can be used to compare the quality
     /// of candidates of different lengths. A higher average log probability
     /// suggests a more confident and coherent response.
-    public let avgLogprobs: Double?
+    package let avgLogprobs: Double?
 
     /// Output only. Log-likelihood scores for the response tokens and top tokens
     ///
@@ -158,7 +158,7 @@ public extension GenerateContentAPI {
     /// Output only. The detailed log probability information for the tokens in
     /// this candidate. This is useful for debugging, understanding model
     /// uncertainty, and identifying potential "hallucinations".
-    public let logprobsResult: LogprobsResult?
+    package let logprobsResult: LogprobsResult?
 
     /// Output only. Metadata related to url context retrieval tool.
     ///
@@ -170,7 +170,7 @@ public extension GenerateContentAPI {
     ///
     /// Output only. Metadata returned when the model uses the `url_context` tool
     /// to get information from a user-provided URL.
-    public let urlContextMetadata: UrlContextMetadata?
+    package let urlContextMetadata: UrlContextMetadata?
 
     /// Creates a new `Candidate`.
     ///
@@ -197,17 +197,17 @@ public extension GenerateContentAPI {
     /// tokens (behavior varies by backend). For more details, see ``logprobsResult``.
     ///   - urlContextMetadata: Output only. Metadata related to url context retrieval tool.
     /// (behavior varies by backend). For more details, see ``urlContextMetadata``.
-    public init(index: Int? = nil,
-                content: Content? = nil,
-                finishReason: FinishReason? = nil,
-                finishMessage: String? = nil,
-                safetyRatings: [SafetyRating]? = nil,
-                citationMetadata: CitationMetadata? = nil,
-                tokenCount: Int? = nil,
-                groundingMetadata: GroundingMetadata? = nil,
-                avgLogprobs: Double? = nil,
-                logprobsResult: LogprobsResult? = nil,
-                urlContextMetadata: UrlContextMetadata? = nil) {
+    package init(index: Int? = nil,
+                 content: Content? = nil,
+                 finishReason: FinishReason? = nil,
+                 finishMessage: String? = nil,
+                 safetyRatings: [SafetyRating]? = nil,
+                 citationMetadata: CitationMetadata? = nil,
+                 tokenCount: Int? = nil,
+                 groundingMetadata: GroundingMetadata? = nil,
+                 avgLogprobs: Double? = nil,
+                 logprobsResult: LogprobsResult? = nil,
+                 urlContextMetadata: UrlContextMetadata? = nil) {
       self.index = index
       self.content = content
       self.finishReason = finishReason

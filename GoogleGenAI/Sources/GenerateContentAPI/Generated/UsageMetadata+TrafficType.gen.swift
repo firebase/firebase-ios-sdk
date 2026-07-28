@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI.UsageMetadata {
+package extension GenerateContentAPI.UsageMetadata {
   /// Output only. The traffic type for this request.
   ///
   /// ### Gemini Developer API
@@ -45,7 +45,7 @@ public extension GenerateContentAPI.UsageMetadata {
 // MARK: - RawRepresentable Conformance
 
 extension GenerateContentAPI.UsageMetadata.TrafficType: RawRepresentable {
-  public var rawValue: String {
+  package var rawValue: String {
     switch self {
     case .onDemand: "ON_DEMAND"
     case .onDemandPriority: "ON_DEMAND_PRIORITY"
@@ -55,7 +55,7 @@ extension GenerateContentAPI.UsageMetadata.TrafficType: RawRepresentable {
     }
   }
 
-  public init(rawValue: String) {
+  package init(rawValue: String) {
     switch rawValue {
     case "ON_DEMAND": self = .onDemand
     case "ON_DEMAND_PRIORITY": self = .onDemandPriority

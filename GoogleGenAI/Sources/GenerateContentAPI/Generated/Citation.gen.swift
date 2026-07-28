@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI {
+package extension GenerateContentAPI {
   /// An internal data model for `Citation`.
   ///
   /// ### Gemini Developer API
@@ -38,7 +38,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// Output only. The start index of the citation in the content.
-    public let startIndex: Int?
+    package let startIndex: Int?
 
     /// Optional. End of the attributed segment, exclusive.
     ///
@@ -49,7 +49,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// Output only. The end index of the citation in the content.
-    public let endIndex: Int?
+    package let endIndex: Int?
 
     /// Optional. URI that is attributed as a source for a portion of the text.
     ///
@@ -60,7 +60,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// Output only. The URI of the source of the citation.
-    public let uri: String?
+    package let uri: String?
 
     /// Optional. License for the GitHub project that is attributed as a source for segment.
     ///
@@ -73,7 +73,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// Output only. The license of the source of the citation.
-    public let license: String?
+    package let license: String?
 
     /// Output only. The title of the source of the citation.
     ///
@@ -84,7 +84,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// Output only. The title of the source of the citation.
-    public let title: String?
+    package let title: String?
 
     /// Output only. The publication date of the source of the citation.
     ///
@@ -95,7 +95,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// Output only. The publication date of the source of the citation.
-    public let publicationDate: JSONDate?
+    package let publicationDate: JSONDate?
 
     /// Creates a new `Citation`.
     ///
@@ -112,12 +112,12 @@ public extension GenerateContentAPI {
     /// Platform only). For more details, see ``title``.
     ///   - publicationDate: Output only. The publication date of the source of the citation.
     /// (Gemini Enterprise Agent Platform only). For more details, see ``publicationDate``.
-    public init(startIndex: Int? = nil,
-                endIndex: Int? = nil,
-                uri: String? = nil,
-                license: String? = nil,
-                title: String? = nil,
-                publicationDate: JSONDate? = nil) {
+    package init(startIndex: Int? = nil,
+                 endIndex: Int? = nil,
+                 uri: String? = nil,
+                 license: String? = nil,
+                 title: String? = nil,
+                 publicationDate: JSONDate? = nil) {
       self.startIndex = startIndex
       self.endIndex = endIndex
       self.uri = uri

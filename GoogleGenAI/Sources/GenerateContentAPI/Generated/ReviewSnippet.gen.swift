@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI {
+package extension GenerateContentAPI {
   /// An internal data model for `ReviewSnippet`.
   ///
   /// ### Gemini Developer API
@@ -37,7 +37,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// The ID of the review that is being referenced.
-    public let reviewId: String?
+    package let reviewId: String?
 
     /// A link that corresponds to the user review on Google Maps.
     ///
@@ -48,7 +48,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// A link to show the review on Google Maps.
-    public let googleMapsUri: String?
+    package let googleMapsUri: String?
 
     /// Title of the review.
     ///
@@ -59,7 +59,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// The title of the review.
-    public let title: String?
+    package let title: String?
 
     /// Creates a new `ReviewSnippet`.
     ///
@@ -70,9 +70,9 @@ public extension GenerateContentAPI {
     /// varies by backend). For more details, see ``googleMapsUri``.
     ///   - title: Title of the review. (behavior varies by backend). For more details, see
     /// ``title``.
-    public init(reviewId: String? = nil,
-                googleMapsUri: String? = nil,
-                title: String? = nil) {
+    package init(reviewId: String? = nil,
+                 googleMapsUri: String? = nil,
+                 title: String? = nil) {
       self.reviewId = reviewId
       self.googleMapsUri = googleMapsUri
       self.title = title

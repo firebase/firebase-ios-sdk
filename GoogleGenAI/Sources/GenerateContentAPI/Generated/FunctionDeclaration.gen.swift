@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI {
+package extension GenerateContentAPI {
   /// An internal data model for `FunctionDeclaration`.
   ///
   /// ### Gemini Developer API
@@ -49,7 +49,7 @@ public extension GenerateContentAPI {
     /// Must start with a letter or an underscore.
     /// Must be a-z, A-Z, 0-9, or contain underscores, dots, colons and dashes,
     /// with a maximum length of 128.
-    public let name: String?
+    package let name: String?
 
     /// Required. A brief description of the function.
     ///
@@ -61,7 +61,7 @@ public extension GenerateContentAPI {
     ///
     /// Optional. Description and purpose of the function.
     /// Model uses it to decide how and whether to call the function.
-    public let description: String?
+    package let description: String?
 
     /// Optional. Describes the parameters to this function. Reflects the Open API 3.03
     ///
@@ -90,7 +90,7 @@ public extension GenerateContentAPI {
     ///    type: INTEGER
     /// required:
     ///  - param1
-    public let parameters: Schema?
+    package let parameters: Schema?
 
     /// Optional. Describes the parameters to the function in JSON Schema format. The schema
     /// must describe an object where the properties are the parameters to the
@@ -110,18 +110,18 @@ public extension GenerateContentAPI {
     /// ```
     ///
     /// This field is mutually exclusive with `parameters`.
-    public let parametersJsonSchema: ProtobufValue?
+    package let parametersJsonSchema: ProtobufValue?
 
     /// Optional. Describes the output from this function in JSON Schema format. Reflects the
     /// Open API 3.03 Response Object. The Schema defines the type used for the
     /// response value of the function.
-    public let response: Schema?
+    package let response: Schema?
 
     /// Optional. Describes the output from this function in JSON Schema format. The value
     /// specified by the schema is the response value of the function.
     ///
     /// This field is mutually exclusive with `response`.
-    public let responseJsonSchema: ProtobufValue?
+    package let responseJsonSchema: ProtobufValue?
 
     /// Optional. Specifies the function Behavior.
     ///
@@ -135,7 +135,7 @@ public extension GenerateContentAPI {
     /// Optional. Specifies the function Behavior.
     /// If not specified, the system keeps the current function call behavior.
     /// This field is currently only supported by the BidiGenerateContent method.
-    public let behavior: Behavior?
+    package let behavior: Behavior?
 
     /// Creates a new `FunctionDeclaration`.
     ///
@@ -154,13 +154,13 @@ public extension GenerateContentAPI {
     /// format. The value
     ///   - behavior: Optional. Specifies the function Behavior. (behavior varies by backend). For
     /// more details, see ``behavior``.
-    public init(name: String?,
-                description: String?,
-                parameters: Schema? = nil,
-                parametersJsonSchema: ProtobufValue? = nil,
-                response: Schema? = nil,
-                responseJsonSchema: ProtobufValue? = nil,
-                behavior: Behavior? = nil) {
+    package init(name: String?,
+                 description: String?,
+                 parameters: Schema? = nil,
+                 parametersJsonSchema: ProtobufValue? = nil,
+                 response: Schema? = nil,
+                 responseJsonSchema: ProtobufValue? = nil,
+                 behavior: Behavior? = nil) {
       self.name = name
       self.description = description
       self.parameters = parameters

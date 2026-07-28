@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public import Foundation
+package import Foundation
 
-public extension GenerateContentAPI {
+package extension GenerateContentAPI {
   /// An internal data model for `ReplicatedVoiceConfig`.
   ///
   /// ### Gemini Developer API
@@ -40,7 +40,7 @@ public extension GenerateContentAPI {
     /// This represents 16-bit signed little-endian wav data, with a 24kHz
     /// sampling rate.
     /// `mime_type` will default to `audio/wav` if not set.
-    public let mimeType: String?
+    package let mimeType: String?
 
     /// Optional. The sample of the custom voice.
     ///
@@ -51,7 +51,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// Optional. The sample of the custom voice.
-    public let voiceSampleAudio: Data?
+    package let voiceSampleAudio: Data?
 
     /// Creates a new `ReplicatedVoiceConfig`.
     ///
@@ -60,8 +60,8 @@ public extension GenerateContentAPI {
     /// is (Gemini Enterprise Agent Platform only). For more details, see ``mimeType``.
     ///   - voiceSampleAudio: Optional. The sample of the custom voice. (Gemini Enterprise Agent
     /// Platform only). For more details, see ``voiceSampleAudio``.
-    public init(mimeType: String? = nil,
-                voiceSampleAudio: Data? = nil) {
+    package init(mimeType: String? = nil,
+                 voiceSampleAudio: Data? = nil) {
       self.mimeType = mimeType
       self.voiceSampleAudio = voiceSampleAudio
     }

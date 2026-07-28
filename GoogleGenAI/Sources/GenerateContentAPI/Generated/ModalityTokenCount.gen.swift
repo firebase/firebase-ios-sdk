@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI {
+package extension GenerateContentAPI {
   /// An internal data model for `ModalityTokenCount`.
   ///
   /// ### Gemini Developer API
@@ -45,7 +45,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// The modality that this token count applies to.
-    public let modality: Modality?
+    package let modality: Modality?
 
     /// Number of tokens.
     ///
@@ -56,7 +56,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// The number of tokens counted for this modality.
-    public let tokenCount: Int?
+    package let tokenCount: Int?
 
     /// Creates a new `ModalityTokenCount`.
     ///
@@ -65,8 +65,8 @@ public extension GenerateContentAPI {
     /// For more details, see ``modality``.
     ///   - tokenCount: Number of tokens. (behavior varies by backend). For more details, see
     /// ``tokenCount``.
-    public init(modality: Modality? = nil,
-                tokenCount: Int? = nil) {
+    package init(modality: Modality? = nil,
+                 tokenCount: Int? = nil) {
       self.modality = modality
       self.tokenCount = tokenCount
     }

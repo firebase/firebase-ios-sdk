@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI.GoogleSearch {
+package extension GenerateContentAPI.GoogleSearch {
   /// Optional. Sites with confidence level chosen & above this value will be blocked
   ///
   /// ### Gemini Developer API
@@ -52,7 +52,7 @@ public extension GenerateContentAPI.GoogleSearch {
 // MARK: - RawRepresentable Conformance
 
 extension GenerateContentAPI.GoogleSearch.BlockingConfidence: RawRepresentable {
-  public var rawValue: String {
+  package var rawValue: String {
     switch self {
     case .lowAndAbove: "BLOCK_LOW_AND_ABOVE"
     case .mediumAndAbove: "BLOCK_MEDIUM_AND_ABOVE"
@@ -64,7 +64,7 @@ extension GenerateContentAPI.GoogleSearch.BlockingConfidence: RawRepresentable {
     }
   }
 
-  public init(rawValue: String) {
+  package init(rawValue: String) {
     switch rawValue {
     case "BLOCK_LOW_AND_ABOVE": self = .lowAndAbove
     case "BLOCK_MEDIUM_AND_ABOVE": self = .mediumAndAbove

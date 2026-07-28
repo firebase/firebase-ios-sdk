@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI {
+package extension GenerateContentAPI {
   /// An internal data model for `CountTokensResponse`.
   ///
   /// ### Gemini Developer API
@@ -39,7 +39,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// The total number of tokens counted across all instances from the request.
-    public let totalTokens: Int?
+    package let totalTokens: Int?
 
     /// Number of tokens in the cached part of the prompt (the cached content).
     ///
@@ -50,10 +50,10 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
-    public let cachedContentTokenCount: Int?
+    package let cachedContentTokenCount: Int?
 
     /// Output only. List of modalities that were processed in the request input.
-    public let promptTokensDetails: [ModalityTokenCount]?
+    package let promptTokensDetails: [ModalityTokenCount]?
 
     /// Output only. List of modalities that were processed in the cached content.
     ///
@@ -64,7 +64,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
-    public let cacheTokensDetails: [ModalityTokenCount]?
+    package let cacheTokensDetails: [ModalityTokenCount]?
 
     /// The total number of billable characters counted across all instances from
     ///
@@ -76,7 +76,7 @@ public extension GenerateContentAPI {
     ///
     /// The total number of billable characters counted across all instances from
     /// the request.
-    public let totalBillableCharacters: Int?
+    package let totalBillableCharacters: Int?
 
     /// Creates a new `CountTokensResponse`.
     ///
@@ -92,11 +92,11 @@ public extension GenerateContentAPI {
     ///   - totalBillableCharacters: The total number of billable characters counted across all
     /// instances from (Gemini Enterprise Agent Platform only). For more details, see
     /// ``totalBillableCharacters``.
-    public init(totalTokens: Int? = nil,
-                cachedContentTokenCount: Int? = nil,
-                promptTokensDetails: [ModalityTokenCount]? = nil,
-                cacheTokensDetails: [ModalityTokenCount]? = nil,
-                totalBillableCharacters: Int? = nil) {
+    package init(totalTokens: Int? = nil,
+                 cachedContentTokenCount: Int? = nil,
+                 promptTokensDetails: [ModalityTokenCount]? = nil,
+                 cacheTokensDetails: [ModalityTokenCount]? = nil,
+                 totalBillableCharacters: Int? = nil) {
       self.totalTokens = totalTokens
       self.cachedContentTokenCount = cachedContentTokenCount
       self.promptTokensDetails = promptTokensDetails

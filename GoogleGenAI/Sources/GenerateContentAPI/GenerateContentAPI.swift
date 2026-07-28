@@ -13,4 +13,4 @@
 // limitations under the License.
 
 // Namespace for GenerateContent API Types
-public enum GenerateContentAPI {}
+package enum GenerateContentAPI {}

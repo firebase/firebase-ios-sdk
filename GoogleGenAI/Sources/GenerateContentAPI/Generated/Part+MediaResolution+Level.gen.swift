@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI.Part.MediaResolution {
+package extension GenerateContentAPI.Part.MediaResolution {
   /// The tokenization quality used for given media.
   ///
   /// ### Gemini Developer API
@@ -46,7 +46,7 @@ public extension GenerateContentAPI.Part.MediaResolution {
 // MARK: - RawRepresentable Conformance
 
 extension GenerateContentAPI.Part.MediaResolution.Level: RawRepresentable {
-  public var rawValue: String {
+  package var rawValue: String {
     switch self {
     case .low: "MEDIA_RESOLUTION_LOW"
     case .medium: "MEDIA_RESOLUTION_MEDIUM"
@@ -56,7 +56,7 @@ extension GenerateContentAPI.Part.MediaResolution.Level: RawRepresentable {
     }
   }
 
-  public init(rawValue: String) {
+  package init(rawValue: String) {
     switch rawValue {
     case "MEDIA_RESOLUTION_LOW": self = .low
     case "MEDIA_RESOLUTION_MEDIUM": self = .medium

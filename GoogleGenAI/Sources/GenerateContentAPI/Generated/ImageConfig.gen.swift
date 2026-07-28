@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI {
+package extension GenerateContentAPI {
   /// An internal data model for `ImageConfig`.
   ///
   /// ### Gemini Developer API
@@ -53,7 +53,7 @@ public extension GenerateContentAPI {
     /// "4:5", "5:4"
     /// "9:16", "16:9"
     /// "21:9"
-    public let aspectRatio: String?
+    package let aspectRatio: String?
 
     /// Optional. Specifies the size of generated images. Supported values are `512`, `1K`,
     ///
@@ -66,7 +66,7 @@ public extension GenerateContentAPI {
     ///
     /// Optional. Specifies the size of generated images. Supported values are `1K`, `2K`,
     /// `4K`. If not specified, the model will use default value `1K`.
-    public let imageSize: String?
+    package let imageSize: String?
 
     /// Optional. The image output format for generated images.
     ///
@@ -77,7 +77,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// Optional. The image output format for generated images.
-    public let imageOutputOptions: ImageConfigImageOutputOptions?
+    package let imageOutputOptions: ImageConfigImageOutputOptions?
 
     /// Optional. Controls whether the model can generate people.
     ///
@@ -88,7 +88,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// Optional. Controls whether the model can generate people.
-    public let personGeneration: PersonGeneration?
+    package let personGeneration: PersonGeneration?
 
     /// Optional. Controls whether prominent people (celebrities) generation is allowed. If
     ///
@@ -103,7 +103,7 @@ public extension GenerateContentAPI {
     /// For instance, if ALLOW_NONE is set, all person generation would be blocked.
     /// If this field is unspecified, the default behavior is to allow prominent
     /// people.
-    public let prominentPeople: ProminentPeople?
+    package let prominentPeople: ProminentPeople?
 
     /// Creates a new `ImageConfig`.
     ///
@@ -119,11 +119,11 @@ public extension GenerateContentAPI {
     ///   - prominentPeople: Optional. Controls whether prominent people (celebrities) generation is
     /// allowed. If (Gemini Enterprise Agent Platform only). For more details, see
     /// ``prominentPeople``.
-    public init(aspectRatio: String? = nil,
-                imageSize: String? = nil,
-                imageOutputOptions: ImageConfigImageOutputOptions? = nil,
-                personGeneration: PersonGeneration? = nil,
-                prominentPeople: ProminentPeople? = nil) {
+    package init(aspectRatio: String? = nil,
+                 imageSize: String? = nil,
+                 imageOutputOptions: ImageConfigImageOutputOptions? = nil,
+                 personGeneration: PersonGeneration? = nil,
+                 prominentPeople: ProminentPeople? = nil) {
       self.aspectRatio = aspectRatio
       self.imageSize = imageSize
       self.imageOutputOptions = imageOutputOptions

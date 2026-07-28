@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI {
+package extension GenerateContentAPI {
   /// An internal data model for `GenerationConfig`.
   ///
   /// ### Gemini Developer API
@@ -47,7 +47,7 @@ public extension GenerateContentAPI {
     /// A higher `candidate_count` can provide more options to choose from, but it
     /// also consumes more resources. This can be useful for generating a variety
     /// of responses and selecting the best one.
-    public let candidateCount: Int?
+    package let candidateCount: Int?
 
     /// Optional. The set of character sequences (up to 5) that will stop output generation.
     ///
@@ -65,7 +65,7 @@ public extension GenerateContentAPI {
     /// will end at that point. This is useful for controlling the length and
     /// structure of the output. For example, you can use ["\n", "###"] to stop
     /// generation at a new line or a specific marker.
-    public let stopSequences: [String]?
+    package let stopSequences: [String]?
 
     /// Optional. The maximum number of tokens to include in a response candidate.
     ///
@@ -83,7 +83,7 @@ public extension GenerateContentAPI {
     /// A token is approximately four characters. The default value varies by
     /// model. This parameter can be used to control the length of the generated
     /// text and prevent overly long responses.
-    public let maxOutputTokens: Int?
+    package let maxOutputTokens: Int?
 
     /// Optional. Controls the randomness of the output.
     ///
@@ -102,7 +102,7 @@ public extension GenerateContentAPI {
     /// results in more creative and diverse responses, while a lower temperature
     /// makes the output more predictable and focused. The valid range is (0.0,
     /// 2.0].
-    public let temperature: Double?
+    package let temperature: Double?
 
     /// Optional. The maximum cumulative probability of tokens to consider when sampling.
     ///
@@ -130,7 +130,7 @@ public extension GenerateContentAPI {
     /// For example, a `top_p` of 0.9 means the model considers tokens until the
     /// cumulative probability of the tokens to select from reaches 0.9. It's
     /// recommended to adjust either temperature or `top_p`, but not both.
-    public let topP: Double?
+    package let topP: Double?
 
     /// Optional. The maximum number of tokens to consider when sampling.
     ///
@@ -153,7 +153,7 @@ public extension GenerateContentAPI {
     /// the top k most probable tokens for the next token. This can be useful for
     /// generating more coherent and less random text. For example, a `top_k` of 40
     /// means the model will choose the next word from the 40 most likely words.
-    public let topK: Int?
+    package let topK: Int?
 
     /// Optional. Seed used in decoding. If not set, the request uses a randomly generated
     ///
@@ -174,7 +174,7 @@ public extension GenerateContentAPI {
     /// `seed` ensures that the "random" choices the model makes are the same on
     /// every run, making it essential for testing and ensuring reproducible
     /// results.
-    public let seed: Int?
+    package let seed: Int?
 
     /// Optional. MIME type of the generated candidate text.
     ///
@@ -197,7 +197,7 @@ public extension GenerateContentAPI {
     /// prompted to output the appropriate response type, otherwise the behavior is
     /// undefined.
     /// Deprecated: Use `response_format` instead.
-    public let responseMimeType: String?
+    package let responseMimeType: String?
 
     /// Optional. Output schema of the generated candidate text. Schemas must be a
     ///
@@ -224,7 +224,7 @@ public extension GenerateContentAPI {
     /// When this field is set, you must also set the `response_mime_type` to
     /// `application/json`.
     /// Deprecated: Use `response_format` instead.
-    public let responseSchema: Schema?
+    package let responseSchema: Schema?
 
     /// Optional. Output schema of the generated response. This is an alternative to
     ///
@@ -270,7 +270,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
-    public let responsejsonschema: ProtobufValue?
+    package let responsejsonschema: ProtobufValue?
 
     /// Optional. An internal detail. Use `responseJsonSchema` rather than this field.
     ///
@@ -286,7 +286,7 @@ public extension GenerateContentAPI {
     /// response_mime_type
     /// must be set to `application/json`.
     /// Deprecated: Use `response_format` instead.
-    public let responseJsonSchema: ProtobufValue?
+    package let responseJsonSchema: ProtobufValue?
 
     /// Optional. Presence penalty applied to the next token's logprobs if the token has
     ///
@@ -311,7 +311,7 @@ public extension GenerateContentAPI {
     /// Optional. Penalizes tokens that have already appeared in the generated
     /// text. A positive value encourages the model to generate more diverse and
     /// less repetitive text. Valid values can range from [-2.0, 2.0].
-    public let presencePenalty: Double?
+    package let presencePenalty: Double?
 
     /// Optional. Frequency penalty applied to the next token's logprobs, multiplied by the
     ///
@@ -337,7 +337,7 @@ public extension GenerateContentAPI {
     /// Optional. Penalizes tokens based on their frequency in the generated text.
     /// A positive value helps to reduce the repetition of words and phrases.
     /// Valid values can range from [-2.0, 2.0].
-    public let frequencyPenalty: Double?
+    package let frequencyPenalty: Double?
 
     /// Optional. If true, export the logprobs results in response.
     ///
@@ -354,7 +354,7 @@ public extension GenerateContentAPI {
     /// in the output. A higher log probability means the token is more likely to
     /// be generated. This can be useful for analyzing the model's confidence in
     /// its own output and for debugging.
-    public let responseLogprobs: Bool?
+    package let responseLogprobs: Bool?
 
     /// Optional. Only valid if response_logprobs=True.
     ///
@@ -372,7 +372,7 @@ public extension GenerateContentAPI {
     /// This can be used to see which other tokens were considered likely
     /// candidates for a given position. A higher value will return more options,
     /// but it will also increase the size of the response.
-    public let logprobs: Int?
+    package let logprobs: Int?
 
     /// Optional. Enables enhanced civic answers. It may not be available for all models.
     ///
@@ -383,7 +383,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
-    public let enableEnhancedCivicAnswers: Bool?
+    package let enableEnhancedCivicAnswers: Bool?
 
     /// Optional. The requested modalities of the response. Represents the set of modalities
     ///
@@ -405,10 +405,10 @@ public extension GenerateContentAPI {
     /// response that includes all the specified modalities. For example, if this
     /// is set to `[TEXT, IMAGE]`, the response will include both text and an
     /// image.
-    public let responseModalities: [String]?
+    package let responseModalities: [String]?
 
     /// Optional. The speech generation config.
-    public let speechConfig: SpeechConfig?
+    package let speechConfig: SpeechConfig?
 
     /// Optional. Config for thinking features.
     ///
@@ -423,7 +423,7 @@ public extension GenerateContentAPI {
     /// Optional. Configuration for thinking features.
     /// An error will be returned if this field is set for models that don't
     /// support thinking.
-    public let thinkingConfig: ThinkingConfig?
+    package let thinkingConfig: ThinkingConfig?
 
     /// Optional. Config for image generation.
     ///
@@ -437,7 +437,7 @@ public extension GenerateContentAPI {
     ///
     /// Optional. Config for image generation features.
     /// Deprecated: Use `response_format.image` instead.
-    public let imageConfig: ImageConfig?
+    package let imageConfig: ImageConfig?
 
     /// Optional. If specified, the media resolution specified will be used.
     ///
@@ -453,7 +453,7 @@ public extension GenerateContentAPI {
     /// the model to perceive more detail, which can lead to a more nuanced
     /// response, but it will also use more tokens. This does not affect the
     /// image dimensions sent to the model.
-    public let mediaResolution: MediaResolution?
+    package let mediaResolution: MediaResolution?
 
     /// Optional. If enabled, the model will detect emotions and adapt its responses
     ///
@@ -467,7 +467,7 @@ public extension GenerateContentAPI {
     /// Optional. If enabled, the model will detect emotions and adapt its
     /// responses accordingly. For example, if the model detects that the user is
     /// frustrated, it may provide a more empathetic response.
-    public let enableAffectiveDialog: Bool?
+    package let enableAffectiveDialog: Bool?
 
     /// Optional. Configuration for the response output format. Allows specifying output
     ///
@@ -480,7 +480,7 @@ public extension GenerateContentAPI {
     ///
     /// Optional. New response format field for the model to configure output formatting and
     /// delivery.
-    public let responseFormat: ResponseFormat?
+    package let responseFormat: ResponseFormat?
 
     /// Optional. If enabled, audio timestamps will be included in the request to
     ///
@@ -493,7 +493,7 @@ public extension GenerateContentAPI {
     /// Optional. If enabled, audio timestamps will be included in the request to
     /// the model. This can be useful for synchronizing audio with other modalities
     /// in the response.
-    public let audioTimestamp: Bool?
+    package let audioTimestamp: Bool?
 
     /// Creates a new `GenerationConfig`.
     ///
@@ -547,30 +547,30 @@ public extension GenerateContentAPI {
     /// specifying output (behavior varies by backend). For more details, see ``responseFormat``.
     ///   - audioTimestamp: Optional. If enabled, audio timestamps will be included in the request
     /// to (Gemini Enterprise Agent Platform only). For more details, see ``audioTimestamp``.
-    public init(candidateCount: Int? = nil,
-                stopSequences: [String]? = nil,
-                maxOutputTokens: Int? = nil,
-                temperature: Double? = nil,
-                topP: Double? = nil,
-                topK: Int? = nil,
-                seed: Int? = nil,
-                responseMimeType: String? = nil,
-                responseSchema: Schema? = nil,
-                responsejsonschema: ProtobufValue? = nil,
-                responseJsonSchema: ProtobufValue? = nil,
-                presencePenalty: Double? = nil,
-                frequencyPenalty: Double? = nil,
-                responseLogprobs: Bool? = nil,
-                logprobs: Int? = nil,
-                enableEnhancedCivicAnswers: Bool? = nil,
-                responseModalities: [String]? = nil,
-                speechConfig: SpeechConfig? = nil,
-                thinkingConfig: ThinkingConfig? = nil,
-                imageConfig: ImageConfig? = nil,
-                mediaResolution: MediaResolution? = nil,
-                enableAffectiveDialog: Bool? = nil,
-                responseFormat: ResponseFormat? = nil,
-                audioTimestamp: Bool? = nil) {
+    package init(candidateCount: Int? = nil,
+                 stopSequences: [String]? = nil,
+                 maxOutputTokens: Int? = nil,
+                 temperature: Double? = nil,
+                 topP: Double? = nil,
+                 topK: Int? = nil,
+                 seed: Int? = nil,
+                 responseMimeType: String? = nil,
+                 responseSchema: Schema? = nil,
+                 responsejsonschema: ProtobufValue? = nil,
+                 responseJsonSchema: ProtobufValue? = nil,
+                 presencePenalty: Double? = nil,
+                 frequencyPenalty: Double? = nil,
+                 responseLogprobs: Bool? = nil,
+                 logprobs: Int? = nil,
+                 enableEnhancedCivicAnswers: Bool? = nil,
+                 responseModalities: [String]? = nil,
+                 speechConfig: SpeechConfig? = nil,
+                 thinkingConfig: ThinkingConfig? = nil,
+                 imageConfig: ImageConfig? = nil,
+                 mediaResolution: MediaResolution? = nil,
+                 enableAffectiveDialog: Bool? = nil,
+                 responseFormat: ResponseFormat? = nil,
+                 audioTimestamp: Bool? = nil) {
       self.candidateCount = candidateCount
       self.stopSequences = stopSequences
       self.maxOutputTokens = maxOutputTokens

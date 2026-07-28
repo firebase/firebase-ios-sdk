@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI.SafetySetting {
+package extension GenerateContentAPI.SafetySetting {
   /// Required. Controls the probability threshold at which harm is blocked.
   ///
   /// ### Gemini Developer API
@@ -49,7 +49,7 @@ public extension GenerateContentAPI.SafetySetting {
 // MARK: - RawRepresentable Conformance
 
 extension GenerateContentAPI.SafetySetting.Threshold: RawRepresentable {
-  public var rawValue: String {
+  package var rawValue: String {
     switch self {
     case .blockLowAndAbove: "BLOCK_LOW_AND_ABOVE"
     case .blockMediumAndAbove: "BLOCK_MEDIUM_AND_ABOVE"
@@ -60,7 +60,7 @@ extension GenerateContentAPI.SafetySetting.Threshold: RawRepresentable {
     }
   }
 
-  public init(rawValue: String) {
+  package init(rawValue: String) {
     switch rawValue {
     case "BLOCK_LOW_AND_ABOVE": self = .blockLowAndAbove
     case "BLOCK_MEDIUM_AND_ABOVE": self = .blockMediumAndAbove

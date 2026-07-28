@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI.SafetySetting {
+package extension GenerateContentAPI.SafetySetting {
   /// Optional. The method for blocking content. If not specified, the default
   ///
   /// ### Gemini Developer API
@@ -40,7 +40,7 @@ public extension GenerateContentAPI.SafetySetting {
 // MARK: - RawRepresentable Conformance
 
 extension GenerateContentAPI.SafetySetting.Method: RawRepresentable {
-  public var rawValue: String {
+  package var rawValue: String {
     switch self {
     case .severity: "SEVERITY"
     case .probability: "PROBABILITY"
@@ -48,7 +48,7 @@ extension GenerateContentAPI.SafetySetting.Method: RawRepresentable {
     }
   }
 
-  public init(rawValue: String) {
+  package init(rawValue: String) {
     switch rawValue {
     case "SEVERITY": self = .severity
     case "PROBABILITY": self = .probability

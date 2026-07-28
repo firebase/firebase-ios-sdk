@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI {
+package extension GenerateContentAPI {
   /// An internal data model for `GenerateContentRequest`.
   ///
   /// ### Gemini Developer API
@@ -38,7 +38,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
-    public let model: String?
+    package let model: String?
 
     /// Optional. Developer set [system
     ///
@@ -53,7 +53,7 @@ public extension GenerateContentAPI {
     /// Optional. The user provided system instructions for the model.
     /// Note: only text should be used in parts and content in each part will be in
     /// a separate paragraph.
-    public let systemInstruction: Content?
+    package let systemInstruction: Content?
 
     /// Required. The content of the current conversation with the model.
     ///
@@ -73,7 +73,7 @@ public extension GenerateContentAPI {
     /// For single-turn queries, this is a single instance. For multi-turn queries,
     /// this is a repeated field that contains conversation history + latest
     /// request.
-    public let contents: [Content]?
+    package let contents: [Content]?
 
     /// Optional. A list of `Tools` the `Model` may use to generate the next response.
     ///
@@ -96,7 +96,7 @@ public extension GenerateContentAPI {
     /// A `Tool` is a piece of code that enables the system to interact with
     /// external systems to perform an action, or set of actions, outside of
     /// knowledge and scope of the model.
-    public let tools: [Tool]?
+    package let tools: [Tool]?
 
     /// Optional. Tool configuration for any `Tool` specified in the request. Refer to the
     ///
@@ -110,7 +110,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// Optional. Tool config. This config is shared for all tools provided in the request.
-    public let toolConfig: ToolConfig?
+    package let toolConfig: ToolConfig?
 
     /// Optional. A list of unique `SafetySetting` instances for blocking unsafe content.
     ///
@@ -138,7 +138,7 @@ public extension GenerateContentAPI {
     ///
     /// Optional. Per request settings for blocking unsafe content.
     /// Enforced on GenerateContentResponse.candidates.
-    public let safetySettings: [SafetySetting]?
+    package let safetySettings: [SafetySetting]?
 
     /// Optional. Configuration options for model generation and outputs.
     ///
@@ -149,7 +149,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// Optional. Generation config.
-    public let generationConfig: GenerationConfig?
+    package let generationConfig: GenerationConfig?
 
     /// Optional. The name of the content
     ///
@@ -166,7 +166,7 @@ public extension GenerateContentAPI {
     /// caching (e.g. what content to cache) and enjoy guaranteed cost savings.
     /// Format:
     /// `projects/{project}/locations/{location}/cachedContents/{cachedContent}`
-    public let cachedContent: String?
+    package let cachedContent: String?
 
     /// Optional. The service tier of the request.
     ///
@@ -177,7 +177,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
-    public let serviceTier: ServiceTier?
+    package let serviceTier: ServiceTier?
 
     /// Optional. Configures the logging behavior for a given request. If set, it takes
     ///
@@ -189,7 +189,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
-    public let store: Bool?
+    package let store: Bool?
 
     /// Optional. The labels with user-defined metadata for the request. It is used for
     ///
@@ -206,7 +206,7 @@ public extension GenerateContentAPI {
     /// (Unicode codepoints) and can only contain lowercase letters, numeric
     /// characters, underscores, and dashes. International characters are allowed.
     /// Label values are optional. Label keys must start with a letter.
-    public let labels: [String: String]?
+    package let labels: [String: String]?
 
     /// Creates a new `GenerateContentRequest`.
     ///
@@ -233,17 +233,17 @@ public extension GenerateContentAPI {
     /// (Gemini Developer API only). For more details, see ``store``.
     ///   - labels: Optional. The labels with user-defined metadata for the request. It is used for
     /// (Gemini Enterprise Agent Platform only). For more details, see ``labels``.
-    public init(model: String?,
-                systemInstruction: Content? = nil,
-                contents: [Content]?,
-                tools: [Tool]? = nil,
-                toolConfig: ToolConfig? = nil,
-                safetySettings: [SafetySetting]? = nil,
-                generationConfig: GenerationConfig? = nil,
-                cachedContent: String? = nil,
-                serviceTier: ServiceTier? = nil,
-                store: Bool? = nil,
-                labels: [String: String]? = nil) {
+    package init(model: String?,
+                 systemInstruction: Content? = nil,
+                 contents: [Content]?,
+                 tools: [Tool]? = nil,
+                 toolConfig: ToolConfig? = nil,
+                 safetySettings: [SafetySetting]? = nil,
+                 generationConfig: GenerationConfig? = nil,
+                 cachedContent: String? = nil,
+                 serviceTier: ServiceTier? = nil,
+                 store: Bool? = nil,
+                 labels: [String: String]? = nil) {
       self.model = model
       self.systemInstruction = systemInstruction
       self.contents = contents

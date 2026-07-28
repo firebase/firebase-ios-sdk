@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI {
+package extension GenerateContentAPI {
   /// An internal data model for `TextResponseFormat`.
   ///
   /// ### Gemini Developer API
@@ -36,11 +36,11 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// Optional. The IANA standard MIME type of the response.
-    public let mimeType: MimeType?
+    package let mimeType: MimeType?
 
     /// Optional. The JSON schema that the output should conform to. Only applicable when
     /// mime_type is APPLICATION_JSON.
-    public let schema: ProtobufValue?
+    package let schema: ProtobufValue?
 
     /// Creates a new `TextResponseFormat`.
     ///
@@ -49,8 +49,8 @@ public extension GenerateContentAPI {
     /// more details, see ``mimeType``.
     ///   - schema: Optional. The JSON schema that the output should conform to. Only applicable
     /// when
-    public init(mimeType: MimeType? = nil,
-                schema: ProtobufValue? = nil) {
+    package init(mimeType: MimeType? = nil,
+                 schema: ProtobufValue? = nil) {
       self.mimeType = mimeType
       self.schema = schema
     }

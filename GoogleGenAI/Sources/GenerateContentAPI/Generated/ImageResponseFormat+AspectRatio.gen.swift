@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI.ImageResponseFormat {
+package extension GenerateContentAPI.ImageResponseFormat {
   /// Optional. The aspect ratio for the image output.
   enum AspectRatio: Codable, Sendable, Equatable, Hashable {
     /// 1:1 aspect ratio.
@@ -67,7 +67,7 @@ public extension GenerateContentAPI.ImageResponseFormat {
 // MARK: - RawRepresentable Conformance
 
 extension GenerateContentAPI.ImageResponseFormat.AspectRatio: RawRepresentable {
-  public var rawValue: String {
+  package var rawValue: String {
     switch self {
     case .oneByOne: "ASPECT_RATIO_ONE_BY_ONE"
     case .twoByThree: "ASPECT_RATIO_TWO_BY_THREE"
@@ -87,7 +87,7 @@ extension GenerateContentAPI.ImageResponseFormat.AspectRatio: RawRepresentable {
     }
   }
 
-  public init(rawValue: String) {
+  package init(rawValue: String) {
     switch rawValue {
     case "ASPECT_RATIO_ONE_BY_ONE": self = .oneByOne
     case "ASPECT_RATIO_TWO_BY_THREE": self = .twoByThree

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI {
+package extension GenerateContentAPI {
   /// An internal data model for `FileData`.
   ///
   /// ### Gemini Developer API
@@ -43,7 +43,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// Required. The IANA standard MIME type of the source data.
-    public let mimeType: String?
+    package let mimeType: String?
 
     /// Required. URI.
     ///
@@ -54,7 +54,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// Required. The URI of the file in Google Cloud Storage.
-    public let fileUri: String?
+    package let fileUri: String?
 
     /// Optional. The display name of the file. Used to provide a label or filename
     ///
@@ -70,7 +70,7 @@ public extension GenerateContentAPI {
     /// This field is only returned in `PromptMessage` for prompt management. It is
     /// used in the Gemini calls only when server side tools (`code_execution`,
     /// `google_search`, and `url_context`) are enabled.
-    public let displayName: String?
+    package let displayName: String?
 
     /// Creates a new `FileData`.
     ///
@@ -80,9 +80,9 @@ public extension GenerateContentAPI {
     ///   - fileUri: Required. URI. (behavior varies by backend). For more details, see ``fileUri``.
     ///   - displayName: Optional. The display name of the file. Used to provide a label or filename
     /// (Gemini Enterprise Agent Platform only). For more details, see ``displayName``.
-    public init(mimeType: String?,
-                fileUri: String?,
-                displayName: String? = nil) {
+    package init(mimeType: String?,
+                 fileUri: String?,
+                 displayName: String? = nil) {
       self.mimeType = mimeType
       self.fileUri = fileUri
       self.displayName = displayName

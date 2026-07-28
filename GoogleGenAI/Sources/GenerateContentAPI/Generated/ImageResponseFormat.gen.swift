@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI {
+package extension GenerateContentAPI {
   /// An internal data model for `ImageResponseFormat`.
   ///
   /// ### Gemini Developer API
@@ -28,7 +28,7 @@ public extension GenerateContentAPI {
   /// Configuration for image-specific output formatting.
   struct ImageResponseFormat: Codable, Sendable, Equatable, Hashable {
     /// Optional. The MIME type of the image output.
-    public let mimeType: MimeType?
+    package let mimeType: MimeType?
 
     /// Optional. The delivery mode for the image output.
     ///
@@ -39,13 +39,13 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// Optional. Delivery mode for the generated content.
-    public let delivery: Delivery?
+    package let delivery: Delivery?
 
     /// Optional. The aspect ratio for the image output.
-    public let aspectRatio: AspectRatio?
+    package let aspectRatio: AspectRatio?
 
     /// Optional. The size of the image output.
-    public let imageSize: ImageSize?
+    package let imageSize: ImageSize?
 
     /// Creates a new `ImageResponseFormat`.
     ///
@@ -55,10 +55,10 @@ public extension GenerateContentAPI {
     /// backend). For more details, see ``delivery``.
     ///   - aspectRatio: Optional. The aspect ratio for the image output.
     ///   - imageSize: Optional. The size of the image output.
-    public init(mimeType: MimeType? = nil,
-                delivery: Delivery? = nil,
-                aspectRatio: AspectRatio? = nil,
-                imageSize: ImageSize? = nil) {
+    package init(mimeType: MimeType? = nil,
+                 delivery: Delivery? = nil,
+                 aspectRatio: AspectRatio? = nil,
+                 imageSize: ImageSize? = nil) {
       self.mimeType = mimeType
       self.delivery = delivery
       self.aspectRatio = aspectRatio

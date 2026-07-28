@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI.PromptFeedback {
+package extension GenerateContentAPI.PromptFeedback {
   /// Optional. If set, the prompt was blocked and no candidates are returned.
   ///
   /// ### Gemini Developer API
@@ -51,7 +51,7 @@ public extension GenerateContentAPI.PromptFeedback {
 // MARK: - RawRepresentable Conformance
 
 extension GenerateContentAPI.PromptFeedback.BlockReason: RawRepresentable {
-  public var rawValue: String {
+  package var rawValue: String {
     switch self {
     case .safety: "SAFETY"
     case .other: "OTHER"
@@ -62,7 +62,7 @@ extension GenerateContentAPI.PromptFeedback.BlockReason: RawRepresentable {
     }
   }
 
-  public init(rawValue: String) {
+  package init(rawValue: String) {
     switch rawValue {
     case "SAFETY": self = .safety
     case "OTHER": self = .other

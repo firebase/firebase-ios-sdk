@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI {
+package extension GenerateContentAPI {
   /// An internal data model for `Modality`.
   ///
   /// ### Gemini Developer API
@@ -48,7 +48,7 @@ public extension GenerateContentAPI {
 // MARK: - RawRepresentable Conformance
 
 extension GenerateContentAPI.Modality: RawRepresentable {
-  public var rawValue: String {
+  package var rawValue: String {
     switch self {
     case .text: "TEXT"
     case .image: "IMAGE"
@@ -59,7 +59,7 @@ extension GenerateContentAPI.Modality: RawRepresentable {
     }
   }
 
-  public init(rawValue: String) {
+  package init(rawValue: String) {
     switch rawValue {
     case "TEXT": self = .text
     case "IMAGE": self = .image

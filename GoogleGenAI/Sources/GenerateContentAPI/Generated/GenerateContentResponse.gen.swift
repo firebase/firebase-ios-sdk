@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI {
+package extension GenerateContentAPI {
   /// An internal data model for `GenerateContentResponse`.
   ///
   /// ### Gemini Developer API
@@ -45,7 +45,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// Output only. Generated candidates.
-    public let candidates: [Candidate]?
+    package let candidates: [Candidate]?
 
     /// Returns the prompt's feedback related to the content filters.
     ///
@@ -58,7 +58,7 @@ public extension GenerateContentAPI {
     /// Output only. Content filter results for a prompt sent in the request.
     /// Note: Sent only in the first stream chunk.
     /// Only happens when no candidates were generated due to content violations.
-    public let promptFeedback: PromptFeedback?
+    package let promptFeedback: PromptFeedback?
 
     /// Output only. Metadata on the generation requests' token usage.
     ///
@@ -69,10 +69,10 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// Usage metadata about the response(s).
-    public let usageMetadata: UsageMetadata?
+    package let usageMetadata: UsageMetadata?
 
     /// Output only. The model version used to generate the response.
-    public let modelVersion: String?
+    package let modelVersion: String?
 
     /// Output only. response_id is used to identify each response.
     ///
@@ -84,7 +84,7 @@ public extension GenerateContentAPI {
     ///
     /// Output only. response_id is used to identify each response. It is the encoding of the
     /// event_id.
-    public let responseId: String?
+    package let responseId: String?
 
     /// Output only. The current model status of this model.
     ///
@@ -95,7 +95,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
-    public let modelStatus: ModelStatus?
+    package let modelStatus: ModelStatus?
 
     /// Output only. Timestamp when the request is made to the server.
     ///
@@ -106,7 +106,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// Output only. Timestamp when the request is made to the server.
-    public let createTime: String?
+    package let createTime: String?
 
     /// Creates a new `GenerateContentResponse`.
     ///
@@ -124,13 +124,13 @@ public extension GenerateContentAPI {
     /// only). For more details, see ``modelStatus``.
     ///   - createTime: Output only. Timestamp when the request is made to the server. (Gemini
     /// Enterprise Agent Platform only). For more details, see ``createTime``.
-    public init(candidates: [Candidate]? = nil,
-                promptFeedback: PromptFeedback? = nil,
-                usageMetadata: UsageMetadata? = nil,
-                modelVersion: String? = nil,
-                responseId: String? = nil,
-                modelStatus: ModelStatus? = nil,
-                createTime: String? = nil) {
+    package init(candidates: [Candidate]? = nil,
+                 promptFeedback: PromptFeedback? = nil,
+                 usageMetadata: UsageMetadata? = nil,
+                 modelVersion: String? = nil,
+                 responseId: String? = nil,
+                 modelStatus: ModelStatus? = nil,
+                 createTime: String? = nil) {
       self.candidates = candidates
       self.promptFeedback = promptFeedback
       self.usageMetadata = usageMetadata

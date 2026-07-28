@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI.Candidate {
+package extension GenerateContentAPI.Candidate {
   /// Optional. Output only. The reason why the model stopped generating tokens.
   ///
   /// ### Gemini Developer API
@@ -101,7 +101,7 @@ public extension GenerateContentAPI.Candidate {
 // MARK: - RawRepresentable Conformance
 
 extension GenerateContentAPI.Candidate.FinishReason: RawRepresentable {
-  public var rawValue: String {
+  package var rawValue: String {
     switch self {
     case .stop: "STOP"
     case .maxTokens: "MAX_TOKENS"
@@ -127,7 +127,7 @@ extension GenerateContentAPI.Candidate.FinishReason: RawRepresentable {
     }
   }
 
-  public init(rawValue: String) {
+  package init(rawValue: String) {
     switch rawValue {
     case "STOP": self = .stop
     case "MAX_TOKENS": self = .maxTokens

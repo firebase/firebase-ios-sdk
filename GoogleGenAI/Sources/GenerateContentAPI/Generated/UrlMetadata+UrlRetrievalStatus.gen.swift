@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI.UrlMetadata {
+package extension GenerateContentAPI.UrlMetadata {
   /// Status of the url retrieval.
   ///
   /// ### Gemini Developer API
@@ -45,7 +45,7 @@ public extension GenerateContentAPI.UrlMetadata {
 // MARK: - RawRepresentable Conformance
 
 extension GenerateContentAPI.UrlMetadata.UrlRetrievalStatus: RawRepresentable {
-  public var rawValue: String {
+  package var rawValue: String {
     switch self {
     case .success: "URL_RETRIEVAL_STATUS_SUCCESS"
     case .error: "URL_RETRIEVAL_STATUS_ERROR"
@@ -55,7 +55,7 @@ extension GenerateContentAPI.UrlMetadata.UrlRetrievalStatus: RawRepresentable {
     }
   }
 
-  public init(rawValue: String) {
+  package init(rawValue: String) {
     switch rawValue {
     case "URL_RETRIEVAL_STATUS_SUCCESS": self = .success
     case "URL_RETRIEVAL_STATUS_ERROR": self = .error

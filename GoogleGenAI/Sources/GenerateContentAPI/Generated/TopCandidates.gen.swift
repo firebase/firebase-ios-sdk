@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI {
+package extension GenerateContentAPI {
   /// An internal data model for `TopCandidates`.
   ///
   /// ### Gemini Developer API
@@ -39,14 +39,14 @@ public extension GenerateContentAPI {
     ///
     /// The list of candidate tokens, sorted by log probability in
     /// descending order.
-    public let candidates: [LogprobsResultCandidate]?
+    package let candidates: [LogprobsResultCandidate]?
 
     /// Creates a new `TopCandidates`.
     ///
     /// - Parameters:
     ///   - candidates: Sorted by log probability in descending order. (behavior varies by backend).
     /// For more details, see ``candidates``.
-    public init(candidates: [LogprobsResultCandidate]? = nil) {
+    package init(candidates: [LogprobsResultCandidate]? = nil) {
       self.candidates = candidates
     }
 

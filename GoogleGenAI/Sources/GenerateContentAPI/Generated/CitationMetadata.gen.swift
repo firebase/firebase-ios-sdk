@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI {
+package extension GenerateContentAPI {
   /// An internal data model for `CitationMetadata`.
   ///
   /// ### Gemini Developer API
@@ -36,7 +36,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
-    public let citationSources: [Citation]?
+    package let citationSources: [Citation]?
 
     /// Output only. A list of citations for the content.
     ///
@@ -47,7 +47,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// Output only. A list of citations for the content.
-    public let citations: [Citation]?
+    package let citations: [Citation]?
 
     /// Creates a new `CitationMetadata`.
     ///
@@ -56,8 +56,8 @@ public extension GenerateContentAPI {
     /// only). For more details, see ``citationSources``.
     ///   - citations: Output only. A list of citations for the content. (Gemini Enterprise Agent
     /// Platform only). For more details, see ``citations``.
-    public init(citationSources: [Citation]? = nil,
-                citations: [Citation]? = nil) {
+    package init(citationSources: [Citation]? = nil,
+                 citations: [Citation]? = nil) {
       self.citationSources = citationSources
       self.citations = citations
     }

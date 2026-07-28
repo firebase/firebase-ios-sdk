@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI {
+package extension GenerateContentAPI {
   /// An internal data model for `ModelStatus`.
   ///
   /// ### Gemini Developer API
@@ -35,7 +35,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
-    public let retirementTime: String?
+    package let retirementTime: String?
 
     /// A message explaining the model status.
     ///
@@ -46,7 +46,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
-    public let message: String?
+    package let message: String?
 
     /// Creates a new `ModelStatus`.
     ///
@@ -55,8 +55,8 @@ public extension GenerateContentAPI {
     /// only). For more details, see ``retirementTime``.
     ///   - message: A message explaining the model status. (Gemini Developer API only). For more
     /// details, see ``message``.
-    public init(retirementTime: String? = nil,
-                message: String? = nil) {
+    package init(retirementTime: String? = nil,
+                 message: String? = nil) {
       self.retirementTime = retirementTime
       self.message = message
     }

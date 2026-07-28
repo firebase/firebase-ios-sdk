@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI {
+package extension GenerateContentAPI {
   /// An internal data model for `SpeakerVoiceConfig`.
   ///
   /// ### Gemini Developer API
@@ -37,7 +37,7 @@ public extension GenerateContentAPI {
     ///
     /// Required. The name of the speaker. This should be the same as the speaker
     /// name used in the prompt.
-    public let speaker: String?
+    package let speaker: String?
 
     /// Required. The configuration for the voice to use.
     ///
@@ -48,7 +48,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// Required. The configuration for the voice of this speaker.
-    public let voiceConfig: VoiceConfig?
+    package let voiceConfig: VoiceConfig?
 
     /// Creates a new `SpeakerVoiceConfig`.
     ///
@@ -57,8 +57,8 @@ public extension GenerateContentAPI {
     /// (behavior varies by backend). For more details, see ``speaker``.
     ///   - voiceConfig: Required. The configuration for the voice to use. (behavior varies by
     /// backend). For more details, see ``voiceConfig``.
-    public init(speaker: String?,
-                voiceConfig: VoiceConfig?) {
+    package init(speaker: String?,
+                 voiceConfig: VoiceConfig?) {
       self.speaker = speaker
       self.voiceConfig = voiceConfig
     }

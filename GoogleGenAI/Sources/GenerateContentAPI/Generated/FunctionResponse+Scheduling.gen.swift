@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI.FunctionResponse {
+package extension GenerateContentAPI.FunctionResponse {
   /// Optional. Specifies how the response should be scheduled in the conversation.
   /// Only applicable to NON_BLOCKING function calls, is ignored otherwise.
   /// Defaults to WHEN_IDLE.
@@ -39,7 +39,7 @@ public extension GenerateContentAPI.FunctionResponse {
 // MARK: - RawRepresentable Conformance
 
 extension GenerateContentAPI.FunctionResponse.Scheduling: RawRepresentable {
-  public var rawValue: String {
+  package var rawValue: String {
     switch self {
     case .silent: "SILENT"
     case .whenIdle: "WHEN_IDLE"
@@ -48,7 +48,7 @@ extension GenerateContentAPI.FunctionResponse.Scheduling: RawRepresentable {
     }
   }
 
-  public init(rawValue: String) {
+  package init(rawValue: String) {
     switch rawValue {
     case "SILENT": self = .silent
     case "WHEN_IDLE": self = .whenIdle

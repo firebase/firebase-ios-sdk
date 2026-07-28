@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI {
+package extension GenerateContentAPI {
   /// An internal data model for `UrlContextMetadata`.
   ///
   /// ### Gemini Developer API
@@ -38,14 +38,14 @@ public extension GenerateContentAPI {
     ///
     /// Output only. A list of URL metadata, with one entry for each URL
     /// retrieved by the tool.
-    public let urlMetadata: [UrlMetadata]?
+    package let urlMetadata: [UrlMetadata]?
 
     /// Creates a new `UrlContextMetadata`.
     ///
     /// - Parameters:
     ///   - urlMetadata: List of url context. (behavior varies by backend). For more details, see
     /// ``urlMetadata``.
-    public init(urlMetadata: [UrlMetadata]? = nil) {
+    package init(urlMetadata: [UrlMetadata]? = nil) {
       self.urlMetadata = urlMetadata
     }
 

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI.CodeExecutionResult {
+package extension GenerateContentAPI.CodeExecutionResult {
   /// Required. Outcome of the code execution.
   ///
   /// ### Gemini Developer API
@@ -46,7 +46,7 @@ public extension GenerateContentAPI.CodeExecutionResult {
 // MARK: - RawRepresentable Conformance
 
 extension GenerateContentAPI.CodeExecutionResult.Outcome: RawRepresentable {
-  public var rawValue: String {
+  package var rawValue: String {
     switch self {
     case .ok: "OUTCOME_OK"
     case .failed: "OUTCOME_FAILED"
@@ -55,7 +55,7 @@ extension GenerateContentAPI.CodeExecutionResult.Outcome: RawRepresentable {
     }
   }
 
-  public init(rawValue: String) {
+  package init(rawValue: String) {
     switch rawValue {
     case "OUTCOME_OK": self = .ok
     case "OUTCOME_FAILED": self = .failed

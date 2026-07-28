@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI {
+package extension GenerateContentAPI {
   /// An internal data model for `FunctionCallingConfig`.
   ///
   /// ### Gemini Developer API
@@ -37,7 +37,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// Optional. Function calling mode.
-    public let mode: Mode?
+    package let mode: Mode?
 
     /// Optional. A set of function names that, when provided, limits the functions the model
     ///
@@ -55,7 +55,7 @@ public extension GenerateContentAPI {
     /// Optional. Function names to call. Only set when the Mode is ANY. Function names
     /// should match FunctionDeclaration.name. With mode set to ANY, model will
     /// predict a function call from the set of function names provided.
-    public let allowedFunctionNames: [String]?
+    package let allowedFunctionNames: [String]?
 
     /// Optional. When set to true, arguments of a single function call will be streamed out
     ///
@@ -68,7 +68,7 @@ public extension GenerateContentAPI {
     /// Optional. When set to true, arguments of a single function call will be streamed out
     /// in multiple parts/contents/responses. Partial parameter results will be
     /// returned in the `FunctionCall.partial_args` field.
-    public let streamFunctionCallArguments: Bool?
+    package let streamFunctionCallArguments: Bool?
 
     /// Creates a new `FunctionCallingConfig`.
     ///
@@ -81,9 +81,9 @@ public extension GenerateContentAPI {
     ///   - streamFunctionCallArguments: Optional. When set to true, arguments of a single function
     /// call will be streamed out (Gemini Enterprise Agent Platform only). For more details, see
     /// ``streamFunctionCallArguments``.
-    public init(mode: Mode? = nil,
-                allowedFunctionNames: [String]? = nil,
-                streamFunctionCallArguments: Bool? = nil) {
+    package init(mode: Mode? = nil,
+                 allowedFunctionNames: [String]? = nil,
+                 streamFunctionCallArguments: Bool? = nil) {
       self.mode = mode
       self.allowedFunctionNames = allowedFunctionNames
       self.streamFunctionCallArguments = streamFunctionCallArguments

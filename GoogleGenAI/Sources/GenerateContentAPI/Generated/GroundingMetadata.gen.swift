@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI {
+package extension GenerateContentAPI {
   /// An internal data model for `GroundingMetadata`.
   ///
   /// ### Gemini Developer API
@@ -41,7 +41,7 @@ public extension GenerateContentAPI {
     /// Optional. A web search entry point that can be used to display search
     /// results. This field is populated only when the grounding source is Google
     /// Search.
-    public let searchEntryPoint: SearchEntryPoint?
+    package let searchEntryPoint: SearchEntryPoint?
 
     /// List of supporting references retrieved from specified grounding source.
     ///
@@ -56,7 +56,7 @@ public extension GenerateContentAPI {
     /// A list of supporting references retrieved from the grounding source.
     /// This field is populated when the grounding source is Google Search,
     /// Vertex AI Search, or Google Maps.
-    public let groundingChunks: [GroundingChunk]?
+    package let groundingChunks: [GroundingChunk]?
 
     /// List of grounding support.
     ///
@@ -69,7 +69,7 @@ public extension GenerateContentAPI {
     /// Optional. A list of grounding supports that connect the generated
     /// content to the grounding chunks. This field is populated when the grounding
     /// source is Google Search or Vertex AI Search.
-    public let groundingSupports: [GroundingSupport]?
+    package let groundingSupports: [GroundingSupport]?
 
     /// Metadata related to retrieval in the grounding flow.
     ///
@@ -80,7 +80,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// Optional. Output only. Metadata related to the retrieval grounding source.
-    public let retrievalMetadata: RetrievalMetadata?
+    package let retrievalMetadata: RetrievalMetadata?
 
     /// Web search queries for the following-up web search.
     ///
@@ -92,7 +92,7 @@ public extension GenerateContentAPI {
     ///
     /// Optional. The web search queries that were used to generate the content.
     /// This field is populated only when the grounding source is Google Search.
-    public let webSearchQueries: [String]?
+    package let webSearchQueries: [String]?
 
     /// Image search queries used for grounding.
     ///
@@ -105,7 +105,7 @@ public extension GenerateContentAPI {
     /// Optional. The image search queries that were used to generate the content.
     /// This field is populated only when the grounding source is Google Search
     /// with the Image Search search_type enabled.
-    public let imageSearchQueries: [String]?
+    package let imageSearchQueries: [String]?
 
     /// Optional. Resource name of the Google Maps widget context token that can be used
     ///
@@ -125,7 +125,7 @@ public extension GenerateContentAPI {
     /// A token that can be used to render a Google Maps widget with
     /// the contextual data. This field is populated only when the grounding
     /// source is Google Maps.
-    public let googleMapsWidgetContextToken: String?
+    package let googleMapsWidgetContextToken: String?
 
     /// Optional. The queries that were executed by the retrieval tools.
     ///
@@ -138,7 +138,7 @@ public extension GenerateContentAPI {
     /// Optional. The queries that were executed by the retrieval tools.
     /// This field is populated only when the grounding source is a retrieval tool,
     /// such as Vertex AI Search.
-    public let retrievalQueries: [String]?
+    package let retrievalQueries: [String]?
 
     /// Optional. Output only. A list of URIs that can be used to flag a place or review for
     ///
@@ -151,7 +151,7 @@ public extension GenerateContentAPI {
     /// Optional. Output only. A list of URIs that can be used to flag a place or review for
     /// inappropriate content. This field is populated only when the grounding
     /// source is Google Maps.
-    public let sourceFlaggingUris: [GroundingMetadataSourceFlaggingUri]?
+    package let sourceFlaggingUris: [GroundingMetadataSourceFlaggingUri]?
 
     /// Creates a new `GroundingMetadata`.
     ///
@@ -176,15 +176,15 @@ public extension GenerateContentAPI {
     ///   - sourceFlaggingUris: Optional. Output only. A list of URIs that can be used to flag a
     /// place or review for (Gemini Enterprise Agent Platform only). For more details, see
     /// ``sourceFlaggingUris``.
-    public init(searchEntryPoint: SearchEntryPoint? = nil,
-                groundingChunks: [GroundingChunk]? = nil,
-                groundingSupports: [GroundingSupport]? = nil,
-                retrievalMetadata: RetrievalMetadata? = nil,
-                webSearchQueries: [String]? = nil,
-                imageSearchQueries: [String]? = nil,
-                googleMapsWidgetContextToken: String? = nil,
-                retrievalQueries: [String]? = nil,
-                sourceFlaggingUris: [GroundingMetadataSourceFlaggingUri]? = nil) {
+    package init(searchEntryPoint: SearchEntryPoint? = nil,
+                 groundingChunks: [GroundingChunk]? = nil,
+                 groundingSupports: [GroundingSupport]? = nil,
+                 retrievalMetadata: RetrievalMetadata? = nil,
+                 webSearchQueries: [String]? = nil,
+                 imageSearchQueries: [String]? = nil,
+                 googleMapsWidgetContextToken: String? = nil,
+                 retrievalQueries: [String]? = nil,
+                 sourceFlaggingUris: [GroundingMetadataSourceFlaggingUri]? = nil) {
       self.searchEntryPoint = searchEntryPoint
       self.groundingChunks = groundingChunks
       self.groundingSupports = groundingSupports

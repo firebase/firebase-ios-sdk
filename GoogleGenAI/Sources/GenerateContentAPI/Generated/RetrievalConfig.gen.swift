@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI {
+package extension GenerateContentAPI {
   /// An internal data model for `RetrievalConfig`.
   ///
   /// ### Gemini Developer API
@@ -36,7 +36,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// The location of the user.
-    public let latLng: LatLng?
+    package let latLng: LatLng?
 
     /// Optional. The language code of the user.
     ///
@@ -47,7 +47,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// The language code of the user.
-    public let languageCode: String?
+    package let languageCode: String?
 
     /// Creates a new `RetrievalConfig`.
     ///
@@ -56,8 +56,8 @@ public extension GenerateContentAPI {
     /// details, see ``latLng``.
     ///   - languageCode: Optional. The language code of the user. (behavior varies by backend). For
     /// more details, see ``languageCode``.
-    public init(latLng: LatLng? = nil,
-                languageCode: String? = nil) {
+    package init(latLng: LatLng? = nil,
+                 languageCode: String? = nil) {
       self.latLng = latLng
       self.languageCode = languageCode
     }

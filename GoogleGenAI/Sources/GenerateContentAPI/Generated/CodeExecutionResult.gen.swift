@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI {
+package extension GenerateContentAPI {
   /// An internal data model for `CodeExecutionResult`.
   ///
   /// ### Gemini Developer API
@@ -41,7 +41,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// Required. Outcome of the code execution.
-    public let outcome: Outcome?
+    package let outcome: Outcome?
 
     /// Optional. Contains stdout when code execution is successful; stderr or other
     ///
@@ -54,7 +54,7 @@ public extension GenerateContentAPI {
     ///
     /// Optional. Contains stdout when code execution is successful, stderr or other
     /// description otherwise.
-    public let output: String?
+    package let output: String?
 
     /// Optional. The identifier of the `ExecutableCode` part this result is for.
     ///
@@ -66,7 +66,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
-    public let id: String?
+    package let id: String?
 
     /// Creates a new `CodeExecutionResult`.
     ///
@@ -77,9 +77,9 @@ public extension GenerateContentAPI {
     /// (behavior varies by backend). For more details, see ``output``.
     ///   - id: Optional. The identifier of the `ExecutableCode` part this result is for. (Gemini
     /// Developer API only). For more details, see ``id``.
-    public init(outcome: Outcome?,
-                output: String? = nil,
-                id: String? = nil) {
+    package init(outcome: Outcome?,
+                 output: String? = nil,
+                 id: String? = nil) {
       self.outcome = outcome
       self.output = output
       self.id = id

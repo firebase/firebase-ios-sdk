@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI {
+package extension GenerateContentAPI {
   /// An internal data model for `UrlMetadata`.
   ///
   /// ### Gemini Developer API
@@ -36,7 +36,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// The URL retrieved by the tool.
-    public let retrievedUrl: String?
+    package let retrievedUrl: String?
 
     /// Status of the url retrieval.
     ///
@@ -47,7 +47,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// The status of the URL retrieval.
-    public let urlRetrievalStatus: UrlRetrievalStatus?
+    package let urlRetrievalStatus: UrlRetrievalStatus?
 
     /// Creates a new `UrlMetadata`.
     ///
@@ -56,8 +56,8 @@ public extension GenerateContentAPI {
     /// see ``retrievedUrl``.
     ///   - urlRetrievalStatus: Status of the url retrieval. (behavior varies by backend). For more
     /// details, see ``urlRetrievalStatus``.
-    public init(retrievedUrl: String? = nil,
-                urlRetrievalStatus: UrlRetrievalStatus? = nil) {
+    package init(retrievedUrl: String? = nil,
+                 urlRetrievalStatus: UrlRetrievalStatus? = nil) {
       self.retrievedUrl = retrievedUrl
       self.urlRetrievalStatus = urlRetrievalStatus
     }

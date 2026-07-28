@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI.VideoResponseFormat {
+package extension GenerateContentAPI.VideoResponseFormat {
   /// Optional. Delivery mode for the generated content.
   ///
   /// ### Gemini Developer API
@@ -39,7 +39,7 @@ public extension GenerateContentAPI.VideoResponseFormat {
 // MARK: - RawRepresentable Conformance
 
 extension GenerateContentAPI.VideoResponseFormat.Delivery: RawRepresentable {
-  public var rawValue: String {
+  package var rawValue: String {
     switch self {
     case .inline: "INLINE"
     case .uri: "URI"
@@ -47,7 +47,7 @@ extension GenerateContentAPI.VideoResponseFormat.Delivery: RawRepresentable {
     }
   }
 
-  public init(rawValue: String) {
+  package init(rawValue: String) {
     switch rawValue {
     case "INLINE": self = .inline
     case "URI": self = .uri

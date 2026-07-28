@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI {
+package extension GenerateContentAPI {
   /// An internal data model for `ToolResponse`.
   ///
   /// ### Gemini Developer API
@@ -38,7 +38,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
-    public let id: String?
+    package let id: String?
 
     /// Required. The type of tool that was called, matching the `tool_type` in the
     ///
@@ -50,7 +50,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
-    public let toolType: ToolType?
+    package let toolType: ToolType?
 
     /// Optional. The tool response.
     ///
@@ -61,7 +61,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
-    public let response: [String: ProtobufValue]?
+    package let response: [String: ProtobufValue]?
 
     /// Creates a new `ToolResponse`.
     ///
@@ -72,9 +72,9 @@ public extension GenerateContentAPI {
     /// (Gemini Developer API only). For more details, see ``toolType``.
     ///   - response: Optional. The tool response. (Gemini Developer API only). For more details,
     /// see ``response``.
-    public init(id: String? = nil,
-                toolType: ToolType?,
-                response: [String: ProtobufValue]? = nil) {
+    package init(id: String? = nil,
+                 toolType: ToolType?,
+                 response: [String: ProtobufValue]? = nil) {
       self.id = id
       self.toolType = toolType
       self.response = response

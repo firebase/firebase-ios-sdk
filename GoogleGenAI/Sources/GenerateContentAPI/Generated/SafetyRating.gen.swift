@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI {
+package extension GenerateContentAPI {
   /// An internal data model for `SafetyRating`.
   ///
   /// ### Gemini Developer API
@@ -44,7 +44,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// Output only. The harm category of this rating.
-    public let category: HarmCategory?
+    package let category: HarmCategory?
 
     /// Required. The probability of harm for this content.
     ///
@@ -55,7 +55,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// Output only. The probability of harm for this category.
-    public let probability: Probability?
+    package let probability: Probability?
 
     /// Was this content blocked because of this rating?
     ///
@@ -67,7 +67,7 @@ public extension GenerateContentAPI {
     ///
     /// Output only. Indicates whether the content was blocked because of this
     /// rating.
-    public let blocked: Bool?
+    package let blocked: Bool?
 
     /// Output only. The probability score of harm for this category.
     ///
@@ -78,7 +78,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// Output only. The probability score of harm for this category.
-    public let probabilityScore: Double?
+    package let probabilityScore: Double?
 
     /// Output only. The severity of harm for this category.
     ///
@@ -89,7 +89,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// Output only. The severity of harm for this category.
-    public let severity: Severity?
+    package let severity: Severity?
 
     /// Output only. The severity score of harm for this category.
     ///
@@ -100,7 +100,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// Output only. The severity score of harm for this category.
-    public let severityScore: Double?
+    package let severityScore: Double?
 
     /// Output only. The overwritten threshold for the safety category of
     ///
@@ -114,7 +114,7 @@ public extension GenerateContentAPI {
     /// Gemini 2.0 image out. If minors are detected in the output image, the
     /// threshold of each safety category will be overwritten if user sets a lower
     /// threshold.
-    public let overwrittenThreshold: OverwrittenThreshold?
+    package let overwrittenThreshold: OverwrittenThreshold?
 
     /// Creates a new `SafetyRating`.
     ///
@@ -133,13 +133,13 @@ public extension GenerateContentAPI {
     /// Enterprise Agent Platform only). For more details, see ``severityScore``.
     ///   - overwrittenThreshold: Output only. The overwritten threshold for the safety category of
     /// (Gemini Enterprise Agent Platform only). For more details, see ``overwrittenThreshold``.
-    public init(category: HarmCategory? = nil,
-                probability: Probability? = nil,
-                blocked: Bool? = nil,
-                probabilityScore: Double? = nil,
-                severity: Severity? = nil,
-                severityScore: Double? = nil,
-                overwrittenThreshold: OverwrittenThreshold? = nil) {
+    package init(category: HarmCategory? = nil,
+                 probability: Probability? = nil,
+                 blocked: Bool? = nil,
+                 probabilityScore: Double? = nil,
+                 severity: Severity? = nil,
+                 severityScore: Double? = nil,
+                 overwrittenThreshold: OverwrittenThreshold? = nil) {
       self.category = category
       self.probability = probability
       self.blocked = blocked

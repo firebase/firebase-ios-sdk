@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI {
+package extension GenerateContentAPI {
   /// An internal data model for `SpeechConfig`.
   ///
   /// ### Gemini Developer API
@@ -36,7 +36,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// The configuration for the voice to use.
-    public let voiceConfig: VoiceConfig?
+    package let voiceConfig: VoiceConfig?
 
     /// Optional. The configuration for the multi-speaker setup.
     ///
@@ -49,7 +49,7 @@ public extension GenerateContentAPI {
     ///
     /// The configuration for a multi-speaker text-to-speech request.
     /// This field is mutually exclusive with `voice_config`.
-    public let multiSpeakerVoiceConfig: MultiSpeakerVoiceConfig?
+    package let multiSpeakerVoiceConfig: MultiSpeakerVoiceConfig?
 
     /// Optional. The IETF [BCP-47](https://www.rfc-editor.org/rfc/bcp/bcp47.txt) language
     ///
@@ -68,7 +68,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// Optional. The language code (ISO 639-1) for the speech synthesis.
-    public let languageCode: String?
+    package let languageCode: String?
 
     /// Creates a new `SpeechConfig`.
     ///
@@ -79,9 +79,9 @@ public extension GenerateContentAPI {
     /// (behavior varies by backend). For more details, see ``multiSpeakerVoiceConfig``.
     ///   - languageCode: Optional. The IETF [BCP-47](https://www.rfc-editor.org/rfc/bcp/bcp47.txt)
     /// language (behavior varies by backend). For more details, see ``languageCode``.
-    public init(voiceConfig: VoiceConfig? = nil,
-                multiSpeakerVoiceConfig: MultiSpeakerVoiceConfig? = nil,
-                languageCode: String? = nil) {
+    package init(voiceConfig: VoiceConfig? = nil,
+                 multiSpeakerVoiceConfig: MultiSpeakerVoiceConfig? = nil,
+                 languageCode: String? = nil) {
       self.voiceConfig = voiceConfig
       self.multiSpeakerVoiceConfig = multiSpeakerVoiceConfig
       self.languageCode = languageCode

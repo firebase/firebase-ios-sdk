@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI {
+package extension GenerateContentAPI {
   /// An internal data model for `FunctionResponse`.
   ///
   /// ### Gemini Developer API
@@ -43,7 +43,7 @@ public extension GenerateContentAPI {
     ///
     /// Optional. The id of the function call this response is for. Populated by the client
     /// to match the corresponding function call `id`.
-    public let id: String?
+    package let id: String?
 
     /// Required. The name of the function.
     ///
@@ -55,7 +55,7 @@ public extension GenerateContentAPI {
     ///
     /// Required. The name of the function to call.
     /// Matches FunctionDeclaration.name and FunctionCall.name.
-    public let name: String?
+    package let name: String?
 
     /// Optional. The results of the function invocation.
     ///
@@ -69,7 +69,7 @@ public extension GenerateContentAPI {
     /// Use "output" key to specify function output and "error" key to specify
     /// error details (if any). If "output" and "error" keys are not specified,
     /// then whole "response" is treated as function output.
-    public let response: [String: ProtobufValue]?
+    package let response: [String: ProtobufValue]?
 
     /// Optional. Signals that function call continues, and more responses will be
     ///
@@ -87,12 +87,12 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
-    public let willContinue: Bool?
+    package let willContinue: Bool?
 
     /// Optional. Specifies how the response should be scheduled in the conversation.
     /// Only applicable to NON_BLOCKING function calls, is ignored otherwise.
     /// Defaults to WHEN_IDLE.
-    public let scheduling: Scheduling?
+    package let scheduling: Scheduling?
 
     /// Creates a new `FunctionResponse`.
     ///
@@ -107,11 +107,11 @@ public extension GenerateContentAPI {
     /// (Gemini Developer API only). For more details, see ``willContinue``.
     ///   - scheduling: Optional. Specifies how the response should be scheduled in the
     /// conversation.
-    public init(id: String? = nil,
-                name: String?,
-                response: [String: ProtobufValue]? = nil,
-                willContinue: Bool? = nil,
-                scheduling: Scheduling? = nil) {
+    package init(id: String? = nil,
+                 name: String?,
+                 response: [String: ProtobufValue]? = nil,
+                 willContinue: Bool? = nil,
+                 scheduling: Scheduling? = nil) {
       self.id = id
       self.name = name
       self.response = response

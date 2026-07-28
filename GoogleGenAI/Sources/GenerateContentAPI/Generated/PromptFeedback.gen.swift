@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI {
+package extension GenerateContentAPI {
   /// An internal data model for `PromptFeedback`.
   ///
   /// ### Gemini Developer API
@@ -40,7 +40,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// Output only. The reason why the prompt was blocked.
-    public let blockReason: BlockReason?
+    package let blockReason: BlockReason?
 
     /// Ratings for safety of the prompt.
     ///
@@ -53,7 +53,7 @@ public extension GenerateContentAPI {
     ///
     /// Output only. A list of safety ratings for the prompt. There is one rating per
     /// category.
-    public let safetyRatings: [SafetyRating]?
+    package let safetyRatings: [SafetyRating]?
 
     /// Output only. A readable message that explains the reason why the prompt was
     ///
@@ -65,7 +65,7 @@ public extension GenerateContentAPI {
     ///
     /// Output only. A readable message that explains the reason why the prompt was
     /// blocked.
-    public let blockReasonMessage: String?
+    package let blockReasonMessage: String?
 
     /// Creates a new `PromptFeedback`.
     ///
@@ -77,9 +77,9 @@ public extension GenerateContentAPI {
     ///   - blockReasonMessage: Output only. A readable message that explains the reason why the
     /// prompt was (Gemini Enterprise Agent Platform only). For more details, see
     /// ``blockReasonMessage``.
-    public init(blockReason: BlockReason? = nil,
-                safetyRatings: [SafetyRating]? = nil,
-                blockReasonMessage: String? = nil) {
+    package init(blockReason: BlockReason? = nil,
+                 safetyRatings: [SafetyRating]? = nil,
+                 blockReasonMessage: String? = nil) {
       self.blockReason = blockReason
       self.safetyRatings = safetyRatings
       self.blockReasonMessage = blockReasonMessage

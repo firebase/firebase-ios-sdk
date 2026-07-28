@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI {
+package extension GenerateContentAPI {
   /// An internal data model for `LogprobsResult`.
   ///
   /// ### Gemini Developer API
@@ -43,7 +43,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
-    public let logProbabilitySum: Double?
+    package let logProbabilitySum: Double?
 
     /// Length = total number of decoding steps.
     ///
@@ -55,7 +55,7 @@ public extension GenerateContentAPI {
     ///
     /// A list of the top candidate tokens at each decoding step. The
     /// length of this list is equal to the total number of decoding steps.
-    public let topCandidates: [TopCandidates]?
+    package let topCandidates: [TopCandidates]?
 
     /// Length = total number of decoding steps.
     ///
@@ -69,7 +69,7 @@ public extension GenerateContentAPI {
     /// A list of the chosen candidate tokens at each decoding step.
     /// The length of this list is equal to the total number of decoding steps.
     /// Note that the chosen candidate might not be in `top_candidates`.
-    public let chosenCandidates: [LogprobsResultCandidate]?
+    package let chosenCandidates: [LogprobsResultCandidate]?
 
     /// Creates a new `LogprobsResult`.
     ///
@@ -80,9 +80,9 @@ public extension GenerateContentAPI {
     /// For more details, see ``topCandidates``.
     ///   - chosenCandidates: Length = total number of decoding steps. (behavior varies by backend).
     /// For more details, see ``chosenCandidates``.
-    public init(logProbabilitySum: Double? = nil,
-                topCandidates: [TopCandidates]? = nil,
-                chosenCandidates: [LogprobsResultCandidate]? = nil) {
+    package init(logProbabilitySum: Double? = nil,
+                 topCandidates: [TopCandidates]? = nil,
+                 chosenCandidates: [LogprobsResultCandidate]? = nil) {
       self.logProbabilitySum = logProbabilitySum
       self.topCandidates = topCandidates
       self.chosenCandidates = chosenCandidates

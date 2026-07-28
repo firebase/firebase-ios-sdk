@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI.Part {
+package extension GenerateContentAPI.Part {
   /// An internal data model for `Part.MediaResolution`.
   ///
   /// ### Gemini Developer API
@@ -38,14 +38,14 @@ public extension GenerateContentAPI.Part {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// The tokenization quality used for given media.
-    public let level: Level?
+    package let level: Level?
 
     /// Creates a new `MediaResolution`.
     ///
     /// - Parameters:
     ///   - level: The tokenization quality used for given media. (behavior varies by backend). For
     /// more details, see ``level``.
-    public init(level: Level? = nil) {
+    package init(level: Level? = nil) {
       self.level = level
     }
 

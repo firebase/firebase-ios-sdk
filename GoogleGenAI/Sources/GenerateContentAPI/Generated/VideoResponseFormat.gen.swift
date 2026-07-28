@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI {
+package extension GenerateContentAPI {
   /// An internal data model for `VideoResponseFormat`.
   ///
   /// ### Gemini Developer API
@@ -34,7 +34,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// Optional. Delivery mode for the generated content.
-    public let delivery: Delivery?
+    package let delivery: Delivery?
 
     /// Optional. The Google Cloud Storage URI to store the video output. Required for Vertex
     ///
@@ -46,7 +46,7 @@ public extension GenerateContentAPI {
     ///
     /// Optional. The Google Cloud Storage URI to store the video output. Required for Vertex
     /// if delivery is URI.
-    public let gcsUri: String?
+    package let gcsUri: String?
 
     /// The aspect ratio for the video output.
     ///
@@ -57,7 +57,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// The aspect ratio for the video output.
-    public let aspectRatio: AspectRatio?
+    package let aspectRatio: AspectRatio?
 
     /// Optional. The duration for the video output.
     ///
@@ -68,7 +68,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// Optional. The duration for the video output.
-    public let duration: ProtobufDuration?
+    package let duration: ProtobufDuration?
 
     /// Creates a new `VideoResponseFormat`.
     ///
@@ -81,10 +81,10 @@ public extension GenerateContentAPI {
     /// only). For more details, see ``aspectRatio``.
     ///   - duration: Optional. The duration for the video output. (Gemini Enterprise Agent Platform
     /// only). For more details, see ``duration``.
-    public init(delivery: Delivery? = nil,
-                gcsUri: String? = nil,
-                aspectRatio: AspectRatio? = nil,
-                duration: ProtobufDuration? = nil) {
+    package init(delivery: Delivery? = nil,
+                 gcsUri: String? = nil,
+                 aspectRatio: AspectRatio? = nil,
+                 duration: ProtobufDuration? = nil) {
       self.delivery = delivery
       self.gcsUri = gcsUri
       self.aspectRatio = aspectRatio

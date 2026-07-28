@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI {
+package extension GenerateContentAPI {
   /// An internal data model for `ThinkingConfig`.
   ///
   /// ### Gemini Developer API
@@ -46,7 +46,7 @@ public extension GenerateContentAPI {
     /// response. They can provide insights into the model's reasoning process
     /// and help with debugging. If this is true, thoughts are returned only when
     /// available.
-    public let includeThoughts: Bool?
+    package let includeThoughts: Bool?
 
     /// The number of thoughts tokens that the model should generate.
     ///
@@ -59,7 +59,7 @@ public extension GenerateContentAPI {
     /// Optional. The token budget for the model's thinking process. The model will make a
     /// best effort to stay within this budget. This can be used to control the
     /// trade-off between response quality and latency.
-    public let thinkingBudget: Int?
+    package let thinkingBudget: Int?
 
     /// Optional. Controls the maximum depth of the model's internal reasoning process before
     ///
@@ -75,7 +75,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// Optional. The number of thoughts tokens that the model should generate.
-    public let thinkingLevel: ThinkingLevel?
+    package let thinkingLevel: ThinkingLevel?
 
     /// Creates a new `ThinkingConfig`.
     ///
@@ -86,9 +86,9 @@ public extension GenerateContentAPI {
     /// varies by backend). For more details, see ``thinkingBudget``.
     ///   - thinkingLevel: Optional. Controls the maximum depth of the model's internal reasoning
     /// process before (behavior varies by backend). For more details, see ``thinkingLevel``.
-    public init(includeThoughts: Bool? = nil,
-                thinkingBudget: Int? = nil,
-                thinkingLevel: ThinkingLevel? = nil) {
+    package init(includeThoughts: Bool? = nil,
+                 thinkingBudget: Int? = nil,
+                 thinkingLevel: ThinkingLevel? = nil) {
       self.includeThoughts = includeThoughts
       self.thinkingBudget = thinkingBudget
       self.thinkingLevel = thinkingLevel

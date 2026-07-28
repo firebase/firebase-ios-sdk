@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI {
+package extension GenerateContentAPI {
   /// An internal data model for `Content`.
   ///
   /// ### Gemini Developer API
@@ -50,7 +50,7 @@ public extension GenerateContentAPI {
     ///
     /// A Content message must have at
     /// least one Part.
-    public let parts: [Part]?
+    package let parts: [Part]?
 
     /// Optional. The producer of the content. Must be either 'user' or 'model'.
     ///
@@ -66,7 +66,7 @@ public extension GenerateContentAPI {
     /// Optional. The producer of the content. Must be either 'user' or 'model'.
     ///
     /// If not set, the service will default to 'user'.
-    public let role: String?
+    package let role: String?
 
     /// Creates a new `Content`.
     ///
@@ -75,8 +75,8 @@ public extension GenerateContentAPI {
     /// (behavior varies by backend). For more details, see ``parts``.
     ///   - role: Optional. The producer of the content. Must be either 'user' or 'model'. (behavior
     /// varies by backend). For more details, see ``role``.
-    public init(parts: [Part]? = nil,
-                role: String? = nil) {
+    package init(parts: [Part]? = nil,
+                 role: String? = nil) {
       self.parts = parts
       self.role = role
     }

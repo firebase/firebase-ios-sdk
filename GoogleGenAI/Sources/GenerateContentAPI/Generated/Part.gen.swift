@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public import Foundation
+package import Foundation
 
-public extension GenerateContentAPI {
+package extension GenerateContentAPI {
   /// An internal data model for `Part`.
   ///
   /// ### Gemini Developer API
@@ -54,7 +54,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
-    public let toolCall: ToolCall?
+    package let toolCall: ToolCall?
 
     /// The output from a server-side `ToolCall` execution. This field is
     ///
@@ -67,7 +67,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
-    public let toolResponse: ToolResponse?
+    package let toolResponse: ToolResponse?
 
     /// Optional. Indicates if the part is thought from the model.
     ///
@@ -79,7 +79,7 @@ public extension GenerateContentAPI {
     ///
     /// Optional. Indicates whether the `part` represents the model's thought
     /// process or reasoning.
-    public let thought: Bool?
+    package let thought: Bool?
 
     /// Optional. An opaque signature for the thought so it can be reused in subsequent
     ///
@@ -92,7 +92,7 @@ public extension GenerateContentAPI {
     ///
     /// Optional. An opaque signature for the thought so it can be reused in
     /// subsequent requests.
-    public let thoughtSignature: Data?
+    package let thoughtSignature: Data?
 
     /// Custom metadata associated with the Part.
     ///
@@ -106,7 +106,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
-    public let partMetadata: [String: ProtobufValue]?
+    package let partMetadata: [String: ProtobufValue]?
 
     /// Optional. Media resolution for the input media.
     ///
@@ -118,9 +118,9 @@ public extension GenerateContentAPI {
     ///
     /// per part media resolution.
     /// Media resolution for the input media.
-    public let mediaResolution: Part.MediaResolution?
+    package let mediaResolution: Part.MediaResolution?
 
-    public enum PartData: Sendable, Equatable, Hashable {
+    package enum PartData: Sendable, Equatable, Hashable {
       case text(String)
       case inlineData(Blob)
       case functionCall(FunctionCall)
@@ -131,7 +131,7 @@ public extension GenerateContentAPI {
       case unrecognized(ProtobufStruct)
     }
 
-    public let data: PartData?
+    package let data: PartData?
 
     /// Creates a new `Part`.
     ///
@@ -149,13 +149,13 @@ public extension GenerateContentAPI {
     ///   - mediaResolution: Optional. Media resolution for the input media. (behavior varies by
     /// backend). For more details, see ``mediaResolution``.
     ///   - data: One of the oneof data variants.
-    public init(data: PartData? = nil,
-                toolCall: ToolCall? = nil,
-                toolResponse: ToolResponse? = nil,
-                thought: Bool? = nil,
-                thoughtSignature: Data? = nil,
-                partMetadata: [String: ProtobufValue]? = nil,
-                mediaResolution: Part.MediaResolution? = nil) {
+    package init(data: PartData? = nil,
+                 toolCall: ToolCall? = nil,
+                 toolResponse: ToolResponse? = nil,
+                 thought: Bool? = nil,
+                 thoughtSignature: Data? = nil,
+                 partMetadata: [String: ProtobufValue]? = nil,
+                 mediaResolution: Part.MediaResolution? = nil) {
       self.data = data
       self.toolCall = toolCall
       self.toolResponse = toolResponse
@@ -188,7 +188,7 @@ public extension GenerateContentAPI {
       init?(intValue: Int) { nil }
     }
 
-    public init(from decoder: Decoder) throws {
+    package init(from decoder: Decoder) throws {
       let container = try decoder.container(keyedBy: CodingKeys.self)
       toolCall = try container.decodeIfPresent(ToolCall.self, forKey: .toolCall)
       toolResponse = try container.decodeIfPresent(ToolResponse.self, forKey: .toolResponse)
@@ -244,7 +244,7 @@ public extension GenerateContentAPI {
       }
     }
 
-    public func encode(to encoder: Encoder) throws {
+    package func encode(to encoder: Encoder) throws {
       var container = encoder.container(keyedBy: CodingKeys.self)
       try container.encodeIfPresent(toolCall, forKey: .toolCall)
       try container.encodeIfPresent(toolResponse, forKey: .toolResponse)

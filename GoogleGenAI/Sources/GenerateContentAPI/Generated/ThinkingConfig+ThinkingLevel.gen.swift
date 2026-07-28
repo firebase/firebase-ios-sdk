@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI.ThinkingConfig {
+package extension GenerateContentAPI.ThinkingConfig {
   /// Optional. Controls the maximum depth of the model's internal reasoning process before
   ///
   /// ### Gemini Developer API
@@ -50,7 +50,7 @@ public extension GenerateContentAPI.ThinkingConfig {
 // MARK: - RawRepresentable Conformance
 
 extension GenerateContentAPI.ThinkingConfig.ThinkingLevel: RawRepresentable {
-  public var rawValue: String {
+  package var rawValue: String {
     switch self {
     case .minimal: "MINIMAL"
     case .low: "LOW"
@@ -60,7 +60,7 @@ extension GenerateContentAPI.ThinkingConfig.ThinkingLevel: RawRepresentable {
     }
   }
 
-  public init(rawValue: String) {
+  package init(rawValue: String) {
     switch rawValue {
     case "MINIMAL": self = .minimal
     case "LOW": self = .low

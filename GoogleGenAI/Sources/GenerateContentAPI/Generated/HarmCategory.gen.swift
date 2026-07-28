@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI {
+package extension GenerateContentAPI {
   /// An internal data model for `HarmCategory`.
   ///
   /// ### Gemini Developer API
@@ -75,7 +75,7 @@ public extension GenerateContentAPI {
 // MARK: - RawRepresentable Conformance
 
 extension GenerateContentAPI.HarmCategory: RawRepresentable {
-  public var rawValue: String {
+  package var rawValue: String {
     switch self {
     case .derogatory: "HARM_CATEGORY_DEROGATORY"
     case .toxicity: "HARM_CATEGORY_TOXICITY"
@@ -93,7 +93,7 @@ extension GenerateContentAPI.HarmCategory: RawRepresentable {
     }
   }
 
-  public init(rawValue: String) {
+  package init(rawValue: String) {
     switch rawValue {
     case "HARM_CATEGORY_DEROGATORY": self = .derogatory
     case "HARM_CATEGORY_TOXICITY": self = .toxicity

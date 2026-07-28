@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI {
+package extension GenerateContentAPI {
   /// An internal data model for `TemplateGenerateContentRequest`.
   ///
   /// ### Gemini Developer API
@@ -30,16 +30,16 @@ public extension GenerateContentAPI {
     /// Optional. Client provided data that can be used when rendering the template.
     /// When calling via JSON/http surfaces this should be wire compatible with
     /// an arbitrary JSON object.
-    public let inputs: [String: ProtobufValue]?
+    package let inputs: [String: ProtobufValue]?
 
     /// Optional. Conversation history for multi-turn prompts and function calling.
-    public let history: [HistoryContent]?
+    package let history: [HistoryContent]?
 
     /// Optional. A list of tools that the model may use to generate the response.
-    public let tools: [Tool]?
+    package let tools: [Tool]?
 
     /// Optional. Tool configuration for any tool specified in the request.
-    public let toolConfig: ToolConfig?
+    package let toolConfig: ToolConfig?
 
     /// Creates a new `TemplateGenerateContentRequest`.
     ///
@@ -48,10 +48,10 @@ public extension GenerateContentAPI {
     ///   - history: Optional. Conversation history for multi-turn prompts and function calling.
     ///   - tools: Optional. A list of tools that the model may use to generate the response.
     ///   - toolConfig: Optional. Tool configuration for any tool specified in the request.
-    public init(inputs: [String: ProtobufValue]? = nil,
-                history: [HistoryContent]? = nil,
-                tools: [Tool]? = nil,
-                toolConfig: ToolConfig? = nil) {
+    package init(inputs: [String: ProtobufValue]? = nil,
+                 history: [HistoryContent]? = nil,
+                 tools: [Tool]? = nil,
+                 toolConfig: ToolConfig? = nil) {
       self.inputs = inputs
       self.history = history
       self.tools = tools

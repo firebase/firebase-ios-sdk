@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI {
+package extension GenerateContentAPI {
   /// An internal data model for `ToolCall`.
   ///
   /// ### Gemini Developer API
@@ -39,7 +39,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
-    public let id: String?
+    package let id: String?
 
     /// Required. The type of tool that was called.
     ///
@@ -50,7 +50,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
-    public let toolType: ToolType?
+    package let toolType: ToolType?
 
     /// Optional. The tool call arguments.
     ///
@@ -62,7 +62,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
-    public let args: [String: ProtobufValue]?
+    package let args: [String: ProtobufValue]?
 
     /// Creates a new `ToolCall`.
     ///
@@ -73,9 +73,9 @@ public extension GenerateContentAPI {
     /// more details, see ``toolType``.
     ///   - args: Optional. The tool call arguments. (Gemini Developer API only). For more details,
     /// see ``args``.
-    public init(id: String? = nil,
-                toolType: ToolType?,
-                args: [String: ProtobufValue]? = nil) {
+    package init(id: String? = nil,
+                 toolType: ToolType?,
+                 args: [String: ProtobufValue]? = nil) {
       self.id = id
       self.toolType = toolType
       self.args = args

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI {
+package extension GenerateContentAPI {
   /// An internal data model for `Segment`.
   ///
   /// ### Gemini Developer API
@@ -38,7 +38,7 @@ public extension GenerateContentAPI {
     /// Output only. The index of the `Part` object that this segment belongs to.
     /// This is useful for associating the segment with a specific part of the
     /// content.
-    public let partIndex: Int?
+    package let partIndex: Int?
 
     /// Start index in the given Part, measured in bytes. Offset from the start of
     ///
@@ -52,7 +52,7 @@ public extension GenerateContentAPI {
     /// Output only. The start index of the segment in the `Part`, measured in
     /// bytes. This marks the beginning of the segment and is inclusive, meaning
     /// the byte at this index is the first byte of the segment.
-    public let startIndex: Int?
+    package let startIndex: Int?
 
     /// End index in the given Part, measured in bytes. Offset from the start of
     ///
@@ -67,7 +67,7 @@ public extension GenerateContentAPI {
     /// bytes. This marks the end of the segment and is exclusive, meaning the
     /// segment includes content up to, but not including, the byte at this
     /// index.
-    public let endIndex: Int?
+    package let endIndex: Int?
 
     /// The text corresponding to the segment from the response.
     ///
@@ -78,7 +78,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// Output only. The text of the segment.
-    public let text: String?
+    package let text: String?
 
     /// Creates a new `Segment`.
     ///
@@ -91,10 +91,10 @@ public extension GenerateContentAPI {
     /// (behavior varies by backend). For more details, see ``endIndex``.
     ///   - text: The text corresponding to the segment from the response. (behavior varies by
     /// backend). For more details, see ``text``.
-    public init(partIndex: Int? = nil,
-                startIndex: Int? = nil,
-                endIndex: Int? = nil,
-                text: String? = nil) {
+    package init(partIndex: Int? = nil,
+                 startIndex: Int? = nil,
+                 endIndex: Int? = nil,
+                 text: String? = nil) {
       self.partIndex = partIndex
       self.startIndex = startIndex
       self.endIndex = endIndex

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI {
+package extension GenerateContentAPI {
   /// An internal data model for `CodeExecution`.
   ///
   /// ### Gemini Developer API
@@ -37,7 +37,7 @@ public extension GenerateContentAPI {
   struct CodeExecution: Codable, Sendable, Equatable, Hashable {
     /// Creates a new `CodeExecution`.
     ///
-    public init(
+    package init(
     ) {}
   }
 }

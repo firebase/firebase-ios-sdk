@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI.AudioResponseFormat {
+package extension GenerateContentAPI.AudioResponseFormat {
   /// Optional. The delivery mode for the audio output.
   ///
   /// ### Gemini Developer API
@@ -39,7 +39,7 @@ public extension GenerateContentAPI.AudioResponseFormat {
 // MARK: - RawRepresentable Conformance
 
 extension GenerateContentAPI.AudioResponseFormat.Delivery: RawRepresentable {
-  public var rawValue: String {
+  package var rawValue: String {
     switch self {
     case .inline: "INLINE"
     case .uri: "URI"
@@ -47,7 +47,7 @@ extension GenerateContentAPI.AudioResponseFormat.Delivery: RawRepresentable {
     }
   }
 
-  public init(rawValue: String) {
+  package init(rawValue: String) {
     switch rawValue {
     case "INLINE": self = .inline
     case "URI": self = .uri

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI {
+package extension GenerateContentAPI {
   /// An internal data model for `DataType`.
   ///
   /// ### Gemini Developer API
@@ -54,7 +54,7 @@ public extension GenerateContentAPI {
 // MARK: - RawRepresentable Conformance
 
 extension GenerateContentAPI.DataType: RawRepresentable {
-  public var rawValue: String {
+  package var rawValue: String {
     switch self {
     case .string: "STRING"
     case .number: "NUMBER"
@@ -67,7 +67,7 @@ extension GenerateContentAPI.DataType: RawRepresentable {
     }
   }
 
-  public init(rawValue: String) {
+  package init(rawValue: String) {
     switch rawValue {
     case "STRING": self = .string
     case "NUMBER": self = .number

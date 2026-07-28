@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI {
+package extension GenerateContentAPI {
   /// An internal data model for `HistoryContent`.
   ///
   /// ### Gemini Developer API
@@ -29,10 +29,10 @@ public extension GenerateContentAPI {
   struct HistoryContent: Codable, Sendable, Equatable, Hashable {
     /// Optional. Indicates who generated these messages in the history. Generally this will
     /// be either 'user' or 'model'.
-    public let role: String?
+    package let role: String?
 
     /// List of consecutive messages from a given party.
-    public let parts: [HistoryPart]?
+    package let parts: [HistoryPart]?
 
     /// Creates a new `HistoryContent`.
     ///
@@ -40,8 +40,8 @@ public extension GenerateContentAPI {
     ///   - role: Optional. Indicates who generated these messages in the history. Generally this
     /// will
     ///   - parts: List of consecutive messages from a given party.
-    public init(role: String? = nil,
-                parts: [HistoryPart]? = nil) {
+    package init(role: String? = nil,
+                 parts: [HistoryPart]? = nil) {
       self.role = role
       self.parts = parts
     }

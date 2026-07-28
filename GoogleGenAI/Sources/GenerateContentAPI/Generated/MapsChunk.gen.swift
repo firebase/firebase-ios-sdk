@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI {
+package extension GenerateContentAPI {
   /// An internal data model for `MapsChunk`.
   ///
   /// ### Gemini Developer API
@@ -39,7 +39,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// The URI of the place.
-    public let uri: String?
+    package let uri: String?
 
     /// Title of the place.
     ///
@@ -50,7 +50,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// The title of the place.
-    public let title: String?
+    package let title: String?
 
     /// Text description of the place answer.
     ///
@@ -61,7 +61,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// The text of the place answer.
-    public let text: String?
+    package let text: String?
 
     /// The ID of the place, in `places/{place_id}` format. A user can use this
     ///
@@ -74,7 +74,7 @@ public extension GenerateContentAPI {
     ///
     /// This Place's resource name, in `places/{place_id}` format. This can be
     /// used to look up the place in the Google Maps API.
-    public let placeId: String?
+    package let placeId: String?
 
     /// Sources that provide answers about the features of a given place in
     ///
@@ -88,7 +88,7 @@ public extension GenerateContentAPI {
     /// The sources that were used to generate the place answer. This includes
     /// review snippets and photos that were used to generate the answer, as well
     /// as URIs to flag content.
-    public let placeAnswerSources: PlaceAnswerSources?
+    package let placeAnswerSources: PlaceAnswerSources?
 
     /// Output only. Route information.
     ///
@@ -99,7 +99,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// Output only. Route information.
-    public let route: MapsRoute?
+    package let route: MapsRoute?
 
     /// Creates a new `MapsChunk`.
     ///
@@ -116,12 +116,12 @@ public extension GenerateContentAPI {
     /// (behavior varies by backend). For more details, see ``placeAnswerSources``.
     ///   - route: Output only. Route information. (Gemini Enterprise Agent Platform only). For more
     /// details, see ``route``.
-    public init(uri: String? = nil,
-                title: String? = nil,
-                text: String? = nil,
-                placeId: String? = nil,
-                placeAnswerSources: PlaceAnswerSources? = nil,
-                route: MapsRoute? = nil) {
+    package init(uri: String? = nil,
+                 title: String? = nil,
+                 text: String? = nil,
+                 placeId: String? = nil,
+                 placeAnswerSources: PlaceAnswerSources? = nil,
+                 route: MapsRoute? = nil) {
       self.uri = uri
       self.title = title
       self.text = text

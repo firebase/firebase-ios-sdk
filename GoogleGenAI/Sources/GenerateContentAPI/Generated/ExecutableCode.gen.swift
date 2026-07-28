@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI {
+package extension GenerateContentAPI {
   /// An internal data model for `ExecutableCode`.
   ///
   /// ### Gemini Developer API
@@ -44,10 +44,10 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// Required. Programming language of the `code`.
-    public let language: Language?
+    package let language: Language?
 
     /// Required. The code to be executed.
-    public let code: String?
+    package let code: String?
 
     /// Optional. Unique identifier of the `ExecutableCode` part.
     ///
@@ -59,7 +59,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
-    public let id: String?
+    package let id: String?
 
     /// Creates a new `ExecutableCode`.
     ///
@@ -69,9 +69,9 @@ public extension GenerateContentAPI {
     ///   - code: Required. The code to be executed.
     ///   - id: Optional. Unique identifier of the `ExecutableCode` part. (Gemini Developer API
     /// only). For more details, see ``id``.
-    public init(language: Language?,
-                code: String?,
-                id: String? = nil) {
+    package init(language: Language?,
+                 code: String?,
+                 id: String? = nil) {
       self.language = language
       self.code = code
       self.id = id

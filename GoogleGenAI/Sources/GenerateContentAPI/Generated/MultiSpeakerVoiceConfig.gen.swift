@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI {
+package extension GenerateContentAPI {
   /// An internal data model for `MultiSpeakerVoiceConfig`.
   ///
   /// ### Gemini Developer API
@@ -37,14 +37,14 @@ public extension GenerateContentAPI {
     ///
     /// Required. A list of configurations for the voices of the speakers. Exactly
     /// two speaker voice configurations must be provided.
-    public let speakerVoiceConfigs: [SpeakerVoiceConfig]?
+    package let speakerVoiceConfigs: [SpeakerVoiceConfig]?
 
     /// Creates a new `MultiSpeakerVoiceConfig`.
     ///
     /// - Parameters:
     ///   - speakerVoiceConfigs: Required. All the enabled speaker voices. (behavior varies by
     /// backend). For more details, see ``speakerVoiceConfigs``.
-    public init(speakerVoiceConfigs: [SpeakerVoiceConfig]?) {
+    package init(speakerVoiceConfigs: [SpeakerVoiceConfig]?) {
       self.speakerVoiceConfigs = speakerVoiceConfigs
     }
 

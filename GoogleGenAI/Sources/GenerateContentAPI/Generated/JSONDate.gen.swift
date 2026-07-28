@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI {
+package extension GenerateContentAPI {
   /// An internal data model for `JSONDate`.
   ///
   /// ### Gemini Developer API
@@ -50,7 +50,7 @@ public extension GenerateContentAPI {
     ///
     /// Year of the date. Must be from 1 to 9999, or 0 to specify a date without
     /// a year.
-    public let year: Int?
+    package let year: Int?
 
     /// Month of a year. Must be from 1 to 12, or 0 to specify a year without a
     ///
@@ -62,7 +62,7 @@ public extension GenerateContentAPI {
     ///
     /// Month of a year. Must be from 1 to 12, or 0 to specify a year without a
     /// month and day.
-    public let month: Int?
+    package let month: Int?
 
     /// Day of a month. Must be from 1 to 31 and valid for the year and month, or 0
     ///
@@ -75,7 +75,7 @@ public extension GenerateContentAPI {
     /// Day of a month. Must be from 1 to 31 and valid for the year and month, or 0
     /// to specify a year by itself or a year and month where the day isn't
     /// significant.
-    public let day: Int?
+    package let day: Int?
 
     /// Creates a new `JSONDate`.
     ///
@@ -86,9 +86,9 @@ public extension GenerateContentAPI {
     /// Enterprise Agent Platform only). For more details, see ``month``.
     ///   - day: Day of a month. Must be from 1 to 31 and valid for the year and month, or 0 (Gemini
     /// Enterprise Agent Platform only). For more details, see ``day``.
-    public init(year: Int? = nil,
-                month: Int? = nil,
-                day: Int? = nil) {
+    package init(year: Int? = nil,
+                 month: Int? = nil,
+                 day: Int? = nil) {
       self.year = year
       self.month = month
       self.day = day

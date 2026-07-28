@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI {
+package extension GenerateContentAPI {
   /// An internal data model for `SearchTypes`.
   ///
   /// ### Gemini Developer API
@@ -36,7 +36,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// Optional. Setting this field enables web search. Only text results are returned.
-    public let webSearch: WebSearch?
+    package let webSearch: WebSearch?
 
     /// Optional. Enables image search. Image bytes are returned.
     ///
@@ -47,7 +47,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// Optional. Setting this field enables image search. Image bytes are returned.
-    public let imageSearch: ImageSearch?
+    package let imageSearch: ImageSearch?
 
     /// Creates a new `SearchTypes`.
     ///
@@ -56,8 +56,8 @@ public extension GenerateContentAPI {
     /// varies by backend). For more details, see ``webSearch``.
     ///   - imageSearch: Optional. Enables image search. Image bytes are returned. (behavior varies
     /// by backend). For more details, see ``imageSearch``.
-    public init(webSearch: WebSearch? = nil,
-                imageSearch: ImageSearch? = nil) {
+    package init(webSearch: WebSearch? = nil,
+                 imageSearch: ImageSearch? = nil) {
       self.webSearch = webSearch
       self.imageSearch = imageSearch
     }

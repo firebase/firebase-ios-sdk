@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI {
+package extension GenerateContentAPI {
   /// An internal data model for `LogprobsResultCandidate`.
   ///
   /// ### Gemini Developer API
@@ -36,7 +36,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// The token's string representation.
-    public let token: String?
+    package let token: String?
 
     /// The candidate’s token id value.
     ///
@@ -51,7 +51,7 @@ public extension GenerateContentAPI {
     /// representation that the model uses internally. This can be useful for
     /// developers who want to build custom logic based on the model's
     /// vocabulary.
-    public let tokenId: Int?
+    package let tokenId: Int?
 
     /// The candidate's log probability.
     ///
@@ -65,7 +65,7 @@ public extension GenerateContentAPI {
     /// that the model was more confident in this token. The log probability can
     /// be used to assess the relative likelihood of different tokens and to
     /// identify when the model is uncertain.
-    public let logProbability: Double?
+    package let logProbability: Double?
 
     /// Creates a new `LogprobsResultCandidate`.
     ///
@@ -76,9 +76,9 @@ public extension GenerateContentAPI {
     /// see ``tokenId``.
     ///   - logProbability: The candidate's log probability. (behavior varies by backend). For more
     /// details, see ``logProbability``.
-    public init(token: String? = nil,
-                tokenId: Int? = nil,
-                logProbability: Double? = nil) {
+    package init(token: String? = nil,
+                 tokenId: Int? = nil,
+                 logProbability: Double? = nil) {
       self.token = token
       self.tokenId = tokenId
       self.logProbability = logProbability

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI {
+package extension GenerateContentAPI {
   /// An internal data model for `GroundingMetadataSourceFlaggingUri`.
   ///
   /// ### Gemini Developer API
@@ -35,7 +35,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// The ID of the place or review.
-    public let sourceId: String?
+    package let sourceId: String?
 
     /// The URI that can be used to flag the content.
     ///
@@ -46,7 +46,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// The URI that can be used to flag the content.
-    public let flagContentUri: String?
+    package let flagContentUri: String?
 
     /// Creates a new `GroundingMetadataSourceFlaggingUri`.
     ///
@@ -55,8 +55,8 @@ public extension GenerateContentAPI {
     /// more details, see ``sourceId``.
     ///   - flagContentUri: The URI that can be used to flag the content. (Gemini Enterprise Agent
     /// Platform only). For more details, see ``flagContentUri``.
-    public init(sourceId: String? = nil,
-                flagContentUri: String? = nil) {
+    package init(sourceId: String? = nil,
+                 flagContentUri: String? = nil) {
       self.sourceId = sourceId
       self.flagContentUri = flagContentUri
     }

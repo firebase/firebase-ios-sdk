@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI {
+package extension GenerateContentAPI {
   /// An internal data model for `LatLng`.
   ///
   /// ### Gemini Developer API
@@ -34,18 +34,18 @@ public extension GenerateContentAPI {
   /// WGS84 standard. Values must be within normalized ranges.
   struct LatLng: Codable, Sendable, Equatable, Hashable {
     /// The latitude in degrees. It must be in the range [-90.0, +90.0].
-    public let latitude: Double?
+    package let latitude: Double?
 
     /// The longitude in degrees. It must be in the range [-180.0, +180.0].
-    public let longitude: Double?
+    package let longitude: Double?
 
     /// Creates a new `LatLng`.
     ///
     /// - Parameters:
     ///   - latitude: The latitude in degrees. It must be in the range [-90.0, +90.0].
     ///   - longitude: The longitude in degrees. It must be in the range [-180.0, +180.0].
-    public init(latitude: Double? = nil,
-                longitude: Double? = nil) {
+    package init(latitude: Double? = nil,
+                 longitude: Double? = nil) {
       self.latitude = latitude
       self.longitude = longitude
     }

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI {
+package extension GenerateContentAPI {
   /// An internal data model for `GoogleSearch`.
   ///
   /// ### Gemini Developer API
@@ -40,11 +40,11 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
-    public let timeRangeFilter: Interval?
+    package let timeRangeFilter: Interval?
 
     /// Optional. The set of search types to enable. If not set, web search is
     /// enabled by default.
-    public let searchTypes: SearchTypes?
+    package let searchTypes: SearchTypes?
 
     /// Optional. List of domains to be excluded from the search results.
     ///
@@ -57,7 +57,7 @@ public extension GenerateContentAPI {
     /// Optional. List of domains to be excluded from the search results.
     /// The default limit is 2000 domains.
     /// Example: ["amazon.com", "facebook.com"].
-    public let excludeDomains: [String]?
+    package let excludeDomains: [String]?
 
     /// Optional. Sites with confidence level chosen & above this value will be blocked
     ///
@@ -69,7 +69,7 @@ public extension GenerateContentAPI {
     ///
     /// Optional. Sites with confidence level chosen & above this value will be blocked
     /// from the search results.
-    public let blockingConfidence: BlockingConfidence?
+    package let blockingConfidence: BlockingConfidence?
 
     /// Creates a new `GoogleSearch`.
     ///
@@ -82,10 +82,10 @@ public extension GenerateContentAPI {
     ///   - blockingConfidence: Optional. Sites with confidence level chosen & above this value will
     /// be blocked (Gemini Enterprise Agent Platform only). For more details, see
     /// ``blockingConfidence``.
-    public init(timeRangeFilter: Interval? = nil,
-                searchTypes: SearchTypes? = nil,
-                excludeDomains: [String]? = nil,
-                blockingConfidence: BlockingConfidence? = nil) {
+    package init(timeRangeFilter: Interval? = nil,
+                 searchTypes: SearchTypes? = nil,
+                 excludeDomains: [String]? = nil,
+                 blockingConfidence: BlockingConfidence? = nil) {
       self.timeRangeFilter = timeRangeFilter
       self.searchTypes = searchTypes
       self.excludeDomains = excludeDomains

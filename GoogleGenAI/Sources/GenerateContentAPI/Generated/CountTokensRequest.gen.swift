@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI {
+package extension GenerateContentAPI {
   /// An internal data model for `CountTokensRequest`.
   ///
   /// ### Gemini Developer API
@@ -40,7 +40,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// Optional. Input content.
-    public let contents: [Content]?
+    package let contents: [Content]?
 
     /// Optional. The overall input given to the `Model`. This includes the prompt as well as
     ///
@@ -58,7 +58,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
-    public let generateContentRequest: GenerateContentRequest?
+    package let generateContentRequest: GenerateContentRequest?
 
     /// Optional. The name of the publisher model requested to serve the prediction.
     ///
@@ -71,7 +71,7 @@ public extension GenerateContentAPI {
     /// Optional. The name of the publisher model requested to serve the prediction.
     /// Format:
     /// `projects/{project}/locations/{location}/publishers/*/models/*`
-    public let model: String?
+    package let model: String?
 
     /// Optional. The instances that are the input to token counting call.
     ///
@@ -83,7 +83,7 @@ public extension GenerateContentAPI {
     ///
     /// Optional. The instances that are the input to token counting call.
     /// Schema is identical to the prediction schema of the underlying model.
-    public let instances: [ProtobufValue]?
+    package let instances: [ProtobufValue]?
 
     /// Optional. The user provided system instructions for the model.
     ///
@@ -96,7 +96,7 @@ public extension GenerateContentAPI {
     /// Optional. The user provided system instructions for the model.
     /// Note: only text should be used in parts and content in each part will be in
     /// a separate paragraph.
-    public let systemInstruction: Content?
+    package let systemInstruction: Content?
 
     /// Optional. A list of `Tools` the model may use to generate the next response.
     ///
@@ -111,7 +111,7 @@ public extension GenerateContentAPI {
     /// A `Tool` is a piece of code that enables the system to interact with
     /// external systems to perform an action, or set of actions, outside of
     /// knowledge and scope of the model.
-    public let tools: [Tool]?
+    package let tools: [Tool]?
 
     /// Optional. Generation config that the model will use to generate the response.
     ///
@@ -122,7 +122,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// Optional. Generation config that the model will use to generate the response.
-    public let generationConfig: GenerationConfig?
+    package let generationConfig: GenerationConfig?
 
     /// Creates a new `CountTokensRequest`.
     ///
@@ -143,13 +143,13 @@ public extension GenerateContentAPI {
     ///   - generationConfig: Optional. Generation config that the model will use to generate the
     /// response. (Gemini Enterprise Agent Platform only). For more details, see
     /// ``generationConfig``.
-    public init(contents: [Content]? = nil,
-                generateContentRequest: GenerateContentRequest? = nil,
-                model: String? = nil,
-                instances: [ProtobufValue]? = nil,
-                systemInstruction: Content? = nil,
-                tools: [Tool]? = nil,
-                generationConfig: GenerationConfig? = nil) {
+    package init(contents: [Content]? = nil,
+                 generateContentRequest: GenerateContentRequest? = nil,
+                 model: String? = nil,
+                 instances: [ProtobufValue]? = nil,
+                 systemInstruction: Content? = nil,
+                 tools: [Tool]? = nil,
+                 generationConfig: GenerationConfig? = nil) {
       self.contents = contents
       self.generateContentRequest = generateContentRequest
       self.model = model

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI.ImageConfig {
+package extension GenerateContentAPI.ImageConfig {
   /// Optional. Controls whether the model can generate people.
   ///
   /// ### Gemini Developer API
@@ -43,7 +43,7 @@ public extension GenerateContentAPI.ImageConfig {
 // MARK: - RawRepresentable Conformance
 
 extension GenerateContentAPI.ImageConfig.PersonGeneration: RawRepresentable {
-  public var rawValue: String {
+  package var rawValue: String {
     switch self {
     case .all: "ALLOW_ALL"
     case .adult: "ALLOW_ADULT"
@@ -52,7 +52,7 @@ extension GenerateContentAPI.ImageConfig.PersonGeneration: RawRepresentable {
     }
   }
 
-  public init(rawValue: String) {
+  package init(rawValue: String) {
     switch rawValue {
     case "ALLOW_ALL": self = .all
     case "ALLOW_ADULT": self = .adult

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI {
+package extension GenerateContentAPI {
   /// An internal data model for `PrebuiltVoiceConfig`.
   ///
   /// ### Gemini Developer API
@@ -36,14 +36,14 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// The name of the prebuilt voice to use.
-    public let voiceName: String?
+    package let voiceName: String?
 
     /// Creates a new `PrebuiltVoiceConfig`.
     ///
     /// - Parameters:
     ///   - voiceName: The name of the preset voice to use. (behavior varies by backend). For more
     /// details, see ``voiceName``.
-    public init(voiceName: String? = nil) {
+    package init(voiceName: String? = nil) {
       self.voiceName = voiceName
     }
 

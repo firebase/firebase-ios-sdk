@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public extension GenerateContentAPI {
+package extension GenerateContentAPI {
   /// An internal data model for `ImageConfigImageOutputOptions`.
   ///
   /// ### Gemini Developer API
@@ -34,7 +34,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// Optional. The image format that the output should be saved as.
-    public let mimeType: String?
+    package let mimeType: String?
 
     /// Optional. The compression quality of the output image.
     ///
@@ -45,7 +45,7 @@ public extension GenerateContentAPI {
     /// ### Gemini Enterprise Agent Platform
     ///
     /// Optional. The compression quality of the output image.
-    public let compressionQuality: Int?
+    package let compressionQuality: Int?
 
     /// Creates a new `ImageConfigImageOutputOptions`.
     ///
@@ -54,8 +54,8 @@ public extension GenerateContentAPI {
     /// Enterprise Agent Platform only). For more details, see ``mimeType``.
     ///   - compressionQuality: Optional. The compression quality of the output image. (Gemini
     /// Enterprise Agent Platform only). For more details, see ``compressionQuality``.
-    public init(mimeType: String? = nil,
-                compressionQuality: Int? = nil) {
+    package init(mimeType: String? = nil,
+                 compressionQuality: Int? = nil) {
       self.mimeType = mimeType
       self.compressionQuality = compressionQuality
     }
