@@ -1,4 +1,10 @@
 # Unreleased
+- [fixed] Fixed a bug where `verifyPhoneNumber` could hit an infinite recursion
+  and crash due to a Swift concurrency compiler bug in some toolchains. (#16416)
+
+# 12.17.0
+- [fixed] Fixed an array out-of-bounds access in `ActionCodeURL` query parsing.
+  (#16382)
 - [fixed] Fixed a bug in `OAuthProvider` where custom parameters containing
   special URL characters (such as `&` and `=`) were not being properly
   URL-encoded. (#16394)

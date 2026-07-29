@@ -307,6 +307,17 @@ static NSString *const kGoogleAppIDHeader = @"X-Firebase-GMPID";
 }
 
 - (void)handleIncomingFrame:(NSString *)message {
+    // The realtime protocol only uses text frames. SocketRocket delivers an
+    // NSData for a binary frame (and the watchOS task delivers a nil string),
+    // neither of which responds to the NSString selectors used below, so a
+    // server sending such a frame would crash the client. Ignore anything that
+    // is not a text frame.
+    if (![message isKindOfClass:[NSString class]]) {
+        FFWarn(@"I-RDB083021",
+               @"(wsc:%@) Ignoring non-text frame received on stream.",
+               self.connectionId);
+        return;
+    }
     [self resetKeepAlive];
     if (self.buffering) {
         [self appendFrame:message];

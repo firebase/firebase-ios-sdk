@@ -411,7 +411,7 @@ public final class FirebaseAI: Sendable {
         return "projects/\(firebaseInfo.projectID)/models/\(modelName)"
       case .agentPlatformStagingBypassProxy:
         fatalError(
-          "The Gemini Enterprise Agent Platform staging endpoint does not support the Gemini Developer API (Google AI)."
+          "The Agent Platform Gemini API staging endpoint does not support the Gemini Developer API."
         )
     #endif // DEBUG
     }

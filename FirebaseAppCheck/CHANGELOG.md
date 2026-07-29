@@ -1,4 +1,4 @@
-# Unreleased
+# 12.17.0
 - [changed] The default App Check provider for iOS physical devices no longer
   attempts to configure the reCAPTCHA provider before falling back to
   DeviceCheck. This reverts a change introduced in 12.15.0.

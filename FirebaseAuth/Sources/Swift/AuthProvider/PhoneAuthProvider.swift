@@ -79,7 +79,7 @@ import Foundation
                                 completion: (@MainActor (String?, Error?) -> Void)?) {
       Task {
         do {
-          let verificationID = try await verifyPhoneNumber(
+          let verificationID: String = try await verifyPhoneNumber(
             phoneNumber,
             uiDelegate: uiDelegate,
             multiFactorSession: multiFactorSession
@@ -135,7 +135,7 @@ import Foundation
                                 completion: ((String?, Error?) -> Void)?) {
       Task {
         do {
-          let verificationID = try await verifyPhoneNumber(
+          let verificationID: String = try await verifyPhoneNumber(
             with: multiFactorInfo,
             uiDelegate: uiDelegate,
             multiFactorSession: multiFactorSession
