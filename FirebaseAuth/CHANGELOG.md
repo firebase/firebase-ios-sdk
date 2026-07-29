@@ -1,4 +1,6 @@
 # Unreleased
+- [fixed] Fixed a bug in `PhoneAuthProvider` where the test mode logic would
+  fail if multi-factor authentication was enabled. (#16438)
 - [fixed] Fixed a bug where `verifyPhoneNumber` could hit an infinite recursion
   and crash due to a Swift concurrency compiler bug in some toolchains. (#16416)
 

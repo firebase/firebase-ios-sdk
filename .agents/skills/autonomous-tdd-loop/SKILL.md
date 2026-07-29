@@ -105,6 +105,8 @@ environment:
     a note about [Topic] to your local `.agents/MEMORY.md`. I recommend we
     permanently add this to the repository's `agents.md` file so all
     contributors benefit from this knowledge. Would you like me to do that?"
-3.  If the user requested PR creation, use the `gh` CLI to create a PR and wait
+3.  **Changelog Update:** Ensure you update the relevant product's `CHANGELOG.md`
+    file with a description of the change under a new top-level `# Unreleased` section.
+4.  If the user requested PR creation, use the `gh` CLI to create a PR and wait
     for CI/human feedback. Otherwise, notify the user that the loop is
     complete.
