@@ -296,10 +296,10 @@ class AuthAPI_hOnlyTests: XCTestCase {
     _ = AuthErrorCode.missingRecaptchaVersion
     _ = AuthErrorCode.invalidRecaptchaVersion
     _ = AuthErrorCode.invalidReqType
+    _ = AuthErrorCode.passwordDoesNotMeetRequirements
     _ = AuthErrorCode.keychainError
     _ = AuthErrorCode.internalError
     _ = AuthErrorCode.malformedJWT
-    _ = AuthErrorCode.passwordDoesNotMeetRequirements
   }
 
   func authSettings(settings: AuthSettings) {

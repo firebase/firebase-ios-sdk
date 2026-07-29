@@ -336,6 +336,9 @@ import Foundation
   /// Indicates that the reCAPTCHA SDK actions class failed to create.
   case recaptchaActionCreationFailed = 17210
 
+  /// Indicates that the password does not meet the project's password policy.
+  case passwordDoesNotMeetRequirements = 17211
+
   /// Indicates an error occurred while attempting to access the keychain.
   case keychainError = 17995
 
@@ -345,9 +348,6 @@ import Foundation
   /// Raised when a JWT fails to parse correctly. May be accompanied by an underlying error
   /// describing which step of the JWT parsing process failed.
   case malformedJWT = 18000
-
-  /// Indicates that the password does not meet the project's password policy.
-  case passwordDoesNotMeetRequirements = 18001
 
   var errorDescription: String {
     switch self {
@@ -1004,5 +1004,4 @@ private let kErrorRecaptchaActionCreationFailed =
   "The reCAPTCHA SDK action class failed to initialize. See " +
   "https://cloud.google.com/recaptcha-enterprise/docs/instrument-ios-apps"
 
-private let kErrorPasswordDoesNotMeetRequirements =
-  "The password does not meet the requirements."
+private let kErrorPasswordDoesNotMeetRequirements = "Missing password requirements."

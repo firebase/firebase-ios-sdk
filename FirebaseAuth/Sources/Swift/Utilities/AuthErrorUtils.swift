@@ -604,6 +604,6 @@ class AuthErrorUtils {
   }
 
   static func passwordDoesNotMeetRequirementsError(message: String?) -> Error {
-    error(code: .passwordDoesNotMeetRequirements, message: message)
+    return error(code: .passwordDoesNotMeetRequirements, message: message)
   }
 }

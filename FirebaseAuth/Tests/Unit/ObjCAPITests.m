@@ -304,10 +304,10 @@
   c = FIRAuthErrorCodeInvalidRecaptchaVersion;
   c = FIRAuthErrorCodeInvalidReqType;
   c = FIRAuthErrorCodeRecaptchaSDKNotLinked;
+  c = FIRAuthErrorCodePasswordDoesNotMeetRequirements;
   c = FIRAuthErrorCodeKeychainError;
   c = FIRAuthErrorCodeInternalError;
   c = FIRAuthErrorCodeMalformedJWT;
-  c = FIRAuthErrorCodePasswordDoesNotMeetRequirements;
 }
 
 - (void)authSettings:(FIRAuthSettings *)settings {

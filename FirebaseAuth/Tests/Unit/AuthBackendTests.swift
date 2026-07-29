@@ -442,6 +442,31 @@ class AuthBackendTests: RPCBaseTests {
     }
   }
 
+  /// Test Password doesn't meet requirements Function Error Response Flow with default error message.
+  func testPasswordDoesNotMeetRequirementsResponseWithoutDetailMessage() async throws {
+    let kErrorMessagePasswordDoesNotMeetRequirements = "PASSWORD_DOES_NOT_MEET_REQUIREMENTS"
+    let responseError = NSError(domain: kFakeErrorDomain, code: kFakeErrorCode)
+    let request = FakeRequest(withRequestBody: [:])
+    rpcIssuer.respondBlock = {
+      try self.rpcIssuer.respond(
+        serverErrorMessage: kErrorMessagePasswordDoesNotMeetRequirements,
+        error: responseError
+      )
+    }
+    do {
+      let _ = try await authBackend.call(with: request)
+      XCTFail("Expected to throw")
+    } catch {
+      let rpcError = error as NSError
+      XCTAssertEqual(rpcError.domain, AuthErrors.domain)
+      XCTAssertEqual(rpcError.code, AuthErrorCode.passwordDoesNotMeetRequirements.rawValue)
+      XCTAssertEqual(
+        rpcError.localizedDescription,
+        "Missing password requirements."
+      )
+    }
+  }
+
   /** @fn testDecodableErrorResponseWithUnknownMessage
       @brief This test checks the behaviour of @c postWithRequest:response:callback: when the
           response deserialized by @c NSJSONSerialization represents a valid error response (and an
