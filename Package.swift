@@ -18,7 +18,7 @@
 
 import PackageDescription
 
-let firebaseVersion = "12.17.0"
+let firebaseVersion = "12.18.0"
 
 let shouldUseSourceFirestore = Context.environment["FIREBASE_SOURCE_FIRESTORE"] != nil
 
@@ -529,9 +529,6 @@ let package = Package(
       ],
       path: "FirebaseAuth/Tests/Unit",
       exclude: [
-        // TODO: these tests rely on a non-zero UIApplication.shared. They run from CocoaPods.
-        "PhoneAuthProviderTests.swift",
-        "AuthNotificationManagerTests.swift",
         // TODO: The following tests run in CocoaPods only, until mixed language or separate target.
         "ObjCAPITests.m",
         "ObjCGlobalTests.m",
