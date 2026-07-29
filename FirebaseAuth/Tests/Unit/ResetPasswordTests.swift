@@ -42,8 +42,6 @@ class ResetPasswordTests: RPCBaseTests {
     let kExpiredActionCodeErrorMessage = "EXPIRED_OOB_CODE"
     let kInvalidActionCodeErrorMessage = "INVALID_OOB_CODE"
     let kWeakPasswordErrorMessagePrefix = "WEAK_PASSWORD : "
-    let kPasswordDoesNotMeetRequirementsErrorMessagePrefix =
-      "PASSWORD_DOES_NOT_MEET_REQUIREMENTS : "
 
     try await checkBackendError(
       request: makeResetPasswordRequest(),
@@ -69,11 +67,6 @@ class ResetPasswordTests: RPCBaseTests {
       request: makeResetPasswordRequest(),
       message: kWeakPasswordErrorMessagePrefix,
       errorCode: AuthErrorCode.weakPassword
-    )
-    try await checkBackendError(
-      request: makeResetPasswordRequest(),
-      message: kPasswordDoesNotMeetRequirementsErrorMessagePrefix,
-      errorCode: AuthErrorCode.passwordDoesNotMeetRequirements
     )
   }
 

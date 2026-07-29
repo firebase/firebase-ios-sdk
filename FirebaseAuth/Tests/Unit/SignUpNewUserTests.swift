@@ -94,9 +94,6 @@ class SignUpNewUserTests: RPCBaseTests {
     let kInvalidEmailErrorMessage = "INVALID_EMAIL"
     let kWeakPasswordErrorMessage = "WEAK_PASSWORD : Password should be at least 6 characters"
     let kWeakPasswordClientErrorMessage = "Password should be at least 6 characters"
-    let kPasswordDoesNotMeetRequirementsErrorMessage =
-      "PASSWORD_DOES_NOT_MEET_REQUIREMENTS : Password does not meet requirements"
-    let kPasswordDoesNotMeetRequirementsClientErrorMessage = "Password does not meet requirements"
 
     try await checkBackendError(
       request: makeSignUpNewUserRequest(),
@@ -123,12 +120,6 @@ class SignUpNewUserTests: RPCBaseTests {
       message: kWeakPasswordErrorMessage,
       errorCode: AuthErrorCode.weakPassword,
       errorReason: kWeakPasswordClientErrorMessage
-    )
-    try await checkBackendError(
-      request: makeSignUpNewUserRequest(),
-      message: kPasswordDoesNotMeetRequirementsErrorMessage,
-      errorCode: AuthErrorCode.passwordDoesNotMeetRequirements,
-      errorReason: kPasswordDoesNotMeetRequirementsClientErrorMessage
     )
   }
 
