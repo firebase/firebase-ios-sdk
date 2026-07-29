@@ -20,6 +20,7 @@
 #import <GoogleUtilities/GULUserDefaults.h>
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 #import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
+#import "FirebaseMessaging/Sources/FIRMessagingConstants.h"
 #import "FirebaseMessaging/Sources/FIRMessagingPubSub.h"
 #import "FirebaseMessaging/Sources/FIRMessagingTopicOperation.h"
 #import "FirebaseMessaging/Sources/FIRMessagingUtilities.h"
@@ -29,7 +30,9 @@
 #import "FirebaseMessaging/Sources/Token/FIRMessagingAPNSInfo.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingFIDRegisterOperation.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingFIDUnregisterOperation.h"
+#import "FirebaseMessaging/Sources/Token/FIRMessagingTokenInfo.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingTokenManager.h"
+#import "FirebaseMessaging/Sources/Token/FIRMessagingTokenStore.h"
 #import "FirebaseMessaging/Tests/UnitTests/FIRMessagingTestUtilities.h"
 #import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 #import "SharedTestUtilities/URLSession/FIRURLSessionOCMockStub.h"
@@ -425,7 +428,18 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
   OCMStub([(FIRApp *)self.mockFirebaseApp options]).andReturn(mockOptions);
 
   [self.messaging.tokenManager setValue:@"123456789123" forKey:@"fcmSenderID"];
-  [self.messaging.tokenManager setValue:@"fake-cached-fid" forKey:@"defaultFCMToken"];
+  FIRMessagingTokenInfo *cachedTokenInfo =
+      [[FIRMessagingTokenInfo alloc] initWithAuthorizedEntity:@"123456789123"
+                                                        scope:kFIRMessagingDefaultTokenScope
+                                                        token:@"fake-cached-fid"
+                                                   appVersion:@"1.0"
+                                                firebaseAppID:@"app-id"
+                                                    tokenType:@"FID"];
+  OCMStub([self.mockTokenManager
+              cachedTokenInfoWithAuthorizedEntity:@"123456789123"
+                                            scope:kFIRMessagingDefaultTokenScope])
+      .andReturn(cachedTokenInfo);
+  OCMStub([self.mockTokenManager defaultFCMToken]).andReturn(@"fake-cached-fid");
 
   // Setup message delegate.
   id mockDelegate = OCMProtocolMock(@protocol(FIRMessagingDelegate));
@@ -446,6 +460,40 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
   [self.messaging registerWithCompletion:^(NSError *error) {
     XCTAssertNil(error);
     [completionExpectation fulfill];
+  }];
+
+  [self waitForExpectationsWithTimeout:30.0 handler:nil];
+}
+
+- (void)testRegisterCallsRetrieveTokenOrFidWhenCachedTokenIsNotFid {
+  OCMStub([self.mockMessaging isInstallationIdEnabled]).andReturn(YES);
+
+  id mockOptions = OCMClassMock([FIROptions class]);
+  OCMStub([mockOptions GCMSenderID]).andReturn(@"123456789123");
+  OCMStub([(FIRApp *)self.mockFirebaseApp options]).andReturn(mockOptions);
+
+  [self.messaging.tokenManager setValue:@"123456789123" forKey:@"fcmSenderID"];
+
+  FIRMessagingTokenInfo *cachedTokenInfo =
+      [[FIRMessagingTokenInfo alloc] initWithAuthorizedEntity:@"123456789123"
+                                                        scope:kFIRMessagingDefaultTokenScope
+                                                        token:@"old-v4-token"
+                                                   appVersion:@"1.0"
+                                                firebaseAppID:@"app-id"
+                                                    tokenType:@"V4"];
+  OCMStub([self.mockTokenManager
+              cachedTokenInfoWithAuthorizedEntity:@"123456789123"
+                                            scope:kFIRMessagingDefaultTokenScope])
+      .andReturn(cachedTokenInfo);
+
+  // retrieveTokenOrFidForSenderID should be called because the cached token is not "FID".
+  XCTestExpectation *retrieveExpectation =
+      [self expectationWithDescription:@"retrieveTokenOrFidForSenderID should be called"];
+  [[[self.mockMessaging expect] andDo:^(NSInvocation *invocation) {
+    [retrieveExpectation fulfill];
+  }] retrieveTokenOrFidForSenderID:@"123456789123" completion:OCMOCK_ANY];
+
+  [self.messaging registerWithCompletion:^(NSError *error){
   }];
 
   [self waitForExpectationsWithTimeout:30.0 handler:nil];
