@@ -68,7 +68,7 @@
 
     func assertDefaultToken() {
       let expectation = self.expectation(description: "getToken")
-      messaging.token { token, error in
+      (messaging as LegacyMessaging).token { token, error in
         XCTAssertNil(error)
         XCTAssertNotNil(token)
         expectation.fulfill()
@@ -76,4 +76,10 @@
       wait(for: [expectation], timeout: 5)
     }
   }
+
+  private protocol LegacyMessaging {
+    func token(completion: @escaping @Sendable (String?, Error?) -> Void)
+  }
+
+  extension Messaging: LegacyMessaging {}
 #endif // !os(OSX)
