@@ -1,3 +1,6 @@
+# Unreleased
+- [changed] Deprecate token-related APIs (`tokenWithCompletion:`, `deleteTokenWithCompletion:`, `retrieveFCMTokenForSenderID:completion:`, `deleteFCMTokenForSenderID:completion:`, `FCMToken`, `messaging:didReceiveRegistrationToken:`, and `FIRMessagingRegistrationTokenRefreshedNotification`) in favor of the new FID-based registration APIs.
+
 # 12.18.0
 - [fixed] Fix an issue where new FCM registration processing was not invoked
   when `FirebaseMessagingInstallationIdEnabled` was set to `YES` and a legacy token
