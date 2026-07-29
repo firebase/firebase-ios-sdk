@@ -362,7 +362,9 @@ experience for both contributors and users of the Firebase SDK.
         for applications using Firebase Analytics (and often transitively, other Firebase SDKs)
         to correctly link Objective-C categories.
 *   **Changelogs**: `CHANGELOG.md` files (root and product-specific) must be updated with
-    meaningful descriptions of changes for any pull request.
+    meaningful descriptions of changes for any pull request. The changelog
+    entry should always go into a new top-level `# Unreleased` section. If this
+    section does not already exist, you must create it at the top of the file.
 *   **Minimize Breaking Changes**: Breaking changes are avoided if possible and require careful
     consideration, typically aligning with major version releases.
 *   **Platform Support**: Different levels of support exist for Apple platforms (macOS, Catalyst,
@@ -490,3 +492,34 @@ If, during the course of completing new tasks, you identify:
 
 Please consider updating this `agents.md` file to reflect those new findings. Keeping this
 document current will improve the efficiency and accuracy of future AI-assisted development.
+
+## Technical Debt & Known Issues
+
+*   **Remote Config Memory & Concurrency**:
+    *   `setCustomSignals:` also strongly captures `self` via `self->_settings.customSignals`.
+    *   There is a deadlock hazard in `configValueForKey:` due to synchronous dispatch to `_queue` which then dispatches asynchronously back to `_queue` via `callListeners:`.
+    *   `RCNConfigExperiment` has data race risks on `_experimentPayloads` and other mutable collections as they are mutated from different queues (e.g., `loadExperimentFromTable` vs `updateExperimentsWithResponse:`).
+    *   In `RCNConfigExperiment`, `updateActiveExperimentsInDB` performs asynchronous DB operations. Subsequent code in `updateExperimentsWithHandler:` (such as `updateExperimentsWithServiceOrigin:`) is not guaranteed to execute after the DB updates complete, leading to a potential race condition.
+
+## AI Subagent Personas
+
+The following personas are defined for use by AI orchestrators (like the
+`autonomous-tdd-loop` skill).
+
+### Objective Code Verifier
+**Role:** Objective Code Verifier
+**Prompt Guidelines:** Your job is strictly to run builds and test suites. Use
+the `./scripts/style.sh` for formatting checks, and
+`./scripts/setup_spm_tests.sh` followed by `xcodebuild` (or `pod gen` and
+`xcodebuild` for CocoaPods) as dictated by the orchestrator. You are to report
+a binary pass/fail result along with the specific error output if a failure
+occurs. Do not attempt to fix the code yourself unless specifically instructed.
+
+### Rigorous Code Reviewer
+**Role:** Rigorous Code Reviewer
+**Prompt Guidelines:** Your job is to perform a subjective, rigorous code
+review on proposed changes. Focus on concurrency (Swift 6 strict concurrency),
+memory management (retain cycles, etc.), API design (following
+`docs/firebase-api-guidelines.md`), and overall architectural consistency with
+the rest of the Firebase iOS SDK. You should enforce best practices and flag
+any issues for the main agent to address.

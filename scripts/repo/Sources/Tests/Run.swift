@@ -22,7 +22,7 @@ import Util
 extension Tests {
   /// Command for running the integration tests of a given SDK.
   struct Run: ParsableCommand {
-    nonisolated(unsafe) static var configuration = CommandConfiguration(
+    static let configuration = CommandConfiguration(
       abstract: "Run the integration tests for a given SDK.",
       usage: """
         tests run [--overwrite] [--secrets <file_path>] [--xcode <version_or_path>] [--platforms <platforms> ...] [--filter <suite_or_function>] [--exclude <suite_or_function>] [<sdk>]

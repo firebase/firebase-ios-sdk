@@ -797,15 +797,11 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
     }
   };
 
-  NSString *cachedToken = self.tokenManager.defaultFCMToken;
-  if (!cachedToken.length) {
-    FIRMessagingTokenInfo *cachedTokenInfo =
-        [self.tokenManager cachedTokenInfoWithAuthorizedEntity:senderID
-                                                         scope:kFIRMessagingDefaultTokenScope];
-    cachedToken = cachedTokenInfo.token;
-  }
+  FIRMessagingTokenInfo *cachedTokenInfo =
+      [self.tokenManager cachedTokenInfoWithAuthorizedEntity:senderID
+                                                       scope:kFIRMessagingDefaultTokenScope];
 
-  if (cachedToken.length > 0) {
+  if (cachedTokenInfo.token.length > 0 && [cachedTokenInfo.tokenType isEqualToString:@"FID"]) {
     // We always want to notify the delegate of the FID. If the FID is available now we notify
     // immediately.
     [self notifyDelegateOfFCMTokenAvailability];

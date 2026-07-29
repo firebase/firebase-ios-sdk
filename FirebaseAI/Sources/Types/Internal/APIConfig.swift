@@ -36,16 +36,16 @@ struct APIConfig: Sendable, Hashable, Encodable {
 extension APIConfig {
   /// API services providing generative AI functionality.
   ///
-  /// See [Vertex AI and Google AI
-  /// differences](https://cloud.google.com/vertex-ai/generative-ai/docs/overview#how-gemini-vertex-different-gemini-aistudio)
+  /// See [Agent Platform Gemini API and Gemini Developer API
+  /// differences](https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/migrate/migrate-google-ai#google-ai)
   /// for a comparison of the two [API services](https://google.aip.dev/9#api-service).
   enum Service: Hashable, Encodable {
-    /// Vertex AI Gemini API.
+    /// Agent Platform Gemini API.
     ///
     /// See the [Cloud
-    /// docs](https://cloud.google.com/vertex-ai/generative-ai/docs/model-reference/inference) for
-    /// more details.
-    case vertexAI(endpoint: Endpoint, location: String)
+    /// docs](https://docs.cloud.google.com/gemini-enterprise-agent-platform/reference/models/inference)
+    /// for more details.
+    case agentPlatform(endpoint: Endpoint, location: String)
 
     /// The Gemini Developer API provided by Google AI.
     ///
@@ -57,7 +57,7 @@ extension APIConfig {
     /// This must correspond with the API set in `service`.
     var endpoint: Endpoint {
       switch self {
-      case let .vertexAI(endpoint: endpoint, _):
+      case let .agentPlatform(endpoint: endpoint, _):
         return endpoint
       case let .googleAI(endpoint: endpoint):
         return endpoint
@@ -72,28 +72,31 @@ extension APIConfig.Service {
   enum Endpoint: String, Encodable {
     /// The Firebase proxy production endpoint.
     ///
-    /// This endpoint supports both Google AI and Vertex AI.
+    /// This endpoint supports both the Gemini Developer API and the Agent Platform Gemini API.
     case firebaseProxyProd = "https://firebasevertexai.googleapis.com"
 
     #if DEBUG
       /// The Firebase proxy staging endpoint; for SDK development and testing only.
       ///
       /// This endpoint supports both the Gemini Developer API (commonly referred to as Google AI)
-      /// and the Gemini API in Vertex AI (commonly referred to simply as Vertex AI).
+      /// and the Agent Platform Gemini API.
       case firebaseProxyStaging = "https://staging-firebasevertexai.sandbox.googleapis.com"
 
       /// The Gemini Developer API (Google AI) direct production endpoint; for SDK development and
       /// testing only.
       ///
       /// This bypasses the Firebase proxy and directly connects to the Gemini Developer API
-      /// (Google AI) backend. This endpoint only supports the Gemini Developer API, not Vertex AI.
+      /// (Google AI) backend. This endpoint only supports the Gemini Developer API, not the
+      /// Agent Platform Gemini API.
       case googleAIBypassProxy = "https://generativelanguage.googleapis.com"
 
-      /// The Vertex AI direct staging endpoint; for SDK development and testing only.
+      /// The Agent Platform Gemini API direct staging endpoint; for SDK development and
+      /// testing only.
       ///
-      /// This bypasses the Firebase proxy and directly connects to the Vertex AI backend. This
-      /// endpoint only supports the Gemini API in Vertex AI, not the Gemini Developer API.
-      case vertexAIStagingBypassProxy = "https://staging-aiplatform.sandbox.googleapis.com"
+      /// This bypasses the Firebase proxy and directly connects to the Agent Platform Gemini API
+      /// backend. This endpoint only supports the Agent Platform Gemini API, not the Gemini
+      /// Developer API.
+      case agentPlatformStagingBypassProxy = "https://staging-aiplatform.sandbox.googleapis.com"
     #endif // DEBUG
   }
 }
@@ -109,8 +112,8 @@ extension APIConfig {
       /// only.
       case v1
 
-      /// The beta channel for version 1 of the direct Vertex AI API, when bypassing the Firebase
-      /// proxy; for SDK development and testing only.
+      /// The beta channel for version 1 of the direct Agent Platform Gemini API, when
+      /// bypassing the Firebase proxy; for SDK development and testing only.
       case v1beta1
     #endif // DEBUG
   }

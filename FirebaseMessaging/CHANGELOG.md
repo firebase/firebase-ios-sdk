@@ -1,3 +1,12 @@
+# Unreleased
+- [fixed] Fix an issue where new FCM registration processing was not invoked
+  when `FirebaseMessagingInstallationIdEnabled` was set to `YES` and a legacy token
+  existed in cache. (#16429)
+
+# 12.17.0
+- [fixed] Reject path separators in file extensions for downloaded image
+  attachments. (#16387)
+
 # 12.16.0
 - [added] Add support for the new FCM registration API. (#16133)
 

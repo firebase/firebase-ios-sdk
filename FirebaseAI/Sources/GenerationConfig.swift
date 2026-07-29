@@ -169,6 +169,10 @@ public struct GenerationConfig: Sendable, Equatable {
   ///     models; see ``ThinkingConfig`` for more details.
   ///   - speechConfig: Configuration for controlling the voice of the model during conversation;
   ///     see ``SpeechConfig`` for more details.
+  ///
+  ///     > Warning: Specifying a speech configuration is a **Public Preview** feature, which means
+  ///     > that it is not subject to any SLA or deprecation policy and could change in
+  ///     > backwards-incompatible ways.
   ///   - imageConfig: Configuration options for generating images.
   public init(temperature: Float? = nil, topP: Float? = nil, topK: Int? = nil,
               candidateCount: Int? = nil, maxOutputTokens: Int? = nil,
