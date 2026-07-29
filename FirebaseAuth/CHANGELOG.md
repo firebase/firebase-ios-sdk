@@ -3,6 +3,8 @@
   fail if multi-factor authentication was enabled. (#16438)
 - [fixed] Fixed a bug where `verifyPhoneNumber` could hit an infinite recursion
   and crash due to a Swift concurrency compiler bug in some toolchains. (#16416)
+- [added] Added `passwordDoesNotMeetRequirements` error code for handling
+  password policy requirement errors. (#16462)
 
 # 12.17.0
 - [fixed] Fixed an array out-of-bounds access in `ActionCodeURL` query parsing.
