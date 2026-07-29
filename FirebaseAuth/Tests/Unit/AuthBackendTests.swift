@@ -442,7 +442,8 @@ class AuthBackendTests: RPCBaseTests {
     }
   }
 
-  /// Test Password doesn't meet requirements Function Error Response Flow with default error message.
+  /// Test Password doesn't meet requirements Function Error Response Flow with default error
+  /// message.
   func testPasswordDoesNotMeetRequirementsResponseWithoutDetailMessage() async throws {
     let kErrorMessagePasswordDoesNotMeetRequirements = "PASSWORD_DOES_NOT_MEET_REQUIREMENTS"
     let responseError = NSError(domain: kFakeErrorDomain, code: kFakeErrorCode)
