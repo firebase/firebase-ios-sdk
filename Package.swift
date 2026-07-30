@@ -747,7 +747,8 @@ let package = Package(
     .target(
       name: "FirebaseInAppMessagingTarget",
       dependencies: [
-        .target(name: "FirebaseInAppMessaging", condition: .when(platforms: [.iOS, .tvOS])),
+        .target(name: "FirebaseInAppMessaging",
+                condition: .when(platforms: [.iOS, .tvOS, .macCatalyst])),
       ],
       path: "SwiftPM-PlatformExclude/FirebaseInAppMessagingWrap"
     ),
@@ -883,7 +884,7 @@ let package = Package(
     .target(
       name: "FirebasePerformanceTarget",
       dependencies: [.target(name: "FirebasePerformance",
-                             condition: .when(platforms: [.iOS, .tvOS, .visionOS]))],
+                             condition: .when(platforms: [.iOS, .tvOS, .visionOS, .macCatalyst]))],
       path: "SwiftPM-PlatformExclude/FirebasePerformanceWrap"
     ),
     .target(
