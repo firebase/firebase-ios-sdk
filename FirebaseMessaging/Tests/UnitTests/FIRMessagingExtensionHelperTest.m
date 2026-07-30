@@ -122,9 +122,9 @@ static NSString *const kValidImageURL =
   FIRMessagingContentHandler handler = ^(UNNotificationContent *content) {
     [handlerCalledExpectation fulfill];
   };
-  [_mockExtensionHelper populateNotificationContent:content withContentHandler:handler];
   OCMReject([_mockExtensionHelper loadAttachmentForURL:[OCMArg any]
                                      completionHandler:[OCMArg any]]);
+  [_mockExtensionHelper populateNotificationContent:content withContentHandler:handler];
   [self waitForExpectationsWithTimeout:1.0 handler:nil];
 }
 
@@ -138,9 +138,9 @@ static NSString *const kValidImageURL =
   FIRMessagingContentHandler handler = ^(UNNotificationContent *content) {
     [handlerCalledExpectation fulfill];
   };
-  [_mockExtensionHelper populateNotificationContent:content withContentHandler:handler];
   OCMReject([_mockExtensionHelper loadAttachmentForURL:[OCMArg any]
                                      completionHandler:[OCMArg any]]);
+  [_mockExtensionHelper populateNotificationContent:content withContentHandler:handler];
   [self waitForExpectationsWithTimeout:1.0 handler:nil];
 }
 
