@@ -152,14 +152,15 @@ NS_SWIFT_NAME(WindowSpecBridge)
            preceding:(id _Nullable)preceding
            following:(id _Nullable)following
                 type:(NSString *_Nullable)type
-                unit:(NSString *_Nullable)unit;
+                unit:(id _Nullable)unit;
 @end
 
 NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(AddWindowFieldsStageBridge)
 @interface FIRAddWindowFieldsStageBridge : FIRStageBridge
 - (id)initWithWindow:(FIRWindowSpecBridge *)window
-              fields:(NSDictionary<NSString *, FIRAggregateFunctionBridge *> *)fields;
+              fields:(NSDictionary<NSString *, FIRAggregateFunctionBridge *> *)fields
+             options:(NSDictionary<NSString *, FIRExprBridge *> *_Nullable)options;
 @end
 
 

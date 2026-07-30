@@ -20,232 +20,196 @@ import Foundation
   @_exported import FirebaseFirestoreInternal
 #endif // SWIFT_PACKAGE
 
-/// Protocol representing a finalized window specification that can be serialized.
-public protocol FinalWindowSpec: Sendable {
-  func toBridge() -> WindowSpecBridge
+/// Represents a boundary in a window frame specification (e.g. integer offset, expression, `.unbounded`, or `.current`).
+public struct WindowBound: ExpressibleByIntegerLiteral, ExpressibleByStringLiteral, Sendable {
+  public let rawValue: Sendable
+
+  public static let unbounded = WindowBound("unbounded")
+  public static let current = WindowBound("current")
+
+  public init(_ value: Sendable) {
+    self.rawValue = value
+  }
+
+  public init(_ expression: Expression) {
+    self.rawValue = expression
+  }
+
+  public init(integerLiteral value: Int) {
+    self.rawValue = value
+  }
+
+  public init(stringLiteral value: String) {
+    self.rawValue = value
+  }
 }
 
-/// Factory class for constructing window specifications.
+/// Window specification for window functions.
 public class WindowSpec: @unchecked Sendable {
-  public static let CURRENT = "current"
-  public static let UNBOUNDED = "unbounded"
-
-  /** Creates a partition/group spec (no sorting or frames supported). */
-  public static func overPartition(_ groups: [Expression]) -> GroupWindowSpec {
-    return GroupWindowSpec(groups: groups)
-  }
-
-  /** Creates a partition/group spec using field names. */
-  public static func overPartition(_ groups: [String]) -> GroupWindowSpec {
-    return GroupWindowSpec(groups: groups.map { Field($0) })
-  }
-
-  /** Creates a partition/group spec using a single field name. */
-  public static func overPartition(_ group: String) -> GroupWindowSpec {
-    return overPartition([group])
-  }
-
-
-  /** Creates a document-count based window spec (sort and boundaries are required). */
-  public static func overDocuments(sort: Ordering, preceding: Any, following: Any) -> DocumentWindowSpec {
-    return DocumentWindowSpec(sort: [sort], preceding: preceding, following: following)
-  }
-
-  /** Creates a document-count based window spec with multiple sorts. */
-  public static func overDocuments(sort: [Ordering], preceding: Any, following: Any) -> DocumentWindowSpec {
-    return DocumentWindowSpec(sort: sort, preceding: preceding, following: following)
-  }
-
-  /** Convenience factory for default documents spec (unbounded preceding to current). */
-  public static func overDocuments(sort: Ordering) -> DocumentWindowSpec {
-    return DocumentWindowSpec(sort: [sort], preceding: UNBOUNDED, following: CURRENT)
-  }
-
-  public static func overDocuments(sort: [Ordering]) -> DocumentWindowSpec {
-    return DocumentWindowSpec(sort: sort, preceding: UNBOUNDED, following: CURRENT)
-  }
-
-  /** Creates a range-value based window spec (sort and boundaries are required). */
-  public static func overRange(sort: Ordering, preceding: Any, following: Any) -> RangeWindowSpec {
-    return RangeWindowSpec(sort: sort, preceding: preceding, following: following)
-  }
-
-  /** Convenience factory for default range spec (unbounded preceding to current). */
-  public static func overRange(sort: Ordering) -> RangeWindowSpec {
-    return RangeWindowSpec(sort: sort, preceding: UNBOUNDED, following: CURRENT)
-  }
-}
-
-/// Window specification for group/partition aggregations without sorting or frames.
-public class GroupWindowSpec: WindowSpec, FinalWindowSpec, @unchecked Sendable {
   let groups: [Expression]
+  let sort: [Ordering]?
+  let preceding: WindowBound?
+  let following: WindowBound?
+  let type: String?
+  let unit: Sendable?
 
-  init(groups: [Expression]) {
+  init(
+    groups: [Expression] = [],
+    sort: [Ordering]? = nil,
+    preceding: WindowBound? = nil,
+    following: WindowBound? = nil,
+    type: String? = nil,
+    unit: Sendable? = nil
+  ) {
     self.groups = groups
-  }
-
-  /** Specify range-value based window frame on top of this partition. */
-  public func overRange(sort: Ordering, preceding: Any, following: Any) -> RangeWindowSpec {
-    return RangeWindowSpec(sort: sort, preceding: preceding, following: following, groups: groups)
-  }
-
-  /** Specify range-value based default window frame on top of this partition. */
-  public func overRange(sort: Ordering) -> RangeWindowSpec {
-    return RangeWindowSpec(sort: sort, preceding: WindowSpec.UNBOUNDED, following: WindowSpec.CURRENT, groups: groups)
-  }
-
-  /** Specify document-count based window frame on top of this partition. */
-  public func overDocuments(sort: Ordering, preceding: Any, following: Any) -> DocumentWindowSpec {
-    return DocumentWindowSpec(sort: [sort], preceding: preceding, following: following, groups: groups)
-  }
-
-  /** Specify document-count based window frame with multiple sorts on top of this partition. */
-  public func overDocuments(sort: [Ordering], preceding: Any, following: Any) -> DocumentWindowSpec {
-    return DocumentWindowSpec(sort: sort, preceding: preceding, following: following, groups: groups)
-  }
-
-  /** Specify document-count based default window frame on top of this partition. */
-  public func overDocuments(sort: Ordering) -> DocumentWindowSpec {
-    return DocumentWindowSpec(sort: [sort], preceding: WindowSpec.UNBOUNDED, following: WindowSpec.CURRENT, groups: groups)
-  }
-
-  /** Specify document-count based default window frame with multiple sorts on top of this partition. */
-  public func overDocuments(sort: [Ordering]) -> DocumentWindowSpec {
-    return DocumentWindowSpec(sort: sort, preceding: WindowSpec.UNBOUNDED, following: WindowSpec.CURRENT, groups: groups)
-  }
-
-  public func toBridge() -> WindowSpecBridge {
-    return WindowSpecBridge(
-      groups: groups.map { $0.toBridge() },
-      sort: nil,
-      preceding: nil,
-      following: nil,
-      type: nil,
-      unit: nil
-    )
-  }
-}
-
-/// Window specification for document-count based window frames.
-public class DocumentWindowSpec: WindowSpec, FinalWindowSpec, @unchecked Sendable {
-  let sort: [Ordering]
-  let preceding: Any
-  let following: Any
-  let groups: [Expression]
-
-  init(sort: [Ordering], preceding: Any, following: Any, groups: [Expression] = []) {
     self.sort = sort
     self.preceding = preceding
     self.following = following
-    self.groups = groups
+    self.type = type
+    self.unit = unit
   }
 
   /** Specify group/partition configuration on top of this spec. */
-  public func overPartition(_ groups: [Expression]) -> DocumentWindowSpec {
-    return DocumentWindowSpec(sort: sort, preceding: preceding, following: following, groups: self.groups + groups)
+  public func partition(_ groups: [Expression]) -> WindowSpec {
+    return WindowSpec(
+      groups: self.groups + groups,
+      sort: sort,
+      preceding: preceding,
+      following: following,
+      type: type,
+      unit: unit
+    )
   }
 
   /** Specify group/partition configuration using field names. */
-  public func overPartition(_ groups: [String]) -> DocumentWindowSpec {
-    return overPartition(groups.map { Field($0) })
+  public func partition(_ groups: [String]) -> WindowSpec {
+    return partition(groups.map { Field($0) })
   }
 
-  /** Specify group/partition configuration using a single field name. */
-  public func overPartition(_ group: String) -> DocumentWindowSpec {
-    return overPartition([group])
+  /** Specify sort order for this window spec. */
+  public func sort(_ sort: Ordering) -> WindowSpec {
+    return WindowSpec(
+      groups: groups,
+      sort: [sort],
+      preceding: preceding,
+      following: following,
+      type: type,
+      unit: unit
+    )
   }
 
+  public func sort(_ sort: [Ordering]) -> WindowSpec {
+    return WindowSpec(
+      groups: groups,
+      sort: sort,
+      preceding: preceding,
+      following: following,
+      type: type,
+      unit: unit
+    )
+  }
 
-  public func toBridge() -> WindowSpecBridge {
-    return WindowSpecBridge(
-      groups: groups.map { $0.toBridge() },
-      sort: sort.map { $0.bridge },
+  /** Specify document-count based window frame. */
+  public func documents(preceding: WindowBound, following: WindowBound) -> WindowSpec {
+    return WindowSpec(
+      groups: groups,
+      sort: sort,
       preceding: preceding,
       following: following,
       type: "documents",
       unit: nil
     )
   }
-}
 
-/// Window specification for range-value based window frames.
-public class RangeWindowSpec: WindowSpec, FinalWindowSpec, @unchecked Sendable {
-  let sort: Ordering
-  let preceding: Any
-  let following: Any
-  let groups: [Expression]
-  var unit: TimeGranularity?
-
-  init(sort: Ordering, preceding: Any, following: Any, groups: [Expression] = [], unit: TimeGranularity? = nil) {
-    self.sort = sort
-    self.preceding = preceding
-    self.following = following
-    self.groups = groups
-    self.unit = unit
+  public func documents(preceding: Expression, following: Expression) -> WindowSpec {
+    return documents(preceding: WindowBound(preceding), following: WindowBound(following))
   }
 
-  /** Specify group/partition configuration on top of this spec. */
-  public func overPartition(_ groups: [Expression]) -> RangeWindowSpec {
-    return RangeWindowSpec(sort: sort, preceding: preceding, following: following, groups: self.groups + groups, unit: unit)
-  }
-
-  /** Specify group/partition configuration using field names. */
-  public func overPartition(_ groups: [String]) -> RangeWindowSpec {
-    return overPartition(groups.map { Field($0) })
-  }
-
-  /** Specify group/partition configuration using a single field name. */
-  public func overPartition(_ group: String) -> RangeWindowSpec {
-    return overPartition([group])
-  }
-
-
-  /** Specify date/time granularity unit for this range spec. */
-  public func withUnits(_ unit: TimeGranularity) -> RangeWindowSpec {
-    self.unit = unit
-    return self
-  }
-
-  public func toBridge() -> WindowSpecBridge {
-    return WindowSpecBridge(
-      groups: groups.map { $0.toBridge() },
-      sort: [sort.bridge],
+  /** Specify range-value based window frame. */
+  public func range(
+    preceding: WindowBound,
+    following: WindowBound,
+    unit: Sendable? = nil
+  ) -> WindowSpec {
+    return WindowSpec(
+      groups: groups,
+      sort: sort,
       preceding: preceding,
       following: following,
       type: "range",
-      unit: unit?.rawValue
+      unit: unit ?? self.unit
     )
   }
-}
 
-// Enable dot-shorthand notation for FinalWindowSpec arguments
-extension FinalWindowSpec {
-  public static func overPartition(_ groups: [Expression]) -> GroupWindowSpec {
-    return WindowSpec.overPartition(groups)
+  public func range(
+    preceding: Expression,
+    following: Expression,
+    unit: Sendable? = nil
+  ) -> WindowSpec {
+    return range(
+      preceding: WindowBound(preceding),
+      following: WindowBound(following),
+      unit: unit
+    )
   }
-  public static func overPartition(_ groups: [String]) -> GroupWindowSpec {
-    return WindowSpec.overPartition(groups)
+
+  public func toBridge() -> WindowSpecBridge {
+    let bridgePreceding: Any? = (preceding?.rawValue as? Expression)?.toBridge() ?? preceding?.rawValue
+    let bridgeFollowing: Any? = (following?.rawValue as? Expression)?.toBridge() ?? following?.rawValue
+    let bridgeUnit: Any? = (unit as? TimeGranularity)?.rawValue ?? (unit as? Expression)?.toBridge() ?? unit
+    return WindowSpecBridge(
+      groups: groups.map { $0.toBridge() },
+      sort: sort?.map { $0.bridge },
+      preceding: bridgePreceding,
+      following: bridgeFollowing,
+      type: type,
+      unit: bridgeUnit
+    )
   }
-  public static func overPartition(_ group: String) -> GroupWindowSpec {
-    return WindowSpec.overPartition(group)
+
+  // MARK: - Factory Methods
+
+  /** Creates a partition/group spec. */
+  public static func partition(_ groups: [Expression]) -> WindowSpec {
+    return WindowSpec(groups: groups)
   }
-  public static func overDocuments(sort: Ordering, preceding: Any, following: Any) -> DocumentWindowSpec {
-    return WindowSpec.overDocuments(sort: sort, preceding: preceding, following: following)
+
+  public static func partition(_ groups: [String]) -> WindowSpec {
+    return WindowSpec(groups: groups.map { Field($0) })
   }
-  public static func overDocuments(sort: [Ordering], preceding: Any, following: Any) -> DocumentWindowSpec {
-    return WindowSpec.overDocuments(sort: sort, preceding: preceding, following: following)
+
+  /** Creates a sort spec. */
+  public static func sort(_ sort: Ordering) -> WindowSpec {
+    return WindowSpec(sort: [sort])
   }
-  public static func overDocuments(sort: Ordering) -> DocumentWindowSpec {
-    return WindowSpec.overDocuments(sort: sort)
+
+  public static func sort(_ sort: [Ordering]) -> WindowSpec {
+    return WindowSpec(sort: sort)
   }
-  public static func overDocuments(sort: [Ordering]) -> DocumentWindowSpec {
-    return WindowSpec.overDocuments(sort: sort)
+
+  /** Creates a document-count based window spec. */
+  public static func documents(preceding: WindowBound, following: WindowBound) -> WindowSpec {
+    return WindowSpec(preceding: preceding, following: following, type: "documents")
   }
-  public static func overRange(sort: Ordering, preceding: Any, following: Any) -> RangeWindowSpec {
-    return WindowSpec.overRange(sort: sort, preceding: preceding, following: following)
+
+  public static func documents(preceding: Expression, following: Expression) -> WindowSpec {
+    return documents(preceding: WindowBound(preceding), following: WindowBound(following))
   }
-  public static func overRange(sort: Ordering) -> RangeWindowSpec {
-    return WindowSpec.overRange(sort: sort)
+
+  /** Creates a range-value based window spec. */
+  public static func range(
+    preceding: WindowBound,
+    following: WindowBound,
+    unit: Sendable? = nil
+  ) -> WindowSpec {
+    return WindowSpec(preceding: preceding, following: following, type: "range", unit: unit)
+  }
+
+  public static func range(
+    preceding: Expression,
+    following: Expression,
+    unit: Sendable? = nil
+  ) -> WindowSpec {
+    return range(preceding: WindowBound(preceding), following: WindowBound(following), unit: unit)
   }
 }
-

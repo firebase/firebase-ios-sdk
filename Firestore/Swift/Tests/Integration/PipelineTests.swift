@@ -5501,7 +5501,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     let snapshot = try await db.pipeline()
       .collection(collRef.path)
       .addWindowFields(
-        window: .overPartition("product"),
+        window: .partition(["product"]),
         fields: [
           Field("salesPrice").average().as("productAveragePrice"),
           countAll().as("windowCount")
@@ -5532,8 +5532,9 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     let snapshot = try await db.pipeline()
       .collection(collRef.path)
       .addWindowFields(
-        window: .overDocuments(sort: Field("salesPrice").ascending(), preceding: 1, following: 1)
-          .overPartition("product"),
+        window: .documents(preceding: 1, following: 1)
+          .sort([Field("salesPrice").ascending()])
+          .partition(["product"]),
         fields: [
           Field("salesPrice").average().as("movingAverage")
         ]
@@ -5563,8 +5564,9 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     let snapshot = try await db.pipeline()
       .collection(collRef.path)
       .addWindowFields(
-        window: .overRange(sort: Field("salesPrice").ascending(), preceding: 30, following: WindowSpec.CURRENT)
-          .overPartition("product"),
+        window: .range(preceding: 30, following: .current)
+          .sort(Field("salesPrice").ascending())
+          .partition(["product"]),
         fields: [
           Field("salesPrice").sum().as("runningSum")
         ]

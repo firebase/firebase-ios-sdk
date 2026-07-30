@@ -634,7 +634,7 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
   id _preceding;
   id _following;
   NSString *_type;
-  NSString *_unit;
+  id _unit;
 }
 
 - (id)initWithGroups:(NSArray<FIRExprBridge *> *)groups
@@ -642,7 +642,7 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
            preceding:(id _Nullable)preceding
            following:(id _Nullable)following
                 type:(NSString *_Nullable)type
-                unit:(NSString *_Nullable)unit {
+                unit:(id _Nullable)unit {
   self = [super init];
   if (self) {
     _groups = groups;
@@ -715,7 +715,9 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
     // Helper lambda to convert bound to value
     auto convertBound = [reader](id bound) -> firebase::firestore::google_firestore_v1_Value {
       firebase::firestore::google_firestore_v1_Value val;
-      if ([bound isKindOfClass:[NSString class]]) {
+      if ([bound isKindOfClass:[FIRExprBridge class]]) {
+        val = [(FIRExprBridge *)bound cppExprWithReader:reader]->to_proto();
+      } else if ([bound isKindOfClass:[NSString class]]) {
         val.which_value_type = google_firestore_v1_Value_string_value_tag;
         val.string_value = nanopb::MakeBytesArray(MakeString((NSString *)bound));
       } else if ([bound isKindOfClass:[NSNumber class]]) {
@@ -752,8 +754,12 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
   // 4. Serialize unit if present
   if (_unit != nil) {
     firebase::firestore::google_firestore_v1_Value unit_val;
-    unit_val.which_value_type = google_firestore_v1_Value_string_value_tag;
-    unit_val.string_value = nanopb::MakeBytesArray(MakeString(_unit));
+    if ([_unit isKindOfClass:[FIRExprBridge class]]) {
+      unit_val = [(FIRExprBridge *)_unit cppExprWithReader:reader]->to_proto();
+    } else if ([_unit isKindOfClass:[NSString class]]) {
+      unit_val.which_value_type = google_firestore_v1_Value_string_value_tag;
+      unit_val.string_value = nanopb::MakeBytesArray(MakeString((NSString *)_unit));
+    }
     map_fields["unit"] = unit_val;
   }
 
@@ -774,16 +780,19 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
 @implementation FIRAddWindowFieldsStageBridge {
   FIRWindowSpecBridge *_window;
   NSDictionary<NSString *, FIRAggregateFunctionBridge *> *_fields;
+  NSDictionary<NSString *, FIRExprBridge *> *_options;
   Boolean isUserDataRead;
   std::shared_ptr<firebase::firestore::api::RawStage> cpp_raw_stage;
 }
 
 - (id)initWithWindow:(FIRWindowSpecBridge *)window
-              fields:(NSDictionary<NSString *, FIRAggregateFunctionBridge *> *)fields {
+              fields:(NSDictionary<NSString *, FIRAggregateFunctionBridge *> *)fields
+             options:(NSDictionary<NSString *, FIRExprBridge *> *_Nullable)options {
   self = [super init];
   if (self) {
     _window = window;
     _fields = fields;
+    _options = options;
     isUserDataRead = NO;
   }
   return self;
@@ -810,6 +819,9 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
 
     std::vector<firebase::firestore::google_firestore_v1_Value> cpp_params = {window_val, fields_val};
     std::unordered_map<std::string, std::shared_ptr<firebase::firestore::api::Expr>> cpp_options;
+    for (NSString *key in _options) {
+      cpp_options[MakeString(key)] = [_options[key] cppExprWithReader:reader];
+    }
     
     cpp_raw_stage = std::make_shared<firebase::firestore::api::RawStage>(
         "add_window_fields", std::move(cpp_params), std::move(cpp_options));
