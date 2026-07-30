@@ -106,7 +106,7 @@
                   functionId: functionID
                 )
               )
-              parts.append(ModelContent(role: "function", parts: functionResponseParts))
+              parts.append(ModelContent(role: "user", parts: functionResponseParts))
 
             case let .structure(structure):
               var functionResponseParts: [FunctionResponsePart] = []
@@ -120,7 +120,7 @@
                   //                thoughtSignature: thoughtSignature
                 )
               )
-              parts.append(ModelContent(role: "function", parts: functionResponseParts))
+              parts.append(ModelContent(role: "user", parts: functionResponseParts))
 
             case let .attachment(attachment):
               throw LanguageModelError.unsupportedTranscriptContent(
