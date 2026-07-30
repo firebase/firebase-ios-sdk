@@ -153,7 +153,7 @@
     }
   }
 
-  private protocol LegacyMessaging {
+  protocol LegacyMessaging {
     func token(completion: @escaping @Sendable (String?, Error?) -> Void)
     func deleteToken(completion: @escaping @Sendable (Error?) -> Void)
     func retrieveFCMToken(forSenderID senderID: String,

@@ -76,10 +76,4 @@
       wait(for: [expectation], timeout: 5)
     }
   }
-
-  private protocol LegacyMessaging {
-    func token(completion: @escaping @Sendable (String?, Error?) -> Void)
-  }
-
-  extension Messaging: LegacyMessaging {}
 #endif // !os(OSX)
