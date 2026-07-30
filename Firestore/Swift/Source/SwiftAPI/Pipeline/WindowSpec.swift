@@ -121,8 +121,10 @@ public class WindowSpec: @unchecked Sendable {
     )
   }
 
-  public func documents(preceding: Expression, following: Expression) -> WindowSpec {
-    return documents(preceding: WindowBound(preceding), following: WindowBound(following))
+  public func documents(preceding: Sendable, following: Sendable) -> WindowSpec {
+    let p = (preceding as? WindowBound) ?? WindowBound(preceding)
+    let f = (following as? WindowBound) ?? WindowBound(following)
+    return documents(preceding: p, following: f)
   }
 
   /** Specify range-value based window frame. */
@@ -142,13 +144,15 @@ public class WindowSpec: @unchecked Sendable {
   }
 
   public func range(
-    preceding: Expression,
-    following: Expression,
+    preceding: Sendable,
+    following: Sendable,
     unit: Sendable? = nil
   ) -> WindowSpec {
+    let p = (preceding as? WindowBound) ?? WindowBound(preceding)
+    let f = (following as? WindowBound) ?? WindowBound(following)
     return range(
-      preceding: WindowBound(preceding),
-      following: WindowBound(following),
+      preceding: p,
+      following: f,
       unit: unit
     )
   }
@@ -192,8 +196,10 @@ public class WindowSpec: @unchecked Sendable {
     return WindowSpec(preceding: preceding, following: following, type: "documents")
   }
 
-  public static func documents(preceding: Expression, following: Expression) -> WindowSpec {
-    return documents(preceding: WindowBound(preceding), following: WindowBound(following))
+  public static func documents(preceding: Sendable, following: Sendable) -> WindowSpec {
+    let p = (preceding as? WindowBound) ?? WindowBound(preceding)
+    let f = (following as? WindowBound) ?? WindowBound(following)
+    return documents(preceding: p, following: f)
   }
 
   /** Creates a range-value based window spec. */
@@ -206,10 +212,12 @@ public class WindowSpec: @unchecked Sendable {
   }
 
   public static func range(
-    preceding: Expression,
-    following: Expression,
+    preceding: Sendable,
+    following: Sendable,
     unit: Sendable? = nil
   ) -> WindowSpec {
-    return range(preceding: WindowBound(preceding), following: WindowBound(following), unit: unit)
+    let p = (preceding as? WindowBound) ?? WindowBound(preceding)
+    let f = (following as? WindowBound) ?? WindowBound(following)
+    return range(preceding: p, following: f, unit: unit)
   }
 }
