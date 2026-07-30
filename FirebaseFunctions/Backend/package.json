@@ -3,7 +3,8 @@
   "description": "Cloud Functions for Firebase",
   "dependencies": {
     "firebase-admin": "^13.10.0",
-    "firebase-functions": "^7.2.5"
+    "firebase-functions": "^7.2.5",
+    "firebase-tools": "^13.11.0"
   },
   "engines": {
     "node": "22"

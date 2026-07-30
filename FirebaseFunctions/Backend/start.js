@@ -67,9 +67,9 @@ async function main() {
 
   // Wait for the emulator to be ready
   console.log('Waiting for emulator to start...');
-  const ready = await waitForPort(5005, '127.0.0.1', 30);
+  const ready = await waitForPort(5005, '127.0.0.1', 60);
   if (!ready) {
-    console.error('Emulator failed to start within 30 seconds.');
+    console.error('Emulator failed to start within 60 seconds.');
     if (fs.existsSync(logFile)) {
       console.error(fs.readFileSync(logFile, 'utf8'));
     }
