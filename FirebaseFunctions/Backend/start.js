@@ -43,7 +43,17 @@ async function main() {
 
   const child = spawn(
     os.platform() === 'win32' ? 'npx.cmd' : 'npx',
-    ['firebase', 'emulators:start', '--only', 'functions', '--project', 'functions-integration-test'],
+    [
+      '--yes',
+      '--package',
+      'firebase-tools',
+      'firebase',
+      'emulators:start',
+      '--only',
+      'functions',
+      '--project',
+      'functions-integration-test'
+    ],
     {
       cwd: tempDir,
       detached: isSynchronous,
