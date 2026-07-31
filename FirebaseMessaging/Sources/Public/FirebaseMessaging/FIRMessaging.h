@@ -259,36 +259,21 @@ NS_SWIFT_NAME(Messaging)
 #pragma mark - FCM Tokens
 
 /**
- * Is Firebase Messaging token auto generation enabled? If this flag is disabled, Firebase
- * Messaging will not generate an FCM token automatically for message delivery.
+ * Is Firebase Messaging auto registration enabled? If this flag is disabled, Firebase
+ * Messaging will not register the app instance automatically for message delivery.
  *
- * If this flag is disabled, Firebase Messaging does not generate new tokens automatically for
- * message delivery. If this flag is enabled, FCM generates a registration token on application
- * start when there is no existing valid token and periodically refreshes the token and sends
- * data to the Firebase backend.
+ * If this flag is disabled, Firebase Messaging does not register automatically for
+ * message delivery. If this flag is enabled, FCM registers on application
+ * start when there is no existing valid registration and periodically refreshes the registration
+ * and sends data to the Firebase backend.
  *
  * This setting is persisted, and is applied on future invocations of your application. Once
  * explicitly set, it overrides any settings in your Info.plist.
  *
  * By default, FCM automatic initialization is enabled.  If you need to change the
- * default (for example, because you want to prompt the user before getting a token),
+ * default (for example, because you want to prompt the user before registration),
  * set `FirebaseMessagingAutoInitEnabled` to NO in your application's Info.plist.
-/**
-* Is Firebase Messaging auto registration enabled? If this flag is disabled, Firebase
-* Messaging will not register the app instance automatically for message delivery.
-*
-* If this flag is disabled, Firebase Messaging does not register automatically for
-* message delivery. If this flag is enabled, FCM registers on application
-* start when there is no existing valid registration and periodically refreshes the registration and
-* sends data to the Firebase backend.
-*
-* This setting is persisted, and is applied on future invocations of your application. Once
-* explicitly set, it overrides any settings in your Info.plist.
-*
-* By default, FCM automatic initialization is enabled.  If you need to change the
-* default (for example, because you want to prompt the user before registration),
-* set `FirebaseMessagingAutoInitEnabled` to NO in your application's Info.plist.
-*/
+ */
 @property(nonatomic, assign, getter=isAutoInitEnabled) BOOL autoInitEnabled;
 
 /**
