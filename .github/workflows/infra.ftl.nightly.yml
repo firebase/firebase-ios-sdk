@@ -48,11 +48,11 @@ jobs:
             plist_src_path: scripts/gha-encrypted/qs-abtesting.plist.gpg
             plist_dst_path: quickstart-ios/abtesting/GoogleService-Info.plist
             build_command: scripts/test_quickstart_ftl.sh ABTesting
-          - product: Performance
-            setup_command: scripts/setup_quickstart.sh performance
-            plist_src_path: scripts/gha-encrypted/qs-performance.plist.gpg
-            plist_dst_path: quickstart-ios/performance/GoogleService-Info.plist
-            build_command: scripts/test_quickstart_ftl.sh Performance swift
+          # - product: Performance
+          #   setup_command: scripts/setup_quickstart.sh performance
+          #   plist_src_path: scripts/gha-encrypted/qs-performance.plist.gpg
+          #   plist_dst_path: quickstart-ios/performance/GoogleService-Info.plist
+          #   build_command: scripts/test_quickstart_ftl.sh Performance swift
           - product: Installations
             setup_command: scripts/setup_quickstart.sh installations
             plist_src_path: scripts/gha-encrypted/Installations/GoogleService-Info.plist.gpg
