@@ -145,7 +145,7 @@ NS_SWIFT_NAME(MessagingMessageInfo)
 @class FIRMessaging;
 
 /**
- * A protocol to handle registration update or data message delivery from FCM.
+ * A protocol to handle registration updates from FCM.
  *
  */
 NS_SWIFT_NAME(MessagingDelegate)
@@ -171,7 +171,8 @@ NS_SWIFT_NAME(MessagingDelegate)
 /// Furthermore, this method also serves as the callback for a direct call to
 /// `registerWithCompletion`. In this method, you should perform operations such as:
 ///
-/// * Uploading the Firebase Installation ID to your application server, so targeted notifications can be sent.
+/// * Uploading the Firebase Installation ID to your application server, so targeted notifications
+/// can be sent.
 /// * Subscribing to any topics.
 ///
 /// @param messaging The Firebase Messaging instance.
@@ -209,7 +210,7 @@ NS_SWIFT_NAME(Messaging)
 @interface FIRMessaging : NSObject
 
 /**
- * Delegate to handle FCM registsration refreshes, and remote data messages received via FCM direct channel.
+ * Delegate to handle FCM registration refreshes.
  */
 @property(nonatomic, weak, nullable) id<FIRMessagingDelegate> delegate;
 
@@ -278,8 +279,8 @@ NS_SWIFT_NAME(Messaging)
 *
 * If this flag is disabled, Firebase Messaging does not register automatically for
 * message delivery. If this flag is enabled, FCM registers on application
-* start when there is no existing valid registration and periodically refreshes the registration and sends
-* data to the Firebase backend.
+* start when there is no existing valid registration and periodically refreshes the registration and
+* sends data to the Firebase backend.
 *
 * This setting is persisted, and is applied on future invocations of your application. Once
 * explicitly set, it overrides any settings in your Info.plist.
@@ -467,9 +468,9 @@ NS_SWIFT_NAME(Messaging)
 - (void)unsubscribeFromTopic:(NSString *)topic NS_SWIFT_NAME(unsubscribe(fromTopic:));
 
 /**
- * Asynchronously unsubscribe from the provided topic, retrying on failure. This uses an FCM registration
- * to identify the app instance and periodically sends data to the Firebase backend. To stop this,
- * see `Messaging.delete(completion:)` and `Installations.delete(completion:)`.
+ * Asynchronously unsubscribe from the provided topic, retrying on failure. This uses an FCM
+ * registration to identify the app instance and periodically sends data to the Firebase backend. To
+ * stop this, see `Messaging.delete(completion:)` and `Installations.delete(completion:)`.
  *
  *  @param topic       The topic name to unsubscribe from, for example @"sports".
  *  @param completion  The completion that is invoked once the unsubscribe call ends.
@@ -496,8 +497,8 @@ NS_SWIFT_NAME(Messaging)
 
 #pragma mark - GDPR
 /**
- * Deletes all the registrations and checkin data of the Firebase project and related data on the server
- * side. A network connection is required for the method to succeed.
+ * Deletes all the registrations and checkin data of the Firebase project and related data on the
+ * server side. A network connection is required for the method to succeed.
  *
  * This does not delete the Firebase Installations ID. See `Installations.delete(completion:)`.
  * To prevent auto registration on initialization, see `Messaging.isAutoInitEnabled`.
