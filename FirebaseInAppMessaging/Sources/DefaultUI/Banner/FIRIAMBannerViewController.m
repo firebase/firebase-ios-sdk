@@ -35,7 +35,7 @@
 
 // Banner view will be rendered and dismissed with animation. Within viewDidLayoutSubviews function,
 // we would position the view so that it's out of UIWindow range on the top so that later on it can
-// slide in with animation. However, viewDidLayoutSubviews is also triggred in other scenarios
+// slide in with animation. However, viewDidLayoutSubviews is also triggered in other scenarios
 // like split view on iPad or device orientation changes where we don't want to hide the banner for
 // animations. So to have different logic, we use this property to tell the two different
 // cases apart and apply different positioning logic accordingly in viewDidLayoutSubviews.
