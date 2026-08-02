@@ -98,7 +98,7 @@ func withTimeout<T: Sendable>(seconds: TimeInterval,
                               operation: @escaping @Sendable () async throws -> T) async throws
   -> T? {
   guard seconds > 0 else {
-    fatalError("seconds must be a postive number, but we got \(seconds) instead")
+    fatalError("seconds must be a positive number, but we got \(seconds) instead")
   }
   // constrain to one hour, just in case someone accidentally passed too large of a value
   guard seconds <= 3600 else {
