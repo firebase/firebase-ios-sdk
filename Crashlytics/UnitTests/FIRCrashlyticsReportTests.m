@@ -87,7 +87,7 @@
 }
 
 #pragma mark - Public Getter Methods
-- (void)testPropertiesFromMetadatFile {
+- (void)testPropertiesFromMetadataFile {
   FIRCrashlyticsReport *report = [self createTempCopyOfReportWithName:@"metadata_only_report"];
 
   XCTAssertEqualObjects(@"772929a7f21f4ad293bb644668f257cd", report.reportID);
