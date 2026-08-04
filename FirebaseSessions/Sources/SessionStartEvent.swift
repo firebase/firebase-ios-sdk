@@ -32,7 +32,7 @@ internal import GoogleDataTransport
 ///   1) Writing fields to the Session proto
 ///   2) Synthesizing itself for persisting to disk and logging to GoogleDataTransport
 ///
-class SessionStartEvent: NSObject, GDTCOREventDataObject {
+class SessionStartEvent: NSObject, GDTCOREventDataObject, @unchecked Sendable {
   var proto: firebase_appquality_sessions_SessionEvent
 
   init(sessionInfo: SessionInfo, appInfo: ApplicationInfoProtocol,

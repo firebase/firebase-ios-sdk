@@ -20,11 +20,8 @@ internal import FirebaseInstallations
 internal import GoogleDataTransport
 
 #if swift(>=6.0)
-  internal import Promises
 #elseif swift(>=5.10)
-  import Promises
 #else
-  internal import Promises
 #endif
 
 private enum GoogleDataTransportConfig {
@@ -32,7 +29,7 @@ private enum GoogleDataTransportConfig {
   static let sessionsTarget = GDTCORTarget.FLL
 }
 
-@objc(FIRSessions) final class Sessions: NSObject, Library, SessionsProvider {
+@objc(FIRSessions) final class Sessions: NSObject, Library, SessionsProvider, @unchecked Sendable {
   // MARK: - Private Variables
 
   /// The Firebase App ID associated with Sessions.
@@ -45,13 +42,12 @@ private enum GoogleDataTransportConfig {
   private let appInfo: ApplicationInfoProtocol
   private let settings: SettingsProtocol
 
-  /// Subscribers
-  /// `subscribers` are used to determine the Data Collection state of the Sessions SDK.
-  /// If any Subscribers has Data Collection enabled, the Sessions SDK will send events
-  private var subscribers: [SessionsSubscriber] = []
-  /// `subscriberPromises` are used to wait until all Subscribers have registered
-  /// themselves. Subscribers must have Data Collection state available upon registering.
-  private var subscriberPromises: [SessionsSubscriberName: Promise<Void>] = [:]
+  /// `state` holds the mutable state (subscribers array and registration)
+  /// ensuring mathematical safety in Swift Concurrency.
+  private let state: SessionsState
+
+  /// Queue for callbacks
+  private let loggedEventCallbackQueue: DispatchQueue
 
   /// Notifications
   static let SessionIDChangedNotificationName = Notification
@@ -90,7 +86,8 @@ private enum GoogleDataTransportConfig {
               coordinator: coordinator,
               initiator: initiator,
               appInfo: appInfo,
-              settings: settings) { result in
+              settings: settings,
+              loggedEventCallbackQueue: .global(qos: .background)) { result in
       switch result {
       case .success(()):
         Logger.logInfo("Successfully logged Session Start event")
@@ -135,9 +132,7 @@ private enum GoogleDataTransportConfig {
   }
 
   // Initializes the SDK and begins the process of listening for lifecycle events and logging
-  // events. The given `logEventCallback` is invoked on a global background queue by default,
-  // but configurable via `loggedEventCallbackQueue` for providing a higher priority queue
-  // during tests to reduce flakes.
+  // events. The given `logEventCallback` is invoked when event logging completes.
   init(appID: String, sessionGenerator: SessionGenerator, coordinator: SessionCoordinatorProtocol,
        initiator: SessionInitiator, appInfo: ApplicationInfoProtocol, settings: SettingsProtocol,
        loggedEventCallbackQueue: DispatchQueue = .global(qos: .background),
@@ -149,13 +144,12 @@ private enum GoogleDataTransportConfig {
     self.initiator = initiator
     self.appInfo = appInfo
     self.settings = settings
-
-    super.init()
+    self.loggedEventCallbackQueue = loggedEventCallbackQueue
 
     let dependencies = SessionsDependencies.dependencies
-    for subscriberName in dependencies {
-      subscriberPromises[subscriberName] = Promise<Void>.pending()
-    }
+    self.state = SessionsState(expectedSubscribers: dependencies)
+
+    super.init()
 
     Logger
       .logDebug(
@@ -175,42 +169,56 @@ private enum GoogleDataTransportConfig {
 
       // If there are no Dependencies, then the Sessions SDK can't acknowledge
       // any products data collection state, so the Sessions SDK won't send events.
-      guard !self.subscriberPromises.isEmpty else {
-        loggedEventCallback(.failure(.NoDependenciesError))
+      guard !self.state.expectedSubscribers.isEmpty else {
+        self.loggedEventCallbackQueue.async {
+          loggedEventCallback(.failure(.NoDependenciesError))
+        }
         return
       }
 
-      // Wait until all subscriber promises have been fulfilled before
+      // Wait until all expected subscribers have registered before
       // doing any data collection.
-      all(self.subscriberPromises.values).then(on: loggedEventCallbackQueue) { _ in
-        guard self.isAnyDataCollectionEnabled else {
-          loggedEventCallback(.failure(.DataCollectionError))
-          return
-        }
+      Task {
+        await self.state.waitUntilAllRegistered()
+        let subscribers = await self.state.currentSubscribers
+        
+        self.loggedEventCallbackQueue.async {
+          let isAnyDataCollectionEnabled = subscribers.contains { $0.isDataCollectionEnabled }
+          guard isAnyDataCollectionEnabled else {
+            loggedEventCallback(.failure(.DataCollectionError))
+            return
+          }
 
-        Logger.logDebug("Data Collection is enabled for at least one Subscriber")
+          Logger.logDebug("Data Collection is enabled for at least one Subscriber")
 
-        // Fetch settings if they have expired. This must happen after the check for
-        // data collection because it uses the network, but it must happen before the
-        // check for sessionsEnabled from Settings because otherwise we would permanently
-        // turn off the Sessions SDK when we disabled it.
-        self.settings.updateSettings()
+          // Fetch settings if they have expired. This must happen after the check for
+          // data collection because it uses the network, but it must happen before the
+          // check for sessionsEnabled from Settings because otherwise we would permanently
+          // turn off the Sessions SDK when we disabled it.
+          self.settings.updateSettings()
+          let samplingRate = self.settings.samplingRate
+          let sessionsEnabled = self.settings.sessionsEnabled
 
-        self.addSubscriberFields(event: event)
-        event.setSamplingRate(samplingRate: self.settings.samplingRate)
+          for subscriber in subscribers {
+            event.set(subscriber: subscriber.sessionsSubscriberName,
+                      isDataCollectionEnabled: subscriber.isDataCollectionEnabled,
+                      appInfo: self.appInfo)
+          }
+          event.setSamplingRate(samplingRate: samplingRate)
 
-        guard sessionInfo.shouldDispatchEvents else {
-          loggedEventCallback(.failure(.SessionSamplingError))
-          return
-        }
+          guard sessionInfo.shouldDispatchEvents else {
+            loggedEventCallback(.failure(.SessionSamplingError))
+            return
+          }
 
-        guard self.settings.sessionsEnabled else {
-          loggedEventCallback(.failure(.DisabledViaSettingsError))
-          return
-        }
+          guard sessionsEnabled else {
+            loggedEventCallback(.failure(.DisabledViaSettingsError))
+            return
+          }
 
-        self.coordinator.attemptLoggingSessionStart(event: event) { result in
-          loggedEventCallback(result)
+          self.coordinator.attemptLoggingSessionStart(event: event) { result in
+            loggedEventCallback(result)
+          }
         }
       }
     }
@@ -226,23 +234,6 @@ private enum GoogleDataTransportConfig {
   }
 
   // MARK: - Data Collection
-
-  var isAnyDataCollectionEnabled: Bool {
-    for subscriber in subscribers {
-      if subscriber.isDataCollectionEnabled {
-        return true
-      }
-    }
-    return false
-  }
-
-  func addSubscriberFields(event: SessionStartEvent) {
-    for subscriber in subscribers {
-      event.set(subscriber: subscriber.sessionsSubscriberName,
-                isDataCollectionEnabled: subscriber.isDataCollectionEnabled,
-                appInfo: appInfo)
-    }
-  }
 
   // MARK: - SessionsProvider
 
@@ -265,7 +256,7 @@ private enum GoogleDataTransportConfig {
     }
   }
 
-  func register(subscriber: SessionsSubscriber) {
+  @objc(registerWithSubscriber:) func register(subscriber: SessionsSubscriber) {
     Logger
       .logDebug(
         "Registering Sessions SDK subscriber with name: \(subscriber.sessionsSubscriberName), data collection enabled: \(subscriber.isDataCollectionEnabled)"
@@ -289,9 +280,11 @@ private enum GoogleDataTransportConfig {
     // before subscribers, so subscribers will miss the first Notification
     subscriber.onSessionChanged(currentSessionDetails)
 
-    // Fulfil this subscriber's promise
-    subscribers.append(subscriber)
-    subscriberPromises[subscriber.sessionsSubscriberName]?.fulfill(())
+    // Register this subscriber to resume any waiting tasks
+    let subscriberName = subscriber.sessionsSubscriberName
+    Task {
+      await state.register(subscriber: subscriber, name: subscriberName)
+    }
   }
 
   // MARK: - Library conformance
