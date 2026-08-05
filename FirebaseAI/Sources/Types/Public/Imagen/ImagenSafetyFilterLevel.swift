@@ -20,7 +20,8 @@
 ///  (the "Nano Banana" models).](https://firebase.google.com/docs/ai-logic/imagen-models-migration)
 /// }
 ///
-/// Text prompts provided as inputs and images (generated or uploaded) through Imagen on Vertex AI
+/// Text prompts provided as inputs and images (generated or uploaded) through Imagen on Gemini
+/// Enterprise Agent Platform
 /// are assessed against a list of safety filters, which include 'harmful categories' (for example,
 /// `violence`, `sexual`, `derogatory`, and `toxic`). This filter level controls how aggressively to
 /// filter out potentially harmful content from responses. See the

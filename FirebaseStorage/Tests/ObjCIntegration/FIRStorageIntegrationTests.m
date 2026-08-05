@@ -636,6 +636,35 @@ NSString *const kTestPassword = KPASSWORD;
   [self waitForExpectations];
 }
 
+- (void)testCancelUpload {
+  XCTestExpectation *expectation = [self expectationWithDescription:@"testCancelUpload"];
+
+  FIRStorageReference *ref =
+      [self.storage referenceWithPath:@"ios/public/helloworldtestCancelUpload"];
+  NSData *data = [NSMutableData dataWithLength:1024 * 1024];
+
+  FIRStorageUploadTask *task = [ref putData:data];
+  // Don't fulfill twice if a second observe failure happens before the cancel completes.
+  BOOL __block fulfilled = NO;
+
+  [task observeStatus:FIRStorageTaskStatusFailure
+              handler:^(FIRStorageTaskSnapshot *snapshot) {
+                XCTAssertTrue([[snapshot description] containsString:@"State: Failed"]);
+                if (!fulfilled) {
+                  fulfilled = YES;
+                  XCTAssertEqual(snapshot.error.code, FIRStorageErrorCodeCancelled);
+                  [expectation fulfill];
+                }
+              }];
+
+  [task observeStatus:FIRStorageTaskStatusProgress
+              handler:^(FIRStorageTaskSnapshot *_Nonnull snapshot) {
+                [task cancel];
+              }];
+
+  [self waitForExpectations];
+}
+
 - (void)assertMetadata:(FIRStorageMetadata *)actualMetadata
            contentType:(NSString *)expectedContentType
         customMetadata:(NSDictionary *)expectedCustomMetadata {

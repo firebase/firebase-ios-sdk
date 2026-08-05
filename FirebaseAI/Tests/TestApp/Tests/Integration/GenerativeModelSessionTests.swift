@@ -26,7 +26,7 @@
   struct GenerativeModelSessionTests {
     let generationConfig = GenerationConfig(temperature: 0.0, topP: 0.0, topK: 1)
 
-    @Test(arguments: [InstanceConfig.vertexAI_v1beta_global, InstanceConfig.googleAI_v1beta])
+    @Test(arguments: [InstanceConfig.agentPlatform_v1beta_global, InstanceConfig.googleAI_v1beta])
     func respondText(_ config: InstanceConfig) async throws {
       let firebaseAI = FirebaseAI.componentInstance(config)
       let session = firebaseAI.generativeModelSession(model: ModelNames.gemini2_5_FlashLite)
@@ -61,7 +61,7 @@
         var profile: String
       }
 
-      @Test(arguments: [InstanceConfig.vertexAI_v1beta_global, InstanceConfig.googleAI_v1beta])
+      @Test(arguments: [InstanceConfig.agentPlatform_v1beta_global, InstanceConfig.googleAI_v1beta])
       @available(iOS 26.0, macOS 26.0, visionOS 26.0, watchOS 27.0, *)
       @available(tvOS, unavailable)
       func respondGeneratedContent(_ config: InstanceConfig) async throws {
@@ -88,7 +88,7 @@
         #expect(response.rawContent.generationID != nil)
       }
 
-      @Test(arguments: [InstanceConfig.vertexAI_v1beta_global, InstanceConfig.googleAI_v1beta])
+      @Test(arguments: [InstanceConfig.agentPlatform_v1beta_global, InstanceConfig.googleAI_v1beta])
       @available(iOS 26.0, macOS 26.0, visionOS 26.0, watchOS 27.0, *)
       @available(tvOS, unavailable)
       func respondGenerable(_ config: InstanceConfig) async throws {
@@ -170,7 +170,7 @@
         var recipes: [Recipe]
       }
 
-      @Test(arguments: [InstanceConfig.vertexAI_v1beta_global, InstanceConfig.googleAI_v1beta])
+      @Test(arguments: [InstanceConfig.agentPlatform_v1beta_global, InstanceConfig.googleAI_v1beta])
       @available(iOS 26.0, macOS 26.0, visionOS 26.0, watchOS 27.0, *)
       @available(tvOS, unavailable)
       func respondGenerableRecipe(_ config: InstanceConfig) async throws {
@@ -197,7 +197,7 @@
         #expect(response.rawContent.generationID != nil)
       }
 
-      @Test(arguments: [InstanceConfig.vertexAI_v1beta_global, InstanceConfig.googleAI_v1beta])
+      @Test(arguments: [InstanceConfig.agentPlatform_v1beta_global, InstanceConfig.googleAI_v1beta])
       @available(iOS 26.0, macOS 26.0, visionOS 26.0, watchOS 27.0, *)
       @available(tvOS, unavailable)
       func respondGenerableRecipeList(_ config: InstanceConfig) async throws {
@@ -261,7 +261,7 @@
       }
     }
 
-    @Test(arguments: [InstanceConfig.vertexAI_v1beta_global, InstanceConfig.googleAI_v1beta])
+    @Test(arguments: [InstanceConfig.agentPlatform_v1beta_global, InstanceConfig.googleAI_v1beta])
     @available(iOS 26.0, macOS 26.0, visionOS 26.0, watchOS 27.0, *)
     @available(tvOS, unavailable)
     func respondTextWithAutomaticFunctionCalling(_ config: InstanceConfig) async throws {
@@ -294,7 +294,7 @@
       #expect(response.rawResponse.functionCalls.isEmpty)
     }
 
-    @Test(arguments: [InstanceConfig.vertexAI_v1beta_global, InstanceConfig.googleAI_v1beta])
+    @Test(arguments: [InstanceConfig.agentPlatform_v1beta_global, InstanceConfig.googleAI_v1beta])
     @available(iOS 26.0, macOS 26.0, visionOS 26.0, watchOS 27.0, *)
     @available(tvOS, unavailable)
     func respondGenerableWithAutomaticFunctionCalling(_ config: InstanceConfig) async throws {
@@ -327,7 +327,7 @@
     }
 
     // TODO: b/524685673 - Re-enable googleAI_v1beta once backend bug is fixed.
-    @Test(arguments: [InstanceConfig.vertexAI_v1beta_global])
+    @Test(arguments: [InstanceConfig.agentPlatform_v1beta_global])
     func respondTextWithURLContext(_ config: InstanceConfig) async throws {
       let session = FirebaseAI.componentInstance(config).generativeModelSession(
         model: ModelNames.gemini3_1_FlashLite,
@@ -348,7 +348,7 @@
       #expect(retrievedURL == URL(string: url))
     }
 
-    @Test(arguments: [InstanceConfig.vertexAI_v1beta_global, InstanceConfig.googleAI_v1beta])
+    @Test(arguments: [InstanceConfig.agentPlatform_v1beta_global, InstanceConfig.googleAI_v1beta])
     func streamResponseText(_ config: InstanceConfig) async throws {
       let firebaseAI = FirebaseAI.componentInstance(config)
       let session = firebaseAI.generativeModelSession(model: ModelNames.gemini2_5_FlashLite)
@@ -391,7 +391,7 @@
     }
 
     #if canImport(FoundationModels)
-      @Test(arguments: [InstanceConfig.vertexAI_v1beta_global, InstanceConfig.googleAI_v1beta])
+      @Test(arguments: [InstanceConfig.agentPlatform_v1beta_global, InstanceConfig.googleAI_v1beta])
       @available(iOS 26.0, macOS 26.0, visionOS 26.0, watchOS 27.0, *)
       @available(tvOS, unavailable)
       func streamResponseGeneratedContent(_ config: InstanceConfig) async throws {
@@ -445,7 +445,7 @@
         #expect(!catProfile.profile.isEmpty)
       }
 
-      @Test(arguments: [InstanceConfig.vertexAI_v1beta_global, InstanceConfig.googleAI_v1beta])
+      @Test(arguments: [InstanceConfig.agentPlatform_v1beta_global, InstanceConfig.googleAI_v1beta])
       @available(iOS 26.0, macOS 26.0, visionOS 26.0, watchOS 27.0, *)
       @available(tvOS, unavailable)
       func streamResponseGenerable(_ config: InstanceConfig) async throws {
@@ -518,7 +518,7 @@
         #expect(!catProfile.profile.isEmpty)
       }
 
-      @Test(arguments: [InstanceConfig.vertexAI_v1beta_global, InstanceConfig.googleAI_v1beta])
+      @Test(arguments: [InstanceConfig.agentPlatform_v1beta_global, InstanceConfig.googleAI_v1beta])
       @available(iOS 26.0, macOS 26.0, visionOS 26.0, watchOS 27.0, *)
       @available(tvOS, unavailable)
       func streamResponseTextWithAutomaticFunctionCalling(_ config: InstanceConfig) async throws {
