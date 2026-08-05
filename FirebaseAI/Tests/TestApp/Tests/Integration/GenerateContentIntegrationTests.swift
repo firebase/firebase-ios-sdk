@@ -361,8 +361,8 @@ struct GenerateContentIntegrationTests {
     (InstanceConfig.agentPlatform_v1beta, ModelNames.gemini2_5_FlashImage),
     (InstanceConfig.agentPlatform_v1beta_global, ModelNames.gemini2_5_FlashImage),
     (InstanceConfig.googleAI_v1beta, ModelNames.gemini2_5_FlashImage),
-    (InstanceConfig.googleAI_v1beta, ModelNames.gemini3_1_FlashImagePreview),
-    (InstanceConfig.agentPlatform_v1beta_global, ModelNames.gemini3_1_FlashImagePreview),
+    (InstanceConfig.googleAI_v1beta, ModelNames.gemini3_1_FlashImage),
+    (InstanceConfig.agentPlatform_v1beta_global, ModelNames.gemini3_1_FlashImage),
   ])
   func generateImageWithAspectRatio(_ config: InstanceConfig, modelName: String) async throws {
     let imageConfig = ImageConfig(aspectRatio: .landscape16x9)
@@ -402,8 +402,8 @@ struct GenerateContentIntegrationTests {
   }
 
   @Test(arguments: [
-    (InstanceConfig.googleAI_v1beta, ModelNames.gemini3_1_FlashImagePreview),
-    (InstanceConfig.agentPlatform_v1beta_global, ModelNames.gemini3_1_FlashImagePreview),
+    (InstanceConfig.googleAI_v1beta, ModelNames.gemini3_1_FlashImage),
+    (InstanceConfig.agentPlatform_v1beta_global, ModelNames.gemini3_1_FlashImage),
   ])
   func generateImageWithCustomSize(_ config: InstanceConfig, modelName: String) async throws {
     let imageConfig = ImageConfig(
@@ -449,8 +449,8 @@ struct GenerateContentIntegrationTests {
     (InstanceConfig.agentPlatform_v1beta, ModelNames.gemini2_5_FlashImage),
     (InstanceConfig.agentPlatform_v1beta_global, ModelNames.gemini2_5_FlashImage),
     (InstanceConfig.googleAI_v1beta, ModelNames.gemini2_5_FlashImage),
-    (InstanceConfig.googleAI_v1beta, ModelNames.gemini3_1_FlashImagePreview),
-    (InstanceConfig.agentPlatform_v1beta_global, ModelNames.gemini3_1_FlashImagePreview),
+    (InstanceConfig.googleAI_v1beta, ModelNames.gemini3_1_FlashImage),
+    (InstanceConfig.agentPlatform_v1beta_global, ModelNames.gemini3_1_FlashImage),
   ])
   func generateContent_finishReason_imageSafety(_ config: InstanceConfig,
                                                 modelName: String) async throws {
