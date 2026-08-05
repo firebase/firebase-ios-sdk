@@ -106,7 +106,8 @@ public struct FunctionDeclaration: Sendable {
 /// > Important: When using this feature, you are required to comply with the
 /// "Grounding with Google Search" usage requirements for your chosen API provider:
 /// [Gemini Developer API](https://ai.google.dev/gemini-api/terms#grounding-with-google-search)
-/// or Vertex AI Gemini API (see [Service Terms](https://cloud.google.com/terms/service-terms)
+/// or Gemini Enterprise Agent Platform Gemini API (see
+/// [Service Terms](https://cloud.google.com/terms/service-terms)
 /// section within the Service Specific Terms).
 public struct GoogleSearch: Sendable, Hashable {
   public init() {}
@@ -291,7 +292,8 @@ public extension ToolRepresentable where Self == FirebaseAILogic.Tool {
   /// > Important: When using this feature, you are required to comply with the
   /// "Grounding with Google Search" usage requirements for your chosen API provider:
   /// [Gemini Developer API](https://ai.google.dev/gemini-api/terms#grounding-with-google-search)
-  /// or Vertex AI Gemini API (see [Service Terms](https://cloud.google.com/terms/service-terms)
+  /// or Gemini Enterprise Agent Platform Gemini API (see
+  /// [Service Terms](https://cloud.google.com/terms/service-terms)
   /// section within the Service Specific Terms).
   ///
   /// - Parameters:

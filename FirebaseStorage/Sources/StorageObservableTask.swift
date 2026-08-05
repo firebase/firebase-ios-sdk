@@ -21,7 +21,7 @@ import Foundation
  * Observers produce a `StorageHandle`, which is used to keep track of and remove specific
  * observers at a later date.
  */
-@objc(FIRStorageObservableTask) open class StorageObservableTask: StorageTask {
+@objc(FIRStorageObservableTask) open class StorageObservableTask: StorageTask, @unchecked Sendable {
   /**
    * Observes changes in the upload status: Resume, Pause, Progress, Success, and Failure.
    * - Parameters:
@@ -34,41 +34,37 @@ import Foundation
   open func observe(_ status: StorageTaskStatus,
                     handler: @escaping (StorageTaskSnapshot) -> Void) -> String {
     let callback = handler
+    let uuidString = UUID().uuidString
 
-    // Note: self.snapshot is synchronized
-    let snapshot = self.snapshot
+    let snapshot = stateLock.withLock { () -> StorageTaskSnapshot in
+      handlerDictionaries[status]?[uuidString] = callback
+      handleToStatusMap[uuidString] = status
+      return snapshotUnderLock()
+    }
 
-    // TODO: use an increasing counter instead of a random UUID
-    let uuidString = updateHandlerDictionary(for: status, with: callback)
-    if let handlerDictionary = handlerDictionaries[status] {
-      switch status {
-      case .pause:
-        if state == .pausing || state == .paused {
-          fire(handlers: handlerDictionary, snapshot: snapshot)
-        }
-      case .resume:
-        if state == .resuming || state == .running {
-          fire(handlers: handlerDictionary, snapshot: snapshot)
-        }
-      case .progress:
-        if state == .running || state == .progress {
-          fire(handlers: handlerDictionary, snapshot: snapshot)
-        }
-      case .success:
-        if state == .success {
-          fire(handlers: handlerDictionary, snapshot: snapshot)
-        }
-      case .failure:
-        if state == .failed || state == .failing {
-          fire(handlers: handlerDictionary, snapshot: snapshot)
-        }
-      case .unknown: fatalError("Invalid observer status requested, use one " +
-          "of: Pause, Resume, Progress, Complete, or Failure")
+    var shouldFire = false
+    switch status {
+    case .pause:
+      shouldFire = snapshot.state == .pausing || snapshot.state == .paused
+    case .resume:
+      shouldFire = snapshot.state == .resuming || snapshot.state == .running
+    case .progress:
+      shouldFire = snapshot.state == .running || snapshot.state == .progress
+    case .success:
+      shouldFire = snapshot.state == .success
+    case .failure:
+      shouldFire = snapshot.state == .failed || snapshot.state == .failing
+    case .unknown:
+      fatalError(
+        "Invalid observer status requested, use one of: Pause, Resume, Progress, Complete, or Failure"
+      )
+    }
+
+    if shouldFire {
+      reference.storage.callbackQueue.async {
+        callback(snapshot)
       }
     }
-    objc_sync_enter(StorageObservableTask.self)
-    handleToStatusMap[uuidString] = status
-    objc_sync_exit(StorageObservableTask.self)
 
     return uuidString
   }
@@ -78,11 +74,11 @@ import Foundation
    * - Parameter handle: The handle of the task to remove.
    */
   @objc(removeObserverWithHandle:) open func removeObserver(withHandle handle: String) {
-    if let status = handleToStatusMap[handle] {
-      objc_sync_enter(StorageObservableTask.self)
-      handlerDictionaries[status]?.removeValue(forKey: handle)
-      handleToStatusMap.removeValue(forKey: handle)
-      objc_sync_exit(StorageObservableTask.self)
+    stateLock.withLock {
+      if let status = handleToStatusMap[handle] {
+        handlerDictionaries[status]?.removeValue(forKey: handle)
+        handleToStatusMap.removeValue(forKey: handle)
+      }
     }
   }
 
@@ -92,13 +88,13 @@ import Foundation
    */
   @objc(removeAllObserversForStatus:)
   open func removeAllObservers(for status: StorageTaskStatus) {
-    if let handlerDictionary = handlerDictionaries[status] {
-      objc_sync_enter(StorageObservableTask.self)
-      for (key, _) in handlerDictionary {
-        handleToStatusMap.removeValue(forKey: key)
+    stateLock.withLock {
+      if let handlerDictionary = handlerDictionaries[status] {
+        for (key, _) in handlerDictionary {
+          handleToStatusMap.removeValue(forKey: key)
+        }
+        handlerDictionaries[status]?.removeAll()
       }
-      handlerDictionaries[status]?.removeAll()
-      objc_sync_exit(StorageObservableTask.self)
     }
   }
 
@@ -106,12 +102,12 @@ import Foundation
    * Removes all observers.
    */
   @objc open func removeAllObservers() {
-    objc_sync_enter(StorageObservableTask.self)
-    for (status, _) in handlerDictionaries {
-      handlerDictionaries[status]?.removeAll()
+    stateLock.withLock {
+      for (status, _) in handlerDictionaries {
+        handlerDictionaries[status]?.removeAll()
+      }
+      handleToStatusMap.removeAll()
     }
-    handleToStatusMap.removeAll()
-    objc_sync_exit(StorageObservableTask.self)
   }
 
   // MARK: - Private Handler Dictionaries
@@ -141,31 +137,17 @@ import Foundation
     super.init(reference: reference, queue: queue)
   }
 
-  func updateHandlerDictionary(for status: StorageTaskStatus,
-                               with handler: @escaping ((StorageTaskSnapshot) -> Void))
-    -> String {
-    // TODO: use an increasing counter instead of a random UUID
-    let uuidString = NSUUID().uuidString
-    objc_sync_enter(StorageObservableTask.self)
-    handlerDictionaries[status]?[uuidString] = handler
-    objc_sync_exit(StorageObservableTask.self)
-    return uuidString
-  }
-
   func fire(for status: StorageTaskStatus, snapshot: StorageTaskSnapshot) {
-    if let observerDictionary = handlerDictionaries[status] {
+    if let observerDictionary = stateLock.withLock({ handlerDictionaries[status] }) {
       fire(handlers: observerDictionary, snapshot: snapshot)
     }
   }
 
   func fire(handlers: [String: (StorageTaskSnapshot) -> Void],
             snapshot: StorageTaskSnapshot) {
-    objc_sync_enter(StorageObservableTask.self)
-    let enumeration = handlers.enumerated()
-    objc_sync_exit(StorageObservableTask.self)
-    for (_, handler) in enumeration {
+    for handler in handlers.values {
       reference.storage.callbackQueue.async {
-        handler.value(snapshot)
+        handler(snapshot)
       }
     }
   }

@@ -70,6 +70,7 @@ import Foundation
     let urlComponents = linkURL.components(separatedBy: "&")
     for component in urlComponents {
       let splitArray = component.split(separator: "=")
+      guard splitArray.count >= 2 else { continue }
       if let queryItemKey = String(splitArray[0]).removingPercentEncoding,
          let queryItemValue = String(splitArray[1]).removingPercentEncoding {
         queryItems[queryItemKey] = queryItemValue

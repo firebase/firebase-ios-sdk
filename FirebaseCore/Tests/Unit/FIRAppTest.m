@@ -865,11 +865,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   return NSApplicationDidBecomeActiveNotification;
 #elif TARGET_OS_WATCH
   // See comment in `- [FIRApp subscribeForAppDidBecomeActiveNotifications]`.
-  if (@available(watchOS 7.0, *)) {
-    return WKApplicationDidBecomeActiveNotification;
-  } else {
-    return kFIRAppReadyToConfigureSDKNotification;
-  }
+  return WKApplicationDidBecomeActiveNotification;
 #endif
 }
 
