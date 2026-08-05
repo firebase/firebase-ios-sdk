@@ -46,6 +46,8 @@ NS_ASSUME_NONNULL_BEGIN
     _debugProvider = debugProvider;
     _projectID = [projectID copy];
     _googleAppID = [googleAppID copy];
+
+    [self logDebugTokenMessageWithMessageCode:kFIRLoggerAppCheckMessageCodeDebugToken prefix:@""];
   }
   return self;
 }
@@ -83,23 +85,33 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - Private Helpers
 
-- (void)logDebugTokenExchangeError {
+- (void)logDebugTokenMessageWithMessageCode:(NSString *)messageCode prefix:(NSString *)prefix {
   if (self.projectID.length > 0 && self.googleAppID.length > 0) {
     NSString *debugToken = self.localDebugToken ?: @"UNKNOWN_TOKEN";
-    FIRLogWarning(kFIRLoggerAppCheck, kFIRLoggerAppCheckMessageCodeDebugTokenExchangeFailed,
-                  @"\nFailed to exchange debug token. To use this token for app debugging, register it with your project.\n\n"
-                  "Firebase App Check debug token: %@\n\n"
-                  "You can do so in the Firebase Console: \n"
-                  "https://console.firebase.google.com/project/%@/appcheck/apps?selectedAppId=%@ \n\n"
-                  "Or using the Firebase CLI: \n"
-                  "firebase appcheck:debugtokens:create %@ --project %@ --app %@\n\n"
-                  "Note: To keep your project secure, please revoke and delete this token using the \n"
-                  "Firebase Console or the CLI (`firebase appcheck:debugtokens:delete`) when you finish debugging.\n\n"
-                  "Warning: This debug token is a secret and should not be shared or uploaded to source code.\n\n"
-                  "Debug Token Guide: https://firebase.google.com/docs/app-check/ios/debug-provider\n"
-                  "Firebase CLI install instructions: https://firebase.google.com/docs/cli\n",
-                  debugToken, self.projectID, self.googleAppID, debugToken, self.projectID, self.googleAppID);
+    FIRLogWarning(
+        kFIRLoggerAppCheck, messageCode,
+        @"%@"
+         "To use this token for app debugging, register it with your project.\n\n"
+         "Firebase App Check debug token: %@\n\n"
+         "You can do so in the Firebase Console: \n"
+         "https://console.firebase.google.com/project/%@/appcheck/apps?selectedAppId=%@ \n\n"
+         "Or using the Firebase CLI: \n"
+         "firebase appcheck:debugtokens:create %@ --project %@ --app %@\n\n"
+         "Note: To keep your project secure, please revoke and delete this token using the \n"
+         "Firebase Console or the CLI (`firebase appcheck:debugtokens:delete`) when you finish "
+         "debugging.\n\n"
+         "Warning: This debug token is a secret and should not be shared or uploaded to source "
+         "code.\n\n"
+         "Debug Token Guide: https://firebase.google.com/docs/app-check/ios/debug-provider\n"
+         "Firebase CLI install instructions: https://firebase.google.com/docs/cli\n",
+        prefix, debugToken, self.projectID, self.googleAppID, debugToken, self.projectID,
+        self.googleAppID);
   }
+}
+
+- (void)logDebugTokenExchangeError {
+  [self logDebugTokenMessageWithMessageCode:kFIRLoggerAppCheckMessageCodeDebugTokenExchangeFailed
+                                     prefix:@"Failed to exchange debug token.\n"];
 }
 
 #pragma mark - FIRAppCheckProvider
