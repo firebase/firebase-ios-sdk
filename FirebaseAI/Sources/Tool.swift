@@ -260,7 +260,7 @@ public extension ToolRepresentable where Self == FirebaseAILogic.Tool {
   ///   configured by specifying a ``ToolConfig`` when instantiating the model. When a
   ///   ``FunctionCallPart`` is received, the next conversation turn may contain a
   ///   ``FunctionResponsePart`` in ``ModelContent/parts`` with a ``ModelContent/role`` of
-  ///   `"function"`; this response contains the result of executing the function on the client,
+  ///   `"user"`; this response contains the result of executing the function on the client,
   ///   providing generation context for the model's next turn.
   static func functionDeclarations(_ functionDeclarations: [FunctionDeclaration]) -> Tool {
     return self.init(functionDeclarations: functionDeclarations)
