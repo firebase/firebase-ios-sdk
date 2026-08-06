@@ -14,7 +14,7 @@ This directory contains the main source code for the FirebaseAI library.
 - **`Chat.swift`**: Defines the `Chat` class, which represents a back-and-forth chat with a `GenerativeModel`. It manages the chat history and provides methods for sending messages.
 - **`Constants.swift`**: Defines a `Constants` enum containing constants for the Firebase AI SDK, such as the base error domain.
 - **`Errors.swift`**: Defines various error-related structs and enums used for parsing and representing errors from the backend, such as `ErrorStatus` and `RPCStatus`.
-- **`FirebaseAI.swift`**: The primary entry point for using the Firebase AI SDK. It provides factory methods for creating `GenerativeModel`, `ImagenModel`, and `LiveGenerativeModel` instances.
+- **`FirebaseAI.swift`**: The primary entry point for using the Firebase AI SDK. It provides factory methods for creating `GenerativeModel` and `LiveGenerativeModel` instances.
 - **`FirebaseInfo.swift`**: Encapsulates Firebase-related information used by the SDK, such as project ID, API key, App Check, and Auth interop instances.
 - **`GenAIURLSession.swift`**: Provides a `GenAIURLSession` enum with a default `URLSession` instance for the SDK to use.
 - **`GenerateContentError.swift`**: Defines the public `GenerateContentError` enum, representing errors that can occur when generating content.
@@ -35,8 +35,6 @@ This directory contains the main source code for the FirebaseAI library.
 - **`TemplateChatSession.swift`**: Chat session that uses a prompt template.
 - **`TemplateGenerateContentRequest.swift`**: Request for generating content from a template.
 - **`TemplateGenerativeModel.swift`**: Model for generating content from a prompt template.
-- **`TemplateImagenGenerationRequest.swift`**: Request for generating images from a template.
-- **`TemplateImagenModel.swift`**: Model for generating images from a prompt template.
 - **`TemplateInput.swift`**: Defines the `TemplateInput` enum for representing different types of input to a template.
 - **`Tool.swift`**: Structs and enums related to tools and function calling (e.g., `FunctionDeclaration`).
 
@@ -78,19 +76,6 @@ Data types used in the FirebaseAI library.
 - **`GoogleMaps.swift`**: Tool that allows the model to ground responses in data from Google Maps.
 - **`CodeExecution.swift`**: Tool that allows the model to execute code (currently an empty marker struct).
 
-#### Sources/Types/Public/Imagen/
-
-- **`ImagenAspectRatio.swift`**: Represents aspect ratios for generated images (e.g., `square1x1`).
-- **`ImagenGenerationConfig.swift`**: Configuration options (negative prompt, aspect ratio, format, etc.).
-- **`ImagenGenerationResponse.swift`**: Response containing generated images and potential filter reasons.
-- **`ImagenImageFormat.swift`**: Image format options (PNG, JPEG).
-- **`ImagenImagesBlockedError.swift`**: Error thrown when all generated images are blocked.
-- **`ImagenInlineImage.swift`**: Represents an image generated as inline data.
-- **`ImagenModel.swift`**: Main entry point for generating images.
-- **`ImagenPersonFilterLevel.swift`**: Filter level for generating images with people.
-- **`ImagenSafetyFilterLevel.swift`**: Filter level for sensitive content.
-- **`ImagenSafetySettings.swift`**: Settings combining safety and person filter levels.
-
 #### Sources/Types/Public/Live/
 
 - **`AudioTranscriptionConfig.swift`**: Used to enable and configure audio transcriptions for Gemini Live.
@@ -124,19 +109,6 @@ Data types used in the FirebaseAI library.
 #### Sources/Types/Internal/Tools/
 
 - **`URLContext.swift`**: Empty struct serving to enable the URL context tool.
-
-#### Sources/Types/Internal/Imagen/
-
-- **`ImageGenerationInstance.swift`**: Contains the prompt string.
-- **`ImageGenerationOutputOptions.swift`**: Contains mimeType and compression quality.
-- **`ImageGenerationParameters.swift`**: Holds all parameters for an image generation request.
-- **`ImagenConstants.swift`**: Constants for the Imagen feature.
-- **`ImagenGCSImage.swift`**: Represents an image stored in Google Cloud Storage.
-- **`ImagenGenerationRequest.swift`**: Encapsulates the entire request sent to the Imagen API.
-- **`ImagenImageRepresentable.swift`**: Protocol for types representable as an Imagen image.
-- **`ImagenSafetyAttributes.swift`**: Prediction related to safety (currently unused).
-- **`InternalImagenImage.swift`**: Internal representation of an Imagen image.
-- **`RAIFilteredReason.swift`**: Reason why an image was filtered by Responsible AI.
 
 #### Sources/Types/Internal/Requests/
 

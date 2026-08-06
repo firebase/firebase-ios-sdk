@@ -36,10 +36,6 @@ enum AILog {
     case unsupportedGeminiModel = 1001
     case invalidSchemaFormat = 1002
 
-    // Imagen Model Configuration
-    case unsupportedImagenModel = 1200
-    case imagenInvalidJPEGCompressionQuality = 1201
-
     // Network Errors
     case generativeAIServiceNonHTTPResponse = 2000
     case loadRequestResponseError = 2001
@@ -61,7 +57,6 @@ enum AILog {
     case decodedInvalidProtoDateDay = 3010
     case decodedInvalidCitationPublicationDate = 3011
     case generateContentResponseUnrecognizedContentModality = 3012
-    case decodedUnsupportedImagenPredictionType = 3013
     case decodedUnsupportedPartData = 3014
     case codeExecutionResultUnrecognizedOutcome = 3015
     case executableCodeUnrecognizedLanguage = 3016
