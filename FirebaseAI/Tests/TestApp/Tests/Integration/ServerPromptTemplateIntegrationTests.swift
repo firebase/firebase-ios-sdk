@@ -88,23 +88,6 @@ struct ServerPromptTemplateIntegrationTests {
     #expect(text.localizedCaseInsensitiveContains("museum"))
   }
 
-  @Test(arguments: [
-    InstanceConfig.googleAI_v1beta,
-    InstanceConfig.agentPlatform_v1beta,
-  ])
-  @available(*, deprecated)
-  func generateImages(_ config: InstanceConfig) async throws {
-    let imagenModel = FirebaseAI.componentInstance(config).templateImagenModel()
-    let imagenPrompt = "firefly"
-    let response = try await imagenModel.generateImages(
-      templateID: "image-generation-basic",
-      inputs: [
-        "prompt": imagenPrompt,
-      ]
-    )
-    #expect(response.images.count == 4)
-  }
-
   @Test(arguments: testConfigs)
   func generateContentWithMedia(_ config: InstanceConfig) async throws {
     let model = FirebaseAI.componentInstance(config).templateGenerativeModel()
