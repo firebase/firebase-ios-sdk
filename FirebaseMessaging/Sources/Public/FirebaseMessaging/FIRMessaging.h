@@ -65,7 +65,8 @@ typedef void (^FIRMessagingTopicOperationCompletion)(NSError *_Nullable error)
 // clang-format off
 // clang-format12 merges the next two lines.
 FOUNDATION_EXPORT const NSNotificationName FIRMessagingRegistrationTokenRefreshedNotification
-    NS_SWIFT_NAME(MessagingRegistrationTokenRefreshed);
+    NS_SWIFT_NAME(MessagingRegistrationTokenRefreshed)
+        DEPRECATED_MSG_ATTRIBUTE("Use messaging:didReceiveRegistration: instead.");
 
 /**
  *  Notification sent when the FCM installation id has been unregistered.
@@ -144,7 +145,7 @@ NS_SWIFT_NAME(MessagingMessageInfo)
 @class FIRMessaging;
 
 /**
- * A protocol to handle token update or data message delivery from FCM.
+ * A protocol to handle registration updates from FCM.
  *
  */
 NS_SWIFT_NAME(MessagingDelegate)
@@ -160,7 +161,8 @@ NS_SWIFT_NAME(MessagingDelegate)
 /// * Subscribing to any topics.
 - (void)messaging:(FIRMessaging *)messaging
     didReceiveRegistrationToken:(nullable NSString *)fcmToken
-    NS_SWIFT_NAME(messaging(_:didReceiveRegistrationToken:));
+    NS_SWIFT_NAME(messaging(_:didReceiveRegistrationToken:))
+        DEPRECATED_MSG_ATTRIBUTE("Use messaging:didReceiveRegistration: instead.");
 
 /// This method will be called once the registration is created or refreshed. When
 /// auto init is enabled, it will be automatically called once per app start, but may be called
@@ -169,7 +171,8 @@ NS_SWIFT_NAME(MessagingDelegate)
 /// Furthermore, this method also serves as the callback for a direct call to
 /// `registerWithCompletion`. In this method, you should perform operations such as:
 ///
-/// * Uploading the FCM token to your application server, so targeted notifications can be sent.
+/// * Uploading the Firebase Installation ID to your application server, so targeted notifications
+/// can be sent.
 /// * Subscribing to any topics.
 ///
 /// @param messaging The Firebase Messaging instance.
@@ -196,7 +199,7 @@ NS_SWIFT_NAME(MessagingDelegate)
  *  Firebase Messaging lets you reliably deliver messages.
  *
  *  To send or receive messages, the app must get a
- *  registration token. This token authorizes an
+ *  registration. This registration authorizes an
  *  app server to send messages to an app instance.
  *
  *  In order to handle incoming Messaging messages, set the
@@ -207,7 +210,7 @@ NS_SWIFT_NAME(Messaging)
 @interface FIRMessaging : NSObject
 
 /**
- * Delegate to handle FCM token refreshes, and remote data messages received via FCM direct channel.
+ * Delegate to handle FCM registration refreshes.
  */
 @property(nonatomic, weak, nullable) id<FIRMessagingDelegate> delegate;
 
@@ -256,19 +259,19 @@ NS_SWIFT_NAME(Messaging)
 #pragma mark - FCM Tokens
 
 /**
- * Is Firebase Messaging token auto generation enabled? If this flag is disabled, Firebase
- * Messaging will not generate an FCM token automatically for message delivery.
+ * Is Firebase Messaging auto registration enabled? If this flag is disabled, Firebase
+ * Messaging will not register the app instance automatically for message delivery.
  *
- * If this flag is disabled, Firebase Messaging does not generate new tokens automatically for
- * message delivery. If this flag is enabled, FCM generates a registration token on application
- * start when there is no existing valid token and periodically refreshes the token and sends
- * data to the Firebase backend.
+ * If this flag is disabled, Firebase Messaging does not register automatically for
+ * message delivery. If this flag is enabled, FCM registers on application
+ * start when there is no existing valid registration and periodically refreshes the registration
+ * and sends data to the Firebase backend.
  *
  * This setting is persisted, and is applied on future invocations of your application. Once
  * explicitly set, it overrides any settings in your Info.plist.
  *
  * By default, FCM automatic initialization is enabled.  If you need to change the
- * default (for example, because you want to prompt the user before getting a token),
+ * default (for example, because you want to prompt the user before registration),
  * set `FirebaseMessagingAutoInitEnabled` to NO in your application's Info.plist.
  */
 @property(nonatomic, assign, getter=isAutoInitEnabled) BOOL autoInitEnabled;
@@ -307,7 +310,8 @@ NS_SWIFT_NAME(Messaging)
  * Once you have an FCM registration token, you should send it to your application server, where
  * it can be used to send notifications to your device.
  */
-@property(nonatomic, readonly, nullable) NSString *FCMToken NS_SWIFT_NAME(fcmToken);
+@property(nonatomic, readonly, nullable) NSString *FCMToken NS_SWIFT_NAME(fcmToken)
+    DEPRECATED_MSG_ATTRIBUTE("Use registerWithCompletion: instead.");
 
 /**
  * Asynchronously gets the default FCM registration token.
@@ -320,8 +324,9 @@ NS_SWIFT_NAME(Messaging)
  * @param completion The completion handler to handle the token request.
  */
 
-- (void)tokenWithCompletion:(void (^)(NSString *_Nullable token,
-                                      NSError *_Nullable error))completion;
+- (void)tokenWithCompletion:
+    (void (^)(NSString *_Nullable token, NSError *_Nullable error))completion
+    DEPRECATED_MSG_ATTRIBUTE("Use registerWithCompletion: instead.");
 
 /**
  * Asynchronously deletes the default FCM registration token.
@@ -332,7 +337,8 @@ NS_SWIFT_NAME(Messaging)
  * @param completion The completion handler to handle the token deletion.
  */
 
-- (void)deleteTokenWithCompletion:(void (^)(NSError *_Nullable error))completion;
+- (void)deleteTokenWithCompletion:(void (^)(NSError *_Nullable error))completion
+    DEPRECATED_MSG_ATTRIBUTE("Use unregisterWithCompletion: instead.");
 
 /**
  *  Retrieves an FCM registration token for a particular Sender ID. This can be used to allow
@@ -356,7 +362,8 @@ NS_SWIFT_NAME(Messaging)
 - (void)retrieveFCMTokenForSenderID:(NSString *)senderID
                          completion:(void (^)(NSString *_Nullable FCMToken,
                                               NSError *_Nullable error))completion
-    NS_SWIFT_NAME(retrieveFCMToken(forSenderID:completion:));
+    NS_SWIFT_NAME(retrieveFCMToken(forSenderID:completion:))
+        DEPRECATED_MSG_ATTRIBUTE("Use registerWithCompletion: instead.");
 
 /**
  * Invalidates an FCM token for a particular Sender ID. That Sender ID cannot no longer send
@@ -368,7 +375,8 @@ NS_SWIFT_NAME(Messaging)
  */
 - (void)deleteFCMTokenForSenderID:(NSString *)senderID
                        completion:(void (^)(NSError *_Nullable error))completion
-    NS_SWIFT_NAME(deleteFCMToken(forSenderID:completion:));
+    NS_SWIFT_NAME(deleteFCMToken(forSenderID:completion:))
+        DEPRECATED_MSG_ATTRIBUTE("Use unregisterWithCompletion: instead.");
 
 #pragma mark - FID
 
@@ -413,7 +421,7 @@ NS_SWIFT_NAME(Messaging)
 #pragma mark - Topics
 
 /**
- * Asynchronously subscribes to a topic. This uses the default FCM registration token to identify
+ * Asynchronously subscribes to a topic. This uses the default FCM registration to identify
  * the app instance and periodically sends data to the Firebase backend. To stop this, see
  * `Messaging.delete(completion:)` and `Installations.delete(completion:)`.
  *
@@ -423,7 +431,7 @@ NS_SWIFT_NAME(Messaging)
 
 /**
  * Asynchronously subscribe to the provided topic, retrying on failure. This uses the default FCM
- * registration token to identify the app instance and periodically sends data to the Firebase
+ * registration to identify the app instance and periodically sends data to the Firebase
  * backend. To stop this, see `Messaging.delete(completion:)` and
  * `Installations.delete(completion:)`.
  *
@@ -436,7 +444,7 @@ NS_SWIFT_NAME(Messaging)
               completion:(void (^_Nullable)(NSError *_Nullable error))completion;
 
 /**
- * Asynchronously unsubscribe from a topic.  This uses a FCM Token
+ * Asynchronously unsubscribe from a topic.  This uses an FCM registration
  * to identify the app instance and periodically sends data to the Firebase backend. To stop this,
  * see `Messaging.delete(completion:)` and `Installations.delete(completion:)`.
  *
@@ -445,9 +453,9 @@ NS_SWIFT_NAME(Messaging)
 - (void)unsubscribeFromTopic:(NSString *)topic NS_SWIFT_NAME(unsubscribe(fromTopic:));
 
 /**
- * Asynchronously unsubscribe from the provided topic, retrying on failure. This uses a FCM Token
- * to identify the app instance and periodically sends data to the Firebase backend. To stop this,
- * see `Messaging.delete(completion:)` and `Installations.delete(completion:)`.
+ * Asynchronously unsubscribe from the provided topic, retrying on failure. This uses an FCM
+ * registration to identify the app instance and periodically sends data to the Firebase backend. To
+ * stop this, see `Messaging.delete(completion:)` and `Installations.delete(completion:)`.
  *
  *  @param topic       The topic name to unsubscribe from, for example @"sports".
  *  @param completion  The completion that is invoked once the unsubscribe call ends.
@@ -474,11 +482,11 @@ NS_SWIFT_NAME(Messaging)
 
 #pragma mark - GDPR
 /**
- * Deletes all the tokens and checkin data of the Firebase project and related data on the server
- * side. A network connection is required for the method to succeed.
+ * Deletes all the registrations and checkin data of the Firebase project and related data on the
+ * server side. A network connection is required for the method to succeed.
  *
  * This does not delete the Firebase Installations ID. See `Installations.delete(completion:)`.
- * To prevent token auto generation, see `Messaging.isAutoInitEnabled`.
+ * To prevent auto registration on initialization, see `Messaging.isAutoInitEnabled`.
  *
  * @param completion A completion handler which is invoked when the operation completes. `error ==
  * nil` indicates success.
