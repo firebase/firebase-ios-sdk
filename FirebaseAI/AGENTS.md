@@ -35,7 +35,6 @@ This directory contains the main source code for the FirebaseAI library.
 - **`TemplateChatSession.swift`**: Chat session that uses a prompt template.
 - **`TemplateGenerateContentRequest.swift`**: Request for generating content from a template.
 - **`TemplateGenerativeModel.swift`**: Model for generating content from a prompt template.
-
 - **`TemplateInput.swift`**: Defines the `TemplateInput` enum for representing different types of input to a template.
 - **`Tool.swift`**: Structs and enums related to tools and function calling (e.g., `FunctionDeclaration`).
 
@@ -76,8 +75,6 @@ Data types used in the FirebaseAI library.
 
 - **`GoogleMaps.swift`**: Tool that allows the model to ground responses in data from Google Maps.
 - **`CodeExecution.swift`**: Tool that allows the model to execute code (currently an empty marker struct).
-
-
 
 #### Sources/Types/Public/Live/
 

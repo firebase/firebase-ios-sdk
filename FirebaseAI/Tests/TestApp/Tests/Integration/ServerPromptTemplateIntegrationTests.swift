@@ -27,7 +27,7 @@ struct ServerPromptTemplateIntegrationTests {
     .agentPlatform_v1beta,
     .agentPlatform_v1beta_global,
   ]
-  private static let imageGenerationTestConfigs: [InstanceConfig] = [.agentPlatform_v1beta]
+
 
   @Test(arguments: testConfigs)
   func generateContentWithText(_ config: InstanceConfig) async throws {
