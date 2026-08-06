@@ -183,8 +183,6 @@ public final class FirebaseAI: Sendable {
     #endif // canImport(FoundationModels)
   #endif // compiler(>=6.2.3)
 
-
-
   /// Initializes a new `TemplateGenerativeModel`.
   ///
   /// - Returns: A new `TemplateGenerativeModel` instance.

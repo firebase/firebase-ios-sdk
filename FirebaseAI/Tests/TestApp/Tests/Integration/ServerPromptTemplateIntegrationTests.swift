@@ -28,7 +28,6 @@ struct ServerPromptTemplateIntegrationTests {
     .agentPlatform_v1beta_global,
   ]
 
-
   @Test(arguments: testConfigs)
   func generateContentWithText(_ config: InstanceConfig) async throws {
     let model = FirebaseAI.componentInstance(config).templateGenerativeModel()
