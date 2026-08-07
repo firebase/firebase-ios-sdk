@@ -637,6 +637,7 @@ jobs:
     uses: ./.github/workflows/_spm.yml
     with:
       target: FirebaseFirestoreTests
+      test_xcode27: true
       platforms: iOS
 
   spm-source-cron:
