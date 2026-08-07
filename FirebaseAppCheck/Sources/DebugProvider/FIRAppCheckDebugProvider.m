@@ -87,7 +87,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)logDebugTokenMessageWithMessageCode:(NSString *)messageCode prefix:(NSString *)prefix {
   if (self.projectID.length > 0 && self.googleAppID.length > 0) {
-    NSString *debugToken = self.localDebugToken ?: @"UNKNOWN_TOKEN";
+    NSString *debugToken = self.localDebugToken;
+    if (!debugToken) {
+      return;
+    }
+
     FIRLogWarning(
         kFIRLoggerAppCheck, messageCode,
         @"%@"
@@ -111,7 +115,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)logDebugTokenExchangeError {
   [self logDebugTokenMessageWithMessageCode:kFIRLoggerAppCheckMessageCodeDebugTokenExchangeFailed
-                                     prefix:@"Failed to exchange debug token.\n"];
+                                     prefix:@"Failed to exchange debug token. "];
 }
 
 #pragma mark - FIRAppCheckProvider
