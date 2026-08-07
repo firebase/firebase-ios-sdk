@@ -45,9 +45,6 @@ Firebase Performance library to measure performance of Mobile and Web Apps.
 
   preprocessor_definitions = 'FIRPerformance_LIB_VERSION=' + String(s.version)
   preprocessor_definitions += ' PB_FIELD_32BIT=1 PB_NO_PACKED_STRUCTS=1 PB_ENABLE_MALLOC=1'
-  if ENV['FPR_UNSWIZZLE_AVAILABLE'] && ENV['FPR_UNSWIZZLE_AVAILABLE'] == '1' then
-    preprocessor_definitions += ' UNSWIZZLE_AVAILABLE=1'
-  end
 
   s.pod_target_xcconfig = {
     'GCC_PREPROCESSOR_DEFINITIONS' => preprocessor_definitions,
