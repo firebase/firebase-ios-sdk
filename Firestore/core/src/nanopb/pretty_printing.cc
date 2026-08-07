@@ -26,7 +26,13 @@ namespace nanopb {
 namespace internal {
 
 std::string Indent(int level, int indent_width) {
-  return std::string(level * indent_width, ' ');
+  if (level <= 0 || indent_width <= 0) {
+    return std::string{};
+  }
+
+  auto level_size = static_cast<std::string::size_type>(level);
+  auto indent_width_size = static_cast<std::string::size_type>(indent_width);
+  return std::string(level_size * indent_width_size, ' ');
 }
 
 std::string ToString(pb_bytes_array_t* value) {
