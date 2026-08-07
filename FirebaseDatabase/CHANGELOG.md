@@ -81,7 +81,7 @@
   when used in `queryOrderedByKey` queries (#7403).
 
 # 7.5.0
-- [added] Implmement `queryStartingAfterValue` and `queryEndingBeforeValue` for FirebaseDatabase query pagination.
+- [added] Implement `queryStartingAfterValue` and `queryEndingBeforeValue` for FirebaseDatabase query pagination.
 - [added] Added `DatabaseQuery#getData` which returns data from the server when cache is stale (#7110).
 
 # 7.2.0

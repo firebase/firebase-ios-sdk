@@ -77,13 +77,16 @@
     return _defaultFCMToken;
   }
 
+  BOOL isInstallationIdEnabled = [FIRMessaging messaging].isInstallationIdEnabled;
+  NSString *expectedTokenType = isInstallationIdEnabled ? @"FID" : @"V4";
+
   FIRMessagingTokenInfo *cachedTokenInfo =
       [self cachedTokenInfoWithAuthorizedEntity:self.fcmSenderID
                                           scope:kFIRMessagingDefaultTokenScope];
-  NSString *cachedToken = cachedTokenInfo.token;
-
-  if (cachedToken) {
-    return cachedToken;
+  if (cachedTokenInfo.token.length > 0 &&
+      [cachedTokenInfo.tokenType isEqualToString:expectedTokenType]) {
+    _defaultFCMToken = [cachedTokenInfo.token copy];
+    return _defaultFCMToken;
   } else {
     [self tokenWithAuthorizedEntity:self.fcmSenderID
                               scope:kFIRMessagingDefaultTokenScope

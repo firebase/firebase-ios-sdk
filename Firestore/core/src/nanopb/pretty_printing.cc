@@ -16,6 +16,7 @@
 
 #include "Firestore/core/src/nanopb/pretty_printing.h"
 
+#include <algorithm>
 #include <sstream>
 
 #include "Firestore/core/src/nanopb/byte_string.h"
@@ -33,6 +34,11 @@ std::string Indent(int level, int indent_width) {
   auto level_size = static_cast<std::string::size_type>(level);
   auto indent_width_size = static_cast<std::string::size_type>(indent_width);
   return std::string(level_size * indent_width_size, ' ');
+  const size_t safe_level =
+      static_cast<size_t>(std::max(0, std::min(1000, level)));
+  const size_t safe_width =
+      static_cast<size_t>(std::max(0, std::min(100, indent_width)));
+  return std::string(safe_level * safe_width, ' ');
 }
 
 std::string ToString(pb_bytes_array_t* value) {

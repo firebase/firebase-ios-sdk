@@ -1,3 +1,6 @@
+# Unreleased
+- [removed] Removes unused integration with the now deprecated ObjC MetricKit API.
+
 # 12.17.0
 - [fixed] Fixed an issue where binary image details weren't properly
   initialized. (#16407)

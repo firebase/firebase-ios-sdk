@@ -110,7 +110,7 @@ GEM
     httpclient (2.8.3)
     i18n (1.15.2)
       concurrent-ruby (~> 1.0)
-    json (2.7.5)
+    json (2.21.1)
     kramdown (2.5.1)
       rexml (>= 3.3.9)
     kramdown-parser-gfm (1.1.0)
@@ -165,6 +165,7 @@ DEPENDENCIES
   cocoapods (= 1.17.0)
   cocoapods-generate (= 2.2.5)
   danger (>= 9.5.3)
+  json (>= 2.19.9)
   mutex_m
 
 BUNDLED WITH
