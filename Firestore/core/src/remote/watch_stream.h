@@ -30,12 +30,10 @@
 #include "absl/strings/string_view.h"
 #include "grpcpp/support/byte_buffer.h"
 
+#include "Firestore/core/src/local/target_data_fwd.h"
+
 namespace firebase {
 namespace firestore {
-
-namespace local {
-class TargetData;
-}  // namespace local
 
 namespace remote {
 

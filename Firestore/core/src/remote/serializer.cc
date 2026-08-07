@@ -95,6 +95,7 @@ using model::NumericIncrementTransform;
 using model::ObjectValue;
 using model::PatchMutation;
 using model::Precondition;
+using model::RemoteTargetId;
 using model::ResourcePath;
 using model::ServerTimestampTransform;
 using model::SetMutation;
@@ -1393,8 +1394,8 @@ std::unique_ptr<WatchChange> Serializer::DecodeTargetChange(
     const google_firestore_v1_TargetChange& change) const {
   WatchTargetChangeState state =
       DecodeTargetChangeState(context, change.target_change_type);
-  std::vector<TargetId> target_ids(change.target_ids,
-                                   change.target_ids + change.target_ids_count);
+  std::vector<RemoteTargetId> target_ids(
+      change.target_ids, change.target_ids + change.target_ids_count);
   ByteString resume_token(change.resume_token);
 
   util::Status cause;
@@ -1444,9 +1445,9 @@ std::unique_ptr<WatchChange> Serializer::DecodeDocumentChange(
   MutableDocument document =
       MutableDocument::FoundDocument(key, version, std::move(value));
 
-  std::vector<TargetId> updated_target_ids(
+  std::vector<RemoteTargetId> updated_target_ids(
       change.target_ids, change.target_ids + change.target_ids_count);
-  std::vector<TargetId> removed_target_ids(
+  std::vector<RemoteTargetId> removed_target_ids(
       change.removed_target_ids,
       change.removed_target_ids + change.removed_target_ids_count);
 
@@ -1466,24 +1467,24 @@ std::unique_ptr<WatchChange> Serializer::DecodeDocumentDelete(
                                 : SnapshotVersion::None();
   MutableDocument document = MutableDocument::NoDocument(key, version);
 
-  std::vector<TargetId> removed_target_ids(
+  std::vector<RemoteTargetId> removed_target_ids(
       change.removed_target_ids,
       change.removed_target_ids + change.removed_target_ids_count);
 
   return absl::make_unique<DocumentWatchChange>(
-      std::vector<TargetId>{}, std::move(removed_target_ids), std::move(key),
-      std::move(document));
+      std::vector<RemoteTargetId>{}, std::move(removed_target_ids),
+      std::move(key), std::move(document));
 }
 
 std::unique_ptr<WatchChange> Serializer::DecodeDocumentRemove(
     ReadContext* context,
     const google_firestore_v1_DocumentRemove& change) const {
   DocumentKey key = DecodeKey(context, change.document);
-  std::vector<TargetId> removed_target_ids(
+  std::vector<RemoteTargetId> removed_target_ids(
       change.removed_target_ids,
       change.removed_target_ids + change.removed_target_ids_count);
 
-  return absl::make_unique<DocumentWatchChange>(std::vector<TargetId>{},
+  return absl::make_unique<DocumentWatchChange>(std::vector<RemoteTargetId>{},
                                                 std::move(removed_target_ids),
                                                 std::move(key), absl::nullopt);
 }
