@@ -14,6 +14,7 @@
 
 #if compiler(>=6.2.3) && canImport(FoundationModels)
   import FoundationModels
+
   import XCTest
 
   @testable import FirebaseAILogic
@@ -84,21 +85,18 @@
       let response = try await session.respond(to: testPrompt)
 
       XCTAssertEqual(response.content, "Mountain View")
-      var functionCalls = [FunctionCall]()
-      var functionResponses = [FunctionResponse]()
+      var functionCalls = [GenerateContentAPI.FunctionCall]()
+      var functionResponses = [GenerateContentAPI.FunctionResponse]()
       let modelSession = try XCTUnwrap(
         session.sessionManager.getOrStartSession(instructions: nil)
       )
       let geminiSession = try XCTUnwrap(modelSession as? GeminiModelSession)
       for content in geminiSession.chat.history {
-        for part in content.internalParts {
-          switch part.data {
-          case let .functionCall(functionCall):
-            functionCalls.append(functionCall)
-          case let .functionResponse(functionResponse):
-            functionResponses.append(functionResponse)
-          default:
-            continue
+        for part in content.parts {
+          if let functionCallPart = part as? FunctionCallPart {
+            functionCalls.append(functionCallPart.functionCall)
+          } else if let functionResponsePart = part as? FunctionResponsePart {
+            functionResponses.append(functionResponsePart.functionResponse)
           }
         }
       }
@@ -138,21 +136,18 @@
       let response = try await session.respond(to: testPrompt)
 
       XCTAssertEqual(response.content, "Mountain View")
-      var functionCalls = [FunctionCall]()
-      var functionResponses = [FunctionResponse]()
+      var functionCalls = [GenerateContentAPI.FunctionCall]()
+      var functionResponses = [GenerateContentAPI.FunctionResponse]()
       let modelSession = try XCTUnwrap(
         session.sessionManager.getOrStartSession(instructions: nil)
       )
       let geminiSession = try XCTUnwrap(modelSession as? GeminiModelSession)
       for content in geminiSession.chat.history {
-        for part in content.internalParts {
-          switch part.data {
-          case let .functionCall(functionCall):
-            functionCalls.append(functionCall)
-          case let .functionResponse(functionResponse):
-            functionResponses.append(functionResponse)
-          default:
-            continue
+        for part in content.parts {
+          if let functionCallPart = part as? FunctionCallPart {
+            functionCalls.append(functionCallPart.functionCall)
+          } else if let functionResponsePart = part as? FunctionResponsePart {
+            functionResponses.append(functionResponsePart.functionResponse)
           }
         }
       }
@@ -290,21 +285,18 @@
         )
       }
 
-      var functionCalls = [FunctionCall]()
-      var functionResponses = [FunctionResponse]()
+      var functionCalls = [GenerateContentAPI.FunctionCall]()
+      var functionResponses = [GenerateContentAPI.FunctionResponse]()
       let modelSession = try XCTUnwrap(
         session.sessionManager.getOrStartSession(instructions: nil)
       )
       let geminiSession = try XCTUnwrap(modelSession as? GeminiModelSession)
       for content in geminiSession.chat.history {
-        for part in content.internalParts {
-          switch part.data {
-          case let .functionCall(functionCall):
-            functionCalls.append(functionCall)
-          case let .functionResponse(functionResponse):
-            functionResponses.append(functionResponse)
-          default:
-            continue
+        for part in content.parts {
+          if let functionCallPart = part as? FunctionCallPart {
+            functionCalls.append(functionCallPart.functionCall)
+          } else if let functionResponsePart = part as? FunctionResponsePart {
+            functionResponses.append(functionResponsePart.functionResponse)
           }
         }
       }
@@ -338,7 +330,7 @@
           headerFields: nil
         ))
 
-        let json = try JSONDecoder().decode(JSONObject.self, from: requestBody)
+        let json = try JSONDecoder().decode(FirebaseAILogic.JSONObject.self, from: requestBody)
         guard case let .object(generationConfig) = json["generationConfig"] else {
           XCTFail("Expected an object for JSON key 'generationConfig', got: \(json)")
           return (response, nil)
@@ -392,21 +384,18 @@
       gas molecules in Earth's atmosphere scatter blue light from the sun more efficiently than \
       other colors. Blue light has shorter
       """)
-      var functionCalls = [FunctionCall]()
-      var functionResponses = [FunctionResponse]()
+      var functionCalls = [GenerateContentAPI.FunctionCall]()
+      var functionResponses = [GenerateContentAPI.FunctionResponse]()
       let modelSession = try XCTUnwrap(
         session.sessionManager.getOrStartSession(instructions: nil)
       )
       let geminiSession = try XCTUnwrap(modelSession as? GeminiModelSession)
       for content in geminiSession.chat.history {
-        for part in content.internalParts {
-          switch part.data {
-          case let .functionCall(functionCall):
-            functionCalls.append(functionCall)
-          case let .functionResponse(functionResponse):
-            functionResponses.append(functionResponse)
-          default:
-            continue
+        for part in content.parts {
+          if let functionCallPart = part as? FunctionCallPart {
+            functionCalls.append(functionCallPart.functionCall)
+          } else if let functionResponsePart = part as? FunctionResponsePart {
+            functionResponses.append(functionResponsePart.functionResponse)
           }
         }
       }
@@ -451,21 +440,18 @@
       gas molecules in Earth's atmosphere scatter blue light from the sun more efficiently than \
       other colors. Blue light has shorter
       """)
-      var functionCalls = [FunctionCall]()
-      var functionResponses = [FunctionResponse]()
+      var functionCalls = [GenerateContentAPI.FunctionCall]()
+      var functionResponses = [GenerateContentAPI.FunctionResponse]()
       let modelSession = try XCTUnwrap(
         session.sessionManager.getOrStartSession(instructions: nil)
       )
       let geminiSession = try XCTUnwrap(modelSession as? GeminiModelSession)
       for content in geminiSession.chat.history {
-        for part in content.internalParts {
-          switch part.data {
-          case let .functionCall(functionCall):
-            functionCalls.append(functionCall)
-          case let .functionResponse(functionResponse):
-            functionResponses.append(functionResponse)
-          default:
-            continue
+        for part in content.parts {
+          if let functionCallPart = part as? FunctionCallPart {
+            functionCalls.append(functionCallPart.functionCall)
+          } else if let functionResponsePart = part as? FunctionResponsePart {
+            functionResponses.append(functionResponsePart.functionResponse)
           }
         }
       }
@@ -526,21 +512,18 @@
         )
       }
 
-      var functionCalls = [FunctionCall]()
-      var functionResponses = [FunctionResponse]()
+      var functionCalls = [GenerateContentAPI.FunctionCall]()
+      var functionResponses = [GenerateContentAPI.FunctionResponse]()
       let modelSession = try XCTUnwrap(
         session.sessionManager.getOrStartSession(instructions: nil)
       )
       let geminiSession = try XCTUnwrap(modelSession as? GeminiModelSession)
       for content in geminiSession.chat.history {
-        for part in content.internalParts {
-          switch part.data {
-          case let .functionCall(functionCall):
-            functionCalls.append(functionCall)
-          case let .functionResponse(functionResponse):
-            functionResponses.append(functionResponse)
-          default:
-            continue
+        for part in content.parts {
+          if let functionCallPart = part as? FunctionCallPart {
+            functionCalls.append(functionCallPart.functionCall)
+          } else if let functionResponsePart = part as? FunctionResponsePart {
+            functionResponses.append(functionResponsePart.functionResponse)
           }
         }
       }
@@ -621,7 +604,7 @@
 
     func mockGeminiModel(modelName: String? = nil, modelResourceName: String? = nil,
                          firebaseInfo: FirebaseInfo? = nil, apiConfig: APIConfig? = nil,
-                         safetySettings: [SafetySetting]? = nil,
+                         safetySettings: [FirebaseAILogic.SafetySetting]? = nil,
                          requestOptions: RequestOptions? = nil, urlSession: URLSession? = nil)
       throws -> GeminiModel {
       return GeminiModel(

@@ -60,7 +60,7 @@ public final class LiveSession: Sendable {
   ///     conversation.
   public func sendAudioRealtime(_ audio: Data) async {
     let message = BidiGenerateContentRealtimeInput(
-      audio: InlineData(data: audio, mimeType: "audio/pcm")
+      audio: GenerateContentAPI.Blob(mimeType: "audio/pcm", data: audio)
     )
     await service.send(.realtimeInput(message))
   }
@@ -82,7 +82,7 @@ public final class LiveSession: Sendable {
   ///     `images/jpeg`etc.,).
   public func sendVideoRealtime(_ video: Data, mimeType: String) async {
     let message = BidiGenerateContentRealtimeInput(
-      video: InlineData(data: video, mimeType: mimeType)
+      video: GenerateContentAPI.Blob(mimeType: mimeType, data: video)
     )
     await service.send(.realtimeInput(message))
   }

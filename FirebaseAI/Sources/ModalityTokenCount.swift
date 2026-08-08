@@ -69,3 +69,35 @@ extension ModalityTokenCount: Decodable {
     tokenCount = try container.decodeIfPresent(Int.self, forKey: .tokenCount) ?? 0
   }
 }
+
+// MARK: - Payload Convertible Conformances
+
+extension ContentModality: ConvertibleFromResponsePayload {
+  init(_ responsePayload: GenerateContentAPI.Modality) throws {
+    self.init(rawValue: responsePayload.rawValue)
+  }
+}
+
+extension ContentModality: ConvertibleToRequestPayload {
+  func toRequestPayload() throws -> GenerateContentAPI.Modality {
+    return GenerateContentAPI.Modality(rawValue: rawValue)
+  }
+}
+
+extension ModalityTokenCount: ConvertibleFromResponsePayload {
+  init(_ responsePayload: GenerateContentAPI.ModalityTokenCount) throws {
+    let modality = try responsePayload.modality
+      .map { try ContentModality($0) } ?? .init(rawValue: "MODALITY_UNSPECIFIED")
+    let tokenCount = responsePayload.tokenCount ?? 0
+    self.init(modality: modality, tokenCount: tokenCount)
+  }
+}
+
+extension ModalityTokenCount: ConvertibleToRequestPayload {
+  func toRequestPayload() throws -> GenerateContentAPI.ModalityTokenCount {
+    return try GenerateContentAPI.ModalityTokenCount(
+      modality: modality.toRequestPayload(),
+      tokenCount: tokenCount
+    )
+  }
+}
