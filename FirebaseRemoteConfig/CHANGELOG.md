@@ -1,3 +1,9 @@
+# Unreleased
+- [fixed] Fixed data races that could mix stale and current Remote Config
+  experiment state during database loading and activation. (#16303)
+- [fixed] Made experiment payload replacement atomic and delayed A/B Testing
+  updates until queued experiment persistence finishes.
+
 # 12.17.0
 - [fixed] Fixed a memory leak in Remote Config where `activateWithCompletion:`
   retained the `FIRRemoteConfig` instance indefinitely (#16413).

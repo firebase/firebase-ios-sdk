@@ -32,8 +32,29 @@
 - (void)insertExperimentTableWithKey:(NSString *)key
                                value:(NSData *)serializedValue
                    completionHandler:(RCNDBCompletion)handler;
+- (BOOL)insertExperimentTableWithKey:(NSString *)key value:(NSData *)serializedValue;
 - (void)deleteExperimentTableForKey:(NSString *)key;
 - (void)createOrOpenDatabase;
+- (BOOL)isNewDatabase;
+@end
+
+@interface RCNFailingExperimentInsertDBManager : RCNConfigDBManager
+@property(nonatomic) BOOL failExperimentInserts;
+@property(nonatomic) NSUInteger successfulExperimentInsertsBeforeFailure;
+@end
+
+@implementation RCNFailingExperimentInsertDBManager
+
+- (BOOL)insertExperimentTableWithKey:(NSString *)key value:(NSData *)serializedValue {
+  if (_failExperimentInserts) {
+    if (_successfulExperimentInsertsBeforeFailure == 0) {
+      return NO;
+    }
+    _successfulExperimentInsertsBeforeFailure -= 1;
+  }
+  return [super insertExperimentTableWithKey:key value:serializedValue];
+}
+
 @end
 
 @interface RCNConfigDBManagerTest : XCTestCase {
@@ -47,13 +68,15 @@
 
 - (void)setUp {
   [super setUp];
+  // Directly initialized test managers rely on the production singleton's global setup.
+  (void)[RCNConfigDBManager sharedInstance];
   // always remove the database at the start of testing
   _DBPath = [RCNTestUtilities remoteConfigPathForTestDatabase];
 
   _expectionTimeout = 10.0;
   id classMock = OCMClassMock([RCNConfigDBManager class]);
   OCMStub([classMock remoteConfigPathForDatabase]).andReturn(_DBPath);
-  _DBManager = [[RCNConfigDBManager alloc] init];
+  _DBManager = [[RCNFailingExperimentInsertDBManager alloc] init];
 }
 
 - (void)tearDown {
@@ -509,6 +532,43 @@
   [_DBManager insertExperimentTableWithKey:@RCNExperimentTableKeyActivePayload
                                      value:payloadData3
                          completionHandler:writePayloadCompletion];
+
+  [self waitForExpectationsWithTimeout:_expectionTimeout handler:nil];
+}
+
+- (void)testReplaceActivatedExperimentsRollsBackAfterInsertFailure {
+  XCTestExpectation *expectation =
+      [self expectationWithDescription:@"Failed replacement preserves existing experiments"];
+  NSData *oldPayload = [@"old" dataUsingEncoding:NSUTF8StringEncoding];
+  NSArray<NSData *> *newPayloads = @[
+    [@"new-1" dataUsingEncoding:NSUTF8StringEncoding],
+    [@"new-2" dataUsingEncoding:NSUTF8StringEncoding]
+  ];
+  RCNFailingExperimentInsertDBManager *dbManager =
+      (RCNFailingExperimentInsertDBManager *)_DBManager;
+
+  [_DBManager
+      replaceExperimentTableWithKey:@RCNExperimentTableKeyActivePayload
+                             values:@[ oldPayload ]
+                  completionHandler:^(BOOL success, NSDictionary *result) {
+                    XCTAssertTrue(success);
+                    dbManager.successfulExperimentInsertsBeforeFailure = 1;
+                    dbManager.failExperimentInserts = YES;
+                    [dbManager replaceExperimentTableWithKey:@RCNExperimentTableKeyActivePayload
+                                                      values:newPayloads
+                                           completionHandler:^(BOOL success, NSDictionary *result) {
+                                             XCTAssertFalse(success);
+                                             [dbManager loadExperimentWithCompletionHandler:^(
+                                                            BOOL success,
+                                                            NSDictionary<NSString *, id> *results) {
+                                               XCTAssertTrue(success);
+                                               XCTAssertEqualObjects(
+                                                   results[@RCNExperimentTableKeyActivePayload],
+                                                   @[ oldPayload ]);
+                                               [expectation fulfill];
+                                             }];
+                                           }];
+                  }];
 
   [self waitForExpectationsWithTimeout:_expectionTimeout handler:nil];
 }

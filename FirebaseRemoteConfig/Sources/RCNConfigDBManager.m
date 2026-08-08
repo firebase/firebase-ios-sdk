@@ -485,6 +485,41 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder(void) {
   });
 }
 
+- (void)replaceExperimentTableWithKey:(NSString *)key
+                               values:(NSArray<NSData *> *)values
+                    completionHandler:(RCNDBCompletion)handler {
+  NSString *keyCopy = [key copy];
+  NSArray<NSData *> *valuesCopy = [values copy];
+  dispatch_async(_databaseOperationQueue, ^{
+    BOOL transactionStarted = [self executeQuery:"BEGIN IMMEDIATE TRANSACTION"];
+    BOOL success = transactionStarted;
+    if (success) {
+      const char *deleteSQL = "DELETE FROM " RCNTableNameExperiment " WHERE key = ?";
+      success = [self executeQuery:deleteSQL withParams:@[ keyCopy ]];
+    }
+
+    for (NSData *value in valuesCopy) {
+      if (!success) {
+        break;
+      }
+      success = [self insertExperimentTableWithKey:keyCopy value:value];
+    }
+
+    if (success) {
+      success = [self executeQuery:"COMMIT TRANSACTION"];
+    }
+    if (!success && transactionStarted) {
+      [self executeQuery:"ROLLBACK TRANSACTION"];
+    }
+
+    if (handler) {
+      dispatch_async(dispatch_get_main_queue(), ^{
+        handler(success, nil);
+      });
+    }
+  });
+}
+
 - (BOOL)insertExperimentTableWithKey:(NSString *)key value:(NSData *)dataValue {
   if ([key isEqualToString:@RCNExperimentTableKeyMetadata]) {
     return [self updateExperimentMetadata:dataValue];
