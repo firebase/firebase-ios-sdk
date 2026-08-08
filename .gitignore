@@ -1,3 +1,4 @@
+# FirebaseAuth
 FirebaseAuth/Tests/SampleSwift/AuthenticationExample/SwiftApplication.plist
 FirebaseAuth/Tests/SampleSwift/ObjCApiTests/AuthCredentials.h
 FirebaseAuth/Tests/SampleSwift/GoogleService-Info_multi.plist
@@ -5,6 +6,12 @@ FirebaseAuth/Tests/SampleSwift/GoogleService-Info.plist
 FirebaseAuth/Tests/SampleSwift/Sample.entitlements
 FirebaseAuth/Tests/SampleSwift/SwiftApiTests/Credentials.swift
 
+# FirebaseAI
+FirebaseAI/Tests/TestApp/Resources/GoogleService-Info.plist
+FirebaseAI/Tests/TestApp/Resources/GoogleService-Info-Spark.plist
+FirebaseAI/Tests/TestApp/Tests/Integration/Credentials.swift
+
+# FirebaseDatabase
 FirebaseDatabase/Tests/Resources/GoogleService-Info.plist
 
 FirebaseRemoteConfig/Tests/Sample/GoogleService-Info.plist
