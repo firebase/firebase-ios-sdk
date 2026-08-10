@@ -24,16 +24,16 @@ create_sim() {
   local device_type="$3"
 
   local runtime
-  runtime=$(xcrun simctl list runtimes | grep -i -E "$platform_search" | grep -v 'unavailable' | tail -1 | awk '{print $NF}')
+  runtime=$(xcrun simctl list runtimes | grep -i -E "$platform_search" | grep -v 'unavailable' | tail -1 | awk '{print $NF}' || true)
 
   if [[ -z "$runtime" ]]; then
-    echo "Warning: Could not find available runtime for platform search '$platform_search'." >&2
-    return 0
+    echo "Error: Could not find available runtime for platform search '$platform_search'." >&2
+    exit 1
   fi
 
   if ! xcrun simctl list devices | grep -q "$sim_name"; then
     echo "Creating simulator '$sim_name' ($device_type) with runtime '$runtime'..."
-    xcrun simctl create "$sim_name" "$device_type" "$runtime" > /dev/null 2>&1 || true
+    xcrun simctl create "$sim_name" "$device_type" "$runtime" > /dev/null
   else
     echo "Simulator '$sim_name' already exists."
   fi
@@ -58,7 +58,7 @@ case "$platform" in
     create_sim "tvOS" "Firebase-Apple-TV-4K-Gen-2" "com.apple.CoreSimulator.SimDeviceType.Apple-TV-4K-2nd-generation-1080p"
     create_sim "visionOS|xrOS" "Firebase-Apple-Vision-Pro" "com.apple.CoreSimulator.SimDeviceType.Apple-Vision-Pro"
     ;;
-  macOS|catalyst|Linux)
+  macOS|catalyst|Linux|iOS-device)
     # No simulator creation needed
     ;;
   *)
