@@ -64,6 +64,17 @@ main() {
   local watch_dev="${dev_prefix}.Apple-Watch-Ultra-2-49mm"
   local tv_dev="${dev_prefix}.Apple-TV-4K-2nd-generation-1080p"
   local vision_dev="${dev_prefix}.Apple-Vision-Pro"
+  local vision_runtime
+  vision_runtime=$(
+    xcrun simctl list runtimes |
+      grep -i -E "visionOS|xrOS" |
+      grep -v 'unavailable' |
+      tail -1 |
+      awk '{print $NF}' || true
+  )
+  if [[ "$vision_runtime" =~ xrOS-26|visionOS-26 ]]; then
+    vision_dev="${dev_prefix}.Apple-Vision-Pro-4K"
+  fi
 
   case "$platform_clean" in
     ios|ipad)
