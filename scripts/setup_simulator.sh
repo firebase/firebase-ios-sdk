@@ -34,8 +34,8 @@ create_sim() {
     xcrun simctl list runtimes |
       grep -i -E "$platform_search" |
       grep -v 'unavailable' |
-      tail -1 |
-      awk '{print $NF}' || true
+      grep -o -E 'com\.apple\.CoreSimulator\.SimRuntime\.[a-zA-Z0-9.-]+' |
+      tail -1 || true
   )
 
   if [[ -z "$runtime" ]]; then
@@ -48,6 +48,26 @@ create_sim() {
     xcrun simctl create "$sim_name" "$device_type" "$runtime" > /dev/null
   else
     echo "Simulator '$sim_name' already exists."
+  fi
+}
+
+# Returns Vision Pro device type for the installed visionOS runtime.
+# Arguments:
+#   $1 - Device type prefix string
+get_vision_device() {
+  local device_prefix="$1"
+  local vision_runtime
+  vision_runtime=$(
+    xcrun simctl list runtimes |
+      grep -i -E "visionOS|xrOS" |
+      grep -v 'unavailable' |
+      grep -o -E 'com\.apple\.CoreSimulator\.SimRuntime\.[a-zA-Z0-9.-]+' |
+      tail -1 || true
+  )
+  if [[ "$vision_runtime" =~ xrOS-26|visionOS-26 ]]; then
+    echo "${device_prefix}.Apple-Vision-Pro-4K"
+  else
+    echo "${device_prefix}.Apple-Vision-Pro"
   fi
 }
 
@@ -64,18 +84,7 @@ main() {
   local ipad_device="${device_prefix}.iPad-Pro--11-inch---2nd-generation-"
   local watch_device="${device_prefix}.Apple-Watch-Ultra-2-49mm"
   local tv_device="${device_prefix}.Apple-TV-4K-2nd-generation-1080p"
-  local vision_device="${device_prefix}.Apple-Vision-Pro"
-  local vision_runtime
-  vision_runtime=$(
-    xcrun simctl list runtimes |
-      grep -i -E "visionOS|xrOS" |
-      grep -v 'unavailable' |
-      tail -1 |
-      awk '{print $NF}' || true
-  )
-  if [[ "$vision_runtime" =~ xrOS-26|visionOS-26 ]]; then
-    vision_device="${device_prefix}.Apple-Vision-Pro-4K"
-  fi
+  local vision_device
 
   case "$platform_clean" in
     ios)
@@ -91,9 +100,11 @@ main() {
       create_sim "tvOS" "Firebase-Apple-TV-4K-Gen-2" "$tv_device"
       ;;
     visionos|xros)
+      vision_device=$(get_vision_device "$device_prefix")
       create_sim "visionOS|xrOS" "Firebase-Apple-Vision-Pro" "$vision_device"
       ;;
     all)
+      vision_device=$(get_vision_device "$device_prefix")
       create_sim "iOS" "Firebase-iPhone-15-Pro" "$ios_device"
       create_sim "iOS" "Firebase-iPad-Pro-11-inch" "$ipad_device"
       create_sim "watchOS" "Firebase-Apple-Watch-Ultra-2" "$watch_device"
