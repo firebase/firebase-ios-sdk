@@ -59,11 +59,12 @@ main() {
     echo "$platform" | awk '{print $1}' | tr '[:upper:]' '[:lower:]'
   )
 
-  local dev_prefix="com.apple.CoreSimulator.SimDeviceType"
-  local ios_dev="${dev_prefix}.iPhone-15-Pro"
-  local watch_dev="${dev_prefix}.Apple-Watch-Ultra-2-49mm"
-  local tv_dev="${dev_prefix}.Apple-TV-4K-2nd-generation-1080p"
-  local vision_dev="${dev_prefix}.Apple-Vision-Pro"
+  local device_prefix="com.apple.CoreSimulator.SimDeviceType"
+  local ios_device="${device_prefix}.iPhone-15-Pro"
+  local ipad_device="${device_prefix}.iPad-Pro--11-inch---2nd-generation-"
+  local watch_device="${device_prefix}.Apple-Watch-Ultra-2-49mm"
+  local tv_device="${device_prefix}.Apple-TV-4K-2nd-generation-1080p"
+  local vision_device="${device_prefix}.Apple-Vision-Pro"
   local vision_runtime
   vision_runtime=$(
     xcrun simctl list runtimes |
@@ -73,33 +74,37 @@ main() {
       awk '{print $NF}' || true
   )
   if [[ "$vision_runtime" =~ xrOS-26|visionOS-26 ]]; then
-    vision_dev="${dev_prefix}.Apple-Vision-Pro-4K"
+    vision_device="${device_prefix}.Apple-Vision-Pro-4K"
   fi
 
   case "$platform_clean" in
-    ios|ipad)
-      create_sim "iOS" "Firebase-iPhone-15-Pro" "$ios_dev"
+    ios)
+      create_sim "iOS" "Firebase-iPhone-15-Pro" "$ios_device"
+      ;;
+    ipad)
+      create_sim "iOS" "Firebase-iPad-Pro-11-inch" "$ipad_device"
       ;;
     watchos)
-      create_sim "watchOS" "Firebase-Apple-Watch-Ultra-2" "$watch_dev"
+      create_sim "watchOS" "Firebase-Apple-Watch-Ultra-2" "$watch_device"
       ;;
     tvos)
-      create_sim "tvOS" "Firebase-Apple-TV-4K-Gen-2" "$tv_dev"
+      create_sim "tvOS" "Firebase-Apple-TV-4K-Gen-2" "$tv_device"
       ;;
     visionos|xros)
-      create_sim "visionOS|xrOS" "Firebase-Apple-Vision-Pro" "$vision_dev"
+      create_sim "visionOS|xrOS" "Firebase-Apple-Vision-Pro" "$vision_device"
       ;;
     all)
-      create_sim "iOS" "Firebase-iPhone-15-Pro" "$ios_dev"
-      create_sim "watchOS" "Firebase-Apple-Watch-Ultra-2" "$watch_dev"
-      create_sim "tvOS" "Firebase-Apple-TV-4K-Gen-2" "$tv_dev"
-      create_sim "visionOS|xrOS" "Firebase-Apple-Vision-Pro" "$vision_dev"
+      create_sim "iOS" "Firebase-iPhone-15-Pro" "$ios_device"
+      create_sim "iOS" "Firebase-iPad-Pro-11-inch" "$ipad_device"
+      create_sim "watchOS" "Firebase-Apple-Watch-Ultra-2" "$watch_device"
+      create_sim "tvOS" "Firebase-Apple-TV-4K-Gen-2" "$tv_device"
+      create_sim "visionOS|xrOS" "Firebase-Apple-Vision-Pro" "$vision_device"
       ;;
     macos|catalyst|linux|ios-device)
       # No simulator creation needed
       ;;
     *)
-      create_sim "iOS" "Firebase-iPhone-15-Pro" "$ios_dev"
+      create_sim "iOS" "Firebase-iPhone-15-Pro" "$ios_device"
       ;;
   esac
 }

@@ -189,7 +189,7 @@ ios_device_flags=(
 )
 
 ipad_flags=(
-  -destination 'platform=iOS Simulator,name=Firebase-iPhone-15-Pro'
+  -destination 'platform=iOS Simulator,name=Firebase-iPad-Pro-11-inch'
 )
 
 macos_flags=(
@@ -221,7 +221,8 @@ case "$platform" in
 
   iPad)
     xcb_flags=("${ipad_flags[@]}")
-  ;;
+    gen_platform=ios
+    ;;
 
   macOS)
     xcb_flags=("${macos_flags[@]}")
