@@ -14,54 +14,78 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# Dynamically creates Apple simulator devices using installed runtimes.
+
 set -euo pipefail
 
-platform="${1:-iOS}"
-
+# Creates a simulator with the latest installed runtime for a given platform.
+# Arguments:
+#   $1 - Platform search string for simctl (e.g. "iOS", "watchOS")
+#   $2 - Desired simulator device name (e.g. "Firebase-iPhone-15-Pro")
+#   $3 - Simulator device type ID
+#        (e.g. "com.apple.CoreSimulator.SimDeviceType.iPhone-15-Pro")
 create_sim() {
   local platform_search="$1"
   local sim_name="$2"
   local device_type="$3"
 
   local runtime
-  runtime=$(xcrun simctl list runtimes | grep -i -E "$platform_search" | grep -v 'unavailable' | tail -1 | awk '{print $NF}' || true)
+  runtime=$(
+    xcrun simctl list runtimes |
+      grep -i -E "$platform_search" |
+      grep -v 'unavailable' |
+      tail -1 |
+      awk '{print $NF}' || true
+  )
 
   if [[ -z "$runtime" ]]; then
-    echo "Error: Could not find available runtime for platform search '$platform_search'." >&2
+    echo "Error: Could not find runtime for platform '$platform_search'." >&2
     exit 1
   fi
 
   if ! xcrun simctl list devices | grep -q "$sim_name"; then
-    echo "Creating simulator '$sim_name' ($device_type) with runtime '$runtime'..."
+    echo "Creating simulator '$sim_name' ($device_type)..."
     xcrun simctl create "$sim_name" "$device_type" "$runtime" > /dev/null
   else
     echo "Simulator '$sim_name' already exists."
   fi
 }
 
-case "$platform" in
-  iOS|iPad)
-    create_sim "iOS" "Firebase-iPhone-15-Pro" "com.apple.CoreSimulator.SimDeviceType.iPhone-15-Pro"
-    ;;
-  watchOS)
-    create_sim "watchOS" "Firebase-Apple-Watch-Ultra-2" "com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Ultra-2-49mm"
-    ;;
-  tvOS)
-    create_sim "tvOS" "Firebase-Apple-TV-4K-Gen-2" "com.apple.CoreSimulator.SimDeviceType.Apple-TV-4K-2nd-generation-1080p"
-    ;;
-  visionOS)
-    create_sim "visionOS|xrOS" "Firebase-Apple-Vision-Pro" "com.apple.CoreSimulator.SimDeviceType.Apple-Vision-Pro"
-    ;;
-  all)
-    create_sim "iOS" "Firebase-iPhone-15-Pro" "com.apple.CoreSimulator.SimDeviceType.iPhone-15-Pro"
-    create_sim "watchOS" "Firebase-Apple-Watch-Ultra-2" "com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Ultra-2-49mm"
-    create_sim "tvOS" "Firebase-Apple-TV-4K-Gen-2" "com.apple.CoreSimulator.SimDeviceType.Apple-TV-4K-2nd-generation-1080p"
-    create_sim "visionOS|xrOS" "Firebase-Apple-Vision-Pro" "com.apple.CoreSimulator.SimDeviceType.Apple-Vision-Pro"
-    ;;
-  macOS|catalyst|Linux|iOS-device)
-    # No simulator creation needed
-    ;;
-  *)
-    create_sim "$platform" "Firebase-iPhone-15-Pro" "com.apple.CoreSimulator.SimDeviceType.iPhone-15-Pro"
-    ;;
-esac
+main() {
+  local platform="${1:-iOS}"
+
+  local dev_prefix="com.apple.CoreSimulator.SimDeviceType"
+  local ios_dev="${dev_prefix}.iPhone-15-Pro"
+  local watch_dev="${dev_prefix}.Apple-Watch-Ultra-2-49mm"
+  local tv_dev="${dev_prefix}.Apple-TV-4K-2nd-generation-1080p"
+  local vision_dev="${dev_prefix}.Apple-Vision-Pro"
+
+  case "$platform" in
+    iOS|iPad)
+      create_sim "iOS" "Firebase-iPhone-15-Pro" "$ios_dev"
+      ;;
+    watchOS)
+      create_sim "watchOS" "Firebase-Apple-Watch-Ultra-2" "$watch_dev"
+      ;;
+    tvOS)
+      create_sim "tvOS" "Firebase-Apple-TV-4K-Gen-2" "$tv_dev"
+      ;;
+    visionOS)
+      create_sim "visionOS|xrOS" "Firebase-Apple-Vision-Pro" "$vision_dev"
+      ;;
+    all)
+      create_sim "iOS" "Firebase-iPhone-15-Pro" "$ios_dev"
+      create_sim "watchOS" "Firebase-Apple-Watch-Ultra-2" "$watch_dev"
+      create_sim "tvOS" "Firebase-Apple-TV-4K-Gen-2" "$tv_dev"
+      create_sim "visionOS|xrOS" "Firebase-Apple-Vision-Pro" "$vision_dev"
+      ;;
+    macOS|catalyst|Linux|iOS-device)
+      # No simulator creation needed
+      ;;
+    *)
+      create_sim "$platform" "Firebase-iPhone-15-Pro" "$ios_dev"
+      ;;
+  esac
+}
+
+main "$@"
