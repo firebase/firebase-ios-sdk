@@ -25,7 +25,8 @@ struct CommonTestOptions: ParsableArguments {
     help:
     """
     Xcode version to run tests against. \
-    Can be either the application name, or a full path (eg; "Xcode_16.4.0" or "/Applications/Xcode_16.4.0.app").
+    Can be either the application name, or a full path
+    (eg; "Xcode_16.4.0" or "/Applications/Xcode_16.4.0.app").
     By default, the script will look for your local Xcode installation.
     """
   )
@@ -101,6 +102,11 @@ struct CommonTestOptions: ParsableArguments {
                       extraArguments: [String] = [],
                       logger: Logger) throws {
     let buildScript = URL(filePath: "scripts/build.sh", relativeTo: URL.currentDirectory())
+    guard FileManager.default.fileExists(atPath: buildScript.path(percentEncoded: false)) else {
+      throw ValidationError(
+        "Could not find 'scripts/build.sh'. Please run from the repository root."
+      )
+    }
 
     for platform in platforms {
       logger.info(
@@ -138,7 +144,7 @@ struct CommonTestOptions: ParsableArguments {
         metadata: ["versions": "\(formattedXcodes)"]
       )
       throw ValidationError(
-        "Multiple Xcode installations found. Explicitly pass the 'xcode' option to specify which to use."
+        "Multiple Xcode installations found. Explicitly pass 'xcode' option."
       )
     }
     let xcodePath = xcodes[0].path(percentEncoded: false)
@@ -147,16 +153,19 @@ struct CommonTestOptions: ParsableArguments {
   }
 
   private func validateProvidedXcode(logger: Logger) throws -> String {
-    if xcode.hasSuffix(".app") {
-      guard FileManager.default.fileExists(atPath: xcode) else {
+    let xcodeURL = URL(filePath: xcode)
+    if xcodeURL.pathExtension == "app" {
+      let xcodePath = xcodeURL.path(percentEncoded: false)
+      guard FileManager.default.fileExists(atPath: xcodePath) else {
         throw ValidationError("Xcode application not found at path: \(xcode)")
       }
-      return URL(filePath: xcode).path(percentEncoded: false)
+      return xcodePath
     } else {
       let xcodes = try findXcodeVersions(logger: logger)
+      let xcodeName = xcodeURL.lastPathComponent
       guard
         let match = xcodes.first(where: {
-          $0.path(percentEncoded: false).contains("\(xcode).app")
+          $0.path(percentEncoded: false).contains("\(xcodeName).app")
         })
       else {
         let formattedXcodes = xcodes.map { $0.path(percentEncoded: false) }
@@ -188,8 +197,22 @@ struct CommonTestOptions: ParsableArguments {
       metadata: ["directories": "\(applicationDirs)"]
     )
 
-    let allApplications = try applicationDirs.flatMap { url in
-      try FileManager.default.contentsOfDirectory(at: url, includingPropertiesForKeys: nil)
+    let allApplications = applicationDirs.flatMap { url in
+      do {
+        return try FileManager.default.contentsOfDirectory(
+          at: url,
+          includingPropertiesForKeys: nil
+        )
+      } catch {
+        logger.debug(
+          "Failed to read contents of application directory, skipping.",
+          metadata: [
+            "directory": "\(url.path(percentEncoded: false))",
+            "error": "\(error.localizedDescription)",
+          ]
+        )
+        return []
+      }
     }
 
     let xcodes = allApplications.filter { file in

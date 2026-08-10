@@ -116,13 +116,14 @@ public struct Decrypt: ParsableCommand {
     if password.isEmpty {
       // when a password isn't provided, try to load one from the environment variable
       guard
-        let secrets_passphrase = ProcessInfo.processInfo.environment["secrets_passphrase"]
+        let secretsPassphrase = ProcessInfo.processInfo.environment["secrets_passphrase"]
       else {
         throw ValidationError(
-          "Either provide a passphrase via the password option or set the environment variable 'secrets_passphrase' to the passphrase."
+          "Either provide a passphrase via the password option or set " +
+            "the environment variable 'secrets_passphrase' to the passphrase."
         )
       }
-      password = secrets_passphrase
+      password = secretsPassphrase
     }
   }
 
@@ -135,6 +136,10 @@ public struct Decrypt: ParsableCommand {
       filePath: jsonPath, directoryHint: .notDirectory,
       relativeTo: URL.currentDirectory()
     )
+
+    guard FileManager.default.fileExists(atPath: fileURL.path(percentEncoded: false)) else {
+      throw ValidationError("JSON secrets file does not exist at path: \(jsonPath)")
+    }
 
     files = try SecretFile.parseArrayFrom(file: fileURL)
     guard !files.isEmpty else {
