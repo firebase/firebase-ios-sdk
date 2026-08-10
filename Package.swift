@@ -199,15 +199,15 @@ func packageDependencies() -> [Package.Dependency] {
 }
 
 func packageTargets() -> [Target] {
-  var targets: [Target] = []
+  var targets: [Target] = [
+    .target(
+      name: "Firebase",
+      path: "CoreOnly/Sources",
+      publicHeadersPath: "./"
+    ),
+  ]
   #if os(macOS)
     targets.append(contentsOf: [
-      .target(
-        name: "Firebase",
-        path: "CoreOnly/Sources",
-        publicHeadersPath: "./"
-      ),
-
       // MARK: - Firebase AI
 
       .target(
