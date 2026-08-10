@@ -21,7 +21,6 @@
 
 NSString *const FIRCLSCacheDirectoryName = @"com.crashlytics.data";
 NSString *const FIRCLSCacheVersion = @"v5";
-NSString *const FIRCLSMetricKitDiagnosticPath = @"/MetricKit/Diagnostics/";
 
 @interface FIRCLSFileManager () {
   NSString *_rootPath;
@@ -139,18 +138,6 @@ NSString *const FIRCLSMetricKitDiagnosticPath = @"/MetricKit/Diagnostics/";
     self.crashFileMarkerExists = [self fileExistsAtPath:crashedMarkerFileFullPath];
   });
   return self.crashFileMarkerExists;
-}
-
-- (BOOL)metricKitDiagnosticFileExists {
-  NSArray *contentsOfMetricKitDirectory = [self
-      contentsOfDirectory:[_cachesPath stringByAppendingString:FIRCLSMetricKitDiagnosticPath]];
-  return ([contentsOfMetricKitDirectory count] > 0);
-}
-
-- (void)createEmptyMetricKitFile:(NSString *)reportPath {
-  NSString *metricKitFile =
-      [reportPath stringByAppendingPathComponent:FIRCLSMetricKitFatalReportFile];
-  [self createFileAtPath:metricKitFile contents:nil attributes:nil];
 }
 
 - (void)enumerateFilesInDirectory:(NSString *)directory

@@ -30,7 +30,7 @@ final class LiveSnippets: XCTestCase {
   }
 
   func sendAudioReceiveAudio() async throws {
-    // Initialize the Gemini Enterprise Agent Platform backend service
+    // Initialize the Agent Platform Gemini API backend service
     // Set the location to `us-central1` (the flash-live model is only supported in that location)
     // Create a `LiveGenerativeModel` instance with the flash-live model (only model that supports
     // the Live API)
