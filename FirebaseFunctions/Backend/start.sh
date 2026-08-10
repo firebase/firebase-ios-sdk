@@ -49,6 +49,11 @@ if [ "$1" == "synchronous" ]; then
   COUNTER=0
   MAX_TRIES=60
   until grep -q "All emulators ready" "${TEMP_DIR}/emulator.log" 2>/dev/null || [ $COUNTER -eq $MAX_TRIES ]; do
+    if ! kill -0 "${EMULATOR_PID}" 2>/dev/null; then
+      echo "Emulator process died unexpectedly."
+      cat "${TEMP_DIR}/emulator.log"
+      exit 1
+    fi
     sleep 1
     COUNTER=$((COUNTER + 1))
   done
