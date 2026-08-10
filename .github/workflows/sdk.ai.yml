@@ -39,35 +39,24 @@ jobs:
   testapp-integration:
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false)
     strategy:
+      fail-fast: false
       matrix:
         include:
           - os: macos-15
             target: iOS
             xcode: Xcode_26.2
-            test_filter_arg: --exclude IntegrationTests-SPM/LiveSessionTests
-            log_prefix: xcodebuild
-          - os: macos-15
-            target: iOS
-            xcode: Xcode_26.2
-            test_filter_arg: --filter IntegrationTests-SPM/LiveSessionTests
-            log_prefix: xcodebuild-live
+            test_filter_arg: --build-only
+            log_prefix: xcodebuild-build-only
           - os: macos-26
             target: iOS
             # TODO: Bump to 26.4 when "Unable to find a destination matching the provided destination specifier" is resolved.
             xcode: Xcode_26.2
             test_filter_arg: --exclude IntegrationTests-SPM/LiveSessionTests
             log_prefix: xcodebuild
-          - os: macos-26
-            target: iOS
-            # TODO: Bump to 26.4 when "Unable to find a destination matching the provided destination specifier" is resolved.
-            xcode: Xcode_26.2
-            test_filter_arg: --filter IntegrationTests-SPM/LiveSessionTests
-            log_prefix: xcodebuild-live
     runs-on: ${{ matrix.os }}
     needs: spm
     env:
       TEST_RUNNER_FIRAAppCheckDebugToken: ${{ secrets.VERTEXAI_INTEGRATION_FAC_DEBUG_TOKEN }}
-      TEST_RUNNER_VTXIntegrationImagen: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
       FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
       secrets_passphrase: ${{ secrets.GHASecretsGPGPassphrase1 }}
       FIREBASE_APP_CHECK_BRANCH: main
@@ -86,6 +75,34 @@ jobs:
       uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
       with:
         name: ${{ matrix.log_prefix }}-${{ matrix.target }}-${{ matrix.os }}-${{ matrix.xcode }}.log
+        path: xcodebuild-*.log
+        retention-days: 2
+
+  testapp-integration-live:
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false)
+    # TODO: Bump to 26.4 when "Unable to find a destination matching the provided destination specifier" is resolved.
+    runs-on: macos-26
+    needs: spm
+    env:
+      TEST_RUNNER_FIRAAppCheckDebugToken: ${{ secrets.VERTEXAI_INTEGRATION_FAC_DEBUG_TOKEN }}
+      FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
+      secrets_passphrase: ${{ secrets.GHASecretsGPGPassphrase1 }}
+      FIREBASE_APP_CHECK_BRANCH: main
+    steps:
+    - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      with:
+        persist-credentials: false
+    - uses: actions/cache/restore@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+      with:
+        path: .build
+        key: ${{ needs.spm.outputs.cache_key }}
+    - name: Run live integration tests
+      run: scripts/repo.sh tests run --secrets ./scripts/secrets/AI.json --platforms iOS --xcode Xcode_26.2 --filter IntegrationTests-SPM/LiveSessionTests AI
+    - name: Upload xcodebuild logs
+      if: failure()
+      uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+      with:
+        name: xcodebuild-live-iOS-macos-26-Xcode_26.2.log
         path: xcodebuild-*.log
         retention-days: 2
 

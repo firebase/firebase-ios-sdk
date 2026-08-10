@@ -25,7 +25,7 @@ extension Tests {
     static let configuration = CommandConfiguration(
       abstract: "Run the integration tests for a given SDK.",
       usage: """
-        tests run [--overwrite] [--secrets <file_path>] [--xcode <version_or_path>] [--platforms <platforms> ...] [--filter <suite_or_function>] [--exclude <suite_or_function>] [<sdk>]
+        tests run [--build-only] [--overwrite] [--secrets <file_path>] [--xcode <version_or_path>] [--platforms <platforms> ...] [--filter <suite_or_function>] [--exclude <suite_or_function>] [<sdk>]
 
         tests run --xcode Xcode_16.4.0 --platforms iOS --platforms macOS AI
         tests run --xcode "/Applications/Xcode_15.0.0.app" --platforms tvOS Storage
@@ -88,6 +88,9 @@ extension Tests {
 
     @Flag(help: "Overwrite existing decrypted secret files.")
     var overwrite: Bool = false
+
+    @Flag(help: "Only build the integration test app without running tests.")
+    var buildOnly: Bool = false
 
     @Argument(
       help: """
@@ -276,7 +279,7 @@ extension Tests {
 
       for platform in platforms {
         log.info(
-          "Running integration tests",
+          buildOnly ? "Building integration tests" : "Running integration tests",
           metadata: ["sdk": "\(sdk)", "platform": "\(platform)"]
         )
 
@@ -288,14 +291,15 @@ extension Tests {
           inheritEnvironment: true
         )
 
+        let method = buildOnly ? "buildonly" : "xcodebuild"
         let exitCode = try build.runWithSignals([
           "Firebase\(sdk)Integration",
           "\(platform)",
-          "xcodebuild",
+          method,
         ] + extraArguments)
         guard exitCode == 0 else {
           log.error(
-            "Failed to run integration tests.",
+            buildOnly ? "Failed to build integration tests." : "Failed to run integration tests.",
             metadata: ["sdk": "\(sdk)", "platform": "\(platform)"]
           )
           throw ExitCode(exitCode)
