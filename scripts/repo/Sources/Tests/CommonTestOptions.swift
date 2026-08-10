@@ -154,7 +154,7 @@ struct CommonTestOptions: ParsableArguments {
 
   private func validateProvidedXcode(logger: Logger) throws -> String {
     let xcodeURL = URL(filePath: xcode)
-    if xcodeURL.pathExtension == "app" {
+    if xcodeURL.pathExtension == "app" && xcode.contains("/") {
       let xcodePath = xcodeURL.path(percentEncoded: false)
       guard FileManager.default.fileExists(atPath: xcodePath) else {
         throw ValidationError("Xcode application not found at path: \(xcode)")
@@ -162,7 +162,7 @@ struct CommonTestOptions: ParsableArguments {
       return xcodePath
     } else {
       let xcodes = try findXcodeVersions(logger: logger)
-      let xcodeName = xcodeURL.lastPathComponent
+      let xcodeName = xcodeURL.deletingPathExtension().lastPathComponent
       guard
         let match = xcodes.first(where: {
           $0.path(percentEncoded: false).contains("\(xcodeName).app")
@@ -216,11 +216,12 @@ struct CommonTestOptions: ParsableArguments {
     }
 
     let xcodes = allApplications.filter { file in
-      let isXcode = file.lastPathComponent.contains(/Xcode.*\.app/)
+      let name = file.lastPathComponent
+      let isXcode = name.hasPrefix("Xcode") && name.hasSuffix(".app")
       if !isXcode {
         logger.debug(
           "Application isn't an Xcode installation, so we're skipping it.",
-          metadata: ["application": "\(file.lastPathComponent)"]
+          metadata: ["application": "\(name)"]
         )
       }
       return isXcode
