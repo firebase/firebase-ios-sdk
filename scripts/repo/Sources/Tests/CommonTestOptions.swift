@@ -95,13 +95,11 @@ struct CommonTestOptions: ParsableArguments {
   }
 
   /// Runs `scripts/build.sh` for each specified platform with the given method and extra arguments.
-  func runBuildScript(
-    method: String,
-    actionDescription: String,
-    xcodePath: String,
-    extraArguments: [String] = [],
-    logger: Logger
-  ) throws {
+  func runBuildScript(method: String,
+                      actionDescription: String,
+                      xcodePath: String,
+                      extraArguments: [String] = [],
+                      logger: Logger) throws {
     let buildScript = URL(filePath: "scripts/build.sh", relativeTo: URL.currentDirectory())
 
     for platform in platforms {
