@@ -153,29 +153,56 @@ struct CommonTestOptions: ParsableArguments {
   }
 
   private func validateProvidedXcode(logger: Logger) throws -> String {
-    let xcodeURL = URL(filePath: xcode)
-    if xcodeURL.pathExtension == "app" && xcode.contains("/") {
-      let xcodePath = xcodeURL.path(percentEncoded: false)
-      guard FileManager.default.fileExists(atPath: xcodePath) else {
+    if xcode.contains("/") {
+      guard let directPath = resolveDirectXcodePath(xcode) else {
         throw ValidationError("Xcode application not found at path: \(xcode)")
       }
-      return xcodePath
-    } else {
-      let xcodes = try findXcodeVersions(logger: logger)
-      let xcodeName = xcodeURL.deletingPathExtension().lastPathComponent
-      guard
-        let match = xcodes.first(where: {
-          $0.path(percentEncoded: false).contains("\(xcodeName).app")
-        })
-      else {
-        let formattedXcodes = xcodes.map { $0.path(percentEncoded: false) }
-        logger.error("Invalid Xcode specified.", metadata: ["versions": "\(formattedXcodes)"])
-        throw ValidationError("Failed to find an Xcode installation that matches: \(xcode)")
-      }
-      let xcodePath = match.path(percentEncoded: false)
-      logger.debug("Found matching Xcode", metadata: ["path": "\(xcodePath)"])
-      return xcodePath
+      return directPath
     }
+
+    let xcodes = try findXcodeVersions(logger: logger)
+    let searchName = URL(filePath: xcode).bundleName
+
+    guard let match = matchXcode(in: xcodes, search: searchName) else {
+      let formattedXcodes = xcodes.map(\.pathString)
+      logger.error("Invalid Xcode specified.", metadata: ["versions": "\(formattedXcodes)"])
+      throw ValidationError("Failed to find an Xcode installation that matches: \(xcode)")
+    }
+
+    let targetPath = FileManager.default.fileExists(atPath: match.resolvedPathString)
+      ? match.resolvedPathString
+      : match.pathString
+
+    logger.debug("Found matching Xcode", metadata: ["path": "\(targetPath)"])
+    return targetPath
+  }
+
+  private func resolveDirectXcodePath(_ path: String) -> String? {
+    let url = URL(filePath: path)
+    if FileManager.default.fileExists(atPath: url.pathString) {
+      return url.pathString
+    }
+    if FileManager.default.fileExists(atPath: url.resolvedPathString) {
+      return url.resolvedPathString
+    }
+    return nil
+  }
+
+  private func matchXcode(in xcodes: [URL], search: String) -> URL? {
+    // Exact match on application bundle name
+    if let exact = xcodes.first(where: {
+      $0.bundleName == search || $0.resolvingSymlinksInPath().bundleName == search
+    }) {
+      return exact
+    }
+
+    // Substring match on bundle name or path
+    return xcodes.first(where: { url in
+      url.bundleName.contains(search) ||
+        url.resolvingSymlinksInPath().bundleName.contains(search) ||
+        url.pathString.contains(search) ||
+        url.resolvedPathString.contains(search)
+    })
   }
 
   private func findXcodeVersions(logger: Logger) throws -> [URL] {
@@ -243,4 +270,20 @@ enum Platform: String, Codable, ExpressibleByArgument, CaseIterable {
   case tvOS
   case watchOS
   case visionOS
+}
+
+private extension URL {
+  var pathString: String {
+    path(percentEncoded: false)
+  }
+
+  var resolvedPathString: String {
+    resolvingSymlinksInPath().path(percentEncoded: false)
+  }
+
+  var bundleName: String {
+    pathExtension.lowercased() == "app"
+      ? deletingPathExtension().lastPathComponent
+      : lastPathComponent
+  }
 }
