@@ -92,7 +92,7 @@ jobs:
     - name: Initialize xcodebuild
       run: scripts/setup_spm_tests.sh
     - name: Functions Integration Test Server
-      run: FirebaseFunctions/Backend/start.sh synchronous
+      run: node FirebaseFunctions/Backend/start.js synchronous
     - uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
       with:
         timeout_minutes: 30
