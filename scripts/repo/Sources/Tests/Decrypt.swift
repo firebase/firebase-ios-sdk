@@ -119,7 +119,7 @@ public struct Decrypt: ParsableCommand {
         let secrets_passphrase = ProcessInfo.processInfo.environment["secrets_passphrase"]
       else {
         throw ValidationError(
-          "Either provide a passphrase via the password option or set the environvment variable 'secrets_passphrase' to the passphrase."
+          "Either provide a passphrase via the password option or set the environment variable 'secrets_passphrase' to the passphrase."
         )
       }
       password = secrets_passphrase
@@ -173,7 +173,7 @@ public struct Decrypt: ParsableCommand {
       }
 
       log.debug(
-        "File encrypted",
+        "File decrypted",
         metadata: ["file": "\(file.encrypted)", "destination": "\(file.destination)"]
       )
     }

@@ -63,6 +63,7 @@ struct CommonTestOptions: ParsableArguments {
 
     defer {
       for file in secretFiles {
+        guard FileManager.default.fileExists(atPath: file.destination) else { continue }
         do {
           logger.debug("Deleting secret file", metadata: ["file": "\(file.destination)"])
           try FileManager.default.removeItem(atPath: file.destination)
@@ -142,7 +143,7 @@ struct CommonTestOptions: ParsableArguments {
         "Multiple Xcode installations found. Explicitly pass the 'xcode' option to specify which to use."
       )
     }
-    let xcodePath = xcodes[0].path()
+    let xcodePath = xcodes[0].path(percentEncoded: false)
     logger.debug("Found Xcode installation", metadata: ["path": "\(xcodePath)"])
     return xcodePath
   }
@@ -152,7 +153,7 @@ struct CommonTestOptions: ParsableArguments {
       guard FileManager.default.fileExists(atPath: xcode) else {
         throw ValidationError("Xcode application not found at path: \(xcode)")
       }
-      return URL(filePath: xcode).path()
+      return URL(filePath: xcode).path(percentEncoded: false)
     } else {
       let xcodes = try findXcodeVersions(logger: logger)
       guard
@@ -164,7 +165,7 @@ struct CommonTestOptions: ParsableArguments {
         logger.error("Invalid Xcode specified.", metadata: ["versions": "\(formattedXcodes)"])
         throw ValidationError("Failed to find an Xcode installation that matches: \(xcode)")
       }
-      let xcodePath = match.path()
+      let xcodePath = match.path(percentEncoded: false)
       logger.debug("Found matching Xcode", metadata: ["path": "\(xcodePath)"])
       return xcodePath
     }
@@ -174,11 +175,11 @@ struct CommonTestOptions: ParsableArguments {
     let applicationDirs = FileManager.default.urls(
       for: .applicationDirectory, in: .allDomainsMask
     ).filter { url in
-      let exists = FileManager.default.fileExists(atPath: url.path())
+      let exists = FileManager.default.fileExists(atPath: url.path(percentEncoded: false))
       if !exists {
         logger.debug(
           "Application directory doesn't exist, so we're skipping it.",
-          metadata: ["directory": "\(url.path())"]
+          metadata: ["directory": "\(url.path(percentEncoded: false))"]
         )
       }
       return exists

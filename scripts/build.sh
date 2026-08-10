@@ -45,6 +45,7 @@ product can be one of:
   SymbolCollision
   GoogleDataTransport
   Performance
+  FirebaseAIIntegration
   ClientApp
 platform can be one of:
   iOS (default)
