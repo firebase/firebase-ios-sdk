@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Sets up a project with the functions CLI and starts a backend to run
+# Sets up a project with firebase-tools and starts a backend to run
 # integration tests against.
 
 # Adding the "synchronous" parameter will cause the script to exit
@@ -31,42 +31,37 @@ echo "Creating functions in ${TEMP_DIR}"
 # Set up the functions directory.
 cp "${SCRIPT_DIR}/index.js" "${TEMP_DIR}/"
 cp "${SCRIPT_DIR}/package.json" "${TEMP_DIR}/"
+cp "${SCRIPT_DIR}/firebase.json" "${TEMP_DIR}/"
+cp "${SCRIPT_DIR}/.firebaserc" "${TEMP_DIR}/"
 cd "${TEMP_DIR}"
-npm install
+npm install --no-audit --no-fund
 
-# Start the server.
-FUNCTIONS_BIN="./node_modules/.bin/functions"
-"${FUNCTIONS_BIN}" config set projectId functions-integration-test <<-!
-  myproject
-!
-"${FUNCTIONS_BIN}" config set supervisorPort 5005
-"${FUNCTIONS_BIN}" config set region us-central1
-"${FUNCTIONS_BIN}" config set verbose true
-"${FUNCTIONS_BIN}" restart
-"${FUNCTIONS_BIN}" deploy dataTest --trigger-http
-"${FUNCTIONS_BIN}" deploy scalarTest --trigger-http
-"${FUNCTIONS_BIN}" deploy tokenTest --trigger-http
-"${FUNCTIONS_BIN}" deploy FCMTokenTest --trigger-http
-"${FUNCTIONS_BIN}" deploy nullTest --trigger-http
-"${FUNCTIONS_BIN}" deploy missingResultTest --trigger-http
-"${FUNCTIONS_BIN}" deploy unhandledErrorTest --trigger-http
-"${FUNCTIONS_BIN}" deploy unknownErrorTest --trigger-http
-"${FUNCTIONS_BIN}" deploy explicitErrorTest --trigger-http
-"${FUNCTIONS_BIN}" deploy httpErrorTest --trigger-http
-"${FUNCTIONS_BIN}" deploy throwTest --trigger-http
-"${FUNCTIONS_BIN}" deploy timeoutTest --trigger-http
-"${FUNCTIONS_BIN}" deploy genStream --trigger-http
-"${FUNCTIONS_BIN}" deploy genStreamError --trigger-http
-"${FUNCTIONS_BIN}" deploy genStreamWeather --trigger-http
-"${FUNCTIONS_BIN}" deploy genStreamWeatherError --trigger-http
-"${FUNCTIONS_BIN}" deploy genStreamEmpty --trigger-http
-"${FUNCTIONS_BIN}" deploy genStreamResultOnly --trigger-http
-"${FUNCTIONS_BIN}" deploy genStreamLargeData --trigger-http
+FIREBASE_BIN="./node_modules/.bin/firebase"
 
-if [ "$1" != "synchronous" ]; then
-  # Wait for the user to tell us to stop the server.
-  echo "Functions emulator now running in ${TEMP_DIR}."
-  read -n 1 -p "*** Press any key to stop the server. ***"
-  echo "\nStopping the emulator..."
-  "${FUNCTIONS_BIN}" stop
+if [ "$1" == "synchronous" ]; then
+  echo "Starting Firebase Functions Emulator in background..."
+  nohup "${FIREBASE_BIN}" emulators:start --only functions > "${TEMP_DIR}/emulator.log" 2>&1 &
+  EMULATOR_PID=$!
+  echo "Emulator PID: ${EMULATOR_PID}"
+
+  # Wait until the emulator is ready on port 5005
+  echo "Waiting for functions emulator to be ready..."
+  COUNTER=0
+  MAX_TRIES=60
+  until grep -q "All emulators ready" "${TEMP_DIR}/emulator.log" 2>/dev/null || [ $COUNTER -eq $MAX_TRIES ]; do
+    sleep 1
+    COUNTER=$((COUNTER + 1))
+  done
+
+  if [ $COUNTER -eq $MAX_TRIES ]; then
+    echo "Timed out waiting for Firebase Functions Emulator to start."
+    cat "${TEMP_DIR}/emulator.log"
+    exit 1
+  fi
+
+  cat "${TEMP_DIR}/emulator.log"
+  echo "Firebase Functions Emulator ready on port 5005."
+else
+  echo "Functions emulator running in ${TEMP_DIR}."
+  "${FIREBASE_BIN}" emulators:start --only functions
 fi
