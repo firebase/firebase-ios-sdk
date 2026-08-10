@@ -573,6 +573,22 @@ case "$product-$platform-$method" in
       build
     ;;
 
+  FirebaseAIIntegration-*-build)
+    RunXcodebuild \
+      -project 'FirebaseAI/Tests/TestApp/FirebaseAITestApp.xcodeproj' \
+      -scheme "FirebaseAITestApp-SPM" \
+      "${xcb_flags[@]}" \
+      build
+    ;;
+
+  FirebaseAIIntegration-*-build-for-testing)
+    RunXcodebuild \
+      -project 'FirebaseAI/Tests/TestApp/FirebaseAITestApp.xcodeproj' \
+      -scheme "FirebaseAITestApp-SPM" \
+      "${xcb_flags[@]}" \
+      build-for-testing
+    ;;
+
   FirebaseAIIntegration-*-*)
     # Filter out test-only flags for the build-for-testing phase
     # It's a bit hacky, but xcode doesn't generate a proper dependency graph
@@ -598,17 +614,15 @@ case "$product-$platform-$method" in
       "${build_flags[@]}" \
       build-for-testing
 
-    if [[ "$method" != "buildonly" ]]; then
-      # Run tests
-      RunXcodebuild \
-        -project 'FirebaseAI/Tests/TestApp/FirebaseAITestApp.xcodeproj' \
-        -scheme "FirebaseAITestApp-SPM" \
-        "${xcb_flags[@]}" \
-        -parallel-testing-enabled NO \
-        -retry-tests-on-failure \
-        -test-iterations 3 \
-        test-without-building
-    fi
+    # Run tests
+    RunXcodebuild \
+      -project 'FirebaseAI/Tests/TestApp/FirebaseAITestApp.xcodeproj' \
+      -scheme "FirebaseAITestApp-SPM" \
+      "${xcb_flags[@]}" \
+      -parallel-testing-enabled NO \
+      -retry-tests-on-failure \
+      -test-iterations 3 \
+      test-without-building
     ;;
 
   Sessions-*-integration)

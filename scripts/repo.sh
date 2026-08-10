@@ -16,7 +16,7 @@
 
 # USAGE: ./repo.sh <subcommand> [args...]
 #
-# EXAMPLE: ./repo.sh tests decrypt --json ./scripts/secrets/AI.json
+# EXAMPLE: ./repo.sh test --secrets ./scripts/secrets/AI.json AI
 #
 # Wraps around the local "repo" swift package, and facilitates calls to it.
 # The main purpose of this is to make calling "repo" easier, as you typically
