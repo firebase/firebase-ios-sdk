@@ -112,6 +112,36 @@ static NSString *const kValidImageURL =
   [self waitForExpectationsWithTimeout:1.0 handler:nil];
 }
 
+- (void)testModifyNotificationWithNonDictionaryFCMOptions {
+  XCTestExpectation *handlerCalledExpectation =
+      [self expectationWithDescription:@"Content handler was called."];
+  UNMutableNotificationContent *content = [[UNMutableNotificationContent alloc] init];
+  // A sender can set `fcm_options` to a non-dictionary value in the payload.
+  content.userInfo = @{kFCMPayloadOptionsName : @"not a dictionary"};
+  FIRMessagingContentHandler handler = ^(UNNotificationContent *content) {
+    [handlerCalledExpectation fulfill];
+  };
+  [_mockExtensionHelper populateNotificationContent:content withContentHandler:handler];
+  OCMReject([_mockExtensionHelper loadAttachmentForURL:[OCMArg any]
+                                     completionHandler:[OCMArg any]]);
+  [self waitForExpectationsWithTimeout:1.0 handler:nil];
+}
+
+- (void)testModifyNotificationWithNonStringImageURL {
+  XCTestExpectation *handlerCalledExpectation =
+      [self expectationWithDescription:@"Content handler was called."];
+  UNMutableNotificationContent *content = [[UNMutableNotificationContent alloc] init];
+  // A sender can set the `image` entry to a non-string value in the payload.
+  content.userInfo = @{kFCMPayloadOptionsName : @{kFCMPayloadOptionsImageURLName : @123}};
+  FIRMessagingContentHandler handler = ^(UNNotificationContent *content) {
+    [handlerCalledExpectation fulfill];
+  };
+  [_mockExtensionHelper populateNotificationContent:content withContentHandler:handler];
+  OCMReject([_mockExtensionHelper loadAttachmentForURL:[OCMArg any]
+                                     completionHandler:[OCMArg any]]);
+  [self waitForExpectationsWithTimeout:1.0 handler:nil];
+}
+
 - (void)testModifyNotificationWithValidPayloadDataNoMimeType {
   NSString *const kValidTestURL = @"test.jpg";
   NSString *const kValidTestExtension = @".jpg";

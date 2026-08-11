@@ -112,8 +112,18 @@ pb_bytes_array_t *FIRMessagingEncodeString(NSString *string) {
 
   // The `userInfo` property isn't available on newer versions of tvOS.
 #if !TARGET_OS_TV
-  NSObject *currentImageURL = content.userInfo[kPayloadOptionsName][kPayloadOptionsImageURLName];
-  if (!currentImageURL || currentImageURL == [NSNull null]) {
+  // `userInfo` is the untrusted push payload, so a sender controls the type of
+  // every value in it. `fcm_options` and its `image` entry are read below and
+  // must be a dictionary and a string; otherwise the keyed subscript or the
+  // NSString cast would raise on an unexpected class.
+  NSObject *fcmOptions = content.userInfo[kPayloadOptionsName];
+  if (![fcmOptions isKindOfClass:[NSDictionary class]]) {
+    [self deliverNotification];
+    return;
+  }
+  NSObject *currentImageURL = ((NSDictionary *)fcmOptions)[kPayloadOptionsImageURLName];
+  if (!currentImageURL || currentImageURL == [NSNull null] ||
+      ![currentImageURL isKindOfClass:[NSString class]]) {
     [self deliverNotification];
     return;
   }
