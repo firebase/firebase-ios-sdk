@@ -707,7 +707,6 @@ func packageTargets() -> [Target] {
 
       // MARK: - Firebase Functions
 
-      // TODO: Remove this comment before merging. Using it to trigger tests on CI.
       .target(
         name: "FirebaseFunctions",
         dependencies: [
