@@ -1,3 +1,7 @@
+# Unreleased
+- [fixed] Revert to using `kFPRSlowFrameThreshold` for slow frames on iOS to prevent falsely classifying 60 FPS frames as slow on ProMotion displays,
+while preserving dynamic frame rate support for tvOS.
+
 # 12.16.0
 - [fixed] Fixed a crash in `FPRMemoryGaugeCollector` by collecting memory usage
   with `task_info(TASK_VM_INFO)` instead of `malloc_zone_statistics()`, which

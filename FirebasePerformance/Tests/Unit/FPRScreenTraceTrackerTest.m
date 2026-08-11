@@ -998,35 +998,43 @@ static UIViewController *FPRCustomViewController(NSString *className, BOOL isVie
 
 #pragma mark - Dynamic FPS Tests
 
-/** Helper method to swizzle UIScreen.maximumFramesPerSecond for testing.
- *
- *  @param fps The FPS value to stub.
- *  @param block The block to execute with the stubbed FPS.
+/** Tests that ProMotion displays with maximumFramesPerSecond = 120 do not cause standard 60 FPS
+ *  frames to be falsely marked as slow frames on iOS.
  */
-- (void)withStubbedMaxFPS:(NSInteger)fps performBlock:(void (^)(void))block {
-  Method originalMethod =
-      class_getInstanceMethod([UIScreen class], @selector(maximumFramesPerSecond));
-  IMP originalIMP = method_getImplementation(originalMethod);
+- (void)testProMotion120FPSDisplayDoesNotMake60FPSFramesSlowOnIOS {
+  [self withStubbedMaxFPS:120
+             performBlock:^{
+               [self.tracker updateCachedSlowBudget];
 
-  NSInteger (^stubBlock)(id) = ^NSInteger(id self) {
-    return fps;
-  };
-  IMP stubIMP = imp_implementationWithBlock(stubBlock);
-  method_setImplementation(originalMethod, stubIMP);
+               id displayLinkMock = OCMClassMock([CADisplayLink class]);
+               [self.tracker.displayLink invalidate];
+               self.tracker.displayLink = displayLinkMock;
 
-  @try {
-    block();
-  } @finally {
-    method_setImplementation(originalMethod, originalIMP);
-  }
+               CFAbsoluteTime firstFrameTimestamp = 1.0;
+               // Standard 60 FPS frame duration is ~16.67ms (1.0 / 60.0)
+               CFAbsoluteTime secondFrameTimestamp = firstFrameTimestamp + (1.0 / 60.0);
+
+               OCMExpect([displayLinkMock timestamp]).andReturn(firstFrameTimestamp);
+               [self.tracker displayLinkStep];
+               int64_t initialSlowFramesCount = self.tracker.slowFramesCount;
+
+               OCMExpect([displayLinkMock timestamp]).andReturn(secondFrameTimestamp);
+               [self.tracker displayLinkStep];
+
+               int64_t slowFramesCount = self.tracker.slowFramesCount;
+               XCTAssertEqual(slowFramesCount, initialSlowFramesCount,
+                              @"Standard 60 FPS frames should NOT be marked as slow on ProMotion "
+                              @"(120 FPS) devices on iOS");
+             }];
 }
 
-/** Helper method to create a test tracker with stubbed FPS and updated cached budget.
+#if TARGET_OS_TV
+
+/** Helper method to create a test tracker updated cached budget.
  *
- *  @param fps The FPS value to stub.
  *  @return A configured FPRScreenTraceTracker instance.
  */
-- (FPRScreenTraceTracker *)createTestTrackerWithStubbedFPS:(NSInteger)fps {
+- (FPRScreenTraceTracker *)createTestTrackerWithUpdatedFPS {
   FPRScreenTraceTracker *testTracker = [[FPRScreenTraceTracker alloc] init];
   testTracker.displayLink.paused = YES;
   // Tests run on main thread, so call updateCachedSlowBudget directly.
@@ -1034,10 +1042,9 @@ static UIViewController *FPRCustomViewController(NSString *className, BOOL isVie
   return testTracker;
 }
 
-#if TARGET_OS_TV
 /** Tests that slow frames are correctly detected with a custom maxFPS value on tvOS.
  *  This test stubs UIScreen.maximumFramesPerSecond to 50 FPS and verifies that frames
- *  at ~21ms (slow) and ~19ms (not slow) are correctly classified.
+ *  at ~25ms (slow) and ~19ms (not slow) are correctly classified.
  */
 - (void)testSlowFrameIsRecordedWithCustomMaxFPSOnTvOS {
   // At 50 FPS, slow budget = 1.0/50 = 0.02 seconds = 20ms.
@@ -1047,7 +1054,7 @@ static UIViewController *FPRCustomViewController(NSString *className, BOOL isVie
                UIScreen *mainScreen = [UIScreen mainScreen];
                XCTAssertEqual(mainScreen.maximumFramesPerSecond, 50, @"Stub should return 50 FPS");
 
-               FPRScreenTraceTracker *testTracker = [self createTestTrackerWithStubbedFPS:50];
+               FPRScreenTraceTracker *testTracker = [self createTestTrackerWithUpdatedFPS];
 
                // Verify the stub is still working after tracker creation.
                XCTAssertEqual([UIScreen mainScreen].maximumFramesPerSecond, 50,
@@ -1090,15 +1097,14 @@ static UIViewController *FPRCustomViewController(NSString *className, BOOL isVie
                    @"Frame at 19ms should NOT be marked as slow at 50 FPS (20ms threshold)");
              }];
 }
-#endif
 
-/** Tests that the epsilon value correctly handles edge cases around 59.94 vs 60 Hz displays.
- *  Frames right at the threshold should not be miscounted due to floating point precision.
+/** Tests that the epsilon value correctly handles edge cases around 59.94 vs 60 Hz displays on
+ * tvOS. Frames right at the threshold should not be miscounted due to floating point precision.
  */
 - (void)testSlowFrameRate_isHandled_inEdgeCases {
   [self withStubbedMaxFPS:60
              performBlock:^{
-               FPRScreenTraceTracker *testTracker = [self createTestTrackerWithStubbedFPS:60];
+               FPRScreenTraceTracker *testTracker = [self createTestTrackerWithUpdatedFPS];
 
                // Verify the stub is working - UIScreen should return 60 FPS.
                UIScreen *mainScreen = [UIScreen mainScreen];
@@ -1145,7 +1151,6 @@ static UIViewController *FPRCustomViewController(NSString *className, BOOL isVie
              }];
 }
 
-#if TARGET_OS_TV
 /** Tests that the slow budget is recomputed when UIScreenModeDidChangeNotification is posted on
  * tvOS. This verifies that the tracker adapts to display mode changes that affect refresh rate.
  */
@@ -1163,7 +1168,7 @@ static UIViewController *FPRCustomViewController(NSString *className, BOOL isVie
   method_setImplementation(originalMethod, stubIMP);
 
   @try {
-    FPRScreenTraceTracker *testTracker = [self createTestTrackerWithStubbedFPS:60];
+    FPRScreenTraceTracker *testTracker = [self createTestTrackerWithUpdatedFPS];
 
     // Verify initial behavior: at 60 FPS, slow budget = ~16.67ms.
     // An 18ms frame should be slow at 60 FPS.
@@ -1237,6 +1242,29 @@ static UIViewController *FPRCustomViewController(NSString *className, BOOL isVie
 #endif
 
 #pragma mark - Helper methods
+
+/** Helper method to swizzle UIScreen.maximumFramesPerSecond for testing.
+ *
+ *  @param fps The FPS value to stub.
+ *  @param block The block to execute with the stubbed FPS.
+ */
+- (void)withStubbedMaxFPS:(NSInteger)fps performBlock:(void (^)(void))block {
+  Method originalMethod =
+      class_getInstanceMethod([UIScreen class], @selector(maximumFramesPerSecond));
+  IMP originalIMP = method_getImplementation(originalMethod);
+
+  NSInteger (^stubBlock)(id) = ^NSInteger(id self) {
+    return fps;
+  };
+  IMP stubIMP = imp_implementationWithBlock(stubBlock);
+  method_setImplementation(originalMethod, stubIMP);
+
+  @try {
+    block();
+  } @finally {
+    method_setImplementation(originalMethod, originalIMP);
+  }
+}
 
 + (NSString *)expectedTraceNameForViewController:(UIViewController *)viewController {
   return [@"_st_" stringByAppendingString:NSStringFromClass([viewController class])];

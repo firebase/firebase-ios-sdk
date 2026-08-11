@@ -129,7 +129,8 @@ FOUNDATION_EXTERN CFTimeInterval const kFPRFrozenFrameThreshold;
 - (void)screenModeDidChangeNotification:(NSNotification *)notification;
 #endif
 
-/** Updates the cached maxFPS and slowBudget from UIScreen.maximumFramesPerSecond.
+/** Updates the cached slow budget. On tvOS, recomputes from UIScreen.maximumFramesPerSecond.
+ *  On iOS, this method is only for test verification and maintains kFPRSlowFrameThreshold.
  *  This method must be called on the main thread.
  */
 - (void)updateCachedSlowBudget;
