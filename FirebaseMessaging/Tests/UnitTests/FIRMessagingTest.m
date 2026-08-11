@@ -644,13 +644,14 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
   OCMStub(
       [(FIRInstallations *)self.testUtil.mockInstallations authTokenWithCompletion:authTokenArg]);
 
-  id URLSessionMock = OCMClassMock([NSURLSession class]);
-
+  id registrationURLSessionMock = OCMClassMock([NSURLSession class]);
   id registrationOperationMock = OCMClassMock([FIRMessagingFIDRegisterOperation class]);
-  OCMStub(ClassMethod([registrationOperationMock sharedSession])).andReturn(URLSessionMock);
+  OCMStub(ClassMethod([registrationOperationMock sharedSession]))
+      .andReturn(registrationURLSessionMock);
 
+  id topicURLSessionMock = OCMClassMock([NSURLSession class]);
   id topicOperationMock = OCMClassMock([FIRMessagingTopicOperation class]);
-  OCMStub(ClassMethod([topicOperationMock sharedSession])).andReturn(URLSessionMock);
+  OCMStub(ClassMethod([topicOperationMock sharedSession])).andReturn(topicURLSessionMock);
 
   // Setup the registration HTTP response.
   NSHTTPURLResponse *registrationResponse =
@@ -670,7 +671,7 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
       stubURLSessionDataTaskWithResponse:registrationResponse
                                     body:registrationResponseBody
                                    error:nil
-                          URLSessionMock:URLSessionMock
+                          URLSessionMock:registrationURLSessionMock
                   requestValidationBlock:^BOOL(NSURLRequest *_Nonnull sentRequest) {
                     registrationCallIndex = ++callOrder;
                     XCTAssertEqualObjects(sentRequest.URL.absoluteString,
@@ -701,7 +702,7 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
       stubURLSessionDataTaskWithResponse:response
                                     body:responseBody
                                    error:nil
-                          URLSessionMock:URLSessionMock
+                          URLSessionMock:topicURLSessionMock
                   requestValidationBlock:^BOOL(NSURLRequest *_Nonnull sentRequest) {
                     subscriptionCallIndex = ++callOrder;
                     XCTAssertEqualObjects(sentRequest.URL.absoluteString,

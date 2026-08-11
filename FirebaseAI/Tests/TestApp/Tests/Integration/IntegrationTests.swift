@@ -51,7 +51,7 @@ final class IntegrationTests: XCTestCase {
 
   override func setUp() async throws {
     userID1 = try await TestHelpers.getUserID()
-    vertex = FirebaseAI.firebaseAI(backend: .vertexAI(location: "global"))
+    vertex = FirebaseAI.firebaseAI(backend: .agentPlatform())
     model = vertex.generativeModel(
       modelName: ModelNames.gemini3_1_FlashLite,
       generationConfig: generationConfig,
@@ -196,7 +196,7 @@ final class IntegrationTests: XCTestCase {
 
   func testCountTokens_appCheckNotConfigured_shouldFail() async throws {
     let app = try XCTUnwrap(FirebaseApp.app(name: FirebaseAppNames.appCheckNotConfigured))
-    let vertex = FirebaseAI.firebaseAI(app: app, backend: .vertexAI())
+    let vertex = FirebaseAI.firebaseAI(app: app, backend: .agentPlatform(location: "us-central1"))
     let model = vertex.generativeModel(modelName: ModelNames.gemini2_5_Flash)
     let prompt = "Why is the sky blue?"
 
