@@ -45,6 +45,7 @@ product can be one of:
   SymbolCollision
   GoogleDataTransport
   Performance
+  FirebaseAIIntegration
   ClientApp
 platform can be one of:
   iOS (default)
@@ -571,6 +572,22 @@ case "$product-$platform-$method" in
       -scheme "RemoteConfigSampleApp" \
       "${xcb_flags[@]}" \
       build
+    ;;
+
+  FirebaseAIIntegration-*-build)
+    RunXcodebuild \
+      -project 'FirebaseAI/Tests/TestApp/FirebaseAITestApp.xcodeproj' \
+      -scheme "FirebaseAITestApp-SPM" \
+      "${xcb_flags[@]}" \
+      build
+    ;;
+
+  FirebaseAIIntegration-*-build-for-testing)
+    RunXcodebuild \
+      -project 'FirebaseAI/Tests/TestApp/FirebaseAITestApp.xcodeproj' \
+      -scheme "FirebaseAITestApp-SPM" \
+      "${xcb_flags[@]}" \
+      build-for-testing
     ;;
 
   FirebaseAIIntegration-*-*)
