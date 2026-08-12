@@ -196,7 +196,7 @@ class AuthKeychainServicesTests: XCTestCase {
   }
 }
 
-private class LockedKeychainStorage: AuthKeychainStorage {
+private final class LockedKeychainStorage: AuthKeychainStorage {
   func get(query: [String: Any], result: inout AnyObject?) -> OSStatus {
     return errSecItemNotFound
   }
