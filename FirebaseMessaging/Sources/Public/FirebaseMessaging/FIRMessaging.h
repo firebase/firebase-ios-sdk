@@ -31,7 +31,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 typedef void (^FIRMessagingFCMTokenFetchCompletion)(NSString *_Nullable FCMToken,
                                                     NSError *_Nullable error)
-    NS_SWIFT_UNAVAILABLE("Use Swift's closure syntax instead.");
+    NS_SWIFT_UNAVAILABLE("Use Swift's closure syntax instead.") __attribute__((deprecated));
 
 /**
  *  @related FIRMessaging
@@ -44,7 +44,7 @@ typedef void (^FIRMessagingFCMTokenFetchCompletion)(NSString *_Nullable FCMToken
  *               will match a value from the FIRMessagingError enumeration.
  */
 typedef void (^FIRMessagingDeleteFCMTokenCompletion)(NSError *_Nullable error)
-    NS_SWIFT_UNAVAILABLE("Use Swift's closure syntax instead.");
+    NS_SWIFT_UNAVAILABLE("Use Swift's closure syntax instead.") __attribute__((deprecated));
 
 /**
  *  Callback to invoke once the HTTP call to FIRMessaging backend for updating
@@ -66,7 +66,7 @@ typedef void (^FIRMessagingTopicOperationCompletion)(NSError *_Nullable error)
 // clang-format12 merges the next two lines.
 FOUNDATION_EXPORT const NSNotificationName FIRMessagingRegistrationTokenRefreshedNotification
     NS_SWIFT_NAME(MessagingRegistrationTokenRefreshed)
-        DEPRECATED_MSG_ATTRIBUTE("Use messaging:didReceiveRegistration: instead.");
+        DEPRECATED_MSG_ATTRIBUTE("Use messaging(_:didReceiveRegistration:) instead.");
 
 /**
  *  Notification sent when the FCM installation id has been unregistered.
@@ -162,7 +162,7 @@ NS_SWIFT_NAME(MessagingDelegate)
 - (void)messaging:(FIRMessaging *)messaging
     didReceiveRegistrationToken:(nullable NSString *)fcmToken
     NS_SWIFT_NAME(messaging(_:didReceiveRegistrationToken:))
-        DEPRECATED_MSG_ATTRIBUTE("Use messaging:didReceiveRegistration: instead.");
+        DEPRECATED_MSG_ATTRIBUTE("Use messaging(_:didReceiveRegistration:) instead.");
 
 /// This method will be called once the registration is created or refreshed. When
 /// auto init is enabled, it will be automatically called once per app start, but may be called
@@ -311,7 +311,7 @@ NS_SWIFT_NAME(Messaging)
  * it can be used to send notifications to your device.
  */
 @property(nonatomic, readonly, nullable) NSString *FCMToken NS_SWIFT_NAME(fcmToken)
-    DEPRECATED_MSG_ATTRIBUTE("Use registerWithCompletion: instead.");
+    DEPRECATED_MSG_ATTRIBUTE("Use register(completion:) instead.");
 
 /**
  * Asynchronously gets the default FCM registration token.
@@ -326,7 +326,7 @@ NS_SWIFT_NAME(Messaging)
 
 - (void)tokenWithCompletion:
     (void (^)(NSString *_Nullable token, NSError *_Nullable error))completion
-    DEPRECATED_MSG_ATTRIBUTE("Use registerWithCompletion: instead.");
+    DEPRECATED_MSG_ATTRIBUTE("Use register(completion:) instead.");
 
 /**
  * Asynchronously deletes the default FCM registration token.
@@ -338,7 +338,7 @@ NS_SWIFT_NAME(Messaging)
  */
 
 - (void)deleteTokenWithCompletion:(void (^)(NSError *_Nullable error))completion
-    DEPRECATED_MSG_ATTRIBUTE("Use unregisterWithCompletion: instead.");
+    DEPRECATED_MSG_ATTRIBUTE("Use unregister(completion:) instead.");
 
 /**
  *  Retrieves an FCM registration token for a particular Sender ID. This can be used to allow
@@ -363,7 +363,7 @@ NS_SWIFT_NAME(Messaging)
                          completion:(void (^)(NSString *_Nullable FCMToken,
                                               NSError *_Nullable error))completion
     NS_SWIFT_NAME(retrieveFCMToken(forSenderID:completion:))
-        DEPRECATED_MSG_ATTRIBUTE("Use registerWithCompletion: instead.");
+        DEPRECATED_MSG_ATTRIBUTE("Use register(completion:) instead.");
 
 /**
  * Invalidates an FCM token for a particular Sender ID. That Sender ID cannot no longer send
@@ -376,7 +376,7 @@ NS_SWIFT_NAME(Messaging)
 - (void)deleteFCMTokenForSenderID:(NSString *)senderID
                        completion:(void (^)(NSError *_Nullable error))completion
     NS_SWIFT_NAME(deleteFCMToken(forSenderID:completion:))
-        DEPRECATED_MSG_ATTRIBUTE("Use unregisterWithCompletion: instead.");
+        DEPRECATED_MSG_ATTRIBUTE("Use unregister(completion:) instead.");
 
 #pragma mark - FID
 
