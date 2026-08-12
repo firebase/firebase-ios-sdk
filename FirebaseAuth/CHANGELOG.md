@@ -1,3 +1,7 @@
+# Unreleased
+- [fixed] Fixed an issue on iOS 15+ where users were randomly logged out during
+  prewarming while the device was locked. (#16498)
+
 # 12.18.0
 - [fixed] Fixed a bug in `PhoneAuthProvider` where the test mode logic would
   fail if multi-factor authentication was enabled. (#16438)
