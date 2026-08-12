@@ -1,5 +1,7 @@
 # Unreleased
-- [removed] Removed deprecated Imagen APIs. Note that the Imagen service turned down on August 17, 2026.
+- [removed] Removed deprecated Imagen methods and types due to Imagen models being shut down in
+  August 2026. As a replacement, you can [migrate your apps to use Gemini Image models (the
+  "Nano Banana" models)](https://firebase.google.com/docs/ai-logic/imagen-models-migration).
 - [feature] Added support for `RealtimeInputConfig` in `LiveGenerationConfig`. (#16441)
 - [feature] Added support for `sendStartActivityRealtime` and `sendStopActivityRealtime`
   in `LiveSession`. (#16441)
