@@ -998,36 +998,6 @@ static UIViewController *FPRCustomViewController(NSString *className, BOOL isVie
 
 #pragma mark - Dynamic FPS Tests
 
-/** Tests that ProMotion displays with maximumFramesPerSecond = 120 do not cause standard 60 FPS
- *  frames to be falsely marked as slow frames on iOS.
- */
-- (void)testProMotion120FPSDisplayDoesNotMake60FPSFramesSlowOnIOS {
-  [self withStubbedMaxFPS:120
-             performBlock:^{
-               [self.tracker updateCachedSlowBudget];
-
-               id displayLinkMock = OCMClassMock([CADisplayLink class]);
-               [self.tracker.displayLink invalidate];
-               self.tracker.displayLink = displayLinkMock;
-
-               CFAbsoluteTime firstFrameTimestamp = 1.0;
-               // Standard 60 FPS frame duration is ~16.67ms (1.0 / 60.0)
-               CFAbsoluteTime secondFrameTimestamp = firstFrameTimestamp + (1.0 / 60.0);
-
-               OCMExpect([displayLinkMock timestamp]).andReturn(firstFrameTimestamp);
-               [self.tracker displayLinkStep];
-               int64_t initialSlowFramesCount = self.tracker.slowFramesCount;
-
-               OCMExpect([displayLinkMock timestamp]).andReturn(secondFrameTimestamp);
-               [self.tracker displayLinkStep];
-
-               int64_t slowFramesCount = self.tracker.slowFramesCount;
-               XCTAssertEqual(slowFramesCount, initialSlowFramesCount,
-                              @"Standard 60 FPS frames should NOT be marked as slow on ProMotion "
-                              @"(120 FPS) devices on iOS");
-             }];
-}
-
 #if TARGET_OS_TV
 
 /** Helper method to create a test tracker updated cached budget.
@@ -1239,6 +1209,38 @@ static UIViewController *FPRCustomViewController(NSString *className, BOOL isVie
     method_setImplementation(originalMethod, originalIMP);
   }
 }
+
+#else
+
+/** Tests that non tvOS devices (including ProMotion devices) displays do not use the dynamic frame
+ * rate. */
+- (void)testNonTVOSDevicesDontUseMaximumFramesPerSecond {
+  [self withStubbedMaxFPS:120
+             performBlock:^{
+               [self.tracker updateCachedSlowBudget];
+
+               id displayLinkMock = OCMClassMock([CADisplayLink class]);
+               [self.tracker.displayLink invalidate];
+               self.tracker.displayLink = displayLinkMock;
+
+               CFAbsoluteTime firstFrameTimestamp = 1.0;
+               // Standard 60 FPS frame duration is ~16.67ms (1.0 / 60.0)
+               CFAbsoluteTime secondFrameTimestamp = firstFrameTimestamp + (1.0 / 60.0);
+
+               OCMExpect([displayLinkMock timestamp]).andReturn(firstFrameTimestamp);
+               [self.tracker displayLinkStep];
+               int64_t initialSlowFramesCount = self.tracker.slowFramesCount;
+
+               OCMExpect([displayLinkMock timestamp]).andReturn(secondFrameTimestamp);
+               [self.tracker displayLinkStep];
+
+               int64_t slowFramesCount = self.tracker.slowFramesCount;
+               XCTAssertEqual(slowFramesCount, initialSlowFramesCount,
+                              @"Standard 60 FPS frames should NOT be marked as slow on ProMotion "
+                              @"(120 FPS) devices on iOS");
+             }];
+}
+
 #endif
 
 #pragma mark - Helper methods
