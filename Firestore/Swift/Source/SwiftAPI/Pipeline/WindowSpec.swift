@@ -22,30 +22,62 @@ import Foundation
 
 /// Represents a boundary in a window frame specification (e.g. integer offset, expression, `.unbounded`, or `.current`).
 public struct WindowBound: ExpressibleByIntegerLiteral, ExpressibleByStringLiteral, Sendable {
-  public let rawValue: Sendable
+  /// The underlying value of a window frame boundary.
+  public enum Value: Sendable {
+    case unbounded
+    case current
+    case integer(Int)
+    case expression(Expression)
+  }
 
-  public static let unbounded = WindowBound("unbounded")
-  public static let current = WindowBound("current")
+  public let rawValue: Value
 
-  public init(_ value: Sendable) {
+  public static let unbounded = WindowBound(.unbounded)
+  public static let current = WindowBound(.current)
+
+  public init(_ value: Value) {
     self.rawValue = value
   }
 
   public init(_ expression: Expression) {
-    self.rawValue = expression
+    self.rawValue = .expression(expression)
+  }
+
+  public init(_ int: Int) {
+    self.rawValue = .integer(int)
   }
 
   public init(integerLiteral value: Int) {
-    self.rawValue = value
+    self.rawValue = .integer(value)
   }
 
   public init(stringLiteral value: String) {
-    self.rawValue = value
+    switch value.lowercased() {
+    case "unbounded":
+      self.rawValue = .unbounded
+    case "current":
+      self.rawValue = .current
+    default:
+      fatalError("Invalid WindowBound string literal: \"\(value)\". Expected \"unbounded\" or \"current\".")
+    }
+  }
+
+  var bridgeValue: Any {
+    switch rawValue {
+    case .unbounded:
+      return "unbounded"
+    case .current:
+      return "current"
+    case let .integer(int):
+      return int
+    case let .expression(expr):
+      return expr.toBridge()
+    }
   }
 }
 
 /// Window specification for window functions.
-public class WindowSpec: @unchecked Sendable {
+public struct WindowSpec: Sendable {
   let groups: [Expression]
   let sort: [Ordering]?
   let preceding: WindowBound?
@@ -109,7 +141,20 @@ public class WindowSpec: @unchecked Sendable {
     )
   }
 
-  /** Specify document-count based window frame. */
+  /// Specifies a document-count based window frame (row-based frame).
+  ///
+  /// Defines frame boundaries relative to the current document within the partition using document counts.
+  ///
+  /// - Parameters:
+  ///   - preceding: The starting boundary of the window frame. Can be `.unbounded`, `.current`, an integer offset,
+  ///     or an `Expression`. A positive integer (e.g. `2`) includes up to that many documents before the current document.
+  ///     A negative integer (e.g. `-1`) indicates a boundary following the current document, enabling frames that start
+  ///     after the current document.
+  ///   - following: The ending boundary of the window frame. Can be `.unbounded`, `.current`, an integer offset,
+  ///     or an `Expression`. A positive integer (e.g. `2`) includes up to that many documents after the current document.
+  ///     A negative integer (e.g. `-1`) indicates a boundary preceding the current document, enabling frames that end
+  ///     before the current document (e.g. excluding the current document).
+  /// - Returns: A new `WindowSpec` with the document-count based window frame configured.
   public func documents(preceding: WindowBound, following: WindowBound) -> WindowSpec {
     return WindowSpec(
       groups: groups,
@@ -121,13 +166,31 @@ public class WindowSpec: @unchecked Sendable {
     )
   }
 
-  public func documents(preceding: Sendable, following: Sendable) -> WindowSpec {
-    let p = (preceding as? WindowBound) ?? WindowBound(preceding)
-    let f = (following as? WindowBound) ?? WindowBound(following)
-    return documents(preceding: p, following: f)
+  public func documents(preceding: Expression, following: Expression) -> WindowSpec {
+    return documents(preceding: WindowBound(preceding), following: WindowBound(following))
   }
 
-  /** Specify range-value based window frame. */
+  public func documents(preceding: Expression, following: WindowBound) -> WindowSpec {
+    return documents(preceding: WindowBound(preceding), following: following)
+  }
+
+  public func documents(preceding: WindowBound, following: Expression) -> WindowSpec {
+    return documents(preceding: preceding, following: WindowBound(following))
+  }
+
+  /// Specifies a range-value based window frame (value-based frame).
+  ///
+  /// Defines frame boundaries relative to the sort key value of the current document within the partition.
+  ///
+  /// - Parameters:
+  ///   - preceding: The starting boundary of the window frame. Can be `.unbounded`, `.current`, an integer offset,
+  ///     or an `Expression`. A positive offset subtracts from the current document's sort value (looking into the past).
+  ///     A negative offset adds to the current document's sort value (shifting the lower boundary past the current document).
+  ///   - following: The ending boundary of the window frame. Can be `.unbounded`, `.current`, an integer offset,
+  ///     or an `Expression`. A positive offset adds to the current document's sort value (looking into the future).
+  ///     A negative offset subtracts from the current document's sort value (shifting the upper boundary before the current document).
+  ///   - unit: An optional date/time granularity unit (such as `TimeGranularity.day`) when computing range offsets over timestamp fields.
+  /// - Returns: A new `WindowSpec` with the range-value based window frame configured.
   public func range(
     preceding: WindowBound,
     following: WindowBound,
@@ -144,22 +207,44 @@ public class WindowSpec: @unchecked Sendable {
   }
 
   public func range(
-    preceding: Sendable,
-    following: Sendable,
+    preceding: Expression,
+    following: Expression,
     unit: Sendable? = nil
   ) -> WindowSpec {
-    let p = (preceding as? WindowBound) ?? WindowBound(preceding)
-    let f = (following as? WindowBound) ?? WindowBound(following)
     return range(
-      preceding: p,
-      following: f,
+      preceding: WindowBound(preceding),
+      following: WindowBound(following),
+      unit: unit
+    )
+  }
+
+  public func range(
+    preceding: Expression,
+    following: WindowBound,
+    unit: Sendable? = nil
+  ) -> WindowSpec {
+    return range(
+      preceding: WindowBound(preceding),
+      following: following,
+      unit: unit
+    )
+  }
+
+  public func range(
+    preceding: WindowBound,
+    following: Expression,
+    unit: Sendable? = nil
+  ) -> WindowSpec {
+    return range(
+      preceding: preceding,
+      following: WindowBound(following),
       unit: unit
     )
   }
 
   public func toBridge() -> WindowSpecBridge {
-    let bridgePreceding: Any? = (preceding?.rawValue as? Expression)?.toBridge() ?? preceding?.rawValue
-    let bridgeFollowing: Any? = (following?.rawValue as? Expression)?.toBridge() ?? following?.rawValue
+    let bridgePreceding: Any? = preceding?.bridgeValue
+    let bridgeFollowing: Any? = following?.bridgeValue
     let bridgeUnit: Any? = (unit as? TimeGranularity)?.rawValue ?? (unit as? Expression)?.toBridge() ?? unit
     return WindowSpecBridge(
       groups: groups.map { $0.toBridge() },
@@ -173,7 +258,7 @@ public class WindowSpec: @unchecked Sendable {
 
   // MARK: - Factory Methods
 
-  /** Creates a partition/group spec. */
+  /// Creates a partition/group specification.
   public static func partition(_ groups: [Expression]) -> WindowSpec {
     return WindowSpec(groups: groups)
   }
@@ -182,7 +267,7 @@ public class WindowSpec: @unchecked Sendable {
     return WindowSpec(groups: groups.map { Field($0) })
   }
 
-  /** Creates a sort spec. */
+  /// Creates a sort specification.
   public static func sort(_ sort: Ordering) -> WindowSpec {
     return WindowSpec(sort: [sort])
   }
@@ -191,18 +276,49 @@ public class WindowSpec: @unchecked Sendable {
     return WindowSpec(sort: sort)
   }
 
-  /** Creates a document-count based window spec. */
+  /// Creates a document-count based window specification (row-based frame).
+  ///
+  /// Defines frame boundaries relative to the current document within the partition using document counts.
+  ///
+  /// - Parameters:
+  ///   - preceding: The starting boundary of the window frame. Can be `.unbounded`, `.current`, an integer offset,
+  ///     or an `Expression`. A positive integer (e.g. `2`) includes up to that many documents before the current document.
+  ///     A negative integer (e.g. `-1`) indicates a boundary following the current document, enabling frames that start
+  ///     after the current document.
+  ///   - following: The ending boundary of the window frame. Can be `.unbounded`, `.current`, an integer offset,
+  ///     or an `Expression`. A positive integer (e.g. `2`) includes up to that many documents after the current document.
+  ///     A negative integer (e.g. `-1`) indicates a boundary preceding the current document, enabling frames that end
+  ///     before the current document (e.g. excluding the current document).
+  /// - Returns: A new `WindowSpec` with the document-count based window frame.
   public static func documents(preceding: WindowBound, following: WindowBound) -> WindowSpec {
     return WindowSpec(preceding: preceding, following: following, type: "documents")
   }
 
-  public static func documents(preceding: Sendable, following: Sendable) -> WindowSpec {
-    let p = (preceding as? WindowBound) ?? WindowBound(preceding)
-    let f = (following as? WindowBound) ?? WindowBound(following)
-    return documents(preceding: p, following: f)
+  public static func documents(preceding: Expression, following: Expression) -> WindowSpec {
+    return documents(preceding: WindowBound(preceding), following: WindowBound(following))
   }
 
-  /** Creates a range-value based window spec. */
+  public static func documents(preceding: Expression, following: WindowBound) -> WindowSpec {
+    return documents(preceding: WindowBound(preceding), following: following)
+  }
+
+  public static func documents(preceding: WindowBound, following: Expression) -> WindowSpec {
+    return documents(preceding: preceding, following: WindowBound(following))
+  }
+
+  /// Creates a range-value based window specification (value-based frame).
+  ///
+  /// Defines frame boundaries relative to the sort key value of the current document within the partition.
+  ///
+  /// - Parameters:
+  ///   - preceding: The starting boundary of the window frame. Can be `.unbounded`, `.current`, an integer offset,
+  ///     or an `Expression`. A positive offset subtracts from the current document's sort value (looking into the past).
+  ///     A negative offset adds to the current document's sort value (shifting the lower boundary past the current document).
+  ///   - following: The ending boundary of the window frame. Can be `.unbounded`, `.current`, an integer offset,
+  ///     or an `Expression`. A positive offset adds to the current document's sort value (looking into the future).
+  ///     A negative offset subtracts from the current document's sort value (shifting the upper boundary before the current document).
+  ///   - unit: An optional date/time granularity unit (such as `TimeGranularity.day`) when computing range offsets over timestamp fields.
+  /// - Returns: A new `WindowSpec` with the range-value based window frame.
   public static func range(
     preceding: WindowBound,
     following: WindowBound,
@@ -212,12 +328,26 @@ public class WindowSpec: @unchecked Sendable {
   }
 
   public static func range(
-    preceding: Sendable,
-    following: Sendable,
+    preceding: Expression,
+    following: Expression,
     unit: Sendable? = nil
   ) -> WindowSpec {
-    let p = (preceding as? WindowBound) ?? WindowBound(preceding)
-    let f = (following as? WindowBound) ?? WindowBound(following)
-    return range(preceding: p, following: f, unit: unit)
+    return range(preceding: WindowBound(preceding), following: WindowBound(following), unit: unit)
+  }
+
+  public static func range(
+    preceding: Expression,
+    following: WindowBound,
+    unit: Sendable? = nil
+  ) -> WindowSpec {
+    return range(preceding: WindowBound(preceding), following: following, unit: unit)
+  }
+
+  public static func range(
+    preceding: WindowBound,
+    following: Expression,
+    unit: Sendable? = nil
+  ) -> WindowSpec {
+    return range(preceding: preceding, following: WindowBound(following), unit: unit)
   }
 }

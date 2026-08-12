@@ -413,4 +413,82 @@ final class PipelineApiTests: FSTIntegrationTestCase {
     // Create a generic AggregateFunction for use where AggregateFunction is required
     _ = AggregateFunction(functionName: "sum", args: [Field("price")])
   }
+
+  func testWindowFunctions() async throws {
+    let _: WindowBound = .unbounded
+    let _: WindowBound = .current
+    let _: WindowBound = 5
+    let _: WindowBound = WindowBound(10)
+    let _: WindowBound = WindowBound(Field("offset"))
+    let _: WindowBound = WindowBound(.unbounded)
+    let _: WindowBound = WindowBound(.current)
+    let _: WindowBound = WindowBound(.integer(10))
+    let _: WindowBound = WindowBound(.expression(Field("offset")))
+
+    _ = db.pipeline().collection("sales")
+      .addWindowFields(
+        window: .partition(["product"])
+          .sort(Field("salesPrice").ascending())
+          .documents(preceding: 1, following: .current),
+        fields: [
+          Field("salesPrice").average().as("movingAverage")
+        ]
+      )
+
+    _ = db.pipeline().collection("sales")
+      .addWindowFields(
+        window: .range(preceding: 30, following: .current, unit: TimeGranularity.day)
+          .sort(Field("date").ascending())
+          .partition(["product"]),
+        fields: [
+          Field("salesPrice").sum().as("runningSum")
+        ]
+      )
+
+    _ = db.pipeline().collection("sales")
+      .addWindowFields(
+        window: .documents(preceding: Field("p"), following: Field("f"))
+          .sort([Field("salesPrice").ascending()]),
+        fields: [
+          Field("salesPrice").sum().as("sum")
+        ]
+      )
+
+    // Mixed Expression and literal / WindowBound
+    _ = db.pipeline().collection("sales")
+      .addWindowFields(
+        window: .documents(preceding: Field("p"), following: .current)
+          .sort([Field("salesPrice").ascending()]),
+        fields: [
+          Field("salesPrice").sum().as("sum")
+        ]
+      )
+
+    _ = db.pipeline().collection("sales")
+      .addWindowFields(
+        window: .documents(preceding: 1, following: Field("f"))
+          .sort([Field("salesPrice").ascending()]),
+        fields: [
+          Field("salesPrice").sum().as("sum")
+        ]
+      )
+
+    _ = db.pipeline().collection("sales")
+      .addWindowFields(
+        window: .range(preceding: Field("p"), following: .current, unit: TimeGranularity.day)
+          .sort([Field("salesPrice").ascending()]),
+        fields: [
+          Field("salesPrice").sum().as("sum")
+        ]
+      )
+
+    _ = db.pipeline().collection("sales")
+      .addWindowFields(
+        window: .range(preceding: 30, following: Field("f"), unit: TimeGranularity.day)
+          .sort([Field("salesPrice").ascending()]),
+        fields: [
+          Field("salesPrice").sum().as("sum")
+        ]
+      )
+  }
 }
