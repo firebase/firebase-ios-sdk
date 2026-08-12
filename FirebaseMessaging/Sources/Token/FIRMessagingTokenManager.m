@@ -178,7 +178,8 @@
 - (void)tokenWithAuthorizedEntity:(NSString *)authorizedEntity
                             scope:(NSString *)scope
                           options:(NSDictionary *)options
-                          handler:(FIRMessagingFCMTokenFetchCompletion)handler {
+                          handler:(void (^)(NSString *_Nullable token,
+                                            NSError *_Nullable error))handler {
   if (!handler) {
     FIRMessagingLoggerError(kFIRMessagingMessageCodeInstanceID000, @"Invalid nil handler");
     return;
@@ -234,7 +235,7 @@
     errorCode = kFIRMessagingErrorCodeMissingFid;
   }
 
-  FIRMessagingFCMTokenFetchCompletion newHandler = ^(NSString *token, NSError *error) {
+  void (^newHandler)(NSString *, NSError *) = ^(NSString *token, NSError *error) {
     dispatch_async(dispatch_get_main_queue(), ^{
       handler(token, error);
     });
@@ -330,7 +331,8 @@
                                     scope:(NSString *)scope
                                instanceID:(NSString *)instanceID
                                   options:(NSDictionary *)options
-                                  handler:(FIRMessagingFCMTokenFetchCompletion)handler {
+                                  handler:(void (^)(NSString *_Nullable token,
+                                                    NSError *_Nullable error))handler {
   FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTokenManager000,
                           @"Fetch new token for authorizedEntity: %@, scope: %@", authorizedEntity,
                           scope);
@@ -437,7 +439,7 @@
 - (void)deleteTokenWithAuthorizedEntity:(NSString *)authorizedEntity
                                   scope:(NSString *)scope
                              instanceID:(NSString *)instanceID
-                                handler:(FIRMessagingDeleteFCMTokenCompletion)handler {
+                                handler:(void (^)(NSError *_Nullable error))handler {
   if ([_tokenStore tokenInfoWithAuthorizedEntity:authorizedEntity scope:scope]) {
     [_tokenStore removeTokenWithAuthorizedEntity:authorizedEntity scope:scope];
   }

@@ -520,7 +520,8 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
   return token;
 }
 
-- (void)tokenWithCompletion:(FIRMessagingFCMTokenFetchCompletion)completion {
+- (void)tokenWithCompletion:(void (^)(NSString *_Nullable token,
+                                      NSError *_Nullable error))completion {
   FIROptions *options = FIRApp.defaultApp.options;
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
@@ -528,7 +529,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 #pragma clang diagnostic pop
 }
 
-- (void)deleteTokenWithCompletion:(FIRMessagingDeleteFCMTokenCompletion)completion {
+- (void)deleteTokenWithCompletion:(void (^)(NSError *_Nullable error))completion {
   FIROptions *options = FIRApp.defaultApp.options;
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
@@ -537,7 +538,8 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 }
 
 - (void)retrieveTokenOrFidForSenderID:(nonnull NSString *)senderID
-                           completion:(nullable FIRMessagingFCMTokenFetchCompletion)completion {
+                           completion:(nullable void (^)(NSString *_Nullable token,
+                                                         NSError *_Nullable error))completion {
   if (!senderID.length) {
     NSString *description = @"Couldn't fetch token because a Sender ID was not supplied. A valid "
                             @"Sender ID is required to fetch an FCM token";
@@ -573,7 +575,8 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 }
 
 - (void)retrieveFCMTokenForSenderID:(nonnull NSString *)senderID
-                         completion:(nonnull FIRMessagingFCMTokenFetchCompletion)completion {
+                         completion:(nonnull void (^)(NSString *_Nullable FCMToken,
+                                                      NSError *_Nullable error))completion {
   if (self.isInstallationIdEnabled) {
     NSString *description = @"FirebaseMessagingInstallationIdEnabled is set to YES, so FCM token "
                             @"operations are not supported.";
@@ -589,7 +592,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 }
 
 - (void)deleteFCMTokenForSenderID:(nonnull NSString *)senderID
-                       completion:(nonnull FIRMessagingDeleteFCMTokenCompletion)completion {
+                       completion:(nonnull void (^)(NSError *_Nullable error))completion {
   if (!senderID.length) {
     NSString *description = @"Couldn't delete token because a Sender ID was not supplied. A "
                             @"valid Sender ID is required to delete an FCM token";

@@ -74,12 +74,14 @@ typedef NS_OPTIONS(NSUInteger, FIRMessagingInvalidTokenReason) {
                                     scope:(NSString *)scope
                                instanceID:(NSString *)instanceID
                                   options:(NSDictionary *)options
-                                  handler:(FIRMessagingFCMTokenFetchCompletion)handler;
+                                  handler:(void (^)(NSString *_Nullable token,
+                                                    NSError *_Nullable error))handler;
 
 - (void)tokenWithAuthorizedEntity:(NSString *)authorizedEntity
                             scope:(NSString *)scope
                           options:(NSDictionary *)options
-                          handler:(FIRMessagingFCMTokenFetchCompletion)handler;
+                          handler:(void (^)(NSString *_Nullable token,
+                                            NSError *_Nullable error))handler;
 
 /**
  *  Return the cached token info, if one exists, for the given authorizedEntity and scope.
@@ -110,7 +112,7 @@ typedef NS_OPTIONS(NSUInteger, FIRMessagingInvalidTokenReason) {
 - (void)deleteTokenWithAuthorizedEntity:(NSString *)authorizedEntity
                                   scope:(NSString *)scope
                              instanceID:(NSString *)instanceID
-                                handler:(FIRMessagingDeleteFCMTokenCompletion)handler;
+                                handler:(void (^)(NSError *_Nullable error))handler;
 
 /**
  *  Deletes all cached tokens from the persistent store. This method should only be triggered
@@ -121,7 +123,7 @@ typedef NS_OPTIONS(NSUInteger, FIRMessagingInvalidTokenReason) {
  *                    a nil error; else we pass in an appropriate error. This should be non-nil
  *                    and be called asynchronously.
  */
-- (void)deleteAllTokensWithHandler:(FIRMessagingDeleteFCMTokenCompletion)handler;
+- (void)deleteAllTokensWithHandler:(void (^)(NSError *_Nullable error))handler;
 
 /**
  *  Deletes all cached tokens from the persistent store.

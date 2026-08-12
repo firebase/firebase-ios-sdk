@@ -70,7 +70,8 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
 - (void)configureMessagingWithOptions:(FIROptions *)options;
 
 - (void)retrieveTokenOrFidForSenderID:(nonnull NSString *)senderID
-                           completion:(nullable FIRMessagingFCMTokenFetchCompletion)completion;
+                           completion:(nullable void (^)(NSString *_Nullable token,
+                                                         NSError *_Nullable error))completion;
 - (void)handleInstallationIDDidChangeNotification:(NSNotification *)notification;
 @end
 
