@@ -130,14 +130,6 @@
                 )
               )
 
-            case let .custom(customSegment):
-              throw LanguageModelError.unsupportedTranscriptContent(
-                LanguageModelError.UnsupportedTranscriptContent(
-                  unsupportedContent: [entry],
-                  debugDescription: "Unsupported custom segment in tool output: \(customSegment)"
-                )
-              )
-
             @unknown default:
               AILog.warning(
                 code: .unrecognizedSegmentType,
@@ -356,7 +348,6 @@
                 )
               }
             case let inlineDataPart as InlineDataPart:
-              let action: LanguageModelExecutorGenerationChannel.Response.Action
               // Handle the special case for image generation.
               switch inlineDataPart.mimeType {
               case "image/png", "image/jpeg":
@@ -364,21 +355,24 @@
                   let imageAttachment = Transcript.ImageAttachment(cgImage)
                   let attachmentSegment = Transcript.AttachmentSegment(content:
                     .image(imageAttachment))
-                  action = .addAttachmentSegment(attachmentSegment)
+                  let action: LanguageModelExecutorGenerationChannel.Response.Action = .addAttachmentSegment(attachmentSegment)
+                  await channel.send(.response(entryID: responseEntryID, action: action))
                 } else {
-                  action = .updateCustomSegment(inlineDataPart)
+                  AILog.warning(
+                    code: .unrecognizedResponsePartType,
+                    "Unsupported inline data mimeType: \(inlineDataPart.mimeType)"
+                  )
                 }
               default:
-                action = .updateCustomSegment(inlineDataPart)
-              }
-
-              await channel.send(.response(entryID: responseEntryID, action: action))
-            case let fileDataPart as FileDataPart:
-              await channel.send(
-                .response(
-                  entryID: responseEntryID,
-                  action: .updateCustomSegment(fileDataPart)
+                AILog.warning(
+                  code: .unrecognizedResponsePartType,
+                  "Unsupported inline data mimeType: \(inlineDataPart.mimeType)"
                 )
+              }
+            case let _ as FileDataPart:
+              AILog.warning(
+                code: .unrecognizedResponsePartType,
+                "FileDataPart custom segments not supported. Skipping."
               )
             case let functionCallPart as FunctionCallPart:
               try await channel.send(
@@ -404,19 +398,15 @@
                   )
                 )
               }
-            case let executableCodePart as ExecutableCodePart:
-              await channel.send(
-                .response(
-                  entryID: responseEntryID,
-                  action: .updateCustomSegment(executableCodePart)
-                )
+            case let _ as ExecutableCodePart:
+              AILog.warning(
+                code: .unrecognizedResponsePartType,
+                "ExecutableCodePart custom segments not supported. Skipping."
               )
-            case let codeExecutionResultPart as CodeExecutionResultPart:
-              await channel.send(
-                .response(
-                  entryID: responseEntryID,
-                  action: .updateCustomSegment(codeExecutionResultPart)
-                )
+            case let _ as CodeExecutionResultPart:
+              AILog.warning(
+                code: .unrecognizedResponsePartType,
+                "CodeExecutionResultPart custom segments not supported. Skipping."
               )
             default:
               // Intentionally ommitted that never come back from the server:
@@ -431,21 +421,21 @@
           }
 
           // Handle additional metadata from the candidate
-          var updatedMetadata: [String: any Sendable & Codable & Equatable] = [:]
+          var updatedMetadata: [String: String] = [:]
           if let groundingMetadata = candidate.groundingMetadata {
-            updatedMetadata[CandidateKeys.groundingMetadata] = groundingMetadata
+            updatedMetadata[CandidateKeys.groundingMetadata] = String(describing: groundingMetadata)
           }
 
           if let citationMetadata = candidate.citationMetadata {
-            updatedMetadata[CandidateKeys.citationMetadata] = citationMetadata
+            updatedMetadata[CandidateKeys.citationMetadata] = String(describing: citationMetadata)
           }
 
           if let urlContextMetadata = candidate.urlContextMetadata {
-            updatedMetadata[CandidateKeys.urlContextMetadata] = urlContextMetadata
+            updatedMetadata[CandidateKeys.urlContextMetadata] = String(describing: urlContextMetadata)
           }
 
           if let finishReason = candidate.finishReason {
-            updatedMetadata[CandidateKeys.finishReason] = finishReason
+            updatedMetadata[CandidateKeys.finishReason] = finishReason.rawValue
           }
 
           if let finishMessage = candidate.finishMessage {
@@ -453,7 +443,7 @@
           }
 
           if !candidate.safetyRatings.isEmpty {
-            updatedMetadata[CandidateKeys.safetyRatings] = candidate.safetyRatings
+            updatedMetadata[CandidateKeys.safetyRatings] = String(describing: candidate.safetyRatings)
           }
 
           if !updatedMetadata.isEmpty {
@@ -559,13 +549,6 @@
               debugDescription: "Unsupported attachment segment in instructions: \(attachment)"
             )
           )
-        case let .custom(customSegment):
-          throw LanguageModelError.unsupportedTranscriptContent(
-            LanguageModelError.UnsupportedTranscriptContent(
-              unsupportedContent: [Transcript.Entry.instructions(self)],
-              debugDescription: "Unsupported custom segment in instructions: \(customSegment)"
-            )
-          )
         @unknown default:
           // TODO: Determine whether to throw
           AILog.warning(
@@ -617,13 +600,6 @@
             )
             continue
           }
-        case let .custom(customSegment):
-          throw LanguageModelError.unsupportedTranscriptContent(
-            LanguageModelError.UnsupportedTranscriptContent(
-              unsupportedContent: [Transcript.Entry.prompt(self)],
-              debugDescription: "Unsupported custom segment in prompt: \(customSegment)"
-            )
-          )
         @unknown default:
           // TODO: Determine whether to throw
           AILog.warning(
@@ -662,13 +638,6 @@
             LanguageModelError.UnsupportedTranscriptContent(
               unsupportedContent: [Transcript.Entry.response(self)],
               debugDescription: "Unsupported attachment segment in response: \(attachment)"
-            )
-          )
-        case let .custom(customSegment):
-          throw LanguageModelError.unsupportedTranscriptContent(
-            LanguageModelError.UnsupportedTranscriptContent(
-              unsupportedContent: [Transcript.Entry.response(self)],
-              debugDescription: "Unsupported custom segment in response: \(customSegment)"
             )
           )
         @unknown default:

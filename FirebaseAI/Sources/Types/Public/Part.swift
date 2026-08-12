@@ -353,45 +353,6 @@ public struct CodeExecutionResultPart: Part {
   }
 }
 
-#if compiler(>=6.4)
-  @available(iOS 27.0, macOS 27.0, visionOS 27.0, watchOS 27.0, *)
-  @available(tvOS, unavailable)
-  extension InlineDataPart: FoundationModels.Transcript.CustomSegment, Identifiable {
-    public var id: String {
-      let hash = SHA256.hash(data: data)
-      // Convert the hash bytes directly into a lowercase hex string
-      return hash.map { String(format: "%02x", $0) }.joined()
-    }
-
-    public var content: InlineDataPart { self }
-  }
-
-  @available(iOS 27.0, macOS 27.0, visionOS 27.0, watchOS 27.0, *)
-  @available(tvOS, unavailable)
-  extension FileDataPart: FoundationModels.Transcript.CustomSegment, Identifiable {
-    public var id: String { fileData.fileURI }
-
-    public var content: FileDataPart { self }
-  }
-
-  @available(iOS 27.0, macOS 27.0, visionOS 27.0, watchOS 27.0, *)
-  @available(tvOS, unavailable)
-  extension ExecutableCodePart: FoundationModels.Transcript.CustomSegment, Identifiable {
-    public var id: String { code }
-
-    public var content: ExecutableCodePart { self }
-  }
-
-  @available(iOS 27.0, macOS 27.0, visionOS 27.0, watchOS 27.0, *)
-  @available(tvOS, unavailable)
-  extension CodeExecutionResultPart: FoundationModels.Transcript.CustomSegment, Identifiable {
-    public var id: String {
-      "\(codeExecutionResult.outcome?.rawValue ?? ""):\(codeExecutionResult.output ?? "")"
-    }
-
-    public var content: CodeExecutionResultPart { self }
-  }
-#endif // compiler(>=6.4)
 
 #if compiler(>=6.2.3) && canImport(FoundationModels)
   @available(iOS 26.0, macOS 26.0, visionOS 26.0, watchOS 27.0, *)
