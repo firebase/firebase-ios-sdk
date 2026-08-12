@@ -285,7 +285,13 @@ final class AuthKeychainServices: Sendable {
       return false
     }
     if status == errSecSuccess || status == errSecDuplicateItem {
-      keychainStorage.delete(query: query)
+      var deleteQuery: [String: Any] = [
+        kSecClass as String: kSecClassGenericPassword,
+        kSecAttrAccount as String: dummyKey,
+        kSecAttrService as String: service,
+      ]
+      deleteQuery[kSecUseDataProtectionKeychain as String] = true
+      keychainStorage.delete(query: deleteQuery)
     }
 
     isKeychainAccessibleCache.withLock { $0 = true }
