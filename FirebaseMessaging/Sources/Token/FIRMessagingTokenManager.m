@@ -102,7 +102,7 @@
   return _defaultFCMToken;
 }
 
-- (void)postTokenRefreshNotificationWithDefaultFCMToken:(NSString *)defaultFCMToken {
+- (void)postTokenRefreshNotificationWithDefaultFCMToken:(nullable NSString *)defaultFCMToken {
   // Should always trigger the token refresh notification when the delegate method is called
   // No need to check if the token has changed, it's handled in the notification receiver.
   NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
