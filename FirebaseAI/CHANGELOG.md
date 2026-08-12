@@ -1,4 +1,4 @@
-# Unreleased
+# 12.18.0
 - [removed] Removed deprecated Imagen APIs. Note that the Imagen service turned down on August 17, 2026.
 - [feature] Added support for `RealtimeInputConfig` in `LiveGenerationConfig`. (#16441)
 - [feature] Added support for `sendStartActivityRealtime` and `sendStopActivityRealtime`
