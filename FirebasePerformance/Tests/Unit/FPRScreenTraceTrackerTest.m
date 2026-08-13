@@ -1000,7 +1000,7 @@ static UIViewController *FPRCustomViewController(NSString *className, BOOL isVie
 
 #if TARGET_OS_TV
 
-/** Helper method to create a test tracker updated cached budget.
+/** Helper method to create a test tracker with updated cached budget.
  *
  *  @return A configured FPRScreenTraceTracker instance.
  */

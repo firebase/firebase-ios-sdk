@@ -284,7 +284,7 @@ static NSString *FPRScreenTraceNameForViewController(UIViewController *viewContr
 - (void)displayLinkStep {
   static CFAbsoluteTime previousTimestamp = kFPRInvalidTime;
   CFAbsoluteTime currentTimestamp = self.displayLink.timestamp;
-  // Use the cached slow budget.
+  // Use the cached slow budget where needed - currently only on tvOS.
   RecordFrameType(currentTimestamp, previousTimestamp, &_slowFramesCount, &_frozenFramesCount,
                   &_totalFramesCount, _cachedSlowBudget);
   previousTimestamp = currentTimestamp;
