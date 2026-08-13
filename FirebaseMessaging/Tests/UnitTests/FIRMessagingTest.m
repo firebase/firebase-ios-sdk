@@ -70,7 +70,8 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
 - (void)configureMessagingWithOptions:(FIROptions *)options;
 
 - (void)retrieveTokenOrFidForSenderID:(nonnull NSString *)senderID
-                           completion:(nullable FIRMessagingFCMTokenFetchCompletion)completion;
+                           completion:(nullable void (^)(NSString *_Nullable token,
+                                                         NSError *_Nullable error))completion;
 - (void)handleInstallationIDDidChangeNotification:(NSNotification *)notification;
 @end
 
@@ -200,6 +201,8 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
 }
 
 #pragma mark - FCM Token Fetching and Deleting
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 // TODO(chliang) mock tokenManager
 - (void)x_testAPNSTokenIncludedInOptionsIfAvailableDuringTokenFetch {
   self.messaging.apnsTokenData =
@@ -310,6 +313,7 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
                                  }];
   [self waitForExpectationsWithTimeout:0.1 handler:nil];
 }
+#pragma clang diagnostic pop
 
 - (void)setupV1RegistrationHttpCallWithMethod:(NSString *)httpMethod
                                  responseBody:(NSData *)responseBody

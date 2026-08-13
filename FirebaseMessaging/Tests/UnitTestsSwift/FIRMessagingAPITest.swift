@@ -25,15 +25,16 @@ func apis() {
   let delegate = CustomDelegate()
   messaging.delegate = delegate
   messaging.isAutoInitEnabled = false
-  messaging.token(completion: { _, _ in
+  let legacyMessaging: LegacyMessaging = messaging
+  legacyMessaging.token(completion: { _, _ in
   })
-  messaging.deleteToken { _ in
+  legacyMessaging.deleteToken { _ in
   }
-  messaging.retrieveFCMToken(forSenderID: "fakeSenderID") { _, _ in
+  legacyMessaging.retrieveFCMToken(forSenderID: "fakeSenderID") { _, _ in
   }
   messaging.deleteData { _ in
   }
-  messaging.deleteFCMToken(forSenderID: "fakeSenderID") { _ in
+  legacyMessaging.deleteFCMToken(forSenderID: "fakeSenderID") { _ in
   }
 
   if let _ = messaging.apnsToken {}
@@ -88,7 +89,10 @@ func apis() {
   // TODO: Mark the initializer as unavailable, as devs shouldn't be able to instantiate this.
   _ = MessagingMessageInfo().status
 
-  NotificationCenter.default.post(name: .MessagingRegistrationTokenRefreshed, object: nil)
+  NotificationCenter.default.post(
+    name: Notification.Name("FIRMessagingRegistrationTokenRefreshedNotification"),
+    object: nil
+  )
 
   let topic = "cat_video"
   messaging.subscribe(toTopic: topic)
@@ -128,13 +132,14 @@ func apiAsync() async throws {
 
   try await messaging.unsubscribe(fromTopic: topic)
 
-  try await messaging.token()
+  let legacyMessaging: LegacyMessaging = messaging
+  _ = try await legacyMessaging.token()
 
-  try await messaging.retrieveFCMToken(forSenderID: "fakeSenderID")
+  _ = try await legacyMessaging.retrieveFCMToken(forSenderID: "fakeSenderID")
 
-  try await messaging.deleteToken()
+  try await legacyMessaging.deleteToken()
 
-  try await messaging.deleteFCMToken(forSenderID: "fakeSenderID")
+  try await legacyMessaging.deleteFCMToken(forSenderID: "fakeSenderID")
 
   try await messaging.deleteData()
 
@@ -144,3 +149,18 @@ func apiAsync() async throws {
   } catch MessagingError.timeout {
   } catch {}
 }
+
+private protocol LegacyMessaging {
+  func token(completion: @escaping @Sendable (String?, Error?) -> Void)
+  func deleteToken(completion: @escaping @Sendable (Error?) -> Void)
+  func retrieveFCMToken(forSenderID senderID: String,
+                        completion: @escaping @Sendable (String?, Error?) -> Void)
+  func deleteFCMToken(forSenderID senderID: String,
+                      completion: @escaping @Sendable (Error?) -> Void)
+  func token() async throws -> String
+  func retrieveFCMToken(forSenderID senderID: String) async throws -> String
+  func deleteToken() async throws
+  func deleteFCMToken(forSenderID senderID: String) async throws
+}
+
+extension Messaging: LegacyMessaging {}

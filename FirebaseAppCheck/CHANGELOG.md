@@ -1,4 +1,7 @@
-# Unreleased
+# 12.18.0
+- [fixed] Safely disable the reCAPTCHA provider when its Swift dependencies
+  cannot be resolved to prevent `unknown receiver` build failures that
+  occur in unsupported `use_modular_headers!` use cases. (#16477)
 - [changed] Updated the App Check debug token log message to include Firebase CLI
   registration commands and a link to the debug token guide.
 
