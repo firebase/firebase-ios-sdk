@@ -252,7 +252,7 @@ Target::IndexBoundValue Target::GetAscendingBound(
   // If there is an additional bound, compare the values against the existing
   // range to see if we can narrow the scope.
   if (bound.has_value()) {
-    auto position = bound.value().position();
+    const auto& position = bound.value().position();
     // A cursor may have fewer components than the target has order-bys; only
     // the leading order-bys have a corresponding cursor value.
     size_t count = std::min<size_t>(order_bys_.size(), position->values_count);
@@ -321,7 +321,7 @@ Target::IndexBoundValue Target::GetDescendingBound(
   // If there is an additional bound, compare the values against the existing
   // range to see if we can narrow the scope.
   if (bound.has_value()) {
-    auto position = bound.value().position();
+    const auto& position = bound.value().position();
     // A cursor may have fewer components than the target has order-bys; only
     // the leading order-bys have a corresponding cursor value.
     size_t count = std::min<size_t>(order_bys_.size(), position->values_count);
