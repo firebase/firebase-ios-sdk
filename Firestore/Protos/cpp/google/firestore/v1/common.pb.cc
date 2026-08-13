@@ -45,6 +45,7 @@ inline constexpr TransactionOptions_ReadWrite::Impl_::Impl_(
       : retry_transaction_(
             &::google::protobuf::internal::fixed_address_empty_string,
             ::_pbi::ConstantInitialized()),
+        concurrency_mode_{static_cast< ::google::firestore::v1::TransactionOptions_ConcurrencyMode >(0)},
         _cached_size_{0} {}
 
 template <typename>
@@ -143,8 +144,7 @@ PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
 }  // namespace firestore
 }  // namespace google
 static ::_pb::Metadata file_level_metadata_google_2ffirestore_2fv1_2fcommon_2eproto[5];
-static constexpr const ::_pb::EnumDescriptor**
-    file_level_enum_descriptors_google_2ffirestore_2fv1_2fcommon_2eproto = nullptr;
+static const ::_pb::EnumDescriptor* file_level_enum_descriptors_google_2ffirestore_2fv1_2fcommon_2eproto[1];
 static constexpr const ::_pb::ServiceDescriptor**
     file_level_service_descriptors_google_2ffirestore_2fv1_2fcommon_2eproto = nullptr;
 const ::uint32_t TableStruct_google_2ffirestore_2fv1_2fcommon_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(
@@ -178,6 +178,7 @@ const ::uint32_t TableStruct_google_2ffirestore_2fv1_2fcommon_2eproto::offsets[]
     ~0u,  // no _split_
     ~0u,  // no sizeof(Split)
     PROTOBUF_FIELD_OFFSET(::google::firestore::v1::TransactionOptions_ReadWrite, _impl_.retry_transaction_),
+    PROTOBUF_FIELD_OFFSET(::google::firestore::v1::TransactionOptions_ReadWrite, _impl_.concurrency_mode_),
     ~0u,  // no _has_bits_
     PROTOBUF_FIELD_OFFSET(::google::firestore::v1::TransactionOptions_ReadOnly, _internal_metadata_),
     ~0u,  // no _extensions_
@@ -206,8 +207,8 @@ static const ::_pbi::MigrationSchema
         {0, -1, -1, sizeof(::google::firestore::v1::DocumentMask)},
         {9, -1, -1, sizeof(::google::firestore::v1::Precondition)},
         {20, -1, -1, sizeof(::google::firestore::v1::TransactionOptions_ReadWrite)},
-        {29, -1, -1, sizeof(::google::firestore::v1::TransactionOptions_ReadOnly)},
-        {39, -1, -1, sizeof(::google::firestore::v1::TransactionOptions)},
+        {30, -1, -1, sizeof(::google::firestore::v1::TransactionOptions_ReadOnly)},
+        {40, -1, -1, sizeof(::google::firestore::v1::TransactionOptions)},
 };
 
 static const ::_pb::Message* const file_default_instances[] = {
@@ -223,19 +224,24 @@ const char descriptor_table_protodef_google_2ffirestore_2fv1_2fcommon_2eproto[] 
     "mp.proto\"#\n\014DocumentMask\022\023\n\013field_paths\030"
     "\001 \003(\t\"e\n\014Precondition\022\020\n\006exists\030\001 \001(\010H\000\022"
     "1\n\013update_time\030\002 \001(\0132\032.google.protobuf.T"
-    "imestampH\000B\020\n\016condition_type\"\251\002\n\022Transac"
+    "imestampH\000B\020\n\016condition_type\"\322\003\n\022Transac"
     "tionOptions\022E\n\tread_only\030\002 \001(\01320.google."
     "firestore.v1.TransactionOptions.ReadOnly"
     "H\000\022G\n\nread_write\030\003 \001(\01321.google.firestor"
-    "e.v1.TransactionOptions.ReadWriteH\000\032&\n\tR"
-    "eadWrite\022\031\n\021retry_transaction\030\001 \001(\014\032S\n\010R"
-    "eadOnly\022/\n\tread_time\030\002 \001(\0132\032.google.prot"
-    "obuf.TimestampH\000B\026\n\024consistency_selector"
-    "B\006\n\004modeB\257\001\n\027com.google.firestore.v1B\013Co"
-    "mmonProtoP\001Z<google.golang.org/genproto/"
-    "googleapis/firestore/v1;firestore\242\002\004GCFS"
-    "\252\002\036Google.Cloud.Firestore.V1Beta1\312\002\036Goog"
-    "le\\Cloud\\Firestore\\V1beta1b\006proto3"
+    "e.v1.TransactionOptions.ReadWriteH\000\032y\n\tR"
+    "eadWrite\022\031\n\021retry_transaction\030\001 \001(\014\022Q\n\020c"
+    "oncurrency_mode\030\002 \001(\01627.google.firestore"
+    ".v1.TransactionOptions.ConcurrencyMode\032S"
+    "\n\010ReadOnly\022/\n\tread_time\030\002 \001(\0132\032.google.p"
+    "rotobuf.TimestampH\000B\026\n\024consistency_selec"
+    "tor\"T\n\017ConcurrencyMode\022 \n\034CONCURRENCY_MO"
+    "DE_UNSPECIFIED\020\000\022\016\n\nOPTIMISTIC\020\001\022\017\n\013PESS"
+    "IMISTIC\020\002B\006\n\004modeB\257\001\n\027com.google.firesto"
+    "re.v1B\013CommonProtoP\001Z<google.golang.org/"
+    "genproto/googleapis/firestore/v1;firesto"
+    "re\242\002\004GCFS\252\002\036Google.Cloud.Firestore.V1Bet"
+    "a1\312\002\036Google\\Cloud\\Firestore\\V1beta1b\006pro"
+    "to3"
 };
 static const ::_pbi::DescriptorTable* const descriptor_table_google_2ffirestore_2fv1_2fcommon_2eproto_deps[1] =
     {
@@ -245,7 +251,7 @@ static ::absl::once_flag descriptor_table_google_2ffirestore_2fv1_2fcommon_2epro
 const ::_pbi::DescriptorTable descriptor_table_google_2ffirestore_2fv1_2fcommon_2eproto = {
     false,
     false,
-    714,
+    883,
     descriptor_table_protodef_google_2ffirestore_2fv1_2fcommon_2eproto,
     "google/firestore/v1/common.proto",
     &descriptor_table_google_2ffirestore_2fv1_2fcommon_2eproto_once,
@@ -280,6 +286,27 @@ static ::_pbi::AddDescriptorsRunner dynamic_init_dummy_google_2ffirestore_2fv1_2
 namespace google {
 namespace firestore {
 namespace v1 {
+const ::google::protobuf::EnumDescriptor* TransactionOptions_ConcurrencyMode_descriptor() {
+  ::google::protobuf::internal::AssignDescriptors(&descriptor_table_google_2ffirestore_2fv1_2fcommon_2eproto);
+  return file_level_enum_descriptors_google_2ffirestore_2fv1_2fcommon_2eproto[0];
+}
+PROTOBUF_CONSTINIT const uint32_t TransactionOptions_ConcurrencyMode_internal_data_[] = {
+    196608u, 0u, };
+bool TransactionOptions_ConcurrencyMode_IsValid(int value) {
+  return 0 <= value && value <= 2;
+}
+#if (__cplusplus < 201703) && \
+  (!defined(_MSC_VER) || (_MSC_VER >= 1900 && _MSC_VER < 1912))
+
+constexpr TransactionOptions_ConcurrencyMode TransactionOptions::CONCURRENCY_MODE_UNSPECIFIED;
+constexpr TransactionOptions_ConcurrencyMode TransactionOptions::OPTIMISTIC;
+constexpr TransactionOptions_ConcurrencyMode TransactionOptions::PESSIMISTIC;
+constexpr TransactionOptions_ConcurrencyMode TransactionOptions::ConcurrencyMode_MIN;
+constexpr TransactionOptions_ConcurrencyMode TransactionOptions::ConcurrencyMode_MAX;
+constexpr int TransactionOptions::ConcurrencyMode_ARRAYSIZE;
+
+#endif  // (__cplusplus < 201703) &&
+        // (!defined(_MSC_VER) || (_MSC_VER >= 1900 && _MSC_VER < 1912))
 // ===================================================================
 
 class DocumentMask::_Internal {
@@ -771,6 +798,7 @@ TransactionOptions_ReadWrite::TransactionOptions_ReadWrite(
   _internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
       from._internal_metadata_);
   new (&_impl_) Impl_(internal_visibility(), arena, from._impl_);
+  _impl_.concurrency_mode_ = from._impl_.concurrency_mode_;
 
   // @@protoc_insertion_point(copy_constructor:google.firestore.v1.TransactionOptions.ReadWrite)
 }
@@ -782,6 +810,7 @@ inline PROTOBUF_NDEBUG_INLINE TransactionOptions_ReadWrite::Impl_::Impl_(
 
 inline void TransactionOptions_ReadWrite::SharedCtor(::_pb::Arena* arena) {
   new (&_impl_) Impl_(internal_visibility(), arena);
+  _impl_.concurrency_mode_ = {};
 }
 TransactionOptions_ReadWrite::~TransactionOptions_ReadWrite() {
   // @@protoc_insertion_point(destructor:google.firestore.v1.TransactionOptions.ReadWrite)
@@ -802,6 +831,7 @@ PROTOBUF_NOINLINE void TransactionOptions_ReadWrite::Clear() {
   (void) cached_has_bits;
 
   _impl_.retry_transaction_.ClearToEmpty();
+  _impl_.concurrency_mode_ = 0;
   _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
 }
 
@@ -813,20 +843,23 @@ const char* TransactionOptions_ReadWrite::_InternalParse(
 
 
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<0, 1, 0, 0, 2> TransactionOptions_ReadWrite::_table_ = {
+const ::_pbi::TcParseTable<1, 2, 0, 0, 2> TransactionOptions_ReadWrite::_table_ = {
   {
     0,  // no _has_bits_
     0, // no _extensions_
-    1, 0,  // max_field_number, fast_idx_mask
+    2, 8,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4294967294,  // skipmap
+    4294967292,  // skipmap
     offsetof(decltype(_table_), field_entries),
-    1,  // num_field_entries
+    2,  // num_field_entries
     0,  // num_aux_entries
     offsetof(decltype(_table_), field_names),  // no aux_entries
     &_TransactionOptions_ReadWrite_default_instance_._instance,
     ::_pbi::TcParser::GenericFallback,  // fallback
   }, {{
+    // .google.firestore.v1.TransactionOptions.ConcurrencyMode concurrency_mode = 2;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(TransactionOptions_ReadWrite, _impl_.concurrency_mode_), 63>(),
+     {16, 63, 0, PROTOBUF_FIELD_OFFSET(TransactionOptions_ReadWrite, _impl_.concurrency_mode_)}},
     // bytes retry_transaction = 1;
     {::_pbi::TcParser::FastBS1,
      {10, 63, 0, PROTOBUF_FIELD_OFFSET(TransactionOptions_ReadWrite, _impl_.retry_transaction_)}},
@@ -836,6 +869,9 @@ const ::_pbi::TcParseTable<0, 1, 0, 0, 2> TransactionOptions_ReadWrite::_table_ 
     // bytes retry_transaction = 1;
     {PROTOBUF_FIELD_OFFSET(TransactionOptions_ReadWrite, _impl_.retry_transaction_), 0, 0,
     (0 | ::_fl::kFcSingular | ::_fl::kBytes | ::_fl::kRepAString)},
+    // .google.firestore.v1.TransactionOptions.ConcurrencyMode concurrency_mode = 2;
+    {PROTOBUF_FIELD_OFFSET(TransactionOptions_ReadWrite, _impl_.concurrency_mode_), 0, 0,
+    (0 | ::_fl::kFcSingular | ::_fl::kOpenEnum)},
   }},
   // no aux_entries
   {{
@@ -853,6 +889,13 @@ const ::_pbi::TcParseTable<0, 1, 0, 0, 2> TransactionOptions_ReadWrite::_table_ 
   if (!this->_internal_retry_transaction().empty()) {
     const std::string& _s = this->_internal_retry_transaction();
     target = stream->WriteBytesMaybeAliased(1, _s, target);
+  }
+
+  // .google.firestore.v1.TransactionOptions.ConcurrencyMode concurrency_mode = 2;
+  if (this->_internal_concurrency_mode() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteEnumToArray(
+        2, this->_internal_concurrency_mode(), target);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -878,6 +921,12 @@ const ::_pbi::TcParseTable<0, 1, 0, 0, 2> TransactionOptions_ReadWrite::_table_ 
                                     this->_internal_retry_transaction());
   }
 
+  // .google.firestore.v1.TransactionOptions.ConcurrencyMode concurrency_mode = 2;
+  if (this->_internal_concurrency_mode() != 0) {
+    total_size += 1 +
+                  ::_pbi::WireFormatLite::EnumSize(this->_internal_concurrency_mode());
+  }
+
   return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
 }
 
@@ -899,6 +948,9 @@ void TransactionOptions_ReadWrite::MergeImpl(::google::protobuf::Message& to_msg
 
   if (!from._internal_retry_transaction().empty()) {
     _this->_internal_set_retry_transaction(from._internal_retry_transaction());
+  }
+  if (from._internal_concurrency_mode() != 0) {
+    _this->_internal_set_concurrency_mode(from._internal_concurrency_mode());
   }
   _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(from._internal_metadata_);
 }
@@ -923,6 +975,7 @@ void TransactionOptions_ReadWrite::InternalSwap(TransactionOptions_ReadWrite* PR
   ABSL_DCHECK_EQ(arena, other->GetArena());
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   ::_pbi::ArenaStringPtr::InternalSwap(&_impl_.retry_transaction_, &other->_impl_.retry_transaction_, arena);
+  swap(_impl_.concurrency_mode_, other->_impl_.concurrency_mode_);
 }
 
 ::google::protobuf::Metadata TransactionOptions_ReadWrite::GetMetadata() const {

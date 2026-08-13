@@ -228,6 +228,7 @@ typedef struct _google_firestore_v1_ExecutePipelineRequest {
         google_firestore_v1_TransactionOptions new_transaction;
         google_protobuf_Timestamp read_time;
     } consistency_selector;
+    bool auto_commit_transaction;
 
     std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_ExecutePipelineRequest) */
@@ -459,7 +460,7 @@ typedef struct _google_firestore_v1_ListenRequest {
 #define google_firestore_v1_RollbackRequest_init_default {NULL, NULL}
 #define google_firestore_v1_RunQueryRequest_init_default {NULL, 0, {google_firestore_v1_StructuredQuery_init_default}, 0, {NULL}}
 #define google_firestore_v1_RunQueryResponse_init_default {google_firestore_v1_Document_init_default, NULL, google_protobuf_Timestamp_init_default, 0}
-#define google_firestore_v1_ExecutePipelineRequest_init_default {NULL, 0, {google_firestore_v1_StructuredPipeline_init_default}, 0, {NULL}}
+#define google_firestore_v1_ExecutePipelineRequest_init_default {NULL, 0, {google_firestore_v1_StructuredPipeline_init_default}, 0, {NULL}, 0}
 #define google_firestore_v1_ExecutePipelineResponse_init_default {NULL, 0, NULL, google_protobuf_Timestamp_init_default, google_firestore_v1_ExplainStats_init_default}
 #define google_firestore_v1_RunAggregationQueryRequest_init_default {NULL, 0, {google_firestore_v1_StructuredAggregationQuery_init_default}, 0, {NULL}}
 #define google_firestore_v1_RunAggregationQueryResponse_init_default {google_firestore_v1_AggregationResult_init_default, NULL, google_protobuf_Timestamp_init_default}
@@ -491,7 +492,7 @@ typedef struct _google_firestore_v1_ListenRequest {
 #define google_firestore_v1_RollbackRequest_init_zero {NULL, NULL}
 #define google_firestore_v1_RunQueryRequest_init_zero {NULL, 0, {google_firestore_v1_StructuredQuery_init_zero}, 0, {NULL}}
 #define google_firestore_v1_RunQueryResponse_init_zero {google_firestore_v1_Document_init_zero, NULL, google_protobuf_Timestamp_init_zero, 0}
-#define google_firestore_v1_ExecutePipelineRequest_init_zero {NULL, 0, {google_firestore_v1_StructuredPipeline_init_zero}, 0, {NULL}}
+#define google_firestore_v1_ExecutePipelineRequest_init_zero {NULL, 0, {google_firestore_v1_StructuredPipeline_init_zero}, 0, {NULL}, 0}
 #define google_firestore_v1_ExecutePipelineResponse_init_zero {NULL, 0, NULL, google_protobuf_Timestamp_init_zero, google_firestore_v1_ExplainStats_init_zero}
 #define google_firestore_v1_RunAggregationQueryRequest_init_zero {NULL, 0, {google_firestore_v1_StructuredAggregationQuery_init_zero}, 0, {NULL}}
 #define google_firestore_v1_RunAggregationQueryResponse_init_zero {google_firestore_v1_AggregationResult_init_zero, NULL, google_protobuf_Timestamp_init_zero}
@@ -556,6 +557,7 @@ typedef struct _google_firestore_v1_ListenRequest {
 #define google_firestore_v1_ExecutePipelineRequest_new_transaction_tag 6
 #define google_firestore_v1_ExecutePipelineRequest_read_time_tag 7
 #define google_firestore_v1_ExecutePipelineRequest_database_tag 1
+#define google_firestore_v1_ExecutePipelineRequest_auto_commit_transaction_tag 9
 #define google_firestore_v1_ExecutePipelineResponse_transaction_tag 1
 #define google_firestore_v1_ExecutePipelineResponse_results_tag 2
 #define google_firestore_v1_ExecutePipelineResponse_execution_time_tag 3
@@ -643,7 +645,7 @@ extern const pb_field_t google_firestore_v1_CommitResponse_fields[3];
 extern const pb_field_t google_firestore_v1_RollbackRequest_fields[3];
 extern const pb_field_t google_firestore_v1_RunQueryRequest_fields[6];
 extern const pb_field_t google_firestore_v1_RunQueryResponse_fields[5];
-extern const pb_field_t google_firestore_v1_ExecutePipelineRequest_fields[6];
+extern const pb_field_t google_firestore_v1_ExecutePipelineRequest_fields[7];
 extern const pb_field_t google_firestore_v1_ExecutePipelineResponse_fields[5];
 extern const pb_field_t google_firestore_v1_RunAggregationQueryRequest_fields[6];
 extern const pb_field_t google_firestore_v1_RunAggregationQueryResponse_fields[4];

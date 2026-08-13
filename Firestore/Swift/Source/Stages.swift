@@ -502,3 +502,83 @@ class RawStage: Stage {
     bridge = __RawStageBridge(name: name, params: bridgeParams, options: bridgeOptions)
   }
 }
+
+class DeleteStage: Stage {
+  let name: String = "delete"
+  let bridge: __StageBridge
+  init() {
+    bridge = __DeleteStageBridge()
+  }
+}
+
+class UpdateStage: Stage {
+  let name: String = "update"
+  let bridge: __StageBridge
+  let errorMessage: String?
+
+  init(fields: [Selectable]) {
+    let (map, error) = Helper.selectablesToMap(selectables: fields)
+    if let error = error {
+      errorMessage = error.localizedDescription
+      bridge = __UpdateStageBridge(fields: [:])
+    } else {
+      errorMessage = nil
+      bridge = __UpdateStageBridge(fields: map.mapValues { $0.toBridge() })
+    }
+  }
+}
+
+class InsertStage: Stage {
+  let name: String = "insert"
+  let bridge: __StageBridge
+
+  init(collectionPath: String, documentIdExpression: Expression?) {
+    bridge = __InsertStageBridge(
+      collectionPath: collectionPath,
+      documentIdExpression: documentIdExpression?.toBridge()
+    )
+  }
+}
+
+class UpsertStage: Stage {
+  let name: String = "upsert"
+  let bridge: __StageBridge
+  let errorMessage: String?
+
+  init(additionalFields: [Selectable] = [], collectionPath: String? = nil,
+       documentIdExpression: Expression? = nil) {
+    let (map, error) = Helper.selectablesToMap(selectables: additionalFields)
+    if let error = error {
+      errorMessage = error.localizedDescription
+      bridge = __UpsertStageBridge(
+        additionalFields: [:],
+        collectionPath: collectionPath,
+        documentIdExpression: documentIdExpression?.toBridge()
+      )
+    } else {
+      errorMessage = nil
+      bridge = __UpsertStageBridge(
+        additionalFields: map.mapValues { $0.toBridge() },
+        collectionPath: collectionPath,
+        documentIdExpression: documentIdExpression?.toBridge()
+      )
+    }
+  }
+}
+
+class LiteralsSourceStage: Stage {
+  let name: String = "literals"
+  let bridge: __StageBridge
+
+  init(data: [[String: Any]], db: Firestore) {
+    let bridgedData = data.map { doc in
+      doc.mapValues { val -> Any in
+        if let expr = val as? Expression {
+          return expr.toBridge()
+        }
+        return val
+      }
+    }
+    bridge = __LiteralsSourceStageBridge(data: bridgedData, firestore: db)
+  }
+}
