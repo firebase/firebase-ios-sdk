@@ -1372,6 +1372,203 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
 }
 @end
 
+@implementation FIRDeleteStageBridge {
+  Boolean isUserDataRead;
+  std::shared_ptr<DeleteStage> cpp_delete;
+}
+
+- (id)init {
+  self = [super init];
+  if (self) {
+    isUserDataRead = NO;
+  }
+  return self;
+}
+
+- (std::shared_ptr<api::Stage>)cppStageWithReader:(FSTUserDataReader *)reader {
+  if (!isUserDataRead) {
+    cpp_delete = std::make_shared<DeleteStage>();
+  }
+  isUserDataRead = YES;
+  return cpp_delete;
+}
+
+- (NSString *)name {
+  return @"delete";
+}
+@end
+
+@implementation FIRUpdateStageBridge {
+  NSDictionary<NSString *, FIRExprBridge *> *_fields;
+  Boolean isUserDataRead;
+  std::shared_ptr<UpdateStage> cpp_update;
+}
+
+- (id)initWithFields:(NSDictionary<NSString *, FIRExprBridge *> *)fields {
+  self = [super init];
+  if (self) {
+    _fields = fields;
+    isUserDataRead = NO;
+  }
+  return self;
+}
+
+- (std::shared_ptr<api::Stage>)cppStageWithReader:(FSTUserDataReader *)reader {
+  if (!isUserDataRead) {
+    std::unordered_map<std::string, std::shared_ptr<Expr>> cpp_fields;
+    if (_fields) {
+      for (NSString *key in _fields) {
+        cpp_fields[MakeString(key)] = [_fields[key] cppExprWithReader:reader];
+      }
+    }
+    cpp_update = std::make_shared<UpdateStage>(std::move(cpp_fields));
+  }
+  isUserDataRead = YES;
+  return cpp_update;
+}
+
+- (NSString *)name {
+  return @"update";
+}
+@end
+
+@implementation FIRInsertStageBridge {
+  NSString *_collectionPath;
+  FIRExprBridge *_Nullable _documentIdExpression;
+  Boolean isUserDataRead;
+  std::shared_ptr<InsertStage> cpp_insert;
+}
+
+- (id)initWithCollectionPath:(NSString *)collectionPath
+        documentIdExpression:(FIRExprBridge *_Nullable)documentIdExpression {
+  self = [super init];
+  if (self) {
+    _collectionPath = collectionPath;
+    _documentIdExpression = documentIdExpression;
+    isUserDataRead = NO;
+  }
+  return self;
+}
+
+- (std::shared_ptr<api::Stage>)cppStageWithReader:(FSTUserDataReader *)reader {
+  if (!isUserDataRead) {
+    std::shared_ptr<Expr> cpp_doc_id = nil;
+    if (_documentIdExpression != nil) {
+      cpp_doc_id = [_documentIdExpression cppExprWithReader:reader];
+    }
+    cpp_insert = std::make_shared<InsertStage>(MakeString(_collectionPath ? _collectionPath : @""),
+                                               std::move(cpp_doc_id));
+  }
+  isUserDataRead = YES;
+  return cpp_insert;
+}
+
+- (NSString *)name {
+  return @"insert";
+}
+@end
+
+@implementation FIRUpsertStageBridge {
+  NSDictionary<NSString *, FIRExprBridge *> *_fields;
+  NSString *_collectionPath;
+  FIRExprBridge *_Nullable _documentIdExpression;
+  Boolean isUserDataRead;
+  std::shared_ptr<UpsertStage> cpp_upsert;
+}
+
+- (id)initWithFields:(NSDictionary<NSString *, FIRExprBridge *> *)fields
+       collectionPath:(NSString *_Nullable)collectionPath
+ documentIdExpression:(FIRExprBridge *_Nullable)documentIdExpression {
+  self = [super init];
+  if (self) {
+    _fields = fields;
+    _collectionPath = collectionPath;
+    _documentIdExpression = documentIdExpression;
+    isUserDataRead = NO;
+  }
+  return self;
+}
+
+- (std::shared_ptr<api::Stage>)cppStageWithReader:(FSTUserDataReader *)reader {
+  if (!isUserDataRead) {
+    std::unordered_map<std::string, std::shared_ptr<Expr>> cpp_fields;
+    if (_fields) {
+      for (NSString *key in _fields) {
+        cpp_fields[MakeString(key)] = [_fields[key] cppExprWithReader:reader];
+      }
+    }
+    std::shared_ptr<Expr> cpp_doc_id = nil;
+    if (_documentIdExpression != nil) {
+      cpp_doc_id = [_documentIdExpression cppExprWithReader:reader];
+    }
+    cpp_upsert = std::make_shared<UpsertStage>(std::move(cpp_fields),
+                                                MakeString(_collectionPath ? _collectionPath : @""),
+                                                std::move(cpp_doc_id));
+  }
+  isUserDataRead = YES;
+  return cpp_upsert;
+}
+
+- (NSString *)name {
+  return @"upsert";
+}
+@end
+
+@implementation FIRLiteralsSourceStageBridge {
+  NSArray<NSDictionary<NSString *, id> *> *_data;
+  FIRFirestore *_db;
+  Boolean isUserDataRead;
+  std::shared_ptr<LiteralsSource> cpp_literals;
+}
+
+- (id)initWithData:(NSArray<NSDictionary<NSString *, id> *> *)data
+         firestore:(FIRFirestore *)db {
+  self = [super init];
+  if (self) {
+    _data = data;
+    _db = db;
+    isUserDataRead = NO;
+  }
+  return self;
+}
+
+- (std::shared_ptr<api::Stage>)cppStageWithReader:(FSTUserDataReader *)reader {
+  if (!isUserDataRead) {
+    std::vector<firebase::firestore::google_firestore_v1_Value> cpp_data;
+    for (NSDictionary<NSString *, id> *docMap in _data) {
+      firebase::firestore::google_firestore_v1_Value mapVal;
+      mapVal.which_value_type = google_firestore_v1_Value_map_value_tag;
+
+      std::vector<std::pair<std::string, firebase::firestore::google_firestore_v1_Value>> cpp_fields;
+      for (NSString *key in docMap) {
+        id val = docMap[key];
+        firebase::firestore::google_firestore_v1_Value entryVal;
+        if ([val isKindOfClass:[FIRExprBridge class]]) {
+          entryVal = [((FIRExprBridge *)val) cppExprWithReader:reader]->to_proto();
+        } else {
+          entryVal = [reader parsedQueryValue:val];
+        }
+        cpp_fields.emplace_back(MakeString(key), entryVal);
+      }
+      nanopb::SetRepeatedField(
+          &mapVal.map_value.fields, &mapVal.map_value.fields_count, cpp_fields,
+          [](const std::pair<std::string, firebase::firestore::google_firestore_v1_Value>& entry) {
+            return _google_firestore_v1_MapValue_FieldsEntry{
+                nanopb::MakeBytesArray(entry.first), entry.second};
+          });
+      cpp_data.push_back(mapVal);
+    }
+    cpp_literals = std::make_shared<LiteralsSource>(std::move(cpp_data));
+  }
+  isUserDataRead = YES;
+  return cpp_literals;
+}
+
+- (NSString *)name {
+  return @"literals";
+}
+@end
+
 @implementation FIRPipelineExprBridge {
   NSArray<FIRStageBridge *> *_stages;
   Boolean isUserDataRead;
@@ -1399,15 +1596,26 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
 @implementation FIRPipelineBridge {
   NSArray<FIRStageBridge *> *_stages;
   FIRFirestore *firestore;
+  BOOL _atomic;
   Boolean isUserDataRead;
   std::shared_ptr<Pipeline> cpp_pipeline;
 }
 
 - (id)initWithStages:(NSArray<FIRStageBridge *> *)stages db:(FIRFirestore *)db {
-  _stages = stages;
-  firestore = db;
-  isUserDataRead = NO;
-  return [super init];
+  return [self initWithStages:stages db:db atomic:NO];
+}
+
+- (id)initWithStages:(NSArray<FIRStageBridge *> *)stages
+                  db:(FIRFirestore *)db
+              atomic:(BOOL)atomic {
+  self = [super init];
+  if (self) {
+    _stages = stages;
+    firestore = db;
+    _atomic = atomic;
+    isUserDataRead = NO;
+  }
+  return self;
 }
 
 - (void)executeWithCompletion:(void (^)(__FIRPipelineSnapshotBridge *_Nullable result,
@@ -1430,7 +1638,7 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
     for (FIRStageBridge *stage in _stages) {
       cpp_stages.push_back([stage cppStageWithReader:reader]);
     }
-    cpp_pipeline = std::make_shared<Pipeline>(cpp_stages, firestore.wrapped);
+    cpp_pipeline = std::make_shared<Pipeline>(cpp_stages, firestore.wrapped, _atomic);
   }
 
   isUserDataRead = YES;

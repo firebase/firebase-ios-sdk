@@ -93,6 +93,23 @@ public class Pipeline: @unchecked Sendable {
     self.db = db
   }
 
+  /// Options that control the execution of a `Pipeline`.
+  public struct ExecuteOptions: Sendable {
+    /// Whether the pipeline should execute atomically inside a single transaction.
+    public var atomic: Bool
+
+    public init(atomic: Bool = false) {
+      self.atomic = atomic
+    }
+
+    /// Sets whether atomic execution is enabled and returns a modified options instance.
+    public func withAtomic(_ atomic: Bool) -> ExecuteOptions {
+      var copy = self
+      copy.atomic = atomic
+      return copy
+    }
+  }
+
   /// A `Pipeline.Snapshot` contains the results of a pipeline execution.
   public struct Snapshot: Sendable {
     /// An array of all the results in the `Pipeline.Snapshot`.
@@ -127,11 +144,12 @@ public class Pipeline: @unchecked Sendable {
   /// }
   /// ```
   ///
+  /// - Parameter options: Optional execution options such as atomic transaction execution.
   /// - Throws: An error if the pipeline execution fails on the backend.
   /// - Returns: A `Pipeline.Snapshot` containing the result of the pipeline execution.
-  public func execute() async throws -> Pipeline.Snapshot {
+  public func execute(options: Pipeline.ExecuteOptions? = nil) async throws -> Pipeline.Snapshot {
     // Check if isolated subcollection execution is being attempted.
-    guard db != nil else {
+    guard let db = db else {
       throw NSError(
         domain: "com.google.firebase.firestore",
         code: 3 /* kErrorInvalidArgument */,
@@ -150,8 +168,14 @@ public class Pipeline: @unchecked Sendable {
       )
     }
 
+    let bridge = PipelineBridge(
+      stages: stages.map { $0.bridge },
+      db: db,
+      atomic: options?.atomic ?? false
+    )
+
     return try await withCheckedThrowingContinuation { continuation in
-      self.pipelineBridge.execute { result, error in
+      bridge.execute { result, error in
         if let error {
           continuation.resume(throwing: error)
         } else {
@@ -970,5 +994,60 @@ public class Pipeline: @unchecked Sendable {
   /// - Returns: An `Expression` representing the scalar result.
   public func toScalarExpression() -> Expression {
     return FunctionExpression(functionName: "scalar", args: [PipelineExpression(self)])
+  }
+
+  /// Appends a `delete` stage to the pipeline.
+  ///
+  /// - Returns: A new `Pipeline` object with this stage appended.
+  public func delete() -> Pipeline {
+    return Pipeline(stages: stages + [DeleteStage()], db: db)
+  }
+
+  /// Appends an `update` stage to the pipeline modifying specified selectable fields.
+  ///
+  /// - Parameter fields: Variadic list of `Selectable` expressions representing updated field assignments.
+  /// - Returns: A new `Pipeline` object with this stage appended.
+  public func update(_ fields: Selectable...) -> Pipeline {
+    return update(fields)
+  }
+
+  /// Appends an `update` stage to the pipeline modifying specified selectable fields.
+  ///
+  /// - Parameter fields: Array of `Selectable` expressions representing updated field assignments.
+  /// - Returns: A new `Pipeline` object with this stage appended.
+  public func update(_ fields: [Selectable]) -> Pipeline {
+    return Pipeline(stages: stages + [UpdateStage(fields: fields)], db: db)
+  }
+
+  /// Appends an `insert` stage to the pipeline writing documents to the specified collection and document ID expression.
+  ///
+  /// - Parameters:
+  ///   - collectionPath: The target collection path to insert documents into.
+  ///   - documentIdExpression: An optional expression resolving to the document ID.
+  /// - Returns: A new `Pipeline` object with this stage appended.
+  public func insert(collectionPath: String, documentIdExpression: Expression? = nil) -> Pipeline {
+    return Pipeline(stages: stages + [InsertStage(collectionPath: collectionPath, documentIdExpression: documentIdExpression)], db: db)
+  }
+
+  /// Appends an `upsert` stage to the pipeline transforming fields and writing to target collection / document ID.
+  ///
+  /// - Parameters:
+  ///   - transforms: Variadic list of `Selectable` expressions.
+  ///   - collectionPath: Optional target collection path.
+  ///   - documentIdExpression: Optional expression resolving to document ID.
+  /// - Returns: A new `Pipeline` object with this stage appended.
+  public func upsert(_ transforms: Selectable..., collectionPath: String? = nil, documentIdExpression: Expression? = nil) -> Pipeline {
+    return upsert(transforms, collectionPath: collectionPath, documentIdExpression: documentIdExpression)
+  }
+
+  /// Appends an `upsert` stage to the pipeline transforming fields and writing to target collection / document ID.
+  ///
+  /// - Parameters:
+  ///   - transforms: Array of `Selectable` expressions.
+  ///   - collectionPath: Optional target collection path.
+  ///   - documentIdExpression: Optional expression resolving to document ID.
+  /// - Returns: A new `Pipeline` object with this stage appended.
+  public func upsert(_ transforms: [Selectable], collectionPath: String? = nil, documentIdExpression: Expression? = nil) -> Pipeline {
+    return Pipeline(stages: stages + [UpsertStage(fields: transforms, collectionPath: collectionPath, documentIdExpression: documentIdExpression)], db: db)
   }
 }

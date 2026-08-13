@@ -597,6 +597,91 @@ class RawStage : public Stage {
   std::unordered_map<std::string, std::shared_ptr<Expr>> options_;
 };
 
+class DeleteStage : public Stage {
+ public:
+  DeleteStage() = default;
+  ~DeleteStage() override = default;
+
+  google_firestore_v1_Pipeline_Stage to_proto() const override;
+
+  const std::string& name() const override {
+    static const std::string kName = "delete";
+    return kName;
+  }
+};
+
+class UpdateStage : public Stage {
+ public:
+  explicit UpdateStage(
+      std::unordered_map<std::string, std::shared_ptr<Expr>> fields);
+  ~UpdateStage() override = default;
+
+  google_firestore_v1_Pipeline_Stage to_proto() const override;
+
+  const std::string& name() const override {
+    static const std::string kName = "update";
+    return kName;
+  }
+
+ private:
+  std::unordered_map<std::string, std::shared_ptr<Expr>> fields_;
+};
+
+class InsertStage : public Stage {
+ public:
+  InsertStage(std::string collection_path,
+              std::shared_ptr<Expr> document_id_expr);
+  ~InsertStage() override = default;
+
+  google_firestore_v1_Pipeline_Stage to_proto() const override;
+
+  const std::string& name() const override {
+    static const std::string kName = "insert";
+    return kName;
+  }
+
+ private:
+  std::string collection_path_;
+  std::shared_ptr<Expr> document_id_expr_;
+};
+
+class UpsertStage : public Stage {
+ public:
+  UpsertStage(
+      std::unordered_map<std::string, std::shared_ptr<Expr>> fields,
+      std::string collection_path,
+      std::shared_ptr<Expr> document_id_expr);
+  ~UpsertStage() override = default;
+
+  google_firestore_v1_Pipeline_Stage to_proto() const override;
+
+  const std::string& name() const override {
+    static const std::string kName = "upsert";
+    return kName;
+  }
+
+ private:
+  std::unordered_map<std::string, std::shared_ptr<Expr>> fields_;
+  std::string collection_path_;
+  std::shared_ptr<Expr> document_id_expr_;
+};
+
+class LiteralsSource : public Stage {
+ public:
+  explicit LiteralsSource(std::vector<google_firestore_v1_Value> data);
+  ~LiteralsSource() override = default;
+
+  google_firestore_v1_Pipeline_Stage to_proto() const override;
+
+  const std::string& name() const override {
+    static const std::string kName = "literals";
+    return kName;
+  }
+
+ private:
+  std::vector<google_firestore_v1_Value> data_;
+};
+
 }  // namespace api
 }  // namespace firestore
 }  // namespace firebase

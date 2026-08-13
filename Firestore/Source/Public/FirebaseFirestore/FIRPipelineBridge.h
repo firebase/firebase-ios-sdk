@@ -234,6 +234,40 @@ NS_SWIFT_NAME(RawStageBridge)
 @end
 
 NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(DeleteStageBridge)
+@interface FIRDeleteStageBridge : FIRStageBridge
+- (id)init;
+@end
+
+NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(UpdateStageBridge)
+@interface FIRUpdateStageBridge : FIRStageBridge
+- (id)initWithFields:(NSDictionary<NSString *, FIRExprBridge *> *)fields;
+@end
+
+NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(InsertStageBridge)
+@interface FIRInsertStageBridge : FIRStageBridge
+- (id)initWithCollectionPath:(NSString *)collectionPath
+        documentIdExpression:(FIRExprBridge *_Nullable)documentIdExpression;
+@end
+
+NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(UpsertStageBridge)
+@interface FIRUpsertStageBridge : FIRStageBridge
+- (id)initWithFields:(NSDictionary<NSString *, FIRExprBridge *> *)fields
+       collectionPath:(NSString *_Nullable)collectionPath
+ documentIdExpression:(FIRExprBridge *_Nullable)documentIdExpression;
+@end
+
+NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(LiteralsSourceStageBridge)
+@interface FIRLiteralsSourceStageBridge : FIRStageBridge
+- (id)initWithData:(NSArray<NSDictionary<NSString *, id> *> *)data
+         firestore:(FIRFirestore *)db;
+@end
+
+NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(__PipelineResultBridge)
 @interface __FIRPipelineResultBridge : NSObject
 
@@ -289,6 +323,9 @@ NS_SWIFT_NAME(PipelineBridge)
 
 /** :nodoc: */
 - (id)initWithStages:(NSArray<FIRStageBridge *> *)stages db:(FIRFirestore *)db;
+- (id)initWithStages:(NSArray<FIRStageBridge *> *)stages
+                  db:(FIRFirestore *)db
+              atomic:(BOOL)atomic;
 
 - (void)executeWithCompletion:(void (^)(__FIRPipelineSnapshotBridge *_Nullable result,
                                         NSError *_Nullable error))completion;

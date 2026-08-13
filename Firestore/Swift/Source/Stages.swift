@@ -519,3 +519,79 @@ class RawStage: Stage {
     bridge = RawStageBridge(name: name, params: bridgeParams, options: bridgeOptions)
   }
 }
+
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+class DeleteStage: Stage {
+  let name: String = "delete"
+  let bridge: StageBridge
+  init() {
+    bridge = DeleteStageBridge()
+  }
+}
+
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+class UpdateStage: Stage {
+  let name: String = "update"
+  let bridge: StageBridge
+  let errorMessage: String?
+
+  init(fields: [Selectable]) {
+    let (map, error) = Helper.selectablesToMap(selectables: fields)
+    if let error = error {
+      errorMessage = error.localizedDescription
+      bridge = UpdateStageBridge(fields: [:])
+    } else {
+      errorMessage = nil
+      bridge = UpdateStageBridge(fields: map.mapValues { $0.toBridge() })
+    }
+  }
+}
+
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+class InsertStage: Stage {
+  let name: String = "insert"
+  let bridge: StageBridge
+
+  init(collectionPath: String, documentIdExpression: Expression?) {
+    bridge = InsertStageBridge(
+      collectionPath: collectionPath,
+      documentIdExpression: documentIdExpression?.toBridge()
+    )
+  }
+}
+
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+class UpsertStage: Stage {
+  let name: String = "upsert"
+  let bridge: StageBridge
+  let errorMessage: String?
+
+  init(fields: [Selectable], collectionPath: String? = nil, documentIdExpression: Expression? = nil) {
+    let (map, error) = Helper.selectablesToMap(selectables: fields)
+    if let error = error {
+      errorMessage = error.localizedDescription
+      bridge = UpsertStageBridge(
+        fields: [:],
+        collectionPath: collectionPath,
+        documentIdExpression: documentIdExpression?.toBridge()
+      )
+    } else {
+      errorMessage = nil
+      bridge = UpsertStageBridge(
+        fields: map.mapValues { $0.toBridge() },
+        collectionPath: collectionPath,
+        documentIdExpression: documentIdExpression?.toBridge()
+      )
+    }
+  }
+}
+
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+class LiteralsSourceStage: Stage {
+  let name: String = "literals"
+  let bridge: StageBridge
+
+  init(data: [[String: Any]], db: Firestore) {
+    bridge = LiteralsSourceStageBridge(data: data, firestore: db)
+  }
+}

@@ -110,4 +110,20 @@ public struct PipelineSource: @unchecked Sendable {
     }
     return factory(stages, db)
   }
+
+  /// Specifies a literal list of document dictionaries as the data source for the pipeline.
+  ///
+  /// - Parameter data: An array of dictionaries representing document literals.
+  /// - Returns: A `Pipeline` with the specified literal documents as its source.
+  public func literals(_ data: [[String: Any]]) -> Pipeline {
+    return factory([LiteralsSourceStage(data: data, db: db)], db)
+  }
+
+  /// Specifies literal document dictionaries as the data source for the pipeline.
+  ///
+  /// - Parameter data: Variadic dictionary arguments representing document literals.
+  /// - Returns: A `Pipeline` with the specified literal documents as its source.
+  public func literals(_ data: [String: Any]...) -> Pipeline {
+    return literals(data)
+  }
 }
