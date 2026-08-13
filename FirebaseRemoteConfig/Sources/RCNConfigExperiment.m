@@ -36,9 +36,8 @@ static NSString *const kMethodNameLatestStartTime =
   NSArray<NSData *> *_experimentPayloads;
   NSDictionary<NSString *, id> *_experimentMetadata;
   NSArray<NSData *> *_activeExperimentPayloads;
-  // The aggregate generation keeps payload and metadata calculations coherent. Per-field
-  // generations prevent an older database load from replacing a field updated after it began.
-  NSUInteger _stateGeneration;
+  // Per-field generations prevent an older database load from replacing a field updated after it
+  // began.
   NSUInteger _experimentPayloadGeneration;
   NSUInteger _experimentMetadataGeneration;
   NSUInteger _activeExperimentPayloadGeneration;
@@ -79,7 +78,6 @@ static NSString *const kMethodNameLatestStartTime =
   os_unfair_lock_lock(&_stateLock);
   _experimentPayloads = payloadSnapshot;
   _experimentPayloadGeneration += 1;
-  _stateGeneration += 1;
   os_unfair_lock_unlock(&_stateLock);
 }
 
@@ -95,7 +93,6 @@ static NSString *const kMethodNameLatestStartTime =
   os_unfair_lock_lock(&_stateLock);
   _experimentMetadata = metadataSnapshot;
   _experimentMetadataGeneration += 1;
-  _stateGeneration += 1;
   os_unfair_lock_unlock(&_stateLock);
 }
 
@@ -111,7 +108,6 @@ static NSString *const kMethodNameLatestStartTime =
   os_unfair_lock_lock(&_stateLock);
   _activeExperimentPayloads = payloadSnapshot;
   _activeExperimentPayloadGeneration += 1;
-  _stateGeneration += 1;
   os_unfair_lock_unlock(&_stateLock);
 }
 
@@ -173,27 +169,20 @@ static NSString *const kMethodNameLatestStartTime =
     }
 
     os_unfair_lock_lock(&strongSelf->_stateLock);
-    BOOL didUpdateState = NO;
     if (experimentPayloads &&
         strongSelf->_experimentPayloadGeneration == experimentPayloadGeneration) {
       strongSelf->_experimentPayloads = experimentPayloads;
       strongSelf->_experimentPayloadGeneration += 1;
-      didUpdateState = YES;
     }
     if (experimentMetadata &&
         strongSelf->_experimentMetadataGeneration == experimentMetadataGeneration) {
       strongSelf->_experimentMetadata = experimentMetadata;
       strongSelf->_experimentMetadataGeneration += 1;
-      didUpdateState = YES;
     }
     if (activeExperimentPayloads &&
         strongSelf->_activeExperimentPayloadGeneration == activeExperimentPayloadGeneration) {
       strongSelf->_activeExperimentPayloads = activeExperimentPayloads;
       strongSelf->_activeExperimentPayloadGeneration += 1;
-      didUpdateState = YES;
-    }
-    if (didUpdateState) {
-      strongSelf->_stateGeneration += 1;
     }
     os_unfair_lock_unlock(&strongSelf->_stateLock);
   }];
@@ -218,7 +207,6 @@ static NSString *const kMethodNameLatestStartTime =
   os_unfair_lock_lock(&_stateLock);
   _experimentPayloads = payloadSnapshot;
   _experimentPayloadGeneration += 1;
-  _stateGeneration += 1;
   os_unfair_lock_unlock(&_stateLock);
 
   [_DBManager replaceExperimentTableWithKey:@RCNExperimentTableKeyPayload
@@ -261,11 +249,20 @@ static NSString *const kMethodNameLatestStartTime =
                                        value:serializedExperimentMetadata
                            completionHandler:nil];
   }
-  [_DBManager replaceExperimentTableWithKey:@RCNExperimentTableKeyActivePayload
-                                     values:experimentPayloads
-                          completionHandler:^(BOOL success, NSDictionary *result) {
-                            updateAnalyticsExperiments();
-                          }];
+  [_DBManager
+      replaceExperimentTableWithKey:@RCNExperimentTableKeyActivePayload
+                             values:experimentPayloads
+                  completionHandler:^(BOOL success, NSDictionary *result) {
+                    if (!success) {
+                      FIRLogWarning(kFIRLoggerRemoteConfig, @"I-RCN000040",
+                                    @"Failed to persist activated experiment payloads before "
+                                     "updating A/B Testing.");
+                    }
+                    // Experiment persistence remains best-effort. This completion orders
+                    // the A/B Testing update after the queued active-payload replacement;
+                    // it does not guarantee metadata or active-payload durability.
+                    updateAnalyticsExperiments();
+                  }];
 }
 
 - (void)updateExperimentStartTime {
@@ -286,7 +283,8 @@ static NSString *const kMethodNameLatestStartTime =
   FIRExperimentController *experimentController = self.experimentController;
   while (YES) {
     os_unfair_lock_lock(&_stateLock);
-    NSUInteger stateGeneration = _stateGeneration;
+    NSUInteger experimentPayloadGeneration = _experimentPayloadGeneration;
+    NSUInteger experimentMetadataGeneration = _experimentMetadataGeneration;
     NSArray<NSData *> *payloadSnapshot = _experimentPayloads;
     NSDictionary<NSString *, id> *metadataSnapshot = _experimentMetadata;
     os_unfair_lock_unlock(&_stateLock);
@@ -304,7 +302,8 @@ static NSString *const kMethodNameLatestStartTime =
     NSData *serializedMetadata = [self serializedExperimentMetadata:updatedMetadata];
 
     os_unfair_lock_lock(&_stateLock);
-    if (_stateGeneration != stateGeneration) {
+    if (_experimentPayloadGeneration != experimentPayloadGeneration ||
+        _experimentMetadataGeneration != experimentMetadataGeneration) {
       os_unfair_lock_unlock(&_stateLock);
       continue;
     }
@@ -314,7 +313,6 @@ static NSString *const kMethodNameLatestStartTime =
       _activeExperimentPayloads = payloadSnapshot;
       _activeExperimentPayloadGeneration += 1;
     }
-    _stateGeneration += 1;
     os_unfair_lock_unlock(&_stateLock);
 
     if (lastStartTime) {

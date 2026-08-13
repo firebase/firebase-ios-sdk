@@ -41,6 +41,15 @@ static NSString *const RCNRemoteConfigStorageSubDirectory = @"Google/RemoteConfi
 /// Introduce a dedicated serial queue for gIsNewDatabase access.
 static dispatch_queue_t gIsNewDatabaseQueue;
 
+static dispatch_queue_t RCNIsNewDatabaseQueue(void) {
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    gIsNewDatabaseQueue = dispatch_queue_create("com.google.FirebaseRemoteConfig.gIsNewDatabase",
+                                                DISPATCH_QUEUE_SERIAL);
+  });
+  return gIsNewDatabaseQueue;
+}
+
 /// Remote Config database path for deprecated V0 version.
 static NSString *RemoteConfigPathForOldDatabaseV0(void) {
   NSArray *dirPaths =
@@ -85,7 +94,7 @@ static BOOL RemoteConfigCreateFilePathIfNotExist(NSString *filePath) {
   }
   NSFileManager *fileManager = [NSFileManager defaultManager];
   if (![fileManager fileExistsAtPath:filePath]) {
-    dispatch_sync(gIsNewDatabaseQueue, ^{
+    dispatch_sync(RCNIsNewDatabaseQueue(), ^{
       gIsNewDatabase = YES;
     });
     NSError *error;
@@ -124,8 +133,6 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder(void) {
   static dispatch_once_t onceToken;
   static RCNConfigDBManager *sharedInstance;
   dispatch_once(&onceToken, ^{
-    gIsNewDatabaseQueue = dispatch_queue_create("com.google.FirebaseRemoteConfig.gIsNewDatabase",
-                                                DISPATCH_QUEUE_SERIAL);
     sharedInstance = [[RCNConfigDBManager alloc] init];
   });
   return sharedInstance;
@@ -139,6 +146,7 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder(void) {
 - (instancetype)init {
   self = [super init];
   if (self) {
+    (void)RCNIsNewDatabaseQueue();
     _databaseOperationQueue =
         dispatch_queue_create("com.google.GoogleConfigService.database", DISPATCH_QUEUE_SERIAL);
     [self createOrOpenDatabase];
@@ -1262,7 +1270,7 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder(void) {
 
 - (BOOL)isNewDatabase {
   __block BOOL isNew;
-  dispatch_sync(gIsNewDatabaseQueue, ^{
+  dispatch_sync(RCNIsNewDatabaseQueue(), ^{
     isNew = gIsNewDatabase;
   });
   return isNew;

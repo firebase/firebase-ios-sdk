@@ -35,7 +35,6 @@
 - (BOOL)insertExperimentTableWithKey:(NSString *)key value:(NSData *)serializedValue;
 - (void)deleteExperimentTableForKey:(NSString *)key;
 - (void)createOrOpenDatabase;
-- (BOOL)isNewDatabase;
 @end
 
 @interface RCNFailingExperimentInsertDBManager : RCNConfigDBManager
@@ -68,8 +67,6 @@
 
 - (void)setUp {
   [super setUp];
-  // Directly initialized test managers rely on the production singleton's global setup.
-  (void)[RCNConfigDBManager sharedInstance];
   // always remove the database at the start of testing
   _DBPath = [RCNTestUtilities remoteConfigPathForTestDatabase];
 

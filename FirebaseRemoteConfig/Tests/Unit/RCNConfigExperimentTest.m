@@ -105,8 +105,6 @@
 @implementation RCNConfigExperimentTest
 - (void)setUp {
   [super setUp];
-  // Directly initialized test managers rely on the production singleton's global setup.
-  (void)[RCNConfigDBManager sharedInstance];
   _expectationTimeout = 1.0;
   _DBPath = [RCNTestUtilities remoteConfigPathForTestDatabase];
   _DBManagerMock = OCMClassMock([RCNConfigDBManager class]);
@@ -241,14 +239,13 @@
                                     completionHandler:nil]);
   OCMStub([dbManagerMock replaceExperimentTableWithKey:[OCMArg any]
                                                 values:[OCMArg any]
-                                     completionHandler:nil]);
-  OCMStub([dbManagerMock replaceExperimentTableWithKey:[OCMArg any]
-                                                values:[OCMArg any]
                                      completionHandler:[OCMArg any]])
       .andDo(^(NSInvocation *invocation) {
         __unsafe_unretained RCNDBCompletion completion;
         [invocation getArgument:&completion atIndex:4];
-        completion(YES, nil);
+        if (completion) {
+          completion(YES, nil);
+        }
       });
 
   RCNConfigExperiment *experiment = [[RCNConfigExperiment alloc] initWithDBManager:dbManagerMock
@@ -288,14 +285,13 @@
                                     completionHandler:nil]);
   OCMStub([dbManagerMock replaceExperimentTableWithKey:[OCMArg any]
                                                 values:[OCMArg any]
-                                     completionHandler:nil]);
-  OCMStub([dbManagerMock replaceExperimentTableWithKey:[OCMArg any]
-                                                values:[OCMArg any]
                                      completionHandler:[OCMArg any]])
       .andDo(^(NSInvocation *invocation) {
         __unsafe_unretained RCNDBCompletion completion;
         [invocation getArgument:&completion atIndex:4];
-        completion(YES, nil);
+        if (completion) {
+          completion(YES, nil);
+        }
       });
 
   FIRExperimentController *experimentController =
@@ -303,6 +299,7 @@
   id mockExperimentController = OCMPartialMock(experimentController);
   dispatch_semaphore_t calculationStarted = dispatch_semaphore_create(0);
   dispatch_semaphore_t continueCalculation = dispatch_semaphore_create(0);
+  NSTimeInterval testTimeout = _expectationTimeout;
   __block NSUInteger calculationCount = 0;
   __block intptr_t calculationWaitResult = 0;
   OCMStub([mockExperimentController latestExperimentStartTimestampBetweenTimestamp:0
@@ -315,7 +312,8 @@
         if (calculationCount == 1) {
           dispatch_semaphore_signal(calculationStarted);
           calculationWaitResult = dispatch_semaphore_wait(
-              continueCalculation, dispatch_time(DISPATCH_TIME_NOW, 10 * NSEC_PER_SEC));
+              continueCalculation,
+              dispatch_time(DISPATCH_TIME_NOW, (int64_t)(testTimeout * NSEC_PER_SEC)));
         }
         NSTimeInterval result = existingLastStartTime + 1;
         [invocation setReturnValue:&result];
@@ -346,9 +344,10 @@
     }];
   });
 
-  XCTAssertEqual(
-      dispatch_semaphore_wait(calculationStarted, dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC)),
-      0);
+  XCTAssertEqual(dispatch_semaphore_wait(
+                     calculationStarted,
+                     dispatch_time(DISPATCH_TIME_NOW, (int64_t)(testTimeout * NSEC_PER_SEC))),
+                 0);
   NSDictionary<NSString *, NSString *> *stalePayload = @{@"experimentId" : @"stale"};
   NSData *stalePayloadData = [NSJSONSerialization dataWithJSONObject:stalePayload
                                                              options:0
@@ -360,7 +359,7 @@
   });
   dispatch_semaphore_signal(continueCalculation);
 
-  [self waitForExpectationsWithTimeout:_expectationTimeout handler:nil];
+  [self waitForExpectationsWithTimeout:testTimeout handler:nil];
   NSData *newPayloadData = [NSJSONSerialization dataWithJSONObject:newPayload options:0 error:nil];
   XCTAssertEqual(calculationWaitResult, 0, @"Activation calculation timed out");
   XCTAssertEqual(calculationCount, 2);
