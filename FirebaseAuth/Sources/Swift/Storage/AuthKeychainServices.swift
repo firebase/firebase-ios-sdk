@@ -269,22 +269,13 @@ final class AuthKeychainServices: Sendable {
       kSecAttrAccount as String: dummyKey,
       kSecAttrService as String: service,
       kSecValueData as String: Data([0]),
-      kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly,
+      kSecAttrAccessible as String: kSecAttrAccessibleWhenUnlocked,
     ]
     query[kSecUseDataProtectionKeychain as String] = true
 
     let status = keychainStorage.add(query: query)
     if status == errSecInteractionNotAllowed {
       return false
-    }
-    if status == errSecSuccess || status == errSecDuplicateItem {
-      var deleteQuery: [String: Any] = [
-        kSecClass as String: kSecClassGenericPassword,
-        kSecAttrAccount as String: dummyKey,
-        kSecAttrService as String: service,
-      ]
-      deleteQuery[kSecUseDataProtectionKeychain as String] = true
-      keychainStorage.delete(query: deleteQuery)
     }
 
     return true
