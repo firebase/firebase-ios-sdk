@@ -42,7 +42,6 @@ import FirebaseFunctions
 #endif // SWIFT_PACKAGE
 import FirebaseInstallations
 import FirebaseMessaging
-import FirebaseMLModelDownloader
 #if (os(iOS) && !targetEnvironment(macCatalyst)) || os(tvOS)
   import FirebaseInAppMessaging
   import FirebasePerformance
