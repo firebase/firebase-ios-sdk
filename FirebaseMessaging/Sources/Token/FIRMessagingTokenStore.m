@@ -100,14 +100,21 @@ static NSString *const kFIRMessagingTokenKeychainId = @"com.google.iid-tokens";
   // Check if it is saved as an archived FIRMessagingTokenInfo, otherwise return nil.
   FIRMessagingTokenInfo *tokenInfo = nil;
   if (item) {
+    NSError *error = nil;
     @try {
       NSKeyedUnarchiver *unarchiver = [[NSKeyedUnarchiver alloc] initForReadingFromData:item
-                                                                                  error:nil];
-      unarchiver.requiresSecureCoding = YES;
-      [unarchiver setClass:[FIRMessagingTokenInfo class] forClassName:@"FIRInstanceIDTokenInfo"];
-      tokenInfo = [unarchiver decodeObjectOfClass:[FIRMessagingTokenInfo class]
-                                           forKey:NSKeyedArchiveRootObjectKey];
-      [unarchiver finishDecoding];
+                                                                                  error:&error];
+      if (unarchiver && !error) {
+        unarchiver.requiresSecureCoding = YES;
+        [unarchiver setClass:[FIRMessagingTokenInfo class] forClassName:@"FIRInstanceIDTokenInfo"];
+        tokenInfo = [unarchiver decodeObjectOfClass:[FIRMessagingTokenInfo class]
+                                             forKey:NSKeyedArchiveRootObjectKey];
+        [unarchiver finishDecoding];
+      } else {
+        FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTokenStoreExceptionUnarchivingTokenInfo,
+                                @"Unable to parse token info from Keychain item; error: %@", error);
+        tokenInfo = nil;
+      }
     } @catch (NSException *exception) {
       FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTokenStoreExceptionUnarchivingTokenInfo,
                               @"Unable to parse token info from Keychain item; item was in an "
