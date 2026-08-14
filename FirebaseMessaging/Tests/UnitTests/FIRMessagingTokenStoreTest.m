@@ -155,10 +155,11 @@ static NSString *const kFakeCheckinPlistName = @"com.google.test.TestTokenStore"
   [self waitForExpectationsWithTimeout:1 handler:nil];
 }
 
-/// Scenario: Tests that the actual Store class connects to the keychain and passes the right
-/// SecureCoding flags to read old data. What it does: Generates an insecure 10.19-era binary blob
-/// and injects it into the mock keychain. We then call the public `tokenInfoWithAuthorizedEntity:`
-/// API on the Token Store to prove the store itself extracts and parses the legacy keychain item.
+/// **Scenario:** Tests that the actual Store class connects to the keychain and passes the right
+/// SecureCoding flags to read old data. **What it does:** Generates an insecure 10.19-era binary
+/// blob and injects it into the mock keychain. We then call the public
+/// `tokenInfoWithAuthorizedEntity:` API on the Token Store to prove the store itself extracts and
+/// parses the legacy keychain item.
 - (void)testTokenStoreReadsLegacyInsecureToken {
   FIRMessagingTokenInfo *tokenInfo =
       [[FIRMessagingTokenInfo alloc] initWithAuthorizedEntity:kAuthorizedEntity
@@ -198,9 +199,9 @@ static NSString *const kFakeCheckinPlistName = @"com.google.test.TestTokenStore"
   XCTAssertEqualObjects(retrievedTokenInfo.token, kToken);
 }
 
-/// Scenario: The reverse downgrade integration test.
-/// What it does: Uses the new secure `saveTokenInfo:` API to write data to the mock keychain. We
-/// then pull that binary blob out of the keychain and parse it using the deprecated
+/// **Scenario:** The reverse downgrade integration test.
+/// **What it does:** Uses the new secure `saveTokenInfo:` API to write data to the mock keychain.
+/// We then pull that binary blob out of the keychain and parse it using the deprecated
 /// `[NSKeyedUnarchiver unarchiveObjectWithData:]` API to prove that an older app version can read
 /// the bytes produced by the new SDK.
 - (void)testLegacyTokenStoreReadsSecureToken {
