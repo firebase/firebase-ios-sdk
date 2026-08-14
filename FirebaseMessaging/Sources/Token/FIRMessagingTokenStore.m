@@ -129,7 +129,7 @@ static NSString *const kFIRMessagingTokenKeychainId = @"com.google.iid-tokens";
   // Always write to the Keychain, so that the cacheTime is up-to-date.
   NSData *tokenInfoData;
   [NSKeyedArchiver setClassName:@"FIRInstanceIDTokenInfo" forClass:[FIRMessagingTokenInfo class]];
-  NSError *error;
+  NSError *error = nil;
   tokenInfoData = [NSKeyedArchiver archivedDataWithRootObject:tokenInfo
                                         requiringSecureCoding:YES
                                                         error:&error];
@@ -152,7 +152,7 @@ static NSString *const kFIRMessagingTokenKeychainId = @"com.google.iid-tokens";
   // Always write to the Keychain, so that the cacheTime is up-to-date.
   NSData *tokenInfoData;
   [NSKeyedArchiver setClassName:@"FIRInstanceIDTokenInfo" forClass:[FIRMessagingTokenInfo class]];
-  NSError *error;
+  NSError *error = nil;
   tokenInfoData = [NSKeyedArchiver archivedDataWithRootObject:tokenInfo
                                         requiringSecureCoding:YES
                                                         error:&error];
