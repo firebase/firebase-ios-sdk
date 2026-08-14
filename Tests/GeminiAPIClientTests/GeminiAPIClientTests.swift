@@ -1,0 +1,790 @@
+// Copyright 2026 Google LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+import Foundation
+import GenerateContentDataModels
+import HTTPStreamingClient
+import SharedDataModels
+import SharedTestUtilities
+import Testing
+
+@testable import GeminiAPIClient
+
+#if canImport(FoundationNetworking)
+  import FoundationNetworking
+#endif
+
+private typealias GenerateContentRequest = GenerateContentDataModels.GenerateContentRequest
+private typealias GenerateContentResponse = GenerateContentDataModels.GenerateContentResponse
+private typealias Content = GenerateContentDataModels.Content
+private typealias Part = GenerateContentDataModels.Part
+
+// MARK: - GeminiAPIClient Unit Tests
+
+@Suite("GeminiAPIClient Tests", .serialized)
+struct GeminiAPIClientTests {
+  private func makePromptRequest(_ prompt: String) -> GenerateContentRequest {
+    GenerateContentRequest(
+      contents: [Content(parts: [Part(data: .text(prompt))], role: "user")]
+    )
+  }
+
+  private func extractText(from response: GenerateContentResponse?) -> String? {
+    guard let parts = response?.candidates?.first?.content?.parts else { return nil }
+    let textParts = parts.compactMap { part -> String? in
+      if case .text(let text) = part.data { return text }
+      return nil
+    }
+    return textParts.isEmpty ? nil : textParts.joined()
+  }
+
+  private func makeClient(
+    model: String = "gemini-3.5-flash-lite",
+    baseURL: URL = URL(string: "https://generativelanguage.googleapis.com")!,
+    headerProvider: (@Sendable () async throws -> [String: String])? = nil
+  ) -> GeminiAPIClient {
+    let configuration = URLSessionConfiguration.ephemeral
+    configuration.protocolClasses = [MockHTTPURLProtocol.self]
+    return GeminiAPIClient(
+      model: model,
+      baseURL: baseURL,
+      headerProvider: headerProvider,
+      configuration: configuration
+    )
+  }
+
+  @Test
+  func streamGenerateContentSingleChunk() async throws {
+    let client = makeClient()
+    let expectedURL = try #require(
+      URL(
+        string:
+          "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:streamGenerateContent?alt=sse"
+      )
+    )
+    let httpResponse = try #require(
+      HTTPURLResponse(
+        url: expectedURL,
+        statusCode: 200,
+        httpVersion: "HTTP/1.1",
+        headerFields: ["Content-Type": "text/event-stream"]
+      )
+    )
+
+    let ssePayload = """
+      data: {"candidates": [{"content": {"parts": [{"text": "Hello world!"}], "role": "model"}, "finishReason": "STOP", "index": 0}]}
+
+      """
+
+    MockHTTPURLProtocol.setHandler(for: expectedURL) { request, proto in
+      #expect(request.value(forHTTPHeaderField: "Content-Type") == "application/json")
+      proto.client?.urlProtocol(proto, didReceive: httpResponse, cacheStoragePolicy: .notAllowed)
+      proto.client?.urlProtocol(proto, didLoad: Data(ssePayload.utf8))
+      proto.client?.urlProtocolDidFinishLoading(proto)
+    }
+
+    let request = makePromptRequest("Say hello")
+    let stream = try await client.generateContentStream(request: request)
+    var responses: [GenerateContentResponse] = []
+    for try await chunk in stream {
+      responses.append(chunk)
+    }
+
+    #expect(responses.count == 1)
+    let candidate = try #require(responses.first?.candidates?.first)
+    #expect(candidate.content?.parts?.first?.data == .text("Hello world!"))
+    #expect(candidate.finishReason == .stop)
+  }
+
+  @Test
+  func streamGenerateContentSafetyBlockResponse() async throws {
+    let client = makeClient()
+    let expectedURL = try #require(
+      URL(
+        string:
+          "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:streamGenerateContent?alt=sse"
+      )
+    )
+    let httpResponse = try #require(
+      HTTPURLResponse(
+        url: expectedURL,
+        statusCode: 200,
+        httpVersion: "HTTP/1.1",
+        headerFields: ["Content-Type": "text/event-stream"]
+      )
+    )
+
+    let ssePayload = """
+      data: {"candidates": [{"content": {}, "finishReason": "SAFETY", "index": 0, "finishMessage": "The model output could not be generated due to safety policy.", "safetyRatings": [{"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "probability": "HIGH"}]}]}
+
+      """
+
+    MockHTTPURLProtocol.setHandler(for: expectedURL) { _, proto in
+      proto.client?.urlProtocol(proto, didReceive: httpResponse, cacheStoragePolicy: .notAllowed)
+      proto.client?.urlProtocol(proto, didLoad: Data(ssePayload.utf8))
+      proto.client?.urlProtocolDidFinishLoading(proto)
+    }
+
+    let request = makePromptRequest("Safety test")
+    let stream = try await client.generateContentStream(request: request)
+    var responses: [GenerateContentResponse] = []
+    for try await chunk in stream {
+      responses.append(chunk)
+    }
+
+    #expect(responses.count == 1)
+    let candidate = try #require(responses.first?.candidates?.first)
+    #expect(candidate.finishReason == .safety)
+    #expect(candidate.finishMessage?.contains("safety policy") == true)
+    #expect(candidate.safetyRatings?.first?.category == .dangerousContent)
+    #expect(candidate.content?.parts?.first?.data == nil)
+  }
+
+  @Test
+  func streamGenerateContentRecitationBlockResponse() async throws {
+    let client = makeClient()
+    let expectedURL = try #require(
+      URL(
+        string:
+          "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:streamGenerateContent?alt=sse"
+      )
+    )
+    let httpResponse = try #require(
+      HTTPURLResponse(
+        url: expectedURL,
+        statusCode: 200,
+        httpVersion: "HTTP/1.1",
+        headerFields: ["Content-Type": "text/event-stream"]
+      )
+    )
+
+    let ssePayload = """
+      data: {"candidates": [{"finishReason": "RECITATION", "index": 0}]}
+
+      """
+
+    MockHTTPURLProtocol.setHandler(for: expectedURL) { _, proto in
+      proto.client?.urlProtocol(proto, didReceive: httpResponse, cacheStoragePolicy: .notAllowed)
+      proto.client?.urlProtocol(proto, didLoad: Data(ssePayload.utf8))
+      proto.client?.urlProtocolDidFinishLoading(proto)
+    }
+
+    let request = makePromptRequest("Recitation test")
+    let stream = try await client.generateContentStream(request: request)
+    var responses: [GenerateContentResponse] = []
+    for try await chunk in stream {
+      responses.append(chunk)
+    }
+
+    #expect(responses.count == 1)
+    let candidate = try #require(responses.first?.candidates?.first)
+    #expect(candidate.finishReason == .recitation)
+    #expect(candidate.content?.parts?.first?.data == nil)
+  }
+
+  @Test
+  func streamGenerateContentMultipleChunks() async throws {
+    let client = makeClient(model: "gemini-3.5-flash-lite")
+    let expectedURL = try #require(
+      URL(
+        string:
+          "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:streamGenerateContent?alt=sse"
+      )
+    )
+    let httpResponse = try #require(
+      HTTPURLResponse(
+        url: expectedURL,
+        statusCode: 200,
+        httpVersion: "HTTP/1.1",
+        headerFields: ["Content-Type": "text/event-stream"]
+      )
+    )
+
+    let ssePayload = """
+      data: {"candidates": [{"content": {"parts": [{"text": "Hello"}], "role": "model"}}]}
+
+      data: {"candidates": [{"content": {"parts": [{"text": " world"}], "role": "model"}}]}
+
+      data: {"candidates": [{"content": {"parts": [{"text": "!"}], "role": "model"}, "finishReason": "STOP"}]}
+
+      """
+
+    MockHTTPURLProtocol.setHandler(for: expectedURL) { _, proto in
+      proto.client?.urlProtocol(proto, didReceive: httpResponse, cacheStoragePolicy: .notAllowed)
+      proto.client?.urlProtocol(proto, didLoad: Data(ssePayload.utf8))
+      proto.client?.urlProtocolDidFinishLoading(proto)
+    }
+
+    let request = makePromptRequest("Say hello world")
+    let stream = try await client.generateContentStream(request: request)
+    var collectedText = ""
+    for try await chunk in stream {
+      if let text = extractText(from: chunk) {
+        collectedText += text
+      }
+    }
+
+    #expect(collectedText == "Hello world!")
+  }
+
+  @Test
+  func streamGenerateContentAPIError() async throws {
+    let client = makeClient(model: "gemini-3.5-flash-lite")
+    let expectedURL = try #require(
+      URL(
+        string:
+          "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:streamGenerateContent?alt=sse"
+      )
+    )
+    let httpResponse = try #require(
+      HTTPURLResponse(
+        url: expectedURL,
+        statusCode: 400,
+        httpVersion: "HTTP/1.1",
+        headerFields: ["Content-Type": "application/json"]
+      )
+    )
+
+    let errorJSON = """
+      {
+        "error": {
+          "code": 400,
+          "message": "API key not valid. Please pass a valid API key.",
+          "status": "INVALID_ARGUMENT"
+        }
+      }
+      """
+
+    MockHTTPURLProtocol.setHandler(for: expectedURL) { _, proto in
+      proto.client?.urlProtocol(proto, didReceive: httpResponse, cacheStoragePolicy: .notAllowed)
+      proto.client?.urlProtocol(proto, didLoad: Data(errorJSON.utf8))
+      proto.client?.urlProtocolDidFinishLoading(proto)
+    }
+
+    let request = makePromptRequest("Invalid key test")
+
+    await #expect(throws: GeminiAPIError.self) {
+      try await client.generateContentStream(request: request)
+    }
+  }
+
+  @Test
+  func streamGenerateContentHTTPError() async throws {
+    let client = makeClient(model: "gemini-3.5-flash-lite")
+    let expectedURL = try #require(
+      URL(
+        string:
+          "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:streamGenerateContent?alt=sse"
+      )
+    )
+    let httpResponse = try #require(
+      HTTPURLResponse(
+        url: expectedURL,
+        statusCode: 500,
+        httpVersion: "HTTP/1.1",
+        headerFields: nil
+      )
+    )
+
+    MockHTTPURLProtocol.setHandler(for: expectedURL) { _, proto in
+      proto.client?.urlProtocol(proto, didReceive: httpResponse, cacheStoragePolicy: .notAllowed)
+      proto.client?.urlProtocol(proto, didLoad: Data("Internal Server Error".utf8))
+      proto.client?.urlProtocolDidFinishLoading(proto)
+    }
+
+    let request = makePromptRequest("Internal error test")
+
+    do {
+      _ = try await client.generateContentStream(request: request)
+      Issue.record("Expected GeminiAPIError.httpError to be thrown")
+    } catch let GeminiAPIError.httpError(statusCode, body) {
+      #expect(statusCode == 500)
+      #expect(body == "Internal Server Error")
+    } catch {
+      Issue.record("Unexpected error: \(error)")
+    }
+  }
+
+  @Test
+  func streamGenerateContentRateLimitError() async throws {
+    let client = makeClient(model: "gemini-3.5-flash-lite")
+    let expectedURL = try #require(
+      URL(
+        string:
+          "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:streamGenerateContent?alt=sse"
+      )
+    )
+    let httpResponse = try #require(
+      HTTPURLResponse(
+        url: expectedURL,
+        statusCode: 429,
+        httpVersion: "HTTP/1.1",
+        headerFields: [
+          "Content-Type": "application/json",
+          "Retry-After": "60",
+        ]
+      )
+    )
+
+    let errorJSON = """
+      {
+        "error": {
+          "code": 429,
+          "message": "Resource has been exhausted (e.g. check quota).",
+          "status": "RESOURCE_EXHAUSTED"
+        }
+      }
+      """
+
+    MockHTTPURLProtocol.setHandler(for: expectedURL) { _, proto in
+      proto.client?.urlProtocol(proto, didReceive: httpResponse, cacheStoragePolicy: .notAllowed)
+      proto.client?.urlProtocol(proto, didLoad: Data(errorJSON.utf8))
+      proto.client?.urlProtocolDidFinishLoading(proto)
+    }
+
+    let request = makePromptRequest("Rate limit test")
+
+    do {
+      _ = try await client.generateContentStream(request: request)
+      Issue.record("Expected GeminiAPIError.apiError to be thrown")
+    } catch let GeminiAPIError.apiError(apiError) {
+      #expect(apiError.code == 429)
+      #expect(apiError.status == .resourceExhausted)
+      #expect(apiError.message.contains("Resource has been exhausted"))
+      #expect(apiError.retryDelay == .seconds(60))
+    } catch {
+      Issue.record("Unexpected error thrown: \(error)")
+    }
+  }
+
+  @Test
+  func streamGenerateContentRateLimitWithRetryInfoJSON() async throws {
+    let client = makeClient(model: "gemini-3.5-flash-lite")
+    let expectedURL = try #require(
+      URL(
+        string:
+          "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:streamGenerateContent?alt=sse"
+      )
+    )
+    let httpResponse = try #require(
+      HTTPURLResponse(
+        url: expectedURL,
+        statusCode: 429,
+        httpVersion: "HTTP/1.1",
+        headerFields: ["Content-Type": "application/json"]
+      )
+    )
+
+    let errorJSON = """
+      {
+        "error": {
+          "code": 429,
+          "message": "Resource has been exhausted (e.g. check quota).",
+          "status": "RESOURCE_EXHAUSTED",
+          "details": [
+            {
+              "@type": "type.googleapis.com/google.rpc.RetryInfo",
+              "retryDelay": "45.5s"
+            }
+          ]
+        }
+      }
+      """
+
+    MockHTTPURLProtocol.setHandler(for: expectedURL) { _, proto in
+      proto.client?.urlProtocol(proto, didReceive: httpResponse, cacheStoragePolicy: .notAllowed)
+      proto.client?.urlProtocol(proto, didLoad: Data(errorJSON.utf8))
+      proto.client?.urlProtocolDidFinishLoading(proto)
+    }
+
+    let request = makePromptRequest("Rate limit test")
+
+    do {
+      _ = try await client.generateContentStream(request: request)
+      Issue.record("Expected GeminiAPIError.apiError to be thrown")
+    } catch let GeminiAPIError.apiError(apiError) {
+      #expect(apiError.code == 429)
+      #expect(apiError.status == .resourceExhausted)
+      #expect(apiError.retryDelay == .seconds(45.5))
+    } catch {
+      Issue.record("Unexpected error thrown: \(error)")
+    }
+  }
+
+  @Test
+  func headerProviderInjectsHeaders() async throws {
+    let client = makeClient(
+      model: "gemini-3.5-flash-lite",
+      headerProvider: {
+        [
+          "x-goog-api-key": "custom-key",
+          "X-AppCheck-Token": "app-check-123",
+        ]
+      }
+    )
+
+    let expectedURL = try #require(
+      URL(
+        string:
+          "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:streamGenerateContent?alt=sse"
+      )
+    )
+    let httpResponse = try #require(
+      HTTPURLResponse(
+        url: expectedURL,
+        statusCode: 200,
+        httpVersion: "HTTP/1.1",
+        headerFields: nil
+      )
+    )
+
+    MockHTTPURLProtocol.setHandler(for: expectedURL) { request, proto in
+      #expect(request.value(forHTTPHeaderField: "x-goog-api-key") == "custom-key")
+      #expect(request.value(forHTTPHeaderField: "X-AppCheck-Token") == "app-check-123")
+      proto.client?.urlProtocol(proto, didReceive: httpResponse, cacheStoragePolicy: .notAllowed)
+      proto.client?.urlProtocol(
+        proto,
+        didLoad: Data(
+          "data: {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"OK\"}]}}]}\n\n".utf8)
+      )
+      proto.client?.urlProtocolDidFinishLoading(proto)
+    }
+
+    let stream = try await client.generateContentStream(
+      request: makePromptRequest("Header test"))
+    var count = 0
+    for try await chunk in stream {
+      count += 1
+      #expect(extractText(from: chunk) == "OK")
+    }
+
+    #expect(count == 1)
+  }
+
+  @Test
+  func streamGenerateContentClientTimeoutThrows() async throws {
+    let client = makeClient()
+    let expectedURL = try #require(
+      URL(
+        string:
+          "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:streamGenerateContent?alt=sse"
+      )
+    )
+
+    MockHTTPURLProtocol.setHandler(for: expectedURL) { _, proto in
+      proto.client?.urlProtocol(proto, didFailWithError: URLError(.timedOut))
+    }
+
+    let request = makePromptRequest("Timeout test")
+
+    await #expect(throws: URLError.self) {
+      try await client.generateContentStream(request: request)
+    }
+  }
+
+  @Test
+  func streamGenerateContentGatewayTimeoutThrows() async throws {
+    let client = makeClient()
+    let expectedURL = try #require(
+      URL(
+        string:
+          "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:streamGenerateContent?alt=sse"
+      )
+    )
+    let httpResponse = try #require(
+      HTTPURLResponse(
+        url: expectedURL,
+        statusCode: 504,
+        httpVersion: "HTTP/1.1",
+        headerFields: ["Content-Type": "application/json"]
+      )
+    )
+
+    let errorJSON = """
+      {
+        "error": {
+          "code": 504,
+          "message": "Deadline exceeded while waiting for model response.",
+          "status": "DEADLINE_EXCEEDED"
+        }
+      }
+      """
+
+    MockHTTPURLProtocol.setHandler(for: expectedURL) { _, proto in
+      proto.client?.urlProtocol(proto, didReceive: httpResponse, cacheStoragePolicy: .notAllowed)
+      proto.client?.urlProtocol(proto, didLoad: Data(errorJSON.utf8))
+      proto.client?.urlProtocolDidFinishLoading(proto)
+    }
+
+    let request = makePromptRequest("Gateway timeout test")
+
+    do {
+      _ = try await client.generateContentStream(request: request)
+      Issue.record("Expected GeminiAPIError.apiError to be thrown")
+    } catch let GeminiAPIError.apiError(apiError) {
+      #expect(apiError.code == 504)
+      #expect(apiError.status == .deadlineExceeded)
+      #expect(apiError.message.contains("Deadline exceeded"))
+    } catch {
+      Issue.record("Unexpected error thrown: \(error)")
+    }
+  }
+
+  @Test
+  func streamGenerateContentMidStreamErrorThrows() async throws {
+    let client = makeClient()
+    let expectedURL = try #require(
+      URL(
+        string:
+          "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:streamGenerateContent?alt=sse"
+      )
+    )
+    let httpResponse = try #require(
+      HTTPURLResponse(
+        url: expectedURL,
+        statusCode: 200,
+        httpVersion: "HTTP/1.1",
+        headerFields: ["Content-Type": "text/event-stream"]
+      )
+    )
+
+    let payload = """
+      data: {"candidates": [{"content": {"parts": [{"text": "First "}]},"finishReason": "STOP","index": 0}]}
+
+      data: {"candidates": [{"content": {"parts": [{"text": "Second "}]},"finishReason": "STOP","index": 0}]}
+
+      {
+        "error": {
+          "code": 499,
+          "message": "The operation was cancelled.",
+          "status": "CANCELLED",
+          "details": [
+            {
+              "@type": "type.googleapis.com/google.rpc.DebugInfo",
+              "detail": "[ORIGINAL ERROR] generic::cancelled: "
+            }
+          ]
+        }
+      }
+      """
+
+    MockHTTPURLProtocol.setHandler(for: expectedURL) { _, proto in
+      proto.client?.urlProtocol(proto, didReceive: httpResponse, cacheStoragePolicy: .notAllowed)
+      proto.client?.urlProtocol(proto, didLoad: Data(payload.utf8))
+      proto.client?.urlProtocolDidFinishLoading(proto)
+    }
+
+    let request = makePromptRequest("Mid-stream error test")
+    let stream = try await client.generateContentStream(request: request)
+    var collectedText = ""
+
+    do {
+      for try await chunk in stream {
+        if let text = extractText(from: chunk) {
+          collectedText += text
+        }
+      }
+      Issue.record("Expected GeminiAPIError.apiError to be thrown mid-stream")
+    } catch let GeminiAPIError.apiError(apiError) {
+      #expect(collectedText == "First Second ")
+      #expect(apiError.code == 499)
+      #expect(apiError.status == .cancelled)
+      #expect(apiError.message == "The operation was cancelled.")
+    } catch {
+      Issue.record("Unexpected error thrown: \(error)")
+    }
+  }
+
+  @Test
+  func streamGenerateContentErrorInSSEDataThrows() async throws {
+    let client = makeClient()
+    let expectedURL = try #require(
+      URL(
+        string:
+          "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:streamGenerateContent?alt=sse"
+      )
+    )
+    let httpResponse = try #require(
+      HTTPURLResponse(
+        url: expectedURL,
+        statusCode: 200,
+        httpVersion: "HTTP/1.1",
+        headerFields: ["Content-Type": "text/event-stream"]
+      )
+    )
+
+    let payload = """
+      data: {"error": {"code": 500, "message": "Internal error occurred.", "status": "INTERNAL"}}
+
+      """
+
+    MockHTTPURLProtocol.setHandler(for: expectedURL) { _, proto in
+      proto.client?.urlProtocol(proto, didReceive: httpResponse, cacheStoragePolicy: .notAllowed)
+      proto.client?.urlProtocol(proto, didLoad: Data(payload.utf8))
+      proto.client?.urlProtocolDidFinishLoading(proto)
+    }
+
+    let request = makePromptRequest("SSE error test")
+    let stream = try await client.generateContentStream(request: request)
+
+    do {
+      for try await _ in stream {}
+      Issue.record("Expected GeminiAPIError.apiError to be thrown")
+    } catch let GeminiAPIError.apiError(apiError) {
+      #expect(apiError.code == 500)
+      #expect(apiError.status == .internalError)
+      #expect(apiError.message == "Internal error occurred.")
+    } catch {
+      Issue.record("Unexpected error thrown: \(error)")
+    }
+  }
+
+  @Test
+  func streamGenerateContentMidStreamUnrecognizedTextThrows() async throws {
+    let client = makeClient()
+    let expectedURL = try #require(
+      URL(
+        string:
+          "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:streamGenerateContent?alt=sse"
+      )
+    )
+    let httpResponse = try #require(
+      HTTPURLResponse(
+        url: expectedURL,
+        statusCode: 200,
+        httpVersion: "HTTP/1.1",
+        headerFields: ["Content-Type": "text/event-stream"]
+      )
+    )
+
+    let payload = """
+      data: {"candidates": [{"content": {"parts": [{"text": "Hello"}]}}]}
+
+      Unrecognized non-JSON error payload
+      """
+
+    MockHTTPURLProtocol.setHandler(for: expectedURL) { _, proto in
+      proto.client?.urlProtocol(proto, didReceive: httpResponse, cacheStoragePolicy: .notAllowed)
+      proto.client?.urlProtocol(proto, didLoad: Data(payload.utf8))
+      proto.client?.urlProtocolDidFinishLoading(proto)
+    }
+
+    let request = makePromptRequest("Unrecognized payload test")
+    let stream = try await client.generateContentStream(request: request)
+    var collectedText = ""
+
+    do {
+      for try await chunk in stream {
+        if let text = extractText(from: chunk) {
+          collectedText += text
+        }
+      }
+      Issue.record("Expected GeminiAPIError.httpError to be thrown")
+    } catch let GeminiAPIError.httpError(statusCode, body) {
+      #expect(collectedText == "Hello")
+      #expect(statusCode == 200)
+      #expect(body == "Unrecognized non-JSON error payload")
+    } catch {
+      Issue.record("Unexpected error thrown: \(error)")
+    }
+  }
+}
+
+// MARK: - GeminiAPIError Unit Tests
+
+@Suite("GeminiAPIError Tests")
+struct GeminiAPIErrorTests {
+  @Test
+  func retryInfoDecodingAndDurationCalculation() throws {
+    let json = """
+      {
+        "error": {
+          "code": 429,
+          "message": "Resource exhausted",
+          "status": "RESOURCE_EXHAUSTED",
+          "details": [
+            {
+              "@type": "type.googleapis.com/google.rpc.RetryInfo",
+              "retryDelay": "12.5s"
+            }
+          ]
+        }
+      }
+      """
+
+    let error = try JSONDecoder().decode(GoogleCloudAPIError.self, from: Data(json.utf8))
+
+    #expect(error.retryDelay == .seconds(12.5))
+    #expect(error.code == 429)
+    #expect(error.status == .resourceExhausted)
+  }
+
+  @Test
+  func geminiAPIErrorRetryAfterPrecedence() {
+    let cloudErrorWithDelay = GoogleCloudAPIError(
+      code: 429,
+      message: "Quota exceeded",
+      status: .resourceExhausted,
+      details: [.retryInfo(GoogleCloudAPIError.RetryInfo(retryDelay: "30s"))]
+    )
+
+    let apiErrorWithOverride = GeminiAPIError.apiError(
+      cloudErrorWithDelay.withRetryDelay(.seconds(60)))
+    let apiErrorWithoutOverride = GeminiAPIError.apiError(cloudErrorWithDelay)
+    let httpError = GeminiAPIError.httpError(statusCode: 500, body: "Server error")
+
+    #expect(apiErrorWithOverride.retryAfter == .seconds(60))
+    #expect(apiErrorWithoutOverride.retryAfter == .seconds(30))
+    #expect(httpError.retryAfter == nil)
+  }
+
+  @Test
+  func localizedErrorAndCustomNSErrorProperties() {
+    let cloudError = GoogleCloudAPIError(
+      code: 400,
+      message: "Invalid argument message",
+      status: .invalidArgument,
+      details: [
+        .localizedMessage(
+          GoogleCloudAPIError.LocalizedMessage(
+            locale: "en-US", message: "Localized argument error")),
+        .help(
+          GoogleCloudAPIError.Help(links: [
+            GoogleCloudAPIError.Help.Link(
+              description: "Help doc", url: "https://cloud.google.com/help")
+          ])),
+      ],
+      retryDelay: .seconds(15)
+    )
+
+    let apiError = GeminiAPIError.apiError(cloudError)
+    let httpError = GeminiAPIError.httpError(statusCode: 503, body: "Service unavailable")
+
+    #expect(apiError.errorDescription == "Localized argument error")
+    #expect(apiError.failureReason == "INVALID_ARGUMENT")
+    #expect(apiError.helpAnchor == "https://cloud.google.com/help")
+    #expect(apiError.errorCode == 400)
+    #expect(GeminiAPIError.errorDomain == "GeminiAPIError")
+    #expect(apiError.errorUserInfo["code"] as? Int == 400)
+    #expect(apiError.errorUserInfo["status"] as? String == "INVALID_ARGUMENT")
+    #expect(apiError.errorUserInfo["retryAfterSeconds"] as? Double == 15.0)
+
+    #expect(httpError.errorDescription == "HTTP 503: Service unavailable")
+    #expect(httpError.failureReason == "HTTP status 503")
+    #expect(httpError.helpAnchor == nil)
+    #expect(httpError.errorCode == 503)
+    #expect(httpError.errorUserInfo["statusCode"] as? Int == 503)
+    #expect(httpError.errorUserInfo["body"] as? String == "Service unavailable")
+  }
+}
