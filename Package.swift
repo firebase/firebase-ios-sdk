@@ -53,6 +53,15 @@ let package = Package(
       ]
     ),
     .target(
+      name: "SharedDataModels"
+    ),
+    .target(
+      name: "GenerateContentDataModels",
+      dependencies: [
+        "SharedDataModels"
+      ]
+    ),
+    .target(
       name: "HTTPStreamingClient",
       swiftSettings: [
         .enableUpcomingFeature("InternalImportsByDefault"),
