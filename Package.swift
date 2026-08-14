@@ -36,6 +36,20 @@ let package = Package(
       ]
     ),
     .target(
+      name: "GeminiAPIClient",
+      dependencies: [
+        "GenerateContentDataModels",
+        "HTTPStreamingClient",
+        "SharedDataModels",
+      ]
+    ),
+    .testTarget(
+      name: "GeminiAPIClientTests",
+      dependencies: [
+        "GeminiAPIClient"
+      ]
+    ),
+    .target(
       name: "SharedDataModels"
     ),
     .target(
