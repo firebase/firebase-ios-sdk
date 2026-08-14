@@ -186,9 +186,13 @@ static const NSTimeInterval kDefaultFetchTokenInterval = 7 * 24 * 60 * 60;  // 7
   NSString *firebaseAppID = [aDecoder decodeObjectOfClass:[NSString class]
                                                    forKey:kFIRInstanceIDFirebaseAppIDKey];
 
-  NSSet *classes = [[NSSet alloc] initWithArray:@[ FIRMessagingAPNSInfo.class ]];
-  FIRMessagingAPNSInfo *rawAPNSInfo = [aDecoder decodeObjectOfClasses:classes
-                                                               forKey:kFIRInstanceIDAPNSInfoKey];
+  if ([aDecoder isKindOfClass:[NSKeyedUnarchiver class]]) {
+    [(NSKeyedUnarchiver *)aDecoder setClass:[FIRMessagingAPNSInfo class]
+                               forClassName:@"FIRInstanceIDAPNSInfo"];
+  }
+
+  NSSet *classes = [[NSSet alloc] initWithArray:@[ FIRMessagingAPNSInfo.class, NSData.class ]];
+  id rawAPNSInfo = [aDecoder decodeObjectOfClasses:classes forKey:kFIRInstanceIDAPNSInfoKey];
   if (rawAPNSInfo && ![rawAPNSInfo isKindOfClass:[FIRMessagingAPNSInfo class]]) {
     // If the decoder fails to decode a FIRMessagingAPNSInfo, check if this was archived by a
     // FirebaseMessaging 10.18.0 or earlier.
@@ -198,9 +202,10 @@ static const NSTimeInterval kDefaultFetchTokenInterval = 7 * 24 * 60 * 60;  // 7
     @try {
       NSKeyedUnarchiver *unarchiver =
           [[NSKeyedUnarchiver alloc] initForReadingFromData:(NSData *)rawAPNSInfo error:nil];
-      unarchiver.requiresSecureCoding = NO;
+      unarchiver.requiresSecureCoding = YES;
       [unarchiver setClass:[FIRMessagingAPNSInfo class] forClassName:@"FIRInstanceIDAPNSInfo"];
-      rawAPNSInfo = [unarchiver decodeObjectForKey:NSKeyedArchiveRootObjectKey];
+      rawAPNSInfo = [unarchiver decodeObjectOfClass:[FIRMessagingAPNSInfo class]
+                                             forKey:NSKeyedArchiveRootObjectKey];
       [unarchiver finishDecoding];
       needsMigration = YES;
     } @catch (NSException *exception) {

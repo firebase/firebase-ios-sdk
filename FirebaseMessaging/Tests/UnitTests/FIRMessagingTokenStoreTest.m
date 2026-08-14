@@ -48,6 +48,8 @@ static NSString *const kFakeCheckinPlistName = @"com.google.test.TestTokenStore"
 
 @interface FIRMessagingTokenStore ()
 
++ (NSString *)serviceKeyForAuthorizedEntity:(NSString *)authorizedEntity scope:(NSString *)scope;
+
 @property(nonatomic, readwrite, strong) FIRMessagingAuthKeychain *keychain;
 
 @end
@@ -151,6 +153,91 @@ static NSString *const kFakeCheckinPlistName = @"com.google.test.TestTokenStore"
               [tokenExpectation fulfill];
             }];
   [self waitForExpectationsWithTimeout:1 handler:nil];
+}
+
+/// Scenario: Tests that the actual Store class connects to the keychain and passes the right
+/// SecureCoding flags to read old data. What it does: Generates an insecure 10.19-era binary blob
+/// and injects it into the mock keychain. We then call the public `tokenInfoWithAuthorizedEntity:`
+/// API on the Token Store to prove the store itself extracts and parses the legacy keychain item.
+- (void)testTokenStoreReadsLegacyInsecureToken {
+  FIRMessagingTokenInfo *tokenInfo =
+      [[FIRMessagingTokenInfo alloc] initWithAuthorizedEntity:kAuthorizedEntity
+                                                        scope:kScope
+                                                        token:kToken
+                                                   appVersion:@"1.0"
+                                                firebaseAppID:@"firebaseAppID"
+                                                    tokenType:@"V4"];
+
+  // 1. Archive WITHOUT secure coding (simulating legacy data)
+  [NSKeyedArchiver setClassName:@"FIRInstanceIDTokenInfo" forClass:[FIRMessagingTokenInfo class]];
+  NSData *legacyArchive;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+  legacyArchive = [NSKeyedArchiver archivedDataWithRootObject:tokenInfo];
+#pragma clang diagnostic pop
+
+  // 2. Inject directly into the keychain
+  NSString *account = FIRMessagingAppIdentifier();
+  NSString *service = [FIRMessagingTokenStore serviceKeyForAuthorizedEntity:kAuthorizedEntity
+                                                                      scope:kScope];
+  XCTestExpectation *expectation = [self expectationWithDescription:@"Inject legacy token"];
+  [self.tokenStore.keychain setData:legacyArchive
+                         forService:service
+                            account:account
+                            handler:^(NSError *error) {
+                              XCTAssertNil(error);
+                              [expectation fulfill];
+                            }];
+  [self waitForExpectationsWithTimeout:1 handler:nil];
+
+  // 3. Verify that the TokenStore's public API can read and decode it!
+  FIRMessagingTokenInfo *retrievedTokenInfo =
+      [self.tokenStore tokenInfoWithAuthorizedEntity:kAuthorizedEntity scope:kScope];
+
+  XCTAssertNotNil(retrievedTokenInfo);
+  XCTAssertEqualObjects(retrievedTokenInfo.token, kToken);
+}
+
+/// Scenario: The reverse downgrade integration test.
+/// What it does: Uses the new secure `saveTokenInfo:` API to write data to the mock keychain. We
+/// then pull that binary blob out of the keychain and parse it using the deprecated
+/// `[NSKeyedUnarchiver unarchiveObjectWithData:]` API to prove that an older app version can read
+/// the bytes produced by the new SDK.
+- (void)testLegacyTokenStoreReadsSecureToken {
+  FIRMessagingTokenInfo *tokenInfo =
+      [[FIRMessagingTokenInfo alloc] initWithAuthorizedEntity:kAuthorizedEntity
+                                                        scope:kScope
+                                                        token:kToken
+                                                   appVersion:@"1.0"
+                                                firebaseAppID:@"firebaseAppID"
+                                                    tokenType:@"V4"];
+
+  // 1. Use the NEW secure coding write path
+  XCTestExpectation *tokenExpectation = [self expectationWithDescription:@"token is saved"];
+  [self.tokenStore saveTokenInfo:tokenInfo
+                         handler:^(NSError *error) {
+                           XCTAssertNil(error);
+                           [tokenExpectation fulfill];
+                         }];
+  [self waitForExpectationsWithTimeout:1 handler:nil];
+
+  // 2. Manually read it from the keychain
+  NSString *account = FIRMessagingAppIdentifier();
+  NSString *service = [FIRMessagingTokenStore serviceKeyForAuthorizedEntity:kAuthorizedEntity
+                                                                      scope:kScope];
+  NSData *secureArchive = [self.tokenStore.keychain dataForService:service account:account];
+  XCTAssertNotNil(secureArchive);
+
+  // 3. Decode it using the old `tokenInfoFromKeychainItem:` logic
+  [NSKeyedUnarchiver setClass:[FIRMessagingTokenInfo class] forClassName:@"FIRInstanceIDTokenInfo"];
+  FIRMessagingTokenInfo *downgradedInfo;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+  downgradedInfo = [NSKeyedUnarchiver unarchiveObjectWithData:secureArchive];
+#pragma clang diagnostic pop
+
+  XCTAssertNotNil(downgradedInfo);
+  XCTAssertEqualObjects(downgradedInfo.token, kToken);
 }
 
 /**
