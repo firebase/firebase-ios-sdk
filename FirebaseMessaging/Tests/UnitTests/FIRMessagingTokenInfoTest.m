@@ -171,6 +171,26 @@ static BOOL const kAPNSSandbox = NO;
 }
 @end
 
+/// **Mock 3:** Simulates a 10.18.0 payload where the raw APNS Info NSData is corrupted/garbage.
+@interface FIRMessagingTokenInfo_Legacy10Corrupt : FIRMessagingTokenInfo
+@end
+
+@implementation FIRMessagingTokenInfo_Legacy10Corrupt
+- (void)encodeWithCoder:(NSCoder *)aCoder {
+  [aCoder encodeObject:self.authorizedEntity forKey:@"authorized_entity"];
+  [aCoder encodeObject:self.scope forKey:@"scope"];
+  [aCoder encodeObject:self.token forKey:@"token"];
+  [aCoder encodeObject:self.appVersion forKey:@"app_version"];
+  [aCoder encodeObject:self.firebaseAppID forKey:@"firebase_app_id"];
+
+  // Inject garbage data as the APNSInfo archive to simulate a corrupt payload
+  NSData *garbageData = [@"corrupt_apns_data" dataUsingEncoding:NSUTF8StringEncoding];
+  [aCoder encodeObject:garbageData forKey:@"apns_info"];
+
+  [aCoder encodeObject:self.cacheTime forKey:@"cache_time"];
+}
+@end
+
 @implementation FIRMessagingTokenInfoTest
 
 - (void)setUp {
@@ -363,6 +383,49 @@ static BOOL const kAPNSSandbox = NO;
   XCTAssertNotNil(downgradedInfo);
   XCTAssertEqualObjects(downgradedInfo.token, info.token);
   XCTAssertEqualObjects(downgradedInfo.APNSInfo.deviceToken, info.APNSInfo.deviceToken);
+}
+
+/// **Scenario:** A user upgrades from a version prior to 10.19.0, but the cached APNS info
+/// data in the keychain is corrupted.
+/// **What it does:** Uses `FIRMessagingTokenInfo_Legacy10Corrupt` to write a corrupted data
+/// payload, decodes it with the new SDK, and asserts that the token info is still readable but
+/// `needsMigration` is NOT set to YES (avoiding overwriting/deleting the token on disk).
+- (void)testTokenInfoDoesNotMigrateOnCorruptedLegacyAPNSInfo {
+  FIRMessagingTokenInfo *info = self.validTokenInfo;
+  NSError *error;
+
+  // 1. Create the corrupted 10.18.0 data structure
+  FIRMessagingTokenInfo_Legacy10Corrupt *corruptInfo =
+      [[FIRMessagingTokenInfo_Legacy10Corrupt alloc] initWithAuthorizedEntity:info.authorizedEntity
+                                                                        scope:info.scope
+                                                                        token:info.token
+                                                                   appVersion:info.appVersion
+                                                                firebaseAppID:info.firebaseAppID
+                                                                    tokenType:@"V4"];
+  corruptInfo.cacheTime = info.cacheTime;
+
+  [NSKeyedArchiver setClassName:@"FIRInstanceIDTokenInfo"
+                       forClass:[FIRMessagingTokenInfo_Legacy10Corrupt class]];
+  NSData *corruptArchive;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+  corruptArchive = [NSKeyedArchiver archivedDataWithRootObject:corruptInfo];
+#pragma clang diagnostic pop
+
+  // 2. Decode securely
+  [NSKeyedUnarchiver setClass:[FIRMessagingTokenInfo class] forClassName:@"FIRInstanceIDTokenInfo"];
+  NSSet *classes = [[NSSet alloc] initWithArray:@[ FIRMessagingTokenInfo.class, NSDate.class ]];
+  FIRMessagingTokenInfo *restoredInfo = [NSKeyedUnarchiver unarchivedObjectOfClasses:classes
+                                                                            fromData:corruptArchive
+                                                                               error:&error];
+
+  XCTAssertNil(error);
+  XCTAssertNotNil(restoredInfo);
+
+  // 3. Assertions
+  XCTAssertEqualObjects(restoredInfo.token, info.token);  // Core token info should still survive
+  XCTAssertNil(restoredInfo.APNSInfo);                    // APNSInfo must fail gracefully (nil)
+  XCTAssertFalse(restoredInfo.needsMigration);  // CRITICAL: must NOT flag for destructive save
 }
 
 // Test that archiving a FIRMessagingTokenInfo object with missing fields and restoring it
