@@ -520,18 +520,26 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
   return token;
 }
 
-- (void)tokenWithCompletion:(FIRMessagingFCMTokenFetchCompletion)completion {
+- (void)tokenWithCompletion:(void (^)(NSString *_Nullable token,
+                                      NSError *_Nullable error))completion {
   FIROptions *options = FIRApp.defaultApp.options;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   [self retrieveFCMTokenForSenderID:options.GCMSenderID completion:completion];
+#pragma clang diagnostic pop
 }
 
-- (void)deleteTokenWithCompletion:(FIRMessagingDeleteFCMTokenCompletion)completion {
+- (void)deleteTokenWithCompletion:(void (^)(NSError *_Nullable error))completion {
   FIROptions *options = FIRApp.defaultApp.options;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   [self deleteFCMTokenForSenderID:options.GCMSenderID completion:completion];
+#pragma clang diagnostic pop
 }
 
 - (void)retrieveTokenOrFidForSenderID:(nonnull NSString *)senderID
-                           completion:(nullable FIRMessagingFCMTokenFetchCompletion)completion {
+                           completion:(nullable void (^)(NSString *_Nullable token,
+                                                         NSError *_Nullable error))completion {
   if (!senderID.length) {
     NSString *description = @"Couldn't fetch token because a Sender ID was not supplied. A valid "
                             @"Sender ID is required to fetch an FCM token";
@@ -567,7 +575,8 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 }
 
 - (void)retrieveFCMTokenForSenderID:(nonnull NSString *)senderID
-                         completion:(nonnull FIRMessagingFCMTokenFetchCompletion)completion {
+                         completion:(nonnull void (^)(NSString *_Nullable FCMToken,
+                                                      NSError *_Nullable error))completion {
   if (self.isInstallationIdEnabled) {
     NSString *description = @"FirebaseMessagingInstallationIdEnabled is set to YES, so FCM token "
                             @"operations are not supported.";
@@ -583,7 +592,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 }
 
 - (void)deleteFCMTokenForSenderID:(nonnull NSString *)senderID
-                       completion:(nonnull FIRMessagingDeleteFCMTokenCompletion)completion {
+                       completion:(nonnull void (^)(NSError *_Nullable error))completion {
   if (!senderID.length) {
     NSString *description = @"Couldn't delete token because a Sender ID was not supplied. A "
                             @"valid Sender ID is required to delete an FCM token";
@@ -644,11 +653,22 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
     // enabled.
     if ([self isAutoInitEnabled]) {
       // Deletion succeeds! Requesting new checkin, IID and token.
-      [self tokenWithCompletion:^(NSString *_Nullable token, NSError *_Nullable error) {
-        if (completion) {
-          completion(error);
-        }
-      }];
+      if ([self isInstallationIdEnabled]) {
+        [self registerWithCompletion:^(NSError *_Nullable error) {
+          if (completion) {
+            completion(error);
+          }
+        }];
+      } else {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+        [self tokenWithCompletion:^(NSString *_Nullable token, NSError *_Nullable error) {
+          if (completion) {
+            completion(error);
+          }
+        }];
+#pragma clang diagnostic pop
+      }
       return;
     }
     if (completion) {
@@ -679,6 +699,8 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
             self.delegate.description);
       }
     } else {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
       if (![self.delegate respondsToSelector:@selector(messaging:didReceiveRegistrationToken:)]) {
         FIRMessagingLoggerWarn(
             kFIRMessagingMessageCodeTokenDelegateMethodsNotImplemented,
@@ -688,6 +710,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
             @"token.",
             self.delegate.description);
       }
+#pragma clang diagnostic pop
     }
   }
 }
@@ -973,8 +996,11 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
     return;
   }
   FIRMessaging_WEAKIFY(self);
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   [self retrieveFCMTokenForSenderID:self.tokenManager.fcmSenderID
                          completion:^(NSString *_Nullable FCMToken, NSError *_Nullable error) {
+#pragma clang diagnostic pop
                            if (error) {
                              FIRMessagingLoggerError(kFIRMessagingMessageCodeMessaging012,
                                                      @"The unsubscription operation failed due to "
@@ -1064,14 +1090,20 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
       [self.delegate messaging:self didReceiveRegistration:self.tokenManager.defaultFCMToken];
     }
   } else {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     if ([self.delegate respondsToSelector:@selector(messaging:didReceiveRegistrationToken:)]) {
       [self.delegate messaging:self didReceiveRegistrationToken:self.tokenManager.defaultFCMToken];
     }
+#pragma clang diagnostic pop
   }
   // Should always trigger the token refresh notification when the delegate method is called
   NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   [center postNotificationName:FIRMessagingRegistrationTokenRefreshedNotification
                         object:self.tokenManager.defaultFCMToken];
+#pragma clang diagnostic pop
 }
 
 #pragma mark - Application Support Directory

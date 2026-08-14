@@ -1,4 +1,4 @@
-# Unreleased
+# 12.18.0
 - [removed] Removes unused integration with the now deprecated ObjC MetricKit API.
 
 # 12.17.0

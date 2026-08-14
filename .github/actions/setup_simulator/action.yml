@@ -1,0 +1,12 @@
+name: Setup Simulator
+description: Creates a simulator for the specified platform using the latest installed runtime.
+inputs:
+  platform:
+    description: 'Platform (iOS, tvOS, watchOS, visionOS, all)'
+    required: true
+runs:
+  using: 'composite'
+  steps:
+    - name: Setup Simulator
+      shell: bash
+      run: scripts/setup_simulator.sh "${{ inputs.platform }}"

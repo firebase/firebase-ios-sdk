@@ -383,8 +383,8 @@ func packageTargets() -> [Target] {
       ),
       .binaryTarget(
         name: "FirebaseAnalytics",
-        url: "https://dl.google.com/firebase/ios/swiftpm/12.17.0/FirebaseAnalytics.zip",
-        checksum: "e9d8457c05640706c5e80f81e46235bf929d55321a127802f8dd7a3c7a98aebb"
+        url: "https://dl.google.com/firebase/ios/swiftpm/12.18.0/FirebaseAnalytics.zip",
+        checksum: "11e4e9ec78576d71a62e1e328dd16514f00ee5667de302fd4fad43cd8f89b648"
       ),
       .testTarget(
         name: "AnalyticsSwiftUnit",
@@ -707,7 +707,6 @@ func packageTargets() -> [Target] {
 
       // MARK: - Firebase Functions
 
-      // TODO: Remove this comment before merging. Using it to trigger tests on CI.
       .target(
         name: "FirebaseFunctions",
         dependencies: [
@@ -1465,7 +1464,7 @@ func googleAppMeasurementDependency() -> Package.Dependency {
     return .package(url: appMeasurementURL, branch: "main")
   }
 
-  return .package(url: appMeasurementURL, "12.17.0" ..< "12.18.0")
+  return .package(url: appMeasurementURL, "12.18.0" ..< "12.19.0")
 }
 
 func abseilDependency() -> Package.Dependency {

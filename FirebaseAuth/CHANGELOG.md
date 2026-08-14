@@ -1,4 +1,4 @@
-# Unreleased
+# 12.18.0
 - [fixed] Fixed a bug in `PhoneAuthProvider` where the test mode logic would
   fail if multi-factor authentication was enabled. (#16438)
 - [fixed] Fixed a bug where `verifyPhoneNumber` could hit an infinite recursion
