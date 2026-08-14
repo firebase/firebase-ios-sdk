@@ -1,7 +1,6 @@
 # Unreleased
-- [fixed] Revert to using `kFPRSlowFrameThreshold` for slow frames on iOS to prevent
-  falsely classifying 60 FPS frames as slow on ProMotion devices,
-  while preserving dynamic frame rate support for tvOS.
+- [feature] Support dynamic per-frame slow frame detection for ProMotion displays (10–120 Hz) and 
+  tvOS displays using `CADisplayLink` target timestamps.
 
 # 12.16.0
 - [fixed] Fixed a crash in `FPRMemoryGaugeCollector` by collecting memory usage
