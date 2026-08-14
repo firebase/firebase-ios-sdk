@@ -27,12 +27,21 @@ let package = Package(
   ],
   targets: [
     .target(
-      name: "GeminiForFoundationModels",
+      name: "GeminiForFoundationModels"
     ),
     .testTarget(
       name: "GeminiForFoundationModelsTests",
       dependencies: [
         "GeminiForFoundationModels"
+      ]
+    ),
+    .target(
+      name: "SharedDataModels"
+    ),
+    .target(
+      name: "GenerateContentDataModels",
+      dependencies: [
+        "SharedDataModels"
       ]
     ),
     .target(
