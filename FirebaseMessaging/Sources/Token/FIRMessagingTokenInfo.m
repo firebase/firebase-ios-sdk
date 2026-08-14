@@ -191,7 +191,7 @@ static const NSTimeInterval kDefaultFetchTokenInterval = 7 * 24 * 60 * 60;  // 7
                                forClassName:@"FIRInstanceIDAPNSInfo"];
   }
 
-  NSSet *classes = [[NSSet alloc] initWithArray:@[ FIRMessagingAPNSInfo.class, NSData.class ]];
+  NSSet *classes = [NSSet setWithObjects:[FIRMessagingAPNSInfo class], [NSData class], nil];
   id rawAPNSInfo = [aDecoder decodeObjectOfClasses:classes forKey:kFIRInstanceIDAPNSInfoKey];
   if (rawAPNSInfo && ![rawAPNSInfo isKindOfClass:[FIRMessagingAPNSInfo class]]) {
     // If the decoder fails to decode a FIRMessagingAPNSInfo, check if this was archived by a
