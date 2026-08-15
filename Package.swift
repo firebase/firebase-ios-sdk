@@ -27,12 +27,27 @@ let package = Package(
   ],
   targets: [
     .target(
-      name: "GeminiForFoundationModels",
+      name: "GeminiForFoundationModels"
+    ),
+    .target(
+      name: "SharedTestUtilities",
+      path: "Tests/SharedTestUtilities"
     ),
     .testTarget(
       name: "GeminiForFoundationModelsTests",
       dependencies: [
-        "GeminiForFoundationModels"
+        "GeminiForFoundationModels",
+        "SharedTestUtilities"
+      ]
+    ),
+    .target(
+      name: "HTTPStreamingClient"
+    ),
+    .testTarget(
+      name: "HTTPStreamingClientTests",
+      dependencies: [
+        "HTTPStreamingClient",
+        "SharedTestUtilities"
       ]
     ),
   ],
