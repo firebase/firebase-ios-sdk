@@ -35,11 +35,6 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Set up Swift
-        uses: swift-actions/setup-swift@7ca6abe6b3b0e8b5421b88be48feee39cbf52c6a # v2.4.0
-        with:
-          swift-version: "6.3"
-
       - name: Build
         run: swift build -Xswiftc -warnings-as-errors
 
