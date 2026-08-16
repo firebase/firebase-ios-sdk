@@ -203,7 +203,7 @@ private final class LockedKeychainStorage: AuthKeychainStorage {
 
   func add(query: [String: Any]) -> OSStatus {
     if let accessible = query[kSecAttrAccessible as String] as? String,
-       accessible == kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly as String {
+       accessible == kSecAttrAccessibleWhenUnlocked as String {
       return errSecInteractionNotAllowed
     }
     return errSecSuccess

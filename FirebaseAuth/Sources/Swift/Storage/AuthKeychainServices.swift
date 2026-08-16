@@ -110,8 +110,6 @@ final class AuthKeychainServices: Sendable {
   /// This dictionary is to avoid unnecessary keychain operations against legacy items.
   private let legacyEntryDeletedForKey = UnfairLock<Set<String>>([])
 
-  private let isKeychainAccessibleCached = UnfairLock<Bool>(false)
-
   func data(forKey key: String) throws -> Data? {
     if let data = try getItemLegacy(query: genericPasswordQuery(key: key)) {
       return data
@@ -265,17 +263,13 @@ final class AuthKeychainServices: Sendable {
   /// `errSecItemNotFound` instead of `errSecInteractionNotAllowed` when the device is locked (e.g.
   /// during prewarming).
   private func isKeychainAccessible() -> Bool {
-    if isKeychainAccessibleCached.value() {
-      return true
-    }
-
     let dummyKey = "firebase_auth_keychain_accessibility_check"
     var query: [String: Any] = [
       kSecClass as String: kSecClassGenericPassword,
       kSecAttrAccount as String: dummyKey,
       kSecAttrService as String: service,
       kSecValueData as String: Data([0]),
-      kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly,
+      kSecAttrAccessible as String: kSecAttrAccessibleWhenUnlocked,
     ]
     query[kSecUseDataProtectionKeychain as String] = true
 
@@ -284,7 +278,6 @@ final class AuthKeychainServices: Sendable {
       return false
     }
 
-    isKeychainAccessibleCached.withLock { $0 = true }
     return true
   }
 }
