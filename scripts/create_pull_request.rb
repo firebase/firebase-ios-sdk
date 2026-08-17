@@ -52,11 +52,11 @@ BASE_BRANCH=@options[:base_branch]
 COMMIT_COMMENT=@options[:commit_comment]
 
 def generate_pr_for_target_changes(repo_root:, target_path:)
-  if system('git', 'diff', '--quiet', target_path)
-    puts "The file, #{target_path}, has no changes."
-    return
-  end
   Dir.chdir(repo_root) do
+    if system('git', 'diff', '--quiet', target_path)
+      puts "The file, #{target_path}, has no changes."
+      return
+    end
     system('git', 'checkout', '-B', BASE_BRANCH) || raise("git checkout failed")
     system('git', 'add', target_path) || raise("git add failed")
     system('git', 'commit', '-m', COMMIT_COMMENT) || raise("git commit failed")
