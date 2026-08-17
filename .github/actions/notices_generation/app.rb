@@ -82,9 +82,14 @@ def create_podfile(path: , sources: , target: , pods: [], min_ios_version: , sea
       # pod search Firebase
       # will generate
       # pod 'Firebase', '~> 9.0.0'
-      stdout, _ = Open3.capture2('pod', 'search', pod)
-      match = stdout.match(/pod '.*/)
-      output += "#{match[0]}\n" if match
+      stdout, status = Open3.capture2('pod', 'search', pod)
+      match = status.success? ? stdout.match(/pod '.*/) : nil
+      if match
+        output += "#{match[0]}\n"
+      else
+        puts "Warning: pod search failed or found no match for '#{pod}'. Falling back to unversioned pod."
+        output += "pod \'#{pod}\'\n"
+      end
     else
       output += "pod \'#{pod}\'\n"
     end

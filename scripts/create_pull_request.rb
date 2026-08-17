@@ -57,7 +57,7 @@ def generate_pr_for_target_changes(repo_root:, target_path:)
     return
   end
   Dir.chdir(repo_root) do
-    system('git', 'checkout', '-b', BASE_BRANCH) || raise("git checkout failed")
+    system('git', 'checkout', '-B', BASE_BRANCH) || raise("git checkout failed")
     system('git', 'add', target_path) || raise("git add failed")
     system('git', 'commit', '-m', COMMIT_COMMENT) || raise("git commit failed")
     system('git', 'push', '-u', 'origin', BASE_BRANCH) || raise("git push failed")
