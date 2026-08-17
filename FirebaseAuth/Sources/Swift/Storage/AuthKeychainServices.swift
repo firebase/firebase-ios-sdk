@@ -269,7 +269,7 @@ final class AuthKeychainServices: Sendable {
       kSecAttrAccount as String: dummyKey,
       kSecAttrService as String: service,
       kSecValueData as String: Data([0]),
-      kSecAttrAccessible as String: kSecAttrAccessibleWhenUnlocked,
+      kSecAttrAccessible as String: kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
     ]
     query[kSecUseDataProtectionKeychain as String] = true
 
