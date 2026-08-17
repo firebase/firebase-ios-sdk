@@ -70,8 +70,10 @@ typedef NS_ENUM(NSUInteger, FIRMessagingContextManagerMessageType) {
 @implementation FIRMessagingContextManagerService
 
 + (BOOL)isContextManagerMessage:(NSDictionary *)message {
-  // For now we only support local time in ContextManager.
-  if (![message[kFIRMessagingContextManagerLocalTimeStart] length]) {
+  // For now we only support local time in ContextManager. The start time comes
+  // straight from the untrusted push payload, so it is not necessarily a string.
+  id startTime = message[kFIRMessagingContextManagerLocalTimeStart];
+  if (![startTime isKindOfClass:[NSString class]] || ![(NSString *)startTime length]) {
     FIRMessagingLoggerDebug(
         kFIRMessagingMessageCodeContextManagerService000,
         @"Received message missing local start time, not a contextual message.");
@@ -178,32 +180,38 @@ typedef NS_ENUM(NSUInteger, FIRMessagingContextManagerMessageType) {
   UNMutableNotificationContent *content = [[UNMutableNotificationContent alloc] init];
   NSDictionary *apsDictionary = message;
 
+  // Every field below comes from the untrusted push payload, so its type is not
+  // guaranteed. Verify each before invoking type-specific selectors on it.
   // Badge is universal
-  if (apsDictionary[kFIRMessagingContextManagerBadgeKey]) {
-    content.badge = apsDictionary[kFIRMessagingContextManagerBadgeKey];
+  id badge = apsDictionary[kFIRMessagingContextManagerBadgeKey];
+  if ([badge isKindOfClass:[NSNumber class]]) {
+    content.badge = badge;
   }
 #if !TARGET_OS_TV
   // The following fields are not available on tvOS
-  if ([apsDictionary[kFIRMessagingContextManagerBodyKey] length]) {
-    content.body = apsDictionary[kFIRMessagingContextManagerBodyKey];
+  id body = apsDictionary[kFIRMessagingContextManagerBodyKey];
+  if ([body isKindOfClass:[NSString class]] && [body length]) {
+    content.body = body;
   }
 
-  if ([apsDictionary[kFIRMessagingContextManagerTitleKey] length]) {
-    content.title = apsDictionary[kFIRMessagingContextManagerTitleKey];
+  id title = apsDictionary[kFIRMessagingContextManagerTitleKey];
+  if ([title isKindOfClass:[NSString class]] && [title length]) {
+    content.title = title;
   }
 
-  if (apsDictionary[kFIRMessagingContextManagerSoundKey]) {
+  id soundName = apsDictionary[kFIRMessagingContextManagerSoundKey];
+  if ([soundName isKindOfClass:[NSString class]]) {
 #if !TARGET_OS_WATCH
     // UNNotificationSound soundNamded: is not available in watchOS
-    content.sound =
-        [UNNotificationSound soundNamed:apsDictionary[kFIRMessagingContextManagerSoundKey]];
+    content.sound = [UNNotificationSound soundNamed:soundName];
 #else   // !TARGET_OS_WATCH
     content.sound = [UNNotificationSound defaultSound];
 #endif  // !TARGET_OS_WATCH
   }
 
-  if (apsDictionary[kFIRMessagingContextManagerCategoryKey]) {
-    content.categoryIdentifier = apsDictionary[kFIRMessagingContextManagerCategoryKey];
+  id category = apsDictionary[kFIRMessagingContextManagerCategoryKey];
+  if ([category isKindOfClass:[NSString class]]) {
+    content.categoryIdentifier = category;
   }
 
   NSDictionary *userInfo = [self parseDataFromMessage:message];

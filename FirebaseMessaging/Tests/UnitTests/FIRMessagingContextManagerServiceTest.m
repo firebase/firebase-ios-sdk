@@ -87,6 +87,46 @@ API_AVAILABLE(macos(10.14))
 }
 
 /**
+ *  A start time that is not a string (a sender can put any JSON type there) must
+ *  not be treated as a contextual message, and must not crash the type check.
+ */
+- (void)testContextManagerMessage_nonStringStartTime {
+  NSDictionary *numberMessage = @{
+    kFIRMessagingContextManagerLocalTimeStart : @1623702615599207,
+  };
+  XCTAssertFalse([FIRMessagingContextManagerService isContextManagerMessage:numberMessage]);
+
+  NSDictionary *arrayMessage = @{
+    kFIRMessagingContextManagerLocalTimeStart : @[ @"2015-12-12 00:00:00" ],
+  };
+  XCTAssertFalse([FIRMessagingContextManagerService isContextManagerMessage:arrayMessage]);
+}
+
+/**
+ *  Notification content fields also come from the untrusted payload. Non-string
+ *  body/title/sound/category and a non-number badge must be ignored, not crash.
+ */
+- (void)testContentFromContextualMessage_nonStringFields {
+  NSDictionary *message = @{
+    @"gcm.notification.badge" : @"not-a-number",
+    @"gcm.notification.body" : @42,
+    @"gcm.notification.title" : @[ @"array-title" ],
+    @"gcm.notification.sound" : @1,
+    @"gcm.notification.click_action" : @{@"k" : @"v"},
+    @"google.c.cm.lt_start" : @"2021-06-15 10:30:00",
+  };
+  UNMutableNotificationContent *content =
+      [FIRMessagingContextManagerService contentFromContextualMessage:message];
+  XCTAssertNil(content.badge);
+#if TARGET_OS_IOS || TARGET_OS_OSX || TARGET_OS_WATCH
+  XCTAssertEqualObjects(content.body, @"");
+  XCTAssertEqualObjects(content.title, @"");
+  XCTAssertNil(content.sound);
+  XCTAssertEqualObjects(content.categoryIdentifier, @"");
+#endif
+}
+
+/**
  *  Context Manager message with future start date should be successfully scheduled.
  */
 - (void)testMessageWithFutureStartTime {
