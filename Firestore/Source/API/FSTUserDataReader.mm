@@ -90,8 +90,11 @@ using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::FieldMask;
 using firebase::firestore::model::FieldPath;
 using firebase::firestore::model::FieldTransform;
+using firebase::firestore::model::IsNumber;
 using firebase::firestore::model::NullValue;
 using firebase::firestore::model::NumericIncrementTransform;
+using firebase::firestore::model::NumericMaximumTransform;
+using firebase::firestore::model::NumericMinimumTransform;
 using firebase::firestore::model::ObjectValue;
 using firebase::firestore::model::ResourcePath;
 using firebase::firestore::model::ServerTimestampTransform;
@@ -611,9 +614,33 @@ NS_ASSUME_NONNULL_BEGIN
   } else if ([fieldValue isKindOfClass:[FSTNumericIncrementFieldValue class]]) {
     auto *numericIncrementFieldValue = (FSTNumericIncrementFieldValue *)fieldValue;
     auto operand = [self parsedQueryValue:numericIncrementFieldValue.operand];
+    if (!IsNumber(*operand)) {
+      ThrowInvalidArgument("Operand for increment() must be a number%s",
+                           context.FieldDescription());
+    }
     NumericIncrementTransform numeric_increment(std::move(operand));
 
     context.AddToFieldTransforms(*context.path(), std::move(numeric_increment));
+
+  } else if ([fieldValue isKindOfClass:[FSTNumericMinimumFieldValue class]]) {
+    auto *numericMinimumFieldValue = (FSTNumericMinimumFieldValue *)fieldValue;
+    auto operand = [self parsedQueryValue:numericMinimumFieldValue.operand];
+    if (!IsNumber(*operand)) {
+      ThrowInvalidArgument("Operand for minimum() must be a number%s", context.FieldDescription());
+    }
+    NumericMinimumTransform numeric_minimum(std::move(operand));
+
+    context.AddToFieldTransforms(*context.path(), std::move(numeric_minimum));
+
+  } else if ([fieldValue isKindOfClass:[FSTNumericMaximumFieldValue class]]) {
+    auto *numericMaximumFieldValue = (FSTNumericMaximumFieldValue *)fieldValue;
+    auto operand = [self parsedQueryValue:numericMaximumFieldValue.operand];
+    if (!IsNumber(*operand)) {
+      ThrowInvalidArgument("Operand for maximum() must be a number%s", context.FieldDescription());
+    }
+    NumericMaximumTransform numeric_maximum(std::move(operand));
+
+    context.AddToFieldTransforms(*context.path(), std::move(numeric_maximum));
 
   } else {
     HARD_FAIL("Unknown FIRFieldValue type: %s", NSStringFromClass([fieldValue class]));

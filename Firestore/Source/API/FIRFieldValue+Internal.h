@@ -57,7 +57,19 @@ NS_ASSUME_NONNULL_BEGIN
 /** FIRFieldValue class for number increments. */
 @interface FSTNumericIncrementFieldValue : FIRFieldValue
 - (instancetype)init NS_UNAVAILABLE;
-@property(strong, nonatomic, readonly) NSNumber *operand;
+@property(strong, nonatomic, readonly) id operand;
+@end
+
+/** FIRFieldValue class for number minimums. */
+@interface FSTNumericMinimumFieldValue : FIRFieldValue
+- (instancetype)init NS_UNAVAILABLE;
+@property(strong, nonatomic, readonly) id operand;
+@end
+
+/** FIRFieldValue class for number maximums. */
+@interface FSTNumericMaximumFieldValue : FIRFieldValue
+- (instancetype)init NS_UNAVAILABLE;
+@property(strong, nonatomic, readonly) id operand;
 @end
 
 NS_ASSUME_NONNULL_END

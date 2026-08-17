@@ -59,6 +59,8 @@ class TransformOperation {
     ArrayUnion,
     ArrayRemove,
     Increment,
+    Minimum,
+    Maximum,
   };
 
   TransformOperation() = default;
@@ -215,6 +217,50 @@ class NumericIncrementTransform : public TransformOperation {
    * isn't actually Type::Increment.
    */
   explicit NumericIncrementTransform(const TransformOperation& op);
+
+  const google_firestore_v1_Value& operand() const;
+
+ private:
+  class Rep;
+};
+
+/**
+ * Implements the backend semantics for locally computed MINIMUM
+ * transforms.
+ */
+class NumericMinimumTransform : public TransformOperation {
+ public:
+  explicit NumericMinimumTransform(
+      nanopb::Message<google_firestore_v1_Value> operand);
+
+  /**
+   * Casts a TransformOperation to a NumericMinimumTransform. This is a
+   * checked operation that will assert if the type of the TransformOperation
+   * isn't actually Type::Minimum.
+   */
+  explicit NumericMinimumTransform(const TransformOperation& op);
+
+  const google_firestore_v1_Value& operand() const;
+
+ private:
+  class Rep;
+};
+
+/**
+ * Implements the backend semantics for locally computed MAXIMUM
+ * transforms.
+ */
+class NumericMaximumTransform : public TransformOperation {
+ public:
+  explicit NumericMaximumTransform(
+      nanopb::Message<google_firestore_v1_Value> operand);
+
+  /**
+   * Casts a TransformOperation to a NumericMaximumTransform. This is a
+   * checked operation that will assert if the type of the TransformOperation
+   * isn't actually Type::Maximum.
+   */
+  explicit NumericMaximumTransform(const TransformOperation& op);
 
   const google_firestore_v1_Value& operand() const;
 

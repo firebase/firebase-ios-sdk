@@ -17,6 +17,8 @@
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
+@class FIRDecimal128Value;
+@class FIRInt32Value;
 @class FIRVectorValue;
 
 /**
@@ -91,6 +93,140 @@ NS_SWIFT_NAME(FieldValue)
  * @return The `FieldValue` sentinel for use in a call to `setData()` or `updateData()`.
  */
 + (instancetype)fieldValueForIntegerIncrement:(int64_t)l NS_SWIFT_NAME(increment(_:));
+
+/**
+ * Returns a special value that can be used with `setData()` or `updateData()` that tells the server
+ * to increment the field's current value by the given 32-bit integer value.
+ *
+ * If the current field value is a 32-bit integer, possible integer overflows are resolved to
+ * INT32_MAX or INT32_MIN. If the current field value is an integer, possible integer overflows are
+ * resolved to LONG_MAX or LONG_MIN. If the current field value is a double, both values will be
+ * interpreted as doubles and the arithmetic will follow IEEE 754 semantics.
+ *
+ * If field is not a number, or if the field does not yet exist, the transformation
+ * will set the field to the given value.
+ *
+ * @param int32 The 32-bit integer value to increment by.
+ * @return The `FieldValue` sentinel for use in a call to `setData()` or `updateData()`.
+ */
++ (instancetype)fieldValueForInt32Increment:(FIRInt32Value *)int32 NS_SWIFT_NAME(increment(_:));
+
+/**
+ * Returns a special value that can be used with `setData()` or `updateData()` that tells the server
+ * to increment the field's current value by the given 128-bit decimal floating point value.
+ *
+ * Note: For local latency-compensated evaluation, 128-bit decimal arithmetic is approximated
+ * using standard 64-bit floating point arithmetic until the mutation is acknowledged and
+ * finalized with full precision by the server.
+ *
+ * If field is not a number, or if the field does not yet exist, the transformation
+ * will set the field to the given value.
+ *
+ * @param decimal128 The 128-bit decimal floating point value to increment by.
+ * @return The `FieldValue` sentinel for use in a call to `setData()` or `updateData()`.
+ */
++ (instancetype)fieldValueForDecimal128Increment:(FIRDecimal128Value *)decimal128
+    NS_SWIFT_NAME(increment(_:));
+
+/**
+ * Returns a special value that can be used with `setData()` or `updateData()` that tells the server
+ * to set the field to the minimum of its current value and the given double value.
+ *
+ * If the field is not a number, or if the field does not yet exist, the transformation will set the
+ * field to the given value.
+ *
+ * @param d The double value to compare.
+ * @return The `FieldValue` sentinel for use in a call to `setData()` or `updateData()`.
+ */
++ (instancetype)fieldValueForDoubleMinimum:(double)d NS_SWIFT_NAME(minimum(_:));
+
+/**
+ * Returns a special value that can be used with `setData()` or `updateData()` that tells the server
+ * to set the field to the minimum of its current value and the given integer value.
+ *
+ * If the field is not a number, or if the field does not yet exist, the transformation will set the
+ * field to the given value.
+ *
+ * @param l The integer value to compare.
+ * @return The `FieldValue` sentinel for use in a call to `setData()` or `updateData()`.
+ */
++ (instancetype)fieldValueForIntegerMinimum:(int64_t)l NS_SWIFT_NAME(minimum(_:));
+
+/**
+ * Returns a special value that can be used with `setData()` or `updateData()` that tells the server
+ * to set the field to the minimum of its current value and the given 32-bit integer value.
+ *
+ * If the field is not a number, or if the field does not yet exist, the transformation will set the
+ * field to the given value.
+ *
+ * @param int32 The 32-bit integer value to compare.
+ * @return The `FieldValue` sentinel for use in a call to `setData()` or `updateData()`.
+ */
++ (instancetype)fieldValueForInt32Minimum:(FIRInt32Value *)int32 NS_SWIFT_NAME(minimum(_:));
+
+/**
+ * Returns a special value that can be used with `setData()` or `updateData()` that tells the server
+ * to set the field to the minimum of its current value and the given 128-bit decimal floating point
+ * value.
+ *
+ * If the field is not a number, or if the field does not yet exist, the transformation will set the
+ * field to the given value.
+ *
+ * @param decimal128 The 128-bit decimal floating point value to compare.
+ * @return The `FieldValue` sentinel for use in a call to `setData()` or `updateData()`.
+ */
++ (instancetype)fieldValueForDecimal128Minimum:(FIRDecimal128Value *)decimal128
+    NS_SWIFT_NAME(minimum(_:));
+
+/**
+ * Returns a special value that can be used with `setData()` or `updateData()` that tells the server
+ * to set the field to the maximum of its current value and the given double value.
+ *
+ * If the field is not a number, or if the field does not yet exist, the transformation will set the
+ * field to the given value.
+ *
+ * @param d The double value to compare.
+ * @return The `FieldValue` sentinel for use in a call to `setData()` or `updateData()`.
+ */
++ (instancetype)fieldValueForDoubleMaximum:(double)d NS_SWIFT_NAME(maximum(_:));
+
+/**
+ * Returns a special value that can be used with `setData()` or `updateData()` that tells the server
+ * to set the field to the maximum of its current value and the given integer value.
+ *
+ * If the field is not a number, or if the field does not yet exist, the transformation will set the
+ * field to the given value.
+ *
+ * @param l The integer value to compare.
+ * @return The `FieldValue` sentinel for use in a call to `setData()` or `updateData()`.
+ */
++ (instancetype)fieldValueForIntegerMaximum:(int64_t)l NS_SWIFT_NAME(maximum(_:));
+
+/**
+ * Returns a special value that can be used with `setData()` or `updateData()` that tells the server
+ * to set the field to the maximum of its current value and the given 32-bit integer value.
+ *
+ * If the field is not a number, or if the field does not yet exist, the transformation will set the
+ * field to the given value.
+ *
+ * @param int32 The 32-bit integer value to compare.
+ * @return The `FieldValue` sentinel for use in a call to `setData()` or `updateData()`.
+ */
++ (instancetype)fieldValueForInt32Maximum:(FIRInt32Value *)int32 NS_SWIFT_NAME(maximum(_:));
+
+/**
+ * Returns a special value that can be used with `setData()` or `updateData()` that tells the server
+ * to set the field to the maximum of its current value and the given 128-bit decimal floating point
+ * value.
+ *
+ * If the field is not a number, or if the field does not yet exist, the transformation will set the
+ * field to the given value.
+ *
+ * @param decimal128 The 128-bit decimal floating point value to compare.
+ * @return The `FieldValue` sentinel for use in a call to `setData()` or `updateData()`.
+ */
++ (instancetype)fieldValueForDecimal128Maximum:(FIRDecimal128Value *)decimal128
+    NS_SWIFT_NAME(maximum(_:));
 
 /**
  * Creates a new `VectorValue` constructed with a copy of the given array of NSNumbers.

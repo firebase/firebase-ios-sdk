@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#import <FirebaseFirestore/FIRDecimal128Value.h>
+#import <FirebaseFirestore/FIRInt32Value.h>
 #import <FirebaseFirestore/FirebaseFirestore.h>
 
 #import <XCTest/XCTest.h>
@@ -213,6 +215,131 @@ double DOUBLE_EPSILON = 0.000001;
   [self enableNetwork];
   snap = [_accumulator awaitRemoteEvent];
   XCTAssertEqualWithAccuracy(0.111, [snap[@"sum"] doubleValue], DOUBLE_EPSILON);
+}
+
+- (void)testNumericIncrementWithBsonTypes {
+  [self writeInitialData:@{
+    @"i32" : [[FIRInt32Value alloc] initWithValue:10],
+    @"d128" : [[FIRDecimal128Value alloc] initWithValue:@"10.5"]
+  }];
+  [self updateDocumentRef:_docRef
+                     data:@{
+                       @"i32" : [FIRFieldValue
+                           fieldValueForInt32Increment:[[FIRInt32Value alloc] initWithValue:5]],
+                       @"d128" : [FIRFieldValue
+                           fieldValueForDecimal128Increment:[[FIRDecimal128Value alloc]
+                                                                initWithValue:@"5.5"]]
+                     }];
+  FIRDocumentSnapshot *snap = [_accumulator awaitLocalEvent];
+  XCTAssertEqualObjects([[FIRInt32Value alloc] initWithValue:15], snap[@"i32"]);
+  XCTAssertEqualObjects([[FIRDecimal128Value alloc] initWithValue:@"16"], snap[@"d128"]);
+  snap = [_accumulator awaitRemoteEvent];
+  XCTAssertEqualObjects([[FIRInt32Value alloc] initWithValue:15], snap[@"i32"]);
+  XCTAssertEqualObjects([[FIRDecimal128Value alloc] initWithValue:@"16"], snap[@"d128"]);
+}
+
+- (void)testNumericMinimumAndMaximumWithBsonTypes {
+  [self writeInitialData:@{
+    @"min_i32" : [[FIRInt32Value alloc] initWithValue:10],
+    @"min_d128" : [[FIRDecimal128Value alloc] initWithValue:@"10.5"],
+    @"max_i32" : [[FIRInt32Value alloc] initWithValue:10],
+    @"max_d128" : [[FIRDecimal128Value alloc] initWithValue:@"10.5"]
+  }];
+
+  // First pass: larger operand for min (retains base), smaller operand for max (retains base)
+  [self
+      updateDocumentRef:_docRef
+                   data:@{
+                     @"min_i32" : [FIRFieldValue
+                         fieldValueForInt32Minimum:[[FIRInt32Value alloc] initWithValue:15]],
+                     @"min_d128" :
+                         [FIRFieldValue fieldValueForDecimal128Minimum:[[FIRDecimal128Value alloc]
+                                                                           initWithValue:@"15.5"]],
+                     @"max_i32" : [FIRFieldValue
+                         fieldValueForInt32Maximum:[[FIRInt32Value alloc] initWithValue:5]],
+                     @"max_d128" :
+                         [FIRFieldValue fieldValueForDecimal128Maximum:[[FIRDecimal128Value alloc]
+                                                                           initWithValue:@"5.5"]]
+                   }];
+  FIRDocumentSnapshot *snap = [_accumulator awaitLocalEvent];
+  XCTAssertEqualObjects([[FIRInt32Value alloc] initWithValue:10], snap[@"min_i32"]);
+  XCTAssertEqualObjects([[FIRDecimal128Value alloc] initWithValue:@"10.5"], snap[@"min_d128"]);
+  XCTAssertEqualObjects([[FIRInt32Value alloc] initWithValue:10], snap[@"max_i32"]);
+  XCTAssertEqualObjects([[FIRDecimal128Value alloc] initWithValue:@"10.5"], snap[@"max_d128"]);
+  snap = [_accumulator awaitRemoteEvent];
+  XCTAssertEqualObjects([[FIRInt32Value alloc] initWithValue:10], snap[@"min_i32"]);
+  XCTAssertEqualObjects([[FIRDecimal128Value alloc] initWithValue:@"10.5"], snap[@"min_d128"]);
+  XCTAssertEqualObjects([[FIRInt32Value alloc] initWithValue:10], snap[@"max_i32"]);
+  XCTAssertEqualObjects([[FIRDecimal128Value alloc] initWithValue:@"10.5"], snap[@"max_d128"]);
+
+  // Second pass: smaller operand for min (replaces base), larger operand for max (replaces base)
+  [self updateDocumentRef:_docRef
+                     data:@{
+                       @"min_i32" : [FIRFieldValue
+                           fieldValueForInt32Minimum:[[FIRInt32Value alloc] initWithValue:5]],
+                       @"min_d128" :
+                           [FIRFieldValue fieldValueForDecimal128Minimum:[[FIRDecimal128Value alloc]
+                                                                             initWithValue:@"5.5"]],
+                       @"max_i32" : [FIRFieldValue
+                           fieldValueForInt32Maximum:[[FIRInt32Value alloc] initWithValue:15]],
+                       @"max_d128" : [FIRFieldValue
+                           fieldValueForDecimal128Maximum:[[FIRDecimal128Value alloc]
+                                                              initWithValue:@"15.5"]]
+                     }];
+  snap = [_accumulator awaitLocalEvent];
+  XCTAssertEqualObjects([[FIRInt32Value alloc] initWithValue:5], snap[@"min_i32"]);
+  XCTAssertEqualObjects([[FIRDecimal128Value alloc] initWithValue:@"5.5"], snap[@"min_d128"]);
+  XCTAssertEqualObjects([[FIRInt32Value alloc] initWithValue:15], snap[@"max_i32"]);
+  XCTAssertEqualObjects([[FIRDecimal128Value alloc] initWithValue:@"15.5"], snap[@"max_d128"]);
+  snap = [_accumulator awaitRemoteEvent];
+  XCTAssertEqualObjects([[FIRInt32Value alloc] initWithValue:5], snap[@"min_i32"]);
+  XCTAssertEqualObjects([[FIRDecimal128Value alloc] initWithValue:@"5.5"], snap[@"min_d128"]);
+  XCTAssertEqualObjects([[FIRInt32Value alloc] initWithValue:15], snap[@"max_i32"]);
+  XCTAssertEqualObjects([[FIRDecimal128Value alloc] initWithValue:@"15.5"], snap[@"max_d128"]);
+}
+
+- (void)testNumericTransformsConcurrentMixed {
+  [self writeInitialData:@{
+    @"min_field" : [[FIRInt32Value alloc] initWithValue:10],
+    @"max_field" : [[FIRDecimal128Value alloc] initWithValue:@"10.5"],
+    @"inc_field" : [[FIRInt32Value alloc] initWithValue:20]
+  }];
+
+  [self updateDocumentRef:_docRef
+                     data:@{
+                       @"min_field" : [FIRFieldValue fieldValueForDoubleMinimum:5.5],
+                       @"max_field" : [FIRFieldValue fieldValueForIntegerMaximum:15],
+                       @"inc_field" : [FIRFieldValue
+                           fieldValueForDecimal128Increment:[[FIRDecimal128Value alloc]
+                                                                initWithValue:@"2.5"]]
+                     }];
+  FIRDocumentSnapshot *snap = [_accumulator awaitLocalEvent];
+  XCTAssertEqualWithAccuracy(5.5, [snap[@"min_field"] doubleValue], DOUBLE_EPSILON);
+  XCTAssertEqualObjects(@15, snap[@"max_field"]);
+  XCTAssertEqualObjects([[FIRDecimal128Value alloc] initWithValue:@"22.5"], snap[@"inc_field"]);
+  snap = [_accumulator awaitRemoteEvent];
+  XCTAssertEqualWithAccuracy(5.5, [snap[@"min_field"] doubleValue], DOUBLE_EPSILON);
+  XCTAssertEqualObjects(@15, snap[@"max_field"]);
+  XCTAssertEqualObjects([[FIRDecimal128Value alloc] initWithValue:@"22.5"], snap[@"inc_field"]);
+
+  [self updateDocumentRef:_docRef
+                     data:@{
+                       @"min_field" :
+                           [FIRFieldValue fieldValueForDecimal128Minimum:[[FIRDecimal128Value alloc]
+                                                                             initWithValue:@"2.5"]],
+                       @"max_field" : [FIRFieldValue
+                           fieldValueForInt32Maximum:[[FIRInt32Value alloc] initWithValue:20]],
+                       @"inc_field" : [FIRFieldValue
+                           fieldValueForInt32Increment:[[FIRInt32Value alloc] initWithValue:10]]
+                     }];
+  snap = [_accumulator awaitLocalEvent];
+  XCTAssertEqualObjects([[FIRDecimal128Value alloc] initWithValue:@"2.5"], snap[@"min_field"]);
+  XCTAssertEqualObjects([[FIRInt32Value alloc] initWithValue:20], snap[@"max_field"]);
+  XCTAssertEqualObjects([[FIRDecimal128Value alloc] initWithValue:@"32.5"], snap[@"inc_field"]);
+  snap = [_accumulator awaitRemoteEvent];
+  XCTAssertEqualObjects([[FIRDecimal128Value alloc] initWithValue:@"2.5"], snap[@"min_field"]);
+  XCTAssertEqualObjects([[FIRInt32Value alloc] initWithValue:20], snap[@"max_field"]);
+  XCTAssertEqualObjects([[FIRDecimal128Value alloc] initWithValue:@"32.5"], snap[@"inc_field"]);
 }
 
 @end

@@ -39,6 +39,10 @@
   return self.value == other.value;
 }
 
+- (NSUInteger)hash {
+  return (NSUInteger)self.value;
+}
+
 - (id)copyWithZone:(__unused NSZone *_Nullable)zone {
   return [[FIRInt32Value alloc] initWithValue:self.value];
 }

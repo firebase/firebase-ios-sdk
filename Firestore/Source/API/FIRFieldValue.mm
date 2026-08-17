@@ -15,6 +15,8 @@
  */
 
 #import "Firestore/Source/API/FIRFieldValue+Internal.h"
+#import "Firestore/Source/Public/FirebaseFirestore/FIRDecimal128Value.h"
+#import "Firestore/Source/Public/FirebaseFirestore/FIRInt32Value.h"
 #import "Firestore/Source/Public/FirebaseFirestore/FIRVectorValue.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -101,6 +103,21 @@ NS_ASSUME_NONNULL_BEGIN
   return @"FieldValue.arrayUnion()";
 }
 
+- (BOOL)isEqual:(nullable id)object {
+  if (self == object) {
+    return YES;
+  }
+  if (![object isKindOfClass:[FSTArrayUnionFieldValue class]]) {
+    return NO;
+  }
+  FSTArrayUnionFieldValue *other = (FSTArrayUnionFieldValue *)object;
+  return [self.elements isEqualToArray:other.elements];
+}
+
+- (NSUInteger)hash {
+  return [self.elements hash];
+}
+
 @end
 
 #pragma mark - FSTArrayRemoveFieldValue
@@ -121,17 +138,32 @@ NS_ASSUME_NONNULL_BEGIN
   return @"FieldValue.arrayRemove()";
 }
 
+- (BOOL)isEqual:(nullable id)object {
+  if (self == object) {
+    return YES;
+  }
+  if (![object isKindOfClass:[FSTArrayRemoveFieldValue class]]) {
+    return NO;
+  }
+  FSTArrayRemoveFieldValue *other = (FSTArrayRemoveFieldValue *)object;
+  return [self.elements isEqualToArray:other.elements];
+}
+
+- (NSUInteger)hash {
+  return [self.elements hash];
+}
+
 @end
 
 #pragma mark - FSTNumericIncrementFieldValue
 
 /* FieldValue class for increment() transforms. */
 @interface FSTNumericIncrementFieldValue ()
-- (instancetype)initWithOperand:(NSNumber *)operand;
+- (instancetype)initWithOperand:(id)operand;
 @end
 
 @implementation FSTNumericIncrementFieldValue
-- (instancetype)initWithOperand:(NSNumber *)operand {
+- (instancetype)initWithOperand:(id)operand {
   if (self = [super initPrivate]) {
     _operand = operand;
   }
@@ -140,6 +172,93 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSString *)methodName {
   return @"FieldValue.increment()";
+}
+
+- (BOOL)isEqual:(nullable id)object {
+  if (self == object) {
+    return YES;
+  }
+  if (![object isKindOfClass:[FSTNumericIncrementFieldValue class]]) {
+    return NO;
+  }
+  FSTNumericIncrementFieldValue *other = (FSTNumericIncrementFieldValue *)object;
+  return [self.operand isEqual:other.operand];
+}
+
+- (NSUInteger)hash {
+  return [self.operand hash];
+}
+
+@end
+
+#pragma mark - FSTNumericMinimumFieldValue
+
+/* FieldValue class for minimum() transforms. */
+@interface FSTNumericMinimumFieldValue ()
+- (instancetype)initWithOperand:(id)operand;
+@end
+
+@implementation FSTNumericMinimumFieldValue
+- (instancetype)initWithOperand:(id)operand {
+  if (self = [super initPrivate]) {
+    _operand = operand;
+  }
+  return self;
+}
+
+- (NSString *)methodName {
+  return @"FieldValue.minimum()";
+}
+
+- (BOOL)isEqual:(nullable id)object {
+  if (self == object) {
+    return YES;
+  }
+  if (![object isKindOfClass:[FSTNumericMinimumFieldValue class]]) {
+    return NO;
+  }
+  FSTNumericMinimumFieldValue *other = (FSTNumericMinimumFieldValue *)object;
+  return [self.operand isEqual:other.operand];
+}
+
+- (NSUInteger)hash {
+  return [self.operand hash];
+}
+
+@end
+
+#pragma mark - FSTNumericMaximumFieldValue
+
+/* FieldValue class for maximum() transforms. */
+@interface FSTNumericMaximumFieldValue ()
+- (instancetype)initWithOperand:(id)operand;
+@end
+
+@implementation FSTNumericMaximumFieldValue
+- (instancetype)initWithOperand:(id)operand {
+  if (self = [super initPrivate]) {
+    _operand = operand;
+  }
+  return self;
+}
+
+- (NSString *)methodName {
+  return @"FieldValue.maximum()";
+}
+
+- (BOOL)isEqual:(nullable id)object {
+  if (self == object) {
+    return YES;
+  }
+  if (![object isKindOfClass:[FSTNumericMaximumFieldValue class]]) {
+    return NO;
+  }
+  FSTNumericMaximumFieldValue *other = (FSTNumericMaximumFieldValue *)object;
+  return [self.operand isEqual:other.operand];
+}
+
+- (NSUInteger)hash {
+  return [self.operand hash];
 }
 
 @end
@@ -175,6 +294,46 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (instancetype)fieldValueForIntegerIncrement:(int64_t)l {
   return [[FSTNumericIncrementFieldValue alloc] initWithOperand:@(l)];
+}
+
++ (instancetype)fieldValueForInt32Increment:(FIRInt32Value *)int32 {
+  return [[FSTNumericIncrementFieldValue alloc] initWithOperand:int32];
+}
+
++ (instancetype)fieldValueForDecimal128Increment:(FIRDecimal128Value *)decimal128 {
+  return [[FSTNumericIncrementFieldValue alloc] initWithOperand:decimal128];
+}
+
++ (instancetype)fieldValueForDoubleMinimum:(double)d {
+  return [[FSTNumericMinimumFieldValue alloc] initWithOperand:@(d)];
+}
+
++ (instancetype)fieldValueForIntegerMinimum:(int64_t)l {
+  return [[FSTNumericMinimumFieldValue alloc] initWithOperand:@(l)];
+}
+
++ (instancetype)fieldValueForInt32Minimum:(FIRInt32Value *)int32 {
+  return [[FSTNumericMinimumFieldValue alloc] initWithOperand:int32];
+}
+
++ (instancetype)fieldValueForDecimal128Minimum:(FIRDecimal128Value *)decimal128 {
+  return [[FSTNumericMinimumFieldValue alloc] initWithOperand:decimal128];
+}
+
++ (instancetype)fieldValueForDoubleMaximum:(double)d {
+  return [[FSTNumericMaximumFieldValue alloc] initWithOperand:@(d)];
+}
+
++ (instancetype)fieldValueForIntegerMaximum:(int64_t)l {
+  return [[FSTNumericMaximumFieldValue alloc] initWithOperand:@(l)];
+}
+
++ (instancetype)fieldValueForInt32Maximum:(FIRInt32Value *)int32 {
+  return [[FSTNumericMaximumFieldValue alloc] initWithOperand:int32];
+}
+
++ (instancetype)fieldValueForDecimal128Maximum:(FIRDecimal128Value *)decimal128 {
+  return [[FSTNumericMaximumFieldValue alloc] initWithOperand:decimal128];
 }
 
 + (nonnull FIRVectorValue *)vectorWithArray:(nonnull NSArray<NSNumber *> *)array {

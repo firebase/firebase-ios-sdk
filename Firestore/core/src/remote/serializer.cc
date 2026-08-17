@@ -92,6 +92,8 @@ using model::MutationResult;
 using model::NaNValue;
 using model::NullValue;
 using model::NumericIncrementTransform;
+using model::NumericMaximumTransform;
+using model::NumericMinimumTransform;
 using model::ObjectValue;
 using model::PatchMutation;
 using model::Precondition;
@@ -576,7 +578,25 @@ Serializer::EncodeFieldTransform(const FieldTransform& field_transform) const {
           google_firestore_v1_DocumentTransform_FieldTransform_increment_tag;
       const auto& increment = static_cast<const NumericIncrementTransform&>(
           field_transform.transformation());
-      proto.increment = increment.operand();
+      proto.increment = *DeepClone(increment.operand()).release();
+      return proto;
+    }
+
+    case Type::Minimum: {
+      proto.which_transform_type =
+          google_firestore_v1_DocumentTransform_FieldTransform_minimum_tag;
+      const auto& minimum = static_cast<const NumericMinimumTransform&>(
+          field_transform.transformation());
+      proto.minimum = *DeepClone(minimum.operand()).release();
+      return proto;
+    }
+
+    case Type::Maximum: {
+      proto.which_transform_type =
+          google_firestore_v1_DocumentTransform_FieldTransform_maximum_tag;
+      const auto& maximum = static_cast<const NumericMaximumTransform&>(
+          field_transform.transformation());
+      proto.maximum = *DeepClone(maximum.operand()).release();
       return proto;
     }
   }
@@ -617,14 +637,32 @@ FieldTransform Serializer::DecodeFieldTransform(
                          MakeMessage(proto.remove_all_from_array)));
       // Release field ownership to prevent double-freeing. The values are now
       // owned by the FieldTransform.
-      proto.append_missing_elements = {};
+      proto.remove_all_from_array = {};
       return field_transform;
     }
 
     case google_firestore_v1_DocumentTransform_FieldTransform_increment_tag: {
-      return FieldTransform(
+      FieldTransform field_transform(
           std::move(field),
           NumericIncrementTransform(MakeMessage(proto.increment)));
+      proto.increment = {};
+      return field_transform;
+    }
+
+    case google_firestore_v1_DocumentTransform_FieldTransform_minimum_tag: {
+      FieldTransform field_transform(
+          std::move(field),
+          NumericMinimumTransform(MakeMessage(proto.minimum)));
+      proto.minimum = {};
+      return field_transform;
+    }
+
+    case google_firestore_v1_DocumentTransform_FieldTransform_maximum_tag: {
+      FieldTransform field_transform(
+          std::move(field),
+          NumericMaximumTransform(MakeMessage(proto.maximum)));
+      proto.maximum = {};
+      return field_transform;
     }
   }
 
