@@ -1,0 +1,138 @@
+// Copyright 2026 Google LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package import Foundation
+
+#if canImport(FoundationNetworking)
+  package import FoundationNetworking
+#endif
+
+// MARK: - Mock HTTP URL Protocol
+
+/// A custom `URLProtocol` for mocking network responses across package test targets.
+package final class MockHTTPURLProtocol: URLProtocol {
+  /// The closure signature for handling intercepted requests.
+  package typealias Handler = @Sendable (URLRequest, MockHTTPURLProtocol) throws -> Void
+
+  private static let handlers = LockProtected<[String: Handler]>([:])
+
+  /// Registers a mock response handler for the specified URL.
+  ///
+  /// - Parameters:
+  ///   - url: The target URL to intercept.
+  ///   - handler: The closure executed when a request matches the URL.
+  package static func setHandler(for url: URL, _ handler: @escaping Handler) {
+    setHandler(for: url.absoluteString, handler)
+  }
+
+  /// Registers a mock response handler for the specified URL string.
+  ///
+  /// - Parameters:
+  ///   - urlString: The target URL string to intercept.
+  ///   - handler: The closure executed when a request matches the URL string.
+  package static func setHandler(for urlString: String, _ handler: @escaping Handler) {
+    handlers.withLock { $0[urlString] = handler }
+  }
+
+  /// Clears all registered request handlers.
+  package static func reset() {
+    handlers.withLock { $0.removeAll() }
+  }
+
+  /// Determines whether this protocol can handle the given request.
+  ///
+  /// - Parameter request: The proposed request.
+  /// - Returns: Always `true` for all intercepted requests.
+  override package class func canInit(with request: URLRequest) -> Bool {
+    true
+  }
+
+  /// Returns the canonical version of the given request.
+  ///
+  /// - Parameter request: The request to canonicalize.
+  /// - Returns: The unmodified request.
+  override package class func canonicalRequest(for request: URLRequest) -> URLRequest {
+    request
+  }
+
+  /// Starts loading the mocked request using the registered handler.
+  override package func startLoading() {
+    let handler: Handler? = {
+      guard let urlString = request.url?.absoluteString else { return nil }
+      return MockHTTPURLProtocol.handlers.withLock { $0[urlString] }
+    }()
+
+    guard let handler else {
+      client?.urlProtocol(self, didFailWithError: URLError(.badURL))
+      return
+    }
+
+    do {
+      try handler(request, self)
+    } catch {
+      client?.urlProtocol(self, didFailWithError: error)
+    }
+  }
+
+  /// Stops loading the mocked request.
+  override package func stopLoading() {
+    client?.urlProtocol(self, didFailWithError: URLError(.cancelled))
+  }
+}
+
+// MARK: - URLRequest Body Helper
+
+extension URLRequest {
+  /// Reads the body data from either `httpBody` or `httpBodyStream`.
+  package var httpBodyData: Data? {
+    if let httpBody {
+      return httpBody
+    }
+    guard let stream = httpBodyStream else {
+      return nil
+    }
+    stream.open()
+    defer { stream.close() }
+    var data = Data()
+    let bufferSize = 1024
+    let buffer = UnsafeMutablePointer<UInt8>.allocate(capacity: bufferSize)
+    defer { buffer.deallocate() }
+    while case let read = stream.read(buffer, maxLength: bufferSize), read > 0 {
+      data.append(buffer, count: read)
+    }
+    return data
+  }
+}
+
+// MARK: - Lock Protected Container
+
+/// A thread-safe container for mutable state.
+///
+/// Safety: This class uses an `NSLock` to serialize all access to the underlying `state`.
+/// It is marked `@unchecked Sendable` because the compiler cannot verify `NSLock` isolation,
+/// but data-race safety is manually guaranteed.
+private final class LockProtected<State>: @unchecked Sendable {
+  private let lock = NSLock()
+  private var state: State
+
+  init(_ initialState: State) {
+    self.state = initialState
+  }
+
+  func withLock<Result>(_ body: (inout State) throws -> Result) rethrows -> Result {
+    lock.lock()
+    defer { lock.unlock() }
+    return try body(&state)
+  }
+}
