@@ -25,9 +25,19 @@ let package = Package(
       targets: ["GeminiForFoundationModels"]
     )
   ],
+  traits: [
+    /// The `DirectGeminiDeveloperAPIAccess` trait enables direct API key initializers for standalone usage.
+    /// iOS/macOS app developers MUST NOT enable this trait, and should instead use Firebase AI Logic
+    /// to securely proxy requests without shipping API keys in their apps.
+    .trait(name: "DirectGeminiDeveloperAPIAccess"),
+    .default(enabledTraits: ["DirectGeminiDeveloperAPIAccess"]),
+  ],
   targets: [
     .target(
-      name: "GeminiForFoundationModels"
+      name: "GeminiForFoundationModels",
+      dependencies: [
+        "GeminiAPIClient"
+      ]
     ),
     .testTarget(
       name: "GeminiForFoundationModelsTests",
