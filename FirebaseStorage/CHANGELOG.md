@@ -1,3 +1,7 @@
+# Unreleased
+- [fixed] Fixed an issue where constructing a download URL could fail or produce
+  an invalid path if the storage bucket name contained special characters. (#16529)
+
 # 12.17.0
 - [changed] Enforced stricter transport layer security when using the emulator: Auth and AppCheck
   tokens are no longer attached to outbound requests if the connection is made over HTTP to a
