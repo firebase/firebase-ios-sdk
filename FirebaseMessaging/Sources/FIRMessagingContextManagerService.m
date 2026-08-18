@@ -84,7 +84,13 @@ typedef NS_ENUM(NSUInteger, FIRMessagingContextManagerMessageType) {
 }
 
 + (BOOL)handleContextManagerMessage:(NSDictionary *)message {
-  NSString *startTimeString = message[kFIRMessagingContextManagerLocalTimeStart];
+  // The start time comes straight from the untrusted push payload, so it is not
+  // necessarily a string.
+  id startTime = message[kFIRMessagingContextManagerLocalTimeStart];
+  if (![startTime isKindOfClass:[NSString class]]) {
+    return NO;
+  }
+  NSString *startTimeString = startTime;
   if (startTimeString.length) {
     FIRMessagingLoggerDebug(kFIRMessagingMessageCodeContextManagerService001,
                             @"%@ Received context manager message with local time %@", kLogTag,
@@ -96,7 +102,13 @@ typedef NS_ENUM(NSUInteger, FIRMessagingContextManagerMessageType) {
 }
 
 + (BOOL)handleContextManagerLocalTimeMessage:(NSDictionary *)message {
-  NSString *startTimeString = message[kFIRMessagingContextManagerLocalTimeStart];
+  id startTime = message[kFIRMessagingContextManagerLocalTimeStart];
+  if (![startTime isKindOfClass:[NSString class]]) {
+    FIRMessagingLoggerError(kFIRMessagingMessageCodeContextManagerService002,
+                            @"Invalid local start date format %@. Message dropped", startTime);
+    return NO;
+  }
+  NSString *startTimeString = startTime;
   if (!startTimeString) {
     FIRMessagingLoggerError(kFIRMessagingMessageCodeContextManagerService002,
                             @"Invalid local start date format %@. Message dropped",
@@ -113,13 +125,19 @@ typedef NS_ENUM(NSUInteger, FIRMessagingContextManagerMessageType) {
     [self scheduleLocalNotificationForMessage:message atDate:startDate];
   } else {
     // check end time has not passed
-    NSString *endTimeString = message[kFIRMessagingContextManagerLocalTimeEnd];
-    if (!endTimeString) {
+    id endTime = message[kFIRMessagingContextManagerLocalTimeEnd];
+    if (!endTime) {
       FIRMessagingLoggerInfo(
           kFIRMessagingMessageCodeContextManagerService003,
           @"No end date specified for message, start date elapsed. Message dropped.");
       return YES;
     }
+    if (![endTime isKindOfClass:[NSString class]]) {
+      FIRMessagingLoggerError(kFIRMessagingMessageCodeContextManagerService004,
+                              @"Invalid local end date format %@. Message dropped", endTime);
+      return NO;
+    }
+    NSString *endTimeString = endTime;
 
     NSDate *endDate = [dateFormatter dateFromString:endTimeString];
     if (!endTimeString) {

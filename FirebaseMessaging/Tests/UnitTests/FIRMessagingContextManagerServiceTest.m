@@ -103,6 +103,26 @@ API_AVAILABLE(macos(10.14))
 }
 
 /**
+ *  handleContextManagerMessage: is public and can be called directly, so a
+ *  non-string start or end time must be dropped rather than crash on -length or
+ *  -[NSDateFormatter dateFromString:].
+ */
+- (void)testHandleContextManagerMessage_nonStringTimes {
+  NSDictionary *numberStart = @{
+    kFIRMessagingContextManagerLocalTimeStart : @1623702615599207,
+  };
+  XCTAssertFalse([FIRMessagingContextManagerService handleContextManagerMessage:numberStart]);
+
+  // Elapsed start time with a non-string end time must also be dropped safely.
+  NSString *pastStart = [self.dateFormatter stringFromDate:[NSDate distantPast]];
+  NSDictionary *numberEnd = @{
+    kFIRMessagingContextManagerLocalTimeStart : pastStart,
+    kFIRMessagingContextManagerLocalTimeEnd : @1623702615599207,
+  };
+  XCTAssertFalse([FIRMessagingContextManagerService handleContextManagerMessage:numberEnd]);
+}
+
+/**
  *  Notification content fields also come from the untrusted payload. Non-string
  *  body/title/sound/category and a non-number badge must be ignored, not crash.
  */
