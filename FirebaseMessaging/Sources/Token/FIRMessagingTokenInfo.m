@@ -203,7 +203,7 @@ static const NSTimeInterval kDefaultFetchTokenInterval = 7 * 24 * 60 * 60;  // 7
       NSError *error = nil;
       NSKeyedUnarchiver *unarchiver =
           [[NSKeyedUnarchiver alloc] initForReadingFromData:(NSData *)rawAPNSInfo error:&error];
-      if (unarchiver && !error) {
+      if (unarchiver) {
         unarchiver.requiresSecureCoding = YES;
         [unarchiver setClass:[FIRMessagingAPNSInfo class] forClassName:@"FIRInstanceIDAPNSInfo"];
         id decodedAPNSInfo = [unarchiver decodeObjectOfClass:[FIRMessagingAPNSInfo class]

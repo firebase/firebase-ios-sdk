@@ -104,7 +104,7 @@ static NSString *const kFIRMessagingTokenKeychainId = @"com.google.iid-tokens";
     @try {
       NSKeyedUnarchiver *unarchiver = [[NSKeyedUnarchiver alloc] initForReadingFromData:item
                                                                                   error:&error];
-      if (unarchiver && !error) {
+      if (unarchiver) {
         unarchiver.requiresSecureCoding = YES;
         [unarchiver setClass:[FIRMessagingTokenInfo class] forClassName:@"FIRInstanceIDTokenInfo"];
         tokenInfo = [unarchiver decodeObjectOfClass:[FIRMessagingTokenInfo class]
@@ -140,7 +140,7 @@ static NSString *const kFIRMessagingTokenKeychainId = @"com.google.iid-tokens";
   tokenInfoData = [NSKeyedArchiver archivedDataWithRootObject:tokenInfo
                                         requiringSecureCoding:YES
                                                         error:&error];
-  if (error) {
+  if (!tokenInfoData) {
     FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTokenManager001,
                             @"Failed to securely archive token info: %@", error);
     if (handler) {
@@ -163,7 +163,7 @@ static NSString *const kFIRMessagingTokenKeychainId = @"com.google.iid-tokens";
   tokenInfoData = [NSKeyedArchiver archivedDataWithRootObject:tokenInfo
                                         requiringSecureCoding:YES
                                                         error:&error];
-  if (error) {
+  if (!tokenInfoData) {
     FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTokenManager001,
                             @"Failed to securely archive token info for cache: %@", error);
     return;
