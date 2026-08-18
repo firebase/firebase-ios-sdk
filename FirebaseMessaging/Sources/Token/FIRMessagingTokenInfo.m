@@ -208,6 +208,10 @@ static const NSTimeInterval kDefaultFetchTokenInterval = 7 * 24 * 60 * 60;  // 7
         [unarchiver setClass:[FIRMessagingAPNSInfo class] forClassName:@"FIRInstanceIDAPNSInfo"];
         id decodedAPNSInfo = [unarchiver decodeObjectOfClass:[FIRMessagingAPNSInfo class]
                                                       forKey:NSKeyedArchiveRootObjectKey];
+        if (!decodedAPNSInfo && unarchiver.error) {
+          FIRMessagingLoggerInfo(kFIRMessagingMessageCodeTokenInfoBadAPNSInfo,
+                                 @"Failed to decode raw APNS Info; error: %@", unarchiver.error);
+        }
         [unarchiver finishDecoding];
         if (decodedAPNSInfo) {
           rawAPNSInfo = decodedAPNSInfo;

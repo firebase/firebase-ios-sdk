@@ -109,6 +109,11 @@ static NSString *const kFIRMessagingTokenKeychainId = @"com.google.iid-tokens";
         [unarchiver setClass:[FIRMessagingTokenInfo class] forClassName:@"FIRInstanceIDTokenInfo"];
         tokenInfo = [unarchiver decodeObjectOfClass:[FIRMessagingTokenInfo class]
                                              forKey:NSKeyedArchiveRootObjectKey];
+        if (!tokenInfo && unarchiver.error) {
+          FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTokenStoreExceptionUnarchivingTokenInfo,
+                                  @"Failed to decode token info from Keychain item; error: %@",
+                                  unarchiver.error);
+        }
         [unarchiver finishDecoding];
       } else {
         FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTokenStoreExceptionUnarchivingTokenInfo,
