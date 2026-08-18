@@ -35,6 +35,15 @@ let package = Package(
         "GeminiForFoundationModels"
       ]
     ),
+    .target(
+      name: "HTTPStreamingClient"
+    ),
+    .testTarget(
+      name: "HTTPStreamingClientTests",
+      dependencies: [
+        "HTTPStreamingClient"
+      ]
+    ),
   ],
   swiftLanguageModes: [.v6]
 )
