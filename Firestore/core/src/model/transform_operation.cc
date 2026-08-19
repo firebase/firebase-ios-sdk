@@ -17,6 +17,7 @@
 #include "Firestore/core/src/model/transform_operation.h"
 
 #include <algorithm>
+#include <cmath>
 #include <functional>
 #include <memory>
 #include <ostream>
