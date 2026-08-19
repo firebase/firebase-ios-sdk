@@ -109,16 +109,16 @@ typedef NS_ENUM(NSUInteger, FIRMessagingContextManagerMessageType) {
     return NO;
   }
   NSString *startTimeString = startTime;
-  if (!startTimeString) {
+  NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+  dateFormatter.locale = [NSLocale localeWithLocaleIdentifier:@"en_US_POSIX"];
+  [dateFormatter setDateFormat:kLocalTimeFormatString];
+  NSDate *startDate = [dateFormatter dateFromString:startTimeString];
+  if (!startDate) {
     FIRMessagingLoggerError(kFIRMessagingMessageCodeContextManagerService002,
                             @"Invalid local start date format %@. Message dropped",
                             startTimeString);
     return NO;
   }
-  NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-  dateFormatter.locale = [NSLocale localeWithLocaleIdentifier:@"en_US_POSIX"];
-  [dateFormatter setDateFormat:kLocalTimeFormatString];
-  NSDate *startDate = [dateFormatter dateFromString:startTimeString];
   NSDate *currentDate = [NSDate date];
 
   if ([currentDate compare:startDate] == NSOrderedAscending) {
@@ -140,7 +140,7 @@ typedef NS_ENUM(NSUInteger, FIRMessagingContextManagerMessageType) {
     NSString *endTimeString = endTime;
 
     NSDate *endDate = [dateFormatter dateFromString:endTimeString];
-    if (!endTimeString) {
+    if (!endDate) {
       FIRMessagingLoggerError(kFIRMessagingMessageCodeContextManagerService004,
                               @"Invalid local end date format %@. Message dropped", endTimeString);
       return NO;

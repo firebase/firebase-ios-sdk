@@ -123,6 +123,25 @@ API_AVAILABLE(macos(10.14))
 }
 
 /**
+ *  A string start/end time that does not parse yields a nil date. That must be
+ *  dropped rather than crash on -[NSDate compare:] with a nil argument.
+ */
+- (void)testHandleContextManagerMessage_unparseableTimes {
+  NSDictionary *badStart = @{
+    kFIRMessagingContextManagerLocalTimeStart : @"not-a-date",
+  };
+  XCTAssertFalse([FIRMessagingContextManagerService handleContextManagerMessage:badStart]);
+
+  // Elapsed start time with an unparseable end time must also be dropped safely.
+  NSString *pastStart = [self.dateFormatter stringFromDate:[NSDate distantPast]];
+  NSDictionary *badEnd = @{
+    kFIRMessagingContextManagerLocalTimeStart : pastStart,
+    kFIRMessagingContextManagerLocalTimeEnd : @"not-a-date",
+  };
+  XCTAssertFalse([FIRMessagingContextManagerService handleContextManagerMessage:badEnd]);
+}
+
+/**
  *  Notification content fields also come from the untrusted payload. Non-string
  *  body/title/sound/category and a non-number badge must be ignored, not crash.
  */
