@@ -34,7 +34,6 @@
 		EA7DF5A529EF3327005664A7 /* FirebaseInAppMessaging-Beta in Frameworks */ = {isa = PBXBuildFile; platformFilters = (ios, maccatalyst, tvos, ); productRef = EA7DF5A429EF3327005664A7 /* FirebaseInAppMessaging-Beta */; };
 		EA7DF5A929EF3327005664A7 /* FirebaseInstallations in Frameworks */ = {isa = PBXBuildFile; productRef = EA7DF5A829EF3327005664A7 /* FirebaseInstallations */; };
 		EA7DF5AB29EF3327005664A7 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = EA7DF5AA29EF3327005664A7 /* FirebaseMessaging */; };
-		EA7DF5AD29EF3327005664A7 /* FirebaseMLModelDownloader in Frameworks */ = {isa = PBXBuildFile; productRef = EA7DF5AC29EF3327005664A7 /* FirebaseMLModelDownloader */; };
 		EA7DF5AF29EF3328005664A7 /* FirebasePerformance in Frameworks */ = {isa = PBXBuildFile; platformFilters = (ios, tvos, ); productRef = EA7DF5AE29EF3328005664A7 /* FirebasePerformance */; };
 		EA7DF5B129EF3328005664A7 /* FirebaseRemoteConfig in Frameworks */ = {isa = PBXBuildFile; productRef = EA7DF5B029EF3328005664A7 /* FirebaseRemoteConfig */; };
 		EA7DF5B729EF3328005664A7 /* FirebaseStorageCombine-Community in Frameworks */ = {isa = PBXBuildFile; productRef = EA7DF5B629EF3328005664A7 /* FirebaseStorageCombine-Community */; };
@@ -65,7 +64,6 @@
 				EA7DF5A329EF3327005664A7 /* FirebaseFunctionsCombine-Community in Frameworks */,
 				EA7DF59B29EF3326005664A7 /* FirebaseFirestore in Frameworks */,
 				EA7DF58329EF3326005664A7 /* FirebaseAnalytics in Frameworks */,
-				EA7DF5AD29EF3327005664A7 /* FirebaseMLModelDownloader in Frameworks */,
 				EA7DF58B29EF3326005664A7 /* FirebaseAppCheck in Frameworks */,
 				EA7DF5AB29EF3327005664A7 /* FirebaseMessaging in Frameworks */,
 				EA7DF59329EF3326005664A7 /* FirebaseCrashlytics in Frameworks */,
@@ -203,7 +201,7 @@
 				EA7DF5A429EF3327005664A7 /* FirebaseInAppMessaging-Beta */,
 				EA7DF5A829EF3327005664A7 /* FirebaseInstallations */,
 				EA7DF5AA29EF3327005664A7 /* FirebaseMessaging */,
-				EA7DF5AC29EF3327005664A7 /* FirebaseMLModelDownloader */,
+
 				EA7DF5AE29EF3328005664A7 /* FirebasePerformance */,
 				EA7DF5B029EF3328005664A7 /* FirebaseRemoteConfig */,
 				EA7DF5B629EF3328005664A7 /* FirebaseStorageCombine-Community */,
@@ -672,10 +670,7 @@
 			isa = XCSwiftPackageProductDependency;
 			productName = FirebaseMessaging;
 		};
-		EA7DF5AC29EF3327005664A7 /* FirebaseMLModelDownloader */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = FirebaseMLModelDownloader;
-		};
+
 		EA7DF5AE29EF3328005664A7 /* FirebasePerformance */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = FirebasePerformance;

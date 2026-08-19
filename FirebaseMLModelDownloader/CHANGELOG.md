@@ -1,3 +1,7 @@
+# 13.0.0
+- [removed] **Breaking change**: FirebaseMLModelDownloader has been removed. See
+  https://firebase.google.com/docs/ml for more info.
+
 # 12.17.0
 - [deprecated] Firebase ML is deprecated and will be shut down on June 15, 2027.
   To host custom models, you must migrate to another solution. You can use Cloud

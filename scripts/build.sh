@@ -37,7 +37,6 @@ product can be one of:
   Messaging
   MessagingSample
   SwiftUISample
-  MLModelDownloaderSample
   RemoteConfig
   RemoteConfigSample
   Sessions
@@ -490,16 +489,6 @@ case "$product-$platform-$method" in
         build
     fi
     ;;
-
-  MLModelDownloaderSample-*-*)
-  if check_secrets; then
-    RunXcodebuild \
-      -workspace 'FirebaseMLModelDownloader/Apps/Sample/MLDownloaderTestApp.xcworkspace' \
-      -scheme "MLDownloaderTestApp" \
-      "${xcb_flags[@]}" \
-      build
-  fi
-  ;;
 
   WatchOSSample-*-*)
     RunXcodebuild \

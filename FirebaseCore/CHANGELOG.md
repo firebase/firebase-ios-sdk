@@ -1,3 +1,7 @@
+# Unreleased
+- [removed] **Breaking change**: FirebaseMLModelDownloader has been removed. See
+  https://firebase.google.com/docs/ml for more info.
+
 # Firebase 12.17.0
 - [changed] Removed the  (never activated) `recaptchaSiteKey` property from `FirebaseOptions`.
   This feature is part of the public preview reCAPTCHA provider.
