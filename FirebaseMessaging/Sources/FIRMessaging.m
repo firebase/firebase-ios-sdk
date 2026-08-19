@@ -69,7 +69,10 @@ BOOL FIRMessagingIsAPNSSyncMessage(NSDictionary *message) {
   if ([message[kFIRMessagingMessageViaAPNSRootKey] isKindOfClass:[NSDictionary class]]) {
     NSDictionary *aps = message[kFIRMessagingMessageViaAPNSRootKey];
     if (aps && [aps isKindOfClass:[NSDictionary class]]) {
-      return [aps[kFIRMessagingMessageAPNSContentAvailableKey] boolValue];
+      id contentAvailable = aps[kFIRMessagingMessageAPNSContentAvailableKey];
+      if ([contentAvailable respondsToSelector:@selector(boolValue)]) {
+        return [contentAvailable boolValue];
+      }
     }
   }
   return NO;
