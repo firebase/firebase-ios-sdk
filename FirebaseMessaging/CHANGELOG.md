@@ -1,5 +1,8 @@
 # Unreleased
-- [changed] Enforce `NSSecureCoding` when unarchiving registration tokens from the keychain.
+- [changed] Enforce `NSSecureCoding` when unarchiving registration tokens from
+  the keychain.
+- [fixed] Fix a potential crash when parsing malformed FCM payloads with
+  unexpected non-numeric fields. (#16533)
 
 # 12.18.0
 - [fixed] Fix an issue where new FCM registration processing was not invoked

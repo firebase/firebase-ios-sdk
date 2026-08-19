@@ -1,3 +1,6 @@
+# Unreleased
+- [feature] Added support for `minimum` and `maximum` FieldValue operations [#16159].
+
 # 12.17.0
 - [fixed] Fixed a potential crash when parsing malformed bundle payloads.
   (#16221)
