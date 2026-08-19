@@ -50,6 +50,7 @@
           self.webViewController = AuthWebViewController(url: url, delegate: self)
           if let webViewController = self.webViewController {
             let navController = UINavigationController(rootViewController: webViewController)
+            navController.modalPresentationStyle = .fullScreen
             if let fakeUIDelegate = self.fakeUIDelegate {
               fakeUIDelegate.present(navController, animated: true)
             } else {

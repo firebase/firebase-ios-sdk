@@ -15,13 +15,15 @@
 # limitations under the License.
 
 # Usage:
-# ./scripts/style.sh [branch-name | filenames]
+# ./scripts/style.sh [branch-name | filenames | -b]
 #
 # With no arguments, formats all eligible files in the repo
+# Pass -b (or --branch) to format all files changed on the current branch (all commits + uncommitted changes)
 # Pass a branch name to format all eligible files changed since that branch
 # Pass a specific file or directory name to format just files found there
 #
 # Commonly
+# ./scripts/style.sh -b
 # ./scripts/style.sh main
 
 # Set the environment variable FIR_CLANG_FORMAT_PATH to use a specific version
@@ -112,7 +114,10 @@ fi
 files=$(
 (
   if [[ $# -gt 0 ]]; then
-    if git rev-parse "$1" -- >& /dev/null; then
+    if [[ "$1" == "-b" || "$1" == "--branch" ]]; then
+      merge_base=$(git merge-base HEAD origin/main 2>/dev/null || git merge-base HEAD main 2>/dev/null || echo "main")
+      git diff --name-only --relative --diff-filter=ACMR "$merge_base"
+    elif git rev-parse "$1" -- >& /dev/null; then
       # Argument was a branch name show files changed since that branch
       git diff --name-only --relative --diff-filter=ACMR "$1"
     else
@@ -121,6 +126,9 @@ files=$(
     fi
   else
     # Do everything by default
+    if [[ -t 2 && "$test_only" == false ]]; then
+      echo "Formatting all eligible files... (Tip: run './scripts/style.sh -b' to format only files changed on this branch)" >&2
+    fi
     find . -type f
   fi
 ) | sed -E -n '
@@ -139,10 +147,6 @@ s%^./%%
 # pod gen output
 \%^gen/% d
 
-# FirestoreEncoder is under 'third_party' for licensing reasons but should be
-# formatted.
-\%Firestore/third_party/FirestoreEncoder/.*\.swift% p
-
 # Sources controlled outside this tree
 \%/third_party/% d
 
@@ -151,19 +155,9 @@ s%^./%%
 
 # Generated source
 \%/Firestore/core/src/util/config.h% d
-\%^GeneratedFirebaseAI/% d
-
-# Generated Code for Data Connect sample
-\%/Examples/FriendlyFlix/app/FriendlyFlixSDK/% d
-
-# Sources pulled in by travis bundler, with and without a leading slash
-\%^/?vendor/bundle/% d
 
 # Sources pulled in by the Mint package manager
 \%^mint% d
-
-# Auth Sample Objective-C does not format well
-\%^(FirebaseAuth/Tests/Sample/Sample)/% d
 
 # Keep Firebase.h indenting
 \%^CoreOnly/Sources/Firebase.h% d
@@ -173,8 +167,8 @@ s%^./%%
 \%\.pb\.% d
 \%\.nanopb\.% d
 
-# Format C-ish sources only
-\%\.(h|m|mm|cc|swift)$% p
+# Format C-ish sources and shell scripts only
+\%\.(h|m|mm|cc|swift|sh)$% p
 '
 )
 
@@ -185,6 +179,16 @@ for f in $files; do
     # 1/1 files would have been formatted.  (with --dryrun)
     # 1/1 files formatted.                  (without --dryrun)
     mint run swiftformat "${swift_options[@]}" "$f" 2>&1 | grep '^1/1 files' > /dev/null
+  elif [[ "${f: -3}" == '.sh' ]]; then
+    if [[ "$test_only" == true ]]; then
+      grep -E '[[:space:]]+$' "$f" > /dev/null
+    else
+      if [[ "$(uname -s)" == "Darwin" ]]; then
+        sed -i '' -E 's/[[:space:]]+$//' "$f"
+      else
+        sed -i -E 's/[[:space:]]+$//' "$f"
+      fi
+    fi
   else
     "$clang_format_bin" "${clang_options[@]}" "$f" | grep "<replacement " > /dev/null
   fi

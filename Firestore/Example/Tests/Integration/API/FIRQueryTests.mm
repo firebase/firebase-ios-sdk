@@ -337,7 +337,8 @@
       addSnapshotListenerWithIncludeMetadataChanges:YES
                                            listener:^(FIRQuerySnapshot *snapshot, NSError *error) {
                                              XCTAssertNil(error);
-                                             if (!snapshot.empty && !snapshot.metadata.fromCache) {
+                                             if (!snapshot.empty && !snapshot.metadata.fromCache &&
+                                                 !snapshot.metadata.hasPendingWrites) {
                                                [testExpectiation fulfill];
                                              }
                                            }];

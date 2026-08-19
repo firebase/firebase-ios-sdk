@@ -21,7 +21,6 @@ on:
 
 env:
   FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
-  FIREBASE_APP_CHECK_BRANCH: main
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
@@ -45,7 +44,6 @@ jobs:
       method: xcodebuild
       os: ${{ matrix.os }}
       xcode: ${{ matrix.xcode }}
-      env_vars: '{"FIREBASE_APP_CHECK_BRANCH": "main"}'
 
   client-app-spm-source-firestore:
     strategy:
@@ -65,7 +63,6 @@ jobs:
       os: ${{ matrix.os }}
       xcode: ${{ matrix.xcode }}
       setup_command: echo "FIREBASE_SOURCE_FIRESTORE=1" >> $GITHUB_ENV
-      env_vars: '{"FIREBASE_APP_CHECK_BRANCH": "main"}'
 
   client-app-cocoapods:
     strategy:
@@ -83,4 +80,3 @@ jobs:
       os: ${{ matrix.os }}
       xcode: ${{ matrix.xcode }}
       setup_command: scripts/install_prereqs.sh ClientApp iOS xcodebuild
-      env_vars: '{"FIREBASE_APP_CHECK_BRANCH": "main"}'

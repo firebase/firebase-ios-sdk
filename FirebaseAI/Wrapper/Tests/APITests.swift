@@ -22,6 +22,7 @@ import XCTest
 #endif
 
 @available(macOS 12.0, watchOS 8.0, *)
+@available(*, deprecated)
 final class APITests: XCTestCase {
   func codeSamples() async throws {
     let app = FirebaseApp.app()
@@ -182,5 +183,26 @@ final class APITests: XCTestCase {
     // Computed Properties
     let _: String? = response.text
     let _: [FunctionCallPart] = response.functionCalls
+  }
+
+  func testSpeechConfigAPI() throws {
+    let singleSpeechConfig = SpeechConfig(voiceName: "Kore", languageCode: "en-US")
+    let _ = GenerationConfig(speechConfig: singleSpeechConfig)
+
+    let speaker1 = SpeakerVoiceConfig(
+      speaker: "Joe",
+      voiceName: "Kore"
+    )
+    let speaker2 = SpeakerVoiceConfig(
+      speaker: "Jane",
+      voiceName: "Puck"
+    )
+    let multiSpeechConfig = SpeechConfig(
+      multiSpeakerVoiceConfig: MultiSpeakerVoiceConfig(
+        speakerVoiceConfigs: [speaker1, speaker2]
+      ),
+      languageCode: "en-US"
+    )
+    let _ = GenerationConfig(speechConfig: multiSpeechConfig)
   }
 }

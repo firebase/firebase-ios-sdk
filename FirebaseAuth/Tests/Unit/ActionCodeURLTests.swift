@@ -85,4 +85,16 @@ class ActionCodeURLTests: XCTestCase {
     let actionCodeURL = ActionCodeURL(link: urlString)
     XCTAssertEqual(actionCodeURL?.languageCode, "fr")
   }
+
+  /// Tests parsing a URL whose query has a component without a '=' separator.
+  func testParseURLQueryComponentWithoutEquals() {
+    // The trailing "foo" component has no '=' and must not index past the split
+    // result. The valid parameters should still be parsed.
+    let urlString = "https://www.example.com?apiKey=API_KEY&mode=resetPassword&oobCode=OOB_CODE&foo"
+    let actionCodeURL = ActionCodeURL(link: urlString)
+    XCTAssertNotNil(actionCodeURL)
+    XCTAssertEqual(actionCodeURL?.apiKey, "API_KEY")
+    XCTAssertEqual(actionCodeURL?.operation, .passwordReset)
+    XCTAssertEqual(actionCodeURL?.code, "OOB_CODE")
+  }
 }

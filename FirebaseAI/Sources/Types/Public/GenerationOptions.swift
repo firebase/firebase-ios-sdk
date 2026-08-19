@@ -158,7 +158,16 @@
         @available(watchOS, unavailable)
         public init(_ options: FoundationModels.GenerationOptions) {
           _generationOptions = options
-          sampling = options.sampling.map { SamplingMode(kind: .foundationModelsSamplingMode($0)) }
+          // TODO: Remove `else` when Xcode 27 is the min. supported Xcode.
+          #if compiler(>=6.4)
+            sampling = options.samplingMode.map {
+              SamplingMode(kind: .foundationModelsSamplingMode($0))
+            }
+          #else
+            sampling = options.sampling.map {
+              SamplingMode(kind: .foundationModelsSamplingMode($0))
+            }
+          #endif // compiler(>=6.4)
           temperature = options.temperature
           maximumResponseTokens = options.maximumResponseTokens
         }
@@ -171,11 +180,20 @@
             return generationOptions
           }
 
-          return FoundationModels.GenerationOptions(
-            sampling: sampling?.samplingMode,
-            temperature: temperature,
-            maximumResponseTokens: maximumResponseTokens
-          )
+          // TODO: Remove `else` when Xcode 27 is the min. supported Xcode.
+          #if compiler(>=6.4)
+            return FoundationModels.GenerationOptions(
+              samplingMode: sampling?.samplingMode,
+              temperature: temperature,
+              maximumResponseTokens: maximumResponseTokens
+            )
+          #else
+            return FoundationModels.GenerationOptions(
+              sampling: sampling?.samplingMode,
+              temperature: temperature,
+              maximumResponseTokens: maximumResponseTokens
+            )
+          #endif // compiler(>=6.4)
         }
       #endif // canImport(FoundationModels)
 

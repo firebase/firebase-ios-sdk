@@ -1,3 +1,31 @@
+# Unreleased
+- [fixed] Fixed an issue on iOS 15+ where users were randomly logged out during
+  prewarming while the device was locked. (#16498)
+
+# 12.18.0
+- [fixed] Fixed a bug in `PhoneAuthProvider` where the test mode logic would
+  fail if multi-factor authentication was enabled. (#16438)
+- [fixed] Fixed a bug where `verifyPhoneNumber` could hit an infinite recursion
+  and crash due to a Swift concurrency compiler bug in some toolchains. (#16416)
+- [added] Added `passwordDoesNotMeetRequirements` error code for handling
+  password policy requirement errors. (#16462)
+
+# 12.17.0
+- [fixed] Fixed an array out-of-bounds access in `ActionCodeURL` query parsing.
+  (#16382)
+- [fixed] Fixed a bug in `OAuthProvider` where custom parameters containing
+  special URL characters (such as `&` and `=`) were not being properly
+  URL-encoded. (#16394)
+
+# 12.16.0
+- [fixed] Refactored the integrated OAuth sign in UI to not rely on
+  the deprecated `UIScreen.main.bounds` API for Mac Catalyst rendering.
+  (#16274)
+- [fixed] Fixed an issue where the integrated OAuth sign in UI wasn't
+  taking up the full screen when rendered in Mac Catalyst apps. (#16274)
+- [changed] Changed error message for missing `FirebaseApp.configure()` to
+  properly articulate supported methods. (#16294)
+
 # 12.12.0
 - [added] Added `AsyncSequence` support to `Auth.authStateChanges` and
   `Auth.idTokenChanges`, providing a modern, structured-concurrency

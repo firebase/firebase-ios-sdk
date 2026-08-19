@@ -68,7 +68,7 @@ class JsonReader : public util::ReadContext {
 
   template <typename IntType>
   IntType RequiredInt(const char* name, const nlohmann::json& json_object) {
-    if (!json_object.contains(name)) {
+    if (!json_object.is_object() || !json_object.contains(name)) {
       Fail("'%s' is missing or is not a double", name);
       return 0;
     }
@@ -81,7 +81,7 @@ class JsonReader : public util::ReadContext {
   IntType OptionalInt(const char* name,
                       const nlohmann::json& json_object,
                       IntType default_value) {
-    if (!json_object.contains(name)) {
+    if (!json_object.is_object() || !json_object.contains(name)) {
       return default_value;
     }
 

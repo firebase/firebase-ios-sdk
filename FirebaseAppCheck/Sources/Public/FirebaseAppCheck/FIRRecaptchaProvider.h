@@ -23,8 +23,8 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /// App Check provider that verifies app integrity using
-/// [reCAPTCHA Enterprise for iOS](https://cloud.google.com/recaptcha/docs/instrument-ios-apps)
-/// API.
+/// [reCAPTCHA Enterprise for
+/// iOS](https://firebase.google.com/docs/app-check/ios/recaptcha-enterprise-provider) API.
 NS_SWIFT_NAME(RecaptchaProvider)
 API_AVAILABLE(ios(15.0), visionos(1.0))
 API_UNAVAILABLE(macos, tvos, watchos, macCatalyst)
@@ -32,11 +32,13 @@ API_UNAVAILABLE(macos, tvos, watchos, macCatalyst)
 
 - (instancetype)init NS_UNAVAILABLE;
 
+/// > Warning: This API is a public preview and may be subject to change.
 /// The default initializer.
 /// @param app A `FirebaseApp` instance.
+/// @param siteKey The reCAPTCHA Enterprise iOS site key to be used during attestation.
 /// @return An instance of `RecaptchaProvider` if the provided
 ///     `FirebaseApp` instance contains all required parameters.
-- (nullable instancetype)initWithApp:(FIRApp *)app;
+- (nullable instancetype)initWithApp:(FIRApp *)app siteKey:(NSString *)siteKey;
 
 /* Jazzy doesn't generate documentation for protocol-inherited
  * methods, so this is copied over from the protocol declaration.

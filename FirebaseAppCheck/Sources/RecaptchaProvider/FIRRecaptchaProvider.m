@@ -28,6 +28,12 @@
 // should be findable from a header search path pointing to the build
 // directory. See #12611 for more context.
 #import "AppCheckCore-Swift.h"
+#else
+#define FIR_RECAPTCHA_PROVIDER_SWIFT_AVAILABLE 0
+#endif
+
+#ifndef FIR_RECAPTCHA_PROVIDER_SWIFT_AVAILABLE
+#define FIR_RECAPTCHA_PROVIDER_SWIFT_AVAILABLE 1
 #endif
 
 #import "FirebaseAppCheck/Sources/Core/FIRApp+AppCheck.h"
@@ -48,26 +54,24 @@
 @implementation FIRRecaptchaProvider
 
 + (BOOL)isSupported {
-#if (TARGET_OS_IOS && !TARGET_OS_MACCATALYST) || TARGET_OS_VISION
+#if ((TARGET_OS_IOS && !TARGET_OS_MACCATALYST) || TARGET_OS_VISION) && \
+    FIR_RECAPTCHA_PROVIDER_SWIFT_AVAILABLE
   return [GACRecaptchaProvider isSupported];
 #else
   return NO;
 #endif
 }
 
-- (nullable instancetype)initWithApp:(FIRApp *)app {
-#if (TARGET_OS_IOS && !TARGET_OS_MACCATALYST) || TARGET_OS_VISION
+- (nullable instancetype)initWithApp:(FIRApp *)app siteKey:(NSString *)siteKey {
+#if ((TARGET_OS_IOS && !TARGET_OS_MACCATALYST) || TARGET_OS_VISION) && \
+    FIR_RECAPTCHA_PROVIDER_SWIFT_AVAILABLE
   // 1. Validate options and raise exceptions on invalid configuration
-  NSString *siteKey = app.options.recaptchaSiteKey;
   if (siteKey.length == 0) {
     NSString *message = [NSString
-        stringWithFormat:
-            @"Cannot instantiate `RecaptchaProvider` for app: %@. "
-            @"`FirebaseOptions.recaptchaSiteKey` "
-            @"is missing or empty. "
-            @"Please ensure you have downloaded the latest `GoogleService-Info.plist` from the "
-            @"Firebase console or set `recaptchaSiteKey` on `FirebaseOptions` programmatically.",
-            app.name];
+        stringWithFormat:@"Cannot instantiate `RecaptchaProvider` for app: %@. "
+                         @"The `siteKey` parameter is missing or empty. "
+                         @"Please ensure you have provided a valid reCAPTCHA Enterprise site key.",
+                         app.name];
     FIRLogError(kFIRLoggerAppCheck, kFIRLoggerAppCheckMessageRecaptchaProviderMissingSiteKey, @"%@",
                 message);
     [NSException raise:NSInvalidArgumentException format:@"%@", message];

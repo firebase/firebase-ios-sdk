@@ -9,6 +9,7 @@ on:
     paths:
     - '.github/workflows/infra.notice_generation.yml'
     - '.github/actions/notices_generation**'
+  workflow_dispatch:
   schedule:
     # Run every day at 3am (PDT) / 6am (EDT) - cron uses UTC times
     - cron:  '0 10 * * *'
@@ -23,6 +24,9 @@ jobs:
       NOTICES_PATH: "CoreOnly/NOTICES"
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      with:
+        # Ignored since the GITHUB_TOKEN needs to be persisted for this workflow.
+        persist-credentials: true # zizmor: ignore[artipacked]
     - name: Get all pod names
       run: |
         cd "${GITHUB_WORKSPACE}/ReleaseTooling/"
@@ -39,7 +43,7 @@ jobs:
       uses: ./.github/actions/notices_generation/
       with:
         pods: ${{ env.PODS }}
-        sources: "https://github.com/firebase/SpecsTesting,https://github.com/firebase/SpecsStaging,https://cdn.cocoapods.org"
+        sources: "https://github.com/firebase/SpecsStaging,https://github.com/firebase/SpecsTesting,https://cdn.cocoapods.org"
         # This should match the highest minimum supported iOS version.
         min-ios-version: "15.0"
         search-local-pod-version: true

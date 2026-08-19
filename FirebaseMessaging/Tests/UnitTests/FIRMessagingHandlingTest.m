@@ -195,6 +195,33 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
   OCMVerifyAll(_testUtil.mockMessaging);
 }
 
+- (void)testMalformedContentAvailableDoesNotCrash {
+  // "content-available" is attacker-controlled and read with -boolValue while detecting
+  // APNS sync messages; a JSON object/array/null does not respond to -boolValue.
+  for (id contentAvailable in @[ @{}, @[ @1 ], [NSNull null] ]) {
+    NSDictionary *notificationPayload = @{
+      @"aps" : @{@"content-available" : contentAvailable},
+      @"gcm.message_id" : @"1566513591299872",
+      @"google.c.a.e" : @1,
+    };
+    XCTAssertNoThrow([_testUtil.messaging appDidReceiveMessage:notificationPayload]);
+  }
+}
+
+- (void)testMalformedSyncMessageTTLDoesNotCrash {
+  // A sync message's "gcm.ttl" is attacker-controlled and read with -longLongValue; a JSON
+  // object/array/null does not respond to it.
+  for (id ttl in @[ @{}, @[ @1 ], [NSNull null] ]) {
+    NSDictionary *notificationPayload = @{
+      @"aps" : @{@"content-available" : @1},
+      @"gcm.message_id" : [NSUUID UUID].UUIDString,
+      @"gcm.ttl" : ttl,
+      @"google.c.a.e" : @1,
+    };
+    XCTAssertNoThrow([_testUtil.messaging appDidReceiveMessage:notificationPayload]);
+  }
+}
+
 - (void)testMCSNotification {
   NSDictionary *notificationPayload = @{@"from" : @"35006771263", @"image" : @"bunny.png"};
   OCMExpect([_testUtil.mockMessaging handleContextManagerMessage:notificationPayload]);

@@ -1,3 +1,9 @@
+# 12.17.0
+- [fixed] Fixed an issue where surrogate pair replacement ranges were incorrect
+  in push ID generation. (#16415)
+- [fixed] Fixed a potential crash when receiving non-text WebSocket frames.
+  (#16414)
+
 # 12.7.0
 - [fixed] Fix `Fatal Exception: FirebaseDatabasePersistenceFailure`. (#4493)
 - [fixed] Concurrency crash in FView. (#15514)
@@ -75,7 +81,7 @@
   when used in `queryOrderedByKey` queries (#7403).
 
 # 7.5.0
-- [added] Implmement `queryStartingAfterValue` and `queryEndingBeforeValue` for FirebaseDatabase query pagination.
+- [added] Implement `queryStartingAfterValue` and `queryEndingBeforeValue` for FirebaseDatabase query pagination.
 - [added] Added `DatabaseQuery#getData` which returns data from the server when cache is stale (#7110).
 
 # 7.2.0

@@ -50,6 +50,9 @@ import Foundation
    */
   @objc public let status: StorageTaskStatus
 
+  /// The internal state of the task when this snapshot was created.
+  let state: StorageTaskState
+
   // MARK: NSObject overrides
 
   @objc override public var description: String {
@@ -74,6 +77,7 @@ import Foundation
     self.progress = progress
     self.error = error
     self.metadata = metadata
+    self.state = state
 
     switch state {
     case .queueing, .running, .resuming: status = StorageTaskStatus.resume

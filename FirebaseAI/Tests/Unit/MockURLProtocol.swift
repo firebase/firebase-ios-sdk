@@ -24,6 +24,10 @@ class MockURLProtocol: URLProtocol, @unchecked Sendable {
 
   private nonisolated(unsafe) static var _requestHandlers = [MockURLRequestHandler]()
 
+  nonisolated(unsafe) static var errorToThrowMidStream: Error?
+  nonisolated(unsafe) static var stopLoadingExpectation: XCTestExpectation?
+  nonisolated(unsafe) static var neverFinishes: Bool = false
+
   nonisolated(unsafe) static var requestHandler: MockURLRequestHandler? {
     get {
       assert(
@@ -64,7 +68,14 @@ class MockURLProtocol: URLProtocol, @unchecked Sendable {
     let requestHandler = MockURLProtocol.requestHandlersQueue.removeFirst()
 
     Task {
-      let (response, stream) = try requestHandler(self.request)
+      let (response, stream): (URLResponse, AsyncLineSequence<URL.AsyncBytes>?)
+      do {
+        (response, stream) = try requestHandler(self.request)
+      } catch {
+        XCTFail("Unexpected failure calling request handler: \(error.localizedDescription)")
+        return
+      }
+
       client.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
       if let stream = stream {
         do {
@@ -83,9 +94,19 @@ class MockURLProtocol: URLProtocol, @unchecked Sendable {
           XCTFail("Unexpected failure reading lines from stream: \(error.localizedDescription)")
         }
       }
-      client.urlProtocolDidFinishLoading(self)
+      if let errorToThrow = MockURLProtocol.errorToThrowMidStream {
+        // Sleep guarantees the error is thrown mid-stream (after URLSession yields the stream to
+        // the consumer) rather than pre-stream, preventing test coupling to undocumented URLSession
+        // internal buffer sizes.
+        try? await Task.sleep(nanoseconds: 2_000_000_000)
+        client.urlProtocol(self, didFailWithError: errorToThrow)
+      } else if !MockURLProtocol.neverFinishes {
+        client.urlProtocolDidFinishLoading(self)
+      }
     }
   }
 
-  override func stopLoading() {}
+  override func stopLoading() {
+    MockURLProtocol.stopLoadingExpectation?.fulfill()
+  }
 }
