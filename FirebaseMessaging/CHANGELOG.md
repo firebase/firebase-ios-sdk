@@ -1,3 +1,7 @@
+# Unreleased
+- [fixed] Fix a potential crash when parsing malformed FCM payloads with
+  unexpected non-numeric fields. (#16533)
+
 # 12.18.0
 - [fixed] Fix an issue where new FCM registration processing was not invoked
   when `FirebaseMessagingInstallationIdEnabled` was set to `YES` and a legacy token
