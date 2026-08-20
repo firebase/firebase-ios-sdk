@@ -158,10 +158,12 @@ API_AVAILABLE(macos(10.14))
       [FIRMessagingContextManagerService contentFromContextualMessage:message];
   XCTAssertNil(content.badge);
 #if TARGET_OS_IOS || TARGET_OS_OSX || TARGET_OS_WATCH
-  XCTAssertEqualObjects(content.body, @"");
-  XCTAssertEqualObjects(content.title, @"");
+  // The non-string fields are ignored, so these stay at their unset default,
+  // which is nil on some platforms and @"" on others. Either way they are empty.
+  XCTAssertEqual(content.body.length, 0u);
+  XCTAssertEqual(content.title.length, 0u);
   XCTAssertNil(content.sound);
-  XCTAssertEqualObjects(content.categoryIdentifier, @"");
+  XCTAssertEqual(content.categoryIdentifier.length, 0u);
 #endif
 }
 
