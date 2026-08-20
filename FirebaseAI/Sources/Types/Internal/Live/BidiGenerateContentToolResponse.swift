@@ -25,5 +25,5 @@ import Foundation
 @available(watchOS, unavailable)
 struct BidiGenerateContentToolResponse: Encodable {
   /// The response to the function calls.
-  let functionResponses: [FunctionResponse]?
+  let functionResponses: [GenerateContentAPI.FunctionResponse]?
 }

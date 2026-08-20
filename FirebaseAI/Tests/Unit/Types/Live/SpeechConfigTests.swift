@@ -20,7 +20,9 @@ final class SpeechConfigTests: XCTestCase {
     let config = SpeechConfig(voiceName: "Charon", languageCode: "en-US")
     XCTAssertEqual(
       config.speechConfig.voiceConfig,
-      .prebuiltVoiceConfig(.init(voiceName: "Charon"))
+      GenerateContentAPI.VoiceConfig(
+        prebuiltVoiceConfig: GenerateContentAPI.PrebuiltVoiceConfig(voiceName: "Charon")
+      )
     )
     XCTAssertEqual(config.speechConfig.languageCode, "en-US")
     XCTAssertNil(config.speechConfig.multiSpeakerVoiceConfig)
@@ -30,7 +32,9 @@ final class SpeechConfigTests: XCTestCase {
     let config = SpeechConfig(voiceName: "Charon")
     XCTAssertEqual(
       config.speechConfig.voiceConfig,
-      .prebuiltVoiceConfig(.init(voiceName: "Charon"))
+      GenerateContentAPI.VoiceConfig(
+        prebuiltVoiceConfig: GenerateContentAPI.PrebuiltVoiceConfig(voiceName: "Charon")
+      )
     )
     XCTAssertNil(config.speechConfig.languageCode)
     XCTAssertNil(config.speechConfig.multiSpeakerVoiceConfig)

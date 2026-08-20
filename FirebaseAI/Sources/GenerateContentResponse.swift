@@ -841,3 +841,215 @@ extension Segment: Decodable {
     text = try container.decodeIfPresent(String.self, forKey: .text) ?? ""
   }
 }
+
+// MARK: - Payload Convertible Conformances
+
+extension Segment: ConvertibleFromResponsePayload {
+  init(_ responsePayload: GenerateContentAPI.Segment) throws {
+    let partIndex = responsePayload.partIndex ?? 0
+    let startIndex = responsePayload.startIndex ?? 0
+    let endIndex = responsePayload.endIndex ?? 0
+    let text = responsePayload.text ?? ""
+    self.init(partIndex: partIndex, startIndex: startIndex, endIndex: endIndex, text: text)
+  }
+}
+
+extension GroundingMetadata.SearchEntryPoint: ConvertibleFromResponsePayload {
+  init(_ responsePayload: GenerateContentAPI.SearchEntryPoint) throws {
+    self.init(renderedContent: responsePayload.renderedContent ?? "")
+  }
+}
+
+extension GroundingMetadata.WebGroundingChunk: ConvertibleFromResponsePayload {
+  init(_ responsePayload: GenerateContentAPI.WebChunk) throws {
+    self.init(
+      uri: responsePayload.uri,
+      title: responsePayload.title,
+      domain: responsePayload.domain
+    )
+  }
+}
+
+extension GroundingMetadata.GroundingChunk: ConvertibleFromResponsePayload {
+  init(_ responsePayload: GenerateContentAPI.GroundingChunk) throws {
+    let web = try responsePayload.web.map { try GroundingMetadata.WebGroundingChunk($0) }
+    self.init(web: web, maps: nil)
+  }
+}
+
+extension GroundingMetadata.GroundingSupport: ConvertibleFromResponsePayload {
+  init(_ responsePayload: GenerateContentAPI.GroundingSupport) throws {
+    guard let segmentPayload = responsePayload.segment else {
+      throw AILog.makeInternalError(
+        message: "GroundingSupport segment is missing",
+        code: .generateContentResponseNoText
+      )
+    }
+    let segment = try Segment(segmentPayload)
+    let indices = responsePayload.groundingChunkIndices ?? []
+    self.init(segment: segment, groundingChunkIndices: indices)
+  }
+}
+
+extension GroundingMetadata: ConvertibleFromResponsePayload {
+  init(_ responsePayload: GenerateContentAPI.GroundingMetadata) throws {
+    let queries = responsePayload.webSearchQueries ?? []
+    let chunks = try responsePayload.groundingChunks?.map { try GroundingChunk($0) } ?? []
+    let supports = responsePayload.groundingSupports?.compactMap { try? GroundingSupport($0) } ?? []
+    let entryPoint = try responsePayload.searchEntryPoint.map { try SearchEntryPoint($0) }
+    self.init(
+      webSearchQueries: queries,
+      groundingChunks: chunks,
+      groundingSupports: supports,
+      searchEntryPoint: entryPoint
+    )
+  }
+}
+
+extension Citation: ConvertibleFromResponsePayload {
+  init(_ responsePayload: GenerateContentAPI.Citation) throws {
+    let startIndex = responsePayload.startIndex ?? 0
+    let endIndex = responsePayload.endIndex ?? startIndex
+    let uri = responsePayload.uri?.isEmpty == false ? responsePayload.uri : nil
+    let title = responsePayload.title?.isEmpty == false ? responsePayload.title : nil
+    let license = responsePayload.license?.isEmpty == false ? responsePayload.license : nil
+    let pubDate: DateComponents? = responsePayload.publicationDate.map { jsonDate in
+      var components = DateComponents()
+      if let year = jsonDate.year, year != 0 { components.year = year }
+      if let month = jsonDate.month, month != 0 { components.month = month }
+      if let day = jsonDate.day, day != 0 { components.day = day }
+      return components
+    }
+    self.init(
+      startIndex: startIndex,
+      endIndex: endIndex,
+      uri: uri,
+      title: title,
+      license: license,
+      publicationDate: pubDate
+    )
+  }
+}
+
+extension CitationMetadata: ConvertibleFromResponsePayload {
+  init(_ responsePayload: GenerateContentAPI.CitationMetadata) throws {
+    let payloadCitations = responsePayload.citationSources ?? responsePayload.citations ?? []
+    let decodedCitations = try payloadCitations.map { try Citation($0) }
+    citations = decodedCitations.filter { !$0.isEmpty }
+  }
+}
+
+extension FinishReason: ConvertibleFromResponsePayload {
+  init(_ responsePayload: GenerateContentAPI.Candidate.FinishReason) throws {
+    self.init(rawValue: responsePayload.rawValue)
+  }
+}
+
+extension PromptFeedback.BlockReason: ConvertibleFromResponsePayload {
+  init(_ responsePayload: GenerateContentAPI.PromptFeedback.BlockReason) throws {
+    self.init(rawValue: responsePayload.rawValue)
+  }
+}
+
+extension PromptFeedback: ConvertibleFromResponsePayload {
+  init(_ responsePayload: GenerateContentAPI.PromptFeedback) throws {
+    let blockReason = try responsePayload.blockReason.map { try BlockReason($0) }
+    let safetyRatings = try responsePayload.safetyRatings?.map { try SafetyRating($0) } ?? []
+    self.init(
+      blockReason: blockReason,
+      blockReasonMessage: responsePayload.blockReasonMessage,
+      safetyRatings: safetyRatings
+    )
+  }
+}
+
+extension GenerateContentResponse.UsageMetadata: ConvertibleFromResponsePayload {
+  init(_ responsePayload: GenerateContentAPI.UsageMetadata) throws {
+    let promptTokenCount = responsePayload.promptTokenCount ?? 0
+    let cachedContentTokenCount = responsePayload.cachedContentTokenCount ?? 0
+    let candidatesTokenCount = responsePayload.candidatesTokenCount ?? 0
+    let toolUsePromptTokenCount = responsePayload.toolUsePromptTokenCount ?? 0
+    let thoughtsTokenCount = responsePayload.thoughtsTokenCount ?? 0
+    let totalTokenCount = responsePayload.totalTokenCount ?? 0
+
+    let promptTokensDetails = try responsePayload.promptTokensDetails?
+      .map { try ModalityTokenCount($0) } ?? []
+    let cacheTokensDetails = try responsePayload.cacheTokensDetails?
+      .map { try ModalityTokenCount($0) } ?? []
+    let candidatesTokensDetails = try responsePayload.candidatesTokensDetails?
+      .map { try ModalityTokenCount($0) } ?? []
+    let toolUsePromptTokensDetails = try responsePayload.toolUsePromptTokensDetails?
+      .map { try ModalityTokenCount($0) } ?? []
+
+    self.init(
+      promptTokenCount: promptTokenCount,
+      cachedContentTokenCount: cachedContentTokenCount,
+      candidatesTokenCount: candidatesTokenCount,
+      toolUsePromptTokenCount: toolUsePromptTokenCount,
+      thoughtsTokenCount: thoughtsTokenCount,
+      totalTokenCount: totalTokenCount,
+      promptTokensDetails: promptTokensDetails,
+      cacheTokensDetails: cacheTokensDetails,
+      candidatesTokensDetails: candidatesTokensDetails,
+      toolUsePromptTokensDetails: toolUsePromptTokensDetails
+    )
+  }
+}
+
+extension Candidate: ConvertibleFromResponsePayload {
+  init(_ responsePayload: GenerateContentAPI.Candidate) throws {
+    let content: ModelContent
+    if let contentPayload = responsePayload.content {
+      content = try ModelContent(contentPayload)
+    } else {
+      content = ModelContent(parts: [])
+    }
+
+    let safetyRatings: [SafetyRating]
+    if let ratings = responsePayload.safetyRatings {
+      let decoded = try ratings.map { try SafetyRating($0) }
+      safetyRatings = decoded.filter {
+        $0.category != HarmCategory.unspecified && $0.probability != SafetyRating.HarmProbability
+          .unspecified
+      }
+    } else {
+      safetyRatings = []
+    }
+
+    let finishReason = try responsePayload.finishReason.map { try FinishReason($0) }
+    let finishMessage = responsePayload.finishMessage
+    let citationMetadata = try responsePayload.citationMetadata.map { try CitationMetadata($0) }
+    let groundingMetadata = try responsePayload.groundingMetadata.map { try GroundingMetadata($0) }
+    let urlContextMetadata = try responsePayload.urlContextMetadata
+      .map { try URLContextMetadata($0) }
+
+    self.init(
+      content: content,
+      safetyRatings: safetyRatings,
+      finishReason: finishReason,
+      citationMetadata: citationMetadata,
+      groundingMetadata: groundingMetadata,
+      urlContextMetadata: (urlContextMetadata?.urlMetadata.isEmpty == false) ? urlContextMetadata :
+        nil,
+      finishMessage: finishMessage
+    )
+  }
+}
+
+extension GenerateContentResponse: ConvertibleFromResponsePayload {
+  init(_ responsePayload: GenerateContentAPI.GenerateContentResponse) throws {
+    let candidates = try responsePayload.candidates?.map { try Candidate($0) } ?? []
+    let promptFeedback = try responsePayload.promptFeedback.map { try PromptFeedback($0) }
+    let usageMetadata = try responsePayload.usageMetadata.map { try UsageMetadata($0) }
+    let responseID = responsePayload.responseId
+    let modelVersion = responsePayload.modelVersion ?? GenerateContentResponse.unknownModelVersion
+
+    self.init(
+      candidates: candidates,
+      promptFeedback: promptFeedback,
+      usageMetadata: usageMetadata,
+      responseID: responseID,
+      modelVersion: modelVersion
+    )
+  }
+}

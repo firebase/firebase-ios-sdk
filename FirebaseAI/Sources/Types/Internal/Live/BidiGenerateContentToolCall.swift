@@ -19,5 +19,5 @@ import Foundation
 @available(watchOS, unavailable)
 struct BidiGenerateContentToolCall: Decodable, Sendable {
   /// The function call to be executed.
-  let functionCalls: [FunctionCall]?
+  let functionCalls: [GenerateContentAPI.FunctionCall]?
 }

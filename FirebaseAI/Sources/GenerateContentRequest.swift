@@ -89,3 +89,27 @@ extension GenerateContentRequest: GenerativeAIRequest {
     return url
   }
 }
+
+// MARK: - Payload Convertible Conformances
+
+extension GenerateContentRequest: ConvertibleToRequestPayload {
+  func toRequestPayload() throws -> GenerateContentAPI.GenerateContentRequest {
+    let payloadModel = apiMethod == .countTokens ? model : nil
+    let payloadContents = try contents.map { try $0.toRequestPayload() }
+    let payloadGenConfig = try generationConfig?.toRequestPayload()
+    let payloadSafety = try safetySettings?.map { try $0.toRequestPayload() }
+    let payloadTools = try tools?.map { try $0.toRequestPayload() }
+    let payloadToolConfig = try toolConfig?.toRequestPayload()
+    let payloadSysInst = try systemInstruction?.toRequestPayload()
+
+    return GenerateContentAPI.GenerateContentRequest(
+      model: payloadModel,
+      systemInstruction: payloadSysInst,
+      contents: payloadContents,
+      tools: payloadTools,
+      toolConfig: payloadToolConfig,
+      safetySettings: payloadSafety,
+      generationConfig: payloadGenConfig
+    )
+  }
+}

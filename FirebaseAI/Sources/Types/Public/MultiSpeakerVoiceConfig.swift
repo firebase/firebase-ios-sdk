@@ -24,9 +24,9 @@ import Foundation
 /// > Warning: Multi-speaker configurations are not currently supported by the Live API (e.g.,
 /// > `LiveGenerationConfig`).
 public struct MultiSpeakerVoiceConfig: Sendable {
-  let multiSpeakerVoiceConfig: ProtoMultiSpeakerVoiceConfig
+  let multiSpeakerVoiceConfig: GenerateContentAPI.MultiSpeakerVoiceConfig
 
-  init(_ multiSpeakerVoiceConfig: ProtoMultiSpeakerVoiceConfig) {
+  init(_ multiSpeakerVoiceConfig: GenerateContentAPI.MultiSpeakerVoiceConfig) {
     self.multiSpeakerVoiceConfig = multiSpeakerVoiceConfig
   }
 
@@ -37,7 +37,7 @@ public struct MultiSpeakerVoiceConfig: Sendable {
   ///     Currently, the backend requires exactly **two** speaker voice configurations.
   public init(speakerVoiceConfigs: [SpeakerVoiceConfig]) {
     self.init(
-      ProtoMultiSpeakerVoiceConfig(
+      GenerateContentAPI.MultiSpeakerVoiceConfig(
         speakerVoiceConfigs: speakerVoiceConfigs.map(\.speakerVoiceConfig)
       )
     )

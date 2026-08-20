@@ -32,4 +32,17 @@ enum Constants {
     /// `gcloud auth print-access-token`.
     static let gCloudAccessTokenEnvVarKey = "FIRGCloudAuthAccessToken"
   #endif // DEBUG
+
+  /// The default MIME type for arbitrary binary data of an unknown format.
+  static let unknownDataMIMEType = "application/octet-stream"
+
+  /// The default URI used when a file's actual URI is missing or unknown.
+  ///
+  /// This uses `"about:blank"` as a safe fallback that successfully parses into a valid `URL`
+  /// object without pointing to active web content. In cases where `URL(string:)` is
+  /// force-unwrapped by developers, this will not crash.
+  static let unknownFileURI = "about:blank"
+
+  /// The default name used when a function call's name is missing or unknown.
+  static let unknownFunctionName = "unknown_function"
 }
