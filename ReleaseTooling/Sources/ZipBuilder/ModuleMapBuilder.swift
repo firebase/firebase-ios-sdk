@@ -41,7 +41,7 @@ struct ModuleMapBuilder {
     init(module: String, frameworks: Set<String>, libraries: Set<String>) {
       var content = """
       framework module \(module) {
-      umbrella header "\(ModuleMapBuilder.ModuleMapContents.umbrellaPlaceholder)"
+      \(ModuleMapBuilder.ModuleMapContents.umbrellaPlaceholder)
       export *
       module * { export * }
 
