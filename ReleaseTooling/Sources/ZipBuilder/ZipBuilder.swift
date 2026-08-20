@@ -333,6 +333,21 @@ struct ZipBuilder {
         try? FileManager.default.removeItem(at: grpcCertsBundle)
       }
 
+      // Delete CocoaPods umbrella headers.
+      for path in ["Headers", "PrivateHeaders", "Versions/A/Headers", "Versions/A/PrivateHeaders"] {
+        let headersDir = framework.appendingPathComponent(path).resolvingSymlinksInPath()
+        if FileManager.default.directoryExists(at: headersDir) {
+          if let headerFiles = try? FileManager.default.contentsOfDirectory(
+            at: headersDir,
+            includingPropertiesForKeys: nil
+          ) {
+            for file in headerFiles where file.lastPathComponent.hasSuffix("-umbrella.h") {
+              try? FileManager.default.removeItem(at: file)
+            }
+          }
+        }
+      }
+
       // The macOS slice's `PrivateHeaders` directory may have a
       // `PrivateHeaders` file in it that symbolically links to nowhere. Delete
       // it here to avoid putting it in the zip or crashing the Carthage hash
