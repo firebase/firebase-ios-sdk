@@ -17,6 +17,7 @@
 #import <objc/runtime.h>
 #import <string.h>
 
+// TODO: Switch back to using GoogleUtilities.
 FOUNDATION_STATIC_INLINE NSArray<id> *FPRIvarObjectsForProxy(id proxy) {
   NSMutableArray<id> *array = [NSMutableArray array];
   // NSProxy subclasses can forward -class to a wrapped object, so use the runtime class.
