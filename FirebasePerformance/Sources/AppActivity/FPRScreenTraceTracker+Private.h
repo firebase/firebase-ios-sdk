@@ -40,7 +40,7 @@ FOUNDATION_EXTERN NSString *const kFPRTotalFramesCounterName;
 /** Slow frame threshold (for time difference between current and previous frame render time)
  *  in sec.
  */
-FOUNDATION_EXTERN CFTimeInterval const kFPRSlowFrameThreshold;
+FOUNDATION_EXTERN CFTimeInterval const kFPRDefaultSlowFrameThreshold;
 
 /** Frozen frame threshold (for time difference between current and previous frame render time)
  *  in sec.
@@ -119,21 +119,6 @@ FOUNDATION_EXTERN CFTimeInterval const kFPRFrozenFrameThreshold;
  * @param viewController The UIViewController instance that disappeared.
  */
 - (void)viewControllerDidDisappear:(id)viewController;
-
-#if TARGET_OS_TV
-/** Handles the UIScreenModeDidChangeNotification. Recomputes the cached slow budget when the screen
- *  mode changes on tvOS.
- *
- *  @param notification The NSNotification object.
- */
-- (void)screenModeDidChangeNotification:(NSNotification *)notification;
-#endif
-
-/** Updates the cached slow budget. On tvOS, recomputes from UIScreen.maximumFramesPerSecond.
- *  On iOS, this method is only for test verification and maintains kFPRSlowFrameThreshold.
- *  This method must be called on the main thread.
- */
-- (void)updateCachedSlowBudget;
 
 /** Cleans up stale entries in activeScreenTraces where the viewController has been deallocated. */
 - (void)cleanupStaleTraces;
