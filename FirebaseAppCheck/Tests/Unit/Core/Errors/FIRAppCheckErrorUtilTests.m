@@ -153,7 +153,8 @@ static NSInteger kTestErrorCode = 42;
 }
 
 - (void)testPublicDomainErrorForUnrecognizedDomainError {
-  // Error from an unrecognized domain (i.e., not FIRAppCheckErrorDomain or @"com.google.app_check_core").
+  // Error from an unrecognized domain (i.e., not FIRAppCheckErrorDomain or
+  // @"com.google.app_check_core").
   NSError *unrecognizedError = [NSError errorWithDomain:kTestErrorDomain
                                                    code:kTestErrorCode
                                                userInfo:self.userInfo];
