@@ -1737,16 +1737,5 @@ func isFoundationModelsSupportedPlatformSwiftSetting() -> SwiftSetting {
 
 func appCheckDependency() -> Package.Dependency {
   let appCheckURL = "https://github.com/google/app-check.git"
-
-  if let localPath = Context.environment["FIREBASE_APP_CHECK_LOCAL_PATH"] {
-    return .package(path: localPath)
-  }
-
-  if let branch = Context.environment["FIREBASE_APP_CHECK_BRANCH"] {
-    return .package(url: appCheckURL, branch: branch)
-  }
-
-  // TODO: Update to point to AppCheck 12.0
-  // return .package(url: appCheckURL, "12.0.0" ..< "13.0.0")
-  return .package(url: appCheckURL, "11.3.0" ..< "12.0.0")
+  return .package(url: appCheckURL, branch: "pb-swift")
 }
