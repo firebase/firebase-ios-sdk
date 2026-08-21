@@ -39,6 +39,8 @@ NSString *const kFIRAppCheckTokenAutoRefreshEnabledInfoPlistKey =
 
 @implementation FIRAppCheckSettings
 
+@synthesize isTokenAutoRefreshEnabled = _isTokenAutoRefreshEnabled;
+
 - (instancetype)initWithApp:(FIRApp *)firebaseApp
                 userDefault:(GULUserDefaults *)userDefaults
                  mainBundle:(NSBundle *)mainBundle {
@@ -49,7 +51,7 @@ NSString *const kFIRAppCheckTokenAutoRefreshEnabledInfoPlistKey =
     _mainBundle = mainBundle;
     _userDefaultKey = [kFIRAppCheckTokenAutoRefreshEnabledUserDefaultsPrefix
         stringByAppendingString:firebaseApp.name];
-    [super setIsTokenAutoRefreshEnabled:NO];
+    _isTokenAutoRefreshEnabled = NO;
     _isTokenAutoRefreshConfigured = NO;
   }
   return self;
@@ -60,7 +62,7 @@ NSString *const kFIRAppCheckTokenAutoRefreshEnabledInfoPlistKey =
     if (self.isTokenAutoRefreshConfigured) {
       // Return value form the in-memory cache to avoid accessing the user default or bundle when
       // not required.
-      return [super isTokenAutoRefreshEnabled];
+      return _isTokenAutoRefreshEnabled;
     }
 
     // Check user defaults for a value set during the previous launch.
@@ -76,9 +78,9 @@ NSString *const kFIRAppCheckTokenAutoRefreshEnabledInfoPlistKey =
     if (isTokenAutoRefreshEnabledNumber != nil) {
       // Update in-memory cache.
       self.isTokenAutoRefreshConfigured = YES;
-      self.isTokenAutoRefreshEnabled = isTokenAutoRefreshEnabledNumber.boolValue;
+      _isTokenAutoRefreshEnabled = isTokenAutoRefreshEnabledNumber.boolValue;
       // Return the value.
-      return [super isTokenAutoRefreshEnabled];
+      return _isTokenAutoRefreshEnabled;
     }
 
     // Fallback to the global data collection flag.
@@ -95,7 +97,7 @@ NSString *const kFIRAppCheckTokenAutoRefreshEnabledInfoPlistKey =
 - (void)setIsTokenAutoRefreshEnabled:(BOOL)isTokenAutoRefreshEnabled {
   @synchronized(self) {
     self.isTokenAutoRefreshConfigured = YES;
-    [super setIsTokenAutoRefreshEnabled:isTokenAutoRefreshEnabled];
+    _isTokenAutoRefreshEnabled = isTokenAutoRefreshEnabled;
     [self.userDefaults setBool:isTokenAutoRefreshEnabled forKey:self.userDefaultKey];
   }
 }
