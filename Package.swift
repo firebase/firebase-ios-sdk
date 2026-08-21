@@ -1736,6 +1736,5 @@ func isFoundationModelsSupportedPlatformSwiftSetting() -> SwiftSetting {
 }
 
 func appCheckDependency() -> Package.Dependency {
-  let appCheckURL = "https://github.com/google/app-check.git"
-  return .package(url: appCheckURL, branch: "pb-swift")
+  return .package(url: "https://github.com/google/app-check.git", branch: "pb-swift")
 }
