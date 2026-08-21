@@ -580,14 +580,22 @@ enum FunctionsConstants {
     urlRequest.httpMethod = "POST"
 
     let shouldAttachTokens = url.isSecureOrLoopback
+    let hasTokens = context.authToken != nil || context.fcmToken != nil || context
+      .appCheckToken != nil || context.limitedUseAppCheckToken != nil
 
     guard shouldAttachTokens else {
-      if url.scheme?.lowercased() == "http" {
+      if hasTokens && url.scheme?.lowercased() == "http" {
         FirebaseLogger.log(
           level: .warning,
           service: "[FirebaseFunctions]",
           code: "I-FUN000001",
           message: "Refusing to send Auth, FCM, and AppCheck tokens over HTTP to non-loopback host."
+        )
+        throw FunctionsError(
+          .unauthenticated,
+          userInfo: [
+            NSLocalizedDescriptionKey: "Refusing to send Auth, FCM, and AppCheck tokens over HTTP to non-loopback host.",
+          ]
         )
       }
       return urlRequest
@@ -646,14 +654,22 @@ enum FunctionsConstants {
     }
 
     let shouldAttachTokens = url.isSecureOrLoopback
+    let hasTokens = context.authToken != nil || context.fcmToken != nil || context
+      .appCheckToken != nil || context.limitedUseAppCheckToken != nil
 
     guard shouldAttachTokens else {
-      if url.scheme?.lowercased() == "http" {
+      if hasTokens && url.scheme?.lowercased() == "http" {
         FirebaseLogger.log(
           level: .warning,
           service: "[FirebaseFunctions]",
           code: "I-FUN000002",
           message: "Refusing to send Auth, FCM, and AppCheck tokens over HTTP to non-loopback host."
+        )
+        throw FunctionsError(
+          .unauthenticated,
+          userInfo: [
+            NSLocalizedDescriptionKey: "Refusing to send Auth, FCM, and AppCheck tokens over HTTP to non-loopback host.",
+          ]
         )
       }
       return fetcher

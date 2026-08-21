@@ -1,6 +1,9 @@
 # Unreleased
 - [fixed] Fixed an issue where constructing a download URL could fail or produce
   an invalid path if the storage bucket name contained special characters. (#16529)
+- [changed] Requests directed to the local emulator over a non-loopback HTTP connection
+  when token providers are configured will now explicitly fail with an `unauthenticated`
+  error instead of silently omitting the tokens and proceeding. (#16536)
 
 # 12.17.0
 - [changed] Enforced stricter transport layer security when using the emulator: Auth and AppCheck
