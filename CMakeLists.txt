@@ -36,7 +36,7 @@ endif()
 # don't complain about doing so. Our dependencies aren't good about declaring
 # BYPRODUCTS and we mix them all into a single superbuild so we can't enable
 # this policy until all dependencies are capable of doing so.
-if(POLICY CMP0058)
+if(POLICY CMP0058 AND CMAKE_VERSION VERSION_LESS "4.0")
   cmake_policy(SET CMP0058 OLD)
 endif()
 

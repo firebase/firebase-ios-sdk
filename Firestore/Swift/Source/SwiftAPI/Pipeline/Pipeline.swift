@@ -92,6 +92,23 @@ public class Pipeline: @unchecked Sendable {
     self.db = db
   }
 
+  /// Options that control the execution of a `Pipeline`.
+  public struct ExecuteOptions: Sendable {
+    /// Whether the pipeline should execute atomically inside a single transaction.
+    public var atomic: Bool
+
+    public init(atomic: Bool = false) {
+      self.atomic = atomic
+    }
+
+    /// Sets whether atomic execution is enabled and returns a modified options instance.
+    public func withAtomic(_ atomic: Bool) -> ExecuteOptions {
+      var copy = self
+      copy.atomic = atomic
+      return copy
+    }
+  }
+
   /// A `Pipeline.Snapshot` contains the results of a pipeline execution.
   public struct Snapshot: Sendable {
     /// An array of all the results in the `Pipeline.Snapshot`.
@@ -112,25 +129,45 @@ public class Pipeline: @unchecked Sendable {
   /// Executes the defined pipeline and returns a `Pipeline.Snapshot` containing the results.
   ///
   /// This method asynchronously sends the pipeline definition to Firestore for execution.
-  /// The resulting documents, transformed and filtered by the pipeline stages, are returned
+  /// The resulting documents, transformed, filtered, or mutated by the pipeline stages, are returned
   /// within a `Pipeline.Snapshot`.
   ///
+  /// By default, the pipeline executes non-atomically. To execute all mutations within a single
+  /// atomic transaction, supply `Pipeline.ExecuteOptions(atomic: true)`.
+  ///
   /// ```swift
-  /// // let pipeline: Pipeline = ... // Assume a pipeline is already configured.
+  /// // Example 1: Standard query execution
   /// do {
-  ///   let snapshot = try await pipeline.execute()
-  ///   // Process snapshot.results
-  ///   print("Pipeline executed successfully: \(snapshot.results)")
+  ///   let snapshot = try await db.pipeline()
+  ///     .collection("books")
+  ///     .where(Field("genre").equal(Expression.constant("Sci-Fi")))
+  ///     .execute()
+  ///   print("Results count: \(snapshot.results.count)")
   /// } catch {
-  ///   print("Pipeline execution failed: \(error)")
+  ///   print("Execution failed: \(error)")
+  /// }
+  ///
+  /// // Example 2: Atomic transactional execution
+  /// do {
+  ///   let options = Pipeline.ExecuteOptions(atomic: true)
+  ///   let snapshot = try await db.pipeline()
+  ///     .collection("books")
+  ///     .where(Field("rating").lessThan(Expression.constant(2.0)))
+  ///     .delete()
+  ///     .execute(options: options)
+  ///   print("Deleted matching books atomically at: \(snapshot.executionTime)")
+  /// } catch {
+  ///   print("Transaction failed: \(error)")
   /// }
   /// ```
   ///
+  /// - Parameter options: Options controlling execution behavior, such as atomic transactions.
+  ///   Defaults to `.init()` (non-atomic execution).
   /// - Throws: An error if the pipeline execution fails on the backend.
   /// - Returns: A `Pipeline.Snapshot` containing the result of the pipeline execution.
-  public func execute() async throws -> Pipeline.Snapshot {
+  public func execute(options: Pipeline.ExecuteOptions = .init()) async throws -> Pipeline.Snapshot {
     // Check if isolated subcollection execution is being attempted.
-    guard db != nil else {
+    guard let db = db else {
       throw NSError(
         domain: "com.google.firebase.firestore",
         code: 3 /* kErrorInvalidArgument */,
@@ -149,8 +186,14 @@ public class Pipeline: @unchecked Sendable {
       )
     }
 
+    let bridge = PipelineBridge(
+      stages: stages.map { $0.bridge },
+      db: db,
+      atomic: options.atomic
+    )
+
     return try await withCheckedThrowingContinuation { continuation in
-      self.pipelineBridge.execute { result, error in
+      bridge.execute { result, error in
         if let error {
           continuation.resume(throwing: error)
         } else {
@@ -964,5 +1007,237 @@ public class Pipeline: @unchecked Sendable {
   /// - Returns: An `Expression` representing the scalar result.
   public func toScalarExpression() -> Expression {
     return FunctionExpression(functionName: "scalar", args: [PipelineExpression(self)])
+  }
+
+  /// Appends a `delete` stage to the pipeline.
+  ///
+  /// When executed, the `delete` stage removes all documents matching preceding pipeline stages
+  /// from the Firestore database. This can be combined with filter stages like `where`, explicit document
+  /// sources, or other stages.
+  ///
+  /// Execution can be non-transactional (default) or executed atomically within a single transaction
+  /// by passing `Pipeline.ExecuteOptions(atomic: true)` to `execute(options:)`.
+  ///
+  /// ```swift
+  /// // Example 1: Non-transactional deletion of filtered documents
+  /// let snapshot = try await db.pipeline()
+  ///   .collection("books")
+  ///   .where(Field("title").equal(Expression.constant("The Hitchhiker's Guide to the Galaxy")))
+  ///   .delete()
+  ///   .execute()
+  ///
+  /// // Example 2: Atomic transactional deletion of specific document references
+  /// let docPipeline = db.pipeline()
+  ///   .documents([
+  ///     db.collection("books").document("book_1"),
+  ///     db.collection("books").document("book_2")
+  ///   ])
+  ///   .delete()
+  /// let atomicSnapshot = try await docPipeline.execute(
+  ///   options: Pipeline.ExecuteOptions(atomic: true)
+  /// )
+  /// ```
+  ///
+  /// - Returns: A new `Pipeline` object with the `delete` stage appended.
+  public func delete() -> Pipeline {
+    return Pipeline(stages: stages + [DeleteStage()], db: db)
+  }
+
+  /// Appends an `update` stage to the pipeline modifying specified fields using variadic expressions.
+  ///
+  /// The `update` stage modifies fields in-place on existing documents matched by preceding pipeline stages.
+  /// Each `Selectable` expression defines a field assignment via `.as("fieldName")` with a new constant or
+  /// computed value expression.
+  ///
+  /// ```swift
+  /// // Update multiple fields on matching documents
+  /// let snapshot = try await db.pipeline()
+  ///   .collection("books")
+  ///   .where(Field("genre").equal(Expression.constant("Sci-Fi")))
+  ///   .update(
+  ///     Expression.constant("Science Fiction").as("genre"),
+  ///     Expression.constant(true).as("featured")
+  ///   )
+  ///   .execute(options: Pipeline.ExecuteOptions(atomic: true))
+  /// ```
+  ///
+  /// - Parameter fields: Variadic list of `Selectable` expressions representing updated field assignments.
+  /// - Returns: A new `Pipeline` object with the `update` stage appended.
+  public func update(_ fields: Selectable...) -> Pipeline {
+    return update(fields)
+  }
+
+  /// Appends an `update` stage to the pipeline modifying specified fields using an array of expressions.
+  ///
+  /// The `update` stage modifies fields in-place on existing documents matched by preceding pipeline stages.
+  /// Each `Selectable` expression defines a field assignment via `.as("fieldName")` with a new constant or
+  /// computed value expression.
+  ///
+  /// ```swift
+  /// // Update fields on a specific document using an array of transforms
+  /// let snapshot = try await db.pipeline()
+  ///   .collection("books")
+  ///   .where(Field("__name__").equal(Expression.constant("book1")))
+  ///   .update([
+  ///     Expression.constant("Comedy Sci-Fi").as("genre"),
+  ///     Field("rating").add(Expression.constant(0.5)).as("rating")
+  ///   ])
+  ///   .execute(options: Pipeline.ExecuteOptions(atomic: true))
+  /// ```
+  ///
+  /// - Parameter fields: Array of `Selectable` expressions representing updated field assignments.
+  /// - Returns: A new `Pipeline` object with the `update` stage appended.
+  public func update(_ fields: [Selectable]) -> Pipeline {
+    return Pipeline(stages: stages + [UpdateStage(fields: fields)], db: db)
+  }
+
+  /// Appends an `insert` stage to the pipeline writing documents into the specified collection.
+  ///
+  /// The `insert` stage creates new documents in Firestore from the records produced by preceding pipeline stages.
+  ///
+  /// - Note: The `collectionPath` parameter is **required** because newly inserted documents do not have an existing
+  ///   database location; an explicit destination collection path is necessary to determine where the documents are written.
+  ///
+  /// If `documentIdExpression` is omitted or `nil`, Firestore automatically generates a unique document ID. If provided,
+  /// the expression (such as a `Field` reference or constant `Expression`) resolves the document ID.
+  ///
+  /// ```swift
+  /// // Example 1: Insert with auto-generated document ID
+  /// let autoIdSnapshot = try await db.pipeline()
+  ///   .collection("books")
+  ///   .where(Field("genre").equal(Expression.constant("Bestseller")))
+  ///   .insert(collectionPath: "bestsellers_backup")
+  ///   .execute(options: Pipeline.ExecuteOptions(atomic: true))
+  ///
+  /// // Example 2: Insert with custom document ID derived from a field expression
+  /// let customIdSnapshot = try await db.pipeline()
+  ///   .collection("books")
+  ///   .where(Field("__name__").equal(Expression.constant("book1")))
+  ///   .insert(
+  ///     collectionPath: "books_archive",
+  ///     documentIdExpression: Field("isbn")
+  ///   )
+  ///   .execute()
+  ///
+  /// // Example 3: Bulk insert from literal document records
+  /// let literalSnapshot = try await db.pipeline()
+  ///   .literals([
+  ///     ["id": "user_1", "name": "Charlie", "email": "charlie@example.com"],
+  ///     ["id": "user_2", "name": "Dana", "email": "dana@example.com"]
+  ///   ])
+  ///   .insert(
+  ///     collectionPath: "users",
+  ///     documentIdExpression: Field("id")
+  ///   )
+  ///   .execute()
+  /// ```
+  ///
+  /// - Parameters:
+  ///   - collectionPath: The target collection path to insert documents into. This parameter is required because
+  ///     newly created documents require an explicit destination collection.
+  ///   - documentIdExpression: An optional `Expression` resolving to the document ID. If `nil`, Firestore auto-generates
+  ///     a unique document ID.
+  /// - Returns: A new `Pipeline` object with the `insert` stage appended.
+  public func insert(collectionPath: String, documentIdExpression: Expression? = nil) -> Pipeline {
+    return Pipeline(stages: stages + [InsertStage(collectionPath: collectionPath, documentIdExpression: documentIdExpression)], db: db)
+  }
+
+  /// Appends an `upsert` stage to the pipeline transforming fields using variadic expressions.
+  ///
+  /// The `upsert` stage inserts a document if it does not already exist, or updates its fields if it does.
+  ///
+  /// - Note: The `collectionPath` parameter is **optional**. When omitted (or `nil`), the operation performs an
+  ///   in-place upsert directly within the pipeline's current source collection. When `collectionPath` is provided,
+  ///   documents are upserted into the specified destination collection instead (e.g. copying/archiving or when
+  ///   sourcing data from `literals(...)`).
+  ///
+  /// ```swift
+  /// // Example 1: In-place upsert with variadic transform arguments
+  /// let snapshot = try await db.pipeline()
+  ///   .collection("books")
+  ///   .where(Field("__name__").equal(Expression.constant("book1")))
+  ///   .upsert(
+  ///     Expression.constant("Updated Genre").as("genre"),
+  ///     Field("views").add(Expression.constant(10)).as("views")
+  ///   )
+  ///   .execute(options: Pipeline.ExecuteOptions(atomic: true))
+  ///
+  /// // Example 2: Upsert into a custom target collection
+  /// let targetSnapshot = try await db.pipeline()
+  ///   .collection("books")
+  ///   .upsert(
+  ///     Expression.constant("Cataloged").as("status"),
+  ///     collectionPath: "catalog",
+  ///     documentIdExpression: Field("isbn")
+  ///   )
+  ///   .execute()
+  /// ```
+  ///
+  /// - Parameters:
+  ///   - transforms: Variadic list of `Selectable` expressions representing updated field assignments.
+  ///   - collectionPath: Optional target collection path. When `nil`, the upsert applies in-place to the source
+  ///     collection; when provided, documents are upserted into the specified collection.
+  ///   - documentIdExpression: Optional expression resolving to the document ID in the target collection.
+  /// - Returns: A new `Pipeline` object with the `upsert` stage appended.
+  public func upsert(_ transforms: Selectable..., collectionPath: String? = nil, documentIdExpression: Expression? = nil) -> Pipeline {
+    return upsert(transforms, collectionPath: collectionPath, documentIdExpression: documentIdExpression)
+  }
+
+  /// Appends an `upsert` stage to the pipeline transforming fields using an array of expressions.
+  ///
+  /// The `upsert` stage inserts a document if it does not already exist, or updates its fields if it does.
+  ///
+  /// - Note: The `collectionPath` parameter is **optional**. When omitted (or `nil`), the operation performs an
+  ///   in-place upsert directly within the pipeline's current source collection. When `collectionPath` is provided,
+  ///   documents are upserted into the specified destination collection instead (e.g. copying/archiving or when
+  ///   sourcing data from `literals(...)`).
+  ///
+  /// ```swift
+  /// // Example 1: In-place transactional upsert on document references
+  /// let inPlaceSnapshot = try await db.pipeline()
+  ///   .documents([db.collection("books").document("new_upsert_doc_id")])
+  ///   .upsert([
+  ///     Expression.constant("Sci-Fi").as("genre"),
+  ///     Expression.constant("New Book Title").as("title")
+  ///   ])
+  ///   .execute(options: Pipeline.ExecuteOptions(atomic: true))
+  ///
+  /// // Example 2: Target custom collection with custom document ID field
+  /// let targetSnapshot = try await db.pipeline()
+  ///   .collection("books")
+  ///   .where(Field("__name__").equal(Expression.constant("book1")))
+  ///   .addFields(Expression.constant("upserted_fixed_id").as("targetId"))
+  ///   .upsert(
+  ///     [
+  ///       Expression.constant("Upserted Genre").as("genre"),
+  ///       Expression.constant("Upserted Title").as("title")
+  ///     ],
+  ///     collectionPath: "books_archive",
+  ///     documentIdExpression: Field("targetId")
+  ///   )
+  ///   .execute(options: Pipeline.ExecuteOptions(atomic: true))
+  ///
+  /// // Example 3: Non-transactional bulk upsert from literals
+  /// let literalSnapshot = try await db.pipeline()
+  ///   .literals([
+  ///     ["id": "user_1", "status": "Active"],
+  ///     ["id": "user_2", "status": "Pending"]
+  ///   ])
+  ///   .upsert(
+  ///     [Field("status").as("accountStatus")],
+  ///     collectionPath: "users",
+  ///     documentIdExpression: Field("id")
+  ///   )
+  ///   .execute()
+  /// ```
+  ///
+  /// - Parameters:
+  ///   - transforms: Array of `Selectable` expressions representing updated field assignments.
+  ///   - collectionPath: Optional target collection path. When `nil`, the upsert applies in-place to the source
+  ///     collection; when provided, documents are upserted into the specified collection.
+  ///   - documentIdExpression: Optional expression resolving to the document ID in the target collection.
+  /// - Returns: A new `Pipeline` object with the `upsert` stage appended.
+  public func upsert(_ transforms: [Selectable], collectionPath: String? = nil, documentIdExpression: Expression? = nil) -> Pipeline {
+    return Pipeline(stages: stages + [UpsertStage(fields: transforms, collectionPath: collectionPath, documentIdExpression: documentIdExpression)], db: db)
   }
 }
