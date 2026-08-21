@@ -186,9 +186,13 @@ static const NSTimeInterval kDefaultFetchTokenInterval = 7 * 24 * 60 * 60;  // 7
   NSString *firebaseAppID = [aDecoder decodeObjectOfClass:[NSString class]
                                                    forKey:kFIRInstanceIDFirebaseAppIDKey];
 
-  NSSet *classes = [[NSSet alloc] initWithArray:@[ FIRMessagingAPNSInfo.class ]];
-  FIRMessagingAPNSInfo *rawAPNSInfo = [aDecoder decodeObjectOfClasses:classes
-                                                               forKey:kFIRInstanceIDAPNSInfoKey];
+  if ([aDecoder isKindOfClass:[NSKeyedUnarchiver class]]) {
+    [(NSKeyedUnarchiver *)aDecoder setClass:[FIRMessagingAPNSInfo class]
+                               forClassName:@"FIRInstanceIDAPNSInfo"];
+  }
+
+  NSSet *classes = [NSSet setWithObjects:[FIRMessagingAPNSInfo class], [NSData class], nil];
+  id rawAPNSInfo = [aDecoder decodeObjectOfClasses:classes forKey:kFIRInstanceIDAPNSInfoKey];
   if (rawAPNSInfo && ![rawAPNSInfo isKindOfClass:[FIRMessagingAPNSInfo class]]) {
     // If the decoder fails to decode a FIRMessagingAPNSInfo, check if this was archived by a
     // FirebaseMessaging 10.18.0 or earlier.
@@ -196,16 +200,34 @@ static const NSTimeInterval kDefaultFetchTokenInterval = 7 * 24 * 60 * 60;  // 7
     // users have upgraded to at least 10.19.0. Perhaps, after privacy manifests have been required
     // for awhile?
     @try {
+      NSError *error = nil;
       NSKeyedUnarchiver *unarchiver =
-          [[NSKeyedUnarchiver alloc] initForReadingFromData:(NSData *)rawAPNSInfo error:nil];
-      unarchiver.requiresSecureCoding = NO;
-      [unarchiver setClass:[FIRMessagingAPNSInfo class] forClassName:@"FIRInstanceIDAPNSInfo"];
-      rawAPNSInfo = [unarchiver decodeObjectForKey:NSKeyedArchiveRootObjectKey];
-      [unarchiver finishDecoding];
-      needsMigration = YES;
+          [[NSKeyedUnarchiver alloc] initForReadingFromData:(NSData *)rawAPNSInfo error:&error];
+      if (unarchiver) {
+        unarchiver.requiresSecureCoding = YES;
+        [unarchiver setClass:[FIRMessagingAPNSInfo class] forClassName:@"FIRInstanceIDAPNSInfo"];
+        id decodedAPNSInfo = [unarchiver decodeObjectOfClass:[FIRMessagingAPNSInfo class]
+                                                      forKey:NSKeyedArchiveRootObjectKey];
+        if (!decodedAPNSInfo && unarchiver.error) {
+          FIRMessagingLoggerInfo(kFIRMessagingMessageCodeTokenInfoBadAPNSInfo,
+                                 @"Failed to decode raw APNS Info; error: %@", unarchiver.error);
+        }
+        [unarchiver finishDecoding];
+        if (decodedAPNSInfo) {
+          rawAPNSInfo = decodedAPNSInfo;
+          needsMigration = YES;
+        } else {
+          rawAPNSInfo = nil;
+        }
+      } else {
+        FIRMessagingLoggerInfo(
+            kFIRMessagingMessageCodeTokenInfoBadAPNSInfo,
+            @"Could not parse raw APNS Info while parsing archived token info: %@", error);
+        rawAPNSInfo = nil;
+      }
     } @catch (NSException *exception) {
       FIRMessagingLoggerInfo(kFIRMessagingMessageCodeTokenInfoBadAPNSInfo,
-                             @"Could not parse raw APNS Info while parsing archived token info.");
+                             @"Exception thrown while parsing raw APNS Info: %@", exception);
       rawAPNSInfo = nil;
     } @finally {
     }
