@@ -1,7 +1,9 @@
 # Unreleased
 - [fixed] Revert to using `kFPRSlowFrameThreshold` for slow frames on iOS to prevent
   falsely classifying 60 FPS frames as slow on ProMotion devices,
-  while preserving dynamic frame rate support for tvOS.
+  while preserving dynamic frame rate support for tvOS. (#10220)
+- [fixed] Honor `firebase_performance_swizzle_denylist` when registering objects
+  and proxies for swizzling. (#16469)
 
 # 12.16.0
 - [fixed] Fixed a crash in `FPRMemoryGaugeCollector` by collecting memory usage

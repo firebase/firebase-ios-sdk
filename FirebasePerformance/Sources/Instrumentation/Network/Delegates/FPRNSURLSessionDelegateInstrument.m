@@ -240,6 +240,11 @@ void CopySelector(SEL selector, FPRObjectInstrumentor *instrumentor) {
     if ([object respondsToSelector:@selector(gul_class)]) {
       return;
     }
+
+    if (![self isObjectInstrumentable:object]) {
+      return;
+    }
+
     FPRObjectInstrumentor *instrumentor = [[FPRObjectInstrumentor alloc] initWithObject:object];
 
     // Register the non-swizzled versions of these methods.
@@ -266,6 +271,10 @@ void CopySelector(SEL selector, FPRObjectInstrumentor *instrumentor) {
 }
 
 - (void)registerProxy:(id)proxy {
+  if (![self isObjectInstrumentable:proxy]) {
+    return;
+  }
+
   [FPRProxyObjectHelper registerProxyObject:proxy
                                 forProtocol:@protocol(NSURLSessionDelegate)
                             varFoundHandler:^(id ivar) {
