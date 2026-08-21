@@ -136,6 +136,13 @@ static FIRApp *sDefaultApp;
 }
 
 + (void)configureWithName:(NSString *)name options:(FIROptions *)options {
+  // Pre-cache the locale and calendar to prevent a race condition with C++ dependencies
+  // that temporarily mutate the global POSIX C locale during initialization.
+  // See https://github.com/firebase/firebase-ios-sdk/issues/16542
+  (void)[NSLocale currentLocale];
+  (void)[NSCalendar currentCalendar];
+  (void)[NSCalendar autoupdatingCurrentCalendar];
+
   if (!name || !options) {
     [NSException raise:kFirebaseCoreErrorDomain format:@"Neither name nor options can be nil."];
   }
