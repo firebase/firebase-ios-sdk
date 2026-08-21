@@ -14,6 +14,8 @@
 
 import FirebaseAuth
 import UIKit
+import GoogleSignIn
+import FacebookCore
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
   var window: UIWindow?
@@ -53,10 +55,24 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
   func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
     for urlContext in URLContexts {
       let url = urlContext.url
-      _ = Auth.auth().canHandle(url)
+      if Auth.auth().canHandle(url) {
+        continue;
+      }
+      // Handle Google signins
+      if GIDSignIn.sharedInstance.handle(url) {
+        continue;
+      }
+      // Handle Facebook signins
+      if ApplicationDelegate.shared.application(
+        UIApplication.shared,
+        open: url,
+        sourceApplication: urlContext.options.sourceApplication,
+        annotation: urlContext.options.annotation
+      ) {
+        continue
+      }
+      // URL not auth, Google, or Facebook related; it should be handled separately.
     }
-
-    // URL not auth related; it should be handled separately.
   }
 
   func scene(_ scene: UIScene, continue userActivity: NSUserActivity) {
