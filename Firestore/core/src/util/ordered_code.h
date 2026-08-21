@@ -39,6 +39,8 @@
 #ifndef FIRESTORE_CORE_SRC_UTIL_ORDERED_CODE_H_
 #define FIRESTORE_CORE_SRC_UTIL_ORDERED_CODE_H_
 
+#include <cstddef>
+#include <cstdint>
 #include <string>
 
 #include "absl/strings/string_view.h"

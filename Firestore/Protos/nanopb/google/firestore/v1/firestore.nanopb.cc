@@ -152,12 +152,13 @@ const pb_field_t google_firestore_v1_RunQueryResponse_fields[5] = {
     PB_LAST_FIELD
 };
 
-const pb_field_t google_firestore_v1_ExecutePipelineRequest_fields[6] = {
+const pb_field_t google_firestore_v1_ExecutePipelineRequest_fields[7] = {
     PB_FIELD(  1, BYTES   , SINGULAR, POINTER , FIRST, google_firestore_v1_ExecutePipelineRequest, database, database, 0),
     PB_ONEOF_FIELD(pipeline_type,   2, MESSAGE , ONEOF, STATIC  , OTHER, google_firestore_v1_ExecutePipelineRequest, structured_pipeline, database, &google_firestore_v1_StructuredPipeline_fields),
     PB_ONEOF_FIELD(consistency_selector,   5, BYTES   , ONEOF, POINTER , OTHER, google_firestore_v1_ExecutePipelineRequest, transaction, pipeline_type.structured_pipeline, 0),
     PB_ONEOF_FIELD(consistency_selector,   6, MESSAGE , ONEOF, STATIC  , UNION, google_firestore_v1_ExecutePipelineRequest, new_transaction, pipeline_type.structured_pipeline, &google_firestore_v1_TransactionOptions_fields),
     PB_ONEOF_FIELD(consistency_selector,   7, MESSAGE , ONEOF, STATIC  , UNION, google_firestore_v1_ExecutePipelineRequest, read_time, pipeline_type.structured_pipeline, &google_protobuf_Timestamp_fields),
+    PB_FIELD(  9, BOOL    , SINGULAR, STATIC  , OTHER, google_firestore_v1_ExecutePipelineRequest, auto_commit_transaction, consistency_selector.read_time, 0),
     PB_LAST_FIELD
 };
 
@@ -659,6 +660,8 @@ std::string google_firestore_v1_ExecutePipelineRequest::ToString(int indent) con
             consistency_selector.read_time, indent + 1, true);
         break;
     }
+    tostring_result += PrintPrimitiveField("auto_commit_transaction: ",
+        auto_commit_transaction, indent + 1, false);
 
     bool is_root = indent == 0;
     if (!tostring_result.empty() || is_root) {
