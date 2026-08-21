@@ -163,7 +163,7 @@ static const CGFloat kSwipeUpThreshold = -10.0f;
   // Calculate status bar height.
   UIStatusBarManager *manager =
       [[UIApplication sharedApplication] fir_foregroundWindowScene].statusBarManager;
-  CGFloat statusBarHeight = manager.statusBarFrame.size.height;
+  CGFloat statusBarHeight = manager ? manager.statusBarFrame.size.height : 0.0;
 
   // Pin title label below status bar with cushion.
   [[self.titleLabel.topAnchor constraintEqualToAnchor:self.view.topAnchor
