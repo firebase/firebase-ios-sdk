@@ -17,8 +17,7 @@ import XCTest
 
 @testable import FirebaseFunctions
 
-#if !os(watchOS)
-  @available(macOS 12.0, iOS 15.0, tvOS 15.0, *)
+  @available(macOS 12.0, watchOS 8.0, *)
   class FunctionsStreamTests: XCTestCase {
     private struct EmptyRequest: Encodable, Sendable {}
 
@@ -157,5 +156,4 @@ import XCTest
         XCTFail("Stream threw unexpected error type: \(error)")
       }
     }
-  }
-#endif
+
