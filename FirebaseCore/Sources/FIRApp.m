@@ -143,8 +143,8 @@ static FIRApp *sDefaultApp;
   // Pre-cache the locale and calendar to prevent a race condition with C++ dependencies
   // that temporarily mutate the global POSIX C locale during initialization.
   // See https://github.com/firebase/firebase-ios-sdk/issues/16542
-  static dispatch_once_t onceToken;
-  dispatch_once(&onceToken, ^{
+  static dispatch_once_t localeCacheOnceToken;
+  dispatch_once(&localeCacheOnceToken, ^{
     (void)[NSLocale currentLocale];
     (void)[NSCalendar currentCalendar];
     (void)[NSCalendar autoupdatingCurrentCalendar];
