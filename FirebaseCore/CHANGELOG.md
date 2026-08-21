@@ -1,3 +1,9 @@
+# Unreleased
+- [fixed] Fixed a race condition where initializing Firebase in a multi-threaded
+  environment could temporarily corrupt Foundation's locale and calendar caches,
+  resulting in unexpected behavior (e.g., losing the user's "First Day of Week"
+  override). (#16542)
+
 # Firebase 12.17.0
 - [changed] Removed the  (never activated) `recaptchaSiteKey` property from `FirebaseOptions`.
   This feature is part of the public preview reCAPTCHA provider.
