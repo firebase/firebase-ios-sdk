@@ -1,3 +1,8 @@
+# Unreleased
+- [changed] Requests directed to the local emulator over a non-loopback HTTP connection when tokens
+  are present will now explicitly fail with an `unauthenticated` error instead of silently omitting
+  the tokens and proceeding. (#16536)
+
 # 12.17.0
 - [fixed] Resolved a concurrency resource leak in Functions stream cancellation. (#16392)
 - [changed] Enforced stricter transport layer security when using the emulator:
