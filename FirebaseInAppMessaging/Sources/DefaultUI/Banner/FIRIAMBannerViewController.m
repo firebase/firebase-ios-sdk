@@ -19,6 +19,7 @@
 
 #import "FirebaseInAppMessaging/Sources/DefaultUI/Banner/FIRIAMBannerViewController.h"
 #import "FirebaseInAppMessaging/Sources/DefaultUI/FIRCore+InAppMessagingDisplay.h"
+#import "FirebaseInAppMessaging/Sources/Private/Util/UIApplication+FIRForegroundWindowScene.h"
 
 @interface FIRIAMBannerViewController ()
 
@@ -160,12 +161,8 @@ static const CGFloat kSwipeUpThreshold = -10.0f;
   self.view.layer.shadowOpacity = 0.4;
 
   // Calculate status bar height.
-  // TODO(#13068) : Fix keyWindow deprecation.
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   UIStatusBarManager *manager =
-      [UIApplication sharedApplication].keyWindow.windowScene.statusBarManager;
-#pragma clang diagnostic pop
+      [[UIApplication sharedApplication] fir_foregroundWindowScene].statusBarManager;
   CGFloat statusBarHeight = manager.statusBarFrame.size.height;
 
   // Pin title label below status bar with cushion.
