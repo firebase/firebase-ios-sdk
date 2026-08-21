@@ -144,6 +144,17 @@ PatchMutation FSTTestPatchMutation(NSString *path,
     if ([value isEqual:kDeleteSentinel]) {
       const FieldPath fieldPath = Field(MakeString(key));
       mutableValues[key] = [FIRFieldValue fieldValueForDelete];
+    } else if ([value isKindOfClass:[NSDictionary class]]) {
+      NSDictionary *dict = (NSDictionary *)value;
+      NSString *methodName = dict[@"_methodName"] ?: dict[@"methodName"];
+      if ([methodName isEqualToString:@"increment"]) {
+        id operand = dict[@"_operand"] ?: dict[@"operand"];
+        if ([operand isKindOfClass:[NSNumber class]]) {
+          mutableValues[key] = [FIRFieldValue fieldValueForDoubleIncrement:[operand doubleValue]];
+        } else if ([operand isKindOfClass:[NSString class]]) {
+          mutableValues[key] = [FIRFieldValue fieldValueForDoubleIncrement:[operand doubleValue]];
+        }
+      }
     }
   }];
 

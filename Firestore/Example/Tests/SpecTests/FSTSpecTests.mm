@@ -16,6 +16,8 @@
 
 #import "Firestore/Example/Tests/SpecTests/FSTSpecTests.h"
 
+#import <FirebaseFirestore/FIRDecimal128Value.h>
+#import <FirebaseFirestore/FIRFieldValue.h>
 #import <FirebaseFirestore/FIRFirestoreErrors.h>
 
 #include <stddef.h>
@@ -66,6 +68,7 @@
 #include "Firestore/core/src/util/comparison.h"
 #include "Firestore/core/src/util/filesystem.h"
 #include "Firestore/core/src/util/hard_assert.h"
+#include "Firestore/core/src/util/json_reader.h"
 #include "Firestore/core/src/util/log.h"
 #include "Firestore/core/src/util/path.h"
 #include "Firestore/core/src/util/status.h"
@@ -84,6 +87,7 @@ using firebase::firestore::api::ListenSource;
 using firebase::firestore::api::LoadBundleTask;
 using firebase::firestore::bundle::BundleReader;
 using firebase::firestore::bundle::BundleSerializer;
+using firebase::firestore::util::JsonReader;
 using firebase::firestore::core::DocumentViewChange;
 using firebase::firestore::core::ListenOptions;
 using firebase::firestore::core::Query;
@@ -584,7 +588,29 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
                 @"'keepInQueue=true' is not supported on iOS and should only be set in "
                 @"multi-client tests");
 
-  MutationResult mutationResult(version, Message<google_firestore_v1_ArrayValue>{});
+  Message<google_firestore_v1_ArrayValue> transformResults;
+  NSArray *resultsSpec = spec[@"transformResults"];
+  if (resultsSpec) {
+    const auto &database_info = [self.driver databaseInfo];
+    BundleSerializer bundle_serializer(remote::Serializer(database_info.database_id()));
+
+    transformResults = Message<google_firestore_v1_ArrayValue>{};
+    transformResults->values_count = static_cast<pb_size_t>(resultsSpec.count);
+    transformResults->values =
+        nanopb::MakeArray<google_firestore_v1_Value>(transformResults->values_count);
+    for (NSUInteger i = 0; i < resultsSpec.count; ++i) {
+      NSData *jsonData = [NSJSONSerialization dataWithJSONObject:resultsSpec[i]
+                                                         options:0
+                                                           error:nil];
+      std::string jsonStr((const char *)jsonData.bytes, jsonData.length);
+      nlohmann::json jsonVal = nlohmann::json::parse(jsonStr);
+      JsonReader reader;
+      Message<google_firestore_v1_Value> val = bundle_serializer.DecodeValue(reader, jsonVal);
+      transformResults->values[i] = *val.release();
+    }
+  }
+
+  MutationResult mutationResult(version, std::move(transformResults));
   std::vector<MutationResult> mutationResults;
   mutationResults.emplace_back(std::move(mutationResult));
   [self.driver receiveWriteAckWithVersion:version mutationResults:std::move(mutationResults)];
