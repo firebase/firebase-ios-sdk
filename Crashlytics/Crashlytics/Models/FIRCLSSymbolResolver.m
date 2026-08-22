@@ -62,8 +62,9 @@
 
     // base and size come from JSON and are occasionally missing, NSNull, or some other
     // non-numeric type, which would crash the sort comparator below.
-    if (![[details objectForKey:@"base"] isKindOfClass:[NSNumber class]] ||
-        ![[details objectForKey:@"size"] isKindOfClass:[NSNumber class]]) {
+    id base = [details objectForKey:@"base"];
+    id size = [details objectForKey:@"size"];
+    if (![base isKindOfClass:[NSNumber class]] || ![size isKindOfClass:[NSNumber class]]) {
       continue;
     }
 
