@@ -68,4 +68,13 @@
   XCTAssert([resolver loadBinaryImagesFromFile:binaryImagePath]);
 }
 
+- (void)testLoadingBinaryImagesWithStringBaseValue {
+  FIRCLSSymbolResolver* resolver = [[FIRCLSSymbolResolver alloc] init];
+
+  NSString* binaryImagePath =
+      [self pathForResource:@"binary_images_with_string_base_entry.clsrecord"];
+
+  XCTAssert([resolver loadBinaryImagesFromFile:binaryImagePath]);
+}
+
 @end

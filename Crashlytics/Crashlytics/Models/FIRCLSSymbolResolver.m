@@ -60,14 +60,10 @@
       continue;
     }
 
-    // This does happen occasionally and causes a crash. I'm really not sure there
-    // is anything sane we can do in this case.
-    if (![details objectForKey:@"base"] || ![details objectForKey:@"size"]) {
-      continue;
-    }
-
-    if ([details objectForKey:@"base"] == (id)[NSNull null] ||
-        [details objectForKey:@"size"] == (id)[NSNull null]) {
+    // base and size come from JSON and are occasionally missing, NSNull, or some other
+    // non-numeric type, which would crash the sort comparator below.
+    if (![[details objectForKey:@"base"] isKindOfClass:[NSNumber class]] ||
+        ![[details objectForKey:@"size"] isKindOfClass:[NSNumber class]]) {
       continue;
     }
 
