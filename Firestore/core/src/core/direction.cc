@@ -18,12 +18,16 @@
 
 #include <ostream>
 
+#include "absl/base/attributes.h"
+
 namespace firebase {
 namespace firestore {
 namespace core {
 
-const Direction Direction::Ascending(Direction::AscendingModifier);
-const Direction Direction::Descending(Direction::DescendingModifier);
+ABSL_CONST_INIT const Direction
+    Direction::Ascending(Direction::AscendingModifier);
+ABSL_CONST_INIT const Direction
+    Direction::Descending(Direction::DescendingModifier);
 
 std::string Direction::CanonicalId() const {
   return comparison_modifier_ == AscendingModifier ? "asc" : "desc";

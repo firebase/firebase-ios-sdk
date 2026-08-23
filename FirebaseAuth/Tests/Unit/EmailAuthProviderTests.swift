@@ -20,7 +20,6 @@ import XCTest
 /** @class FIREmailAuthProviderTests
     @brief Tests for @c FIREmailAuthProvider
  */
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class EmailAuthProviderTests: XCTestCase {
   /** @fn testEmailAuthCredentialCodingLink
       @brief Tests successful archiving and unarchiving of @c EmailAuthCredential.

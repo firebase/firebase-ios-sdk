@@ -21,7 +21,6 @@ import Foundation
 #endif
 
 /// Manage Storage's fetcherService
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 actor StorageFetcherService {
   static let shared = StorageFetcherService()
 
@@ -63,6 +62,11 @@ actor StorageFetcherService {
     testBlock = block
     if let _fetcherService {
       _fetcherService.testBlock = testBlock
+    }
+    for bucketMap in fetcherServiceMap.values {
+      for fetcherService in bucketMap.values {
+        fetcherService.testBlock = testBlock
+      }
     }
   }
 

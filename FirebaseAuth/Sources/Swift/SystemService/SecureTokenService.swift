@@ -17,7 +17,6 @@ import Foundation
 
 private let kFiveMinutes = 5 * 60.0
 
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 actor SecureTokenServiceInternal {
   /// Coalescer to deduplicate concurrent token refresh requests.
   /// When multiple requests arrive at the same time, only one network call is made.
@@ -130,7 +129,6 @@ actor SecureTokenServiceInternal {
 }
 
 /// A class represents a credential that proves the identity of the app.
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIRSecureTokenService) // objc Needed for decoding old versions
 final class SecureTokenService: NSObject, NSSecureCoding, Sendable {
   /// Internal actor to enforce serialization

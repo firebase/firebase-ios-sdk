@@ -84,7 +84,9 @@ NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(CollectionSourceStageBridge)
 @interface FIRCollectionSourceStageBridge : FIRStageBridge
 
-- (id)initWithRef:(FIRCollectionReference *)ref firestore:(FIRFirestore *)db;
+- (id)initWithRef:(FIRCollectionReference *)ref
+        firestore:(FIRFirestore *)db
+       forceIndex:(NSString *_Nullable)force_index;
 @end
 
 NS_SWIFT_SENDABLE
@@ -105,7 +107,7 @@ NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(CollectionGroupSourceStageBridge)
 @interface FIRCollectionGroupSourceStageBridge : FIRStageBridge
 
-- (id)initWithCollectionId:(NSString *)id;
+- (id)initWithCollectionId:(NSString *)id forceIndex:(NSString *_Nullable)force_index;
 @end
 
 NS_SWIFT_SENDABLE

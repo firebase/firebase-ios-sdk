@@ -23,7 +23,6 @@ import SharedTestUtilities
 
 import XCTest
 
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class StorageTests: XCTestCase {
   override class func setUp() {
     let options = FirebaseOptions(googleAppID: "0:0000000000000:ios:0000000000000000",
@@ -255,6 +254,20 @@ class StorageTests: XCTestCase {
     storage.maxOperationRetryTime = 11
     XCTAssertEqual(storage.maxOperationRetryTime, 11)
     XCTAssertEqual(storage.maxOperationRetryInterval, 8)
+  }
+
+  func testPOSIXErrorFormatting() throws {
+    let app = try getApp(bucket: "bucket")
+    let storage = Storage.storage(app: app)
+    let ref = storage.reference(withPath: "ios/public/testPOSIX40")
+    let posixError = NSError(domain: NSPOSIXErrorDomain, code: 40, userInfo: nil)
+    let storageError = StorageErrorCode.error(withServerError: posixError, ref: ref)
+    XCTAssertEqual(storageError.domain, StorageErrorDomain)
+    XCTAssertEqual(storageError.code, StorageErrorCode.unknown.rawValue)
+    XCTAssertEqual(
+      storageError.userInfo[NSLocalizedDescriptionKey] as? String,
+      "POSIX errno 40 (The operation couldn’t be completed. Message too long)"
+    )
   }
 
   // MARK: Private Helpers

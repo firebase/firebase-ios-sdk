@@ -15,7 +15,6 @@
 import Foundation
 
 /// A concrete implementation of `AuthProvider` for Email & Password Sign In.
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIREmailAuthProvider) open class EmailAuthProvider: NSObject {
   /// A string constant identifying the email & password identity provider.
   @objc public static let id = "password"
@@ -37,7 +36,6 @@ import Foundation
   }
 }
 
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIREmailPasswordAuthCredential) class EmailAuthCredential: AuthCredential, NSSecureCoding,
   @unchecked Sendable {
   let email: String

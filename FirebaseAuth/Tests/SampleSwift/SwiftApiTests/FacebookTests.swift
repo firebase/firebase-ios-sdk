@@ -44,7 +44,6 @@ import XCTest
 //    deleteFacebookTestingAccountbyID(facebookAccountID)
 //  }
 //
-//    @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 //    func testSignInWithFacebookAsync() async throws {
 //      let auth = Auth.auth()
 //      let userInfoDict = try await createFacebookTestingAccountAsync()
@@ -88,7 +87,6 @@ import XCTest
 //    deleteFacebookTestingAccountbyID(facebookAccountID)
 //  }
 //
-//    @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 //    func testLinkAnonymousAccountToFacebookAccountAsync() async throws {
 //      let auth = Auth.auth()
 //      try await signInAnonymouslyAsync()
@@ -147,7 +145,6 @@ import XCTest
 //    return returnValue
 //  }
 //
-//    @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 //    /// Creates a Facebook testing account using Facebook Graph API and return a dictionary that
 //    /// constains "id", "access_token", "login_url", "email" and "password" of the created
 //    /// account.
@@ -189,7 +186,6 @@ import XCTest
 //    waitForExpectations(timeout: TestsBase.kExpectationsTimeout)
 //  }
 //
-//    @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 //    // ** Delete a Facebook testing account by account Id using Facebook Graph API. */
 //    func deleteFacebookTestingAccountbyIDAsync(_ accountID: String) async throws {
 //      let urltoDeleteTestUser = "https://graph.facebook.com/\(accountID)"

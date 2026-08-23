@@ -38,7 +38,7 @@ struct SchemaTests {
 
   @Test(
     arguments: testConfigs(
-      instanceConfigs: InstanceConfig.allConfigs,
+      instanceConfigs: InstanceConfig.defaultConfigs,
       openAPISchema: .array(
         items: .string(description: "The name of the city"),
         description: "A list of city names",
@@ -73,7 +73,7 @@ struct SchemaTests {
   }
 
   @Test(arguments: testConfigs(
-    instanceConfigs: InstanceConfig.allConfigs,
+    instanceConfigs: InstanceConfig.defaultConfigs,
     openAPISchema: .integer(
       description: "A number",
       minimum: 110,
@@ -103,7 +103,7 @@ struct SchemaTests {
   }
 
   @Test(arguments: testConfigs(
-    instanceConfigs: InstanceConfig.allConfigs,
+    instanceConfigs: InstanceConfig.defaultConfigs,
     openAPISchema: .object(
       properties: [
         "productName": .string(description: "The name of the product"),
@@ -310,13 +310,13 @@ struct SchemaTests {
   }()
 
   @Test(arguments: testConfigs(
-    instanceConfigs: InstanceConfig.allConfigs,
+    instanceConfigs: InstanceConfig.defaultConfigs,
     openAPISchema: generateContentAnyOfOpenAPISchema,
     jsonSchema: generateContentAnyOfJSONSchema
   ))
   func generateContentAnyOfSchema(_ config: InstanceConfig, _ schema: SchemaType) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
-      modelName: ModelNames.gemini2_5_Flash,
+      modelName: ModelNames.gemini3_1_FlashLite,
       generationConfig: SchemaTests.generationConfig(schema: schema),
       safetySettings: safetySettings
     )

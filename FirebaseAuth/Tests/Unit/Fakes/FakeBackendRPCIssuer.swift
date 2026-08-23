@@ -21,7 +21,6 @@ import XCTest
 // TODO(ncooke3): Refactor to make checked Sendable.
 /// An implementation of `AuthBackendRPCIssuerProtocol` which is used to test
 /// backend request, response, and glue logic.
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 final class FakeBackendRPCIssuer: AuthBackendRPCIssuerProtocol, @unchecked Sendable {
   /** @property requestURL
       @brief The URL which was requested.

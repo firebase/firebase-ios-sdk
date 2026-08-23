@@ -34,39 +34,77 @@ jobs:
     with:
       target: ${{  matrix.target }}
       setup_command: scripts/update_vertexai_responses.sh
+      env_vars: '{"FIREBASE_APP_CHECK_BRANCH": "main"}'
 
   testapp-integration:
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false)
     strategy:
+      fail-fast: false
       matrix:
         include:
           - os: macos-15
             target: iOS
             xcode: Xcode_26.2
+            command: build-for-testing
+            test_filter_arg: ""
+            log_prefix: xcodebuild-build-for-testing
           - os: macos-26
             target: iOS
             # TODO: Bump to 26.4 when "Unable to find a destination matching the provided destination specifier" is resolved.
             xcode: Xcode_26.2
+            command: test
+            test_filter_arg: --exclude IntegrationTests-SPM/LiveSessionTests
+            log_prefix: xcodebuild
     runs-on: ${{ matrix.os }}
     needs: spm
     env:
       TEST_RUNNER_FIRAAppCheckDebugToken: ${{ secrets.VERTEXAI_INTEGRATION_FAC_DEBUG_TOKEN }}
-      TEST_RUNNER_VTXIntegrationImagen: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
       FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
       secrets_passphrase: ${{ secrets.GHASecretsGPGPassphrase1 }}
+      FIREBASE_APP_CHECK_BRANCH: main
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      with:
+        persist-credentials: false
     - uses: actions/cache/restore@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
       with:
         path: .build
         key: ${{ needs.spm.outputs.cache_key }}
     - name: Run integration tests
-      run: scripts/repo.sh tests run --secrets ./scripts/secrets/AI.json --platforms ${{ matrix.target }} --xcode ${{ matrix.xcode }} AI
+      run: scripts/repo.sh ${{ matrix.command }} --secrets ./scripts/secrets/AI.json --platforms ${{ matrix.target }} --xcode ${{ matrix.xcode }} ${{ matrix.test_filter_arg }} AI
     - name: Upload xcodebuild logs
       if: failure()
       uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
       with:
-        name: xcodebuild-${{ matrix.target }}-${{ matrix.os }}-${{ matrix.xcode }}.log
+        name: ${{ matrix.log_prefix }}-${{ matrix.target }}-${{ matrix.os }}-${{ matrix.xcode }}.log
+        path: xcodebuild-*.log
+        retention-days: 2
+
+  testapp-integration-live:
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false)
+    # TODO: Bump to 26.4 when "Unable to find a destination matching the provided destination specifier" is resolved.
+    runs-on: macos-26
+    needs: spm
+    env:
+      TEST_RUNNER_FIRAAppCheckDebugToken: ${{ secrets.VERTEXAI_INTEGRATION_FAC_DEBUG_TOKEN }}
+      FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
+      secrets_passphrase: ${{ secrets.GHASecretsGPGPassphrase1 }}
+      FIREBASE_APP_CHECK_BRANCH: main
+    steps:
+    - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      with:
+        persist-credentials: false
+    - uses: actions/cache/restore@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+      with:
+        path: .build
+        key: ${{ needs.spm.outputs.cache_key }}
+    - name: Run live integration tests
+      run: scripts/repo.sh test --secrets ./scripts/secrets/AI.json --platforms iOS --xcode Xcode_26.2 --filter IntegrationTests-SPM/LiveSessionTests AI
+    - name: Upload xcodebuild logs
+      if: failure()
+      uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+      with:
+        name: xcodebuild-live-iOS-macos-26-Xcode_26.2.log
         path: xcodebuild-*.log
         retention-days: 2
 
@@ -93,17 +131,16 @@ jobs:
     runs-on: ${{ matrix.os }}
     env:
       BRANCH_NAME: ${{ github.head_ref || github.ref_name || 'main' }}
+      FIREBASE_APP_CHECK_BRANCH: main
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      with:
+        persist-credentials: false
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
-    - name: Install simulators in case they are missing.
-      uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
+    - name: Setup simulator
+      uses: ./.github/actions/setup_simulator
       with:
-        timeout_minutes: 15
-        max_attempts: 5
-        retry_wait_seconds: 120
-        continue_on_error: true
-        command: xcodebuild -downloadPlatform iOS
+        platform: iOS
     - name: Build Quickstart
       run: scripts/quickstart_build_spm.sh FirebaseAI

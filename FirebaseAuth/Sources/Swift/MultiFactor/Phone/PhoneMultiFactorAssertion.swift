@@ -20,7 +20,6 @@ import Foundation
   /// second factor.
   ///
   /// This class is available on iOS and macOS.
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   @objc(FIRPhoneMultiFactorAssertion) open class PhoneMultiFactorAssertion: MultiFactorAssertion {
     var authCredential: PhoneAuthCredential?
 

@@ -78,7 +78,6 @@ private let kTenantIDKey = "tenantId"
 
 /// Represents the parameters for the setAccountInfo endpoint.
 /// See https://developers.google.com/identity/toolkit/web/reference/relyingparty/setAccountInfo
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class SetAccountInfoRequest: IdentityToolkitRequest, AuthRPCRequest {
   typealias Response = SetAccountInfoResponse
 

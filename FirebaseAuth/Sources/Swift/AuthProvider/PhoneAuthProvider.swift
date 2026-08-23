@@ -20,7 +20,6 @@ import Foundation
 /// A concrete implementation of `AuthProvider` for phone auth providers.
 ///
 /// This class is available on iOS only.
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIRPhoneAuthProvider) open class PhoneAuthProvider: NSObject, @unchecked Sendable {
   /// A string constant identifying the phone identity provider.
   @objc public static let id = "phone"
@@ -80,7 +79,7 @@ import Foundation
                                 completion: (@MainActor (String?, Error?) -> Void)?) {
       Task {
         do {
-          let verificationID = try await verifyPhoneNumber(
+          let verificationID: String = try await verifyPhoneNumber(
             phoneNumber,
             uiDelegate: uiDelegate,
             multiFactorSession: multiFactorSession
@@ -136,7 +135,7 @@ import Foundation
                                 completion: ((String?, Error?) -> Void)?) {
       Task {
         do {
-          let verificationID = try await verifyPhoneNumber(
+          let verificationID: String = try await verifyPhoneNumber(
             with: multiFactorInfo,
             uiDelegate: uiDelegate,
             multiFactorSession: multiFactorSession
@@ -309,6 +308,57 @@ import Foundation
       }
     }
 
+    private func executeMFARequest
+    (startMFARequestInfo: AuthProtoStartMFAPhoneRequestInfo,
+     multiFactorSession session: MultiFactorSession,
+     enrollmentInjector: ((StartMFAEnrollmentRequest) async throws -> Void)? = nil,
+     signInInjector: ((StartMFASignInRequest) async throws -> Void)? = nil) async throws
+      -> String? {
+      guard let idToken = session.idToken else {
+        let request = StartMFASignInRequest(
+          MFAPendingCredential: session.mfaPendingCredential,
+          MFAEnrollmentID: session.multiFactorInfo?.uid,
+          signInInfo: startMFARequestInfo,
+          requestConfiguration: auth.requestConfiguration
+        )
+        try await signInInjector?(request)
+        let response = try await auth.backend.call(with: request)
+        return response.responseInfo.sessionInfo
+      }
+
+      let request = StartMFAEnrollmentRequest(
+        idToken: idToken,
+        enrollmentInfo: startMFARequestInfo,
+        requestConfiguration: auth.requestConfiguration
+      )
+      try await enrollmentInjector?(request)
+      let response = try await auth.backend.call(with: request)
+      return response.phoneSessionInfo?.sessionInfo
+    }
+
+    private func verifyInTestMode(phoneNumber: String,
+                                  multiFactorSession session: MultiFactorSession?) async throws
+      -> String? {
+      guard let session else {
+        let request = SendVerificationCodeRequest(
+          phoneNumber: phoneNumber,
+          codeIdentity: CodeIdentity.empty,
+          requestConfiguration: auth.requestConfiguration
+        )
+        let response = try await auth.backend.call(with: request)
+        return response.verificationID
+      }
+
+      let startMFARequestInfo = AuthProtoStartMFAPhoneRequestInfo(
+        phoneNumber: phoneNumber,
+        codeIdentity: CodeIdentity.empty
+      )
+      return try await executeMFARequest(
+        startMFARequestInfo: startMFARequestInfo,
+        multiFactorSession: session
+      )
+    }
+
     /// Starts the flow to verify the client via silent push notification. This is used in both
     /// .Audit and .Enforce mode
     /// - Parameter retryOnInvalidAppCredential: Whether or not the flow should be retried if an
@@ -320,16 +370,6 @@ import Foundation
                                                               uiDelegate: AuthUIDelegate?,
                                                               recaptchaVerifier: AuthRecaptchaVerifier) async throws
       -> String? {
-      if let settings = auth.settings,
-         settings.isAppVerificationDisabledForTesting {
-        let request = SendVerificationCodeRequest(
-          phoneNumber: phoneNumber,
-          codeIdentity: CodeIdentity.empty,
-          requestConfiguration: auth.requestConfiguration
-        )
-        let response = try await auth.backend.call(with: request)
-        return response.verificationID
-      }
       guard let session else {
         return try await verifyClAndSendVerificationCodeWithRecaptcha(
           toPhoneNumber: phoneNumber,
@@ -341,30 +381,24 @@ import Foundation
       let startMFARequestInfo = AuthProtoStartMFAPhoneRequestInfo(phoneNumber: phoneNumber,
                                                                   codeIdentity: CodeIdentity.empty)
       do {
-        if let idToken = session.idToken {
-          let request = StartMFAEnrollmentRequest(idToken: idToken,
-                                                  enrollmentInfo: startMFARequestInfo,
-                                                  requestConfiguration: auth.requestConfiguration)
-          try await recaptchaVerifier.injectRecaptchaFields(
-            request: request,
-            provider: .phone,
-            action: .mfaSmsEnrollment
-          )
-          let response = try await auth.backend.call(with: request)
-          return response.phoneSessionInfo?.sessionInfo
-        } else {
-          let request = StartMFASignInRequest(MFAPendingCredential: session.mfaPendingCredential,
-                                              MFAEnrollmentID: session.multiFactorInfo?.uid,
-                                              signInInfo: startMFARequestInfo,
-                                              requestConfiguration: auth.requestConfiguration)
-          try await recaptchaVerifier.injectRecaptchaFields(
-            request: request,
-            provider: .phone,
-            action: .mfaSmsSignIn
-          )
-          let response = try await auth.backend.call(with: request)
-          return response.responseInfo.sessionInfo
-        }
+        return try await executeMFARequest(
+          startMFARequestInfo: startMFARequestInfo,
+          multiFactorSession: session,
+          enrollmentInjector: { request in
+            try await recaptchaVerifier.injectRecaptchaFields(
+              request: request,
+              provider: .phone,
+              action: .mfaSmsEnrollment
+            )
+          },
+          signInInjector: { request in
+            try await recaptchaVerifier.injectRecaptchaFields(
+              request: request,
+              provider: .phone,
+              action: .mfaSmsSignIn
+            )
+          }
+        )
       } catch {
         // For Audit fallback only after rCE check failed
         return try await handleVerifyErrorWithRetry(
@@ -391,14 +425,7 @@ import Foundation
       -> String? {
       if let settings = auth.settings,
          settings.isAppVerificationDisabledForTesting {
-        let request = SendVerificationCodeRequest(
-          phoneNumber: phoneNumber,
-          codeIdentity: CodeIdentity.empty,
-          requestConfiguration: auth.requestConfiguration
-        )
-
-        let response = try await auth.backend.call(with: request)
-        return response.verificationID
+        return try await verifyInTestMode(phoneNumber: phoneNumber, multiFactorSession: session)
       }
       guard let session else {
         // Phone MFA flow
@@ -421,20 +448,10 @@ import Foundation
         )
       }
       do {
-        if let idToken = session.idToken {
-          let request = StartMFAEnrollmentRequest(idToken: idToken,
-                                                  enrollmentInfo: startMFARequestInfo,
-                                                  requestConfiguration: auth.requestConfiguration)
-          let response = try await auth.backend.call(with: request)
-          return response.phoneSessionInfo?.sessionInfo
-        } else {
-          let request = StartMFASignInRequest(MFAPendingCredential: session.mfaPendingCredential,
-                                              MFAEnrollmentID: session.multiFactorInfo?.uid,
-                                              signInInfo: startMFARequestInfo,
-                                              requestConfiguration: auth.requestConfiguration)
-          let response = try await auth.backend.call(with: request)
-          return response.responseInfo.sessionInfo
-        }
+        return try await executeMFARequest(
+          startMFARequestInfo: startMFARequestInfo,
+          multiFactorSession: session
+        )
       } catch {
         return try await handleVerifyErrorWithRetry(
           error: error,

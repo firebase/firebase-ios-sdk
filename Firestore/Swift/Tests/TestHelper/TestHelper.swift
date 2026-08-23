@@ -181,7 +181,9 @@ public enum TestHelper {
                       file: StaticString = #file,
                       line: UInt = #line) {
     guard snapshot.results.count == expected.count else {
-      XCTFail("Mismatch in expected results count and actual results count.")
+      XCTFail(
+        "Mismatch in expected results count and actual results count. Expected \(expected.count), got \(snapshot.results.count)."
+      )
       return
     }
 

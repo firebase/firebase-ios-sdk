@@ -15,13 +15,13 @@
 #if compiler(>=6.2.3)
   /// A type that represents a large language model (LLM).
   public protocol LanguageModelProvider: Sendable {
-    /// Returns an instance of the ``LanguageModel`` corresponding to this provider.
+    /// Returns an instance of the ``FirebaseAI/LanguageModel`` corresponding to this provider.
     ///
     /// > Important: This method is for **internal use only** and may change at any time.
     ///
     /// - Parameter firebaseAI: A ``FirebaseAI`` instance that provides necessary context for
     ///   instantiating the model, such as the API configuration.
-    func _languageModel(firebaseAI: FirebaseAI) -> any LanguageModel
+    func _languageModel(firebaseAI: FirebaseAI) -> any FirebaseAI.LanguageModel
   }
 
   public extension LanguageModelProvider where Self == GeminiModelProvider {
@@ -87,7 +87,7 @@
   // `FirebaseAI.generativeModelSession(model:tools:instructions:)` method where `model` was a
   // simple `String` containing a Gemini model name.
   extension String: LanguageModelProvider {
-    public func _languageModel(firebaseAI: FirebaseAI) -> any LanguageModel {
+    public func _languageModel(firebaseAI: FirebaseAI) -> any FirebaseAI.LanguageModel {
       return firebaseAI.geminiModel(name: self)
     }
   }

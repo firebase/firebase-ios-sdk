@@ -21,7 +21,6 @@ import Foundation
   @preconcurrency import GTMSessionFetcherCore
 #endif
 
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 protocol AuthBackendRPCIssuerProtocol: Sendable {
   /// Asynchronously send a HTTP request.
   /// - Parameter request: The request to be made.
@@ -34,7 +33,6 @@ protocol AuthBackendRPCIssuerProtocol: Sendable {
                                          contentType: String) async -> (Data?, Error?)
 }
 
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 final class AuthBackendRPCIssuer: AuthBackendRPCIssuerProtocol {
   let fetcherService: GTMSessionFetcherService
 

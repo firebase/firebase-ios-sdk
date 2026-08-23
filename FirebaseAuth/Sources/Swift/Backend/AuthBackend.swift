@@ -21,12 +21,10 @@ import Foundation
   import GTMSessionFetcherCore
 #endif
 
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 protocol AuthBackendProtocol: Sendable {
   func call<T: AuthRPCRequest>(with request: T) async throws -> T.Response
 }
 
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 final class AuthBackend: AuthBackendProtocol {
   static func authUserAgent() -> String {
     return "FirebaseAuth.iOS/\(FirebaseVersion()) \(GTMFetcherStandardUserAgentString(nil))"
@@ -428,6 +426,8 @@ final class AuthBackend: AuthBackendProtocol {
       .error(code: AuthErrorCode.missingMultiFactorSession, message: serverDetailErrorMessage)
     case "MISSING_OR_INVALID_NONCE": return AuthErrorUtils
       .missingOrInvalidNonceError(message: serverDetailErrorMessage)
+    case "PASSWORD_DOES_NOT_MEET_REQUIREMENTS": return AuthErrorUtils
+      .passwordDoesNotMeetRequirementsError(message: serverDetailErrorMessage)
     case "SECOND_FACTOR_EXISTS": return AuthErrorUtils
       .error(code: AuthErrorCode.secondFactorAlreadyEnrolled, message: serverDetailErrorMessage)
     case "SECOND_FACTOR_LIMIT_EXCEEDED": return AuthErrorUtils

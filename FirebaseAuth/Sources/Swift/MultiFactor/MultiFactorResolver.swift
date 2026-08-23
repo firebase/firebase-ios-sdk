@@ -20,7 +20,6 @@ import Foundation
   /// second factor.
   ///
   /// This class is available on iOS and macOS.
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   @objc(FIRMultiFactorResolver)
   open class MultiFactorResolver: NSObject {
     /// The opaque session identifier for the current sign-in flow.
@@ -92,7 +91,6 @@ import Foundation
     /// A helper function to help users complete sign in with a second factor using a
     /// - Parameter assertion: The assertion confirming the user successfully
     ///  completed the second factor challenge.
-    @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     open func resolveSignIn(with assertion: MultiFactorAssertion) async throws -> AuthDataResult {
       return try await withCheckedThrowingContinuation { continuation in
         self.resolveSignIn(with: assertion) { result, error in

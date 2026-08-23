@@ -21,7 +21,6 @@ private import UniformTypeIdentifiers
   import CoreServices
 #endif // os(iOS) || os(tvOS)
 
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class StorageUtils {
   class func defaultRequestForReference(reference: StorageReference,
                                         queryParams: [String: String]? = nil)
@@ -78,7 +77,7 @@ class StorageUtils {
       return "application/octet-stream"
     }
     // TODO: Remove `else` when min. supported macOS is 11.0+.
-    if #available(macOS 11.0, iOS 14.0, tvOS 14.0, *) {
+    if #available(macOS 11.0, *) {
       guard let mimeType = UTType(filenameExtension: fileExtension)?.preferredMIMEType else {
         return "application/octet-stream"
       }

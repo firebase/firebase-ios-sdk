@@ -21,7 +21,6 @@ actor Counter {
   func value() -> Int { valueInternal }
 }
 
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class TokenRefreshCoalescerTests: XCTestCase {
   /// Tests that when multiple concurrent refresh requests arrive for the same token,
   /// only ONE network call is made.

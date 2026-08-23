@@ -18,7 +18,6 @@
 
   @testable import FirebaseAuth
 
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   class AuthNotificationManagerTests: XCTestCase {
     /** @var kReceipt
         @brief A fake receipt used for testing.
@@ -51,7 +50,7 @@
         storage: FakeAuthKeychainStorage()
       )
       appCredentialManager = AuthAppCredentialManager(withKeychain: fakeKeychain)
-      let application = UIApplication.shared
+      let application = FakeApplication()
       notificationManager = AuthNotificationManager(withApplication: application,
                                                     appCredentialManager: appCredentialManager!)
       modernDelegate = FakeForwardingDelegate(notificationManager!)
@@ -141,7 +140,10 @@
         .canHandle(notification: ["com.google.firebase.auth": ["error": "asdf"]]))
     }
 
-    private class FakeApplication: UIApplication {}
+    private class FakeApplication: AuthNotificationApplication, @unchecked Sendable {
+      weak var delegate: UIApplicationDelegate?
+      var applicationState: UIApplication.State = .active
+    }
 
     private class FakeForwardingDelegate: NSObject, UIApplicationDelegate {
       let notificationManager: AuthNotificationManager

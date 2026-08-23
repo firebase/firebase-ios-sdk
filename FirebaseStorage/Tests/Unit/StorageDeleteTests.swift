@@ -17,7 +17,6 @@ import Foundation
 import GTMSessionFetcherCore
 import XCTest
 
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class StorageDeleteTests: StorageTestHelpers {
   func testFetcherConfiguration() async {
     let testBlock = { (fetcher: GTMSessionFetcher!,
@@ -56,9 +55,6 @@ class StorageDeleteTests: StorageTestHelpers {
   func testSuccessfulFetchWithEmulator() async {
     let storage = self.storage()
     storage.useEmulator(withHost: "localhost", port: 8080)
-    let testBlock = successBlock(
-      withURL: URL(string: "http://localhost:8080/v0/b/bucket/o/object")!
-    )
     await StorageFetcherService.shared.updateTestBlock(successBlock())
     let path = objectPath()
     let ref = StorageReference(storage: storage, path: path)

@@ -73,7 +73,7 @@
     ///     native Gemini ``FirebaseAILogic/Tool``s, such as ``ToolRepresentable/googleSearch(_:)``,
     ///     or instances conforming to ``ToolRepresentable`` for automatic function calling.
     ///   - instructions: System instructions that direct the model's behavior.
-    init(model: any LanguageModel, tools: [any ToolRepresentable]? = nil,
+    init(model: any FirebaseAI.LanguageModel, tools: [any ToolRepresentable]? = nil,
          instructions: String? = nil) {
       sessionManager = SessionManager(model: model, tools: tools)
       self.instructions = instructions
@@ -401,13 +401,13 @@
       // TODO: Track when sessions have permanent failures.
       // TODO: Track and propagate history status (`Transcript`) for `modelSessions`.
 
-      private let model: any LanguageModel
+      private let model: any FirebaseAI.LanguageModel
       private let tools: [any ToolRepresentable]?
 
       private let _isResponding = UnfairLock(false)
       private(set) var _activeSession: (any _ModelSession)?
 
-      init(model: any LanguageModel, tools: [any ToolRepresentable]?) {
+      init(model: any FirebaseAI.LanguageModel, tools: [any ToolRepresentable]?) {
         self.model = model
         self.tools = tools
       }

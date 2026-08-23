@@ -17,7 +17,6 @@ import FirebaseFirestore
 import Foundation
 import XCTest
 
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class QueryToPipelineTests: FSTIntegrationTestCase {
   override func setUpWithError() throws {
     try super.setUpWithError()

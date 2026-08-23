@@ -24,7 +24,6 @@ import Foundation
   /// existing user, notably the confirmation that the user passed the first factor challenge.
   ///
   /// This class is available on iOS and macOS.
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   @objc(FIRMultiFactorSession) open class MultiFactorSession: NSObject {
     /// The ID token for an enroll flow. This has to be retrieved after recent authentication.
     let idToken: String?

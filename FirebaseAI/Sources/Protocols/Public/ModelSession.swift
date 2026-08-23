@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #if compiler(>=6.2.3)
-  /// A type that represents a session for interacting with a ``LanguageModel``.
+  /// A type that represents a session for interacting with a ``FirebaseAI/LanguageModel``.
   ///
   /// > Important: This protocol is for **internal use only** and may change at any time.
   public protocol _ModelSession: Sendable {

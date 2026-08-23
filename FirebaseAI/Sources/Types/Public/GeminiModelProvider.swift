@@ -26,13 +26,13 @@
       self.requestOptions = requestOptions
     }
 
-    /// Returns an instance of the ``LanguageModel`` corresponding to this provider.
+    /// Returns an instance of the ``FirebaseAI/LanguageModel`` corresponding to this provider.
     ///
     /// > Important: This method is for **internal use only** and may change at any time.
     ///
     /// - Parameter firebaseAI: A ``FirebaseAI`` instance that provides necessary context for
     ///   instantiating the model, such as the API configuration.
-    public func _languageModel(firebaseAI: FirebaseAI) -> any LanguageModel {
+    public func _languageModel(firebaseAI: FirebaseAI) -> any FirebaseAI.LanguageModel {
       return firebaseAI.geminiModel(
         name: modelName,
         safetySettings: safetySettings,

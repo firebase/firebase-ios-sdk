@@ -113,7 +113,7 @@ final class TemplateGenerativeModelTests: XCTestCase {
     XCTAssertEqual(firstChunk.placeID, "places/ChIJqdNaaBVbwokRLTafYrQlZI8")
   }
 
-  func testGenerateContent_success_mapsGrounding_vertexAI() async throws {
+  func testGenerateContent_success_mapsGrounding_agentPlatform() async throws {
     MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
       forResource: "unary-success-google-maps-grounding",
       withExtension: "json",
@@ -127,7 +127,7 @@ final class TemplateGenerativeModelTests: XCTestCase {
       urlSession: urlSession
     )
     let apiConfig = APIConfig(
-      service: .vertexAI(endpoint: .firebaseProxyProd, location: "us-central1"),
+      service: .agentPlatform(endpoint: .firebaseProxyProd, location: "us-central1"),
       version: .v1beta
     )
     let model = TemplateGenerativeModel(

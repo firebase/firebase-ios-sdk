@@ -16,7 +16,11 @@
 
 #import <Foundation/Foundation.h>
 
+#if SWIFT_PACKAGE
+#import <FirebaseAuthInterop/FIRAuthInterop.h>
+#else
 #import "FirebaseAuth/Interop/Public/FirebaseAuthInterop/FIRAuthInterop.h"
+#endif
 
 NS_ASSUME_NONNULL_BEGIN
 

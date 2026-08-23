@@ -25,13 +25,13 @@ struct BidiGenerationConfig: Encodable, Sendable {
   let presencePenalty: Float?
   let frequencyPenalty: Float?
   let responseModalities: [ResponseModality]?
-  let speechConfig: BidiSpeechConfig?
+  let speechConfig: ProtoSpeechConfig?
 
   init(temperature: Float? = nil, topP: Float? = nil, topK: Int? = nil,
        candidateCount: Int? = nil, maxOutputTokens: Int? = nil,
        presencePenalty: Float? = nil, frequencyPenalty: Float? = nil,
        responseModalities: [ResponseModality]? = nil,
-       speechConfig: BidiSpeechConfig? = nil) {
+       speechConfig: ProtoSpeechConfig? = nil) {
     self.temperature = temperature
     self.topP = topP
     self.topK = topK

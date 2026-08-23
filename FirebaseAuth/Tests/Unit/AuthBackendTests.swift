@@ -26,7 +26,6 @@ import FirebaseCoreExtension
 private let kFakeAPIKey = "kTestAPIKey"
 private let kFakeAppID = "kTestFirebaseAppID"
 
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class AuthBackendTests: RPCBaseTests {
   let kFakeErrorDomain = "fakeDomain"
   let kFakeErrorCode = -1
@@ -414,6 +413,58 @@ class AuthBackendTests: RPCBaseTests {
       XCTAssertEqual(rpcError.domain, AuthErrors.domain)
       XCTAssertEqual(rpcError.code, AuthErrorCode.blockingCloudFunctionError.rawValue)
       XCTAssertEqual(rpcError.localizedDescription, "invalid email")
+    }
+  }
+
+  /// Test Password doesn't meet requirements Function Error Response Flow.
+  func testPasswordDoesNotMeetRequirementsResponse() async throws {
+    let kErrorMessagePasswordDoesNotMeetRequirements =
+      "PASSWORD_DOES_NOT_MEET_REQUIREMENTS : Password does not meet requirements"
+    let responseError = NSError(domain: kFakeErrorDomain, code: kFakeErrorCode)
+    let request = FakeRequest(withRequestBody: [:])
+    rpcIssuer.respondBlock = {
+      try self.rpcIssuer.respond(
+        serverErrorMessage: kErrorMessagePasswordDoesNotMeetRequirements,
+        error: responseError
+      )
+    }
+    do {
+      let _ = try await authBackend.call(with: request)
+      XCTFail("Expected to throw")
+    } catch {
+      let rpcError = error as NSError
+      XCTAssertEqual(rpcError.domain, AuthErrors.domain)
+      XCTAssertEqual(rpcError.code, AuthErrorCode.passwordDoesNotMeetRequirements.rawValue)
+      XCTAssertEqual(
+        rpcError.localizedDescription,
+        "Password does not meet requirements"
+      )
+    }
+  }
+
+  /// Test Password doesn't meet requirements Function Error Response Flow with default error
+  /// message.
+  func testPasswordDoesNotMeetRequirementsResponseWithoutDetailMessage() async throws {
+    let kErrorMessagePasswordDoesNotMeetRequirements = "PASSWORD_DOES_NOT_MEET_REQUIREMENTS"
+    let responseError = NSError(domain: kFakeErrorDomain, code: kFakeErrorCode)
+    let request = FakeRequest(withRequestBody: [:])
+    rpcIssuer.respondBlock = {
+      try self.rpcIssuer.respond(
+        serverErrorMessage: kErrorMessagePasswordDoesNotMeetRequirements,
+        error: responseError
+      )
+    }
+    do {
+      let _ = try await authBackend.call(with: request)
+      XCTFail("Expected to throw")
+    } catch {
+      let rpcError = error as NSError
+      XCTAssertEqual(rpcError.domain, AuthErrors.domain)
+      XCTAssertEqual(rpcError.code, AuthErrorCode.passwordDoesNotMeetRequirements.rawValue)
+      XCTAssertEqual(
+        rpcError.localizedDescription,
+        "Missing password requirements."
+      )
     }
   }
 

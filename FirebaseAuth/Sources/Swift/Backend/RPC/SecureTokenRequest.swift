@@ -59,7 +59,6 @@ private let kCodeKey = "code"
 private nonisolated(unsafe) var gAPIHost = "securetoken.googleapis.com"
 
 /// Represents the parameters for the token endpoint.
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class SecureTokenRequest: AuthRPCRequest {
   typealias Response = SecureTokenResponse
 

@@ -17,7 +17,6 @@ import Foundation
 import GTMSessionFetcherCore
 import XCTest
 
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class StorageListTests: StorageTestHelpers {
   func testValidatesInput() {
     let expectation = self.expectation(description: #function)

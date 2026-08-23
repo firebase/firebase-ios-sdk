@@ -145,6 +145,10 @@ void DecodeCollectionSource(JsonReader& reader,
                             const json& from_json,
                             ResourcePath& parent,
                             std::string& group) {
+  if (!from_json.is_array()) {
+    reader.Fail("'from' clause is not an array");
+    return;
+  }
   const auto& from = from_json.get_ref<const std::vector<json>&>();
   if (from.size() != 1) {
     reader.Fail(
@@ -274,9 +278,10 @@ int32_t DecodeLimit(JsonReader& reader, const json& query) {
     // "limit" can be encoded as integer or "{"value": integer}".
     if (limit_object.is_number_integer()) {
       return limit_object.get<int32_t>();
-    } else if (limit_object.is_object()) {
-      if (limit_object.at("value").is_number_integer()) {
-        return limit_object.at("value").get<int32_t>();
+    } else if (limit_object.is_object() && limit_object.contains("value")) {
+      const auto& limit_value = limit_object.at("value");
+      if (limit_value.is_number_integer()) {
+        return limit_value.get<int32_t>();
       }
     }
     reader.Fail("'limit' is not encoded as a valid integer");
@@ -647,6 +652,11 @@ BundledDocumentMetadata BundleSerializer::DecodeDocumentMetadata(
   if (!reader.ok()) {
     return {};
   }
+  if (path.empty() || !DocumentKey::IsDocumentKey(path)) {
+    reader.Fail("Resource name is not a valid document key: " +
+                path.CanonicalString());
+    return {};
+  }
   DocumentKey key = DocumentKey(path);
 
   SnapshotVersion read_time = DecodeSnapshotVersion(
@@ -676,6 +686,11 @@ BundleDocument BundleSerializer::DecodeDocument(JsonReader& reader,
       DecodeName(reader, reader.RequiredObject("name", document));
   // Return early if !ok(), `DocumentKey` aborts with invalid inputs.
   if (!reader.ok()) {
+    return {};
+  }
+  if (path.empty() || !DocumentKey::IsDocumentKey(path)) {
+    reader.Fail("Resource name is not a valid document key: " +
+                path.CanonicalString());
     return {};
   }
   DocumentKey key = DocumentKey(path);

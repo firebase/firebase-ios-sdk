@@ -1130,16 +1130,34 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
   NSMutableArray<NSDictionary *> *parsedSpecs = [NSMutableArray array];
   BOOL exclusiveMode = NO;
 
-  // TODO(wilhuff): Fix this when running spec tests using a real device
-  auto source_file = Path::FromUtf8(__FILE__);
+  Path source_file = Path::FromUtf8(__FILE__);
   Path json_ext = Path::FromUtf8(".json");
   auto spec_dir = source_file.Dirname();
-  auto json_dir = spec_dir.AppendUtf8("json");
+  Path source_json_dir = spec_dir.AppendUtf8("json");
+  Path json_dir;
+
+  if (firebase::firestore::util::Filesystem::Default()->IsDirectory(source_json_dir).ok()) {
+    json_dir = source_json_dir;
+  } else {
+    NSBundle *bundle = [NSBundle bundleForClass:[self class]];
+    NSString *jsonPath = [bundle pathForResource:@"json" ofType:nil];
+    if (jsonPath) {
+      json_dir = Path::FromUtf8([jsonPath UTF8String]);
+    } else {
+      // If files are flattened, they are at the root of the bundle resources
+      json_dir = Path::FromUtf8([[bundle resourcePath] UTF8String]);
+    }
+  }
 
   auto iter = DirectoryIterator::Create(json_dir);
   for (; iter->Valid(); iter->Next()) {
     Path entry = iter->file();
     if (!entry.HasExtension(json_ext)) {
+      continue;
+    }
+
+    // Skip Bloom Filter golden files if we are iterating over the root bundle
+    if (entry.Basename().native_value().find("Validation_BloomFilterTest") != std::string::npos) {
       continue;
     }
 

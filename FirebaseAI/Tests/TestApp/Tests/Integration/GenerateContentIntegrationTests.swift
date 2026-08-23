@@ -48,11 +48,11 @@ struct GenerateContentIntegrationTests {
   }
 
   @Test(arguments: [
-    (InstanceConfig.vertexAI_v1beta, ModelNames.gemini2_5_FlashLite),
-    (InstanceConfig.vertexAI_v1beta_global, ModelNames.gemini2_5_FlashLite),
-    (InstanceConfig.vertexAI_v1beta_global_appCheckLimitedUse, ModelNames.gemini2_5_FlashLite),
-    (InstanceConfig.googleAI_v1beta, ModelNames.gemini3_1_FlashLitePreview),
-    (InstanceConfig.googleAI_v1beta_appCheckLimitedUse, ModelNames.gemini3_1_FlashLitePreview),
+    (InstanceConfig.agentPlatform_v1beta, ModelNames.gemini2_5_FlashLite),
+    (InstanceConfig.agentPlatform_v1beta_global, ModelNames.gemini2_5_FlashLite),
+    (InstanceConfig.agentPlatform_v1beta_global_appCheckLimitedUse, ModelNames.gemini2_5_FlashLite),
+    (InstanceConfig.googleAI_v1beta, ModelNames.gemini3_1_FlashLite),
+    (InstanceConfig.googleAI_v1beta_appCheckLimitedUse, ModelNames.gemini3_1_FlashLite),
     (InstanceConfig.googleAI_v1beta, ModelNames.gemma4_31B),
     (InstanceConfig.googleAI_v1beta_freeTier, ModelNames.gemma4_31B),
     // Note: The following configs are commented out for easy one-off manual testing.
@@ -105,7 +105,7 @@ struct GenerateContentIntegrationTests {
 
   @Test(
     "Generate an enum and provide a system instruction",
-    arguments: InstanceConfig.allConfigs
+    arguments: InstanceConfig.defaultConfigs
   )
   func generateContentEnum(_ config: InstanceConfig) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
@@ -149,57 +149,32 @@ struct GenerateContentIntegrationTests {
 
   @Test(
     arguments: [
-      (.vertexAI_v1beta, ModelNames.gemini2_5_Flash, ThinkingConfig(thinkingBudget: 0)),
-      (.vertexAI_v1beta, ModelNames.gemini2_5_Flash, ThinkingConfig(thinkingBudget: 24576)),
-      (.vertexAI_v1beta, ModelNames.gemini2_5_Flash, ThinkingConfig(
+      (.agentPlatform_v1beta, ModelNames.gemini2_5_Flash, ThinkingConfig(thinkingBudget: 0)),
+      (.agentPlatform_v1beta, ModelNames.gemini2_5_Flash, ThinkingConfig(thinkingBudget: 24576)),
+      (.agentPlatform_v1beta, ModelNames.gemini2_5_Flash, ThinkingConfig(
         thinkingBudget: 24576, includeThoughts: true
       )),
-      (.vertexAI_v1beta_global, ModelNames.gemini2_5_Pro, ThinkingConfig(thinkingBudget: 128)),
-      (.vertexAI_v1beta_global, ModelNames.gemini2_5_Pro, ThinkingConfig(thinkingBudget: 32768)),
-      (.vertexAI_v1beta_global, ModelNames.gemini2_5_Pro, ThinkingConfig(
-        thinkingBudget: 32768, includeThoughts: true
-      )),
-      (.googleAI_v1beta, ModelNames.gemini2_5_Flash, ThinkingConfig(thinkingBudget: 0)),
-      (.googleAI_v1beta, ModelNames.gemini2_5_Flash, ThinkingConfig(thinkingBudget: 24576)),
-      (.googleAI_v1beta, ModelNames.gemini2_5_Flash, ThinkingConfig(
-        thinkingBudget: 24576, includeThoughts: true
-      )),
-      (.googleAI_v1beta, ModelNames.gemini2_5_Pro, ThinkingConfig(thinkingBudget: 128)),
-      (.googleAI_v1beta, ModelNames.gemini2_5_Pro, ThinkingConfig(thinkingBudget: 32768)),
-      (.googleAI_v1beta, ModelNames.gemini2_5_Pro, ThinkingConfig(
-        thinkingBudget: 32768, includeThoughts: true
-      )),
+      (.agentPlatform_v1beta_global, ModelNames.gemini2_5_Pro, ThinkingConfig(thinkingBudget: 128)),
       (
-        .googleAI_v1beta,
-        ModelNames.gemini3_1_FlashLitePreview,
-        ThinkingConfig(thinkingLevel: .minimal)
-      ),
-      (
-        .googleAI_v1beta,
-        ModelNames.gemini3_1_FlashLitePreview,
-        ThinkingConfig(thinkingLevel: .low)
-      ),
-      (
-        .googleAI_v1beta,
-        ModelNames.gemini3_1_FlashLitePreview,
-        ThinkingConfig(thinkingLevel: .medium)
-      ),
-      (
-        .googleAI_v1beta,
-        ModelNames.gemini3_1_FlashLitePreview,
-        ThinkingConfig(thinkingLevel: .high)
-      ),
-      (
-        .googleAI_v1beta,
-        ModelNames.gemini3_1_FlashLitePreview,
-        ThinkingConfig(thinkingBudget: 0)
-      ),
-      (
-        .googleAI_v1beta,
-        ModelNames.gemini3_1_FlashLitePreview,
+        .agentPlatform_v1beta_global,
+        ModelNames.gemini2_5_Pro,
         ThinkingConfig(thinkingBudget: 32768)
       ),
-      (.googleAI_v1beta, ModelNames.gemini3_1_FlashLitePreview, ThinkingConfig(
+      (.agentPlatform_v1beta_global, ModelNames.gemini2_5_Pro, ThinkingConfig(
+        thinkingBudget: 32768, includeThoughts: true
+      )),
+      (.googleAI_v1beta, ModelNames.gemini2_5_FlashLite, ThinkingConfig(thinkingBudget: 0)),
+      (.googleAI_v1beta, ModelNames.gemini2_5_FlashLite, ThinkingConfig(thinkingBudget: 24576)),
+      (.googleAI_v1beta, ModelNames.gemini2_5_FlashLite, ThinkingConfig(
+        thinkingBudget: 24576, includeThoughts: true
+      )),
+      (.googleAI_v1beta, ModelNames.gemini3_1_FlashLite, ThinkingConfig(thinkingLevel: .minimal)),
+      (.googleAI_v1beta, ModelNames.gemini3_1_FlashLite, ThinkingConfig(thinkingLevel: .low)),
+      (.googleAI_v1beta, ModelNames.gemini3_1_FlashLite, ThinkingConfig(thinkingLevel: .medium)),
+      (.googleAI_v1beta, ModelNames.gemini3_1_FlashLite, ThinkingConfig(thinkingLevel: .high)),
+      (.googleAI_v1beta, ModelNames.gemini3_1_FlashLite, ThinkingConfig(thinkingBudget: 0)),
+      (.googleAI_v1beta, ModelNames.gemini3_1_FlashLite, ThinkingConfig(thinkingBudget: 32768)),
+      (.googleAI_v1beta, ModelNames.gemini3_1_FlashLite, ThinkingConfig(
         thinkingBudget: 32768, includeThoughts: true
       )),
       // Note: The following configs are commented out for easy one-off manual testing.
@@ -296,24 +271,24 @@ struct GenerateContentIntegrationTests {
 
   @Test(
     arguments: [
-      (.vertexAI_v1beta_global, ModelNames.gemini2_5_Flash, ThinkingConfig(thinkingBudget: -1)),
-      (.vertexAI_v1beta_global, ModelNames.gemini2_5_Flash, ThinkingConfig(
+      (
+        .agentPlatform_v1beta_global,
+        ModelNames.gemini2_5_Flash,
+        ThinkingConfig(thinkingBudget: -1)
+      ),
+      (.agentPlatform_v1beta_global, ModelNames.gemini2_5_Flash, ThinkingConfig(
         thinkingBudget: -1, includeThoughts: true
       )),
-      (.vertexAI_v1beta_global, ModelNames.gemini2_5_Pro, ThinkingConfig(thinkingBudget: -1)),
-      (.vertexAI_v1beta_global, ModelNames.gemini2_5_Pro, ThinkingConfig(
+      (.agentPlatform_v1beta_global, ModelNames.gemini2_5_Pro, ThinkingConfig(thinkingBudget: -1)),
+      (.agentPlatform_v1beta_global, ModelNames.gemini2_5_Pro, ThinkingConfig(
         thinkingBudget: -1, includeThoughts: true
       )),
-      (.googleAI_v1beta, ModelNames.gemini2_5_Flash, ThinkingConfig(thinkingBudget: -1)),
-      (.googleAI_v1beta, ModelNames.gemini2_5_Flash, ThinkingConfig(
+      (.googleAI_v1beta, ModelNames.gemini2_5_FlashLite, ThinkingConfig(thinkingBudget: -1)),
+      (.googleAI_v1beta, ModelNames.gemini2_5_FlashLite, ThinkingConfig(
         thinkingBudget: -1, includeThoughts: true
       )),
-      (.googleAI_v1beta, ModelNames.gemini2_5_Pro, ThinkingConfig(thinkingBudget: -1)),
-      (.googleAI_v1beta, ModelNames.gemini2_5_Pro, ThinkingConfig(
-        thinkingBudget: -1, includeThoughts: true
-      )),
-      (.googleAI_v1beta, ModelNames.gemini3_1_FlashLitePreview, ThinkingConfig(thinkingBudget: -1)),
-      (.googleAI_v1beta, ModelNames.gemini3_1_FlashLitePreview, ThinkingConfig(
+      (.googleAI_v1beta, ModelNames.gemini3_1_FlashLite, ThinkingConfig(thinkingBudget: -1)),
+      (.googleAI_v1beta, ModelNames.gemini3_1_FlashLite, ThinkingConfig(
         thinkingBudget: -1, includeThoughts: true
       )),
     ] as [(InstanceConfig, String, ThinkingConfig)]
@@ -383,11 +358,11 @@ struct GenerateContentIntegrationTests {
   }
 
   @Test(arguments: [
-    (InstanceConfig.vertexAI_v1beta, ModelNames.gemini2_5_FlashImage),
-    (InstanceConfig.vertexAI_v1beta_global, ModelNames.gemini2_5_FlashImage),
+    (InstanceConfig.agentPlatform_v1beta, ModelNames.gemini2_5_FlashImage),
+    (InstanceConfig.agentPlatform_v1beta_global, ModelNames.gemini2_5_FlashImage),
     (InstanceConfig.googleAI_v1beta, ModelNames.gemini2_5_FlashImage),
-    (InstanceConfig.googleAI_v1beta, ModelNames.gemini3_1_FlashImagePreview),
-    (InstanceConfig.vertexAI_v1beta_global, ModelNames.gemini3_1_FlashImagePreview),
+    (InstanceConfig.googleAI_v1beta, ModelNames.gemini3_1_FlashImage),
+    (InstanceConfig.agentPlatform_v1beta_global, ModelNames.gemini3_1_FlashImage),
   ])
   func generateImageWithAspectRatio(_ config: InstanceConfig, modelName: String) async throws {
     let imageConfig = ImageConfig(aspectRatio: .landscape16x9)
@@ -427,8 +402,8 @@ struct GenerateContentIntegrationTests {
   }
 
   @Test(arguments: [
-    (InstanceConfig.googleAI_v1beta, ModelNames.gemini3_1_FlashImagePreview),
-    (InstanceConfig.vertexAI_v1beta_global, ModelNames.gemini3_1_FlashImagePreview),
+    (InstanceConfig.googleAI_v1beta, ModelNames.gemini3_1_FlashImage),
+    (InstanceConfig.agentPlatform_v1beta_global, ModelNames.gemini3_1_FlashImage),
   ])
   func generateImageWithCustomSize(_ config: InstanceConfig, modelName: String) async throws {
     let imageConfig = ImageConfig(
@@ -471,11 +446,11 @@ struct GenerateContentIntegrationTests {
   }
 
   @Test(arguments: [
-    (InstanceConfig.vertexAI_v1beta, ModelNames.gemini2_5_FlashImage),
-    (InstanceConfig.vertexAI_v1beta_global, ModelNames.gemini2_5_FlashImage),
+    (InstanceConfig.agentPlatform_v1beta, ModelNames.gemini2_5_FlashImage),
+    (InstanceConfig.agentPlatform_v1beta_global, ModelNames.gemini2_5_FlashImage),
     (InstanceConfig.googleAI_v1beta, ModelNames.gemini2_5_FlashImage),
-    (InstanceConfig.googleAI_v1beta, ModelNames.gemini3_1_FlashImagePreview),
-    (InstanceConfig.vertexAI_v1beta_global, ModelNames.gemini3_1_FlashImagePreview),
+    (InstanceConfig.googleAI_v1beta, ModelNames.gemini3_1_FlashImage),
+    (InstanceConfig.agentPlatform_v1beta_global, ModelNames.gemini3_1_FlashImage),
   ])
   func generateContent_finishReason_imageSafety(_ config: InstanceConfig,
                                                 modelName: String) async throws {
@@ -491,7 +466,7 @@ struct GenerateContentIntegrationTests {
     do {
       let response = try await model.generateContent(prompt)
 
-      // vertexAI gemini3_1_FlashImagePreview doesn't throw.
+      // agentPlatform gemini3_1_FlashImage doesn't throw.
       let candidate = try #require(response.candidates.first)
       #expect(candidate.finishReason == .stop)
     } catch {
@@ -509,8 +484,8 @@ struct GenerateContentIntegrationTests {
   }
 
   @Test(arguments: [
-    (InstanceConfig.vertexAI_v1beta, ModelNames.gemini2_5_FlashImage),
-    (InstanceConfig.vertexAI_v1beta_global, ModelNames.gemini2_5_FlashImage),
+    (InstanceConfig.agentPlatform_v1beta, ModelNames.gemini2_5_FlashImage),
+    (InstanceConfig.agentPlatform_v1beta_global, ModelNames.gemini2_5_FlashImage),
     (InstanceConfig.googleAI_v1beta, ModelNames.gemini2_5_FlashImage),
     // Note: The following configs are commented out for easy one-off manual testing.
     // (InstanceConfig.googleAI_v1beta_staging, ModelNames.gemini2_5_FlashImage)
@@ -549,11 +524,11 @@ struct GenerateContentIntegrationTests {
 
   @Test(
     "generateContent with Google Search returns grounding metadata",
-    arguments: InstanceConfig.allConfigs
+    arguments: InstanceConfig.defaultConfigs
   )
   func generateContent_withGoogleSearch_succeeds(_ config: InstanceConfig) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
-      modelName: ModelNames.gemini2_5_Flash,
+      modelName: ModelNames.gemini3_1_FlashLite,
       tools: [.googleSearch()]
     )
     let prompt = "What is the weather in Toronto today?"
@@ -586,13 +561,11 @@ struct GenerateContentIntegrationTests {
     }
   }
 
-  @Test(
-    "generateContent with URL Context",
-    arguments: InstanceConfig.allConfigs
-  )
+  // TODO: b/524685673 - Re-enable googleAI_v1beta once backend bug is fixed.
+  @Test("generateContent with URL Context", arguments: [InstanceConfig.agentPlatform_v1beta_global])
   func generateContent_withURLContext_succeeds(_ config: InstanceConfig) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
-      modelName: ModelNames.gemini2_5_Flash,
+      modelName: ModelNames.gemini3_1_FlashLite,
       tools: [.urlContext()]
     )
     let url = "https://developers.googleblog.com/en/introducing-gemma-3-270m/"
@@ -607,10 +580,10 @@ struct GenerateContentIntegrationTests {
     #expect(retrievedURL == URL(string: url))
   }
 
-  @Test(arguments: InstanceConfig.allConfigs)
+  @Test(arguments: InstanceConfig.defaultConfigs)
   func generateContent_codeExecution_succeeds(_ config: InstanceConfig) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
-      modelName: ModelNames.gemini2_5_FlashLite,
+      modelName: ModelNames.gemini3_1_FlashLite,
       generationConfig: generationConfig,
       tools: [.codeExecution()]
     )
@@ -639,17 +612,14 @@ struct GenerateContentIntegrationTests {
   // MARK: Streaming Tests
 
   @Test(arguments: [
-    (InstanceConfig.vertexAI_v1beta, ModelNames.gemini2_5_FlashLite),
-    (InstanceConfig.vertexAI_v1beta_global, ModelNames.gemini3_1_FlashLitePreview),
-    (
-      InstanceConfig.vertexAI_v1beta_global_appCheckLimitedUse,
-      ModelNames.gemini3_1_FlashLitePreview
-    ),
+    (InstanceConfig.agentPlatform_v1beta, ModelNames.gemini2_5_FlashLite),
+    (InstanceConfig.agentPlatform_v1beta_global, ModelNames.gemini3_1_FlashLite),
+    (InstanceConfig.agentPlatform_v1beta_global_appCheckLimitedUse, ModelNames.gemini3_1_FlashLite),
     (InstanceConfig.googleAI_v1beta, ModelNames.gemini2_5_FlashLite),
     (InstanceConfig.googleAI_v1beta_appCheckLimitedUse, ModelNames.gemini2_5_FlashLite),
     (InstanceConfig.googleAI_v1beta, ModelNames.gemma4_31B),
     // Note: The following configs are commented out for easy one-off manual testing.
-    // (InstanceConfig.vertexAI_v1beta_staging, ModelNames.gemini2_5_FlashLite),
+    // (InstanceConfig.agentPlatform_v1beta_staging, ModelNames.gemini2_5_FlashLite),
     // (InstanceConfig.googleAI_v1beta_staging, ModelNames.gemini2_5_FlashLite),
     // (InstanceConfig.googleAI_v1beta_staging, ModelNames.gemma4_31B),
     // (InstanceConfig.googleAI_v1beta_freeTier_bypassProxy, ModelNames.gemini2_5_FlashLite),
@@ -723,8 +693,8 @@ struct GenerateContentIntegrationTests {
   }
 
   @Test(arguments: [
-    (InstanceConfig.vertexAI_v1beta, ModelNames.gemini2_5_FlashImage),
-    (InstanceConfig.vertexAI_v1beta_global, ModelNames.gemini2_5_FlashImage),
+    (InstanceConfig.agentPlatform_v1beta, ModelNames.gemini2_5_FlashImage),
+    (InstanceConfig.agentPlatform_v1beta_global, ModelNames.gemini2_5_FlashImage),
     (InstanceConfig.googleAI_v1beta, ModelNames.gemini2_5_FlashImage),
     // Note: The following configs are commented out for easy one-off manual testing.
     // (InstanceConfig.googleAI_v1beta_staging, ModelNames.gemini2_5_FlashImage)
@@ -778,7 +748,7 @@ struct GenerateContentIntegrationTests {
   @Test(arguments: InstanceConfig.appCheckNotConfiguredConfigs)
   func generateContent_appCheckNotConfigured_shouldFail(_ config: InstanceConfig) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
-      modelName: ModelNames.gemini2_5_Flash
+      modelName: ModelNames.gemini3_1_FlashLite
     )
     let prompt = "Where is Google headquarters located? Answer with the city name only."
 
@@ -795,6 +765,95 @@ struct GenerateContentIntegrationTests {
       }
 
       return String(describing: underlyingError).contains("Firebase App Check token is invalid")
+    }
+  }
+
+  @Test(arguments: InstanceConfig.defaultConfigs)
+  func generateContent_speechConfig(_ config: InstanceConfig) async throws {
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: ModelNames.gemini3_1_FlashTTSPreview,
+      generationConfig: GenerationConfig(
+        responseModalities: [.audio],
+        speechConfig: SpeechConfig(voiceName: "Charon", languageCode: "en-US")
+      ),
+      safetySettings: safetySettings
+    )
+    let response = try await model.generateContent("Hello")
+    let candidate = try #require(response.candidates.first)
+    #expect(candidate.finishReason == .stop)
+  }
+
+  @Test(arguments: InstanceConfig.defaultConfigs)
+  func generateContent_speechConfig_multiSpeaker(_ config: InstanceConfig) async throws {
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: ModelNames.gemini3_1_FlashTTSPreview,
+      generationConfig: GenerationConfig(
+        responseModalities: [.audio],
+        speechConfig: SpeechConfig(
+          multiSpeakerVoiceConfig: MultiSpeakerVoiceConfig(
+            speakerVoiceConfigs: [
+              SpeakerVoiceConfig(
+                speaker: "Speaker1",
+                voiceName: "Puck"
+              ),
+              SpeakerVoiceConfig(
+                speaker: "Speaker2",
+                voiceName: "Charon"
+              ),
+            ]
+          ),
+          languageCode: "en-US"
+        )
+      ),
+      safetySettings: safetySettings
+    )
+    let response = try await model.generateContent("Hello")
+    let candidate = try #require(response.candidates.first)
+    #expect(candidate.finishReason == .stop)
+  }
+
+  @Test(arguments: InstanceConfig.defaultConfigs)
+  func generateContent_speechConfig_multiSpeaker_invalidSize(_ config: InstanceConfig) async throws {
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: ModelNames.gemini3_1_FlashTTSPreview,
+      generationConfig: GenerationConfig(
+        responseModalities: [.audio],
+        speechConfig: SpeechConfig(
+          multiSpeakerVoiceConfig: MultiSpeakerVoiceConfig(
+            speakerVoiceConfigs: [
+              SpeakerVoiceConfig(
+                speaker: "Speaker1",
+                voiceName: "Puck"
+              ),
+              SpeakerVoiceConfig(
+                speaker: "Speaker2",
+                voiceName: "Charon"
+              ),
+              SpeakerVoiceConfig(
+                speaker: "Speaker3",
+                voiceName: "Aoede"
+              ),
+            ]
+          ),
+          languageCode: "en-US"
+        )
+      ),
+      safetySettings: safetySettings
+    )
+    do {
+      _ = try await model.generateContent("Hello")
+      Issue.record("Expected an error from the backend for invalid multi-speaker list size.")
+    } catch {
+      guard let error = error as? GenerateContentError else {
+        Issue.record("Expected GenerateContentError; got \(error.self).")
+        throw error
+      }
+      guard case let .internalError(underlyingError) = error else {
+        Issue.record("Expected internalError; got \(error.self).")
+        throw error
+      }
+      #expect(String(describing: underlyingError)
+        .contains("the number of enabled_voices must equal 2"))
     }
   }
 }

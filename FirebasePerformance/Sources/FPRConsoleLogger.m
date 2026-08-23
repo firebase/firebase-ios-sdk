@@ -61,6 +61,7 @@ NSString* const kFPRAttributeNameIllegalCharacters = @"I-PRF500004";
 // Manual network instrumentation codes.
 NSString* const kFPRInstrumentationInvalidInputs = @"I-PRF600001";
 NSString* const kFPRInstrumentationDisabledAfterConfigure = @"I-PRF600002";
+NSString* const kFPRSwizzleClassDenylisted = @"I-PRF600003";
 
 // FPR diagnostic message codes.
 NSString* const kFPRDiagnosticInfo = @"I-PRF700001";

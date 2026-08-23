@@ -17,9 +17,11 @@
 #include "Firestore/core/src/local/lru_garbage_collector.h"
 
 #include <chrono>
+
 #include <queue>
 #include <string>
 #include <utility>
+#include "absl/base/attributes.h"
 
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
 #include "Firestore/core/src/api/settings.h"
@@ -89,7 +91,7 @@ class RollingSequenceNumberBuffer {
 
 }  // namespace
 
-const ListenSequenceNumber kListenSequenceNumberInvalid = -1;
+ABSL_CONST_INIT const ListenSequenceNumber kListenSequenceNumberInvalid = -1;
 
 LruParams LruParams::Default() {
   return LruParams{100 * 1024 * 1024, 10, 1000};

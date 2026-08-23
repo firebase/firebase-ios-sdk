@@ -26,7 +26,7 @@
   struct GenerativeModelSessionTests {
     let generationConfig = GenerationConfig(temperature: 0.0, topP: 0.0, topK: 1)
 
-    @Test(arguments: [InstanceConfig.vertexAI_v1beta_global, InstanceConfig.googleAI_v1beta])
+    @Test(arguments: [InstanceConfig.agentPlatform_v1beta_global, InstanceConfig.googleAI_v1beta])
     func respondText(_ config: InstanceConfig) async throws {
       let firebaseAI = FirebaseAI.componentInstance(config)
       let session = firebaseAI.generativeModelSession(model: ModelNames.gemini2_5_FlashLite)
@@ -62,7 +62,7 @@
         var profile: String
       }
 
-      @Test(arguments: [InstanceConfig.vertexAI_v1beta_global, InstanceConfig.googleAI_v1beta])
+      @Test(arguments: [InstanceConfig.agentPlatform_v1beta_global, InstanceConfig.googleAI_v1beta])
       @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
       @available(tvOS, unavailable)
       @available(watchOS, unavailable)
@@ -90,7 +90,7 @@
         #expect(response.rawContent.generationID != nil)
       }
 
-      @Test(arguments: [InstanceConfig.vertexAI_v1beta_global, InstanceConfig.googleAI_v1beta])
+      @Test(arguments: [InstanceConfig.agentPlatform_v1beta_global, InstanceConfig.googleAI_v1beta])
       @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
       @available(tvOS, unavailable)
       @available(watchOS, unavailable)
@@ -177,7 +177,7 @@
         var recipes: [Recipe]
       }
 
-      @Test(arguments: [InstanceConfig.vertexAI_v1beta_global, InstanceConfig.googleAI_v1beta])
+      @Test(arguments: [InstanceConfig.agentPlatform_v1beta_global, InstanceConfig.googleAI_v1beta])
       @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
       @available(tvOS, unavailable)
       @available(watchOS, unavailable)
@@ -205,7 +205,7 @@
         #expect(response.rawContent.generationID != nil)
       }
 
-      @Test(arguments: [InstanceConfig.vertexAI_v1beta_global, InstanceConfig.googleAI_v1beta])
+      @Test(arguments: [InstanceConfig.agentPlatform_v1beta_global, InstanceConfig.googleAI_v1beta])
       @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
       @available(tvOS, unavailable)
       @available(watchOS, unavailable)
@@ -271,14 +271,14 @@
       }
     }
 
-    @Test(arguments: [InstanceConfig.vertexAI_v1beta_global, InstanceConfig.googleAI_v1beta])
+    @Test(arguments: [InstanceConfig.agentPlatform_v1beta_global, InstanceConfig.googleAI_v1beta])
     @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
     func respondTextWithAutomaticFunctionCalling(_ config: InstanceConfig) async throws {
       let temperatureTool = GetTemperature()
       let session = FirebaseAI.componentInstance(config).generativeModelSession(
-        model: ModelNames.gemini3_1_FlashLitePreview,
+        model: ModelNames.gemini3_1_FlashLite,
         tools: [temperatureTool],
         instructions: """
         You are a weather bot that specializes in reporting outdoor temperatures in Celsius.
@@ -305,14 +305,14 @@
       #expect(response.rawResponse.functionCalls.isEmpty)
     }
 
-    @Test(arguments: [InstanceConfig.vertexAI_v1beta_global, InstanceConfig.googleAI_v1beta])
+    @Test(arguments: [InstanceConfig.agentPlatform_v1beta_global, InstanceConfig.googleAI_v1beta])
     @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
     func respondGenerableWithAutomaticFunctionCalling(_ config: InstanceConfig) async throws {
       let temperatureTool = GetTemperature()
       let session = FirebaseAI.componentInstance(config).generativeModelSession(
-        model: ModelNames.gemini3_1_FlashLitePreview,
+        model: ModelNames.gemini3_1_FlashLite,
         tools: [temperatureTool],
         instructions: """
         You are a weather bot that specializes in reporting outdoor temperatures in Celsius.
@@ -338,10 +338,11 @@
       #expect(response.rawResponse.functionCalls.isEmpty)
     }
 
-    @Test(arguments: [InstanceConfig.vertexAI_v1beta_global, InstanceConfig.googleAI_v1beta])
+    // TODO: b/524685673 - Re-enable googleAI_v1beta once backend bug is fixed.
+    @Test(arguments: [InstanceConfig.agentPlatform_v1beta_global])
     func respondTextWithURLContext(_ config: InstanceConfig) async throws {
       let session = FirebaseAI.componentInstance(config).generativeModelSession(
-        model: ModelNames.gemini2_5_Flash,
+        model: ModelNames.gemini3_1_FlashLite,
         tools: [.urlContext()]
       )
       let url = "https://blog.google/innovation-and-ai/technology/developers-tools/functiongemma/"
@@ -359,7 +360,7 @@
       #expect(retrievedURL == URL(string: url))
     }
 
-    @Test(arguments: [InstanceConfig.vertexAI_v1beta_global, InstanceConfig.googleAI_v1beta])
+    @Test(arguments: [InstanceConfig.agentPlatform_v1beta_global, InstanceConfig.googleAI_v1beta])
     func streamResponseText(_ config: InstanceConfig) async throws {
       let firebaseAI = FirebaseAI.componentInstance(config)
       let session = firebaseAI.generativeModelSession(model: ModelNames.gemini2_5_FlashLite)
@@ -402,7 +403,7 @@
     }
 
     #if canImport(FoundationModels)
-      @Test(arguments: [InstanceConfig.vertexAI_v1beta_global, InstanceConfig.googleAI_v1beta])
+      @Test(arguments: [InstanceConfig.agentPlatform_v1beta_global, InstanceConfig.googleAI_v1beta])
       @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
       @available(tvOS, unavailable)
       @available(watchOS, unavailable)
@@ -457,13 +458,13 @@
         #expect(!catProfile.profile.isEmpty)
       }
 
-      @Test(arguments: [InstanceConfig.vertexAI_v1beta_global, InstanceConfig.googleAI_v1beta])
+      @Test(arguments: [InstanceConfig.agentPlatform_v1beta_global, InstanceConfig.googleAI_v1beta])
       @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
       @available(tvOS, unavailable)
       @available(watchOS, unavailable)
       func streamResponseGenerable(_ config: InstanceConfig) async throws {
         let firebaseAI = FirebaseAI.componentInstance(config)
-        let session = firebaseAI.generativeModelSession(model: ModelNames.gemini2_5_FlashLite)
+        let session = firebaseAI.generativeModelSession(model: ModelNames.gemini3_1_FlashLite)
         let prompt = "Generate a Ragdoll kitten"
         let config = GenerationConfig(
           thinkingConfig: ThinkingConfig(thinkingBudget: -1, includeThoughts: true)
@@ -531,14 +532,14 @@
         #expect(!catProfile.profile.isEmpty)
       }
 
-      @Test(arguments: [InstanceConfig.vertexAI_v1beta_global, InstanceConfig.googleAI_v1beta])
+      @Test(arguments: [InstanceConfig.agentPlatform_v1beta_global, InstanceConfig.googleAI_v1beta])
       @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
       @available(tvOS, unavailable)
       @available(watchOS, unavailable)
       func streamResponseTextWithAutomaticFunctionCalling(_ config: InstanceConfig) async throws {
         let temperatureTool = GetTemperature()
         let session = FirebaseAI.componentInstance(config).generativeModelSession(
-          model: ModelNames.gemini3_1_FlashLitePreview,
+          model: ModelNames.gemini3_1_FlashLite,
           tools: [temperatureTool],
           instructions: """
           You are a weather bot that specializes in reporting outdoor temperatures in Celsius.

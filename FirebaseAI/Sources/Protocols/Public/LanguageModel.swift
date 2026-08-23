@@ -13,24 +13,28 @@
 // limitations under the License.
 
 #if compiler(>=6.2.3)
-  /// A type that represents a large language model (LLM).
-  public protocol LanguageModel: LanguageModelProvider {
-    /// Returns the name of the model.
-    ///
-    /// > Important: This property is for **internal use only** and may change at any time.
-    var _modelName: String { get }
+  public extension FirebaseAI {
+    /// A type that represents a large language model (LLM).
+    protocol LanguageModel: LanguageModelProvider {
+      /// Returns the name of the model.
+      ///
+      /// > Important: This property is for **internal use only** and may change at any time.
+      var _modelName: String { get }
 
-    /// Returns a new session for this model.
-    ///
-    /// > Important: This method is for **internal use only** and may change at any time.
-    func _startSession(tools: [any ToolRepresentable]?, instructions: String?) throws
-      -> any _ModelSession
+      /// Returns a new session for this model.
+      ///
+      /// > Important: This method is for **internal use only** and may change at any time.
+      func _startSession(tools: [any ToolRepresentable]?, instructions: String?) throws
+        -> any _ModelSession
+    }
   }
 
-  // Default implementation to allow a `LanguageModel` to conform to `LanguageModelProvider`.
-  public extension LanguageModel {
-    func _languageModel(firebaseAI: FirebaseAI) -> any LanguageModel {
-      // A `LanguageModel` can simply provide itself since it is already a `LanguageModel`.
+  // Default implementation to allow a `FirebaseAI.LanguageModel` to conform to
+  // `LanguageModelProvider`.
+  public extension FirebaseAI.LanguageModel {
+    func _languageModel(firebaseAI: FirebaseAI) -> any FirebaseAI.LanguageModel {
+      // A `FirebaseAI.LanguageModel` can simply provide itself since it is already a
+      // `FirebaseAI.LanguageModel`.
       return self
     }
   }

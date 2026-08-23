@@ -26,8 +26,8 @@ final class VoiceConfigTests: XCTestCase {
   }
 
   func testEncodeVoiceConfig_prebuiltVoice() throws {
-    let voice = VoiceConfig.prebuiltVoiceConfig(
-      PrebuiltVoiceConfig(voiceName: "Zephyr")
+    let voice = ProtoVoiceConfig.prebuiltVoiceConfig(
+      ProtoPrebuiltVoiceConfig(voiceName: "Zephyr")
     )
 
     let jsonData = try encoder.encode(voice)
@@ -43,8 +43,8 @@ final class VoiceConfigTests: XCTestCase {
   }
 
   func testEncodeVoiceConfig_customVoice() throws {
-    let voice = VoiceConfig.customVoiceConfig(
-      CustomVoiceConfig(customVoiceSample: Data(repeating: 5, count: 5))
+    let voice = ProtoVoiceConfig.customVoiceConfig(
+      ProtoCustomVoiceConfig(customVoiceSample: Data(repeating: 5, count: 5))
     )
 
     let jsonData = try encoder.encode(voice)

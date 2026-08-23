@@ -23,7 +23,7 @@ protocol GenerativeAIRequest: Sendable, Encodable {
 }
 
 /// Configuration parameters for sending requests to the backend.
-public struct RequestOptions: Sendable {
+public struct RequestOptions: Sendable, Hashable {
   /// The request’s timeout interval in seconds; if not specified uses the default value for a
   /// `URLRequest`.
   let timeout: TimeInterval

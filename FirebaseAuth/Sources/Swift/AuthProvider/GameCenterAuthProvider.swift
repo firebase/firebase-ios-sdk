@@ -17,7 +17,6 @@
   import GameKit
 
   /// A concrete implementation of `AuthProvider` for Game Center Sign In. Not available on watchOS.
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   @objc(FIRGameCenterAuthProvider) open class GameCenterAuthProvider: NSObject {
     /// A string constant identifying the Game Center identity provider.
     @objc public static let id = "gc.apple.com"
@@ -59,7 +58,7 @@
     }
 
     /// Creates an `AuthCredential` for a Game Center sign in.
-    @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
+    @available(watchOS 8, *)
     open class func getCredential() async throws -> AuthCredential {
       return try await withCheckedThrowingContinuation { continuation in
         getCredential { credential, error in
@@ -78,7 +77,6 @@
     }
   }
 
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   @objc(FIRGameCenterAuthCredential)
   class GameCenterAuthCredential: AuthCredential, NSSecureCoding, @unchecked Sendable {
     let playerID: String?

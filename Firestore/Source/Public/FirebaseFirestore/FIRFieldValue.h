@@ -93,6 +93,54 @@ NS_SWIFT_NAME(FieldValue)
 + (instancetype)fieldValueForIntegerIncrement:(int64_t)l NS_SWIFT_NAME(increment(_:));
 
 /**
+ * Returns a special value that can be used with `setData()` or `updateData()` that tells the server
+ * to set the field to the minimum of its current value and the given value.
+ *
+ * If the current field value is not an integer or double, or if the field does not yet exist,
+ * the transformation will set the field to the given value.
+ *
+ * @param d The double value to compare.
+ * @return The `FieldValue` sentinel for use in a call to `setData()` or `updateData()`.
+ */
++ (instancetype)fieldValueForDoubleMinimum:(double)d NS_SWIFT_NAME(minimum(_:));
+
+/**
+ * Returns a special value that can be used with `setData()` or `updateData()` that tells the server
+ * to set the field to the minimum of its current value and the given value.
+ *
+ * If the current field value is not an integer or double, or if the field does not yet exist,
+ * the transformation will set the field to the given value.
+ *
+ * @param l The integer value to compare.
+ * @return The `FieldValue` sentinel for use in a call to `setData()` or `updateData()`.
+ */
++ (instancetype)fieldValueForIntegerMinimum:(int64_t)l NS_SWIFT_NAME(minimum(_:));
+
+/**
+ * Returns a special value that can be used with `setData()` or `updateData()` that tells the server
+ * to set the field to the maximum of its current value and the given value.
+ *
+ * If the current field value is not an integer or double, or if the field does not yet exist,
+ * the transformation will set the field to the given value.
+ *
+ * @param d The double value to compare.
+ * @return The `FieldValue` sentinel for use in a call to `setData()` or `updateData()`.
+ */
++ (instancetype)fieldValueForDoubleMaximum:(double)d NS_SWIFT_NAME(maximum(_:));
+
+/**
+ * Returns a special value that can be used with `setData()` or `updateData()` that tells the server
+ * to set the field to the maximum of its current value and the given value.
+ *
+ * If the current field value is not an integer or double, or if the field does not yet exist,
+ * the transformation will set the field to the given value.
+ *
+ * @param l The integer value to compare.
+ * @return The `FieldValue` sentinel for use in a call to `setData()` or `updateData()`.
+ */
++ (instancetype)fieldValueForIntegerMaximum:(int64_t)l NS_SWIFT_NAME(maximum(_:));
+
+/**
  * Creates a new `VectorValue` constructed with a copy of the given array of NSNumbers.
  *
  * @param array Create a `VectorValue` instance with a copy of this array of NSNumbers.

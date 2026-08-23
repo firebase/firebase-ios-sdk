@@ -16,6 +16,8 @@
 
 #import "FirebaseMessaging/Sources/Token/FIRMessagingTokenOperation.h"
 
+@protocol FIRHeartbeatLoggerProtocol;
+
 NS_ASSUME_NONNULL_BEGIN
 
 FOUNDATION_EXPORT NSString *const kFIRMessagingFirebaseUserAgentKey;

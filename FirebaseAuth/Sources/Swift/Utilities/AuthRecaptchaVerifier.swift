@@ -21,7 +21,6 @@
   #endif
   import RecaptchaInterop
 
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   class AuthRecaptchaConfig {
     var siteKey: String?
     let enablementStatus: [AuthRecaptchaProvider: AuthRecaptchaEnablementStatus]
@@ -33,7 +32,6 @@
     }
   }
 
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   enum AuthRecaptchaEnablementStatus: String, CaseIterable {
     case enforce = "ENFORCE"
     case audit = "AUDIT"
@@ -43,7 +41,6 @@
     var stringValue: String { rawValue }
   }
 
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   enum AuthRecaptchaProvider: String, CaseIterable {
     case password = "EMAIL_PASSWORD_PROVIDER"
     case phone = "PHONE_PROVIDER"
@@ -52,7 +49,6 @@
     var stringValue: String { rawValue }
   }
 
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   enum AuthRecaptchaAction: String {
     case defaultAction
     case signInWithPassword
@@ -66,7 +62,6 @@
     var stringValue: String { rawValue }
   }
 
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   class AuthRecaptchaVerifier {
     private(set) weak var auth: Auth?
     private(set) var agentConfig: AuthRecaptchaConfig?
