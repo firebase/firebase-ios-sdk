@@ -42,7 +42,8 @@ actor SessionsState {
     if expectedSubscribers.isEmpty || registeredSubscribers.isSuperset(of: expectedSubscribers) {
       return
     }
-    // Note: If cancellation is required, use withTaskCancellationHandler and a throwing continuation.
+    // Note: If cancellation is required, use withTaskCancellationHandler and a throwing
+    // continuation.
     await withCheckedContinuation { continuation in
       continuations.append(continuation)
     }

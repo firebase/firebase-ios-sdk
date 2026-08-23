@@ -26,23 +26,23 @@ final class SessionsStateTests: XCTestCase {
 
   func test_waitUntilAllRegistered_waitsForDependencies() async {
     let state = SessionsState(expectedSubscribers: [.Crashlytics, .Performance])
-    
+
     let waitTask = Task {
       await state.waitUntilAllRegistered()
     }
-    
+
     // Simulate one dependency registering
     await state.register(subscriber: MockSubscriber(name: .Crashlytics), name: .Crashlytics)
-    
+
     // Ensure the task hasn't finished (it's still waiting)
     // We give it a tiny delay to ensure it didn't resume early.
     do {
       try await Task.sleep(nanoseconds: 100_000_000) // 100ms to reduce flakiness
     } catch {}
-    
+
     // Now complete the registration
     await state.register(subscriber: MockSubscriber(name: .Performance), name: .Performance)
-    
+
     // The wait task should now complete
     await waitTask.value
     XCTAssertTrue(true, "Completed after all dependencies registered")
@@ -51,11 +51,11 @@ final class SessionsStateTests: XCTestCase {
   func test_subsequentWaits_returnImmediately() async {
     let state = SessionsState(expectedSubscribers: [.Crashlytics])
     await state.register(subscriber: MockSubscriber(name: .Crashlytics), name: .Crashlytics)
-    
+
     // These should return immediately and not suspend indefinitely
     await state.waitUntilAllRegistered()
     await state.waitUntilAllRegistered()
-    
+
     XCTAssertTrue(true, "Subsequent waits returned immediately")
   }
 }

@@ -19,11 +19,6 @@ internal import FirebaseCoreExtension
 internal import FirebaseInstallations
 internal import GoogleDataTransport
 
-#if swift(>=6.0)
-#elseif swift(>=5.10)
-#else
-#endif
-
 private enum GoogleDataTransportConfig {
   static let sessionsLogSource = "1974"
   static let sessionsTarget = GDTCORTarget.FLL
@@ -147,7 +142,7 @@ private enum GoogleDataTransportConfig {
     self.loggedEventCallbackQueue = loggedEventCallbackQueue
 
     let dependencies = SessionsDependencies.dependencies
-    self.state = SessionsState(expectedSubscribers: dependencies)
+    state = SessionsState(expectedSubscribers: dependencies)
 
     super.init()
 
@@ -181,7 +176,7 @@ private enum GoogleDataTransportConfig {
       Task {
         await self.state.waitUntilAllRegistered()
         let subscribers = await self.state.currentSubscribers
-        
+
         self.loggedEventCallbackQueue.async {
           let isAnyDataCollectionEnabled = subscribers.contains { $0.isDataCollectionEnabled }
           guard isAnyDataCollectionEnabled else {
