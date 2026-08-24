@@ -78,6 +78,7 @@
 
 - (BOOL)registerClassInstrumentor:(FPRClassInstrumentor *)instrumentor {
   @synchronized(self) {
+    // Check if it's in the denylist.
     if (![self isClassInstrumentable:instrumentor.instrumentedClass]) {
       return NO;
     }
