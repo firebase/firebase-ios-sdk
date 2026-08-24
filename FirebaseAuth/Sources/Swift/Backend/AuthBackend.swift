@@ -70,7 +70,7 @@ final class AuthBackend: AuthBackendProtocol {
       await requestConfiguration.heartbeatLogger?.asyncHeaderValue()
     }
     let appCheckTokenHeaderValue = Task {
-      await requestConfiguration.appCheck?.getToken(forcingRefresh: false)
+      await requestConfiguration.appCheck?.getTokenResult(forcingRefresh: false)
     }
 
     return await withTaskCancellationHandler {
