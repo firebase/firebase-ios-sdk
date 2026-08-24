@@ -13,9 +13,7 @@
 // limitations under the License.
 
 import Foundation
-#if SWIFT_PACKAGE
-  @preconcurrency import FirebaseAppCheckInterop
-#endif
+@preconcurrency import FirebaseAppCheckInterop
 
 extension AppCheckInterop {
   func getTokenResult(forcingRefresh: Bool) async -> (token: String, error: Error?) {
