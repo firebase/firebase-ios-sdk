@@ -23,9 +23,9 @@ Firebase Cloud Messaging and Firebase Remote Config in your app.
   s.social_media_url = 'https://twitter.com/Firebase'
 
   ios_deployment_target = '15.0'
-  osx_deployment_target = '10.15'
+  osx_deployment_target = '11.0'
   tvos_deployment_target = '15.0'
-  watchos_deployment_target = '7.0'
+  watchos_deployment_target = '8.0'
 
   s.ios.deployment_target = ios_deployment_target
   s.osx.deployment_target = osx_deployment_target
@@ -57,7 +57,7 @@ Firebase Cloud Messaging and Firebase Remote Config in your app.
     unit_tests.scheme = { :code_coverage => true }
     unit_tests.platforms = {
       :ios => ios_deployment_target,
-      :osx => '10.15',
+      :osx => osx_deployment_target,
       :tvos => tvos_deployment_target
     }
     unit_tests.source_files = 'FirebaseABTesting/Tests/Unit/**/*.[mh]'
