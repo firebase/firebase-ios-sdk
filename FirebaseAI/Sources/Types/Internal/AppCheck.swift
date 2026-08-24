@@ -27,7 +27,7 @@ extension AppCheckInterop {
   ///   - domain: A string dictating where this method is being called from. Used in any thrown
   ///     errors, to avoid hard-to-parse traces.
   func fetchAppCheckToken(limitedUse: Bool,
-                          domain: String) async throws -> FIRAppCheckTokenResultInterop {
+                          domain: String) async throws -> (token: String, error: Error?) {
     if limitedUse {
       if let token = await getLimitedUseTokenAsync() {
         return token
@@ -47,14 +47,18 @@ extension AppCheckInterop {
       #endif
     }
 
-    return await getToken(forcingRefresh: false)
+    return await withCheckedContinuation { continuation in
+      self.getToken(forcingRefresh: false) { result in
+        continuation.resume(returning: (token: result?.token ?? "", error: result?.error))
+      }
+    }
   }
 
   private func getLimitedUseTokenAsync() async
-    -> FIRAppCheckTokenResultInterop? {
+    -> (token: String, error: Error?)? {
     // At the moment, `await` doesn’t get along with Objective-C’s optional protocol methods.
     await withCheckedContinuation { (continuation: CheckedContinuation<
-      FIRAppCheckTokenResultInterop?,
+      (token: String, error: Error?)?,
       Never
     >) in
       guard
@@ -67,7 +71,7 @@ extension AppCheckInterop {
 
       limitedUseTokenClosure { tokenResult in
         // The placeholder token should be used in the case of App Check error.
-        continuation.resume(returning: tokenResult)
+        continuation.resume(returning: (token: tokenResult?.token ?? "", error: tokenResult?.error))
       }
     }
   }

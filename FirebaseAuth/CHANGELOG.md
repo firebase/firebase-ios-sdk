@@ -1,5 +1,7 @@
 # Unreleased
-- [fixed] Fixed a persistent crash when interacting with App Check under some Swift toolchains (like the Flutter SDK) by avoiding a compiler bug in Swift concurrency thunk generation. (#16549)
+- [fixed] Fixed a persistent crash when interacting with App Check under some
+  Swift toolchains (like the Flutter SDK) by avoiding a compiler bug in Swift
+  concurrency thunk generation. (#16549)
 - [fixed] Fixed an issue on iOS 15+ where users were randomly logged out during
   prewarming while the device was locked. (#16498)
 
