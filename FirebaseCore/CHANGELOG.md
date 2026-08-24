@@ -1,3 +1,8 @@
+# Firebase 13.0.0
+- [changed] **Breaking change**: Removed the CocoaPods generated umbrella headers
+  (suffixed `-umbrella.h`) from the Zip and Carthage artifacts, in favor of `Firebase.h`
+  and framework specific umbrella headers. (#16540)
+
 # Firebase 12.17.0
 - [changed] Removed the  (never activated) `recaptchaSiteKey` property from `FirebaseOptions`.
   This feature is part of the public preview reCAPTCHA provider.

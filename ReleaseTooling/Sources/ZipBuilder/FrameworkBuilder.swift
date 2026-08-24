@@ -341,34 +341,32 @@ struct FrameworkBuilder {
       fatalError("Could not get a path to an archive to fetch headers in \(frameworkName).")
     }
 
-    // Find CocoaPods generated umbrella header.
+    // Find the umbrella header to use.
     var umbrellaHeader = ""
-    // TODO(ncooke3): Evaluate if `TensorFlowLiteObjC` is needed?
-    if framework == "gRPC-Core" || framework == "TensorFlowLiteObjC" {
-      // TODO: Proper handling of podspec-specified module.modulemap files with customized umbrella
-      // headers. This is good enough for Firebase since it doesn't need these modules.
-      // TODO(ncooke3): Is this needed for gRPC-Core?
-      umbrellaHeader = "\(framework)-umbrella.h"
-    } else {
-      var umbrellaHeaderURL: URL
-      // Get the framework Headers directory. On macOS, it's a symbolic link.
-      let headersDir = archivePath.appendingPathComponent("Headers").resolvingSymlinksInPath()
+    let headersDir = archivePath.appendingPathComponent("Headers").resolvingSymlinksInPath()
+    if fileManager.directoryExists(at: headersDir) {
       do {
         let files = try fileManager.contentsOfDirectory(at: headersDir,
                                                         includingPropertiesForKeys: nil)
           .compactMap { $0.path }
-        let umbrellas = files.filter { $0.hasSuffix("umbrella.h") }
-        if umbrellas.count != 1 {
-          fatalError("Did not find exactly one umbrella header in \(headersDir).")
+
+        // ignore cocoapods umbrella headers
+        let headerFileNames = files
+          .filter { $0.hasSuffix(".h") && !$0.hasSuffix("-umbrella.h") }
+          .map { URL(fileURLWithPath: $0).lastPathComponent }
+
+        // use the framework's own umbrella header, if it has one
+        if headerFileNames.contains("\(frameworkName).h") {
+          umbrellaHeader = "umbrella header \"\(frameworkName).h\""
+        } else if headerFileNames.contains("\(framework).h") {
+          umbrellaHeader = "umbrella header \"\(framework).h\""
+        } else if !headerFileNames.isEmpty {
+          // use clang's umbrella directory syntax as a fallback
+          umbrellaHeader = #"umbrella ".""#
         }
-        guard let firstUmbrella = umbrellas.first else {
-          fatalError("Failed to get umbrella header in \(headersDir).")
-        }
-        umbrellaHeaderURL = URL(fileURLWithPath: firstUmbrella)
       } catch {
         fatalError("Error while enumerating files \(headersDir): \(error.localizedDescription)")
       }
-      umbrellaHeader = umbrellaHeaderURL.lastPathComponent
     }
 
     // TODO: copy PrivateHeaders directory as well if it exists. SDWebImage is an example pod.
@@ -485,7 +483,10 @@ struct FrameworkBuilder {
             at: headersDir,
             includingPropertiesForKeys: nil
           )
-          if headers.count > 2 {
+          let nonUmbrellaHeaders = headers.filter { !$0.lastPathComponent.hasSuffix("-umbrella.h") }
+          let nonSwiftHeaders = nonUmbrellaHeaders
+            .filter { !$0.lastPathComponent.hasSuffix("-Swift.h") }
+          if !nonSwiftHeaders.isEmpty {
             // It is assumed that the framework will always contain a
             // `module.modulemap` (either CocoaPods generates it or a custom
             // one was set in the podspec corresponding to the framework being
