@@ -49,7 +49,7 @@ extension AppCheckInterop {
 
     return await withCheckedContinuation { continuation in
       self.getToken(forcingRefresh: false) { result in
-        continuation.resume(returning: (token: result?.token ?? "", error: result?.error))
+        continuation.resume(returning: (token: result.token, error: result.error))
       }
     }
   }
@@ -71,7 +71,7 @@ extension AppCheckInterop {
 
       limitedUseTokenClosure { tokenResult in
         // The placeholder token should be used in the case of App Check error.
-        continuation.resume(returning: (token: tokenResult?.token ?? "", error: tokenResult?.error))
+        continuation.resume(returning: (token: tokenResult.token, error: tokenResult.error))
       }
     }
   }
