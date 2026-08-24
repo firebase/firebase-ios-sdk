@@ -40,11 +40,16 @@ actor StorageFetcherService {
       fetcherService.allowLocalhostRequest = true
       fetcherService.maxRetryInterval = storage.maxOperationRetryInterval
       fetcherService.testBlock = testBlock
+      var allowInsecureTokenAttachment = false
+      #if DEBUG
+        allowInsecureTokenAttachment = storage.allowInsecureTokenAttachment
+      #endif
       let authorizer = StorageTokenAuthorizer(
         googleAppID: app.options.googleAppID,
         callbackQueue: storage.callbackQueue,
         authProvider: storage.auth,
-        appCheck: storage.appCheck
+        appCheck: storage.appCheck,
+        allowInsecureTokenAttachment: allowInsecureTokenAttachment
       )
       fetcherService.authorizer = authorizer
       if storage.usesEmulator {

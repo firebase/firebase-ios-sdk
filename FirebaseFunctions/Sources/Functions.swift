@@ -70,6 +70,14 @@ enum FunctionsConstants {
     _emulatorOrigin.value()
   }
 
+  #if DEBUG
+    /// Allows authentication and AppCheck tokens to be attached to requests over insecure HTTP
+    /// connections.
+    /// This should only be used for local testing and debugging on physical devices.
+    /// To prevent accidental credential leaks, this property is only available in DEBUG builds.
+    @objc open var allowInsecureTokenAttachment: Bool = false
+  #endif
+
   /// Creates a Cloud Functions client using the default or returns a pre-existing instance if it
   /// already exists.
   /// - Returns: A shared Functions instance initialized with the default `FirebaseApp`.
@@ -579,7 +587,12 @@ enum FunctionsConstants {
     urlRequest.setValue("text/event-stream", forHTTPHeaderField: "Accept")
     urlRequest.httpMethod = "POST"
 
-    let shouldAttachTokens = url.isSecureOrLoopback
+    var shouldAttachTokens = url.isSecureOrLoopback
+    #if DEBUG
+      if allowInsecureTokenAttachment {
+        shouldAttachTokens = true
+      }
+    #endif
     let hasTokens = context.authToken != nil || context.fcmToken != nil || context
       .appCheckToken != nil || context.limitedUseAppCheckToken != nil
 
@@ -653,7 +666,12 @@ enum FunctionsConstants {
       fetcher.allowedInsecureSchemes = ["http"]
     }
 
-    let shouldAttachTokens = url.isSecureOrLoopback
+    var shouldAttachTokens = url.isSecureOrLoopback
+    #if DEBUG
+      if allowInsecureTokenAttachment {
+        shouldAttachTokens = true
+      }
+    #endif
     let hasTokens = context.authToken != nil || context.fcmToken != nil || context
       .appCheckToken != nil || context.limitedUseAppCheckToken != nil
 

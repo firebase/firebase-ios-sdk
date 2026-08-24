@@ -42,7 +42,12 @@ class StorageTokenAuthorizer: NSObject, GTMSessionFetcherAuthorizer {
     let isHttps = scheme == "https"
     let host = request?.url?.host?.lowercased() ?? ""
     let isLoopback = host == "localhost" || host == "127.0.0.1" || host == "::1" || host == "[::1]"
-    let shouldFetchTokens = isHttps || isLoopback
+    var shouldFetchTokens = isHttps || isLoopback
+    #if DEBUG
+      if allowInsecureTokenAttachment {
+        shouldFetchTokens = true
+      }
+    #endif
     let hasTokenProviders = auth != nil || appCheck != nil
 
     guard shouldFetchTokens else {
@@ -133,16 +138,23 @@ class StorageTokenAuthorizer: NSObject, GTMSessionFetcherAuthorizer {
   private let googleAppID: String
   private let auth: AuthInterop?
   private let appCheck: AppCheckInterop?
+  #if DEBUG
+    private let allowInsecureTokenAttachment: Bool
+  #endif
 
   private let serialAuthArgsQueue = DispatchQueue(label: "com.google.firebasestorage.authorizer")
 
   init(googleAppID: String,
        callbackQueue: DispatchQueue = DispatchQueue.main,
        authProvider: AuthInterop?,
-       appCheck: AppCheckInterop?) {
+       appCheck: AppCheckInterop?,
+       allowInsecureTokenAttachment: Bool = false) {
     self.googleAppID = googleAppID
     self.callbackQueue = callbackQueue
     auth = authProvider
     self.appCheck = appCheck
+    #if DEBUG
+      self.allowInsecureTokenAttachment = allowInsecureTokenAttachment
+    #endif
   }
 }
