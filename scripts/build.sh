@@ -107,13 +107,14 @@ case "$system" in
 esac
 
 # Source function to check if CI secrets are available.
+# shellcheck disable=SC1091
 source scripts/check_secrets.sh
 
 # Runs xcodebuild with the given flags, piping output to xcbeautify
 # If xcodebuild fails with known error codes, retries once.
 function RunXcodebuild() {
   # Print the command in a copy-pasteable format
-  echo xcodebuild $(printf "%q " "$@")
+  echo xcodebuild "$(printf "%q " "$@")"
 
   if [[ -n "${DRY_RUN:-}" ]]; then
     echo "DRY_RUN is set. Exiting before build."
@@ -783,7 +784,7 @@ case "$product-$platform-$method" in
 
   FirebaseDataConnect-*-spm)
     RunXcodebuild \
-      -scheme $product \
+      -scheme "$product" \
       "${xcb_flags[@]}" \
       IPHONEOS_DEPLOYMENT_TARGET=15.0 \
       TVOS_DEPLOYMENT_TARGET=15.0 \
@@ -792,18 +793,18 @@ case "$product-$platform-$method" in
 
   *-*-spm)
     RunXcodebuild \
-      -scheme $product \
+      -scheme "$product" \
       "${xcb_flags[@]}" \
       IPHONEOS_DEPLOYMENT_TARGET=15.0 \
-      MACOSX_DEPLOYMENT_TARGET=10.15 \
+      MACOSX_DEPLOYMENT_TARGET=11.0 \
       TVOS_DEPLOYMENT_TARGET=15.0 \
-      WATCHOS_DEPLOYMENT_TARGET=7.0 \
+      WATCHOS_DEPLOYMENT_TARGET=8.0 \
       test
     ;;
 
   *-*-spmbuildonly)
     RunXcodebuild \
-      -scheme $product \
+      -scheme "$product" \
       "${xcb_flags[@]}" \
       build
     ;;
@@ -811,7 +812,7 @@ case "$product-$platform-$method" in
   ClientApp-iOS-xcodebuild | ClientApp-iOS13-iOS-xcodebuild)
     RunXcodebuild \
       -project 'IntegrationTesting/ClientApp/ClientApp.xcodeproj' \
-      -scheme $product \
+      -scheme "$product" \
       "${xcb_flags[@]}" \
       build
     ;;
@@ -819,7 +820,7 @@ case "$product-$platform-$method" in
   ClientApp-CocoaPods*-iOS-xcodebuild)
     RunXcodebuild \
       -workspace 'IntegrationTesting/ClientApp/ClientApp.xcworkspace' \
-      -scheme $product \
+      -scheme "$product" \
       "${xcb_flags[@]}" \
       build
     ;;

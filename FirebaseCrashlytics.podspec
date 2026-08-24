@@ -12,9 +12,9 @@ Pod::Spec.new do |s|
   }
 
   ios_deployment_target = '15.0'
-  osx_deployment_target = '10.15'
+  osx_deployment_target = '11.0'
   tvos_deployment_target = '15.0'
-  watchos_deployment_target = '7.0'
+  watchos_deployment_target = '8.0'
 
   s.swift_version = '5.9'
 
@@ -112,7 +112,7 @@ Pod::Spec.new do |s|
     # Unit tests can't run on watchOS.
     unit_tests.platforms = {
       :ios => ios_deployment_target,
-      :osx => '10.15',
+      :osx => osx_deployment_target,
       :tvos => tvos_deployment_target
     }
     unit_tests.source_files = 'Crashlytics/UnitTests/*.[mh]',

@@ -1,3 +1,13 @@
+# Unreleased
+- [changed] **Breaking change**: Firebase's minimum supported versions have
+  updated for the following platforms:
+    - | Platform  | Firebase 13 |
+      | ------------- | ------------- |
+      | iOS  | 15.0  |
+      | tvOS  | 15.0  |
+      | macOS  | **11.0**  |
+      | watchOS  | **8.0**  |
+
 # Firebase 12.17.0
 - [changed] Removed the  (never activated) `recaptchaSiteKey` property from `FirebaseOptions`.
   This feature is part of the public preview reCAPTCHA provider.

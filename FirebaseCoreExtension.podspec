@@ -23,9 +23,9 @@ Pod::Spec.new do |s|
     s.swift_version = '5.9'
 
     s.ios.deployment_target = '15.0'
-    s.osx.deployment_target = '10.15'
+    s.osx.deployment_target = '11.0'
     s.tvos.deployment_target = '15.0'
-    s.watchos.deployment_target = '7.0'
+    s.watchos.deployment_target = '8.0'
 
     s.source_files = 'FirebaseCore/Extension/*.[hm]'
     s.public_header_files = 'FirebaseCore/Extension/*.h'
