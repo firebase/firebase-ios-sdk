@@ -1,7 +1,7 @@
 # Unreleased
 - [changed] **Breaking change**: Firebase's minimum supported versions have
   updated for the following platforms:
-    - | Platform  | Firebase 12 |
+    - | Platform  | Firebase 13 |
       | ------------- | ------------- |
       | iOS  | 15.0  |
       | tvOS  | 15.0  |
