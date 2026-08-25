@@ -24,8 +24,8 @@ on:
   workflow_dispatch:
   pull_request:
   schedule:
-    # Run every day at 1am (PDT) / 4am (EDT) - cron uses UTC times
-    - cron:  '0 8 * * *'
+    # Run every day at 11pm (PDT) / 2am (EDT) - cron uses UTC times
+    - cron:  '0 6 * * *'
 
 concurrency:
     group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
