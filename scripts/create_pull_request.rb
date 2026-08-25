@@ -16,6 +16,7 @@
 
 require 'octokit'
 require 'optparse'
+require 'shellwords'
 
 @options = {
   repo_root: "./",
@@ -54,14 +55,14 @@ COMMIT_COMMENT=@options[:commit_comment]
 def generate_pr_for_target_changes(repo_root:, target_path:)
   abs_target_path = File.expand_path(target_path)
   Dir.chdir(repo_root) do
-    if system('git', 'diff', '--quiet', abs_target_path)
+    if system("git diff --quiet #{Shellwords.escape(abs_target_path)}")
       puts "The file, #{target_path}, has no changes."
       return
     end
-    system('git', 'checkout', '-B', BASE_BRANCH) || raise("git checkout failed")
-    system('git', 'add', abs_target_path) || raise("git add failed")
-    system('git', 'commit', '-m', COMMIT_COMMENT) || raise("git commit failed")
-    system('git', 'push', '-u', 'origin', BASE_BRANCH) || raise("git push failed")
+    system("git checkout -B #{Shellwords.escape(BASE_BRANCH)}") || raise("git checkout failed")
+    system("git add #{Shellwords.escape(abs_target_path)}") || raise("git add failed")
+    system("git commit -m #{Shellwords.escape(COMMIT_COMMENT)}") || raise("git commit failed")
+    system("git push -u origin #{Shellwords.escape(BASE_BRANCH)}") || raise("git push failed")
   end
   client = Octokit::Client.new(access_token: ACCESS_TOKEN)
   client.create_pull_request("firebase/firebase-ios-sdk", "main", BASE_BRANCH, PR_TITLE, PR_BODY)
