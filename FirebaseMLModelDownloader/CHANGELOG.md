@@ -1,6 +1,6 @@
 # Unreleased
 - [fixed] Fixed an issue with a transitive import in the device logger, which could cause
-  a build error in explicit module mode.
+  a build error in explicit module mode. (#16563)
 
 # 12.17.0
 - [deprecated] Firebase ML is deprecated and will be shut down on June 15, 2027.
