@@ -19,7 +19,7 @@ env:
 jobs:
   ftl_test:
     # TODO(ncooke3): Enable FTL nightly testing. See #16031.
-    if: github.repository == 'Firebase/firebase-ios-sdk' && false
+    if: github.repository == 'Firebase/firebase-ios-sdk'
     runs-on: macos-15
     name: ${{ matrix.product }}
     env:
@@ -48,11 +48,11 @@ jobs:
             plist_src_path: scripts/gha-encrypted/qs-abtesting.plist.gpg
             plist_dst_path: quickstart-ios/abtesting/GoogleService-Info.plist
             build_command: scripts/test_quickstart_ftl.sh ABTesting
-          - product: Performance
-            setup_command: scripts/setup_quickstart.sh performance
-            plist_src_path: scripts/gha-encrypted/qs-performance.plist.gpg
-            plist_dst_path: quickstart-ios/performance/GoogleService-Info.plist
-            build_command: scripts/test_quickstart_ftl.sh Performance swift
+          # - product: Performance
+          #   setup_command: scripts/setup_quickstart.sh performance
+          #   plist_src_path: scripts/gha-encrypted/qs-performance.plist.gpg
+          #   plist_dst_path: quickstart-ios/performance/GoogleService-Info.plist
+          #   build_command: scripts/test_quickstart_ftl.sh Performance swift
           - product: Installations
             setup_command: scripts/setup_quickstart.sh installations
             plist_src_path: scripts/gha-encrypted/Installations/GoogleService-Info.plist.gpg
@@ -77,6 +77,8 @@ jobs:
           #   build_command: scripts/test_quickstart_ftl.sh RemoteConfig
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      with:
+        persist-credentials: false
     - uses: ruby/setup-ruby@89f90524b88a01fe6e0b732220432cc6142926af # v1.313.0
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
@@ -88,7 +90,7 @@ jobs:
     - name: Xcode
       run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
     - name: Setup quickstart
-      run: ${{ matrix.setup_command }}
+      run: ${{ matrix.setup_command }} # zizmor: ignore[template-injection]
     - name: Install Secret GoogleService-Info.plist
       run: |
         scripts/decrypt_gha_secret.sh \
@@ -98,7 +100,7 @@ jobs:
     - name: Build swift quickstart
       run: ([ -z "$plist_secret" ] || scripts/third_party/travis/retry.sh ${{ matrix.build_command }})
     - id: ftl_test
-      uses: FirebaseExtended/github-actions/firebase-test-lab@57091ac526b308ae005c6d6d59aab83d5ab2aa71 # v1.5.0
+      uses: FirebaseExtended/github-actions/firebase-test-lab@57091ac526b308ae005c6d6d59aab83d5ab2aa71 # v1.5
       with:
         credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_CREDENTIALS }}
         testapp_dir: quickstart-ios/build-for-testing

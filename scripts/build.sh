@@ -45,6 +45,7 @@ product can be one of:
   SymbolCollision
   GoogleDataTransport
   Performance
+  FirebaseAIIntegration
   ClientApp
 platform can be one of:
   iOS (default)
@@ -170,19 +171,17 @@ function CheckUnexpectedFailures() {
   fi
 }
 
+"${scripts_dir}/setup_simulator.sh" "$platform"
+
 if [[ "$xcode_major" -lt 16 && "$method" != "cmake" ]]; then
   echo "Unsupported Xcode major version being used: $xcode_major"
   exit 1
 else
-  iphone_simulator_name="iPhone 16"
-  if [[ "$xcode_major" -gt 16 ]]; then
-    iphone_simulator_name="iPhone 17"
-  fi
   ios_flags=(
-    -destination "platform=iOS Simulator,name=${iphone_simulator_name}"
+    -destination 'platform=iOS Simulator,name=Firebase-iPhone-15-Pro'
   )
   watchos_flags=(
-    -destination 'platform=watchOS Simulator,name=Apple Watch Series 11 (42mm)'
+    -destination 'platform=watchOS Simulator,name=Firebase-Apple-Watch-Ultra-2'
   )
 fi
 
@@ -191,28 +190,18 @@ ios_device_flags=(
 )
 
 ipad_flags=(
-  -destination 'platform=iOS Simulator,name=iPad Pro (9.7-inch)'
+  -destination 'platform=iOS Simulator,name=Firebase-iPad-Pro-11-inch'
 )
 
 macos_flags=(
   -destination 'platform=OS X,arch=x86_64'
 )
 tvos_flags=(
-  -destination 'platform=tvOS Simulator,name=Apple TV'
+  -destination 'platform=tvOS Simulator,name=Firebase-Apple-TV-4K-Gen-2'
 )
-if [[ "$xcode_major" -ge 26 ]]; then
-  visionos_flags=(
-    -destination "platform=visionOS Simulator,OS=${xcode_version},name=Apple Vision Pro"
-  )
-else
-  # TODO(ncooke3): Remove this else case when we no longer need to test against macOS 15.
-  visionos_flags=(
-    # As of Aug 15, 2025, the default OS "latest" was failing as it matched both
-    # the visionOS 26 beta and visionOS 2.5 (from Xcode 16.4) simulators;
-    # explicitly specifying OS=2.5 in destination as a workaround.
-    -destination 'platform=visionOS Simulator,OS=2.5,name=Apple Vision Pro'
-  )
-fi
+visionos_flags=(
+  -destination 'platform=visionOS Simulator,name=Firebase-Apple-Vision-Pro'
+)
 catalyst_flags=(
   ARCHS=x86_64 VALID_ARCHS=x86_64 SUPPORTS_MACCATALYST=YES
   -destination platform="macOS,variant=Mac Catalyst,arch=x86_64" TARGETED_DEVICE_FAMILY=2
@@ -233,7 +222,8 @@ case "$platform" in
 
   iPad)
     xcb_flags=("${ipad_flags[@]}")
-  ;;
+    gen_platform=ios
+    ;;
 
   macOS)
     xcb_flags=("${macos_flags[@]}")
@@ -571,6 +561,22 @@ case "$product-$platform-$method" in
       -scheme "RemoteConfigSampleApp" \
       "${xcb_flags[@]}" \
       build
+    ;;
+
+  FirebaseAIIntegration-*-build)
+    RunXcodebuild \
+      -project 'FirebaseAI/Tests/TestApp/FirebaseAITestApp.xcodeproj' \
+      -scheme "FirebaseAITestApp-SPM" \
+      "${xcb_flags[@]}" \
+      build
+    ;;
+
+  FirebaseAIIntegration-*-build-for-testing)
+    RunXcodebuild \
+      -project 'FirebaseAI/Tests/TestApp/FirebaseAITestApp.xcodeproj' \
+      -scheme "FirebaseAITestApp-SPM" \
+      "${xcb_flags[@]}" \
+      build-for-testing
     ;;
 
   FirebaseAIIntegration-*-*)

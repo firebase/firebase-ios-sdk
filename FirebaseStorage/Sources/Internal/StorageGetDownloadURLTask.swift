@@ -54,9 +54,10 @@ enum StorageGetDownloadURLTask {
       return nil
     }
     let downloadTokenArray = downloadTokens.components(separatedBy: ",")
-    let bucket = dictionary["bucket"] ?? "<error: missing bucket>"
+    let bucket = dictionary["bucket"] as? String ?? "<error: missing bucket>"
     let path = dictionary["name"] as? String ?? "<error: missing path name>"
-    let fullPath = "/v0/b/\(bucket)/o/\(StorageUtils.GCSEscapedString(path))"
+    let fullPath =
+      "/v0/b/\(StorageUtils.GCSEscapedString(bucket))/o/\(StorageUtils.GCSEscapedString(path))"
     var components = URLComponents()
     components.scheme = reference.storage.scheme
     components.host = reference.storage.host

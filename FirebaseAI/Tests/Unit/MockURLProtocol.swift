@@ -68,7 +68,14 @@ class MockURLProtocol: URLProtocol, @unchecked Sendable {
     let requestHandler = MockURLProtocol.requestHandlersQueue.removeFirst()
 
     Task {
-      let (response, stream) = try requestHandler(self.request)
+      let (response, stream): (URLResponse, AsyncLineSequence<URL.AsyncBytes>?)
+      do {
+        (response, stream) = try requestHandler(self.request)
+      } catch {
+        XCTFail("Unexpected failure calling request handler: \(error.localizedDescription)")
+        return
+      }
+
       client.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
       if let stream = stream {
         do {

@@ -19,13 +19,17 @@ jobs:
       contents: read # Required to read the Dangerfile
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      with:
+        persist-credentials: false
 
     - name: Generate GitHub App Token
       id: generate-token
-      uses: actions/create-github-app-token@29824e69f54612133e76f7eaac726eef6c875baf #v2.2.1
+      uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
       with:
-        app-id: ${{ secrets.DANGER_APP_ID }}
+        client-id: ${{ secrets.DANGER_CLIENT_ID }}
         private-key: ${{ secrets.DANGER_APP_PRIVATE_KEY }}
+        owner: firebase
+        repositories: firebase-ios-sdk
 
     - uses: ruby/setup-ruby@89f90524b88a01fe6e0b732220432cc6142926af # v1.313.0
     - name: Setup Bundler

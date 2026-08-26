@@ -19,7 +19,6 @@
 #endif // SWIFT_PACKAGE
 import Foundation
 
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 struct PipelineListenOptions: Sendable, Equatable, Hashable {
   /// Defines how to handle server-generated timestamps that are not yet known locally
   /// during latency compensation.
@@ -90,7 +89,6 @@ struct PipelineListenOptions: Sendable, Equatable, Hashable {
   }
 }
 
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 struct RealtimePipeline: @unchecked Sendable {
   private var stages: [Stage]
 

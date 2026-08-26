@@ -1,6 +1,16 @@
 # Unreleased
 - [feature] Adds support for the following new types: `MinKey`, `MaxKey`, `RegexValue`,
   `Int32Value`, `Decimal128Value`, `BSONObjectId`, `BSONTimestamp`, and `BSONBinaryData`. (#14800)
+- [feature] Added support for `minimum` and `maximum` FieldValue operations [#16159].
+
+# 12.17.0
+- [fixed] Fixed a potential crash when parsing malformed bundle payloads.
+  (#16221)
+- [feature] Added support for 16 MB documents by increasing gRPC message size
+  limit to 17MB (#16206).
+
+# 12.16.0
+>>>>>>> main
 - [changed] Migrates the network connectivity monitoring implementation for
   Apple platforms from the legacy SCNetworkReachability API to the modern
   NWPathMonitor API.

@@ -14,7 +14,6 @@
 
 import Foundation
 
-@available(iOS 13.0.0, macOS 10.15.0, macCatalyst 13.0.0, tvOS 13.0.0, watchOS 7.0.0, *)
 public extension RemoteConfig {
   /// Returns an `AsyncSequence` that provides real-time updates to the configuration.
   ///

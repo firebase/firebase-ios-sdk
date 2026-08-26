@@ -8,6 +8,9 @@ on:
   release:
     types: [ published ]
 
+permissions:
+  contents: read
+
 concurrency:
     group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
     cancel-in-progress: true
@@ -31,14 +34,16 @@ jobs:
         with:
           repository: firebase/firebase-cpp-sdk
           ref: main
+          persist-credentials: false
 
       - name: Get firebase-workflow-trigger token
-        uses: tibdex/github-app-token@32691ba7c9e7063bd457bd8f2a5703138591fa58 # v1
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
         id: generate-token
         with:
-          app_id: ${{ secrets.CPP_WORKFLOW_TRIGGER_APP_ID }}
-          private_key: ${{ secrets.CPP_WORKFLOW_TRIGGER_APP_PRIVATE_KEY }}
-          repository: firebase/firebase-cpp-sdk
+          app-id: ${{ secrets.CPP_WORKFLOW_TRIGGER_APP_ID }}
+          private-key: ${{ secrets.CPP_WORKFLOW_TRIGGER_APP_PRIVATE_KEY }}
+          repositories: firebase-cpp-sdk
+          permission-actions: write
 
       - name: Ensure Cocoapods repo has been updated
         run: |
@@ -82,4 +87,6 @@ jobs:
       - name: Trigger firebase-cpp-sdk update
         run: |
           pip install -r scripts/gha/python_requirements.txt
-          python scripts/gha/trigger_workflow.py -t ${{ steps.generate-token.outputs.token }} -w update-dependencies.yml -p updateAndroid 0 -p updateiOS 1 -p comment "[Triggered]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID) by [firebase-ios-sdk $GITHUB_REF release]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/releases/tag/$GITHUB_REF)." -s 10 -A
+          python scripts/gha/trigger_workflow.py -t ${STEPS_GENERATE_TOKEN_OUTPUTS_TOKEN} -w update-dependencies.yml -p updateAndroid 0 -p updateiOS 1 -p comment "[Triggered]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID) by [firebase-ios-sdk $GITHUB_REF release]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/releases/tag/$GITHUB_REF)." -s 10 -A
+        env:
+          STEPS_GENERATE_TOKEN_OUTPUTS_TOKEN: ${{ steps.generate-token.outputs.token }}

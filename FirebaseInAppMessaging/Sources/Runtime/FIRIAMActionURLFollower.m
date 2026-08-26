@@ -169,7 +169,7 @@ NS_EXTENSION_UNAVAILABLE("Firebase In App Messaging is not supported for iOS ext
 // Try to handle the url as a universal link by triggering
 // application:continueUserActivity:restorationHandler: on App's delegate object directly.
 // @return YES if that delegate method is defined and seeing a YES being returned from
-// trigging it
+// triggering it
 - (BOOL)followURLWithContinueUserActivity:(NSURL *)url {
   if (self.isContinueUserActivityMethodDefined) {
     FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM240004",

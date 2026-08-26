@@ -19,7 +19,6 @@
 #endif // SWIFT_PACKAGE
 import Foundation
 
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 struct PipelineResultChange: Sendable {
   public enum ChangeType {
     case added, modified, removed

@@ -195,3 +195,42 @@ class AuthKeychainServicesTests: XCTestCase {
     XCTAssertEqual(storage.delete(query: query as [String: Any]), errSecSuccess)
   }
 }
+
+private final class LockedKeychainStorage: AuthKeychainStorage {
+  func get(query: [String: Any], result: inout AnyObject?) -> OSStatus {
+    return errSecItemNotFound
+  }
+
+  func add(query: [String: Any]) -> OSStatus {
+    if let accessible = query[kSecAttrAccessible as String] as? String,
+       accessible == kSecAttrAccessibleWhenUnlockedThisDeviceOnly as String {
+      return errSecInteractionNotAllowed
+    }
+    return errSecSuccess
+  }
+
+  func update(query: [String: Any], attributes: [String: Any]) -> OSStatus {
+    return errSecInteractionNotAllowed
+  }
+
+  func delete(query: [String: Any]) -> OSStatus {
+    return errSecInteractionNotAllowed
+  }
+}
+
+extension AuthKeychainServicesTests {
+  func testDeviceLockedReturnsError() {
+    let lockedStorage = LockedKeychainStorage()
+    let lockedKeychain = AuthKeychainServices(service: Self.service, storage: lockedStorage)
+
+    do {
+      _ = try lockedKeychain.data(forKey: Self.key)
+      XCTFail("Should have thrown error")
+    } catch let error as NSError {
+      XCTAssertEqual(error.domain, AuthErrorDomain)
+      XCTAssertEqual(error.code, AuthErrorCode.keychainError.rawValue)
+      let reason = error.userInfo[NSLocalizedFailureReasonErrorKey] as? String
+      XCTAssertTrue(reason?.contains("\(errSecInteractionNotAllowed)") ?? false)
+    }
+  }
+}

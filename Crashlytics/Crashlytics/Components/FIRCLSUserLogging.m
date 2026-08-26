@@ -283,7 +283,7 @@ void FIRCLSUserLoggingRecordKeysAndValues(NSDictionary *keysAndValues,
     }
   }
 
-  dispatch_sync(FIRCLSGetLoggingQueue(), ^{
+  FIRCLSExecuteOnLoggingQueue(^{
     FIRCLSUserLoggingWriteKeysAndValues(sanitizedKeysAndValues, storage, counter,
                                         containsNullValue);
   });
@@ -541,7 +541,7 @@ void FIRCLSUserLoggingWriteAndCheckABFiles(FIRCLSUserLoggingABStorage *storage,
     }
   }
 
-  dispatch_sync(FIRCLSGetLoggingQueue(), ^{
+  FIRCLSExecuteOnLoggingQueue(^{
     FIRCLSFile file;
 
     if (!FIRCLSFileInitWithPath(&file, *activePath, true)) {
