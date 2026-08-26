@@ -1,6 +1,6 @@
 # Unreleased
 - [fixed] Fixed an issue where the Recaptcha provider could cause build
-  errors in binary environments, due to unsupported platforms.
+  errors in binary environments, due to unsupported platforms. (#16564)
 
 # 12.18.0
 - [fixed] Safely disable the reCAPTCHA provider when its Swift dependencies
