@@ -16,6 +16,12 @@
 
 #import <XCTest/XCTest.h>
 
+// -loadedBinaryImageForPC: is internal to FIRCLSSymbolResolver, but it is the only way to
+// observe which records survived filtering.
+@interface FIRCLSSymbolResolver (Testing)
+- (NSDictionary*)loadedBinaryImageForPC:(uintptr_t)pc;
+@end
+
 @interface FIRCLSSymbolResolverTests : XCTestCase
 
 @end
@@ -75,6 +81,11 @@
       [self pathForResource:@"binary_images_with_string_base_entry.clsrecord"];
 
   XCTAssert([resolver loadBinaryImagesFromFile:binaryImagePath]);
+
+  // The record with the string base covers 0x105a3c000 and up, it should have been skipped.
+  XCTAssertNil([resolver loadedBinaryImageForPC:4395000000]);
+
+  XCTAssertNotNil([resolver loadedBinaryImageForPC:4389027840]);
 }
 
 @end
