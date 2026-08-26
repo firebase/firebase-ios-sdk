@@ -1,3 +1,7 @@
+# Unreleased
+- [fixed] Fixed an issue with a transitive import in the logger, which could cause
+  a build error in explicit module mode. (#16563)
+
 # 12.18.0
 - [removed] Removed deprecated Imagen methods and types due to Imagen models being shut down in
   August 2026. As a replacement, you can [migrate your apps to use Gemini Image models (the
