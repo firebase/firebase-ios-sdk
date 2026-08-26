@@ -1,3 +1,7 @@
+# Unreleased
+- [fixed] Fixed an issue with a transitive import in the device logger, which could cause
+  a build error in explicit module mode.
+
 # 12.17.0
 - [deprecated] Firebase ML is deprecated and will be shut down on June 15, 2027.
   To host custom models, you must migrate to another solution. You can use Cloud
