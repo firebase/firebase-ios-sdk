@@ -1,6 +1,8 @@
 # Unreleased
 - [fixed] Fixed an issue on iOS 15+ where users were randomly logged out during
   prewarming while the device was locked. (#16498)
+- [fixed] Fixed an issue with a transitive import in the logger, which could cause
+  a build error in explicit module mode. (#16563)
 
 # 12.18.0
 - [fixed] Fixed a bug in `PhoneAuthProvider` where the test mode logic would
