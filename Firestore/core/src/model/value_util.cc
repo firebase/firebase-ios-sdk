@@ -269,7 +269,10 @@ Quadruple ConvertNumericValueToQuadruple(
     return Quadruple(value.map_value.fields[0].value.integer_value);
   } else if (IsDecimal128Value(value)) {
     Quadruple result;
-    result.Parse(
+    bool success = result.Parse(
+        nanopb::MakeString(value.map_value.fields[0].value.string_value));
+    HARD_ASSERT(
+        success, "Failed to parse Decimal128 value: %s",
         nanopb::MakeString(value.map_value.fields[0].value.string_value));
     return result;
   }

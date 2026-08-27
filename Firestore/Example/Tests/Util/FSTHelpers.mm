@@ -16,8 +16,10 @@
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
+#import <FirebaseFirestore/FIRDecimal128Value.h>
 #import <FirebaseFirestore/FIRFieldValue.h>
 #import <FirebaseFirestore/FIRGeoPoint.h>
+#import <FirebaseFirestore/FIRInt32Value.h>
 
 #include <set>
 #include <utility>
@@ -97,11 +99,41 @@ NSDateComponents *FSTTestDateComponents(
   return comps;
 }
 
+static id _Nullable PreConvert(id _Nullable input) {
+  if ([input isKindOfClass:[NSDictionary class]]) {
+    NSDictionary *dict = (NSDictionary *)input;
+    if (dict[@"__decimal128__"]) {
+      id val = dict[@"__decimal128__"];
+      if ([val isKindOfClass:[NSDictionary class]]) {
+        NSDictionary *decimalDict = (NSDictionary *)val;
+        if (decimalDict[@"stringValue"]) {
+          return [[FIRDecimal128Value alloc] initWithValue:decimalDict[@"stringValue"]];
+        }
+      } else if ([val isKindOfClass:[NSString class]]) {
+        return [[FIRDecimal128Value alloc] initWithValue:(NSString *)val];
+      }
+    }
+    if (dict[@"__int32__"]) {
+      id val = dict[@"__int32__"];
+      if ([val isKindOfClass:[NSNumber class]]) {
+        return [[FIRInt32Value alloc] initWithValue:[val intValue]];
+      }
+    }
+    if (dict[@"__int__"]) {
+      id val = dict[@"__int__"];
+      if ([val isKindOfClass:[NSNumber class]]) {
+        return [[FIRInt32Value alloc] initWithValue:[val intValue]];
+      }
+    }
+  }
+  return input;
+}
+
 FSTUserDataReader *FSTTestUserDataReader() {
   FSTUserDataReader *reader =
       [[FSTUserDataReader alloc] initWithDatabaseID:DatabaseId("project")
                                        preConverter:^id _Nullable(id _Nullable input) {
-                                         return input;
+                                         return PreConvert(input);
                                        }];
   return reader;
 }
@@ -144,6 +176,31 @@ PatchMutation FSTTestPatchMutation(NSString *path,
     if ([value isEqual:kDeleteSentinel]) {
       const FieldPath fieldPath = Field(MakeString(key));
       mutableValues[key] = [FIRFieldValue fieldValueForDelete];
+    } else if ([value isKindOfClass:[NSDictionary class]]) {
+      NSDictionary *dict = (NSDictionary *)value;
+      NSString *methodName = dict[@"_methodName"] ?: dict[@"methodName"];
+      if ([methodName isEqualToString:@"increment"]) {
+        id operand = dict[@"_operand"] ?: dict[@"operand"];
+        if ([operand isKindOfClass:[NSNumber class]]) {
+          mutableValues[key] = [FIRFieldValue fieldValueForDoubleIncrement:[operand doubleValue]];
+        } else if ([operand isKindOfClass:[NSString class]]) {
+          mutableValues[key] = [FIRFieldValue fieldValueForDoubleIncrement:[operand doubleValue]];
+        }
+      } else if ([methodName isEqualToString:@"minimum"]) {
+        id operand = dict[@"_operand"] ?: dict[@"operand"];
+        if ([operand isKindOfClass:[NSNumber class]]) {
+          mutableValues[key] = [FIRFieldValue fieldValueForDoubleMinimum:[operand doubleValue]];
+        } else if ([operand isKindOfClass:[NSString class]]) {
+          mutableValues[key] = [FIRFieldValue fieldValueForDoubleMinimum:[operand doubleValue]];
+        }
+      } else if ([methodName isEqualToString:@"maximum"]) {
+        id operand = dict[@"_operand"] ?: dict[@"operand"];
+        if ([operand isKindOfClass:[NSNumber class]]) {
+          mutableValues[key] = [FIRFieldValue fieldValueForDoubleMaximum:[operand doubleValue]];
+        } else if ([operand isKindOfClass:[NSString class]]) {
+          mutableValues[key] = [FIRFieldValue fieldValueForDoubleMaximum:[operand doubleValue]];
+        }
+      }
     }
   }];
 

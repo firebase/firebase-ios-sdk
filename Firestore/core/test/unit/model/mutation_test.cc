@@ -16,6 +16,7 @@
 
 #include "Firestore/core/src/model/mutation.h"
 
+#include <type_traits>
 #include <utility>
 
 #include "Firestore/core/src/model/delete_mutation.h"
@@ -35,10 +36,12 @@ namespace {
 
 using nanopb::Message;
 using testutil::Array;
+using testutil::Decimal128;
 using testutil::DeletedDoc;
 using testutil::DeleteMutation;
 using testutil::Doc;
 using testutil::Field;
+using testutil::Int32;
 using testutil::Key;
 using testutil::Map;
 using testutil::MergeMutation;
@@ -290,19 +293,43 @@ void TransformBaseDoc(Message<google_firestore_v1_Value> base_data,
  * (This is defined in this way to reuse all the overload disambiguation that's
  * already built into `Value`.)
  */
-template <typename T>
-auto Increment(T value) -> decltype(NumericIncrementTransform(Value(value))) {
-  return NumericIncrementTransform(Value(value));
+template <typename T,
+          typename = typename std::enable_if<!std::is_same<
+              typename std::decay<T>::type,
+              nanopb::Message<google_firestore_v1_Value>>::value>::type>
+NumericIncrementTransform Increment(T&& value) {
+  return NumericIncrementTransform(Value(std::forward<T>(value)));
 }
 
-template <typename T>
-auto Minimum(T value) -> decltype(NumericMinimumTransform(Value(value))) {
-  return NumericMinimumTransform(Value(value));
+inline NumericIncrementTransform Increment(
+    nanopb::Message<google_firestore_v1_Value> value) {
+  return NumericIncrementTransform(std::move(value));
 }
 
-template <typename T>
-auto Maximum(T value) -> decltype(NumericMaximumTransform(Value(value))) {
-  return NumericMaximumTransform(Value(value));
+template <typename T,
+          typename = typename std::enable_if<!std::is_same<
+              typename std::decay<T>::type,
+              nanopb::Message<google_firestore_v1_Value>>::value>::type>
+NumericMinimumTransform Minimum(T&& value) {
+  return NumericMinimumTransform(Value(std::forward<T>(value)));
+}
+
+inline NumericMinimumTransform Minimum(
+    nanopb::Message<google_firestore_v1_Value> value) {
+  return NumericMinimumTransform(std::move(value));
+}
+
+template <typename T,
+          typename = typename std::enable_if<!std::is_same<
+              typename std::decay<T>::type,
+              nanopb::Message<google_firestore_v1_Value>>::value>::type>
+NumericMaximumTransform Maximum(T&& value) {
+  return NumericMaximumTransform(Value(std::forward<T>(value)));
+}
+
+inline NumericMaximumTransform Maximum(
+    nanopb::Message<google_firestore_v1_Value> value) {
+  return NumericMaximumTransform(std::move(value));
 }
 
 template <typename... Args>
@@ -399,6 +426,93 @@ TEST(MutationTest, AppliesIncrementWithoutUnderflow) {
   };
   auto expected =
       Map("a", LONG_MIN, "b", LONG_MIN, "c", LONG_MIN, "d", LONG_MIN);
+  TransformBaseDoc(std::move(base_data), transforms, std::move(expected));
+}
+
+TEST(MutationTest, AppliesIncrementWithoutOverflowOnInt32) {
+  auto base_data = Map("a", Int32(INT32_MAX - 1), "b", Int32(INT32_MAX - 1),
+                       "c", Int32(INT32_MAX), "d", Int32(INT32_MAX));
+  TransformPairs transforms = {
+      {"a", Increment(Int32(1))},
+      {"b", Increment(Int32(INT32_MAX))},
+      {"c", Increment(Int32(1))},
+      {"d", Increment(Int32(INT32_MAX))},
+  };
+  auto expected = Map("a", Int32(INT32_MAX), "b", Int32(INT32_MAX), "c",
+                      Int32(INT32_MAX), "d", Int32(INT32_MAX));
+  TransformBaseDoc(std::move(base_data), transforms, std::move(expected));
+}
+
+TEST(MutationTest, AppliesIncrementWithoutUnderflowOnInt32) {
+  auto base_data = Map("a", Int32(INT32_MIN + 1), "b", Int32(INT32_MIN + 1),
+                       "c", Int32(INT32_MIN), "d", Int32(INT32_MIN));
+  TransformPairs transforms = {
+      {"a", Increment(Int32(-1))},
+      {"b", Increment(Int32(INT32_MIN))},
+      {"c", Increment(Int32(-1))},
+      {"d", Increment(Int32(INT32_MIN))},
+  };
+  auto expected = Map("a", Int32(INT32_MIN), "b", Int32(INT32_MIN), "c",
+                      Int32(INT32_MIN), "d", Int32(INT32_MIN));
+  TransformBaseDoc(std::move(base_data), transforms, std::move(expected));
+}
+
+TEST(MutationTest, AppliesMixedInt32AndInt64IncrementBoundaries) {
+  auto base_data =
+      Map("int64_max_plus_int32", INT64_MAX, "int64_max_plus_int64", INT64_MAX,
+          "int64_min_plus_int32", INT64_MIN, "int64_min_plus_int64", INT64_MIN,
+          "int32_max_plus_int64", Int32(INT32_MAX), "int32_min_plus_int64",
+          Int32(INT32_MIN));
+  TransformPairs transforms = {
+      {"int64_max_plus_int32", Increment(Int32(10))},
+      {"int64_max_plus_int64", Increment(INT64_MAX)},
+      {"int64_min_plus_int32", Increment(Int32(-10))},
+      {"int64_min_plus_int64", Increment(INT64_MIN)},
+      {"int32_max_plus_int64", Increment(1L)},
+      {"int32_min_plus_int64", Increment(-1L)},
+  };
+  auto expected =
+      Map("int64_max_plus_int32", INT64_MAX, "int64_max_plus_int64", INT64_MAX,
+          "int64_min_plus_int32", INT64_MIN, "int64_min_plus_int64", INT64_MIN,
+          "int32_max_plus_int64", static_cast<int64_t>(INT32_MAX) + 1,
+          "int32_min_plus_int64", static_cast<int64_t>(INT32_MIN) - 1);
+  TransformBaseDoc(std::move(base_data), transforms, std::move(expected));
+}
+
+TEST(MutationTest, AppliesIncrementTransformToDocumentWithBsonTypes) {
+  auto base_data = Map(
+      "int32_plus_int32", Int32(10), "int32_plus_int64", Int32(10),
+      "int32_plus_double", Int32(10), "int64_plus_int32", 10L,
+      "double_plus_int32", 10.5, "decimal128_plus_int32", Decimal128("10.5"),
+      "decimal128_plus_int64", Decimal128("10.5"), "decimal128_plus_double",
+      Decimal128("10.5"), "decimal128_plus_decimal128", Decimal128("10.5"),
+      "int32_plus_decimal128", Int32(10), "int64_plus_decimal128", 10L,
+      "double_plus_decimal128", 10.5);
+
+  TransformPairs transforms = {
+      {"int32_plus_int32", Increment(Int32(5))},
+      {"int32_plus_int64", Increment(5L)},
+      {"int32_plus_double", Increment(1.5)},
+      {"int64_plus_int32", Increment(Int32(5))},
+      {"double_plus_int32", Increment(Int32(5))},
+      {"decimal128_plus_int32", Increment(Int32(5))},
+      {"decimal128_plus_int64", Increment(5L)},
+      {"decimal128_plus_double", Increment(5.5)},
+      {"decimal128_plus_decimal128", Increment(Decimal128("5.5"))},
+      {"int32_plus_decimal128", Increment(Decimal128("5.5"))},
+      {"int64_plus_decimal128", Increment(Decimal128("5.5"))},
+      {"double_plus_decimal128", Increment(Decimal128("5.5"))},
+  };
+
+  auto expected = Map(
+      "int32_plus_int32", Int32(15), "int32_plus_int64", 15L,
+      "int32_plus_double", 11.5, "int64_plus_int32", 15L, "double_plus_int32",
+      15.5, "decimal128_plus_int32", Decimal128("15.5"),
+      "decimal128_plus_int64", Decimal128("15.5"), "decimal128_plus_double",
+      Decimal128("16"), "decimal128_plus_decimal128", Decimal128("16"),
+      "int32_plus_decimal128", Decimal128("15.5"), "int64_plus_decimal128",
+      Decimal128("15.5"), "double_plus_decimal128", Decimal128("16"));
+
   TransformBaseDoc(std::move(base_data), transforms, std::move(expected));
 }
 
@@ -882,33 +996,89 @@ TEST(MutationTest, OverlayByCombinationsAndPermutations_Increments) {
 }
 
 TEST(MutationTest, AppliesMinimumTransformToDocument) {
-  auto base_data =
-      Map("longMinLong", 5, "longMinDouble", 5, "doubleMinLong", 5.5,
-          "doubleMinDouble", 5.5, "longMinNan", 5, "doubleMinNan", 5.5);
+  auto base_data = Map("longMinLong", 5, "longMinDouble", 5, "doubleMinLong",
+                       5.5, "doubleMinDouble", 5.5, "longMinNan", 5,
+                       "doubleMinNan", 5.5, "smaller", Int32(10), "larger",
+                       Int32(10), "equal_preserves_base_type", Int32(10),
+                       "cross_type", Decimal128("10.5"), "nan_ordering", 5L);
   TransformPairs transforms = {
-      {"longMinLong", Minimum(2)},   {"longMinDouble", Minimum(2.2)},
-      {"doubleMinLong", Minimum(2)}, {"doubleMinDouble", Minimum(2.2)},
-      {"longMinNan", Minimum(NAN)},  {"doubleMinNan", Minimum(NAN)},
+      {"longMinLong", Minimum(2)},
+      {"longMinDouble", Minimum(2.2)},
+      {"doubleMinLong", Minimum(2)},
+      {"doubleMinDouble", Minimum(2.2)},
+      {"longMinNan", Minimum(NAN)},
+      {"doubleMinNan", Minimum(NAN)},
+      {"smaller", Minimum(Int32(5))},
+      {"larger", Minimum(Int32(15))},
+      {"equal_preserves_base_type", Minimum(10L)},
+      {"cross_type", Minimum(Int32(5))},
+      {"missing_field", Minimum(Decimal128("42"))},
+      {"nan_ordering", Minimum(NAN)},
   };
   auto expected =
       Map("longMinLong", 2L, "longMinDouble", 2.2, "doubleMinLong", 2L,
-          "doubleMinDouble", 2.2, "longMinNan", NAN, "doubleMinNan", NAN);
+          "doubleMinDouble", 2.2, "longMinNan", NAN, "doubleMinNan", NAN,
+          "smaller", Int32(5), "larger", Int32(10), "equal_preserves_base_type",
+          Int32(10), "cross_type", Int32(5), "missing_field", Decimal128("42"),
+          "nan_ordering", NAN);
   TransformBaseDoc(std::move(base_data), transforms, std::move(expected));
 }
 
 TEST(MutationTest, AppliesMaximumTransformToDocument) {
-  auto base_data =
-      Map("longMaxLong", 5, "longMaxDouble", 5, "doubleMaxLong", 5.5,
-          "doubleMaxDouble", 5.5, "longMaxNan", 5, "doubleMaxNan", 5.5);
+  auto base_data = Map("longMaxLong", 5, "longMaxDouble", 5, "doubleMaxLong",
+                       5.5, "doubleMaxDouble", 5.5, "longMaxNan", 5,
+                       "doubleMaxNan", 5.5, "smaller", Int32(10), "larger",
+                       Int32(10), "equal_preserves_base_type", Int32(10),
+                       "cross_type", Decimal128("10.5"), "nan_ordering", NAN);
   TransformPairs transforms = {
-      {"longMaxLong", Maximum(8)},   {"longMaxDouble", Maximum(8.8)},
-      {"doubleMaxLong", Maximum(8)}, {"doubleMaxDouble", Maximum(8.8)},
-      {"longMaxNan", Maximum(NAN)},  {"doubleMaxNan", Maximum(NAN)},
+      {"longMaxLong", Maximum(8)},
+      {"longMaxDouble", Maximum(8.8)},
+      {"doubleMaxLong", Maximum(8)},
+      {"doubleMaxDouble", Maximum(8.8)},
+      {"longMaxNan", Maximum(NAN)},
+      {"doubleMaxNan", Maximum(NAN)},
+      {"smaller", Maximum(Int32(5))},
+      {"larger", Maximum(Int32(15))},
+      {"equal_preserves_base_type", Maximum(10L)},
+      {"cross_type", Maximum(Int32(15))},
+      {"missing_field", Maximum(Decimal128("42"))},
+      {"nan_ordering", Maximum(5L)},
   };
   auto expected =
       Map("longMaxLong", 8L, "longMaxDouble", 8.8, "doubleMaxLong", 8L,
-          "doubleMaxDouble", 8.8, "longMaxNan", NAN, "doubleMaxNan", NAN);
+          "doubleMaxDouble", 8.8, "longMaxNan", 5L, "doubleMaxNan", 5.5,
+          "smaller", Int32(10), "larger", Int32(15),
+          "equal_preserves_base_type", Int32(10), "cross_type", Int32(15),
+          "missing_field", Decimal128("42"), "nan_ordering", 5L);
   TransformBaseDoc(std::move(base_data), transforms, std::move(expected));
+}
+
+TEST(MutationTest, AppliesConsecutiveMixedNumericTransforms) {
+  auto base_data = Map("val", Int32(10));
+  TransformPairs transforms = {
+      {"val", Minimum(15L)},    // retains Int32(10)
+      {"val", Minimum(5L)},     // selects 5L
+      {"val", Maximum(20L)},    // selects 20L
+      {"val", Increment(10L)},  // 20 + 10 = 30L
+  };
+  auto expected = Map("val", 30L);
+  TransformBaseDoc(std::move(base_data), transforms, std::move(expected));
+}
+
+TEST(MutationTest, AppliesServerAckedMinimumAndMaximumTransforms) {
+  MutableDocument doc =
+      Doc("collection/key", 0, Map("min_val", 10L, "max_val", 10L));
+
+  Mutation transform =
+      SetMutation("collection/key", Map(),
+                  {{"min_val", Minimum(5L)}, {"max_val", Maximum(20L)}});
+
+  model::MutationResult mutation_result(Version(1), Array(5L, 20L));
+
+  transform.ApplyToRemoteDocument(doc, std::move(mutation_result));
+
+  EXPECT_EQ(doc, Doc("collection/key", 1, Map("min_val", 5L, "max_val", 20L))
+                     .SetHasCommittedMutations());
 }
 
 TEST(MutationTest, AppliesMinimumTransformToUnexpectedType) {

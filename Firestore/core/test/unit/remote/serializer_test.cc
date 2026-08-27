@@ -88,6 +88,9 @@ using model::GetTypeOrder;
 using model::MutableDocument;
 using model::Mutation;
 using model::MutationResult;
+using model::NumericIncrementTransform;
+using model::NumericMaximumTransform;
+using model::NumericMinimumTransform;
 using model::ObjectValue;
 using model::PatchMutation;
 using model::Precondition;
@@ -2135,6 +2138,169 @@ TEST_F(SerializerTest, EncodesArrayTransform) {
   v1::ArrayValue& remove2 = *remove_proto2.mutable_remove_all_from_array();
   *remove2.add_values() = ValueProto(Map("x", 1));
   *patch_proto.add_update_transforms() = std::move(remove_proto2);
+
+  v1::DocumentMask mask;
+  patch_proto.set_allocated_update_mask(mask.New());
+  patch_proto.mutable_current_document()->set_exists(true);
+
+  ExpectRoundTrip(patch_model, patch_proto);
+}
+
+TEST_F(SerializerTest, EncodesNumericIncrementTransform) {
+  std::vector<std::pair<std::string, TransformOperation>> transforms = {
+      {"i64", NumericIncrementTransform(Value(int64_t{42}))},
+      {"dbl", NumericIncrementTransform(Value(42.5))},
+      {"i32", NumericIncrementTransform(Int32(42))},
+      {"d128", NumericIncrementTransform(Decimal128("42.5"))}};
+
+  SetMutation set_model = testutil::SetMutation("docs/1", Map(), transforms);
+
+  v1::Write set_proto;
+  v1::Document& doc = *set_proto.mutable_update();
+  doc.set_name(ResourceName("docs/1"));
+
+  v1::DocumentTransform::FieldTransform inc_proto1;
+  inc_proto1.set_field_path("i64");
+  *inc_proto1.mutable_increment() = ValueProto(int64_t{42});
+  *set_proto.add_update_transforms() = std::move(inc_proto1);
+
+  v1::DocumentTransform::FieldTransform inc_proto2;
+  inc_proto2.set_field_path("dbl");
+  *inc_proto2.mutable_increment() = ValueProto(42.5);
+  *set_proto.add_update_transforms() = std::move(inc_proto2);
+
+  v1::DocumentTransform::FieldTransform inc_proto3;
+  inc_proto3.set_field_path("i32");
+  *inc_proto3.mutable_increment() = ValueProto(Int32(42));
+  *set_proto.add_update_transforms() = std::move(inc_proto3);
+
+  v1::DocumentTransform::FieldTransform inc_proto4;
+  inc_proto4.set_field_path("d128");
+  *inc_proto4.mutable_increment() = ValueProto(Decimal128("42.5"));
+  *set_proto.add_update_transforms() = std::move(inc_proto4);
+
+  ExpectRoundTrip(set_model, set_proto);
+
+  PatchMutation patch_model =
+      testutil::PatchMutation("docs/1", Map(), transforms);
+
+  v1::Write patch_proto;
+  v1::Document& doc2 = *patch_proto.mutable_update();
+  doc2.set_name(ResourceName("docs/1"));
+
+  v1::DocumentTransform::FieldTransform patch_inc_proto1;
+  patch_inc_proto1.set_field_path("i64");
+  *patch_inc_proto1.mutable_increment() = ValueProto(int64_t{42});
+  *patch_proto.add_update_transforms() = std::move(patch_inc_proto1);
+
+  v1::DocumentTransform::FieldTransform patch_inc_proto2;
+  patch_inc_proto2.set_field_path("dbl");
+  *patch_inc_proto2.mutable_increment() = ValueProto(42.5);
+  *patch_proto.add_update_transforms() = std::move(patch_inc_proto2);
+
+  v1::DocumentTransform::FieldTransform patch_inc_proto3;
+  patch_inc_proto3.set_field_path("i32");
+  *patch_inc_proto3.mutable_increment() = ValueProto(Int32(42));
+  *patch_proto.add_update_transforms() = std::move(patch_inc_proto3);
+
+  v1::DocumentTransform::FieldTransform patch_inc_proto4;
+  patch_inc_proto4.set_field_path("d128");
+  *patch_inc_proto4.mutable_increment() = ValueProto(Decimal128("42.5"));
+  *patch_proto.add_update_transforms() = std::move(patch_inc_proto4);
+
+  v1::DocumentMask mask;
+  patch_proto.set_allocated_update_mask(mask.New());
+  patch_proto.mutable_current_document()->set_exists(true);
+
+  ExpectRoundTrip(patch_model, patch_proto);
+}
+
+TEST_F(SerializerTest, EncodesNumericMinimumTransform) {
+  std::vector<std::pair<std::string, TransformOperation>> transforms = {
+      {"i32", NumericMinimumTransform(Int32(42))},
+      {"d128", NumericMinimumTransform(Decimal128("42.5"))}};
+
+  SetMutation set_model = testutil::SetMutation("docs/1", Map(), transforms);
+
+  v1::Write set_proto;
+  v1::Document& doc = *set_proto.mutable_update();
+  doc.set_name(ResourceName("docs/1"));
+
+  v1::DocumentTransform::FieldTransform min_proto1;
+  min_proto1.set_field_path("i32");
+  *min_proto1.mutable_minimum() = ValueProto(Int32(42));
+  *set_proto.add_update_transforms() = std::move(min_proto1);
+
+  v1::DocumentTransform::FieldTransform min_proto2;
+  min_proto2.set_field_path("d128");
+  *min_proto2.mutable_minimum() = ValueProto(Decimal128("42.5"));
+  *set_proto.add_update_transforms() = std::move(min_proto2);
+
+  ExpectRoundTrip(set_model, set_proto);
+
+  PatchMutation patch_model =
+      testutil::PatchMutation("docs/1", Map(), transforms);
+
+  v1::Write patch_proto;
+  v1::Document& doc2 = *patch_proto.mutable_update();
+  doc2.set_name(ResourceName("docs/1"));
+
+  v1::DocumentTransform::FieldTransform patch_min_proto1;
+  patch_min_proto1.set_field_path("i32");
+  *patch_min_proto1.mutable_minimum() = ValueProto(Int32(42));
+  *patch_proto.add_update_transforms() = std::move(patch_min_proto1);
+
+  v1::DocumentTransform::FieldTransform patch_min_proto2;
+  patch_min_proto2.set_field_path("d128");
+  *patch_min_proto2.mutable_minimum() = ValueProto(Decimal128("42.5"));
+  *patch_proto.add_update_transforms() = std::move(patch_min_proto2);
+
+  v1::DocumentMask mask;
+  patch_proto.set_allocated_update_mask(mask.New());
+  patch_proto.mutable_current_document()->set_exists(true);
+
+  ExpectRoundTrip(patch_model, patch_proto);
+}
+
+TEST_F(SerializerTest, EncodesNumericMaximumTransform) {
+  std::vector<std::pair<std::string, TransformOperation>> transforms = {
+      {"i32", NumericMaximumTransform(Int32(42))},
+      {"d128", NumericMaximumTransform(Decimal128("42.5"))}};
+
+  SetMutation set_model = testutil::SetMutation("docs/1", Map(), transforms);
+
+  v1::Write set_proto;
+  v1::Document& doc = *set_proto.mutable_update();
+  doc.set_name(ResourceName("docs/1"));
+
+  v1::DocumentTransform::FieldTransform max_proto1;
+  max_proto1.set_field_path("i32");
+  *max_proto1.mutable_maximum() = ValueProto(Int32(42));
+  *set_proto.add_update_transforms() = std::move(max_proto1);
+
+  v1::DocumentTransform::FieldTransform max_proto2;
+  max_proto2.set_field_path("d128");
+  *max_proto2.mutable_maximum() = ValueProto(Decimal128("42.5"));
+  *set_proto.add_update_transforms() = std::move(max_proto2);
+
+  ExpectRoundTrip(set_model, set_proto);
+
+  PatchMutation patch_model =
+      testutil::PatchMutation("docs/1", Map(), transforms);
+
+  v1::Write patch_proto;
+  v1::Document& doc2 = *patch_proto.mutable_update();
+  doc2.set_name(ResourceName("docs/1"));
+
+  v1::DocumentTransform::FieldTransform patch_max_proto1;
+  patch_max_proto1.set_field_path("i32");
+  *patch_max_proto1.mutable_maximum() = ValueProto(Int32(42));
+  *patch_proto.add_update_transforms() = std::move(patch_max_proto1);
+
+  v1::DocumentTransform::FieldTransform patch_max_proto2;
+  patch_max_proto2.set_field_path("d128");
+  *patch_max_proto2.mutable_maximum() = ValueProto(Decimal128("42.5"));
+  *patch_proto.add_update_transforms() = std::move(patch_max_proto2);
 
   v1::DocumentMask mask;
   patch_proto.set_allocated_update_mask(mask.New());

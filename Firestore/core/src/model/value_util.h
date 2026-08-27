@@ -171,6 +171,8 @@ void SortFields(google_firestore_v1_ArrayValue& value);
 
 util::ComparisonResult Compare(const google_firestore_v1_Value& left,
                                const google_firestore_v1_Value& right);
+util::ComparisonResult CompareNumbers(const google_firestore_v1_Value& left,
+                                      const google_firestore_v1_Value& right);
 util::ComparisonResult LowerBoundCompare(const google_firestore_v1_Value& left,
                                          bool left_inclusive,
                                          const google_firestore_v1_Value& right,
@@ -429,9 +431,12 @@ inline bool IsDouble(const absl::optional<google_firestore_v1_Value>& value) {
          value->which_value_type == google_firestore_v1_Value_double_value_tag;
 }
 
-/** Returns true if `value` is either a INTEGER_VALUE or a DOUBLE_VALUE. */
+/** Returns true if `value` is a numeric type (INTEGER, DOUBLE, INT32, or
+ * DECIMAL128). */
 inline bool IsNumber(const absl::optional<google_firestore_v1_Value>& value) {
-  return IsInteger(value) || IsDouble(value);
+  return IsInteger(value) || IsDouble(value) ||
+         (value.has_value() &&
+          (IsInt32Value(*value) || IsDecimal128Value(*value)));
 }
 
 /** Returns true if `value` is an ARRAY_VALUE. */
