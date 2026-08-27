@@ -88,8 +88,7 @@ ThrowHandler SetThrowHandler(ThrowHandler handler);
  * structure, like a query.
  */
 template <typename... FA>
-[[noreturn]] void ThrowInvalidArgument(const char* format,
-                                       const FA&... args) {
+[[noreturn]] void ThrowInvalidArgument(const char* format, const FA&... args) {
   Throw(ExceptionType::InvalidArgument, nullptr, nullptr, 0,
         StringFormat(format, args...));
 }
@@ -104,8 +103,7 @@ template <typename... FA>
  * haven't done anything yet should likely just stick to ThrowInvalidArgument.
  */
 template <typename... FA>
-[[noreturn]] void ThrowIllegalState(const char* format,
-                                    const FA&... args) {
+[[noreturn]] void ThrowIllegalState(const char* format, const FA&... args) {
   Throw(ExceptionType::IllegalState, nullptr, nullptr, 0,
         StringFormat(format, args...));
 }
