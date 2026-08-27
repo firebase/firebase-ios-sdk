@@ -581,6 +581,13 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref,
     });
 }
 
+- (void)systemClockDidChange:(NSNotification *)notification {
+    dispatch_async(self.dispatchQueue, ^{
+      [self interruptForReason:kFInterruptReasonSystemClockChange];
+      [self resumeForReason:kFInterruptReasonSystemClockChange];
+    });
+}
+
 - (void)setupNotifications {
 #if TARGET_OS_WATCH
     __weak FPersistentConnection *weakSelf = self;
@@ -599,6 +606,15 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref,
             addObserver:self
                selector:@selector(enteringForeground)
                    name:*foregroundConstant
+                 object:nil];
+    }
+    NSString *const *significantTimeChangeConstant = (NSString *const *)dlsym(
+        RTLD_DEFAULT, "UIApplicationSignificantTimeChangeNotification");
+    if (significantTimeChangeConstant) {
+        [[NSNotificationCenter defaultCenter]
+            addObserver:self
+               selector:@selector(systemClockDidChange:)
+                   name:*significantTimeChangeConstant
                  object:nil];
     }
     // An empty address is interpreted a generic internet access
