@@ -25,6 +25,7 @@ import Testing
 
 @Suite("HTTPStreamingClient Integration Tests", .serialized)
 struct HTTPStreamingClientTests {
+  @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
   private func makeClient() -> HTTPStreamingClient {
     MockHTTPURLProtocol.reset()
     let configuration = URLSessionConfiguration.ephemeral
@@ -33,7 +34,8 @@ struct HTTPStreamingClientTests {
   }
 
   @Test
-  func bytesMethodStreamsRawBytesAndLines() async throws {
+  @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
+  func streamsLinesAndReturnsTask() async throws {
     let client = makeClient()
     let testURL = try #require(URL(string: "https://example.com/bytes-api"))
     let testResponse = try #require(
@@ -51,75 +53,19 @@ struct HTTPStreamingClientTests {
       proto.client?.urlProtocolDidFinishLoading(proto)
     }
 
-    let (bytes, response) = try await client.bytes(for: URLRequest(url: testURL))
+    let (linesSequence, response) = try await client.lines(for: URLRequest(url: testURL))
     var lines: [String] = []
-    for try await line in bytes.lines {
+    for try await line in linesSequence {
       lines.append(line)
     }
 
     #expect(response.statusCode == 200)
     #expect(lines == ["ABC", "DEF"])
-    #expect(bytes.task != nil)
+    #expect(linesSequence.task != nil)
   }
 
   @Test
-  func bytesIteratingRawBytes() async throws {
-    let client = makeClient()
-    let testURL = try #require(URL(string: "https://example.com/raw-bytes"))
-    let testResponse = try #require(
-      HTTPURLResponse(
-        url: testURL,
-        statusCode: 200,
-        httpVersion: "HTTP/1.1",
-        headerFields: nil
-      )
-    )
-
-    MockHTTPURLProtocol.setHandler(for: testURL) { _, proto in
-      proto.client?.urlProtocol(proto, didReceive: testResponse, cacheStoragePolicy: .notAllowed)
-      proto.client?.urlProtocol(proto, didLoad: Data([0x01, 0x02]))
-      proto.client?.urlProtocol(proto, didLoad: Data([0x03, 0x04]))
-      proto.client?.urlProtocolDidFinishLoading(proto)
-    }
-
-    let (bytes, response) = try await client.bytes(for: URLRequest(url: testURL))
-    var receivedBytes: [UInt8] = []
-    for try await byte in bytes {
-      receivedBytes.append(byte)
-    }
-
-    #expect(response.statusCode == 200)
-    #expect(receivedBytes == [0x01, 0x02, 0x03, 0x04])
-  }
-
-  @Test
-  func bytesCollectBuffersEntireData() async throws {
-    let client = makeClient()
-    let testURL = try #require(URL(string: "https://example.com/collect-bytes"))
-    let testResponse = try #require(
-      HTTPURLResponse(
-        url: testURL,
-        statusCode: 200,
-        httpVersion: "HTTP/1.1",
-        headerFields: nil
-      )
-    )
-
-    MockHTTPURLProtocol.setHandler(for: testURL) { _, proto in
-      proto.client?.urlProtocol(proto, didReceive: testResponse, cacheStoragePolicy: .notAllowed)
-      proto.client?.urlProtocol(proto, didLoad: Data("Hello, ".utf8))
-      proto.client?.urlProtocol(proto, didLoad: Data("World!".utf8))
-      proto.client?.urlProtocolDidFinishLoading(proto)
-    }
-
-    let (bytes, response) = try await client.bytes(for: URLRequest(url: testURL))
-    let data = try await bytes.collect()
-
-    #expect(response.statusCode == 200)
-    #expect(String(decoding: data, as: UTF8.self) == "Hello, World!")
-  }
-
-  @Test
+  @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
   func streamSingleChunkMultipleLines() async throws {
     let client = makeClient()
     let testURL = try #require(URL(string: "https://example.com/stream-single-chunk"))
@@ -138,9 +84,9 @@ struct HTTPStreamingClientTests {
       proto.client?.urlProtocolDidFinishLoading(proto)
     }
 
-    let (bytes, response) = try await client.bytes(for: URLRequest(url: testURL))
+    let (linesSequence, response) = try await client.lines(for: URLRequest(url: testURL))
     var collectedLines: [String] = []
-    for try await line in bytes.lines {
+    for try await line in linesSequence {
       collectedLines.append(line)
     }
 
@@ -149,6 +95,7 @@ struct HTTPStreamingClientTests {
   }
 
   @Test
+  @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
   func linesSplitAcrossMultipleChunks() async throws {
     let client = makeClient()
     let testURL = try #require(URL(string: "https://example.com/stream-split-chunks"))
@@ -169,9 +116,9 @@ struct HTTPStreamingClientTests {
       proto.client?.urlProtocolDidFinishLoading(proto)
     }
 
-    let (bytes, response) = try await client.bytes(for: URLRequest(url: testURL))
+    let (linesSequence, response) = try await client.lines(for: URLRequest(url: testURL))
     var collectedLines: [String] = []
-    for try await line in bytes.lines {
+    for try await line in linesSequence {
       collectedLines.append(line)
     }
 
@@ -180,6 +127,7 @@ struct HTTPStreamingClientTests {
   }
 
   @Test
+  @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
   func streamSplitCRLFAndUTF8() async throws {
     let client = makeClient()
     let testURL = try #require(URL(string: "https://example.com/stream-crlf-utf8"))
@@ -201,9 +149,9 @@ struct HTTPStreamingClientTests {
       proto.client?.urlProtocolDidFinishLoading(proto)
     }
 
-    let (bytes, response) = try await client.bytes(for: URLRequest(url: testURL))
+    let (linesSequence, response) = try await client.lines(for: URLRequest(url: testURL))
     var collectedLines: [String] = []
-    for try await line in bytes.lines {
+    for try await line in linesSequence {
       collectedLines.append(line)
     }
 
@@ -212,6 +160,7 @@ struct HTTPStreamingClientTests {
   }
 
   @Test
+  @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
   func streamPreservesBlankLines() async throws {
     let client = makeClient()
     let testURL = try #require(URL(string: "https://example.com/stream-blank-lines"))
@@ -233,9 +182,9 @@ struct HTTPStreamingClientTests {
       proto.client?.urlProtocolDidFinishLoading(proto)
     }
 
-    let (bytes, response) = try await client.bytes(for: URLRequest(url: testURL))
+    let (linesSequence, response) = try await client.lines(for: URLRequest(url: testURL))
     var collectedLines: [String] = []
-    for try await line in bytes.lines {
+    for try await line in linesSequence {
       collectedLines.append(line)
     }
 
@@ -244,6 +193,7 @@ struct HTTPStreamingClientTests {
   }
 
   @Test
+  @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
   func streamNon2xxResponseReturnsStatusCodeAndBody() async throws {
     let client = makeClient()
     let testURL = try #require(URL(string: "https://example.com/error-404"))
@@ -262,9 +212,9 @@ struct HTTPStreamingClientTests {
       proto.client?.urlProtocolDidFinishLoading(proto)
     }
 
-    let (bytes, response) = try await client.bytes(for: URLRequest(url: testURL))
+    let (linesSequence, response) = try await client.lines(for: URLRequest(url: testURL))
     var collectedLines: [String] = []
-    for try await line in bytes.lines {
+    for try await line in linesSequence {
       collectedLines.append(line)
     }
 
@@ -273,6 +223,7 @@ struct HTTPStreamingClientTests {
   }
 
   @Test
+  @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
   func networkErrorBeforeResponseThrows() async throws {
     let client = makeClient()
     let testURL = try #require(URL(string: "https://example.com/fail-before-response"))
@@ -282,7 +233,7 @@ struct HTTPStreamingClientTests {
     }
 
     do {
-      _ = try await client.bytes(for: URLRequest(url: testURL))
+      _ = try await client.lines(for: URLRequest(url: testURL))
       Issue.record("Expected request to throw network error")
     } catch {
       let urlError = try #require(error as? URLError)
@@ -291,6 +242,7 @@ struct HTTPStreamingClientTests {
   }
 
   @Test
+  @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
   func networkErrorDuringStreamThrows() async throws {
     let client = makeClient()
     let testURL = try #require(URL(string: "https://example.com/fail-during-stream"))
@@ -310,9 +262,9 @@ struct HTTPStreamingClientTests {
     }
 
     do {
-      let (bytes, response) = try await client.bytes(for: URLRequest(url: testURL))
+      let (linesSequence, response) = try await client.lines(for: URLRequest(url: testURL))
       #expect(response.statusCode == 200)
-      for try await _ in bytes.lines {}
+      for try await _ in linesSequence {}
       Issue.record("Expected stream to throw network error")
     } catch {
       let urlError = try #require(error as? URLError)
@@ -321,6 +273,7 @@ struct HTTPStreamingClientTests {
   }
 
   @Test
+  @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
   func earlyTerminationCancelsStream() async throws {
     let client = makeClient()
     let testURL = try #require(URL(string: "https://example.com/early-termination"))
@@ -339,9 +292,9 @@ struct HTTPStreamingClientTests {
       proto.client?.urlProtocolDidFinishLoading(proto)
     }
 
-    let (bytes, _) = try await client.bytes(for: URLRequest(url: testURL))
+    let (linesSequence, _) = try await client.lines(for: URLRequest(url: testURL))
     var receivedCount = 0
-    for try await _ in bytes.lines {
+    for try await _ in linesSequence {
       receivedCount += 1
       if receivedCount == 2 {
         break
@@ -352,6 +305,7 @@ struct HTTPStreamingClientTests {
   }
 
   @Test
+  @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
   func nonHTTPResponseThrowsBadServerResponse() async throws {
     let client = makeClient()
     let testURL = try #require(URL(string: "https://example.com/non-http"))
@@ -370,7 +324,7 @@ struct HTTPStreamingClientTests {
     }
 
     do {
-      _ = try await client.bytes(for: URLRequest(url: testURL))
+      _ = try await client.lines(for: URLRequest(url: testURL))
       Issue.record("Expected non-HTTP response to throw error")
     } catch {
       let urlError = try #require(error as? URLError)
@@ -379,6 +333,7 @@ struct HTTPStreamingClientTests {
   }
 
   @Test
+  @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
   func sessionInvalidationMethods() {
     let client = makeClient()
 

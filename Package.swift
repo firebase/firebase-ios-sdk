@@ -37,7 +37,7 @@ let package = Package(
       name: "GeminiForFoundationModelsTests",
       dependencies: [
         "GeminiForFoundationModels",
-        "SharedTestUtilities"
+        "SharedTestUtilities",
       ]
     ),
     .target(
@@ -47,7 +47,7 @@ let package = Package(
       name: "HTTPStreamingClientTests",
       dependencies: [
         "HTTPStreamingClient",
-        "SharedTestUtilities"
+        "SharedTestUtilities",
       ]
     ),
   ],
