@@ -21,6 +21,7 @@
 #include "Crashlytics/Crashlytics/Components/FIRCLSContext.h"
 #include "Crashlytics/Crashlytics/Components/FIRCLSGlobals.h"
 #include "Crashlytics/Crashlytics/Helpers/FIRCLSDefines.h"
+#include "Crashlytics/Crashlytics/Unwind/Dwarf/FIRCLSDataParsing.h"
 #include "Crashlytics/Crashlytics/Unwind/Dwarf/FIRCLSDwarfUnwind.h"
 #include "Crashlytics/Crashlytics/Unwind/FIRCLSUnwind_arch.h"
 
@@ -170,6 +171,25 @@
       FIRCLSDwarfUnwindAssignRegisters(&state, &inputRegisters, cfaRegister, &outputRegisters));
 
   XCTAssertEqual(FIRCLSDwarfUnwindGetRegisterValue(&outputRegisters, CLS_DWARF_REG_RETURN), 777);
+}
+
+- (void)testParseULEB128DecodesValueWiderThan28Bits {
+  // ULEB128 of 0xFFFFFFFF needs 5 bytes; the fifth byte lands at shift 28, so
+  // decoding the 0x7F chunk as a 32-bit int shifts past the sign bit.
+  const uint8_t encoded[] = {0xFF, 0xFF, 0xFF, 0xFF, 0x0F};
+  const void* cursor = encoded;
+
+  XCTAssertEqual(FIRCLSParseULEB128AndAdvance(&cursor), 0xFFFFFFFFULL);
+  XCTAssertEqual(cursor, (const void*)(encoded + sizeof(encoded)));
+}
+
+- (void)testParseLEB128DecodesLargeNegativeValue {
+  // SLEB128 of -2^32; the sign-extension and the value chunks both shift past 32.
+  const uint8_t encoded[] = {0x80, 0x80, 0x80, 0x80, 0x70};
+  const void* cursor = encoded;
+
+  XCTAssertEqual(FIRCLSParseLEB128AndAdvance(&cursor), -4294967296LL);
+  XCTAssertEqual(cursor, (const void*)(encoded + sizeof(encoded)));
 }
 
 #endif
