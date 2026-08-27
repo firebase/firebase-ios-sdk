@@ -1,4 +1,7 @@
 # Unreleased
+- [fixed] Fix an issue where cached FCM registration tokens were falsely
+  invalidated due to locale changes when
+  `FirebaseMessagingInstallationIdEnabled` was set to `YES`. (#16572)
 - [fixed] Fix a potential crash when parsing malformed FCM payloads with
   unexpected non-numeric fields. (#16533)
 
