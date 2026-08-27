@@ -344,6 +344,7 @@ jobs:
       (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
       (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false)
     runs-on: macos-26
+    timeout-minutes: 90
 
     strategy:
       matrix:
