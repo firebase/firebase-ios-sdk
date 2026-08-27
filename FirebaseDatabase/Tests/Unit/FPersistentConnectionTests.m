@@ -93,6 +93,14 @@
   [self assertConnectionRestartedForSystemClockChange];
 }
 
+- (void)testSystemClockDidChangeNotificationRestartsConnection {
+  [[NSNotificationCenter defaultCenter] postNotificationName:NSSystemClockDidChangeNotification
+                                                      object:nil];
+  [self waitForConnectionQueue];
+
+  [self assertConnectionRestartedForSystemClockChange];
+}
+
 - (void)waitForConnectionQueue {
   dispatch_sync(self.connectionQueue, ^{
                 });
