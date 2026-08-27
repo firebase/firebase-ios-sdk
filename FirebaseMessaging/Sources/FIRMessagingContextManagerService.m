@@ -102,16 +102,15 @@ typedef NS_ENUM(NSUInteger, FIRMessagingContextManagerMessageType) {
 }
 
 + (BOOL)handleContextManagerLocalTimeMessage:(NSDictionary *)message {
-  id startTime = message[kFIRMessagingContextManagerLocalTimeStart];
-  if (![startTime isKindOfClass:[NSString class]]) {
-    FIRMessagingLoggerError(kFIRMessagingMessageCodeContextManagerService002,
-                            @"Invalid local start date format %@. Message dropped", startTime);
-    return NO;
-  }
-  NSString *startTimeString = startTime;
-  NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-  dateFormatter.locale = [NSLocale localeWithLocaleIdentifier:@"en_US_POSIX"];
-  [dateFormatter setDateFormat:kLocalTimeFormatString];
+  // The start time was already validated as a non-empty NSString by the caller.
+  NSString *startTimeString = message[kFIRMessagingContextManagerLocalTimeStart];
+  static NSDateFormatter *dateFormatter;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    dateFormatter = [[NSDateFormatter alloc] init];
+    dateFormatter.locale = [NSLocale localeWithLocaleIdentifier:@"en_US_POSIX"];
+    [dateFormatter setDateFormat:kLocalTimeFormatString];
+  });
   NSDate *startDate = [dateFormatter dateFromString:startTimeString];
   if (!startDate) {
     FIRMessagingLoggerError(kFIRMessagingMessageCodeContextManagerService002,
