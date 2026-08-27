@@ -1046,10 +1046,10 @@ TEST(MutationTest, AppliesMaximumTransformToDocument) {
   };
   auto expected =
       Map("longMaxLong", 8L, "longMaxDouble", 8.8, "doubleMaxLong", 8L,
-          "doubleMaxDouble", 8.8, "longMaxNan", 5L, "doubleMaxNan", 5.5,
+          "doubleMaxDouble", 8.8, "longMaxNan", NAN, "doubleMaxNan", NAN,
           "smaller", Int32(10), "larger", Int32(15),
           "equal_preserves_base_type", Int32(10), "cross_type", Int32(15),
-          "missing_field", Decimal128("42"), "nan_ordering", 5L);
+          "missing_field", Decimal128("42"), "nan_ordering", NAN);
   TransformBaseDoc(std::move(base_data), transforms, std::move(expected));
 }
 

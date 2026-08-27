@@ -1513,8 +1513,14 @@ google_firestore_v1_Value ZeroIntegerValue() {
 }
 
 bool IsNaNValue(const google_firestore_v1_Value& value) {
-  return value.which_value_type == google_firestore_v1_Value_double_value_tag &&
-         std::isnan(value.double_value);
+  if (value.which_value_type == google_firestore_v1_Value_double_value_tag &&
+      std::isnan(value.double_value)) {
+    return true;
+  }
+  if (IsDecimal128Value(value)) {
+    return ConvertNumericValueToQuadruple(value).is_nan();
+  }
+  return false;
 }
 
 google_firestore_v1_Value MinBoolean() {

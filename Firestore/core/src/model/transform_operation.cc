@@ -641,6 +641,12 @@ NumericMinimumTransform::Rep::ApplyToLocalView(
   if (!IsNumber(previous_value)) {
     return DeepClone(*operand_);
   }
+  if (IsNaNValue(*previous_value)) {
+    return DeepClone(*previous_value);
+  }
+  if (IsNaNValue(*operand_)) {
+    return DeepClone(*operand_);
+  }
   util::ComparisonResult cmp = CompareNumbers(*operand_, *previous_value);
   if (cmp == util::ComparisonResult::Ascending) {
     return DeepClone(*operand_);
@@ -653,6 +659,12 @@ NumericMaximumTransform::Rep::ApplyToLocalView(
     const absl::optional<google_firestore_v1_Value>& previous_value,
     const Timestamp& /* local_write_time */) const {
   if (!IsNumber(previous_value)) {
+    return DeepClone(*operand_);
+  }
+  if (IsNaNValue(*previous_value)) {
+    return DeepClone(*previous_value);
+  }
+  if (IsNaNValue(*operand_)) {
     return DeepClone(*operand_);
   }
   util::ComparisonResult cmp = CompareNumbers(*operand_, *previous_value);

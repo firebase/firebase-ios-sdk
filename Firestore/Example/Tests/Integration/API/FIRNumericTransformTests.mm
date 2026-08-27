@@ -319,6 +319,15 @@ double DOUBLE_EPSILON = 0.000001;
   XCTAssertTrue(std::isnan([snap[@"sum"] doubleValue]));
 }
 
+- (void)expectLocalAndRemoteDecimal128NaN {
+  FIRDocumentSnapshot *snap = [_accumulator awaitLocalEvent];
+  XCTAssertTrue([snap[@"sum"] isKindOfClass:[FIRDecimal128Value class]]);
+  XCTAssertEqualObjects([(FIRDecimal128Value *)snap[@"sum"] value], @"NaN");
+  snap = [_accumulator awaitRemoteEvent];
+  XCTAssertTrue([snap[@"sum"] isKindOfClass:[FIRDecimal128Value class]]);
+  XCTAssertEqualObjects([(FIRDecimal128Value *)snap[@"sum"] value], @"NaN");
+}
+
 - (void)testMinimumWithNaN {
   // If one of the values is NaN, minimum is NaN
   [self writeInitialData:@{@"sum" : @(NAN)}];
@@ -328,6 +337,26 @@ double DOUBLE_EPSILON = 0.000001;
   [self writeInitialData:@{@"sum" : @5}];
   [self updateDocumentRef:_docRef data:@{@"sum" : [FIRFieldValue fieldValueForDoubleMinimum:NAN]}];
   [self expectLocalAndRemoteNaN];
+
+  [self writeInitialData:@{@"sum" : @(NAN)}];
+  [self updateDocumentRef:_docRef data:@{@"sum" : [FIRFieldValue fieldValueForDoubleMinimum:NAN]}];
+  [self expectLocalAndRemoteNaN];
+
+  [self writeInitialData:@{@"sum" : @5.5}];
+  [self updateDocumentRef:_docRef data:@{@"sum" : [FIRFieldValue fieldValueForDoubleMinimum:NAN]}];
+  [self expectLocalAndRemoteNaN];
+
+  [self writeInitialData:@{@"sum" : [[FIRInt32Value alloc] initWithValue:5]}];
+  [self updateDocumentRef:_docRef data:@{@"sum" : [FIRFieldValue fieldValueForDoubleMinimum:NAN]}];
+  [self expectLocalAndRemoteNaN];
+
+  [self writeInitialData:@{@"sum" : [[FIRDecimal128Value alloc] initWithValue:@"10.5"]}];
+  [self updateDocumentRef:_docRef data:@{@"sum" : [FIRFieldValue fieldValueForDoubleMinimum:NAN]}];
+  [self expectLocalAndRemoteNaN];
+
+  [self writeInitialData:@{@"sum" : [[FIRDecimal128Value alloc] initWithValue:@"NaN"]}];
+  [self updateDocumentRef:_docRef data:@{@"sum" : [FIRFieldValue fieldValueForIntegerMinimum:5]}];
+  [self expectLocalAndRemoteDecimal128NaN];
 }
 
 - (void)testMaximumWithNaN {
@@ -339,6 +368,26 @@ double DOUBLE_EPSILON = 0.000001;
   [self writeInitialData:@{@"sum" : @5}];
   [self updateDocumentRef:_docRef data:@{@"sum" : [FIRFieldValue fieldValueForDoubleMaximum:NAN]}];
   [self expectLocalAndRemoteNaN];
+
+  [self writeInitialData:@{@"sum" : @(NAN)}];
+  [self updateDocumentRef:_docRef data:@{@"sum" : [FIRFieldValue fieldValueForDoubleMaximum:NAN]}];
+  [self expectLocalAndRemoteNaN];
+
+  [self writeInitialData:@{@"sum" : @5.5}];
+  [self updateDocumentRef:_docRef data:@{@"sum" : [FIRFieldValue fieldValueForDoubleMaximum:NAN]}];
+  [self expectLocalAndRemoteNaN];
+
+  [self writeInitialData:@{@"sum" : [[FIRInt32Value alloc] initWithValue:5]}];
+  [self updateDocumentRef:_docRef data:@{@"sum" : [FIRFieldValue fieldValueForDoubleMaximum:NAN]}];
+  [self expectLocalAndRemoteNaN];
+
+  [self writeInitialData:@{@"sum" : [[FIRDecimal128Value alloc] initWithValue:@"10.5"]}];
+  [self updateDocumentRef:_docRef data:@{@"sum" : [FIRFieldValue fieldValueForDoubleMaximum:NAN]}];
+  [self expectLocalAndRemoteNaN];
+
+  [self writeInitialData:@{@"sum" : [[FIRDecimal128Value alloc] initWithValue:@"NaN"]}];
+  [self updateDocumentRef:_docRef data:@{@"sum" : [FIRFieldValue fieldValueForIntegerMaximum:5]}];
+  [self expectLocalAndRemoteDecimal128NaN];
 }
 
 - (void)testNumericIncrementWithBsonTypes {
