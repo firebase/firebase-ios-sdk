@@ -1,7 +1,7 @@
 # Unreleased
 - [removed] Firebase is no longer distributed via CocoaPods. Firebase 13.0.0
   and future releases are distributed exclusively via Swift Package Manager
-  and binary distributions. Existing CocoaPods releases will remain functional
+  and binary distributions. Existing CocoaPods versions will remain functional
   and available indefinitely. See
   https://firebase.google.com/docs/ios/cocoapods-deprecation for details.
 
