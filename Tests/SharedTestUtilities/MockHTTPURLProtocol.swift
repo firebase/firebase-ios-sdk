@@ -13,6 +13,7 @@
 // limitations under the License.
 
 package import Foundation
+import Synchronization
 
 #if canImport(FoundationNetworking)
   package import FoundationNetworking
@@ -21,11 +22,12 @@ package import Foundation
 // MARK: - Mock HTTP URL Protocol
 
 /// A custom `URLProtocol` for mocking network responses across package test targets.
+@available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
 package final class MockHTTPURLProtocol: URLProtocol {
   /// The closure signature for handling intercepted requests.
   package typealias Handler = @Sendable (URLRequest, MockHTTPURLProtocol) throws -> Void
 
-  private static let handlers = LockProtected<[String: Handler]>([:])
+  private static let handlers = Mutex<[String: Handler]>([:])
 
   /// Registers a mock response handler for the specified URL.
   ///
@@ -112,27 +114,5 @@ extension URLRequest {
       data.append(buffer, count: read)
     }
     return data
-  }
-}
-
-// MARK: - Lock Protected Container
-
-/// A thread-safe container for mutable state.
-///
-/// Safety: This class uses an `NSLock` to serialize all access to the underlying `state`.
-/// It is marked `@unchecked Sendable` because the compiler cannot verify `NSLock` isolation,
-/// but data-race safety is manually guaranteed.
-private final class LockProtected<State>: @unchecked Sendable {
-  private let lock = NSLock()
-  private var state: State
-
-  init(_ initialState: State) {
-    self.state = initialState
-  }
-
-  func withLock<Result>(_ body: (inout State) throws -> Result) rethrows -> Result {
-    lock.lock()
-    defer { lock.unlock() }
-    return try body(&state)
   }
 }

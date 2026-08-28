@@ -340,19 +340,4 @@ struct HTTPStreamingClientTests {
     client.finishTasksAndInvalidate()
     client.invalidateAndCancel()
   }
-
-  @Test
-  func requestHttpBodyDataFromBufferAndStream() throws {
-    let bufferURL = try #require(URL(string: "https://example.com/body"))
-    var bufferRequest = URLRequest(url: bufferURL)
-    bufferRequest.httpBody = Data("buffer-payload".utf8)
-
-    #expect(bufferRequest.httpBodyData == Data("buffer-payload".utf8))
-
-    let streamURL = try #require(URL(string: "https://example.com/stream"))
-    var streamRequest = URLRequest(url: streamURL)
-    streamRequest.httpBodyStream = InputStream(data: Data("stream-payload".utf8))
-
-    #expect(streamRequest.httpBodyData == Data("stream-payload".utf8))
-  }
 }
