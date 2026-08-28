@@ -30,7 +30,10 @@ struct Repo: AsyncParsableCommand {
       (eg; "debug").
     """,
     subcommands: [
-      Tests.self,
+      Build.self,
+      BuildForTesting.self,
+      Test.self,
+      Decrypt.self,
     ]
   )
 

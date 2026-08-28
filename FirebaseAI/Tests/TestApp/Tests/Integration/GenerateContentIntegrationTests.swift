@@ -853,7 +853,7 @@ struct GenerateContentIntegrationTests {
         throw error
       }
       #expect(String(describing: underlyingError)
-        .contains("the number of enabled_voices must equal 2"))
+        .contains("the number of speaker_voice_configs must equal 2"))
     }
   }
 }

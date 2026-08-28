@@ -347,6 +347,59 @@
                                    function: #function, testMode: true)
     }
 
+    /** @fn testVerifyPhoneNumberWithMultiFactorInfoInTestMode
+     @brief Tests a successful invocation of @c verifyPhoneNumber(with:uiDelegate:multiFactorSession:completion:) when app verification is disabled due to #16438
+     */
+    func testVerifyPhoneNumberWithMultiFactorInfoInTestMode() async throws {
+      initApp(#function, testMode: true)
+      let auth = try XCTUnwrap(PhoneAuthProviderTests.auth)
+      let provider = PhoneAuthProvider.provider(auth: auth)
+
+      let dictionary: [String: AnyHashable] = [
+        "mfaEnrollmentId": "enrollment-id",
+        "phoneInfo": "+1******4444",
+        "displayName": "test phone",
+        "enrolledAt": "2023-01-01T00:00:00Z",
+      ]
+      let proto = AuthProtoMFAEnrollment(dictionary: dictionary)
+      let mfi = PhoneMultiFactorInfo(proto: proto)
+
+      let session = MultiFactorSession(mfaCredential: "pending-credential")
+      session.multiFactorInfo = mfi
+
+      let requestExpectation = expectation(description: "respondBlock")
+      rpcIssuer?.respondBlock = { [weak self] in
+        guard let self = self, let rpcIssuer = self.rpcIssuer else {
+          return (nil, nil)
+        }
+        guard let request = rpcIssuer.request as? StartMFASignInRequest else {
+          XCTFail(
+            "Expected StartMFASignInRequest, got \(String(describing: rpcIssuer.request))"
+          )
+          return (nil, nil)
+        }
+        XCTAssertEqual(request.signInInfo?.phoneNumber, "+1******4444")
+        XCTAssertEqual(request.MFAEnrollmentID, "enrollment-id")
+        requestExpectation.fulfill()
+        return try rpcIssuer.respond(withJSON: [
+          "phoneResponseInfo": ["sessionInfo": "fake-session-info"],
+        ])
+      }
+
+      do {
+        let verificationID = try await provider.verifyPhoneNumber(
+          with: mfi,
+          uiDelegate: nil,
+          multiFactorSession: session
+        )
+        XCTAssertEqual(verificationID, "fake-session-info")
+      } catch {
+        XCTFail("verifyPhoneNumber failed with error: \(error)")
+      }
+
+      await fulfillment(of: [requestExpectation], timeout: 5.0)
+    }
+
     /** @fn testVerifyPhoneNumberUIDelegateFirebaseAppIdFlow
      @brief Tests a successful invocation of @c verifyPhoneNumber:UIDelegate:completion:.
      */
@@ -930,9 +983,25 @@
           settings.appVerificationDisabledForTesting = true
           auth.settings = settings
         }
+        if auth.appCredentialManager == nil {
+          let fakeKeychain = AuthKeychainServices(
+            service: "PhoneAuthProviderTests",
+            storage: FakeAuthKeychainStorage()
+          )
+          auth.appCredentialManager = AuthAppCredentialManager(withKeychain: fakeKeychain)
+        }
+        if auth.notificationManager == nil {
+          auth.notificationManager = AuthNotificationManager(
+            withApplication: FakeApplication(),
+            appCredentialManager: auth.appCredentialManager
+          )
+        }
         auth.notificationManager?.immediateCallbackForTestFaking = { forwardingNotification }
         auth.mainBundleUrlTypes = [["CFBundleURLSchemes": [scheme]]]
 
+        if auth.tokenManager == nil {
+          auth.tokenManager = AuthAPNSTokenManager(withApplication: FakeApplication())
+        }
         if fakeToken {
           guard let data = "!@#$%^".data(using: .utf8) else {
             XCTFail("Failed to encode data for fake token")
@@ -941,9 +1010,16 @@
           auth.tokenManager?.tokenStore = AuthAPNSToken(withData: data, type: .prod)
         } else {
           // Skip APNS token fetching.
-          auth.tokenManager = FakeTokenManager(withApplication: UIApplication.shared)
+          auth.tokenManager = FakeTokenManager(withApplication: FakeApplication())
         }
       }
+    }
+
+    private class FakeApplication: AuthNotificationApplication, AuthAPNSTokenApplication,
+      @unchecked Sendable {
+      weak var delegate: UIApplicationDelegate?
+      var applicationState: UIApplication.State = .active
+      @MainActor func registerForRemoteNotifications() {}
     }
 
     class FakeAuthRecaptchaVerifier: AuthRecaptchaVerifier, @unchecked Sendable {

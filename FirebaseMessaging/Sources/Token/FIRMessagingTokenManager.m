@@ -77,13 +77,16 @@
     return _defaultFCMToken;
   }
 
+  BOOL isInstallationIdEnabled = [FIRMessaging messaging].isInstallationIdEnabled;
+  NSString *expectedTokenType = isInstallationIdEnabled ? @"FID" : @"V4";
+
   FIRMessagingTokenInfo *cachedTokenInfo =
       [self cachedTokenInfoWithAuthorizedEntity:self.fcmSenderID
                                           scope:kFIRMessagingDefaultTokenScope];
-  NSString *cachedToken = cachedTokenInfo.token;
-
-  if (cachedToken) {
-    return cachedToken;
+  if (cachedTokenInfo.token.length > 0 &&
+      [cachedTokenInfo.tokenType isEqualToString:expectedTokenType]) {
+    _defaultFCMToken = [cachedTokenInfo.token copy];
+    return _defaultFCMToken;
   } else {
     [self tokenWithAuthorizedEntity:self.fcmSenderID
                               scope:kFIRMessagingDefaultTokenScope
@@ -99,7 +102,7 @@
   return _defaultFCMToken;
 }
 
-- (void)postTokenRefreshNotificationWithDefaultFCMToken:(NSString *)defaultFCMToken {
+- (void)postTokenRefreshNotificationWithDefaultFCMToken:(nullable NSString *)defaultFCMToken {
   // Should always trigger the token refresh notification when the delegate method is called
   // No need to check if the token has changed, it's handled in the notification receiver.
   NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
@@ -175,7 +178,8 @@
 - (void)tokenWithAuthorizedEntity:(NSString *)authorizedEntity
                             scope:(NSString *)scope
                           options:(NSDictionary *)options
-                          handler:(FIRMessagingFCMTokenFetchCompletion)handler {
+                          handler:(void (^)(NSString *_Nullable token,
+                                            NSError *_Nullable error))handler {
   if (!handler) {
     FIRMessagingLoggerError(kFIRMessagingMessageCodeInstanceID000, @"Invalid nil handler");
     return;
@@ -231,7 +235,7 @@
     errorCode = kFIRMessagingErrorCodeMissingFid;
   }
 
-  FIRMessagingFCMTokenFetchCompletion newHandler = ^(NSString *token, NSError *error) {
+  void (^newHandler)(NSString *, NSError *) = ^(NSString *token, NSError *error) {
     dispatch_async(dispatch_get_main_queue(), ^{
       handler(token, error);
     });
@@ -327,7 +331,8 @@
                                     scope:(NSString *)scope
                                instanceID:(NSString *)instanceID
                                   options:(NSDictionary *)options
-                                  handler:(FIRMessagingFCMTokenFetchCompletion)handler {
+                                  handler:(void (^)(NSString *_Nullable token,
+                                                    NSError *_Nullable error))handler {
   FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTokenManager000,
                           @"Fetch new token for authorizedEntity: %@, scope: %@", authorizedEntity,
                           scope);
@@ -434,7 +439,7 @@
 - (void)deleteTokenWithAuthorizedEntity:(NSString *)authorizedEntity
                                   scope:(NSString *)scope
                              instanceID:(NSString *)instanceID
-                                handler:(FIRMessagingDeleteFCMTokenCompletion)handler {
+                                handler:(void (^)(NSError *_Nullable error))handler {
   if ([_tokenStore tokenInfoWithAuthorizedEntity:authorizedEntity scope:scope]) {
     [_tokenStore removeTokenWithAuthorizedEntity:authorizedEntity scope:scope];
   }
