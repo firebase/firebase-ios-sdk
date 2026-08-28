@@ -155,24 +155,24 @@ func packageDependencies() -> [Package.Dependency] {
     dependencies.append(contentsOf: [
       .package(
         url: "https://github.com/google/promises.git",
-        "2.4.0" ..< "3.0.0"
+        "2.4.1" ..< "3.0.0"
       ),
       googleAppMeasurementDependency(),
       .package(
         url: "https://github.com/google/GoogleDataTransport.git",
-        "10.1.0" ..< "11.0.0"
+        "10.1.1" ..< "11.0.0"
       ),
       .package(
         url: "https://github.com/google/GoogleUtilities.git",
-        "8.1.0" ..< "9.0.0"
+        "8.1.3" ..< "9.0.0"
       ),
       .package(
         url: "https://github.com/google/gtm-session-fetcher.git",
-        "3.4.1" ..< "6.0.0"
+        "4.0.0" ..< "6.0.0"
       ),
       .package(
         url: "https://github.com/firebase/nanopb.git",
-        "2.30910.0" ..< "2.30911.0"
+        "2.30910.1" ..< "2.30911.0"
       ),
       abseilDependency(),
       grpcDependency(),
@@ -182,7 +182,7 @@ func packageDependencies() -> [Package.Dependency] {
       ),
       .package(
         url: "https://github.com/firebase/leveldb.git",
-        "1.22.2" ..< "1.23.0"
+        "1.22.5" ..< "1.23.0"
       ),
       .package(
         url: "https://github.com/SlaunchaMan/GCDWebServer.git",
@@ -1720,5 +1720,5 @@ func appCheckDependency() -> Package.Dependency {
     return .package(url: appCheckURL, branch: branch)
   }
 
-  return .package(url: appCheckURL, "11.3.0" ..< "12.0.0")
+  return .package(url: appCheckURL, "12.0.0" ..< "13.0.0")
 }
