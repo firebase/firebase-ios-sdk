@@ -20,7 +20,11 @@
 #import <AppCheckCore/AppCheckCore.h>
 
 #if SWIFT_PACKAGE
+#if (TARGET_OS_IOS && !TARGET_OS_MACCATALYST) || TARGET_OS_VISION
 @import AppCheckRecaptchaProvider;
+#else
+#define FIR_RECAPTCHA_PROVIDER_SWIFT_AVAILABLE 0
+#endif
 #elif __has_include(<AppCheckCore/AppCheckCore-Swift.h>)
 #import <AppCheckCore/AppCheckCore-Swift.h>
 #elif __has_include("AppCheckCore-Swift.h")
