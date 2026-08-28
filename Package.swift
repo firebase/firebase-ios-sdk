@@ -27,27 +27,47 @@ let package = Package(
   ],
   targets: [
     .target(
-      name: "GeminiForFoundationModels"
+      name: "GeminiForFoundationModels",
+      swiftSettings: [
+        .enableUpcomingFeature("InternalImportsByDefault"),
+        .enableUpcomingFeature("MemberImportVisibility"),
+      ]
     ),
     .target(
       name: "SharedTestUtilities",
-      path: "Tests/SharedTestUtilities"
+      path: "Tests/SharedTestUtilities",
+      swiftSettings: [
+        .enableUpcomingFeature("InternalImportsByDefault"),
+        .enableUpcomingFeature("MemberImportVisibility"),
+      ]
     ),
     .testTarget(
       name: "GeminiForFoundationModelsTests",
       dependencies: [
         "GeminiForFoundationModels",
         "SharedTestUtilities",
+      ],
+      swiftSettings: [
+        .enableUpcomingFeature("InternalImportsByDefault"),
+        .enableUpcomingFeature("MemberImportVisibility"),
       ]
     ),
     .target(
-      name: "HTTPStreamingClient"
+      name: "HTTPStreamingClient",
+      swiftSettings: [
+        .enableUpcomingFeature("InternalImportsByDefault"),
+        .enableUpcomingFeature("MemberImportVisibility"),
+      ]
     ),
     .testTarget(
       name: "HTTPStreamingClientTests",
       dependencies: [
         "HTTPStreamingClient",
         "SharedTestUtilities",
+      ],
+      swiftSettings: [
+        .enableUpcomingFeature("InternalImportsByDefault"),
+        .enableUpcomingFeature("MemberImportVisibility"),
       ]
     ),
   ],

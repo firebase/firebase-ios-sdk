@@ -12,9 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package import Foundation
+import Synchronization
 
-#if canImport(FoundationNetworking)
+#if canImport(Darwin)
+  package import Foundation
+#else
+  import Foundation
   package import FoundationNetworking
 #endif
 
@@ -27,15 +30,15 @@ package struct HTTPStreamingClient: Sendable {
 
   /// Initializes a new HTTP streaming client with the specified configuration.
   ///
-  /// - Parameter configuration: The `URLSessionConfiguration` to use. Defaults to `.default`.
+  /// - Parameter configuration: The `URLSessionConfiguration` to use. Defaults to `.ephemeral`.
   package init(configuration: URLSessionConfiguration = .ephemeral) {
     self.session = URLSession(configuration: configuration)
   }
 
-  /// Sends a request and delivers an asynchronous sequence of lines of text and the HTTP response metadata.
+  /// Sends a request and delivers an asynchronous sequence of lines of text and the HTTP response.
   ///
   /// - Parameter request: The `URLRequest` to execute.
-  /// - Returns: A tuple containing the `HTTPAsyncLineSequence` stream and `HTTPURLResponse` metadata.
+  /// - Returns: A tuple of the `HTTPAsyncLineSequence` stream and `HTTPURLResponse` metadata.
   /// - Throws: An error if the request fails to connect or if the response is not an HTTP response.
   package func lines(
     for request: URLRequest
@@ -78,7 +81,6 @@ package struct HTTPStreamingClient: Sendable {
 
 /// An asynchronous sequence of lines of text parsed from an HTTP byte stream.
 @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
-/// Safety: `URLSessionTask` is inherently thread-safe in Foundation.
 package struct HTTPAsyncLineSequence: AsyncSequence, Sendable {
   private let dataStream: AsyncThrowingStream<Data, any Error>
 
@@ -104,9 +106,7 @@ package struct HTTPAsyncLineSequence: AsyncSequence, Sendable {
   package struct AsyncIterator: AsyncIteratorProtocol {
     private var streamIterator: AsyncThrowingStream<Data, any Error>.AsyncIterator
     private var decoder = HTTPLineDecoder()
-    private var pendingLines: [String] = []
-    private var pendingIndex: Int = 0
-    private var isFinished = false
+    private var pendingLines: ArraySlice<String> = []
 
     init(streamIterator: AsyncThrowingStream<Data, any Error>.AsyncIterator) {
       self.streamIterator = streamIterator
@@ -117,122 +117,78 @@ package struct HTTPAsyncLineSequence: AsyncSequence, Sendable {
     /// - Returns: The next decoded line of text, or `nil` if the stream has finished.
     /// - Throws: An error if reading from the stream fails.
     package mutating func next() async throws -> String? {
-      while pendingIndex >= pendingLines.count {
-        if isFinished {
-          return nil
-        }
-
+      while pendingLines.isEmpty {
         guard let chunk = try await streamIterator.next() else {
-          isFinished = true
-          if let remainder = decoder.flush() {
-            return remainder
-          }
-          return nil
+          // Once the stream ends, flush any remaining bytes as a final line.
+          // Subsequent calls to next() will safely fall through and return nil.
+          return decoder.flush()
         }
 
-        let lines = decoder.feed(chunk)
-        if !lines.isEmpty {
-          pendingLines = lines
-          pendingIndex = 0
-          let firstLine = pendingLines[pendingIndex]
-          pendingIndex += 1
-          return firstLine
-        }
+        // Convert the returned Array into an ArraySlice
+        pendingLines = decoder.feed(chunk)[...]
       }
 
-      let line = pendingLines[pendingIndex]
-      pendingIndex += 1
-      return line
+      return pendingLines.popFirst()
     }
-  }
-}
-
-// MARK: - Lock Protected Container
-
-/// A thread-safe container for mutable state.
-///
-/// Safety: This class uses an `NSLock` to serialize all access to the underlying `state`.
-/// It is marked `@unchecked Sendable` because the compiler cannot verify `NSLock` isolation,
-/// but data-race safety is manually guaranteed.
-private final class LockProtected<State>: @unchecked Sendable {
-  private let lock = NSLock()
-  private var state: State
-
-  init(_ initialState: State) {
-    self.state = initialState
-  }
-
-  func withLock<Result>(_ body: (inout State) throws -> Result) rethrows -> Result {
-    lock.lock()
-    defer { lock.unlock() }
-    return try body(&state)
   }
 }
 
 // MARK: - Internal Task Delegate
 
 @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
-/// Safety: Protected by `LockProtected` for all mutable state.
 private final class TaskDelegate: NSObject, URLSessionDataDelegate, Sendable {
-  let responseContinuation = LockProtected<CheckedContinuation<HTTPURLResponse, any Error>?>(nil)
-  let dataContinuation: AsyncThrowingStream<Data, any Error>.Continuation
+  private let responseContinuation = Mutex<CheckedContinuation<HTTPURLResponse, any Error>?>(nil)
+  private let dataContinuation: AsyncThrowingStream<Data, any Error>.Continuation
 
   init(dataContinuation: AsyncThrowingStream<Data, any Error>.Continuation) {
     self.dataContinuation = dataContinuation
-  }
-
-  func takeResponseContinuation() -> CheckedContinuation<HTTPURLResponse, any Error>? {
-    responseContinuation.withLock { state in
-      let value = state
-      state = nil
-      return value
-    }
   }
 
   func setResponseContinuation(_ continuation: CheckedContinuation<HTTPURLResponse, any Error>) {
     responseContinuation.withLock { $0 = continuation }
   }
 
+  /// Atomically consumes and resumes the continuation exactly once.
+  private func resumeResponse(with result: Result<HTTPURLResponse, any Error>) {
+    let continuation = responseContinuation.withLock { state in
+      let value = state
+      state = nil
+      return value
+    }
+    continuation?.resume(with: result)
+  }
+
+  // MARK: - URLSessionDataDelegate
+
   func urlSession(
-    _ session: URLSession,
-    dataTask: URLSessionDataTask,
-    didReceive response: URLResponse,
+    _ session: URLSession, dataTask: URLSessionDataTask, didReceive response: URLResponse,
     completionHandler: @escaping (URLSession.ResponseDisposition) -> Void
   ) {
-    guard let continuation = takeResponseContinuation() else {
-      completionHandler(.cancel)
-      return
-    }
-
+    // 1. Dedicated hook for the response header
     if let httpResponse = response as? HTTPURLResponse {
-      continuation.resume(returning: httpResponse)
+      resumeResponse(with: .success(httpResponse))
       completionHandler(.allow)
     } else {
-      continuation.resume(throwing: URLError(.badServerResponse))
+      resumeResponse(with: .failure(URLError(.badServerResponse)))
       completionHandler(.cancel)
     }
   }
 
-  func urlSession(
-    _ session: URLSession,
-    dataTask: URLSessionDataTask,
-    didReceive data: Data
-  ) {
+  func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
+    // 2. Pure data passthrough
     dataContinuation.yield(data)
   }
 
   func urlSession(
-    _ session: URLSession,
-    task: URLSessionTask,
-    didCompleteWithError error: (any Error)?
+    _ session: URLSession, task: URLSessionTask, didCompleteWithError error: (any Error)?
   ) {
+    // 3. Clean up stream and catch any pre-response failures
     if let error {
-      takeResponseContinuation()?.resume(throwing: error)
+      resumeResponse(with: .failure(error))
       dataContinuation.finish(throwing: error)
     } else {
-      if let continuation = takeResponseContinuation() {
-        continuation.resume(throwing: URLError(.badServerResponse))
-      }
+      // Fallback in case the task completes successfully but somehow never sent a response
+      resumeResponse(with: .failure(URLError(.badServerResponse)))
       dataContinuation.finish()
     }
   }

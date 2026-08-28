@@ -61,13 +61,19 @@ package struct HTTPLineDecoder: Sendable {
         }
       }
 
-      if nextNewlineIndex > searchStartIndex {
-        buffer.append(data[searchStartIndex..<nextNewlineIndex])
-      }
+      let lineSlice = data[searchStartIndex..<nextNewlineIndex]
+      let line: String
 
-      let line = String(decoding: buffer, as: UTF8.self)
+      if buffer.isEmpty {
+        // Fast path: Zero-copy direct slice decoding
+        line = String(decoding: lineSlice, as: UTF8.self)
+      } else {
+        // Slow path: Stitch together bytes split across chunk boundaries
+        buffer.append(lineSlice)
+        line = String(decoding: buffer, as: UTF8.self)
+        buffer.removeAll(keepingCapacity: true)
+      }
       lines.append(line)
-      buffer.removeAll(keepingCapacity: true)
 
       if byte == 0x0D {
         pendingCR = true
