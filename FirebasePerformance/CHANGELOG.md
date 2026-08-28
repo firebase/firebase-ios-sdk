@@ -2,6 +2,7 @@
 - [fixed] Revert to using `kFPRSlowFrameThreshold` for slow frames on iOS to prevent
   falsely classifying 60 FPS frames as slow on ProMotion devices,
   while preserving dynamic frame rate support for tvOS.
+- [fixed] Fixed a crash caused due to ISA swizzling weak ivars. (#16469)
 
 # 12.16.0
 - [fixed] Fixed a crash in `FPRMemoryGaugeCollector` by collecting memory usage
