@@ -344,7 +344,7 @@ jobs:
       (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
       (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false)
     runs-on: macos-26
-    timeout-minutes: 90
+    timeout-minutes: 35
 
     strategy:
       matrix:
@@ -388,7 +388,7 @@ jobs:
         run: scripts/install_prereqs.sh Firestore ${{ matrix.target }} xcodebuild
 
       # XCTest dynamically isolates the test runner app from standard terminal environment variables.
-      # To successfully pass TARGET_BACKEND down to FSTIntegrationTestCase, we must physically inject it
+      # To successfully pass TARGET_BACKEND and PROJECT_ID down to FSTIntegrationTestCase, we must physically inject them
       # into the Xcode Schemes rather than using traditional YAML `env:` variables or `export` commands.
       - name: Inject Nightly Backend into Schemes
         run: |
@@ -396,14 +396,24 @@ jobs:
           import glob, re
           for f in glob.glob("Firestore/Example/Firestore.xcodeproj/xcshareddata/xcschemes/Firestore_IntegrationTests_*.xcscheme"):
               with open(f, "r") as file: content = file.read()
-              content = re.sub(r"<EnvironmentVariables>", "<EnvironmentVariables>\n         <EnvironmentVariable\n            key = \"TARGET_BACKEND\"\n            value = \"nightly\"\n            isEnabled = \"YES\">\n         </EnvironmentVariable>", content)
+              content = re.sub(r"<EnvironmentVariables>", """<EnvironmentVariables>
+                   <EnvironmentVariable
+                      key = "TARGET_BACKEND"
+                      value = "nightly"
+                      isEnabled = "YES">
+                   </EnvironmentVariable>
+                   <EnvironmentVariable
+                      key = "PROJECT_ID"
+                      value = "firestore-sdk-nightly"
+                      isEnabled = "YES">
+                   </EnvironmentVariable>""", content)
               with open(f, "w") as file: file.write(content)
           '
 
       - name: Build
         uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
         with:
-          timeout_minutes: 60
+          timeout_minutes: 30
           command: scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodebuild
 
       - name: Test
