@@ -97,6 +97,7 @@ package struct HTTPAsyncLineSequence: AsyncSequence, Sendable {
 
   /// The underlying `URLSessionTask` performing the data transfer.
   package let task: URLSessionTask
+  /// Retained to prevent the client (and its session) from deallocating during iteration.
   private let client: HTTPStreamingClient
 
   /// Initializes a new async line sequence from a data stream.
@@ -127,6 +128,7 @@ package struct HTTPAsyncLineSequence: AsyncSequence, Sendable {
     private var streamIterator: AsyncThrowingStream<Data, any Error>.AsyncIterator
     private var decoder = HTTPLineDecoder()
     private var pendingLines: ArraySlice<String> = []
+    /// Retained to prevent the client (and its session) from deallocating during iteration.
     private let client: HTTPStreamingClient
 
     /// Initializes a new async iterator.
