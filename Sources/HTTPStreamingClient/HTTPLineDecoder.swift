@@ -34,15 +34,15 @@ package struct HTTPLineDecoder: Sendable {
 
     if pendingCR {
       pendingCR = false
-      if data[searchStartIndex] == 0x0A {
+      if data[searchStartIndex] == 0x0A /* LF (\n) */ {
         searchStartIndex = data.index(after: searchStartIndex)
       }
     }
 
     while searchStartIndex < data.endIndex {
       let slice = data[searchStartIndex...]
-      let lfIndex = slice.firstIndex(of: 0x0A)
-      let crIndex = slice.firstIndex(of: 0x0D)
+      let lfIndex = slice.firstIndex(of: 0x0A)  // Line Feed (\n)
+      let crIndex = slice.firstIndex(of: 0x0D)  // Carriage Return (\r)
 
       let nextNewlineIndex: Data.Index
       if let lf = lfIndex, let cr = crIndex {
@@ -59,7 +59,7 @@ package struct HTTPLineDecoder: Sendable {
 
       if pendingCR {
         pendingCR = false
-        if byte == 0x0A && nextNewlineIndex == searchStartIndex {
+        if byte == 0x0A /* LF (\n) */ && nextNewlineIndex == searchStartIndex {
           searchStartIndex = data.index(after: nextNewlineIndex)
           continue
         }
@@ -79,7 +79,7 @@ package struct HTTPLineDecoder: Sendable {
       }
       lines.append(line)
 
-      if byte == 0x0D {
+      if byte == 0x0D /* CR (\r) */ {
         pendingCR = true
       } else {
         pendingCR = false
