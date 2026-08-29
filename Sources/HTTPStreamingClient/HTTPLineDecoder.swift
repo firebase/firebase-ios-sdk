@@ -40,17 +40,15 @@ package struct HTTPLineDecoder: Sendable {
     }
 
     while searchStartIndex < data.endIndex {
-      let slice = data[searchStartIndex...]
-      let lfIndex = slice.firstIndex(of: 0x0A)  // Line Feed (\n)
-      let crIndex = slice.firstIndex(of: 0x0D)  // Carriage Return (\r)
-
-      let nextNewlineIndex: Data.Index
-      if let lf = lfIndex, let cr = crIndex {
-        nextNewlineIndex = min(lf, cr)
-      } else if let found = lfIndex ?? crIndex {
-        nextNewlineIndex = found
-      } else {
-        buffer.append(slice)
+      // Uses a single `firstIndex(where:)` to avoid an O(N^2) performance edge-case.
+      // Two separate `firstIndex(of:)` scans would repeatedly scan the entire remainder
+      // of the chunk if one delimiter type (e.g. CR) is missing from the payload.
+      guard
+        let nextNewlineIndex = data[searchStartIndex...].firstIndex(where: {
+          $0 == 0x0A /* LF (\n) */ || $0 == 0x0D /* CR (\r) */
+        })
+      else {
+        buffer.append(data[searchStartIndex...])
         pendingCR = false
         break
       }
