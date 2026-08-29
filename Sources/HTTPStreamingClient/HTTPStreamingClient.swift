@@ -73,7 +73,7 @@ package final class HTTPStreamingClient: Sendable {
       dataTask.cancel()
     }
 
-    let asyncLines = HTTPAsyncLineSequence(dataStream: dataStream, task: dataTask)
+    let asyncLines = HTTPAsyncLineSequence(dataStream: dataStream, task: dataTask, client: self)
     return (lines: asyncLines, response: response)
   }
 
@@ -97,25 +97,29 @@ package struct HTTPAsyncLineSequence: AsyncSequence, Sendable {
 
   /// The underlying `URLSessionTask` performing the data transfer.
   package let task: URLSessionTask
+  private let client: HTTPStreamingClient
 
   /// Initializes a new async line sequence from a data stream.
   ///
   /// - Parameters:
   ///   - dataStream: The underlying byte stream.
   ///   - task: The URL session data task.
+  ///   - client: The HTTP client that created this sequence.
   init(
     dataStream: AsyncThrowingStream<Data, any Error>,
-    task: URLSessionDataTask
+    task: URLSessionDataTask,
+    client: HTTPStreamingClient
   ) {
     self.dataStream = dataStream
     self.task = task
+    self.client = client
   }
 
   /// Creates an asynchronous iterator over the line sequence.
   ///
   /// - Returns: An `AsyncIterator` instance.
   package func makeAsyncIterator() -> AsyncIterator {
-    AsyncIterator(streamIterator: dataStream.makeAsyncIterator())
+    AsyncIterator(streamIterator: dataStream.makeAsyncIterator(), client: client)
   }
 
   /// An asynchronous iterator over lines of text decoded from an HTTP response.
@@ -123,12 +127,19 @@ package struct HTTPAsyncLineSequence: AsyncSequence, Sendable {
     private var streamIterator: AsyncThrowingStream<Data, any Error>.AsyncIterator
     private var decoder = HTTPLineDecoder()
     private var pendingLines: ArraySlice<String> = []
+    private let client: HTTPStreamingClient
 
     /// Initializes a new async iterator.
     ///
-    /// - Parameter streamIterator: The underlying byte stream iterator.
-    init(streamIterator: AsyncThrowingStream<Data, any Error>.AsyncIterator) {
+    /// - Parameters:
+    ///   - streamIterator: The underlying byte stream iterator.
+    ///   - client: The HTTP client that created this sequence.
+    init(
+      streamIterator: AsyncThrowingStream<Data, any Error>.AsyncIterator,
+      client: HTTPStreamingClient
+    ) {
       self.streamIterator = streamIterator
+      self.client = client
     }
 
     /// Asynchronously advances to and returns the next line of text.
