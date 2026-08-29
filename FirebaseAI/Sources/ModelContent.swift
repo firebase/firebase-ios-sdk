@@ -18,47 +18,10 @@ extension [ModelContent] {
   // TODO: Rename and refactor this.
   func throwIfError() throws {
     for content in self {
-      for part in content.parts {
-        switch part {
-        case let errorPart as ErrorPart:
-          throw errorPart.error
-        default:
-          break
-        }
+      if let errorPart = content.errorParts.first {
+        throw errorPart.error
       }
     }
-  }
-}
-
-struct InternalPart: Equatable, Sendable {
-  enum OneOfData: Equatable, Sendable {
-    case text(String)
-    case inlineData(InlineData)
-    case fileData(FileData)
-    case functionCall(FunctionCall)
-    case functionResponse(FunctionResponse)
-    case executableCode(ExecutableCode)
-    case codeExecutionResult(CodeExecutionResult)
-
-    struct UnsupportedDataError: Error {
-      let decodingError: DecodingError
-
-      var localizedDescription: String {
-        decodingError.localizedDescription
-      }
-    }
-  }
-
-  let data: OneOfData?
-
-  let isThought: Bool?
-
-  let thoughtSignature: String?
-
-  init(_ data: OneOfData, isThought: Bool?, thoughtSignature: String?) {
-    self.data = data
-    self.isThought = isThought
-    self.thoughtSignature = thoughtSignature
   }
 }
 
@@ -66,93 +29,92 @@ struct InternalPart: Equatable, Sendable {
 /// request or response contains an `Array` of ``ModelContent``s, and each ``ModelContent`` value
 /// may comprise multiple heterogeneous ``Part``s.
 public struct ModelContent: Equatable, Sendable {
+  let internalContent: GenerateContentAPI.Content
+  let errorParts: [ErrorPart]
+
   /// The role of the entity creating the ``ModelContent``. For user-generated client requests,
   /// for example, the role is `user`.
-  public let role: String?
+  public var role: String? {
+    internalContent.role
+  }
 
   /// The data parts comprising this ``ModelContent`` value.
   public var parts: [any Part] {
-    return internalParts.compactMap { part -> (any Part)? in
-      switch part.data {
+    let payloadParts = internalContent.parts ?? []
+    var convertedParts: [any Part] = payloadParts.compactMap { payloadPart -> (any Part)? in
+      let isThought = payloadPart.thought
+
+      guard let data = payloadPart.data else {
+        return nil
+      }
+
+      switch data {
       case let .text(text):
-        return TextPart(text, isThought: part.isThought, thoughtSignature: part.thoughtSignature)
-      case let .inlineData(inlineData):
+        return TextPart(text, isThought: isThought, thoughtSignature: payloadPart.thoughtSignature)
+      case let .inlineData(blob):
         return InlineDataPart(
-          inlineData, isThought: part.isThought, thoughtSignature: part.thoughtSignature
+          blob,
+          isThought: isThought,
+          thoughtSignature: payloadPart.thoughtSignature
         )
       case let .fileData(fileData):
         return FileDataPart(
-          fileData, isThought: part.isThought, thoughtSignature: part.thoughtSignature
+          fileData,
+          isThought: isThought,
+          thoughtSignature: payloadPart.thoughtSignature
         )
       case let .functionCall(functionCall):
         return FunctionCallPart(
-          functionCall, isThought: part.isThought, thoughtSignature: part.thoughtSignature
+          functionCall,
+          isThought: isThought,
+          thoughtSignature: payloadPart.thoughtSignature
         )
       case let .functionResponse(functionResponse):
         return FunctionResponsePart(
-          functionResponse, isThought: part.isThought, thoughtSignature: part.thoughtSignature
+          functionResponse,
+          isThought: isThought,
+          thoughtSignature: payloadPart.thoughtSignature
         )
       case let .executableCode(executableCode):
         return ExecutableCodePart(
-          executableCode, isThought: part.isThought, thoughtSignature: part.thoughtSignature
+          GenerateContentAPI.ExecutableCode(
+            language: executableCode.language,
+            code: executableCode.code
+          ),
+          isThought: isThought,
+          thoughtSignature: payloadPart.thoughtSignature
         )
       case let .codeExecutionResult(codeExecutionResult):
         return CodeExecutionResultPart(
           codeExecutionResult: codeExecutionResult,
-          isThought: part.isThought,
-          thoughtSignature: part.thoughtSignature
+          isThought: isThought,
+          thoughtSignature: payloadPart.thoughtSignature
         )
-      case .none:
-        // Filter out parts that contain missing or unrecognized data
+      case .unrecognized:
         return nil
       }
     }
+    convertedParts.append(contentsOf: errorParts)
+    return convertedParts
   }
-
-  // TODO: Refactor this
-  let internalParts: [InternalPart]
 
   /// Creates a new value from a list of ``Part``s.
   public init(role: String? = "user", parts: [any Part]) {
-    self.role = role
-    var convertedParts = [InternalPart]()
+    var errorParts = [ErrorPart]()
+    var payloadParts = [GenerateContentAPI.Part]()
+
     for part in parts {
-      switch part {
-      case let textPart as TextPart:
-        convertedParts.append(InternalPart(
-          .text(textPart.text),
-          isThought: textPart._isThought,
-          thoughtSignature: textPart.thoughtSignature
-        ))
-      case let inlineDataPart as InlineDataPart:
-        convertedParts.append(InternalPart(
-          .inlineData(inlineDataPart.inlineData),
-          isThought: inlineDataPart._isThought,
-          thoughtSignature: inlineDataPart.thoughtSignature
-        ))
-      case let fileDataPart as FileDataPart:
-        convertedParts.append(InternalPart(
-          .fileData(fileDataPart.fileData),
-          isThought: fileDataPart._isThought,
-          thoughtSignature: fileDataPart.thoughtSignature
-        ))
-      case let functionCallPart as FunctionCallPart:
-        convertedParts.append(InternalPart(
-          .functionCall(functionCallPart.functionCall),
-          isThought: functionCallPart._isThought,
-          thoughtSignature: functionCallPart.thoughtSignature
-        ))
-      case let functionResponsePart as FunctionResponsePart:
-        convertedParts.append(InternalPart(
-          .functionResponse(functionResponsePart.functionResponse),
-          isThought: functionResponsePart._isThought,
-          thoughtSignature: functionResponsePart.thoughtSignature
-        ))
-      default:
-        fatalError()
+      if let errorPart = part as? ErrorPart {
+        errorParts.append(errorPart)
+      } else if let payloadConvertible = part as? any ConvertibleToRequestPayload,
+                let payload = (try? payloadConvertible.toRequestPayload()) as? GenerateContentAPI
+                .Part {
+        payloadParts.append(payload)
       }
     }
-    internalParts = convertedParts
+
+    internalContent = GenerateContentAPI.Content(parts: payloadParts, role: role)
+    self.errorParts = errorParts
   }
 
   /// Creates a new value from any data interpretable as a ``Part``.
@@ -162,112 +124,40 @@ public struct ModelContent: Equatable, Sendable {
     self.init(role: role, parts: content)
   }
 
-  init(role: String?, parts: [InternalPart]) {
-    self.role = role
-    internalParts = parts
+  init(role: String?, parts: [GenerateContentAPI.Part]) {
+    internalContent = GenerateContentAPI.Content(parts: parts, role: role)
+    errorParts = []
+  }
+
+  init(content: GenerateContentAPI.Content) {
+    internalContent = content
+    errorParts = []
   }
 }
 
-// MARK: Codable Conformances
+// MARK: - Codable Conformances
 
 extension ModelContent: Codable {
-  enum CodingKeys: String, CodingKey {
-    case role
-    case internalParts = "parts"
-  }
-
   public init(from decoder: any Decoder) throws {
-    let container = try decoder.container(keyedBy: CodingKeys.self)
-    role = try container.decodeIfPresent(String.self, forKey: .role)
-    internalParts = try container.decodeIfPresent([InternalPart].self, forKey: .internalParts) ?? []
+    let content = try GenerateContentAPI.Content(from: decoder)
+    self.init(content: content)
+  }
+
+  public func encode(to encoder: any Encoder) throws {
+    try internalContent.encode(to: encoder)
   }
 }
 
-extension InternalPart: Codable {
-  enum CodingKeys: String, CodingKey {
-    case isThought = "thought"
-    case thoughtSignature
-  }
+// MARK: - Payload Convertible Conformances
 
-  public func encode(to encoder: Encoder) throws {
-    try data.encode(to: encoder)
-    var container = encoder.container(keyedBy: CodingKeys.self)
-    try container.encodeIfPresent(isThought, forKey: .isThought)
-    try container.encodeIfPresent(thoughtSignature, forKey: .thoughtSignature)
-  }
-
-  public init(from decoder: Decoder) throws {
-    do {
-      data = try OneOfData(from: decoder)
-    } catch let error as OneOfData.UnsupportedDataError {
-      AILog.error(code: .decodedUnsupportedPartData, error.localizedDescription)
-      data = nil
-    } catch { // Re-throw any other error types
-      throw error
-    }
-    let container = try decoder.container(keyedBy: CodingKeys.self)
-    isThought = try container.decodeIfPresent(Bool.self, forKey: .isThought)
-    thoughtSignature = try container.decodeIfPresent(String.self, forKey: .thoughtSignature)
+extension ModelContent: ConvertibleToRequestPayload {
+  func toRequestPayload() throws -> GenerateContentAPI.Content {
+    return internalContent
   }
 }
 
-extension InternalPart.OneOfData: Codable {
-  enum CodingKeys: String, CodingKey {
-    case text
-    case inlineData
-    case fileData
-    case functionCall
-    case functionResponse
-    case executableCode
-    case codeExecutionResult
-  }
-
-  public func encode(to encoder: Encoder) throws {
-    var container = encoder.container(keyedBy: CodingKeys.self)
-    switch self {
-    case let .text(text):
-      try container.encode(text, forKey: .text)
-    case let .inlineData(inlineData):
-      try container.encode(inlineData, forKey: .inlineData)
-    case let .fileData(fileData):
-      try container.encode(fileData, forKey: .fileData)
-    case let .functionCall(functionCall):
-      try container.encode(functionCall, forKey: .functionCall)
-    case let .functionResponse(functionResponse):
-      try container.encode(functionResponse, forKey: .functionResponse)
-    case let .executableCode(executableCode):
-      try container.encode(executableCode, forKey: .executableCode)
-    case let .codeExecutionResult(codeExecutionResult):
-      try container.encode(codeExecutionResult, forKey: .codeExecutionResult)
-    }
-  }
-
-  public init(from decoder: Decoder) throws {
-    let values = try decoder.container(keyedBy: CodingKeys.self)
-    if values.contains(.text) {
-      self = try .text(values.decode(String.self, forKey: .text))
-    } else if values.contains(.inlineData) {
-      self = try .inlineData(values.decode(InlineData.self, forKey: .inlineData))
-    } else if values.contains(.fileData) {
-      self = try .fileData(values.decode(FileData.self, forKey: .fileData))
-    } else if values.contains(.functionCall) {
-      self = try .functionCall(values.decode(FunctionCall.self, forKey: .functionCall))
-    } else if values.contains(.functionResponse) {
-      self = try .functionResponse(values.decode(FunctionResponse.self, forKey: .functionResponse))
-    } else if values.contains(.executableCode) {
-      self = try .executableCode(values.decode(ExecutableCode.self, forKey: .executableCode))
-    } else if values.contains(.codeExecutionResult) {
-      self = try .codeExecutionResult(
-        values.decode(CodeExecutionResult.self, forKey: .codeExecutionResult)
-      )
-    } else {
-      let unexpectedKeys = values.allKeys.map { $0.stringValue }
-      throw UnsupportedDataError(decodingError: DecodingError.dataCorrupted(
-        DecodingError.Context(
-          codingPath: values.codingPath,
-          debugDescription: "Unexpected Part type(s): \(unexpectedKeys)"
-        )
-      ))
-    }
+extension ModelContent: ConvertibleFromResponsePayload {
+  init(_ responsePayload: GenerateContentAPI.Content) throws {
+    self.init(content: responsePayload)
   }
 }

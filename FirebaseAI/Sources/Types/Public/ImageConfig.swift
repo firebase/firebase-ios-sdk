@@ -164,4 +164,31 @@ extension ImageConfig.ImageSize: EncodableProtoEnum {
 
 // MARK: - Codable Conformances
 
-extension ImageConfig: Encodable {}
+extension ImageConfig: Encodable {
+  public func encode(to encoder: any Encoder) throws {
+    try defaultEncode(to: encoder)
+  }
+}
+
+// MARK: - Payload Convertible Conformances
+
+extension ImageConfig.AspectRatio: ConvertibleToRequestPayload {
+  func toRequestPayload() throws -> String {
+    return rawValue
+  }
+}
+
+extension ImageConfig.ImageSize: ConvertibleToRequestPayload {
+  func toRequestPayload() throws -> String {
+    return rawValue
+  }
+}
+
+extension ImageConfig: ConvertibleToRequestPayload {
+  func toRequestPayload() throws -> GenerateContentAPI.ImageConfig {
+    return try GenerateContentAPI.ImageConfig(
+      aspectRatio: aspectRatio?.toRequestPayload(),
+      imageSize: imageSize?.toRequestPayload()
+    )
+  }
+}

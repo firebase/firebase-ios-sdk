@@ -469,7 +469,7 @@ final class GenerationConfigTests: XCTestCase {
     let result = try XCTUnwrap(GenerationConfig.merge(base, with: overrides))
     XCTAssertEqual(
       result.speechConfig,
-      SpeechConfig(voiceName: "Puck", languageCode: "en-US").speechConfig
+      SpeechConfig(voiceName: "Puck", languageCode: "en-US")
     )
   }
 
@@ -478,6 +478,6 @@ final class GenerationConfigTests: XCTestCase {
     let overrides = GenerationConfig(temperature: 0.5)
 
     let result = try XCTUnwrap(GenerationConfig.merge(base, with: overrides))
-    XCTAssertEqual(result.speechConfig, SpeechConfig(voiceName: "Kore").speechConfig)
+    XCTAssertEqual(result.speechConfig, SpeechConfig(voiceName: "Kore"))
   }
 }

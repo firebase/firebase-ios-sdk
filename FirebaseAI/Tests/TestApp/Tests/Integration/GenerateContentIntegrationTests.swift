@@ -220,7 +220,7 @@ struct GenerateContentIntegrationTests {
 
     let candidate = try #require(response.candidates.first)
     let thoughtParts = candidate.content.parts.compactMap { $0.isThought ? $0 : nil }
-    let thoughtSignature = candidate.content.internalParts.first?.thoughtSignature
+    let thoughtSignature = candidate.content.internalContent.parts?.first?.thoughtSignature
     #expect(thoughtSignature != nil || thoughtParts
       .isEmpty != (thinkingConfig.includeThoughts ?? false))
 

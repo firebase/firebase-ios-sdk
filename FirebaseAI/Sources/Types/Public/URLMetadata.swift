@@ -81,3 +81,20 @@ extension URLMetadata: Decodable {
     )
   }
 }
+
+// MARK: - Payload Convertible Conformances
+
+extension URLMetadata.URLRetrievalStatus: ConvertibleFromResponsePayload {
+  init(_ responsePayload: GenerateContentAPI.UrlMetadata.UrlRetrievalStatus) throws {
+    self.init(rawValue: responsePayload.rawValue)
+  }
+}
+
+extension URLMetadata: ConvertibleFromResponsePayload {
+  init(_ responsePayload: GenerateContentAPI.UrlMetadata) throws {
+    let retrievedURL = responsePayload.retrievedUrl.flatMap { URL(string: $0) }
+    let status = try responsePayload.urlRetrievalStatus
+      .map { try URLMetadata.URLRetrievalStatus($0) } ?? .unspecified
+    self.init(retrievedURL: retrievedURL, retrievalStatus: status)
+  }
+}

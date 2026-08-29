@@ -272,6 +272,75 @@ public struct HarmCategory: CodableProtoEnum, Hashable, Sendable {
     AILog.MessageCode.generateContentResponseUnrecognizedHarmCategory
 }
 
+// MARK: - Payload Convertible Conformances
+
+extension HarmCategory: ConvertibleFromResponsePayload {
+  init(_ responsePayload: GenerateContentAPI.HarmCategory) throws {
+    rawValue = responsePayload.rawValue
+  }
+}
+
+extension HarmCategory: ConvertibleToRequestPayload {
+  func toRequestPayload() throws -> GenerateContentAPI.HarmCategory {
+    return GenerateContentAPI.HarmCategory(rawValue: rawValue)
+  }
+}
+
+extension SafetySetting.HarmBlockThreshold: ConvertibleToRequestPayload {
+  func toRequestPayload() throws -> GenerateContentAPI.SafetySetting.Threshold {
+    return GenerateContentAPI.SafetySetting.Threshold(rawValue: rawValue)
+  }
+}
+
+extension SafetySetting.HarmBlockMethod: ConvertibleToRequestPayload {
+  func toRequestPayload() throws -> GenerateContentAPI.SafetySetting.Method {
+    return GenerateContentAPI.SafetySetting.Method(rawValue: rawValue)
+  }
+}
+
+extension SafetySetting: ConvertibleToRequestPayload {
+  func toRequestPayload() throws -> GenerateContentAPI.SafetySetting {
+    return try GenerateContentAPI.SafetySetting(
+      category: harmCategory.toRequestPayload(),
+      threshold: threshold.toRequestPayload(),
+      method: method?.toRequestPayload()
+    )
+  }
+}
+
+extension SafetyRating.HarmProbability: ConvertibleFromResponsePayload {
+  init(_ responsePayload: GenerateContentAPI.SafetyRating.Probability) throws {
+    self.init(rawValue: responsePayload.rawValue)
+  }
+}
+
+extension SafetyRating.HarmSeverity: ConvertibleFromResponsePayload {
+  init(_ responsePayload: GenerateContentAPI.SafetyRating.Severity) throws {
+    self.init(rawValue: responsePayload.rawValue)
+  }
+}
+
+extension SafetyRating: ConvertibleFromResponsePayload {
+  init(_ responsePayload: GenerateContentAPI.SafetyRating) throws {
+    let category = try responsePayload.category.map { try HarmCategory($0) } ?? .unspecified
+    let probability = try responsePayload.probability
+      .map { try HarmProbability($0) } ?? .unspecified
+    let probabilityScore = Float(responsePayload.probabilityScore ?? 0.0)
+    let severity = try responsePayload.severity.map { try HarmSeverity($0) } ?? .unspecified
+    let severityScore = Float(responsePayload.severityScore ?? 0.0)
+    let blocked = responsePayload.blocked ?? false
+
+    self.init(
+      category: category,
+      probability: probability,
+      probabilityScore: probabilityScore,
+      severity: severity,
+      severityScore: severityScore,
+      blocked: blocked
+    )
+  }
+}
+
 // MARK: - Codable Conformances
 
 extension SafetyRating: Decodable {
@@ -302,6 +371,14 @@ extension SafetyRating: Decodable {
   }
 }
 
-extension SafetySetting.HarmBlockThreshold: Encodable {}
+extension SafetySetting.HarmBlockThreshold: Encodable {
+  public func encode(to encoder: any Encoder) throws {
+    try defaultEncode(to: encoder)
+  }
+}
 
-extension SafetySetting: Encodable {}
+extension SafetySetting: Encodable {
+  public func encode(to encoder: any Encoder) throws {
+    try defaultEncode(to: encoder)
+  }
+}
