@@ -25,14 +25,25 @@ import Synchronization
 ///
 /// Supports Apple platforms and Linux with full Swift 6 strict concurrency compliance.
 @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
-package struct HTTPStreamingClient: Sendable {
+package final class HTTPStreamingClient: Sendable {
   private let session: URLSession
+  private let sessionDelegate: SessionDelegate
 
   /// Initializes a new HTTP streaming client with the specified configuration.
   ///
   /// - Parameter configuration: The `URLSessionConfiguration` to use. Defaults to `.ephemeral`.
   package init(configuration: URLSessionConfiguration = .ephemeral) {
-    self.session = URLSession(configuration: configuration)
+    let delegate = SessionDelegate()
+    self.sessionDelegate = delegate
+    self.session = URLSession(
+      configuration: configuration,
+      delegate: delegate,
+      delegateQueue: nil
+    )
+  }
+
+  deinit {
+    session.invalidateAndCancel()
   }
 
   /// Sends a request and delivers an asynchronous sequence of lines of text and the HTTP response.
@@ -51,7 +62,7 @@ package struct HTTPStreamingClient: Sendable {
     }
 
     let taskDelegate = TaskDelegate(dataContinuation: dataContinuation)
-    dataTask.delegate = taskDelegate
+    sessionDelegate.addTaskDelegate(taskDelegate, for: dataTask.taskIdentifier)
 
     let response: HTTPURLResponse = try await withTaskCancellationHandler {
       try await withCheckedThrowingContinuation { continuation in
@@ -133,11 +144,66 @@ package struct HTTPAsyncLineSequence: AsyncSequence, Sendable {
   }
 }
 
+// MARK: - Internal Session Delegate Dispatcher
+
+@available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
+private final class SessionDelegate: NSObject, URLSessionDataDelegate, Sendable {
+  private let taskDelegates = Mutex<[Int: TaskDelegate]>([:])
+
+  func addTaskDelegate(_ delegate: TaskDelegate, for taskIdentifier: Int) {
+    taskDelegates.withLock { $0[taskIdentifier] = delegate }
+  }
+
+  private func taskDelegate(for taskIdentifier: Int) -> TaskDelegate? {
+    taskDelegates.withLock { $0[taskIdentifier] }
+  }
+
+  private func removeTaskDelegate(for taskIdentifier: Int) -> TaskDelegate? {
+    taskDelegates.withLock { $0.removeValue(forKey: taskIdentifier) }
+  }
+
+  // MARK: - URLSessionDataDelegate
+
+  func urlSession(
+    _ session: URLSession, dataTask: URLSessionDataTask, didReceive response: URLResponse,
+    completionHandler: @escaping (URLSession.ResponseDisposition) -> Void
+  ) {
+    guard let delegate = taskDelegate(for: dataTask.taskIdentifier) else {
+      completionHandler(.allow)
+      return
+    }
+    delegate.urlSession(
+      session,
+      dataTask: dataTask,
+      didReceive: response,
+      completionHandler: completionHandler
+    )
+  }
+
+  func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
+    guard let delegate = taskDelegate(for: dataTask.taskIdentifier) else { return }
+    delegate.urlSession(session, dataTask: dataTask, didReceive: data)
+  }
+
+  func urlSession(
+    _ session: URLSession, task: URLSessionTask, didCompleteWithError error: (any Error)?
+  ) {
+    let delegate = removeTaskDelegate(for: task.taskIdentifier)
+    delegate?.urlSession(session, task: task, didCompleteWithError: error)
+  }
+}
+
 // MARK: - Internal Task Delegate
 
 @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
 private final class TaskDelegate: NSObject, URLSessionDataDelegate, Sendable {
-  private let responseContinuation = Mutex<CheckedContinuation<HTTPURLResponse, any Error>?>(nil)
+  private enum ResponseState: Sendable {
+    case pending
+    case waiting(CheckedContinuation<HTTPURLResponse, any Error>)
+    case completed(Result<HTTPURLResponse, any Error>)
+  }
+
+  private let responseState = Mutex<ResponseState>(.pending)
   private let dataContinuation: AsyncThrowingStream<Data, any Error>.Continuation
 
   init(dataContinuation: AsyncThrowingStream<Data, any Error>.Continuation) {
@@ -145,17 +211,39 @@ private final class TaskDelegate: NSObject, URLSessionDataDelegate, Sendable {
   }
 
   func setResponseContinuation(_ continuation: CheckedContinuation<HTTPURLResponse, any Error>) {
-    responseContinuation.withLock { $0 = continuation }
+    let resultToResume: Result<HTTPURLResponse, any Error>? = responseState.withLock { state in
+      switch state {
+      case .pending:
+        state = .waiting(continuation)
+        return nil
+      case .waiting:
+        fatalError("Response continuation set multiple times")
+      case .completed(let result):
+        return result
+      }
+    }
+    if let resultToResume {
+      continuation.resume(with: resultToResume)
+    }
   }
 
-  /// Atomically consumes and resumes the continuation exactly once.
+  /// Atomically transitions the state to completed and resumes any waiting continuation.
   private func resumeResponse(with result: Result<HTTPURLResponse, any Error>) {
-    let continuation = responseContinuation.withLock { state in
-      let value = state
-      state = nil
-      return value
-    }
-    continuation?.resume(with: result)
+    let continuationToResume: CheckedContinuation<HTTPURLResponse, any Error>? =
+      responseState
+      .withLock { state in
+        switch state {
+        case .pending:
+          state = .completed(result)
+          return nil
+        case .waiting(let continuation):
+          state = .completed(result)
+          return continuation
+        case .completed:
+          return nil
+        }
+      }
+    continuationToResume?.resume(with: result)
   }
 
   // MARK: - URLSessionDataDelegate
