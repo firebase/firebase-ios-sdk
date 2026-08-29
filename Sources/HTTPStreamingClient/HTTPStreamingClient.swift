@@ -273,6 +273,10 @@ private final class TaskDelegate: NSObject, URLSessionDataDelegate, Sendable {
   ) {
     // 1. Dedicated hook for the response header
     if let httpResponse = response as? HTTPURLResponse {
+      if (100...199).contains(httpResponse.statusCode) {
+        completionHandler(.allow)
+        return
+      }
       resumeResponse(with: .success(httpResponse))
       completionHandler(.allow)
     } else {

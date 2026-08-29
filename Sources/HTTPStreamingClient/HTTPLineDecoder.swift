@@ -30,7 +30,6 @@ package struct HTTPLineDecoder: Sendable {
     guard !data.isEmpty else { return [] }
 
     var lines: [String] = []
-    lines.reserveCapacity(data.count / 32)
     var searchStartIndex = data.startIndex
 
     if pendingCR {
