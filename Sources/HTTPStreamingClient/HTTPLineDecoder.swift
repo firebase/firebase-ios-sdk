@@ -40,12 +40,17 @@ package struct HTTPLineDecoder: Sendable {
     }
 
     while searchStartIndex < data.endIndex {
-      guard
-        let nextNewlineIndex = data[searchStartIndex...].firstIndex(where: {
-          $0 == 0x0A || $0 == 0x0D
-        })
-      else {
-        buffer.append(data[searchStartIndex...])
+      let slice = data[searchStartIndex...]
+      let lfIndex = slice.firstIndex(of: 0x0A)
+      let crIndex = slice.firstIndex(of: 0x0D)
+
+      let nextNewlineIndex: Data.Index
+      if let lf = lfIndex, let cr = crIndex {
+        nextNewlineIndex = min(lf, cr)
+      } else if let found = lfIndex ?? crIndex {
+        nextNewlineIndex = found
+      } else {
+        buffer.append(slice)
         pendingCR = false
         break
       }
