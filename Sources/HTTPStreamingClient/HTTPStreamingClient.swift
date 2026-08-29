@@ -57,8 +57,8 @@ package final class HTTPStreamingClient: Sendable {
     let (dataStream, dataContinuation) = AsyncThrowingStream<Data, any Error>.makeStream()
 
     let dataTask = session.dataTask(with: request)
-    dataContinuation.onTermination = { @Sendable _ in
-      dataTask.cancel()
+    dataContinuation.onTermination = { @Sendable [weak dataTask] _ in
+      dataTask?.cancel()
     }
 
     let taskDelegate = TaskDelegate(dataContinuation: dataContinuation)
