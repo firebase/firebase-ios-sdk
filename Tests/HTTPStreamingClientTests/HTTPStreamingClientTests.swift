@@ -33,19 +33,34 @@ struct HTTPStreamingClientTests {
     return HTTPStreamingClient(configuration: configuration)
   }
 
+  private func makeResponse(url: URL, statusCode: Int = 200, headerFields: [String: String]? = nil)
+    throws -> HTTPURLResponse
+  {
+    try #require(
+      HTTPURLResponse(
+        url: url,
+        statusCode: statusCode,
+        httpVersion: "HTTP/1.1",
+        headerFields: headerFields
+      )
+    )
+  }
+
+  @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
+  private func collectLines(from sequence: HTTPAsyncLineSequence) async throws -> [String] {
+    var lines: [String] = []
+    for try await line in sequence {
+      lines.append(line)
+    }
+    return lines
+  }
+
   @Test
   @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
   func streamsLinesAndReturnsTask() async throws {
     let client = makeClient()
     let testURL = try #require(URL(string: "https://example.com/bytes-api"))
-    let testResponse = try #require(
-      HTTPURLResponse(
-        url: testURL,
-        statusCode: 200,
-        httpVersion: "HTTP/1.1",
-        headerFields: nil
-      )
-    )
+    let testResponse = try makeResponse(url: testURL, statusCode: 200, headerFields: nil)
 
     MockHTTPURLProtocol.setHandler(for: testURL) { _, proto in
       proto.client?.urlProtocol(proto, didReceive: testResponse, cacheStoragePolicy: .notAllowed)
@@ -54,14 +69,10 @@ struct HTTPStreamingClientTests {
     }
 
     let (linesSequence, response) = try await client.lines(for: URLRequest(url: testURL))
-    var lines: [String] = []
-    for try await line in linesSequence {
-      lines.append(line)
-    }
+    let collectedLines = try await collectLines(from: linesSequence)
 
     #expect(response.statusCode == 200)
-    #expect(lines == ["ABC", "DEF"])
-    #expect(linesSequence.task != nil)
+    #expect(collectedLines == ["ABC", "DEF"])
   }
 
   @Test
@@ -69,13 +80,8 @@ struct HTTPStreamingClientTests {
   func streamSingleChunkMultipleLines() async throws {
     let client = makeClient()
     let testURL = try #require(URL(string: "https://example.com/stream-single-chunk"))
-    let testResponse = try #require(
-      HTTPURLResponse(
-        url: testURL,
-        statusCode: 200,
-        httpVersion: "HTTP/1.1",
-        headerFields: ["Content-Type": "text/plain"]
-      )
+    let testResponse = try makeResponse(
+      url: testURL, statusCode: 200, headerFields: ["Content-Type": "text/plain"]
     )
 
     MockHTTPURLProtocol.setHandler(for: testURL) { _, proto in
@@ -85,10 +91,7 @@ struct HTTPStreamingClientTests {
     }
 
     let (linesSequence, response) = try await client.lines(for: URLRequest(url: testURL))
-    var collectedLines: [String] = []
-    for try await line in linesSequence {
-      collectedLines.append(line)
-    }
+    let collectedLines = try await collectLines(from: linesSequence)
 
     #expect(response.statusCode == 200)
     #expect(collectedLines == ["line1", "line2", "line3"])
@@ -99,14 +102,7 @@ struct HTTPStreamingClientTests {
   func linesSplitAcrossMultipleChunks() async throws {
     let client = makeClient()
     let testURL = try #require(URL(string: "https://example.com/stream-split-chunks"))
-    let testResponse = try #require(
-      HTTPURLResponse(
-        url: testURL,
-        statusCode: 200,
-        httpVersion: "HTTP/1.1",
-        headerFields: nil
-      )
-    )
+    let testResponse = try makeResponse(url: testURL, statusCode: 200, headerFields: nil)
 
     MockHTTPURLProtocol.setHandler(for: testURL) { _, proto in
       proto.client?.urlProtocol(proto, didReceive: testResponse, cacheStoragePolicy: .notAllowed)
@@ -117,10 +113,7 @@ struct HTTPStreamingClientTests {
     }
 
     let (linesSequence, response) = try await client.lines(for: URLRequest(url: testURL))
-    var collectedLines: [String] = []
-    for try await line in linesSequence {
-      collectedLines.append(line)
-    }
+    let collectedLines = try await collectLines(from: linesSequence)
 
     #expect(response.statusCode == 200)
     #expect(collectedLines == ["data: chunk1 part2", "data: chunk2"])
@@ -131,14 +124,7 @@ struct HTTPStreamingClientTests {
   func streamSplitCRLFAndUTF8() async throws {
     let client = makeClient()
     let testURL = try #require(URL(string: "https://example.com/stream-crlf-utf8"))
-    let testResponse = try #require(
-      HTTPURLResponse(
-        url: testURL,
-        statusCode: 200,
-        httpVersion: "HTTP/1.1",
-        headerFields: nil
-      )
-    )
+    let testResponse = try makeResponse(url: testURL, statusCode: 200, headerFields: nil)
 
     let emojiBytes: [UInt8] = [0xF0, 0x9F, 0x8E, 0x89]  // 🎉
     MockHTTPURLProtocol.setHandler(for: testURL) { _, proto in
@@ -150,10 +136,7 @@ struct HTTPStreamingClientTests {
     }
 
     let (linesSequence, response) = try await client.lines(for: URLRequest(url: testURL))
-    var collectedLines: [String] = []
-    for try await line in linesSequence {
-      collectedLines.append(line)
-    }
+    let collectedLines = try await collectLines(from: linesSequence)
 
     #expect(response.statusCode == 200)
     #expect(collectedLines == ["Greeting", "Party 🎉 Time"])
@@ -164,14 +147,7 @@ struct HTTPStreamingClientTests {
   func streamPreservesBlankLines() async throws {
     let client = makeClient()
     let testURL = try #require(URL(string: "https://example.com/stream-blank-lines"))
-    let testResponse = try #require(
-      HTTPURLResponse(
-        url: testURL,
-        statusCode: 200,
-        httpVersion: "HTTP/1.1",
-        headerFields: nil
-      )
-    )
+    let testResponse = try makeResponse(url: testURL, statusCode: 200, headerFields: nil)
 
     MockHTTPURLProtocol.setHandler(for: testURL) { _, proto in
       proto.client?.urlProtocol(proto, didReceive: testResponse, cacheStoragePolicy: .notAllowed)
@@ -183,10 +159,7 @@ struct HTTPStreamingClientTests {
     }
 
     let (linesSequence, response) = try await client.lines(for: URLRequest(url: testURL))
-    var collectedLines: [String] = []
-    for try await line in linesSequence {
-      collectedLines.append(line)
-    }
+    let collectedLines = try await collectLines(from: linesSequence)
 
     #expect(response.statusCode == 200)
     #expect(collectedLines == ["event: message", "data: hello", "", "event: done"])
@@ -197,14 +170,7 @@ struct HTTPStreamingClientTests {
   func streamNon2xxResponseReturnsStatusCodeAndBody() async throws {
     let client = makeClient()
     let testURL = try #require(URL(string: "https://example.com/error-404"))
-    let testResponse = try #require(
-      HTTPURLResponse(
-        url: testURL,
-        statusCode: 404,
-        httpVersion: "HTTP/1.1",
-        headerFields: nil
-      )
-    )
+    let testResponse = try makeResponse(url: testURL, statusCode: 404, headerFields: nil)
 
     MockHTTPURLProtocol.setHandler(for: testURL) { _, proto in
       proto.client?.urlProtocol(proto, didReceive: testResponse, cacheStoragePolicy: .notAllowed)
@@ -213,10 +179,7 @@ struct HTTPStreamingClientTests {
     }
 
     let (linesSequence, response) = try await client.lines(for: URLRequest(url: testURL))
-    var collectedLines: [String] = []
-    for try await line in linesSequence {
-      collectedLines.append(line)
-    }
+    let collectedLines = try await collectLines(from: linesSequence)
 
     #expect(response.statusCode == 404)
     #expect(collectedLines == ["{", "  \"error\": \"not found\"", "}"])
@@ -246,14 +209,7 @@ struct HTTPStreamingClientTests {
   func networkErrorDuringStreamThrows() async throws {
     let client = makeClient()
     let testURL = try #require(URL(string: "https://example.com/fail-during-stream"))
-    let testResponse = try #require(
-      HTTPURLResponse(
-        url: testURL,
-        statusCode: 200,
-        httpVersion: "HTTP/1.1",
-        headerFields: nil
-      )
-    )
+    let testResponse = try makeResponse(url: testURL, statusCode: 200, headerFields: nil)
 
     MockHTTPURLProtocol.setHandler(for: testURL) { _, proto in
       proto.client?.urlProtocol(proto, didReceive: testResponse, cacheStoragePolicy: .notAllowed)
@@ -277,14 +233,7 @@ struct HTTPStreamingClientTests {
   func earlyTerminationCancelsStream() async throws {
     let client = makeClient()
     let testURL = try #require(URL(string: "https://example.com/early-termination"))
-    let testResponse = try #require(
-      HTTPURLResponse(
-        url: testURL,
-        statusCode: 200,
-        httpVersion: "HTTP/1.1",
-        headerFields: nil
-      )
-    )
+    let testResponse = try makeResponse(url: testURL, statusCode: 200, headerFields: nil)
 
     MockHTTPURLProtocol.setHandler(for: testURL) { _, proto in
       proto.client?.urlProtocol(proto, didReceive: testResponse, cacheStoragePolicy: .notAllowed)

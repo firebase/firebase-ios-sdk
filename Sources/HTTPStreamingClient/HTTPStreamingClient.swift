@@ -96,11 +96,16 @@ package struct HTTPAsyncLineSequence: AsyncSequence, Sendable {
   private let dataStream: AsyncThrowingStream<Data, any Error>
 
   /// The underlying `URLSessionTask` performing the data transfer.
-  package let task: URLSessionTask?
+  package let task: URLSessionTask
 
+  /// Initializes a new async line sequence from a data stream.
+  ///
+  /// - Parameters:
+  ///   - dataStream: The underlying byte stream.
+  ///   - task: The URL session data task.
   init(
     dataStream: AsyncThrowingStream<Data, any Error>,
-    task: URLSessionDataTask? = nil
+    task: URLSessionDataTask
   ) {
     self.dataStream = dataStream
     self.task = task
@@ -119,6 +124,9 @@ package struct HTTPAsyncLineSequence: AsyncSequence, Sendable {
     private var decoder = HTTPLineDecoder()
     private var pendingLines: ArraySlice<String> = []
 
+    /// Initializes a new async iterator.
+    ///
+    /// - Parameter streamIterator: The underlying byte stream iterator.
     init(streamIterator: AsyncThrowingStream<Data, any Error>.AsyncIterator) {
       self.streamIterator = streamIterator
     }

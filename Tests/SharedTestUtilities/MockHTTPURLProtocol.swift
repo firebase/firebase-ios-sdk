@@ -92,27 +92,3 @@ package final class MockHTTPURLProtocol: URLProtocol {
     client?.urlProtocol(self, didFailWithError: URLError(.cancelled))
   }
 }
-
-// MARK: - URLRequest Body Helper
-
-extension URLRequest {
-  /// Reads the body data from either `httpBody` or `httpBodyStream`.
-  package var httpBodyData: Data? {
-    if let httpBody {
-      return httpBody
-    }
-    guard let stream = httpBodyStream else {
-      return nil
-    }
-    stream.open()
-    defer { stream.close() }
-    var data = Data()
-    let bufferSize = 1024
-    let buffer = UnsafeMutablePointer<UInt8>.allocate(capacity: bufferSize)
-    defer { buffer.deallocate() }
-    while case let read = stream.read(buffer, maxLength: bufferSize), read > 0 {
-      data.append(buffer, count: read)
-    }
-    return data
-  }
-}
