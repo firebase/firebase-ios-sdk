@@ -53,12 +53,20 @@ let package = Package(
       ]
     ),
     .target(
-      name: "SharedDataModels"
+      name: "SharedDataModels",
+      swiftSettings: [
+        .enableUpcomingFeature("InternalImportsByDefault"),
+        .enableUpcomingFeature("MemberImportVisibility"),
+      ]
     ),
     .target(
       name: "GenerateContentDataModels",
       dependencies: [
         "SharedDataModels"
+      ],
+      swiftSettings: [
+        .enableUpcomingFeature("InternalImportsByDefault"),
+        .enableUpcomingFeature("MemberImportVisibility"),
       ]
     ),
     .target(

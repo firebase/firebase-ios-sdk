@@ -12,7 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
+#if canImport(Darwin)
+  package import Foundation
+#else
+  import Foundation
+#endif  // canImport(Darwin)
 
 extension FunctionCallingConfig {
   /// Optional. Specifies the mode in which function calling should execute. If

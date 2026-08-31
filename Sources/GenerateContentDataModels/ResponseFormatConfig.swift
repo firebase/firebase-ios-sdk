@@ -12,7 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
+#if canImport(Darwin)
+  package import Foundation
+#else
+  import Foundation
+#endif  // canImport(Darwin)
 
 /// Configuration for the response output format.
 /// Handles single object serialization for Gemini Developer API and array-wrapped serialization for Gemini Enterprise Agent Platform (Vertex AI).

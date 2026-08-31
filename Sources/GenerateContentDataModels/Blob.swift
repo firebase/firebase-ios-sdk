@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
+package import Foundation
 
 /// An internal data model for `Blob`.
 ///

@@ -12,7 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
+#if canImport(Darwin)
+  package import Foundation
+#else
+  import Foundation
+#endif  // canImport(Darwin)
 
 extension ThinkingConfig {
   /// Optional. Controls the maximum depth of the model's internal reasoning process before

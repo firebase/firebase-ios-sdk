@@ -12,7 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
+#if canImport(Darwin)
+  package import Foundation
+#else
+  import Foundation
+#endif
 
 /// Represents a Google Cloud API error response body as defined by AIP-0193.
 @available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
