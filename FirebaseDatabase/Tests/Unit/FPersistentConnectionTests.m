@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-#import <TargetConditionals.h>
 #import <XCTest/XCTest.h>
-#import <dlfcn.h>
 
 #import "FirebaseDatabase/Sources/Api/FIRDatabaseConfig.h"
 #import "FirebaseDatabase/Sources/Constants/FConstants.h"
@@ -78,24 +76,6 @@
   [self waitForConnectionQueue];
 
   [self assertConnectionRestartedForSystemClockChange];
-}
-
-- (void)testSignificantTimeChangeNotificationRestartsConnection {
-#if TARGET_OS_WATCH
-  return;
-#else
-  NSString *const *significantTimeChangeConstant =
-      (NSString *const *)dlsym(RTLD_DEFAULT, "UIApplicationSignificantTimeChangeNotification");
-  if (!significantTimeChangeConstant) {
-    return;
-  }
-
-  [[NSNotificationCenter defaultCenter] postNotificationName:*significantTimeChangeConstant
-                                                      object:nil];
-  [self waitForConnectionQueue];
-
-  [self assertConnectionRestartedForSystemClockChange];
-#endif  // TARGET_OS_WATCH
 }
 
 - (void)testSystemClockDidChangeNotificationRestartsConnection {

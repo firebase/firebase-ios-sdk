@@ -613,15 +613,6 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref,
                    name:*foregroundConstant
                  object:nil];
     }
-    NSString *const *significantTimeChangeConstant = (NSString *const *)dlsym(
-        RTLD_DEFAULT, "UIApplicationSignificantTimeChangeNotification");
-    if (significantTimeChangeConstant) {
-        [[NSNotificationCenter defaultCenter]
-            addObserver:self
-               selector:@selector(systemClockDidChange:)
-                   name:*significantTimeChangeConstant
-                 object:nil];
-    }
     // An empty address is interpreted a generic internet access
     struct sockaddr_in zeroAddress;
     bzero(&zeroAddress, sizeof(zeroAddress));
