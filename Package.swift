@@ -16,6 +16,12 @@
 
 import PackageDescription
 
+let defaultSwiftSettings: [SwiftSetting] = [
+  .enableUpcomingFeature("ExistentialAny"),
+  .enableUpcomingFeature("InternalImportsByDefault"),
+  .enableUpcomingFeature("MemberImportVisibility"),
+]
+
 let package = Package(
   name: "gemini-for-foundation-models",
   platforms: [.iOS(.v15), .macCatalyst(.v15), .macOS(.v10_15), .tvOS(.v15), .watchOS(.v7)],
@@ -28,18 +34,12 @@ let package = Package(
   targets: [
     .target(
       name: "GeminiForFoundationModels",
-      swiftSettings: [
-        .enableUpcomingFeature("InternalImportsByDefault"),
-        .enableUpcomingFeature("MemberImportVisibility"),
-      ]
+      swiftSettings: defaultSwiftSettings
     ),
     .target(
       name: "SharedTestUtilities",
       path: "Tests/SharedTestUtilities",
-      swiftSettings: [
-        .enableUpcomingFeature("InternalImportsByDefault"),
-        .enableUpcomingFeature("MemberImportVisibility"),
-      ]
+      swiftSettings: defaultSwiftSettings
     ),
     .testTarget(
       name: "GeminiForFoundationModelsTests",
@@ -47,34 +47,22 @@ let package = Package(
         "GeminiForFoundationModels",
         "SharedTestUtilities",
       ],
-      swiftSettings: [
-        .enableUpcomingFeature("InternalImportsByDefault"),
-        .enableUpcomingFeature("MemberImportVisibility"),
-      ]
+      swiftSettings: defaultSwiftSettings
     ),
     .target(
       name: "SharedDataModels",
-      swiftSettings: [
-        .enableUpcomingFeature("InternalImportsByDefault"),
-        .enableUpcomingFeature("MemberImportVisibility"),
-      ]
+      swiftSettings: defaultSwiftSettings
     ),
     .target(
       name: "GenerateContentDataModels",
       dependencies: [
         "SharedDataModels"
       ],
-      swiftSettings: [
-        .enableUpcomingFeature("InternalImportsByDefault"),
-        .enableUpcomingFeature("MemberImportVisibility"),
-      ]
+      swiftSettings: defaultSwiftSettings
     ),
     .target(
       name: "HTTPStreamingClient",
-      swiftSettings: [
-        .enableUpcomingFeature("InternalImportsByDefault"),
-        .enableUpcomingFeature("MemberImportVisibility"),
-      ]
+      swiftSettings: defaultSwiftSettings
     ),
     .testTarget(
       name: "HTTPStreamingClientTests",
@@ -82,10 +70,7 @@ let package = Package(
         "HTTPStreamingClient",
         "SharedTestUtilities",
       ],
-      swiftSettings: [
-        .enableUpcomingFeature("InternalImportsByDefault"),
-        .enableUpcomingFeature("MemberImportVisibility"),
-      ]
+      swiftSettings: defaultSwiftSettings
     ),
   ],
   swiftLanguageModes: [.v6]

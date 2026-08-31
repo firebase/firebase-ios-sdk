@@ -19,7 +19,7 @@
 #endif
 
 /// Represents a Google Cloud API error response body as defined by AIP-0193.
-@available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
+@available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
 package struct GoogleCloudAPIError: Codable, Sendable, Equatable, Hashable {
   /// The HTTP status code value.
   package let code: Int
@@ -34,7 +34,6 @@ package struct GoogleCloudAPIError: Codable, Sendable, Equatable, Hashable {
   package let details: [Detail]?
 
   /// The retry delay duration, if provided by `RetryInfo` details or HTTP headers.
-  @available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
   package var retryDelay: Duration? {
     if let explicitRetryDelay {
       return explicitRetryDelay
@@ -84,7 +83,7 @@ package struct GoogleCloudAPIError: Codable, Sendable, Equatable, Hashable {
     self.explicitRetryDelay = retryDelay
   }
 
-  package init(from decoder: Decoder) throws {
+  package init(from decoder: any Decoder) throws {
     if let envelopeContainer = try? decoder.container(keyedBy: EnvelopeCodingKeys.self),
       envelopeContainer.contains(.error)
     {
@@ -105,7 +104,7 @@ package struct GoogleCloudAPIError: Codable, Sendable, Equatable, Hashable {
     }
   }
 
-  package func encode(to encoder: Encoder) throws {
+  package func encode(to encoder: any Encoder) throws {
     var envelopeContainer = encoder.container(keyedBy: EnvelopeCodingKeys.self)
     var statusContainer = envelopeContainer.nestedContainer(
       keyedBy: StatusCodingKeys.self, forKey: .error)
@@ -130,7 +129,7 @@ package struct GoogleCloudAPIError: Codable, Sendable, Equatable, Hashable {
   }
 }
 
-@available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
+@available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
 extension GoogleCloudAPIError {
   /// Canonical gRPC/RPC error status codes.
   package enum RPCErrorStatus: Codable, Sendable, Equatable, Hashable {
@@ -209,7 +208,7 @@ extension GoogleCloudAPIError {
       case typeURL = "@type"
     }
 
-    package init(from decoder: Decoder) throws {
+    package init(from decoder: any Decoder) throws {
       let container = try decoder.container(keyedBy: CodingKeys.self)
       let typeURL = try container.decodeIfPresent(String.self, forKey: .typeURL)
 
@@ -227,7 +226,7 @@ extension GoogleCloudAPIError {
       }
     }
 
-    package func encode(to encoder: Encoder) throws {
+    package func encode(to encoder: any Encoder) throws {
       switch self {
       case .errorInfo(let value):
         try value.encode(to: encoder)
@@ -273,14 +272,14 @@ extension GoogleCloudAPIError {
       self.metadata = metadata
     }
 
-    package init(from decoder: Decoder) throws {
+    package init(from decoder: any Decoder) throws {
       let container = try decoder.container(keyedBy: CodingKeys.self)
       self.reason = try container.decode(String.self, forKey: .reason)
       self.domain = try container.decode(String.self, forKey: .domain)
       self.metadata = try container.decodeIfPresent([String: String].self, forKey: .metadata)
     }
 
-    package func encode(to encoder: Encoder) throws {
+    package func encode(to encoder: any Encoder) throws {
       var container = encoder.container(keyedBy: CodingKeys.self)
       try container.encode("type.googleapis.com/google.rpc.ErrorInfo", forKey: .typeURL)
       try container.encode(reason, forKey: .reason)
@@ -313,13 +312,13 @@ extension GoogleCloudAPIError {
       self.message = message
     }
 
-    package init(from decoder: Decoder) throws {
+    package init(from decoder: any Decoder) throws {
       let container = try decoder.container(keyedBy: CodingKeys.self)
       self.locale = try container.decode(String.self, forKey: .locale)
       self.message = try container.decode(String.self, forKey: .message)
     }
 
-    package func encode(to encoder: Encoder) throws {
+    package func encode(to encoder: any Encoder) throws {
       var container = encoder.container(keyedBy: CodingKeys.self)
       try container.encode("type.googleapis.com/google.rpc.LocalizedMessage", forKey: .typeURL)
       try container.encode(locale, forKey: .locale)
@@ -369,12 +368,12 @@ extension GoogleCloudAPIError {
       self.links = links
     }
 
-    package init(from decoder: Decoder) throws {
+    package init(from decoder: any Decoder) throws {
       let container = try decoder.container(keyedBy: CodingKeys.self)
       self.links = try container.decode([Link].self, forKey: .links)
     }
 
-    package func encode(to encoder: Encoder) throws {
+    package func encode(to encoder: any Encoder) throws {
       var container = encoder.container(keyedBy: CodingKeys.self)
       try container.encode("type.googleapis.com/google.rpc.Help", forKey: .typeURL)
       try container.encode(links, forKey: .links)
@@ -387,7 +386,6 @@ extension GoogleCloudAPIError {
     package let retryDelay: String
 
     /// The delay converted to `Duration`, if parseable.
-    @available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
     package var duration: Duration? {
       var delayString = retryDelay.trimmingCharacters(in: .whitespaces)
       if delayString.hasSuffix("s") {
@@ -409,12 +407,12 @@ extension GoogleCloudAPIError {
       self.retryDelay = retryDelay
     }
 
-    package init(from decoder: Decoder) throws {
+    package init(from decoder: any Decoder) throws {
       let container = try decoder.container(keyedBy: CodingKeys.self)
       self.retryDelay = try container.decode(String.self, forKey: .retryDelay)
     }
 
-    package func encode(to encoder: Encoder) throws {
+    package func encode(to encoder: any Encoder) throws {
       var container = encoder.container(keyedBy: CodingKeys.self)
       try container.encode("type.googleapis.com/google.rpc.RetryInfo", forKey: .typeURL)
       try container.encode(retryDelay, forKey: .retryDelay)
@@ -422,7 +420,7 @@ extension GoogleCloudAPIError {
   }
 }
 
-@available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
+@available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
 extension GoogleCloudAPIError.RPCErrorStatus: RawRepresentable {
   package var rawValue: String {
     switch self {
@@ -469,7 +467,7 @@ extension GoogleCloudAPIError.RPCErrorStatus: RawRepresentable {
   }
 }
 
-@available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
+@available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
 extension GoogleCloudAPIError: LocalizedError {
   package var errorDescription: String? {
     if let details {
@@ -505,7 +503,7 @@ extension GoogleCloudAPIError: LocalizedError {
   }
 }
 
-@available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
+@available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
 extension GoogleCloudAPIError: CustomNSError {
   package static var errorDomain: String { "GoogleCloudAPIError" }
 

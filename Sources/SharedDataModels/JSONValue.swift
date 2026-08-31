@@ -47,7 +47,7 @@ package enum JSONValue: Sendable, Hashable {
 // MARK: - Codable Conformances
 
 extension JSONValue: Decodable {
-  package init(from decoder: Decoder) throws {
+  package init(from decoder: any Decoder) throws {
     let container = try decoder.singleValueContainer()
     if container.decodeNil() {
       self = .null
@@ -71,7 +71,7 @@ extension JSONValue: Decodable {
 }
 
 extension JSONValue: Encodable {
-  package func encode(to encoder: Encoder) throws {
+  package func encode(to encoder: any Encoder) throws {
     var container = encoder.singleValueContainer()
     switch self {
     case .null:
