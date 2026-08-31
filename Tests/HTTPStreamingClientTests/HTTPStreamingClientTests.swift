@@ -21,16 +21,22 @@ import Testing
   import FoundationNetworking
 #endif
 
-// MARK: - HTTPStreamingClient Integration Tests
+// MARK: - HTTPStreamingClient Unit Tests
 
-@Suite("HTTPStreamingClient Integration Tests", .serialized)
+@Suite("HTTPStreamingClient Tests")
 struct HTTPStreamingClientTests {
+  private let testID = UUID().uuidString
+
   @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
   private func makeClient() -> HTTPStreamingClient {
-    MockHTTPURLProtocol.reset()
     let configuration = URLSessionConfiguration.ephemeral
     configuration.protocolClasses = [MockHTTPURLProtocol.self]
     return HTTPStreamingClient(configuration: configuration)
+  }
+
+  @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
+  private func makeTestURL(_ path: String) throws -> URL {
+    try #require(URL(string: "https://example.com/\(testID)/\(path)"))
   }
 
   @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
@@ -53,7 +59,7 @@ struct HTTPStreamingClientTests {
   @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
   func streamsLinesAndReturnsTask() async throws {
     let client = makeClient()
-    let testURL = try #require(URL(string: "https://example.com/bytes-api"))
+    let testURL = try makeTestURL("bytes-api")
     let testResponse = try makeResponse(url: testURL, statusCode: 200, headerFields: nil)
 
     MockHTTPURLProtocol.setHandler(for: testURL) { _, proto in
@@ -73,7 +79,7 @@ struct HTTPStreamingClientTests {
   @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
   func streamSingleChunkMultipleLines() async throws {
     let client = makeClient()
-    let testURL = try #require(URL(string: "https://example.com/stream-single-chunk"))
+    let testURL = try makeTestURL("stream-single-chunk")
     let testResponse = try makeResponse(
       url: testURL, statusCode: 200, headerFields: ["Content-Type": "text/plain"]
     )
@@ -95,7 +101,7 @@ struct HTTPStreamingClientTests {
   @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
   func linesSplitAcrossMultipleChunks() async throws {
     let client = makeClient()
-    let testURL = try #require(URL(string: "https://example.com/stream-split-chunks"))
+    let testURL = try makeTestURL("stream-split-chunks")
     let testResponse = try makeResponse(url: testURL, statusCode: 200, headerFields: nil)
 
     MockHTTPURLProtocol.setHandler(for: testURL) { _, proto in
@@ -117,7 +123,7 @@ struct HTTPStreamingClientTests {
   @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
   func streamSplitCRLFAndUTF8() async throws {
     let client = makeClient()
-    let testURL = try #require(URL(string: "https://example.com/stream-crlf-utf8"))
+    let testURL = try makeTestURL("stream-crlf-utf8")
     let testResponse = try makeResponse(url: testURL, statusCode: 200, headerFields: nil)
 
     let emojiBytes: [UInt8] = [0xF0, 0x9F, 0x8E, 0x89]  // 🎉
@@ -140,7 +146,7 @@ struct HTTPStreamingClientTests {
   @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
   func streamPreservesBlankLines() async throws {
     let client = makeClient()
-    let testURL = try #require(URL(string: "https://example.com/stream-blank-lines"))
+    let testURL = try makeTestURL("stream-blank-lines")
     let testResponse = try makeResponse(url: testURL, statusCode: 200, headerFields: nil)
 
     MockHTTPURLProtocol.setHandler(for: testURL) { _, proto in
@@ -163,7 +169,7 @@ struct HTTPStreamingClientTests {
   @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
   func streamNon2xxResponseReturnsStatusCodeAndBody() async throws {
     let client = makeClient()
-    let testURL = try #require(URL(string: "https://example.com/error-404"))
+    let testURL = try makeTestURL("error-404")
     let testResponse = try makeResponse(url: testURL, statusCode: 404, headerFields: nil)
 
     MockHTTPURLProtocol.setHandler(for: testURL) { _, proto in
@@ -183,7 +189,7 @@ struct HTTPStreamingClientTests {
   @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
   func networkErrorBeforeResponseThrows() async throws {
     let client = makeClient()
-    let testURL = try #require(URL(string: "https://example.com/fail-before-response"))
+    let testURL = try makeTestURL("fail-before-response")
 
     MockHTTPURLProtocol.setHandler(for: testURL) { _, proto in
       proto.client?.urlProtocol(proto, didFailWithError: URLError(.cannotConnectToHost))
@@ -202,7 +208,7 @@ struct HTTPStreamingClientTests {
   @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
   func networkErrorDuringStreamThrows() async throws {
     let client = makeClient()
-    let testURL = try #require(URL(string: "https://example.com/fail-during-stream"))
+    let testURL = try makeTestURL("fail-during-stream")
     let testResponse = try makeResponse(url: testURL, statusCode: 200, headerFields: nil)
 
     MockHTTPURLProtocol.setHandler(for: testURL) { _, proto in
@@ -226,7 +232,7 @@ struct HTTPStreamingClientTests {
   @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
   func earlyTerminationCancelsStream() async throws {
     let client = makeClient()
-    let testURL = try #require(URL(string: "https://example.com/early-termination"))
+    let testURL = try makeTestURL("early-termination")
     let testResponse = try makeResponse(url: testURL, statusCode: 200, headerFields: nil)
 
     MockHTTPURLProtocol.setHandler(for: testURL) { _, proto in
@@ -251,7 +257,7 @@ struct HTTPStreamingClientTests {
   @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
   func nonHTTPResponseThrowsBadServerResponse() async throws {
     let client = makeClient()
-    let testURL = try #require(URL(string: "https://example.com/non-http"))
+    let testURL = try makeTestURL("non-http")
     let nonHTTPResponse = try #require(
       URLResponse(
         url: testURL,

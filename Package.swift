@@ -39,7 +39,7 @@ let package = Package(
     .testTarget(
       name: "SharedTestUtilities",
       path: "Tests/SharedTestUtilities",
-      swiftSettings: defaultSwiftSettings
+      swiftSettings: defaultSwiftSettings,
     ),
     .testTarget(
       name: "GeminiForFoundationModelsTests",

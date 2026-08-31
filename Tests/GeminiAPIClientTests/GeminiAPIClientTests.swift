@@ -27,7 +27,7 @@ import Testing
 
 // MARK: - GeminiAPIClient Unit Tests
 
-@Suite("GeminiAPIClient Tests", .serialized)
+@Suite("GeminiAPIClient Tests")
 struct GeminiAPIClientTests {
   private func makePromptRequest(_ prompt: String) -> GenerateContentRequest {
     GenerateContentRequest(
@@ -46,17 +46,23 @@ struct GeminiAPIClientTests {
 
   private static let baseURLString = "https://generativelanguage.googleapis.com"
 
+  private let testID = UUID().uuidString
+
+  private var testBaseURL: URL {
+    URL(string: "\(Self.baseURLString)/\(testID)")!
+  }
+
   @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
   private func makeClient(
     model: String = "gemini-3.5-flash-lite",
-    baseURL: URL = URL(string: Self.baseURLString)!,
+    baseURL: URL? = nil,
     headerProvider: (@Sendable () async throws -> [String: String])? = nil
   ) -> GeminiAPIClient {
     let configuration = URLSessionConfiguration.ephemeral
     configuration.protocolClasses = [MockHTTPURLProtocol.self]
     return GeminiAPIClient(
       model: model,
-      baseURL: baseURL,
+      baseURL: baseURL ?? testBaseURL,
       headerProvider: headerProvider,
       sessionConfiguration: configuration
     )
@@ -76,7 +82,7 @@ struct GeminiAPIClientTests {
     action: String = "streamGenerateContent",
     query: String? = "alt=sse"
   ) throws -> URL {
-    var urlString = "\(Self.baseURLString)/v1beta/models/\(model):\(action)"
+    var urlString = "\(testBaseURL.absoluteString)/v1beta/models/\(model):\(action)"
     if let query {
       urlString += "?\(query)"
     }
