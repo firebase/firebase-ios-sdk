@@ -33,7 +33,7 @@ class PipelineDmlTests: FSTIntegrationTestCase {
       .where(Field("__name__").equal(Expression.constant("book1")))
       .delete()
 
-    let snapshot = try await pipeline.execute(options: Pipeline.ExecuteOptions().withAtomic(true))
+    let snapshot = try await pipeline.execute(options: .init(isAtomic: true))
     XCTAssertNotNil(snapshot)
   }
 
@@ -48,7 +48,7 @@ class PipelineDmlTests: FSTIntegrationTestCase {
       .where(Field("__name__").equal(Expression.constant("book1")))
       .update(Expression.constant("NewTitle").as("title"))
 
-    let snapshot = try await pipeline.execute(options: Pipeline.ExecuteOptions().withAtomic(true))
+    let snapshot = try await pipeline.execute(options: .init(isAtomic: true))
     XCTAssertNotNil(snapshot)
   }
 
@@ -64,7 +64,7 @@ class PipelineDmlTests: FSTIntegrationTestCase {
       .where(Field("__name__").equal(Expression.constant("book1")))
       .insert(collectionPath: targetRef.path, documentIdExpression: Field("targetId"))
 
-    let snapshot = try await pipeline.execute(options: Pipeline.ExecuteOptions().withAtomic(true))
+    let snapshot = try await pipeline.execute(options: .init(isAtomic: true))
     XCTAssertNotNil(snapshot)
   }
 
@@ -80,7 +80,7 @@ class PipelineDmlTests: FSTIntegrationTestCase {
       .where(Field("__name__").equal(Expression.constant("book1")))
       .insert(collectionPath: targetRef.path, documentIdExpression: Expression.constant("custom_fixed_id"))
 
-    let snapshot = try await pipeline.execute(options: Pipeline.ExecuteOptions().withAtomic(true))
+    let snapshot = try await pipeline.execute(options: .init(isAtomic: true))
     XCTAssertNotNil(snapshot)
   }
 
@@ -96,7 +96,7 @@ class PipelineDmlTests: FSTIntegrationTestCase {
         Expression.constant("Sci-Fi").as("genre")
       ])
 
-    let snapshot = try await pipeline.execute(options: Pipeline.ExecuteOptions().withAtomic(true))
+    let snapshot = try await pipeline.execute(options: .init(isAtomic: true))
     XCTAssertNotNil(snapshot)
   }
 
@@ -114,7 +114,7 @@ class PipelineDmlTests: FSTIntegrationTestCase {
         Expression.constant(4.5).as("rating")
       ])
 
-    let snapshot = try await pipeline.execute(options: Pipeline.ExecuteOptions().withAtomic(true))
+    let snapshot = try await pipeline.execute(options: .init(isAtomic: true))
     XCTAssertNotNil(snapshot)
   }
 
@@ -134,7 +134,7 @@ class PipelineDmlTests: FSTIntegrationTestCase {
         documentIdExpression: Field("customId")
       )
 
-    let snapshot = try await pipeline.execute(options: Pipeline.ExecuteOptions().withAtomic(true))
+    let snapshot = try await pipeline.execute(options: .init(isAtomic: true))
     XCTAssertNotNil(snapshot)
   }
 

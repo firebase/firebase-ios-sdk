@@ -96,17 +96,10 @@ public class Pipeline: @unchecked Sendable {
   /// Options that control the execution of a `Pipeline`.
   public struct ExecuteOptions: Sendable {
     /// Whether the pipeline should execute atomically inside a single transaction.
-    public var atomic: Bool
+    public var isAtomic: Bool
 
-    public init(atomic: Bool = false) {
-      self.atomic = atomic
-    }
-
-    /// Sets whether atomic execution is enabled and returns a modified options instance.
-    public func withAtomic(_ atomic: Bool) -> ExecuteOptions {
-      var copy = self
-      copy.atomic = atomic
-      return copy
+    public init(isAtomic: Bool = false) {
+      self.isAtomic = isAtomic
     }
   }
 
@@ -134,7 +127,7 @@ public class Pipeline: @unchecked Sendable {
   /// within a `Pipeline.Snapshot`.
   ///
   /// By default, the pipeline executes non-atomically. To execute all mutations within a single
-  /// atomic transaction, supply `Pipeline.ExecuteOptions(atomic: true)`.
+  /// atomic transaction, supply `Pipeline.ExecuteOptions(isAtomic: true)`.
   ///
   /// ```swift
   /// // Example 1: Standard query execution
@@ -150,7 +143,7 @@ public class Pipeline: @unchecked Sendable {
   ///
   /// // Example 2: Atomic transactional execution
   /// do {
-  ///   let options = Pipeline.ExecuteOptions(atomic: true)
+  ///   let options = Pipeline.ExecuteOptions(isAtomic: true)
   ///   let snapshot = try await db.pipeline()
   ///     .collection("books")
   ///     .where(Field("rating").lessThan(Expression.constant(2.0)))
@@ -190,7 +183,7 @@ public class Pipeline: @unchecked Sendable {
     let bridge = PipelineBridge(
       stages: stages.map { $0.bridge },
       db: db,
-      atomic: options.atomic
+      atomic: options.isAtomic
     )
 
     return try await withCheckedThrowingContinuation { continuation in
@@ -1022,7 +1015,7 @@ public class Pipeline: @unchecked Sendable {
   /// sources, or other stages.
   ///
   /// Execution can be non-transactional (default) or executed atomically within a single transaction
-  /// by passing `Pipeline.ExecuteOptions(atomic: true)` to `execute(options:)`.
+  /// by passing `Pipeline.ExecuteOptions(isAtomic: true)` to `execute(options:)`.
   ///
   /// ```swift
   /// // Example 1: Non-transactional deletion of filtered documents
@@ -1040,7 +1033,7 @@ public class Pipeline: @unchecked Sendable {
   ///   ])
   ///   .delete()
   /// let atomicSnapshot = try await docPipeline.execute(
-  ///   options: Pipeline.ExecuteOptions(atomic: true)
+  ///   options: Pipeline.ExecuteOptions(isAtomic: true)
   /// )
   /// ```
   ///
@@ -1064,7 +1057,7 @@ public class Pipeline: @unchecked Sendable {
   ///     Expression.constant("Science Fiction").as("genre"),
   ///     Expression.constant(true).as("featured")
   ///   )
-  ///   .execute(options: Pipeline.ExecuteOptions(atomic: true))
+  ///   .execute(options: Pipeline.ExecuteOptions(isAtomic: true))
   /// ```
   ///
   /// - Parameter fields: Variadic list of `Selectable` expressions representing updated field assignments.
@@ -1088,7 +1081,7 @@ public class Pipeline: @unchecked Sendable {
   ///     Expression.constant("Comedy Sci-Fi").as("genre"),
   ///     Field("rating").add(Expression.constant(0.5)).as("rating")
   ///   ])
-  ///   .execute(options: Pipeline.ExecuteOptions(atomic: true))
+  ///   .execute(options: Pipeline.ExecuteOptions(isAtomic: true))
   /// ```
   ///
   /// - Parameter fields: Array of `Selectable` expressions representing updated field assignments.
@@ -1113,7 +1106,7 @@ public class Pipeline: @unchecked Sendable {
   ///   .collection("books")
   ///   .where(Field("genre").equal(Expression.constant("Bestseller")))
   ///   .insert(collectionPath: "bestsellers_backup")
-  ///   .execute(options: Pipeline.ExecuteOptions(atomic: true))
+  ///   .execute(options: Pipeline.ExecuteOptions(isAtomic: true))
   ///
   /// // Example 2: Insert with custom document ID derived from a field expression
   /// let customIdSnapshot = try await db.pipeline()
@@ -1166,7 +1159,7 @@ public class Pipeline: @unchecked Sendable {
   ///     Expression.constant("Updated Genre").as("genre"),
   ///     Field("views").add(Expression.constant(10)).as("views")
   ///   )
-  ///   .execute(options: Pipeline.ExecuteOptions(atomic: true))
+  ///   .execute(options: Pipeline.ExecuteOptions(isAtomic: true))
   ///
   /// // Example 2: Upsert into a custom target collection
   /// let targetSnapshot = try await db.pipeline()
@@ -1206,7 +1199,7 @@ public class Pipeline: @unchecked Sendable {
   ///     Expression.constant("Sci-Fi").as("genre"),
   ///     Expression.constant("New Book Title").as("title")
   ///   ])
-  ///   .execute(options: Pipeline.ExecuteOptions(atomic: true))
+  ///   .execute(options: Pipeline.ExecuteOptions(isAtomic: true))
   ///
   /// // Example 2: Target custom collection with custom document ID field
   /// let targetSnapshot = try await db.pipeline()
@@ -1221,7 +1214,7 @@ public class Pipeline: @unchecked Sendable {
   ///     collectionPath: "books_archive",
   ///     documentIdExpression: Field("targetId")
   ///   )
-  ///   .execute(options: Pipeline.ExecuteOptions(atomic: true))
+  ///   .execute(options: Pipeline.ExecuteOptions(isAtomic: true))
   ///
   /// // Example 3: Non-transactional bulk upsert from literals
   /// let literalSnapshot = try await db.pipeline()

@@ -525,7 +525,7 @@ class DeleteStage: Stage {
   let name: String = "delete"
   let bridge: StageBridge
   init() {
-    bridge = DeleteStageBridge()
+    bridge = __DeleteStageBridge()
   }
 }
 
@@ -539,10 +539,10 @@ class UpdateStage: Stage {
     let (map, error) = Helper.selectablesToMap(selectables: fields)
     if let error = error {
       errorMessage = error.localizedDescription
-      bridge = UpdateStageBridge(fields: [:])
+      bridge = __UpdateStageBridge(fields: [:])
     } else {
       errorMessage = nil
-      bridge = UpdateStageBridge(fields: map.mapValues { $0.toBridge() })
+      bridge = __UpdateStageBridge(fields: map.mapValues { $0.toBridge() })
     }
   }
 }
@@ -553,7 +553,7 @@ class InsertStage: Stage {
   let bridge: StageBridge
 
   init(collectionPath: String, documentIdExpression: Expression?) {
-    bridge = InsertStageBridge(
+    bridge = __InsertStageBridge(
       collectionPath: collectionPath,
       documentIdExpression: documentIdExpression?.toBridge()
     )
@@ -570,14 +570,14 @@ class UpsertStage: Stage {
     let (map, error) = Helper.selectablesToMap(selectables: fields)
     if let error = error {
       errorMessage = error.localizedDescription
-      bridge = UpsertStageBridge(
+      bridge = __UpsertStageBridge(
         fields: [:],
         collectionPath: collectionPath,
         documentIdExpression: documentIdExpression?.toBridge()
       )
     } else {
       errorMessage = nil
-      bridge = UpsertStageBridge(
+      bridge = __UpsertStageBridge(
         fields: map.mapValues { $0.toBridge() },
         collectionPath: collectionPath,
         documentIdExpression: documentIdExpression?.toBridge()
@@ -592,6 +592,6 @@ class LiteralsSourceStage: Stage {
   let bridge: StageBridge
 
   init(data: [[String: Any]], db: Firestore) {
-    bridge = LiteralsSourceStageBridge(data: data, firestore: db)
+    bridge = __LiteralsSourceStageBridge(data: data, firestore: db)
   }
 }

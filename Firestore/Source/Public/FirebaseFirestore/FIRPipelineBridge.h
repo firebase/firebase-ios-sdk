@@ -234,35 +234,35 @@ NS_SWIFT_NAME(RawStageBridge)
 @end
 
 NS_SWIFT_SENDABLE
-NS_SWIFT_NAME(DeleteStageBridge)
-@interface FIRDeleteStageBridge : FIRStageBridge
+NS_SWIFT_NAME(__DeleteStageBridge)
+@interface __FIRDeleteStageBridge : FIRStageBridge
 - (id)init;
 @end
 
 NS_SWIFT_SENDABLE
-NS_SWIFT_NAME(UpdateStageBridge)
-@interface FIRUpdateStageBridge : FIRStageBridge
+NS_SWIFT_NAME(__UpdateStageBridge)
+@interface __FIRUpdateStageBridge : FIRStageBridge
 - (id)initWithFields:(NSDictionary<NSString *, FIRExprBridge *> *)fields;
 @end
 
 NS_SWIFT_SENDABLE
-NS_SWIFT_NAME(InsertStageBridge)
-@interface FIRInsertStageBridge : FIRStageBridge
+NS_SWIFT_NAME(__InsertStageBridge)
+@interface __FIRInsertStageBridge : FIRStageBridge
 - (id)initWithCollectionPath:(NSString *)collectionPath
         documentIdExpression:(FIRExprBridge *_Nullable)documentIdExpression;
 @end
 
 NS_SWIFT_SENDABLE
-NS_SWIFT_NAME(UpsertStageBridge)
-@interface FIRUpsertStageBridge : FIRStageBridge
+NS_SWIFT_NAME(__UpsertStageBridge)
+@interface __FIRUpsertStageBridge : FIRStageBridge
 - (id)initWithFields:(NSDictionary<NSString *, FIRExprBridge *> *)fields
        collectionPath:(NSString *_Nullable)collectionPath
  documentIdExpression:(FIRExprBridge *_Nullable)documentIdExpression;
 @end
 
 NS_SWIFT_SENDABLE
-NS_SWIFT_NAME(LiteralsSourceStageBridge)
-@interface FIRLiteralsSourceStageBridge : FIRStageBridge
+NS_SWIFT_NAME(__LiteralsSourceStageBridge)
+@interface __FIRLiteralsSourceStageBridge : FIRStageBridge
 - (id)initWithData:(NSArray<NSDictionary<NSString *, id> *> *)data
          firestore:(FIRFirestore *)db;
 @end

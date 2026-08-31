@@ -1372,7 +1372,7 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
 }
 @end
 
-@implementation FIRDeleteStageBridge {
+@implementation __FIRDeleteStageBridge {
   Boolean isUserDataRead;
   std::shared_ptr<DeleteStage> cpp_delete;
 }
@@ -1398,7 +1398,7 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
 }
 @end
 
-@implementation FIRUpdateStageBridge {
+@implementation __FIRUpdateStageBridge {
   NSDictionary<NSString *, FIRExprBridge *> *_fields;
   Boolean isUserDataRead;
   std::shared_ptr<UpdateStage> cpp_update;
@@ -1432,7 +1432,7 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
 }
 @end
 
-@implementation FIRInsertStageBridge {
+@implementation __FIRInsertStageBridge {
   NSString *_collectionPath;
   FIRExprBridge *_Nullable _documentIdExpression;
   Boolean isUserDataRead;
@@ -1468,7 +1468,7 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
 }
 @end
 
-@implementation FIRUpsertStageBridge {
+@implementation __FIRUpsertStageBridge {
   NSDictionary<NSString *, FIRExprBridge *> *_fields;
   NSString *_collectionPath;
   FIRExprBridge *_Nullable _documentIdExpression;
@@ -1514,7 +1514,7 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
 }
 @end
 
-@implementation FIRLiteralsSourceStageBridge {
+@implementation __FIRLiteralsSourceStageBridge {
   NSArray<NSDictionary<NSString *, id> *> *_data;
   FIRFirestore *_db;
   Boolean isUserDataRead;
