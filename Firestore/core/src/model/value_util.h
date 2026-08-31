@@ -340,7 +340,8 @@ absl::optional<pb_size_t> IndexOfKey(
  */
 google_firestore_v1_Value NaNValue();
 
-/** Returns `true` if `value` is `NaN` (either IEEE 754 double or BSON Decimal128Value NaN) in its Protobuf representation . */
+/** Returns `true` if `value` is `NaN` (either IEEE 754 double or BSON
+ * Decimal128Value NaN) in its Protobuf representation . */
 bool IsNaNValue(const google_firestore_v1_Value& value);
 
 google_firestore_v1_Value TrueValue();
