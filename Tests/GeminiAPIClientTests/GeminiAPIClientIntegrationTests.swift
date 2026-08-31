@@ -13,9 +13,12 @@
 // limitations under the License.
 
 import Foundation
-import GeminiAPIClient
 import GenerateContentDataModels
+import SharedDataModels
+import SharedTestUtilities
 import Testing
+
+@testable import GeminiAPIClient
 
 #if canImport(FoundationNetworking)
   import FoundationNetworking
@@ -25,21 +28,6 @@ import Testing
 
 @Suite("GeminiAPIClient Integration Tests")
 struct GeminiAPIClientIntegrationTests {
-  private static func resolveAPIKey() -> String? {
-    let env = ProcessInfo.processInfo.environment
-    if let googleKey = env["GOOGLE_API_KEY"], !googleKey.isEmpty {
-      return googleKey
-    }
-    if let geminiKey = env["GEMINI_API_KEY"], !geminiKey.isEmpty {
-      return geminiKey
-    }
-    return nil
-  }
-
-  private static var hasAPIKey: Bool {
-    resolveAPIKey() != nil
-  }
-
   private func extractText(from response: GenerateContentResponse?) -> String? {
     guard let parts = response?.candidates?.first?.content?.parts else { return nil }
     let textParts = parts.compactMap { part -> String? in
@@ -49,13 +37,14 @@ struct GeminiAPIClientIntegrationTests {
     return textParts.isEmpty ? nil : textParts.joined()
   }
 
+  @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
   private func makeClient(
     model: String = "gemini-3.5-flash-lite",
     baseURL: URL = URL(string: "https://generativelanguage.googleapis.com")!,
     configuration: URLSessionConfiguration = .ephemeral
   ) -> GeminiAPIClient {
     let headerProvider: (@Sendable () async throws -> [String: String])?
-    if let apiKey = Self.resolveAPIKey() {
+    if let apiKey = geminiAPIKey {
       headerProvider = { @Sendable in
         ["x-goog-api-key": apiKey]
       }
@@ -67,16 +56,12 @@ struct GeminiAPIClientIntegrationTests {
       model: model,
       baseURL: baseURL,
       headerProvider: headerProvider,
-      configuration: configuration
+      sessionConfiguration: configuration
     )
   }
 
-  @Test(
-    .enabled(
-      if: GeminiAPIClientIntegrationTests.hasAPIKey,
-      "Requires GOOGLE_API_KEY or GEMINI_API_KEY environment variable"
-    )
-  )
+  @Test(.requireAPIKey)
+  @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
   func streamGenerateContentSimplePrompt() async throws {
     let client = makeClient(model: "gemini-3.5-flash-lite")
     let request = GenerateContentRequest(
@@ -88,7 +73,7 @@ struct GeminiAPIClientIntegrationTests {
       ]
     )
 
-    let stream = try await client.generateContentStream(request: request)
+    let stream = try await client.generateContentStream(for: request)
     var accumulatedText = ""
     var chunkCount = 0
     for try await chunk in stream {
@@ -103,12 +88,8 @@ struct GeminiAPIClientIntegrationTests {
     #expect(accumulatedText.localizedCaseInsensitiveContains("HELLO"))
   }
 
-  @Test(
-    .enabled(
-      if: GeminiAPIClientIntegrationTests.hasAPIKey,
-      "Requires GOOGLE_API_KEY or GEMINI_API_KEY environment variable"
-    )
-  )
+  @Test(.requireAPIKey)
+  @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
   func streamGenerateContentMultiTurn() async throws {
     let client = makeClient(model: "gemini-3.5-flash-lite")
     let contents = [
@@ -121,7 +102,7 @@ struct GeminiAPIClientIntegrationTests {
     ]
     let request = GenerateContentRequest(contents: contents)
 
-    let stream = try await client.generateContentStream(request: request)
+    let stream = try await client.generateContentStream(for: request)
     var accumulatedText = ""
     var chunkCount = 0
     for try await chunk in stream {
@@ -136,12 +117,8 @@ struct GeminiAPIClientIntegrationTests {
     #expect(accumulatedText.localizedCaseInsensitiveContains("teal"))
   }
 
-  @Test(
-    .enabled(
-      if: GeminiAPIClientIntegrationTests.hasAPIKey,
-      "Requires GOOGLE_API_KEY or GEMINI_API_KEY environment variable"
-    )
-  )
+  @Test(.requireAPIKey)
+  @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
   func streamGenerateContentWithSystemInstruction() async throws {
     let client = makeClient(model: "gemini-3.5-flash-lite")
     let systemInstruction = Content(
@@ -158,7 +135,7 @@ struct GeminiAPIClientIntegrationTests {
       ]
     )
 
-    let stream = try await client.generateContentStream(request: request)
+    let stream = try await client.generateContentStream(for: request)
     var accumulatedText = ""
     var chunkCount = 0
     for try await chunk in stream {
@@ -172,12 +149,8 @@ struct GeminiAPIClientIntegrationTests {
     #expect(!accumulatedText.isEmpty)
   }
 
-  @Test(
-    .enabled(
-      if: GeminiAPIClientIntegrationTests.hasAPIKey,
-      "Requires GOOGLE_API_KEY or GEMINI_API_KEY environment variable"
-    )
-  )
+  @Test(.requireAPIKey)
+  @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
   func streamGenerateContentInvalidModelNameThrows() async throws {
     let client = makeClient(model: "non-existent-model-name-xyz-123")
     let request = GenerateContentRequest(
@@ -189,18 +162,14 @@ struct GeminiAPIClientIntegrationTests {
       ]
     )
 
-    await #expect(throws: Error.self) {
-      let stream = try await client.generateContentStream(request: request)
+    await #expect(throws: (any Error).self) {
+      let stream = try await client.generateContentStream(for: request)
       for try await _ in stream {}
     }
   }
 
-  @Test(
-    .enabled(
-      if: !GeminiAPIClientIntegrationTests.hasAPIKey,
-      "Runs only when no API key is set"
-    )
-  )
+  @Test(.requireNoAPIKey)
+  @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
   func streamGenerateContentWithoutAuthThrows() async throws {
     let client = GeminiAPIClient(
       model: "gemini-3.5-flash-lite",
@@ -216,7 +185,7 @@ struct GeminiAPIClientIntegrationTests {
     )
 
     do {
-      let stream = try await client.generateContentStream(request: request)
+      let stream = try await client.generateContentStream(for: request)
       for try await _ in stream {}
       Issue.record("Expected request to throw due to missing authentication")
     } catch let GeminiAPIError.apiError(apiError) {
@@ -224,5 +193,24 @@ struct GeminiAPIClientIntegrationTests {
     } catch {
       Issue.record("Unexpected error thrown: \(error)")
     }
+  }
+
+  @Test(.requireAPIKey)
+  @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
+  func countTokensSimplePrompt() async throws {
+    let client = makeClient(model: "gemini-3.5-flash-lite")
+    let request = CountTokensRequest(
+      contents: [
+        Content(
+          parts: [Part(data: .text("The quick brown fox jumps over the lazy dog."))],
+          role: "user"
+        )
+      ]
+    )
+
+    let response = try await client.countTokens(for: request)
+
+    let totalTokens = try #require(response.totalTokens)
+    #expect(totalTokens > 0)
   }
 }

@@ -33,17 +33,11 @@ struct HTTPStreamingClientTests {
     return HTTPStreamingClient(configuration: configuration)
   }
 
+  @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
   private func makeResponse(url: URL, statusCode: Int = 200, headerFields: [String: String]? = nil)
     throws -> HTTPURLResponse
   {
-    try #require(
-      HTTPURLResponse(
-        url: url,
-        statusCode: statusCode,
-        httpVersion: "HTTP/1.1",
-        headerFields: headerFields
-      )
-    )
+    try HTTPURLResponse.mock(url: url, statusCode: statusCode, headerFields: headerFields)
   }
 
   @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)

@@ -12,62 +12,159 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import GenerateContentDataModels
+package import Foundation
+package import GenerateContentDataModels
 import HTTPStreamingClient
 import SharedDataModels
 
-#if canImport(FoundationEssentials) && canImport(FoundationNetworking)
-  import FoundationEssentials
-  import FoundationNetworking
-  import Foundation
-#else
-  import Foundation
+#if canImport(FoundationNetworking)
+  package import FoundationNetworking
 #endif
 
-/// A client for communicating with the Google Gemini API.
-@available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
+// MARK: - Backend Configuration
+
+/// Configuration specifying the backend base URL, dynamic authentication headers,
+/// and transport session configuration.
+@available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
+package struct BackendConfiguration: Sendable {
+  /// The base URL of the Gemini API endpoint.
+  let baseURL: URL
+
+  /// An optional async provider for dynamic headers (such as API keys or Bearer tokens).
+  let headerProvider: (@Sendable () async throws -> [String: String])?
+
+  /// The `URLSessionConfiguration` to use for network transport.
+  let sessionConfiguration: URLSessionConfiguration
+
+  /// Initializes a new backend configuration.
+  ///
+  /// - Parameters:
+  ///   - baseURL: The base URL of the Gemini API endpoint. Defaults to
+  ///     `https://generativelanguage.googleapis.com`.
+  ///   - headerProvider: An optional async provider for dynamic headers.
+  ///   - sessionConfiguration: The `URLSessionConfiguration` to use. Defaults to `.ephemeral`.
+  package init(
+    baseURL: URL = URL(string: "https://generativelanguage.googleapis.com")!,
+    headerProvider: (@Sendable () async throws -> [String: String])? = nil,
+    sessionConfiguration: URLSessionConfiguration = .ephemeral
+  ) {
+    self.baseURL = baseURL
+    self.headerProvider = headerProvider
+    self.sessionConfiguration = sessionConfiguration
+  }
+}
+
+// MARK: - Gemini API Client
+
+/// A client for communicating with Google Gemini backend endpoints.
+@available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
 package struct GeminiAPIClient: Sendable {
+  /// The Gemini model identifier (e.g., `"gemini-3.5-flash-lite"`).
   let model: String
 
-  private let baseURL: URL
-  private let httpClient: HTTPStreamingClient
-  private let headerProvider: (@Sendable () async throws -> [String: String])?
+  /// The backend configuration governing target base URL, headers, and session settings.
+  let configuration: BackendConfiguration
 
-  /// Initializes a new Gemini API client.
+  private let httpClient: HTTPStreamingClient
+
+  /// Initializes a new Gemini API client with a model identifier and backend configuration.
+  ///
+  /// - Parameters:
+  ///   - model: The Gemini model identifier (e.g., `"gemini-3.5-flash-lite"`).
+  ///   - configuration: The target `BackendConfiguration`. Defaults to standard configuration.
+  package init(
+    model: String,
+    configuration: BackendConfiguration = BackendConfiguration()
+  ) {
+    self.model = model
+    self.configuration = configuration
+    self.httpClient = HTTPStreamingClient(configuration: configuration.sessionConfiguration)
+  }
+
+  /// Convenience initializer accepting individual parameters.
   ///
   /// - Parameters:
   ///   - model: The Gemini model identifier (e.g., `"gemini-3.5-flash-lite"`).
   ///   - baseURL: The base URL of the Gemini API endpoint.
   ///   - headerProvider: An optional async provider for dynamic headers (such as API keys or Bearer
   ///     tokens).
-  ///   - configuration: The `URLSessionConfiguration` to use. Defaults to `.ephemeral`.
+  ///   - sessionConfiguration: The `URLSessionConfiguration` to use. Defaults to `.ephemeral`.
   package init(
     model: String,
     baseURL: URL,
     headerProvider: (@Sendable () async throws -> [String: String])? = nil,
-    configuration: URLSessionConfiguration = .ephemeral
+    sessionConfiguration: URLSessionConfiguration = .ephemeral
   ) {
-    self.model = model
-    self.baseURL = baseURL
-    self.headerProvider = headerProvider
-    self.httpClient = HTTPStreamingClient(configuration: configuration)
+    self.init(
+      model: model,
+      configuration: BackendConfiguration(
+        baseURL: baseURL,
+        headerProvider: headerProvider,
+        sessionConfiguration: sessionConfiguration
+      )
+    )
   }
 
-  /// Sends a streaming text generation request and delivers responses asynchronously as Server-Sent
-  /// Events.
+  /// Sends a streaming text generation request and delivers responses asynchronously as a
+  /// backpressured `GenerateContentStream` sequence.
   ///
   /// - Parameter request: The structured content generation request.
-  /// - Returns: An asynchronous stream of `GenerateContentResponse` chunks.
+  /// - Returns: A backpressured `GenerateContentStream` async sequence.
   /// - Throws: `GeminiAPIError.apiError` on API failures, or standard network errors.
   package func generateContentStream(
-    request: GenerateContentRequest
-  ) async throws -> AsyncThrowingStream<GenerateContentResponse, any Error> {
-    let endpointURL = baseURL.appendingPathComponent("v1beta/models/\(model):streamGenerateContent")
+    for request: GenerateContentRequest
+  ) async throws -> GenerateContentStream {
+    let urlRequest = try await makeURLRequest(
+      path: "v1beta/models/\(model):streamGenerateContent",
+      queryItems: [URLQueryItem(name: "alt", value: "sse")],
+      body: request
+    )
+
+    let (lines, response) = try await httpClient.lines(for: urlRequest)
+
+    if response.statusCode != 200 {
+      let bodyData = try await collectBody(from: lines)
+      throw parseError(from: bodyData, statusCode: response.statusCode, response: response)
+    }
+
+    return GenerateContentStream(lines: lines, response: response)
+  }
+
+  /// Counts the number of tokens in the given request.
+  ///
+  /// - Parameter request: The token count calculation request.
+  /// - Returns: The calculated `CountTokensResponse`.
+  /// - Throws: `GeminiAPIError.apiError` on API failures, or standard network errors.
+  package func countTokens(
+    for request: CountTokensRequest
+  ) async throws -> CountTokensResponse {
+    let urlRequest = try await makeURLRequest(
+      path: "v1beta/models/\(model):countTokens",
+      body: request
+    )
+
+    let (lines, response) = try await httpClient.lines(for: urlRequest)
+    let bodyData = try await collectBody(from: lines)
+
+    if response.statusCode != 200 {
+      throw parseError(from: bodyData, statusCode: response.statusCode, response: response)
+    }
+
+    return try JSONDecoder().decode(CountTokensResponse.self, from: bodyData)
+  }
+
+  private func makeURLRequest<Body: Encodable>(
+    path: String,
+    queryItems: [URLQueryItem]? = nil,
+    body: Body
+  ) async throws -> URLRequest {
+    let endpointURL = configuration.baseURL.appendingPathComponent(path)
     guard var components = URLComponents(url: endpointURL, resolvingAgainstBaseURL: false) else {
       throw URLError(.badURL)
     }
-    components.queryItems = [URLQueryItem(name: "alt", value: "sse")]
-
+    if let queryItems {
+      components.queryItems = queryItems
+    }
     guard let requestURL = components.url else {
       throw URLError(.badURL)
     }
@@ -76,94 +173,178 @@ package struct GeminiAPIClient: Sendable {
     urlRequest.httpMethod = "POST"
     urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
 
-    if let headerProvider {
+    if let headerProvider = configuration.headerProvider {
       for (key, value) in try await headerProvider() {
         urlRequest.setValue(value, forHTTPHeaderField: key)
       }
     }
 
-    urlRequest.httpBody = try JSONEncoder().encode(request)
+    urlRequest.httpBody = try JSONEncoder().encode(body)
+    return urlRequest
+  }
 
-    let (bytes, response) = try await httpClient.bytes(for: urlRequest)
+  private func collectBody(from lines: HTTPAsyncLineSequence) async throws -> Data {
+    let body = try await lines.reduce(into: "") { result, line in
+      if !result.isEmpty {
+        result.append("\n")
+      }
+      result.append(line)
+    }
+    return Data(body.utf8)
+  }
+}
 
-    if response.statusCode != 200 {
-      let bodyData = try await bytes.collect()
-      throw parseError(from: bodyData, statusCode: response.statusCode, response: response)
+// MARK: - Generate Content Stream
+
+/// An asynchronous sequence of `GenerateContentResponse` chunks streamed from Gemini.
+///
+/// Iterates on-demand over Server-Sent Events with backpressure and zero unstructured `Task`
+/// allocation. Cancellation propagates directly to the underlying network stream.
+@available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
+package struct GenerateContentStream: AsyncSequence, Sendable {
+  /// The type of element produced by this asynchronous sequence.
+  package typealias Element = GenerateContentResponse
+
+  private let lines: HTTPAsyncLineSequence
+  private let response: HTTPURLResponse
+
+  /// Initializes a new content stream from an underlying HTTP line sequence and response metadata.
+  ///
+  /// - Parameters:
+  ///   - lines: The sequence of text lines received from the server.
+  ///   - response: The initial HTTP response headers and status code.
+  init(lines: HTTPAsyncLineSequence, response: HTTPURLResponse) {
+    self.lines = lines
+    self.response = response
+  }
+
+  /// Creates an asynchronous iterator over the stream of generated content response chunks.
+  ///
+  /// - Returns: An `AsyncIterator` instance.
+  package func makeAsyncIterator() -> AsyncIterator {
+    AsyncIterator(linesIterator: lines.makeAsyncIterator(), response: response)
+  }
+
+  /// An asynchronous iterator over Server-Sent Events decoded into `GenerateContentResponse` chunks.
+  package struct AsyncIterator: AsyncIteratorProtocol {
+    private var linesIterator: HTTPAsyncLineSequence.AsyncIterator
+    private let response: HTTPURLResponse
+    private let decoder = JSONDecoder()
+    private var sseDataBuffer = ""
+    private var extraLinesBuffer = ""
+
+    init(linesIterator: HTTPAsyncLineSequence.AsyncIterator, response: HTTPURLResponse) {
+      self.linesIterator = linesIterator
+      self.response = response
     }
 
-    return AsyncThrowingStream<GenerateContentResponse, any Error> {
-      continuation in
-      let streamTask = Task {
-        let decoder = JSONDecoder()
-        var extraLines = ""
-        do {
-          for try await line in bytes.lines {
-            let trimmed = line.trimmingCharacters(in: .whitespaces)
-            guard !trimmed.isEmpty else { continue }
-            guard !trimmed.hasPrefix(":") else { continue }
+    /// Asynchronously advances to and returns the next `GenerateContentResponse` chunk.
+    ///
+    /// - Returns: The next decoded `GenerateContentResponse`, or `nil` if the stream has finished.
+    /// - Throws: An error if reading or decoding fails, or if a mid-stream API error occurs.
+    package mutating func next() async throws -> GenerateContentResponse? {
+      while let line = try await linesIterator.next() {
+        let trimmed = line.trimmingCharacters(in: .whitespaces)
 
-            if trimmed.hasPrefix("data:") {
-              let jsonString = String(trimmed.dropFirst(5)).trimmingCharacters(in: .whitespaces)
-              guard !jsonString.isEmpty else { continue }
-              let data = Data(jsonString.utf8)
-              if let apiError = try? decoder.decode(GoogleCloudAPIError.self, from: data) {
-                let headerRetryAfter = parseRetryAfterHeader(from: response)
-                let resolvedError = headerRetryAfter.map { apiError.withRetryDelay($0) } ?? apiError
-                throw GeminiAPIError.apiError(resolvedError)
-              }
-              let responseChunk = try decoder.decode(GenerateContentResponse.self, from: data)
-              continuation.yield(responseChunk)
-            } else {
-              extraLines.append(line)
-              extraLines.append("\n")
-            }
+        // Empty line marks the end of an SSE event
+        if trimmed.isEmpty {
+          if !sseDataBuffer.isEmpty {
+            let dataString = sseDataBuffer
+            sseDataBuffer = ""
+            return try decodeEventData(dataString)
           }
-
-          let trimmedExtra = extraLines.trimmingCharacters(in: .whitespacesAndNewlines)
-          if !trimmedExtra.isEmpty {
-            let data = Data(trimmedExtra.utf8)
-            throw parseError(from: data, statusCode: response.statusCode, response: response)
-          }
-
-          continuation.finish()
-        } catch {
-          continuation.finish(throwing: error)
+          continue
         }
+
+        // SSE comment line (e.g. ": keep-alive")
+        if trimmed.hasPrefix(":") {
+          continue
+        }
+
+        // SSE control fields (e.g. "event: message", "id: 1", "retry: 5000")
+        if trimmed.hasPrefix("event:") || trimmed.hasPrefix("id:") || trimmed.hasPrefix("retry:") {
+          continue
+        }
+
+        // SSE data field
+        if trimmed.hasPrefix("data:") {
+          let dataContent = String(trimmed.dropFirst(5)).trimmingCharacters(in: .whitespaces)
+          if !dataContent.isEmpty {
+            if !sseDataBuffer.isEmpty {
+              sseDataBuffer.append("\n")
+            }
+            sseDataBuffer.append(dataContent)
+          }
+          continue
+        }
+
+        // Non-SSE payload line (e.g. raw JSON error block or unexpected content)
+        extraLinesBuffer.append(line)
+        extraLinesBuffer.append("\n")
       }
 
-      continuation.onTermination = { @Sendable _ in
-        streamTask.cancel()
-        bytes.task?.cancel()
+      // Flush any pending SSE event data
+      if !sseDataBuffer.isEmpty {
+        let dataString = sseDataBuffer
+        sseDataBuffer = ""
+        return try decodeEventData(dataString)
       }
+
+      // If extra non-SSE lines were accumulated, parse as error
+      let trimmedExtra = extraLinesBuffer.trimmingCharacters(in: .whitespacesAndNewlines)
+      if !trimmedExtra.isEmpty {
+        let data = Data(trimmedExtra.utf8)
+        throw parseError(from: data, statusCode: response.statusCode, response: response)
+      }
+
+      return nil
+    }
+
+    private func decodeEventData(_ jsonString: String) throws -> GenerateContentResponse {
+      let data = Data(jsonString.utf8)
+      // Fast-path: only attempt error decoding if the payload contains an "error" key.
+      // GoogleCloudAPIError requires top-level code and message, avoiding false positives.
+      if jsonString.contains("\"error\""),
+        let apiError = try? decoder.decode(GoogleCloudAPIError.self, from: data)
+      {
+        let headerRetryAfter = parseRetryAfterHeader(from: response)
+        let resolvedError = headerRetryAfter.map { apiError.withRetryDelay($0) } ?? apiError
+        throw GeminiAPIError.apiError(resolvedError)
+      }
+      return try decoder.decode(GenerateContentResponse.self, from: data)
+    }
+  }
+}
+
+// MARK: - Internal Error Parsing Helpers
+
+@available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
+private func parseError(
+  from data: Data,
+  statusCode: Int,
+  response: HTTPURLResponse
+) -> GeminiAPIError {
+  if let apiError = try? JSONDecoder().decode(GoogleCloudAPIError.self, from: data) {
+    let headerRetryAfter = parseRetryAfterHeader(from: response)
+    let resolvedError = headerRetryAfter.map { apiError.withRetryDelay($0) } ?? apiError
+    return GeminiAPIError.apiError(resolvedError)
+  } else {
+    return GeminiAPIError.httpError(
+      statusCode: statusCode,
+      body: String(decoding: data, as: UTF8.self)
+    )
+  }
+}
+
+@available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
+private func parseRetryAfterHeader(from response: HTTPURLResponse) -> Duration? {
+  if let headerValue = response.value(forHTTPHeaderField: "Retry-After")?.trimmingCharacters(
+    in: .whitespaces
+  ) {
+    if let seconds = Double(headerValue), seconds >= 0 {
+      return .seconds(seconds)
     }
   }
 
-  private func parseError(
-    from data: Data,
-    statusCode: Int,
-    response: HTTPURLResponse
-  ) -> GeminiAPIError {
-    if let apiError = try? JSONDecoder().decode(GoogleCloudAPIError.self, from: data) {
-      let headerRetryAfter = parseRetryAfterHeader(from: response)
-      let resolvedError = headerRetryAfter.map { apiError.withRetryDelay($0) } ?? apiError
-      return GeminiAPIError.apiError(resolvedError)
-    } else {
-      return GeminiAPIError.httpError(
-        statusCode: statusCode,
-        body: String(decoding: data, as: UTF8.self)
-      )
-    }
-  }
-
-  private func parseRetryAfterHeader(from response: HTTPURLResponse) -> Duration? {
-    if let headerValue = response.value(forHTTPHeaderField: "Retry-After")?.trimmingCharacters(
-      in: .whitespaces
-    ) {
-      if let seconds = Double(headerValue), seconds >= 0 {
-        return .seconds(seconds)
-      }
-    }
-
-    return nil
-  }
+  return nil
 }

@@ -36,7 +36,7 @@ let package = Package(
       name: "GeminiForFoundationModels",
       swiftSettings: defaultSwiftSettings
     ),
-    .target(
+    .testTarget(
       name: "SharedTestUtilities",
       path: "Tests/SharedTestUtilities",
       swiftSettings: defaultSwiftSettings
@@ -55,18 +55,21 @@ let package = Package(
         "GenerateContentDataModels",
         "HTTPStreamingClient",
         "SharedDataModels",
-      ]
+      ],
+      swiftSettings: defaultSwiftSettings
     ),
     .testTarget(
       name: "GeminiAPIClientTests",
       dependencies: [
         "GeminiAPIClient",
         "HTTPStreamingClient",
-        "SharedTestUtilities"
+        "SharedTestUtilities",
       ],
+      swiftSettings: defaultSwiftSettings
     ),
     .target(
-      name: "SharedDataModels"
+      name: "SharedDataModels",
+      swiftSettings: defaultSwiftSettings
     ),
     .target(
       name: "GenerateContentDataModels",

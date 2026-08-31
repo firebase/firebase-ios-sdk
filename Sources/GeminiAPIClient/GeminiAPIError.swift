@@ -13,10 +13,14 @@
 // limitations under the License.
 
 import Foundation
-import SharedDataModels
+package import SharedDataModels
+
+#if canImport(FoundationNetworking)
+  import FoundationNetworking
+#endif
 
 /// Errors thrown by `GeminiAPIClient`.
-@available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
+@available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
 package enum GeminiAPIError: Error, Sendable, Equatable {
   /// An API error returned by the Google Gemini service conforming to AIP-0193.
   case apiError(GoogleCloudAPIError)
@@ -25,7 +29,7 @@ package enum GeminiAPIError: Error, Sendable, Equatable {
   case httpError(statusCode: Int, body: String)
 }
 
-@available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
+@available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
 extension GeminiAPIError {
   /// The retry delay advice for this error, if available from headers or payload details.
   package var retryAfter: Duration? {
@@ -38,7 +42,7 @@ extension GeminiAPIError {
   }
 }
 
-@available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
+@available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
 extension GeminiAPIError: LocalizedError {
   package var errorDescription: String? {
     switch self {
@@ -68,10 +72,8 @@ extension GeminiAPIError: LocalizedError {
   }
 }
 
-@available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
+@available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
 extension GeminiAPIError: CustomNSError {
-  package static var errorDomain: String { "GeminiAPIError" }
-
   package var errorCode: Int {
     switch self {
     case .apiError(let error):
