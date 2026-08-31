@@ -12,11 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if canImport(Darwin)
-  package import Foundation
-#else
-  import Foundation
-#endif  // canImport(Darwin)
+import Foundation
 
 /// Configuration for the response output format.
 /// Handles single object serialization for Gemini Developer API and array-wrapped serialization for Gemini Enterprise Agent Platform (Vertex AI).
@@ -46,7 +42,7 @@ package struct ResponseFormatConfig: Codable, Sendable, Equatable, Hashable {
     self.video = video
   }
 
-  package init(from decoder: Decoder) throws {
+  package init(from decoder: any Decoder) throws {
     let container = try decoder.singleValueContainer()
     if let array = try? container.decode([ResponseFormatConfig].self), let first = array.first {
       self.text = first.text
@@ -62,7 +58,7 @@ package struct ResponseFormatConfig: Codable, Sendable, Equatable, Hashable {
     }
   }
 
-  package func encode(to encoder: Encoder) throws {
+  package func encode(to encoder: any Encoder) throws {
     if let useArrayFormat = encoder.userInfo[ResponseFormatConfig.useArrayFormatKey] as? Bool,
       useArrayFormat
     {
@@ -98,7 +94,7 @@ package struct ResponseFormatConfig: Codable, Sendable, Equatable, Hashable {
       case video
     }
 
-    func encode(to encoder: Encoder) throws {
+    func encode(to encoder: any Encoder) throws {
       var container = encoder.container(keyedBy: CodingKeys.self)
       try container.encodeIfPresent(text, forKey: .text)
       try container.encodeIfPresent(audio, forKey: .audio)

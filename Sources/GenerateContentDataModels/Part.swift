@@ -12,13 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Foundation
 package import SharedDataModels
-
-#if canImport(Darwin)
-  package import Foundation
-#else
-  import Foundation
-#endif  // canImport(Darwin)
 
 /// An internal data model for `Part`.
 ///
@@ -189,7 +184,7 @@ package struct Part: Codable, Sendable, Equatable, Hashable {
     init?(intValue: Int) { nil }
   }
 
-  package init(from decoder: Decoder) throws {
+  package init(from decoder: any Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
     self.toolCall = try container.decodeIfPresent(ToolCall.self, forKey: .toolCall)
     self.toolResponse = try container.decodeIfPresent(ToolResponse.self, forKey: .toolResponse)
@@ -238,7 +233,7 @@ package struct Part: Codable, Sendable, Equatable, Hashable {
     }
   }
 
-  package func encode(to encoder: Encoder) throws {
+  package func encode(to encoder: any Encoder) throws {
     var container = encoder.container(keyedBy: CodingKeys.self)
     try container.encodeIfPresent(toolCall, forKey: .toolCall)
     try container.encodeIfPresent(toolResponse, forKey: .toolResponse)

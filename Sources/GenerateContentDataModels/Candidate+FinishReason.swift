@@ -12,11 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if canImport(Darwin)
-  package import Foundation
-#else
-  import Foundation
-#endif  // canImport(Darwin)
+import Foundation
 
 extension Candidate {
   /// Optional. Output only. The reason why the model stopped generating tokens.
