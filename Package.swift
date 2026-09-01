@@ -52,7 +52,7 @@ let package = Package(
     .target(
       name: "GeminiAPIClient",
       dependencies: [
-        "GenerateContentDataModels",
+        "GeminiAPIDataModels",
         "HTTPStreamingClient",
         "SharedDataModels",
       ],
@@ -72,7 +72,7 @@ let package = Package(
       swiftSettings: defaultSwiftSettings
     ),
     .target(
-      name: "GenerateContentDataModels",
+      name: "GeminiAPIDataModels",
       dependencies: [
         "SharedDataModels"
       ],

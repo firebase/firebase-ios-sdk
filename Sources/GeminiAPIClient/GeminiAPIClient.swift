@@ -13,7 +13,7 @@
 // limitations under the License.
 
 package import Foundation
-package import GenerateContentDataModels
+package import GeminiAPIDataModels
 import HTTPStreamingClient
 import SharedDataModels
 
