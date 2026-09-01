@@ -20,18 +20,18 @@ package struct GoogleCloudAPIError: Codable, Sendable, Equatable, Hashable {
   /// Represents the nested error `Status` in a Google Cloud API error.
   ///
   /// See [AIP-193](https://google.aip.dev/193#http11json-representation) for more details.
-  struct Status: Codable, Sendable, Equatable, Hashable {
+  private struct Status: Codable, Sendable, Equatable, Hashable {
     /// The HTTP status code value.
-    package let code: Int
+    let code: Int
 
     /// A developer-facing, human-readable English error message.
-    package let message: String
+    let message: String
 
     /// The canonical status code indicating the nature of the error.
-    package let status: RPCErrorStatus?
+    let status: RPCErrorStatus?
 
     /// Additional details about the error.
-    package let details: [Detail]?
+    let details: [Detail]?
   }
 
   /// The HTTP status code value.

@@ -53,6 +53,7 @@ package struct GeminiAPIClient: Sendable {
     headerProvider: (@Sendable () async throws -> [String: String])? = nil,
     sessionConfiguration: URLSessionConfiguration = .ephemeral
   ) {
+    assert(!modelResourcePath.isEmpty, "modelResourcePath must not be empty.")
     self.modelResourcePath = modelResourcePath
     self.baseURL = baseURL
     self.headerProvider = headerProvider

@@ -83,11 +83,11 @@ package actor AppCheckDebugClient {
 
     let exchangeTask = Task<String, any Error> {
       let endpointURL = Self.baseURL
-        .appendingPathComponent("v1")
-        .appendingPathComponent("projects")
-        .appendingPathComponent(projectID)
-        .appendingPathComponent("apps")
-        .appendingPathComponent("\(appID):exchangeDebugToken")
+        .appending(component: "v1")
+        .appending(component: "projects")
+        .appending(component: projectID)
+        .appending(component: "apps")
+        .appending(component: "\(appID):exchangeDebugToken")
 
       var request = URLRequest(url: endpointURL)
       request.httpMethod = "POST"
