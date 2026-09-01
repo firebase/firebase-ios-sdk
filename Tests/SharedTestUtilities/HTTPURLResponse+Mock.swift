@@ -12,35 +12,37 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package import Foundation
-import Testing
+#if canImport(Testing)
+  package import Foundation
+  import Testing
 
-#if canImport(FoundationNetworking)
-  package import FoundationNetworking
-#endif
+  #if canImport(FoundationNetworking)
+    package import FoundationNetworking
+  #endif
 
-@available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *) extension HTTPURLResponse
-{
-  /// Creates a mock `HTTPURLResponse` for testing.
-  ///
-  /// - Parameters:
-  ///   - url: The target response URL.
-  ///   - statusCode: The HTTP status code. Defaults to `200`.
-  ///   - headerFields: The optional HTTP header dictionary.
-  /// - Returns: A non-nil `HTTPURLResponse`.
-  /// - Throws: An error if response construction fails.
-  package static func mock(
-    url: URL,
-    statusCode: Int = 200,
-    headerFields: [String: String]? = nil
-  ) throws -> HTTPURLResponse {
-    try #require(
-      HTTPURLResponse(
-        url: url,
-        statusCode: statusCode,
-        httpVersion: "HTTP/1.1",
-        headerFields: headerFields
+  @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
+  extension HTTPURLResponse {
+    /// Creates a mock `HTTPURLResponse` for testing.
+    ///
+    /// - Parameters:
+    ///   - url: The target response URL.
+    ///   - statusCode: The HTTP status code. Defaults to `200`.
+    ///   - headerFields: The optional HTTP header dictionary.
+    /// - Returns: A non-nil `HTTPURLResponse`.
+    /// - Throws: An error if response construction fails.
+    package static func mock(
+      url: URL,
+      statusCode: Int = 200,
+      headerFields: [String: String]? = nil
+    ) throws -> HTTPURLResponse {
+      try #require(
+        HTTPURLResponse(
+          url: url,
+          statusCode: statusCode,
+          httpVersion: "HTTP/1.1",
+          headerFields: headerFields
+        )
       )
-    )
+    }
   }
-}
+#endif  // canImport(Testing)

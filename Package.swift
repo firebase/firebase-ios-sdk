@@ -36,7 +36,7 @@ let package = Package(
       name: "GeminiForFoundationModels",
       swiftSettings: defaultSwiftSettings
     ),
-    .testTarget(
+    .target(
       name: "SharedTestUtilities",
       path: "Tests/SharedTestUtilities",
       swiftSettings: defaultSwiftSettings,
