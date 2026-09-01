@@ -116,7 +116,7 @@ package struct GeminiAPIClient: Sendable {
       throw URLError(.badURL)
     }
 
-    let sanitizedResourcePath = modelResourcePath.trimmingPrefix("/")
+    let sanitizedResourcePath = modelResourcePath.drop { $0 == "/" }
     let basePath =
       components.path.hasSuffix("/")
       ? String(components.path.dropLast())
