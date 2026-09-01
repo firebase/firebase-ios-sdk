@@ -586,7 +586,7 @@ enum FunctionsConstants {
     urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
     urlRequest.setValue("text/event-stream", forHTTPHeaderField: "Accept")
     urlRequest.httpMethod = "POST"
-      
+
     guard try shouldAttachTokens(to: url, context: context, logCode: "I-FUN000001") else {
       return urlRequest
     }
