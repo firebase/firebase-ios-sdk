@@ -144,13 +144,12 @@ package struct GeminiAPIClient: Sendable {
   }
 
   private func collectBody(from lines: HTTPAsyncLineSequence) async throws -> Data {
-    let body = try await lines.reduce(into: "") { result, line in
+    return try await lines.reduce(into: Data()) { result, line in
       if !result.isEmpty {
-        result.append("\n")
+        result.append(0x0A)  // "\n"
       }
-      result.append(line)
+      result.append(Data(line.utf8))
     }
-    return Data(body.utf8)
   }
 }
 

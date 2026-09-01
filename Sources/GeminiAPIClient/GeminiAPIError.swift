@@ -44,6 +44,8 @@ extension GeminiAPIError {
 
 @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
 extension GeminiAPIError: LocalizedError {
+  package static var errorDomain: String { "GeminiAPIClient.GeminiAPIError" }
+
   package var errorDescription: String? {
     switch self {
     case .apiError(let error):
