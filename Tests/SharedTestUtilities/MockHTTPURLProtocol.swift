@@ -55,9 +55,10 @@ package final class MockHTTPURLProtocol: URLProtocol {
   /// Determines whether this protocol can handle the given request.
   ///
   /// - Parameter request: The proposed request.
-  /// - Returns: Always `true` for all intercepted requests.
+  /// - Returns: `true` if a handler is registered for this request's URL, otherwise `false`.
   override package class func canInit(with request: URLRequest) -> Bool {
-    true
+    guard let urlString = request.url?.absoluteString else { return false }
+    return handlers.withLock { $0[urlString] != nil }
   }
 
   /// Returns the canonical version of the given request.

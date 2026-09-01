@@ -14,20 +14,37 @@
 
 import Foundation
 
-/// Represents a Google Cloud API error response body as defined by AIP-0193.
+/// Represents a Google Cloud API error response body as defined by AIP-193.
 @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
 package struct GoogleCloudAPIError: Codable, Sendable, Equatable, Hashable {
+  /// Represents the nested error `Status` in a Google Cloud API error.
+  ///
+  /// See [AIP-193](https://google.aip.dev/193#http11json-representation) for more details.
+  private struct Status: Codable, Sendable, Equatable, Hashable {
+    /// The HTTP status code value.
+    let code: Int
+
+    /// A developer-facing, human-readable English error message.
+    let message: String
+
+    /// The canonical status code indicating the nature of the error.
+    let status: RPCErrorStatus?
+
+    /// Additional details about the error.
+    let details: [Detail]?
+  }
+
   /// The HTTP status code value.
-  package let code: Int
+  package var code: Int { error.code }
 
   /// A developer-facing, human-readable English error message.
-  package let message: String
+  package var message: String { error.message }
 
   /// The canonical status code indicating the nature of the error.
-  package let status: RPCErrorStatus?
+  package var status: RPCErrorStatus? { error.status }
 
   /// Additional details about the error.
-  package let details: [Detail]?
+  package var details: [Detail]? { error.details }
 
   /// The retry delay duration, if provided by `RetryInfo` details or HTTP headers.
   package var retryDelay: Duration? {
@@ -44,18 +61,8 @@ package struct GoogleCloudAPIError: Codable, Sendable, Equatable, Hashable {
     return nil
   }
 
+  private let error: Status
   private let explicitRetryDelay: Duration?
-
-  private enum EnvelopeCodingKeys: String, CodingKey {
-    case error
-  }
-
-  private enum StatusCodingKeys: String, CodingKey {
-    case code
-    case message
-    case status
-    case details
-  }
 
   /// Creates a new `GoogleCloudAPIError`.
   ///
@@ -72,42 +79,8 @@ package struct GoogleCloudAPIError: Codable, Sendable, Equatable, Hashable {
     details: [Detail]? = nil,
     retryDelay: Duration? = nil
   ) {
-    self.code = code
-    self.message = message
-    self.status = status
-    self.details = details
+    self.error = Status(code: code, message: message, status: status, details: details)
     self.explicitRetryDelay = retryDelay
-  }
-
-  package init(from decoder: any Decoder) throws {
-    if let envelopeContainer = try? decoder.container(keyedBy: EnvelopeCodingKeys.self),
-      envelopeContainer.contains(.error)
-    {
-      let statusContainer = try envelopeContainer.nestedContainer(
-        keyedBy: StatusCodingKeys.self, forKey: .error)
-      self.code = try statusContainer.decode(Int.self, forKey: .code)
-      self.message = try statusContainer.decode(String.self, forKey: .message)
-      self.status = try statusContainer.decodeIfPresent(RPCErrorStatus.self, forKey: .status)
-      self.details = try statusContainer.decodeIfPresent([Detail].self, forKey: .details)
-      self.explicitRetryDelay = nil
-    } else {
-      let container = try decoder.container(keyedBy: StatusCodingKeys.self)
-      self.code = try container.decode(Int.self, forKey: .code)
-      self.message = try container.decode(String.self, forKey: .message)
-      self.status = try container.decodeIfPresent(RPCErrorStatus.self, forKey: .status)
-      self.details = try container.decodeIfPresent([Detail].self, forKey: .details)
-      self.explicitRetryDelay = nil
-    }
-  }
-
-  package func encode(to encoder: any Encoder) throws {
-    var envelopeContainer = encoder.container(keyedBy: EnvelopeCodingKeys.self)
-    var statusContainer = envelopeContainer.nestedContainer(
-      keyedBy: StatusCodingKeys.self, forKey: .error)
-    try statusContainer.encode(code, forKey: .code)
-    try statusContainer.encode(message, forKey: .message)
-    try statusContainer.encodeIfPresent(status, forKey: .status)
-    try statusContainer.encodeIfPresent(details, forKey: .details)
   }
 
   /// Returns a copy of this error with the specified retry delay duration.
