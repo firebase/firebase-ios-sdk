@@ -52,7 +52,7 @@ let package = Package(
     .target(
       name: "GeminiAPIClient",
       dependencies: [
-        "GeminiAPIDataModels",
+        "GeminiAPIDataModels"
       ],
       swiftSettings: defaultSwiftSettings
     ),
