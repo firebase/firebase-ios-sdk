@@ -99,41 +99,11 @@ NSDateComponents *FSTTestDateComponents(
   return comps;
 }
 
-static id _Nullable PreConvert(id _Nullable input) {
-  if ([input isKindOfClass:[NSDictionary class]]) {
-    NSDictionary *dict = (NSDictionary *)input;
-    if (dict[@"__decimal128__"]) {
-      id val = dict[@"__decimal128__"];
-      if ([val isKindOfClass:[NSDictionary class]]) {
-        NSDictionary *decimalDict = (NSDictionary *)val;
-        if (decimalDict[@"stringValue"]) {
-          return [[FIRDecimal128Value alloc] initWithValue:decimalDict[@"stringValue"]];
-        }
-      } else if ([val isKindOfClass:[NSString class]]) {
-        return [[FIRDecimal128Value alloc] initWithValue:(NSString *)val];
-      }
-    }
-    if (dict[@"__int32__"]) {
-      id val = dict[@"__int32__"];
-      if ([val isKindOfClass:[NSNumber class]]) {
-        return [[FIRInt32Value alloc] initWithValue:[val intValue]];
-      }
-    }
-    if (dict[@"__int__"]) {
-      id val = dict[@"__int__"];
-      if ([val isKindOfClass:[NSNumber class]]) {
-        return [[FIRInt32Value alloc] initWithValue:[val intValue]];
-      }
-    }
-  }
-  return input;
-}
-
 FSTUserDataReader *FSTTestUserDataReader() {
   FSTUserDataReader *reader =
       [[FSTUserDataReader alloc] initWithDatabaseID:DatabaseId("project")
                                        preConverter:^id _Nullable(id _Nullable input) {
-                                         return PreConvert(input);
+                                         return input;
                                        }];
   return reader;
 }
