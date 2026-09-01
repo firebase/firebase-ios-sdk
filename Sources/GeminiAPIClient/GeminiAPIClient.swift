@@ -123,7 +123,7 @@ package struct GeminiAPIClient: Sendable {
       : components.path
     components.path = "\(basePath)/\(sanitizedResourcePath):\(action)"
     if let queryItems {
-      components.queryItems = queryItems
+      components.queryItems = (components.queryItems ?? []) + queryItems
     }
     guard let requestURL = components.url else {
       throw URLError(.badURL)

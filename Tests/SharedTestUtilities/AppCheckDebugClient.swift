@@ -24,6 +24,7 @@
 
 /// Lightweight actor client for exchanging and caching an App Check Debug Token in integration
 /// tests.
+@available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
 package actor AppCheckDebugClient {
   private let projectID: String
   private let appID: String
