@@ -25,7 +25,16 @@ import Synchronization
 ///
 /// Supports Apple platforms and Linux with full Swift 6 strict concurrency compliance.
 @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
-package final class HTTPStreamingClient: Sendable {
+package final class HTTPStreamingClient: Sendable, Hashable, Equatable {
+  package static func == (lhs: borrowing HTTPStreamingClient, rhs: borrowing HTTPStreamingClient) -> Bool {
+    lhs.session === rhs.session && lhs.sessionDelegate === rhs.sessionDelegate
+  }
+
+  package func hash(into hasher: inout Hasher) {
+    hasher.combine(session)
+    hasher.combine(sessionDelegate)
+  }
+
   private let session: URLSession
   private let sessionDelegate: SessionDelegate
 

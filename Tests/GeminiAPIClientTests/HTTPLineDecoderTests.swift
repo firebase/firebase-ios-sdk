@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import Foundation
-import HTTPStreamingClient
+import GeminiAPIClient
 import Testing
 
 @Suite("HTTPLineDecoder Tests")

@@ -14,7 +14,6 @@
 
 import Foundation
 import GeminiAPIDataModels
-import HTTPStreamingClient
 import SharedTestUtilities
 import Testing
 
