@@ -37,10 +37,13 @@ struct GeminiAPIClientIntegrationTests {
     return textParts.isEmpty ? nil : textParts.joined()
   }
 
+  private static let defaultBaseURL = URL(string: "https://generativelanguage.googleapis.com")!
+  private static let defaultModelResourcePath = "v1beta/models/gemini-3.5-flash-lite"
+
   @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
   private func makeClient(
-    model: String = "gemini-3.5-flash-lite",
-    baseURL: URL = URL(string: "https://generativelanguage.googleapis.com")!,
+    modelResourcePath: String = defaultModelResourcePath,
+    baseURL: URL = defaultBaseURL,
     configuration: URLSessionConfiguration = .ephemeral
   ) -> GeminiAPIClient {
     let headerProvider: (@Sendable () async throws -> [String: String])?
@@ -53,7 +56,7 @@ struct GeminiAPIClientIntegrationTests {
     }
 
     return GeminiAPIClient(
-      model: model,
+      modelResourcePath: modelResourcePath,
       baseURL: baseURL,
       headerProvider: headerProvider,
       sessionConfiguration: configuration
@@ -63,7 +66,7 @@ struct GeminiAPIClientIntegrationTests {
   @Test(.requireAPIKey)
   @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
   func streamGenerateContentSimplePrompt() async throws {
-    let client = makeClient(model: "gemini-3.5-flash-lite")
+    let client = makeClient()
     let request = GenerateContentRequest(
       contents: [
         Content(
@@ -91,7 +94,7 @@ struct GeminiAPIClientIntegrationTests {
   @Test(.requireAPIKey)
   @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
   func streamGenerateContentMultiTurn() async throws {
-    let client = makeClient(model: "gemini-3.5-flash-lite")
+    let client = makeClient()
     let contents = [
       Content(parts: [Part(data: .text("My favorite color is teal."))], role: "user"),
       Content(parts: [Part(data: .text("Got it! Your favorite color is teal."))], role: "model"),
@@ -120,7 +123,7 @@ struct GeminiAPIClientIntegrationTests {
   @Test(.requireAPIKey)
   @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
   func streamGenerateContentWithSystemInstruction() async throws {
-    let client = makeClient(model: "gemini-3.5-flash-lite")
+    let client = makeClient()
     let systemInstruction = Content(
       parts: [Part(data: .text("Always speak like a 17th-century pirate."))]
     )
@@ -152,7 +155,7 @@ struct GeminiAPIClientIntegrationTests {
   @Test(.requireAPIKey)
   @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
   func streamGenerateContentInvalidModelNameThrows() async throws {
-    let client = makeClient(model: "non-existent-model-name-xyz-123")
+    let client = makeClient(modelResourcePath: "v1beta/models/non-existent-model-name-xyz-123")
     let request = GenerateContentRequest(
       contents: [
         Content(
@@ -172,8 +175,8 @@ struct GeminiAPIClientIntegrationTests {
   @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
   func streamGenerateContentWithoutAuthThrows() async throws {
     let client = GeminiAPIClient(
-      model: "gemini-3.5-flash-lite",
-      baseURL: URL(string: "https://generativelanguage.googleapis.com")!
+      modelResourcePath: Self.defaultModelResourcePath,
+      baseURL: Self.defaultBaseURL
     )
     let request = GenerateContentRequest(
       contents: [
@@ -198,7 +201,7 @@ struct GeminiAPIClientIntegrationTests {
   @Test(.requireAPIKey)
   @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
   func countTokensSimplePrompt() async throws {
-    let client = makeClient(model: "gemini-3.5-flash-lite")
+    let client = makeClient()
     let request = CountTokensRequest(
       contents: [
         Content(

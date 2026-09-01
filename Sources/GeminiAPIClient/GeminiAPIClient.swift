@@ -21,88 +21,42 @@ import SharedDataModels
   package import FoundationNetworking
 #endif
 
-// MARK: - Backend Configuration
+// MARK: - Gemini API Client
 
-/// Configuration specifying the backend base URL, dynamic authentication headers,
-/// and transport session configuration.
+/// A client for communicating with Google Gemini backend endpoints.
 @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
-package struct BackendConfiguration: Sendable {
+package struct GeminiAPIClient: Sendable {
+  /// The resource path of the target model (e.g., `"v1beta/models/gemini-3.5-flash-lite"`
+  /// or `"v1beta1/projects/p/locations/l/publishers/google/models/gemini-3.5-flash-lite"`).
+  let modelResourcePath: String
+
   /// The base URL of the Gemini API endpoint.
   let baseURL: URL
 
   /// An optional async provider for dynamic headers (such as API keys or Bearer tokens).
   let headerProvider: (@Sendable () async throws -> [String: String])?
 
-  /// The `URLSessionConfiguration` to use for network transport.
-  let sessionConfiguration: URLSessionConfiguration
-
-  /// Initializes a new backend configuration.
-  ///
-  /// - Parameters:
-  ///   - baseURL: The base URL of the Gemini API endpoint. Defaults to
-  ///     `https://generativelanguage.googleapis.com`.
-  ///   - headerProvider: An optional async provider for dynamic headers.
-  ///   - sessionConfiguration: The `URLSessionConfiguration` to use. Defaults to `.ephemeral`.
-  package init(
-    baseURL: URL = URL(string: "https://generativelanguage.googleapis.com")!,
-    headerProvider: (@Sendable () async throws -> [String: String])? = nil,
-    sessionConfiguration: URLSessionConfiguration = .ephemeral
-  ) {
-    self.baseURL = baseURL
-    self.headerProvider = headerProvider
-    self.sessionConfiguration = sessionConfiguration
-  }
-}
-
-// MARK: - Gemini API Client
-
-/// A client for communicating with Google Gemini backend endpoints.
-@available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
-package struct GeminiAPIClient: Sendable {
-  /// The Gemini model identifier (e.g., `"gemini-3.5-flash-lite"`).
-  let model: String
-
-  /// The backend configuration governing target base URL, headers, and session settings.
-  let configuration: BackendConfiguration
-
   private let httpClient: HTTPStreamingClient
 
-  /// Initializes a new Gemini API client with a model identifier and backend configuration.
+  /// Initializes a new Gemini API client with a model resource path and target base URL.
   ///
   /// - Parameters:
-  ///   - model: The Gemini model identifier (e.g., `"gemini-3.5-flash-lite"`).
-  ///   - configuration: The target `BackendConfiguration`. Defaults to standard configuration.
-  package init(
-    model: String,
-    configuration: BackendConfiguration = BackendConfiguration()
-  ) {
-    self.model = model
-    self.configuration = configuration
-    self.httpClient = HTTPStreamingClient(configuration: configuration.sessionConfiguration)
-  }
-
-  /// Convenience initializer accepting individual parameters.
-  ///
-  /// - Parameters:
-  ///   - model: The Gemini model identifier (e.g., `"gemini-3.5-flash-lite"`).
+  ///   - modelResourcePath: The resource path of the target model (e.g.,
+  ///     `"v1beta/models/gemini-3.5-flash-lite"`).
   ///   - baseURL: The base URL of the Gemini API endpoint.
   ///   - headerProvider: An optional async provider for dynamic headers (such as API keys or Bearer
   ///     tokens).
   ///   - sessionConfiguration: The `URLSessionConfiguration` to use. Defaults to `.ephemeral`.
   package init(
-    model: String,
+    modelResourcePath: String,
     baseURL: URL,
     headerProvider: (@Sendable () async throws -> [String: String])? = nil,
     sessionConfiguration: URLSessionConfiguration = .ephemeral
   ) {
-    self.init(
-      model: model,
-      configuration: BackendConfiguration(
-        baseURL: baseURL,
-        headerProvider: headerProvider,
-        sessionConfiguration: sessionConfiguration
-      )
-    )
+    self.modelResourcePath = modelResourcePath
+    self.baseURL = baseURL
+    self.headerProvider = headerProvider
+    self.httpClient = HTTPStreamingClient(configuration: sessionConfiguration)
   }
 
   /// Sends a streaming text generation request and delivers responses asynchronously as a
@@ -115,7 +69,7 @@ package struct GeminiAPIClient: Sendable {
     for request: GenerateContentRequest
   ) async throws -> GenerateContentStream {
     let urlRequest = try await makeURLRequest(
-      path: "v1beta/models/\(model):streamGenerateContent",
+      action: "streamGenerateContent",
       queryItems: [URLQueryItem(name: "alt", value: "sse")],
       body: request
     )
@@ -139,7 +93,7 @@ package struct GeminiAPIClient: Sendable {
     for request: CountTokensRequest
   ) async throws -> CountTokensResponse {
     let urlRequest = try await makeURLRequest(
-      path: "v1beta/models/\(model):countTokens",
+      action: "countTokens",
       body: request
     )
 
@@ -154,14 +108,20 @@ package struct GeminiAPIClient: Sendable {
   }
 
   private func makeURLRequest<Body: Encodable>(
-    path: String,
+    action: String,
     queryItems: [URLQueryItem]? = nil,
     body: Body
   ) async throws -> URLRequest {
-    let endpointURL = configuration.baseURL.appendingPathComponent(path)
-    guard var components = URLComponents(url: endpointURL, resolvingAgainstBaseURL: false) else {
+    guard var components = URLComponents(url: baseURL, resolvingAgainstBaseURL: false) else {
       throw URLError(.badURL)
     }
+
+    let sanitizedResourcePath = modelResourcePath.trimmingPrefix("/")
+    let basePath =
+      components.path.hasSuffix("/")
+      ? String(components.path.dropLast())
+      : components.path
+    components.path = "\(basePath)/\(sanitizedResourcePath):\(action)"
     if let queryItems {
       components.queryItems = queryItems
     }
@@ -173,7 +133,7 @@ package struct GeminiAPIClient: Sendable {
     urlRequest.httpMethod = "POST"
     urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
 
-    if let headerProvider = configuration.headerProvider {
+    if let headerProvider {
       for (key, value) in try await headerProvider() {
         urlRequest.setValue(value, forHTTPHeaderField: key)
       }
@@ -225,7 +185,8 @@ package struct GenerateContentStream: AsyncSequence, Sendable {
     AsyncIterator(linesIterator: lines.makeAsyncIterator(), response: response)
   }
 
-  /// An asynchronous iterator over Server-Sent Events decoded into `GenerateContentResponse` chunks.
+  /// An asynchronous iterator over Server-Sent Events decoded into
+  /// `GenerateContentResponse` chunks.
   package struct AsyncIterator: AsyncIteratorProtocol {
     private var linesIterator: HTTPAsyncLineSequence.AsyncIterator
     private let response: HTTPURLResponse

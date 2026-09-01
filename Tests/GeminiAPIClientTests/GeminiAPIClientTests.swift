@@ -45,6 +45,7 @@ struct GeminiAPIClientTests {
   }
 
   private static let baseURLString = "https://generativelanguage.googleapis.com"
+  private static let defaultModelResourcePath = "v1beta/models/gemini-3.5-flash-lite"
 
   private let testID = UUID().uuidString
 
@@ -54,14 +55,14 @@ struct GeminiAPIClientTests {
 
   @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
   private func makeClient(
-    model: String = "gemini-3.5-flash-lite",
+    modelResourcePath: String = defaultModelResourcePath,
     baseURL: URL? = nil,
     headerProvider: (@Sendable () async throws -> [String: String])? = nil
   ) -> GeminiAPIClient {
     let configuration = URLSessionConfiguration.ephemeral
     configuration.protocolClasses = [MockHTTPURLProtocol.self]
     return GeminiAPIClient(
-      model: model,
+      modelResourcePath: modelResourcePath,
       baseURL: baseURL ?? testBaseURL,
       headerProvider: headerProvider,
       sessionConfiguration: configuration
@@ -78,11 +79,11 @@ struct GeminiAPIClientTests {
   }
 
   private func makeExpectedURL(
-    model: String = "gemini-3.5-flash-lite",
+    modelResourcePath: String = defaultModelResourcePath,
     action: String = "streamGenerateContent",
     query: String? = "alt=sse"
   ) throws -> URL {
-    var urlString = "\(testBaseURL.absoluteString)/v1beta/models/\(model):\(action)"
+    var urlString = "\(testBaseURL.absoluteString)/\(modelResourcePath):\(action)"
     if let query {
       urlString += "?\(query)"
     }
@@ -197,7 +198,7 @@ struct GeminiAPIClientTests {
   @Test
   @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
   func streamGenerateContentMultipleChunks() async throws {
-    let client = makeClient(model: "gemini-3.5-flash-lite")
+    let client = makeClient()
     let expectedURL = try makeExpectedURL()
     let httpResponse = try makeResponse(
       url: expectedURL,
@@ -234,7 +235,7 @@ struct GeminiAPIClientTests {
   @Test
   @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
   func streamGenerateContentAPIError() async throws {
-    let client = makeClient(model: "gemini-3.5-flash-lite")
+    let client = makeClient()
     let expectedURL = try makeExpectedURL()
     let httpResponse = try makeResponse(
       url: expectedURL,
@@ -268,7 +269,7 @@ struct GeminiAPIClientTests {
   @Test
   @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
   func streamGenerateContentHTTPError() async throws {
-    let client = makeClient(model: "gemini-3.5-flash-lite")
+    let client = makeClient()
     let expectedURL = try makeExpectedURL()
     let httpResponse = try makeResponse(
       url: expectedURL,
@@ -298,7 +299,7 @@ struct GeminiAPIClientTests {
   @Test
   @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
   func streamGenerateContentRateLimitError() async throws {
-    let client = makeClient(model: "gemini-3.5-flash-lite")
+    let client = makeClient()
     let expectedURL = try makeExpectedURL()
     let httpResponse = try makeResponse(
       url: expectedURL,
@@ -343,7 +344,7 @@ struct GeminiAPIClientTests {
   @Test
   @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
   func streamGenerateContentRateLimitWithRetryInfoJSON() async throws {
-    let client = makeClient(model: "gemini-3.5-flash-lite")
+    let client = makeClient()
     let expectedURL = try makeExpectedURL()
     let httpResponse = try makeResponse(
       url: expectedURL,
@@ -391,7 +392,6 @@ struct GeminiAPIClientTests {
   @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
   func headerProviderInjectsHeaders() async throws {
     let client = makeClient(
-      model: "gemini-3.5-flash-lite",
       headerProvider: {
         [
           "x-goog-api-key": "custom-key",
@@ -626,7 +626,7 @@ struct GeminiAPIClientTests {
   @Test
   @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
   func countTokensSuccess() async throws {
-    let client = makeClient(model: "gemini-3.5-flash-lite")
+    let client = makeClient()
     let expectedURL = try makeExpectedURL(action: "countTokens", query: nil)
     let httpResponse = try makeResponse(
       url: expectedURL,
@@ -659,7 +659,7 @@ struct GeminiAPIClientTests {
   @Test
   @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
   func countTokensAPIError() async throws {
-    let client = makeClient(model: "gemini-3.5-flash-lite")
+    let client = makeClient()
     let expectedURL = try makeExpectedURL(action: "countTokens", query: nil)
     let httpResponse = try makeResponse(
       url: expectedURL,
@@ -700,7 +700,7 @@ struct GeminiAPIClientTests {
   @Test
   @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
   func countTokensDecodingErrorThrows() async throws {
-    let client = makeClient(model: "gemini-3.5-flash-lite")
+    let client = makeClient()
     let expectedURL = try makeExpectedURL(action: "countTokens", query: nil)
     let httpResponse = try makeResponse(
       url: expectedURL,
@@ -726,7 +726,7 @@ struct GeminiAPIClientTests {
   @Test
   @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
   func streamGenerateContentMultiLineSSEData() async throws {
-    let client = makeClient(model: "gemini-3.5-flash-lite")
+    let client = makeClient()
     let expectedURL = try makeExpectedURL()
     let httpResponse = try makeResponse(
       url: expectedURL,
@@ -760,7 +760,7 @@ struct GeminiAPIClientTests {
   @Test
   @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
   func streamGenerateContentWithComments() async throws {
-    let client = makeClient(model: "gemini-3.5-flash-lite")
+    let client = makeClient()
     let expectedURL = try makeExpectedURL()
     let httpResponse = try makeResponse(
       url: expectedURL,
@@ -796,7 +796,7 @@ struct GeminiAPIClientTests {
   @Test
   @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
   func streamGenerateContentWithSSEControlFields() async throws {
-    let client = makeClient(model: "gemini-3.5-flash-lite")
+    let client = makeClient()
     let expectedURL = try makeExpectedURL()
     let httpResponse = try makeResponse(
       url: expectedURL,
@@ -826,6 +826,113 @@ struct GeminiAPIClientTests {
     #expect(responses.count == 1)
     let candidate = try #require(responses.first?.candidates?.first)
     #expect(candidate.content?.parts?.first?.data == .text("SSE control fields ignored"))
+  }
+
+  @Test
+  @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
+  func streamGenerateContentAgentPlatformResourcePath() async throws {
+    let agentPlatformPath =
+      "v1beta1/projects/my-project/locations/global/publishers/google/models/gemini-3.5-flash-lite"
+    let client = makeClient(modelResourcePath: agentPlatformPath)
+    let expectedURL = try makeExpectedURL(modelResourcePath: agentPlatformPath)
+    let httpResponse = try makeResponse(
+      url: expectedURL,
+      headerFields: ["Content-Type": "text/event-stream"]
+    )
+    let ssePayload = """
+      data: {"candidates": [{"content": {"parts": [{"text": "Agent Platform response"}]}}]}
+
+      """
+
+    MockHTTPURLProtocol.setHandler(for: expectedURL) { _, proto in
+      proto.client?.urlProtocol(proto, didReceive: httpResponse, cacheStoragePolicy: .notAllowed)
+      proto.client?.urlProtocol(proto, didLoad: Data(ssePayload.utf8))
+      proto.client?.urlProtocolDidFinishLoading(proto)
+    }
+
+    let request = makePromptRequest("Agent Platform test")
+    let stream = try await client.generateContentStream(for: request)
+    var responses: [GenerateContentResponse] = []
+    for try await chunk in stream {
+      responses.append(chunk)
+    }
+
+    #expect(responses.count == 1)
+    let response = try #require(responses.first)
+    let candidate = try #require(response.candidates?.first)
+    let content = try #require(candidate.content)
+    let part = try #require(content.parts?.first)
+    #expect(part.data == .text("Agent Platform response"))
+  }
+
+  @Test
+  @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
+  func streamGenerateContentFirebaseProxyResourcePath() async throws {
+    let firebaseProxyPath = "v1beta/projects/my-firebase-project/models/gemini-3.5-flash-lite"
+    let client = makeClient(modelResourcePath: firebaseProxyPath)
+    let expectedURL = try makeExpectedURL(modelResourcePath: firebaseProxyPath)
+    let httpResponse = try makeResponse(
+      url: expectedURL,
+      headerFields: ["Content-Type": "text/event-stream"]
+    )
+    let ssePayload = """
+      data: {"candidates": [{"content": {"parts": [{"text": "Firebase AI Logic response"}]}}]}
+
+      """
+
+    MockHTTPURLProtocol.setHandler(for: expectedURL) { _, proto in
+      proto.client?.urlProtocol(proto, didReceive: httpResponse, cacheStoragePolicy: .notAllowed)
+      proto.client?.urlProtocol(proto, didLoad: Data(ssePayload.utf8))
+      proto.client?.urlProtocolDidFinishLoading(proto)
+    }
+
+    let request = makePromptRequest("Firebase AI Logic test")
+    let stream = try await client.generateContentStream(for: request)
+    var responses: [GenerateContentResponse] = []
+    for try await chunk in stream {
+      responses.append(chunk)
+    }
+
+    #expect(responses.count == 1)
+    let response = try #require(responses.first)
+    let candidate = try #require(response.candidates?.first)
+    let content = try #require(candidate.content)
+    let part = try #require(content.parts?.first)
+    #expect(part.data == .text("Firebase AI Logic response"))
+  }
+
+  @Test
+  @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
+  func countTokensAgentPlatformResourcePath() async throws {
+    let agentPlatformPath =
+      "v1beta1/projects/my-project/locations/global/publishers/google/models/gemini-3.5-flash-lite"
+    let client = makeClient(modelResourcePath: agentPlatformPath)
+    let expectedURL = try makeExpectedURL(
+      modelResourcePath: agentPlatformPath, action: "countTokens", query: nil
+    )
+    let httpResponse = try makeResponse(
+      url: expectedURL,
+      headerFields: ["Content-Type": "application/json"]
+    )
+    let jsonPayload = """
+      {
+        "totalTokens": 128
+      }
+      """
+
+    MockHTTPURLProtocol.setHandler(for: expectedURL) { request, proto in
+      #expect(request.value(forHTTPHeaderField: "Content-Type") == "application/json")
+      proto.client?.urlProtocol(proto, didReceive: httpResponse, cacheStoragePolicy: .notAllowed)
+      proto.client?.urlProtocol(proto, didLoad: Data(jsonPayload.utf8))
+      proto.client?.urlProtocolDidFinishLoading(proto)
+    }
+
+    let request = CountTokensRequest(
+      contents: [Content(parts: [Part(data: .text("Agent Platform count tokens"))], role: "user")]
+    )
+    let response = try await client.countTokens(for: request)
+
+    #expect(response.totalTokens == 128)
   }
 }
 
