@@ -204,10 +204,8 @@ package struct GenerateContentStream: AsyncSequence, Sendable {
     /// - Throws: An error if reading or decoding fails, or if a mid-stream API error occurs.
     package mutating func next() async throws -> GenerateContentResponse? {
       while let line = try await linesIterator.next() {
-        let trimmed = line.trimmingCharacters(in: .whitespaces)
-
         // Empty line marks the end of an SSE event
-        if trimmed.isEmpty {
+        if line.isEmpty || line.allSatisfy({ $0.isWhitespace }) {
           if !sseDataBuffer.isEmpty {
             let dataString = sseDataBuffer
             sseDataBuffer = ""
@@ -217,23 +215,27 @@ package struct GenerateContentStream: AsyncSequence, Sendable {
         }
 
         // SSE comment line (e.g. ": keep-alive")
-        if trimmed.hasPrefix(":") {
+        if line.hasPrefix(":") {
           continue
         }
 
         // SSE control fields (e.g. "event: message", "id: 1", "retry: 5000")
-        if trimmed.hasPrefix("event:") || trimmed.hasPrefix("id:") || trimmed.hasPrefix("retry:") {
+        if line.hasPrefix("event:") || line.hasPrefix("id:") || line.hasPrefix("retry:") {
           continue
         }
 
         // SSE data field
-        if trimmed.hasPrefix("data:") {
-          let dataContent = String(trimmed.dropFirst(5)).trimmingCharacters(in: .whitespaces)
+        if line.hasPrefix("data:") {
+          var dataContent = line.dropFirst(5)
+          // The SSE specification only allows a single leading space after the colon.
+          if dataContent.hasPrefix(" ") {
+            dataContent = dataContent.dropFirst()
+          }
           if !dataContent.isEmpty {
             if !sseDataBuffer.isEmpty {
               sseDataBuffer.append("\n")
             }
-            sseDataBuffer.append(dataContent)
+            sseDataBuffer.append(contentsOf: dataContent)
           }
           continue
         }
