@@ -148,7 +148,7 @@ package struct GeminiAPIClient: Sendable {
       if !result.isEmpty {
         result.append(0x0A)  // "\n"
       }
-      result.append(Data(line.utf8))
+      result.append(contentsOf: line.utf8)
     }
   }
 }
