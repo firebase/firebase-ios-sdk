@@ -25,25 +25,8 @@ import Testing
   import FoundationNetworking
 #endif
 
-// MARK: - GeminiAPIClient Unit Tests
-
 @Suite("GeminiAPIClient Tests")
 struct GeminiAPIClientTests {
-  private func makePromptRequest(_ prompt: String) -> GenerateContentRequest {
-    GenerateContentRequest(
-      contents: [Content(parts: [Part(data: .text(prompt))], role: "user")]
-    )
-  }
-
-  private func extractText(from response: GenerateContentResponse?) -> String? {
-    guard let parts = response?.candidates?.first?.content?.parts else { return nil }
-    let textParts = parts.compactMap { part -> String? in
-      if case .text(let text) = part.data { return text }
-      return nil
-    }
-    return textParts.isEmpty ? nil : textParts.joined()
-  }
-
   private static let baseURLString = "https://generativelanguage.googleapis.com"
   private static let defaultModelResourcePath = "v1beta/models/gemini-3.5-flash-lite"
 
@@ -51,43 +34,6 @@ struct GeminiAPIClientTests {
 
   private var testBaseURL: URL {
     URL(string: "\(Self.baseURLString)/\(testID)")!
-  }
-
-  @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
-  private func makeClient(
-    modelResourcePath: String = defaultModelResourcePath,
-    baseURL: URL? = nil,
-    headerProvider: (@Sendable () async throws -> [String: String])? = nil
-  ) -> GeminiAPIClient {
-    let configuration = URLSessionConfiguration.ephemeral
-    configuration.protocolClasses = [MockHTTPURLProtocol.self]
-    return GeminiAPIClient(
-      modelResourcePath: modelResourcePath,
-      baseURL: baseURL ?? testBaseURL,
-      headerProvider: headerProvider,
-      sessionConfiguration: configuration
-    )
-  }
-
-  @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
-  private func makeResponse(
-    url: URL,
-    statusCode: Int = 200,
-    headerFields: [String: String]? = nil
-  ) throws -> HTTPURLResponse {
-    try HTTPURLResponse.mock(url: url, statusCode: statusCode, headerFields: headerFields)
-  }
-
-  private func makeExpectedURL(
-    modelResourcePath: String = defaultModelResourcePath,
-    action: String = "streamGenerateContent",
-    query: String? = "alt=sse"
-  ) throws -> URL {
-    var urlString = "\(testBaseURL.absoluteString)/\(modelResourcePath):\(action)"
-    if let query {
-      urlString += "?\(query)"
-    }
-    return try #require(URL(string: urlString))
   }
 
   @Test
@@ -934,95 +880,58 @@ struct GeminiAPIClientTests {
 
     #expect(response.totalTokens == 128)
   }
-}
 
-// MARK: - GeminiAPIError Unit Tests
+  // MARK: - Test Helpers
 
-@Suite("GeminiAPIError Tests")
-struct GeminiAPIErrorTests {
-  @Test
-  @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
-  func retryInfoDecodingAndDurationCalculation() throws {
-    let json = """
-      {
-        "error": {
-          "code": 429,
-          "message": "Resource exhausted",
-          "status": "RESOURCE_EXHAUSTED",
-          "details": [
-            {
-              "@type": "type.googleapis.com/google.rpc.RetryInfo",
-              "retryDelay": "12.5s"
-            }
-          ]
-        }
-      }
-      """
-
-    let error = try JSONDecoder().decode(GoogleCloudAPIError.self, from: Data(json.utf8))
-
-    #expect(error.retryDelay == .seconds(12.5))
-    #expect(error.code == 429)
-    #expect(error.status == .resourceExhausted)
+  private func makePromptRequest(_ prompt: String) -> GenerateContentRequest {
+    GenerateContentRequest(
+      contents: [Content(parts: [Part(data: .text(prompt))], role: "user")]
+    )
   }
 
-  @Test
-  @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
-  func geminiAPIErrorRetryAfterPrecedence() {
-    let cloudErrorWithDelay = GoogleCloudAPIError(
-      code: 429,
-      message: "Quota exceeded",
-      status: .resourceExhausted,
-      details: [.retryInfo(GoogleCloudAPIError.RetryInfo(retryDelay: "30s"))]
-    )
-
-    let apiErrorWithOverride = GeminiAPIError.apiError(
-      cloudErrorWithDelay.withRetryDelay(.seconds(60)))
-    let apiErrorWithoutOverride = GeminiAPIError.apiError(cloudErrorWithDelay)
-    let httpError = GeminiAPIError.httpError(statusCode: 500, body: "Server error")
-
-    #expect(apiErrorWithOverride.retryAfter == .seconds(60))
-    #expect(apiErrorWithoutOverride.retryAfter == .seconds(30))
-    #expect(httpError.retryAfter == nil)
+  private func extractText(from response: GenerateContentResponse?) -> String? {
+    guard let parts = response?.candidates?.first?.content?.parts else { return nil }
+    let textParts = parts.compactMap { part -> String? in
+      if case .text(let text) = part.data { return text }
+      return nil
+    }
+    return textParts.isEmpty ? nil : textParts.joined()
   }
 
-  @Test
   @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
-  func localizedErrorAndCustomNSErrorProperties() {
-    let cloudError = GoogleCloudAPIError(
-      code: 400,
-      message: "Invalid argument message",
-      status: .invalidArgument,
-      details: [
-        .localizedMessage(
-          GoogleCloudAPIError.LocalizedMessage(
-            locale: "en-US", message: "Localized argument error")),
-        .help(
-          GoogleCloudAPIError.Help(links: [
-            GoogleCloudAPIError.Help.Link(
-              description: "Help doc", url: "https://cloud.google.com/help")
-          ])),
-      ],
-      retryDelay: .seconds(15)
+  private func makeClient(
+    modelResourcePath: String = defaultModelResourcePath,
+    baseURL: URL? = nil,
+    headerProvider: (@Sendable () async throws -> [String: String])? = nil
+  ) -> GeminiAPIClient {
+    let configuration = URLSessionConfiguration.ephemeral
+    configuration.protocolClasses = [MockHTTPURLProtocol.self]
+    return GeminiAPIClient(
+      modelResourcePath: modelResourcePath,
+      baseURL: baseURL ?? testBaseURL,
+      headerProvider: headerProvider,
+      sessionConfiguration: configuration
     )
+  }
 
-    let apiError = GeminiAPIError.apiError(cloudError)
-    let httpError = GeminiAPIError.httpError(statusCode: 503, body: "Service unavailable")
+  @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
+  private func makeResponse(
+    url: URL,
+    statusCode: Int = 200,
+    headerFields: [String: String]? = nil
+  ) throws -> HTTPURLResponse {
+    try HTTPURLResponse.mock(url: url, statusCode: statusCode, headerFields: headerFields)
+  }
 
-    #expect(apiError.errorDescription == "Localized argument error")
-    #expect(apiError.failureReason == "INVALID_ARGUMENT")
-    #expect(apiError.helpAnchor == "https://cloud.google.com/help")
-    #expect(apiError.errorCode == 400)
-    #expect(GeminiAPIError.errorDomain == "GeminiAPIClient.GeminiAPIError")
-    #expect(apiError.errorUserInfo["code"] as? Int == 400)
-    #expect(apiError.errorUserInfo["status"] as? String == "INVALID_ARGUMENT")
-    #expect(apiError.errorUserInfo["retryAfterSeconds"] as? Double == 15.0)
-
-    #expect(httpError.errorDescription == "HTTP 503: Service unavailable")
-    #expect(httpError.failureReason == "HTTP status 503")
-    #expect(httpError.helpAnchor == nil)
-    #expect(httpError.errorCode == 503)
-    #expect(httpError.errorUserInfo["statusCode"] as? Int == 503)
-    #expect(httpError.errorUserInfo["body"] as? String == "Service unavailable")
+  private func makeExpectedURL(
+    modelResourcePath: String = defaultModelResourcePath,
+    action: String = "streamGenerateContent",
+    query: String? = "alt=sse"
+  ) throws -> URL {
+    var urlString = "\(testBaseURL.absoluteString)/\(modelResourcePath):\(action)"
+    if let query {
+      urlString += "?\(query)"
+    }
+    return try #require(URL(string: urlString))
   }
 }

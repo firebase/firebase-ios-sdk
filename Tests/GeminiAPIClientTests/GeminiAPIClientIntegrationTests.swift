@@ -24,44 +24,10 @@ import Testing
   import FoundationNetworking
 #endif
 
-// MARK: - Gemini API Integration Tests
-
 @Suite("GeminiAPIClient Integration Tests")
 struct GeminiAPIClientIntegrationTests {
-  private func extractText(from response: GenerateContentResponse?) -> String? {
-    guard let parts = response?.candidates?.first?.content?.parts else { return nil }
-    let textParts = parts.compactMap { part -> String? in
-      if case .text(let text) = part.data { return text }
-      return nil
-    }
-    return textParts.isEmpty ? nil : textParts.joined()
-  }
-
   private static let defaultBaseURL = URL(string: "https://generativelanguage.googleapis.com")!
   private static let defaultModelResourcePath = "v1beta/models/gemini-3.5-flash-lite"
-
-  @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
-  private func makeClient(
-    modelResourcePath: String = defaultModelResourcePath,
-    baseURL: URL = defaultBaseURL,
-    configuration: URLSessionConfiguration = .ephemeral
-  ) -> GeminiAPIClient {
-    let headerProvider: (@Sendable () async throws -> [String: String])?
-    if let apiKey = geminiAPIKey {
-      headerProvider = { @Sendable in
-        ["x-goog-api-key": apiKey]
-      }
-    } else {
-      headerProvider = nil
-    }
-
-    return GeminiAPIClient(
-      modelResourcePath: modelResourcePath,
-      baseURL: baseURL,
-      headerProvider: headerProvider,
-      sessionConfiguration: configuration
-    )
-  }
 
   @Test(.requireAPIKey)
   @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
@@ -215,5 +181,88 @@ struct GeminiAPIClientIntegrationTests {
 
     let totalTokens = try #require(response.totalTokens)
     #expect(totalTokens > 0)
+  }
+
+  @Test(.requireFirebaseAILogic)
+  @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
+  func streamGenerateContentFirebaseAILogicDeveloperAPI() async throws {
+    let projectID = try #require(firebaseProjectID)
+    let appID = try #require(firebaseAppID)
+    let apiKey = try #require(firebaseAPIKey)
+    let debugToken = try #require(appCheckDebugToken)
+    let appCheckClient = AppCheckDebugClient(
+      projectID: projectID,
+      appID: appID,
+      apiKey: apiKey,
+      debugToken: debugToken
+    )
+    let appCheckToken = try await appCheckClient.exchangeDebugToken()
+    let modelPath = "v1beta/projects/\(projectID)/models/gemini-3.5-flash-lite"
+    let client = GeminiAPIClient(
+      modelResourcePath: modelPath,
+      baseURL: URL(string: "https://firebasevertexai.googleapis.com")!,
+      headerProvider: {
+        [
+          "x-goog-api-key": apiKey,
+          "x-firebase-appcheck": appCheckToken,
+        ]
+      }
+    )
+    let request = GenerateContentRequest(
+      contents: [
+        Content(
+          parts: [Part(data: .text("Reply with the single word 'HELLO'."))],
+          role: "user"
+        )
+      ]
+    )
+
+    let stream = try await client.generateContentStream(for: request)
+    var accumulatedText = ""
+    var chunkCount = 0
+    for try await chunk in stream {
+      chunkCount += 1
+      if let text = extractText(from: chunk) {
+        accumulatedText += text
+      }
+    }
+
+    #expect(chunkCount > 0)
+    #expect(!accumulatedText.isEmpty)
+    #expect(accumulatedText.localizedCaseInsensitiveContains("HELLO"))
+  }
+
+  // MARK: - Test Helpers
+
+  private func extractText(from response: GenerateContentResponse?) -> String? {
+    guard let parts = response?.candidates?.first?.content?.parts else { return nil }
+    let textParts = parts.compactMap { part -> String? in
+      if case .text(let text) = part.data { return text }
+      return nil
+    }
+    return textParts.isEmpty ? nil : textParts.joined()
+  }
+
+  @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
+  private func makeClient(
+    modelResourcePath: String = defaultModelResourcePath,
+    baseURL: URL = defaultBaseURL,
+    configuration: URLSessionConfiguration = .ephemeral
+  ) -> GeminiAPIClient {
+    let headerProvider: (@Sendable () async throws -> [String: String])?
+    if let apiKey = geminiAPIKey {
+      headerProvider = { @Sendable in
+        ["x-goog-api-key": apiKey]
+      }
+    } else {
+      headerProvider = nil
+    }
+
+    return GeminiAPIClient(
+      modelResourcePath: modelResourcePath,
+      baseURL: baseURL,
+      headerProvider: headerProvider,
+      sessionConfiguration: configuration
+    )
   }
 }
