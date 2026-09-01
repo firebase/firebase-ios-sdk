@@ -68,7 +68,10 @@ let package = Package(
     ),
     .target(
       name: "GeminiAPIDataModels",
-      swiftSettings: defaultSwiftSettings
+      swiftSettings: [
+        .enableUpcomingFeature("ExistentialAny"),
+        .enableUpcomingFeature("MemberImportVisibility"),
+      ]
     ),
     .target(
       name: "HTTPStreamingClient",

@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import Foundation
+package import GeminiAPIDataModels
 
 #if canImport(FoundationNetworking)
   import FoundationNetworking
