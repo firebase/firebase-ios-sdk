@@ -98,8 +98,6 @@ package actor AppCheckDebugClient {
       let (data, response) = try await session.data(for: request)
       guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
         let errorBody = String(decoding: data, as: UTF8.self)
-        // URLError.userInfo is available on non-Darwin platforms as of
-        // https://github.com/swiftlang/swift-corelibs-foundation/pull/806.
         throw URLError(.badServerResponse, userInfo: ["body": errorBody])
       }
 
