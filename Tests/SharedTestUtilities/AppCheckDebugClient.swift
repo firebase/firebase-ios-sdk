@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package import Foundation
-
 #if canImport(FoundationNetworking)
   package import FoundationNetworking
+#else
+  package import Foundation
 #endif
 
 /// Lightweight actor client for exchanging and caching an App Check Debug Token in integration
