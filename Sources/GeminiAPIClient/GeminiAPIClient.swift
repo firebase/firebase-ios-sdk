@@ -15,7 +15,6 @@
 package import Foundation
 package import GeminiAPIDataModels
 import HTTPStreamingClient
-import SharedDataModels
 
 #if canImport(FoundationNetworking)
   package import FoundationNetworking

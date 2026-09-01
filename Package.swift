@@ -54,7 +54,6 @@ let package = Package(
       dependencies: [
         "GeminiAPIDataModels",
         "HTTPStreamingClient",
-        "SharedDataModels",
       ],
       swiftSettings: defaultSwiftSettings
     ),
@@ -68,14 +67,7 @@ let package = Package(
       swiftSettings: defaultSwiftSettings
     ),
     .target(
-      name: "SharedDataModels",
-      swiftSettings: defaultSwiftSettings
-    ),
-    .target(
       name: "GeminiAPIDataModels",
-      dependencies: [
-        "SharedDataModels"
-      ],
       swiftSettings: defaultSwiftSettings
     ),
     .target(

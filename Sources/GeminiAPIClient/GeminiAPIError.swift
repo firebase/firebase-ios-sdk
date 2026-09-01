@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import Foundation
-package import SharedDataModels
 
 #if canImport(FoundationNetworking)
   import FoundationNetworking

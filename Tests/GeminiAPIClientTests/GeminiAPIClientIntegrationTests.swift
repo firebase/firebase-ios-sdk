@@ -14,7 +14,6 @@
 
 import Foundation
 import GeminiAPIDataModels
-import SharedDataModels
 import SharedTestUtilities
 import Testing
 
