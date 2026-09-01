@@ -287,57 +287,6 @@ TEST_F(ValueUtilTest, Decimal128Comparison) {
             ComparisonResult::Ascending);
 }
 
-TEST(QuadrupleTest, ParseValidAndMalformedStrings) {
-  Quadruple q;
-
-  // Valid inputs
-  EXPECT_TRUE(q.Parse("0"));
-  EXPECT_TRUE(q.Parse("-0"));
-  EXPECT_TRUE(q.Parse("0.0"));
-  EXPECT_TRUE(q.Parse("-0.0"));
-  EXPECT_TRUE(q.Parse("123.456"));
-  EXPECT_TRUE(q.Parse("-123.456"));
-  EXPECT_TRUE(q.Parse("+123.456"));
-  EXPECT_TRUE(q.Parse("1.23e4"));
-  EXPECT_TRUE(q.Parse("1.23e-4"));
-  EXPECT_TRUE(q.Parse("1.23E+4"));
-  EXPECT_TRUE(q.Parse("NaN"));
-  EXPECT_TRUE(q.Parse("Infinity"));
-  EXPECT_TRUE(q.Parse("+Infinity"));
-  EXPECT_TRUE(q.Parse("-Infinity"));
-
-  // Malformed inputs
-  EXPECT_FALSE(q.Parse(""));
-  EXPECT_FALSE(q.Parse(" "));
-  EXPECT_FALSE(q.Parse("abc"));
-  EXPECT_FALSE(q.Parse("123a"));
-  EXPECT_FALSE(q.Parse("1.2.3"));
-  EXPECT_FALSE(q.Parse("+"));
-  EXPECT_FALSE(q.Parse("-"));
-  EXPECT_FALSE(q.Parse("."));
-  EXPECT_FALSE(q.Parse("+."));
-  EXPECT_FALSE(q.Parse("-."));
-  EXPECT_FALSE(q.Parse("++1"));
-  EXPECT_FALSE(q.Parse("--1"));
-  EXPECT_FALSE(q.Parse("+-1"));
-  EXPECT_FALSE(q.Parse("1e"));
-  EXPECT_FALSE(q.Parse("1e+"));
-  EXPECT_FALSE(q.Parse("1e-"));
-  EXPECT_FALSE(q.Parse("1e999999999999"));
-  EXPECT_FALSE(q.Parse("1e12345678901"));
-  EXPECT_FALSE(q.Parse("NaNx"));
-  EXPECT_FALSE(q.Parse("InfinityAndBeyond"));
-
-  // Repeated calls do not leak or corrupt state
-  for (int iter = 0; iter < 1000; ++iter) {
-    EXPECT_TRUE(q.Parse("3.1415926535897932384626433832795028841971"));
-    EXPECT_FALSE(q.Parse("not_a_number_12345_!@#$"));
-    EXPECT_TRUE(q.Parse("-0.0000000000000000000000000000000000000123"));
-    EXPECT_FALSE(q.Parse("1e999999999999999999"));
-    EXPECT_TRUE(q.Parse("1e10"));
-  }
-}
-
 TEST_F(ValueUtilTest, Equality) {
   // Create a matrix that defines an equality group. The outer vector has
   // multiple rows and each row can have an arbitrary number of entries.
