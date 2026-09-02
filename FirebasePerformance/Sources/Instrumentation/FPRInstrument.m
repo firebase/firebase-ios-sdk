@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import <objc/runtime.h>
-
 #import "FirebasePerformance/Sources/Instrumentation/FPRInstrument.h"
 #import "FirebasePerformance/Sources/Instrumentation/FPRInstrument_Private.h"
 
@@ -51,38 +49,22 @@
 }
 
 - (BOOL)isObjectInstrumentable:(id)object {
-  if (!object || (![object isProxy] && [object isKindOfClass:[NSOperation class]])) {
+  if ([object isKindOfClass:[NSOperation class]]) {
     return NO;
   }
-  Class objectClass = [object isProxy] ? object_getClass(object) : [object class];
-  return [self isClassInstrumentable:objectClass];
-}
-
-- (BOOL)isClassInstrumentable:(Class)aClass {
-  NSString *className = NSStringFromClass(aClass);
-  if (!className) {
-    // If the className is nil, it should be a no-op.
-    return NO;
-  }
-
-  if ([[FPRConfigurations sharedInstance].swizzleClassDenylist containsObject:className]) {
-    FPRLogInfo(kFPRSwizzleClassDenylisted,
-               @"Skipped swizzling %@ because it is listed in "
-               @"firebase_performance_swizzle_denylist.",
-               className);
-    return NO;
-  }
-
   return YES;
 }
 
 - (BOOL)registerClassInstrumentor:(FPRClassInstrumentor *)instrumentor {
   @synchronized(self) {
-    // Check if it's in the denylist.
-    if (![self isClassInstrumentable:instrumentor.instrumentedClass]) {
+    NSString *className = NSStringFromClass(instrumentor.instrumentedClass);
+    if ([[FPRConfigurations sharedInstance].swizzleClassDenylist containsObject:className]) {
+      FPRLogInfo(kFPRSwizzleClassDenylisted,
+                 @"Skipped swizzling %@ because it is listed in "
+                 @"firebase_performance_swizzle_denylist.",
+                 className);
       return NO;
     }
-
     if ([_instrumentedClasses containsObject:instrumentor.instrumentedClass] ||
         [instrumentor.instrumentedClass instancesRespondToSelector:@selector(gul_class)]) {
       return NO;

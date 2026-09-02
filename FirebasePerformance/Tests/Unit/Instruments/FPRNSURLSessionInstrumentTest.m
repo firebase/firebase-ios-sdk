@@ -18,7 +18,6 @@
 
 #import "FirebasePerformance/Tests/Unit/Instruments/FPRNSURLSessionInstrumentTestDelegates.h"
 
-#import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 #import <objc/runtime.h>
 
@@ -696,63 +695,6 @@
   XCTAssertEqual(instrument.delegateInstrument.classInstrumentors.count, 0);
   XCTAssertEqual(instrument.delegateInstrument.instrumentedClasses.count, 0);
   [instrument deregisterInstrumentors];
-}
-
-/** Tests that registerObject: skips swizzling when the delegate class is in swizzleClassDenylist.
- */
-- (void)testRegisterObjectSkippedWhenClassIsDenylisted {
-  FPRNSURLSessionTestDelegate *delegate = [[FPRNSURLSessionTestDelegate alloc] init];
-  FPRNSURLSessionDelegateInstrument *delegateInstrument =
-      [[FPRNSURLSessionDelegateInstrument alloc] init];
-  id mockConfig = [OCMockObject partialMockForObject:[FPRConfigurations sharedInstance]];
-  [[[mockConfig stub] andReturn:@[ NSStringFromClass([FPRNSURLSessionTestDelegate class]) ]]
-      swizzleClassDenylist];
-
-  XCTAssertFalse([delegate respondsToSelector:@selector(URLSession:task:didCompleteWithError:)]);
-  [delegateInstrument registerObject:delegate];
-  XCTAssertFalse([delegate respondsToSelector:@selector(URLSession:task:didCompleteWithError:)]);
-  XCTAssertFalse([delegate respondsToSelector:@selector(gul_class)]);
-
-  [mockConfig stopMocking];
-}
-
-/** Tests that registerProxy: skips swizzling when the proxy class is in swizzleClassDenylist. */
-- (void)testRegisterProxySkippedWhenProxyClassIsDenylisted {
-  FPRNSURLSessionTestDelegate *delegate = [[FPRNSURLSessionTestDelegate alloc] init];
-  FPRNSURLSessionDelegateProxy *proxyDelegate =
-      [[FPRNSURLSessionDelegateProxy alloc] initWithDelegate:delegate];
-  FPRNSURLSessionDelegateInstrument *delegateInstrument =
-      [[FPRNSURLSessionDelegateInstrument alloc] init];
-  id mockConfig = [OCMockObject partialMockForObject:[FPRConfigurations sharedInstance]];
-  [[[mockConfig stub] andReturn:@[ NSStringFromClass(object_getClass(proxyDelegate)) ]]
-      swizzleClassDenylist];
-
-  XCTAssertFalse([delegate respondsToSelector:@selector(URLSession:task:didCompleteWithError:)]);
-  [delegateInstrument registerProxy:proxyDelegate];
-  XCTAssertFalse([delegate respondsToSelector:@selector(URLSession:task:didCompleteWithError:)]);
-  XCTAssertEqual(delegateInstrument.classInstrumentors.count, 0);
-
-  [mockConfig stopMocking];
-}
-
-/** Tests that registerProxy: skips the wrapped delegate when its class is in swizzleClassDenylist.
- */
-- (void)testRegisterProxySkipsWrappedDelegateWhenWrappedClassIsDenylisted {
-  FPRNSURLSessionTestDelegate *delegate = [[FPRNSURLSessionTestDelegate alloc] init];
-  FPRNSURLSessionDelegateProxy *proxyDelegate =
-      [[FPRNSURLSessionDelegateProxy alloc] initWithDelegate:delegate];
-  FPRNSURLSessionDelegateInstrument *delegateInstrument =
-      [[FPRNSURLSessionDelegateInstrument alloc] init];
-  id mockConfig = [OCMockObject partialMockForObject:[FPRConfigurations sharedInstance]];
-  [[[mockConfig stub] andReturn:@[ NSStringFromClass([FPRNSURLSessionTestDelegate class]) ]]
-      swizzleClassDenylist];
-
-  XCTAssertFalse([delegate respondsToSelector:@selector(URLSession:task:didCompleteWithError:)]);
-  [delegateInstrument registerProxy:proxyDelegate];
-  XCTAssertFalse([delegate respondsToSelector:@selector(URLSession:task:didCompleteWithError:)]);
-  XCTAssertEqual(delegateInstrument.classInstrumentors.count, 0);
-
-  [mockConfig stopMocking];
 }
 
 /** Tests that the called delegate selector is wrapped and calls through. */

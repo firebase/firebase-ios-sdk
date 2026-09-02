@@ -18,14 +18,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FPRInstrument ()
 
-/** Verifies whether the class should be instrumented. The decision is based on
- * `FPRConfigurations`.
- *
- *  @param aClass The class to verify if it's in the denylist.
- *  @return NO if the class is in the denylist, YES otherwise.
- */
-- (BOOL)isClassInstrumentable:(Class)aClass;
-
 /** Registers an instrumentor for a class. Should be called by subclasses.
  *
  *  @param instrumentor The instrumentor to register.
