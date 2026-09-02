@@ -24,36 +24,35 @@ package import GeminiAPIDataModels
 /// A client for communicating with Google Gemini backend endpoints.
 @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
 package struct GeminiAPIClient: Sendable {
-  /// The resource path of the target model (e.g., `"v1beta/models/gemini-3.5-flash-lite"`
-  /// or `"v1beta1/projects/p/locations/l/publishers/google/models/gemini-3.5-flash-lite"`).
-  let modelResourcePath: String
+  /// The model resource configuration specifying identifiers for URL routing and payloads.
+  let modelResource: ModelResource
 
-  /// The base URL of the Gemini API endpoint.
-  let baseURL: URL
+  /// The network endpoint configuration defining scheme, host, port, and API version.
+  let endpointConfiguration: EndpointConfiguration
 
   /// An optional async provider for dynamic headers (such as API keys or Bearer tokens).
-  let headerProvider: (@Sendable () async throws -> [String: String])?
+  let headerProvider: HeaderProvider?
 
   private let httpClient: HTTPStreamingClient
 
-  /// Initializes a new Gemini API client with a model resource path and target base URL.
+  /// Initializes a new Gemini API client with a model resource and target endpoint configuration.
   ///
   /// - Parameters:
-  ///   - modelResourcePath: The resource path of the target model (e.g.,
-  ///     `"v1beta/models/gemini-3.5-flash-lite"`).
-  ///   - baseURL: The base URL of the Gemini API endpoint.
+  ///   - modelResource: The model resource configuration.
+  ///   - endpointConfiguration: The network endpoint configuration.
   ///   - headerProvider: An optional async provider for dynamic headers (such as API keys or Bearer
   ///     tokens).
   ///   - sessionConfiguration: The `URLSessionConfiguration` to use. Defaults to `.ephemeral`.
   package init(
-    modelResourcePath: String,
-    baseURL: URL,
-    headerProvider: (@Sendable () async throws -> [String: String])? = nil,
+    modelResource: ModelResource,
+    endpointConfiguration: EndpointConfiguration,
+    headerProvider: HeaderProvider? = nil,
     sessionConfiguration: URLSessionConfiguration = .ephemeral
   ) {
-    assert(!modelResourcePath.isEmpty, "modelResourcePath must not be empty.")
-    self.modelResourcePath = modelResourcePath
-    self.baseURL = baseURL
+    assert(
+      !modelResource.urlResourceName.isEmpty, "modelResource.urlResourceName must not be empty.")
+    self.modelResource = modelResource
+    self.endpointConfiguration = endpointConfiguration
     self.headerProvider = headerProvider
     self.httpClient = HTTPStreamingClient(configuration: sessionConfiguration)
   }
@@ -106,27 +105,42 @@ package struct GeminiAPIClient: Sendable {
     return try JSONDecoder().decode(CountTokensResponse.self, from: bodyData)
   }
 
+  /// Assembles the complete request URL for the configured model resource and endpoint.
+  ///
+  /// - Parameters:
+  ///   - action: The RPC action to invoke (e.g., `"streamGenerateContent"`).
+  ///   - queryItems: An optional array of query items to append to the URL.
+  /// - Returns: The resolved `URL`.
+  /// - Throws: `URLError(.badURL)` if the components do not form a valid URL.
+  func makeRequestURL(
+    action: String,
+    queryItems: [URLQueryItem]? = nil
+  ) throws -> URL {
+    var components = URLComponents()
+    components.scheme = endpointConfiguration.scheme
+    components.host = endpointConfiguration.host
+    components.port = endpointConfiguration.port
+
+    let slashSet = CharacterSet(charactersIn: "/")
+    let sanitizedVersion = endpointConfiguration.apiVersion.trimmingCharacters(in: slashSet)
+    let sanitizedResourcePath = modelResource.urlResourceName.trimmingCharacters(in: slashSet)
+
+    components.path = "/\(sanitizedVersion)/\(sanitizedResourcePath):\(action)"
+    if let queryItems, !queryItems.isEmpty {
+      components.queryItems = queryItems
+    }
+    guard let url = components.url else {
+      throw URLError(.badURL)
+    }
+    return url
+  }
+
   private func makeURLRequest<Body: Encodable>(
     action: String,
     queryItems: [URLQueryItem]? = nil,
     body: Body
   ) async throws -> URLRequest {
-    guard var components = URLComponents(url: baseURL, resolvingAgainstBaseURL: false) else {
-      throw URLError(.badURL)
-    }
-
-    let sanitizedResourcePath = modelResourcePath.drop { $0 == "/" }
-    let basePath =
-      components.path.hasSuffix("/")
-      ? String(components.path.dropLast())
-      : components.path
-    components.path = "\(basePath)/\(sanitizedResourcePath):\(action)"
-    if let queryItems {
-      components.queryItems = (components.queryItems ?? []) + queryItems
-    }
-    guard let requestURL = components.url else {
-      throw URLError(.badURL)
-    }
+    let requestURL = try makeRequestURL(action: action, queryItems: queryItems)
 
     var urlRequest = URLRequest(url: requestURL)
     urlRequest.httpMethod = "POST"

@@ -25,8 +25,15 @@ import Testing
 
 @Suite("GeminiAPIClient Integration Tests")
 struct GeminiAPIClientIntegrationTests {
-  private static let defaultBaseURL = URL(string: "https://generativelanguage.googleapis.com")!
-  private static let defaultModelResourcePath = "v1beta/models/gemini-3.5-flash-lite"
+  private static let defaultEndpointConfiguration = EndpointConfiguration(
+    host: "generativelanguage.googleapis.com",
+    apiVersion: "v1beta"
+  )
+  private static let defaultModelResource = ModelResource(
+    modelID: "gemini-3.5-flash-lite",
+    urlResourceName: "models/gemini-3.5-flash-lite",
+    payloadResourceName: "models/gemini-3.5-flash-lite"
+  )
 
   @Test(.requireAPIKey)
   @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
@@ -120,7 +127,12 @@ struct GeminiAPIClientIntegrationTests {
   @Test(.requireAPIKey)
   @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
   func streamGenerateContentInvalidModelNameThrows() async throws {
-    let client = makeClient(modelResourcePath: "v1beta/models/non-existent-model-name-xyz-123")
+    let invalidResource = ModelResource(
+      modelID: "non-existent-model-name-xyz-123",
+      urlResourceName: "models/non-existent-model-name-xyz-123",
+      payloadResourceName: "models/non-existent-model-name-xyz-123"
+    )
+    let client = makeClient(modelResource: invalidResource)
     let request = GenerateContentRequest(
       contents: [
         Content(
@@ -140,8 +152,8 @@ struct GeminiAPIClientIntegrationTests {
   @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
   func streamGenerateContentWithoutAuthThrows() async throws {
     let client = GeminiAPIClient(
-      modelResourcePath: Self.defaultModelResourcePath,
-      baseURL: Self.defaultBaseURL
+      modelResource: Self.defaultModelResource,
+      endpointConfiguration: Self.defaultEndpointConfiguration
     )
     let request = GenerateContentRequest(
       contents: [
@@ -196,11 +208,19 @@ struct GeminiAPIClientIntegrationTests {
       debugToken: debugToken
     )
     let appCheckToken = try await appCheckClient.exchangeDebugToken()
-    let modelPath = "v1beta/projects/\(projectID)/models/gemini-3.5-flash-lite"
+    let modelResource = ModelResource(
+      modelID: "gemini-3.5-flash-lite",
+      urlResourceName: "projects/\(projectID)/models/gemini-3.5-flash-lite",
+      payloadResourceName: "models/gemini-3.5-flash-lite"
+    )
+    let endpointConfiguration = EndpointConfiguration(
+      host: "firebasevertexai.googleapis.com",
+      apiVersion: "v1beta"
+    )
     let client = GeminiAPIClient(
-      modelResourcePath: modelPath,
-      baseURL: URL(string: "https://firebasevertexai.googleapis.com")!,
-      headerProvider: {
+      modelResource: modelResource,
+      endpointConfiguration: endpointConfiguration,
+      headerProvider: HeaderProvider {
         [
           "x-goog-api-key": apiKey,
           "x-firebase-appcheck": appCheckToken,
@@ -244,8 +264,8 @@ struct GeminiAPIClientIntegrationTests {
 
   @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
   private func makeClient(
-    modelResourcePath: String = defaultModelResourcePath,
-    baseURL: URL = defaultBaseURL,
+    modelResource: ModelResource = defaultModelResource,
+    endpointConfiguration: EndpointConfiguration = defaultEndpointConfiguration,
     configuration: URLSessionConfiguration = .ephemeral
   ) -> GeminiAPIClient {
     let headerProvider: (@Sendable () async throws -> [String: String])?
@@ -258,9 +278,9 @@ struct GeminiAPIClientIntegrationTests {
     }
 
     return GeminiAPIClient(
-      modelResourcePath: modelResourcePath,
-      baseURL: baseURL,
-      headerProvider: headerProvider,
+      modelResource: modelResource,
+      endpointConfiguration: endpointConfiguration,
+      headerProvider: headerProvider.map { HeaderProvider($0) },
       sessionConfiguration: configuration
     )
   }

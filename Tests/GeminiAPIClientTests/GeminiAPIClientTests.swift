@@ -25,13 +25,21 @@ import Testing
 
 @Suite("GeminiAPIClient Tests")
 struct GeminiAPIClientTests {
-  private static let baseURLString = "https://generativelanguage.googleapis.com"
-  private static let defaultModelResourcePath = "v1beta/models/gemini-3.5-flash-lite"
+  private static let defaultHost = "generativelanguage.googleapis.com"
+  private static let defaultAPIVersion = "v1beta"
+  private static let defaultModelResource = ModelResource(
+    modelID: "gemini-3.5-flash-lite",
+    urlResourceName: "models/gemini-3.5-flash-lite",
+    payloadResourceName: "models/gemini-3.5-flash-lite"
+  )
 
   private let testID = UUID().uuidString
 
-  private var testBaseURL: URL {
-    URL(string: "\(Self.baseURLString)/\(testID)")!
+  private var testEndpointConfiguration: EndpointConfiguration {
+    EndpointConfiguration(
+      host: Self.defaultHost,
+      apiVersion: "\(Self.defaultAPIVersion)/\(testID)"
+    )
   }
 
   @Test
@@ -775,10 +783,24 @@ struct GeminiAPIClientTests {
   @Test
   @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
   func streamGenerateContentAgentPlatformResourcePath() async throws {
-    let agentPlatformPath =
-      "v1beta1/projects/my-project/locations/global/publishers/google/models/gemini-3.5-flash-lite"
-    let client = makeClient(modelResourcePath: agentPlatformPath)
-    let expectedURL = try makeExpectedURL(modelResourcePath: agentPlatformPath)
+    let agentPlatformResource = ModelResource(
+      modelID: "gemini-3.5-flash-lite",
+      urlResourceName:
+        "projects/my-project/locations/global/publishers/google/models/gemini-3.5-flash-lite",
+      payloadResourceName: "publishers/google/models/gemini-3.5-flash-lite"
+    )
+    let agentPlatformEndpoint = EndpointConfiguration(
+      host: "generativelanguage.googleapis.com",
+      apiVersion: "v1beta1/\(testID)"
+    )
+    let client = makeClient(
+      modelResource: agentPlatformResource,
+      endpointConfiguration: agentPlatformEndpoint
+    )
+    let expectedURL = try makeExpectedURL(
+      modelResource: agentPlatformResource,
+      endpointConfiguration: agentPlatformEndpoint
+    )
     let httpResponse = try makeResponse(
       url: expectedURL,
       headerFields: ["Content-Type": "text/event-stream"]
@@ -812,9 +834,23 @@ struct GeminiAPIClientTests {
   @Test
   @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
   func streamGenerateContentFirebaseProxyResourcePath() async throws {
-    let firebaseProxyPath = "v1beta/projects/my-firebase-project/models/gemini-3.5-flash-lite"
-    let client = makeClient(modelResourcePath: firebaseProxyPath)
-    let expectedURL = try makeExpectedURL(modelResourcePath: firebaseProxyPath)
+    let firebaseResource = ModelResource(
+      modelID: "gemini-3.5-flash-lite",
+      urlResourceName: "projects/my-firebase-project/models/gemini-3.5-flash-lite",
+      payloadResourceName: "models/gemini-3.5-flash-lite"
+    )
+    let firebaseEndpoint = EndpointConfiguration(
+      host: "firebasevertexai.googleapis.com",
+      apiVersion: "v1beta/\(testID)"
+    )
+    let client = makeClient(
+      modelResource: firebaseResource,
+      endpointConfiguration: firebaseEndpoint
+    )
+    let expectedURL = try makeExpectedURL(
+      modelResource: firebaseResource,
+      endpointConfiguration: firebaseEndpoint
+    )
     let httpResponse = try makeResponse(
       url: expectedURL,
       headerFields: ["Content-Type": "text/event-stream"]
@@ -848,11 +884,25 @@ struct GeminiAPIClientTests {
   @Test
   @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
   func countTokensAgentPlatformResourcePath() async throws {
-    let agentPlatformPath =
-      "v1beta1/projects/my-project/locations/global/publishers/google/models/gemini-3.5-flash-lite"
-    let client = makeClient(modelResourcePath: agentPlatformPath)
+    let agentPlatformResource = ModelResource(
+      modelID: "gemini-3.5-flash-lite",
+      urlResourceName:
+        "projects/my-project/locations/global/publishers/google/models/gemini-3.5-flash-lite",
+      payloadResourceName: "publishers/google/models/gemini-3.5-flash-lite"
+    )
+    let agentPlatformEndpoint = EndpointConfiguration(
+      host: "generativelanguage.googleapis.com",
+      apiVersion: "v1beta1/\(testID)"
+    )
+    let client = makeClient(
+      modelResource: agentPlatformResource,
+      endpointConfiguration: agentPlatformEndpoint
+    )
     let expectedURL = try makeExpectedURL(
-      modelResourcePath: agentPlatformPath, action: "countTokens", query: nil
+      modelResource: agentPlatformResource,
+      endpointConfiguration: agentPlatformEndpoint,
+      action: "countTokens",
+      query: nil
     )
     let httpResponse = try makeResponse(
       url: expectedURL,
@@ -898,16 +948,16 @@ struct GeminiAPIClientTests {
 
   @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
   private func makeClient(
-    modelResourcePath: String = defaultModelResourcePath,
-    baseURL: URL? = nil,
+    modelResource: ModelResource = defaultModelResource,
+    endpointConfiguration: EndpointConfiguration? = nil,
     headerProvider: (@Sendable () async throws -> [String: String])? = nil
   ) -> GeminiAPIClient {
     let configuration = URLSessionConfiguration.ephemeral
     configuration.protocolClasses = [MockHTTPURLProtocol.self]
     return GeminiAPIClient(
-      modelResourcePath: modelResourcePath,
-      baseURL: baseURL ?? testBaseURL,
-      headerProvider: headerProvider,
+      modelResource: modelResource,
+      endpointConfiguration: endpointConfiguration ?? testEndpointConfiguration,
+      headerProvider: headerProvider.map { HeaderProvider($0) },
       sessionConfiguration: configuration
     )
   }
@@ -921,15 +971,28 @@ struct GeminiAPIClientTests {
     try HTTPURLResponse.mock(url: url, statusCode: statusCode, headerFields: headerFields)
   }
 
+  @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
   private func makeExpectedURL(
-    modelResourcePath: String = defaultModelResourcePath,
+    modelResource: ModelResource = defaultModelResource,
+    endpointConfiguration: EndpointConfiguration? = nil,
     action: String = "streamGenerateContent",
     query: String? = "alt=sse"
   ) throws -> URL {
-    var urlString = "\(testBaseURL.absoluteString)/\(modelResourcePath):\(action)"
+    let client = makeClient(
+      modelResource: modelResource,
+      endpointConfiguration: endpointConfiguration
+    )
+    let queryItems: [URLQueryItem]?
     if let query {
-      urlString += "?\(query)"
+      let parts = query.split(separator: "=", maxSplits: 1)
+      if parts.count == 2 {
+        queryItems = [URLQueryItem(name: String(parts[0]), value: String(parts[1]))]
+      } else {
+        queryItems = [URLQueryItem(name: query, value: nil)]
+      }
+    } else {
+      queryItems = nil
     }
-    return try #require(URL(string: urlString))
+    return try client.makeRequestURL(action: action, queryItems: queryItems)
   }
 }
