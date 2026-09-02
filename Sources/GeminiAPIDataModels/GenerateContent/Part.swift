@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import Foundation
-package import SharedDataModels
 
 /// An internal data model for `Part`.
 ///

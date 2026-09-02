@@ -13,9 +13,7 @@
 // limitations under the License.
 
 import Foundation
-import GenerateContentDataModels
-import HTTPStreamingClient
-import SharedDataModels
+import GeminiAPIDataModels
 import SharedTestUtilities
 import Testing
 

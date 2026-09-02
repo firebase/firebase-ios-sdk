@@ -13,9 +13,7 @@
 // limitations under the License.
 
 package import Foundation
-package import GenerateContentDataModels
-import HTTPStreamingClient
-import SharedDataModels
+package import GeminiAPIDataModels
 
 #if canImport(FoundationNetworking)
   package import FoundationNetworking

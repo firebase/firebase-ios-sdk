@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import Foundation
-import SharedDataModels
+import GeminiAPIDataModels
 import Testing
 
 @testable import GeminiAPIClient

@@ -52,9 +52,7 @@ let package = Package(
     .target(
       name: "GeminiAPIClient",
       dependencies: [
-        "GenerateContentDataModels",
-        "HTTPStreamingClient",
-        "SharedDataModels",
+        "GeminiAPIDataModels"
       ],
       swiftSettings: defaultSwiftSettings
     ),
@@ -62,33 +60,16 @@ let package = Package(
       name: "GeminiAPIClientTests",
       dependencies: [
         "GeminiAPIClient",
-        "HTTPStreamingClient",
         "SharedTestUtilities",
       ],
       swiftSettings: defaultSwiftSettings
     ),
     .target(
-      name: "SharedDataModels",
-      swiftSettings: defaultSwiftSettings
-    ),
-    .target(
-      name: "GenerateContentDataModels",
-      dependencies: [
-        "SharedDataModels"
-      ],
-      swiftSettings: defaultSwiftSettings
-    ),
-    .target(
-      name: "HTTPStreamingClient",
-      swiftSettings: defaultSwiftSettings
-    ),
-    .testTarget(
-      name: "HTTPStreamingClientTests",
-      dependencies: [
-        "HTTPStreamingClient",
-        "SharedTestUtilities",
-      ],
-      swiftSettings: defaultSwiftSettings
+      name: "GeminiAPIDataModels",
+      swiftSettings: [
+        .enableUpcomingFeature("ExistentialAny"),
+        .enableUpcomingFeature("MemberImportVisibility"),
+      ]
     ),
   ],
   swiftLanguageModes: [.v6]
