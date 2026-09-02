@@ -19,6 +19,7 @@ import FirebaseAuthInterop
 import FirebaseCore
 import FirebaseCoreExtension
 
+@objc(FIRAuthComponent)
 class AuthComponent: NSObject, Library, ComponentLifecycleMaintainer {
   // MARK: - Private Variables
 
