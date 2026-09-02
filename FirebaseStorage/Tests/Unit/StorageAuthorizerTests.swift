@@ -230,6 +230,27 @@ class StorageAuthorizerTests: StorageTestHelpers {
     XCTAssertNil(headers?["X-Firebase-AppCheck"])
   }
 
+  func testInsecureHostSucceedsWhenAuthProviderIsPresentButUserSignedOut() async throws {
+    let unauthenticatedAuthFake = FIRAuthInteropFake(token: nil, userID: nil, error: nil)
+    let insecureRequest = URLRequest(url: URL(string: "http://10.0.0.1/v0/b/bucket/o/object")!)
+    fetcher = GTMSessionFetcher(request: insecureRequest)
+    fetcher?.allowedInsecureSchemes = ["http"]
+    fetcher?.authorizer = StorageTokenAuthorizer(
+      googleAppID: "dummyAppID",
+      callbackQueue: DispatchQueue.main,
+      authProvider: unauthenticatedAuthFake,
+      appCheck: nil
+    )
+
+    setFetcherTestBlock(with: 200) { fetcher in
+      self.checkAuthorizer(fetcher: fetcher, trueFalse: false)
+    }
+    let _ = try await fetcher?.beginFetch()
+    let headers = fetcher!.request?.allHTTPHeaderFields
+    XCTAssertNil(headers?["Authorization"])
+    XCTAssertNil(headers?["X-Firebase-AppCheck"])
+  }
+
   func testLocalhostDoesAttachTokensOverHttp() async throws {
     appCheck?.tokenResult = appCheckTokenSuccess!
     let localRequest = URLRequest(url: URL(string: "http://localhost/v0/b/bucket/o/object")!)
@@ -249,6 +270,77 @@ class StorageAuthorizerTests: StorageTestHelpers {
     let headers = fetcher!.request?.allHTTPHeaderFields
     XCTAssertEqual(headers?["Authorization"], "Firebase \(StorageTestAuthToken)")
     XCTAssertEqual(headers?["X-Firebase-AppCheck"], appCheckTokenSuccess?.token)
+  }
+
+  func testDynamicAllowInsecureTokenAttachment() async throws {
+    appCheck?.tokenResult = appCheckTokenSuccess!
+    let insecureRequest = URLRequest(url: URL(string: "http://10.0.0.1/v0/b/bucket/o/object")!)
+    fetcher = GTMSessionFetcher(request: insecureRequest)
+    fetcher?.allowedInsecureSchemes = ["http"]
+
+    var allowInsecure = false
+    fetcher?.authorizer = StorageTokenAuthorizer(
+      googleAppID: "dummyAppID",
+      callbackQueue: DispatchQueue.main,
+      authProvider: auth,
+      appCheck: appCheck,
+      allowInsecureTokenAttachment: { allowInsecure }
+    )
+
+    // Update allowInsecure to true after authorizer has been initialized
+    allowInsecure = true
+
+    setFetcherTestBlock(with: 200) { fetcher in
+      self.checkAuthorizer(fetcher: fetcher, trueFalse: true)
+    }
+
+    let _ = try await fetcher?.beginFetch()
+    let headers = fetcher!.request?.allHTTPHeaderFields
+    XCTAssertEqual(headers?["Authorization"], "Firebase \(StorageTestAuthToken)")
+    XCTAssertEqual(headers?["X-Firebase-AppCheck"], appCheckTokenSuccess?.token)
+  }
+
+  func testInsecureHostFailsWhenOnlyAppCheckTokenIsPresent() async throws {
+    appCheck?.tokenResult = appCheckTokenSuccess!
+    let insecureRequest = URLRequest(url: URL(string: "http://10.0.0.1/v0/b/bucket/o/object")!)
+    fetcher = GTMSessionFetcher(request: insecureRequest)
+    fetcher?.allowedInsecureSchemes = ["http"]
+    fetcher?.authorizer = StorageTokenAuthorizer(
+      googleAppID: "dummyAppID",
+      callbackQueue: DispatchQueue.main,
+      authProvider: nil,
+      appCheck: appCheck
+    )
+
+    do {
+      let _ = try await fetcher?.beginFetch()
+      XCTFail("Expected fetch to fail due to insecure AppCheck token attachment")
+    } catch {
+      let nsError = error as NSError
+      XCTAssertEqual(nsError.domain, StorageErrorDomain)
+      XCTAssertEqual(nsError.code, StorageErrorCode.unauthenticated.rawValue)
+    }
+  }
+
+  func testInsecureHostFailsWhenOnlyAuthTokenIsPresent() async throws {
+    let insecureRequest = URLRequest(url: URL(string: "http://10.0.0.1/v0/b/bucket/o/object")!)
+    fetcher = GTMSessionFetcher(request: insecureRequest)
+    fetcher?.allowedInsecureSchemes = ["http"]
+    fetcher?.authorizer = StorageTokenAuthorizer(
+      googleAppID: "dummyAppID",
+      callbackQueue: DispatchQueue.main,
+      authProvider: auth,
+      appCheck: nil
+    )
+
+    do {
+      let _ = try await fetcher?.beginFetch()
+      XCTFail("Expected fetch to fail due to insecure Auth token attachment")
+    } catch {
+      let nsError = error as NSError
+      XCTAssertEqual(nsError.domain, StorageErrorDomain)
+      XCTAssertEqual(nsError.code, StorageErrorCode.unauthenticated.rawValue)
+    }
   }
 
   // MARK: Helpers
