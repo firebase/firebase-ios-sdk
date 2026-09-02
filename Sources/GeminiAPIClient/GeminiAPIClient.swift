@@ -125,9 +125,10 @@ package struct GeminiAPIClient: Sendable {
 
     let slashSet = CharacterSet(charactersIn: "/")
     let sanitizedVersion = endpointConfiguration.apiVersion.trimmingCharacters(in: slashSet)
+    let versionComponent = sanitizedVersion.isEmpty ? "" : "/\(sanitizedVersion)"
     let sanitizedResourcePath = modelResource.urlResourceName.trimmingCharacters(in: slashSet)
+    components.path = "\(versionComponent)/\(sanitizedResourcePath):\(action)"
 
-    components.path = "/\(sanitizedVersion)/\(sanitizedResourcePath):\(action)"
     if let queryItems, !queryItems.isEmpty {
       components.queryItems = queryItems
     }

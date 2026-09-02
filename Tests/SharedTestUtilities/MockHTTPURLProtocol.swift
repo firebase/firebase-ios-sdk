@@ -111,11 +111,16 @@ extension URLRequest {
     defer { stream.close() }
     var data = Data()
     var buffer = [UInt8](repeating: 0, count: 1024)
-    while stream.hasBytesAvailable {
+    while true {
       let readCount = stream.read(&buffer, maxLength: buffer.count)
-      if readCount <= 0 { break }
+      if readCount < 0 {
+        return nil
+      } else if readCount == 0 {
+        break
+      }
       data.append(contentsOf: buffer[..<readCount])
     }
+
     return data
   }
 }
