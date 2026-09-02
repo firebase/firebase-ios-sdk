@@ -1,4 +1,4 @@
-# Unreleased
+# 12.19.0
 - [fixed] Fix an issue where cached FCM registration tokens were falsely
   invalidated due to locale changes when
   `FirebaseMessagingInstallationIdEnabled` was set to `YES`. (#16572)

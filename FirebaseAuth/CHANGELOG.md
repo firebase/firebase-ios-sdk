@@ -1,4 +1,4 @@
-# Unreleased
+# 12.19.0
 - [fixed] Fixed a persistent crash when interacting with App Check under some
   Swift toolchains (like the Flutter SDK) by avoiding a compiler bug in Swift
   concurrency thunk generation. (#16549)

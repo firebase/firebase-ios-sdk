@@ -1,4 +1,4 @@
-# Unreleased
+# 12.19.0
 - [fixed] Reconnect after significant system clock changes so that
   `.info/serverTimeOffset` is refreshed. (#363)
 
