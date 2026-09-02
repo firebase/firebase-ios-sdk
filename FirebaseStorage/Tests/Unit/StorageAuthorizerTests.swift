@@ -300,6 +300,49 @@ class StorageAuthorizerTests: StorageTestHelpers {
     XCTAssertEqual(headers?["X-Firebase-AppCheck"], appCheckTokenSuccess?.token)
   }
 
+  func testInsecureHostFailsWhenOnlyAppCheckTokenIsPresent() async throws {
+    appCheck?.tokenResult = appCheckTokenSuccess!
+    let insecureRequest = URLRequest(url: URL(string: "http://10.0.0.1/v0/b/bucket/o/object")!)
+    fetcher = GTMSessionFetcher(request: insecureRequest)
+    fetcher?.allowedInsecureSchemes = ["http"]
+    fetcher?.authorizer = StorageTokenAuthorizer(
+      googleAppID: "dummyAppID",
+      callbackQueue: DispatchQueue.main,
+      authProvider: nil,
+      appCheck: appCheck
+    )
+
+    do {
+      let _ = try await fetcher?.beginFetch()
+      XCTFail("Expected fetch to fail due to insecure AppCheck token attachment")
+    } catch {
+      let nsError = error as NSError
+      XCTAssertEqual(nsError.domain, StorageErrorDomain)
+      XCTAssertEqual(nsError.code, StorageErrorCode.unauthenticated.rawValue)
+    }
+  }
+
+  func testInsecureHostFailsWhenOnlyAuthTokenIsPresent() async throws {
+    let insecureRequest = URLRequest(url: URL(string: "http://10.0.0.1/v0/b/bucket/o/object")!)
+    fetcher = GTMSessionFetcher(request: insecureRequest)
+    fetcher?.allowedInsecureSchemes = ["http"]
+    fetcher?.authorizer = StorageTokenAuthorizer(
+      googleAppID: "dummyAppID",
+      callbackQueue: DispatchQueue.main,
+      authProvider: auth,
+      appCheck: nil
+    )
+
+    do {
+      let _ = try await fetcher?.beginFetch()
+      XCTFail("Expected fetch to fail due to insecure Auth token attachment")
+    } catch {
+      let nsError = error as NSError
+      XCTAssertEqual(nsError.domain, StorageErrorDomain)
+      XCTAssertEqual(nsError.code, StorageErrorCode.unauthenticated.rawValue)
+    }
+  }
+
   // MARK: Helpers
 
   private func setFetcherTestBlock(with statusCode: Int,
