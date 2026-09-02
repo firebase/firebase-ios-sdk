@@ -12,10 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package import Foundation
 package import GeminiAPIDataModels
 
-#if canImport(FoundationNetworking)
+#if canImport(Darwin)
+  package import Foundation
+#else
+  import Foundation
   package import FoundationNetworking
 #endif
 
