@@ -66,9 +66,7 @@ class StorageTokenAuthorizer: NSObject, GTMSessionFetcherAuthorizer {
     if let appCheck {
       fetchTokenGroup.enter()
       appCheck.getToken(forcingRefresh: false) { tokenResult in
-        if let token = tokenResult.token {
-          request?.setValue(token, forHTTPHeaderField: "X-Firebase-AppCheck")
-        }
+        request?.setValue(tokenResult.token, forHTTPHeaderField: "X-Firebase-AppCheck")
 
         if let error = tokenResult.error {
           FirebaseLogger.log(
