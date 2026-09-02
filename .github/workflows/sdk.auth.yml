@@ -43,14 +43,6 @@ jobs:
       buildonly_platforms: iOS
       extra_flags: APPLICATION_EXTENSION_API_ONLY=YES
 
-  objc_import_app_extension:
-    uses: ./.github/workflows/_spm.yml
-    with:
-      target: FirebaseAuthExtensionTest
-      platforms: iOS
-      buildonly_platforms: iOS
-      extra_flags: APPLICATION_EXTENSION_API_ONLY=YES
-
   catalyst:
     uses: ./.github/workflows/_catalyst.yml
     with:
