@@ -1,6 +1,8 @@
 # 12.19.0
 - [fixed] Fixed a build error in app extensions introduced in 12.18.0, where
   `AuthNotificationManager` referenced `UIApplication.shared` directly. (#16583)
+- [fixed] Fixed a build error in Objective-C app extensions by marking web view
+  presenters unavailable in app extensions. (#16590)
 - [fixed] Fixed a persistent crash when interacting with App Check under some
   Swift toolchains (like the Flutter SDK) by avoiding a compiler bug in Swift
   concurrency thunk generation. (#16549)
