@@ -69,6 +69,12 @@ on:
         required: false
         default: "{}"
 
+      # Extra flags to pass to scripts/build.sh xcodebuild invocation.
+      extra_flags:
+        type: string
+        required: false
+        default: ""
+
     outputs:
       cache_key:
         description: "The cache key for the Swift package resolution."
@@ -184,6 +190,7 @@ jobs:
         FIREBASE_IS_NIGHTLY_TESTING: ${{ inputs.is_nightly && '1' || '' }}
         TARGET: ${{ inputs.target }}
         PLATFORM: ${{ matrix.platform }}
+        EXTRA_FLAGS: ${{ inputs.extra_flags }}
       with:
         timeout_minutes: 15
         max_attempts: 3
@@ -192,7 +199,8 @@ jobs:
           ./scripts/build.sh \
             "$TARGET" \
             "$PLATFORM" \
-            ${{ (contains(inputs.buildonly_platforms, matrix.platform) || contains(inputs.buildonly_platforms, 'all')) && 'spmbuildonly' || 'spm' }}
+            ${{ (contains(inputs.buildonly_platforms, matrix.platform) || contains(inputs.buildonly_platforms, 'all')) && 'spmbuildonly' || 'spm' }} \
+            $EXTRA_FLAGS
     - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
       if: ${{ failure() }}
       with:
