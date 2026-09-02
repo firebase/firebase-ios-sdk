@@ -14,10 +14,10 @@
 
 import Foundation
 
-import FirebaseAppCheckInterop
+internal import FirebaseAppCheckInterop
 import FirebaseAuthInterop
 import FirebaseCore
-import FirebaseCoreExtension
+internal import FirebaseCoreExtension
 #if COCOAPODS
   internal import GoogleUtilities
 #else

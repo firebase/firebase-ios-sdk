@@ -16,7 +16,7 @@
 
   import Foundation
   import UIKit
-  import WebKit
+  internal import WebKit
 
   /// Defines a delegate for AuthWebViewController
   @available(iOSApplicationExtension, unavailable)

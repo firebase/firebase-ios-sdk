@@ -15,9 +15,9 @@
 #if os(iOS)
 
   import Foundation
-  import SafariServices
+  internal import SafariServices
   import UIKit
-  import WebKit
+  internal import WebKit
 
   /// A Class responsible for presenting URL via SFSafariViewController or WKWebView.
   @available(iOSApplicationExtension, unavailable)
