@@ -75,14 +75,4 @@ supports email and password accounts, as well as several 3rd party authenticatio
     # app_host is needed for tests with keychain
     unit_tests.requires_app_host = true
   end
-
-  s.test_spec 'app_extension' do |app_extension_tests|
-    app_extension_tests.platforms = {
-      :ios => ios_deployment_target
-    }
-    app_extension_tests.source_files = 'FirebaseAuth/Tests/AppExtension/**/*.{m,h,swift}'
-    app_extension_tests.pod_target_xcconfig = {
-      'APPLICATION_EXTENSION_API_ONLY' => 'YES'
-    }
-  end
 end

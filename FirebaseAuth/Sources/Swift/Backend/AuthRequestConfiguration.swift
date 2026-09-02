@@ -14,7 +14,7 @@
 
 import Foundation
 
-internal import FirebaseAppCheckInterop
+import FirebaseAppCheckInterop
 internal import FirebaseCoreExtension
 
 /// Defines configurations to be added to a request to Firebase Auth's backend.
