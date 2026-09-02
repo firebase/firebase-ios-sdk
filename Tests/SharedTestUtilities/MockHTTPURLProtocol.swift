@@ -93,3 +93,34 @@ package final class MockHTTPURLProtocol: URLProtocol {
     client?.urlProtocol(self, didFailWithError: URLError(.cancelled))
   }
 }
+
+extension URLRequest {
+  /// The body data of the request, reading from either `httpBody` or `httpBodyStream`.
+  ///
+  /// When `URLSession` processes a `URLRequest`, its internal transmission pipeline converts
+  /// `request.httpBody` into an input stream (`request.httpBodyStream`) and sets `request.httpBody`
+  /// to `nil` before delivering the request to a `URLProtocol`.
+  ///
+  /// This test helper enables `MockHTTPURLProtocol` handlers to inspect the intercepted JSON
+  /// payload by reading directly from `httpBody` when present, or by draining `httpBodyStream`
+  /// if `URLSession` has already transformed it.
+  package var httpBodyData: Data? {
+    if let httpBody { return httpBody }
+    guard let stream = httpBodyStream else { return nil }
+    stream.open()
+    defer { stream.close() }
+    var data = Data()
+    var buffer = [UInt8](repeating: 0, count: 1024)
+    while true {
+      let readCount = stream.read(&buffer, maxLength: buffer.count)
+      if readCount < 0 {
+        return nil
+      } else if readCount == 0 {
+        break
+      }
+      data.append(contentsOf: buffer[..<readCount])
+    }
+
+    return data
+  }
+}
