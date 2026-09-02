@@ -1,4 +1,4 @@
-# Unreleased
+# 12.19.0
 - [feature] Added support for `minimum` and `maximum` FieldValue operations [#16159].
 
 # 12.17.0
