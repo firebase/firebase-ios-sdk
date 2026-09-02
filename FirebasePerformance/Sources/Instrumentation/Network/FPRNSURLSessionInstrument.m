@@ -708,10 +708,6 @@ void InstrumentDownloadTaskWithRequestCompletionHandler(FPRNSURLSessionInstrumen
 }
 
 - (void)registerProxyObject:(id)proxy {
-  if (![self isObjectInstrumentable:proxy]) {
-    return;
-  }
-
   [FPRProxyObjectHelper registerProxyObject:proxy
                               forSuperclass:[NSURLSession class]
                             varFoundHandler:^(id ivar) {
