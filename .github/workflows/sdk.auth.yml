@@ -43,6 +43,14 @@ jobs:
       buildonly_platforms: iOS
       extra_flags: APPLICATION_EXTENSION_API_ONLY=YES
 
+  objc_import_app_extension:
+    uses: ./.github/workflows/_spm.yml
+    with:
+      target: FirebaseAuthExtensionTest
+      platforms: iOS
+      buildonly_platforms: iOS
+      extra_flags: APPLICATION_EXTENSION_API_ONLY=YES
+
   catalyst:
     uses: ./.github/workflows/_catalyst.yml
     with:
@@ -58,6 +66,14 @@ jobs:
     with:
       product: ${{  matrix.product }}
       buildonly_platforms: macOS
+
+  pod_lib_lint_app_extension:
+    uses: ./.github/workflows/_cocoapods.yml
+    with:
+      product: FirebaseAuth
+      platforms: iOS
+      buildonly_platforms: iOS
+      test_specs: app_extension
 
   integration-tests:
     # Don't run on private repo unless it is a PR.
