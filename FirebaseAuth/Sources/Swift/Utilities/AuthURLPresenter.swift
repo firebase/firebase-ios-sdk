@@ -20,10 +20,6 @@
   internal import WebKit
 
   /// A Class responsible for presenting URL via SFSafariViewController or WKWebView.
-  @available(iOSApplicationExtension, unavailable)
-  @available(tvOSApplicationExtension, unavailable)
-  @available(macCatalystApplicationExtension, unavailable)
-  @available(watchOSApplicationExtension, unavailable)
   class AuthURLPresenter: NSObject,
     SFSafariViewControllerDelegate, AuthWebViewControllerDelegate {
     /// Presents an URL to interact with user.
