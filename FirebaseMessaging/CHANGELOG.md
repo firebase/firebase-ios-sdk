@@ -1,3 +1,7 @@
+# Unreleased
+- [fixed] Fix an issue where `messaging:didReceiveRegistrationToken:` was no
+  longer called at app launch when a token was cached. (#16581)
+
 # 12.19.0
 - [fixed] Fix an issue where cached FCM registration tokens were falsely
   invalidated due to locale changes when

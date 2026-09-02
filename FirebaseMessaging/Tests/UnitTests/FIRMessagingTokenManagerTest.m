@@ -217,6 +217,38 @@
   NSString *token = [_messaging.tokenManager tokenAndRequestIfNotExist];
 
   XCTAssertEqualObjects(token, @"cached-v4-token");
+  // defaultFCMToken should not be set yet so that updateDefaultFCMToken can detect the change.
+  XCTAssertNil([_messaging.tokenManager defaultFCMToken]);
+  OCMVerifyAll(_mockTokenManager);
+}
+
+- (void)testTokenAndRequestIfNotExistReturnsCachedFIDWhenInstallationIdEnabled {
+  OCMStub([_mockMessaging isInstallationIdEnabled]).andReturn(YES);
+
+  _messaging.tokenManager.fcmSenderID = @"123456789123";
+
+  FIRMessagingTokenInfo *cachedTokenInfo =
+      [[FIRMessagingTokenInfo alloc] initWithAuthorizedEntity:@"123456789123"
+                                                        scope:kFIRMessagingDefaultTokenScope
+                                                        token:@"fake-cached-fid"
+                                                   appVersion:@"1.0"
+                                                firebaseAppID:@"app-id"
+                                                    tokenType:@"FID"];
+
+  OCMStub([_mockTokenManager cachedTokenInfoWithAuthorizedEntity:@"123456789123"
+                                                           scope:kFIRMessagingDefaultTokenScope])
+      .andReturn(cachedTokenInfo);
+
+  [[_mockTokenManager reject] tokenWithAuthorizedEntity:OCMOCK_ANY
+                                                  scope:OCMOCK_ANY
+                                                options:OCMOCK_ANY
+                                                handler:OCMOCK_ANY];
+
+  NSString *token = [_messaging.tokenManager tokenAndRequestIfNotExist];
+
+  XCTAssertEqualObjects(token, @"fake-cached-fid");
+  // defaultFCMToken should not be set yet so that updateDefaultFCMToken can detect the change.
+  XCTAssertNil([_messaging.tokenManager defaultFCMToken]);
   OCMVerifyAll(_mockTokenManager);
 }
 
