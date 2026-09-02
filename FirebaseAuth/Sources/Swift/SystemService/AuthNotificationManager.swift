@@ -16,25 +16,20 @@
   import Foundation
   import UIKit
 
-  /// A class represents a credential that proves the identity of the app.
-  @preconcurrency
-  // Protocol to help with unit tests.
+  /// A protocol representing the application interactions required by AuthNotificationManager.
   protocol AuthNotificationApplication: Sendable {
     var delegate: UIApplicationDelegate? { get }
     var applicationState: UIApplication.State { get }
 
-    /// The `UIApplication` to pass to `UIApplicationDelegate` callbacks.
-    ///
-    /// The delegate signature requires a concrete `UIApplication`, which a test double
-    /// cannot be. Vending it through the protocol keeps `UIApplication.shared` - which
-    /// is unavailable in app extensions - out of this module.
-    var applicationForDelegate: UIApplication { get }
+    /// The `UIApplication` to pass to `UIApplicationDelegate` callbacks, or `nil` if unavailable.
+    var applicationForDelegate: UIApplication? { get }
   }
 
   extension UIApplication: AuthNotificationApplication {
-    var applicationForDelegate: UIApplication { self }
+    var applicationForDelegate: UIApplication? { self }
   }
 
+  @preconcurrency
   class AuthNotificationManager: @unchecked Sendable {
     /// The key to locate payload data in the remote notification.
     private let kNotificationDataKey = "com.google.firebase.auth"
@@ -138,8 +133,8 @@
           if let delegate = self.application.delegate,
              delegate
              .responds(to: #selector(UIApplicationDelegate
-                 .application(_:didReceiveRemoteNotification:fetchCompletionHandler:))) {
-            let appObj = self.application.applicationForDelegate
+                 .application(_:didReceiveRemoteNotification:fetchCompletionHandler:))),
+             let appObj = self.application.applicationForDelegate {
             delegate.application?(appObj,
                                   didReceiveRemoteNotification: proberNotification) { _ in
             }
