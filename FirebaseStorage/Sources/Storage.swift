@@ -116,7 +116,7 @@ internal import FirebaseCoreExtension
     /// connections.
     /// This should only be used for local testing and debugging on physical devices.
     /// To prevent accidental credential leaks, this property is only available in DEBUG builds.
-    @objc public var allowInsecureTokenAttachment: Bool = false
+    @nonobjc public var allowInsecureTokenAttachment: Bool = false
   #endif
 
   /// Creates a `StorageReference` initialized at the root Firebase Storage location.
