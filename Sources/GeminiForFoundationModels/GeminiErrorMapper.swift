@@ -43,7 +43,8 @@
       case GeminiAPIError.apiError(let apiError):
         if apiError.code == 429 || apiError.status == .resourceExhausted {
           let resetDate = apiError.retryDelay.map {
-            Date.now.addingTimeInterval(Double($0.components.seconds))
+            let seconds = Double($0.components.seconds) + Double($0.components.attoseconds) / 1e18
+            return Date.now.addingTimeInterval(seconds)
           }
           return LanguageModelError.rateLimited(
             LanguageModelError.RateLimited(

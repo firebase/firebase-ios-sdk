@@ -33,23 +33,14 @@
     ) throws -> (
       contents: [Content], systemInstruction: Content?
     ) {
-      var contents: [Content] = []
+      var turns: [(role: String, parts: [Part])] = []
       var systemInstruction: Content?
 
       func appendPart(_ part: Part, role: String) {
-        if let last = contents.last, last.role == role {
-          let existingParts = last.parts ?? []
-          contents[contents.count - 1] = Content(
-            parts: existingParts + [part],
-            role: role
-          )
+        if let lastIndex = turns.indices.last, turns[lastIndex].role == role {
+          turns[lastIndex].parts.append(part)
         } else {
-          contents.append(
-            Content(
-              parts: [part],
-              role: role
-            )
-          )
+          turns.append((role: role, parts: [part]))
         }
       }
 
@@ -76,11 +67,8 @@
           appendPart(Part(data: .text(text)), role: "model")
 
         case .reasoning(let reasoning):
-          let signatureString: String?
-          if let signature = reasoning.signature {
-            signatureString = String(decoding: signature, as: UTF8.self)
-          } else {
-            signatureString = nil
+          let signatureString = reasoning.signature.map {
+            String(decoding: $0, as: UTF8.self)
           }
           let text = try extractOptionalText(from: reasoning.segments, in: entry)
           let partData: Part.PartData? = text.map { .text($0) }
@@ -115,6 +103,7 @@
         }
       }
 
+      let contents = turns.map { Content(parts: $0.parts, role: $0.role) }
       return (contents: contents, systemInstruction: systemInstruction)
     }
 
