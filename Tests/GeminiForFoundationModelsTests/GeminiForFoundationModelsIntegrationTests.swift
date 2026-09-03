@@ -54,6 +54,9 @@
 
       #expect(!response.content.isEmpty)
       #expect(response.content.localizedCaseInsensitiveContains("HELLO"))
+      #expect(response.usage.totalTokenCount > 0)
+      #expect(response.usage.input.totalTokenCount > 0)
+      #expect(response.usage.output.totalTokenCount > 0)
     }
 
     @Test(.requireAPIKey)
@@ -69,6 +72,9 @@
 
       #expect(!response.content.isEmpty)
       #expect(response.content.localizedCaseInsensitiveContains("teal"))
+      #expect(response.usage.totalTokenCount > 0)
+      #expect(response.usage.input.totalTokenCount > 0)
+      #expect(response.usage.output.totalTokenCount > 0)
     }
 
     @Test(.requireAPIKey)
@@ -82,15 +88,21 @@
       )
       var finalContent = ""
       var snapshotCount = 0
+      var finalUsage: LanguageModelSession.Usage?
       for try await snapshot in stream {
         finalContent = snapshot.content
         snapshotCount += 1
+        finalUsage = snapshot.usage
       }
 
       #expect(snapshotCount > 1)
       #expect(!finalContent.isEmpty)
       #expect(finalContent.contains("1"))
       #expect(finalContent.contains("5"))
+      let usage = try #require(finalUsage)
+      #expect(usage.totalTokenCount > 0)
+      #expect(usage.input.totalTokenCount > 0)
+      #expect(usage.output.totalTokenCount > 0)
     }
   }
 #endif  // canImport(FoundationModels) && compiler(>=6.4)

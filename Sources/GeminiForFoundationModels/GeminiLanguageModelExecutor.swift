@@ -106,42 +106,56 @@
 
             try GeminiErrorMapper.checkGuardrails(in: chunk)
 
-            guard let candidates = chunk.candidates, let candidate = candidates.first else {
-              continue
-            }
-
-            guard let parts = candidate.content?.parts else {
-              continue
-            }
-
-            for part in parts {
-              if let thoughtSignature = part.thoughtSignature, !thoughtSignature.isEmpty {
-                let signatureData = Data(thoughtSignature.utf8)
-                await channel.send(
-                  .reasoning(
-                    entryID: reasoningEntryID,
-                    action: .updateSignature(signatureData, tokenCount: 0)
-                  )
-                )
-              }
-
-              if case .text(let text) = part.data, !text.isEmpty {
-                if part.thought == true {
+            if let candidates = chunk.candidates, let candidate = candidates.first,
+              let parts = candidate.content?.parts
+            {
+              for part in parts {
+                if let thoughtSignature = part.thoughtSignature, !thoughtSignature.isEmpty {
+                  let signatureData = Data(thoughtSignature.utf8)
                   await channel.send(
                     .reasoning(
                       entryID: reasoningEntryID,
-                      action: .appendText(text, tokenCount: 1)
-                    )
-                  )
-                } else {
-                  await channel.send(
-                    .response(
-                      entryID: responseEntryID,
-                      action: .appendText(text, tokenCount: 1)
+                      action: .updateSignature(signatureData, tokenCount: 0)
                     )
                   )
                 }
+
+                if case .text(let text) = part.data, !text.isEmpty {
+                  if part.thought == true {
+                    await channel.send(
+                      .reasoning(
+                        entryID: reasoningEntryID,
+                        action: .appendText(text, tokenCount: 1)
+                      )
+                    )
+                  } else {
+                    await channel.send(
+                      .response(
+                        entryID: responseEntryID,
+                        action: .appendText(text, tokenCount: 1)
+                      )
+                    )
+                  }
+                }
               }
+            }
+
+            if let usage = chunk.usageMetadata {
+              await channel.send(
+                .response(
+                  entryID: responseEntryID,
+                  action: .updateUsage(
+                    input: .init(
+                      totalTokenCount: usage.promptTokenCount ?? 0,
+                      cachedTokenCount: usage.cachedContentTokenCount ?? 0
+                    ),
+                    output: .init(
+                      totalTokenCount: usage.candidatesTokenCount ?? 0,
+                      reasoningTokenCount: usage.thoughtsTokenCount ?? 0
+                    )
+                  )
+                )
+              )
             }
           }
         } catch {

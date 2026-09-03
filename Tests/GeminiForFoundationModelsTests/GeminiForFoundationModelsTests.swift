@@ -172,7 +172,7 @@
         )
       )
       let ssePayload = """
-        data: {"candidates": [{"content": {"parts": [{"text": "42", "thoughtSignature": "test-signature-123"}], "role": "model"}, "finishReason": "STOP", "index": 0}]}
+        data: {"candidates": [{"content": {"parts": [{"text": "42", "thoughtSignature": "test-signature-123"}], "role": "model"}, "finishReason": "STOP", "index": 0}], "usageMetadata": {"candidatesTokenCount": 2, "promptTokenCount": 5, "totalTokenCount": 7}}
 
         """
       MockHTTPURLProtocol.setHandler(for: expectedURL) { request, proto in
@@ -185,11 +185,17 @@
 
       let stream = session.streamResponse(to: "What is 6x7?")
       var accumulated = ""
+      var lastUsage: LanguageModelSession.Usage?
       for try await snapshot in stream {
         accumulated = snapshot.content
+        lastUsage = snapshot.usage
       }
 
       #expect(accumulated == "42")
+      let usage = try #require(lastUsage)
+      #expect(usage.input.totalTokenCount == 5)
+      #expect(usage.output.totalTokenCount == 2)
+      #expect(usage.totalTokenCount == 7)
     }
 
     @Test

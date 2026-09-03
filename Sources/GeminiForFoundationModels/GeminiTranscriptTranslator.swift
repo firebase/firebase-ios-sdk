@@ -34,7 +34,7 @@
       contents: [Content], systemInstruction: Content?
     ) {
       var turns: [(role: String, parts: [Part])] = []
-      var systemInstruction: Content?
+      var systemInstructionParts: [Part] = []
 
       func appendPart(_ part: Part, role: String) {
         if let lastIndex = turns.indices.last, turns[lastIndex].role == role {
@@ -54,9 +54,7 @@
               description: "Tool definitions in instructions are not supported."
             )
           }
-          systemInstruction = Content(
-            parts: [Part(data: .text(text))]
-          )
+          systemInstructionParts.append(Part(data: .text(text)))
 
         case .prompt(let prompt):
           let text = try extractText(from: prompt.segments, in: entry)
@@ -104,6 +102,8 @@
       }
 
       let contents = turns.map { Content(parts: $0.parts, role: $0.role) }
+      let systemInstruction: Content? =
+        systemInstructionParts.isEmpty ? nil : Content(parts: systemInstructionParts)
       return (contents: contents, systemInstruction: systemInstruction)
     }
 

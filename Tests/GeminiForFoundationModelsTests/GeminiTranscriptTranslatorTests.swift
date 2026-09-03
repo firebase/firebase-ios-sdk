@@ -127,5 +127,39 @@
       #expect(modelParts[0].data == nil)
       #expect(modelParts[1].data == Part.PartData.text("Hello!"))
     }
+
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func translatesMultipleInstructionsEntriesIntoMultipleParts() throws {
+      let transcript = Transcript(
+        entries: [
+          .instructions(
+            Transcript.Instructions(
+              segments: [.text(Transcript.TextSegment(content: "First instruction."))],
+              toolDefinitions: []
+            )
+          ),
+          .instructions(
+            Transcript.Instructions(
+              segments: [.text(Transcript.TextSegment(content: "Second instruction."))],
+              toolDefinitions: []
+            )
+          ),
+          .prompt(
+            Transcript.Prompt(
+              segments: [.text(Transcript.TextSegment(content: "Hello!"))]
+            )
+          ),
+        ]
+      )
+
+      let result = try GeminiTranscriptTranslator.translate(transcript)
+
+      let systemInstruction = try #require(result.systemInstruction)
+      let parts = try #require(systemInstruction.parts)
+      #expect(parts.count == 2)
+      #expect(parts[0].data == Part.PartData.text("First instruction."))
+      #expect(parts[1].data == Part.PartData.text("Second instruction."))
+    }
   }
 #endif  // canImport(FoundationModels) && compiler(>=6.4)

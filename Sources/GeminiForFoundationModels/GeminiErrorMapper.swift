@@ -58,9 +58,7 @@
               debugDescription: apiError.message
             )
           )
-        } else if apiError.code == 404 || apiError.status == .notFound,
-          apiError.message.localizedCaseInsensitiveContains("model")
-        {
+        } else if apiError.code == 404 || apiError.status == .notFound {
           return GeminiLanguageModel.Error.modelNotFound(
             GeminiLanguageModel.Error.ModelNotFound(
               debugDescription: apiError.message
