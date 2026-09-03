@@ -21,7 +21,7 @@
   @available(iOS 27.0, macOS 27.0, watchOS 27.0, visionOS 27.0, *)
   @available(tvOS, unavailable)
   extension GeminiLanguageModel {
-    /// The executor responsible for translating Foundation Models session requests to Gemini API calls.
+    /// The executor responsible for translating Foundation Models requests to Gemini API calls.
     public struct Executor: LanguageModelExecutor {
       /// The cacheable configuration for this executor.
       public struct Configuration: Hashable, Sendable {
@@ -72,7 +72,8 @@
       ///   - request: The generation request containing the conversation transcript.
       ///   - model: The Gemini language model instance.
       ///   - channel: The generation channel used to stream events back to the session.
-      /// - Throws: `LanguageModelError` on known failures or standard Gemini/network errors.
+      /// - Throws: `LanguageModelError` on known failures or `GeminiLanguageModel.Error` for
+      ///   Gemini-specific errors.
       public func respond(
         to request: LanguageModelExecutorGenerationRequest,
         model: GeminiLanguageModel,
@@ -103,25 +104,10 @@
           for try await chunk in stream {
             try Task.checkCancellation()
 
-            if let promptFeedback = chunk.promptFeedback,
-              let blockReason = promptFeedback.blockReason
-            {
-              throw LanguageModelError.guardrailViolation(
-                .init(debugDescription: "Gemini blocked the prompt: \(blockReason)")
-              )
-            }
+            try GeminiErrorMapper.checkGuardrails(in: chunk)
 
             guard let candidates = chunk.candidates, let candidate = candidates.first else {
               continue
-            }
-
-            if candidate.finishReason == .safety {
-              throw LanguageModelError.guardrailViolation(
-                .init(
-                  debugDescription: candidate.finishMessage
-                    ?? "Content generation blocked by safety filters."
-                )
-              )
             }
 
             if let parts = candidate.content?.parts {
@@ -147,20 +133,8 @@
               }
             }
           }
-        } catch let error as LanguageModelError {
-          throw error
-        } catch let GeminiAPIError.apiError(apiError) {
-          if apiError.code == 429 || apiError.status == .resourceExhausted {
-            let resetDate = apiError.retryDelay.map {
-              Date.now.addingTimeInterval(Double($0.components.seconds))
-            }
-            throw LanguageModelError.rateLimited(
-              .init(resetDate: resetDate, debugDescription: apiError.message)
-            )
-          }
-          throw GeminiAPIError.apiError(apiError)
-        } catch let error as URLError where error.code == .timedOut {
-          throw LanguageModelError.timeout(.init(debugDescription: error.localizedDescription))
+        } catch {
+          throw GeminiErrorMapper.map(error)
         }
       }
     }
