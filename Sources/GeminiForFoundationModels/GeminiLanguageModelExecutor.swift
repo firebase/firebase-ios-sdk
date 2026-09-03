@@ -26,10 +26,10 @@
       /// The cacheable configuration for this executor.
       public struct Configuration: Hashable, Sendable {
         /// The model resource configuration specifying identifiers for URL routing and payloads.
-        package let modelResource: ModelResource
+        let modelResource: ModelResource
 
         /// The network endpoint configuration defining scheme, host, port, and API version.
-        package let endpointConfiguration: EndpointConfiguration
+        let endpointConfiguration: EndpointConfiguration
 
         /// An optional async provider for dynamic headers (such as API keys or Bearer tokens).
         let headerProvider: HeaderProvider?
@@ -44,7 +44,7 @@
         ///   - endpointConfiguration: The network endpoint configuration.
         ///   - headerProvider: An optional async provider for dynamic headers.
         ///   - sessionConfiguration: The `URLSessionConfiguration` to use.
-        package init(
+        init(
           modelResource: ModelResource,
           endpointConfiguration: EndpointConfiguration,
           headerProvider: HeaderProvider?,

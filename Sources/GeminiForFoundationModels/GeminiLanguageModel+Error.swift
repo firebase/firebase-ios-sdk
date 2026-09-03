@@ -20,7 +20,7 @@
   extension GeminiLanguageModel {
     /// Errors specific to the Gemini language model.
     @nonexhaustive
-    public enum Error: Sendable, LocalizedError, CustomDebugStringConvertible, Equatable {
+    public enum Error: Sendable, LocalizedError, CustomDebugStringConvertible {
       /// An error that occurs when the Gemini service is temporarily unavailable.
       case serviceUnavailable(ServiceUnavailable)
 
@@ -36,33 +36,33 @@
       // MARK: - Payload Structures
 
       /// Information about the Gemini service being temporarily unavailable.
-      public struct ServiceUnavailable: Sendable, Equatable, CustomDebugStringConvertible {
+      public struct ServiceUnavailable: Sendable, CustomDebugStringConvertible {
         /// A debug description of the service unavailability.
         public let debugDescription: String
 
         /// Creates a service unavailable error instance.
         ///
         /// - Parameter debugDescription: A debug description of the failure.
-        public init(debugDescription: String) {
+        init(debugDescription: String) {
           self.debugDescription = debugDescription
         }
       }
 
       /// Information about a network failure when communicating with the Gemini service.
-      public struct NetworkFailure: Sendable, Equatable, CustomDebugStringConvertible {
+      public struct NetworkFailure: Sendable, CustomDebugStringConvertible {
         /// A debug description of the network failure.
         public let debugDescription: String
 
         /// Creates a network failure error instance.
         ///
         /// - Parameter debugDescription: A debug description of the failure.
-        public init(debugDescription: String) {
+        init(debugDescription: String) {
           self.debugDescription = debugDescription
         }
       }
 
       /// Information about a requested model resource that could not be found.
-      public struct ModelNotFound: Sendable, Equatable, CustomDebugStringConvertible {
+      public struct ModelNotFound: Sendable, CustomDebugStringConvertible {
         /// The name or identifier of the model that was not found, if known.
         public let modelName: String?
 
@@ -74,14 +74,14 @@
         /// - Parameters:
         ///   - modelName: The name or identifier of the model, if known.
         ///   - debugDescription: A debug description of the failure.
-        public init(modelName: String? = nil, debugDescription: String) {
+        init(modelName: String? = nil, debugDescription: String) {
           self.modelName = modelName
           self.debugDescription = debugDescription
         }
       }
 
       /// Information about an error returned by the Gemini API.
-      public struct APIError: Sendable, Equatable, CustomDebugStringConvertible {
+      public struct APIError: Sendable, CustomDebugStringConvertible {
         /// The machine-readable error code (e.g. "invalid_request", "PERMISSION_DENIED").
         public let code: String
 
@@ -108,7 +108,7 @@
         ///   - statusCode: The HTTP status code value, if available.
         ///   - message: A human-readable description of what went wrong.
         ///   - metadata: Additional metadata and context about the error.
-        public init(
+        init(
           code: String,
           statusCode: Int? = nil,
           message: String,
@@ -118,11 +118,6 @@
           self.statusCode = statusCode
           self.message = message
           self.metadata = metadata
-        }
-
-        public static func == (lhs: Self, rhs: Self) -> Bool {
-          lhs.code == rhs.code && lhs.statusCode == rhs.statusCode && lhs.message == rhs.message
-            && NSDictionary(dictionary: lhs.metadata).isEqual(to: rhs.metadata)
         }
       }
 
