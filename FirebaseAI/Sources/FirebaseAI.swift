@@ -23,6 +23,10 @@ import Foundation
 // Avoids exposing internal FirebaseCore APIs to Swift users.
 internal import FirebaseCoreExtension
 
+#if compiler(>=6.4) && canImport(FoundationModels) && canImport(GeminiLanguageModel)
+  @_exported import GeminiLanguageModel
+#endif // compiler(>=6.4) && canImport(FoundationModels) && canImport(GeminiLanguageModel)
+
 /// The Firebase AI SDK provides access to Gemini models directly from your app.
 public final class FirebaseAI: Sendable {
   // MARK: - Public APIs
@@ -105,6 +109,14 @@ public final class FirebaseAI: Sendable {
       requestOptions: requestOptions
     )
   }
+
+  #if compiler(>=6.4) && canImport(FoundationModels) && canImport(GeminiLanguageModel)
+    @available(iOS 27.0, macOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    @available(tvOS, unavailable)
+    public func geminiLanguageModel(name: String) -> GeminiLanguageModel {
+      return GeminiLanguageModel(name: name, firebaseAI: self)
+    }
+  #endif // compiler(>=6.4) && canImport(FoundationModels) && canImport(GeminiLanguageModel)
 
   // TODO: Remove the `#if compiler(>=6.2.3)` when Xcode 26.2 is the minimum supported version.
   #if compiler(>=6.2.3)

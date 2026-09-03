@@ -189,7 +189,7 @@ func packageDependencies() -> [Package.Dependency] {
 }
 
 func packageTargets() -> [Target] {
-  return [
+  var targets: [Target] = [
     .target(
       name: "Firebase",
       path: "CoreOnly/Sources",
@@ -200,17 +200,7 @@ func packageTargets() -> [Target] {
 
     .target(
       name: "FirebaseAILogic",
-      dependencies: [
-        // Direct dependency on AppCheck for automatic token acquisition and
-        // management.
-        "FirebaseAppCheck",
-        // Despite the direct dependency on App Check, the AI Logic SDK still
-        // uses AppCheck through the interop.
-        "FirebaseAppCheckInterop",
-        "FirebaseAuthInterop",
-        "FirebaseCore",
-        "FirebaseCoreExtension",
-      ],
+      dependencies: firebaseAILogicDependencies(),
       path: "FirebaseAI/Sources",
       swiftSettings: [
         isFoundationModelsSupportedPlatformSwiftSetting(),
@@ -1373,7 +1363,14 @@ func packageTargets() -> [Target] {
         .headerSearchPath("../../../"),
       ]
     ),
-  ] + firestoreTargets()
+  ]
+  targets.append(contentsOf: firestoreTargets())
+
+  #if compiler(>=6.4) && canImport(FoundationModels)
+    targets.append(contentsOf: geminiLanguageModelTargets())
+  #endif
+
+  return targets
 }
 
 // MARK: - Helper Functions
@@ -1687,6 +1684,87 @@ func firestoreTargets() -> [Target] {
     firestoreInternalTarget,
   ]
 }
+
+func firebaseAILogicDependencies() -> [Target.Dependency] {
+  var dependencies: [Target.Dependency] = [
+    // Direct dependency on AppCheck for automatic token acquisition and
+    // management.
+    "FirebaseAppCheck",
+    // Despite the direct dependency on App Check, the AI Logic SDK still
+    // uses AppCheck through the interop.
+    "FirebaseAppCheckInterop",
+    "FirebaseAuthInterop",
+    "FirebaseCore",
+    "FirebaseCoreExtension",
+  ]
+
+  #if compiler(>=6.4) && canImport(FoundationModels)
+    dependencies.append("GeminiLanguageModel")
+  #endif // compiler(>=6.4) && canImport(FoundationModels)
+
+  return dependencies
+}
+
+#if compiler(>=6.4) && canImport(FoundationModels)
+  func geminiLanguageModelTargets() -> [Target] {
+    let swiftSettings: [SwiftSetting] = [
+      .enableUpcomingFeature("ExistentialAny"),
+      .enableUpcomingFeature("InternalImportsByDefault"),
+      .enableUpcomingFeature("MemberImportVisibility"),
+      .swiftLanguageMode(.v6),
+    ]
+
+    return [
+      .target(
+        name: "GeminiLanguageModel",
+        dependencies: [
+          "GeminiAPIClient",
+          "GeminiAPIDataModels",
+        ],
+        path: "GeminiLanguageModel/Sources/GeminiLanguageModel",
+        swiftSettings: swiftSettings
+      ),
+      //    .target(
+      //      name: "SharedTestUtilities",
+      //      path: "Tests/SharedTestUtilities",
+      //      swiftSettings: swiftSettings,
+      //    ),
+      //    .testTarget(
+      //      name: "GeminiForFoundationModelsTests",
+      //      dependencies: [
+      //        "GeminiForFoundationModels",
+      //        "SharedTestUtilities",
+      //      ],
+      //      swiftSettings: swiftSettings
+      //    ),
+      .target(
+        name: "GeminiAPIClient",
+        dependencies: [
+          "GeminiAPIDataModels",
+        ],
+        path: "GeminiLanguageModel/Sources/GeminiAPIClient",
+        swiftSettings: swiftSettings
+      ),
+      //    .testTarget(
+      //      name: "GeminiAPIClientTests",
+      //      dependencies: [
+      //        "GeminiAPIClient",
+      //        "SharedTestUtilities",
+      //      ],
+      //      swiftSettings: swiftSettings
+      //    ),
+      .target(
+        name: "GeminiAPIDataModels",
+        path: "GeminiLanguageModel/Sources/GeminiAPIDataModels",
+        swiftSettings: [
+          .enableUpcomingFeature("ExistentialAny"),
+          .enableUpcomingFeature("MemberImportVisibility"),
+          .swiftLanguageMode(.v6),
+        ]
+      ),
+    ]
+  }
+#endif // compiler(>=6.4) && canImport(FoundationModels)
 
 func isFoundationModelsSupportedPlatformSwiftSetting() -> SwiftSetting {
   return SwiftSetting.define(
