@@ -372,5 +372,44 @@
       #expect(errorWithCode.statusCode == 400)
       #expect(errorWithCode.message == "Invalid parameter")
     }
+
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func mapRateLimitFromHTTP429() {
+      let mappedError = GeminiErrorMapper.map(
+        GeminiAPIError.httpError(statusCode: 429, body: "Too many requests")
+      )
+
+      if case LanguageModelError.rateLimited(let rateLimited) = mappedError {
+        #expect(rateLimited.debugDescription.contains("429"))
+      } else {
+        Issue.record("Expected LanguageModelError.rateLimited")
+      }
+    }
+
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func mapModelNotFoundFromHTTP404() {
+      let mappedError = GeminiErrorMapper.map(
+        GeminiAPIError.httpError(statusCode: 404, body: "Not found")
+      )
+
+      if case GeminiLanguageModel.Error.modelNotFound(let modelNotFound) = mappedError {
+        #expect(modelNotFound.debugDescription.contains("404"))
+      } else {
+        Issue.record("Expected GeminiLanguageModel.Error.modelNotFound")
+      }
+    }
+
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func checkGuardrailsThrowsRefusalForCandidateOtherWithoutMessage() {
+      let candidate = Candidate(finishReason: .other)
+      let chunk = GenerateContentResponse(candidates: [candidate])
+
+      #expect(throws: LanguageModelError.self) {
+        try GeminiErrorMapper.checkGuardrails(in: chunk)
+      }
+    }
   }
 #endif  // canImport(FoundationModels) && compiler(>=6.4)

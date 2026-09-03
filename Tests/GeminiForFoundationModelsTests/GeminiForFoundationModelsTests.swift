@@ -67,6 +67,7 @@
       }
 
       let session = LanguageModelSession(model: model)
+
       let response = try await session.respond(to: "Hello")
 
       #expect(response.content == "Hello world from Gemini!")
@@ -109,6 +110,7 @@
       }
 
       let session = LanguageModelSession(model: model)
+
       let firstResponse = try await session.respond(to: "My name is Alice.")
       let secondResponse = try await session.respond(to: "What is my name?")
 
@@ -149,6 +151,7 @@
       }
 
       let session = LanguageModelSession(model: model, instructions: "Respond like a pirate.")
+
       let response = try await session.respond(to: "Hello")
 
       #expect(response.content == "Ahoy matey!")
@@ -179,6 +182,7 @@
       }
 
       let session = LanguageModelSession(model: model)
+
       let stream = session.streamResponse(to: "What is 6x7?")
       var accumulated = ""
       for try await snapshot in stream {

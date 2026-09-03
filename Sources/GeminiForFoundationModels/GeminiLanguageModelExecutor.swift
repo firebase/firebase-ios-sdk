@@ -110,19 +110,30 @@
               continue
             }
 
-            if let parts = candidate.content?.parts {
-              for part in parts {
-                if let thoughtSignature = part.thoughtSignature, !thoughtSignature.isEmpty {
-                  let signatureData = Data(thoughtSignature.utf8)
+            guard let parts = candidate.content?.parts else {
+              continue
+            }
+
+            for part in parts {
+              if let thoughtSignature = part.thoughtSignature, !thoughtSignature.isEmpty {
+                let signatureData = Data(thoughtSignature.utf8)
+                await channel.send(
+                  .reasoning(
+                    entryID: reasoningEntryID,
+                    action: .updateSignature(signatureData, tokenCount: 0)
+                  )
+                )
+              }
+
+              if case .text(let text) = part.data, !text.isEmpty {
+                if part.thought == true {
                   await channel.send(
                     .reasoning(
                       entryID: reasoningEntryID,
-                      action: .updateSignature(signatureData, tokenCount: 0)
+                      action: .appendText(text, tokenCount: 1)
                     )
                   )
-                }
-
-                if case .text(let text) = part.data, !text.isEmpty {
+                } else {
                   await channel.send(
                     .response(
                       entryID: responseEntryID,

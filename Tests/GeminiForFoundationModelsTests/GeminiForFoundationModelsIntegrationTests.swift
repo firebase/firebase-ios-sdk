@@ -46,7 +46,7 @@
 
     @Test(.requireAPIKey)
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
-    func liveSessionRespond() async throws {
+    func sessionRespond() async throws {
       let model = makeModel()
       let session = LanguageModelSession(model: model)
 
@@ -58,15 +58,39 @@
 
     @Test(.requireAPIKey)
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
-    func liveSessionMultiTurn() async throws {
+    func sessionRespondMultiTurn() async throws {
       let model = makeModel()
       let session = LanguageModelSession(model: model)
 
       _ = try await session.respond(to: "My favorite color is teal.")
-      let response = try await session.respond(to: "What is my favorite color? Answer in one word.")
+      let response = try await session.respond(
+        to: "What is my favorite color? Answer in one word."
+      )
 
       #expect(!response.content.isEmpty)
       #expect(response.content.localizedCaseInsensitiveContains("teal"))
+    }
+
+    @Test(.requireAPIKey)
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func sessionStreamResponse() async throws {
+      let model = makeModel()
+      let session = LanguageModelSession(model: model)
+
+      let stream = session.streamResponse(
+        to: "List the numbers 1 through 5, one per line."
+      )
+      var finalContent = ""
+      var snapshotCount = 0
+      for try await snapshot in stream {
+        finalContent = snapshot.content
+        snapshotCount += 1
+      }
+
+      #expect(snapshotCount > 1)
+      #expect(!finalContent.isEmpty)
+      #expect(finalContent.contains("1"))
+      #expect(finalContent.contains("5"))
     }
   }
 #endif  // canImport(FoundationModels) && compiler(>=6.4)

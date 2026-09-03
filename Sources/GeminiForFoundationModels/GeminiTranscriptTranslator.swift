@@ -15,7 +15,6 @@
 #if canImport(FoundationModels) && compiler(>=6.4)
   import Foundation
   import FoundationModels
-  import GeminiAPIClient
   import GeminiAPIDataModels
 
   /// Translates Apple's `FoundationModels.Transcript` into Gemini API content requests.
@@ -27,8 +26,8 @@
     ///
     /// - Parameter transcript: The conversation history transcript.
     /// - Returns: A tuple containing the list of content turns and an optional system instruction.
-    /// - Throws: `LanguageModelError.unsupportedTranscriptContent` if unsupported entries or segments
-    ///   are present.
+    /// - Throws: `LanguageModelError.unsupportedTranscriptContent` if unsupported entries or
+    ///   segments are present.
     static func translate(
       _ transcript: Transcript
     ) throws -> (
@@ -37,39 +36,44 @@
       var contents: [Content] = []
       var systemInstruction: Content?
 
+      func appendPart(_ part: Part, role: String) {
+        if let last = contents.last, last.role == role {
+          let existingParts = last.parts ?? []
+          contents[contents.count - 1] = Content(
+            parts: existingParts + [part],
+            role: role
+          )
+        } else {
+          contents.append(
+            Content(
+              parts: [part],
+              role: role
+            )
+          )
+        }
+      }
+
       for entry in transcript {
         switch entry {
         case .instructions(let instructions):
           let text = try extractText(from: instructions.segments, in: entry)
           guard instructions.toolDefinitions.isEmpty else {
-            throw LanguageModelError.unsupportedTranscriptContent(
-              .init(
-                unsupportedContent: [entry],
-                debugDescription: "Tool definitions in instructions are not supported."
-              )
+            throw makeUnsupportedError(
+              entry,
+              description: "Tool definitions in instructions are not supported."
             )
           }
           systemInstruction = Content(
-            parts: [Part(data: .text(text))],
+            parts: [Part(data: .text(text))]
           )
 
         case .prompt(let prompt):
           let text = try extractText(from: prompt.segments, in: entry)
-          contents.append(
-            Content(
-              parts: [Part(data: .text(text))],
-              role: "user"
-            )
-          )
+          appendPart(Part(data: .text(text)), role: "user")
 
         case .response(let response):
           let text = try extractText(from: response.segments, in: entry)
-          contents.append(
-            Content(
-              parts: [Part(data: .text(text))],
-              role: "model"
-            )
-          )
+          appendPart(Part(data: .text(text)), role: "model")
 
         case .reasoning(let reasoning):
           let signatureString: String?
@@ -78,43 +82,35 @@
           } else {
             signatureString = nil
           }
-          if let text = try extractOptionalText(from: reasoning.segments, in: entry) {
-            contents.append(
-              Content(
-                parts: [
-                  Part(
-                    data: .text(text),
-                    thought: true,
-                    thoughtSignature: signatureString,
-                  )
-                ],
-                role: "model"
-              )
+          let text = try extractOptionalText(from: reasoning.segments, in: entry)
+          let partData: Part.PartData? = text.map { .text($0) }
+          if partData != nil || signatureString != nil {
+            appendPart(
+              Part(
+                data: partData,
+                thought: true,
+                thoughtSignature: signatureString
+              ),
+              role: "model"
             )
           }
 
         case .toolCalls:
-          throw LanguageModelError.unsupportedTranscriptContent(
-            .init(
-              unsupportedContent: [entry],
-              debugDescription: "Tool calls in transcript are not supported."
-            )
+          throw makeUnsupportedError(
+            entry,
+            description: "Tool calls in transcript are not supported."
           )
 
         case .toolOutput:
-          throw LanguageModelError.unsupportedTranscriptContent(
-            .init(
-              unsupportedContent: [entry],
-              debugDescription: "Tool outputs in transcript are not supported."
-            )
+          throw makeUnsupportedError(
+            entry,
+            description: "Tool outputs in transcript are not supported."
           )
 
         @unknown default:
-          throw LanguageModelError.unsupportedTranscriptContent(
-            .init(
-              unsupportedContent: [entry],
-              debugDescription: "Unsupported transcript entry."
-            )
+          throw makeUnsupportedError(
+            entry,
+            description: "Unsupported transcript entry."
           )
         }
       }
@@ -123,6 +119,18 @@
     }
 
     // MARK: - Private Helpers
+
+    private static func makeUnsupportedError(
+      _ entry: Transcript.Entry,
+      description: String
+    ) -> LanguageModelError {
+      LanguageModelError.unsupportedTranscriptContent(
+        LanguageModelError.UnsupportedTranscriptContent(
+          unsupportedContent: [entry],
+          debugDescription: description
+        )
+      )
+    }
 
     private static func extractText(
       from segments: [Transcript.Segment],
@@ -134,25 +142,19 @@
         case .text(let textSegment):
           text.append(textSegment.content)
         case .attachment:
-          throw LanguageModelError.unsupportedTranscriptContent(
-            .init(
-              unsupportedContent: [entry],
-              debugDescription: "Attachment segments in transcript are not supported."
-            )
+          throw makeUnsupportedError(
+            entry,
+            description: "Attachment segments in transcript are not supported."
           )
         case .structure:
-          throw LanguageModelError.unsupportedTranscriptContent(
-            .init(
-              unsupportedContent: [entry],
-              debugDescription: "Structured segments in transcript are not supported."
-            )
+          throw makeUnsupportedError(
+            entry,
+            description: "Structured segments in transcript are not supported."
           )
         @unknown default:
-          throw LanguageModelError.unsupportedTranscriptContent(
-            .init(
-              unsupportedContent: [entry],
-              debugDescription: "Unsupported transcript segment."
-            )
+          throw makeUnsupportedError(
+            entry,
+            description: "Unsupported transcript segment."
           )
         }
       }

@@ -23,23 +23,24 @@
   @available(iOS 27.0, macOS 27.0, watchOS 27.0, visionOS 27.0, *)
   @available(tvOS, unavailable)
   enum GeminiErrorMapper {
-    /// Maps an underlying error to a corresponding `LanguageModelError` or `GeminiLanguageModel.Error`.
+    /// Maps an underlying error to a corresponding `LanguageModelError` or
+    /// `GeminiLanguageModel.Error`.
     ///
     /// - Parameter error: The error to map.
     /// - Returns: The mapped error, or `GeminiLanguageModel.Error.networkFailure` if no specific
     ///   mapping exists.
     static func map(_ error: any Error) -> any Error {
-      if let error = error as? LanguageModelError {
+      switch error {
+      case let error as LanguageModelError:
         return error
-      }
-      if error is CancellationError {
-        return error
-      }
-      if let error = error as? GeminiLanguageModel.Error {
-        return error
-      }
 
-      if case GeminiAPIError.apiError(let apiError) = error {
+      case is CancellationError:
+        return error
+
+      case let error as GeminiLanguageModel.Error:
+        return error
+
+      case GeminiAPIError.apiError(let apiError):
         if apiError.code == 429 || apiError.status == .resourceExhausted {
           let resetDate = apiError.retryDelay.map {
             Date.now.addingTimeInterval(Double($0.components.seconds))
@@ -50,24 +51,20 @@
               debugDescription: apiError.message
             )
           )
-        }
-
-        if apiError.code == 503 || apiError.status == .unavailable {
+        } else if apiError.code == 503 || apiError.status == .unavailable {
           return GeminiLanguageModel.Error.serviceUnavailable(
             GeminiLanguageModel.Error.ServiceUnavailable(
               debugDescription: apiError.message
             )
           )
-        }
-
-        if apiError.code == 404 || apiError.status == .notFound {
-          if apiError.message.localizedCaseInsensitiveContains("model") {
-            return GeminiLanguageModel.Error.modelNotFound(
-              GeminiLanguageModel.Error.ModelNotFound(
-                debugDescription: apiError.message
-              )
+        } else if apiError.code == 404 || apiError.status == .notFound,
+          apiError.message.localizedCaseInsensitiveContains("model")
+        {
+          return GeminiLanguageModel.Error.modelNotFound(
+            GeminiLanguageModel.Error.ModelNotFound(
+              debugDescription: apiError.message
             )
-          }
+          )
         }
 
         var metadata: [String: any Sendable] = [:]
@@ -84,49 +81,64 @@
             metadata: metadata
           )
         )
-      }
 
-      if case GeminiAPIError.httpError(let statusCode, let body) = error {
-        if statusCode == 503 {
+      case GeminiAPIError.httpError(let statusCode, let body):
+        switch statusCode {
+        case 429:
+          return LanguageModelError.rateLimited(
+            LanguageModelError.RateLimited(
+              resetDate: nil,
+              debugDescription: "HTTP 429: \(body)"
+            )
+          )
+        case 404:
+          return GeminiLanguageModel.Error.modelNotFound(
+            GeminiLanguageModel.Error.ModelNotFound(
+              debugDescription: "HTTP 404: \(body)"
+            )
+          )
+        case 503:
           return GeminiLanguageModel.Error.serviceUnavailable(
             GeminiLanguageModel.Error.ServiceUnavailable(
               debugDescription: "Gemini service is unavailable (HTTP 503): \(body)"
             )
           )
-        }
-        return GeminiLanguageModel.Error.networkFailure(
-          GeminiLanguageModel.Error.NetworkFailure(
-            debugDescription: "Gemini HTTP error (status \(statusCode)): \(body)"
+        default:
+          return GeminiLanguageModel.Error.networkFailure(
+            GeminiLanguageModel.Error.NetworkFailure(
+              debugDescription: "Gemini HTTP error (status \(statusCode)): \(body)"
+            )
           )
-        )
-      }
+        }
 
-      if let urlError = error as? URLError {
-        if urlError.code == .timedOut {
+      case let urlError as URLError:
+        switch urlError.code {
+        case .timedOut:
           return LanguageModelError.timeout(
             LanguageModelError.Timeout(debugDescription: urlError.localizedDescription)
           )
+        default:
+          return GeminiLanguageModel.Error.networkFailure(
+            GeminiLanguageModel.Error.NetworkFailure(
+              debugDescription: urlError.localizedDescription
+            )
+          )
         }
+
+      default:
         return GeminiLanguageModel.Error.networkFailure(
           GeminiLanguageModel.Error.NetworkFailure(
-            debugDescription: urlError.localizedDescription
+            debugDescription: error.localizedDescription
           )
         )
       }
-
-      return GeminiLanguageModel.Error.networkFailure(
-        GeminiLanguageModel.Error.NetworkFailure(
-          debugDescription: error.localizedDescription
-        )
-      )
     }
 
     /// Checks the given response chunk for guardrail violations or model refusals.
     ///
-    /// - Parameter chunk: The content response chunk to validate.
-    /// - Throws: `LanguageModelError.guardrailViolation` if safety filters blocked generation,
-    ///   `LanguageModelError.refusal` if the model declined for non-safety reasons, or
-    ///   `LanguageModelError.unsupportedLanguageOrLocale` if the prompt language is unsupported.
+    /// - Parameter chunk: The response chunk from the Gemini API.
+    /// - Throws: `LanguageModelError.guardrailViolation` or `LanguageModelError.refusal` if a
+    ///   block reason or refusal finish reason is present.
     static func checkGuardrails(in chunk: GenerateContentResponse) throws {
       if let promptFeedback = chunk.promptFeedback,
         let blockReason = promptFeedback.blockReason
@@ -154,47 +166,45 @@
         }
       }
 
-      guard let candidate = chunk.candidates?.first else {
+      guard let candidate = chunk.candidates?.first,
+        let finishReason = candidate.finishReason
+      else {
         return
       }
 
-      if let finishReason = candidate.finishReason {
-        let message = candidate.finishMessage
+      let message = candidate.finishMessage
 
-        switch finishReason {
-        case .safety, .blocklist, .prohibitedContent, .spii, .imageSafety, .imageProhibitedContent,
-          .imageOther:
-          throw LanguageModelError.guardrailViolation(
-            LanguageModelError.GuardrailViolation(
-              debugDescription: message ?? "Content generation blocked by safety filters."
-            )
+      switch finishReason {
+      case .safety, .blocklist, .prohibitedContent, .spii, .imageSafety, .imageProhibitedContent,
+        .imageOther:
+        throw LanguageModelError.guardrailViolation(
+          LanguageModelError.GuardrailViolation(
+            debugDescription: message ?? "Content generation blocked by safety filters."
           )
-        case .recitation:
-          throw LanguageModelError.refusal(
-            LanguageModelError.Refusal(
-              explanation: message ?? "Content generation blocked by recitation check.",
-              debugDescription: message ?? "Recitation check failed."
-            )
+        )
+      case .recitation, .imageRecitation:
+        throw LanguageModelError.refusal(
+          LanguageModelError.Refusal(
+            explanation: message ?? "Content generation blocked by recitation check.",
+            debugDescription: message ?? "Recitation check failed."
           )
-        case .escalation, .other:
-          if let message {
-            throw LanguageModelError.refusal(
-              LanguageModelError.Refusal(
-                explanation: message,
-                debugDescription: message
-              )
-            )
-          }
-        case .language:
-          throw LanguageModelError.unsupportedLanguageOrLocale(
-            LanguageModelError.UnsupportedLanguageOrLocale(
-              languageCode: Locale.LanguageCode("und"),
-              debugDescription: message ?? "Unsupported language or locale."
-            )
+        )
+      case .escalation, .other:
+        throw LanguageModelError.refusal(
+          LanguageModelError.Refusal(
+            explanation: message ?? "The model declined to generate a response.",
+            debugDescription: message ?? "Content generation declined by the model."
           )
-        default:
-          break
-        }
+        )
+      case .language:
+        throw LanguageModelError.unsupportedLanguageOrLocale(
+          LanguageModelError.UnsupportedLanguageOrLocale(
+            languageCode: Locale.LanguageCode("und"),
+            debugDescription: message ?? "Unsupported language or locale."
+          )
+        )
+      default:
+        break
       }
     }
   }
