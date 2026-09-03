@@ -34,6 +34,10 @@ let package = Package(
   targets: [
     .target(
       name: "GeminiForFoundationModels",
+      dependencies: [
+        "GeminiAPIClient",
+        "GeminiAPIDataModels",
+      ],
       swiftSettings: defaultSwiftSettings
     ),
     .target(
