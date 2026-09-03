@@ -35,6 +35,14 @@ jobs:
       target: AuthUnit
       buildonly_platforms: macOS
 
+  spm_app_extension:
+    uses: ./.github/workflows/_spm.yml
+    with:
+      target: FirebaseAuth
+      platforms: iOS
+      buildonly_platforms: iOS
+      extra_flags: APPLICATION_EXTENSION_API_ONLY=YES
+
   catalyst:
     uses: ./.github/workflows/_catalyst.yml
     with:
@@ -64,6 +72,8 @@ jobs:
     runs-on: macos-26
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      with:
+        persist-credentials: false
     - uses: actions/cache/restore@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
       with:
         path: .build
@@ -86,13 +96,10 @@ jobs:
           FirebaseAuth/Tests/SampleSwift/SwiftApiTests/Credentials.swift "$plist_secret"
     - name: Xcode
       run: sudo xcode-select -s /Applications/Xcode_26.4.app/Contents/Developer
-    - name: Install simulators in case they are missing.
-      uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
+    - name: Setup simulator
+      uses: ./.github/actions/setup_simulator
       with:
-        timeout_minutes: 15
-        max_attempts: 5
-        retry_wait_seconds: 120
-        command: xcodebuild -downloadPlatform iOS
+        platform: iOS
     - uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
       with:
         timeout_minutes: 15

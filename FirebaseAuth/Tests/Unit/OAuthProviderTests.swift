@@ -46,6 +46,7 @@ import FirebaseCore
     static var testAppID = false
     static var testEmulator = false
     static var testAppCheck = false
+    static var testCustomParametersInjection = false
 
     static var auth: Auth?
 
@@ -228,6 +229,18 @@ import FirebaseCore
       OAuthProviderTests.testAppCheck = false
     }
 
+    /** @fn testGetCredentialWithUIDelegateWithCustomParametersInjection
+        @brief Tests that custom parameters containing special URL characters do not leak into the top-level query parameters.
+     */
+    func testGetCredentialWithUIDelegateWithCustomParametersInjection() throws {
+      initApp(#function)
+      OAuthProviderTests.testCustomParametersInjection = true
+      addTeardownBlock {
+        OAuthProviderTests.testCustomParametersInjection = false
+      }
+      try testOAuthFlow(description: #function)
+    }
+
     /** @fn testOAuthCredentialCoding
         @brief Tests successful archiving and unarchiving of @c GoogleAuthCredential.
      */
@@ -293,6 +306,14 @@ import FirebaseCore
                                with fakeAppCheck: FakeAppCheck? = nil) throws {
       let expectation = self.expectation(description: description)
       let provider = OAuthProvider(providerID: kFakeProviderID, auth: OAuthProviderTests.auth!)
+
+      if OAuthProviderTests.testCustomParametersInjection {
+        provider
+          .customParameters =
+          [
+            "login_hint": "x\"}&tid=attacker-tenant&clientId=000000.apps.googleusercontent.com&junk={\"a\":\"b",
+          ]
+      }
 
       // Use fake authURLPresenter so we can test the parameters that get sent to it.
       OAuthProviderTests.auth?.authURLPresenter = FakePresenter()
@@ -362,6 +383,12 @@ import FirebaseCore
             XCTAssertEqual(params["tid"], OAuthProviderTests.kFakeTenantID)
           } else {
             XCTAssertNil(params["tid"])
+          }
+          if OAuthProviderTests.testCustomParametersInjection {
+            XCTAssertEqual(
+              params["customParameters"],
+              "{\"login_hint\":\"x\\\"}&tid=attacker-tenant&clientId=000000.apps.googleusercontent.com&junk={\\\"a\\\":\\\"b\"}"
+            )
           }
           let appCheckToken = presentURL.fragment
           let verifyAppCheckToken = OAuthProviderTests.testAppCheck ? "fac=fakeAppCheckToken" : nil

@@ -1638,7 +1638,7 @@ TEST_F(SerializerTest, EncodesListenRequestLabels) {
            {{"goog-listen-tags", "limbo-document"}}},
           {QueryPurpose::ExistenceFilterMismatch,
            {{"goog-listen-tags", "existence-filter-mismatch"}}},
-      };
+  };
 
   for (const auto& p : purpose_to_label) {
     TargetData model(core::TargetOrPipeline(q.ToTarget()), 1, 0, p.first);

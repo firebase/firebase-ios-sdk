@@ -1,5 +1,8 @@
 name: _spm
 
+env:
+  FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
+
 permissions:
   contents: read
 
@@ -66,6 +69,12 @@ on:
         required: false
         default: "{}"
 
+      # Extra flags to pass to scripts/build.sh xcodebuild invocation.
+      extra_flags:
+        type: string
+        required: false
+        default: ""
+
     outputs:
       cache_key:
         description: "The cache key for the Swift package resolution."
@@ -73,13 +82,13 @@ on:
 
 jobs:
   spm-package-resolved:
-    env:
-      FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
     runs-on: macos-26
     outputs:
       cache_key: ${{ steps.generate_cache_key.outputs.cache_key }}
     steps:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          persist-credentials: false
       - name: Set Custom Environment Variables
         run: |
           python3 -c '
@@ -160,18 +169,19 @@ jobs:
         key: ${{needs.spm-package-resolved.outputs.cache_key}}
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
-    - name: Install simulators in case they are missing.
+    - name: Setup simulator
       if: matrix.platform != 'macOS' && matrix.platform != 'catalyst'
-      uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
+      uses: ./.github/actions/setup_simulator
       with:
-        timeout_minutes: 15
-        max_attempts: 5
-        retry_wait_seconds: 120
-        continue_on_error: true
-        command: xcodebuild -downloadPlatform ${{ matrix.platform }}
+        platform: ${{ matrix.platform }}
     - name: Run setup command, if needed.
       if: inputs.setup_command != ''
-      run: ${{ inputs.setup_command }}
+      # hacky workaround for zizmor
+      # TODO: make this an enum and remove script injection
+      run: |
+        echo $INPUTS_SETUP_COMMAND > setup_script.sh && bash setup_script.sh
+      env:
+        INPUTS_SETUP_COMMAND: ${{ inputs.setup_command }}
     - name: Initialize xcodebuild
       run: scripts/setup_spm_tests.sh
     - uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
@@ -180,6 +190,7 @@ jobs:
         FIREBASE_IS_NIGHTLY_TESTING: ${{ inputs.is_nightly && '1' || '' }}
         TARGET: ${{ inputs.target }}
         PLATFORM: ${{ matrix.platform }}
+        EXTRA_FLAGS: ${{ inputs.extra_flags }}
       with:
         timeout_minutes: 15
         max_attempts: 3
@@ -188,7 +199,8 @@ jobs:
           ./scripts/build.sh \
             "$TARGET" \
             "$PLATFORM" \
-            ${{ (contains(inputs.buildonly_platforms, matrix.platform) || contains(inputs.buildonly_platforms, 'all')) && 'spmbuildonly' || 'spm' }}
+            ${{ (contains(inputs.buildonly_platforms, matrix.platform) || contains(inputs.buildonly_platforms, 'all')) && 'spmbuildonly' || 'spm' }} \
+            $EXTRA_FLAGS
     - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
       if: ${{ failure() }}
       with:

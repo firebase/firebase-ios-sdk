@@ -18,8 +18,6 @@
 
 @class FIRMessagingCheckinPreferences;
 
-@protocol FIRHeartbeatLoggerProtocol;
-
 NS_ASSUME_NONNULL_BEGIN
 
 /**
@@ -60,14 +58,12 @@ typedef void (^FIRMessagingTokenOperationCompletion)(FIRMessagingTokenOperationR
 @property(nonatomic, readonly, nullable) NSString *authorizedEntity;
 @property(nonatomic, readonly, nullable) NSString *scope;
 @property(nonatomic, readonly, nullable) NSDictionary<NSString *, NSString *> *options;
-@property(nonatomic, readonly, strong) FIRMessagingCheckinPreferences *checkinPreferences;
+@property(nonatomic, readonly, nullable, strong) FIRMessagingCheckinPreferences *checkinPreferences;
 @property(nonatomic, readonly, strong) NSString *instanceID;
 
 @property(nonatomic, readonly) FIRMessagingTokenOperationResult result;
 
 @property(atomic, strong, nullable) NSURLSessionDataTask *dataTask;
-
-@property(readonly) id<FIRHeartbeatLoggerProtocol> heartbeatLogger;
 
 #pragma mark - Request Construction
 + (NSMutableArray<NSURLQueryItem *> *)standardQueryItemsWithDeviceID:(NSString *)deviceID
@@ -80,10 +76,8 @@ typedef void (^FIRMessagingTokenOperationCompletion)(FIRMessagingTokenOperationR
            forAuthorizedEntity:(nullable NSString *)authorizedEntity
                          scope:(NSString *)scope
                        options:(nullable NSDictionary<NSString *, NSString *> *)options
-            checkinPreferences:(FIRMessagingCheckinPreferences *)checkinPreferences
-                    instanceID:(NSString *)instanceID
-               heartbeatLogger:(id<FIRHeartbeatLoggerProtocol>)heartbeatLogger
-    NS_DESIGNATED_INITIALIZER;
+            checkinPreferences:(nullable FIRMessagingCheckinPreferences *)checkinPreferences
+                    instanceID:(NSString *)instanceID NS_DESIGNATED_INITIALIZER;
 
 - (void)addCompletionHandler:(FIRMessagingTokenOperationCompletion)handler;
 

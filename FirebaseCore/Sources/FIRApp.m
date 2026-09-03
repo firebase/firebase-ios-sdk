@@ -139,6 +139,16 @@ static FIRApp *sDefaultApp;
   if (!name || !options) {
     [NSException raise:kFirebaseCoreErrorDomain format:@"Neither name nor options can be nil."];
   }
+
+  // Pre-cache the locale and calendar to prevent a race condition with C++ dependencies
+  // that temporarily mutate the global POSIX C locale during initialization.
+  // See https://github.com/firebase/firebase-ios-sdk/issues/16542
+  static dispatch_once_t localeCacheOnceToken;
+  dispatch_once(&localeCacheOnceToken, ^{
+    (void)[NSLocale currentLocale];
+    (void)[NSCalendar currentCalendar];
+    (void)[NSCalendar autoupdatingCurrentCalendar];
+  });
   if (name.length == 0) {
     [NSException raise:kFirebaseCoreErrorDomain format:@"Name cannot be empty."];
   }

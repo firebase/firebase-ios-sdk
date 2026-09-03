@@ -18,14 +18,23 @@
 
 import PackageDescription
 
-let firebaseVersion = "12.16.0"
+let firebaseVersion = "12.19.0"
 
 let shouldUseSourceFirestore = Context.environment["FIREBASE_SOURCE_FIRESTORE"] != nil
 
 let package = Package(
   name: "Firebase",
   platforms: [.iOS(.v15), .macCatalyst(.v15), .macOS(.v11), .tvOS(.v15), .watchOS(.v7)],
-  products: [
+  products: packageProducts(),
+  dependencies: packageDependencies(),
+  targets: packageTargets(),
+  cxxLanguageStandard: CXXLanguageStandard.gnucxx17
+)
+
+// MARK: - Package Manifest Builders
+
+func packageProducts() -> [Product] {
+  return [
     .library(
       name: "FirebaseAI",
       targets: [
@@ -131,8 +140,11 @@ let package = Package(
       name: "FirebaseStorage",
       targets: ["FirebaseStorage"]
     ),
-  ],
-  dependencies: [
+  ]
+}
+
+func packageDependencies() -> [Package.Dependency] {
+  return [
     .package(
       url: "https://github.com/google/promises.git",
       "2.4.0" ..< "3.0.0"
@@ -144,7 +156,7 @@ let package = Package(
     ),
     .package(
       url: "https://github.com/google/GoogleUtilities.git",
-      "8.1.0" ..< "9.0.0"
+      "8.1.3" ..< "9.0.0"
     ),
     .package(
       url: "https://github.com/google/gtm-session-fetcher.git",
@@ -173,8 +185,11 @@ let package = Package(
       "101.0.0" ..< "102.0.0"
     ),
     appCheckDependency(),
-  ],
-  targets: [
+  ]
+}
+
+func packageTargets() -> [Target] {
+  return [
     .target(
       name: "Firebase",
       path: "CoreOnly/Sources",
@@ -356,8 +371,8 @@ let package = Package(
     ),
     .binaryTarget(
       name: "FirebaseAnalytics",
-      url: "https://dl.google.com/firebase/ios/swiftpm/12.15.0/FirebaseAnalytics.zip",
-      checksum: "ba21a1b13404d96d4b6686eff250ce4088305d6d5c860bb07319118bae8b97b7"
+      url: "https://dl.google.com/firebase/ios/swiftpm/12.19.0/FirebaseAnalytics.zip",
+      checksum: "3fcbbaff30b579e1ad374c2d4bddfe602f0e689cd54e768f19b125848a7b40d2"
     ),
     .testTarget(
       name: "AnalyticsSwiftUnit",
@@ -529,9 +544,6 @@ let package = Package(
       ],
       path: "FirebaseAuth/Tests/Unit",
       exclude: [
-        // TODO: these tests rely on a non-zero UIApplication.shared. They run from CocoaPods.
-        "PhoneAuthProviderTests.swift",
-        "AuthNotificationManagerTests.swift",
         // TODO: The following tests run in CocoaPods only, until mixed language or separate target.
         "ObjCAPITests.m",
         "ObjCGlobalTests.m",
@@ -1361,9 +1373,8 @@ let package = Package(
         .headerSearchPath("../../../"),
       ]
     ),
-  ] + firestoreTargets(),
-  cxxLanguageStandard: CXXLanguageStandard.gnucxx17
-)
+  ] + firestoreTargets()
+}
 
 // MARK: - Helper Functions
 
@@ -1439,7 +1450,7 @@ func googleAppMeasurementDependency() -> Package.Dependency {
     return .package(url: appMeasurementURL, branch: "main")
   }
 
-  return .package(url: appMeasurementURL, "12.15.0" ..< "12.16.0")
+  return .package(url: appMeasurementURL, "12.19.0" ..< "12.20.0")
 }
 
 func abseilDependency() -> Package.Dependency {
@@ -1621,8 +1632,8 @@ func firestoreTargets() -> [Target] {
     } else {
       return .binaryTarget(
         name: "FirebaseFirestoreInternal",
-        url: "https://dl.google.com/firebase/ios/bin/firestore/12.15.0/rc0/FirebaseFirestoreInternal.zip",
-        checksum: "a9b2cd1e062bcc001c302df4a5857d5250142ad394cfb153749b88f184df44f1"
+        url: "https://dl.google.com/firebase/ios/bin/firestore/12.17.0/rc0/FirebaseFirestoreInternal.zip",
+        checksum: "26a8f4b5b2b454b2caf002296da08d71f241628ec27e1610b5b5a8fd5c61feb5"
       )
     }
   }()

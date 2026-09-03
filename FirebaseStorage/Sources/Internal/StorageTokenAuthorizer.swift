@@ -37,6 +37,17 @@ class StorageTokenAuthorizer: NSObject, GTMSessionFetcherAuthorizer {
 
     var tokenError: NSError?
     let fetchTokenGroup = DispatchGroup()
+
+    let scheme = request?.url?.scheme?.lowercased()
+    let isHttps = scheme == "https"
+    let host = request?.url?.host?.lowercased() ?? ""
+    let isLoopback = host == "localhost" || host == "127.0.0.1" || host == "::1" || host == "[::1]"
+    #if DEBUG
+      let shouldAttachTokens = isHttps || isLoopback || allowInsecureTokenAttachment()
+    #else
+      let shouldAttachTokens = isHttps || isLoopback
+    #endif
+
     if let auth {
       fetchTokenGroup.enter()
       auth.getToken(forcingRefresh: false) { token, error in
@@ -68,7 +79,30 @@ class StorageTokenAuthorizer: NSObject, GTMSessionFetcherAuthorizer {
         fetchTokenGroup.leave()
       }
     }
+
     fetchTokenGroup.notify(queue: callbackQueue) {
+      let tokensWereAttached = request?.value(forHTTPHeaderField: "Authorization") != nil ||
+        request?.value(forHTTPHeaderField: "X-Firebase-AppCheck") != nil
+
+      if tokensWereAttached && !shouldAttachTokens && scheme == "http" {
+        // Strip tokens so credentials aren't transmitted over cleartext HTTP
+        request?.setValue(nil, forHTTPHeaderField: "Authorization")
+        request?.setValue(nil, forHTTPHeaderField: "X-Firebase-AppCheck")
+
+        FirebaseLogger.log(
+          level: .warning,
+          service: "[FirebaseStorage]",
+          code: "I-STR000002",
+          message: "Refusing to send Auth and AppCheck tokens over HTTP to non-loopback host."
+        )
+        tokenError = StorageError
+          .unauthenticated(
+            serverError: [
+              "message": "Refusing to send Auth and AppCheck tokens over HTTP to non-loopback host.",
+            ]
+          ) as NSError
+      }
+
       handler(tokenError)
     }
   }
@@ -103,16 +137,23 @@ class StorageTokenAuthorizer: NSObject, GTMSessionFetcherAuthorizer {
   private let googleAppID: String
   private let auth: AuthInterop?
   private let appCheck: AppCheckInterop?
+  #if DEBUG
+    private let allowInsecureTokenAttachment: () -> Bool
+  #endif
 
   private let serialAuthArgsQueue = DispatchQueue(label: "com.google.firebasestorage.authorizer")
 
   init(googleAppID: String,
        callbackQueue: DispatchQueue = DispatchQueue.main,
        authProvider: AuthInterop?,
-       appCheck: AppCheckInterop?) {
+       appCheck: AppCheckInterop?,
+       allowInsecureTokenAttachment: @escaping () -> Bool = { false }) {
     self.googleAppID = googleAppID
     self.callbackQueue = callbackQueue
     auth = authProvider
     self.appCheck = appCheck
+    #if DEBUG
+      self.allowInsecureTokenAttachment = allowInsecureTokenAttachment
+    #endif
   }
 }

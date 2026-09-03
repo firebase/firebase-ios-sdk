@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebasePerformance'
-  s.version          = '12.16.0'
+  s.version          = '12.19.0'
   s.summary          = 'Firebase Performance'
 
   s.description      = <<-DESC
@@ -58,14 +58,14 @@ Firebase Performance library to measure performance of Mobile and Web Apps.
   s.ios.framework = 'CoreTelephony'
   s.framework = 'QuartzCore'
   s.framework = 'SystemConfiguration'
-  s.dependency 'FirebaseCore', '~> 12.16.0'
-  s.dependency 'FirebaseInstallations', '~> 12.16.0'
-  s.dependency 'FirebaseRemoteConfig', '~> 12.16.0'
-  s.dependency 'FirebaseSessions', '~> 12.16.0'
+  s.dependency 'FirebaseCore', '~> 12.19.0'
+  s.dependency 'FirebaseInstallations', '~> 12.19.0'
+  s.dependency 'FirebaseRemoteConfig', '~> 12.19.0'
+  s.dependency 'FirebaseSessions', '~> 12.19.0'
   s.dependency 'GoogleDataTransport', '~> 10.1'
-  s.dependency 'GoogleUtilities/Environment', '~> 8.1'
-  s.dependency 'GoogleUtilities/MethodSwizzler', '~> 8.1'
-  s.dependency 'GoogleUtilities/UserDefaults', '~> 8.1'
+  s.dependency 'GoogleUtilities/Environment', '>= 8.1.3', '< 9.0'
+  s.dependency 'GoogleUtilities/MethodSwizzler', '>= 8.1.3', '< 9.0'
+  s.dependency 'GoogleUtilities/UserDefaults', '>= 8.1.3', '< 9.0'
   s.dependency 'nanopb', '~> 3.30910.0'
 
   s.test_spec 'unit' do |unit_tests|

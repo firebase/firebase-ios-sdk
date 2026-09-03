@@ -22,6 +22,11 @@ import Foundation
 #endif // SWIFT_PACKAGE
 
 /// Possible ways to get a custom model.
+@available(
+  *,
+  deprecated,
+  message: "Firebase ML is deprecated and will be shut down on June 15, 2027. To host custom models, you must migrate to another solution. You can use Cloud Storage for Firebase as an alternative for hosting custom models. For more info, see https://firebase.google.com/docs/ml/migrate-to-cloud-storage"
+)
 public enum ModelDownloadType {
   /// Get local model stored on device if available. If no local model on device, this is the same
   /// as `latestModel`.
@@ -35,6 +40,11 @@ public enum ModelDownloadType {
 }
 
 /// Downloader to manage custom model downloads.
+@available(
+  *,
+  deprecated,
+  message: "Firebase ML is deprecated and will be shut down on June 15, 2027. To host custom models, you must migrate to another solution. You can use Cloud Storage for Firebase as an alternative for hosting custom models. For more info, see https://firebase.google.com/docs/ml/migrate-to-cloud-storage"
+)
 public class ModelDownloader {
   /// Name of the app associated with this instance of ModelDownloader.
   private let appName: String
@@ -504,6 +514,11 @@ extension ModelDownloader {
 }
 
 /// Possible errors with model downloading.
+@available(
+  *,
+  deprecated,
+  message: "Firebase ML is deprecated and will be shut down on June 15, 2027. To host custom models, you must migrate to another solution. You can use Cloud Storage for Firebase as an alternative for hosting custom models. For more info, see https://firebase.google.com/docs/ml/migrate-to-cloud-storage"
+)
 public enum DownloadError: Error, Equatable {
   /// No model with this name exists on server.
   case notFound
@@ -524,6 +539,11 @@ public enum DownloadError: Error, Equatable {
 }
 
 /// Possible errors with locating a model file on device.
+@available(
+  *,
+  deprecated,
+  message: "Firebase ML is deprecated and will be shut down on June 15, 2027. To host custom models, you must migrate to another solution. You can use Cloud Storage for Firebase as an alternative for hosting custom models. For more info, see https://firebase.google.com/docs/ml/migrate-to-cloud-storage"
+)
 public enum DownloadedModelError: Error {
   /// No model with this name exists on device.
   case notFound

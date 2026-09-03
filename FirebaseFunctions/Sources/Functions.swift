@@ -70,6 +70,14 @@ enum FunctionsConstants {
     _emulatorOrigin.value()
   }
 
+  #if DEBUG
+    /// Allows authentication and AppCheck tokens to be attached to requests over insecure HTTP
+    /// connections.
+    /// This should only be used for local testing and debugging on physical devices.
+    /// To prevent accidental credential leaks, this property is only available in DEBUG builds.
+    @nonobjc public var allowInsecureTokenAttachment: Bool = false
+  #endif
+
   /// Creates a Cloud Functions client using the default or returns a pre-existing instance if it
   /// already exists.
   /// - Returns: A shared Functions instance initialized with the default `FirebaseApp`.
@@ -407,14 +415,14 @@ enum FunctionsConstants {
     }
   }
 
-  @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
+  @available(macOS 12.0, watchOS 8.0, *)
   func stream(at url: URL,
               data: SendableWrapper?,
               options: HTTPSCallableOptions?,
               timeout: TimeInterval)
     -> AsyncThrowingStream<JSONStreamResponse, Error> {
     AsyncThrowingStream { continuation in
-      Task {
+      let task = Task {
         let urlRequest: URLRequest
         do {
           let context = try await contextProvider.context(options: options)
@@ -509,6 +517,9 @@ enum FunctionsConstants {
 
         continuation.finish()
       }
+      continuation.onTermination = { @Sendable _ in
+        task.cancel()
+      }
     }
   }
 
@@ -576,6 +587,10 @@ enum FunctionsConstants {
     urlRequest.setValue("text/event-stream", forHTTPHeaderField: "Accept")
     urlRequest.httpMethod = "POST"
 
+    guard try shouldAttachTokens(to: url, context: context, logCode: "I-FUN000001") else {
+      return urlRequest
+    }
+
     if let authToken = context.authToken {
       let value = "Bearer \(authToken)"
       urlRequest.setValue(value, forHTTPHeaderField: "Authorization")
@@ -622,6 +637,16 @@ enum FunctionsConstants {
 
     // Set the headers.
     fetcher.setRequestValue("application/json", forHTTPHeaderField: "Content-Type")
+    // Override normal security rules if this is a local test.
+    if emulatorOrigin != nil {
+      fetcher.allowLocalhostRequest = true
+      fetcher.allowedInsecureSchemes = ["http"]
+    }
+
+    guard try shouldAttachTokens(to: url, context: context, logCode: "I-FUN000002") else {
+      return fetcher
+    }
+
     if let authToken = context.authToken {
       let value = "Bearer \(authToken)"
       fetcher.setRequestValue(value, forHTTPHeaderField: "Authorization")
@@ -643,12 +668,6 @@ enum FunctionsConstants {
         appCheckToken,
         forHTTPHeaderField: Constants.appCheckTokenHeader
       )
-    }
-
-    // Override normal security rules if this is a local test.
-    if emulatorOrigin != nil {
-      fetcher.allowLocalhostRequest = true
-      fetcher.allowedInsecureSchemes = ["http"]
     }
 
     return fetcher
@@ -710,5 +729,53 @@ enum FunctionsConstants {
     }
 
     return dataJSON
+  }
+
+  /// Validates whether tokens can safely be attached to the request.
+  /// - Throws: `FunctionsError.unauthenticated` when credentials would be transmitted insecurely
+  /// over HTTP to a non-loopback host.
+  /// - Returns: `true` if tokens should be attached, `false` otherwise.
+  private func shouldAttachTokens(to url: URL,
+                                  context: FunctionsContext,
+                                  logCode: String) throws -> Bool {
+    #if DEBUG
+      let shouldAttachTokens = url.isSecureOrLoopback || allowInsecureTokenAttachment
+    #else
+      let shouldAttachTokens = url.isSecureOrLoopback
+    #endif
+
+    guard shouldAttachTokens else {
+      let hasTokens = context.authToken != nil ||
+        context.fcmToken != nil ||
+        context.appCheckToken != nil ||
+        context.limitedUseAppCheckToken != nil
+
+      if hasTokens && url.scheme?.lowercased() == "http" {
+        FirebaseLogger.log(
+          level: .warning,
+          service: "[FirebaseFunctions]",
+          code: logCode,
+          message: "Refusing to send Auth, FCM, and AppCheck tokens over HTTP to non-loopback host."
+        )
+        throw FunctionsError(
+          .unauthenticated,
+          userInfo: [
+            NSLocalizedDescriptionKey: "Refusing to send Auth, FCM, and AppCheck tokens over HTTP to non-loopback host.",
+          ]
+        )
+      }
+      return false
+    }
+
+    return true
+  }
+}
+
+private extension URL {
+  var isSecureOrLoopback: Bool {
+    let scheme = scheme?.lowercased()
+    let host = host?.lowercased() ?? ""
+    let isLoopback = host == "localhost" || host == "127.0.0.1" || host == "::1" || host == "[::1]"
+    return scheme == "https" || isLoopback
   }
 }

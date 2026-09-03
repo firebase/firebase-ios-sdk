@@ -1,3 +1,30 @@
+# 12.19.0
+- [fixed] Fix an issue where `messaging:didReceiveRegistrationToken:` was no
+  longer called at app launch when a token was cached. (#16581)
+- [fixed] Fix an issue where cached FCM registration tokens were falsely
+  invalidated due to locale changes when
+  `FirebaseMessagingInstallationIdEnabled` was set to `YES`. (#16572)
+- [fixed] Fix a potential crash when parsing malformed FCM payloads with
+  unexpected non-numeric fields. (#16533)
+
+# 12.18.0
+- [fixed] Fix an issue where new FCM registration processing was not invoked
+  when `FirebaseMessagingInstallationIdEnabled` was set to `YES` and a legacy token
+  existed in cache. (#16429)
+- [changed] Deprecate token-related APIs (`tokenWithCompletion:`,
+  `deleteTokenWithCompletion:`, `retrieveFCMTokenForSenderID:completion:`,
+  `deleteFCMTokenForSenderID:completion:`, `FCMToken`,
+  `messaging:didReceiveRegistrationToken:`, and
+  `FIRMessagingRegistrationTokenRefreshedNotification`) in favor of the new
+  FID-based registration APIs. (#16466)
+
+# 12.17.0
+- [fixed] Reject path separators in file extensions for downloaded image
+  attachments. (#16387)
+
+# 12.16.0
+- [added] Add support for the new FCM registration API. (#16133)
+
 # 12.8.0
 - [fixed] Fix missing database crash on launch. (#14880)
 

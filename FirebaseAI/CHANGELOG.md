@@ -1,4 +1,29 @@
-# Unreleased
+# 12.19.0
+- [fixed] Fixed an issue with a transitive import in the logger, which could cause
+  a build error in explicit module mode. (#16563)
+
+# 12.18.0
+- [removed] Removed deprecated Imagen methods and types due to Imagen models being shut down in
+  August 2026. As a replacement, you can [migrate your apps to use Gemini Image models (the
+  "Nano Banana" models)](https://firebase.google.com/docs/ai-logic/imagen-models-migration).
+- [feature] Added support for `RealtimeInputConfig` in `LiveGenerationConfig`. (#16441)
+- [feature] Added support for `sendStartActivityRealtime` and `sendStopActivityRealtime`
+  in `LiveSession`. (#16441)
+
+# 12.17.0
+- [fixed] Fixed a stream leak in the Live API where the WebSocket connection
+  would remain open indefinitely if the consumer cancelled the stream. (#16393)
+- [changed] Deprecated `Backend.vertexAI` in favor of `Backend.agentPlatform` to
+  reflect the renaming of Vertex AI to the Agent Platform Gemini API.
+  (#16372)
+  Note: The default location is now `global` instead of `us-central1` (no other
+  functionality has changed). To continue using `us-central1`, specify
+  `FirebaseAI.firebaseAI(backend: .agentPlatform(location: "us-central1"))` when
+  initializing the SDK.
+
+# 12.16.0
+- [fixed] Fixed a decoding failure in `GenerateContentResponse` when the Vertex AI
+  backend returns citation metadata with a missing `endIndex`. (#16328)
 - [fixed] Fixed an issue where `generateContentStream` could stall indefinitely
   on mid-stream network drops. (#16298)
 - [fixed] Fixed a resource leak where background network requests would

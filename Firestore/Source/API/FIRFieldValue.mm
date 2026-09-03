@@ -144,6 +144,48 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+#pragma mark - FSTNumericMinimumFieldValue
+
+/* FieldValue class for minimum() transforms. */
+@interface FSTNumericMinimumFieldValue ()
+- (instancetype)initWithOperand:(NSNumber *)operand;
+@end
+
+@implementation FSTNumericMinimumFieldValue
+- (instancetype)initWithOperand:(NSNumber *)operand {
+  if (self = [super initPrivate]) {
+    _operand = operand;
+  }
+  return self;
+}
+
+- (NSString *)methodName {
+  return @"FieldValue.minimum()";
+}
+
+@end
+
+#pragma mark - FSTNumericMaximumFieldValue
+
+/* FieldValue class for maximum() transforms. */
+@interface FSTNumericMaximumFieldValue ()
+- (instancetype)initWithOperand:(NSNumber *)operand;
+@end
+
+@implementation FSTNumericMaximumFieldValue
+- (instancetype)initWithOperand:(NSNumber *)operand {
+  if (self = [super initPrivate]) {
+    _operand = operand;
+  }
+  return self;
+}
+
+- (NSString *)methodName {
+  return @"FieldValue.maximum()";
+}
+
+@end
+
 #pragma mark - FIRFieldValue
 
 @implementation FIRFieldValue
@@ -175,6 +217,22 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (instancetype)fieldValueForIntegerIncrement:(int64_t)l {
   return [[FSTNumericIncrementFieldValue alloc] initWithOperand:@(l)];
+}
+
++ (instancetype)fieldValueForDoubleMinimum:(double)d {
+  return [[FSTNumericMinimumFieldValue alloc] initWithOperand:@(d)];
+}
+
++ (instancetype)fieldValueForIntegerMinimum:(int64_t)l {
+  return [[FSTNumericMinimumFieldValue alloc] initWithOperand:@(l)];
+}
+
++ (instancetype)fieldValueForDoubleMaximum:(double)d {
+  return [[FSTNumericMaximumFieldValue alloc] initWithOperand:@(d)];
+}
+
++ (instancetype)fieldValueForIntegerMaximum:(int64_t)l {
+  return [[FSTNumericMaximumFieldValue alloc] initWithOperand:@(l)];
 }
 
 + (nonnull FIRVectorValue *)vectorWithArray:(nonnull NSArray<NSNumber *> *)array {

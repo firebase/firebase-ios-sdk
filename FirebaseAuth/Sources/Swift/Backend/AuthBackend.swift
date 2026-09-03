@@ -70,7 +70,7 @@ final class AuthBackend: AuthBackendProtocol {
       await requestConfiguration.heartbeatLogger?.asyncHeaderValue()
     }
     let appCheckTokenHeaderValue = Task {
-      await requestConfiguration.appCheck?.getToken(forcingRefresh: false)
+      await requestConfiguration.appCheck?.getTokenResult(forcingRefresh: false)
     }
 
     return await withTaskCancellationHandler {
@@ -426,6 +426,8 @@ final class AuthBackend: AuthBackendProtocol {
       .error(code: AuthErrorCode.missingMultiFactorSession, message: serverDetailErrorMessage)
     case "MISSING_OR_INVALID_NONCE": return AuthErrorUtils
       .missingOrInvalidNonceError(message: serverDetailErrorMessage)
+    case "PASSWORD_DOES_NOT_MEET_REQUIREMENTS": return AuthErrorUtils
+      .passwordDoesNotMeetRequirementsError(message: serverDetailErrorMessage)
     case "SECOND_FACTOR_EXISTS": return AuthErrorUtils
       .error(code: AuthErrorCode.secondFactorAlreadyEnrolled, message: serverDetailErrorMessage)
     case "SECOND_FACTOR_LIMIT_EXCEEDED": return AuthErrorUtils

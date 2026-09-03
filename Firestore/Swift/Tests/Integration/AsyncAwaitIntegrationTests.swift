@@ -32,7 +32,6 @@ let emptyBundle = """
 }
 """
 
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class AsyncAwaitIntegrationTests: FSTIntegrationTestCase {
   func testAddData() async throws {
     let collection = collectionRef()

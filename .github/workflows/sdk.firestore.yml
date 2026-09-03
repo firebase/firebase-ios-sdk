@@ -14,6 +14,9 @@
 
 name: sdk.firestore
 
+env:
+  FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
+
 permissions:
   contents: read
 
@@ -35,6 +38,8 @@ jobs:
       changed: ${{ steps.firestore_src_changes.outputs.sources == 'true' || steps.related_changes.outputs.other_changes == 'true' }}
     steps:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          persist-credentials: false
       - uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
         id: firestore_src_changes
         with:
@@ -101,6 +106,8 @@ jobs:
     runs-on: macos-26
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      with:
+        persist-credentials: false
 
     - uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
       with:
@@ -129,6 +136,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      with:
+        persist-credentials: false
 
     - name: Prepare ccache
       uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
@@ -182,6 +191,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      with:
+        persist-credentials: false
 
     - name: Prepare ccache
       uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
@@ -233,6 +244,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      with:
+        persist-credentials: false
 
     - name: Prepare ccache
       uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
@@ -278,6 +291,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          persist-credentials: false
 
       - uses: ruby/setup-ruby@89f90524b88a01fe6e0b732220432cc6142926af # v1.313.0
 
@@ -289,14 +304,11 @@ jobs:
       - name: Select Xcode
         run: sudo xcode-select -s /Applications/Xcode_26.4.app/Contents/Developer
 
-      - name: Install simulators in case they are missing.
+      - name: Setup simulator
         if: matrix.target != 'macOS'
-        uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
+        uses: ./.github/actions/setup_simulator
         with:
-          timeout_minutes: 15
-          max_attempts: 5
-          retry_wait_seconds: 120
-          command: sudo xcodebuild -downloadPlatform ${{ matrix.target }}
+          platform: ${{ matrix.target }}
 
       - name: Cache Pods
         uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
@@ -332,6 +344,7 @@ jobs:
       (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
       (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false)
     runs-on: macos-26
+    timeout-minutes: 60
 
     strategy:
       matrix:
@@ -343,6 +356,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          persist-credentials: false
 
       - uses: ruby/setup-ruby@89f90524b88a01fe6e0b732220432cc6142926af # v1.313.0
 
@@ -354,14 +369,11 @@ jobs:
       - name: Select Xcode
         run: sudo xcode-select -s /Applications/Xcode_26.4.app/Contents/Developer
 
-      - name: Install simulators in case they are missing.
+      - name: Setup simulator
         if: matrix.target != 'macOS'
-        uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
+        uses: ./.github/actions/setup_simulator
         with:
-          timeout_minutes: 15
-          max_attempts: 5
-          retry_wait_seconds: 120
-          command: sudo xcodebuild -downloadPlatform ${{ matrix.target }}
+          platform: ${{ matrix.target }}
 
       - name: Cache Pods
         uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
@@ -376,7 +388,7 @@ jobs:
         run: scripts/install_prereqs.sh Firestore ${{ matrix.target }} xcodebuild
 
       # XCTest dynamically isolates the test runner app from standard terminal environment variables.
-      # To successfully pass TARGET_BACKEND down to FSTIntegrationTestCase, we must physically inject it
+      # To successfully pass TARGET_BACKEND and PROJECT_ID down to FSTIntegrationTestCase, we must physically inject them
       # into the Xcode Schemes rather than using traditional YAML `env:` variables or `export` commands.
       - name: Inject Nightly Backend into Schemes
         run: |
@@ -384,7 +396,17 @@ jobs:
           import glob, re
           for f in glob.glob("Firestore/Example/Firestore.xcodeproj/xcshareddata/xcschemes/Firestore_IntegrationTests_*.xcscheme"):
               with open(f, "r") as file: content = file.read()
-              content = re.sub(r"<EnvironmentVariables>", "<EnvironmentVariables>\n         <EnvironmentVariable\n            key = \"TARGET_BACKEND\"\n            value = \"nightly\"\n            isEnabled = \"YES\">\n         </EnvironmentVariable>", content)
+              content = re.sub(r"<EnvironmentVariables>", """<EnvironmentVariables>
+                   <EnvironmentVariable
+                      key = "TARGET_BACKEND"
+                      value = "nightly"
+                      isEnabled = "YES">
+                   </EnvironmentVariable>
+                   <EnvironmentVariable
+                      key = "PROJECT_ID"
+                      value = "firestore-sdk-nightly"
+                      isEnabled = "YES">
+                   </EnvironmentVariable>""", content)
               with open(f, "w") as file: file.write(content)
           '
 
@@ -420,20 +442,19 @@ jobs:
 
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      with:
+        persist-credentials: false
 
     - uses: ruby/setup-ruby@89f90524b88a01fe6e0b732220432cc6142926af # v1.313.0
 
     - name: Select Xcode
       run: sudo xcode-select -s /Applications/Xcode_26.4.app/Contents/Developer
 
-    - name: Install simulators in case they are missing.
+    - name: Setup simulator
       if: matrix.target != 'macOS'
-      uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
+      uses: ./.github/actions/setup_simulator
       with:
-        timeout_minutes: 15
-        max_attempts: 5
-        retry_wait_seconds: 120
-        command: sudo xcodebuild -downloadPlatform ${{ matrix.target }}
+        platform: ${{ matrix.target }}
 
     - name: Cache Pods
       uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
@@ -509,6 +530,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      with:
+        persist-credentials: false
 
     - uses: ruby/setup-ruby@89f90524b88a01fe6e0b732220432cc6142926af # v1.313.0
     - name: Setup Bundler
@@ -516,14 +539,11 @@ jobs:
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
 
-    - name: Install simulators in case they are missing.
+    - name: Setup simulator
       if: matrix.platforms != 'macos'
-      uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
+      uses: ./.github/actions/setup_simulator
       with:
-        timeout_minutes: 15
-        max_attempts: 5
-        retry_wait_seconds: 120
-        command: sudo xcodebuild -downloadPlatform ${{ matrix.platforms }}
+        platform: ${{ matrix.platforms }}
 
     - name: Pod lib lint
       # TODO(#9565, b/227461966): Remove --no-analyze when absl is fixed.
@@ -538,12 +558,13 @@ jobs:
     needs: check
     runs-on: macos-26
     env:
-      FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
       FIREBASE_SOURCE_FIRESTORE: 1
     outputs:
       cache_key: ${{ steps.generate_cache_key.outputs.cache_key }}
     steps:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          persist-credentials: false
       - name: Xcode
         run: sudo xcode-select -s /Applications/Xcode_26.4.app/Contents/Developer
       - name: Generate Swift Package.resolved
@@ -593,16 +614,15 @@ jobs:
       FIREBASE_SOURCE_FIRESTORE: 1
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      with:
+        persist-credentials: false
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
-    - name: Install simulators in case they are missing.
+    - name: Setup simulator
       if: matrix.target != 'macOS' && matrix.target != 'catalyst'
-      uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
+      uses: ./.github/actions/setup_simulator
       with:
-        timeout_minutes: 15
-        max_attempts: 5
-        retry_wait_seconds: 120
-        command: sudo xcodebuild -downloadPlatform ${{ matrix.target }}
+        platform: ${{ matrix.target }}
     - name: Initialize xcodebuild
       run: scripts/setup_spm_tests.sh
     - name: iOS Build Test
@@ -626,16 +646,15 @@ jobs:
       FIREBASE_SOURCE_FIRESTORE: 1
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      with:
+        persist-credentials: false
     - name: Xcode
       run: sudo xcode-select -s /Applications/Xcode_26.2.app/Contents/Developer
-    - name: Install simulators in case they are missing.
+    - name: Setup simulator
       if: matrix.target != 'macOS' && matrix.target != 'catalyst'
-      uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
+      uses: ./.github/actions/setup_simulator
       with:
-        timeout_minutes: 15
-        max_attempts: 5
-        retry_wait_seconds: 120
-        command: sudo xcodebuild -downloadPlatform ${{ matrix.target }}
+        platform: ${{ matrix.target }}
     - name: Initialize xcodebuild
       run: scripts/setup_spm_tests.sh
     - name: Build Test - Binary
@@ -650,16 +669,15 @@ jobs:
         target: [tvOS, macOS, catalyst]
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      with:
+        persist-credentials: false
     - name: Xcode
       run: sudo xcode-select -s /Applications/Xcode_26.4.app/Contents/Developer
-    - name: Install simulators in case they are missing.
+    - name: Setup simulator
       if: matrix.target != 'macOS' && matrix.target != 'catalyst'
-      uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
+      uses: ./.github/actions/setup_simulator
       with:
-        timeout_minutes: 15
-        max_attempts: 5
-        retry_wait_seconds: 120
-        command: sudo xcodebuild -downloadPlatform ${{ matrix.target }}
+        platform: ${{ matrix.target }}
     - name: Initialize xcodebuild
       run: scripts/setup_spm_tests.sh
     - name: Build Test - Binary

@@ -21,7 +21,10 @@
 #import <OCMock/OCMock.h>
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 #import "FirebaseMessaging/Sources/FIRMessagingUtilities.h"
+#import "FirebaseMessaging/Sources/FIRMessaging_Private.h"
+#import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessaging.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingAPNSInfo.h"
+#import "FirebaseMessaging/Tests/UnitTests/FIRMessagingTestUtilities.h"
 
 static NSString *const kAuthorizedEntity = @"authorizedEntity";
 static NSString *const kScope = @"scope";
@@ -61,7 +64,8 @@ static BOOL const kAPNSSandbox = NO;
                                                         scope:kScope
                                                         token:kToken
                                                    appVersion:FIRMessagingCurrentAppVersion()
-                                                firebaseAppID:FIRMessagingFirebaseAppID()];
+                                                firebaseAppID:FIRMessagingFirebaseAppID()
+                                                    tokenType:@"V4"];
   self.validTokenInfo.APNSInfo =
       [[FIRMessagingAPNSInfo alloc] initWithDeviceToken:self.APNSDeviceToken
                                               isSandbox:kAPNSSandbox];
@@ -69,9 +73,11 @@ static BOOL const kAPNSSandbox = NO;
 
   [[NSUserDefaults standardUserDefaults] setObject:FIRMessagingCurrentLocale()
                                             forKey:kFIRMessagingInstanceIDUserDefaultsKeyLocale];
+  [NSKeyedUnarchiver setClass:[FIRMessagingTokenInfo class] forClassName:@"FIRInstanceIDTokenInfo"];
 }
 
 - (void)tearDown {
+  [FIROptions defaultOptions].googleAppID = kFirebaseAppID;
   [self.mockOptions stopMocking];
   [super tearDown];
 }
@@ -109,7 +115,8 @@ static BOOL const kAPNSSandbox = NO;
                                                         scope:kScope
                                                         token:kToken
                                                    appVersion:nil
-                                                firebaseAppID:nil];
+                                                firebaseAppID:nil
+                                                    tokenType:@"V4"];
   NSError *error;
   NSData *archive = [NSKeyedArchiver archivedDataWithRootObject:sparseInfo
                                           requiringSecureCoding:YES
@@ -145,6 +152,41 @@ static BOOL const kAPNSSandbox = NO;
   [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
+- (void)testTokenFreshnessWithLocaleChangeWhenInstallationIdEnabled {
+  NSUserDefaults *defaults =
+      [[NSUserDefaults alloc] initWithSuiteName:kFIRMessagingDefaultsTestDomain];
+  FIRMessagingTestUtilities *testUtil =
+      [[FIRMessagingTestUtilities alloc] initWithUserDefaults:defaults withRMQManager:NO];
+  OCMStub([testUtil.mockMessaging isInstallationIdEnabled]).andReturn(YES);
+
+  FIRMessagingTokenInfo *fidTokenInfo =
+      [[FIRMessagingTokenInfo alloc] initWithAuthorizedEntity:kAuthorizedEntity
+                                                        scope:kScope
+                                                        token:kToken
+                                                   appVersion:FIRMessagingCurrentAppVersion()
+                                                firebaseAppID:FIRMessagingFirebaseAppID()
+                                                    tokenType:@"FID"];
+  fidTokenInfo.APNSInfo = [[FIRMessagingAPNSInfo alloc] initWithDeviceToken:self.APNSDeviceToken
+                                                                  isSandbox:kAPNSSandbox];
+  fidTokenInfo.cacheTime = [NSDate date];
+
+  // Default should be fresh.
+  XCTAssertTrue([fidTokenInfo isFreshWithIID:kIID]);
+
+  // Set to a different locale than the current locale. Locale change should not affect FID token
+  // freshness.
+  [[NSUserDefaults standardUserDefaults] setObject:@"zh-Hant"
+                                            forKey:kFIRMessagingInstanceIDUserDefaultsKeyLocale];
+  [[NSUserDefaults standardUserDefaults] synchronize];
+  XCTAssertTrue([fidTokenInfo isFreshWithIID:kIID]);
+
+  // Reset locale
+  [[NSUserDefaults standardUserDefaults] setObject:FIRMessagingCurrentLocale()
+                                            forKey:kFIRMessagingInstanceIDUserDefaultsKeyLocale];
+  [[NSUserDefaults standardUserDefaults] synchronize];
+  [testUtil cleanupAfterTest:self];
+}
+
 - (void)testTokenFreshnessWithTokenTimestampChange {
   XCTAssertTrue([self.validTokenInfo isFreshWithIID:kIID]);
   // Set last fetch token time 7 days ago.
@@ -169,6 +211,7 @@ static BOOL const kAPNSSandbox = NO;
   // Change Firebase App ID.
   [FIROptions defaultOptions].googleAppID = @"newFirebaseAppID:ios:abcdefg";
   XCTAssertFalse([self.validTokenInfo isFreshWithIID:kIID]);
+  [FIROptions defaultOptions].googleAppID = kFirebaseAppID;
 }
 
 - (void)testTokenFreshnessWithAppVersionChange {
@@ -179,7 +222,8 @@ static BOOL const kAPNSSandbox = NO;
                                                         scope:kScope
                                                         token:kToken
                                                    appVersion:@"1.1"
-                                                firebaseAppID:FIRMessagingFirebaseAppID()];
+                                                firebaseAppID:FIRMessagingFirebaseAppID()
+                                                    tokenType:@"V4"];
   XCTAssertFalse([self.validTokenInfo isFreshWithIID:kIID]);
 }
 
@@ -193,7 +237,8 @@ static BOOL const kAPNSSandbox = NO;
                                @"9Qvhy9XljAI62QPw307rgA0MaFHPnrU5sFxGZvsncRnkfuciwTUeyRpPNDZMFhNXt7"
                                @"h1BKq9Wb2A0LAANpQefrPHVUp4p"
                     appVersion:@"1.1"
-                 firebaseAppID:FIRMessagingFirebaseAppID()];
+                 firebaseAppID:FIRMessagingFirebaseAppID()
+                     tokenType:@"V4"];
   XCTAssertFalse([self.validTokenInfo isFreshWithIID:kIID]);
 }
 @end

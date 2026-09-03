@@ -14,6 +14,7 @@
 
 import Foundation
 
+import FirebaseCore
 internal import FirebaseCoreExtension
 
 /// Enum of log messages.
