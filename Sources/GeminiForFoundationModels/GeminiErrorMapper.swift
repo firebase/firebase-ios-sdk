@@ -45,20 +45,27 @@
             Date.now.addingTimeInterval(Double($0.components.seconds))
           }
           return LanguageModelError.rateLimited(
-            .init(resetDate: resetDate, debugDescription: apiError.message)
+            LanguageModelError.RateLimited(
+              resetDate: resetDate,
+              debugDescription: apiError.message
+            )
           )
         }
 
         if apiError.code == 503 || apiError.status == .unavailable {
           return GeminiLanguageModel.Error.serviceUnavailable(
-            .init(debugDescription: apiError.message)
+            GeminiLanguageModel.Error.ServiceUnavailable(
+              debugDescription: apiError.message
+            )
           )
         }
 
         if apiError.code == 404 || apiError.status == .notFound {
           if apiError.message.localizedCaseInsensitiveContains("model") {
             return GeminiLanguageModel.Error.modelNotFound(
-              .init(debugDescription: apiError.message)
+              GeminiLanguageModel.Error.ModelNotFound(
+                debugDescription: apiError.message
+              )
             )
           }
         }
@@ -70,7 +77,7 @@
 
         let code = apiError.status?.rawValue ?? "\(apiError.code)"
         return GeminiLanguageModel.Error.apiError(
-          .init(
+          GeminiLanguageModel.Error.APIError(
             code: code,
             statusCode: apiError.code,
             message: apiError.message,
@@ -82,25 +89,35 @@
       if case GeminiAPIError.httpError(let statusCode, let body) = error {
         if statusCode == 503 {
           return GeminiLanguageModel.Error.serviceUnavailable(
-            .init(debugDescription: "Gemini service is unavailable (HTTP 503): \(body)")
+            GeminiLanguageModel.Error.ServiceUnavailable(
+              debugDescription: "Gemini service is unavailable (HTTP 503): \(body)"
+            )
           )
         }
         return GeminiLanguageModel.Error.networkFailure(
-          .init(debugDescription: "Gemini HTTP error (status \(statusCode)): \(body)")
+          GeminiLanguageModel.Error.NetworkFailure(
+            debugDescription: "Gemini HTTP error (status \(statusCode)): \(body)"
+          )
         )
       }
 
       if let urlError = error as? URLError {
         if urlError.code == .timedOut {
-          return LanguageModelError.timeout(.init(debugDescription: urlError.localizedDescription))
+          return LanguageModelError.timeout(
+            LanguageModelError.Timeout(debugDescription: urlError.localizedDescription)
+          )
         }
         return GeminiLanguageModel.Error.networkFailure(
-          .init(debugDescription: urlError.localizedDescription)
+          GeminiLanguageModel.Error.NetworkFailure(
+            debugDescription: urlError.localizedDescription
+          )
         )
       }
 
       return GeminiLanguageModel.Error.networkFailure(
-        .init(debugDescription: error.localizedDescription)
+        GeminiLanguageModel.Error.NetworkFailure(
+          debugDescription: error.localizedDescription
+        )
       )
     }
 
@@ -117,18 +134,22 @@
         switch blockReason {
         case .safety, .blocklist, .prohibitedContent, .imageSafety:
           throw LanguageModelError.guardrailViolation(
-            .init(debugDescription: "Gemini blocked the prompt: \(blockReason)")
+            LanguageModelError.GuardrailViolation(
+              debugDescription: "Gemini blocked the prompt: \(blockReason)"
+            )
           )
         case .other:
           throw LanguageModelError.refusal(
-            .init(
+            LanguageModelError.Refusal(
               explanation: "The model declined to answer this request (\(blockReason)).",
               debugDescription: "Gemini prompt was blocked: \(blockReason)"
             )
           )
         case .unrecognized(let rawValue):
           throw LanguageModelError.guardrailViolation(
-            .init(debugDescription: "Gemini blocked the prompt: \(rawValue)")
+            LanguageModelError.GuardrailViolation(
+              debugDescription: "Gemini blocked the prompt: \(rawValue)"
+            )
           )
         }
       }
@@ -144,11 +165,13 @@
         case .safety, .blocklist, .prohibitedContent, .spii, .imageSafety, .imageProhibitedContent,
           .imageOther:
           throw LanguageModelError.guardrailViolation(
-            .init(debugDescription: message ?? "Content generation blocked by safety filters.")
+            LanguageModelError.GuardrailViolation(
+              debugDescription: message ?? "Content generation blocked by safety filters."
+            )
           )
         case .recitation:
           throw LanguageModelError.refusal(
-            .init(
+            LanguageModelError.Refusal(
               explanation: message ?? "Content generation blocked by recitation check.",
               debugDescription: message ?? "Recitation check failed."
             )
@@ -156,12 +179,15 @@
         case .escalation, .other:
           if let message {
             throw LanguageModelError.refusal(
-              .init(explanation: message, debugDescription: message)
+              LanguageModelError.Refusal(
+                explanation: message,
+                debugDescription: message
+              )
             )
           }
         case .language:
           throw LanguageModelError.unsupportedLanguageOrLocale(
-            .init(
+            LanguageModelError.UnsupportedLanguageOrLocale(
               languageCode: Locale.LanguageCode("und"),
               debugDescription: message ?? "Unsupported language or locale."
             )

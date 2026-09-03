@@ -21,40 +21,15 @@
 
   @testable import GeminiForFoundationModels
 
-  @Suite("GeminiForFoundationModels Integration Tests")
+  @Suite("GeminiForFoundationModels Integration Tests", .requireFoundationModels)
   struct GeminiForFoundationModelsIntegrationTests {
-    private static let defaultModelResource = ModelResource(
-      modelID: "gemini-3.5-flash-lite",
-      urlResourceName: "models/gemini-3.5-flash-lite",
-      payloadResourceName: "models/gemini-3.5-flash-lite"
-    )
-    private static let defaultEndpointConfiguration = EndpointConfiguration(
-      host: "generativelanguage.googleapis.com",
-      apiVersion: "v1beta"
-    )
-
-    private static func resolveAPIKey() -> String? {
-      let env = ProcessInfo.processInfo.environment
-      if let googleKey = env["GOOGLE_API_KEY"], !googleKey.isEmpty {
-        return googleKey
-      }
-      if let geminiKey = env["GEMINI_API_KEY"], !geminiKey.isEmpty {
-        return geminiKey
-      }
-      return nil
-    }
-
-    private static var hasAPIKey: Bool {
-      resolveAPIKey() != nil
-    }
-
-    @available(macOS 27.0, iOS 27.0, watchOS 27.0, tvOS 27.0, visionOS 27.0, *)
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
     private func makeModel(
-      modelResource: ModelResource = defaultModelResource,
-      endpointConfiguration: EndpointConfiguration = defaultEndpointConfiguration
+      modelResource: ModelResource = .gemini35FlashLite,
+      endpointConfiguration: EndpointConfiguration = .geminiDeveloperAPI
     ) -> GeminiLanguageModel {
       let headerProvider: (@Sendable () async throws -> [String: String])?
-      if let apiKey = Self.resolveAPIKey() {
+      if let apiKey = geminiAPIKey {
         headerProvider = { @Sendable in
           ["x-goog-api-key": apiKey]
         }
@@ -69,17 +44,9 @@
       )
     }
 
-    @Test(
-      .enabled(
-        if: GeminiForFoundationModelsIntegrationTests.hasAPIKey,
-        "Requires GOOGLE_API_KEY or GEMINI_API_KEY environment variable"
-      )
-    )
+    @Test(.requireAPIKey)
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
     func liveSessionRespond() async throws {
-      guard #available(macOS 27.0, iOS 27.0, watchOS 27.0, tvOS 27.0, visionOS 27.0, *) else {
-        return
-      }
-
       let model = makeModel()
       let session = LanguageModelSession(model: model)
 
@@ -89,17 +56,9 @@
       #expect(response.content.localizedCaseInsensitiveContains("HELLO"))
     }
 
-    @Test(
-      .enabled(
-        if: GeminiForFoundationModelsIntegrationTests.hasAPIKey,
-        "Requires GOOGLE_API_KEY or GEMINI_API_KEY environment variable"
-      )
-    )
+    @Test(.requireAPIKey)
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
     func liveSessionMultiTurn() async throws {
-      guard #available(macOS 27.0, iOS 27.0, watchOS 27.0, tvOS 27.0, visionOS 27.0, *) else {
-        return
-      }
-
       let model = makeModel()
       let session = LanguageModelSession(model: model)
 

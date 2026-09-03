@@ -17,36 +17,33 @@
   import FoundationModels
   import GeminiAPIClient
   import GeminiAPIDataModels
+  import SharedTestUtilities
   import Testing
 
   @testable import GeminiForFoundationModels
 
-  @Suite("GeminiErrorMapper Tests")
+  @Suite("GeminiErrorMapper Tests", .requireFoundationModels)
   struct GeminiErrorMapperTests {
     @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
     func mapPassesThroughLanguageModelError() throws {
-      guard #available(macOS 27.0, iOS 27.0, watchOS 27.0, tvOS 27.0, visionOS 27.0, *) else {
-        return
-      }
       let originalError = LanguageModelError.timeout(
-        .init(debugDescription: "Operation timed out")
+        LanguageModelError.Timeout(debugDescription: "Operation timed out")
       )
 
       let mappedError = GeminiErrorMapper.map(originalError)
 
       #expect(mappedError is LanguageModelError)
       if case LanguageModelError.timeout(let timeout) = mappedError {
-        #expect(timeout.debugDescription == "Operation timed out")
+        #expect(timeout.debugDescription == originalError.debugDescription)
       } else {
         Issue.record("Expected LanguageModelError.timeout")
       }
     }
 
     @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
     func mapPassesThroughCancellationError() {
-      guard #available(macOS 27.0, iOS 27.0, watchOS 27.0, tvOS 27.0, visionOS 27.0, *) else {
-        return
-      }
       let originalError = CancellationError()
 
       let mappedError = GeminiErrorMapper.map(originalError)
@@ -55,24 +52,28 @@
     }
 
     @Test
-    func mapPassesThroughGeminiLanguageModelError() {
-      guard #available(macOS 27.0, iOS 27.0, watchOS 27.0, tvOS 27.0, visionOS 27.0, *) else {
-        return
-      }
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func mapPassesThroughGeminiLanguageModelError() throws {
       let originalError = GeminiLanguageModel.Error.serviceUnavailable(
-        .init(debugDescription: "Service down")
+        GeminiLanguageModel.Error.ServiceUnavailable(debugDescription: "Service down")
       )
 
       let mappedError = GeminiErrorMapper.map(originalError)
 
-      #expect(mappedError as? GeminiLanguageModel.Error == originalError)
+      let geminiError = try #require(
+        mappedError as? GeminiLanguageModel.Error,
+        "Expected GeminiLanguageModel.Error, got: \(type(of: mappedError))"
+      )
+      guard case .serviceUnavailable(let serviceUnavailable) = geminiError else {
+        Issue.record("Expected GeminiLanguageModel.Error.serviceUnavailable, got: \(mappedError)")
+        return
+      }
+      #expect(serviceUnavailable.debugDescription == originalError.debugDescription)
     }
 
     @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
     func mapRateLimit429WithRetryDelay() throws {
-      guard #available(macOS 27.0, iOS 27.0, watchOS 27.0, tvOS 27.0, visionOS 27.0, *) else {
-        return
-      }
       let apiError = GoogleCloudAPIError(
         code: 429,
         message: "Resource exhausted",
@@ -83,7 +84,7 @@
       let mappedError = GeminiErrorMapper.map(GeminiAPIError.apiError(apiError))
 
       if case LanguageModelError.rateLimited(let rateLimited) = mappedError {
-        #expect(rateLimited.debugDescription == "Resource exhausted")
+        #expect(rateLimited.debugDescription == apiError.message)
         let resetDate = try #require(rateLimited.resetDate)
         #expect(resetDate > Date.now)
       } else {
@@ -92,10 +93,8 @@
     }
 
     @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
     func mapRateLimitResourceExhaustedWithoutRetryDelay() {
-      guard #available(macOS 27.0, iOS 27.0, watchOS 27.0, tvOS 27.0, visionOS 27.0, *) else {
-        return
-      }
       let apiError = GoogleCloudAPIError(
         code: 429,
         message: "Quota exceeded",
@@ -105,7 +104,7 @@
       let mappedError = GeminiErrorMapper.map(GeminiAPIError.apiError(apiError))
 
       if case LanguageModelError.rateLimited(let rateLimited) = mappedError {
-        #expect(rateLimited.debugDescription == "Quota exceeded")
+        #expect(rateLimited.debugDescription == apiError.message)
         #expect(rateLimited.resetDate == nil)
       } else {
         Issue.record("Expected LanguageModelError.rateLimited")
@@ -113,10 +112,8 @@
     }
 
     @Test
-    func mapServiceUnavailableFromAPIError() {
-      guard #available(macOS 27.0, iOS 27.0, watchOS 27.0, tvOS 27.0, visionOS 27.0, *) else {
-        return
-      }
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func mapServiceUnavailableFromAPIError() throws {
       let apiError = GoogleCloudAPIError(
         code: 503,
         message: "Backend service unavailable",
@@ -125,32 +122,40 @@
 
       let mappedError = GeminiErrorMapper.map(GeminiAPIError.apiError(apiError))
 
-      let expected = GeminiLanguageModel.Error.serviceUnavailable(
-        .init(debugDescription: "Backend service unavailable")
+      let geminiError = try #require(
+        mappedError as? GeminiLanguageModel.Error,
+        "Expected GeminiLanguageModel.Error, got: \(type(of: mappedError))"
       )
-      #expect(mappedError as? GeminiLanguageModel.Error == expected)
+      guard case .serviceUnavailable(let serviceUnavailable) = geminiError else {
+        Issue.record("Expected GeminiLanguageModel.Error.serviceUnavailable, got: \(mappedError)")
+        return
+      }
+      #expect(serviceUnavailable.debugDescription == apiError.message)
     }
 
     @Test
-    func mapServiceUnavailableFromHTTPError503() {
-      guard #available(macOS 27.0, iOS 27.0, watchOS 27.0, tvOS 27.0, visionOS 27.0, *) else {
-        return
-      }
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func mapServiceUnavailableFromHTTPError503() throws {
       let httpError = GeminiAPIError.httpError(statusCode: 503, body: "Overloaded")
 
       let mappedError = GeminiErrorMapper.map(httpError)
 
-      let expected = GeminiLanguageModel.Error.serviceUnavailable(
-        .init(debugDescription: "Gemini service is unavailable (HTTP 503): Overloaded")
+      let geminiError = try #require(
+        mappedError as? GeminiLanguageModel.Error,
+        "Expected GeminiLanguageModel.Error, got: \(type(of: mappedError))"
       )
-      #expect(mappedError as? GeminiLanguageModel.Error == expected)
+      guard case .serviceUnavailable(let serviceUnavailable) = geminiError else {
+        Issue.record("Expected GeminiLanguageModel.Error.serviceUnavailable, got: \(mappedError)")
+        return
+      }
+      if case GeminiAPIError.httpError(_, let body) = httpError {
+        #expect(serviceUnavailable.debugDescription.contains(body))
+      }
     }
 
     @Test
-    func mapModelNotFoundFrom404Message() {
-      guard #available(macOS 27.0, iOS 27.0, watchOS 27.0, tvOS 27.0, visionOS 27.0, *) else {
-        return
-      }
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func mapModelNotFoundFrom404Message() throws {
       let apiError = GoogleCloudAPIError(
         code: 404,
         message: "models/gemini-invalid is not found",
@@ -159,17 +164,20 @@
 
       let mappedError = GeminiErrorMapper.map(GeminiAPIError.apiError(apiError))
 
-      let expected = GeminiLanguageModel.Error.modelNotFound(
-        .init(debugDescription: "models/gemini-invalid is not found")
+      let geminiError = try #require(
+        mappedError as? GeminiLanguageModel.Error,
+        "Expected GeminiLanguageModel.Error, got: \(type(of: mappedError))"
       )
-      #expect(mappedError as? GeminiLanguageModel.Error == expected)
+      guard case .modelNotFound(let modelNotFound) = geminiError else {
+        Issue.record("Expected GeminiLanguageModel.Error.modelNotFound, got: \(mappedError)")
+        return
+      }
+      #expect(modelNotFound.debugDescription == apiError.message)
     }
 
     @Test
-    func mapGeneralAPIError() {
-      guard #available(macOS 27.0, iOS 27.0, watchOS 27.0, tvOS 27.0, visionOS 27.0, *) else {
-        return
-      }
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func mapGeneralAPIError() throws {
       let apiError = GoogleCloudAPIError(
         code: 400,
         message: "Invalid field value",
@@ -178,69 +186,76 @@
 
       let mappedError = GeminiErrorMapper.map(GeminiAPIError.apiError(apiError))
 
-      let expected = GeminiLanguageModel.Error.apiError(
-        .init(
-          code: "INVALID_ARGUMENT",
-          statusCode: 400,
-          message: "Invalid field value",
-          metadata: ["status": "INVALID_ARGUMENT"]
-        )
+      let geminiError = try #require(
+        mappedError as? GeminiLanguageModel.Error,
+        "Expected GeminiLanguageModel.Error, got: \(type(of: mappedError))"
       )
-      #expect(mappedError as? GeminiLanguageModel.Error == expected)
+      guard case .apiError(let geminiAPIError) = geminiError else {
+        Issue.record("Expected GeminiLanguageModel.Error.apiError, got: \(mappedError)")
+        return
+      }
+      #expect(geminiAPIError.code == apiError.status?.rawValue)
+      #expect(geminiAPIError.statusCode == apiError.code)
+      #expect(geminiAPIError.message == apiError.message)
+      #expect(geminiAPIError.metadata["status"] as? String == apiError.status?.rawValue)
     }
 
     @Test
-    func mapNetworkFailureFromHTTPError() {
-      guard #available(macOS 27.0, iOS 27.0, watchOS 27.0, tvOS 27.0, visionOS 27.0, *) else {
-        return
-      }
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func mapNetworkFailureFromHTTPError() throws {
       let httpError = GeminiAPIError.httpError(statusCode: 502, body: "Bad Gateway")
 
       let mappedError = GeminiErrorMapper.map(httpError)
 
-      let expected = GeminiLanguageModel.Error.networkFailure(
-        .init(debugDescription: "Gemini HTTP error (status 502): Bad Gateway")
+      let geminiError = try #require(
+        mappedError as? GeminiLanguageModel.Error,
+        "Expected GeminiLanguageModel.Error, got: \(type(of: mappedError))"
       )
-      #expect(mappedError as? GeminiLanguageModel.Error == expected)
+      guard case .networkFailure(let networkFailure) = geminiError else {
+        Issue.record("Expected GeminiLanguageModel.Error.networkFailure, got: \(mappedError)")
+        return
+      }
+      if case GeminiAPIError.httpError(_, let body) = httpError {
+        #expect(networkFailure.debugDescription.contains(body))
+      }
     }
 
     @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
     func mapTimeoutFromURLError() {
-      guard #available(macOS 27.0, iOS 27.0, watchOS 27.0, tvOS 27.0, visionOS 27.0, *) else {
-        return
-      }
       let urlError = URLError(.timedOut)
 
       let mappedError = GeminiErrorMapper.map(urlError)
 
       #expect(mappedError is LanguageModelError)
-      if case LanguageModelError.timeout = mappedError {
-        // Success
+      if case LanguageModelError.timeout(let timeout) = mappedError {
+        #expect(timeout.debugDescription == urlError.localizedDescription)
       } else {
         Issue.record("Expected LanguageModelError.timeout")
       }
     }
 
     @Test
-    func mapNetworkFailureFromGenericURLError() {
-      guard #available(macOS 27.0, iOS 27.0, watchOS 27.0, tvOS 27.0, visionOS 27.0, *) else {
-        return
-      }
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func mapNetworkFailureFromGenericURLError() throws {
       let urlError = URLError(.cannotConnectToHost)
 
       let mappedError = GeminiErrorMapper.map(urlError)
 
-      let expected = GeminiLanguageModel.Error.networkFailure(
-        .init(debugDescription: urlError.localizedDescription)
+      let geminiError = try #require(
+        mappedError as? GeminiLanguageModel.Error,
+        "Expected GeminiLanguageModel.Error, got: \(type(of: mappedError))"
       )
-      #expect(mappedError as? GeminiLanguageModel.Error == expected)
+      guard case .networkFailure(let networkFailure) = geminiError else {
+        Issue.record("Expected GeminiLanguageModel.Error.networkFailure, got: \(mappedError)")
+        return
+      }
+      #expect(networkFailure.debugDescription == urlError.localizedDescription)
     }
 
     @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
     func checkGuardrailsThrowsForPromptSafety() {
-      guard #available(macOS 27.0, iOS 27.0, watchOS 27.0, tvOS 27.0, visionOS 27.0, *) else {
-        return
-      }
       let promptFeedback = PromptFeedback(blockReason: .safety)
       let chunk = GenerateContentResponse(promptFeedback: promptFeedback)
 
@@ -250,10 +265,8 @@
     }
 
     @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
     func checkGuardrailsThrowsRefusalForPromptOther() async throws {
-      guard #available(macOS 27.0, iOS 27.0, watchOS 27.0, tvOS 27.0, visionOS 27.0, *) else {
-        return
-      }
       let promptFeedback = PromptFeedback(blockReason: .other)
       let chunk = GenerateContentResponse(promptFeedback: promptFeedback)
 
@@ -262,17 +275,16 @@
         Issue.record("Expected refusal error to be thrown")
       } catch let LanguageModelError.refusal(refusal) {
         let content = try await refusal.explanation.content
-        #expect(content.contains("other"))
+        let blockReason = try #require(promptFeedback.blockReason)
+        #expect(content.contains("\(blockReason)"))
       } catch {
         Issue.record("Unexpected error thrown: \(error)")
       }
     }
 
     @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
     func checkGuardrailsThrowsForCandidateSafety() throws {
-      guard #available(macOS 27.0, iOS 27.0, watchOS 27.0, tvOS 27.0, visionOS 27.0, *) else {
-        return
-      }
       let candidate = Candidate(
         finishReason: .safety,
         finishMessage: "Safety policy triggered"
@@ -283,17 +295,16 @@
         try GeminiErrorMapper.checkGuardrails(in: chunk)
         Issue.record("Expected guardrailViolation error to be thrown")
       } catch let LanguageModelError.guardrailViolation(violation) {
-        #expect(violation.debugDescription.contains("Safety policy triggered"))
+        let finishMessage = try #require(candidate.finishMessage)
+        #expect(violation.debugDescription.contains(finishMessage))
       } catch {
         Issue.record("Unexpected error thrown: \(error)")
       }
     }
 
     @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
     func checkGuardrailsThrowsRefusalForCandidateRecitation() async throws {
-      guard #available(macOS 27.0, iOS 27.0, watchOS 27.0, tvOS 27.0, visionOS 27.0, *) else {
-        return
-      }
       let candidate = Candidate(
         finishReason: .recitation,
         finishMessage: "Recitation check failed"
@@ -305,17 +316,16 @@
         Issue.record("Expected refusal error to be thrown")
       } catch let LanguageModelError.refusal(refusal) {
         let content = try await refusal.explanation.content
-        #expect(content.contains("Recitation check failed"))
+        let finishMessage = try #require(candidate.finishMessage)
+        #expect(content.contains(finishMessage))
       } catch {
         Issue.record("Unexpected error thrown: \(error)")
       }
     }
 
     @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
     func checkGuardrailsThrowsUnsupportedLanguageForCandidateLanguage() throws {
-      guard #available(macOS 27.0, iOS 27.0, watchOS 27.0, tvOS 27.0, visionOS 27.0, *) else {
-        return
-      }
       let candidate = Candidate(
         finishReason: .language,
         finishMessage: "Language not supported"
@@ -327,16 +337,16 @@
         Issue.record("Expected unsupportedLanguageOrLocale error to be thrown")
       } catch let LanguageModelError.unsupportedLanguageOrLocale(unsupported) {
         #expect(unsupported.languageCode == Locale.LanguageCode("und"))
+        let finishMessage = try #require(candidate.finishMessage)
+        #expect(unsupported.debugDescription == finishMessage)
       } catch {
         Issue.record("Unexpected error thrown: \(error)")
       }
     }
 
     @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
     func checkGuardrailsPassesForSafeContent() throws {
-      guard #available(macOS 27.0, iOS 27.0, watchOS 27.0, tvOS 27.0, visionOS 27.0, *) else {
-        return
-      }
       let candidate = Candidate(finishReason: .stop)
       let chunk = GenerateContentResponse(candidates: [candidate])
 
@@ -344,10 +354,8 @@
     }
 
     @Test
-    func apiErrorDebugDescriptionAndEquality() {
-      guard #available(macOS 27.0, iOS 27.0, watchOS 27.0, tvOS 27.0, visionOS 27.0, *) else {
-        return
-      }
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func apiErrorDebugDescription() {
       let errorWithCode = GeminiLanguageModel.Error.APIError(
         code: "invalid_request",
         statusCode: 400,
@@ -360,8 +368,9 @@
 
       #expect(errorWithCode.debugDescription.contains("HTTP 400"))
       #expect(!errorWithoutCode.debugDescription.contains("HTTP"))
-      #expect(errorWithCode == errorWithCode)
-      #expect(errorWithCode != errorWithoutCode)
+      #expect(errorWithCode.code == "invalid_request")
+      #expect(errorWithCode.statusCode == 400)
+      #expect(errorWithCode.message == "Invalid parameter")
     }
   }
 #endif  // canImport(FoundationModels) && compiler(>=6.4)

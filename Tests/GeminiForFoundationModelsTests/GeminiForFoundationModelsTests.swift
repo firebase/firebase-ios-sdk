@@ -26,74 +26,28 @@
 
   @testable import GeminiForFoundationModels
 
-  @Suite("GeminiForFoundationModels Unit Tests", .serialized)
+  @Suite("GeminiForFoundationModels Unit Tests", .serialized, .requireFoundationModels)
   struct GeminiForFoundationModelsTests {
-    private static let defaultModelResource = ModelResource(
-      modelID: "gemini-3.8-flash",
-      urlResourceName: "models/gemini-3.8-flash",
-      payloadResourceName: "models/gemini-3.8-flash"
-    )
-    private static let defaultEndpointConfiguration = EndpointConfiguration(
-      host: "generativelanguage.googleapis.com",
-      apiVersion: "v1beta"
-    )
-
-    @available(macOS 27.0, iOS 27.0, watchOS 27.0, tvOS 27.0, visionOS 27.0, *)
-    private static func makeMockModel(
-      modelResource: ModelResource = defaultModelResource,
-      endpointConfiguration: EndpointConfiguration = defaultEndpointConfiguration,
-      headerProvider: (@Sendable () async throws -> [String: String])? = nil
-    ) -> GeminiLanguageModel {
-      let configuration = URLSessionConfiguration.ephemeral
-      configuration.protocolClasses = [MockHTTPURLProtocol.self]
-      return GeminiLanguageModel(
-        modelResource: modelResource,
-        endpointConfiguration: endpointConfiguration,
-        headerProvider: headerProvider,
-        configuration: configuration
-      )
-    }
-
     @Test
-    func modelInitializationAndCapabilities() throws {
-      guard #available(macOS 27.0, iOS 27.0, watchOS 27.0, tvOS 27.0, visionOS 27.0, *) else {
-        return
-      }
-      let modelResource = ModelResource(
-        modelID: "gemini-3.5-flash-lite",
-        urlResourceName: "models/gemini-3.5-flash-lite",
-        payloadResourceName: "models/gemini-3.5-flash-lite"
-      )
-      let endpointConfiguration = EndpointConfiguration(
-        host: "generativelanguage.googleapis.com",
-        apiVersion: "v1beta"
-      )
-
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func modelInitializationAndCapabilities() {
       let model = GeminiLanguageModel(
-        modelResource: modelResource,
-        endpointConfiguration: endpointConfiguration
+        modelResource: .gemini35FlashLite,
+        endpointConfiguration: .geminiDeveloperAPI
       )
 
-      #expect(model.executorConfiguration.modelResource == modelResource)
-      #expect(model.executorConfiguration.endpointConfiguration == endpointConfiguration)
+      #expect(model.executorConfiguration.modelResource == .gemini35FlashLite)
+      #expect(model.executorConfiguration.endpointConfiguration == .geminiDeveloperAPI)
       #expect(model.capabilities.contains(.reasoning))
       #expect(!model.capabilities.contains(.toolCalling))
       #expect(!model.capabilities.contains(.guidedGeneration))
     }
 
     @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
     func sessionRespondSingleTurn() async throws {
-      guard #available(macOS 27.0, iOS 27.0, watchOS 27.0, tvOS 27.0, visionOS 27.0, *) else {
-        return
-      }
-
       let model = Self.makeMockModel()
-      let expectedURL = try #require(
-        URL(
-          string:
-            "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:streamGenerateContent?alt=sse"
-        )
-      )
+      let expectedURL = try Self.makeExpectedStreamURL()
       let httpResponse = try #require(
         HTTPURLResponse(
           url: expectedURL,
@@ -119,18 +73,10 @@
     }
 
     @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
     func sessionRespondMultiTurn() async throws {
-      guard #available(macOS 27.0, iOS 27.0, watchOS 27.0, tvOS 27.0, visionOS 27.0, *) else {
-        return
-      }
-
       let model = Self.makeMockModel()
-      let expectedURL = try #require(
-        URL(
-          string:
-            "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:streamGenerateContent?alt=sse"
-        )
-      )
+      let expectedURL = try Self.makeExpectedStreamURL()
       let httpResponse = try #require(
         HTTPURLResponse(
           url: expectedURL,
@@ -174,18 +120,10 @@
     }
 
     @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
     func sessionWithInstructions() async throws {
-      guard #available(macOS 27.0, iOS 27.0, watchOS 27.0, tvOS 27.0, visionOS 27.0, *) else {
-        return
-      }
-
       let model = Self.makeMockModel()
-      let expectedURL = try #require(
-        URL(
-          string:
-            "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:streamGenerateContent?alt=sse"
-        )
-      )
+      let expectedURL = try Self.makeExpectedStreamURL()
       let httpResponse = try #require(
         HTTPURLResponse(
           url: expectedURL,
@@ -218,18 +156,10 @@
     }
 
     @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
     func sessionStreamResponse() async throws {
-      guard #available(macOS 27.0, iOS 27.0, watchOS 27.0, tvOS 27.0, visionOS 27.0, *) else {
-        return
-      }
-
       let model = Self.makeMockModel()
-      let expectedURL = try #require(
-        URL(
-          string:
-            "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:streamGenerateContent?alt=sse"
-        )
-      )
+      let expectedURL = try Self.makeExpectedStreamURL()
       let httpResponse = try #require(
         HTTPURLResponse(
           url: expectedURL,
@@ -259,18 +189,10 @@
     }
 
     @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
     func rateLimitErrorMapping() async throws {
-      guard #available(macOS 27.0, iOS 27.0, watchOS 27.0, tvOS 27.0, visionOS 27.0, *) else {
-        return
-      }
-
       let model = Self.makeMockModel()
-      let expectedURL = try #require(
-        URL(
-          string:
-            "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:streamGenerateContent?alt=sse"
-        )
-      )
+      let expectedURL = try Self.makeExpectedStreamURL()
       let httpResponse = try #require(
         HTTPURLResponse(
           url: expectedURL,
@@ -301,18 +223,10 @@
     }
 
     @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
     func guardrailViolationErrorMapping() async throws {
-      guard #available(macOS 27.0, iOS 27.0, watchOS 27.0, tvOS 27.0, visionOS 27.0, *) else {
-        return
-      }
-
       let model = Self.makeMockModel()
-      let expectedURL = try #require(
-        URL(
-          string:
-            "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:streamGenerateContent?alt=sse"
-        )
-      )
+      let expectedURL = try Self.makeExpectedStreamURL()
       let httpResponse = try #require(
         HTTPURLResponse(
           url: expectedURL,
@@ -344,18 +258,10 @@
     }
 
     @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
     func timeoutErrorMapping() async throws {
-      guard #available(macOS 27.0, iOS 27.0, watchOS 27.0, tvOS 27.0, visionOS 27.0, *) else {
-        return
-      }
-
       let model = Self.makeMockModel()
-      let expectedURL = try #require(
-        URL(
-          string:
-            "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:streamGenerateContent?alt=sse"
-        )
-      )
+      let expectedURL = try Self.makeExpectedStreamURL()
       MockHTTPURLProtocol.setHandler(for: expectedURL) { _, proto in
         proto.client?.urlProtocol(proto, didFailWithError: URLError(.timedOut))
       }
@@ -375,11 +281,8 @@
     }
 
     @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
     func unsupportedTranscriptContentThrows() throws {
-      guard #available(macOS 27.0, iOS 27.0, watchOS 27.0, tvOS 27.0, visionOS 27.0, *) else {
-        return
-      }
-
       let toolCall = Transcript.ToolCall(
         id: "call-1",
         toolName: "calculator",
@@ -398,6 +301,37 @@
       } catch {
         Issue.record("Unexpected error thrown: \(error)")
       }
+    }
+
+    // MARK: - Helper Methods
+
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    private static func makeMockModel(
+      modelResource: ModelResource = .gemini38Flash,
+      endpointConfiguration: EndpointConfiguration = .geminiDeveloperAPI,
+      headerProvider: (@Sendable () async throws -> [String: String])? = nil
+    ) -> GeminiLanguageModel {
+      let configuration = URLSessionConfiguration.ephemeral
+      configuration.protocolClasses = [MockHTTPURLProtocol.self]
+      return GeminiLanguageModel(
+        modelResource: modelResource,
+        endpointConfiguration: endpointConfiguration,
+        headerProvider: headerProvider,
+        configuration: configuration
+      )
+    }
+
+    private static func makeExpectedStreamURL(
+      host: String = EndpointConfiguration.geminiDeveloperAPIHost,
+      apiVersion: String = EndpointConfiguration.geminiDeveloperAPIVersion,
+      urlResourceName: String = ModelResource.gemini38FlashURLResourceName
+    ) throws -> URL {
+      try #require(
+        URL(
+          string:
+            "https://\(host)/\(apiVersion)/\(urlResourceName):streamGenerateContent?alt=sse"
+        )
+      )
     }
   }
 #endif  // canImport(FoundationModels) && compiler(>=6.4)
