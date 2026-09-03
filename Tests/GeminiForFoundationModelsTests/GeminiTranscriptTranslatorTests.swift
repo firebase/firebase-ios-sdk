@@ -17,8 +17,8 @@
   import FoundationModels
   import Testing
 
-  package import GeminiAPIDataModels
-  package import SharedTestUtilities
+  import GeminiAPIDataModels
+  import SharedTestUtilities
 
   @testable import GeminiForFoundationModels
 
