@@ -41,8 +41,13 @@
 
         XCTAssertEqual(foundationModelsGenerationOptions.temperature, 0.5)
         XCTAssertEqual(foundationModelsGenerationOptions.maximumResponseTokens, 100)
-        XCTAssertNotNil(foundationModelsGenerationOptions.sampling)
-        XCTAssertEqual(foundationModelsGenerationOptions.sampling, .greedy)
+        #if compiler(>=6.4)
+          XCTAssertNotNil(foundationModelsGenerationOptions.samplingMode)
+          XCTAssertEqual(foundationModelsGenerationOptions.samplingMode, .greedy)
+        #else
+          XCTAssertNotNil(foundationModelsGenerationOptions.sampling)
+          XCTAssertEqual(foundationModelsGenerationOptions.sampling, .greedy)
+        #endif // compiler(>=6.4)
       }
     #endif // canImport(FoundationModels)
 
