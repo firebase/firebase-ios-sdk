@@ -1724,19 +1724,15 @@ func firebaseAILogicDependencies() -> [Target.Dependency] {
         path: "GeminiLanguageModel/Sources/GeminiLanguageModel",
         swiftSettings: swiftSettings
       ),
-      //    .target(
-      //      name: "SharedTestUtilities",
-      //      path: "Tests/SharedTestUtilities",
-      //      swiftSettings: swiftSettings,
-      //    ),
-      //    .testTarget(
-      //      name: "GeminiForFoundationModelsTests",
-      //      dependencies: [
-      //        "GeminiForFoundationModels",
-      //        "SharedTestUtilities",
-      //      ],
-      //      swiftSettings: swiftSettings
-      //    ),
+      .testTarget(
+        name: "GeminiLanguageModelTests",
+        dependencies: [
+          "GeminiLanguageModel",
+          "GeminiTestUtilities",
+        ],
+        path: "GeminiLanguageModel/Tests/GeminiLanguageModelTests",
+        swiftSettings: swiftSettings
+      ),
       .target(
         name: "GeminiAPIClient",
         dependencies: [
@@ -1745,14 +1741,15 @@ func firebaseAILogicDependencies() -> [Target.Dependency] {
         path: "GeminiLanguageModel/Sources/GeminiAPIClient",
         swiftSettings: swiftSettings
       ),
-      //    .testTarget(
-      //      name: "GeminiAPIClientTests",
-      //      dependencies: [
-      //        "GeminiAPIClient",
-      //        "SharedTestUtilities",
-      //      ],
-      //      swiftSettings: swiftSettings
-      //    ),
+      .testTarget(
+        name: "GeminiAPIClientTests",
+        dependencies: [
+          "GeminiAPIClient",
+          "GeminiTestUtilities",
+        ],
+        path: "GeminiLanguageModel/Tests/GeminiAPIClientTests",
+        swiftSettings: swiftSettings
+      ),
       .target(
         name: "GeminiAPIDataModels",
         path: "GeminiLanguageModel/Sources/GeminiAPIDataModels",
@@ -1761,6 +1758,11 @@ func firebaseAILogicDependencies() -> [Target.Dependency] {
           .enableUpcomingFeature("MemberImportVisibility"),
           .swiftLanguageMode(.v6),
         ]
+      ),
+      .target(
+        name: "GeminiTestUtilities",
+        path: "GeminiLanguageModel/Tests/GeminiTestUtilities",
+        swiftSettings: swiftSettings,
       ),
     ]
   }
