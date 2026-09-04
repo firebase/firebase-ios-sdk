@@ -27,13 +27,13 @@ let package = Package(
   platforms: [.iOS(.v15), .macCatalyst(.v15), .macOS(.v10_15), .tvOS(.v15), .watchOS(.v7)],
   products: [
     .library(
-      name: "GeminiForFoundationModels",
-      targets: ["GeminiForFoundationModels"]
+      name: "GeminiLanguageModel",
+      targets: ["GeminiLanguageModel"]
     )
   ],
   targets: [
     .target(
-      name: "GeminiForFoundationModels",
+      name: "GeminiLanguageModel",
       dependencies: [
         "GeminiAPIClient",
         "GeminiAPIDataModels",
@@ -41,15 +41,15 @@ let package = Package(
       swiftSettings: defaultSwiftSettings
     ),
     .target(
-      name: "SharedTestUtilities",
-      path: "Tests/SharedTestUtilities",
+      name: "GeminiTestUtilities",
+      path: "Tests/GeminiTestUtilities",
       swiftSettings: defaultSwiftSettings,
     ),
     .testTarget(
-      name: "GeminiForFoundationModelsTests",
+      name: "GeminiLanguageModelTests",
       dependencies: [
-        "GeminiForFoundationModels",
-        "SharedTestUtilities",
+        "GeminiLanguageModel",
+        "GeminiTestUtilities",
       ],
       swiftSettings: defaultSwiftSettings
     ),
@@ -64,7 +64,7 @@ let package = Package(
       name: "GeminiAPIClientTests",
       dependencies: [
         "GeminiAPIClient",
-        "SharedTestUtilities",
+        "GeminiTestUtilities",
       ],
       swiftSettings: defaultSwiftSettings
     ),

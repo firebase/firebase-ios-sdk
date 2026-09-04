@@ -18,9 +18,9 @@
   import Testing
 
   import GeminiAPIDataModels
-  import SharedTestUtilities
+  import GeminiTestUtilities
 
-  @testable import GeminiForFoundationModels
+  @testable import GeminiLanguageModel
 
   @Suite("GeminiTranscriptTranslator Tests", .requireFoundationModels)
   struct GeminiTranscriptTranslatorTests {

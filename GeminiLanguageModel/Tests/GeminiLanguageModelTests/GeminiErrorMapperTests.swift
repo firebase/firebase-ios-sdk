@@ -17,10 +17,10 @@
   import FoundationModels
   import GeminiAPIClient
   import GeminiAPIDataModels
-  import SharedTestUtilities
+  import GeminiTestUtilities
   import Testing
 
-  @testable import GeminiForFoundationModels
+  @testable import GeminiLanguageModel
 
   @Suite("GeminiErrorMapper Tests", .requireFoundationModels)
   struct GeminiErrorMapperTests {

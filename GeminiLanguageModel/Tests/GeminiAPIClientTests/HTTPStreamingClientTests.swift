@@ -14,7 +14,7 @@
 
 import Foundation
 import GeminiAPIClient
-import SharedTestUtilities
+import GeminiTestUtilities
 import Testing
 
 #if canImport(FoundationNetworking)

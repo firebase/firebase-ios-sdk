@@ -16,10 +16,10 @@
   import Foundation
   import FoundationModels
   import GeminiAPIClient
-  import SharedTestUtilities
+  import GeminiTestUtilities
   import Testing
 
-  @testable import GeminiForFoundationModels
+  @testable import GeminiLanguageModel
 
   @Suite("GeminiForFoundationModels Integration Tests", .requireFoundationModels)
   struct GeminiForFoundationModelsIntegrationTests {

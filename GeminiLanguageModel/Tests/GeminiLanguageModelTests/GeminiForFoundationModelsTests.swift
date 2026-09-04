@@ -17,14 +17,14 @@
   import FoundationModels
   import GeminiAPIClient
   import GeminiAPIDataModels
-  import SharedTestUtilities
+  import GeminiTestUtilities
   import Testing
 
   #if canImport(FoundationNetworking)
     import FoundationNetworking
   #endif
 
-  @testable import GeminiForFoundationModels
+  @testable import GeminiLanguageModel
 
   @Suite("GeminiForFoundationModels Unit Tests", .serialized, .requireFoundationModels)
   struct GeminiForFoundationModelsTests {
