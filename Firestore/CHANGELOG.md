@@ -1,6 +1,6 @@
 # Unreleased
 - [feature] Adds support for the following new types: `MinKey`, `MaxKey`, `RegexValue`,
-  `Int32Value`, `Decimal128Value`, `BSONObjectId`, `BSONTimestamp`, and `BSONBinaryData`. (#14800)
+  `Int32Value`, `Decimal128Value`, `BSONObjectId`, `BSONTimestamp`, and `BSONBinaryData`. (#16265)
 
 # 12.19.0
 - [feature] Added support for `minimum` and `maximum` FieldValue operations [#16159].
