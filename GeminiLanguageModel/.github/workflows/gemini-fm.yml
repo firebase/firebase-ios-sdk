@@ -1,0 +1,42 @@
+name: gemini-for-foundation-models
+
+permissions:
+  contents: read
+
+on:
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  macos:
+    name: macOS
+    runs-on: macos-26
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          persist-credentials: false
+
+      - name: Build
+        run: swift build -Xswiftc -warnings-as-errors
+
+      - name: Test
+        run: swift test -Xswiftc -warnings-as-errors
+
+  linux:
+    name: Linux
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          persist-credentials: false
+
+      - name: Build
+        run: swift build -Xswiftc -warnings-as-errors
+
+      - name: Test
+        run: swift test -Xswiftc -warnings-as-errors
