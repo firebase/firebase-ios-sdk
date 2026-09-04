@@ -36,13 +36,6 @@ let package = Package(
 func packageProducts() -> [Product] {
   return [
     .library(
-      name: "FirebaseAI",
-      targets: [
-        "FirebaseAI",
-        "FirebaseAILogic",
-      ]
-    ),
-    .library(
       name: "FirebaseAILogic",
       targets: [
         "FirebaseAILogic",
@@ -233,16 +226,6 @@ func packageTargets() -> [Target] {
       swiftSettings: [
         isFoundationModelsSupportedPlatformSwiftSetting(),
       ]
-    ),
-    .target(
-      name: "FirebaseAI",
-      dependencies: ["FirebaseAILogic"],
-      path: "FirebaseAI/Wrapper/Sources"
-    ),
-    .testTarget(
-      name: "FirebaseAIUnit",
-      dependencies: ["FirebaseAI"],
-      path: "FirebaseAI/Wrapper/Tests"
     ),
 
     // MARK: - Firebase Core

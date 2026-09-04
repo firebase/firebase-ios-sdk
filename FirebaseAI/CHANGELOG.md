@@ -1,3 +1,10 @@
+# Unreleased
+- [changed] **Breaking Change**: Update imports to `import FirebaseAILogic`
+  and use the `FirebaseAILogic` Swift Package dependency instead of
+  `FirebaseAI`, which has now been removed. See the
+  [Swift module name change](https://firebase.google.com/docs/ai-logic/faq-and-troubleshooting#swift-module-name-change)
+  FAQ entry for more details.
+
 # 12.19.0
 - [fixed] Fixed an issue with a transitive import in the logger, which could cause
   a build error in explicit module mode. (#16563)
