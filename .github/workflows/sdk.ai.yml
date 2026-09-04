@@ -111,7 +111,7 @@ jobs:
   pod_lib_lint:
     strategy:
       matrix:
-        product: [FirebaseAILogic, FirebaseAI]
+        product: [FirebaseAILogic]
     uses: ./.github/workflows/_cocoapods.yml
     with:
       product: ${{  matrix.product }}
