@@ -24,6 +24,31 @@ namespace firebase {
 namespace firestore {
 namespace index {
 
+enum IndexType {
+  kNull = 5,
+  kMinKey = 7,
+  kBoolean = 10,
+  kNan = 13,
+  kNumber = 15,
+  kTimestamp = 20,
+  kBsonTimestamp = 22,
+  kString = 25,
+  kBlob = 30,
+  kBsonBinaryData = 31,
+  kReference = 37,
+  kBsonObjectId = 43,
+  kGeopoint = 45,
+  kRegex = 47,
+  kArray = 50,
+  kVector = 53,
+  kMap = 55,
+  kReferenceSegment = 60,
+  kMaxKey = 999,
+  // A terminator that indicates that a truncatable value was not truncated.
+  // This must be smaller than all other type labels.
+  kNotTruncated = 2
+};
+
 /**
  * Writes an index value using the given encoder. The encoder writes the encoded
  * bytes into a buffer maintained by `IndexEncodingBuffer` who owns the

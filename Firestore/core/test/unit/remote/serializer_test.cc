@@ -88,6 +88,9 @@ using model::GetTypeOrder;
 using model::MutableDocument;
 using model::Mutation;
 using model::MutationResult;
+using model::NumericIncrementTransform;
+using model::NumericMaximumTransform;
+using model::NumericMinimumTransform;
 using model::ObjectValue;
 using model::PatchMutation;
 using model::Precondition;
@@ -111,16 +114,24 @@ using nanopb::Writer;
 using remote::Serializer;
 using testutil::AndFilters;
 using testutil::Array;
+using testutil::BsonBinaryData;
+using testutil::BsonObjectId;
+using testutil::BsonTimestamp;
 using testutil::Bytes;
+using testutil::Decimal128;
 using testutil::DeletedDoc;
 using testutil::Doc;
 using testutil::Filter;
+using testutil::Int32;
 using testutil::Key;
 using testutil::Map;
+using testutil::MaxKey;
+using testutil::MinKey;
 using testutil::OrderBy;
 using testutil::OrFilters;
 using testutil::Query;
 using testutil::Ref;
+using testutil::Regex;
 using testutil::Value;
 using testutil::Version;
 using util::Status;
@@ -820,6 +831,109 @@ TEST_F(SerializerTest, EncodesNestedObjects) {
   (*fields)["o"] = middle_proto;
 
   ExpectRoundTrip(model, proto, TypeOrder::kMap);
+}
+
+TEST_F(SerializerTest, EncodesMinKey) {
+  Message<google_firestore_v1_Value> model = MinKey();
+
+  v1::Value proto;
+  google::protobuf::Map<std::string, v1::Value>* fields =
+      proto.mutable_map_value()->mutable_fields();
+  (*fields)["__min__"] = ValueProto(nullptr);
+
+  ExpectRoundTrip(model, proto, TypeOrder::kMinKey);
+}
+
+TEST_F(SerializerTest, EncodesMaxKey) {
+  Message<google_firestore_v1_Value> model = MaxKey();
+
+  v1::Value proto;
+  google::protobuf::Map<std::string, v1::Value>* fields =
+      proto.mutable_map_value()->mutable_fields();
+  (*fields)["__max__"] = ValueProto(nullptr);
+
+  ExpectRoundTrip(model, proto, TypeOrder::kMaxKey);
+}
+
+TEST_F(SerializerTest, EncodesRegexValue) {
+  Message<google_firestore_v1_Value> model = Regex("^foo", "i");
+
+  v1::Value inner_map_proto;
+  google::protobuf::Map<std::string, v1::Value>* inner_fields =
+      inner_map_proto.mutable_map_value()->mutable_fields();
+  (*inner_fields)["pattern"] = ValueProto("^foo");
+  (*inner_fields)["options"] = ValueProto("i");
+
+  v1::Value proto;
+  google::protobuf::Map<std::string, v1::Value>* fields =
+      proto.mutable_map_value()->mutable_fields();
+  (*fields)["__regex__"] = inner_map_proto;
+
+  ExpectRoundTrip(model, proto, TypeOrder::kRegex);
+}
+
+TEST_F(SerializerTest, EncodesInt32Value) {
+  Message<google_firestore_v1_Value> model = Int32(78);
+
+  v1::Value proto;
+  google::protobuf::Map<std::string, v1::Value>* fields =
+      proto.mutable_map_value()->mutable_fields();
+  (*fields)["__int__"] = ValueProto(78);
+
+  ExpectRoundTrip(model, proto, TypeOrder::kNumber);
+}
+
+TEST_F(SerializerTest, EncodesDecimal128Value) {
+  Message<google_firestore_v1_Value> model = Decimal128("1.2e3");
+
+  v1::Value proto;
+  google::protobuf::Map<std::string, v1::Value>* fields =
+      proto.mutable_map_value()->mutable_fields();
+  (*fields)["__decimal128__"] = ValueProto("1.2e3");
+
+  ExpectRoundTrip(model, proto, TypeOrder::kNumber);
+}
+
+TEST_F(SerializerTest, EncodesBsonObjectId) {
+  Message<google_firestore_v1_Value> model = BsonObjectId("foo");
+
+  v1::Value proto;
+  google::protobuf::Map<std::string, v1::Value>* fields =
+      proto.mutable_map_value()->mutable_fields();
+  (*fields)["__oid__"] = ValueProto("foo");
+
+  ExpectRoundTrip(model, proto, TypeOrder::kBsonObjectId);
+}
+
+TEST_F(SerializerTest, EncodesBsonTimestamp) {
+  Message<google_firestore_v1_Value> model = BsonTimestamp(123u, 456u);
+
+  v1::Value inner_map_proto;
+  google::protobuf::Map<std::string, v1::Value>* inner_fields =
+      inner_map_proto.mutable_map_value()->mutable_fields();
+  (*inner_fields)["seconds"] = ValueProto(123);
+  (*inner_fields)["increment"] = ValueProto(456);
+
+  v1::Value proto;
+  google::protobuf::Map<std::string, v1::Value>* fields =
+      proto.mutable_map_value()->mutable_fields();
+  (*fields)["__request_timestamp__"] = inner_map_proto;
+
+  ExpectRoundTrip(model, proto, TypeOrder::kBsonTimestamp);
+}
+
+TEST_F(SerializerTest, EncodesBsonBinaryData) {
+  Message<google_firestore_v1_Value> model =
+      BsonBinaryData(128u, {0x1, 0x2, 0x3});
+
+  v1::Value proto;
+  google::protobuf::Map<std::string, v1::Value>* fields =
+      proto.mutable_map_value()->mutable_fields();
+  std::vector<uint8_t> concat{128, 1, 2, 3};
+  (*fields)["__binary__"] =
+      ValueProto(ByteString(concat.data(), concat.size()));
+
+  ExpectRoundTrip(model, proto, TypeOrder::kBlob);
 }
 
 TEST_F(SerializerTest, EncodesVectorValue) {
@@ -2024,6 +2138,169 @@ TEST_F(SerializerTest, EncodesArrayTransform) {
   v1::ArrayValue& remove2 = *remove_proto2.mutable_remove_all_from_array();
   *remove2.add_values() = ValueProto(Map("x", 1));
   *patch_proto.add_update_transforms() = std::move(remove_proto2);
+
+  v1::DocumentMask mask;
+  patch_proto.set_allocated_update_mask(mask.New());
+  patch_proto.mutable_current_document()->set_exists(true);
+
+  ExpectRoundTrip(patch_model, patch_proto);
+}
+
+TEST_F(SerializerTest, EncodesNumericIncrementTransform) {
+  std::vector<std::pair<std::string, TransformOperation>> transforms = {
+      {"i64", NumericIncrementTransform(Value(int64_t{42}))},
+      {"dbl", NumericIncrementTransform(Value(42.5))},
+      {"i32", NumericIncrementTransform(Int32(42))},
+      {"d128", NumericIncrementTransform(Decimal128("42.5"))}};
+
+  SetMutation set_model = testutil::SetMutation("docs/1", Map(), transforms);
+
+  v1::Write set_proto;
+  v1::Document& doc = *set_proto.mutable_update();
+  doc.set_name(ResourceName("docs/1"));
+
+  v1::DocumentTransform::FieldTransform inc_proto1;
+  inc_proto1.set_field_path("i64");
+  *inc_proto1.mutable_increment() = ValueProto(int64_t{42});
+  *set_proto.add_update_transforms() = std::move(inc_proto1);
+
+  v1::DocumentTransform::FieldTransform inc_proto2;
+  inc_proto2.set_field_path("dbl");
+  *inc_proto2.mutable_increment() = ValueProto(42.5);
+  *set_proto.add_update_transforms() = std::move(inc_proto2);
+
+  v1::DocumentTransform::FieldTransform inc_proto3;
+  inc_proto3.set_field_path("i32");
+  *inc_proto3.mutable_increment() = ValueProto(Int32(42));
+  *set_proto.add_update_transforms() = std::move(inc_proto3);
+
+  v1::DocumentTransform::FieldTransform inc_proto4;
+  inc_proto4.set_field_path("d128");
+  *inc_proto4.mutable_increment() = ValueProto(Decimal128("42.5"));
+  *set_proto.add_update_transforms() = std::move(inc_proto4);
+
+  ExpectRoundTrip(set_model, set_proto);
+
+  PatchMutation patch_model =
+      testutil::PatchMutation("docs/1", Map(), transforms);
+
+  v1::Write patch_proto;
+  v1::Document& doc2 = *patch_proto.mutable_update();
+  doc2.set_name(ResourceName("docs/1"));
+
+  v1::DocumentTransform::FieldTransform patch_inc_proto1;
+  patch_inc_proto1.set_field_path("i64");
+  *patch_inc_proto1.mutable_increment() = ValueProto(int64_t{42});
+  *patch_proto.add_update_transforms() = std::move(patch_inc_proto1);
+
+  v1::DocumentTransform::FieldTransform patch_inc_proto2;
+  patch_inc_proto2.set_field_path("dbl");
+  *patch_inc_proto2.mutable_increment() = ValueProto(42.5);
+  *patch_proto.add_update_transforms() = std::move(patch_inc_proto2);
+
+  v1::DocumentTransform::FieldTransform patch_inc_proto3;
+  patch_inc_proto3.set_field_path("i32");
+  *patch_inc_proto3.mutable_increment() = ValueProto(Int32(42));
+  *patch_proto.add_update_transforms() = std::move(patch_inc_proto3);
+
+  v1::DocumentTransform::FieldTransform patch_inc_proto4;
+  patch_inc_proto4.set_field_path("d128");
+  *patch_inc_proto4.mutable_increment() = ValueProto(Decimal128("42.5"));
+  *patch_proto.add_update_transforms() = std::move(patch_inc_proto4);
+
+  v1::DocumentMask mask;
+  patch_proto.set_allocated_update_mask(mask.New());
+  patch_proto.mutable_current_document()->set_exists(true);
+
+  ExpectRoundTrip(patch_model, patch_proto);
+}
+
+TEST_F(SerializerTest, EncodesNumericMinimumTransform) {
+  std::vector<std::pair<std::string, TransformOperation>> transforms = {
+      {"i32", NumericMinimumTransform(Int32(42))},
+      {"d128", NumericMinimumTransform(Decimal128("42.5"))}};
+
+  SetMutation set_model = testutil::SetMutation("docs/1", Map(), transforms);
+
+  v1::Write set_proto;
+  v1::Document& doc = *set_proto.mutable_update();
+  doc.set_name(ResourceName("docs/1"));
+
+  v1::DocumentTransform::FieldTransform min_proto1;
+  min_proto1.set_field_path("i32");
+  *min_proto1.mutable_minimum() = ValueProto(Int32(42));
+  *set_proto.add_update_transforms() = std::move(min_proto1);
+
+  v1::DocumentTransform::FieldTransform min_proto2;
+  min_proto2.set_field_path("d128");
+  *min_proto2.mutable_minimum() = ValueProto(Decimal128("42.5"));
+  *set_proto.add_update_transforms() = std::move(min_proto2);
+
+  ExpectRoundTrip(set_model, set_proto);
+
+  PatchMutation patch_model =
+      testutil::PatchMutation("docs/1", Map(), transforms);
+
+  v1::Write patch_proto;
+  v1::Document& doc2 = *patch_proto.mutable_update();
+  doc2.set_name(ResourceName("docs/1"));
+
+  v1::DocumentTransform::FieldTransform patch_min_proto1;
+  patch_min_proto1.set_field_path("i32");
+  *patch_min_proto1.mutable_minimum() = ValueProto(Int32(42));
+  *patch_proto.add_update_transforms() = std::move(patch_min_proto1);
+
+  v1::DocumentTransform::FieldTransform patch_min_proto2;
+  patch_min_proto2.set_field_path("d128");
+  *patch_min_proto2.mutable_minimum() = ValueProto(Decimal128("42.5"));
+  *patch_proto.add_update_transforms() = std::move(patch_min_proto2);
+
+  v1::DocumentMask mask;
+  patch_proto.set_allocated_update_mask(mask.New());
+  patch_proto.mutable_current_document()->set_exists(true);
+
+  ExpectRoundTrip(patch_model, patch_proto);
+}
+
+TEST_F(SerializerTest, EncodesNumericMaximumTransform) {
+  std::vector<std::pair<std::string, TransformOperation>> transforms = {
+      {"i32", NumericMaximumTransform(Int32(42))},
+      {"d128", NumericMaximumTransform(Decimal128("42.5"))}};
+
+  SetMutation set_model = testutil::SetMutation("docs/1", Map(), transforms);
+
+  v1::Write set_proto;
+  v1::Document& doc = *set_proto.mutable_update();
+  doc.set_name(ResourceName("docs/1"));
+
+  v1::DocumentTransform::FieldTransform max_proto1;
+  max_proto1.set_field_path("i32");
+  *max_proto1.mutable_maximum() = ValueProto(Int32(42));
+  *set_proto.add_update_transforms() = std::move(max_proto1);
+
+  v1::DocumentTransform::FieldTransform max_proto2;
+  max_proto2.set_field_path("d128");
+  *max_proto2.mutable_maximum() = ValueProto(Decimal128("42.5"));
+  *set_proto.add_update_transforms() = std::move(max_proto2);
+
+  ExpectRoundTrip(set_model, set_proto);
+
+  PatchMutation patch_model =
+      testutil::PatchMutation("docs/1", Map(), transforms);
+
+  v1::Write patch_proto;
+  v1::Document& doc2 = *patch_proto.mutable_update();
+  doc2.set_name(ResourceName("docs/1"));
+
+  v1::DocumentTransform::FieldTransform patch_max_proto1;
+  patch_max_proto1.set_field_path("i32");
+  *patch_max_proto1.mutable_maximum() = ValueProto(Int32(42));
+  *patch_proto.add_update_transforms() = std::move(patch_max_proto1);
+
+  v1::DocumentTransform::FieldTransform patch_max_proto2;
+  patch_max_proto2.set_field_path("d128");
+  *patch_max_proto2.mutable_maximum() = ValueProto(Decimal128("42.5"));
+  *patch_proto.add_update_transforms() = std::move(patch_max_proto2);
 
   v1::DocumentMask mask;
   patch_proto.set_allocated_update_mask(mask.New());

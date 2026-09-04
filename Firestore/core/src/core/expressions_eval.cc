@@ -158,7 +158,7 @@ EvaluateResult::EvaluateResult(
 EvaluateResult EvaluateResult::NewNull() {
   return EvaluateResult(
       ResultType::kNull,
-      nanopb::Message<google_firestore_v1_Value>(model::MinValue()));
+      nanopb::Message<google_firestore_v1_Value>(model::InternalMinValue()));
 }
 
 EvaluateResult EvaluateResult::NewValue(
