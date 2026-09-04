@@ -69,6 +69,12 @@ on:
         required: false
         default: "{}"
 
+      # Extra flags to pass to scripts/build.sh xcodebuild invocation.
+      extra_flags:
+        type: string
+        required: false
+        default: ""
+
     outputs:
       cache_key:
         description: "The cache key for the Swift package resolution."
@@ -123,17 +129,19 @@ jobs:
     needs: [spm-package-resolved]
     env:
         FIREBASE_IS_NIGHTLY_TESTING: ${{ inputs.is_nightly && '1' || '' }}
+    continue-on-error: ${{ matrix.os == 'xcode-27' }}
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-15, macos-26]
-        xcode: [Xcode_26.2, Xcode_26.4]
+        os: [macos-15, macos-26, xcode-27]
         platform: [iOS, tvOS, macOS, watchOS, catalyst, visionOS]
-        exclude:
+        include:
           - os: macos-15
-            xcode: Xcode_26.4
-          - os: macos-26
             xcode: Xcode_26.2
+          - os: macos-26
+            xcode: Xcode_26.4
+          - os: xcode-27
+            xcode: Xcode_27.0
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
@@ -184,6 +192,7 @@ jobs:
         FIREBASE_IS_NIGHTLY_TESTING: ${{ inputs.is_nightly && '1' || '' }}
         TARGET: ${{ inputs.target }}
         PLATFORM: ${{ matrix.platform }}
+        EXTRA_FLAGS: ${{ inputs.extra_flags }}
       with:
         timeout_minutes: 15
         max_attempts: 3
@@ -192,7 +201,8 @@ jobs:
           ./scripts/build.sh \
             "$TARGET" \
             "$PLATFORM" \
-            ${{ (contains(inputs.buildonly_platforms, matrix.platform) || contains(inputs.buildonly_platforms, 'all')) && 'spmbuildonly' || 'spm' }}
+            ${{ (contains(inputs.buildonly_platforms, matrix.platform) || contains(inputs.buildonly_platforms, 'all')) && 'spmbuildonly' || 'spm' }} \
+            $EXTRA_FLAGS
     - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
       if: ${{ failure() }}
       with:

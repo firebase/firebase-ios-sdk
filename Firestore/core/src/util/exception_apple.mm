@@ -50,11 +50,11 @@ NSException* MakeException(ExceptionType type, const std::string& message) {
 
 }  // namespace
 
-ABSL_ATTRIBUTE_NORETURN void ObjcThrowHandler(ExceptionType type,
-                                              const char* file,
-                                              const char* func,
-                                              int line,
-                                              const std::string& message) {
+[[noreturn]] void ObjcThrowHandler(ExceptionType type,
+                                   const char* file,
+                                   const char* func,
+                                   int line,
+                                   const std::string& message) {
   if (type == ExceptionType::AssertionFailure) {
     [[NSAssertionHandler currentHandler]
         handleFailureInFunction:MakeNSString(func)

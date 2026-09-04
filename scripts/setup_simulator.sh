@@ -64,10 +64,10 @@ get_vision_device() {
       grep -o -E 'com\.apple\.CoreSimulator\.SimRuntime\.[a-zA-Z0-9.-]+' |
       tail -1 || true
   )
-  if [[ "$vision_runtime" =~ xrOS-26|visionOS-26 ]]; then
-    echo "${device_prefix}.Apple-Vision-Pro-4K"
-  else
+  if [[ "$vision_runtime" =~ (xrOS|visionOS)-[12]- ]]; then
     echo "${device_prefix}.Apple-Vision-Pro"
+  else
+    echo "${device_prefix}.Apple-Vision-Pro-4K"
   fi
 }
 
