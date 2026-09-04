@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import CoreLocation
-import FirebaseAI
+import FirebaseAILogic
 import FirebaseAITestApp
 import Testing
 
