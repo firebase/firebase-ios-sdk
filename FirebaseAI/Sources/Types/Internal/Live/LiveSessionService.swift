@@ -15,12 +15,6 @@
 import Foundation
 import os.log
 
-// TODO: remove @preconcurrency when we update to Swift 6
-// for context, see
-// https://forums.swift.org/t/why-does-sending-a-sendable-value-risk-causing-data-races/73074
-@preconcurrency import FirebaseAppCheckInterop
-@preconcurrency import FirebaseAuthInterop
-
 /// Facilitates communication with the backend for a ``LiveSession``.
 ///
 /// Using an actor will make it easier to adopt session resumption, as we have an isolated place for
@@ -394,42 +388,7 @@ actor LiveSessionService {
     }
     var urlRequest = URLRequest(url: url)
     urlRequest.timeoutInterval = requestOptions.timeout
-    urlRequest.setValue(firebaseInfo.apiKey, forHTTPHeaderField: "x-goog-api-key")
-    if let bundleID = Bundle.main.bundleIdentifier {
-      urlRequest.setValue(bundleID, forHTTPHeaderField: "x-ios-bundle-identifier")
-    }
-    urlRequest.setValue(
-      "\(Constants.languageTag) \(Constants.firebaseVersionTag)",
-      forHTTPHeaderField: "x-goog-api-client"
-    )
-    urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
-
-    if let appCheck = firebaseInfo.appCheck {
-      let tokenResult = try await appCheck.fetchAppCheckToken(
-        limitedUse: firebaseInfo.useLimitedUseAppCheckTokens,
-        domain: "LiveSessionService"
-      )
-      urlRequest.setValue(tokenResult.token, forHTTPHeaderField: "X-Firebase-AppCheck")
-      if let error = tokenResult.error {
-        AILog.error(
-          code: .appCheckTokenFetchFailed,
-          "Failed to fetch AppCheck token. Error: \(error)"
-        )
-      }
-    }
-
-    if let auth = firebaseInfo.auth, let authToken = try await auth.getToken(
-      forcingRefresh: false
-    ) {
-      urlRequest.setValue("Firebase \(authToken)", forHTTPHeaderField: "Authorization")
-    }
-
-    if firebaseInfo.app.isDataCollectionDefaultEnabled {
-      urlRequest.setValue(firebaseInfo.firebaseAppID, forHTTPHeaderField: "X-Firebase-AppId")
-      if let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String {
-        urlRequest.setValue(appVersion, forHTTPHeaderField: "X-Firebase-AppVersion")
-      }
-    }
+    try await firebaseInfo.applyHeaders(to: &urlRequest)
 
     return AsyncWebSocket(urlSession: urlSession, urlRequest: urlRequest)
   }
