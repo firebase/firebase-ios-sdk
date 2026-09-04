@@ -24,6 +24,7 @@
 #include "Firestore/core/src/remote/serializer.h"
 #include "Firestore/core/src/util/comparison.h"
 #include "Firestore/core/src/util/defer.h"
+#include "Firestore/core/src/util/quadruple.h"
 #include "Firestore/core/test/unit/testutil/equals_tester.h"
 #include "Firestore/core/test/unit/testutil/testutil.h"
 #include "Firestore/core/test/unit/testutil/time_testing.h"
@@ -56,6 +57,7 @@ using testutil::time_point;
 using testutil::Value;
 using testutil::VectorType;
 using util::ComparisonResult;
+using util::Quadruple;
 
 namespace {
 
