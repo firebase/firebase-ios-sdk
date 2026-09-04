@@ -48,11 +48,10 @@ extension FirebaseInfo {
       headers["x-ios-bundle-identifier"] = bundleID
     }
 
-    var clientTags = [
+    let clientTags = [
       Constants.languageTag,
       Constants.firebaseVersionTag,
-    ]
-    clientTags.append(contentsOf: additionalClientTags)
+    ] + additionalClientTags
     headers["x-goog-api-client"] = clientTags.joined(separator: " ")
 
     if let appCheck {
@@ -69,7 +68,7 @@ extension FirebaseInfo {
       }
     }
 
-    if let auth, accessToken == nil,
+    if accessToken == nil, let auth,
        let authToken = try await auth.getToken(forcingRefresh: false) {
       headers["Authorization"] = "Firebase \(authToken)"
     }

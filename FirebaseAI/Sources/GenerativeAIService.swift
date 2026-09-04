@@ -136,10 +136,7 @@ struct GenerativeAIService {
   private func urlRequest<T: GenerativeAIRequest>(request: T) async throws -> URLRequest {
     var urlRequest = try URLRequest(url: request.getURL())
     urlRequest.httpMethod = "POST"
-    var additionalClientTags: [String] = []
-    if TaskLocals.isHybridRequest {
-      additionalClientTags.append("hybrid")
-    }
+    let additionalClientTags = TaskLocals.isHybridRequest ? ["hybrid"] : []
     try await firebaseInfo.applyHeaders(
       to: &urlRequest,
       additionalClientTags: additionalClientTags
