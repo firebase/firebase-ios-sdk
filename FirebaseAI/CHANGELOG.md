@@ -1,6 +1,13 @@
 # 12.19.0
 - [fixed] Fixed an issue with a transitive import in the logger, which could cause
   a build error in explicit module mode. (#16563)
+- [changed] In 12.5.0, the `FirebaseAI` module was renamed to
+  `FirebaseAILogic`. In the upcoming Firebase 13.0.0 release, the `FirebaseAI`
+  library will be removed. Ahead of the major release, imports should be changed
+  to `import FirebaseAILogic` and the `FirebaseAILogic` Swift Package
+  dependency should be selected. See the
+  [Swift module name change](https://firebase.google.com/docs/ai-logic/faq-and-troubleshooting#swift-module-name-change)
+  FAQ entry for more details.
 
 # 12.18.0
 - [removed] Removed deprecated Imagen methods and types due to Imagen models being shut down in
