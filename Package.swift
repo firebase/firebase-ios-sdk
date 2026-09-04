@@ -1699,7 +1699,9 @@ func firebaseAILogicDependencies() -> [Target.Dependency] {
   ]
 
   #if compiler(>=6.4) && canImport(FoundationModels)
-    dependencies.append("GeminiLanguageModel")
+    if Context.environment["GEMINI_LANGUAGE_MODEL"] != nil {
+      dependencies.append("GeminiLanguageModel")
+    }
   #endif // compiler(>=6.4) && canImport(FoundationModels)
 
   return dependencies
@@ -1707,6 +1709,10 @@ func firebaseAILogicDependencies() -> [Target.Dependency] {
 
 #if compiler(>=6.4) && canImport(FoundationModels)
   func geminiLanguageModelTargets() -> [Target] {
+    guard Context.environment["GEMINI_LANGUAGE_MODEL"] != nil else {
+      return []
+    }
+
     let swiftSettings: [SwiftSetting] = [
       .enableUpcomingFeature("ExistentialAny"),
       .enableUpcomingFeature("InternalImportsByDefault"),

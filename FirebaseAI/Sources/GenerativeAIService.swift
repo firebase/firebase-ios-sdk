@@ -19,12 +19,6 @@ import Foundation
 import os.log
 
 struct GenerativeAIService {
-  /// The language of the SDK in the format `gl-<language>/<version>`.
-  static let languageTag = "gl-swift/5"
-
-  /// The Firebase SDK version in the format `fire/<version>`.
-  static let firebaseVersionTag = "fire/\(FirebaseVersion())"
-
   let firebaseInfo: FirebaseInfo
 
   private let urlSession: URLSession
@@ -158,7 +152,7 @@ struct GenerativeAIService {
     if let bundleID = Bundle.main.bundleIdentifier {
       urlRequest.setValue(bundleID, forHTTPHeaderField: "x-ios-bundle-identifier")
     }
-    var apiClientHeaders = [GenerativeAIService.languageTag, GenerativeAIService.firebaseVersionTag]
+    var apiClientHeaders = [Constants.languageTag, Constants.firebaseVersionTag]
     if TaskLocals.isHybridRequest {
       apiClientHeaders.append("hybrid")
     }

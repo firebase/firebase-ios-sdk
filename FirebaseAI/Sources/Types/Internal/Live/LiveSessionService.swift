@@ -399,7 +399,7 @@ actor LiveSessionService {
       urlRequest.setValue(bundleID, forHTTPHeaderField: "x-ios-bundle-identifier")
     }
     urlRequest.setValue(
-      "\(GenerativeAIService.languageTag) \(GenerativeAIService.firebaseVersionTag)",
+      "\(Constants.languageTag) \(Constants.firebaseVersionTag)",
       forHTTPHeaderField: "x-goog-api-client"
     )
     urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")

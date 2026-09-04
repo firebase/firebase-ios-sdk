@@ -49,8 +49,9 @@
           }
 
           let apiClientHeaders = [
-            GenerativeAIService.languageTag,
-            GenerativeAIService.firebaseVersionTag,
+            Constants.languageTag,
+            Constants.firebaseVersionTag,
+            Constants.foundationModelsRequestTag,
           ]
           headers["x-goog-api-client"] = apiClientHeaders.joined(separator: " ")
 
