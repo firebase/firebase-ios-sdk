@@ -1,4 +1,4 @@
-# Unreleased
+# 12.19.0
 - [fixed] Fixed an issue with a transitive import in the device logger, which could cause
   a build error in explicit module mode. (#16563)
 

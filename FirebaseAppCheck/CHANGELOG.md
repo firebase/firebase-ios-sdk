@@ -1,4 +1,4 @@
-# Unreleased
+# 12.19.0
 - [fixed] Fixed an issue where the Recaptcha provider could cause build
   errors in binary environments, due to unsupported platforms. (#16564)
 

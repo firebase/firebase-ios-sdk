@@ -1,6 +1,8 @@
 # Unreleased
 - [feature] Adds support for the following new types: `MinKey`, `MaxKey`, `RegexValue`,
   `Int32Value`, `Decimal128Value`, `BSONObjectId`, `BSONTimestamp`, and `BSONBinaryData`. (#14800)
+
+# 12.19.0
 - [feature] Added support for `minimum` and `maximum` FieldValue operations [#16159].
 
 # 12.17.0
@@ -10,7 +12,6 @@
   limit to 17MB (#16206).
 
 # 12.16.0
->>>>>>> main
 - [changed] Migrates the network connectivity monitoring implementation for
   Apple platforms from the legacy SCNetworkReachability API to the modern
   NWPathMonitor API.

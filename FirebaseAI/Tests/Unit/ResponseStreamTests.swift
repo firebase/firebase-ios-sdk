@@ -106,18 +106,26 @@
           // Assert that the error is one of the expected decoding failure types.
           if let genError = error as? GenerativeModelSession.GenerationError,
              case .decodingFailure = genError {
-            // Expected error.
-          } else if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *),
-                    let foundationError = error as? FoundationModels.LanguageModelSession
-                    .GenerationError,
-                    case .decodingFailure = foundationError {
-            // TODO: Remove this else-if after wrapping `FoundationModels.GenerationError` errors
-            //       into equivalent `GenerativeModelSession.GenerationError` values.
-
-            // Expected error.
-          } else {
-            XCTFail("Expected a decoding failure error, but got \(error) instead.")
+            return
           }
+
+          #if compiler(>=6.4)
+            if #available(iOS 27.0, macOS 27.0, visionOS 27.0, watchOS 27.0, *),
+               error is FoundationModels.GeneratedContent.ParsingError {
+              return
+            }
+          #endif // compiler(>=6.4)
+
+          if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *),
+             let foundationError = error as? FoundationModels.LanguageModelSession
+             .GenerationError,
+             case .decodingFailure = foundationError {
+            // TODO: Remove this check after wrapping `FoundationModels.GenerationError` errors
+            //       into equivalent `GenerativeModelSession.GenerationError` values.
+            return
+          }
+
+          XCTFail("Expected a decoding failure error, but got \(error) instead.")
         }
       }
     #endif // canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM

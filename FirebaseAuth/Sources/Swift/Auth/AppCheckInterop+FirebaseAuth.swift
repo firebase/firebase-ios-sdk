@@ -1,4 +1,4 @@
-// Copyright 2025 Google LLC
+// Copyright 2026 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,10 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-@_exported import FirebaseAILogic
+import Foundation
 
-#if SWIFT_PACKAGE
-  #warning(
-    "The FirebaseAI package dependency has been renamed to FirebaseAILogic. Imports should be changed to `import FirebaseAILogic` and the `FirebaseAILogic` Swift Package dependency should be selected."
-  )
-#endif // SWIFT_PACKAGE
+@preconcurrency import FirebaseAppCheckInterop
+
+extension AppCheckInterop {
+  func getTokenResult(forcingRefresh: Bool) async -> (token: String, error: Error?) {
+    await withCheckedContinuation { continuation in
+      self.getToken(forcingRefresh: forcingRefresh) { result in
+        continuation.resume(returning: (token: result.token, error: result.error))
+      }
+    }
+  }
+}
