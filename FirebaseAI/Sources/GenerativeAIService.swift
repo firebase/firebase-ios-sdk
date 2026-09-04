@@ -12,9 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import FirebaseAppCheckInterop
-import FirebaseAuthInterop
-import FirebaseCore
 import Foundation
 import os.log
 
@@ -139,54 +136,14 @@ struct GenerativeAIService {
   private func urlRequest<T: GenerativeAIRequest>(request: T) async throws -> URLRequest {
     var urlRequest = try URLRequest(url: request.getURL())
     urlRequest.httpMethod = "POST"
-    #if DEBUG
-      let accessToken = ProcessInfo.processInfo.environment[Constants.gCloudAccessTokenEnvVarKey]
-    #else
-      let accessToken: String? = nil
-    #endif // DEBUG
-    if let accessToken {
-      urlRequest.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
-    } else {
-      urlRequest.setValue(firebaseInfo.apiKey, forHTTPHeaderField: "x-goog-api-key")
-    }
-    if let bundleID = Bundle.main.bundleIdentifier {
-      urlRequest.setValue(bundleID, forHTTPHeaderField: "x-ios-bundle-identifier")
-    }
-    var apiClientHeaders = [Constants.languageTag, Constants.firebaseVersionTag]
+    var additionalClientTags: [String] = []
     if TaskLocals.isHybridRequest {
-      apiClientHeaders.append("hybrid")
+      additionalClientTags.append("hybrid")
     }
-    urlRequest.setValue(
-      apiClientHeaders.joined(separator: " "),
-      forHTTPHeaderField: "x-goog-api-client"
+    try await firebaseInfo.applyHeaders(
+      to: &urlRequest,
+      additionalClientTags: additionalClientTags
     )
-    urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
-
-    if let appCheck = firebaseInfo.appCheck {
-      let tokenResult = try await appCheck.fetchAppCheckToken(
-        limitedUse: firebaseInfo.useLimitedUseAppCheckTokens,
-        domain: "GenerativeAIService"
-      )
-      urlRequest.setValue(tokenResult.token, forHTTPHeaderField: "X-Firebase-AppCheck")
-      if let error = tokenResult.error {
-        AILog.error(
-          code: .appCheckTokenFetchFailed,
-          "Failed to fetch AppCheck token. Error: \(error)"
-        )
-      }
-    }
-
-    if let auth = firebaseInfo.auth, let authToken = try await auth.getToken(forcingRefresh: false),
-       accessToken == nil {
-      urlRequest.setValue("Firebase \(authToken)", forHTTPHeaderField: "Authorization")
-    }
-
-    if firebaseInfo.app.isDataCollectionDefaultEnabled {
-      urlRequest.setValue(firebaseInfo.firebaseAppID, forHTTPHeaderField: "X-Firebase-AppId")
-      if let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String {
-        urlRequest.setValue(appVersion, forHTTPHeaderField: "X-Firebase-AppVersion")
-      }
-    }
 
     let encoder = JSONEncoder()
     urlRequest.httpBody = try encoder.encode(request)
