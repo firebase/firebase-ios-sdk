@@ -40,51 +40,18 @@
           port: urlComponents.port,
           apiVersion: firebaseAI.apiConfig.version.rawValue
         ),
-        headerProvider: {
-          let firebaseInfo = firebaseAI.firebaseInfo
-          var headers = ["x-goog-api-key": firebaseInfo.apiKey]
-
-          if let bundleID = Bundle.main.bundleIdentifier {
-            headers["x-ios-bundle-identifier"] = bundleID
-          }
-
-          let apiClientHeaders = [
-            Constants.languageTag,
-            Constants.firebaseVersionTag,
-            Constants.foundationModelsRequestTag,
-          ]
-          headers["x-goog-api-client"] = apiClientHeaders.joined(separator: " ")
-
-          if let appCheck = firebaseInfo.appCheck {
-            let tokenResult = try await appCheck.fetchAppCheckToken(
-              limitedUse: firebaseInfo.useLimitedUseAppCheckTokens,
-              domain: "\(Self.self)"
-            )
-            headers["X-Firebase-AppCheck"] = tokenResult.token
-            if let error = tokenResult.error {
-              AILog.error(
-                code: .appCheckTokenFetchFailed,
-                "Failed to fetch AppCheck token. Error: \(error)"
-              )
-            }
-          }
-
-          if let auth = firebaseInfo.auth,
-             let authToken = try await auth.getToken(forcingRefresh: false) {
-            headers["Authorization"] = "Firebase \(authToken)"
-          }
-
-          if firebaseInfo.app.isDataCollectionDefaultEnabled {
-            headers["X-Firebase-AppId"] = firebaseInfo.firebaseAppID
-            if let bundleInfo = Bundle.main.infoDictionary,
-               let appVersion = bundleInfo["CFBundleShortVersionString"] as? String {
-              headers["X-Firebase-AppVersion"] = appVersion
-            }
-          }
-
-          return headers
-        },
+        headerProvider: firebaseAI.headerProvider,
         configuration: .ephemeral
+      )
+    }
+  }
+
+  @available(iOS 27.0, macOS 27.0, watchOS 27.0, visionOS 27.0, *)
+  @available(tvOS, unavailable)
+  private extension FirebaseAI {
+    func headerProvider() async throws -> [String: String] {
+      try await firebaseInfo.requestHeaders(
+        additionalClientTags: [Constants.foundationModelsRequestTag]
       )
     }
   }
