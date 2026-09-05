@@ -17,7 +17,7 @@ import Foundation
 import FirebaseAppCheckInterop
 import FirebaseAuthInterop
 import FirebaseCore
-import FirebaseCoreExtension
+internal import FirebaseCoreExtension
 
 @objc(FIRAuthComponent)
 class AuthComponent: NSObject, Library, ComponentLifecycleMaintainer {
