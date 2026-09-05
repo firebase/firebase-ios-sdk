@@ -95,6 +95,15 @@ typedef void (^RCNDBLoadCompletion)(BOOL success,
                                value:(NSData *)value
                    completionHandler:(RCNDBCompletion)handler;
 
+/// Atomically replaces all experiment records for `key`.
+/// @param key The experiment data key, as defined in `RCNConfigDefines.h`.
+/// @param values The serialized experiment values to persist.
+/// @param handler The callback, invoked on the main queue after the replacement finishes. It is an
+/// ordering barrier for the queued operation, not a durability guarantee.
+- (void)replaceExperimentTableWithKey:(NSString *)key
+                               values:(NSArray<NSData *> *)values
+                    completionHandler:(RCNDBCompletion)handler;
+
 - (void)updateMetadataWithOption:(RCNUpdateOption)option
                        namespace:(NSString *)namespace
                           values:(NSArray *)values
