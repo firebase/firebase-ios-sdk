@@ -35,7 +35,8 @@
 
   @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
   extension Trait where Self == Testing.ConditionTrait {
-    /// Requires a Gemini API key (`GOOGLE_API_KEY` or `GEMINI_API_KEY`) to be set in the environment.
+    /// Requires a Gemini API key (`GOOGLE_API_KEY` or `GEMINI_API_KEY`) to be set in the
+    /// environment.
     package static var requireAPIKey: Self {
       .enabled(
         if: hasGeminiAPIKey,

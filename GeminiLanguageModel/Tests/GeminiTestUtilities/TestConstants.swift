@@ -13,46 +13,62 @@
 // limitations under the License.
 
 import Foundation
-import GeminiAPIClient
+package import GeminiAPIClient
+
+// MARK: - ModelResource Test Constants
 
 extension ModelResource {
   /// Test model ID for `gemini-3.5-flash-lite`.
-  static let gemini35FlashLiteID = "gemini-3.5-flash-lite"
+  package static let gemini35FlashLiteID = "gemini-3.5-flash-lite"
 
   /// Test URL resource name for `gemini-3.5-flash-lite`.
-  static let gemini35FlashLiteURLResourceName = "models/\(gemini35FlashLiteID)"
+  package static let gemini35FlashLiteURLResourceName = "models/\(gemini35FlashLiteID)"
 
   /// Test model resource for `gemini-3.5-flash-lite`.
-  static let gemini35FlashLite = ModelResource(
+  package static let gemini35FlashLite = ModelResource(
     modelID: gemini35FlashLiteID,
     urlResourceName: gemini35FlashLiteURLResourceName,
     payloadResourceName: gemini35FlashLiteURLResourceName
   )
 
   /// Test model ID for `gemini-3.8-flash`.
-  static let gemini38FlashID = "gemini-3.8-flash"
+  package static let gemini38FlashID = "gemini-3.8-flash"
 
   /// Test URL resource name for `gemini-3.8-flash`.
-  static let gemini38FlashURLResourceName = "models/\(gemini38FlashID)"
+  package static let gemini38FlashURLResourceName = "models/\(gemini38FlashID)"
 
   /// Test model resource for `gemini-3.8-flash`.
-  static let gemini38Flash = ModelResource(
+  package static let gemini38Flash = ModelResource(
     modelID: gemini38FlashID,
     urlResourceName: gemini38FlashURLResourceName,
     payloadResourceName: gemini38FlashURLResourceName
   )
 }
 
+// MARK: - EndpointConfiguration Test Constants
+
 extension EndpointConfiguration {
   /// Test Developer API host name.
-  static let geminiDeveloperAPIHost = "generativelanguage.googleapis.com"
+  package static let geminiDeveloperAPIHost = "generativelanguage.googleapis.com"
 
   /// Test Developer API version string.
-  static let geminiDeveloperAPIVersion = "v1beta"
+  package static let geminiDeveloperAPIVersion = "v1beta"
 
   /// Test Developer API endpoint configuration (`generativelanguage.googleapis.com/v1beta`).
-  static let geminiDeveloperAPI = EndpointConfiguration(
+  package static let geminiDeveloperAPI = EndpointConfiguration(
     host: geminiDeveloperAPIHost,
     apiVersion: geminiDeveloperAPIVersion
+  )
+
+  /// Test Firebase AI Logic host name.
+  package static let firebaseAILogicHost = "firebasevertexai.googleapis.com"
+
+  /// Test Firebase AI Logic version string.
+  package static let firebaseAILogicAPIVersion = "v1beta"
+
+  /// Test Firebase AI Logic endpoint configuration (`firebasevertexai.googleapis.com/v1beta`).
+  package static let firebaseAILogic = EndpointConfiguration(
+    host: firebaseAILogicHost,
+    apiVersion: firebaseAILogicAPIVersion
   )
 }

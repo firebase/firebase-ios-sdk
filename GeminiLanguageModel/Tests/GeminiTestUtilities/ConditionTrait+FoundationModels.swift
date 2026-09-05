@@ -18,19 +18,12 @@
 
   /// Indicates whether the FoundationModels framework and OS support are available.
   package var isFoundationModelsAvailable: Bool {
-    #if canImport(FoundationModels) && compiler(>=6.4)
+    #if canImport(FoundationModels) && compiler(>=6.4) && !os(tvOS)
       if #available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *) {
-        #if os(tvOS)
-          return false
-        #else
-          return true
-        #endif
-      } else {
-        return false
+        return true
       }
-    #else
-      return false
     #endif
+    return false
   }
 
   extension Trait where Self == Testing.ConditionTrait {

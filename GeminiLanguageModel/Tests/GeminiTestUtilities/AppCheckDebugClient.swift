@@ -128,6 +128,43 @@ extension AppCheckDebugClient {
 
   fileprivate struct ResponseBody: Decodable {
     let token: String
-    let ttl: String?
+  }
+}
+
+// MARK: - Token Cache
+
+/// Cache for `AppCheckDebugClient` instances across integration tests.
+@available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
+package actor AppCheckTokenCache {
+  package static let shared = AppCheckTokenCache()
+  private var clients: [String: AppCheckDebugClient] = [:]
+
+  /// Retrieves a cached App Check token, initializing a client if needed.
+  package func token(
+    projectID: String,
+    appID: String,
+    apiKey: String,
+    debugToken: String
+  ) async throws -> String {
+    let key = "\(projectID):\(appID)"
+    let client: AppCheckDebugClient
+    if let existing = clients[key] {
+      client = existing
+    } else {
+      let newClient = AppCheckDebugClient(
+        projectID: projectID,
+        appID: appID,
+        apiKey: apiKey,
+        debugToken: debugToken
+      )
+      clients[key] = newClient
+      client = newClient
+    }
+    return try await client.exchangeDebugToken()
+  }
+
+  /// Clears all cached clients and tokens.
+  package func reset() {
+    clients.removeAll()
   }
 }

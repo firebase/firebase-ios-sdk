@@ -42,14 +42,24 @@ let package = Package(
     ),
     .target(
       name: "GeminiTestUtilities",
+      dependencies: [
+        "GeminiAPIClient"
+      ],
       path: "Tests/GeminiTestUtilities",
-      swiftSettings: defaultSwiftSettings,
+      exclude: [
+        "README.md"
+      ],
+      swiftSettings: defaultSwiftSettings
     ),
     .testTarget(
       name: "GeminiLanguageModelTests",
       dependencies: [
         "GeminiLanguageModel",
         "GeminiTestUtilities",
+      ],
+      exclude: [
+        "IntegrationTests/README.md",
+        "README.md",
       ],
       swiftSettings: defaultSwiftSettings
     ),
