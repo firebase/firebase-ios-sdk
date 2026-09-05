@@ -53,6 +53,10 @@ All integration tests are parameterized across
 * [`BasicContentGenerationIntegrationTests.swift`](BasicContentGenerationIntegrationTests.swift):
   Parameterized integration tests for single-turn prompt response, multi-turn
   chat sessions, and streaming chunk responses.
+* [`GuidedGenerationIntegrationTests.swift`](GuidedGenerationIntegrationTests.swift):
+  Parameterized integration tests for guided generation (structured outputs)
+  using `@Generable` types, including single-turn and streaming generation,
+  enum classification, and rich multi-type recursive hierarchies.
 * [`IntegrationTestingBackend+GeminiLanguageModel.swift`](IntegrationTestingBackend+GeminiLanguageModel.swift):
   Convenience extension providing `backend.makeModel()` to instantiate a
   pre-configured `GeminiLanguageModel`.
