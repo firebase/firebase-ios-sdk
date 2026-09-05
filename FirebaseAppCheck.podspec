@@ -44,7 +44,7 @@ Pod::Spec.new do |s|
   s.osx.weak_framework = 'DeviceCheck'
   s.tvos.weak_framework = 'DeviceCheck'
 
-  s.dependency 'AppCheckCore', '~> 11.3'
+  s.dependency 'AppCheckCore', '~> 12.0'
   s.dependency 'FirebaseAppCheckInterop', '~> 12.19.0'
   s.dependency 'FirebaseCore', '~> 12.19.0'
   s.dependency 'GoogleUtilities/Environment', '~> 8.1'
