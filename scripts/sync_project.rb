@@ -138,7 +138,10 @@ def sync_firestore(test_only)
 
       # Our public build can't include -Werror, but for development it's quite
       # helpful.
-      '-Werror'
+      '-Werror',
+
+      # Ignore deprecated declaration warnings in third-party headers (such as gRPC 1.81.1)
+      '-Wno-error=deprecated-declarations'
     ]
   }
 

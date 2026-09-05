@@ -1,3 +1,6 @@
+# Unreleased
+- [changed] Drop C++14 support, Firestore SDK now requires at least C++17.
+
 # 12.19.0
 - [feature] Added support for `minimum` and `maximum` FieldValue operations [#16159].
 
