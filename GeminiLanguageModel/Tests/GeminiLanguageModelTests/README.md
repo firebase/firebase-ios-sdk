@@ -18,13 +18,13 @@ swift test --filter GeminiLanguageModelTests
 
 | Suite / File | Scope | Strategy |
 |---|---|---|
-| [`GeminiLanguageModelTests.swift`](GeminiLanguageModelTests.swift) | Protocol conformance, single/multi-turn responses, streaming | Unit (`MockHTTPURLProtocol`) |
+| [`GeminiLanguageModelTests.swift`](GeminiLanguageModelTests.swift) | Protocol conformance, single/multi-turn responses, streaming, tool calling | Unit (`MockHTTPURLProtocol`) |
 | [`GenerationSchema+GeminiTests.swift`](GenerationSchema+GeminiTests.swift) | JSON Schema encoding and property ordering conversion | Unit (pure transformation) |
-| [`GeminiRequestTranslatorTests.swift`](GeminiRequestTranslatorTests.swift) | Request and generation config mapping with schemas | Unit (pure transformation) |
-| [`GeminiTranscriptTranslatorTests.swift`](GeminiTranscriptTranslatorTests.swift) | Apple `Transcript` <-> Gemini payload mapping | Unit (pure transformation) |
+| [`GeminiRequestTranslatorTests.swift`](GeminiRequestTranslatorTests.swift) | Request, generation config, tool declarations, and tool mode mapping | Unit (pure transformation) |
+| [`GeminiTranscriptTranslatorTests.swift`](GeminiTranscriptTranslatorTests.swift) | Apple `Transcript` <-> Gemini payload mapping (tools, reasoning, prompts) | Unit (pure transformation) |
 | [`GeminiErrorMapperTests.swift`](GeminiErrorMapperTests.swift) | HTTP and API error mapping to `LanguageModelError` | Unit (exhaustive mapping) |
 | [`IntegrationTestingBackendTests.swift`](IntegrationTestingBackendTests.swift) | Endpoint resolution, socket probing, port discovery | Unit / Infrastructure |
-| [`IntegrationTests/`](IntegrationTests/) | Real Gemini API and record/replay integration tests | Integration (see [`IntegrationTests/README.md`](IntegrationTests/README.md)) |
+| [`IntegrationTests/`](IntegrationTests/) | Real Gemini API and record/replay integration tests (content, schemas, tools) | Integration (see [`IntegrationTests/README.md`](IntegrationTests/README.md)) |
 
 ## Testing Architecture
 

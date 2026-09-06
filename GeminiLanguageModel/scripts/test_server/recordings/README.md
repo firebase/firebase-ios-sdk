@@ -24,7 +24,11 @@ To generate recordings locally for testing:
 
 3. In another terminal, run the integration tests:
    ```bash
-   swift test --filter BasicContentGenerationIntegrationTests
+   # Run all integration tests:
+   swift test --filter IntegrationTests
+
+   # Or run a specific suite:
+   swift test --filter ToolCallingIntegrationTests
    ```
 
 All captured interactions will be automatically sanitized and saved to this
