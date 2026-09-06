@@ -36,12 +36,10 @@
 #include "Firestore/core/src/api/pipeline.h"
 #include "absl/container/flat_hash_map.h"
 
+#include "Firestore/core/src/local/target_data_fwd.h"
+
 namespace firebase {
 namespace firestore {
-
-namespace local {
-class TargetData;
-}  // namespace local
 
 namespace model {
 class AggregateField;

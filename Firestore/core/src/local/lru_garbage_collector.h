@@ -30,7 +30,6 @@ namespace firestore {
 namespace local {
 
 class LruGarbageCollector;
-class TargetData;
 
 ABSL_CONST_INIT extern const model::ListenSequenceNumber
     kListenSequenceNumberInvalid;

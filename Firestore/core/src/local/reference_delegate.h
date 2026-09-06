@@ -17,6 +17,7 @@
 #ifndef FIRESTORE_CORE_SRC_LOCAL_REFERENCE_DELEGATE_H_
 #define FIRESTORE_CORE_SRC_LOCAL_REFERENCE_DELEGATE_H_
 
+#include "Firestore/core/src/local/target_data_fwd.h"
 #include "Firestore/core/src/model/types.h"
 #include "absl/strings/string_view.h"
 
@@ -31,7 +32,6 @@ class DocumentKey;
 namespace local {
 
 class ReferenceSet;
-class TargetData;
 
 /**
  * A ReferenceDelegate instance handles all of the hooks into the
