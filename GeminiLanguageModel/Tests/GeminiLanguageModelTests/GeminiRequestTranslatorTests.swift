@@ -31,8 +31,29 @@
       var score: Int
     }
 
+    @Generable(description: "A data model with a pattern guide")
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    @available(tvOS, unavailable)
+    struct DataModelWithPattern {
+      @Guide(description: "A postal code", .pattern(#/^\d{5}$/#))
+      var postalCode: String
+    }
+
+    @Generable(description: "A city location argument")
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    @available(tvOS, unavailable)
+    struct LocationArguments {
+      var city: String
+    }
+
+    @Generable(description: "Empty arguments")
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    @available(tvOS, unavailable)
+    struct EmptyArguments {}
+
     @Test
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+
     func translatesRequestWithoutSchema() throws {
       let promptEntry = Transcript.Entry.prompt(
         Transcript.Prompt(
@@ -123,14 +144,6 @@
       #expect(schemaObject["propertyOrdering"] != nil)
     }
 
-    @Generable(description: "A data model with a pattern guide")
-    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
-    @available(tvOS, unavailable)
-    struct DataModelWithPattern {
-      @Guide(description: "A postal code", .pattern(#/^\d{5}$/#))
-      var postalCode: String
-    }
-
     @Test
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
     func translatesGenerationConfigWithPatternGuideThrowsUnsupportedGenerationGuide() throws {
@@ -144,6 +157,95 @@
       } catch {
         Issue.record("Unexpected error thrown: \(error)")
       }
+    }
+
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func translatesEnabledToolDefinitionsIntoFunctionDeclarations() throws {
+      let toolDefinition = Transcript.ToolDefinition(
+        name: "get_current_weather",
+        description: "Get the current weather for a city.",
+        parameters: LocationArguments.generationSchema
+      )
+
+      let tools = try GeminiRequestTranslator.translateTools([toolDefinition])
+
+      let unwrappedTools = try #require(tools)
+      #expect(unwrappedTools.count == 1)
+      let declarations = try #require(unwrappedTools[0].functionDeclarations)
+      #expect(declarations.count == 1)
+      #expect(declarations[0].name == "get_current_weather")
+      #expect(declarations[0].description == "Get the current weather for a city.")
+      let parameters = try #require(declarations[0].parametersJsonSchema)
+      guard case .object(let dict) = parameters else {
+        Issue.record("Expected .object, got \(parameters)")
+        return
+      }
+      #expect(dict["type"] == .string("object"))
+      guard case .object(let properties) = dict["properties"] else {
+        Issue.record("Expected properties object in schema")
+        return
+      }
+      guard case .object(let cityProperty) = properties["city"] else {
+        Issue.record("Expected city property in properties")
+        return
+      }
+      #expect(cityProperty["type"] == .string("string"))
+    }
+
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func translatesToolWithEmptyArguments() throws {
+      let toolDefinition = Transcript.ToolDefinition(
+        name: "get_current_time",
+        description: "Get the current time.",
+        parameters: EmptyArguments.generationSchema
+      )
+
+      let tools = try GeminiRequestTranslator.translateTools([toolDefinition])
+
+      let unwrappedTools = try #require(tools)
+      #expect(unwrappedTools.count == 1)
+      let declarations = try #require(unwrappedTools[0].functionDeclarations)
+      #expect(declarations.count == 1)
+      #expect(declarations[0].name == "get_current_time")
+      #expect(declarations[0].description == "Get the current time.")
+      let parameters = try #require(declarations[0].parametersJsonSchema)
+      guard case .object(let dict) = parameters else {
+        Issue.record("Expected .object, got \(parameters)")
+        return
+      }
+      #expect(dict["type"] == .string("object"))
+    }
+
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func emptyEnabledToolDefinitionsResultsInNilTools() throws {
+      let tools = try GeminiRequestTranslator.translateTools([])
+
+      #expect(tools == nil)
+    }
+
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func translatesToolCallingModes() {
+      let allowedConfig = GeminiRequestTranslator.translateToolConfig(
+        toolCallingMode: .allowed
+      )
+      let requiredConfig = GeminiRequestTranslator.translateToolConfig(
+        toolCallingMode: .required
+      )
+      let disallowedConfig = GeminiRequestTranslator.translateToolConfig(
+        toolCallingMode: .disallowed
+      )
+      let nilConfig = GeminiRequestTranslator.translateToolConfig(
+        toolCallingMode: nil
+      )
+
+      #expect(allowedConfig?.functionCallingConfig?.mode == .auto)
+      #expect(requiredConfig?.functionCallingConfig?.mode == .any)
+      #expect(disallowedConfig?.functionCallingConfig?.mode == FunctionCallingConfig.Mode.none)
+      #expect(nilConfig == nil)
     }
   }
 #endif  // canImport(FoundationModels) && compiler(>=6.4)

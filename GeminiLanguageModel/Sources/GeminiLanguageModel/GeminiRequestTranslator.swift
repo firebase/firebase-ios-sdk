@@ -15,7 +15,6 @@
 #if canImport(FoundationModels) && compiler(>=6.4)
   import Foundation
   import FoundationModels
-
   import GeminiAPIDataModels
 
   /// Translates Foundation Models requests into Gemini API data models.
@@ -34,10 +33,16 @@
         request.transcript
       )
       let generationConfig = try translateGenerationConfig(schema: request.schema)
+      let tools = try translateTools(request.enabledToolDefinitions)
+      let toolConfig = translateToolConfig(
+        toolCallingMode: request.generationOptions.toolCallingMode
+      )
 
       return GenerateContentRequest(
         systemInstruction: systemInstruction,
         contents: contents,
+        tools: tools,
+        toolConfig: toolConfig,
         generationConfig: generationConfig
       )
     }
@@ -60,6 +65,55 @@
         schema: .object(jsonSchema)
       )
       return GenerationConfig(responseFormat: ResponseFormatConfig(text: textFormat))
+    }
+
+    /// Translates enabled tool definitions into a list of Gemini `Tool` objects.
+    ///
+    /// - Parameter enabledToolDefinitions: Tool definitions registered for the request.
+    /// - Returns: A list containing a single `Tool` with function declarations, or `nil` if empty.
+    /// - Throws: An error if schema translation fails.
+    static func translateTools(
+      _ enabledToolDefinitions: [Transcript.ToolDefinition]
+    ) throws -> [GeminiAPIDataModels.Tool]? {
+      guard !enabledToolDefinitions.isEmpty else { return nil }
+
+      let declarations = try enabledToolDefinitions.map { toolDefinition in
+        let parameters = try toolDefinition.parameters.toGeminiJSONValue()
+        return FunctionDeclaration(
+          name: toolDefinition.name,
+          description: toolDefinition.description,
+          parametersJsonSchema: parameters
+        )
+      }
+      return [GeminiAPIDataModels.Tool(functionDeclarations: declarations)]
+    }
+
+    /// Translates tool calling mode options into a Gemini `ToolConfig`.
+    ///
+    /// - Parameter toolCallingMode: The tool calling mode options from the request.
+    /// - Returns: A `ToolConfig` configured with function calling mode, or `nil` if unspecified.
+    static func translateToolConfig(
+      toolCallingMode: GenerationOptions.ToolCallingMode?
+    ) -> ToolConfig? {
+      guard let mode = toolCallingMode else { return nil }
+
+      let callingMode: FunctionCallingConfig.Mode
+      switch mode.kind {
+      case .allowed:
+        // Note: Map to .auto for standard model autonomy. Consider evaluating
+        // .validated in the future for constrained decoding against declared functions.
+        callingMode = .auto
+      case .required:
+        callingMode = .any
+      case .disallowed:
+        callingMode = .none
+      @unknown default:
+        callingMode = .auto
+      }
+
+      return ToolConfig(
+        functionCallingConfig: FunctionCallingConfig(mode: callingMode)
+      )
     }
   }
 #endif  // canImport(FoundationModels) && compiler(>=6.4)
