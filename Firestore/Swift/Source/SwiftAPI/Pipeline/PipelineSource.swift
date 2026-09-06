@@ -114,4 +114,76 @@ public struct PipelineSource: @unchecked Sendable {
     }
     return factory(stages, db)
   }
+
+  /// Specifies an array of in-memory document dictionaries as the data source for the pipeline.
+  ///
+  /// Using literal documents as a data source allows constructing pipelines without fetching existing data
+  /// from Firestore. This is useful for bulk inserting or upserting predefined records, testing pipelines with
+  /// synthetic datasets, or applying transformations to static data.
+  ///
+  /// Dictionary values can include primitive types (such as `String`, `Int`, `Double`, `Bool`), nested collections,
+  /// or Firestore `Expression` objects.
+  ///
+  /// ```swift
+  /// // Example 1: Transform and project literal records
+  /// let snapshot = try await db.pipeline()
+  ///   .literals([
+  ///     ["name": "Alice", "age": 30, "role": "Admin"],
+  ///     ["name": "Bob", "age": 25, "role": "User"]
+  ///   ])
+  ///   .select([Field("name"), Field("role")])
+  ///   .execute()
+  ///
+  /// // Example 2: Bulk insert literal documents into a collection
+  /// let insertSnapshot = try await db.pipeline()
+  ///   .literals([
+  ///     ["id": "user_1", "name": "Charlie", "email": "charlie@example.com"],
+  ///     ["id": "user_2", "name": "Dana", "email": "dana@example.com"]
+  ///   ])
+  ///   .insert(collectionPath: "users", documentIdExpression: Field("id"))
+  ///   .execute()
+  /// ```
+  ///
+  /// - Parameter data: An array of dictionaries representing document literals.
+  /// - Returns: A `Pipeline` with the specified literal documents as its source.
+  public func literals(_ data: [[String: Any]]) -> Pipeline {
+    return factory([LiteralsSourceStage(data: data, db: db)], db)
+  }
+
+  /// Specifies in-memory document dictionaries as variadic arguments for the pipeline data source.
+  ///
+  /// Using literal documents as a data source allows constructing pipelines without fetching existing data
+  /// from Firestore. This is useful for bulk inserting or upserting predefined records, testing pipelines with
+  /// synthetic datasets, or applying transformations to static data.
+  ///
+  /// Dictionary values can include primitive types (such as `String`, `Int`, `Double`, `Bool`), nested collections,
+  /// or Firestore `Expression` objects.
+  ///
+  /// ```swift
+  /// // Example 1: Execute literals containing expressions
+  /// let snapshot = try await db.pipeline()
+  ///   .literals(
+  ///     ["id": "doc_1", "baseValue": 10, "doubled": Expression.constant(20)]
+  ///   )
+  ///   .execute()
+  ///
+  /// // Example 2: Bulk upsert variadic literal records into a collection
+  /// let upsertSnapshot = try await db.pipeline()
+  ///   .literals(
+  ///     ["id": "user_1", "status": "Active"],
+  ///     ["id": "user_2", "status": "Pending"]
+  ///   )
+  ///   .upsert(
+  ///     [Field("status").as("accountStatus")],
+  ///     collectionPath: "users",
+  ///     documentIdExpression: Field("id")
+  ///   )
+  ///   .execute()
+  /// ```
+  ///
+  /// - Parameter data: Variadic dictionary arguments representing document literals.
+  /// - Returns: A `Pipeline` with the specified literal documents as its source.
+  public func literals(_ data: [String: Any]...) -> Pipeline {
+    return literals(data)
+  }
 }
