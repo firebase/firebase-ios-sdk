@@ -7,7 +7,13 @@ remote Gemini and Firebase AI Logic backends.
 
 ```bash
 # Run integration tests (using environment variables or GoogleService-Info.plist)
-swift test --filter BasicContentGenerationIntegrationTests
+swift test --filter IntegrationTests
+
+# Run a specific integration test suite
+swift test --filter ToolCallingIntegrationTests
+
+# Run all unit tests (fast, skips all integration tests)
+swift test --skip Integration
 ```
 
 ## Running Integration Tests
@@ -51,6 +57,11 @@ All integration tests are parameterized across
   Parameterized integration tests for guided generation (structured outputs)
   using `@Generable` types, including single-turn and streaming generation,
   enum classification, and rich multi-type recursive hierarchies.
+* [`ToolCallingIntegrationTests.swift`](ToolCallingIntegrationTests.swift):
+  Parameterized integration tests for tool calling (function calling) using
+  FoundationModels `Tool` definitions, covering single-turn tool calls,
+  sequential tool calls, parallel tool calls, tool calling mode configuration,
+  parameterless tools with empty arguments, and reasoning models.
 * [`IntegrationTestingBackend+GeminiLanguageModel.swift`](IntegrationTestingBackend+GeminiLanguageModel.swift):
   Convenience extension providing `backend.makeModel()` to instantiate a
   pre-configured `GeminiLanguageModel`.
