@@ -90,6 +90,8 @@
 
         let responseEntryID = UUID().uuidString
         let reasoningEntryID = UUID().uuidString
+        let toolCallsEntryID = UUID().uuidString
+        let jsonEncoder = JSONEncoder()
 
         do {
           let stream = try await client.generateContentStream(for: generateRequest)
@@ -129,6 +131,28 @@
                       )
                     )
                   }
+                }
+
+                if case .functionCall(let call) = part.data {
+                  let callID = call.id ?? UUID().uuidString
+                  let argsString: String
+                  if let args = call.args, !args.isEmpty {
+                    let data = try jsonEncoder.encode(JSONValue.object(args))
+                    argsString = String(decoding: data, as: UTF8.self)
+                  } else {
+                    argsString = "{}"
+                  }
+
+                  await channel.send(
+                    .toolCalls(
+                      entryID: toolCallsEntryID,
+                      action: .toolCall(
+                        id: callID,
+                        name: call.name,
+                        action: .appendArguments(argsString, tokenCount: 1)
+                      )
+                    )
+                  )
                 }
               }
             }

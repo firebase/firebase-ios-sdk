@@ -49,7 +49,7 @@
       #expect(model.executorConfiguration.endpointConfiguration == .geminiDeveloperAPI)
       #expect(model.capabilities.contains(.reasoning))
       #expect(model.capabilities.contains(.guidedGeneration))
-      #expect(!model.capabilities.contains(.toolCalling))
+      #expect(model.capabilities.contains(.toolCalling))
     }
 
     @Test
@@ -335,15 +335,16 @@
     @Test
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
     func unsupportedTranscriptContentThrows() throws {
-      let toolCall = Transcript.ToolCall(
-        id: "call-1",
-        toolName: "calculator",
-        arguments: GeneratedContent("1+1")
+      let structuredSegment = Transcript.Segment.structure(
+        Transcript.StructuredSegment(
+          id: "struct-1",
+          schemaName: "test",
+          content: GeneratedContent("test")
+        )
       )
-      let toolCallsEntry = Transcript.Entry.toolCalls(
-        Transcript.ToolCalls(id: "calls-1", [toolCall])
+      let transcript = Transcript(
+        entries: [.prompt(Transcript.Prompt(segments: [structuredSegment]))]
       )
-      let transcript = Transcript(entries: [toolCallsEntry])
 
       do {
         _ = try GeminiTranscriptTranslator.translate(transcript)
@@ -355,9 +356,139 @@
       }
     }
 
+    /// A mock weather tool for testing tool call execution.
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    @available(tvOS, unavailable)
+    struct MockWeatherTool: FoundationModels.Tool {
+
+      let name = "get_weather"
+      let description = "Get current weather"
+
+      @Generable
+      @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+      @available(tvOS, unavailable)
+      struct Arguments {
+        var location: String
+      }
+
+      func call(arguments: Arguments) async throws -> String {
+        "Sunny, 72°F in \(arguments.location)"
+      }
+    }
+
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func sessionRespondWithToolCalling() async throws {
+      defer { MockHTTPURLProtocol.reset() }
+      let model = Self.makeMockModel()
+      let expectedURL = try Self.makeExpectedStreamURL()
+      let httpResponse = try HTTPURLResponse.mock(
+        url: expectedURL,
+        headerFields: ["Content-Type": "text/event-stream"]
+      )
+      let turn1SSE = """
+        data: {"candidates": [{"content": {"parts": [{"functionCall": {"id": "call-1", "name": "get_weather", "args": {"location": "Paris"}}}], "role": "model"}, "finishReason": "STOP", "index": 0}], "usageMetadata": {"candidatesTokenCount": 5, "promptTokenCount": 10, "totalTokenCount": 15}}
+
+        """
+      let turn2SSE = """
+        data: {"candidates": [{"content": {"parts": [{"text": "The weather in Paris is sunny, 72°F."}], "role": "model"}, "finishReason": "STOP", "index": 0}], "usageMetadata": {"candidatesTokenCount": 8, "promptTokenCount": 20, "totalTokenCount": 28}}
+
+        """
+      let requestCount = Mutex(0)
+      MockHTTPURLProtocol.setHandler(for: expectedURL) { _, proto in
+        let currentCount = requestCount.withLock { count -> Int in
+          count += 1
+          return count
+        }
+        proto.client?.urlProtocol(proto, didReceive: httpResponse, cacheStoragePolicy: .notAllowed)
+        let payload = currentCount == 1 ? turn1SSE : turn2SSE
+        proto.client?.urlProtocol(proto, didLoad: Data(payload.utf8))
+        proto.client?.urlProtocolDidFinishLoading(proto)
+      }
+      let session = LanguageModelSession(model: model, tools: [MockWeatherTool()])
+
+      let response = try await session.respond(to: "What is the weather in Paris?")
+
+      #expect(response.content == "The weather in Paris is sunny, 72°F.")
+      #expect(requestCount.withLock { $0 } == 2)
+    }
+
+    /// A mock time tool taking no arguments for testing empty argument tool calling.
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    @available(tvOS, unavailable)
+    struct MockTimeTool: FoundationModels.Tool {
+      let name = "get_current_time"
+      let description = "Get the current time"
+
+      @Generable
+      @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+      @available(tvOS, unavailable)
+      struct Arguments {}
+
+      func call(arguments: Arguments) async throws -> String {
+        "12:00 PM"
+      }
+    }
+
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func sessionRespondWithEmptyArgumentsToolCalling() async throws {
+      defer { MockHTTPURLProtocol.reset() }
+      let model = Self.makeMockModel()
+      let expectedURL = try Self.makeExpectedStreamURL()
+      let httpResponse = try HTTPURLResponse.mock(
+        url: expectedURL,
+        headerFields: ["Content-Type": "text/event-stream"]
+      )
+      let turn1SSE = """
+        data: {"candidates": [{"content": {"parts": [{"functionCall": {"id": "call-1", "name": "get_current_time"}}], "role": "model"}, "finishReason": "STOP", "index": 0}], "usageMetadata": {"candidatesTokenCount": 5, "promptTokenCount": 10, "totalTokenCount": 15}}
+
+        """
+      let turn2SSE = """
+        data: {"candidates": [{"content": {"parts": [{"text": "The time is 12:00 PM."}], "role": "model"}, "finishReason": "STOP", "index": 0}], "usageMetadata": {"candidatesTokenCount": 8, "promptTokenCount": 20, "totalTokenCount": 28}}
+
+        """
+      let requestCount = Mutex(0)
+      let capturedRequests = Mutex<[GenerateContentRequest]>([])
+      MockHTTPURLProtocol.setHandler(for: expectedURL) { request, proto in
+        let currentCount = requestCount.withLock { count -> Int in
+          count += 1
+          return count
+        }
+        if let body = request.httpBodyData,
+          let decoded = try? JSONDecoder().decode(GenerateContentRequest.self, from: body)
+        {
+          capturedRequests.withLock { $0.append(decoded) }
+        }
+        proto.client?.urlProtocol(proto, didReceive: httpResponse, cacheStoragePolicy: .notAllowed)
+        let payload = currentCount == 1 ? turn1SSE : turn2SSE
+        proto.client?.urlProtocol(proto, didLoad: Data(payload.utf8))
+        proto.client?.urlProtocolDidFinishLoading(proto)
+      }
+      let session = LanguageModelSession(model: model, tools: [MockTimeTool()])
+
+      let response = try await session.respond(to: "What time is it?")
+
+      #expect(response.content == "The time is 12:00 PM.")
+      #expect(requestCount.withLock { $0 } == 2)
+      let requests = capturedRequests.withLock { $0 }
+      #expect(requests.count == 2)
+      let turn1Tools = try #require(requests.first?.tools)
+      #expect(turn1Tools.first?.functionDeclarations?.first?.name == "get_current_time")
+      let turn2Contents = try #require(requests.last?.contents)
+      let turn2UserTurn = try #require(turn2Contents.last)
+      guard case .functionResponse(let fr) = turn2UserTurn.parts?.first?.data else {
+        Issue.record("Expected functionResponse in turn 2")
+        return
+      }
+      #expect(fr.name == "get_current_time")
+      #expect(fr.response?["result"] == .string("12:00 PM"))
+    }
+
     // MARK: - Helper Methods
 
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+
     private static func makeMockModel(
       modelResource: ModelResource = .gemini38Flash,
       endpointConfiguration: EndpointConfiguration = .geminiDeveloperAPI,

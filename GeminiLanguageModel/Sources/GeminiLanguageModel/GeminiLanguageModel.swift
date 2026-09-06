@@ -56,6 +56,7 @@
       LanguageModelCapabilities([
         .guidedGeneration,
         .reasoning,
+        .toolCalling,
       ])
     }
   }
