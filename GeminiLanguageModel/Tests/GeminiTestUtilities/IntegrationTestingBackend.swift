@@ -223,20 +223,16 @@
     private var cache: [Int: Bool] = [:]
 
     func status(for port: Int, probe: () -> Bool) -> Bool {
-      lock.lock()
-      defer { lock.unlock() }
-      if let cached = cache[port] {
+      if let cached = lock.withLock({ cache[port] }) {
         return cached
       }
       let isRunning = probe()
-      cache[port] = isRunning
+      lock.withLock { cache[port] = isRunning }
       return isRunning
     }
 
     func reset() {
-      lock.lock()
-      defer { lock.unlock() }
-      cache.removeAll()
+      lock.withLock { cache.removeAll() }
     }
   }
 

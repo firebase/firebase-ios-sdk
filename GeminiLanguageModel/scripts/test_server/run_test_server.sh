@@ -68,8 +68,7 @@ if [[ -z "${TEST_SERVER_SECRETS:-}" ]]; then
   [[ -n "${GEMINI_API_KEY:-}" ]] && SECRETS+=("${GEMINI_API_KEY}")
   [[ -n "${GOOGLE_API_KEY:-}" ]] && SECRETS+=("${GOOGLE_API_KEY}")
   if [[ ${#SECRETS[@]} -gt 0 ]]; then
-    IFS=,
-    TEST_SERVER_SECRETS="${SECRETS[*]}"
+    TEST_SERVER_SECRETS=$(IFS=,; echo "${SECRETS[*]}")
     export TEST_SERVER_SECRETS
   fi
 fi
