@@ -42,23 +42,5 @@
       #expect(!text.isEmpty)
       #expect(text == allText)
     }
-
-    @Test(arguments: InstanceConfig.defaultConfigs)
-    @available(iOS 27.0, macOS 27.0, visionOS 27.0, *)
-    func intentionallyFailingTest(_ config: InstanceConfig) async throws {
-      let ai = FirebaseAI.componentInstance(config)
-      let model = ai.geminiLanguageModel(name: ModelNames.gemini3_1_FlashLite)
-      let session = LanguageModelSession(model: model)
-
-      let stream = session.streamResponse {
-        "Hello"
-      }
-      let response = try await stream.collect().content
-
-      Issue.record("""
-      Fake issue - Intentionally failing test to verify that CI is set up correctly. Gemini did \
-      respond with "\(response)" but pretending this failed for verification purposes.
-      """)
-    }
   }
 #endif // compiler(>=6.4) && canImport(FoundationModels) && canImport(GeminiLanguageModel)
