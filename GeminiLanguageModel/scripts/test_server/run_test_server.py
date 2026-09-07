@@ -134,13 +134,16 @@ def resolve_test_server_secrets() -> list[str]:
             'GOOGLE_CLOUD_PROJECT',
             'GCLOUD_PROJECT',
             'FIREBASE_API_KEY',
-            'GEMINI_API_KEY',
-            'GOOGLE_API_KEY',
         ]
         for key in secret_keys:
             val = os.environ.get(key)
             if val and val not in secrets:
                 secrets.append(val)
+
+    for key in ('GEMINI_API_KEY', 'GOOGLE_API_KEY'):
+        val = os.environ.get(key)
+        if val and val not in secrets:
+            secrets.append(val)
 
     return secrets
 

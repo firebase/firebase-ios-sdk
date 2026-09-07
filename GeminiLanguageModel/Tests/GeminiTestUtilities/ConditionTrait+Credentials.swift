@@ -41,12 +41,8 @@
     }
   }
 
-  /// Resolves the Gemini API key from `FIREBASE_PLIST_PATH` (if set) or
-  /// `GOOGLE_API_KEY`/`GEMINI_API_KEY`.
+  /// Resolves the Gemini API key from `GOOGLE_API_KEY` or `GEMINI_API_KEY`.
   package var geminiAPIKey: String? {
-    if let path = ProcessInfo.processInfo.environment["FIREBASE_PLIST_PATH"], !path.isEmpty {
-      return GoogleServiceInfo(contentsOfFile: path)?.apiKey
-    }
     let env = ProcessInfo.processInfo.environment
     if let googleKey = env["GOOGLE_API_KEY"], !googleKey.isEmpty {
       return googleKey

@@ -68,10 +68,16 @@
     package var isAvailable: Bool {
       switch self {
       case .developerAPI:
-        return isTestServerRunning(port: defaultTestServerPort) || hasGeminiAPIKey
+        if isTestServerRunning(port: defaultTestServerPort) {
+          return !isTestServerRecording || hasGeminiAPIKey
+        }
+        return hasGeminiAPIKey
+
       case .firebaseAILogicDeveloperAPI, .firebaseAILogicAgentPlatform:
-        return isTestServerRunning(port: defaultTestServerFirebasePort)
-          || hasFirebaseAILogicCredentials
+        if isTestServerRunning(port: defaultTestServerFirebasePort) {
+          return !isTestServerRecording || hasFirebaseAILogicCredentials
+        }
+        return hasFirebaseAILogicCredentials
       }
     }
 
@@ -149,6 +155,9 @@
         if let apiKey = geminiAPIKey {
           return { ["x-goog-api-key": apiKey] }
         }
+        if isTestServerRunning(port: defaultTestServerPort) {
+          return { ["x-goog-api-key": "test-api-key"] }
+        }
         return nil
 
       case .firebaseAILogicDeveloperAPI, .firebaseAILogicAgentPlatform:
@@ -191,6 +200,13 @@
   }
 
   // MARK: - Server Ports and Probing
+
+  /// Indicates whether `test-server` is configured to run in record mode.
+  package var isTestServerRecording: Bool {
+    let env = ProcessInfo.processInfo.environment
+    let mode = env["TEST_SERVER_MODE"] ?? env["TEST_RUNNER_TEST_SERVER_MODE"]
+    return mode?.lowercased() == "record"
+  }
 
   /// The default port number used by `test-server` for Developer API requests.
   package var defaultTestServerPort: Int {
