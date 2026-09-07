@@ -18,7 +18,14 @@ import Testing
 
 @testable import GeminiAPIClient
 
-@Suite("IntegrationTestingBackend Tests")
+#if canImport(Glibc)
+  import Glibc
+#elseif canImport(Musl)
+  import Musl
+#endif
+
+/// Unit tests for `IntegrationTestingBackend` configuration, discovery, and credential resolution.
+@Suite("IntegrationTestingBackend Tests", .serialized)
 struct IntegrationTestingBackendTests {
   @Test
   func developerAPIEndpoint() {
@@ -85,5 +92,113 @@ struct IntegrationTestingBackendTests {
   func defaultPorts() {
     #expect(defaultTestServerPort > 0)
     #expect(defaultTestServerFirebasePort > 0)
+  }
+
+  @Test
+  func credentialsResolvedFromPlistPath() throws {
+    let previousPlistPath = ProcessInfo.processInfo.environment["FIREBASE_PLIST_PATH"]
+    let tempDir = FileManager.default.temporaryDirectory
+    let tempPlistURL = tempDir.appendingPathComponent(
+      "Test-GoogleService-Info-\(UUID().uuidString).plist"
+    )
+    let plistDict: [String: Any] = [
+      "PROJECT_ID": "test-plist-project",
+      "GOOGLE_APP_ID": "test-plist-app",
+      "API_KEY": "test-plist-api-key",
+    ]
+    let plistData = try PropertyListSerialization.data(
+      fromPropertyList: plistDict,
+      format: .xml,
+      options: 0
+    )
+    try plistData.write(to: tempPlistURL)
+    defer {
+      try? FileManager.default.removeItem(at: tempPlistURL)
+      if let previousPlistPath {
+        setenv("FIREBASE_PLIST_PATH", previousPlistPath, 1)
+      } else {
+        unsetenv("FIREBASE_PLIST_PATH")
+      }
+    }
+
+    setenv("FIREBASE_PLIST_PATH", tempPlistURL.path, 1)
+
+    #expect(firebaseProjectID == "test-plist-project")
+    #expect(firebaseAppID == "test-plist-app")
+    #expect(firebaseAPIKey == "test-plist-api-key")
+    #expect(geminiAPIKey == "test-plist-api-key")
+  }
+
+  @Test
+  func plistPathStrictExclusivity() throws {
+    let previousPlistPath = ProcessInfo.processInfo.environment["FIREBASE_PLIST_PATH"]
+    let previousProjectID = ProcessInfo.processInfo.environment["FIREBASE_PROJECT_ID"]
+    let tempDir = FileManager.default.temporaryDirectory
+    let tempPlistURL = tempDir.appendingPathComponent(
+      "Test-Incomplete-GoogleService-Info-\(UUID().uuidString).plist"
+    )
+    let plistDict: [String: Any] = [
+      "API_KEY": "only-api-key"
+    ]
+    let plistData = try PropertyListSerialization.data(
+      fromPropertyList: plistDict,
+      format: .xml,
+      options: 0
+    )
+    try plistData.write(to: tempPlistURL)
+    defer {
+      try? FileManager.default.removeItem(at: tempPlistURL)
+      if let previousPlistPath {
+        setenv("FIREBASE_PLIST_PATH", previousPlistPath, 1)
+      } else {
+        unsetenv("FIREBASE_PLIST_PATH")
+      }
+      if let previousProjectID {
+        setenv("FIREBASE_PROJECT_ID", previousProjectID, 1)
+      } else {
+        unsetenv("FIREBASE_PROJECT_ID")
+      }
+    }
+
+    setenv("FIREBASE_PROJECT_ID", "env-project-id", 1)
+    setenv("FIREBASE_PLIST_PATH", tempPlistURL.path, 1)
+
+    #expect(firebaseProjectID == nil)
+    #expect(firebaseAPIKey == "only-api-key")
+  }
+
+  @Test
+  func plistPathTreatsEmptyStringsAsNil() throws {
+    let previousPlistPath = ProcessInfo.processInfo.environment["FIREBASE_PLIST_PATH"]
+    let tempDir = FileManager.default.temporaryDirectory
+    let tempPlistURL = tempDir.appendingPathComponent(
+      "Test-EmptyValues-GoogleService-Info-\(UUID().uuidString).plist"
+    )
+    let plistDict: [String: Any] = [
+      "PROJECT_ID": "",
+      "GOOGLE_APP_ID": "",
+      "API_KEY": "",
+    ]
+    let plistData = try PropertyListSerialization.data(
+      fromPropertyList: plistDict,
+      format: .xml,
+      options: 0
+    )
+    try plistData.write(to: tempPlistURL)
+    defer {
+      try? FileManager.default.removeItem(at: tempPlistURL)
+      if let previousPlistPath {
+        setenv("FIREBASE_PLIST_PATH", previousPlistPath, 1)
+      } else {
+        unsetenv("FIREBASE_PLIST_PATH")
+      }
+    }
+
+    setenv("FIREBASE_PLIST_PATH", tempPlistURL.path, 1)
+
+    #expect(firebaseProjectID == nil)
+    #expect(firebaseAppID == nil)
+    #expect(firebaseAPIKey == nil)
+    #expect(geminiAPIKey == nil)
   }
 }

@@ -16,8 +16,37 @@
   import Foundation
   package import Testing
 
-  /// Resolves the Gemini API key from `GOOGLE_API_KEY` or `GEMINI_API_KEY` environment variables.
+  /// Parsed representation of credentials from a `GoogleService-Info.plist` file.
+  private struct GoogleServiceInfo: Sendable {
+    let projectID: String?
+    let appID: String?
+    let apiKey: String?
+
+    init?(contentsOfFile path: String) {
+      guard !path.isEmpty,
+        FileManager.default.fileExists(atPath: path),
+        let data = try? Data(contentsOf: URL(fileURLWithPath: path)),
+        let plist = try? PropertyListSerialization.propertyList(
+          from: data,
+          options: [],
+          format: nil
+        ) as? [String: Any]
+      else {
+        return nil
+      }
+
+      projectID = (plist["PROJECT_ID"] as? String).flatMap { $0.isEmpty ? nil : $0 }
+      appID = (plist["GOOGLE_APP_ID"] as? String).flatMap { $0.isEmpty ? nil : $0 }
+      apiKey = (plist["API_KEY"] as? String).flatMap { $0.isEmpty ? nil : $0 }
+    }
+  }
+
+  /// Resolves the Gemini API key from `FIREBASE_PLIST_PATH` (if set) or
+  /// `GOOGLE_API_KEY`/`GEMINI_API_KEY`.
   package var geminiAPIKey: String? {
+    if let path = ProcessInfo.processInfo.environment["FIREBASE_PLIST_PATH"], !path.isEmpty {
+      return GoogleServiceInfo(contentsOfFile: path)?.apiKey
+    }
     let env = ProcessInfo.processInfo.environment
     if let googleKey = env["GOOGLE_API_KEY"], !googleKey.isEmpty {
       return googleKey
@@ -53,8 +82,11 @@
     }
   }
 
-  /// Resolves the Firebase Project ID from the `FIREBASE_PROJECT_ID` environment variable.
+  /// Resolves the Firebase Project ID from `FIREBASE_PLIST_PATH` (if set) or `FIREBASE_PROJECT_ID`.
   package var firebaseProjectID: String? {
+    if let path = ProcessInfo.processInfo.environment["FIREBASE_PLIST_PATH"], !path.isEmpty {
+      return GoogleServiceInfo(contentsOfFile: path)?.projectID
+    }
     let env = ProcessInfo.processInfo.environment
     if let projectID = env["FIREBASE_PROJECT_ID"], !projectID.isEmpty {
       return projectID
@@ -62,8 +94,11 @@
     return nil
   }
 
-  /// Resolves the Firebase App ID from the `FIREBASE_APP_ID` environment variable.
+  /// Resolves the Firebase App ID from `FIREBASE_PLIST_PATH` (if set) or `FIREBASE_APP_ID`.
   package var firebaseAppID: String? {
+    if let path = ProcessInfo.processInfo.environment["FIREBASE_PLIST_PATH"], !path.isEmpty {
+      return GoogleServiceInfo(contentsOfFile: path)?.appID
+    }
     let env = ProcessInfo.processInfo.environment
     if let appID = env["FIREBASE_APP_ID"], !appID.isEmpty {
       return appID
@@ -71,8 +106,11 @@
     return nil
   }
 
-  /// Resolves the Firebase API key from the `FIREBASE_API_KEY` environment variable.
+  /// Resolves the Firebase API key from `FIREBASE_PLIST_PATH` (if set) or `FIREBASE_API_KEY`.
   package var firebaseAPIKey: String? {
+    if let path = ProcessInfo.processInfo.environment["FIREBASE_PLIST_PATH"], !path.isEmpty {
+      return GoogleServiceInfo(contentsOfFile: path)?.apiKey
+    }
     let env = ProcessInfo.processInfo.environment
     if let apiKey = env["FIREBASE_API_KEY"], !apiKey.isEmpty {
       return apiKey

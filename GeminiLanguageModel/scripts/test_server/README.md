@@ -70,8 +70,10 @@ swift test --filter BasicContentGenerationIntegrationTests
 Firebase AI Logic and Gemini Enterprise Agent Platform embed the GCP Project ID
 in the URL path (`/v1beta/projects/{projectID}/...`). To ensure recordings can be
 replayed across different developer projects and in CI:
-- `run_test_server.sh` automatically passes `FIREBASE_PROJECT_ID`,
-  `GOOGLE_CLOUD_PROJECT`, and `GCLOUD_PROJECT` into `TEST_SERVER_SECRETS`.
+- `run_test_server.py` automatically passes `FIREBASE_PROJECT_ID`,
+  `GOOGLE_CLOUD_PROJECT`, and `GCLOUD_PROJECT` into `TEST_SERVER_SECRETS`. If
+  `FIREBASE_PLIST_PATH` is set, `PROJECT_ID` and `API_KEY` are automatically
+  sourced from the plist.
 - During recording, `test-server` sends the real path upstream to Google Cloud,
   then redacts the project ID to `REDACTED` (`/v1beta/projects/REDACTED/...`)
   before saving the recording to disk.
