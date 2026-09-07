@@ -1,40 +1,34 @@
 # GeminiLanguageModel Integration Tests
 
 End-to-end integration tests validating `GeminiLanguageModel` sessions against
-Gemini backends using recorded HTTP interactions or direct remote connections.
+remote Gemini and Firebase AI Logic backends.
 
 ## Quick Start
 
 ```bash
-# Run content generation integration tests
-swift test --filter BasicContentGenerationIntegrationTests
-
-# Run without remote credentials or internet (requires test-server in replay mode)
-./scripts/test_server/run_test_server.sh replay
+# Run integration tests (using environment variables or GoogleService-Info.plist)
 swift test --filter BasicContentGenerationIntegrationTests
 ```
 
-## Dual-Mode Execution
+## Running Integration Tests
 
-Tests in this directory support two execution modes:
+Integration tests in this directory connect to Google Cloud or Firebase
+endpoints when credentials are configured:
 
-1. **Replay Mode (Local `test-server`)**:
-   - Uses [`google/test-server`](https://github.com/google/test-server) running
-     on localhost (`http://localhost:1443` and `http://localhost:1444`).
-   - Replays previously recorded HTTP interactions deterministically.
-   - Requires zero remote credentials, no API keys, and no internet access.
+1. **Gemini Developer API**:
+   Set `GEMINI_API_KEY` or `GOOGLE_API_KEY` in your environment.
+2. **Firebase AI Logic**:
+   Provide credentials via a configuration file or individual variables:
+   - Set `FIREBASE_PLIST_PATH` pointing to a valid `GoogleService-Info.plist`
+     file, along with `AppCheckDebugToken`.
+   - Alternatively, supply `FIREBASE_PROJECT_ID`, `FIREBASE_APP_ID`,
+     `FIREBASE_API_KEY`, and `AppCheckDebugToken`.
 
-2. **Direct Mode (Remote Endpoints)**:
-   - Connects directly to Google Cloud or Firebase when credentials are
-     detected in the environment:
-     - `GEMINI_API_KEY` or `GOOGLE_API_KEY` for Developer API.
-     - `FIREBASE_PROJECT_ID`, `FIREBASE_APP_ID`, `FIREBASE_API_KEY`, and
-       `APP_CHECK_DEBUG_TOKEN` for Firebase AI Logic.
+### Automatic Skipping
 
-3. **Clean Skipping**:
-   - If neither a local `test-server` nor valid credentials are present, tests
-     using `.requireIntegrationTestingBackend` are automatically and cleanly
-     skipped without failing the test run.
+If credentials are not present in the environment, integration tests marked with
+`.requireIntegrationTestingBackend` are automatically and cleanly skipped
+without failing test execution.
 
 ## Supported Backends
 
@@ -78,7 +72,3 @@ struct MyNewFeatureIntegrationTests {
   }
 }
 ```
-
-> [!NOTE]
-> For instructions on starting `test-server` or recording new interactions,
-> see the [`test_server` Documentation](../../scripts/test_server/README.md).

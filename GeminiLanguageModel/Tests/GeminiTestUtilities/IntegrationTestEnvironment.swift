@@ -119,30 +119,6 @@ package struct IntegrationTestEnvironment: Sendable {
     firebaseProjectID != nil && firebaseAppID != nil && firebaseAPIKey != nil
       && appCheckDebugToken != nil
   }
-
-  // MARK: - Server Ports and Modes
-
-  /// Indicates whether `test-server` is configured to run in record mode.
-  package var isTestServerRecording: Bool {
-    let mode = variables["TEST_SERVER_MODE"] ?? variables["TEST_RUNNER_TEST_SERVER_MODE"]
-    return mode?.lowercased() == "record"
-  }
-
-  /// The default port number used by `test-server` for Developer API requests.
-  package var defaultTestServerPort: Int {
-    variables["TEST_SERVER_PORT"].flatMap(Int.init) ?? 1443
-  }
-
-  /// The default port number used by `test-server` for Firebase AI Logic requests.
-  package var defaultTestServerFirebasePort: Int {
-    if let firebasePort = variables["TEST_SERVER_FIREBASE_PORT"].flatMap(Int.init) {
-      return firebasePort
-    }
-    if let serverPort = variables["TEST_SERVER_PORT"].flatMap(Int.init) {
-      return serverPort + 1
-    }
-    return 1444
-  }
 }
 
 // MARK: - Helper Types

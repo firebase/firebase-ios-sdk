@@ -21,8 +21,8 @@ swift test --filter GeminiLanguageModelTests
 | [`GeminiLanguageModelTests.swift`](GeminiLanguageModelTests.swift) | Protocol conformance, single/multi-turn responses, streaming | Unit (`MockHTTPURLProtocol`) |
 | [`GeminiTranscriptTranslatorTests.swift`](GeminiTranscriptTranslatorTests.swift) | Apple `Transcript` <-> Gemini payload mapping | Unit (pure transformation) |
 | [`GeminiErrorMapperTests.swift`](GeminiErrorMapperTests.swift) | HTTP and API error mapping to `LanguageModelError` | Unit (exhaustive mapping) |
-| [`IntegrationTestingBackendTests.swift`](IntegrationTestingBackendTests.swift) | Endpoint resolution, socket probing, port discovery | Unit / Infrastructure |
-| [`IntegrationTests/`](IntegrationTests/) | Real Gemini API and record/replay integration tests | Integration (see [`IntegrationTests/README.md`](IntegrationTests/README.md)) |
+| [`IntegrationTestingBackendTests.swift`](IntegrationTestingBackendTests.swift) | Endpoint resolution and credential discovery | Unit / Infrastructure |
+| [`IntegrationTests/`](IntegrationTests/) | End-to-end Gemini and Firebase AI Logic integration tests | Integration (see [`IntegrationTests/README.md`](IntegrationTests/README.md)) |
 
 ## Testing Architecture
 
@@ -37,11 +37,11 @@ This target separates tests into two distinct tiers:
 2. **Integration Tests (`IntegrationTests/`)**:
    - Tagged with `.tags(.integration)` and gated by
      `.requireIntegrationTestingBackend`.
-   - Exercise live endpoints or replay recorded HTTP interactions via local
-     `test-server`.
+   - Exercise endpoints on Google Cloud and Firebase using configured
+     credentials.
    - Isolated in the `IntegrationTests/` subfolder so unit test runs are never
      slowed down by network timeouts or external dependencies.
 
 > [!TIP]
-> For details on running, recording, and parameterizing integration tests, see
-> the [Integration Tests Guide](IntegrationTests/README.md).
+> For details on configuring credentials and parameterizing integration tests,
+> see the [Integration Tests Guide](IntegrationTests/README.md).

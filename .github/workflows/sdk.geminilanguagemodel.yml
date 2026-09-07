@@ -17,8 +17,8 @@ permissions:
   contents: read  # Needed for actions/checkout
 
 jobs:
-  integration-test-server:
-    name: integration-test-server (record)
+  integration-tests:
+    name: integration-tests
     if: (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false) || github.event_name == 'workflow_dispatch'
     runs-on: xcode-27
     env:
@@ -27,8 +27,6 @@ jobs:
       secrets_passphrase: ${{ secrets.GHASecretsGPGPassphrase1 }}
       FIREBASE_PLIST_PATH: /private/tmp/GoogleService-Info.plist
       TEST_RUNNER_FIREBASE_PLIST_PATH: /private/tmp/GoogleService-Info.plist
-      TEST_SERVER_MODE: record
-      TEST_RUNNER_TEST_SERVER_MODE: record
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       with:
@@ -41,14 +39,6 @@ jobs:
       uses: ./.github/actions/setup_simulator
       with:
         platform: iOS
-
-    - name: Install google/test-server
-      run: |
-        TEST_SERVER_VERSION="v0.2.9"
-        curl -sSL "https://github.com/google/test-server/releases/download/${TEST_SERVER_VERSION}/test-server_Darwin_arm64.tar.gz" -o /tmp/test-server.tar.gz
-        sudo tar -xzf /tmp/test-server.tar.gz -C /usr/local/bin test-server
-        rm /tmp/test-server.tar.gz
-        test-server --help > /dev/null
 
     - name: Decrypt GoogleService-Info.plist
       run: |
@@ -66,17 +56,6 @@ jobs:
           -destination 'platform=iOS Simulator,name=Firebase-iPhone-15-Pro' \
           -quiet
 
-    - name: Start test-server (record mode)
-      run: |
-        GeminiLanguageModel/scripts/test_server/run_test_server.py record &
-        for i in {1..30}; do
-          if nc -z localhost 1443 && nc -z localhost 1444; then
-            echo "test-server is listening on ports 1443 and 1444."
-            break
-          fi
-          sleep 0.5
-        done
-
     - name: Run GeminiLanguageModel integration tests
       working-directory: GeminiLanguageModel
       run: |
@@ -87,16 +66,6 @@ jobs:
           -retry-tests-on-failure \
           -test-iterations 3
 
-    - name: Stop test-server
+    - name: Clean up GoogleService-Info.plist
       if: always()
-      run: |
-        pkill -f test-server || true
-        rm -f "$FIREBASE_PLIST_PATH"
-
-    - name: Upload test-server recordings
-      if: always()
-      uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
-      with:
-        name: test-server-recordings-${{ github.run_id }}
-        path: GeminiLanguageModel/scripts/test_server/recordings
-        retention-days: 2
+      run: rm -f "$FIREBASE_PLIST_PATH"

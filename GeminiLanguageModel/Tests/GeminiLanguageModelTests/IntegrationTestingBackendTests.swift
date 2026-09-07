@@ -27,13 +27,7 @@ struct IntegrationTestingBackendTests {
     let config = backend.endpointConfiguration
 
     #expect(config.apiVersion == EndpointConfiguration.geminiDeveloperAPIVersion)
-    if isTestServerRunning(port: defaultTestServerPort) {
-      #expect(config.scheme == "http")
-      #expect(config.host == "localhost")
-      #expect(config.port == defaultTestServerPort)
-    } else {
-      #expect(config == .geminiDeveloperAPI)
-    }
+    #expect(config == .geminiDeveloperAPI)
   }
 
   @Test
@@ -42,13 +36,7 @@ struct IntegrationTestingBackendTests {
     let config = backend.endpointConfiguration
 
     #expect(config.apiVersion == EndpointConfiguration.firebaseAILogicAPIVersion)
-    if isTestServerRunning(port: defaultTestServerFirebasePort) {
-      #expect(config.scheme == "http")
-      #expect(config.host == "localhost")
-      #expect(config.port == defaultTestServerFirebasePort)
-    } else {
-      #expect(config == .firebaseAILogic)
-    }
+    #expect(config == .firebaseAILogic)
   }
 
   @Test
@@ -58,34 +46,11 @@ struct IntegrationTestingBackendTests {
 
     let agentPlatform =
       IntegrationTestingBackend.firebaseAILogicAgentPlatform(location: "us-central1")
-    if hasFirebaseAILogicCredentials || isTestServerRunning(port: defaultTestServerFirebasePort) {
+    if hasFirebaseAILogicCredentials {
       let resource = try agentPlatform.modelResource(modelID: "test-model")
       let expectedSubpath = "locations/us-central1/publishers/google/models/test-model"
       #expect(resource.urlResourceName.contains(expectedSubpath))
     }
-  }
-
-  @Test
-  func probePortReturnsFalseForUnusedPort() {
-    let isRunning = isTestServerRunning(port: 59999)
-
-    #expect(!isRunning)
-  }
-
-  @Test
-  func cacheResetClearsCachedProbeResults() {
-    let firstProbe = isTestServerRunning(port: 59998)
-    resetTestServerStatusCache()
-    let secondProbe = isTestServerRunning(port: 59998)
-
-    #expect(!firstProbe)
-    #expect(!secondProbe)
-  }
-
-  @Test
-  func defaultPorts() {
-    #expect(defaultTestServerPort > 0)
-    #expect(defaultTestServerFirebasePort > 0)
   }
 
   @Test
@@ -199,38 +164,6 @@ struct IntegrationTestingBackendTests {
   }
 
   @Test
-  func serverRecordingModeDetection() {
-    #expect(!IntegrationTestEnvironment(variables: [:]).isTestServerRecording)
-    #expect(
-      IntegrationTestEnvironment(variables: ["TEST_SERVER_MODE": "record"]).isTestServerRecording
-    )
-    #expect(
-      IntegrationTestEnvironment(variables: ["TEST_SERVER_MODE": "RECORD"]).isTestServerRecording
-    )
-    #expect(
-      !IntegrationTestEnvironment(variables: ["TEST_SERVER_MODE": "replay"]).isTestServerRecording
-    )
-    #expect(
-      IntegrationTestEnvironment(variables: ["TEST_RUNNER_TEST_SERVER_MODE": "record"])
-        .isTestServerRecording
-    )
-  }
-
-  @Test
-  func isAvailableRequiresCredentialsInRecordMode() {
-    let recordingWithoutKey = IntegrationTestEnvironment(variables: [
-      "TEST_SERVER_MODE": "record"
-    ])
-    #expect(!IntegrationTestingBackend.developerAPI.isAvailable(in: recordingWithoutKey))
-
-    let recordingWithKey = IntegrationTestEnvironment(variables: [
-      "TEST_SERVER_MODE": "record",
-      "GEMINI_API_KEY": "test-key",
-    ])
-    #expect(IntegrationTestingBackend.developerAPI.isAvailable(in: recordingWithKey))
-  }
-
-  @Test
   func processEnvironmentForwarders() {
     let processEnv = IntegrationTestEnvironment.process
     #expect(geminiAPIKey == processEnv.geminiAPIKey)
@@ -240,9 +173,6 @@ struct IntegrationTestingBackendTests {
     #expect(firebaseAPIKey == processEnv.firebaseAPIKey)
     #expect(appCheckDebugToken == processEnv.appCheckDebugToken)
     #expect(hasFirebaseAILogicCredentials == processEnv.hasFirebaseAILogicCredentials)
-    #expect(isTestServerRecording == processEnv.isTestServerRecording)
-    #expect(defaultTestServerPort == processEnv.defaultTestServerPort)
-    #expect(defaultTestServerFirebasePort == processEnv.defaultTestServerFirebasePort)
     #expect(
       IntegrationTestingBackend.developerAPI.isAvailable
         == IntegrationTestingBackend.developerAPI.isAvailable(in: processEnv)

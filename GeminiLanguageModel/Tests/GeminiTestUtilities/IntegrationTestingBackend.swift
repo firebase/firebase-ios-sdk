@@ -17,12 +17,6 @@
   package import GeminiAPIClient
   package import Testing
 
-  #if canImport(Glibc)
-    import Glibc
-  #elseif canImport(Musl)
-    import Musl
-  #endif
-
   /// Represents an integration testing backend for Gemini API requests.
   package enum IntegrationTestingBackend:
     Sendable,
@@ -30,15 +24,15 @@
     CaseIterable,
     CustomStringConvertible
   {
-    /// Gemini Developer API (via `generativelanguage.googleapis.com` or local `test-server`).
+    /// Gemini Developer API (via `generativelanguage.googleapis.com`).
     case developerAPI
 
     /// Firebase AI Logic proxying to the Gemini Developer API (via
-    /// `firebasevertexai.googleapis.com` or local `test-server`).
+    /// `firebasevertexai.googleapis.com`).
     case firebaseAILogicDeveloperAPI
 
     /// Firebase AI Logic proxying to the Gemini Enterprise Agent Platform (via
-    /// `firebasevertexai.googleapis.com` or local `test-server`).
+    /// `firebasevertexai.googleapis.com`).
     case firebaseAILogicAgentPlatform(location: String)
 
     /// Convenience instance targeting the global Gemini Enterprise Agent Platform.
@@ -64,7 +58,7 @@
       }
     }
 
-    /// Indicates whether the required server or credentials are available for this backend in the
+    /// Indicates whether the required credentials are available for this backend in the
     /// specified test environment.
     ///
     /// - Parameter environment: The test environment to evaluate. Defaults to `.process`.
@@ -72,20 +66,14 @@
     package func isAvailable(in environment: IntegrationTestEnvironment = .process) -> Bool {
       switch self {
       case .developerAPI:
-        if isTestServerRunning(port: environment.defaultTestServerPort) {
-          return !environment.isTestServerRecording || environment.hasGeminiAPIKey
-        }
         return environment.hasGeminiAPIKey
 
       case .firebaseAILogicDeveloperAPI, .firebaseAILogicAgentPlatform:
-        if isTestServerRunning(port: environment.defaultTestServerFirebasePort) {
-          return !environment.isTestServerRecording || environment.hasFirebaseAILogicCredentials
-        }
         return environment.hasFirebaseAILogicCredentials
       }
     }
 
-    /// Indicates whether the required server or credentials are available for this backend.
+    /// Indicates whether the required credentials are available for this backend.
     package var isAvailable: Bool {
       isAvailable(in: .process)
     }
@@ -99,25 +87,9 @@
     package var endpointConfiguration: EndpointConfiguration {
       switch self {
       case .developerAPI:
-        if isTestServerRunning(port: defaultTestServerPort) {
-          return EndpointConfiguration(
-            scheme: "http",
-            host: "localhost",
-            port: defaultTestServerPort,
-            apiVersion: EndpointConfiguration.geminiDeveloperAPIVersion
-          )
-        }
         return .geminiDeveloperAPI
 
       case .firebaseAILogicDeveloperAPI, .firebaseAILogicAgentPlatform:
-        if isTestServerRunning(port: defaultTestServerFirebasePort) {
-          return EndpointConfiguration(
-            scheme: "http",
-            host: "localhost",
-            port: defaultTestServerFirebasePort,
-            apiVersion: EndpointConfiguration.firebaseAILogicAPIVersion
-          )
-        }
         return .firebaseAILogic
       }
     }
@@ -135,7 +107,7 @@
         )
 
       case .firebaseAILogicDeveloperAPI:
-        let projectID = try resolveProjectID()
+        let projectID = try #require(firebaseProjectID)
         return ModelResource(
           modelID: modelID,
           urlResourceName: "projects/\(projectID)/models/\(modelID)",
@@ -143,7 +115,7 @@
         )
 
       case .firebaseAILogicAgentPlatform(let location):
-        let projectID = try resolveProjectID()
+        let projectID = try #require(firebaseProjectID)
         let resourcePath =
           "projects/\(projectID)/locations/\(location)/publishers/google/models/\(modelID)"
         return ModelResource(
@@ -164,22 +136,9 @@
         if let apiKey = geminiAPIKey {
           return { ["x-goog-api-key": apiKey] }
         }
-        if isTestServerRunning(port: defaultTestServerPort) {
-          return { ["x-goog-api-key": "test-api-key"] }
-        }
         return nil
 
       case .firebaseAILogicDeveloperAPI, .firebaseAILogicAgentPlatform:
-        let isProxy = isTestServerRunning(port: defaultTestServerFirebasePort)
-        if isProxy && !hasFirebaseAILogicCredentials {
-          let apiKey = firebaseAPIKey ?? "test-api-key"
-          return {
-            [
-              "x-goog-api-key": apiKey,
-              "x-firebase-appcheck": "test-token",
-            ]
-          }
-        }
         let projectID = try #require(firebaseProjectID)
         let appID = try #require(firebaseAppID)
         let apiKey = try #require(firebaseAPIKey)
@@ -198,83 +157,6 @@
         }
       }
     }
-
-    private func resolveProjectID() throws -> String {
-      let isProxy = isTestServerRunning(port: defaultTestServerFirebasePort)
-      if isProxy && !hasFirebaseAILogicCredentials {
-        return firebaseProjectID ?? "REDACTED"
-      }
-      return try #require(firebaseProjectID)
-    }
-  }
-
-  // MARK: - Server Ports and Probing
-
-  /// Indicates whether `test-server` is configured to run in record mode.
-  package var isTestServerRecording: Bool {
-    IntegrationTestEnvironment.process.isTestServerRecording
-  }
-
-  /// The default port number used by `test-server` for Developer API requests.
-  package var defaultTestServerPort: Int {
-    IntegrationTestEnvironment.process.defaultTestServerPort
-  }
-
-  /// The default port number used by `test-server` for Firebase AI Logic requests.
-  package var defaultTestServerFirebasePort: Int {
-    IntegrationTestEnvironment.process.defaultTestServerFirebasePort
-  }
-
-  private final class TestServerStatusCache: @unchecked Sendable {
-    static let shared = TestServerStatusCache()
-    private let lock = NSLock()
-    private var cache: [Int: Bool] = [:]
-
-    func status(for port: Int, probe: () -> Bool) -> Bool {
-      if let cached = lock.withLock({ cache[port] }) {
-        return cached
-      }
-      let isRunning = probe()
-      lock.withLock { cache[port] = isRunning }
-      return isRunning
-    }
-
-    func reset() {
-      lock.withLock { cache.removeAll() }
-    }
-  }
-
-  /// Checks whether `test-server` is actively listening on localhost at the specified port.
-  package func isTestServerRunning(port: Int = defaultTestServerPort) -> Bool {
-    TestServerStatusCache.shared.status(for: port) {
-      probePort(port)
-    }
-  }
-
-  /// Clears the cached `test-server` port probe results.
-  package func resetTestServerStatusCache() {
-    TestServerStatusCache.shared.reset()
-  }
-
-  private func probePort(_ port: Int) -> Bool {
-    var addr = sockaddr_in()
-    addr.sin_family = sa_family_t(AF_INET)
-    addr.sin_port = in_port_t(port).bigEndian
-    inet_pton(AF_INET, "127.0.0.1", &addr.sin_addr)
-
-    let sock = socket(AF_INET, SOCK_STREAM, 0)
-    guard sock >= 0 else { return false }
-    defer { close(sock) }
-
-    var tv = timeval(tv_sec: 0, tv_usec: 50_000)
-    setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, &tv, socklen_t(MemoryLayout<timeval>.size))
-    setsockopt(sock, SOL_SOCKET, SO_SNDTIMEO, &tv, socklen_t(MemoryLayout<timeval>.size))
-
-    return withUnsafePointer(to: &addr) {
-      $0.withMemoryRebound(to: sockaddr.self, capacity: 1) {
-        connect(sock, $0, socklen_t(MemoryLayout<sockaddr_in>.size)) == 0
-      }
-    }
   }
 
   // MARK: - Testing Traits
@@ -290,10 +172,7 @@
     package static var requireIntegrationTestingBackend: Self {
       .enabled(
         if: hasIntegrationTestingBackend,
-        Comment(
-          rawValue: "Requires test-server running on localhost or credentials for Developer API / "
-            + "Firebase AI Logic"
-        )
+        "Requires credentials for Developer API or Firebase AI Logic"
       )
     }
   }
