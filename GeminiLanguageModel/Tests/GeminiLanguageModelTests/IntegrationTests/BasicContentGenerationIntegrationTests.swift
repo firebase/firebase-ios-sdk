@@ -22,10 +22,13 @@
   @testable import GeminiLanguageModel
 
   /// Integration tests for content generation using `GeminiLanguageModel` with a basic feature set.
-  @Suite("Basic Content Generation Integration Tests", .requireFoundationModels)
+  @Suite(
+    "Basic Content Generation Integration Tests",
+    .requireFoundationModels,
+    .tags(.integration)
+  )
   struct BasicContentGenerationIntegrationTests {
     @Test(
-      .tags(.integration),
       .requireIntegrationTestingBackend,
       arguments: IntegrationTestingBackend.availableBackends
     )
@@ -44,7 +47,6 @@
     }
 
     @Test(
-      .tags(.integration),
       .requireIntegrationTestingBackend,
       arguments: IntegrationTestingBackend.availableBackends
     )
@@ -66,7 +68,6 @@
     }
 
     @Test(
-      .tags(.integration),
       .requireIntegrationTestingBackend,
       arguments: IntegrationTestingBackend.availableBackends
     )

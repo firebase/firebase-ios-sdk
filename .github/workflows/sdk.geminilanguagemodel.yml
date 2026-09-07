@@ -76,7 +76,7 @@ jobs:
         xcodebuild test \
           -scheme gemini-for-foundation-models \
           -destination 'platform=iOS Simulator,name=Firebase-iPhone-15-Pro' \
-          -only-testing:GeminiLanguageModelTests \
+          -only-testing-tags integration \
           2>&1 | tee /tmp/xcodebuild.log | xcsift -w -f github-actions
 
     - name: Stop test-server
