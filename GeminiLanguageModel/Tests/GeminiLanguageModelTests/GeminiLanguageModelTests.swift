@@ -26,8 +26,8 @@
 
   @testable import GeminiLanguageModel
 
-  @Suite("GeminiForFoundationModels Unit Tests", .serialized, .requireFoundationModels)
-  struct GeminiForFoundationModelsTests {
+  @Suite("GeminiLanguageModel Tests", .serialized, .requireFoundationModels)
+  struct GeminiLanguageModelTests {
     @Test
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
     func modelInitializationAndCapabilities() {
@@ -46,15 +46,12 @@
     @Test
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
     func sessionRespondSingleTurn() async throws {
+      defer { MockHTTPURLProtocol.reset() }
       let model = Self.makeMockModel()
       let expectedURL = try Self.makeExpectedStreamURL()
-      let httpResponse = try #require(
-        HTTPURLResponse(
-          url: expectedURL,
-          statusCode: 200,
-          httpVersion: "HTTP/1.1",
-          headerFields: ["Content-Type": "text/event-stream"]
-        )
+      let httpResponse = try HTTPURLResponse.mock(
+        url: expectedURL,
+        headerFields: ["Content-Type": "text/event-stream"]
       )
       let ssePayload = """
         data: {"candidates": [{"content": {"parts": [{"text": "Hello world from Gemini!"}], "role": "model"}, "finishReason": "STOP", "index": 0}]}
@@ -76,15 +73,12 @@
     @Test
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
     func sessionRespondMultiTurn() async throws {
+      defer { MockHTTPURLProtocol.reset() }
       let model = Self.makeMockModel()
       let expectedURL = try Self.makeExpectedStreamURL()
-      let httpResponse = try #require(
-        HTTPURLResponse(
-          url: expectedURL,
-          statusCode: 200,
-          httpVersion: "HTTP/1.1",
-          headerFields: ["Content-Type": "text/event-stream"]
-        )
+      let httpResponse = try HTTPURLResponse.mock(
+        url: expectedURL,
+        headerFields: ["Content-Type": "text/event-stream"]
       )
       let firstPayload = """
         data: {"candidates": [{"content": {"parts": [{"text": "Nice to meet you, Alice."}], "role": "model"}, "finishReason": "STOP", "index": 0}]}
@@ -124,15 +118,12 @@
     @Test
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
     func sessionWithInstructions() async throws {
+      defer { MockHTTPURLProtocol.reset() }
       let model = Self.makeMockModel()
       let expectedURL = try Self.makeExpectedStreamURL()
-      let httpResponse = try #require(
-        HTTPURLResponse(
-          url: expectedURL,
-          statusCode: 200,
-          httpVersion: "HTTP/1.1",
-          headerFields: ["Content-Type": "text/event-stream"]
-        )
+      let httpResponse = try HTTPURLResponse.mock(
+        url: expectedURL,
+        headerFields: ["Content-Type": "text/event-stream"]
       )
       let ssePayload = """
         data: {"candidates": [{"content": {"parts": [{"text": "Ahoy matey!"}], "role": "model"}, "finishReason": "STOP", "index": 0}]}
@@ -161,15 +152,12 @@
     @Test
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
     func sessionStreamResponse() async throws {
+      defer { MockHTTPURLProtocol.reset() }
       let model = Self.makeMockModel()
       let expectedURL = try Self.makeExpectedStreamURL()
-      let httpResponse = try #require(
-        HTTPURLResponse(
-          url: expectedURL,
-          statusCode: 200,
-          httpVersion: "HTTP/1.1",
-          headerFields: ["Content-Type": "text/event-stream"]
-        )
+      let httpResponse = try HTTPURLResponse.mock(
+        url: expectedURL,
+        headerFields: ["Content-Type": "text/event-stream"]
       )
       let ssePayload = """
         data: {"candidates": [{"content": {"parts": [{"text": "42", "thoughtSignature": "test-signature-123"}], "role": "model"}, "finishReason": "STOP", "index": 0}], "usageMetadata": {"candidatesTokenCount": 2, "promptTokenCount": 5, "totalTokenCount": 7}}
@@ -201,15 +189,13 @@
     @Test
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
     func rateLimitErrorMapping() async throws {
+      defer { MockHTTPURLProtocol.reset() }
       let model = Self.makeMockModel()
       let expectedURL = try Self.makeExpectedStreamURL()
-      let httpResponse = try #require(
-        HTTPURLResponse(
-          url: expectedURL,
-          statusCode: 429,
-          httpVersion: "HTTP/1.1",
-          headerFields: ["Content-Type": "application/json", "Retry-After": "30"]
-        )
+      let httpResponse = try HTTPURLResponse.mock(
+        url: expectedURL,
+        statusCode: 429,
+        headerFields: ["Content-Type": "application/json", "Retry-After": "30"]
       )
       let errorPayload = """
         {"error": {"code": 429, "message": "Resource has been exhausted", "status": "RESOURCE_EXHAUSTED"}}
@@ -235,15 +221,12 @@
     @Test
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
     func guardrailViolationErrorMapping() async throws {
+      defer { MockHTTPURLProtocol.reset() }
       let model = Self.makeMockModel()
       let expectedURL = try Self.makeExpectedStreamURL()
-      let httpResponse = try #require(
-        HTTPURLResponse(
-          url: expectedURL,
-          statusCode: 200,
-          httpVersion: "HTTP/1.1",
-          headerFields: ["Content-Type": "text/event-stream"]
-        )
+      let httpResponse = try HTTPURLResponse.mock(
+        url: expectedURL,
+        headerFields: ["Content-Type": "text/event-stream"]
       )
       let ssePayload = """
         data: {"candidates": [{"finishReason": "SAFETY", "finishMessage": "Filtered for safety reasons"}]}
@@ -270,6 +253,7 @@
     @Test
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
     func timeoutErrorMapping() async throws {
+      defer { MockHTTPURLProtocol.reset() }
       let model = Self.makeMockModel()
       let expectedURL = try Self.makeExpectedStreamURL()
       MockHTTPURLProtocol.setHandler(for: expectedURL) { _, proto in
@@ -282,9 +266,7 @@
         _ = try await session.respond(to: "Hello")
         Issue.record("Expected timeout error")
       } catch LanguageModelError.timeout {
-        // Success
       } catch let error as URLError where error.code == .timedOut {
-        // Success
       } catch {
         Issue.record("Unexpected error thrown: \(error)")
       }

@@ -21,33 +21,20 @@
 
   @testable import GeminiLanguageModel
 
-  @Suite("GeminiForFoundationModels Integration Tests", .requireFoundationModels)
-  struct GeminiForFoundationModelsIntegrationTests {
+  /// Integration tests for content generation using `GeminiLanguageModel` with a basic feature set.
+  @Suite(
+    "Basic Content Generation Integration Tests",
+    .requireFoundationModels,
+    .tags(.integration)
+  )
+  struct BasicContentGenerationIntegrationTests {
+    @Test(
+      .requireIntegrationTestingBackend,
+      arguments: IntegrationTestingBackend.availableBackends
+    )
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
-    private func makeModel(
-      modelResource: ModelResource = .gemini35FlashLite,
-      endpointConfiguration: EndpointConfiguration = .geminiDeveloperAPI
-    ) -> GeminiLanguageModel {
-      let headerProvider: (@Sendable () async throws -> [String: String])?
-      if let apiKey = geminiAPIKey {
-        headerProvider = { @Sendable in
-          ["x-goog-api-key": apiKey]
-        }
-      } else {
-        headerProvider = nil
-      }
-
-      return GeminiLanguageModel(
-        modelResource: modelResource,
-        endpointConfiguration: endpointConfiguration,
-        headerProvider: headerProvider
-      )
-    }
-
-    @Test(.requireAPIKey)
-    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
-    func sessionRespond() async throws {
-      let model = makeModel()
+    func sessionRespond(backend: IntegrationTestingBackend) async throws {
+      let model = try await backend.makeModel()
       let session = LanguageModelSession(model: model)
 
       let response = try await session.respond(to: "Reply with the single word 'HELLO'.")
@@ -59,10 +46,13 @@
       #expect(response.usage.output.totalTokenCount > 0)
     }
 
-    @Test(.requireAPIKey)
+    @Test(
+      .requireIntegrationTestingBackend,
+      arguments: IntegrationTestingBackend.availableBackends
+    )
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
-    func sessionRespondMultiTurn() async throws {
-      let model = makeModel()
+    func sessionRespondMultiTurn(backend: IntegrationTestingBackend) async throws {
+      let model = try await backend.makeModel()
       let session = LanguageModelSession(model: model)
 
       _ = try await session.respond(to: "My favorite color is teal.")
@@ -77,10 +67,13 @@
       #expect(response.usage.output.totalTokenCount > 0)
     }
 
-    @Test(.requireAPIKey)
+    @Test(
+      .requireIntegrationTestingBackend,
+      arguments: IntegrationTestingBackend.availableBackends
+    )
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
-    func sessionStreamResponse() async throws {
-      let model = makeModel()
+    func sessionStreamResponse(backend: IntegrationTestingBackend) async throws {
+      let model = try await backend.makeModel()
       let session = LanguageModelSession(model: model)
 
       let stream = session.streamResponse(

@@ -15,10 +15,9 @@
 #if canImport(FoundationModels) && compiler(>=6.4)
   import Foundation
   import FoundationModels
-  import Testing
-
   import GeminiAPIDataModels
   import GeminiTestUtilities
+  import Testing
 
   @testable import GeminiLanguageModel
 
@@ -47,10 +46,10 @@
 
       let systemInstruction = try #require(result.systemInstruction)
       #expect(
-        systemInstruction.parts?.first?.data == Part.PartData.text("You are a helpful assistant."))
+        systemInstruction.parts?.first?.data == .text("You are a helpful assistant."))
       #expect(result.contents.count == 1)
       #expect(result.contents.first?.role == "user")
-      #expect(result.contents.first?.parts?.first?.data == Part.PartData.text("Hello!"))
+      #expect(result.contents.first?.parts?.first?.data == .text("Hello!"))
     }
 
     @Test
@@ -88,8 +87,8 @@
       #expect(modelParts.count == 2)
       #expect(modelParts[0].thought == true)
       #expect(modelParts[0].thoughtSignature == "test-sig")
-      #expect(modelParts[0].data == Part.PartData.text("Thinking about addition..."))
-      #expect(modelParts[1].data == Part.PartData.text("2+2 is 4."))
+      #expect(modelParts[0].data == .text("Thinking about addition..."))
+      #expect(modelParts[1].data == .text("2+2 is 4."))
     }
 
     @Test
@@ -125,7 +124,7 @@
       #expect(modelParts[0].thought == true)
       #expect(modelParts[0].thoughtSignature == "sig-only")
       #expect(modelParts[0].data == nil)
-      #expect(modelParts[1].data == Part.PartData.text("Hello!"))
+      #expect(modelParts[1].data == .text("Hello!"))
     }
 
     @Test
@@ -158,8 +157,8 @@
       let systemInstruction = try #require(result.systemInstruction)
       let parts = try #require(systemInstruction.parts)
       #expect(parts.count == 2)
-      #expect(parts[0].data == Part.PartData.text("First instruction."))
-      #expect(parts[1].data == Part.PartData.text("Second instruction."))
+      #expect(parts[0].data == .text("First instruction."))
+      #expect(parts[1].data == .text("Second instruction."))
     }
   }
 #endif  // canImport(FoundationModels) && compiler(>=6.4)
