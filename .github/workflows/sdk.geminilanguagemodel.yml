@@ -35,9 +35,6 @@ jobs:
     - name: Select Xcode
       run: sudo xcode-select -s /Applications/Xcode_27.0.app/Contents/Developer
 
-    - name: Install dependencies
-      run: brew install xcsift
-
     - name: Setup simulator
       uses: ./.github/actions/setup_simulator
       with:
@@ -76,8 +73,7 @@ jobs:
         xcodebuild test \
           -scheme gemini-for-foundation-models \
           -destination 'platform=iOS Simulator,name=Firebase-iPhone-15-Pro' \
-          -only-testing-tags integration \
-          2>&1 | tee /tmp/xcodebuild.log | xcsift -w -f github-actions
+          -only-testing-tags integration
 
     - name: Stop test-server
       if: always()
@@ -91,12 +87,4 @@ jobs:
       with:
         name: test-server-recordings-${{ github.run_id }}
         path: GeminiLanguageModel/scripts/test_server/recordings
-        retention-days: 2
-
-    - name: Upload test logs
-      if: failure()
-      uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
-      with:
-        name: xcodebuild-logs-${{ github.run_id }}
-        path: /tmp/xcodebuild.log
         retention-days: 2
