@@ -1,3 +1,7 @@
+# Unreleased
+- [fixed] Fixed a crash when processing a report whose binary image records
+  contain a non-numeric `base` or `size`. (#16519)
+
 # 12.18.0
 - [removed] Removes unused integration with the now deprecated ObjC MetricKit API.
 
