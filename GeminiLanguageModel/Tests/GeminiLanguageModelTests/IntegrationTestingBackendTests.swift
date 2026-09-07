@@ -18,14 +18,8 @@ import Testing
 
 @testable import GeminiAPIClient
 
-#if canImport(Glibc)
-  import Glibc
-#elseif canImport(Musl)
-  import Musl
-#endif
-
 /// Unit tests for `IntegrationTestingBackend` configuration, discovery, and credential resolution.
-@Suite("IntegrationTestingBackend Tests", .serialized)
+@Suite("IntegrationTestingBackend Tests")
 struct IntegrationTestingBackendTests {
   @Test
   func developerAPIEndpoint() {
@@ -96,10 +90,6 @@ struct IntegrationTestingBackendTests {
 
   @Test
   func credentialsResolvedFromPlistPath() throws {
-    let env = ProcessInfo.processInfo.environment
-    let previousPlistPath = env["FIREBASE_PLIST_PATH"]
-    let previousGoogleKey = env["GOOGLE_API_KEY"]
-    let previousGeminiKey = env["GEMINI_API_KEY"]
     let tempDir = FileManager.default.temporaryDirectory
     let tempPlistURL = tempDir.appendingPathComponent(
       "Test-GoogleService-Info-\(UUID().uuidString).plist"
@@ -117,37 +107,20 @@ struct IntegrationTestingBackendTests {
     try plistData.write(to: tempPlistURL)
     defer {
       try? FileManager.default.removeItem(at: tempPlistURL)
-      if let previousPlistPath {
-        setenv("FIREBASE_PLIST_PATH", previousPlistPath, 1)
-      } else {
-        unsetenv("FIREBASE_PLIST_PATH")
-      }
-      if let previousGoogleKey {
-        setenv("GOOGLE_API_KEY", previousGoogleKey, 1)
-      } else {
-        unsetenv("GOOGLE_API_KEY")
-      }
-      if let previousGeminiKey {
-        setenv("GEMINI_API_KEY", previousGeminiKey, 1)
-      } else {
-        unsetenv("GEMINI_API_KEY")
-      }
     }
 
-    unsetenv("GOOGLE_API_KEY")
-    unsetenv("GEMINI_API_KEY")
-    setenv("FIREBASE_PLIST_PATH", tempPlistURL.path, 1)
+    var env = IntegrationTestEnvironment(variables: [:])
+    #expect(env.firebaseProjectID == nil)
 
-    #expect(firebaseProjectID == "test-plist-project")
-    #expect(firebaseAppID == "test-plist-app")
-    #expect(firebaseAPIKey == "test-plist-api-key")
-    #expect(geminiAPIKey == nil)
+    env.variables = ["FIREBASE_PLIST_PATH": tempPlistURL.path]
+    #expect(env.firebaseProjectID == "test-plist-project")
+    #expect(env.firebaseAppID == "test-plist-app")
+    #expect(env.firebaseAPIKey == "test-plist-api-key")
+    #expect(env.geminiAPIKey == nil)
   }
 
   @Test
   func plistPathStrictExclusivity() throws {
-    let previousPlistPath = ProcessInfo.processInfo.environment["FIREBASE_PLIST_PATH"]
-    let previousProjectID = ProcessInfo.processInfo.environment["FIREBASE_PROJECT_ID"]
     let tempDir = FileManager.default.temporaryDirectory
     let tempPlistURL = tempDir.appendingPathComponent(
       "Test-Incomplete-GoogleService-Info-\(UUID().uuidString).plist"
@@ -163,31 +136,19 @@ struct IntegrationTestingBackendTests {
     try plistData.write(to: tempPlistURL)
     defer {
       try? FileManager.default.removeItem(at: tempPlistURL)
-      if let previousPlistPath {
-        setenv("FIREBASE_PLIST_PATH", previousPlistPath, 1)
-      } else {
-        unsetenv("FIREBASE_PLIST_PATH")
-      }
-      if let previousProjectID {
-        setenv("FIREBASE_PROJECT_ID", previousProjectID, 1)
-      } else {
-        unsetenv("FIREBASE_PROJECT_ID")
-      }
     }
 
-    setenv("FIREBASE_PROJECT_ID", "env-project-id", 1)
-    setenv("FIREBASE_PLIST_PATH", tempPlistURL.path, 1)
+    let env = IntegrationTestEnvironment(variables: [
+      "FIREBASE_PROJECT_ID": "env-project-id",
+      "FIREBASE_PLIST_PATH": tempPlistURL.path,
+    ])
 
-    #expect(firebaseProjectID == nil)
-    #expect(firebaseAPIKey == "only-api-key")
+    #expect(env.firebaseProjectID == nil)
+    #expect(env.firebaseAPIKey == "only-api-key")
   }
 
   @Test
   func plistPathTreatsEmptyStringsAsNil() throws {
-    let env = ProcessInfo.processInfo.environment
-    let previousPlistPath = env["FIREBASE_PLIST_PATH"]
-    let previousGoogleKey = env["GOOGLE_API_KEY"]
-    let previousGeminiKey = env["GEMINI_API_KEY"]
     let tempDir = FileManager.default.temporaryDirectory
     let tempPlistURL = tempDir.appendingPathComponent(
       "Test-EmptyValues-GoogleService-Info-\(UUID().uuidString).plist"
@@ -205,132 +166,86 @@ struct IntegrationTestingBackendTests {
     try plistData.write(to: tempPlistURL)
     defer {
       try? FileManager.default.removeItem(at: tempPlistURL)
-      if let previousPlistPath {
-        setenv("FIREBASE_PLIST_PATH", previousPlistPath, 1)
-      } else {
-        unsetenv("FIREBASE_PLIST_PATH")
-      }
-      if let previousGoogleKey {
-        setenv("GOOGLE_API_KEY", previousGoogleKey, 1)
-      } else {
-        unsetenv("GOOGLE_API_KEY")
-      }
-      if let previousGeminiKey {
-        setenv("GEMINI_API_KEY", previousGeminiKey, 1)
-      } else {
-        unsetenv("GEMINI_API_KEY")
-      }
     }
 
-    unsetenv("GOOGLE_API_KEY")
-    unsetenv("GEMINI_API_KEY")
-    setenv("FIREBASE_PLIST_PATH", tempPlistURL.path, 1)
+    let env = IntegrationTestEnvironment(variables: [
+      "FIREBASE_PLIST_PATH": tempPlistURL.path
+    ])
 
-    #expect(firebaseProjectID == nil)
-    #expect(firebaseAppID == nil)
-    #expect(firebaseAPIKey == nil)
-    #expect(geminiAPIKey == nil)
+    #expect(env.firebaseProjectID == nil)
+    #expect(env.firebaseAppID == nil)
+    #expect(env.firebaseAPIKey == nil)
+    #expect(env.geminiAPIKey == nil)
   }
 
   @Test
   func geminiAPIKeyResolution() {
-    let env = ProcessInfo.processInfo.environment
-    let previousGoogleKey = env["GOOGLE_API_KEY"]
-    let previousGeminiKey = env["GEMINI_API_KEY"]
-    defer {
-      if let previousGoogleKey {
-        setenv("GOOGLE_API_KEY", previousGoogleKey, 1)
-      } else {
-        unsetenv("GOOGLE_API_KEY")
-      }
-      if let previousGeminiKey {
-        setenv("GEMINI_API_KEY", previousGeminiKey, 1)
-      } else {
-        unsetenv("GEMINI_API_KEY")
-      }
-    }
+    let emptyEnv = IntegrationTestEnvironment(variables: [:])
+    #expect(emptyEnv.geminiAPIKey == nil)
+    #expect(!emptyEnv.hasGeminiAPIKey)
 
-    unsetenv("GOOGLE_API_KEY")
-    unsetenv("GEMINI_API_KEY")
-    #expect(geminiAPIKey == nil)
-    #expect(!hasGeminiAPIKey)
+    let geminiEnv = IntegrationTestEnvironment(variables: [
+      "GEMINI_API_KEY": "test-gemini-key"
+    ])
+    #expect(geminiEnv.geminiAPIKey == "test-gemini-key")
+    #expect(geminiEnv.hasGeminiAPIKey)
 
-    setenv("GEMINI_API_KEY", "test-gemini-key", 1)
-    #expect(geminiAPIKey == "test-gemini-key")
-    #expect(hasGeminiAPIKey)
-
-    setenv("GOOGLE_API_KEY", "test-google-key", 1)
-    #expect(geminiAPIKey == "test-google-key")
-    #expect(hasGeminiAPIKey)
+    let googleEnv = IntegrationTestEnvironment(variables: [
+      "GOOGLE_API_KEY": "test-google-key",
+      "GEMINI_API_KEY": "test-gemini-key",
+    ])
+    #expect(googleEnv.geminiAPIKey == "test-google-key")
+    #expect(googleEnv.hasGeminiAPIKey)
   }
 
   @Test
-  func testServerRecordingModeDetection() {
-    let env = ProcessInfo.processInfo.environment
-    let prevMode = env["TEST_SERVER_MODE"]
-    let prevRunnerMode = env["TEST_RUNNER_TEST_SERVER_MODE"]
-    defer {
-      if let prevMode {
-        setenv("TEST_SERVER_MODE", prevMode, 1)
-      } else {
-        unsetenv("TEST_SERVER_MODE")
-      }
-      if let prevRunnerMode {
-        setenv("TEST_RUNNER_TEST_SERVER_MODE", prevRunnerMode, 1)
-      } else {
-        unsetenv("TEST_RUNNER_TEST_SERVER_MODE")
-      }
-    }
-
-    unsetenv("TEST_SERVER_MODE")
-    unsetenv("TEST_RUNNER_TEST_SERVER_MODE")
-    #expect(!isTestServerRecording)
-
-    setenv("TEST_SERVER_MODE", "record", 1)
-    #expect(isTestServerRecording)
-
-    setenv("TEST_SERVER_MODE", "RECORD", 1)
-    #expect(isTestServerRecording)
-
-    setenv("TEST_SERVER_MODE", "replay", 1)
-    #expect(!isTestServerRecording)
-
-    unsetenv("TEST_SERVER_MODE")
-    setenv("TEST_RUNNER_TEST_SERVER_MODE", "record", 1)
-    #expect(isTestServerRecording)
+  func serverRecordingModeDetection() {
+    #expect(!IntegrationTestEnvironment(variables: [:]).isTestServerRecording)
+    #expect(
+      IntegrationTestEnvironment(variables: ["TEST_SERVER_MODE": "record"]).isTestServerRecording
+    )
+    #expect(
+      IntegrationTestEnvironment(variables: ["TEST_SERVER_MODE": "RECORD"]).isTestServerRecording
+    )
+    #expect(
+      !IntegrationTestEnvironment(variables: ["TEST_SERVER_MODE": "replay"]).isTestServerRecording
+    )
+    #expect(
+      IntegrationTestEnvironment(variables: ["TEST_RUNNER_TEST_SERVER_MODE": "record"])
+        .isTestServerRecording
+    )
   }
 
   @Test
   func isAvailableRequiresCredentialsInRecordMode() {
-    let env = ProcessInfo.processInfo.environment
-    let prevMode = env["TEST_SERVER_MODE"]
-    let prevGoogleKey = env["GOOGLE_API_KEY"]
-    let prevGeminiKey = env["GEMINI_API_KEY"]
-    defer {
-      if let prevMode {
-        setenv("TEST_SERVER_MODE", prevMode, 1)
-      } else {
-        unsetenv("TEST_SERVER_MODE")
-      }
-      if let prevGoogleKey {
-        setenv("GOOGLE_API_KEY", prevGoogleKey, 1)
-      } else {
-        unsetenv("GOOGLE_API_KEY")
-      }
-      if let prevGeminiKey {
-        setenv("GEMINI_API_KEY", prevGeminiKey, 1)
-      } else {
-        unsetenv("GEMINI_API_KEY")
-      }
-    }
+    let recordingWithoutKey = IntegrationTestEnvironment(variables: [
+      "TEST_SERVER_MODE": "record"
+    ])
+    #expect(!IntegrationTestingBackend.developerAPI.isAvailable(in: recordingWithoutKey))
 
-    setenv("TEST_SERVER_MODE", "record", 1)
-    unsetenv("GOOGLE_API_KEY")
-    unsetenv("GEMINI_API_KEY")
+    let recordingWithKey = IntegrationTestEnvironment(variables: [
+      "TEST_SERVER_MODE": "record",
+      "GEMINI_API_KEY": "test-key",
+    ])
+    #expect(IntegrationTestingBackend.developerAPI.isAvailable(in: recordingWithKey))
+  }
 
-    #expect(!IntegrationTestingBackend.developerAPI.isAvailable)
-
-    setenv("GEMINI_API_KEY", "test-key", 1)
-    #expect(IntegrationTestingBackend.developerAPI.isAvailable)
+  @Test
+  func processEnvironmentForwarders() {
+    let processEnv = IntegrationTestEnvironment.process
+    #expect(geminiAPIKey == processEnv.geminiAPIKey)
+    #expect(hasGeminiAPIKey == processEnv.hasGeminiAPIKey)
+    #expect(firebaseProjectID == processEnv.firebaseProjectID)
+    #expect(firebaseAppID == processEnv.firebaseAppID)
+    #expect(firebaseAPIKey == processEnv.firebaseAPIKey)
+    #expect(appCheckDebugToken == processEnv.appCheckDebugToken)
+    #expect(hasFirebaseAILogicCredentials == processEnv.hasFirebaseAILogicCredentials)
+    #expect(isTestServerRecording == processEnv.isTestServerRecording)
+    #expect(defaultTestServerPort == processEnv.defaultTestServerPort)
+    #expect(defaultTestServerFirebasePort == processEnv.defaultTestServerFirebasePort)
+    #expect(
+      IntegrationTestingBackend.developerAPI.isAvailable
+        == IntegrationTestingBackend.developerAPI.isAvailable(in: processEnv)
+    )
   }
 }

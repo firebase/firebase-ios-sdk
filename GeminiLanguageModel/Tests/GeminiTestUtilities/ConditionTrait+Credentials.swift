@@ -16,46 +16,14 @@
   import Foundation
   package import Testing
 
-  /// Parsed representation of credentials from a `GoogleService-Info.plist` file.
-  private struct GoogleServiceInfo: Sendable {
-    let projectID: String?
-    let appID: String?
-    let apiKey: String?
-
-    init?(contentsOfFile path: String) {
-      guard !path.isEmpty,
-        FileManager.default.fileExists(atPath: path),
-        let data = try? Data(contentsOf: URL(fileURLWithPath: path)),
-        let plist = try? PropertyListSerialization.propertyList(
-          from: data,
-          options: [],
-          format: nil
-        ) as? [String: Any]
-      else {
-        return nil
-      }
-
-      projectID = (plist["PROJECT_ID"] as? String).flatMap { $0.isEmpty ? nil : $0 }
-      appID = (plist["GOOGLE_APP_ID"] as? String).flatMap { $0.isEmpty ? nil : $0 }
-      apiKey = (plist["API_KEY"] as? String).flatMap { $0.isEmpty ? nil : $0 }
-    }
-  }
-
   /// Resolves the Gemini API key from `GOOGLE_API_KEY` or `GEMINI_API_KEY`.
   package var geminiAPIKey: String? {
-    let env = ProcessInfo.processInfo.environment
-    if let googleKey = env["GOOGLE_API_KEY"], !googleKey.isEmpty {
-      return googleKey
-    }
-    if let geminiKey = env["GEMINI_API_KEY"], !geminiKey.isEmpty {
-      return geminiKey
-    }
-    return nil
+    IntegrationTestEnvironment.process.geminiAPIKey
   }
 
   /// Indicates whether a Gemini API key is available in the environment.
   package var hasGeminiAPIKey: Bool {
-    geminiAPIKey != nil
+    IntegrationTestEnvironment.process.hasGeminiAPIKey
   }
 
   @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
@@ -80,57 +48,28 @@
 
   /// Resolves the Firebase Project ID from `FIREBASE_PLIST_PATH` (if set) or `FIREBASE_PROJECT_ID`.
   package var firebaseProjectID: String? {
-    if let path = ProcessInfo.processInfo.environment["FIREBASE_PLIST_PATH"], !path.isEmpty {
-      return GoogleServiceInfo(contentsOfFile: path)?.projectID
-    }
-    let env = ProcessInfo.processInfo.environment
-    if let projectID = env["FIREBASE_PROJECT_ID"], !projectID.isEmpty {
-      return projectID
-    }
-    return nil
+    IntegrationTestEnvironment.process.firebaseProjectID
   }
 
   /// Resolves the Firebase App ID from `FIREBASE_PLIST_PATH` (if set) or `FIREBASE_APP_ID`.
   package var firebaseAppID: String? {
-    if let path = ProcessInfo.processInfo.environment["FIREBASE_PLIST_PATH"], !path.isEmpty {
-      return GoogleServiceInfo(contentsOfFile: path)?.appID
-    }
-    let env = ProcessInfo.processInfo.environment
-    if let appID = env["FIREBASE_APP_ID"], !appID.isEmpty {
-      return appID
-    }
-    return nil
+    IntegrationTestEnvironment.process.firebaseAppID
   }
 
   /// Resolves the Firebase API key from `FIREBASE_PLIST_PATH` (if set) or `FIREBASE_API_KEY`.
   package var firebaseAPIKey: String? {
-    if let path = ProcessInfo.processInfo.environment["FIREBASE_PLIST_PATH"], !path.isEmpty {
-      return GoogleServiceInfo(contentsOfFile: path)?.apiKey
-    }
-    let env = ProcessInfo.processInfo.environment
-    if let apiKey = env["FIREBASE_API_KEY"], !apiKey.isEmpty {
-      return apiKey
-    }
-    return nil
+    IntegrationTestEnvironment.process.firebaseAPIKey
   }
 
   /// Resolves the Firebase App Check debug token from standard environment variables:
   /// `AppCheckDebugToken` with fallback to `FIRAAppCheckDebugToken`.
   package var appCheckDebugToken: String? {
-    let env = ProcessInfo.processInfo.environment
-    if let token = env["AppCheckDebugToken"], !token.isEmpty {
-      return token
-    }
-    if let legacyToken = env["FIRAAppCheckDebugToken"], !legacyToken.isEmpty {
-      return legacyToken
-    }
-    return nil
+    IntegrationTestEnvironment.process.appCheckDebugToken
   }
 
   /// Indicates whether all required Firebase AI Logic credentials and debug token are available.
   package var hasFirebaseAILogicCredentials: Bool {
-    firebaseProjectID != nil && firebaseAppID != nil && firebaseAPIKey != nil
-      && appCheckDebugToken != nil
+    IntegrationTestEnvironment.process.hasFirebaseAILogicCredentials
   }
 
   @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)

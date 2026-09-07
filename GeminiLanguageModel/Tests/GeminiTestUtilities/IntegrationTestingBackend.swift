@@ -64,21 +64,30 @@
       }
     }
 
-    /// Indicates whether the required server or credentials are available for this backend.
-    package var isAvailable: Bool {
+    /// Indicates whether the required server or credentials are available for this backend in the
+    /// specified test environment.
+    ///
+    /// - Parameter environment: The test environment to evaluate. Defaults to `.process`.
+    /// - Returns: `true` if this backend is available to execute tests; otherwise, `false`.
+    package func isAvailable(in environment: IntegrationTestEnvironment = .process) -> Bool {
       switch self {
       case .developerAPI:
-        if isTestServerRunning(port: defaultTestServerPort) {
-          return !isTestServerRecording || hasGeminiAPIKey
+        if isTestServerRunning(port: environment.defaultTestServerPort) {
+          return !environment.isTestServerRecording || environment.hasGeminiAPIKey
         }
-        return hasGeminiAPIKey
+        return environment.hasGeminiAPIKey
 
       case .firebaseAILogicDeveloperAPI, .firebaseAILogicAgentPlatform:
-        if isTestServerRunning(port: defaultTestServerFirebasePort) {
-          return !isTestServerRecording || hasFirebaseAILogicCredentials
+        if isTestServerRunning(port: environment.defaultTestServerFirebasePort) {
+          return !environment.isTestServerRecording || environment.hasFirebaseAILogicCredentials
         }
-        return hasFirebaseAILogicCredentials
+        return environment.hasFirebaseAILogicCredentials
       }
+    }
+
+    /// Indicates whether the required server or credentials are available for this backend.
+    package var isAvailable: Bool {
+      isAvailable(in: .process)
     }
 
     /// The list of backends that are currently available to execute tests against.
@@ -203,34 +212,17 @@
 
   /// Indicates whether `test-server` is configured to run in record mode.
   package var isTestServerRecording: Bool {
-    let env = ProcessInfo.processInfo.environment
-    let mode = env["TEST_SERVER_MODE"] ?? env["TEST_RUNNER_TEST_SERVER_MODE"]
-    return mode?.lowercased() == "record"
+    IntegrationTestEnvironment.process.isTestServerRecording
   }
 
   /// The default port number used by `test-server` for Developer API requests.
   package var defaultTestServerPort: Int {
-    if let envStr = ProcessInfo.processInfo.environment["TEST_SERVER_PORT"],
-      let port = Int(envStr)
-    {
-      return port
-    }
-    return 1443
+    IntegrationTestEnvironment.process.defaultTestServerPort
   }
 
   /// The default port number used by `test-server` for Firebase AI Logic requests.
   package var defaultTestServerFirebasePort: Int {
-    if let fbStr = ProcessInfo.processInfo.environment["TEST_SERVER_FIREBASE_PORT"],
-      let port = Int(fbStr)
-    {
-      return port
-    }
-    if let envStr = ProcessInfo.processInfo.environment["TEST_SERVER_PORT"],
-      let port = Int(envStr)
-    {
-      return port + 1
-    }
-    return 1444
+    IntegrationTestEnvironment.process.defaultTestServerFirebasePort
   }
 
   private final class TestServerStatusCache: @unchecked Sendable {
