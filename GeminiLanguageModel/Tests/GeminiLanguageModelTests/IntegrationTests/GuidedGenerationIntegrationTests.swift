@@ -22,7 +22,11 @@
   @testable import GeminiLanguageModel
 
   /// Integration tests for guided generation (structured output) using `GeminiLanguageModel`.
-  @Suite("Guided Generation Integration Tests", .requireFoundationModels)
+  @Suite(
+    "Guided Generation Integration Tests",
+    .requireFoundationModels,
+    .tags(.integration)
+  )
   struct GuidedGenerationIntegrationTests {
     @Generable(description: "A summary of a city")
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
@@ -33,7 +37,6 @@
     }
 
     @Test(
-      .tags(.integration),
       .requireIntegrationTestingBackend,
       arguments: IntegrationTestingBackend.availableBackends
     )
@@ -54,11 +57,7 @@
       #expect(response.usage.output.totalTokenCount > 0)
     }
 
-    @Test(
-      .tags(.integration),
-      .requireIntegrationTestingBackend,
-      arguments: IntegrationTestingBackend.availableBackends
-    )
+    @Test(.requireIntegrationTestingBackend, arguments: IntegrationTestingBackend.availableBackends)
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
     func sessionStreamResponseWithSchema(backend: IntegrationTestingBackend) async throws {
       let model = try await backend.makeModel()
@@ -100,11 +99,7 @@
       var priority: TicketPriority
     }
 
-    @Test(
-      .tags(.integration),
-      .requireIntegrationTestingBackend,
-      arguments: IntegrationTestingBackend.availableBackends
-    )
+    @Test(.requireIntegrationTestingBackend, arguments: IntegrationTestingBackend.availableBackends)
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
     func sessionRespondWithEnumClassification(backend: IntegrationTestingBackend) async throws {
       let model = try await backend.makeModel()
@@ -137,11 +132,7 @@
       var subteams: [OrganizationNode]
     }
 
-    @Test(
-      .tags(.integration),
-      .requireIntegrationTestingBackend,
-      arguments: IntegrationTestingBackend.availableBackends
-    )
+    @Test(.requireIntegrationTestingBackend, arguments: IntegrationTestingBackend.availableBackends)
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
     func sessionRespondWithRecursiveHierarchy(backend: IntegrationTestingBackend) async throws {
       let model = try await backend.makeModel()
