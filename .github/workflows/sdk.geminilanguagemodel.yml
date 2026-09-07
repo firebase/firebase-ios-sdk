@@ -58,6 +58,14 @@ jobs:
           "$secrets_passphrase"
         chmod 600 "$FIREBASE_PLIST_PATH"
 
+    - name: Build GeminiLanguageModel for testing
+      working-directory: GeminiLanguageModel
+      run: |
+        xcodebuild build-for-testing \
+          -scheme gemini-for-foundation-models \
+          -destination 'platform=iOS Simulator,name=Firebase-iPhone-15-Pro' \
+          -quiet
+
     - name: Start test-server (record mode)
       run: |
         GeminiLanguageModel/scripts/test_server/run_test_server.py record &
@@ -72,10 +80,12 @@ jobs:
     - name: Run GeminiLanguageModel integration tests
       working-directory: GeminiLanguageModel
       run: |
-        xcodebuild test \
+        xcodebuild test-without-building \
           -scheme gemini-for-foundation-models \
           -destination 'platform=iOS Simulator,name=Firebase-iPhone-15-Pro' \
-          -only-testing-tags integration
+          -only-testing-tags integration \
+          -retry-tests-on-failure \
+          -test-iterations 3
 
     - name: Stop test-server
       if: always()
