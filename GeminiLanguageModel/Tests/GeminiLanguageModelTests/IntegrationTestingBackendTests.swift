@@ -54,6 +54,12 @@ struct IntegrationTestingBackendTests {
   }
 
   @Test
+  func integrationBackendErrorDescription() {
+    let error = IntegrationBackendError.missingCredential("testField")
+    #expect(error.errorDescription == "Missing required integration test credential: testField")
+  }
+
+  @Test
   func credentialsResolvedFromPlistPath() throws {
     let tempDir = FileManager.default.temporaryDirectory
     let tempPlistURL = tempDir.appendingPathComponent(

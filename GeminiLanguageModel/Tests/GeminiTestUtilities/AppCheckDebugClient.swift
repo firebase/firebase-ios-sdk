@@ -147,9 +147,9 @@ extension AppCheckDebugClient {
 
 /// An in-memory cache for `AppCheckDebugClient` instances across integration tests.
 ///
-/// Deduplicates token exchange requests and manages client instances keyed by `projectID:appID`
-/// so tokens can be reused across parameterized or concurrent test cases without hitting the
-/// exchange endpoint repeatedly.
+/// Deduplicates token exchange requests and manages client instances keyed by
+/// `projectID:appID:apiKey:debugToken` so tokens can be reused across parameterized or concurrent
+/// test cases without hitting the exchange endpoint repeatedly.
 @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
 package actor AppCheckTokenCache {
   package static let shared = AppCheckTokenCache()
@@ -162,7 +162,7 @@ package actor AppCheckTokenCache {
     apiKey: String,
     debugToken: String
   ) async throws -> String {
-    let key = "\(projectID):\(appID)"
+    let key = "\(projectID):\(appID):\(apiKey):\(debugToken)"
     let client: AppCheckDebugClient
     if let existing = clients[key] {
       client = existing

@@ -107,7 +107,7 @@
         )
 
       case .firebaseAILogicDeveloperAPI:
-        let projectID = try #require(firebaseProjectID)
+        let projectID = try resolveProjectID()
         return ModelResource(
           modelID: modelID,
           urlResourceName: "projects/\(projectID)/models/\(modelID)",
@@ -115,7 +115,7 @@
         )
 
       case .firebaseAILogicAgentPlatform(let location):
-        let projectID = try #require(firebaseProjectID)
+        let projectID = try resolveProjectID()
         let resourcePath =
           "projects/\(projectID)/locations/\(location)/publishers/google/models/\(modelID)"
         return ModelResource(
@@ -139,10 +139,16 @@
         return nil
 
       case .firebaseAILogicDeveloperAPI, .firebaseAILogicAgentPlatform:
-        let projectID = try #require(firebaseProjectID)
-        let appID = try #require(firebaseAppID)
-        let apiKey = try #require(firebaseAPIKey)
-        let debugToken = try #require(appCheckDebugToken)
+        let projectID = try resolveProjectID()
+        guard let appID = firebaseAppID else {
+          throw IntegrationBackendError.missingCredential("firebaseAppID")
+        }
+        guard let apiKey = firebaseAPIKey else {
+          throw IntegrationBackendError.missingCredential("firebaseAPIKey")
+        }
+        guard let debugToken = appCheckDebugToken else {
+          throw IntegrationBackendError.missingCredential("appCheckDebugToken")
+        }
         let appCheckToken = try await AppCheckTokenCache.shared.token(
           projectID: projectID,
           appID: appID,
@@ -155,6 +161,27 @@
             "x-firebase-appcheck": appCheckToken,
           ]
         }
+      }
+    }
+
+    private func resolveProjectID() throws -> String {
+      guard let projectID = firebaseProjectID else {
+        throw IntegrationBackendError.missingCredential("firebaseProjectID")
+      }
+      return projectID
+    }
+  }
+
+  // MARK: - Backend Errors
+
+  /// Errors thrown when configuring integration testing backends.
+  package enum IntegrationBackendError: Error, LocalizedError, Sendable {
+    case missingCredential(String)
+
+    package var errorDescription: String? {
+      switch self {
+      case .missingCredential(let name):
+        return "Missing required integration test credential: \(name)"
       }
     }
   }

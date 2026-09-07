@@ -28,9 +28,8 @@ package struct IntegrationTestEnvironment: Sendable {
 
   /// An instance backed by the current process environment
   /// (`ProcessInfo.processInfo.environment`).
-  package static var process: IntegrationTestEnvironment {
+  package static let process =
     IntegrationTestEnvironment(variables: ProcessInfo.processInfo.environment)
-  }
 
   /// Creates an environment instance with the specified variables.
   ///
