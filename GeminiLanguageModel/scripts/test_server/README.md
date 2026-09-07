@@ -42,7 +42,11 @@ export GEMINI_API_KEY="your-api-key"
 Then run the integration tests:
 
 ```bash
-swift test --filter BasicContentGenerationIntegrationTests
+# Run all integration tests:
+swift test --filter IntegrationTests
+
+# Or run a specific suite (e.g. tool calling):
+swift test --filter ToolCallingIntegrationTests
 ```
 
 The test runner will detect `test-server` on port 1443 and route requests
@@ -62,7 +66,11 @@ To run tests deterministically without remote credentials or internet access:
 In another terminal, run tests:
 
 ```bash
-swift test --filter BasicContentGenerationIntegrationTests
+# Run all integration tests:
+swift test --filter IntegrationTests
+
+# Or run a specific suite (e.g. tool calling):
+swift test --filter ToolCallingIntegrationTests
 ```
 
 ### 3. Project ID redaction for Firebase AI Logic & Agent Platform

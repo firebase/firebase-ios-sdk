@@ -6,12 +6,18 @@ Gemini backends using recorded HTTP interactions or direct remote connections.
 ## Quick Start
 
 ```bash
-# Run content generation integration tests
-swift test --filter BasicContentGenerationIntegrationTests
+# Run all integration tests (automatically enabled/skipped by .requireIntegrationTestingBackend)
+swift test --filter IntegrationTests
+
+# Run a specific integration test suite
+swift test --filter ToolCallingIntegrationTests
+
+# Run all unit tests (fast, skips all integration tests)
+swift test --skip Integration
 
 # Run without remote credentials or internet (requires test-server in replay mode)
 ./scripts/test_server/run_test_server.sh replay
-swift test --filter BasicContentGenerationIntegrationTests
+swift test --filter IntegrationTests
 ```
 
 ## Dual-Mode Execution
@@ -57,6 +63,11 @@ All integration tests are parameterized across
   Parameterized integration tests for guided generation (structured outputs)
   using `@Generable` types, including single-turn and streaming generation,
   enum classification, and rich multi-type recursive hierarchies.
+* [`ToolCallingIntegrationTests.swift`](ToolCallingIntegrationTests.swift):
+  Parameterized integration tests for tool calling (function calling) using
+  FoundationModels `Tool` definitions, covering single-turn tool calls,
+  sequential tool calls, parallel tool calls, tool calling mode configuration,
+  parameterless tools with empty arguments, and reasoning models.
 * [`IntegrationTestingBackend+GeminiLanguageModel.swift`](IntegrationTestingBackend+GeminiLanguageModel.swift):
   Convenience extension providing `backend.makeModel()` to instantiate a
   pre-configured `GeminiLanguageModel`.
@@ -85,4 +96,4 @@ struct MyNewFeatureIntegrationTests {
 
 > [!NOTE]
 > For instructions on starting `test-server` or recording new interactions,
-> see the [`test_server` Documentation](../../scripts/test_server/README.md).
+> see the [`test_server` Documentation](../../../scripts/test_server/README.md).
