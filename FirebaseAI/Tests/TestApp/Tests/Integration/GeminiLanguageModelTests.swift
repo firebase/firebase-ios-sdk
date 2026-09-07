@@ -72,5 +72,55 @@
       #expect(cat.age >= 0 && cat.age <= 20)
       #expect(!cat.profile.isEmpty)
     }
+
+    @available(iOS 27.0, macOS 27.0, visionOS 27.0, *)
+    struct GetTemperature: FoundationModels.Tool {
+      let description = "Returns the current temperature for the specified location."
+
+      @Generable
+      struct Location {
+        let city: String
+      }
+
+      @Generable
+      struct Temperature {
+        let value: Double
+      }
+
+      func call(arguments: Location) async throws -> Temperature {
+        return Temperature(value: 25.0)
+      }
+    }
+
+    @Test(arguments: InstanceConfig.defaultConfigs)
+    @available(iOS 27.0, macOS 27.0, visionOS 27.0, *)
+    func testToolCalling(_ config: InstanceConfig) async throws {
+      let ai = FirebaseAI.componentInstance(config)
+      let model = ai.geminiLanguageModel(name: ModelNames.gemini3_1_FlashLite)
+      let session = LanguageModelSession(model: model, tools: [GetTemperature()])
+
+      let response = try await session.respond(to: "What is the temperature in San Francisco?")
+      let content = response.content
+      #expect(!content.isEmpty)
+      #expect(content.contains("25"))
+    }
+
+    @Test(arguments: InstanceConfig.defaultConfigs)
+    @available(iOS 27.0, macOS 27.0, visionOS 27.0, *)
+    func testToolCallingDisallowed(_ config: InstanceConfig) async throws {
+      let ai = FirebaseAI.componentInstance(config)
+      let model = ai.geminiLanguageModel(name: ModelNames.gemini3_1_FlashLite)
+      let session = LanguageModelSession(model: model, tools: [GetTemperature()])
+
+      let response = try await session.respond(
+        to: "What is the temperature in San Francisco?",
+        options: GenerationOptions(
+          toolCallingMode: .disallowed
+        )
+      )
+      let content = response.content
+      #expect(!content.isEmpty)
+      #expect(!content.contains("25"))
+    }
   }
 #endif // compiler(>=6.4) && canImport(FoundationModels) && canImport(GeminiLanguageModel)

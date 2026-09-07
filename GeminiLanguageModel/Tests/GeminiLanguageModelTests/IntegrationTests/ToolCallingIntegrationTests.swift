@@ -22,7 +22,11 @@
   @testable import GeminiLanguageModel
 
   /// Integration tests for tool calling using `GeminiLanguageModel`.
-  @Suite("Tool Calling Integration Tests", .requireFoundationModels)
+  @Suite(
+    "Tool Calling Integration Tests",
+    .requireFoundationModels,
+    .tags(.integration)
+  )
   struct ToolCallingIntegrationTests {
     /// A tool that provides mock weather information for a given city.
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
@@ -62,11 +66,9 @@
     }
 
     @Test(
-      .tags(.integration),
       .requireIntegrationTestingBackend,
       arguments: IntegrationTestingBackend.availableBackends
     )
-
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
     func sessionRespondSingleToolCall(backend: IntegrationTestingBackend) async throws {
       let model = try await backend.makeModel()
@@ -98,7 +100,6 @@
     }
 
     @Test(
-      .tags(.integration),
       .requireIntegrationTestingBackend,
       arguments: IntegrationTestingBackend.availableBackends
     )
@@ -131,11 +132,9 @@
     }
 
     @Test(
-      .tags(.integration),
       .requireIntegrationTestingBackend,
       arguments: IntegrationTestingBackend.availableBackends
     )
-
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
     func sessionRespondSequentialToolCalls(backend: IntegrationTestingBackend) async throws {
       let model = try await backend.makeModel()
@@ -161,7 +160,6 @@
     }
 
     @Test(
-      .tags(.integration),
       .requireIntegrationTestingBackend,
       arguments: IntegrationTestingBackend.availableBackends
     )
@@ -188,7 +186,6 @@
     }
 
     @Test(
-      .tags(.integration),
       .requireIntegrationTestingBackend,
       arguments: IntegrationTestingBackend.availableBackends
     )
@@ -216,7 +213,6 @@
     }
 
     @Test(
-      .tags(.integration),
       .requireIntegrationTestingBackend,
       arguments: IntegrationTestingBackend.availableBackends
     )
