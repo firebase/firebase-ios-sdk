@@ -22,8 +22,19 @@
   package import FoundationNetworking
 #endif
 
-/// Lightweight actor client for exchanging and caching an App Check Debug Token in integration
-/// tests.
+/// Lightweight client for exchanging and caching App Check debug tokens in integration tests.
+///
+/// The full `FirebaseAppCheck` SDK relies on Keychain access to persist tokens, which is
+/// unavailable when running tests in a headless environment outside an application bundle host
+/// (such as executing `swift test` directly from the command line).
+///
+/// This client directly queries the Firebase App Check REST API
+/// (`projects/{projectID}/apps/{appID}:exchangeDebugToken`) using standard `URLSession` and
+/// retains tokens in-memory.
+///
+/// Unlike the production SDK, token expiration is intentionally not tracked because integration
+/// test suites complete in seconds, well within the standard token validity window. This allows
+/// standalone Swift Package tests to run quickly without requiring an application host wrapper.
 @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
 package actor AppCheckDebugClient {
   private let projectID: String
@@ -31,6 +42,7 @@ package actor AppCheckDebugClient {
   private let apiKey: String
   private let debugToken: String
 
+  // Token expiration is intentionally not tracked; test suites complete well within token TTL.
   private var cachedToken: String?
   private var inFlightExchangeTask: Task<String, any Error>?
   private static let baseURL = URL(string: "https://firebaseappcheck.googleapis.com")!
@@ -59,6 +71,8 @@ package actor AppCheckDebugClient {
   }
 
   /// Exchanges the debug token for an App Check token, caching the result in-memory.
+  ///
+  /// Token expiration is not tracked as test suites finish well within the token's validity window.
   ///
   /// - Parameters:
   ///   - session: The `URLSession` to use. Defaults to `.shared`.
@@ -131,9 +145,11 @@ extension AppCheckDebugClient {
   }
 }
 
-// MARK: - Token Cache
-
-/// Cache for `AppCheckDebugClient` instances across integration tests.
+/// An in-memory cache for `AppCheckDebugClient` instances across integration tests.
+///
+/// Deduplicates token exchange requests and manages client instances keyed by `projectID:appID`
+/// so tokens can be reused across parameterized or concurrent test cases without hitting the
+/// exchange endpoint repeatedly.
 @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
 package actor AppCheckTokenCache {
   package static let shared = AppCheckTokenCache()
