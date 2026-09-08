@@ -140,7 +140,7 @@ def sync_firestore(test_only)
       # helpful.
       '-Werror',
 
-      # Ignore deprecated declaration warnings in third-party headers (such as gRPC 1.81.1)
+      # Ignore deprecated declaration warnings in third-party headers (such as gRPC 1.83.1)
       '-Wno-error=deprecated-declarations'
     ]
   }
