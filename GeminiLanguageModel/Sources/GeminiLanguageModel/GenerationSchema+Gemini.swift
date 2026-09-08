@@ -38,6 +38,8 @@
           assertionFailure("Unexpected empty coding path.")
           return SchemaCodingKey(stringValue: "")
         }
+        // Regex pattern guides encode with "pattern" as `lastKey` (e.g. `[<property>, "pattern"]`).
+        // Properties named "pattern" encode child keys under `pattern`, so they will not match.
         if lastKey.stringValue == "pattern" {
           hasPatternGuide.withLock { $0 = true }
         }

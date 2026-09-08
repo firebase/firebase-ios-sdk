@@ -277,6 +277,13 @@
       var pattern: String
     }
 
+    @Generable(description: "A nested data model with a pattern property")
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    @available(tvOS, unavailable)
+    struct NestedModelWithPatternProperty {
+      var child: DataModelWithPatternProperty
+    }
+
     @Generable(description: "A data model with a property named properties and a pattern guide")
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
     @available(tvOS, unavailable)
@@ -328,6 +335,24 @@
         return
       }
       #expect(propDict["pattern"] != nil)
+    }
+
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func schemaWithNestedPropertyNamedPatternEncodesSuccessfully() throws {
+      let schema = NestedModelWithPatternProperty.generationSchema
+
+      let jsonSchema = try schema.toGeminiJSONSchema()
+
+      let defs = try #require(jsonSchema["$defs"])
+      guard case .object(let defsDict) = defs,
+        case .object(let childDef) = try #require(defsDict["DataModelWithPatternProperty"]),
+        case .object(let childProps) = try #require(childDef["properties"])
+      else {
+        Issue.record("Expected $defs to contain DataModelWithPatternProperty.")
+        return
+      }
+      #expect(childProps["pattern"] != nil)
     }
   }
 #endif  // canImport(FoundationModels) && compiler(>=6.4)
