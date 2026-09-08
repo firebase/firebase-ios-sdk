@@ -54,7 +54,8 @@
     /// The capabilities supported by this language model.
     public var capabilities: LanguageModelCapabilities {
       LanguageModelCapabilities([
-        .reasoning
+        .guidedGeneration,
+        .reasoning,
       ])
     }
   }
