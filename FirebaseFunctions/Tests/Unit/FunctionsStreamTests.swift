@@ -45,7 +45,7 @@ import XCTest
       }
 
       MockURLProtocol.requestHandler = { request in
-        let validJSON = "{\"result\": \"Hello\"}"
+        let validJSON = "{\"message\": \"Hello\"}"
         let responseBody = String(repeating: "data: \(validJSON)\n\n", count: 1000)
         let response = HTTPURLResponse(
           url: request.url!,
@@ -68,6 +68,9 @@ import XCTest
         XCTestExpectation(description: "stopLoading should be called when task is cancelled")
       MockURLProtocol.stopLoadingExpectation = stopLoadingExpectation
 
+      let receivedFirstItemExpectation =
+        XCTestExpectation(description: "Stream should receive first item before cancellation")
+
       // Using test-specific initialization so we don't need a real FirebaseApp
       let functions = Functions(
         projectID: "test-project",
@@ -83,14 +86,16 @@ import XCTest
         do {
           let stream = try callable.stream()
           var iterator = stream.makeAsyncIterator()
-          _ = try await iterator.next()
+          let firstItem = try await iterator.next()
+          XCTAssertEqual(firstItem, "Hello")
+          receivedFirstItemExpectation.fulfill()
+          while try await iterator.next() != nil {}
         } catch {
           // We expect a cancellation error here.
         }
       }
 
-      // Give the stream a moment to initiate the URLSession request
-      try? await Task.sleep(nanoseconds: 100_000_000)
+      await fulfillment(of: [receivedFirstItemExpectation], timeout: 2.0)
 
       // Cancelling the consumer task should cascade down and stop the URLSession task,
       // which should trigger MockURLProtocol.stopLoading()
@@ -101,7 +106,7 @@ import XCTest
 
     func testStream_failure_midStreamError_throwsError() async throws {
       let expectedStatusCode = 200
-      let validJSON = "{\"result\": \"Hello\"}"
+      let validJSON = "{\"message\": \"Hello\"}"
       let responseBody = String(repeating: "data: \(validJSON)\n\n", count: 1000)
 
       let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
