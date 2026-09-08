@@ -567,6 +567,7 @@
 		4DC660A62BC2B6369DA5C563 /* status_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 54A0352C20A3B3D7003E0143 /* status_test.cc */; };
 		4DF18D15AC926FB7A4888313 /* lru_garbage_collector_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 277EAACC4DD7C21332E8496A /* lru_garbage_collector_test.cc */; };
 		4E0777435A9A26B8B2C08A1E /* remote_document_cache_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7EB299CF85034F09CFD6F3FD /* remote_document_cache_test.cc */; };
+		4E0C084C7949DAFD0A479A46 /* LargeDocIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09C4BFF13D17A37DDBAEDF9 /* LargeDocIntegrationTests.swift */; };
 		4E2E0314F9FDD7BCED60254A /* counting_query_engine.cc in Sources */ = {isa = PBXBuildFile; fileRef = 99434327614FEFF7F7DC88EC /* counting_query_engine.cc */; };
 		4E7981690432CDFA2058E3EC /* FSTTestingHooks.mm in Sources */ = {isa = PBXBuildFile; fileRef = D85AC18C55650ED230A71B82 /* FSTTestingHooks.mm */; };
 		4E8C2C4BA1C682418A379880 /* disjunctive_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 2BE59C9C2992E1A580D02935 /* disjunctive_test.cc */; };
@@ -1436,6 +1437,7 @@
 		BE767D2312D2BE84484309A0 /* event_manager_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 6F57521E161450FAF89075ED /* event_manager_test.cc */; };
 		BE869F90074A4B0B948A3D65 /* debug_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = F6DBD8EDF0074DD0079ECCE6 /* debug_test.cc */; };
 		BE92E16A9B9B7AD5EB072919 /* string_format_apple_test.mm in Sources */ = {isa = PBXBuildFile; fileRef = 9CFD366B783AE27B9E79EE7A /* string_format_apple_test.mm */; };
+		BED4503BF15EF8D3D7DD05E0 /* LargeDocIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09C4BFF13D17A37DDBAEDF9 /* LargeDocIntegrationTests.swift */; };
 		BEE0294A23AB993E5DE0E946 /* leveldb_util_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 332485C4DCC6BA0DBB5E31B7 /* leveldb_util_test.cc */; };
 		BEF0365AD2718B8B70715978 /* statusor_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 54A0352D20A3B3D7003E0143 /* statusor_test.cc */; };
 		BEF35ECEE80F9F5161E7743A /* filter_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = F02F734F272C3C70D1307076 /* filter_test.cc */; };
@@ -1689,6 +1691,7 @@
 		E6821243C510797EFFC7BCE2 /* grpc_streaming_reader_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = B6D964922154AB8F00EB9CFB /* grpc_streaming_reader_test.cc */; };
 		E688620D4578F1F7FBB1AF9C /* EncodableFieldValueTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1235769122B7E915007DDFA9 /* EncodableFieldValueTests.swift */; };
 		E6B825EE85BF20B88AF3E3CD /* memory_index_manager_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = DB5A1E760451189DA36028B3 /* memory_index_manager_test.cc */; };
+		E6D9ADF7CFD7049294312929 /* LargeDocIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09C4BFF13D17A37DDBAEDF9 /* LargeDocIntegrationTests.swift */; };
 		E6F8EB02A0E499F25160BB40 /* FIRFieldPathTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E04C202154AA00B64F25 /* FIRFieldPathTests.mm */; };
 		E72A77095FF6814267DF0F6D /* md5_testing.cc in Sources */ = {isa = PBXBuildFile; fileRef = E2E39422953DE1D3C7B97E77 /* md5_testing.cc */; };
 		E74D6C1056DE29969B5C4C62 /* md5_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 3D050936A2D52257FD17FB6E /* md5_test.cc */; };
@@ -2269,6 +2272,7 @@
 		AE89CFF09C6804573841397F /* leveldb_document_overlay_cache_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = leveldb_document_overlay_cache_test.cc; sourceTree = "<group>"; };
 		AF924C79F49F793992A84879 /* aggregate_query_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = aggregate_query_test.cc; path = api/aggregate_query_test.cc; sourceTree = "<group>"; };
 		B0520A41251254B3C24024A3 /* Validation_BloomFilterTest_MD5_5000_01_membership_test_result.json */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.json; name = Validation_BloomFilterTest_MD5_5000_01_membership_test_result.json; path = bloom_filter_golden_test_data/Validation_BloomFilterTest_MD5_5000_01_membership_test_result.json; sourceTree = "<group>"; };
+		B09C4BFF13D17A37DDBAEDF9 /* LargeDocIntegrationTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LargeDocIntegrationTests.swift; sourceTree = "<group>"; };
 		B32C2DDDEC16F6465317B8AE /* complex_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = complex_test.cc; path = pipeline/complex_test.cc; sourceTree = "<group>"; };
 		B37729DE4DE097CBBCB9B0DD /* error_handling_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = error_handling_test.cc; path = pipeline/error_handling_test.cc; sourceTree = "<group>"; };
 		B5C2A94EE24E60543F62CC35 /* bundle_serializer_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = bundle_serializer_test.cc; path = bundle/bundle_serializer_test.cc; sourceTree = "<group>"; };
@@ -2511,6 +2515,7 @@
 				124C932B22C1642C00CA8C2D /* CodableIntegrationTests.swift */,
 				3355BE9391CC4857AF0BDAE3 /* DatabaseTests.swift */,
 				62E54B832A9E910A003347C8 /* IndexingTests.swift */,
+				B09C4BFF13D17A37DDBAEDF9 /* LargeDocIntegrationTests.swift */,
 				59BF06E5A4988F9F949DD871 /* PipelineApiTests.swift */,
 				0ED12BF8159EA7E3EF208036 /* PipelineSubqueryTests.swift */,
 				861684E49DAC993D153E60D0 /* PipelineTests.swift */,
@@ -5012,6 +5017,7 @@
 				432056C4D1259F76C80FC2A8 /* FSTUserDataReaderTests.mm in Sources */,
 				3B1E27D951407FD237E64D07 /* FirestoreEncoderTests.swift in Sources */,
 				62E54B862A9E910B003347C8 /* IndexingTests.swift in Sources */,
+				E6D9ADF7CFD7049294312929 /* LargeDocIntegrationTests.swift in Sources */,
 				3D5F7AA7BB68529F47BE4B12 /* PipelineApiTests.swift in Sources */,
 				559205533927D064711DE290 /* PipelineSubqueryTests.swift in Sources */,
 				655F8647F57E5F2155DFF7B5 /* PipelineTests.swift in Sources */,
@@ -5213,8 +5219,8 @@
 				25D74F38A5EE96CC653ABB49 /* thread_safe_memoizer_testing.cc in Sources */,
 				688AC36AA9D0677E910D5A37 /* thread_safe_memoizer_testing_test.cc in Sources */,
 				6300709ECDE8E0B5A8645F8D /* time_testing.cc in Sources */,
-				A405A976DB6444D3ED3FCAB2 /* timestamp_test.cc in Sources */,
 				0CEE93636BA4852D3C5EC428 /* timestamp_test.cc in Sources */,
+				A405A976DB6444D3ED3FCAB2 /* timestamp_test.cc in Sources */,
 				95DCD082374F871A86EF905F /* to_string_apple_test.mm in Sources */,
 				9E656F4FE92E8BFB7F625283 /* to_string_test.cc in Sources */,
 				96D95E144C383459D4E26E47 /* token_test.cc in Sources */,
@@ -5297,6 +5303,7 @@
 				75A176239B37354588769206 /* FSTUserDataReaderTests.mm in Sources */,
 				5E89B1A5A5430713C79C4854 /* FirestoreEncoderTests.swift in Sources */,
 				62E54B852A9E910B003347C8 /* IndexingTests.swift in Sources */,
+				4E0C084C7949DAFD0A479A46 /* LargeDocIntegrationTests.swift in Sources */,
 				DF6FBE5BBD578B0DD34CEFA1 /* PipelineApiTests.swift in Sources */,
 				BC433C1588F1099308029C37 /* PipelineSubqueryTests.swift in Sources */,
 				C8C2B945D84DD98391145F3F /* PipelineTests.swift in Sources */,
@@ -5498,8 +5505,8 @@
 				CF18D52A88F4F6F62C5495EF /* thread_safe_memoizer_testing.cc in Sources */,
 				A7669E72BCED7FBADA4B1314 /* thread_safe_memoizer_testing_test.cc in Sources */,
 				A25FF76DEF542E01A2DF3B0E /* time_testing.cc in Sources */,
-				BDDAB87A7D76562BCB5D0BF8 /* timestamp_test.cc in Sources */,
 				1E42CD0F60EB22A5D0C86D1F /* timestamp_test.cc in Sources */,
+				BDDAB87A7D76562BCB5D0BF8 /* timestamp_test.cc in Sources */,
 				F9705E595FC3818F13F6375A /* to_string_apple_test.mm in Sources */,
 				3BAFCABA851AE1865D904323 /* to_string_test.cc in Sources */,
 				1B9E54F4C4280A713B825981 /* token_test.cc in Sources */,
@@ -5864,6 +5871,7 @@
 				F5BDECEB3B43BD1591EEADBD /* FSTUserDataReaderTests.mm in Sources */,
 				6F45846C159D3C063DBD3CBE /* FirestoreEncoderTests.swift in Sources */,
 				62E54B842A9E910B003347C8 /* IndexingTests.swift in Sources */,
+				BED4503BF15EF8D3D7DD05E0 /* LargeDocIntegrationTests.swift in Sources */,
 				BD74B0E1FC752236A7376BC3 /* PipelineApiTests.swift in Sources */,
 				2A9BED29CBDB9815B74506D5 /* PipelineSubqueryTests.swift in Sources */,
 				E04CB0D580980748D5DC453F /* PipelineTests.swift in Sources */,
@@ -6065,8 +6073,8 @@
 				D928302820891CCCAD0437DD /* thread_safe_memoizer_testing.cc in Sources */,
 				C099AEC05D44976755BA32A2 /* thread_safe_memoizer_testing_test.cc in Sources */,
 				2D220B9ABFA36CD7AC43D0A7 /* time_testing.cc in Sources */,
-				06B8A653BC26CB2C96024993 /* timestamp_test.cc in Sources */,
 				D91D86B29B86A60C05879A48 /* timestamp_test.cc in Sources */,
+				06B8A653BC26CB2C96024993 /* timestamp_test.cc in Sources */,
 				60260A06871DCB1A5F3448D3 /* to_string_apple_test.mm in Sources */,
 				ECED3B60C5718B085AAB14FB /* to_string_test.cc in Sources */,
 				F0EA84FB66813F2BC164EF7C /* token_test.cc in Sources */,
