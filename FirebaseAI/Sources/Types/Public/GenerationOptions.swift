@@ -127,13 +127,19 @@
         }
       }
 
+      var _sampling: GenerationOptions.SamplingMode?
+      var _temperature: Double?
+
       /// A sampling strategy for how the model picks tokens when generating a response.
       @available(
         *,
         deprecated,
         message: "Manually setting sampling mode is no longer recommended for Gemini 3.x models."
       )
-      public var sampling: GenerationOptions.SamplingMode?
+      public var sampling: GenerationOptions.SamplingMode? {
+        get { _sampling }
+        set { _sampling = newValue }
+      }
 
       /// Temperature influences the confidence of the model's response.
       @available(
@@ -141,7 +147,10 @@
         deprecated,
         message: "Manually setting temperature is no longer recommended for Gemini 3.x models."
       )
-      public var temperature: Double?
+      public var temperature: Double? {
+        get { _temperature }
+        set { _temperature = newValue }
+      }
 
       /// The maximum number of tokens the model is allowed to produce in its response.
       public var maximumResponseTokens: Int?
@@ -157,16 +166,16 @@
       )
       public init(sampling: GenerationOptions.SamplingMode? = nil, temperature: Double? = nil,
                   maximumResponseTokens: Int? = nil) {
-        self.sampling = sampling
-        self.temperature = temperature
+        _sampling = sampling
+        _temperature = temperature
         self.maximumResponseTokens = maximumResponseTokens
         _generationOptions = nil
       }
 
       /// Creates generation options that control token sampling behavior.
       public init(maximumResponseTokens: Int? = nil) {
-        sampling = nil
-        temperature = nil
+        _sampling = nil
+        _temperature = nil
         self.maximumResponseTokens = maximumResponseTokens
         _generationOptions = nil
       }
@@ -183,15 +192,15 @@
           _generationOptions = options
           // TODO: Remove `else` when Xcode 27 is the min. supported Xcode.
           #if compiler(>=6.4)
-            sampling = options.samplingMode.map {
+            _sampling = options.samplingMode.map {
               SamplingMode(kind: .foundationModelsSamplingMode($0))
             }
           #else
-            sampling = options.sampling.map {
+            _sampling = options.sampling.map {
               SamplingMode(kind: .foundationModelsSamplingMode($0))
             }
           #endif // compiler(>=6.4)
-          temperature = options.temperature
+          _temperature = options.temperature
           maximumResponseTokens = options.maximumResponseTokens
         }
 
@@ -206,14 +215,14 @@
           // TODO: Remove `else` when Xcode 27 is the min. supported Xcode.
           #if compiler(>=6.4)
             return FoundationModels.GenerationOptions(
-              samplingMode: sampling?.samplingMode,
-              temperature: temperature,
+              samplingMode: _sampling?.samplingMode,
+              temperature: _temperature,
               maximumResponseTokens: maximumResponseTokens
             )
           #else
             return FoundationModels.GenerationOptions(
-              sampling: sampling?.samplingMode,
-              temperature: temperature,
+              sampling: _sampling?.samplingMode,
+              temperature: _temperature,
               maximumResponseTokens: maximumResponseTokens
             )
           #endif // compiler(>=6.4)
@@ -230,8 +239,8 @@
           }
         #endif // canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
 
-        return lhs.sampling == rhs.sampling &&
-          lhs.temperature == rhs.temperature &&
+        return lhs._sampling == rhs._sampling &&
+          lhs._temperature == rhs._temperature &&
           lhs.maximumResponseTokens == rhs.maximumResponseTokens
       }
     }
