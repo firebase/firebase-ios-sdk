@@ -22,6 +22,7 @@
   @available(iOS 27.0, macOS 27.0, watchOS 27.0, visionOS 27.0, *)
   @available(tvOS, unavailable)
   public struct GeminiLanguageModel: Sendable {
+    /// A configuration for an executor capable of running this model.
     public let executorConfiguration: Executor.Configuration
 
     /// Initializes a new Gemini language model.
@@ -31,17 +32,20 @@
     ///   - endpointConfiguration: The network endpoint configuration.
     ///   - headerProvider: An optional async provider for dynamic headers (such as auth tokens).
     ///   - configuration: The `URLSessionConfiguration` to use. Defaults to `.ephemeral`.
+    ///   - thinking: An optional thinking configuration. Defaults to `nil`.
     package init(
       modelResource: ModelResource,
       endpointConfiguration: EndpointConfiguration,
       headerProvider: (@Sendable () async throws -> [String: String])? = nil,
-      configuration: URLSessionConfiguration = .ephemeral
+      configuration: URLSessionConfiguration = .ephemeral,
+      thinking: Thinking? = nil
     ) {
       executorConfiguration = Executor.Configuration(
         modelResource: modelResource,
         endpointConfiguration: endpointConfiguration,
         headerProvider: headerProvider.map { HeaderProvider($0) },
-        sessionConfiguration: configuration
+        sessionConfiguration: configuration,
+        thinking: thinking
       )
     }
   }

@@ -25,7 +25,8 @@
   @Suite(
     "Basic Content Generation Integration Tests",
     .requireFoundationModels,
-    .tags(.integration)
+    .tags(.integration),
+    .serialized
   )
   struct BasicContentGenerationIntegrationTests {
     @Test(

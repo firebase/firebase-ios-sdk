@@ -37,24 +37,8 @@
         /// The `URLSessionConfiguration` to use.
         let sessionConfiguration: URLSessionConfiguration
 
-        /// Initializes an executor configuration.
-        ///
-        /// - Parameters:
-        ///   - modelResource: The model resource configuration.
-        ///   - endpointConfiguration: The network endpoint configuration.
-        ///   - headerProvider: An optional async provider for dynamic headers.
-        ///   - sessionConfiguration: The `URLSessionConfiguration` to use.
-        init(
-          modelResource: ModelResource,
-          endpointConfiguration: EndpointConfiguration,
-          headerProvider: HeaderProvider?,
-          sessionConfiguration: URLSessionConfiguration
-        ) {
-          self.modelResource = modelResource
-          self.endpointConfiguration = endpointConfiguration
-          self.headerProvider = headerProvider
-          self.sessionConfiguration = sessionConfiguration
-        }
+        /// An optional thinking configuration.
+        let thinking: Thinking?
       }
 
       private let configuration: Configuration
@@ -79,7 +63,10 @@
         model: GeminiLanguageModel,
         streamingInto channel: LanguageModelExecutorGenerationChannel
       ) async throws {
-        let generateRequest = try GeminiRequestTranslator.translate(request)
+        let generateRequest = try GeminiRequestTranslator.translate(
+          request,
+          thinking: configuration.thinking
+        )
 
         let client = GeminiAPIClient(
           modelResource: configuration.modelResource,

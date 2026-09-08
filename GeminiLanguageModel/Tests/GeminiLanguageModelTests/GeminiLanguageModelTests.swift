@@ -485,6 +485,409 @@
       #expect(fr.response?["result"] == .string("12:00 PM"))
     }
 
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func sessionRespondWithThinkingSummariesIntoTranscript() async throws {
+      defer { MockHTTPURLProtocol.reset() }
+      let model = Self.makeMockModel(
+        thinking: GeminiLanguageModel.Thinking(summaries: .auto)
+      )
+      let expectedURL = try Self.makeExpectedStreamURL()
+      let httpResponse = try HTTPURLResponse.mock(
+        url: expectedURL,
+        headerFields: ["Content-Type": "text/event-stream"]
+      )
+      let ssePayload = """
+        data: {"candidates": [{"content": {"parts": [{"text": "I am thinking through the problem.", "thought": true}], "role": "model"}, "index": 0}]}
+
+        data: {"candidates": [{"content": {"parts": [{"text": "Here is the final answer."}], "role": "model"}, "finishReason": "STOP", "index": 0}]}
+
+        """
+      let receivedRequest = Mutex<GenerateContentRequest?>(nil)
+      MockHTTPURLProtocol.setHandler(for: expectedURL) { request, proto in
+        if let body = request.httpBodyData,
+          let decoded = try? JSONDecoder().decode(GenerateContentRequest.self, from: body)
+        {
+          receivedRequest.withLock { $0 = decoded }
+        }
+        proto.client?.urlProtocol(proto, didReceive: httpResponse, cacheStoragePolicy: .notAllowed)
+        proto.client?.urlProtocol(proto, didLoad: Data(ssePayload.utf8))
+        proto.client?.urlProtocolDidFinishLoading(proto)
+      }
+
+      let session = LanguageModelSession(model: model)
+
+      let response = try await session.respond(to: "Solve this problem")
+
+      #expect(response.content == "Here is the final answer.")
+      let capturedRequest = try #require(receivedRequest.withLock { $0 })
+      #expect(capturedRequest.generationConfig?.thinkingConfig?.includeThoughts == true)
+
+      let reasoningEntries = session.transcript.compactMap { entry -> Transcript.Reasoning? in
+        if case .reasoning(let reasoning) = entry {
+          return reasoning
+        }
+        return nil
+      }
+      #expect(reasoningEntries.count == 1)
+      let reasoning = try #require(reasoningEntries.first)
+      let reasoningText = reasoning.segments.compactMap { segment -> String? in
+        if case .text(let textSegment) = segment {
+          return textSegment.content
+        }
+        return nil
+      }.joined()
+      #expect(reasoningText == "I am thinking through the problem.")
+    }
+
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func sessionDynamicProfileWithGeminiThinkingAction() async throws {
+      defer { MockHTTPURLProtocol.reset() }
+      let model = Self.makeMockModel()
+      let expectedURL = try Self.makeExpectedStreamURL()
+      let httpResponse = try HTTPURLResponse.mock(
+        url: expectedURL,
+        headerFields: ["Content-Type": "text/event-stream"]
+      )
+      let ssePayload = """
+        data: {"candidates": [{"content": {"parts": [{"text": "Step 1. ", "thought": true}], "role": "model"}, "index": 0}]}
+
+        data: {"candidates": [{"content": {"parts": [{"text": "Step 2.", "thought": true}], "role": "model"}, "index": 0}]}
+
+        data: {"candidates": [{"content": {"parts": [{"text": "Done."}], "role": "model"}, "finishReason": "STOP", "index": 0}]}
+
+        """
+      MockHTTPURLProtocol.setHandler(for: expectedURL) { _, proto in
+        proto.client?.urlProtocol(proto, didReceive: httpResponse, cacheStoragePolicy: .notAllowed)
+        proto.client?.urlProtocol(proto, didLoad: Data(ssePayload.utf8))
+        proto.client?.urlProtocolDidFinishLoading(proto)
+      }
+
+      let observedThoughts = Mutex<[String]>([])
+      let profile = LanguageModelSession.Profile {
+        Instructions("You are a helpful assistant.")
+      }
+      .model(model)
+      .geminiThinking { summary in
+        observedThoughts.withLock { $0.append(summary) }
+      }
+      let session = LanguageModelSession(profile: profile)
+
+      let response = try await session.respond(to: "Think step by step")
+
+      #expect(response.content == "Done.")
+      let thoughts = observedThoughts.withLock { $0 }
+      #expect(thoughts == ["Step 1. Step 2."])
+    }
+
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func sessionRespondWithRequestMetadata() async throws {
+      defer { MockHTTPURLProtocol.reset() }
+      let model = Self.makeMockModel()
+      let expectedURL = try Self.makeExpectedStreamURL()
+      let httpResponse = try HTTPURLResponse.mock(
+        url: expectedURL,
+        headerFields: ["Content-Type": "text/event-stream"]
+      )
+      let ssePayload = """
+        data: {"candidates": [{"content": {"parts": [{"text": "Thoughts...", "thought": true}], "role": "model"}, "index": 0}]}
+
+        data: {"candidates": [{"content": {"parts": [{"text": "Direct answer."}], "role": "model"}, "finishReason": "STOP", "index": 0}]}
+
+        """
+      let receivedRequest = Mutex<GenerateContentRequest?>(nil)
+      MockHTTPURLProtocol.setHandler(for: expectedURL) { request, proto in
+        if let body = request.httpBodyData,
+          let decoded = try? JSONDecoder().decode(GenerateContentRequest.self, from: body)
+        {
+          receivedRequest.withLock { $0 = decoded }
+        }
+        proto.client?.urlProtocol(proto, didReceive: httpResponse, cacheStoragePolicy: .notAllowed)
+        proto.client?.urlProtocol(proto, didLoad: Data(ssePayload.utf8))
+        proto.client?.urlProtocolDidFinishLoading(proto)
+      }
+
+      let session = LanguageModelSession(model: model)
+
+      let response = try await session.respond(
+        metadata: .gemini(thinkingSummaries: .auto)
+      ) {
+        "Explain quantum computing"
+      }
+
+      #expect(response.content == "Direct answer.")
+      let capturedRequest = try #require(receivedRequest.withLock { $0 })
+      #expect(capturedRequest.generationConfig?.thinkingConfig?.includeThoughts == true)
+    }
+
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func sessionDynamicProfileWithGeminiThinkingModifier() async throws {
+      defer { MockHTTPURLProtocol.reset() }
+      let baseModel = Self.makeMockModel()
+      let expectedURL = try Self.makeExpectedStreamURL()
+      let httpResponse = try HTTPURLResponse.mock(
+        url: expectedURL,
+        headerFields: ["Content-Type": "text/event-stream"]
+      )
+      let ssePayload = """
+        data: {"candidates": [{"content": {"parts": [{"text": "Thinking...", "thought": true}], "role": "model"}, "index": 0}]}
+
+        data: {"candidates": [{"content": {"parts": [{"text": "Result."}], "role": "model"}, "finishReason": "STOP", "index": 0}]}
+
+        """
+      let receivedRequest = Mutex<GenerateContentRequest?>(nil)
+      MockHTTPURLProtocol.setHandler(for: expectedURL) { request, proto in
+        if let body = request.httpBodyData,
+          let decoded = try? JSONDecoder().decode(GenerateContentRequest.self, from: body)
+        {
+          receivedRequest.withLock { $0 = decoded }
+        }
+        proto.client?.urlProtocol(proto, didReceive: httpResponse, cacheStoragePolicy: .notAllowed)
+        proto.client?.urlProtocol(proto, didLoad: Data(ssePayload.utf8))
+        proto.client?.urlProtocolDidFinishLoading(proto)
+      }
+
+      let profile = LanguageModelSession.Profile {
+        Instructions("You are a helpful assistant.")
+      }
+      .model(baseModel)
+      .geminiThinking(summaries: .auto)
+      let session = LanguageModelSession(profile: profile)
+
+      let response = try await session.respond(to: "Hello")
+
+      #expect(response.content == "Result.")
+      let capturedRequest = try #require(receivedRequest.withLock { $0 })
+      #expect(capturedRequest.generationConfig?.thinkingConfig?.includeThoughts == true)
+    }
+
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func sessionDynamicProfileWithGeminiThinkingModifierMultiTurn() async throws {
+      defer { MockHTTPURLProtocol.reset() }
+      let baseModel = Self.makeMockModel()
+      let expectedURL = try Self.makeExpectedStreamURL()
+      let httpResponse = try HTTPURLResponse.mock(
+        url: expectedURL,
+        headerFields: ["Content-Type": "text/event-stream"]
+      )
+      let turn1SSE = """
+        data: {"candidates": [{"content": {"parts": [{"text": "Thinking 1...", "thought": true}], "role": "model"}, "index": 0}]}
+
+        data: {"candidates": [{"content": {"parts": [{"text": "Result 1."}], "role": "model"}, "finishReason": "STOP", "index": 0}]}
+
+        """
+      let turn2SSE = """
+        data: {"candidates": [{"content": {"parts": [{"text": "Thinking 2...", "thought": true}], "role": "model"}, "index": 0}]}
+
+        data: {"candidates": [{"content": {"parts": [{"text": "Result 2."}], "role": "model"}, "finishReason": "STOP", "index": 0}]}
+
+        """
+      let capturedRequests = Mutex<[GenerateContentRequest]>([])
+      let requestCount = Mutex(0)
+      MockHTTPURLProtocol.setHandler(for: expectedURL) { request, proto in
+        let count = requestCount.withLock { c -> Int in
+          c += 1
+          return c
+        }
+        if let body = request.httpBodyData,
+          let decoded = try? JSONDecoder().decode(GenerateContentRequest.self, from: body)
+        {
+          capturedRequests.withLock { $0.append(decoded) }
+        }
+        proto.client?.urlProtocol(proto, didReceive: httpResponse, cacheStoragePolicy: .notAllowed)
+        let payload = count == 1 ? turn1SSE : turn2SSE
+        proto.client?.urlProtocol(proto, didLoad: Data(payload.utf8))
+        proto.client?.urlProtocolDidFinishLoading(proto)
+      }
+
+      let profile = LanguageModelSession.Profile {
+        Instructions("You are a helpful assistant.")
+      }
+      .model(baseModel)
+      .geminiThinking(summaries: .auto)
+      let session = LanguageModelSession(profile: profile)
+
+      let res1 = try await session.respond(to: "First prompt")
+      #expect(res1.content == "Result 1.")
+
+      let res2 = try await session.respond(to: "Second prompt")
+      #expect(res2.content == "Result 2.")
+
+      let requests = capturedRequests.withLock { $0 }
+      #expect(requests.count == 2)
+      #expect(requests[0].generationConfig?.thinkingConfig?.includeThoughts == true)
+      #expect(requests[1].generationConfig?.thinkingConfig?.includeThoughts == true)
+    }
+
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func sessionDynamicProfileWithGeminiThinkingModifierOff() async throws {
+      defer { MockHTTPURLProtocol.reset() }
+      let baseModel = Self.makeMockModel(
+        thinking: GeminiLanguageModel.Thinking(summaries: .auto)
+      )
+      let expectedURL = try Self.makeExpectedStreamURL()
+      let httpResponse = try HTTPURLResponse.mock(
+        url: expectedURL,
+        headerFields: ["Content-Type": "text/event-stream"]
+      )
+      let ssePayload = """
+        data: {"candidates": [{"content": {"parts": [{"text": "Result without thoughts."}], "role": "model"}, "finishReason": "STOP", "index": 0}]}
+
+        """
+      let receivedRequest = Mutex<GenerateContentRequest?>(nil)
+      MockHTTPURLProtocol.setHandler(for: expectedURL) { request, proto in
+        if let body = request.httpBodyData,
+          let decoded = try? JSONDecoder().decode(GenerateContentRequest.self, from: body)
+        {
+          receivedRequest.withLock { $0 = decoded }
+        }
+        proto.client?.urlProtocol(proto, didReceive: httpResponse, cacheStoragePolicy: .notAllowed)
+        proto.client?.urlProtocol(proto, didLoad: Data(ssePayload.utf8))
+        proto.client?.urlProtocolDidFinishLoading(proto)
+      }
+
+      let profile = LanguageModelSession.Profile {
+        Instructions("You are a helpful assistant.")
+      }
+      .model(baseModel)
+      .geminiThinking(summaries: .off)
+      let session = LanguageModelSession(profile: profile)
+
+      let response = try await session.respond(to: "Hello")
+
+      #expect(response.content == "Result without thoughts.")
+      let capturedRequest = try #require(receivedRequest.withLock { $0 })
+      #expect(capturedRequest.generationConfig?.thinkingConfig?.includeThoughts == false)
+    }
+
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func responseGeminiThoughtSummary() async throws {
+      defer { MockHTTPURLProtocol.reset() }
+      let model = Self.makeMockModel()
+      let expectedURL = try Self.makeExpectedStreamURL()
+      let httpResponse = try HTTPURLResponse.mock(
+        url: expectedURL,
+        headerFields: ["Content-Type": "text/event-stream"]
+      )
+      let ssePayload = """
+        data: {"candidates": [{"content": {"parts": [{"text": "Deep thinking step 1...", "thought": true}], "role": "model"}, "index": 0}]}
+
+        data: {"candidates": [{"content": {"parts": [{"text": "Deep thinking step 2...", "thought": true}], "role": "model"}, "index": 0}]}
+
+        data: {"candidates": [{"content": {"parts": [{"text": "Final answer."}], "role": "model"}, "finishReason": "STOP", "index": 0}]}
+
+        """
+      MockHTTPURLProtocol.setHandler(for: expectedURL) { request, proto in
+        proto.client?.urlProtocol(proto, didReceive: httpResponse, cacheStoragePolicy: .notAllowed)
+        proto.client?.urlProtocol(proto, didLoad: Data(ssePayload.utf8))
+        proto.client?.urlProtocolDidFinishLoading(proto)
+      }
+
+      let session = LanguageModelSession(model: model)
+      let response = try await session.respond(to: "Solve problem")
+
+      #expect(response.content == "Final answer.")
+      #expect(response.geminiThoughtSummary == "Deep thinking step 1...Deep thinking step 2...")
+      #expect(
+        session.transcript.geminiThoughtSummary == "Deep thinking step 1...Deep thinking step 2..."
+      )
+    }
+
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func snapshotGeminiThoughtSummary() async throws {
+      defer { MockHTTPURLProtocol.reset() }
+      let model = Self.makeMockModel()
+      let expectedURL = try Self.makeExpectedStreamURL()
+      let httpResponse = try HTTPURLResponse.mock(
+        url: expectedURL,
+        headerFields: ["Content-Type": "text/event-stream"]
+      )
+      let ssePayload = """
+        data: {"candidates": [{"content": {"parts": [{"text": "Thinking in stream...", "thought": true}], "role": "model"}, "index": 0}]}
+
+        data: {"candidates": [{"content": {"parts": [{"text": "Streaming answer."}], "role": "model"}, "finishReason": "STOP", "index": 0}]}
+
+        """
+      MockHTTPURLProtocol.setHandler(for: expectedURL) { request, proto in
+        proto.client?.urlProtocol(proto, didReceive: httpResponse, cacheStoragePolicy: .notAllowed)
+        proto.client?.urlProtocol(proto, didLoad: Data(ssePayload.utf8))
+        proto.client?.urlProtocolDidFinishLoading(proto)
+      }
+
+      let session = LanguageModelSession(model: model)
+      let stream = session.streamResponse(to: "Stream with thoughts")
+
+      var lastThoughtSummary: String?
+      for try await snapshot in stream {
+        if let thought = snapshot.geminiThoughtSummary {
+          lastThoughtSummary = thought
+        }
+      }
+
+      #expect(lastThoughtSummary == "Thinking in stream...")
+    }
+
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func sessionPropertiesGeminiThoughtSummary() async throws {
+      defer { MockHTTPURLProtocol.reset() }
+      let baseModel = Self.makeMockModel()
+      let expectedURL = try Self.makeExpectedStreamURL()
+      let httpResponse = try HTTPURLResponse.mock(
+        url: expectedURL,
+        headerFields: ["Content-Type": "text/event-stream"]
+      )
+      let turn1SSE = """
+        data: {"candidates": [{"content": {"parts": [{"text": "Thought for turn 1", "thought": true}], "role": "model"}, "index": 0}]}
+
+        data: {"candidates": [{"content": {"parts": [{"text": "Response 1."}], "role": "model"}, "finishReason": "STOP", "index": 0}]}
+
+        """
+      let turn2SSE = """
+        data: {"candidates": [{"content": {"parts": [{"text": "Thought for turn 2", "thought": true}], "role": "model"}, "index": 0}]}
+
+        data: {"candidates": [{"content": {"parts": [{"text": "Response 2."}], "role": "model"}, "finishReason": "STOP", "index": 0}]}
+
+        """
+      let requestCount = Mutex(0)
+      MockHTTPURLProtocol.setHandler(for: expectedURL) { request, proto in
+        let count = requestCount.withLock { c -> Int in
+          c += 1
+          return c
+        }
+        proto.client?.urlProtocol(proto, didReceive: httpResponse, cacheStoragePolicy: .notAllowed)
+        let payload = count == 1 ? turn1SSE : turn2SSE
+        proto.client?.urlProtocol(proto, didLoad: Data(payload.utf8))
+        proto.client?.urlProtocolDidFinishLoading(proto)
+      }
+
+      let profile = LanguageModelSession.Profile {
+        Instructions("You are a helpful assistant.")
+      }
+      .model(baseModel)
+      .geminiThinking(summaries: .auto)
+      let session = LanguageModelSession(profile: profile)
+
+      #expect(session.properties.geminiThoughtSummary == nil)
+
+      let res1 = try await session.respond(to: "First")
+      #expect(res1.content == "Response 1.")
+      #expect(res1.geminiThoughtSummary == "Thought for turn 1")
+      #expect(session.properties.geminiThoughtSummary == "Thought for turn 1")
+
+      let res2 = try await session.respond(to: "Second")
+      #expect(res2.content == "Response 2.")
+      #expect(res2.geminiThoughtSummary == "Thought for turn 2")
+      #expect(session.properties.geminiThoughtSummary == "Thought for turn 2")
+    }
+
     // MARK: - Helper Methods
 
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
@@ -492,7 +895,8 @@
     private static func makeMockModel(
       modelResource: ModelResource = .gemini38Flash,
       endpointConfiguration: EndpointConfiguration = .geminiDeveloperAPI,
-      headerProvider: (@Sendable () async throws -> [String: String])? = nil
+      headerProvider: (@Sendable () async throws -> [String: String])? = nil,
+      thinking: GeminiLanguageModel.Thinking? = nil
     ) -> GeminiLanguageModel {
       let configuration = URLSessionConfiguration.ephemeral
       configuration.protocolClasses = [MockHTTPURLProtocol.self]
@@ -500,7 +904,8 @@
         modelResource: modelResource,
         endpointConfiguration: endpointConfiguration,
         headerProvider: headerProvider,
-        configuration: configuration
+        configuration: configuration,
+        thinking: thinking
       )
     }
 

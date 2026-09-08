@@ -50,21 +50,13 @@ All integration tests are parameterized across
 
 ## Files in this Directory
 
-* [`BasicContentGenerationIntegrationTests.swift`](BasicContentGenerationIntegrationTests.swift):
-  Parameterized integration tests for single-turn prompt response, multi-turn
-  chat sessions, and streaming chunk responses.
-* [`GuidedGenerationIntegrationTests.swift`](GuidedGenerationIntegrationTests.swift):
-  Parameterized integration tests for guided generation (structured outputs)
-  using `@Generable` types, including single-turn and streaming generation,
-  enum classification, and rich multi-type recursive hierarchies.
-* [`ToolCallingIntegrationTests.swift`](ToolCallingIntegrationTests.swift):
-  Parameterized integration tests for tool calling (function calling) using
-  FoundationModels `Tool` definitions, covering single-turn tool calls,
-  sequential tool calls, parallel tool calls, tool calling mode configuration,
-  parameterless tools with empty arguments, and reasoning models.
-* [`IntegrationTestingBackend+GeminiLanguageModel.swift`](IntegrationTestingBackend+GeminiLanguageModel.swift):
-  Convenience extension providing `backend.makeModel()` to instantiate a
-  pre-configured `GeminiLanguageModel`.
+| File | Description |
+|---|---|
+| [`BasicContentGenerationIntegrationTests.swift`](BasicContentGenerationIntegrationTests.swift) | Parameterized integration tests for single-turn prompt response, multi-turn chat sessions, and streaming chunk responses. |
+| [`GuidedGenerationIntegrationTests.swift`](GuidedGenerationIntegrationTests.swift) | Parameterized integration tests for guided generation (structured outputs) using `@Generable` types, including single-turn and streaming generation, enum classification, and rich multi-type recursive hierarchies. |
+| [`ToolCallingIntegrationTests.swift`](ToolCallingIntegrationTests.swift) | Parameterized integration tests for tool calling (function calling) using FoundationModels `Tool` definitions, covering single-turn tool calls, sequential tool calls, parallel tool calls, tool calling mode configuration, parameterless tools with empty arguments, and reasoning models. |
+| [`ReasoningIntegrationTests.swift`](ReasoningIntegrationTests.swift) | Parameterized integration tests for model reasoning and thought summaries, validating default thought summary generation (`Thinking(summaries: .auto)`), dynamic profile session properties (`session.properties.geminiThoughtSummary`), `response.geminiThoughtSummary`, and per-turn request metadata (`metadata: .gemini(...)`). |
+| [`IntegrationTestingBackend+GeminiLanguageModel.swift`](IntegrationTestingBackend+GeminiLanguageModel.swift) | Convenience extension providing `backend.makeModel()` to instantiate a pre-configured `GeminiLanguageModel`, with optional `thinking:` configuration. |
 
 ## Writing New Integration Tests
 

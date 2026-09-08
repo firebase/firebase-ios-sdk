@@ -25,7 +25,8 @@
   @Suite(
     "Tool Calling Integration Tests",
     .requireFoundationModels,
-    .tags(.integration)
+    .tags(.integration),
+    .serialized
   )
   struct ToolCallingIntegrationTests {
     /// A tool that provides mock weather information for a given city.
