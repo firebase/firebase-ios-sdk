@@ -170,9 +170,9 @@ public struct PipelineSource: @unchecked Sendable {
   ///     ["id": "user_2", "status": "Pending"]
   ///   )
   ///   .upsert(
-  ///     [Field("status").as("accountStatus")],
   ///     collectionPath: "users",
-  ///     documentIdExpression: Field("id")
+  ///     documentIdExpression: Field("id"),
+  ///     additionalFields: [Field("status").as("accountStatus")]
   ///   )
   ///   .execute()
   /// ```

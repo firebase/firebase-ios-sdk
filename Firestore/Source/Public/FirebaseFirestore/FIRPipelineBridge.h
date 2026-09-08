@@ -255,9 +255,9 @@ NS_SWIFT_NAME(__InsertStageBridge)
 NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(__UpsertStageBridge)
 @interface __FIRUpsertStageBridge : FIRStageBridge
-- (id)initWithFields:(NSDictionary<NSString *, FIRExprBridge *> *)fields
-       collectionPath:(NSString *_Nullable)collectionPath
- documentIdExpression:(FIRExprBridge *_Nullable)documentIdExpression;
+- (id)initWithAdditionalFields:(NSDictionary<NSString *, FIRExprBridge *> *)additionalFields
+                collectionPath:(NSString *_Nullable)collectionPath
+          documentIdExpression:(FIRExprBridge *_Nullable)documentIdExpression;
 @end
 
 NS_SWIFT_SENDABLE

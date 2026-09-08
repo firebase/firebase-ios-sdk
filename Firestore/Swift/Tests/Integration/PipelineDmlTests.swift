@@ -84,17 +84,17 @@ class PipelineDmlTests: FSTIntegrationTestCase {
     XCTAssertNotNil(snapshot)
   }
 
-  // Test 5: Upsert (insert) a new document if it does not exist
+  // Test 5: Upsert (insert) a new document using document reference
   func testUpsertInsertsNewDocument() async throws {
     let collRef = collectionRef()
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
       .documents([collRef.document("new_upsert_doc")])
-      .upsert([
+      .upsert(
         Expression.constant("New Upserted Title").as("title"),
         Expression.constant("Sci-Fi").as("genre")
-      ])
+      )
 
     let snapshot = try await pipeline.execute(options: .init(isAtomic: true))
     XCTAssertNotNil(snapshot)
@@ -129,9 +129,9 @@ class PipelineDmlTests: FSTIntegrationTestCase {
       .collection(sourceRef.path)
       .where(Field("__name__").equal(Expression.constant("book1")))
       .upsert(
-        [Expression.constant("Target Title").as("title")],
         collectionPath: targetRef.path,
-        documentIdExpression: Field("customId")
+        documentIdExpression: Field("customId"),
+        additionalFields: [Expression.constant("Target Title").as("title")]
       )
 
     let snapshot = try await pipeline.execute(options: .init(isAtomic: true))
@@ -188,9 +188,9 @@ class PipelineDmlTests: FSTIntegrationTestCase {
         ["id": "doc1", "title": "Literal Upserted"]
       ])
       .upsert(
-        [Expression.constant("Literal Upserted Modified").as("title")],
         collectionPath: collRef.path,
-        documentIdExpression: Expression.constant("doc1")
+        documentIdExpression: Expression.constant("doc1"),
+        additionalFields: [Expression.constant("Literal Upserted Modified").as("title")]
       )
 
     let snapshot = try await pipeline.execute()

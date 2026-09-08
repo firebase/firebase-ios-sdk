@@ -1476,17 +1476,25 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
   std::shared_ptr<UpsertStage> cpp_upsert;
 }
 
-- (id)initWithFields:(NSDictionary<NSString *, FIRExprBridge *> *)fields
-       collectionPath:(NSString *_Nullable)collectionPath
- documentIdExpression:(FIRExprBridge *_Nullable)documentIdExpression {
+- (id)initWithAdditionalFields:(NSDictionary<NSString *, FIRExprBridge *> *)additionalFields
+                collectionPath:(NSString *_Nullable)collectionPath
+          documentIdExpression:(FIRExprBridge *_Nullable)documentIdExpression {
   self = [super init];
   if (self) {
-    _fields = fields;
+    _fields = additionalFields;
     _collectionPath = collectionPath;
     _documentIdExpression = documentIdExpression;
     isUserDataRead = NO;
   }
   return self;
+}
+
+- (id)initWithFields:(NSDictionary<NSString *, FIRExprBridge *> *)fields
+       collectionPath:(NSString *_Nullable)collectionPath
+ documentIdExpression:(FIRExprBridge *_Nullable)documentIdExpression {
+  return [self initWithAdditionalFields:fields
+                         collectionPath:collectionPath
+                   documentIdExpression:documentIdExpression];
 }
 
 - (std::shared_ptr<api::Stage>)cppStageWithReader:(FSTUserDataReader *)reader {

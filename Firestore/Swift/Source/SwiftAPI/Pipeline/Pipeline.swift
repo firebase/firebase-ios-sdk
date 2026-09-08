@@ -1141,17 +1141,13 @@ public class Pipeline: @unchecked Sendable {
     return Pipeline(stages: stages + [InsertStage(collectionPath: collectionPath, documentIdExpression: documentIdExpression)], db: db)
   }
 
-  /// Appends an `upsert` stage to the pipeline transforming fields using variadic expressions.
+  // MARK: - In-Place Upsert (variadic is the only parameter: ALLOWED)
+  /// Appends an `upsert` stage to the pipeline modifying matching documents in-place.
   ///
   /// The `upsert` stage inserts a document if it does not already exist, or updates its fields if it does.
   ///
-  /// - Note: The `collectionPath` parameter is **optional**. When omitted (or `nil`), the operation performs an
-  ///   in-place upsert directly within the pipeline's current source collection. When `collectionPath` is provided,
-  ///   documents are upserted into the specified destination collection instead (e.g. copying/archiving or when
-  ///   sourcing data from `literals(...)`).
-  ///
   /// ```swift
-  /// // Example 1: In-place upsert with variadic transform arguments
+  /// // Example: In-place upsert with variadic additional fields
   /// let snapshot = try await db.pipeline()
   ///   .collection("books")
   ///   .where(Field("__name__").equal(Expression.constant("book1")))
@@ -1160,39 +1156,20 @@ public class Pipeline: @unchecked Sendable {
   ///     Field("views").add(Expression.constant(10)).as("views")
   ///   )
   ///   .execute(options: Pipeline.ExecuteOptions(isAtomic: true))
-  ///
-  /// // Example 2: Upsert into a custom target collection
-  /// let targetSnapshot = try await db.pipeline()
-  ///   .collection("books")
-  ///   .upsert(
-  ///     Expression.constant("Cataloged").as("status"),
-  ///     collectionPath: "catalog",
-  ///     documentIdExpression: Field("isbn")
-  ///   )
-  ///   .execute()
   /// ```
   ///
-  /// - Parameters:
-  ///   - transforms: Variadic list of `Selectable` expressions representing updated field assignments.
-  ///   - collectionPath: Optional target collection path. When `nil`, the upsert applies in-place to the source
-  ///     collection; when provided, documents are upserted into the specified collection.
-  ///   - documentIdExpression: Optional expression resolving to the document ID in the target collection.
+  /// - Parameter additionalFields: Variadic list of `Selectable` expressions representing updated field assignments.
   /// - Returns: A new `Pipeline` object with the `upsert` stage appended.
-  public func upsert(_ transforms: Selectable..., collectionPath: String? = nil, documentIdExpression: Expression? = nil) -> Pipeline {
-    return upsert(transforms, collectionPath: collectionPath, documentIdExpression: documentIdExpression)
+  public func upsert(_ additionalFields: Selectable...) -> Pipeline {
+    return upsert(additionalFields)
   }
 
-  /// Appends an `upsert` stage to the pipeline transforming fields using an array of expressions.
+  /// Appends an `upsert` stage to the pipeline modifying matching documents in-place using an array.
   ///
   /// The `upsert` stage inserts a document if it does not already exist, or updates its fields if it does.
   ///
-  /// - Note: The `collectionPath` parameter is **optional**. When omitted (or `nil`), the operation performs an
-  ///   in-place upsert directly within the pipeline's current source collection. When `collectionPath` is provided,
-  ///   documents are upserted into the specified destination collection instead (e.g. copying/archiving or when
-  ///   sourcing data from `literals(...)`).
-  ///
   /// ```swift
-  /// // Example 1: In-place transactional upsert on document references
+  /// // Example: In-place transactional upsert on document references
   /// let inPlaceSnapshot = try await db.pipeline()
   ///   .documents([db.collection("books").document("new_upsert_doc_id")])
   ///   .upsert([
@@ -1200,43 +1177,71 @@ public class Pipeline: @unchecked Sendable {
   ///     Expression.constant("New Book Title").as("title")
   ///   ])
   ///   .execute(options: Pipeline.ExecuteOptions(isAtomic: true))
+  /// ```
   ///
-  /// // Example 2: Target custom collection with custom document ID field
+  /// - Parameter additionalFields: Array of `Selectable` expressions representing updated field assignments.
+  /// - Returns: A new `Pipeline` object with the `upsert` stage appended.
+  public func upsert(_ additionalFields: [Selectable]) -> Pipeline {
+    return Pipeline(
+      stages: stages + [UpsertStage(additionalFields: additionalFields, collectionPath: nil, documentIdExpression: nil)],
+      db: db
+    )
+  }
+
+  // MARK: - Target-Collection Upsert (explicit array only: ALLOWED)
+  /// Appends an `upsert` stage to write documents into a destination collection.
+  ///
+  /// The `upsert` stage writes documents into the specified `collectionPath`. If a document exists, it is updated;
+  /// otherwise, it is inserted.
+  ///
+  /// ```swift
+  /// // Example 1: Target custom collection with custom document ID field and additional fields
   /// let targetSnapshot = try await db.pipeline()
   ///   .collection("books")
   ///   .where(Field("__name__").equal(Expression.constant("book1")))
-  ///   .addFields(Expression.constant("upserted_fixed_id").as("targetId"))
   ///   .upsert(
-  ///     [
+  ///     collectionPath: "books_archive",
+  ///     documentIdExpression: Field("targetId"),
+  ///     additionalFields: [
   ///       Expression.constant("Upserted Genre").as("genre"),
   ///       Expression.constant("Upserted Title").as("title")
-  ///     ],
-  ///     collectionPath: "books_archive",
-  ///     documentIdExpression: Field("targetId")
+  ///     ]
   ///   )
   ///   .execute(options: Pipeline.ExecuteOptions(isAtomic: true))
   ///
-  /// // Example 3: Non-transactional bulk upsert from literals
+  /// // Example 2: Non-transactional bulk upsert from literals
   /// let literalSnapshot = try await db.pipeline()
   ///   .literals([
   ///     ["id": "user_1", "status": "Active"],
   ///     ["id": "user_2", "status": "Pending"]
   ///   ])
   ///   .upsert(
-  ///     [Field("status").as("accountStatus")],
   ///     collectionPath: "users",
-  ///     documentIdExpression: Field("id")
+  ///     documentIdExpression: Field("id"),
+  ///     additionalFields: [Field("status").as("accountStatus")]
   ///   )
   ///   .execute()
   /// ```
   ///
   /// - Parameters:
-  ///   - transforms: Array of `Selectable` expressions representing updated field assignments.
-  ///   - collectionPath: Optional target collection path. When `nil`, the upsert applies in-place to the source
-  ///     collection; when provided, documents are upserted into the specified collection.
+  ///   - collectionPath: The target collection path to upsert documents into.
   ///   - documentIdExpression: Optional expression resolving to the document ID in the target collection.
+  ///   - additionalFields: Array of `Selectable` expressions representing updated field assignments. Defaults to empty array.
   /// - Returns: A new `Pipeline` object with the `upsert` stage appended.
-  public func upsert(_ transforms: [Selectable], collectionPath: String? = nil, documentIdExpression: Expression? = nil) -> Pipeline {
-    return Pipeline(stages: stages + [UpsertStage(fields: transforms, collectionPath: collectionPath, documentIdExpression: documentIdExpression)], db: db)
+  public func upsert(
+    collectionPath: String,
+    documentIdExpression: Expression? = nil,
+    additionalFields: [Selectable] = []
+  ) -> Pipeline {
+    return Pipeline(
+      stages: stages + [
+        UpsertStage(
+          additionalFields: additionalFields,
+          collectionPath: collectionPath,
+          documentIdExpression: documentIdExpression
+        )
+      ],
+      db: db
+    )
   }
 }

@@ -566,19 +566,19 @@ class UpsertStage: Stage {
   let bridge: StageBridge
   let errorMessage: String?
 
-  init(fields: [Selectable], collectionPath: String? = nil, documentIdExpression: Expression? = nil) {
-    let (map, error) = Helper.selectablesToMap(selectables: fields)
+  init(additionalFields: [Selectable] = [], collectionPath: String? = nil, documentIdExpression: Expression? = nil) {
+    let (map, error) = Helper.selectablesToMap(selectables: additionalFields)
     if let error = error {
       errorMessage = error.localizedDescription
       bridge = __UpsertStageBridge(
-        fields: [:],
+        additionalFields: [:],
         collectionPath: collectionPath,
         documentIdExpression: documentIdExpression?.toBridge()
       )
     } else {
       errorMessage = nil
       bridge = __UpsertStageBridge(
-        fields: map.mapValues { $0.toBridge() },
+        additionalFields: map.mapValues { $0.toBridge() },
         collectionPath: collectionPath,
         documentIdExpression: documentIdExpression?.toBridge()
       )
