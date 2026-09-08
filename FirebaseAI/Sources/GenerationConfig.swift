@@ -174,6 +174,11 @@ public struct GenerationConfig: Sendable, Equatable {
   ///     > that it is not subject to any SLA or deprecation policy and could change in
   ///     > backwards-incompatible ways.
   ///   - imageConfig: Configuration options for generating images.
+  @available(
+    *,
+    deprecated,
+    message: "temperature, topP, topK, candidateCount, presencePenalty, and frequencyPenalty are no longer recommended for Gemini 3.x models."
+  )
   public init(temperature: Float? = nil, topP: Float? = nil, topK: Int? = nil,
               candidateCount: Int? = nil, maxOutputTokens: Int? = nil,
               presencePenalty: Float? = nil, frequencyPenalty: Float? = nil,
@@ -190,6 +195,28 @@ public struct GenerationConfig: Sendable, Equatable {
     self.maxOutputTokens = maxOutputTokens
     self.presencePenalty = presencePenalty
     self.frequencyPenalty = frequencyPenalty
+    self.stopSequences = stopSequences
+    self.responseMIMEType = responseMIMEType
+    self.responseSchema = responseSchema
+    responseJSONSchema = nil
+    self.responseModalities = responseModalities
+    self.thinkingConfig = thinkingConfig
+    self.imageConfig = imageConfig
+    self.speechConfig = speechConfig?.speechConfig
+  }
+
+  public init(maxOutputTokens: Int? = nil,
+              stopSequences: [String]? = nil, responseMIMEType: String? = nil,
+              responseSchema: Schema? = nil, responseModalities: [ResponseModality]? = nil,
+              thinkingConfig: ThinkingConfig? = nil, imageConfig: ImageConfig? = nil,
+              speechConfig: SpeechConfig? = nil) {
+    temperature = nil
+    topP = nil
+    topK = nil
+    candidateCount = nil
+    self.maxOutputTokens = maxOutputTokens
+    presencePenalty = nil
+    frequencyPenalty = nil
     self.stopSequences = stopSequences
     self.responseMIMEType = responseMIMEType
     self.responseSchema = responseSchema

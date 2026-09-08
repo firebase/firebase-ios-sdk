@@ -126,6 +126,11 @@ public struct LiveGenerationConfig: Sendable {
   ///     This mechanism prevents the context from exceeding a given length.
   ///   - realtimeInputConfig: Configures model input behavior when generating content via the
   ///     realtime supported methods
+  @available(
+    *,
+    deprecated,
+    message: "temperature, topP, topK, candidateCount, presencePenalty, and frequencyPenalty are no longer recommended for Gemini 3.x models."
+  )
   public init(temperature: Float? = nil, topP: Float? = nil, topK: Int? = nil,
               candidateCount: Int? = nil, maxOutputTokens: Int? = nil,
               presencePenalty: Float? = nil, frequencyPenalty: Float? = nil,
@@ -144,6 +149,32 @@ public struct LiveGenerationConfig: Sendable {
         maxOutputTokens: maxOutputTokens,
         presencePenalty: presencePenalty,
         frequencyPenalty: frequencyPenalty,
+        responseModalities: responseModalities,
+        speechConfig: speech?.speechConfig
+      ),
+      inputAudioTranscription: inputAudioTranscription?.audioTranscriptionConfig,
+      outputAudioTranscription: outputAudioTranscription?.audioTranscriptionConfig,
+      contextWindowCompression: contextWindowCompression?.bidiContextWindowCompressionConfig,
+      realtimeInputConfig: realtimeInputConfig?.bidiRealtimeInputConfig
+    )
+  }
+
+  public init(maxOutputTokens: Int? = nil,
+              responseModalities: [ResponseModality]? = nil,
+              speech: SpeechConfig? = nil,
+              inputAudioTranscription: AudioTranscriptionConfig? = nil,
+              outputAudioTranscription: AudioTranscriptionConfig? = nil,
+              contextWindowCompression: ContextWindowCompressionConfig? = nil,
+              realtimeInputConfig: RealtimeInputConfig? = nil) {
+    self.init(
+      BidiGenerationConfig(
+        temperature: nil,
+        topP: nil,
+        topK: nil,
+        candidateCount: nil,
+        maxOutputTokens: maxOutputTokens,
+        presencePenalty: nil,
+        frequencyPenalty: nil,
         responseModalities: responseModalities,
         speechConfig: speech?.speechConfig
       ),

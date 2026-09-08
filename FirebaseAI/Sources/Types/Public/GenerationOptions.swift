@@ -128,9 +128,19 @@
       }
 
       /// A sampling strategy for how the model picks tokens when generating a response.
+      @available(
+        *,
+        deprecated,
+        message: "Manually setting sampling mode is no longer recommended for Gemini 3.x models."
+      )
       public var sampling: GenerationOptions.SamplingMode?
 
       /// Temperature influences the confidence of the model's response.
+      @available(
+        *,
+        deprecated,
+        message: "Manually setting temperature is no longer recommended for Gemini 3.x models."
+      )
       public var temperature: Double?
 
       /// The maximum number of tokens the model is allowed to produce in its response.
@@ -140,10 +150,23 @@
       private var _generationOptions: (any GenerationOptionsProtocol)?
 
       /// Creates generation options that control token sampling behavior.
+      @available(
+        *,
+        deprecated,
+        message: "Manually setting sampling mode and temperature is no longer recommended for Gemini 3.x models."
+      )
       public init(sampling: GenerationOptions.SamplingMode? = nil, temperature: Double? = nil,
                   maximumResponseTokens: Int? = nil) {
         self.sampling = sampling
         self.temperature = temperature
+        self.maximumResponseTokens = maximumResponseTokens
+        _generationOptions = nil
+      }
+
+      /// Creates generation options that control token sampling behavior.
+      public init(maximumResponseTokens: Int? = nil) {
+        sampling = nil
+        temperature = nil
         self.maximumResponseTokens = maximumResponseTokens
         _generationOptions = nil
       }
