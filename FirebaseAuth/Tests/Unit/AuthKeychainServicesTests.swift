@@ -227,7 +227,7 @@ extension AuthKeychainServicesTests {
       _ = try lockedKeychain.data(forKey: Self.key)
       XCTFail("Should have thrown error")
     } catch let error as NSError {
-      XCTAssertEqual(error.domain, AuthErrorDomain)
+      XCTAssertEqual(error.domain, AuthErrors.domain)
       XCTAssertEqual(error.code, AuthErrorCode.keychainError.rawValue)
       let reason = error.userInfo[NSLocalizedFailureReasonErrorKey] as? String
       XCTAssertTrue(reason?.contains("\(errSecInteractionNotAllowed)") ?? false)
