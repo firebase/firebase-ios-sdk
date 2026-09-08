@@ -205,6 +205,24 @@ public struct GenerationConfig: Sendable, Equatable {
     self.speechConfig = speechConfig?.speechConfig
   }
 
+  /// Creates a new `GenerationConfig` value without deprecated tuning parameters.
+  ///
+  /// See the
+  /// [Configure model parameters](https://firebase.google.com/docs/vertex-ai/model-parameters)
+  /// guide and the
+  /// [Cloud documentation](https://cloud.google.com/vertex-ai/generative-ai/docs/model-reference/inference#generationconfig)
+  /// for more details.
+  ///
+  /// - Parameters:
+  ///   - maxOutputTokens: Maximum number of tokens that can be generated in the response.
+  ///   - stopSequences: A set of up to 5 `String`s that will stop output generation.
+  ///   - responseMIMEType: Output response MIME type of the generated candidate text.
+  ///   - responseSchema: Output schema of the generated candidate text.
+  ///   - responseModalities: The data types (modalities) that may be returned in model responses.
+  ///   - thinkingConfig: Configuration for controlling the "thinking" behavior of compatible Gemini
+  /// models.
+  ///   - imageConfig: Configuration options for generating images.
+  ///   - speechConfig: Configuration for controlling the voice of the model during conversation.
   public init(maxOutputTokens: Int? = nil,
               stopSequences: [String]? = nil, responseMIMEType: String? = nil,
               responseSchema: Schema? = nil, responseModalities: [ResponseModality]? = nil,

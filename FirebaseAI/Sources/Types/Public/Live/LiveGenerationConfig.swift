@@ -159,6 +159,26 @@ public struct LiveGenerationConfig: Sendable {
     )
   }
 
+  /// Creates a new `LiveGenerationConfig` value without deprecated tuning parameters.
+  ///
+  /// See the
+  /// [Configure model parameters](https://firebase.google.com/docs/vertex-ai/model-parameters)
+  /// guide and the
+  /// [Cloud documentation](https://cloud.google.com/vertex-ai/generative-ai/docs/model-reference/inference#generationconfig)
+  /// for more details.
+  ///
+  /// - Parameters:
+  ///   - maxOutputTokens: Maximum number of tokens that can be generated in the response.
+  ///   - responseModalities: The data types (modalities) that may be returned in model responses.
+  ///   - speech: Controls the voice of the model, when streaming `audio` via `ResponseModality`.
+  ///   - inputAudioTranscription: Configures (and enables) input transcriptions when streaming to
+  /// the model.
+  ///   - outputAudioTranscription: Configures (and enables) output transcriptions when streaming to
+  /// the model.
+  ///   - contextWindowCompression: Enables context window compression to manage the model's context
+  /// window.
+  ///   - realtimeInputConfig: Configures model input behavior when generating content via the
+  /// realtime supported methods.
   public init(maxOutputTokens: Int? = nil,
               responseModalities: [ResponseModality]? = nil,
               speech: SpeechConfig? = nil,
