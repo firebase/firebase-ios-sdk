@@ -247,5 +247,206 @@
       #expect(disallowedConfig?.functionCallingConfig?.mode == FunctionCallingConfig.Mode.none)
       #expect(nilConfig == nil)
     }
+
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func translatesThinkingSummariesAuto() throws {
+      let promptEntry = Transcript.Entry.prompt(
+        Transcript.Prompt(
+          id: "prompt-1",
+          segments: [.text(Transcript.TextSegment(content: "Hello"))]
+        )
+      )
+      let transcript = Transcript(entries: [promptEntry])
+      let request = LanguageModelExecutorGenerationRequest(
+        id: UUID(),
+        transcript: transcript,
+        enabledTools: [],
+        schema: nil,
+        generationOptions: GenerationOptions(),
+        contextOptions: ContextOptions(),
+        metadata: [:]
+      )
+      let thinking = GeminiLanguageModel.Thinking(summaries: .auto)
+
+      let result = try GeminiRequestTranslator.translate(request, thinking: thinking)
+
+      let generationConfig = try #require(result.generationConfig)
+      let thinkingConfig = try #require(generationConfig.thinkingConfig)
+      #expect(thinkingConfig.includeThoughts == true)
+      #expect(thinkingConfig.thinkingLevel == nil)
+    }
+
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func translatesThinkingSummariesOff() throws {
+      let promptEntry = Transcript.Entry.prompt(
+        Transcript.Prompt(
+          id: "prompt-1",
+          segments: [.text(Transcript.TextSegment(content: "Hello"))]
+        )
+      )
+      let transcript = Transcript(entries: [promptEntry])
+      let request = LanguageModelExecutorGenerationRequest(
+        id: UUID(),
+        transcript: transcript,
+        enabledTools: [],
+        schema: nil,
+        generationOptions: GenerationOptions(),
+        contextOptions: ContextOptions(),
+        metadata: [:]
+      )
+      let thinking = GeminiLanguageModel.Thinking(summaries: .off)
+
+      let result = try GeminiRequestTranslator.translate(request, thinking: thinking)
+
+      let generationConfig = try #require(result.generationConfig)
+      let thinkingConfig = try #require(generationConfig.thinkingConfig)
+      #expect(thinkingConfig.includeThoughts == false)
+      #expect(thinkingConfig.thinkingLevel == nil)
+    }
+
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func translatesReasoningLevels() {
+      let lightLevel = GeminiRequestTranslator.translateThinkingLevel(.light)
+      let moderateLevel = GeminiRequestTranslator.translateThinkingLevel(.moderate)
+      let deepLevel = GeminiRequestTranslator.translateThinkingLevel(.deep)
+      let minimalCustom = GeminiRequestTranslator.translateThinkingLevel(.custom("MINIMAL"))
+      let lowCustom = GeminiRequestTranslator.translateThinkingLevel(.custom("low"))
+      let mediumCustom = GeminiRequestTranslator.translateThinkingLevel(.custom("Medium"))
+      let highCustom = GeminiRequestTranslator.translateThinkingLevel(.custom("HIGH"))
+      let unknownCustom = GeminiRequestTranslator.translateThinkingLevel(.custom("custom_val"))
+
+      #expect(lightLevel == .low)
+      #expect(moderateLevel == .medium)
+      #expect(deepLevel == .high)
+      #expect(minimalCustom == .minimal)
+      #expect(lowCustom == .low)
+      #expect(mediumCustom == .medium)
+      #expect(highCustom == .high)
+      #expect(unknownCustom == .unrecognized("custom_val"))
+    }
+
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func translatesRequestWithReasoningLevelAndThinkingSummaries() throws {
+      let promptEntry = Transcript.Entry.prompt(
+        Transcript.Prompt(
+          id: "prompt-1",
+          segments: [.text(Transcript.TextSegment(content: "Hello"))]
+        )
+      )
+      let transcript = Transcript(entries: [promptEntry])
+      var contextOptions = ContextOptions()
+      contextOptions.reasoningLevel = .deep
+      let request = LanguageModelExecutorGenerationRequest(
+        id: UUID(),
+        transcript: transcript,
+        enabledTools: [],
+        schema: nil,
+        generationOptions: GenerationOptions(),
+        contextOptions: contextOptions,
+        metadata: [:]
+      )
+      let thinking = GeminiLanguageModel.Thinking(summaries: .auto)
+
+      let result = try GeminiRequestTranslator.translate(request, thinking: thinking)
+
+      let generationConfig = try #require(result.generationConfig)
+      let thinkingConfig = try #require(generationConfig.thinkingConfig)
+      #expect(thinkingConfig.includeThoughts == true)
+      #expect(thinkingConfig.thinkingLevel == .high)
+    }
+
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func translatesRequestWithRequestMetadataOverridingModel() throws {
+      let promptEntry = Transcript.Entry.prompt(
+        Transcript.Prompt(
+          id: "prompt-1",
+          segments: [.text(Transcript.TextSegment(content: "Hello"))]
+        )
+      )
+      let transcript = Transcript(entries: [promptEntry])
+      let request = LanguageModelExecutorGenerationRequest(
+        id: UUID(),
+        transcript: transcript,
+        enabledTools: [],
+        schema: nil,
+        generationOptions: GenerationOptions(),
+        contextOptions: ContextOptions(),
+        metadata: [
+          GeminiRequestMetadata.metadataKey: GeminiRequestMetadata(thinkingSummaries: .off)
+            .generatedContent
+        ]
+      )
+      let thinking = GeminiLanguageModel.Thinking(summaries: .auto)
+
+      let result = try GeminiRequestTranslator.translate(request, thinking: thinking)
+
+      let generationConfig = try #require(result.generationConfig)
+      let thinkingConfig = try #require(generationConfig.thinkingConfig)
+      #expect(thinkingConfig.includeThoughts == false)
+    }
+
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func translatesRequestWithPromptMetadataOverridingModel() throws {
+      var prompt = Transcript.Prompt(
+        id: "prompt-1",
+        segments: [.text(Transcript.TextSegment(content: "Hello"))]
+      )
+      prompt.metadata[GeminiRequestMetadata.metadataKey] =
+        GeminiRequestMetadata(thinkingSummaries: .off).generatedContent
+      let transcript = Transcript(entries: [.prompt(prompt)])
+      let request = LanguageModelExecutorGenerationRequest(
+        id: UUID(),
+        transcript: transcript,
+        enabledTools: [],
+        schema: nil,
+        generationOptions: GenerationOptions(),
+        contextOptions: ContextOptions(),
+        metadata: [:]
+      )
+      let thinking = GeminiLanguageModel.Thinking(summaries: .auto)
+
+      let result = try GeminiRequestTranslator.translate(request, thinking: thinking)
+
+      let generationConfig = try #require(result.generationConfig)
+      let thinkingConfig = try #require(generationConfig.thinkingConfig)
+      #expect(thinkingConfig.includeThoughts == false)
+    }
+
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func translatesRequestWithRequestMetadataOverridingPromptMetadata() throws {
+      var prompt = Transcript.Prompt(
+        id: "prompt-1",
+        segments: [.text(Transcript.TextSegment(content: "Hello"))]
+      )
+      prompt.metadata[GeminiRequestMetadata.metadataKey] =
+        GeminiRequestMetadata(thinkingSummaries: .off).generatedContent
+      let transcript = Transcript(entries: [.prompt(prompt)])
+      let request = LanguageModelExecutorGenerationRequest(
+        id: UUID(),
+        transcript: transcript,
+        enabledTools: [],
+        schema: nil,
+        generationOptions: GenerationOptions(),
+        contextOptions: ContextOptions(),
+        metadata: [
+          GeminiRequestMetadata.metadataKey: GeminiRequestMetadata(thinkingSummaries: .auto)
+            .generatedContent
+        ]
+      )
+      let thinking = GeminiLanguageModel.Thinking(summaries: .off)
+
+      let result = try GeminiRequestTranslator.translate(request, thinking: thinking)
+
+      let generationConfig = try #require(result.generationConfig)
+      let thinkingConfig = try #require(generationConfig.thinkingConfig)
+      #expect(thinkingConfig.includeThoughts == true)
+    }
   }
 #endif  // canImport(FoundationModels) && compiler(>=6.4)

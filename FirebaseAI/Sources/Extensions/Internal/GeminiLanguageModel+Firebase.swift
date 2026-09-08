@@ -20,7 +20,13 @@
   @available(iOS 27.0, macOS 27.0, watchOS 27.0, visionOS 27.0, *)
   @available(tvOS, unavailable)
   extension GeminiLanguageModel {
-    init(name: String, firebaseAI: FirebaseAI) {
+    /// Initializes a Gemini language model adapter using Firebase AI configuration.
+    ///
+    /// - Parameters:
+    ///   - firebaseAI: The Firebase AI instance providing credentials and endpoint routing.
+    ///   - name: The model name.
+    ///   - thinking: An optional thinking configuration. Defaults to `nil`.
+    init(firebaseAI: FirebaseAI, name: String, thinking: Thinking? = nil) {
       let endpointURL = firebaseAI.apiConfig.service.endpoint.rawValue
       guard let urlComponents = URLComponents(string: endpointURL) else {
         preconditionFailure("Invalid Gemini API URL: \(endpointURL)")
@@ -41,14 +47,15 @@
           apiVersion: firebaseAI.apiConfig.version.rawValue
         ),
         headerProvider: firebaseAI.headerProvider,
-        configuration: .ephemeral
+        configuration: .ephemeral,
+        thinking: thinking
       )
     }
   }
 
   @available(iOS 27.0, macOS 27.0, watchOS 27.0, visionOS 27.0, *)
   @available(tvOS, unavailable)
-  private extension FirebaseAI {
+  fileprivate extension FirebaseAI {
     func headerProvider() async throws -> [String: String] {
       try await firebaseInfo.requestHeaders(
         additionalClientTags: [Constants.foundationModelsRequestTag]

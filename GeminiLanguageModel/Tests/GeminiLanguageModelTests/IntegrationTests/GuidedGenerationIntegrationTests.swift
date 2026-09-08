@@ -25,7 +25,8 @@
   @Suite(
     "Guided Generation Integration Tests",
     .requireFoundationModels,
-    .tags(.integration)
+    .tags(.integration),
+    .serialized
   )
   struct GuidedGenerationIntegrationTests {
     @Generable(description: "A summary of a city")
