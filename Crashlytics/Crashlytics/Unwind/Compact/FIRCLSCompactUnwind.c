@@ -274,6 +274,11 @@ bool FIRCLSCompactUnwindLookupSecondLevelCompressed(FIRCLSCompactUnwindContext* 
   } else {
     encodingIndex = encodingIndex - context->unwindHeader.commonEncodingsArrayCount;
 
+    if (encodingIndex >= header->encodingsCount) {
+      FIRCLSSDKLog("Error: compressed encoding index out of range\n");
+      return false;
+    }
+
     compact_unwind_encoding_t* encodings = ptr + header->encodingsPageOffset;
 
     result->encoding = encodings[encodingIndex];
