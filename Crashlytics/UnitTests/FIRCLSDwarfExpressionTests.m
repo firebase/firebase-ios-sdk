@@ -15,6 +15,7 @@
 #import <XCTest/XCTest.h>
 
 #include "Crashlytics/Crashlytics/Unwind/Dwarf/FIRCLSDwarfExpressionMachine.h"
+#include "Crashlytics/third_party/libunwind/dwarf.h"
 
 @interface FIRCLSDwarfExpressionTests : XCTestCase
 
@@ -135,6 +136,29 @@
   XCTAssert(FIRCLSDwarfExpressionStackIsValid(&machine.stack));
 
   XCTAssertEqual(FIRCLSDwarfExpressionStackPeek(&machine.stack), 42);
+}
+
+- (void)testDwarfDerefSizeReadsValidAddress {
+  uint32_t target = 0xABCD1234;
+  // DW_OP_deref_size with a 4-byte read argument; the address is on the stack.
+  uint8_t program[] = {DW_OP_deref_size, 4};
+  FIRCLSThreadContext registers = {0};
+  FIRCLSDwarfExpressionMachine machine;
+
+  XCTAssert(FIRCLSDwarfExpressionMachineInit(&machine, program, &registers, (intptr_t)&target));
+  XCTAssert(FIRCLSDwarfExpressionMachineExecuteNextOpcode(&machine));
+  XCTAssertEqual(FIRCLSDwarfExpressionStackPeek(&machine.stack), (intptr_t)0xABCD1234);
+}
+
+- (void)testDwarfDerefSizeRejectsUnreadableAddress {
+  // The address to dereference is taken from the stack. Feed one that is not
+  // readable and confirm the opcode reports failure instead of faulting.
+  uint8_t program[] = {DW_OP_deref_size, 4};
+  FIRCLSThreadContext registers = {0};
+  FIRCLSDwarfExpressionMachine machine;
+
+  XCTAssert(FIRCLSDwarfExpressionMachineInit(&machine, program, &registers, (intptr_t)0x1));
+  XCTAssertFalse(FIRCLSDwarfExpressionMachineExecuteNextOpcode(&machine));
 }
 
 #endif
