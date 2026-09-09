@@ -16,6 +16,7 @@
 import Foundation
 import XCTest
 
+@available(*, deprecated)
 final class GenerationConfigTests: XCTestCase {
   let encoder = JSONEncoder()
 

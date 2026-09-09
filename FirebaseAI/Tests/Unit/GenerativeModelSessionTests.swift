@@ -320,6 +320,7 @@
       XCTAssertEqual(functionResponse.response, ["result": .string(CurrentTimeTool.currentTime)])
     }
 
+    @available(*, deprecated)
     func testRespondTo_withOptions() async throws {
       let config = GenerationConfig(temperature: 0.5, responseMIMEType: "application/json")
       let bundle = BundleTestUtil.bundle()

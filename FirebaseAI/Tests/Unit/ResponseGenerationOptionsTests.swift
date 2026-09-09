@@ -17,6 +17,7 @@
 
   @testable import FirebaseAILogic
 
+  @available(*, deprecated)
   final class ResponseGenerationOptionsTests: XCTestCase {
     func testGenerationConfigConversion() {
       let config = GenerationConfig(temperature: 0.5, topK: 40)

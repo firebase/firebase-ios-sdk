@@ -1839,6 +1839,7 @@ final class GenerativeModelVertexAITests: XCTestCase {
     XCTAssertEqual(response.promptTokensDetails[1].tokenCount, 31)
   }
 
+  @available(*, deprecated)
   func testCountTokens_succeeds_allOptions() async throws {
     MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
       forResource: "unary-success-total-tokens",
