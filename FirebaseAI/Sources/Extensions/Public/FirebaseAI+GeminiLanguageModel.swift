@@ -16,10 +16,24 @@
   import GeminiLanguageModel
 
   public extension FirebaseAI {
+    /// **[Public Preview]** Creates a ``GeminiLanguageModel`` instance.
+    ///
+    /// > Warning: This API is a public preview and may be subject to change.
+    ///
+    /// The returned model conforms to Apple's
+    /// [`LanguageModel`](https://developer.apple.com/documentation/foundationmodels/languagemodel)
+    /// protocol and can be used with `LanguageModelSession` in Apple's Foundation Models
+    /// framework.
+    ///
+    /// - Parameter name: The identifier of the Gemini model to use; see
+    ///   [available model
+    /// names](https://firebase.google.com/docs/ai-logic/models#available-model-names)
+    ///   for a list of supported model names.
+    /// - Returns: A ``GeminiLanguageModel`` configured for this `FirebaseAI` instance.
     @available(iOS 27.0, macOS 27.0, watchOS 27.0, visionOS 27.0, *)
     @available(tvOS, unavailable)
     func geminiLanguageModel(name: String) -> GeminiLanguageModel {
-      return GeminiLanguageModel(name: name, firebaseAI: self)
+      GeminiLanguageModel(name: name, firebaseAI: self)
     }
   }
 #endif // compiler(>=6.4) && canImport(FoundationModels) && canImport(GeminiLanguageModel)

@@ -17,11 +17,33 @@
   public import FoundationModels
   package import GeminiAPIClient
 
-  /// A Gemini language model adapter conforming to Apple's `FoundationModels.LanguageModel`
-  /// protocol.
+  /// **[Public Preview]** A Gemini language model adapter for the Foundation Models framework.
+  ///
+  /// > Warning: This API is a public preview and may be subject to change.
+  ///
+  /// To create an instance of ``GeminiLanguageModel``, use
+  /// ``FirebaseAI/geminiLanguageModel(name:)`` on a ``FirebaseAI`` instance:
+  /// ```swift
+  /// let ai = FirebaseAI.firebaseAI()
+  /// let model = ai.geminiLanguageModel(name: "gemini-model-name")
+  /// let session = LanguageModelSession(model: model)
+  /// ```
+  ///
+  /// This model conforms to Apple's
+  /// [`LanguageModel`](https://developer.apple.com/documentation/foundationmodels/languagemodel)
+  /// protocol and can be used with the Foundation Models framework when [initializing](https://developer.apple.com/documentation/foundationmodels/languagemodelsession/init%28model:tools:instructions:%29)
+  /// a [`LanguageModelSession`](https://developer.apple.com/documentation/foundationmodels/languagemodelsession),
+  /// or by [setting the model](https://developer.apple.com/documentation/foundationmodels/languagemodelsession/dynamicprofile/model%28_%29)
+  /// on a [`DynamicProfile`](https://developer.apple.com/documentation/foundationmodels/languagemodelsession/dynamicprofile).
+  ///
+  /// For more details on using Gemini to generate content with the Foundation Models framework,
+  /// see the getting started
+  /// [guide](https://firebase.google.com/docs/ai-logic/apple-foundation-models-framework/get-started).
   @available(iOS 27.0, macOS 27.0, watchOS 27.0, visionOS 27.0, *)
   @available(tvOS, unavailable)
   public struct GeminiLanguageModel: Sendable {
+    /// The configuration for the executor responsible for translating Foundation Models requests to
+    /// Gemini API calls.
     public let executorConfiguration: Executor.Configuration
 
     /// Initializes a new Gemini language model.
