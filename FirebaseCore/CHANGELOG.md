@@ -1,3 +1,8 @@
+# Firebase 12.19.1
+- [fixed] Fixed the zip distribution artifact naming on the GitHub release
+  page. This release contains no SDK code changes and is functionally
+  identical to 12.19.0.
+
 # Firebase 12.19.0
 - [deprecated] Firebase 12.19.0 is the final planned minor release of 12.x and
   the final scheduled release published to CocoaPods. Future major versions
