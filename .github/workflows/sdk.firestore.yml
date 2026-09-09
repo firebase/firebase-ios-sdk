@@ -33,7 +33,7 @@ concurrency:
 
 jobs:
   changes:
-    runs-on: macos-26
+    runs-on: ubuntu-latest
     outputs:
       changed: ${{ steps.firestore_src_changes.outputs.sources == 'true' || steps.related_changes.outputs.other_changes == 'true' }}
     steps:
@@ -103,7 +103,9 @@ jobs:
     if: |
       (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
       (github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true')
-    runs-on: macos-26
+    runs-on: ubuntu-latest
+    env:
+      MINT_PATH: ${{ github.workspace }}/mint
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       with:
@@ -113,11 +115,24 @@ jobs:
       with:
         python-version: 3.11
 
+    - name: Cache Mint packages
+      uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+      with:
+        path: ${{ env.MINT_PATH }}
+        key: ${{ runner.os }}-mint-${{ hashFiles('**/Mintfile') }}
+        restore-keys: ${{ runner.os }}-mint-
+
     - name: Setup check
-      run: scripts/setup_check.sh
+      run: |
+        eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+        scripts/setup_check.sh
 
     - name: Run check
-      run: scripts/check.sh --test-only
+      run: |
+        eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+        # Add Homebrew clang-format to first in PATH
+        export PATH="/home/linuxbrew/.linuxbrew/opt/clang-format/bin:$PATH"
+        scripts/check.sh --test-only
 
   cmake:
     needs: [changes, check]
@@ -344,6 +359,7 @@ jobs:
       (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
       (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false)
     runs-on: macos-26
+    timeout-minutes: 60
 
     strategy:
       matrix:
@@ -387,7 +403,7 @@ jobs:
         run: scripts/install_prereqs.sh Firestore ${{ matrix.target }} xcodebuild
 
       # XCTest dynamically isolates the test runner app from standard terminal environment variables.
-      # To successfully pass TARGET_BACKEND down to FSTIntegrationTestCase, we must physically inject it
+      # To successfully pass TARGET_BACKEND and PROJECT_ID down to FSTIntegrationTestCase, we must physically inject them
       # into the Xcode Schemes rather than using traditional YAML `env:` variables or `export` commands.
       - name: Inject Nightly Backend into Schemes
         run: |
@@ -395,7 +411,17 @@ jobs:
           import glob, re
           for f in glob.glob("Firestore/Example/Firestore.xcodeproj/xcshareddata/xcschemes/Firestore_IntegrationTests_*.xcscheme"):
               with open(f, "r") as file: content = file.read()
-              content = re.sub(r"<EnvironmentVariables>", "<EnvironmentVariables>\n         <EnvironmentVariable\n            key = \"TARGET_BACKEND\"\n            value = \"nightly\"\n            isEnabled = \"YES\">\n         </EnvironmentVariable>", content)
+              content = re.sub(r"<EnvironmentVariables>", """<EnvironmentVariables>
+                   <EnvironmentVariable
+                      key = "TARGET_BACKEND"
+                      value = "nightly"
+                      isEnabled = "YES">
+                   </EnvironmentVariable>
+                   <EnvironmentVariable
+                      key = "PROJECT_ID"
+                      value = "firestore-sdk-nightly"
+                      isEnabled = "YES">
+                   </EnvironmentVariable>""", content)
               with open(f, "w") as file: file.write(content)
           '
 

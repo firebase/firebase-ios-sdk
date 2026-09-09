@@ -185,6 +185,14 @@ else
   )
 fi
 
+if [[ "$xcode_major" -ge 27 ]]; then
+  spm_macosx_deployment_target="12.0"
+  spm_watchos_deployment_target="9.0"
+else
+  spm_macosx_deployment_target="10.15"
+  spm_watchos_deployment_target="7.0"
+fi
+
 ios_device_flags=(
   -destination 'generic/platform=iOS'
 )
@@ -795,9 +803,9 @@ case "$product-$platform-$method" in
       -scheme $product \
       "${xcb_flags[@]}" \
       IPHONEOS_DEPLOYMENT_TARGET=15.0 \
-      MACOSX_DEPLOYMENT_TARGET=10.15 \
+      MACOSX_DEPLOYMENT_TARGET="$spm_macosx_deployment_target" \
       TVOS_DEPLOYMENT_TARGET=15.0 \
-      WATCHOS_DEPLOYMENT_TARGET=7.0 \
+      WATCHOS_DEPLOYMENT_TARGET="$spm_watchos_deployment_target" \
       test
     ;;
 

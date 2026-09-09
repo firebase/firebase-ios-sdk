@@ -23,7 +23,6 @@ FirebaseRemoteConfigInterop
 FirebaseSessions
 FirebaseStorage
 GTMSessionFetcher
-GoogleAdsOnDeviceConversion
 GoogleDataTransport
 PromisesObjC
 PromisesSwift
@@ -488,6 +487,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 FirebaseAnalytics
+GoogleAdsOnDeviceConversion
 GoogleAppMeasurement
 
                                  Apache License

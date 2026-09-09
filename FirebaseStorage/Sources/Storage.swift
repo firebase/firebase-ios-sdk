@@ -111,6 +111,14 @@ internal import FirebaseCoreExtension
   /// A `DispatchQueue` that all developer callbacks are fired on. Defaults to the main queue.
   @objc public var callbackQueue: DispatchQueue = .main
 
+  #if DEBUG
+    /// Allows authentication and AppCheck tokens to be attached to requests over insecure HTTP
+    /// connections.
+    /// This should only be used for local testing and debugging on physical devices.
+    /// To prevent accidental credential leaks, this property is only available in DEBUG builds.
+    @nonobjc public var allowInsecureTokenAttachment: Bool = false
+  #endif
+
   /// Creates a `StorageReference` initialized at the root Firebase Storage location.
   /// - Returns: An instance of `StorageReference` referencing the root of the storage bucket.
   @objc open func reference() -> StorageReference {
