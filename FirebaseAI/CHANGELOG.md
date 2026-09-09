@@ -1,4 +1,8 @@
 # 12.19.0
+- [feature] **Public Preview**: Added `GeminiLanguageModel`, allowing Gemini
+  models to be used with Apple's Foundation Models framework. See the
+  [getting started guide](https://firebase.google.com/docs/ai-logic/apple-foundation-models-framework/get-started)
+  for more details.
 - [fixed] Fixed an issue with a transitive import in the logger, which could cause
   a build error in explicit module mode. (#16563)
 - [changed] In 12.5.0, the `FirebaseAI` module was renamed to
