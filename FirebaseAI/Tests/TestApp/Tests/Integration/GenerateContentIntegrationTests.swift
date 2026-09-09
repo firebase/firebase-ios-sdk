@@ -27,8 +27,6 @@ import Testing
 
 @Suite(.serialized)
 struct GenerateContentIntegrationTests {
-  // Set temperature, topP and topK to lowest allowed values to make responses more deterministic.
-  let generationConfig = GenerationConfig(temperature: 0.0, topP: 0.0, topK: 1)
   let safetySettings = [
     SafetySetting(harmCategory: .harassment, threshold: .blockLowAndAbove),
     SafetySetting(harmCategory: .hateSpeech, threshold: .blockLowAndAbove),
@@ -53,8 +51,8 @@ struct GenerateContentIntegrationTests {
     (InstanceConfig.agentPlatform_v1beta_global_appCheckLimitedUse, ModelNames.gemini2_5_FlashLite),
     (InstanceConfig.googleAI_v1beta, ModelNames.gemini3_1_FlashLite),
     (InstanceConfig.googleAI_v1beta_appCheckLimitedUse, ModelNames.gemini3_1_FlashLite),
-    (InstanceConfig.googleAI_v1beta, ModelNames.gemma4_31B),
-    (InstanceConfig.googleAI_v1beta_freeTier, ModelNames.gemma4_31B),
+    (InstanceConfig.googleAI_v1beta, ModelNames.gemma4_31B_developerAPI),
+    (InstanceConfig.googleAI_v1beta_freeTier, ModelNames.gemma4_31B_developerAPI),
     // Note: The following configs are commented out for easy one-off manual testing.
     // (InstanceConfig.googleAI_v1beta_freeTier, ModelNames.gemini2_5_FlashLite),
     // (InstanceConfig.googleAI_v1beta_staging, ModelNames.gemini2_5_FlashLite),
@@ -65,7 +63,6 @@ struct GenerateContentIntegrationTests {
   func generateContent(_ config: InstanceConfig, modelName: String) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
       modelName: modelName,
-      generationConfig: generationConfig,
       safetySettings: safetySettings,
     )
     let prompt = "Where is Google headquarters located? Answer with the city name only."
@@ -584,7 +581,6 @@ struct GenerateContentIntegrationTests {
   func generateContent_codeExecution_succeeds(_ config: InstanceConfig) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
       modelName: ModelNames.gemini3_1_FlashLite,
-      generationConfig: generationConfig,
       tools: [.codeExecution()]
     )
     let prompt = """
@@ -615,9 +611,10 @@ struct GenerateContentIntegrationTests {
     (InstanceConfig.agentPlatform_v1beta, ModelNames.gemini2_5_FlashLite),
     (InstanceConfig.agentPlatform_v1beta_global, ModelNames.gemini3_1_FlashLite),
     (InstanceConfig.agentPlatform_v1beta_global_appCheckLimitedUse, ModelNames.gemini3_1_FlashLite),
+    (InstanceConfig.agentPlatform_v1beta_global, ModelNames.gemma4_26B_A4B_agentPlatform),
     (InstanceConfig.googleAI_v1beta, ModelNames.gemini2_5_FlashLite),
     (InstanceConfig.googleAI_v1beta_appCheckLimitedUse, ModelNames.gemini2_5_FlashLite),
-    (InstanceConfig.googleAI_v1beta, ModelNames.gemma4_31B),
+    (InstanceConfig.googleAI_v1beta, ModelNames.gemma4_31B_developerAPI),
     // Note: The following configs are commented out for easy one-off manual testing.
     // (InstanceConfig.agentPlatform_v1beta_staging, ModelNames.gemini2_5_FlashLite),
     // (InstanceConfig.googleAI_v1beta_staging, ModelNames.gemini2_5_FlashLite),
@@ -643,7 +640,6 @@ struct GenerateContentIntegrationTests {
     """
     let model = FirebaseAI.componentInstance(config).generativeModel(
       modelName: modelName,
-      generationConfig: generationConfig,
       safetySettings: safetySettings
     )
     let chat = model.startChat()
