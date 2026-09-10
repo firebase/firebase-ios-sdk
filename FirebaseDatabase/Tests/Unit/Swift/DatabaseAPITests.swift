@@ -549,6 +549,28 @@ final class DatabaseAPITests {
         } catch {
           // ...
         }
+
+        // snapshots
+        for try await snapshot in databaseQuery.snapshots {
+          let _: DataSnapshot = snapshot
+        }
+
+        // childEvents()
+        for try await event in databaseQuery.childEvents() {
+          switch event {
+          case let .childAdded(snapshot, previousKey):
+            let _: DataSnapshot = snapshot
+            let _: String? = previousKey
+          case let .childChanged(snapshot, previousKey):
+            let _: DataSnapshot = snapshot
+            let _: String? = previousKey
+          case let .childRemoved(snapshot):
+            let _: DataSnapshot = snapshot
+          case let .childMoved(snapshot, previousKey):
+            let _: DataSnapshot = snapshot
+            let _: String? = previousKey
+          }
+        }
       }
     }
 
