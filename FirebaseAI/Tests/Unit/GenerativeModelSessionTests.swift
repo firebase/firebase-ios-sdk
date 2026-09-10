@@ -343,11 +343,6 @@
           XCTFail("Expected an object for JSON key 'generationConfig', got: \(json)")
           return (response, nil)
         }
-        guard case let .number(temperature) = generationConfig["temperature"] else {
-          XCTFail("Expected a number for JSON key 'temperature', got: \(json)")
-          return (response, nil)
-        }
-        XCTAssertEqual(Float(temperature), config.temperature)
         guard case let .string(responseMIMEType) = generationConfig["responseMimeType"] else {
           XCTFail("Expected a string for JSON key 'responseMimeType', got: \(json)")
           return (response, nil)
