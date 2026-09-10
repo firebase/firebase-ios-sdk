@@ -13,7 +13,7 @@
 // limitations under the License.
 
 package import GeminiAPIDataModels
-package import GeminiSharedDataModels
+import GeminiSharedDataModels
 package import InteractionsDataModels
 
 #if canImport(Darwin)

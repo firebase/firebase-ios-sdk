@@ -505,6 +505,72 @@
       )
     }
 
+    #if GeminiDeveloperAPIEnvironmentAuth
+      @Test
+      @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+      func developerAPIPrefersGoogleAPIKeyOverGeminiAPIKey() async throws {
+        let environment = [
+          "GOOGLE_API_KEY": "preferred-google-key",
+          "GEMINI_API_KEY": "fallback-gemini-key",
+        ]
+
+        let model = GeminiLanguageModel(environment: environment)
+        let headerProvider = try #require(model.executorConfiguration.headerProvider)
+        let headers = try await headerProvider()
+
+        #expect(headers["x-goog-api-key"] == "preferred-google-key")
+        #expect(model.executorConfiguration.modelResource.modelID == "gemini-3.5-flash-lite")
+        #expect(model.executorConfiguration.endpointConfiguration == .geminiDeveloperAPI)
+      }
+
+      @Test
+      @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+      func developerAPIFallsBackToGeminiAPIKey() async throws {
+        let environment = ["GEMINI_API_KEY": "gemini-key"]
+
+        let model = GeminiLanguageModel(modelID: "custom-model", environment: environment)
+        let headerProvider = try #require(model.executorConfiguration.headerProvider)
+        let headers = try await headerProvider()
+
+        #expect(headers["x-goog-api-key"] == "gemini-key")
+        #expect(model.executorConfiguration.modelResource.modelID == "custom-model")
+      }
+
+      @Test
+      @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+      func developerAPIWithEmptyEnvironmentThrowsMissingAPIKey() async throws {
+        let model = GeminiLanguageModel(environment: [:])
+        let headerProvider = try #require(model.executorConfiguration.headerProvider)
+
+        await #expect(throws: GeminiLanguageModel.Error.self) {
+          try await headerProvider()
+        }
+      }
+
+      @Test(.requireAPIKey)
+      @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+      func developerAPIDefaultInitWithProcessEnvironment() async throws {
+        let expectedKey = try #require(geminiAPIKey)
+
+        let model = GeminiLanguageModel()
+        let headerProvider = try #require(model.executorConfiguration.headerProvider)
+        let headers = try await headerProvider()
+
+        #expect(headers["x-goog-api-key"] == expectedKey)
+      }
+
+      @Test(.requireNoAPIKey)
+      @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+      func developerAPIDefaultInitWithoutKeyThrows() async throws {
+        let model = GeminiLanguageModel()
+        let headerProvider = try #require(model.executorConfiguration.headerProvider)
+
+        await #expect(throws: GeminiLanguageModel.Error.self) {
+          try await headerProvider()
+        }
+      }
+    #endif  // GeminiDeveloperAPIEnvironmentAuth
+
     private static func makeExpectedStreamURL(
       host: String = EndpointConfiguration.geminiDeveloperAPIHost,
       apiVersion: String = EndpointConfiguration.geminiDeveloperAPIVersion,

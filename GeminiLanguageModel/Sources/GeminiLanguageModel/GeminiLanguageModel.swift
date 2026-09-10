@@ -13,7 +13,11 @@
 // limitations under the License.
 
 #if canImport(FoundationModels) && compiler(>=6.4)
-  package import Foundation
+  #if GeminiDeveloperAPIEnvironmentAuth
+    public import Foundation
+  #else
+    package import Foundation
+  #endif
   public import FoundationModels
   package import GeminiAPIClient
 
@@ -86,6 +90,78 @@
         apiVariant: apiVariant
       )
     }
+
+    #if GeminiDeveloperAPIEnvironmentAuth
+      /// Initializes a new Gemini language model using an API key from the environment.
+      ///
+      /// The model inspects the `GOOGLE_API_KEY` and `GEMINI_API_KEY` environment variables (preferring
+      /// `GOOGLE_API_KEY` if both are set) to authenticate requests with the Gemini Developer API.
+      ///
+      /// - Parameters:
+      ///   - modelID: The model identifier to use (e.g. `"gemini-3.5-flash-lite"`). Defaults to
+      ///     `"gemini-3.5-flash-lite"`.
+      ///   - configuration: The `URLSessionConfiguration` to use. Defaults to `.ephemeral`.
+      ///   - apiVariant: The API variant to use. Defaults to `.generateContent`.
+      public init(
+        modelID: String = "gemini-3.5-flash-lite",
+        configuration: URLSessionConfiguration = .ephemeral,
+        apiVariant: APIVariant = .generateContent
+      ) {
+        self.init(
+          modelID: modelID,
+          environment: ProcessInfo.processInfo.environment,
+          configuration: configuration,
+          apiVariant: apiVariant
+        )
+      }
+
+      /// Initializes a new Gemini language model with an explicit environment dictionary.
+      ///
+      /// - Parameters:
+      ///   - modelID: The model identifier to use. Defaults to `"gemini-3.5-flash-lite"`.
+      ///   - environment: The environment dictionary containing `GOOGLE_API_KEY` or `GEMINI_API_KEY`.
+      ///   - configuration: The `URLSessionConfiguration` to use. Defaults to `.ephemeral`.
+      ///   - apiVariant: The API variant to use. Defaults to `.generateContent`.
+      package init(
+        modelID: String = "gemini-3.5-flash-lite",
+        environment: [String: String],
+        configuration: URLSessionConfiguration = .ephemeral,
+        apiVariant: APIVariant = .generateContent
+      ) {
+        let resource = ModelResource(
+          modelID: modelID,
+          urlResourceName: "models/\(modelID)",
+          payloadResourceName: "models/\(modelID)"
+        )
+        self.init(
+          modelResource: resource,
+          endpointConfiguration: .geminiDeveloperAPI,
+          headerProvider: {
+            guard let apiKey = Self.resolveAPIKey(from: environment) else {
+              throw GeminiLanguageModel.Error.missingAPIKey(
+                GeminiLanguageModel.Error.MissingAPIKey(
+                  debugDescription:
+                    "A Gemini API key is required. Set the GOOGLE_API_KEY or GEMINI_API_KEY environment variable."
+                )
+              )
+            }
+            return ["x-goog-api-key": apiKey]
+          },
+          configuration: configuration,
+          apiVariant: apiVariant
+        )
+      }
+
+      private static func resolveAPIKey(from environment: [String: String]) -> String? {
+        if let googleKey = environment["GOOGLE_API_KEY"], !googleKey.isEmpty {
+          return googleKey
+        }
+        if let geminiKey = environment["GEMINI_API_KEY"], !geminiKey.isEmpty {
+          return geminiKey
+        }
+        return nil
+      }
+    #endif  // GeminiDeveloperAPIEnvironmentAuth
   }
 
   // MARK: - LanguageModel Conformance
