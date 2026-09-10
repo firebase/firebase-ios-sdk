@@ -20,7 +20,6 @@
     import FoundationModels
   #endif
 
-  @available(*, deprecated)
   final class GenerationOptionsTests: XCTestCase {
     #if canImport(FoundationModels)
       @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)

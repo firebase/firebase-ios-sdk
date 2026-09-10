@@ -32,67 +32,9 @@ public struct LiveGenerationConfig: Sendable {
   /// for more details.
   ///
   /// - Parameters:
-  ///   - temperature:Controls the randomness of the language model's output. Higher values (for
-  ///     example, 1.0) make the text more random and creative, while lower values (for example,
-  ///     0.1) make it more focused and deterministic.
-  ///
-  ///     > Note: A temperature of 0 means that the highest probability tokens are always selected.
-  ///     > In this case, responses for a given prompt are mostly deterministic, but a small amount
-  ///     > of variation is still possible.
-  ///
-  ///     > Important: The range of supported temperature values depends on the model; see the
-  ///     > [documentation](https://firebase.google.com/docs/vertex-ai/model-parameters?platform=ios#temperature)
-  ///     > for more details.
-  ///   - topP: Controls diversity of generated text. Higher values (e.g., 0.9) produce more diverse
-  ///     text, while lower values (e.g., 0.5) make the output more focused.
-  ///
-  ///     The supported range is 0.0 to 1.0.
-  ///
-  ///     > Important: The default `topP` value depends on the model; see the
-  ///     > [documentation](https://firebase.google.com/docs/vertex-ai/model-parameters?platform=ios#top-p)
-  ///     > for more details.
-  ///   - topK: Limits the number of highest probability words the model considers when generating
-  ///     text. For example, a topK of 40 means only the 40 most likely words are considered for the
-  ///     next token. A higher value increases diversity, while a lower value makes the output more
-  ///     deterministic.
-  ///
-  ///     The supported range is 1 to 40.
-  ///
-  ///     > Important: Support for `topK` and the default value depends on the model; see the
-  ///     [documentation](https://firebase.google.com/docs/vertex-ai/model-parameters?platform=ios#top-k)
-  ///     for more details.
-  ///   - candidateCount: The number of response variations to return; defaults to 1 if not set.
-  ///     Support for multiple candidates depends on the model; see the
-  ///     [Cloud documentation](https://cloud.google.com/vertex-ai/generative-ai/docs/model-reference/inference#generationconfig)
-  ///     for more details.
   ///   - maxOutputTokens: Maximum number of tokens that can be generated in the response.
   ///     See the configure model parameters [documentation](https://firebase.google.com/docs/vertex-ai/model-parameters?platform=ios#max-output-tokens)
   ///     for more details.
-  ///   - presencePenalty: Controls the likelihood of repeating the same words or phrases already
-  ///     generated in the text. Higher values increase the penalty of repetition, resulting in more
-  ///     diverse output.
-  ///
-  ///     > Note: While both `presencePenalty` and `frequencyPenalty` discourage repetition,
-  ///     > `presencePenalty` applies the same penalty regardless of how many times the word/phrase
-  ///     > has already appeared, whereas `frequencyPenalty` increases the penalty for *each*
-  ///     > repetition of a word/phrase.
-  ///
-  ///     > Important: The range of supported `presencePenalty` values depends on the model; see the
-  ///     > [Cloud documentation](https://cloud.google.com/vertex-ai/generative-ai/docs/model-reference/inference#generationconfig)
-  ///     > for more details
-  ///   - frequencyPenalty: Controls the likelihood of repeating words or phrases, with the penalty
-  ///     increasing for each repetition. Higher values increase the penalty of repetition,
-  ///     resulting in more diverse output.
-  ///
-  ///     > Note: While both `frequencyPenalty` and `presencePenalty` discourage repetition,
-  ///     > `frequencyPenalty` increases the penalty for *each* repetition of a word/phrase, whereas
-  ///     > `presencePenalty` applies the same penalty regardless of how many times the word/phrase
-  ///     > has already appeared.
-  ///
-  ///     > Important: The range of supported `frequencyPenalty` values depends on the model; see
-  ///     > the
-  ///     > [Cloud documentation](https://cloud.google.com/vertex-ai/generative-ai/docs/model-reference/inference#generationconfig)
-  ///     > for more details
   ///   - responseModalities: The data types (modalities) that may be returned in model responses.
   ///
   ///     See the [multimodal
@@ -129,7 +71,7 @@ public struct LiveGenerationConfig: Sendable {
   @available(
     *,
     deprecated,
-    message: "temperature, topP, topK, candidateCount, presencePenalty, and frequencyPenalty are no longer recommended for Gemini 3.x models."
+    message: "candidateCount, temperature, topP, topK, presencePenalty, and frequencyPenalty are unsupported in Gemini 3.x and later models."
   )
   public init(temperature: Float? = nil, topP: Float? = nil, topK: Int? = nil,
               candidateCount: Int? = nil, maxOutputTokens: Int? = nil,
@@ -159,7 +101,7 @@ public struct LiveGenerationConfig: Sendable {
     )
   }
 
-  /// Creates a new `LiveGenerationConfig` value without deprecated tuning parameters.
+  /// Creates a new `LiveGenerationConfig` value.
   ///
   /// See the
   /// [Configure model parameters](https://firebase.google.com/docs/vertex-ai/model-parameters)
@@ -169,16 +111,41 @@ public struct LiveGenerationConfig: Sendable {
   ///
   /// - Parameters:
   ///   - maxOutputTokens: Maximum number of tokens that can be generated in the response.
+  ///     See the configure model parameters [documentation](https://firebase.google.com/docs/vertex-ai/model-parameters?platform=ios#max-output-tokens)
+  ///     for more details.
   ///   - responseModalities: The data types (modalities) that may be returned in model responses.
-  ///   - speech: Controls the voice of the model, when streaming `audio` via `ResponseModality`.
+  ///
+  ///     See the [multimodal
+  ///     responses](https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal-response-generation)
+  ///     documentation for more details.
+  ///
+  ///     > Warning: Specifying response modalities is a **Public Preview** feature, which means
+  ///     > that it is not subject to any SLA or deprecation policy and could change in
+  ///     > backwards-incompatible ways.
+  ///   - speech: Controls the voice of the model, when streaming `audio` via
+  ///     ``ResponseModality``.
   ///   - inputAudioTranscription: Configures (and enables) input transcriptions when streaming to
-  /// the model.
+  ///     the model.
+  ///
+  ///     Input transcripts are the model's interpretation of audio data sent to it, and they are
+  ///     populated in model responses via ``LiveServerContent/inputAudioTranscription``. When this
+  ///     field is set to `nil`, input transcripts are not populated in model responses.
   ///   - outputAudioTranscription: Configures (and enables) output transcriptions when streaming to
-  /// the model.
-  ///   - contextWindowCompression: Enables context window compression to manage the model's context
-  /// window.
+  ///     the model.
+  ///
+  ///     Output transcripts are text representations of the audio the model is sending to the
+  ///     client, and they are populated in model responses via
+  ///     ``LiveServerContent/outputAudioTranscription``. When this
+  ///     field is set to `nil`, output transcripts are not populated in model responses.
+  ///
+  ///     > Important: Transcripts are independent to the model turn. This means transcripts may
+  ///     > come earlier or later than when the model sends the corresponding audio responses.
+  ///   - contextWindowCompression: Enables context window compression to manage the model's
+  ///     context window.
+  ///
+  ///     This mechanism prevents the context from exceeding a given length.
   ///   - realtimeInputConfig: Configures model input behavior when generating content via the
-  /// realtime supported methods.
+  ///     realtime supported methods
   public init(maxOutputTokens: Int? = nil,
               responseModalities: [ResponseModality]? = nil,
               speech: SpeechConfig? = nil,

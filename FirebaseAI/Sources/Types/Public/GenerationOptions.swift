@@ -127,30 +127,11 @@
         }
       }
 
-      var _sampling: GenerationOptions.SamplingMode?
-      var _temperature: Double?
-
       /// A sampling strategy for how the model picks tokens when generating a response.
-      @available(
-        *,
-        deprecated,
-        message: "Manually setting sampling mode is no longer recommended for Gemini 3.x models."
-      )
-      public var sampling: GenerationOptions.SamplingMode? {
-        get { _sampling }
-        set { _sampling = newValue }
-      }
+      public var sampling: GenerationOptions.SamplingMode?
 
       /// Temperature influences the confidence of the model's response.
-      @available(
-        *,
-        deprecated,
-        message: "Manually setting temperature is no longer recommended for Gemini 3.x models."
-      )
-      public var temperature: Double? {
-        get { _temperature }
-        set { _temperature = newValue }
-      }
+      public var temperature: Double?
 
       /// The maximum number of tokens the model is allowed to produce in its response.
       public var maximumResponseTokens: Int?
@@ -159,23 +140,10 @@
       private var _generationOptions: (any GenerationOptionsProtocol)?
 
       /// Creates generation options that control token sampling behavior.
-      @available(
-        *,
-        deprecated,
-        message: "Manually setting sampling mode and temperature is no longer recommended for Gemini 3.x models."
-      )
       public init(sampling: GenerationOptions.SamplingMode? = nil, temperature: Double? = nil,
                   maximumResponseTokens: Int? = nil) {
-        _sampling = sampling
-        _temperature = temperature
-        self.maximumResponseTokens = maximumResponseTokens
-        _generationOptions = nil
-      }
-
-      /// Creates generation options that control token sampling behavior.
-      public init(maximumResponseTokens: Int? = nil) {
-        _sampling = nil
-        _temperature = nil
+        self.sampling = sampling
+        self.temperature = temperature
         self.maximumResponseTokens = maximumResponseTokens
         _generationOptions = nil
       }
@@ -192,15 +160,15 @@
           _generationOptions = options
           // TODO: Remove `else` when Xcode 27 is the min. supported Xcode.
           #if compiler(>=6.4)
-            _sampling = options.samplingMode.map {
+            sampling = options.samplingMode.map {
               SamplingMode(kind: .foundationModelsSamplingMode($0))
             }
           #else
-            _sampling = options.sampling.map {
+            sampling = options.sampling.map {
               SamplingMode(kind: .foundationModelsSamplingMode($0))
             }
           #endif // compiler(>=6.4)
-          _temperature = options.temperature
+          temperature = options.temperature
           maximumResponseTokens = options.maximumResponseTokens
         }
 
@@ -215,14 +183,14 @@
           // TODO: Remove `else` when Xcode 27 is the min. supported Xcode.
           #if compiler(>=6.4)
             return FoundationModels.GenerationOptions(
-              samplingMode: _sampling?.samplingMode,
-              temperature: _temperature,
+              samplingMode: sampling?.samplingMode,
+              temperature: temperature,
               maximumResponseTokens: maximumResponseTokens
             )
           #else
             return FoundationModels.GenerationOptions(
-              sampling: _sampling?.samplingMode,
-              temperature: _temperature,
+              sampling: sampling?.samplingMode,
+              temperature: temperature,
               maximumResponseTokens: maximumResponseTokens
             )
           #endif // compiler(>=6.4)
@@ -239,8 +207,8 @@
           }
         #endif // canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
 
-        return lhs._sampling == rhs._sampling &&
-          lhs._temperature == rhs._temperature &&
+        return lhs.sampling == rhs.sampling &&
+          lhs.temperature == rhs.temperature &&
           lhs.maximumResponseTokens == rhs.maximumResponseTokens
       }
     }
