@@ -21,7 +21,7 @@ package struct ModelResource: Sendable, Hashable, Equatable {
   ///
   /// - Note: While the format is consistent (e.g., `gemini-3.8-flash`), the specific models
   ///   available and their exact identifiers may differ between backend environments.
-  let modelID: String
+  package let modelID: String
 
   /// The fully qualified resource name used when constructing HTTP request URLs.
   ///
@@ -35,7 +35,7 @@ package struct ModelResource: Sendable, Hashable, Equatable {
   /// ### Gemini Enterprise Agent Platform
   /// The format is identical for both direct and Firebase AI Logic requests:
   /// - `projects/{projectID}/locations/{locationID}/publishers/google/models/{modelID}`
-  let urlResourceName: String
+  package let urlResourceName: String
 
   /// The canonical resource name used when serializing nested JSON payloads.
   ///
@@ -46,7 +46,7 @@ package struct ModelResource: Sendable, Hashable, Equatable {
   /// ### Formats
   /// - **Gemini Developer API:** `models/{modelID}`
   /// - **Gemini Enterprise Agent Platform:** `publishers/google/models/{modelID}`
-  let payloadResourceName: String
+  package let payloadResourceName: String
 
   /// Creates a new model resource configuration.
   ///

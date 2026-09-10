@@ -36,17 +36,28 @@ If credentials are not present in the environment, integration tests marked with
 `.requireIntegrationTestingBackend` are automatically and cleanly skipped
 without failing test execution.
 
-## Supported Backends
+## Supported Backends & API Variants
 
 All integration tests are parameterized across
-`IntegrationTestingBackend.availableBackends`:
+`IntegrationTestingBackend.availableBackends` and
+`GeminiLanguageModel.APIVariant.allCases`:
 
+### Backends
 * `.developerAPI`: Direct Gemini Developer API
   (`generativelanguage.googleapis.com`).
 * `.firebaseAILogicDeveloperAPI`: Firebase AI Logic proxy to Gemini Developer
   API (`firebasevertexai.googleapis.com`).
 * `.firebaseAILogicAgentPlatform(location:)`: Firebase AI Logic proxy to Gemini
   Enterprise Agent Platform (defaulting to `location: "global"`).
+
+### API Variants
+* `.generateContent`: Standard content generation API (`:streamGenerateContent`).
+* `.interactions`: Gemini Interactions API (`/interactions`).
+
+> [!NOTE]
+> The Interactions API is currently supported through the Developer API backend
+> (`.developerAPI`). Test cases pairing `.interactions` with Firebase AI Logic
+> backends are automatically cancelled until proxy support is enabled.
 
 ## Files in this Directory
 
@@ -64,12 +75,12 @@ All integration tests are parameterized across
   parameterless tools with empty arguments, and reasoning models.
 * [`IntegrationTestingBackend+GeminiLanguageModel.swift`](IntegrationTestingBackend+GeminiLanguageModel.swift):
   Convenience extension providing `backend.makeModel()` to instantiate a
-  pre-configured `GeminiLanguageModel`.
+  pre-configured `GeminiLanguageModel`, and `backend.supports(apiVariant:)`.
 
 ## Writing New Integration Tests
 
 To add a new integration test suite, parameterize on
-`IntegrationTestingBackend`:
+`IntegrationTestingBackend` and `GeminiLanguageModel.APIVariant`:
 
 ```swift
 @Suite("My New Feature Integration Tests", .requireFoundationModels)
@@ -77,11 +88,15 @@ struct MyNewFeatureIntegrationTests {
   @Test(
     .tags(.integration),
     .requireIntegrationTestingBackend,
-    arguments: IntegrationTestingBackend.availableBackends
+    arguments: IntegrationTestingBackend.availableBackends,
+    GeminiLanguageModel.APIVariant.allCases
   )
   @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
-  func testFeature(backend: IntegrationTestingBackend) async throws {
-    let model = try await backend.makeModel()
+  func testFeature(
+    backend: IntegrationTestingBackend,
+    apiVariant: GeminiLanguageModel.APIVariant
+  ) async throws {
+    let model = try await backend.makeModel(apiVariant: apiVariant)
     let session = LanguageModelSession(model: model)
     // Execute test assertions...
   }

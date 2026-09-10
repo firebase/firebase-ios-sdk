@@ -16,6 +16,7 @@
   import Foundation
   import FoundationModels
   import GeminiAPIDataModels
+  import GeminiSharedDataModels
 
   /// Translates Foundation Models requests into Gemini API data models.
   @available(iOS 27.0, macOS 27.0, watchOS 27.0, visionOS 27.0, *)

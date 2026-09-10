@@ -33,32 +33,21 @@
       /// An error returned by the Gemini API indicating a client or request failure.
       case apiError(APIError)
 
+      /// An error indicating that a required API key was not found.
+      case missingAPIKey(MissingAPIKey)
+
       // MARK: - Payload Structures
 
       /// Information about the Gemini service being temporarily unavailable.
       public struct ServiceUnavailable: Sendable, CustomDebugStringConvertible {
         /// A debug description of the service unavailability.
         public let debugDescription: String
-
-        /// Creates a service unavailable error instance.
-        ///
-        /// - Parameter debugDescription: A debug description of the failure.
-        init(debugDescription: String) {
-          self.debugDescription = debugDescription
-        }
       }
 
       /// Information about a network failure when communicating with the Gemini service.
       public struct NetworkFailure: Sendable, CustomDebugStringConvertible {
         /// A debug description of the network failure.
         public let debugDescription: String
-
-        /// Creates a network failure error instance.
-        ///
-        /// - Parameter debugDescription: A debug description of the failure.
-        init(debugDescription: String) {
-          self.debugDescription = debugDescription
-        }
       }
 
       /// Information about a requested model resource that could not be found.
@@ -121,6 +110,19 @@
         }
       }
 
+      /// Information about a missing API key error.
+      public struct MissingAPIKey: Sendable, CustomDebugStringConvertible {
+        /// A debug description of the missing API key error.
+        public let debugDescription: String
+
+        /// Creates a missing API key error instance.
+        ///
+        /// - Parameter debugDescription: A debug description of the failure.
+        public init(debugDescription: String) {
+          self.debugDescription = debugDescription
+        }
+      }
+
       // MARK: - LocalizedError & CustomDebugStringConvertible
 
       public var errorDescription: String? {
@@ -133,6 +135,8 @@
           modelNotFound.debugDescription
         case .apiError(let apiError):
           apiError.debugDescription
+        case .missingAPIKey(let missingAPIKey):
+          missingAPIKey.debugDescription
         }
       }
 

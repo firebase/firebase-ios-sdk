@@ -17,6 +17,7 @@
   import FoundationModels
   import GeminiAPIClient
   import GeminiAPIDataModels
+  import GeminiSharedDataModels
 
   /// Maps Gemini API and network errors to `FoundationModels.LanguageModelError` or
   /// `GeminiLanguageModel.Error`.

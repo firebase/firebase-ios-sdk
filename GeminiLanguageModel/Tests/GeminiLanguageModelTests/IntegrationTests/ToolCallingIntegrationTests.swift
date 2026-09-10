@@ -67,11 +67,15 @@
 
     @Test(
       .requireIntegrationTestingBackend,
-      arguments: IntegrationTestingBackend.availableBackends
+      arguments: IntegrationTestingBackend.availableBackends,
+      GeminiLanguageModel.APIVariant.allCases
     )
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
-    func sessionRespondSingleToolCall(backend: IntegrationTestingBackend) async throws {
-      let model = try await backend.makeModel()
+    func sessionRespondSingleToolCall(
+      backend: IntegrationTestingBackend,
+      apiVariant: GeminiLanguageModel.APIVariant
+    ) async throws {
+      let model = try await backend.makeModel(apiVariant: apiVariant)
       let session = LanguageModelSession(
         model: model,
         tools: [WeatherTool()]
@@ -101,11 +105,15 @@
 
     @Test(
       .requireIntegrationTestingBackend,
-      arguments: IntegrationTestingBackend.availableBackends
+      arguments: IntegrationTestingBackend.availableBackends,
+      GeminiLanguageModel.APIVariant.allCases
     )
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
-    func sessionRespondToolWithEmptyArguments(backend: IntegrationTestingBackend) async throws {
-      let model = try await backend.makeModel()
+    func sessionRespondToolWithEmptyArguments(
+      backend: IntegrationTestingBackend,
+      apiVariant: GeminiLanguageModel.APIVariant
+    ) async throws {
+      let model = try await backend.makeModel(apiVariant: apiVariant)
       let session = LanguageModelSession(
         model: model,
         tools: [CurrentTimeTool()]
@@ -133,11 +141,15 @@
 
     @Test(
       .requireIntegrationTestingBackend,
-      arguments: IntegrationTestingBackend.availableBackends
+      arguments: IntegrationTestingBackend.availableBackends,
+      GeminiLanguageModel.APIVariant.allCases
     )
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
-    func sessionRespondSequentialToolCalls(backend: IntegrationTestingBackend) async throws {
-      let model = try await backend.makeModel()
+    func sessionRespondSequentialToolCalls(
+      backend: IntegrationTestingBackend,
+      apiVariant: GeminiLanguageModel.APIVariant
+    ) async throws {
+      let model = try await backend.makeModel(apiVariant: apiVariant)
       let session = LanguageModelSession(
         model: model,
         tools: [WeatherTool()]
@@ -161,11 +173,15 @@
 
     @Test(
       .requireIntegrationTestingBackend,
-      arguments: IntegrationTestingBackend.availableBackends
+      arguments: IntegrationTestingBackend.availableBackends,
+      GeminiLanguageModel.APIVariant.allCases
     )
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
-    func sessionRespondParallelToolCalls(backend: IntegrationTestingBackend) async throws {
-      let model = try await backend.makeModel()
+    func sessionRespondParallelToolCalls(
+      backend: IntegrationTestingBackend,
+      apiVariant: GeminiLanguageModel.APIVariant
+    ) async throws {
+      let model = try await backend.makeModel(apiVariant: apiVariant)
       let session = LanguageModelSession(
         model: model,
         tools: [WeatherTool()]
@@ -187,13 +203,15 @@
 
     @Test(
       .requireIntegrationTestingBackend,
-      arguments: IntegrationTestingBackend.availableBackends
+      arguments: IntegrationTestingBackend.availableBackends,
+      GeminiLanguageModel.APIVariant.allCases
     )
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
     func sessionRespondToolCallingModeDisallowed(
-      backend: IntegrationTestingBackend
+      backend: IntegrationTestingBackend,
+      apiVariant: GeminiLanguageModel.APIVariant
     ) async throws {
-      let model = try await backend.makeModel()
+      let model = try await backend.makeModel(apiVariant: apiVariant)
       let session = LanguageModelSession(
         model: model,
         tools: [WeatherTool()]
@@ -214,13 +232,18 @@
 
     @Test(
       .requireIntegrationTestingBackend,
-      arguments: IntegrationTestingBackend.availableBackends
+      arguments: IntegrationTestingBackend.availableBackends,
+      GeminiLanguageModel.APIVariant.allCases
     )
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
     func sessionRespondWithReasoningAndToolCalls(
-      backend: IntegrationTestingBackend
+      backend: IntegrationTestingBackend,
+      apiVariant: GeminiLanguageModel.APIVariant
     ) async throws {
-      let model = try await backend.makeModel(modelID: ModelResource.gemini38FlashID)
+      let model = try await backend.makeModel(
+        modelID: ModelResource.gemini38FlashID,
+        apiVariant: apiVariant
+      )
       let session = LanguageModelSession(
         model: model,
         tools: [WeatherTool()]
