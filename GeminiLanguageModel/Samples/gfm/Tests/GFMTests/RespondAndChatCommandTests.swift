@@ -20,6 +20,7 @@ import Testing
 
 #if canImport(FoundationModels) && compiler(>=6.4)
   import FoundationModels
+  import GeminiLanguageModel
 
   @Suite("RespondAndChatCommand Tests")
   struct RespondAndChatCommandTests {
@@ -31,6 +32,7 @@ import Testing
       #expect(cmd.prompt == "What is Swift?")
       #expect(cmd.model == .gemini)
       #expect(cmd.geminiModel == "gemini-3.5-flash-lite")
+      #expect(cmd.apiVariant == .generateContent)
       #expect(cmd.stream == true)
       #expect(cmd.greedy == false)
     }
@@ -55,11 +57,24 @@ import Testing
 
     @Test
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func respondCommandAPIVariantParsing() throws {
+      let longFlagCmd = try RespondCommand.parse(["--api-variant", "interactions", "Hello"])
+      let shortAliasCmd = try RespondCommand.parse(["--api", "interactions", "Hello"])
+      let generateCmd = try RespondCommand.parse(["--api-variant", "generate-content", "Hello"])
+
+      #expect(longFlagCmd.apiVariant == .interactions)
+      #expect(shortAliasCmd.apiVariant == .interactions)
+      #expect(generateCmd.apiVariant == .generateContent)
+    }
+
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
     func chatCommandDefaults() throws {
       let cmd = try ChatCommand.parse([])
 
       #expect(cmd.model == .gemini)
       #expect(cmd.geminiModel == "gemini-3.5-flash-lite")
+      #expect(cmd.apiVariant == .generateContent)
       #expect(cmd.continue == false)
     }
 
@@ -75,6 +90,63 @@ import Testing
       #expect(cmd.model == .system)
       #expect(cmd.resume == "saved-session")
       #expect(cmd.tool == ["current-time"])
+    }
+
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func chatCommandAPIVariantParsing() throws {
+      let longFlagCmd = try ChatCommand.parse(["--api-variant", "interactions"])
+      let shortAliasCmd = try ChatCommand.parse(["--api", "interactions"])
+
+      #expect(longFlagCmd.apiVariant == .interactions)
+      #expect(shortAliasCmd.apiVariant == .interactions)
+    }
+
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func apiVariantArgumentParsing() {
+      let generateContentCases = [
+        APIVariantChoice(argument: "generate-content"),
+        APIVariantChoice(argument: "generatecontent"),
+        APIVariantChoice(argument: "generate_content"),
+      ]
+      let interactionsCases = [
+        APIVariantChoice(argument: "interactions"),
+        APIVariantChoice(argument: "interaction"),
+      ]
+      let invalid = APIVariantChoice(argument: "unknown")
+
+      for parsed in generateContentCases {
+        #expect(parsed == .generateContent)
+        #expect(parsed?.apiVariant == .generateContent)
+      }
+      for parsed in interactionsCases {
+        #expect(parsed == .interactions)
+        #expect(parsed?.apiVariant == .interactions)
+      }
+      #expect(invalid == nil)
+    }
+
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func modelResolverConfiguresAPIVariant() throws {
+      let interactionsResolver = ModelResolver(
+        apiVariant: .interactions,
+        explicitAPIKey: "fake-key"
+      )
+      let interactionsModel = try interactionsResolver.makeModel()
+      let glmInteractions = try #require(interactionsModel as? GeminiLanguageModel)
+
+      #expect(glmInteractions.apiVariant == .interactions)
+
+      let generateContentResolver = ModelResolver(
+        apiVariant: .generateContent,
+        explicitAPIKey: "fake-key"
+      )
+      let generateContentModel = try generateContentResolver.makeModel()
+      let glmGenerateContent = try #require(generateContentModel as? GeminiLanguageModel)
+
+      #expect(glmGenerateContent.apiVariant == .generateContent)
     }
 
     @Test

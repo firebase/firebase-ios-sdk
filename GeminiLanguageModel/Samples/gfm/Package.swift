@@ -24,7 +24,7 @@ let defaultSwiftSettings: [SwiftSetting] = [
 
 let package = Package(
   name: "gfm",
-  platforms: [.macOS(.v15)],
+  platforms: [.macOS(.v15), .iOS(.v18)],
   products: [
     .executable(
       name: "gfm",

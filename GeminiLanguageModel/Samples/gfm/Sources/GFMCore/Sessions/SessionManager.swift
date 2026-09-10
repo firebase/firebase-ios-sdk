@@ -32,7 +32,13 @@ public import Foundation
       if let sessionsDirectory {
         self.sessionsDirectory = sessionsDirectory
       } else {
-        self.sessionsDirectory = FileManager.default.homeDirectoryForCurrentUser
+        #if os(macOS)
+          let homeDir = FileManager.default.homeDirectoryForCurrentUser
+        #else
+          let homeDir = URL(fileURLWithPath: NSHomeDirectory())
+        #endif
+        self.sessionsDirectory =
+          homeDir
           .appendingPathComponent(".fm", isDirectory: true)
           .appendingPathComponent("sessions", isDirectory: true)
       }

@@ -67,6 +67,11 @@
     /// Gemini API calls.
     public let executorConfiguration: Executor.Configuration
 
+    /// The API variant used to communicate with Gemini.
+    public var apiVariant: APIVariant {
+      executorConfiguration.apiVariant
+    }
+
     /// Initializes a new Gemini language model.
     ///
     /// - Parameters:

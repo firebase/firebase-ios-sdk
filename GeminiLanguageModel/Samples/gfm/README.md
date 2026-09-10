@@ -8,7 +8,8 @@ Google Gemini (`GeminiLanguageModel`) and Apple System models
 
 ## Requirements
 
-*   macOS 26.0 or later (macOS 27.0+ recommended for `SystemLanguageModel`)
+*   macOS 26.0 or later (macOS 27.0+ recommended for `SystemLanguageModel`), or
+    iOS 27.0+ (Simulator or device)
 *   Swift 6.0 or later / Xcode 26.2+
 *   A Gemini API key (obtainable from Google AI Studio) for `gemini` models
 
@@ -42,6 +43,8 @@ gfm respond --api-key "your-gemini-api-key" "Explain quantum computing briefly."
 * `-m, --model <gemini|system>`: Select the backend model (`gemini` by default).
 * `--gemini-model <model-id>`: Specify a Gemini model variant (defaults to
   `gemini-3.5-flash-lite`, e.g. `gemini-2.5-pro` or `gemini-2.5-flash`).
+* `--api-variant, --api <generate-content|interactions>`: Specify the Gemini API
+  variant (`generate-content` by default, or `interactions`).
 
 ## Building and Running
 
@@ -100,6 +103,47 @@ alias gfm="$(pwd)/GeminiLanguageModel/Samples/gfm/.build/release/gfm"
 ln -sf "$(pwd)/GeminiLanguageModel/Samples/gfm/.build/release/gfm" /usr/local/bin/gfm
 ```
 
+### 3. Run on iOS Simulator via Xcode
+
+If your Mac is running macOS 26 and does not yet have macOS 27 for on-device
+`SystemLanguageModel` support, you can build and run `gfm` targeting an **iOS 27
+Simulator** inside Xcode:
+
+1.  **Open the package in Xcode**:
+    ```bash
+    open GeminiLanguageModel/Samples/gfm/Package.swift
+    ```
+2.  **Select the Scheme and Destination**:
+    *   Select the `gfm` executable scheme in the Xcode toolbar.
+    *   Choose an **iOS 27 Simulator** destination (e.g. `iPhone 17 Pro`).
+3.  **Configure Arguments and Environment Variables**:
+    *   Go to **Product > Scheme > Edit Scheme...** (`⌘<`).
+    *   Select **Run** in the left sidebar, then choose the **Arguments** tab.
+    *   **Arguments Passed On Launch**: Add the command arguments you want to run,
+        for example:
+        *   `available`
+        *   `respond "Write a haiku about Swift."`
+        *   `respond --api interactions "Explain how quantum computers work."`
+        *   `chat`
+    *   **Environment Variables**: Click `+` and add:
+        *   Name: `GOOGLE_API_KEY` (or `GEMINI_API_KEY`)
+        *   Value: `<your-gemini-api-key>`
+    *   *(Optional)* Under the **Options** tab, set **Console** to **Use standard
+        console** if you are running an interactive `chat` session.
+4.  **Run**:
+    *   Press `⌘R` (or click the Run button).
+    *   The output streams directly in Xcode's debug console pane (`⇧⌘Y`).
+
+You can also build or test directly from the command line for iOS Simulator:
+
+```bash
+# Build for iOS Simulator
+xcodebuild -scheme gfm -destination 'generic/platform=iOS Simulator'
+
+# Run unit tests on an iOS 27 Simulator
+xcodebuild test -scheme gfm -destination 'platform=iOS Simulator,name=iPhone 17 Pro'
+```
+
 ## Commands and Usage
 
 ### 1. `available`
@@ -146,6 +190,9 @@ gfm respond --resume "my-session" "What is my favorite color?"
 
 # Call built-in demo tools
 gfm respond --tool current-time "What time is it right now?"
+
+# Use the Interactions API instead of Generate Content
+gfm respond --api interactions "Explain how quantum computers work."
 ```
 
 #### Structured Output with `--schema`
@@ -181,6 +228,9 @@ gfm chat -r "my-session"
 
 # Continue the most recent session
 gfm chat -c
+
+# Start a chat session using the Interactions API
+gfm chat --api interactions
 ```
 
 #### In-Chat Slash Commands

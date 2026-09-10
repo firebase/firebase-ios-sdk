@@ -48,7 +48,38 @@ import Foundation
     }
   }
 
+  /// Supported Gemini API variants for the `gfm` command-line utility.
+  public enum APIVariantChoice: String, ExpressibleByArgument, CaseIterable, Sendable {
+    case generateContent = "generate-content"
+    case interactions
+
+    /// The corresponding SDK `GeminiLanguageModel.APIVariant`.
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    @available(tvOS, unavailable)
+    public var apiVariant: GeminiLanguageModel.APIVariant {
+      switch self {
+      case .generateContent:
+        return .generateContent
+      case .interactions:
+        return .interactions
+      }
+    }
+
+    public init?(argument: String) {
+      switch argument.lowercased() {
+      case "generate-content", "generatecontent", "generate_content":
+        self = .generateContent
+      case "interactions", "interaction":
+        self = .interactions
+      default:
+        return nil
+      }
+    }
+  }
+
   /// Helper for configuring and resolving language models from CLI options and environment.
+  @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+  @available(tvOS, unavailable)
   public struct ModelResolver: Sendable {
     /// Default Gemini model ID.
     public static let defaultGeminiModelID = "gemini-3.5-flash-lite"
@@ -59,6 +90,9 @@ import Foundation
     /// Custom Gemini model ID override.
     public var geminiModelID: String
 
+    /// The API variant to use when targeting Gemini. Defaults to `.generateContent`.
+    public var apiVariant: APIVariantChoice
+
     /// Optional explicit API key passed via `--api-key`.
     public var explicitAPIKey: String?
 
@@ -68,14 +102,17 @@ import Foundation
     ///   - choice: The model family to use. Defaults to `.gemini`.
     ///   - geminiModelID: The model identifier to use when targetting Gemini. Defaults to
     ///     `"gemini-3.5-flash-lite"`.
+    ///   - apiVariant: The API variant to use when targeting Gemini. Defaults to `.generateContent`.
     ///   - explicitAPIKey: An optional explicit API key.
     public init(
       choice: ModelChoice = .gemini,
       geminiModelID: String = defaultGeminiModelID,
+      apiVariant: APIVariantChoice = .generateContent,
       explicitAPIKey: String? = nil
     ) {
       self.choice = choice
       self.geminiModelID = geminiModelID
+      self.apiVariant = apiVariant
       self.explicitAPIKey = explicitAPIKey
     }
 
@@ -140,7 +177,7 @@ import Foundation
     public func makeModel() throws -> any LanguageModel {
       switch choice {
       case .gemini:
-        guard let apiKey = resolveAPIKey() else {
+        guard resolveAPIKey() != nil else {
           throw ValidationError(
             "Gemini API key is required. Provide --api-key or set GEMINI_API_KEY (or GOOGLE_API_KEY)."
           )
@@ -148,7 +185,7 @@ import Foundation
         if let explicitAPIKey, !explicitAPIKey.isEmpty {
           setenv("GEMINI_API_KEY", explicitAPIKey, 1)
         }
-        return GeminiLanguageModel(modelID: geminiModelID)
+        return GeminiLanguageModel(modelID: geminiModelID, apiVariant: apiVariant.apiVariant)
 
       case .system:
         return SystemLanguageModel.default

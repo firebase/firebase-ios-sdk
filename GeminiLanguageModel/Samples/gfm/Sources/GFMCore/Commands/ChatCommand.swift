@@ -40,6 +40,12 @@ import Foundation
     public var geminiModel: String = ModelResolver.defaultGeminiModelID
 
     @Option(
+      name: [.customLong("api-variant"), .customLong("api")],
+      help: "Gemini API variant to use (generate-content, interactions; default: generate-content)."
+    )
+    public var apiVariant: APIVariantChoice = .generateContent
+
+    @Option(
       name: .long,
       help: "Explicit Gemini API key."
     )
@@ -75,6 +81,7 @@ import Foundation
       let resolver = ModelResolver(
         choice: model,
         geminiModelID: geminiModel,
+        apiVariant: apiVariant,
         explicitAPIKey: apiKey
       )
       let languageModel = try resolver.makeModel()

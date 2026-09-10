@@ -17,7 +17,7 @@ import Darwin
 import Foundation
 import GFMCore
 
-if #available(macOS 27.0, *) {
+if #available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *) {
   do {
     let command = try await GFMCommand.asyncParseAsRoot()
     try await execute(command)
@@ -25,11 +25,11 @@ if #available(macOS 27.0, *) {
     GFMCommand.exit(withError: error)
   }
 } else {
-  fputs("Error: gfm requires macOS 27.0 or newer.\n", stderr)
+  fputs("Error: gfm requires macOS 27.0, iOS 27.0, or newer.\n", stderr)
   exit(1)
 }
 
-@available(macOS 27.0, *)
+@available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
 private func execute(_ command: any ParsableCommand) async throws {
   if let asyncCommand = command as? any AsyncParsableCommand {
     try await executeAsync(asyncCommand)
@@ -39,7 +39,7 @@ private func execute(_ command: any ParsableCommand) async throws {
   }
 }
 
-@available(macOS 27.0, *)
+@available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
 private func executeAsync<C: AsyncParsableCommand>(_ command: C) async throws {
   var asyncCommand = command
   try await asyncCommand.run()
