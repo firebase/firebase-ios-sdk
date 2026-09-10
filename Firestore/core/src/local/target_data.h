@@ -24,8 +24,8 @@
 
 #include "Firestore/core/src/core/pipeline_util.h"
 #include "Firestore/core/src/core/target.h"
+#include "Firestore/core/src/local/target_data_fwd.h"
 #include "Firestore/core/src/model/snapshot_version.h"
-#include "Firestore/core/src/model/types.h"
 #include "Firestore/core/src/nanopb/byte_string.h"
 
 namespace firebase {
@@ -58,7 +58,8 @@ std::ostream& operator<<(std::ostream& os, QueryPurpose purpose);
  * An immutable set of metadata that the store will need to keep track of for
  * each target.
  */
-class TargetData {
+template <typename TargetIdType>
+class TargetDataTemplate {
  public:
   /**
    * Creates a new TargetData with the given values.
@@ -78,35 +79,35 @@ class TargetData {
    * at the resume token or read time. Documents are counted only when making a
    * listen request with resume token or read time, otherwise, keep it null.
    */
-  TargetData(core::TargetOrPipeline target,
-             model::TargetId target_id,
-             model::ListenSequenceNumber sequence_number,
-             QueryPurpose purpose,
-             model::SnapshotVersion snapshot_version,
-             model::SnapshotVersion last_limbo_free_snapshot_version,
-             nanopb::ByteString resume_token,
-             absl::optional<int32_t> expected_count);
+  TargetDataTemplate(core::TargetOrPipeline target,
+                     TargetIdType target_id,
+                     model::ListenSequenceNumber sequence_number,
+                     QueryPurpose purpose,
+                     model::SnapshotVersion snapshot_version,
+                     model::SnapshotVersion last_limbo_free_snapshot_version,
+                     nanopb::ByteString resume_token,
+                     absl::optional<int32_t> expected_count);
 
   /**
    * Convenience constructor for use when creating a TargetData for the first
    * time.
    */
-  TargetData(const core::TargetOrPipeline target,
-             int target_id,
-             model::ListenSequenceNumber sequence_number,
-             QueryPurpose purpose);
+  TargetDataTemplate(core::TargetOrPipeline target,
+                     TargetIdType target_id,
+                     model::ListenSequenceNumber sequence_number,
+                     QueryPurpose purpose);
 
   /**
    * Creates an invalid TargetData. Prefer TargetData::Invalid() for
    * readability.
    */
-  TargetData() = default;
+  TargetDataTemplate() = default;
 
   /**
    * Constructs an invalid TargetData. Reading any properties of the returned
    * value is undefined.
    */
-  static TargetData Invalid();
+  static TargetDataTemplate Invalid();
 
   /** The target being listened to. */
   const core::TargetOrPipeline& target_or_pipeline() const {
@@ -117,7 +118,7 @@ class TargetData {
    * The TargetId to which the target corresponds, assigned by the LocalStore
    * for user queries or the SyncEngine for limbo queries.
    */
-  model::TargetId target_id() const {
+  TargetIdType target_id() const {
     return target_id_;
   }
 
@@ -163,37 +164,37 @@ class TargetData {
   }
 
   /** Creates a new target data instance with an updated sequence number. */
-  TargetData WithSequenceNumber(
+  TargetDataTemplate WithSequenceNumber(
       model::ListenSequenceNumber sequence_number) const;
 
   /**
    * Creates a new target data instance with an updated resume token and
    * snapshot version.
    */
-  TargetData WithResumeToken(nanopb::ByteString resume_token,
-                             model::SnapshotVersion snapshot_version) const;
+  TargetDataTemplate WithResumeToken(
+      nanopb::ByteString resume_token,
+      model::SnapshotVersion snapshot_version) const;
 
   /** Creates a new target data instance with an updated expected count. */
-  TargetData WithExpectedCount(absl::optional<int32_t> expected_count) const;
+  TargetDataTemplate WithExpectedCount(
+      absl::optional<int32_t> expected_count) const;
 
   /**
    * Creates a new target data instance with an updated last limbo free snapshot
    * version.
    */
-  TargetData WithLastLimboFreeSnapshotVersion(
+  TargetDataTemplate WithLastLimboFreeSnapshotVersion(
       model::SnapshotVersion last_limbo_free_snapshot_version) const;
 
-  friend bool operator==(const TargetData& lhs, const TargetData& rhs);
+  bool Equals(const TargetDataTemplate& rhs) const;
 
   size_t Hash() const;
 
   std::string ToString() const;
 
-  friend std::ostream& operator<<(std::ostream& os, const TargetData& value);
-
  private:
   core::TargetOrPipeline target_;
-  model::TargetId target_id_ = 0;
+  TargetIdType target_id_ = 0;
   model::ListenSequenceNumber sequence_number_ = 0;
   QueryPurpose purpose_ = QueryPurpose::Listen;
   model::SnapshotVersion snapshot_version_;
@@ -202,9 +203,19 @@ class TargetData {
   absl::optional<int32_t> expected_count_;
 };
 
-inline bool operator!=(const TargetData& lhs, const TargetData& rhs) {
+template <typename TargetIdType>
+bool operator==(const TargetDataTemplate<TargetIdType>& lhs,
+                const TargetDataTemplate<TargetIdType>& rhs);
+
+template <typename TargetIdType>
+inline bool operator!=(const TargetDataTemplate<TargetIdType>& lhs,
+                       const TargetDataTemplate<TargetIdType>& rhs) {
   return !(lhs == rhs);
 }
+
+template <typename TargetIdType>
+std::ostream& operator<<(std::ostream& os,
+                         const TargetDataTemplate<TargetIdType>& value);
 
 }  // namespace local
 }  // namespace firestore

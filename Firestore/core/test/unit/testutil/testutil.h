@@ -39,15 +39,13 @@
 #include "Firestore/core/src/nanopb/nanopb_util.h"
 #include "absl/strings/string_view.h"
 
+#include "Firestore/core/src/remote/remote_event_fwd.h"
+
 namespace firebase {
 class Timestamp;
 
 namespace firestore {
 class GeoPoint;
-
-namespace remote {
-class RemoteEvent;
-}  // namespace remote
 
 namespace model {
 class MutableDocument;

@@ -201,6 +201,10 @@ NS_ASSUME_NONNULL_BEGIN
   DocumentKeySet _expectedActiveLimboDocuments;
   DocumentKeySet _expectedEnqueuedLimboDocuments;
 
+  std::unordered_map<model::TargetId, std::vector<model::RemoteTargetId>> _sdk_to_remote_target_ids;
+  absl::optional<int> _current_remote_target_index;
+  BOOL _allow_unlisted_target_removal;
+
   /** A dictionary for tracking the listens on queries. */
   std::unordered_map<core::QueryOrPipeline, std::shared_ptr<QueryListener>> _queryListeners;
 
@@ -273,6 +277,42 @@ NS_ASSUME_NONNULL_BEGIN
     _rejectedDocs = [NSMutableArray array];
   }
   return self;
+}
+
+- (model::RemoteTargetId)getRemoteTargetId:(model::TargetId)sdkTargetId
+                               isWatchStep:(BOOL)isWatchStep {
+  absl::optional<model::RemoteTargetId> activeRemoteId =
+      _remoteStore->GetRemoteTargetId(sdkTargetId);
+  if (activeRemoteId) {
+    auto &history = _sdk_to_remote_target_ids[sdkTargetId];
+    if (history.empty() ||
+        std::find(history.begin(), history.end(), *activeRemoteId) == history.end()) {
+      history.push_back(*activeRemoteId);
+    }
+  }
+
+  auto found = _sdk_to_remote_target_ids.find(sdkTargetId);
+  if (found == _sdk_to_remote_target_ids.end() || found->second.empty()) {
+    return sdkTargetId;
+  }
+
+  const auto &history = found->second;
+  if (isWatchStep && _current_remote_target_index.has_value()) {
+    int idx = _current_remote_target_index.value();
+    if (idx >= 0 && idx < history.size()) {
+      return history[idx];
+    }
+  }
+  return history.back();
+}
+
+- (void)setWatchUsesTargetIndex:(absl::optional<int>)index {
+  _current_remote_target_index = index;
+}
+
+- (void)setAllowUnlistedTargetRemoval:(BOOL)allow {
+  _allow_unlisted_target_removal = allow;
+  _datastore->set_allow_unlisted_target_removal(allow == YES);
 }
 
 - (const FSTOutstandingWriteQueues &)outstandingWrites {
@@ -513,6 +553,7 @@ NS_ASSUME_NONNULL_BEGIN
   // The expectation is that SyncEngine will be made mode-aware if _convertToPipeline is true,
   // or that EventManager/QueryListener will be updated to handle QueryOrPipeline directly.
   _workerQueue->EnqueueBlocking([&] { targetID = _eventManager->AddQueryListener(listener); });
+  [self getRemoteTargetId:targetID isWatchStep:NO];
   return targetID;
 }
 
@@ -590,7 +631,7 @@ NS_ASSUME_NONNULL_BEGIN
   return _syncEngine->GetEnqueuedLimboDocumentResolutions();
 }
 
-- (const std::unordered_map<TargetId, TargetData> &)activeTargets {
+- (const std::unordered_map<model::RemoteTargetId, local::RemoteTargetData> &)activeTargets {
   return _datastore->ActiveTargets();
 }
 
