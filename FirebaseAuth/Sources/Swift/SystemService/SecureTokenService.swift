@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import FirebaseCoreInternal
+internal import FirebaseCoreInternal
 import Foundation
 
 private let kFiveMinutes = 5 * 60.0
