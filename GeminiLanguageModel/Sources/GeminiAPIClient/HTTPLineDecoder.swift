@@ -14,6 +14,9 @@
 
 package import Foundation
 
+private let lineFeed: UInt8 = 0x0A
+private let carriageReturn: UInt8 = 0x0D
+
 /// An incremental decoder that extracts UTF-8 lines of text from streaming byte chunks.
 package struct HTTPLineDecoder: Sendable {
   private var buffer = Data()
@@ -34,7 +37,7 @@ package struct HTTPLineDecoder: Sendable {
 
     if pendingCR {
       pendingCR = false
-      if data[searchStartIndex] == 0x0A /* LF (\n) */ {
+      if data[searchStartIndex] == lineFeed {
         searchStartIndex = data.index(after: searchStartIndex)
       }
     }
@@ -45,7 +48,7 @@ package struct HTTPLineDecoder: Sendable {
       // of the chunk if one delimiter type (e.g. CR) is missing from the payload.
       guard
         let nextNewlineIndex = data[searchStartIndex...].firstIndex(where: {
-          $0 == 0x0A /* LF (\n) */ || $0 == 0x0D /* CR (\r) */
+          $0 == lineFeed || $0 == carriageReturn
         })
       else {
         buffer.append(data[searchStartIndex...])
@@ -57,7 +60,7 @@ package struct HTTPLineDecoder: Sendable {
 
       if pendingCR {
         pendingCR = false
-        if byte == 0x0A /* LF (\n) */ && nextNewlineIndex == searchStartIndex {
+        if byte == lineFeed && nextNewlineIndex == searchStartIndex {
           searchStartIndex = data.index(after: nextNewlineIndex)
           continue
         }
@@ -77,7 +80,7 @@ package struct HTTPLineDecoder: Sendable {
       }
       lines.append(line)
 
-      if byte == 0x0D /* CR (\r) */ {
+      if byte == carriageReturn {
         pendingCR = true
       } else {
         pendingCR = false

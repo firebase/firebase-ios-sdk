@@ -17,6 +17,7 @@
   import FoundationModels
   import GeminiAPIClient
   import GeminiAPIDataModels
+  import GeminiSharedDataModels
   import GeminiTestUtilities
   import Synchronization
   import Testing

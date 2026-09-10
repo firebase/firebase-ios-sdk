@@ -30,11 +30,15 @@
   struct BasicContentGenerationIntegrationTests {
     @Test(
       .requireIntegrationTestingBackend,
-      arguments: IntegrationTestingBackend.availableBackends
+      arguments: IntegrationTestingBackend.availableBackends,
+      GeminiLanguageModel.APIVariant.allCases
     )
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
-    func sessionRespond(backend: IntegrationTestingBackend) async throws {
-      let model = try await backend.makeModel()
+    func sessionRespond(
+      backend: IntegrationTestingBackend,
+      apiVariant: GeminiLanguageModel.APIVariant
+    ) async throws {
+      let model = try await backend.makeModel(apiVariant: apiVariant)
       let session = LanguageModelSession(model: model)
 
       let response = try await session.respond(to: "Reply with the single word 'HELLO'.")
@@ -48,11 +52,15 @@
 
     @Test(
       .requireIntegrationTestingBackend,
-      arguments: IntegrationTestingBackend.availableBackends
+      arguments: IntegrationTestingBackend.availableBackends,
+      GeminiLanguageModel.APIVariant.allCases
     )
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
-    func sessionRespondMultiTurn(backend: IntegrationTestingBackend) async throws {
-      let model = try await backend.makeModel()
+    func sessionRespondMultiTurn(
+      backend: IntegrationTestingBackend,
+      apiVariant: GeminiLanguageModel.APIVariant
+    ) async throws {
+      let model = try await backend.makeModel(apiVariant: apiVariant)
       let session = LanguageModelSession(model: model)
 
       _ = try await session.respond(to: "My favorite color is teal.")
@@ -69,11 +77,15 @@
 
     @Test(
       .requireIntegrationTestingBackend,
-      arguments: IntegrationTestingBackend.availableBackends
+      arguments: IntegrationTestingBackend.availableBackends,
+      GeminiLanguageModel.APIVariant.allCases
     )
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
-    func sessionStreamResponse(backend: IntegrationTestingBackend) async throws {
-      let model = try await backend.makeModel()
+    func sessionStreamResponse(
+      backend: IntegrationTestingBackend,
+      apiVariant: GeminiLanguageModel.APIVariant
+    ) async throws {
+      let model = try await backend.makeModel(apiVariant: apiVariant)
       let session = LanguageModelSession(model: model)
 
       let stream = session.streamResponse(

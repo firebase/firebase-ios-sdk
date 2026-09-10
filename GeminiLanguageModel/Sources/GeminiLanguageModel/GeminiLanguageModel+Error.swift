@@ -39,26 +39,12 @@
       public struct ServiceUnavailable: Sendable, CustomDebugStringConvertible {
         /// A debug description of the service unavailability.
         public let debugDescription: String
-
-        /// Creates a service unavailable error instance.
-        ///
-        /// - Parameter debugDescription: A debug description of the failure.
-        init(debugDescription: String) {
-          self.debugDescription = debugDescription
-        }
       }
 
       /// Information about a network failure when communicating with the Gemini service.
       public struct NetworkFailure: Sendable, CustomDebugStringConvertible {
         /// A debug description of the network failure.
         public let debugDescription: String
-
-        /// Creates a network failure error instance.
-        ///
-        /// - Parameter debugDescription: A debug description of the failure.
-        init(debugDescription: String) {
-          self.debugDescription = debugDescription
-        }
       }
 
       /// Information about a requested model resource that could not be found.

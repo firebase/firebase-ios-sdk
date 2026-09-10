@@ -14,7 +14,9 @@
 
 import Foundation
 import GeminiAPIDataModels
+import GeminiSharedDataModels
 import GeminiTestUtilities
+import InteractionsDataModels
 import Testing
 
 @testable import GeminiAPIClient
@@ -929,6 +931,195 @@ struct GeminiAPIClientTests {
     #expect(response.totalTokens == 128)
   }
 
+  // MARK: - Interactions API Tests
+
+  @Test
+  @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
+  func makeInteractionsRequestURLDirectDeveloperAPI() throws {
+    let client = makeClient()
+
+    let url = try client.makeInteractionsRequestURL()
+
+    #expect(
+      url.absoluteString
+        == "https://generativelanguage.googleapis.com/v1beta/\(testID)/interactions")
+  }
+
+  @Test
+  @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
+  func makeInteractionsRequestURLFirebaseAILogic() throws {
+    let firebaseResource = ModelResource(
+      modelID: "gemini-3.5-flash-lite",
+      urlResourceName: "projects/my-firebase-project/models/gemini-3.5-flash-lite",
+      payloadResourceName: "models/gemini-3.5-flash-lite"
+    )
+    let firebaseEndpoint = EndpointConfiguration(
+      host: "firebasevertexai.googleapis.com",
+      apiVersion: "v1beta"
+    )
+    let client = makeClient(
+      modelResource: firebaseResource,
+      endpointConfiguration: firebaseEndpoint
+    )
+
+    let url = try client.makeInteractionsRequestURL()
+
+    #expect(
+      url.absoluteString
+        == "https://firebasevertexai.googleapis.com/v1beta/projects/my-firebase-project/interactions"
+    )
+  }
+
+  @Test
+  @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
+  func makeInteractionsRequestURLAgentPlatform() throws {
+    let agentPlatformResource = ModelResource(
+      modelID: "gemini-3.5-flash-lite",
+      urlResourceName:
+        "projects/my-project/locations/global/publishers/google/models/gemini-3.5-flash-lite",
+      payloadResourceName: "publishers/google/models/gemini-3.5-flash-lite"
+    )
+    let agentPlatformEndpoint = EndpointConfiguration(
+      host: "generativelanguage.googleapis.com",
+      apiVersion: "v1beta1"
+    )
+    let client = makeClient(
+      modelResource: agentPlatformResource,
+      endpointConfiguration: agentPlatformEndpoint
+    )
+
+    let url = try client.makeInteractionsRequestURL()
+
+    #expect(
+      url.absoluteString
+        == "https://generativelanguage.googleapis.com/v1beta1/projects/my-project/locations/global/interactions"
+    )
+  }
+
+  @Test
+  @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
+  func interactionStreamSimplePrompt() async throws {
+    let client = makeClient()
+    let expectedURL = try makeExpectedInteractionsURL()
+    let httpResponse = try makeResponse(
+      url: expectedURL,
+      headerFields: ["Content-Type": "text/event-stream"]
+    )
+    let ssePayload = """
+      data: {"event_type": "step.delta", "index": 0, "delta": {"type": "text", "text": "Hello from Interactions!"}}
+
+      data: {"event_type": "interaction.completed", "interaction": {"id": "int_123", "status": "completed", "usage": {"total_input_tokens": 10, "total_output_tokens": 5, "total_tokens": 15}}}
+
+      """
+
+    MockHTTPURLProtocol.setHandler(for: expectedURL) { request, proto in
+      #expect(request.value(forHTTPHeaderField: "Content-Type") == "application/json")
+      #expect(request.value(forHTTPHeaderField: "Accept") == "text/event-stream")
+      proto.client?.urlProtocol(proto, didReceive: httpResponse, cacheStoragePolicy: .notAllowed)
+      proto.client?.urlProtocol(proto, didLoad: Data(ssePayload.utf8))
+      proto.client?.urlProtocolDidFinishLoading(proto)
+    }
+
+    let request = CreateModelInteraction(
+      input: .string("Say hello"),
+      model: Model(rawValue: "gemini-3.5-flash-lite"),
+      stream: true
+    )
+    let stream = try await client.interactionStream(for: request)
+    var events: [InteractionSSEEvent] = []
+    for try await event in stream {
+      events.append(event)
+    }
+
+    #expect(events.count == 2)
+    guard case .stepDelta(let stepDelta) = events[0] else {
+      Issue.record("Expected stepDelta event")
+      return
+    }
+    #expect(stepDelta.index == 0)
+    guard case .textDelta(let textDelta) = stepDelta.delta else {
+      Issue.record("Expected textDelta data")
+      return
+    }
+    #expect(textDelta.text == "Hello from Interactions!")
+
+    guard case .interactionCompletedEvent(let completed) = events[1] else {
+      Issue.record("Expected interactionCompleted event")
+      return
+    }
+    #expect(completed.interaction?.usage?.totalTokens == 15)
+  }
+
+  @Test
+  @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
+  func interactionStreamWithDoneSentinel() async throws {
+    let client = makeClient()
+    let expectedURL = try makeExpectedInteractionsURL()
+    let httpResponse = try makeResponse(
+      url: expectedURL,
+      headerFields: ["Content-Type": "text/event-stream"]
+    )
+    let ssePayload = """
+      data: {"event_type": "step.delta", "index": 0, "delta": {"type": "text", "text": "Streaming..."}}
+
+      data: [DONE]
+
+      """
+
+    MockHTTPURLProtocol.setHandler(for: expectedURL) { _, proto in
+      proto.client?.urlProtocol(proto, didReceive: httpResponse, cacheStoragePolicy: .notAllowed)
+      proto.client?.urlProtocol(proto, didLoad: Data(ssePayload.utf8))
+      proto.client?.urlProtocolDidFinishLoading(proto)
+    }
+
+    let request = CreateModelInteraction(
+      input: .string("Stream test"),
+      model: Model(rawValue: "gemini-3.5-flash-lite"),
+      stream: true
+    )
+    let stream = try await client.interactionStream(for: request)
+    var events: [InteractionSSEEvent] = []
+    for try await event in stream {
+      events.append(event)
+    }
+
+    #expect(events.count == 1)
+  }
+
+  @Test
+  @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
+  func interactionStreamMidStreamError() async throws {
+    let client = makeClient()
+    let expectedURL = try makeExpectedInteractionsURL()
+    let httpResponse = try makeResponse(
+      url: expectedURL,
+      headerFields: ["Content-Type": "text/event-stream"]
+    )
+    let ssePayload = """
+      data: {"event_type": "step.delta", "index": 0, "delta": {"type": "text", "text": "Starting..."}}
+
+      data: {"error": {"code": 429, "message": "Resource exhausted", "status": "RESOURCE_EXHAUSTED"}}
+
+      """
+
+    MockHTTPURLProtocol.setHandler(for: expectedURL) { _, proto in
+      proto.client?.urlProtocol(proto, didReceive: httpResponse, cacheStoragePolicy: .notAllowed)
+      proto.client?.urlProtocol(proto, didLoad: Data(ssePayload.utf8))
+      proto.client?.urlProtocolDidFinishLoading(proto)
+    }
+
+    let request = CreateModelInteraction(
+      input: .string("Error test"),
+      model: Model(rawValue: "gemini-3.5-flash-lite"),
+      stream: true
+    )
+    let stream = try await client.interactionStream(for: request)
+
+    await #expect(throws: GeminiAPIError.self) {
+      for try await _ in stream {}
+    }
+  }
+
   // MARK: - Test Helpers
 
   private func makePromptRequest(_ prompt: String) -> GenerateContentRequest {
@@ -994,5 +1185,29 @@ struct GeminiAPIClientTests {
       queryItems = nil
     }
     return try client.makeRequestURL(action: action, queryItems: queryItems)
+  }
+
+  @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
+  private func makeExpectedInteractionsURL(
+    modelResource: ModelResource = defaultModelResource,
+    endpointConfiguration: EndpointConfiguration? = nil,
+    query: String? = nil
+  ) throws -> URL {
+    let client = makeClient(
+      modelResource: modelResource,
+      endpointConfiguration: endpointConfiguration
+    )
+    let queryItems: [URLQueryItem]?
+    if let query {
+      let parts = query.split(separator: "=", maxSplits: 1)
+      if parts.count == 2 {
+        queryItems = [URLQueryItem(name: String(parts[0]), value: String(parts[1]))]
+      } else {
+        queryItems = [URLQueryItem(name: query, value: nil)]
+      }
+    } else {
+      queryItems = nil
+    }
+    return try client.makeInteractionsRequestURL(queryItems: queryItems)
   }
 }

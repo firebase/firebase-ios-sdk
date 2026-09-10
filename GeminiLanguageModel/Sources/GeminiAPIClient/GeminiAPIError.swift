@@ -14,6 +14,7 @@
 
 import Foundation
 package import GeminiAPIDataModels
+package import GeminiSharedDataModels
 
 #if canImport(FoundationNetworking)
   import FoundationNetworking

@@ -14,6 +14,7 @@
 
 import Foundation
 import GeminiAPIDataModels
+import GeminiSharedDataModels
 import Testing
 
 @testable import GeminiAPIClient
