@@ -83,18 +83,29 @@ bool IsServerTimestamp(const google_firestore_v1_Value& value) {
     return false;
   }
 
+  // A server timestamp is only produced internally by `EncodeServerTimestamp`,
+  // which always writes both the `__type__` sentinel and a `__local_write_time__`
+  // timestamp. An ordinary user map can legitimately carry a `__type__:
+  // "server_timestamp"` string field on its own, so classifying on the sentinel
+  // alone misreads that user data as a server timestamp and later aborts in
+  // `GetLocalWriteTime` when the write time it assumes is missing.
+  bool has_sentinel = false;
+  bool has_local_write_time = false;
   for (size_t i = 0; i < value.map_value.fields_count; ++i) {
     const auto& field = value.map_value.fields[i];
     absl::string_view key = nanopb::MakeStringView(field.key);
     if (key == kTypeKey) {
-      return field.value.which_value_type ==
-                 google_firestore_v1_Value_string_value_tag &&
-             nanopb::MakeStringView(field.value.string_value) ==
-                 kServerTimestampSentinel;
+      has_sentinel = field.value.which_value_type ==
+                         google_firestore_v1_Value_string_value_tag &&
+                     nanopb::MakeStringView(field.value.string_value) ==
+                         kServerTimestampSentinel;
+    } else if (key == kLocalWriteTimeKey) {
+      has_local_write_time = field.value.which_value_type ==
+                             google_firestore_v1_Value_timestamp_value_tag;
     }
   }
 
-  return false;
+  return has_sentinel && has_local_write_time;
 }
 
 google_protobuf_Timestamp GetLocalWriteTime(
