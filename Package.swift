@@ -1468,6 +1468,8 @@ func abseilDependency() -> Package.Dependency {
       "https://github.com/google/abseil-cpp-binary.git",
       "1.2025051201.0" ..< "1.2025051202.0"
     )
+    // TODO: Delete following line before merging.
+    return .package(url: packageInfo.url, revision: "c473b33da325bd2cb854ae7834fc63f9a5563464")
   }
 
   return .package(url: packageInfo.url, packageInfo.range)
@@ -1482,6 +1484,8 @@ func grpcDependency() -> Package.Dependency {
     packageInfo = ("https://github.com/grpc/grpc-ios.git", "1.83.1" ..< "1.84.0")
   } else {
     packageInfo = ("https://github.com/google/grpc-binary.git", "1.83.1" ..< "1.84.0")
+    // TODO: Delete following line before merging.
+    return .package(url: packageInfo.url, revision: "913d0ec56488611e32dc7a7291e627f467299aec")
   }
 
   return .package(url: packageInfo.url, packageInfo.range)
@@ -1632,8 +1636,8 @@ func firestoreTargets() -> [Target] {
     } else {
       return .binaryTarget(
         name: "FirebaseFirestoreInternal",
-        url: "https://dl.google.com/firebase/ios/bin/firestore/12.17.0/rc0/FirebaseFirestoreInternal.zip",
-        checksum: "26a8f4b5b2b454b2caf002296da08d71f241628ec27e1610b5b5a8fd5c61feb5"
+        url: "https://dl.google.com/firebase/ios/bin/firestore/13.0.0/pre_rc0/FirebaseFirestoreInternal.zip",
+        checksum: "dfbae6d47d6a427c31928db562344204e55a6af0c036a203c5dee8562d75b7d5"
       )
     }
   }()
