@@ -1,3 +1,10 @@
+# Unreleased
+- [changed] **Breaking Change**: Update imports to `import FirebaseAILogic`
+  and use the `FirebaseAILogic` Swift Package dependency instead of
+  `FirebaseAI`, which has now been removed. See the
+  [Swift module name change](https://firebase.google.com/docs/ai-logic/faq-and-troubleshooting#swift-module-name-change)
+  FAQ entry for more details.
+
 # 12.19.0
 - [feature] **Public Preview**: Added `GeminiLanguageModel`, allowing Gemini
   models to be used with Apple's Foundation Models framework. See the

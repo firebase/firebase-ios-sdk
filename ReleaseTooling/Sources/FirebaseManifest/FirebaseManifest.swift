@@ -39,7 +39,6 @@ public let shared = Manifest(
     Pod("FirebaseAppCheck", zip: true),
     Pod("FirebaseRemoteConfig", zip: true),
     Pod("FirebaseAILogic", zip: true),
-    Pod("FirebaseAI", zip: false),
     Pod("FirebaseAppDistribution", isBeta: true, platforms: ["ios"], zip: true),
     Pod("FirebaseAuth", zip: true),
     Pod("FirebaseCrashlytics", zip: true),
