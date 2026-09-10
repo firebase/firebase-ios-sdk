@@ -59,7 +59,11 @@
       FirebaseConfiguration.shared.setLoggerLevel(.debug)
     }
 
-    override func setUp() {
+    override func setUpWithError() throws {
+      try super.setUpWithError()
+      try XCTSkipIf(
+        true, "Skipping integration test due to backend deprecation and rate limiting."
+      )
       do {
         try ModelFileManager.emptyModelsDirectory()
       } catch {

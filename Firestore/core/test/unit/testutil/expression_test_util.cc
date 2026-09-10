@@ -88,7 +88,7 @@ const std::vector<std::shared_ptr<Expr>> ComparisonValueTestData::BYTE_VALUES =
         SharedConstant(*BlobValue(2, 26)),         // Use variadic args
         SharedConstant(*BlobValue(2, 26, 31)),     // Use variadic args
         // SharedConstant(*BlobValue(std::vector<uint8_t>(...))), // Large blob
-    };
+};
 
 const std::vector<std::shared_ptr<Expr>>
     ComparisonValueTestData::ENTITY_REF_VALUES = {

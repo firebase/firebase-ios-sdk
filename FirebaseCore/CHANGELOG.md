@@ -3,6 +3,23 @@
   (suffixed `-umbrella.h`) from the Zip and Carthage artifacts, in favor of `Firebase.h`
   and framework specific umbrella headers. (#16540)
 
+# Firebase 12.19.1
+- [fixed] Fixed the zip distribution artifact naming on the GitHub release
+  page. This release contains no SDK code changes and is functionally
+  identical to 12.19.0.
+
+# Firebase 12.19.0
+- [deprecated] Firebase 12.19.0 is the final planned minor release of 12.x and
+  the final scheduled release published to CocoaPods. Future major versions
+  (13.0.0+) will be distributed exclusively via Swift Package Manager and binary
+  distributions. Existing CocoaPods releases will remain available as long as
+  CocoaPods ecosystem support continues.
+  See https://firebase.google.com/docs/ios/cocoapods-deprecation for details.
+- [fixed] Fixed a race condition where initializing Firebase in a multi-threaded
+  environment could temporarily corrupt Foundation's locale and calendar caches,
+  resulting in unexpected behavior (e.g., losing the user's "First Day of Week"
+  override). (#16542)
+
 # Firebase 12.17.0
 - [changed] Removed the  (never activated) `recaptchaSiteKey` property from `FirebaseOptions`.
   This feature is part of the public preview reCAPTCHA provider.

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if compiler(>=6.2.3) && canImport(FoundationModels)
+#if compiler(>=6.2.3) && canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
   import Foundation
   import FoundationModels
 
@@ -191,4 +191,5 @@
       return options.toFoundationModels()
     }
   }
-#endif // compiler(>=6.2.3) && canImport(FoundationModels)
+#endif // compiler(>=6.2.3) && canImport(FoundationModels) &&
+// IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM

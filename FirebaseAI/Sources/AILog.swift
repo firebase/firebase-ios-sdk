@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import FirebaseCore
+internal import FirebaseCoreExtension
 import Foundation
 import os.log
-
-internal import FirebaseCoreExtension
 
 enum AILog {
   /// Log message codes for the Firebase AI SDK

@@ -1,0 +1,71 @@
+name: sdk.geminilanguagemodel
+
+on:
+  pull_request:
+    paths:
+    - 'GeminiLanguageModel**'
+    - '.github/workflows/sdk.geminilanguagemodel.yml'
+    # Do not run for documentation-only PRs.
+    - '!**.md'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read  # Needed for actions/checkout
+
+jobs:
+  integration-tests:
+    name: integration-tests
+    if: (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false) || github.event_name == 'workflow_dispatch'
+    runs-on: xcode-27
+    env:
+      AppCheckDebugToken: ${{ secrets.VERTEXAI_INTEGRATION_FAC_DEBUG_TOKEN }}
+      TEST_RUNNER_AppCheckDebugToken: ${{ secrets.VERTEXAI_INTEGRATION_FAC_DEBUG_TOKEN }}
+      secrets_passphrase: ${{ secrets.GHASecretsGPGPassphrase1 }}
+      FIREBASE_PLIST_PATH: /private/tmp/GoogleService-Info.plist
+      TEST_RUNNER_FIREBASE_PLIST_PATH: /private/tmp/GoogleService-Info.plist
+    steps:
+    - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      with:
+        persist-credentials: false
+
+    - name: Select Xcode
+      run: sudo xcode-select -s /Applications/Xcode_27.0.app/Contents/Developer
+
+    - name: Setup simulator
+      uses: ./.github/actions/setup_simulator
+      with:
+        platform: iOS
+
+    - name: Decrypt GoogleService-Info.plist
+      run: |
+        scripts/decrypt_gha_secret.sh \
+          scripts/gha-encrypted/FirebaseAI/TestApp-GoogleService-Info.plist.gpg \
+          "$FIREBASE_PLIST_PATH" \
+          "$secrets_passphrase"
+        chmod 600 "$FIREBASE_PLIST_PATH"
+
+    - name: Build GeminiLanguageModel for testing
+      working-directory: GeminiLanguageModel
+      run: |
+        xcodebuild build-for-testing \
+          -scheme gemini-for-foundation-models \
+          -destination 'platform=iOS Simulator,name=Firebase-iPhone-15-Pro' \
+          -quiet
+
+    - name: Run GeminiLanguageModel integration tests
+      working-directory: GeminiLanguageModel
+      run: |
+        xcodebuild test-without-building \
+          -scheme gemini-for-foundation-models \
+          -destination 'platform=iOS Simulator,name=Firebase-iPhone-15-Pro' \
+          -only-testing-tags integration \
+          -retry-tests-on-failure \
+          -test-iterations 3
+
+    - name: Clean up GoogleService-Info.plist
+      if: always()
+      run: rm -f "$FIREBASE_PLIST_PATH"

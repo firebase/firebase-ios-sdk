@@ -1019,6 +1019,9 @@
       @unchecked Sendable {
       weak var delegate: UIApplicationDelegate?
       var applicationState: UIApplication.State = .active
+      // Test targets are not built for app extensions, so `shared` is available
+      // here where it is not in the SDK. See `AuthNotificationApplication`.
+      var applicationForDelegate: UIApplication { .shared }
       @MainActor func registerForRemoteNotifications() {}
     }
 

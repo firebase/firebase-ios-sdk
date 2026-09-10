@@ -1,3 +1,7 @@
+# 12.19.0
+- [fixed] Reconnect after significant system clock changes so that
+  `.info/serverTimeOffset` is refreshed. (#363)
+
 # 12.17.0
 - [fixed] Fixed an issue where surrogate pair replacement ranges were incorrect
   in push ID generation. (#16415)

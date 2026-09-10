@@ -20,7 +20,6 @@
 #include <utility>
 
 #include "Firestore/core/src/util/status.h"
-#include "absl/base/attributes.h"
 
 namespace firebase {
 namespace firestore {
@@ -31,7 +30,7 @@ class Helper {
  public:
   // Move type-agnostic error handling to the .cc.
   static void HandleInvalidStatusCtorArg(Status*);
-  ABSL_ATTRIBUTE_NORETURN static void Crash(const Status& status);
+  [[noreturn]] static void Crash(const Status& status);
 };
 
 // Construct an instance of T in `p` through placement new, passing Args... to

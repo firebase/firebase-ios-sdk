@@ -15,6 +15,7 @@
 import Foundation
 
 // Avoids exposing internal FirebaseCore APIs to Swift users.
+internal import FirebaseCore
 internal import FirebaseCoreExtension
 internal import FirebaseInstallations
 internal import GoogleDataTransport
