@@ -310,7 +310,7 @@ public final class FirebaseAI: Sendable {
       .allSatisfy({ !$0.isWhitespace && !$0.isNewline && $0 != "/" }) else {
       fatalError("""
       Invalid model name "\(modelName)" specified; see \
-      https://firebase.google.com/docs/ai-logic/gemini-model#available-models for a list of \
+      https://firebase.google.com/docs/ai-logic/models for a list of \
       available models.
       """)
     }
