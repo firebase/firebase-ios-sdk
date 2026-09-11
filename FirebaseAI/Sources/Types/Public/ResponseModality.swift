@@ -18,7 +18,7 @@ import Foundation
 ///
 /// To configure the desired output modalities for model requests, set the `responseModalities`
 /// parameter when initializing a ``GenerationConfig``. See the [multimodal
-/// responses](https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal-response-generation)
+/// responses](https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/capabilities/image-generation)
 /// documentation for more details.
 ///
 /// > Important: Support for each response modality, or combination of modalities, depends on the
@@ -40,7 +40,7 @@ public struct ResponseModality: EncodableProtoEnum, Sendable, Equatable {
   ///
   /// Use this modality when you want the model to create visual content based on the provided input
   /// or prompts. The response might contain one or more generated images. See the [image
-  /// generation](https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal-response-generation#image-generation)
+  /// generation](https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/capabilities/image-generation#image-generation)
   /// documentation for more details.
   ///
   /// > Warning: Image generation using Gemini 2.0 Flash is a **Public Experimental** feature, which

@@ -28,7 +28,7 @@ public struct LiveGenerationConfig: Sendable {
   /// See the
   /// [Configure model parameters](https://firebase.google.com/docs/ai-logic/model-parameters)
   /// guide and the
-  /// [Cloud documentation](https://cloud.google.com/vertex-ai/generative-ai/docs/model-reference/inference#generationconfig)
+  /// [Cloud documentation](https://docs.cloud.google.com/gemini-enterprise-agent-platform/reference/models/inference#generationconfig)
   /// for more details.
   ///
   /// - Parameters:
@@ -38,7 +38,7 @@ public struct LiveGenerationConfig: Sendable {
   ///   - responseModalities: The data types (modalities) that may be returned in model responses.
   ///
   ///     See the [multimodal
-  ///     responses](https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal-response-generation)
+  ///     responses](https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/capabilities/image-generation)
   ///     documentation for more details.
   ///
   ///     > Warning: Specifying response modalities is a **Public Preview** feature, which means
@@ -106,7 +106,7 @@ public struct LiveGenerationConfig: Sendable {
   /// See the
   /// [Configure model parameters](https://firebase.google.com/docs/ai-logic/model-parameters)
   /// guide and the
-  /// [Cloud documentation](https://cloud.google.com/vertex-ai/generative-ai/docs/model-reference/inference#generationconfig)
+  /// [Cloud documentation](https://docs.cloud.google.com/gemini-enterprise-agent-platform/reference/models/inference#generationconfig)
   /// for more details.
   ///
   /// - Parameters:
@@ -116,7 +116,7 @@ public struct LiveGenerationConfig: Sendable {
   ///   - responseModalities: The data types (modalities) that may be returned in model responses.
   ///
   ///     See the [multimodal
-  ///     responses](https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal-response-generation)
+  ///     responses](https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/capabilities/image-generation)
   ///     documentation for more details.
   ///
   ///     > Warning: Specifying response modalities is a **Public Preview** feature, which means

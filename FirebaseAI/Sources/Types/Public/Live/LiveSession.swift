@@ -53,7 +53,7 @@ public final class LiveSession: Sendable {
   ///
   /// To learn more about audio formats, and the required state they should be provided in, see the
   /// docs on
-  /// [Supported audio formats](https://cloud.google.com/vertex-ai/generative-ai/docs/live-api#supported-audio-formats).
+  /// [Supported audio formats](https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/live-api#supported-audio-formats).
   ///
   /// - Parameters:
   ///   - audio: Raw 16-bit PCM audio at 16Hz, used to update the model on the client's
