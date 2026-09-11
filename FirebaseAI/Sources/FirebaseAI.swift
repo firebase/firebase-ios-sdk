@@ -65,7 +65,7 @@ public final class FirebaseAI: Sendable {
 
   /// Initializes a generative model with the given parameters.
   ///
-  /// - Note: Refer to [Gemini models](https://firebase.google.com/docs/ai-logic/gemini-models) for
+  /// - Note: Refer to [Gemini models](https://firebase.google.com/docs/ai-logic/models) for
   /// guidance on choosing an appropriate model for your use case.
   ///
   /// - Parameters:
