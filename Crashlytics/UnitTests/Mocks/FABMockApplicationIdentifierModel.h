@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "Crashlytics/Crashlytics/Settings/Models/FIRCLSApplicationIdentifierModel.h"
+#import "FIRCLSApplicationIdentifierModel.h"
 
 #import <XCTest/XCTest.h>
 

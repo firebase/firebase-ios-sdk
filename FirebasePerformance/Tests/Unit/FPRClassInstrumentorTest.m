@@ -14,9 +14,9 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FirebasePerformance/Sources/Instrumentation/FPRClassInstrumentor.h"
-#import "FirebasePerformance/Sources/Instrumentation/FPRClassInstrumentor_Private.h"
-#import "FirebasePerformance/Sources/Instrumentation/FPRSelectorInstrumentor.h"
+#import "FPRClassInstrumentor.h"
+#import "FPRClassInstrumentor_Private.h"
+#import "FPRSelectorInstrumentor.h"
 
 @interface FPRClassInstrumentorTest : XCTestCase
 

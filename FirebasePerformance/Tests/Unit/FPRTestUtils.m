@@ -12,16 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebasePerformance/Tests/Unit/FPRTestUtils.h"
+#import "FPRTestUtils.h"
 
-#import "FirebasePerformance/Sources/FPRNanoPbUtils.h"
-#import "FirebasePerformance/Sources/Gauges/Memory/FPRMemoryGaugeData.h"
-#import "FirebasePerformance/Sources/Instrumentation/FPRNetworkTrace+Private.h"
-#import "FirebasePerformance/Sources/Instrumentation/FPRNetworkTrace.h"
-#import "FirebasePerformance/Sources/Timer/FIRTrace+Internal.h"
-#import "FirebasePerformance/Sources/Timer/FIRTrace+Private.h"
+#import "FPRNanoPbUtils.h"
+#import "FPRMemoryGaugeData.h"
+#import "FPRNetworkTrace+Private.h"
+#import "FPRNetworkTrace.h"
+#import "FIRTrace+Internal.h"
+#import "FIRTrace+Private.h"
 
-#import "FirebasePerformance/Sources/Protogen/nanopb/perf_metric.nanopb.h"
+#import "perf_metric.nanopb.h"
 
 static NSInteger const kLogSource = 462;  // LogRequest_LogSource_Fireperf
 

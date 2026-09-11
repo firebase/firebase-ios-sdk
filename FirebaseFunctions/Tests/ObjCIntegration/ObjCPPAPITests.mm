@@ -15,7 +15,7 @@
 #import <XCTest/XCTest.h>
 
 #import <FirebaseFunctions/FirebaseFunctions-Swift.h>
-#import "FirebaseCore/FirebaseCore.h"
+#import <FirebaseCore/FirebaseCore.h>
 
 @interface ObjCPPAPICoverage : XCTestCase
 @end

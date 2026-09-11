@@ -16,8 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FirebaseDatabase/Sources/Api/Private/FTypedefs_Private.h"
-#import "FirebaseDatabase/Sources/Utilities/FTypedefs.h"
+#import "FTypedefs_Private.h"
+#import "FTypedefs.h"
 
 @protocol FIRAppCheckInterop;
 @protocol FIRAuthInterop;

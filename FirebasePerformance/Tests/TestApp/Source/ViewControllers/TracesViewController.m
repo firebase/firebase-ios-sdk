@@ -20,7 +20,7 @@
 #import "../Views/PerfTraceView.h"
 #import "TracesViewController+Accessibility.h"
 
-#import "FirebasePerformance/Sources/Public/FirebasePerformance/FIRPerformance.h"
+#import "FIRPerformance.h"
 
 /** Edge insets used by internal subviews. */
 static const CGFloat kEdgeInsetsTop = 10.0f;

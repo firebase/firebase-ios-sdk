@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/Sources/Persistence/FTrackedQuery.h"
+#import "FTrackedQuery.h"
 
-#import "FirebaseDatabase/Sources/Core/FQuerySpec.h"
+#import "FQuerySpec.h"
 
 @interface FTrackedQuery ()
 

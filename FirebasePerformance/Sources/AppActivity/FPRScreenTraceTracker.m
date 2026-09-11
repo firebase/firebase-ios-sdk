@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebasePerformance/Sources/AppActivity/FPRScreenTraceTracker.h"
-#import "FirebasePerformance/Sources/AppActivity/FPRScreenTraceTracker+Private.h"
+#import "FPRScreenTraceTracker.h"
+#import "FPRScreenTraceTracker+Private.h"
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
-#import "FirebasePerformance/Sources/Common/FPRDiagnostics.h"
+#import "FPRDiagnostics.h"
 
 NSString *const kFPRPrefixForScreenTraceName = @"_st_";
 NSString *const kFPRFrozenFrameCounterName = @"_fr_fzn";

@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-#import "FirebaseCore/Extension/FIRComponentContainer.h"
+#import <FirebaseCoreExtension/FIRComponentContainer.h>
 
-#import "FirebaseCore/Extension/FIRAppInternal.h"
-#import "FirebaseCore/Extension/FIRComponent.h"
-#import "FirebaseCore/Extension/FIRLibrary.h"
-#import "FirebaseCore/Extension/FIRLogger.h"
-#import "FirebaseCore/Sources/FIROptionsInternal.h"
-#import "FirebaseCore/Sources/Public/FirebaseCore/FIROptions.h"
+#import <FirebaseCoreExtension/FIRAppInternal.h>
+#import <FirebaseCoreExtension/FIRComponent.h>
+#import <FirebaseCoreExtension/FIRLibrary.h>
+#import <FirebaseCoreExtension/FIRLogger.h>
+#import "FIROptionsInternal.h"
+#import "FIROptions.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

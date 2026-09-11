@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebasePerformance/Sources/AppActivity/FPRTraceBackgroundActivityTracker.h"
+#import "FPRTraceBackgroundActivityTracker.h"
 
-#import "FirebasePerformance/Sources/AppActivity/FPRSessionDetails.h"
+#import "FPRSessionDetails.h"
 
-#import "FirebasePerformance/Sources/FIRPerformance+Internal.h"
+#import "FIRPerformance+Internal.h"
 
 /** Possible checkpoint states of network trace */
 typedef NS_ENUM(NSInteger, FPRNetworkTraceCheckpointState) {

@@ -20,14 +20,14 @@
 #include <utility>
 
 #import "FIRFirestoreErrors.h"
-#import "Firestore/Source/API/FIRCollectionReference+Internal.h"
-#import "Firestore/Source/API/FIRDocumentReference+Internal.h"
-#import "Firestore/Source/API/FIRDocumentSnapshot+Internal.h"
-#import "Firestore/Source/API/FIRFirestore+Internal.h"
-#import "Firestore/Source/API/FIRFirestoreSource+Internal.h"
-#import "Firestore/Source/API/FIRListenerRegistration+Internal.h"
-#import "Firestore/Source/API/FSTUserDataReader.h"
-#import "Firestore/Source/API/converters.h"
+#import "FIRCollectionReference+Internal.h"
+#import "FIRDocumentReference+Internal.h"
+#import "FIRDocumentSnapshot+Internal.h"
+#import "FIRFirestore+Internal.h"
+#import "FIRFirestoreSource+Internal.h"
+#import "FIRListenerRegistration+Internal.h"
+#import "FSTUserDataReader.h"
+#import "converters.h"
 
 #include "Firestore/core/src/api/collection_reference.h"
 #include "Firestore/core/src/api/document_reference.h"

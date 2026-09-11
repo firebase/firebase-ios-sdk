@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "Crashlytics/Crashlytics/Helpers/FIRCLSUtility.h"
+#include "FIRCLSUtility.h"
 
 #import <Foundation/Foundation.h>
 #import <XCTest/XCTest.h>
 
-#include "Crashlytics/Shared/FIRCLSByteUtility.h"
+#include "FIRCLSByteUtility.h"
 
 @interface FIRCLSUtilityTests : XCTestCase
 

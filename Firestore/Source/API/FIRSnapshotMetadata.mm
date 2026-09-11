@@ -18,7 +18,7 @@
 
 #include <utility>
 
-#import "Firestore/Source/API/FIRSnapshotMetadata+Internal.h"
+#import "FIRSnapshotMetadata+Internal.h"
 
 #include "Firestore/core/src/api/snapshot_metadata.h"
 

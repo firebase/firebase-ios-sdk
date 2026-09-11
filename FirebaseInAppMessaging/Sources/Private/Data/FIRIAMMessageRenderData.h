@@ -15,7 +15,7 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "FirebaseInAppMessaging/Sources/Private/Data/FIRIAMRenderingEffectSetting.h"
+#import "FIRIAMRenderingEffectSetting.h"
 
 @protocol FIRIAMMessageContentData;
 NS_ASSUME_NONNULL_BEGIN

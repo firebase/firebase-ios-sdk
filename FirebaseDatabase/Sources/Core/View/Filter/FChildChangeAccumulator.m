@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/Sources/Core/View/Filter/FChildChangeAccumulator.h"
-#import "FirebaseDatabase/Sources/Core/View/FChange.h"
-#import "FirebaseDatabase/Sources/FIndex.h"
+#import "FChildChangeAccumulator.h"
+#import "FChange.h"
+#import "FIndex.h"
 
 @interface FChildChangeAccumulator ()
 @property(nonatomic, strong) NSMutableDictionary *changeMap;

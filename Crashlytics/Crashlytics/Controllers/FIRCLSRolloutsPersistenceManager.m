@@ -13,10 +13,10 @@
 // limitations under the License.
 
 #import <Foundation/Foundation.h>
-#include "Crashlytics/Crashlytics/Components/FIRCLSUserLogging.h"
-#import "Crashlytics/Crashlytics/Helpers/FIRCLSLogger.h"
-#import "Crashlytics/Crashlytics/Models/FIRCLSFileManager.h"
-#import "Crashlytics/Crashlytics/Models/FIRCLSInternalReport.h"
+#include "Crashlytics/Components/FIRCLSUserLogging.h"
+#import "FIRCLSLogger.h"
+#import "FIRCLSFileManager.h"
+#import "FIRCLSInternalReport.h"
 
 #if SWIFT_PACKAGE
 @import FirebaseCrashlyticsSwift;

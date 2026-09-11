@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/Sources/Snapshot/FCompoundWrite.h"
-#import "FirebaseDatabase/Sources/Core/Utilities/FImmutableTree.h"
-#import "FirebaseDatabase/Sources/Core/Utilities/FPath.h"
-#import "FirebaseDatabase/Sources/FNamedNode.h"
-#import "FirebaseDatabase/Sources/Snapshot/FNode.h"
-#import "FirebaseDatabase/Sources/Snapshot/FSnapshotUtilities.h"
+#import "FCompoundWrite.h"
+#import "FImmutableTree.h"
+#import "FPath.h"
+#import "FNamedNode.h"
+#import "FNode.h"
+#import "FSnapshotUtilities.h"
 
 @interface FCompoundWrite ()
 @property(nonatomic, strong) FImmutableTree *writeTree;

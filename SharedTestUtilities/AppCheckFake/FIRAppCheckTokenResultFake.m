@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "SharedTestUtilities/AppCheckFake/FIRAppCheckTokenResultFake.h"
+#import "FIRAppCheckTokenResultFake.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

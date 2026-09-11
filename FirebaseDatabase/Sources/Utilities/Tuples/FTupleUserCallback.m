@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/Sources/Utilities/Tuples/FTupleUserCallback.h"
+#import "FTupleUserCallback.h"
 
 @implementation FTupleUserCallback
 

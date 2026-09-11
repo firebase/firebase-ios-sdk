@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "Firestore/Source/API/FIRListenerRegistration+Internal.h"
+#import "FIRListenerRegistration+Internal.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

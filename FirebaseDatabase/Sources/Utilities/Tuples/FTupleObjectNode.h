@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/Sources/Snapshot/FNode.h"
+#import "FNode.h"
 #import <Foundation/Foundation.h>
 
 @interface FTupleObjectNode : NSObject

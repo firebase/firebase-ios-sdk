@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FirebaseRemoteConfig/Sources/Public/FirebaseRemoteConfig/FIRRemoteConfig.h"
+#import "FIRRemoteConfig.h"
 
 /// Firebase Remote Config service default namespace.
 /// TODO(doudounan): Change to use this namespace defined in RemoteConfigInterop.

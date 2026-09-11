@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebasePerformance/Sources/Instrumentation/Network/FPRNSURLConnectionInstrument.h"
+#import "FPRNSURLConnectionInstrument.h"
 
-#import "FirebasePerformance/Sources/Instrumentation/Network/Delegates/FPRNSURLConnectionDelegateInstrument.h"
+#import "FPRNSURLConnectionDelegateInstrument.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

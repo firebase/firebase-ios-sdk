@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "Crashlytics/Shared/FIRCLSNetworking/FIRCLSNetworkResponseHandler.h"
+#import "FIRCLSNetworkResponseHandler.h"
 
 @implementation FIRCLSNetworkResponseHandler
 

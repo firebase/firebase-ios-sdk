@@ -31,7 +31,6 @@ Firebase Performance library to measure performance of Mobile and Web Apps.
   base_dir = "FirebasePerformance/"
   s.source_files = [
     base_dir + 'Sources/**/*.[cmh]',
-    'FirebaseCore/Extension/*.h',
     'FirebaseInstallations/Source/Library/Private/*.h',
     'FirebaseRemoteConfig/Sources/Private/*.h',
   ]
@@ -59,6 +58,7 @@ Firebase Performance library to measure performance of Mobile and Web Apps.
   s.framework = 'QuartzCore'
   s.framework = 'SystemConfiguration'
   s.dependency 'FirebaseCore', '~> 12.19.0'
+  s.dependency 'FirebaseCoreExtension', '~> 12.19.0'
   s.dependency 'FirebaseInstallations', '~> 12.19.0'
   s.dependency 'FirebaseRemoteConfig', '~> 12.19.0'
   s.dependency 'FirebaseSessions', '~> 12.19.0'

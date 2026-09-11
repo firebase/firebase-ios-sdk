@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "SharedTestUtilities/FIRComponentTestUtilities.h"
-#import "SharedTestUtilities/FIROptionsMock.h"
+#import "FIRComponentTestUtilities.h"
+#import "FIROptionsMock.h"
 
 // Firebase Core
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>

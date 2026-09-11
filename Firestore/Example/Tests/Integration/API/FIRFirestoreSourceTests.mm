@@ -19,7 +19,7 @@
 #import <XCTest/XCTest.h>
 
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
-#import "Firestore/Source/API/FIRFirestore+Internal.h"
+#import "FIRFirestore+Internal.h"
 
 @interface FIRFirestoreSourceTests : FSTIntegrationTestCase
 @end

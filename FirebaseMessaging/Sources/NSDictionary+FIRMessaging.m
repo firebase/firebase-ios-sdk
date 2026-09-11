@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FirebaseMessaging/Sources/NSDictionary+FIRMessaging.h"
+#import "NSDictionary+FIRMessaging.h"
 
 @implementation NSDictionary (FIRMessaging)
 

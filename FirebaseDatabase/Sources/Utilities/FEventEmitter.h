@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/Sources/Api/FIRDatabaseConfig.h"
-#import "FirebaseDatabase/Sources/Api/Private/FTypedefs_Private.h"
-#import "FirebaseDatabase/Sources/Public/FirebaseDatabase/FIRDatabaseQuery.h"
+#import "FIRDatabaseConfig.h"
+#import "FTypedefs_Private.h"
+#import "FIRDatabaseQuery.h"
 
 @interface FEventEmitter : NSObject
 

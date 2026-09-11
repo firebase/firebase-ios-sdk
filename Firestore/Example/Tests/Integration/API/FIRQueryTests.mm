@@ -24,8 +24,8 @@
 #import "Firestore/Example/Tests/Util/FSTTestingHooks.h"
 
 // TODO(MIEQ) update these imports with public imports when aggregate types are public
-#import "Firestore/Source/API/FIRAggregateQuerySnapshot+Internal.h"
-#import "Firestore/Source/API/FIRQuery+Internal.h"
+#import "FIRAggregateQuerySnapshot+Internal.h"
+#import "FIRQuery+Internal.h"
 
 @interface FIRQueryTests : FSTIntegrationTestCase
 @end

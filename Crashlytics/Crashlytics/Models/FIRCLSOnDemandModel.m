@@ -14,15 +14,15 @@
 
 #import <Foundation/Foundation.h>
 
-#import "Crashlytics/Crashlytics/Components/FIRCLSApplication.h"
-#import "Crashlytics/Crashlytics/DataCollection/FIRCLSDataCollectionArbiter.h"
-#import "Crashlytics/Crashlytics/DataCollection/FIRCLSDataCollectionToken.h"
-#import "Crashlytics/Crashlytics/Handlers/FIRCLSException.h"
-#import "Crashlytics/Crashlytics/Helpers/FIRCLSLogger.h"
-#include "Crashlytics/Crashlytics/Helpers/FIRCLSUtility.h"
-#import "Crashlytics/Crashlytics/Models/FIRCLSFileManager.h"
-#import "Crashlytics/Crashlytics/Models/FIRCLSOnDemandModel.h"
-#import "Crashlytics/Crashlytics/Private/FIRCLSOnDemandModel_Private.h"
+#import "FIRCLSApplication.h"
+#import "FIRCLSDataCollectionArbiter.h"
+#import "FIRCLSDataCollectionToken.h"
+#import "FIRCLSException.h"
+#import "FIRCLSLogger.h"
+#include "Crashlytics/Helpers/FIRCLSUtility.h"
+#import "FIRCLSFileManager.h"
+#import "FIRCLSOnDemandModel.h"
+#import "FIRCLSOnDemandModel_Private.h"
 
 #include <math.h>
 

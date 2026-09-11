@@ -21,9 +21,9 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
-#import "FirebaseMessaging/Sources/Token/FIRMessagingAuthKeychain.h"
-#import "FirebaseMessaging/Sources/Token/FIRMessagingCheckinPreferences.h"
-#import "FirebaseMessaging/Sources/Token/FIRMessagingTokenInfo.h"
+#import "FIRMessagingAuthKeychain.h"
+#import "FIRMessagingCheckinPreferences.h"
+#import "FIRMessagingTokenInfo.h"
 
 static NSString *const kFIRMessagingTestKeychainId = @"com.google.iid-tests";
 

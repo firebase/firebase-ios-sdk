@@ -14,9 +14,9 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FirebasePerformance/Sources/Loggers/FPRGDTEvent.h"
+#import "FPRGDTEvent.h"
 
-#import "FirebasePerformance/Tests/Unit/FPRTestUtils.h"
+#import "FPRTestUtils.h"
 
 @interface FPRGDTEventTest : XCTestCase
 

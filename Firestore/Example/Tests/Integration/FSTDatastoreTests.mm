@@ -21,10 +21,10 @@
 #include <memory>
 #include <vector>
 
-#import "FirebaseCore/Sources/Public/FirebaseCore/FIRTimestamp.h"
+#import <FirebaseCore/FIRTimestamp.h>
 
-#import "Firestore/Source/API/FIRDocumentReference+Internal.h"
-#import "Firestore/Source/API/FSTUserDataReader.h"
+#import "FIRDocumentReference+Internal.h"
+#import "FSTUserDataReader.h"
 
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 

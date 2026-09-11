@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-#import "FirebaseRemoteConfig/Sources/RCNConfigRealtime.h"
+#import "RCNConfigRealtime.h"
 #import <Foundation/Foundation.h>
 #import <GoogleUtilities/GULNSData+zlib.h>
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
-#import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
-#import "FirebaseRemoteConfig/Sources/Private/RCNConfigFetch.h"
-#import "FirebaseRemoteConfig/Sources/Private/RCNConfigSettings.h"
-#import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
-#import "FirebaseRemoteConfig/Sources/RCNDevice.h"
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
+#import <FirebaseInstallations/FirebaseInstallations.h>
+#import "RCNConfigFetch.h"
+#import "RCNConfigSettings.h"
+#import "RCNConfigConstants.h"
+#import "RCNDevice.h"
 
 /// URL params
 static NSString *const kServerURLDomain = @"https://firebaseremoteconfigrealtime.googleapis.com";

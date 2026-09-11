@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebasePerformance/Sources/Instrumentation/Network/Delegates/FPRNSURLConnectionDelegateInstrument.h"
+#import "FPRNSURLConnectionDelegateInstrument.h"
 
-#import "FirebasePerformance/Sources/Instrumentation/FPRClassInstrumentor.h"
-#import "FirebasePerformance/Sources/Instrumentation/FPRInstrument_Private.h"
-#import "FirebasePerformance/Sources/Instrumentation/FPRNetworkTrace.h"
-#import "FirebasePerformance/Sources/Instrumentation/FPRSelectorInstrumentor.h"
-#import "FirebasePerformance/Sources/Instrumentation/Network/Delegates/FPRNSURLConnectionDelegate.h"
-#import "FirebasePerformance/Sources/Instrumentation/Network/FPRNetworkInstrumentHelpers.h"
+#import "FPRClassInstrumentor.h"
+#import "FPRInstrument_Private.h"
+#import "FPRNetworkTrace.h"
+#import "FPRSelectorInstrumentor.h"
+#import "FPRNSURLConnectionDelegate.h"
+#import "FPRNetworkInstrumentHelpers.h"
 
 #pragma mark - NSURLConnectionDelegate methods
 

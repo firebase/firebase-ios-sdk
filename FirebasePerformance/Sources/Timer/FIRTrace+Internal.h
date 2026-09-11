@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebasePerformance/Sources/Timer/FPRCounterList.h"
+#import "FPRCounterList.h"
 
-#import "FirebasePerformance/Sources/AppActivity/FPRSessionDetails.h"
+#import "FPRSessionDetails.h"
 
-#import "FirebasePerformance/Sources/FIRPerformance+Internal.h"
+#import "FIRPerformance+Internal.h"
 
 /**
  * Extension that is added on top of the class FIRTrace to make certain methods used internally

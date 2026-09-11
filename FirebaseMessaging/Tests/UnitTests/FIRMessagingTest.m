@@ -18,24 +18,24 @@
 #import <XCTest/XCTest.h>
 
 #import <GoogleUtilities/GULUserDefaults.h>
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
-#import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
-#import "FirebaseMessaging/Sources/FIRMessagingConstants.h"
-#import "FirebaseMessaging/Sources/FIRMessagingPubSub.h"
-#import "FirebaseMessaging/Sources/FIRMessagingTopicOperation.h"
-#import "FirebaseMessaging/Sources/FIRMessagingUtilities.h"
-#import "FirebaseMessaging/Sources/FIRMessaging_Private.h"
-#import "FirebaseMessaging/Sources/NSError+FIRMessaging.h"
-#import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessaging.h"
-#import "FirebaseMessaging/Sources/Token/FIRMessagingAPNSInfo.h"
-#import "FirebaseMessaging/Sources/Token/FIRMessagingFIDRegisterOperation.h"
-#import "FirebaseMessaging/Sources/Token/FIRMessagingFIDUnregisterOperation.h"
-#import "FirebaseMessaging/Sources/Token/FIRMessagingTokenInfo.h"
-#import "FirebaseMessaging/Sources/Token/FIRMessagingTokenManager.h"
-#import "FirebaseMessaging/Sources/Token/FIRMessagingTokenStore.h"
-#import "FirebaseMessaging/Tests/UnitTests/FIRMessagingTestUtilities.h"
-#import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
-#import "SharedTestUtilities/URLSession/FIRURLSessionOCMockStub.h"
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
+#import <FirebaseInstallations/FirebaseInstallations.h>
+#import "FIRMessagingConstants.h"
+#import "FIRMessagingPubSub.h"
+#import "FIRMessagingTopicOperation.h"
+#import "FIRMessagingUtilities.h"
+#import "FIRMessaging_Private.h"
+#import "NSError+FIRMessaging.h"
+#import "FIRMessaging.h"
+#import "FIRMessagingAPNSInfo.h"
+#import "FIRMessagingFIDRegisterOperation.h"
+#import "FIRMessagingFIDUnregisterOperation.h"
+#import "FIRMessagingTokenInfo.h"
+#import "FIRMessagingTokenManager.h"
+#import "FIRMessagingTokenStore.h"
+#import "FIRMessagingTestUtilities.h"
+#import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
+#import "FIRURLSessionOCMockStub.h"
 
 @interface FIRMessagingFIDRegisterOperation (ExposedForTest)
 + (void)resetSharedSession;

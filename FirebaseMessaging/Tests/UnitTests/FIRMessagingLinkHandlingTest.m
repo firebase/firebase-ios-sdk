@@ -18,10 +18,10 @@
 #import <XCTest/XCTest.h>
 
 #import <GoogleUtilities/GULUserDefaults.h>
-#import "FirebaseMessaging/Sources/FIRMessagingConstants.h"
-#import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessaging.h"
-#import "FirebaseMessaging/Tests/UnitTests/FIRMessagingTestNotificationUtilities.h"
-#import "FirebaseMessaging/Tests/UnitTests/FIRMessagingTestUtilities.h"
+#import "FIRMessagingConstants.h"
+#import "FIRMessaging.h"
+#import "FIRMessagingTestNotificationUtilities.h"
+#import "FIRMessagingTestUtilities.h"
 
 NSString *const kFIRMessagingTestsLinkHandlingSuiteName = @"com.messaging.test_linkhandling";
 

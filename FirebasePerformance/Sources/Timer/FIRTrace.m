@@ -12,19 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebasePerformance/Sources/Public/FirebasePerformance/FIRTrace.h"
+#import "FIRTrace.h"
 
-#import "FirebasePerformance/Sources/AppActivity/FPRAppActivityTracker.h"
-#import "FirebasePerformance/Sources/AppActivity/FPRSessionManager.h"
-#import "FirebasePerformance/Sources/Common/FPRConstants.h"
-#import "FirebasePerformance/Sources/Common/FPRDiagnostics.h"
-#import "FirebasePerformance/Sources/Configurations/FPRConfigurations.h"
-#import "FirebasePerformance/Sources/FPRClient.h"
-#import "FirebasePerformance/Sources/FPRConsoleLogger.h"
-#import "FirebasePerformance/Sources/FPRDataUtils.h"
-#import "FirebasePerformance/Sources/Gauges/FPRGaugeManager.h"
-#import "FirebasePerformance/Sources/Timer/FIRTrace+Internal.h"
-#import "FirebasePerformance/Sources/Timer/FIRTrace+Private.h"
+#import "FPRAppActivityTracker.h"
+#import "FPRSessionManager.h"
+#import "FPRConstants.h"
+#import "FPRDiagnostics.h"
+#import "FPRConfigurations.h"
+#import "FPRClient.h"
+#import "FPRConsoleLogger.h"
+#import "FPRDataUtils.h"
+#import "FPRGaugeManager.h"
+#import "FIRTrace+Internal.h"
+#import "FIRTrace+Private.h"
 
 @interface FIRTrace ()
 

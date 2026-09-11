@@ -16,7 +16,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FirebaseAppCheck/Sources/Core/FIRAppCheckLogger.h"
+#import "Core/FIRAppCheckLogger.h"
 
 #import <AppCheckCore/AppCheckCore.h>
 

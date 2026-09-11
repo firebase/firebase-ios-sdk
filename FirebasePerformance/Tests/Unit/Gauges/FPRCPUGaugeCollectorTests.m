@@ -14,12 +14,12 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FirebasePerformance/Sources/Configurations/FPRConfigurations+Private.h"
-#import "FirebasePerformance/Sources/Gauges/CPU/FPRCPUGaugeCollector+Private.h"
-#import "FirebasePerformance/Sources/Gauges/CPU/FPRCPUGaugeCollector.h"
+#import "FPRConfigurations+Private.h"
+#import "FPRCPUGaugeCollector+Private.h"
+#import "FPRCPUGaugeCollector.h"
 
 #import <OCMock/OCMock.h>
-#import "FirebasePerformance/Tests/Unit/Fakes/FPRFakeConfigurations.h"
+#import "FPRFakeConfigurations.h"
 
 extern uint64_t dispatch_benchmark(size_t count, void (^block)(void));
 

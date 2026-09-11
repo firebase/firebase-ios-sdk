@@ -14,7 +14,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FirebasePerformance/Sources/AppActivity/FPRTraceBackgroundActivityTracker.h"
+#import "FPRTraceBackgroundActivityTracker.h"
 
 @interface FPRTraceBackgroundActivityTrackerTest : XCTestCase
 

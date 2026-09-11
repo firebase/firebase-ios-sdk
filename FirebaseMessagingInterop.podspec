@@ -25,6 +25,6 @@ Pod::Spec.new do |s|
   s.tvos.deployment_target = '15.0'
   s.watchos.deployment_target = '7.0'
 
-  s.source_files = 'FirebaseMessaging/Interop/*.[hm]'
-  s.public_header_files = 'FirebaseMessaging/Interop/*.h'
+  s.source_files = 'FirebaseMessaging/Interop/**/*.[hm]'
+  s.public_header_files = 'FirebaseMessaging/Interop/Public/FirebaseMessagingInterop/*.h'
 end

@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
-#import "FirebaseDatabase/Sources/Api/Private/FIRDatabaseQuery_Private.h"
-#import "FirebaseDatabase/Tests/Helpers/FTestBase.h"
-#import "SharedTestUtilities/FIROptionsMock.h"
+#import "FIRDatabaseQuery_Private.h"
+#import "FTestBase.h"
+#import "FIROptionsMock.h"
 
 @interface FIROptions (Testing)
 + (NSString *)plistFilePathWithName:(NSString *)fileName;

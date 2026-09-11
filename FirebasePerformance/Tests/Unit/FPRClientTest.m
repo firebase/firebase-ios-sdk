@@ -14,23 +14,23 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
-#import "FirebasePerformance/Sources/Configurations/FPRConfigurations+Private.h"
-#import "FirebasePerformance/Sources/FPRClient+Private.h"
-#import "FirebasePerformance/Sources/FPRClient.h"
-#import "FirebasePerformance/Sources/FPRNanoPbUtils.h"
-#import "FirebasePerformance/Sources/Loggers/FPRGDTLogger.h"
-#import "FirebasePerformance/Sources/Loggers/FPRGDTLogger_Private.h"
+#import "FPRConfigurations+Private.h"
+#import "FPRClient+Private.h"
+#import "FPRClient.h"
+#import "FPRNanoPbUtils.h"
+#import "FPRGDTLogger.h"
+#import "FPRGDTLogger_Private.h"
 
-#import "FirebasePerformance/Tests/Unit/Configurations/FPRFakeRemoteConfig.h"
-#import "FirebasePerformance/Tests/Unit/FPRTestCase.h"
-#import "FirebasePerformance/Tests/Unit/FPRTestUtils.h"
-#import "FirebasePerformance/Tests/Unit/Fakes/FPRFakeConfigurations.h"
-#import "FirebasePerformance/Tests/Unit/Fakes/FPRFakeInstallations.h"
+#import "FPRFakeRemoteConfig.h"
+#import "FPRTestCase.h"
+#import "FPRTestUtils.h"
+#import "FPRFakeConfigurations.h"
+#import "FPRFakeInstallations.h"
 
 #import <OCMock/OCMock.h>
-#import "SharedTestUtilities/GDTCORTransportFake.h"
+#import "GDTCORTransportFake.h"
 
 NSString *const kFPRMockInstallationId = @"mockId";
 

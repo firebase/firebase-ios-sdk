@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebasePerformance/Sources/Common/FPRDiagnostics.h"
-#import "FirebasePerformance/Sources/Configurations/FPRConfigurations.h"
+#import "FPRDiagnostics.h"
+#import "FPRConfigurations.h"
 
 /**
  * Extension that is added on top of the class FPRDiagnostics to make the private properties

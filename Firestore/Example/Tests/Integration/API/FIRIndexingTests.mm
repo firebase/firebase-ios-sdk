@@ -24,7 +24,7 @@
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
-#import "Firestore/Source/Public/FirebaseFirestore/FIRPersistentCacheIndexManager.h"
+#import "FIRPersistentCacheIndexManager.h"
 
 @interface FIRIndexingTests : FSTIntegrationTestCase
 @end

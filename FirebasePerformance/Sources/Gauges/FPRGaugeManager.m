@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebasePerformance/Sources/Gauges/FPRGaugeManager.h"
-#import "FirebasePerformance/Sources/Gauges/FPRGaugeManager+Private.h"
+#import "FPRGaugeManager.h"
+#import "FPRGaugeManager+Private.h"
 
-#import "FirebasePerformance/Sources/Common/FPRDiagnostics.h"
-#import "FirebasePerformance/Sources/Configurations/FPRConfigurations.h"
-#import "FirebasePerformance/Sources/FPRClient.h"
-#import "FirebasePerformance/Sources/Gauges/CPU/FPRCPUGaugeCollector.h"
-#import "FirebasePerformance/Sources/Gauges/Memory/FPRMemoryGaugeCollector.h"
+#import "FPRDiagnostics.h"
+#import "FPRConfigurations.h"
+#import "FPRClient.h"
+#import "FPRCPUGaugeCollector.h"
+#import "FPRMemoryGaugeCollector.h"
 
 #import <UIKit/UIKit.h>
 

@@ -12,7 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebaseRemoteConfig/Sources/Private/FIRRemoteConfig_Private.h"
-#import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
-#import "FirebaseRemoteConfig/Tests/Swift/ObjC/FetchMocks.h"
-#import "FirebaseRemoteConfig/Tests/Swift/ObjC/RealtimeMocks.h"
+#import <FirebaseRemoteConfig/FIRRemoteConfig_Private.h>
+#import "RCNConfigConstants.h"
+#import "RCNConfigFetch.h"
+#import "RCNConfigRealtime.h"
+#import "FetchMocks.h"
+#import "RealtimeMocks.h"

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/Sources/Utilities/Tuples/FTupleStringNode.h"
+#import "FTupleStringNode.h"
 #import <Foundation/Foundation.h>
 
 @interface FTupleTSN : NSObject

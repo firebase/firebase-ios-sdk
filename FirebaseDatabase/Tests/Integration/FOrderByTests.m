@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/Tests/Integration/FOrderByTests.h"
+#import "FOrderByTests.h"
 
 @interface FOrderByTests ()
 @end

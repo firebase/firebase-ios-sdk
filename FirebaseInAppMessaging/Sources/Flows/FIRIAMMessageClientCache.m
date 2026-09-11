@@ -17,14 +17,14 @@
 #import <TargetConditionals.h>
 #if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
 
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
-#import "FirebaseInAppMessaging/Sources/FIRCore+InAppMessaging.h"
-#import "FirebaseInAppMessaging/Sources/Private/Data/FIRIAMFetchResponseParser.h"
-#import "FirebaseInAppMessaging/Sources/Private/DisplayTrigger/FIRIAMDisplayTriggerDefinition.h"
-#import "FirebaseInAppMessaging/Sources/Private/Flows/FIRIAMDisplayCheckOnAnalyticEventsFlow.h"
-#import "FirebaseInAppMessaging/Sources/Private/Flows/FIRIAMMessageClientCache.h"
-#import "FirebaseInAppMessaging/Sources/Private/Flows/FIRIAMServerMsgFetchStorage.h"
+#import "FIRCore+InAppMessaging.h"
+#import "FIRIAMFetchResponseParser.h"
+#import "FIRIAMDisplayTriggerDefinition.h"
+#import "FIRIAMDisplayCheckOnAnalyticEventsFlow.h"
+#import "FIRIAMMessageClientCache.h"
+#import "FIRIAMServerMsgFetchStorage.h"
 
 @interface FIRIAMMessageClientCache ()
 

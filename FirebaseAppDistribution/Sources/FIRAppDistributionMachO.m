@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-#import "FirebaseAppDistribution/Sources/FIRAppDistributionMachO.h"
+#import "FIRAppDistributionMachO.h"
 #import <CommonCrypto/CommonHMAC.h>
 #include <mach-o/arch.h>
 #import <mach-o/fat.h>
 #import <mach-o/loader.h>
-#import "FirebaseAppDistribution/Sources/FIRAppDistributionMachOSlice.h"
+#import "FIRAppDistributionMachOSlice.h"
 
 @interface FIRAppDistributionMachO ()
 @property(nonatomic, copy) NSFileHandle* file;

@@ -14,8 +14,8 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FirebasePerformance/Sources/Gauges/FPRGaugeCollector.h"
-#import "FirebasePerformance/Sources/Gauges/Memory/FPRMemoryGaugeData.h"
+#import "FPRGaugeCollector.h"
+#import "FPRMemoryGaugeData.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

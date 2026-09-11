@@ -12,15 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebasePerformance/Sources/Loggers/FPRGDTLogSampler.h"
+#import "FPRGDTLogSampler.h"
 
 #import <GoogleDataTransport/GoogleDataTransport.h>
 
-#import "FirebasePerformance/Sources/AppActivity/FPRSessionManager.h"
-#import "FirebasePerformance/Sources/Common/FPRDiagnostics.h"
-#import "FirebasePerformance/Sources/Configurations/FPRConfigurations.h"
-#import "FirebasePerformance/Sources/FPRConsoleLogger.h"
-#import "FirebasePerformance/Sources/Loggers/FPRGDTEvent.h"
+#import "FPRSessionManager.h"
+#import "FPRDiagnostics.h"
+#import "FPRConfigurations.h"
+#import "FPRConsoleLogger.h"
+#import "FPRGDTEvent.h"
 
 @class FPRGDTEvent;
 

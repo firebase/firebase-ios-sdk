@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/Sources/FIndex.h"
+#import "FIndex.h"
 
-#import "FirebaseDatabase/Sources/FKeyIndex.h"
-#import "FirebaseDatabase/Sources/FPathIndex.h"
-#import "FirebaseDatabase/Sources/FPriorityIndex.h"
-#import "FirebaseDatabase/Sources/FValueIndex.h"
+#import "FKeyIndex.h"
+#import "FPathIndex.h"
+#import "FPriorityIndex.h"
+#import "FValueIndex.h"
 
 @implementation FIndex
 

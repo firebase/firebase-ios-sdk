@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/Sources/Utilities/FStringUtilities.h"
-#import "FirebaseDatabase/Sources/third_party/SocketRocket/NSData+SRB64Additions.h"
+#import "FStringUtilities.h"
+#import "NSData+SRB64Additions.h"
 #import <CommonCrypto/CommonDigest.h>
 
 @implementation FStringUtilities

@@ -16,6 +16,6 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckErrors.h"
+#import <FirebaseAppCheck/FIRAppCheckErrors.h>
 
 NSErrorDomain const FIRAppCheckErrorDomain = @"com.firebase.appCheck";

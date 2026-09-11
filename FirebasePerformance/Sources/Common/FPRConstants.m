@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebasePerformance/Sources/Common/FPRConstants.h"
+#import "FPRConstants.h"
 
 // extract macro value into a C string
 #define STR_FROM_MACRO(x) #x

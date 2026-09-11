@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/Sources/Utilities/Tuples/FTupleBoolBlock.h"
+#import "FTupleBoolBlock.h"
 
 @implementation FTupleBoolBlock
 

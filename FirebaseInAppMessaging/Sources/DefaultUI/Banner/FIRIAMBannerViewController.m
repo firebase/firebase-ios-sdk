@@ -17,9 +17,9 @@
 #import <TargetConditionals.h>
 #if TARGET_OS_IOS
 
-#import "FirebaseInAppMessaging/Sources/DefaultUI/Banner/FIRIAMBannerViewController.h"
-#import "FirebaseInAppMessaging/Sources/DefaultUI/FIRCore+InAppMessagingDisplay.h"
-#import "FirebaseInAppMessaging/Sources/Private/Util/UIApplication+FIRForegroundWindowScene.h"
+#import "FIRIAMBannerViewController.h"
+#import "FIRCore+InAppMessagingDisplay.h"
+#import "UIApplication+FIRForegroundWindowScene.h"
 
 @interface FIRIAMBannerViewController ()
 

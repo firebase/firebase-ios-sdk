@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/Sources/FKeyIndex.h"
-#import "FirebaseDatabase/Sources/FNamedNode.h"
-#import "FirebaseDatabase/Sources/Snapshot/FEmptyNode.h"
-#import "FirebaseDatabase/Sources/Snapshot/FSnapshotUtilities.h"
-#import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
+#import "FKeyIndex.h"
+#import "FNamedNode.h"
+#import "FEmptyNode.h"
+#import "FSnapshotUtilities.h"
+#import "FUtilities.h"
 
 @interface FKeyIndex ()
 

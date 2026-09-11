@@ -15,12 +15,12 @@
 #import <Foundation/Foundation.h>
 #import <XCTest/XCTest.h>
 
-#import "Crashlytics/Crashlytics/Components/FIRCLSContext.h"
-#import "Crashlytics/Crashlytics/Components/FIRCLSGlobals.h"
-#import "Crashlytics/Crashlytics/Helpers/FIRCLSFile.h"
-#import "Crashlytics/Crashlytics/Models/FIRCLSInternalReport.h"
-#import "Crashlytics/Crashlytics/Private/FIRCrashlyticsReport_Private.h"
-#import "Crashlytics/Crashlytics/Public/FirebaseCrashlytics/FIRCrashlyticsReport.h"
+#import "FIRCLSContext.h"
+#import "FIRCLSGlobals.h"
+#import "FIRCLSFile.h"
+#import "FIRCLSInternalReport.h"
+#import "FIRCrashlyticsReport_Private.h"
+#import "FIRCrashlyticsReport.h"
 
 @interface FIRCrashlyticsReportTests : XCTestCase
 

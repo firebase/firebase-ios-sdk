@@ -14,7 +14,7 @@
 
 #pragma once
 
-#include "Crashlytics/Crashlytics/Helpers/FIRCLSDefines.h"
+#include "Crashlytics/Helpers/FIRCLSDefines.h"
 
 #define CLS_MEMORY_PROTECTION_ENABLED 1
 #define CLS_COMPACT_UNWINDED_ENABLED 1

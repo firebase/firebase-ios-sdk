@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/Sources/Core/Utilities/FPath.h"
+#import "FPath.h"
 
-#import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
+#import "FUtilities.h"
 
 @interface FPath ()
 

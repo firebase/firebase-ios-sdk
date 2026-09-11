@@ -17,13 +17,13 @@
 #import <TargetConditionals.h>
 #if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
 
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
-#import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
+#import <FirebaseInstallations/FirebaseInstallations.h>
 
-#import "FirebaseInAppMessaging/Sources/FIRCore+InAppMessaging.h"
-#import "FirebaseInAppMessaging/Sources/FIRInAppMessagingPrivate.h"
-#import "FirebaseInAppMessaging/Sources/Private/Analytics/FIRIAMClientInfoFetcher.h"
-#import "FirebaseInAppMessaging/Sources/Runtime/FIRIAMSDKRuntimeErrorCodes.h"
+#import "FIRCore+InAppMessaging.h"
+#import "FIRInAppMessagingPrivate.h"
+#import "FIRIAMClientInfoFetcher.h"
+#import "FIRIAMSDKRuntimeErrorCodes.h"
 
 @interface FIRIAMClientInfoFetcher ()
 

@@ -18,12 +18,12 @@
 
 #import <GoogleUtilities/GULAppDelegateSwizzler.h>
 #import <GoogleUtilities/GULUserDefaults.h>
-#import "FirebaseAppDistribution/Sources/FIRAppDistributionMachO.h"
-#import "FirebaseAppDistribution/Sources/FIRAppDistributionUIService.h"
-#import "FirebaseAppDistribution/Sources/FIRFADApiService.h"
-#import "FirebaseAppDistribution/Sources/Private/FIRAppDistribution.h"
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
-#import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
+#import "FIRAppDistributionMachO.h"
+#import "FIRAppDistributionUIService.h"
+#import "FIRFADApiService.h"
+#import "FIRAppDistribution.h"
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
+#import <FirebaseInstallations/FirebaseInstallations.h>
 
 @interface FIRAppDistributionTests : XCTestCase
 

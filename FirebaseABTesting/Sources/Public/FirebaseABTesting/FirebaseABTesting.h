@@ -14,3 +14,5 @@
 
 #import "FIRExperimentController.h"
 #import "FIRLifecycleEvents.h"
+#import "ABTExperimentPayload.h"
+#import "FirebaseABTestingInternal.h"

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import <FirebaseCore/FIROptions.h>
+#import "FIROptions.h"
 
 /**
  * This header file exposes the initialization of FirebaseOptions to internal use.

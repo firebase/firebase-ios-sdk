@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "SharedTestUtilities/GDTCORTransportFake.h"
+#import "GDTCORTransportFake.h"
 
 @interface GDTCORTransportFake ()
 

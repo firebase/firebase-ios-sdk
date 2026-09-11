@@ -14,7 +14,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FirebasePerformance/Sources/Instrumentation/FPRSelectorInstrumentor.h"
+#import "FPRSelectorInstrumentor.h"
 
 /** A class used to test that swizzling init methods that funnel to the designated
  * initializer works as intended. */

@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "FirebaseMessaging/Sources/FIRMessagingLogger.h"
+#import "FIRMessagingLogger.h"
 
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
 FIRLoggerService kFIRLoggerMessaging = @"[FirebaseMessaging]";
 

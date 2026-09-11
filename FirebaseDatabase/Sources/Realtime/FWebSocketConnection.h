@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
+#import "FUtilities.h"
 #if !TARGET_OS_WATCH
-#import "FirebaseDatabase/Sources/third_party/SocketRocket/FSRWebSocket.h"
+#import "FSRWebSocket.h"
 #endif // !TARGET_OS_WATCH
 #import <Foundation/Foundation.h>
 

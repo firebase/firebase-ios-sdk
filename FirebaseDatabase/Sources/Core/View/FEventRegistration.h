@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/Sources/Core/View/FChange.h"
-#import "FirebaseDatabase/Sources/Public/FirebaseDatabase/FIRDataEventType.h"
+#import "FChange.h"
+#import "FIRDataEventType.h"
 #import <Foundation/Foundation.h>
 
 @protocol FEvent;

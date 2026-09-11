@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "Crashlytics/Crashlytics/Models/Record/FIRCLSRecordIdentity.h"
+#import "FIRCLSRecordIdentity.h"
 
 @implementation FIRCLSRecordIdentity
 

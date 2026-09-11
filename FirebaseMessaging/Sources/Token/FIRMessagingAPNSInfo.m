@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "FirebaseMessaging/Sources/Token/FIRMessagingAPNSInfo.h"
+#import "Token/FIRMessagingAPNSInfo.h"
 
-#import "FirebaseMessaging/Sources/FIRMessagingConstants.h"
+#import "FIRMessagingConstants.h"
 
 /// The key used to find the APNs device token in an archive.
 static NSString *const kFIRInstanceIDAPNSInfoTokenKey = @"device_token";

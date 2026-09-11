@@ -14,4 +14,4 @@
  * limitations under the License.
  */
 
-#import "FirebaseInAppMessaging/Sources/DefaultUI/FIRIAMDefaultDisplayImpl.h"
+#import "FIRIAMDefaultDisplayImpl.h"

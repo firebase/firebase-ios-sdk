@@ -20,7 +20,7 @@
 #include <atomic>
 
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
-#import "Firestore/Source/API/FIRFirestore+Internal.h"
+#import "FIRFirestore+Internal.h"
 
 using firebase::firestore::util::TimerId;
 

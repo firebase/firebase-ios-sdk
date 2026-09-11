@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebasePerformance/Sources/FPRClient.h"
-#import "FirebasePerformance/Sources/Public/FirebasePerformance/FIRPerformance.h"
+#import "FPRClient.h"
+#import "FIRPerformance.h"
 
 /**
  * Extension that is added on top of the class FIRPerformances to make the private properties

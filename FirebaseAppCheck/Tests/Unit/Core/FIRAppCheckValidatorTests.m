@@ -16,8 +16,8 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FirebaseAppCheck/Sources/Core/FIRAppCheckValidator.h"
-#import "FirebaseCore/Sources/Public/FirebaseCore/FIROptions.h"
+#import "Core/FIRAppCheckValidator.h"
+#import <FirebaseCore/FIROptions.h>
 
 @interface FIRAppCheckValidatorTests : XCTestCase
 @end

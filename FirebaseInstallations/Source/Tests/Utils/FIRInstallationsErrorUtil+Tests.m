@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "FirebaseInstallations/Source/Tests/Utils/FIRInstallationsErrorUtil+Tests.h"
+#import "FIRInstallationsErrorUtil+Tests.h"
 
-#import "FirebaseInstallations/Source/Library/Errors/FIRInstallationsHTTPError.h"
+#import "FIRInstallationsHTTPError.h"
 
 @implementation FIRInstallationsErrorUtil (Tests)
 

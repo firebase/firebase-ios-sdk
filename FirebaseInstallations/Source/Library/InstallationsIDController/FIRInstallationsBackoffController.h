@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FirebaseInstallations/Source/Library/InstallationsIDController/FIRCurrentDateProvider.h"
+#import "FIRCurrentDateProvider.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

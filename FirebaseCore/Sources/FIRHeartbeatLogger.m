@@ -18,8 +18,8 @@
 @import FirebaseCoreInternal;
 #endif  // FIREBASE_BUILD_CMAKE
 
-#import "FirebaseCore/Extension/FIRAppInternal.h"
-#import "FirebaseCore/Extension/FIRHeartbeatLogger.h"
+#import <FirebaseCoreExtension/FIRAppInternal.h>
+#import <FirebaseCoreExtension/FIRHeartbeatLogger.h>
 
 #ifndef FIREBASE_BUILD_CMAKE
 NSString *_Nullable FIRHeaderValueFromHeartbeatsPayload(FIRHeartbeatsPayload *heartbeatsPayload) {

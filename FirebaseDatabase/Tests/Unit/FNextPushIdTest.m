@@ -16,9 +16,9 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FirebaseDatabase/Sources/Utilities/FNextPushId.h"
-#import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
-#import "FirebaseDatabase/Sources/Utilities/FValidation.h"
+#import "FNextPushId.h"
+#import "FUtilities.h"
+#import "FValidation.h"
 
 @interface FValidation (Test)
 + (BOOL)isValidKey:(NSString *)key;

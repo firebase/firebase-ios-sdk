@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FirebaseInstallations/Source/Library/InstallationsStore/FIRInstallationsStore.h"
+#import "FIRInstallationsStore.h"
 
 #import <GoogleUtilities/GULUserDefaults.h>
 
@@ -26,9 +26,9 @@
 
 #import <GoogleUtilities/GULKeychainStorage.h>
 
-#import "FirebaseInstallations/Source/Library/Errors/FIRInstallationsErrorUtil.h"
-#import "FirebaseInstallations/Source/Library/FIRInstallationsItem.h"
-#import "FirebaseInstallations/Source/Library/InstallationsStore/FIRInstallationsStoredItem.h"
+#import "FIRInstallationsErrorUtil.h"
+#import "FIRInstallationsItem.h"
+#import "FIRInstallationsStoredItem.h"
 
 NSString *const kFIRInstallationsStoreUserDefaultsID = @"com.firebase.FIRInstallations";
 

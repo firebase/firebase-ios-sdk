@@ -14,13 +14,13 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FirebasePerformance/Sources/AppActivity/FPRAppActivityTracker.h"
-#import "FirebasePerformance/Sources/Configurations/FPRConfigurations.h"
-#import "FirebasePerformance/Sources/Public/FirebasePerformance/FIRPerformance.h"
+#import "FPRAppActivityTracker.h"
+#import "FPRConfigurations.h"
+#import "FIRPerformance.h"
 
-#import "FirebasePerformance/Tests/Unit/FPRTestCase.h"
+#import "FPRTestCase.h"
 
-#import "FirebaseCore/Extension/FIRAppInternal.h"
+#import <FirebaseCoreExtension/FIRAppInternal.h>
 
 #import <OCMock/OCMock.h>
 

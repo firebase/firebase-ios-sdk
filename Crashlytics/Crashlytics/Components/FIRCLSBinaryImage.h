@@ -17,9 +17,9 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "Crashlytics/Crashlytics/Helpers/FIRCLSFeatures.h"
-#include "Crashlytics/Crashlytics/Helpers/FIRCLSFile.h"
-#include "Crashlytics/Shared/FIRCLSMachO/FIRCLSMachO.h"
+#include "Crashlytics/Helpers/FIRCLSFeatures.h"
+#include "Crashlytics/Helpers/FIRCLSFile.h"
+#include "Shared/FIRCLSMachO/FIRCLSMachO.h"
 
 __BEGIN_DECLS
 

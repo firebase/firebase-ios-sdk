@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebasePerformance/Sources/Instrumentation/FPRSelectorInstrumentor.h"
+#import "FPRSelectorInstrumentor.h"
 
-#import "FirebasePerformance/Sources/Common/FPRDiagnostics.h"
+#import "FPRDiagnostics.h"
 
 #import <GoogleUtilities/GULSwizzler.h>
 #ifdef UNSWIZZLE_AVAILABLE

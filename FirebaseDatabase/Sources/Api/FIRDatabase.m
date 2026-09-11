@@ -16,17 +16,17 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FirebaseAuth/Interop/Public/FirebaseAuthInterop/FIRAuthInterop.h"
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
+#import <FirebaseAuthInterop/FIRAuthInterop.h>
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
-#import "FirebaseDatabase/Sources/Api/FIRDatabaseComponent.h"
-#import "FirebaseDatabase/Sources/Api/Private/FIRDatabaseQuery_Private.h"
-#import "FirebaseDatabase/Sources/Api/Private/FIRDatabaseReference_Private.h"
-#import "FirebaseDatabase/Sources/Api/Private/FIRDatabase_Private.h"
-#import "FirebaseDatabase/Sources/Core/FRepoInfo.h"
-#import "FirebaseDatabase/Sources/FIRDatabaseConfig_Private.h"
-#import "FirebaseDatabase/Sources/Public/FirebaseDatabase/FIRDatabase.h"
-#import "FirebaseDatabase/Sources/Utilities/FValidation.h"
+#import "FIRDatabaseComponent.h"
+#import "FIRDatabaseQuery_Private.h"
+#import "FIRDatabaseReference_Private.h"
+#import "FIRDatabase_Private.h"
+#import "FRepoInfo.h"
+#import "FIRDatabaseConfig_Private.h"
+#import "FIRDatabase.h"
+#import "FValidation.h"
 
 @implementation FIRDatabase
 

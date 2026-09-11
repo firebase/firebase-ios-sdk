@@ -14,13 +14,13 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FirebasePerformance/Sources/Common/FPRDiagnostics.h"
-#import "FirebasePerformance/Sources/Common/FPRDiagnostics_Private.h"
+#import "FPRDiagnostics.h"
+#import "FPRDiagnostics_Private.h"
 
-#import "FirebasePerformance/Sources/Configurations/FPRConfigurations+Private.h"
-#import "FirebasePerformance/Sources/Configurations/FPRConfigurations.h"
+#import "FPRConfigurations+Private.h"
+#import "FPRConfigurations.h"
 
-#import "FirebasePerformance/Tests/Unit/Fakes/FPRFakeConfigurations.h"
+#import "FPRFakeConfigurations.h"
 
 static BOOL classEmitDiagnosticsCalled = NO;
 

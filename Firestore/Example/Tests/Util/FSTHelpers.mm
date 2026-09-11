@@ -22,7 +22,7 @@
 #include <set>
 #include <utility>
 
-#import "Firestore/Source/API/FSTUserDataReader.h"
+#import "FSTUserDataReader.h"
 
 #include "Firestore/core/src/core/user_data.h"
 #include "Firestore/core/src/model/delete_mutation.h"

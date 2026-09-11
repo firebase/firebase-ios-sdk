@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebaseCore/Extension/FIRLogger.h"
+#import <FirebaseCoreExtension/FIRLogger.h>
 
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import <GoogleUtilities/GULLogger.h>
-#import "FirebaseCore/Sources/Public/FirebaseCore/FIRLoggerLevel.h"
+#import "FIRLoggerLevel.h"
 
-#import "FirebaseCore/Sources/Public/FirebaseCore/FIRVersion.h"
+#import "FIRVersion.h"
 
 NSString *const kFIRLoggerSubsystem = @"com.google.firebase";
 

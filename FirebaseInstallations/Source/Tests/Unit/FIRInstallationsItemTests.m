@@ -16,10 +16,10 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FirebaseInstallations/Source/Library/FIRInstallationsItem.h"
-#import "FirebaseInstallations/Source/Library/InstallationsStore/FIRInstallationsStoredItem.h"
+#import "FIRInstallationsItem.h"
+#import "FIRInstallationsStoredItem.h"
 
-#import "FirebaseInstallations/Source/Tests/Utils/FIRInstallationsItem+Tests.h"
+#import "FIRInstallationsItem+Tests.h"
 
 @interface FIRInstallationsItemTests : XCTestCase
 

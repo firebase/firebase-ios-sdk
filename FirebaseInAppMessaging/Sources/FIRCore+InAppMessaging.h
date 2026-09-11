@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
 // This file contains declarations that should go into FirebaseCore when
 // Firebase InAppMessaging is merged into main. Keep them separate now to help

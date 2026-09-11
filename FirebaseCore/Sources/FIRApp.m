@@ -26,21 +26,21 @@
 #import <WatchKit/WatchKit.h>
 #endif
 
-#import "FirebaseCore/Sources/Public/FirebaseCore/FIRApp.h"
+#import "FIRApp.h"
 
-#import "FirebaseCore/Sources/FIRAnalyticsConfiguration.h"
-#import "FirebaseCore/Sources/FIRBundleUtil.h"
-#import "FirebaseCore/Sources/FIRComponentContainerInternal.h"
-#import "FirebaseCore/Sources/FIRConfigurationInternal.h"
-#import "FirebaseCore/Sources/FIRFirebaseUserAgent.h"
+#import "FIRAnalyticsConfiguration.h"
+#import "FIRBundleUtil.h"
+#import "FIRComponentContainerInternal.h"
+#import "FIRConfigurationInternal.h"
+#import "FIRFirebaseUserAgent.h"
 
-#import "FirebaseCore/Extension/FIRAppInternal.h"
-#import "FirebaseCore/Extension/FIRHeartbeatLogger.h"
-#import "FirebaseCore/Extension/FIRLibrary.h"
-#import "FirebaseCore/Extension/FIRLogger.h"
-#import "FirebaseCore/Sources/FIROptionsInternal.h"
-#import "FirebaseCore/Sources/Public/FirebaseCore/FIROptions.h"
-#import "FirebaseCore/Sources/Public/FirebaseCore/FIRVersion.h"
+#import <FirebaseCoreExtension/FIRAppInternal.h>
+#import <FirebaseCoreExtension/FIRHeartbeatLogger.h>
+#import <FirebaseCoreExtension/FIRLibrary.h>
+#import <FirebaseCoreExtension/FIRLogger.h>
+#import "FIROptionsInternal.h"
+#import "FIROptions.h"
+#import "FIRVersion.h"
 
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 

@@ -14,7 +14,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FirebasePerformance/Sources/Gauges/CPU/FPRCPUGaugeData.h"
+#import "FPRCPUGaugeData.h"
 
 @interface FPRCPUGaugeDataTests : XCTestCase
 

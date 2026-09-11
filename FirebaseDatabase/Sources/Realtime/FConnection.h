@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/Sources/Realtime/FWebSocketConnection.h"
-#import "FirebaseDatabase/Sources/Utilities/FTypedefs.h"
+#import "FWebSocketConnection.h"
+#import "FTypedefs.h"
 #import <Foundation/Foundation.h>
 
 @protocol FConnectionDelegate;

@@ -20,18 +20,18 @@
 
 #include <memory>
 
-#import "Firestore/Source/API/FIRCollectionReference+Internal.h"
-#import "Firestore/Source/API/FIRDocumentReference+Internal.h"
-#import "Firestore/Source/API/FIRFieldPath+Internal.h"
-#import "Firestore/Source/API/FIRFirestore+Internal.h"
-#import "Firestore/Source/API/FIRListenerRegistration+Internal.h"
-#import "Firestore/Source/API/FIRPipelineBridge+Internal.h"
-#import "Firestore/Source/API/FIRQuery+Internal.h"
-#import "Firestore/Source/API/FIRSnapshotMetadata+Internal.h"
-#import "Firestore/Source/API/FSTUserDataReader.h"
-#import "Firestore/Source/API/FSTUserDataWriter.h"
-#import "Firestore/Source/API/converters.h"
-#import "Firestore/Source/Public/FirebaseFirestore/FIRVectorValue.h"
+#import "FIRCollectionReference+Internal.h"
+#import "FIRDocumentReference+Internal.h"
+#import "FIRFieldPath+Internal.h"
+#import "FIRFirestore+Internal.h"
+#import "FIRListenerRegistration+Internal.h"
+#import "FIRPipelineBridge+Internal.h"
+#import "FIRQuery+Internal.h"
+#import "FIRSnapshotMetadata+Internal.h"
+#import "FSTUserDataReader.h"
+#import "FSTUserDataWriter.h"
+#import "converters.h"
+#import "FIRVectorValue.h"
 
 #include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
 

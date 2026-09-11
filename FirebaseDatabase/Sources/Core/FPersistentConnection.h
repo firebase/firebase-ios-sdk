@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/Sources/Api/Private/FTypedefs_Private.h"
-#import "FirebaseDatabase/Sources/Core/FRepoInfo.h"
-#import "FirebaseDatabase/Sources/Realtime/FConnection.h"
-#import "FirebaseDatabase/Sources/Utilities/FTypedefs.h"
+#import "FTypedefs_Private.h"
+#import "FRepoInfo.h"
+#import "FConnection.h"
+#import "FTypedefs.h"
 #import <Foundation/Foundation.h>
 
 @protocol FPersistentConnectionDelegate;

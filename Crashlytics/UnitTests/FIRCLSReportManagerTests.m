@@ -15,7 +15,7 @@
 #import <Foundation/Foundation.h>
 #import <XCTest/XCTest.h>
 
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
 #if __has_include(<FBLPromises/FBLPromises.h>)
 #import <FBLPromises/FBLPromises.h>
@@ -25,25 +25,25 @@
 
 #import "FBLPromise+Testing.h"
 
-#include "Crashlytics/Crashlytics/Components/FIRCLSContext.h"
-#include "Crashlytics/Crashlytics/Components/FIRCLSCrashedMarkerFile.h"
-#import "Crashlytics/Crashlytics/Controllers/FIRCLSAnalyticsManager.h"
-#import "Crashlytics/Crashlytics/Controllers/FIRCLSManagerData.h"
-#import "Crashlytics/Crashlytics/DataCollection/FIRCLSDataCollectionArbiter.h"
-#include "Crashlytics/Crashlytics/Helpers/FIRCLSDefines.h"
-#import "Crashlytics/Crashlytics/Models/FIRCLSInternalReport.h"
-#import "Crashlytics/Crashlytics/Models/FIRCLSSettings.h"
-#import "Crashlytics/UnitTests/Mocks/FIRCLSMockExistingReportManager.h"
+#include "FIRCLSContext.h"
+#include "FIRCLSCrashedMarkerFile.h"
+#import "FIRCLSAnalyticsManager.h"
+#import "FIRCLSManagerData.h"
+#import "FIRCLSDataCollectionArbiter.h"
+#include "FIRCLSDefines.h"
+#import "FIRCLSInternalReport.h"
+#import "FIRCLSSettings.h"
+#import "FIRCLSMockExistingReportManager.h"
 
-#import "Crashlytics/Crashlytics/Settings/Models/FIRCLSApplicationIdentifierModel.h"
-#import "Crashlytics/UnitTests/Mocks/FABMockApplicationIdentifierModel.h"
-#import "Crashlytics/UnitTests/Mocks/FIRAppFake.h"
-#import "Crashlytics/UnitTests/Mocks/FIRCLSMockReportManager.h"
-#import "Crashlytics/UnitTests/Mocks/FIRCLSMockReportUploader.h"
-#import "Crashlytics/UnitTests/Mocks/FIRCLSMockSettings.h"
-#import "Crashlytics/UnitTests/Mocks/FIRCLSTempMockFileManager.h"
-#import "Crashlytics/UnitTests/Mocks/FIRMockGDTCoreTransport.h"
-#import "Crashlytics/UnitTests/Mocks/FIRMockInstallations.h"
+#import "FIRCLSApplicationIdentifierModel.h"
+#import "FABMockApplicationIdentifierModel.h"
+#import "FIRAppFake.h"
+#import "FIRCLSMockReportManager.h"
+#import "FIRCLSMockReportUploader.h"
+#import "FIRCLSMockSettings.h"
+#import "FIRCLSTempMockFileManager.h"
+#import "FIRMockGDTCoreTransport.h"
+#import "FIRMockInstallations.h"
 
 #define TEST_API_KEY (@"DB5C8FA65C0D43419120FB96CFDBDE0C")
 #define TEST_GOOGLE_APP_ID (@"1:632950151350:ios:d5b0d08d4f00f4b1")

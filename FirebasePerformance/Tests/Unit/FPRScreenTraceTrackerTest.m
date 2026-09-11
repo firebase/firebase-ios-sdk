@@ -12,16 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebasePerformance/Sources/AppActivity/FPRScreenTraceTracker+Private.h"
-#import "FirebasePerformance/Sources/AppActivity/FPRScreenTraceTracker.h"
+#import "FPRScreenTraceTracker+Private.h"
+#import "FPRScreenTraceTracker.h"
 
 #import <XCTest/XCTest.h>
 #import <objc/runtime.h>
 
-#import "FirebasePerformance/Sources/Timer/FIRTrace+Private.h"
+#import "FIRTrace+Private.h"
 
 #import <OCMock/OCMock.h>
-#import "FirebasePerformance/Tests/Unit/FPRTestCase.h"
+#import "FPRTestCase.h"
 
 /** Registers and returns an instance of a custom subclass of UIViewController. */
 static UIViewController *FPRCustomViewController(NSString *className, BOOL isViewLoaded) {

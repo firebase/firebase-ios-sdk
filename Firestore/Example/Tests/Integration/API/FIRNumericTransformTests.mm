@@ -20,7 +20,7 @@
 
 #include <cmath>
 
-#import "Firestore/Source/API/FIRFieldValue+Internal.h"
+#import "FIRFieldValue+Internal.h"
 
 #import "Firestore/Example/Tests/Util/FSTEventAccumulator.h"
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"

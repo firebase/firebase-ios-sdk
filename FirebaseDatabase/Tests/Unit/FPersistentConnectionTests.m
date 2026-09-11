@@ -16,11 +16,11 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FirebaseDatabase/Sources/Api/FIRDatabaseConfig.h"
-#import "FirebaseDatabase/Sources/Constants/FConstants.h"
-#import "FirebaseDatabase/Sources/Core/FPersistentConnection.h"
-#import "FirebaseDatabase/Sources/Core/FRepoInfo.h"
-#import "FirebaseDatabase/Tests/Helpers/FTestHelpers.h"
+#import "FIRDatabaseConfig.h"
+#import "FConstants.h"
+#import "FPersistentConnection.h"
+#import "FRepoInfo.h"
+#import "FTestHelpers.h"
 
 @interface FPersistentConnectionTestDouble : FPersistentConnection
 

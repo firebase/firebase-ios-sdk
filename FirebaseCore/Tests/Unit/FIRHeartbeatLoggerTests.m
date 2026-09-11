@@ -16,7 +16,7 @@
 
 @import FirebaseCoreInternal;
 
-#import "FirebaseCore/Extension/FIRHeartbeatLogger.h"
+#import <FirebaseCoreExtension/FIRHeartbeatLogger.h>
 
 @interface FIRHeartbeatLogger (Internal)
 - (instancetype)initWithAppID:(NSString *)appID

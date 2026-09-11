@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebasePerformance/Sources/Common/FPRDiagnostics.h"
-#import "FirebasePerformance/Sources/Common/FPRDiagnostics_Private.h"
-#import "FirebasePerformance/Sources/Configurations/FPRConfigurations.h"
+#import "FPRDiagnostics.h"
+#import "FPRDiagnostics_Private.h"
+#import "FPRConfigurations.h"
 
 void __FPRAssert(id object, BOOL condition, const char *func) {
   static BOOL diagnosticsEnabled = NO;

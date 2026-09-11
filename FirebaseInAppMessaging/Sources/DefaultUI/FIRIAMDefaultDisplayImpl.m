@@ -17,17 +17,17 @@
 #import <TargetConditionals.h>
 #if TARGET_OS_IOS
 
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
-#import "FirebaseInAppMessaging/Sources/DefaultUI/Banner/FIRIAMBannerViewController.h"
-#import "FirebaseInAppMessaging/Sources/DefaultUI/Card/FIRIAMCardViewController.h"
-#import "FirebaseInAppMessaging/Sources/DefaultUI/FIRCore+InAppMessagingDisplay.h"
-#import "FirebaseInAppMessaging/Sources/DefaultUI/FIRIAMDefaultDisplayImpl.h"
-#import "FirebaseInAppMessaging/Sources/DefaultUI/FIRIAMRenderingWindowHelper.h"
-#import "FirebaseInAppMessaging/Sources/DefaultUI/ImageOnly/FIRIAMImageOnlyViewController.h"
-#import "FirebaseInAppMessaging/Sources/DefaultUI/Modal/FIRIAMModalViewController.h"
-#import "FirebaseInAppMessaging/Sources/Private/Util/FIRIAMTimeFetcher.h"
-#import "FirebaseInAppMessaging/Sources/Public/FirebaseInAppMessaging/FIRInAppMessaging.h"
+#import "FIRIAMBannerViewController.h"
+#import "FIRIAMCardViewController.h"
+#import "FIRCore+InAppMessagingDisplay.h"
+#import "FIRIAMDefaultDisplayImpl.h"
+#import "FIRIAMRenderingWindowHelper.h"
+#import "FIRIAMImageOnlyViewController.h"
+#import "FIRIAMModalViewController.h"
+#import "FIRIAMTimeFetcher.h"
+#import "FIRInAppMessaging.h"
 
 @implementation FIRIAMDefaultDisplayImpl
 

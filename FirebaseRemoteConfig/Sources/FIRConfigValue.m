@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#import "FirebaseRemoteConfig/Sources/Public/FirebaseRemoteConfig/FIRRemoteConfig.h"
+#import "FIRRemoteConfig.h"
 
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
-#import "FirebaseRemoteConfig/Sources/RCNConfigValue_Internal.h"
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
+#import "RCNConfigValue_Internal.h"
 
 @implementation FIRRemoteConfigValue {
   /// Data backing the config value.

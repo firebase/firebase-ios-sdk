@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FirebaseRemoteConfig/Tests/Unit/RCNTestUtilities.h"
+#import "RCNTestUtilities.h"
 
 NSString *const RCNTestsPerfNamespace = @"fireperf";
 NSString *const RCNTestsFIRNamespace = @"firebase";

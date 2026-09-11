@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/Sources/FPathIndex.h"
-#import "FirebaseDatabase/Sources/Core/Utilities/FPath.h"
-#import "FirebaseDatabase/Sources/FMaxNode.h"
-#import "FirebaseDatabase/Sources/FNamedNode.h"
-#import "FirebaseDatabase/Sources/Snapshot/FEmptyNode.h"
-#import "FirebaseDatabase/Sources/Snapshot/FSnapshotUtilities.h"
-#import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
+#import "FPathIndex.h"
+#import "FPath.h"
+#import "FMaxNode.h"
+#import "FNamedNode.h"
+#import "FEmptyNode.h"
+#import "FSnapshotUtilities.h"
+#import "FUtilities.h"
 
 @interface FPathIndex ()
 @property(nonatomic, strong) FPath *path;

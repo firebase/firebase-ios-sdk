@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/Sources/Core/FRangeMerge.h"
+#import "FRangeMerge.h"
 
-#import "FirebaseDatabase/Sources/Snapshot/FEmptyNode.h"
+#import "FEmptyNode.h"
 
 @interface FRangeMerge ()
 

@@ -17,18 +17,18 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
-#import "FirebaseRemoteConfig/Sources/RCNConfigExperiment.h"
+#import "RCNConfigExperiment.h"
 
-#import "FirebaseRemoteConfig/Sources/Private/RCNConfigSettings.h"
-#import "FirebaseRemoteConfig/Sources/Public/FirebaseRemoteConfig/FIRRemoteConfig.h"
-#import "FirebaseRemoteConfig/Sources/RCNConfigDBManager.h"
-#import "FirebaseRemoteConfig/Sources/RCNConfigDefines.h"
-#import "FirebaseRemoteConfig/Sources/RCNConfigValue_Internal.h"
-#import "FirebaseRemoteConfig/Tests/Unit/RCNTestUtilities.h"
+#import "RCNConfigSettings.h"
+#import "FIRRemoteConfig.h"
+#import "RCNConfigDBManager.h"
+#import "RCNConfigDefines.h"
+#import "RCNConfigValue_Internal.h"
+#import "RCNTestUtilities.h"
 
-#import "FirebaseABTesting/Sources/Private/FirebaseABTestingInternal.h"
+#import <FirebaseABTesting/FirebaseABTestingInternal.h>
 
-#import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
+#import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
 
 // Surface the internal FIRExperimentController initializer.
 @interface FIRExperimentController ()

@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/Tests/Integration/FOrder.h"
-#import "FirebaseDatabase/Sources/Api/Private/FTypedefs_Private.h"
-#import "FirebaseDatabase/Sources/Public/FirebaseDatabase/FIRDatabaseReference.h"
-#import "FirebaseDatabase/Sources/Utilities/Tuples/FTupleFirebase.h"
-#import "FirebaseDatabase/Tests/Helpers/FEventTester.h"
-#import "FirebaseDatabase/Tests/Helpers/FTestHelpers.h"
-#import "FirebaseDatabase/Tests/Helpers/FTupleEventTypeString.h"
+#import "FOrder.h"
+#import "FTypedefs_Private.h"
+#import "FIRDatabaseReference.h"
+#import "FTupleFirebase.h"
+#import "FEventTester.h"
+#import "FTestHelpers.h"
+#import "FTupleEventTypeString.h"
 
 @implementation FOrder
 

@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-#import "FirebaseMessaging/Sources/Token/FIRMessagingTokenInfo.h"
+#import "FIRMessagingTokenInfo.h"
 
 #import <XCTest/XCTest.h>
 
 #import <OCMock/OCMock.h>
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
-#import "FirebaseMessaging/Sources/FIRMessagingUtilities.h"
-#import "FirebaseMessaging/Sources/FIRMessaging_Private.h"
-#import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessaging.h"
-#import "FirebaseMessaging/Sources/Token/FIRMessagingAPNSInfo.h"
-#import "FirebaseMessaging/Tests/UnitTests/FIRMessagingTestUtilities.h"
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
+#import "FIRMessagingUtilities.h"
+#import "FIRMessaging_Private.h"
+#import "FIRMessaging.h"
+#import "FIRMessagingAPNSInfo.h"
+#import "FIRMessagingTestUtilities.h"
 
 static NSString *const kAuthorizedEntity = @"authorizedEntity";
 static NSString *const kScope = @"scope";

@@ -16,8 +16,8 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FirebaseDatabase/Tests/Helpers/FTestBase.h"
-#import "FirebaseDatabase/Tests/Helpers/FTestHelpers.h"
+#import "FTestBase.h"
+#import "FTestHelpers.h"
 
 @interface FKeepSyncedTest : FTestBase
 

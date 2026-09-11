@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/Sources/Utilities/Tuples/FTuplePathValue.h"
-#import "FirebaseDatabase/Sources/Core/Utilities/FPath.h"
+#import "FTuplePathValue.h"
+#import "FPath.h"
 
 @interface FTuplePathValue ()
 @property(nonatomic, strong, readwrite) id value;

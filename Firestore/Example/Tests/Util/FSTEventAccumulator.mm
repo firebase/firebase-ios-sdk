@@ -19,9 +19,9 @@
 #import <XCTest/XCTest.h>
 
 #import "Firestore/Example/Tests/Util/XCTestCase+Await.h"
-#import "Firestore/Source/Public/FirebaseFirestore/FIRDocumentSnapshot.h"
-#import "Firestore/Source/Public/FirebaseFirestore/FIRQuerySnapshot.h"
-#import "Firestore/Source/Public/FirebaseFirestore/FIRSnapshotMetadata.h"
+#import "FIRDocumentSnapshot.h"
+#import "FIRQuerySnapshot.h"
+#import "FIRSnapshotMetadata.h"
 
 #include "Firestore/core/src/util/hard_assert.h"
 

@@ -17,12 +17,12 @@
 #import <TargetConditionals.h>
 #if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
 
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
-#import "FirebaseInAppMessaging/Sources/FIRCore+InAppMessaging.h"
-#import "FirebaseInAppMessaging/Sources/Private/Analytics/FIRIAMClearcutLogger.h"
-#import "FirebaseInAppMessaging/Sources/Private/Runtime/FIRIAMFetchFlow.h"
-#import "FirebaseInAppMessaging/Sources/Private/Runtime/FIRIAMRuntimeManager.h"
+#import "FIRCore+InAppMessaging.h"
+#import "FIRIAMClearcutLogger.h"
+#import "FIRIAMFetchFlow.h"
+#import "FIRIAMRuntimeManager.h"
 
 @implementation FIRIAMFetchSetting
 @end

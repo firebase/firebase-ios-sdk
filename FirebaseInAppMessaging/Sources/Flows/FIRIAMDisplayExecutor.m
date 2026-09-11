@@ -18,19 +18,19 @@
 #if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
 
 #import <UIKit/UIKit.h>
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
-#import "FirebaseInAppMessaging/Sources/FIRCore+InAppMessaging.h"
-#import "FirebaseInAppMessaging/Sources/Private/Data/FIRIAMMessageContentData.h"
-#import "FirebaseInAppMessaging/Sources/Private/Data/FIRIAMMessageDefinition.h"
-#import "FirebaseInAppMessaging/Sources/Private/Flows/FIRIAMActivityLogger.h"
-#import "FirebaseInAppMessaging/Sources/Private/Flows/FIRIAMDisplayExecutor.h"
-#import "FirebaseInAppMessaging/Sources/Private/Util/UIApplication+FIRForegroundWindowScene.h"
-#import "FirebaseInAppMessaging/Sources/Public/FirebaseInAppMessaging/FIRInAppMessaging.h"
-#import "FirebaseInAppMessaging/Sources/RenderingObjects/FIRInAppMessagingRenderingPrivate.h"
-#import "FirebaseInAppMessaging/Sources/Runtime/FIRIAMSDKRuntimeErrorCodes.h"
+#import "FIRCore+InAppMessaging.h"
+#import "FIRIAMMessageContentData.h"
+#import "FIRIAMMessageDefinition.h"
+#import "FIRIAMActivityLogger.h"
+#import "FIRIAMDisplayExecutor.h"
+#import "UIApplication+FIRForegroundWindowScene.h"
+#import "FIRInAppMessaging.h"
+#import "FIRInAppMessagingRenderingPrivate.h"
+#import "FIRIAMSDKRuntimeErrorCodes.h"
 
-#import "FirebaseABTesting/Sources/Private/FirebaseABTestingInternal.h"
+#import <FirebaseABTesting/FirebaseABTestingInternal.h>
 
 @implementation FIRIAMDisplaySetting
 @end

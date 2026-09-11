@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/Sources/Core/View/FEvent.h"
+#import "FEvent.h"
 #import <Foundation/Foundation.h>
 
 @protocol FEventRegistration;

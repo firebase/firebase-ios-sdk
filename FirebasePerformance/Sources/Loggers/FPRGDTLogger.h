@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #import <Foundation/Foundation.h>
-#import "FirebasePerformance/Sources/Protogen/nanopb/perf_metric.nanopb.h"
+#import "perf_metric.nanopb.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

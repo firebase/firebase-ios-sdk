@@ -16,11 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#if SWIFT_PACKAGE
-#import <FirebaseCoreInternal.h>
-#else
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
-#endif
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

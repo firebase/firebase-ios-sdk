@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckDebugProviderFactory.h"
+#import <FirebaseAppCheck/FIRAppCheckDebugProviderFactory.h>
 
-#import "FirebaseAppCheck/Sources/Core/FIRAppCheckLogger.h"
-#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckDebugProvider.h"
+#import "Core/FIRAppCheckLogger.h"
+#import <FirebaseAppCheck/FIRAppCheckDebugProvider.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

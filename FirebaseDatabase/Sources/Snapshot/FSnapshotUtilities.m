@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/Sources/Snapshot/FSnapshotUtilities.h"
-#import "FirebaseDatabase/Sources/Constants/FConstants.h"
-#import "FirebaseDatabase/Sources/FMaxNode.h"
-#import "FirebaseDatabase/Sources/FNamedNode.h"
-#import "FirebaseDatabase/Sources/Snapshot/FChildrenNode.h"
-#import "FirebaseDatabase/Sources/Snapshot/FCompoundWrite.h"
-#import "FirebaseDatabase/Sources/Snapshot/FEmptyNode.h"
-#import "FirebaseDatabase/Sources/Snapshot/FLeafNode.h"
-#import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
-#import "FirebaseDatabase/Sources/Utilities/FValidation.h"
-#import "FirebaseDatabase/Sources/third_party/FImmutableSortedDictionary/FImmutableSortedDictionary/FLLRBValueNode.h"
+#import "FSnapshotUtilities.h"
+#import "FConstants.h"
+#import "FMaxNode.h"
+#import "FNamedNode.h"
+#import "FChildrenNode.h"
+#import "FCompoundWrite.h"
+#import "FEmptyNode.h"
+#import "FLeafNode.h"
+#import "FUtilities.h"
+#import "FValidation.h"
+#import "FLLRBValueNode.h"
 
 @implementation FSnapshotUtilities
 

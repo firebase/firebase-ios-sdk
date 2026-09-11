@@ -14,7 +14,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FirebasePerformance/Sources/Instrumentation/FPRObjectInstrumentor.h"
+#import "FPRObjectInstrumentor.h"
 
 @interface FPRObjectInstrumentorTest : XCTestCase
 

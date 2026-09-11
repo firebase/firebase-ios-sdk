@@ -14,22 +14,22 @@
  * limitations under the License.
  */
 
-#import "FirebaseRemoteConfig/Sources/Public/FirebaseRemoteConfig/FIRRemoteConfig.h"
+#import "FIRRemoteConfig.h"
 
-#import "FirebaseABTesting/Sources/Private/FirebaseABTestingInternal.h"
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
-#import "FirebaseRemoteConfig/Sources/FIRRemoteConfigComponent.h"
-#import "FirebaseRemoteConfig/Sources/Private/FIRRemoteConfig_Private.h"
-#import "FirebaseRemoteConfig/Sources/Private/RCNConfigFetch.h"
-#import "FirebaseRemoteConfig/Sources/Private/RCNConfigSettings.h"
-#import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
-#import "FirebaseRemoteConfig/Sources/RCNConfigContent.h"
-#import "FirebaseRemoteConfig/Sources/RCNConfigDBManager.h"
-#import "FirebaseRemoteConfig/Sources/RCNConfigExperiment.h"
-#import "FirebaseRemoteConfig/Sources/RCNConfigRealtime.h"
-#import "FirebaseRemoteConfig/Sources/RCNConfigValue_Internal.h"
-#import "FirebaseRemoteConfig/Sources/RCNDevice.h"
-#import "FirebaseRemoteConfig/Sources/RCNPersonalization.h"
+#import <FirebaseABTesting/FirebaseABTestingInternal.h>
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
+#import "FIRRemoteConfigComponent.h"
+#import "FIRRemoteConfig_Private.h"
+#import "RCNConfigFetch.h"
+#import "RCNConfigSettings.h"
+#import "RCNConfigConstants.h"
+#import "RCNConfigContent.h"
+#import "RCNConfigDBManager.h"
+#import "RCNConfigExperiment.h"
+#import "RCNConfigRealtime.h"
+#import "RCNConfigValue_Internal.h"
+#import "RCNDevice.h"
+#import "RCNPersonalization.h"
 
 /// Remote Config Error Domain.
 /// TODO: Rename according to obj-c style for constants.

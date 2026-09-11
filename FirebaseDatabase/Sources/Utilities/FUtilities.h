@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 #import <Foundation/Foundation.h>
 
-#import "FirebaseDatabase/Sources/Utilities/FParsedUrl.h"
+#import "FParsedUrl.h"
 
 @interface FUtilities : NSObject
 

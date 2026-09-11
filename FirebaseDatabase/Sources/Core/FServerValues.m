@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/Sources/Core/FServerValues.h"
-#import "FirebaseDatabase/Sources/Constants/FConstants.h"
-#import "FirebaseDatabase/Sources/Snapshot/FChildrenNode.h"
-#import "FirebaseDatabase/Sources/Snapshot/FLeafNode.h"
-#import "FirebaseDatabase/Sources/Snapshot/FSnapshotUtilities.h"
+#import "FServerValues.h"
+#import "FConstants.h"
+#import "FChildrenNode.h"
+#import "FLeafNode.h"
+#import "FSnapshotUtilities.h"
 
 const NSString *kTimestamp = @"timestamp";
 const NSString *kIncrement = @"increment";

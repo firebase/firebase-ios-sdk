@@ -25,12 +25,12 @@ iOS SDK for App Distribution for Firebase.
   base_dir = "FirebaseAppDistribution/Sources/"
   s.source_files = [
     base_dir + '**/*.{c,h,m,mm}',
-    'FirebaseCore/Extension/*.h',
     'FirebaseInstallations/Source/Library/Private/*.h',
   ]
   s.public_header_files = base_dir + 'Public/FirebaseAppDistribution/*.h'
 
   s.dependency 'FirebaseCore', '~> 12.19.0'
+  s.dependency 'FirebaseCoreExtension', '~> 12.19.0'
   s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 8.1'
   s.dependency 'GoogleUtilities/UserDefaults', '~> 8.1'
   s.dependency 'FirebaseInstallations', '~> 12.19.0'

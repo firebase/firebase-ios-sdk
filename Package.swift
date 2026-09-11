@@ -217,9 +217,6 @@ func packageTargets() -> [Target] {
         .copy("vertexai-sdk-test-data/mock-responses"),
         .process("Resources"),
       ],
-      cSettings: [
-        .headerSearchPath("../../../"),
-      ],
       swiftSettings: [
         isFoundationModelsSupportedPlatformSwiftSetting(),
       ]
@@ -249,7 +246,9 @@ func packageTargets() -> [Target] {
       resources: [.process("Resources/PrivacyInfo.xcprivacy")],
       publicHeadersPath: "Public",
       cSettings: [
-        .headerSearchPath("../.."),
+        .headerSearchPath("."),
+        .headerSearchPath("Public/FirebaseCore"),
+        .headerSearchPath("../Extension/Public"),
         .define("Firebase_VERSION", to: firebaseVersion),
         // TODO: - Add support for cflags cSetting so that we can set the -fno-autolink option
       ],
@@ -262,13 +261,15 @@ func packageTargets() -> [Target] {
       name: "CoreUnit",
       dependencies: [
         "FirebaseCore",
+        "FirebaseCoreExtension",
         "SharedTestUtilities",
         .product(name: "OCMock", package: "ocmock"),
       ],
       path: "FirebaseCore/Tests/Unit",
       exclude: ["Resources/GoogleService-Info.plist"],
       cSettings: [
-        .headerSearchPath("../../.."),
+        .headerSearchPath("../../Sources"),
+        .headerSearchPath("../../Sources/Public/FirebaseCore"),
       ]
     ),
 
@@ -279,12 +280,12 @@ func packageTargets() -> [Target] {
     // to avoid potential linker issues.
     .target(
       name: "FirebaseCoreExtension",
+      dependencies: [
+        "FirebaseCore",
+      ],
       path: "FirebaseCore/Extension",
       resources: [.process("Resources/PrivacyInfo.xcprivacy")],
-      publicHeadersPath: ".",
-      cSettings: [
-        .headerSearchPath("../../"),
-      ]
+      publicHeadersPath: "Public"
     ),
 
     // MARK: - Firebase Core Internal
@@ -306,23 +307,43 @@ func packageTargets() -> [Target] {
       path: "FirebaseCore/Internal/Tests"
     ),
 
+    // MARK: - Firebase Analytics Interop
+
+    .target(
+      name: "FirebaseAnalyticsInterop",
+      path: "Interop/Analytics",
+      publicHeadersPath: "Public"
+    ),
+
     .target(
       name: "FirebaseABTesting",
-      dependencies: ["FirebaseCore"],
+      dependencies: [
+        "FirebaseCore",
+        "FirebaseCoreExtension",
+        "FirebaseAnalyticsInterop",
+      ],
       path: "FirebaseABTesting/Sources",
       resources: [.process("Resources/PrivacyInfo.xcprivacy")],
       publicHeadersPath: "Public",
       cSettings: [
-        .headerSearchPath("../../"),
+        .headerSearchPath("."),
+        .headerSearchPath("Private"),
+        .headerSearchPath("Public/FirebaseABTesting"),
       ]
     ),
     .testTarget(
       name: "ABTestingUnit",
-      dependencies: ["FirebaseABTesting", .product(name: "OCMock", package: "ocmock")],
+      dependencies: [
+        "FirebaseABTesting",
+        "FirebaseAnalyticsInterop",
+        .product(name: "OCMock", package: "ocmock"),
+      ],
       path: "FirebaseABTesting/Tests/Unit",
       resources: [.process("Resources")],
       cSettings: [
-        .headerSearchPath("../../.."),
+        .headerSearchPath("../../Sources"),
+        .headerSearchPath("../../Sources/Public/FirebaseABTesting"),
+        .headerSearchPath("Utilities"),
       ]
     ),
 
@@ -444,6 +465,7 @@ func packageTargets() -> [Target] {
       name: "FirebaseAppDistribution",
       dependencies: [
         "FirebaseCore",
+        "FirebaseCoreExtension",
         "FirebaseInstallations",
         .product(name: "GULAppDelegateSwizzler", package: "GoogleUtilities"),
         .product(name: "GULUserDefaults", package: "GoogleUtilities"),
@@ -451,7 +473,9 @@ func packageTargets() -> [Target] {
       path: "FirebaseAppDistribution/Sources",
       publicHeadersPath: "Public",
       cSettings: [
-        .headerSearchPath("../../"),
+        .headerSearchPath("."),
+        .headerSearchPath("Private"),
+        .headerSearchPath("Public/FirebaseAppDistribution"),
       ]
     ),
     .testTarget(
@@ -459,18 +483,12 @@ func packageTargets() -> [Target] {
       dependencies: ["FirebaseAppDistribution", .product(name: "OCMock", package: "ocmock")],
       path: "FirebaseAppDistribution/Tests/Unit",
       exclude: ["Swift/"],
-      resources: [.process("Resources")],
-      cSettings: [
-        .headerSearchPath("../../.."),
-      ]
+      resources: [.process("Resources")]
     ),
     .testTarget(
       name: "AppDistributionUnitSwift",
       dependencies: ["FirebaseAppDistribution"],
       path: "FirebaseAppDistribution/Tests/Unit/Swift",
-      cSettings: [
-        .headerSearchPath("../../../.."),
-      ],
       swiftSettings: [
         .swiftLanguageMode(SwiftLanguageMode.v5),
       ]
@@ -504,16 +522,14 @@ func packageTargets() -> [Target] {
     .target(
       name: "FirebaseAuthInternal",
       dependencies: [
+        "FirebaseCoreExtension",
         .product(name: "RecaptchaInterop", package: "interop-ios-for-google-sdks"),
       ],
       path: "FirebaseAuth/Sources",
       exclude: [
         "Swift", "Resources",
       ],
-      publicHeadersPath: "Public",
-      cSettings: [
-        .headerSearchPath("../../"),
-      ]
+      publicHeadersPath: "Public"
     ),
     // Internal headers only for consuming from Swift.
     .target(
@@ -522,10 +538,7 @@ func packageTargets() -> [Target] {
       exclude: [
         "CMakeLists.txt",
       ],
-      publicHeadersPath: "Public",
-      cSettings: [
-        .headerSearchPath("../../"),
-      ]
+      publicHeadersPath: "Public"
     ),
     .testTarget(
       name: "AuthUnit",
@@ -581,14 +594,50 @@ func packageTargets() -> [Target] {
     ),
     .testTarget(
       name: "FirebaseCrashlyticsUnit",
-      dependencies: ["FirebaseCrashlytics", .product(name: "OCMock", package: "ocmock")],
+      dependencies: [
+        "FirebaseCrashlytics",
+        "FirebaseCore",
+        "FirebaseCoreExtension",
+        "FirebaseInstallations",
+        "FirebaseAnalyticsInterop",
+        "SharedTestUtilities",
+        .product(name: "OCMock", package: "ocmock"),
+      ],
       path: "Crashlytics/UnitTests",
       resources: [
         .copy("FIRCLSMachO/machO_data"),
         .copy("Data"),
       ],
       cSettings: [
-        .headerSearchPath("../.."),
+        .headerSearchPath(".."),
+        .headerSearchPath("../Crashlytics"),
+        .headerSearchPath("../Crashlytics/Components"),
+        .headerSearchPath("../Crashlytics/Controllers"),
+        .headerSearchPath("../Crashlytics/DataCollection"),
+        .headerSearchPath("../Crashlytics/FIRCLSUserDefaults"),
+        .headerSearchPath("../Crashlytics/Handlers"),
+        .headerSearchPath("../Crashlytics/Helpers"),
+        .headerSearchPath("../Crashlytics/Models"),
+        .headerSearchPath("../Crashlytics/Models/Record"),
+        .headerSearchPath("../Crashlytics/Operations"),
+        .headerSearchPath("../Crashlytics/Operations/Reports"),
+        .headerSearchPath("../Crashlytics/Operations/Symbolication"),
+        .headerSearchPath("../Crashlytics/Private"),
+        .headerSearchPath("../Crashlytics/Public/FirebaseCrashlytics"),
+        .headerSearchPath("../Crashlytics/Rollouts"),
+        .headerSearchPath("../Crashlytics/Settings"),
+        .headerSearchPath("../Crashlytics/Settings/Models"),
+        .headerSearchPath("../Crashlytics/Settings/Operations"),
+        .headerSearchPath("../Crashlytics/Unwind"),
+        .headerSearchPath("../Crashlytics/Unwind/Compact"),
+        .headerSearchPath("../Crashlytics/Unwind/Dwarf"),
+        .headerSearchPath("../Protogen/nanopb"),
+        .headerSearchPath("../Shared"),
+        .headerSearchPath("../Shared/FIRCLSMachO"),
+        .headerSearchPath("../Shared/FIRCLSNetworking"),
+        .headerSearchPath("../Shared/FIRCLSOperation"),
+        .headerSearchPath("../third_party/libunwind"),
+        .headerSearchPath("Mocks"),
         .define("DISPLAY_VERSION", to: firebaseVersion),
         .define("CLS_SDK_NAME", to: "Crashlytics iOS SDK", .when(platforms: [.iOS])),
         .define(
@@ -603,8 +652,10 @@ func packageTargets() -> [Target] {
     .target(
       name: "FirebaseDatabaseInternal",
       dependencies: [
+        "FirebaseAuthInterop",
         "FirebaseAppCheckInterop",
         "FirebaseCore",
+        "FirebaseCoreExtension",
         "leveldb",
         .product(name: "GULUserDefaults", package: "GoogleUtilities"),
       ],
@@ -617,7 +668,25 @@ func packageTargets() -> [Target] {
       ],
       publicHeadersPath: "Public",
       cSettings: [
-        .headerSearchPath("../../"),
+        .headerSearchPath("."),
+        .headerSearchPath("Public/FirebaseDatabase"),
+        .headerSearchPath("Api"),
+        .headerSearchPath("Api/Private"),
+        .headerSearchPath("Constants"),
+        .headerSearchPath("Core"),
+        .headerSearchPath("Core/Operation"),
+        .headerSearchPath("Core/Utilities"),
+        .headerSearchPath("Core/View"),
+        .headerSearchPath("Core/View/Filter"),
+        .headerSearchPath("Login"),
+        .headerSearchPath("Persistence"),
+        .headerSearchPath("Realtime"),
+        .headerSearchPath("Snapshot"),
+        .headerSearchPath("Utilities"),
+        .headerSearchPath("Utilities/Tuples"),
+        .headerSearchPath("third_party/SocketRocket"),
+        .headerSearchPath("third_party/Wrap-leveldb"),
+        .headerSearchPath("third_party/FImmutableSortedDictionary/FImmutableSortedDictionary"),
       ],
       linkerSettings: [
         .linkedFramework("CFNetwork"),
@@ -630,6 +699,8 @@ func packageTargets() -> [Target] {
       name: "DatabaseUnit",
       dependencies: [
         "FirebaseDatabase",
+        "FirebaseDatabaseInternal",
+        "FirebaseCoreExtension",
         "SharedTestUtilities",
         .product(name: "OCMock", package: "ocmock"),
       ],
@@ -641,7 +712,31 @@ func packageTargets() -> [Target] {
       ],
       resources: [.process("Resources")],
       cSettings: [
-        .headerSearchPath("../.."),
+        .headerSearchPath("../Sources"),
+        .headerSearchPath("../Sources/Public/FirebaseDatabase"),
+        .headerSearchPath("../Sources/Api"),
+        .headerSearchPath("../Sources/Api/Private"),
+        .headerSearchPath("../Sources/Constants"),
+        .headerSearchPath("../Sources/Core"),
+        .headerSearchPath("../Sources/Core/Operation"),
+        .headerSearchPath("../Sources/Core/Utilities"),
+        .headerSearchPath("../Sources/Core/View"),
+        .headerSearchPath("../Sources/Core/View/Filter"),
+        .headerSearchPath("../Sources/Login"),
+        .headerSearchPath("../Sources/Persistence"),
+        .headerSearchPath("../Sources/Realtime"),
+        .headerSearchPath("../Sources/Snapshot"),
+        .headerSearchPath("../Sources/Utilities"),
+        .headerSearchPath("../Sources/Utilities/Tuples"),
+        .headerSearchPath("../Sources/third_party/SocketRocket"),
+        .headerSearchPath("../Sources/third_party/Wrap-leveldb"),
+        .headerSearchPath(
+          "../Sources/third_party/FImmutableSortedDictionary/FImmutableSortedDictionary"
+        ),
+        .headerSearchPath("../../SharedTestUtilities/AppCheckFake"),
+        .headerSearchPath("../../SharedTestUtilities/URLSession"),
+        .headerSearchPath("Helpers"),
+        .headerSearchPath("Unit"),
       ],
       swiftSettings: [
         .swiftLanguageMode(SwiftLanguageMode.v5),
@@ -651,9 +746,6 @@ func packageTargets() -> [Target] {
       name: "DatabaseUnitSwift",
       dependencies: ["FirebaseDatabase"],
       path: "FirebaseDatabase/Tests/Unit/Swift",
-      cSettings: [
-        .headerSearchPath("../.."),
-      ],
       swiftSettings: [
         .swiftLanguageMode(SwiftLanguageMode.v5),
       ]
@@ -706,9 +798,6 @@ func packageTargets() -> [Target] {
                      "FirebaseMessagingInterop",
                      "SharedTestUtilities"],
       path: "FirebaseFunctions/Tests/Unit",
-      cSettings: [
-        .headerSearchPath("../../../"),
-      ],
       swiftSettings: [
         .swiftLanguageMode(SwiftLanguageMode.v5),
       ]
@@ -727,9 +816,6 @@ func packageTargets() -> [Target] {
       // See https://forums.swift.org/t/importing-swift-libraries-from-objective-c/56730
       exclude: [
         "ObjCPPAPITests.mm",
-      ],
-      cSettings: [
-        .headerSearchPath("../../.."),
       ]
     ),
     .target(
@@ -761,6 +847,8 @@ func packageTargets() -> [Target] {
       name: "FirebaseInAppMessagingInternal",
       dependencies: [
         "FirebaseCore",
+        "FirebaseCoreExtension",
+        "FirebaseAnalyticsInterop",
         "FirebaseInstallations",
         "FirebaseABTesting",
         .product(name: "GULEnvironment", package: "GoogleUtilities"),
@@ -775,7 +863,23 @@ func packageTargets() -> [Target] {
       ],
       publicHeadersPath: "Public",
       cSettings: [
-        .headerSearchPath("../../"),
+        .headerSearchPath("."),
+        .headerSearchPath("Public/FirebaseInAppMessaging"),
+        .headerSearchPath("Private"),
+        .headerSearchPath("Private/Analytics"),
+        .headerSearchPath("Private/Data"),
+        .headerSearchPath("Private/DisplayTrigger"),
+        .headerSearchPath("Private/Flows"),
+        .headerSearchPath("Private/Runtime"),
+        .headerSearchPath("Private/Util"),
+        .headerSearchPath("Analytics"),
+        .headerSearchPath("Analytics/Protogen/nanopb"),
+        .headerSearchPath("Data"),
+        .headerSearchPath("DisplayTrigger"),
+        .headerSearchPath("Flows"),
+        .headerSearchPath("RenderingObjects"),
+        .headerSearchPath("Runtime"),
+        .headerSearchPath("Util"),
         .define("PB_FIELD_32BIT", to: "1"),
         .define("PB_NO_PACKED_STRUCTS", to: "1"),
         .define("PB_ENABLE_MALLOC", to: "1"),
@@ -801,6 +905,7 @@ func packageTargets() -> [Target] {
       name: "FirebaseInstallations",
       dependencies: [
         "FirebaseCore",
+        "FirebaseCoreExtension",
         .product(name: "FBLPromises", package: "Promises"),
         .product(name: "GULEnvironment", package: "GoogleUtilities"),
         .product(name: "GULUserDefaults", package: "GoogleUtilities"),
@@ -809,7 +914,14 @@ func packageTargets() -> [Target] {
       resources: [.process("Resources/PrivacyInfo.xcprivacy")],
       publicHeadersPath: "Public",
       cSettings: [
-        .headerSearchPath("../../../"),
+        .headerSearchPath("."),
+        .headerSearchPath("Private"),
+        .headerSearchPath("Public/FirebaseInstallations"),
+        .headerSearchPath("InstallationsAPI"),
+        .headerSearchPath("InstallationsIDController"),
+        .headerSearchPath("InstallationsStore"),
+        .headerSearchPath("IIDMigration"),
+        .headerSearchPath("Errors"),
       ],
       linkerSettings: [
         .linkedFramework("Security"),
@@ -839,7 +951,10 @@ func packageTargets() -> [Target] {
       name: "FirebaseMessaging",
       dependencies: [
         "FirebaseCore",
+        "FirebaseCoreExtension",
+        "FirebaseAnalyticsInterop",
         "FirebaseInstallations",
+        "FirebaseMessagingInterop",
         .product(name: "GULAppDelegateSwizzler", package: "GoogleUtilities"),
         .product(name: "GULEnvironment", package: "GoogleUtilities"),
         .product(name: "GULReachability", package: "GoogleUtilities"),
@@ -851,7 +966,10 @@ func packageTargets() -> [Target] {
       resources: [.process("Resources/PrivacyInfo.xcprivacy")],
       publicHeadersPath: "Public",
       cSettings: [
-        .headerSearchPath("../../"),
+        .headerSearchPath("."),
+        .headerSearchPath("Public/FirebaseMessaging"),
+        .headerSearchPath("Token"),
+        .headerSearchPath("Protogen/nanopb"),
         .define("PB_FIELD_32BIT", to: "1"),
         .define("PB_NO_PACKED_STRUCTS", to: "1"),
         .define("PB_ENABLE_MALLOC", to: "1"),
@@ -864,15 +982,15 @@ func packageTargets() -> [Target] {
     .target(
       name: "FirebaseMessagingInterop",
       path: "FirebaseMessaging/Interop",
-      publicHeadersPath: ".",
-      cSettings: [
-        .headerSearchPath("../../"),
-      ]
+      publicHeadersPath: "Public"
     ),
     .testTarget(
       name: "MessagingUnit",
       dependencies: [
         "FirebaseMessaging",
+        "FirebaseCoreExtension",
+        "FirebaseInstallations",
+        "FirebaseAnalyticsInterop",
         "SharedTestUtilities",
         .product(name: "OCMock", package: "ocmock"),
       ],
@@ -881,7 +999,11 @@ func packageTargets() -> [Target] {
         "FIRMessagingContextManagerServiceTest.m", // TODO: Adapt its NSBundle usage to SPM.
       ],
       cSettings: [
-        .headerSearchPath("../../.."),
+        .headerSearchPath("../../Sources"),
+        .headerSearchPath("../../Sources/Public/FirebaseMessaging"),
+        .headerSearchPath("../../Sources/Token"),
+        .headerSearchPath("../../../SharedTestUtilities/URLSession"),
+        .headerSearchPath("."),
       ]
     ),
 
@@ -895,6 +1017,7 @@ func packageTargets() -> [Target] {
       name: "FirebasePerformance",
       dependencies: [
         "FirebaseCore",
+        "FirebaseCoreExtension",
         "FirebaseInstallations",
         // Performance depends on the Obj-C target of FirebaseRemoteConfig to
         // avoid including Swift code from the `FirebaseRemoteConfig` target
@@ -910,7 +1033,22 @@ func packageTargets() -> [Target] {
       path: "FirebasePerformance/Sources",
       publicHeadersPath: "Public",
       cSettings: [
-        .headerSearchPath("../../"),
+        .headerSearchPath("."),
+        .headerSearchPath("Public/FirebasePerformance"),
+        .headerSearchPath("Configurations"),
+        .headerSearchPath("Loggers"),
+        .headerSearchPath("Timer"),
+        .headerSearchPath("Instrumentation"),
+        .headerSearchPath("Instrumentation/UIKit"),
+        .headerSearchPath("Instrumentation/Network"),
+        .headerSearchPath("Instrumentation/Network/Delegates"),
+        .headerSearchPath("Common"),
+        .headerSearchPath("ISASwizzler"),
+        .headerSearchPath("AppActivity"),
+        .headerSearchPath("Gauges"),
+        .headerSearchPath("Gauges/Memory"),
+        .headerSearchPath("Gauges/CPU"),
+        .headerSearchPath("Protogen/nanopb"),
         .define("PB_FIELD_32BIT", to: "1"),
         .define("PB_NO_PACKED_STRUCTS", to: "1"),
         .define("PB_ENABLE_MALLOC", to: "1"),
@@ -925,6 +1063,8 @@ func packageTargets() -> [Target] {
       name: "PerformanceUnit",
       dependencies: [
         "FirebasePerformanceTarget",
+        "FirebasePerformance",
+        "FirebaseCoreExtension",
         "SharedTestUtilities",
         "GCDWebServer",
         .product(name: "OCMock", package: "ocmock"),
@@ -936,7 +1076,32 @@ func packageTargets() -> [Target] {
         .process("Server/bigDownloadFile"),
       ],
       cSettings: [
-        .headerSearchPath("../../.."),
+        .headerSearchPath("../../Sources"),
+        .headerSearchPath("../../Sources/Public/FirebasePerformance"),
+        .headerSearchPath("../../Sources/Configurations"),
+        .headerSearchPath("../../Sources/Loggers"),
+        .headerSearchPath("../../Sources/Timer"),
+        .headerSearchPath("../../Sources/Instrumentation"),
+        .headerSearchPath("../../Sources/Instrumentation/UIKit"),
+        .headerSearchPath("../../Sources/Instrumentation/Network"),
+        .headerSearchPath("../../Sources/Instrumentation/Network/Delegates"),
+        .headerSearchPath("../../Sources/Common"),
+        .headerSearchPath("../../Sources/ISASwizzler"),
+        .headerSearchPath("../../Sources/AppActivity"),
+        .headerSearchPath("../../Sources/Gauges"),
+        .headerSearchPath("../../Sources/Gauges/Memory"),
+        .headerSearchPath("../../Sources/Gauges/CPU"),
+        .headerSearchPath("../../Sources/Protogen/nanopb"),
+        .headerSearchPath("."),
+        .headerSearchPath("Configurations"),
+        .headerSearchPath("Common"),
+        .headerSearchPath("Fakes"),
+        .headerSearchPath("Gauges"),
+        .headerSearchPath("Instruments"),
+        .headerSearchPath("ISASwizzler"),
+        .headerSearchPath("Loggers"),
+        .headerSearchPath("Server"),
+        .headerSearchPath("Timer"),
         .define("PB_FIELD_32BIT", to: "1"),
         .define("PB_NO_PACKED_STRUCTS", to: "1"),
         .define("PB_ENABLE_MALLOC", to: "1"),
@@ -953,10 +1118,7 @@ func packageTargets() -> [Target] {
                      "GoogleDataTransport",
                      .product(name: "OCMock", package: "ocmock")],
       path: "SharedTestUtilities",
-      publicHeadersPath: "./",
-      cSettings: [
-        .headerSearchPath("../"),
-      ]
+      publicHeadersPath: "./"
     ),
 
     // MARK: - Firebase Remote Config
@@ -965,6 +1127,8 @@ func packageTargets() -> [Target] {
       name: "FirebaseRemoteConfigInternal",
       dependencies: [
         "FirebaseCore",
+        "FirebaseCoreExtension",
+        "FirebaseAnalyticsInterop",
         "FirebaseABTesting",
         "FirebaseInstallations",
         "FirebaseRemoteConfigInterop",
@@ -974,12 +1138,17 @@ func packageTargets() -> [Target] {
       path: "FirebaseRemoteConfig/Sources",
       publicHeadersPath: "Public",
       cSettings: [
-        .headerSearchPath("../../"),
+        .headerSearchPath("."),
+        .headerSearchPath("Public/FirebaseRemoteConfig"),
       ]
     ),
     .testTarget(
       name: "RemoteConfigUnit",
-      dependencies: ["FirebaseRemoteConfigInternal", .product(name: "OCMock", package: "ocmock")],
+      dependencies: [
+        "FirebaseRemoteConfigInternal",
+        "FirebaseAnalyticsInterop",
+        .product(name: "OCMock", package: "ocmock"),
+      ],
       path: "FirebaseRemoteConfig/Tests/Unit",
       exclude: [
         // Need to be evaluated/ported to RC V2.
@@ -995,16 +1164,14 @@ func packageTargets() -> [Target] {
         .process("TestABTPayload.txt"),
       ],
       cSettings: [
-        .headerSearchPath("../../.."),
+        .headerSearchPath("../../Sources"),
+        .headerSearchPath("../../Sources/Public/FirebaseRemoteConfig"),
       ]
     ),
     .testTarget(
       name: "RemoteConfigSwiftUnit",
       dependencies: ["FirebaseRemoteConfigInternal"],
-      path: "FirebaseRemoteConfig/Tests/SwiftUnit",
-      cSettings: [
-        .headerSearchPath("../../.."),
-      ]
+      path: "FirebaseRemoteConfig/Tests/SwiftUnit"
     ),
     .target(
       name: "FirebaseRemoteConfig",
@@ -1021,6 +1188,7 @@ func packageTargets() -> [Target] {
     .testTarget(
       name: "RemoteConfigFakeConsole",
       dependencies: ["FirebaseRemoteConfig",
+                     "FirebaseRemoteConfigInternal",
                      "RemoteConfigFakeConsoleObjC"],
       path: "FirebaseRemoteConfig/Tests/Swift",
       exclude: [
@@ -1032,29 +1200,37 @@ func packageTargets() -> [Target] {
         .process("Defaults-testInfo.plist"),
       ],
       cSettings: [
-        .headerSearchPath("../../../"),
+        .headerSearchPath("../../Sources"),
+        .headerSearchPath("../../Sources/Public/FirebaseRemoteConfig"),
       ],
       swiftSettings: [
         .swiftLanguageMode(SwiftLanguageMode.v5),
+        .unsafeFlags([
+          "-I",
+          "FirebaseRemoteConfig/Sources",
+          "-I",
+          "FirebaseRemoteConfig/Sources/Public/FirebaseRemoteConfig",
+        ]),
       ]
     ),
     .target(
       name: "RemoteConfigFakeConsoleObjC",
-      dependencies: [.product(name: "OCMock", package: "ocmock")],
+      dependencies: [
+        "FirebaseRemoteConfigInternal",
+        .product(name: "OCMock", package: "ocmock"),
+      ],
       path: "FirebaseRemoteConfig/Tests/Swift/ObjC",
       publicHeadersPath: ".",
       cSettings: [
-        .headerSearchPath("../../../../"),
+        .headerSearchPath("../../../Sources"),
+        .headerSearchPath("../../../Sources/Public/FirebaseRemoteConfig"),
       ]
     ),
     // Internal headers only for consuming from other SDK.
     .target(
       name: "FirebaseRemoteConfigInterop",
       path: "FirebaseRemoteConfig/Interop",
-      publicHeadersPath: ".",
-      cSettings: [
-        .headerSearchPath("../../"),
-      ]
+      publicHeadersPath: "."
     ),
 
     // MARK: - Firebase Sessions
@@ -1080,7 +1256,6 @@ func packageTargets() -> [Target] {
       ],
       path: "FirebaseSessions/Sources",
       cSettings: [
-        .headerSearchPath(".."),
         .define("DISPLAY_VERSION", to: firebaseVersion),
         .define("PB_FIELD_32BIT", to: "1"),
         .define("PB_NO_PACKED_STRUCTS", to: "1"),
@@ -1118,7 +1293,9 @@ func packageTargets() -> [Target] {
       ],
       publicHeadersPath: "SourcesObjC",
       cSettings: [
-        .headerSearchPath(".."),
+        .headerSearchPath("SourcesObjC"),
+        .headerSearchPath("SourcesObjC/Protogen/nanopb"),
+        .headerSearchPath("SourcesObjC/NanoPB"),
         .define("DISPLAY_VERSION", to: firebaseVersion),
         .define("PB_FIELD_32BIT", to: "1"),
         .define("PB_NO_PACKED_STRUCTS", to: "1"),
@@ -1160,9 +1337,6 @@ func packageTargets() -> [Target] {
       dependencies: ["FirebaseStorage",
                      "SharedTestUtilities"],
       path: "FirebaseStorage/Tests/Unit",
-      cSettings: [
-        .headerSearchPath("../../../"),
-      ],
       swiftSettings: [
         .swiftLanguageMode(SwiftLanguageMode.v5),
       ]
@@ -1176,9 +1350,6 @@ func packageTargets() -> [Target] {
         "FIRStorageIntegrationTests.m",
         "ObjCPPAPITests.mm",
         "Credentials.h",
-      ],
-      cSettings: [
-        .headerSearchPath("../../.."),
       ]
     ),
     .testTarget(
@@ -1269,6 +1440,7 @@ func packageTargets() -> [Target] {
             dependencies: [
               "FirebaseAppCheckInterop",
               "FirebaseCore",
+              "FirebaseCoreExtension",
               .product(name: "AppCheckCore", package: "app-check"),
               .product(name: "AppCheckRecaptchaProvider", package: "app-check"),
               .product(name: "GULEnvironment", package: "GoogleUtilities"),
@@ -1277,7 +1449,15 @@ func packageTargets() -> [Target] {
             path: "FirebaseAppCheck/Sources",
             publicHeadersPath: "Public",
             cSettings: [
-              .headerSearchPath("../.."),
+              .headerSearchPath("."),
+              .headerSearchPath("Public/FirebaseAppCheck"),
+              .headerSearchPath("Core"),
+              .headerSearchPath("Core/Errors"),
+              .headerSearchPath("DebugProvider"),
+              .headerSearchPath("DefaultProviderFactory"),
+              .headerSearchPath("DeviceCheckProvider"),
+              .headerSearchPath("RecaptchaProvider"),
+              .headerSearchPath("AppAttestProvider"),
             ],
             linkerSettings: [
               .linkedFramework(
@@ -1292,10 +1472,7 @@ func packageTargets() -> [Target] {
       exclude: [
         "CMakeLists.txt",
       ],
-      publicHeadersPath: "Public",
-      cSettings: [
-        .headerSearchPath("../../"),
-      ]
+      publicHeadersPath: "Public"
     ),
     .testTarget(
       name: "FirebaseAppCheckUnit",
@@ -1311,7 +1488,9 @@ func packageTargets() -> [Target] {
         "Swift",
       ],
       cSettings: [
-        .headerSearchPath("../../.."),
+        .headerSearchPath("../../Sources"),
+        .headerSearchPath("../../Sources/Public/FirebaseAppCheck"),
+        .headerSearchPath("Utils"),
       ]
     ),
     .testTarget(
@@ -1323,9 +1502,6 @@ func packageTargets() -> [Target] {
         .product(name: "AppCheckCore", package: "app-check"),
       ],
       path: "FirebaseAppCheck/Tests/Unit/Swift",
-      cSettings: [
-        .headerSearchPath("../../../"),
-      ],
       swiftSettings: [
         .swiftLanguageMode(SwiftLanguageMode.v5),
       ]
@@ -1339,17 +1515,13 @@ func packageTargets() -> [Target] {
       path: "FirebaseTestingSupport/Firestore/Sources",
       publicHeadersPath: "./",
       cSettings: [
-        .headerSearchPath("../../.."),
         .headerSearchPath("../../../Firestore/Source/Public/FirebaseFirestore"),
       ]
     ),
     .testTarget(
       name: "FirestoreTestingSupportTests",
       dependencies: ["FirebaseFirestoreTestingSupport"],
-      path: "FirebaseTestingSupport/Firestore/Tests",
-      cSettings: [
-        .headerSearchPath("../../.."),
-      ]
+      path: "FirebaseTestingSupport/Firestore/Tests"
     ),
     .testTarget(
       name: "FirebaseFirestoreTests",
@@ -1358,10 +1530,7 @@ func packageTargets() -> [Target] {
         "FirebaseCore",
         "FirebaseFirestoreTarget",
       ],
-      path: "Firestore/Swift/Tests/Unit",
-      cSettings: [
-        .headerSearchPath("../../../"),
-      ]
+      path: "Firestore/Swift/Tests/Unit"
     ),
   ]
   targets.append(contentsOf: firestoreTargets())
@@ -1377,7 +1546,34 @@ func packageTargets() -> [Target] {
 
 func firebaseCrashlyticsTarget() -> Target {
   var cSettings: [CSetting] = [
-    .headerSearchPath(".."),
+    .headerSearchPath("."),
+    .headerSearchPath("Crashlytics"),
+    .headerSearchPath("Crashlytics/Components"),
+    .headerSearchPath("Crashlytics/Controllers"),
+    .headerSearchPath("Crashlytics/DataCollection"),
+    .headerSearchPath("Crashlytics/FIRCLSUserDefaults"),
+    .headerSearchPath("Crashlytics/Handlers"),
+    .headerSearchPath("Crashlytics/Helpers"),
+    .headerSearchPath("Crashlytics/Models"),
+    .headerSearchPath("Crashlytics/Models/Record"),
+    .headerSearchPath("Crashlytics/Operations"),
+    .headerSearchPath("Crashlytics/Operations/Reports"),
+    .headerSearchPath("Crashlytics/Operations/Symbolication"),
+    .headerSearchPath("Crashlytics/Private"),
+    .headerSearchPath("Crashlytics/Public/FirebaseCrashlytics"),
+    .headerSearchPath("Crashlytics/Rollouts"),
+    .headerSearchPath("Crashlytics/Settings"),
+    .headerSearchPath("Crashlytics/Settings/Models"),
+    .headerSearchPath("Crashlytics/Settings/Operations"),
+    .headerSearchPath("Crashlytics/Unwind"),
+    .headerSearchPath("Crashlytics/Unwind/Compact"),
+    .headerSearchPath("Crashlytics/Unwind/Dwarf"),
+    .headerSearchPath("Protogen/nanopb"),
+    .headerSearchPath("Shared"),
+    .headerSearchPath("Shared/FIRCLSMachO"),
+    .headerSearchPath("Shared/FIRCLSNetworking"),
+    .headerSearchPath("Shared/FIRCLSOperation"),
+    .headerSearchPath("third_party/libunwind"),
     .define("DISPLAY_VERSION", to: firebaseVersion),
     .define("CLS_SDK_NAME", to: "Crashlytics iOS SDK", .when(platforms: [.iOS])),
     .define(
@@ -1399,6 +1595,8 @@ func firebaseCrashlyticsTarget() -> Target {
     name: "FirebaseCrashlytics",
     dependencies: [
       "FirebaseCore",
+      "FirebaseCoreExtension",
+      "FirebaseAnalyticsInterop",
       "FirebaseInstallations",
       "FirebaseSessions",
       "FirebaseRemoteConfigInterop",
@@ -1515,8 +1713,10 @@ func firestoreTargets() -> [Target] {
       .target(
         name: "FirebaseFirestoreInternalWrapper",
         dependencies: [
+          "FirebaseAuthInterop",
           "FirebaseAppCheckInterop",
           "FirebaseCore",
+          "FirebaseCoreExtension",
           "leveldb",
           .product(name: "nanopb", package: "nanopb"),
           .product(name: "abseil", package: "abseil-cpp-SwiftPM"),
@@ -1563,7 +1763,6 @@ func firestoreTargets() -> [Target] {
         ],
         publicHeadersPath: "Source/Public",
         cSettings: [
-          .headerSearchPath("../"),
           .headerSearchPath("Source/Public/FirebaseFirestore"),
           .headerSearchPath("Protos/nanopb"),
           .headerSearchPath("third_party/re2"),

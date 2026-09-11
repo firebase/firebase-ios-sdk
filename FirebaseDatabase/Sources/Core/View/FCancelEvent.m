@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/Sources/Core/View/FCancelEvent.h"
-#import "FirebaseDatabase/Sources/Core/Utilities/FPath.h"
-#import "FirebaseDatabase/Sources/Core/View/FEventRegistration.h"
+#import "FCancelEvent.h"
+#import "FPath.h"
+#import "FEventRegistration.h"
 
 @interface FCancelEvent ()
 @property(nonatomic, strong) id<FEventRegistration> eventRegistration;

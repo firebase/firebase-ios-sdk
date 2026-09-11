@@ -16,8 +16,8 @@
 
 #import "FIRAggregateField.h"
 
-#import "Firestore/Source/API/FIRAggregateField+Internal.h"
-#import "Firestore/Source/API/FIRFieldPath+Internal.h"
+#import "FIRAggregateField+Internal.h"
+#import "FIRFieldPath+Internal.h"
 
 #import "Firestore/core/src/model/aggregate_field.h"
 

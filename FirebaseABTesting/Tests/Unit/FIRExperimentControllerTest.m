@@ -15,16 +15,16 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
-#import "FirebaseABTesting/Sources/ABTConditionalUserPropertyController.h"
-#import "FirebaseABTesting/Sources/ABTConstants.h"
-#import "FirebaseABTesting/Sources/Private/ABTExperimentPayload.h"
-#import "FirebaseABTesting/Sources/Public/FirebaseABTesting/FIRExperimentController.h"
-#import "FirebaseABTesting/Sources/Public/FirebaseABTesting/FIRLifecycleEvents.h"
-#import "FirebaseABTesting/Tests/Unit/ABTFakeFIRAConditionalUserPropertyController.h"
-#import "FirebaseABTesting/Tests/Unit/ABTTestUniversalConstants.h"
-#import "FirebaseABTesting/Tests/Unit/Utilities/ABTTestUtilities.h"
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
-#import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
+#import "ABTConditionalUserPropertyController.h"
+#import "ABTConstants.h"
+#import "ABTExperimentPayload.h"
+#import "FIRExperimentController.h"
+#import "FIRLifecycleEvents.h"
+#import "ABTFakeFIRAConditionalUserPropertyController.h"
+#import "ABTTestUniversalConstants.h"
+#import "ABTTestUtilities.h"
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
+#import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
 
 extern ABTExperimentPayload *ABTDeserializeExperimentPayload(NSData *payload);
 

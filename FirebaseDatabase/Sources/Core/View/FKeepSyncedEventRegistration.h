@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FirebaseDatabase/Sources/Core/View/FEventRegistration.h"
+#import "FEventRegistration.h"
 
 /**
  * A singleton event registration to mark a query as keep synced

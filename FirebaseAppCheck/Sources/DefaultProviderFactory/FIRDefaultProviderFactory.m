@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebaseAppCheck/Sources/DefaultProviderFactory/FIRDefaultProviderFactory.h"
+#import "DefaultProviderFactory/FIRDefaultProviderFactory.h"
 
-#import "FirebaseAppCheck/Sources/Core/FIRApp+AppCheck.h"
-#import "FirebaseAppCheck/Sources/Core/FIRAppCheckLogger.h"
-#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheck.h"
-#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckDebugProviderFactory.h"
-#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRDeviceCheckProviderFactory.h"
+#import "Core/FIRApp+AppCheck.h"
+#import "Core/FIRAppCheckLogger.h"
+#import <FirebaseAppCheck/FIRAppCheck.h>
+#import <FirebaseAppCheck/FIRAppCheckDebugProviderFactory.h>
+#import <FirebaseAppCheck/FIRDeviceCheckProviderFactory.h>
 
 @implementation FIRDefaultProviderFactory
 

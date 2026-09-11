@@ -12,17 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "Crashlytics/UnitTests/FIRCLSMachO/FIRCLSMachOTests.h"
+#import "FIRCLSMachOTests.h"
 #include <mach-o/dyld.h>
 #include <mach-o/getsect.h>
 #include <mach-o/utils.h>
 
-#include "Crashlytics/Crashlytics/Helpers/FIRCLSDefines.h"
+#include "FIRCLSDefines.h"
 
-#import "Crashlytics/Shared/FIRCLSMachO/FIRCLSMachO.h"
-#import "Crashlytics/Shared/FIRCLSMachO/FIRCLSMachOBinary.h"
-#import "Crashlytics/Shared/FIRCLSMachO/FIRCLSMachOSlice.h"
-#import "Crashlytics/Shared/FIRCLSMachO/FIRCLSdSYM.h"
+#import "FIRCLSMachO.h"
+#import "FIRCLSMachOBinary.h"
+#import "FIRCLSMachOSlice.h"
+#import "FIRCLSdSYM.h"
 
 @implementation FIRCLSMachOTests
 

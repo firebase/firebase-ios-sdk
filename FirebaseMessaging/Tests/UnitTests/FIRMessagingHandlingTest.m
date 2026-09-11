@@ -19,15 +19,15 @@
 #import <OCMock/OCMock.h>
 
 #import <GoogleUtilities/GULUserDefaults.h>
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
-#import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessaging.h"
-#import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
+#import "FIRMessaging.h"
+#import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
 
-#import "FirebaseMessaging/Sources/FIRMessagingAnalytics.h"
-#import "FirebaseMessaging/Sources/FIRMessagingRmqManager.h"
-#import "FirebaseMessaging/Sources/FIRMessagingSyncMessageManager.h"
-#import "FirebaseMessaging/Sources/FIRMessaging_Private.h"
-#import "FirebaseMessaging/Tests/UnitTests/FIRMessagingTestUtilities.h"
+#import "FIRMessagingAnalytics.h"
+#import "FIRMessagingRmqManager.h"
+#import "FIRMessagingSyncMessageManager.h"
+#import "FIRMessaging_Private.h"
+#import "FIRMessagingTestUtilities.h"
 
 extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
 

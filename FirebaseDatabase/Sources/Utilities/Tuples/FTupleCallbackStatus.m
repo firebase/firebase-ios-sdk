@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/Sources/Utilities/Tuples/FTupleCallbackStatus.h"
+#import "FTupleCallbackStatus.h"
 
 @implementation FTupleCallbackStatus
 @synthesize block;

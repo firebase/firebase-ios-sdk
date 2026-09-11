@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/Sources/Public/FirebaseDatabase/FIRDatabaseReference.h"
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
-#import "FirebaseDatabase/Sources/Api/FIRDatabaseConfig.h"
-#import "FirebaseDatabase/Sources/Api/Private/FIRDatabaseQuery_Private.h"
-#import "FirebaseDatabase/Sources/Api/Private/FIRDatabaseReference_Private.h"
-#import "FirebaseDatabase/Sources/Core/FQueryParams.h"
-#import "FirebaseDatabase/Sources/FIRDatabaseConfig_Private.h"
-#import "FirebaseDatabase/Sources/Public/FirebaseDatabase/FIRDatabase.h"
-#import "FirebaseDatabase/Sources/Snapshot/FSnapshotUtilities.h"
-#import "FirebaseDatabase/Sources/Utilities/FNextPushId.h"
-#import "FirebaseDatabase/Sources/Utilities/FStringUtilities.h"
-#import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
-#import "FirebaseDatabase/Sources/Utilities/FValidation.h"
+#import "FIRDatabaseReference.h"
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
+#import "FIRDatabaseConfig.h"
+#import "FIRDatabaseQuery_Private.h"
+#import "FIRDatabaseReference_Private.h"
+#import "FQueryParams.h"
+#import "FIRDatabaseConfig_Private.h"
+#import "FIRDatabase.h"
+#import "FSnapshotUtilities.h"
+#import "FNextPushId.h"
+#import "FStringUtilities.h"
+#import "FUtilities.h"
+#import "FValidation.h"
 
 @implementation FIRDatabaseReference
 

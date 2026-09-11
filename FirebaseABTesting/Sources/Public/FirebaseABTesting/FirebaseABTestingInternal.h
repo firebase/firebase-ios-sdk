@@ -17,4 +17,4 @@
 
 #import <FirebaseABTesting/FirebaseABTesting.h>
 
-#import "FirebaseABTesting/Sources/Private/ABTExperimentPayload.h"
+#import "ABTExperimentPayload.h"

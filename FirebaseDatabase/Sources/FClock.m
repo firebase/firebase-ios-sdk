@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/Sources/FClock.h"
+#import "FClock.h"
 
 @implementation FSystemClock
 

@@ -16,9 +16,9 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FirebaseDatabase/Sources/FIndex.h"
-#import "FirebaseDatabase/Sources/FNamedNode.h"
-#import "FirebaseDatabase/Sources/Snapshot/FNode.h"
+#import "FIndex.h"
+#import "FNamedNode.h"
+#import "FNode.h"
 
 /**
  * Represents a node together with an index. The index and node are updated in

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/Sources/Core/View/FChange.h"
+#import "FChange.h"
 
 @interface FChange ()
 

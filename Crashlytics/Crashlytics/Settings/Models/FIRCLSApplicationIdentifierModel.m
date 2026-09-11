@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "Crashlytics/Crashlytics/Settings/Models/FIRCLSApplicationIdentifierModel.h"
+#import "FIRCLSApplicationIdentifierModel.h"
 
-#import "Crashlytics/Crashlytics/Components/FIRCLSApplication.h"
-#import "Crashlytics/Crashlytics/Helpers/FIRCLSDefines.h"
-#import "Crashlytics/Shared/FIRCLSByteUtility.h"
-#import "Crashlytics/Shared/FIRCLSMachO/FIRCLSMachO.h"
-#import "Crashlytics/Shared/FIRCLSUUID.h"
+#import "FIRCLSApplication.h"
+#import "FIRCLSDefines.h"
+#import "FIRCLSByteUtility.h"
+#import "FIRCLSMachO.h"
+#import "FIRCLSUUID.h"
 
 @interface FIRCLSApplicationIdentifierModel ()
 

@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "Crashlytics/Crashlytics/Operations/Symbolication/FIRCLSSymbolicationOperation.h"
+#import "FIRCLSSymbolicationOperation.h"
 
-#import "Crashlytics/Crashlytics/Models/FIRCLSSymbolResolver.h"
+#import "FIRCLSSymbolResolver.h"
 
 @implementation FIRCLSSymbolicationOperation
 

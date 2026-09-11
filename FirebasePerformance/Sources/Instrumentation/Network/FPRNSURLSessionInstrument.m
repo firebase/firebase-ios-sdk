@@ -18,19 +18,19 @@
  *  Consequently, swizzling needs to occur on a serial queue for thread safety.
  */
 
-#import "FirebasePerformance/Sources/Instrumentation/Network/FPRNSURLSessionInstrument.h"
-#import "FirebasePerformance/Sources/Instrumentation/Network/FPRNSURLSessionInstrument_Private.h"
+#import "FPRNSURLSessionInstrument.h"
+#import "FPRNSURLSessionInstrument_Private.h"
 
-#import "FirebasePerformance/Sources/Common/FPRDiagnostics.h"
-#import "FirebasePerformance/Sources/Configurations/FPRConfigurations.h"
-#import "FirebasePerformance/Sources/ISASwizzler/FPRObjectSwizzler.h"
-#import "FirebasePerformance/Sources/Instrumentation/FPRClassInstrumentor.h"
-#import "FirebasePerformance/Sources/Instrumentation/FPRInstrument_Private.h"
-#import "FirebasePerformance/Sources/Instrumentation/FPRNetworkTrace.h"
-#import "FirebasePerformance/Sources/Instrumentation/FPRProxyObjectHelper.h"
-#import "FirebasePerformance/Sources/Instrumentation/FPRSelectorInstrumentor.h"
-#import "FirebasePerformance/Sources/Instrumentation/Network/Delegates/FPRNSURLSessionDelegate.h"
-#import "FirebasePerformance/Sources/Instrumentation/Network/FPRNetworkInstrumentHelpers.h"
+#import "FPRDiagnostics.h"
+#import "FPRConfigurations.h"
+#import "FPRObjectSwizzler.h"
+#import "FPRClassInstrumentor.h"
+#import "FPRInstrument_Private.h"
+#import "FPRNetworkTrace.h"
+#import "FPRProxyObjectHelper.h"
+#import "FPRSelectorInstrumentor.h"
+#import "FPRNSURLSessionDelegate.h"
+#import "FPRNetworkInstrumentHelpers.h"
 
 // Declared for use in instrumentation functions below.
 @interface FPRNSURLSessionInstrument ()

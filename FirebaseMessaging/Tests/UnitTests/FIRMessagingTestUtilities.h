@@ -16,10 +16,10 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessaging.h"
+#import "FIRMessaging.h"
 
-#import "FirebaseMessaging/Sources/FIRMessagingPendingTopicsList.h"
-#import "FirebaseMessaging/Sources/FIRMessagingTopicsCommon.h"
+#import "FIRMessagingPendingTopicsList.h"
+#import "FIRMessagingTopicsCommon.h"
 
 @class GULUserDefaults;
 @class XCTestCase;

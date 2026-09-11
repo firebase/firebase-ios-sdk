@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#import "FirebaseAppCheck/Sources/Core/FIRInternalAppCheckProvider.h"
+#import "Core/FIRInternalAppCheckProvider.h"
 
-#import "FirebaseAppCheck/Sources/Core/FIRAppCheckToken+Internal.h"
-#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckProvider.h"
+#import "Core/FIRAppCheckToken+Internal.h"
+#import <FirebaseAppCheck/FIRAppCheckProvider.h>
 
 @interface FIRInternalAppCheckProvider ()
 

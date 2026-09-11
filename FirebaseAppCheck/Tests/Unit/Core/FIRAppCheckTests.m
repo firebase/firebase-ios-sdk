@@ -20,17 +20,17 @@
 
 #import <FirebaseAppCheckInterop/FirebaseAppCheckInterop.h>
 
-#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheck.h"
-#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckErrors.h"
-#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckProvider.h"
-#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckProviderFactory.h"
+#import <FirebaseAppCheck/FIRAppCheck.h>
+#import <FirebaseAppCheck/FIRAppCheckErrors.h>
+#import <FirebaseAppCheck/FIRAppCheckProvider.h>
+#import <FirebaseAppCheck/FIRAppCheckProviderFactory.h>
 
-#import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckErrorUtil.h"
-#import "FirebaseAppCheck/Sources/Core/FIRAppCheckSettings.h"
-#import "FirebaseAppCheck/Sources/Core/FIRAppCheckToken+Internal.h"
-#import "FirebaseAppCheck/Sources/Core/FIRAppCheckTokenResult.h"
+#import "Core/Errors/FIRAppCheckErrorUtil.h"
+#import "Core/FIRAppCheckSettings.h"
+#import "Core/FIRAppCheckToken+Internal.h"
+#import "Core/FIRAppCheckTokenResult.h"
 
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
 // The FAC token value returned when an error occurs.
 static NSString *const kDummyToken = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";

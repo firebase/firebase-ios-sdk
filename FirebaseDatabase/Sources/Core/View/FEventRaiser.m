@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/Sources/Core/View/FEventRaiser.h"
-#import "FirebaseDatabase/Sources/Core/FRepo.h"
-#import "FirebaseDatabase/Sources/Core/FRepoManager.h"
-#import "FirebaseDatabase/Sources/Core/View/FDataEvent.h"
-#import "FirebaseDatabase/Sources/Utilities/FTypedefs.h"
-#import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
-#import "FirebaseDatabase/Sources/Utilities/Tuples/FTupleUserCallback.h"
+#import "FEventRaiser.h"
+#import "FRepo.h"
+#import "FRepoManager.h"
+#import "FDataEvent.h"
+#import "FTypedefs.h"
+#import "FUtilities.h"
+#import "FTupleUserCallback.h"
 
 @interface FEventRaiser ()
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FirebaseRemoteConfig/Sources/Public/FirebaseRemoteConfig/FIRRemoteConfig.h"
+#import "FIRRemoteConfig.h"
 
 @interface FIRRemoteConfigValue ()
 @property(nonatomic, readwrite, assign) FIRRemoteConfigSource source;

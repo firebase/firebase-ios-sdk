@@ -17,12 +17,12 @@
 #import <TargetConditionals.h>
 #if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
 
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
-#import "FirebaseInAppMessaging/Sources/FIRCore+InAppMessaging.h"
+#import "FIRCore+InAppMessaging.h"
 
-#import "FirebaseInAppMessaging/Sources/Flows/FIRIAMDisplayCheckOnFetchDoneNotificationFlow.h"
-#import "FirebaseInAppMessaging/Sources/Private/Flows/FIRIAMDisplayExecutor.h"
+#import "FIRIAMDisplayCheckOnFetchDoneNotificationFlow.h"
+#import "FIRIAMDisplayExecutor.h"
 
 extern NSString *const kFIRIAMFetchIsDoneNotification;
 

@@ -17,7 +17,7 @@
 #include <stdio.h>
 
 #if __OBJC__
-#import "Crashlytics/Crashlytics/Helpers/FIRCLSLogger.h"
+#import "FIRCLSLogger.h"
 #define FIRCLSDeveloperLog(label, __FORMAT__, ...) \
   FIRCLSDebugLog(@"[" label "] " __FORMAT__, ##__VA_ARGS__);
 #endif

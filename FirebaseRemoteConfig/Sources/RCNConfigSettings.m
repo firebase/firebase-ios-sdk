@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-#import "FirebaseRemoteConfig/Sources/Private/RCNConfigSettings.h"
+#import "RCNConfigSettings.h"
 
-#import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
-#import "FirebaseRemoteConfig/Sources/RCNConfigDBManager.h"
-#import "FirebaseRemoteConfig/Sources/RCNConfigValue_Internal.h"
-#import "FirebaseRemoteConfig/Sources/RCNDevice.h"
-#import "FirebaseRemoteConfig/Sources/RCNUserDefaultsManager.h"
+#import "RCNConfigConstants.h"
+#import "RCNConfigDBManager.h"
+#import "RCNConfigValue_Internal.h"
+#import "RCNDevice.h"
+#import "RCNUserDefaultsManager.h"
 
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
 static NSString *const kRCNGroupPrefix = @"frc.group.";
 static NSString *const kRCNUserDefaultsKeyNamelastETag = @"lastETag";

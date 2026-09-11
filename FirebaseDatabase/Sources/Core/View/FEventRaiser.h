@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/Sources/Utilities/FTypedefs.h"
+#import "FTypedefs.h"
 
 @class FPath;
 @class FRepo;

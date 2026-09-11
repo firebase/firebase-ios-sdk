@@ -21,13 +21,13 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FirebaseCore/Sources/Public/FirebaseCore/FIRTimestamp.h"
+#import <FirebaseCore/FIRTimestamp.h>
 
-#import "FirebaseCore/Extension/FIRAppInternal.h"
+#import <FirebaseCoreExtension/FIRAppInternal.h>
 #import "Firestore/Example/Tests/Util/FSTEventAccumulator.h"
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
-#import "Firestore/Source/API/FIRFirestore+Internal.h"
-#import "Firestore/Source/API/FIRLocalCacheSettings+Internal.h"
+#import "FIRFirestore+Internal.h"
+#import "FIRLocalCacheSettings+Internal.h"
 
 #include "Firestore/core/src/api/query_snapshot.h"
 #include "Firestore/core/src/api/settings.h"

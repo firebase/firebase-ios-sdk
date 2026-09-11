@@ -20,11 +20,11 @@
 
 #import <GoogleDataTransport/GoogleDataTransport.h>
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
-#import "FirebaseMessaging/Sources/FIRMessagingCode.h"
-#import "FirebaseMessaging/Sources/FIRMessagingConstants.h"
-#import "FirebaseMessaging/Sources/FIRMessagingLogger.h"
-#import "FirebaseMessaging/Sources/Protogen/nanopb/me.nanopb.h"
-#import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessagingExtensionHelper.h"
+#import "FIRMessagingCode.h"
+#import "FIRMessagingConstants.h"
+#import "FIRMessagingLogger.h"
+#import "Protogen/nanopb/me.nanopb.h"
+#import <FirebaseMessaging/FIRMessagingExtensionHelper.h>
 
 static NSString *const kPayloadOptionsName = @"fcm_options";
 static NSString *const kPayloadOptionsImageURLName = @"image";

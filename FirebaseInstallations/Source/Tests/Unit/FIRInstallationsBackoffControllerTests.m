@@ -16,9 +16,9 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FirebaseInstallations/Source/Library/InstallationsIDController/FIRInstallationsBackoffController.h"
+#import "FIRInstallationsBackoffController.h"
 
-#import "FirebaseInstallations/Source/Tests/Utils/FIRTestCurrentDateProvider.h"
+#import "FIRTestCurrentDateProvider.h"
 
 @interface FIRInstallationsBackoffControllerTests : XCTestCase
 

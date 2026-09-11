@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "Crashlytics/Crashlytics/Models/Record/FIRCLSRecordBase.h"
+#import "FIRCLSRecordBase.h"
 
 @interface FIRCLSRecordIdentity : FIRCLSRecordBase
 

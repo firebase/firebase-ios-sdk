@@ -19,14 +19,14 @@
 
 #import <GoogleUtilities/GULUserDefaults.h>
 #import <UIKit/UIKit.h>
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
-#import "FirebaseInAppMessaging/Sources/FIRCore+InAppMessaging.h"
-#import "FirebaseInAppMessaging/Sources/Private/Analytics/FIRIAMClearcutUploader.h"
-#import "FirebaseInAppMessaging/Sources/Private/Util/FIRIAMTimeFetcher.h"
+#import "FIRCore+InAppMessaging.h"
+#import "FIRIAMClearcutUploader.h"
+#import "FIRIAMTimeFetcher.h"
 
-#import "FirebaseInAppMessaging/Sources/Analytics/FIRIAMClearcutHttpRequestSender.h"
-#import "FirebaseInAppMessaging/Sources/Analytics/FIRIAMClearcutLogStorage.h"
+#import "FIRIAMClearcutHttpRequestSender.h"
+#import "FIRIAMClearcutLogStorage.h"
 
 // a macro for turning a millisecond value into seconds
 #define MILLS_TO_SECONDS(x) (((long)x) / 1000)

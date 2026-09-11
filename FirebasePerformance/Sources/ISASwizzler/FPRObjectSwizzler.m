@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebasePerformance/Sources/ISASwizzler/FPRObjectSwizzler.h"
+#import "FPRObjectSwizzler.h"
 
 #import <objc/runtime.h>
 
-#import "FirebasePerformance/Sources/ISASwizzler/FPRObjectSwizzler+Internal.h"
-#import "FirebasePerformance/Sources/ISASwizzler/FPRSwizzledObject.h"
+#import "FPRObjectSwizzler+Internal.h"
+#import "FPRSwizzledObject.h"
 
 @implementation FPRObjectSwizzler {
   // The swizzled object.

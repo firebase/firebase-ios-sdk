@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FirebaseInAppMessaging/Sources/Private/Flows/FIRIAMDisplayCheckTriggerFlow.h"
+#import "FIRIAMDisplayCheckTriggerFlow.h"
 
 @interface FIRIAMDisplayCheckOnFetchDoneNotificationFlow : FIRIAMDisplayCheckTriggerFlow
 - (void)start;

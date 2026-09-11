@@ -14,18 +14,18 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FirebasePerformance/Sources/Loggers/FPRGDTEvent.h"
-#import "FirebasePerformance/Sources/Loggers/FPRGDTRateLimiter+Private.h"
-#import "FirebasePerformance/Sources/Loggers/FPRGDTRateLimiter.h"
+#import "FPRGDTEvent.h"
+#import "FPRGDTRateLimiter+Private.h"
+#import "FPRGDTRateLimiter.h"
 
-#import "FirebasePerformance/Sources/AppActivity/FPRAppActivityTracker.h"
-#import "FirebasePerformance/Sources/Instrumentation/FPRNetworkTrace.h"
-#import "FirebasePerformance/Sources/Public/FirebasePerformance/FIRPerformance.h"
-#import "FirebasePerformance/Sources/Public/FirebasePerformance/FIRTrace.h"
-#import "FirebasePerformance/Sources/Timer/FIRTrace+Internal.h"
-#import "FirebasePerformance/Tests/Unit/Common/FPRFakeDate.h"
-#import "FirebasePerformance/Tests/Unit/FPRTestCase.h"
-#import "FirebasePerformance/Tests/Unit/FPRTestUtils.h"
+#import "FPRAppActivityTracker.h"
+#import "FPRNetworkTrace.h"
+#import "FIRPerformance.h"
+#import "FIRTrace.h"
+#import "FIRTrace+Internal.h"
+#import "FPRFakeDate.h"
+#import "FPRTestCase.h"
+#import "FPRTestUtils.h"
 
 #import <GoogleDataTransport/GoogleDataTransport.h>
 

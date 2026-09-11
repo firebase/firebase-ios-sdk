@@ -16,7 +16,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FirebaseCore/Sources/FIRTimestampInternal.h"
+#import "FIRTimestampInternal.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

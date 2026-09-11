@@ -15,7 +15,7 @@
 #import <Foundation/Foundation.h>
 
 #import <GoogleDataTransport/GoogleDataTransport.h>
-#import "FirebasePerformance/Sources/Protogen/nanopb/perf_metric.nanopb.h"
+#import "perf_metric.nanopb.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

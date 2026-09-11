@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "Crashlytics/Shared/FIRCLSMachO/FIRCLSMachOBinary.h"
+#import "FIRCLSMachOBinary.h"
 
 #import <CommonCrypto/CommonHMAC.h>
-#import "Crashlytics/Crashlytics/Helpers/FIRCLSUtility.h"
-#import "Crashlytics/Shared/FIRCLSByteUtility.h"
-#import "Crashlytics/Shared/FIRCLSMachO/FIRCLSMachOSlice.h"
+#import "FIRCLSUtility.h"
+#import "FIRCLSByteUtility.h"
+#import "FIRCLSMachOSlice.h"
 
 static NSString* FIRCLSHashNSString(NSString* value);
 

@@ -14,7 +14,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "Crashlytics/Crashlytics/Components/FIRCLSApplication.h"
+#import "FIRCLSApplication.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

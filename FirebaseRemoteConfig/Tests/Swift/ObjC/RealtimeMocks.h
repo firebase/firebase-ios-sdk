@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #import <Foundation/Foundation.h>
-#import "FirebaseRemoteConfig/Sources/RCNConfigRealtime.h"
+#import "RCNConfigRealtime.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

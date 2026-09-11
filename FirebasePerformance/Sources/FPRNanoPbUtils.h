@@ -18,11 +18,11 @@
 #import <CoreTelephony/CTTelephonyNetworkInfo.h>
 #endif
 
-#import "FirebasePerformance/Sources/AppActivity/FPRTraceBackgroundActivityTracker.h"
-#import "FirebasePerformance/Sources/Instrumentation/FPRNetworkTrace.h"
-#import "FirebasePerformance/Sources/Public/FirebasePerformance/FIRTrace.h"
+#import "FPRTraceBackgroundActivityTracker.h"
+#import "FPRNetworkTrace.h"
+#import "FIRTrace.h"
 
-#import "FirebasePerformance/Sources/Protogen/nanopb/perf_metric.nanopb.h"
+#import "perf_metric.nanopb.h"
 
 /**nanopb struct of encoded NSDictionary<NSString *, NSString *>.*/
 typedef struct {

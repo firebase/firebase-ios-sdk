@@ -15,15 +15,15 @@
 #import <Foundation/Foundation.h>
 #import <XCTest/XCTest.h>
 
-#import "Crashlytics/Crashlytics/Models/Record/FIRCLSRecordApplication.h"
-#import "Crashlytics/Crashlytics/Models/Record/FIRCLSRecordHost.h"
-#import "Crashlytics/Crashlytics/Models/Record/FIRCLSRecordIdentity.h"
-#import "Crashlytics/Crashlytics/Models/Record/FIRCLSReportAdapter.h"
-#import "Crashlytics/Crashlytics/Models/Record/FIRCLSReportAdapter_Private.h"
+#import "FIRCLSRecordApplication.h"
+#import "FIRCLSRecordHost.h"
+#import "FIRCLSRecordIdentity.h"
+#import "FIRCLSReportAdapter.h"
+#import "FIRCLSReportAdapter_Private.h"
 
-#import "Crashlytics/Crashlytics/Helpers/FIRCLSFile.h"
+#import "FIRCLSFile.h"
 
-#import "Crashlytics/UnitTests/Mocks/FIRMockInstallations.h"
+#import "FIRMockInstallations.h"
 
 #import <GoogleDataTransport/GoogleDataTransport.h>
 

@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "SharedTestUtilities/AppCheckFake/FIRAppCheckFake.h"
+#import "FIRAppCheckFake.h"
 
-#import "SharedTestUtilities/AppCheckFake/FIRAppCheckTokenResultFake.h"
+#import "FIRAppCheckTokenResultFake.h"
 
 @implementation FIRAppCheckFake
 

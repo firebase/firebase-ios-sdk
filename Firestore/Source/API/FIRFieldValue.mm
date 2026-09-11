@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import "Firestore/Source/API/FIRFieldValue+Internal.h"
-#import "Firestore/Source/Public/FirebaseFirestore/FIRVectorValue.h"
+#import "FIRFieldValue+Internal.h"
+#import "FIRVectorValue.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

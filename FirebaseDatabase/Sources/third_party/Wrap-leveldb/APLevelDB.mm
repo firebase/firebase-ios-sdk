@@ -49,7 +49,7 @@
 //	THE SOFTWARE.
 //
 
-#import "FirebaseDatabase/Sources/third_party/Wrap-leveldb/APLevelDB.h"
+#import "APLevelDB.h"
 
 #import "leveldb/db.h"
 #import "leveldb/options.h"

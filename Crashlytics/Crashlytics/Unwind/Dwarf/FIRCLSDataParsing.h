@@ -16,7 +16,7 @@
 
 #include <stdint.h>
 
-#include "Crashlytics/Crashlytics/Helpers/FIRCLSFeatures.h"
+#include "Crashlytics/Helpers/FIRCLSFeatures.h"
 
 #if CLS_DWARF_UNWINDING_SUPPORTED
 

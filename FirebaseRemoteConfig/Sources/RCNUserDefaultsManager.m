@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#import "FirebaseRemoteConfig/Sources/RCNUserDefaultsManager.h"
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
-#import "FirebaseRemoteConfig/Sources/Public/FirebaseRemoteConfig/FIRRemoteConfig.h"
-#import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
+#import "RCNUserDefaultsManager.h"
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
+#import "FIRRemoteConfig.h"
+#import "RCNConfigConstants.h"
 
 static NSString *const kRCNGroupPrefix = @"group";
 static NSString *const kRCNGroupSuffix = @"firebase";

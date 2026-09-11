@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebaseCore/Tests/Unit/FIRTestCase.h"
+#import "FIRTestCase.h"
 
-#import "FirebaseCore/Extension/FIRComponentType.h"
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
-#import "FirebaseCore/Sources/FIRComponentContainerInternal.h"
-#import "FirebaseCore/Tests/Unit/FIRTestComponents.h"
-#import "SharedTestUtilities/FIROptionsMock.h"
+#import <FirebaseCoreExtension/FIRComponentType.h>
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
+#import "FIRComponentContainerInternal.h"
+#import "FIRTestComponents.h"
+#import "FIROptionsMock.h"
 
 /// Internally exposed methods and properties for testing.
 @interface FIRComponentContainer (TestInternal)

@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "Firestore/Source/API/FIRFirestore+Internal.h"
+#import "FIRFirestore+Internal.h"
 
 @class FIRApp;
 @class FIRFirestore;

@@ -14,8 +14,8 @@
 
 #import <OCMock/OCMock.h>
 
-#import "FirebaseRemoteConfig/Sources/RCNConfigRealtime.h"
-#import "FirebaseRemoteConfig/Tests/Swift/ObjC/RealtimeMocks.h"
+#import "RCNConfigRealtime.h"
+#import "RealtimeMocks.h"
 
 @interface RCNConfigRealtime (ExposedForTest)
 

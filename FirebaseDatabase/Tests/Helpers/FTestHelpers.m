@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/Tests/Helpers/FTestHelpers.h"
+#import "FTestHelpers.h"
 
-#import "FirebaseAuth/Interop/Public/FirebaseAuthInterop/FIRAuthInterop.h"
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
+#import <FirebaseAuthInterop/FIRAuthInterop.h>
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
-#import "FirebaseDatabase/Sources/Api/Private/FIRDatabase_Private.h"
-#import "FirebaseDatabase/Sources/Constants/FConstants.h"
-#import "FirebaseDatabase/Sources/FIRDatabaseConfig_Private.h"
+#import "FIRDatabase_Private.h"
+#import "FConstants.h"
+#import "FIRDatabaseConfig_Private.h"
 
-#import "SharedTestUtilities/AppCheckFake/FIRAppCheckFake.h"
-#import "SharedTestUtilities/AppCheckFake/FIRAppCheckTokenResultFake.h"
-#import "SharedTestUtilities/FIRAuthInteropFake.h"
+#import "FIRAppCheckFake.h"
+#import "FIRAppCheckTokenResultFake.h"
+#import "FIRAuthInteropFake.h"
 
 @implementation FTestHelpers
 

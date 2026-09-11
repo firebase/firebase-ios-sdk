@@ -19,10 +19,10 @@
 
 #import <GoogleUtilities/GULUserDefaults.h>
 
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
-#import "FirebaseInAppMessaging/Sources/FIRCore+InAppMessaging.h"
-#import "FirebaseInAppMessaging/Sources/Private/Runtime/FIRIAMSDKModeManager.h"
+#import "FIRCore+InAppMessaging.h"
+#import "FIRIAMSDKModeManager.h"
 
 NSString *FIRIAMDescriptionStringForSDKMode(FIRIAMSDKMode mode) {
   switch (mode) {

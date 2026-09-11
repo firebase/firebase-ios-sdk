@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebasePerformance/Sources/Instrumentation/FPRClassInstrumentor.h"
-#import "FirebasePerformance/Sources/Instrumentation/FPRClassInstrumentor_Private.h"
+#import "FPRClassInstrumentor.h"
+#import "FPRClassInstrumentor_Private.h"
 
-#import "FirebasePerformance/Sources/Common/FPRDiagnostics.h"
-#import "FirebasePerformance/Sources/Instrumentation/FPRSelectorInstrumentor.h"
+#import "FPRDiagnostics.h"
+#import "FPRSelectorInstrumentor.h"
 
 /** Use ivars instead of properties to reduce message sending overhead. */
 @interface FPRClassInstrumentor () {

@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRRecaptchaProvider.h"
-#import "FirebaseAppCheck/Sources/RecaptchaProvider/FIRRecaptchaProvider+Internal.h"
+#import <FirebaseAppCheck/FIRRecaptchaProvider.h>
+#import "RecaptchaProvider/FIRRecaptchaProvider+Internal.h"
 
 #import <AppCheckCore/AppCheckCore.h>
 
@@ -40,12 +40,12 @@
 #define FIR_RECAPTCHA_PROVIDER_SWIFT_AVAILABLE 1
 #endif
 
-#import "FirebaseAppCheck/Sources/Core/FIRApp+AppCheck.h"
+#import "Core/FIRApp+AppCheck.h"
 
-#import "FirebaseAppCheck/Sources/Core/FIRAppCheckLogger.h"
-#import "FirebaseAppCheck/Sources/Core/FIRAppCheckToken+Internal.h"
-#import "FirebaseAppCheck/Sources/Core/FIRAppCheckValidator.h"
-#import "FirebaseAppCheck/Sources/Core/FIRHeartbeatLogger+AppCheck.h"
+#import "Core/FIRAppCheckLogger.h"
+#import "Core/FIRAppCheckToken+Internal.h"
+#import "Core/FIRAppCheckValidator.h"
+#import "Core/FIRHeartbeatLogger+AppCheck.h"
 
 @interface FIRRecaptchaProvider ()
 

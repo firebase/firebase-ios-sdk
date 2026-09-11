@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-#import "FirebaseRemoteConfig/Sources/RCNDevice.h"
+#import "RCNDevice.h"
 
 #import <sys/utsname.h>
 
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
-#import "FirebaseRemoteConfig/Sources/Private/RCNConfigSettings.h"
-#import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
+#import "RCNConfigSettings.h"
+#import "RCNConfigConstants.h"
 
 #define STR(x) STR_EXPAND(x)
 #define STR_EXPAND(x) #x

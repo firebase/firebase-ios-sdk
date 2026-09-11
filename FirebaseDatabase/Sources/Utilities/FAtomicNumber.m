@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/Sources/Utilities/FAtomicNumber.h"
+#import "FAtomicNumber.h"
 
 @interface FAtomicNumber () {
     unsigned long number;

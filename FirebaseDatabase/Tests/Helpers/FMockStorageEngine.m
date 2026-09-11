@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/Tests/Helpers/FMockStorageEngine.h"
+#import "FMockStorageEngine.h"
 
-#import "FirebaseDatabase/Sources/Core/FWriteRecord.h"
-#import "FirebaseDatabase/Sources/Persistence/FPruneForest.h"
-#import "FirebaseDatabase/Sources/Persistence/FTrackedQuery.h"
-#import "FirebaseDatabase/Sources/Snapshot/FCompoundWrite.h"
-#import "FirebaseDatabase/Sources/Snapshot/FEmptyNode.h"
-#import "FirebaseDatabase/Sources/Snapshot/FNode.h"
+#import "FWriteRecord.h"
+#import "FPruneForest.h"
+#import "FTrackedQuery.h"
+#import "FCompoundWrite.h"
+#import "FEmptyNode.h"
+#import "FNode.h"
 
 @interface FMockStorageEngine ()
 

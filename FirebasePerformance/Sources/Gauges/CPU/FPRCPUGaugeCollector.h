@@ -14,9 +14,9 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FirebasePerformance/Sources/AppActivity/FPRAppActivityTracker.h"
-#import "FirebasePerformance/Sources/Gauges/CPU/FPRCPUGaugeData.h"
-#import "FirebasePerformance/Sources/Gauges/FPRGaugeCollector.h"
+#import "FPRAppActivityTracker.h"
+#import "FPRCPUGaugeData.h"
+#import "FPRGaugeCollector.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/Sources/FPriorityIndex.h"
+#import "FPriorityIndex.h"
 
-#import "FirebaseDatabase/Sources/FMaxNode.h"
-#import "FirebaseDatabase/Sources/FNamedNode.h"
-#import "FirebaseDatabase/Sources/Snapshot/FEmptyNode.h"
-#import "FirebaseDatabase/Sources/Snapshot/FLeafNode.h"
-#import "FirebaseDatabase/Sources/Snapshot/FNode.h"
-#import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
+#import "FMaxNode.h"
+#import "FNamedNode.h"
+#import "FEmptyNode.h"
+#import "FLeafNode.h"
+#import "FNode.h"
+#import "FUtilities.h"
 
 // TODO: Abstract into some common base class?
 

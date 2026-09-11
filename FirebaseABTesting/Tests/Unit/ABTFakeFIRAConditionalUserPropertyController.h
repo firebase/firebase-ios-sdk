@@ -14,7 +14,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
+#import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
 
 @class FIRAConditionalUserProperty;
 @class FIRAEvent;

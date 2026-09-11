@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/Sources/Core/FSnapshotHolder.h"
-#import "FirebaseDatabase/Sources/Snapshot/FEmptyNode.h"
+#import "FSnapshotHolder.h"
+#import "FEmptyNode.h"
 
 @interface FSnapshotHolder ()
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FirebaseCore/Sources/FIRFirebaseUserAgent.h"
+#import "FIRFirebaseUserAgent.h"
 
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 

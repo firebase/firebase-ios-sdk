@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FirebaseInstallations/Source/Library/Public/FirebaseInstallations/FIRInstallations.h"
+#import "FIRInstallations.h"
 
 #if __has_include(<FBLPromises/FBLPromises.h>)
 #import <FBLPromises/FBLPromises.h>
@@ -22,15 +22,15 @@
 #import "FBLPromises.h"
 #endif
 
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
-#import "FirebaseInstallations/Source/Library/FIRInstallationsAuthTokenResultInternal.h"
+#import "FIRInstallationsAuthTokenResultInternal.h"
 
-#import "FirebaseInstallations/Source/Library/Errors/FIRInstallationsErrorUtil.h"
-#import "FirebaseInstallations/Source/Library/FIRInstallationsItem.h"
-#import "FirebaseInstallations/Source/Library/FIRInstallationsLogger.h"
-#import "FirebaseInstallations/Source/Library/InstallationsIDController/FIRInstallationsIDController.h"
-#import "FirebaseInstallations/Source/Library/InstallationsStore/FIRInstallationsStoredAuthToken.h"
+#import "FIRInstallationsErrorUtil.h"
+#import "FIRInstallationsItem.h"
+#import "FIRInstallationsLogger.h"
+#import "FIRInstallationsIDController.h"
+#import "FIRInstallationsStoredAuthToken.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

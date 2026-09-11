@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebasePerformance/Sources/Instrumentation/Network/FPRNetworkInstrumentHelpers.h"
+#import "FPRNetworkInstrumentHelpers.h"
 
-#import "FirebasePerformance/Sources/Instrumentation/FPRClassInstrumentor.h"
-#import "FirebasePerformance/Sources/Instrumentation/FPRSelectorInstrumentor.h"
+#import "FPRClassInstrumentor.h"
+#import "FPRSelectorInstrumentor.h"
 
 FOUNDATION_EXTERN_INLINE
 void ThrowExceptionBecauseSelectorNotFoundOnClass(SEL selector, Class aClass) {

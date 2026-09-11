@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebasePerformance/Sources/Instrumentation/FPRObjectInstrumentor.h"
+#import "FPRObjectInstrumentor.h"
 
-#import "FirebasePerformance/Sources/Common/FPRDiagnostics.h"
-#import "FirebasePerformance/Sources/ISASwizzler/FPRObjectSwizzler.h"
-#import "FirebasePerformance/Sources/Instrumentation/FPRInstrument_Private.h"
-#import "FirebasePerformance/Sources/Instrumentation/FPRSelectorInstrumentor.h"
+#import "FPRDiagnostics.h"
+#import "FPRObjectSwizzler.h"
+#import "FPRInstrument_Private.h"
+#import "FPRSelectorInstrumentor.h"
 
 @interface FPRObjectInstrumentor () {
   // The object swizzler instance this instrumentor will use.

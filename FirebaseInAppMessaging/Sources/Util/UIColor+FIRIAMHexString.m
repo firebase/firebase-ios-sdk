@@ -17,7 +17,7 @@
 #import <TargetConditionals.h>
 #if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
 
-#import "FirebaseInAppMessaging/Sources/Util/UIColor+FIRIAMHexString.h"
+#import "UIColor+FIRIAMHexString.h"
 
 @implementation UIColor (HexString)
 + (UIColor *)firiam_colorWithHexString:(nullable NSString *)hexString {

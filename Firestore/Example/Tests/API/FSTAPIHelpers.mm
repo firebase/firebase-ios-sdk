@@ -25,13 +25,13 @@
 #include <vector>
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
-#import "Firestore/Source/API/FIRCollectionReference+Internal.h"
-#import "Firestore/Source/API/FIRDocumentReference+Internal.h"
-#import "Firestore/Source/API/FIRDocumentSnapshot+Internal.h"
-#import "Firestore/Source/API/FIRFirestore+Internal.h"
-#import "Firestore/Source/API/FIRQuerySnapshot+Internal.h"
-#import "Firestore/Source/API/FIRSnapshotMetadata+Internal.h"
-#import "Firestore/Source/API/FSTUserDataReader.h"
+#import "FIRCollectionReference+Internal.h"
+#import "FIRDocumentReference+Internal.h"
+#import "FIRDocumentSnapshot+Internal.h"
+#import "FIRFirestore+Internal.h"
+#import "FIRQuerySnapshot+Internal.h"
+#import "FIRSnapshotMetadata+Internal.h"
+#import "FSTUserDataReader.h"
 
 #include "Firestore/core/src/core/pipeline_util.h"
 #include "Firestore/core/src/core/view_snapshot.h"

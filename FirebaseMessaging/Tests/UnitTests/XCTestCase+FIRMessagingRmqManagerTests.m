@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#import "FirebaseMessaging/Tests/UnitTests/XCTestCase+FIRMessagingRmqManagerTests.h"
+#import "XCTestCase+FIRMessagingRmqManagerTests.h"
 
 #import <Foundation/Foundation.h>
 
-#import "FirebaseMessaging/Sources/FIRMessagingRmqManager.h"
+#import "FIRMessagingRmqManager.h"
 
 @interface FIRMessagingRmqManager (FIRMessagingRmqManagerTests)
 - (dispatch_queue_t)databaseOperationQueue;
