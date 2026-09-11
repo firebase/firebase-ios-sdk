@@ -1,3 +1,8 @@
+# Unreleased
+- [changed] Deprecated model tuning parameters (`temperature`, `topP`, `topK`, `candidateCount`,
+  `presencePenalty`, and `frequencyPenalty`) in `GenerationConfig` and `LiveGenerationConfig` as
+  they are unsupported in Gemini 3.x and later models.
+
 # 12.19.0
 - [feature] **Public Preview**: Added `GeminiLanguageModel`, allowing Gemini
   models to be used with Apple's Foundation Models framework. See the
