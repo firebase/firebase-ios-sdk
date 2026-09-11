@@ -92,7 +92,7 @@ public final class FirebaseAI: Sendable {
       && !modelName.starts(with: GenerativeModel.gemmaModelNamePrefix) {
       AILog.warning(code: .unsupportedGeminiModel, """
       Unsupported Gemini model "\(modelName)"; see \
-      https://firebase.google.com/docs/ai-logic/models for a list supported Gemini model names.
+      https://firebase.google.com/docs/ai-logic/models for a list of supported Gemini model names.
       """)
     }
 

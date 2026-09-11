@@ -263,7 +263,7 @@
   Carthage distributions.
   <br /><br />
   - If you're new to this library, visit the
-    [getting started guide](http://firebase.google.com/docs/ai-logic/get-started?platform=ios).
+    [getting started guide](https://firebase.google.com/docs/ai-logic/get-started?platform=ios).
   - If you used the preview version of the library, visit the
     [migration guide](https://firebase.google.com/docs/ai-logic/migrate-to-ga?platform=ios)
     to learn about some important updates.
