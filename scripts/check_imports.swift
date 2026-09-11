@@ -52,6 +52,7 @@ let skipDirPatterns = ["/Sample/", "/Pods/",
 
 // Skip existence test for patterns that start with the following:
 let skipImportPatterns = [
+  "AppCheckCore-Swift.h",
   "FBLPromise",
   "OCMock",
   "OCMStubRecorder",

@@ -16,14 +16,20 @@
 
 #import "FirebaseCore/Extension/FIRHeartbeatLogger.h"
 
-#import <AppCheckCore/AppCheckCore.h>
+#if __has_include(<AppCheckCore/AppCheckCore-Swift.h>)
+#import <AppCheckCore/AppCheckCore-Swift.h>
+#elif __has_include("AppCheckCore-Swift.h")
+#import "AppCheckCore-Swift.h"
+#else
+@import AppCheckCore;
+#endif
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRHeartbeatLogger (AppCheck)
 
 /// Returns a closure that adds a heartbeat logging header to a `URLRequest`.
-- (GACAppCheckAPIRequestHook)requestHook;
+- (void (^)(NSMutableURLRequest *))requestHook;
 
 @end
 

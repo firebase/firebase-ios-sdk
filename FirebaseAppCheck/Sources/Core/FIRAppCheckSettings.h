@@ -16,7 +16,13 @@
 
 #import <Foundation/Foundation.h>
 
-#import <AppCheckCore/AppCheckCore.h>
+#if __has_include(<AppCheckCore/AppCheckCore-Swift.h>)
+#import <AppCheckCore/AppCheckCore-Swift.h>
+#elif __has_include("AppCheckCore-Swift.h")
+#import "AppCheckCore-Swift.h"
+#else
+@import AppCheckCore;
+#endif
 
 @class FIRApp;
 @class GULUserDefaults;
@@ -27,7 +33,7 @@ FOUNDATION_EXPORT NSString *const kFIRAppCheckTokenAutoRefreshEnabledUserDefault
 FOUNDATION_EXPORT NSString *const kFIRAppCheckTokenAutoRefreshEnabledInfoPlistKey;
 
 /// Handles storing and updating the Firebase app check wide settings and parameters.
-@interface FIRAppCheckSettings : GACAppCheckSettings
+@interface FIRAppCheckSettings : NSObject <GACAppCheckSettingsProtocol>
 
 /// If Firebase app check token auto-refresh is allowed.
 @property(nonatomic, assign) BOOL isTokenAutoRefreshEnabled;
