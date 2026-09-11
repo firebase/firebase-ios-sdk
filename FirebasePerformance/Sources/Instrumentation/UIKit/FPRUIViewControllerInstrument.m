@@ -97,6 +97,12 @@ void InstrumentViewDidDisappear(FPRUIViewControllerInstrument *instrument,
 
 - (void)registerInstrumentors {
   dispatch_sync(GetInstrumentationQueue(), ^{
+    // Check if it's in the denylist. This is needed because it's
+    // a top level class, otherwise the FPRAssert is wrongly trigerred.
+    if (![self isClassInstrumentable:[UIViewController class]]) {
+      return;
+    }
+
     FPRClassInstrumentor *instrumentor =
         [[FPRClassInstrumentor alloc] initWithClass:[UIViewController class]];
 
