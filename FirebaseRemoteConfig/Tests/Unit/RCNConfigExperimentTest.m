@@ -19,11 +19,11 @@
 
 #import "RCNConfigExperiment.h"
 
-#import "RCNConfigSettings.h"
-#import "FIRRemoteConfig.h"
+#import "FirebaseRemoteConfig/RCNConfigSettings.h"
+#import "FirebaseRemoteConfig/FIRRemoteConfig.h"
 #import "RCNConfigDBManager.h"
 #import "RCNConfigDefines.h"
-#import "RCNConfigValue_Internal.h"
+#import "FirebaseRemoteConfig/RCNConfigValue_Internal.h"
 #import "RCNTestUtilities.h"
 
 #import <FirebaseABTesting/FirebaseABTestingInternal.h>

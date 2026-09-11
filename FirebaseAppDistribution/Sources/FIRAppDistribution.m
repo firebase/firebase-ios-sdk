@@ -22,8 +22,8 @@
 #import "FIRAppDistributionUIService.h"
 #import "FIRFADApiService.h"
 #import "FIRFADLogger.h"
-#import "FIRAppDistribution.h"
-#import "FIRAppDistributionRelease.h"
+#import "FirebaseAppDistribution/FIRAppDistribution.h"
+#import "FirebaseAppDistribution/FIRAppDistributionRelease.h"
 
 /// Empty protocol to register with FirebaseCore's component system.
 @protocol FIRAppDistributionInstanceProvider <NSObject>

@@ -20,8 +20,8 @@
 
 #import "FPRAppActivityTracker.h"
 #import "FPRNetworkTrace.h"
-#import "FIRPerformance.h"
-#import "FIRTrace.h"
+#import <FirebasePerformance/FIRPerformance.h>
+#import <FirebasePerformance/FIRTrace.h>
 #import "FIRTrace+Internal.h"
 #import "FPRFakeDate.h"
 #import "FPRTestCase.h"

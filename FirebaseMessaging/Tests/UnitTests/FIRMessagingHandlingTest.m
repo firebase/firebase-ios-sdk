@@ -20,7 +20,7 @@
 
 #import <GoogleUtilities/GULUserDefaults.h>
 #import <FirebaseCoreExtension/FirebaseCoreInternal.h>
-#import "FIRMessaging.h"
+#import <FirebaseMessaging/FIRMessaging.h>
 #import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
 
 #import "FIRMessagingAnalytics.h"

@@ -23,8 +23,8 @@
 #import "FConstants.h"
 #import "FIRDatabaseConfig_Private.h"
 
-#import "FIRAppCheckFake.h"
-#import "FIRAppCheckTokenResultFake.h"
+#import <AppCheckFake/FIRAppCheckFake.h>
+#import <AppCheckFake/FIRAppCheckTokenResultFake.h>
 #import "FIRAuthInteropFake.h"
 
 @implementation FTestHelpers

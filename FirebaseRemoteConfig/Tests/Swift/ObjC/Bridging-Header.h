@@ -14,7 +14,7 @@
 
 #import <FirebaseRemoteConfig/FIRRemoteConfig_Private.h>
 #import "RCNConfigConstants.h"
-#import "RCNConfigFetch.h"
+#import "FirebaseRemoteConfig/RCNConfigFetch.h"
 #import "RCNConfigRealtime.h"
 #import "FetchMocks.h"
 #import "RealtimeMocks.h"

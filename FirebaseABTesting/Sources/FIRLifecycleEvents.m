@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRLifecycleEvents.h"
+#import "FirebaseABTesting/FIRLifecycleEvents.h"
 
-#import "FIRExperimentController.h"
+#import "FirebaseABTesting/FIRExperimentController.h"
 
 /// Default name of the analytics event to be logged when an experiment is set.
 NSString *const FIRSetExperimentEventName = @"_exp_set";

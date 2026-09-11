@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#import "FIRInstallationsStoredItem.h"
+#import "InstallationsStore/FIRInstallationsStoredItem.h"
 
 #import "FIRInstallationsLogger.h"
-#import "FIRInstallationsStoredAuthToken.h"
+#import "InstallationsStore/FIRInstallationsStoredAuthToken.h"
 
 NSString *const kFIRInstallationsStoredItemFirebaseInstallationIDKey = @"firebaseInstallationID";
 NSString *const kFIRInstallationsStoredItemRefreshTokenKey = @"refreshToken";

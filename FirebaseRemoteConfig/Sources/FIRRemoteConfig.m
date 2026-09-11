@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-#import "FIRRemoteConfig.h"
+#import "FirebaseRemoteConfig/FIRRemoteConfig.h"
 
 #import <FirebaseABTesting/FirebaseABTestingInternal.h>
 #import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 #import "FIRRemoteConfigComponent.h"
-#import "FIRRemoteConfig_Private.h"
-#import "RCNConfigFetch.h"
-#import "RCNConfigSettings.h"
+#import "FirebaseRemoteConfig/FIRRemoteConfig_Private.h"
+#import "FirebaseRemoteConfig/RCNConfigFetch.h"
+#import "FirebaseRemoteConfig/RCNConfigSettings.h"
 #import "RCNConfigConstants.h"
 #import "RCNConfigContent.h"
 #import "RCNConfigDBManager.h"
 #import "RCNConfigExperiment.h"
 #import "RCNConfigRealtime.h"
-#import "RCNConfigValue_Internal.h"
+#import "FirebaseRemoteConfig/RCNConfigValue_Internal.h"
 #import "RCNDevice.h"
 #import "RCNPersonalization.h"
 

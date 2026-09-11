@@ -18,7 +18,7 @@
 #import <XCTest/XCTest.h>
 
 #import "FIRMessagingUtilities.h"
-#import "FIRMessaging.h"
+#import <FirebaseMessaging/FIRMessaging.h>
 #import "FIRMessagingBackupExcludedPlist.h"
 #import "FIRMessagingCheckinPreferences.h"
 #import "FIRMessagingCheckinService.h"

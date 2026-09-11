@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRInstallationsStoredAuthToken.h"
+#import "InstallationsStore/FIRInstallationsStoredAuthToken.h"
 
 #import "FIRInstallationsLogger.h"
 

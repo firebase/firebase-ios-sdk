@@ -21,7 +21,7 @@
 #import "FIRAppDistributionMachO.h"
 #import "FIRAppDistributionUIService.h"
 #import "FIRFADApiService.h"
-#import "FIRAppDistribution.h"
+#import <FirebaseAppDistribution/FIRAppDistribution.h>
 #import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 #import <FirebaseInstallations/FirebaseInstallations.h>
 

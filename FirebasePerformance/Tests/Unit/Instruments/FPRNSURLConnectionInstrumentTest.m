@@ -24,7 +24,7 @@
 #import "FPRConfigurations.h"
 #import "FPRClient.h"
 #import "FPRNSURLConnectionInstrument.h"
-#import "FIRPerformance.h"
+#import <FirebasePerformance/FIRPerformance.h>
 
 #import "FPRTestCase.h"
 #import "FPRTestUtils.h"

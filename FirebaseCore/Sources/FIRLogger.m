@@ -18,7 +18,7 @@
 #import <GoogleUtilities/GULLogger.h>
 #import "FIRLoggerLevel.h"
 
-#import "FIRVersion.h"
+#import "FirebaseCore/FIRVersion.h"
 
 NSString *const kFIRLoggerSubsystem = @"com.google.firebase";
 

@@ -20,8 +20,8 @@
 
 #import "FIRDatabaseReference_Private.h"
 #import "FIRDatabaseConfig_Private.h"
-#import "FIRDatabase.h"
-#import "FIRDatabaseReference.h"
+#import <FirebaseDatabase/FIRDatabase.h>
+#import <FirebaseDatabase/FIRDatabaseReference.h>
 #import "FIRFakeApp.h"
 #import "FMockStorageEngine.h"
 #import "FTestBase.h"

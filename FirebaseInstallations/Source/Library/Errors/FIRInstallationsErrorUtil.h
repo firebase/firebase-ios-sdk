@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRInstallationsErrors.h"
+#import "FirebaseInstallations/FIRInstallationsErrors.h"
 
 @class FIRInstallationsHTTPError;
 @class FBLPromise<ResultType>;

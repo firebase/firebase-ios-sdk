@@ -20,7 +20,7 @@
 #import "FIRPerformance_Private.h"
 #import "FPRClient+Private.h"
 #import "FPRClient.h"
-#import "FIRPerformance.h"
+#import <FirebasePerformance/FIRPerformance.h>
 #import "FIRTrace+Internal.h"
 #import "FPRFakeClient.h"
 

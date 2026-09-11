@@ -21,7 +21,7 @@
 #import "NSError+FIRMessaging.h"
 #import "FIRMessagingCheckinPreferences.h"
 #import "FIRMessagingCheckinService.h"
-#import "FIRURLSessionOCMockStub.h"
+#import <URLSession/FIRURLSessionOCMockStub.h>
 
 static NSString *const kDeviceAuthId = @"1234";
 static NSString *const kSecretToken = @"567890";

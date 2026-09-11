@@ -24,7 +24,7 @@
 #import "FPRRemoteConfigFlags.h"
 #import "FPRNetworkTrace+Private.h"
 #import "FPRNetworkTrace.h"
-#import "FIRPerformance.h"
+#import <FirebasePerformance/FIRPerformance.h>
 
 #import "FPRFakeRemoteConfig.h"
 #import "FPRTestCase.h"

@@ -21,7 +21,7 @@
 #import <FirebaseInstallations/FirebaseInstallations.h>
 #import "FIRMessagingConstants.h"
 #import "FIRMessagingFIDUnregisterOperation.h"
-#import "FIRURLSessionOCMockStub.h"
+#import <URLSession/FIRURLSessionOCMockStub.h>
 
 @interface FIRMessagingFIDUnregisterOperation (ExposedForTest)
 + (void)resetSharedSession;

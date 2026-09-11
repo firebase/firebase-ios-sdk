@@ -22,7 +22,7 @@
 #import "FIRMessagingConstants.h"
 #import "FIRMessagingUtilities.h"
 #import "FIRMessagingFIDRegisterOperation.h"
-#import "FIRURLSessionOCMockStub.h"
+#import <URLSession/FIRURLSessionOCMockStub.h>
 
 @interface FIRMessagingFIDRegisterOperation (ExposedForTest)
 + (void)resetSharedSession;

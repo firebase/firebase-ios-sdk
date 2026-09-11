@@ -19,7 +19,7 @@
 #import <XCTest/XCTest.h>
 
 #import <GoogleUtilities/GULAppDelegateSwizzler.h>
-#import "FIRMessaging.h"
+#import <FirebaseMessaging/FIRMessaging.h>
 
 #import "FIRMessagingRemoteNotificationsProxy.h"
 

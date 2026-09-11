@@ -23,8 +23,11 @@
 #import "FPRTestUtils.h"
 
 #import <GoogleDataTransport/GoogleDataTransport.h>
-#import "GoogleDataTransport/GDTCORLibrary/Private/GDTCORTransport_Private.h"
 #import "GDTCORTransportFake.h"
+
+@interface GDTCORTransport (Testing)
+@property(nonatomic) NSArray<id<GDTCOREventTransformer>> *transformers;
+@end
 
 @interface FPRGDTLoggerTest : XCTestCase
 

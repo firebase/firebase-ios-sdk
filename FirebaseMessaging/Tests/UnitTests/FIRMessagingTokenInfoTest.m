@@ -22,7 +22,7 @@
 #import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 #import "FIRMessagingUtilities.h"
 #import "FIRMessaging_Private.h"
-#import "FIRMessaging.h"
+#import <FirebaseMessaging/FIRMessaging.h>
 #import "FIRMessagingAPNSInfo.h"
 #import "FIRMessagingTestUtilities.h"
 

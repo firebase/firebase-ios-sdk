@@ -21,7 +21,7 @@
 #import <FirebaseCoreExtension/FIRLibrary.h>
 #import <FirebaseCoreExtension/FIRLogger.h>
 #import "FIROptionsInternal.h"
-#import "FIROptions.h"
+#import "FirebaseCore/FIROptions.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

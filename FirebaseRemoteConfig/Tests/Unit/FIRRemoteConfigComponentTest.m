@@ -18,7 +18,7 @@
 
 #import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 #import "FIRRemoteConfigComponent.h"
-#import "FIRRemoteConfig_Private.h"
+#import "FirebaseRemoteConfig/FIRRemoteConfig_Private.h"
 #import "RCNTestUtilities.h"
 @import FirebaseRemoteConfigInterop;
 

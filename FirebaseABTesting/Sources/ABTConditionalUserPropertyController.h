@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #import <Foundation/Foundation.h>
-#import "ABTExperimentPayload.h"
+#import "FirebaseABTesting/ABTExperimentPayload.h"
 
 #import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
 

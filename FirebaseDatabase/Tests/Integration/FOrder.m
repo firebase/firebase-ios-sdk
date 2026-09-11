@@ -16,7 +16,7 @@
 
 #import "FOrder.h"
 #import "FTypedefs_Private.h"
-#import "FIRDatabaseReference.h"
+#import <FirebaseDatabase/FIRDatabaseReference.h>
 #import "FTupleFirebase.h"
 #import "FEventTester.h"
 #import "FTestHelpers.h"

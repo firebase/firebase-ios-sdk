@@ -26,7 +26,7 @@
 #import "FPRNetworkTrace.h"
 #import "FPRNSURLSessionInstrument.h"
 #import "FPRNSURLSessionInstrument_Private.h"
-#import "FIRPerformance.h"
+#import <FirebasePerformance/FIRPerformance.h>
 
 #import "FPRTestCase.h"
 #import "FPRTestUtils.h"

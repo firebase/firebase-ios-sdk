@@ -15,8 +15,8 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "RCNConfigFetch.h"
-#import "FIRRemoteConfig.h"
+#import "FirebaseRemoteConfig/RCNConfigFetch.h"
+#import "FirebaseRemoteConfig/FIRRemoteConfig.h"
 
 @class RCNConfigSettings;
 

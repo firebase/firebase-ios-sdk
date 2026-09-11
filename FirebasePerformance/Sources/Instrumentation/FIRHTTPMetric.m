@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRHTTPMetric.h"
+#import "FirebasePerformance/FIRHTTPMetric.h"
 #import "FIRHTTPMetric+Private.h"
 
 #import "FPRConstants.h"

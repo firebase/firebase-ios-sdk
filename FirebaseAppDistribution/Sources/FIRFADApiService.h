@@ -13,7 +13,7 @@
 // limitations under the License.
 #import <Foundation/Foundation.h>
 
-#import "FIRAppDistributionRelease.h"
+#import "FirebaseAppDistribution/FIRAppDistributionRelease.h"
 #import <FirebaseInstallations/FirebaseInstallations.h>
 
 NS_ASSUME_NONNULL_BEGIN

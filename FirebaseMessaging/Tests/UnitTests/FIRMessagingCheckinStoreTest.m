@@ -20,7 +20,7 @@
 
 #import <OCMock/OCMock.h>
 #import "FIRMessagingUtilities.h"
-#import "FIRMessaging.h"
+#import <FirebaseMessaging/FIRMessaging.h>
 #import "FIRMessagingAuthKeychain.h"
 #import "FIRMessagingBackupExcludedPlist.h"
 #import "FIRMessagingCheckinPreferences.h"

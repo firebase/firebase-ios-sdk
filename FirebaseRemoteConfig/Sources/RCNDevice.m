@@ -20,7 +20,7 @@
 
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import <FirebaseCoreExtension/FirebaseCoreInternal.h>
-#import "RCNConfigSettings.h"
+#import "FirebaseRemoteConfig/RCNConfigSettings.h"
 #import "RCNConfigConstants.h"
 
 #define STR(x) STR_EXPAND(x)

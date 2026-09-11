@@ -16,12 +16,12 @@
 
 #import "RCNConfigContent.h"
 
-#import "FIRRemoteConfig_Private.h"
-#import "FIRRemoteConfig.h"
+#import "FirebaseRemoteConfig/FIRRemoteConfig_Private.h"
+#import "FirebaseRemoteConfig/FIRRemoteConfig.h"
 #import "RCNConfigConstants.h"
 #import "RCNConfigDBManager.h"
 #import "RCNConfigDefines.h"
-#import "RCNConfigValue_Internal.h"
+#import "FirebaseRemoteConfig/RCNConfigValue_Internal.h"
 
 #import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 

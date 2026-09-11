@@ -31,7 +31,7 @@
 #import "FIRMessagingTokenFetchOperation.h"
 #import "FIRMessagingTokenOperation.h"
 #import "FIRMessagingTokenStore.h"
-#import "FIRURLSessionOCMockStub.h"
+#import <URLSession/FIRURLSessionOCMockStub.h>
 
 static NSString *kDeviceID = @"fakeDeviceID";
 static NSString *kSecretToken = @"fakeSecretToken";

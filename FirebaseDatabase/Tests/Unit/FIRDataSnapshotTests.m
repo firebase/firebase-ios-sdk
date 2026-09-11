@@ -19,7 +19,7 @@
 #import "FIRDatabaseConfig_Private.h"
 #import "FPathIndex.h"
 #import "FValueIndex.h"
-#import "FIRDatabaseReference.h"
+#import <FirebaseDatabase/FIRDatabaseReference.h>
 #import "FChildrenNode.h"
 #import "FEmptyNode.h"
 #import "FLeafNode.h"

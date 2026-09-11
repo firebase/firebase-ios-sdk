@@ -16,7 +16,7 @@
 
 #import "FIRPerformance+Internal.h"
 #import "FPRClient.h"
-#import "FIRPerformance.h"
+#import <FirebasePerformance/FIRPerformance.h>
 #import "FPRCounterList.h"
 
 @interface FPRCounterListTest : XCTestCase

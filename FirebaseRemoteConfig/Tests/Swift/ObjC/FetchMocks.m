@@ -14,7 +14,7 @@
 
 #import <OCMock/OCMock.h>
 
-#import "RCNConfigFetch.h"
+#import "FirebaseRemoteConfig/RCNConfigFetch.h"
 #import "FetchMocks.h"
 
 @interface RCNConfigFetch (ExposedForTest)

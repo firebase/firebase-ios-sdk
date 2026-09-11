@@ -17,7 +17,7 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
-#import "RCNConfigSettings.h"
+#import "FirebaseRemoteConfig/RCNConfigSettings.h"
 #import "RCNConfigConstants.h"
 #import "RCNConfigDBManager.h"
 #import "RCNTestUtilities.h"

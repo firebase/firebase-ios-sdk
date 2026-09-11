@@ -17,9 +17,9 @@
 
 #import "ABTConditionalUserPropertyController.h"
 #import "ABTConstants.h"
-#import "ABTExperimentPayload.h"
-#import "FIRExperimentController.h"
-#import "FIRLifecycleEvents.h"
+#import <FirebaseABTesting/ABTExperimentPayload.h>
+#import <FirebaseABTesting/FIRExperimentController.h>
+#import <FirebaseABTesting/FIRLifecycleEvents.h>
 #import "ABTFakeFIRAConditionalUserPropertyController.h"
 #import "ABTTestUniversalConstants.h"
 #import "ABTTestUtilities.h"

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRTrace.h"
+#import "FirebasePerformance/FIRTrace.h"
 
 #import "FPRConfiguration.h"
 #import "FPRGaugeManager.h"

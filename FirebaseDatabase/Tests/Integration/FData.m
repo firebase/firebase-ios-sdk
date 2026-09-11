@@ -20,7 +20,7 @@
 #import "FIRDatabaseQuery_Private.h"
 #import "FRepo_Private.h"
 #import "FIRDatabaseConfig_Private.h"
-#import "FIRServerValue.h"
+#import <FirebaseDatabase/FIRServerValue.h>
 #import "FEventTester.h"
 #import "FTestHelpers.h"
 #import "FTupleEventTypeString.h"

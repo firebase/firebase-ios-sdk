@@ -22,7 +22,7 @@
 #import "FIRMessagingPubSub.h"
 #import "FIRMessagingTopicsCommon.h"
 #import "NSError+FIRMessaging.h"
-#import "FIRMessaging.h"
+#import <FirebaseMessaging/FIRMessaging.h>
 #import "FIRMessagingTokenManager.h"
 #import "FIRMessagingTestUtilities.h"
 

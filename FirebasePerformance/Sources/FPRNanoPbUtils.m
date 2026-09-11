@@ -23,7 +23,7 @@
 #import "FPRConstants.h"
 #import "FIRPerformance+Internal.h"
 #import "FPRDataUtils.h"
-#import "FIRPerformance.h"
+#import "FirebasePerformance/FIRPerformance.h"
 #import "FIRTrace+Internal.h"
 #import "FIRTrace+Private.h"
 

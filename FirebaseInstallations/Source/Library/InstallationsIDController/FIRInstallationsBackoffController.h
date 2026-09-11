@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRCurrentDateProvider.h"
+#import "InstallationsIDController/FIRCurrentDateProvider.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

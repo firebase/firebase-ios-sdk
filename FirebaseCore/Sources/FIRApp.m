@@ -26,7 +26,7 @@
 #import <WatchKit/WatchKit.h>
 #endif
 
-#import "FIRApp.h"
+#import "FirebaseCore/FIRApp.h"
 
 #import "FIRAnalyticsConfiguration.h"
 #import "FIRBundleUtil.h"
@@ -39,8 +39,8 @@
 #import <FirebaseCoreExtension/FIRLibrary.h>
 #import <FirebaseCoreExtension/FIRLogger.h>
 #import "FIROptionsInternal.h"
-#import "FIROptions.h"
-#import "FIRVersion.h"
+#import "FirebaseCore/FIROptions.h"
+#import "FirebaseCore/FIRVersion.h"
 
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 

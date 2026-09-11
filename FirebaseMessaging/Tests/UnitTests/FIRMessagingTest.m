@@ -26,7 +26,7 @@
 #import "FIRMessagingUtilities.h"
 #import "FIRMessaging_Private.h"
 #import "NSError+FIRMessaging.h"
-#import "FIRMessaging.h"
+#import <FirebaseMessaging/FIRMessaging.h>
 #import "FIRMessagingAPNSInfo.h"
 #import "FIRMessagingFIDRegisterOperation.h"
 #import "FIRMessagingFIDUnregisterOperation.h"
@@ -35,7 +35,7 @@
 #import "FIRMessagingTokenStore.h"
 #import "FIRMessagingTestUtilities.h"
 #import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
-#import "FIRURLSessionOCMockStub.h"
+#import <URLSession/FIRURLSessionOCMockStub.h>
 
 @interface FIRMessagingFIDRegisterOperation (ExposedForTest)
 + (void)resetSharedSession;

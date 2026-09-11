@@ -16,7 +16,7 @@
 
 #import "FPRAppActivityTracker.h"
 #import "FPRConfigurations.h"
-#import "FIRPerformance.h"
+#import <FirebasePerformance/FIRPerformance.h>
 
 #import "FPRTestCase.h"
 

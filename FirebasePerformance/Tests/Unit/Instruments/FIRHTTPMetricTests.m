@@ -22,8 +22,8 @@
 #import "FPRRemoteConfigFlags+Private.h"
 #import "FPRRemoteConfigFlags.h"
 #import "FPRClient.h"
-#import "FIRHTTPMetric.h"
-#import "FIRPerformance.h"
+#import <FirebasePerformance/FIRHTTPMetric.h>
+#import <FirebasePerformance/FIRPerformance.h>
 
 #import "FIRHTTPMetric+Private.h"
 

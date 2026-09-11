@@ -22,7 +22,7 @@
 #import "FPRRemoteConfigFlags.h"
 #import "FPRGaugeManager+Private.h"
 #import "FPRGaugeManager.h"
-#import "FIRPerformance.h"
+#import <FirebasePerformance/FIRPerformance.h>
 
 #import "FPRCPUGaugeCollector+Private.h"
 

@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #import "FIRAppDistributionUIService.h"
-#import "FIRAppDistribution.h"
+#import <FirebaseAppDistribution/FIRAppDistribution.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

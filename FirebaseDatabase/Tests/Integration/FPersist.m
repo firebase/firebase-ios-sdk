@@ -20,7 +20,7 @@
 #import "FIRDatabaseQuery_Private.h"
 #import "FIRDatabaseReference_Private.h"
 #import "FRepo_Private.h"
-#import "FIRDatabaseReference.h"
+#import <FirebaseDatabase/FIRDatabaseReference.h>
 #import "FDevice.h"
 #import "FTestHelpers.h"
 

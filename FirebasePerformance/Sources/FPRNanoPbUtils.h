@@ -20,7 +20,7 @@
 
 #import "FPRTraceBackgroundActivityTracker.h"
 #import "FPRNetworkTrace.h"
-#import "FIRTrace.h"
+#import "FirebasePerformance/FIRTrace.h"
 
 #import "perf_metric.nanopb.h"
 

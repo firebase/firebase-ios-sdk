@@ -19,7 +19,7 @@
 
 #import <GoogleUtilities/GULUserDefaults.h>
 #import "FIRMessagingConstants.h"
-#import "FIRMessaging.h"
+#import <FirebaseMessaging/FIRMessaging.h>
 #import "FIRMessagingTestNotificationUtilities.h"
 #import "FIRMessagingTestUtilities.h"
 

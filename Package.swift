@@ -269,7 +269,6 @@ func packageTargets() -> [Target] {
       exclude: ["Resources/GoogleService-Info.plist"],
       cSettings: [
         .headerSearchPath("../../Sources"),
-        .headerSearchPath("../../Sources/Public/FirebaseCore"),
       ]
     ),
 
@@ -327,8 +326,6 @@ func packageTargets() -> [Target] {
       publicHeadersPath: "Public",
       cSettings: [
         .headerSearchPath("."),
-        .headerSearchPath("Private"),
-        .headerSearchPath("Public/FirebaseABTesting"),
       ]
     ),
     .testTarget(
@@ -342,7 +339,6 @@ func packageTargets() -> [Target] {
       resources: [.process("Resources")],
       cSettings: [
         .headerSearchPath("../../Sources"),
-        .headerSearchPath("../../Sources/Public/FirebaseABTesting"),
         .headerSearchPath("Utilities"),
       ]
     ),
@@ -474,8 +470,6 @@ func packageTargets() -> [Target] {
       publicHeadersPath: "Public",
       cSettings: [
         .headerSearchPath("."),
-        .headerSearchPath("Private"),
-        .headerSearchPath("Public/FirebaseAppDistribution"),
       ]
     ),
     .testTarget(
@@ -733,8 +727,6 @@ func packageTargets() -> [Target] {
         .headerSearchPath(
           "../Sources/third_party/FImmutableSortedDictionary/FImmutableSortedDictionary"
         ),
-        .headerSearchPath("../../SharedTestUtilities/AppCheckFake"),
-        .headerSearchPath("../../SharedTestUtilities/URLSession"),
         .headerSearchPath("Helpers"),
         .headerSearchPath("Unit"),
       ],
@@ -864,7 +856,6 @@ func packageTargets() -> [Target] {
       publicHeadersPath: "Public",
       cSettings: [
         .headerSearchPath("."),
-        .headerSearchPath("Public/FirebaseInAppMessaging"),
         .headerSearchPath("Private"),
         .headerSearchPath("Private/Analytics"),
         .headerSearchPath("Private/Data"),
@@ -915,13 +906,6 @@ func packageTargets() -> [Target] {
       publicHeadersPath: "Public",
       cSettings: [
         .headerSearchPath("."),
-        .headerSearchPath("Private"),
-        .headerSearchPath("Public/FirebaseInstallations"),
-        .headerSearchPath("InstallationsAPI"),
-        .headerSearchPath("InstallationsIDController"),
-        .headerSearchPath("InstallationsStore"),
-        .headerSearchPath("IIDMigration"),
-        .headerSearchPath("Errors"),
       ],
       linkerSettings: [
         .linkedFramework("Security"),
@@ -967,7 +951,6 @@ func packageTargets() -> [Target] {
       publicHeadersPath: "Public",
       cSettings: [
         .headerSearchPath("."),
-        .headerSearchPath("Public/FirebaseMessaging"),
         .headerSearchPath("Token"),
         .headerSearchPath("Protogen/nanopb"),
         .define("PB_FIELD_32BIT", to: "1"),
@@ -1000,9 +983,7 @@ func packageTargets() -> [Target] {
       ],
       cSettings: [
         .headerSearchPath("../../Sources"),
-        .headerSearchPath("../../Sources/Public/FirebaseMessaging"),
         .headerSearchPath("../../Sources/Token"),
-        .headerSearchPath("../../../SharedTestUtilities/URLSession"),
         .headerSearchPath("."),
       ]
     ),
@@ -1034,7 +1015,6 @@ func packageTargets() -> [Target] {
       publicHeadersPath: "Public",
       cSettings: [
         .headerSearchPath("."),
-        .headerSearchPath("Public/FirebasePerformance"),
         .headerSearchPath("Configurations"),
         .headerSearchPath("Loggers"),
         .headerSearchPath("Timer"),
@@ -1077,7 +1057,6 @@ func packageTargets() -> [Target] {
       ],
       cSettings: [
         .headerSearchPath("../../Sources"),
-        .headerSearchPath("../../Sources/Public/FirebasePerformance"),
         .headerSearchPath("../../Sources/Configurations"),
         .headerSearchPath("../../Sources/Loggers"),
         .headerSearchPath("../../Sources/Timer"),
@@ -1139,7 +1118,6 @@ func packageTargets() -> [Target] {
       publicHeadersPath: "Public",
       cSettings: [
         .headerSearchPath("."),
-        .headerSearchPath("Public/FirebaseRemoteConfig"),
       ]
     ),
     .testTarget(
@@ -1165,7 +1143,6 @@ func packageTargets() -> [Target] {
       ],
       cSettings: [
         .headerSearchPath("../../Sources"),
-        .headerSearchPath("../../Sources/Public/FirebaseRemoteConfig"),
       ]
     ),
     .testTarget(
@@ -1201,7 +1178,6 @@ func packageTargets() -> [Target] {
       ],
       cSettings: [
         .headerSearchPath("../../Sources"),
-        .headerSearchPath("../../Sources/Public/FirebaseRemoteConfig"),
       ],
       swiftSettings: [
         .swiftLanguageMode(SwiftLanguageMode.v5),
@@ -1223,7 +1199,6 @@ func packageTargets() -> [Target] {
       publicHeadersPath: ".",
       cSettings: [
         .headerSearchPath("../../../Sources"),
-        .headerSearchPath("../../../Sources/Public/FirebaseRemoteConfig"),
       ]
     ),
     // Internal headers only for consuming from other SDK.
@@ -1293,9 +1268,6 @@ func packageTargets() -> [Target] {
       ],
       publicHeadersPath: "SourcesObjC",
       cSettings: [
-        .headerSearchPath("SourcesObjC"),
-        .headerSearchPath("SourcesObjC/Protogen/nanopb"),
-        .headerSearchPath("SourcesObjC/NanoPB"),
         .define("DISPLAY_VERSION", to: firebaseVersion),
         .define("PB_FIELD_32BIT", to: "1"),
         .define("PB_NO_PACKED_STRUCTS", to: "1"),
@@ -1450,14 +1422,6 @@ func packageTargets() -> [Target] {
             publicHeadersPath: "Public",
             cSettings: [
               .headerSearchPath("."),
-              .headerSearchPath("Public/FirebaseAppCheck"),
-              .headerSearchPath("Core"),
-              .headerSearchPath("Core/Errors"),
-              .headerSearchPath("DebugProvider"),
-              .headerSearchPath("DefaultProviderFactory"),
-              .headerSearchPath("DeviceCheckProvider"),
-              .headerSearchPath("RecaptchaProvider"),
-              .headerSearchPath("AppAttestProvider"),
             ],
             linkerSettings: [
               .linkedFramework(
@@ -1489,7 +1453,6 @@ func packageTargets() -> [Target] {
       ],
       cSettings: [
         .headerSearchPath("../../Sources"),
-        .headerSearchPath("../../Sources/Public/FirebaseAppCheck"),
         .headerSearchPath("Utils"),
       ]
     ),

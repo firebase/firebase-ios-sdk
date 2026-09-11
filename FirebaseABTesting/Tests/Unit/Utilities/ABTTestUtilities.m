@@ -14,7 +14,7 @@
 
 #import "ABTTestUtilities.h"
 
-#import "ABTExperimentPayload.h"
+#import <FirebaseABTesting/ABTExperimentPayload.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

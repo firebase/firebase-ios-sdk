@@ -17,7 +17,7 @@
 #import "FIRPerformance+Internal.h"
 #import "FPRDataUtils.h"
 #import "FPRNanoPbUtils.h"
-#import "FIRPerformance.h"
+#import <FirebasePerformance/FIRPerformance.h>
 
 #import "FPRConstants.h"
 #import "FPRNetworkTrace+Private.h"

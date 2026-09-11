@@ -31,7 +31,7 @@
 #import "FIRTrace+Internal.h"
 #import "FIRTrace+Private.h"
 
-#import "FIRPerformance.h"
+#import "FirebasePerformance/FIRPerformance.h"
 
 #import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
