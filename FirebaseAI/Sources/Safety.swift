@@ -35,7 +35,7 @@ public struct SafetyRating: Equatable, Hashable, Sendable {
   ///
   /// The probability safety score is a confidence score between 0.0 and 1.0, rounded to one decimal
   /// place; it is discretized into a ``HarmProbability`` in ``probability``. See [probability
-  /// scores](https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal/configure-safety-filters#comparison_of_probability_scores_and_severity_scores)
+  /// scores](https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/capabilities/configure-safety-filters#comparison_of_probability_scores_and_severity_scores)
   /// in the Google Cloud documentation for more details.
   public let probabilityScore: Float
 
@@ -48,7 +48,7 @@ public struct SafetyRating: Equatable, Hashable, Sendable {
   /// The severity score is the magnitude of how harmful a model response might be.
   ///
   /// The severity score ranges from 0.0 to 1.0, rounded to one decimal place; it is discretized
-  /// into a ``HarmSeverity`` in ``severity``. See [severity scores](https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal/configure-safety-filters#comparison_of_probability_scores_and_severity_scores)
+  /// into a ``HarmSeverity`` in ``severity``. See [severity scores](https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/capabilities/configure-safety-filters#comparison_of_probability_scores_and_severity_scores)
   /// in the Google Cloud documentation for more details.
   public let severityScore: Float
 
@@ -105,7 +105,7 @@ public struct SafetyRating: Equatable, Hashable, Sendable {
     /// Returns the raw string representation of the `HarmProbability` value.
     ///
     /// > Note: This value directly corresponds to the values in the [REST
-    /// > API](https://cloud.google.com/vertex-ai/docs/reference/rest/v1beta1/GenerateContentResponse#SafetyRating).
+    /// > API](https://docs.cloud.google.com/gemini-enterprise-agent-platform/reference/rest#SafetyRating).
     public let rawValue: String
 
     static let unrecognizedValueMessageCode =
@@ -140,7 +140,7 @@ public struct SafetyRating: Equatable, Hashable, Sendable {
     /// Returns the raw string representation of the `HarmSeverity` value.
     ///
     /// > Note: This value directly corresponds to the values in the [REST
-    /// > API](https://cloud.google.com/vertex-ai/docs/reference/rest/v1beta1/GenerateContentResponse#HarmSeverity).
+    /// > API](https://docs.cloud.google.com/gemini-enterprise-agent-platform/reference/rest#HarmSeverity).
     public let rawValue: String
 
     static let unrecognizedValueMessageCode =
@@ -152,7 +152,7 @@ public struct SafetyRating: Equatable, Hashable, Sendable {
 /// fallback response instead of generated content.
 ///
 /// See [safety settings for Gemini
-/// models](https://firebase.google.com/docs/vertex-ai/safety-settings?platform=ios#gemini) for
+/// models](https://firebase.google.com/docs/ai-logic/safety-settings?platform=ios#gemini) for
 /// more details.
 public struct SafetySetting: Sendable, Hashable {
   /// Block at and beyond a specified ``SafetyRating/HarmProbability``.
@@ -221,7 +221,7 @@ public struct SafetySetting: Sendable, Hashable {
   ///   - threshold: The threshold describing what content should be blocked.
   ///   - method: The method of computing whether the threshold has been exceeded; if not specified,
   ///     the default method is ``HarmBlockMethod/severity`` for most models. See [harm block
-  ///     methods](https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal/configure-safety-filters#how_to_configure_safety_filters)
+  ///     methods](https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/capabilities/configure-safety-filters#how_to_configure_safety_filters)
   ///     in the Google Cloud documentation for more details.
   ///     > Note: For models older than `gemini-1.5-flash` and `gemini-1.5-pro`, the default method
   ///     > is ``HarmBlockMethod/probability``.
@@ -265,7 +265,7 @@ public struct HarmCategory: CodableProtoEnum, Hashable, Sendable {
   /// Returns the raw string representation of the `HarmCategory` value.
   ///
   /// > Note: This value directly corresponds to the values in the
-  /// > [REST API](https://cloud.google.com/vertex-ai/docs/reference/rest/v1beta1/HarmCategory).
+  /// > [REST API](https://docs.cloud.google.com/gemini-enterprise-agent-platform/reference/rest).
   public let rawValue: String
 
   static let unrecognizedValueMessageCode =

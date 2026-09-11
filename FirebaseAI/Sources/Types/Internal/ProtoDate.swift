@@ -24,7 +24,7 @@ import Foundation
 /// - A year and month value, with a zero day, such as a credit card expiration date
 ///
 /// This represents a
-/// [`google.type.Date`](https://cloud.google.com/vertex-ai/docs/reference/rest/Shared.Types/Date).
+/// [`google.type.Date`](https://docs.cloud.google.com/gemini-enterprise-agent-platform/reference/rest/Shared.Types/Date).
 struct ProtoDate {
   /// Year of the date.
   ///
