@@ -138,7 +138,10 @@ def sync_firestore(test_only)
 
       # Our public build can't include -Werror, but for development it's quite
       # helpful.
-      '-Werror'
+      '-Werror',
+
+      # Ignore deprecated declaration warnings in third-party headers (such as gRPC 1.83.1)
+      '-Wno-error=deprecated-declarations'
     ]
   }
 
@@ -555,6 +558,21 @@ class Syncer
 
       contents = Xcodeproj::Config.new(path)
       contents.merge!(requested)
+
+      # Scalar settings must overwrite rather than concatenate with a space.
+      scalar_settings = [
+        'CLANG_CXX_LANGUAGE_STANDARD',
+        'GCC_C_LANGUAGE_STANDARD',
+        'SWIFT_OBJC_BRIDGING_HEADER',
+        'SWIFT_VERSION',
+        'INFOPLIST_FILE',
+      ]
+      requested.each do |key, value|
+        if scalar_settings.include?(key)
+          contents.attributes[key] = value
+        end
+      end
+
       contents.save_as(path)
     end
   end

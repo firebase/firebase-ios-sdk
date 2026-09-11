@@ -24,11 +24,11 @@ let shouldUseSourceFirestore = Context.environment["FIREBASE_SOURCE_FIRESTORE"] 
 
 let package = Package(
   name: "Firebase",
-  platforms: [.iOS(.v15), .macCatalyst(.v15), .macOS(.v10_15), .tvOS(.v15), .watchOS(.v7)],
+  platforms: [.iOS(.v15), .macCatalyst(.v15), .macOS(.v11), .tvOS(.v15), .watchOS(.v7)],
   products: packageProducts(),
   dependencies: packageDependencies(),
   targets: packageTargets(),
-  cxxLanguageStandard: CXXLanguageStandard.gnucxx14
+  cxxLanguageStandard: CXXLanguageStandard.gnucxx17
 )
 
 // MARK: - Package Manifest Builders
@@ -1458,13 +1458,15 @@ func abseilDependency() -> Package.Dependency {
   if shouldUseSourceFirestore {
     packageInfo = (
       "https://github.com/firebase/abseil-cpp-SwiftPM.git",
-      "0.20240722.0" ..< "0.20240723.0"
+      "0.20250512.1" ..< "0.20250512.2"
     )
   } else {
     packageInfo = (
       "https://github.com/google/abseil-cpp-binary.git",
-      "1.2024072200.0" ..< "1.2024072300.0"
+      "1.2025051201.0" ..< "1.2025051202.0"
     )
+    // TODO: Delete following line before merging.
+    return .package(url: packageInfo.url, revision: "c473b33da325bd2cb854ae7834fc63f9a5563464")
   }
 
   return .package(url: packageInfo.url, packageInfo.range)
@@ -1476,9 +1478,11 @@ func grpcDependency() -> Package.Dependency {
   // If building Firestore from source, abseil will need to be built as source
   // as the headers in the binary version of abseil are unusable.
   if shouldUseSourceFirestore {
-    packageInfo = ("https://github.com/grpc/grpc-ios.git", "1.69.0" ..< "1.70.0")
+    packageInfo = ("https://github.com/grpc/grpc-ios.git", "1.83.1" ..< "1.84.0")
   } else {
-    packageInfo = ("https://github.com/google/grpc-binary.git", "1.69.0" ..< "1.70.0")
+    packageInfo = ("https://github.com/google/grpc-binary.git", "1.83.1" ..< "1.84.0")
+    // TODO: Delete following line before merging.
+    return .package(url: packageInfo.url, revision: "913d0ec56488611e32dc7a7291e627f467299aec")
   }
 
   return .package(url: packageInfo.url, packageInfo.range)
@@ -1629,8 +1633,8 @@ func firestoreTargets() -> [Target] {
     } else {
       return .binaryTarget(
         name: "FirebaseFirestoreInternal",
-        url: "https://dl.google.com/firebase/ios/bin/firestore/12.19.0/rc0/FirebaseFirestoreInternal.zip",
-        checksum: "d1591c51943b0d68be5ca17c96c39e80ecac170a5e803c1c9d46e2d945d004d7"
+        url: "https://dl.google.com/firebase/ios/bin/firestore/13.0.0/pre_rc0/FirebaseFirestoreInternal.zip",
+        checksum: "dfbae6d47d6a427c31928db562344204e55a6af0c036a203c5dee8562d75b7d5"
       )
     }
   }()

@@ -1,3 +1,8 @@
+# Unreleased
+- [changed] Drop C++14 support, Firestore SDK now requires at least C++17.
+- [changed] Update gRPC dependency to 1.83.1.
+- [changed] Update Abseil dependency to 1.20250512.2.
+
 # 12.19.0
 - [feature] Added support for `minimum` and `maximum` FieldValue operations [#16159].
 
