@@ -152,7 +152,7 @@ public struct SafetyRating: Equatable, Hashable, Sendable {
 /// fallback response instead of generated content.
 ///
 /// See [safety settings for Gemini
-/// models](https://firebase.google.com/docs/vertex-ai/safety-settings?platform=ios#gemini) for
+/// models](https://firebase.google.com/docs/ai-logic/safety-settings?platform=ios#gemini) for
 /// more details.
 public struct SafetySetting: Sendable, Hashable {
   /// Block at and beyond a specified ``SafetyRating/HarmProbability``.

@@ -26,7 +26,7 @@ public struct LiveGenerationConfig: Sendable {
   /// Creates a new ``LiveGenerationConfig`` value.
   ///
   /// See the
-  /// [Configure model parameters](https://firebase.google.com/docs/vertex-ai/model-parameters)
+  /// [Configure model parameters](https://firebase.google.com/docs/ai-logic/model-parameters)
   /// guide and the
   /// [Cloud documentation](https://cloud.google.com/vertex-ai/generative-ai/docs/model-reference/inference#generationconfig)
   /// for more details.
