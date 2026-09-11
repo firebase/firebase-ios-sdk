@@ -1,3 +1,8 @@
+# Firebase 13.0.0
+- [changed] **Breaking change**: Removed the CocoaPods generated umbrella headers
+  (suffixed `-umbrella.h`) from the Zip and Carthage artifacts, in favor of `Firebase.h`
+  and framework specific umbrella headers. (#16540)
+
 # Firebase 12.19.1
 - [fixed] Fixed the zip distribution artifact naming on the GitHub release
   page. This release contains no SDK code changes and is functionally
