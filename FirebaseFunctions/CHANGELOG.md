@@ -1,4 +1,4 @@
-# Unreleased
+# 12.19.0
 - [changed] Requests directed to the local emulator over a non-loopback HTTP connection
   when tokens are present will now explicitly fail with an `unauthenticated` error
   instead of silently omitting the tokens and proceeding. (#16536)

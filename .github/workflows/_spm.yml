@@ -129,17 +129,19 @@ jobs:
     needs: [spm-package-resolved]
     env:
         FIREBASE_IS_NIGHTLY_TESTING: ${{ inputs.is_nightly && '1' || '' }}
+    continue-on-error: ${{ matrix.os == 'xcode-27' }}
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-15, macos-26]
-        xcode: [Xcode_26.2, Xcode_26.4]
+        os: [macos-15, macos-26, xcode-27]
         platform: [iOS, tvOS, macOS, watchOS, catalyst, visionOS]
-        exclude:
+        include:
           - os: macos-15
-            xcode: Xcode_26.4
-          - os: macos-26
             xcode: Xcode_26.2
+          - os: macos-26
+            xcode: Xcode_26.4
+          - os: xcode-27
+            xcode: Xcode_27.0
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1

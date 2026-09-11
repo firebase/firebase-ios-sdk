@@ -58,8 +58,8 @@ enum GenerativeModelTestUtil {
         XCTAssertEqual(request.timeoutInterval, timeout)
         let apiClientTags = try XCTUnwrap(request.value(forHTTPHeaderField: "x-goog-api-client"))
           .components(separatedBy: " ")
-        XCTAssert(apiClientTags.contains(GenerativeAIService.languageTag))
-        XCTAssert(apiClientTags.contains(GenerativeAIService.firebaseVersionTag))
+        XCTAssert(apiClientTags.contains(Constants.languageTag))
+        XCTAssert(apiClientTags.contains(Constants.firebaseVersionTag))
         XCTAssertEqual(request.value(forHTTPHeaderField: "X-Firebase-AppCheck"), appCheckToken)
 
         let firebaseAppID = request.value(forHTTPHeaderField: "X-Firebase-AppId")
