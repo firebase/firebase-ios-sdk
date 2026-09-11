@@ -33,7 +33,7 @@ public struct LiveGenerationConfig: Sendable {
   ///
   /// - Parameters:
   ///   - maxOutputTokens: Maximum number of tokens that can be generated in the response.
-  ///     See the configure model parameters [documentation](https://firebase.google.com/docs/vertex-ai/model-parameters?platform=ios#max-output-tokens)
+  ///     See the configure model parameters [documentation](https://firebase.google.com/docs/ai-logic/model-parameters?platform=ios#max-output-tokens)
   ///     for more details.
   ///   - responseModalities: The data types (modalities) that may be returned in model responses.
   ///
@@ -104,14 +104,14 @@ public struct LiveGenerationConfig: Sendable {
   /// Creates a new `LiveGenerationConfig` value.
   ///
   /// See the
-  /// [Configure model parameters](https://firebase.google.com/docs/vertex-ai/model-parameters)
+  /// [Configure model parameters](https://firebase.google.com/docs/ai-logic/model-parameters)
   /// guide and the
   /// [Cloud documentation](https://cloud.google.com/vertex-ai/generative-ai/docs/model-reference/inference#generationconfig)
   /// for more details.
   ///
   /// - Parameters:
   ///   - maxOutputTokens: Maximum number of tokens that can be generated in the response.
-  ///     See the configure model parameters [documentation](https://firebase.google.com/docs/vertex-ai/model-parameters?platform=ios#max-output-tokens)
+  ///     See the configure model parameters [documentation](https://firebase.google.com/docs/ai-logic/model-parameters?platform=ios#max-output-tokens)
   ///     for more details.
   ///   - responseModalities: The data types (modalities) that may be returned in model responses.
   ///
