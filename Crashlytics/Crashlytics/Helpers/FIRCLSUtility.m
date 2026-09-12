@@ -90,13 +90,15 @@ bool FIRCLSReadString(vm_address_t src, char** dest, size_t maxlen) {
     }
 
     if (c == 0) {
-      break;
+      *dest = (char*)src;
+
+      return true;
     }
   }
 
-  *dest = (char*)src;
-
-  return true;
+  // Only maxlen bytes have been checked, so a string without a terminator in
+  // that range cannot be handed back - callers walk it with strlen/strchr.
+  return false;
 }
 
 const char* FIRCLSDupString(const char* string) {
