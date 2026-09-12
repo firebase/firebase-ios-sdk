@@ -18,12 +18,12 @@
 
 #import <OCMock/OCMock.h>
 
-#import "FirebaseMessaging/Tests/UnitTests/FIRTestsAssertionHandler.h"
-#import "FirebaseMessaging/Tests/UnitTests/XCTestCase+FIRMessagingRmqManagerTests.h"
+#import "FIRTestsAssertionHandler.h"
+#import "XCTestCase+FIRMessagingRmqManagerTests.h"
 
-#import "FirebaseMessaging/Sources/FIRMessagingPersistentSyncMessage.h"
-#import "FirebaseMessaging/Sources/FIRMessagingRmqManager.h"
-#import "FirebaseMessaging/Sources/FIRMessagingUtilities.h"
+#import "FIRMessagingPersistentSyncMessage.h"
+#import "FIRMessagingRmqManager.h"
+#import "FIRMessagingUtilities.h"
 
 static NSString *const kRmqDatabaseName = @"rmq-test-db";
 

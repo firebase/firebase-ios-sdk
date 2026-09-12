@@ -17,11 +17,11 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
-#import "FirebaseMessaging/Tests/UnitTests/FIRMessagingTestUtilities.h"
+#import "FIRMessagingTestUtilities.h"
 
-#import "FirebaseMessaging/Sources/FIRMessagingDefines.h"
-#import "FirebaseMessaging/Sources/FIRMessagingPendingTopicsList.h"
-#import "FirebaseMessaging/Sources/FIRMessagingTopicsCommon.h"
+#import "FIRMessagingDefines.h"
+#import "FIRMessagingPendingTopicsList.h"
+#import "FIRMessagingTopicsCommon.h"
 
 @interface FIRMessagingPendingTopicsList (Testing)
 - (instancetype)initWithCommandQueue:(dispatch_queue_t)queue;

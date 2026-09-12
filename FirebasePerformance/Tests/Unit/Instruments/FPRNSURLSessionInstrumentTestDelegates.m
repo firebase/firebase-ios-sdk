@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebasePerformance/Tests/Unit/Instruments/FPRNSURLSessionInstrumentTestDelegates.h"
+#import "Instruments/FPRNSURLSessionInstrumentTestDelegates.h"
 
 @implementation FPRNSURLSessionTestDelegate
 

@@ -14,7 +14,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FirebaseCore/FirebaseCore.h"
+#import <FirebaseCore/FirebaseCore.h>
 #import "FirebaseStorage/FIRStorageTypedefs.h"
 #import "FirebaseStorage/FirebaseStorage-Swift.h"
 

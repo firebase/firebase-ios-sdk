@@ -6,6 +6,10 @@ source 'https://cdn.cocoapods.org/'
 
 def shared_pods
   pod 'FirebaseCore', :path => '../../../'
+  pod 'FirebaseCoreInternal', :path => '../../../'
+  pod 'FirebaseCoreExtension', :path => '../../../'
+  pod 'FirebaseAnalyticsInterop', :path => '../../../'
+  pod 'FirebaseMessagingInterop', :path => '../../../'
   pod 'FirebaseMessaging', :path => '../../../'
   pod 'FirebaseInstallations', :path => '../../../'
   pod 'GoogleDataTransport'

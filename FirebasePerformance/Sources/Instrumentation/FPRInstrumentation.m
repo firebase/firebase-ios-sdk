@@ -12,15 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebasePerformance/Sources/Instrumentation/FPRInstrumentation.h"
+#import "Instrumentation/FPRInstrumentation.h"
 
-#import "FirebasePerformance/Sources/Common/FPRDiagnostics.h"
-#import "FirebasePerformance/Sources/Instrumentation/FPRInstrument.h"
-#import "FirebasePerformance/Sources/Instrumentation/Network/FPRNSURLConnectionInstrument.h"
-#import "FirebasePerformance/Sources/Instrumentation/Network/FPRNSURLSessionInstrument.h"
-#import "FirebasePerformance/Sources/Instrumentation/UIKit/FPRUIViewControllerInstrument.h"
+#import "Common/FPRDiagnostics.h"
+#import "Instrumentation/FPRInstrument.h"
+#import "Instrumentation/Network/FPRNSURLConnectionInstrument.h"
+#import "Instrumentation/Network/FPRNSURLSessionInstrument.h"
+#import "Instrumentation/UIKit/FPRUIViewControllerInstrument.h"
 
-#import "FirebasePerformance/Sources/Configurations/FPRConfigurations.h"
+#import "Configurations/FPRConfigurations.h"
 
 // The instrumentation group keys.
 NSString *const kFPRInstrumentationGroupNetworkKey = @"network";

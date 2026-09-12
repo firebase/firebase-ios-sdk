@@ -16,8 +16,8 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FirebaseMessaging/Sources/Token/FIRMessagingCheckinPreferences.h"
-#import "FirebaseMessaging/Sources/Token/FIRMessagingCheckinService.h"
+#import "FIRMessagingCheckinPreferences.h"
+#import "FIRMessagingCheckinService.h"
 
 static NSString *const kDeviceAuthId = @"1234";
 static NSString *const kSecretToken = @"567890";

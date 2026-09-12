@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/Tests/Unit/FSparseSnapshotTests.h"
-#import "FirebaseDatabase/Sources/Core/FSparseSnapshotTree.h"
-#import "FirebaseDatabase/Sources/Snapshot/FEmptyNode.h"
-#import "FirebaseDatabase/Sources/Snapshot/FSnapshotUtilities.h"
+#import "FSparseSnapshotTests.h"
+#import "Core/FSparseSnapshotTree.h"
+#import "Snapshot/FEmptyNode.h"
+#import "Snapshot/FSnapshotUtilities.h"
 
 @implementation FSparseSnapshotTests
 

@@ -16,19 +16,19 @@
 
 #import <GoogleUtilities/GULUserDefaults.h>
 
-#import "FirebasePerformance/Sources/Common/FPRConstants.h"
-#import "FirebasePerformance/Sources/Configurations/FPRConfigurations+Private.h"
-#import "FirebasePerformance/Sources/Configurations/FPRConfigurations.h"
-#import "FirebasePerformance/Sources/Configurations/FPRRemoteConfigFlags+Private.h"
-#import "FirebasePerformance/Sources/Configurations/FPRRemoteConfigFlags.h"
-#import "FirebasePerformance/Sources/FPRClient.h"
-#import "FirebasePerformance/Sources/Public/FirebasePerformance/FIRHTTPMetric.h"
-#import "FirebasePerformance/Sources/Public/FirebasePerformance/FIRPerformance.h"
+#import <FirebasePerformance/FIRHTTPMetric.h>
+#import <FirebasePerformance/FIRPerformance.h>
+#import "Common/FPRConstants.h"
+#import "Configurations/FPRConfigurations+Private.h"
+#import "Configurations/FPRConfigurations.h"
+#import "Configurations/FPRRemoteConfigFlags+Private.h"
+#import "Configurations/FPRRemoteConfigFlags.h"
+#import "FPRClient.h"
 
-#import "FirebasePerformance/Sources/Instrumentation/FIRHTTPMetric+Private.h"
+#import "Instrumentation/FIRHTTPMetric+Private.h"
 
-#import "FirebasePerformance/Tests/Unit/Configurations/FPRFakeRemoteConfig.h"
-#import "FirebasePerformance/Tests/Unit/FPRTestCase.h"
+#import "Configurations/FPRFakeRemoteConfig.h"
+#import "FPRTestCase.h"
 
 #import <OCMock/OCMock.h>
 

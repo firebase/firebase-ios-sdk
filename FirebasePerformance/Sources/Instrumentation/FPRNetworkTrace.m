@@ -12,19 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebasePerformance/Sources/Instrumentation/FPRNetworkTrace.h"
-#import "FirebasePerformance/Sources/Instrumentation/FPRNetworkTrace+Private.h"
+#import "Instrumentation/FPRNetworkTrace.h"
+#import "Instrumentation/FPRNetworkTrace+Private.h"
 
-#import "FirebasePerformance/Sources/AppActivity/FPRSessionManager.h"
-#import "FirebasePerformance/Sources/Common/FPRConstants.h"
-#import "FirebasePerformance/Sources/Common/FPRDiagnostics.h"
-#import "FirebasePerformance/Sources/Configurations/FPRConfigurations.h"
-#import "FirebasePerformance/Sources/FPRClient.h"
-#import "FirebasePerformance/Sources/FPRConsoleLogger.h"
-#import "FirebasePerformance/Sources/FPRDataUtils.h"
-#import "FirebasePerformance/Sources/FPRURLFilter.h"
-#import "FirebasePerformance/Sources/Gauges/FPRGaugeManager.h"
-#import "FirebasePerformance/Sources/ISASwizzler/FPRObjectSwizzler.h"
+#import "AppActivity/FPRSessionManager.h"
+#import "Common/FPRConstants.h"
+#import "Common/FPRDiagnostics.h"
+#import "Configurations/FPRConfigurations.h"
+#import "FPRClient.h"
+#import "FPRConsoleLogger.h"
+#import "FPRDataUtils.h"
+#import "FPRURLFilter.h"
+#import "Gauges/FPRGaugeManager.h"
+#import "ISASwizzler/FPRObjectSwizzler.h"
 
 NSString *const kFPRNetworkTracePropertyName = @"fpr_networkTrace";
 

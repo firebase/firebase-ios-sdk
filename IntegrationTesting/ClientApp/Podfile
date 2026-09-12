@@ -13,6 +13,8 @@ target 'ClientApp-CocoaPods' do
   pod 'FirebaseInstallations', :path => '../../'
   pod 'FirebaseAnalytics' # Binary pods don't work with `:path`.
   pod 'FirebaseABTesting', :path => '../../'
+  pod 'FirebaseAnalyticsInterop', :path => '../../'
+  pod 'FirebaseAppCheckInterop', :path => '../../'
   pod 'FirebaseAppCheck', :path => '../../'
   pod 'FirebaseRemoteConfig', :path => '../../'
   pod 'FirebaseRemoteConfigInterop', :path => '../../'
@@ -25,6 +27,7 @@ target 'ClientApp-CocoaPods' do
   pod 'FirebaseFirestoreInternal', :path => '../../'
   pod 'FirebaseFunctions', :path => '../../'
   pod 'FirebaseInAppMessaging', :path => '../../'
+  pod 'FirebaseMessagingInterop', :path => '../../'
   pod 'FirebaseMessaging', :path => '../../'
   pod 'FirebaseSessions', :path => '../../'
   pod 'FirebaseStorage', :path => '../../'

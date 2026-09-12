@@ -20,8 +20,8 @@
 
 #import <XCTest/XCTest.h>
 
-#import "Firestore/Source/API/FIRFirestore+Internal.h"
-#import "Firestore/Source/API/FIRQuery+Internal.h"
+#import "FIRFirestore+Internal.h"
+#import "FIRQuery+Internal.h"
 
 #import "Firestore/Example/Tests/API/FSTAPIHelpers.h"
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"

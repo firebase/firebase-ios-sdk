@@ -19,8 +19,8 @@
 #import <XCTest/XCTest.h>
 #include <atomic>
 
+#import "FIRFirestore+Internal.h"
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
-#import "Firestore/Source/API/FIRFirestore+Internal.h"
 
 using firebase::firestore::util::TimerId;
 

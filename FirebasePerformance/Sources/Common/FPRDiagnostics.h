@@ -14,7 +14,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FirebasePerformance/Sources/FPRConsoleLogger.h"
+#import "FPRConsoleLogger.h"
 
 /** Logs assert information. This shouldn't be called by anything except FPRAssert.
  *

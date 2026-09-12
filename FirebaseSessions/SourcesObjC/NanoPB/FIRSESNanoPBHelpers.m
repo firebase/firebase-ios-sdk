@@ -17,9 +17,9 @@
 
 #import <GoogleUtilities/GULNetworkInfo.h>
 
-#import "FirebaseSessions/SourcesObjC/NanoPB/FIRSESNanoPBHelpers.h"
+#import "NanoPB/FIRSESNanoPBHelpers.h"
 
-#import "FirebaseSessions/SourcesObjC/Protogen/nanopb/sessions.nanopb.h"
+#import "Protogen/nanopb/sessions.nanopb.h"
 
 @import FirebaseCoreExtension;
 

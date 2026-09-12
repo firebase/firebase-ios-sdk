@@ -16,8 +16,8 @@
 
 #import <GoogleUtilities/GULUserDefaults.h>
 
-#import "FirebaseDatabase/Sources/Constants/FConstants.h"
-#import "FirebaseDatabase/Sources/Core/FRepoInfo.h"
+#import "Constants/FConstants.h"
+#import "Core/FRepoInfo.h"
 
 @interface FRepoInfo ()
 

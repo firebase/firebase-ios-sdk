@@ -1,5 +1,5 @@
-#import "FirebaseDatabase/Sources/third_party/FImmutableSortedDictionary/FImmutableSortedDictionary/FImmutableSortedSet.h"
-#import "FirebaseDatabase/Sources/third_party/FImmutableSortedDictionary/FImmutableSortedDictionary/FImmutableSortedDictionary.h"
+#import "FImmutableSortedSet.h"
+#import "FImmutableSortedDictionary.h"
 
 @interface FImmutableSortedSet ()
 

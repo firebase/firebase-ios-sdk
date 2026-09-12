@@ -12,20 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebasePerformance/Sources/AppActivity/FPRAppActivityTracker.h"
+#import "AppActivity/FPRAppActivityTracker.h"
 
 #import <Foundation/Foundation.h>
 #import <Network/Network.h>
 #import <UIKit/UIKit.h>
 
-#import "FirebasePerformance/Sources/AppActivity/FPRSessionManager.h"
-#import "FirebasePerformance/Sources/Common/FPRDiagnostics.h"
-#import "FirebasePerformance/Sources/Configurations/FPRConfigurations.h"
-#import "FirebasePerformance/Sources/Gauges/CPU/FPRCPUGaugeCollector+Private.h"
-#import "FirebasePerformance/Sources/Gauges/FPRGaugeManager.h"
-#import "FirebasePerformance/Sources/Gauges/Memory/FPRMemoryGaugeCollector+Private.h"
-#import "FirebasePerformance/Sources/Timer/FIRTrace+Internal.h"
-#import "FirebasePerformance/Sources/Timer/FIRTrace+Private.h"
+#import "AppActivity/FPRSessionManager.h"
+#import "Common/FPRDiagnostics.h"
+#import "Configurations/FPRConfigurations.h"
+#import "Gauges/CPU/FPRCPUGaugeCollector+Private.h"
+#import "Gauges/FPRGaugeManager.h"
+#import "Gauges/Memory/FPRMemoryGaugeCollector+Private.h"
+#import "Timer/FIRTrace+Internal.h"
+#import "Timer/FIRTrace+Private.h"
 
 static NSDate *appStartTime = nil;
 static NSDate *doubleDispatchTime = nil;

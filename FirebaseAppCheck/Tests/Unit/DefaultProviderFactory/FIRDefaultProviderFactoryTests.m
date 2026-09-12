@@ -14,11 +14,11 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FirebaseAppCheck/Sources/DefaultProviderFactory/FIRDefaultProviderFactory.h"
-#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckAvailability.h"
-#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckDebugProvider.h"
-#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRDeviceCheckProvider.h"
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
+#import <FirebaseAppCheck/FIRAppCheckAvailability.h>
+#import <FirebaseAppCheck/FIRAppCheckDebugProvider.h>
+#import <FirebaseAppCheck/FIRDeviceCheckProvider.h>
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
+#import "DefaultProviderFactory/FIRDefaultProviderFactory.h"
 
 FIR_DEVICE_CHECK_PROVIDER_AVAILABILITY
 @interface FIRDefaultProviderFactoryTests : XCTestCase

@@ -17,12 +17,12 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
-#import "FirebaseRemoteConfig/Sources/Private/RCNConfigFetch.h"
-#import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
-#import "FirebaseRemoteConfig/Sources/RCNConfigContent.h"
-#import "FirebaseRemoteConfig/Sources/RCNConfigExperiment.h"
-#import "FirebaseRemoteConfig/Sources/RCNConfigValue_Internal.h"
-#import "FirebaseRemoteConfig/Tests/Unit/RCNTestUtilities.h"
+#import "FirebaseRemoteConfig/RCNConfigFetch.h"
+#import "FirebaseRemoteConfig/RCNConfigValue_Internal.h"
+#import "RCNConfigConstants.h"
+#import "RCNConfigContent.h"
+#import "RCNConfigExperiment.h"
+#import "RCNTestUtilities.h"
 @import FirebaseRemoteConfigInterop;
 
 static NSString *const RCNFakeSenderID = @"855865492447";

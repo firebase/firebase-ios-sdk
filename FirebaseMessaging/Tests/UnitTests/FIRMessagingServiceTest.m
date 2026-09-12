@@ -17,14 +17,14 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
+#import <FirebaseInstallations/FirebaseInstallations.h>
+#import <FirebaseMessaging/FIRMessaging.h>
 #import <GoogleUtilities/GULUserDefaults.h>
-#import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
-#import "FirebaseMessaging/Sources/FIRMessagingPubSub.h"
-#import "FirebaseMessaging/Sources/FIRMessagingTopicsCommon.h"
-#import "FirebaseMessaging/Sources/NSError+FIRMessaging.h"
-#import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessaging.h"
-#import "FirebaseMessaging/Sources/Token/FIRMessagingTokenManager.h"
-#import "FirebaseMessaging/Tests/UnitTests/FIRMessagingTestUtilities.h"
+#import "FIRMessagingPubSub.h"
+#import "FIRMessagingTestUtilities.h"
+#import "FIRMessagingTokenManager.h"
+#import "FIRMessagingTopicsCommon.h"
+#import "NSError+FIRMessaging.h"
 
 static NSString *const kFakeToken =
     @"fE1e1PZJFSQ:APA91bFAOjp1ahBWn9rTlbjArwBEm_"

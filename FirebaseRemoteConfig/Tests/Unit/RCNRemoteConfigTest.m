@@ -18,20 +18,20 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
-#import "FirebaseRemoteConfig/Sources/FIRRemoteConfigComponent.h"
-#import "FirebaseRemoteConfig/Sources/Private/FIRRemoteConfig_Private.h"
-#import "FirebaseRemoteConfig/Sources/Private/RCNConfigFetch.h"
-#import "FirebaseRemoteConfig/Sources/Public/FirebaseRemoteConfig/FIRRemoteConfig.h"
-#import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
-#import "FirebaseRemoteConfig/Sources/RCNConfigDBManager.h"
-#import "FirebaseRemoteConfig/Sources/RCNConfigExperiment.h"
-#import "FirebaseRemoteConfig/Sources/RCNConfigRealtime.h"
-#import "FirebaseRemoteConfig/Sources/RCNUserDefaultsManager.h"
+#import "FIRRemoteConfigComponent.h"
+#import "FirebaseRemoteConfig/FIRRemoteConfig.h"
+#import "FirebaseRemoteConfig/FIRRemoteConfig_Private.h"
+#import "FirebaseRemoteConfig/RCNConfigFetch.h"
+#import "RCNConfigConstants.h"
+#import "RCNConfigDBManager.h"
+#import "RCNConfigExperiment.h"
+#import "RCNConfigRealtime.h"
+#import "RCNUserDefaultsManager.h"
 
-#import "FirebaseRemoteConfig/Tests/Unit/RCNTestUtilities.h"
+#import "RCNTestUtilities.h"
 
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 #import <GoogleUtilities/GULNSData+zlib.h>
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 @import FirebaseRemoteConfigInterop;
 
 @protocol FIRRolloutsStateSubscriber;

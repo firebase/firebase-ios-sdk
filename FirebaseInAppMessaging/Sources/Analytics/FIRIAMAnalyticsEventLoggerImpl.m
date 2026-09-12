@@ -19,12 +19,12 @@
 
 #import <GoogleUtilities/GULUserDefaults.h>
 
-#import "FirebaseInAppMessaging/Sources/Analytics/FIRIAMAnalyticsEventLoggerImpl.h"
+#import "Analytics/FIRIAMAnalyticsEventLoggerImpl.h"
 
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
-#import "FirebaseInAppMessaging/Sources/FIRCore+InAppMessaging.h"
-#import "FirebaseInAppMessaging/Sources/Private/Analytics/FIRIAMClearcutLogger.h"
-#import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
+#import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
+#import "FIRCore+InAppMessaging.h"
+#import "Private/Analytics/FIRIAMClearcutLogger.h"
 
 typedef void (^FIRAUserPropertiesCallback)(NSDictionary *userProperties);
 

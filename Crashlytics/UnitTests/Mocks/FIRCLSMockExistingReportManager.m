@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "Crashlytics/UnitTests/Mocks/FIRCLSMockExistingReportManager.h"
-#import "Crashlytics/Crashlytics/Controllers/FIRCLSManagerData.h"
-#import "Crashlytics/Crashlytics/Models/FIRCLSFileManager.h"
-#import "Crashlytics/Crashlytics/Models/FIRCLSInternalReport.h"
-#import "Crashlytics/Crashlytics/Private/FIRCrashlyticsReport_Private.h"
-#import "Crashlytics/Crashlytics/Public/FirebaseCrashlytics/FIRCrashlyticsReport.h"
+#import "FIRCLSMockExistingReportManager.h"
+#import "Crashlytics/Controllers/FIRCLSManagerData.h"
+#import "Crashlytics/Models/FIRCLSFileManager.h"
+#import "Crashlytics/Models/FIRCLSInternalReport.h"
+#import "Crashlytics/Private/FIRCrashlyticsReport_Private.h"
+#import "FirebaseCrashlytics/FIRCrashlyticsReport.h"
 
 @interface FIRCLSMockExistingReportManager ()
 

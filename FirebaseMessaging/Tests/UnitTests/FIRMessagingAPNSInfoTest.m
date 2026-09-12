@@ -16,8 +16,8 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FirebaseMessaging/Sources/FIRMessagingConstants.h"
-#import "FirebaseMessaging/Sources/Token/FIRMessagingAPNSInfo.h"
+#import "FIRMessagingAPNSInfo.h"
+#import "FIRMessagingConstants.h"
 
 @interface FIRMessagingAPNSInfoTest : XCTestCase
 

@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/Sources/Core/FQueryParams.h"
-#import "FirebaseDatabase/Sources/Utilities/FTypedefs.h"
+#import "Core/FQueryParams.h"
+#import "Utilities/FTypedefs.h"
 #import <Foundation/Foundation.h>
 
 @interface FTupleUserCallback : NSObject

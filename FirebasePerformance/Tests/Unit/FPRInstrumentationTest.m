@@ -14,8 +14,8 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FirebasePerformance/Sources/Instrumentation/FPRInstrumentation.h"
-#import "FirebasePerformance/Sources/Instrumentation/Network/FPRNSURLSessionInstrument.h"
+#import "Instrumentation/FPRInstrumentation.h"
+#import "Instrumentation/Network/FPRNSURLSessionInstrument.h"
 
 #import <OCMock/OCMock.h>
 

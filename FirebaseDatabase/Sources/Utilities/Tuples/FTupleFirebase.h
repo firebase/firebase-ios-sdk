@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/Sources/Public/FirebaseDatabase/FIRDatabaseReference.h"
+#import "FirebaseDatabase/FIRDatabaseReference.h"
 #import <Foundation/Foundation.h>
 
 @interface FTupleFirebase : NSObject

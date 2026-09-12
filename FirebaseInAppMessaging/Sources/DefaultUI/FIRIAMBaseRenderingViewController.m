@@ -17,9 +17,9 @@
 #import <TargetConditionals.h>
 #if TARGET_OS_IOS
 
-#import "FirebaseInAppMessaging/Sources/DefaultUI/FIRCore+InAppMessagingDisplay.h"
-#import "FirebaseInAppMessaging/Sources/DefaultUI/FIRIAMBaseRenderingViewController.h"
-#import "FirebaseInAppMessaging/Sources/Private/Util/FIRIAMTimeFetcher.h"
+#import "DefaultUI/FIRCore+InAppMessagingDisplay.h"
+#import "DefaultUI/FIRIAMBaseRenderingViewController.h"
+#import "Private/Util/FIRIAMTimeFetcher.h"
 
 @interface FIRIAMBaseRenderingViewController ()
 // For fiam messages, it's required to be kMinValidImpressionTime to

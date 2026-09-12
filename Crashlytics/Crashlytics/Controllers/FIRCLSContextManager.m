@@ -13,9 +13,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "Crashlytics/Crashlytics/Controllers/FIRCLSContextManager.h"
+#import "Crashlytics/Controllers/FIRCLSContextManager.h"
 
-#import "Crashlytics/Crashlytics/Components/FIRCLSContext.h"
+#import "Crashlytics/Components/FIRCLSContext.h"
 
 @interface FIRCLSContextManager ()
 

@@ -14,22 +14,22 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FirebasePerformance/Sources/FIRPerformance+Internal.h"
-#import "FirebasePerformance/Sources/FPRDataUtils.h"
-#import "FirebasePerformance/Sources/FPRNanoPbUtils.h"
-#import "FirebasePerformance/Sources/Public/FirebasePerformance/FIRPerformance.h"
+#import <FirebasePerformance/FIRPerformance.h>
+#import "FIRPerformance+Internal.h"
+#import "FPRDataUtils.h"
+#import "FPRNanoPbUtils.h"
 
-#import "FirebasePerformance/Sources/Common/FPRConstants.h"
-#import "FirebasePerformance/Sources/Instrumentation/FPRNetworkTrace+Private.h"
-#import "FirebasePerformance/Sources/Instrumentation/FPRNetworkTrace.h"
-#import "FirebasePerformance/Sources/Timer/FIRTrace+Internal.h"
-#import "FirebasePerformance/Sources/Timer/FIRTrace+Private.h"
+#import "Common/FPRConstants.h"
+#import "Instrumentation/FPRNetworkTrace+Private.h"
+#import "Instrumentation/FPRNetworkTrace.h"
+#import "Timer/FIRTrace+Internal.h"
+#import "Timer/FIRTrace+Private.h"
 
-#import "FirebasePerformance/Sources/Gauges/CPU/FPRCPUGaugeData.h"
-#import "FirebasePerformance/Sources/Gauges/Memory/FPRMemoryGaugeData.h"
+#import "Gauges/CPU/FPRCPUGaugeData.h"
+#import "Gauges/Memory/FPRMemoryGaugeData.h"
 
-#import "FirebasePerformance/Tests/Unit/FPRTestCase.h"
-#import "FirebasePerformance/Tests/Unit/FPRTestUtils.h"
+#import "FPRTestCase.h"
+#import "FPRTestUtils.h"
 
 #import <OCMock/OCMock.h>
 

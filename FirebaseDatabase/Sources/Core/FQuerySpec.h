@@ -16,9 +16,9 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FirebaseDatabase/Sources/Core/FQueryParams.h"
-#import "FirebaseDatabase/Sources/Core/Utilities/FPath.h"
-#import "FirebaseDatabase/Sources/FIndex.h"
+#import "Core/FQueryParams.h"
+#import "Core/Utilities/FPath.h"
+#import "FIndex.h"
 
 @interface FQuerySpec : NSObject <NSCopying>
 

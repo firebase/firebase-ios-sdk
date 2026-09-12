@@ -12,20 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebasePerformance/Sources/Instrumentation/Network/FPRNSURLConnectionInstrument.h"
-#import "FirebasePerformance/Sources/Instrumentation/Network/FPRNSURLConnectionInstrument_Private.h"
+#import "Instrumentation/Network/FPRNSURLConnectionInstrument.h"
+#import "Instrumentation/Network/FPRNSURLConnectionInstrument_Private.h"
 
-#import "FirebasePerformance/Sources/Common/FPRDiagnostics.h"
-#import "FirebasePerformance/Sources/ISASwizzler/FPRObjectSwizzler.h"
-#import "FirebasePerformance/Sources/Instrumentation/FPRClassInstrumentor.h"
-#import "FirebasePerformance/Sources/Instrumentation/FPRInstrument_Private.h"
-#import "FirebasePerformance/Sources/Instrumentation/FPRNetworkTrace.h"
-#import "FirebasePerformance/Sources/Instrumentation/FPRObjectInstrumentor.h"
-#import "FirebasePerformance/Sources/Instrumentation/FPRSelectorInstrumentor.h"
-#import "FirebasePerformance/Sources/Instrumentation/Network/Delegates/FPRNSURLConnectionDelegate.h"
-#import "FirebasePerformance/Sources/Instrumentation/Network/FPRNetworkInstrumentHelpers.h"
+#import "Common/FPRDiagnostics.h"
+#import "ISASwizzler/FPRObjectSwizzler.h"
+#import "Instrumentation/FPRClassInstrumentor.h"
+#import "Instrumentation/FPRInstrument_Private.h"
+#import "Instrumentation/FPRNetworkTrace.h"
+#import "Instrumentation/FPRObjectInstrumentor.h"
+#import "Instrumentation/FPRSelectorInstrumentor.h"
+#import "Instrumentation/Network/Delegates/FPRNSURLConnectionDelegate.h"
+#import "Instrumentation/Network/FPRNetworkInstrumentHelpers.h"
 
-#import "FirebasePerformance/Sources/Configurations/FPRConfigurations.h"
+#import "Configurations/FPRConfigurations.h"
 
 static NSString *const kFPRDelegateKey = @"kFPRDelegateKey";
 

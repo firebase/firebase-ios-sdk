@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/Sources/Core/FQueryParams.h"
-#import "FirebaseDatabase/Sources/Constants/FConstants.h"
-#import "FirebaseDatabase/Sources/Core/View/Filter/FIndexedFilter.h"
-#import "FirebaseDatabase/Sources/Core/View/Filter/FLimitedFilter.h"
-#import "FirebaseDatabase/Sources/Core/View/Filter/FNodeFilter.h"
-#import "FirebaseDatabase/Sources/FIndex.h"
-#import "FirebaseDatabase/Sources/FPriorityIndex.h"
-#import "FirebaseDatabase/Sources/FRangedFilter.h"
-#import "FirebaseDatabase/Sources/Snapshot/FNode.h"
-#import "FirebaseDatabase/Sources/Snapshot/FSnapshotUtilities.h"
-#import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
-#import "FirebaseDatabase/Sources/Utilities/FValidation.h"
+#import "Core/FQueryParams.h"
+#import "Constants/FConstants.h"
+#import "Core/View/Filter/FIndexedFilter.h"
+#import "Core/View/Filter/FLimitedFilter.h"
+#import "Core/View/Filter/FNodeFilter.h"
+#import "FIndex.h"
+#import "FPriorityIndex.h"
+#import "FRangedFilter.h"
+#import "Snapshot/FNode.h"
+#import "Snapshot/FSnapshotUtilities.h"
+#import "Utilities/FUtilities.h"
+#import "Utilities/FValidation.h"
 
 @interface FQueryParams ()
 

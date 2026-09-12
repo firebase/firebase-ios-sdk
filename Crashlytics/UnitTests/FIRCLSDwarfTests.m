@@ -14,15 +14,15 @@
 
 #import <XCTest/XCTest.h>
 
-#include "Crashlytics/third_party/libunwind/dwarf.h"
+#include "dwarf.h"
 
-#import "Crashlytics/Shared/FIRCLSMachO/FIRCLSMachO.h"
+#import "Shared/FIRCLSMachO/FIRCLSMachO.h"
 
-#include "Crashlytics/Crashlytics/Components/FIRCLSContext.h"
-#include "Crashlytics/Crashlytics/Components/FIRCLSGlobals.h"
-#include "Crashlytics/Crashlytics/Helpers/FIRCLSDefines.h"
-#include "Crashlytics/Crashlytics/Unwind/Dwarf/FIRCLSDwarfUnwind.h"
-#include "Crashlytics/Crashlytics/Unwind/FIRCLSUnwind_arch.h"
+#include "Crashlytics/Components/FIRCLSContext.h"
+#include "Crashlytics/Components/FIRCLSGlobals.h"
+#include "Crashlytics/Helpers/FIRCLSDefines.h"
+#include "Crashlytics/Unwind/Dwarf/FIRCLSDwarfUnwind.h"
+#include "Crashlytics/Unwind/FIRCLSUnwind_arch.h"
 
 @interface FIRCLSDwarfTests : XCTestCase
 

@@ -17,12 +17,12 @@
 #import <TargetConditionals.h>
 #if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
 
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
-#import "FirebaseInAppMessaging/Sources/Analytics/FIRIAMClearcutLogStorage.h"
-#import "FirebaseInAppMessaging/Sources/FIRCore+InAppMessaging.h"
-#import "FirebaseInAppMessaging/Sources/Private/Analytics/FIRIAMClearcutLogger.h"
-#import "FirebaseInAppMessaging/Sources/Private/Analytics/FIRIAMClearcutUploader.h"
+#import "Analytics/FIRIAMClearcutLogStorage.h"
+#import "FIRCore+InAppMessaging.h"
+#import "Private/Analytics/FIRIAMClearcutLogger.h"
+#import "Private/Analytics/FIRIAMClearcutUploader.h"
 
 @interface FIRIAMClearcutLogger ()
 

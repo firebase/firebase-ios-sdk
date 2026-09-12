@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-#import "FirebaseMessaging/Sources/Token/FIRMessagingTokenInfo.h"
+#import "Token/FIRMessagingTokenInfo.h"
 
-#import "FirebaseMessaging/Sources/FIRMessagingConstants.h"
-#import "FirebaseMessaging/Sources/FIRMessagingLogger.h"
-#import "FirebaseMessaging/Sources/FIRMessagingUtilities.h"
-#import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessaging.h"
+#import <FirebaseMessaging/FIRMessaging.h>
+#import "FIRMessagingConstants.h"
+#import "FIRMessagingLogger.h"
+#import "FIRMessagingUtilities.h"
 
 /**
  *  @enum Token Info Dictionary Key Constants

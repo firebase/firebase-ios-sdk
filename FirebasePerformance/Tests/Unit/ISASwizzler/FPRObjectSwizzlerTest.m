@@ -15,10 +15,10 @@
 #import <XCTest/XCTest.h>
 #import <objc/runtime.h>
 
-#import "FirebasePerformance/Sources/ISASwizzler/FPRObjectSwizzler+Internal.h"
-#import "FirebasePerformance/Sources/ISASwizzler/FPRSwizzledObject.h"
+#import "ISASwizzler/FPRObjectSwizzler+Internal.h"
+#import "ISASwizzler/FPRSwizzledObject.h"
 
-#import "FirebasePerformance/Tests/Unit/ISASwizzler/FPRProxy.h"
+#import "ISASwizzler/FPRProxy.h"
 
 @interface FPRObjectSwizzlerTest : XCTestCase
 

@@ -16,10 +16,10 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FirebaseInstallations/Source/Tests/Utils/FIRKeyedArchivingUtils.h"
+#import "FIRKeyedArchivingUtils.h"
 
-#import "FirebaseInstallations/Source/Library/InstallationsStore/FIRInstallationsStoredAuthToken.h"
-#import "FirebaseInstallations/Source/Library/InstallationsStore/FIRInstallationsStoredItem.h"
+#import "FIRInstallationsStoredAuthToken.h"
+#import "FIRInstallationsStoredItem.h"
 
 @interface FIRInstallationsStoredItemTests : XCTestCase
 

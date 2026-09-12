@@ -16,16 +16,16 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FirebaseAuth/Interop/Public/FirebaseAuthInterop/FIRAuthInterop.h"
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
+#import <FirebaseAuthInterop/FIRAuthInterop.h>
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
-#import "FirebaseDatabase/Sources/FIRDatabaseConfig_Private.h"
-#import "FirebaseDatabase/Tests/Helpers/FTestBase.h"
-#import "FirebaseDatabase/Tests/Helpers/FTestHelpers.h"
+#import "FIRDatabaseConfig_Private.h"
+#import "FTestBase.h"
+#import "FTestHelpers.h"
 
-#import "SharedTestUtilities/AppCheckFake/FIRAppCheckFake.h"
-#import "SharedTestUtilities/AppCheckFake/FIRAppCheckTokenResultFake.h"
-#import "SharedTestUtilities/FIRAuthInteropFake.h"
+#import <AppCheckFake/FIRAppCheckFake.h>
+#import <AppCheckFake/FIRAppCheckTokenResultFake.h>
+#import "FIRAuthInteropFake.h"
 
 @interface FIRAuthTests : FTestBase
 

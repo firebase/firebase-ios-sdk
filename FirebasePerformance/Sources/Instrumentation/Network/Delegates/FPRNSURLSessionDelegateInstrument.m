@@ -12,16 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebasePerformance/Sources/Instrumentation/Network/Delegates/FPRNSURLSessionDelegateInstrument.h"
+#import "Instrumentation/Network/Delegates/FPRNSURLSessionDelegateInstrument.h"
 
-#import "FirebasePerformance/Sources/FPRConsoleLogger.h"
-#import "FirebasePerformance/Sources/Instrumentation/FPRClassInstrumentor.h"
-#import "FirebasePerformance/Sources/Instrumentation/FPRInstrument_Private.h"
-#import "FirebasePerformance/Sources/Instrumentation/FPRNetworkTrace.h"
-#import "FirebasePerformance/Sources/Instrumentation/FPRProxyObjectHelper.h"
-#import "FirebasePerformance/Sources/Instrumentation/FPRSelectorInstrumentor.h"
-#import "FirebasePerformance/Sources/Instrumentation/Network/Delegates/FPRNSURLSessionDelegate.h"
-#import "FirebasePerformance/Sources/Instrumentation/Network/FPRNetworkInstrumentHelpers.h"
+#import "FPRConsoleLogger.h"
+#import "Instrumentation/FPRClassInstrumentor.h"
+#import "Instrumentation/FPRInstrument_Private.h"
+#import "Instrumentation/FPRNetworkTrace.h"
+#import "Instrumentation/FPRProxyObjectHelper.h"
+#import "Instrumentation/FPRSelectorInstrumentor.h"
+#import "Instrumentation/Network/Delegates/FPRNSURLSessionDelegate.h"
+#import "Instrumentation/Network/FPRNetworkInstrumentHelpers.h"
 
 /** Returns the dispatch queue for all instrumentation to occur on. */
 static dispatch_queue_t GetInstrumentationQueue(void) {

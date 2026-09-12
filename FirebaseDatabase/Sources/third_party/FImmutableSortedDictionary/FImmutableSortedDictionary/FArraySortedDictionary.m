@@ -1,5 +1,5 @@
-#import "FirebaseDatabase/Sources/third_party/FImmutableSortedDictionary/FImmutableSortedDictionary/FArraySortedDictionary.h"
-#import "FirebaseDatabase/Sources/third_party/FImmutableSortedDictionary/FImmutableSortedDictionary/FTreeSortedDictionary.h"
+#import "FArraySortedDictionary.h"
+#import "FTreeSortedDictionary.h"
 
 @interface FArraySortedDictionaryEnumerator : NSEnumerator
 

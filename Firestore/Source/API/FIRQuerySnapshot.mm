@@ -16,14 +16,14 @@
 
 #include <utility>
 
-#import "Firestore/Source/API/FIRQuerySnapshot+Internal.h"
+#import "FIRQuerySnapshot+Internal.h"
 
+#import "FIRDocumentChange+Internal.h"
+#import "FIRDocumentSnapshot+Internal.h"
+#import "FIRFirestore+Internal.h"
+#import "FIRQuery+Internal.h"
+#import "FIRSnapshotMetadata+Internal.h"
 #import "FIRSnapshotMetadata.h"
-#import "Firestore/Source/API/FIRDocumentChange+Internal.h"
-#import "Firestore/Source/API/FIRDocumentSnapshot+Internal.h"
-#import "Firestore/Source/API/FIRFirestore+Internal.h"
-#import "Firestore/Source/API/FIRQuery+Internal.h"
-#import "Firestore/Source/API/FIRSnapshotMetadata+Internal.h"
 
 #include "Firestore/core/src/api/query_core.h"
 #include "Firestore/core/src/api/query_snapshot.h"

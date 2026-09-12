@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-#import "FirebaseRemoteConfig/Sources/Private/RCNConfigFetch.h"
-#import "FirebaseRemoteConfig/Sources/Private/FIRRemoteConfig_Private.h"
+#import "FirebaseRemoteConfig/RCNConfigFetch.h"
+#import "FirebaseRemoteConfig/FIRRemoteConfig_Private.h"
 
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
+#import <FirebaseInstallations/FirebaseInstallations.h>
 #import <GoogleUtilities/GULNSData+zlib.h>
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
-#import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
-#import "FirebaseRemoteConfig/Sources/Private/RCNConfigSettings.h"
-#import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
-#import "FirebaseRemoteConfig/Sources/RCNConfigContent.h"
-#import "FirebaseRemoteConfig/Sources/RCNConfigExperiment.h"
-#import "FirebaseRemoteConfig/Sources/RCNConfigSessionConfiguration.h"
-#import "FirebaseRemoteConfig/Sources/RCNDevice.h"
+#import "FirebaseRemoteConfig/RCNConfigSettings.h"
+#import "RCNConfigConstants.h"
+#import "RCNConfigContent.h"
+#import "RCNConfigExperiment.h"
+#import "RCNConfigSessionConfiguration.h"
+#import "RCNDevice.h"
 @import FirebaseRemoteConfigInterop;
 
 #ifdef RCN_STAGING_SERVER

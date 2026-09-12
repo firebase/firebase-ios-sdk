@@ -12,18 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebasePerformance/Sources/Loggers/FPRGDTLogger.h"
-#import "FirebasePerformance/Sources/Loggers/FPRGDTLogger_Private.h"
+#import "Loggers/FPRGDTLogger.h"
+#import "Loggers/FPRGDTLogger_Private.h"
 
-#import "FirebasePerformance/Sources/Configurations/FPRConfigurations.h"
+#import "Configurations/FPRConfigurations.h"
 
-#import "FirebasePerformance/Sources/Loggers/FPRGDTEvent.h"
-#import "FirebasePerformance/Sources/Loggers/FPRGDTLogSampler.h"
-#import "FirebasePerformance/Sources/Loggers/FPRGDTRateLimiter.h"
+#import "Loggers/FPRGDTEvent.h"
+#import "Loggers/FPRGDTLogSampler.h"
+#import "Loggers/FPRGDTRateLimiter.h"
 
 #import <GoogleDataTransport/GoogleDataTransport.h>
 
-#import "FirebasePerformance/Sources/Protogen/nanopb/perf_metric.nanopb.h"
+#import "perf_metric.nanopb.h"
 
 @implementation FPRGDTLogger
 

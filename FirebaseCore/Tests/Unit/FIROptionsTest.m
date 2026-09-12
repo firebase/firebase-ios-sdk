@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebaseCore/Tests/Unit/FIRTestCase.h"
+#import "FIRTestCase.h"
 
-#import "FirebaseCore/Extension/FIRAppInternal.h"
-#import "FirebaseCore/Sources/FIRBundleUtil.h"
-#import "FirebaseCore/Sources/FIROptionsInternal.h"
-#import "FirebaseCore/Sources/Public/FirebaseCore/FIRVersion.h"
-#import "SharedTestUtilities/FIROptionsMock.h"
+#import <FirebaseCore/FIRVersion.h>
+#import <FirebaseCoreExtension/FIRAppInternal.h>
+#import "FIRBundleUtil.h"
+#import "FIROptionsInternal.h"
+#import "FIROptionsMock.h"
 
 extern NSString *const kFIRIsMeasurementEnabled;
 extern NSString *const kFIRIsAnalyticsCollectionEnabled;

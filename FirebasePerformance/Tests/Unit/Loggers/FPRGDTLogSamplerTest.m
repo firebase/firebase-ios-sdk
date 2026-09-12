@@ -14,20 +14,20 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FirebasePerformance/Sources/Loggers/FPRGDTLogSampler+Private.h"
-#import "FirebasePerformance/Sources/Loggers/FPRGDTLogSampler.h"
+#import "Loggers/FPRGDTLogSampler+Private.h"
+#import "Loggers/FPRGDTLogSampler.h"
 
-#import "FirebasePerformance/Sources/Configurations/FPRConfigurations+Private.h"
-#import "FirebasePerformance/Sources/FPRNanoPbUtils.h"
-#import "FirebasePerformance/Sources/Instrumentation/FPRNetworkTrace+Private.h"
-#import "FirebasePerformance/Sources/Instrumentation/FPRNetworkTrace.h"
-#import "FirebasePerformance/Sources/Loggers/FPRGDTEvent.h"
-#import "FirebasePerformance/Sources/Public/FirebasePerformance/FIRTrace.h"
-#import "FirebasePerformance/Sources/Timer/FIRTrace+Internal.h"
-#import "FirebasePerformance/Sources/Timer/FIRTrace+Private.h"
-#import "FirebasePerformance/Tests/Unit/FPRTestCase.h"
-#import "FirebasePerformance/Tests/Unit/FPRTestUtils.h"
-#import "FirebasePerformance/Tests/Unit/Fakes/FPRFakeConfigurations.h"
+#import <FirebasePerformance/FIRTrace.h>
+#import "Configurations/FPRConfigurations+Private.h"
+#import "FPRNanoPbUtils.h"
+#import "FPRTestCase.h"
+#import "FPRTestUtils.h"
+#import "Fakes/FPRFakeConfigurations.h"
+#import "Instrumentation/FPRNetworkTrace+Private.h"
+#import "Instrumentation/FPRNetworkTrace.h"
+#import "Loggers/FPRGDTEvent.h"
+#import "Timer/FIRTrace+Internal.h"
+#import "Timer/FIRTrace+Private.h"
 
 #import <GoogleDataTransport/GoogleDataTransport.h>
 

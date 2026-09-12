@@ -17,25 +17,25 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
+#import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
+#import <FirebaseInstallations/FirebaseInstallations.h>
+#import <FirebaseMessaging/FIRMessaging.h>
 #import <GoogleUtilities/GULUserDefaults.h>
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
-#import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
-#import "FirebaseMessaging/Sources/FIRMessagingConstants.h"
-#import "FirebaseMessaging/Sources/FIRMessagingPubSub.h"
-#import "FirebaseMessaging/Sources/FIRMessagingTopicOperation.h"
-#import "FirebaseMessaging/Sources/FIRMessagingUtilities.h"
-#import "FirebaseMessaging/Sources/FIRMessaging_Private.h"
-#import "FirebaseMessaging/Sources/NSError+FIRMessaging.h"
-#import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessaging.h"
-#import "FirebaseMessaging/Sources/Token/FIRMessagingAPNSInfo.h"
-#import "FirebaseMessaging/Sources/Token/FIRMessagingFIDRegisterOperation.h"
-#import "FirebaseMessaging/Sources/Token/FIRMessagingFIDUnregisterOperation.h"
-#import "FirebaseMessaging/Sources/Token/FIRMessagingTokenInfo.h"
-#import "FirebaseMessaging/Sources/Token/FIRMessagingTokenManager.h"
-#import "FirebaseMessaging/Sources/Token/FIRMessagingTokenStore.h"
-#import "FirebaseMessaging/Tests/UnitTests/FIRMessagingTestUtilities.h"
-#import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
-#import "SharedTestUtilities/URLSession/FIRURLSessionOCMockStub.h"
+#import <URLSession/FIRURLSessionOCMockStub.h>
+#import "FIRMessagingAPNSInfo.h"
+#import "FIRMessagingConstants.h"
+#import "FIRMessagingFIDRegisterOperation.h"
+#import "FIRMessagingFIDUnregisterOperation.h"
+#import "FIRMessagingPubSub.h"
+#import "FIRMessagingTestUtilities.h"
+#import "FIRMessagingTokenInfo.h"
+#import "FIRMessagingTokenManager.h"
+#import "FIRMessagingTokenStore.h"
+#import "FIRMessagingTopicOperation.h"
+#import "FIRMessagingUtilities.h"
+#import "FIRMessaging_Private.h"
+#import "NSError+FIRMessaging.h"
 
 @interface FIRMessagingFIDRegisterOperation (ExposedForTest)
 + (void)resetSharedSession;

@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebaseABTesting/Sources/ABTConditionalUserPropertyController.h"
+#import "ABTConditionalUserPropertyController.h"
 
-#import "FirebaseABTesting/Sources/ABTConstants.h"
-#import "FirebaseABTesting/Sources/Public/FirebaseABTesting/FIRLifecycleEvents.h"
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
-#import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
+#import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
+#import "ABTConstants.h"
+#import "FirebaseABTesting/FIRLifecycleEvents.h"
 
 @implementation ABTConditionalUserPropertyController {
   dispatch_queue_t _analyticOperationQueue;

@@ -16,21 +16,21 @@
 
 #ifndef SWIFT_PACKAGE
 
-#import "FirebasePerformance/Tests/Unit/Instruments/FPRNSURLSessionInstrumentTestDelegates.h"
+#import "Instruments/FPRNSURLSessionInstrumentTestDelegates.h"
 
 #import <XCTest/XCTest.h>
 #import <objc/runtime.h>
 
-#import "FirebasePerformance/Sources/Configurations/FPRConfigurations+Private.h"
-#import "FirebasePerformance/Sources/Configurations/FPRConfigurations.h"
-#import "FirebasePerformance/Sources/Instrumentation/FPRNetworkTrace.h"
-#import "FirebasePerformance/Sources/Instrumentation/Network/FPRNSURLSessionInstrument.h"
-#import "FirebasePerformance/Sources/Instrumentation/Network/FPRNSURLSessionInstrument_Private.h"
-#import "FirebasePerformance/Sources/Public/FirebasePerformance/FIRPerformance.h"
+#import <FirebasePerformance/FIRPerformance.h>
+#import "Configurations/FPRConfigurations+Private.h"
+#import "Configurations/FPRConfigurations.h"
+#import "Instrumentation/FPRNetworkTrace.h"
+#import "Instrumentation/Network/FPRNSURLSessionInstrument.h"
+#import "Instrumentation/Network/FPRNSURLSessionInstrument_Private.h"
 
-#import "FirebasePerformance/Tests/Unit/FPRTestCase.h"
-#import "FirebasePerformance/Tests/Unit/FPRTestUtils.h"
-#import "FirebasePerformance/Tests/Unit/Server/FPRHermeticTestServer.h"
+#import "FPRTestCase.h"
+#import "FPRTestUtils.h"
+#import "Server/FPRHermeticTestServer.h"
 
 /** This class is used to wrap an NSURLSession object during testing. */
 @interface FPRNSURLSessionProxy : NSProxy {

@@ -12,17 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "Crashlytics/Crashlytics/Unwind/Compact/FIRCLSCompactUnwind.h"
+#include "Crashlytics/Unwind/Compact/FIRCLSCompactUnwind.h"
 
 #import <Foundation/Foundation.h>
 #import <XCTest/XCTest.h>
 
-#import "Crashlytics/Shared/FIRCLSMachO/FIRCLSMachO.h"
+#import "Shared/FIRCLSMachO/FIRCLSMachO.h"
 
-#include "Crashlytics/Crashlytics/Components/FIRCLSContext.h"
-#include "Crashlytics/Crashlytics/Components/FIRCLSGlobals.h"
-#include "Crashlytics/Crashlytics/Unwind/Compact/FIRCLSCompactUnwind_Private.h"
-#include "Crashlytics/Crashlytics/Unwind/FIRCLSUnwind_x86.h"
+#include "Crashlytics/Components/FIRCLSContext.h"
+#include "Crashlytics/Components/FIRCLSGlobals.h"
+#include "Crashlytics/Unwind/Compact/FIRCLSCompactUnwind_Private.h"
+#include "Crashlytics/Unwind/FIRCLSUnwind_x86.h"
 
 @interface FIRCLSCompactUnwindTests : XCTestCase
 

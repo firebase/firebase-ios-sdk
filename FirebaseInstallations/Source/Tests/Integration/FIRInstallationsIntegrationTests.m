@@ -28,14 +28,14 @@
 
 @import FirebaseCoreInternal;
 
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
 #import "FBLPromise+Testing.h"
-#import "FirebaseInstallations/Source/Tests/Utils/FIRInstallations+Tests.h"
-#import "FirebaseInstallations/Source/Tests/Utils/FIRInstallationsItem+Tests.h"
+#import "FIRInstallations+Tests.h"
+#import "FIRInstallationsItem+Tests.h"
 
-#import "FirebaseInstallations/Source/Library/Public/FirebaseInstallations/FIRInstallations.h"
-#import "FirebaseInstallations/Source/Library/Public/FirebaseInstallations/FIRInstallationsAuthTokenResult.h"
+#import "FIRInstallations.h"
+#import "FIRInstallationsAuthTokenResult.h"
 
 static BOOL sFIRInstallationsFirebaseDefaultAppConfigured = NO;
 

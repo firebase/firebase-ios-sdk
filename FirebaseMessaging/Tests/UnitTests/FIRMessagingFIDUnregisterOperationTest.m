@@ -17,11 +17,11 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
-#import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
-#import "FirebaseMessaging/Sources/FIRMessagingConstants.h"
-#import "FirebaseMessaging/Sources/Token/FIRMessagingFIDUnregisterOperation.h"
-#import "SharedTestUtilities/URLSession/FIRURLSessionOCMockStub.h"
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
+#import <FirebaseInstallations/FirebaseInstallations.h>
+#import <URLSession/FIRURLSessionOCMockStub.h>
+#import "FIRMessagingConstants.h"
+#import "FIRMessagingFIDUnregisterOperation.h"
 
 @interface FIRMessagingFIDUnregisterOperation (ExposedForTest)
 + (void)resetSharedSession;

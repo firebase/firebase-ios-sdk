@@ -16,23 +16,23 @@
 
 #import <GoogleUtilities/GULUserDefaults.h>
 
-#import "FirebasePerformance/Sources/AppActivity/FPRAppActivityTracker.h"
-#import "FirebasePerformance/Sources/AppActivity/FPRSessionManager.h"
-#import "FirebasePerformance/Sources/Common/FPRConstants.h"
-#import "FirebasePerformance/Sources/Configurations/FPRConfigurations+Private.h"
-#import "FirebasePerformance/Sources/Configurations/FPRConfigurations.h"
-#import "FirebasePerformance/Sources/Configurations/FPRRemoteConfigFlags+Private.h"
-#import "FirebasePerformance/Sources/Configurations/FPRRemoteConfigFlags.h"
-#import "FirebasePerformance/Sources/FPRClient.h"
-#import "FirebasePerformance/Sources/Public/FirebasePerformance/FIRPerformance.h"
-#import "FirebasePerformance/Sources/Public/FirebasePerformance/FIRTrace.h"
-#import "FirebasePerformance/Sources/Timer/FIRTrace+Internal.h"
-#import "FirebasePerformance/Sources/Timer/FIRTrace+Private.h"
+#import <FirebasePerformance/FIRPerformance.h>
+#import <FirebasePerformance/FIRTrace.h>
+#import "AppActivity/FPRAppActivityTracker.h"
+#import "AppActivity/FPRSessionManager.h"
+#import "Common/FPRConstants.h"
+#import "Configurations/FPRConfigurations+Private.h"
+#import "Configurations/FPRConfigurations.h"
+#import "Configurations/FPRRemoteConfigFlags+Private.h"
+#import "Configurations/FPRRemoteConfigFlags.h"
+#import "FPRClient.h"
+#import "Timer/FIRTrace+Internal.h"
+#import "Timer/FIRTrace+Private.h"
 
-#import "FirebasePerformance/Tests/Unit/Configurations/FPRFakeRemoteConfig.h"
-#import "FirebasePerformance/Tests/Unit/FPRTestCase.h"
+#import "Configurations/FPRFakeRemoteConfig.h"
+#import "FPRTestCase.h"
 
-#import "FirebaseRemoteConfig/Sources/RCNConfigValue_Internal.h"
+#import <FirebaseRemoteConfig/RCNConfigValue_Internal.h>
 
 #import <OCMock/OCMock.h>
 

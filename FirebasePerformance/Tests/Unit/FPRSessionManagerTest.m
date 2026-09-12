@@ -14,10 +14,10 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FirebasePerformance/Sources/AppActivity/FPRSessionManager+Private.h"
-#import "FirebasePerformance/Sources/AppActivity/FPRSessionManager.h"
-#import "FirebasePerformance/Sources/Configurations/FPRConfigurations.h"
-#import "FirebasePerformance/Sources/Gauges/FPRGaugeManager+Private.h"
+#import "AppActivity/FPRSessionManager+Private.h"
+#import "AppActivity/FPRSessionManager.h"
+#import "Configurations/FPRConfigurations.h"
+#import "Gauges/FPRGaugeManager+Private.h"
 
 #import <OCMock/OCMock.h>
 

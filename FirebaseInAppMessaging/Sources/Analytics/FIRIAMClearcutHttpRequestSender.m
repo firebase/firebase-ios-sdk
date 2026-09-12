@@ -17,13 +17,13 @@
 #import <TargetConditionals.h>
 #if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
 
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
-#import "FirebaseInAppMessaging/Sources/Analytics/FIRIAMClearcutHttpRequestSender.h"
-#import "FirebaseInAppMessaging/Sources/Analytics/FIRIAMClearcutLogStorage.h"
-#import "FirebaseInAppMessaging/Sources/FIRCore+InAppMessaging.h"
-#import "FirebaseInAppMessaging/Sources/Private/Analytics/FIRIAMClientInfoFetcher.h"
-#import "FirebaseInAppMessaging/Sources/Private/Util/FIRIAMTimeFetcher.h"
+#import "Analytics/FIRIAMClearcutHttpRequestSender.h"
+#import "Analytics/FIRIAMClearcutLogStorage.h"
+#import "FIRCore+InAppMessaging.h"
+#import "Private/Analytics/FIRIAMClientInfoFetcher.h"
+#import "Private/Util/FIRIAMTimeFetcher.h"
 
 @interface FIRIAMClearcutHttpRequestSender ()
 @property(readonly, copy, nonatomic) NSString *serverHostName;

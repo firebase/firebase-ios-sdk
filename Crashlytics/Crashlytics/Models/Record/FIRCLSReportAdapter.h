@@ -16,9 +16,9 @@
 
 #import <Foundation/Foundation.h>
 
-#include "Crashlytics/Protogen/nanopb/crashlytics.nanopb.h"
+#include "crashlytics.nanopb.h"
 
-#import "Crashlytics/Crashlytics/Models/FIRCLSInstallIdentifierModel.h"
+#import "Crashlytics/Models/FIRCLSInstallIdentifierModel.h"
 
 #import <GoogleDataTransport/GoogleDataTransport.h>
 

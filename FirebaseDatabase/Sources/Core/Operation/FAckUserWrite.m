@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/Sources/Core/Operation/FAckUserWrite.h"
-#import "FirebaseDatabase/Sources/Core/Operation/FOperationSource.h"
-#import "FirebaseDatabase/Sources/Core/Utilities/FImmutableTree.h"
-#import "FirebaseDatabase/Sources/Core/Utilities/FPath.h"
+#import "Core/Operation/FAckUserWrite.h"
+#import "Core/Operation/FOperationSource.h"
+#import "Core/Utilities/FImmutableTree.h"
+#import "Core/Utilities/FPath.h"
 
 @implementation FAckUserWrite
 

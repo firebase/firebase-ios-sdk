@@ -14,27 +14,27 @@
 
 #import <Foundation/Foundation.h>
 
-#include "Crashlytics/Crashlytics/Handlers/FIRCLSException.h"
+#include "Crashlytics/Handlers/FIRCLSException.h"
 
-#import "Crashlytics/Crashlytics/Private/FIRExceptionModel_Private.h"
-#import "Crashlytics/Crashlytics/Private/FIRStackFrame_Private.h"
+#import "Crashlytics/Private/FIRExceptionModel_Private.h"
+#import "Crashlytics/Private/FIRStackFrame_Private.h"
 
-#include "Crashlytics/Crashlytics/Components/FIRCLSApplication.h"
-#include "Crashlytics/Crashlytics/Components/FIRCLSContext.h"
-#include "Crashlytics/Crashlytics/Components/FIRCLSGlobals.h"
-#include "Crashlytics/Crashlytics/Components/FIRCLSProcess.h"
-#import "Crashlytics/Crashlytics/Components/FIRCLSUserLogging.h"
+#include "Crashlytics/Components/FIRCLSApplication.h"
+#include "Crashlytics/Components/FIRCLSContext.h"
+#include "Crashlytics/Components/FIRCLSGlobals.h"
+#include "Crashlytics/Components/FIRCLSProcess.h"
+#import "Crashlytics/Components/FIRCLSUserLogging.h"
 
-#include "Crashlytics/Crashlytics/Handlers/FIRCLSHandler.h"
-#include "Crashlytics/Crashlytics/Helpers/FIRCLSFile.h"
-#import "Crashlytics/Crashlytics/Helpers/FIRCLSLogger.h"
-#import "Crashlytics/Crashlytics/Helpers/FIRCLSUtility.h"
+#include "Crashlytics/Handlers/FIRCLSHandler.h"
+#include "Crashlytics/Helpers/FIRCLSFile.h"
+#import "Crashlytics/Helpers/FIRCLSLogger.h"
+#import "Crashlytics/Helpers/FIRCLSUtility.h"
 
-#import "Crashlytics/Crashlytics/Controllers/FIRCLSReportManager_Private.h"
-#import "Crashlytics/Crashlytics/Models/FIRCLSExecutionIdentifierModel.h"
-#import "Crashlytics/Crashlytics/Models/FIRCLSFileManager.h"
-#import "Crashlytics/Crashlytics/Models/FIRCLSInternalReport.h"
-#include "Crashlytics/Crashlytics/Operations/Symbolication/FIRCLSDemangleOperation.h"
+#import "Crashlytics/Controllers/FIRCLSReportManager_Private.h"
+#import "Crashlytics/Models/FIRCLSExecutionIdentifierModel.h"
+#import "Crashlytics/Models/FIRCLSFileManager.h"
+#import "Crashlytics/Models/FIRCLSInternalReport.h"
+#include "Crashlytics/Operations/Symbolication/FIRCLSDemangleOperation.h"
 
 // C++/Objective-C exception handling
 #include <cxxabi.h>

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "Crashlytics/Crashlytics/Models/FIRCLSSettings.h"
+#import "Crashlytics/Models/FIRCLSSettings.h"
 
 #if __has_include(<FBLPromises/FBLPromises.h>)
 #import <FBLPromises/FBLPromises.h>
@@ -20,11 +20,11 @@
 #import "FBLPromises.h"
 #endif
 
-#import "Crashlytics/Crashlytics/Helpers/FIRCLSLogger.h"
-#import "Crashlytics/Crashlytics/Models/FIRCLSFileManager.h"
-#import "Crashlytics/Crashlytics/Settings/Models/FIRCLSApplicationIdentifierModel.h"
-#import "Crashlytics/Shared/FIRCLSConstants.h"
-#import "Crashlytics/Shared/FIRCLSNetworking/FIRCLSURLBuilder.h"
+#import "Crashlytics/Helpers/FIRCLSLogger.h"
+#import "Crashlytics/Models/FIRCLSFileManager.h"
+#import "Crashlytics/Settings/Models/FIRCLSApplicationIdentifierModel.h"
+#import "Shared/FIRCLSConstants.h"
+#import "Shared/FIRCLSNetworking/FIRCLSURLBuilder.h"
 
 NSString *const CreatedAtKey = @"created_at";
 NSString *const GoogleAppIDKey = @"google_app_id";

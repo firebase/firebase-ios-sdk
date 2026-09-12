@@ -17,10 +17,10 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
-#import "FirebaseInAppMessaging/Sources/Private/Analytics/FIRIAMClientInfoFetcher.h"
-#import "FirebaseInAppMessaging/Sources/Runtime/FIRIAMSDKRuntimeErrorCodes.h"
+#import "Private/Analytics/FIRIAMClientInfoFetcher.h"
+#import "Runtime/FIRIAMSDKRuntimeErrorCodes.h"
 
-#import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
+#import <FirebaseInstallations/FirebaseInstallations.h>
 
 @interface FIRInstallationsAuthTokenResult (Tests)
 - (instancetype)initWithToken:(NSString *)token expirationDate:(NSDate *)expirationDate;

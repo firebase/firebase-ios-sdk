@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
+#import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

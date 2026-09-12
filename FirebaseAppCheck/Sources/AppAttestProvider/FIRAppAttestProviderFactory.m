@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppAttestProviderFactory.h"
+#import <FirebaseAppCheck/FIRAppAttestProviderFactory.h>
 
-#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppAttestProvider.h"
-#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckProvider.h"
+#import <FirebaseAppCheck/FIRAppAttestProvider.h>
+#import <FirebaseAppCheck/FIRAppCheckProvider.h>
 
 @implementation FIRAppAttestProviderFactory
 

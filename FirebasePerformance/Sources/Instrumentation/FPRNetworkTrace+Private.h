@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebasePerformance/Sources/Instrumentation/FPRNetworkTrace.h"
+#import "Instrumentation/FPRNetworkTrace.h"
 
-#import "FirebasePerformance/Sources/AppActivity/FPRSessionDetails.h"
+#import "AppActivity/FPRSessionDetails.h"
 
 /**
  * Extension that is added on top of the class FPRNetworkTrace to make the private properties

@@ -18,8 +18,8 @@
 #import "ViewControllers/ScreenTracesViewController.h"
 #import "ViewControllers/TracesViewController.h"
 
-#import "FirebaseCore/FirebaseCore.h"
-#import "FirebasePerformance/Sources/Public/FirebasePerformance/FIRPerformance.h"
+#import <FirebaseCore/FirebaseCore.h>
+#import <FirebasePerformance/FIRPerformance.h>
 
 @interface AppDelegate ()
 

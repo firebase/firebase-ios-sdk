@@ -12,26 +12,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
+#import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
 
-#import "Crashlytics/Crashlytics/Components/FIRCLSApplication.h"
-#import "Crashlytics/Crashlytics/Controllers/FIRCLSAnalyticsManager.h"
-#import "Crashlytics/Crashlytics/Controllers/FIRCLSManagerData.h"
-#import "Crashlytics/Crashlytics/Controllers/FIRCLSReportUploader_Private.h"
-#import "Crashlytics/Crashlytics/DataCollection/FIRCLSDataCollectionToken.h"
-#import "Crashlytics/Crashlytics/Helpers/FIRCLSDefines.h"
-#import "Crashlytics/Crashlytics/Models/FIRCLSFileManager.h"
-#import "Crashlytics/Crashlytics/Models/FIRCLSInstallIdentifierModel.h"
-#import "Crashlytics/Crashlytics/Models/FIRCLSInternalReport.h"
-#import "Crashlytics/Crashlytics/Models/FIRCLSSettings.h"
-#import "Crashlytics/Crashlytics/Models/FIRCLSSymbolResolver.h"
-#import "Crashlytics/Crashlytics/Models/Record/FIRCLSReportAdapter.h"
-#import "Crashlytics/Crashlytics/Operations/Reports/FIRCLSProcessReportOperation.h"
+#import "Crashlytics/Components/FIRCLSApplication.h"
+#import "Crashlytics/Controllers/FIRCLSAnalyticsManager.h"
+#import "Crashlytics/Controllers/FIRCLSManagerData.h"
+#import "Crashlytics/Controllers/FIRCLSReportUploader_Private.h"
+#import "Crashlytics/DataCollection/FIRCLSDataCollectionToken.h"
+#import "Crashlytics/Helpers/FIRCLSDefines.h"
+#import "Crashlytics/Models/FIRCLSFileManager.h"
+#import "Crashlytics/Models/FIRCLSInstallIdentifierModel.h"
+#import "Crashlytics/Models/FIRCLSInternalReport.h"
+#import "Crashlytics/Models/FIRCLSSettings.h"
+#import "Crashlytics/Models/FIRCLSSymbolResolver.h"
+#import "Crashlytics/Models/Record/FIRCLSReportAdapter.h"
+#import "Crashlytics/Operations/Reports/FIRCLSProcessReportOperation.h"
 
-#include "Crashlytics/Crashlytics/Helpers/FIRCLSUtility.h"
+#include "Crashlytics/Helpers/FIRCLSUtility.h"
 
-#import "Crashlytics/Shared/FIRCLSConstants.h"
-#import "Crashlytics/Shared/FIRCLSNetworking/FIRCLSURLBuilder.h"
+#import "Shared/FIRCLSConstants.h"
+#import "Shared/FIRCLSNetworking/FIRCLSURLBuilder.h"
 
 #import <GoogleDataTransport/GoogleDataTransport.h>
 

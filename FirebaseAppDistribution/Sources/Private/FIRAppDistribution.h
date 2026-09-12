@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebaseAppDistribution/Sources/FIRAppDistributionUIService.h"
-#import "FirebaseAppDistribution/Sources/Public/FirebaseAppDistribution/FIRAppDistribution.h"
+#import <FirebaseAppDistribution/FIRAppDistribution.h>
+#import "FIRAppDistributionUIService.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

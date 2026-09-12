@@ -18,7 +18,7 @@
 #if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
 
 #import <Foundation/Foundation.h>
-#import "FirebaseInAppMessaging/Sources/FIRCore+InAppMessaging.h"
+#import "FIRCore+InAppMessaging.h"
 
 FIRLoggerService kFIRLoggerInAppMessaging = @"[FirebaseInAppMessaging]";
 

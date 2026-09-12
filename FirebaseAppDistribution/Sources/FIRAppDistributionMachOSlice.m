@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FirebaseAppDistribution/Sources/FIRAppDistributionMachOSlice.h"
+#import "FIRAppDistributionMachOSlice.h"
 #import <mach-o/fat.h>
 #import <mach-o/loader.h>
 

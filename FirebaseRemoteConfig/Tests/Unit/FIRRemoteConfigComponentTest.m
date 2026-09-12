@@ -16,10 +16,10 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
-#import "FirebaseRemoteConfig/Sources/FIRRemoteConfigComponent.h"
-#import "FirebaseRemoteConfig/Sources/Private/FIRRemoteConfig_Private.h"
-#import "FirebaseRemoteConfig/Tests/Unit/RCNTestUtilities.h"
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
+#import "FIRRemoteConfigComponent.h"
+#import "FirebaseRemoteConfig/FIRRemoteConfig_Private.h"
+#import "RCNTestUtilities.h"
 @import FirebaseRemoteConfigInterop;
 
 @interface FIRRemoteConfigComponentTest : XCTestCase

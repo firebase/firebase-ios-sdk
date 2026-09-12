@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/Sources/Core/Utilities/FImmutableTree.h"
-#import "FirebaseDatabase/Sources/Core/Utilities/FPath.h"
-#import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
-#import "FirebaseDatabase/Sources/third_party/FImmutableSortedDictionary/FImmutableSortedDictionary/FImmutableSortedDictionary.h"
+#import "Core/Utilities/FImmutableTree.h"
+#import "Core/Utilities/FPath.h"
+#import "FImmutableSortedDictionary.h"
+#import "Utilities/FUtilities.h"
 
 @interface FImmutableTree ()
 @property(nonatomic, strong, readwrite) id value;

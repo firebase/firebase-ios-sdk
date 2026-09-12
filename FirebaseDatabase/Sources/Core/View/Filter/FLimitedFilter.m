@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/Sources/Core/View/Filter/FLimitedFilter.h"
-#import "FirebaseDatabase/Sources/Core/FQueryParams.h"
-#import "FirebaseDatabase/Sources/Core/View/FChange.h"
-#import "FirebaseDatabase/Sources/Core/View/Filter/FChildChangeAccumulator.h"
-#import "FirebaseDatabase/Sources/Core/View/Filter/FCompleteChildSource.h"
-#import "FirebaseDatabase/Sources/FIndex.h"
-#import "FirebaseDatabase/Sources/FNamedNode.h"
-#import "FirebaseDatabase/Sources/FRangedFilter.h"
-#import "FirebaseDatabase/Sources/Snapshot/FChildrenNode.h"
-#import "FirebaseDatabase/Sources/Snapshot/FEmptyNode.h"
-#import "FirebaseDatabase/Sources/third_party/FImmutableSortedDictionary/FImmutableSortedDictionary/FTreeSortedDictionary.h"
+#import "Core/View/Filter/FLimitedFilter.h"
+#import "Core/FQueryParams.h"
+#import "Core/View/FChange.h"
+#import "Core/View/Filter/FChildChangeAccumulator.h"
+#import "Core/View/Filter/FCompleteChildSource.h"
+#import "FIndex.h"
+#import "FNamedNode.h"
+#import "FRangedFilter.h"
+#import "FTreeSortedDictionary.h"
+#import "Snapshot/FChildrenNode.h"
+#import "Snapshot/FEmptyNode.h"
 
 @interface FLimitedFilter ()
 @property(nonatomic, strong) FRangedFilter *rangedFilter;

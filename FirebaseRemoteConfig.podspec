@@ -36,9 +36,7 @@ app update.
   base_dir = "FirebaseRemoteConfig/Sources/"
   s.source_files = [
     base_dir + '**/*.[mh]',
-    'Interop/Analytics/Public/*.h',
     'FirebaseABTesting/Sources/Private/*.h',
-    'FirebaseCore/Extension/*.h',
     'FirebaseInstallations/Source/Library/Private/*.h',
     'FirebaseRemoteConfig/Swift/**/*.swift',
   ]
@@ -52,6 +50,8 @@ app update.
   s.dependency 'FirebaseABTesting', '~> 12.19.0'
   s.dependency 'FirebaseSharedSwift', '~> 12.19.0'
   s.dependency 'FirebaseCore', '~> 12.19.0'
+  s.dependency 'FirebaseCoreExtension', '~> 12.19.0'
+  s.dependency 'FirebaseAnalyticsInterop', '~> 12.19.0'
   s.dependency 'FirebaseInstallations', '~> 12.19.0'
   s.dependency 'GoogleUtilities/Environment', '~> 8.1'
   s.dependency 'GoogleUtilities/NSData+zlib', '~> 8.1'

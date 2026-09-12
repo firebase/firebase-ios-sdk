@@ -14,7 +14,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FirebasePerformance/Tests/Unit/Fakes/FIRAppFake.h"
+#import "Fakes/FIRAppFake.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

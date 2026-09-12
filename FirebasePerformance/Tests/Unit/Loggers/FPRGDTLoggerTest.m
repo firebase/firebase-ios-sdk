@@ -14,17 +14,20 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FirebasePerformance/Sources/FPRNanoPbUtils.h"
-#import "FirebasePerformance/Sources/Loggers/FPRGDTLogSampler.h"
-#import "FirebasePerformance/Sources/Loggers/FPRGDTLogger.h"
-#import "FirebasePerformance/Sources/Loggers/FPRGDTLogger_Private.h"
-#import "FirebasePerformance/Sources/Loggers/FPRGDTRateLimiter.h"
+#import "FPRNanoPbUtils.h"
+#import "Loggers/FPRGDTLogSampler.h"
+#import "Loggers/FPRGDTLogger.h"
+#import "Loggers/FPRGDTLogger_Private.h"
+#import "Loggers/FPRGDTRateLimiter.h"
 
-#import "FirebasePerformance/Tests/Unit/FPRTestUtils.h"
+#import "FPRTestUtils.h"
 
 #import <GoogleDataTransport/GoogleDataTransport.h>
-#import "GoogleDataTransport/GDTCORLibrary/Private/GDTCORTransport_Private.h"
-#import "SharedTestUtilities/GDTCORTransportFake.h"
+#import "GDTCORTransportFake.h"
+
+@interface GDTCORTransport (Testing)
+@property(nonatomic) NSArray<id<GDTCOREventTransformer>> *transformers;
+@end
 
 @interface FPRGDTLoggerTest : XCTestCase
 

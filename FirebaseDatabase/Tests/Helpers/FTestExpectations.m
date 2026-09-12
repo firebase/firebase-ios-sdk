@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/Tests/Helpers/FTestExpectations.h"
-#import "FirebaseDatabase/Sources/Public/FirebaseDatabase/FIRDataSnapshot.h"
+#import "FTestExpectations.h"
+#import <FirebaseDatabase/FIRDataSnapshot.h>
 
 @interface FExpectation : NSObject
 

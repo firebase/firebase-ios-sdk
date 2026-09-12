@@ -14,7 +14,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FirebasePerformance/Sources/Common/FPRConsoleURLGenerator.h"
+#import "Common/FPRConsoleURLGenerator.h"
 
 @interface FPRConsoleURLGeneratorTest : XCTestCase
 

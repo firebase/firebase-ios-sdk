@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/Sources/Core/Utilities/FPath.h"
-#import "FirebaseDatabase/Sources/FIndex.h"
+#import "Core/Utilities/FPath.h"
+#import "FIndex.h"
 #import <Foundation/Foundation.h>
 
 @interface FPathIndex : NSObject <FIndex>

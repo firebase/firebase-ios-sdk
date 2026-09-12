@@ -16,12 +16,12 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
-#import "FirebaseDatabase/Sources/Api/Private/FIRDatabaseQuery_Private.h"
-#import "FirebaseDatabase/Sources/Realtime/FConnection.h"
-#import "FirebaseDatabase/Tests/Helpers/FTestBase.h"
-#import "FirebaseDatabase/Tests/Helpers/FTestHelpers.h"
+#import "Api/Private/FIRDatabaseQuery_Private.h"
+#import "FTestBase.h"
+#import "FTestHelpers.h"
+#import "Realtime/FConnection.h"
 
 @interface FConnectionTest : FTestBase
 

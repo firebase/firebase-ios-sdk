@@ -16,20 +16,20 @@
 
 #import <GoogleUtilities/GULUserDefaults.h>
 
-#import "FirebasePerformance/Sources/Configurations/FPRConfigurations+Private.h"
-#import "FirebasePerformance/Sources/Configurations/FPRConfigurations.h"
-#import "FirebasePerformance/Sources/Configurations/FPRRemoteConfigFlags+Private.h"
-#import "FirebasePerformance/Sources/Configurations/FPRRemoteConfigFlags.h"
-#import "FirebasePerformance/Sources/Gauges/FPRGaugeManager+Private.h"
-#import "FirebasePerformance/Sources/Gauges/FPRGaugeManager.h"
-#import "FirebasePerformance/Sources/Public/FirebasePerformance/FIRPerformance.h"
+#import <FirebasePerformance/FIRPerformance.h>
+#import "Configurations/FPRConfigurations+Private.h"
+#import "Configurations/FPRConfigurations.h"
+#import "Configurations/FPRRemoteConfigFlags+Private.h"
+#import "Configurations/FPRRemoteConfigFlags.h"
+#import "Gauges/FPRGaugeManager+Private.h"
+#import "Gauges/FPRGaugeManager.h"
 
-#import "FirebasePerformance/Sources/Gauges/CPU/FPRCPUGaugeCollector+Private.h"
+#import "Gauges/CPU/FPRCPUGaugeCollector+Private.h"
 
-#import "FirebasePerformance/Tests/Unit/Configurations/FPRFakeRemoteConfig.h"
+#import "Configurations/FPRFakeRemoteConfig.h"
 
 #import <OCMock/OCMock.h>
-#import "FirebasePerformance/Tests/Unit/FPRTestCase.h"
+#import "FPRTestCase.h"
 
 @interface FPRGaugeManagerTests : FPRTestCase
 

@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebasePerformance/Sources/Instrumentation/Network/Delegates/FPRNSURLSessionDelegate.h"
+#import "Instrumentation/Network/Delegates/FPRNSURLSessionDelegate.h"
 
-#import "FirebasePerformance/Sources/FPRConsoleLogger.h"
-#import "FirebasePerformance/Sources/Instrumentation/FPRNetworkTrace.h"
+#import "FPRConsoleLogger.h"
+#import "Instrumentation/FPRNetworkTrace.h"
 
 @implementation FPRNSURLSessionDelegate
 

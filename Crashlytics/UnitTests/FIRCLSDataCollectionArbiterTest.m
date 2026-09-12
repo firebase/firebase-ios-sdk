@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "Crashlytics/Crashlytics/DataCollection/FIRCLSDataCollectionArbiter.h"
+#import "Crashlytics/DataCollection/FIRCLSDataCollectionArbiter.h"
 
 #import <XCTest/XCTest.h>
 
@@ -22,8 +22,8 @@
 #import "FBLPromises.h"
 #endif
 
-#import "Crashlytics/Crashlytics/FIRCLSUserDefaults/FIRCLSUserDefaults.h"
-#import "Crashlytics/UnitTests/Mocks/FIRAppFake.h"
+#import "Crashlytics/FIRCLSUserDefaults/FIRCLSUserDefaults.h"
+#import "FIRAppFake.h"
 
 #pragma mark - Tests for FIRCLSDataCollectionArbiter
 

@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/Sources/Core/FRepoInfo.h"
-#import "FirebaseDatabase/Sources/Core/Utilities/FPath.h"
+#import "Core/FRepoInfo.h"
+#import "Core/Utilities/FPath.h"
 
 @interface FParsedUrl : NSObject
 

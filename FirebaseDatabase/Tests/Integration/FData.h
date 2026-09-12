@@ -15,7 +15,7 @@
  */
 
 #import <XCTest/XCTest.h>
-#import "FirebaseDatabase/Tests/Helpers/FTestBase.h"
+#import "FTestBase.h"
 
 @interface FData : FTestBase
 

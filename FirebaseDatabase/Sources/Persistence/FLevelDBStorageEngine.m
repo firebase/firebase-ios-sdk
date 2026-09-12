@@ -16,18 +16,18 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FirebaseDatabase/Sources/Persistence/FLevelDBStorageEngine.h"
+#import "Persistence/FLevelDBStorageEngine.h"
 
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
-#import "FirebaseDatabase/Sources/Core/FQueryParams.h"
-#import "FirebaseDatabase/Sources/Core/FWriteRecord.h"
-#import "FirebaseDatabase/Sources/Persistence/FPendingPut.h"
-#import "FirebaseDatabase/Sources/Persistence/FPruneForest.h"
-#import "FirebaseDatabase/Sources/Persistence/FTrackedQuery.h"
-#import "FirebaseDatabase/Sources/Snapshot/FEmptyNode.h"
-#import "FirebaseDatabase/Sources/Snapshot/FSnapshotUtilities.h"
-#import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
-#import "FirebaseDatabase/Sources/third_party/Wrap-leveldb/APLevelDB.h"
+#import "APLevelDB.h"
+#import "Core/FQueryParams.h"
+#import "Core/FWriteRecord.h"
+#import "Persistence/FPendingPut.h"
+#import "Persistence/FPruneForest.h"
+#import "Persistence/FTrackedQuery.h"
+#import "Snapshot/FEmptyNode.h"
+#import "Snapshot/FSnapshotUtilities.h"
+#import "Utilities/FUtilities.h"
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
 @interface FLevelDBStorageEngine ()
 

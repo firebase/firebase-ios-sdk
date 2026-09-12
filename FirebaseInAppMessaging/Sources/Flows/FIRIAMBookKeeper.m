@@ -19,10 +19,10 @@
 
 #import <GoogleUtilities/GULUserDefaults.h>
 
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
-#import "FirebaseInAppMessaging/Sources/FIRCore+InAppMessaging.h"
-#import "FirebaseInAppMessaging/Sources/Private/Flows/FIRIAMBookKeeper.h"
+#import "FIRCore+InAppMessaging.h"
+#import "Private/Flows/FIRIAMBookKeeper.h"
 
 NSString *const FIRIAM_UserDefaultsKeyForImpressions = @"firebase-iam-message-impressions";
 NSString *const FIRIAM_UserDefaultsKeyForLastImpressionTimestamp =

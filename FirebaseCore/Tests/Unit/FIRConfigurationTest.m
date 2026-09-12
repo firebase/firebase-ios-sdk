@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebaseCore/Sources/FIRConfigurationInternal.h"
+#import "FIRConfigurationInternal.h"
 
-#import "FirebaseCore/Tests/Unit/FIRTestCase.h"
+#import "FIRTestCase.h"
 
 @interface FIRConfigurationTest : FIRTestCase
 

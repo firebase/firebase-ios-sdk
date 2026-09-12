@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebasePerformance/Sources/Timer/FPRCounterList.h"
+#import "Timer/FPRCounterList.h"
 
-#import "FirebasePerformance/Sources/AppActivity/FPRSessionDetails.h"
+#import "AppActivity/FPRSessionDetails.h"
 
-#import "FirebasePerformance/Sources/AppActivity/FPRTraceBackgroundActivityTracker.h"
+#import "AppActivity/FPRTraceBackgroundActivityTracker.h"
 
-#import "FirebasePerformance/Sources/FPRClient+Private.h"
-#import "FirebasePerformance/Sources/FPRClient.h"
+#import "FPRClient+Private.h"
+#import "FPRClient.h"
 
 /**
  * Extension that is added on top of the class FIRTrace to make the private properties visible

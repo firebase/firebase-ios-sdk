@@ -17,12 +17,12 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
-#import "FirebaseInAppMessaging/Sources/Private/Data/FIRIAMMessageContentDataWithImageURL.h"
-#import "FirebaseInAppMessaging/Sources/Private/Data/FIRIAMMessageDefinition.h"
-#import "FirebaseInAppMessaging/Sources/Private/DisplayTrigger/FIRIAMDisplayTriggerDefinition.h"
-#import "FirebaseInAppMessaging/Sources/Private/Flows/FIRIAMDisplayCheckOnAnalyticEventsFlow.h"
-#import "FirebaseInAppMessaging/Sources/Private/Flows/FIRIAMMessageClientCache.h"
-#import "FirebaseInAppMessaging/Sources/Private/Util/FIRIAMTimeFetcher.h"
+#import "Private/Data/FIRIAMMessageContentDataWithImageURL.h"
+#import "Private/Data/FIRIAMMessageDefinition.h"
+#import "Private/DisplayTrigger/FIRIAMDisplayTriggerDefinition.h"
+#import "Private/Flows/FIRIAMDisplayCheckOnAnalyticEventsFlow.h"
+#import "Private/Flows/FIRIAMMessageClientCache.h"
+#import "Private/Util/FIRIAMTimeFetcher.h"
 
 @interface FIRIAMMessageClientCacheTests : XCTestCase
 @property id<FIRIAMBookKeeper> mockBookkeeper;

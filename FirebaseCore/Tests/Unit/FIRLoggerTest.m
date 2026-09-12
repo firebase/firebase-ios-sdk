@@ -15,13 +15,13 @@
 #ifdef DEBUG
 // The tests depend upon library methods only built with #ifdef DEBUG
 
-#import "FirebaseCore/Tests/Unit/FIRTestCase.h"
+#import "FIRTestCase.h"
 
 // TODO - FIRLoggerTest should be split into a separate FIRLoggerTest and GULLoggerTest.
 // No test should include both includes.
+#import <FirebaseCore/FIRLoggerLevel.h>
+#import <FirebaseCoreExtension/FIRLogger.h>
 #import <GoogleUtilities/GULLogger.h>
-#import "FirebaseCore/Extension/FIRLogger.h"
-#import "FirebaseCore/Sources/Public/FirebaseCore/FIRLoggerLevel.h"
 
 #import <asl.h>
 

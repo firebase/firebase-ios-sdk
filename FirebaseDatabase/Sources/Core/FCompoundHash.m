@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/Sources/Core/FCompoundHash.h"
-#import "FirebaseDatabase/Sources/Snapshot/FChildrenNode.h"
-#import "FirebaseDatabase/Sources/Snapshot/FLeafNode.h"
-#import "FirebaseDatabase/Sources/Snapshot/FSnapshotUtilities.h"
-#import "FirebaseDatabase/Sources/Utilities/FStringUtilities.h"
+#import "Core/FCompoundHash.h"
+#import "Snapshot/FChildrenNode.h"
+#import "Snapshot/FLeafNode.h"
+#import "Snapshot/FSnapshotUtilities.h"
+#import "Utilities/FStringUtilities.h"
 
 @interface FCompoundHashBuilder ()
 

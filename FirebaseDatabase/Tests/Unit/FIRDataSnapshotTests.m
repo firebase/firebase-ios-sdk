@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/Tests/Unit/FIRDataSnapshotTests.h"
-#import "FirebaseDatabase/Sources/Api/Private/FIRDataSnapshot_Private.h"
-#import "FirebaseDatabase/Sources/FIRDatabaseConfig_Private.h"
-#import "FirebaseDatabase/Sources/FPathIndex.h"
-#import "FirebaseDatabase/Sources/FValueIndex.h"
-#import "FirebaseDatabase/Sources/Public/FirebaseDatabase/FIRDatabaseReference.h"
-#import "FirebaseDatabase/Sources/Snapshot/FChildrenNode.h"
-#import "FirebaseDatabase/Sources/Snapshot/FEmptyNode.h"
-#import "FirebaseDatabase/Sources/Snapshot/FLeafNode.h"
-#import "FirebaseDatabase/Sources/Snapshot/FSnapshotUtilities.h"
-#import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
-#import "FirebaseDatabase/Sources/third_party/FImmutableSortedDictionary/FImmutableSortedDictionary/FImmutableSortedDictionary.h"
-#import "FirebaseDatabase/Tests/Helpers/FTestHelpers.h"
+#import "FIRDataSnapshotTests.h"
+#import <FirebaseDatabase/FIRDatabaseReference.h>
+#import "Api/Private/FIRDataSnapshot_Private.h"
+#import "FIRDatabaseConfig_Private.h"
+#import "FImmutableSortedDictionary.h"
+#import "FPathIndex.h"
+#import "FTestHelpers.h"
+#import "FValueIndex.h"
+#import "Snapshot/FChildrenNode.h"
+#import "Snapshot/FEmptyNode.h"
+#import "Snapshot/FLeafNode.h"
+#import "Snapshot/FSnapshotUtilities.h"
+#import "Utilities/FUtilities.h"
 
 @implementation FIRDataSnapshotTests
 

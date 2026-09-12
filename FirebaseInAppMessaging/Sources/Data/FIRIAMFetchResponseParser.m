@@ -17,16 +17,16 @@
 #import <TargetConditionals.h>
 #if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
 
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
-#import "FirebaseInAppMessaging/Sources/FIRCore+InAppMessaging.h"
-#import "FirebaseInAppMessaging/Sources/Private/Data/FIRIAMFetchResponseParser.h"
-#import "FirebaseInAppMessaging/Sources/Private/Data/FIRIAMMessageContentData.h"
-#import "FirebaseInAppMessaging/Sources/Private/Data/FIRIAMMessageContentDataWithImageURL.h"
-#import "FirebaseInAppMessaging/Sources/Private/Data/FIRIAMMessageDefinition.h"
-#import "FirebaseInAppMessaging/Sources/Private/DisplayTrigger/FIRIAMDisplayTriggerDefinition.h"
-#import "FirebaseInAppMessaging/Sources/Private/Util/FIRIAMTimeFetcher.h"
-#import "FirebaseInAppMessaging/Sources/Util/UIColor+FIRIAMHexString.h"
+#import "FIRCore+InAppMessaging.h"
+#import "Private/Data/FIRIAMFetchResponseParser.h"
+#import "Private/Data/FIRIAMMessageContentData.h"
+#import "Private/Data/FIRIAMMessageContentDataWithImageURL.h"
+#import "Private/Data/FIRIAMMessageDefinition.h"
+#import "Private/DisplayTrigger/FIRIAMDisplayTriggerDefinition.h"
+#import "Private/Util/FIRIAMTimeFetcher.h"
+#import "Util/UIColor+FIRIAMHexString.h"
 
 #import "FirebaseABTesting/Sources/Private/ABTExperimentPayload.h"
 

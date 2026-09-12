@@ -17,10 +17,10 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
-#import "FirebaseRemoteConfig/Sources/Private/RCNConfigSettings.h"
-#import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
-#import "FirebaseRemoteConfig/Sources/RCNConfigDBManager.h"
-#import "FirebaseRemoteConfig/Tests/Unit/RCNTestUtilities.h"
+#import "FirebaseRemoteConfig/RCNConfigSettings.h"
+#import "RCNConfigConstants.h"
+#import "RCNConfigDBManager.h"
+#import "RCNTestUtilities.h"
 
 @interface RCNConfigSettings (ExposedTestCase)
 - (RCNConfigFetchRequest *)nextRequestWithUserProperties:(NSDictionary *)userProperties

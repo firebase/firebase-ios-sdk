@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/Sources/Core/FListenProvider.h"
-#import "FirebaseDatabase/Sources/Public/FirebaseDatabase/FIRDatabaseQuery.h"
+#import "Core/FListenProvider.h"
+#import "FirebaseDatabase/FIRDatabaseQuery.h"
 
 @implementation FListenProvider
 

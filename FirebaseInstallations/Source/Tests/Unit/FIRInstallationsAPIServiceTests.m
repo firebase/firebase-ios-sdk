@@ -21,14 +21,14 @@
 @import FirebaseCoreInternal;
 
 #import "FBLPromise+Testing.h"
-#import "FirebaseInstallations/Source/Tests/Utils/FIRInstallationsItem+Tests.h"
+#import "FIRInstallationsItem+Tests.h"
 
-#import "FirebaseInstallations/Source/Library/Errors/FIRInstallationsErrorUtil.h"
-#import "FirebaseInstallations/Source/Library/Errors/FIRInstallationsHTTPError.h"
-#import "FirebaseInstallations/Source/Library/InstallationsAPI/FIRInstallationsAPIService.h"
-#import "FirebaseInstallations/Source/Library/InstallationsStore/FIRInstallationsStoredAuthToken.h"
+#import "FIRInstallationsAPIService.h"
+#import "FIRInstallationsErrorUtil.h"
+#import "FIRInstallationsHTTPError.h"
+#import "FIRInstallationsStoredAuthToken.h"
 
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
 typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
 

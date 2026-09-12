@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "Crashlytics/Crashlytics/Controllers/FIRCLSReportManager.h"
-#import "Crashlytics/Crashlytics/Controllers/FIRCLSReportUploader.h"
-#import "Crashlytics/Crashlytics/Models/FIRCLSLaunchMarkerModel.h"
+#import "Crashlytics/Controllers/FIRCLSReportManager.h"
+#import "Crashlytics/Controllers/FIRCLSReportUploader.h"
+#import "Crashlytics/Models/FIRCLSLaunchMarkerModel.h"
 
 @class FIRCLSInstallIdentifierModel;
 

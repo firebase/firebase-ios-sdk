@@ -12,28 +12,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebasePerformance/Sources/FPRClient.h"
-#import "FirebasePerformance/Sources/FPRClient+Private.h"
+#import "FPRClient.h"
+#import "FPRClient+Private.h"
 
-#import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
-#import "FirebasePerformance/Sources/AppActivity/FPRScreenTraceTracker+Private.h"
-#import "FirebasePerformance/Sources/AppActivity/FPRScreenTraceTracker.h"
-#import "FirebasePerformance/Sources/AppActivity/FPRSessionManager+Private.h"
-#import "FirebasePerformance/Sources/AppActivity/FPRTraceBackgroundActivityTracker.h"
-#import "FirebasePerformance/Sources/Common/FPRConsoleURLGenerator.h"
-#import "FirebasePerformance/Sources/Common/FPRConstants.h"
-#import "FirebasePerformance/Sources/Configurations/FPRConfigurations.h"
-#import "FirebasePerformance/Sources/Configurations/FPRRemoteConfigFlags.h"
-#import "FirebasePerformance/Sources/FPRConsoleLogger.h"
-#import "FirebasePerformance/Sources/FPRNanoPbUtils.h"
-#import "FirebasePerformance/Sources/Instrumentation/FPRInstrumentation.h"
-#import "FirebasePerformance/Sources/Loggers/FPRGDTLogger.h"
-#import "FirebasePerformance/Sources/Timer/FIRTrace+Internal.h"
-#import "FirebasePerformance/Sources/Timer/FIRTrace+Private.h"
+#import <FirebaseInstallations/FirebaseInstallations.h>
+#import "AppActivity/FPRScreenTraceTracker+Private.h"
+#import "AppActivity/FPRScreenTraceTracker.h"
+#import "AppActivity/FPRSessionManager+Private.h"
+#import "AppActivity/FPRTraceBackgroundActivityTracker.h"
+#import "Common/FPRConsoleURLGenerator.h"
+#import "Common/FPRConstants.h"
+#import "Configurations/FPRConfigurations.h"
+#import "Configurations/FPRRemoteConfigFlags.h"
+#import "FPRConsoleLogger.h"
+#import "FPRNanoPbUtils.h"
+#import "Instrumentation/FPRInstrumentation.h"
+#import "Loggers/FPRGDTLogger.h"
+#import "Timer/FIRTrace+Internal.h"
+#import "Timer/FIRTrace+Private.h"
 
-#import "FirebasePerformance/Sources/Public/FirebasePerformance/FIRPerformance.h"
+#import "FirebasePerformance/FIRPerformance.h"
 
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
 @import FirebaseSessions;
 

@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebasePerformance/Sources/FPRClient.h"
-#import "FirebasePerformance/Sources/Protogen/nanopb/perf_metric.nanopb.h"
+#import "FPRClient.h"
+#import "perf_metric.nanopb.h"
 
 @class FPRGDTLogger;
 @class FPRConfigurations;

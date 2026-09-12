@@ -17,15 +17,15 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
-#import "FirebaseMessaging/Sources/FIRMessagingUtilities.h"
-#import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessaging.h"
-#import "FirebaseMessaging/Sources/Token/FIRMessagingBackupExcludedPlist.h"
-#import "FirebaseMessaging/Sources/Token/FIRMessagingCheckinPreferences.h"
-#import "FirebaseMessaging/Sources/Token/FIRMessagingCheckinService.h"
-#import "FirebaseMessaging/Sources/Token/FIRMessagingCheckinStore.h"
-#import "FirebaseMessaging/Sources/Token/FIRMessagingTokenInfo.h"
-#import "FirebaseMessaging/Sources/Token/FIRMessagingTokenStore.h"
-#import "FirebaseMessaging/Tests/UnitTests/FIRMessagingFakeKeychain.h"
+#import <FirebaseMessaging/FIRMessaging.h>
+#import "FIRMessagingBackupExcludedPlist.h"
+#import "FIRMessagingCheckinPreferences.h"
+#import "FIRMessagingCheckinService.h"
+#import "FIRMessagingCheckinStore.h"
+#import "FIRMessagingFakeKeychain.h"
+#import "FIRMessagingTokenInfo.h"
+#import "FIRMessagingTokenStore.h"
+#import "FIRMessagingUtilities.h"
 
 static NSString *const kSubDirectoryName = @"FirebaseMessagingStoreTest";
 

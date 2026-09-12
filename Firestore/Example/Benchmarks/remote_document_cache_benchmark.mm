@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
+#import <FirebaseCoreExtension/FIRAppInternal.h>
 #import <FirebaseFirestore/FirebaseFirestore.h>
-#import "FirebaseCore/Extension/FIRAppInternal.h"
 
 #include "Firestore/core/src/util/autoid.h"
 #include "Firestore/core/src/util/hard_assert.h"

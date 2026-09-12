@@ -14,11 +14,11 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FirebasePerformance/Sources/FPRURLFilter.h"
-#import "FirebasePerformance/Sources/FPRURLFilter_Private.h"
+#import "FPRURLFilter.h"
+#import "FPRURLFilter_Private.h"
 
-#import "FirebasePerformance/Tests/Unit/FPRTestUtils.h"
-#import "FirebasePerformance/Tests/Unit/Fakes/NSBundleFake.h"
+#import "FPRTestUtils.h"
+#import "Fakes/NSBundleFake.h"
 
 #import <GoogleDataTransport/GoogleDataTransport.h>
 

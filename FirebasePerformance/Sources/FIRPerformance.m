@@ -12,18 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebasePerformance/Sources/Public/FirebasePerformance/FIRPerformance.h"
-#import "FirebasePerformance/Sources/FIRPerformance+Internal.h"
-#import "FirebasePerformance/Sources/FIRPerformance_Private.h"
+#import "FirebasePerformance/FIRPerformance.h"
+#import "FIRPerformance+Internal.h"
+#import "FIRPerformance_Private.h"
 
-#import "FirebasePerformance/Sources/Common/FPRConstants.h"
-#import "FirebasePerformance/Sources/Configurations/FPRConfigurations.h"
-#import "FirebasePerformance/Sources/FPRClient+Private.h"
-#import "FirebasePerformance/Sources/FPRClient.h"
-#import "FirebasePerformance/Sources/FPRConsoleLogger.h"
-#import "FirebasePerformance/Sources/FPRDataUtils.h"
-#import "FirebasePerformance/Sources/Instrumentation/FPRInstrumentation.h"
-#import "FirebasePerformance/Sources/Timer/FIRTrace+Internal.h"
+#import "Common/FPRConstants.h"
+#import "Configurations/FPRConfigurations.h"
+#import "FPRClient+Private.h"
+#import "FPRClient.h"
+#import "FPRConsoleLogger.h"
+#import "FPRDataUtils.h"
+#import "Instrumentation/FPRInstrumentation.h"
+#import "Timer/FIRTrace+Internal.h"
 
 static NSString *const kFirebasePerfErrorDomain = @"com.firebase.perf";
 

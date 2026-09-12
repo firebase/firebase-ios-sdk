@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#import "FirebaseRemoteConfig/Sources/RCNPersonalization.h"
+#import "RCNPersonalization.h"
 
-#import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
-#import "FirebaseRemoteConfig/Sources/RCNConfigValue_Internal.h"
+#import "FirebaseRemoteConfig/RCNConfigValue_Internal.h"
+#import "RCNConfigConstants.h"
 
 @implementation RCNPersonalization
 

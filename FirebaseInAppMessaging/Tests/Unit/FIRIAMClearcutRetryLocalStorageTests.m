@@ -17,8 +17,8 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
-#import "FirebaseInAppMessaging/Sources/Analytics/FIRIAMClearcutLogStorage.h"
-#import "FirebaseInAppMessaging/Sources/Private/Util/FIRIAMTimeFetcher.h"
+#import "Analytics/FIRIAMClearcutLogStorage.h"
+#import "Private/Util/FIRIAMTimeFetcher.h"
 
 @interface FIRIAMClearcutLogStorage (UnitTestAccess)
 @property(nonatomic) NSMutableArray<FIRIAMClearcutLogRecord *> *records;

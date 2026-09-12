@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebaseABTesting/Sources/Private/ABTExperimentPayload.h"
+#import "FirebaseABTesting/ABTExperimentPayload.h"
 
 static NSString *const kExperimentPayloadKeyExperimentID = @"experimentId";
 static NSString *const kExperimentPayloadKeyVariantID = @"variantId";

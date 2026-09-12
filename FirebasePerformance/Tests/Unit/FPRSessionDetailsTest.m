@@ -14,7 +14,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FirebasePerformance/Sources/AppActivity/FPRSessionDetails.h"
+#import "AppActivity/FPRSessionDetails.h"
 
 @interface FPRSessionDetailsTest : XCTestCase
 

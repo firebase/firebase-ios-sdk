@@ -16,11 +16,11 @@
 
 #import <UserNotifications/UserNotifications.h>
 
-#import "FirebaseMessaging/Sources/FIRMessagingContextManagerService.h"
+#import "FIRMessagingContextManagerService.h"
 
-#import "FirebaseMessaging/Sources/FIRMessagingDefines.h"
-#import "FirebaseMessaging/Sources/FIRMessagingLogger.h"
-#import "FirebaseMessaging/Sources/FIRMessagingUtilities.h"
+#import "FIRMessagingDefines.h"
+#import "FIRMessagingLogger.h"
+#import "FIRMessagingUtilities.h"
 
 #import <GoogleUtilities/GULAppDelegateSwizzler.h>
 

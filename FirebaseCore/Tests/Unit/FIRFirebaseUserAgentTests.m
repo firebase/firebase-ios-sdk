@@ -15,10 +15,10 @@
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import <XCTest/XCTest.h>
 
-#import "FirebaseCore/Tests/Unit/FIRTestCase.h"
-#import "FirebaseCore/Tests/Unit/FIRTestComponents.h"
+#import "FIRTestCase.h"
+#import "FIRTestComponents.h"
 
-#import "FirebaseCore/Extension/FIRAppInternal.h"
+#import <FirebaseCoreExtension/FIRAppInternal.h>
 
 @interface FIRFirebaseUserAgentTests : FIRTestCase
 

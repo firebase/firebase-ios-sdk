@@ -13,17 +13,17 @@
 // limitations under the License.
 #import <Foundation/Foundation.h>
 
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
+#import <FirebaseInstallations/FirebaseInstallations.h>
 #import <GoogleUtilities/GULAppDelegateSwizzler.h>
 #import <GoogleUtilities/GULUserDefaults.h>
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
-#import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
 
-#import "FirebaseAppDistribution/Sources/FIRAppDistributionMachO.h"
-#import "FirebaseAppDistribution/Sources/FIRAppDistributionUIService.h"
-#import "FirebaseAppDistribution/Sources/FIRFADApiService.h"
-#import "FirebaseAppDistribution/Sources/FIRFADLogger.h"
-#import "FirebaseAppDistribution/Sources/Private/FIRAppDistribution.h"
-#import "FirebaseAppDistribution/Sources/Private/FIRAppDistributionRelease.h"
+#import "FIRAppDistributionMachO.h"
+#import "FIRAppDistributionUIService.h"
+#import "FIRFADApiService.h"
+#import "FIRFADLogger.h"
+#import "FirebaseAppDistribution/FIRAppDistribution.h"
+#import "FirebaseAppDistribution/FIRAppDistributionRelease.h"
 
 /// Empty protocol to register with FirebaseCore's component system.
 @protocol FIRAppDistributionInstanceProvider <NSObject>

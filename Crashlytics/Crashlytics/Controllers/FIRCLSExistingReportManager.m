@@ -12,19 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "Crashlytics/Crashlytics/Controllers/FIRCLSExistingReportManager.h"
+#import "Crashlytics/Controllers/FIRCLSExistingReportManager.h"
 
-#import "Crashlytics/Crashlytics/Controllers/FIRCLSManagerData.h"
-#import "Crashlytics/Crashlytics/Controllers/FIRCLSReportUploader.h"
-#import "Crashlytics/Crashlytics/DataCollection/FIRCLSDataCollectionArbiter.h"
-#import "Crashlytics/Crashlytics/DataCollection/FIRCLSDataCollectionToken.h"
-#import "Crashlytics/Crashlytics/Helpers/FIRCLSLogger.h"
-#import "Crashlytics/Crashlytics/Models/FIRCLSFileManager.h"
-#import "Crashlytics/Crashlytics/Models/FIRCLSInternalReport.h"
-#import "Crashlytics/Crashlytics/Models/FIRCLSSettings.h"
-#import "Crashlytics/Crashlytics/Private/FIRCLSOnDemandModel_Private.h"
-#import "Crashlytics/Crashlytics/Private/FIRCrashlyticsReport_Private.h"
-#import "Crashlytics/Crashlytics/Public/FirebaseCrashlytics/FIRCrashlyticsReport.h"
+#import "Crashlytics/Controllers/FIRCLSManagerData.h"
+#import "Crashlytics/Controllers/FIRCLSReportUploader.h"
+#import "Crashlytics/DataCollection/FIRCLSDataCollectionArbiter.h"
+#import "Crashlytics/DataCollection/FIRCLSDataCollectionToken.h"
+#import "Crashlytics/Helpers/FIRCLSLogger.h"
+#import "Crashlytics/Models/FIRCLSFileManager.h"
+#import "Crashlytics/Models/FIRCLSInternalReport.h"
+#import "Crashlytics/Models/FIRCLSSettings.h"
+#import "Crashlytics/Private/FIRCLSOnDemandModel_Private.h"
+#import "Crashlytics/Private/FIRCrashlyticsReport_Private.h"
+#import "FirebaseCrashlytics/FIRCrashlyticsReport.h"
 
 // This value should stay in sync with the Android SDK
 NSUInteger const FIRCLSMaxUnsentReports = 4;

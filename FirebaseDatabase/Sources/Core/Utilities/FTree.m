@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/Sources/Core/Utilities/FTree.h"
-#import "FirebaseDatabase/Sources/Core/Utilities/FPath.h"
-#import "FirebaseDatabase/Sources/Core/Utilities/FTreeNode.h"
-#import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
+#import "Core/Utilities/FTree.h"
+#import "Core/Utilities/FPath.h"
+#import "Core/Utilities/FTreeNode.h"
+#import "Utilities/FUtilities.h"
 
 @implementation FTree
 

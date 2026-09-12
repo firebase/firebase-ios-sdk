@@ -19,31 +19,31 @@
 #error FIRMessagingLib should be compiled with ARC.
 #endif
 
-#import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessaging.h"
+#import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
+#import <FirebaseInstallations/FirebaseInstallations.h>
+#import <FirebaseMessaging/FIRMessaging.h>
+#import <FirebaseMessagingInterop/FIRMessagingInterop.h>
 #import <GoogleUtilities/GULAppDelegateSwizzler.h>
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import <GoogleUtilities/GULReachabilityChecker.h>
 #import <GoogleUtilities/GULUserDefaults.h>
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
-#import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
-#import "FirebaseMessaging/Interop/FIRMessagingInterop.h"
-#import "FirebaseMessaging/Sources/FIRMessagingAnalytics.h"
-#import "FirebaseMessaging/Sources/FIRMessagingCode.h"
-#import "FirebaseMessaging/Sources/FIRMessagingConstants.h"
-#import "FirebaseMessaging/Sources/FIRMessagingContextManagerService.h"
-#import "FirebaseMessaging/Sources/FIRMessagingDefines.h"
-#import "FirebaseMessaging/Sources/FIRMessagingLogger.h"
-#import "FirebaseMessaging/Sources/FIRMessagingPubSub.h"
-#import "FirebaseMessaging/Sources/FIRMessagingRemoteNotificationsProxy.h"
-#import "FirebaseMessaging/Sources/FIRMessagingRmqManager.h"
-#import "FirebaseMessaging/Sources/FIRMessagingSyncMessageManager.h"
-#import "FirebaseMessaging/Sources/FIRMessagingUtilities.h"
-#import "FirebaseMessaging/Sources/FIRMessaging_Private.h"
-#import "FirebaseMessaging/Sources/NSError+FIRMessaging.h"
-#import "FirebaseMessaging/Sources/Token/FIRMessagingAuthService.h"
-#import "FirebaseMessaging/Sources/Token/FIRMessagingTokenInfo.h"
-#import "FirebaseMessaging/Sources/Token/FIRMessagingTokenManager.h"
-#import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
+#import "FIRMessagingAnalytics.h"
+#import "FIRMessagingCode.h"
+#import "FIRMessagingConstants.h"
+#import "FIRMessagingContextManagerService.h"
+#import "FIRMessagingDefines.h"
+#import "FIRMessagingLogger.h"
+#import "FIRMessagingPubSub.h"
+#import "FIRMessagingRemoteNotificationsProxy.h"
+#import "FIRMessagingRmqManager.h"
+#import "FIRMessagingSyncMessageManager.h"
+#import "FIRMessagingUtilities.h"
+#import "FIRMessaging_Private.h"
+#import "NSError+FIRMessaging.h"
+#import "Token/FIRMessagingAuthService.h"
+#import "Token/FIRMessagingTokenInfo.h"
+#import "Token/FIRMessagingTokenManager.h"
 
 static NSString *const kFIRMessagingMessageViaAPNSRootKey = @"aps";
 static NSString *const kFIRMessagingReachabilityHostname = @"www.google.com";

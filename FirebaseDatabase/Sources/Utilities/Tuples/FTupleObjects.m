@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/Sources/Utilities/Tuples/FTupleObjects.h"
+#import "Utilities/Tuples/FTupleObjects.h"
 
 @implementation FTupleObjects
 

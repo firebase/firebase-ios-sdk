@@ -39,9 +39,7 @@ See more product details at https://firebase.google.com/products/in-app-messagin
 	  base_dir + "Sources/Runtime/**/*.[cmh]",
 	  base_dir + "Sources/Util/**/*.[cmh]",
     base_dir + "Swift/Source/**/*.swift",
-    'Interop/Analytics/Public/*.h',
     'FirebaseABTesting/Sources/Private/*.h',
-    'FirebaseCore/Extension/*.h',
     'FirebaseInstallations/Source/Library/Private/*.h',
   ]
 
@@ -57,9 +55,7 @@ See more product details at https://firebase.google.com/products/in-app-messagin
 	  base_dir + "Sources/Runtime/**/*.[cmh]",
 	  base_dir + "Sources/Util/**/*.[cmh]",
     base_dir + "Swift/Source/**/*.swift",
-    'Interop/Analytics/Public/*.h',
     'FirebaseABTesting/Sources/Private/*.h',
-    'FirebaseCore/Extension/*.h',
     'FirebaseInstallations/Source/Library/Private/*.h',
   ]
 
@@ -81,6 +77,8 @@ See more product details at https://firebase.google.com/products/in-app-messagin
   s.framework = 'UIKit'
 
   s.dependency 'FirebaseCore', '~> 12.19.0'
+  s.dependency 'FirebaseCoreExtension', '~> 12.19.0'
+  s.dependency 'FirebaseAnalyticsInterop', '~> 12.19.0'
   s.dependency 'FirebaseInstallations', '~> 12.19.0'
   s.dependency 'FirebaseABTesting', '~> 12.19.0'
   s.dependency 'GoogleUtilities/Environment', '~> 8.1'

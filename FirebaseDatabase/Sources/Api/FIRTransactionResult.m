@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/Sources/Public/FirebaseDatabase/FIRTransactionResult.h"
-#import "FirebaseDatabase/Sources/Api/Private/FIRTransactionResult_Private.h"
+#import "FirebaseDatabase/FIRTransactionResult.h"
+#import "Api/Private/FIRTransactionResult_Private.h"
 
 @implementation FIRTransactionResult
 

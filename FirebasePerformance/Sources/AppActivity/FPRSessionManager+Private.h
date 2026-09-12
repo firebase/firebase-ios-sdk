@@ -14,8 +14,8 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FirebasePerformance/Sources/AppActivity/FPRSessionManager.h"
-#import "FirebasePerformance/Sources/Gauges/FPRGaugeManager.h"
+#import "AppActivity/FPRSessionManager.h"
+#import "Gauges/FPRGaugeManager.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

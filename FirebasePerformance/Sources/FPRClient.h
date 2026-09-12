@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebasePerformance/Sources/Public/FirebasePerformance/FIRTrace.h"
+#import "FirebasePerformance/FIRTrace.h"
 
-#import "FirebasePerformance/Sources/FPRConfiguration.h"
-#import "FirebasePerformance/Sources/Gauges/FPRGaugeManager.h"
-#import "FirebasePerformance/Sources/Instrumentation/FPRNetworkTrace.h"
+#import "FPRConfiguration.h"
+#import "Gauges/FPRGaugeManager.h"
+#import "Instrumentation/FPRNetworkTrace.h"
 
 /** NSError codes for FPRClient related errors */
 typedef NS_ENUM(NSInteger, FPRClientErrorCode) {

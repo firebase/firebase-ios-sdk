@@ -16,11 +16,11 @@
 
 #import <sqlite3.h>
 
-#import "FirebaseRemoteConfig/Sources/RCNConfigDBManager.h"
-#import "FirebaseRemoteConfig/Sources/RCNConfigDefines.h"
-#import "FirebaseRemoteConfig/Sources/RCNConfigValue_Internal.h"
+#import "FirebaseRemoteConfig/RCNConfigValue_Internal.h"
+#import "RCNConfigDBManager.h"
+#import "RCNConfigDefines.h"
 
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
 /// Using macro for securely preprocessing string concatenation in query before runtime.
 #define RCNTableNameMain "main"

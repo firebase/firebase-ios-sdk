@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebasePerformance/Sources/Instrumentation/FPRInstrument.h"
+#import "Instrumentation/FPRInstrument.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

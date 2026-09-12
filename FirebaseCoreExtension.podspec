@@ -27,8 +27,8 @@ Pod::Spec.new do |s|
     s.tvos.deployment_target = '15.0'
     s.watchos.deployment_target = '7.0'
 
-    s.source_files = 'FirebaseCore/Extension/*.[hm]'
-    s.public_header_files = 'FirebaseCore/Extension/*.h'
+    s.source_files = 'FirebaseCore/Extension/**/*.[hm]'
+    s.public_header_files = 'FirebaseCore/Extension/Public/FirebaseCoreExtension/*.h'
 
     s.resource_bundles = {
       "#{s.module_name}_Privacy" => 'FirebaseCore/Extension/Resources/PrivacyInfo.xcprivacy'

@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebasePerformance/Sources/Instrumentation/Network/Delegates/FPRNSURLConnectionDelegate.h"
+#import "Instrumentation/Network/Delegates/FPRNSURLConnectionDelegate.h"
 
-#import "FirebasePerformance/Sources/Instrumentation/FPRNetworkTrace.h"
+#import "Instrumentation/FPRNetworkTrace.h"
 
 @implementation FPRNSURLConnectionDelegate
 

@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/Tests/Integration/FPersist.h"
+#import "FPersist.h"
+#import <FirebaseDatabase/FIRDatabaseReference.h>
 #import <Foundation/Foundation.h>
 #import <XCTest/XCTest.h>
-#import "FirebaseDatabase/Sources/Api/Private/FIRDatabaseQuery_Private.h"
-#import "FirebaseDatabase/Sources/Api/Private/FIRDatabaseReference_Private.h"
-#import "FirebaseDatabase/Sources/Core/FRepo_Private.h"
-#import "FirebaseDatabase/Sources/Public/FirebaseDatabase/FIRDatabaseReference.h"
-#import "FirebaseDatabase/Tests/Helpers/FDevice.h"
-#import "FirebaseDatabase/Tests/Helpers/FTestHelpers.h"
+#import "Api/Private/FIRDatabaseQuery_Private.h"
+#import "Api/Private/FIRDatabaseReference_Private.h"
+#import "Core/FRepo_Private.h"
+#import "FDevice.h"
+#import "FTestHelpers.h"
 
 @implementation FPersist
 

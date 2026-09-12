@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "Crashlytics/Crashlytics/Components/FIRCLSApplication.h"
+#import "Crashlytics/Components/FIRCLSApplication.h"
 
-#import "Crashlytics/Crashlytics/Components/FIRCLSHost.h"
-#import "Crashlytics/Crashlytics/Helpers/FIRCLSUtility.h"
+#import "Crashlytics/Components/FIRCLSHost.h"
+#import "Crashlytics/Helpers/FIRCLSUtility.h"
 
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 

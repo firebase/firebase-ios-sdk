@@ -14,24 +14,24 @@
  * limitations under the License.
  */
 
-#import "FirebaseMessaging/Sources/Token/FIRMessagingTokenManager.h"
+#import "Token/FIRMessagingTokenManager.h"
 
-#import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
-#import "FirebaseMessaging/Sources/FIRMessagingConstants.h"
-#import "FirebaseMessaging/Sources/FIRMessagingDefines.h"
-#import "FirebaseMessaging/Sources/FIRMessagingLogger.h"
-#import "FirebaseMessaging/Sources/NSError+FIRMessaging.h"
-#import "FirebaseMessaging/Sources/Token/FIRMessagingAuthKeychain.h"
-#import "FirebaseMessaging/Sources/Token/FIRMessagingAuthService.h"
-#import "FirebaseMessaging/Sources/Token/FIRMessagingCheckinPreferences.h"
-#import "FirebaseMessaging/Sources/Token/FIRMessagingCheckinStore.h"
-#import "FirebaseMessaging/Sources/Token/FIRMessagingFIDRegisterOperation.h"
-#import "FirebaseMessaging/Sources/Token/FIRMessagingFIDUnregisterOperation.h"
-#import "FirebaseMessaging/Sources/Token/FIRMessagingTokenDeleteOperation.h"
-#import "FirebaseMessaging/Sources/Token/FIRMessagingTokenFetchOperation.h"
-#import "FirebaseMessaging/Sources/Token/FIRMessagingTokenInfo.h"
-#import "FirebaseMessaging/Sources/Token/FIRMessagingTokenOperation.h"
-#import "FirebaseMessaging/Sources/Token/FIRMessagingTokenStore.h"
+#import <FirebaseInstallations/FirebaseInstallations.h>
+#import "FIRMessagingConstants.h"
+#import "FIRMessagingDefines.h"
+#import "FIRMessagingLogger.h"
+#import "NSError+FIRMessaging.h"
+#import "Token/FIRMessagingAuthKeychain.h"
+#import "Token/FIRMessagingAuthService.h"
+#import "Token/FIRMessagingCheckinPreferences.h"
+#import "Token/FIRMessagingCheckinStore.h"
+#import "Token/FIRMessagingFIDRegisterOperation.h"
+#import "Token/FIRMessagingFIDUnregisterOperation.h"
+#import "Token/FIRMessagingTokenDeleteOperation.h"
+#import "Token/FIRMessagingTokenFetchOperation.h"
+#import "Token/FIRMessagingTokenInfo.h"
+#import "Token/FIRMessagingTokenOperation.h"
+#import "Token/FIRMessagingTokenStore.h"
 
 @interface FIRMessagingTokenManager () {
   FIRMessagingTokenStore *_tokenStore;

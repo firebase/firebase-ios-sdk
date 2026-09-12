@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebasePerformance/Sources/Common/FPRDate.h"
+#import "Common/FPRDate.h"
 
 /**
  * FPRPerfDate creates a date object that does time calculations.

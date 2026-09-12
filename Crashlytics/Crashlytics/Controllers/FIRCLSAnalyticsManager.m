@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "Crashlytics/Crashlytics/Controllers/FIRCLSAnalyticsManager.h"
+#import "Crashlytics/Controllers/FIRCLSAnalyticsManager.h"
 
-#import "Crashlytics/Crashlytics/Components/FIRCLSUserLogging.h"
-#import "Crashlytics/Crashlytics/Helpers/FIRCLSInternalLogging.h"
+#import "Crashlytics/Components/FIRCLSUserLogging.h"
+#import "Crashlytics/Helpers/FIRCLSInternalLogging.h"
 
-#import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
-#import "Interop/Analytics/Public/FIRAnalyticsInteropListener.h"
+#import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
+#import <FirebaseAnalyticsInterop/FIRAnalyticsInteropListener.h>
 
 static NSString *FIRCLSFirebaseAnalyticsEventLogFormat = @"$A$:%@";
 

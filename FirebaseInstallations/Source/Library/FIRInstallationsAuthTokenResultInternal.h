@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FirebaseInstallations/Source/Library/Public/FirebaseInstallations/FIRInstallationsAuthTokenResult.h"
+#import "FirebaseInstallations/FIRInstallationsAuthTokenResult.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

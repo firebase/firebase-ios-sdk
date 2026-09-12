@@ -12,15 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebasePerformance/Sources/Loggers/FPRGDTRateLimiter.h"
-#import "FirebasePerformance/Sources/Loggers/FPRGDTRateLimiter+Private.h"
+#import "Loggers/FPRGDTRateLimiter.h"
+#import "Loggers/FPRGDTRateLimiter+Private.h"
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
-#import "FirebasePerformance/Sources/AppActivity/FPRAppActivityTracker.h"
-#import "FirebasePerformance/Sources/Common/FPRPerfDate.h"
-#import "FirebasePerformance/Sources/Loggers/FPRGDTEvent.h"
+#import "AppActivity/FPRAppActivityTracker.h"
+#import "Common/FPRPerfDate.h"
+#import "Loggers/FPRGDTEvent.h"
 
 #import <GoogleDataTransport/GoogleDataTransport.h>
 

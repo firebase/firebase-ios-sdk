@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/Sources/FTransformedEnumerator.h"
+#import "FTransformedEnumerator.h"
 
 @interface FTransformedEnumerator ()
 @property(nonatomic, strong) NSEnumerator *enumerator;

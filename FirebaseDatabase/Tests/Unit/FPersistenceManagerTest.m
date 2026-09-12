@@ -15,15 +15,15 @@
  */
 
 #import <XCTest/XCTest.h>
-#import "FirebaseDatabase/Sources/Core/FQuerySpec.h"
-#import "FirebaseDatabase/Sources/FPathIndex.h"
-#import "FirebaseDatabase/Sources/Persistence/FPersistenceManager.h"
-#import "FirebaseDatabase/Sources/Snapshot/FEmptyNode.h"
-#import "FirebaseDatabase/Sources/Snapshot/FIndexedNode.h"
-#import "FirebaseDatabase/Sources/Snapshot/FSnapshotUtilities.h"
-#import "FirebaseDatabase/Tests/Helpers/FMockStorageEngine.h"
-#import "FirebaseDatabase/Tests/Helpers/FTestCachePolicy.h"
-#import "FirebaseDatabase/Tests/Helpers/FTestHelpers.h"
+#import "Core/FQuerySpec.h"
+#import "FMockStorageEngine.h"
+#import "FPathIndex.h"
+#import "FTestCachePolicy.h"
+#import "FTestHelpers.h"
+#import "Persistence/FPersistenceManager.h"
+#import "Snapshot/FEmptyNode.h"
+#import "Snapshot/FIndexedNode.h"
+#import "Snapshot/FSnapshotUtilities.h"
 
 @interface FPersistenceManagerTest : XCTestCase
 

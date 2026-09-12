@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/Sources/Utilities/FValidation.h"
-#import "FirebaseDatabase/Sources/Constants/FConstants.h"
-#import "FirebaseDatabase/Sources/Utilities/FParsedUrl.h"
-#import "FirebaseDatabase/Sources/Utilities/FTypedefs.h"
+#import "Utilities/FValidation.h"
+#import "Constants/FConstants.h"
+#import "Utilities/FParsedUrl.h"
+#import "Utilities/FTypedefs.h"
 
 // Have to escape:  * ? + [ ( ) { } ^ $ | \ . /
 // See:

@@ -18,13 +18,13 @@
 #import "FBLPromises.h"
 #endif
 
-#import "Crashlytics/UnitTests/Mocks/FIRCLSMockReportManager.h"
+#import "FIRCLSMockReportManager.h"
 
-#import "Crashlytics/Crashlytics/Components/FIRCLSContext.h"
-#import "Crashlytics/Crashlytics/Controllers/FIRCLSExistingReportManager.h"
-#import "Crashlytics/UnitTests/Mocks/FIRCLSMockReportUploader.h"
+#import "Crashlytics/Components/FIRCLSContext.h"
+#import "Crashlytics/Controllers/FIRCLSExistingReportManager.h"
+#import "FIRCLSMockReportUploader.h"
 
-#import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
+#import <FirebaseInstallations/FirebaseInstallations.h>
 
 @implementation FIRCLSMockReportManager
 

@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "FirebaseCore/Tests/Unit/FIRTestCase.h"
+#import "FIRTestCase.h"
 
-#import "FirebaseCore/Sources/FIRAnalyticsConfiguration.h"
+#import "FIRAnalyticsConfiguration.h"
 
 @interface FIRAnalyticsConfigurationTest : FIRTestCase
 

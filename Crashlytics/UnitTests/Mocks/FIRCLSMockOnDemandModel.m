@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "Crashlytics/UnitTests/Mocks/FIRCLSMockOnDemandModel.h"
-#import "Crashlytics/Crashlytics/Models/FIRCLSFileManager.h"
+#import "FIRCLSMockOnDemandModel.h"
+#import "Crashlytics/Models/FIRCLSFileManager.h"
 
 @interface FIRCLSMockOnDemandModel ()
 

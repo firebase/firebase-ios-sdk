@@ -19,13 +19,13 @@
 
 #import <sqlite3.h>
 
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
-#import "FirebaseRemoteConfig/Sources/Private/RCNConfigSettings.h"
-#import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
-#import "FirebaseRemoteConfig/Sources/RCNConfigContent.h"
-#import "FirebaseRemoteConfig/Sources/RCNConfigDBManager.h"
-#import "FirebaseRemoteConfig/Sources/RCNConfigDefines.h"
-#import "FirebaseRemoteConfig/Tests/Unit/RCNTestUtilities.h"
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
+#import "FirebaseRemoteConfig/RCNConfigSettings.h"
+#import "RCNConfigConstants.h"
+#import "RCNConfigContent.h"
+#import "RCNConfigDBManager.h"
+#import "RCNConfigDefines.h"
+#import "RCNTestUtilities.h"
 
 @interface RCNConfigDBManager (Test)
 - (void)removeDatabaseOnDatabaseQueueAtPath:(NSString *)path;

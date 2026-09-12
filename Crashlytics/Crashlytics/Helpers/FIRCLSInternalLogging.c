@@ -14,10 +14,10 @@
 
 #include <dispatch/dispatch.h>
 
-#include "Crashlytics/Crashlytics/Helpers/FIRCLSInternalLogging.h"
-#include "Crashlytics/Crashlytics/Components/FIRCLSContext.h"
-#include "Crashlytics/Crashlytics/Components/FIRCLSGlobals.h"
-#include "Crashlytics/Crashlytics/Helpers/FIRCLSUtility.h"
+#include "Crashlytics/Helpers/FIRCLSInternalLogging.h"
+#include "Crashlytics/Components/FIRCLSContext.h"
+#include "Crashlytics/Components/FIRCLSGlobals.h"
+#include "Crashlytics/Helpers/FIRCLSUtility.h"
 
 void FIRCLSSDKFileLog(FIRCLSInternalLogLevel level, const char* format, ...) {
   if (!_firclsContext.readonly || !_firclsContext.writable) {

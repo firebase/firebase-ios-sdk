@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "Firestore/Source/API/FSTFirestoreComponent.h"
+#import "FSTFirestoreComponent.h"
 
 #import <FirebaseAppCheckInterop/FirebaseAppCheckInterop.h>
 #import <FirebaseCore/FIROptions.h>
@@ -23,13 +23,13 @@
 #include <string>
 #include <utility>
 
-#import "FirebaseAuth/Interop/Public/FirebaseAuthInterop/FIRAuthInterop.h"
-#import "FirebaseCore/Extension/FIRAppInternal.h"
-#import "FirebaseCore/Extension/FIRComponent.h"
-#import "FirebaseCore/Extension/FIRComponentContainer.h"
-#import "FirebaseCore/Extension/FIRComponentType.h"
-#import "FirebaseCore/Extension/FIRLibrary.h"
-#import "Firestore/Source/API/FIRFirestore+Internal.h"
+#import <FirebaseAuthInterop/FIRAuthInterop.h>
+#import <FirebaseCoreExtension/FIRAppInternal.h>
+#import <FirebaseCoreExtension/FIRComponent.h>
+#import <FirebaseCoreExtension/FIRComponentContainer.h>
+#import <FirebaseCoreExtension/FIRComponentType.h>
+#import <FirebaseCoreExtension/FIRLibrary.h>
+#import "FIRFirestore+Internal.h"
 
 #include "Firestore/core/include/firebase/firestore/firestore_version.h"
 #include "Firestore/core/src/api/firestore.h"

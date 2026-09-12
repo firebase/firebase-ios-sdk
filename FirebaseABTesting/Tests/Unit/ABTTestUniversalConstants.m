@@ -12,6 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebaseABTesting/Tests/Unit/ABTTestUniversalConstants.h"
+#import "ABTTestUniversalConstants.h"
 
 NSString *const gABTTestOrigin = @"remoteconfigtest";

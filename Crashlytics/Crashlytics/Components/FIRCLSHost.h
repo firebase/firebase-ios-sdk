@@ -17,7 +17,7 @@
 #include <mach/vm_types.h>
 #include <sys/cdefs.h>
 
-#include "Crashlytics/Crashlytics/Helpers/FIRCLSFile.h"
+#include "Crashlytics/Helpers/FIRCLSFile.h"
 
 typedef struct {
   const char *documentDirectoryPath;

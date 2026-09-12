@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/Sources/Core/Operation/FOperationSource.h"
-#import "FirebaseDatabase/Sources/Core/FQueryParams.h"
-#import "FirebaseDatabase/Sources/Core/Utilities/FPath.h"
+#import "Core/Operation/FOperationSource.h"
+#import "Core/FQueryParams.h"
+#import "Core/Utilities/FPath.h"
 
 @interface FOperationSource ()
 @property(nonatomic, readwrite) BOOL fromUser;

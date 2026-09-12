@@ -16,27 +16,27 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
-#import "FirebaseDatabase/Sources/Api/Private/FIRDataSnapshot_Private.h"
-#import "FirebaseDatabase/Sources/Api/Private/FIRDatabaseQuery_Private.h"
-#import "FirebaseDatabase/Sources/Core/FListenProvider.h"
-#import "FirebaseDatabase/Sources/Core/FQueryParams.h"
-#import "FirebaseDatabase/Sources/Core/FQuerySpec.h"
-#import "FirebaseDatabase/Sources/Core/FSyncTree.h"
-#import "FirebaseDatabase/Sources/Core/View/FCancelEvent.h"
-#import "FirebaseDatabase/Sources/Core/View/FChange.h"
-#import "FirebaseDatabase/Sources/Core/View/FDataEvent.h"
-#import "FirebaseDatabase/Sources/Core/View/FEventRegistration.h"
-#import "FirebaseDatabase/Sources/FIRDatabaseConfig_Private.h"
-#import "FirebaseDatabase/Sources/FKeyIndex.h"
-#import "FirebaseDatabase/Sources/FPathIndex.h"
-#import "FirebaseDatabase/Sources/FPriorityIndex.h"
-#import "FirebaseDatabase/Sources/Snapshot/FCompoundWrite.h"
-#import "FirebaseDatabase/Sources/Snapshot/FEmptyNode.h"
-#import "FirebaseDatabase/Sources/Snapshot/FSnapshotUtilities.h"
-#import "FirebaseDatabase/Tests/Helpers/FTestClock.h"
-#import "FirebaseDatabase/Tests/Unit/FSyncPointTests.h"
+#import "Api/Private/FIRDataSnapshot_Private.h"
+#import "Api/Private/FIRDatabaseQuery_Private.h"
+#import "Core/FListenProvider.h"
+#import "Core/FQueryParams.h"
+#import "Core/FQuerySpec.h"
+#import "Core/FSyncTree.h"
+#import "Core/View/FCancelEvent.h"
+#import "Core/View/FChange.h"
+#import "Core/View/FDataEvent.h"
+#import "Core/View/FEventRegistration.h"
+#import "FIRDatabaseConfig_Private.h"
+#import "FKeyIndex.h"
+#import "FPathIndex.h"
+#import "FPriorityIndex.h"
+#import "FSyncPointTests.h"
+#import "FTestClock.h"
+#import "Snapshot/FCompoundWrite.h"
+#import "Snapshot/FEmptyNode.h"
+#import "Snapshot/FSnapshotUtilities.h"
 
 typedef NSDictionary * (^fbt_nsdictionary_void)(void);
 

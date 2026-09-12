@@ -16,10 +16,10 @@
 #import <nanopb/pb_decode.h>
 #import <nanopb/pb_encode.h>
 
-#import "FirebasePerformance/Sources/FPRConsoleLogger.h"
-#import "FirebasePerformance/Sources/Loggers/FPRGDTEvent.h"
+#import "FPRConsoleLogger.h"
+#import "Loggers/FPRGDTEvent.h"
 
-#import "FirebasePerformance/Sources/Protogen/nanopb/perf_metric.nanopb.h"
+#import "perf_metric.nanopb.h"
 
 @interface FPRGDTEvent ()
 

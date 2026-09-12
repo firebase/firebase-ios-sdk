@@ -12,15 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "Crashlytics/Crashlytics/Controllers/FIRCLSManagerData.h"
+#import "Crashlytics/Controllers/FIRCLSManagerData.h"
 
-#import "Crashlytics/Crashlytics/Components/FIRCLSApplication.h"
-#import "Crashlytics/Crashlytics/Controllers/FIRCLSContextManager.h"
-#import "Crashlytics/Crashlytics/Models/FIRCLSExecutionIdentifierModel.h"
-#import "Crashlytics/Crashlytics/Models/FIRCLSInstallIdentifierModel.h"
-#import "Crashlytics/Crashlytics/Models/FIRCLSSettings.h"
-#import "Crashlytics/Crashlytics/Private/FIRCLSOnDemandModel_Private.h"
-#import "Crashlytics/Crashlytics/Settings/Models/FIRCLSApplicationIdentifierModel.h"
+#import "Crashlytics/Components/FIRCLSApplication.h"
+#import "Crashlytics/Controllers/FIRCLSContextManager.h"
+#import "Crashlytics/Models/FIRCLSExecutionIdentifierModel.h"
+#import "Crashlytics/Models/FIRCLSInstallIdentifierModel.h"
+#import "Crashlytics/Models/FIRCLSSettings.h"
+#import "Crashlytics/Private/FIRCLSOnDemandModel_Private.h"
+#import "Crashlytics/Settings/Models/FIRCLSApplicationIdentifierModel.h"
 
 @implementation FIRCLSManagerData
 

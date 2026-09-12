@@ -16,7 +16,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FirebaseInAppMessaging/Sources/Util/UIColor+FIRIAMHexString.h"
+#import "Util/UIColor+FIRIAMHexString.h"
 
 @interface UIColor_FIRIAMHexStringTests : XCTestCase
 
