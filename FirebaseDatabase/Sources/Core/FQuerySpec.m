@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FQuerySpec.h"
+#import "Core/FQuerySpec.h"
 
 @interface FQuerySpec ()
 

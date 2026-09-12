@@ -17,10 +17,10 @@
 #import <Foundation/Foundation.h>
 #import <XCTest/XCTest.h>
 
-#import "FChildrenNode.h"
-#import "FEmptyNode.h"
-#import "FLeafNode.h"
-#import "FSnapshotUtilities.h"
+#import "Snapshot/FChildrenNode.h"
+#import "Snapshot/FEmptyNode.h"
+#import "Snapshot/FLeafNode.h"
+#import "Snapshot/FSnapshotUtilities.h"
 
 @interface FNodeTests : XCTestCase
 

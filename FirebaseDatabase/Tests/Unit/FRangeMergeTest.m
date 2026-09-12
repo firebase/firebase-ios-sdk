@@ -18,9 +18,9 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FRangeMerge.h"
-#import "FEmptyNode.h"
-#import "FNode.h"
+#import "Core/FRangeMerge.h"
+#import "Snapshot/FEmptyNode.h"
+#import "Snapshot/FNode.h"
 #import "FTestHelpers.h"
 
 @interface FRangeMergeTest : XCTestCase

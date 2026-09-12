@@ -15,14 +15,14 @@
 #import <TargetConditionals.h>
 #import <UIKit/UIKit.h>
 
-#import "FPRScreenTraceTracker+Private.h"
-#import "FPRDiagnostics.h"
-#import "FPRConfigurations.h"
-#import "FPRClassInstrumentor.h"
-#import "FPRInstrument_Private.h"
-#import "FPRSelectorInstrumentor.h"
-#import "FPRNetworkInstrumentHelpers.h"
-#import "FPRUIViewControllerInstrument.h"
+#import "AppActivity/FPRScreenTraceTracker+Private.h"
+#import "Common/FPRDiagnostics.h"
+#import "Configurations/FPRConfigurations.h"
+#import "Instrumentation/FPRClassInstrumentor.h"
+#import "Instrumentation/FPRInstrument_Private.h"
+#import "Instrumentation/FPRSelectorInstrumentor.h"
+#import "Instrumentation/Network/FPRNetworkInstrumentHelpers.h"
+#import "Instrumentation/UIKit/FPRUIViewControllerInstrument.h"
 
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import <GoogleUtilities/GULOriginalIMPConvenienceMacros.h>

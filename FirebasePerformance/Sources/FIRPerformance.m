@@ -16,14 +16,14 @@
 #import "FIRPerformance+Internal.h"
 #import "FIRPerformance_Private.h"
 
-#import "FPRConstants.h"
-#import "FPRConfigurations.h"
+#import "Common/FPRConstants.h"
+#import "Configurations/FPRConfigurations.h"
 #import "FPRClient+Private.h"
 #import "FPRClient.h"
 #import "FPRConsoleLogger.h"
 #import "FPRDataUtils.h"
-#import "FPRInstrumentation.h"
-#import "FIRTrace+Internal.h"
+#import "Instrumentation/FPRInstrumentation.h"
+#import "Timer/FIRTrace+Internal.h"
 
 static NSString *const kFirebasePerfErrorDomain = @"com.firebase.perf";
 

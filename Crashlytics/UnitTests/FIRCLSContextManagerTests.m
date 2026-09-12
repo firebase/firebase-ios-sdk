@@ -15,12 +15,12 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FIRCLSContextManager.h"
-#import "FIRCLSReportAdapter.h"
-#import "FIRCLSReportAdapter_Private.h"
-#import "FIRCLSApplicationIdentifierModel.h"
+#import "Crashlytics/Controllers/FIRCLSContextManager.h"
+#import "Crashlytics/Models/Record/FIRCLSReportAdapter.h"
+#import "Crashlytics/Models/Record/FIRCLSReportAdapter_Private.h"
+#import "Crashlytics/Settings/Models/FIRCLSApplicationIdentifierModel.h"
 
-#import "FIRCLSInternalReport.h"
+#import "Crashlytics/Models/FIRCLSInternalReport.h"
 #import "FIRCLSMockFileManager.h"
 #import "FIRCLSMockSettings.h"
 #import "FIRMockInstallations.h"

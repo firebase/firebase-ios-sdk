@@ -16,6 +16,6 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRInAppMessagingErrors.h"
+#import "FirebaseInAppMessaging/FIRInAppMessagingErrors.h"
 
 NSErrorDomain const FIRInAppMessagingErrorDomain = @"com.firebase.inappmessaging";

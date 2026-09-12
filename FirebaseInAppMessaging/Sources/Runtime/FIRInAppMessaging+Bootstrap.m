@@ -17,18 +17,18 @@
 #import <TargetConditionals.h>
 #if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
 
-#import "FIRInAppMessaging+Bootstrap.h"
+#import "Private/Runtime/FIRInAppMessaging+Bootstrap.h"
 
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 #import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
 
 #import "FIRCore+InAppMessaging.h"
-#import "FIRIAMClearcutUploader.h"
-#import "FIRIAMRuntimeManager.h"
-#import "FIRIAMSDKSettings.h"
-#import "NSString+FIRInterlaceStrings.h"
-#import "FIRInAppMessagingErrors.h"
+#import "Private/Analytics/FIRIAMClearcutUploader.h"
+#import "Private/Runtime/FIRIAMRuntimeManager.h"
+#import "Private/Runtime/FIRIAMSDKSettings.h"
+#import "Private/Util/NSString+FIRInterlaceStrings.h"
+#import "FirebaseInAppMessaging/FIRInAppMessagingErrors.h"
 
 @implementation FIRInAppMessaging (Bootstrap)
 

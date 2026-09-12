@@ -15,11 +15,11 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "FIRIAMClientInfoFetcher.h"
-#import "FIRIAMFetchResponseParser.h"
-#import "FIRIAMServerMsgFetchStorage.h"
-#import "FIRIAMFetchFlow.h"
-#import "FIRIAMSDKSettings.h"
+#import "Private/Analytics/FIRIAMClientInfoFetcher.h"
+#import "Private/Data/FIRIAMFetchResponseParser.h"
+#import "Private/Flows/FIRIAMServerMsgFetchStorage.h"
+#import "Private/Runtime/FIRIAMFetchFlow.h"
+#import "Private/Runtime/FIRIAMSDKSettings.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

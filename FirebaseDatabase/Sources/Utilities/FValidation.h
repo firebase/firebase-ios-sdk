@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#import "FPath.h"
-#import "FIRDataEventType.h"
-#import "FParsedUrl.h"
-#import "FTypedefs.h"
+#import "Core/Utilities/FPath.h"
+#import "FirebaseDatabase/FIRDataEventType.h"
+#import "Utilities/FParsedUrl.h"
+#import "Utilities/FTypedefs.h"
 #import <Foundation/Foundation.h>
 
 @interface FValidation : NSObject

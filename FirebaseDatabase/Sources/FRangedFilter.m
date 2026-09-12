@@ -15,13 +15,13 @@
  */
 
 #import "FRangedFilter.h"
-#import "FQueryParams.h"
-#import "FChildChangeAccumulator.h"
-#import "FIndexedFilter.h"
+#import "Core/FQueryParams.h"
+#import "Core/View/Filter/FChildChangeAccumulator.h"
+#import "Core/View/Filter/FIndexedFilter.h"
 #import "FNamedNode.h"
-#import "FChildrenNode.h"
-#import "FEmptyNode.h"
-#import "FIndexedNode.h"
+#import "Snapshot/FChildrenNode.h"
+#import "Snapshot/FEmptyNode.h"
+#import "Snapshot/FIndexedNode.h"
 
 @interface FRangedFilter ()
 @property(nonatomic, strong, readwrite) id<FNodeFilter> indexedFilter;

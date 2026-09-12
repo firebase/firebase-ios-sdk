@@ -15,10 +15,10 @@
 #import <Foundation/Foundation.h>
 
 #import "FPRNanoPbUtils.h"
-#import "FIRTrace+Internal.h"
-#import "FIRTrace+Private.h"
+#import "Timer/FIRTrace+Internal.h"
+#import "Timer/FIRTrace+Private.h"
 
-#import "FPRGDTEvent.h"
+#import "Loggers/FPRGDTEvent.h"
 
 #import <GoogleDataTransport/GoogleDataTransport.h>
 

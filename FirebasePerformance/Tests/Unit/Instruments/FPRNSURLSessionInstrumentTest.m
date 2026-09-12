@@ -16,21 +16,21 @@
 
 #ifndef SWIFT_PACKAGE
 
-#import "FPRNSURLSessionInstrumentTestDelegates.h"
+#import "Instruments/FPRNSURLSessionInstrumentTestDelegates.h"
 
 #import <XCTest/XCTest.h>
 #import <objc/runtime.h>
 
-#import "FPRConfigurations+Private.h"
-#import "FPRConfigurations.h"
-#import "FPRNetworkTrace.h"
-#import "FPRNSURLSessionInstrument.h"
-#import "FPRNSURLSessionInstrument_Private.h"
+#import "Configurations/FPRConfigurations+Private.h"
+#import "Configurations/FPRConfigurations.h"
+#import "Instrumentation/FPRNetworkTrace.h"
+#import "Instrumentation/Network/FPRNSURLSessionInstrument.h"
+#import "Instrumentation/Network/FPRNSURLSessionInstrument_Private.h"
 #import <FirebasePerformance/FIRPerformance.h>
 
 #import "FPRTestCase.h"
 #import "FPRTestUtils.h"
-#import "FPRHermeticTestServer.h"
+#import "Server/FPRHermeticTestServer.h"
 
 /** This class is used to wrap an NSURLSession object during testing. */
 @interface FPRNSURLSessionProxy : NSProxy {

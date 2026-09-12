@@ -15,13 +15,13 @@
  */
 
 #import <XCTest/XCTest.h>
-#import "FIRDatabaseReference_Private.h"
-#import "FIRDatabase_Private.h"
-#import "FConstants.h"
+#import "Api/Private/FIRDatabaseReference_Private.h"
+#import "Api/Private/FIRDatabase_Private.h"
+#import "Constants/FConstants.h"
 #import "FClock.h"
 #import "FIRDatabaseConfig_Private.h"
-#import "FWebSocketConnection.h"
-#import "FUtilities.h"
+#import "Realtime/FWebSocketConnection.h"
+#import "Utilities/FUtilities.h"
 #import "FTestHelpers.h"
 
 @interface FWebSocketConnection (Tests)

@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-#import "FWriteTreeRef.h"
-#import "FWriteRecord.h"
-#import "FWriteTree.h"
-#import "FPath.h"
-#import "FCacheNode.h"
+#import "Core/FWriteTreeRef.h"
+#import "Core/FWriteRecord.h"
+#import "Core/FWriteTree.h"
+#import "Core/Utilities/FPath.h"
+#import "Core/View/FCacheNode.h"
 #import "FIndex.h"
 #import "FNamedNode.h"
-#import "FChildrenNode.h"
-#import "FNode.h"
+#import "Snapshot/FChildrenNode.h"
+#import "Snapshot/FNode.h"
 
 @interface FWriteTreeRef ()
 /**

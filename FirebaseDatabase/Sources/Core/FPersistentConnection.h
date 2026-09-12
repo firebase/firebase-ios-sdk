@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#import "FTypedefs_Private.h"
-#import "FRepoInfo.h"
-#import "FConnection.h"
-#import "FTypedefs.h"
+#import "Api/Private/FTypedefs_Private.h"
+#import "Core/FRepoInfo.h"
+#import "Realtime/FConnection.h"
+#import "Utilities/FTypedefs.h"
 #import <Foundation/Foundation.h>
 
 @protocol FPersistentConnectionDelegate;

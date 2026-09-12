@@ -31,7 +31,7 @@
 #import <FirebaseInAppMessaging/FIRIAMMsgFetcherUsingRestful.h>
 
 #import <FirebaseInAppMessaging/FIRIAMRuntimeManager.h>
-#import "FIRInAppMessaging.h"
+#import "FirebaseInAppMessaging/FIRInAppMessaging.h"
 
 #import <FirebaseAnalytics/FIRAnalytics.h>
 

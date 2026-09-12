@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FPRInstrument.h"
-#import "FPRInstrument_Private.h"
+#import "Instrumentation/FPRInstrument.h"
+#import "Instrumentation/FPRInstrument_Private.h"
 
-#import "FPRDiagnostics.h"
-#import "FPRConfigurations.h"
+#import "Common/FPRDiagnostics.h"
+#import "Configurations/FPRConfigurations.h"
 #import "FPRConsoleLogger.h"
-#import "FPRClassInstrumentor.h"
-#import "FPRObjectInstrumentor.h"
+#import "Instrumentation/FPRClassInstrumentor.h"
+#import "Instrumentation/FPRObjectInstrumentor.h"
 
 @implementation FPRInstrument {
   NSMutableArray<FPRClassInstrumentor *> *_classInstrumentors;

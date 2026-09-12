@@ -18,8 +18,8 @@
 #import <CoreTelephony/CTTelephonyNetworkInfo.h>
 #endif
 
-#import "FPRTraceBackgroundActivityTracker.h"
-#import "FPRNetworkTrace.h"
+#import "AppActivity/FPRTraceBackgroundActivityTracker.h"
+#import "Instrumentation/FPRNetworkTrace.h"
 #import "FirebasePerformance/FIRTrace.h"
 
 #import "perf_metric.nanopb.h"

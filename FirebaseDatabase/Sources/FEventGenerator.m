@@ -15,15 +15,15 @@
  */
 
 #import "FEventGenerator.h"
-#import "FIRDatabaseQuery_Private.h"
-#import "FQueryParams.h"
-#import "FQuerySpec.h"
-#import "FChange.h"
-#import "FDataEvent.h"
-#import "FEvent.h"
-#import "FEventRegistration.h"
+#import "Api/Private/FIRDatabaseQuery_Private.h"
+#import "Core/FQueryParams.h"
+#import "Core/FQuerySpec.h"
+#import "Core/View/FChange.h"
+#import "Core/View/FDataEvent.h"
+#import "Core/View/FEvent.h"
+#import "Core/View/FEventRegistration.h"
 #import "FNamedNode.h"
-#import "FNode.h"
+#import "Snapshot/FNode.h"
 
 @interface FEventGenerator ()
 @property(nonatomic, strong) FQuerySpec *query;

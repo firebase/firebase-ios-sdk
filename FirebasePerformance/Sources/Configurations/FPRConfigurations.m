@@ -16,12 +16,12 @@
 
 #import <GoogleUtilities/GULUserDefaults.h>
 
-#import "FPRConstants.h"
-#import "FPRConfigurations+Private.h"
-#import "FPRConfigurations.h"
+#import "Common/FPRConstants.h"
+#import "Configurations/FPRConfigurations+Private.h"
+#import "Configurations/FPRConfigurations.h"
 
-#import "FPRRemoteConfigFlags+Private.h"
-#import "FPRRemoteConfigFlags.h"
+#import "Configurations/FPRRemoteConfigFlags+Private.h"
+#import "Configurations/FPRRemoteConfigFlags.h"
 
 #import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 

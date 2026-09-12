@@ -16,12 +16,12 @@
 
 #import "FMockStorageEngine.h"
 
-#import "FWriteRecord.h"
-#import "FPruneForest.h"
-#import "FTrackedQuery.h"
-#import "FCompoundWrite.h"
-#import "FEmptyNode.h"
-#import "FNode.h"
+#import "Core/FWriteRecord.h"
+#import "Persistence/FPruneForest.h"
+#import "Persistence/FTrackedQuery.h"
+#import "Snapshot/FCompoundWrite.h"
+#import "Snapshot/FEmptyNode.h"
+#import "Snapshot/FNode.h"
 
 @interface FMockStorageEngine ()
 

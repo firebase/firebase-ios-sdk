@@ -20,12 +20,12 @@
 #import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
 #import "FIRCore+InAppMessaging.h"
-#import "FIRIAMFetchResponseParser.h"
-#import "FIRIAMMessageContentDataWithImageURL.h"
-#import "FIRIAMMessageDefinition.h"
-#import "FIRIAMMsgFetcherUsingRestful.h"
-#import "FIRIAMFetchFlow.h"
-#import "FIRIAMSDKSettings.h"
+#import "Private/Data/FIRIAMFetchResponseParser.h"
+#import "Private/Data/FIRIAMMessageContentDataWithImageURL.h"
+#import "Private/Data/FIRIAMMessageDefinition.h"
+#import "Private/Flows/FIRIAMMsgFetcherUsingRestful.h"
+#import "Private/Runtime/FIRIAMFetchFlow.h"
+#import "Private/Runtime/FIRIAMSDKSettings.h"
 
 static NSInteger const SuccessHTTPStatusCode = 200;
 

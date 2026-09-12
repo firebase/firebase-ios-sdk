@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FPRMemoryGaugeCollector.h"
-#import "FPRMemoryGaugeCollector+Private.h"
+#import "Gauges/Memory/FPRMemoryGaugeCollector.h"
+#import "Gauges/Memory/FPRMemoryGaugeCollector+Private.h"
 
-#import "FPRSessionManager.h"
-#import "FPRConfigurations.h"
+#import "AppActivity/FPRSessionManager.h"
+#import "Configurations/FPRConfigurations.h"
 #import "FPRConsoleLogger.h"
 
 #import <mach/mach.h>

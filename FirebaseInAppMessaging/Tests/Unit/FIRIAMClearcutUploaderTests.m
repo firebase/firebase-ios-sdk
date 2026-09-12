@@ -18,10 +18,10 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
-#import "FIRIAMClearcutHttpRequestSender.h"
-#import "FIRIAMClearcutLogStorage.h"
-#import "FIRIAMClearcutUploader.h"
-#import "FIRIAMTimeFetcher.h"
+#import "Analytics/FIRIAMClearcutHttpRequestSender.h"
+#import "Analytics/FIRIAMClearcutLogStorage.h"
+#import "Private/Analytics/FIRIAMClearcutUploader.h"
+#import "Private/Util/FIRIAMTimeFetcher.h"
 
 @interface FIRIAMClearcutUploaderTests : XCTestCase
 @property(nonatomic) id<FIRIAMTimeFetcher> mockTimeFetcher;

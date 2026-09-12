@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-#import "FLeafNode.h"
-#import "FConstants.h"
-#import "FChildrenNode.h"
-#import "FEmptyNode.h"
-#import "FSnapshotUtilities.h"
-#import "FStringUtilities.h"
-#import "FUtilities.h"
+#import "Snapshot/FLeafNode.h"
+#import "Constants/FConstants.h"
+#import "Snapshot/FChildrenNode.h"
+#import "Snapshot/FEmptyNode.h"
+#import "Snapshot/FSnapshotUtilities.h"
+#import "Utilities/FStringUtilities.h"
+#import "Utilities/FUtilities.h"
 #import "FImmutableSortedDictionary.h"
 
 @interface FLeafNode ()

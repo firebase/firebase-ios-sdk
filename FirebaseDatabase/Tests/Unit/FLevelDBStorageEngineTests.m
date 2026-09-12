@@ -16,13 +16,13 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FQueryParams.h"
-#import "FWriteRecord.h"
+#import "Core/FQueryParams.h"
+#import "Core/FWriteRecord.h"
 #import "FPathIndex.h"
-#import "FLevelDBStorageEngine.h"
-#import "FTrackedQuery.h"
-#import "FEmptyNode.h"
-#import "FSnapshotUtilities.h"
+#import "Persistence/FLevelDBStorageEngine.h"
+#import "Persistence/FTrackedQuery.h"
+#import "Snapshot/FEmptyNode.h"
+#import "Snapshot/FSnapshotUtilities.h"
 #import "FTestHelpers.h"
 
 @interface FLevelDBStorageEngine (Tests)

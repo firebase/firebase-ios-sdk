@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRCLSNonFatalError.h"
+#import "Crashlytics/Models/FIRCLSNonFatalError.h"
 #include "Crashlytics/Components/FIRCLSUserLogging.h"
 
 @implementation FIRCLSNonFatalError

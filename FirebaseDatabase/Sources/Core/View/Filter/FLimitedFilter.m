@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-#import "FLimitedFilter.h"
-#import "FQueryParams.h"
-#import "FChange.h"
-#import "FChildChangeAccumulator.h"
-#import "FCompleteChildSource.h"
+#import "Core/View/Filter/FLimitedFilter.h"
+#import "Core/FQueryParams.h"
+#import "Core/View/FChange.h"
+#import "Core/View/Filter/FChildChangeAccumulator.h"
+#import "Core/View/Filter/FCompleteChildSource.h"
 #import "FIndex.h"
 #import "FNamedNode.h"
 #import "FRangedFilter.h"
-#import "FChildrenNode.h"
-#import "FEmptyNode.h"
+#import "Snapshot/FChildrenNode.h"
+#import "Snapshot/FEmptyNode.h"
 #import "FTreeSortedDictionary.h"
 
 @interface FLimitedFilter ()

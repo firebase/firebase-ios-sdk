@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FStorageEngine.h"
+#import "Persistence/FStorageEngine.h"
 
 @interface FMockStorageEngine : NSObject <FStorageEngine>
 

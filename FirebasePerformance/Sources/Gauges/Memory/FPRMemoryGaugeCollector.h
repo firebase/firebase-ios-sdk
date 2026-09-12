@@ -14,8 +14,8 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FPRGaugeCollector.h"
-#import "FPRMemoryGaugeData.h"
+#import "Gauges/FPRGaugeCollector.h"
+#import "Gauges/Memory/FPRMemoryGaugeData.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

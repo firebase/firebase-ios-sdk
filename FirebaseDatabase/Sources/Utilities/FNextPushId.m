@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "FNextPushId.h"
-#import "FUtilities.h"
-#import "FValidation.h"
+#import "Utilities/FNextPushId.h"
+#import "Utilities/FUtilities.h"
+#import "Utilities/FValidation.h"
 
 static NSString *const PUSH_CHARS =
     @"-0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz";

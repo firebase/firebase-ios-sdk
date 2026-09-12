@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import "FTuplePathValue.h"
-#import "FPath.h"
+#import "Utilities/Tuples/FTuplePathValue.h"
+#import "Core/Utilities/FPath.h"
 
 @interface FTuplePathValue ()
 @property(nonatomic, strong, readwrite) id value;

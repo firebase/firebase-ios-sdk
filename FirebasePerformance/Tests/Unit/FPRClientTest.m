@@ -16,18 +16,18 @@
 
 #import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
-#import "FPRConfigurations+Private.h"
+#import "Configurations/FPRConfigurations+Private.h"
 #import "FPRClient+Private.h"
 #import "FPRClient.h"
 #import "FPRNanoPbUtils.h"
-#import "FPRGDTLogger.h"
-#import "FPRGDTLogger_Private.h"
+#import "Loggers/FPRGDTLogger.h"
+#import "Loggers/FPRGDTLogger_Private.h"
 
-#import "FPRFakeRemoteConfig.h"
+#import "Configurations/FPRFakeRemoteConfig.h"
 #import "FPRTestCase.h"
 #import "FPRTestUtils.h"
-#import "FPRFakeConfigurations.h"
-#import "FPRFakeInstallations.h"
+#import "Fakes/FPRFakeConfigurations.h"
+#import "Fakes/FPRFakeInstallations.h"
 
 #import <OCMock/OCMock.h>
 #import "GDTCORTransportFake.h"

@@ -16,14 +16,14 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRIAMClearcutLogger.h"
-#import "FIRIAMActivityLogger.h"
-#import "FIRIAMBookKeeper.h"
-#import "FIRIAMMessageClientCache.h"
-#import "FIRIAMActionURLFollower.h"
-#import "FIRIAMTimeFetcher.h"
-#import "FIRInAppMessaging.h"
-#import "FIRInAppMessagingRendering.h"
+#import "Private/Analytics/FIRIAMClearcutLogger.h"
+#import "Private/Flows/FIRIAMActivityLogger.h"
+#import "Private/Flows/FIRIAMBookKeeper.h"
+#import "Private/Flows/FIRIAMMessageClientCache.h"
+#import "Private/Runtime/FIRIAMActionURLFollower.h"
+#import "Private/Util/FIRIAMTimeFetcher.h"
+#import "FirebaseInAppMessaging/FIRInAppMessaging.h"
+#import "FirebaseInAppMessaging/FIRInAppMessagingRendering.h"
 
 NS_ASSUME_NONNULL_BEGIN
 @interface FIRIAMDisplaySetting : NSObject

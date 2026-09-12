@@ -14,10 +14,10 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FPRSessionManager+Private.h"
-#import "FPRSessionManager.h"
-#import "FPRConfigurations.h"
-#import "FPRGaugeManager+Private.h"
+#import "AppActivity/FPRSessionManager+Private.h"
+#import "AppActivity/FPRSessionManager.h"
+#import "Configurations/FPRConfigurations.h"
+#import "Gauges/FPRGaugeManager+Private.h"
 
 #import <OCMock/OCMock.h>
 

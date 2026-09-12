@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "FOperationSource.h"
-#import "FQueryParams.h"
-#import "FPath.h"
+#import "Core/Operation/FOperationSource.h"
+#import "Core/FQueryParams.h"
+#import "Core/Utilities/FPath.h"
 
 @interface FOperationSource ()
 @property(nonatomic, readwrite) BOOL fromUser;

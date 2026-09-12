@@ -15,7 +15,7 @@
 #ifndef FIRCrashlyticsReport_Private_h
 #define FIRCrashlyticsReport_Private_h
 
-#import "FIRCrashlyticsReport.h"
+#import "FirebaseCrashlytics/FIRCrashlyticsReport.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

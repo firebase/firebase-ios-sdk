@@ -14,7 +14,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FPRObjectInstrumentor.h"
+#import "Instrumentation/FPRObjectInstrumentor.h"
 
 @interface FPRObjectInstrumentorTest : XCTestCase
 

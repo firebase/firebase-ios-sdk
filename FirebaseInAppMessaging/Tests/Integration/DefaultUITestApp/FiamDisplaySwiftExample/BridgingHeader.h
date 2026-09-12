@@ -14,6 +14,6 @@
  * limitations under the License.
  */
 
-#import "FIRIAMDefaultDisplayImpl.h"
-#import "FIRInAppMessagingRendering.h"
-#import "FIRInAppMessagingRenderingPrivate.h"
+#import "DefaultUI/FIRIAMDefaultDisplayImpl.h"
+#import "FirebaseInAppMessaging/FIRInAppMessagingRendering.h"
+#import "RenderingObjects/FIRInAppMessagingRenderingPrivate.h"

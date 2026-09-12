@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRCLSUUID.h"
+#import "Shared/FIRCLSUUID.h"
 
-#import "FIRCLSByteUtility.h"
+#import "Shared/FIRCLSByteUtility.h"
 
 /// Use an enum to define a true compile-time integer constant. This prevents
 /// warning below where the constant is used to declare the size of an array.

@@ -17,15 +17,15 @@
 #import <Foundation/Foundation.h>
 #import <XCTest/XCTest.h>
 
-#import "FQueryParams.h"
+#import "Core/FQueryParams.h"
 #import "FIndex.h"
 #import "FKeyIndex.h"
 #import "FPathIndex.h"
 #import "FPriorityIndex.h"
 #import "FValueIndex.h"
-#import "FEmptyNode.h"
-#import "FLeafNode.h"
-#import "FSnapshotUtilities.h"
+#import "Snapshot/FEmptyNode.h"
+#import "Snapshot/FLeafNode.h"
+#import "Snapshot/FSnapshotUtilities.h"
 
 @interface FQueryParamsTest : XCTestCase
 

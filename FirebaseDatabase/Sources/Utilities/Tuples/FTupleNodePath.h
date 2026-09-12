@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import "FPath.h"
-#import "FNode.h"
+#import "Core/Utilities/FPath.h"
+#import "Snapshot/FNode.h"
 #import <Foundation/Foundation.h>
 
 @interface FTupleNodePath : NSObject

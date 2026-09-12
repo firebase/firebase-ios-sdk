@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-#import "FChildrenNode.h"
-#import "FConstants.h"
+#import "Snapshot/FChildrenNode.h"
+#import "Constants/FConstants.h"
 #import "FMaxNode.h"
 #import "FNamedNode.h"
 #import "FPriorityIndex.h"
 #import "FTransformedEnumerator.h"
-#import "FEmptyNode.h"
-#import "FSnapshotUtilities.h"
-#import "FStringUtilities.h"
-#import "FUtilities.h"
+#import "Snapshot/FEmptyNode.h"
+#import "Snapshot/FSnapshotUtilities.h"
+#import "Utilities/FStringUtilities.h"
+#import "Utilities/FUtilities.h"
 
 @interface FChildrenNode ()
 @property(nonatomic, strong) NSString *lazyHash;

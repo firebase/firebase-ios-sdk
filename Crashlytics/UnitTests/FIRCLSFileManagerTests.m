@@ -15,7 +15,7 @@
 #import <Foundation/Foundation.h>
 #import <XCTest/XCTest.h>
 
-#import "FIRCLSFileManager.h"
+#import "Crashlytics/Models/FIRCLSFileManager.h"
 
 @interface FIRCLSFileManagerTests : XCTestCase {
   FIRCLSFileManager* _manager;

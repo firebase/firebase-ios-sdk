@@ -23,8 +23,8 @@
 
 #import "FIRCore+InAppMessaging.h"
 #import "FIRInAppMessagingPrivate.h"
-#import "FIRIAMDisplayCheckOnAnalyticEventsFlow.h"
-#import "FIRIAMDisplayExecutor.h"
+#import "Private/Flows/FIRIAMDisplayCheckOnAnalyticEventsFlow.h"
+#import "Private/Flows/FIRIAMDisplayExecutor.h"
 
 @interface FIRIAMDisplayCheckOnAnalyticEventsFlow () <FIRAnalyticsInteropListener>
 @end

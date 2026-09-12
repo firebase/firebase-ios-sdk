@@ -16,14 +16,14 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FQuerySpec.h"
-#import "FPath.h"
+#import "Core/FQuerySpec.h"
+#import "Core/Utilities/FPath.h"
 #import "FClock.h"
 #import "FPathIndex.h"
-#import "FPruneForest.h"
-#import "FTrackedQuery.h"
-#import "FTrackedQueryManager.h"
-#import "FSnapshotUtilities.h"
+#import "Persistence/FPruneForest.h"
+#import "Persistence/FTrackedQuery.h"
+#import "Persistence/FTrackedQueryManager.h"
+#import "Snapshot/FSnapshotUtilities.h"
 #import "FMockStorageEngine.h"
 #import "FTestCachePolicy.h"
 #import "FTestClock.h"

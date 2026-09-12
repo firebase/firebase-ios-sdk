@@ -12,20 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FPRAppActivityTracker.h"
+#import "AppActivity/FPRAppActivityTracker.h"
 
 #import <Foundation/Foundation.h>
 #import <Network/Network.h>
 #import <UIKit/UIKit.h>
 
-#import "FPRSessionManager.h"
-#import "FPRDiagnostics.h"
-#import "FPRConfigurations.h"
-#import "FPRCPUGaugeCollector+Private.h"
-#import "FPRGaugeManager.h"
-#import "FPRMemoryGaugeCollector+Private.h"
-#import "FIRTrace+Internal.h"
-#import "FIRTrace+Private.h"
+#import "AppActivity/FPRSessionManager.h"
+#import "Common/FPRDiagnostics.h"
+#import "Configurations/FPRConfigurations.h"
+#import "Gauges/CPU/FPRCPUGaugeCollector+Private.h"
+#import "Gauges/FPRGaugeManager.h"
+#import "Gauges/Memory/FPRMemoryGaugeCollector+Private.h"
+#import "Timer/FIRTrace+Internal.h"
+#import "Timer/FIRTrace+Private.h"
 
 static NSDate *appStartTime = nil;
 static NSDate *doubleDispatchTime = nil;

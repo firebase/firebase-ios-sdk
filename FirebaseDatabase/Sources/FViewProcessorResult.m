@@ -15,7 +15,7 @@
  */
 
 #import "FViewProcessorResult.h"
-#import "FViewCache.h"
+#import "Core/View/FViewCache.h"
 
 @interface FViewProcessorResult ()
 @property(nonatomic, strong, readwrite) FViewCache *viewCache;

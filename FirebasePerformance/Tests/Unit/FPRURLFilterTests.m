@@ -18,7 +18,7 @@
 #import "FPRURLFilter_Private.h"
 
 #import "FPRTestUtils.h"
-#import "NSBundleFake.h"
+#import "Fakes/NSBundleFake.h"
 
 #import <GoogleDataTransport/GoogleDataTransport.h>
 

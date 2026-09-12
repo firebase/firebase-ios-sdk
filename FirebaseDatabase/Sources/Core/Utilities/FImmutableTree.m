@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "FImmutableTree.h"
-#import "FPath.h"
-#import "FUtilities.h"
+#import "Core/Utilities/FImmutableTree.h"
+#import "Core/Utilities/FPath.h"
+#import "Utilities/FUtilities.h"
 #import "FImmutableSortedDictionary.h"
 
 @interface FImmutableTree ()

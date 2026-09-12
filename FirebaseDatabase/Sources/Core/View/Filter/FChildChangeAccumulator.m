@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import "FChildChangeAccumulator.h"
-#import "FChange.h"
+#import "Core/View/Filter/FChildChangeAccumulator.h"
+#import "Core/View/FChange.h"
 #import "FIndex.h"
 
 @interface FChildChangeAccumulator ()

@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRCLSURLBuilder.h"
+#import "Shared/FIRCLSNetworking/FIRCLSURLBuilder.h"
 
-#import "FIRCLSLogger.h"
+#import "Crashlytics/Helpers/FIRCLSLogger.h"
 
 @interface FIRCLSURLBuilder ()
 

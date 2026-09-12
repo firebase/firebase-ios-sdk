@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "FTypedefs_Private.h"
-#import "FIRDataSnapshot.h"
-#import "FIndexedNode.h"
+#import "Api/Private/FTypedefs_Private.h"
+#import "FirebaseDatabase/FIRDataSnapshot.h"
+#import "Snapshot/FIndexedNode.h"
 
 @interface FIRDataSnapshot ()
 

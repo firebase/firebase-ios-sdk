@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "FCancelEvent.h"
-#import "FPath.h"
-#import "FEventRegistration.h"
+#import "Core/View/FCancelEvent.h"
+#import "Core/Utilities/FPath.h"
+#import "Core/View/FEventRegistration.h"
 
 @interface FCancelEvent ()
 @property(nonatomic, strong) id<FEventRegistration> eventRegistration;

@@ -14,7 +14,7 @@
 
 #import <XCTest/XCTest.h>
 
-#include "FIRCLSDwarfExpressionMachine.h"
+#include "Crashlytics/Unwind/Dwarf/FIRCLSDwarfExpressionMachine.h"
 
 @interface FIRCLSDwarfExpressionTests : XCTestCase
 

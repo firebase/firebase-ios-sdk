@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRIAMMessageContentData.h"
+#import "Private/Data/FIRIAMMessageContentData.h"
 
 NS_ASSUME_NONNULL_BEGIN
 /**

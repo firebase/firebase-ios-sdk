@@ -22,8 +22,8 @@
 #include "Crashlytics/Helpers/FIRCLSFeatures.h"
 #include "Crashlytics/Helpers/FIRCLSFile.h"
 
-#import "FIRCLSByteUtility.h"
-#import "FIRCLSUUID.h"
+#import "Shared/FIRCLSByteUtility.h"
+#import "Shared/FIRCLSUUID.h"
 
 #import <CommonCrypto/CommonHMAC.h>
 

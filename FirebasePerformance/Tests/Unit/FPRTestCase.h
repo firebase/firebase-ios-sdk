@@ -14,7 +14,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FIRAppFake.h"
+#import "Fakes/FIRAppFake.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

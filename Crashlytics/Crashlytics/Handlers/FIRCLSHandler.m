@@ -20,7 +20,7 @@
 #include "Crashlytics/Components/FIRCLSProcess.h"
 #include "Crashlytics/Helpers/FIRCLSUtility.h"
 
-#import "FIRCLSReportManager_Private.h"
+#import "Crashlytics/Controllers/FIRCLSReportManager_Private.h"
 
 void FIRCLSHandler(FIRCLSFile* file,
                    thread_t crashedThread,

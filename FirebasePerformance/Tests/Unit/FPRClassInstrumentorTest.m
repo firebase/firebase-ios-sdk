@@ -14,9 +14,9 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FPRClassInstrumentor.h"
-#import "FPRClassInstrumentor_Private.h"
-#import "FPRSelectorInstrumentor.h"
+#import "Instrumentation/FPRClassInstrumentor.h"
+#import "Instrumentation/FPRClassInstrumentor_Private.h"
+#import "Instrumentation/FPRSelectorInstrumentor.h"
 
 @interface FPRClassInstrumentorTest : XCTestCase
 

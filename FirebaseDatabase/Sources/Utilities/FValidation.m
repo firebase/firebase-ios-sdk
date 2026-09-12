@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#import "FValidation.h"
-#import "FConstants.h"
-#import "FParsedUrl.h"
-#import "FTypedefs.h"
+#import "Utilities/FValidation.h"
+#import "Constants/FConstants.h"
+#import "Utilities/FParsedUrl.h"
+#import "Utilities/FTypedefs.h"
 
 // Have to escape:  * ? + [ ( ) { } ^ $ | \ . /
 // See:

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FNode.h"
+#import "Snapshot/FNode.h"
 #import <Foundation/Foundation.h>
 
 @class FImmutableSortedDictionary;

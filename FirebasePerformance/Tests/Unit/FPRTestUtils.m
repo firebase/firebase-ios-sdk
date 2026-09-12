@@ -15,11 +15,11 @@
 #import "FPRTestUtils.h"
 
 #import "FPRNanoPbUtils.h"
-#import "FPRMemoryGaugeData.h"
-#import "FPRNetworkTrace+Private.h"
-#import "FPRNetworkTrace.h"
-#import "FIRTrace+Internal.h"
-#import "FIRTrace+Private.h"
+#import "Gauges/Memory/FPRMemoryGaugeData.h"
+#import "Instrumentation/FPRNetworkTrace+Private.h"
+#import "Instrumentation/FPRNetworkTrace.h"
+#import "Timer/FIRTrace+Internal.h"
+#import "Timer/FIRTrace+Private.h"
 
 #import "perf_metric.nanopb.h"
 

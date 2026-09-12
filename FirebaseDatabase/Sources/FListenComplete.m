@@ -15,8 +15,8 @@
  */
 
 #import "FListenComplete.h"
-#import "FOperationSource.h"
-#import "FPath.h"
+#import "Core/Operation/FOperationSource.h"
+#import "Core/Utilities/FPath.h"
 
 @interface FListenComplete ()
 @property(nonatomic, strong, readwrite) FOperationSource *source;

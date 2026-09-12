@@ -19,16 +19,16 @@
 #import <CoreTelephony/CTTelephonyNetworkInfo.h>
 #endif
 
-#import "FPRAppActivityTracker.h"
-#import "FPRConstants.h"
+#import "AppActivity/FPRAppActivityTracker.h"
+#import "Common/FPRConstants.h"
 #import "FIRPerformance+Internal.h"
 #import "FPRDataUtils.h"
 #import "FirebasePerformance/FIRPerformance.h"
-#import "FIRTrace+Internal.h"
-#import "FIRTrace+Private.h"
+#import "Timer/FIRTrace+Internal.h"
+#import "Timer/FIRTrace+Private.h"
 
-#import "FPRCPUGaugeData.h"
-#import "FPRMemoryGaugeData.h"
+#import "Gauges/CPU/FPRCPUGaugeData.h"
+#import "Gauges/Memory/FPRMemoryGaugeData.h"
 
 #define BYTES_TO_KB(x) (x / 1024)
 

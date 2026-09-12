@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "FTypedefs_Private.h"
-#import "FPath.h"
-#import "FTypedefs.h"
+#import "Api/Private/FTypedefs_Private.h"
+#import "Core/Utilities/FPath.h"
+#import "Utilities/FTypedefs.h"
 #import <Foundation/Foundation.h>
 
 @interface FTupleTransaction : NSObject

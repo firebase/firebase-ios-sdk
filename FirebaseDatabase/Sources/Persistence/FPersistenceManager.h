@@ -16,13 +16,13 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FQuerySpec.h"
-#import "FRepoInfo.h"
-#import "FCacheNode.h"
-#import "FCachePolicy.h"
-#import "FStorageEngine.h"
-#import "FCompoundWrite.h"
-#import "FNode.h"
+#import "Core/FQuerySpec.h"
+#import "Core/FRepoInfo.h"
+#import "Core/View/FCacheNode.h"
+#import "Persistence/FCachePolicy.h"
+#import "Persistence/FStorageEngine.h"
+#import "Snapshot/FCompoundWrite.h"
+#import "Snapshot/FNode.h"
 
 @interface FPersistenceManager : NSObject
 

@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FPRGDTRateLimiter.h"
+#import "Loggers/FPRGDTRateLimiter.h"
 
 #import <UIKit/UIKit.h>
 
-#import "FPRPerfDate.h"
-#import "FPRConfigurations.h"
+#import "Common/FPRPerfDate.h"
+#import "Configurations/FPRConfigurations.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

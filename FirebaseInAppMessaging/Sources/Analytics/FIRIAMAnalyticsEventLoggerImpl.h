@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRIAMAnalyticsEventLogger.h"
+#import "Private/Flows/FIRIAMAnalyticsEventLogger.h"
 
 @class FIRIAMClearcutLogger;
 @class GULUserDefaults;

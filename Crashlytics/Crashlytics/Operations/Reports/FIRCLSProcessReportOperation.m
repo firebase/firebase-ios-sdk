@@ -12,15 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRCLSProcessReportOperation.h"
+#import "Crashlytics/Operations/Reports/FIRCLSProcessReportOperation.h"
 
-#import "FIRCLSFile.h"
-#import "FIRCLSInternalReport.h"
-#import "FIRCLSSymbolResolver.h"
-#import "FIRCLSDemangleOperation.h"
-#import "FIRCLSSerializeSymbolicatedFramesOperation.h"
-#import "FIRCLSSymbolicationOperation.h"
-#import "FIRStackFrame_Private.h"
+#import "Crashlytics/Helpers/FIRCLSFile.h"
+#import "Crashlytics/Models/FIRCLSInternalReport.h"
+#import "Crashlytics/Models/FIRCLSSymbolResolver.h"
+#import "Crashlytics/Operations/Symbolication/FIRCLSDemangleOperation.h"
+#import "Crashlytics/Operations/Symbolication/FIRCLSSerializeSymbolicatedFramesOperation.h"
+#import "Crashlytics/Operations/Symbolication/FIRCLSSymbolicationOperation.h"
+#import "Crashlytics/Private/FIRStackFrame_Private.h"
 
 @implementation FIRCLSProcessReportOperation
 

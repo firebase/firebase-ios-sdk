@@ -15,12 +15,12 @@
  */
 
 #import <XCTest/XCTest.h>
-#import "FQuerySpec.h"
+#import "Core/FQuerySpec.h"
 #import "FPathIndex.h"
-#import "FPersistenceManager.h"
-#import "FEmptyNode.h"
-#import "FIndexedNode.h"
-#import "FSnapshotUtilities.h"
+#import "Persistence/FPersistenceManager.h"
+#import "Snapshot/FEmptyNode.h"
+#import "Snapshot/FIndexedNode.h"
+#import "Snapshot/FSnapshotUtilities.h"
 #import "FMockStorageEngine.h"
 #import "FTestCachePolicy.h"
 #import "FTestHelpers.h"

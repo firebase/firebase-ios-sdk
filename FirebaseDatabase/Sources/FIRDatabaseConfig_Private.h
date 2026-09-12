@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import "FIRDatabaseConfig.h"
-#import "FIRDatabaseConnectionContextProvider.h"
+#import "Api/FIRDatabaseConfig.h"
+#import "Login/FIRDatabaseConnectionContextProvider.h"
 
 @protocol FStorageEngine;
 

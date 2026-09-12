@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FTupleSetIdPath.h"
+#import "Utilities/Tuples/FTupleSetIdPath.h"
 
 @implementation FTupleSetIdPath
 

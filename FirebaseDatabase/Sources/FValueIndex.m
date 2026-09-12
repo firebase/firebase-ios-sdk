@@ -17,8 +17,8 @@
 #import "FValueIndex.h"
 #import "FMaxNode.h"
 #import "FNamedNode.h"
-#import "FSnapshotUtilities.h"
-#import "FUtilities.h"
+#import "Snapshot/FSnapshotUtilities.h"
+#import "Utilities/FUtilities.h"
 
 @implementation FValueIndex
 

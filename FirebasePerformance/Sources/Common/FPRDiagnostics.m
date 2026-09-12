@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FPRDiagnostics.h"
-#import "FPRDiagnostics_Private.h"
-#import "FPRConfigurations.h"
+#import "Common/FPRDiagnostics.h"
+#import "Common/FPRDiagnostics_Private.h"
+#import "Configurations/FPRConfigurations.h"
 
 void __FPRAssert(id object, BOOL condition, const char *func) {
   static BOOL diagnosticsEnabled = NO;

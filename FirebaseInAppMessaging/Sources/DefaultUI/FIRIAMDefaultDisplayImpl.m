@@ -19,15 +19,15 @@
 
 #import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
-#import "FIRIAMBannerViewController.h"
-#import "FIRIAMCardViewController.h"
-#import "FIRCore+InAppMessagingDisplay.h"
-#import "FIRIAMDefaultDisplayImpl.h"
-#import "FIRIAMRenderingWindowHelper.h"
-#import "FIRIAMImageOnlyViewController.h"
-#import "FIRIAMModalViewController.h"
-#import "FIRIAMTimeFetcher.h"
-#import "FIRInAppMessaging.h"
+#import "DefaultUI/Banner/FIRIAMBannerViewController.h"
+#import "DefaultUI/Card/FIRIAMCardViewController.h"
+#import "DefaultUI/FIRCore+InAppMessagingDisplay.h"
+#import "DefaultUI/FIRIAMDefaultDisplayImpl.h"
+#import "DefaultUI/FIRIAMRenderingWindowHelper.h"
+#import "DefaultUI/ImageOnly/FIRIAMImageOnlyViewController.h"
+#import "DefaultUI/Modal/FIRIAMModalViewController.h"
+#import "Private/Util/FIRIAMTimeFetcher.h"
+#import "FirebaseInAppMessaging/FIRInAppMessaging.h"
 
 @implementation FIRIAMDefaultDisplayImpl
 

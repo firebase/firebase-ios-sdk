@@ -17,8 +17,8 @@
 #import "FNamedNode.h"
 #import "FIndex.h"
 #import "FMaxNode.h"
-#import "FEmptyNode.h"
-#import "FUtilities.h"
+#import "Snapshot/FEmptyNode.h"
+#import "Utilities/FUtilities.h"
 
 @interface FNamedNode ()
 @property(nonatomic, strong, readwrite) NSString *name;

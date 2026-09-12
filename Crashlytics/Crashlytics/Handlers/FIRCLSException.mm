@@ -16,24 +16,24 @@
 
 #include "Crashlytics/Handlers/FIRCLSException.h"
 
-#import "FIRExceptionModel_Private.h"
-#import "FIRStackFrame_Private.h"
+#import "Crashlytics/Private/FIRExceptionModel_Private.h"
+#import "Crashlytics/Private/FIRStackFrame_Private.h"
 
 #include "Crashlytics/Components/FIRCLSApplication.h"
 #include "Crashlytics/Components/FIRCLSContext.h"
 #include "Crashlytics/Components/FIRCLSGlobals.h"
 #include "Crashlytics/Components/FIRCLSProcess.h"
-#import "FIRCLSUserLogging.h"
+#import "Crashlytics/Components/FIRCLSUserLogging.h"
 
 #include "Crashlytics/Handlers/FIRCLSHandler.h"
 #include "Crashlytics/Helpers/FIRCLSFile.h"
-#import "FIRCLSLogger.h"
-#import "FIRCLSUtility.h"
+#import "Crashlytics/Helpers/FIRCLSLogger.h"
+#import "Crashlytics/Helpers/FIRCLSUtility.h"
 
-#import "FIRCLSReportManager_Private.h"
-#import "FIRCLSExecutionIdentifierModel.h"
-#import "FIRCLSFileManager.h"
-#import "FIRCLSInternalReport.h"
+#import "Crashlytics/Controllers/FIRCLSReportManager_Private.h"
+#import "Crashlytics/Models/FIRCLSExecutionIdentifierModel.h"
+#import "Crashlytics/Models/FIRCLSFileManager.h"
+#import "Crashlytics/Models/FIRCLSInternalReport.h"
 #include "Crashlytics/Operations/Symbolication/FIRCLSDemangleOperation.h"
 
 // C++/Objective-C exception handling

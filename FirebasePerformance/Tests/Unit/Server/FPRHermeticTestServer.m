@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FPRHermeticTestServer.h"
+#import "Server/FPRHermeticTestServer.h"
 #import "FPRTestUtils.h"
 
 @interface FPRHermeticTestServer ()

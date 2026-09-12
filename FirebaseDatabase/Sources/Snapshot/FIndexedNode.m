@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-#import "FIndexedNode.h"
+#import "Snapshot/FIndexedNode.h"
 
 #import "FIndex.h"
 #import "FKeyIndex.h"
 #import "FPriorityIndex.h"
-#import "FChildrenNode.h"
+#import "Snapshot/FChildrenNode.h"
 #import "FImmutableSortedSet.h"
 
 static FImmutableSortedSet *FALLBACK_INDEX;

@@ -14,7 +14,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FPRDate.h"
+#import "Common/FPRDate.h"
 
 /** Internal fake date class which can be used to move the clock ahead or behind for unit tests. */
 @interface FPRFakeDate : NSObject <FPRDate>

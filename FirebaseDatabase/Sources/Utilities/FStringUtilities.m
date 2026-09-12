@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FStringUtilities.h"
+#import "Utilities/FStringUtilities.h"
 #import "NSData+SRB64Additions.h"
 #import <CommonCrypto/CommonDigest.h>
 

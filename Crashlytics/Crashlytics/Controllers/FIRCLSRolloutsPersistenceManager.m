@@ -14,9 +14,9 @@
 
 #import <Foundation/Foundation.h>
 #include "Crashlytics/Components/FIRCLSUserLogging.h"
-#import "FIRCLSLogger.h"
-#import "FIRCLSFileManager.h"
-#import "FIRCLSInternalReport.h"
+#import "Crashlytics/Helpers/FIRCLSLogger.h"
+#import "Crashlytics/Models/FIRCLSFileManager.h"
+#import "Crashlytics/Models/FIRCLSInternalReport.h"
 
 #if SWIFT_PACKAGE
 @import FirebaseCrashlyticsSwift;

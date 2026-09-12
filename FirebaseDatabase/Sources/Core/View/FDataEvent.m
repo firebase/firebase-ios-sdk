@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "FDataEvent.h"
-#import "FIRDatabaseQuery_Private.h"
-#import "FEventRegistration.h"
+#import "Core/View/FDataEvent.h"
+#import "Api/Private/FIRDatabaseQuery_Private.h"
+#import "Core/View/FEventRegistration.h"
 #import "FIndex.h"
 
 @interface FDataEvent ()

@@ -12,15 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRCLSProcessReportOperation.h"
+#import "Crashlytics/Operations/Reports/FIRCLSProcessReportOperation.h"
 
 #import <Foundation/Foundation.h>
 #import <XCTest/XCTest.h>
 
-#import "FIRCLSFile.h"
-#import "FIRCLSFileManager.h"
-#import "FIRCLSInternalReport.h"
-#import "FIRStackFrame_Private.h"
+#import "Crashlytics/Helpers/FIRCLSFile.h"
+#import "Crashlytics/Models/FIRCLSFileManager.h"
+#import "Crashlytics/Models/FIRCLSInternalReport.h"
+#import "Crashlytics/Private/FIRStackFrame_Private.h"
 #import "FIRCLSMockSymbolResolver.h"
 
 @interface FIRCLSProcessReportOperationTests : XCTestCase

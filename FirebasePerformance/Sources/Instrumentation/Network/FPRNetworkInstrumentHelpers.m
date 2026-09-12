@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FPRNetworkInstrumentHelpers.h"
+#import "Instrumentation/Network/FPRNetworkInstrumentHelpers.h"
 
-#import "FPRClassInstrumentor.h"
-#import "FPRSelectorInstrumentor.h"
+#import "Instrumentation/FPRClassInstrumentor.h"
+#import "Instrumentation/FPRSelectorInstrumentor.h"
 
 FOUNDATION_EXTERN_INLINE
 void ThrowExceptionBecauseSelectorNotFoundOnClass(SEL selector, Class aClass) {

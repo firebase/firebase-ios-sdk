@@ -14,12 +14,12 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FPRConfigurations+Private.h"
-#import "FPRCPUGaugeCollector+Private.h"
-#import "FPRCPUGaugeCollector.h"
+#import "Configurations/FPRConfigurations+Private.h"
+#import "Gauges/CPU/FPRCPUGaugeCollector+Private.h"
+#import "Gauges/CPU/FPRCPUGaugeCollector.h"
 
 #import <OCMock/OCMock.h>
-#import "FPRFakeConfigurations.h"
+#import "Fakes/FPRFakeConfigurations.h"
 
 extern uint64_t dispatch_benchmark(size_t count, void (^block)(void));
 

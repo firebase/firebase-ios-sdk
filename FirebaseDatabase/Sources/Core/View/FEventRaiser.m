@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-#import "FEventRaiser.h"
-#import "FRepo.h"
-#import "FRepoManager.h"
-#import "FDataEvent.h"
-#import "FTypedefs.h"
-#import "FUtilities.h"
-#import "FTupleUserCallback.h"
+#import "Core/View/FEventRaiser.h"
+#import "Core/FRepo.h"
+#import "Core/FRepoManager.h"
+#import "Core/View/FDataEvent.h"
+#import "Utilities/FTypedefs.h"
+#import "Utilities/FUtilities.h"
+#import "Utilities/Tuples/FTupleUserCallback.h"
 
 @interface FEventRaiser ()
 

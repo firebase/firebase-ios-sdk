@@ -16,10 +16,10 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FIRDatabaseConfig.h"
-#import "FConstants.h"
-#import "FPersistentConnection.h"
-#import "FRepoInfo.h"
+#import "Api/FIRDatabaseConfig.h"
+#import "Constants/FConstants.h"
+#import "Core/FPersistentConnection.h"
+#import "Core/FRepoInfo.h"
 #import "FTestHelpers.h"
 
 @interface FPersistentConnectionTestDouble : FPersistentConnection

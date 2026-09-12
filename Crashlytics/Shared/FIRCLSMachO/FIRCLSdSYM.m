@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRCLSdSYM.h"
+#import "Shared/FIRCLSMachO/FIRCLSdSYM.h"
 
-#import "FIRCLSMachOBinary.h"
+#import "Shared/FIRCLSMachO/FIRCLSMachOBinary.h"
 
 #define CLS_XCODE_DSYM_PREFIX (@"com.apple.xcode.dsym.")
 

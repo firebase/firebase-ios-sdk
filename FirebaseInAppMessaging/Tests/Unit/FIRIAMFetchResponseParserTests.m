@@ -16,12 +16,12 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
-#import "FIRIAMFetchResponseParser.h"
-#import "FIRIAMMessageContentDataWithImageURL.h"
-#import "FIRIAMMessageDefinition.h"
-#import "FIRIAMDisplayTriggerDefinition.h"
-#import "FIRIAMTimeFetcher.h"
-#import "UIColor+FIRIAMHexString.h"
+#import "Private/Data/FIRIAMFetchResponseParser.h"
+#import "Private/Data/FIRIAMMessageContentDataWithImageURL.h"
+#import "Private/Data/FIRIAMMessageDefinition.h"
+#import "Private/DisplayTrigger/FIRIAMDisplayTriggerDefinition.h"
+#import "Private/Util/FIRIAMTimeFetcher.h"
+#import "Util/UIColor+FIRIAMHexString.h"
 
 @interface FIRIAMFetchResponseParserTests : XCTestCase
 @property(nonatomic, copy) NSString *jsonResponse;

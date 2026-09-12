@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import "FRepoInfo.h"
-#import "FPath.h"
+#import "Core/FRepoInfo.h"
+#import "Core/Utilities/FPath.h"
 
 @interface FParsedUrl : NSObject
 

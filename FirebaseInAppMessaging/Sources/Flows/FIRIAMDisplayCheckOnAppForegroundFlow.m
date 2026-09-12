@@ -20,8 +20,8 @@
 #import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
 #import "FIRCore+InAppMessaging.h"
-#import "FIRIAMDisplayCheckOnAppForegroundFlow.h"
-#import "FIRIAMDisplayExecutor.h"
+#import "Private/Flows/FIRIAMDisplayCheckOnAppForegroundFlow.h"
+#import "Private/Flows/FIRIAMDisplayExecutor.h"
 
 @implementation FIRIAMDisplayCheckOnAppForegroundFlow
 

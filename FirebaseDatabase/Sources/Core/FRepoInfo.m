@@ -16,8 +16,8 @@
 
 #import <GoogleUtilities/GULUserDefaults.h>
 
-#import "FConstants.h"
-#import "FRepoInfo.h"
+#import "Constants/FConstants.h"
+#import "Core/FRepoInfo.h"
 
 @interface FRepoInfo ()
 

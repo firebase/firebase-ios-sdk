@@ -19,8 +19,8 @@
 #import <FirebaseAuthInterop/FIRAuthInterop.h>
 #import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
-#import "FIRDatabase_Private.h"
-#import "FConstants.h"
+#import "Api/Private/FIRDatabase_Private.h"
+#import "Constants/FConstants.h"
 #import "FIRDatabaseConfig_Private.h"
 
 #import <AppCheckFake/FIRAppCheckFake.h>

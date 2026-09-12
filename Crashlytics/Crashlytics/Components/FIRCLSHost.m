@@ -17,12 +17,12 @@
 #include <mach/mach.h>
 #include <sys/sysctl.h>
 
-#import "FIRCLSApplication.h"
+#import "Crashlytics/Components/FIRCLSApplication.h"
 #include "Crashlytics/Components/FIRCLSGlobals.h"
 #include "Crashlytics/Helpers/FIRCLSDefines.h"
 #include "Crashlytics/Helpers/FIRCLSFile.h"
 #include "Crashlytics/Helpers/FIRCLSUtility.h"
-#import "FIRCLSFABHost.h"
+#import "Shared/FIRCLSFABHost.h"
 
 #if TARGET_OS_IPHONE
 #import <UIKit/UIKit.h>

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FUtilities.h"
+#import "Utilities/FUtilities.h"
 #if !TARGET_OS_WATCH
 #import "FSRWebSocket.h"
 #endif // !TARGET_OS_WATCH

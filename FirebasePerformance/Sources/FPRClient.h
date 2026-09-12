@@ -15,8 +15,8 @@
 #import "FirebasePerformance/FIRTrace.h"
 
 #import "FPRConfiguration.h"
-#import "FPRGaugeManager.h"
-#import "FPRNetworkTrace.h"
+#import "Gauges/FPRGaugeManager.h"
+#import "Instrumentation/FPRNetworkTrace.h"
 
 /** NSError codes for FPRClient related errors */
 typedef NS_ENUM(NSInteger, FPRClientErrorCode) {

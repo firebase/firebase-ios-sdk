@@ -12,16 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FPRNSURLSessionDelegateInstrument.h"
+#import "Instrumentation/Network/Delegates/FPRNSURLSessionDelegateInstrument.h"
 
 #import "FPRConsoleLogger.h"
-#import "FPRClassInstrumentor.h"
-#import "FPRInstrument_Private.h"
-#import "FPRNetworkTrace.h"
-#import "FPRProxyObjectHelper.h"
-#import "FPRSelectorInstrumentor.h"
-#import "FPRNSURLSessionDelegate.h"
-#import "FPRNetworkInstrumentHelpers.h"
+#import "Instrumentation/FPRClassInstrumentor.h"
+#import "Instrumentation/FPRInstrument_Private.h"
+#import "Instrumentation/FPRNetworkTrace.h"
+#import "Instrumentation/FPRProxyObjectHelper.h"
+#import "Instrumentation/FPRSelectorInstrumentor.h"
+#import "Instrumentation/Network/Delegates/FPRNSURLSessionDelegate.h"
+#import "Instrumentation/Network/FPRNetworkInstrumentHelpers.h"
 
 /** Returns the dispatch queue for all instrumentation to occur on. */
 static dispatch_queue_t GetInstrumentationQueue(void) {

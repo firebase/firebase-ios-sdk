@@ -14,17 +14,17 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FIRCLSManagerData.h"
-#import "FIRCLSReportUploader_Private.h"
+#import "Crashlytics/Controllers/FIRCLSManagerData.h"
+#import "Crashlytics/Controllers/FIRCLSReportUploader_Private.h"
 
-#import "FIRCLSApplication.h"
-#import "FIRCLSDataCollectionArbiter.h"
-#import "FIRCLSDataCollectionToken.h"
-#import "FIRCLSDefines.h"
-#import "FIRCLSFileManager.h"
-#import "FIRCLSInternalReport.h"
-#import "FIRCLSSettings.h"
-#import "FIRCLSConstants.h"
+#import "Crashlytics/Components/FIRCLSApplication.h"
+#import "Crashlytics/DataCollection/FIRCLSDataCollectionArbiter.h"
+#import "Crashlytics/DataCollection/FIRCLSDataCollectionToken.h"
+#import "Crashlytics/Helpers/FIRCLSDefines.h"
+#import "Crashlytics/Models/FIRCLSFileManager.h"
+#import "Crashlytics/Models/FIRCLSInternalReport.h"
+#import "Crashlytics/Models/FIRCLSSettings.h"
+#import "Shared/FIRCLSConstants.h"
 #import "FABMockApplicationIdentifierModel.h"
 #import "FIRAppFake.h"
 #import "FIRCLSMockSettings.h"

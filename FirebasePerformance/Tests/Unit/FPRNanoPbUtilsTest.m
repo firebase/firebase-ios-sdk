@@ -19,14 +19,14 @@
 #import "FPRNanoPbUtils.h"
 #import <FirebasePerformance/FIRPerformance.h>
 
-#import "FPRConstants.h"
-#import "FPRNetworkTrace+Private.h"
-#import "FPRNetworkTrace.h"
-#import "FIRTrace+Internal.h"
-#import "FIRTrace+Private.h"
+#import "Common/FPRConstants.h"
+#import "Instrumentation/FPRNetworkTrace+Private.h"
+#import "Instrumentation/FPRNetworkTrace.h"
+#import "Timer/FIRTrace+Internal.h"
+#import "Timer/FIRTrace+Private.h"
 
-#import "FPRCPUGaugeData.h"
-#import "FPRMemoryGaugeData.h"
+#import "Gauges/CPU/FPRCPUGaugeData.h"
+#import "Gauges/Memory/FPRMemoryGaugeData.h"
 
 #import "FPRTestCase.h"
 #import "FPRTestUtils.h"

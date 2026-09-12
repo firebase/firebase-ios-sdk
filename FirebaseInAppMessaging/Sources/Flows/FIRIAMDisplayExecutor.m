@@ -21,14 +21,14 @@
 #import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
 #import "FIRCore+InAppMessaging.h"
-#import "FIRIAMMessageContentData.h"
-#import "FIRIAMMessageDefinition.h"
-#import "FIRIAMActivityLogger.h"
-#import "FIRIAMDisplayExecutor.h"
-#import "UIApplication+FIRForegroundWindowScene.h"
-#import "FIRInAppMessaging.h"
-#import "FIRInAppMessagingRenderingPrivate.h"
-#import "FIRIAMSDKRuntimeErrorCodes.h"
+#import "Private/Data/FIRIAMMessageContentData.h"
+#import "Private/Data/FIRIAMMessageDefinition.h"
+#import "Private/Flows/FIRIAMActivityLogger.h"
+#import "Private/Flows/FIRIAMDisplayExecutor.h"
+#import "Private/Util/UIApplication+FIRForegroundWindowScene.h"
+#import "FirebaseInAppMessaging/FIRInAppMessaging.h"
+#import "RenderingObjects/FIRInAppMessagingRenderingPrivate.h"
+#import "Runtime/FIRIAMSDKRuntimeErrorCodes.h"
 
 #import <FirebaseABTesting/FirebaseABTestingInternal.h>
 

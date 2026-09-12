@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "FTypedefs_Private.h"
-#import "FNode.h"
-#import "FTypedefs.h"
+#import "Api/Private/FTypedefs_Private.h"
+#import "Snapshot/FNode.h"
+#import "Utilities/FTypedefs.h"
 #import "FImmutableSortedDictionary.h"
 #import <Foundation/Foundation.h>
 

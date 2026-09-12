@@ -14,8 +14,8 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FIRExceptionModel_Private.h"
-#import "FIRStackFrame_Private.h"
+#import "Crashlytics/Private/FIRExceptionModel_Private.h"
+#import "Crashlytics/Private/FIRStackFrame_Private.h"
 
 @interface FIRExceptionModelTests : XCTestCase
 

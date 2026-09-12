@@ -22,11 +22,11 @@
 #import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
 #import "FIRCore+InAppMessaging.h"
-#import "FIRIAMClearcutUploader.h"
-#import "FIRIAMTimeFetcher.h"
+#import "Private/Analytics/FIRIAMClearcutUploader.h"
+#import "Private/Util/FIRIAMTimeFetcher.h"
 
-#import "FIRIAMClearcutHttpRequestSender.h"
-#import "FIRIAMClearcutLogStorage.h"
+#import "Analytics/FIRIAMClearcutHttpRequestSender.h"
+#import "Analytics/FIRIAMClearcutLogStorage.h"
 
 // a macro for turning a millisecond value into seconds
 #define MILLS_TO_SECONDS(x) (((long)x) / 1000)

@@ -18,7 +18,7 @@
 
 #import <OCMock/OCMock.h>
 
-#import "FIRDatabaseConnectionContextProvider.h"
+#import "Login/FIRDatabaseConnectionContextProvider.h"
 
 #import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 #import <AppCheckFake/FIRAppCheckFake.h>

@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FPRNSURLConnectionDelegateInstrument.h"
+#import "Instrumentation/Network/Delegates/FPRNSURLConnectionDelegateInstrument.h"
 
-#import "FPRClassInstrumentor.h"
-#import "FPRInstrument_Private.h"
-#import "FPRNetworkTrace.h"
-#import "FPRSelectorInstrumentor.h"
-#import "FPRNSURLConnectionDelegate.h"
-#import "FPRNetworkInstrumentHelpers.h"
+#import "Instrumentation/FPRClassInstrumentor.h"
+#import "Instrumentation/FPRInstrument_Private.h"
+#import "Instrumentation/FPRNetworkTrace.h"
+#import "Instrumentation/FPRSelectorInstrumentor.h"
+#import "Instrumentation/Network/Delegates/FPRNSURLConnectionDelegate.h"
+#import "Instrumentation/Network/FPRNetworkInstrumentHelpers.h"
 
 #pragma mark - NSURLConnectionDelegate methods
 

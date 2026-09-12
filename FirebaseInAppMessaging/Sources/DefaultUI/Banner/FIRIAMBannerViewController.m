@@ -17,9 +17,9 @@
 #import <TargetConditionals.h>
 #if TARGET_OS_IOS
 
-#import "FIRIAMBannerViewController.h"
-#import "FIRCore+InAppMessagingDisplay.h"
-#import "UIApplication+FIRForegroundWindowScene.h"
+#import "DefaultUI/Banner/FIRIAMBannerViewController.h"
+#import "DefaultUI/FIRCore+InAppMessagingDisplay.h"
+#import "Private/Util/UIApplication+FIRForegroundWindowScene.h"
 
 @interface FIRIAMBannerViewController ()
 

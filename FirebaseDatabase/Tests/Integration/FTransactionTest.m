@@ -15,7 +15,7 @@
  */
 
 #import "FTransactionTest.h"
-#import "FIRDatabaseQuery_Private.h"
+#import "Api/Private/FIRDatabaseQuery_Private.h"
 #import "FIRDatabaseConfig_Private.h"
 #import "FEventTester.h"
 #import "FTestHelpers.h"

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FPRFakeConfigurations.h"
+#import "Fakes/FPRFakeConfigurations.h"
 
 @interface FPRFakeConfigurations ()
 

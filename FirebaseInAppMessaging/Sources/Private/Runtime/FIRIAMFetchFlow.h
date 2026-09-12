@@ -16,12 +16,12 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRIAMActivityLogger.h"
-#import "FIRIAMBookKeeper.h"
-#import "FIRIAMDisplayExecutor.h"
-#import "FIRIAMMessageClientCache.h"
-#import "FIRIAMSDKModeManager.h"
-#import "FIRIAMTimeFetcher.h"
+#import "Private/Flows/FIRIAMActivityLogger.h"
+#import "Private/Flows/FIRIAMBookKeeper.h"
+#import "Private/Flows/FIRIAMDisplayExecutor.h"
+#import "Private/Flows/FIRIAMMessageClientCache.h"
+#import "Private/Runtime/FIRIAMSDKModeManager.h"
+#import "Private/Util/FIRIAMTimeFetcher.h"
 
 @protocol FIRIAMAnalyticsEventLogger;
 

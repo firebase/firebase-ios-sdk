@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#import "FUtilities.h"
+#import "Utilities/FUtilities.h"
 #import <FirebaseCoreExtension/FirebaseCoreInternal.h>
-#import "FConstants.h"
-#import "FAtomicNumber.h"
-#import "FStringUtilities.h"
+#import "Constants/FConstants.h"
+#import "Utilities/FAtomicNumber.h"
+#import "Utilities/FStringUtilities.h"
 
 #define ARC4RANDOM_MAX 0x100000000
 

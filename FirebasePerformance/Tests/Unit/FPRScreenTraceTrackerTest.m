@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FPRScreenTraceTracker+Private.h"
-#import "FPRScreenTraceTracker.h"
+#import "AppActivity/FPRScreenTraceTracker+Private.h"
+#import "AppActivity/FPRScreenTraceTracker.h"
 
 #import <XCTest/XCTest.h>
 #import <objc/runtime.h>
 
-#import "FIRTrace+Private.h"
+#import "Timer/FIRTrace+Private.h"
 
 #import <OCMock/OCMock.h>
 #import "FPRTestCase.h"

@@ -18,8 +18,8 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
-#import "FIRIAMAnalyticsEventLoggerImpl.h"
-#import "FIRIAMClearcutLogger.h"
+#import "Analytics/FIRIAMAnalyticsEventLoggerImpl.h"
+#import "Private/Analytics/FIRIAMClearcutLogger.h"
 
 #import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
 #import <FirebaseAnalyticsInterop/FIRInteropEventNames.h>

@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-#import "FValueEventRegistration.h"
+#import "Core/View/FValueEventRegistration.h"
 #import <FirebaseCoreExtension/FirebaseCoreInternal.h>
-#import "FIRDataSnapshot_Private.h"
-#import "FIRDatabaseQuery_Private.h"
-#import "FQueryParams.h"
-#import "FQuerySpec.h"
-#import "FCancelEvent.h"
-#import "FDataEvent.h"
+#import "Api/Private/FIRDataSnapshot_Private.h"
+#import "Api/Private/FIRDatabaseQuery_Private.h"
+#import "Core/FQueryParams.h"
+#import "Core/FQuerySpec.h"
+#import "Core/View/FCancelEvent.h"
+#import "Core/View/FDataEvent.h"
 
 @interface FValueEventRegistration ()
 @property(nonatomic, strong) FRepo *repo;

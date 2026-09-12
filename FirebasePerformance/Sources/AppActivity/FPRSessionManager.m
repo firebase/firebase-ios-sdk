@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FPRSessionManager.h"
-#import "FPRSessionManager+Private.h"
+#import "AppActivity/FPRSessionManager.h"
+#import "AppActivity/FPRSessionManager+Private.h"
 
-#import "FPRConfigurations.h"
+#import "Configurations/FPRConfigurations.h"
 #import "FPRConsoleLogger.h"
 
 #import <UIKit/UIKit.h>

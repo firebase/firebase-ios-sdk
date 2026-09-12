@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "FTypedefs_Private.h"
-#import "FPath.h"
-#import "FNode.h"
+#import "Api/Private/FTypedefs_Private.h"
+#import "Core/Utilities/FPath.h"
+#import "Snapshot/FNode.h"
 #import <Foundation/Foundation.h>
 
 @class FSparseSnapshotTree;

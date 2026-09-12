@@ -15,12 +15,12 @@
 #import <GoogleUtilities/GULUserDefaults.h>
 #import <XCTest/XCTest.h>
 
-#import "FPRConfigurations+Private.h"
-#import "FPRConfigurations.h"
-#import "FPRRemoteConfigFlags+Private.h"
-#import "FPRRemoteConfigFlags.h"
+#import "Configurations/FPRConfigurations+Private.h"
+#import "Configurations/FPRConfigurations.h"
+#import "Configurations/FPRRemoteConfigFlags+Private.h"
+#import "Configurations/FPRRemoteConfigFlags.h"
 
-#import "FPRFakeRemoteConfig.h"
+#import "Configurations/FPRFakeRemoteConfig.h"
 
 static NSInteger const kLogSource = 462;  // LogRequest_LogSource_Fireperf
 

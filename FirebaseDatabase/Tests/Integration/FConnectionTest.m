@@ -18,8 +18,8 @@
 
 #import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
-#import "FIRDatabaseQuery_Private.h"
-#import "FConnection.h"
+#import "Api/Private/FIRDatabaseQuery_Private.h"
+#import "Realtime/FConnection.h"
 #import "FTestBase.h"
 #import "FTestHelpers.h"
 

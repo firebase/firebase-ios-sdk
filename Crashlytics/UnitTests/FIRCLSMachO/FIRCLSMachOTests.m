@@ -17,12 +17,12 @@
 #include <mach-o/getsect.h>
 #include <mach-o/utils.h>
 
-#include "FIRCLSDefines.h"
+#include "Crashlytics/Helpers/FIRCLSDefines.h"
 
-#import "FIRCLSMachO.h"
-#import "FIRCLSMachOBinary.h"
-#import "FIRCLSMachOSlice.h"
-#import "FIRCLSdSYM.h"
+#import "Shared/FIRCLSMachO/FIRCLSMachO.h"
+#import "Shared/FIRCLSMachO/FIRCLSMachOBinary.h"
+#import "Shared/FIRCLSMachO/FIRCLSMachOSlice.h"
+#import "Shared/FIRCLSMachO/FIRCLSdSYM.h"
 
 @implementation FIRCLSMachOTests
 

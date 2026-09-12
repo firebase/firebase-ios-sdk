@@ -17,7 +17,7 @@
 #import <Foundation/Foundation.h>
 #import <XCTest/XCTest.h>
 
-#import "FRepoInfo.h"
+#import "Core/FRepoInfo.h"
 #import "FTestHelpers.h"
 @interface FRepoInfoTest : XCTestCase
 

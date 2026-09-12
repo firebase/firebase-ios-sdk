@@ -16,7 +16,7 @@
 
 #import "FIRFakeApp.h"
 
-#import "FIRDatabaseComponent.h"
+#import "Api/FIRDatabaseComponent.h"
 #import "FIRAuthInteropFake.h"
 #import "FIRComponentTestUtilities.h"
 

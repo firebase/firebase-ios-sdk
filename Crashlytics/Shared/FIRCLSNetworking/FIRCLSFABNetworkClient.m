@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRCLSFABNetworkClient.h"
+#import "Shared/FIRCLSNetworking/FIRCLSFABNetworkClient.h"
 
-#import "FIRCLSNetworkResponseHandler.h"
+#import "Shared/FIRCLSNetworking/FIRCLSNetworkResponseHandler.h"
 
 static const float FIRCLSNetworkMinimumRetryJitter = 0.90f;
 static const float FIRCLSNetworkMaximumRetryJitter = 1.10f;

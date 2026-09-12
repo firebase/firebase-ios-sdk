@@ -15,9 +15,9 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "FIRIAMClientInfoFetcher.h"
-#import "FIRIAMAnalyticsEventLogger.h"
-#import "FIRIAMTimeFetcher.h"
+#import "Private/Analytics/FIRIAMClientInfoFetcher.h"
+#import "Private/Flows/FIRIAMAnalyticsEventLogger.h"
+#import "Private/Util/FIRIAMTimeFetcher.h"
 
 @class FIRIAMClearcutUploader;
 

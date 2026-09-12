@@ -17,12 +17,12 @@
 #include <stdlib.h>
 #include <string.h>
 
-#import "FIRCLSConstants.h"
+#import "Shared/FIRCLSConstants.h"
 
-#import "FIRCLSFileManager.h"
-#import "FIRCLSInstallIdentifierModel.h"
-#import "FIRCLSInternalReport.h"
-#import "FIRCLSSettings.h"
+#import "Crashlytics/Models/FIRCLSFileManager.h"
+#import "Crashlytics/Models/FIRCLSInstallIdentifierModel.h"
+#import "Crashlytics/Models/FIRCLSInternalReport.h"
+#import "Crashlytics/Models/FIRCLSSettings.h"
 
 #include "Crashlytics/Components/FIRCLSApplication.h"
 #include "Crashlytics/Components/FIRCLSCrashedMarkerFile.h"

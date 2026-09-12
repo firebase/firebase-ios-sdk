@@ -14,7 +14,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FIRCLSConstants.h"
+#import "Shared/FIRCLSConstants.h"
 #import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
 #define STR_HELPER(x) #x

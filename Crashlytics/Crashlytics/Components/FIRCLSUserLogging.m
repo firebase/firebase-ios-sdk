@@ -19,7 +19,7 @@
 #include "Crashlytics/Components/FIRCLSGlobals.h"
 #include "Crashlytics/Helpers/FIRCLSUtility.h"
 
-#import "FIRCLSReportManager_Private.h"
+#import "Crashlytics/Controllers/FIRCLSReportManager_Private.h"
 
 NSString *const FIRCLSStartTimeKey = @"com.crashlytics.kit-start-time";
 NSString *const FIRCLSFirstRunloopTurnTimeKey = @"com.crashlytics.first-run-loop-time";

@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#import "FWriteRecord.h"
-#import "FPath.h"
-#import "FCompoundWrite.h"
-#import "FNode.h"
+#import "Core/FWriteRecord.h"
+#import "Core/Utilities/FPath.h"
+#import "Snapshot/FCompoundWrite.h"
+#import "Snapshot/FNode.h"
 
 @interface FWriteRecord ()
 @property(nonatomic, readwrite) NSInteger writeId;

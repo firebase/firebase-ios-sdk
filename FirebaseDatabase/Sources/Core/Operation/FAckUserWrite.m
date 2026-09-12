@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#import "FAckUserWrite.h"
-#import "FOperationSource.h"
-#import "FImmutableTree.h"
-#import "FPath.h"
+#import "Core/Operation/FAckUserWrite.h"
+#import "Core/Operation/FOperationSource.h"
+#import "Core/Utilities/FImmutableTree.h"
+#import "Core/Utilities/FPath.h"
 
 @implementation FAckUserWrite
 

@@ -15,7 +15,7 @@
 #ifndef FIRCLSExistingReportManager_Private_h
 #define FIRCLSExistingReportManager_Private_h
 
-#import "FIRCLSExistingReportManager.h"
+#import "Crashlytics/Controllers/FIRCLSExistingReportManager.h"
 
 /**
  * Visible for testing

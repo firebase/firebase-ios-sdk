@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#import "FSparseSnapshotTree.h"
-#import "FSyncTree.h"
+#import "Core/FSparseSnapshotTree.h"
+#import "Core/FSyncTree.h"
 #import "FClock.h"
-#import "FCompoundWrite.h"
-#import "FNode.h"
+#import "Snapshot/FCompoundWrite.h"
+#import "Snapshot/FNode.h"
 #import <Foundation/Foundation.h>
 
 @interface FServerValues : NSObject

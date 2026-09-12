@@ -17,7 +17,7 @@
 #import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 #import <Foundation/Foundation.h>
 
-#import "FParsedUrl.h"
+#import "Utilities/FParsedUrl.h"
 
 @interface FUtilities : NSObject
 

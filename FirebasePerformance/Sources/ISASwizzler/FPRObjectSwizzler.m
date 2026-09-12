@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FPRObjectSwizzler.h"
+#import "ISASwizzler/FPRObjectSwizzler.h"
 
 #import <objc/runtime.h>
 
-#import "FPRObjectSwizzler+Internal.h"
-#import "FPRSwizzledObject.h"
+#import "ISASwizzler/FPRObjectSwizzler+Internal.h"
+#import "ISASwizzler/FPRSwizzledObject.h"
 
 @implementation FPRObjectSwizzler {
   // The swizzled object.

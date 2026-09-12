@@ -18,10 +18,10 @@
 
 #import "FMaxNode.h"
 #import "FNamedNode.h"
-#import "FEmptyNode.h"
-#import "FLeafNode.h"
-#import "FNode.h"
-#import "FUtilities.h"
+#import "Snapshot/FEmptyNode.h"
+#import "Snapshot/FLeafNode.h"
+#import "Snapshot/FNode.h"
+#import "Utilities/FUtilities.h"
 
 // TODO: Abstract into some common base class?
 

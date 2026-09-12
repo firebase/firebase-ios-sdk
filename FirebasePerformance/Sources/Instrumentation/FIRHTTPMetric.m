@@ -13,13 +13,13 @@
 // limitations under the License.
 
 #import "FirebasePerformance/FIRHTTPMetric.h"
-#import "FIRHTTPMetric+Private.h"
+#import "Instrumentation/FIRHTTPMetric+Private.h"
 
-#import "FPRConstants.h"
-#import "FPRConfigurations.h"
+#import "Common/FPRConstants.h"
+#import "Configurations/FPRConfigurations.h"
 #import "FPRConsoleLogger.h"
 #import "FPRDataUtils.h"
-#import "FPRNetworkTrace.h"
+#import "Instrumentation/FPRNetworkTrace.h"
 
 @interface FIRHTTPMetric ()
 

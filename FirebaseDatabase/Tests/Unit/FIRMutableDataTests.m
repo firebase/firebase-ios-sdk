@@ -15,8 +15,8 @@
  */
 
 #import "FIRMutableDataTests.h"
-#import "FIRMutableData_Private.h"
-#import "FSnapshotUtilities.h"
+#import "Api/Private/FIRMutableData_Private.h"
+#import "Snapshot/FSnapshotUtilities.h"
 
 @implementation FIRMutableDataTests
 

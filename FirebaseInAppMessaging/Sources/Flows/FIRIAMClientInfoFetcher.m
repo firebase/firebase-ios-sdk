@@ -22,8 +22,8 @@
 
 #import "FIRCore+InAppMessaging.h"
 #import "FIRInAppMessagingPrivate.h"
-#import "FIRIAMClientInfoFetcher.h"
-#import "FIRIAMSDKRuntimeErrorCodes.h"
+#import "Private/Analytics/FIRIAMClientInfoFetcher.h"
+#import "Runtime/FIRIAMSDKRuntimeErrorCodes.h"
 
 @interface FIRIAMClientInfoFetcher ()
 

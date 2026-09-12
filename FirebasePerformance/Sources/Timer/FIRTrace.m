@@ -14,17 +14,17 @@
 
 #import "FirebasePerformance/FIRTrace.h"
 
-#import "FPRAppActivityTracker.h"
-#import "FPRSessionManager.h"
-#import "FPRConstants.h"
-#import "FPRDiagnostics.h"
-#import "FPRConfigurations.h"
+#import "AppActivity/FPRAppActivityTracker.h"
+#import "AppActivity/FPRSessionManager.h"
+#import "Common/FPRConstants.h"
+#import "Common/FPRDiagnostics.h"
+#import "Configurations/FPRConfigurations.h"
 #import "FPRClient.h"
 #import "FPRConsoleLogger.h"
 #import "FPRDataUtils.h"
-#import "FPRGaugeManager.h"
-#import "FIRTrace+Internal.h"
-#import "FIRTrace+Private.h"
+#import "Gauges/FPRGaugeManager.h"
+#import "Timer/FIRTrace+Internal.h"
+#import "Timer/FIRTrace+Private.h"
 
 @interface FIRTrace ()
 

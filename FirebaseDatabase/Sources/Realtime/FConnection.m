@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "FConnection.h"
+#import "Realtime/FConnection.h"
 #import <FirebaseCoreExtension/FirebaseCoreInternal.h>
-#import "FConstants.h"
+#import "Constants/FConstants.h"
 
 typedef enum {
     REALTIME_STATE_CONNECTING = 0,

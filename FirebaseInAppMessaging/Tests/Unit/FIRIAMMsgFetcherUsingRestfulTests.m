@@ -16,9 +16,9 @@
 
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
-#import "FIRIAMMessageDefinition.h"
-#import "FIRIAMMsgFetcherUsingRestful.h"
-#import "FIRIAMFetchFlow.h"
+#import "Private/Data/FIRIAMMessageDefinition.h"
+#import "Private/Flows/FIRIAMMsgFetcherUsingRestful.h"
+#import "Private/Runtime/FIRIAMFetchFlow.h"
 
 static NSString *serverHost = @"myhost";
 static NSString *projectNumber = @"My-project-number";

@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import "FTypedefs_Private.h"
-#import "FPath.h"
+#import "Api/Private/FTypedefs_Private.h"
+#import "Core/Utilities/FPath.h"
 #import <Foundation/Foundation.h>
 
 @protocol FIndex;

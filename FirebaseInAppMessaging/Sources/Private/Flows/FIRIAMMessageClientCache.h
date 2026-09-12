@@ -15,9 +15,9 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "FIRIAMFetchResponseParser.h"
-#import "FIRIAMMessageDefinition.h"
-#import "FIRIAMBookKeeper.h"
+#import "Private/Data/FIRIAMFetchResponseParser.h"
+#import "Private/Data/FIRIAMMessageDefinition.h"
+#import "Private/Flows/FIRIAMBookKeeper.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

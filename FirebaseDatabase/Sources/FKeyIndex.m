@@ -16,9 +16,9 @@
 
 #import "FKeyIndex.h"
 #import "FNamedNode.h"
-#import "FEmptyNode.h"
-#import "FSnapshotUtilities.h"
-#import "FUtilities.h"
+#import "Snapshot/FEmptyNode.h"
+#import "Snapshot/FSnapshotUtilities.h"
+#import "Utilities/FUtilities.h"
 
 @interface FKeyIndex ()
 

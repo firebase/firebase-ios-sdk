@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FEvent.h"
+#import "Core/View/FEvent.h"
 #import <Foundation/Foundation.h>
 
 @protocol FEventRegistration;

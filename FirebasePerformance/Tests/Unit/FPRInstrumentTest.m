@@ -14,10 +14,10 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FPRClassInstrumentor.h"
-#import "FPRInstrument.h"
-#import "FPRInstrument_Private.h"
-#import "FPRSelectorInstrumentor.h"
+#import "Instrumentation/FPRClassInstrumentor.h"
+#import "Instrumentation/FPRInstrument.h"
+#import "Instrumentation/FPRInstrument_Private.h"
+#import "Instrumentation/FPRSelectorInstrumentor.h"
 
 #import <OCMock/OCMock.h>
 
