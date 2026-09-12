@@ -137,7 +137,7 @@ class Target {
    * Returns a lower bound of field values that can be used as a starting point
    * to scan the index defined by `field_index`.
    *
-   * Returns `model::MinValue()` if no lower bound exists.
+   * Returns `model::InternalMinValue()` if no lower bound exists.
    */
   IndexBoundValues GetLowerBound(const model::FieldIndex& field_index) const;
 
@@ -145,7 +145,7 @@ class Target {
    * Returns an upper bound of field values that can be used as an ending point
    * when scanning the index defined by `field_index`.
    *
-   * Returns `model::MaxValue()` if no upper bound exists.
+   * Returns `model::InternalMaxValue()` if no upper bound exists.
    */
   IndexBoundValues GetUpperBound(const model::FieldIndex& field_index) const;
 

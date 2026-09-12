@@ -58,6 +58,9 @@ class BundleSerializer {
   BundleDocument DecodeDocument(util::JsonReader& reader,
                                 const nlohmann::json& document) const;
 
+  nanopb::Message<google_firestore_v1_Value> DecodeValue(
+      util::JsonReader& reader, const nlohmann::json& value) const;
+
  private:
   BundledQuery DecodeBundledQuery(util::JsonReader& reader,
                                   const nlohmann::json& query) const;
@@ -67,8 +70,6 @@ class BundleSerializer {
                                  const nlohmann::json& filter) const;
   std::vector<core::Filter> DecodeCompositeFilter(
       util::JsonReader& reader, const nlohmann::json& filter) const;
-  nanopb::Message<google_firestore_v1_Value> DecodeValue(
-      util::JsonReader& reader, const nlohmann::json& value) const;
 
   core::Bound DecodeStartAtBound(util::JsonReader& reader,
                                  const nlohmann::json& query) const;

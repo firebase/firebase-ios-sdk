@@ -355,11 +355,11 @@ model::DocumentComparator QueryOrPipeline::Comparator() const {
             EvaluateResult right_value =
                 expr->ToEvaluable()->Evaluate(context, d2.get());
 
-            // Compare results, using MinValue for error
+            // Compare results, using InternalMinValue for error
             util::ComparisonResult comparison = model::Compare(
-                left_value.IsErrorOrUnset() ? model::MinValue()
+                left_value.IsErrorOrUnset() ? model::InternalMinValue()
                                             : *left_value.value(),
-                right_value.IsErrorOrUnset() ? model::MinValue()
+                right_value.IsErrorOrUnset() ? model::InternalMinValue()
                                              : *right_value.value());
 
             if (comparison != util::ComparisonResult::Same) {

@@ -27,6 +27,7 @@
 #include "Firestore/core/src/local/local_store.h"
 #include "Firestore/core/src/local/query_engine.h"
 #include "Firestore/core/src/local/query_result.h"
+#include "Firestore/core/src/model/document_set.h"
 #include "Firestore/core/src/model/mutation_batch.h"
 #include "Firestore/core/src/remote/serializer.h"  // Added for Serializer
 #include "Firestore/core/test/unit/local/counting_query_engine.h"
@@ -101,7 +102,7 @@ class LocalStoreTestBase : public testing::Test {
       std::vector<model::FieldIndex>&& new_field_indexes);
   model::TargetId AllocateQuery(core::Query query);
   local::TargetData GetTargetData(const core::Query& query);
-  local::QueryResult ExecuteQuery(const core::Query& query);
+  absl::optional<model::DocumentSet> ExecuteQuery(const core::Query& query);
   void SetIndexAutoCreationEnabled(bool is_enabled);
   void DeleteAllIndexes() const;
   void SetMinCollectionSizeToAutoCreateIndex(size_t new_min);
@@ -125,7 +126,7 @@ class LocalStoreTestBase : public testing::Test {
   model::DocumentMap last_changes_;
 
   model::TargetId last_target_id_ = 0;
-  local::QueryResult last_query_result_;
+  absl::optional<model::DocumentSet> last_query_result_;
 };
 
 /**
@@ -164,20 +165,19 @@ class LocalStoreTest
 
 /**
  * Asserts that the last ExecuteQuery results contain the docs in the given
- * array.
+ * array in the same order.
  */
-#define FSTAssertQueryReturned(...)                                         \
-  do {                                                                      \
-    std::vector<std::string> expected_keys = {__VA_ARGS__};                 \
-    ASSERT_EQ(last_query_result_.documents().size(), expected_keys.size()); \
-    auto expected_keys_iterator = expected_keys.begin();                    \
-    for (const auto& kv : last_query_result_.documents()) {                 \
-      const DocumentKey& actual_key = kv.first;                             \
-      DocumentKey expected_key = Key(*expected_keys_iterator);              \
-      ASSERT_EQ(actual_key, expected_key);                                  \
-      ++expected_keys_iterator;                                             \
-    }                                                                       \
-    last_query_result_ = QueryResult{};                                     \
+#define FSTAssertQueryReturned(...)                              \
+  do {                                                           \
+    std::vector<std::string> expected_keys = {__VA_ARGS__};      \
+    ASSERT_EQ(last_query_result_->size(), expected_keys.size()); \
+    auto expected_keys_iterator = expected_keys.begin();         \
+    for (const auto& doc : *last_query_result_) {                \
+      const DocumentKey& actual_key = doc.get().key();           \
+      DocumentKey expected_key = Key(*expected_keys_iterator);   \
+      ASSERT_EQ(actual_key, expected_key);                       \
+      ++expected_keys_iterator;                                  \
+    }                                                            \
   } while (0)
 
 /** Asserts that the given keys were removed. */

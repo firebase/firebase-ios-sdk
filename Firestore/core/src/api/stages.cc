@@ -723,10 +723,11 @@ model::PipelineInputOutputVector SortStage::Evaluate(
           const auto right_result =
               ordering.expr()->ToEvaluable()->Evaluate(context, right);
 
-          auto left_val = left_result.IsErrorOrUnset() ? model::MinValue()
-                                                       : *left_result.value();
+          auto left_val = left_result.IsErrorOrUnset()
+                              ? model::InternalMinValue()
+                              : *left_result.value();
           auto right_val = right_result.IsErrorOrUnset()
-                               ? model::MinValue()
+                               ? model::InternalMinValue()
                                : *right_result.value();
           const auto compare_result = model::Compare(left_val, right_val);
           if (compare_result != util::ComparisonResult::Same) {
