@@ -83,7 +83,7 @@ def check_file(filepath):
 
                 # Ignore lines that are headers, contain http links, or are long paths
                 stripped_line = line.lstrip()
-                if len(line) > 80 and not stripped_line.startswith("#") and not re.search(r"https?://|file://", line) and not stripped_line.startswith("[") and "|" not in line:
+                if len(line) > 80 and not stripped_line.startswith("#") and not re.search(r"https?://|file://", line) and not stripped_line.startswith("[") and "|" not in line and "<!-- ignore-wrap -->" not in line:
                     print(f"  {filepath}:{i+1}: Line exceeds 80 characters ({len(line)} chars)")
                     has_error = True
     except Exception as e:
@@ -98,8 +98,9 @@ for filepath in sys.argv[1:]:
 
 sys.exit(1 if failed else 0)
   ' "${MD_FILES[@]}"; then
-      echo "Warning: Markdown files contain lines exceeding 80 characters."
-      echo "This is just a warning, but please consider wrapping them."
+      echo "Error: Markdown files contain lines exceeding 80 characters."
+      echo "Please wrap them, or append <!-- ignore-wrap --> to suppress."
+      exit 1
   fi
 else
   echo "Warning: python3 not found. Skipping markdown line length checks."
