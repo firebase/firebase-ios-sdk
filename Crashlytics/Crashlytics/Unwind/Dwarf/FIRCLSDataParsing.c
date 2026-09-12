@@ -98,7 +98,7 @@ uint64_t FIRCLSParseULEB128AndAdvance(const void** cursor) {
 
     *cursor += 1;
 
-    result |= ((0x7F & byte) << shift);
+    result |= ((uint64_t)(0x7F & byte) << shift);
     if ((0x80 & byte) == 0) {
       break;
     }
@@ -120,7 +120,7 @@ int64_t FIRCLSParseLEB128AndAdvance(const void** cursor) {
 
     *cursor += 1;
 
-    result |= ((0x7F & byte) << shift);
+    result |= ((uint64_t)(0x7F & byte) << shift);
     shift += 7;
 
     /* sign bit of byte is second high order bit (0x40) */
@@ -131,7 +131,7 @@ int64_t FIRCLSParseLEB128AndAdvance(const void** cursor) {
 
   if ((shift < size) && (0x40 & byte)) {
     // sign extend
-    result |= -(1 << shift);
+    result |= -((uint64_t)1 << shift);
   }
 
   return result;
