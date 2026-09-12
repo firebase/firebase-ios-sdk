@@ -32,11 +32,11 @@
 #import "FKeyIndex.h"
 #import "FPathIndex.h"
 #import "FPriorityIndex.h"
+#import "FSyncPointTests.h"
+#import "FTestClock.h"
 #import "Snapshot/FCompoundWrite.h"
 #import "Snapshot/FEmptyNode.h"
 #import "Snapshot/FSnapshotUtilities.h"
-#import "FTestClock.h"
-#import "FSyncPointTests.h"
 
 typedef NSDictionary * (^fbt_nsdictionary_void)(void);
 

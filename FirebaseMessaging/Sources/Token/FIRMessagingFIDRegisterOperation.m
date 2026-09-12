@@ -18,6 +18,7 @@
 
 #import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 #import <FirebaseInstallations/FirebaseInstallations.h>
+#import <FirebaseMessaging/FIRMessaging.h>
 #import "FIRMessagingCode.h"
 #import "FIRMessagingConstants.h"
 #import "FIRMessagingDefines.h"
@@ -25,7 +26,6 @@
 #import "FIRMessagingUtilities.h"
 #import "FIRMessaging_Private.h"
 #import "NSError+FIRMessaging.h"
-#import <FirebaseMessaging/FIRMessaging.h>
 
 @interface FIRMessagingTokenOperation (ExposedForSubclass)
 - (void)setExecuting:(BOOL)executing;

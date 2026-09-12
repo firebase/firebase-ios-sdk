@@ -16,6 +16,7 @@
 
 #import "FIRMessagingPubSub.h"
 
+#import <FirebaseMessaging/FIRMessaging.h>
 #import <GoogleUtilities/GULUserDefaults.h>
 #import "FIRMessagingDefines.h"
 #import "FIRMessagingLogger.h"
@@ -26,7 +27,6 @@
 #import "FIRMessaging_Private.h"
 #import "NSDictionary+FIRMessaging.h"
 #import "NSError+FIRMessaging.h"
-#import <FirebaseMessaging/FIRMessaging.h>
 #import "Token/FIRMessagingTokenManager.h"
 
 static NSString *const kPendingSubscriptionsListKey =

@@ -17,25 +17,25 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
-#import <GoogleUtilities/GULUserDefaults.h>
+#import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
 #import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 #import <FirebaseInstallations/FirebaseInstallations.h>
+#import <FirebaseMessaging/FIRMessaging.h>
+#import <GoogleUtilities/GULUserDefaults.h>
+#import <URLSession/FIRURLSessionOCMockStub.h>
+#import "FIRMessagingAPNSInfo.h"
 #import "FIRMessagingConstants.h"
+#import "FIRMessagingFIDRegisterOperation.h"
+#import "FIRMessagingFIDUnregisterOperation.h"
 #import "FIRMessagingPubSub.h"
+#import "FIRMessagingTestUtilities.h"
+#import "FIRMessagingTokenInfo.h"
+#import "FIRMessagingTokenManager.h"
+#import "FIRMessagingTokenStore.h"
 #import "FIRMessagingTopicOperation.h"
 #import "FIRMessagingUtilities.h"
 #import "FIRMessaging_Private.h"
 #import "NSError+FIRMessaging.h"
-#import <FirebaseMessaging/FIRMessaging.h>
-#import "FIRMessagingAPNSInfo.h"
-#import "FIRMessagingFIDRegisterOperation.h"
-#import "FIRMessagingFIDUnregisterOperation.h"
-#import "FIRMessagingTokenInfo.h"
-#import "FIRMessagingTokenManager.h"
-#import "FIRMessagingTokenStore.h"
-#import "FIRMessagingTestUtilities.h"
-#import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
-#import <URLSession/FIRURLSessionOCMockStub.h>
 
 @interface FIRMessagingFIDRegisterOperation (ExposedForTest)
 + (void)resetSharedSession;

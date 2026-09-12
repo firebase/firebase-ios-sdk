@@ -17,11 +17,11 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
+#import "FirebaseInAppMessaging/FIRInAppMessaging.h"
 #import "Private/Data/FIRIAMMessageContentData.h"
 #import "Private/DisplayTrigger/FIRIAMDisplayTriggerDefinition.h"
 #import "Private/Flows/FIRIAMDisplayExecutor.h"
 #import "Private/Runtime/FIRIAMActionURLFollower.h"
-#import "FirebaseInAppMessaging/FIRInAppMessaging.h"
 #import "RenderingObjects/FIRInAppMessagingRenderingPrivate.h"
 
 #import "FirebaseABTesting/Sources/Private/ABTExperimentPayload.h"

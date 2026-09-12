@@ -32,14 +32,14 @@
 #include <string>
 #include <utility>
 
-#import <FirebaseCoreExtension/FIRAppInternal.h>
-#import <FirebaseCoreExtension/FIRLogger.h>
 #import <FirebaseCore/FIRLoggerLevel.h>
 #import <FirebaseCore/FIROptions.h>
-#import "Firestore/Example/Tests/Util/FIRFirestore+Testing.h"
-#import "Firestore/Example/Tests/Util/FSTEventAccumulator.h"
+#import <FirebaseCoreExtension/FIRAppInternal.h>
+#import <FirebaseCoreExtension/FIRLogger.h>
 #import "FIRAggregateQuery+Internal.h"
 #import "FIRFirestore+Internal.h"
+#import "Firestore/Example/Tests/Util/FIRFirestore+Testing.h"
+#import "Firestore/Example/Tests/Util/FSTEventAccumulator.h"
 
 #include "Firestore/core/src/credentials/credentials_provider.h"
 #include "Firestore/core/src/credentials/empty_credentials_provider.h"

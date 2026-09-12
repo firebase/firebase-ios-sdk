@@ -16,9 +16,9 @@
 
 #import <sqlite3.h>
 
+#import "FirebaseRemoteConfig/RCNConfigValue_Internal.h"
 #import "RCNConfigDBManager.h"
 #import "RCNConfigDefines.h"
-#import "FirebaseRemoteConfig/RCNConfigValue_Internal.h"
 
 #import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 

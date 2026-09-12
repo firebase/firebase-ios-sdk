@@ -17,9 +17,9 @@
 #import <Foundation/Foundation.h>
 
 #import "Core/FCompoundHash.h"
+#import "FTestHelpers.h"
 #import "Snapshot/FEmptyNode.h"
 #import "Utilities/FStringUtilities.h"
-#import "FTestHelpers.h"
 
 @interface FCompoundHashTest : XCTestCase
 

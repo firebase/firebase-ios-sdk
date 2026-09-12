@@ -20,9 +20,9 @@
 #import "Constants/FConstants.h"
 #import "FClock.h"
 #import "FIRDatabaseConfig_Private.h"
+#import "FTestHelpers.h"
 #import "Realtime/FWebSocketConnection.h"
 #import "Utilities/FUtilities.h"
-#import "FTestHelpers.h"
 
 @interface FWebSocketConnection (Tests)
 - (NSString *)userAgent;

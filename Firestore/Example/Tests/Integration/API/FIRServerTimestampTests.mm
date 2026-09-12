@@ -20,9 +20,9 @@
 
 #import <FirebaseCore/FIRTimestamp.h>
 
+#import "FIRFirestore+Internal.h"
 #import "Firestore/Example/Tests/Util/FSTEventAccumulator.h"
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
-#import "FIRFirestore+Internal.h"
 
 @interface FIRServerTimestampTests : FSTIntegrationTestCase
 @end

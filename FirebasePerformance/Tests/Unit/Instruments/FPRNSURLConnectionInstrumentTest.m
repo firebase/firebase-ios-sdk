@@ -20,11 +20,11 @@
 
 #import <XCTest/XCTest.h>
 
+#import <FirebasePerformance/FIRPerformance.h>
 #import "Configurations/FPRConfigurations+Private.h"
 #import "Configurations/FPRConfigurations.h"
 #import "FPRClient.h"
 #import "Instrumentation/Network/FPRNSURLConnectionInstrument.h"
-#import <FirebasePerformance/FIRPerformance.h>
 
 #import "FPRTestCase.h"
 #import "FPRTestUtils.h"

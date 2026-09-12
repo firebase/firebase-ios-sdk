@@ -17,15 +17,15 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
+#import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
 #import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 #import "FirebaseRemoteConfig/FIRRemoteConfig_Private.h"
 #import "FirebaseRemoteConfig/RCNConfigFetch.h"
+#import "FirebaseRemoteConfig/RCNConfigValue_Internal.h"
 #import "RCNConfigConstants.h"
 #import "RCNConfigDBManager.h"
-#import "FirebaseRemoteConfig/RCNConfigValue_Internal.h"
 #import "RCNPersonalization.h"
 #import "RCNTestUtilities.h"
-#import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
 
 @interface RCNConfigFetch (ForTest)
 - (NSURLSessionDataTask *)URLSessionDataTaskWithContent:(NSData *)content

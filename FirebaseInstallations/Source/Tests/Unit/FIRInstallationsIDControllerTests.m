@@ -25,15 +25,15 @@
 #import "FIRInstallationsErrorUtil+Tests.h"
 #import "FIRInstallationsItem+Tests.h"
 
-#import "FIRInstallationsErrorUtil.h"
-#import "FIRInstallationsHTTPError.h"
-#import "FIRInstallationsIIDStore.h"
-#import "FIRInstallationsIIDTokenStore.h"
+#import "FIRInstallations.h"
 #import "FIRInstallationsAPIService.h"
 #import "FIRInstallationsBackoffController.h"
+#import "FIRInstallationsErrorUtil.h"
+#import "FIRInstallationsHTTPError.h"
 #import "FIRInstallationsIDController.h"
+#import "FIRInstallationsIIDStore.h"
+#import "FIRInstallationsIIDTokenStore.h"
 #import "FIRInstallationsStore.h"
-#import "FIRInstallations.h"
 
 #import "FIRInstallationsStoredAuthToken.h"
 

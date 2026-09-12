@@ -18,15 +18,15 @@
 #if !TARGET_OS_MACCATALYST
 #import <XCTest/XCTest.h>
 
-#import <OCMock/OCMock.h>
-#import "FIRMessagingUtilities.h"
 #import <FirebaseMessaging/FIRMessaging.h>
+#import <OCMock/OCMock.h>
 #import "FIRMessagingAuthKeychain.h"
 #import "FIRMessagingBackupExcludedPlist.h"
 #import "FIRMessagingCheckinPreferences.h"
 #import "FIRMessagingCheckinService.h"
 #import "FIRMessagingCheckinStore.h"
 #import "FIRMessagingFakeKeychain.h"
+#import "FIRMessagingUtilities.h"
 
 static const NSTimeInterval kExpectationTimeout = 12;
 

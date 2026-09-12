@@ -24,13 +24,13 @@
 #import "Crashlytics/Models/FIRCLSFileManager.h"
 #import "Crashlytics/Models/FIRCLSInternalReport.h"
 #import "Crashlytics/Models/FIRCLSSettings.h"
-#import "Shared/FIRCLSConstants.h"
 #import "FABMockApplicationIdentifierModel.h"
 #import "FIRAppFake.h"
 #import "FIRCLSMockSettings.h"
 #import "FIRCLSTempMockFileManager.h"
 #import "FIRMockGDTCoreTransport.h"
 #import "FIRMockInstallations.h"
+#import "Shared/FIRCLSConstants.h"
 
 NSString *const TestEndpoint = @"https://reports.crashlytics.com";
 NSString *const TestFIID = @"TestFIID";

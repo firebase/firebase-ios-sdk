@@ -16,8 +16,8 @@
 
 #import "Core/FIRInternalAppCheckProvider.h"
 
-#import "Core/FIRAppCheckToken+Internal.h"
 #import <FirebaseAppCheck/FIRAppCheckProvider.h>
+#import "Core/FIRAppCheckToken+Internal.h"
 
 @interface FIRInternalAppCheckProvider ()
 

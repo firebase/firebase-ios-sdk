@@ -28,10 +28,10 @@
 #import "FIRPipelineBridge+Internal.h"
 #import "FIRQuery+Internal.h"
 #import "FIRSnapshotMetadata+Internal.h"
+#import "FIRVectorValue.h"
 #import "FSTUserDataReader.h"
 #import "FSTUserDataWriter.h"
 #import "converters.h"
-#import "FIRVectorValue.h"
 
 #include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
 

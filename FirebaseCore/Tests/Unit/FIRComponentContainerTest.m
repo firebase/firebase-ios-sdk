@@ -17,8 +17,8 @@
 #import <FirebaseCoreExtension/FIRComponentType.h>
 #import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 #import "FIRComponentContainerInternal.h"
-#import "FIRTestComponents.h"
 #import "FIROptionsMock.h"
+#import "FIRTestComponents.h"
 
 /// Internally exposed methods and properties for testing.
 @interface FIRComponentContainer (TestInternal)

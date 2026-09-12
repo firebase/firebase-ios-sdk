@@ -27,10 +27,10 @@
 #import "FIRTestCase.h"
 #import "FIRTestComponents.h"
 
-#import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import <FirebaseCoreExtension/FIRAppInternal.h>
 #import <FirebaseCoreExtension/FIRComponentType.h>
 #import <FirebaseCoreExtension/FIRHeartbeatLogger.h>
+#import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import "FIRAnalyticsConfiguration.h"
 #import "FIROptionsInternal.h"
 #import "FIROptionsMock.h"

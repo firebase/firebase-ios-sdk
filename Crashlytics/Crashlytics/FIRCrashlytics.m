@@ -53,9 +53,9 @@
 #import "Crashlytics/Private/FIRCLSOnDemandModel_Private.h"
 #import "Crashlytics/Private/FIRExceptionModel_Private.h"
 
+#import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
 #import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 #import <FirebaseInstallations/FirebaseInstallations.h>
-#import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
 
 #import <GoogleDataTransport/GoogleDataTransport.h>
 

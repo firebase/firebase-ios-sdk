@@ -17,9 +17,9 @@
 #import <TargetConditionals.h>
 #if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
 
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 #import <GoogleUtilities/GULUserDefaults.h>
 #import <UIKit/UIKit.h>
-#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
 #import "FIRCore+InAppMessaging.h"
 #import "Private/Analytics/FIRIAMClearcutUploader.h"

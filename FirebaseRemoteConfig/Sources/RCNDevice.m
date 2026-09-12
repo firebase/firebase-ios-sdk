@@ -18,8 +18,8 @@
 
 #import <sys/utsname.h>
 
-#import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import <FirebaseCoreExtension/FirebaseCoreInternal.h>
+#import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import "FirebaseRemoteConfig/RCNConfigSettings.h"
 #import "RCNConfigConstants.h"
 

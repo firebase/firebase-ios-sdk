@@ -22,9 +22,9 @@
 #import "FIndex.h"
 #import "FNamedNode.h"
 #import "FRangedFilter.h"
+#import "FTreeSortedDictionary.h"
 #import "Snapshot/FChildrenNode.h"
 #import "Snapshot/FEmptyNode.h"
-#import "FTreeSortedDictionary.h"
 
 @interface FLimitedFilter ()
 @property(nonatomic, strong) FRangedFilter *rangedFilter;

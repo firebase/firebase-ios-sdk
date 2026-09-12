@@ -15,8 +15,8 @@
  */
 
 #import "Realtime/FConnection.h"
-#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 #import "Constants/FConstants.h"
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
 typedef enum {
     REALTIME_STATE_CONNECTING = 0,

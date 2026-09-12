@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 #import "FIRFADApiService.h"
-#import <Foundation/Foundation.h>
-#import "FIRFADLogger.h"
 #import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 #import <FirebaseInstallations/FirebaseInstallations.h>
+#import <Foundation/Foundation.h>
+#import "FIRFADLogger.h"
 
 NSString *const kFIRFADApiErrorDomain = @"com.firebase.appdistribution.api";
 NSString *const kFIRFADApiErrorDetailsKey = @"details";

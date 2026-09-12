@@ -23,9 +23,9 @@
 #import "FBLPromise+Testing.h"
 #import "FIRInstallationsItem+Tests.h"
 
+#import "FIRInstallationsAPIService.h"
 #import "FIRInstallationsErrorUtil.h"
 #import "FIRInstallationsHTTPError.h"
-#import "FIRInstallationsAPIService.h"
 #import "FIRInstallationsStoredAuthToken.h"
 
 #import <FirebaseCoreExtension/FirebaseCoreInternal.h>

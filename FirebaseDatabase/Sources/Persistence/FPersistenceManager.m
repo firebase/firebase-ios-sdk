@@ -15,7 +15,6 @@
  */
 
 #import "Persistence/FPersistenceManager.h"
-#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 #import "Core/View/FCacheNode.h"
 #import "FClock.h"
 #import "Persistence/FLevelDBStorageEngine.h"
@@ -24,6 +23,7 @@
 #import "Persistence/FTrackedQueryManager.h"
 #import "Snapshot/FIndexedNode.h"
 #import "Utilities/FUtilities.h"
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
 @interface FPersistenceManager ()
 

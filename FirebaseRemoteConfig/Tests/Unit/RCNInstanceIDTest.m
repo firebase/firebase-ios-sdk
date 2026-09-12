@@ -17,18 +17,18 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
+#import "FirebaseRemoteConfig/FIRRemoteConfig.h"
 #import "FirebaseRemoteConfig/FIRRemoteConfig_Private.h"
 #import "FirebaseRemoteConfig/RCNConfigFetch.h"
-#import "FirebaseRemoteConfig/FIRRemoteConfig.h"
 #import "RCNConfigConstants.h"
 #import "RCNConfigDBManager.h"
 #import "RCNUserDefaultsManager.h"
 
 #import "RCNTestUtilities.h"
 
-#import <GoogleUtilities/GULNSData+zlib.h>
 #import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 #import <FirebaseInstallations/FirebaseInstallations.h>
+#import <GoogleUtilities/GULNSData+zlib.h>
 @import FirebaseRemoteConfigInterop;
 
 @interface RCNConfigFetch (ForTest)

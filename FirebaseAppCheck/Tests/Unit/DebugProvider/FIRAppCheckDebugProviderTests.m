@@ -18,10 +18,10 @@
 
 #import <OCMock/OCMock.h>
 
+#import <FirebaseAppCheck/FIRAppCheckDebugProvider.h>
 #import "Core/FIRApp+AppCheck.h"
 #import "Core/FIRAppCheckToken+Internal.h"
 #import "Core/FIRHeartbeatLogger+AppCheck.h"
-#import <FirebaseAppCheck/FIRAppCheckDebugProvider.h>
 
 #import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 

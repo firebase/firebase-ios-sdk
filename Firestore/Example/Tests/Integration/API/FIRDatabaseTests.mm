@@ -24,10 +24,10 @@
 #import <FirebaseCore/FIRTimestamp.h>
 
 #import <FirebaseCoreExtension/FIRAppInternal.h>
-#import "Firestore/Example/Tests/Util/FSTEventAccumulator.h"
-#import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 #import "FIRFirestore+Internal.h"
 #import "FIRLocalCacheSettings+Internal.h"
+#import "Firestore/Example/Tests/Util/FSTEventAccumulator.h"
+#import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 
 #include "Firestore/core/src/api/query_snapshot.h"
 #include "Firestore/core/src/api/settings.h"

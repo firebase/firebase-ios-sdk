@@ -19,11 +19,11 @@
 #import <XCTest/XCTest.h>
 #include <limits>
 
-#import <FirebaseCoreExtension/FIRAppInternal.h>
 #import <FirebaseCore/FIROptions.h>
+#import <FirebaseCoreExtension/FIRAppInternal.h>
+#import "FIRFirestore+Internal.h"
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
-#import "FIRFirestore+Internal.h"
 #include "Firestore/core/test/unit/testutil/app_testing.h"
 
 using firebase::firestore::testutil::AppForUnitTesting;

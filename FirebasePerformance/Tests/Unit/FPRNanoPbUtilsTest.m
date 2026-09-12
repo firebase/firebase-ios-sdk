@@ -14,10 +14,10 @@
 
 #import <XCTest/XCTest.h>
 
+#import <FirebasePerformance/FIRPerformance.h>
 #import "FIRPerformance+Internal.h"
 #import "FPRDataUtils.h"
 #import "FPRNanoPbUtils.h"
-#import <FirebasePerformance/FIRPerformance.h>
 
 #import "Common/FPRConstants.h"
 #import "Instrumentation/FPRNetworkTrace+Private.h"

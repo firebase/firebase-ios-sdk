@@ -18,8 +18,8 @@
 #import <UserNotifications/UserNotifications.h>
 #import <XCTest/XCTest.h>
 
-#import <GoogleUtilities/GULAppDelegateSwizzler.h>
 #import <FirebaseMessaging/FIRMessaging.h>
+#import <GoogleUtilities/GULAppDelegateSwizzler.h>
 
 #import "FIRMessagingRemoteNotificationsProxy.h"
 

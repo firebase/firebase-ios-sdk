@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import "FIRFilter+Internal.h"
 #import "FIRFieldPath+Internal.h"
+#import "FIRFilter+Internal.h"
 
 using firebase::firestore::core::CompositeFilter;
 using firebase::firestore::core::FieldFilter;

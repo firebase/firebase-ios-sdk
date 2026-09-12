@@ -14,8 +14,8 @@
 
 #import <XCTest/XCTest.h>
 
-#import "ABTConstants.h"
 #import <FirebaseABTesting/ABTExperimentPayload.h>
+#import "ABTConstants.h"
 #import "ABTTestUtilities.h"
 
 @interface ABTExperimentPayload (ClassTesting)

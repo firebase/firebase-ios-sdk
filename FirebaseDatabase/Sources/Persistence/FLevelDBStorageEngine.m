@@ -18,7 +18,7 @@
 
 #import "Persistence/FLevelDBStorageEngine.h"
 
-#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
+#import "APLevelDB.h"
 #import "Core/FQueryParams.h"
 #import "Core/FWriteRecord.h"
 #import "Persistence/FPendingPut.h"
@@ -27,7 +27,7 @@
 #import "Snapshot/FEmptyNode.h"
 #import "Snapshot/FSnapshotUtilities.h"
 #import "Utilities/FUtilities.h"
-#import "APLevelDB.h"
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
 @interface FLevelDBStorageEngine ()
 

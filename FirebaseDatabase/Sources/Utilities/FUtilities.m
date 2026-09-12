@@ -15,10 +15,10 @@
  */
 
 #import "Utilities/FUtilities.h"
-#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 #import "Constants/FConstants.h"
 #import "Utilities/FAtomicNumber.h"
 #import "Utilities/FStringUtilities.h"
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
 #define ARC4RANDOM_MAX 0x100000000
 

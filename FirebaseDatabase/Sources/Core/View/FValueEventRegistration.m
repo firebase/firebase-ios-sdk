@@ -15,13 +15,13 @@
  */
 
 #import "Core/View/FValueEventRegistration.h"
-#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 #import "Api/Private/FIRDataSnapshot_Private.h"
 #import "Api/Private/FIRDatabaseQuery_Private.h"
 #import "Core/FQueryParams.h"
 #import "Core/FQuerySpec.h"
 #import "Core/View/FCancelEvent.h"
 #import "Core/View/FDataEvent.h"
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
 @interface FValueEventRegistration ()
 @property(nonatomic, strong) FRepo *repo;

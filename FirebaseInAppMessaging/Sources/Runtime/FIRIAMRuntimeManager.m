@@ -26,6 +26,7 @@
 #import "Analytics/FIRIAMClearcutLogStorage.h"
 #import "FIRCore+InAppMessaging.h"
 #import "FIRInAppMessagingPrivate.h"
+#import "FirebaseInAppMessaging/FIRInAppMessaging.h"
 #import "Flows/FIRIAMDisplayCheckOnFetchDoneNotificationFlow.h"
 #import "Private/Analytics/FIRIAMClearcutLogger.h"
 #import "Private/Analytics/FIRIAMClearcutUploader.h"
@@ -41,7 +42,6 @@
 #import "Private/Flows/FIRIAMMsgFetcherUsingRestful.h"
 #import "Private/Runtime/FIRIAMRuntimeManager.h"
 #import "Private/Runtime/FIRIAMSDKModeManager.h"
-#import "FirebaseInAppMessaging/FIRInAppMessaging.h"
 
 // A enum indicating 3 different possibilities of a setting about auto data collection.
 typedef NS_ENUM(NSInteger, FIRIAMAutoDataCollectionSetting) {

@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
+#import <FirebaseDatabase/FIRDatabaseReference.h>
 #import <Foundation/Foundation.h>
 #import "FirebaseDatabase/FIRDataEventType.h"
-#import <FirebaseDatabase/FIRDatabaseReference.h>
 #import "Utilities/FTypedefs.h"
 
 @interface FTupleEventTypeString : NSObject

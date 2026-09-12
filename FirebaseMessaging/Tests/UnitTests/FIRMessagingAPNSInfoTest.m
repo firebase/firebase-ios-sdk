@@ -16,8 +16,8 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FIRMessagingConstants.h"
 #import "FIRMessagingAPNSInfo.h"
+#import "FIRMessagingConstants.h"
 
 @interface FIRMessagingAPNSInfoTest : XCTestCase
 

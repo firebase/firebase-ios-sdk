@@ -15,12 +15,12 @@
  */
 
 #import "Core/FRepoManager.h"
-#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 #import "Api/Private/FIRDatabaseQuery_Private.h"
 #import "Api/Private/FIRDatabase_Private.h"
 #import "Core/FRepo.h"
 #import "FIRDatabaseConfig_Private.h"
 #import "Utilities/FAtomicNumber.h"
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
 @implementation FRepoManager
 

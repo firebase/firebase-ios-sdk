@@ -16,14 +16,14 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
+#import <FirebaseAppDistribution/FIRAppDistribution.h>
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
+#import <FirebaseInstallations/FirebaseInstallations.h>
 #import <GoogleUtilities/GULAppDelegateSwizzler.h>
 #import <GoogleUtilities/GULUserDefaults.h>
 #import "FIRAppDistributionMachO.h"
 #import "FIRAppDistributionUIService.h"
 #import "FIRFADApiService.h"
-#import <FirebaseAppDistribution/FIRAppDistribution.h>
-#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
-#import <FirebaseInstallations/FirebaseInstallations.h>
 
 @interface FIRAppDistributionTests : XCTestCase
 

@@ -16,9 +16,9 @@
 
 #import "Token/FIRMessagingTokenOperation.h"
 
-#import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import <FirebaseCoreExtension/FIRHeartbeatLogger.h>
 #import <FirebaseInstallations/FirebaseInstallations.h>
+#import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import "FIRMessagingLogger.h"
 #import "FIRMessagingUtilities.h"
 #import "FIRMessaging_Private.h"

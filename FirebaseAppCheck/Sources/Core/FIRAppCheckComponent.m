@@ -18,8 +18,8 @@
 
 #import <FirebaseAppCheckInterop/FirebaseAppCheckInterop.h>
 
-#import "Core/FIRAppCheck+Internal.h"
 #import <FirebaseAppCheck/FIRAppCheck.h>
+#import "Core/FIRAppCheck+Internal.h"
 
 #import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 

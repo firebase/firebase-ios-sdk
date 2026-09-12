@@ -14,11 +14,11 @@
 
 #import "DefaultProviderFactory/FIRDefaultProviderFactory.h"
 
-#import "Core/FIRApp+AppCheck.h"
-#import "Core/FIRAppCheckLogger.h"
 #import <FirebaseAppCheck/FIRAppCheck.h>
 #import <FirebaseAppCheck/FIRAppCheckDebugProviderFactory.h>
 #import <FirebaseAppCheck/FIRDeviceCheckProviderFactory.h>
+#import "Core/FIRApp+AppCheck.h"
+#import "Core/FIRAppCheckLogger.h"
 
 @implementation FIRDefaultProviderFactory
 

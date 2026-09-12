@@ -17,16 +17,16 @@
 #import <TargetConditionals.h>
 #if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
 
-#import <UIKit/UIKit.h>
 #import <FirebaseCoreExtension/FirebaseCoreInternal.h>
+#import <UIKit/UIKit.h>
 
 #import "FIRCore+InAppMessaging.h"
+#import "FirebaseInAppMessaging/FIRInAppMessaging.h"
 #import "Private/Data/FIRIAMMessageContentData.h"
 #import "Private/Data/FIRIAMMessageDefinition.h"
 #import "Private/Flows/FIRIAMActivityLogger.h"
 #import "Private/Flows/FIRIAMDisplayExecutor.h"
 #import "Private/Util/UIApplication+FIRForegroundWindowScene.h"
-#import "FirebaseInAppMessaging/FIRInAppMessaging.h"
 #import "RenderingObjects/FIRInAppMessagingRenderingPrivate.h"
 #import "Runtime/FIRIAMSDKRuntimeErrorCodes.h"
 

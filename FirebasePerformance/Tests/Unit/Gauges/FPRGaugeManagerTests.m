@@ -16,13 +16,13 @@
 
 #import <GoogleUtilities/GULUserDefaults.h>
 
+#import <FirebasePerformance/FIRPerformance.h>
 #import "Configurations/FPRConfigurations+Private.h"
 #import "Configurations/FPRConfigurations.h"
 #import "Configurations/FPRRemoteConfigFlags+Private.h"
 #import "Configurations/FPRRemoteConfigFlags.h"
 #import "Gauges/FPRGaugeManager+Private.h"
 #import "Gauges/FPRGaugeManager.h"
-#import <FirebasePerformance/FIRPerformance.h>
 
 #import "Gauges/CPU/FPRCPUGaugeCollector+Private.h"
 

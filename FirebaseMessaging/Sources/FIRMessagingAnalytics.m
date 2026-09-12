@@ -16,10 +16,10 @@
 
 #import "FIRMessagingAnalytics.h"
 
-#import <GoogleUtilities/GULAppDelegateSwizzler.h>
-#import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import <FirebaseAnalyticsInterop/FIRInteropEventNames.h>
 #import <FirebaseAnalyticsInterop/FIRInteropParameterNames.h>
+#import <GoogleUtilities/GULAppDelegateSwizzler.h>
+#import <GoogleUtilities/GULAppEnvironmentUtil.h>
 
 #import "FIRMessagingConstants.h"
 #import "FIRMessagingLogger.h"

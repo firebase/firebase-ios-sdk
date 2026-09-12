@@ -17,8 +17,8 @@
 #import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
 #import "Api/Private/FIRDatabaseQuery_Private.h"
-#import "FTestBase.h"
 #import "FIROptionsMock.h"
+#import "FTestBase.h"
 
 @interface FIROptions (Testing)
 + (NSString *)plistFilePathWithName:(NSString *)fileName;

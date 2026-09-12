@@ -15,7 +15,6 @@
  */
 #import <Foundation/Foundation.h>
 
-#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 #import "Api/FIRDatabaseConfig.h"
 #import "Constants/FConstants.h"
 #import "Core/FCompoundHash.h"
@@ -27,13 +26,14 @@
 #import "Core/Utilities/FIRRetryHelper.h"
 #import "FIRDatabaseConfig_Private.h"
 #import "FIndex.h"
-#import "Login/FIRDatabaseConnectionContextProvider.h"
 #import "FirebaseDatabase/FIRDatabaseReference.h"
+#import "Login/FIRDatabaseConnectionContextProvider.h"
 #import "Snapshot/FSnapshotUtilities.h"
 #import "Utilities/FAtomicNumber.h"
 #import "Utilities/FUtilities.h"
 #import "Utilities/Tuples/FTupleCallbackStatus.h"
 #import "Utilities/Tuples/FTupleOnDisconnect.h"
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 #if TARGET_OS_WATCH
 #import <WatchKit/WatchKit.h>
 #else

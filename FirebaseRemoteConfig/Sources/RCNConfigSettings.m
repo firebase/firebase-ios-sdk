@@ -16,14 +16,14 @@
 
 #import "FirebaseRemoteConfig/RCNConfigSettings.h"
 
+#import "FirebaseRemoteConfig/RCNConfigValue_Internal.h"
 #import "RCNConfigConstants.h"
 #import "RCNConfigDBManager.h"
-#import "FirebaseRemoteConfig/RCNConfigValue_Internal.h"
 #import "RCNDevice.h"
 #import "RCNUserDefaultsManager.h"
 
-#import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import <FirebaseCoreExtension/FirebaseCoreInternal.h>
+#import <GoogleUtilities/GULAppEnvironmentUtil.h>
 
 static NSString *const kRCNGroupPrefix = @"frc.group.";
 static NSString *const kRCNUserDefaultsKeyNamelastETag = @"lastETag";

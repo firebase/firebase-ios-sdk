@@ -17,13 +17,13 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
-#import "FIRMessagingConstants.h"
 #import "FIRMessagingAuthService.h"
 #import "FIRMessagingCheckinPreferences.h"
 #import "FIRMessagingCheckinStore.h"
+#import "FIRMessagingConstants.h"
+#import "FIRMessagingTestUtilities.h"
 #import "FIRMessagingTokenInfo.h"
 #import "FIRMessagingTokenManager.h"
-#import "FIRMessagingTestUtilities.h"
 
 @interface FIRMessaging (ExposedForTest)
 

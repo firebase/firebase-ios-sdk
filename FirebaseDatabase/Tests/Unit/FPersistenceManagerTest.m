@@ -16,14 +16,14 @@
 
 #import <XCTest/XCTest.h>
 #import "Core/FQuerySpec.h"
+#import "FMockStorageEngine.h"
 #import "FPathIndex.h"
+#import "FTestCachePolicy.h"
+#import "FTestHelpers.h"
 #import "Persistence/FPersistenceManager.h"
 #import "Snapshot/FEmptyNode.h"
 #import "Snapshot/FIndexedNode.h"
 #import "Snapshot/FSnapshotUtilities.h"
-#import "FMockStorageEngine.h"
-#import "FTestCachePolicy.h"
-#import "FTestHelpers.h"
 
 @interface FPersistenceManagerTest : XCTestCase
 

@@ -23,10 +23,10 @@
 
 #import "FBLPromise+Testing.h"
 #import "FIRInstallationsErrorUtil.h"
+#import "FIRInstallationsItem+Tests.h"
 #import "FIRInstallationsItem.h"
 #import "FIRInstallationsStore.h"
 #import "FIRInstallationsStoredItem.h"
-#import "FIRInstallationsItem+Tests.h"
 
 @interface FIRInstallationsStoreTests : XCTestCase
 @property(nonatomic) NSString *accessGroup;

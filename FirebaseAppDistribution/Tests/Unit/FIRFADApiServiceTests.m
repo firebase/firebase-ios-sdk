@@ -16,10 +16,10 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
-#import "FIRFADApiService.h"
-#import "FIRFADLogger.h"
 #import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 #import <FirebaseInstallations/FirebaseInstallations.h>
+#import "FIRFADApiService.h"
+#import "FIRFADLogger.h"
 
 NSString *const kFakeErrorDomain = @"test.failure.domain";
 

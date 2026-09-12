@@ -14,11 +14,11 @@
 
 #import "FirebaseABTesting/FIRExperimentController.h"
 
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 #import "ABTConditionalUserPropertyController.h"
 #import "ABTConstants.h"
 #import "FirebaseABTesting/ABTExperimentPayload.h"
 #import "FirebaseABTesting/FIRLifecycleEvents.h"
-#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
 #import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
 

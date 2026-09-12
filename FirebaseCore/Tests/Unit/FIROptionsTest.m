@@ -14,10 +14,10 @@
 
 #import "FIRTestCase.h"
 
+#import <FirebaseCore/FIRVersion.h>
 #import <FirebaseCoreExtension/FIRAppInternal.h>
 #import "FIRBundleUtil.h"
 #import "FIROptionsInternal.h"
-#import <FirebaseCore/FIRVersion.h>
 #import "FIROptionsMock.h"
 
 extern NSString *const kFIRIsMeasurementEnabled;

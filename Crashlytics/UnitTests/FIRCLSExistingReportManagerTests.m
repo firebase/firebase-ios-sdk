@@ -18,9 +18,9 @@
 #import "Crashlytics/Controllers/FIRCLSManagerData.h"
 #import "Crashlytics/Models/FIRCLSInternalReport.h"
 #import "Crashlytics/Private/FIRCLSExistingReportManager_Private.h"
-#import "FirebaseCrashlytics/FIRCrashlyticsReport.h"
 #import "FIRCLSMockReportUploader.h"
 #import "FIRCLSTempMockFileManager.h"
+#import "FirebaseCrashlytics/FIRCrashlyticsReport.h"
 
 #define METADATA_FORMAT                                                                        \
   (@"{\"identity\":{\"generator\":\"Crashlytics iOS "                                          \

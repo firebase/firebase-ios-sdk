@@ -20,8 +20,8 @@
 #import <DeviceCheck/DeviceCheck.h>
 #import <OCMock/OCMock.h>
 
-#import "Core/FIRAppCheckToken+Internal.h"
 #import <FirebaseAppCheck/FIRAppAttestProvider.h>
+#import "Core/FIRAppCheckToken+Internal.h"
 
 #import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 

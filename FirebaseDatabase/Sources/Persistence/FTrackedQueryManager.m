@@ -15,7 +15,6 @@
  */
 
 #import "Persistence/FTrackedQueryManager.h"
-#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 #import "Core/Utilities/FImmutableTree.h"
 #import "FClock.h"
 #import "Persistence/FCachePolicy.h"
@@ -23,6 +22,7 @@
 #import "Persistence/FPruneForest.h"
 #import "Persistence/FTrackedQuery.h"
 #import "Utilities/FUtilities.h"
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
 @interface FTrackedQueryManager ()
 

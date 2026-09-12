@@ -19,14 +19,15 @@
 #error FIRMessagingLib should be compiled with ARC.
 #endif
 
+#import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
+#import <FirebaseInstallations/FirebaseInstallations.h>
 #import <FirebaseMessaging/FIRMessaging.h>
+#import <FirebaseMessagingInterop/FIRMessagingInterop.h>
 #import <GoogleUtilities/GULAppDelegateSwizzler.h>
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import <GoogleUtilities/GULReachabilityChecker.h>
 #import <GoogleUtilities/GULUserDefaults.h>
-#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
-#import <FirebaseInstallations/FirebaseInstallations.h>
-#import <FirebaseMessagingInterop/FIRMessagingInterop.h>
 #import "FIRMessagingAnalytics.h"
 #import "FIRMessagingCode.h"
 #import "FIRMessagingConstants.h"
@@ -43,7 +44,6 @@
 #import "Token/FIRMessagingAuthService.h"
 #import "Token/FIRMessagingTokenInfo.h"
 #import "Token/FIRMessagingTokenManager.h"
-#import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
 
 static NSString *const kFIRMessagingMessageViaAPNSRootKey = @"aps";
 static NSString *const kFIRMessagingReachabilityHostname = @"www.google.com";

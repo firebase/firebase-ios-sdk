@@ -19,8 +19,8 @@
 #endif
 
 #import "AppActivity/FPRTraceBackgroundActivityTracker.h"
-#import "Instrumentation/FPRNetworkTrace.h"
 #import "FirebasePerformance/FIRTrace.h"
+#import "Instrumentation/FPRNetworkTrace.h"
 
 #import "perf_metric.nanopb.h"
 

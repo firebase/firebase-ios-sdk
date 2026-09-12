@@ -18,10 +18,10 @@
 
 #import <XCTest/XCTest.h>
 
-#import "Firestore/Example/Tests/Util/XCTestCase+Await.h"
 #import "FIRDocumentSnapshot.h"
 #import "FIRQuerySnapshot.h"
 #import "FIRSnapshotMetadata.h"
+#import "Firestore/Example/Tests/Util/XCTestCase+Await.h"
 
 #include "Firestore/core/src/util/hard_assert.h"
 

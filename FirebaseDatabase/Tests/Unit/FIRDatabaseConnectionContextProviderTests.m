@@ -20,9 +20,9 @@
 
 #import "Login/FIRDatabaseConnectionContextProvider.h"
 
-#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 #import <AppCheckFake/FIRAppCheckFake.h>
 #import <AppCheckFake/FIRAppCheckTokenResultFake.h>
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 #import "FIRAuthInteropFake.h"
 
 @interface FIRDatabaseConnectionContextProviderTests : XCTestCase

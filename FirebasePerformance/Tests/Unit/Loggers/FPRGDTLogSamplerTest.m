@@ -17,17 +17,17 @@
 #import "Loggers/FPRGDTLogSampler+Private.h"
 #import "Loggers/FPRGDTLogSampler.h"
 
+#import <FirebasePerformance/FIRTrace.h>
 #import "Configurations/FPRConfigurations+Private.h"
 #import "FPRNanoPbUtils.h"
-#import "Instrumentation/FPRNetworkTrace+Private.h"
-#import "Instrumentation/FPRNetworkTrace.h"
-#import "Loggers/FPRGDTEvent.h"
-#import <FirebasePerformance/FIRTrace.h>
-#import "Timer/FIRTrace+Internal.h"
-#import "Timer/FIRTrace+Private.h"
 #import "FPRTestCase.h"
 #import "FPRTestUtils.h"
 #import "Fakes/FPRFakeConfigurations.h"
+#import "Instrumentation/FPRNetworkTrace+Private.h"
+#import "Instrumentation/FPRNetworkTrace.h"
+#import "Loggers/FPRGDTEvent.h"
+#import "Timer/FIRTrace+Internal.h"
+#import "Timer/FIRTrace+Private.h"
 
 #import <GoogleDataTransport/GoogleDataTransport.h>
 

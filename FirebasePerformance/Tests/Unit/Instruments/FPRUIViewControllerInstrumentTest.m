@@ -20,10 +20,10 @@
 
 #import <XCTest/XCTest.h>
 
+#import <FirebasePerformance/FIRPerformance.h>
 #import <OCMock/OCMock.h>
 #import "AppActivity/FPRScreenTraceTracker+Private.h"
 #import "AppActivity/FPRScreenTraceTracker.h"
-#import <FirebasePerformance/FIRPerformance.h>
 
 #import <GoogleUtilities/GULSwizzler.h>
 

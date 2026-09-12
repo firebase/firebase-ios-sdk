@@ -14,15 +14,15 @@
 
 #import <XCTest/XCTest.h>
 
+#import <FirebasePerformance/FIRPerformance.h>
 #import "Common/FPRConstants.h"
 #import "Configurations/FPRConfigurations.h"
 #import "FIRPerformance+Internal.h"
 #import "FIRPerformance_Private.h"
 #import "FPRClient+Private.h"
 #import "FPRClient.h"
-#import <FirebasePerformance/FIRPerformance.h>
-#import "Timer/FIRTrace+Internal.h"
 #import "Fakes/FPRFakeClient.h"
+#import "Timer/FIRTrace+Internal.h"
 
 #import "FPRTestCase.h"
 

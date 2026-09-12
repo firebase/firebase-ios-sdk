@@ -19,16 +19,16 @@
 
 #import "Private/Runtime/FIRInAppMessaging+Bootstrap.h"
 
-#import <GoogleUtilities/GULAppEnvironmentUtil.h>
-#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 #import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
+#import <GoogleUtilities/GULAppEnvironmentUtil.h>
 
 #import "FIRCore+InAppMessaging.h"
+#import "FirebaseInAppMessaging/FIRInAppMessagingErrors.h"
 #import "Private/Analytics/FIRIAMClearcutUploader.h"
 #import "Private/Runtime/FIRIAMRuntimeManager.h"
 #import "Private/Runtime/FIRIAMSDKSettings.h"
 #import "Private/Util/NSString+FIRInterlaceStrings.h"
-#import "FirebaseInAppMessaging/FIRInAppMessagingErrors.h"
 
 @implementation FIRInAppMessaging (Bootstrap)
 

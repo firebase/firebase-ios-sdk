@@ -16,10 +16,10 @@
 
 #import "Token/FIRMessagingTokenInfo.h"
 
+#import <FirebaseMessaging/FIRMessaging.h>
 #import "FIRMessagingConstants.h"
 #import "FIRMessagingLogger.h"
 #import "FIRMessagingUtilities.h"
-#import <FirebaseMessaging/FIRMessaging.h>
 
 /**
  *  @enum Token Info Dictionary Key Constants

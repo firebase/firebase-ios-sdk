@@ -18,14 +18,14 @@
 #import "Loggers/FPRGDTRateLimiter+Private.h"
 #import "Loggers/FPRGDTRateLimiter.h"
 
-#import "AppActivity/FPRAppActivityTracker.h"
-#import "Instrumentation/FPRNetworkTrace.h"
 #import <FirebasePerformance/FIRPerformance.h>
 #import <FirebasePerformance/FIRTrace.h>
-#import "Timer/FIRTrace+Internal.h"
+#import "AppActivity/FPRAppActivityTracker.h"
 #import "Common/FPRFakeDate.h"
 #import "FPRTestCase.h"
 #import "FPRTestUtils.h"
+#import "Instrumentation/FPRNetworkTrace.h"
+#import "Timer/FIRTrace+Internal.h"
 
 #import <GoogleDataTransport/GoogleDataTransport.h>
 

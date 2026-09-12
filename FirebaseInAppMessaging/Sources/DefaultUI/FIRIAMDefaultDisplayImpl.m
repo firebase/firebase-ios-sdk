@@ -26,8 +26,8 @@
 #import "DefaultUI/FIRIAMRenderingWindowHelper.h"
 #import "DefaultUI/ImageOnly/FIRIAMImageOnlyViewController.h"
 #import "DefaultUI/Modal/FIRIAMModalViewController.h"
-#import "Private/Util/FIRIAMTimeFetcher.h"
 #import "FirebaseInAppMessaging/FIRInAppMessaging.h"
+#import "Private/Util/FIRIAMTimeFetcher.h"
 
 @implementation FIRIAMDefaultDisplayImpl
 

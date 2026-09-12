@@ -16,17 +16,17 @@
 
 #import <OCMock/OCMock.h>
 
-#import <GoogleUtilities/GULUserDefaults.h>
+#import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
 #import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 #import <FirebaseInstallations/FirebaseInstallations.h>
+#import <GoogleUtilities/GULUserDefaults.h>
+#import "FIRMessagingFakeKeychain.h"
 #import "FIRMessagingPendingTopicsList.h"
 #import "FIRMessagingPubSub.h"
 #import "FIRMessagingRmqManager.h"
-#import "FIRMessagingTokenManager.h"
-#import "FIRMessagingFakeKeychain.h"
 #import "FIRMessagingTestUtilities.h"
+#import "FIRMessagingTokenManager.h"
 #import "XCTestCase+FIRMessagingRmqManagerTests.h"
-#import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

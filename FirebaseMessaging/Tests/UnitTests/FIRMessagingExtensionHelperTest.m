@@ -19,9 +19,9 @@
 
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 
-#import "FIRMessagingConstants.h"
 #import <FirebaseMessaging/FIRMessaging.h>
 #import <FirebaseMessaging/FIRMessagingExtensionHelper.h>
+#import "FIRMessagingConstants.h"
 
 typedef void (^FIRMessagingContentHandler)(UNNotificationContent *content);
 

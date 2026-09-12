@@ -23,7 +23,6 @@
 #import <FirebaseAppCheck/FirebaseAppCheck.h>
 #import <FirebaseAuth/FirebaseAuth.h>
 #import "Firebase.h"
-#import <FirebaseABTesting/FirebaseABTesting.h>
 #import "FirebaseAnalytics/FirebaseAnalytics.h"
 #import "FirebaseAppCheck/FirebaseAppCheck.h"
 #import "FirebaseAuth/FirebaseAuth.h"
@@ -37,11 +36,8 @@
 #import <FirebaseFirestore/FirebaseFirestore.h>
 #import <FirebaseInstallations/FirebaseInstallations.h>
 #import <FirebaseMessaging/FirebaseMessaging.h>
-#import <FirebaseCore/FirebaseCore.h>
-#import <FirebaseCrashlytics/FirebaseCrashlytics.h>
 #import "FirebaseDatabase/FirebaseDatabase.h"
 #import "FirebaseFirestore/FirebaseFirestore.h"
-#import <FirebaseInstallations/FirebaseInstallations.h>
 #import "FirebaseMessaging/FirebaseMessaging.h"
 #if (TARGET_OS_IOS && !TARGET_OS_MACCATALYST) || TARGET_OS_TV
 #import <FirebaseInAppMessaging/FirebaseInAppMessaging.h>
@@ -49,7 +45,6 @@
 #import "FirebaseInAppMessaging/FirebaseInAppMessaging.h"
 #import "FirebasePerformance/FirebasePerformance.h"
 #endif
-#import <FirebaseRemoteConfig/FirebaseRemoteConfig.h>
 #import <FirebaseRemoteConfig/FirebaseRemoteConfig.h>
 
 #ifdef COCOAPODS

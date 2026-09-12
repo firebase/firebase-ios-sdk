@@ -16,6 +16,8 @@
 
 #import <GoogleUtilities/GULUserDefaults.h>
 
+#import <FirebasePerformance/FIRPerformance.h>
+#import <FirebasePerformance/FIRTrace.h>
 #import "AppActivity/FPRAppActivityTracker.h"
 #import "AppActivity/FPRSessionManager.h"
 #import "Common/FPRConstants.h"
@@ -24,8 +26,6 @@
 #import "Configurations/FPRRemoteConfigFlags+Private.h"
 #import "Configurations/FPRRemoteConfigFlags.h"
 #import "FPRClient.h"
-#import <FirebasePerformance/FIRPerformance.h>
-#import <FirebasePerformance/FIRTrace.h>
 #import "Timer/FIRTrace+Internal.h"
 #import "Timer/FIRTrace+Private.h"
 

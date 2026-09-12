@@ -22,12 +22,12 @@
 #import "FirebaseRemoteConfig/FIRRemoteConfig_Private.h"
 #import "FirebaseRemoteConfig/RCNConfigFetch.h"
 #import "FirebaseRemoteConfig/RCNConfigSettings.h"
+#import "FirebaseRemoteConfig/RCNConfigValue_Internal.h"
 #import "RCNConfigConstants.h"
 #import "RCNConfigContent.h"
 #import "RCNConfigDBManager.h"
 #import "RCNConfigExperiment.h"
 #import "RCNConfigRealtime.h"
-#import "FirebaseRemoteConfig/RCNConfigValue_Internal.h"
 #import "RCNDevice.h"
 #import "RCNPersonalization.h"
 

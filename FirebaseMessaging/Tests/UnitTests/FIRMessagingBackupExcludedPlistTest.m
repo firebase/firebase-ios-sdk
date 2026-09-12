@@ -16,8 +16,8 @@
 
 #import <XCTest/XCTest.h>
 
-#import <OCMock/OCMock.h>
 #import <FirebaseMessaging/FIRMessaging.h>
+#import <OCMock/OCMock.h>
 #import "FIRMessagingAuthKeychain.h"
 #import "FIRMessagingBackupExcludedPlist.h"
 #import "FIRMessagingCheckinStore.h"

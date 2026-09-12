@@ -15,7 +15,6 @@
  */
 
 #import "Core/FSyncTree.h"
-#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 #import "Core/FCompoundHash.h"
 #import "Core/FListenProvider.h"
 #import "Core/FQueryParams.h"
@@ -49,6 +48,7 @@
 #import "Utilities/FAtomicNumber.h"
 #import "Utilities/FUtilities.h"
 #import "Utilities/Tuples/FTupleRemovedQueriesEvents.h"
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
 // Size after which we start including the compound hash
 static const NSUInteger kFSizeThresholdForCompoundHash = 1024;

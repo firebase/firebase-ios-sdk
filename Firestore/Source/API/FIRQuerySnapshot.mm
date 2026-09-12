@@ -18,12 +18,12 @@
 
 #import "FIRQuerySnapshot+Internal.h"
 
-#import "FIRSnapshotMetadata.h"
 #import "FIRDocumentChange+Internal.h"
 #import "FIRDocumentSnapshot+Internal.h"
 #import "FIRFirestore+Internal.h"
 #import "FIRQuery+Internal.h"
 #import "FIRSnapshotMetadata+Internal.h"
+#import "FIRSnapshotMetadata.h"
 
 #include "Firestore/core/src/api/query_core.h"
 #include "Firestore/core/src/api/query_snapshot.h"

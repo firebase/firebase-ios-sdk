@@ -13,9 +13,9 @@
 // limitations under the License.
 
 #import "FIRAppDistributionUIService.h"
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 #import "FIRFADLogger.h"
 #import "FirebaseAppDistribution/FIRAppDistribution.h"
-#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
 #import <AuthenticationServices/AuthenticationServices.h>
 #import <SafariServices/SafariServices.h>

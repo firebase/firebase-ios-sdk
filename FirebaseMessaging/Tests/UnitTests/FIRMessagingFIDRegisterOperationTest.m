@@ -19,10 +19,10 @@
 
 #import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 #import <FirebaseInstallations/FirebaseInstallations.h>
-#import "FIRMessagingConstants.h"
-#import "FIRMessagingUtilities.h"
-#import "FIRMessagingFIDRegisterOperation.h"
 #import <URLSession/FIRURLSessionOCMockStub.h>
+#import "FIRMessagingConstants.h"
+#import "FIRMessagingFIDRegisterOperation.h"
+#import "FIRMessagingUtilities.h"
 
 @interface FIRMessagingFIDRegisterOperation (ExposedForTest)
 + (void)resetSharedSession;

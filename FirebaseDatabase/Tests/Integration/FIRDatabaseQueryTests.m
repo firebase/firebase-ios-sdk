@@ -19,9 +19,9 @@
 #import "Api/Private/FIRDatabaseQuery_Private.h"
 #import "Constants/FConstants.h"
 #import "Core/FQuerySpec.h"
-#import "Utilities/FUtilities.h"
 #import "FIRFakeApp.h"
 #import "FTestExpectations.h"
+#import "Utilities/FUtilities.h"
 
 @implementation FIRDatabaseQueryTests
 

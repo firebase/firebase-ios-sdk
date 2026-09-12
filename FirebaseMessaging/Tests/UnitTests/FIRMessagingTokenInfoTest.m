@@ -18,13 +18,13 @@
 
 #import <XCTest/XCTest.h>
 
-#import <OCMock/OCMock.h>
 #import <FirebaseCoreExtension/FirebaseCoreInternal.h>
-#import "FIRMessagingUtilities.h"
-#import "FIRMessaging_Private.h"
 #import <FirebaseMessaging/FIRMessaging.h>
+#import <OCMock/OCMock.h>
 #import "FIRMessagingAPNSInfo.h"
 #import "FIRMessagingTestUtilities.h"
+#import "FIRMessagingUtilities.h"
+#import "FIRMessaging_Private.h"
 
 static NSString *const kAuthorizedEntity = @"authorizedEntity";
 static NSString *const kScope = @"scope";

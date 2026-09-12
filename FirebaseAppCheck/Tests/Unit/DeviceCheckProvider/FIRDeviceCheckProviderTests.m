@@ -18,9 +18,9 @@
 
 #import <OCMock/OCMock.h>
 
+#import <FirebaseAppCheck/FIRDeviceCheckProvider.h>
 #import "Core/Errors/FIRAppCheckErrorUtil.h"
 #import "Core/FIRAppCheckToken+Internal.h"
-#import <FirebaseAppCheck/FIRDeviceCheckProvider.h>
 
 #import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 

@@ -15,7 +15,6 @@
  */
 
 #import "FirebaseDatabase/FIRDatabaseReference.h"
-#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 #import "Api/FIRDatabaseConfig.h"
 #import "Api/Private/FIRDatabaseQuery_Private.h"
 #import "Api/Private/FIRDatabaseReference_Private.h"
@@ -27,6 +26,7 @@
 #import "Utilities/FStringUtilities.h"
 #import "Utilities/FUtilities.h"
 #import "Utilities/FValidation.h"
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
 @implementation FIRDatabaseReference
 

@@ -18,10 +18,10 @@
 
 #import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
-#import "Api/Private/FIRDatabaseReference_Private.h"
-#import "FIRDatabaseConfig_Private.h"
 #import <FirebaseDatabase/FIRDatabase.h>
 #import <FirebaseDatabase/FIRDatabaseReference.h>
+#import "Api/Private/FIRDatabaseReference_Private.h"
+#import "FIRDatabaseConfig_Private.h"
 #import "FIRFakeApp.h"
 #import "FMockStorageEngine.h"
 #import "FTestBase.h"

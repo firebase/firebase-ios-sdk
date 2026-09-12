@@ -16,8 +16,8 @@
 
 #import <FirebaseAppCheck/FIRAppCheckDebugProviderFactory.h>
 
-#import "Core/FIRAppCheckLogger.h"
 #import <FirebaseAppCheck/FIRAppCheckDebugProvider.h>
+#import "Core/FIRAppCheckLogger.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

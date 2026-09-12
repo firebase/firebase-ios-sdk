@@ -19,9 +19,9 @@
 #import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
 #import "Api/Private/FIRDatabaseQuery_Private.h"
-#import "Realtime/FConnection.h"
 #import "FTestBase.h"
 #import "FTestHelpers.h"
+#import "Realtime/FConnection.h"
 
 @interface FConnectionTest : FTestBase
 

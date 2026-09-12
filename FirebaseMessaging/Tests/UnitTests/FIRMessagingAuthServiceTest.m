@@ -16,11 +16,11 @@
 
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
-#import "NSError+FIRMessaging.h"
 #import "FIRMessagingAuthService.h"
 #import "FIRMessagingCheckinPreferences.h"
 #import "FIRMessagingCheckinService.h"
 #import "FIRMessagingCheckinStore.h"
+#import "NSError+FIRMessaging.h"
 
 static NSString *const kDeviceAuthId = @"device-id";
 static NSString *const kSecretToken = @"secret-token";

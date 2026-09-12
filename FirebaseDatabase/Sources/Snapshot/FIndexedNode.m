@@ -16,11 +16,11 @@
 
 #import "Snapshot/FIndexedNode.h"
 
+#import "FImmutableSortedSet.h"
 #import "FIndex.h"
 #import "FKeyIndex.h"
 #import "FPriorityIndex.h"
 #import "Snapshot/FChildrenNode.h"
-#import "FImmutableSortedSet.h"
 
 static FImmutableSortedSet *FALLBACK_INDEX;
 

@@ -16,6 +16,7 @@
 
 #import "Snapshot/FSnapshotUtilities.h"
 #import "Constants/FConstants.h"
+#import "FLLRBValueNode.h"
 #import "FMaxNode.h"
 #import "FNamedNode.h"
 #import "Snapshot/FChildrenNode.h"
@@ -24,7 +25,6 @@
 #import "Snapshot/FLeafNode.h"
 #import "Utilities/FUtilities.h"
 #import "Utilities/FValidation.h"
-#import "FLLRBValueNode.h"
 
 @implementation FSnapshotUtilities
 

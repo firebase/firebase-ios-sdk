@@ -22,13 +22,13 @@
 #include <utility>
 #include <vector>
 
-#import "Firestore/Example/Tests/API/FSTAPIHelpers.h"
-#import "Firestore/Example/Tests/Util/FSTHelpers.h"
 #import "FIRDocumentChange+Internal.h"
 #import "FIRDocumentSnapshot+Internal.h"
 #import "FIRFirestore+Internal.h"
 #import "FIRQuerySnapshot+Internal.h"
 #import "FIRSnapshotMetadata+Internal.h"
+#import "Firestore/Example/Tests/API/FSTAPIHelpers.h"
+#import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
 #include "Firestore/core/src/core/pipeline_util.h"
 #include "Firestore/core/src/core/query.h"

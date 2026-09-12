@@ -18,18 +18,18 @@
 
 #import <OCMock/OCMock.h>
 
-#import "FBLPromise+Testing.h"
 #import <FirebaseCoreExtension/FirebaseCoreInternal.h>
+#import "FBLPromise+Testing.h"
 #import "FIRInstallations+Tests.h"
 #import "FIRInstallationsErrorUtil+Tests.h"
 #import "FIRInstallationsItem+Tests.h"
 
+#import "FIRInstallations.h"
+#import "FIRInstallationsAuthTokenResultInternal.h"
 #import "FIRInstallationsErrorUtil.h"
 #import "FIRInstallationsHTTPError.h"
-#import "FIRInstallationsAuthTokenResultInternal.h"
 #import "FIRInstallationsIDController.h"
 #import "FIRInstallationsStoredAuthToken.h"
-#import "FIRInstallations.h"
 
 @interface FIRInstallationsTests : XCTestCase
 @property(nonatomic) FIRInstallations *installations;

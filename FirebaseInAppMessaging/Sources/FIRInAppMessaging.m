@@ -21,9 +21,9 @@
 
 #import <Foundation/Foundation.h>
 
+#import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
 #import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 #import <FirebaseInstallations/FirebaseInstallations.h>
-#import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
 
 #import "FIRCore+InAppMessaging.h"
 #import "FIRInAppMessagingPrivate.h"

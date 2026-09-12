@@ -16,7 +16,6 @@
 
 #import <Foundation/Foundation.h>
 
-#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 #import "Api/Private/FIRDataSnapshot_Private.h"
 #import "Api/Private/FIRDatabaseQuery_Private.h"
 #import "Api/Private/FIRDatabase_Private.h"
@@ -38,18 +37,19 @@
 #import "Core/View/FValueEventRegistration.h"
 #import "FClock.h"
 #import "FIRDatabaseConfig_Private.h"
-#import "Persistence/FCachePolicy.h"
-#import "Persistence/FLevelDBStorageEngine.h"
-#import "Persistence/FPersistenceManager.h"
 #import "FirebaseDatabase/FIRDataSnapshot.h"
 #import "FirebaseDatabase/FIRMutableData.h"
 #import "FirebaseDatabase/FIRTransactionResult.h"
+#import "Persistence/FCachePolicy.h"
+#import "Persistence/FLevelDBStorageEngine.h"
+#import "Persistence/FPersistenceManager.h"
 #import "Snapshot/FEmptyNode.h"
 #import "Snapshot/FSnapshotUtilities.h"
 #import "Utilities/FAtomicNumber.h"
 #import "Utilities/Tuples/FTupleNodePath.h"
 #import "Utilities/Tuples/FTupleSetIdPath.h"
 #import "Utilities/Tuples/FTupleTransaction.h"
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 #import <dlfcn.h>
 
 #if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION

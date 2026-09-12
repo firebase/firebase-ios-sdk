@@ -18,8 +18,8 @@
 
 #import <XCTest/XCTest.h>
 
-#import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 #import "FIRFirestore+Internal.h"
+#import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 
 @interface FIRListenerRegistrationTests : FSTIntegrationTestCase
 @end
