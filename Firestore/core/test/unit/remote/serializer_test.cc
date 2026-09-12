@@ -40,7 +40,10 @@
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/include/firebase/firestore/geo_point.h"
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
+#include "Firestore/core/src/api/pipeline.h"
+#include "Firestore/core/src/api/stages.h"
 #include "Firestore/core/src/core/bound.h"
+#include "Firestore/core/src/core/database_info.h"
 #include "Firestore/core/src/core/field_filter.h"
 #include "Firestore/core/src/core/filter.h"
 #include "Firestore/core/src/core/query.h"
@@ -56,6 +59,7 @@
 #include "Firestore/core/src/nanopb/message.h"
 #include "Firestore/core/src/nanopb/reader.h"
 #include "Firestore/core/src/nanopb/writer.h"
+#include "Firestore/core/src/remote/remote_objc_bridge.h"
 #include "Firestore/core/src/timestamp_internal.h"
 #include "Firestore/core/src/util/status.h"
 #include "Firestore/core/test/unit/nanopb/nanopb_testing.h"
@@ -75,6 +79,7 @@ namespace {
 
 namespace v1 = google::firestore::v1;
 using core::Bound;
+using core::DatabaseInfo;
 using google::protobuf::Int32Value;
 using google::protobuf::util::MessageDifferencer;
 using local::QueryPurpose;
@@ -2172,6 +2177,89 @@ TEST_F(SerializerTest, EncodesKeyFieldFilter) {
   *field.mutable_value() = ValueProto(DatabaseId{"p", "d"}, Key("coll/doc"));
 
   ExpectRoundTrip(model, proto);
+}
+
+TEST_F(SerializerTest, EncodesExecutePipelineRequestWithAtomic) {
+  DatabaseInfo db_info(DatabaseId(kProjectId, kDatabaseId), "key", "host", false);
+  DatastoreSerializer datastore_serializer(db_info);
+
+  auto stage = std::make_shared<api::CollectionSource>("rooms");
+  api::Pipeline pipeline({stage}, nullptr, /*atomic=*/true);
+
+  auto request = datastore_serializer.EncodeExecutePipelineRequest(pipeline);
+
+  EXPECT_EQ(request->which_consistency_selector,
+            google_firestore_v1_ExecutePipelineRequest_new_transaction_tag);
+  EXPECT_EQ(request->consistency_selector.new_transaction.which_mode,
+            google_firestore_v1_TransactionOptions_read_write_tag);
+  EXPECT_TRUE(request->auto_commit_transaction);
+
+  ByteString bytes = nanopb::MakeByteString(request);
+  auto proto = ProtobufParse<v1::ExecutePipelineRequest>(bytes);
+  EXPECT_TRUE(proto.has_new_transaction());
+  EXPECT_TRUE(proto.new_transaction().has_read_write());
+  EXPECT_TRUE(proto.auto_commit_transaction());
+}
+
+TEST_F(SerializerTest, EncodesExecutePipelineRequestWithoutAtomic) {
+  DatabaseInfo db_info(DatabaseId(kProjectId, kDatabaseId), "key", "host", false);
+  DatastoreSerializer datastore_serializer(db_info);
+
+  auto stage = std::make_shared<api::CollectionSource>("rooms");
+  api::Pipeline pipeline({stage}, nullptr, /*atomic=*/false);
+
+  auto request = datastore_serializer.EncodeExecutePipelineRequest(pipeline);
+
+  EXPECT_FALSE(request->auto_commit_transaction);
+  EXPECT_NE(request->which_consistency_selector,
+            google_firestore_v1_ExecutePipelineRequest_new_transaction_tag);
+
+  ByteString bytes = nanopb::MakeByteString(request);
+  auto proto = ProtobufParse<v1::ExecutePipelineRequest>(bytes);
+  EXPECT_FALSE(proto.has_new_transaction());
+  EXPECT_FALSE(proto.auto_commit_transaction());
+}
+
+TEST_F(SerializerTest, EncodesExecutePipelineRequestDefaultAtomic) {
+  DatabaseInfo db_info(DatabaseId(kProjectId, kDatabaseId), "key", "host", false);
+  DatastoreSerializer datastore_serializer(db_info);
+
+  auto stage = std::make_shared<api::CollectionSource>("rooms");
+  api::Pipeline pipeline({stage}, nullptr);
+
+  auto request = datastore_serializer.EncodeExecutePipelineRequest(pipeline);
+
+  EXPECT_FALSE(request->auto_commit_transaction);
+  EXPECT_NE(request->which_consistency_selector,
+            google_firestore_v1_ExecutePipelineRequest_new_transaction_tag);
+
+  ByteString bytes = nanopb::MakeByteString(request);
+  auto proto = ProtobufParse<v1::ExecutePipelineRequest>(bytes);
+  EXPECT_FALSE(proto.has_new_transaction());
+  EXPECT_FALSE(proto.auto_commit_transaction());
+}
+
+TEST_F(SerializerTest, EncodesExecutePipelineRequestSetAtomic) {
+  DatabaseInfo db_info(DatabaseId(kProjectId, kDatabaseId), "key", "host", false);
+  DatastoreSerializer datastore_serializer(db_info);
+
+  auto stage = std::make_shared<api::CollectionSource>("rooms");
+  api::Pipeline pipeline({stage}, nullptr);
+  pipeline.set_atomic(true);
+
+  auto request = datastore_serializer.EncodeExecutePipelineRequest(pipeline);
+
+  EXPECT_EQ(request->which_consistency_selector,
+            google_firestore_v1_ExecutePipelineRequest_new_transaction_tag);
+  EXPECT_EQ(request->consistency_selector.new_transaction.which_mode,
+            google_firestore_v1_TransactionOptions_read_write_tag);
+  EXPECT_TRUE(request->auto_commit_transaction);
+
+  ByteString bytes = nanopb::MakeByteString(request);
+  auto proto = ProtobufParse<v1::ExecutePipelineRequest>(bytes);
+  EXPECT_TRUE(proto.has_new_transaction());
+  EXPECT_TRUE(proto.new_transaction().has_read_write());
+  EXPECT_TRUE(proto.auto_commit_transaction());
 }
 
 // TODO(rsgowman): Test [en|de]coding multiple protos into the same output
