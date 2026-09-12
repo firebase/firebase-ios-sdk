@@ -279,6 +279,33 @@ TEST(TargetTest, StartAfterDoesNotChangeBoundIfNotApplicable) {
   VerifyBound(upper_bound, false, {*BlobValue(), *Value("b2")});
 }
 
+TEST(TargetTest, StartingAtWithFewerValuesThanOrderBys) {
+  // A cursor is allowed to have fewer components than the target has order-bys.
+  Target target = Query("c")
+                      .AddingOrderBy(OrderBy("a"))
+                      .AddingOrderBy(OrderBy("b"))
+                      .StartingAt(Bound::FromValue(Array("a1"), true))
+                      .ToTarget();
+  FieldIndex index = MakeFieldIndex("c", "a", Segment::Kind::kAscending, "b",
+                                    Segment::Kind::kAscending);
+
+  auto lower_bound = target.GetLowerBound(index);
+  VerifyBound(lower_bound, true, {*Value("a1"), model::MinValue()});
+}
+
+TEST(TargetTest, EndingAtWithFewerValuesThanOrderBys) {
+  Target target = Query("c")
+                      .AddingOrderBy(OrderBy("a"))
+                      .AddingOrderBy(OrderBy("b"))
+                      .EndingAt(Bound::FromValue(Array("a1"), true))
+                      .ToTarget();
+  FieldIndex index = MakeFieldIndex("c", "a", Segment::Kind::kAscending, "b",
+                                    Segment::Kind::kAscending);
+
+  auto upper_bound = target.GetUpperBound(index);
+  VerifyBound(upper_bound, true, {*Value("a1"), model::MaxValue()});
+}
+
 TEST(TargetTest, EndingAtQueryBound) {
   Target target = Query("c")
                       .AddingOrderBy(OrderBy("foo"))
