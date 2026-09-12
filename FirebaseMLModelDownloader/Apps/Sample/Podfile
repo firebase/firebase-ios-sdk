@@ -7,6 +7,8 @@ source 'https://cdn.cocoapods.org/'
 
 pod 'FirebaseCore', :path => '../../../'
 pod 'FirebaseCoreInternal', :path => '../../../'
+pod 'FirebaseCoreExtension', :path => '../../../'
+pod 'FirebaseInstallations', :path => '../../../'
 pod 'FirebaseMLModelDownloader', :path => '../../../'
 pod 'TensorFlowLiteSwift'
 

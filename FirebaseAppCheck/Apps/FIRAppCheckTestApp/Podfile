@@ -8,9 +8,13 @@ target 'FIRAppCheckTestApp' do
   use_frameworks!
 
   # Pods for FIRAppCheckTestApp
+  pod 'FirebaseCore', :path => '../../../'
+  pod 'FirebaseCoreInternal', :path => '../../../'
+  pod 'FirebaseCoreExtension', :path => '../../../'
+  pod 'FirebaseAppCheckInterop', :path => '../../../'
+  pod 'FirebaseAuthInterop', :path => '../../../'
   pod 'FirebaseAppCheck', :path => '../../../'
 
-  pod 'FirebaseCore', :path => '../../../'
   # FirebaseStorage is used for testing AppCheck protected access.
   pod 'FirebaseStorage', :path => '../../../'
   # RecaptchaEnterprise is needed for Firebase App Check reCAPTCHA provider.

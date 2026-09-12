@@ -9,6 +9,7 @@ target 'CocoapodsIntegrationTest' do
   # Comment the next line if you don't want to use dynamic frameworks
   use_frameworks!
   pod 'FirebaseABTesting', :path => '../../'
+  pod 'FirebaseAnalyticsInterop', :path => '../../'
   pod 'FirebaseAppDistribution', :path => '../../'
   pod 'FirebaseAppCheckInterop', :path => '../../'
   pod 'FirebaseCore', :path => '../../'
