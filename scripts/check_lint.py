@@ -41,6 +41,10 @@ _CPPLINT_OBJC_FILTERS = [
     # Objective-C uses #import and does not use header guards
     '-build/header_guard',
 
+    # Objective-C and modular framework headers use <Module/Header.h> syntax
+    # which cpplint confuses with C system headers.
+    '-build/include_order',
+
     # Inline definitions of Objective-C blocks confuse
     '-readability/braces',
 

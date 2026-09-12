@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/FIRMutableData.h"
+#import "FIRMutableData.h"
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN

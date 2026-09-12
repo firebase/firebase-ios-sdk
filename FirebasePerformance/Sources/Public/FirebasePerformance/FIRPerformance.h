@@ -14,7 +14,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FirebasePerformance/FIRTrace.h"
+#import "FIRTrace.h"
 
 /**
  * This class allows you to configure the Firebase Performance Reporting SDK. It also provides the

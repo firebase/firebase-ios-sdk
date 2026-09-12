@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FirebaseInAppMessaging/FIRInAppMessagingErrors.h"
+#import "FIRInAppMessagingErrors.h"
 
 @class UIColor;
 

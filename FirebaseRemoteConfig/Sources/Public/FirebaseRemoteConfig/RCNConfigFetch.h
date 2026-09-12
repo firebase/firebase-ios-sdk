@@ -17,7 +17,7 @@
 #import <Foundation/Foundation.h>
 
 #import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
-#import "FirebaseRemoteConfig/FIRRemoteConfig.h"
+#import "FIRRemoteConfig.h"
 
 @class FIROptions;
 @class RCNConfigContent;
