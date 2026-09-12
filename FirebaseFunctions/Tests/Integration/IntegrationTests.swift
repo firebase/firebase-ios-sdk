@@ -102,6 +102,7 @@ class IntegrationTests: XCTestCase {
     for function in [byName, byURL] {
       let expectation = expectation(description: #function)
       function.call(data) { result in
+        defer { expectation.fulfill() }
         do {
           let response = try result.get()
           let expected = DataTestResponse(
@@ -113,7 +114,6 @@ class IntegrationTests: XCTestCase {
         } catch {
           XCTFail("Failed to unwrap the function result: \(error)")
         }
-        expectation.fulfill()
       }
       waitForExpectations(timeout: 10)
     }
@@ -161,13 +161,13 @@ class IntegrationTests: XCTestCase {
     for function in [byName, byURL] {
       let expectation = expectation(description: #function)
       function.call(17) { result in
+        defer { expectation.fulfill() }
         do {
           let response = try result.get()
           XCTAssertEqual(response, 76)
         } catch {
           XCTAssert(false, "Failed to unwrap the function result: \(error)")
         }
-        expectation.fulfill()
       }
       waitForExpectations(timeout: 10)
     }
@@ -226,13 +226,13 @@ class IntegrationTests: XCTestCase {
       let expectation = expectation(description: #function)
       XCTAssertNotNil(function)
       function.call([:]) { result in
+        defer { expectation.fulfill() }
         do {
           let data = try result.get()
           XCTAssertEqual(data, [:])
         } catch {
           XCTAssert(false, "Failed to unwrap the function result: \(error)")
         }
-        expectation.fulfill()
       }
       waitForExpectations(timeout: 10)
     }
@@ -281,13 +281,13 @@ class IntegrationTests: XCTestCase {
     for function in [byName, byURL] {
       let expectation = expectation(description: #function)
       function.call([:]) { result in
+        defer { expectation.fulfill() }
         do {
           let data = try result.get()
           XCTAssertEqual(data, [:])
         } catch {
           XCTAssert(false, "Failed to unwrap the function result: \(error)")
         }
-        expectation.fulfill()
       }
       waitForExpectations(timeout: 10)
     }
@@ -325,13 +325,13 @@ class IntegrationTests: XCTestCase {
     for function in [byName, byURL] {
       let expectation = expectation(description: #function)
       function.call(nil) { result in
+        defer { expectation.fulfill() }
         do {
           let data = try result.get()
           XCTAssertEqual(data, nil)
         } catch {
           XCTAssert(false, "Failed to unwrap the function result: \(error)")
         }
-        expectation.fulfill()
       }
       waitForExpectations(timeout: 10)
     }
@@ -369,13 +369,13 @@ class IntegrationTests: XCTestCase {
     for function in [byName, byURL] {
       let expectation = expectation(description: #function)
       function.call(nil) { result in
+        defer { expectation.fulfill() }
         do {
           _ = try result.get()
         } catch {
           let error = error as NSError
           XCTAssertEqual(FunctionsErrorCode.internal.rawValue, error.code)
           XCTAssertEqual("Response is missing data field.", error.localizedDescription)
-          expectation.fulfill()
           return
         }
         XCTFail("Failed to throw error for missing result")
@@ -422,13 +422,13 @@ class IntegrationTests: XCTestCase {
     for function in [byName, byURL] {
       let expectation = expectation(description: #function)
       function.call([]) { result in
+        defer { expectation.fulfill() }
         do {
           _ = try result.get()
         } catch {
           let error = error as NSError
           XCTAssertEqual(FunctionsErrorCode.internal.rawValue, error.code)
           XCTAssertEqual("INTERNAL", error.localizedDescription)
-          expectation.fulfill()
           return
         }
         XCTFail("Failed to throw error for missing result")
@@ -475,13 +475,13 @@ class IntegrationTests: XCTestCase {
     for function in [byName, byURL] {
       let expectation = expectation(description: #function)
       function.call([]) { result in
+        defer { expectation.fulfill() }
         do {
           _ = try result.get()
         } catch {
           let error = error as NSError
           XCTAssertEqual(FunctionsErrorCode.internal.rawValue, error.code)
           XCTAssertEqual("INTERNAL", error.localizedDescription)
-          expectation.fulfill()
           return
         }
         XCTFail("Failed to throw error for missing result")
@@ -527,6 +527,7 @@ class IntegrationTests: XCTestCase {
     for function in [byName, byURL] {
       let expectation = expectation(description: #function)
       function.call([]) { result in
+        defer { expectation.fulfill() }
         do {
           _ = try result.get()
         } catch {
@@ -535,7 +536,6 @@ class IntegrationTests: XCTestCase {
           XCTAssertEqual("explicit nope", error.localizedDescription)
           XCTAssertEqual(["start": 10 as Int32, "end": 20 as Int32, "long": 30],
                          error.userInfo["details"] as? [String: Int32])
-          expectation.fulfill()
           return
         }
         XCTFail("Failed to throw error for missing result")
@@ -584,12 +584,12 @@ class IntegrationTests: XCTestCase {
       let expectation = expectation(description: #function)
       XCTAssertNotNil(function)
       function.call([]) { result in
+        defer { expectation.fulfill() }
         do {
           _ = try result.get()
         } catch {
           let error = error as NSError
           XCTAssertEqual(FunctionsErrorCode.invalidArgument.rawValue, error.code)
-          expectation.fulfill()
           return
         }
         XCTFail("Failed to throw error for missing result")
@@ -635,13 +635,13 @@ class IntegrationTests: XCTestCase {
       let expectation = expectation(description: #function)
       XCTAssertNotNil(function)
       function.call([]) { result in
+        defer { expectation.fulfill() }
         do {
           _ = try result.get()
         } catch {
           let error = error as NSError
           XCTAssertEqual(FunctionsErrorCode.invalidArgument.rawValue, error.code)
           XCTAssertEqual(error.localizedDescription, "Invalid test requested.")
-          expectation.fulfill()
           return
         }
         XCTFail("Failed to throw error for missing result")
@@ -688,6 +688,7 @@ class IntegrationTests: XCTestCase {
       let expectation = expectation(description: #function)
       function.timeoutInterval = 0.05
       function.call([]) { result in
+        defer { expectation.fulfill() }
         do {
           _ = try result.get()
         } catch {
@@ -695,7 +696,6 @@ class IntegrationTests: XCTestCase {
           XCTAssertEqual(FunctionsErrorCode.deadlineExceeded.rawValue, error.code)
           XCTAssertEqual("DEADLINE EXCEEDED", error.localizedDescription)
           XCTAssertNil(error.userInfo["details"])
-          expectation.fulfill()
           return
         }
         XCTFail("Failed to throw error for missing result")
@@ -748,6 +748,7 @@ class IntegrationTests: XCTestCase {
     for function in [byName, byURL] {
       let expectation = expectation(description: #function)
       function(data) { result in
+        defer { expectation.fulfill() }
         do {
           let response = try result.get()
           let expected = DataTestResponse(
@@ -756,7 +757,6 @@ class IntegrationTests: XCTestCase {
             code: 42
           )
           XCTAssertEqual(response, expected)
-          expectation.fulfill()
         } catch {
           XCTAssert(false, "Failed to unwrap the function result: \(error)")
         }
@@ -810,6 +810,7 @@ class IntegrationTests: XCTestCase {
     for function in [byName, byURL] {
       let expectation = expectation(description: #function)
       function(data) { result in
+        defer { expectation.fulfill() }
         do {
           let response = try result.get()
           let expected = DataTestResponse(
@@ -818,7 +819,6 @@ class IntegrationTests: XCTestCase {
             code: 42
           )
           XCTAssertEqual(response, expected)
-          expectation.fulfill()
         } catch {
           XCTAssert(false, "Failed to unwrap the function result: \(error)")
         }
@@ -860,11 +860,11 @@ class IntegrationTests: XCTestCase {
       requestAs: Int16.self,
       responseAs: Int.self
     ).call(17) { result in
+      defer { expectation.fulfill() }
       guard case .success = result else {
         return XCTFail("Unexpected failure.")
       }
       XCTAssert(Thread.isMainThread)
-      expectation.fulfill()
     }
     waitForExpectations(timeout: 10)
   }
@@ -876,11 +876,11 @@ class IntegrationTests: XCTestCase {
       requestAs: [Int].self,
       responseAs: Int.self
     ).call([]) { result in
+      defer { expectation.fulfill() }
       guard case .failure = result else {
         return XCTFail("Unexpected failure.")
       }
       XCTAssert(Thread.isMainThread)
-      expectation.fulfill()
     }
     waitForExpectations(timeout: 10)
   }
