@@ -302,7 +302,7 @@ The document `HeadersImports.md` provides detailed guidelines. Key points includ
         *   *Exception*: Public headers importing other public headers from the *same library*
             should use unqualified imports (`#import "AnotherPublicHeaderInFoo.h"`) to avoid
             module collisions.
-    *   **Cross-target Headers from other libraries (Public, Extension, Interop)**: Use modular bracket imports
+    *   **Cross-target Headers from other libraries (Public, Interop)**: Use modular bracket imports
         (e.g., `#import <FirebaseCoreExtension/FirebaseCoreInternal.h>`, `#import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>`, `#import <FirebaseAuthInterop/FIRAuthInterop.h>`), and declare an explicit dependency on the target in `Package.swift` and the `.podspec`.
     *   **External Dependencies**:
         ```objectivec
