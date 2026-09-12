@@ -291,27 +291,19 @@ The document `HeadersImports.md` provides detailed guidelines. Key points includ
 *   **Public Umbrella Header**:
     *   A single header including the library's full public API
         (e.g., `FirebaseFoo/Sources/Public/FirebaseFoo/FirebaseFoo.h`).
-*   **Private Headers**:
-    *   Located in `FirebaseFoo/Sources/Private/`.
-    *   Available to other libraries within the `firebase-ios-sdk` repo but NOT part of the
-        public API.
-    *   For CocoaPods, these are included in `source_files`, not `private_header_files`.
 *   **Interop Headers**:
     *   Special private headers for defining interfaces between libraries
         (see `Interop/FirebaseComponentSystem.md`).
-*   **Private Umbrella Header**:
-    *   Includes public API + private APIs for other in-repo libraries. Package manager
-        complexities should be localized here.
+    *   Located in `<Module>/Interop/Public/<TargetInterop>/` and exposed via explicit interop targets (`FirebaseAnalyticsInterop`, `FirebaseAuthInterop`, `FirebaseAppCheckInterop`, `FirebaseMessagingInterop`).
 *   **Library Internal Headers**:
     *   Only used by the enclosing library, located among its source files.
 *   **Import Styles**:
-    *   **Within the same library**: Use repo-relative paths
-        (e.g., `#import "FirebaseFoo/Sources/Internal/MyInternalHeader.h"`).
+    *   **Within the same library/target**: Use relative paths (e.g., `#import "MyInternalHeader.h"` or `#import "Token/FIRTokenResult.h"`).
         *   *Exception*: Public headers importing other public headers from the *same library*
             should use unqualified imports (`#import "AnotherPublicHeaderInFoo.h"`) to avoid
             module collisions.
-    *   **Private Headers from other libraries**: Import the private umbrella header
-        (e.g., `#import "FirebaseCore/Extension/FirebaseCoreInternal.h"`).
+    *   **Cross-target Headers from other libraries (Public, Extension, Interop)**: Use modular bracket imports
+        (e.g., `#import <FirebaseCoreExtension/FirebaseCoreInternal.h>`, `#import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>`, `#import <FirebaseAuthInterop/FIRAuthInterop.h>`), and declare an explicit dependency on the target in `Package.swift` and the `.podspec`.
     *   **External Dependencies**:
         ```objectivec
         #if SWIFT_PACKAGE
