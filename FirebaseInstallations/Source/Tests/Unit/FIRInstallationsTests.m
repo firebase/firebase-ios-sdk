@@ -24,12 +24,12 @@
 #import "FIRInstallationsErrorUtil+Tests.h"
 #import "FIRInstallationsItem+Tests.h"
 
-#import "FIRInstallations.h"
+#import "Errors/FIRInstallationsErrorUtil.h"
+#import "Errors/FIRInstallationsHTTPError.h"
 #import "FIRInstallationsAuthTokenResultInternal.h"
-#import "FIRInstallationsErrorUtil.h"
-#import "FIRInstallationsHTTPError.h"
-#import "FIRInstallationsIDController.h"
-#import "FIRInstallationsStoredAuthToken.h"
+#import "FirebaseInstallations/FIRInstallations.h"
+#import "InstallationsIDController/FIRInstallationsIDController.h"
+#import "InstallationsStore/FIRInstallationsStoredAuthToken.h"
 
 @interface FIRInstallationsTests : XCTestCase
 @property(nonatomic) FIRInstallations *installations;

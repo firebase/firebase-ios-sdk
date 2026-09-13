@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRCLSSettings.h"
+#import "Models/FIRCLSSettings.h"
 
 #import <Foundation/Foundation.h>
 #import <XCTest/XCTest.h>
@@ -24,8 +24,8 @@
 #endif
 
 #import "FABMockApplicationIdentifierModel.h"
-#import "FIRCLSFileManager.h"
 #import "FIRCLSMockFileManager.h"
+#import "Models/FIRCLSFileManager.h"
 
 const NSString *FIRCLSTestSettingsActivated =
     @"{\"settings_version\":3,\"cache_duration\":60,\"features\":{\"collect_logged_exceptions\":"

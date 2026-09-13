@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#import "FImmutableTree.h"
-#import "FImmutableSortedDictionary.h"
-#import "FPath.h"
-#import "FUtilities.h"
+#import "Core/Utilities/FImmutableTree.h"
+#import "Core/Utilities/FPath.h"
+#import "Utilities/FUtilities.h"
+#import "third_party/FImmutableSortedDictionary/FImmutableSortedDictionary/FImmutableSortedDictionary.h"
 
 @interface FImmutableTree ()
 @property(nonatomic, strong, readwrite) id value;

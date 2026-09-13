@@ -19,7 +19,7 @@
 
 // #import "FIRRemoteConfig+FIRApp.h"
 #import <FirebaseCoreExtension/FirebaseCoreInternal.h>
-#import "FIRRemoteConfig_Private.h"
+#import "FirebaseRemoteConfig/FIRRemoteConfig_Private.h"
 // #import "third_party/firebase/ios/Releases/FirebaseCore/Tests/FIRTestCase.h"
 
 @interface RCNRemoteConfig_FIRAppTest : FIRTestCase

@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "FIRCLSCrashedMarkerFile.h"
-#include "FIRCLSFile.h"
-#include "FIRCLSUtility.h"
+#include "Components/FIRCLSCrashedMarkerFile.h"
+#include "Helpers/FIRCLSFile.h"
+#include "Helpers/FIRCLSUtility.h"
 
 const char *FIRCLSCrashedMarkerFileName = "previously-crashed";
 

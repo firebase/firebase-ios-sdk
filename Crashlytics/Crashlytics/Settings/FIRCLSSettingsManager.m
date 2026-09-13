@@ -12,19 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRCLSSettingsManager.h"
+#import "Settings/FIRCLSSettingsManager.h"
 
-#import "FIRCLSApplicationIdentifierModel.h"
-#import "FIRCLSConstants.h"
-#import "FIRCLSDataCollectionToken.h"
-#import "FIRCLSDefines.h"
-#import "FIRCLSDownloadAndSaveSettingsOperation.h"
-#import "FIRCLSFABNetworkClient.h"
-#import "FIRCLSFileManager.h"
-#import "FIRCLSInstallIdentifierModel.h"
-#import "FIRCLSLogger.h"
-#import "FIRCLSSettings.h"
-#import "FIRCLSURLBuilder.h"
+#import "DataCollection/FIRCLSDataCollectionToken.h"
+#import "Helpers/FIRCLSDefines.h"
+#import "Helpers/FIRCLSLogger.h"
+#import "Models/FIRCLSFileManager.h"
+#import "Models/FIRCLSInstallIdentifierModel.h"
+#import "Models/FIRCLSSettings.h"
+#import "Settings/Models/FIRCLSApplicationIdentifierModel.h"
+#import "Settings/Operations/FIRCLSDownloadAndSaveSettingsOperation.h"
+#import "Shared/FIRCLSConstants.h"
+#import "Shared/FIRCLSNetworking/FIRCLSFABNetworkClient.h"
+#import "Shared/FIRCLSNetworking/FIRCLSURLBuilder.h"
 
 @interface FIRCLSSettingsManager () <FIRCLSDownloadAndSaveSettingsOperationDelegate>
 

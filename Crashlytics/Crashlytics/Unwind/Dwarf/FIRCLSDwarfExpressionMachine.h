@@ -17,8 +17,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "FIRCLSFeatures.h"
-#include "FIRCLSThreadState.h"
+#include "Helpers/FIRCLSFeatures.h"
+#include "Helpers/FIRCLSThreadState.h"
 
 #define CLS_DWARF_EXPRESSION_STACK_SIZE (100)
 

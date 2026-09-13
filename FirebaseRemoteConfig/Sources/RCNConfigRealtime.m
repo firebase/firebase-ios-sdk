@@ -19,9 +19,9 @@
 #import <FirebaseInstallations/FirebaseInstallations.h>
 #import <Foundation/Foundation.h>
 #import <GoogleUtilities/GULNSData+zlib.h>
+#import "FirebaseRemoteConfig/RCNConfigFetch.h"
+#import "FirebaseRemoteConfig/RCNConfigSettings.h"
 #import "RCNConfigConstants.h"
-#import "RCNConfigFetch.h"
-#import "RCNConfigSettings.h"
 #import "RCNDevice.h"
 
 /// URL params

@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "FIRCLSProcess.h"
-#include "FIRCLSDefines.h"
-#include "FIRCLSFeatures.h"
-#include "FIRCLSGlobals.h"
-#include "FIRCLSThreadState.h"
-#include "FIRCLSUnwind.h"
-#include "FIRCLSUtility.h"
+#include "Components/FIRCLSProcess.h"
+#include "Helpers/FIRCLSDefines.h"
+#include "Helpers/FIRCLSFeatures.h"
+#include "Components/FIRCLSGlobals.h"
+#include "Helpers/FIRCLSThreadState.h"
+#include "Unwind/FIRCLSUnwind.h"
+#include "Helpers/FIRCLSUtility.h"
 
 #include <dispatch/dispatch.h>
 #include <objc/message.h>

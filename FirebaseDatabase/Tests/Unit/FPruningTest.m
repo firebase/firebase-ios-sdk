@@ -16,11 +16,11 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FEmptyNode.h"
-#import "FLevelDBStorageEngine.h"
 #import "FMockStorageEngine.h"
-#import "FPruneForest.h"
 #import "FTestHelpers.h"
+#import "Persistence/FLevelDBStorageEngine.h"
+#import "Persistence/FPruneForest.h"
+#import "Snapshot/FEmptyNode.h"
 
 @interface FPruningTest : XCTestCase
 

@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 #import <XCTest/XCTest.h>
-#import "FIRDatabaseQuery.h"
+#import "FirebaseDatabase/FIRDatabaseQuery.h"
 
 @interface FTestExpectations : XCTestCase {
   NSMutableArray* expectations;

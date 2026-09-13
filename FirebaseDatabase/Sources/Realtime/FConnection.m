@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import "FConnection.h"
-#import "FConstants.h"
+#import "Realtime/FConnection.h"
+#import "Constants/FConstants.h"
 #import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
 typedef enum {

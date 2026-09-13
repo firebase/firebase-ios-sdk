@@ -16,7 +16,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FIRInstallationsBackoffController.h"
+#import "InstallationsIDController/FIRInstallationsBackoffController.h"
 
 #import "FIRTestCurrentDateProvider.h"
 

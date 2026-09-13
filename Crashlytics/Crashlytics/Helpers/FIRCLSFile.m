@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "FIRCLSFile.h"
+#include "Helpers/FIRCLSFile.h"
 
-#include "FIRCLSByteUtility.h"
-#include "FIRCLSUtility.h"
+#include "Helpers/FIRCLSUtility.h"
+#include "Shared/FIRCLSByteUtility.h"
 
 #if TARGET_OS_MAC
 #include <Foundation/Foundation.h>

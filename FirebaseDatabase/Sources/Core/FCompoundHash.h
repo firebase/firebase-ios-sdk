@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FNode.h"
+#import "Snapshot/FNode.h"
 
 @interface FCompoundHashBuilder : NSObject
 

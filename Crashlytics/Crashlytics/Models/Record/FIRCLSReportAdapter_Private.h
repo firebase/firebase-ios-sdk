@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#import "FIRCLSReportAdapter.h"
+#import "Models/Record/FIRCLSReportAdapter.h"
 
-#import "FIRCLSRecordApplication.h"
-#import "FIRCLSRecordHost.h"
-#import "FIRCLSRecordIdentity.h"
+#import "Models/Record/FIRCLSRecordApplication.h"
+#import "Models/Record/FIRCLSRecordHost.h"
+#import "Models/Record/FIRCLSRecordIdentity.h"
 
 pb_bytes_array_t *FIRCLSEncodeString(NSString *string);
 pb_bytes_array_t *FIRCLSEncodeData(NSData *data);

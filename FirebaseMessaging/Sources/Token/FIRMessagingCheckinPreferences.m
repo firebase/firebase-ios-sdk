@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#import "FIRMessagingCheckinPreferences.h"
+#import "Token/FIRMessagingCheckinPreferences.h"
 
 #import <GoogleUtilities/GULUserDefaults.h>
-#import "FIRMessagingCheckinService.h"
 #import "FIRMessagingUtilities.h"
+#import "Token/FIRMessagingCheckinService.h"
 
 const NSTimeInterval kFIRMessagingDefaultCheckinInterval = 7 * 24 * 60 * 60;  // 7 days.
 static NSString *const kCheckinKeychainContentSeparatorString = @"|";

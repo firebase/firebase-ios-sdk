@@ -16,7 +16,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import "NSString+FIRInterlaceStrings.h"
+#import "Private/Util/NSString+FIRInterlaceStrings.h"
 
 @interface NSString_InterlaceStringsTests : XCTestCase
 

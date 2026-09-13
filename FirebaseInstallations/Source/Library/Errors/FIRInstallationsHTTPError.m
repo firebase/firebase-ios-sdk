@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import "FIRInstallationsHTTPError.h"
-#import "FIRInstallationsErrorUtil.h"
+#import "Errors/FIRInstallationsHTTPError.h"
+#import "Errors/FIRInstallationsErrorUtil.h"
 
 @implementation FIRInstallationsHTTPError
 

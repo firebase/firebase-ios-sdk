@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-#import "RCNConfigFetch.h"
-#import "FIRRemoteConfig_Private.h"
+#import "FirebaseRemoteConfig/RCNConfigFetch.h"
+#import "FirebaseRemoteConfig/FIRRemoteConfig_Private.h"
 
 #import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 #import <FirebaseInstallations/FirebaseInstallations.h>
 #import <GoogleUtilities/GULNSData+zlib.h>
+#import "FirebaseRemoteConfig/RCNConfigSettings.h"
 #import "RCNConfigConstants.h"
 #import "RCNConfigContent.h"
 #import "RCNConfigExperiment.h"
 #import "RCNConfigSessionConfiguration.h"
-#import "RCNConfigSettings.h"
 #import "RCNDevice.h"
 @import FirebaseRemoteConfigInterop;
 

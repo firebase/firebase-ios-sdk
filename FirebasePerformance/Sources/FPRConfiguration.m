@@ -14,7 +14,7 @@
 
 #import "FPRConfiguration.h"
 
-#import "FPRDiagnostics.h"
+#import "Common/FPRDiagnostics.h"
 
 @implementation FPRConfiguration
 

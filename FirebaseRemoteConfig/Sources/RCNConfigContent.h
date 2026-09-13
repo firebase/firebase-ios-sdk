@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRRemoteConfig.h"
+#import "FirebaseRemoteConfig/FIRRemoteConfig.h"
 
 typedef NS_ENUM(NSInteger, RCNDBSource) {
   RCNDBSourceActive,

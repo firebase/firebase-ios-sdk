@@ -17,7 +17,7 @@
 #include <mach/mach.h>
 #include <stdbool.h>
 
-#include "FIRCLSFile.h"
+#include "Helpers/FIRCLSFile.h"
 
 typedef struct {
   // task info

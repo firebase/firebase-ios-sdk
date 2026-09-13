@@ -15,11 +15,11 @@
 // TODO: Remove this class after the uploading of reports via GoogleDataTransport is no longer an
 // experiment
 
-#import "FIRCLSInternalReport.h"
+#import "Models/FIRCLSInternalReport.h"
 
-#import "FIRCLSFile.h"
-#import "FIRCLSFileManager.h"
-#import "FIRCLSLogger.h"
+#import "Helpers/FIRCLSFile.h"
+#import "Helpers/FIRCLSLogger.h"
+#import "Models/FIRCLSFileManager.h"
 
 NSString *const FIRCLSCustomFatalIndicatorFile = @"custom_fatal.clsrecord";
 NSString *const FIRCLSReportBinaryImageFile = @"binary_images.clsrecord";

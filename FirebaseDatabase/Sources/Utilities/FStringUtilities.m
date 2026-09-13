@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import "FStringUtilities.h"
-#import "NSData+SRB64Additions.h"
+#import "Utilities/FStringUtilities.h"
+#import "third_party/SocketRocket/NSData+SRB64Additions.h"
 #import <CommonCrypto/CommonDigest.h>
 
 @implementation FStringUtilities

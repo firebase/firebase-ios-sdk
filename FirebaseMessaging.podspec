@@ -50,8 +50,7 @@ device, and it is completely free.
     'GCC_PREPROCESSOR_DEFINITIONS' =>
       # for nanopb:
       'PB_FIELD_32BIT=1 PB_NO_PACKED_STRUCTS=1 PB_ENABLE_MALLOC=1',
-    # Unit tests do library imports using repo-root relative paths.
-    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"',
+    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}/FirebaseMessaging/Sources"',
   }
   s.ios.framework = 'SystemConfiguration'
   s.tvos.framework = 'SystemConfiguration'
@@ -82,7 +81,8 @@ device, and it is completely free.
     ]
     unit_tests.requires_app_host = true
     unit_tests.pod_target_xcconfig = {
-     'CLANG_ENABLE_OBJC_WEAK' => 'YES'
+      'CLANG_ENABLE_OBJC_WEAK' => 'YES',
+      'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}/SharedTestUtilities"'
     }
     unit_tests.dependency 'OCMock'
   end

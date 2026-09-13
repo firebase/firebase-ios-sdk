@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRCLSLaunchMarkerModel.h"
+#import "Models/FIRCLSLaunchMarkerModel.h"
 
-#import "FIRCLSInternalLogging.h"
+#import "Helpers/FIRCLSInternalLogging.h"
 
 @interface FIRCLSLaunchMarkerModel ()
 

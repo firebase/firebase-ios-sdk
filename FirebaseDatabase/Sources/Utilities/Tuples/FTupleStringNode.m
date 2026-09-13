@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FTupleStringNode.h"
+#import "Utilities/Tuples/FTupleStringNode.h"
 
 @implementation FTupleStringNode
 

@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-#import "FRepoManager.h"
-#import "FAtomicNumber.h"
+#import "Core/FRepoManager.h"
+#import "Api/Private/FIRDatabaseQuery_Private.h"
+#import "Api/Private/FIRDatabase_Private.h"
+#import "Core/FRepo.h"
 #import "FIRDatabaseConfig_Private.h"
-#import "FIRDatabaseQuery_Private.h"
-#import "FIRDatabase_Private.h"
-#import "FRepo.h"
+#import "Utilities/FAtomicNumber.h"
 #import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
 @implementation FRepoManager

@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-#import "FIRCLSReportAdapter.h"
-#import "FIRCLSReportAdapter_Private.h"
+#import "Models/Record/FIRCLSReportAdapter.h"
+#import "Models/Record/FIRCLSReportAdapter_Private.h"
 
-#import "FIRCLSInternalReport.h"
-#import "FIRCLSLogger.h"
+#import "Helpers/FIRCLSLogger.h"
+#import "Models/FIRCLSInternalReport.h"
 
-#import "FIRCLSUserLogging.h"
+#import "Components/FIRCLSUserLogging.h"
 
 #import <nanopb/pb.h>
 #import <nanopb/pb_decode.h>

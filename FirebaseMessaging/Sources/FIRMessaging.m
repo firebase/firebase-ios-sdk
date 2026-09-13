@@ -29,7 +29,6 @@
 #import <GoogleUtilities/GULReachabilityChecker.h>
 #import <GoogleUtilities/GULUserDefaults.h>
 #import "FIRMessagingAnalytics.h"
-#import "FIRMessagingAuthService.h"
 #import "FIRMessagingCode.h"
 #import "FIRMessagingConstants.h"
 #import "FIRMessagingContextManagerService.h"
@@ -39,11 +38,12 @@
 #import "FIRMessagingRemoteNotificationsProxy.h"
 #import "FIRMessagingRmqManager.h"
 #import "FIRMessagingSyncMessageManager.h"
-#import "FIRMessagingTokenInfo.h"
-#import "FIRMessagingTokenManager.h"
 #import "FIRMessagingUtilities.h"
 #import "FIRMessaging_Private.h"
 #import "NSError+FIRMessaging.h"
+#import "Token/FIRMessagingAuthService.h"
+#import "Token/FIRMessagingTokenInfo.h"
+#import "Token/FIRMessagingTokenManager.h"
 
 static NSString *const kFIRMessagingMessageViaAPNSRootKey = @"aps";
 static NSString *const kFIRMessagingReachabilityHostname = @"www.google.com";

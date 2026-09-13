@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FPRGaugeManager.h"
-#import "FPRGaugeManager+Private.h"
+#import "Gauges/FPRGaugeManager.h"
+#import "Gauges/FPRGaugeManager+Private.h"
 
-#import "FPRCPUGaugeCollector.h"
+#import "Common/FPRDiagnostics.h"
+#import "Configurations/FPRConfigurations.h"
 #import "FPRClient.h"
-#import "FPRConfigurations.h"
-#import "FPRDiagnostics.h"
-#import "FPRMemoryGaugeCollector.h"
+#import "Gauges/CPU/FPRCPUGaugeCollector.h"
+#import "Gauges/Memory/FPRMemoryGaugeCollector.h"
 
 #import <UIKit/UIKit.h>
 

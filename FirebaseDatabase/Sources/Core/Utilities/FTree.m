@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#import "FTree.h"
-#import "FPath.h"
-#import "FTreeNode.h"
-#import "FUtilities.h"
+#import "Core/Utilities/FTree.h"
+#import "Core/Utilities/FPath.h"
+#import "Core/Utilities/FTreeNode.h"
+#import "Utilities/FUtilities.h"
 
 @implementation FTree
 

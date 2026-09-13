@@ -16,9 +16,9 @@
 
 #import "FIRFakeApp.h"
 
+#import "Api/FIRDatabaseComponent.h"
 #import "FIRAuthInteropFake.h"
 #import "FIRComponentTestUtilities.h"
-#import "FIRDatabaseComponent.h"
 
 @interface FIRFakeOptions : NSObject
 @property(nonatomic, readonly, copy) NSString *_Nullable databaseURL;

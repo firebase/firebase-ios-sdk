@@ -19,8 +19,8 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRInAppMessagingRendering.h"
-#import "FIRInAppMessagingRenderingPrivate.h"
+#import "FirebaseInAppMessaging/FIRInAppMessagingRendering.h"
+#import "RenderingObjects/FIRInAppMessagingRenderingPrivate.h"
 
 @class ABTExperimentPayload;
 

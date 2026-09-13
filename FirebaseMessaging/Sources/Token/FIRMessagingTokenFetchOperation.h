@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRMessagingTokenOperation.h"
+#import "Token/FIRMessagingTokenOperation.h"
 
 @protocol FIRHeartbeatLoggerProtocol;
 

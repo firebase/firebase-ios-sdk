@@ -14,15 +14,15 @@
 
 #pragma once
 
-#include "FIRCLSAllocate.h"
-#include "FIRCLSBinaryImage.h"
-#include "FIRCLSException.h"
-#include "FIRCLSFeatures.h"
-#include "FIRCLSHost.h"
-#include "FIRCLSInternalLogging.h"
-#include "FIRCLSMachException.h"
-#include "FIRCLSSignal.h"
-#include "FIRCLSUserLogging.h"
+#include "Components/FIRCLSBinaryImage.h"
+#include "Components/FIRCLSHost.h"
+#include "Components/FIRCLSUserLogging.h"
+#include "Handlers/FIRCLSException.h"
+#include "Handlers/FIRCLSMachException.h"
+#include "Handlers/FIRCLSSignal.h"
+#include "Helpers/FIRCLSAllocate.h"
+#include "Helpers/FIRCLSFeatures.h"
+#include "Helpers/FIRCLSInternalLogging.h"
 
 #include <dispatch/dispatch.h>
 #include <stdbool.h>

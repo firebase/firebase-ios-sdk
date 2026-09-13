@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #import "FPRClient.h"
-#import "perf_metric.nanopb.h"
+#import "Protogen/nanopb/perf_metric.nanopb.h"
 
 @class FPRGDTLogger;
 @class FPRConfigurations;

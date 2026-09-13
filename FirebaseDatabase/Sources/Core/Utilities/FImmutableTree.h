@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "FImmutableSortedDictionary.h"
-#import "FPath.h"
-#import "FTuplePathValue.h"
+#import "Core/Utilities/FPath.h"
+#import "Utilities/Tuples/FTuplePathValue.h"
+#import "third_party/FImmutableSortedDictionary/FImmutableSortedDictionary/FImmutableSortedDictionary.h"
 
 @interface FImmutableTree : NSObject
 

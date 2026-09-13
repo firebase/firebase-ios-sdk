@@ -12,17 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "FIRCLSDefines.h"
-#include "FIRCLSFeatures.h"
+#include "Helpers/FIRCLSDefines.h"
+#include "Helpers/FIRCLSFeatures.h"
 
 #if CLS_MACH_EXCEPTION_SUPPORTED
 
-#include "FIRCLSGlobals.h"
-#include "FIRCLSHandler.h"
-#include "FIRCLSMachException.h"
-#include "FIRCLSProcess.h"
-#include "FIRCLSSignal.h"
-#include "FIRCLSUtility.h"
+#include "Components/FIRCLSGlobals.h"
+#include "Handlers/FIRCLSHandler.h"
+#include "Handlers/FIRCLSMachException.h"
+#include "Components/FIRCLSProcess.h"
+#include "Handlers/FIRCLSSignal.h"
+#include "Helpers/FIRCLSUtility.h"
 
 #include <errno.h>
 #include <mach/mach.h>

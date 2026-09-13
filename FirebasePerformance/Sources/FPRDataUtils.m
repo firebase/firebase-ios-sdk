@@ -14,8 +14,8 @@
 
 #import "FPRDataUtils.h"
 
+#import "Common/FPRConstants.h"
 #import "FPRConsoleLogger.h"
-#import "FPRConstants.h"
 
 #pragma mark - Public functions
 

@@ -12,18 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "FIRCLSUtility.h"
+#include "Helpers/FIRCLSUtility.h"
 
 #include <mach/mach.h>
 
 #include <dlfcn.h>
 
-#include "FIRCLSFeatures.h"
-#include "FIRCLSFile.h"
-#include "FIRCLSGlobals.h"
+#include "Components/FIRCLSGlobals.h"
+#include "Helpers/FIRCLSFeatures.h"
+#include "Helpers/FIRCLSFile.h"
 
-#import "FIRCLSByteUtility.h"
-#import "FIRCLSUUID.h"
+#import "Shared/FIRCLSByteUtility.h"
+#import "Shared/FIRCLSUUID.h"
 
 #import <CommonCrypto/CommonHMAC.h>
 

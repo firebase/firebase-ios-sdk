@@ -16,10 +16,10 @@
 
 #import "FIRInstallationsItem.h"
 
-#import "FIRInstallationsStoredAuthToken.h"
-#import "FIRInstallationsStoredItem.h"
+#import "InstallationsStore/FIRInstallationsStoredAuthToken.h"
+#import "InstallationsStore/FIRInstallationsStoredItem.h"
 
-#import "FIRInstallationsErrorUtil.h"
+#import "Errors/FIRInstallationsErrorUtil.h"
 
 @implementation FIRInstallationsItem
 

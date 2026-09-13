@@ -15,9 +15,9 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRCLSFileManager.h"
-#import "FIRCLSInternalReport.h"
-#import "FIRCLSSettings.h"
+#import "Models/FIRCLSFileManager.h"
+#import "Models/FIRCLSInternalReport.h"
+#import "Models/FIRCLSSettings.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

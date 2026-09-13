@@ -12,15 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRCLSSymbolResolver.h"
+#import "Models/FIRCLSSymbolResolver.h"
 
 #include <dlfcn.h>
 
-#include "FIRCLSBinaryImage.h"
-#include "FIRCLSFile.h"
-#import "FIRCLSInternalLogging.h"
-#import "FIRCLSLogger.h"
-#import "FIRStackFrame_Private.h"
+#include "Components/FIRCLSBinaryImage.h"
+#include "Helpers/FIRCLSFile.h"
+#import "Helpers/FIRCLSInternalLogging.h"
+#import "Helpers/FIRCLSLogger.h"
+#import "Private/FIRStackFrame_Private.h"
 
 @interface FIRCLSSymbolResolver () {
   NSMutableArray* _binaryImages;

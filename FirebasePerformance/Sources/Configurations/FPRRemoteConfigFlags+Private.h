@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FPRRemoteConfigFlags.h"
+#import "Configurations/FPRRemoteConfigFlags.h"
 
 #import <FirebaseRemoteConfig/FIRRemoteConfig_Private.h>
 

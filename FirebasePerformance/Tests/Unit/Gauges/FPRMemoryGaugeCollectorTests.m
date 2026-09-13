@@ -14,9 +14,9 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FPRConfigurations+Private.h"
-#import "FPRMemoryGaugeCollector+Private.h"
-#import "FPRMemoryGaugeCollector.h"
+#import "Configurations/FPRConfigurations+Private.h"
+#import "Gauges/Memory/FPRMemoryGaugeCollector+Private.h"
+#import "Gauges/Memory/FPRMemoryGaugeCollector.h"
 
 #import <OCMock/OCMock.h>
 #import "FPRFakeConfigurations.h"

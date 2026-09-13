@@ -15,13 +15,13 @@
 #import <Foundation/Foundation.h>
 #import <XCTest/XCTest.h>
 
-#import "FIRCLSRecordApplication.h"
-#import "FIRCLSRecordHost.h"
-#import "FIRCLSRecordIdentity.h"
-#import "FIRCLSReportAdapter.h"
-#import "FIRCLSReportAdapter_Private.h"
+#import "Models/Record/FIRCLSRecordApplication.h"
+#import "Models/Record/FIRCLSRecordHost.h"
+#import "Models/Record/FIRCLSRecordIdentity.h"
+#import "Models/Record/FIRCLSReportAdapter.h"
+#import "Models/Record/FIRCLSReportAdapter_Private.h"
 
-#import "FIRCLSFile.h"
+#import "Helpers/FIRCLSFile.h"
 
 #import "FIRMockInstallations.h"
 

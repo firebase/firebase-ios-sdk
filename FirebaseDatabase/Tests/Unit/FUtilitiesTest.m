@@ -15,14 +15,14 @@
  */
 
 #import <XCTest/XCTest.h>
+#import "Api/Private/FIRDatabaseReference_Private.h"
+#import "Api/Private/FIRDatabase_Private.h"
+#import "Constants/FConstants.h"
 #import "FClock.h"
-#import "FConstants.h"
 #import "FIRDatabaseConfig_Private.h"
-#import "FIRDatabaseReference_Private.h"
-#import "FIRDatabase_Private.h"
 #import "FTestHelpers.h"
-#import "FUtilities.h"
-#import "FWebSocketConnection.h"
+#import "Realtime/FWebSocketConnection.h"
+#import "Utilities/FUtilities.h"
 
 @interface FWebSocketConnection (Tests)
 - (NSString *)userAgent;

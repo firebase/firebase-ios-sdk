@@ -21,7 +21,7 @@
 #import <UIKit/UIKit.h>
 
 #import "FIRCore+InAppMessaging.h"
-#import "FIRIAMActionURLFollower.h"
+#import "Private/Runtime/FIRIAMActionURLFollower.h"
 
 NS_EXTENSION_UNAVAILABLE("Firebase In App Messaging is not supported for iOS extensions.")
 @interface FIRIAMActionURLFollower ()

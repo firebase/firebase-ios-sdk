@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "FIRCLSUnwind.h"
-#include "FIRCLSBinaryImage.h"
-#include "FIRCLSCompactUnwind.h"
-#include "FIRCLSFeatures.h"
-#include "FIRCLSGlobals.h"
-#include "FIRCLSUtility.h"
+#include "Unwind/FIRCLSUnwind.h"
+#include "Components/FIRCLSBinaryImage.h"
+#include "Unwind/Compact/FIRCLSCompactUnwind.h"
+#include "Helpers/FIRCLSFeatures.h"
+#include "Components/FIRCLSGlobals.h"
+#include "Helpers/FIRCLSUtility.h"
 
 #include <mach/mach.h>
 #include <signal.h>

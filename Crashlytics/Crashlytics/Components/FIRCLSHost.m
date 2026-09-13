@@ -12,17 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "FIRCLSHost.h"
+#include "Components/FIRCLSHost.h"
 
 #include <mach/mach.h>
 #include <sys/sysctl.h>
 
-#import "FIRCLSApplication.h"
-#include "FIRCLSDefines.h"
-#import "FIRCLSFABHost.h"
-#include "FIRCLSFile.h"
-#include "FIRCLSGlobals.h"
-#include "FIRCLSUtility.h"
+#import "Components/FIRCLSApplication.h"
+#include "Components/FIRCLSGlobals.h"
+#include "Helpers/FIRCLSDefines.h"
+#include "Helpers/FIRCLSFile.h"
+#include "Helpers/FIRCLSUtility.h"
+#import "Shared/FIRCLSFABHost.h"
 
 #if TARGET_OS_IPHONE
 #import <UIKit/UIKit.h>

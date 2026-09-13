@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRIAMDisplayCheckTriggerFlow.h"
+#import "Private/Flows/FIRIAMDisplayCheckTriggerFlow.h"
 
 // an implementation of FIRIAMDisplayExecutor by triggering the display when app is foregrounded
 @interface FIRIAMDisplayCheckOnAppForegroundFlow : FIRIAMDisplayCheckTriggerFlow

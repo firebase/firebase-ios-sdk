@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRMessagingFIDUnregisterOperation.h"
+#import "Token/FIRMessagingFIDUnregisterOperation.h"
 
 #import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 #import <FirebaseInstallations/FirebaseInstallations.h>

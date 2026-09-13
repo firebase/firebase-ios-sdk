@@ -14,14 +14,14 @@
 
 #import "FPRTestUtils.h"
 
-#import "FIRTrace+Internal.h"
-#import "FIRTrace+Private.h"
-#import "FPRMemoryGaugeData.h"
 #import "FPRNanoPbUtils.h"
-#import "FPRNetworkTrace+Private.h"
-#import "FPRNetworkTrace.h"
+#import "Gauges/Memory/FPRMemoryGaugeData.h"
+#import "Instrumentation/FPRNetworkTrace+Private.h"
+#import "Instrumentation/FPRNetworkTrace.h"
+#import "Timer/FIRTrace+Internal.h"
+#import "Timer/FIRTrace+Private.h"
 
-#import "perf_metric.nanopb.h"
+#import "Protogen/nanopb/perf_metric.nanopb.h"
 
 static NSInteger const kLogSource = 462;  // LogRequest_LogSource_Fireperf
 

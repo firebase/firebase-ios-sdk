@@ -18,9 +18,9 @@
 
 #import "FIRMessagingDefines.h"
 #import "FIRMessagingLogger.h"
-#import "FIRMessagingTokenManager.h"
 #import "FIRMessagingUtilities.h"
 #import "NSError+FIRMessaging.h"
+#import "Token/FIRMessagingTokenManager.h"
 
 #import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 #import <FirebaseInstallations/FirebaseInstallations.h>

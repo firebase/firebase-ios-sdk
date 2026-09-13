@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FTupleTSN.h"
+#import "Utilities/Tuples/FTupleTSN.h"
 
 @implementation FTupleTSN
 

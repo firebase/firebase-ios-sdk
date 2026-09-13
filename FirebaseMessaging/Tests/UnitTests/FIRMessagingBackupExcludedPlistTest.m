@@ -18,9 +18,9 @@
 
 #import <FirebaseMessaging/FIRMessaging.h>
 #import <OCMock/OCMock.h>
-#import "FIRMessagingAuthKeychain.h"
-#import "FIRMessagingBackupExcludedPlist.h"
-#import "FIRMessagingCheckinStore.h"
+#import "Token/FIRMessagingAuthKeychain.h"
+#import "Token/FIRMessagingBackupExcludedPlist.h"
+#import "Token/FIRMessagingCheckinStore.h"
 
 static NSString *const kSubDirectoryName = @"FirebaseInstanceIDBackupPlistTest";
 static NSString *const kTestPlistFileName = @"com.google.test.IIDBackupExcludedPlist";

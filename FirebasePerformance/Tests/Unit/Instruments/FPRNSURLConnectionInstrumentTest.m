@@ -21,10 +21,10 @@
 #import <XCTest/XCTest.h>
 
 #import <FirebasePerformance/FIRPerformance.h>
+#import "Configurations/FPRConfigurations+Private.h"
+#import "Configurations/FPRConfigurations.h"
 #import "FPRClient.h"
-#import "FPRConfigurations+Private.h"
-#import "FPRConfigurations.h"
-#import "FPRNSURLConnectionInstrument.h"
+#import "Instrumentation/Network/FPRNSURLConnectionInstrument.h"
 
 #import "FPRHermeticTestServer.h"
 #import "FPRTestCase.h"

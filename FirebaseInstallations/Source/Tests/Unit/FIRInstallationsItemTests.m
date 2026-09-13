@@ -17,7 +17,7 @@
 #import <XCTest/XCTest.h>
 
 #import "FIRInstallationsItem.h"
-#import "FIRInstallationsStoredItem.h"
+#import "InstallationsStore/FIRInstallationsStoredItem.h"
 
 #import "FIRInstallationsItem+Tests.h"
 

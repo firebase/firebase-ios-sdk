@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FPath.h"
+#import "Core/Utilities/FPath.h"
 #import <Foundation/Foundation.h>
 
 // These are all legacy classes and are used to migrate older persistence data

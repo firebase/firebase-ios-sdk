@@ -48,8 +48,7 @@ Firebase Performance library to measure performance of Mobile and Web Apps.
 
   s.pod_target_xcconfig = {
     'GCC_PREPROCESSOR_DEFINITIONS' => preprocessor_definitions,
-    # Unit tests do library imports using repo-root relative paths.
-    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"',
+    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}/FirebasePerformance/Sources"',
   }
 
   s.ios.framework = 'CoreTelephony'

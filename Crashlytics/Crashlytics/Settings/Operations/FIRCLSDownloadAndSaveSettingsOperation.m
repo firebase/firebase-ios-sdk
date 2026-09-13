@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRCLSDownloadAndSaveSettingsOperation.h"
+#import "Settings/Operations/FIRCLSDownloadAndSaveSettingsOperation.h"
 
-#import "FIRCLSConstants.h"
-#import "FIRCLSFABHost.h"
-#import "FIRCLSFABNetworkClient.h"
-#import "FIRCLSInstallIdentifierModel.h"
-#import "FIRCLSLogger.h"
+#import "Helpers/FIRCLSLogger.h"
+#import "Models/FIRCLSInstallIdentifierModel.h"
+#import "Shared/FIRCLSConstants.h"
+#import "Shared/FIRCLSFABHost.h"
+#import "Shared/FIRCLSNetworking/FIRCLSFABNetworkClient.h"
 
 @interface FIRCLSDownloadAndSaveSettingsOperation ()
 

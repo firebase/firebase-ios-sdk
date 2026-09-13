@@ -22,7 +22,7 @@
 #import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
 #import "FIRCore+InAppMessaging.h"
-#import "FIRIAMActivityLogger.h"
+#import "Private/Flows/FIRIAMActivityLogger.h"
 @implementation FIRIAMActivityRecord
 
 static NSString *const kActiveTypeArchiveKey = @"type";

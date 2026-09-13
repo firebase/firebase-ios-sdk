@@ -16,11 +16,11 @@
 
 #import <Foundation/Foundation.h>
 #import <XCTest/XCTest.h>
-#import "FIRDatabaseReference_Private.h"
-#import "FRepoManager.h"
-#import "FSnapshotUtilities.h"
+#import "Api/Private/FIRDatabaseReference_Private.h"
+#import "Core/FRepoManager.h"
 #import "FTestContants.h"
-#import "FTupleFirebase.h"
+#import "Snapshot/FSnapshotUtilities.h"
+#import "Utilities/Tuples/FTupleFirebase.h"
 
 #define WAIT_FOR(x)   \
   [self waitUntil:^{  \

@@ -16,14 +16,14 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FEmptyNode.h"
-#import "FLevelDBStorageEngine.h"
+#import "Core/FQueryParams.h"
+#import "Core/FWriteRecord.h"
 #import "FPathIndex.h"
-#import "FQueryParams.h"
-#import "FSnapshotUtilities.h"
 #import "FTestHelpers.h"
-#import "FTrackedQuery.h"
-#import "FWriteRecord.h"
+#import "Persistence/FLevelDBStorageEngine.h"
+#import "Persistence/FTrackedQuery.h"
+#import "Snapshot/FEmptyNode.h"
+#import "Snapshot/FSnapshotUtilities.h"
 
 @interface FLevelDBStorageEngine (Tests)
 + (void)ensureDir:(NSString *)path markAsDoNotBackup:(BOOL)markAsDoNotBackup;

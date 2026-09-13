@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import "FEmptyNode.h"
-#import "FChildrenNode.h"
+#import "Snapshot/FEmptyNode.h"
+#import "Snapshot/FChildrenNode.h"
 
 @implementation FEmptyNode
 

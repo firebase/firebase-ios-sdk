@@ -14,8 +14,8 @@
 
 #pragma once
 
-#include "FIRCLSCompactUnwind.h"
-#include "FIRCLSFeatures.h"
+#include "Helpers/FIRCLSFeatures.h"
+#include "Unwind/Compact/FIRCLSCompactUnwind.h"
 
 // Add some abstraction to compact unwinding, because compact
 // unwinding is nearly identical between 32 and 64 bit

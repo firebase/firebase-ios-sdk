@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "FIRCLSCompactUnwind.h"
-#include "FIRCLSCompactUnwind_Private.h"
-#include "FIRCLSDefines.h"
-#include "FIRCLSDwarfUnwind.h"
-#include "FIRCLSFeatures.h"
-#include "FIRCLSUnwind.h"
-#include "FIRCLSUnwind_arch.h"
-#include "FIRCLSUtility.h"
+#include "Unwind/Compact/FIRCLSCompactUnwind.h"
+#include "Unwind/Compact/FIRCLSCompactUnwind_Private.h"
+#include "Helpers/FIRCLSDefines.h"
+#include "Unwind/Dwarf/FIRCLSDwarfUnwind.h"
+#include "Helpers/FIRCLSFeatures.h"
+#include "Unwind/FIRCLSUnwind.h"
+#include "Unwind/FIRCLSUnwind_arch.h"
+#include "Helpers/FIRCLSUtility.h"
 
 #if CLS_CPU_ARM || CLS_CPU_ARM64
 

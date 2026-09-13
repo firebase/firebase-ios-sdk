@@ -14,15 +14,15 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRCLSApplication.h"
-#import "FIRCLSDataCollectionArbiter.h"
-#import "FIRCLSDataCollectionToken.h"
-#import "FIRCLSException.h"
-#import "FIRCLSFileManager.h"
-#import "FIRCLSLogger.h"
-#import "FIRCLSOnDemandModel.h"
-#import "FIRCLSOnDemandModel_Private.h"
-#include "FIRCLSUtility.h"
+#import "Components/FIRCLSApplication.h"
+#import "DataCollection/FIRCLSDataCollectionArbiter.h"
+#import "DataCollection/FIRCLSDataCollectionToken.h"
+#import "Handlers/FIRCLSException.h"
+#import "Helpers/FIRCLSLogger.h"
+#include "Helpers/FIRCLSUtility.h"
+#import "Models/FIRCLSFileManager.h"
+#import "Models/FIRCLSOnDemandModel.h"
+#import "Private/FIRCLSOnDemandModel_Private.h"
 
 #include <math.h>
 

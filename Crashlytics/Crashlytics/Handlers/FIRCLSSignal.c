@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "FIRCLSSignal.h"
-#include "FIRCLSGlobals.h"
-#include "FIRCLSHandler.h"
-#include "FIRCLSUtility.h"
+#include "Handlers/FIRCLSSignal.h"
+#include "Components/FIRCLSGlobals.h"
+#include "Handlers/FIRCLSHandler.h"
+#include "Helpers/FIRCLSUtility.h"
 
 #include <dlfcn.h>
 #include <stdlib.h>

@@ -14,17 +14,17 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FIRExceptionModel.h"
-#import "FIRStackFrame.h"
+#import "FirebaseCrashlytics/FIRExceptionModel.h"
+#import "FirebaseCrashlytics/FIRStackFrame.h"
 
+#import "Components/FIRCLSContext.h"
+#import "Controllers/FIRCLSContextManager.h"
 #import "FABMockApplicationIdentifierModel.h"
-#import "FIRCLSContext.h"
-#import "FIRCLSContextManager.h"
-#import "FIRCLSInstallIdentifierModel.h"
-#import "FIRCLSInternalReport.h"
 #import "FIRCLSMockFileManager.h"
 #import "FIRCLSMockSettings.h"
 #import "FIRMockInstallations.h"
+#import "Models/FIRCLSInstallIdentifierModel.h"
+#import "Models/FIRCLSInternalReport.h"
 
 #define TEST_BUNDLE_ID (@"com.crashlytics.test")
 

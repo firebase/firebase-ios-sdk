@@ -51,7 +51,7 @@ Pod::Spec.new do |s|
   s.dependency 'GoogleUtilities/UserDefaults', '~> 8.1'
 
   s.pod_target_xcconfig = {
-    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
+    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}/FirebaseAppCheck/Sources"'
   }
 
   s.test_spec 'unit' do |unit_tests|

@@ -14,10 +14,10 @@
 
 #include <dispatch/dispatch.h>
 
-#include "FIRCLSInternalLogging.h"
-#include "FIRCLSContext.h"
-#include "FIRCLSGlobals.h"
-#include "FIRCLSUtility.h"
+#include "Helpers/FIRCLSInternalLogging.h"
+#include "Components/FIRCLSContext.h"
+#include "Components/FIRCLSGlobals.h"
+#include "Helpers/FIRCLSUtility.h"
 
 void FIRCLSSDKFileLog(FIRCLSInternalLogLevel level, const char* format, ...) {
   if (!_firclsContext.readonly || !_firclsContext.writable) {

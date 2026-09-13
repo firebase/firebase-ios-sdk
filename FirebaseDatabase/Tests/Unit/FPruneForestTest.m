@@ -18,8 +18,8 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FPath.h"
-#import "FPruneForest.h"
+#import "Core/Utilities/FPath.h"
+#import "Persistence/FPruneForest.h"
 
 @interface FPruneForestTest : XCTestCase
 

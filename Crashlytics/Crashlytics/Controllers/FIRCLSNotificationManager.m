@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRCLSNotificationManager.h"
+#import "Controllers/FIRCLSNotificationManager.h"
 
-#import "FIRCLSApplication.h"
-#include "FIRCLSDefines.h"
-#import "FIRCLSGlobals.h"
-#import "FIRCLSUserLogging.h"
+#import "Components/FIRCLSApplication.h"
+#import "Components/FIRCLSGlobals.h"
+#import "Components/FIRCLSUserLogging.h"
+#include "Helpers/FIRCLSDefines.h"
 
 #if TARGET_OS_IPHONE
 #import <UIKit/UIKit.h>

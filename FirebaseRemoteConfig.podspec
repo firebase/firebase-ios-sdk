@@ -43,7 +43,7 @@ app update.
     "#{s.module_name}_Privacy" => 'FirebaseRemoteConfig/Swift/Resources/PrivacyInfo.xcprivacy'
   }
   s.pod_target_xcconfig = {
-    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
+    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}/FirebaseRemoteConfig/Sources"'
   }
   s.dependency 'FirebaseABTesting', '~> 12.19.0'
   s.dependency 'FirebaseSharedSwift', '~> 12.19.0'

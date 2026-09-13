@@ -14,24 +14,24 @@
 
 #import <XCTest/XCTest.h>
 
+#include "Components/FIRCLSContext.h"
+#import "Controllers/FIRCLSContextManager.h"
+#import "Controllers/FIRCLSManagerData.h"
 #import "FIRAppFake.h"
-#include "FIRCLSContext.h"
-#import "FIRCLSContextManager.h"
-#import "FIRCLSExecutionIdentifierModel.h"
-#import "FIRCLSInternalReport.h"
-#import "FIRCLSManagerData.h"
 #import "FIRCLSMockExistingReportManager.h"
 #import "FIRCLSMockFileManager.h"
 #import "FIRCLSMockOnDemandModel.h"
 #import "FIRCLSMockReportUploader.h"
 #import "FIRCLSMockSettings.h"
-#import "FIRCLSOnDemandModel_Private.h"
 #import "FIRMockGDTCoreTransport.h"
 #import "FIRMockInstallations.h"
+#import "Models/FIRCLSExecutionIdentifierModel.h"
+#import "Models/FIRCLSInternalReport.h"
+#import "Private/FIRCLSOnDemandModel_Private.h"
 
-#import "FIRCLSApplicationIdentifierModel.h"
-#import "FIRCLSDataCollectionArbiter.h"
-#import "FIRCLSDataCollectionToken.h"
+#import "DataCollection/FIRCLSDataCollectionArbiter.h"
+#import "DataCollection/FIRCLSDataCollectionToken.h"
+#import "Settings/Models/FIRCLSApplicationIdentifierModel.h"
 
 #define TEST_GOOGLE_APP_ID (@"1:632950151350:ios:d5b0d08d4f00f4b1")
 

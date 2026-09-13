@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRHTTPMetric.h"
-#import "FIRHTTPMetric+Private.h"
+#import "FirebasePerformance/FIRHTTPMetric.h"
+#import "Instrumentation/FIRHTTPMetric+Private.h"
 
-#import "FPRConfigurations.h"
+#import "Common/FPRConstants.h"
+#import "Configurations/FPRConfigurations.h"
 #import "FPRConsoleLogger.h"
-#import "FPRConstants.h"
 #import "FPRDataUtils.h"
-#import "FPRNetworkTrace.h"
+#import "Instrumentation/FPRNetworkTrace.h"
 
 @interface FIRHTTPMetric ()
 

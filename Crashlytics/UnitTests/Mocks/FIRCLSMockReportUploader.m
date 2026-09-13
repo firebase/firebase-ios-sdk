@@ -14,8 +14,8 @@
 
 #import "FIRCLSMockReportUploader.h"
 
-#import "FIRCLSFileManager.h"
-#import "FIRCLSInternalReport.h"
+#import "Models/FIRCLSFileManager.h"
+#import "Models/FIRCLSInternalReport.h"
 
 @interface FIRCLSMockReportUploader () {
   NSMutableArray *_prepareAndSubmitReportArray;

@@ -16,12 +16,12 @@
 
 #import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
+#import "Configurations/FPRConfigurations+Private.h"
 #import "FPRClient+Private.h"
 #import "FPRClient.h"
-#import "FPRConfigurations+Private.h"
-#import "FPRGDTLogger.h"
-#import "FPRGDTLogger_Private.h"
 #import "FPRNanoPbUtils.h"
+#import "Loggers/FPRGDTLogger.h"
+#import "Loggers/FPRGDTLogger_Private.h"
 
 #import "FPRFakeConfigurations.h"
 #import "FPRFakeInstallations.h"

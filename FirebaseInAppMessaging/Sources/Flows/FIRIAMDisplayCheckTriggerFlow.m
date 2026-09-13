@@ -17,7 +17,7 @@
 #import <TargetConditionals.h>
 #if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
 
-#import "FIRIAMDisplayCheckTriggerFlow.h"
+#import "Private/Flows/FIRIAMDisplayCheckTriggerFlow.h"
 
 @implementation FIRIAMDisplayCheckTriggerFlow
 - (instancetype)initWithDisplayFlow:(FIRIAMDisplayExecutor *)displayExecutor {

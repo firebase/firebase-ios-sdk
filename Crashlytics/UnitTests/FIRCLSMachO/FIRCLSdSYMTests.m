@@ -14,7 +14,7 @@
 
 #import "FIRCLSdSYMTests.h"
 
-#import "FIRCLSdSYM.h"
+#import "Shared/FIRCLSMachO/FIRCLSdSYM.h"
 
 @implementation FIRCLSdSYMTests
 

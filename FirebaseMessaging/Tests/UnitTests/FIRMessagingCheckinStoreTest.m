@@ -20,13 +20,13 @@
 
 #import <FirebaseMessaging/FIRMessaging.h>
 #import <OCMock/OCMock.h>
-#import "FIRMessagingAuthKeychain.h"
-#import "FIRMessagingBackupExcludedPlist.h"
-#import "FIRMessagingCheckinPreferences.h"
-#import "FIRMessagingCheckinService.h"
-#import "FIRMessagingCheckinStore.h"
 #import "FIRMessagingFakeKeychain.h"
 #import "FIRMessagingUtilities.h"
+#import "Token/FIRMessagingAuthKeychain.h"
+#import "Token/FIRMessagingBackupExcludedPlist.h"
+#import "Token/FIRMessagingCheckinPreferences.h"
+#import "Token/FIRMessagingCheckinService.h"
+#import "Token/FIRMessagingCheckinStore.h"
 
 static const NSTimeInterval kExpectationTimeout = 12;
 

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FPRProxyObjectHelper.h"
+#import "Instrumentation/FPRProxyObjectHelper.h"
 
 #import <GoogleUtilities/GULSwizzler.h>
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRMessagingBackupExcludedPlist.h"
+#import "Token/FIRMessagingBackupExcludedPlist.h"
 
 #import "FIRMessagingLogger.h"
 

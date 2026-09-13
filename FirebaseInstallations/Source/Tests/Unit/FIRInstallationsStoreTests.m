@@ -21,12 +21,12 @@
 #import <GoogleUtilities/GULKeychainStorage.h>
 #import <GoogleUtilities/GULUserDefaults.h>
 
+#import "Errors/FIRInstallationsErrorUtil.h"
 #import "FBLPromise+Testing.h"
-#import "FIRInstallationsErrorUtil.h"
 #import "FIRInstallationsItem+Tests.h"
 #import "FIRInstallationsItem.h"
-#import "FIRInstallationsStore.h"
-#import "FIRInstallationsStoredItem.h"
+#import "InstallationsStore/FIRInstallationsStore.h"
+#import "InstallationsStore/FIRInstallationsStoredItem.h"
 
 @interface FIRInstallationsStoreTests : XCTestCase
 @property(nonatomic) NSString *accessGroup;

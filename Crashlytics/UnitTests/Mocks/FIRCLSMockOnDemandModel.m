@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #import "FIRCLSMockOnDemandModel.h"
-#import "FIRCLSFileManager.h"
+#import "Models/FIRCLSFileManager.h"
 
 @interface FIRCLSMockOnDemandModel ()
 

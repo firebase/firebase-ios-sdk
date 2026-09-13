@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-#import "FIRDatabaseConnectionContextProvider.h"
+#import "Login/FIRDatabaseConnectionContextProvider.h"
 
 #import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
 #import <FirebaseAuthInterop/FIRAuthInterop.h>
 
-#import "FIRDatabaseQuery_Private.h"
-#import "FUtilities.h"
+#import "Api/Private/FIRDatabaseQuery_Private.h"
+#import "Utilities/FUtilities.h"
 
 #import <FirebaseAppCheckInterop/FirebaseAppCheckInterop.h>
 

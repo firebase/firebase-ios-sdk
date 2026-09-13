@@ -21,14 +21,14 @@
 #import <UIKit/UIKit.h>
 
 #import "FIRCore+InAppMessaging.h"
-#import "FIRIAMActivityLogger.h"
-#import "FIRIAMDisplayExecutor.h"
-#import "FIRIAMMessageContentData.h"
-#import "FIRIAMMessageDefinition.h"
-#import "FIRIAMSDKRuntimeErrorCodes.h"
-#import "FIRInAppMessaging.h"
-#import "FIRInAppMessagingRenderingPrivate.h"
-#import "UIApplication+FIRForegroundWindowScene.h"
+#import "FirebaseInAppMessaging/FIRInAppMessaging.h"
+#import "Private/Data/FIRIAMMessageContentData.h"
+#import "Private/Data/FIRIAMMessageDefinition.h"
+#import "Private/Flows/FIRIAMActivityLogger.h"
+#import "Private/Flows/FIRIAMDisplayExecutor.h"
+#import "Private/Util/UIApplication+FIRForegroundWindowScene.h"
+#import "RenderingObjects/FIRInAppMessagingRenderingPrivate.h"
+#import "Runtime/FIRIAMSDKRuntimeErrorCodes.h"
 
 #import <FirebaseABTesting/FirebaseABTesting.h>
 

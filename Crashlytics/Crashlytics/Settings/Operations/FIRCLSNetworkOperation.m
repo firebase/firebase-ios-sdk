@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRCLSNetworkOperation.h"
+#import "Settings/Operations/FIRCLSNetworkOperation.h"
 
-#import "FIRCLSApplication.h"
-#import "FIRCLSConstants.h"
-#import "FIRCLSDataCollectionToken.h"
-#import "FIRCLSDefines.h"
-#import "FIRCLSLogger.h"
+#import "Components/FIRCLSApplication.h"
+#import "DataCollection/FIRCLSDataCollectionToken.h"
+#import "Helpers/FIRCLSDefines.h"
+#import "Helpers/FIRCLSLogger.h"
+#import "Shared/FIRCLSConstants.h"
 
 @interface FIRCLSNetworkOperation ()
 

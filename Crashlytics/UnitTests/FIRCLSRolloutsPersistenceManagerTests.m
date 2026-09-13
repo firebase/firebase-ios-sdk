@@ -15,11 +15,11 @@
 #import <Foundation/Foundation.h>
 #import <XCTest/XCTest.h>
 
-#import "FIRCLSContext.h"
-#include "FIRCLSGlobals.h"
-#import "FIRCLSInternalReport.h"
-#import "FIRCLSRolloutsPersistenceManager.h"
+#import "Components/FIRCLSContext.h"
+#include "Components/FIRCLSGlobals.h"
+#import "Controllers/FIRCLSRolloutsPersistenceManager.h"
 #import "FIRCLSTempMockFileManager.h"
+#import "Models/FIRCLSInternalReport.h"
 #if SWIFT_PACKAGE
 @import FirebaseCrashlyticsSwift;
 #else  // Swift Package Manager

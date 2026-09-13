@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-#import "FChildEventRegistration.h"
-#import "FCancelEvent.h"
-#import "FDataEvent.h"
-#import "FIRDataSnapshot_Private.h"
-#import "FIRDatabaseQuery_Private.h"
-#import "FQueryParams.h"
-#import "FQuerySpec.h"
+#import "Core/View/FChildEventRegistration.h"
+#import "Api/Private/FIRDataSnapshot_Private.h"
+#import "Api/Private/FIRDatabaseQuery_Private.h"
+#import "Core/FQueryParams.h"
+#import "Core/FQuerySpec.h"
+#import "Core/View/FCancelEvent.h"
+#import "Core/View/FDataEvent.h"
 #import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
 @interface FChildEventRegistration ()

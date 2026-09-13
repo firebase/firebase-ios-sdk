@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FPRClassInstrumentor.h"
-#import "FPRClassInstrumentor_Private.h"
+#import "Instrumentation/FPRClassInstrumentor.h"
+#import "Instrumentation/FPRClassInstrumentor_Private.h"
 
-#import "FPRDiagnostics.h"
-#import "FPRSelectorInstrumentor.h"
+#import "Common/FPRDiagnostics.h"
+#import "Instrumentation/FPRSelectorInstrumentor.h"
 
 /** Use ivars instead of properties to reduce message sending overhead. */
 @interface FPRClassInstrumentor () {

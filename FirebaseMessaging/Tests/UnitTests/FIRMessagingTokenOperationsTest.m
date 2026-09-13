@@ -21,17 +21,17 @@
 #import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 #import <FirebaseInstallations/FirebaseInstallations.h>
 #import <URLSession/FIRURLSessionOCMockStub.h>
-#import "FIRMessagingAuthService.h"
-#import "FIRMessagingCheckinPreferences.h"
-#import "FIRMessagingCheckinService.h"
-#import "FIRMessagingCheckinStore.h"
 #import "FIRMessagingConstants.h"
-#import "FIRMessagingKeychain.h"
-#import "FIRMessagingTokenDeleteOperation.h"
-#import "FIRMessagingTokenFetchOperation.h"
-#import "FIRMessagingTokenOperation.h"
-#import "FIRMessagingTokenStore.h"
 #import "NSError+FIRMessaging.h"
+#import "Token/FIRMessagingAuthService.h"
+#import "Token/FIRMessagingCheckinPreferences.h"
+#import "Token/FIRMessagingCheckinService.h"
+#import "Token/FIRMessagingCheckinStore.h"
+#import "Token/FIRMessagingKeychain.h"
+#import "Token/FIRMessagingTokenDeleteOperation.h"
+#import "Token/FIRMessagingTokenFetchOperation.h"
+#import "Token/FIRMessagingTokenOperation.h"
+#import "Token/FIRMessagingTokenStore.h"
 
 static NSString *kDeviceID = @"fakeDeviceID";
 static NSString *kSecretToken = @"fakeSecretToken";

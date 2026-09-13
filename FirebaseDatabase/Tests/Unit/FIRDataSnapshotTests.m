@@ -16,17 +16,17 @@
 
 #import "FIRDataSnapshotTests.h"
 #import <FirebaseDatabase/FIRDatabaseReference.h>
-#import "FChildrenNode.h"
-#import "FEmptyNode.h"
-#import "FIRDataSnapshot_Private.h"
+#import "Api/Private/FIRDataSnapshot_Private.h"
 #import "FIRDatabaseConfig_Private.h"
-#import "FImmutableSortedDictionary.h"
-#import "FLeafNode.h"
 #import "FPathIndex.h"
-#import "FSnapshotUtilities.h"
 #import "FTestHelpers.h"
-#import "FUtilities.h"
 #import "FValueIndex.h"
+#import "Snapshot/FChildrenNode.h"
+#import "Snapshot/FEmptyNode.h"
+#import "Snapshot/FLeafNode.h"
+#import "Snapshot/FSnapshotUtilities.h"
+#import "Utilities/FUtilities.h"
+#import "third_party/FImmutableSortedDictionary/FImmutableSortedDictionary/FImmutableSortedDictionary.h"
 
 @implementation FIRDataSnapshotTests
 

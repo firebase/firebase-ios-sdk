@@ -20,8 +20,8 @@
 
 #import "FIRCLSMockReportManager.h"
 
-#import "FIRCLSContext.h"
-#import "FIRCLSExistingReportManager.h"
+#import "Components/FIRCLSContext.h"
+#import "Controllers/FIRCLSExistingReportManager.h"
 #import "FIRCLSMockReportUploader.h"
 
 #import <FirebaseInstallations/FirebaseInstallations.h>

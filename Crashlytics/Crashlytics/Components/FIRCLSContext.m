@@ -12,26 +12,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "FIRCLSContext.h"
+#include "Components/FIRCLSContext.h"
 
 #include <stdlib.h>
 #include <string.h>
 
-#import "FIRCLSConstants.h"
+#import "Shared/FIRCLSConstants.h"
 
-#import "FIRCLSFileManager.h"
-#import "FIRCLSInstallIdentifierModel.h"
-#import "FIRCLSInternalReport.h"
-#import "FIRCLSSettings.h"
+#import "Models/FIRCLSFileManager.h"
+#import "Models/FIRCLSInstallIdentifierModel.h"
+#import "Models/FIRCLSInternalReport.h"
+#import "Models/FIRCLSSettings.h"
 
-#include "FIRCLSApplication.h"
-#include "FIRCLSContextInitData.h"
-#include "FIRCLSCrashedMarkerFile.h"
-#include "FIRCLSDefines.h"
-#include "FIRCLSFeatures.h"
-#include "FIRCLSGlobals.h"
-#include "FIRCLSProcess.h"
-#include "FIRCLSUtility.h"
+#include "Components/FIRCLSApplication.h"
+#include "Components/FIRCLSCrashedMarkerFile.h"
+#include "Components/FIRCLSGlobals.h"
+#include "Components/FIRCLSProcess.h"
+#include "Helpers/FIRCLSContextInitData.h"
+#include "Helpers/FIRCLSDefines.h"
+#include "Helpers/FIRCLSFeatures.h"
+#include "Helpers/FIRCLSUtility.h"
 
 // The writable size is our handler stack plus whatever scratch we need.  We have to use this space
 // extremely carefully, however, because thread stacks always needs to be page-aligned.  Only the

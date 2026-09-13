@@ -17,7 +17,7 @@
 #import <TargetConditionals.h>
 #if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
 
-#import "FIRIAMDisplayTriggerDefinition.h"
+#import "Private/DisplayTrigger/FIRIAMDisplayTriggerDefinition.h"
 
 @implementation FIRIAMDisplayTriggerDefinition
 

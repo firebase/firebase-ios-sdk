@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FAtomicNumber.h"
+#import "Utilities/FAtomicNumber.h"
 
 @interface FAtomicNumber () {
     unsigned long number;

@@ -17,8 +17,8 @@
 #import <TargetConditionals.h>
 #if TARGET_OS_IOS
 
-#import "FIRCore+InAppMessagingDisplay.h"
-#import "FIRIAMImageOnlyViewController.h"
+#import "DefaultUI/FIRCore+InAppMessagingDisplay.h"
+#import "DefaultUI/ImageOnly/FIRIAMImageOnlyViewController.h"
 
 @interface FIRIAMImageOnlyViewController ()
 

@@ -14,8 +14,8 @@
 
 #pragma once
 
-#include "FIRCLSFeatures.h"
-#include "FIRCLSFile.h"
+#include "Helpers/FIRCLSFeatures.h"
+#include "Helpers/FIRCLSFile.h"
 
 #include <signal.h>
 #include <stdbool.h>

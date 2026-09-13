@@ -19,7 +19,7 @@
 #import "FBLPromise+Testing.h"
 #import "FBLPromises.h"
 
-#import "FIRInstallationsSingleOperationPromiseCache.h"
+#import "InstallationsIDController/FIRInstallationsSingleOperationPromiseCache.h"
 
 @interface FIRInstallationsSingleOperationPromiseCacheTests : XCTestCase
 

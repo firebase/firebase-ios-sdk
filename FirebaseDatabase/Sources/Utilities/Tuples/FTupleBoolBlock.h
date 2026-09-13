@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FTypedefs.h"
+#import "Utilities/FTypedefs.h"
 #import <Foundation/Foundation.h>
 
 @interface FTupleBoolBlock : NSObject

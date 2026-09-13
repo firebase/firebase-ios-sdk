@@ -20,9 +20,9 @@
 #import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
 #import "FIRCore+InAppMessaging.h"
-#import "FIRIAMClearcutLogger.h"
-#import "FIRIAMFetchFlow.h"
-#import "FIRIAMRuntimeManager.h"
+#import "Private/Analytics/FIRIAMClearcutLogger.h"
+#import "Private/Runtime/FIRIAMFetchFlow.h"
+#import "Private/Runtime/FIRIAMRuntimeManager.h"
 
 @implementation FIRIAMFetchSetting
 @end

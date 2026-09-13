@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "FIRCLSMachO.h"
-#include "FIRCLSDefines.h"
+#include "Shared/FIRCLSMachO/FIRCLSMachO.h"
+#include "Helpers/FIRCLSDefines.h"
 
 #include <Foundation/Foundation.h>
 

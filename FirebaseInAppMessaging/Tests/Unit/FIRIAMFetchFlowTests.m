@@ -18,12 +18,12 @@
 
 #import <OCMock/OCMock.h>
 
-#import "FIRIAMAnalyticsEventLogger.h"
-#import "FIRIAMDisplayTriggerDefinition.h"
-#import "FIRIAMFetchFlow.h"
-#import "FIRIAMMessageContentDataWithImageURL.h"
-#import "FIRIAMSDKModeManager.h"
-#import "FIRInAppMessagingRendering.h"
+#import "FirebaseInAppMessaging/FIRInAppMessagingRendering.h"
+#import "Private/Data/FIRIAMMessageContentDataWithImageURL.h"
+#import "Private/DisplayTrigger/FIRIAMDisplayTriggerDefinition.h"
+#import "Private/Flows/FIRIAMAnalyticsEventLogger.h"
+#import "Private/Runtime/FIRIAMFetchFlow.h"
+#import "Private/Runtime/FIRIAMSDKModeManager.h"
 
 @interface FIRIAMFetchFlow (Testing)
 // Expose to verify that this gets called on initial app launch fetch.

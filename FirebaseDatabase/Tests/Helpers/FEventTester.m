@@ -19,9 +19,9 @@
 #import <FirebaseDatabase/FIRDatabaseReference.h>
 
 #import "FTestHelpers.h"
-#import "FTupleBoolBlock.h"
 #import "FTupleEventTypeString.h"
 #import "SenTest+FWaiter.h"
+#import "Utilities/Tuples/FTupleBoolBlock.h"
 
 @implementation FEventTester
 

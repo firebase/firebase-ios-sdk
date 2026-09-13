@@ -18,7 +18,7 @@
 
 #include "crashlytics.nanopb.h"
 
-#import "FIRCLSInstallIdentifierModel.h"
+#import "Models/FIRCLSInstallIdentifierModel.h"
 
 #import <GoogleDataTransport/GoogleDataTransport.h>
 

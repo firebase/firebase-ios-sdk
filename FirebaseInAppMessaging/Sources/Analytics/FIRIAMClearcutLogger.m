@@ -19,10 +19,10 @@
 
 #import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
+#import "Analytics/FIRIAMClearcutLogStorage.h"
 #import "FIRCore+InAppMessaging.h"
-#import "FIRIAMClearcutLogStorage.h"
-#import "FIRIAMClearcutLogger.h"
-#import "FIRIAMClearcutUploader.h"
+#import "Private/Analytics/FIRIAMClearcutLogger.h"
+#import "Private/Analytics/FIRIAMClearcutUploader.h"
 
 @interface FIRIAMClearcutLogger ()
 

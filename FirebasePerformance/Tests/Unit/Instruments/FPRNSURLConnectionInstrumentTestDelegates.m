@@ -14,7 +14,7 @@
 
 #import "FPRNSURLConnectionInstrumentTestDelegates.h"
 
-#import "FPRNetworkTrace.h"
+#import "Instrumentation/FPRNetworkTrace.h"
 
 @implementation FPRNSURLConnectionDidReceiveDataDelegate
 

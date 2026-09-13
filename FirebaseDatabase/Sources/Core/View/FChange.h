@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "FIRDatabaseReference.h"
-#import "FIndexedNode.h"
-#import "FNode.h"
+#import "FirebaseDatabase/FIRDatabaseReference.h"
+#import "Snapshot/FIndexedNode.h"
+#import "Snapshot/FNode.h"
 #import <Foundation/Foundation.h>
 
 @interface FChange : NSObject

@@ -21,9 +21,9 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
-#import "FIRMessagingAuthKeychain.h"
-#import "FIRMessagingCheckinPreferences.h"
-#import "FIRMessagingTokenInfo.h"
+#import "Token/FIRMessagingAuthKeychain.h"
+#import "Token/FIRMessagingCheckinPreferences.h"
+#import "Token/FIRMessagingTokenInfo.h"
 
 static NSString *const kFIRMessagingTestKeychainId = @"com.google.iid-tests";
 

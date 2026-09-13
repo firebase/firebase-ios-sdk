@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#import "FCompoundHash.h"
-#import "FChildrenNode.h"
-#import "FLeafNode.h"
-#import "FSnapshotUtilities.h"
-#import "FStringUtilities.h"
+#import "Core/FCompoundHash.h"
+#import "Snapshot/FChildrenNode.h"
+#import "Snapshot/FLeafNode.h"
+#import "Snapshot/FSnapshotUtilities.h"
+#import "Utilities/FStringUtilities.h"
 
 @interface FCompoundHashBuilder ()
 

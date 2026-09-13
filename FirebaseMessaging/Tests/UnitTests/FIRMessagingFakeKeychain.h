@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRMessagingAuthKeychain.h"
+#import "Token/FIRMessagingAuthKeychain.h"
 
 @interface FIRMessagingFakeKeychain : FIRMessagingAuthKeychain
 

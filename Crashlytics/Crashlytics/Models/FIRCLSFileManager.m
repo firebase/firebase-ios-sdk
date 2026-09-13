@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRCLSFileManager.h"
+#import "Models/FIRCLSFileManager.h"
 
-#import "FIRCLSApplication.h"
-#import "FIRCLSCrashedMarkerFile.h"
-#import "FIRCLSInternalReport.h"
-#import "FIRCLSLogger.h"
+#import "Components/FIRCLSApplication.h"
+#import "Components/FIRCLSCrashedMarkerFile.h"
+#import "Helpers/FIRCLSLogger.h"
+#import "Models/FIRCLSInternalReport.h"
 
 NSString *const FIRCLSCacheDirectoryName = @"com.crashlytics.data";
 NSString *const FIRCLSCacheVersion = @"v5";

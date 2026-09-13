@@ -14,9 +14,9 @@
 
 #include <stdatomic.h>
 
-#include "FIRCLSAllocate.h"
-#include "FIRCLSHost.h"
-#include "FIRCLSUtility.h"
+#include "Helpers/FIRCLSAllocate.h"
+#include "Components/FIRCLSHost.h"
+#include "Helpers/FIRCLSUtility.h"
 
 #include <errno.h>
 #include <libkern/OSAtomic.h>

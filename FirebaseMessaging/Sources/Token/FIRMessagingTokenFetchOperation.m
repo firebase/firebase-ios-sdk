@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-#import "FIRMessagingTokenFetchOperation.h"
+#import "Token/FIRMessagingTokenFetchOperation.h"
 
-#import "FIRMessagingCheckinPreferences.h"
 #import "FIRMessagingCode.h"
 #import "FIRMessagingConstants.h"
 #import "FIRMessagingDefines.h"
 #import "FIRMessagingLogger.h"
-#import "FIRMessagingTokenOperation.h"
 #import "FIRMessagingUtilities.h"
 #import "NSError+FIRMessaging.h"
+#import "Token/FIRMessagingCheckinPreferences.h"
+#import "Token/FIRMessagingTokenOperation.h"
 
 #import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 

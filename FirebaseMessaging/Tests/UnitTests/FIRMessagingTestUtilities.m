@@ -25,7 +25,7 @@
 #import "FIRMessagingPubSub.h"
 #import "FIRMessagingRmqManager.h"
 #import "FIRMessagingTestUtilities.h"
-#import "FIRMessagingTokenManager.h"
+#import "Token/FIRMessagingTokenManager.h"
 #import "XCTestCase+FIRMessagingRmqManagerTests.h"
 
 NS_ASSUME_NONNULL_BEGIN

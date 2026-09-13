@@ -25,17 +25,17 @@
 #import "FIRInstallationsErrorUtil+Tests.h"
 #import "FIRInstallationsItem+Tests.h"
 
-#import "FIRInstallations.h"
-#import "FIRInstallationsAPIService.h"
-#import "FIRInstallationsBackoffController.h"
-#import "FIRInstallationsErrorUtil.h"
-#import "FIRInstallationsHTTPError.h"
-#import "FIRInstallationsIDController.h"
-#import "FIRInstallationsIIDStore.h"
-#import "FIRInstallationsIIDTokenStore.h"
-#import "FIRInstallationsStore.h"
+#import "Errors/FIRInstallationsErrorUtil.h"
+#import "Errors/FIRInstallationsHTTPError.h"
+#import "FirebaseInstallations/FIRInstallations.h"
+#import "IIDMigration/FIRInstallationsIIDStore.h"
+#import "IIDMigration/FIRInstallationsIIDTokenStore.h"
+#import "InstallationsAPI/FIRInstallationsAPIService.h"
+#import "InstallationsIDController/FIRInstallationsBackoffController.h"
+#import "InstallationsIDController/FIRInstallationsIDController.h"
+#import "InstallationsStore/FIRInstallationsStore.h"
 
-#import "FIRInstallationsStoredAuthToken.h"
+#import "InstallationsStore/FIRInstallationsStoredAuthToken.h"
 
 @interface FIRInstallationsIDController (Tests)
 - (instancetype)initWithGoogleAppID:(NSString *)appID

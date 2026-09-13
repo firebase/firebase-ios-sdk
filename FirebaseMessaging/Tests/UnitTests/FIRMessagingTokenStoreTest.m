@@ -18,14 +18,14 @@
 #import <XCTest/XCTest.h>
 
 #import <FirebaseMessaging/FIRMessaging.h>
-#import "FIRMessagingBackupExcludedPlist.h"
-#import "FIRMessagingCheckinPreferences.h"
-#import "FIRMessagingCheckinService.h"
-#import "FIRMessagingCheckinStore.h"
 #import "FIRMessagingFakeKeychain.h"
-#import "FIRMessagingTokenInfo.h"
-#import "FIRMessagingTokenStore.h"
 #import "FIRMessagingUtilities.h"
+#import "Token/FIRMessagingBackupExcludedPlist.h"
+#import "Token/FIRMessagingCheckinPreferences.h"
+#import "Token/FIRMessagingCheckinService.h"
+#import "Token/FIRMessagingCheckinStore.h"
+#import "Token/FIRMessagingTokenInfo.h"
+#import "Token/FIRMessagingTokenStore.h"
 
 static NSString *const kSubDirectoryName = @"FirebaseMessagingStoreTest";
 

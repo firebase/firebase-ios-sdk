@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRCLSApplication.h"
+#import "Components/FIRCLSApplication.h"
 
-#import "FIRCLSHost.h"
-#import "FIRCLSUtility.h"
+#import "Components/FIRCLSHost.h"
+#import "Helpers/FIRCLSUtility.h"
 
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 

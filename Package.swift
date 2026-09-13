@@ -326,7 +326,6 @@ func packageTargets() -> [Target] {
       publicHeadersPath: "Public",
       cSettings: [
         .headerSearchPath("."),
-        .headerSearchPath("Public/FirebaseABTesting"),
       ]
     ),
     .testTarget(
@@ -340,8 +339,6 @@ func packageTargets() -> [Target] {
       resources: [.process("Resources")],
       cSettings: [
         .headerSearchPath("../../Sources"),
-        .headerSearchPath("../../Sources/Public/FirebaseABTesting"),
-        .headerSearchPath("Utilities"),
       ]
     ),
 
@@ -472,7 +469,6 @@ func packageTargets() -> [Target] {
       publicHeadersPath: "Public",
       cSettings: [
         .headerSearchPath("."),
-        .headerSearchPath("Private"),
       ]
     ),
     .testTarget(
@@ -608,24 +604,9 @@ func packageTargets() -> [Target] {
       cSettings: [
         .headerSearchPath(".."),
         .headerSearchPath("../Crashlytics"),
-        .headerSearchPath("../Crashlytics/Controllers"),
-        .headerSearchPath("../Crashlytics/Components"),
-        .headerSearchPath("../Crashlytics/DataCollection"),
-        .headerSearchPath("../Crashlytics/Helpers"),
-        .headerSearchPath("../Crashlytics/Models"),
-        .headerSearchPath("../Crashlytics/Operations"),
-        .headerSearchPath("../Crashlytics/Operations/Reports"),
-        .headerSearchPath("../Crashlytics/Operations/Symbolication"),
-        .headerSearchPath("../Crashlytics/Private"),
-        .headerSearchPath("../Crashlytics/Settings"),
-        .headerSearchPath("../Crashlytics/Settings/Models"),
-        .headerSearchPath("../Crashlytics/Settings/Operations"),
-        .headerSearchPath("../Crashlytics/FIRCLSUserDefaults"),
-        .headerSearchPath("../Crashlytics/Shared"),
         .headerSearchPath("../Shared"),
         .headerSearchPath("../Protogen/nanopb"),
         .headerSearchPath("../third_party/libunwind"),
-        .headerSearchPath("Mocks"),
         .define("DISPLAY_VERSION", to: firebaseVersion),
         .define("CLS_SDK_NAME", to: "Crashlytics iOS SDK", .when(platforms: [.iOS])),
         .define(
@@ -657,22 +638,6 @@ func packageTargets() -> [Target] {
       publicHeadersPath: "Public",
       cSettings: [
         .headerSearchPath("."),
-        .headerSearchPath("Public/FirebaseDatabase"),
-        .headerSearchPath("Api"),
-        .headerSearchPath("Api/Private"),
-        .headerSearchPath("Constants"),
-        .headerSearchPath("Core"),
-        .headerSearchPath("Core/Operation"),
-        .headerSearchPath("Core/Utilities"),
-        .headerSearchPath("Core/View"),
-        .headerSearchPath("Core/View/Filter"),
-        .headerSearchPath("Login"),
-        .headerSearchPath("Persistence"),
-        .headerSearchPath("Realtime"),
-        .headerSearchPath("Snapshot"),
-        .headerSearchPath("Utilities"),
-        .headerSearchPath("Utilities/Tuples"),
-        .headerSearchPath("third_party/FImmutableSortedDictionary/FImmutableSortedDictionary"),
         .headerSearchPath("third_party/SocketRocket"),
         .headerSearchPath("third_party/Wrap-leveldb"),
       ],
@@ -701,28 +666,8 @@ func packageTargets() -> [Target] {
       resources: [.process("Resources")],
       cSettings: [
         .headerSearchPath("../Sources"),
-        .headerSearchPath("../Sources/Public/FirebaseDatabase"),
-        .headerSearchPath("../Sources/Api"),
-        .headerSearchPath("../Sources/Api/Private"),
-        .headerSearchPath("../Sources/Constants"),
-        .headerSearchPath("../Sources/Core"),
-        .headerSearchPath("../Sources/Core/Operation"),
-        .headerSearchPath("../Sources/Core/Utilities"),
-        .headerSearchPath("../Sources/Core/View"),
-        .headerSearchPath("../Sources/Core/View/Filter"),
-        .headerSearchPath("../Sources/Login"),
-        .headerSearchPath("../Sources/Persistence"),
-        .headerSearchPath("../Sources/Realtime"),
-        .headerSearchPath("../Sources/Snapshot"),
-        .headerSearchPath("../Sources/Utilities"),
-        .headerSearchPath("../Sources/Utilities/Tuples"),
         .headerSearchPath("../Sources/third_party/SocketRocket"),
         .headerSearchPath("../Sources/third_party/Wrap-leveldb"),
-        .headerSearchPath(
-          "../Sources/third_party/FImmutableSortedDictionary/FImmutableSortedDictionary"
-        ),
-        .headerSearchPath("Helpers"),
-        .headerSearchPath("Unit"),
         .headerSearchPath("../../SharedTestUtilities/AppCheckFake"),
       ],
       swiftSettings: [
@@ -851,26 +796,7 @@ func packageTargets() -> [Target] {
       publicHeadersPath: "Public",
       cSettings: [
         .headerSearchPath("."),
-        .headerSearchPath("Public/FirebaseInAppMessaging"),
-        .headerSearchPath("Analytics"),
         .headerSearchPath("Analytics/Protogen/nanopb"),
-        .headerSearchPath("Data"),
-        .headerSearchPath("DefaultUI"),
-        .headerSearchPath("DefaultUI/Banner"),
-        .headerSearchPath("DefaultUI/Card"),
-        .headerSearchPath("DefaultUI/ImageOnly"),
-        .headerSearchPath("DefaultUI/Modal"),
-        .headerSearchPath("Flows"),
-        .headerSearchPath("Private"),
-        .headerSearchPath("Private/Analytics"),
-        .headerSearchPath("Private/Data"),
-        .headerSearchPath("Private/DisplayTrigger"),
-        .headerSearchPath("Private/Flows"),
-        .headerSearchPath("Private/Runtime"),
-        .headerSearchPath("Private/Util"),
-        .headerSearchPath("RenderingObjects"),
-        .headerSearchPath("Runtime"),
-        .headerSearchPath("Util"),
         .define("PB_FIELD_32BIT", to: "1"),
         .define("PB_NO_PACKED_STRUCTS", to: "1"),
         .define("PB_ENABLE_MALLOC", to: "1"),
@@ -906,13 +832,6 @@ func packageTargets() -> [Target] {
       publicHeadersPath: "Public",
       cSettings: [
         .headerSearchPath("."),
-        .headerSearchPath("Public/FirebaseInstallations"),
-        .headerSearchPath("InstallationsStore"),
-        .headerSearchPath("InstallationsIDController"),
-        .headerSearchPath("InstallationsAPI"),
-        .headerSearchPath("IIDMigration"),
-        .headerSearchPath("Errors"),
-        .headerSearchPath("Private"),
       ],
       linkerSettings: [
         .linkedFramework("Security"),
@@ -958,8 +877,6 @@ func packageTargets() -> [Target] {
       publicHeadersPath: "Public",
       cSettings: [
         .headerSearchPath("."),
-        .headerSearchPath("Public/FirebaseMessaging"),
-        .headerSearchPath("Token"),
         .headerSearchPath("Protogen/nanopb"),
         .define("PB_FIELD_32BIT", to: "1"),
         .define("PB_NO_PACKED_STRUCTS", to: "1"),
@@ -991,9 +908,6 @@ func packageTargets() -> [Target] {
       ],
       cSettings: [
         .headerSearchPath("../../Sources"),
-        .headerSearchPath("../../Sources/Public/FirebaseMessaging"),
-        .headerSearchPath("../../Sources/Token"),
-        .headerSearchPath("."),
       ]
     ),
 
@@ -1024,20 +938,6 @@ func packageTargets() -> [Target] {
       publicHeadersPath: "Public",
       cSettings: [
         .headerSearchPath("."),
-        .headerSearchPath("Public/FirebasePerformance"),
-        .headerSearchPath("Common"),
-        .headerSearchPath("Instrumentation"),
-        .headerSearchPath("Instrumentation/Network"),
-        .headerSearchPath("Instrumentation/Network/Delegates"),
-        .headerSearchPath("Instrumentation/UIKit"),
-        .headerSearchPath("AppActivity"),
-        .headerSearchPath("Gauges"),
-        .headerSearchPath("Gauges/CPU"),
-        .headerSearchPath("Gauges/Memory"),
-        .headerSearchPath("ISASwizzler"),
-        .headerSearchPath("Loggers"),
-        .headerSearchPath("Timer"),
-        .headerSearchPath("Configurations"),
         .headerSearchPath("Protogen/nanopb"),
         .define("PB_FIELD_32BIT", to: "1"),
         .define("PB_NO_PACKED_STRUCTS", to: "1"),
@@ -1067,28 +967,8 @@ func packageTargets() -> [Target] {
       ],
       cSettings: [
         .headerSearchPath("../../Sources"),
-        .headerSearchPath("../../Sources/Common"),
-        .headerSearchPath("../../Sources/Instrumentation"),
-        .headerSearchPath("../../Sources/Instrumentation/Network"),
-        .headerSearchPath("../../Sources/Instrumentation/Network/Delegates"),
-        .headerSearchPath("../../Sources/Instrumentation/UIKit"),
-        .headerSearchPath("../../Sources/AppActivity"),
-        .headerSearchPath("../../Sources/Gauges"),
-        .headerSearchPath("../../Sources/Gauges/CPU"),
-        .headerSearchPath("../../Sources/Gauges/Memory"),
-        .headerSearchPath("../../Sources/ISASwizzler"),
-        .headerSearchPath("../../Sources/Loggers"),
-        .headerSearchPath("../../Sources/Timer"),
-        .headerSearchPath("../../Sources/Configurations"),
         .headerSearchPath("../../Sources/Protogen/nanopb"),
         .headerSearchPath("."),
-        .headerSearchPath("Server"),
-        .headerSearchPath("Loggers"),
-        .headerSearchPath("Configurations"),
-        .headerSearchPath("AppActivity"),
-        .headerSearchPath("Gauges"),
-        .headerSearchPath("Instrumentation"),
-        .headerSearchPath("ISASwizzler"),
         .define("PB_FIELD_32BIT", to: "1"),
         .define("PB_NO_PACKED_STRUCTS", to: "1"),
         .define("PB_ENABLE_MALLOC", to: "1"),
@@ -1126,7 +1006,6 @@ func packageTargets() -> [Target] {
       publicHeadersPath: "Public",
       cSettings: [
         .headerSearchPath("."),
-        .headerSearchPath("Public/FirebaseRemoteConfig"),
       ]
     ),
     .testTarget(
@@ -1152,7 +1031,6 @@ func packageTargets() -> [Target] {
       ],
       cSettings: [
         .headerSearchPath("../../Sources"),
-        .headerSearchPath("../../Sources/Public/FirebaseRemoteConfig"),
       ]
     ),
     .testTarget(
@@ -1209,7 +1087,6 @@ func packageTargets() -> [Target] {
       publicHeadersPath: ".",
       cSettings: [
         .headerSearchPath("../../../Sources"),
-        .headerSearchPath("../../../Sources/Public/FirebaseRemoteConfig"),
       ]
     ),
     // Internal headers only for consuming from other SDK.
@@ -1466,7 +1343,6 @@ func packageTargets() -> [Target] {
       ],
       cSettings: [
         .headerSearchPath("../../Sources"),
-        .headerSearchPath("Utils"),
       ]
     ),
     .testTarget(

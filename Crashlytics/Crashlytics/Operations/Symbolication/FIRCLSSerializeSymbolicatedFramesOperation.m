@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRCLSSerializeSymbolicatedFramesOperation.h"
+#import "Operations/Symbolication/FIRCLSSerializeSymbolicatedFramesOperation.h"
 
-#import "FIRCLSFile.h"
-#import "FIRCLSLogger.h"
-#import "FIRStackFrame_Private.h"
+#import "Helpers/FIRCLSFile.h"
+#import "Helpers/FIRCLSLogger.h"
+#import "Private/FIRStackFrame_Private.h"
 
 @implementation FIRCLSSerializeSymbolicatedFramesOperation
 

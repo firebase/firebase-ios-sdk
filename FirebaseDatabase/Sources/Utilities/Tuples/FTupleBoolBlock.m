@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FTupleBoolBlock.h"
+#import "Utilities/Tuples/FTupleBoolBlock.h"
 
 @implementation FTupleBoolBlock
 

@@ -25,25 +25,25 @@
 
 #import "FBLPromise+Testing.h"
 
-#import "FIRCLSAnalyticsManager.h"
-#include "FIRCLSContext.h"
-#include "FIRCLSCrashedMarkerFile.h"
-#import "FIRCLSDataCollectionArbiter.h"
-#include "FIRCLSDefines.h"
-#import "FIRCLSInternalReport.h"
-#import "FIRCLSManagerData.h"
+#include "Components/FIRCLSContext.h"
+#include "Components/FIRCLSCrashedMarkerFile.h"
+#import "Controllers/FIRCLSAnalyticsManager.h"
+#import "Controllers/FIRCLSManagerData.h"
+#import "DataCollection/FIRCLSDataCollectionArbiter.h"
 #import "FIRCLSMockExistingReportManager.h"
-#import "FIRCLSSettings.h"
+#include "Helpers/FIRCLSDefines.h"
+#import "Models/FIRCLSInternalReport.h"
+#import "Models/FIRCLSSettings.h"
 
 #import "FABMockApplicationIdentifierModel.h"
 #import "FIRAppFake.h"
-#import "FIRCLSApplicationIdentifierModel.h"
 #import "FIRCLSMockReportManager.h"
 #import "FIRCLSMockReportUploader.h"
 #import "FIRCLSMockSettings.h"
 #import "FIRCLSTempMockFileManager.h"
 #import "FIRMockGDTCoreTransport.h"
 #import "FIRMockInstallations.h"
+#import "Settings/Models/FIRCLSApplicationIdentifierModel.h"
 
 #define TEST_API_KEY (@"DB5C8FA65C0D43419120FB96CFDBDE0C")
 #define TEST_GOOGLE_APP_ID (@"1:632950151350:ios:d5b0d08d4f00f4b1")

@@ -12,15 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRCLSManagerData.h"
+#import "Controllers/FIRCLSManagerData.h"
 
-#import "FIRCLSApplication.h"
-#import "FIRCLSApplicationIdentifierModel.h"
-#import "FIRCLSContextManager.h"
-#import "FIRCLSExecutionIdentifierModel.h"
-#import "FIRCLSInstallIdentifierModel.h"
-#import "FIRCLSOnDemandModel_Private.h"
-#import "FIRCLSSettings.h"
+#import "Components/FIRCLSApplication.h"
+#import "Controllers/FIRCLSContextManager.h"
+#import "Models/FIRCLSExecutionIdentifierModel.h"
+#import "Models/FIRCLSInstallIdentifierModel.h"
+#import "Models/FIRCLSSettings.h"
+#import "Private/FIRCLSOnDemandModel_Private.h"
+#import "Settings/Models/FIRCLSApplicationIdentifierModel.h"
 
 @implementation FIRCLSManagerData
 

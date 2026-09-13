@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FPRNSURLSessionDelegate.h"
+#import "Instrumentation/Network/Delegates/FPRNSURLSessionDelegate.h"
 
 #import "FPRConsoleLogger.h"
-#import "FPRNetworkTrace.h"
+#import "Instrumentation/FPRNetworkTrace.h"
 
 @implementation FPRNSURLSessionDelegate
 

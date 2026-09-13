@@ -16,13 +16,13 @@
 
 #include "dwarf.h"
 
-#import "FIRCLSMachO.h"
+#import "Shared/FIRCLSMachO/FIRCLSMachO.h"
 
-#include "FIRCLSContext.h"
-#include "FIRCLSDefines.h"
-#include "FIRCLSDwarfUnwind.h"
-#include "FIRCLSGlobals.h"
-#include "FIRCLSUnwind_arch.h"
+#include "Components/FIRCLSContext.h"
+#include "Components/FIRCLSGlobals.h"
+#include "Helpers/FIRCLSDefines.h"
+#include "Unwind/Dwarf/FIRCLSDwarfUnwind.h"
+#include "Unwind/FIRCLSUnwind_arch.h"
 
 @interface FIRCLSDwarfTests : XCTestCase
 

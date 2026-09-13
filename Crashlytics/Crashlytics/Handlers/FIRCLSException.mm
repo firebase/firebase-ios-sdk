@@ -14,27 +14,27 @@
 
 #import <Foundation/Foundation.h>
 
-#include "FIRCLSException.h"
+#include "Handlers/FIRCLSException.h"
 
-#import "FIRExceptionModel_Private.h"
-#import "FIRStackFrame_Private.h"
+#import "Private/FIRExceptionModel_Private.h"
+#import "Private/FIRStackFrame_Private.h"
 
-#include "FIRCLSApplication.h"
-#include "FIRCLSContext.h"
-#include "FIRCLSGlobals.h"
-#include "FIRCLSProcess.h"
-#import "FIRCLSUserLogging.h"
+#include "Components/FIRCLSApplication.h"
+#include "Components/FIRCLSContext.h"
+#include "Components/FIRCLSGlobals.h"
+#include "Components/FIRCLSProcess.h"
+#import "Components/FIRCLSUserLogging.h"
 
-#include "FIRCLSFile.h"
-#include "FIRCLSHandler.h"
-#import "FIRCLSLogger.h"
-#import "FIRCLSUtility.h"
+#include "Handlers/FIRCLSHandler.h"
+#include "Helpers/FIRCLSFile.h"
+#import "Helpers/FIRCLSLogger.h"
+#import "Helpers/FIRCLSUtility.h"
 
-#include "FIRCLSDemangleOperation.h"
-#import "FIRCLSExecutionIdentifierModel.h"
-#import "FIRCLSFileManager.h"
-#import "FIRCLSInternalReport.h"
-#import "FIRCLSReportManager_Private.h"
+#import "Controllers/FIRCLSReportManager_Private.h"
+#import "Models/FIRCLSExecutionIdentifierModel.h"
+#import "Models/FIRCLSFileManager.h"
+#import "Models/FIRCLSInternalReport.h"
+#include "Operations/Symbolication/FIRCLSDemangleOperation.h"
 
 // C++/Objective-C exception handling
 #include <cxxabi.h>

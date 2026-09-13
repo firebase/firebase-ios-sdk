@@ -14,7 +14,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FPRTraceBackgroundActivityTracker.h"
+#import "AppActivity/FPRTraceBackgroundActivityTracker.h"
 
 @interface FPRTraceBackgroundActivityTrackerTest : XCTestCase
 

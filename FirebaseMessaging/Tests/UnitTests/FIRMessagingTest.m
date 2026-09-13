@@ -23,19 +23,19 @@
 #import <FirebaseMessaging/FIRMessaging.h>
 #import <GoogleUtilities/GULUserDefaults.h>
 #import <URLSession/FIRURLSessionOCMockStub.h>
-#import "FIRMessagingAPNSInfo.h"
 #import "FIRMessagingConstants.h"
-#import "FIRMessagingFIDRegisterOperation.h"
-#import "FIRMessagingFIDUnregisterOperation.h"
 #import "FIRMessagingPubSub.h"
 #import "FIRMessagingTestUtilities.h"
-#import "FIRMessagingTokenInfo.h"
-#import "FIRMessagingTokenManager.h"
-#import "FIRMessagingTokenStore.h"
 #import "FIRMessagingTopicOperation.h"
 #import "FIRMessagingUtilities.h"
 #import "FIRMessaging_Private.h"
 #import "NSError+FIRMessaging.h"
+#import "Token/FIRMessagingAPNSInfo.h"
+#import "Token/FIRMessagingFIDRegisterOperation.h"
+#import "Token/FIRMessagingFIDUnregisterOperation.h"
+#import "Token/FIRMessagingTokenInfo.h"
+#import "Token/FIRMessagingTokenManager.h"
+#import "Token/FIRMessagingTokenStore.h"
 
 @interface FIRMessagingFIDRegisterOperation (ExposedForTest)
 + (void)resetSharedSession;

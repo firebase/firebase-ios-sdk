@@ -12,19 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FPRNetworkTrace.h"
-#import "FPRNetworkTrace+Private.h"
+#import "Instrumentation/FPRNetworkTrace.h"
+#import "Instrumentation/FPRNetworkTrace+Private.h"
 
+#import "AppActivity/FPRSessionManager.h"
+#import "Common/FPRConstants.h"
+#import "Common/FPRDiagnostics.h"
+#import "Configurations/FPRConfigurations.h"
 #import "FPRClient.h"
-#import "FPRConfigurations.h"
 #import "FPRConsoleLogger.h"
-#import "FPRConstants.h"
 #import "FPRDataUtils.h"
-#import "FPRDiagnostics.h"
-#import "FPRGaugeManager.h"
-#import "FPRObjectSwizzler.h"
-#import "FPRSessionManager.h"
 #import "FPRURLFilter.h"
+#import "Gauges/FPRGaugeManager.h"
+#import "ISASwizzler/FPRObjectSwizzler.h"
 
 NSString *const kFPRNetworkTracePropertyName = @"fpr_networkTrace";
 

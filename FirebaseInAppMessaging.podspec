@@ -67,7 +67,7 @@ See more product details at https://firebase.google.com/products/in-app-messagin
     'GCC_PREPROCESSOR_DEFINITIONS' =>
       '$(inherited) ' +
       'PB_FIELD_32BIT=1 PB_NO_PACKED_STRUCTS=1 PB_ENABLE_MALLOC=1',
-    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
+    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}/FirebaseInAppMessaging/Sources"'
   }
 
   s.framework = 'UIKit'

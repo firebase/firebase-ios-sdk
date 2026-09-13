@@ -16,8 +16,8 @@
 
 #import "RCNPersonalization.h"
 
+#import "FirebaseRemoteConfig/RCNConfigValue_Internal.h"
 #import "RCNConfigConstants.h"
-#import "RCNConfigValue_Internal.h"
 
 @implementation RCNPersonalization
 

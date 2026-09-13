@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-#import "FIRMessagingCheckinStore.h"
+#import "Token/FIRMessagingCheckinStore.h"
 
-#import "FIRMessagingAuthKeychain.h"
-#import "FIRMessagingBackupExcludedPlist.h"
-#import "FIRMessagingCheckinPreferences.h"
-#import "FIRMessagingCheckinService.h"
 #import "FIRMessagingCode.h"
 #import "FIRMessagingConstants.h"
 #import "FIRMessagingLogger.h"
 #import "FIRMessagingUtilities.h"
 #import "NSError+FIRMessaging.h"
+#import "Token/FIRMessagingAuthKeychain.h"
+#import "Token/FIRMessagingBackupExcludedPlist.h"
+#import "Token/FIRMessagingCheckinPreferences.h"
+#import "Token/FIRMessagingCheckinService.h"
 
 // NOTE: These values should be in sync with what InstanceID saves in as.
 static NSString *const kCheckinFileName = @"g-checkin";

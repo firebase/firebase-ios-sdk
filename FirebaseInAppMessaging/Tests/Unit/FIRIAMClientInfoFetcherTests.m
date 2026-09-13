@@ -17,8 +17,8 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
-#import "FIRIAMClientInfoFetcher.h"
-#import "FIRIAMSDKRuntimeErrorCodes.h"
+#import "Private/Analytics/FIRIAMClientInfoFetcher.h"
+#import "Runtime/FIRIAMSDKRuntimeErrorCodes.h"
 
 #import <FirebaseInstallations/FirebaseInstallations.h>
 

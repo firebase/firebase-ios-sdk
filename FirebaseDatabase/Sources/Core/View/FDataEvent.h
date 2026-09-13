@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#import "FEvent.h"
-#import "FIRDataSnapshot.h"
-#import "FIRDatabaseReference.h"
-#import "FTupleUserCallback.h"
+#import "Core/View/FEvent.h"
+#import "FirebaseDatabase/FIRDataSnapshot.h"
+#import "FirebaseDatabase/FIRDatabaseReference.h"
+#import "Utilities/Tuples/FTupleUserCallback.h"
 #import <Foundation/Foundation.h>
 
 @protocol FEventRegistration;

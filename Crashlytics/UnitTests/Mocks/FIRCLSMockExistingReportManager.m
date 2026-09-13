@@ -13,11 +13,11 @@
 // limitations under the License.
 
 #import "FIRCLSMockExistingReportManager.h"
-#import "FIRCLSFileManager.h"
-#import "FIRCLSInternalReport.h"
-#import "FIRCLSManagerData.h"
-#import "FIRCrashlyticsReport.h"
-#import "FIRCrashlyticsReport_Private.h"
+#import "Controllers/FIRCLSManagerData.h"
+#import "FirebaseCrashlytics/FIRCrashlyticsReport.h"
+#import "Models/FIRCLSFileManager.h"
+#import "Models/FIRCLSInternalReport.h"
+#import "Private/FIRCrashlyticsReport_Private.h"
 
 @interface FIRCLSMockExistingReportManager ()
 

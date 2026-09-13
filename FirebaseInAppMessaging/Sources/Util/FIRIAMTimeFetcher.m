@@ -17,7 +17,7 @@
 #import <TargetConditionals.h>
 #if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
 
-#import "FIRIAMTimeFetcher.h"
+#import "Private/Util/FIRIAMTimeFetcher.h"
 
 @implementation FIRIAMTimerWithNSDate
 - (NSTimeInterval)currentTimestampInSeconds {

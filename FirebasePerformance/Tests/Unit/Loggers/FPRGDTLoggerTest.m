@@ -14,11 +14,11 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FPRGDTLogSampler.h"
-#import "FPRGDTLogger.h"
-#import "FPRGDTLogger_Private.h"
-#import "FPRGDTRateLimiter.h"
 #import "FPRNanoPbUtils.h"
+#import "Loggers/FPRGDTLogSampler.h"
+#import "Loggers/FPRGDTLogger.h"
+#import "Loggers/FPRGDTLogger_Private.h"
+#import "Loggers/FPRGDTRateLimiter.h"
 
 #import "FPRTestUtils.h"
 

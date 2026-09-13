@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FPRCounterList.h"
+#import "Timer/FPRCounterList.h"
 
-#import "FPRSessionDetails.h"
+#import "AppActivity/FPRSessionDetails.h"
 
-#import "FPRTraceBackgroundActivityTracker.h"
+#import "AppActivity/FPRTraceBackgroundActivityTracker.h"
 
 #import "FPRClient+Private.h"
 #import "FPRClient.h"

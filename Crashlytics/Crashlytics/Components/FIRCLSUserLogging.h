@@ -14,7 +14,7 @@
 
 #pragma once
 
-#include "FIRCLSFile.h"
+#include "Helpers/FIRCLSFile.h"
 
 __BEGIN_DECLS
 

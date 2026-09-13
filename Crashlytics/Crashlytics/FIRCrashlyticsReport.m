@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRCrashlyticsReport.h"
+#import "FirebaseCrashlytics/FIRCrashlyticsReport.h"
 
-#import "FIRCLSContext.h"
-#import "FIRCLSGlobals.h"
-#import "FIRCLSInternalReport.h"
-#import "FIRCLSLogger.h"
+#import "Components/FIRCLSContext.h"
+#import "Components/FIRCLSGlobals.h"
+#import "Helpers/FIRCLSLogger.h"
+#import "Models/FIRCLSInternalReport.h"
 
 @interface FIRCrashlyticsReport () {
   NSString *_reportID;

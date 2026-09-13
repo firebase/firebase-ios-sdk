@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FPRGaugeManager.h"
+#import "Gauges/FPRGaugeManager.h"
 
-#import "FPRCPUGaugeCollector.h"
-#import "FPRMemoryGaugeCollector.h"
+#import "Gauges/CPU/FPRCPUGaugeCollector.h"
+#import "Gauges/Memory/FPRMemoryGaugeCollector.h"
 
 /** This extension should only be used for testing. */
 NS_EXTENSION_UNAVAILABLE("Firebase Performance is not supported for extensions.")

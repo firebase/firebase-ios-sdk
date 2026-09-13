@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#import "FEventEmitter.h"
-#import "FIRDatabaseQuery_Private.h"
-#import "FRepoManager.h"
-#import "FUtilities.h"
+#import "Utilities/FEventEmitter.h"
+#import "Api/Private/FIRDatabaseQuery_Private.h"
+#import "Core/FRepoManager.h"
+#import "Utilities/FUtilities.h"
 
 @interface FEventListener : NSObject
 

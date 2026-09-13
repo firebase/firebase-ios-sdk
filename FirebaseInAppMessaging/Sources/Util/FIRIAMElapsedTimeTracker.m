@@ -17,7 +17,7 @@
 #import <TargetConditionals.h>
 #if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
 
-#import "FIRIAMElapsedTimeTracker.h"
+#import "Util/FIRIAMElapsedTimeTracker.h"
 @interface FIRIAMElapsedTimeTracker ()
 @property(nonatomic) NSTimeInterval totalTrackedTimeSoFar;
 @property(nonatomic) NSTimeInterval lastTrackingStartPoint;

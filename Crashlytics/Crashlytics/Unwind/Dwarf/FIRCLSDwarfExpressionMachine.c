@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "FIRCLSDwarfExpressionMachine.h"
-#include "FIRCLSDataParsing.h"
-#include "FIRCLSDefines.h"
-#include "FIRCLSDwarfUnwindRegisters.h"
-#include "FIRCLSUnwind_arch.h"
-#include "FIRCLSUtility.h"
+#include "Unwind/Dwarf/FIRCLSDwarfExpressionMachine.h"
+#include "Unwind/Dwarf/FIRCLSDataParsing.h"
+#include "Helpers/FIRCLSDefines.h"
+#include "Unwind/Dwarf/FIRCLSDwarfUnwindRegisters.h"
+#include "Unwind/FIRCLSUnwind_arch.h"
+#include "Helpers/FIRCLSUtility.h"
 #include "dwarf.h"
 
 #if CLS_DWARF_UNWINDING_SUPPORTED

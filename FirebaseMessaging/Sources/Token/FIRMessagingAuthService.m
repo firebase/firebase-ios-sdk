@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-#import "FIRMessagingAuthService.h"
+#import "Token/FIRMessagingAuthService.h"
 
-#import "FIRMessagingCheckinPreferences.h"
-#import "FIRMessagingCheckinStore.h"
 #import "FIRMessagingConstants.h"
 #import "FIRMessagingDefines.h"
 #import "FIRMessagingLogger.h"
 #import "NSError+FIRMessaging.h"
+#import "Token/FIRMessagingCheckinPreferences.h"
+#import "Token/FIRMessagingCheckinStore.h"
 
 // Max time interval between checkin retry in seconds.
 static const int64_t kMaxCheckinRetryIntervalInSeconds = 1 << 5;

@@ -14,10 +14,10 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FPRGDTLogger.h"
+#import "Loggers/FPRGDTLogger.h"
 
 #import <GoogleDataTransport/GoogleDataTransport.h>
-#import "FPRConfigurations.h"
+#import "Configurations/FPRConfigurations.h"
 
 /** FPRGDTLogger private definition used for unit testing. */
 @interface FPRGDTLogger ()

@@ -15,9 +15,9 @@
  */
 
 #import "FSparseSnapshotTests.h"
-#import "FEmptyNode.h"
-#import "FSnapshotUtilities.h"
-#import "FSparseSnapshotTree.h"
+#import "Core/FSparseSnapshotTree.h"
+#import "Snapshot/FEmptyNode.h"
+#import "Snapshot/FSnapshotUtilities.h"
 
 @implementation FSparseSnapshotTests
 

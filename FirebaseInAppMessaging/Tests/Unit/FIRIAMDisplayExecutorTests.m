@@ -17,12 +17,12 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
-#import "FIRIAMActionURLFollower.h"
-#import "FIRIAMDisplayExecutor.h"
-#import "FIRIAMDisplayTriggerDefinition.h"
-#import "FIRIAMMessageContentData.h"
-#import "FIRInAppMessaging.h"
-#import "FIRInAppMessagingRenderingPrivate.h"
+#import "FirebaseInAppMessaging/FIRInAppMessaging.h"
+#import "Private/Data/FIRIAMMessageContentData.h"
+#import "Private/DisplayTrigger/FIRIAMDisplayTriggerDefinition.h"
+#import "Private/Flows/FIRIAMDisplayExecutor.h"
+#import "Private/Runtime/FIRIAMActionURLFollower.h"
+#import "RenderingObjects/FIRInAppMessagingRenderingPrivate.h"
 
 #import <FirebaseABTesting/ABTExperimentPayload.h>
 

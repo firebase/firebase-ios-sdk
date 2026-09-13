@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRCLSAnalyticsManager.h"
+#import "Controllers/FIRCLSAnalyticsManager.h"
 
-#import "FIRCLSInternalLogging.h"
-#import "FIRCLSUserLogging.h"
+#import "Components/FIRCLSUserLogging.h"
+#import "Helpers/FIRCLSInternalLogging.h"
 
 #import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
 #import <FirebaseAnalyticsInterop/FIRAnalyticsInteropListener.h>

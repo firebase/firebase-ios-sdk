@@ -22,11 +22,11 @@
 #import <objc/runtime.h>
 
 #import <FirebasePerformance/FIRPerformance.h>
-#import "FPRConfigurations+Private.h"
-#import "FPRConfigurations.h"
-#import "FPRNSURLSessionInstrument.h"
-#import "FPRNSURLSessionInstrument_Private.h"
-#import "FPRNetworkTrace.h"
+#import "Configurations/FPRConfigurations+Private.h"
+#import "Configurations/FPRConfigurations.h"
+#import "Instrumentation/FPRNetworkTrace.h"
+#import "Instrumentation/Network/FPRNSURLSessionInstrument.h"
+#import "Instrumentation/Network/FPRNSURLSessionInstrument_Private.h"
 
 #import "FPRHermeticTestServer.h"
 #import "FPRTestCase.h"

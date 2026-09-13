@@ -17,10 +17,10 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRCLSExistingReportManager_Private.h"
-#import "FIRCLSOnDemandModel.h"
-#import "FIRCLSSettings.h"
-#import "FIRExceptionModel_Private.h"
+#import "Models/FIRCLSOnDemandModel.h"
+#import "Models/FIRCLSSettings.h"
+#import "Private/FIRCLSExistingReportManager_Private.h"
+#import "Private/FIRExceptionModel_Private.h"
 
 @interface FIRCLSOnDemandModel (Private)
 

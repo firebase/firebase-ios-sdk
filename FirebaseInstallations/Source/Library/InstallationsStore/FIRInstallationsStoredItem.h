@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRInstallationsStatus.h"
+#import "InstallationsIDController/FIRInstallationsStatus.h"
 
 @class FIRInstallationsStoredAuthToken;
 @class FIRInstallationsStoredIIDCheckin;

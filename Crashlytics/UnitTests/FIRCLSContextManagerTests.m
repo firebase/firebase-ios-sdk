@@ -15,15 +15,15 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FIRCLSApplicationIdentifierModel.h"
-#import "FIRCLSContextManager.h"
-#import "FIRCLSReportAdapter.h"
-#import "FIRCLSReportAdapter_Private.h"
+#import "Controllers/FIRCLSContextManager.h"
+#import "Models/Record/FIRCLSReportAdapter.h"
+#import "Models/Record/FIRCLSReportAdapter_Private.h"
+#import "Settings/Models/FIRCLSApplicationIdentifierModel.h"
 
-#import "FIRCLSInternalReport.h"
 #import "FIRCLSMockFileManager.h"
 #import "FIRCLSMockSettings.h"
 #import "FIRMockInstallations.h"
+#import "Models/FIRCLSInternalReport.h"
 
 NSString *const TestContextReportID = @"TestContextReportID";
 NSString *const TestContextSessionID = @"TestContextSessionID";

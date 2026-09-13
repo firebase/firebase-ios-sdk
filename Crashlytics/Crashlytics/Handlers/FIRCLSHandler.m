@@ -12,15 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "FIRCLSHandler.h"
+#include "Handlers/FIRCLSHandler.h"
 
-#include "FIRCLSCrashedMarkerFile.h"
-#include "FIRCLSGlobals.h"
-#include "FIRCLSHost.h"
-#include "FIRCLSProcess.h"
-#include "FIRCLSUtility.h"
+#include "Components/FIRCLSCrashedMarkerFile.h"
+#include "Components/FIRCLSGlobals.h"
+#include "Components/FIRCLSHost.h"
+#include "Components/FIRCLSProcess.h"
+#include "Helpers/FIRCLSUtility.h"
 
-#import "FIRCLSReportManager_Private.h"
+#import "Controllers/FIRCLSReportManager_Private.h"
 
 void FIRCLSHandler(FIRCLSFile* file,
                    thread_t crashedThread,

@@ -14,24 +14,24 @@
 
 #import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
 
-#import "FIRCLSAnalyticsManager.h"
-#import "FIRCLSApplication.h"
-#import "FIRCLSDataCollectionToken.h"
-#import "FIRCLSDefines.h"
-#import "FIRCLSFileManager.h"
-#import "FIRCLSInstallIdentifierModel.h"
-#import "FIRCLSInternalReport.h"
-#import "FIRCLSManagerData.h"
-#import "FIRCLSProcessReportOperation.h"
-#import "FIRCLSReportAdapter.h"
-#import "FIRCLSReportUploader_Private.h"
-#import "FIRCLSSettings.h"
-#import "FIRCLSSymbolResolver.h"
+#import "Components/FIRCLSApplication.h"
+#import "Controllers/FIRCLSAnalyticsManager.h"
+#import "Controllers/FIRCLSManagerData.h"
+#import "Controllers/FIRCLSReportUploader_Private.h"
+#import "DataCollection/FIRCLSDataCollectionToken.h"
+#import "Helpers/FIRCLSDefines.h"
+#import "Models/FIRCLSFileManager.h"
+#import "Models/FIRCLSInstallIdentifierModel.h"
+#import "Models/FIRCLSInternalReport.h"
+#import "Models/FIRCLSSettings.h"
+#import "Models/FIRCLSSymbolResolver.h"
+#import "Models/Record/FIRCLSReportAdapter.h"
+#import "Operations/Reports/FIRCLSProcessReportOperation.h"
 
-#include "FIRCLSUtility.h"
+#include "Helpers/FIRCLSUtility.h"
 
-#import "FIRCLSConstants.h"
-#import "FIRCLSURLBuilder.h"
+#import "Shared/FIRCLSConstants.h"
+#import "Shared/FIRCLSNetworking/FIRCLSURLBuilder.h"
 
 #import <GoogleDataTransport/GoogleDataTransport.h>
 
