@@ -92,6 +92,7 @@ struct DocumentKeyHash;
 using BatchId = int32_t;
 using ListenSequenceNumber = int64_t;
 using TargetId = int32_t;
+using RemoteTargetId = int32_t;
 
 using DocumentKeySet =
     immutable::SortedSet<DocumentKey, util::Comparator<DocumentKey>>;

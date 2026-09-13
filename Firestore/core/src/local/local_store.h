@@ -35,6 +35,8 @@
 #include "Firestore/core/src/model/model_fwd.h"
 #include "absl/types/optional.h"
 
+#include "Firestore/core/src/remote/remote_event_fwd.h"
+
 namespace firebase {
 namespace firestore {
 
@@ -51,7 +53,6 @@ class FieldIndex;
 }  // namespace model
 
 namespace remote {
-class RemoteEvent;
 class TargetChange;
 }  // namespace remote
 

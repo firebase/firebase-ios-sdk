@@ -23,6 +23,8 @@
 #include "Firestore/core/src/model/types.h"
 #include "gtest/gtest.h"
 
+#include "Firestore/core/src/local/target_data_fwd.h"
+
 namespace firebase {
 namespace firestore {
 
@@ -34,7 +36,6 @@ namespace local {
 
 class Persistence;
 class TargetCache;
-class TargetData;
 
 using FactoryFunc = std::unique_ptr<Persistence> (*)();
 

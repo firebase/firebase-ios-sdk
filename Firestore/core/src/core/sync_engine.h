@@ -39,12 +39,13 @@
 #include "Firestore/core/src/util/status.h"
 #include "absl/strings/string_view.h"
 
+#include "Firestore/core/src/local/target_data_fwd.h"
+
 namespace firebase {
 namespace firestore {
 
 namespace local {
 class LocalStore;
-class TargetData;
 }  // namespace local
 
 namespace model {
