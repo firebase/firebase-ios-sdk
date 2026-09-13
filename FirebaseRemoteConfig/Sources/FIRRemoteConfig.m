@@ -16,7 +16,7 @@
 
 #import "FIRRemoteConfig.h"
 
-#import <FirebaseABTesting/FirebaseABTestingInternal.h>
+#import <FirebaseABTesting/FirebaseABTesting.h>
 #import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 #import "FIRRemoteConfigComponent.h"
 #import "FIRRemoteConfig_Private.h"

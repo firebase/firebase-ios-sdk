@@ -16,7 +16,7 @@
 
 #import "RCNConfigExperiment.h"
 
-#import <FirebaseABTesting/FirebaseABTestingInternal.h>
+#import <FirebaseABTesting/FirebaseABTesting.h>
 #import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 #import "RCNConfigDBManager.h"
 #import "RCNConfigDefines.h"

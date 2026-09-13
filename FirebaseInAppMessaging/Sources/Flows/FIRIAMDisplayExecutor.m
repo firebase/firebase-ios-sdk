@@ -30,7 +30,7 @@
 #import "FIRInAppMessagingRenderingPrivate.h"
 #import "UIApplication+FIRForegroundWindowScene.h"
 
-#import <FirebaseABTesting/FirebaseABTestingInternal.h>
+#import <FirebaseABTesting/FirebaseABTesting.h>
 
 @implementation FIRIAMDisplaySetting
 @end

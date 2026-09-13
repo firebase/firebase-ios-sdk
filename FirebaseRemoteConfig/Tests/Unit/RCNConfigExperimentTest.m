@@ -26,7 +26,7 @@
 #import "RCNConfigValue_Internal.h"
 #import "RCNTestUtilities.h"
 
-#import <FirebaseABTesting/FirebaseABTestingInternal.h>
+#import <FirebaseABTesting/FirebaseABTesting.h>
 
 #import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
 
