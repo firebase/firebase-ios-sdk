@@ -339,6 +339,7 @@ func packageTargets() -> [Target] {
       resources: [.process("Resources")],
       cSettings: [
         .headerSearchPath("../../Sources"),
+        .headerSearchPath("Utilities"),
       ]
     ),
 
@@ -607,6 +608,7 @@ func packageTargets() -> [Target] {
         .headerSearchPath("../Shared"),
         .headerSearchPath("../Protogen/nanopb"),
         .headerSearchPath("../third_party/libunwind"),
+        .headerSearchPath("Mocks"),
         .define("DISPLAY_VERSION", to: firebaseVersion),
         .define("CLS_SDK_NAME", to: "Crashlytics iOS SDK", .when(platforms: [.iOS])),
         .define(
@@ -668,6 +670,8 @@ func packageTargets() -> [Target] {
         .headerSearchPath("../Sources"),
         .headerSearchPath("../Sources/third_party/SocketRocket"),
         .headerSearchPath("../Sources/third_party/Wrap-leveldb"),
+        .headerSearchPath("Helpers"),
+        .headerSearchPath("Unit"),
         .headerSearchPath("../../SharedTestUtilities/AppCheckFake"),
       ],
       swiftSettings: [
@@ -969,6 +973,15 @@ func packageTargets() -> [Target] {
         .headerSearchPath("../../Sources"),
         .headerSearchPath("../../Sources/Protogen/nanopb"),
         .headerSearchPath("."),
+        .headerSearchPath("Configurations"),
+        .headerSearchPath("Common"),
+        .headerSearchPath("Fakes"),
+        .headerSearchPath("Gauges"),
+        .headerSearchPath("Instruments"),
+        .headerSearchPath("ISASwizzler"),
+        .headerSearchPath("Loggers"),
+        .headerSearchPath("Server"),
+        .headerSearchPath("Timer"),
         .define("PB_FIELD_32BIT", to: "1"),
         .define("PB_NO_PACKED_STRUCTS", to: "1"),
         .define("PB_ENABLE_MALLOC", to: "1"),
