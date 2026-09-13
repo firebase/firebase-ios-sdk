@@ -472,6 +472,7 @@ func packageTargets() -> [Target] {
       publicHeadersPath: "Public",
       cSettings: [
         .headerSearchPath("."),
+        .headerSearchPath("Private"),
       ]
     ),
     .testTarget(

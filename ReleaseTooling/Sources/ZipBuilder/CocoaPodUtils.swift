@@ -528,23 +528,18 @@ enum CocoaPodUtils {
       podfile += "\n"
     }
 
-    // If we're using local pods, explicitly add FirebaseInstallations,
-    // and any Google* podspecs if they exist and there are no explicit versions in the Podfile.
+    // If we're using local pods, explicitly add all local source podspecs
+    // if they exist and are not already in the Podfile.
     // Note there are versions for local podspecs if we're doing the secondary install for module
     // map building.
     if !versionsSpecified, let localURL = localPodspecPath {
       let podspecs = try! FileManager.default.contentsOfDirectory(atPath: localURL.path)
-      for podspec in podspecs {
-        if podspec == "FirebaseInstallations.podspec" ||
-          podspec == "FirebaseCore.podspec" ||
-          podspec == "FirebaseCoreExtension.podspec" ||
-          podspec == "FirebaseCoreInternal.podspec" ||
-          podspec == "FirebaseAppCheck.podspec" ||
-          podspec == "FirebaseAuth.podspec" ||
-          podspec == "FirebaseMessaging.podspec" ||
-          podspec == "FirebaseRemoteConfig.podspec" ||
-          podspec == "FirebaseABTesting.podspec" {
-          let podName = podspec.replacingOccurrences(of: ".podspec", with: "")
+      for podspec in podspecs.sorted() {
+        guard podspec.hasSuffix(".podspec") else { continue }
+        let podName = podspec.replacingOccurrences(of: ".podspec", with: "")
+        let pathURL = localURL.appendingPathComponent(podspec).path
+        if isSourcePodspec(pathURL),
+           !pods.contains(where: { $0.name == podName || $0.name.starts(with: "\(podName)/") }) {
           podfile += "  pod '\(podName)', :path => '\(localURL.path)/\(podspec)'\n"
         }
       }
