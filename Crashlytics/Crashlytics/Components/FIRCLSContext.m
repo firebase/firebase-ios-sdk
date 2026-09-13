@@ -12,26 +12,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "Crashlytics/Components/FIRCLSContext.h"
+#include "FIRCLSContext.h"
 
 #include <stdlib.h>
 #include <string.h>
 
-#import "Shared/FIRCLSConstants.h"
+#import "FIRCLSConstants.h"
 
-#import "Crashlytics/Models/FIRCLSFileManager.h"
-#import "Crashlytics/Models/FIRCLSInstallIdentifierModel.h"
-#import "Crashlytics/Models/FIRCLSInternalReport.h"
-#import "Crashlytics/Models/FIRCLSSettings.h"
+#import "FIRCLSFileManager.h"
+#import "FIRCLSInstallIdentifierModel.h"
+#import "FIRCLSInternalReport.h"
+#import "FIRCLSSettings.h"
 
-#include "Crashlytics/Components/FIRCLSApplication.h"
-#include "Crashlytics/Components/FIRCLSCrashedMarkerFile.h"
-#include "Crashlytics/Components/FIRCLSGlobals.h"
-#include "Crashlytics/Components/FIRCLSProcess.h"
-#include "Crashlytics/Helpers/FIRCLSContextInitData.h"
-#include "Crashlytics/Helpers/FIRCLSDefines.h"
-#include "Crashlytics/Helpers/FIRCLSFeatures.h"
-#include "Crashlytics/Helpers/FIRCLSUtility.h"
+#include "FIRCLSApplication.h"
+#include "FIRCLSContextInitData.h"
+#include "FIRCLSCrashedMarkerFile.h"
+#include "FIRCLSDefines.h"
+#include "FIRCLSFeatures.h"
+#include "FIRCLSGlobals.h"
+#include "FIRCLSProcess.h"
+#include "FIRCLSUtility.h"
 
 // The writable size is our handler stack plus whatever scratch we need.  We have to use this space
 // extremely carefully, however, because thread stacks always needs to be page-aligned.  Only the

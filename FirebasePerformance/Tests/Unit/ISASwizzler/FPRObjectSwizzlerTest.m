@@ -15,10 +15,10 @@
 #import <XCTest/XCTest.h>
 #import <objc/runtime.h>
 
-#import "ISASwizzler/FPRObjectSwizzler+Internal.h"
-#import "ISASwizzler/FPRSwizzledObject.h"
+#import "FPRObjectSwizzler+Internal.h"
+#import "FPRSwizzledObject.h"
 
-#import "ISASwizzler/FPRProxy.h"
+#import "FPRProxy.h"
 
 @interface FPRObjectSwizzlerTest : XCTestCase
 

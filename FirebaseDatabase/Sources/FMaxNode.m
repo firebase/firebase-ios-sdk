@@ -15,8 +15,8 @@
  */
 
 #import "FMaxNode.h"
-#import "Snapshot/FEmptyNode.h"
-#import "Utilities/FUtilities.h"
+#import "FEmptyNode.h"
+#import "FUtilities.h"
 
 @implementation FMaxNode {
 }

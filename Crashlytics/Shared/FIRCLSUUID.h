@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #import <Foundation/Foundation.h>
-#import "Shared/FIRCLSConstants.h"
+#import "FIRCLSConstants.h"
 
 /**
  * Generates and returns a UUID

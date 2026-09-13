@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "Crashlytics/Unwind/Compact/FIRCLSCompactUnwind.h"
-#include "Crashlytics/Unwind/Compact/FIRCLSCompactUnwind_Private.h"
-#include "Crashlytics/Helpers/FIRCLSDefines.h"
-#include "Crashlytics/Unwind/Dwarf/FIRCLSDwarfUnwind.h"
-#include "Crashlytics/Helpers/FIRCLSFeatures.h"
-#include "Crashlytics/Unwind/FIRCLSUnwind.h"
-#include "Crashlytics/Unwind/FIRCLSUnwind_arch.h"
-#include "Crashlytics/Helpers/FIRCLSUtility.h"
+#include "FIRCLSCompactUnwind.h"
+#include "FIRCLSCompactUnwind_Private.h"
+#include "FIRCLSDefines.h"
+#include "FIRCLSDwarfUnwind.h"
+#include "FIRCLSFeatures.h"
+#include "FIRCLSUnwind.h"
+#include "FIRCLSUnwind_arch.h"
+#include "FIRCLSUtility.h"
 
 #if CLS_CPU_ARM || CLS_CPU_ARM64
 

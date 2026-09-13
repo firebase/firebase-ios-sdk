@@ -14,9 +14,9 @@
 
 #include <stdatomic.h>
 
-#include "Crashlytics/Helpers/FIRCLSAllocate.h"
-#include "Crashlytics/Components/FIRCLSHost.h"
-#include "Crashlytics/Helpers/FIRCLSUtility.h"
+#include "FIRCLSAllocate.h"
+#include "FIRCLSHost.h"
+#include "FIRCLSUtility.h"
 
 #include <errno.h>
 #include <libkern/OSAtomic.h>

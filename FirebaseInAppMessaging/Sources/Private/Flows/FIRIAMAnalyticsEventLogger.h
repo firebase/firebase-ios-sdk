@@ -15,8 +15,8 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "Private/Analytics/FIRIAMClientInfoFetcher.h"
-#import "Private/Util/FIRIAMTimeFetcher.h"
+#import "FIRIAMClientInfoFetcher.h"
+#import "FIRIAMTimeFetcher.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

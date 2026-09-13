@@ -14,7 +14,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import "Gauges/Memory/FPRMemoryGaugeData.h"
+#import "FPRMemoryGaugeData.h"
 
 @interface FPRMemoryGaugeDataTests : XCTestCase
 

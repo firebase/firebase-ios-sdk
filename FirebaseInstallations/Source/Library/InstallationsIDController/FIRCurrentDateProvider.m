@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "InstallationsIDController/FIRCurrentDateProvider.h"
+#import "FIRCurrentDateProvider.h"
 
 FIRCurrentDateProvider FIRRealCurrentDateProvider(void) {
   return ^NSDate *(void) {

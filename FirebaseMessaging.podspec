@@ -39,7 +39,6 @@ device, and it is completely free.
   s.source_files = [
     base_dir + 'Sources/**/*.{c,m,h}',
     base_dir + 'Sources/Protogen/nanopb/*.h',
-    base_dir + 'Interop/*.h',
     'FirebaseInstallations/Source/Library/Private/*.h',
   ]
   s.public_header_files = base_dir + 'Sources/Public/FirebaseMessaging/*.h'
@@ -62,6 +61,7 @@ device, and it is completely free.
   s.dependency 'FirebaseCore', '~> 12.19.0'
   s.dependency 'FirebaseCoreExtension', '~> 12.19.0'
   s.dependency 'FirebaseAnalyticsInterop', '~> 12.19.0'
+  s.dependency 'FirebaseMessagingInterop', '~> 12.19.0'
   s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 8.1'
   s.dependency 'GoogleUtilities/Reachability', '~> 8.1'
   s.dependency 'GoogleUtilities/Environment', '~> 8.1'

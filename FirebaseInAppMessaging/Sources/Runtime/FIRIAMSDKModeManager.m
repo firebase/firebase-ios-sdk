@@ -22,7 +22,7 @@
 #import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
 #import "FIRCore+InAppMessaging.h"
-#import "Private/Runtime/FIRIAMSDKModeManager.h"
+#import "FIRIAMSDKModeManager.h"
 
 NSString *FIRIAMDescriptionStringForSDKMode(FIRIAMSDKMode mode) {
   switch (mode) {

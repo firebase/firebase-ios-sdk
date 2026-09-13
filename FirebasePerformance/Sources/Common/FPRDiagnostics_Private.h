@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "Common/FPRDiagnostics.h"
-#import "Configurations/FPRConfigurations.h"
+#import "FPRConfigurations.h"
+#import "FPRDiagnostics.h"
 
 /**
  * Extension that is added on top of the class FPRDiagnostics to make the private properties

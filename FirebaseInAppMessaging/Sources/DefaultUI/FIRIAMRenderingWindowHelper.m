@@ -17,9 +17,9 @@
 #import <TargetConditionals.h>
 #if TARGET_OS_IOS
 
-#import "DefaultUI/Banner/FIRIAMBannerViewUIWindow.h"
-#import "DefaultUI/FIRIAMRenderingWindowHelper.h"
-#import "Private/Util/UIApplication+FIRForegroundWindowScene.h"
+#import "FIRIAMBannerViewUIWindow.h"
+#import "FIRIAMRenderingWindowHelper.h"
+#import "UIApplication+FIRForegroundWindowScene.h"
 
 @implementation FIRIAMRenderingWindowHelper
 

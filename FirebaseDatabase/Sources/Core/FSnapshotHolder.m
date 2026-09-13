@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import "Core/FSnapshotHolder.h"
-#import "Snapshot/FEmptyNode.h"
+#import "FSnapshotHolder.h"
+#import "FEmptyNode.h"
 
 @interface FSnapshotHolder ()
 

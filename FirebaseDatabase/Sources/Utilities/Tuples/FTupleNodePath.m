@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "Utilities/Tuples/FTupleNodePath.h"
+#import "FTupleNodePath.h"
 
 @implementation FTupleNodePath
 

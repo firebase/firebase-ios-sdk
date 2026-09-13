@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "Token/FIRMessagingAPNSInfo.h"
+#import "FIRMessagingAPNSInfo.h"
 
 #import "FIRMessagingConstants.h"
 

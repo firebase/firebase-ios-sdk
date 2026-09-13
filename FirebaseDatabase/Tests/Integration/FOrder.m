@@ -16,11 +16,11 @@
 
 #import "FOrder.h"
 #import <FirebaseDatabase/FIRDatabaseReference.h>
-#import "Api/Private/FTypedefs_Private.h"
 #import "FEventTester.h"
 #import "FTestHelpers.h"
 #import "FTupleEventTypeString.h"
-#import "Utilities/Tuples/FTupleFirebase.h"
+#import "FTupleFirebase.h"
+#import "FTypedefs_Private.h"
 
 @implementation FOrder
 

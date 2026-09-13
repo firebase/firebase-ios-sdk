@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "Utilities/Tuples/FTupleRemovedQueriesEvents.h"
+#import "FTupleRemovedQueriesEvents.h"
 
 @interface FTupleRemovedQueriesEvents ()
 @property(nonatomic, strong, readwrite) NSArray *removedQueries;

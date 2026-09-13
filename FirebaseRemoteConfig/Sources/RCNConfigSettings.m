@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#import "FirebaseRemoteConfig/RCNConfigSettings.h"
+#import "RCNConfigSettings.h"
 
-#import "FirebaseRemoteConfig/RCNConfigValue_Internal.h"
 #import "RCNConfigConstants.h"
 #import "RCNConfigDBManager.h"
+#import "RCNConfigValue_Internal.h"
 #import "RCNDevice.h"
 #import "RCNUserDefaultsManager.h"
 

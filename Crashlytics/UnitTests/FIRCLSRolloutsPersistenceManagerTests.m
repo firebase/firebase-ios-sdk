@@ -15,10 +15,10 @@
 #import <Foundation/Foundation.h>
 #import <XCTest/XCTest.h>
 
-#import "Crashlytics/Components/FIRCLSContext.h"
-#include "Crashlytics/Components/FIRCLSGlobals.h"
-#import "Crashlytics/Controllers/FIRCLSRolloutsPersistenceManager.h"
-#import "Crashlytics/Models/FIRCLSInternalReport.h"
+#import "FIRCLSContext.h"
+#include "FIRCLSGlobals.h"
+#import "FIRCLSInternalReport.h"
+#import "FIRCLSRolloutsPersistenceManager.h"
 #import "FIRCLSTempMockFileManager.h"
 #if SWIFT_PACKAGE
 @import FirebaseCrashlyticsSwift;

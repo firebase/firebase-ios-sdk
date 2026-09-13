@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-#import "Snapshot/FSnapshotUtilities.h"
-#import "Constants/FConstants.h"
+#import "FSnapshotUtilities.h"
+#import "FChildrenNode.h"
+#import "FCompoundWrite.h"
+#import "FConstants.h"
+#import "FEmptyNode.h"
 #import "FLLRBValueNode.h"
+#import "FLeafNode.h"
 #import "FMaxNode.h"
 #import "FNamedNode.h"
-#import "Snapshot/FChildrenNode.h"
-#import "Snapshot/FCompoundWrite.h"
-#import "Snapshot/FEmptyNode.h"
-#import "Snapshot/FLeafNode.h"
-#import "Utilities/FUtilities.h"
-#import "Utilities/FValidation.h"
+#import "FUtilities.h"
+#import "FValidation.h"
 
 @implementation FSnapshotUtilities
 

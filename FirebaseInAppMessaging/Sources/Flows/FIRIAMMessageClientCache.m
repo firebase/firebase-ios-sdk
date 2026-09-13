@@ -20,11 +20,11 @@
 #import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
 #import "FIRCore+InAppMessaging.h"
-#import "Private/Data/FIRIAMFetchResponseParser.h"
-#import "Private/DisplayTrigger/FIRIAMDisplayTriggerDefinition.h"
-#import "Private/Flows/FIRIAMDisplayCheckOnAnalyticEventsFlow.h"
-#import "Private/Flows/FIRIAMMessageClientCache.h"
-#import "Private/Flows/FIRIAMServerMsgFetchStorage.h"
+#import "FIRIAMDisplayCheckOnAnalyticEventsFlow.h"
+#import "FIRIAMDisplayTriggerDefinition.h"
+#import "FIRIAMFetchResponseParser.h"
+#import "FIRIAMMessageClientCache.h"
+#import "FIRIAMServerMsgFetchStorage.h"
 
 @interface FIRIAMMessageClientCache ()
 

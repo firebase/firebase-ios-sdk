@@ -19,12 +19,12 @@
 #import <FirebaseAuthInterop/FIRAuthInterop.h>
 #import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
-#import "Api/Private/FIRDatabase_Private.h"
-#import "Constants/FConstants.h"
+#import "FConstants.h"
 #import "FIRDatabaseConfig_Private.h"
+#import "FIRDatabase_Private.h"
 
-#import <AppCheckFake/FIRAppCheckFake.h>
-#import <AppCheckFake/FIRAppCheckTokenResultFake.h>
+#import "FIRAppCheckFake.h"
+#import "FIRAppCheckTokenResultFake.h"
 #import "FIRAuthInteropFake.h"
 
 @implementation FTestHelpers

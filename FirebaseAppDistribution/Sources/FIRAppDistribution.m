@@ -18,12 +18,12 @@
 #import <GoogleUtilities/GULAppDelegateSwizzler.h>
 #import <GoogleUtilities/GULUserDefaults.h>
 
+#import "FIRAppDistribution.h"
 #import "FIRAppDistributionMachO.h"
+#import "FIRAppDistributionRelease.h"
 #import "FIRAppDistributionUIService.h"
 #import "FIRFADApiService.h"
 #import "FIRFADLogger.h"
-#import "FirebaseAppDistribution/FIRAppDistribution.h"
-#import "FirebaseAppDistribution/FIRAppDistributionRelease.h"
 
 /// Empty protocol to register with FirebaseCore's component system.
 @protocol FIRAppDistributionInstanceProvider <NSObject>

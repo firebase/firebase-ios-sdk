@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "Persistence/FPruneForest.h"
+#import "FPruneForest.h"
 
-#import "Core/Utilities/FImmutableTree.h"
+#import "FImmutableTree.h"
 
 @interface FPruneForest ()
 

@@ -18,25 +18,25 @@
 
 #import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
-#import "Api/Private/FIRDataSnapshot_Private.h"
-#import "Api/Private/FIRDatabaseQuery_Private.h"
-#import "Core/FListenProvider.h"
-#import "Core/FQueryParams.h"
-#import "Core/FQuerySpec.h"
-#import "Core/FSyncTree.h"
-#import "Core/View/FCancelEvent.h"
-#import "Core/View/FChange.h"
-#import "Core/View/FDataEvent.h"
-#import "Core/View/FEventRegistration.h"
+#import "FCancelEvent.h"
+#import "FChange.h"
+#import "FCompoundWrite.h"
+#import "FDataEvent.h"
+#import "FEmptyNode.h"
+#import "FEventRegistration.h"
+#import "FIRDataSnapshot_Private.h"
 #import "FIRDatabaseConfig_Private.h"
+#import "FIRDatabaseQuery_Private.h"
 #import "FKeyIndex.h"
+#import "FListenProvider.h"
 #import "FPathIndex.h"
 #import "FPriorityIndex.h"
+#import "FQueryParams.h"
+#import "FQuerySpec.h"
+#import "FSnapshotUtilities.h"
 #import "FSyncPointTests.h"
+#import "FSyncTree.h"
 #import "FTestClock.h"
-#import "Snapshot/FCompoundWrite.h"
-#import "Snapshot/FEmptyNode.h"
-#import "Snapshot/FSnapshotUtilities.h"
 
 typedef NSDictionary * (^fbt_nsdictionary_void)(void);
 

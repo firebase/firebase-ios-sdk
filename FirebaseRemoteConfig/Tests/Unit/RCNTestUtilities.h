@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FirebaseRemoteConfig/RCNConfigSettings.h"
+#import "RCNConfigSettings.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

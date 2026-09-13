@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-#import "Core/FWriteTree.h"
-#import "Core/FWriteRecord.h"
-#import "Core/FWriteTreeRef.h"
-#import "Core/Utilities/FImmutableTree.h"
-#import "Core/Utilities/FPath.h"
-#import "Core/View/FCacheNode.h"
+#import "FWriteTree.h"
+#import "FCacheNode.h"
+#import "FChildrenNode.h"
+#import "FCompoundWrite.h"
+#import "FEmptyNode.h"
+#import "FImmutableTree.h"
 #import "FIndex.h"
 #import "FNamedNode.h"
-#import "Snapshot/FChildrenNode.h"
-#import "Snapshot/FCompoundWrite.h"
-#import "Snapshot/FEmptyNode.h"
-#import "Snapshot/FNode.h"
+#import "FNode.h"
+#import "FPath.h"
+#import "FWriteRecord.h"
+#import "FWriteTreeRef.h"
 
 @interface FWriteTree ()
 /**

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "Core/Utilities/FTreeNode.h"
+#import "FTreeNode.h"
 
 @implementation FTreeNode
 

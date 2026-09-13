@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#import "Core/View/FCacheNode.h"
-#import "Core/Utilities/FPath.h"
-#import "Snapshot/FEmptyNode.h"
-#import "Snapshot/FIndexedNode.h"
-#import "Snapshot/FNode.h"
+#import "FCacheNode.h"
+#import "FEmptyNode.h"
+#import "FIndexedNode.h"
+#import "FNode.h"
+#import "FPath.h"
 
 @interface FCacheNode ()
 @property(nonatomic, readwrite) BOOL isFullyInitialized;

@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "Persistence/FTrackedQuery.h"
+#import "FTrackedQuery.h"
 
-#import "Core/FQuerySpec.h"
+#import "FQuerySpec.h"
 
 @interface FTrackedQuery ()
 

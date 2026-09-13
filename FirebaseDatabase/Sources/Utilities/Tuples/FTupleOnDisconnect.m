@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "Utilities/Tuples/FTupleOnDisconnect.h"
+#import "FTupleOnDisconnect.h"
 
 @implementation FTupleOnDisconnect
 

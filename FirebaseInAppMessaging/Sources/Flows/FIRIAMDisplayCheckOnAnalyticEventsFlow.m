@@ -22,9 +22,9 @@
 #import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
 #import "FIRCore+InAppMessaging.h"
+#import "FIRIAMDisplayCheckOnAnalyticEventsFlow.h"
+#import "FIRIAMDisplayExecutor.h"
 #import "FIRInAppMessagingPrivate.h"
-#import "Private/Flows/FIRIAMDisplayCheckOnAnalyticEventsFlow.h"
-#import "Private/Flows/FIRIAMDisplayExecutor.h"
 
 @interface FIRIAMDisplayCheckOnAnalyticEventsFlow () <FIRAnalyticsInteropListener>
 @end

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "Shared/FIRCLSConstants.h"
+#import "FIRCLSConstants.h"
 #import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
 #define STR_HELPER(x) #x

@@ -17,7 +17,7 @@
 #import <nanopb/pb_encode.h>
 
 #import "FPRConsoleLogger.h"
-#import "Loggers/FPRGDTEvent.h"
+#import "FPRGDTEvent.h"
 
 #import "perf_metric.nanopb.h"
 

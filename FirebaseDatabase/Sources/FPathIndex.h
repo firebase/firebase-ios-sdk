@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import "Core/Utilities/FPath.h"
 #import "FIndex.h"
+#import "FPath.h"
 #import <Foundation/Foundation.h>
 
 @interface FPathIndex : NSObject <FIndex>

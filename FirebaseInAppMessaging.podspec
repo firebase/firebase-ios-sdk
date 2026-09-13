@@ -39,8 +39,6 @@ See more product details at https://firebase.google.com/products/in-app-messagin
 	  base_dir + "Sources/Runtime/**/*.[cmh]",
 	  base_dir + "Sources/Util/**/*.[cmh]",
     base_dir + "Swift/Source/**/*.swift",
-    'FirebaseABTesting/Sources/Private/*.h',
-    'FirebaseInstallations/Source/Library/Private/*.h',
   ]
 
   s.tvos.source_files = [
@@ -55,8 +53,6 @@ See more product details at https://firebase.google.com/products/in-app-messagin
 	  base_dir + "Sources/Runtime/**/*.[cmh]",
 	  base_dir + "Sources/Util/**/*.[cmh]",
     base_dir + "Swift/Source/**/*.swift",
-    'FirebaseABTesting/Sources/Private/*.h',
-    'FirebaseInstallations/Source/Library/Private/*.h',
   ]
 
   s.public_header_files = base_dir + 'Sources/Public/FirebaseInAppMessaging/*.h'

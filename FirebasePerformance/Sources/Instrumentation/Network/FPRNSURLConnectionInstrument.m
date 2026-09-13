@@ -12,20 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "Instrumentation/Network/FPRNSURLConnectionInstrument.h"
-#import "Instrumentation/Network/FPRNSURLConnectionInstrument_Private.h"
+#import "FPRNSURLConnectionInstrument.h"
+#import "FPRNSURLConnectionInstrument_Private.h"
 
-#import "Common/FPRDiagnostics.h"
-#import "ISASwizzler/FPRObjectSwizzler.h"
-#import "Instrumentation/FPRClassInstrumentor.h"
-#import "Instrumentation/FPRInstrument_Private.h"
-#import "Instrumentation/FPRNetworkTrace.h"
-#import "Instrumentation/FPRObjectInstrumentor.h"
-#import "Instrumentation/FPRSelectorInstrumentor.h"
-#import "Instrumentation/Network/Delegates/FPRNSURLConnectionDelegate.h"
-#import "Instrumentation/Network/FPRNetworkInstrumentHelpers.h"
+#import "FPRClassInstrumentor.h"
+#import "FPRDiagnostics.h"
+#import "FPRInstrument_Private.h"
+#import "FPRNSURLConnectionDelegate.h"
+#import "FPRNetworkInstrumentHelpers.h"
+#import "FPRNetworkTrace.h"
+#import "FPRObjectInstrumentor.h"
+#import "FPRObjectSwizzler.h"
+#import "FPRSelectorInstrumentor.h"
 
-#import "Configurations/FPRConfigurations.h"
+#import "FPRConfigurations.h"
 
 static NSString *const kFPRDelegateKey = @"kFPRDelegateKey";
 

@@ -18,10 +18,10 @@
 #import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 #import <FirebaseDatabase/FIRServerValue.h>
 #import <limits.h>
-#import "Api/Private/FIRDatabaseQuery_Private.h"
-#import "Core/FRepo_Private.h"
 #import "FEventTester.h"
 #import "FIRDatabaseConfig_Private.h"
+#import "FIRDatabaseQuery_Private.h"
+#import "FRepo_Private.h"
 #import "FTestHelpers.h"
 #import "FTupleEventTypeString.h"
 

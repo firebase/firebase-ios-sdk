@@ -17,7 +17,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FirebaseCrashlytics/FIRExceptionModel.h"
+#import "FIRExceptionModel.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

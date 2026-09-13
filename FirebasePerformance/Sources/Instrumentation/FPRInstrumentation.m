@@ -12,15 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "Instrumentation/FPRInstrumentation.h"
+#import "FPRInstrumentation.h"
 
-#import "Common/FPRDiagnostics.h"
-#import "Instrumentation/FPRInstrument.h"
-#import "Instrumentation/Network/FPRNSURLConnectionInstrument.h"
-#import "Instrumentation/Network/FPRNSURLSessionInstrument.h"
-#import "Instrumentation/UIKit/FPRUIViewControllerInstrument.h"
+#import "FPRDiagnostics.h"
+#import "FPRInstrument.h"
+#import "FPRNSURLConnectionInstrument.h"
+#import "FPRNSURLSessionInstrument.h"
+#import "FPRUIViewControllerInstrument.h"
 
-#import "Configurations/FPRConfigurations.h"
+#import "FPRConfigurations.h"
 
 // The instrumentation group keys.
 NSString *const kFPRInstrumentationGroupNetworkKey = @"network";

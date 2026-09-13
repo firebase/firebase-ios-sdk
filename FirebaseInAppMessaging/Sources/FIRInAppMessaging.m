@@ -17,7 +17,7 @@
 #import <TargetConditionals.h>
 #if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
 
-#import "FirebaseInAppMessaging/FIRInAppMessaging.h"
+#import "FIRInAppMessaging.h"
 
 #import <Foundation/Foundation.h>
 
@@ -26,10 +26,10 @@
 #import <FirebaseInstallations/FirebaseInstallations.h>
 
 #import "FIRCore+InAppMessaging.h"
+#import "FIRIAMDisplayExecutor.h"
+#import "FIRIAMRuntimeManager.h"
+#import "FIRInAppMessaging+Bootstrap.h"
 #import "FIRInAppMessagingPrivate.h"
-#import "Private/Flows/FIRIAMDisplayExecutor.h"
-#import "Private/Runtime/FIRIAMRuntimeManager.h"
-#import "Private/Runtime/FIRInAppMessaging+Bootstrap.h"
 
 static BOOL _autoBootstrapOnFIRAppInit = YES;
 

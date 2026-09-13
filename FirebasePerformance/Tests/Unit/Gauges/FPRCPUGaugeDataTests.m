@@ -14,7 +14,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import "Gauges/CPU/FPRCPUGaugeData.h"
+#import "FPRCPUGaugeData.h"
 
 @interface FPRCPUGaugeDataTests : XCTestCase
 

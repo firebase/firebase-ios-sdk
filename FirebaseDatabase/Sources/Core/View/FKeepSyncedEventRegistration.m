@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "Core/View/FKeepSyncedEventRegistration.h"
+#import "FKeepSyncedEventRegistration.h"
 
 @interface FKeepSyncedEventRegistration ()
 

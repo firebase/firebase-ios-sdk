@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "InstallationsIDController/FIRInstallationsBackoffController.h"
+#import "FIRInstallationsBackoffController.h"
 
 static const NSTimeInterval k24Hours = 24 * 60 * 60;
 static const NSTimeInterval k30Minutes = 30 * 60;

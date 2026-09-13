@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "Crashlytics/Controllers/FIRCLSNotificationManager.h"
+#import "FIRCLSNotificationManager.h"
 
-#import "Crashlytics/Components/FIRCLSApplication.h"
-#import "Crashlytics/Components/FIRCLSGlobals.h"
-#import "Crashlytics/Components/FIRCLSUserLogging.h"
-#include "Crashlytics/Helpers/FIRCLSDefines.h"
+#import "FIRCLSApplication.h"
+#include "FIRCLSDefines.h"
+#import "FIRCLSGlobals.h"
+#import "FIRCLSUserLogging.h"
 
 #if TARGET_OS_IPHONE
 #import <UIKit/UIKit.h>

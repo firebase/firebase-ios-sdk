@@ -17,7 +17,7 @@
 #import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
 #import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 #import "ABTConstants.h"
-#import "FirebaseABTesting/FIRLifecycleEvents.h"
+#import "FIRLifecycleEvents.h"
 
 @implementation ABTConditionalUserPropertyController {
   dispatch_queue_t _analyticOperationQueue;

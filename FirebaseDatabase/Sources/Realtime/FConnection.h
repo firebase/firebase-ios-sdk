@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import "Realtime/FWebSocketConnection.h"
-#import "Utilities/FTypedefs.h"
+#import "FTypedefs.h"
+#import "FWebSocketConnection.h"
 #import <Foundation/Foundation.h>
 
 @protocol FConnectionDelegate;

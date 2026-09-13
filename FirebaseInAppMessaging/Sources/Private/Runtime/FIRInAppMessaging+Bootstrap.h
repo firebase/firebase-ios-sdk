@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import "FirebaseInAppMessaging/FIRInAppMessaging.h"
-#import "Private/Runtime/FIRIAMSDKSettings.h"
+#import "FIRIAMSDKSettings.h"
+#import "FIRInAppMessaging.h"
 
 /**
  *  This category extends FIRInAppMessaging with the configurations from FIRApp

@@ -16,7 +16,7 @@
 
 #import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
-#import "Api/Private/FIRDatabaseQuery_Private.h"
+#import "FIRDatabaseQuery_Private.h"
 #import "FIROptionsMock.h"
 #import "FTestBase.h"
 

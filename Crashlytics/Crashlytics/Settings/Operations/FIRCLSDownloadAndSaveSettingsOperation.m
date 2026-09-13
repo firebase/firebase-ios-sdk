@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "Crashlytics/Settings/Operations/FIRCLSDownloadAndSaveSettingsOperation.h"
+#import "FIRCLSDownloadAndSaveSettingsOperation.h"
 
-#import "Crashlytics/Helpers/FIRCLSLogger.h"
-#import "Crashlytics/Models/FIRCLSInstallIdentifierModel.h"
-#import "Shared/FIRCLSConstants.h"
-#import "Shared/FIRCLSFABHost.h"
-#import "Shared/FIRCLSNetworking/FIRCLSFABNetworkClient.h"
+#import "FIRCLSConstants.h"
+#import "FIRCLSFABHost.h"
+#import "FIRCLSFABNetworkClient.h"
+#import "FIRCLSInstallIdentifierModel.h"
+#import "FIRCLSLogger.h"
 
 @interface FIRCLSDownloadAndSaveSettingsOperation ()
 

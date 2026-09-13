@@ -21,8 +21,8 @@
 
 #import "FIRCore+InAppMessaging.h"
 
-#import "Flows/FIRIAMDisplayCheckOnFetchDoneNotificationFlow.h"
-#import "Private/Flows/FIRIAMDisplayExecutor.h"
+#import "FIRIAMDisplayCheckOnFetchDoneNotificationFlow.h"
+#import "FIRIAMDisplayExecutor.h"
 
 extern NSString *const kFIRIAMFetchIsDoneNotification;
 

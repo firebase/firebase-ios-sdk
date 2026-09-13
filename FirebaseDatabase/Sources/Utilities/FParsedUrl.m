@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "Utilities/FParsedUrl.h"
+#import "FParsedUrl.h"
 
 @implementation FParsedUrl
 

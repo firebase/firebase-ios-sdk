@@ -17,7 +17,7 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
-#import "Util/FIRIAMElapsedTimeTracker.h"
+#import "FIRIAMElapsedTimeTracker.h"
 
 @interface FIRIAMElapsedTimeTrackerTests : XCTestCase
 @property id<FIRIAMTimeFetcher> mockTimeFetcher;

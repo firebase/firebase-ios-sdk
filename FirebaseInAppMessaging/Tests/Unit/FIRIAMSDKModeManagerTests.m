@@ -18,7 +18,7 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
-#import "Private/Runtime/FIRIAMSDKModeManager.h"
+#import "FIRIAMSDKModeManager.h"
 
 @interface FIRIAMSDKModeManagerTests : XCTestCase
 @property(nonatomic) GULUserDefaults *mockUserDefaults;

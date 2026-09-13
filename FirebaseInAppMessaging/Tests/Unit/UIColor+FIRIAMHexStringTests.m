@@ -16,7 +16,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import "Util/UIColor+FIRIAMHexString.h"
+#import "UIColor+FIRIAMHexString.h"
 
 @interface UIColor_FIRIAMHexStringTests : XCTestCase
 

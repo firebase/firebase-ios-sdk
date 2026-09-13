@@ -16,7 +16,7 @@
 
 #import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 #import "FIRCore+InAppMessaging.h"
-#import "FirebaseInAppMessaging/FIRInAppMessaging.h"
+#import "FIRInAppMessaging.h"
 
 @class FIRInstallations;
 

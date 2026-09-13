@@ -17,8 +17,8 @@
 #import <TargetConditionals.h>
 #if TARGET_OS_IOS
 
-#import "DefaultUI/Card/FIRIAMCardViewController.h"
-#import "DefaultUI/FIRCore+InAppMessagingDisplay.h"
+#import "FIRCore+InAppMessagingDisplay.h"
+#import "FIRIAMCardViewController.h"
 
 @interface FIRIAMCardViewController ()
 

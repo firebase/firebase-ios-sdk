@@ -16,8 +16,8 @@
 
 #import <XCTest/XCTest.h>
 
-#import "Core/FRepoInfo.h"
-#import "Realtime/FWebSocketConnection.h"
+#import "FRepoInfo.h"
+#import "FWebSocketConnection.h"
 
 #if !TARGET_OS_WATCH
 

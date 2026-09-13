@@ -12,18 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "Crashlytics/Helpers/FIRCLSUtility.h"
+#include "FIRCLSUtility.h"
 
 #include <mach/mach.h>
 
 #include <dlfcn.h>
 
-#include "Crashlytics/Components/FIRCLSGlobals.h"
-#include "Crashlytics/Helpers/FIRCLSFeatures.h"
-#include "Crashlytics/Helpers/FIRCLSFile.h"
+#include "FIRCLSFeatures.h"
+#include "FIRCLSFile.h"
+#include "FIRCLSGlobals.h"
 
-#import "Shared/FIRCLSByteUtility.h"
-#import "Shared/FIRCLSUUID.h"
+#import "FIRCLSByteUtility.h"
+#import "FIRCLSUUID.h"
 
 #import <CommonCrypto/CommonHMAC.h>
 

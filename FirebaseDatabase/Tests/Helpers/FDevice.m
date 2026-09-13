@@ -19,9 +19,9 @@
 
 #import <FirebaseDatabase/FIRDatabaseReference.h>
 
-#import "Api/Private/FIRDatabaseReference_Private.h"
-#import "Core/FRepoManager.h"
 #import "FIRDatabaseConfig_Private.h"
+#import "FIRDatabaseReference_Private.h"
+#import "FRepoManager.h"
 #import "FTestHelpers.h"
 #import "SenTest+FWaiter.h"
 

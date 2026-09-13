@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "Core/FRangeMerge.h"
+#import "FRangeMerge.h"
 
-#import "Snapshot/FEmptyNode.h"
+#import "FEmptyNode.h"
 
 @interface FRangeMerge ()
 

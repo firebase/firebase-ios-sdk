@@ -15,8 +15,8 @@
 #import <XCTest/XCTest.h>
 
 #import <FirebasePerformance/FIRPerformance.h>
-#import "AppActivity/FPRAppActivityTracker.h"
-#import "Configurations/FPRConfigurations.h"
+#import "FPRAppActivityTracker.h"
+#import "FPRConfigurations.h"
 
 #import "FPRTestCase.h"
 

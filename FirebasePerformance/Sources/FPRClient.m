@@ -16,22 +16,22 @@
 #import "FPRClient+Private.h"
 
 #import <FirebaseInstallations/FirebaseInstallations.h>
-#import "AppActivity/FPRScreenTraceTracker+Private.h"
-#import "AppActivity/FPRScreenTraceTracker.h"
-#import "AppActivity/FPRSessionManager+Private.h"
-#import "AppActivity/FPRTraceBackgroundActivityTracker.h"
-#import "Common/FPRConsoleURLGenerator.h"
-#import "Common/FPRConstants.h"
-#import "Configurations/FPRConfigurations.h"
-#import "Configurations/FPRRemoteConfigFlags.h"
+#import "FIRTrace+Internal.h"
+#import "FIRTrace+Private.h"
+#import "FPRConfigurations.h"
 #import "FPRConsoleLogger.h"
+#import "FPRConsoleURLGenerator.h"
+#import "FPRConstants.h"
+#import "FPRGDTLogger.h"
+#import "FPRInstrumentation.h"
 #import "FPRNanoPbUtils.h"
-#import "Instrumentation/FPRInstrumentation.h"
-#import "Loggers/FPRGDTLogger.h"
-#import "Timer/FIRTrace+Internal.h"
-#import "Timer/FIRTrace+Private.h"
+#import "FPRRemoteConfigFlags.h"
+#import "FPRScreenTraceTracker+Private.h"
+#import "FPRScreenTraceTracker.h"
+#import "FPRSessionManager+Private.h"
+#import "FPRTraceBackgroundActivityTracker.h"
 
-#import "FirebasePerformance/FIRPerformance.h"
+#import "FIRPerformance.h"
 
 #import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 

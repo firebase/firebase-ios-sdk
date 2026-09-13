@@ -14,4 +14,4 @@
  * limitations under the License.
  */
 
-#import "DefaultUI/FIRIAMDefaultDisplayImpl.h"
+#import "FIRIAMDefaultDisplayImpl.h"

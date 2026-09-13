@@ -14,7 +14,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "AppActivity/FPRAppActivityTracker.h"
+#import "FPRAppActivityTracker.h"
 
 @protocol FPRGaugeCollector <NSObject>
 

@@ -14,7 +14,7 @@
 
 #pragma once
 
-#include "Crashlytics/Unwind/Compact/FIRCLSCompactUnwind.h"
+#include "FIRCLSCompactUnwind.h"
 #pragma pack(push, 1)
 #include <mach-o/compact_unwind_encoding.h>
 #pragma pack(pop)

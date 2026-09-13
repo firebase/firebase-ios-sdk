@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "Crashlytics/Handlers/FIRCLSSignal.h"
-#include "Crashlytics/Components/FIRCLSGlobals.h"
-#include "Crashlytics/Handlers/FIRCLSHandler.h"
-#include "Crashlytics/Helpers/FIRCLSUtility.h"
+#include "FIRCLSSignal.h"
+#include "FIRCLSGlobals.h"
+#include "FIRCLSHandler.h"
+#include "FIRCLSUtility.h"
 
 #include <dlfcn.h>
 #include <stdlib.h>

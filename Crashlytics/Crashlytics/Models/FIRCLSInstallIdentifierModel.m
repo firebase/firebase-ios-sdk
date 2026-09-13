@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "Crashlytics/Models/FIRCLSInstallIdentifierModel.h"
+#import "FIRCLSInstallIdentifierModel.h"
 
 #import <FirebaseInstallations/FirebaseInstallations.h>
 
-#import "Crashlytics/FIRCLSUserDefaults/FIRCLSUserDefaults.h"
-#import "Crashlytics/Helpers/FIRCLSLogger.h"
-#import "Shared/FIRCLSByteUtility.h"
-#import "Shared/FIRCLSUUID.h"
+#import "FIRCLSByteUtility.h"
+#import "FIRCLSLogger.h"
+#import "FIRCLSUUID.h"
+#import "FIRCLSUserDefaults.h"
 
 static NSString *const FIRCLSInstallationUUIDKey = @"com.crashlytics.iuuid";
 static NSString *const FIRCLSInstallationIIDHashKey = @"com.crashlytics.install.iid";

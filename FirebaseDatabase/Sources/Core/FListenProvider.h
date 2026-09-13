@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "Api/Private/FTypedefs_Private.h"
+#import "FTypedefs_Private.h"
 
 @class FQuerySpec;
 @protocol FSyncTreeHash;

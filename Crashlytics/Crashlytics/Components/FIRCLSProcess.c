@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "Crashlytics/Components/FIRCLSProcess.h"
-#include "Crashlytics/Helpers/FIRCLSDefines.h"
-#include "Crashlytics/Helpers/FIRCLSFeatures.h"
-#include "Crashlytics/Components/FIRCLSGlobals.h"
-#include "Crashlytics/Helpers/FIRCLSThreadState.h"
-#include "Crashlytics/Unwind/FIRCLSUnwind.h"
-#include "Crashlytics/Helpers/FIRCLSUtility.h"
+#include "FIRCLSProcess.h"
+#include "FIRCLSDefines.h"
+#include "FIRCLSFeatures.h"
+#include "FIRCLSGlobals.h"
+#include "FIRCLSThreadState.h"
+#include "FIRCLSUnwind.h"
+#include "FIRCLSUtility.h"
 
 #include <dispatch/dispatch.h>
 #include <objc/message.h>

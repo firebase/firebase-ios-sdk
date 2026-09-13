@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "Private/Flows/FIRIAMDisplayCheckTriggerFlow.h"
+#import "FIRIAMDisplayCheckTriggerFlow.h"
 
 @interface FIRIAMDisplayCheckOnFetchDoneNotificationFlow : FIRIAMDisplayCheckTriggerFlow
 - (void)start;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/FIRServerValue.h"
+#import "FIRServerValue.h"
 
 @implementation FIRServerValue
 

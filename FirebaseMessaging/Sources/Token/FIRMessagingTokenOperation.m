@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-#import "Token/FIRMessagingTokenOperation.h"
+#import "FIRMessagingTokenOperation.h"
 
 #import <FirebaseCoreExtension/FIRHeartbeatLogger.h>
 #import <FirebaseInstallations/FirebaseInstallations.h>
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
+#import "FIRMessagingCheckinPreferences.h"
 #import "FIRMessagingLogger.h"
 #import "FIRMessagingUtilities.h"
 #import "FIRMessaging_Private.h"
 #import "NSError+FIRMessaging.h"
-#import "Token/FIRMessagingCheckinPreferences.h"
 
 static const NSInteger kFIRMessagingPlatformVersionIOS = 2;
 

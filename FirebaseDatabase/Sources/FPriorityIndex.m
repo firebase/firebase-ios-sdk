@@ -16,12 +16,12 @@
 
 #import "FPriorityIndex.h"
 
+#import "FEmptyNode.h"
+#import "FLeafNode.h"
 #import "FMaxNode.h"
 #import "FNamedNode.h"
-#import "Snapshot/FEmptyNode.h"
-#import "Snapshot/FLeafNode.h"
-#import "Snapshot/FNode.h"
-#import "Utilities/FUtilities.h"
+#import "FNode.h"
+#import "FUtilities.h"
 
 // TODO: Abstract into some common base class?
 

@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import "Core/FSparseSnapshotTree.h"
-#import "Snapshot/FChildrenNode.h"
+#import "FSparseSnapshotTree.h"
+#import "FChildrenNode.h"
 
 @interface FSparseSnapshotTree () {
     id<FNode> value;

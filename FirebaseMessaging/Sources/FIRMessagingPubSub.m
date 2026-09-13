@@ -21,13 +21,13 @@
 #import "FIRMessagingDefines.h"
 #import "FIRMessagingLogger.h"
 #import "FIRMessagingPendingTopicsList.h"
+#import "FIRMessagingTokenManager.h"
 #import "FIRMessagingTopicOperation.h"
 #import "FIRMessagingTopicsCommon.h"
 #import "FIRMessagingUtilities.h"
 #import "FIRMessaging_Private.h"
 #import "NSDictionary+FIRMessaging.h"
 #import "NSError+FIRMessaging.h"
-#import "Token/FIRMessagingTokenManager.h"
 
 static NSString *const kPendingSubscriptionsListKey =
     @"com.firebase.messaging.pending-subscriptions";

@@ -18,16 +18,16 @@
 
 #import <FirebasePerformance/FIRHTTPMetric.h>
 #import <FirebasePerformance/FIRPerformance.h>
-#import "Common/FPRConstants.h"
-#import "Configurations/FPRConfigurations+Private.h"
-#import "Configurations/FPRConfigurations.h"
-#import "Configurations/FPRRemoteConfigFlags+Private.h"
-#import "Configurations/FPRRemoteConfigFlags.h"
 #import "FPRClient.h"
+#import "FPRConfigurations+Private.h"
+#import "FPRConfigurations.h"
+#import "FPRConstants.h"
+#import "FPRRemoteConfigFlags+Private.h"
+#import "FPRRemoteConfigFlags.h"
 
-#import "Instrumentation/FIRHTTPMetric+Private.h"
+#import "FIRHTTPMetric+Private.h"
 
-#import "Configurations/FPRFakeRemoteConfig.h"
+#import "FPRFakeRemoteConfig.h"
 #import "FPRTestCase.h"
 
 #import <OCMock/OCMock.h>

@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#import "Api/FIRDatabaseConfig.h"
+#import "FIRDatabaseConfig.h"
 
 #import "FIRDatabaseConfig_Private.h"
-#import "Login/FIRDatabaseConnectionContextProvider.h"
+#import "FIRDatabaseConnectionContextProvider.h"
 
 @interface FIRDatabaseConfig (Private)
 

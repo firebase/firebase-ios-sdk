@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "Crashlytics/Unwind/Dwarf/FIRCLSDataParsing.h"
-#include "Crashlytics/Helpers/FIRCLSDefines.h"
-#include "Crashlytics/Helpers/FIRCLSUtility.h"
-#include "third_party/libunwind/dwarf.h"
+#include "FIRCLSDataParsing.h"
+#include "FIRCLSDefines.h"
+#include "FIRCLSUtility.h"
+#include "dwarf.h"
 
 #include <string.h>
 

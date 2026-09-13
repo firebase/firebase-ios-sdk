@@ -14,23 +14,23 @@
 
 #import <XCTest/XCTest.h>
 
-#import "Crashlytics/Controllers/FIRCLSManagerData.h"
-#import "Crashlytics/Controllers/FIRCLSReportUploader_Private.h"
+#import "FIRCLSManagerData.h"
+#import "FIRCLSReportUploader_Private.h"
 
-#import "Crashlytics/Components/FIRCLSApplication.h"
-#import "Crashlytics/DataCollection/FIRCLSDataCollectionArbiter.h"
-#import "Crashlytics/DataCollection/FIRCLSDataCollectionToken.h"
-#import "Crashlytics/Helpers/FIRCLSDefines.h"
-#import "Crashlytics/Models/FIRCLSFileManager.h"
-#import "Crashlytics/Models/FIRCLSInternalReport.h"
-#import "Crashlytics/Models/FIRCLSSettings.h"
 #import "FABMockApplicationIdentifierModel.h"
 #import "FIRAppFake.h"
+#import "FIRCLSApplication.h"
+#import "FIRCLSConstants.h"
+#import "FIRCLSDataCollectionArbiter.h"
+#import "FIRCLSDataCollectionToken.h"
+#import "FIRCLSDefines.h"
+#import "FIRCLSFileManager.h"
+#import "FIRCLSInternalReport.h"
 #import "FIRCLSMockSettings.h"
+#import "FIRCLSSettings.h"
 #import "FIRCLSTempMockFileManager.h"
 #import "FIRMockGDTCoreTransport.h"
 #import "FIRMockInstallations.h"
-#import "Shared/FIRCLSConstants.h"
 
 NSString *const TestEndpoint = @"https://reports.crashlytics.com";
 NSString *const TestFIID = @"TestFIID";

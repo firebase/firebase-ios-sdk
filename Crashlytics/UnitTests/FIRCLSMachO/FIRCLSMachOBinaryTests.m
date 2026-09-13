@@ -14,7 +14,7 @@
 
 #import "FIRCLSMachOBinaryTests.h"
 
-#import "Shared/FIRCLSMachO/FIRCLSMachOBinary.h"
+#import "FIRCLSMachOBinary.h"
 
 @implementation FIRCLSMachOBinaryTests
 

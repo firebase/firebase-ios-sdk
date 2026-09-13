@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "Core/Utilities/FPath.h"
+#import "FPath.h"
 
-#import "Utilities/FUtilities.h"
+#import "FUtilities.h"
 
 @interface FPath ()
 

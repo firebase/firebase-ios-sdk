@@ -18,7 +18,7 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
-#import "Private/Flows/FIRIAMBookKeeper.h"
+#import "FIRIAMBookKeeper.h"
 
 @interface FIRIAMBookKeeperViaUserDefaultsTests : XCTestCase
 @property(nonatomic) GULUserDefaults *userDefaultsForTesting;

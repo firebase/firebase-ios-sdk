@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-#import "Persistence/FTrackedQueryManager.h"
-#import "Core/Utilities/FImmutableTree.h"
+#import "FTrackedQueryManager.h"
+#import "FCachePolicy.h"
 #import "FClock.h"
-#import "Persistence/FCachePolicy.h"
-#import "Persistence/FLevelDBStorageEngine.h"
-#import "Persistence/FPruneForest.h"
-#import "Persistence/FTrackedQuery.h"
-#import "Utilities/FUtilities.h"
+#import "FImmutableTree.h"
+#import "FLevelDBStorageEngine.h"
+#import "FPruneForest.h"
+#import "FTrackedQuery.h"
+#import "FUtilities.h"
 #import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
 @interface FTrackedQueryManager ()

@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "AppActivity/FPRScreenTraceTracker.h"
+#import "FPRScreenTraceTracker.h"
 
 #import <Foundation/Foundation.h>
 #import <QuartzCore/QuartzCore.h>
 #import <stdatomic.h>
 
-#import "Common/FPRConstants.h"
-#import "Timer/FIRTrace+Internal.h"
+#import "FIRTrace+Internal.h"
+#import "FPRConstants.h"
 
 @class UIViewController;
 

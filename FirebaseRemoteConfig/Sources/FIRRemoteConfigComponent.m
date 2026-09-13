@@ -18,7 +18,7 @@
 
 #import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
 #import <FirebaseCoreExtension/FirebaseCoreInternal.h>
-#import "FirebaseRemoteConfig/FIRRemoteConfig_Private.h"
+#import "FIRRemoteConfig_Private.h"
 #import "RCNConfigContent.h"
 #import "RCNConfigDBManager.h"
 

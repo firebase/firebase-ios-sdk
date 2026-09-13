@@ -15,12 +15,12 @@
  */
 
 #import <XCTest/XCTest.h>
+#import "FCompoundWrite.h"
+#import "FEmptyNode.h"
+#import "FLeafNode.h"
 #import "FNamedNode.h"
-#import "Snapshot/FCompoundWrite.h"
-#import "Snapshot/FEmptyNode.h"
-#import "Snapshot/FLeafNode.h"
-#import "Snapshot/FNode.h"
-#import "Snapshot/FSnapshotUtilities.h"
+#import "FNode.h"
+#import "FSnapshotUtilities.h"
 
 @interface FCompoundWriteTest : XCTestCase
 

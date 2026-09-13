@@ -18,7 +18,7 @@
 
 #import "FIndex.h"
 #import "FNamedNode.h"
-#import "Snapshot/FNode.h"
+#import "FNode.h"
 
 /**
  * Represents a node together with an index. The index and node are updated in

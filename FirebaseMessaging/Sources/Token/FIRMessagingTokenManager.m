@@ -14,24 +14,24 @@
  * limitations under the License.
  */
 
-#import "Token/FIRMessagingTokenManager.h"
+#import "FIRMessagingTokenManager.h"
 
 #import <FirebaseInstallations/FirebaseInstallations.h>
+#import "FIRMessagingAuthKeychain.h"
+#import "FIRMessagingAuthService.h"
+#import "FIRMessagingCheckinPreferences.h"
+#import "FIRMessagingCheckinStore.h"
 #import "FIRMessagingConstants.h"
 #import "FIRMessagingDefines.h"
+#import "FIRMessagingFIDRegisterOperation.h"
+#import "FIRMessagingFIDUnregisterOperation.h"
 #import "FIRMessagingLogger.h"
+#import "FIRMessagingTokenDeleteOperation.h"
+#import "FIRMessagingTokenFetchOperation.h"
+#import "FIRMessagingTokenInfo.h"
+#import "FIRMessagingTokenOperation.h"
+#import "FIRMessagingTokenStore.h"
 #import "NSError+FIRMessaging.h"
-#import "Token/FIRMessagingAuthKeychain.h"
-#import "Token/FIRMessagingAuthService.h"
-#import "Token/FIRMessagingCheckinPreferences.h"
-#import "Token/FIRMessagingCheckinStore.h"
-#import "Token/FIRMessagingFIDRegisterOperation.h"
-#import "Token/FIRMessagingFIDUnregisterOperation.h"
-#import "Token/FIRMessagingTokenDeleteOperation.h"
-#import "Token/FIRMessagingTokenFetchOperation.h"
-#import "Token/FIRMessagingTokenInfo.h"
-#import "Token/FIRMessagingTokenOperation.h"
-#import "Token/FIRMessagingTokenStore.h"
 
 @interface FIRMessagingTokenManager () {
   FIRMessagingTokenStore *_tokenStore;

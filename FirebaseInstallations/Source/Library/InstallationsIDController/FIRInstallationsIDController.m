@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "InstallationsIDController/FIRInstallationsIDController.h"
+#import "FIRInstallationsIDController.h"
 
 #if __has_include(<FBLPromises/FBLPromises.h>)
 #import <FBLPromises/FBLPromises.h>
@@ -25,18 +25,18 @@
 #import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 #import <GoogleUtilities/GULKeychainStorage.h>
 
-#import "Errors/FIRInstallationsErrorUtil.h"
+#import "FIRInstallationsAPIService.h"
+#import "FIRInstallationsBackoffController.h"
+#import "FIRInstallationsErrorUtil.h"
+#import "FIRInstallationsIIDStore.h"
+#import "FIRInstallationsIIDTokenStore.h"
 #import "FIRInstallationsItem.h"
 #import "FIRInstallationsLogger.h"
-#import "IIDMigration/FIRInstallationsIIDStore.h"
-#import "IIDMigration/FIRInstallationsIIDTokenStore.h"
-#import "InstallationsAPI/FIRInstallationsAPIService.h"
-#import "InstallationsIDController/FIRInstallationsBackoffController.h"
-#import "InstallationsIDController/FIRInstallationsSingleOperationPromiseCache.h"
-#import "InstallationsStore/FIRInstallationsStore.h"
+#import "FIRInstallationsSingleOperationPromiseCache.h"
+#import "FIRInstallationsStore.h"
 
-#import "Errors/FIRInstallationsHTTPError.h"
-#import "InstallationsStore/FIRInstallationsStoredAuthToken.h"
+#import "FIRInstallationsHTTPError.h"
+#import "FIRInstallationsStoredAuthToken.h"
 
 const NSNotificationName FIRInstallationIDDidChangeNotification =
     @"FIRInstallationIDDidChangeNotification";

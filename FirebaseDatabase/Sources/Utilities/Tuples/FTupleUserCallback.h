@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import "Core/FQueryParams.h"
-#import "Utilities/FTypedefs.h"
+#import "FQueryParams.h"
+#import "FTypedefs.h"
 #import <Foundation/Foundation.h>
 
 @interface FTupleUserCallback : NSObject

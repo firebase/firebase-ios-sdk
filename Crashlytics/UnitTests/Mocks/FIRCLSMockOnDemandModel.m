@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #import "FIRCLSMockOnDemandModel.h"
-#import "Crashlytics/Models/FIRCLSFileManager.h"
+#import "FIRCLSFileManager.h"
 
 @interface FIRCLSMockOnDemandModel ()
 

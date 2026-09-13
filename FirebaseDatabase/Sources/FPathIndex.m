@@ -15,12 +15,12 @@
  */
 
 #import "FPathIndex.h"
-#import "Core/Utilities/FPath.h"
+#import "FEmptyNode.h"
 #import "FMaxNode.h"
 #import "FNamedNode.h"
-#import "Snapshot/FEmptyNode.h"
-#import "Snapshot/FSnapshotUtilities.h"
-#import "Utilities/FUtilities.h"
+#import "FPath.h"
+#import "FSnapshotUtilities.h"
+#import "FUtilities.h"
 
 @interface FPathIndex ()
 @property(nonatomic, strong) FPath *path;

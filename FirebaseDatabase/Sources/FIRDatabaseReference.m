@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/FIRDatabaseReference.h"
-#import "Api/FIRDatabaseConfig.h"
-#import "Api/Private/FIRDatabaseQuery_Private.h"
-#import "Api/Private/FIRDatabaseReference_Private.h"
-#import "Core/FQueryParams.h"
+#import "FIRDatabaseReference.h"
+#import "FIRDatabase.h"
+#import "FIRDatabaseConfig.h"
 #import "FIRDatabaseConfig_Private.h"
-#import "FirebaseDatabase/FIRDatabase.h"
-#import "Snapshot/FSnapshotUtilities.h"
-#import "Utilities/FNextPushId.h"
-#import "Utilities/FStringUtilities.h"
-#import "Utilities/FUtilities.h"
-#import "Utilities/FValidation.h"
+#import "FIRDatabaseQuery_Private.h"
+#import "FIRDatabaseReference_Private.h"
+#import "FNextPushId.h"
+#import "FQueryParams.h"
+#import "FSnapshotUtilities.h"
+#import "FStringUtilities.h"
+#import "FUtilities.h"
+#import "FValidation.h"
 #import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
 @implementation FIRDatabaseReference

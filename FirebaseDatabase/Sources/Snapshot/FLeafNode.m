@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-#import "Snapshot/FLeafNode.h"
-#import "Constants/FConstants.h"
+#import "FLeafNode.h"
+#import "FChildrenNode.h"
+#import "FConstants.h"
+#import "FEmptyNode.h"
 #import "FImmutableSortedDictionary.h"
-#import "Snapshot/FChildrenNode.h"
-#import "Snapshot/FEmptyNode.h"
-#import "Snapshot/FSnapshotUtilities.h"
-#import "Utilities/FStringUtilities.h"
-#import "Utilities/FUtilities.h"
+#import "FSnapshotUtilities.h"
+#import "FStringUtilities.h"
+#import "FUtilities.h"
 
 @interface FLeafNode ()
 @property(nonatomic, strong) id<FNode> priorityNode;

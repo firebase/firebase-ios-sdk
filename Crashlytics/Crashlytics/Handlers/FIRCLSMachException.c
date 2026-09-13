@@ -12,17 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "Crashlytics/Helpers/FIRCLSDefines.h"
-#include "Crashlytics/Helpers/FIRCLSFeatures.h"
+#include "FIRCLSDefines.h"
+#include "FIRCLSFeatures.h"
 
 #if CLS_MACH_EXCEPTION_SUPPORTED
 
-#include "Crashlytics/Components/FIRCLSGlobals.h"
-#include "Crashlytics/Handlers/FIRCLSHandler.h"
-#include "Crashlytics/Handlers/FIRCLSMachException.h"
-#include "Crashlytics/Components/FIRCLSProcess.h"
-#include "Crashlytics/Handlers/FIRCLSSignal.h"
-#include "Crashlytics/Helpers/FIRCLSUtility.h"
+#include "FIRCLSGlobals.h"
+#include "FIRCLSHandler.h"
+#include "FIRCLSMachException.h"
+#include "FIRCLSProcess.h"
+#include "FIRCLSSignal.h"
+#include "FIRCLSUtility.h"
 
 #include <errno.h>
 #include <mach/mach.h>

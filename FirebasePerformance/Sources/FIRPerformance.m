@@ -12,18 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebasePerformance/FIRPerformance.h"
+#import "FIRPerformance.h"
 #import "FIRPerformance+Internal.h"
 #import "FIRPerformance_Private.h"
 
-#import "Common/FPRConstants.h"
-#import "Configurations/FPRConfigurations.h"
+#import "FIRTrace+Internal.h"
 #import "FPRClient+Private.h"
 #import "FPRClient.h"
+#import "FPRConfigurations.h"
 #import "FPRConsoleLogger.h"
+#import "FPRConstants.h"
 #import "FPRDataUtils.h"
-#import "Instrumentation/FPRInstrumentation.h"
-#import "Timer/FIRTrace+Internal.h"
+#import "FPRInstrumentation.h"
 
 static NSString *const kFirebasePerfErrorDomain = @"com.firebase.perf";
 

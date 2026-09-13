@@ -14,7 +14,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import "Loggers/FPRGDTEvent.h"
+#import "FPRGDTEvent.h"
 
 #import "FPRTestUtils.h"
 

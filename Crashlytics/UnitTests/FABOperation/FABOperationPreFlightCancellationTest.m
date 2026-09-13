@@ -19,7 +19,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import "Shared/FIRCLSOperation/FIRCLSOperation.h"
+#import "FIRCLSOperation.h"
 
 #import "FABTestAsyncOperation.h"
 #import "FABTestExpectations.h"

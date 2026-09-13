@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "Token/FIRMessagingKeychain.h"
+#import "FIRMessagingKeychain.h"
 
 #import "FIRMessagingLogger.h"
 

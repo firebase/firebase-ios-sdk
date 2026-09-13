@@ -18,10 +18,10 @@
 #import <FirebaseDatabase/FIRDatabaseReference.h>
 #import <Foundation/Foundation.h>
 #import <XCTest/XCTest.h>
-#import "Api/Private/FIRDatabaseQuery_Private.h"
-#import "Api/Private/FIRDatabaseReference_Private.h"
-#import "Core/FRepo_Private.h"
 #import "FDevice.h"
+#import "FIRDatabaseQuery_Private.h"
+#import "FIRDatabaseReference_Private.h"
+#import "FRepo_Private.h"
 #import "FTestHelpers.h"
 
 @implementation FPersist

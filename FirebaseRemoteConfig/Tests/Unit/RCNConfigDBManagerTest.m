@@ -20,11 +20,11 @@
 #import <sqlite3.h>
 
 #import <FirebaseCoreExtension/FirebaseCoreInternal.h>
-#import "FirebaseRemoteConfig/RCNConfigSettings.h"
 #import "RCNConfigConstants.h"
 #import "RCNConfigContent.h"
 #import "RCNConfigDBManager.h"
 #import "RCNConfigDefines.h"
+#import "RCNConfigSettings.h"
 #import "RCNTestUtilities.h"
 
 @interface RCNConfigDBManager (Test)

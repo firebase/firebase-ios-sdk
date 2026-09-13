@@ -16,9 +16,9 @@
 
 #import <Foundation/Foundation.h>
 
-#import "Core/FQueryParams.h"
-#import "Core/Utilities/FPath.h"
 #import "FIndex.h"
+#import "FPath.h"
+#import "FQueryParams.h"
 
 @interface FQuerySpec : NSObject <NSCopying>
 

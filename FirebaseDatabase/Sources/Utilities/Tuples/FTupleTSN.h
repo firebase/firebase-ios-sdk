@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "Utilities/Tuples/FTupleStringNode.h"
+#import "FTupleStringNode.h"
 #import <Foundation/Foundation.h>
 
 @interface FTupleTSN : NSObject

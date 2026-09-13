@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "Core/Operation/FOperation.h"
+#import "FOperation.h"
 
 @class FPath;
 @class FOperationSource;

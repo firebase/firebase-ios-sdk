@@ -14,8 +14,8 @@
 
 #import <Foundation/Foundation.h>
 
-#import "AppActivity/FPRSessionManager.h"
-#import "Gauges/FPRGaugeManager.h"
+#import "FPRGaugeManager.h"
+#import "FPRSessionManager.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

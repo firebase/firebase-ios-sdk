@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "Crashlytics/Models/FIRCLSExecutionIdentifierModel.h"
+#import "FIRCLSExecutionIdentifierModel.h"
 
-#import "Shared/FIRCLSUUID.h"
+#import "FIRCLSUUID.h"
 
 @implementation FIRCLSExecutionIdentifierModel
 

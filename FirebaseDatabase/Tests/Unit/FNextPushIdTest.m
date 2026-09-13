@@ -16,9 +16,9 @@
 
 #import <XCTest/XCTest.h>
 
-#import "Utilities/FNextPushId.h"
-#import "Utilities/FUtilities.h"
-#import "Utilities/FValidation.h"
+#import "FNextPushId.h"
+#import "FUtilities.h"
+#import "FValidation.h"
 
 @interface FValidation (Test)
 + (BOOL)isValidKey:(NSString *)key;

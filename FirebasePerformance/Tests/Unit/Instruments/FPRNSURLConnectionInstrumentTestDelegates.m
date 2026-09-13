@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "Instruments/FPRNSURLConnectionInstrumentTestDelegates.h"
+#import "FPRNSURLConnectionInstrumentTestDelegates.h"
 
-#import "Instrumentation/FPRNetworkTrace.h"
+#import "FPRNetworkTrace.h"
 
 @implementation FPRNSURLConnectionDidReceiveDataDelegate
 

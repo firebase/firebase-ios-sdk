@@ -36,8 +36,6 @@ app update.
   base_dir = "FirebaseRemoteConfig/Sources/"
   s.source_files = [
     base_dir + '**/*.[mh]',
-    'FirebaseABTesting/Sources/Private/*.h',
-    'FirebaseInstallations/Source/Library/Private/*.h',
     'FirebaseRemoteConfig/Swift/**/*.swift',
   ]
   s.public_header_files = base_dir + 'Public/FirebaseRemoteConfig/*.h'

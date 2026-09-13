@@ -14,7 +14,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FirebaseCrashlytics/FIRCrashlytics.h"
+#import "FIRCrashlytics.h"
 
 @class FBLPromise<T>;
 @class FIRCLSExistingReportManager;

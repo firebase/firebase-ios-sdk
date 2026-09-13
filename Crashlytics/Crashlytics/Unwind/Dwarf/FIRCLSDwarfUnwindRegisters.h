@@ -16,7 +16,7 @@
 
 #include <stdint.h>
 
-#include "Crashlytics/Helpers/FIRCLSFeatures.h"
+#include "FIRCLSFeatures.h"
 
 #if CLS_CPU_X86_64
 enum {

@@ -14,9 +14,9 @@
 
 #import "FPRTestCase.h"
 
-#import "Configurations/FPRConfigurations+Private.h"
-#import "Configurations/FPRConfigurations.h"
-#import "Configurations/FPRRemoteConfigFlags+Private.h"
+#import "FPRConfigurations+Private.h"
+#import "FPRConfigurations.h"
+#import "FPRRemoteConfigFlags+Private.h"
 
 @implementation FPRTestCase
 

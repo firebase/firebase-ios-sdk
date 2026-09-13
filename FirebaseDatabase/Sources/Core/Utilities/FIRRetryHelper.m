@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import "Core/Utilities/FIRRetryHelper.h"
-#import "Utilities/FUtilities.h"
+#import "FIRRetryHelper.h"
+#import "FUtilities.h"
 #import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
 @interface FIRRetryHelperTask : NSObject

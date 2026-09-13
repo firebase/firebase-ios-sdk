@@ -14,7 +14,7 @@
 
 #pragma once
 
-#include "Crashlytics/Helpers/FIRCLSFile.h"
+#include "FIRCLSFile.h"
 
 __BEGIN_DECLS
 

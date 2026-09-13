@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "ISASwizzler/FPRProxy.h"
+#import "FPRProxy.h"
 
 @interface FPRProxy ()
 

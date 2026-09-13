@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "Core/View/FEventRegistration.h"
+#import "FEventRegistration.h"
 
 /**
  * A singleton event registration to mark a query as keep synced

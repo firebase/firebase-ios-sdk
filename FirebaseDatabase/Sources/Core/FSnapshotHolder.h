@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "Snapshot/FNode.h"
+#import "FNode.h"
 #import <Foundation/Foundation.h>
 
 @interface FSnapshotHolder : NSObject

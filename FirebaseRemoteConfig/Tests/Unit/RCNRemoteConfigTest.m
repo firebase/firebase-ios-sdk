@@ -18,13 +18,13 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
+#import "FIRRemoteConfig.h"
 #import "FIRRemoteConfigComponent.h"
-#import "FirebaseRemoteConfig/FIRRemoteConfig.h"
-#import "FirebaseRemoteConfig/FIRRemoteConfig_Private.h"
-#import "FirebaseRemoteConfig/RCNConfigFetch.h"
+#import "FIRRemoteConfig_Private.h"
 #import "RCNConfigConstants.h"
 #import "RCNConfigDBManager.h"
 #import "RCNConfigExperiment.h"
+#import "RCNConfigFetch.h"
 #import "RCNConfigRealtime.h"
 #import "RCNUserDefaultsManager.h"
 

@@ -14,15 +14,15 @@
 
 #pragma once
 
-#include "Crashlytics/Components/FIRCLSBinaryImage.h"
-#include "Crashlytics/Components/FIRCLSHost.h"
-#include "Crashlytics/Components/FIRCLSUserLogging.h"
-#include "Crashlytics/Handlers/FIRCLSException.h"
-#include "Crashlytics/Handlers/FIRCLSMachException.h"
-#include "Crashlytics/Handlers/FIRCLSSignal.h"
-#include "Crashlytics/Helpers/FIRCLSAllocate.h"
-#include "Crashlytics/Helpers/FIRCLSFeatures.h"
-#include "Crashlytics/Helpers/FIRCLSInternalLogging.h"
+#include "FIRCLSAllocate.h"
+#include "FIRCLSBinaryImage.h"
+#include "FIRCLSException.h"
+#include "FIRCLSFeatures.h"
+#include "FIRCLSHost.h"
+#include "FIRCLSInternalLogging.h"
+#include "FIRCLSMachException.h"
+#include "FIRCLSSignal.h"
+#include "FIRCLSUserLogging.h"
 
 #include <dispatch/dispatch.h>
 #include <stdbool.h>

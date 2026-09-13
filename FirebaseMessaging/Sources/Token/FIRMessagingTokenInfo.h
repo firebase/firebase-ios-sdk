@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "Token/FIRMessagingAPNSInfo.h"
+#import "FIRMessagingAPNSInfo.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

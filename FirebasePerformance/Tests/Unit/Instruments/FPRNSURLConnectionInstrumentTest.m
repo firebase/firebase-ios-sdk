@@ -16,19 +16,19 @@
 
 #if !SWIFT_PACKAGE
 
-#import "Instruments/FPRNSURLConnectionInstrumentTestDelegates.h"
+#import "FPRNSURLConnectionInstrumentTestDelegates.h"
 
 #import <XCTest/XCTest.h>
 
 #import <FirebasePerformance/FIRPerformance.h>
-#import "Configurations/FPRConfigurations+Private.h"
-#import "Configurations/FPRConfigurations.h"
 #import "FPRClient.h"
-#import "Instrumentation/Network/FPRNSURLConnectionInstrument.h"
+#import "FPRConfigurations+Private.h"
+#import "FPRConfigurations.h"
+#import "FPRNSURLConnectionInstrument.h"
 
+#import "FPRHermeticTestServer.h"
 #import "FPRTestCase.h"
 #import "FPRTestUtils.h"
-#import "Server/FPRHermeticTestServer.h"
 
 @interface FPRNSURLConnectionInstrumentTest : FPRTestCase
 

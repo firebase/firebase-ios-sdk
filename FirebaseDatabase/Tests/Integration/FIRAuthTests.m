@@ -23,8 +23,8 @@
 #import "FTestBase.h"
 #import "FTestHelpers.h"
 
-#import <AppCheckFake/FIRAppCheckFake.h>
-#import <AppCheckFake/FIRAppCheckTokenResultFake.h>
+#import "FIRAppCheckFake.h"
+#import "FIRAppCheckTokenResultFake.h"
 #import "FIRAuthInteropFake.h"
 
 @interface FIRAuthTests : FTestBase

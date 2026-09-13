@@ -16,14 +16,14 @@
 
 #if !SWIFT_PACKAGE
 
-#import "Instrumentation/UIKit/FPRUIViewControllerInstrument.h"
+#import "FPRUIViewControllerInstrument.h"
 
 #import <XCTest/XCTest.h>
 
 #import <FirebasePerformance/FIRPerformance.h>
 #import <OCMock/OCMock.h>
-#import "AppActivity/FPRScreenTraceTracker+Private.h"
-#import "AppActivity/FPRScreenTraceTracker.h"
+#import "FPRScreenTraceTracker+Private.h"
+#import "FPRScreenTraceTracker.h"
 
 #import <GoogleUtilities/GULSwizzler.h>
 

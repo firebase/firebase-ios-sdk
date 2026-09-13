@@ -22,7 +22,7 @@
 #import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
 #import "FIRCore+InAppMessaging.h"
-#import "Private/Flows/FIRIAMBookKeeper.h"
+#import "FIRIAMBookKeeper.h"
 
 NSString *const FIRIAM_UserDefaultsKeyForImpressions = @"firebase-iam-message-impressions";
 NSString *const FIRIAM_UserDefaultsKeyForLastImpressionTimestamp =

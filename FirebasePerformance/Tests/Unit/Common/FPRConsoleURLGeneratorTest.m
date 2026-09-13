@@ -14,7 +14,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import "Common/FPRConsoleURLGenerator.h"
+#import "FPRConsoleURLGenerator.h"
 
 @interface FPRConsoleURLGeneratorTest : XCTestCase
 

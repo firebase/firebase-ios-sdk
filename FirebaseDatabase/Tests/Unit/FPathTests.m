@@ -15,7 +15,7 @@
  */
 
 #import "FPathTests.h"
-#import "Core/Utilities/FPath.h"
+#import "FPath.h"
 
 @implementation FPathTests
 

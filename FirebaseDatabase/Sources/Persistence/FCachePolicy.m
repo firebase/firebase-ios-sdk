@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "Persistence/FCachePolicy.h"
+#import "FCachePolicy.h"
 
 @interface FLRUCachePolicy ()
 

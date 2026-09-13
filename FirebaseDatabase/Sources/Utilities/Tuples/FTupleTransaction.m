@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import "Utilities/Tuples/FTupleTransaction.h"
-#import "Utilities/FUtilities.h"
+#import "FTupleTransaction.h"
+#import "FUtilities.h"
 
 @interface FTupleTransaction ()
 

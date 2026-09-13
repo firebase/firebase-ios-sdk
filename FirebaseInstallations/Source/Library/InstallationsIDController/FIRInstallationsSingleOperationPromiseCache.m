@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "InstallationsIDController/FIRInstallationsSingleOperationPromiseCache.h"
+#import "FIRInstallationsSingleOperationPromiseCache.h"
 
 #if __has_include(<FBLPromises/FBLPromises.h>)
 #import <FBLPromises/FBLPromises.h>

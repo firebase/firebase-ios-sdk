@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-#import "Token/FIRMessagingCheckinService.h"
+#import "FIRMessagingCheckinService.h"
 
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
+#import "FIRMessagingAuthService.h"
+#import "FIRMessagingCheckinPreferences.h"
 #import "FIRMessagingDefines.h"
 #import "FIRMessagingLogger.h"
 #import "FIRMessagingUtilities.h"
 #import "NSError+FIRMessaging.h"
-#import "Token/FIRMessagingAuthService.h"
-#import "Token/FIRMessagingCheckinPreferences.h"
 
 static NSString *const kDeviceCheckinURL = @"https://device-provisioning.googleapis.com/checkin";
 

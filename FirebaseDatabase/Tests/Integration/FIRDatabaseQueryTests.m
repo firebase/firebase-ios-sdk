@@ -16,12 +16,12 @@
 
 #import "FIRDatabaseQueryTests.h"
 #import <FirebaseCore/FIROptions.h>
-#import "Api/Private/FIRDatabaseQuery_Private.h"
-#import "Constants/FConstants.h"
-#import "Core/FQuerySpec.h"
+#import "FConstants.h"
+#import "FIRDatabaseQuery_Private.h"
 #import "FIRFakeApp.h"
+#import "FQuerySpec.h"
 #import "FTestExpectations.h"
-#import "Utilities/FUtilities.h"
+#import "FUtilities.h"
 
 @implementation FIRDatabaseQueryTests
 

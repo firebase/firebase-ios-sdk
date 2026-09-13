@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "Instrumentation/FPRInstrument.h"
+#import "FPRInstrument.h"
 
-#import "Instrumentation/FPRObjectInstrumentor.h"
+#import "FPRObjectInstrumentor.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

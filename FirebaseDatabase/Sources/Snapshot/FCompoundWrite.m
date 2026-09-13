@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-#import "Snapshot/FCompoundWrite.h"
-#import "Core/Utilities/FImmutableTree.h"
-#import "Core/Utilities/FPath.h"
+#import "FCompoundWrite.h"
+#import "FImmutableTree.h"
 #import "FNamedNode.h"
-#import "Snapshot/FNode.h"
-#import "Snapshot/FSnapshotUtilities.h"
+#import "FNode.h"
+#import "FPath.h"
+#import "FSnapshotUtilities.h"
 
 @interface FCompoundWrite ()
 @property(nonatomic, strong) FImmutableTree *writeTree;

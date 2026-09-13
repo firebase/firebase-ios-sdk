@@ -17,7 +17,7 @@
 #include <mach/mach.h>
 #include <stdbool.h>
 
-#include "Crashlytics/Helpers/FIRCLSFile.h"
+#include "FIRCLSFile.h"
 
 typedef struct {
   // task info

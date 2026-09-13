@@ -15,7 +15,7 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "Token/FIRMessagingCheckinService.h"
+#import "FIRMessagingCheckinService.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

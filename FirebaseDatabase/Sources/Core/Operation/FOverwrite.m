@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "Core/Operation/FOverwrite.h"
-#import "Core/Operation/FOperationSource.h"
-#import "Snapshot/FNode.h"
+#import "FOverwrite.h"
+#import "FNode.h"
+#import "FOperationSource.h"
 
 @interface FOverwrite ()
 @property(nonatomic, strong, readwrite) FOperationSource *source;

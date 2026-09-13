@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#import "Core/View/FViewCache.h"
-#import "Core/View/FCacheNode.h"
-#import "Snapshot/FEmptyNode.h"
-#import "Snapshot/FNode.h"
+#import "FViewCache.h"
+#import "FCacheNode.h"
+#import "FEmptyNode.h"
+#import "FNode.h"
 
 @interface FViewCache ()
 @property(nonatomic, strong, readwrite) FCacheNode *cachedEventSnap;

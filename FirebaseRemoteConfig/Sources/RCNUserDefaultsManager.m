@@ -16,7 +16,7 @@
 
 #import "RCNUserDefaultsManager.h"
 #import <FirebaseCoreExtension/FirebaseCoreInternal.h>
-#import "FirebaseRemoteConfig/FIRRemoteConfig.h"
+#import "FIRRemoteConfig.h"
 #import "RCNConfigConstants.h"
 
 static NSString *const kRCNGroupPrefix = @"group";

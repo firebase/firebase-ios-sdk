@@ -17,8 +17,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "Crashlytics/Helpers/FIRCLSFeatures.h"
-#include "Crashlytics/Helpers/FIRCLSThreadState.h"
+#include "FIRCLSFeatures.h"
+#include "FIRCLSThreadState.h"
 
 #define CLS_DWARF_EXPRESSION_STACK_SIZE (100)
 

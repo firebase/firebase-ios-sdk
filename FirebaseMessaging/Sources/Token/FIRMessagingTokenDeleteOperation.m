@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-#import "Token/FIRMessagingTokenDeleteOperation.h"
+#import "FIRMessagingTokenDeleteOperation.h"
 
+#import "FIRMessagingCheckinPreferences.h"
 #import "FIRMessagingConstants.h"
 #import "FIRMessagingDefines.h"
 #import "FIRMessagingLogger.h"
+#import "FIRMessagingTokenOperation.h"
 #import "FIRMessagingUtilities.h"
 #import "NSError+FIRMessaging.h"
-#import "Token/FIRMessagingCheckinPreferences.h"
-#import "Token/FIRMessagingTokenOperation.h"
 
 @implementation FIRMessagingTokenDeleteOperation
 

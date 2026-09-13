@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "Token/FIRMessagingTokenOperation.h"
+#import "FIRMessagingTokenOperation.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

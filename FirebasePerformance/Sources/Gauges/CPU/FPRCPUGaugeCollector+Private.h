@@ -14,9 +14,9 @@
 
 #import <Foundation/Foundation.h>
 
-#import "Gauges/CPU/FPRCPUGaugeCollector.h"
+#import "FPRCPUGaugeCollector.h"
 
-#import "Configurations/FPRConfigurations.h"
+#import "FPRConfigurations.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

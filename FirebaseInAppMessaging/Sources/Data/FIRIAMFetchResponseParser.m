@@ -20,15 +20,15 @@
 #import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
 #import "FIRCore+InAppMessaging.h"
-#import "Private/Data/FIRIAMFetchResponseParser.h"
-#import "Private/Data/FIRIAMMessageContentData.h"
-#import "Private/Data/FIRIAMMessageContentDataWithImageURL.h"
-#import "Private/Data/FIRIAMMessageDefinition.h"
-#import "Private/DisplayTrigger/FIRIAMDisplayTriggerDefinition.h"
-#import "Private/Util/FIRIAMTimeFetcher.h"
-#import "Util/UIColor+FIRIAMHexString.h"
+#import "FIRIAMDisplayTriggerDefinition.h"
+#import "FIRIAMFetchResponseParser.h"
+#import "FIRIAMMessageContentData.h"
+#import "FIRIAMMessageContentDataWithImageURL.h"
+#import "FIRIAMMessageDefinition.h"
+#import "FIRIAMTimeFetcher.h"
+#import "UIColor+FIRIAMHexString.h"
 
-#import "FirebaseABTesting/Sources/Private/ABTExperimentPayload.h"
+#import <FirebaseABTesting/ABTExperimentPayload.h>
 
 @interface FIRIAMFetchResponseParser ()
 @property(nonatomic) id<FIRIAMTimeFetcher> timeFetcher;

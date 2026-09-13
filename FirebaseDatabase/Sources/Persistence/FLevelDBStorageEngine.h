@@ -16,11 +16,11 @@
 
 #import <Foundation/Foundation.h>
 
-#import "Core/FQuerySpec.h"
-#import "Core/Utilities/FPath.h"
-#import "Persistence/FStorageEngine.h"
-#import "Snapshot/FCompoundWrite.h"
-#import "Snapshot/FNode.h"
+#import "FCompoundWrite.h"
+#import "FNode.h"
+#import "FPath.h"
+#import "FQuerySpec.h"
+#import "FStorageEngine.h"
 
 @class FCacheNode;
 @class FTrackedQuery;

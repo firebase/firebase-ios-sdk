@@ -15,10 +15,10 @@
  */
 
 #import "FKeyIndex.h"
+#import "FEmptyNode.h"
 #import "FNamedNode.h"
-#import "Snapshot/FEmptyNode.h"
-#import "Snapshot/FSnapshotUtilities.h"
-#import "Utilities/FUtilities.h"
+#import "FSnapshotUtilities.h"
+#import "FUtilities.h"
 
 @interface FKeyIndex ()
 

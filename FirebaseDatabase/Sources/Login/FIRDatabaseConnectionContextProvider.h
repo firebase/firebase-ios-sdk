@@ -16,8 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
-#import "Api/Private/FTypedefs_Private.h"
-#import "Utilities/FTypedefs.h"
+#import "FTypedefs.h"
+#import "FTypedefs_Private.h"
 
 @protocol FIRAppCheckInterop;
 @protocol FIRAuthInterop;

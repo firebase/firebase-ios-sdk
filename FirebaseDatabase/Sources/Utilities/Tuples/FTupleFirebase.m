@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "Utilities/Tuples/FTupleFirebase.h"
+#import "FTupleFirebase.h"
 
 @implementation FTupleFirebase
 

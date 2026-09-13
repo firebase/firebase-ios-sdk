@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "Loggers/FPRGDTLogger.h"
-#import "Loggers/FPRGDTLogger_Private.h"
+#import "FPRGDTLogger.h"
+#import "FPRGDTLogger_Private.h"
 
-#import "Configurations/FPRConfigurations.h"
+#import "FPRConfigurations.h"
 
-#import "Loggers/FPRGDTEvent.h"
-#import "Loggers/FPRGDTLogSampler.h"
-#import "Loggers/FPRGDTRateLimiter.h"
+#import "FPRGDTEvent.h"
+#import "FPRGDTLogSampler.h"
+#import "FPRGDTRateLimiter.h"
 
 #import <GoogleDataTransport/GoogleDataTransport.h>
 

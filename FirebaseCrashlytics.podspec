@@ -31,7 +31,6 @@ Pod::Spec.new do |s|
     'Crashlytics/Protogen/**/*.{c,h,m,mm}',
     'Crashlytics/Shared/**/*.{c,h,m,mm}',
     'Crashlytics/third_party/**/*.{c,h,m,mm}',
-    'FirebaseInstallations/Source/Library/Private/*.h',
   ]
 
   s.resource_bundles = {

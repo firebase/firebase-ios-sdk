@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "Persistence/FCachePolicy.h"
+#import "FCachePolicy.h"
 
 @interface FTestCachePolicy : NSObject <FCachePolicy>
 

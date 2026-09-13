@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "Token/FIRMessagingAuthKeychain.h"
+#import "FIRMessagingAuthKeychain.h"
+#import "FIRMessagingKeychain.h"
 #import "FIRMessagingLogger.h"
-#import "Token/FIRMessagingKeychain.h"
 
 /**
  *  The error type representing why we couldn't read data from the keychain.

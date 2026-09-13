@@ -17,11 +17,11 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
-#import "FirebaseRemoteConfig/RCNConfigFetch.h"
-#import "FirebaseRemoteConfig/RCNConfigSettings.h"
 #import "RCNConfigContent.h"
 #import "RCNConfigDBManager.h"
 #import "RCNConfigExperiment.h"
+#import "RCNConfigFetch.h"
+#import "RCNConfigSettings.h"
 #import "RCNTestUtilities.h"
 
 #import <FirebaseCoreExtension/FirebaseCoreInternal.h>

@@ -15,8 +15,8 @@
  */
 #import <Foundation/Foundation.h>
 
-#import "Private/Data/FIRIAMMessageRenderData.h"
-#import "Private/DisplayTrigger/FIRIAMDisplayTriggerDefinition.h"
+#import "FIRIAMDisplayTriggerDefinition.h"
+#import "FIRIAMMessageRenderData.h"
 
 @class FIRIAMDisplayTriggerDefinition;
 

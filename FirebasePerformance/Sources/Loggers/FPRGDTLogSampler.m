@@ -12,15 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "Loggers/FPRGDTLogSampler.h"
+#import "FPRGDTLogSampler.h"
 
 #import <GoogleDataTransport/GoogleDataTransport.h>
 
-#import "AppActivity/FPRSessionManager.h"
-#import "Common/FPRDiagnostics.h"
-#import "Configurations/FPRConfigurations.h"
+#import "FPRConfigurations.h"
 #import "FPRConsoleLogger.h"
-#import "Loggers/FPRGDTEvent.h"
+#import "FPRDiagnostics.h"
+#import "FPRGDTEvent.h"
+#import "FPRSessionManager.h"
 
 @class FPRGDTEvent;
 

@@ -18,18 +18,18 @@
 
 #import <FirebasePerformance/FIRPerformance.h>
 #import <FirebasePerformance/FIRTrace.h>
-#import "AppActivity/FPRAppActivityTracker.h"
-#import "AppActivity/FPRSessionManager.h"
-#import "Common/FPRConstants.h"
-#import "Configurations/FPRConfigurations+Private.h"
-#import "Configurations/FPRConfigurations.h"
-#import "Configurations/FPRRemoteConfigFlags+Private.h"
-#import "Configurations/FPRRemoteConfigFlags.h"
+#import "FIRTrace+Internal.h"
+#import "FIRTrace+Private.h"
+#import "FPRAppActivityTracker.h"
 #import "FPRClient.h"
-#import "Timer/FIRTrace+Internal.h"
-#import "Timer/FIRTrace+Private.h"
+#import "FPRConfigurations+Private.h"
+#import "FPRConfigurations.h"
+#import "FPRConstants.h"
+#import "FPRRemoteConfigFlags+Private.h"
+#import "FPRRemoteConfigFlags.h"
+#import "FPRSessionManager.h"
 
-#import "Configurations/FPRFakeRemoteConfig.h"
+#import "FPRFakeRemoteConfig.h"
 #import "FPRTestCase.h"
 
 #import <FirebaseRemoteConfig/RCNConfigValue_Internal.h>

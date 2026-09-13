@@ -14,13 +14,13 @@
 
 #import <XCTest/XCTest.h>
 
-#import "Common/FPRDiagnostics.h"
-#import "Common/FPRDiagnostics_Private.h"
+#import "FPRDiagnostics.h"
+#import "FPRDiagnostics_Private.h"
 
-#import "Configurations/FPRConfigurations+Private.h"
-#import "Configurations/FPRConfigurations.h"
+#import "FPRConfigurations+Private.h"
+#import "FPRConfigurations.h"
 
-#import "Fakes/FPRFakeConfigurations.h"
+#import "FPRFakeConfigurations.h"
 
 static BOOL classEmitDiagnosticsCalled = NO;
 

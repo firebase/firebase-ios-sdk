@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebasePerformance/FIRTrace.h"
+#import "FIRTrace.h"
 #import "perf_metric.nanopb.h"
 
 FOUNDATION_EXTERN NSString *__nonnull const kFPRAppStartTraceName;

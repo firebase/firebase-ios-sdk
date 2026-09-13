@@ -18,11 +18,11 @@
 
 #import <OCMock/OCMock.h>
 
-#import "Login/FIRDatabaseConnectionContextProvider.h"
+#import "FIRDatabaseConnectionContextProvider.h"
 
-#import <AppCheckFake/FIRAppCheckFake.h>
-#import <AppCheckFake/FIRAppCheckTokenResultFake.h>
 #import <FirebaseCoreExtension/FirebaseCoreInternal.h>
+#import "FIRAppCheckFake.h"
+#import "FIRAppCheckTokenResultFake.h"
 #import "FIRAuthInteropFake.h"
 
 @interface FIRDatabaseConnectionContextProviderTests : XCTestCase

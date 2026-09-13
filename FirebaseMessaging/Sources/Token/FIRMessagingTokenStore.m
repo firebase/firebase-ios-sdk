@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-#import "Token/FIRMessagingTokenStore.h"
+#import "FIRMessagingTokenStore.h"
 
+#import "FIRMessagingAuthKeychain.h"
 #import "FIRMessagingConstants.h"
 #import "FIRMessagingLogger.h"
+#import "FIRMessagingTokenInfo.h"
 #import "FIRMessagingUtilities.h"
-#import "Token/FIRMessagingAuthKeychain.h"
-#import "Token/FIRMessagingTokenInfo.h"
 
 static NSString *const kFIRMessagingTokenKeychainId = @"com.google.iid-tokens";
 

@@ -16,7 +16,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FirebaseInAppMessaging/FIRInAppMessagingRendering.h"
+#import "FIRInAppMessagingRendering.h"
 
 @interface FIRInAppMessagingRenderingTests : XCTestCase
 

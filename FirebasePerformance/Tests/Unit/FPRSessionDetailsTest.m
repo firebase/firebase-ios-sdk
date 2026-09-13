@@ -14,7 +14,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import "AppActivity/FPRSessionDetails.h"
+#import "FPRSessionDetails.h"
 
 @interface FPRSessionDetailsTest : XCTestCase
 

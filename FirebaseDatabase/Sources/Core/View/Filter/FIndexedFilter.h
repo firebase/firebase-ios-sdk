@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "Core/View/Filter/FNodeFilter.h"
+#import "FNodeFilter.h"
 #import <Foundation/Foundation.h>
 
 @protocol FIndex;

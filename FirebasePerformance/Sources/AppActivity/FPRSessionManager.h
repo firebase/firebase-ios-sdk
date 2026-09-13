@@ -14,7 +14,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "AppActivity/FPRSessionDetails.h"
+#import "FPRSessionDetails.h"
 
 /* Notification name when the session Id gets updated. */
 FOUNDATION_EXTERN NSString *_Nonnull const kFPRSessionIdUpdatedNotification;

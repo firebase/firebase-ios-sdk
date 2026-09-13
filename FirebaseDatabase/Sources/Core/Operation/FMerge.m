@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-#import "Core/Operation/FMerge.h"
-#import "Core/Operation/FOperationSource.h"
-#import "Core/Operation/FOverwrite.h"
-#import "Core/Utilities/FPath.h"
-#import "Snapshot/FCompoundWrite.h"
-#import "Snapshot/FNode.h"
+#import "FMerge.h"
+#import "FCompoundWrite.h"
+#import "FNode.h"
+#import "FOperationSource.h"
+#import "FOverwrite.h"
+#import "FPath.h"
 
 @interface FMerge ()
 @property(nonatomic, strong, readwrite) FOperationSource *source;

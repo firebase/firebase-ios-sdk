@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "Errors/FIRInstallationsErrorUtil.h"
+#import "FIRInstallationsErrorUtil.h"
 
-#import "Errors/FIRInstallationsHTTPError.h"
+#import "FIRInstallationsHTTPError.h"
 
 #if __has_include(<FBLPromises/FBLPromises.h>)
 #import <FBLPromises/FBLPromises.h>

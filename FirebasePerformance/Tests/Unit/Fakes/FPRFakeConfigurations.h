@@ -14,7 +14,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "Configurations/FPRConfigurations.h"
+#import "FPRConfigurations.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

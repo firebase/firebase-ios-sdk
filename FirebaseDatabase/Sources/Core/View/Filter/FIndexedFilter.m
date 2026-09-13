@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-#import "Core/View/Filter/FIndexedFilter.h"
-#import "Core/View/FChange.h"
-#import "Core/View/Filter/FChildChangeAccumulator.h"
+#import "FIndexedFilter.h"
+#import "FChange.h"
+#import "FChildChangeAccumulator.h"
+#import "FChildrenNode.h"
+#import "FEmptyNode.h"
 #import "FIndex.h"
+#import "FIndexedNode.h"
 #import "FKeyIndex.h"
-#import "Snapshot/FChildrenNode.h"
-#import "Snapshot/FEmptyNode.h"
-#import "Snapshot/FIndexedNode.h"
-#import "Snapshot/FNode.h"
+#import "FNode.h"
 
 @interface FIndexedFilter ()
 @property(nonatomic, strong, readwrite) id<FIndex> index;

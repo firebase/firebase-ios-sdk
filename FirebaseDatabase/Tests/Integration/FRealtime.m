@@ -15,12 +15,12 @@
  */
 
 #import "FRealtime.h"
-#import "Core/FRepoManager.h"
 #import "FIRDatabaseConfig_Private.h"
+#import "FParsedUrl.h"
+#import "FRepoManager.h"
 #import "FTestHelpers.h"
-#import "Utilities/FParsedUrl.h"
-#import "Utilities/FUtilities.h"
-#import "Utilities/Tuples/FTupleFirebase.h"
+#import "FTupleFirebase.h"
+#import "FUtilities.h"
 
 @implementation FRealtime
 

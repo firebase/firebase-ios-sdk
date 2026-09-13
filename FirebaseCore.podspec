@@ -40,7 +40,7 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
 
   s.source_files = [
     'FirebaseCore/Sources/**/*.[mh]',
-    'FirebaseCore/Extension/*.h'
+    'FirebaseCore/Extension/**/*.h'
   ]
 
   s.resource_bundles = {
@@ -65,7 +65,7 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
   s.pod_target_xcconfig = {
     'DEFINES_MODULE' => 'YES',
     'GCC_PREPROCESSOR_DEFINITIONS' => 'Firebase_VERSION=' + s.version.to_s,
-    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"',
+    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}" "${PODS_TARGET_SRCROOT}/FirebaseCore/Extension/Public"',
     'OTHER_CFLAGS' => '-fno-autolink'
   }
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "Snapshot/FChildrenNode.h"
+#import "FChildrenNode.h"
 #import <Foundation/Foundation.h>
 
 @interface FMaxNode : FChildrenNode

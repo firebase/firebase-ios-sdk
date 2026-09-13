@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "Instrumentation/FPRObjectInstrumentor.h"
+#import "FPRObjectInstrumentor.h"
 
-#import "Common/FPRDiagnostics.h"
-#import "ISASwizzler/FPRObjectSwizzler.h"
-#import "Instrumentation/FPRInstrument_Private.h"
-#import "Instrumentation/FPRSelectorInstrumentor.h"
+#import "FPRDiagnostics.h"
+#import "FPRInstrument_Private.h"
+#import "FPRObjectSwizzler.h"
+#import "FPRSelectorInstrumentor.h"
 
 @interface FPRObjectInstrumentor () {
   // The object swizzler instance this instrumentor will use.

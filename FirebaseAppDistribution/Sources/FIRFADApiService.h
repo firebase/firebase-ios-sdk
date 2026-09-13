@@ -14,7 +14,7 @@
 #import <Foundation/Foundation.h>
 
 #import <FirebaseInstallations/FirebaseInstallations.h>
-#import "FirebaseAppDistribution/FIRAppDistributionRelease.h"
+#import "FIRAppDistributionRelease.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

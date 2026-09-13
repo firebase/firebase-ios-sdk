@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "DefaultUI/FIRIAMBaseRenderingViewController.h"
+#import "FIRIAMBaseRenderingViewController.h"
 
 @class FIRInAppMessagingBannerDisplay;
 @class FIRIAMBaseRenderingViewController;

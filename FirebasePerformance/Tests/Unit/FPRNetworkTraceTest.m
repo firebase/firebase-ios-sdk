@@ -17,16 +17,16 @@
 #import <GoogleUtilities/GULUserDefaults.h>
 
 #import <FirebasePerformance/FIRPerformance.h>
-#import "AppActivity/FPRSessionManager.h"
-#import "Common/FPRConstants.h"
-#import "Configurations/FPRConfigurations+Private.h"
-#import "Configurations/FPRConfigurations.h"
-#import "Configurations/FPRRemoteConfigFlags+Private.h"
-#import "Configurations/FPRRemoteConfigFlags.h"
-#import "Instrumentation/FPRNetworkTrace+Private.h"
-#import "Instrumentation/FPRNetworkTrace.h"
+#import "FPRConfigurations+Private.h"
+#import "FPRConfigurations.h"
+#import "FPRConstants.h"
+#import "FPRNetworkTrace+Private.h"
+#import "FPRNetworkTrace.h"
+#import "FPRRemoteConfigFlags+Private.h"
+#import "FPRRemoteConfigFlags.h"
+#import "FPRSessionManager.h"
 
-#import "Configurations/FPRFakeRemoteConfig.h"
+#import "FPRFakeRemoteConfig.h"
 #import "FPRTestCase.h"
 #import "FPRTestUtils.h"
 

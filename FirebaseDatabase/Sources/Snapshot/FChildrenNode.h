@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#import "Api/Private/FTypedefs_Private.h"
 #import "FImmutableSortedDictionary.h"
-#import "Snapshot/FNode.h"
-#import "Utilities/FTypedefs.h"
+#import "FNode.h"
+#import "FTypedefs.h"
+#import "FTypedefs_Private.h"
 #import <Foundation/Foundation.h>
 
 @class FNamedNode;
