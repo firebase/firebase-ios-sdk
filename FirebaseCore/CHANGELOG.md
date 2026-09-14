@@ -1,4 +1,9 @@
-# Firebase 13.0.0
+# Unreleased
+- [removed] Firebase is no longer distributed via CocoaPods. Firebase 13.0.0
+  and future releases are distributed exclusively via Swift Package Manager
+  and binary distributions. Existing CocoaPods releases will remain
+  available as long as CocoaPods ecosystem support continues. See
+  https://firebase.google.com/docs/ios/cocoapods-deprecation for details.
 - [changed] **Breaking change**: Removed the CocoaPods generated umbrella headers
   (suffixed `-umbrella.h`) from the Zip and Carthage artifacts, in favor of `Firebase.h`
   and framework specific umbrella headers. (#16540)
