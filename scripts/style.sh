@@ -167,6 +167,9 @@ s%^./%%
 \%\.pb\.% d
 \%\.nanopb\.% d
 
+# GeminiLanguageModel sources
+\%^GeminiLanguageModel% d
+
 # Format C-ish sources and shell scripts only
 \%\.(h|m|mm|cc|swift|sh)$% p
 '

@@ -19,7 +19,7 @@
 
   final class ResponseGenerationOptionsTests: XCTestCase {
     func testGenerationConfigConversion() {
-      let config = GenerationConfig(temperature: 0.5, topK: 40)
+      let config = GenerationConfig()
 
       let options = config.responseGenerationOptions
 
@@ -40,7 +40,7 @@
     }
 
     func testFactoryMethods() {
-      let config = GenerationConfig(temperature: 0.7, topP: 0.8)
+      let config = GenerationConfig()
       let foundationModelsGenerationOptions = FirebaseAI.GenerationOptions(
         sampling: .greedy, temperature: 0.4, maximumResponseTokens: 200
       )

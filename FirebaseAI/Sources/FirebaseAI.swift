@@ -23,6 +23,10 @@ import Foundation
 // Avoids exposing internal FirebaseCore APIs to Swift users.
 internal import FirebaseCoreExtension
 
+#if compiler(>=6.4) && canImport(FoundationModels) && canImport(GeminiLanguageModel)
+  @_exported import GeminiLanguageModel
+#endif // compiler(>=6.4) && canImport(FoundationModels) && canImport(GeminiLanguageModel)
+
 /// The Firebase AI SDK provides access to Gemini models directly from your app.
 public final class FirebaseAI: Sendable {
   // MARK: - Public APIs
