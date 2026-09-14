@@ -104,6 +104,10 @@ class CodableIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testCodableRoundTrip() throws {
+    try XCTSkipIf(
+      FSTIntegrationTestCase.backendEdition() == .standard,
+      "BSON types are not supported on standard backend."
+    )
     struct Model: Codable, Equatable {
       var name: String
       var age: Int32
@@ -235,14 +239,26 @@ class CodableIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testMinKey() throws {
+    try XCTSkipIf(
+      FSTIntegrationTestCase.backendEdition() == .standard,
+      "BSON types are not supported on standard backend."
+    )
     try assertCanWriteAndReadCodableValueWithAllFlavors(value: MinKey.shared)
   }
 
   func testMaxKey() throws {
+    try XCTSkipIf(
+      FSTIntegrationTestCase.backendEdition() == .standard,
+      "BSON types are not supported on standard backend."
+    )
     try assertCanWriteAndReadCodableValueWithAllFlavors(value: MaxKey.shared)
   }
 
   func testRegexValue() throws {
+    try XCTSkipIf(
+      FSTIntegrationTestCase.backendEdition() == .standard,
+      "BSON types are not supported on standard backend."
+    )
     try assertCanWriteAndReadCodableValueWithAllFlavors(value: RegexValue(
       pattern: "^foo",
       options: "i"
@@ -250,20 +266,36 @@ class CodableIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testInt32Value() throws {
+    try XCTSkipIf(
+      FSTIntegrationTestCase.backendEdition() == .standard,
+      "BSON types are not supported on standard backend."
+    )
     try assertCanWriteAndReadCodableValueWithAllFlavors(value: Int32Value(123))
   }
 
   func testDecimal128Value() throws {
+    try XCTSkipIf(
+      FSTIntegrationTestCase.backendEdition() == .standard,
+      "BSON types are not supported on standard backend."
+    )
     try assertCanWriteAndReadCodableValueWithAllFlavors(value: Decimal128Value("1.2e3"))
   }
 
   func testBsonObjectId() throws {
+    try XCTSkipIf(
+      FSTIntegrationTestCase.backendEdition() == .standard,
+      "BSON types are not supported on standard backend."
+    )
     try assertCanWriteAndReadCodableValueWithAllFlavors(
       value: BSONObjectId("507f191e810c19729de860ec")
     )
   }
 
   func testBsonTimestamp() throws {
+    try XCTSkipIf(
+      FSTIntegrationTestCase.backendEdition() == .standard,
+      "BSON types are not supported on standard backend."
+    )
     try assertCanWriteAndReadCodableValueWithAllFlavors(
       value: BSONTimestamp(seconds: 123, increment: 456)
     )

@@ -102,6 +102,10 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testCanWriteAndReadBsonTypes() async throws {
+    try XCTSkipIf(
+      FSTIntegrationTestCase.backendEdition() == .standard,
+      "BSON types are not supported on standard backend."
+    )
     let collection = collectionRef()
     let ref = try await collection.addDocument(data: [
       "binary": Blob(bsonBinary: Data([1, 2, 3]), subtype: 1),
@@ -212,6 +216,10 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testCanFilterAndOrderObjectIds() async throws {
+    try XCTSkipIf(
+      FSTIntegrationTestCase.backendEdition() == .standard,
+      "BSON types are not supported on standard backend."
+    )
     let testDocs = [
       "a": ["key": BSONObjectId("507f191e810c19729de860ea")],
       "b": ["key": BSONObjectId("507f191e810c19729de860eb")],
@@ -248,6 +256,10 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testCanFilterAndOrderInt32Values() async throws {
+    try XCTSkipIf(
+      FSTIntegrationTestCase.backendEdition() == .standard,
+      "BSON types are not supported on standard backend."
+    )
     let testDocs: [String: [String: Any]] = [
       "a": ["key": Int32Value(-1)],
       "b": ["key": Int32Value(1)],
@@ -279,6 +291,10 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testCanFilterAndOrderDecimal128Values() async throws {
+    try XCTSkipIf(
+      FSTIntegrationTestCase.backendEdition() == .standard,
+      "BSON types are not supported on standard backend."
+    )
     let testDocs: [String: [String: Any]] = [
       "a": ["key": Decimal128Value("-Infinity")],
       "b": ["key": Decimal128Value("NaN")],
@@ -368,6 +384,10 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testCanFilterAndOrderNumericalValues() async throws {
+    try XCTSkipIf(
+      FSTIntegrationTestCase.backendEdition() == .standard,
+      "BSON types are not supported on standard backend."
+    )
     let testDocs: [String: [String: Any]] = [
       "a": ["key": Decimal128Value("-1.2e3")],
       "b": ["key": Int32Value(0)],
@@ -429,6 +449,10 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testDecimal128ValuesWithNo2sComplementRepresentation() async throws {
+    try XCTSkipIf(
+      FSTIntegrationTestCase.backendEdition() == .standard,
+      "BSON types are not supported on standard backend."
+    )
     let testDocs: [String: [String: Any]] = [
       "a": ["key": Decimal128Value("-1.1e-3")], // -0.0011
       "b": ["key": Decimal128Value("1.1")],
@@ -482,6 +506,10 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testCanFilterAndOrderTimestampValues() async throws {
+    try XCTSkipIf(
+      FSTIntegrationTestCase.backendEdition() == .standard,
+      "BSON types are not supported on standard backend."
+    )
     let testDocs: [String: [String: Any]] = [
       "a": ["key": BSONTimestamp(seconds: 1, increment: 1)],
       "b": ["key": BSONTimestamp(seconds: 1, increment: 2)],
@@ -554,6 +582,10 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testCanFilterAndOrderRegexValues() async throws {
+    try XCTSkipIf(
+      FSTIntegrationTestCase.backendEdition() == .standard,
+      "BSON types are not supported on standard backend."
+    )
     let testDocs = [
       "a": ["key": RegexValue(pattern: "^bar", options: "i")],
       "b": ["key": RegexValue(pattern: "^bar", options: "x")],
@@ -579,6 +611,10 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testCanFilterAndOrderMinKeyValues() async throws {
+    try XCTSkipIf(
+      FSTIntegrationTestCase.backendEdition() == .standard,
+      "BSON types are not supported on standard backend."
+    )
     let testDocs: [String: [String: Any]] = [
       "a": ["key": MinKey.shared],
       "b": ["key": MinKey.shared],
@@ -662,6 +698,10 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testCanFilterAndOrderMaxKeyValues() async throws {
+    try XCTSkipIf(
+      FSTIntegrationTestCase.backendEdition() == .standard,
+      "BSON types are not supported on standard backend."
+    )
     let testDocs: [String: [String: Any]] = [
       "a": ["key": MinKey.shared],
       "b": ["key": 1],
@@ -745,6 +785,10 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testCanHandleNullWithBsonValues() async throws {
+    try XCTSkipIf(
+      FSTIntegrationTestCase.backendEdition() == .standard,
+      "BSON types are not supported on standard backend."
+    )
     let testDocs: [String: [String: Any]] = [
       "a": ["key": MinKey.shared],
       "b": ["key": NSNull()],
@@ -778,6 +822,10 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testCanOrderBsonValues() async throws {
+    try XCTSkipIf(
+      FSTIntegrationTestCase.backendEdition() == .standard,
+      "BSON types are not supported on standard backend."
+    )
     // This test includes several BSON values of different types and ensures
     // correct inter-type and intra-type order for BSON values.
     let testDocs: [String: [String: Any]] = [
@@ -848,6 +896,10 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testCanOrderValuesOfDifferentTypes() async throws {
+    try XCTSkipIf(
+      FSTIntegrationTestCase.backendEdition() == .standard,
+      "BSON types are not supported on standard backend."
+    )
     // This test has only 1 value of each type, and ensures correct order
     // across all types.
     let collection = collectionRef()
@@ -920,6 +972,10 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testCanRunTransactionsOnDocumentsWithBsonTypes() async throws {
+    try XCTSkipIf(
+      FSTIntegrationTestCase.backendEdition() == .standard,
+      "BSON types are not supported on standard backend."
+    )
     let testDocs = [
       "a": ["key": BSONTimestamp(seconds: 1, increment: 2)],
       "b": ["key": "placeholder"],
