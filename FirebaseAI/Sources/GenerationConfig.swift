@@ -183,7 +183,7 @@ public struct GenerationConfig: Sendable, Equatable {
   ///     for more details.
   ///   - responseModalities: The data types (modalities) that may be returned in model responses.
   ///
-  ///     See configure model parameters](https://firebase.google.com/docs/ai-logic/model-parameters#parameters-descriptions-gemini).
+  ///     See [configure model parameters](https://firebase.google.com/docs/ai-logic/model-parameters#parameters-descriptions-gemini).
   ///
   ///     > Warning: Specifying response modalities is a **Public Preview** feature, which means
   ///     > that it is not subject to any SLA or deprecation policy and could change in
