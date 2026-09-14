@@ -6,7 +6,7 @@
   FAQ entry for more details.
 - [changed] Updated the default function calling mode to `VALIDATED` for
   `GeminiLanguageModel` sessions. If your use case requires the previous `.auto`
-  behavior, configure it in `compatibilityOptions`. (#NNNNN)
+  behavior, configure it in `compatibilityOptions`. (#16649)
 - [changed] Deprecated model tuning parameters (`temperature`, `topP`, `topK`, `candidateCount`,
   `presencePenalty`, and `frequencyPenalty`) in `GenerationConfig` and `LiveGenerationConfig` as
   they are unsupported in Gemini 3.x and later models.
