@@ -75,7 +75,7 @@ public struct GenerationConfig: Sendable, Equatable {
   /// - Parameters:
   ///   - maxOutputTokens: Maximum number of tokens that can be generated in the response.
   ///     See the configure model parameters
-  /// [documentation](https://firebase.google.com/docs/ai-logic/model-parameters#max-output-tokens)
+  ///     [documentation](https://firebase.google.com/docs/ai-logic/model-parameters#max-output-tokens)
   ///     for more details.
   ///   - stopSequences: A set of up to 5 `String`s that will stop output generation. If specified,
   ///     the API will stop at the first appearance of a stop sequence. The stop sequence will not
@@ -159,7 +159,7 @@ public struct GenerationConfig: Sendable, Equatable {
   /// - Parameters:
   ///   - maxOutputTokens: Maximum number of tokens that can be generated in the response.
   ///     See the configure model parameters
-  /// [documentation](https://firebase.google.com/docs/ai-logic/model-parameters#max-output-tokens)
+  ///     [documentation](https://firebase.google.com/docs/ai-logic/model-parameters#max-output-tokens)
   ///     for more details.
   ///   - stopSequences: A set of up to 5 `String`s that will stop output generation. If specified,
   ///     the API will stop at the first appearance of a stop sequence. The stop sequence will not
