@@ -47,3 +47,13 @@ package struct EndpointConfiguration: Sendable, Hashable, Equatable {
     self.apiVersion = apiVersion
   }
 }
+
+// MARK: - Standard Endpoints
+
+extension EndpointConfiguration {
+  /// The Gemini Developer API endpoint configuration (`generativelanguage.googleapis.com/v1beta`).
+  package static let geminiDeveloperAPI = EndpointConfiguration(
+    host: "generativelanguage.googleapis.com",
+    apiVersion: "v1beta"
+  )
+}

@@ -17,23 +17,45 @@
   import FoundationModels
   import GeminiAPIClient
   import GeminiTestUtilities
+  import Testing
 
   @testable import GeminiLanguageModel
 
   @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
   extension IntegrationTestingBackend {
+    /// Indicates whether this backend supports the specified API variant.
+    ///
+    /// - Parameter apiVariant: The API variant to evaluate.
+    /// - Returns: `true` if this backend supports `apiVariant`; otherwise, `false`.
+    func supports(apiVariant: GeminiLanguageModel.APIVariant) -> Bool {
+      switch apiVariant {
+      case .generateContent:
+        return true
+      case .interactions:
+        return self == .developerAPI
+      }
+    }
+
     /// Creates a `GeminiLanguageModel` configured for this backend.
     ///
-    /// - Parameter modelID: The model identifier to use. Defaults to `gemini-3.5-flash-lite`.
+    /// - Parameters:
+    ///   - modelID: The model identifier to use. Defaults to `gemini-3.5-flash-lite`.
+    ///   - apiVariant: The API variant to use. Defaults to `.generateContent`.
     /// - Returns: A configured `GeminiLanguageModel` instance.
-    /// - Throws: An error if model resource or credentials resolution fails.
+    /// - Throws: An error if model resource or credentials resolution fails, or cancels if unsupported.
     func makeModel(
-      modelID: String = ModelResource.gemini35FlashLiteID
+      modelID: String = ModelResource.gemini35FlashLiteID,
+      apiVariant: GeminiLanguageModel.APIVariant = .generateContent
     ) async throws -> GeminiLanguageModel {
-      GeminiLanguageModel(
+      if !supports(apiVariant: apiVariant) {
+        try Test.cancel("\(self) does not support the \(apiVariant) API yet.")
+      }
+
+      return GeminiLanguageModel(
         modelResource: try modelResource(modelID: modelID),
         endpointConfiguration: endpointConfiguration,
-        headerProvider: try await makeHeaderProvider()
+        headerProvider: try await makeHeaderProvider(),
+        apiVariant: apiVariant
       )
     }
   }

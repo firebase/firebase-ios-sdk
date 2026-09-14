@@ -38,11 +38,15 @@
 
     @Test(
       .requireIntegrationTestingBackend,
-      arguments: IntegrationTestingBackend.availableBackends
+      arguments: IntegrationTestingBackend.availableBackends,
+      GeminiLanguageModel.APIVariant.allCases
     )
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
-    func sessionRespondWithSchema(backend: IntegrationTestingBackend) async throws {
-      let model = try await backend.makeModel()
+    func sessionRespondWithSchema(
+      backend: IntegrationTestingBackend,
+      apiVariant: GeminiLanguageModel.APIVariant
+    ) async throws {
+      let model = try await backend.makeModel(apiVariant: apiVariant)
       let session = LanguageModelSession(model: model)
 
       let response = try await session.respond(
@@ -57,10 +61,17 @@
       #expect(response.usage.output.totalTokenCount > 0)
     }
 
-    @Test(.requireIntegrationTestingBackend, arguments: IntegrationTestingBackend.availableBackends)
+    @Test(
+      .requireIntegrationTestingBackend,
+      arguments: IntegrationTestingBackend.availableBackends,
+      GeminiLanguageModel.APIVariant.allCases
+    )
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
-    func sessionStreamResponseWithSchema(backend: IntegrationTestingBackend) async throws {
-      let model = try await backend.makeModel()
+    func sessionStreamResponseWithSchema(
+      backend: IntegrationTestingBackend,
+      apiVariant: GeminiLanguageModel.APIVariant
+    ) async throws {
+      let model = try await backend.makeModel(apiVariant: apiVariant)
       let session = LanguageModelSession(model: model)
 
       let stream = session.streamResponse(
@@ -99,10 +110,17 @@
       var priority: TicketPriority
     }
 
-    @Test(.requireIntegrationTestingBackend, arguments: IntegrationTestingBackend.availableBackends)
+    @Test(
+      .requireIntegrationTestingBackend,
+      arguments: IntegrationTestingBackend.availableBackends,
+      GeminiLanguageModel.APIVariant.allCases
+    )
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
-    func sessionRespondWithEnumClassification(backend: IntegrationTestingBackend) async throws {
-      let model = try await backend.makeModel()
+    func sessionRespondWithEnumClassification(
+      backend: IntegrationTestingBackend,
+      apiVariant: GeminiLanguageModel.APIVariant
+    ) async throws {
+      let model = try await backend.makeModel(apiVariant: apiVariant)
       let session = LanguageModelSession(model: model)
 
       let response = try await session.respond(
@@ -132,10 +150,17 @@
       var subteams: [OrganizationNode]
     }
 
-    @Test(.requireIntegrationTestingBackend, arguments: IntegrationTestingBackend.availableBackends)
+    @Test(
+      .requireIntegrationTestingBackend,
+      arguments: IntegrationTestingBackend.availableBackends,
+      GeminiLanguageModel.APIVariant.allCases
+    )
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
-    func sessionRespondWithRecursiveHierarchy(backend: IntegrationTestingBackend) async throws {
-      let model = try await backend.makeModel()
+    func sessionRespondWithRecursiveHierarchy(
+      backend: IntegrationTestingBackend,
+      apiVariant: GeminiLanguageModel.APIVariant
+    ) async throws {
+      let model = try await backend.makeModel(apiVariant: apiVariant)
       let session = LanguageModelSession(model: model)
 
       let prompt = """

@@ -54,12 +54,6 @@ extension EndpointConfiguration {
   /// Test Developer API version string.
   package static let geminiDeveloperAPIVersion = "v1beta"
 
-  /// Test Developer API endpoint configuration (`generativelanguage.googleapis.com/v1beta`).
-  package static let geminiDeveloperAPI = EndpointConfiguration(
-    host: geminiDeveloperAPIHost,
-    apiVersion: geminiDeveloperAPIVersion
-  )
-
   /// Test Firebase AI Logic host name.
   package static let firebaseAILogicHost = "firebasevertexai.googleapis.com"
 

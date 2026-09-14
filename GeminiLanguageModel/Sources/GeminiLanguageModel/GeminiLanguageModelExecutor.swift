@@ -17,6 +17,8 @@
   public import FoundationModels
   package import GeminiAPIClient
   import GeminiAPIDataModels
+  import GeminiSharedDataModels
+  import InteractionsDataModels
 
   @available(iOS 27.0, macOS 27.0, watchOS 27.0, visionOS 27.0, *)
   @available(tvOS, unavailable)
@@ -37,6 +39,9 @@
         /// The `URLSessionConfiguration` to use.
         let sessionConfiguration: URLSessionConfiguration
 
+        /// The API variant to use for generation.
+        let apiVariant: APIVariant
+
         /// Initializes an executor configuration.
         ///
         /// - Parameters:
@@ -44,16 +49,19 @@
         ///   - endpointConfiguration: The network endpoint configuration.
         ///   - headerProvider: An optional async provider for dynamic headers.
         ///   - sessionConfiguration: The `URLSessionConfiguration` to use.
+        ///   - apiVariant: The API variant to use for generation. Defaults to `.generateContent`.
         init(
           modelResource: ModelResource,
           endpointConfiguration: EndpointConfiguration,
           headerProvider: HeaderProvider?,
-          sessionConfiguration: URLSessionConfiguration
+          sessionConfiguration: URLSessionConfiguration,
+          apiVariant: APIVariant = .generateContent
         ) {
           self.modelResource = modelResource
           self.endpointConfiguration = endpointConfiguration
           self.headerProvider = headerProvider
           self.sessionConfiguration = sessionConfiguration
+          self.apiVariant = apiVariant
         }
       }
 
@@ -79,6 +87,41 @@
         model: GeminiLanguageModel,
         streamingInto channel: LanguageModelExecutorGenerationChannel
       ) async throws {
+        let responseEntryID = UUID().uuidString
+        let reasoningEntryID = UUID().uuidString
+        let toolCallsEntryID = UUID().uuidString
+        let jsonEncoder = JSONEncoder()
+
+        switch configuration.apiVariant {
+        case .generateContent:
+          try await respondWithGenerateContent(
+            to: request,
+            streamingInto: channel,
+            responseEntryID: responseEntryID,
+            reasoningEntryID: reasoningEntryID,
+            toolCallsEntryID: toolCallsEntryID,
+            jsonEncoder: jsonEncoder
+          )
+        case .interactions:
+          try await respondWithInteractions(
+            to: request,
+            streamingInto: channel,
+            responseEntryID: responseEntryID,
+            reasoningEntryID: reasoningEntryID,
+            toolCallsEntryID: toolCallsEntryID,
+            jsonEncoder: jsonEncoder
+          )
+        }
+      }
+
+      private func respondWithGenerateContent(
+        to request: LanguageModelExecutorGenerationRequest,
+        streamingInto channel: LanguageModelExecutorGenerationChannel,
+        responseEntryID: String,
+        reasoningEntryID: String,
+        toolCallsEntryID: String,
+        jsonEncoder: JSONEncoder
+      ) async throws {
         let generateRequest = try GeminiRequestTranslator.translate(request)
 
         let client = GeminiAPIClient(
@@ -87,11 +130,6 @@
           headerProvider: configuration.headerProvider,
           sessionConfiguration: configuration.sessionConfiguration
         )
-
-        let responseEntryID = UUID().uuidString
-        let reasoningEntryID = UUID().uuidString
-        let toolCallsEntryID = UUID().uuidString
-        let jsonEncoder = JSONEncoder()
 
         do {
           let stream = try await client.generateContentStream(for: generateRequest)
@@ -173,6 +211,184 @@
                   )
                 )
               )
+            }
+          }
+        } catch {
+          throw GeminiErrorMapper.map(error)
+        }
+      }
+
+      private func respondWithInteractions(
+        to request: LanguageModelExecutorGenerationRequest,
+        streamingInto channel: LanguageModelExecutorGenerationChannel,
+        responseEntryID: String,
+        reasoningEntryID: String,
+        toolCallsEntryID: String,
+        jsonEncoder: JSONEncoder
+      ) async throws {
+        let interactionRequest = try GeminiInteractionsRequestTranslator.translate(
+          request,
+          modelResource: configuration.modelResource
+        )
+
+        let client = GeminiAPIClient(
+          modelResource: configuration.modelResource,
+          endpointConfiguration: configuration.endpointConfiguration,
+          headerProvider: configuration.headerProvider,
+          sessionConfiguration: configuration.sessionConfiguration
+        )
+
+        var activeToolCalls: [Int: (id: String, name: String)] = [:]
+        var lastToolCall: (id: String, name: String)?
+        var toolCallArgumentsSent: Set<Int> = []
+
+        do {
+          let stream = try await client.interactionStream(for: interactionRequest)
+
+          for try await event in stream {
+            try Task.checkCancellation()
+
+            switch event {
+            case .stepStart(let stepStart):
+              let index = stepStart.index ?? 0
+              if let step = stepStart.step, case .functionCallStep(let fc) = step {
+                let toolCall = (id: fc.id ?? UUID().uuidString, name: fc.name ?? "")
+                activeToolCalls[index] = toolCall
+                lastToolCall = toolCall
+                if let args = fc.arguments {
+                  let argsString: String
+                  if !args.isEmpty {
+                    let data = try jsonEncoder.encode(JSONValue.object(args))
+                    argsString = String(decoding: data, as: UTF8.self)
+                  } else {
+                    argsString = "{}"
+                  }
+                  toolCallArgumentsSent.insert(index)
+                  await channel.send(
+                    .toolCalls(
+                      entryID: toolCallsEntryID,
+                      action: .toolCall(
+                        id: toolCall.id,
+                        name: toolCall.name,
+                        action: .appendArguments(argsString, tokenCount: 1)
+                      )
+                    )
+                  )
+                }
+              }
+
+            case .stepDelta(let stepDelta):
+              let index = stepDelta.index ?? 0
+              guard let delta = stepDelta.delta else { break }
+
+              switch delta {
+              case .textDelta(let textDelta):
+                if let text = textDelta.text, !text.isEmpty {
+                  await channel.send(
+                    .response(
+                      entryID: responseEntryID,
+                      action: .appendText(text, tokenCount: 1)
+                    )
+                  )
+                }
+
+              case .thoughtSummaryDelta(let thoughtDelta):
+                if case .textContent(let textContent) = thoughtDelta.content,
+                  let text = textContent.text, !text.isEmpty
+                {
+                  await channel.send(
+                    .reasoning(
+                      entryID: reasoningEntryID,
+                      action: .appendText(text, tokenCount: 1)
+                    )
+                  )
+                }
+
+              case .thoughtSignatureDelta(let signatureDelta):
+                if let signature = signatureDelta.signature, !signature.isEmpty {
+                  await channel.send(
+                    .reasoning(
+                      entryID: reasoningEntryID,
+                      action: .updateSignature(signature, tokenCount: 0)
+                    )
+                  )
+                }
+
+              case .argumentsDelta(let argsDelta):
+                let toolCall =
+                  activeToolCalls[index] ?? lastToolCall ?? (id: UUID().uuidString, name: "")
+                if let args = argsDelta.arguments, !args.isEmpty {
+                  toolCallArgumentsSent.insert(index)
+                  await channel.send(
+                    .toolCalls(
+                      entryID: toolCallsEntryID,
+                      action: .toolCall(
+                        id: toolCall.id,
+                        name: toolCall.name,
+                        action: .appendArguments(args, tokenCount: 1)
+                      )
+                    )
+                  )
+                }
+
+              default:
+                break
+              }
+
+            case .stepStop(let stepStop):
+              let index = stepStop.index ?? 0
+              if let toolCall = activeToolCalls[index] {
+                if !toolCallArgumentsSent.contains(index) {
+                  await channel.send(
+                    .toolCalls(
+                      entryID: toolCallsEntryID,
+                      action: .toolCall(
+                        id: toolCall.id,
+                        name: toolCall.name,
+                        action: .appendArguments("{}", tokenCount: 1)
+                      )
+                    )
+                  )
+                }
+              }
+              if let index = stepStop.index {
+                activeToolCalls.removeValue(forKey: index)
+                toolCallArgumentsSent.remove(index)
+              }
+
+            case .interactionCompletedEvent(let completed):
+              if let usage = completed.interaction?.usage {
+                await channel.send(
+                  .response(
+                    entryID: responseEntryID,
+                    action: .updateUsage(
+                      input: .init(
+                        totalTokenCount: usage.totalInputTokens ?? 0,
+                        cachedTokenCount: usage.totalCachedTokens ?? 0
+                      ),
+                      output: .init(
+                        totalTokenCount: usage.totalOutputTokens ?? 0,
+                        reasoningTokenCount: usage.totalThoughtTokens ?? 0
+                      )
+                    )
+                  )
+                )
+              }
+
+            case .errorEvent(let errorEvent):
+              let message = errorEvent.error?.message ?? "An error occurred during interaction."
+              let code = errorEvent.error?.code ?? "ERROR"
+              throw GeminiLanguageModel.Error.apiError(
+                GeminiLanguageModel.Error.APIError(
+                  code: code,
+                  statusCode: 400,
+                  message: message,
+                  metadata: [:]
+                )
+              )
+
+            default:
+              break
             }
           }
         } catch {

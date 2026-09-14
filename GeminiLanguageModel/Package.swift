@@ -31,12 +31,24 @@ let package = Package(
       targets: ["GeminiLanguageModel"]
     )
   ],
+  traits: [
+    .trait(
+      name: "GeminiDeveloperAPIEnvironmentAuth",
+      description:
+        """
+        Enables public initialization with the Gemini Developer API using the GOOGLE_API_KEY or \
+        GEMINI_API_KEY environment variable.
+        """
+    )
+  ],
   targets: [
     .target(
       name: "GeminiLanguageModel",
       dependencies: [
         "GeminiAPIClient",
         "GeminiAPIDataModels",
+        "InteractionsDataModels",
+        "GeminiSharedDataModels",
       ],
       swiftSettings: defaultSwiftSettings
     ),
@@ -66,7 +78,9 @@ let package = Package(
     .target(
       name: "GeminiAPIClient",
       dependencies: [
-        "GeminiAPIDataModels"
+        "GeminiAPIDataModels",
+        "InteractionsDataModels",
+        "GeminiSharedDataModels",
       ],
       swiftSettings: defaultSwiftSettings
     ),
@@ -79,7 +93,27 @@ let package = Package(
       swiftSettings: defaultSwiftSettings
     ),
     .target(
+      name: "GeminiSharedDataModels",
+      swiftSettings: [
+        .enableUpcomingFeature("ExistentialAny"),
+        .enableUpcomingFeature("MemberImportVisibility"),
+      ]
+    ),
+    .target(
       name: "GeminiAPIDataModels",
+      dependencies: [
+        "GeminiSharedDataModels"
+      ],
+      swiftSettings: [
+        .enableUpcomingFeature("ExistentialAny"),
+        .enableUpcomingFeature("MemberImportVisibility"),
+      ]
+    ),
+    .target(
+      name: "InteractionsDataModels",
+      dependencies: [
+        "GeminiSharedDataModels"
+      ],
       swiftSettings: [
         .enableUpcomingFeature("ExistentialAny"),
         .enableUpcomingFeature("MemberImportVisibility"),

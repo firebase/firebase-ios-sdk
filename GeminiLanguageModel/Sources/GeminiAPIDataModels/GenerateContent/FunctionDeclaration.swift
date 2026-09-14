@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import Foundation
+package import GeminiSharedDataModels
 
 /// An internal data model for `FunctionDeclaration`.
 ///

@@ -34,7 +34,7 @@ let package = Package(
 // MARK: - Package Manifest Builders
 
 func packageProducts() -> [Product] {
-  return [
+  [
     .library(
       name: "FirebaseAI",
       targets: [
@@ -144,7 +144,7 @@ func packageProducts() -> [Product] {
 }
 
 func packageDependencies() -> [Package.Dependency] {
-  return [
+  [
     .package(
       url: "https://github.com/google/promises.git",
       "2.4.0" ..< "3.0.0"
@@ -1720,6 +1720,8 @@ func firebaseAILogicDependencies() -> [Target.Dependency] {
         dependencies: [
           "GeminiAPIClient",
           "GeminiAPIDataModels",
+          "InteractionsDataModels",
+          "GeminiSharedDataModels",
         ],
         path: "GeminiLanguageModel/Sources/GeminiLanguageModel",
         swiftSettings: swiftSettings
@@ -1731,12 +1733,18 @@ func firebaseAILogicDependencies() -> [Target.Dependency] {
           "GeminiTestUtilities",
         ],
         path: "GeminiLanguageModel/Tests/GeminiLanguageModelTests",
+        exclude: [
+          "IntegrationTests/README.md",
+          "README.md",
+        ],
         swiftSettings: swiftSettings
       ),
       .target(
         name: "GeminiAPIClient",
         dependencies: [
           "GeminiAPIDataModels",
+          "InteractionsDataModels",
+          "GeminiSharedDataModels",
         ],
         path: "GeminiLanguageModel/Sources/GeminiAPIClient",
         swiftSettings: swiftSettings
@@ -1751,7 +1759,19 @@ func firebaseAILogicDependencies() -> [Target.Dependency] {
         swiftSettings: swiftSettings
       ),
       .target(
+        name: "GeminiSharedDataModels",
+        path: "GeminiLanguageModel/Sources/GeminiSharedDataModels",
+        swiftSettings: [
+          .enableUpcomingFeature("ExistentialAny"),
+          .enableUpcomingFeature("MemberImportVisibility"),
+          .swiftLanguageMode(.v6),
+        ]
+      ),
+      .target(
         name: "GeminiAPIDataModels",
+        dependencies: [
+          "GeminiSharedDataModels",
+        ],
         path: "GeminiLanguageModel/Sources/GeminiAPIDataModels",
         swiftSettings: [
           .enableUpcomingFeature("ExistentialAny"),
@@ -1760,16 +1780,34 @@ func firebaseAILogicDependencies() -> [Target.Dependency] {
         ]
       ),
       .target(
+        name: "InteractionsDataModels",
+        dependencies: [
+          "GeminiSharedDataModels",
+        ],
+        path: "GeminiLanguageModel/Sources/InteractionsDataModels",
+        swiftSettings: [
+          .enableUpcomingFeature("ExistentialAny"),
+          .enableUpcomingFeature("MemberImportVisibility"),
+          .swiftLanguageMode(.v6),
+        ]
+      ),
+      .target(
         name: "GeminiTestUtilities",
+        dependencies: [
+          "GeminiAPIClient",
+        ],
         path: "GeminiLanguageModel/Tests/GeminiTestUtilities",
-        swiftSettings: swiftSettings,
+        exclude: [
+          "README.md",
+        ],
+        swiftSettings: swiftSettings
       ),
     ]
   }
 #endif // compiler(>=6.4) && canImport(FoundationModels)
 
 func isFoundationModelsSupportedPlatformSwiftSetting() -> SwiftSetting {
-  return SwiftSetting.define(
+  SwiftSetting.define(
     "IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM",
     .when(platforms: [.iOS, .macCatalyst, .macOS, .visionOS])
   )
