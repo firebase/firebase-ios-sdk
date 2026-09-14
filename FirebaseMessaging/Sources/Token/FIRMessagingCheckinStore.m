@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-#import "FirebaseMessaging/Sources/Token/FIRMessagingCheckinStore.h"
+#import "Token/FIRMessagingCheckinStore.h"
 
-#import "FirebaseMessaging/Sources/FIRMessagingCode.h"
-#import "FirebaseMessaging/Sources/FIRMessagingConstants.h"
-#import "FirebaseMessaging/Sources/FIRMessagingLogger.h"
-#import "FirebaseMessaging/Sources/FIRMessagingUtilities.h"
-#import "FirebaseMessaging/Sources/NSError+FIRMessaging.h"
-#import "FirebaseMessaging/Sources/Token/FIRMessagingAuthKeychain.h"
-#import "FirebaseMessaging/Sources/Token/FIRMessagingBackupExcludedPlist.h"
-#import "FirebaseMessaging/Sources/Token/FIRMessagingCheckinPreferences.h"
-#import "FirebaseMessaging/Sources/Token/FIRMessagingCheckinService.h"
+#import "FIRMessagingCode.h"
+#import "FIRMessagingConstants.h"
+#import "FIRMessagingLogger.h"
+#import "FIRMessagingUtilities.h"
+#import "NSError+FIRMessaging.h"
+#import "Token/FIRMessagingAuthKeychain.h"
+#import "Token/FIRMessagingBackupExcludedPlist.h"
+#import "Token/FIRMessagingCheckinPreferences.h"
+#import "Token/FIRMessagingCheckinService.h"
 
 // NOTE: These values should be in sync with what InstanceID saves in as.
 static NSString *const kCheckinFileName = @"g-checkin";

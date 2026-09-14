@@ -18,10 +18,10 @@
 #import <UserNotifications/UserNotifications.h>
 #import <XCTest/XCTest.h>
 
+#import <FirebaseMessaging/FIRMessaging.h>
 #import <GoogleUtilities/GULAppDelegateSwizzler.h>
-#import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessaging.h"
 
-#import "FirebaseMessaging/Sources/FIRMessagingRemoteNotificationsProxy.h"
+#import "FIRMessagingRemoteNotificationsProxy.h"
 
 #pragma mark - Invalid App Delegate or UNNotificationCenter
 

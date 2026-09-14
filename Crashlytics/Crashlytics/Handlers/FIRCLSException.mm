@@ -14,27 +14,27 @@
 
 #import <Foundation/Foundation.h>
 
-#include "Crashlytics/Crashlytics/Handlers/FIRCLSException.h"
+#include "Handlers/FIRCLSException.h"
 
-#import "Crashlytics/Crashlytics/Private/FIRExceptionModel_Private.h"
-#import "Crashlytics/Crashlytics/Private/FIRStackFrame_Private.h"
+#import "Private/FIRExceptionModel_Private.h"
+#import "Private/FIRStackFrame_Private.h"
 
-#include "Crashlytics/Crashlytics/Components/FIRCLSApplication.h"
-#include "Crashlytics/Crashlytics/Components/FIRCLSContext.h"
-#include "Crashlytics/Crashlytics/Components/FIRCLSGlobals.h"
-#include "Crashlytics/Crashlytics/Components/FIRCLSProcess.h"
-#import "Crashlytics/Crashlytics/Components/FIRCLSUserLogging.h"
+#include "Components/FIRCLSApplication.h"
+#include "Components/FIRCLSContext.h"
+#include "Components/FIRCLSGlobals.h"
+#include "Components/FIRCLSProcess.h"
+#import "Components/FIRCLSUserLogging.h"
 
-#include "Crashlytics/Crashlytics/Handlers/FIRCLSHandler.h"
-#include "Crashlytics/Crashlytics/Helpers/FIRCLSFile.h"
-#import "Crashlytics/Crashlytics/Helpers/FIRCLSLogger.h"
-#import "Crashlytics/Crashlytics/Helpers/FIRCLSUtility.h"
+#include "Handlers/FIRCLSHandler.h"
+#include "Helpers/FIRCLSFile.h"
+#import "Helpers/FIRCLSLogger.h"
+#import "Helpers/FIRCLSUtility.h"
 
-#import "Crashlytics/Crashlytics/Controllers/FIRCLSReportManager_Private.h"
-#import "Crashlytics/Crashlytics/Models/FIRCLSExecutionIdentifierModel.h"
-#import "Crashlytics/Crashlytics/Models/FIRCLSFileManager.h"
-#import "Crashlytics/Crashlytics/Models/FIRCLSInternalReport.h"
-#include "Crashlytics/Crashlytics/Operations/Symbolication/FIRCLSDemangleOperation.h"
+#import "Controllers/FIRCLSReportManager_Private.h"
+#import "Models/FIRCLSExecutionIdentifierModel.h"
+#import "Models/FIRCLSFileManager.h"
+#import "Models/FIRCLSInternalReport.h"
+#include "Operations/Symbolication/FIRCLSDemangleOperation.h"
 
 // C++/Objective-C exception handling
 #include <cxxabi.h>

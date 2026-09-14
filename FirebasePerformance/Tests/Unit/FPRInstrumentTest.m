@@ -14,10 +14,10 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FirebasePerformance/Sources/Instrumentation/FPRClassInstrumentor.h"
-#import "FirebasePerformance/Sources/Instrumentation/FPRInstrument.h"
-#import "FirebasePerformance/Sources/Instrumentation/FPRInstrument_Private.h"
-#import "FirebasePerformance/Sources/Instrumentation/FPRSelectorInstrumentor.h"
+#import "Instrumentation/FPRClassInstrumentor.h"
+#import "Instrumentation/FPRInstrument.h"
+#import "Instrumentation/FPRInstrument_Private.h"
+#import "Instrumentation/FPRSelectorInstrumentor.h"
 
 #import <OCMock/OCMock.h>
 

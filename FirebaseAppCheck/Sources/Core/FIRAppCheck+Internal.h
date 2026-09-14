@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheck.h"
+#import <FirebaseAppCheck/FIRAppCheck.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

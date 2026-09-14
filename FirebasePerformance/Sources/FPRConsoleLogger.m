@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebasePerformance/Sources/FPRConsoleLogger.h"
+#import "FPRConsoleLogger.h"
 
 // The Firebase service used in the Firebase logger.
 FIRLoggerService kFIRLoggerPerf = @"[FirebasePerformance]";

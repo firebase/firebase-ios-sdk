@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebaseCore/Tests/Unit/FIRTestCase.h"
+#import "FIRTestCase.h"
 
-#import "FirebaseCore/Extension/FIRComponentType.h"
-#import "FirebaseCore/Sources/FIRComponentContainerInternal.h"
+#import <FirebaseCoreExtension/FIRComponentType.h>
+#import "FIRComponentContainerInternal.h"
 
-#import "FirebaseCore/Tests/Unit/FIRTestComponents.h"
+#import "FIRTestComponents.h"
 
 @interface FIRComponentTypeTest : FIRTestCase
 

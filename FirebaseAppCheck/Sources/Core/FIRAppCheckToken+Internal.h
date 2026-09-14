@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckToken.h"
+#import <FirebaseAppCheck/FIRAppCheckToken.h>
 
 #import <Foundation/Foundation.h>
 

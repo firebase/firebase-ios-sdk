@@ -14,13 +14,9 @@
  * limitations under the License.
  */
 
-#import "SharedTestUtilities/FIRAuthInteropFake.h"
+#import "FIRAuthInteropFake.h"
 
-#if SWIFT_PACKAGE
 #import <FirebaseAuthInterop/FIRAuthInterop.h>
-#else
-#import "FirebaseAuth/Interop/Public/FirebaseAuthInterop/FIRAuthInterop.h"
-#endif
 
 NS_ASSUME_NONNULL_BEGIN
 

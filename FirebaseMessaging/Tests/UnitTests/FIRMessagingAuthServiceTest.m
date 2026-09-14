@@ -16,11 +16,11 @@
 
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
-#import "FirebaseMessaging/Sources/NSError+FIRMessaging.h"
-#import "FirebaseMessaging/Sources/Token/FIRMessagingAuthService.h"
-#import "FirebaseMessaging/Sources/Token/FIRMessagingCheckinPreferences.h"
-#import "FirebaseMessaging/Sources/Token/FIRMessagingCheckinService.h"
-#import "FirebaseMessaging/Sources/Token/FIRMessagingCheckinStore.h"
+#import "NSError+FIRMessaging.h"
+#import "Token/FIRMessagingAuthService.h"
+#import "Token/FIRMessagingCheckinPreferences.h"
+#import "Token/FIRMessagingCheckinService.h"
+#import "Token/FIRMessagingCheckinStore.h"
 
 static NSString *const kDeviceAuthId = @"device-id";
 static NSString *const kSecretToken = @"secret-token";

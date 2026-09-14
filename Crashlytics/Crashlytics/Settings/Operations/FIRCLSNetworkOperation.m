@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "Crashlytics/Crashlytics/Settings/Operations/FIRCLSNetworkOperation.h"
+#import "Settings/Operations/FIRCLSNetworkOperation.h"
 
-#import "Crashlytics/Crashlytics/Components/FIRCLSApplication.h"
-#import "Crashlytics/Crashlytics/DataCollection/FIRCLSDataCollectionToken.h"
-#import "Crashlytics/Crashlytics/Helpers/FIRCLSDefines.h"
-#import "Crashlytics/Crashlytics/Helpers/FIRCLSLogger.h"
-#import "Crashlytics/Shared/FIRCLSConstants.h"
+#import "Components/FIRCLSApplication.h"
+#import "DataCollection/FIRCLSDataCollectionToken.h"
+#import "Helpers/FIRCLSDefines.h"
+#import "Helpers/FIRCLSLogger.h"
+#import "Shared/FIRCLSConstants.h"
 
 @interface FIRCLSNetworkOperation ()
 

@@ -21,7 +21,7 @@
 // old legacy classes and logic (ie FIRCLSInternalReport, FIRCLSPackageReportsOperation) used for
 // processing reports can be removed. At that point, this mock class should be removed.
 
-#import "Crashlytics/UnitTests/Mocks/FIRCLSTempMockFileManager.h"
+#import "FIRCLSTempMockFileManager.h"
 
 @implementation FIRCLSTempMockFileManager
 

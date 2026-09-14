@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebasePerformance/Sources/ISASwizzler/FPRObjectSwizzler.h"
+#import "ISASwizzler/FPRObjectSwizzler.h"
 
 FOUNDATION_EXPORT const NSString *const kGULSwizzlerAssociatedObjectKey;
 

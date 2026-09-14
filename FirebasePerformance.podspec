@@ -31,9 +31,6 @@ Firebase Performance library to measure performance of Mobile and Web Apps.
   base_dir = "FirebasePerformance/"
   s.source_files = [
     base_dir + 'Sources/**/*.[cmh]',
-    'FirebaseCore/Extension/*.h',
-    'FirebaseInstallations/Source/Library/Private/*.h',
-    'FirebaseRemoteConfig/Sources/Private/*.h',
   ]
 
   s.requires_arc = [
@@ -51,21 +48,21 @@ Firebase Performance library to measure performance of Mobile and Web Apps.
 
   s.pod_target_xcconfig = {
     'GCC_PREPROCESSOR_DEFINITIONS' => preprocessor_definitions,
-    # Unit tests do library imports using repo-root relative paths.
-    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"',
+    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}/FirebasePerformance/Sources"',
   }
 
   s.ios.framework = 'CoreTelephony'
   s.framework = 'QuartzCore'
   s.framework = 'SystemConfiguration'
   s.dependency 'FirebaseCore', '~> 12.19.0'
+  s.dependency 'FirebaseCoreExtension', '~> 12.19.0'
   s.dependency 'FirebaseInstallations', '~> 12.19.0'
   s.dependency 'FirebaseRemoteConfig', '~> 12.19.0'
   s.dependency 'FirebaseSessions', '~> 12.19.0'
   s.dependency 'GoogleDataTransport', '~> 10.1'
-  s.dependency 'GoogleUtilities/Environment', '>= 8.1.3', '< 9.0'
-  s.dependency 'GoogleUtilities/MethodSwizzler', '>= 8.1.3', '< 9.0'
-  s.dependency 'GoogleUtilities/UserDefaults', '>= 8.1.3', '< 9.0'
+  s.dependency 'GoogleUtilities/Environment', '~> 8.1'
+  s.dependency 'GoogleUtilities/MethodSwizzler', '~> 8.1'
+  s.dependency 'GoogleUtilities/UserDefaults', '~> 8.1'
   s.dependency 'nanopb', '~> 3.30910.0'
 
   s.test_spec 'unit' do |unit_tests|
@@ -73,13 +70,16 @@ Firebase Performance library to measure performance of Mobile and Web Apps.
     unit_tests.scheme = { :code_coverage => true }
     unit_tests.source_files = [
       'FirebasePerformance/Tests/Unit/**/*.{m,h,plist}',
-      'SharedTestUtilities/*.[hm]',
+      'SharedTestUtilities/Date/*.[hm]',
+      'SharedTestUtilities/URLSession/*.[hm]',
+      'SharedTestUtilities/GDTCORTransportFake.[hm]',
     ]
     unit_tests.resources = ['FirebasePerformance/Tests/Unit/Server/*File']
     unit_tests.requires_arc = true
     unit_tests.requires_app_host = true
     unit_tests.pod_target_xcconfig = {
-     'CLANG_ENABLE_OBJC_WEAK' => 'YES',
+      'CLANG_ENABLE_OBJC_WEAK' => 'YES',
+      'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}/SharedTestUtilities"',
     }
     unit_tests.info_plist = {
       'FPRTestingDummyFeature' => true,

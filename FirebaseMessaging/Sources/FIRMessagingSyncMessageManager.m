@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-#import "FirebaseMessaging/Sources/FIRMessagingSyncMessageManager.h"
+#import "FIRMessagingSyncMessageManager.h"
 
-#import "FirebaseMessaging/Sources/FIRMessagingConstants.h"
-#import "FirebaseMessaging/Sources/FIRMessagingDefines.h"
-#import "FirebaseMessaging/Sources/FIRMessagingLogger.h"
-#import "FirebaseMessaging/Sources/FIRMessagingPersistentSyncMessage.h"
-#import "FirebaseMessaging/Sources/FIRMessagingRmqManager.h"
-#import "FirebaseMessaging/Sources/FIRMessagingUtilities.h"
+#import "FIRMessagingConstants.h"
+#import "FIRMessagingDefines.h"
+#import "FIRMessagingLogger.h"
+#import "FIRMessagingPersistentSyncMessage.h"
+#import "FIRMessagingRmqManager.h"
+#import "FIRMessagingUtilities.h"
 
 static const int64_t kDefaultSyncMessageTTL = 4 * 7 * 24 * 60 * 60;  // 4 weeks
 

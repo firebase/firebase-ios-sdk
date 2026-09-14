@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-#import "FirebaseMessaging/Sources/FIRMessagingUtilities.h"
+#import "FIRMessagingUtilities.h"
 
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import <GoogleUtilities/GULUserDefaults.h>
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
-#import "FirebaseMessaging/Sources/FIRMessagingLogger.h"
+#import "FIRMessagingLogger.h"
 
 NSString *const kFIRMessagingInstanceIDUserDefaultsKeyLocale =
     @"com.firebase.instanceid.user_defaults.locale";  // locale key stored in GULUserDefaults

@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#import "Firestore/Source/API/FIRWriteBatch+Internal.h"
+#import "FIRWriteBatch+Internal.h"
 
-#import "Firestore/Source/API/FIRDocumentReference+Internal.h"
-#import "Firestore/Source/API/FSTUserDataReader.h"
+#import "FIRDocumentReference+Internal.h"
+#import "FSTUserDataReader.h"
 
 #include "Firestore/core/src/api/write_batch.h"
 #include "Firestore/core/src/core/user_data.h"

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FirebaseCore/Extension/FIRHeartbeatLogger.h"
+#import <FirebaseCoreExtension/FIRHeartbeatLogger.h>
 
 #import <AppCheckCore/AppCheckCore.h>
 

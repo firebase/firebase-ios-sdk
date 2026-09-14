@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebasePerformance/Sources/Instrumentation/FPRInstrument.h"
-#import "FirebasePerformance/Sources/Instrumentation/FPRInstrument_Private.h"
+#import "Instrumentation/FPRInstrument.h"
+#import "Instrumentation/FPRInstrument_Private.h"
 
-#import "FirebasePerformance/Sources/Common/FPRDiagnostics.h"
-#import "FirebasePerformance/Sources/Configurations/FPRConfigurations.h"
-#import "FirebasePerformance/Sources/FPRConsoleLogger.h"
-#import "FirebasePerformance/Sources/Instrumentation/FPRClassInstrumentor.h"
-#import "FirebasePerformance/Sources/Instrumentation/FPRObjectInstrumentor.h"
+#import "Common/FPRDiagnostics.h"
+#import "Configurations/FPRConfigurations.h"
+#import "FPRConsoleLogger.h"
+#import "Instrumentation/FPRClassInstrumentor.h"
+#import "Instrumentation/FPRObjectInstrumentor.h"
 
 @implementation FPRInstrument {
   NSMutableArray<FPRClassInstrumentor *> *_classInstrumentors;

@@ -16,8 +16,8 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FirebaseDatabase/Sources/Core/FRepoInfo.h"
-#import "FirebaseDatabase/Sources/Realtime/FWebSocketConnection.h"
+#import "Core/FRepoInfo.h"
+#import "Realtime/FWebSocketConnection.h"
 
 #if !TARGET_OS_WATCH
 

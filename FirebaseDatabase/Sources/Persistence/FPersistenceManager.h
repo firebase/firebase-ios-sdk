@@ -16,13 +16,13 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FirebaseDatabase/Sources/Core/FQuerySpec.h"
-#import "FirebaseDatabase/Sources/Core/FRepoInfo.h"
-#import "FirebaseDatabase/Sources/Core/View/FCacheNode.h"
-#import "FirebaseDatabase/Sources/Persistence/FCachePolicy.h"
-#import "FirebaseDatabase/Sources/Persistence/FStorageEngine.h"
-#import "FirebaseDatabase/Sources/Snapshot/FCompoundWrite.h"
-#import "FirebaseDatabase/Sources/Snapshot/FNode.h"
+#import "Core/FQuerySpec.h"
+#import "Core/FRepoInfo.h"
+#import "Core/View/FCacheNode.h"
+#import "Persistence/FCachePolicy.h"
+#import "Persistence/FStorageEngine.h"
+#import "Snapshot/FCompoundWrite.h"
+#import "Snapshot/FNode.h"
 
 @interface FPersistenceManager : NSObject
 

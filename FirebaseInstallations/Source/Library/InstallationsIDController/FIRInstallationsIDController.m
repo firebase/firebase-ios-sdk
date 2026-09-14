@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FirebaseInstallations/Source/Library/InstallationsIDController/FIRInstallationsIDController.h"
+#import "InstallationsIDController/FIRInstallationsIDController.h"
 
 #if __has_include(<FBLPromises/FBLPromises.h>)
 #import <FBLPromises/FBLPromises.h>
@@ -22,21 +22,21 @@
 #import "FBLPromises.h"
 #endif
 
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 #import <GoogleUtilities/GULKeychainStorage.h>
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
-#import "FirebaseInstallations/Source/Library/Errors/FIRInstallationsErrorUtil.h"
-#import "FirebaseInstallations/Source/Library/FIRInstallationsItem.h"
-#import "FirebaseInstallations/Source/Library/FIRInstallationsLogger.h"
-#import "FirebaseInstallations/Source/Library/IIDMigration/FIRInstallationsIIDStore.h"
-#import "FirebaseInstallations/Source/Library/IIDMigration/FIRInstallationsIIDTokenStore.h"
-#import "FirebaseInstallations/Source/Library/InstallationsAPI/FIRInstallationsAPIService.h"
-#import "FirebaseInstallations/Source/Library/InstallationsIDController/FIRInstallationsBackoffController.h"
-#import "FirebaseInstallations/Source/Library/InstallationsIDController/FIRInstallationsSingleOperationPromiseCache.h"
-#import "FirebaseInstallations/Source/Library/InstallationsStore/FIRInstallationsStore.h"
+#import "Errors/FIRInstallationsErrorUtil.h"
+#import "FIRInstallationsItem.h"
+#import "FIRInstallationsLogger.h"
+#import "IIDMigration/FIRInstallationsIIDStore.h"
+#import "IIDMigration/FIRInstallationsIIDTokenStore.h"
+#import "InstallationsAPI/FIRInstallationsAPIService.h"
+#import "InstallationsIDController/FIRInstallationsBackoffController.h"
+#import "InstallationsIDController/FIRInstallationsSingleOperationPromiseCache.h"
+#import "InstallationsStore/FIRInstallationsStore.h"
 
-#import "FirebaseInstallations/Source/Library/Errors/FIRInstallationsHTTPError.h"
-#import "FirebaseInstallations/Source/Library/InstallationsStore/FIRInstallationsStoredAuthToken.h"
+#import "Errors/FIRInstallationsHTTPError.h"
+#import "InstallationsStore/FIRInstallationsStoredAuthToken.h"
 
 const NSNotificationName FIRInstallationIDDidChangeNotification =
     @"FIRInstallationIDDidChangeNotification";

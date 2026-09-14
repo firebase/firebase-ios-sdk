@@ -18,7 +18,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import "Firestore/Source/API/FIRSnapshotMetadata+Internal.h"
+#import "FIRSnapshotMetadata+Internal.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

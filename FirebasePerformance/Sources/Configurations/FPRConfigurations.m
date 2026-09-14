@@ -16,14 +16,14 @@
 
 #import <GoogleUtilities/GULUserDefaults.h>
 
-#import "FirebasePerformance/Sources/Common/FPRConstants.h"
-#import "FirebasePerformance/Sources/Configurations/FPRConfigurations+Private.h"
-#import "FirebasePerformance/Sources/Configurations/FPRConfigurations.h"
+#import "Common/FPRConstants.h"
+#import "Configurations/FPRConfigurations+Private.h"
+#import "Configurations/FPRConfigurations.h"
 
-#import "FirebasePerformance/Sources/Configurations/FPRRemoteConfigFlags+Private.h"
-#import "FirebasePerformance/Sources/Configurations/FPRRemoteConfigFlags.h"
+#import "Configurations/FPRRemoteConfigFlags+Private.h"
+#import "Configurations/FPRRemoteConfigFlags.h"
 
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
 FPRConfigName kFPRConfigDataCollectionEnabled = @"dataCollectionEnabled";
 

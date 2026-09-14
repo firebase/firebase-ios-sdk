@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/Sources/Core/Utilities/FPath.h"
-#import "FirebaseDatabase/Sources/Utilities/Tuples/FTuplePathValue.h"
-#import "FirebaseDatabase/Sources/third_party/FImmutableSortedDictionary/FImmutableSortedDictionary/FImmutableSortedDictionary.h"
+#import "Core/Utilities/FPath.h"
+#import "Utilities/Tuples/FTuplePathValue.h"
+#import "third_party/FImmutableSortedDictionary/FImmutableSortedDictionary/FImmutableSortedDictionary.h"
 
 @interface FImmutableTree : NSObject
 

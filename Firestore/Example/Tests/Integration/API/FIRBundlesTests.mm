@@ -17,8 +17,8 @@
 
 #import <XCTest/XCTest.h>
 
-#import "Firestore/Source/API/FIRLoadBundleTask+Internal.h"
-#import "Firestore/Source/API/FIRLocalCacheSettings+Internal.h"
+#import "FIRLoadBundleTask+Internal.h"
+#import "FIRLocalCacheSettings+Internal.h"
 
 #import "Firestore/Example/Tests/Util/FSTEventAccumulator.h"
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"

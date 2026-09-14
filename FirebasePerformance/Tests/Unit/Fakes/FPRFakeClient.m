@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebasePerformance/Tests/Unit/Fakes/FPRFakeClient.h"
+#import "FPRFakeClient.h"
 
-#import "FirebasePerformance/Sources/FPRClient+Private.h"
+#import "FPRClient+Private.h"
 
 @implementation FPRFakeClient
 

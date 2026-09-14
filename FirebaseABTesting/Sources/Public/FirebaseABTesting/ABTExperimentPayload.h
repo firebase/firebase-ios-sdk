@@ -12,6 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#ifndef ABTExperimentPayload_h
+#define ABTExperimentPayload_h
+
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -94,3 +97,5 @@ typedef NS_ENUM(int32_t, ABTExperimentPayloadExperimentOverflowPolicy) {
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif  // ABTExperimentPayload_h

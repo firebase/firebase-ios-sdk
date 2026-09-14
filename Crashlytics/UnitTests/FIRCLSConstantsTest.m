@@ -14,8 +14,8 @@
 
 #import <XCTest/XCTest.h>
 
-#import "Crashlytics/Shared/FIRCLSConstants.h"
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
+#import "Shared/FIRCLSConstants.h"
 
 #define STR_HELPER(x) #x
 #define STR(x) STR_HELPER(x)

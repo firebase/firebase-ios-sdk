@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebaseCore/Tests/Unit/FIRTestCase.h"
+#import "FIRTestCase.h"
 
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
-#import "FirebaseCore/Sources/FIRBundleUtil.h"
-#import "SharedTestUtilities/FIROptionsMock.h"
+#import "FIRBundleUtil.h"
+#import "FIROptionsMock.h"
 
 static NSString *const kResultPath = @"resultPath";
 static NSString *const kResourceName = @"resourceName";

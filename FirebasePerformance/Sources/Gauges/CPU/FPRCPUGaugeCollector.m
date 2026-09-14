@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebasePerformance/Sources/Gauges/CPU/FPRCPUGaugeCollector.h"
-#import "FirebasePerformance/Sources/Gauges/CPU/FPRCPUGaugeCollector+Private.h"
+#import "Gauges/CPU/FPRCPUGaugeCollector.h"
+#import "Gauges/CPU/FPRCPUGaugeCollector+Private.h"
 
-#import "FirebasePerformance/Sources/AppActivity/FPRSessionManager.h"
-#import "FirebasePerformance/Sources/Configurations/FPRConfigurations.h"
+#import "AppActivity/FPRSessionManager.h"
+#import "Configurations/FPRConfigurations.h"
 
-#import "FirebasePerformance/Sources/FPRConsoleLogger.h"
+#import "FPRConsoleLogger.h"
 
 #import <assert.h>
 #import <mach/mach.h>

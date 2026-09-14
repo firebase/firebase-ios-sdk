@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "SharedTestUtilities/URLSession/FIRURLSessionOCMockStub.h"
+#import "FIRURLSessionOCMockStub.h"
 
 #import <OCMock/OCMock.h>
 

@@ -16,7 +16,7 @@
 
 #import "PerfE2EViewController.h"
 
-#import "FirebaseCore/FIRApp.h"
+#import <FirebaseCore/FIRApp.h>
 
 @interface AppDelegate ()
 

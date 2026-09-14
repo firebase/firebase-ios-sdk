@@ -21,7 +21,7 @@
 #include <utility>
 #include <vector>
 
-#import "Firestore/Source/API/FIRFieldPath+Internal.h"
+#import "FIRFieldPath+Internal.h"
 
 #include "Firestore/core/src/model/field_path.h"
 #include "Firestore/core/src/util/exception.h"

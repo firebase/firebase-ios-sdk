@@ -17,14 +17,14 @@
 #import <TargetConditionals.h>
 #if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
 
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
-#import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
-#import "Interop/Analytics/Public/FIRAnalyticsInteropListener.h"
+#import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
+#import <FirebaseAnalyticsInterop/FIRAnalyticsInteropListener.h>
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
-#import "FirebaseInAppMessaging/Sources/FIRCore+InAppMessaging.h"
-#import "FirebaseInAppMessaging/Sources/FIRInAppMessagingPrivate.h"
-#import "FirebaseInAppMessaging/Sources/Private/Flows/FIRIAMDisplayCheckOnAnalyticEventsFlow.h"
-#import "FirebaseInAppMessaging/Sources/Private/Flows/FIRIAMDisplayExecutor.h"
+#import "FIRCore+InAppMessaging.h"
+#import "FIRInAppMessagingPrivate.h"
+#import "Private/Flows/FIRIAMDisplayCheckOnAnalyticEventsFlow.h"
+#import "Private/Flows/FIRIAMDisplayExecutor.h"
 
 @interface FIRIAMDisplayCheckOnAnalyticEventsFlow () <FIRAnalyticsInteropListener>
 @end

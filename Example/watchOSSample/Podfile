@@ -19,6 +19,8 @@ target 'SampleWatchAppWatchKitExtension' do
   pod 'FirebaseDatabase', :path => '../../'
   pod 'FirebaseAppCheckInterop', :path => '../../'
   pod 'FirebaseAuthInterop', :path => '../../'
+  pod 'FirebaseAnalyticsInterop', :path => '../../'
+  pod 'FirebaseMessagingInterop', :path => '../../'
   pod 'FirebaseRemoteConfigInterop', :path => '../../'
 
   pod 'Firebase/Messaging', :path => '../../'

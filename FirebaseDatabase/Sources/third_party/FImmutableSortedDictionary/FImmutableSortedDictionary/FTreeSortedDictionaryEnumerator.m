@@ -1,4 +1,4 @@
-#import "FirebaseDatabase/Sources/third_party/FImmutableSortedDictionary/FImmutableSortedDictionary/FTreeSortedDictionaryEnumerator.h"
+#import "FTreeSortedDictionaryEnumerator.h"
 
 @interface FTreeSortedDictionaryEnumerator()
 @property (nonatomic, strong) FTreeSortedDictionary* immutableSortedDictionary;

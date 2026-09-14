@@ -14,8 +14,8 @@
 
 #pragma once
 
-#include "Crashlytics/Crashlytics/Helpers/FIRCLSFeatures.h"
-#include "Crashlytics/Crashlytics/Helpers/FIRCLSFile.h"
+#include "Helpers/FIRCLSFeatures.h"
+#include "Helpers/FIRCLSFile.h"
 
 #include <signal.h>
 #include <stdbool.h>

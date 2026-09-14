@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/Sources/Utilities/Tuples/FTupleSetIdPath.h"
+#import "Utilities/Tuples/FTupleSetIdPath.h"
 
 @implementation FTupleSetIdPath
 

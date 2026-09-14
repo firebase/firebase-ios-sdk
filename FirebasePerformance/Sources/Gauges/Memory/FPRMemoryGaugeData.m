@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebasePerformance/Sources/Gauges/Memory/FPRMemoryGaugeData.h"
+#import "Gauges/Memory/FPRMemoryGaugeData.h"
 
 @implementation FPRMemoryGaugeData
 

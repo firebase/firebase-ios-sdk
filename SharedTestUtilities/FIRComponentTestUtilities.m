@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "SharedTestUtilities/FIRComponentTestUtilities.h"
+#import "FIRComponentTestUtilities.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

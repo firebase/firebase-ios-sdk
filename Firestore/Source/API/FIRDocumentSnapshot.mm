@@ -23,13 +23,13 @@
 
 #include "Firestore/core/src/util/warnings.h"
 
-#import "Firestore/Source/API/FIRDocumentReference+Internal.h"
-#import "Firestore/Source/API/FIRFieldPath+Internal.h"
-#import "Firestore/Source/API/FIRFirestore+Internal.h"
-#import "Firestore/Source/API/FIRGeoPoint+Internal.h"
-#import "Firestore/Source/API/FIRSnapshotMetadata+Internal.h"
-#import "Firestore/Source/API/FSTUserDataWriter.h"
-#import "Firestore/Source/API/converters.h"
+#import "FIRDocumentReference+Internal.h"
+#import "FIRFieldPath+Internal.h"
+#import "FIRFirestore+Internal.h"
+#import "FIRGeoPoint+Internal.h"
+#import "FIRSnapshotMetadata+Internal.h"
+#import "FSTUserDataWriter.h"
+#import "converters.h"
 
 #include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
 #include "Firestore/core/src/api/document_reference.h"

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FirebaseInstallations/Source/Library/FIRInstallationsItem.h"
+#import "FIRInstallationsItem.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/Sources/Core/View/FDataEvent.h"
-#import "FirebaseDatabase/Sources/Api/Private/FIRDatabaseQuery_Private.h"
-#import "FirebaseDatabase/Sources/Core/View/FEventRegistration.h"
-#import "FirebaseDatabase/Sources/FIndex.h"
+#import "Core/View/FDataEvent.h"
+#import "Api/Private/FIRDatabaseQuery_Private.h"
+#import "Core/View/FEventRegistration.h"
+#import "FIndex.h"
 
 @interface FDataEvent ()
 @property(nonatomic, strong, readwrite) id<FEventRegistration>

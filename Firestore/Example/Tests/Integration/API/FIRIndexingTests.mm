@@ -22,9 +22,9 @@
 
 #import <XCTest/XCTest.h>
 
+#import "FIRPersistentCacheIndexManager.h"
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
-#import "Firestore/Source/Public/FirebaseFirestore/FIRPersistentCacheIndexManager.h"
 
 @interface FIRIndexingTests : FSTIntegrationTestCase
 @end

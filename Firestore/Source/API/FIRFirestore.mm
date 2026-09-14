@@ -29,18 +29,18 @@
 #import "FIRTransactionOptions+Internal.h"
 #import "FIRTransactionOptions.h"
 
-#import "FirebaseCore/Extension/FIRAppInternal.h"
-#import "FirebaseCore/Extension/FIRComponentContainer.h"
-#import "FirebaseCore/Extension/FIRComponentType.h"
-#import "Firestore/Source/API/FIRCollectionReference+Internal.h"
-#import "Firestore/Source/API/FIRDocumentReference+Internal.h"
-#import "Firestore/Source/API/FIRListenerRegistration+Internal.h"
-#import "Firestore/Source/API/FIRLoadBundleTask+Internal.h"
-#import "Firestore/Source/API/FIRQuery+Internal.h"
-#import "Firestore/Source/API/FIRTransaction+Internal.h"
-#import "Firestore/Source/API/FIRWriteBatch+Internal.h"
-#import "Firestore/Source/API/FSTFirestoreComponent.h"
-#import "Firestore/Source/API/FSTUserDataReader.h"
+#import <FirebaseCoreExtension/FIRAppInternal.h>
+#import <FirebaseCoreExtension/FIRComponentContainer.h>
+#import <FirebaseCoreExtension/FIRComponentType.h>
+#import "FIRCollectionReference+Internal.h"
+#import "FIRDocumentReference+Internal.h"
+#import "FIRListenerRegistration+Internal.h"
+#import "FIRLoadBundleTask+Internal.h"
+#import "FIRQuery+Internal.h"
+#import "FIRTransaction+Internal.h"
+#import "FIRWriteBatch+Internal.h"
+#import "FSTFirestoreComponent.h"
+#import "FSTUserDataReader.h"
 
 #include "Firestore/core/src/api/collection_reference.h"
 #include "Firestore/core/src/api/document_reference.h"

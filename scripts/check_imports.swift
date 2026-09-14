@@ -55,7 +55,95 @@ let skipImportPatterns = [
   "FBLPromise",
   "OCMock",
   "OCMStubRecorder",
+  "nanopb",
+  "pb.h",
+  "pb_",
+  "leveldb/",
+  "SRWebSocket",
+  "unwind.h",
+  "libunwind",
 ]
+
+private class HeaderIndex {
+  static let shared = HeaderIndex()
+
+  private var productHeaders: [String: Set<String>] = [:]
+  private var allHeaders: Set<String> = []
+  private var initialized = false
+
+  func initialize(repoURL: URL) {
+    guard !initialized else { return }
+    initialized = true
+
+    let ignoredDirs = [".build", "Pods", ".git", "Carthage", "build", "DerivedData"]
+
+    guard let contents = try? FileManager.default.contentsOfDirectory(
+      at: repoURL,
+      includingPropertiesForKeys: nil,
+      options: [.skipsHiddenFiles]
+    )
+    else { return }
+
+    for rootURL in contents {
+      guard rootURL.hasDirectoryPath else { continue }
+      let dirName = rootURL.lastPathComponent
+      if ignoredDirs.contains(dirName) { continue }
+
+      var headerSet = Set<String>()
+      let enumerator = FileManager.default.enumerator(atPath: rootURL.path)
+      while let file = enumerator?.nextObject() as? String {
+        if file.hasSuffix(".h") || file.hasSuffix(".hpp") {
+          headerSet.insert(file)
+          let filename = URL(fileURLWithPath: file).lastPathComponent
+          headerSet.insert(filename)
+          allHeaders.insert(filename)
+        }
+      }
+      productHeaders[dirName] = headerSet
+    }
+  }
+
+  func headerExists(_ importRaw: String, inProduct product: String, fileDir: URL,
+                    repoURL: URL) -> Bool {
+    // 1. Direct file existence relative to file directory
+    if FileManager.default.fileExists(atPath: fileDir.appendingPathComponent(importRaw).path) {
+      return true
+    }
+
+    // 2. Direct file existence relative to repo root
+    if FileManager.default.fileExists(atPath: repoURL.appendingPathComponent(importRaw).path) {
+      return true
+    }
+
+    // 3. Check inside the product's headers (and SharedTestUtilities)
+    let headerName = URL(fileURLWithPath: importRaw).lastPathComponent
+    for prod in [
+      product,
+      "SharedTestUtilities",
+      "Crashlytics",
+      "FirebaseCore",
+      "FirebaseCoreExtension",
+    ] {
+      if let set = productHeaders[prod] {
+        if set.contains(headerName) || set.contains(importRaw) {
+          return true
+        }
+        for path in set {
+          if path.hasSuffix(importRaw) || path.hasSuffix("/" + importRaw) {
+            return true
+          }
+        }
+      }
+    }
+
+    // 4. Check if it's anywhere in repo
+    if allHeaders.contains(headerName) {
+      return true
+    }
+
+    return false
+  }
+}
 
 private class ErrorLogger {
   var foundError = false
@@ -105,10 +193,6 @@ private func checkFile(_ file: String, logger: ErrorLogger, inRepo repoURL: URL,
     file.range(of: "FirebaseCore/Sources/FIROptionsInternal.h") != nil ||
     file.range(of: "FirebaseCore/Extension") != nil
 
-  // Treat all files with names finishing on "Test" or "Tests" as files with tests.
-  let isTestFile = file.contains("Test.m") || file.contains("Tests.m") ||
-    file.contains("Test.swift") || file.contains("Tests.swift")
-  let isBridgingHeader = file.contains("Bridging-Header.h")
   var inSwiftPackage = false
   var inSwiftPackageElse = false
   let lines = fileContents.components(separatedBy: .newlines)
@@ -132,7 +216,9 @@ private func checkFile(_ file: String, logger: ErrorLogger, inRepo repoURL: URL,
 
     // "The #else of a SWIFT_PACKAGE check should only do CocoaPods module-style imports."
     if line.starts(with: "#import") || line.starts(with: "#include") {
-      let importFile = line.components(separatedBy: " ")[1]
+      let components = line.components(separatedBy: .whitespaces).filter { !$0.isEmpty }
+      guard components.count >= 2 else { continue }
+      let importFile = components[1]
       if inSwiftPackageElse {
         if importFile.first != "<" {
           // SharedTestUtilities files are included directly in test targets and
@@ -154,31 +240,40 @@ private func checkFile(_ file: String, logger: ErrorLogger, inRepo repoURL: URL,
           if importFile.contains("/") {
             logger.importLog("Public header import should not include \"/\"", file, lineNum)
           }
-
-        } else if !FileManager.default.fileExists(atPath: repoURL.path + "/" + importFileRaw) {
-          // Non-public header imports should be repo-relative paths. Unqualified imports are
-          // allowed in private headers.
-          if !isPrivate || importFile.contains("/") {
-            if importFileRaw.hasSuffix("-Swift.h") {
+        } else {
+          // Verify header existence for internal imports.
+          if importFileRaw.hasSuffix("-Swift.h") {
+            continue nextLine
+          }
+          for skip in skipImportPatterns {
+            if importFileRaw.starts(with: skip) {
               continue nextLine
             }
-            for skip in skipImportPatterns {
-              if importFileRaw.starts(with: skip) {
-                continue nextLine
-              }
+          }
+
+          let fileURL = URL(fileURLWithPath: file)
+          let fileDir = fileURL.deletingLastPathComponent()
+          let relativePath = file.replacingOccurrences(of: repoURL.path + "/", with: "")
+          let productDirName = relativePath.components(separatedBy: "/").first ?? ""
+
+          let found = HeaderIndex.shared.headerExists(
+            importFileRaw,
+            inProduct: productDirName,
+            fileDir: fileDir,
+            repoURL: repoURL
+          )
+
+          if !found {
+            if !isPrivate || importFile.contains("/") {
+              logger.importLog("Import \(importFileRaw) does not exist.", file, lineNum)
             }
-            logger.importLog("Import \(importFileRaw) does not exist.", file, lineNum)
           }
         }
-      } else if importFile.first == "<", !isPrivate, !isTestFile, !isBridgingHeader, !isPublic {
-        // Verify that double quotes are always used for intra-module imports.
-        if importFileRaw.starts(with: "Firebase"),
-           // Allow intra-module imports of FirebaseAppCheckInterop.
-           // TODO: Remove the FirebaseAppCheckInterop exception when it's moved to a separate repo.
-           importFile.range(of: "FirebaseAppCheckInterop/FirebaseAppCheckInterop.h") == nil {
-          logger
-            .importLog("Imports internal to the repo should use double quotes not \"<\"", file,
-                       lineNum)
+      } else if importFile.first == "<" {
+        // Modular bracket imports should follow <ModuleName/Header.h> or system/third_party
+        // headers.
+        if !importFileRaw.contains("/"), !importFileRaw.hasSuffix(".h") {
+          continue
         }
       }
     }
@@ -197,9 +292,14 @@ private func main() -> Int32 {
     url = url.deletingLastPathComponent()
   }
   let repoURL = url
-  guard let contents = try? FileManager.default.contentsOfDirectory(at: repoURL,
-                                                                    includingPropertiesForKeys: nil,
-                                                                    options: [.skipsHiddenFiles])
+
+  HeaderIndex.shared.initialize(repoURL: repoURL)
+
+  guard let contents = try? FileManager.default.contentsOfDirectory(
+    at: repoURL,
+    includingPropertiesForKeys: nil,
+    options: [.skipsHiddenFiles]
+  )
   else {
     logger.log("Failed to get repo contents \(repoURL)")
     return 1

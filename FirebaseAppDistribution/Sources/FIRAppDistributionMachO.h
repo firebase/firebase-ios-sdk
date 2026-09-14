@@ -15,7 +15,7 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "FirebaseAppDistribution/Sources/FIRAppDistributionMachOSlice.h"
+#import "FIRAppDistributionMachOSlice.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

@@ -15,9 +15,9 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "FirebaseInAppMessaging/Sources/Private/Analytics/FIRIAMClientInfoFetcher.h"
-#import "FirebaseInAppMessaging/Sources/Private/Flows/FIRIAMAnalyticsEventLogger.h"
-#import "FirebaseInAppMessaging/Sources/Private/Util/FIRIAMTimeFetcher.h"
+#import "Private/Analytics/FIRIAMClientInfoFetcher.h"
+#import "Private/Flows/FIRIAMAnalyticsEventLogger.h"
+#import "Private/Util/FIRIAMTimeFetcher.h"
 
 @class FIRIAMClearcutUploader;
 

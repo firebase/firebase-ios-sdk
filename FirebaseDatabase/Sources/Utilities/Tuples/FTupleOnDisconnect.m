@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/Sources/Utilities/Tuples/FTupleOnDisconnect.h"
+#import "Utilities/Tuples/FTupleOnDisconnect.h"
 
 @implementation FTupleOnDisconnect
 

@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "Crashlytics/Crashlytics/Components/FIRCLSUserLogging.h"
+#include "Components/FIRCLSUserLogging.h"
 
 #include <sys/time.h>
 
-#include "Crashlytics/Crashlytics/Components/FIRCLSGlobals.h"
-#include "Crashlytics/Crashlytics/Helpers/FIRCLSUtility.h"
+#include "Components/FIRCLSGlobals.h"
+#include "Helpers/FIRCLSUtility.h"
 
-#import "Crashlytics/Crashlytics/Controllers/FIRCLSReportManager_Private.h"
+#import "Controllers/FIRCLSReportManager_Private.h"
 
 NSString *const FIRCLSStartTimeKey = @"com.crashlytics.kit-start-time";
 NSString *const FIRCLSFirstRunloopTurnTimeKey = @"com.crashlytics.first-run-loop-time";

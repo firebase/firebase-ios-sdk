@@ -12,17 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "Crashlytics/Crashlytics/Components/FIRCLSHost.h"
+#include "Components/FIRCLSHost.h"
 
 #include <mach/mach.h>
 #include <sys/sysctl.h>
 
-#import "Crashlytics/Crashlytics/Components/FIRCLSApplication.h"
-#include "Crashlytics/Crashlytics/Components/FIRCLSGlobals.h"
-#include "Crashlytics/Crashlytics/Helpers/FIRCLSDefines.h"
-#include "Crashlytics/Crashlytics/Helpers/FIRCLSFile.h"
-#include "Crashlytics/Crashlytics/Helpers/FIRCLSUtility.h"
-#import "Crashlytics/Shared/FIRCLSFABHost.h"
+#import "Components/FIRCLSApplication.h"
+#include "Components/FIRCLSGlobals.h"
+#include "Helpers/FIRCLSDefines.h"
+#include "Helpers/FIRCLSFile.h"
+#include "Helpers/FIRCLSUtility.h"
+#import "Shared/FIRCLSFABHost.h"
 
 #if TARGET_OS_IPHONE
 #import <UIKit/UIKit.h>

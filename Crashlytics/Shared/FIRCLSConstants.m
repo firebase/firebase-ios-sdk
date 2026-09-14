@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "Crashlytics/Shared/FIRCLSConstants.h"
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
+#import "Shared/FIRCLSConstants.h"
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
 #define STR_HELPER(x) #x
 #define STR(x) STR_HELPER(x)

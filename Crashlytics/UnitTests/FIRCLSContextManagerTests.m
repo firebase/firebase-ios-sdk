@@ -15,15 +15,15 @@
 
 #import <XCTest/XCTest.h>
 
-#import "Crashlytics/Crashlytics/Controllers/FIRCLSContextManager.h"
-#import "Crashlytics/Crashlytics/Models/Record/FIRCLSReportAdapter.h"
-#import "Crashlytics/Crashlytics/Models/Record/FIRCLSReportAdapter_Private.h"
-#import "Crashlytics/Crashlytics/Settings/Models/FIRCLSApplicationIdentifierModel.h"
+#import "Controllers/FIRCLSContextManager.h"
+#import "Models/Record/FIRCLSReportAdapter.h"
+#import "Models/Record/FIRCLSReportAdapter_Private.h"
+#import "Settings/Models/FIRCLSApplicationIdentifierModel.h"
 
-#import "Crashlytics/Crashlytics/Models/FIRCLSInternalReport.h"
-#import "Crashlytics/UnitTests/Mocks/FIRCLSMockFileManager.h"
-#import "Crashlytics/UnitTests/Mocks/FIRCLSMockSettings.h"
-#import "Crashlytics/UnitTests/Mocks/FIRMockInstallations.h"
+#import "FIRCLSMockFileManager.h"
+#import "FIRCLSMockSettings.h"
+#import "FIRMockInstallations.h"
+#import "Models/FIRCLSInternalReport.h"
 
 NSString *const TestContextReportID = @"TestContextReportID";
 NSString *const TestContextSessionID = @"TestContextSessionID";

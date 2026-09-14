@@ -14,8 +14,8 @@
 
 #import <OCMock/OCMock.h>
 
-#import "FirebaseCore/Sources/Public/FirebaseCore/FIROptions.h"
-#import "SharedTestUtilities/FIROptionsMock.h"
+#import <FirebaseCore/FIROptions.h>
+#import "FIROptionsMock.h"
 
 NSString *const kAPIKey = @"correct_api_key";
 NSString *const kCustomizedAPIKey = @"customized_api_key";

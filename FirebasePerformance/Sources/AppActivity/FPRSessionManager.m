@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebasePerformance/Sources/AppActivity/FPRSessionManager.h"
-#import "FirebasePerformance/Sources/AppActivity/FPRSessionManager+Private.h"
+#import "AppActivity/FPRSessionManager.h"
+#import "AppActivity/FPRSessionManager+Private.h"
 
-#import "FirebasePerformance/Sources/Configurations/FPRConfigurations.h"
-#import "FirebasePerformance/Sources/FPRConsoleLogger.h"
+#import "Configurations/FPRConfigurations.h"
+#import "FPRConsoleLogger.h"
 
 #import <UIKit/UIKit.h>
 

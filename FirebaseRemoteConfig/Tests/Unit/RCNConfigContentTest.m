@@ -17,13 +17,13 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
-#import "FirebaseRemoteConfig/Sources/Private/RCNConfigSettings.h"
-#import "FirebaseRemoteConfig/Sources/Public/FirebaseRemoteConfig/FIRRemoteConfig.h"
-#import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
-#import "FirebaseRemoteConfig/Sources/RCNConfigContent.h"
-#import "FirebaseRemoteConfig/Sources/RCNConfigDBManager.h"
-#import "FirebaseRemoteConfig/Sources/RCNConfigValue_Internal.h"
-#import "FirebaseRemoteConfig/Tests/Unit/RCNTestUtilities.h"
+#import "FirebaseRemoteConfig/FIRRemoteConfig.h"
+#import "FirebaseRemoteConfig/RCNConfigSettings.h"
+#import "FirebaseRemoteConfig/RCNConfigValue_Internal.h"
+#import "RCNConfigConstants.h"
+#import "RCNConfigContent.h"
+#import "RCNConfigDBManager.h"
+#import "RCNTestUtilities.h"
 @import FirebaseRemoteConfigInterop;
 
 @interface RCNConfigContent (Testing)

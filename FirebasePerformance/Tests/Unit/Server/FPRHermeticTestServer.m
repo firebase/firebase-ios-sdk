@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebasePerformance/Tests/Unit/Server/FPRHermeticTestServer.h"
-#import "FirebasePerformance/Tests/Unit/FPRTestUtils.h"
+#import "FPRHermeticTestServer.h"
+#import "FPRTestUtils.h"
 
 @interface FPRHermeticTestServer ()
 

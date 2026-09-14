@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #import <Foundation/Foundation.h>
-#import "Crashlytics/Shared/FIRCLSMachO/FIRCLSMachO.h"
+#import "Shared/FIRCLSMachO/FIRCLSMachO.h"
 
 @interface FIRCLSMachOSlice : NSObject {
   struct FIRCLSMachOSlice _slice;

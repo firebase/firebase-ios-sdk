@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/Sources/Public/FirebaseDatabase/FIRDataEventType.h"
+#import "FirebaseDatabase/FIRDataEventType.h"
 #import <Foundation/Foundation.h>
 
 @class FPath;

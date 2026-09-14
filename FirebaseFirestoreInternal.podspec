@@ -44,13 +44,11 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
   # version wins in the global header map. The benefit of keeping them here is
   # that "quick open" by filename in Xcode will continue to work.
   s.source_files = [
-    'FirebaseCore/Extension/*.h',
     'Firestore/Source/Public/FirebaseFirestore/*.h',
     'Firestore/Source/**/*.{m,mm}',
     'Firestore/Protos/nanopb/**/*.cc',
     'Firestore/core/include/**/*.{cc,mm}',
     'Firestore/core/src/**/*.{cc,mm}',
-    'FirebaseAuth/Interop/**/*.h',
   ]
 
   # Internal headers that aren't necessarily globally unique. Most C++ internal
@@ -93,7 +91,9 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
   }
 
   s.dependency 'FirebaseAppCheckInterop', '~> 12.19.0'
+  s.dependency 'FirebaseAuthInterop', '~> 12.19.0'
   s.dependency 'FirebaseCore', '~> 12.19.0'
+  s.dependency 'FirebaseCoreExtension', '~> 12.19.0'
 
   abseil_version = '~> 1.20240722.0'
   s.dependency 'abseil/algorithm', abseil_version

@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebaseABTesting/Tests/Unit/Utilities/ABTTestUtilities.h"
+#import "ABTTestUtilities.h"
 
-#import "FirebaseABTesting/Sources/Private/ABTExperimentPayload.h"
+#import <FirebaseABTesting/ABTExperimentPayload.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

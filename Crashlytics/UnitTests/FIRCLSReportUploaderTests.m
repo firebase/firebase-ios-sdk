@@ -14,23 +14,23 @@
 
 #import <XCTest/XCTest.h>
 
-#import "Crashlytics/Crashlytics/Controllers/FIRCLSManagerData.h"
-#import "Crashlytics/Crashlytics/Controllers/FIRCLSReportUploader_Private.h"
+#import "Controllers/FIRCLSManagerData.h"
+#import "Controllers/FIRCLSReportUploader_Private.h"
 
-#import "Crashlytics/Crashlytics/Components/FIRCLSApplication.h"
-#import "Crashlytics/Crashlytics/DataCollection/FIRCLSDataCollectionArbiter.h"
-#import "Crashlytics/Crashlytics/DataCollection/FIRCLSDataCollectionToken.h"
-#import "Crashlytics/Crashlytics/Helpers/FIRCLSDefines.h"
-#import "Crashlytics/Crashlytics/Models/FIRCLSFileManager.h"
-#import "Crashlytics/Crashlytics/Models/FIRCLSInternalReport.h"
-#import "Crashlytics/Crashlytics/Models/FIRCLSSettings.h"
-#import "Crashlytics/Shared/FIRCLSConstants.h"
-#import "Crashlytics/UnitTests/Mocks/FABMockApplicationIdentifierModel.h"
-#import "Crashlytics/UnitTests/Mocks/FIRAppFake.h"
-#import "Crashlytics/UnitTests/Mocks/FIRCLSMockSettings.h"
-#import "Crashlytics/UnitTests/Mocks/FIRCLSTempMockFileManager.h"
-#import "Crashlytics/UnitTests/Mocks/FIRMockGDTCoreTransport.h"
-#import "Crashlytics/UnitTests/Mocks/FIRMockInstallations.h"
+#import "Components/FIRCLSApplication.h"
+#import "DataCollection/FIRCLSDataCollectionArbiter.h"
+#import "DataCollection/FIRCLSDataCollectionToken.h"
+#import "FABMockApplicationIdentifierModel.h"
+#import "FIRAppFake.h"
+#import "FIRCLSMockSettings.h"
+#import "FIRCLSTempMockFileManager.h"
+#import "FIRMockGDTCoreTransport.h"
+#import "FIRMockInstallations.h"
+#import "Helpers/FIRCLSDefines.h"
+#import "Models/FIRCLSFileManager.h"
+#import "Models/FIRCLSInternalReport.h"
+#import "Models/FIRCLSSettings.h"
+#import "Shared/FIRCLSConstants.h"
 
 NSString *const TestEndpoint = @"https://reports.crashlytics.com";
 NSString *const TestFIID = @"TestFIID";

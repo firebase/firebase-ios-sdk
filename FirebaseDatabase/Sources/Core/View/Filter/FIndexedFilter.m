@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/Sources/Core/View/Filter/FIndexedFilter.h"
-#import "FirebaseDatabase/Sources/Core/View/FChange.h"
-#import "FirebaseDatabase/Sources/Core/View/Filter/FChildChangeAccumulator.h"
-#import "FirebaseDatabase/Sources/FIndex.h"
-#import "FirebaseDatabase/Sources/FKeyIndex.h"
-#import "FirebaseDatabase/Sources/Snapshot/FChildrenNode.h"
-#import "FirebaseDatabase/Sources/Snapshot/FEmptyNode.h"
-#import "FirebaseDatabase/Sources/Snapshot/FIndexedNode.h"
-#import "FirebaseDatabase/Sources/Snapshot/FNode.h"
+#import "Core/View/Filter/FIndexedFilter.h"
+#import "Core/View/FChange.h"
+#import "Core/View/Filter/FChildChangeAccumulator.h"
+#import "FIndex.h"
+#import "FKeyIndex.h"
+#import "Snapshot/FChildrenNode.h"
+#import "Snapshot/FEmptyNode.h"
+#import "Snapshot/FIndexedNode.h"
+#import "Snapshot/FNode.h"
 
 @interface FIndexedFilter ()
 @property(nonatomic, strong, readwrite) id<FIndex> index;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "SharedTestUtilities/Date/FIRDateTestUtils.h"
+#import "FIRDateTestUtils.h"
 
 #import <XCTest/XCTest.h>
 

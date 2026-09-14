@@ -17,7 +17,7 @@
 #import <XCTest/XCTest.h>
 
 #import <OCMock/OCMock.h>
-#import "FirebaseMessaging/Sources/FIRMessagingUtilities.h"
+#import "FIRMessagingUtilities.h"
 
 @interface FIRMessagingUtilitiesTest : XCTestCase
 

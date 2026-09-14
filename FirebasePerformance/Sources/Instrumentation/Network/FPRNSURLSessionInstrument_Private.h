@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebasePerformance/Sources/Instrumentation/Network/FPRNSURLSessionInstrument.h"
+#import "Instrumentation/Network/FPRNSURLSessionInstrument.h"
 
-#import "FirebasePerformance/Sources/Instrumentation/Network/Delegates/FPRNSURLSessionDelegateInstrument.h"
+#import "Instrumentation/Network/Delegates/FPRNSURLSessionDelegateInstrument.h"
 
 NS_ASSUME_NONNULL_BEGIN
 NS_EXTENSION_UNAVAILABLE("Firebase Performance is not supported for extensions.")

@@ -14,8 +14,8 @@
 
 #import <objc/runtime.h>
 
-#import "FirebasePerformance/Sources/ISASwizzler/FPRObjectSwizzler+Internal.h"
-#import "FirebasePerformance/Sources/ISASwizzler/FPRSwizzledObject.h"
+#import "ISASwizzler/FPRObjectSwizzler+Internal.h"
+#import "ISASwizzler/FPRSwizzledObject.h"
 
 const NSString *const kGULSwizzlerAssociatedObjectKey = @"gul_objectSwizzler";
 

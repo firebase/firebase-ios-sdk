@@ -10,29 +10,21 @@ In Swift Package Manager, it's a library target.
 
 ## Header File Types and Locations - For Header File Creators
 
-* *Public Headers* - Headers that define the library's API. They should be located in
+* *Public Headers* - Headers that define the library's API. They must be located in
   `FirebaseFoo/Sources/Public/FirebaseFoo`. Any additions require a minor version update. Any
   changes or deletions require a major version update.
 
 * *Public Umbrella Header* - A single header that includes the full library's public API located at
   `FirebaseFoo/Sources/Public/FirebaseFoo/FirebaseFoo.h`.
 
-* *Private Headers* - Headers that are available to other libraries in the repo, but are not part
-  of the public API. These should be located in `FirebaseFoo/Sources/Private`.
-  [Xcode](https://stackoverflow.com/a/8016333). They should be accessed with a repo-relative
-  import. For CocoaPods, do not use the `private_headers` attribute. Instead include them in both
-  the provider and client's `source_files` attribute.
-
-* *Interop Headers* - A special kind of private header that defines an interface to another library.
+* *Interop Headers* - Special private headers that define cross-library interfaces/protocols
+  (e.g., `FIRAnalyticsInterop`, `FIRAuthInterop`, `FIRAppCheckInterop`, `FIRMessagingInterop`).
+  These are located in `FirebaseFoo/Interop/Public/FirebaseFooInterop/` or `Interop/FirebaseFoo/Public/FirebaseFooInterop/`
+  and exposed via dedicated modular interop targets (e.g. `FirebaseAnalyticsInterop`, `FirebaseAuthInterop`, `FirebaseMessagingInterop`, `FirebaseAppCheckInterop`).
   Details in [Firebase Component System docs](Interop/FirebaseComponentSystem.md).
 
-* *Private Umbrella Header* - A single header that includes the library's public API plus any APIs
-  provided for other libraries in the repo. Any package manager complexity should be localized to
-  this umbrella header.
-
 * *Library Internal Headers* - Headers that are only used by the enclosing library. These headers
-  should be located among the source files. [Xcode](https://stackoverflow.com/a/8016333) refers to
-  these as "Project Headers".
+  should be located among the source files (e.g. `FirebaseFoo/Sources/`).
 
 * *Library C++ Internal Headers* - In CocoaPods, C++ internal headers should not be included
   in the `source_files` attribute. Instead, they should be defined with the `preserve_paths`
@@ -42,23 +34,29 @@ In Swift Package Manager, it's a library target.
 
 ## Imports - For Header File Consumers
 
-* *Headers within the Library* - Use a repo-relative path for all of the header types above.
-  * *Exception* - Public header imports from other public headers should do an unqualified
-  import like `#import "publicHeader.h"` to avoid public module collisions.
+* *Headers within the Same Library/Target* - Use local or source-relative imports:
+  `#import "FIRMyInternalHeader.h"` or `#import "Subdirectory/FIRMyHeader.h"`.
+  * For files in subdirectories, prefer qualifying the path relative to the target's source root (e.g., `#import "Controllers/FIRCLSManager.h"` or `#import "Core/FRepo.h"`).
+  * In `Package.swift`, avoid adding nested subdirectories to `.headerSearchPath(...)`. Instead, configure `.headerSearchPath(".")` at the target root to allow source-relative imports.
+  * *Exception* - Public header imports from other public headers within the *same* library should use unqualified
+    imports like `#import "FIRPublicHeader.h"` to avoid module collisions.
 
-* *Private Headers from other Libraries* - Import a private umbrella header like
-  `FirebaseCore/Extension/FIRebaseCoreInternal.h`. For CocoaPods, these files should be
-  added to the podspec in the `source_files` attribute like:
-```
-  s.source_files = [ 'FirebaseFoo/Sources/**/*.[mh]'
-                     'FirebaseAuth/Interop/*.h',
-                     'FirebaseCore/Internal/*.h',
-                   ]
-```
+* *Cross-Target Imports (Interop, and other Firebase libraries)* - Use modular bracket syntax:
+  `#import <ModuleName/Header.h>`.
+  Examples:
+  * `#import <FirebaseCoreExtension/FirebaseCoreInternal.h>`
+  * `#import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>`
+  * `#import <FirebaseAuthInterop/FIRAuthInterop.h>`
+  * `#import <FirebaseMessagingInterop/FIRMessagingInterop.h>`
+  * `#import <FirebaseCore/FIRApp.h>`
 
-* *Headers from an external dependency* - Do a module import for Swift Package Manager and an
+  **Important:** Any target that consumes headers from another target must explicitly declare a dependency on that target in both `Package.swift` and the respective `.podspec` file.
+
+* *Vendored Third-Party Code and Generated Protos* - Vendored third-party dependencies (e.g., `third_party/libunwind`, `third_party/SocketRocket`) and generated Nanopb proto directories (`Protogen/nanopb`) may retain dedicated `.headerSearchPath(...)` entries in `Package.swift` to preserve upstream code and generated file integrity without modifying third-party sources.
+
+* *Headers from an External Dependency* - Do a module import for Swift Package Manager and an
   umbrella header import otherwise, like:
-```
+```objectivec
 #if SWIFT_PACKAGE
 @import GTMSessionFetcherCore;
 #else
@@ -68,37 +66,16 @@ In Swift Package Manager, it's a library target.
 
 ## Additional Background
 
-Here is some additional detail that should give deeper insight onto the above guidelines.
-
 ### Build Systems
 
-We support building with CocoaPods, cmake, internal Google build system, and Swift Package
-Manager (in development). Using repo-relative headers is a key enabler since it allows all headers
-to be found with a single path specifier no matter what the build system.
-
-#### CocoaPods Build Systems
-CocoaPods itself has a range of options that impact the functionality of header imports.
-
-The `use_frameworks!` option enables `@import {module-name}`. CocoaPods creates a directory structure
-such that `#import <pod-name/header>` works whether or not frameworks are built.
-
-CocoaPods builds a different directory structure for a `Development Pods` install versus an install
-from a published podspec. This can hide errors resulting from header search path pointing outside
-of a particular pod's sources.
-
+We support building with CocoaPods, Swift Package Manager, and Google internal build systems.
+By organizing public, and interop headers under `<publicHeadersPath>/<TargetName>/<Header.h>` and
+declaring explicit interop targets, both Swift Package Manager and CocoaPods resolve bracket imports
+(`<TargetName/Header.h>`) natively without requiring any repo-wide broad header search paths (e.g., `headerSearchPath("../..")`).
 
 ### "Internal" versus "Private"
 
-"Internal" and "Private" are often used interchangeably since
-[Xcode](https://stackoverflow.com/a/8016333) and CocoaPods usage is
-inconsistent with expectations of C++ developers. "Private" headers are available to clients
-via an explicit import. "Internal" or "Project" headers are only available to their enclosing
-library. Many file names in this repo include "Private" or "Internal" do not comply. Always
-check the build definition to see how the file is used.
-
-### Public Header Location Explanation
-
-CocoaPods flattens all headers specified in the podspec and makes them available via
-`#import "FirebaseFoo/Header.h"`. Swift Package Manager does not flatten. Therefore, the
-directory structure described above allows clients to import headers from either package manager
-without `#if` checks.
+"Internal" and "Private" are often used interchangeably.
+- **Internal / Project**: Headers only used within the enclosing module target.
+- **Private / Interop**: Headers consumed by other Firebase SDKs in the repository, but not part of the public developer API.
+- **Public**: Developer-facing public APIs shipped to end-users.

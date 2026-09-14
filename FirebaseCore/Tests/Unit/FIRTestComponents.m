@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebaseCore/Tests/Unit/FIRTestComponents.h"
+#import "FIRTestComponents.h"
 
-#import "FirebaseCore/Extension/FIRComponentType.h"
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
+#import <FirebaseCoreExtension/FIRComponentType.h>
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
 #pragma mark - Standard Component
 

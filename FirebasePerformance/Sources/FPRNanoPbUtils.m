@@ -12,23 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebasePerformance/Sources/FPRNanoPbUtils.h"
+#import "FPRNanoPbUtils.h"
 
 #ifdef TARGET_HAS_MOBILE_CONNECTIVITY
 #import <CoreTelephony/CTCarrier.h>
 #import <CoreTelephony/CTTelephonyNetworkInfo.h>
 #endif
 
-#import "FirebasePerformance/Sources/AppActivity/FPRAppActivityTracker.h"
-#import "FirebasePerformance/Sources/Common/FPRConstants.h"
-#import "FirebasePerformance/Sources/FIRPerformance+Internal.h"
-#import "FirebasePerformance/Sources/FPRDataUtils.h"
-#import "FirebasePerformance/Sources/Public/FirebasePerformance/FIRPerformance.h"
-#import "FirebasePerformance/Sources/Timer/FIRTrace+Internal.h"
-#import "FirebasePerformance/Sources/Timer/FIRTrace+Private.h"
+#import "AppActivity/FPRAppActivityTracker.h"
+#import "Common/FPRConstants.h"
+#import "FIRPerformance+Internal.h"
+#import "FPRDataUtils.h"
+#import "FirebasePerformance/FIRPerformance.h"
+#import "Timer/FIRTrace+Internal.h"
+#import "Timer/FIRTrace+Private.h"
 
-#import "FirebasePerformance/Sources/Gauges/CPU/FPRCPUGaugeData.h"
-#import "FirebasePerformance/Sources/Gauges/Memory/FPRMemoryGaugeData.h"
+#import "Gauges/CPU/FPRCPUGaugeData.h"
+#import "Gauges/Memory/FPRMemoryGaugeData.h"
 
 #define BYTES_TO_KB(x) (x / 1024)
 

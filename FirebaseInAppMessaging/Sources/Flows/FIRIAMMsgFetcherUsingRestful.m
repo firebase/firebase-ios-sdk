@@ -17,15 +17,15 @@
 #import <TargetConditionals.h>
 #if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
 
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
-#import "FirebaseInAppMessaging/Sources/FIRCore+InAppMessaging.h"
-#import "FirebaseInAppMessaging/Sources/Private/Data/FIRIAMFetchResponseParser.h"
-#import "FirebaseInAppMessaging/Sources/Private/Data/FIRIAMMessageContentDataWithImageURL.h"
-#import "FirebaseInAppMessaging/Sources/Private/Data/FIRIAMMessageDefinition.h"
-#import "FirebaseInAppMessaging/Sources/Private/Flows/FIRIAMMsgFetcherUsingRestful.h"
-#import "FirebaseInAppMessaging/Sources/Private/Runtime/FIRIAMFetchFlow.h"
-#import "FirebaseInAppMessaging/Sources/Private/Runtime/FIRIAMSDKSettings.h"
+#import "FIRCore+InAppMessaging.h"
+#import "Private/Data/FIRIAMFetchResponseParser.h"
+#import "Private/Data/FIRIAMMessageContentDataWithImageURL.h"
+#import "Private/Data/FIRIAMMessageDefinition.h"
+#import "Private/Flows/FIRIAMMsgFetcherUsingRestful.h"
+#import "Private/Runtime/FIRIAMFetchFlow.h"
+#import "Private/Runtime/FIRIAMSDKSettings.h"
 
 static NSInteger const SuccessHTTPStatusCode = 200;
 

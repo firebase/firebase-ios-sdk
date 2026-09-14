@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/Sources/Snapshot/FEmptyNode.h"
-#import "FirebaseDatabase/Sources/Snapshot/FChildrenNode.h"
+#import "Snapshot/FEmptyNode.h"
+#import "Snapshot/FChildrenNode.h"
 
 @implementation FEmptyNode
 

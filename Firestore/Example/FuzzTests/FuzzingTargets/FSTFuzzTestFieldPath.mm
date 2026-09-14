@@ -20,7 +20,7 @@
 
 #import "Firestore/Example/FuzzTests/FuzzingTargets/FSTFuzzTestFieldPath.h"
 
-#import "Firestore/Source/API/FIRFieldPath+Internal.h"
+#import "FIRFieldPath+Internal.h"
 
 namespace firebase {
 namespace firestore {

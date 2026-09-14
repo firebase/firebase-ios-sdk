@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/Tests/Integration/FIRDatabaseQueryTests.h"
-#import "FirebaseCore/Sources/Public/FirebaseCore/FIROptions.h"
-#import "FirebaseDatabase/Sources/Api/Private/FIRDatabaseQuery_Private.h"
-#import "FirebaseDatabase/Sources/Constants/FConstants.h"
-#import "FirebaseDatabase/Sources/Core/FQuerySpec.h"
-#import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
-#import "FirebaseDatabase/Tests/Helpers/FIRFakeApp.h"
-#import "FirebaseDatabase/Tests/Helpers/FTestExpectations.h"
+#import "FIRDatabaseQueryTests.h"
+#import <FirebaseCore/FIROptions.h>
+#import "FConstants.h"
+#import "FIRDatabaseQuery_Private.h"
+#import "FIRFakeApp.h"
+#import "FQuerySpec.h"
+#import "FTestExpectations.h"
+#import "FUtilities.h"
 
 @implementation FIRDatabaseQueryTests
 

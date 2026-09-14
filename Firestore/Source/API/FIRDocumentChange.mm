@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "Firestore/Source/API/FIRDocumentChange+Internal.h"
+#import "FIRDocumentChange+Internal.h"
 
-#import "Firestore/Source/API/FIRDocumentSnapshot+Internal.h"
+#import "FIRDocumentSnapshot+Internal.h"
 
 #include "Firestore/core/src/api/document_change.h"
 #include "Firestore/core/src/util/hard_assert.h"

@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FirebaseDatabase/Sources/FIndex.h"
+#import "FIndex.h"
 
 @interface FPriorityIndex : NSObject <FIndex>
 + (id<FIndex>)priorityIndex;

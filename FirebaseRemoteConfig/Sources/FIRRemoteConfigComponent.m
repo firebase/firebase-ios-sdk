@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-#import "FirebaseRemoteConfig/Sources/FIRRemoteConfigComponent.h"
+#import "FIRRemoteConfigComponent.h"
 
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
-#import "FirebaseRemoteConfig/Sources/Private/FIRRemoteConfig_Private.h"
-#import "FirebaseRemoteConfig/Sources/RCNConfigContent.h"
-#import "FirebaseRemoteConfig/Sources/RCNConfigDBManager.h"
-#import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
+#import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
+#import "FirebaseRemoteConfig/FIRRemoteConfig_Private.h"
+#import "RCNConfigContent.h"
+#import "RCNConfigDBManager.h"
 
 @implementation FIRRemoteConfigComponent
 

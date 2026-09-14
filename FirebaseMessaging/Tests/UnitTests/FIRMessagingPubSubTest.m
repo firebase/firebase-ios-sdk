@@ -17,10 +17,10 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
-#import "FirebaseMessaging/Sources/FIRMessagingPendingTopicsList.h"
-#import "FirebaseMessaging/Sources/FIRMessagingPubSub.h"
-#import "FirebaseMessaging/Sources/FIRMessagingRmqManager.h"
-#import "FirebaseMessaging/Tests/UnitTests/FIRMessagingTestUtilities.h"
+#import "FIRMessagingPendingTopicsList.h"
+#import "FIRMessagingPubSub.h"
+#import "FIRMessagingRmqManager.h"
+#import "FIRMessagingTestUtilities.h"
 
 #import <GoogleUtilities/GULReachabilityChecker.h>
 

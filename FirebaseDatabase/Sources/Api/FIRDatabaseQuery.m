@@ -14,22 +14,22 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/Sources/Public/FirebaseDatabase/FIRDatabaseQuery.h"
-#import "FirebaseDatabase/Sources/Api/Private/FIRDatabaseQuery_Private.h"
-#import "FirebaseDatabase/Sources/Constants/FConstants.h"
-#import "FirebaseDatabase/Sources/Core/FQueryParams.h"
-#import "FirebaseDatabase/Sources/Core/FQuerySpec.h"
-#import "FirebaseDatabase/Sources/Core/Utilities/FPath.h"
-#import "FirebaseDatabase/Sources/Core/View/FChildEventRegistration.h"
-#import "FirebaseDatabase/Sources/Core/View/FValueEventRegistration.h"
-#import "FirebaseDatabase/Sources/FKeyIndex.h"
-#import "FirebaseDatabase/Sources/FPathIndex.h"
-#import "FirebaseDatabase/Sources/FPriorityIndex.h"
-#import "FirebaseDatabase/Sources/FValueIndex.h"
-#import "FirebaseDatabase/Sources/Snapshot/FLeafNode.h"
-#import "FirebaseDatabase/Sources/Snapshot/FSnapshotUtilities.h"
-#import "FirebaseDatabase/Sources/Utilities/FNextPushId.h"
-#import "FirebaseDatabase/Sources/Utilities/FValidation.h"
+#import "FirebaseDatabase/FIRDatabaseQuery.h"
+#import "Api/Private/FIRDatabaseQuery_Private.h"
+#import "Constants/FConstants.h"
+#import "Core/FQueryParams.h"
+#import "Core/FQuerySpec.h"
+#import "Core/Utilities/FPath.h"
+#import "Core/View/FChildEventRegistration.h"
+#import "Core/View/FValueEventRegistration.h"
+#import "FKeyIndex.h"
+#import "FPathIndex.h"
+#import "FPriorityIndex.h"
+#import "FValueIndex.h"
+#import "Snapshot/FLeafNode.h"
+#import "Snapshot/FSnapshotUtilities.h"
+#import "Utilities/FNextPushId.h"
+#import "Utilities/FValidation.h"
 
 @implementation FIRDatabaseQuery
 

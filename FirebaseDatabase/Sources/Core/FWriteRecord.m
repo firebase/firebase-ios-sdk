@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/Sources/Core/FWriteRecord.h"
-#import "FirebaseDatabase/Sources/Core/Utilities/FPath.h"
-#import "FirebaseDatabase/Sources/Snapshot/FCompoundWrite.h"
-#import "FirebaseDatabase/Sources/Snapshot/FNode.h"
+#import "Core/FWriteRecord.h"
+#import "Core/Utilities/FPath.h"
+#import "Snapshot/FCompoundWrite.h"
+#import "Snapshot/FNode.h"
 
 @interface FWriteRecord ()
 @property(nonatomic, readwrite) NSInteger writeId;

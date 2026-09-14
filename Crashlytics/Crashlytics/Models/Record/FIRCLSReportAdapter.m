@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-#import "Crashlytics/Crashlytics/Models/Record/FIRCLSReportAdapter.h"
-#import "Crashlytics/Crashlytics/Models/Record/FIRCLSReportAdapter_Private.h"
+#import "Models/Record/FIRCLSReportAdapter.h"
+#import "Models/Record/FIRCLSReportAdapter_Private.h"
 
-#import "Crashlytics/Crashlytics/Helpers/FIRCLSLogger.h"
-#import "Crashlytics/Crashlytics/Models/FIRCLSInternalReport.h"
+#import "Helpers/FIRCLSLogger.h"
+#import "Models/FIRCLSInternalReport.h"
 
-#import "Crashlytics/Crashlytics/Components/FIRCLSUserLogging.h"
+#import "Components/FIRCLSUserLogging.h"
 
 #import <nanopb/pb.h>
 #import <nanopb/pb_decode.h>

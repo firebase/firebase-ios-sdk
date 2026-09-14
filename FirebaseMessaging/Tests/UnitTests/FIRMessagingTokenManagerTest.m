@@ -17,13 +17,13 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
-#import "FirebaseMessaging/Sources/FIRMessagingConstants.h"
-#import "FirebaseMessaging/Sources/Token/FIRMessagingAuthService.h"
-#import "FirebaseMessaging/Sources/Token/FIRMessagingCheckinPreferences.h"
-#import "FirebaseMessaging/Sources/Token/FIRMessagingCheckinStore.h"
-#import "FirebaseMessaging/Sources/Token/FIRMessagingTokenInfo.h"
-#import "FirebaseMessaging/Sources/Token/FIRMessagingTokenManager.h"
-#import "FirebaseMessaging/Tests/UnitTests/FIRMessagingTestUtilities.h"
+#import "FIRMessagingConstants.h"
+#import "FIRMessagingTestUtilities.h"
+#import "Token/FIRMessagingAuthService.h"
+#import "Token/FIRMessagingCheckinPreferences.h"
+#import "Token/FIRMessagingCheckinStore.h"
+#import "Token/FIRMessagingTokenInfo.h"
+#import "Token/FIRMessagingTokenManager.h"
 
 @interface FIRMessaging (ExposedForTest)
 

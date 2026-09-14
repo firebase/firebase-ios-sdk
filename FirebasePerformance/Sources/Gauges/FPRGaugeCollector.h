@@ -14,7 +14,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FirebasePerformance/Sources/AppActivity/FPRAppActivityTracker.h"
+#import "AppActivity/FPRAppActivityTracker.h"
 
 @protocol FPRGaugeCollector <NSObject>
 

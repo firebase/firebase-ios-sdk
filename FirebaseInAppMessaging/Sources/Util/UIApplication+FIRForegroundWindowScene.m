@@ -17,7 +17,7 @@
 #import <TargetConditionals.h>
 #if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
 
-#import "FirebaseInAppMessaging/Sources/Private/Util/UIApplication+FIRForegroundWindowScene.h"
+#import "Private/Util/UIApplication+FIRForegroundWindowScene.h"
 
 @implementation UIApplication (FIRForegroundWindowScene)
 

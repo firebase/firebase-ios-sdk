@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/Sources/Core/View/FEventRegistration.h"
-#import "FirebaseDatabase/Sources/Utilities/FTypedefs.h"
+#import "Core/View/FEventRegistration.h"
+#import "Utilities/FTypedefs.h"
 #import <Foundation/Foundation.h>
 
 @class FRepo;

@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessaging+ExtensionHelper.h"
+#import <FirebaseMessaging/FIRMessaging+ExtensionHelper.h>
 
-#import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessaging.h"
-#import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessagingExtensionHelper.h"
+#import <FirebaseMessaging/FIRMessaging.h>
+#import <FirebaseMessaging/FIRMessagingExtensionHelper.h>
 
 @implementation FIRMessaging (ExtensionHelper)
 

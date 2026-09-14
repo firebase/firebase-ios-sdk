@@ -31,9 +31,6 @@ Pod::Spec.new do |s|
     'Crashlytics/Protogen/**/*.{c,h,m,mm}',
     'Crashlytics/Shared/**/*.{c,h,m,mm}',
     'Crashlytics/third_party/**/*.{c,h,m,mm}',
-    'FirebaseCore/Extension/*.h',
-    'FirebaseInstallations/Source/Library/Private/*.h',
-    'Interop/Analytics/Public/*.h',
   ]
 
   s.resource_bundles = {
@@ -60,6 +57,8 @@ Pod::Spec.new do |s|
   PREPARE_COMMAND_END
 
   s.dependency 'FirebaseCore', '~> 12.19.0'
+  s.dependency 'FirebaseCoreExtension', '~> 12.19.0'
+  s.dependency 'FirebaseAnalyticsInterop', '~> 12.19.0'
   s.dependency 'FirebaseInstallations', '~> 12.19.0'
   s.dependency 'FirebaseSessions', '~> 12.19.0'
   s.dependency 'FirebaseRemoteConfigInterop', '~> 12.19.0'
@@ -79,7 +78,7 @@ Pod::Spec.new do |s|
       'CLS_SDK_NAME="Crashlytics iOS SDK" ' +
       # For nanopb:
       'PB_FIELD_32BIT=1 PB_NO_PACKED_STRUCTS=1 PB_ENABLE_MALLOC=1',
-    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"',
+    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}/Crashlytics" "${PODS_TARGET_SRCROOT}/Crashlytics/Crashlytics" "${PODS_TARGET_SRCROOT}/Crashlytics/Shared"',
   }
 
   s.osx.pod_target_xcconfig = {
@@ -87,7 +86,7 @@ Pod::Spec.new do |s|
       'CLS_SDK_NAME="Crashlytics Mac SDK" ' +
       # For nanopb:
       'PB_FIELD_32BIT=1 PB_NO_PACKED_STRUCTS=1 PB_ENABLE_MALLOC=1',
-    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"',
+    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}/Crashlytics" "${PODS_TARGET_SRCROOT}/Crashlytics/Crashlytics" "${PODS_TARGET_SRCROOT}/Crashlytics/Shared"',
   }
 
   s.tvos.pod_target_xcconfig = {
@@ -95,7 +94,7 @@ Pod::Spec.new do |s|
       'CLS_SDK_NAME="Crashlytics tvOS SDK" ' +
       # For nanopb:
       'PB_FIELD_32BIT=1 PB_NO_PACKED_STRUCTS=1 PB_ENABLE_MALLOC=1',
-    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"',
+    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}/Crashlytics" "${PODS_TARGET_SRCROOT}/Crashlytics/Crashlytics" "${PODS_TARGET_SRCROOT}/Crashlytics/Shared"',
   }
 
   s.watchos.pod_target_xcconfig = {
@@ -104,7 +103,7 @@ Pod::Spec.new do |s|
       # For nanopb:
       'PB_FIELD_32BIT=1 PB_NO_PACKED_STRUCTS=1 PB_ENABLE_MALLOC=1',
     'OTHER_LD_FLAGS' => '$(inherited) -sectcreate __TEXT __info_plist',
-    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"',
+    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}/Crashlytics" "${PODS_TARGET_SRCROOT}/Crashlytics/Crashlytics" "${PODS_TARGET_SRCROOT}/Crashlytics/Shared"',
   }
 
   s.test_spec 'unit' do |unit_tests|

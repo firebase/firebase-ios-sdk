@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebasePerformance/Tests/Unit/Fakes/FIRAppFake.h"
+#import "FIRAppFake.h"
 
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
 @implementation FIRAppFake
 

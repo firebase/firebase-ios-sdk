@@ -18,20 +18,20 @@
 
 #import <OCMock/OCMock.h>
 
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
-#import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
-#import "FirebaseMessaging/Sources/FIRMessagingConstants.h"
-#import "FirebaseMessaging/Sources/NSError+FIRMessaging.h"
-#import "FirebaseMessaging/Sources/Token/FIRMessagingAuthService.h"
-#import "FirebaseMessaging/Sources/Token/FIRMessagingCheckinPreferences.h"
-#import "FirebaseMessaging/Sources/Token/FIRMessagingCheckinService.h"
-#import "FirebaseMessaging/Sources/Token/FIRMessagingCheckinStore.h"
-#import "FirebaseMessaging/Sources/Token/FIRMessagingKeychain.h"
-#import "FirebaseMessaging/Sources/Token/FIRMessagingTokenDeleteOperation.h"
-#import "FirebaseMessaging/Sources/Token/FIRMessagingTokenFetchOperation.h"
-#import "FirebaseMessaging/Sources/Token/FIRMessagingTokenOperation.h"
-#import "FirebaseMessaging/Sources/Token/FIRMessagingTokenStore.h"
-#import "SharedTestUtilities/URLSession/FIRURLSessionOCMockStub.h"
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
+#import <FirebaseInstallations/FirebaseInstallations.h>
+#import <URLSession/FIRURLSessionOCMockStub.h>
+#import "FIRMessagingConstants.h"
+#import "NSError+FIRMessaging.h"
+#import "Token/FIRMessagingAuthService.h"
+#import "Token/FIRMessagingCheckinPreferences.h"
+#import "Token/FIRMessagingCheckinService.h"
+#import "Token/FIRMessagingCheckinStore.h"
+#import "Token/FIRMessagingKeychain.h"
+#import "Token/FIRMessagingTokenDeleteOperation.h"
+#import "Token/FIRMessagingTokenFetchOperation.h"
+#import "Token/FIRMessagingTokenOperation.h"
+#import "Token/FIRMessagingTokenStore.h"
 
 static NSString *kDeviceID = @"fakeDeviceID";
 static NSString *kSecretToken = @"fakeSecretToken";

@@ -9,6 +9,9 @@ target 'Sample' do
 
   pod 'FirebaseCore', :path => '../../../'
   pod 'FirebaseCoreInternal', :path => '../../../'
+  pod 'FirebaseCoreExtension', :path => '../../../'
+  pod 'FirebaseAnalyticsInterop', :path => '../../../'
+  pod 'FirebaseMessagingInterop', :path => '../../../'
   pod 'FirebaseMessaging', :path => '../../../'
   pod 'FirebaseInstallations', :path => '../../../'
   pod 'FirebaseAnalytics', '>= 9.0.0'

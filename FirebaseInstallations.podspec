@@ -35,7 +35,6 @@ Pod::Spec.new do |s|
   base_dir = "FirebaseInstallations/Source/"
   s.source_files = [
     base_dir + 'Library/**/*.[mh]',
-    'FirebaseCore/Extension/*.h',
   ]
   s.public_header_files = [
     base_dir + 'Library/Public/FirebaseInstallations/*.h',
@@ -46,6 +45,7 @@ Pod::Spec.new do |s|
 
   s.framework = 'Security'
   s.dependency 'FirebaseCore', '~> 12.19.0'
+  s.dependency 'FirebaseCoreExtension', '~> 12.19.0'
   s.dependency 'PromisesObjC', '~> 2.4'
   s.dependency 'GoogleUtilities/Environment', '~> 8.1'
   s.dependency 'GoogleUtilities/UserDefaults', '~> 8.1'
@@ -54,7 +54,7 @@ Pod::Spec.new do |s|
   s.pod_target_xcconfig = {
     'DEFINES_MODULE' => 'YES',
     'GCC_PREPROCESSOR_DEFINITIONS' => preprocessor_definitions,
-    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
+    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}/FirebaseInstallations/Source/Library"'
   }
 
   s.test_spec 'unit' do |unit_tests|

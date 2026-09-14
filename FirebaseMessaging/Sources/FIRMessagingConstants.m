@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FirebaseMessaging/Sources/FIRMessagingConstants.h"
+#import "FIRMessagingConstants.h"
 
 NSString *const kFIRMessagingFromKey = @"from";
 

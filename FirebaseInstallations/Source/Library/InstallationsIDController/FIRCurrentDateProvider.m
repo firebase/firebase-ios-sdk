@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FirebaseInstallations/Source/Library/InstallationsIDController/FIRCurrentDateProvider.h"
+#import "InstallationsIDController/FIRCurrentDateProvider.h"
 
 FIRCurrentDateProvider FIRRealCurrentDateProvider(void) {
   return ^NSDate *(void) {

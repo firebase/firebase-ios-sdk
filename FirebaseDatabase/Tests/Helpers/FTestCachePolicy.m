@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/Tests/Helpers/FTestCachePolicy.h"
+#import "FTestCachePolicy.h"
 
 @interface FTestCachePolicy ()
 

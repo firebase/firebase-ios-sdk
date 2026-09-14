@@ -14,7 +14,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FirebasePerformance/Sources/FPRClient.h"
+#import "FPRClient.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

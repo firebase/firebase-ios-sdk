@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/Sources/Core/FWriteTree.h"
-#import "FirebaseDatabase/Sources/Core/FWriteRecord.h"
-#import "FirebaseDatabase/Sources/Core/FWriteTreeRef.h"
-#import "FirebaseDatabase/Sources/Core/Utilities/FImmutableTree.h"
-#import "FirebaseDatabase/Sources/Core/Utilities/FPath.h"
-#import "FirebaseDatabase/Sources/Core/View/FCacheNode.h"
-#import "FirebaseDatabase/Sources/FIndex.h"
-#import "FirebaseDatabase/Sources/FNamedNode.h"
-#import "FirebaseDatabase/Sources/Snapshot/FChildrenNode.h"
-#import "FirebaseDatabase/Sources/Snapshot/FCompoundWrite.h"
-#import "FirebaseDatabase/Sources/Snapshot/FEmptyNode.h"
-#import "FirebaseDatabase/Sources/Snapshot/FNode.h"
+#import "Core/FWriteTree.h"
+#import "Core/FWriteRecord.h"
+#import "Core/FWriteTreeRef.h"
+#import "Core/Utilities/FImmutableTree.h"
+#import "Core/Utilities/FPath.h"
+#import "Core/View/FCacheNode.h"
+#import "FIndex.h"
+#import "FNamedNode.h"
+#import "Snapshot/FChildrenNode.h"
+#import "Snapshot/FCompoundWrite.h"
+#import "Snapshot/FEmptyNode.h"
+#import "Snapshot/FNode.h"
 
 @interface FWriteTree ()
 /**

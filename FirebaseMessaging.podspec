@@ -39,9 +39,6 @@ device, and it is completely free.
   s.source_files = [
     base_dir + 'Sources/**/*.{c,m,h}',
     base_dir + 'Sources/Protogen/nanopb/*.h',
-    base_dir + 'Interop/*.h',
-    'Interop/Analytics/Public/*.h',
-    'FirebaseCore/Extension/*.h',
     'FirebaseInstallations/Source/Library/Private/*.h',
   ]
   s.public_header_files = base_dir + 'Sources/Public/FirebaseMessaging/*.h'
@@ -53,8 +50,7 @@ device, and it is completely free.
     'GCC_PREPROCESSOR_DEFINITIONS' =>
       # for nanopb:
       'PB_FIELD_32BIT=1 PB_NO_PACKED_STRUCTS=1 PB_ENABLE_MALLOC=1',
-    # Unit tests do library imports using repo-root relative paths.
-    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"',
+    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}/FirebaseMessaging/Sources"',
   }
   s.ios.framework = 'SystemConfiguration'
   s.tvos.framework = 'SystemConfiguration'
@@ -62,6 +58,9 @@ device, and it is completely free.
   s.weak_framework = 'UserNotifications'
   s.dependency 'FirebaseInstallations', '~> 12.19.0'
   s.dependency 'FirebaseCore', '~> 12.19.0'
+  s.dependency 'FirebaseCoreExtension', '~> 12.19.0'
+  s.dependency 'FirebaseAnalyticsInterop', '~> 12.19.0'
+  s.dependency 'FirebaseMessagingInterop', '~> 12.19.0'
   s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 8.1'
   s.dependency 'GoogleUtilities/Reachability', '~> 8.1'
   s.dependency 'GoogleUtilities/Environment', '~> 8.1'
@@ -82,7 +81,8 @@ device, and it is completely free.
     ]
     unit_tests.requires_app_host = true
     unit_tests.pod_target_xcconfig = {
-     'CLANG_ENABLE_OBJC_WEAK' => 'YES'
+      'CLANG_ENABLE_OBJC_WEAK' => 'YES',
+      'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}/SharedTestUtilities"'
     }
     unit_tests.dependency 'OCMock'
   end

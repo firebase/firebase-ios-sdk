@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "FirebaseMessaging/Sources/FIRMessagingPersistentSyncMessage.h"
+#import "FIRMessagingPersistentSyncMessage.h"
 
-#import "FirebaseMessaging/Sources/FIRMessagingDefines.h"
+#import "FIRMessagingDefines.h"
 
 @interface FIRMessagingPersistentSyncMessage ()
 

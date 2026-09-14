@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-#import "FirebaseMessaging/Sources/FIRMessagingTopicOperation.h"
+#import "FIRMessagingTopicOperation.h"
 
-#import "FirebaseMessaging/Sources/FIRMessagingDefines.h"
-#import "FirebaseMessaging/Sources/FIRMessagingLogger.h"
-#import "FirebaseMessaging/Sources/FIRMessagingUtilities.h"
-#import "FirebaseMessaging/Sources/NSError+FIRMessaging.h"
-#import "FirebaseMessaging/Sources/Token/FIRMessagingTokenManager.h"
+#import "FIRMessagingDefines.h"
+#import "FIRMessagingLogger.h"
+#import "FIRMessagingUtilities.h"
+#import "NSError+FIRMessaging.h"
+#import "Token/FIRMessagingTokenManager.h"
 
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
-#import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
-#import "FirebaseMessaging/Sources/FIRMessagingPubSub.h"
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
+#import <FirebaseInstallations/FirebaseInstallations.h>
+#import "FIRMessagingPubSub.h"
 
 static NSString *const kFIRMessagingSubscribeServerHost =
     @"https://iid.googleapis.com/iid/register";

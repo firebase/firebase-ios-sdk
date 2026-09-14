@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebaseAppDistribution/Sources/FIRFADLogger.h"
-#import "FirebaseCore/Extension/FIRLogger.h"
+#import "FIRFADLogger.h"
+#import <FirebaseCoreExtension/FIRLogger.h>
 
 FIRLoggerService kFIRLoggerAppDistribution = @"[FirebaseAppDistribution]";
 

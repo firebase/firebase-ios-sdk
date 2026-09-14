@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/Sources/Core/FSparseSnapshotTree.h"
-#import "FirebaseDatabase/Sources/Core/FSyncTree.h"
-#import "FirebaseDatabase/Sources/FClock.h"
-#import "FirebaseDatabase/Sources/Snapshot/FCompoundWrite.h"
-#import "FirebaseDatabase/Sources/Snapshot/FNode.h"
+#import "Core/FSparseSnapshotTree.h"
+#import "Core/FSyncTree.h"
+#import "FClock.h"
+#import "Snapshot/FCompoundWrite.h"
+#import "Snapshot/FNode.h"
 #import <Foundation/Foundation.h>
 
 @interface FServerValues : NSObject

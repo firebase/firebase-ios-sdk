@@ -11,11 +11,11 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#import "FirebaseAppDistribution/Sources/FIRFADApiService.h"
+#import "FIRFADApiService.h"
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
+#import <FirebaseInstallations/FirebaseInstallations.h>
 #import <Foundation/Foundation.h>
-#import "FirebaseAppDistribution/Sources/FIRFADLogger.h"
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
-#import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
+#import "FIRFADLogger.h"
 
 NSString *const kFIRFADApiErrorDomain = @"com.firebase.appdistribution.api";
 NSString *const kFIRFADApiErrorDetailsKey = @"details";

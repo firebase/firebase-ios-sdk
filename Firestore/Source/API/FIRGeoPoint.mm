@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "Firestore/Source/API/FIRGeoPoint+Internal.h"
+#import "FIRGeoPoint+Internal.h"
 
 #include "Firestore/core/include/firebase/firestore/geo_point.h"
 #include "Firestore/core/src/util/comparison.h"

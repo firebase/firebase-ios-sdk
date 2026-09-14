@@ -15,12 +15,12 @@
  */
 
 #import <XCTest/XCTest.h>
-#import "FirebaseDatabase/Sources/FNamedNode.h"
-#import "FirebaseDatabase/Sources/Snapshot/FCompoundWrite.h"
-#import "FirebaseDatabase/Sources/Snapshot/FEmptyNode.h"
-#import "FirebaseDatabase/Sources/Snapshot/FLeafNode.h"
-#import "FirebaseDatabase/Sources/Snapshot/FNode.h"
-#import "FirebaseDatabase/Sources/Snapshot/FSnapshotUtilities.h"
+#import "FNamedNode.h"
+#import "Snapshot/FCompoundWrite.h"
+#import "Snapshot/FEmptyNode.h"
+#import "Snapshot/FLeafNode.h"
+#import "Snapshot/FNode.h"
+#import "Snapshot/FSnapshotUtilities.h"
 
 @interface FCompoundWriteTest : XCTestCase
 

@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/Tests/Unit/FIRMutableDataTests.h"
-#import "FirebaseDatabase/Sources/Api/Private/FIRMutableData_Private.h"
-#import "FirebaseDatabase/Sources/Snapshot/FSnapshotUtilities.h"
+#import "FIRMutableDataTests.h"
+#import "Api/Private/FIRMutableData_Private.h"
+#import "Snapshot/FSnapshotUtilities.h"
 
 @implementation FIRMutableDataTests
 

@@ -14,13 +14,13 @@
 
 #import <XCTest/XCTest.h>
 
-#include "Crashlytics/Crashlytics/Components/FIRCLSContext.h"
-#import "Crashlytics/Crashlytics/Controllers/FIRCLSManagerData.h"
-#import "Crashlytics/Crashlytics/Models/FIRCLSInternalReport.h"
-#import "Crashlytics/Crashlytics/Private/FIRCLSExistingReportManager_Private.h"
-#import "Crashlytics/Crashlytics/Public/FirebaseCrashlytics/FIRCrashlyticsReport.h"
-#import "Crashlytics/UnitTests/Mocks/FIRCLSMockReportUploader.h"
-#import "Crashlytics/UnitTests/Mocks/FIRCLSTempMockFileManager.h"
+#include "Components/FIRCLSContext.h"
+#import "Controllers/FIRCLSManagerData.h"
+#import "FIRCLSMockReportUploader.h"
+#import "FIRCLSTempMockFileManager.h"
+#import "FirebaseCrashlytics/FIRCrashlyticsReport.h"
+#import "Models/FIRCLSInternalReport.h"
+#import "Private/FIRCLSExistingReportManager_Private.h"
 
 #define METADATA_FORMAT                                                                        \
   (@"{\"identity\":{\"generator\":\"Crashlytics iOS "                                          \

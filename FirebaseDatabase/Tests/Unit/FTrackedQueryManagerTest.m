@@ -16,18 +16,18 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FirebaseDatabase/Sources/Core/FQuerySpec.h"
-#import "FirebaseDatabase/Sources/Core/Utilities/FPath.h"
-#import "FirebaseDatabase/Sources/FClock.h"
-#import "FirebaseDatabase/Sources/FPathIndex.h"
-#import "FirebaseDatabase/Sources/Persistence/FPruneForest.h"
-#import "FirebaseDatabase/Sources/Persistence/FTrackedQuery.h"
-#import "FirebaseDatabase/Sources/Persistence/FTrackedQueryManager.h"
-#import "FirebaseDatabase/Sources/Snapshot/FSnapshotUtilities.h"
-#import "FirebaseDatabase/Tests/Helpers/FMockStorageEngine.h"
-#import "FirebaseDatabase/Tests/Helpers/FTestCachePolicy.h"
-#import "FirebaseDatabase/Tests/Helpers/FTestClock.h"
-#import "FirebaseDatabase/Tests/Helpers/FTestHelpers.h"
+#import "Core/FQuerySpec.h"
+#import "Core/Utilities/FPath.h"
+#import "FClock.h"
+#import "FMockStorageEngine.h"
+#import "FPathIndex.h"
+#import "FTestCachePolicy.h"
+#import "FTestClock.h"
+#import "FTestHelpers.h"
+#import "Persistence/FPruneForest.h"
+#import "Persistence/FTrackedQuery.h"
+#import "Persistence/FTrackedQueryManager.h"
+#import "Snapshot/FSnapshotUtilities.h"
 
 @interface FPruneForest (Test)
 

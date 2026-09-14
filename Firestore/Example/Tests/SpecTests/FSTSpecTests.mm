@@ -31,7 +31,7 @@
 #include <utility>
 #include <vector>
 
-#import "Firestore/Source/API/FSTUserDataReader.h"
+#import "FSTUserDataReader.h"
 
 #import "Firestore/Example/Tests/SpecTests/FSTSyncEngineTestDriver.h"
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"

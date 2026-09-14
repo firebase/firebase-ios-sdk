@@ -12,26 +12,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
+#import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
 
-#import "Crashlytics/Crashlytics/Components/FIRCLSApplication.h"
-#import "Crashlytics/Crashlytics/Controllers/FIRCLSAnalyticsManager.h"
-#import "Crashlytics/Crashlytics/Controllers/FIRCLSManagerData.h"
-#import "Crashlytics/Crashlytics/Controllers/FIRCLSReportUploader_Private.h"
-#import "Crashlytics/Crashlytics/DataCollection/FIRCLSDataCollectionToken.h"
-#import "Crashlytics/Crashlytics/Helpers/FIRCLSDefines.h"
-#import "Crashlytics/Crashlytics/Models/FIRCLSFileManager.h"
-#import "Crashlytics/Crashlytics/Models/FIRCLSInstallIdentifierModel.h"
-#import "Crashlytics/Crashlytics/Models/FIRCLSInternalReport.h"
-#import "Crashlytics/Crashlytics/Models/FIRCLSSettings.h"
-#import "Crashlytics/Crashlytics/Models/FIRCLSSymbolResolver.h"
-#import "Crashlytics/Crashlytics/Models/Record/FIRCLSReportAdapter.h"
-#import "Crashlytics/Crashlytics/Operations/Reports/FIRCLSProcessReportOperation.h"
+#import "Components/FIRCLSApplication.h"
+#import "Controllers/FIRCLSAnalyticsManager.h"
+#import "Controllers/FIRCLSManagerData.h"
+#import "Controllers/FIRCLSReportUploader_Private.h"
+#import "DataCollection/FIRCLSDataCollectionToken.h"
+#import "Helpers/FIRCLSDefines.h"
+#import "Models/FIRCLSFileManager.h"
+#import "Models/FIRCLSInstallIdentifierModel.h"
+#import "Models/FIRCLSInternalReport.h"
+#import "Models/FIRCLSSettings.h"
+#import "Models/FIRCLSSymbolResolver.h"
+#import "Models/Record/FIRCLSReportAdapter.h"
+#import "Operations/Reports/FIRCLSProcessReportOperation.h"
 
-#include "Crashlytics/Crashlytics/Helpers/FIRCLSUtility.h"
+#include "Helpers/FIRCLSUtility.h"
 
-#import "Crashlytics/Shared/FIRCLSConstants.h"
-#import "Crashlytics/Shared/FIRCLSNetworking/FIRCLSURLBuilder.h"
+#import "Shared/FIRCLSConstants.h"
+#import "Shared/FIRCLSNetworking/FIRCLSURLBuilder.h"
 
 #import <GoogleDataTransport/GoogleDataTransport.h>
 

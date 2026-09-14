@@ -1,5 +1,5 @@
 #import <Foundation/Foundation.h>
-#import "FirebaseDatabase/Sources/third_party/FImmutableSortedDictionary/FImmutableSortedDictionary/FLLRBNode.h"
+#import "FLLRBNode.h"
 
 @interface FLLRBValueNode : NSObject <FLLRBNode>
 

@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/Tests/Helpers/FEventTester.h"
+#import "FEventTester.h"
 
-#import "FirebaseDatabase/Sources/Public/FirebaseDatabase/FIRDatabaseReference.h"
+#import <FirebaseDatabase/FIRDatabaseReference.h>
 
-#import "FirebaseDatabase/Sources/Utilities/Tuples/FTupleBoolBlock.h"
-#import "FirebaseDatabase/Tests/Helpers/FTestHelpers.h"
-#import "FirebaseDatabase/Tests/Helpers/FTupleEventTypeString.h"
-#import "FirebaseDatabase/Tests/Helpers/SenTest+FWaiter.h"
+#import "FTestHelpers.h"
+#import "FTupleEventTypeString.h"
+#import "SenTest+FWaiter.h"
+#import "Utilities/Tuples/FTupleBoolBlock.h"
 
 @implementation FEventTester
 

@@ -15,14 +15,14 @@
  */
 
 #import <XCTest/XCTest.h>
-#import "FirebaseDatabase/Sources/Api/Private/FIRDatabaseReference_Private.h"
-#import "FirebaseDatabase/Sources/Api/Private/FIRDatabase_Private.h"
-#import "FirebaseDatabase/Sources/Constants/FConstants.h"
-#import "FirebaseDatabase/Sources/FClock.h"
-#import "FirebaseDatabase/Sources/FIRDatabaseConfig_Private.h"
-#import "FirebaseDatabase/Sources/Realtime/FWebSocketConnection.h"
-#import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
-#import "FirebaseDatabase/Tests/Helpers/FTestHelpers.h"
+#import "Api/Private/FIRDatabaseReference_Private.h"
+#import "Api/Private/FIRDatabase_Private.h"
+#import "Constants/FConstants.h"
+#import "FClock.h"
+#import "FIRDatabaseConfig_Private.h"
+#import "FTestHelpers.h"
+#import "Realtime/FWebSocketConnection.h"
+#import "Utilities/FUtilities.h"
 
 @interface FWebSocketConnection (Tests)
 - (NSString *)userAgent;

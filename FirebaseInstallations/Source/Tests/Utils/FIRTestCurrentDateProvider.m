@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FirebaseInstallations/Source/Tests/Utils/FIRTestCurrentDateProvider.h"
+#import "FIRTestCurrentDateProvider.h"
 
 @implementation FIRTestCurrentDateProvider
 

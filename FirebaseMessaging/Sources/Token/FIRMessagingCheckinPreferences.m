@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#import "FirebaseMessaging/Sources/Token/FIRMessagingCheckinPreferences.h"
+#import "Token/FIRMessagingCheckinPreferences.h"
 
 #import <GoogleUtilities/GULUserDefaults.h>
-#import "FirebaseMessaging/Sources/FIRMessagingUtilities.h"
-#import "FirebaseMessaging/Sources/Token/FIRMessagingCheckinService.h"
+#import "FIRMessagingUtilities.h"
+#import "Token/FIRMessagingCheckinService.h"
 
 const NSTimeInterval kFIRMessagingDefaultCheckinInterval = 7 * 24 * 60 * 60;  // 7 days.
 static NSString *const kCheckinKeychainContentSeparatorString = @"|";

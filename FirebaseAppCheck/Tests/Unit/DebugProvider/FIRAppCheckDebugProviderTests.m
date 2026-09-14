@@ -18,12 +18,12 @@
 
 #import <OCMock/OCMock.h>
 
-#import "FirebaseAppCheck/Sources/Core/FIRApp+AppCheck.h"
-#import "FirebaseAppCheck/Sources/Core/FIRAppCheckToken+Internal.h"
-#import "FirebaseAppCheck/Sources/Core/FIRHeartbeatLogger+AppCheck.h"
-#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckDebugProvider.h"
+#import <FirebaseAppCheck/FIRAppCheckDebugProvider.h>
+#import "Core/FIRApp+AppCheck.h"
+#import "Core/FIRAppCheckToken+Internal.h"
+#import "Core/FIRHeartbeatLogger+AppCheck.h"
 
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
 static NSString *const kAppName = @"test_app_name";
 static NSString *const kAppID = @"test_app_id";

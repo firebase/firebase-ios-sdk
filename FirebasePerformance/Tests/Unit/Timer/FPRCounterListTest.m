@@ -14,10 +14,10 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FirebasePerformance/Sources/FIRPerformance+Internal.h"
-#import "FirebasePerformance/Sources/FPRClient.h"
-#import "FirebasePerformance/Sources/Public/FirebasePerformance/FIRPerformance.h"
-#import "FirebasePerformance/Sources/Timer/FPRCounterList.h"
+#import <FirebasePerformance/FIRPerformance.h>
+#import "FIRPerformance+Internal.h"
+#import "FPRClient.h"
+#import "Timer/FPRCounterList.h"
 
 @interface FPRCounterListTest : XCTestCase
 

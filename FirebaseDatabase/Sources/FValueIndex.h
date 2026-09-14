@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/Sources/FIndex.h"
+#import "FIndex.h"
 #import <Foundation/Foundation.h>
 
 @interface FValueIndex : NSObject <FIndex>

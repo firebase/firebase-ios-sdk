@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "Firestore/Source/API/FIRFirestoreSource+Internal.h"
+#import "FIRFirestoreSource+Internal.h"
 
 #include "Firestore/core/src/api/source.h"
 #include "Firestore/core/src/util/hard_assert.h"

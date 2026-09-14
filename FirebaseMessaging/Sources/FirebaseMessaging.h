@@ -14,4 +14,4 @@
  * limitations under the License.
  */
 
-#import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessaging.h"
+#import <FirebaseMessaging/FIRMessaging.h>

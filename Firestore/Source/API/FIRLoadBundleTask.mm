@@ -18,7 +18,7 @@
 
 #include <memory>
 
-#import "Firestore/Source/API/FIRLoadBundleTask+Internal.h"
+#import "FIRLoadBundleTask+Internal.h"
 
 #include "Firestore/core/src/api/load_bundle_task.h"
 #include "Firestore/core/src/util/exception.h"

@@ -16,14 +16,14 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FirebaseDatabase/Sources/Core/FQueryParams.h"
-#import "FirebaseDatabase/Sources/Core/FWriteRecord.h"
-#import "FirebaseDatabase/Sources/FPathIndex.h"
-#import "FirebaseDatabase/Sources/Persistence/FLevelDBStorageEngine.h"
-#import "FirebaseDatabase/Sources/Persistence/FTrackedQuery.h"
-#import "FirebaseDatabase/Sources/Snapshot/FEmptyNode.h"
-#import "FirebaseDatabase/Sources/Snapshot/FSnapshotUtilities.h"
-#import "FirebaseDatabase/Tests/Helpers/FTestHelpers.h"
+#import "Core/FQueryParams.h"
+#import "Core/FWriteRecord.h"
+#import "FPathIndex.h"
+#import "FTestHelpers.h"
+#import "Persistence/FLevelDBStorageEngine.h"
+#import "Persistence/FTrackedQuery.h"
+#import "Snapshot/FEmptyNode.h"
+#import "Snapshot/FSnapshotUtilities.h"
 
 @interface FLevelDBStorageEngine (Tests)
 + (void)ensureDir:(NSString *)path markAsDoNotBackup:(BOOL)markAsDoNotBackup;

@@ -20,11 +20,11 @@
 #include <utility>
 #include <vector>
 
-#import "Firestore/Source/API/FIRDocumentReference+Internal.h"
-#import "Firestore/Source/API/FIRDocumentSnapshot+Internal.h"
-#import "Firestore/Source/API/FIRFirestore+Internal.h"
-#import "Firestore/Source/API/FIRTransaction+Internal.h"
-#import "Firestore/Source/API/FSTUserDataReader.h"
+#import "FIRDocumentReference+Internal.h"
+#import "FIRDocumentSnapshot+Internal.h"
+#import "FIRFirestore+Internal.h"
+#import "FIRTransaction+Internal.h"
+#import "FSTUserDataReader.h"
 
 #include "Firestore/core/src/core/transaction.h"
 #include "Firestore/core/src/core/user_data.h"

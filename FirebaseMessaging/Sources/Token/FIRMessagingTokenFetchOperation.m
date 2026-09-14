@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-#import "FirebaseMessaging/Sources/Token/FIRMessagingTokenFetchOperation.h"
+#import "Token/FIRMessagingTokenFetchOperation.h"
 
-#import "FirebaseMessaging/Sources/FIRMessagingCode.h"
-#import "FirebaseMessaging/Sources/FIRMessagingConstants.h"
-#import "FirebaseMessaging/Sources/FIRMessagingDefines.h"
-#import "FirebaseMessaging/Sources/FIRMessagingLogger.h"
-#import "FirebaseMessaging/Sources/FIRMessagingUtilities.h"
-#import "FirebaseMessaging/Sources/NSError+FIRMessaging.h"
-#import "FirebaseMessaging/Sources/Token/FIRMessagingCheckinPreferences.h"
-#import "FirebaseMessaging/Sources/Token/FIRMessagingTokenOperation.h"
+#import "FIRMessagingCode.h"
+#import "FIRMessagingConstants.h"
+#import "FIRMessagingDefines.h"
+#import "FIRMessagingLogger.h"
+#import "FIRMessagingUtilities.h"
+#import "NSError+FIRMessaging.h"
+#import "Token/FIRMessagingCheckinPreferences.h"
+#import "Token/FIRMessagingTokenOperation.h"
 
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
 // We can have a static int since this error should theoretically only
 // happen once (for the first time). If it repeats there is something

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebaseABTesting/Tests/Unit/ABTFakeFIRAConditionalUserPropertyController.h"
+#import "ABTFakeFIRAConditionalUserPropertyController.h"
 
 @implementation ABTFakeFIRAConditionalUserPropertyController {
   NSMutableArray<NSDictionary<NSString *, id> *> *_experiments;

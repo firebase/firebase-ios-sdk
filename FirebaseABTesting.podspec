@@ -40,8 +40,6 @@ Firebase Cloud Messaging and Firebase Remote Config in your app.
   base_dir = "FirebaseABTesting/Sources/"
   s.source_files = [
     base_dir + '**/*.[mh]',
-   'Interop/Analytics/Public/*.h',
-   'FirebaseCore/Extension/*.h',
   ]
   s.resource_bundles = {
     "#{s.module_name}_Privacy" => 'FirebaseABTesting/Sources/Resources/PrivacyInfo.xcprivacy'
@@ -49,9 +47,11 @@ Firebase Cloud Messaging and Firebase Remote Config in your app.
   s.requires_arc = base_dir + '*.m'
   s.public_header_files = base_dir + 'Public/FirebaseABTesting/*.h'
   s.pod_target_xcconfig = {
-    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
+    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}/FirebaseABTesting/Sources"'
   }
   s.dependency 'FirebaseCore', '~> 12.19.0'
+  s.dependency 'FirebaseCoreExtension', '~> 12.19.0'
+  s.dependency 'FirebaseAnalyticsInterop', '~> 12.19.0'
 
   s.test_spec 'unit' do |unit_tests|
     unit_tests.scheme = { :code_coverage => true }

@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebasePerformance/Sources/FPRURLFilter.h"
-#import "FirebasePerformance/Sources/FPRURLFilter_Private.h"
+#import "FPRURLFilter.h"
+#import "FPRURLFilter_Private.h"
 
-#import "FirebasePerformance/Sources/FPRConsoleLogger.h"
+#import "FPRConsoleLogger.h"
 
 #import <GoogleDataTransport/GoogleDataTransport.h>
 

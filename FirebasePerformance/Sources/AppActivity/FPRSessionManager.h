@@ -14,7 +14,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FirebasePerformance/Sources/AppActivity/FPRSessionDetails.h"
+#import "AppActivity/FPRSessionDetails.h"
 
 /* Notification name when the session Id gets updated. */
 FOUNDATION_EXTERN NSString *_Nonnull const kFPRSessionIdUpdatedNotification;

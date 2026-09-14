@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-#import "FirebaseMessaging/Sources/FIRMessagingPubSub.h"
+#import "FIRMessagingPubSub.h"
 
+#import <FirebaseMessaging/FIRMessaging.h>
 #import <GoogleUtilities/GULUserDefaults.h>
-#import "FirebaseMessaging/Sources/FIRMessagingDefines.h"
-#import "FirebaseMessaging/Sources/FIRMessagingLogger.h"
-#import "FirebaseMessaging/Sources/FIRMessagingPendingTopicsList.h"
-#import "FirebaseMessaging/Sources/FIRMessagingTopicOperation.h"
-#import "FirebaseMessaging/Sources/FIRMessagingTopicsCommon.h"
-#import "FirebaseMessaging/Sources/FIRMessagingUtilities.h"
-#import "FirebaseMessaging/Sources/FIRMessaging_Private.h"
-#import "FirebaseMessaging/Sources/NSDictionary+FIRMessaging.h"
-#import "FirebaseMessaging/Sources/NSError+FIRMessaging.h"
-#import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessaging.h"
-#import "FirebaseMessaging/Sources/Token/FIRMessagingTokenManager.h"
+#import "FIRMessagingDefines.h"
+#import "FIRMessagingLogger.h"
+#import "FIRMessagingPendingTopicsList.h"
+#import "FIRMessagingTopicOperation.h"
+#import "FIRMessagingTopicsCommon.h"
+#import "FIRMessagingUtilities.h"
+#import "FIRMessaging_Private.h"
+#import "NSDictionary+FIRMessaging.h"
+#import "NSError+FIRMessaging.h"
+#import "Token/FIRMessagingTokenManager.h"
 
 static NSString *const kPendingSubscriptionsListKey =
     @"com.firebase.messaging.pending-subscriptions";

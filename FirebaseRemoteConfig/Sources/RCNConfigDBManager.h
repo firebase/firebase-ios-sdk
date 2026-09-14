@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FirebaseRemoteConfig/Sources/RCNConfigContent.h"
+#import "RCNConfigContent.h"
 
 typedef NS_ENUM(NSInteger, RCNUpdateOption) {
   RCNUpdateOptionApplyTime,

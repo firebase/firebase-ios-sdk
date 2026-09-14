@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/Sources/Core/Operation/FOperation.h"
+#import "Core/Operation/FOperation.h"
 
 @class FCompoundWrite;
 

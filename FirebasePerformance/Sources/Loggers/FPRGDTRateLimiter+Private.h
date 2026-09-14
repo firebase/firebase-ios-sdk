@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebasePerformance/Sources/Loggers/FPRGDTRateLimiter.h"
+#import "Loggers/FPRGDTRateLimiter.h"
 
 #import <UIKit/UIKit.h>
 
-#import "FirebasePerformance/Sources/Common/FPRPerfDate.h"
-#import "FirebasePerformance/Sources/Configurations/FPRConfigurations.h"
+#import "Common/FPRPerfDate.h"
+#import "Configurations/FPRConfigurations.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

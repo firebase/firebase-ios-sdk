@@ -19,11 +19,11 @@
 
 #import <UIKit/UIKit.h>
 
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
-#import "FirebaseInAppMessaging/Sources/Analytics/FIRIAMClearcutLogStorage.h"
-#import "FirebaseInAppMessaging/Sources/FIRCore+InAppMessaging.h"
-#import "FirebaseInAppMessaging/Sources/Private/Util/FIRIAMTimeFetcher.h"
+#import "Analytics/FIRIAMClearcutLogStorage.h"
+#import "FIRCore+InAppMessaging.h"
+#import "Private/Util/FIRIAMTimeFetcher.h"
 
 @implementation FIRIAMClearcutLogRecord
 static NSString *const kEventTimestampKey = @"event_ts_seconds";

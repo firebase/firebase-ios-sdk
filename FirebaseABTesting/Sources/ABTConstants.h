@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#import <FirebaseCoreExtension/FIRLogger.h>
 #import <Foundation/Foundation.h>
-#import "FirebaseCore/Extension/FIRLogger.h"
 
 #define ABT_MSEC_PER_SEC 1000ull
 

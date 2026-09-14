@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRRecaptchaProviderFactory.h"
+#import <FirebaseAppCheck/FIRRecaptchaProviderFactory.h>
 
-#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRRecaptchaProvider.h"
+#import <FirebaseAppCheck/FIRRecaptchaProvider.h>
 
 @interface FIRRecaptchaProviderFactory ()
 @property(nonatomic, readonly, copy) NSString *siteKey;

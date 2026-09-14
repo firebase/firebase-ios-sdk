@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "Firestore/Source/API/FIRFirestoreVersion.h"
+#import "FIRFirestoreVersion.h"
 
 #include "Firestore/core/include/firebase/firestore/firestore_version.h"
 

@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebasePerformance/Sources/Configurations/FPRRemoteConfigFlags.h"
+#import "Configurations/FPRRemoteConfigFlags.h"
 
-#import "FirebaseRemoteConfig/Sources/Private/FIRRemoteConfig_Private.h"
+#import <FirebaseRemoteConfig/FIRRemoteConfig_Private.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

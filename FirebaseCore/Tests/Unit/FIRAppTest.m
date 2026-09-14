@@ -24,16 +24,16 @@
 #import <WatchKit/WatchKit.h>
 #endif
 
-#import "FirebaseCore/Tests/Unit/FIRTestCase.h"
-#import "FirebaseCore/Tests/Unit/FIRTestComponents.h"
+#import "FIRTestCase.h"
+#import "FIRTestComponents.h"
 
+#import <FirebaseCoreExtension/FIRAppInternal.h>
+#import <FirebaseCoreExtension/FIRComponentType.h>
+#import <FirebaseCoreExtension/FIRHeartbeatLogger.h>
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
-#import "FirebaseCore/Extension/FIRAppInternal.h"
-#import "FirebaseCore/Extension/FIRComponentType.h"
-#import "FirebaseCore/Extension/FIRHeartbeatLogger.h"
-#import "FirebaseCore/Sources/FIRAnalyticsConfiguration.h"
-#import "FirebaseCore/Sources/FIROptionsInternal.h"
-#import "SharedTestUtilities/FIROptionsMock.h"
+#import "FIRAnalyticsConfiguration.h"
+#import "FIROptionsInternal.h"
+#import "FIROptionsMock.h"
 
 NSString *const kFIRTestAppName1 = @"test_app_name_1";
 NSString *const kFIRTestAppName2 = @"test-app-name-2";

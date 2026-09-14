@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import "Firestore/Source/API/FIRFirestore+Internal.h"
-#import "Firestore/Source/API/FIRPersistentCacheIndexManager+Internal.h"
+#import "FIRFirestore+Internal.h"
+#import "FIRPersistentCacheIndexManager+Internal.h"
 
 using firebase::firestore::api::Firestore;
 using firebase::firestore::api::PersistentCacheIndexManager;

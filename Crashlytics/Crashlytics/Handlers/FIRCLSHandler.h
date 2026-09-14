@@ -16,7 +16,7 @@
 
 #include <mach/mach.h>
 
-#include "Crashlytics/Crashlytics/Helpers/FIRCLSFile.h"
+#include "Helpers/FIRCLSFile.h"
 
 __BEGIN_DECLS
 

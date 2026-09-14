@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/Sources/Utilities/Tuples/FTupleNodePath.h"
+#import "Utilities/Tuples/FTupleNodePath.h"
 
 @implementation FTupleNodePath
 

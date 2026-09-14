@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/Sources/Snapshot/FChildrenNode.h"
+#import "Snapshot/FChildrenNode.h"
 #import <Foundation/Foundation.h>
 
 @interface FMaxNode : FChildrenNode

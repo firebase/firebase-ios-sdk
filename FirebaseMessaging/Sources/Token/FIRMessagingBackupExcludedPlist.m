@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "FirebaseMessaging/Sources/Token/FIRMessagingBackupExcludedPlist.h"
+#import "Token/FIRMessagingBackupExcludedPlist.h"
 
-#import "FirebaseMessaging/Sources/FIRMessagingLogger.h"
+#import "FIRMessagingLogger.h"
 
 @interface FIRMessagingBackupExcludedPlist ()
 

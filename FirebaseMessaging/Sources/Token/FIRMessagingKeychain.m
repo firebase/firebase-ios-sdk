@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "FirebaseMessaging/Sources/Token/FIRMessagingKeychain.h"
+#import "Token/FIRMessagingKeychain.h"
 
-#import "FirebaseMessaging/Sources/FIRMessagingLogger.h"
+#import "FIRMessagingLogger.h"
 
 NSString *const kFIRMessagingKeychainErrorDomain = @"com.google.iid";
 

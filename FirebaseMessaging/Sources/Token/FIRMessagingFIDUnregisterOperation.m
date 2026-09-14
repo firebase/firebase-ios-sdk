@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-#import "FirebaseMessaging/Sources/Token/FIRMessagingFIDUnregisterOperation.h"
+#import "Token/FIRMessagingFIDUnregisterOperation.h"
 
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
-#import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
-#import "FirebaseMessaging/Sources/FIRMessagingCode.h"
-#import "FirebaseMessaging/Sources/FIRMessagingConstants.h"
-#import "FirebaseMessaging/Sources/FIRMessagingDefines.h"
-#import "FirebaseMessaging/Sources/FIRMessagingLogger.h"
-#import "FirebaseMessaging/Sources/FIRMessagingUtilities.h"
-#import "FirebaseMessaging/Sources/NSError+FIRMessaging.h"
-#import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessaging.h"
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
+#import <FirebaseInstallations/FirebaseInstallations.h>
+#import <FirebaseMessaging/FIRMessaging.h>
+#import "FIRMessagingCode.h"
+#import "FIRMessagingConstants.h"
+#import "FIRMessagingDefines.h"
+#import "FIRMessagingLogger.h"
+#import "FIRMessagingUtilities.h"
+#import "NSError+FIRMessaging.h"
 
 @interface FIRMessagingTokenOperation (ExposedForSubclass)
 - (void)setExecuting:(BOOL)executing;

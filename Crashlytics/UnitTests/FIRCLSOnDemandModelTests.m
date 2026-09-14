@@ -14,24 +14,24 @@
 
 #import <XCTest/XCTest.h>
 
-#include "Crashlytics/Crashlytics/Components/FIRCLSContext.h"
-#import "Crashlytics/Crashlytics/Controllers/FIRCLSContextManager.h"
-#import "Crashlytics/Crashlytics/Controllers/FIRCLSManagerData.h"
-#import "Crashlytics/Crashlytics/Models/FIRCLSExecutionIdentifierModel.h"
-#import "Crashlytics/Crashlytics/Models/FIRCLSInternalReport.h"
-#import "Crashlytics/Crashlytics/Private/FIRCLSOnDemandModel_Private.h"
-#import "Crashlytics/UnitTests/Mocks/FIRAppFake.h"
-#import "Crashlytics/UnitTests/Mocks/FIRCLSMockExistingReportManager.h"
-#import "Crashlytics/UnitTests/Mocks/FIRCLSMockFileManager.h"
-#import "Crashlytics/UnitTests/Mocks/FIRCLSMockOnDemandModel.h"
-#import "Crashlytics/UnitTests/Mocks/FIRCLSMockReportUploader.h"
-#import "Crashlytics/UnitTests/Mocks/FIRCLSMockSettings.h"
-#import "Crashlytics/UnitTests/Mocks/FIRMockGDTCoreTransport.h"
-#import "Crashlytics/UnitTests/Mocks/FIRMockInstallations.h"
+#include "Components/FIRCLSContext.h"
+#import "Controllers/FIRCLSContextManager.h"
+#import "Controllers/FIRCLSManagerData.h"
+#import "FIRAppFake.h"
+#import "FIRCLSMockExistingReportManager.h"
+#import "FIRCLSMockFileManager.h"
+#import "FIRCLSMockOnDemandModel.h"
+#import "FIRCLSMockReportUploader.h"
+#import "FIRCLSMockSettings.h"
+#import "FIRMockGDTCoreTransport.h"
+#import "FIRMockInstallations.h"
+#import "Models/FIRCLSExecutionIdentifierModel.h"
+#import "Models/FIRCLSInternalReport.h"
+#import "Private/FIRCLSOnDemandModel_Private.h"
 
-#import "Crashlytics/Crashlytics/DataCollection/FIRCLSDataCollectionArbiter.h"
-#import "Crashlytics/Crashlytics/DataCollection/FIRCLSDataCollectionToken.h"
-#import "Crashlytics/Crashlytics/Settings/Models/FIRCLSApplicationIdentifierModel.h"
+#import "DataCollection/FIRCLSDataCollectionArbiter.h"
+#import "DataCollection/FIRCLSDataCollectionToken.h"
+#import "Settings/Models/FIRCLSApplicationIdentifierModel.h"
 
 #define TEST_GOOGLE_APP_ID (@"1:632950151350:ios:d5b0d08d4f00f4b1")
 

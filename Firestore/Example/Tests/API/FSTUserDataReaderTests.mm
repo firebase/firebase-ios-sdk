@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-#import "Firestore/Source/API/FSTUserDataReader.h"
+#import "FSTUserDataReader.h"
 
 #import <FirebaseFirestore/FIRFieldValue.h>
 #import <FirebaseFirestore/FIRGeoPoint.h>
 #import <XCTest/XCTest.h>
 
-#import "FirebaseCore/Sources/Public/FirebaseCore/FIRTimestamp.h"
+#import <FirebaseCore/FIRTimestamp.h>
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
-#import "Firestore/Source/API/converters.h"
+#import "converters.h"
 
 #include "Firestore/core/include/firebase/firestore/geo_point.h"
 #include "Firestore/core/src/model/database_id.h"

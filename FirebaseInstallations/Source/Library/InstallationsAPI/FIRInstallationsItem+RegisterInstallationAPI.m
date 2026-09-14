@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#import "FirebaseInstallations/Source/Library/InstallationsAPI/FIRInstallationsItem+RegisterInstallationAPI.h"
+#import "InstallationsAPI/FIRInstallationsItem+RegisterInstallationAPI.h"
 
-#import "FirebaseInstallations/Source/Library/Errors/FIRInstallationsErrorUtil.h"
-#import "FirebaseInstallations/Source/Library/InstallationsStore/FIRInstallationsStoredAuthToken.h"
+#import "Errors/FIRInstallationsErrorUtil.h"
+#import "InstallationsStore/FIRInstallationsStoredAuthToken.h"
 
 @implementation FIRInstallationsItem (RegisterInstallationAPI)
 

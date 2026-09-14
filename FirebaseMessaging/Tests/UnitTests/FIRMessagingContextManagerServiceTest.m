@@ -18,7 +18,7 @@
 #import <UserNotifications/UserNotifications.h>
 #import <XCTest/XCTest.h>
 
-#import "FirebaseMessaging/Sources/FIRMessagingContextManagerService.h"
+#import "FIRMessagingContextManagerService.h"
 
 static NSString *const kBody = @"Save 20% off!";
 static NSString *const kTitle = @"Sparky WFH";

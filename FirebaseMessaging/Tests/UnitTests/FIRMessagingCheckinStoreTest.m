@@ -18,15 +18,15 @@
 #if !TARGET_OS_MACCATALYST
 #import <XCTest/XCTest.h>
 
+#import <FirebaseMessaging/FIRMessaging.h>
 #import <OCMock/OCMock.h>
-#import "FirebaseMessaging/Sources/FIRMessagingUtilities.h"
-#import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessaging.h"
-#import "FirebaseMessaging/Sources/Token/FIRMessagingAuthKeychain.h"
-#import "FirebaseMessaging/Sources/Token/FIRMessagingBackupExcludedPlist.h"
-#import "FirebaseMessaging/Sources/Token/FIRMessagingCheckinPreferences.h"
-#import "FirebaseMessaging/Sources/Token/FIRMessagingCheckinService.h"
-#import "FirebaseMessaging/Sources/Token/FIRMessagingCheckinStore.h"
-#import "FirebaseMessaging/Tests/UnitTests/FIRMessagingFakeKeychain.h"
+#import "FIRMessagingFakeKeychain.h"
+#import "FIRMessagingUtilities.h"
+#import "Token/FIRMessagingAuthKeychain.h"
+#import "Token/FIRMessagingBackupExcludedPlist.h"
+#import "Token/FIRMessagingCheckinPreferences.h"
+#import "Token/FIRMessagingCheckinService.h"
+#import "Token/FIRMessagingCheckinStore.h"
 
 static const NSTimeInterval kExpectationTimeout = 12;
 

@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "FirebaseAppCheck/Sources/Core/FIRAppCheckValidator.h"
+#import "Core/FIRAppCheckValidator.h"
 
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
 @implementation FIRAppCheckValidator
 

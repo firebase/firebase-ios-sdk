@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-#import "FirebaseRemoteConfig/Sources/RCNConfigContent.h"
+#import "RCNConfigContent.h"
 
-#import "FirebaseRemoteConfig/Sources/Private/FIRRemoteConfig_Private.h"
-#import "FirebaseRemoteConfig/Sources/Public/FirebaseRemoteConfig/FIRRemoteConfig.h"
-#import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
-#import "FirebaseRemoteConfig/Sources/RCNConfigDBManager.h"
-#import "FirebaseRemoteConfig/Sources/RCNConfigDefines.h"
-#import "FirebaseRemoteConfig/Sources/RCNConfigValue_Internal.h"
+#import "FirebaseRemoteConfig/FIRRemoteConfig.h"
+#import "FirebaseRemoteConfig/FIRRemoteConfig_Private.h"
+#import "FirebaseRemoteConfig/RCNConfigValue_Internal.h"
+#import "RCNConfigConstants.h"
+#import "RCNConfigDBManager.h"
+#import "RCNConfigDefines.h"
 
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
 static NSString *const kAffectedParameterKeys = @"affectedParameterKeys";
 

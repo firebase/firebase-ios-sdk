@@ -27,6 +27,7 @@ public let shared = Manifest(
     Pod("FirebaseCoreInternal"),
     Pod("FirebaseCore"),
     Pod("FirebaseCoreExtension"),
+    Pod("FirebaseAnalyticsInterop"),
     Pod("FirebaseAppCheckInterop"),
     Pod("FirebaseAuthInterop"),
     Pod("FirebaseMessagingInterop"),

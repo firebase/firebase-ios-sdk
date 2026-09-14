@@ -19,9 +19,9 @@
 #import <GoogleUtilities/GULUserDefaults.h>
 #import <OCMock/OCMock.h>
 
-#import "FirebaseAppCheck/Sources/Core/FIRAppCheckSettings.h"
+#import "Core/FIRAppCheckSettings.h"
 
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
 @interface FIRAppCheckSettingsTests : XCTestCase
 

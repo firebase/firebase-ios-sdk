@@ -16,10 +16,10 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckDebugProvider.h"
-#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckDebugProviderFactory.h"
+#import <FirebaseAppCheck/FIRAppCheckDebugProvider.h>
+#import <FirebaseAppCheck/FIRAppCheckDebugProviderFactory.h>
 
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
 @interface FIRAppCheckDebugProviderFactoryTests : XCTestCase
 @end

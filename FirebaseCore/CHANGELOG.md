@@ -1,3 +1,6 @@
+# Unreleased
+- [feature] Modularized interop and extension headers into dedicated SPM and CocoaPods targets, removing repo-wide header search paths across Package.swift and podspecs.
+
 # Firebase 12.19.1
 - [fixed] Fixed the zip distribution artifact naming on the GitHub release
   page. This release contains no SDK code changes and is functionally

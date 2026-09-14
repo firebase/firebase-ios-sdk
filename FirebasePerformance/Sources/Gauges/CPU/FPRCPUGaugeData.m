@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebasePerformance/Sources/Gauges/CPU/FPRCPUGaugeData.h"
+#import "Gauges/CPU/FPRCPUGaugeData.h"
 
 @implementation FPRCPUGaugeData
 

@@ -16,17 +16,13 @@
 
 #import <TargetConditionals.h>
 #if __has_include(<UIKit/UIKit.h>) && !TARGET_OS_WATCH
-#import "SharedTestUtilities/FIRSampleAppUtilities.h"
+#import "FIRSampleAppUtilities.h"
 
 #if __has_include(<SafariServices/SafariServices.h>)
 #import <SafariServices/SafariServices.h>
 #endif
 
-#if SWIFT_PACKAGE
-#import <FirebaseCoreInternal.h>
-#else
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
-#endif
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
 NSString *const kGoogleAppIDPlistKey = @"GOOGLE_APP_ID";
 // Dummy plist GOOGLE_APP_ID

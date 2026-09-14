@@ -22,18 +22,18 @@
 #include <utility>
 #include <vector>
 
-#import "Firestore/Source/API/FSTUserDataReader.h"
+#import "FSTUserDataReader.h"
 
 #import "FIRGeoPoint.h"
 #import "FIRVectorValue.h"
 
-#import "Firestore/Source/API/FIRDocumentReference+Internal.h"
-#import "Firestore/Source/API/FIRFieldPath+Internal.h"
-#import "Firestore/Source/API/FIRFieldValue+Internal.h"
-#import "Firestore/Source/API/FIRFirestore+Internal.h"
-#import "Firestore/Source/API/FIRGeoPoint+Internal.h"
-#import "Firestore/Source/API/converters.h"
+#import "FIRDocumentReference+Internal.h"
+#import "FIRFieldPath+Internal.h"
+#import "FIRFieldValue+Internal.h"
+#import "FIRFirestore+Internal.h"
+#import "FIRGeoPoint+Internal.h"
 #import "Firestore/core/include/firebase/firestore/geo_point.h"
+#import "converters.h"
 
 #include "Firestore/core/src/core/user_data.h"
 #include "Firestore/core/src/model/database_id.h"
