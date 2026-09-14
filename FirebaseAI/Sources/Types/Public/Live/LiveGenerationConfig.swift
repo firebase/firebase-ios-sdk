@@ -32,14 +32,13 @@ public struct LiveGenerationConfig: Sendable {
   /// for more details.
   ///
   /// - Parameters:
-  ///   - maxOutputTokens: Maximum number of tokens that can be generated in the response.
-  ///     See the configure model parameters
-  ///     [documentation](https://firebase.google.com/docs/ai-logic/model-parameters#max-output-tokens)
-  ///     for more details.
+  ///   - maxOutputTokens: Maximum number of tokens that can be generated in the response. See
+  ///     [configure model
+  ///     parameters](https://firebase.google.com/docs/ai-logic/model-parameters#max-output-tokens).
   ///   - responseModalities: The data types (modalities) that may be returned in model responses.
   ///
-  ///     See the configure model parameters
-  ///     [documentation](https://firebase.google.com/docs/ai-logic/model-parameters#parameters-descriptions-gemini)
+  ///     See the [configure model parameters
+  ///     documentation](https://firebase.google.com/docs/ai-logic/model-parameters#parameters-descriptions-gemini)
   ///     for more details.
   ///
   ///     > Warning: Specifying response modalities is a **Public Preview** feature, which means
@@ -111,15 +110,13 @@ public struct LiveGenerationConfig: Sendable {
   /// for more details.
   ///
   /// - Parameters:
-  ///   - maxOutputTokens: Maximum number of tokens that can be generated in the response.
-  ///     See the configure model parameters
-  ///     [documentation](https://firebase.google.com/docs/ai-logic/model-parameters#max-output-tokens)
-  ///     for more details.
-  ///   - responseModalities: The data types (modalities) that may be returned in model responses.
   ///
-  ///     See the configure model parameters
-  ///     [documentation](https://firebase.google.com/docs/ai-logic/model-parameters#parameters-descriptions-gemini)
-  ///     for more details.
+  ///   - maxOutputTokens: Maximum number of tokens that can be generated in the response.
+  ///     See [configure model
+  ///     parameters](https://firebase.google.com/docs/ai-logic/model-parameters#max-output-tokens).
+  ///
+  ///   - responseModalities: The data types (modalities) that may be returned in model responses.
+  ///     See [configure model parameters](https://firebase.google.com/docs/ai-logic/model-parameters#parameters-descriptions-gemini).
   ///
   ///     > Warning: Specifying response modalities is a **Public Preview** feature, which means
   ///     > that it is not subject to any SLA or deprecation policy and could change in
