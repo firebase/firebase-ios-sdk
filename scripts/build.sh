@@ -189,8 +189,8 @@ if [[ "$xcode_major" -ge 27 ]]; then
   spm_macosx_deployment_target="12.0"
   spm_watchos_deployment_target="9.0"
 else
-  spm_macosx_deployment_target="10.15"
-  spm_watchos_deployment_target="7.0"
+  spm_macosx_deployment_target="11.0"
+  spm_watchos_deployment_target="8.0"
 fi
 
 ios_device_flags=(
