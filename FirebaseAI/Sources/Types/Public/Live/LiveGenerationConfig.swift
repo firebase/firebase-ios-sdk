@@ -37,9 +37,9 @@ public struct LiveGenerationConfig: Sendable {
   ///     for more details.
   ///   - responseModalities: The data types (modalities) that may be returned in model responses.
   ///
-  ///     See the [multimodal
-  ///     responses](https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/capabilities/image-generation)
-  ///     documentation for more details.
+  ///     See the configure model parameters
+  ///     [documentation](https://firebase.google.com/docs/ai-logic/model-parameters#parameters-descriptions-gemini)
+  ///     for more details.
   ///
   ///     > Warning: Specifying response modalities is a **Public Preview** feature, which means
   ///     > that it is not subject to any SLA or deprecation policy and could change in
@@ -115,9 +115,9 @@ public struct LiveGenerationConfig: Sendable {
   ///     for more details.
   ///   - responseModalities: The data types (modalities) that may be returned in model responses.
   ///
-  ///     See the [multimodal
-  ///     responses](https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/capabilities/image-generation)
-  ///     documentation for more details.
+  ///     See the configure model parameters
+  ///     [documentation](https://firebase.google.com/docs/ai-logic/model-parameters#parameters-descriptions-gemini)
+  ///     for more details.
   ///
   ///     > Warning: Specifying response modalities is a **Public Preview** feature, which means
   ///     > that it is not subject to any SLA or deprecation policy and could change in

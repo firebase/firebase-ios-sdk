@@ -53,7 +53,7 @@ public final class LiveSession: Sendable {
   ///
   /// To learn more about audio formats, and the required state they should be provided in, see the
   /// docs on
-  /// [Supported audio formats](https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/live-api#supported-audio-formats).
+  /// [Supported media formats](https://firebase.google.com/docs/ai-logic/live-api/limits-and-specs#media-formats).
   ///
   /// - Parameters:
   ///   - audio: Raw 16-bit PCM audio at 16Hz, used to update the model on the client's
