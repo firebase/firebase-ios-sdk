@@ -65,17 +65,12 @@ struct FrameworkBuilder {
       fatalError("Failure creating temporary directory while building \(framework): \(error)")
     }
 
-    if dynamicFrameworks {
-      return (buildDynamicFrameworks(withName: framework, logsDir: logsDir),
-              nil)
-    } else {
-      return buildStaticFrameworks(
-        withName: framework,
-        logsDir: logsDir,
-        setCarthage: setCarthage,
-        podInfo: podInfo
-      )
-    }
+    return buildFrameworks(
+      withName: framework,
+      logsDir: logsDir,
+      setCarthage: setCarthage,
+      podInfo: podInfo
+    )
   }
 
   // MARK: - Private Helpers
@@ -301,33 +296,13 @@ struct FrameworkBuilder {
   ///
   /// - Parameter framework: The name of the framework to be built.
   /// - Parameter logsDir: The path to the directory to place build logs.
-  /// - Returns: A path to the newly compiled frameworks (with any included Resources embedded).
-  private func buildDynamicFrameworks(withName framework: String,
-                                      logsDir: URL) -> [URL] {
-    // xcframework doesn't lipo things together but accepts fat frameworks for one target.
-    // We group architectures here to deal with this fact.
-    return targetPlatforms.map { targetPlatform in
-      buildSlicedFramework(
-        withName: framework,
-        targetPlatform: targetPlatform,
-        buildDir: projectDir.appendingPathComponent(targetPlatform.buildName),
-        logRoot: logsDir
-      )
-    }
-  }
-
-  /// Compiles the specified framework in a temporary directory and writes the build logs to file.
-  /// This will compile all architectures and use the -create-xcframework command to create a modern
-  /// "fat" framework.
-  ///
-  /// - Parameter framework: The name of the framework to be built.
-  /// - Parameter logsDir: The path to the directory to place build logs.
-  /// - Parameter moduleMapContents: Module map contents for all frameworks in this pod.
-  /// - Returns: A path to the newly compiled framework, and the Resource URL.
-  private func buildStaticFrameworks(withName framework: String,
-                                     logsDir: URL,
-                                     setCarthage: Bool,
-                                     podInfo: CocoaPodUtils.PodInfo) -> ([URL], URL) {
+  /// - Parameter setCarthage: Set Carthage diagnostics flag in build.
+  /// - Parameter podInfo: Pod info containing module map contents for static frameworks.
+  /// - Returns: A path to the newly compiled framework, and the Resource URL (if static).
+  private func buildFrameworks(withName framework: String,
+                               logsDir: URL,
+                               setCarthage: Bool,
+                               podInfo: CocoaPodUtils.PodInfo) -> ([URL], URL?) {
     // Build every architecture and save the locations in an array to be assembled.
     let slicedFrameworks = buildFrameworksForAllPlatforms(withName: framework, logsDir: logsDir,
                                                           setCarthage: setCarthage)
@@ -376,13 +351,17 @@ struct FrameworkBuilder {
     // `projectDir/arch/Release-platform/FrameworkName`.
     // The Resources are stored at the top-level of the .framework or .xcframework directory.
     // For Firebase distributions, they are propagated one level higher in the final distribution.
-    let resourceContents = projectDir.appendingPathComponents([anyPlatform.buildName,
-                                                               anyPlatform.buildDirName,
-                                                               framework])
+    let resourceContents = dynamicFrameworks ? nil : projectDir.appendingPathComponents([
+      anyPlatform.buildName,
+      anyPlatform.buildDirName,
+      framework,
+    ])
 
-    guard let moduleMapContentsTemplate = podInfo.moduleMapContents else {
-      fatalError("Module map contents missing for framework \(frameworkName)")
-    }
+    let moduleMapContentsTemplate = podInfo.moduleMapContents ?? ModuleMapBuilder.ModuleMapContents(
+      module: frameworkName,
+      frameworks: [],
+      libraries: []
+    )
     let moduleMapContents = moduleMapContentsTemplate.get(umbrellaHeader: umbrellaHeader)
     let frameworks = groupFrameworks(withName: frameworkName,
                                      isCarthage: setCarthage,
@@ -479,13 +458,15 @@ struct FrameworkBuilder {
           // those additional headers are public headers for the C Family
           // Language sources.
           let headersDir = destination.appendingPathComponent("Headers").resolvingSymlinksInPath()
-          let headers = try fileManager.contentsOfDirectory(
+          let headers = (try? fileManager.contentsOfDirectory(
             at: headersDir,
             includingPropertiesForKeys: nil
-          )
+          )) ?? []
           let nonUmbrellaHeaders = headers.filter { !$0.lastPathComponent.hasSuffix("-umbrella.h") }
           let nonSwiftHeaders = nonUmbrellaHeaders
             .filter { !$0.lastPathComponent.hasSuffix("-Swift.h") }
+          let modulemapURL = destination.appendingPathComponents(["Modules", "module.modulemap"])
+            .resolvingSymlinksInPath()
           if !nonSwiftHeaders.isEmpty {
             // It is assumed that the framework will always contain a
             // `module.modulemap` (either CocoaPods generates it or a custom
@@ -501,9 +482,14 @@ struct FrameworkBuilder {
               requires objc
             }
             """
-            let modulemapURL = destination.appendingPathComponents(["Modules", "module.modulemap"])
-              .resolvingSymlinksInPath()
             try newModuleMapContents.write(to: modulemapURL, atomically: true, encoding: .utf8)
+          } else {
+            // Frameworks built from only Swift sources do not need a
+            // module.modulemap since Swift modules use the `.swiftmodule`
+            // directly. CocoaPods generated a module.modulemap pointing to the
+            // now-deleted `-umbrella.h` header, so delete it to avoid Clang
+            // dependency scanner errors.
+            try? fileManager.removeItem(at: modulemapURL)
           }
         } catch {
           fatalError(
