@@ -16,8 +16,10 @@
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
+#import <FirebaseFirestore/FIRDecimal128Value.h>
 #import <FirebaseFirestore/FIRFieldValue.h>
 #import <FirebaseFirestore/FIRGeoPoint.h>
+#import <FirebaseFirestore/FIRInt32Value.h>
 
 #include <set>
 #include <utility>
@@ -144,6 +146,31 @@ PatchMutation FSTTestPatchMutation(NSString *path,
     if ([value isEqual:kDeleteSentinel]) {
       const FieldPath fieldPath = Field(MakeString(key));
       mutableValues[key] = [FIRFieldValue fieldValueForDelete];
+    } else if ([value isKindOfClass:[NSDictionary class]]) {
+      NSDictionary *dict = (NSDictionary *)value;
+      NSString *methodName = dict[@"_methodName"] ?: dict[@"methodName"];
+      if ([methodName isEqualToString:@"increment"]) {
+        id operand = dict[@"_operand"] ?: dict[@"operand"];
+        if ([operand isKindOfClass:[NSNumber class]]) {
+          mutableValues[key] = [FIRFieldValue fieldValueForDoubleIncrement:[operand doubleValue]];
+        } else if ([operand isKindOfClass:[NSString class]]) {
+          mutableValues[key] = [FIRFieldValue fieldValueForDoubleIncrement:[operand doubleValue]];
+        }
+      } else if ([methodName isEqualToString:@"minimum"]) {
+        id operand = dict[@"_operand"] ?: dict[@"operand"];
+        if ([operand isKindOfClass:[NSNumber class]]) {
+          mutableValues[key] = [FIRFieldValue fieldValueForDoubleMinimum:[operand doubleValue]];
+        } else if ([operand isKindOfClass:[NSString class]]) {
+          mutableValues[key] = [FIRFieldValue fieldValueForDoubleMinimum:[operand doubleValue]];
+        }
+      } else if ([methodName isEqualToString:@"maximum"]) {
+        id operand = dict[@"_operand"] ?: dict[@"operand"];
+        if ([operand isKindOfClass:[NSNumber class]]) {
+          mutableValues[key] = [FIRFieldValue fieldValueForDoubleMaximum:[operand doubleValue]];
+        } else if ([operand isKindOfClass:[NSString class]]) {
+          mutableValues[key] = [FIRFieldValue fieldValueForDoubleMaximum:[operand doubleValue]];
+        }
+      }
     }
   }];
 
