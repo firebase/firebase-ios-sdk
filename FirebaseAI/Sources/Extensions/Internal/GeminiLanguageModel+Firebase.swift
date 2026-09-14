@@ -22,8 +22,7 @@
   extension GeminiLanguageModel {
     init(name: String,
          firebaseAI: FirebaseAI,
-         compatibilityOptions: GeminiLanguageModel.CompatibilityOptions =
-           GeminiLanguageModel.CompatibilityOptions()) {
+         compatibilityOptions: GeminiLanguageModel.CompatibilityOptions) {
       let endpointURL = firebaseAI.apiConfig.service.endpoint.rawValue
       guard let urlComponents = URLComponents(string: endpointURL) else {
         preconditionFailure("Invalid Gemini API URL: \(endpointURL)")

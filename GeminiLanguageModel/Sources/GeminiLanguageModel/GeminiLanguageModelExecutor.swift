@@ -48,13 +48,13 @@
         ///   - headerProvider: An optional async provider for dynamic headers.
         ///   - sessionConfiguration: The `URLSessionConfiguration` to use.
         ///   - compatibilityOptions: Overrides for behavior that depends on current Gemini backend
-        ///     semantics. Defaults to the recommended values.
+        ///     semantics.
         init(
           modelResource: ModelResource,
           endpointConfiguration: EndpointConfiguration,
           headerProvider: HeaderProvider?,
           sessionConfiguration: URLSessionConfiguration,
-          compatibilityOptions: CompatibilityOptions = CompatibilityOptions()
+          compatibilityOptions: CompatibilityOptions
         ) {
           self.modelResource = modelResource
           self.endpointConfiguration = endpointConfiguration
