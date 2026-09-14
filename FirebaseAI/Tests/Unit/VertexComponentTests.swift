@@ -247,7 +247,9 @@ class VertexComponentTests: XCTestCase {
         useLimitedUseAppCheckTokens: false
       )
       weakVertex = vertex
-      XCTAssertNotNil(weakVertex)
+      if weakVertex == nil {
+        XCTFail("Weak reference should not be `nil`.")
+      }
     }
     XCTAssertNil(weakApp)
     XCTAssertNil(weakVertex)

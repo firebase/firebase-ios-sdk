@@ -37,7 +37,6 @@
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/util/string_format.h"
-#include "absl/base/attributes.h"
 
 namespace firebase {
 namespace firestore {
@@ -75,11 +74,11 @@ using ThrowHandler = void (*)(ExceptionType type,
  */
 ThrowHandler SetThrowHandler(ThrowHandler handler);
 
-ABSL_ATTRIBUTE_NORETURN void Throw(ExceptionType type,
-                                   const char* file,
-                                   const char* func,
-                                   int line,
-                                   const std::string& message);
+[[noreturn]] void Throw(ExceptionType type,
+                        const char* file,
+                        const char* func,
+                        int line,
+                        const std::string& message);
 
 /**
  * Throws an exception indicating that the user passed an invalid argument.
@@ -89,8 +88,7 @@ ABSL_ATTRIBUTE_NORETURN void Throw(ExceptionType type,
  * structure, like a query.
  */
 template <typename... FA>
-ABSL_ATTRIBUTE_NORETURN void ThrowInvalidArgument(const char* format,
-                                                  const FA&... args) {
+[[noreturn]] void ThrowInvalidArgument(const char* format, const FA&... args) {
   Throw(ExceptionType::InvalidArgument, nullptr, nullptr, 0,
         StringFormat(format, args...));
 }
@@ -105,8 +103,7 @@ ABSL_ATTRIBUTE_NORETURN void ThrowInvalidArgument(const char* format,
  * haven't done anything yet should likely just stick to ThrowInvalidArgument.
  */
 template <typename... FA>
-ABSL_ATTRIBUTE_NORETURN void ThrowIllegalState(const char* format,
-                                               const FA&... args) {
+[[noreturn]] void ThrowIllegalState(const char* format, const FA&... args) {
   Throw(ExceptionType::IllegalState, nullptr, nullptr, 0,
         StringFormat(format, args...));
 }
