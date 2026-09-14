@@ -26,15 +26,14 @@ public struct LiveGenerationConfig: Sendable {
   /// Creates a new ``LiveGenerationConfig`` value.
   ///
   /// See the
-  /// [Configure model parameters](https://firebase.google.com/docs/ai-logic/model-parameters)
-  /// guide and the
-  /// [Agent Platform Gemini API documentation](https://docs.cloud.google.com/gemini-enterprise-agent-platform/reference/models/inference#generationconfig)
-  /// for more details.
+  /// [Configure model
+  /// parameters](https://firebase.google.com/docs/ai-logic/model-parameters#config-gemini-live-api)
+  /// guide for more details.
   ///
   /// - Parameters:
   ///   - maxOutputTokens: Maximum number of tokens that can be generated in the response. See
   ///     [configure model
-  ///     parameters](https://firebase.google.com/docs/ai-logic/model-parameters#max-output-tokens).
+  ///     parameters](https://firebase.google.com/docs/ai-logic/model-parameters#config-gemini-live-api).
   ///   - responseModalities: The data types (modalities) that may be returned in model responses.
   ///
   ///     See the [configure model parameters
@@ -104,16 +103,15 @@ public struct LiveGenerationConfig: Sendable {
   /// Creates a new `LiveGenerationConfig` value.
   ///
   /// See the
-  /// [Configure model parameters](https://firebase.google.com/docs/ai-logic/model-parameters)
-  /// guide and the
-  /// [Agent Platform Gemini API documentation](https://docs.cloud.google.com/gemini-enterprise-agent-platform/reference/models/inference#generationconfig)
-  /// for more details.
+  /// [Configure model
+  /// parameters](https://firebase.google.com/docs/ai-logic/model-parameters#config-gemini-live-api)
+  /// guide for more details.
   ///
   /// - Parameters:
   ///
   ///   - maxOutputTokens: Maximum number of tokens that can be generated in the response.
   ///     See [configure model
-  ///     parameters](https://firebase.google.com/docs/ai-logic/model-parameters#max-output-tokens).
+  ///     parameters](https://firebase.google.com/docs/ai-logic/model-parameters#config-gemini-live-api).
   ///
   ///   - responseModalities: The data types (modalities) that may be returned in model responses.
   ///     See [configure model parameters](https://firebase.google.com/docs/ai-logic/model-parameters#parameters-descriptions-gemini).
