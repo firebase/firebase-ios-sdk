@@ -229,7 +229,7 @@
 
 # 11.9.0
 - [feature] **Public Preview**: Added support for
-  [generating images](https://firebase.google.com/docs/ai-logic/generate-images-imagen?platform=ios)
+  [generating images](https://firebase.google.com/docs/ai-logic/generate-images-imagen)
   using the Imagen 3 models.
   <br /><br />
   Note: This feature is in Public Preview, which means that it is not subject to
@@ -263,9 +263,9 @@
   Carthage distributions.
   <br /><br />
   - If you're new to this library, visit the
-    [getting started guide](https://firebase.google.com/docs/ai-logic/get-started?platform=ios).
+    [getting started guide](https://firebase.google.com/docs/ai-logic/get-started).
   - If you used the preview version of the library, visit the
-    [migration guide](https://firebase.google.com/docs/ai-logic/migrate-to-ga?platform=ios)
+    [migration guide](https://firebase.google.com/docs/ai-logic/migrate-to-ga)
     to learn about some important updates.
 - [changed] **Breaking Change**: The `HarmCategory` enum is no longer nested
   inside the `SafetySetting` struct and the `unspecified` case has been
@@ -366,7 +366,7 @@
   instead of the `Any` type. (#13575)
 - [added] Added support for specifying a JSON `responseSchema` in
   `GenerationConfig`; see
-  [control generated output](https://firebase.google.com/docs/ai-logic/structured-output?platform=ios)
+  [control generated output](https://firebase.google.com/docs/ai-logic/structured-output)
   for more details. (#13576)
 
 # 10.29.0
@@ -392,5 +392,5 @@
 # 10.26.0
 - [feature] Initial release of the Vertex AI for Firebase SDK (public preview).
   Learn how to
-  [get started](https://firebase.google.com/docs/ai-logic/get-started?platform=ios)
+  [get started](https://firebase.google.com/docs/ai-logic/get-started)
   with the SDK in your app.

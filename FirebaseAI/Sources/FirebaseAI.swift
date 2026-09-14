@@ -328,7 +328,7 @@ public final class FirebaseAI: Sendable {
       .allSatisfy({ !$0.isWhitespace && !$0.isNewline && $0 != "/" }) else {
       fatalError("""
       Invalid location "\(location)" specified; see \
-      https://firebase.google.com/docs/ai-logic/locations?platform=ios#available-locations \
+      https://firebase.google.com/docs/ai-logic/locations#available-locations \
       for a list of available locations.
       """)
     }
