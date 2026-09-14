@@ -53,17 +53,21 @@
     ///   - endpointConfiguration: The network endpoint configuration.
     ///   - headerProvider: An optional async provider for dynamic headers (such as auth tokens).
     ///   - configuration: The `URLSessionConfiguration` to use. Defaults to `.ephemeral`.
+    ///   - compatibilityOptions: Overrides for behavior that depends on current Gemini backend
+    ///     semantics. Defaults to the recommended values.
     package init(
       modelResource: ModelResource,
       endpointConfiguration: EndpointConfiguration,
       headerProvider: (@Sendable () async throws -> [String: String])? = nil,
-      configuration: URLSessionConfiguration = .ephemeral
+      configuration: URLSessionConfiguration = .ephemeral,
+      compatibilityOptions: CompatibilityOptions = CompatibilityOptions()
     ) {
       executorConfiguration = Executor.Configuration(
         modelResource: modelResource,
         endpointConfiguration: endpointConfiguration,
         headerProvider: headerProvider.map { HeaderProvider($0) },
-        sessionConfiguration: configuration
+        sessionConfiguration: configuration,
+        compatibilityOptions: compatibilityOptions
       )
     }
   }
