@@ -70,10 +70,6 @@ jobs:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       with:
         persist-credentials: false
-    - uses: actions/cache/restore@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
-      with:
-        path: .build
-        key: ${{ needs.spm.outputs.cache_key }}
     - name: Run integration tests
       run: scripts/repo.sh ${{ matrix.command }} --secrets ./scripts/secrets/AI.json --platforms ${{ matrix.target }} --xcode ${{ matrix.xcode }} ${{ matrix.test_filter_arg }} AI
     - name: Upload xcodebuild logs
@@ -98,10 +94,6 @@ jobs:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       with:
         persist-credentials: false
-    - uses: actions/cache/restore@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
-      with:
-        path: .build
-        key: ${{ needs.spm.outputs.cache_key }}
     - name: Run live integration tests
       run: scripts/repo.sh test --secrets ./scripts/secrets/AI.json --platforms iOS --xcode Xcode_26.2 --filter IntegrationTests-SPM/LiveSessionTests AI
     - name: Upload xcodebuild logs
@@ -127,10 +119,6 @@ jobs:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       with:
         persist-credentials: false
-    - uses: actions/cache/restore@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
-      with:
-        path: .build
-        key: ${{ needs.spm.outputs.cache_key }}
     - name: Run Gemini Language Model integration tests
       run: scripts/repo.sh test --secrets ./scripts/secrets/AI.json --platforms iOS --xcode Xcode_27.0 --filter IntegrationTests-SPM/GeminiLanguageModelTests AI
     - name: Upload xcodebuild logs
