@@ -1,5 +1,5 @@
 # Unreleased
-- [changed] Drop C++14 support, Firestore SDK now requires at least C++17.
+- [changed] Dropped C++14 support; Firestore now requires C++17.
 - [changed] Update gRPC dependency to 1.83.1.
 - [changed] Update Abseil dependency to 1.20250512.2.
 
