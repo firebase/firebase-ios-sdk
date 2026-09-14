@@ -70,13 +70,16 @@ Firebase Performance library to measure performance of Mobile and Web Apps.
     unit_tests.scheme = { :code_coverage => true }
     unit_tests.source_files = [
       'FirebasePerformance/Tests/Unit/**/*.{m,h,plist}',
-      'SharedTestUtilities/*.[hm]',
+      'SharedTestUtilities/Date/*.[hm]',
+      'SharedTestUtilities/URLSession/*.[hm]',
+      'SharedTestUtilities/GDTCORTransportFake.[hm]',
     ]
     unit_tests.resources = ['FirebasePerformance/Tests/Unit/Server/*File']
     unit_tests.requires_arc = true
     unit_tests.requires_app_host = true
     unit_tests.pod_target_xcconfig = {
-     'CLANG_ENABLE_OBJC_WEAK' => 'YES',
+      'CLANG_ENABLE_OBJC_WEAK' => 'YES',
+      'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}/SharedTestUtilities"',
     }
     unit_tests.info_plist = {
       'FPRTestingDummyFeature' => true,
