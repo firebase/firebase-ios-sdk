@@ -16,7 +16,8 @@ import Foundation
 
 /// Server will not be able to service client soon.
 ///
-/// To learn more about session limits, see the [sessions](https://firebase.google.com/docs/ai-logic/live-api/sessions) documentation.
+/// To learn more about session limits, see the
+/// [sessions](https://firebase.google.com/docs/ai-logic/live-api/sessions) documentation.
 @available(watchOS, unavailable)
 public struct LiveServerGoingAwayNotice: Sendable {
   let goAway: GoAway

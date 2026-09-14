@@ -28,12 +28,13 @@ public struct LiveGenerationConfig: Sendable {
   /// See the
   /// [Configure model parameters](https://firebase.google.com/docs/ai-logic/model-parameters)
   /// guide and the
-  /// [Cloud documentation](https://docs.cloud.google.com/gemini-enterprise-agent-platform/reference/models/inference#generationconfig)
+  /// [Agent Platform Gemini API documentation](https://docs.cloud.google.com/gemini-enterprise-agent-platform/reference/models/inference#generationconfig)
   /// for more details.
   ///
   /// - Parameters:
   ///   - maxOutputTokens: Maximum number of tokens that can be generated in the response.
-  ///     See the configure model parameters [documentation](https://firebase.google.com/docs/ai-logic/model-parameters#max-output-tokens)
+  ///     See the configure model parameters
+  /// [documentation](https://firebase.google.com/docs/ai-logic/model-parameters#max-output-tokens)
   ///     for more details.
   ///   - responseModalities: The data types (modalities) that may be returned in model responses.
   ///
@@ -106,12 +107,13 @@ public struct LiveGenerationConfig: Sendable {
   /// See the
   /// [Configure model parameters](https://firebase.google.com/docs/ai-logic/model-parameters)
   /// guide and the
-  /// [Cloud documentation](https://docs.cloud.google.com/gemini-enterprise-agent-platform/reference/models/inference#generationconfig)
+  /// [Agent Platform Gemini API documentation](https://docs.cloud.google.com/gemini-enterprise-agent-platform/reference/models/inference#generationconfig)
   /// for more details.
   ///
   /// - Parameters:
   ///   - maxOutputTokens: Maximum number of tokens that can be generated in the response.
-  ///     See the configure model parameters [documentation](https://firebase.google.com/docs/ai-logic/model-parameters#max-output-tokens)
+  ///     See the configure model parameters
+  /// [documentation](https://firebase.google.com/docs/ai-logic/model-parameters#max-output-tokens)
   ///     for more details.
   ///   - responseModalities: The data types (modalities) that may be returned in model responses.
   ///

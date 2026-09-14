@@ -49,7 +49,7 @@ extension APIConfig {
 
     /// The Gemini Developer API provided by Google AI.
     ///
-    /// See the [Google AI docs](https://ai.google.dev/gemini-api/docs) for more details.
+    /// See the [Gemini Developer API docs](https://ai.google.dev/gemini-api/docs) for more details.
     case googleAI(endpoint: Endpoint)
 
     /// The specific network address to use for API requests.

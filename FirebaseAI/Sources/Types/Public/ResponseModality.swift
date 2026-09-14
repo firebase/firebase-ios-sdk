@@ -39,7 +39,8 @@ public struct ResponseModality: EncodableProtoEnum, Sendable, Equatable {
   /// **Public Experimental**: Specifies that the model should generate image data.
   ///
   /// Use this modality when you want the model to create visual content based on the provided input
-  /// or prompts. The response might contain one or more generated images. See the configure model parameters
+  /// or prompts. The response might contain one or more generated images. See the configure model
+  /// parameters
   /// [documentation](https://firebase.google.com/docs/ai-logic/model-parameters#parameters-descriptions-gemini)
   /// for more details.
   ///
