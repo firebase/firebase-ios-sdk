@@ -18,11 +18,13 @@
 
 #import "FirebasePerformance/Tests/Unit/Instruments/FPRNSURLConnectionInstrumentTestDelegates.h"
 
+#import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
 #import "FirebasePerformance/Sources/Configurations/FPRConfigurations+Private.h"
 #import "FirebasePerformance/Sources/Configurations/FPRConfigurations.h"
 #import "FirebasePerformance/Sources/FPRClient.h"
+#import "FirebasePerformance/Sources/Instrumentation/Network/Delegates/FPRNSURLConnectionDelegateInstrument.h"
 #import "FirebasePerformance/Sources/Instrumentation/Network/FPRNSURLConnectionInstrument.h"
 #import "FirebasePerformance/Sources/Public/FirebasePerformance/FIRPerformance.h"
 
@@ -166,6 +168,24 @@
   XCTAssertTrue(delegate.connectionDidFailWithErrorCalled);
   [self.testServer start];
   [instrument deregisterInstrumentors];
+}
+
+/** Tests that registerObject: skips swizzling when the delegate class is in swizzleClassDenylist.
+ */
+- (void)testRegisterObjectSkippedWhenClassIsDenylisted {
+  FPRNSURLConnectionCompleteTestDelegate *delegate =
+      [[FPRNSURLConnectionCompleteTestDelegate alloc] init];
+  FPRNSURLConnectionDelegateInstrument *delegateInstrument =
+      [[FPRNSURLConnectionDelegateInstrument alloc] init];
+  id mockConfig = [OCMockObject partialMockForObject:[FPRConfigurations sharedInstance]];
+  [[[mockConfig stub]
+      andReturn:@[ NSStringFromClass([FPRNSURLConnectionCompleteTestDelegate class]) ]]
+      swizzleClassDenylist];
+
+  [delegateInstrument registerObject:delegate];
+  XCTAssertFalse([delegate respondsToSelector:@selector(gul_class)]);
+
+  [mockConfig stopMocking];
 }
 
 /** Tests calling -initWithRequest:delegate: is wrapped and calls through with nil delegate. */
