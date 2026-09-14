@@ -19,7 +19,7 @@ Build AI-powered apps and features with the Gemini API using the Firebase AI SDK
   s.social_media_url = 'https://twitter.com/Firebase'
 
   ios_deployment_target = '15.0'
-  osx_deployment_target = '10.15'
+  osx_deployment_target = '11.0'
   tvos_deployment_target = '15.0'
   watchos_deployment_target = '7.0'
 
