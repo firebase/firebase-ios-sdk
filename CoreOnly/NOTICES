@@ -14,7 +14,6 @@ FirebaseCoreInternal
 FirebaseFunctions
 FirebaseInAppMessaging
 FirebaseInstallations
-FirebaseMLModelDownloader
 FirebaseMessaging
 FirebaseMessagingInterop
 FirebasePerformance

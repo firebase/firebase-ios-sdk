@@ -4,6 +4,8 @@
   and binary distributions. Existing CocoaPods releases will remain
   available as long as CocoaPods ecosystem support continues. See
   https://firebase.google.com/docs/ios/cocoapods-deprecation for details.
+- [removed] **Breaking change**: FirebaseMLModelDownloader has been removed. See
+  https://firebase.google.com/docs/ml for more info.
 
 # Firebase 12.19.1
 - [fixed] Fixed the zip distribution artifact naming on the GitHub release

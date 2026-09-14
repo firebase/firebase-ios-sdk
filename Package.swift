@@ -125,10 +125,6 @@ func packageProducts() -> [Product] {
       targets: ["FirebaseMessaging"]
     ),
     .library(
-      name: "FirebaseMLModelDownloader",
-      targets: ["FirebaseMLModelDownloader"]
-    ),
-    .library(
       name: "FirebasePerformance",
       targets: ["FirebasePerformanceTarget"]
     ),
@@ -814,25 +810,6 @@ func packageTargets() -> [Target] {
       linkerSettings: [
         .linkedFramework("Security"),
       ]
-    ),
-
-    .target(
-      name: "FirebaseMLModelDownloader",
-      dependencies: [
-        "FirebaseCore",
-        "FirebaseCoreExtension",
-        "FirebaseInstallations",
-        .product(name: "GULUserDefaults", package: "GoogleUtilities"),
-      ],
-      path: "FirebaseMLModelDownloader/Sources",
-      swiftSettings: [
-        .swiftLanguageMode(SwiftLanguageMode.v5),
-      ]
-    ),
-    .testTarget(
-      name: "FirebaseMLModelDownloaderUnit",
-      dependencies: ["FirebaseMLModelDownloader"],
-      path: "FirebaseMLModelDownloader/Tests/Unit"
     ),
 
     .target(
