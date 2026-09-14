@@ -164,16 +164,6 @@ Simplify your app development, grow your user base, and monetize more effectivel
     ss.watchos.deployment_target = '8.0'
   end
 
-  s.subspec 'MLModelDownloader' do |ss|
-    ss.dependency 'Firebase/CoreOnly'
-    ss.dependency 'FirebaseMLModelDownloader', '~> 12.19.0-beta'
-    # Standard platforms PLUS watchOS.
-    ss.ios.deployment_target = '15.0'
-    ss.osx.deployment_target = '11.0'
-    ss.tvos.deployment_target = '15.0'
-    ss.watchos.deployment_target = '8.0'
-  end
-
   s.subspec 'Performance' do |ss|
     ss.dependency 'Firebase/CoreOnly'
     ss.ios.dependency 'FirebasePerformance', '~> 12.19.0'
