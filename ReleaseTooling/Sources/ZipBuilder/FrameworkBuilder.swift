@@ -542,6 +542,9 @@ struct FrameworkBuilder {
         )
 
         // Copy the built framework to the `platform_frameworks/$(PLATFORM)/$(FRAMEWORK).framework`.
+        if fileManager.directoryExists(at: platformFrameworkDir) {
+          try? fileManager.removeItem(at: platformFrameworkDir)
+        }
         try fileManager.copyItem(at: frameworkPath, to: platformFrameworkDir)
       } catch {
         fatalError("Could not copy directory for architecture slices on \(platform) for " +
@@ -593,9 +596,13 @@ struct FrameworkBuilder {
         // Bundles are moved rather than copied to prevent them from being
         // packaged in a `Resources` directory at the root of the xcframework.
         .forEach {
+          let destURL = resourceDir.appendingPathComponent($0.lastPathComponent)
+          if fileManager.fileExists(atPath: destURL.path) {
+            try? fileManager.removeItem(at: destURL)
+          }
           try fileManager.moveItem(
             at: $0,
-            to: resourceDir.appendingPathComponent($0.lastPathComponent)
+            to: destURL
           )
         }
       } catch {
