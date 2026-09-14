@@ -322,10 +322,14 @@ double DOUBLE_EPSILON = 0.000001;
 - (void)expectLocalAndRemoteDecimal128NaN {
   FIRDocumentSnapshot *snap = [_accumulator awaitLocalEvent];
   XCTAssertTrue([snap[@"sum"] isKindOfClass:[FIRDecimal128Value class]]);
-  XCTAssertEqualObjects([(FIRDecimal128Value *)snap[@"sum"] value], @"NaN");
+  if ([snap[@"sum"] isKindOfClass:[FIRDecimal128Value class]]) {
+    XCTAssertEqualObjects([(FIRDecimal128Value *)snap[@"sum"] value], @"NaN");
+  }
   snap = [_accumulator awaitRemoteEvent];
   XCTAssertTrue([snap[@"sum"] isKindOfClass:[FIRDecimal128Value class]]);
-  XCTAssertEqualObjects([(FIRDecimal128Value *)snap[@"sum"] value], @"NaN");
+  if ([snap[@"sum"] isKindOfClass:[FIRDecimal128Value class]]) {
+    XCTAssertEqualObjects([(FIRDecimal128Value *)snap[@"sum"] value], @"NaN");
+  }
 }
 
 - (void)testMinimumWithNaN {
@@ -345,6 +349,11 @@ double DOUBLE_EPSILON = 0.000001;
   [self writeInitialData:@{@"sum" : @5.5}];
   [self updateDocumentRef:_docRef data:@{@"sum" : [FIRFieldValue fieldValueForDoubleMinimum:NAN]}];
   [self expectLocalAndRemoteNaN];
+}
+
+- (void)testMinimumWithBsonNaN {
+  XCTSkipIf([FSTIntegrationTestCase backendEdition] == FSTBackendEditionStandard,
+            @"BSON numeric transforms are only supported on Enterprise backend.");
 
   [self writeInitialData:@{@"sum" : [[FIRInt32Value alloc] initWithValue:5]}];
   [self updateDocumentRef:_docRef data:@{@"sum" : [FIRFieldValue fieldValueForDoubleMinimum:NAN]}];
@@ -376,6 +385,11 @@ double DOUBLE_EPSILON = 0.000001;
   [self writeInitialData:@{@"sum" : @5.5}];
   [self updateDocumentRef:_docRef data:@{@"sum" : [FIRFieldValue fieldValueForDoubleMaximum:NAN]}];
   [self expectLocalAndRemoteNaN];
+}
+
+- (void)testMaximumWithBsonNaN {
+  XCTSkipIf([FSTIntegrationTestCase backendEdition] == FSTBackendEditionStandard,
+            @"BSON numeric transforms are only supported on Enterprise backend.");
 
   [self writeInitialData:@{@"sum" : [[FIRInt32Value alloc] initWithValue:5]}];
   [self updateDocumentRef:_docRef data:@{@"sum" : [FIRFieldValue fieldValueForDoubleMaximum:NAN]}];
@@ -391,6 +405,9 @@ double DOUBLE_EPSILON = 0.000001;
 }
 
 - (void)testNumericIncrementWithBsonTypes {
+  XCTSkipIf([FSTIntegrationTestCase backendEdition] == FSTBackendEditionStandard,
+            @"BSON numeric transforms are only supported on Enterprise backend.");
+
   [self writeInitialData:@{
     @"i32" : [[FIRInt32Value alloc] initWithValue:10],
     @"d128" : [[FIRDecimal128Value alloc] initWithValue:@"15"]
@@ -410,6 +427,9 @@ double DOUBLE_EPSILON = 0.000001;
 }
 
 - (void)testNumericMinimumAndMaximumWithBsonTypes {
+  XCTSkipIf([FSTIntegrationTestCase backendEdition] == FSTBackendEditionStandard,
+            @"BSON numeric transforms are only supported on Enterprise backend.");
+
   [self writeInitialData:@{
     @"min_i32" : [[FIRInt32Value alloc] initWithValue:10],
     @"min_d128" : [[FIRDecimal128Value alloc] initWithValue:@"10.5"],
@@ -457,6 +477,9 @@ double DOUBLE_EPSILON = 0.000001;
 }
 
 - (void)testNumericTransformsConcurrentMixed {
+  XCTSkipIf([FSTIntegrationTestCase backendEdition] == FSTBackendEditionStandard,
+            @"BSON numeric transforms are only supported on Enterprise backend.");
+
   [self writeInitialData:@{
     @"min_field" : [[FIRInt32Value alloc] initWithValue:10],
     @"max_field" : [[FIRDecimal128Value alloc] initWithValue:@"10.5"],
