@@ -86,7 +86,10 @@
         model: GeminiLanguageModel,
         streamingInto channel: LanguageModelExecutorGenerationChannel
       ) async throws {
-        let generateRequest = try GeminiRequestTranslator.translate(request)
+        let generateRequest = try GeminiRequestTranslator.translate(
+          request,
+          compatibilityOptions: configuration.compatibilityOptions
+        )
 
         let client = GeminiAPIClient(
           modelResource: configuration.modelResource,
