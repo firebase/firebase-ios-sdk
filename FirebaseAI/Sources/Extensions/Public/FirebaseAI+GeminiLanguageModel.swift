@@ -28,7 +28,7 @@
     /// - Parameters:
     ///   - name: The identifier of the Gemini model to use; see
     ///     [available model
-    ///   names](https://firebase.google.com/docs/ai-logic/models#available-model-names)
+    /// names](https://firebase.google.com/docs/ai-logic/models#available-model-names)
     ///     for a list of supported model names.
     ///   - compatibilityOptions: Overrides for behavior that depends on current
     ///     Gemini backend semantics. Defaults to the recommended values; see
