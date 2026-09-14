@@ -13,3 +13,9 @@
 // limitations under the License.
 
 @_exported import FirebaseAILogic
+
+#if SWIFT_PACKAGE
+  #warning(
+    "The FirebaseAI package dependency has been renamed to FirebaseAILogic. Imports should be changed to `import FirebaseAILogic` and the `FirebaseAILogic` Swift Package dependency should be selected."
+  )
+#endif // SWIFT_PACKAGE

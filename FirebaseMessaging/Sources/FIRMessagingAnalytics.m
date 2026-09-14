@@ -144,8 +144,9 @@ static NSString *const kAnalyticsTrackConversions = @"google.c.a.tc";
 
 + (void)logUserPropertyForConversionTracking:(NSDictionary *)notification
                                  toAnalytics:(id<FIRAnalyticsInterop> _Nullable)analytics {
-  NSInteger shouldTrackConversions = [notification[kAnalyticsTrackConversions] integerValue];
-  if (shouldTrackConversions != 1) {
+  id trackConversions = notification[kAnalyticsTrackConversions];
+  if (![trackConversions respondsToSelector:@selector(integerValue)] ||
+      [trackConversions integerValue] != 1) {
     return;
   }
 

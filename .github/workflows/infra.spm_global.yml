@@ -81,14 +81,10 @@ jobs:
       run: scripts/update_vertexai_responses.sh
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
-    - name: Install simulators in case they are missing.
-      uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
+    - name: Setup simulator
+      uses: ./.github/actions/setup_simulator
       with:
-        timeout_minutes: 15
-        max_attempts: 5
-        retry_wait_seconds: 120
-        continue_on_error: true
-        command: xcodebuild -downloadPlatform iOS
+        platform: iOS
     - name: Initialize xcodebuild
       run: scripts/setup_spm_tests.sh
     - name: Functions Integration Test Server
@@ -129,14 +125,10 @@ jobs:
       run: scripts/update_vertexai_responses.sh
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
-    - name: Install simulators in case they are missing.
-      uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
+    - name: Setup simulator
+      uses: ./.github/actions/setup_simulator
       with:
-        timeout_minutes: 15
-        max_attempts: 5
-        retry_wait_seconds: 120
-        continue_on_error: true
-        command: xcodebuild -downloadPlatform iOS
+        platform: iOS
     - name: Initialize xcodebuild
       run: scripts/setup_spm_tests.sh
     - name: iOS Device and Test Build
@@ -172,15 +164,11 @@ jobs:
         key: ${{needs.spm-package-resolved.outputs.cache_key}}
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
-    - name: Install simulators in case they are missing.
+    - name: Setup simulator
       if: matrix.target != 'macOS' && matrix.target != 'catalyst'
-      uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
+      uses: ./.github/actions/setup_simulator
       with:
-        timeout_minutes: 15
-        max_attempts: 5
-        retry_wait_seconds: 120
-        continue_on_error: true
-        command: xcodebuild -downloadPlatform ${{ matrix.target }}
+        platform: ${{ matrix.target }}
     - name: Initialize xcodebuild
       run: scripts/setup_spm_tests.sh
     - name: Objc Import Tests
@@ -225,14 +213,10 @@ jobs:
         key: ${{needs.spm-package-resolved.outputs.cache_key}}
     - name: Xcode
       run: sudo xcode-select -s /Applications/Xcode_26.4.app/Contents/Developer
-    - name: Install simulators in case they are missing.
-      uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
+    - name: Setup simulator
+      uses: ./.github/actions/setup_simulator
       with:
-        timeout_minutes: 15
-        max_attempts: 5
-        retry_wait_seconds: 120
-        continue_on_error: true
-        command: xcodebuild -downloadPlatform iOS
+        platform: iOS
     - name: Initialize xcodebuild
       run: scripts/setup_spm_tests.sh
     - name: Build for CodeQL

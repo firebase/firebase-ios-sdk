@@ -16,6 +16,8 @@
 
 #import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessaging.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 @class FIRMessagingAuthService;
 @class FIRMessagingCheckinPreferences;
 @class FIRMessagingTokenInfo;
@@ -35,12 +37,12 @@ typedef NS_OPTIONS(NSUInteger, FIRMessagingInvalidTokenReason) {
  */
 @interface FIRMessagingTokenManager : NSObject
 
-@property(nonatomic, readonly, copy) NSString *deviceAuthID;
-@property(nonatomic, readonly, copy) NSString *secretToken;
-@property(nonatomic, readonly, copy) NSString *versionInfo;
-@property(nonatomic, readonly, copy) NSString *defaultFCMToken;
-@property(nonatomic, readwrite, copy) NSString *fcmSenderID;
-@property(nonatomic, readwrite, copy) NSString *firebaseAppID;
+@property(nonatomic, readonly, copy, nullable) NSString *deviceAuthID;
+@property(nonatomic, readonly, copy, nullable) NSString *secretToken;
+@property(nonatomic, readonly, copy, nullable) NSString *versionInfo;
+@property(nonatomic, readonly, copy, nullable) NSString *defaultFCMToken;
+@property(nonatomic, readwrite, copy, nullable) NSString *fcmSenderID;
+@property(nonatomic, readwrite, copy, nullable) NSString *firebaseAppID;
 
 /// Expose the auth service, so it can be used by others
 @property(nonatomic, readonly, strong) FIRMessagingAuthService *authService;
@@ -73,13 +75,15 @@ typedef NS_OPTIONS(NSUInteger, FIRMessagingInvalidTokenReason) {
 - (void)fetchNewTokenWithAuthorizedEntity:(NSString *)authorizedEntity
                                     scope:(NSString *)scope
                                instanceID:(NSString *)instanceID
-                                  options:(NSDictionary *)options
-                                  handler:(FIRMessagingFCMTokenFetchCompletion)handler;
+                                  options:(nullable NSDictionary *)options
+                                  handler:(void (^)(NSString *_Nullable token,
+                                                    NSError *_Nullable error))handler;
 
 - (void)tokenWithAuthorizedEntity:(NSString *)authorizedEntity
                             scope:(NSString *)scope
-                          options:(NSDictionary *)options
-                          handler:(FIRMessagingFCMTokenFetchCompletion)handler;
+                          options:(nullable NSDictionary *)options
+                          handler:(void (^)(NSString *_Nullable token,
+                                            NSError *_Nullable error))handler;
 
 /**
  *  Return the cached token info, if one exists, for the given authorizedEntity and scope.
@@ -89,8 +93,8 @@ typedef NS_OPTIONS(NSUInteger, FIRMessagingInvalidTokenReason) {
  *
  *  @return The cached token info, if available, matching the parameters.
  */
-- (FIRMessagingTokenInfo *)cachedTokenInfoWithAuthorizedEntity:(NSString *)authorizedEntity
-                                                         scope:(NSString *)scope;
+- (nullable FIRMessagingTokenInfo *)cachedTokenInfoWithAuthorizedEntity:(NSString *)authorizedEntity
+                                                                  scope:(NSString *)scope;
 
 /**
  *  Delete the token for the given authorizedEntity and scope. If the token has
@@ -110,7 +114,7 @@ typedef NS_OPTIONS(NSUInteger, FIRMessagingInvalidTokenReason) {
 - (void)deleteTokenWithAuthorizedEntity:(NSString *)authorizedEntity
                                   scope:(NSString *)scope
                              instanceID:(NSString *)instanceID
-                                handler:(FIRMessagingDeleteFCMTokenCompletion)handler;
+                                handler:(void (^)(NSError *_Nullable error))handler;
 
 /**
  *  Deletes all cached tokens from the persistent store. This method should only be triggered
@@ -121,7 +125,7 @@ typedef NS_OPTIONS(NSUInteger, FIRMessagingInvalidTokenReason) {
  *                    a nil error; else we pass in an appropriate error. This should be non-nil
  *                    and be called asynchronously.
  */
-- (void)deleteAllTokensWithHandler:(FIRMessagingDeleteFCMTokenCompletion)handler;
+- (void)deleteAllTokensWithHandler:(void (^)(NSError *_Nullable error))handler;
 
 /**
  *  Deletes all cached tokens from the persistent store.
@@ -130,7 +134,7 @@ typedef NS_OPTIONS(NSUInteger, FIRMessagingInvalidTokenReason) {
  *
  */
 
-- (void)deleteWithHandler:(void (^)(NSError *))handler;
+- (void)deleteWithHandler:(void (^)(NSError *_Nullable error))handler;
 
 /**
  *  Stop any ongoing token operations.
@@ -147,7 +151,7 @@ typedef NS_OPTIONS(NSUInteger, FIRMessagingInvalidTokenReason) {
  *  @discussion This should safely be called prior to any tokens being retrieved from
  *  the cache or being fetched from the network.
  */
-- (BOOL)checkTokenRefreshPolicyWithIID:(NSString *)IID;
+- (BOOL)checkTokenRefreshPolicyWithIID:(nullable NSString *)IID;
 
 /**
  *  Upon being provided with different APNs or sandbox, any locally cached tokens
@@ -169,14 +173,14 @@ typedef NS_OPTIONS(NSUInteger, FIRMessagingInvalidTokenReason) {
 /*
  * Sets APNS token
  */
-- (void)setAPNSToken:(NSData *)APNSToken withUserInfo:(NSDictionary *)userInfo;
+- (void)setAPNSToken:(NSData *)APNSToken withUserInfo:(nullable NSDictionary *)userInfo;
 
 - (BOOL)hasValidCheckinInfo;
 
 /*
  * Gets the current default token, if not exist, request a new one from server.
  */
-- (NSString *)tokenAndRequestIfNotExist;
+- (nullable NSString *)tokenAndRequestIfNotExist;
 
 /*
  * Saves the default token to the keychain.
@@ -187,11 +191,14 @@ typedef NS_OPTIONS(NSUInteger, FIRMessagingInvalidTokenReason) {
  * Posts a token refresh notification when a default FCM token is generated.
  *
  */
-- (void)postTokenRefreshNotificationWithDefaultFCMToken:(NSString *)defaultFCMToken;
+- (void)postTokenRefreshNotificationWithDefaultFCMToken:(nullable NSString *)defaultFCMToken;
 
 /*
  * Checks if two tokens have changed.
  */
-- (BOOL)hasTokenChangedFromOldToken:(NSString *)oldToken toNewToken:(NSString *)newToken;
+- (BOOL)hasTokenChangedFromOldToken:(nullable NSString *)oldToken
+                         toNewToken:(nullable NSString *)newToken;
 
 @end
+
+NS_ASSUME_NONNULL_END

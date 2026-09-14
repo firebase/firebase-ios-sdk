@@ -1,3 +1,11 @@
+# Unreleased
+- [changed] Dropped C++14 support; Firestore now requires C++17.
+- [changed] Update gRPC dependency to 1.83.1.
+- [changed] Update Abseil dependency to 1.20250512.2.
+
+# 12.19.0
+- [feature] Added support for `minimum` and `maximum` FieldValue operations [#16159].
+
 # 12.17.0
 - [fixed] Fixed a potential crash when parsing malformed bundle payloads.
   (#16221)

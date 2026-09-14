@@ -22,9 +22,18 @@
   protocol AuthNotificationApplication: Sendable {
     var delegate: UIApplicationDelegate? { get }
     var applicationState: UIApplication.State { get }
+
+    /// The `UIApplication` to pass to `UIApplicationDelegate` callbacks.
+    ///
+    /// The delegate signature requires a concrete `UIApplication`, which a test double
+    /// cannot be. Vending it through the protocol keeps `UIApplication.shared` - which
+    /// is unavailable in app extensions - out of this module.
+    var applicationForDelegate: UIApplication { get }
   }
 
-  extension UIApplication: AuthNotificationApplication {}
+  extension UIApplication: AuthNotificationApplication {
+    var applicationForDelegate: UIApplication { self }
+  }
 
   class AuthNotificationManager: @unchecked Sendable {
     /// The key to locate payload data in the remote notification.
@@ -130,7 +139,7 @@
              delegate
              .responds(to: #selector(UIApplicationDelegate
                  .application(_:didReceiveRemoteNotification:fetchCompletionHandler:))) {
-            let appObj = (self.application as? UIApplication) ?? UIApplication.shared
+            let appObj = self.application.applicationForDelegate
             delegate.application?(appObj,
                                   didReceiveRemoteNotification: proberNotification) { _ in
             }

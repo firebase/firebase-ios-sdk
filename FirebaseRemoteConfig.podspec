@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseRemoteConfig'
-  s.version          = '12.18.0'
+  s.version          = '12.19.0'
   s.summary          = 'Firebase Remote Config'
 
   s.description      = <<-DESC
@@ -19,7 +19,7 @@ app update.
   }
   s.social_media_url = 'https://twitter.com/Firebase'
   ios_deployment_target = '15.0'
-  osx_deployment_target = '10.15'
+  osx_deployment_target = '11.0'
   tvos_deployment_target = '15.0'
   watchos_deployment_target = '7.0'
 
@@ -49,13 +49,13 @@ app update.
   s.pod_target_xcconfig = {
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
   }
-  s.dependency 'FirebaseABTesting', '~> 12.18.0'
-  s.dependency 'FirebaseSharedSwift', '~> 12.18.0'
-  s.dependency 'FirebaseCore', '~> 12.18.0'
-  s.dependency 'FirebaseInstallations', '~> 12.18.0'
+  s.dependency 'FirebaseABTesting', '~> 12.19.0'
+  s.dependency 'FirebaseSharedSwift', '~> 12.19.0'
+  s.dependency 'FirebaseCore', '~> 12.19.0'
+  s.dependency 'FirebaseInstallations', '~> 12.19.0'
   s.dependency 'GoogleUtilities/Environment', '~> 8.1'
   s.dependency 'GoogleUtilities/NSData+zlib', '~> 8.1'
-  s.dependency 'FirebaseRemoteConfigInterop', '~> 12.18.0'
+  s.dependency 'FirebaseRemoteConfigInterop', '~> 12.19.0'
 
   s.test_spec 'unit' do |unit_tests|
     unit_tests.scheme = { :code_coverage => true }
