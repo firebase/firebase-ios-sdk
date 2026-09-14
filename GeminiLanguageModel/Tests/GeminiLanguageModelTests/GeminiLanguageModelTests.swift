@@ -42,7 +42,8 @@
     func modelInitializationAndCapabilities() {
       let model = GeminiLanguageModel(
         modelResource: .gemini35FlashLite,
-        endpointConfiguration: .geminiDeveloperAPI
+        endpointConfiguration: .geminiDeveloperAPI,
+        compatibilityOptions: GeminiLanguageModel.CompatibilityOptions()
       )
 
       #expect(model.executorConfiguration.modelResource == .gemini35FlashLite)
@@ -492,7 +493,9 @@
     private static func makeMockModel(
       modelResource: ModelResource = .gemini38Flash,
       endpointConfiguration: EndpointConfiguration = .geminiDeveloperAPI,
-      headerProvider: (@Sendable () async throws -> [String: String])? = nil
+      headerProvider: (@Sendable () async throws -> [String: String])? = nil,
+      compatibilityOptions: GeminiLanguageModel.CompatibilityOptions =
+        GeminiLanguageModel.CompatibilityOptions()
     ) -> GeminiLanguageModel {
       let configuration = URLSessionConfiguration.ephemeral
       configuration.protocolClasses = [MockHTTPURLProtocol.self]
@@ -500,7 +503,8 @@
         modelResource: modelResource,
         endpointConfiguration: endpointConfiguration,
         headerProvider: headerProvider,
-        configuration: configuration
+        configuration: configuration,
+        compatibilityOptions: compatibilityOptions
       )
     }
 
