@@ -24,7 +24,6 @@
 #include <type_traits>
 
 #include "absl/base/port.h"
-#include "absl/meta/type_traits.h"
 
 namespace firebase {
 namespace firestore {
@@ -419,7 +418,7 @@ struct container_traits {
   template <typename U, typename = void>
   struct test_size_type : std::false_type {};
   template <typename U>
-  struct test_size_type<U, absl::void_t<typename U::size_type>>
+  struct test_size_type<U, std::void_t<typename U::size_type>>
       : std::true_type {};
 
   // Conditional provisioning of a size_type which defaults to size_t.

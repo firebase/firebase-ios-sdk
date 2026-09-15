@@ -16,6 +16,8 @@
 
 #include "Firestore/core/src/core/sync_engine.h"
 
+#include <optional>
+
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/bundle/bundle_element.h"
 #include "Firestore/core/src/bundle/bundle_loader.h"
@@ -140,7 +142,7 @@ ViewSnapshot SyncEngine::InitializeViewAndComputeSnapshot(
   // If there are already queries mapped to the target id, create a synthesized
   // target change to apply the sync state from those queries to the new query.
   auto current_sync_state = SyncState::None;
-  absl::optional<TargetChange> synthesized_current_change;
+  std::optional<TargetChange> synthesized_current_change;
   if (queries_by_target_.find(target_id) != queries_by_target_.end()) {
     const QueryOrPipeline& mirror_query = queries_by_target_[target_id][0];
     current_sync_state =
@@ -248,7 +250,7 @@ void SyncEngine::WriteMutations(std::vector<model::Mutation>&& mutations,
   mutation_callbacks_[current_user_].insert(
       std::make_pair(result.batch_id(), std::move(callback)));
 
-  EmitNewSnapshotsAndNotifyLocalStore(result.changes(), absl::nullopt);
+  EmitNewSnapshotsAndNotifyLocalStore(result.changes(), std::nullopt);
   remote_store_->FillWritePipeline();
 }
 
@@ -307,7 +309,7 @@ void SyncEngine::HandleCredentialChange(const credentials::User& user) {
     // Notify local store and emit any resulting events from swapping out the
     // mutation queue.
     DocumentMap changes = local_store_->HandleUserChange(user);
-    EmitNewSnapshotsAndNotifyLocalStore(changes, absl::nullopt);
+    EmitNewSnapshotsAndNotifyLocalStore(changes, std::nullopt);
   }
 
   // Notify remote store so it can restart its streams.
@@ -407,7 +409,7 @@ void SyncEngine::HandleSuccessfulWrite(
   TriggerPendingWriteCallbacks(batch_result.batch().batch_id());
 
   DocumentMap changes = local_store_->AcknowledgeBatch(batch_result);
-  EmitNewSnapshotsAndNotifyLocalStore(changes, absl::nullopt);
+  EmitNewSnapshotsAndNotifyLocalStore(changes, std::nullopt);
 }
 
 void SyncEngine::HandleRejectedWrite(
@@ -430,7 +432,7 @@ void SyncEngine::HandleRejectedWrite(
 
   TriggerPendingWriteCallbacks(batch_id);
 
-  EmitNewSnapshotsAndNotifyLocalStore(changes, absl::nullopt);
+  EmitNewSnapshotsAndNotifyLocalStore(changes, std::nullopt);
 }
 
 void SyncEngine::HandleOnlineStateChange(model::OnlineState online_state) {
@@ -512,7 +514,7 @@ void SyncEngine::FailOutstandingPendingWriteCallbacks(
 
 void SyncEngine::EmitNewSnapshotsAndNotifyLocalStore(
     const DocumentMap& changes,
-    const absl::optional<RemoteEvent>& maybe_remote_event) {
+    const std::optional<RemoteEvent>& maybe_remote_event) {
   std::vector<ViewSnapshot> new_snapshots;
   std::vector<LocalViewChanges> document_changes_in_all_views;
 
@@ -530,7 +532,7 @@ void SyncEngine::EmitNewSnapshotsAndNotifyLocalStore(
                                                      view_doc_changes);
     }
 
-    absl::optional<TargetChange> target_changes;
+    std::optional<TargetChange> target_changes;
     bool targetIsPendingReset = false;
     if (maybe_remote_event.has_value()) {
       const RemoteEvent& remote_event = maybe_remote_event.value();
@@ -631,7 +633,7 @@ void SyncEngine::RemoveLimboTarget(const DocumentKey& key) {
   PumpEnqueuedLimboResolutions();
 }
 
-absl::optional<BundleLoader> SyncEngine::ReadIntoLoader(
+std::optional<BundleLoader> SyncEngine::ReadIntoLoader(
     const bundle::BundleMetadata& metadata,
     bundle::BundleReader& reader,
     api::LoadBundleTask& result_task) {
@@ -645,7 +647,7 @@ absl::optional<BundleLoader> SyncEngine::ReadIntoLoader(
       LOG_WARN("Failed to GetNextElement() from bundle with error %s",
                reader.reader_status().error_message());
       result_task.SetError(reader.reader_status());
-      return absl::nullopt;
+      return std::nullopt;
     }
 
     // No more elements from reader.
@@ -661,7 +663,7 @@ absl::optional<BundleLoader> SyncEngine::ReadIntoLoader(
       LOG_WARN("Failed to AddElement() to bundle loader with error %s",
                maybe_progress.status().error_message());
       result_task.SetError(maybe_progress.status());
-      return absl::nullopt;
+      return std::nullopt;
     }
 
     if (maybe_progress.ValueOrDie().has_value()) {
@@ -705,7 +707,7 @@ void SyncEngine::LoadBundle(std::shared_ptr<bundle::BundleReader> reader,
   }
 
   EmitNewSnapshotsAndNotifyLocalStore(changes.ConsumeValueOrDie(),
-                                      absl::nullopt);
+                                      std::nullopt);
 
   result_task->SetSuccess(SuccessProgress(bundle_metadata));
 }

@@ -16,6 +16,7 @@
 
 #include "Firestore/core/src/api/collection_reference.h"
 
+#include <optional>
 #include <utility>
 
 #include "Firestore/core/src/api/document_reference.h"
@@ -67,10 +68,10 @@ const std::string& CollectionReference::collection_id() const {
   return query().path().last_segment();
 }
 
-absl::optional<DocumentReference> CollectionReference::parent() const {
+std::optional<DocumentReference> CollectionReference::parent() const {
   ResourcePath parent_path = query().path().PopLast();
   if (parent_path.empty()) {
-    return absl::nullopt;
+    return std::nullopt;
   } else {
     return DocumentReference(DocumentKey(std::move(parent_path)), firestore());
   }
