@@ -23,19 +23,26 @@
   enum GeminiRequestTranslator {
     /// Translates a `LanguageModelExecutorGenerationRequest` into a `GenerateContentRequest`.
     ///
-    /// - Parameter request: The generation request from the Foundation Models session.
+    /// - Parameters:
+    ///   - request: The generation request from the Foundation Models session.
+    ///   - compatibilityOptions: Overrides for backend-dependent behavior.
     /// - Returns: A `GenerateContentRequest` configured for the Gemini API.
     /// - Throws: An error if transcript or schema translation fails.
     static func translate(
-      _ request: LanguageModelExecutorGenerationRequest
+      _ request: LanguageModelExecutorGenerationRequest,
+      compatibilityOptions: GeminiLanguageModel.CompatibilityOptions
     ) throws -> GenerateContentRequest {
       let (contents, systemInstruction) = try GeminiTranscriptTranslator.translate(
         request.transcript
       )
       let generationConfig = try translateGenerationConfig(schema: request.schema)
       let tools = try translateTools(request.enabledToolDefinitions)
+      let hasFunctionDeclarations =
+        tools?.contains { !($0.functionDeclarations ?? []).isEmpty } ?? false
       let toolConfig = translateToolConfig(
-        toolCallingMode: request.generationOptions.toolCallingMode
+        toolCallingMode: request.generationOptions.toolCallingMode,
+        hasFunctionDeclarations: hasFunctionDeclarations,
+        compatibilityOptions: compatibilityOptions
       )
 
       return GenerateContentRequest(
@@ -88,32 +95,72 @@
       return [GeminiAPIDataModels.Tool(functionDeclarations: declarations)]
     }
 
-    /// Translates tool calling mode options into a Gemini `ToolConfig`.
+    /// Translates tool calling options into a Gemini `ToolConfig`.
     ///
-    /// - Parameter toolCallingMode: The tool calling mode options from the request.
-    /// - Returns: A `ToolConfig` configured with function calling mode, or `nil` if unspecified.
+    /// - Parameters:
+    ///   - toolCallingMode: The tool calling mode from the request. `nil` means the
+    ///     developer expressed no preference and is treated the same as
+    ///     `GenerationOptions.ToolCallingMode.allowed`.
+    ///   - hasFunctionDeclarations: Whether the request declares any functions.
+    ///     `function_calling_config` only governs function calling, so it is
+    ///     omitted entirely when there are none.
+    ///   - compatibilityOptions: Overrides for backend-dependent behavior.
+    /// - Returns: A `ToolConfig`, or `nil` if it would carry no fields.
     static func translateToolConfig(
-      toolCallingMode: GenerationOptions.ToolCallingMode?
+      toolCallingMode: GenerationOptions.ToolCallingMode?,
+      hasFunctionDeclarations: Bool,
+      compatibilityOptions: GeminiLanguageModel.CompatibilityOptions
     ) -> ToolConfig? {
-      guard let mode = toolCallingMode else { return nil }
+      // Computed independently of the `ToolConfig` guard below so that a later
+      // phase can populate `includeServerSideToolInvocations` for requests that
+      // carry built-in tools but no function declarations.
+      let functionCallingConfig: FunctionCallingConfig?
+      if hasFunctionDeclarations {
+        // `GenerationOptions.toolCallingMode` is optional and is `nil` unless the
+        // developer sets it explicitly, which the iOS 26 initializers cannot even
+        // express. Omitting `function_calling_config` in that case would let the
+        // backend fall back to `AUTO`, so `nil` maps to the allowed mode too.
+        let allowedMode = geminiMode(for: compatibilityOptions.toolCalling.allowedMode)
+        let callingMode: FunctionCallingConfig.Mode
+        if let mode = toolCallingMode {
+          switch mode.kind {
+          case .allowed:
+            callingMode = allowedMode
+          case .required:
+            callingMode = .any
+          case .disallowed:
+            callingMode = FunctionCallingConfig.Mode.none
+          @unknown default:
+            callingMode = allowedMode
+          }
+        } else {
+          callingMode = allowedMode
+        }
+        functionCallingConfig = FunctionCallingConfig(mode: callingMode)
+      } else {
+        functionCallingConfig = nil
+      }
 
-      let callingMode: FunctionCallingConfig.Mode
-      switch mode.kind {
-      case .allowed:
-        // Note: Map to .auto for standard model autonomy. Consider evaluating
-        // .validated in the future for constrained decoding against declared functions.
-        callingMode = .auto
-      case .required:
-        callingMode = .any
-      case .disallowed:
-        callingMode = .none
-      @unknown default:
-        callingMode = .auto
+      guard functionCallingConfig != nil else {
+        return nil
       }
 
       return ToolConfig(
-        functionCallingConfig: FunctionCallingConfig(mode: callingMode)
+        functionCallingConfig: functionCallingConfig
       )
+    }
+
+    private static func geminiMode(
+      for allowedMode: GeminiLanguageModel.CompatibilityOptions.AllowedMode
+    ) -> FunctionCallingConfig.Mode {
+      switch allowedMode {
+      case .validated:
+        .validated
+      case .auto:
+        .auto
+      @unknown default:
+        .validated
+      }
     }
   }
 #endif  // canImport(FoundationModels) && compiler(>=6.4)

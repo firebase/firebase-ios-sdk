@@ -20,7 +20,9 @@
   @available(iOS 27.0, macOS 27.0, watchOS 27.0, visionOS 27.0, *)
   @available(tvOS, unavailable)
   extension GeminiLanguageModel {
-    init(name: String, firebaseAI: FirebaseAI) {
+    init(name: String,
+         firebaseAI: FirebaseAI,
+         compatibilityOptions: GeminiLanguageModel.CompatibilityOptions) {
       let endpointURL = firebaseAI.apiConfig.service.endpoint.rawValue
       guard let urlComponents = URLComponents(string: endpointURL) else {
         preconditionFailure("Invalid Gemini API URL: \(endpointURL)")
@@ -41,7 +43,8 @@
           apiVersion: firebaseAI.apiConfig.version.rawValue
         ),
         headerProvider: firebaseAI.headerProvider,
-        configuration: .ephemeral
+        configuration: .ephemeral,
+        compatibilityOptions: compatibilityOptions
       )
     }
   }
