@@ -51,6 +51,8 @@ NS_ASSUME_NONNULL_BEGIN
  }
  ```
 
+ @note This method must be called on the main thread.
+
  @param application UIApplication Instance to search for scenes from.
  @param selector The selector to find a scene delegate for (e.g.
  `@selector(scene:continueUserActivity:)`).

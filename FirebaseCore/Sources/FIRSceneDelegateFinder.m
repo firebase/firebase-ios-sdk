@@ -21,6 +21,10 @@
 
 + (nullable UIScene *)findForegroundSceneForApplication:(nullable UIApplication *)application
                                        matchingSelector:(SEL)selector {
+  NSAssert([NSThread isMainThread],
+           @"FIRSceneDelegateFinder findForegroundSceneForApplication:matchingSelector: must be "
+           @"called on the main thread.");
+
   if (!application) {
     return nil;
   }
