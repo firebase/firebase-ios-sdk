@@ -37,9 +37,10 @@ public struct Backend {
   /// Initializes a `Backend` configured for the Gemini API in Vertex AI.
   ///
   /// - Parameters:
-  ///   - location: The region identifier; see [available
-  ///     locations](https://firebase.google.com/docs/ai-logic/locations?api=vertex#available-locations)
+  ///   - location: The region identifier; see [available locations][1]
   ///     for a list of supported locations.
+  ///
+  /// [1]: https://firebase.google.com/docs/ai-logic/locations?api=vertex#available-locations
   @available(*, deprecated, renamed: "agentPlatform(location:)", message: """
   Vertex AI has been renamed to the Agent Platform Gemini API.
   """)
@@ -57,9 +58,10 @@ public struct Backend {
   /// > Note: The Agent Platform Gemini API was formerly known as Vertex AI.
   ///
   /// - Parameters:
-  ///   - location: The region identifier, defaulting to `global`; see [available   
-  ///     locations](https://firebase.google.com/docs/ai-logic/locations?api=vertex#available-locations)
-  ///     for a list of supported locations.
+  ///   - location: The region identifier, defaulting to `global`; see
+  ///     [available locations][2] for a list of supported locations.
+  ///
+  /// [2]: https://firebase.google.com/docs/ai-logic/locations?api=vertex#available-locations
   public static func agentPlatform(location: String = "global") -> Backend {
     return Backend(
       apiConfig: APIConfig(
