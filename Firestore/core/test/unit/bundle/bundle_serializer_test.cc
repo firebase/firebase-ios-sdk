@@ -413,6 +413,21 @@ TEST_F(BundleSerializerTest, DecodesInvalidIntegerValueFails) {
   VerifyJsonStringDecodeFails(json_copy);
 }
 
+TEST_F(BundleSerializerTest, DecodesOutOfRangeIntegerValueFails) {
+  ProtoValue value;
+  value.set_integer_value(22222);
+  ProtoDocument document = TestDocument(value);
+
+  std::string json_string;
+  MessageToJsonString(document, &json_string);
+
+  // A raw (unquoted) JSON number that does not fit int64 must be rejected
+  // rather than silently wrapped, the same way the string-encoded form is.
+  auto json_copy =
+      ReplacedCopy(json_string, "\"22222\"", "18446744073709551615");
+  VerifyJsonStringDecodeFails(json_copy);
+}
+
 TEST_F(BundleSerializerTest, DecodesDoubleValues) {
   for (double_t v :
        {-std::numeric_limits<double>::infinity(),
