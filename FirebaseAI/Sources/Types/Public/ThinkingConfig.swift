@@ -49,8 +49,7 @@ public struct ThinkingConfig: Sendable, Equatable {
   ///
   /// - Parameters:
   ///   - thinkingBudget: The maximum number of tokens to be used for the model's thinking process.
-  ///     The range of [supported thinking budget values
-  ///     ](https://firebase.google.com/docs/ai-logic/thinking#supported-thinking-budget-values)
+  ///     The range of [supported thinking budget values ](https://firebase.google.com/docs/ai-logic/thinking#supported-thinking-budget-values)
   ///     depends on the model.
   ///       - To use the default thinking budget or thinking level for a model, set this value to
   ///         `nil` or omit it.

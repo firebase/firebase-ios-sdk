@@ -72,8 +72,7 @@ public struct GenerationConfig: Sendable, Equatable {
   ///
   /// - Parameters:
   ///   - maxOutputTokens: Maximum number of tokens that can be generated in the response.
-  ///     See [configure model
-  ///     parameters](https://firebase.google.com/docs/ai-logic/model-parameters#parameters-descriptions-gemini).
+  ///     See [configure model parameters](https://firebase.google.com/docs/ai-logic/model-parameters#parameters-descriptions-gemini).
   ///   - stopSequences: A set of up to 5 `String`s that will stop output generation. If specified,
   ///     the API will stop at the first appearance of a stop sequence. The stop sequence will not
   ///     be included as part of the response.
@@ -91,13 +90,11 @@ public struct GenerationConfig: Sendable, Equatable {
   ///     - `application/json`: Schema for JSON response.
   ///
   ///     Refer to the
-  ///     [Generate structured
-  ///     output](https://firebase.google.com/docs/ai-logic/structured-output) guide
+  ///     [Generate structured output](https://firebase.google.com/docs/ai-logic/structured-output) guide
   ///     for more details.
   ///   - responseModalities: The data types (modalities) that may be returned in model responses.
   ///
-  ///     See the [configure model parameters
-  ///     documentation](https://firebase.google.com/docs/ai-logic/model-parameters#parameters-descriptions-gemini)
+  ///     See the [configure model parameters documentation](https://firebase.google.com/docs/ai-logic/model-parameters#parameters-descriptions-gemini)
   ///     for more details.
   ///
   ///     > Warning: Specifying response modalities is a **Public Preview** feature, which means
@@ -151,8 +148,7 @@ public struct GenerationConfig: Sendable, Equatable {
   ///
   /// - Parameters:
   ///   - maxOutputTokens: Maximum number of tokens that can be generated in the response.
-  ///     See [configure model
-  ///     parameters](https://firebase.google.com/docs/ai-logic/model-parameters#parameters-descriptions-gemini)
+  ///     See [configure model parameters](https://firebase.google.com/docs/ai-logic/model-parameters#parameters-descriptions-gemini)
   ///     for more details.
   ///   - stopSequences: A set of up to 5 `String`s that will stop output generation. If specified,
   ///     the API will stop at the first appearance of a stop sequence. The stop sequence will not
@@ -171,8 +167,7 @@ public struct GenerationConfig: Sendable, Equatable {
   ///     - `application/json`: Schema for JSON response.
   ///
   ///     Refer to the
-  ///     [Generate structured
-  ///     output](https://firebase.google.com/docs/ai-logic/structured-output) guide
+  ///     [Generate structured output](https://firebase.google.com/docs/ai-logic/structured-output) guide
   ///     for more details.
   ///   - responseModalities: The data types (modalities) that may be returned in model responses.
   ///

@@ -33,12 +33,12 @@ public struct SpeechConfig: Sendable {
   ///   - voiceName: The name of the prebuilt voice to be used for the model's speech response.
   ///
   ///     To learn more about the available voices, see the docs on
-  ///     [Voice options](https://ai.google.dev/gemini-api/docs/speech-generation#voices)\.
+  ///     [Voice options](https://firebase.google.com/docs/ai-logic/generate-speech#response-voices).
   ///   - languageCode: BCP-47 language code to use when parsing text sent from the client, instead
   ///     of audio. By default, the model will attempt to detect the input language automatically.
   ///
   ///     To learn which codes are supported, see the docs on
-  ///     [Supported languages](https://ai.google.dev/gemini-api/docs/speech-generation#languages)\.
+  ///     [Supported languages](https://firebase.google.com/docs/ai-logic/generate-speech#languages).
   public init(voiceName: String, languageCode: String? = nil) {
     self.init(
       ProtoSpeechConfig(

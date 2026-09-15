@@ -91,8 +91,7 @@
 
       /// The types of use cases that the on-device model is tuned for.
       ///
-      /// For more details, see the Apple [documentation
-      /// ](https://developer.apple.com/documentation/foundationmodels/systemlanguagemodel/usecase).
+      /// For more details, see the Apple [documentation ](https://developer.apple.com/documentation/foundationmodels/systemlanguagemodel/usecase).
       public struct UseCase: Sendable, Equatable {
         enum Kind {
           case general

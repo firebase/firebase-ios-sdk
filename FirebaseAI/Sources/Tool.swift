@@ -248,8 +248,7 @@ public extension ToolRepresentable where Self == FirebaseAILogic.Tool {
   /// Function calling can be used to provide data to the model that was not known at the time it
   /// was trained (for example, the current date or weather conditions) or to allow it to interact
   /// with external systems (for example, making an API request or querying/updating a database).
-  /// For more details and use cases, see [Function calling using the Gemini
-  /// API](https://firebase.google.com/docs/ai-logic/function-calling).
+  /// For more details and use cases, see [Function calling using the Gemini API](https://firebase.google.com/docs/ai-logic/function-calling).
   ///
   /// - Parameters:
   ///   - functionDeclarations: A list of `FunctionDeclarations` available to the model that can be
