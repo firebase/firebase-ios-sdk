@@ -30,7 +30,7 @@ jobs:
   spm:
     strategy:
       matrix:
-        target: [FirebaseAILogicUnit, FirebaseAIUnit]
+        target: [FirebaseAILogicUnit]
     uses: ./.github/workflows/_spm.yml
     with:
       target: ${{  matrix.target }}
@@ -132,7 +132,7 @@ jobs:
   pod_lib_lint:
     strategy:
       matrix:
-        product: [FirebaseAILogic, FirebaseAI]
+        product: [FirebaseAILogic]
     uses: ./.github/workflows/_cocoapods.yml
     with:
       product: ${{  matrix.product }}

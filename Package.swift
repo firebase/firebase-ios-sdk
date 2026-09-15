@@ -36,13 +36,6 @@ let package = Package(
 func packageProducts() -> [Product] {
   return [
     .library(
-      name: "FirebaseAI",
-      targets: [
-        "FirebaseAI",
-        "FirebaseAILogic",
-      ]
-    ),
-    .library(
       name: "FirebaseAILogic",
       targets: [
         "FirebaseAILogic",
@@ -123,10 +116,6 @@ func packageProducts() -> [Product] {
     .library(
       name: "FirebaseMessaging",
       targets: ["FirebaseMessaging"]
-    ),
-    .library(
-      name: "FirebaseMLModelDownloader",
-      targets: ["FirebaseMLModelDownloader"]
     ),
     .library(
       name: "FirebasePerformance",
@@ -223,16 +212,6 @@ func packageTargets() -> [Target] {
       swiftSettings: [
         isFoundationModelsSupportedPlatformSwiftSetting(),
       ]
-    ),
-    .target(
-      name: "FirebaseAI",
-      dependencies: ["FirebaseAILogic"],
-      path: "FirebaseAI/Wrapper/Sources"
-    ),
-    .testTarget(
-      name: "FirebaseAIUnit",
-      dependencies: ["FirebaseAI"],
-      path: "FirebaseAI/Wrapper/Tests"
     ),
 
     // MARK: - Firebase Core
@@ -814,25 +793,6 @@ func packageTargets() -> [Target] {
       linkerSettings: [
         .linkedFramework("Security"),
       ]
-    ),
-
-    .target(
-      name: "FirebaseMLModelDownloader",
-      dependencies: [
-        "FirebaseCore",
-        "FirebaseCoreExtension",
-        "FirebaseInstallations",
-        .product(name: "GULUserDefaults", package: "GoogleUtilities"),
-      ],
-      path: "FirebaseMLModelDownloader/Sources",
-      swiftSettings: [
-        .swiftLanguageMode(SwiftLanguageMode.v5),
-      ]
-    ),
-    .testTarget(
-      name: "FirebaseMLModelDownloaderUnit",
-      dependencies: ["FirebaseMLModelDownloader"],
-      path: "FirebaseMLModelDownloader/Tests/Unit"
     ),
 
     .target(
