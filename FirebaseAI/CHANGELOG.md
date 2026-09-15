@@ -366,7 +366,7 @@
   instead of the `Any` type. (#13575)
 - [added] Added support for specifying a JSON `responseSchema` in
   `GenerationConfig`; see
-  [control generated output](https://firebase.google.com/docs/ai-logic/structured-output)
+  [control generated output](https://firebase.google.com/docs/ai-logic/generate-structured-output)
   for more details. (#13576)
 
 # 10.29.0

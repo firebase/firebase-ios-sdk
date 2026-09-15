@@ -108,7 +108,7 @@ public struct GenerationConfig: Sendable, Equatable {
   ///   - imageConfig: Configuration options for generating images.
   ///
   /// [1]: https://firebase.google.com/docs/ai-logic/model-parameters#parameters-descriptions-gemini
-  /// [2]: https://firebase.google.com/docs/ai-logic/structured-output
+  /// [2]: https://firebase.google.com/docs/ai-logic/generate-structured-output
   @available(
     *,
     deprecated,
@@ -183,7 +183,7 @@ public struct GenerationConfig: Sendable, Equatable {
   ///   - imageConfig: Configuration options for generating images.
   ///
   /// [1]: https://firebase.google.com/docs/ai-logic/model-parameters#parameters-descriptions-gemini
-  /// [2]: https://firebase.google.com/docs/ai-logic/structured-output
+  /// [2]: https://firebase.google.com/docs/ai-logic/generate-structured-output
   public init(maxOutputTokens: Int? = nil,
               stopSequences: [String]? = nil, responseMIMEType: String? = nil,
               responseSchema: Schema? = nil, responseModalities: [ResponseModality]? = nil,

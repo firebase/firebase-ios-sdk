@@ -43,8 +43,7 @@ extension APIConfig {
   enum Service: Hashable, Encodable {
     /// Agent Platform Gemini API.
     ///
-    /// See the [Cloud docs][1]
-    /// for more details.
+    /// See the [Cloud docs][1] for more details.
     ///
     /// [1]:
     /// https://docs.cloud.google.com/gemini-enterprise-agent-platform/reference/models/inference
