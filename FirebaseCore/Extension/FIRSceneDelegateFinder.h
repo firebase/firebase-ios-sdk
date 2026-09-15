@@ -19,7 +19,12 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface UIApplication (FIRSceneDelegateFinder)
+/**
+ * A utility class to help find active UIScene instances on UIApplication.
+ */
+@interface FIRSceneDelegateFinder : NSObject
+
+- (instancetype)init NS_UNAVAILABLE;
 
 /**
  Iterates through the connectedScenes of the specified application instance to find a
@@ -32,28 +37,27 @@ NS_ASSUME_NONNULL_BEGIN
  reason (eg; because a system dialog, permission prompt, or notification center
  overlay is covering it). It's totally valid to send events through these scenes,
  so we fall back to checking if these scenes exist if we don't find a better
- alternative (ie; a scene that's in the foregound _and_ active).
+ alternative (ie; a scene that's in the foreground _and_ active).
 
  ### Usage Example
  ```objc
  SEL selector = @selector(scene:continueUserActivity:);
- UIScene *targetScene = [UIApplication
-    fir_findForegroundSceneWithDelegateRespondingToSelector:selector
-                                            onApplication:self.mainApplication];
+ UIScene *targetScene = [FIRSceneDelegateFinder
+     findForegroundSceneForApplication:self.mainApplication
+                      matchingSelector:selector];
 
  if (targetScene) {
-  [targetScene.delegate scene:targetScene continueUserActivity:userActivity];
+   [targetScene.delegate scene:targetScene continueUserActivity:userActivity];
  }
  ```
 
+ @param application UIApplication Instance to search for scenes from.
  @param selector The selector to find a scene delegate for (e.g.
  `@selector(scene:continueUserActivity:)`).
- @param application UIApplication instance to search for scenes from.
  @return The matching UIScene instance, or nil if no matching scene delegate is found.
  */
-+ (nullable UIScene *)
-    fir_findForegroundSceneWithDelegateRespondingToSelector:(SEL)selector
-                                              onApplication:(nullable UIApplication *)application;
++ (nullable UIScene *)findForegroundSceneForApplication:(nullable UIApplication *)application
+                                       matchingSelector:(SEL)selector;
 
 @end
 

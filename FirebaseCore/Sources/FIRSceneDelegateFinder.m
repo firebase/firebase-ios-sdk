@@ -15,26 +15,19 @@
 #import <TargetConditionals.h>
 #if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
 
-#import "FirebaseCore/Extension/UIApplication+FIRSceneDelegateFinder.h"
+#import "FirebaseCore/Extension/FIRSceneDelegateFinder.h"
 
-@implementation UIApplication (FIRSceneDelegateFinder)
+@implementation FIRSceneDelegateFinder
 
-+ (nullable UIScene *)fir_findForegroundSceneWithDelegateRespondingToSelector:(SEL)selector {
-  return [self fir_findForegroundSceneWithDelegateRespondingToSelector:selector onApplication:nil];
-}
-
-+ (nullable UIScene *)fir_findForegroundSceneWithDelegateRespondingToSelector:(SEL)selector
-                                                                onApplication:
-                                                                    (UIApplication *)application {
-  UIApplication *app = application;
-
-  if (!app) {
++ (nullable UIScene *)findForegroundSceneForApplication:(nullable UIApplication *)application
+                                       matchingSelector:(SEL)selector {
+  if (!application) {
     return nil;
   }
 
   UIScene *targetScene = nil;
 
-  for (UIScene *scene in app.connectedScenes) {
+  for (UIScene *scene in application.connectedScenes) {
     id<UISceneDelegate> sceneDelegate = scene.delegate;
     if ([sceneDelegate respondsToSelector:selector]) {
       if (scene.activationState == UISceneActivationStateForegroundActive) {
