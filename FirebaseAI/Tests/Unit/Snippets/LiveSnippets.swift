@@ -215,9 +215,6 @@ final class LiveSnippets: XCTestCase {
 
     // Set parameter values in a `LiveGenerationConfig` (example values shown here)
     let config = LiveGenerationConfig(
-      temperature: 0.9,
-      topP: 0.1,
-      topK: 16,
       maxOutputTokens: 200,
       responseModalities: [.audio],
       speech: SpeechConfig(voiceName: "Fenrir")

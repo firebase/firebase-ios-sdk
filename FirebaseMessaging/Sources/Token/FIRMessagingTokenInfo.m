@@ -124,9 +124,10 @@ static const NSTimeInterval kDefaultFetchTokenInterval = 7 * 24 * 60 * 60;  // 7
     return NO;
   }
 
-  // Check whether locale has changed, if yes, token needs to be updated with server for locale
-  // information.
-  if (FIRMessagingHasLocaleChanged()) {
+  // Check whether locale has changed. The new FID registration API does not track or send locale
+  // information (and bypasses the checkin API that persists it in user defaults), so locale
+  // changes only invalidate cached tokens in legacy checkin-based registration.
+  if (!isInstallationIdEnabled && FIRMessagingHasLocaleChanged()) {
     FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTokenInfoLocaleChanged,
                             @"Invalidating cached token due to locale change");
     return NO;

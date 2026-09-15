@@ -1,6 +1,13 @@
 # Unreleased
 - [changed] Enforce `NSSecureCoding` when unarchiving registration tokens from
   the keychain. (#16511)
+
+# 12.19.0
+- [fixed] Fix an issue where `messaging:didReceiveRegistrationToken:` was no
+  longer called at app launch when a token was cached. (#16581)
+- [fixed] Fix an issue where cached FCM registration tokens were falsely
+  invalidated due to locale changes when
+  `FirebaseMessagingInstallationIdEnabled` was set to `YES`. (#16572)
 - [fixed] Fix a potential crash when parsing malformed FCM payloads with
   unexpected non-numeric fields. (#16533)
 
