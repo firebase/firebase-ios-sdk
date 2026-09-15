@@ -36,20 +36,21 @@ struct APIConfig: Sendable, Hashable, Encodable {
 extension APIConfig {
   /// API services providing generative AI functionality.
   ///
-  /// See [Agent Platform Gemini API and Gemini Developer API
-  /// differences](https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/migrate/migrate-google-ai#google-ai)
+  /// See [Agent Platform Gemini API and Gemini Developer API differences][1]
   /// for a comparison of the two [API services](https://google.aip.dev/9#api-service).
+  ///
+  /// [1]: https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/migrate/migrate-google-ai#google-ai
   enum Service: Hashable, Encodable {
     /// Agent Platform Gemini API.
     ///
-    /// See the [Cloud
-    /// docs](https://docs.cloud.google.com/gemini-enterprise-agent-platform/reference/models/inference)
+    /// See the [Cloud docs][1]
     /// for more details.
+    ///
+    /// [1]:
+    /// https://docs.cloud.google.com/gemini-enterprise-agent-platform/reference/models/inference
     case agentPlatform(endpoint: Endpoint, location: String)
 
     /// The Gemini Developer API provided by Google AI.
-    ///
-    /// See the [Google AI docs](https://ai.google.dev/gemini-api/docs) for more details.
     case googleAI(endpoint: Endpoint)
 
     /// The specific network address to use for API requests.

@@ -14,8 +14,10 @@
 
 /// Configuration options for generating images with Gemini models.
 ///
-/// See the [documentation](https://ai.google.dev/gemini-api/docs/image-generation#aspect_ratios_and_image_size)
+/// See the [documentation][1]
 /// to learn about parameters available for use with Gemini image models.
+///
+/// [1]: https://ai.google.dev/gemini-api/docs/image-generation#aspect_ratios_and_image_size
 public struct ImageConfig: Sendable, Equatable {
   /// The aspect ratio of generated images.
   public let aspectRatio: AspectRatio?
@@ -105,29 +107,37 @@ public extension ImageConfig {
     /// 512px (0.5K) image size.
     ///
     /// This corresponds to 512x512 pixel images in a ``ImageConfig/AspectRatio/square1x1`` aspect
-    /// ratio. See the [documentation](https://ai.google.dev/gemini-api/docs/image-generation#aspect_ratios_and_image_size)
+    /// ratio. See the [documentation][1]
     /// for specific sizes in other aspect ratios.
+    ///
+    /// [1]: https://ai.google.dev/gemini-api/docs/image-generation#aspect_ratios_and_image_size
     public static let size512 = ImageSize(kind: .size512)
 
     /// 1K image size.
     ///
     /// This corresponds to 1024x1024 pixel images in a ``ImageConfig/AspectRatio/square1x1`` aspect
-    /// ratio. See the [documentation](https://ai.google.dev/gemini-api/docs/image-generation#aspect_ratios_and_image_size)
+    /// ratio. See the [documentation][1]
     /// for specific sizes in other aspect ratios.
+    ///
+    /// [1]: https://ai.google.dev/gemini-api/docs/image-generation#aspect_ratios_and_image_size
     public static let size1K = ImageSize(kind: .size1K)
 
     /// 2K image size.
     ///
     /// This corresponds to 2048x2048 pixel images in a ``ImageConfig/AspectRatio/square1x1`` aspect
-    /// ratio. See the [documentation](https://ai.google.dev/gemini-api/docs/image-generation#aspect_ratios_and_image_size)
+    /// ratio. See the [documentation][1]
     /// for specific sizes in other aspect ratios.
+    ///
+    /// [1]: https://ai.google.dev/gemini-api/docs/image-generation#aspect_ratios_and_image_size
     public static let size2K = ImageSize(kind: .size2K)
 
     /// 4K image size.
     ///
     /// This corresponds to 4096x4096 pixel images in a ``ImageConfig/AspectRatio/square1x1`` aspect
-    /// ratio. See the [documentation](https://ai.google.dev/gemini-api/docs/image-generation#aspect_ratios_and_image_size)
+    /// ratio. See the [documentation][1]
     /// for specific sizes in other aspect ratios.
+    ///
+    /// [1]: https://ai.google.dev/gemini-api/docs/image-generation#aspect_ratios_and_image_size
     public static let size4K = ImageSize(kind: .size4K)
 
     let rawValue: String

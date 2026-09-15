@@ -366,9 +366,6 @@ public struct FinishReason: DecodableProtoEnum, Hashable, Sendable {
   public static let malformedResponse = FinishReason(kind: .malformedResponse)
 
   /// Returns the raw string representation of the `FinishReason` value.
-  ///
-  /// > Note: This value directly corresponds to the values in the [REST
-  /// > API](https://cloud.google.com/vertex-ai/docs/reference/rest/v1beta1/GenerateContentResponse#FinishReason).
   public let rawValue: String
 
   static let unrecognizedValueMessageCode =
@@ -398,10 +395,6 @@ public struct PromptFeedback: Sendable {
     /// The prompt was blocked due to prohibited content.
     public static let prohibitedContent = BlockReason(kind: .prohibitedContent)
 
-    /// Returns the raw string representation of the `BlockReason` value.
-    ///
-    /// > Note: This value directly corresponds to the values in the [REST
-    /// > API](https://cloud.google.com/vertex-ai/docs/reference/rest/v1beta1/GenerateContentResponse#BlockedReason).
     public let rawValue: String
 
     static let unrecognizedValueMessageCode =

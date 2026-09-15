@@ -19,7 +19,9 @@ import Foundation
 /// resolution.
 ///
 /// This represents a
-/// [`google.protobuf.duration`](https://protobuf.dev/reference/protobuf/google.protobuf/#duration).
+/// [`google.protobuf.duration`][1].
+///
+/// [1]: https://protobuf.dev/reference/protobuf/google.protobuf/#duration
 struct ProtoDuration {
   /// Signed seconds of the span of time.
   ///

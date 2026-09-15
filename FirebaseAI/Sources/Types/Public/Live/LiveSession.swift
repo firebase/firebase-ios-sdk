@@ -52,12 +52,13 @@ public final class LiveSession: Sendable {
   /// Sends an audio input stream to the model, using the realtime API.
   ///
   /// To learn more about audio formats, and the required state they should be provided in, see the
-  /// docs on
-  /// [Supported audio formats](https://cloud.google.com/vertex-ai/generative-ai/docs/live-api#supported-audio-formats).
+  /// docs on [Supported media formats][1].
   ///
   /// - Parameters:
   ///   - audio: Raw 16-bit PCM audio at 16Hz, used to update the model on the client's
   ///     conversation.
+  ///
+  /// [1]: https://firebase.google.com/docs/ai-logic/live-api/limits-and-specs#media-formats
   public func sendAudioRealtime(_ audio: Data) async {
     let message = BidiGenerateContentRealtimeInput(
       audio: InlineData(data: audio, mimeType: "audio/pcm")

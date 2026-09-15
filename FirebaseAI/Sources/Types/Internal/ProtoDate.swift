@@ -22,9 +22,6 @@ import Foundation
 /// - A month and day value, with a zero year, such as an anniversary
 /// - A year on its own, with zero month and day values
 /// - A year and month value, with a zero day, such as a credit card expiration date
-///
-/// This represents a
-/// [`google.type.Date`](https://cloud.google.com/vertex-ai/docs/reference/rest/Shared.Types/Date).
 struct ProtoDate {
   /// Year of the date.
   ///
