@@ -16,12 +16,12 @@
 
 #include "Firestore/core/src/api/document_snapshot.h"
 
+#include <optional>
 #include <utility>
 
 #include "Firestore/core/src/api/document_reference.h"
 #include "Firestore/core/src/model/resource_path.h"
 #include "Firestore/core/src/util/hashing.h"
-#include "absl/types/optional.h"
 
 namespace firebase {
 namespace firestore {
@@ -44,13 +44,13 @@ DocumentSnapshot DocumentSnapshot::FromNoDocument(
     std::shared_ptr<Firestore> firestore,
     model::DocumentKey key,
     SnapshotMetadata metadata) {
-  return DocumentSnapshot{std::move(firestore), std::move(key), absl::nullopt,
+  return DocumentSnapshot{std::move(firestore), std::move(key), std::nullopt,
                           std::move(metadata)};
 }
 
 DocumentSnapshot::DocumentSnapshot(std::shared_ptr<Firestore> firestore,
                                    model::DocumentKey document_key,
-                                   absl::optional<Document> document,
+                                   std::optional<Document> document,
                                    SnapshotMetadata metadata)
     : firestore_{std::move(firestore)},
       internal_key_{std::move(document_key)},
@@ -67,7 +67,7 @@ bool DocumentSnapshot::exists() const {
   return internal_document_.has_value();
 }
 
-const absl::optional<Document>& DocumentSnapshot::internal_document() const {
+const std::optional<Document>& DocumentSnapshot::internal_document() const {
   return internal_document_;
 }
 
@@ -79,10 +79,10 @@ const std::string& DocumentSnapshot::document_id() const {
   return internal_key_.path().last_segment();
 }
 
-absl::optional<google_firestore_v1_Value> DocumentSnapshot::GetValue(
+std::optional<google_firestore_v1_Value> DocumentSnapshot::GetValue(
     const FieldPath& field_path) const {
   return internal_document_ ? (*internal_document_)->field(field_path)
-                            : absl::nullopt;
+                            : std::nullopt;
 }
 
 bool operator==(const DocumentSnapshot& lhs, const DocumentSnapshot& rhs) {

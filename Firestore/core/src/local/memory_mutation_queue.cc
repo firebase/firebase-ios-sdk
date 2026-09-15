@@ -16,6 +16,7 @@
 
 #include "Firestore/core/src/local/memory_mutation_queue.h"
 
+#include <optional>
 #include <utility>
 
 #include "Firestore/core/src/core/query.h"
@@ -207,7 +208,7 @@ MemoryMutationQueue::AllMutationBatchesAffectingQuery(const Query& query) {
   return AllMutationBatchesWithIds(unique_batch_ids);
 }
 
-absl::optional<MutationBatch>
+std::optional<MutationBatch>
 MemoryMutationQueue::NextMutationBatchAfterBatchId(BatchId batch_id) {
   BatchId next_batch_id = batch_id + 1;
 
@@ -216,7 +217,7 @@ MemoryMutationQueue::NextMutationBatchAfterBatchId(BatchId batch_id) {
   int raw_index = IndexOfBatchId(next_batch_id);
   size_t index = raw_index < 0 ? 0 : static_cast<size_t>(raw_index);
   if (queue_.size() <= index) {
-    return absl::nullopt;
+    return std::nullopt;
   }
 
   return queue_[index];
@@ -226,15 +227,15 @@ BatchId MemoryMutationQueue::GetHighestUnacknowledgedBatchId() {
   return IsEmpty() ? kBatchIdUnknown : next_batch_id_ - 1;
 }
 
-absl::optional<MutationBatch> MemoryMutationQueue::LookupMutationBatch(
+std::optional<MutationBatch> MemoryMutationQueue::LookupMutationBatch(
     BatchId batch_id) {
   if (queue_.empty()) {
-    return absl::nullopt;
+    return std::nullopt;
   }
 
   int index = IndexOfBatchId(batch_id);
   if (index < 0 || static_cast<size_t>(index) >= queue_.size()) {
-    return absl::nullopt;
+    return std::nullopt;
   }
 
   const MutationBatch& batch = queue_[index];
