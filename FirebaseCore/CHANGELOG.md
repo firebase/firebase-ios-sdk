@@ -14,9 +14,6 @@
   https://firebase.google.com/docs/ios/cocoapods-deprecation for details.
 - [removed] **Breaking change**: FirebaseMLModelDownloader has been removed. See
   https://firebase.google.com/docs/ml for more info.
-- [added] Added util method `fir_findForegroundSceneWithDelegateRespondingToSelector`
-  for multi-scene apps to find active scenes which which respond to a given
-  delegate. (#16398)
 
 # Firebase 12.19.1
 - [fixed] Fixed the zip distribution artifact naming on the GitHub release
