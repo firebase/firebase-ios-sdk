@@ -68,9 +68,7 @@ public struct GenerationConfig: Sendable, Equatable {
   ///
   /// See the
   /// [Configure model parameters](https://firebase.google.com/docs/ai-logic/model-parameters)
-  /// guide and the
-  /// [Agent Platform Gemini API documentation](https://docs.cloud.google.com/gemini-enterprise-agent-platform/reference/models/inference#generationconfig)
-  /// for more details.
+  /// guide for more details.
   ///
   /// - Parameters:
   ///   - maxOutputTokens: Maximum number of tokens that can be generated in the response.
@@ -78,9 +76,7 @@ public struct GenerationConfig: Sendable, Equatable {
   ///     parameters](https://firebase.google.com/docs/ai-logic/model-parameters#parameters-descriptions-gemini).
   ///   - stopSequences: A set of up to 5 `String`s that will stop output generation. If specified,
   ///     the API will stop at the first appearance of a stop sequence. The stop sequence will not
-  ///     be included as part of the response. See the
-  ///     [Agent Platform Gemini API documentation](https://docs.cloud.google.com/gemini-enterprise-agent-platform/reference/models/inference#generationconfig)
-  ///     for more details.
+  ///     be included as part of the response.
   ///   - responseMIMEType: Output response MIME type of the generated candidate text.
   ///
   ///     Supported MIME types:
@@ -151,9 +147,7 @@ public struct GenerationConfig: Sendable, Equatable {
   ///
   /// See the
   /// [Configure model parameters](https://firebase.google.com/docs/ai-logic/model-parameters)
-  /// guide and the
-  /// [Agent Platform Gemini API documentation](https://docs.cloud.google.com/gemini-enterprise-agent-platform/reference/models/inference#generationconfig)
-  /// for more details.
+  /// guide for more details.
   ///
   /// - Parameters:
   ///   - maxOutputTokens: Maximum number of tokens that can be generated in the response.
@@ -162,8 +156,7 @@ public struct GenerationConfig: Sendable, Equatable {
   ///     for more details.
   ///   - stopSequences: A set of up to 5 `String`s that will stop output generation. If specified,
   ///     the API will stop at the first appearance of a stop sequence. The stop sequence will not
-  ///     be included as part of the response. See
-  ///     [Agent Platform Gemini API documentation](https://docs.cloud.google.com/gemini-enterprise-agent-platform/reference/models/inference#generationconfig).
+  ///     be included as part of the response.
   ///   - responseMIMEType: Output response MIME type of the generated candidate text.
   ///
   ///     Supported MIME types:
