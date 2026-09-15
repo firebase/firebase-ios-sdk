@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import FirebaseCoreInternal
+internal import FirebaseCoreInternal
 import Foundation
 
 // TODO(Swift 6 Breaking): Consider breaking up into a checked Sendable Swift
