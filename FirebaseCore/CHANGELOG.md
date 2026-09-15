@@ -1,7 +1,12 @@
 # Unreleased
-- [changed] **Breaking change**: Removed the CocoaPods generated umbrella headers
-  (suffixed `-umbrella.h`) from the Zip and Carthage artifacts, in favor of `Firebase.h`
-  and framework specific umbrella headers. (#16540)
+- [changed] **Breaking change**: Firebase's minimum supported versions have
+  updated for the following platforms:
+    - | Platform  | Firebase 13 |
+      | ------------- | ------------- |
+      | iOS  | 15.0  |
+      | tvOS  | 15.0  |
+      | macOS  | **11.0**  |
+      | watchOS  | **8.0**  |
 - [removed] Firebase is no longer distributed via CocoaPods. Firebase 13.0.0
   and future releases are distributed exclusively via Swift Package Manager
   and binary distributions. Existing CocoaPods releases will remain
@@ -9,6 +14,9 @@
   https://firebase.google.com/docs/ios/cocoapods-deprecation for details.
 - [removed] **Breaking change**: FirebaseMLModelDownloader has been removed. See
   https://firebase.google.com/docs/ml for more info.
+- [changed] **Breaking change**: Removed the CocoaPods generated umbrella headers
+  (suffixed `-umbrella.h`) from the Zip and Carthage artifacts, in favor of `Firebase.h`
+  and framework specific umbrella headers. (#16540)
 
 # Firebase 12.19.1
 - [fixed] Fixed the zip distribution artifact naming on the GitHub release

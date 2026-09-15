@@ -58,7 +58,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
     ss.ios.deployment_target = '15.0'
     ss.osx.deployment_target = '11.0'
     ss.tvos.deployment_target = '15.0'
-    ss.watchos.deployment_target = '7.0'
+    ss.watchos.deployment_target = '8.0'
   end
 
   s.subspec 'Analytics' do |ss|
@@ -75,7 +75,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
     ss.ios.deployment_target = '15.0'
     ss.osx.deployment_target = '11.0'
     ss.tvos.deployment_target = '15.0'
-    ss.watchos.deployment_target = '7.0'
+    ss.watchos.deployment_target = '8.0'
   end
 
   s.subspec 'AppDistribution' do |ss|
@@ -90,7 +90,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
     ss.ios.deployment_target = '15.0'
     ss.osx.deployment_target = '11.0'
     ss.tvos.deployment_target = '15.0'
-    ss.watchos.deployment_target = '7.0'
+    ss.watchos.deployment_target = '8.0'
   end
 
   s.subspec 'Auth' do |ss|
@@ -100,7 +100,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
     ss.ios.deployment_target = '15.0'
     ss.osx.deployment_target = '11.0'
     ss.tvos.deployment_target = '15.0'
-    ss.watchos.deployment_target = '7.0'
+    ss.watchos.deployment_target = '8.0'
   end
 
   s.subspec 'Crashlytics' do |ss|
@@ -110,7 +110,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
     ss.ios.deployment_target = '15.0'
     ss.osx.deployment_target = '11.0'
     ss.tvos.deployment_target = '15.0'
-    ss.watchos.deployment_target = '7.0'
+    ss.watchos.deployment_target = '8.0'
   end
 
   s.subspec 'Database' do |ss|
@@ -120,7 +120,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
     ss.ios.deployment_target = '15.0'
     ss.osx.deployment_target = '11.0'
     ss.tvos.deployment_target = '15.0'
-    ss.watchos.deployment_target = '7.0'
+    ss.watchos.deployment_target = '8.0'
   end
 
   s.subspec 'Firestore' do |ss|
@@ -138,7 +138,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
     ss.ios.deployment_target = '15.0'
     ss.osx.deployment_target = '11.0'
     ss.tvos.deployment_target = '15.0'
-    ss.watchos.deployment_target = '7.0'
+    ss.watchos.deployment_target = '8.0'
   end
 
   s.subspec 'InAppMessaging' do |ss|
@@ -161,7 +161,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
     ss.ios.deployment_target = '15.0'
     ss.osx.deployment_target = '11.0'
     ss.tvos.deployment_target = '15.0'
-    ss.watchos.deployment_target = '7.0'
+    ss.watchos.deployment_target = '8.0'
   end
 
   s.subspec 'Performance' do |ss|
@@ -179,7 +179,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
     ss.ios.deployment_target = '15.0'
     ss.osx.deployment_target = '11.0'
     ss.tvos.deployment_target = '15.0'
-    ss.watchos.deployment_target = '7.0'
+    ss.watchos.deployment_target = '8.0'
   end
 
   s.subspec 'Storage' do |ss|
@@ -189,7 +189,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
     ss.ios.deployment_target = '15.0'
     ss.osx.deployment_target = '11.0'
     ss.tvos.deployment_target = '15.0'
-    ss.watchos.deployment_target = '7.0'
+    ss.watchos.deployment_target = '8.0'
   end
 
 end
