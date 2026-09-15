@@ -65,12 +65,17 @@ struct FrameworkBuilder {
       fatalError("Failure creating temporary directory while building \(framework): \(error)")
     }
 
-    return buildFrameworks(
-      withName: framework,
-      logsDir: logsDir,
-      setCarthage: setCarthage,
-      podInfo: podInfo
-    )
+    if dynamicFrameworks {
+      return (buildDynamicFrameworks(withName: framework, logsDir: logsDir),
+              nil)
+    } else {
+      return buildStaticFrameworks(
+        withName: framework,
+        logsDir: logsDir,
+        setCarthage: setCarthage,
+        podInfo: podInfo
+      )
+    }
   }
 
   // MARK: - Private Helpers
@@ -296,13 +301,34 @@ struct FrameworkBuilder {
   ///
   /// - Parameter framework: The name of the framework to be built.
   /// - Parameter logsDir: The path to the directory to place build logs.
+  /// - Returns: A path to the newly compiled frameworks (with any included Resources embedded).
+  private func buildDynamicFrameworks(withName framework: String,
+                                      logsDir: URL) -> [URL] {
+    // xcframework doesn't lipo things together but accepts fat frameworks for one target.
+    // We group architectures here to deal with this fact.
+    return targetPlatforms.map { targetPlatform in
+      buildSlicedFramework(
+        withName: framework,
+        targetPlatform: targetPlatform,
+        buildDir: projectDir.appendingPathComponent(targetPlatform.buildName),
+        logRoot: logsDir
+      )
+    }
+  }
+
+  /// Compiles the specified framework in a temporary directory and writes the build logs to file.
+  /// This will compile all architectures and use the -create-xcframework command to create a modern
+  /// "fat" framework.
+  ///
+  /// - Parameter framework: The name of the framework to be built.
+  /// - Parameter logsDir: The path to the directory to place build logs.
   /// - Parameter setCarthage: Set Carthage diagnostics flag in build.
   /// - Parameter podInfo: Pod info containing module map contents for static frameworks.
-  /// - Returns: A path to the newly compiled framework, and the Resource URL (if static).
-  private func buildFrameworks(withName framework: String,
-                               logsDir: URL,
-                               setCarthage: Bool,
-                               podInfo: CocoaPodUtils.PodInfo) -> ([URL], URL?) {
+  /// - Returns: A path to the newly compiled framework, and the Resource URL.
+  private func buildStaticFrameworks(withName framework: String,
+                                     logsDir: URL,
+                                     setCarthage: Bool,
+                                     podInfo: CocoaPodUtils.PodInfo) -> ([URL], URL) {
     // Build every architecture and save the locations in an array to be assembled.
     let slicedFrameworks = buildFrameworksForAllPlatforms(withName: framework, logsDir: logsDir,
                                                           setCarthage: setCarthage)
@@ -351,17 +377,15 @@ struct FrameworkBuilder {
     // `projectDir/arch/Release-platform/FrameworkName`.
     // The Resources are stored at the top-level of the .framework or .xcframework directory.
     // For Firebase distributions, they are propagated one level higher in the final distribution.
-    let resourceContents = dynamicFrameworks ? nil : projectDir.appendingPathComponents([
+    let resourceContents = projectDir.appendingPathComponents([
       anyPlatform.buildName,
       anyPlatform.buildDirName,
       framework,
     ])
 
-    let moduleMapContentsTemplate = podInfo.moduleMapContents ?? ModuleMapBuilder.ModuleMapContents(
-      module: frameworkName,
-      frameworks: [],
-      libraries: []
-    )
+    guard let moduleMapContentsTemplate = podInfo.moduleMapContents else {
+      fatalError("Module map contents missing for framework \(frameworkName)")
+    }
     let moduleMapContents = moduleMapContentsTemplate.get(umbrellaHeader: umbrellaHeader)
     let frameworks = groupFrameworks(withName: frameworkName,
                                      isCarthage: setCarthage,
@@ -596,13 +620,9 @@ struct FrameworkBuilder {
         // Bundles are moved rather than copied to prevent them from being
         // packaged in a `Resources` directory at the root of the xcframework.
         .forEach {
-          let destURL = resourceDir.appendingPathComponent($0.lastPathComponent)
-          if fileManager.fileExists(atPath: destURL.path) {
-            try? fileManager.removeItem(at: destURL)
-          }
           try fileManager.moveItem(
             at: $0,
-            to: destURL
+            to: resourceDir.appendingPathComponent($0.lastPathComponent)
           )
         }
       } catch {
