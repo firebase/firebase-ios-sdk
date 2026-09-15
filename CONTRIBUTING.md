@@ -136,7 +136,7 @@ To develop Firebase software, **install**:
    To install [clang-format] and [mint] using [Homebrew]:
 
     ```console
-    brew install clang-format@22
+    brew install clang-format@23
     brew install mint
     ```
 
@@ -521,7 +521,7 @@ following criteria:
 2. The committed code has been styled in accordance with this repo's style
    guidelines.
 3. A CHANGELOG has been updated to reflect the PR's associated changes.
-4. Unit and/or integration tests have been added or updatde to test and
+4. Unit and/or integration tests have been added or updated to test and
    validate the contribution's changes.
 5. Refer to the
    [Contributor License Agreement](#contributor-license-agreement) section below

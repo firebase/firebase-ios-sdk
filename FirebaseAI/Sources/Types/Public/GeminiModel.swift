@@ -15,8 +15,7 @@
 import Foundation
 
 #if compiler(>=6.2.3)
-  /// A Gemini model accessed via the Gemini Developer API or the Gemini Enterprise Agent Platform
-  /// API.
+  /// A Gemini model accessed via the Gemini Developer API or the Agent Platform Gemini API.
   ///
   /// **Public Preview**: This API is a public preview and may be subject to change.
   ///

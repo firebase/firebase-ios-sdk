@@ -184,7 +184,7 @@ final class IntegrationTests: XCTestCase {
     let response = try await model.countTokens([
       ModelContent(role: "user", parts: prompt),
       ModelContent(role: "model", parts: sumCall),
-      ModelContent(role: "function", parts: sumResponse),
+      ModelContent(role: "user", parts: sumResponse),
     ])
 
     XCTAssertGreaterThan(response.totalTokens, 0)

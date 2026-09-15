@@ -36,7 +36,6 @@ MODULE_LIST = [
     'FirebaseInAppMessaging'
     'FirebaseInstallations',
     'FirebaseMessaging',
-    'FirebaseMLModelDownloader',
     'FirebasePerformance',
     'FirebaseRemoteConfig',
     # Not buildable. No scheme named "FirebaseSharedSwift"

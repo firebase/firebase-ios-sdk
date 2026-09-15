@@ -37,7 +37,6 @@ product can be one of:
   Messaging
   MessagingSample
   SwiftUISample
-  MLModelDownloaderSample
   RemoteConfig
   RemoteConfigSample
   Sessions
@@ -45,6 +44,7 @@ product can be one of:
   SymbolCollision
   GoogleDataTransport
   Performance
+  FirebaseAIIntegration
   ClientApp
 platform can be one of:
   iOS (default)
@@ -106,13 +106,14 @@ case "$system" in
 esac
 
 # Source function to check if CI secrets are available.
+# shellcheck disable=SC1091
 source scripts/check_secrets.sh
 
 # Runs xcodebuild with the given flags, piping output to xcbeautify
 # If xcodebuild fails with known error codes, retries once.
 function RunXcodebuild() {
   # Print the command in a copy-pasteable format
-  echo xcodebuild $(printf "%q " "$@")
+  echo xcodebuild "$(printf "%q " "$@")"
 
   if [[ -n "${DRY_RUN:-}" ]]; then
     echo "DRY_RUN is set. Exiting before build."
@@ -170,20 +171,26 @@ function CheckUnexpectedFailures() {
   fi
 }
 
+"${scripts_dir}/setup_simulator.sh" "$platform"
+
 if [[ "$xcode_major" -lt 16 && "$method" != "cmake" ]]; then
   echo "Unsupported Xcode major version being used: $xcode_major"
   exit 1
 else
-  iphone_simulator_name="iPhone 16"
-  if [[ "$xcode_major" -gt 16 ]]; then
-    iphone_simulator_name="iPhone 17"
-  fi
   ios_flags=(
-    -destination "platform=iOS Simulator,name=${iphone_simulator_name}"
+    -destination 'platform=iOS Simulator,name=Firebase-iPhone-15-Pro'
   )
   watchos_flags=(
-    -destination 'platform=watchOS Simulator,name=Apple Watch Series 11 (42mm)'
+    -destination 'platform=watchOS Simulator,name=Firebase-Apple-Watch-Ultra-2'
   )
+fi
+
+if [[ "$xcode_major" -ge 27 ]]; then
+  spm_macosx_deployment_target="12.0"
+  spm_watchos_deployment_target="9.0"
+else
+  spm_macosx_deployment_target="11.0"
+  spm_watchos_deployment_target="8.0"
 fi
 
 ios_device_flags=(
@@ -191,28 +198,18 @@ ios_device_flags=(
 )
 
 ipad_flags=(
-  -destination 'platform=iOS Simulator,name=iPad Pro (9.7-inch)'
+  -destination 'platform=iOS Simulator,name=Firebase-iPad-Pro-11-inch'
 )
 
 macos_flags=(
   -destination 'platform=OS X,arch=x86_64'
 )
 tvos_flags=(
-  -destination 'platform=tvOS Simulator,name=Apple TV'
+  -destination 'platform=tvOS Simulator,name=Firebase-Apple-TV-4K-Gen-2'
 )
-if [[ "$xcode_major" -ge 26 ]]; then
-  visionos_flags=(
-    -destination "platform=visionOS Simulator,OS=${xcode_version},name=Apple Vision Pro"
-  )
-else
-  # TODO(ncooke3): Remove this else case when we no longer need to test against macOS 15.
-  visionos_flags=(
-    # As of Aug 15, 2025, the default OS "latest" was failing as it matched both
-    # the visionOS 26 beta and visionOS 2.5 (from Xcode 16.4) simulators;
-    # explicitly specifying OS=2.5 in destination as a workaround.
-    -destination 'platform=visionOS Simulator,OS=2.5,name=Apple Vision Pro'
-  )
-fi
+visionos_flags=(
+  -destination 'platform=visionOS Simulator,name=Firebase-Apple-Vision-Pro'
+)
 catalyst_flags=(
   ARCHS=x86_64 VALID_ARCHS=x86_64 SUPPORTS_MACCATALYST=YES
   -destination platform="macOS,variant=Mac Catalyst,arch=x86_64" TARGETED_DEVICE_FAMILY=2
@@ -233,7 +230,8 @@ case "$platform" in
 
   iPad)
     xcb_flags=("${ipad_flags[@]}")
-  ;;
+    gen_platform=ios
+    ;;
 
   macOS)
     xcb_flags=("${macos_flags[@]}")
@@ -501,16 +499,6 @@ case "$product-$platform-$method" in
     fi
     ;;
 
-  MLModelDownloaderSample-*-*)
-  if check_secrets; then
-    RunXcodebuild \
-      -workspace 'FirebaseMLModelDownloader/Apps/Sample/MLDownloaderTestApp.xcworkspace' \
-      -scheme "MLDownloaderTestApp" \
-      "${xcb_flags[@]}" \
-      build
-  fi
-  ;;
-
   WatchOSSample-*-*)
     RunXcodebuild \
       -workspace 'Example/watchOSSample/SampleWatchApp.xcworkspace' \
@@ -571,6 +559,22 @@ case "$product-$platform-$method" in
       -scheme "RemoteConfigSampleApp" \
       "${xcb_flags[@]}" \
       build
+    ;;
+
+  FirebaseAIIntegration-*-build)
+    RunXcodebuild \
+      -project 'FirebaseAI/Tests/TestApp/FirebaseAITestApp.xcodeproj' \
+      -scheme "FirebaseAITestApp-SPM" \
+      "${xcb_flags[@]}" \
+      build
+    ;;
+
+  FirebaseAIIntegration-*-build-for-testing)
+    RunXcodebuild \
+      -project 'FirebaseAI/Tests/TestApp/FirebaseAITestApp.xcodeproj' \
+      -scheme "FirebaseAITestApp-SPM" \
+      "${xcb_flags[@]}" \
+      build-for-testing
     ;;
 
   FirebaseAIIntegration-*-*)
@@ -777,7 +781,7 @@ case "$product-$platform-$method" in
 
   FirebaseDataConnect-*-spm)
     RunXcodebuild \
-      -scheme $product \
+      -scheme "$product" \
       "${xcb_flags[@]}" \
       IPHONEOS_DEPLOYMENT_TARGET=15.0 \
       TVOS_DEPLOYMENT_TARGET=15.0 \
@@ -786,18 +790,18 @@ case "$product-$platform-$method" in
 
   *-*-spm)
     RunXcodebuild \
-      -scheme $product \
+      -scheme "$product" \
       "${xcb_flags[@]}" \
       IPHONEOS_DEPLOYMENT_TARGET=15.0 \
-      MACOSX_DEPLOYMENT_TARGET=10.15 \
+      MACOSX_DEPLOYMENT_TARGET="$spm_macosx_deployment_target" \
       TVOS_DEPLOYMENT_TARGET=15.0 \
-      WATCHOS_DEPLOYMENT_TARGET=7.0 \
+      WATCHOS_DEPLOYMENT_TARGET="$spm_watchos_deployment_target" \
       test
     ;;
 
   *-*-spmbuildonly)
     RunXcodebuild \
-      -scheme $product \
+      -scheme "$product" \
       "${xcb_flags[@]}" \
       build
     ;;
@@ -805,7 +809,7 @@ case "$product-$platform-$method" in
   ClientApp-iOS-xcodebuild | ClientApp-iOS13-iOS-xcodebuild)
     RunXcodebuild \
       -project 'IntegrationTesting/ClientApp/ClientApp.xcodeproj' \
-      -scheme $product \
+      -scheme "$product" \
       "${xcb_flags[@]}" \
       build
     ;;
@@ -813,7 +817,7 @@ case "$product-$platform-$method" in
   ClientApp-CocoaPods*-iOS-xcodebuild)
     RunXcodebuild \
       -workspace 'IntegrationTesting/ClientApp/ClientApp.xcworkspace' \
-      -scheme $product \
+      -scheme "$product" \
       "${xcb_flags[@]}" \
       build
     ;;

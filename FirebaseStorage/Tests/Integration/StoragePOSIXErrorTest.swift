@@ -27,9 +27,13 @@ class StoragePOSIXErrorTest: StorageIntegrationCommon {
     let ref = storage.reference(withPath: "ios/public/testPOSIX40")
 
     let data = try XCTUnwrap("Hello".data(using: .utf8))
-    let tmpDirURL = URL(fileURLWithPath: NSTemporaryDirectory())
-    let fileURL = tmpDirURL.appendingPathComponent(#function + "hello.txt")
-    try data.write(to: fileURL, options: .atomicWrite)
+    let sanitizedTestName = #function.replacingOccurrences(of: "()", with: "")
+    let tmpDirURL = FileManager.default.temporaryDirectory
+    // createDirectory is necessary because SPM tests on CI can fail with ENOENT if the temporary
+    // directory doesn't exist yet.
+    try? FileManager.default.createDirectory(at: tmpDirURL, withIntermediateDirectories: true)
+    let fileURL = tmpDirURL.appendingPathComponent("\(sanitizedTestName)-\(UUID().uuidString).txt")
+    try data.write(to: fileURL)
     addTeardownBlock {
       try? FileManager.default.removeItem(at: fileURL)
     }

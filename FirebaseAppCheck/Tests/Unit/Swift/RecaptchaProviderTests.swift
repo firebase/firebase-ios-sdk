@@ -56,7 +56,6 @@
     func testInitWithIncompleteApp() {
       let options = FirebaseOptions(googleAppID: "1:123456789:ios:abc123", gcmSenderID: "sender_id")
       options.projectID = "project_id"
-      options.recaptchaSiteKey = "test_site_key"
 
       let appName = "testInitWithIncompleteApp1"
       let missingAPIKeyApp: FirebaseApp
@@ -68,11 +67,10 @@
       }
       missingAPIKeyApp.isDataCollectionDefaultEnabled = false
 
-      XCTAssertNil(RecaptchaProvider(app: missingAPIKeyApp))
+      XCTAssertNil(RecaptchaProvider(app: missingAPIKeyApp, siteKey: "test_site_key"))
 
       options.projectID = nil
       options.apiKey = "api_key"
-      options.recaptchaSiteKey = "test_site_key"
 
       let appName2 = "testInitWithIncompleteApp2"
       let missingProjectIDApp: FirebaseApp
@@ -83,7 +81,7 @@
         missingProjectIDApp = FirebaseApp.app(name: appName2)!
       }
       missingProjectIDApp.isDataCollectionDefaultEnabled = false
-      XCTAssertNil(RecaptchaProvider(app: missingProjectIDApp))
+      XCTAssertNil(RecaptchaProvider(app: missingProjectIDApp, siteKey: "test_site_key"))
     }
 
     func testInitWithMissingSiteKey() {
@@ -103,13 +101,24 @@
       app.isDataCollectionDefaultEnabled = false
 
       XCTAssertThrowsError(try ExceptionCatcher.catchException {
-        _ = RecaptchaProvider(app: app)
+        _ = RecaptchaProvider(app: app, siteKey: "")
       }) { error in
         let nsError = error as NSError
         XCTAssertEqual(nsError.domain, NSExceptionName.invalidArgumentException.rawValue)
         XCTAssertEqual(nsError.code, -114)
         XCTAssertTrue((nsError.userInfo["ExceptionReason"] as? String)?
-          .contains("recaptchaSiteKey") ?? false)
+          .contains("`siteKey` parameter is missing or empty") ?? false)
+      }
+    }
+
+    func testFactoryInitWithEmptySiteKeyThrows() {
+      XCTAssertThrowsError(try ExceptionCatcher.catchException {
+        _ = RecaptchaProviderFactory(siteKey: "")
+      }) { error in
+        let nsError = error as NSError
+        XCTAssertEqual(nsError.domain, NSExceptionName.invalidArgumentException.rawValue)
+        XCTAssertTrue((nsError.userInfo["ExceptionReason"] as? String)?
+          .contains("The siteKey parameter is missing or empty") ?? false)
       }
     }
 
@@ -117,7 +126,6 @@
       let options = FirebaseOptions(googleAppID: "1:123456789:ios:abc123", gcmSenderID: "sender_id")
       options.apiKey = "api_key"
       options.projectID = "project_id"
-      options.recaptchaSiteKey = "test_site_key"
 
       let appName = "testInitWithMissingSDKThrows"
       let app: FirebaseApp
@@ -130,7 +138,7 @@
       app.isDataCollectionDefaultEnabled = false
 
       XCTAssertThrowsError(try ExceptionCatcher.catchException {
-        _ = RecaptchaProvider(app: app)
+        _ = RecaptchaProvider(app: app, siteKey: "test_site_key")
       }) { error in
         let nsError = error as NSError
         XCTAssertEqual(nsError.domain, NSExceptionName.internalInconsistencyException.rawValue)

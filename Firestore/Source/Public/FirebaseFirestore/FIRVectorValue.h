@@ -32,7 +32,7 @@ NS_SWIFT_NAME(VectorValue)
 - (instancetype)init NS_UNAVAILABLE;
 
 /**
- * Creates a `VectorValue` constructed with a copy of the given array of NSNumbrers.
+ * Creates a `VectorValue` constructed with a copy of the given array of NSNumbers.
  * @param array An array of NSNumbers that represents a vector.
  */
 - (instancetype)initWithArray:(NSArray<NSNumber *> *)array NS_REFINED_FOR_SWIFT;

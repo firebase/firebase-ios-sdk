@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if compiler(>=6.2.3) && canImport(FoundationModels)
+#if compiler(>=6.2.3) && canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
   import FoundationModels
   import XCTest
 
@@ -321,7 +321,7 @@
     }
 
     func testRespondTo_withOptions() async throws {
-      let config = GenerationConfig(temperature: 0.5, responseMIMEType: "application/json")
+      let config = GenerationConfig(responseMIMEType: "application/json")
       let bundle = BundleTestUtil.bundle()
       let fileURL = try XCTUnwrap(bundle.url(
         forResource: "unary-success-thinking-reply-thought-summary",
@@ -343,11 +343,6 @@
           XCTFail("Expected an object for JSON key 'generationConfig', got: \(json)")
           return (response, nil)
         }
-        guard case let .number(temperature) = generationConfig["temperature"] else {
-          XCTFail("Expected a number for JSON key 'temperature', got: \(json)")
-          return (response, nil)
-        }
-        XCTAssertEqual(Float(temperature), config.temperature)
         guard case let .string(responseMIMEType) = generationConfig["responseMimeType"] else {
           XCTFail("Expected a string for JSON key 'responseMimeType', got: \(json)")
           return (response, nil)
@@ -641,4 +636,5 @@
       return self.map { $0.toolRepresentation }
     }
   }
-#endif // compiler(>=6.2.3) && canImport(FoundationModels)
+#endif // compiler(>=6.2.3) && canImport(FoundationModels) &&
+// IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM

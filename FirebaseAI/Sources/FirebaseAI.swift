@@ -23,6 +23,10 @@ import Foundation
 // Avoids exposing internal FirebaseCore APIs to Swift users.
 internal import FirebaseCoreExtension
 
+#if compiler(>=6.4) && canImport(FoundationModels) && canImport(GeminiLanguageModel)
+  @_exported import GeminiLanguageModel
+#endif // compiler(>=6.4) && canImport(FoundationModels) && canImport(GeminiLanguageModel)
+
 /// The Firebase AI SDK provides access to Gemini models directly from your app.
 public final class FirebaseAI: Sendable {
   // MARK: - Public APIs
@@ -183,78 +187,11 @@ public final class FirebaseAI: Sendable {
     #endif // canImport(FoundationModels)
   #endif // compiler(>=6.2.3)
 
-  /// Initializes an ``ImagenModel`` with the given parameters.
-  ///
-  /// - Note: Refer to [Imagen models](https://firebase.google.com/docs/vertex-ai/models) for
-  /// guidance on choosing an appropriate model for your use case.
-  ///
-  ///
-  /// @DeprecationSummary {
-  ///  All Imagen models are deprecated and will shut down as early as June 2026.
-  ///  As a replacement, you can [migrate your apps to use Gemini Image models
-  ///  (the "Nano Banana"
-  /// models).](https://firebase.google.com/docs/ai-logic/imagen-models-migration)
-  /// }
-  ///
-  /// - Parameters:
-  ///   - modelName: The name of the Imagen 3 model to use.
-  ///   - generationConfig: Configuration options for generating images with Imagen.
-  ///   - safetySettings: Settings describing what types of potentially harmful content your model
-  ///     should allow.
-  ///   - requestOptions: Configuration parameters for sending requests to the backend.
-  @available(
-    *,
-    deprecated,
-    message: "All Imagen models are deprecated and will shut down as early as June 2026. As a replacement, you can migrate your apps to use Gemini Image models (the \"Nano Banana\" models)."
-  )
-  public func imagenModel(modelName: String, generationConfig: ImagenGenerationConfig? = nil,
-                          safetySettings: ImagenSafetySettings? = nil,
-                          requestOptions: RequestOptions = RequestOptions()) -> ImagenModel {
-    if !modelName.starts(with: ImagenModel.imagenModelNamePrefix) {
-      AILog.warning(code: .unsupportedImagenModel, """
-      Unsupported Imagen model "\(modelName)"; see \
-      https://firebase.google.com/docs/vertex-ai/models for a list supported Imagen model names.
-      """)
-    }
-
-    return ImagenModel(
-      modelResourceName: modelResourceName(modelName: modelName),
-      firebaseInfo: firebaseInfo,
-      apiConfig: apiConfig,
-      generationConfig: generationConfig,
-      safetySettings: safetySettings,
-      requestOptions: requestOptions
-    )
-  }
-
   /// Initializes a new `TemplateGenerativeModel`.
   ///
   /// - Returns: A new `TemplateGenerativeModel` instance.
   public func templateGenerativeModel() -> TemplateGenerativeModel {
     return TemplateGenerativeModel(
-      generativeAIService: GenerativeAIService(firebaseInfo: firebaseInfo,
-                                               urlSession: GenAIURLSession.default),
-      apiConfig: apiConfig
-    )
-  }
-
-  /// Initializes a new `TemplateImagenModel`.
-  ///
-  /// @DeprecationSummary {
-  ///  All Imagen models are deprecated and will shut down as early as June 2026.
-  ///  As a replacement, you can [migrate your apps to use Gemini Image models
-  ///  (the "Nano Banana"
-  ///   models).](https://firebase.google.com/docs/ai-logic/imagen-models-migration)
-  /// }
-  ///
-  /// - Returns: A new `TemplateImagenModel` instance.
-  @available(
-    *,
-    deprecated,
-    message: "All Imagen models are deprecated and will shut down as early as June 2026. As a replacement, you can migrate your apps to use Gemini Image models (the \"Nano Banana\" models)."
-  )
-  public func templateImagenModel() -> TemplateImagenModel {
-    return TemplateImagenModel(
       generativeAIService: GenerativeAIService(firebaseInfo: firebaseInfo,
                                                urlSession: GenAIURLSession.default),
       apiConfig: apiConfig
@@ -411,7 +348,7 @@ public final class FirebaseAI: Sendable {
         return "projects/\(firebaseInfo.projectID)/models/\(modelName)"
       case .agentPlatformStagingBypassProxy:
         fatalError(
-          "The Gemini Enterprise Agent Platform staging endpoint does not support the Gemini Developer API (Google AI)."
+          "The Agent Platform Gemini API staging endpoint does not support the Gemini Developer API."
         )
     #endif // DEBUG
     }
