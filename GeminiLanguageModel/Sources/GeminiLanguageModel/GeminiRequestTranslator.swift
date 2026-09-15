@@ -25,7 +25,7 @@
     ///
     /// - Parameters:
     ///   - request: The generation request from the Foundation Models session.
-    ///   - compatibilityOptions: Overrides for backend-dependent behavior.
+    ///   - compatibilityOptions: Options for configuring compatibility with the Gemini API.
     /// - Returns: A `GenerateContentRequest` configured for the Gemini API.
     /// - Throws: An error if transcript or schema translation fails.
     static func translate(
@@ -98,28 +98,26 @@
     /// Translates tool calling options into a Gemini `ToolConfig`.
     ///
     /// - Parameters:
-    ///   - toolCallingMode: The tool calling mode from the request. `nil` means the
-    ///     developer expressed no preference and is treated the same as
-    ///     `GenerationOptions.ToolCallingMode.allowed`.
+    ///   - toolCallingMode: The tool calling mode from the request. `nil` means the developer
+    ///     expressed no preference and is treated as `GenerationOptions.ToolCallingMode.allowed`.
     ///   - hasFunctionDeclarations: Whether the request declares any functions.
-    ///     `function_calling_config` only governs function calling, so it is
-    ///     omitted entirely when there are none.
-    ///   - compatibilityOptions: Overrides for backend-dependent behavior.
-    /// - Returns: A `ToolConfig`, or `nil` if it would carry no fields.
+    ///     `functionCallingConfig` only governs function calling, so it is omitted entirely when
+    ///     there are none.
+    ///   - compatibilityOptions: Options for configuring compatibility with the Gemini API.
+    /// - Returns: A `ToolConfig`, or `nil` if no configuration is needed.
     static func translateToolConfig(
       toolCallingMode: GenerationOptions.ToolCallingMode?,
       hasFunctionDeclarations: Bool,
       compatibilityOptions: GeminiLanguageModel.CompatibilityOptions
     ) -> ToolConfig? {
-      // Computed independently of the `ToolConfig` guard below so that a later
-      // phase can populate `includeServerSideToolInvocations` for requests that
-      // carry built-in tools but no function declarations.
+      // Computed independently of the `ToolConfig` check below to allow future options (such
+      // as `includeServerSideToolInvocations`) when built-in tools are present without function
+      // declarations.
       let functionCallingConfig: FunctionCallingConfig?
       if hasFunctionDeclarations {
-        // `GenerationOptions.toolCallingMode` is optional and is `nil` unless the
-        // developer sets it explicitly, which the iOS 26 initializers cannot even
-        // express. Omitting `function_calling_config` in that case would let the
-        // backend fall back to `AUTO`, so `nil` maps to the allowed mode too.
+        // `GenerationOptions.toolCallingMode` is optional and defaults to `nil` unless set by the
+        // caller. Omitting `functionCallingConfig` in that case causes the backend to default to
+        // `AUTO`, so `nil` maps to the allowed mode.
         let allowedMode = geminiMode(for: compatibilityOptions.toolCalling.allowedMode)
         let callingMode: FunctionCallingConfig.Mode
         if let mode = toolCallingMode {

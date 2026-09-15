@@ -26,8 +26,8 @@
     ///
     /// - Parameters:
     ///   - modelID: The model identifier to use. Defaults to `gemini-3.5-flash-lite`.
-    ///   - compatibilityOptions: Overrides for behavior that depends on current Gemini backend
-    ///     semantics. Defaults to the recommended values.
+    ///   - compatibilityOptions: Options for configuring compatibility with the Gemini API.
+    ///     Defaults to the recommended values.
     /// - Returns: A configured `GeminiLanguageModel` instance.
     /// - Throws: An error if model resource or credentials resolution fails.
     func makeModel(

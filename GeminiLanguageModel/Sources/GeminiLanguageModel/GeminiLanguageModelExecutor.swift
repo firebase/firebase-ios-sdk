@@ -37,7 +37,7 @@
         /// The `URLSessionConfiguration` to use.
         let sessionConfiguration: URLSessionConfiguration
 
-        /// Overrides for behavior that depends on current Gemini backend semantics.
+        /// Options for configuring compatibility with the Gemini API.
         let compatibilityOptions: CompatibilityOptions
 
         /// Initializes an executor configuration.
@@ -47,8 +47,7 @@
         ///   - endpointConfiguration: The network endpoint configuration.
         ///   - headerProvider: An optional async provider for dynamic headers.
         ///   - sessionConfiguration: The `URLSessionConfiguration` to use.
-        ///   - compatibilityOptions: Overrides for behavior that depends on current Gemini backend
-        ///     semantics.
+        ///   - compatibilityOptions: Options for configuring compatibility with the Gemini API.
         init(
           modelResource: ModelResource,
           endpointConfiguration: EndpointConfiguration,

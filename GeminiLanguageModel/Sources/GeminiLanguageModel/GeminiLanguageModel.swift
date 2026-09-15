@@ -53,8 +53,7 @@
     ///   - endpointConfiguration: The network endpoint configuration.
     ///   - headerProvider: An optional async provider for dynamic headers (such as auth tokens).
     ///   - configuration: The `URLSessionConfiguration` to use. Defaults to `.ephemeral`.
-    ///   - compatibilityOptions: Overrides for behavior that depends on current Gemini backend
-    ///     semantics.
+    ///   - compatibilityOptions: Options for configuring compatibility with the Gemini API.
     package init(
       modelResource: ModelResource,
       endpointConfiguration: EndpointConfiguration,

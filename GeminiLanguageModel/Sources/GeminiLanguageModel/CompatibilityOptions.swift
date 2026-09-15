@@ -16,11 +16,11 @@
   @available(iOS 27.0, macOS 27.0, watchOS 27.0, visionOS 27.0, *)
   @available(tvOS, unavailable)
   extension GeminiLanguageModel {
-    /// Overrides for behavior that depends on current Gemini backend semantics.
+    /// Options for configuring compatibility with the Gemini API.
     ///
-    /// These exist so an app can respond to a change in backend behavior without
-    /// waiting for an SDK release. Generation parameters belong in
-    /// `GenerationOptions`; per-tool settings belong on the tool itself.
+    /// Allows an app to adapt to backend behavioral changes without waiting for an SDK release.
+    /// Generation parameters are configured in `GenerationOptions`, while per-tool settings are
+    /// configured on the tool itself.
     public struct CompatibilityOptions: Hashable, Sendable {
       /// Overrides for how tool calling is expressed to the Gemini API.
       public var toolCalling = ToolCalling()
@@ -35,7 +35,7 @@
   extension GeminiLanguageModel.CompatibilityOptions {
     /// Overrides for how tool calling is expressed to the Gemini API.
     public struct ToolCalling: Hashable, Sendable {
-      /// The Gemini function calling mode used when tool calling is allowed.
+      /// The Gemini function calling mode used when tool calling is allowed or unspecified.
       ///
       /// Defaults to ``AllowedMode/validated``.
       public var allowedMode: AllowedMode = .validated
@@ -44,7 +44,7 @@
       public init() {}
     }
 
-    /// The Gemini function calling mode used when tool calling is allowed.
+    /// The Gemini function calling mode used when tool calling is allowed or unspecified.
     @nonexhaustive
     public enum AllowedMode: Hashable, Sendable {
       /// Constrains decoding so tool calls conform to their schema.
@@ -54,9 +54,8 @@
 
       /// Leaves tool call decoding unconstrained.
       ///
-      /// Use this only if ``validated`` causes the backend to reject a large or
-      /// deeply nested tool schema. If you need this, please file an issue —
-      /// we would like to reproduce the rejection and cover it with a test.
+      /// Use this only if ``validated`` causes the backend to reject a large or deeply nested
+      /// tool schema. If you encounter schema rejection, please file an issue on GitHub.
       case auto
     }
   }

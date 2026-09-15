@@ -27,12 +27,10 @@
     ///
     /// - Parameters:
     ///   - name: The identifier of the Gemini model to use; see
-    ///     [available model
-    /// names](https://firebase.google.com/docs/ai-logic/models#available-model-names)
+    ///     [available model names](https://firebase.google.com/docs/ai-logic/models#available-model-names)
     ///     for a list of supported model names.
-    ///   - compatibilityOptions: Overrides for behavior that depends on current
-    ///     Gemini backend semantics. Defaults to the recommended values; see
-    ///     ``GeminiLanguageModel/CompatibilityOptions``.
+    ///   - compatibilityOptions: Options for configuring compatibility with the Gemini API.
+    ///     Defaults to the recommended values; see ``GeminiLanguageModel/CompatibilityOptions``.
     /// - Returns: A ``GeminiLanguageModel`` configured for this `FirebaseAI` instance.
     @available(iOS 27.0, macOS 27.0, watchOS 27.0, visionOS 27.0, *)
     @available(tvOS, unavailable)
