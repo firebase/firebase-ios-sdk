@@ -67,11 +67,10 @@
       guard let schema else { return nil }
 
       let jsonSchema = try schema.toGeminiJSONSchema()
-      let textFormat = TextResponseFormat(
-        mimeType: .applicationJson,
-        schema: .object(jsonSchema)
+      return GenerationConfig(
+        responseMimeType: "application/json",
+        responseJsonSchema: .object(jsonSchema)
       )
-      return GenerationConfig(responseFormat: ResponseFormatConfig(text: textFormat))
     }
 
     /// Translates enabled tool definitions into a list of Gemini `Tool` objects.

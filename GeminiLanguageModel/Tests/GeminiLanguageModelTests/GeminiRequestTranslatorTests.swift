@@ -111,11 +111,9 @@
 
       #expect(result.contents.count == 1)
       let generationConfig = try #require(result.generationConfig)
-      let responseFormat = try #require(generationConfig.responseFormat)
-      let textFormat = try #require(responseFormat.text)
-      #expect(textFormat.mimeType == TextResponseFormat.MimeType.applicationJson)
-      guard case .object(let schemaObject) = textFormat.schema else {
-        Issue.record("Expected schema to be a JSON object.")
+      #expect(generationConfig.responseMimeType == "application/json")
+      guard case .object(let schemaObject) = generationConfig.responseJsonSchema else {
+        Issue.record("Expected responseJsonSchema to be a JSON object.")
         return
       }
       #expect(schemaObject["x-order"] == nil)
@@ -139,11 +137,9 @@
       let config = try GeminiRequestTranslator.translateGenerationConfig(schema: schema)
 
       let generationConfig = try #require(config)
-      let responseFormat = try #require(generationConfig.responseFormat)
-      let textFormat = try #require(responseFormat.text)
-      #expect(textFormat.mimeType == TextResponseFormat.MimeType.applicationJson)
-      guard case .object(let schemaObject) = textFormat.schema else {
-        Issue.record("Expected schema to be a JSON object.")
+      #expect(generationConfig.responseMimeType == "application/json")
+      guard case .object(let schemaObject) = generationConfig.responseJsonSchema else {
+        Issue.record("Expected responseJsonSchema to be a JSON object.")
         return
       }
       #expect(schemaObject["x-order"] == nil)
