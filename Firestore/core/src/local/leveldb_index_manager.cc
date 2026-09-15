@@ -755,8 +755,8 @@ std::vector<LevelDbIndexManager::IndexRange> LevelDbIndexManager::CreateRange(
   return ranges;
 }
 
-std::optional<std::string>
-LevelDbIndexManager::GetNextCollectionGroupToUpdate() const {
+std::optional<std::string> LevelDbIndexManager::GetNextCollectionGroupToUpdate()
+    const {
   if (next_index_to_update_.empty()) {
     return std::nullopt;
   }

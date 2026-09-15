@@ -16,9 +16,9 @@
 
 #include "Firestore/core/src/remote/serializer.h"
 
-#include <optional>
 #include <pb_decode.h>
 #include <pb_encode.h>
+#include <optional>
 
 #include <algorithm>
 #include <functional>

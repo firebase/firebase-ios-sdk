@@ -184,8 +184,8 @@ ViewDocumentChanges View::ComputeDocumentChanges(
 
     std::optional<Document> old_doc = old_document_set.GetDocument(key);
     std::optional<Document> new_doc = query_.Matches(kv.second)
-                                           ? std::optional<Document>{kv.second}
-                                           : std::nullopt;
+                                          ? std::optional<Document>{kv.second}
+                                          : std::nullopt;
 
     bool old_doc_had_pending_mutations =
         old_doc && old_mutated_keys.contains(key);

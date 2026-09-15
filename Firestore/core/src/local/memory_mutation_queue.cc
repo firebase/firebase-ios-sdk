@@ -208,8 +208,8 @@ MemoryMutationQueue::AllMutationBatchesAffectingQuery(const Query& query) {
   return AllMutationBatchesWithIds(unique_batch_ids);
 }
 
-std::optional<MutationBatch>
-MemoryMutationQueue::NextMutationBatchAfterBatchId(BatchId batch_id) {
+std::optional<MutationBatch> MemoryMutationQueue::NextMutationBatchAfterBatchId(
+    BatchId batch_id) {
   BatchId next_batch_id = batch_id + 1;
 
   // The requested batch_id may still be out of range so normalize it to the
