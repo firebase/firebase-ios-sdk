@@ -30,7 +30,7 @@ jobs:
   spm:
     strategy:
       matrix:
-        target: [FirebaseAILogicUnit, FirebaseAIUnit]
+        target: [FirebaseAILogicUnit]
     uses: ./.github/workflows/_spm.yml
     with:
       target: ${{  matrix.target }}
