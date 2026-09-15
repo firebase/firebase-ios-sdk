@@ -142,8 +142,10 @@ public struct SafetyRating: Equatable, Hashable, Sendable {
 /// A type used to specify a threshold for harmful content, beyond which the model will return a
 /// fallback response instead of generated content.
 ///
-/// See [safety settings for Gemini models](https://firebase.google.com/docs/ai-logic/safety-settings) for
+/// See [safety settings for Gemini models][1] for
 /// more details.
+///
+/// [1]: https://firebase.google.com/docs/ai-logic/safety-settings
 public struct SafetySetting: Sendable, Hashable {
   /// Block at and beyond a specified ``SafetyRating/HarmProbability``.
   public struct HarmBlockThreshold: EncodableProtoEnum, Sendable, Hashable {

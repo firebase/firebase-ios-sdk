@@ -25,16 +25,14 @@ public struct LiveGenerationConfig: Sendable {
 
   /// Creates a new ``LiveGenerationConfig`` value.
   ///
-  /// See the
-  /// [Configure model parameters](https://firebase.google.com/docs/ai-logic/model-parameters#config-gemini-live-api)
-  /// guide for more details.
+  /// See the [Configure model parameters][1] guide for more details.
   ///
   /// - Parameters:
   ///   - maxOutputTokens: Maximum number of tokens that can be generated in the response. See
-  ///     [configure model parameters](https://firebase.google.com/docs/ai-logic/model-parameters#config-gemini-live-api).
+  ///     [configure model parameters][2].
   ///   - responseModalities: The data types (modalities) that may be returned in model responses.
   ///
-  ///     See the [configure model parameters documentation](https://firebase.google.com/docs/ai-logic/model-parameters#parameters-descriptions-gemini)
+  ///     See the [configure model parameters documentation][3]
   ///     for more details.
   ///
   ///     > Warning: Specifying response modalities is a **Public Preview** feature, which means
@@ -64,6 +62,10 @@ public struct LiveGenerationConfig: Sendable {
   ///     This mechanism prevents the context from exceeding a given length.
   ///   - realtimeInputConfig: Configures model input behavior when generating content via the
   ///     realtime supported methods
+  ///
+  /// [1]: https://firebase.google.com/docs/ai-logic/model-parameters#config-gemini-live-api
+  /// [2]: https://firebase.google.com/docs/ai-logic/model-parameters#config-gemini-live-api
+  /// [3]: https://firebase.google.com/docs/ai-logic/model-parameters#parameters-descriptions-gemini
   @available(
     *,
     deprecated,
@@ -99,17 +101,15 @@ public struct LiveGenerationConfig: Sendable {
 
   /// Creates a new `LiveGenerationConfig` value.
   ///
-  /// See the
-  /// [Configure model parameters](https://firebase.google.com/docs/ai-logic/model-parameters#config-gemini-live-api)
-  /// guide for more details.
+  /// See the [Configure model parameters][1] guide for more details.
   ///
   /// - Parameters:
   ///
   ///   - maxOutputTokens: Maximum number of tokens that can be generated in the response.
-  ///     See [configure model parameters](https://firebase.google.com/docs/ai-logic/model-parameters#config-gemini-live-api).
+  ///     See [configure model parameters][2].
   ///
   ///   - responseModalities: The data types (modalities) that may be returned in model responses.
-  ///     See [configure model parameters](https://firebase.google.com/docs/ai-logic/model-parameters#parameters-descriptions-gemini).
+  ///     See [configure model parameters][3].
   ///
   ///     > Warning: Specifying response modalities is a **Public Preview** feature, which means
   ///     > that it is not subject to any SLA or deprecation policy and could change in
@@ -138,6 +138,10 @@ public struct LiveGenerationConfig: Sendable {
   ///     This mechanism prevents the context from exceeding a given length.
   ///   - realtimeInputConfig: Configures model input behavior when generating content via the
   ///     realtime supported methods
+  ///
+  /// [1]: https://firebase.google.com/docs/ai-logic/model-parameters#config-gemini-live-api
+  /// [2]: https://firebase.google.com/docs/ai-logic/model-parameters#config-gemini-live-api
+  /// [3]: https://firebase.google.com/docs/ai-logic/model-parameters#parameters-descriptions-gemini
   public init(maxOutputTokens: Int? = nil,
               responseModalities: [ResponseModality]? = nil,
               speech: SpeechConfig? = nil,

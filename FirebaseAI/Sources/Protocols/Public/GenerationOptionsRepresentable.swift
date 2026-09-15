@@ -22,10 +22,12 @@
   /// For Gemini models, this may be a ``GenerationConfig`` value. For the `SystemLanguageModel`
   /// provided by the Apple Foundation Models framework, this may be a
   /// ``FirebaseAI/GenerationOptions`` or a `Foundation Models`
-  /// [`GenerationOptions`](https://developer.apple.com/documentation/foundationmodels/generationoptions)
+  /// [`GenerationOptions`][1]
   /// value. For hybrid (on-device and cloud) configurations, use
   /// ``hybrid(gemini:foundationModels:)-(_,FirebaseAI.GenerationOptions)`` to specify options for
   /// each model.
+  ///
+  /// [1]: https://developer.apple.com/documentation/foundationmodels/generationoptions
   public protocol GenerationOptionsRepresentable: Sendable {
     /// Options for controlling model response generation.
     var responseGenerationOptions: ResponseGenerationOptions { get }

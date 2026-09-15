@@ -32,13 +32,14 @@ public struct SpeechConfig: Sendable {
   /// - Parameters:
   ///   - voiceName: The name of the prebuilt voice to be used for the model's speech response.
   ///
-  ///     To learn more about the available voices, see the docs on
-  ///     [Voice options](https://firebase.google.com/docs/ai-logic/generate-speech#response-voices).
+  ///     To learn more about the available voices, see the docs on [Voice options][1].
   ///   - languageCode: BCP-47 language code to use when parsing text sent from the client, instead
   ///     of audio. By default, the model will attempt to detect the input language automatically.
   ///
-  ///     To learn which codes are supported, see the docs on
-  ///     [Supported languages](https://firebase.google.com/docs/ai-logic/generate-speech#languages).
+  ///     To learn which codes are supported, see the docs on [Supported languages][2].
+  ///
+  /// [1]: https://firebase.google.com/docs/ai-logic/generate-speech#response-voices
+  /// [2]: https://firebase.google.com/docs/ai-logic/generate-speech#languages
   public init(voiceName: String, languageCode: String? = nil) {
     self.init(
       ProtoSpeechConfig(

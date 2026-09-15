@@ -19,8 +19,10 @@ public struct Backend {
   /// Initializes a `Backend` configured for the Gemini API in Vertex AI.
   ///
   /// Defaults to the location `us-central1`; see
-  /// [available locations](https://firebase.google.com/docs/ai-logic/locations?api=vertex#available-locations)
+  /// [available locations][1]
   /// for a list of supported locations.
+  ///
+  /// [1]: https://firebase.google.com/docs/ai-logic/locations?api=vertex#available-locations
   @available(*, deprecated, message: """
   Use agentPlatform(location:) instead; note that the default location is now "global" instead of "us-central1"
   """)

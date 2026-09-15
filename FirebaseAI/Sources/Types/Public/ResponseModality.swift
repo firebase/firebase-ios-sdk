@@ -18,11 +18,13 @@ import Foundation
 ///
 /// To configure the desired output modalities for model requests, set the `responseModalities`
 /// parameter when initializing a ``GenerationConfig``. See the configure model parameters
-/// [documentation](https://firebase.google.com/docs/ai-logic/model-parameters#parameters-descriptions-gemini)
+/// [documentation][1]
 /// for more details.
 ///
 /// > Important: Support for each response modality, or combination of modalities, depends on the
 /// > model.
+///
+/// [1]: https://firebase.google.com/docs/ai-logic/model-parameters#parameters-descriptions-gemini
 public struct ResponseModality: EncodableProtoEnum, Sendable, Equatable {
   enum Kind: String {
     case text = "TEXT"
@@ -41,12 +43,14 @@ public struct ResponseModality: EncodableProtoEnum, Sendable, Equatable {
   /// Use this modality when you want the model to create visual content based on the provided input
   /// or prompts. The response might contain one or more generated images. See the configure model
   /// parameters
-  /// [documentation](https://firebase.google.com/docs/ai-logic/model-parameters#parameters-descriptions-gemini)
+  /// [documentation][1]
   /// for more details.
   ///
   /// > Warning: Image generation using Gemini 2.0 Flash is a **Public Experimental** feature, which
   /// > means that it is not subject to any SLA or deprecation policy and could change in
   /// > backwards-incompatible ways.
+  ///
+  /// [1]: https://firebase.google.com/docs/ai-logic/model-parameters#parameters-descriptions-gemini
   public static let image = ResponseModality(kind: .image)
 
   /// **Public Preview**: Specifies that the model should generate audio content.
