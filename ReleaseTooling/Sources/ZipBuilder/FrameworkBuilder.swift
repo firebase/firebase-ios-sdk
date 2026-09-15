@@ -322,7 +322,8 @@ struct FrameworkBuilder {
   ///
   /// - Parameter framework: The name of the framework to be built.
   /// - Parameter logsDir: The path to the directory to place build logs.
-  /// - Parameter moduleMapContents: Module map contents for all frameworks in this pod.
+  /// - Parameter setCarthage: Set Carthage diagnostics flag in build.
+  /// - Parameter podInfo: Pod info containing module map contents for static frameworks.
   /// - Returns: A path to the newly compiled framework, and the Resource URL.
   private func buildStaticFrameworks(withName framework: String,
                                      logsDir: URL,
@@ -341,34 +342,32 @@ struct FrameworkBuilder {
       fatalError("Could not get a path to an archive to fetch headers in \(frameworkName).")
     }
 
-    // Find CocoaPods generated umbrella header.
+    // Find the umbrella header to use.
     var umbrellaHeader = ""
-    // TODO(ncooke3): Evaluate if `TensorFlowLiteObjC` is needed?
-    if framework == "gRPC-Core" || framework == "TensorFlowLiteObjC" {
-      // TODO: Proper handling of podspec-specified module.modulemap files with customized umbrella
-      // headers. This is good enough for Firebase since it doesn't need these modules.
-      // TODO(ncooke3): Is this needed for gRPC-Core?
-      umbrellaHeader = "\(framework)-umbrella.h"
-    } else {
-      var umbrellaHeaderURL: URL
-      // Get the framework Headers directory. On macOS, it's a symbolic link.
-      let headersDir = archivePath.appendingPathComponent("Headers").resolvingSymlinksInPath()
+    let headersDir = archivePath.appendingPathComponent("Headers").resolvingSymlinksInPath()
+    if fileManager.directoryExists(at: headersDir) {
       do {
         let files = try fileManager.contentsOfDirectory(at: headersDir,
                                                         includingPropertiesForKeys: nil)
           .compactMap { $0.path }
-        let umbrellas = files.filter { $0.hasSuffix("umbrella.h") }
-        if umbrellas.count != 1 {
-          fatalError("Did not find exactly one umbrella header in \(headersDir).")
+
+        // ignore cocoapods umbrella headers
+        let headerFileNames = files
+          .filter { $0.hasSuffix(".h") && !$0.hasSuffix("-umbrella.h") }
+          .map { URL(fileURLWithPath: $0).lastPathComponent }
+
+        // use the framework's own umbrella header, if it has one
+        if headerFileNames.contains("\(frameworkName).h") {
+          umbrellaHeader = "umbrella header \"\(frameworkName).h\""
+        } else if headerFileNames.contains("\(framework).h") {
+          umbrellaHeader = "umbrella header \"\(framework).h\""
+        } else if !headerFileNames.isEmpty {
+          // use clang's umbrella directory syntax as a fallback
+          umbrellaHeader = #"umbrella ".""#
         }
-        guard let firstUmbrella = umbrellas.first else {
-          fatalError("Failed to get umbrella header in \(headersDir).")
-        }
-        umbrellaHeaderURL = URL(fileURLWithPath: firstUmbrella)
       } catch {
         fatalError("Error while enumerating files \(headersDir): \(error.localizedDescription)")
       }
-      umbrellaHeader = umbrellaHeaderURL.lastPathComponent
     }
 
     // TODO: copy PrivateHeaders directory as well if it exists. SDWebImage is an example pod.
@@ -378,9 +377,11 @@ struct FrameworkBuilder {
     // `projectDir/arch/Release-platform/FrameworkName`.
     // The Resources are stored at the top-level of the .framework or .xcframework directory.
     // For Firebase distributions, they are propagated one level higher in the final distribution.
-    let resourceContents = projectDir.appendingPathComponents([anyPlatform.buildName,
-                                                               anyPlatform.buildDirName,
-                                                               framework])
+    let resourceContents = projectDir.appendingPathComponents([
+      anyPlatform.buildName,
+      anyPlatform.buildDirName,
+      framework,
+    ])
 
     guard let moduleMapContentsTemplate = podInfo.moduleMapContents else {
       fatalError("Module map contents missing for framework \(frameworkName)")
@@ -481,11 +482,16 @@ struct FrameworkBuilder {
           // those additional headers are public headers for the C Family
           // Language sources.
           let headersDir = destination.appendingPathComponent("Headers").resolvingSymlinksInPath()
-          let headers = try fileManager.contentsOfDirectory(
+          let headers = (try? fileManager.contentsOfDirectory(
             at: headersDir,
             includingPropertiesForKeys: nil
-          )
-          if headers.count > 2 {
+          )) ?? []
+          let nonUmbrellaHeaders = headers.filter { !$0.lastPathComponent.hasSuffix("-umbrella.h") }
+          let nonSwiftHeaders = nonUmbrellaHeaders
+            .filter { !$0.lastPathComponent.hasSuffix("-Swift.h") }
+          let modulemapURL = destination.appendingPathComponents(["Modules", "module.modulemap"])
+            .resolvingSymlinksInPath()
+          if !nonSwiftHeaders.isEmpty {
             // It is assumed that the framework will always contain a
             // `module.modulemap` (either CocoaPods generates it or a custom
             // one was set in the podspec corresponding to the framework being
@@ -500,9 +506,14 @@ struct FrameworkBuilder {
               requires objc
             }
             """
-            let modulemapURL = destination.appendingPathComponents(["Modules", "module.modulemap"])
-              .resolvingSymlinksInPath()
             try newModuleMapContents.write(to: modulemapURL, atomically: true, encoding: .utf8)
+          } else {
+            // Frameworks built from only Swift sources do not need a
+            // module.modulemap since Swift modules use the `.swiftmodule`
+            // directly. CocoaPods generated a module.modulemap pointing to the
+            // now-deleted `-umbrella.h` header, so delete it to avoid Clang
+            // dependency scanner errors.
+            try? fileManager.removeItem(at: modulemapURL)
           }
         } catch {
           fatalError(
@@ -555,6 +566,9 @@ struct FrameworkBuilder {
         )
 
         // Copy the built framework to the `platform_frameworks/$(PLATFORM)/$(FRAMEWORK).framework`.
+        if fileManager.directoryExists(at: platformFrameworkDir) {
+          try? fileManager.removeItem(at: platformFrameworkDir)
+        }
         try fileManager.copyItem(at: frameworkPath, to: platformFrameworkDir)
       } catch {
         fatalError("Could not copy directory for architecture slices on \(platform) for " +
