@@ -66,8 +66,7 @@ public struct GenerationConfig: Sendable, Equatable {
 
   /// Creates a new `GenerationConfig` value.
   ///
-  /// See the [Configure model
-  /// parameters](https://firebase.google.com/docs/ai-logic/model-parameters)
+  /// See the [Configure model parameters](https://firebase.google.com/docs/ai-logic/model-parameters)
   /// guide for more details.
   ///
   /// - Parameters:
@@ -143,8 +142,7 @@ public struct GenerationConfig: Sendable, Equatable {
 
   /// Creates a new `GenerationConfig` value without deprecated tuning parameters.
   ///
-  /// See the [Configure model
-  /// parameters](https://firebase.google.com/docs/ai-logic/model-parameters)
+  /// See the [Configure model parameters](https://firebase.google.com/docs/ai-logic/model-parameters)
   /// guide for more details.
   ///
   /// - Parameters:
