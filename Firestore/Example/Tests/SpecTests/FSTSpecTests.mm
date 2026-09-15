@@ -16,7 +16,10 @@
 
 #import "Firestore/Example/Tests/SpecTests/FSTSpecTests.h"
 
+#import <FirebaseFirestore/FIRDecimal128Value.h>
+#import <FirebaseFirestore/FIRFieldValue.h>
 #import <FirebaseFirestore/FIRFirestoreErrors.h>
+#import <FirebaseFirestore/FIRInt32Value.h>
 
 #include <stddef.h>
 
@@ -214,6 +217,8 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
 @interface FSTSpecTests ()
 @property(nonatomic, strong, nullable) FSTSyncEngineTestDriver *driver;
 
+- (id)parseSpecValue:(id)value;
+
 @end
 
 @implementation FSTSpecTests {
@@ -298,6 +303,106 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
 
 #pragma mark - Methods for constructing objects from specs.
 
+- (id)parseSpecValue:(id)value {
+  if ([value isKindOfClass:[NSArray class]]) {
+    NSArray *array = (NSArray *)value;
+    NSMutableArray *result = [NSMutableArray arrayWithCapacity:array.count];
+    for (id item in array) {
+      [result addObject:[self parseSpecValue:item]];
+    }
+    return result;
+  }
+
+  if ([value isKindOfClass:[NSDictionary class]]) {
+    NSDictionary *dict = (NSDictionary *)value;
+
+    id decimalVal = dict[@"__decimal128__"];
+    if (decimalVal) {
+      if ([decimalVal isKindOfClass:[NSDictionary class]] && decimalVal[@"stringValue"]) {
+        return [[FIRDecimal128Value alloc] initWithValue:decimalVal[@"stringValue"]];
+      } else if ([decimalVal isKindOfClass:[NSString class]]) {
+        return [[FIRDecimal128Value alloc] initWithValue:decimalVal];
+      }
+    }
+
+    id intVal = dict[@"__int__"];
+    if (intVal) {
+      if ([intVal isKindOfClass:[NSDictionary class]] && intVal[@"integerValue"]) {
+        return [[FIRInt32Value alloc] initWithValue:[intVal[@"integerValue"] intValue]];
+      } else if ([intVal respondsToSelector:@selector(intValue)]) {
+        return [[FIRInt32Value alloc] initWithValue:[intVal intValue]];
+      }
+    }
+
+    NSString *methodName = dict[@"_methodName"] ?: dict[@"methodName"];
+    if (methodName) {
+      id rawOperand = dict[@"_operand"] ?: dict[@"operand"];
+      id operand = rawOperand ? [self parseSpecValue:rawOperand] : nil;
+
+      if ([methodName isEqualToString:@"increment"]) {
+        if ([operand isKindOfClass:[NSNumber class]]) {
+          NSNumber *num = (NSNumber *)operand;
+          if (CFGetTypeID((CFTypeRef)num) != CFBooleanGetTypeID() &&
+              CFNumberIsFloatType((CFNumberRef)num)) {
+            return [FIRFieldValue fieldValueForDoubleIncrement:[num doubleValue]];
+          } else {
+            return [FIRFieldValue fieldValueForIntegerIncrement:[num longLongValue]];
+          }
+        } else if ([operand isKindOfClass:[FIRDecimal128Value class]]) {
+          return [FIRFieldValue
+              fieldValueForDoubleIncrement:[((FIRDecimal128Value *)operand).value doubleValue]];
+        } else if ([operand isKindOfClass:[FIRInt32Value class]]) {
+          return [FIRFieldValue fieldValueForIntegerIncrement:((FIRInt32Value *)operand).value];
+        } else if ([operand isKindOfClass:[NSString class]]) {
+          return [FIRFieldValue fieldValueForDoubleIncrement:[operand doubleValue]];
+        }
+      } else if ([methodName isEqualToString:@"minimum"]) {
+        if ([operand isKindOfClass:[NSNumber class]]) {
+          NSNumber *num = (NSNumber *)operand;
+          if (CFGetTypeID((CFTypeRef)num) != CFBooleanGetTypeID() &&
+              CFNumberIsFloatType((CFNumberRef)num)) {
+            return [FIRFieldValue fieldValueForDoubleMinimum:[num doubleValue]];
+          } else {
+            return [FIRFieldValue fieldValueForIntegerMinimum:[num longLongValue]];
+          }
+        } else if ([operand isKindOfClass:[FIRDecimal128Value class]]) {
+          return [FIRFieldValue
+              fieldValueForDoubleMinimum:[((FIRDecimal128Value *)operand).value doubleValue]];
+        } else if ([operand isKindOfClass:[FIRInt32Value class]]) {
+          return [FIRFieldValue fieldValueForIntegerMinimum:((FIRInt32Value *)operand).value];
+        } else if ([operand isKindOfClass:[NSString class]]) {
+          return [FIRFieldValue fieldValueForDoubleMinimum:[operand doubleValue]];
+        }
+      } else if ([methodName isEqualToString:@"maximum"]) {
+        if ([operand isKindOfClass:[NSNumber class]]) {
+          NSNumber *num = (NSNumber *)operand;
+          if (CFGetTypeID((CFTypeRef)num) != CFBooleanGetTypeID() &&
+              CFNumberIsFloatType((CFNumberRef)num)) {
+            return [FIRFieldValue fieldValueForDoubleMaximum:[num doubleValue]];
+          } else {
+            return [FIRFieldValue fieldValueForIntegerMaximum:[num longLongValue]];
+          }
+        } else if ([operand isKindOfClass:[FIRDecimal128Value class]]) {
+          return [FIRFieldValue
+              fieldValueForDoubleMaximum:[((FIRDecimal128Value *)operand).value doubleValue]];
+        } else if ([operand isKindOfClass:[FIRInt32Value class]]) {
+          return [FIRFieldValue fieldValueForIntegerMaximum:((FIRInt32Value *)operand).value];
+        } else if ([operand isKindOfClass:[NSString class]]) {
+          return [FIRFieldValue fieldValueForDoubleMaximum:[operand doubleValue]];
+        }
+      }
+    }
+
+    NSMutableDictionary *result = [NSMutableDictionary dictionaryWithCapacity:dict.count];
+    for (NSString *key in dict) {
+      result[key] = [self parseSpecValue:dict[key]];
+    }
+    return result;
+  }
+
+  return value;
+}
+
 - (Query)parseQuery:(id)querySpec {
   if ([querySpec isKindOfClass:[NSString class]]) {
     return firebase::firestore::testutil::Query(MakeString((NSString *)querySpec));
@@ -325,7 +430,8 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
       for (NSArray<id> *filter in filters) {
         std::string key = MakeString(filter[0]);
         std::string op = MakeString(filter[1]);
-        Message<google_firestore_v1_Value> value = [_reader parsedQueryValue:filter[2]];
+        Message<google_firestore_v1_Value> value =
+            [_reader parsedQueryValue:[self parseSpecValue:filter[2]]];
         query = query.AddingFilter(Filter(key, op, std::move(value)));
       }
     }
@@ -391,7 +497,8 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
   NSDictionary *options = jsonDoc[@"options"];
 
   XCTAssert([jsonDoc[@"key"] isKindOfClass:[NSString class]]);
-  Message<google_firestore_v1_Value> data = [_reader parsedQueryValue:jsonDoc[@"value"]];
+  Message<google_firestore_v1_Value> data =
+      [_reader parsedQueryValue:[self parseSpecValue:jsonDoc[@"value"]]];
   MutableDocument doc =
       Doc(MakeString((NSString *)jsonDoc[@"key"]), version.longLongValue, std::move(data));
   if ([options[@"hasLocalMutations"] boolValue] == YES) {
@@ -443,11 +550,12 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
 }
 
 - (void)doSet:(NSArray *)setSpec {
-  [self.driver writeUserMutation:FSTTestSetMutation(setSpec[0], setSpec[1])];
+  [self.driver writeUserMutation:FSTTestSetMutation(setSpec[0], [self parseSpecValue:setSpec[1]])];
 }
 
 - (void)doPatch:(NSArray *)patchSpec {
-  [self.driver writeUserMutation:FSTTestPatchMutation(patchSpec[0], patchSpec[1], {})];
+  [self.driver writeUserMutation:FSTTestPatchMutation(patchSpec[0],
+                                                      [self parseSpecValue : patchSpec[1]], {})];
 }
 
 - (void)doDelete:(NSString *)key {
@@ -514,9 +622,10 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
   } else if (watchEntity[@"doc"]) {
     NSDictionary *docSpec = watchEntity[@"doc"];
     DocumentKey key = FSTTestDocKey(docSpec[@"key"]);
-    absl::optional<ObjectValue> value = [docSpec[@"value"] isKindOfClass:[NSNull class]]
-                                            ? absl::optional<ObjectValue>{}
-                                            : FSTTestObjectValue(docSpec[@"value"]);
+    absl::optional<ObjectValue> value =
+        [docSpec[@"value"] isKindOfClass:[NSNull class]]
+            ? absl::optional<ObjectValue>{}
+            : FSTTestObjectValue([self parseSpecValue:docSpec[@"value"]]);
     SnapshotVersion version = [self parseVersion:docSpec[@"version"]];
     MutableDocument doc;
     if (value) {
