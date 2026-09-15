@@ -58,7 +58,7 @@
       /// Leaves tool call decoding unconstrained.
       ///
       /// Use this only if ``validated`` causes the backend to reject a large or deeply nested
-      /// tool schema. If you encounter schema rejection, please file an issue on GitHub.
+      /// tool schema.
       case auto
     }
 
@@ -67,6 +67,9 @@
       /// The Gemini API payload format used to transmit schemas for guided generation.
       ///
       /// Defaults to ``SchemaFormat/responseJsonSchema``.
+      ///
+      /// > Important: ``SchemaFormat/responseFormat`` currently also requires
+      /// > ``ToolCalling/allowedMode`` ``AllowedMode/auto`` in sessions that use tools.
       public var schemaFormat: SchemaFormat = .responseJsonSchema
 
       /// Creates guided generation overrides with the recommended defaults.
@@ -76,17 +79,17 @@
     /// The Gemini API payload format used to transmit schemas for guided generation.
     @nonexhaustive
     public enum SchemaFormat: Hashable, Sendable {
-      /// Transmits the schema using `responseJsonSchema` and `responseMimeType: "application/json"`.
+      /// Transmits the schema using `responseJsonSchema` and
+      /// `responseMimeType: "application/json"`.
       ///
-      /// This is the default. It ensures full compatibility when tool calling is enabled
-      /// in ``ToolCalling/allowedMode`` ``AllowedMode/validated``.
+      /// This is the default and is currently compatible with every ``AllowedMode``.
       case responseJsonSchema
 
       /// Transmits the schema using `responseFormat`.
       ///
-      /// Note: The Gemini API currently ignores `responseFormat` when function calling is
-      /// configured in ``AllowedMode/validated`` mode, causing the model to emit unconstrained
-      /// text instead of valid JSON.
+      /// > Warning: The Gemini API currently ignores `responseFormat` when function calling is
+      /// > configured in ``AllowedMode/validated`` mode, causing the model to emit unconstrained
+      /// > text instead of valid JSON. Pair this with ``AllowedMode/auto``.
       case responseFormat
     }
   }

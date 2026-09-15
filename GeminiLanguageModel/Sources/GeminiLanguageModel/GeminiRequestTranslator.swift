@@ -75,6 +75,8 @@
       let jsonSchema = try schema.toGeminiJSONSchema()
       switch compatibilityOptions.guidedGeneration.schemaFormat {
       case .responseJsonSchema:
+        // `responseJsonSchema` is the current field; the `_responseJsonSchema` variant is
+        // deprecated and is unsupported on the Gemini Enterprise Agent Platform.
         return GenerationConfig(
           responseMimeType: "application/json",
           responseJsonSchema: .object(jsonSchema)
