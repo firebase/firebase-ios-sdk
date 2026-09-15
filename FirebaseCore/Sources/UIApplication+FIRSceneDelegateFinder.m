@@ -23,9 +23,9 @@
   return [self fir_findForegroundSceneWithDelegateRespondingToSelector:selector onApplication:nil];
 }
 
-+ (nullable UIScene *)
-    fir_findForegroundSceneWithDelegateRespondingToSelector:(SEL)selector
-                                              onApplication:(UIApplication *)application {
++ (nullable UIScene *)fir_findForegroundSceneWithDelegateRespondingToSelector:(SEL)selector
+                                                                onApplication:
+                                                                    (UIApplication *)application {
   UIApplication *app = application;
 
   if (!app) {

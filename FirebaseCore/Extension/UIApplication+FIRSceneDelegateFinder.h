@@ -43,7 +43,7 @@ NS_ASSUME_NONNULL_BEGIN
 
  if (targetScene) {
   [targetScene.delegate scene:targetScene continueUserActivity:userActivity];
- }                               
+ }
  ```
 
  @param selector The selector to find a scene delegate for (e.g.
