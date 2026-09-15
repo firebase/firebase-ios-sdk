@@ -65,6 +65,25 @@
       }
     }
 
+    /// A structured weather summary used to exercise guided generation alongside tool calling.
+    @Generable
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    @available(tvOS, unavailable)
+    struct CurrentWeather {
+      @Generable
+      enum Conditions {
+        case cloudy
+        case rainy
+        case sunny
+      }
+
+      @Guide(description: "The current temperature in Celsius")
+      let temperature: Int
+
+      @Guide(description: "The current weather conditions")
+      let conditions: Conditions
+    }
+
     @Test(
       .requireIntegrationTestingBackend,
       arguments: IntegrationTestingBackend.availableBackends
@@ -240,24 +259,6 @@
         return false
       }
       #expect(hasToolCalls)
-    }
-
-    @Generable
-    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
-    @available(tvOS, unavailable)
-    struct CurrentWeather {
-      @Generable
-      enum Conditions {
-        case cloudy
-        case rainy
-        case sunny
-      }
-
-      @Guide(description: "The current temperature in Celsius")
-      let temperature: Int
-
-      @Guide(description: "The current weather conditions")
-      let conditions: Conditions
     }
 
     @Test(
