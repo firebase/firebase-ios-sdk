@@ -57,6 +57,29 @@
       #expect(response.usage.output.totalTokenCount > 0)
     }
 
+    @Test(
+      .requireIntegrationTestingBackend,
+      arguments: IntegrationTestingBackend.availableBackends
+    )
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func sessionRespondWithResponseFormat(backend: IntegrationTestingBackend) async throws {
+      var options = GeminiLanguageModel.CompatibilityOptions()
+      options.guidedGeneration.schemaFormat = .responseFormat
+      let model = try await backend.makeModel(compatibilityOptions: options)
+      let session = LanguageModelSession(model: model)
+
+      let response = try await session.respond(
+        to: "Provide details for the city of Paris.",
+        generating: CitySummary.self
+      )
+
+      #expect(!response.content.name.isEmpty)
+      #expect(!response.content.country.isEmpty)
+      #expect(response.usage.totalTokenCount > 0)
+      #expect(response.usage.input.totalTokenCount > 0)
+      #expect(response.usage.output.totalTokenCount > 0)
+    }
+
     @Test(.requireIntegrationTestingBackend, arguments: IntegrationTestingBackend.availableBackends)
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
     func sessionStreamResponseWithSchema(backend: IntegrationTestingBackend) async throws {

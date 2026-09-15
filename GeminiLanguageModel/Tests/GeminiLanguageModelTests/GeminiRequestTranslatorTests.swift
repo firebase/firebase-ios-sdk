@@ -123,8 +123,55 @@
 
     @Test
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func translatesGenerationRequestWithResponseFormatReturnsConfig() throws {
+      let promptEntry = Transcript.Entry.prompt(
+        Transcript.Prompt(
+          id: "prompt-1",
+          segments: [.text(Transcript.TextSegment(content: "Generate a profile"))]
+        )
+      )
+      let transcript = Transcript(entries: [promptEntry])
+      let schema = UserProfile.generationSchema
+      let request = LanguageModelExecutorGenerationRequest(
+        id: UUID(),
+        transcript: transcript,
+        enabledTools: [],
+        schema: schema,
+        generationOptions: GenerationOptions(),
+        contextOptions: ContextOptions(),
+        metadata: [:]
+      )
+      var options = GeminiLanguageModel.CompatibilityOptions()
+      options.guidedGeneration.schemaFormat = .responseFormat
+
+      let result = try GeminiRequestTranslator.translate(
+        request,
+        compatibilityOptions: options
+      )
+
+      #expect(result.contents.count == 1)
+      let generationConfig = try #require(result.generationConfig)
+      #expect(generationConfig.responseMimeType == nil)
+      #expect(generationConfig.responseJsonSchema == nil)
+      let responseFormat = try #require(generationConfig.responseFormat)
+      let textFormat = try #require(responseFormat.text)
+      #expect(textFormat.mimeType == TextResponseFormat.MimeType.applicationJson)
+      guard case .object(let schemaObject) = textFormat.schema else {
+        Issue.record("Expected schema to be a JSON object.")
+        return
+      }
+      #expect(schemaObject["x-order"] == nil)
+      let ordering = try #require(schemaObject["propertyOrdering"])
+      #expect(ordering == JSONValue.array([.string("username"), .string("score")]))
+    }
+
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
     func translatesGenerationConfigWithNilSchemaReturnsNil() throws {
-      let config = try GeminiRequestTranslator.translateGenerationConfig(schema: nil)
+      let config = try GeminiRequestTranslator.translateGenerationConfig(
+        schema: nil,
+        compatibilityOptions: GeminiLanguageModel.CompatibilityOptions()
+      )
 
       #expect(config == nil)
     }
@@ -134,7 +181,10 @@
     func translatesGenerationConfigWithSchemaReturnsConfig() throws {
       let schema = UserProfile.generationSchema
 
-      let config = try GeminiRequestTranslator.translateGenerationConfig(schema: schema)
+      let config = try GeminiRequestTranslator.translateGenerationConfig(
+        schema: schema,
+        compatibilityOptions: GeminiLanguageModel.CompatibilityOptions()
+      )
 
       let generationConfig = try #require(config)
       #expect(generationConfig.responseMimeType == "application/json")
@@ -148,11 +198,40 @@
 
     @Test
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func translatesGenerationConfigWithResponseFormatSchemaReturnsConfig() throws {
+      let schema = UserProfile.generationSchema
+      var options = GeminiLanguageModel.CompatibilityOptions()
+      options.guidedGeneration.schemaFormat = .responseFormat
+
+      let config = try GeminiRequestTranslator.translateGenerationConfig(
+        schema: schema,
+        compatibilityOptions: options
+      )
+
+      let generationConfig = try #require(config)
+      #expect(generationConfig.responseMimeType == nil)
+      #expect(generationConfig.responseJsonSchema == nil)
+      let responseFormat = try #require(generationConfig.responseFormat)
+      let textFormat = try #require(responseFormat.text)
+      #expect(textFormat.mimeType == TextResponseFormat.MimeType.applicationJson)
+      guard case .object(let schemaObject) = textFormat.schema else {
+        Issue.record("Expected schema to be a JSON object.")
+        return
+      }
+      #expect(schemaObject["x-order"] == nil)
+      #expect(schemaObject["propertyOrdering"] != nil)
+    }
+
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
     func translatesGenerationConfigWithPatternGuideThrowsUnsupportedGenerationGuide() throws {
       let schema = DataModelWithPattern.generationSchema
 
       do {
-        _ = try GeminiRequestTranslator.translateGenerationConfig(schema: schema)
+        _ = try GeminiRequestTranslator.translateGenerationConfig(
+          schema: schema,
+          compatibilityOptions: GeminiLanguageModel.CompatibilityOptions()
+        )
         Issue.record("Expected unsupportedGenerationGuide error.")
       } catch LanguageModelError.unsupportedGenerationGuide(let error) {
         #expect(error.debugDescription.contains("pattern"))
@@ -325,6 +404,14 @@
       let options = GeminiLanguageModel.CompatibilityOptions()
 
       #expect(options.toolCalling.allowedMode == .validated)
+    }
+
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func defaultCompatibilityOptionsHasResponseJsonSchemaFormat() {
+      let options = GeminiLanguageModel.CompatibilityOptions()
+
+      #expect(options.guidedGeneration.schemaFormat == .responseJsonSchema)
     }
 
     @Test

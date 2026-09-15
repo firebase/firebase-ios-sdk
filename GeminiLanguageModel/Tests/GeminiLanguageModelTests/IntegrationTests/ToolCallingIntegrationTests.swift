@@ -292,5 +292,42 @@
       #expect(hasToolOutput)
       #expect(response.usage.totalTokenCount > 0)
     }
+
+    @Test(
+      .requireIntegrationTestingBackend,
+      arguments: IntegrationTestingBackend.availableBackends
+    )
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func sessionRespondToolCallAndGuidedGenerationWithResponseFormatAndAuto(
+      backend: IntegrationTestingBackend
+    ) async throws {
+      var options = GeminiLanguageModel.CompatibilityOptions()
+      options.toolCalling.allowedMode = .auto
+      options.guidedGeneration.schemaFormat = .responseFormat
+      let model = try await backend.makeModel(compatibilityOptions: options)
+      let session = LanguageModelSession(
+        model: model,
+        tools: [WeatherTool()]
+      )
+
+      let response = try await session.respond(
+        to: "What is the weather in Paris right now?",
+        generating: CurrentWeather.self
+      )
+
+      #expect(response.content.temperature == 22)
+      #expect(response.content.conditions == .sunny)
+      let hasToolCalls = session.transcript.contains { entry in
+        if case .toolCalls = entry { return true }
+        return false
+      }
+      #expect(hasToolCalls)
+      let hasToolOutput = session.transcript.contains { entry in
+        if case .toolOutput = entry { return true }
+        return false
+      }
+      #expect(hasToolOutput)
+      #expect(response.usage.totalTokenCount > 0)
+    }
   }
 #endif  // canImport(FoundationModels) && compiler(>=6.4)

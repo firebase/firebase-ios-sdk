@@ -35,7 +35,10 @@
       let (contents, systemInstruction) = try GeminiTranscriptTranslator.translate(
         request.transcript
       )
-      let generationConfig = try translateGenerationConfig(schema: request.schema)
+      let generationConfig = try translateGenerationConfig(
+        schema: request.schema,
+        compatibilityOptions: compatibilityOptions
+      )
       let tools = try translateTools(request.enabledToolDefinitions)
       let hasFunctionDeclarations =
         tools?.contains { !($0.functionDeclarations ?? []).isEmpty } ?? false
@@ -56,21 +59,33 @@
 
     /// Translates an optional `GenerationSchema` into a Gemini `GenerationConfig`.
     ///
-    /// - Parameter schema: An optional generation schema specifying structured output constraints.
+    /// - Parameters:
+    ///   - schema: An optional generation schema specifying structured output constraints.
+    ///   - compatibilityOptions: Options for configuring compatibility with the Gemini API.
     /// - Returns: A `GenerationConfig` configured with response schema, or `nil` if `schema`
     ///   is `nil`.
     /// - Throws: An error if encoding the schema fails or if an unsupported generation guide is
     ///   detected.
     static func translateGenerationConfig(
-      schema: GenerationSchema?
+      schema: GenerationSchema?,
+      compatibilityOptions: GeminiLanguageModel.CompatibilityOptions
     ) throws -> GenerationConfig? {
       guard let schema else { return nil }
 
       let jsonSchema = try schema.toGeminiJSONSchema()
-      return GenerationConfig(
-        responseMimeType: "application/json",
-        responseJsonSchema: .object(jsonSchema)
-      )
+      switch compatibilityOptions.guidedGeneration.schemaFormat {
+      case .responseJsonSchema:
+        return GenerationConfig(
+          responseMimeType: "application/json",
+          responseJsonSchema: .object(jsonSchema)
+        )
+      case .responseFormat:
+        let textFormat = TextResponseFormat(
+          mimeType: .applicationJson,
+          schema: .object(jsonSchema)
+        )
+        return GenerationConfig(responseFormat: ResponseFormatConfig(text: textFormat))
+      }
     }
 
     /// Translates enabled tool definitions into a list of Gemini `Tool` objects.

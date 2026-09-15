@@ -25,6 +25,9 @@
       /// Overrides for how tool calling is expressed to the Gemini API.
       public var toolCalling = ToolCalling()
 
+      /// Overrides for how guided generation is expressed to the Gemini API.
+      public var guidedGeneration = GuidedGeneration()
+
       /// Creates options with the recommended defaults.
       public init() {}
     }
@@ -57,6 +60,34 @@
       /// Use this only if ``validated`` causes the backend to reject a large or deeply nested
       /// tool schema. If you encounter schema rejection, please file an issue on GitHub.
       case auto
+    }
+
+    /// Overrides for how guided generation is expressed to the Gemini API.
+    public struct GuidedGeneration: Hashable, Sendable {
+      /// The Gemini API payload format used to transmit schemas for guided generation.
+      ///
+      /// Defaults to ``SchemaFormat/responseJsonSchema``.
+      public var schemaFormat: SchemaFormat = .responseJsonSchema
+
+      /// Creates guided generation overrides with the recommended defaults.
+      public init() {}
+    }
+
+    /// The Gemini API payload format used to transmit schemas for guided generation.
+    @nonexhaustive
+    public enum SchemaFormat: Hashable, Sendable {
+      /// Transmits the schema using `responseJsonSchema` and `responseMimeType: "application/json"`.
+      ///
+      /// This is the default. It ensures full compatibility when tool calling is enabled
+      /// in ``ToolCalling/allowedMode`` ``AllowedMode/validated``.
+      case responseJsonSchema
+
+      /// Transmits the schema using `responseFormat`.
+      ///
+      /// Note: The Gemini API currently ignores `responseFormat` when function calling is
+      /// configured in ``AllowedMode/validated`` mode, causing the model to emit unconstrained
+      /// text instead of valid JSON.
+      case responseFormat
     }
   }
 #endif  // canImport(FoundationModels) && compiler(>=6.4)
