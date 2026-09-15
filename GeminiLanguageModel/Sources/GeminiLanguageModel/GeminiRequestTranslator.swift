@@ -172,8 +172,6 @@
         .validated
       case .auto:
         .auto
-      @unknown default:
-        .validated
       }
     }
   }
