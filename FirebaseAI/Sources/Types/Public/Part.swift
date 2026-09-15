@@ -84,13 +84,11 @@ public struct InlineDataPart: Part {
   ///
   /// - Parameters:
   ///   - data: The data representation of an image, video, audio or document; see [input files and
-  ///     requirements][2] for supported media types.
+  ///     requirements][1] for supported media types.
   ///   - mimeType: The IANA standard MIME type of the data, for example, `"image/jpeg"` or
-  ///     `"video/mp4"`; see [input files and requirements][3] for supported values.
+  ///     `"video/mp4"`; see [input files and requirements][1] for supported values.
   ///
   /// [1]: https://firebase.google.com/docs/ai-logic/input-file-requirements
-  /// [2]: https://firebase.google.com/docs/ai-logic/input-file-requirements
-  /// [3]: https://firebase.google.com/docs/ai-logic/input-file-requirements
   public init(data: Data, mimeType: String) {
     self.init(InlineData(data: data, mimeType: mimeType), isThought: nil, thoughtSignature: nil)
   }

@@ -66,7 +66,8 @@ public struct GenerationConfig: Sendable, Equatable {
 
   /// Creates a new `GenerationConfig` value.
   ///
-  /// See the [Configure model parameters](https://firebase.google.com/docs/ai-logic/model-parameters)
+  /// See the [Configure model
+  /// parameters](https://firebase.google.com/docs/ai-logic/model-parameters)
   /// guide for more details.
   ///
   /// - Parameters:
@@ -91,7 +92,7 @@ public struct GenerationConfig: Sendable, Equatable {
   ///     Refer to the [Generate structured output][2] guide for more details.
   ///   - responseModalities: The data types (modalities) that may be returned in model responses.
   ///
-  ///     See the [configure model parameters documentation][3] for more details.
+  ///     See the [configure model parameters documentation][1] for more details.
   ///
   ///     > Warning: Specifying response modalities is a **Public Preview** feature, which means
   ///     > that it is not subject to any SLA or deprecation policy and could change in
@@ -108,7 +109,6 @@ public struct GenerationConfig: Sendable, Equatable {
   ///
   /// [1]: https://firebase.google.com/docs/ai-logic/model-parameters#parameters-descriptions-gemini
   /// [2]: https://firebase.google.com/docs/ai-logic/structured-output
-  /// [3]: https://firebase.google.com/docs/ai-logic/model-parameters#parameters-descriptions-gemini
   @available(
     *,
     deprecated,
@@ -142,7 +142,8 @@ public struct GenerationConfig: Sendable, Equatable {
 
   /// Creates a new `GenerationConfig` value without deprecated tuning parameters.
   ///
-  /// See the [Configure model parameters](https://firebase.google.com/docs/ai-logic/model-parameters)
+  /// See the [Configure model
+  /// parameters](https://firebase.google.com/docs/ai-logic/model-parameters)
   /// guide for more details.
   ///
   /// - Parameters:
@@ -166,7 +167,7 @@ public struct GenerationConfig: Sendable, Equatable {
   ///     Refer to the [Generate structured output][2] guide for more details.
   ///   - responseModalities: The data types (modalities) that may be returned in model responses.
   ///
-  ///     See [configure model parameters][3].
+  ///     See [configure model parameters][1].
   ///
   ///     > Warning: Specifying response modalities is a **Public Preview** feature, which means
   ///     > that it is not subject to any SLA or deprecation policy and could change in
@@ -183,7 +184,6 @@ public struct GenerationConfig: Sendable, Equatable {
   ///
   /// [1]: https://firebase.google.com/docs/ai-logic/model-parameters#parameters-descriptions-gemini
   /// [2]: https://firebase.google.com/docs/ai-logic/structured-output
-  /// [3]: https://firebase.google.com/docs/ai-logic/model-parameters#parameters-descriptions-gemini
   public init(maxOutputTokens: Int? = nil,
               stopSequences: [String]? = nil, responseMIMEType: String? = nil,
               responseSchema: Schema? = nil, responseModalities: [ResponseModality]? = nil,
