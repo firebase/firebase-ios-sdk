@@ -1,4 +1,12 @@
 # Unreleased
+- [changed] **Breaking change**: Firebase's minimum supported versions have
+  updated for the following platforms:
+    - | Platform  | Firebase 13 |
+      | ------------- | ------------- |
+      | iOS  | 15.0  |
+      | tvOS  | 15.0  |
+      | macOS  | **11.0**  |
+      | watchOS  | **8.0**  |
 - [removed] Firebase is no longer distributed via CocoaPods. Firebase 13.0.0
   and future releases are distributed exclusively via Swift Package Manager
   and binary distributions. Existing CocoaPods releases will remain
