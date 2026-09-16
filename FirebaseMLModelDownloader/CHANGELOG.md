@@ -1,4 +1,8 @@
 # Unreleased
+- [removed] **Breaking change**: FirebaseMLModelDownloader has been removed. See
+  https://firebase.google.com/docs/ml for more info.
+
+# 12.19.0
 - [fixed] Fixed an issue with a transitive import in the device logger, which could cause
   a build error in explicit module mode. (#16563)
 

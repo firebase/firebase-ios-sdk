@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseSessions'
-  s.version          = '12.19.0'
+  s.version          = '13.0.0'
   s.summary          = 'Firebase Sessions'
 
   s.description      = <<-DESC
@@ -19,9 +19,9 @@ Pod::Spec.new do |s|
   s.social_media_url = 'https://twitter.com/Firebase'
 
   ios_deployment_target = '15.0'
-  osx_deployment_target = '10.15'
+  osx_deployment_target = '11.0'
   tvos_deployment_target = '15.0'
-  watchos_deployment_target = '7.0'
+  watchos_deployment_target = '8.0'
 
   s.swift_version = '5.9'
 
@@ -39,9 +39,9 @@ Pod::Spec.new do |s|
     base_dir + 'SourcesObjC/**/*.{c,h,m,mm}',
   ]
 
-  s.dependency 'FirebaseCore', '~> 12.19.0'
-  s.dependency 'FirebaseCoreExtension', '~> 12.19.0'
-  s.dependency 'FirebaseInstallations', '~> 12.19.0'
+  s.dependency 'FirebaseCore', '~> 13.0.0'
+  s.dependency 'FirebaseCoreExtension', '~> 13.0.0'
+  s.dependency 'FirebaseInstallations', '~> 13.0.0'
   s.dependency 'GoogleDataTransport', '>= 10.1.1', '< 11.0'
   s.dependency 'GoogleUtilities/Environment', '>= 8.1.3', '< 9.0'
   s.dependency 'GoogleUtilities/UserDefaults', '>= 8.1.3', '< 9.0'

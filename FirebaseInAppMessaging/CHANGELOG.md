@@ -1,4 +1,4 @@
-# Unreleased
+# 12.19.0
 - [fixed] Replaced the deprecated `UIApplication.keyWindow` lookup used to
   measure the status bar height when laying out a banner. The height is now
   read from the foreground window scene the banner is rendered in, which is
