@@ -21,19 +21,37 @@ import Foundation
 /// The version and releasing fields of the non-Firebase pods should be reviewed every release.
 /// The array should be ordered so that any pod's dependencies precede it in the list.
 public let shared = Manifest(
-  version: "12.19.0",
+  version: "13.0.0",
   pods: [
     Pod("FirebaseSharedSwift"),
     Pod("FirebaseCoreInternal"),
     Pod("FirebaseCore"),
     Pod("FirebaseCoreExtension"),
+    Pod("FirebaseAppCheckInterop"),
+    Pod("FirebaseAuthInterop"),
+    Pod("FirebaseMessagingInterop"),
     Pod("FirebaseInstallations"),
+    Pod("FirebaseSessions"),
     Pod("FirebaseRemoteConfigInterop"),
     Pod("GoogleAppMeasurement", isClosedSource: true, platforms: ["ios", "macos", "tvos"]),
     Pod("FirebaseAnalytics", isClosedSource: true, platforms: ["ios", "macos", "tvos"], zip: true),
     Pod("FirebaseABTesting", zip: true),
+    Pod("FirebaseAppCheck", zip: true),
     Pod("FirebaseRemoteConfig", zip: true),
+    Pod("FirebaseAILogic", zip: true),
+    Pod("FirebaseAppDistribution", isBeta: true, platforms: ["ios"], zip: true),
+    Pod("FirebaseAuth", zip: true),
+    Pod("FirebaseCrashlytics", zip: true),
+    Pod("FirebaseDatabase", platforms: ["ios", "macos", "tvos"], zip: true),
+    Pod("FirebaseFirestoreInternal", allowWarnings: true, platforms: ["ios", "macos", "tvos"]),
+    Pod("FirebaseFirestore", allowWarnings: true, platforms: ["ios", "macos", "tvos"], zip: true),
+    Pod("FirebaseFunctions", zip: true),
+    Pod("FirebaseInAppMessaging", isBeta: true, platforms: ["ios"], zip: true),
+    Pod("FirebaseMessaging", zip: true),
+    Pod("FirebasePerformance", platforms: ["ios", "tvos"], zip: true),
+    Pod("FirebaseStorage", zip: true),
     Pod("Firebase", allowWarnings: true, platforms: ["ios", "tvos", "macos"], zip: true),
+    Pod("FirebaseCombineSwift", releasing: false, zip: false),
   ]
 )
 
