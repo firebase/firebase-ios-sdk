@@ -55,8 +55,8 @@
     #import <FirebaseFirestore/FirebaseFirestore.h>
   #endif
 
-  #if __has_include(<FirebaseFunctions/FirebaseFunctions-Swift.h>)
-    #import <FirebaseFunctions/FirebaseFunctions-Swift.h>
+  #if __has_include(<FirebaseFunctions/FirebaseFunctions.h>)
+    #import <FirebaseFunctions/FirebaseFunctions.h>
   #endif
 
   #if __has_include(<FirebaseInAppMessaging/FirebaseInAppMessaging.h>)
@@ -79,8 +79,8 @@
     #import <FirebaseRemoteConfig/FirebaseRemoteConfig.h>
   #endif
 
-  #if __has_include(<FirebaseStorage/FirebaseStorage-Swift.h>)
-    #import <FirebaseStorage/FirebaseStorage-Swift.h>
+  #if __has_include(<FirebaseStorage/FirebaseStorage.h>)
+    #import <FirebaseStorage/FirebaseStorage.h>
   #endif
 
 #endif  // defined(__has_include)

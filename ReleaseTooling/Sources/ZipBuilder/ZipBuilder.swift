@@ -333,7 +333,20 @@ struct ZipBuilder {
         try? FileManager.default.removeItem(at: grpcCertsBundle)
       }
 
-      // Delete CocoaPods umbrella headers.
+      let frameworkName = framework.deletingPathExtension().lastPathComponent
+
+      // Find available public C/ObjC headers across Headers (or Versions/A/Headers).
+      let mainHeadersDir = framework.appendingPathComponent("Headers").resolvingSymlinksInPath()
+      let mainHeaders = (try? FileManager.default.contentsOfDirectory(
+        at: mainHeadersDir,
+        includingPropertiesForKeys: nil
+      )) ?? []
+      let nonUmbrellaHeaders = mainHeaders.filter { !$0.lastPathComponent.hasSuffix("-umbrella.h") }
+      let nonSwiftHeaders = nonUmbrellaHeaders
+        .filter { !$0.lastPathComponent.hasSuffix("-Swift.h") }
+      let isPureSwift = nonSwiftHeaders.isEmpty
+
+      // Process CocoaPods umbrella headers in Headers and PrivateHeaders.
       for path in ["Headers", "PrivateHeaders", "Versions/A/Headers", "Versions/A/PrivateHeaders"] {
         let headersDir = framework.appendingPathComponent(path).resolvingSymlinksInPath()
         if FileManager.default.directoryExists(at: headersDir) {
@@ -342,14 +355,31 @@ struct ZipBuilder {
             includingPropertiesForKeys: nil
           ) {
             for file in headerFiles where file.lastPathComponent.hasSuffix("-umbrella.h") {
-              try? FileManager.default.removeItem(at: file)
+              if isPureSwift {
+                // Swift modules: rename the umbrella header to remove the `-umbrella` suffix (e.g.
+                // FirebaseStorage-umbrella.h -> FirebaseStorage.h)
+                let newFilename = file.lastPathComponent.replacingOccurrences(
+                  of: "-umbrella.h",
+                  with: ".h"
+                )
+                let destinationURL = file.deletingLastPathComponent()
+                  .appendingPathComponent(newFilename)
+                if file != destinationURL {
+                  if FileManager.default.fileExists(atPath: destinationURL.path) {
+                    try? FileManager.default.removeItem(at: destinationURL)
+                  }
+                  try? FileManager.default.moveItem(at: file, to: destinationURL)
+                }
+              } else {
+                // C/Obj-C modules: delete CocoaPods umbrella headers.
+                try? FileManager.default.removeItem(at: file)
+              }
             }
           }
         }
       }
 
-      // Update module maps that still reference deleted CocoaPods umbrella headers.
-      let frameworkName = framework.deletingPathExtension().lastPathComponent
+      // Update module maps that still reference CocoaPods umbrella headers.
       for path in ["Modules", "Versions/A/Modules"] {
         let modulemapURL = framework
           .appendingPathComponent(path)
@@ -361,20 +391,17 @@ struct ZipBuilder {
           continue
         }
 
-        // Find available public C/ObjC headers in Headers (or Versions/A/Headers).
-        let headersDir = framework
-          .appendingPathComponent(path.contains("Versions/A") ? "Versions/A/Headers" : "Headers")
-          .resolvingSymlinksInPath()
-        let headers = (try? FileManager.default.contentsOfDirectory(
-          at: headersDir,
-          includingPropertiesForKeys: nil
-        )) ?? []
-        let nonUmbrellaHeaders = headers.filter { !$0.lastPathComponent.hasSuffix("-umbrella.h") }
-        let nonSwiftHeaders = nonUmbrellaHeaders
-          .filter { !$0.lastPathComponent.hasSuffix("-Swift.h") }
         let headerFileNames = nonSwiftHeaders.map { $0.lastPathComponent }
 
-        if headerFileNames.contains("\(frameworkName).h") {
+        if isPureSwift {
+          // Pure Swift framework: point to renamed `<frameworkName>.h`.
+          let updatedContent = content.replacingOccurrences(
+            of: #"umbrella header\s+"[^"]*-umbrella\.h""#,
+            with: "umbrella header \"\(frameworkName).h\"",
+            options: .regularExpression
+          )
+          try? updatedContent.write(to: modulemapURL, atomically: true, encoding: .utf8)
+        } else if headerFileNames.contains("\(frameworkName).h") {
           let updatedContent = content.replacingOccurrences(
             of: #"umbrella header\s+"[^"]*-umbrella\.h""#,
             with: "umbrella header \"\(frameworkName).h\"",
@@ -388,11 +415,6 @@ struct ZipBuilder {
             options: .regularExpression
           )
           try? updatedContent.write(to: modulemapURL, atomically: true, encoding: .utf8)
-        } else {
-          // Framework has no non-Swift C headers (pure Swift). CocoaPods generated
-          // a module.modulemap referencing the now-deleted umbrella header.
-          // Swift modules use the `.swiftmodule` directly, so remove the broken modulemap.
-          try? FileManager.default.removeItem(at: modulemapURL)
         }
       }
 

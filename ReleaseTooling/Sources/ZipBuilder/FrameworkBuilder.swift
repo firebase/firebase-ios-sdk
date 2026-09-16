@@ -364,6 +364,9 @@ struct FrameworkBuilder {
         } else if !headerFileNames.isEmpty {
           // use clang's umbrella directory syntax as a fallback
           umbrellaHeader = #"umbrella ".""#
+        } else {
+          // Swift framework: rename <framework>-umbrella.h to <framework>.h
+          umbrellaHeader = "umbrella header \"\(framework).h\""
         }
       } catch {
         fatalError("Error while enumerating files \(headersDir): \(error.localizedDescription)")
@@ -508,12 +511,10 @@ struct FrameworkBuilder {
             """
             try newModuleMapContents.write(to: modulemapURL, atomically: true, encoding: .utf8)
           } else {
-            // Frameworks built from only Swift sources do not need a
-            // module.modulemap since Swift modules use the `.swiftmodule`
-            // directly. CocoaPods generated a module.modulemap pointing to the
-            // now-deleted `-umbrella.h` header, so delete it to avoid Clang
-            // dependency scanner errors.
-            try? fileManager.removeItem(at: modulemapURL)
+            // Frameworks built from only Swift sources use the computed
+            // moduleMapContents which points to `umbrella header "<framework>.h"`.
+            let newModuleMapContents = moduleMapContents
+            try newModuleMapContents.write(to: modulemapURL, atomically: true, encoding: .utf8)
           }
         } catch {
           fatalError(
