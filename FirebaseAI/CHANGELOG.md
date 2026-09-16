@@ -5,8 +5,9 @@
   [Swift module name change](https://firebase.google.com/docs/ai-logic/faq-and-troubleshooting#swift-module-name-change)
   FAQ entry for more details.
 - [changed] Updated the default function calling mode to `VALIDATED` for
-  `GeminiLanguageModel` sessions. If your use case requires the previous `.auto`
-  behavior, configure it in `compatibilityOptions`. (#16649)
+  `GeminiLanguageModel` sessions. (#16649)
+- [changed] Updated guided generation to use `responseJsonSchema` for
+  `GeminiLanguageModel` sessions. (#16649)
 - [changed] Deprecated model tuning parameters (`temperature`, `topP`, `topK`, `candidateCount`,
   `presencePenalty`, and `frequencyPenalty`) in `GenerationConfig` and `LiveGenerationConfig` as
   they are unsupported in Gemini 3.x and later models.

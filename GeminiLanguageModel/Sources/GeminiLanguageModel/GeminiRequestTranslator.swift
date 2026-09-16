@@ -23,29 +23,23 @@
   enum GeminiRequestTranslator {
     /// Translates a `LanguageModelExecutorGenerationRequest` into a `GenerateContentRequest`.
     ///
-    /// - Parameters:
-    ///   - request: The generation request from the Foundation Models session.
-    ///   - compatibilityOptions: Options for configuring compatibility with the Gemini API.
+    /// - Parameter request: The generation request from the Foundation Models session.
     /// - Returns: A `GenerateContentRequest` configured for the Gemini API.
-    /// - Throws: An error if transcript or schema translation fails.
+    /// - Throws: An error if transcript or schema translation fails, or if the request specifies
+    ///   an unrecognized tool calling mode.
     static func translate(
-      _ request: LanguageModelExecutorGenerationRequest,
-      compatibilityOptions: GeminiLanguageModel.CompatibilityOptions
+      _ request: LanguageModelExecutorGenerationRequest
     ) throws -> GenerateContentRequest {
       let (contents, systemInstruction) = try GeminiTranscriptTranslator.translate(
         request.transcript
       )
-      let generationConfig = try translateGenerationConfig(
-        schema: request.schema,
-        compatibilityOptions: compatibilityOptions
-      )
+      let generationConfig = try translateGenerationConfig(schema: request.schema)
       let tools = try translateTools(request.enabledToolDefinitions)
       let hasFunctionDeclarations =
         tools?.contains { !($0.functionDeclarations ?? []).isEmpty } ?? false
-      let toolConfig = translateToolConfig(
+      let toolConfig = try translateToolConfig(
         toolCallingMode: request.generationOptions.toolCallingMode,
-        hasFunctionDeclarations: hasFunctionDeclarations,
-        compatibilityOptions: compatibilityOptions
+        hasFunctionDeclarations: hasFunctionDeclarations
       )
 
       return GenerateContentRequest(
@@ -59,35 +53,19 @@
 
     /// Translates an optional `GenerationSchema` into a Gemini `GenerationConfig`.
     ///
-    /// - Parameters:
-    ///   - schema: An optional generation schema specifying structured output constraints.
-    ///   - compatibilityOptions: Options for configuring compatibility with the Gemini API.
+    /// - Parameter schema: An optional generation schema specifying structured output constraints.
     /// - Returns: A `GenerationConfig` configured with response schema, or `nil` if `schema`
     ///   is `nil`.
     /// - Throws: An error if encoding the schema fails or if an unsupported generation guide is
     ///   detected.
-    static func translateGenerationConfig(
-      schema: GenerationSchema?,
-      compatibilityOptions: GeminiLanguageModel.CompatibilityOptions
-    ) throws -> GenerationConfig? {
+    static func translateGenerationConfig(schema: GenerationSchema?) throws -> GenerationConfig? {
       guard let schema else { return nil }
 
       let jsonSchema = try schema.toGeminiJSONSchema()
-      switch compatibilityOptions.guidedGeneration.schemaFormat {
-      case .responseJsonSchema:
-        // `responseJsonSchema` is the current field; the `_responseJsonSchema` variant is
-        // deprecated and is unsupported on the Gemini Enterprise Agent Platform.
-        return GenerationConfig(
-          responseMimeType: "application/json",
-          responseJsonSchema: .object(jsonSchema)
-        )
-      case .responseFormat:
-        let textFormat = TextResponseFormat(
-          mimeType: .applicationJson,
-          schema: .object(jsonSchema)
-        )
-        return GenerationConfig(responseFormat: ResponseFormatConfig(text: textFormat))
-      }
+      return GenerationConfig(
+        responseMimeType: "application/json",
+        responseJsonSchema: .object(jsonSchema)
+      )
     }
 
     /// Translates enabled tool definitions into a list of Gemini `Tool` objects.
@@ -119,13 +97,13 @@
     ///   - hasFunctionDeclarations: Whether the request declares any functions.
     ///     `functionCallingConfig` only governs function calling, so it is omitted entirely when
     ///     there are none.
-    ///   - compatibilityOptions: Options for configuring compatibility with the Gemini API.
     /// - Returns: A `ToolConfig`, or `nil` if no configuration is needed.
+    /// - Throws: `LanguageModelError.unsupportedCapability` if `toolCallingMode` is a mode that
+    ///   this version of the SDK does not recognize.
     static func translateToolConfig(
       toolCallingMode: GenerationOptions.ToolCallingMode?,
-      hasFunctionDeclarations: Bool,
-      compatibilityOptions: GeminiLanguageModel.CompatibilityOptions
-    ) -> ToolConfig? {
+      hasFunctionDeclarations: Bool
+    ) throws -> ToolConfig? {
       // Computed independently of the `ToolConfig` check below to allow future options (such
       // as `includeServerSideToolInvocations`) when built-in tools are present without function
       // declarations.
@@ -134,7 +112,7 @@
         // `GenerationOptions.toolCallingMode` is optional and defaults to `nil` unless set by the
         // caller. Omitting `functionCallingConfig` in that case causes the backend to default to
         // `AUTO`, so `nil` maps to the allowed mode.
-        let allowedMode = geminiMode(for: compatibilityOptions.toolCalling.allowedMode)
+        let allowedMode = FunctionCallingConfig.Mode.validated
         let callingMode: FunctionCallingConfig.Mode
         if let mode = toolCallingMode {
           switch mode.kind {
@@ -145,7 +123,14 @@
           case .disallowed:
             callingMode = FunctionCallingConfig.Mode.none
           @unknown default:
-            callingMode = allowedMode
+            // A mode added in a later OS release; its semantics are unknown, so approximating it
+            // with the allowed mode could silently diverge from what the caller requested.
+            throw LanguageModelError.unsupportedCapability(
+              LanguageModelError.UnsupportedCapability(
+                capability: .toolCalling,
+                debugDescription: "Unsupported tool calling mode: \(mode)."
+              )
+            )
           }
         } else {
           callingMode = allowedMode
@@ -162,17 +147,6 @@
       return ToolConfig(
         functionCallingConfig: functionCallingConfig
       )
-    }
-
-    private static func geminiMode(
-      for allowedMode: GeminiLanguageModel.CompatibilityOptions.AllowedMode
-    ) -> FunctionCallingConfig.Mode {
-      switch allowedMode {
-      case .validated:
-        .validated
-      case .auto:
-        .auto
-      }
     }
   }
 #endif  // canImport(FoundationModels) && compiler(>=6.4)

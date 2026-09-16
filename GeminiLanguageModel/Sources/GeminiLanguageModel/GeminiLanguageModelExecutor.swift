@@ -37,9 +37,6 @@
         /// The `URLSessionConfiguration` to use.
         let sessionConfiguration: URLSessionConfiguration
 
-        /// Options for configuring compatibility with the Gemini API.
-        let compatibilityOptions: CompatibilityOptions
-
         /// Initializes an executor configuration.
         ///
         /// - Parameters:
@@ -47,19 +44,16 @@
         ///   - endpointConfiguration: The network endpoint configuration.
         ///   - headerProvider: An optional async provider for dynamic headers.
         ///   - sessionConfiguration: The `URLSessionConfiguration` to use.
-        ///   - compatibilityOptions: Options for configuring compatibility with the Gemini API.
         init(
           modelResource: ModelResource,
           endpointConfiguration: EndpointConfiguration,
           headerProvider: HeaderProvider?,
-          sessionConfiguration: URLSessionConfiguration,
-          compatibilityOptions: CompatibilityOptions
+          sessionConfiguration: URLSessionConfiguration
         ) {
           self.modelResource = modelResource
           self.endpointConfiguration = endpointConfiguration
           self.headerProvider = headerProvider
           self.sessionConfiguration = sessionConfiguration
-          self.compatibilityOptions = compatibilityOptions
         }
       }
 
@@ -85,10 +79,7 @@
         model: GeminiLanguageModel,
         streamingInto channel: LanguageModelExecutorGenerationChannel
       ) async throws {
-        let generateRequest = try GeminiRequestTranslator.translate(
-          request,
-          compatibilityOptions: configuration.compatibilityOptions
-        )
+        let generateRequest = try GeminiRequestTranslator.translate(request)
 
         let client = GeminiAPIClient(
           modelResource: configuration.modelResource,

@@ -72,10 +72,7 @@
         metadata: [:]
       )
 
-      let result = try GeminiRequestTranslator.translate(
-        request,
-        compatibilityOptions: GeminiLanguageModel.CompatibilityOptions()
-      )
+      let result = try GeminiRequestTranslator.translate(request)
 
       #expect(result.systemInstruction == nil)
       #expect(result.contents.count == 1)
@@ -104,60 +101,13 @@
         metadata: [:]
       )
 
-      let result = try GeminiRequestTranslator.translate(
-        request,
-        compatibilityOptions: GeminiLanguageModel.CompatibilityOptions()
-      )
+      let result = try GeminiRequestTranslator.translate(request)
 
       #expect(result.contents.count == 1)
       let generationConfig = try #require(result.generationConfig)
       #expect(generationConfig.responseMimeType == "application/json")
       guard case .object(let schemaObject) = generationConfig.responseJsonSchema else {
         Issue.record("Expected responseJsonSchema to be a JSON object.")
-        return
-      }
-      #expect(schemaObject["x-order"] == nil)
-      let ordering = try #require(schemaObject["propertyOrdering"])
-      #expect(ordering == JSONValue.array([.string("username"), .string("score")]))
-    }
-
-    @Test
-    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
-    func translatesGenerationRequestWithResponseFormatReturnsConfig() throws {
-      let promptEntry = Transcript.Entry.prompt(
-        Transcript.Prompt(
-          id: "prompt-1",
-          segments: [.text(Transcript.TextSegment(content: "Generate a profile"))]
-        )
-      )
-      let transcript = Transcript(entries: [promptEntry])
-      let schema = UserProfile.generationSchema
-      let request = LanguageModelExecutorGenerationRequest(
-        id: UUID(),
-        transcript: transcript,
-        enabledTools: [],
-        schema: schema,
-        generationOptions: GenerationOptions(),
-        contextOptions: ContextOptions(),
-        metadata: [:]
-      )
-      var options = GeminiLanguageModel.CompatibilityOptions()
-      options.guidedGeneration.schemaFormat = .responseFormat
-
-      let result = try GeminiRequestTranslator.translate(
-        request,
-        compatibilityOptions: options
-      )
-
-      #expect(result.contents.count == 1)
-      let generationConfig = try #require(result.generationConfig)
-      #expect(generationConfig.responseMimeType == nil)
-      #expect(generationConfig.responseJsonSchema == nil)
-      let responseFormat = try #require(generationConfig.responseFormat)
-      let textFormat = try #require(responseFormat.text)
-      #expect(textFormat.mimeType == TextResponseFormat.MimeType.applicationJson)
-      guard case .object(let schemaObject) = textFormat.schema else {
-        Issue.record("Expected schema to be a JSON object.")
         return
       }
       #expect(schemaObject["x-order"] == nil)
@@ -168,10 +118,7 @@
     @Test
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
     func translatesGenerationConfigWithNilSchemaReturnsNil() throws {
-      let config = try GeminiRequestTranslator.translateGenerationConfig(
-        schema: nil,
-        compatibilityOptions: GeminiLanguageModel.CompatibilityOptions()
-      )
+      let config = try GeminiRequestTranslator.translateGenerationConfig(schema: nil)
 
       #expect(config == nil)
     }
@@ -181,41 +128,12 @@
     func translatesGenerationConfigWithSchemaReturnsConfig() throws {
       let schema = UserProfile.generationSchema
 
-      let config = try GeminiRequestTranslator.translateGenerationConfig(
-        schema: schema,
-        compatibilityOptions: GeminiLanguageModel.CompatibilityOptions()
-      )
+      let config = try GeminiRequestTranslator.translateGenerationConfig(schema: schema)
 
       let generationConfig = try #require(config)
       #expect(generationConfig.responseMimeType == "application/json")
       guard case .object(let schemaObject) = generationConfig.responseJsonSchema else {
         Issue.record("Expected responseJsonSchema to be a JSON object.")
-        return
-      }
-      #expect(schemaObject["x-order"] == nil)
-      #expect(schemaObject["propertyOrdering"] != nil)
-    }
-
-    @Test
-    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
-    func translatesGenerationConfigWithResponseFormatSchemaReturnsConfig() throws {
-      let schema = UserProfile.generationSchema
-      var options = GeminiLanguageModel.CompatibilityOptions()
-      options.guidedGeneration.schemaFormat = .responseFormat
-
-      let config = try GeminiRequestTranslator.translateGenerationConfig(
-        schema: schema,
-        compatibilityOptions: options
-      )
-
-      let generationConfig = try #require(config)
-      #expect(generationConfig.responseMimeType == nil)
-      #expect(generationConfig.responseJsonSchema == nil)
-      let responseFormat = try #require(generationConfig.responseFormat)
-      let textFormat = try #require(responseFormat.text)
-      #expect(textFormat.mimeType == TextResponseFormat.MimeType.applicationJson)
-      guard case .object(let schemaObject) = textFormat.schema else {
-        Issue.record("Expected schema to be a JSON object.")
         return
       }
       #expect(schemaObject["x-order"] == nil)
@@ -228,10 +146,7 @@
       let schema = DataModelWithPattern.generationSchema
 
       do {
-        _ = try GeminiRequestTranslator.translateGenerationConfig(
-          schema: schema,
-          compatibilityOptions: GeminiLanguageModel.CompatibilityOptions()
-        )
+        _ = try GeminiRequestTranslator.translateGenerationConfig(schema: schema)
         Issue.record("Expected unsupportedGenerationGuide error.")
       } catch LanguageModelError.unsupportedGenerationGuide(let error) {
         #expect(error.debugDescription.contains("pattern"))
@@ -309,28 +224,22 @@
 
     @Test
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
-    func translatesToolCallingModes() {
-      let options = GeminiLanguageModel.CompatibilityOptions()
-
-      let allowedConfig = GeminiRequestTranslator.translateToolConfig(
+    func translatesToolCallingModes() throws {
+      let allowedConfig = try GeminiRequestTranslator.translateToolConfig(
         toolCallingMode: .allowed,
-        hasFunctionDeclarations: true,
-        compatibilityOptions: options
+        hasFunctionDeclarations: true
       )
-      let requiredConfig = GeminiRequestTranslator.translateToolConfig(
+      let requiredConfig = try GeminiRequestTranslator.translateToolConfig(
         toolCallingMode: .required,
-        hasFunctionDeclarations: true,
-        compatibilityOptions: options
+        hasFunctionDeclarations: true
       )
-      let disallowedConfig = GeminiRequestTranslator.translateToolConfig(
+      let disallowedConfig = try GeminiRequestTranslator.translateToolConfig(
         toolCallingMode: .disallowed,
-        hasFunctionDeclarations: true,
-        compatibilityOptions: options
+        hasFunctionDeclarations: true
       )
-      let unsetConfig = GeminiRequestTranslator.translateToolConfig(
+      let unsetConfig = try GeminiRequestTranslator.translateToolConfig(
         toolCallingMode: nil,
-        hasFunctionDeclarations: true,
-        compatibilityOptions: options
+        hasFunctionDeclarations: true
       )
 
       #expect(allowedConfig?.functionCallingConfig?.mode == .validated)
@@ -341,77 +250,28 @@
 
     @Test
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
-    func translatesToolCallingModesWithoutDeclarationsReturnsNil() {
-      let options = GeminiLanguageModel.CompatibilityOptions()
-
-      let allowedConfig = GeminiRequestTranslator.translateToolConfig(
+    func translatesToolCallingModesWithoutDeclarationsReturnsNil() throws {
+      let allowedConfig = try GeminiRequestTranslator.translateToolConfig(
         toolCallingMode: .allowed,
-        hasFunctionDeclarations: false,
-        compatibilityOptions: options
+        hasFunctionDeclarations: false
       )
-      let requiredConfig = GeminiRequestTranslator.translateToolConfig(
+      let requiredConfig = try GeminiRequestTranslator.translateToolConfig(
         toolCallingMode: .required,
-        hasFunctionDeclarations: false,
-        compatibilityOptions: options
+        hasFunctionDeclarations: false
       )
-      let disallowedConfig = GeminiRequestTranslator.translateToolConfig(
+      let disallowedConfig = try GeminiRequestTranslator.translateToolConfig(
         toolCallingMode: .disallowed,
-        hasFunctionDeclarations: false,
-        compatibilityOptions: options
+        hasFunctionDeclarations: false
       )
-      let nilConfig = GeminiRequestTranslator.translateToolConfig(
+      let nilConfig = try GeminiRequestTranslator.translateToolConfig(
         toolCallingMode: nil,
-        hasFunctionDeclarations: false,
-        compatibilityOptions: options
+        hasFunctionDeclarations: false
       )
 
       #expect(allowedConfig == nil)
       #expect(requiredConfig == nil)
       #expect(disallowedConfig == nil)
       #expect(nilConfig == nil)
-    }
-
-    @Test
-    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
-    func translatesToolCallingModesWithCompatibilityAutoOverride() {
-      var compatibilityOptions = GeminiLanguageModel.CompatibilityOptions()
-      compatibilityOptions.toolCalling.allowedMode = .auto
-
-      let allowedConfig = GeminiRequestTranslator.translateToolConfig(
-        toolCallingMode: .allowed,
-        hasFunctionDeclarations: true,
-        compatibilityOptions: compatibilityOptions
-      )
-      let requiredConfig = GeminiRequestTranslator.translateToolConfig(
-        toolCallingMode: .required,
-        hasFunctionDeclarations: true,
-        compatibilityOptions: compatibilityOptions
-      )
-      let unsetConfig = GeminiRequestTranslator.translateToolConfig(
-        toolCallingMode: nil,
-        hasFunctionDeclarations: true,
-        compatibilityOptions: compatibilityOptions
-      )
-
-      #expect(allowedConfig?.functionCallingConfig?.mode == .auto)
-      #expect(requiredConfig?.functionCallingConfig?.mode == .any)
-      #expect(unsetConfig?.functionCallingConfig?.mode == .auto)
-    }
-
-    @Test
-    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
-    func defaultCompatibilityOptionsHasValidatedAllowedMode() {
-      let options = GeminiLanguageModel.CompatibilityOptions()
-
-      #expect(options.toolCalling.allowedMode == .validated)
-    }
-
-    @Test
-    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
-    func defaultCompatibilityOptionsHasResponseJsonSchemaFormat() {
-      let options = GeminiLanguageModel.CompatibilityOptions()
-
-      #expect(options.guidedGeneration.schemaFormat == .responseJsonSchema)
     }
 
     @Test
@@ -448,14 +308,8 @@
         metadata: [:]
       )
 
-      let resultWithTool = try GeminiRequestTranslator.translate(
-        requestWithTool,
-        compatibilityOptions: GeminiLanguageModel.CompatibilityOptions()
-      )
-      let resultWithoutTools = try GeminiRequestTranslator.translate(
-        requestWithoutTools,
-        compatibilityOptions: GeminiLanguageModel.CompatibilityOptions()
-      )
+      let resultWithTool = try GeminiRequestTranslator.translate(requestWithTool)
+      let resultWithoutTools = try GeminiRequestTranslator.translate(requestWithoutTools)
 
       let unwrappedToolConfig = try #require(resultWithTool.toolConfig)
       let functionCallingConfig = try #require(unwrappedToolConfig.functionCallingConfig)
@@ -488,10 +342,7 @@
         metadata: [:]
       )
 
-      let result = try GeminiRequestTranslator.translate(
-        request,
-        compatibilityOptions: GeminiLanguageModel.CompatibilityOptions()
-      )
+      let result = try GeminiRequestTranslator.translate(request)
 
       let toolConfig = try #require(result.toolConfig)
       let functionCallingConfig = try #require(toolConfig.functionCallingConfig)

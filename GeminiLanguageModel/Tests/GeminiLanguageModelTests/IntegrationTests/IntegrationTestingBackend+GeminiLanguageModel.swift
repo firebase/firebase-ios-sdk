@@ -24,22 +24,16 @@
   extension IntegrationTestingBackend {
     /// Creates a `GeminiLanguageModel` configured for this backend.
     ///
-    /// - Parameters:
-    ///   - modelID: The model identifier to use. Defaults to `gemini-3.5-flash-lite`.
-    ///   - compatibilityOptions: Options for configuring compatibility with the Gemini API.
-    ///     Defaults to the recommended values.
+    /// - Parameter modelID: The model identifier to use. Defaults to `gemini-3.5-flash-lite`.
     /// - Returns: A configured `GeminiLanguageModel` instance.
     /// - Throws: An error if model resource or credentials resolution fails.
     func makeModel(
-      modelID: String = ModelResource.gemini35FlashLiteID,
-      compatibilityOptions: GeminiLanguageModel.CompatibilityOptions =
-        GeminiLanguageModel.CompatibilityOptions()
+      modelID: String = ModelResource.gemini35FlashLiteID
     ) async throws -> GeminiLanguageModel {
       GeminiLanguageModel(
         modelResource: try modelResource(modelID: modelID),
         endpointConfiguration: endpointConfiguration,
-        headerProvider: try await makeHeaderProvider(),
-        compatibilityOptions: compatibilityOptions
+        headerProvider: try await makeHeaderProvider()
       )
     }
   }

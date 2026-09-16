@@ -42,8 +42,7 @@
     func modelInitializationAndCapabilities() {
       let model = GeminiLanguageModel(
         modelResource: .gemini35FlashLite,
-        endpointConfiguration: .geminiDeveloperAPI,
-        compatibilityOptions: GeminiLanguageModel.CompatibilityOptions()
+        endpointConfiguration: .geminiDeveloperAPI
       )
 
       #expect(model.executorConfiguration.modelResource == .gemini35FlashLite)
@@ -93,58 +92,6 @@
       #expect(generationConfig.responseMimeType == "application/json")
       guard case .object(let schemaObject) = generationConfig.responseJsonSchema else {
         Issue.record("Expected responseJsonSchema to be a JSON object.")
-        return
-      }
-      #expect(schemaObject["x-order"] == nil)
-      #expect(schemaObject["propertyOrdering"] != nil)
-    }
-
-    @Test
-    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
-    func sessionRespondGuidedGenerationWithResponseFormat() async throws {
-      defer { MockHTTPURLProtocol.reset() }
-      var options = GeminiLanguageModel.CompatibilityOptions()
-      options.guidedGeneration.schemaFormat = .responseFormat
-      let model = Self.makeMockModel(compatibilityOptions: options)
-      let expectedURL = try Self.makeExpectedStreamURL()
-      let httpResponse = try HTTPURLResponse.mock(
-        url: expectedURL,
-        headerFields: ["Content-Type": "text/event-stream"]
-      )
-      let ssePayload = """
-        data: {"candidates": [{"content": {"parts": [{"text": "{\\"name\\": \\"Tokyo\\", \\"population\\": 14000000}"}], "role": "model"}, "finishReason": "STOP", "index": 0}]}
-
-        """
-      let receivedRequest = Mutex<GenerateContentRequest?>(nil)
-      MockHTTPURLProtocol.setHandler(for: expectedURL) { request, proto in
-        if let body = request.httpBodyData,
-          let decoded = try? JSONDecoder().decode(GenerateContentRequest.self, from: body)
-        {
-          receivedRequest.withLock { $0 = decoded }
-        }
-        proto.client?.urlProtocol(proto, didReceive: httpResponse, cacheStoragePolicy: .notAllowed)
-        proto.client?.urlProtocol(proto, didLoad: Data(ssePayload.utf8))
-        proto.client?.urlProtocolDidFinishLoading(proto)
-      }
-
-      let session = LanguageModelSession(model: model)
-
-      let response = try await session.respond(
-        to: "Tell me about Tokyo",
-        generating: CitySummary.self
-      )
-
-      #expect(response.content.name == "Tokyo")
-      #expect(response.content.population == 14_000_000)
-      let capturedRequest = try #require(receivedRequest.withLock { $0 })
-      let generationConfig = try #require(capturedRequest.generationConfig)
-      #expect(generationConfig.responseMimeType == nil)
-      #expect(generationConfig.responseJsonSchema == nil)
-      let responseFormat = try #require(generationConfig.responseFormat)
-      let textFormat = try #require(responseFormat.text)
-      #expect(textFormat.mimeType == .applicationJson)
-      guard case .object(let schemaObject) = textFormat.schema else {
-        Issue.record("Expected schema to be a JSON object.")
         return
       }
       #expect(schemaObject["x-order"] == nil)
@@ -545,9 +492,7 @@
     private static func makeMockModel(
       modelResource: ModelResource = .gemini38Flash,
       endpointConfiguration: EndpointConfiguration = .geminiDeveloperAPI,
-      headerProvider: (@Sendable () async throws -> [String: String])? = nil,
-      compatibilityOptions: GeminiLanguageModel.CompatibilityOptions =
-        GeminiLanguageModel.CompatibilityOptions()
+      headerProvider: (@Sendable () async throws -> [String: String])? = nil
     ) -> GeminiLanguageModel {
       let configuration = URLSessionConfiguration.ephemeral
       configuration.protocolClasses = [MockHTTPURLProtocol.self]
@@ -555,8 +500,7 @@
         modelResource: modelResource,
         endpointConfiguration: endpointConfiguration,
         headerProvider: headerProvider,
-        configuration: configuration,
-        compatibilityOptions: compatibilityOptions
+        configuration: configuration
       )
     }
 
