@@ -16,6 +16,7 @@
 
 #include "Firestore/core/src/local/leveldb_target_cache.h"
 
+#include <optional>
 #include <string>
 #include <unordered_set>
 #include <utility>
@@ -48,7 +49,7 @@ using model::TargetId;
 using nanopb::Message;
 using nanopb::StringReader;
 
-absl::optional<Message<firestore_client_TargetGlobal>>
+std::optional<Message<firestore_client_TargetGlobal>>
 LevelDbTargetCache::TryReadMetadata(leveldb::DB* db) {
   std::string key = LevelDbTargetGlobalKey::Key();
   std::string value;
@@ -60,7 +61,7 @@ LevelDbTargetCache::TryReadMetadata(leveldb::DB* db) {
   auto result = Message<firestore_client_TargetGlobal>::TryParse(&reader);
   if (!reader.ok()) {
     if (reader.status().code() == Error::kErrorNotFound) {
-      return absl::nullopt;
+      return std::nullopt;
     } else {
       HARD_FAIL("ReadMetadata: failed loading key %s with status: %s", key,
                 reader.status().ToString());
@@ -138,7 +139,7 @@ void LevelDbTargetCache::RemoveTarget(const TargetData& target_data) {
   SaveMetadata();
 }
 
-absl::optional<TargetData> LevelDbTargetCache::GetTarget(
+std::optional<TargetData> LevelDbTargetCache::GetTarget(
     const core::TargetOrPipeline& target_or_pipeline) {
   // Scan the query-target index starting with a prefix starting with the given
   // target's or pipeline's canonical_id. Note that this is a scan rather than
@@ -190,7 +191,7 @@ absl::optional<TargetData> LevelDbTargetCache::GetTarget(
     }
   }
 
-  return absl::nullopt;
+  return std::nullopt;
 }
 
 void LevelDbTargetCache::EnumerateSequenceNumbers(

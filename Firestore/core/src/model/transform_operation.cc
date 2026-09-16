@@ -20,6 +20,7 @@
 #include <cmath>
 #include <functional>
 #include <memory>
+#include <optional>
 #include <ostream>
 #include <utility>
 
@@ -69,21 +70,21 @@ class ServerTimestampTransform::Rep : public TransformOperation::Rep {
   }
 
   Message<google_firestore_v1_Value> ApplyToLocalView(
-      const absl::optional<google_firestore_v1_Value>& previous_value,
+      const std::optional<google_firestore_v1_Value>& previous_value,
       const Timestamp& local_write_time) const override {
     return EncodeServerTimestamp(local_write_time, previous_value);
   }
 
   Message<google_firestore_v1_Value> ApplyToRemoteDocument(
-      const absl::optional<google_firestore_v1_Value>&,
+      const std::optional<google_firestore_v1_Value>&,
       Message<google_firestore_v1_Value> transform_result) const override {
     return transform_result;
   }
 
-  absl::optional<nanopb::Message<google_firestore_v1_Value>> ComputeBaseValue(
-      const absl::optional<google_firestore_v1_Value>&) const override {
+  std::optional<nanopb::Message<google_firestore_v1_Value>> ComputeBaseValue(
+      const std::optional<google_firestore_v1_Value>&) const override {
     // Server timestamps are idempotent and don't require a base value.
-    return absl::nullopt;
+    return std::nullopt;
   }
 
   bool Equals(const TransformOperation::Rep& other) const override {
@@ -125,13 +126,13 @@ class ArrayTransform::Rep : public TransformOperation::Rep {
   }
 
   Message<google_firestore_v1_Value> ApplyToLocalView(
-      const absl::optional<google_firestore_v1_Value>& previous_value,
+      const std::optional<google_firestore_v1_Value>& previous_value,
       const Timestamp&) const override {
     return Apply(previous_value);
   }
 
   Message<google_firestore_v1_Value> ApplyToRemoteDocument(
-      const absl::optional<google_firestore_v1_Value>& previous_value,
+      const std::optional<google_firestore_v1_Value>& previous_value,
       Message<google_firestore_v1_Value>) const override {
     // The server just sends null as the transform result for array operations,
     // so we have to calculate a result the same as we do for local
@@ -139,10 +140,10 @@ class ArrayTransform::Rep : public TransformOperation::Rep {
     return Apply(previous_value);
   }
 
-  absl::optional<nanopb::Message<google_firestore_v1_Value>> ComputeBaseValue(
-      const absl::optional<google_firestore_v1_Value>&) const override {
+  std::optional<nanopb::Message<google_firestore_v1_Value>> ComputeBaseValue(
+      const std::optional<google_firestore_v1_Value>&) const override {
     // Array transforms are idempotent and don't require a base value.
-    return absl::nullopt;
+    return std::nullopt;
   }
 
   google_firestore_v1_ArrayValue elements() const {
@@ -164,10 +165,10 @@ class ArrayTransform::Rep : public TransformOperation::Rep {
    * google_firestore_v1_Value.
    */
   Message<google_firestore_v1_ArrayValue> CoercedFieldValueArray(
-      const absl::optional<google_firestore_v1_Value>& value) const;
+      const std::optional<google_firestore_v1_Value>& value) const;
 
   Message<google_firestore_v1_Value> Apply(
-      const absl::optional<google_firestore_v1_Value>& previous_value) const;
+      const std::optional<google_firestore_v1_Value>& previous_value) const;
 
   Type type_;
   nanopb::Message<google_firestore_v1_ArrayValue> elements_;
@@ -236,7 +237,7 @@ std::string ArrayTransform::Rep::ToString() const {
 
 Message<google_firestore_v1_ArrayValue>
 ArrayTransform::Rep::CoercedFieldValueArray(
-    const absl::optional<google_firestore_v1_Value>& value) const {
+    const std::optional<google_firestore_v1_Value>& value) const {
   if (IsArray(value)) {
     return DeepClone(value->array_value);
   } else {
@@ -246,7 +247,7 @@ ArrayTransform::Rep::CoercedFieldValueArray(
 }
 
 Message<google_firestore_v1_Value> ArrayTransform::Rep::Apply(
-    const absl::optional<google_firestore_v1_Value>& previous_value) const {
+    const std::optional<google_firestore_v1_Value>& previous_value) const {
   Message<google_firestore_v1_ArrayValue> array_value =
       CoercedFieldValueArray(previous_value);
   if (type_ == Type::ArrayUnion) {
@@ -304,14 +305,14 @@ class NumericTransform::Rep : public TransformOperation::Rep {
   }
 
   Message<google_firestore_v1_Value> ApplyToRemoteDocument(
-      const absl::optional<google_firestore_v1_Value>&,
+      const std::optional<google_firestore_v1_Value>&,
       Message<google_firestore_v1_Value> transform_result) const override {
     return transform_result;
   }
 
-  absl::optional<nanopb::Message<google_firestore_v1_Value>> ComputeBaseValue(
-      const absl::optional<google_firestore_v1_Value>&) const override {
-    return absl::nullopt;
+  std::optional<nanopb::Message<google_firestore_v1_Value>> ComputeBaseValue(
+      const std::optional<google_firestore_v1_Value>&) const override {
+    return std::nullopt;
   }
 
   double OperandAsDouble() const {
@@ -376,11 +377,11 @@ class NumericIncrementTransform::Rep : public NumericTransform::Rep {
   }
 
   Message<google_firestore_v1_Value> ApplyToLocalView(
-      const absl::optional<google_firestore_v1_Value>& previous_value,
+      const std::optional<google_firestore_v1_Value>& previous_value,
       const Timestamp& local_write_time) const override;
 
-  absl::optional<nanopb::Message<google_firestore_v1_Value>> ComputeBaseValue(
-      const absl::optional<google_firestore_v1_Value>& previous_value)
+  std::optional<nanopb::Message<google_firestore_v1_Value>> ComputeBaseValue(
+      const std::optional<google_firestore_v1_Value>& previous_value)
       const override {
     if (IsNumber(previous_value)) {
       return DeepClone(*previous_value);
@@ -424,7 +425,7 @@ class NumericMinimumTransform::Rep : public NumericTransform::Rep {
   }
 
   Message<google_firestore_v1_Value> ApplyToLocalView(
-      const absl::optional<google_firestore_v1_Value>& previous_value,
+      const std::optional<google_firestore_v1_Value>& previous_value,
       const Timestamp& local_write_time) const override;
 
   std::string ToString() const override {
@@ -458,7 +459,7 @@ class NumericMaximumTransform::Rep : public NumericTransform::Rep {
   }
 
   Message<google_firestore_v1_Value> ApplyToLocalView(
-      const absl::optional<google_firestore_v1_Value>& previous_value,
+      const std::optional<google_firestore_v1_Value>& previous_value,
       const Timestamp& local_write_time) const override;
 
   std::string ToString() const override {
@@ -500,7 +501,7 @@ int64_t SafeIncrement(int64_t x, int64_t y) {
 
 Message<google_firestore_v1_Value>
 NumericIncrementTransform::Rep::ApplyToLocalView(
-    const absl::optional<google_firestore_v1_Value>& previous_value,
+    const std::optional<google_firestore_v1_Value>& previous_value,
     const Timestamp& /* local_write_time */) const {
   auto base_value = ComputeBaseValue(previous_value);
   Message<google_firestore_v1_Value> result;
@@ -525,7 +526,7 @@ NumericIncrementTransform::Rep::ApplyToLocalView(
 
 Message<google_firestore_v1_Value>
 NumericMinimumTransform::Rep::ApplyToLocalView(
-    const absl::optional<google_firestore_v1_Value>& previous_value,
+    const std::optional<google_firestore_v1_Value>& previous_value,
     const Timestamp& /* local_write_time */) const {
   if (!IsNumber(previous_value)) {
     return DeepClone(*operand_);
@@ -565,7 +566,7 @@ NumericMinimumTransform::Rep::ApplyToLocalView(
 
 Message<google_firestore_v1_Value>
 NumericMaximumTransform::Rep::ApplyToLocalView(
-    const absl::optional<google_firestore_v1_Value>& previous_value,
+    const std::optional<google_firestore_v1_Value>& previous_value,
     const Timestamp& /* local_write_time */) const {
   if (!IsNumber(previous_value)) {
     return DeepClone(*operand_);
