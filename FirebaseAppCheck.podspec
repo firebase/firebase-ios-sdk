@@ -47,8 +47,8 @@ Pod::Spec.new do |s|
   s.dependency 'AppCheckCore', '~> 11.3'
   s.dependency 'FirebaseAppCheckInterop', '~> 12.19.0'
   s.dependency 'FirebaseCore', '~> 12.19.0'
-  s.dependency 'GoogleUtilities/Environment', '~> 8.1'
-  s.dependency 'GoogleUtilities/UserDefaults', '~> 8.1'
+  s.dependency 'GoogleUtilities/Environment', '>= 8.1.3', '< 9.0'
+  s.dependency 'GoogleUtilities/UserDefaults', '>= 8.1.3', '< 9.0'
 
   s.pod_target_xcconfig = {
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'

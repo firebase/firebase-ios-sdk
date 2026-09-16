@@ -53,8 +53,8 @@ app update.
   s.dependency 'FirebaseSharedSwift', '~> 12.19.0'
   s.dependency 'FirebaseCore', '~> 12.19.0'
   s.dependency 'FirebaseInstallations', '~> 12.19.0'
-  s.dependency 'GoogleUtilities/Environment', '~> 8.1'
-  s.dependency 'GoogleUtilities/NSData+zlib', '~> 8.1'
+  s.dependency 'GoogleUtilities/Environment', '>= 8.1.3', '< 9.0'
+  s.dependency 'GoogleUtilities/NSData+zlib', '>= 8.1.3', '< 9.0'
   s.dependency 'FirebaseRemoteConfigInterop', '~> 12.19.0'
 
   s.test_spec 'unit' do |unit_tests|

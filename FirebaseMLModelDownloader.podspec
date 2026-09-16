@@ -40,7 +40,7 @@ Pod::Spec.new do |s|
   s.dependency 'FirebaseCore', '~> 12.19.0'
   s.dependency 'FirebaseCoreExtension', '~> 12.19.0'
   s.dependency 'FirebaseInstallations', '~> 12.19.0'
-  s.dependency 'GoogleUtilities/UserDefaults', '~> 8.1'
+  s.dependency 'GoogleUtilities/UserDefaults', '>= 8.1.3', '< 9.0'
 
   s.pod_target_xcconfig = {
     'OTHER_CFLAGS' => '-fno-autolink',

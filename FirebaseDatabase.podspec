@@ -51,7 +51,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.dependency 'FirebaseCore', '~> 12.19.0'
   s.dependency 'FirebaseAppCheckInterop', '~> 12.19.0'
   s.dependency 'FirebaseSharedSwift', '~> 12.19.0'
-  s.dependency 'GoogleUtilities/UserDefaults', '~> 8.1'
+  s.dependency 'GoogleUtilities/UserDefaults', '>= 8.1.3', '< 9.0'
   s.pod_target_xcconfig = {
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
   }
