@@ -198,6 +198,10 @@ class TypeTest: FSTIntegrationTestCase {
   }
 
   func testCanReadAndWriteMinKeyFields() async throws {
+    try XCTSkipIf(
+      FSTIntegrationTestCase.backendEdition() == .standard,
+      "BSON types are not supported on standard backend."
+    )
     _ = try await expectRoundtrip(
       coll: collectionRef(),
       data: ["min": MinKey.shared]
@@ -205,6 +209,10 @@ class TypeTest: FSTIntegrationTestCase {
   }
 
   func testCanReadAndWriteMaxKeyFields() async throws {
+    try XCTSkipIf(
+      FSTIntegrationTestCase.backendEdition() == .standard,
+      "BSON types are not supported on standard backend."
+    )
     _ = try await expectRoundtrip(
       coll: collectionRef(),
       data: ["max": MaxKey.shared]
@@ -212,6 +220,10 @@ class TypeTest: FSTIntegrationTestCase {
   }
 
   func testCanReadAndWriteRegexFields() async throws {
+    try XCTSkipIf(
+      FSTIntegrationTestCase.backendEdition() == .standard,
+      "BSON types are not supported on standard backend."
+    )
     _ = try await expectRoundtrip(
       coll: collectionRef(),
       data: ["regex": RegexValue(pattern: "^foo", options: "i")]
@@ -219,6 +231,10 @@ class TypeTest: FSTIntegrationTestCase {
   }
 
   func testCanReadAndWriteInt32Fields() async throws {
+    try XCTSkipIf(
+      FSTIntegrationTestCase.backendEdition() == .standard,
+      "BSON types are not supported on standard backend."
+    )
     _ = try await expectRoundtrip(
       coll: collectionRef(),
       data: ["int32": Int32Value(1)]
@@ -226,6 +242,10 @@ class TypeTest: FSTIntegrationTestCase {
   }
 
   func testCanReadAndWriteDecimal128Fields() async throws {
+    try XCTSkipIf(
+      FSTIntegrationTestCase.backendEdition() == .standard,
+      "BSON types are not supported on standard backend."
+    )
     _ = try await expectRoundtrip(
       coll: collectionRef(),
       data: ["map": [
@@ -247,6 +267,10 @@ class TypeTest: FSTIntegrationTestCase {
   }
 
   func testCanReadAndWriteBsonTimestampFields() async throws {
+    try XCTSkipIf(
+      FSTIntegrationTestCase.backendEdition() == .standard,
+      "BSON types are not supported on standard backend."
+    )
     _ = try await expectRoundtrip(
       coll: collectionRef(),
       data: ["bsonTimestamp": BSONTimestamp(seconds: 1, increment: 2)]
@@ -254,6 +278,10 @@ class TypeTest: FSTIntegrationTestCase {
   }
 
   func testCanReadAndWriteBsonObjectIdFields() async throws {
+    try XCTSkipIf(
+      FSTIntegrationTestCase.backendEdition() == .standard,
+      "BSON types are not supported on standard backend."
+    )
     _ = try await expectRoundtrip(
       coll: collectionRef(),
       data: ["bsonObjectId": BSONObjectId("507f191e810c19729de860ea")]
@@ -261,6 +289,10 @@ class TypeTest: FSTIntegrationTestCase {
   }
 
   func testCanReadAndWriteBsonBinaryDataFields() async throws {
+    try XCTSkipIf(
+      FSTIntegrationTestCase.backendEdition() == .standard,
+      "BSON types are not supported on standard backend."
+    )
     _ = try await expectRoundtrip(
       coll: collectionRef(),
       data: ["bsonBinaryData": Blob(bsonBinary: Data([1, 2, 3]), subtype: 1)]
@@ -276,6 +308,10 @@ class TypeTest: FSTIntegrationTestCase {
   }
 
   func testCanReadAndWriteBsonFieldsInAnArray() async throws {
+    try XCTSkipIf(
+      FSTIntegrationTestCase.backendEdition() == .standard,
+      "BSON types are not supported on standard backend."
+    )
     _ = try await expectRoundtrip(
       coll: collectionRef(),
       data: ["array": [
@@ -292,6 +328,10 @@ class TypeTest: FSTIntegrationTestCase {
   }
 
   func testCanReadAndWriteBsonFieldsInAnObject() async throws {
+    try XCTSkipIf(
+      FSTIntegrationTestCase.backendEdition() == .standard,
+      "BSON types are not supported on standard backend."
+    )
     _ = try await expectRoundtrip(
       coll: collectionRef(),
       data: ["map": [
@@ -308,6 +348,10 @@ class TypeTest: FSTIntegrationTestCase {
   }
 
   func testInvalidRegexValueGetsRejected() async throws {
+    try XCTSkipIf(
+      FSTIntegrationTestCase.backendEdition() == .standard,
+      "BSON types are not supported on standard backend."
+    )
     let docRef = collectionRef().document("test-doc")
     var errorMessage: String?
 
@@ -327,6 +371,10 @@ class TypeTest: FSTIntegrationTestCase {
   }
 
   func testInvalidBsonObjectIdValueGetsRejected() async throws {
+    try XCTSkipIf(
+      FSTIntegrationTestCase.backendEdition() == .standard,
+      "BSON types are not supported on standard backend."
+    )
     let docRef = collectionRef().document("test-doc")
     var errorMessage: String?
 
@@ -345,6 +393,10 @@ class TypeTest: FSTIntegrationTestCase {
   }
 
   func testInvalidDecimal128ValuesGetsRejected() async throws {
+    try XCTSkipIf(
+      FSTIntegrationTestCase.backendEdition() == .standard,
+      "BSON types are not supported on standard backend."
+    )
     let docRef = collectionRef().document("test-doc")
     var errorMessage: String?
 
@@ -389,6 +441,10 @@ class TypeTest: FSTIntegrationTestCase {
   }
 
   func testCanOrderValuesOfDifferentTypeOrderTogether() async throws {
+    try XCTSkipIf(
+      FSTIntegrationTestCase.backendEdition() == .standard,
+      "BSON types are not supported on standard backend."
+    )
     let collection = collectionRef()
     let testDocs: [String: [String: Any?]] = [
       "nullValue": ["key": NSNull()],
