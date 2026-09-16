@@ -336,9 +336,12 @@ struct ZipBuilder {
       let frameworkName = framework.deletingPathExtension().lastPathComponent
 
       // Find available public C/ObjC headers across Headers (or Versions/A/Headers).
-      let mainHeadersDir = framework.appendingPathComponent("Headers").resolvingSymlinksInPath()
+      let standardHeadersDir = framework.appendingPathComponent("Headers").resolvingSymlinksInPath()
+      let headersDirToInspect = FileManager.default.directoryExists(at: standardHeadersDir)
+        ? standardHeadersDir
+        : framework.appendingPathComponent("Versions/A/Headers").resolvingSymlinksInPath()
       let mainHeaders = (try? FileManager.default.contentsOfDirectory(
-        at: mainHeadersDir,
+        at: headersDirToInspect,
         includingPropertiesForKeys: nil
       )) ?? []
       let nonUmbrellaHeaders = mainHeaders.filter { !$0.lastPathComponent.hasSuffix("-umbrella.h") }
