@@ -137,7 +137,15 @@ function RunXcodebuild() {
     "${xcbeautify_cmd[@]}" && CheckUnexpectedFailures "$log_filename" \
     || result=$?
 
-  if [[ $result == 65 ]]; then
+  local has_retry_flag=false
+  for arg in "$@"; do
+    if [[ "$arg" == "-retry-tests-on-failure" ]]; then
+      has_retry_flag=true
+      break
+    fi
+  done
+
+  if [[ $result == 65 && "$has_retry_flag" == "false" ]]; then
     ExportLogs "$@"
 
     echo "xcodebuild exited with 65, retrying" 1>&2
@@ -378,7 +386,7 @@ case "$product-$platform-$method" in
           -workspace 'Firestore/Example/Firestore.xcworkspace' \
           -scheme "Firestore_IntegrationTests_$platform" \
           "${xcb_flags[@]}" \
-          -jobs 4 \
+          -jobs 8 \
           build-for-testing
       ;;
 
@@ -402,7 +410,7 @@ case "$product-$platform-$method" in
           -workspace 'Firestore/Example/Firestore.xcworkspace' \
           -scheme "Firestore_IntegrationTests_Enterprise_$platform" \
           "${xcb_flags[@]}" \
-          -jobs 4 \
+          -jobs 8 \
           build-for-testing
       ;;
 
