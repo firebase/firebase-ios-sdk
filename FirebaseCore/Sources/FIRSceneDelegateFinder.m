@@ -51,11 +51,16 @@ static BOOL FIRSceneHasKeyWindow(UIScene *scene) {
       continue;
     }
 
+    if (scene.activationState != UISceneActivationStateForegroundActive &&
+        scene.activationState != UISceneActivationStateForegroundInactive) {
+      continue;
+    }
+
     BOOL isKey = FIRSceneHasKeyWindow(scene);
 
     if (scene.activationState == UISceneActivationStateForegroundActive) {
       if (isKey) {
-        // Optimal candidate: active foreground scene with the key window.
+        // active foreground scene with the key window; best case, so just return early
         return scene;
       } else if (!activeWithoutKeyWindow) {
         activeWithoutKeyWindow = scene;
