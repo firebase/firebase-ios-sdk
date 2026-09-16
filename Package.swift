@@ -149,7 +149,7 @@ func packageDependencies() -> [Package.Dependency] {
     ),
     .package(
       url: "https://github.com/google/gtm-session-fetcher.git",
-      "4.0.0" ..< "6.0.0"
+      "3.4.1" ..< "6.0.0"
     ),
     .package(
       url: "https://github.com/firebase/nanopb.git",
