@@ -38,7 +38,8 @@ static NSString *const kFIRMessagingTestsServiceSuiteName = @"com.messaging.test
 @property(nonatomic, readwrite, strong) NSString *defaultFcmToken;
 
 - (void)retrieveTokenOrFidForSenderID:(nonnull NSString *)senderID
-                           completion:(nullable FIRMessagingFCMTokenFetchCompletion)completion;
+                           completion:(nullable void (^)(NSString *_Nullable token,
+                                                         NSError *_Nullable error))completion;
 
 @end
 
@@ -283,14 +284,14 @@ static NSString *const kFIRMessagingTestsServiceSuiteName = @"com.messaging.test
 - (void)testUnsubscribeFailedWithInvalidToken {
   NSString *failureReason = @"Invalid token.";
   OCMStub([_mockMessaging
-      retrieveFCMTokenForSenderID:[OCMArg any]
-                       completion:([OCMArg
-                                      invokeBlockWithArgs:
-                                          [NSNull null],
-                                          [NSError
-                                              messagingErrorWithCode:kFIRMessagingErrorCodeUnknown
-                                                       failureReason:failureReason],
-                                          nil])]);
+      retrieveTokenOrFidForSenderID:[OCMArg any]
+                         completion:([OCMArg
+                                        invokeBlockWithArgs:
+                                            [NSNull null],
+                                            [NSError
+                                                messagingErrorWithCode:kFIRMessagingErrorCodeUnknown
+                                                         failureReason:failureReason],
+                                            nil])]);
   XCTestExpectation *unsubscriptionCompletionExpectation =
       [self expectationWithDescription:@"Unsubscription is complete"];
 

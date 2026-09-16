@@ -652,6 +652,11 @@ BundledDocumentMetadata BundleSerializer::DecodeDocumentMetadata(
   if (!reader.ok()) {
     return {};
   }
+  if (path.empty() || !DocumentKey::IsDocumentKey(path)) {
+    reader.Fail("Resource name is not a valid document key: " +
+                path.CanonicalString());
+    return {};
+  }
   DocumentKey key = DocumentKey(path);
 
   SnapshotVersion read_time = DecodeSnapshotVersion(
@@ -681,6 +686,11 @@ BundleDocument BundleSerializer::DecodeDocument(JsonReader& reader,
       DecodeName(reader, reader.RequiredObject("name", document));
   // Return early if !ok(), `DocumentKey` aborts with invalid inputs.
   if (!reader.ok()) {
+    return {};
+  }
+  if (path.empty() || !DocumentKey::IsDocumentKey(path)) {
+    reader.Fail("Resource name is not a valid document key: " +
+                path.CanonicalString());
     return {};
   }
   DocumentKey key = DocumentKey(path);

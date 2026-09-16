@@ -15,6 +15,8 @@
 import Foundation
 
 /// Configures a speaker with a unique name/identifier and a specific voice.
+///
+/// **Public Preview**: This API is a public preview and may be subject to change.
 public struct SpeakerVoiceConfig: Sendable {
   let speakerVoiceConfig: ProtoSpeakerVoiceConfig
 
@@ -30,8 +32,7 @@ public struct SpeakerVoiceConfig: Sendable {
   ///
   /// Find the list of supported voices for:
   /// - [Gemini Developer API](https://ai.google.dev/gemini-api/docs/speech-generation)
-  /// - [Gemini Enterprise Agent Platform Gemini
-  /// API](https://docs.cloud.google.com/text-to-speech/docs/gemini-tts)
+  /// - [Agent Platform Gemini API](https://docs.cloud.google.com/text-to-speech/docs/gemini-tts)
   // TODO(b/522397979): Update links to point to Firebase when they're live
   public init(speaker: String, voiceName: String) {
     self.init(

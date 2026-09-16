@@ -18,9 +18,9 @@ Pod::Spec.new do |s|
   }
 
   ios_deployment_target = '15.0'
-  osx_deployment_target = '10.15'
+  osx_deployment_target = '11.0'
   tvos_deployment_target = '15.0'
-  watchos_deployment_target = '7.0'
+  watchos_deployment_target = '8.0'
 
   s.swift_version = '5.9'
 

@@ -18,11 +18,33 @@
 
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRRecaptchaProvider.h"
 
+@interface FIRRecaptchaProviderFactory ()
+@property(nonatomic, readonly, copy) NSString *siteKey;
+@end
+
 @implementation FIRRecaptchaProviderFactory
+
+- (instancetype)init {
+  [self doesNotRecognizeSelector:_cmd];
+  return nil;
+}
+
+- (instancetype)initWithSiteKey:(NSString *)siteKey {
+  if (siteKey.length == 0) {
+    [NSException raise:NSInvalidArgumentException
+                format:@"Cannot instantiate RecaptchaProviderFactory. The siteKey parameter is "
+                       @"missing or empty."];
+  }
+  self = [super init];
+  if (self) {
+    _siteKey = [siteKey copy];
+  }
+  return self;
+}
 
 - (nullable id<FIRAppCheckProvider>)createProviderWithApp:(nonnull FIRApp *)app {
 #if (TARGET_OS_IOS && !TARGET_OS_MACCATALYST) || TARGET_OS_VISION
-  return [[FIRRecaptchaProvider alloc] initWithApp:app];
+  return [[FIRRecaptchaProvider alloc] initWithApp:app siteKey:self.siteKey];
 #else
   return nil;
 #endif

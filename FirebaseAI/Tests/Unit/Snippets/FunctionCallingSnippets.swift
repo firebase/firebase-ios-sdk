@@ -100,7 +100,7 @@ final class FunctionCallingSnippets: XCTestCase {
     // Send the response(s) from the function back to the model so that the model can use it
     // to generate its final response.
     let finalResponse = try await chat.sendMessage(
-      [ModelContent(role: "function", parts: functionResponses)]
+      [ModelContent(role: "user", parts: functionResponses)]
     )
 
     // Log the text response.

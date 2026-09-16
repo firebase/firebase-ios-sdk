@@ -92,6 +92,8 @@ using model::MutationResult;
 using model::NaNValue;
 using model::NullValue;
 using model::NumericIncrementTransform;
+using model::NumericMaximumTransform;
+using model::NumericMinimumTransform;
 using model::ObjectValue;
 using model::PatchMutation;
 using model::Precondition;
@@ -579,6 +581,24 @@ Serializer::EncodeFieldTransform(const FieldTransform& field_transform) const {
       proto.increment = increment.operand();
       return proto;
     }
+
+    case Type::Minimum: {
+      proto.which_transform_type =
+          google_firestore_v1_DocumentTransform_FieldTransform_minimum_tag;
+      const auto& minimum = static_cast<const NumericMinimumTransform&>(
+          field_transform.transformation());
+      proto.minimum = minimum.operand();
+      return proto;
+    }
+
+    case Type::Maximum: {
+      proto.which_transform_type =
+          google_firestore_v1_DocumentTransform_FieldTransform_maximum_tag;
+      const auto& maximum = static_cast<const NumericMaximumTransform&>(
+          field_transform.transformation());
+      proto.maximum = maximum.operand();
+      return proto;
+    }
   }
 
   UNREACHABLE();
@@ -625,6 +645,22 @@ FieldTransform Serializer::DecodeFieldTransform(
       return FieldTransform(
           std::move(field),
           NumericIncrementTransform(MakeMessage(proto.increment)));
+    }
+
+    case google_firestore_v1_DocumentTransform_FieldTransform_minimum_tag: {
+      FieldTransform field_transform(
+          std::move(field),
+          NumericMinimumTransform(MakeMessage(proto.minimum)));
+      proto.minimum = {};
+      return field_transform;
+    }
+
+    case google_firestore_v1_DocumentTransform_FieldTransform_maximum_tag: {
+      FieldTransform field_transform(
+          std::move(field),
+          NumericMaximumTransform(MakeMessage(proto.maximum)));
+      proto.maximum = {};
+      return field_transform;
     }
   }
 
@@ -1515,14 +1551,19 @@ ExistenceFilter Serializer::DecodeExistenceFilter(
 }
 
 bool Serializer::IsLocalResourceName(const ResourcePath& path) const {
-  return IsValidResourceName(path) && path[1] == database_id_.project_id() &&
-         path[3] == database_id_.database_id();
+  // A local document resource name is
+  // `projects/{p}/databases/{d}/documents/...`, so it needs the `documents`
+  // segment in addition to the project and database. Requiring it here keeps
+  // callers that strip the five-segment prefix with `PopFirst(5)` from
+  // asserting on a shorter name such as `projects/{p}/databases/{d}`.
+  return IsValidResourceName(path) && path.size() >= 5 &&
+         path[1] == database_id_.project_id() &&
+         path[3] == database_id_.database_id() && path[4] == "documents";
 }
 
 bool Serializer::IsLocalDocumentKey(absl::string_view path) const {
   auto resource = ResourcePath::FromStringView(path);
-  return IsLocalResourceName(resource) &&
-         DocumentKey::IsDocumentKey(resource.PopFirst(5));
+  return IsLocalResourceName(resource) && (resource.size() - 5) % 2 == 0;
 }
 
 api::PipelineSnapshot Serializer::DecodePipelineResponse(

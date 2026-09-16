@@ -34,6 +34,10 @@ final class AsyncWebSocket: Sendable {
     (stream, continuation) = AsyncThrowingStream<URLSessionWebSocketTask.Message, Error>
       .makeStream()
     closeError = UnfairLock(nil)
+
+    continuation.onTermination = { [weak self] _ in
+      self?.disconnect()
+    }
   }
 
   deinit {

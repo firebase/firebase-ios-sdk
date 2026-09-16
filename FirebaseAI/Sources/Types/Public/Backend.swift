@@ -40,7 +40,7 @@ public struct Backend {
   ///     [Vertex AI locations](https://firebase.google.com/docs/vertex-ai/locations?platform=ios#available-locations)
   ///     for a list of supported locations.
   @available(*, deprecated, renamed: "agentPlatform(location:)", message: """
-  Vertex AI has been renamed to the Gemini Enterprise Agent Platform.
+  Vertex AI has been renamed to the Agent Platform Gemini API.
   """)
   public static func vertexAI(location: String) -> Backend {
     return Backend(
@@ -51,9 +51,9 @@ public struct Backend {
     )
   }
 
-  /// Initializes a `Backend` configured for the Gemini Enterprise Agent Platform.
+  /// Initializes a `Backend` configured for the Agent Platform Gemini API.
   ///
-  /// > Note: The Gemini Enterprise Agent Platform was formerly known as the Vertex AI.
+  /// > Note: The Agent Platform Gemini API was formerly known as Vertex AI.
   ///
   /// - Parameters:
   ///   - location: The region identifier, defaulting to `global`; see
@@ -68,7 +68,7 @@ public struct Backend {
     )
   }
 
-  /// Initializes a `Backend` configured for the Google Developer API.
+  /// Initializes a `Backend` configured for the Gemini Developer API.
   public static func googleAI() -> Backend {
     return Backend(
       apiConfig: APIConfig(

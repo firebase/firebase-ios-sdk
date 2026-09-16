@@ -33,13 +33,11 @@
          selector:@selector(checkAndDisplayNextAppForegroundMessageFromForeground:)
              name:UIApplicationWillEnterForegroundNotification
            object:nil];
-  if (@available(iOS 13.0, tvOS 13.0, *)) {
-    [[NSNotificationCenter defaultCenter]
-        addObserver:self
-           selector:@selector(checkAndDisplayNextAppForegroundMessageFromForeground:)
-               name:UISceneWillEnterForegroundNotification
-             object:nil];
-  }
+  [[NSNotificationCenter defaultCenter]
+      addObserver:self
+         selector:@selector(checkAndDisplayNextAppForegroundMessageFromForeground:)
+             name:UISceneWillEnterForegroundNotification
+           object:nil];
 }
 
 - (void)checkAndDisplayNextAppForegroundMessageFromForeground:(NSNotification *)notification {
