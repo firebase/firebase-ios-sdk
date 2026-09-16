@@ -515,6 +515,7 @@ inline constexpr ExecutePipelineRequest::Impl_::Impl_(
       : database_(
             &::google::protobuf::internal::fixed_address_empty_string,
             ::_pbi::ConstantInitialized()),
+        auto_commit_transaction_{false},
         pipeline_type_{},
         consistency_selector_{},
         _cached_size_{0},
@@ -1024,6 +1025,7 @@ const ::uint32_t TableStruct_google_2ffirestore_2fv1_2ffirestore_2eproto::offset
     ::_pbi::kInvalidFieldOffsetTag,
     ::_pbi::kInvalidFieldOffsetTag,
     ::_pbi::kInvalidFieldOffsetTag,
+    PROTOBUF_FIELD_OFFSET(::google::firestore::v1::ExecutePipelineRequest, _impl_.auto_commit_transaction_),
     PROTOBUF_FIELD_OFFSET(::google::firestore::v1::ExecutePipelineRequest, _impl_.pipeline_type_),
     PROTOBUF_FIELD_OFFSET(::google::firestore::v1::ExecutePipelineRequest, _impl_.consistency_selector_),
     PROTOBUF_FIELD_OFFSET(::google::firestore::v1::ExecutePipelineResponse, _impl_._has_bits_),
@@ -1266,22 +1268,22 @@ static const ::_pbi::MigrationSchema
         {192, -1, -1, sizeof(::google::firestore::v1::RunQueryRequest)},
         {207, 219, -1, sizeof(::google::firestore::v1::RunQueryResponse)},
         {223, -1, -1, sizeof(::google::firestore::v1::ExecutePipelineRequest)},
-        {238, 250, -1, sizeof(::google::firestore::v1::ExecutePipelineResponse)},
-        {254, -1, -1, sizeof(::google::firestore::v1::RunAggregationQueryRequest)},
-        {269, 280, -1, sizeof(::google::firestore::v1::RunAggregationQueryResponse)},
-        {283, 293, -1, sizeof(::google::firestore::v1::WriteRequest_LabelsEntry_DoNotUse)},
-        {295, -1, -1, sizeof(::google::firestore::v1::WriteRequest)},
-        {308, 320, -1, sizeof(::google::firestore::v1::WriteResponse)},
-        {324, 334, -1, sizeof(::google::firestore::v1::ListenRequest_LabelsEntry_DoNotUse)},
-        {336, -1, -1, sizeof(::google::firestore::v1::ListenRequest)},
-        {349, -1, -1, sizeof(::google::firestore::v1::ListenResponse)},
-        {363, -1, -1, sizeof(::google::firestore::v1::Target_DocumentsTarget)},
-        {372, -1, -1, sizeof(::google::firestore::v1::Target_QueryTarget)},
-        {383, -1, -1, sizeof(::google::firestore::v1::Target_PipelineQueryTarget)},
-        {393, 411, -1, sizeof(::google::firestore::v1::Target)},
-        {419, 432, -1, sizeof(::google::firestore::v1::TargetChange)},
-        {437, -1, -1, sizeof(::google::firestore::v1::ListCollectionIdsRequest)},
-        {448, -1, -1, sizeof(::google::firestore::v1::ListCollectionIdsResponse)},
+        {239, 251, -1, sizeof(::google::firestore::v1::ExecutePipelineResponse)},
+        {255, -1, -1, sizeof(::google::firestore::v1::RunAggregationQueryRequest)},
+        {270, 281, -1, sizeof(::google::firestore::v1::RunAggregationQueryResponse)},
+        {284, 294, -1, sizeof(::google::firestore::v1::WriteRequest_LabelsEntry_DoNotUse)},
+        {296, -1, -1, sizeof(::google::firestore::v1::WriteRequest)},
+        {309, 321, -1, sizeof(::google::firestore::v1::WriteResponse)},
+        {325, 335, -1, sizeof(::google::firestore::v1::ListenRequest_LabelsEntry_DoNotUse)},
+        {337, -1, -1, sizeof(::google::firestore::v1::ListenRequest)},
+        {350, -1, -1, sizeof(::google::firestore::v1::ListenResponse)},
+        {364, -1, -1, sizeof(::google::firestore::v1::Target_DocumentsTarget)},
+        {373, -1, -1, sizeof(::google::firestore::v1::Target_QueryTarget)},
+        {384, -1, -1, sizeof(::google::firestore::v1::Target_PipelineQueryTarget)},
+        {394, 412, -1, sizeof(::google::firestore::v1::Target)},
+        {420, 433, -1, sizeof(::google::firestore::v1::TargetChange)},
+        {438, -1, -1, sizeof(::google::firestore::v1::ListCollectionIdsRequest)},
+        {449, -1, -1, sizeof(::google::firestore::v1::ListCollectionIdsResponse)},
 };
 
 static const ::_pb::Message* const file_default_instances[] = {
@@ -1392,158 +1394,159 @@ const char descriptor_table_protodef_google_2ffirestore_2fv1_2ffirestore_2eproto
     " \001(\014\022/\n\010document\030\001 \001(\0132\035.google.firestor"
     "e.v1.Document\022-\n\tread_time\030\003 \001(\0132\032.googl"
     "e.protobuf.Timestamp\022\027\n\017skipped_results\030"
-    "\004 \001(\005\"\254\002\n\026ExecutePipelineRequest\022\025\n\010data"
+    "\004 \001(\005\"\322\002\n\026ExecutePipelineRequest\022\025\n\010data"
     "base\030\001 \001(\tB\003\340A\002\022F\n\023structured_pipeline\030\002"
     " \001(\0132\'.google.firestore.v1.StructuredPip"
     "elineH\000\022\025\n\013transaction\030\005 \001(\014H\001\022B\n\017new_tr"
     "ansaction\030\006 \001(\0132\'.google.firestore.v1.Tr"
     "ansactionOptionsH\001\022/\n\tread_time\030\007 \001(\0132\032."
-    "google.protobuf.TimestampH\001B\017\n\rpipeline_"
-    "typeB\026\n\024consistency_selector\"\314\001\n\027Execute"
-    "PipelineResponse\022\023\n\013transaction\030\001 \001(\014\022.\n"
-    "\007results\030\002 \003(\0132\035.google.firestore.v1.Doc"
-    "ument\0222\n\016execution_time\030\003 \001(\0132\032.google.p"
-    "rotobuf.Timestamp\0228\n\rexplain_stats\030\004 \001(\013"
-    "2!.google.firestore.v1.ExplainStats\"\267\002\n\032"
-    "RunAggregationQueryRequest\022\016\n\006parent\030\001 \001"
-    "(\t\022W\n\034structured_aggregation_query\030\002 \001(\013"
-    "2/.google.firestore.v1.StructuredAggrega"
-    "tionQueryH\000\022\025\n\013transaction\030\004 \001(\014H\001\022B\n\017ne"
-    "w_transaction\030\005 \001(\0132\'.google.firestore.v"
-    "1.TransactionOptionsH\001\022/\n\tread_time\030\006 \001("
-    "\0132\032.google.protobuf.TimestampH\001B\014\n\nquery"
-    "_typeB\026\n\024consistency_selector\"\231\001\n\033RunAgg"
-    "regationQueryResponse\0226\n\006result\030\001 \001(\0132&."
-    "google.firestore.v1.AggregationResult\022\023\n"
-    "\013transaction\030\002 \001(\014\022-\n\tread_time\030\003 \001(\0132\032."
-    "google.protobuf.Timestamp\"\343\001\n\014WriteReque"
-    "st\022\020\n\010database\030\001 \001(\t\022\021\n\tstream_id\030\002 \001(\t\022"
-    "*\n\006writes\030\003 \003(\0132\032.google.firestore.v1.Wr"
-    "ite\022\024\n\014stream_token\030\004 \001(\014\022=\n\006labels\030\005 \003("
-    "\0132-.google.firestore.v1.WriteRequest.Lab"
-    "elsEntry\032-\n\013LabelsEntry\022\013\n\003key\030\001 \001(\t\022\r\n\005"
-    "value\030\002 \001(\t:\0028\001\"\242\001\n\rWriteResponse\022\021\n\tstr"
-    "eam_id\030\001 \001(\t\022\024\n\014stream_token\030\002 \001(\014\0227\n\rwr"
-    "ite_results\030\003 \003(\0132 .google.firestore.v1."
-    "WriteResult\022/\n\013commit_time\030\004 \001(\0132\032.googl"
-    "e.protobuf.Timestamp\"\355\001\n\rListenRequest\022\020"
-    "\n\010database\030\001 \001(\t\0221\n\nadd_target\030\002 \001(\0132\033.g"
-    "oogle.firestore.v1.TargetH\000\022\027\n\rremove_ta"
-    "rget\030\003 \001(\005H\000\022>\n\006labels\030\004 \003(\0132..google.fi"
-    "restore.v1.ListenRequest.LabelsEntry\032-\n\013"
-    "LabelsEntry\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001(\t:"
-    "\0028\001B\017\n\rtarget_change\"\325\002\n\016ListenResponse\022"
-    ":\n\rtarget_change\030\002 \001(\0132!.google.firestor"
-    "e.v1.TargetChangeH\000\022>\n\017document_change\030\003"
-    " \001(\0132#.google.firestore.v1.DocumentChang"
-    "eH\000\022>\n\017document_delete\030\004 \001(\0132#.google.fi"
-    "restore.v1.DocumentDeleteH\000\022>\n\017document_"
-    "remove\030\006 \001(\0132#.google.firestore.v1.Docum"
-    "entRemoveH\000\0226\n\006filter\030\005 \001(\0132$.google.fir"
-    "estore.v1.ExistenceFilterH\000B\017\n\rresponse_"
-    "type\"\221\005\n\006Target\0228\n\005query\030\002 \001(\0132\'.google."
-    "firestore.v1.Target.QueryTargetH\000\022@\n\tdoc"
-    "uments\030\003 \001(\0132+.google.firestore.v1.Targe"
-    "t.DocumentsTargetH\000\022I\n\016pipeline_query\030\r "
-    "\001(\0132/.google.firestore.v1.Target.Pipelin"
-    "eQueryTargetH\000\022\026\n\014resume_token\030\004 \001(\014H\001\022/"
-    "\n\tread_time\030\013 \001(\0132\032.google.protobuf.Time"
-    "stampH\001\022\021\n\ttarget_id\030\005 \001(\005\022\014\n\004once\030\006 \001(\010"
-    "\0223\n\016expected_count\030\014 \001(\0132\033.google.protob"
-    "uf.Int32Value\032$\n\017DocumentsTarget\022\021\n\tdocu"
-    "ments\030\002 \003(\t\032m\n\013QueryTarget\022\016\n\006parent\030\001 \001"
-    "(\t\022@\n\020structured_query\030\002 \001(\0132$.google.fi"
-    "restore.v1.StructuredQueryH\000B\014\n\nquery_ty"
-    "pe\032n\n\023PipelineQueryTarget\022F\n\023structured_"
-    "pipeline\030\001 \001(\0132\'.google.firestore.v1.Str"
-    "ucturedPipelineH\000B\017\n\rpipeline_typeB\r\n\013ta"
-    "rget_typeB\r\n\013resume_type\"\252\002\n\014TargetChang"
-    "e\022N\n\022target_change_type\030\001 \001(\01622.google.f"
-    "irestore.v1.TargetChange.TargetChangeTyp"
-    "e\022\022\n\ntarget_ids\030\002 \003(\005\022!\n\005cause\030\003 \001(\0132\022.g"
-    "oogle.rpc.Status\022\024\n\014resume_token\030\004 \001(\014\022-"
-    "\n\tread_time\030\006 \001(\0132\032.google.protobuf.Time"
-    "stamp\"N\n\020TargetChangeType\022\r\n\tNO_CHANGE\020\000"
-    "\022\007\n\003ADD\020\001\022\n\n\006REMOVE\020\002\022\013\n\007CURRENT\020\003\022\t\n\005RE"
-    "SET\020\004\"Q\n\030ListCollectionIdsRequest\022\016\n\006par"
-    "ent\030\001 \001(\t\022\021\n\tpage_size\030\002 \001(\005\022\022\n\npage_tok"
-    "en\030\003 \001(\t\"L\n\031ListCollectionIdsResponse\022\026\n"
-    "\016collection_ids\030\001 \003(\t\022\027\n\017next_page_token"
-    "\030\002 \001(\t2\333\025\n\tFirestore\022\217\001\n\013GetDocument\022\'.g"
-    "oogle.firestore.v1.GetDocumentRequest\032\035."
-    "google.firestore.v1.Document\"8\202\323\344\223\0022\0220/v"
-    "1/{name=projects/*/databases/*/documents"
-    "/*/**}\022\262\001\n\rListDocuments\022).google.firest"
-    "ore.v1.ListDocumentsRequest\032*.google.fir"
-    "estore.v1.ListDocumentsResponse\"J\202\323\344\223\002D\022"
-    "B/v1/{parent=projects/*/databases/*/docu"
-    "ments/*/**}/{collection_id}\022\257\001\n\016CreateDo"
-    "cument\022*.google.firestore.v1.CreateDocum"
-    "entRequest\032\035.google.firestore.v1.Documen"
-    "t\"R\202\323\344\223\002L\"@/v1/{parent=projects/*/databa"
-    "ses/*/documents/**}/{collection_id}:\010doc"
-    "ument\022\250\001\n\016UpdateDocument\022*.google.firest"
-    "ore.v1.UpdateDocumentRequest\032\035.google.fi"
-    "restore.v1.Document\"K\202\323\344\223\002E29/v1/{docume"
-    "nt.name=projects/*/databases/*/documents"
-    "/*/**}:\010document\022\216\001\n\016DeleteDocument\022*.go"
-    "ogle.firestore.v1.DeleteDocumentRequest\032"
-    "\026.google.protobuf.Empty\"8\202\323\344\223\0022*0/v1/{na"
-    "me=projects/*/databases/*/documents/*/**"
-    "}\022\271\001\n\021BatchGetDocuments\022-.google.firesto"
-    "re.v1.BatchGetDocumentsRequest\032..google."
-    "firestore.v1.BatchGetDocumentsResponse\"C"
-    "\202\323\344\223\002=\"8/v1/{database=projects/*/databas"
-    "es/*}/documents:batchGet:\001*0\001\022\274\001\n\020BeginT"
-    "ransaction\022,.google.firestore.v1.BeginTr"
-    "ansactionRequest\032-.google.firestore.v1.B"
-    "eginTransactionResponse\"K\202\323\344\223\002E\"@/v1/{da"
-    "tabase=projects/*/databases/*}/documents"
-    ":beginTransaction:\001*\022\224\001\n\006Commit\022\".google"
-    ".firestore.v1.CommitRequest\032#.google.fir"
-    "estore.v1.CommitResponse\"A\202\323\344\223\002;\"6/v1/{d"
-    "atabase=projects/*/databases/*}/document"
-    "s:commit:\001*\022\215\001\n\010Rollback\022$.google.firest"
-    "ore.v1.RollbackRequest\032\026.google.protobuf"
-    ".Empty\"C\202\323\344\223\002=\"8/v1/{database=projects/*"
-    "/databases/*}/documents:rollback:\001*\022\337\001\n\010"
-    "RunQuery\022$.google.firestore.v1.RunQueryR"
-    "equest\032%.google.firestore.v1.RunQueryRes"
-    "ponse\"\203\001\202\323\344\223\002}\"6/v1/{parent=projects/*/d"
-    "atabases/*/documents}:runQuery:\001*Z@\";/v1"
-    "/{parent=projects/*/databases/*/document"
-    "s/*/**}:runQuery:\001*0\001\022\272\001\n\017ExecutePipelin"
-    "e\022+.google.firestore.v1.ExecutePipelineR"
-    "equest\032,.google.firestore.v1.ExecutePipe"
-    "lineResponse\"J\202\323\344\223\002D\"\?/v1/{database=proj"
-    "ects/*/databases/*}/documents:executePip"
-    "eline:\001*0\001\022\227\002\n\023RunAggregationQuery\022/.goo"
-    "gle.firestore.v1.RunAggregationQueryRequ"
-    "est\0320.google.firestore.v1.RunAggregation"
-    "QueryResponse\"\232\001\202\323\344\223\002\223\001\"A/v1/{parent=pro"
-    "jects/*/databases/*/documents}:runAggreg"
-    "ationQuery:\001*ZK\"F/v1/{parent=projects/*/"
-    "databases/*/documents/*/**}:runAggregati"
-    "onQuery:\001*0\001\022\224\001\n\005Write\022!.google.firestor"
-    "e.v1.WriteRequest\032\".google.firestore.v1."
-    "WriteResponse\"@\202\323\344\223\002:\"5/v1/{database=pro"
-    "jects/*/databases/*}/documents:write:\001*("
-    "\0010\001\022\230\001\n\006Listen\022\".google.firestore.v1.Lis"
-    "tenRequest\032#.google.firestore.v1.ListenR"
-    "esponse\"A\202\323\344\223\002;\"6/v1/{database=projects/"
-    "*/databases/*}/documents:listen:\001*(\0010\001\022\213"
-    "\002\n\021ListCollectionIds\022-.google.firestore."
-    "v1.ListCollectionIdsRequest\032..google.fir"
-    "estore.v1.ListCollectionIdsResponse\"\226\001\202\323"
-    "\344\223\002\217\001\"\?/v1/{parent=projects/*/databases/"
-    "*/documents}:listCollectionIds:\001*ZI\"D/v1"
-    "/{parent=projects/*/databases/*/document"
-    "s/*/**}:listCollectionIds:\001*B\262\001\n\027com.goo"
-    "gle.firestore.v1B\016FirestoreProtoP\001Z<goog"
-    "le.golang.org/genproto/googleapis/firest"
-    "ore/v1;firestore\242\002\004GCFS\252\002\036Google.Cloud.F"
-    "irestore.V1Beta1\312\002\036Google\\Cloud\\Firestor"
-    "e\\V1beta1b\006proto3"
+    "google.protobuf.TimestampH\001\022$\n\027auto_comm"
+    "it_transaction\030\t \001(\010B\003\340A\001B\017\n\rpipeline_ty"
+    "peB\026\n\024consistency_selector\"\314\001\n\027ExecutePi"
+    "pelineResponse\022\023\n\013transaction\030\001 \001(\014\022.\n\007r"
+    "esults\030\002 \003(\0132\035.google.firestore.v1.Docum"
+    "ent\0222\n\016execution_time\030\003 \001(\0132\032.google.pro"
+    "tobuf.Timestamp\0228\n\rexplain_stats\030\004 \001(\0132!"
+    ".google.firestore.v1.ExplainStats\"\267\002\n\032Ru"
+    "nAggregationQueryRequest\022\016\n\006parent\030\001 \001(\t"
+    "\022W\n\034structured_aggregation_query\030\002 \001(\0132/"
+    ".google.firestore.v1.StructuredAggregati"
+    "onQueryH\000\022\025\n\013transaction\030\004 \001(\014H\001\022B\n\017new_"
+    "transaction\030\005 \001(\0132\'.google.firestore.v1."
+    "TransactionOptionsH\001\022/\n\tread_time\030\006 \001(\0132"
+    "\032.google.protobuf.TimestampH\001B\014\n\nquery_t"
+    "ypeB\026\n\024consistency_selector\"\231\001\n\033RunAggre"
+    "gationQueryResponse\0226\n\006result\030\001 \001(\0132&.go"
+    "ogle.firestore.v1.AggregationResult\022\023\n\013t"
+    "ransaction\030\002 \001(\014\022-\n\tread_time\030\003 \001(\0132\032.go"
+    "ogle.protobuf.Timestamp\"\343\001\n\014WriteRequest"
+    "\022\020\n\010database\030\001 \001(\t\022\021\n\tstream_id\030\002 \001(\t\022*\n"
+    "\006writes\030\003 \003(\0132\032.google.firestore.v1.Writ"
+    "e\022\024\n\014stream_token\030\004 \001(\014\022=\n\006labels\030\005 \003(\0132"
+    "-.google.firestore.v1.WriteRequest.Label"
+    "sEntry\032-\n\013LabelsEntry\022\013\n\003key\030\001 \001(\t\022\r\n\005va"
+    "lue\030\002 \001(\t:\0028\001\"\242\001\n\rWriteResponse\022\021\n\tstrea"
+    "m_id\030\001 \001(\t\022\024\n\014stream_token\030\002 \001(\014\0227\n\rwrit"
+    "e_results\030\003 \003(\0132 .google.firestore.v1.Wr"
+    "iteResult\022/\n\013commit_time\030\004 \001(\0132\032.google."
+    "protobuf.Timestamp\"\355\001\n\rListenRequest\022\020\n\010"
+    "database\030\001 \001(\t\0221\n\nadd_target\030\002 \001(\0132\033.goo"
+    "gle.firestore.v1.TargetH\000\022\027\n\rremove_targ"
+    "et\030\003 \001(\005H\000\022>\n\006labels\030\004 \003(\0132..google.fire"
+    "store.v1.ListenRequest.LabelsEntry\032-\n\013La"
+    "belsEntry\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001(\t:\0028"
+    "\001B\017\n\rtarget_change\"\325\002\n\016ListenResponse\022:\n"
+    "\rtarget_change\030\002 \001(\0132!.google.firestore."
+    "v1.TargetChangeH\000\022>\n\017document_change\030\003 \001"
+    "(\0132#.google.firestore.v1.DocumentChangeH"
+    "\000\022>\n\017document_delete\030\004 \001(\0132#.google.fire"
+    "store.v1.DocumentDeleteH\000\022>\n\017document_re"
+    "move\030\006 \001(\0132#.google.firestore.v1.Documen"
+    "tRemoveH\000\0226\n\006filter\030\005 \001(\0132$.google.fires"
+    "tore.v1.ExistenceFilterH\000B\017\n\rresponse_ty"
+    "pe\"\221\005\n\006Target\0228\n\005query\030\002 \001(\0132\'.google.fi"
+    "restore.v1.Target.QueryTargetH\000\022@\n\tdocum"
+    "ents\030\003 \001(\0132+.google.firestore.v1.Target."
+    "DocumentsTargetH\000\022I\n\016pipeline_query\030\r \001("
+    "\0132/.google.firestore.v1.Target.PipelineQ"
+    "ueryTargetH\000\022\026\n\014resume_token\030\004 \001(\014H\001\022/\n\t"
+    "read_time\030\013 \001(\0132\032.google.protobuf.Timest"
+    "ampH\001\022\021\n\ttarget_id\030\005 \001(\005\022\014\n\004once\030\006 \001(\010\0223"
+    "\n\016expected_count\030\014 \001(\0132\033.google.protobuf"
+    ".Int32Value\032$\n\017DocumentsTarget\022\021\n\tdocume"
+    "nts\030\002 \003(\t\032m\n\013QueryTarget\022\016\n\006parent\030\001 \001(\t"
+    "\022@\n\020structured_query\030\002 \001(\0132$.google.fire"
+    "store.v1.StructuredQueryH\000B\014\n\nquery_type"
+    "\032n\n\023PipelineQueryTarget\022F\n\023structured_pi"
+    "peline\030\001 \001(\0132\'.google.firestore.v1.Struc"
+    "turedPipelineH\000B\017\n\rpipeline_typeB\r\n\013targ"
+    "et_typeB\r\n\013resume_type\"\252\002\n\014TargetChange\022"
+    "N\n\022target_change_type\030\001 \001(\01622.google.fir"
+    "estore.v1.TargetChange.TargetChangeType\022"
+    "\022\n\ntarget_ids\030\002 \003(\005\022!\n\005cause\030\003 \001(\0132\022.goo"
+    "gle.rpc.Status\022\024\n\014resume_token\030\004 \001(\014\022-\n\t"
+    "read_time\030\006 \001(\0132\032.google.protobuf.Timest"
+    "amp\"N\n\020TargetChangeType\022\r\n\tNO_CHANGE\020\000\022\007"
+    "\n\003ADD\020\001\022\n\n\006REMOVE\020\002\022\013\n\007CURRENT\020\003\022\t\n\005RESE"
+    "T\020\004\"Q\n\030ListCollectionIdsRequest\022\016\n\006paren"
+    "t\030\001 \001(\t\022\021\n\tpage_size\030\002 \001(\005\022\022\n\npage_token"
+    "\030\003 \001(\t\"L\n\031ListCollectionIdsResponse\022\026\n\016c"
+    "ollection_ids\030\001 \003(\t\022\027\n\017next_page_token\030\002"
+    " \001(\t2\333\025\n\tFirestore\022\217\001\n\013GetDocument\022\'.goo"
+    "gle.firestore.v1.GetDocumentRequest\032\035.go"
+    "ogle.firestore.v1.Document\"8\202\323\344\223\0022\0220/v1/"
+    "{name=projects/*/databases/*/documents/*"
+    "/**}\022\262\001\n\rListDocuments\022).google.firestor"
+    "e.v1.ListDocumentsRequest\032*.google.fires"
+    "tore.v1.ListDocumentsResponse\"J\202\323\344\223\002D\022B/"
+    "v1/{parent=projects/*/databases/*/docume"
+    "nts/*/**}/{collection_id}\022\257\001\n\016CreateDocu"
+    "ment\022*.google.firestore.v1.CreateDocumen"
+    "tRequest\032\035.google.firestore.v1.Document\""
+    "R\202\323\344\223\002L\"@/v1/{parent=projects/*/database"
+    "s/*/documents/**}/{collection_id}:\010docum"
+    "ent\022\250\001\n\016UpdateDocument\022*.google.firestor"
+    "e.v1.UpdateDocumentRequest\032\035.google.fire"
+    "store.v1.Document\"K\202\323\344\223\002E29/v1/{document"
+    ".name=projects/*/databases/*/documents/*"
+    "/**}:\010document\022\216\001\n\016DeleteDocument\022*.goog"
+    "le.firestore.v1.DeleteDocumentRequest\032\026."
+    "google.protobuf.Empty\"8\202\323\344\223\0022*0/v1/{name"
+    "=projects/*/databases/*/documents/*/**}\022"
+    "\271\001\n\021BatchGetDocuments\022-.google.firestore"
+    ".v1.BatchGetDocumentsRequest\032..google.fi"
+    "restore.v1.BatchGetDocumentsResponse\"C\202\323"
+    "\344\223\002=\"8/v1/{database=projects/*/databases"
+    "/*}/documents:batchGet:\001*0\001\022\274\001\n\020BeginTra"
+    "nsaction\022,.google.firestore.v1.BeginTran"
+    "sactionRequest\032-.google.firestore.v1.Beg"
+    "inTransactionResponse\"K\202\323\344\223\002E\"@/v1/{data"
+    "base=projects/*/databases/*}/documents:b"
+    "eginTransaction:\001*\022\224\001\n\006Commit\022\".google.f"
+    "irestore.v1.CommitRequest\032#.google.fires"
+    "tore.v1.CommitResponse\"A\202\323\344\223\002;\"6/v1/{dat"
+    "abase=projects/*/databases/*}/documents:"
+    "commit:\001*\022\215\001\n\010Rollback\022$.google.firestor"
+    "e.v1.RollbackRequest\032\026.google.protobuf.E"
+    "mpty\"C\202\323\344\223\002=\"8/v1/{database=projects/*/d"
+    "atabases/*}/documents:rollback:\001*\022\337\001\n\010Ru"
+    "nQuery\022$.google.firestore.v1.RunQueryReq"
+    "uest\032%.google.firestore.v1.RunQueryRespo"
+    "nse\"\203\001\202\323\344\223\002}\"6/v1/{parent=projects/*/dat"
+    "abases/*/documents}:runQuery:\001*Z@\";/v1/{"
+    "parent=projects/*/databases/*/documents/"
+    "*/**}:runQuery:\001*0\001\022\272\001\n\017ExecutePipeline\022"
+    "+.google.firestore.v1.ExecutePipelineReq"
+    "uest\032,.google.firestore.v1.ExecutePipeli"
+    "neResponse\"J\202\323\344\223\002D\"\?/v1/{database=projec"
+    "ts/*/databases/*}/documents:executePipel"
+    "ine:\001*0\001\022\227\002\n\023RunAggregationQuery\022/.googl"
+    "e.firestore.v1.RunAggregationQueryReques"
+    "t\0320.google.firestore.v1.RunAggregationQu"
+    "eryResponse\"\232\001\202\323\344\223\002\223\001\"A/v1/{parent=proje"
+    "cts/*/databases/*/documents}:runAggregat"
+    "ionQuery:\001*ZK\"F/v1/{parent=projects/*/da"
+    "tabases/*/documents/*/**}:runAggregation"
+    "Query:\001*0\001\022\224\001\n\005Write\022!.google.firestore."
+    "v1.WriteRequest\032\".google.firestore.v1.Wr"
+    "iteResponse\"@\202\323\344\223\002:\"5/v1/{database=proje"
+    "cts/*/databases/*}/documents:write:\001*(\0010"
+    "\001\022\230\001\n\006Listen\022\".google.firestore.v1.Liste"
+    "nRequest\032#.google.firestore.v1.ListenRes"
+    "ponse\"A\202\323\344\223\002;\"6/v1/{database=projects/*/"
+    "databases/*}/documents:listen:\001*(\0010\001\022\213\002\n"
+    "\021ListCollectionIds\022-.google.firestore.v1"
+    ".ListCollectionIdsRequest\032..google.fires"
+    "tore.v1.ListCollectionIdsResponse\"\226\001\202\323\344\223"
+    "\002\217\001\"\?/v1/{parent=projects/*/databases/*/"
+    "documents}:listCollectionIds:\001*ZI\"D/v1/{"
+    "parent=projects/*/databases/*/documents/"
+    "*/**}:listCollectionIds:\001*B\262\001\n\027com.googl"
+    "e.firestore.v1B\016FirestoreProtoP\001Z<google"
+    ".golang.org/genproto/googleapis/firestor"
+    "e/v1;firestore\242\002\004GCFS\252\002\036Google.Cloud.Fir"
+    "estore.V1Beta1\312\002\036Google\\Cloud\\Firestore\\"
+    "V1beta1b\006proto3"
 };
 static const ::_pbi::DescriptorTable* const descriptor_table_google_2ffirestore_2fv1_2ffirestore_2eproto_deps[13] =
     {
@@ -1565,7 +1568,7 @@ static ::absl::once_flag descriptor_table_google_2ffirestore_2fv1_2ffirestore_2e
 const ::_pbi::DescriptorTable descriptor_table_google_2ffirestore_2fv1_2ffirestore_2eproto = {
     false,
     false,
-    8977,
+    9015,
     descriptor_table_protodef_google_2ffirestore_2fv1_2ffirestore_2eproto,
     "google/firestore/v1/firestore.proto",
     &descriptor_table_google_2ffirestore_2fv1_2ffirestore_2eproto_once,
@@ -6558,6 +6561,7 @@ ExecutePipelineRequest::ExecutePipelineRequest(
   _internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
       from._internal_metadata_);
   new (&_impl_) Impl_(internal_visibility(), arena, from._impl_);
+  _impl_.auto_commit_transaction_ = from._impl_.auto_commit_transaction_;
   switch (pipeline_type_case()) {
     case PIPELINE_TYPE_NOT_SET:
       break;
@@ -6592,6 +6596,7 @@ inline PROTOBUF_NDEBUG_INLINE ExecutePipelineRequest::Impl_::Impl_(
 
 inline void ExecutePipelineRequest::SharedCtor(::_pb::Arena* arena) {
   new (&_impl_) Impl_(internal_visibility(), arena);
+  _impl_.auto_commit_transaction_ = {};
 }
 ExecutePipelineRequest::~ExecutePipelineRequest() {
   // @@protoc_insertion_point(destructor:google.firestore.v1.ExecutePipelineRequest)
@@ -6663,6 +6668,7 @@ PROTOBUF_NOINLINE void ExecutePipelineRequest::Clear() {
   (void) cached_has_bits;
 
   _impl_.database_.ClearToEmpty();
+  _impl_.auto_commit_transaction_ = false;
   clear_pipeline_type();
   clear_consistency_selector();
   _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
@@ -6676,15 +6682,15 @@ const char* ExecutePipelineRequest::_InternalParse(
 
 
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<0, 5, 3, 59, 2> ExecutePipelineRequest::_table_ = {
+const ::_pbi::TcParseTable<0, 6, 3, 59, 2> ExecutePipelineRequest::_table_ = {
   {
     0,  // no _has_bits_
     0, // no _extensions_
-    7, 0,  // max_field_number, fast_idx_mask
+    9, 0,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4294967180,  // skipmap
+    4294966924,  // skipmap
     offsetof(decltype(_table_), field_entries),
-    5,  // num_field_entries
+    6,  // num_field_entries
     3,  // num_aux_entries
     offsetof(decltype(_table_), aux_entries),
     &_ExecutePipelineRequest_default_instance_._instance,
@@ -6711,6 +6717,9 @@ const ::_pbi::TcParseTable<0, 5, 3, 59, 2> ExecutePipelineRequest::_table_ = {
     // .google.protobuf.Timestamp read_time = 7;
     {PROTOBUF_FIELD_OFFSET(ExecutePipelineRequest, _impl_.consistency_selector_.read_time_), _Internal::kOneofCaseOffset + 4, 2,
     (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
+    // bool auto_commit_transaction = 9 [(.google.api.field_behavior) = OPTIONAL];
+    {PROTOBUF_FIELD_OFFSET(ExecutePipelineRequest, _impl_.auto_commit_transaction_), 0, 0,
+    (0 | ::_fl::kFcSingular | ::_fl::kBool)},
   }}, {{
     {::_pbi::TcParser::GetTable<::google::firestore::v1::StructuredPipeline>()},
     {::_pbi::TcParser::GetTable<::google::firestore::v1::TransactionOptions>()},
@@ -6765,6 +6774,13 @@ const ::_pbi::TcParseTable<0, 5, 3, 59, 2> ExecutePipelineRequest::_table_ = {
     default:
       break;
   }
+  // bool auto_commit_transaction = 9 [(.google.api.field_behavior) = OPTIONAL];
+  if (this->_internal_auto_commit_transaction() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteBoolToArray(
+        9, this->_internal_auto_commit_transaction(), target);
+  }
+
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target =
         ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
@@ -6786,6 +6802,11 @@ const ::_pbi::TcParseTable<0, 5, 3, 59, 2> ExecutePipelineRequest::_table_ = {
   if (!this->_internal_database().empty()) {
     total_size += 1 + ::google::protobuf::internal::WireFormatLite::StringSize(
                                     this->_internal_database());
+  }
+
+  // bool auto_commit_transaction = 9 [(.google.api.field_behavior) = OPTIONAL];
+  if (this->_internal_auto_commit_transaction() != 0) {
+    total_size += 2;
   }
 
   switch (pipeline_type_case()) {
@@ -6844,6 +6865,9 @@ void ExecutePipelineRequest::MergeImpl(::google::protobuf::Message& to_msg, cons
   if (!from._internal_database().empty()) {
     _this->_internal_set_database(from._internal_database());
   }
+  if (from._internal_auto_commit_transaction() != 0) {
+    _this->_internal_set_auto_commit_transaction(from._internal_auto_commit_transaction());
+  }
   switch (from.pipeline_type_case()) {
     case kStructuredPipeline: {
       _this->_internal_mutable_structured_pipeline()->::google::firestore::v1::StructuredPipeline::MergeFrom(
@@ -6896,6 +6920,7 @@ void ExecutePipelineRequest::InternalSwap(ExecutePipelineRequest* PROTOBUF_RESTR
   ABSL_DCHECK_EQ(arena, other->GetArena());
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   ::_pbi::ArenaStringPtr::InternalSwap(&_impl_.database_, &other->_impl_.database_, arena);
+        swap(_impl_.auto_commit_transaction_, other->_impl_.auto_commit_transaction_);
   swap(_impl_.pipeline_type_, other->_impl_.pipeline_type_);
   swap(_impl_.consistency_selector_, other->_impl_.consistency_selector_);
   swap(_impl_._oneof_case_[0], other->_impl_._oneof_case_[0]);

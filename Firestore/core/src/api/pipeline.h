@@ -33,12 +33,23 @@ namespace api {
 class Pipeline {
  public:
   Pipeline(std::vector<std::shared_ptr<Stage>> stages,
-           std::shared_ptr<Firestore> firestore)
-      : stages_(std::move(stages)), firestore_(firestore) {
+           std::shared_ptr<Firestore> firestore,
+           bool atomic = false)
+      : stages_(std::move(stages)),
+        firestore_(firestore),
+        atomic_(atomic) {
   }
 
   const std::shared_ptr<Firestore>& firestore() const {
     return firestore_;
+  }
+
+  bool atomic() const {
+    return atomic_;
+  }
+
+  void set_atomic(bool atomic) {
+    atomic_ = atomic;
   }
 
   Pipeline AddingStage(std::shared_ptr<Stage> stage);
@@ -52,6 +63,7 @@ class Pipeline {
  private:
   std::vector<std::shared_ptr<Stage>> stages_;
   std::shared_ptr<Firestore> firestore_;
+  bool atomic_ = false;
 };
 
 google_firestore_v1_Value PipelineStagesToProto(

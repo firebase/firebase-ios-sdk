@@ -4765,6 +4765,7 @@ class ExecutePipelineRequest final :
 
   enum : int {
     kDatabaseFieldNumber = 1,
+    kAutoCommitTransactionFieldNumber = 9,
     kStructuredPipelineFieldNumber = 2,
     kTransactionFieldNumber = 5,
     kNewTransactionFieldNumber = 6,
@@ -4784,6 +4785,16 @@ class ExecutePipelineRequest final :
   inline PROTOBUF_ALWAYS_INLINE void _internal_set_database(
       const std::string& value);
   std::string* _internal_mutable_database();
+
+  public:
+  // bool auto_commit_transaction = 9 [(.google.api.field_behavior) = OPTIONAL];
+  void clear_auto_commit_transaction() ;
+  bool auto_commit_transaction() const;
+  void set_auto_commit_transaction(bool value);
+
+  private:
+  bool _internal_auto_commit_transaction() const;
+  void _internal_set_auto_commit_transaction(bool value);
 
   public:
   // .google.firestore.v1.StructuredPipeline structured_pipeline = 2;
@@ -4880,7 +4891,7 @@ class ExecutePipelineRequest final :
 
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<
-      0, 5, 3,
+      0, 6, 3,
       59, 2>
       _table_;
   friend class ::google::protobuf::MessageLite;
@@ -4898,6 +4909,7 @@ class ExecutePipelineRequest final :
         inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
                               ::google::protobuf::Arena* arena, const Impl_& from);
     ::google::protobuf::internal::ArenaStringPtr database_;
+    bool auto_commit_transaction_;
     union PipelineTypeUnion {
       constexpr PipelineTypeUnion() : _constinit_{} {}
         ::google::protobuf::internal::ConstantInitialized _constinit_;
@@ -11779,6 +11791,29 @@ inline ::google::protobuf::Timestamp* ExecutePipelineRequest::mutable_read_time(
   ::google::protobuf::Timestamp* _msg = _internal_mutable_read_time();
   // @@protoc_insertion_point(field_mutable:google.firestore.v1.ExecutePipelineRequest.read_time)
   return _msg;
+}
+
+// bool auto_commit_transaction = 9 [(.google.api.field_behavior) = OPTIONAL];
+inline void ExecutePipelineRequest::clear_auto_commit_transaction() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_.auto_commit_transaction_ = false;
+}
+inline bool ExecutePipelineRequest::auto_commit_transaction() const {
+  // @@protoc_insertion_point(field_get:google.firestore.v1.ExecutePipelineRequest.auto_commit_transaction)
+  return _internal_auto_commit_transaction();
+}
+inline void ExecutePipelineRequest::set_auto_commit_transaction(bool value) {
+  _internal_set_auto_commit_transaction(value);
+  // @@protoc_insertion_point(field_set:google.firestore.v1.ExecutePipelineRequest.auto_commit_transaction)
+}
+inline bool ExecutePipelineRequest::_internal_auto_commit_transaction() const {
+  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
+  return _impl_.auto_commit_transaction_;
+}
+inline void ExecutePipelineRequest::_internal_set_auto_commit_transaction(bool value) {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  ;
+  _impl_.auto_commit_transaction_ = value;
 }
 
 inline bool ExecutePipelineRequest::has_pipeline_type() const {
