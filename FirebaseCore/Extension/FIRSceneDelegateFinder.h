@@ -22,6 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * A utility class to help find active UIScene instances on UIApplication.
  */
+NS_SWIFT_NAME(SceneDelegateFinder)
 @interface FIRSceneDelegateFinder : NSObject
 
 - (instancetype)init NS_UNAVAILABLE;
