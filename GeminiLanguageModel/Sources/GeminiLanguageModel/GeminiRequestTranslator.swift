@@ -36,7 +36,7 @@
       let generationConfig = try translateGenerationConfig(schema: request.schema)
       let tools = try translateTools(request.enabledToolDefinitions)
       let hasFunctionDeclarations =
-        tools?.contains { !($0.functionDeclarations ?? []).isEmpty } ?? false
+        tools?.contains { $0.functionDeclarations?.isEmpty == false } ?? false
       let toolConfig = try translateToolConfig(
         toolCallingMode: request.generationOptions.toolCallingMode,
         hasFunctionDeclarations: hasFunctionDeclarations
@@ -140,7 +140,7 @@
         functionCallingConfig = nil
       }
 
-      guard functionCallingConfig != nil else {
+      guard let functionCallingConfig else {
         return nil
       }
 
