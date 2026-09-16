@@ -28,9 +28,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  Iterates through the connectedScenes of the specified application instance to find a
- foreground scene whose delegate responds to the specified selector. Prioritizes
- `UISceneActivationStateForegroundActive` scenes over `UISceneActivationStateForegroundInactive`
- scenes.
+ foreground scene whose delegate responds to the specified selector.
+
+ Prioritizes `UISceneActivationStateForegroundActive` scenes over
+ `UISceneActivationStateForegroundInactive` scenes. If multiple matching scenes share the same
+ activation state, scenes containing a key window (`UIWindow.isKeyWindow`) are prioritized over
+ non-key window scenes.
 
  Note that a scene in the `ForegroundInactive` state is visible and loaded
  in the foreground, but is temporarily not receiving touch events for whatever
@@ -51,12 +54,11 @@ NS_ASSUME_NONNULL_BEGIN
  }
  ```
 
- @note This method must be called on the main thread.
-
- @param application UIApplication Instance to search for scenes from.
+ @param application UIApplication instance to search for scenes from.
  @param selector The selector to find a scene delegate for (e.g.
  `@selector(scene:continueUserActivity:)`).
  @return The matching UIScene instance, or nil if no matching scene delegate is found.
+ @note This method must be called on the main thread.
  */
 + (nullable UIScene *)findForegroundSceneForApplication:(nullable UIApplication *)application
                                        matchingSelector:(SEL)selector;

@@ -17,6 +17,18 @@
 
 #import "FirebaseCore/Extension/FIRSceneDelegateFinder.h"
 
+static BOOL FIRSceneHasKeyWindow(UIScene *scene) {
+  if ([scene isKindOfClass:[UIWindowScene class]]) {
+    UIWindowScene *windowScene = (UIWindowScene *)scene;
+    for (UIWindow *window in windowScene.windows) {
+      if (window.isKeyWindow) {
+        return YES;
+      }
+    }
+  }
+  return NO;
+}
+
 @implementation FIRSceneDelegateFinder
 
 + (nullable UIScene *)findForegroundSceneForApplication:(nullable UIApplication *)application
@@ -29,21 +41,41 @@
     return nil;
   }
 
-  UIScene *targetScene = nil;
+  UIScene *activeWithoutKeyWindow = nil;
+  UIScene *inactiveWithKeyWindow = nil;
+  UIScene *inactiveWithoutKeyWindow = nil;
 
   for (UIScene *scene in application.connectedScenes) {
     id<UISceneDelegate> sceneDelegate = scene.delegate;
-    if ([sceneDelegate respondsToSelector:selector]) {
-      if (scene.activationState == UISceneActivationStateForegroundActive) {
-        targetScene = scene;
-        break;
-      } else if (scene.activationState == UISceneActivationStateForegroundInactive) {
-        targetScene = scene;
+    if (![sceneDelegate respondsToSelector:selector]) {
+      continue;
+    }
+
+    BOOL isKey = FIRSceneHasKeyWindow(scene);
+
+    if (scene.activationState == UISceneActivationStateForegroundActive) {
+      if (isKey) {
+        // Optimal candidate: active foreground scene with the key window.
+        return scene;
+      } else if (!activeWithoutKeyWindow) {
+        activeWithoutKeyWindow = scene;
+      }
+    } else if (scene.activationState == UISceneActivationStateForegroundInactive) {
+      if (isKey && !inactiveWithKeyWindow) {
+        inactiveWithKeyWindow = scene;
+      } else if (!inactiveWithoutKeyWindow) {
+        inactiveWithoutKeyWindow = scene;
       }
     }
   }
 
-  return targetScene;
+  if (activeWithoutKeyWindow) {
+    return activeWithoutKeyWindow;
+  }
+  if (inactiveWithKeyWindow) {
+    return inactiveWithKeyWindow;
+  }
+  return inactiveWithoutKeyWindow;
 }
 
 @end
