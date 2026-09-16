@@ -59,9 +59,9 @@ public struct Backend {
   ///
   /// - Parameters:
   ///   - location: The region identifier, defaulting to `global`; see
-  ///     [available locations][2] for a list of supported locations.
+  ///     [available locations][1] for a list of supported locations.
   ///
-  /// [2]: https://firebase.google.com/docs/ai-logic/locations?api=vertex#available-locations
+  /// [1]: https://firebase.google.com/docs/ai-logic/locations?api=vertex#available-locations
   public static func agentPlatform(location: String = "global") -> Backend {
     return Backend(
       apiConfig: APIConfig(

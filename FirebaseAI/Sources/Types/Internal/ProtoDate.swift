@@ -22,6 +22,9 @@ import Foundation
 /// - A month and day value, with a zero year, such as an anniversary
 /// - A year on its own, with zero month and day values
 /// - A year and month value, with a zero day, such as a credit card expiration date
+///
+/// This represents a
+/// [`google.type.Date`](https://docs.cloud.google.com/gemini-enterprise-agent-platform/reference/rest/Shared.Types/Date)
 struct ProtoDate {
   /// Year of the date.
   ///
