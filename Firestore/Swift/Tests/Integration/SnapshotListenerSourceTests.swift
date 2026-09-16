@@ -754,6 +754,10 @@ class SnapshotListenerSourceTests: FSTIntegrationTestCase {
   }
 
   func testCanListenToDocumentsWithBsonTypes() throws {
+    try XCTSkipIf(
+      FSTIntegrationTestCase.backendEdition() == .standard,
+      "BSON types are not supported on standard backend."
+    )
     let collection = collectionRef()
     let testData = [
       "a": ["key": MaxKey.shared],
