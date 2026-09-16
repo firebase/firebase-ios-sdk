@@ -47,7 +47,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.tvos.frameworks = 'CFNetwork', 'Security', 'SystemConfiguration'
   s.macos.frameworks = 'CFNetwork', 'Security', 'SystemConfiguration'
   s.watchos.frameworks = 'CFNetwork', 'Security', 'WatchKit'
-  s.dependency 'leveldb-library', '~> 1.22'
+  s.dependency 'leveldb-library', '>= 1.22.6', '< 1.23'
   s.dependency 'FirebaseCore', '~> 12.19.0'
   s.dependency 'FirebaseAppCheckInterop', '~> 12.19.0'
   s.dependency 'FirebaseSharedSwift', '~> 12.19.0'
