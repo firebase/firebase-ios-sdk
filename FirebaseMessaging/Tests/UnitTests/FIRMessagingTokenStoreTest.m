@@ -111,7 +111,8 @@ static NSString *const kFakeCheckinPlistName = @"com.google.test.TestTokenStore"
                                                         scope:kScope
                                                         token:kToken
                                                    appVersion:@"1.0"
-                                                firebaseAppID:@"firebaseAppID"];
+                                                firebaseAppID:@"firebaseAppID"
+                                                    tokenType:@"V4"];
   [self.tokenStore saveTokenInfo:tokenInfo
                          handler:^(NSError *error) {
                            XCTAssertNil(error);
@@ -136,7 +137,8 @@ static NSString *const kFakeCheckinPlistName = @"com.google.test.TestTokenStore"
                                                         scope:kScope
                                                         token:kToken
                                                    appVersion:@"1.0"
-                                                firebaseAppID:@"firebaseAppID"];
+                                                firebaseAppID:@"firebaseAppID"
+                                                    tokenType:@"V4"];
   [self.tokenStore
       saveTokenInfo:tokenInfo
             handler:^(NSError *error) {

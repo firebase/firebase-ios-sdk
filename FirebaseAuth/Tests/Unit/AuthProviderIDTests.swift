@@ -16,7 +16,6 @@ import FirebaseAuth
 import Foundation
 import XCTest
 
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 final class AuthProviderIDTests: XCTestCase {
   // Verify that AuthProviderID enum values match the class values published for Objective-C
   // compatibility.

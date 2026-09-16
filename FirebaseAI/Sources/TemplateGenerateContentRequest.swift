@@ -22,18 +22,21 @@ struct TemplateGenerateContentRequest: Sendable {
   let stream: Bool
   let apiConfig: APIConfig
   let options: RequestOptions
+  let toolConfig: TemplateToolConfig?
 }
 
 extension TemplateGenerateContentRequest: Encodable {
   enum CodingKeys: String, CodingKey {
     case inputs
     case history
+    case toolConfig
   }
 
   func encode(to encoder: any Encoder) throws {
     var container = encoder.container(keyedBy: CodingKeys.self)
     try container.encode(inputs, forKey: .inputs)
     try container.encode(history, forKey: .history)
+    try container.encodeIfPresent(toolConfig, forKey: .toolConfig)
   }
 }
 
@@ -43,7 +46,7 @@ extension TemplateGenerateContentRequest: GenerativeAIRequest {
   func getURL() throws -> URL {
     var urlString =
       "\(apiConfig.service.endpoint.rawValue)/\(apiConfig.version.rawValue)/projects/\(projectID)"
-    if case let .vertexAI(_, location) = apiConfig.service {
+    if case let .agentPlatform(_, location) = apiConfig.service {
       urlString += "/locations/\(location)"
     }
 

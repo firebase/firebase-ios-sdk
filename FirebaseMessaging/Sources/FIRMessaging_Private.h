@@ -26,6 +26,7 @@ typedef NS_ENUM(int8_t, FIRMessagingNetworkStatus) {
 };
 
 FOUNDATION_EXPORT NSString *const kFIRMessagingPlistAutoInitEnabled;
+FOUNDATION_EXPORT NSString *const kFIRMessagingPlistInstallationIdEnabled;
 FOUNDATION_EXPORT NSString *const kFIRMessagingUserDefaultsKeyAutoInitEnabled;
 FOUNDATION_EXPORT NSString *const kFIRMessagingUserDefaultsKeyUseMessagingDelegate;
 FOUNDATION_EXPORT NSString *const kFIRMessagingPlistUseMessagingDelegate;
@@ -37,7 +38,6 @@ FOUNDATION_EXPORT NSString *const kFIRMessagingPlistUseMessagingDelegate;
 - (FIRMessagingPubSub *)pubsub;
 
 - (BOOL)isNetworkAvailable;
-- (FIRMessagingNetworkStatus)networkType;
 + (NSString *)FIRMessagingSDKVersion;
 
 @end

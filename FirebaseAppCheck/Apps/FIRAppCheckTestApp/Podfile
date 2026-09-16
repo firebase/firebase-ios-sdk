@@ -11,4 +11,17 @@ target 'FIRAppCheckTestApp' do
   pod 'FirebaseAppCheck', :path => '../../../'
 
   pod 'FirebaseCore', :path => '../../../'
+  # FirebaseStorage is used for testing AppCheck protected access.
+  pod 'FirebaseStorage', :path => '../../../'
+  # RecaptchaEnterprise is needed for Firebase App Check reCAPTCHA provider.
+  pod 'RecaptchaEnterprise'
+
+  # Use local AppCheckCore if the environment variable is set
+  if ENV['FIREBASE_APP_CHECK_LOCAL_PATH']
+    pod 'AppCheckCore', :path => ENV['FIREBASE_APP_CHECK_LOCAL_PATH']
+  end
+
+  target 'FIRAppCheckTestAppTests' do
+    inherit! :search_paths
+  end
 end

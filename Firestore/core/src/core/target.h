@@ -242,7 +242,8 @@ namespace std {
 
 template <>
 struct hash<firebase::firestore::core::Target> {
-  size_t operator()(const firebase::firestore::core::Target& target) const {
+  size_t operator()(
+      const firebase::firestore::core::Target& target) const noexcept {
     return target.Hash();
   }
 };

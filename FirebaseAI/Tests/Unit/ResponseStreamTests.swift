@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if compiler(>=6.2)
+#if compiler(>=6.2.3)
   @testable import FirebaseAILogic
   import Foundation
   import XCTest
@@ -86,7 +86,7 @@
       XCTAssertEqual(snapshots[0].content, "Good chunk")
     }
 
-    #if canImport(FoundationModels)
+    #if canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
       func testResponseStream_throwsIfLastChunkFailsToDecode() async {
         let stream = GenerativeModelSession.ResponseStream<String, String> { context in
           let badRawContent = FirebaseAI.GeneratedContent(kind: .null, id: nil, isComplete: true)
@@ -106,21 +106,29 @@
           // Assert that the error is one of the expected decoding failure types.
           if let genError = error as? GenerativeModelSession.GenerationError,
              case .decodingFailure = genError {
-            // Expected error.
-          } else if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *),
-                    let foundationError = error as? FoundationModels.LanguageModelSession
-                    .GenerationError,
-                    case .decodingFailure = foundationError {
-            // TODO: Remove this else-if after wrapping `FoundationModels.GenerationError` errors
-            //       into equivalent `GenerativeModelSession.GenerationError` values.
-
-            // Expected error.
-          } else {
-            XCTFail("Expected a decoding failure error, but got \(error) instead.")
+            return
           }
+
+          #if compiler(>=6.4)
+            if #available(iOS 27.0, macOS 27.0, visionOS 27.0, watchOS 27.0, *),
+               error is FoundationModels.GeneratedContent.ParsingError {
+              return
+            }
+          #endif // compiler(>=6.4)
+
+          if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *),
+             let foundationError = error as? FoundationModels.LanguageModelSession
+             .GenerationError,
+             case .decodingFailure = foundationError {
+            // TODO: Remove this check after wrapping `FoundationModels.GenerationError` errors
+            //       into equivalent `GenerativeModelSession.GenerationError` values.
+            return
+          }
+
+          XCTFail("Expected a decoding failure error, but got \(error) instead.")
         }
       }
-    #endif // canImport(FoundationModels)
+    #endif // canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
 
     func testResponseStream_collectReturnsLatestChunk() async throws {
       let stream = GenerativeModelSession.ResponseStream<String, String> { context in
@@ -157,11 +165,11 @@
         "Expected stream to yield at least one snapshot before finishing."
       )
       XCTAssertEqual(lastResult.content, response.content)
-      #if canImport(FoundationModels)
+      #if canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
         if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
           XCTAssertEqual(lastResult.rawContent, response.rawContent)
         }
-      #endif // canImport(FoundationModels)
+      #endif // canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
       XCTAssertEqual(lastResult.rawContent.isComplete, response.rawContent.isComplete)
     }
 
@@ -248,4 +256,4 @@
       }
     }
   }
-#endif // compiler(>=6.2)
+#endif // compiler(>=6.2.3)

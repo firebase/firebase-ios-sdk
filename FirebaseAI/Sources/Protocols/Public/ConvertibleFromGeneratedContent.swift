@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if compiler(>=6.2)
+#if compiler(>=6.2.3)
   extension FirebaseAI {
     protocol ConvertibleFromGeneratedContent {
       init(_ content: FirebaseAI.GeneratedContent) throws
@@ -32,4 +32,4 @@
       self = value
     }
   }
-#endif // compiler(>=6.2)
+#endif // compiler(>=6.2.3)

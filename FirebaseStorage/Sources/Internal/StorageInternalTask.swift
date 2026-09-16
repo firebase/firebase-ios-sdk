@@ -21,9 +21,8 @@ import Foundation
 #endif
 
 /// Implement StorageTasks that are not directly exposed via the public API.
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @preconcurrency
-class StorageInternalTask: StorageTask {
+class StorageInternalTask: StorageTask, @unchecked Sendable {
   private var fetcher: GTMSessionFetcher?
 
   @discardableResult
@@ -37,7 +36,9 @@ class StorageInternalTask: StorageTask {
 
     // Prepare a task and begins execution.
     dispatchQueue.async { [self] in
-      self.state = .queueing
+      stateLock.withLock {
+        self.state = .queueing
+      }
       Task {
         let fetcherService = await StorageFetcherService.shared.service(reference.storage)
         var request = request ?? self.baseRequest
@@ -46,10 +47,12 @@ class StorageInternalTask: StorageTask {
 
         let fetcher = fetcherService.fetcher(with: request)
         fetcher.comment = fetcherComment
-        self.fetcher = fetcher
+        self.stateLock.withLock {
+          self.fetcher = fetcher
+        }
         let callbackQueue = reference.storage.callbackQueue
         do {
-          let data = try await self.fetcher?.beginFetch()
+          let data = try await fetcher.beginFetch()
           callbackQueue.async {
             completion?(data, nil)
           }

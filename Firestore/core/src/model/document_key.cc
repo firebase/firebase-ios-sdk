@@ -121,7 +121,7 @@ absl::optional<std::string> DocumentKey::GetCollectionGroup() const {
   return path()[size - 2];
 }
 
-size_t DocumentKeyHash::operator()(const DocumentKey& key) const {
+size_t DocumentKeyHash::operator()(const DocumentKey& key) const noexcept {
   return util::Hash(key.path());
 }
 

@@ -49,10 +49,10 @@ class Settings {
 
   Settings() = default;
   Settings(const Settings& other);
-  Settings(Settings&& other) = default;
+  Settings(Settings&& other) noexcept = default;
 
   Settings& operator=(const Settings& other);
-  Settings& operator=(Settings&& other) = default;
+  Settings& operator=(Settings&& other) noexcept = default;
 
   void set_host(const std::string& value) {
     host_ = value;

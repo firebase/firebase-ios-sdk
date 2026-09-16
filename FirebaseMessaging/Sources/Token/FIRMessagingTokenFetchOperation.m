@@ -35,6 +35,10 @@ static const int kMaxPhoneRegistrationErrorRetryCount = 10;
 NSString *const kFIRMessagingFirebaseUserAgentKey = @"X-firebase-client";
 NSString *const kFIRMessagingFirebaseHeartbeatKey = @"X-firebase-client-log-type";
 
+@interface FIRMessagingTokenFetchOperation ()
+@property(nonatomic, readonly) id<FIRHeartbeatLoggerProtocol> heartbeatLogger;
+@end
+
 @implementation FIRMessagingTokenFetchOperation
 
 - (instancetype)initWithAuthorizedEntity:(NSString *)authorizedEntity
@@ -43,13 +47,16 @@ NSString *const kFIRMessagingFirebaseHeartbeatKey = @"X-firebase-client-log-type
                       checkinPreferences:(FIRMessagingCheckinPreferences *)checkinPreferences
                               instanceID:(NSString *)instanceID
                          heartbeatLogger:(id<FIRHeartbeatLoggerProtocol>)heartbeatLogger {
-  return [super initWithAction:FIRMessagingTokenActionFetch
+  self = [super initWithAction:FIRMessagingTokenActionFetch
            forAuthorizedEntity:authorizedEntity
                          scope:scope
                        options:options
             checkinPreferences:checkinPreferences
-                    instanceID:instanceID
-               heartbeatLogger:heartbeatLogger];
+                    instanceID:instanceID];
+  if (self) {
+    _heartbeatLogger = heartbeatLogger;
+  }
+  return self;
 }
 
 - (void)performTokenOperation {
@@ -156,13 +163,13 @@ NSString *const kFIRMessagingFirebaseHeartbeatKey = @"X-firebase-client-log-type
 
       if (phoneRegistrationErrorRetryCount < kMaxPhoneRegistrationErrorRetryCount) {
         const int nextRetryInterval = 1 << phoneRegistrationErrorRetryCount;
+        phoneRegistrationErrorRetryCount++;
         FIRMessaging_WEAKIFY(self);
 
         dispatch_after(
             dispatch_time(DISPATCH_TIME_NOW, (int64_t)(nextRetryInterval * NSEC_PER_SEC)),
-            dispatch_get_main_queue(), ^{
+            dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
               FIRMessaging_STRONGIFY(self);
-              phoneRegistrationErrorRetryCount++;
               [self performTokenOperation];
             });
         return;

@@ -14,7 +14,6 @@
 
 import Foundation
 
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 struct StartMFAEnrollmentResponse: AuthRPCResponse {
   private(set) var phoneSessionInfo: AuthProtoStartMFAPhoneResponseInfo?
   private(set) var totpSessionInfo: AuthProtoStartMFATOTPEnrollmentResponseInfo?

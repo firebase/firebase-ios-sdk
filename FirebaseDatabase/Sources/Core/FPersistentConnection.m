@@ -581,18 +581,28 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref,
     });
 }
 
+- (void)systemClockDidChange:(NSNotification *)notification {
+    dispatch_async(self.dispatchQueue, ^{
+      [self interruptForReason:kFInterruptReasonSystemClockChange];
+      [self resumeForReason:kFInterruptReasonSystemClockChange];
+    });
+}
+
 - (void)setupNotifications {
+    [[NSNotificationCenter defaultCenter]
+        addObserver:self
+           selector:@selector(systemClockDidChange:)
+               name:NSSystemClockDidChangeNotification
+             object:nil];
 #if TARGET_OS_WATCH
-    if (@available(watchOS 7.0, *)) {
-        __weak FPersistentConnection *weakSelf = self;
-        NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
-        [center addObserverForName:WKApplicationWillEnterForegroundNotification
-                            object:nil
-                             queue:nil
-                        usingBlock:^(NSNotification *_Nonnull note) {
-                          [weakSelf enteringForeground];
-                        }];
-    }
+    __weak FPersistentConnection *weakSelf = self;
+    NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
+    [center addObserverForName:WKApplicationWillEnterForegroundNotification
+                        object:nil
+                         queue:nil
+                    usingBlock:^(NSNotification *_Nonnull note) {
+                      [weakSelf enteringForeground];
+                    }];
 #else
     NSString *const *foregroundConstant = (NSString *const *)dlsym(
         RTLD_DEFAULT, "UIApplicationWillEnterForegroundNotification");

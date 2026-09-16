@@ -1,3 +1,20 @@
+# 12.17.0
+- [fixed] Fixed a memory leak in Remote Config where `activateWithCompletion:`
+  retained the `FIRRemoteConfig` instance indefinitely (#16413).
+- [fixed] Fixed an issue where Remote Config activation would hang indefinitely
+  when used with a named Firebase app instance. (#16354)
+
+# 12.13.0
+- [fixed] Remote Config Realtime updates now trigger when a parameter's experiment
+  or variant assignment changes, ensuring more accurate A/B test analytics and
+  consistent user experiences.
+
+# 12.12.0
+- [added] Introduced a new `configUpdates` property to `RemoteConfig` that
+  provides an `AsyncSequence` for consuming real-time config updates.
+  This offers a modern, Swift Concurrency-native alternative to the existing
+  closure-based listener.
+
 # 12.10.0
 - [issue] A workaround to restore service if Remote Config data remains empty
   after a device restore is to publish a new version of your Remote Config template

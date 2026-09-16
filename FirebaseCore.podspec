@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseCore'
-  s.version          = '12.12.0'
+  s.version          = '13.0.0'
   s.summary          = 'Firebase Core'
 
   s.description      = <<-DESC
@@ -16,12 +16,19 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
     :tag => 'CocoaPods-' + s.version.to_s
   }
 
+  s.deprecated_in_favor_of = 'the Firebase Apple SDK via Swift Package ' \
+                             'Manager. Existing CocoaPods versions will ' \
+                             'remain available and installations will remain ' \
+                             'functional, but new versions will no longer be ' \
+                             'published to CocoaPods after October 2026. ' \
+                             'See: https://firebase.google.com/docs/ios/cocoapods-deprecation'
+
   s.social_media_url = 'https://twitter.com/Firebase'
 
   ios_deployment_target = '15.0'
-  osx_deployment_target = '10.15'
+  osx_deployment_target = '11.0'
   tvos_deployment_target = '15.0'
-  watchos_deployment_target = '7.0'
+  watchos_deployment_target = '8.0'
 
   s.ios.deployment_target = ios_deployment_target
   s.osx.deployment_target = osx_deployment_target
@@ -53,7 +60,7 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
   # Remember to also update version in `cmake/external/GoogleUtilities.cmake`
   s.dependency 'GoogleUtilities/Environment', '~> 8.1'
   s.dependency 'GoogleUtilities/Logger', '~> 8.1'
-  s.dependency 'FirebaseCoreInternal', '~> 12.12.0'
+  s.dependency 'FirebaseCoreInternal', '~> 13.0.0'
 
   s.pod_target_xcconfig = {
     'DEFINES_MODULE' => 'YES',
@@ -66,7 +73,7 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
     unit_tests.scheme = { :code_coverage => true }
     unit_tests.platforms = {
       :ios => ios_deployment_target,
-      :osx => '10.15',
+      :osx => osx_deployment_target,
       :tvos => tvos_deployment_target
     }
     unit_tests.source_files = [

@@ -415,7 +415,8 @@ static NSString *const kBundleID2 = @"com.google.abtesting.dev";
                                                         scope:scope
                                                         token:token
                                                    appVersion:@"1.0"
-                                                firebaseAppID:kFirebaseAppID];
+                                                firebaseAppID:kFirebaseAppID
+                                                    tokenType:@"V4"];
   NSError *error;
   NSData *archive = [NSKeyedArchiver archivedDataWithRootObject:tokenInfo
                                           requiringSecureCoding:YES

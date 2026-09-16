@@ -245,6 +245,10 @@ void FIRCLSContextBaseInit(void) {
   NSString* exceptionQueueName = [sdkBundleID stringByAppendingString:@".exception"];
 
   _firclsLoggingQueue = dispatch_queue_create([loggingQueueName UTF8String], DISPATCH_QUEUE_SERIAL);
+  if (_firclsLoggingQueue) {
+    dispatch_queue_set_specific(_firclsLoggingQueue, &_firclsLoggingQueue, &_firclsLoggingQueue,
+                                NULL);
+  }
   _firclsBinaryImageQueue =
       dispatch_queue_create([binaryImagesQueueName UTF8String], DISPATCH_QUEUE_SERIAL);
   _firclsExceptionQueue =
@@ -341,14 +345,8 @@ bool FIRCLSContextMarkAndCheckIfCrashed(void) {
     return false;
   }
 
-  if (_firclsContext.writable->crashOccurred) {
-    return true;
-  }
-
-  _firclsContext.writable->crashOccurred = true;
-  __sync_synchronize();
-
-  return false;
+  // Atomic compare-and-swap: only one thread can set false -> true
+  return !__sync_bool_compare_and_swap(&_firclsContext.writable->crashOccurred, false, true);
 }
 
 static const char* FIRCLSContextAppendToRoot(NSString* root, NSString* component) {
@@ -442,4 +440,20 @@ bool FIRCLSContextRecordMetadata(NSString* rootPath, const FIRCLSContextInitData
   FIRCLSFileClose(&file);
 
   return true;
+}
+
+void FIRCLSExecuteOnLoggingQueue(void (^block)(void)) {
+  if (!block) {
+    return;
+  }
+
+  if (!_firclsLoggingQueue) {
+    FIRCLSSDKLogWarn(
+        "FIRCLSExecuteOnLoggingQueue invoked with NULL logging queue; running block inline.\n");
+    block();
+  } else if (dispatch_get_specific(&_firclsLoggingQueue) != NULL) {
+    block();
+  } else {
+    dispatch_sync(_firclsLoggingQueue, block);
+  }
 }

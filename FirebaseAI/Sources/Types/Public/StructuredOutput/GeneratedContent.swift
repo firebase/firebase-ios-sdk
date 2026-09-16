@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if compiler(>=6.2)
+#if compiler(>=6.2.3)
 
   #if canImport(FoundationModels)
     import FoundationModels
   #endif // canImport(FoundationModels)
 
   #if canImport(FoundationModels)
-    @available(iOS 26.0, macOS 26.0, *)
+    @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
     extension FoundationModels.GeneratedContent: FirebaseAI.GeneratedContent
@@ -38,7 +38,7 @@
       public let kind: Kind
 
       #if canImport(FoundationModels)
-        @available(iOS 26.0, macOS 26.0, *)
+        @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
         @available(tvOS, unavailable)
         @available(watchOS, unavailable)
         var generatedContent: FoundationModels.GeneratedContent {
@@ -69,7 +69,7 @@
       }
 
       init(json: String, id: FirebaseAI.GenerationID?, isComplete: Bool?) throws {
-        #if canImport(FoundationModels)
+        #if canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
           if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
             var generatedContent = try FoundationModels.GeneratedContent(json: json)
             generatedContent.id = id?.generationID
@@ -81,7 +81,7 @@
 
             return
           }
-        #endif // canImport(FoundationModels)
+        #endif // canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
 
         throw GenerativeModelSession.GenerationError.decodingFailure(
           GenerativeModelSession.GenerationError.Context(
@@ -91,7 +91,7 @@
       }
 
       #if canImport(FoundationModels)
-        @available(iOS 26.0, macOS 26.0, *)
+        @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
         @available(tvOS, unavailable)
         @available(watchOS, unavailable)
         init(kind: FoundationModels.GeneratedContent.Kind, id: FirebaseAI.GenerationID? = nil,
@@ -106,7 +106,7 @@
 
       init(kind: FirebaseAI.GeneratedContent.Kind, id: FirebaseAI.GenerationID? = nil,
            isComplete: Bool) {
-        #if canImport(FoundationModels)
+        #if canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
           if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
             _generatedContent = FoundationModels
               .GeneratedContent(kind: kind.toFoundationModels(), id: id?.generationID)
@@ -115,7 +115,7 @@
           }
         #else
           _generatedContent = nil
-        #endif // canImport(FoundationModels)
+        #endif // canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
 
         self.kind = kind
         generationID = id
@@ -126,7 +126,7 @@
         /// The JSON string representation of the generated content.
         ///
         /// **Public Preview**: This API is a public preview and may be subject to change.
-        @available(iOS 26.0, macOS 26.0, *)
+        @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
         @available(tvOS, unavailable)
         @available(watchOS, unavailable)
         public var jsonString: String {
@@ -146,7 +146,7 @@
         ///   - type: The type to decode the content into.
         /// - Returns: The decoded value.
         /// - Throws: An error if decoding fails.
-        @available(iOS 26.0, macOS 26.0, *)
+        @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
         @available(tvOS, unavailable)
         @available(watchOS, unavailable)
         public func value<Value>(_ type: Value.Type = Value.self) throws -> Value
@@ -165,7 +165,7 @@
         ///   - property: The name of the property to decode.
         /// - Returns: The decoded value.
         /// - Throws: An error if decoding fails or the property does not exist.
-        @available(iOS 26.0, macOS 26.0, *)
+        @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
         @available(tvOS, unavailable)
         @available(watchOS, unavailable)
         public func value<Value>(_ type: Value.Type = Value.self,
@@ -185,7 +185,7 @@
         ///   - property: The name of the property to decode.
         /// - Returns: The decoded value, or `nil` if the property does not exist or is null.
         /// - Throws: An error if decoding fails.
-        @available(iOS 26.0, macOS 26.0, *)
+        @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
         @available(tvOS, unavailable)
         @available(watchOS, unavailable)
         public func value<Value>(_ type: Value?.Type = Value?.self,
@@ -222,8 +222,14 @@
     }
   }
 
+  extension FirebaseAI.GeneratedContent: FirebaseAI.ConvertibleToGeneratedContent {
+    var firebaseGeneratedContent: FirebaseAI.GeneratedContent {
+      return self
+    }
+  }
+
   #if canImport(FoundationModels)
-    @available(iOS 26.0, macOS 26.0, *)
+    @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
     extension FirebaseAI.GeneratedContent: Equatable {
@@ -234,7 +240,7 @@
       }
     }
 
-    @available(iOS 26.0, macOS 26.0, *)
+    @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
     extension FirebaseAI.GeneratedContent: CustomDebugStringConvertible {
@@ -243,12 +249,12 @@
       }
     }
 
-    @available(iOS 26.0, macOS 26.0, *)
+    @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
     extension FirebaseAI.GeneratedContent.Kind: Equatable {}
 
-    @available(iOS 26.0, macOS 26.0, *)
+    @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
     extension FoundationModels.GeneratedContent.Kind {
@@ -282,7 +288,7 @@
       }
     }
 
-    @available(iOS 26.0, macOS 26.0, *)
+    @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
     extension FirebaseAI.GeneratedContent.Kind {
@@ -315,4 +321,4 @@
     }
   #endif // canImport(FoundationModels)
 
-#endif // compiler(>=6.2)
+#endif // compiler(>=6.2.3)

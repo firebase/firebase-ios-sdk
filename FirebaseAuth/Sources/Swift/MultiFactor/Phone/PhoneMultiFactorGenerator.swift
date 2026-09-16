@@ -22,7 +22,6 @@ import Foundation
   /// Depending on the type of second factor, this will help generate the assertion.
   ///
   ///  This class is available on iOS and macOS.
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   @objc(FIRPhoneMultiFactorGenerator)
   open class PhoneMultiFactorGenerator: NSObject {
     /// Initializes the MFA assertion to confirm ownership of the phone second factor.

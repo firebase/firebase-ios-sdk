@@ -1,5 +1,41 @@
 # Unreleased
+- [changed] Dropped C++14 support; Firestore now requires C++17.
+- [changed] Update gRPC dependency to 1.83.1.
+- [changed] Update Abseil dependency to 1.20250512.2.
+
+# 12.19.0
+- [feature] Added support for `minimum` and `maximum` FieldValue operations [#16159].
+
+# 12.17.0
+- [fixed] Fixed a potential crash when parsing malformed bundle payloads.
+  (#16221)
+- [feature] Added support for 16 MB documents by increasing gRPC message size
+  limit to 17MB (#16206).
+
+# 12.16.0
+- [changed] Migrates the network connectivity monitoring implementation for
+  Apple platforms from the legacy SCNetworkReachability API to the modern
+  NWPathMonitor API.
+
+# 12.15.0
+- [fix] Remove use of designated initializers for `forceIndex` [#16229].
+
+# 12.13.0
+- [feature] Added search stage support for `languageCode`, `offset`, `limit`, and `retrievalDepth`.
+- [feature] Added support for Pipeline expressions `arraySlice`, `arrayFilter`, `arrayTransform` and `arrayTransformWithIndex`. (#16001)
+- [feature] Added support for the `forceIndex` option on Pipeline `collection` and `collectionGroup` stages.
+- [fixed] Add missing `noexcept` specifiers to move, hash, swap operations [#16117].
+
+# 12.12.0
+- [feature] Added support for the `parent` Pipeline expression. (#16010)
+- [feature] Added support for `timestampTruncate`, `timestampDiff`, and `timestampExtract` Pipeline expressions. (#15984)
+- [feature] Added support for Firestore Pipeline Subqueries and scope bridging with `Subcollection`, `define()`, `toArrayExpression()`, `toScalarExpression()`, `Variable`, and `CurrentDocument` APIs.
+- [feature] Added support for Pipeline expressions `ltrim`, `rtrim`, `stringIndexOf`, `stringReplaceOne`, `stringReplaceAll`, and `stringRepeat`.
+- [feature] Add preview support for full-text search and geo search.
 - [feature] Added support for Pipeline expressions `nor` and `switchOn`. (#15943)
+- [feature] Added support for Pipeline expressions `ifNull` and `coalesce`. (#15989)
+- [feature] Added support for Pipeline expression `isType`.
+- [feature] Added support for Pipeline expressions `mapSet`, `mapKeys`, `mapEntries`, `mapValues`.
 
 # 12.11.0
 - [removed] **Breaking change:** Removed the `then(_:else:)` Beta API in `BooleanExpression` from the Pipeline Swift API. Use `ConditionalExpression` instead. (#15926)

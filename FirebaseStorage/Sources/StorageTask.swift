@@ -29,14 +29,17 @@ import Foundation
  * If no queue is specified, it defaults to the main queue.
  * This class is thread-safe.
  */
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIRStorageTask) open class StorageTask: NSObject {
   /**
    * An immutable view of the task and associated metadata, progress, error, etc.
    */
   @objc public var snapshot: StorageTaskSnapshot {
-    objc_sync_enter(StorageTask.self)
-    defer { objc_sync_exit(StorageTask.self) }
+    stateLock.withLock {
+      snapshotUnderLock()
+    }
+  }
+
+  func snapshotUnderLock() -> StorageTaskSnapshot {
     let progress = Progress(totalUnitCount: self.progress.totalUnitCount)
     progress.completedUnitCount = self.progress.completedUnitCount
     return StorageTaskSnapshot(
@@ -50,6 +53,11 @@ import Foundation
   }
 
   // MARK: - Internal Implementations
+
+  /**
+   * Lock to protect mutable state (state, progress, metadata, error).
+   */
+  let stateLock = NSLock()
 
   /**
    * State for the current task in progress.
@@ -121,3 +129,5 @@ import Foundation
    */
   @objc optional func resume()
 }
+
+extension StorageTask: @unchecked Sendable {}

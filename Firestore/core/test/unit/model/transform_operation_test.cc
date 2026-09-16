@@ -37,6 +37,30 @@ TEST(TransformOperationsTest, ServerTimestamp) {
   EXPECT_NE(transform, other);
 }
 
+TEST(TransformOperationsTest, Minimum) {
+  NumericMinimumTransform transform(Value(1));
+  EXPECT_EQ(Type::Minimum, transform.type());
+
+  NumericMinimumTransform another(Value(1));
+  NumericMinimumTransform different(Value(2));
+  NumericIncrementTransform other(Value(1));
+  EXPECT_EQ(transform, another);
+  EXPECT_NE(transform, different);
+  EXPECT_NE(transform, other);
+}
+
+TEST(TransformOperationsTest, Maximum) {
+  NumericMaximumTransform transform(Value(1));
+  EXPECT_EQ(Type::Maximum, transform.type());
+
+  NumericMaximumTransform another(Value(1));
+  NumericMaximumTransform different(Value(2));
+  NumericMinimumTransform other(Value(1));
+  EXPECT_EQ(transform, another);
+  EXPECT_NE(transform, different);
+  EXPECT_NE(transform, other);
+}
+
 // TODO(mikelehen): Add ArrayTransform test once it no longer depends on
 // FSTFieldValue and can be exposed to C++ code.
 

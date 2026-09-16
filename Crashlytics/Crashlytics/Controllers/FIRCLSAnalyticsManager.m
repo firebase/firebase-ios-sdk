@@ -107,7 +107,9 @@ FOUNDATION_STATIC_INLINE NSNumber *timeIntervalInMillis(NSTimeInterval timeInter
   [analytics logEventWithOrigin:kFIREventOriginCrash name:kFIREventAppException parameters:params];
 }
 
-NSString *FIRCLSFIRAEventDictionaryToJSON(NSDictionary *eventAsDictionary) {
+@end
+
+NSString *_Nullable FIRCLSFIRAEventDictionaryToJSON(NSDictionary *eventAsDictionary) {
   NSError *error = nil;
 
   if (eventAsDictionary == nil) {
@@ -131,5 +133,3 @@ NSString *FIRCLSFIRAEventDictionaryToJSON(NSDictionary *eventAsDictionary) {
     return nil;
   }
 }
-
-@end

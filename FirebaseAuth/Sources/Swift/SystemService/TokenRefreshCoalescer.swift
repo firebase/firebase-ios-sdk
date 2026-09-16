@@ -33,7 +33,6 @@ import Foundation
 ///
 /// // Only ONE network call is made. All three tasks receive the same refreshed token.
 /// ```
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 actor TokenRefreshCoalescer {
   /// The in-flight token refresh task, if any.
   /// When this is set, all concurrent calls wait for this task instead of starting their own.

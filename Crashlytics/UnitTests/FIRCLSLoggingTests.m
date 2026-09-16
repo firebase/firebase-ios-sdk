@@ -368,8 +368,9 @@
   NSError* error = [NSError errorWithDomain:@"My Custom Domain"
                                        code:-1
                                    userInfo:@{@"key1" : @"value", @"key2" : @"value2"}];
+  NSArray<NSNumber*>* stackTrace = @[ @(0x100000000), @(0x100000008), @(0x100000010) ];
 
-  FIRCLSUserLoggingRecordError(error, @{@"additional" : @"key"}, nil);
+  FIRCLSUserLoggingRecordError(error, @{@"additional" : @"key"}, nil, stackTrace, time(NULL));
 
   NSArray* errors = [self errorAContents];
 
@@ -379,7 +380,7 @@
 
   XCTAssertNotNil(errorDict, @"");
 
-  XCTAssert([errorDict[@"stacktrace"] count] > 5, @"should have at least a few frames");
+  XCTAssertEqual([errorDict[@"stacktrace"] count], 3, @"should have exactly 3 frames");
   XCTAssertEqualObjects(errorDict[@"domain"], @"4d7920437573746f6d20446f6d61696e", @"");
   XCTAssertEqual([errorDict[@"code"] integerValue], -1, @"");
 
@@ -409,7 +410,7 @@
                                    userInfo:@{@"key1" : @"value", @"key2" : @"value2"}];
 
   for (size_t i = 0; i < _firclsContext.readonly->logging.errorStorage.maxEntries; ++i) {
-    FIRCLSUserLoggingRecordError(error, nil, nil);
+    FIRCLSUserLoggingRecordError(error, nil, nil, nil, time(NULL));
   }
 
   NSArray* errors = [self errorAContents];
@@ -418,7 +419,7 @@
 
   // at this point, if we log one more, we should expect a roll over to the next file
 
-  FIRCLSUserLoggingRecordError(error, nil, nil);
+  FIRCLSUserLoggingRecordError(error, nil, nil, nil, time(NULL));
 
   XCTAssertEqual([[self errorAContents] count], 8, @"");
   XCTAssertEqual([[self errorBContents] count], 1, @"");
@@ -426,7 +427,7 @@
 
   // and our next entry should continue into the B file
 
-  FIRCLSUserLoggingRecordError(error, nil, nil);
+  FIRCLSUserLoggingRecordError(error, nil, nil, nil, time(NULL));
 
   XCTAssertEqual([[self errorAContents] count], 8, @"");
   XCTAssertEqual([[self errorBContents] count], 2, @"");
@@ -435,8 +436,9 @@
 
 - (void)testLoggedErrorWithNullsInAdditionalInfo {
   NSError* error = [NSError errorWithDomain:@"Domain" code:-1 userInfo:nil];
+  NSArray<NSNumber*>* stackTrace = @[ @(0x100000000), @(0x100000008), @(0x100000010) ];
 
-  FIRCLSUserLoggingRecordError(error, @{@"null-key" : [NSNull null]}, nil);
+  FIRCLSUserLoggingRecordError(error, @{@"null-key" : [NSNull null]}, nil, stackTrace, time(NULL));
 
   NSArray* errors = [self errorAContents];
 
@@ -446,7 +448,7 @@
 
   XCTAssertNotNil(errorDict, @"");
 
-  XCTAssert([errorDict[@"stacktrace"] count] > 5, @"should have at least a few frames");
+  XCTAssertEqual([errorDict[@"stacktrace"] count], 3, @"should have exactly 3 frames");
   XCTAssertEqualObjects(errorDict[@"domain"], @"446f6d61696e", @"");
   XCTAssertEqual([errorDict[@"code"] integerValue], -1, @"");
 

@@ -58,8 +58,8 @@ enum GenerativeModelTestUtil {
         XCTAssertEqual(request.timeoutInterval, timeout)
         let apiClientTags = try XCTUnwrap(request.value(forHTTPHeaderField: "x-goog-api-client"))
           .components(separatedBy: " ")
-        XCTAssert(apiClientTags.contains(GenerativeAIService.languageTag))
-        XCTAssert(apiClientTags.contains(GenerativeAIService.firebaseVersionTag))
+        XCTAssert(apiClientTags.contains(Constants.languageTag))
+        XCTAssert(apiClientTags.contains(Constants.firebaseVersionTag))
         XCTAssertEqual(request.value(forHTTPHeaderField: "X-Firebase-AppCheck"), appCheckToken)
 
         let firebaseAppID = request.value(forHTTPHeaderField: "X-Firebase-AppId")
@@ -150,5 +150,43 @@ private extension String {
   /// Returns the number of occurrences of `substring` in the `String`.
   func occurrenceCount(of substring: String) -> Int {
     return components(separatedBy: substring).count - 1
+  }
+}
+
+extension URLRequest {
+  func extractBodyData() throws -> Data? {
+    if let body = httpBody {
+      return body
+    }
+
+    guard let stream = httpBodyStream else {
+      return nil
+    }
+
+    stream.open()
+    defer { stream.close() }
+
+    let bufferSize = 1024
+    let buffer = UnsafeMutablePointer<UInt8>.allocate(capacity: bufferSize)
+    defer { buffer.deallocate() }
+
+    var data = Data()
+    while stream.hasBytesAvailable {
+      let bytesRead = stream.read(buffer, maxLength: bufferSize)
+
+      if bytesRead < 0 {
+        if let error = stream.streamError {
+          throw error
+        }
+        XCTFail("Unknown error while reading `httpBodyStream`.")
+        return nil
+      } else if bytesRead == 0 {
+        break
+      }
+
+      data.append(buffer, count: bytesRead)
+    }
+
+    return data
   }
 }

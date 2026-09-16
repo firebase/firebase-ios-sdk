@@ -57,8 +57,7 @@ __attribute__((no_sanitize_address)) std::string StringFormatPieces(
     if (pieces_iter == pieces_end) {
       dest->append(kMissing);
     } else {
-      std::string hex =
-          absl::BytesToHexString(absl::string_view(pieces_iter->data()));
+      std::string hex = absl::BytesToHexString(*pieces_iter);
       dest->append(hex.data(), hex.size());
       ++pieces_iter;
     }

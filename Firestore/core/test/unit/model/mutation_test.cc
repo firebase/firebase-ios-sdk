@@ -295,6 +295,16 @@ auto Increment(T value) -> decltype(NumericIncrementTransform(Value(value))) {
   return NumericIncrementTransform(Value(value));
 }
 
+template <typename T>
+auto Minimum(T value) -> decltype(NumericMinimumTransform(Value(value))) {
+  return NumericMinimumTransform(Value(value));
+}
+
+template <typename T>
+auto Maximum(T value) -> decltype(NumericMaximumTransform(Value(value))) {
+  return NumericMaximumTransform(Value(value));
+}
+
 template <typename... Args>
 TransformOperation ArrayUnion(Args... args) {
   return ArrayTransform(TransformOperation::Type::ArrayUnion,
@@ -869,6 +879,120 @@ TEST(MutationTest, OverlayByCombinationsAndPermutations_Increments) {
 
   // There are (0! + 6*1! + 15*2! + 20*3! + 15*4! + 6*5! + 6!) * 3 = 5871 cases.
   EXPECT_EQ(5871, test_cases);
+}
+
+TEST(MutationTest, AppliesMinimumTransformToDocument) {
+  auto base_data =
+      Map("longMinLong", 5, "longMinDouble", 5, "doubleMinLong", 5.5,
+          "doubleMinDouble", 5.5, "longMinNan", 5, "doubleMinNan", 5.5);
+  TransformPairs transforms = {
+      {"longMinLong", Minimum(2)},   {"longMinDouble", Minimum(2.2)},
+      {"doubleMinLong", Minimum(2)}, {"doubleMinDouble", Minimum(2.2)},
+      {"longMinNan", Minimum(NAN)},  {"doubleMinNan", Minimum(NAN)},
+  };
+  auto expected =
+      Map("longMinLong", 2L, "longMinDouble", 2.2, "doubleMinLong", 2L,
+          "doubleMinDouble", 2.2, "longMinNan", NAN, "doubleMinNan", NAN);
+  TransformBaseDoc(std::move(base_data), transforms, std::move(expected));
+}
+
+TEST(MutationTest, AppliesMaximumTransformToDocument) {
+  auto base_data =
+      Map("longMaxLong", 5, "longMaxDouble", 5, "doubleMaxLong", 5.5,
+          "doubleMaxDouble", 5.5, "longMaxNan", 5, "doubleMaxNan", 5.5);
+  TransformPairs transforms = {
+      {"longMaxLong", Maximum(8)},   {"longMaxDouble", Maximum(8.8)},
+      {"doubleMaxLong", Maximum(8)}, {"doubleMaxDouble", Maximum(8.8)},
+      {"longMaxNan", Maximum(NAN)},  {"doubleMaxNan", Maximum(NAN)},
+  };
+  auto expected =
+      Map("longMaxLong", 8L, "longMaxDouble", 8.8, "doubleMaxLong", 8L,
+          "doubleMaxDouble", 8.8, "longMaxNan", NAN, "doubleMaxNan", NAN);
+  TransformBaseDoc(std::move(base_data), transforms, std::move(expected));
+}
+
+TEST(MutationTest, AppliesMinimumTransformToUnexpectedType) {
+  auto base_data = Map("string", "value");
+  TransformPairs transforms = {
+      {"string", Minimum(1)},
+  };
+  auto expected = Map("string", 1);
+  TransformBaseDoc(std::move(base_data), transforms, std::move(expected));
+}
+
+TEST(MutationTest, AppliesMaximumTransformToUnexpectedType) {
+  auto base_data = Map("string", "value");
+  TransformPairs transforms = {
+      {"string", Maximum(1)},
+  };
+  auto expected = Map("string", 1);
+  TransformBaseDoc(std::move(base_data), transforms, std::move(expected));
+}
+
+TEST(MutationTest, AppliesMinimumTransformToMissingField) {
+  auto base_data = Map();
+  TransformPairs transforms = {
+      {"missing", Minimum(1)},
+  };
+  auto expected = Map("missing", 1);
+  TransformBaseDoc(std::move(base_data), transforms, std::move(expected));
+}
+
+TEST(MutationTest, AppliesMaximumTransformToMissingField) {
+  auto base_data = Map();
+  TransformPairs transforms = {
+      {"missing", Maximum(1)},
+  };
+  auto expected = Map("missing", 1);
+  TransformBaseDoc(std::move(base_data), transforms, std::move(expected));
+}
+
+TEST(MutationTest, NumericMinimumBaseValue) {
+  auto nested_values = Map("ignore", "foo", "double", 42.0, "long", 42,
+                           "string", "foo", "map", Map());
+  auto all_values =
+      Map("ignore", "foo", "double", 42.0, "long", 42, "string", "foo", "map",
+          Map(), "nested", std::move(nested_values));
+  MutableDocument base_doc = Doc("collection/key", 1, std::move(all_values));
+
+  Mutation mutation = PatchMutation("collection/key", Map(), {},
+                                    {{"double", Minimum(1)},
+                                     {"long", Minimum(1)},
+                                     {"string", Minimum(1)},
+                                     {"map", Minimum(1)},
+                                     {"missing", Minimum(1)},
+                                     {"nested.double", Minimum(1)},
+                                     {"nested.long", Minimum(1)},
+                                     {"nested.string", Minimum(1)},
+                                     {"nested.map", Minimum(1)},
+                                     {"nested.missing", Minimum(1)}});
+  absl::optional<ObjectValue> base_value =
+      mutation.ExtractTransformBaseValue(base_doc);
+  EXPECT_FALSE(base_value.has_value());
+}
+
+TEST(MutationTest, NumericMaximumBaseValue) {
+  auto nested_values = Map("ignore", "foo", "double", 42.0, "long", 42,
+                           "string", "foo", "map", Map());
+  auto all_values =
+      Map("ignore", "foo", "double", 42.0, "long", 42, "string", "foo", "map",
+          Map(), "nested", std::move(nested_values));
+  MutableDocument base_doc = Doc("collection/key", 1, std::move(all_values));
+
+  Mutation mutation = PatchMutation("collection/key", Map(), {},
+                                    {{"double", Maximum(1)},
+                                     {"long", Maximum(1)},
+                                     {"string", Maximum(1)},
+                                     {"map", Maximum(1)},
+                                     {"missing", Maximum(1)},
+                                     {"nested.double", Maximum(1)},
+                                     {"nested.long", Maximum(1)},
+                                     {"nested.string", Maximum(1)},
+                                     {"nested.map", Maximum(1)},
+                                     {"nested.missing", Maximum(1)}});
+  absl::optional<ObjectValue> base_value =
+      mutation.ExtractTransformBaseValue(base_doc);
+  EXPECT_FALSE(base_value.has_value());
 }
 
 }  // namespace

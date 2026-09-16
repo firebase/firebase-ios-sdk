@@ -221,8 +221,7 @@ static NSString *kRegistrationToken = @"token-12345";
                                                    scope:kScope
                                                  options:nil
                                       checkinPreferences:emptyCheckinPreferences
-                                              instanceID:self.instanceID
-                                         heartbeatLogger:[[FIRHeartbeatLoggerFake alloc] init]];
+                                              instanceID:self.instanceID];
   [operation addCompletionHandler:^(FIRMessagingTokenOperationResult result,
                                     NSString *_Nullable token, NSError *_Nullable error) {
     [failedExpectation fulfill];
@@ -259,8 +258,7 @@ static NSString *kRegistrationToken = @"token-12345";
                                                        scope:kScope
                                                      options:nil
                                           checkinPreferences:checkinPreferences
-                                                  instanceID:self.instanceID
-                                             heartbeatLogger:[[FIRHeartbeatLoggerFake alloc] init]];
+                                                  instanceID:self.instanceID];
   operation.performWasCalled = NO;
   __weak FIRMessagingTokenOperationFake *weakOperation = operation;
   [operation addCompletionHandler:^(FIRMessagingTokenOperationResult result,

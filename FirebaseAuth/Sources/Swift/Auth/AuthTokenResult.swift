@@ -14,12 +14,10 @@
 
 import Foundation
 
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 extension AuthTokenResult: NSSecureCoding {}
 
 /// A data class containing the ID token JWT string and other properties associated with the
 /// token including the decoded payload claims.
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIRAuthTokenResult) open class AuthTokenResult: NSObject {
   /// Stores the JWT string of the ID token.
   @objc open var token: String

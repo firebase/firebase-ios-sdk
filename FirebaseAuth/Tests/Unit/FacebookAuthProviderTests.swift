@@ -20,7 +20,6 @@ import XCTest
 /** @class FIRFacebookAuthProviderTests
     @brief Tests for @c FIRFacebookAuthProvider
  */
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class FacebookAuthProviderTests: XCTestCase {
   /** @fn testCredentialWithToken
       @brief Tests the @c credentialWithToken method to make sure the credential it produces populates

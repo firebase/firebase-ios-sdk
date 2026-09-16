@@ -68,6 +68,7 @@ FOUNDATION_EXTERN NSString* const kFPRAttributeNameIllegalCharacters;
 // Manual network instrumentation codes.
 FOUNDATION_EXTERN NSString* const kFPRInstrumentationInvalidInputs;
 FOUNDATION_EXTERN NSString* const kFPRInstrumentationDisabledAfterConfigure;
+FOUNDATION_EXTERN NSString* const kFPRSwizzleClassDenylisted;
 
 // FPR diagnostic message codes.
 FOUNDATION_EXTERN NSString* const kFPRDiagnosticInfo;

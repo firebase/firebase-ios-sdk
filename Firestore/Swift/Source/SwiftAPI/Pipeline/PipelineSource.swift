@@ -15,7 +15,6 @@
 /// A `PipelineSource` is the entry point for building a Firestore pipeline. It allows you to
 /// specify the source of the data for the pipeline, which can be a collection, a collection group,
 /// a list of documents, or the entire database.
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 public struct PipelineSource: @unchecked Sendable {
   let db: Firestore
   let factory: ([Stage], Firestore) -> Pipeline
@@ -28,26 +27,31 @@ public struct PipelineSource: @unchecked Sendable {
   /// Specifies a collection as the data source for the pipeline.
   ///
   /// - Parameter path: The path to the collection.
+  /// - Parameter forceIndex: The name of the index to be used.
   /// - Returns: A `Pipeline` with the specified collection as its source.
-  public func collection(_ path: String) -> Pipeline {
-    return factory([CollectionSource(collection: db.collection(path), db: db)], db)
+  public func collection(_ path: String, forceIndex: String? = nil) -> Pipeline {
+    return factory(
+      [CollectionSource(collection: db.collection(path), db: db, forceIndex: forceIndex)],
+      db
+    )
   }
 
   /// Specifies a collection as the data source for the pipeline.
   ///
-  /// - Parameter coll: The `CollectionReference` of the collection.
+  /// - Parameter coll: The `CollectionReference` of the
+  /// - Parameter forceIndex: The name of the index to be used.
   /// - Returns: A `Pipeline` with the specified collection as its source.
-  public func collection(_ coll: CollectionReference) -> Pipeline {
-    return factory([CollectionSource(collection: coll, db: db)], db)
+  public func collection(_ coll: CollectionReference, forceIndex: String? = nil) -> Pipeline {
+    return factory([CollectionSource(collection: coll, db: db, forceIndex: forceIndex)], db)
   }
 
   /// Specifies a collection group as the data source for the pipeline.
   ///
   /// - Parameter collectionId: The ID of the collection group.
   /// - Returns: A `Pipeline` with the specified collection group as its source.
-  public func collectionGroup(_ collectionId: String) -> Pipeline {
+  public func collectionGroup(_ collectionId: String, forceIndex: String? = nil) -> Pipeline {
     return factory(
-      [CollectionGroupSource(collectionId: collectionId)],
+      [CollectionGroupSource(collectionId: collectionId, forceIndex: forceIndex)],
       db
     )
   }

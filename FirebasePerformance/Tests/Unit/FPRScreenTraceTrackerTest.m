@@ -125,8 +125,12 @@ static UIViewController *FPRCustomViewController(NSString *className, BOOL isVie
   XCTAssertEqual(self.tracker.activeScreenTraces.count, 1);
   NSString *expectedTraceName =
       [FPRScreenTraceTrackerTest expectedTraceNameForViewController:testViewController];
-  XCTAssertNotNil([self.tracker.activeScreenTraces objectForKey:testViewController]);
-  FIRTrace *createdTrace = [self.tracker.activeScreenTraces objectForKey:testViewController];
+  XCTAssertNotNil([self.tracker.activeScreenTraces
+                      objectForKey:[NSValue valueWithNonretainedObject:testViewController]]
+                      .trace);
+  FIRTrace *createdTrace = [self.tracker.activeScreenTraces
+                               objectForKey:[NSValue valueWithNonretainedObject:testViewController]]
+                               .trace;
   XCTAssertEqualObjects(createdTrace.name, expectedTraceName);
   XCTAssertFalse(createdTrace.isCompleteAndValid);
 }
@@ -143,7 +147,9 @@ static UIViewController *FPRCustomViewController(NSString *className, BOOL isVie
     // objectForKey: is always executed on the FPRScreenTraceTracker serial queue, which has its own
     // autorelesepool. Without the autoreleasepool, the ViewController instance is not released
     // in a timely manner and this test becomes flaky.
-    FIRTrace *createdTrace = [self.tracker.activeScreenTraces objectForKey:newVCInstance];
+    FIRTrace *createdTrace = [self.tracker.activeScreenTraces
+                                 objectForKey:[NSValue valueWithNonretainedObject:newVCInstance]]
+                                 .trace;
     XCTAssertNil(createdTrace);
 
     // Clean up.
@@ -166,7 +172,9 @@ static UIViewController *FPRCustomViewController(NSString *className, BOOL isVie
     // objectForKey: is always executed on the FPRScreenTraceTracker serial queue, which has its own
     // autorelesepool. Without the autoreleasepool, the ViewController instance is not released
     // in a timely manner and this test becomes flaky.
-    FIRTrace *createdTrace = [self.tracker.activeScreenTraces objectForKey:newVCInstance];
+    FIRTrace *createdTrace = [self.tracker.activeScreenTraces
+                                 objectForKey:[NSValue valueWithNonretainedObject:newVCInstance]]
+                                 .trace;
     XCTAssertEqualObjects(createdTrace.name, expectedTraceName);
     createdTrace = nil;
 
@@ -198,7 +206,9 @@ static UIViewController *FPRCustomViewController(NSString *className, BOOL isVie
     // objectForKey: is always executed on the FPRScreenTraceTracker serial queue, which has its own
     // autorelesepool. Without the autoreleasepool, the ViewController instance is not released
     // in a timely manner and this test becomes flaky.
-    FIRTrace *createdTrace = [self.tracker.activeScreenTraces objectForKey:newVCInstance];
+    FIRTrace *createdTrace = [self.tracker.activeScreenTraces
+                                 objectForKey:[NSValue valueWithNonretainedObject:newVCInstance]]
+                                 .trace;
     XCTAssertEqualObjects(createdTrace.name, expectedTraceName);
     createdTrace = nil;
 
@@ -227,7 +237,9 @@ static UIViewController *FPRCustomViewController(NSString *className, BOOL isVie
     // objectForKey: is always executed on the FPRScreenTraceTracker serial queue, which has its own
     // autorelesepool. Without the autoreleasepool, the ViewController instance is not released
     // in a timely manner and this test becomes flaky.
-    FIRTrace *createdTrace = [self.tracker.activeScreenTraces objectForKey:newVCInstance];
+    FIRTrace *createdTrace = [self.tracker.activeScreenTraces
+                                 objectForKey:[NSValue valueWithNonretainedObject:newVCInstance]]
+                                 .trace;
     XCTAssertEqual(createdTrace.name.length, kFPRMaxNameLength);
     createdTrace = nil;
 
@@ -255,7 +267,9 @@ static UIViewController *FPRCustomViewController(NSString *className, BOOL isVie
     // objectForKey: is always executed on the FPRScreenTraceTracker serial queue, which has its own
     // autorelesepool. Without the autoreleasepool, the ViewController instance is not released
     // in a timely manner and this test becomes flaky.
-    FIRTrace *createdTrace = [self.tracker.activeScreenTraces objectForKey:newVCInstance];
+    FIRTrace *createdTrace = [self.tracker.activeScreenTraces
+                                 objectForKey:[NSValue valueWithNonretainedObject:newVCInstance]]
+                                 .trace;
     XCTAssertEqual(createdTrace.name.length, kFPRMaxNameLength);
     createdTrace = nil;
 
@@ -290,7 +304,9 @@ static UIViewController *FPRCustomViewController(NSString *className, BOOL isVie
 
   NSString *expectedTraceName =
       [FPRScreenTraceTrackerTest expectedTraceNameForViewController:testViewController];
-  FIRTrace *createdTrace = [self.tracker.activeScreenTraces objectForKey:testViewController];
+  FIRTrace *createdTrace = [self.tracker.activeScreenTraces
+                               objectForKey:[NSValue valueWithNonretainedObject:testViewController]]
+                               .trace;
   XCTAssertNotNil(createdTrace);
   XCTAssertEqualObjects(expectedTraceName, createdTrace.name);
 
@@ -315,14 +331,24 @@ static UIViewController *FPRCustomViewController(NSString *className, BOOL isVie
 
   NSString *expectedTraceNameOne =
       [FPRScreenTraceTrackerTest expectedTraceNameForViewController:testViewController];
-  XCTAssertNotNil([self.tracker.activeScreenTraces objectForKey:testViewController]);
-  FIRTrace *traceForScreenOne = [self.tracker.activeScreenTraces objectForKey:testViewController];
+  XCTAssertNotNil([self.tracker.activeScreenTraces
+                      objectForKey:[NSValue valueWithNonretainedObject:testViewController]]
+                      .trace);
+  FIRTrace *traceForScreenOne =
+      [self.tracker.activeScreenTraces
+          objectForKey:[NSValue valueWithNonretainedObject:testViewController]]
+          .trace;
   XCTAssertEqualObjects(traceForScreenOne.name, expectedTraceNameOne);
 
   NSString *expectedTraceNameTwo =
       [FPRScreenTraceTrackerTest expectedTraceNameForViewController:testViewController2];
-  XCTAssertNotNil([self.tracker.activeScreenTraces objectForKey:testViewController2]);
-  FIRTrace *traceForScreenTwo = [self.tracker.activeScreenTraces objectForKey:testViewController2];
+  XCTAssertNotNil([self.tracker.activeScreenTraces
+                      objectForKey:[NSValue valueWithNonretainedObject:testViewController2]]
+                      .trace);
+  FIRTrace *traceForScreenTwo =
+      [self.tracker.activeScreenTraces
+          objectForKey:[NSValue valueWithNonretainedObject:testViewController2]]
+          .trace;
   XCTAssertEqualObjects(traceForScreenTwo.name, expectedTraceNameTwo);
 
   // Test that they're different instances.
@@ -345,14 +371,24 @@ static UIViewController *FPRCustomViewController(NSString *className, BOOL isVie
 
   NSString *expectedTraceNameOne =
       [FPRScreenTraceTrackerTest expectedTraceNameForViewController:testViewController];
-  XCTAssertNotNil([self.tracker.activeScreenTraces objectForKey:testViewController]);
-  FIRTrace *traceForScreenOne = [self.tracker.activeScreenTraces objectForKey:testViewController];
+  XCTAssertNotNil([self.tracker.activeScreenTraces
+                      objectForKey:[NSValue valueWithNonretainedObject:testViewController]]
+                      .trace);
+  FIRTrace *traceForScreenOne =
+      [self.tracker.activeScreenTraces
+          objectForKey:[NSValue valueWithNonretainedObject:testViewController]]
+          .trace;
   XCTAssertEqualObjects(traceForScreenOne.name, expectedTraceNameOne);
 
   NSString *expectedTraceNameTwo =
       [FPRScreenTraceTrackerTest expectedTraceNameForViewController:testViewController2];
-  XCTAssertNotNil([self.tracker.activeScreenTraces objectForKey:testViewController2]);
-  FIRTrace *traceForScreenTwo = [self.tracker.activeScreenTraces objectForKey:testViewController2];
+  XCTAssertNotNil([self.tracker.activeScreenTraces
+                      objectForKey:[NSValue valueWithNonretainedObject:testViewController2]]
+                      .trace);
+  FIRTrace *traceForScreenTwo =
+      [self.tracker.activeScreenTraces
+          objectForKey:[NSValue valueWithNonretainedObject:testViewController2]]
+          .trace;
   XCTAssertEqualObjects(traceForScreenTwo.name, expectedTraceNameTwo);
 
   XCTAssertNotEqual(traceForScreenOne,
@@ -374,8 +410,14 @@ static UIViewController *FPRCustomViewController(NSString *className, BOOL isVie
 
   XCTAssertEqual(self.tracker.activeScreenTraces.count, 2);
 
-  FIRTrace *traceForScreenOne = [self.tracker.activeScreenTraces objectForKey:testViewController];
-  FIRTrace *traceForScreenTwo = [self.tracker.activeScreenTraces objectForKey:testViewController2];
+  FIRTrace *traceForScreenOne =
+      [self.tracker.activeScreenTraces
+          objectForKey:[NSValue valueWithNonretainedObject:testViewController]]
+          .trace;
+  FIRTrace *traceForScreenTwo =
+      [self.tracker.activeScreenTraces
+          objectForKey:[NSValue valueWithNonretainedObject:testViewController2]]
+          .trace;
 
   XCTAssertFalse(traceForScreenOne.isCompleteAndValid);
   XCTAssertFalse(traceForScreenTwo.isCompleteAndValid);
@@ -396,7 +438,9 @@ static UIViewController *FPRCustomViewController(NSString *className, BOOL isVie
 
   NSString *expectedTraceName =
       [FPRScreenTraceTrackerTest expectedTraceNameForViewController:testViewController];
-  FIRTrace *createdTrace = [self.tracker.activeScreenTraces objectForKey:testViewController];
+  FIRTrace *createdTrace = [self.tracker.activeScreenTraces
+                               objectForKey:[NSValue valueWithNonretainedObject:testViewController]]
+                               .trace;
   XCTAssertNotNil(createdTrace);
   XCTAssertEqualObjects(createdTrace.name, expectedTraceName);
 
@@ -405,7 +449,9 @@ static UIViewController *FPRCustomViewController(NSString *className, BOOL isVie
   dispatch_group_wait(self.dispatchGroupToWaitOn, DISPATCH_TIME_FOREVER);
 
   XCTAssertEqual(self.tracker.activeScreenTraces.count, 1);
-  FIRTrace *activeTrace = [self.tracker.activeScreenTraces objectForKey:testViewController];
+  FIRTrace *activeTrace = [self.tracker.activeScreenTraces
+                              objectForKey:[NSValue valueWithNonretainedObject:testViewController]]
+                              .trace;
   XCTAssertEqual(createdTrace, activeTrace);  // Test that it is the same trace.
 }
 
@@ -448,14 +494,23 @@ static UIViewController *FPRCustomViewController(NSString *className, BOOL isVie
  *  them.
  */
 - (void)testViewControllerIsWeaklyRetained {
+  __weak UIViewController *weakVC;
   @autoreleasepool {
     UIViewController *testViewController = [[UIViewController alloc] init];
+    weakVC = testViewController;
     id mockTrace = OCMClassMock([FIRTrace class]);
-    [self.tracker.activeScreenTraces setObject:mockTrace forKey:testViewController];
+    FPRScreenTraceHolder *holder = [[FPRScreenTraceHolder alloc] init];
+    holder.viewController = testViewController;
+    holder.trace = mockTrace;
+    [self.tracker.activeScreenTraces
+        setObject:holder
+           forKey:[NSValue valueWithNonretainedObject:testViewController]];
     testViewController = nil;
   }
 
-  XCTAssertEqual([self.tracker.activeScreenTraces dictionaryRepresentation].count, 0);
+  XCTAssertNil(weakVC);
+  [self.tracker cleanupStaleTraces];
+  XCTAssertEqual(self.tracker.activeScreenTraces.count, 0);
 }
 
 /** Tests that a FIRTrace is strongly retained in the map table that holds the mapping between a
@@ -466,12 +521,22 @@ static UIViewController *FPRCustomViewController(NSString *className, BOOL isVie
   NSString *traceName = @"screenTrace";
   FIRTrace *trace = [[FIRTrace alloc] initInternalTraceWithName:traceName];
 
-  [self.tracker.activeScreenTraces setObject:trace forKey:testViewController];
+  FPRScreenTraceHolder *holder = [[FPRScreenTraceHolder alloc] init];
+  holder.viewController = testViewController;
+  holder.trace = trace;
+  [self.tracker.activeScreenTraces
+      setObject:holder
+         forKey:[NSValue valueWithNonretainedObject:testViewController]];
   trace = nil;
 
-  XCTAssertNotNil([self.tracker.activeScreenTraces objectForKey:testViewController]);
+  XCTAssertNotNil([self.tracker.activeScreenTraces
+                      objectForKey:[NSValue valueWithNonretainedObject:testViewController]]
+                      .trace);
 
-  FIRTrace *returnedTrace = [self.tracker.activeScreenTraces objectForKey:testViewController];
+  FIRTrace *returnedTrace =
+      [self.tracker.activeScreenTraces
+          objectForKey:[NSValue valueWithNonretainedObject:testViewController]]
+          .trace;
   XCTAssertEqualObjects(returnedTrace.name, traceName);
 }
 
@@ -479,7 +544,12 @@ static UIViewController *FPRCustomViewController(NSString *className, BOOL isVie
 - (void)testTraceWithNoCountersIsNotSent {
   id mockTrace = OCMClassMock([FIRTrace class]);
   UIViewController *testViewController = [[UIViewController alloc] init];
-  [self.tracker.activeScreenTraces setObject:mockTrace forKey:testViewController];
+  FPRScreenTraceHolder *holder = [[FPRScreenTraceHolder alloc] init];
+  holder.viewController = testViewController;
+  holder.trace = mockTrace;
+  [self.tracker.activeScreenTraces
+      setObject:holder
+         forKey:[NSValue valueWithNonretainedObject:testViewController]];
 
   OCMExpect([mockTrace cancel]);
   [[mockTrace reject] stop];
@@ -502,8 +572,10 @@ static UIViewController *FPRCustomViewController(NSString *className, BOOL isVie
 
   dispatch_group_wait(self.dispatchGroupToWaitOn, DISPATCH_TIME_FOREVER);
 
-  FIRTrace *traceScreenOne = [self.tracker.activeScreenTraces objectForKey:testViewController];
-  FIRTrace *traceScreenTwo = [self.tracker.activeScreenTraces objectForKey:testViewController2];
+  NSValue *keyOne = [NSValue valueWithNonretainedObject:testViewController];
+  NSValue *keyTwo = [NSValue valueWithNonretainedObject:testViewController2];
+  FIRTrace *traceScreenOne = [self.tracker.activeScreenTraces objectForKey:keyOne].trace;
+  FIRTrace *traceScreenTwo = [self.tracker.activeScreenTraces objectForKey:keyTwo].trace;
 
   XCTAssertNotNil(traceScreenOne);
   XCTAssertNotNil(traceScreenTwo);
@@ -567,8 +639,12 @@ static UIViewController *FPRCustomViewController(NSString *className, BOOL isVie
 
   XCTAssertEqual(self.tracker.activeScreenTraces.count, 2);
   XCTAssertNil(self.tracker.previouslyVisibleViewControllers);
-  XCTAssertNotNil([self.tracker.activeScreenTraces objectForKey:testViewController]);
-  XCTAssertNotNil([self.tracker.activeScreenTraces objectForKey:testViewController2]);
+  XCTAssertNotNil([self.tracker.activeScreenTraces
+                      objectForKey:[NSValue valueWithNonretainedObject:testViewController]]
+                      .trace);
+  XCTAssertNotNil([self.tracker.activeScreenTraces
+                      objectForKey:[NSValue valueWithNonretainedObject:testViewController2]]
+                      .trace);
 }
 
 /** Tests that if one of the previously visible ViewControllers is deallocated, a new trace isn't
@@ -578,15 +654,26 @@ static UIViewController *FPRCustomViewController(NSString *className, BOOL isVie
   UIViewController *testViewController = [[UIViewController alloc] init];
   [testViewController view];  // Loads the view so that a screen trace is created for it.
 
-  UIViewController *testViewController2 = [[UIViewController alloc] init];
-  [testViewController2 view];  // Loads the view so that a screen trace is created for it.
+  __weak UIViewController *weakVC2;
+  @autoreleasepool {
+    UIViewController *testViewController2 = [[UIViewController alloc] init];
+    [testViewController2 view];  // Loads the view so that a screen trace is created for it.
 
-  self.tracker.previouslyVisibleViewControllers = [NSPointerArray weakObjectsPointerArray];
-  [self.tracker.previouslyVisibleViewControllers addPointer:(__bridge void *)testViewController];
-  [self.tracker.previouslyVisibleViewControllers addPointer:(__bridge void *)testViewController2];
+    self.tracker.previouslyVisibleViewControllers = [NSPointerArray weakObjectsPointerArray];
+    [self.tracker.previouslyVisibleViewControllers addPointer:(__bridge void *)testViewController];
+    [self.tracker.previouslyVisibleViewControllers addPointer:(__bridge void *)testViewController2];
 
-  // UIKit deallocates one of the ViewControllers that was previously visible.
-  testViewController2 = nil;
+    // UIKit deallocates one of the ViewControllers that was previously visible.
+    weakVC2 = testViewController2;
+    testViewController2 = nil;
+  }
+
+  // The blocks retain the view controllers and it sometimes takes some time to release them.
+  NSDate *timeoutDate = [NSDate dateWithTimeIntervalSinceNow:5.0];
+  while (weakVC2 && [timeoutDate timeIntervalSinceNow] > 0) {
+    [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode
+                             beforeDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
+  }
 
   // App becomes active.
   NSNotification *appDidBecomeActiveNSNotification =
@@ -595,8 +682,11 @@ static UIViewController *FPRCustomViewController(NSString *className, BOOL isVie
   dispatch_group_wait(self.dispatchGroupToWaitOn, DISPATCH_TIME_FOREVER);
 
   XCTAssertNil(self.tracker.previouslyVisibleViewControllers);
-  XCTAssertNotNil([self.tracker.activeScreenTraces objectForKey:testViewController]);
-  XCTAssertNil([self.tracker.activeScreenTraces objectForKey:testViewController2]);
+  XCTAssertNotNil([self.tracker.activeScreenTraces
+                      objectForKey:[NSValue valueWithNonretainedObject:testViewController]]
+                      .trace);
+  [self.tracker cleanupStaleTraces];
+  XCTAssertEqual(self.tracker.activeScreenTraces.count, 1);
 }
 
 /** Tests that if consecutive frames take more time to render than the slow frames threshold, the
@@ -754,7 +844,9 @@ static UIViewController *FPRCustomViewController(NSString *className, BOOL isVie
   [self.tracker viewControllerDidAppear:testViewController];
   dispatch_group_wait(self.dispatchGroupToWaitOn, DISPATCH_TIME_FOREVER);
 
-  FIRTrace *createdTrace = [self.tracker.activeScreenTraces objectForKey:testViewController];
+  FIRTrace *createdTrace = [self.tracker.activeScreenTraces
+                               objectForKey:[NSValue valueWithNonretainedObject:testViewController]]
+                               .trace;
 
   self.tracker.totalFramesCount = initialTotalFramesCount + expectedTotalFramesOnTrace;
   self.tracker.slowFramesCount = initialSlowFramesCount + expectedSlowFramesOnTrace;
@@ -786,7 +878,9 @@ static UIViewController *FPRCustomViewController(NSString *className, BOOL isVie
   [self.tracker viewControllerDidAppear:testViewController];
   dispatch_group_wait(self.dispatchGroupToWaitOn, DISPATCH_TIME_FOREVER);
 
-  FIRTrace *createdTrace = [self.tracker.activeScreenTraces objectForKey:testViewController];
+  FIRTrace *createdTrace = [self.tracker.activeScreenTraces
+                               objectForKey:[NSValue valueWithNonretainedObject:testViewController]]
+                               .trace;
 
   self.tracker.totalFramesCount = initialTotalFramesCount + expectedTotalFramesOnTrace;
   self.tracker.slowFramesCount = initialSlowFramesCount + expectedSlowFramesOnTrace;
@@ -819,7 +913,9 @@ static UIViewController *FPRCustomViewController(NSString *className, BOOL isVie
   [self.tracker viewControllerDidAppear:testViewController];
   dispatch_group_wait(self.dispatchGroupToWaitOn, DISPATCH_TIME_FOREVER);
 
-  FIRTrace *createdTrace = [self.tracker.activeScreenTraces objectForKey:testViewController];
+  FIRTrace *createdTrace = [self.tracker.activeScreenTraces
+                               objectForKey:[NSValue valueWithNonretainedObject:testViewController]]
+                               .trace;
 
   self.tracker.totalFramesCount = initialTotalFramesCount + expectedTotalFramesOnTrace;
   self.tracker.slowFramesCount = initialSlowFramesCount + expectedSlowFramesOnTrace;
@@ -843,7 +939,9 @@ static UIViewController *FPRCustomViewController(NSString *className, BOOL isVie
   [self.tracker viewControllerDidAppear:testViewController];
   dispatch_group_wait(self.dispatchGroupToWaitOn, DISPATCH_TIME_FOREVER);
 
-  FIRTrace *createdTrace = [self.tracker.activeScreenTraces objectForKey:testViewController];
+  FIRTrace *createdTrace = [self.tracker.activeScreenTraces
+                               objectForKey:[NSValue valueWithNonretainedObject:testViewController]]
+                               .trace;
 
   [self.tracker viewControllerDidDisappear:testViewController];
   dispatch_group_wait(self.dispatchGroupToWaitOn, DISPATCH_TIME_FOREVER);
@@ -900,35 +998,13 @@ static UIViewController *FPRCustomViewController(NSString *className, BOOL isVie
 
 #pragma mark - Dynamic FPS Tests
 
-/** Helper method to swizzle UIScreen.maximumFramesPerSecond for testing.
+#if TARGET_OS_TV
+
+/** Helper method to create a test tracker with updated cached budget.
  *
- *  @param fps The FPS value to stub.
- *  @param block The block to execute with the stubbed FPS.
- */
-- (void)withStubbedMaxFPS:(NSInteger)fps performBlock:(void (^)(void))block {
-  Method originalMethod =
-      class_getInstanceMethod([UIScreen class], @selector(maximumFramesPerSecond));
-  IMP originalIMP = method_getImplementation(originalMethod);
-
-  NSInteger (^stubBlock)(id) = ^NSInteger(id self) {
-    return fps;
-  };
-  IMP stubIMP = imp_implementationWithBlock(stubBlock);
-  method_setImplementation(originalMethod, stubIMP);
-
-  @try {
-    block();
-  } @finally {
-    method_setImplementation(originalMethod, originalIMP);
-  }
-}
-
-/** Helper method to create a test tracker with stubbed FPS and updated cached budget.
- *
- *  @param fps The FPS value to stub.
  *  @return A configured FPRScreenTraceTracker instance.
  */
-- (FPRScreenTraceTracker *)createTestTrackerWithStubbedFPS:(NSInteger)fps {
+- (FPRScreenTraceTracker *)createTestTrackerWithUpdatedFPS {
   FPRScreenTraceTracker *testTracker = [[FPRScreenTraceTracker alloc] init];
   testTracker.displayLink.paused = YES;
   // Tests run on main thread, so call updateCachedSlowBudget directly.
@@ -936,10 +1012,9 @@ static UIViewController *FPRCustomViewController(NSString *className, BOOL isVie
   return testTracker;
 }
 
-#if TARGET_OS_TV
 /** Tests that slow frames are correctly detected with a custom maxFPS value on tvOS.
  *  This test stubs UIScreen.maximumFramesPerSecond to 50 FPS and verifies that frames
- *  at ~21ms (slow) and ~19ms (not slow) are correctly classified.
+ *  at ~25ms (slow) and ~19ms (not slow) are correctly classified.
  */
 - (void)testSlowFrameIsRecordedWithCustomMaxFPSOnTvOS {
   // At 50 FPS, slow budget = 1.0/50 = 0.02 seconds = 20ms.
@@ -949,7 +1024,7 @@ static UIViewController *FPRCustomViewController(NSString *className, BOOL isVie
                UIScreen *mainScreen = [UIScreen mainScreen];
                XCTAssertEqual(mainScreen.maximumFramesPerSecond, 50, @"Stub should return 50 FPS");
 
-               FPRScreenTraceTracker *testTracker = [self createTestTrackerWithStubbedFPS:50];
+               FPRScreenTraceTracker *testTracker = [self createTestTrackerWithUpdatedFPS];
 
                // Verify the stub is still working after tracker creation.
                XCTAssertEqual([UIScreen mainScreen].maximumFramesPerSecond, 50,
@@ -992,15 +1067,14 @@ static UIViewController *FPRCustomViewController(NSString *className, BOOL isVie
                    @"Frame at 19ms should NOT be marked as slow at 50 FPS (20ms threshold)");
              }];
 }
-#endif
 
-/** Tests that the epsilon value correctly handles edge cases around 59.94 vs 60 Hz displays.
- *  Frames right at the threshold should not be miscounted due to floating point precision.
+/** Tests that the epsilon value correctly handles edge cases around 59.94 vs 60 Hz displays on
+ * tvOS. Frames right at the threshold should not be miscounted due to floating point precision.
  */
 - (void)testSlowFrameRate_isHandled_inEdgeCases {
   [self withStubbedMaxFPS:60
              performBlock:^{
-               FPRScreenTraceTracker *testTracker = [self createTestTrackerWithStubbedFPS:60];
+               FPRScreenTraceTracker *testTracker = [self createTestTrackerWithUpdatedFPS];
 
                // Verify the stub is working - UIScreen should return 60 FPS.
                UIScreen *mainScreen = [UIScreen mainScreen];
@@ -1047,7 +1121,6 @@ static UIViewController *FPRCustomViewController(NSString *className, BOOL isVie
              }];
 }
 
-#if TARGET_OS_TV
 /** Tests that the slow budget is recomputed when UIScreenModeDidChangeNotification is posted on
  * tvOS. This verifies that the tracker adapts to display mode changes that affect refresh rate.
  */
@@ -1065,7 +1138,7 @@ static UIViewController *FPRCustomViewController(NSString *className, BOOL isVie
   method_setImplementation(originalMethod, stubIMP);
 
   @try {
-    FPRScreenTraceTracker *testTracker = [self createTestTrackerWithStubbedFPS:60];
+    FPRScreenTraceTracker *testTracker = [self createTestTrackerWithUpdatedFPS];
 
     // Verify initial behavior: at 60 FPS, slow budget = ~16.67ms.
     // An 18ms frame should be slow at 60 FPS.
@@ -1136,12 +1209,131 @@ static UIViewController *FPRCustomViewController(NSString *className, BOOL isVie
     method_setImplementation(originalMethod, originalIMP);
   }
 }
+
+#else
+
+/** Tests that non tvOS devices (including ProMotion devices) displays do not use the dynamic frame
+ * rate. */
+- (void)testNonTVOSDevicesDontUseMaximumFramesPerSecond {
+  [self withStubbedMaxFPS:120
+             performBlock:^{
+               [self.tracker updateCachedSlowBudget];
+
+               id displayLinkMock = OCMClassMock([CADisplayLink class]);
+               [self.tracker.displayLink invalidate];
+               self.tracker.displayLink = displayLinkMock;
+
+               CFAbsoluteTime firstFrameTimestamp = 1.0;
+               // Standard 60 FPS frame duration is ~16.67ms (1.0 / 60.0)
+               CFAbsoluteTime secondFrameTimestamp = firstFrameTimestamp + (1.0 / 60.0);
+
+               OCMExpect([displayLinkMock timestamp]).andReturn(firstFrameTimestamp);
+               [self.tracker displayLinkStep];
+               int64_t initialSlowFramesCount = self.tracker.slowFramesCount;
+
+               OCMExpect([displayLinkMock timestamp]).andReturn(secondFrameTimestamp);
+               [self.tracker displayLinkStep];
+
+               int64_t slowFramesCount = self.tracker.slowFramesCount;
+               XCTAssertEqual(slowFramesCount, initialSlowFramesCount,
+                              @"Standard 60 FPS frames should NOT be marked as slow on ProMotion "
+                              @"(120 FPS) devices on iOS");
+             }];
+}
+
 #endif
 
 #pragma mark - Helper methods
 
+/** Helper method to swizzle UIScreen.maximumFramesPerSecond for testing.
+ *
+ *  @param fps The FPS value to stub.
+ *  @param block The block to execute with the stubbed FPS.
+ */
+- (void)withStubbedMaxFPS:(NSInteger)fps performBlock:(void (^)(void))block {
+  Method originalMethod =
+      class_getInstanceMethod([UIScreen class], @selector(maximumFramesPerSecond));
+  IMP originalIMP = method_getImplementation(originalMethod);
+
+  NSInteger (^stubBlock)(id) = ^NSInteger(id self) {
+    return fps;
+  };
+  IMP stubIMP = imp_implementationWithBlock(stubBlock);
+  method_setImplementation(originalMethod, stubIMP);
+
+  @try {
+    block();
+  } @finally {
+    method_setImplementation(originalMethod, originalIMP);
+  }
+}
+
 + (NSString *)expectedTraceNameForViewController:(UIViewController *)viewController {
   return [@"_st_" stringByAppendingString:NSStringFromClass([viewController class])];
+}
+
+- (void)testScreenTraceTrackerStress {
+  int iterations = 100;
+  int numObjects = 10;
+
+  XCTestExpectation *expectation = [self expectationWithDescription:@"Stress test finished"];
+
+  dispatch_queue_t queue =
+      dispatch_queue_create("com.google.perf.stress", DISPATCH_QUEUE_CONCURRENT);
+
+  dispatch_group_t group = dispatch_group_create();
+
+  NSMutableArray<UIViewController *> *objects = [[NSMutableArray alloc] init];
+  for (int i = 0; i < numObjects; i++) {
+    [objects addObject:[[UIViewController alloc] init]];
+  }
+
+  // Thread 1: Continuously call viewControllerDidAppear
+  for (int t = 0; t < 3; t++) {
+    dispatch_group_async(group, queue, ^{
+      for (int i = 0; i < iterations; i++) {
+        int idx = i % numObjects;
+        UIViewController *obj;
+        @synchronized(objects) {
+          obj = objects[idx];
+        }
+        [self.tracker viewControllerDidAppear:obj];
+      }
+    });
+  }
+
+  // Thread 2: Continuously call viewControllerDidDisappear
+  for (int t = 0; t < 3; t++) {
+    dispatch_group_async(group, queue, ^{
+      for (int i = 0; i < iterations; i++) {
+        int idx = i % numObjects;
+        UIViewController *obj;
+        @synchronized(objects) {
+          obj = objects[idx];
+        }
+        [self.tracker viewControllerDidDisappear:obj];
+      }
+    });
+  }
+
+  // Thread 3: Continuously replace objects to trigger deallocation
+  for (int t = 0; t < 2; t++) {
+    dispatch_group_async(group, queue, ^{
+      for (int i = 0; i < iterations; i++) {
+        int idx = i % numObjects;
+        UIViewController *newObj = [[UIViewController alloc] init];
+        @synchronized(objects) {
+          objects[idx] = newObj;
+        }
+      }
+    });
+  }
+
+  dispatch_group_notify(group, dispatch_get_main_queue(), ^{
+    [expectation fulfill];
+  });
+
+  [self waitForExpectationsWithTimeout:30 handler:nil];
 }
 
 @end

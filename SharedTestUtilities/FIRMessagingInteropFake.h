@@ -16,7 +16,11 @@
 
 #import <Foundation/Foundation.h>
 
+#if SWIFT_PACKAGE
+#import <FIRMessagingInterop.h>
+#else
 #import "FirebaseMessaging/Interop/FIRMessagingInterop.h"
+#endif
 
 NS_ASSUME_NONNULL_BEGIN
 

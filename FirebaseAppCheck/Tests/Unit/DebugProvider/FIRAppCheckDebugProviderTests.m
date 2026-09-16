@@ -33,7 +33,11 @@ static NSString *const kProjectNumber = @"123456789";
 
 @interface FIRAppCheckDebugProvider (Tests)
 
-- (instancetype)initWithDebugProvider:(GACAppCheckDebugProvider *)debugProvider;
+- (instancetype)initWithDebugProvider:(GACAppCheckDebugProvider *)debugProvider
+                            projectID:(nullable NSString *)projectID
+                          googleAppID:(NSString *)googleAppID;
+@property(nonatomic, readonly, copy, nullable) NSString *projectID;
+@property(nonatomic, readonly, copy) NSString *googleAppID;
 
 @end
 
@@ -50,7 +54,9 @@ static NSString *const kProjectNumber = @"123456789";
 - (void)setUp {
   self.resourceName = [NSString stringWithFormat:@"projects/%@/apps/%@", kProjectID, kAppID];
   self.debugProviderMock = OCMStrictClassMock([GACAppCheckDebugProvider class]);
-  self.provider = [[FIRAppCheckDebugProvider alloc] initWithDebugProvider:self.debugProviderMock];
+  self.provider = [[FIRAppCheckDebugProvider alloc] initWithDebugProvider:self.debugProviderMock
+                                                                projectID:nil
+                                                              googleAppID:kAppID];
 }
 
 - (void)tearDown {
@@ -69,7 +75,15 @@ static NSString *const kProjectNumber = @"123456789";
   // The following disables automatic token refresh, which could interfere with tests.
   app.dataCollectionDefaultEnabled = NO;
 
-  XCTAssertNotNil([[FIRAppCheckDebugProvider alloc] initWithApp:app]);
+  FIRAppCheckDebugProvider *provider = [[FIRAppCheckDebugProvider alloc] initWithApp:app];
+  XCTAssertNotNil(provider);
+  XCTAssertEqualObjects(provider.projectID, kProjectID);
+  XCTAssertEqualObjects(provider.googleAppID, kAppID);
+}
+
+- (void)testInitWithDebugProvider {
+  XCTAssertNil(self.provider.projectID);
+  XCTAssertEqualObjects(self.provider.googleAppID, kAppID);
 }
 
 - (void)testInitWithIncompleteApp {

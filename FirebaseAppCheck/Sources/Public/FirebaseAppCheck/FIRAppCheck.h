@@ -52,11 +52,15 @@ NS_SWIFT_NAME(AppCheck)
 /// @throw Throws an exception if required `FirebaseApp` options are missing.
 + (nullable instancetype)appCheckWithApp:(FIRApp *)firebaseApp NS_SWIFT_NAME(appCheck(app:));
 
-/// Sets the `AppCheckProviderFactory` to use to generate
-/// `AppCheckDebugProvider` objects.
+/// Sets the `AppCheckProviderFactory` used to generate
+/// `AppCheckProvider` objects.
 ///
-/// An instance of `DeviceCheckProviderFactory` is used by default, but you can
-/// also use a custom `AppCheckProviderFactory` implementation or an
+/// By default, App Check uses a default provider factory. This factory vends
+/// `AppCheckDebugProvider` on simulator platforms. On physical devices, it
+/// vends `RecaptchaProvider` if configured (iOS and visionOS only), or
+/// `DeviceCheckProvider` where supported.
+///
+/// You can use a custom `AppCheckProviderFactory` implementation or an
 /// instance of `AppCheckDebugProviderFactory` to test your app on a simulator
 /// on a local machine or a build server.
 ///

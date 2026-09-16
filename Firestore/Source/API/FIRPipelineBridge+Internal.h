@@ -52,6 +52,10 @@ NS_ASSUME_NONNULL_BEGIN
 - (id)initWithCppStage:(std::shared_ptr<const firebase::firestore::api::CollectionSource>)stage;
 @end
 
+@interface FIRSubcollectionSourceStageBridge (Internal)
+- (id)initWithCppStage:(std::shared_ptr<const firebase::firestore::api::SubcollectionSource>)stage;
+@end
+
 @interface FIRDatabaseSourceStageBridge (Internal)
 - (id)initWithCppStage:(std::shared_ptr<const firebase::firestore::api::DatabaseSource>)stage;
 @end

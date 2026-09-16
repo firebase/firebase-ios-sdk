@@ -43,11 +43,11 @@ NS_ASSUME_NONNULL_BEGIN
 + (void)logCrashWithTimeStamp:(NSTimeInterval)crashTimeStamp
                   toAnalytics:(id<FIRAnalyticsInterop>)analytics;
 
+@end
+
 /*
  * Public for testing.
  */
-NSString *FIRCLSFIRAEventDictionaryToJSON(NSDictionary *eventAsDictionary);
-
-@end
+NSString *_Nullable FIRCLSFIRAEventDictionaryToJSON(NSDictionary *eventAsDictionary);
 
 NS_ASSUME_NONNULL_END

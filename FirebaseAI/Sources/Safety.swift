@@ -154,9 +154,9 @@ public struct SafetyRating: Equatable, Hashable, Sendable {
 /// See [safety settings for Gemini
 /// models](https://firebase.google.com/docs/vertex-ai/safety-settings?platform=ios#gemini) for
 /// more details.
-public struct SafetySetting: Sendable {
+public struct SafetySetting: Sendable, Hashable {
   /// Block at and beyond a specified ``SafetyRating/HarmProbability``.
-  public struct HarmBlockThreshold: EncodableProtoEnum, Sendable {
+  public struct HarmBlockThreshold: EncodableProtoEnum, Sendable, Hashable {
     enum Kind: String {
       case blockLowAndAbove = "BLOCK_LOW_AND_ABOVE"
       case blockMediumAndAbove = "BLOCK_MEDIUM_AND_ABOVE"
@@ -184,7 +184,7 @@ public struct SafetySetting: Sendable {
   }
 
   /// The method of computing whether the ``SafetySetting/HarmBlockThreshold`` has been exceeded.
-  public struct HarmBlockMethod: EncodableProtoEnum, Sendable {
+  public struct HarmBlockMethod: EncodableProtoEnum, Sendable, Hashable {
     enum Kind: String {
       case severity = "SEVERITY"
       case probability = "PROBABILITY"
@@ -291,7 +291,8 @@ extension SafetyRating: Decodable {
       HarmProbability.self, forKey: .probability
     ) ?? .unspecified
 
-    // The following 3 fields are only provided when using the Vertex AI backend (not Google AI).
+    // The following 3 fields are only provided when using the Agent Platform Gemini API
+    // backend (not the Gemini Developer API).
     probabilityScore = try container.decodeIfPresent(Float.self, forKey: .probabilityScore) ?? 0.0
     severity = try container.decodeIfPresent(HarmSeverity.self, forKey: .severity) ?? .unspecified
     severityScore = try container.decodeIfPresent(Float.self, forKey: .severityScore) ?? 0.0

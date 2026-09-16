@@ -105,16 +105,16 @@ namespace util {
 namespace internal {
 
 // A no-return helper function. To raise an assertion, use Macro instead.
-ABSL_ATTRIBUTE_NORETURN void FailAssertion(const char* file,
-                                           const char* func,
-                                           int line,
-                                           const std::string& message);
+[[noreturn]] void FailAssertion(const char* file,
+                                const char* func,
+                                int line,
+                                const std::string& message);
 
-ABSL_ATTRIBUTE_NORETURN void FailAssertion(const char* file,
-                                           const char* func,
-                                           int line,
-                                           const std::string& message,
-                                           const char* condition);
+[[noreturn]] void FailAssertion(const char* file,
+                                const char* func,
+                                int line,
+                                const std::string& message,
+                                const char* condition);
 
 }  // namespace internal
 }  // namespace util

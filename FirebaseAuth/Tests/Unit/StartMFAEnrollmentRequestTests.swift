@@ -20,7 +20,6 @@ import XCTest
 /** @class StartMFAEnrollmentRequestTests
     @brief Tests for @c StartMFAEnrollmentRequest
  */
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class StartMFAEnrollmentRequestTests: RPCBaseTests {
   let kAPIKey = "APIKey"
   let kIDToken = "idToken"

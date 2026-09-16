@@ -18,7 +18,6 @@ import Foundation
 ///
 /// Properties are marked as being part of a profile update when they are set. Setting a
 /// property value to nil is not the same as leaving the property unassigned.
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIRUserProfileChangeRequest) open class UserProfileChangeRequest: NSObject {
   /// The name of the user.
   @objc open var displayName: String? {
@@ -104,7 +103,6 @@ import Foundation
   /// Commits any pending changes.
   ///
   /// This method should only be called once. Once called, property values should not be changed.
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   open func commitChanges() async throws {
     return try await withCheckedThrowingContinuation { continuation in
       self.commitChanges { error in

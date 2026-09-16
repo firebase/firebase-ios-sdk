@@ -1241,7 +1241,7 @@ final class GenerativeModelVertexAITests: XCTestCase {
     XCTFail("Should have caught an error.")
   }
 
-  func testGenerateContentStream_failure_vertexAIInFirebaseAPINotEnabled() async throws {
+  func testGenerateContentStream_failure_agentPlatformInFirebaseAPINotEnabled() async throws {
     let expectedStatusCode = 403
     MockURLProtocol
       .requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
@@ -1846,10 +1846,6 @@ final class GenerativeModelVertexAITests: XCTestCase {
       subdirectory: vertexSubdirectory
     )
     let generationConfig = GenerationConfig(
-      temperature: 0.5,
-      topP: 0.9,
-      topK: 3,
-      candidateCount: 1,
       maxOutputTokens: 1024,
       stopSequences: ["test-stop"],
       responseMIMEType: "text/plain"

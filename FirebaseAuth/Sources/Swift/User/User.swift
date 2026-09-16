@@ -14,7 +14,6 @@
 
 import Foundation
 
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 extension User: NSSecureCoding {}
 
 /// Represents a user.
@@ -26,7 +25,6 @@ extension User: NSSecureCoding {}
 /// ID token is automatically refreshed.
 ///
 /// This class is thread-safe.
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIRUser) open class User: NSObject, UserInfo {
   /// Indicates the user represents an anonymous user.
   @objc public internal(set) var isAnonymous: Bool {
@@ -166,7 +164,6 @@ extension User: NSSecureCoding {}
       message: "`updateEmail` is deprecated and will be removed in a future release. Use sendEmailVerification(beforeUpdatingEmail:) instead."
     )
   #endif // !FIREBASE_CI
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   open func updateEmail(to email: String) async throws {
     return try await withCheckedThrowingContinuation { continuation in
       self.updateEmail(to: email) { error in
@@ -226,7 +223,6 @@ extension User: NSSecureCoding {}
   /// considered too weak. The `NSLocalizedFailureReasonErrorKey` field in the `userInfo`
   /// dictionary object will contain more detailed explanation that can be shown to the user.
   /// - Parameter password: The new password for the user.
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   open func updatePassword(to password: String) async throws {
     return try await withCheckedThrowingContinuation { continuation in
       self.updatePassword(to: password) { error in
@@ -281,7 +277,6 @@ extension User: NSSecureCoding {}
     /// - Parameter credential: The new phone number credential corresponding to the
     /// phone number to be added to the Firebase account, if a phone number is already linked to the
     /// account this new phone number will replace it.
-    @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     open func updatePhoneNumber(_ credential: PhoneAuthCredential) async throws {
       return try await withCheckedThrowingContinuation { continuation in
         self.updatePhoneNumber(credential) { error in
@@ -340,7 +335,6 @@ extension User: NSSecureCoding {}
   /// May fail with an `AuthErrorCodeRequiresRecentLogin` error code. In this case
   /// you should call `reauthenticate(with:)` before re-invoking
   /// `updateEmail(to:)`.
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   open func reload() async throws {
     return try await withCheckedThrowingContinuation { continuation in
       self.reload { error in
@@ -459,7 +453,6 @@ extension User: NSSecureCoding {}
   /// This can be a successful third-party identity provider sign-in, or an email address and
   /// password.
   /// - Returns: The `AuthDataResult` after the reauthentication.
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   @discardableResult
   open func reauthenticate(with credential: AuthCredential) async throws -> AuthDataResult {
     return try await withCheckedThrowingContinuation { continuation in
@@ -511,7 +504,6 @@ extension User: NSSecureCoding {}
     ///    protocol, used for presenting the web context. If nil, a default `AuthUIDelegate`
     ///    will be used.
     /// - Returns: The `AuthDataResult` after the reauthentication.
-    @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     @discardableResult
     open func reauthenticate(with provider: FederatedAuthProvider,
                              uiDelegate: AuthUIDelegate?) async throws -> AuthDataResult {
@@ -564,7 +556,6 @@ extension User: NSSecureCoding {}
   /// - Parameter forceRefresh: Forces a token refresh. Useful if the token becomes invalid for some
   /// reason other than an expiration.
   /// - Returns: The Firebase authentication token.
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   open func getIDToken(forcingRefresh forceRefresh: Bool = false) async throws -> String {
     return try await withCheckedThrowingContinuation { continuation in
       self.getIDTokenForcingRefresh(forceRefresh) { tokenResult, error in
@@ -649,7 +640,6 @@ extension User: NSSecureCoding {}
   /// - Parameter forceRefresh: Forces a token refresh. Useful if the token becomes invalid for some
   /// reason other than an expiration.
   /// - Returns: The Firebase authentication token.
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   open func getIDTokenResult(forcingRefresh forceRefresh: Bool = false) async throws
     -> AuthTokenResult {
     return try await withCheckedThrowingContinuation { continuation in
@@ -747,7 +737,6 @@ extension User: NSSecureCoding {}
   /// `updatePassword(to:)` on `User`.
   /// - Parameter credential: The credential for the identity provider.
   /// - Returns: An `AuthDataResult`.
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   @discardableResult
   open func link(with credential: AuthCredential) async throws -> AuthDataResult {
     return try await withCheckedThrowingContinuation { continuation in
@@ -797,7 +786,6 @@ extension User: NSSecureCoding {}
     /// protocol used for presenting the web context. If nil, a default `AuthUIDelegate`
     ///    will be used.
     /// - Returns: An AuthDataResult.
-    @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     @discardableResult
     open func link(with provider: FederatedAuthProvider,
                    uiDelegate: AuthUIDelegate?) async throws -> AuthDataResult {
@@ -856,7 +844,6 @@ extension User: NSSecureCoding {}
   ///    `reauthenticate(with:)`.
   /// - Parameter provider: The provider ID of the provider to unlink.
   /// - Returns: The user.
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   open func unlink(fromProvider provider: String) async throws -> User {
     return try await userProfileUpdate.unlink(user: self, fromProvider: provider)
   }
@@ -937,7 +924,6 @@ extension User: NSSecureCoding {}
   /// * `AuthErrorCodeUserNotFound` - Indicates the user account was not found.
   /// - Parameter actionCodeSettings: An `ActionCodeSettings` object containing settings related to
   /// handling action codes. The default value is `nil`.
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   open func sendEmailVerification(with actionCodeSettings: ActionCodeSettings? = nil) async throws {
     return try await withCheckedThrowingContinuation { continuation in
       self.sendEmailVerification(with: actionCodeSettings) { error in
@@ -994,7 +980,6 @@ extension User: NSSecureCoding {}
   ///  operation that requires a recent login from the user. This error indicates the user
   /// has not signed in recently enough. To resolve, reauthenticate the user by calling
   /// `reauthenticate(with:)`.
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   open func delete() async throws {
     return try await withCheckedThrowingContinuation { continuation in
       self.delete { error in
@@ -1059,7 +1044,6 @@ extension User: NSSecureCoding {}
   /// - Parameter newEmail: The email to be updated to.
   /// - Parameter actionCodeSettings: An `ActionCodeSettings` object containing settings related to
   ///    handling action codes.
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   open func sendEmailVerification(beforeUpdatingEmail newEmail: String,
                                   actionCodeSettings: ActionCodeSettings? = nil) async throws {
     return try await withCheckedThrowingContinuation { continuation in

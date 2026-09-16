@@ -11,13 +11,13 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
 extension Expression {
-  /// Returns the internal error message. It is overridden in specific expression implementations
-  /// (like FunctionExpression) but defaults to `nil` for others.
+  /// Returns the internal error message. It is dynamically dispatched
+  /// to specific expression implementations (like FunctionExpression), and returns `nil` for
+  /// others.
   /// This design is to support pipeline conversion to expression.
   var errorMessage: String? {
-    return nil
+    return Helper.errorMessage(for: self)
   }
 
   func toBridge() -> ExprBridge {
@@ -550,6 +550,67 @@ public extension Expression {
     return FunctionExpression(functionName: "array_length", args: [self])
   }
 
+  func arrayFilter(alias: String, filter: BooleanExpression) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "array_filter",
+      args: [self, Constant(alias), filter]
+    )
+  }
+
+  func arrayTransform(elementAlias: String, transform: Expression) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "array_transform",
+      args: [self, Constant(elementAlias), transform]
+    )
+  }
+
+  func arrayTransformWithIndex(elementAlias: String, indexAlias: String,
+                               transform: Expression) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "array_transform",
+      args: [self, Constant(elementAlias), Constant(indexAlias), transform]
+    )
+  }
+
+  func arraySlice(offset: Int) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "array_slice",
+      args: [self, Helper.sendableToExpr(offset)]
+    )
+  }
+
+  func arraySlice(offset: Expression) -> FunctionExpression {
+    return FunctionExpression(functionName: "array_slice", args: [self, offset])
+  }
+
+  func arraySlice(offset: Int, length: Int) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "array_slice",
+      args: [self, Helper.sendableToExpr(offset), Helper.sendableToExpr(length)]
+    )
+  }
+
+  func arraySlice(offset: Expression, length: Expression) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "array_slice",
+      args: [self, offset, length]
+    )
+  }
+
+  func arraySlice(offset: Int, length: Expression) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "array_slice",
+      args: [self, Helper.sendableToExpr(offset), length]
+    )
+  }
+
+  func arraySlice(offset: Expression, length: Int) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "array_slice",
+      args: [self, offset, Helper.sendableToExpr(length)]
+    )
+  }
+
   func arrayFirst() -> FunctionExpression {
     return FunctionExpression(functionName: "array_first", args: [self])
   }
@@ -892,6 +953,80 @@ public extension Expression {
     return FunctionExpression(functionName: "trim", args: [self])
   }
 
+  func ltrim() -> FunctionExpression {
+    return FunctionExpression(functionName: "ltrim", args: [self])
+  }
+
+  func ltrim(_ characters: String) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "ltrim",
+      args: [self, Helper.sendableToExpr(characters)]
+    )
+  }
+
+  func ltrim(_ characters: Expression) -> FunctionExpression {
+    return FunctionExpression(functionName: "ltrim", args: [self, characters])
+  }
+
+  func rtrim() -> FunctionExpression {
+    return FunctionExpression(functionName: "rtrim", args: [self])
+  }
+
+  func rtrim(_ characters: String) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "rtrim",
+      args: [self, Helper.sendableToExpr(characters)]
+    )
+  }
+
+  func rtrim(_ characters: Expression) -> FunctionExpression {
+    return FunctionExpression(functionName: "rtrim", args: [self, characters])
+  }
+
+  func stringRepeat(_ count: Int) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "string_repeat",
+      args: [self, Helper.sendableToExpr(count)]
+    )
+  }
+
+  func stringRepeat(_ count: Expression) -> FunctionExpression {
+    return FunctionExpression(functionName: "string_repeat", args: [self, count])
+  }
+
+  func stringReplaceAll(_ oldValue: String, with newValue: String) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "string_replace_all",
+      args: [self, Helper.sendableToExpr(oldValue), Helper.sendableToExpr(newValue)]
+    )
+  }
+
+  func stringReplaceAll(_ oldValue: Expression, with newValue: Expression) -> FunctionExpression {
+    return FunctionExpression(functionName: "string_replace_all", args: [self, oldValue, newValue])
+  }
+
+  func stringReplaceOne(_ oldValue: String, with newValue: String) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "string_replace_one",
+      args: [self, Helper.sendableToExpr(oldValue), Helper.sendableToExpr(newValue)]
+    )
+  }
+
+  func stringReplaceOne(_ oldValue: Expression, with newValue: Expression) -> FunctionExpression {
+    return FunctionExpression(functionName: "string_replace_one", args: [self, oldValue, newValue])
+  }
+
+  func stringIndexOf(_ substring: String) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "string_index_of",
+      args: [self, Helper.sendableToExpr(substring)]
+    )
+  }
+
+  func stringIndexOf(_ substring: Expression) -> FunctionExpression {
+    return FunctionExpression(functionName: "string_index_of", args: [self, substring])
+  }
+
   func stringConcat(_ strings: [Expression]) -> FunctionExpression {
     return FunctionExpression(functionName: "string_concat", args: [self] + strings)
   }
@@ -954,6 +1089,32 @@ public extension Expression {
 
   func mapMerge(_ maps: [Expression]) -> FunctionExpression {
     return FunctionExpression(functionName: "map_merge", args: [self] + maps)
+  }
+
+  func mapSet(_ key: Expression, _ value: Expression,
+              _ moreKeyValues: Expression...) -> FunctionExpression {
+    var args: [Expression] = [self, key, value]
+    args.append(contentsOf: moreKeyValues)
+    return FunctionExpression(functionName: "map_set", args: args)
+  }
+
+  func mapSet(_ key: String, _ value: Sendable,
+              _ moreKeyValues: Sendable...) -> FunctionExpression {
+    var args: [Expression] = [self, Helper.sendableToExpr(key), Helper.sendableToExpr(value)]
+    args.append(contentsOf: moreKeyValues.map { Helper.sendableToExpr($0) })
+    return FunctionExpression(functionName: "map_set", args: args)
+  }
+
+  func mapKeys() -> FunctionExpression {
+    return FunctionExpression(functionName: "map_keys", args: [self])
+  }
+
+  func mapValues() -> FunctionExpression {
+    return FunctionExpression(functionName: "map_values", args: [self])
+  }
+
+  func mapEntries() -> FunctionExpression {
+    return FunctionExpression(functionName: "map_entries", args: [self])
   }
 
   // --- Added Aggregate Operations (on Expr) ---
@@ -1118,6 +1279,62 @@ public extension Expression {
     )
   }
 
+  func timestampTruncate(granularity: TimeGranularity, timezone: Sendable) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "timestamp_trunc",
+      args: [self, Helper.sendableToExpr(granularity.rawValue), Helper.sendableToExpr(timezone)]
+    )
+  }
+
+  func timestampTruncate(granularity: Sendable, timezone: Sendable) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "timestamp_trunc",
+      args: [self, Helper.sendableToExpr(granularity), Helper.sendableToExpr(timezone)]
+    )
+  }
+
+  func timestampDiff(_ start: Expression, _ unit: TimeUnit) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "timestamp_diff",
+      args: [self, start, Helper.sendableToExpr(unit)]
+    )
+  }
+
+  func timestampDiff(_ start: Expression, _ unit: Sendable) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "timestamp_diff",
+      args: [self, start, Helper.sendableToExpr(unit)]
+    )
+  }
+
+  func timestampExtract(part: TimePart) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "timestamp_extract",
+      args: [self, Helper.sendableToExpr(part.rawValue)]
+    )
+  }
+
+  func timestampExtract(part: TimePart, timezone: Sendable) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "timestamp_extract",
+      args: [self, Helper.sendableToExpr(part.rawValue), Helper.sendableToExpr(timezone)]
+    )
+  }
+
+  func timestampExtract(part: Sendable) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "timestamp_extract",
+      args: [self, Helper.sendableToExpr(part)]
+    )
+  }
+
+  func timestampExtract(part: Sendable, timezone: Sendable) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "timestamp_extract",
+      args: [self, Helper.sendableToExpr(part), Helper.sendableToExpr(timezone)]
+    )
+  }
+
   func timestampAdd(_ amount: Int, _ unit: TimeUnit) -> FunctionExpression {
     return FunctionExpression(
       functionName: "timestamp_add",
@@ -1154,6 +1371,10 @@ public extension Expression {
     return FunctionExpression(functionName: "collection_id", args: [self])
   }
 
+  func parent() -> FunctionExpression {
+    return FunctionExpression(functionName: "parent", args: [self])
+  }
+
   func ifError(_ catchExpression: Expression) -> FunctionExpression {
     return FunctionExpression(functionName: "if_error", args: [self, catchExpression])
   }
@@ -1170,6 +1391,21 @@ public extension Expression {
       functionName: "if_absent",
       args: [self, Helper.sendableToExpr(defaultValue)]
     )
+  }
+
+  func ifNull(_ value: Sendable) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "if_null",
+      args: [self, Helper.sendableToExpr(value)]
+    )
+  }
+
+  func ifNull(_ value: Expression) -> FunctionExpression {
+    return FunctionExpression(functionName: "if_null", args: [self, value])
+  }
+
+  func coalesce(_ values: [Expression]) -> FunctionExpression {
+    return FunctionExpression(functionName: "coalesce", args: [self] + values)
   }
 
   // MARK: Sorting
@@ -1189,5 +1425,54 @@ public extension Expression {
 
   func type() -> FunctionExpression {
     return FunctionExpression(functionName: "type", args: [self])
+  }
+
+  func isType(_ type: String) -> BooleanExpression {
+    return BooleanFunctionExpression(
+      functionName: "is_type",
+      args: [self, Helper.sendableToExpr(type)]
+    )
+  }
+
+  /// Creates an expression that accesses a field on this expression using a string key.
+  func getField(_ key: String) -> FunctionExpression {
+    return FunctionExpression(functionName: "get_field", args: [self, Constant(key)])
+  }
+
+  /// Creates an expression that accesses a field on this expression using a dynamic key expression.
+  func getField(_ expression: Expression) -> FunctionExpression {
+    return FunctionExpression(functionName: "get_field", args: [self, expression])
+  }
+
+  // MARK: - Snippet
+
+  func snippet(_ rquery: String,
+               maxSnippetWidth: Int? = nil,
+               maxSnippets: Int? = nil,
+               separator: String? = nil) -> Expression {
+    let args: [Expression] = [self, Constant(rquery)]
+
+    var options: [String: Sendable] = [:]
+    if let maxSnippetWidth = maxSnippetWidth {
+      options["maxSnippetWidth"] = maxSnippetWidth
+    }
+    if let maxSnippets = maxSnippets {
+      options["maxSnippets"] = maxSnippets
+    }
+    if let separator = separator {
+      options["separator"] = separator
+    }
+
+    return FunctionExpression(functionName: "snippet", args: args, options: options)
+  }
+
+  // MARK: - Range Operations
+
+  func between(_ lowerBound: Sendable, _ upperBound: Sendable) -> BooleanExpression {
+    return between(Helper.sendableToExpr(lowerBound), Helper.sendableToExpr(upperBound))
+  }
+
+  func between(_ lowerBound: Expression, _ upperBound: Expression) -> BooleanExpression {
+    return greaterThanOrEqual(lowerBound) && lessThanOrEqual(upperBound)
   }
 }

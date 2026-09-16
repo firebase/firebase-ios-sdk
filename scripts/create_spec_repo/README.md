@@ -38,7 +38,7 @@ job in presubmit.
     - uses: actions/checkout@v3
     - uses: ruby/setup-ruby@359bebbc29cbe6c87da6bc9ea3bc930432750108
       with:
-        ruby-version: '2.7'
+        ruby-version: '3.4.1'
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Build and test

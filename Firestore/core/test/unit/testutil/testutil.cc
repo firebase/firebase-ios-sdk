@@ -17,8 +17,11 @@
 #include "Firestore/core/test/unit/testutil/testutil.h"
 
 #include <algorithm>
+#include <cstdint>
+
 #include <chrono>
 #include <set>
+#include "absl/base/attributes.h"
 
 #include "Firestore/core/include/firebase/firestore/geo_point.h"
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
@@ -93,7 +96,7 @@ constexpr const char* kDeleteSentinel = "<DELETE>";
 // the JDK (which is defined to normalize all NaNs to this value). This also
 // happens to be a common value for NAN in C++, but C++ does not require this
 // specific NaN value to be used, so we normalize.
-const uint64_t kCanonicalNanBits = 0x7ff8000000000000ULL;
+ABSL_CONST_INIT const uint64_t kCanonicalNanBits = 0x7ff8000000000000ULL;
 
 namespace details {
 
@@ -572,6 +575,22 @@ std::pair<std::string, TransformOperation> ServerTimestamp(std::string field) {
 std::pair<std::string, TransformOperation> Increment(
     std::string field, Message<google_firestore_v1_Value> operand) {
   model::NumericIncrementTransform transform(std::move(operand));
+
+  return std::pair<std::string, TransformOperation>(std::move(field),
+                                                    std::move(transform));
+}
+
+std::pair<std::string, TransformOperation> Minimum(
+    std::string field, Message<google_firestore_v1_Value> operand) {
+  model::NumericMinimumTransform transform(std::move(operand));
+
+  return std::pair<std::string, TransformOperation>(std::move(field),
+                                                    std::move(transform));
+}
+
+std::pair<std::string, TransformOperation> Maximum(
+    std::string field, Message<google_firestore_v1_Value> operand) {
+  model::NumericMaximumTransform transform(std::move(operand));
 
   return std::pair<std::string, TransformOperation>(std::move(field),
                                                     std::move(transform));

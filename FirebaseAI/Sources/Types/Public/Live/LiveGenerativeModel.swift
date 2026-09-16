@@ -52,8 +52,15 @@ public final class LiveGenerativeModel {
 
   /// Start a ``LiveSession`` with the server for bidirectional streaming.
   ///
+  /// - Parameters:
+  ///   - sessionResumption: Optional configuration for session resumption. Must be specified to
+  ///     enable session resumption.
+  ///
+  ///     To learn more about session resumption, see ``SessionResumptionConfig`` and
+  ///     ``LiveSession/resumeSession(sessionResumption:)``.
   /// - Returns: A new ``LiveSession`` that you can use to stream messages to and from the server.
-  public func connect() async throws -> LiveSession {
+  public func connect(sessionResumption: SessionResumptionConfig? = nil) async throws
+    -> LiveSession {
     let service = LiveSessionService(
       modelResourceName: modelResourceName,
       generationConfig: generationConfig,
@@ -66,7 +73,7 @@ public final class LiveGenerativeModel {
       requestOptions: requestOptions
     )
 
-    try await service.connect()
+    try await service.connect(sessionResumption: sessionResumption)
 
     return LiveSession(service: service)
   }

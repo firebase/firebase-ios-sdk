@@ -15,7 +15,6 @@
 import Foundation
 
 /// Task which provides the ability to get a download URL for an object in Firebase Storage.
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 enum StorageGetDownloadURLTask {
   static func getDownloadURLTask(reference: StorageReference,
                                  queue: DispatchQueue,
@@ -55,9 +54,10 @@ enum StorageGetDownloadURLTask {
       return nil
     }
     let downloadTokenArray = downloadTokens.components(separatedBy: ",")
-    let bucket = dictionary["bucket"] ?? "<error: missing bucket>"
+    let bucket = dictionary["bucket"] as? String ?? "<error: missing bucket>"
     let path = dictionary["name"] as? String ?? "<error: missing path name>"
-    let fullPath = "/v0/b/\(bucket)/o/\(StorageUtils.GCSEscapedString(path))"
+    let fullPath =
+      "/v0/b/\(StorageUtils.GCSEscapedString(bucket))/o/\(StorageUtils.GCSEscapedString(path))"
     var components = URLComponents()
     components.scheme = reference.storage.scheme
     components.host = reference.storage.host

@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseCrashlytics'
-  s.version          = '12.12.0'
+  s.version          = '13.0.0'
   s.summary          = 'Best and lightest-weight crash reporting for mobile, desktop and tvOS.'
   s.description      = 'Firebase Crashlytics helps you track, prioritize, and fix stability issues that erode app quality.'
   s.homepage         = 'https://firebase.google.com/'
@@ -12,9 +12,9 @@ Pod::Spec.new do |s|
   }
 
   ios_deployment_target = '15.0'
-  osx_deployment_target = '10.15'
+  osx_deployment_target = '11.0'
   tvos_deployment_target = '15.0'
-  watchos_deployment_target = '7.0'
+  watchos_deployment_target = '8.0'
 
   s.swift_version = '5.9'
 
@@ -59,10 +59,10 @@ Pod::Spec.new do |s|
     cp -f ./Crashlytics/CrashlyticsInputFiles.xcfilelist ./CrashlyticsInputFiles.xcfilelist
   PREPARE_COMMAND_END
 
-  s.dependency 'FirebaseCore', '~> 12.12.0'
-  s.dependency 'FirebaseInstallations', '~> 12.12.0'
-  s.dependency 'FirebaseSessions', '~> 12.12.0'
-  s.dependency 'FirebaseRemoteConfigInterop', '~> 12.12.0'
+  s.dependency 'FirebaseCore', '~> 13.0.0'
+  s.dependency 'FirebaseInstallations', '~> 13.0.0'
+  s.dependency 'FirebaseSessions', '~> 13.0.0'
+  s.dependency 'FirebaseRemoteConfigInterop', '~> 13.0.0'
   s.dependency 'PromisesObjC', '~> 2.4'
   s.dependency 'GoogleDataTransport', '~> 10.1'
   s.dependency 'GoogleUtilities/Environment', '~> 8.1'
@@ -112,7 +112,7 @@ Pod::Spec.new do |s|
     # Unit tests can't run on watchOS.
     unit_tests.platforms = {
       :ios => ios_deployment_target,
-      :osx => '10.15',
+      :osx => osx_deployment_target,
       :tvos => tvos_deployment_target
     }
     unit_tests.source_files = 'Crashlytics/UnitTests/*.[mh]',

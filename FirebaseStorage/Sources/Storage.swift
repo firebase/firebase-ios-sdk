@@ -31,7 +31,6 @@ internal import FirebaseCoreExtension
 ///
 /// If you provide a custom instance of `FirebaseApp`,
 /// the storage location will be specified via the `FirebaseOptions.storageBucket` property.
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIRStorage) open class Storage: NSObject {
   // MARK: - Public APIs
 
@@ -112,9 +111,16 @@ internal import FirebaseCoreExtension
   /// A `DispatchQueue` that all developer callbacks are fired on. Defaults to the main queue.
   @objc public var callbackQueue: DispatchQueue = .main
 
+  #if DEBUG
+    /// Allows authentication and AppCheck tokens to be attached to requests over insecure HTTP
+    /// connections.
+    /// This should only be used for local testing and debugging on physical devices.
+    /// To prevent accidental credential leaks, this property is only available in DEBUG builds.
+    @nonobjc public var allowInsecureTokenAttachment: Bool = false
+  #endif
+
   /// Creates a `StorageReference` initialized at the root Firebase Storage location.
   /// - Returns: An instance of `StorageReference` referencing the root of the storage bucket.
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   @objc open func reference() -> StorageReference {
     configured = true
     let path = StoragePath(with: storageBucket)
@@ -131,7 +137,6 @@ internal import FirebaseCoreExtension
   /// - Returns: An instance of StorageReference at the given child path.
   /// - Throws: Throws a fatal error if `url` is not associated with the `FirebaseApp` used to
   /// initialize this Storage instance.
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   @objc open func reference(forURL url: String) -> StorageReference {
     configured = true
     do {
@@ -244,8 +249,9 @@ internal import FirebaseCoreExtension
   private final class InstanceCache: @unchecked Sendable {
     static let shared = InstanceCache()
 
-    /// A map of active instances, grouped by app. Keys are FirebaseApp names and values are
-    /// instances of Storage associated with the given app.
+    /// A map of active instances, grouped by app and bucket. Keys combine the
+    /// FirebaseApp name and bucket to ensure each app gets its own Storage
+    /// instance, even when multiple apps share the same storage bucket.
     private var instances: [String: Storage] = [:]
 
     /// Lock to manage access to the instances array to avoid race conditions.
@@ -257,11 +263,12 @@ internal import FirebaseCoreExtension
       os_unfair_lock_lock(&instancesLock)
       defer { os_unfair_lock_unlock(&instancesLock) }
 
-      if let instance = instances[bucket] {
+      let key = "\(app.name)|\(bucket)"
+      if let instance = instances[key] {
         return instance
       }
       let newInstance = FirebaseStorage.Storage(app: app, bucket: bucket)
-      instances[bucket] = newInstance
+      instances[key] = newInstance
       return newInstance
     }
   }

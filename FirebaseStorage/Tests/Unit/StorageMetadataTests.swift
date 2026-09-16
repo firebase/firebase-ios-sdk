@@ -19,7 +19,6 @@ import GTMSessionFetcherCore
 
 import XCTest
 
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class StorageMetadataTests: StorageTestHelpers {
   func testInitializeNoMetadata() {
     let metadata = StorageMetadata(dictionary: [:])
@@ -146,6 +145,26 @@ class StorageMetadataTests: StorageTestHelpers {
     let escapedPath = StorageUtils.GCSEscapedString("path/to/object")
     let expectedURL =
       "https://firebasestorage.googleapis.com:443/v0/b/bucket/o/\(escapedPath)?alt=media&token=12345"
+    let actualURL = StorageGetDownloadURLTask.downloadURLFromMetadataDictionary(metaDict,
+                                                                                rootReference)
+    XCTAssertEqual(actualURL?.absoluteString, expectedURL)
+  }
+
+  func testInitializeDownloadURLEscapesBucket() {
+    // A bucket value from the server response must be percent-escaped the same way the
+    // object name is, otherwise a bucket containing a URL path delimiter (e.g. "#" or "?")
+    // makes percentEncodedPath raise, and one containing "/" rewrites the object path.
+    let metaDict = [
+      "bucket": "bucket#/o/other",
+      "downloadTokens": "12345,ignored",
+      "name": "path/to/object",
+    ] as [String: String]
+
+    let rootReference = rootReference()
+    let escapedBucket = StorageUtils.GCSEscapedString(metaDict["bucket"]!)
+    let escapedPath = StorageUtils.GCSEscapedString(metaDict["name"]!)
+    let expectedURL =
+      "https://firebasestorage.googleapis.com:443/v0/b/\(escapedBucket)/o/\(escapedPath)?alt=media&token=12345"
     let actualURL = StorageGetDownloadURLTask.downloadURLFromMetadataDictionary(metaDict,
                                                                                 rootReference)
     XCTAssertEqual(actualURL?.absoluteString, expectedURL)

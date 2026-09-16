@@ -1,3 +1,7 @@
+# 12.14.0
+- [fixed] Fixed a race condition that could lead to a crash in ABTesting when
+  updating experiments. (#16145)
+
 # 10.16.0
 - [fixed] Fix crash caused by empty experiment payload. (#11873)
 

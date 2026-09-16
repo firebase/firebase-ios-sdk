@@ -151,12 +151,8 @@ class TestFirebaseDataEncoder: XCTestCase {
     }
 
     let model = Model.testValue
-    if #available(OSX 10.13, iOS 11.0, watchOS 4.0, tvOS 11.0, *) {
-      let expected = ["top": ["first": "Johnny Appleseed", "second": "appleseed@apple.com"]]
-      _testRoundTrip(of: model, expected: expected)
-    } else {
-      _testRoundTrip(of: model)
-    }
+    let expected = ["top": ["first": "Johnny Appleseed", "second": "appleseed@apple.com"]]
+    _testRoundTrip(of: model, expected: expected)
   }
 
   // NOTE: This test causes a precondition error, so I am uncertain about how it ought to be tested.
@@ -193,11 +189,9 @@ class TestFirebaseDataEncoder: XCTestCase {
 //
 //    let model = Model.testValue
 //    // This following test would fail as it attempts to re-encode into already encoded container is invalid. This will always fail
-//    if #available(OSX 10.13, iOS 11.0, watchOS 4.0, tvOS 11.0, *) {
-//      _testEncodeFailure(of: model)
-//    } else {
-//      _testEncodeFailure(of: model)
-//    }
+//    _testEncodeFailure(of: model)
+//
+
 //  }
 
   // MARK: - Date Strategy Tests

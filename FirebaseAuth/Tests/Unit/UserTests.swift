@@ -18,7 +18,6 @@ import XCTest
 @testable import FirebaseAuth
 import FirebaseCore
 
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class UserTests: RPCBaseTests {
   static let kFakeAPIKey = "FAKE_API_KEY"
   let kFacebookAccessToken = "FACEBOOK_ACCESS_TOKEN"

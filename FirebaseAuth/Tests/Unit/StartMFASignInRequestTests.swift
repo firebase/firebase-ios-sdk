@@ -20,7 +20,6 @@ import XCTest
 /** @class StartMFASignInRequestTests
     @brief Tests for @c StartMFASignInRequest
  */
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class StartMFASignInRequestTests: RPCBaseTests {
   let kAPIKey = "APIKey"
   let kMfaEnrollmentId = "mfaEnrollmentId"
