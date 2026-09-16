@@ -1,4 +1,6 @@
 # Unreleased
+- [changed] **Breaking change**: The minimum supported version of
+  `GTMSessionFetcher` is now `4.0.0` (support for `3.x` has been dropped).
 - [fixed] Fixed a race condition where initializing Firebase in a multi-threaded
   environment could temporarily corrupt Foundation's locale and calendar caches,
   resulting in unexpected behavior (e.g., losing the user's "First Day of Week"
