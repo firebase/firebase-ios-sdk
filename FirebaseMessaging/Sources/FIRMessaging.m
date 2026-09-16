@@ -24,6 +24,7 @@
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import <GoogleUtilities/GULReachabilityChecker.h>
 #import <GoogleUtilities/GULUserDefaults.h>
+#import "FirebaseCore/Extension/FIRSceneDelegateFinder.h"
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 #import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
 #import "FirebaseMessaging/Interop/FIRMessagingInterop.h"
@@ -408,16 +409,12 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
   NSUserActivity *userActivity = [[NSUserActivity alloc] initWithActivityType:browsingWebType];
   userActivity.webpageURL = url;
 
-  // first look for a connected scene that can handle the activity
-  for (UIScene *scene in application.connectedScenes) {
-    if (scene.activationState == UISceneActivationStateForegroundActive ||
-        scene.activationState == UISceneActivationStateForegroundInactive) {
-      if ([scene.delegate respondsToSelector:@selector(scene:continueUserActivity:)]) {
-        id<UISceneDelegate> sceneDelegate = (id<UISceneDelegate>)scene.delegate;
-        [sceneDelegate scene:scene continueUserActivity:userActivity];
-        return;
-      }
-    }
+  SEL selector = @selector(scene:continueUserActivity:);
+  UIScene *targetScene = [FIRSceneDelegateFinder findForegroundSceneForApplication:application
+                                                                  matchingSelector:selector];
+  if (targetScene) {
+    [targetScene.delegate scene:targetScene continueUserActivity:userActivity];
+    return;
   }
 
   // fallback to the app delegate when a matching scene delegate wasn't found
