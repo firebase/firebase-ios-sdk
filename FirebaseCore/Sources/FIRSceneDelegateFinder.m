@@ -37,7 +37,7 @@ static BOOL FIRSceneHasKeyWindow(UIScene *scene) {
            @"FIRSceneDelegateFinder findForegroundSceneForApplication:matchingSelector: must be "
            @"called on the main thread.");
 
-  if (!application) {
+  if (!application || !selector) {
     return nil;
   }
 
