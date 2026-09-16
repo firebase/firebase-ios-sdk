@@ -227,7 +227,7 @@ package struct GenerationConfig: Codable, Sendable, Equatable, Hashable {
   /// Deprecated: Use `response_format` instead.
   package let responseSchema: Schema?
 
-  /// Optional. Output schema of the generated response. This is an alternative to
+  /// Optional. Output schema of the generated response.
   ///
   /// ### Gemini Developer API
   ///
@@ -268,24 +268,9 @@ package struct GenerationConfig: Codable, Sendable, Equatable, Hashable {
   /// sufficient.) If `$ref` is set on a sub-schema, no other properties, except
   /// for than those starting as a `$`, may be set.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// Optional. When this field is set, response_schema must be omitted and response_mime_type must
+  /// be set to `application/json`.
   ///
-  /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
-  package let responsejsonschema: JSONValue?
-
-  /// Optional. An internal detail. Use `responseJsonSchema` rather than this field.
-  ///
-  /// ### Gemini Developer API
-  ///
-  /// Optional. An internal detail. Use `responseJsonSchema` rather than this field.
-  ///
-  /// ### Gemini Enterprise Agent Platform
-  ///
-  /// Optional. When this field is set,
-  /// response_schema
-  /// must be omitted and
-  /// response_mime_type
-  /// must be set to `application/json`.
   /// Deprecated: Use `response_format` instead.
   package let responseJsonSchema: JSONValue?
 
@@ -533,7 +518,6 @@ package struct GenerationConfig: Codable, Sendable, Equatable, Hashable {
     seed: Int? = nil,
     responseMimeType: String? = nil,
     responseSchema: Schema? = nil,
-    responsejsonschema: JSONValue? = nil,
     responseJsonSchema: JSONValue? = nil,
     presencePenalty: Double? = nil,
     frequencyPenalty: Double? = nil,
@@ -558,7 +542,6 @@ package struct GenerationConfig: Codable, Sendable, Equatable, Hashable {
     self.seed = seed
     self.responseMimeType = responseMimeType
     self.responseSchema = responseSchema
-    self.responsejsonschema = responsejsonschema
     self.responseJsonSchema = responseJsonSchema
     self.presencePenalty = presencePenalty
     self.frequencyPenalty = frequencyPenalty
@@ -584,7 +567,6 @@ package struct GenerationConfig: Codable, Sendable, Equatable, Hashable {
     case seed = "seed"
     case responseMimeType = "responseMimeType"
     case responseSchema = "responseSchema"
-    case responsejsonschema = "_responseJsonSchema"
     case responseJsonSchema = "responseJsonSchema"
     case presencePenalty = "presencePenalty"
     case frequencyPenalty = "frequencyPenalty"
