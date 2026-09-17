@@ -22,7 +22,7 @@ enum TemplateInput: Encodable, Sendable {
   case array([TemplateInput])
   case dictionary([String: TemplateInput])
 
-  init(value: Any) throws {
+  init(value: any Encodable) throws {
     switch value {
     case let value as String:
       self = .string(value)
@@ -34,9 +34,9 @@ enum TemplateInput: Encodable, Sendable {
       self = .double(Double(value))
     case let value as Bool:
       self = .bool(value)
-    case let value as [Any]:
+    case let value as [any Encodable]:
       self = try .array(value.map { try TemplateInput(value: $0) })
-    case let value as [String: Any]:
+    case let value as [String: any Encodable]:
       self = try .dictionary(value.mapValues { try TemplateInput(value: $0) })
     default:
       throw EncodingError.invalidValue(
