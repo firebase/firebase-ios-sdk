@@ -999,7 +999,7 @@
 			repositoryURL = "https://github.com/google/gtm-session-fetcher.git";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 3.4.1;
+				minimumVersion = 4.0.0;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
