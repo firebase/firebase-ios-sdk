@@ -196,6 +196,18 @@ class SerializerTest : public ::testing::Test {
     ExpectDeserializationRoundTrip(key, absl::nullopt, read_time, proto);
   }
 
+  template <typename T, typename F, typename P, typename... Args>
+  auto Decode(F decode_func, const P& proto, const Args&... args) {
+    ByteString bytes = ProtobufSerialize(proto);
+    StringReader reader{bytes};
+
+    auto message = Message<T>::TryParse(&reader);
+    auto model = decode_func(serializer, reader.context(), *message, args...);
+
+    EXPECT_OK(reader.status());
+    return model;
+  }
+
   void ExpectDeserializationRoundTrip(const WatchChange& model,
                                       const v1::ListenResponse& proto) {
     auto actual_model = Decode<google_firestore_v1_ListenResponse>(
@@ -571,19 +583,6 @@ class SerializerTest : public ::testing::Test {
     writer.Write(fields, &nanopb_proto);
     FreeNanopbMessage(fields, &nanopb_proto);
     return writer.Release();
-  }
-
-  template <typename T, typename F, typename P, typename... Args>
-  auto Decode(F decode_func, const P& proto, const Args&... args) ->
-      typename F::result_type {
-    ByteString bytes = ProtobufSerialize(proto);
-    StringReader reader{bytes};
-
-    auto message = Message<T>::TryParse(&reader);
-    auto model = decode_func(serializer, reader.context(), *message, args...);
-
-    EXPECT_OK(reader.status());
-    return model;
   }
 
   std::string message_differences;
@@ -1638,7 +1637,7 @@ TEST_F(SerializerTest, EncodesListenRequestLabels) {
            {{"goog-listen-tags", "limbo-document"}}},
           {QueryPurpose::ExistenceFilterMismatch,
            {{"goog-listen-tags", "existence-filter-mismatch"}}},
-      };
+  };
 
   for (const auto& p : purpose_to_label) {
     TargetData model(core::TargetOrPipeline(q.ToTarget()), 1, 0, p.first);

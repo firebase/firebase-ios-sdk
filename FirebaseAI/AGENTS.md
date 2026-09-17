@@ -20,7 +20,7 @@ This directory contains the main source code for the FirebaseAI library.
 - **`GenerateContentError.swift`**: Defines the public `GenerateContentError` enum, representing errors that can occur when generating content.
 - **`GenerateContentRequest.swift`**: Defines the `GenerateContentRequest` struct, representing a request to generate content from the model.
 - **`GenerateContentResponse.swift`**: Represents the model's response to a generate content request, including usage metadata, candidates, and prompt feedback.
-- **`GenerationConfig.swift`**: Defines the `GenerationConfig` struct for configuring model parameters (e.g., temperature, topP).
+- **`GenerationConfig.swift`**: Defines the `GenerationConfig` struct for configuring model parameters (e.g., maxOutputTokens).
 - **`GenerativeAIRequest.swift`**: Defines the `GenerativeAIRequest` protocol for requests sent to the generative AI backend.
 - **`GenerativeAIService.swift`**: Responsible for making requests to the generative AI backend, handling authentication, URL construction, and response parsing.
 - **`GenerativeModel.swift`**: Defines the `GenerativeModel` class, representing a remote multimodal model. It provides methods for generating content and starting chats.

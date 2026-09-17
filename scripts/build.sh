@@ -37,7 +37,6 @@ product can be one of:
   Messaging
   MessagingSample
   SwiftUISample
-  MLModelDownloaderSample
   RemoteConfig
   RemoteConfigSample
   Sessions
@@ -107,13 +106,14 @@ case "$system" in
 esac
 
 # Source function to check if CI secrets are available.
+# shellcheck disable=SC1091
 source scripts/check_secrets.sh
 
 # Runs xcodebuild with the given flags, piping output to xcbeautify
 # If xcodebuild fails with known error codes, retries once.
 function RunXcodebuild() {
   # Print the command in a copy-pasteable format
-  echo xcodebuild $(printf "%q " "$@")
+  echo xcodebuild "$(printf "%q " "$@")"
 
   if [[ -n "${DRY_RUN:-}" ]]; then
     echo "DRY_RUN is set. Exiting before build."
@@ -183,6 +183,14 @@ else
   watchos_flags=(
     -destination 'platform=watchOS Simulator,name=Firebase-Apple-Watch-Ultra-2'
   )
+fi
+
+if [[ "$xcode_major" -ge 27 ]]; then
+  spm_macosx_deployment_target="12.0"
+  spm_watchos_deployment_target="9.0"
+else
+  spm_macosx_deployment_target="11.0"
+  spm_watchos_deployment_target="8.0"
 fi
 
 ios_device_flags=(
@@ -491,16 +499,6 @@ case "$product-$platform-$method" in
     fi
     ;;
 
-  MLModelDownloaderSample-*-*)
-  if check_secrets; then
-    RunXcodebuild \
-      -workspace 'FirebaseMLModelDownloader/Apps/Sample/MLDownloaderTestApp.xcworkspace' \
-      -scheme "MLDownloaderTestApp" \
-      "${xcb_flags[@]}" \
-      build
-  fi
-  ;;
-
   WatchOSSample-*-*)
     RunXcodebuild \
       -workspace 'Example/watchOSSample/SampleWatchApp.xcworkspace' \
@@ -783,7 +781,7 @@ case "$product-$platform-$method" in
 
   FirebaseDataConnect-*-spm)
     RunXcodebuild \
-      -scheme $product \
+      -scheme "$product" \
       "${xcb_flags[@]}" \
       IPHONEOS_DEPLOYMENT_TARGET=15.0 \
       TVOS_DEPLOYMENT_TARGET=15.0 \
@@ -792,18 +790,18 @@ case "$product-$platform-$method" in
 
   *-*-spm)
     RunXcodebuild \
-      -scheme $product \
+      -scheme "$product" \
       "${xcb_flags[@]}" \
       IPHONEOS_DEPLOYMENT_TARGET=15.0 \
-      MACOSX_DEPLOYMENT_TARGET=10.15 \
+      MACOSX_DEPLOYMENT_TARGET="$spm_macosx_deployment_target" \
       TVOS_DEPLOYMENT_TARGET=15.0 \
-      WATCHOS_DEPLOYMENT_TARGET=7.0 \
+      WATCHOS_DEPLOYMENT_TARGET="$spm_watchos_deployment_target" \
       test
     ;;
 
   *-*-spmbuildonly)
     RunXcodebuild \
-      -scheme $product \
+      -scheme "$product" \
       "${xcb_flags[@]}" \
       build
     ;;
@@ -811,7 +809,7 @@ case "$product-$platform-$method" in
   ClientApp-iOS-xcodebuild | ClientApp-iOS13-iOS-xcodebuild)
     RunXcodebuild \
       -project 'IntegrationTesting/ClientApp/ClientApp.xcodeproj' \
-      -scheme $product \
+      -scheme "$product" \
       "${xcb_flags[@]}" \
       build
     ;;
@@ -819,7 +817,7 @@ case "$product-$platform-$method" in
   ClientApp-CocoaPods*-iOS-xcodebuild)
     RunXcodebuild \
       -workspace 'IntegrationTesting/ClientApp/ClientApp.xcworkspace' \
-      -scheme $product \
+      -scheme "$product" \
       "${xcb_flags[@]}" \
       build
     ;;

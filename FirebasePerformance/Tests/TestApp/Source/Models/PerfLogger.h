@@ -14,10 +14,10 @@
 
 #import <Foundation/Foundation.h>
 
-#define PerfLog(fmt, ...)                                                                   \
-  [[PerfLogger sharedInstance]                                                              \
-      log:[NSString stringWithFormat:(@"%s [Line %d] " fmt), __PRETTY_FUNCTION__, __LINE__, \
-                                     ##__VA_ARGS__]];
+#define PerfLog(fmt, ...)                                                         \
+  [[PerfLogger sharedInstance]                                                    \
+      log:[NSString stringWithFormat:(@"%s [Line %d] " fmt), __PRETTY_FUNCTION__, \
+                                     __LINE__, ##__VA_ARGS__]];
 
 @interface PerfLogger : NSObject
 

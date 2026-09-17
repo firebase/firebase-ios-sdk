@@ -126,14 +126,6 @@
     ]
   },
   {
-    "sdk": "mlmodeldownloader",
-    "podspecs": ["FirebaseMLModelDownloader.podspec"],
-    "filePatterns": [
-      "^FirebaseMLModelDownloader/.*",
-      "FirebaseMLModelDownloader\\.podspec"
-    ]
-  },
-  {
     "sdk": "performance",
     "podspecs": ["FirebasePerformance.podspec"],
     "filePatterns": [
