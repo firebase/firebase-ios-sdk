@@ -17,8 +17,6 @@ import Foundation
 // TODO: Restore `public` to class and methods when determined to be releaseable.
 
 /// A chat session that allows for conversation with a model.
-///
-/// **Public Preview**: This API is a public preview and may be subject to change.
 final class TemplateChatSession: Sendable {
   private let model: TemplateGenerativeModel
   private let templateID: String
@@ -40,8 +38,6 @@ final class TemplateChatSession: Sendable {
   }
 
   /// Sends a message to the model and returns the response.
-  ///
-  /// **Public Preview**: This API is a public preview and may be subject to change.
   ///
   /// - Parameters:
   ///   - content: The message to send to the model.
@@ -71,8 +67,6 @@ final class TemplateChatSession: Sendable {
 
   /// Sends a message to the model and returns the response.
   ///
-  /// **Public Preview**: This API is a public preview and may be subject to change.
-  ///
   /// - Parameters:
   ///   - message: The message to send to the model.
   ///   - inputs: A dictionary of variables to substitute into the template.
@@ -91,8 +85,6 @@ final class TemplateChatSession: Sendable {
 
   /// Sends a message to the model and returns the response as a stream of
   /// `GenerateContentResponse`s.
-  ///
-  /// **Public Preview**: This API is a public preview and may be subject to change.
   ///
   /// - Parameters:
   ///   - content: The message to send to the model.
@@ -147,8 +139,6 @@ final class TemplateChatSession: Sendable {
 
   /// Sends a message to the model and returns the response as a stream of
   /// `GenerateContentResponse`s.
-  ///
-  /// **Public Preview**: This API is a public preview and may be subject to change.
   ///
   /// - Parameters:
   ///   - message: The message to send to the model.

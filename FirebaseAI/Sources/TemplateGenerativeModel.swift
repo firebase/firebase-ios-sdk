@@ -16,8 +16,6 @@ import Foundation
 
 /// A type that represents a remote multimodal model (like Gemini), with the ability to generate
 /// content based on various input types.
-///
-/// **Public Preview**: This API is a public preview and may be subject to change.
 public final class TemplateGenerativeModel: Sendable {
   let generativeAIService: GenerativeAIService
   let apiConfig: APIConfig
@@ -28,8 +26,6 @@ public final class TemplateGenerativeModel: Sendable {
   }
 
   /// Generates content from a prompt template and inputs.
-  ///
-  /// **Public Preview**: This API is a public preview and may be subject to change.
   ///
   /// - Parameters:
   ///   - templateID: The ID of the prompt template to use.
@@ -87,8 +83,6 @@ public final class TemplateGenerativeModel: Sendable {
   }
 
   /// Generates content from a prompt template and inputs, with streaming responses.
-  ///
-  /// **Public Preview**: This API is a public preview and may be subject to change.
   ///
   /// - Parameters:
   ///   - templateID: The ID of the prompt template to use.
