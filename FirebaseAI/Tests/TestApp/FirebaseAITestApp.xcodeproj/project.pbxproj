@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		86E8505B2DBAFBC3002E8D94 /* FirebaseAI in Frameworks */ = {isa = PBXBuildFile; productRef = 86E8505A2DBAFBC3002E8D94 /* FirebaseAI */; };
+		86E8505B2DBAFBC3002E8D94 /* FirebaseAILogic in Frameworks */ = {isa = PBXBuildFile; productRef = 86E8505A2DBAFBC3002E8D94 /* FirebaseAILogic */; };
 		86E8505D2DBAFBC3002E8D94 /* FirebaseAppCheck in Frameworks */ = {isa = PBXBuildFile; productRef = 86E8505C2DBAFBC3002E8D94 /* FirebaseAppCheck */; };
 		86E8505F2DBAFBC3002E8D94 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 86E8505E2DBAFBC3002E8D94 /* FirebaseAuth */; };
 		86E850612DBAFBC3002E8D94 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 86E850602DBAFBC3002E8D94 /* FirebaseStorage */; };
@@ -67,7 +67,7 @@
 				86E8505D2DBAFBC3002E8D94 /* FirebaseAppCheck in Frameworks */,
 				86E850612DBAFBC3002E8D94 /* FirebaseStorage in Frameworks */,
 				86E8505F2DBAFBC3002E8D94 /* FirebaseAuth in Frameworks */,
-				86E8505B2DBAFBC3002E8D94 /* FirebaseAI in Frameworks */,
+				86E8505B2DBAFBC3002E8D94 /* FirebaseAILogic in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -121,7 +121,7 @@
 			);
 			name = "FirebaseAITestApp-SPM";
 			packageProductDependencies = (
-				86E8505A2DBAFBC3002E8D94 /* FirebaseAI */,
+				86E8505A2DBAFBC3002E8D94 /* FirebaseAILogic */,
 				86E8505C2DBAFBC3002E8D94 /* FirebaseAppCheck */,
 				86E8505E2DBAFBC3002E8D94 /* FirebaseAuth */,
 				86E850602DBAFBC3002E8D94 /* FirebaseStorage */,
@@ -513,9 +513,9 @@
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		86E8505A2DBAFBC3002E8D94 /* FirebaseAI */ = {
+		86E8505A2DBAFBC3002E8D94 /* FirebaseAILogic */ = {
 			isa = XCSwiftPackageProductDependency;
-			productName = FirebaseAI;
+			productName = FirebaseAILogic;
 		};
 		86E8505C2DBAFBC3002E8D94 /* FirebaseAppCheck */ = {
 			isa = XCSwiftPackageProductDependency;

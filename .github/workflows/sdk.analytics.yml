@@ -7,6 +7,7 @@ on:
     - 'FirebaseAnalytics**'
     - 'GoogleAppMeasurement**'
     - '.github/workflows/sdk.analytics.yml'
+    - 'Package.swift'
     - 'Gemfile*'
   schedule:
     # Run every day at 2am (PDT) / 5am (EDT) - cron uses UTC times

@@ -73,7 +73,7 @@ struct has_std_hash {
   // matter for our purposes.
   enum {
     value = std::is_arithmetic<T>{} || std::is_pointer<T>{} ||
-            std::is_same<T, std::string>{}
+    std::is_same<T, std::string>{}
   };
 
   constexpr operator bool() const {
