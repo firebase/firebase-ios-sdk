@@ -238,12 +238,7 @@ package struct GenerateContentStream: AsyncSequence, Sendable {
           if !sseDataBuffer.isEmpty {
             let dataString = sseDataBuffer
             sseDataBuffer = ""
-            let response = try decodeEventData(dataString)
-            if isTerminalResponse(response) {
-              isFinished = true
-              task.cancel()
-            }
-            return response
+            return try decodeChunk(dataString)
           }
           continue
         }
@@ -283,12 +278,7 @@ package struct GenerateContentStream: AsyncSequence, Sendable {
       if !sseDataBuffer.isEmpty {
         let dataString = sseDataBuffer
         sseDataBuffer = ""
-        let response = try decodeEventData(dataString)
-        if isTerminalResponse(response) {
-          isFinished = true
-          task.cancel()
-        }
-        return response
+        return try decodeChunk(dataString)
       }
 
       // If extra non-SSE lines were accumulated, parse as error
@@ -315,11 +305,29 @@ package struct GenerateContentStream: AsyncSequence, Sendable {
       return try decoder.decode(GenerateContentResponse.self, from: data)
     }
 
-    private func isTerminalResponse(_ response: GenerateContentResponse) -> Bool {
-      if response.promptFeedback?.blockReason != nil {
+    /// Decodes an SSE event payload, ending the stream if the decoded chunk is terminal.
+    ///
+    /// - Parameter dataString: The accumulated `data:` payload of a single SSE event.
+    /// - Returns: The decoded `GenerateContentResponse`.
+    /// - Throws: An error if decoding fails or the payload contains an API error.
+    private mutating func decodeChunk(
+      _ dataString: String
+    ) throws -> GenerateContentResponse {
+      let chunk = try decodeEventData(dataString)
+      if isTerminalResponse(chunk) {
+        isFinished = true
+        task.cancel()
+      }
+      return chunk
+    }
+
+    private func isTerminalResponse(_ chunk: GenerateContentResponse) -> Bool {
+      if chunk.promptFeedback?.blockReason != nil {
         return true
       }
-      guard let candidates = response.candidates, !candidates.isEmpty else {
+      // Context: a chunk with no candidates (a keep-alive or metadata-only event) is not terminal,
+      // since ending the stream there would truncate the response.
+      guard let candidates = chunk.candidates, !candidates.isEmpty else {
         return false
       }
       return candidates.allSatisfy { $0.finishReason != nil }
