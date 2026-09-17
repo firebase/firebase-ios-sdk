@@ -207,6 +207,8 @@
         timeout: timeout
       )
       let manager = try XCTUnwrap(manager)
+      let expectedError = error
+
       let firstRequestCanceled = expectation(description: "firstRequestCanceled")
       let secondCallbackCalled = UnfairLock(false)
 
@@ -215,7 +217,7 @@
         case let .success(token):
           XCTFail("Unexpected success: \(token)")
         case let .failure(error):
-          XCTAssertEqual(error as NSError, self.error as NSError)
+          XCTAssertEqual(error as NSError, expectedError)
         }
         firstRequestCanceled.fulfill()
       }
@@ -223,23 +225,28 @@
       // Start the second request before the first request's timeout fires, so the old
       // timeout would incorrectly match it if requests were compared by callback count.
       let noEarlyCallback = expectation(description: "noEarlyCallback")
+
       DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-        manager.cancel(withError: self.error)
+        manager.cancel(withError: expectedError)
+
         manager.getTokenInternal { result in
           secondCallbackCalled.withLock { $0 = true }
+
           switch result {
           case let .success(token):
             XCTFail("Unexpected success: \(token)")
           case let .failure(error):
-            XCTAssertEqual(error as NSError, self.error as NSError)
+            XCTAssertEqual(error as NSError, expectedError)
           }
         }
       }
+
       DispatchQueue.main.asyncAfter(deadline: .now() + 1.1) {
         XCTAssertFalse(secondCallbackCalled.value())
-        manager.cancel(withError: self.error)
+        manager.cancel(withError: expectedError)
         noEarlyCallback.fulfill()
       }
+
       waitForExpectations(timeout: 2)
     }
 
