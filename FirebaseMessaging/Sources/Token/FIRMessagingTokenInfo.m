@@ -186,13 +186,44 @@ static const NSTimeInterval kDefaultFetchTokenInterval = 7 * 24 * 60 * 60;  // 7
   NSString *firebaseAppID = [aDecoder decodeObjectOfClass:[NSString class]
                                                    forKey:kFIRInstanceIDFirebaseAppIDKey];
 
-  if ([aDecoder isKindOfClass:[NSKeyedUnarchiver class]]) {
-    [(NSKeyedUnarchiver *)aDecoder setClass:[FIRMessagingAPNSInfo class]
-                               forClassName:@"FIRInstanceIDAPNSInfo"];
-  }
+  // `apns_info` has two on-disk shapes. FirebaseMessaging 10.19.0 and later encode APNSInfo
+  // directly. 10.18.0 and earlier wrote a nested NSKeyedArchiver blob instead, which materializes
+  // as NSMutableData; secure coding requires naming that subclass explicitly rather than relying
+  // on NSData covering it.
+  NSSet *APNSInfoClasses = [[NSSet alloc]
+      initWithArray:@[ FIRMessagingAPNSInfo.class, NSData.class, NSMutableData.class ]];
+  id decodedAPNSInfo = [aDecoder decodeObjectOfClasses:APNSInfoClasses
+                                                forKey:kFIRInstanceIDAPNSInfoKey];
 
-  FIRMessagingAPNSInfo *rawAPNSInfo = [aDecoder decodeObjectOfClass:[FIRMessagingAPNSInfo class]
-                                                             forKey:kFIRInstanceIDAPNSInfoKey];
+  FIRMessagingAPNSInfo *rawAPNSInfo = nil;
+  BOOL needsMigration = NO;
+  if ([decodedAPNSInfo isKindOfClass:[FIRMessagingAPNSInfo class]]) {
+    rawAPNSInfo = decodedAPNSInfo;
+  } else if ([decodedAPNSInfo isKindOfClass:[NSData class]]) {
+    // A 10.18.0-or-earlier record. The nested blob names the class `FIRInstanceIDAPNSInfo`, so
+    // map it the same way FIRMessagingTokenStore maps `FIRInstanceIDTokenInfo` on the outer
+    // archive. Secure coding stays on: the blob was written insecurely, but FIRMessagingAPNSInfo
+    // conforms to NSSecureCoding, so it can still be read under the strict decoder.
+    NSError *APNSInfoError = nil;
+    NSKeyedUnarchiver *APNSInfoUnarchiver =
+        [[NSKeyedUnarchiver alloc] initForReadingFromData:decodedAPNSInfo error:&APNSInfoError];
+    if (APNSInfoUnarchiver) {
+      APNSInfoUnarchiver.requiresSecureCoding = YES;
+      [APNSInfoUnarchiver setClass:[FIRMessagingAPNSInfo class]
+                      forClassName:@"FIRInstanceIDAPNSInfo"];
+      rawAPNSInfo = [APNSInfoUnarchiver decodeObjectOfClass:[FIRMessagingAPNSInfo class]
+                                                     forKey:NSKeyedArchiveRootObjectKey];
+      [APNSInfoUnarchiver finishDecoding];
+    }
+    if (!rawAPNSInfo) {
+      FIRMessagingLoggerInfo(kFIRMessagingMessageCodeTokenInfoBadAPNSInfo,
+                             @"Could not parse APNS info archived by FirebaseMessaging 10.18.0 or "
+                             @"earlier; error: %@",
+                             APNSInfoError ?: APNSInfoUnarchiver.error);
+    }
+    // Either way the record is in the retired format, so have the store rewrite it.
+    needsMigration = YES;
+  }
 
   NSDate *cacheTime = [aDecoder decodeObjectOfClass:[NSDate class]
                                              forKey:kFIRInstanceIDCacheTimeKey];
@@ -208,7 +239,7 @@ static const NSTimeInterval kDefaultFetchTokenInterval = 7 * 24 * 60 * 60;  // 7
     _firebaseAppID = [firebaseAppID copy];
     _APNSInfo = [rawAPNSInfo copy];
     _cacheTime = cacheTime;
-    _needsMigration = NO;
+    _needsMigration = needsMigration;
     _tokenType = [tokenType copy] ?: @"V4";
   }
   return self;

@@ -1,6 +1,6 @@
 # Unreleased
-- [changed] Enforce `NSSecureCoding` when unarchiving registration tokens from
-  the keychain. (#16511)
+- [changed] Enforce `NSSecureCoding` when archiving and unarchiving registration
+  tokens in the keychain. (#16511)
 
 # 12.19.0
 - [fixed] Fix an issue where `messaging:didReceiveRegistrationToken:` was no

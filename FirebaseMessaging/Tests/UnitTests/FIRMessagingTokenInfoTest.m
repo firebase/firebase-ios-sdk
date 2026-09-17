@@ -224,22 +224,26 @@ static BOOL const kAPNSSandbox = NO;
       [NSKeyedUnarchiver unarchivedObjectOfClasses:classes fromData:legacyArchive error:&error];
   XCTAssertNil(error);
 
-  // 3. New (Secure) Encoding
+  // 3. New (Secure) Encoding. `setClassName:forClass:` is process-global, so capture the
+  // incumbent mapping and put it back below rather than assuming there wasn't one: production
+  // code sets this same mapping, and clearing it outright would alter later tests.
+  NSString *previousTokenInfoName =
+      [NSKeyedArchiver classNameForClass:[FIRMessagingTokenInfo class]];
   [NSKeyedArchiver setClassName:@"FIRInstanceIDTokenInfo" forClass:[FIRMessagingTokenInfo class]];
   NSData *secureArchive = [NSKeyedArchiver archivedDataWithRootObject:securelyRestoredInfo
                                                 requiringSecureCoding:YES
                                                                 error:&error];
+  [NSKeyedArchiver setClassName:previousTokenInfoName forClass:[FIRMessagingTokenInfo class]];
   XCTAssertNil(error);
 
-  // 4. Old (Insecure) Decoding using exact pre-fix logic
+  // 4. Old (Insecure) Decoding using exact pre-fix logic. Only the root object needs a mapping:
+  // `APNSInfo` has always been archived under its own class name, so a 12.x reader resolves it
+  // without help.
   NSKeyedUnarchiver *insecureUnarchiver =
       [[NSKeyedUnarchiver alloc] initForReadingFromData:secureArchive error:&error];
   insecureUnarchiver.requiresSecureCoding = NO;
   [insecureUnarchiver setClass:[FIRMessagingTokenInfo_Legacy12 class]
                   forClassName:@"FIRInstanceIDTokenInfo"];
-  // The 12.18.0 SDK applied this mapping directly in FIRMessagingTokenStore prior to decoding.
-  // We manually inject it here to accurately simulate the legacy unarchiving environment.
-  [insecureUnarchiver setClass:[FIRMessagingAPNSInfo class] forClassName:@"FIRInstanceIDAPNSInfo"];
   FIRMessagingTokenInfo *downgradedInfo =
       [insecureUnarchiver decodeObjectForKey:NSKeyedArchiveRootObjectKey];
   [insecureUnarchiver finishDecoding];
