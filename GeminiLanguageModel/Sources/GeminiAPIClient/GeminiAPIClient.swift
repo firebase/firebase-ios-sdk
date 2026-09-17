@@ -197,7 +197,11 @@ package struct GenerateContentStream: AsyncSequence, Sendable {
   ///
   /// - Returns: An `AsyncIterator` instance.
   package func makeAsyncIterator() -> AsyncIterator {
-    AsyncIterator(linesIterator: lines.makeAsyncIterator(), response: response)
+    AsyncIterator(
+      linesIterator: lines.makeAsyncIterator(),
+      response: response,
+      task: lines.task
+    )
   }
 
   /// An asynchronous iterator over Server-Sent Events decoded into
@@ -205,13 +209,20 @@ package struct GenerateContentStream: AsyncSequence, Sendable {
   package struct AsyncIterator: AsyncIteratorProtocol {
     private var linesIterator: HTTPAsyncLineSequence.AsyncIterator
     private let response: HTTPURLResponse
+    private let task: URLSessionTask
     private let decoder = JSONDecoder()
     private var sseDataBuffer = ""
     private var extraLinesBuffer = ""
+    private var isFinished = false
 
-    init(linesIterator: HTTPAsyncLineSequence.AsyncIterator, response: HTTPURLResponse) {
+    init(
+      linesIterator: HTTPAsyncLineSequence.AsyncIterator,
+      response: HTTPURLResponse,
+      task: URLSessionTask
+    ) {
       self.linesIterator = linesIterator
       self.response = response
+      self.task = task
     }
 
     /// Asynchronously advances to and returns the next `GenerateContentResponse` chunk.
@@ -219,13 +230,15 @@ package struct GenerateContentStream: AsyncSequence, Sendable {
     /// - Returns: The next decoded `GenerateContentResponse`, or `nil` if the stream has finished.
     /// - Throws: An error if reading or decoding fails, or if a mid-stream API error occurs.
     package mutating func next() async throws -> GenerateContentResponse? {
+      guard !isFinished else { return nil }
+
       while let line = try await linesIterator.next() {
         // Empty line marks the end of an SSE event
         if line.isEmpty || line.allSatisfy({ $0.isWhitespace }) {
           if !sseDataBuffer.isEmpty {
             let dataString = sseDataBuffer
             sseDataBuffer = ""
-            return try decodeEventData(dataString)
+            return try decodeChunk(dataString)
           }
           continue
         }
@@ -265,7 +278,7 @@ package struct GenerateContentStream: AsyncSequence, Sendable {
       if !sseDataBuffer.isEmpty {
         let dataString = sseDataBuffer
         sseDataBuffer = ""
-        return try decodeEventData(dataString)
+        return try decodeChunk(dataString)
       }
 
       // If extra non-SSE lines were accumulated, parse as error
@@ -290,6 +303,34 @@ package struct GenerateContentStream: AsyncSequence, Sendable {
         throw GeminiAPIError.apiError(resolvedError)
       }
       return try decoder.decode(GenerateContentResponse.self, from: data)
+    }
+
+    /// Decodes an SSE event payload, ending the stream if the decoded chunk is terminal.
+    ///
+    /// - Parameter dataString: The accumulated `data:` payload of a single SSE event.
+    /// - Returns: The decoded `GenerateContentResponse`.
+    /// - Throws: An error if decoding fails or the payload contains an API error.
+    private mutating func decodeChunk(
+      _ dataString: String
+    ) throws -> GenerateContentResponse {
+      let chunk = try decodeEventData(dataString)
+      if isTerminalResponse(chunk) {
+        isFinished = true
+        task.cancel()
+      }
+      return chunk
+    }
+
+    private func isTerminalResponse(_ chunk: GenerateContentResponse) -> Bool {
+      if chunk.promptFeedback?.blockReason != nil {
+        return true
+      }
+      // Context: a chunk with no candidates (a keep-alive or metadata-only event) is not terminal,
+      // since ending the stream there would truncate the response.
+      guard let candidates = chunk.candidates, !candidates.isEmpty else {
+        return false
+      }
+      return candidates.allSatisfy { $0.finishReason != nil }
     }
   }
 }
