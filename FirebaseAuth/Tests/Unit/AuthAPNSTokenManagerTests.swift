@@ -164,6 +164,112 @@
       waitForExpectations(timeout: 5)
     }
 
+    /** @fn testMultipleCallbacksTimeout
+        @brief Tests all pending callbacks are called when registration times out.
+     */
+    func testMultipleCallbacksTimeout() throws {
+      manager = AuthAPNSTokenManager(
+        withApplication: fakeApplication!,
+        timeout: kRegistrationTimeout
+      )
+      let manager = try XCTUnwrap(manager)
+      let expectation = self.expectation(description: #function)
+      expectation.expectedFulfillmentCount = 2
+      let callbackCount = UnfairLock(0)
+
+      for _ in 0 ..< 2 {
+        manager.getTokenInternal { result in
+          switch result {
+          case let .success(token):
+            XCTFail("Unexpected success: \(token)")
+          case let .failure(error):
+            XCTAssertEqual(
+              error as NSError,
+              AuthErrorUtils.missingAppTokenError(underlyingError: nil) as NSError
+            )
+          }
+          callbackCount.withLock { $0 += 1 }
+          expectation.fulfill()
+        }
+      }
+
+      waitForExpectations(timeout: 2)
+      XCTAssertEqual(callbackCount.value(), 2)
+    }
+
+    /** @fn testOldTimeoutDoesNotCancelNewRequest
+        @brief Tests a timeout from a cancelled request cannot complete a later request.
+     */
+    func testOldTimeoutDoesNotCancelNewRequest() throws {
+      let timeout: TimeInterval = 1
+      manager = AuthAPNSTokenManager(
+        withApplication: fakeApplication!,
+        timeout: timeout
+      )
+      let manager = try XCTUnwrap(manager)
+      let firstRequestCanceled = expectation(description: "firstRequestCanceled")
+      let secondCallbackCalled = UnfairLock(false)
+
+      manager.getTokenInternal { result in
+        switch result {
+        case let .success(token):
+          XCTFail("Unexpected success: \(token)")
+        case let .failure(error):
+          XCTAssertEqual(error as NSError, self.error as NSError)
+        }
+        firstRequestCanceled.fulfill()
+      }
+
+      // Start the second request before the first request's timeout fires, so the old
+      // timeout would incorrectly match it if requests were compared by callback count.
+      let noEarlyCallback = expectation(description: "noEarlyCallback")
+      DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+        manager.cancel(withError: self.error)
+        manager.getTokenInternal { result in
+          secondCallbackCalled.withLock { $0 = true }
+          switch result {
+          case let .success(token):
+            XCTFail("Unexpected success: \(token)")
+          case let .failure(error):
+            XCTAssertEqual(error as NSError, self.error as NSError)
+          }
+        }
+      }
+      DispatchQueue.main.asyncAfter(deadline: .now() + 1.1) {
+        XCTAssertFalse(secondCallbackCalled.value())
+        manager.cancel(withError: self.error)
+        noEarlyCallback.fulfill()
+      }
+      waitForExpectations(timeout: 2)
+    }
+
+    /** @fn testGetTokenTimeoutWithMultipleWaiters
+        @brief Tests concurrent async callers complete when registration times out.
+     */
+    func testGetTokenTimeoutWithMultipleWaiters() async throws {
+      manager = AuthAPNSTokenManager(
+        withApplication: fakeApplication!,
+        timeout: kRegistrationTimeout
+      )
+      let manager = try XCTUnwrap(manager)
+
+      async let firstResult = getTokenResult(from: manager)
+      async let secondResult = getTokenResult(from: manager)
+
+      let results = await [firstResult, secondResult]
+      for result in results {
+        switch result {
+        case let .success(token):
+          XCTFail("Unexpected success: \(token)")
+        case let .failure(error):
+          XCTAssertEqual(
+            error as NSError,
+            AuthErrorUtils.missingAppTokenError(underlyingError: nil) as NSError
+          )
+        }
+      }
+    }
+
     /** @fn testCancel
         @brief Tests cancelling the pending callbacks.
      */
@@ -209,6 +315,15 @@
       var registerCalled = false
       func registerForRemoteNotifications() {
         registerCalled = true
+      }
+    }
+
+    private func getTokenResult(from manager: AuthAPNSTokenManager) async ->
+      Result<AuthAPNSToken, Error> {
+      do {
+        return try .success(await manager.getToken())
+      } catch {
+        return .failure(error)
       }
     }
   }
