@@ -146,10 +146,14 @@ static NSString *const kFIRMessagingTokenKeychainId = @"com.google.iid-tokens";
                                         requiringSecureCoding:YES
                                                         error:&error];
   if (!tokenInfoData) {
-    FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTokenManager001,
+    FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTokenStoreErrorArchivingTokenInfo,
                             @"Failed to securely archive token info: %@", error);
     if (handler) {
-      handler(error);
+      // The keychain write below delivers its handler on the main queue. Match that here so a
+      // caller sees one calling context regardless of which step failed.
+      dispatch_async(dispatch_get_main_queue(), ^{
+        handler(error);
+      });
     }
     return;
   }
@@ -169,7 +173,7 @@ static NSString *const kFIRMessagingTokenKeychainId = @"com.google.iid-tokens";
                                         requiringSecureCoding:YES
                                                         error:&error];
   if (!tokenInfoData) {
-    FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTokenManager001,
+    FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTokenStoreErrorArchivingTokenInfo,
                             @"Failed to securely archive token info for cache: %@", error);
     return;
   }
