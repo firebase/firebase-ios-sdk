@@ -1,6 +1,8 @@
 # Unreleased
 - [fixed] Fixed an issue where universal links were not correctly routed in apps utilizing scene
   delegates. (#16083)
+- [changed] **Breaking Change**: Scene delegates take priority over app delegates for
+  universal link routing. (#16083)
 
 # 12.19.0
 - [fixed] Replaced the deprecated `UIApplication.keyWindow` lookup used to
