@@ -24,10 +24,8 @@
         "clientIndex": 0,
         "userListen": {
           "query": {
-            "filters": [
-            ],
-            "orderBys": [
-            ],
+            "filters": [],
+            "orderBys": [],
             "path": "collection"
           },
           "targetId": 2
@@ -37,10 +35,8 @@
             "2": {
               "queries": [
                 {
-                  "filters": [
-                  ],
-                  "orderBys": [
-                  ],
+                  "filters": [],
+                  "orderBys": [],
                   "path": "collection"
                 }
               ],
@@ -89,8 +85,7 @@
       {
         "clientIndex": 0,
         "watchSnapshot": {
-          "targetIds": [
-          ],
+          "targetIds": [],
           "version": 1000
         },
         "expectedSnapshotEvents": [
@@ -113,10 +108,8 @@
             "fromCache": false,
             "hasPendingWrites": false,
             "query": {
-              "filters": [
-              ],
-              "orderBys": [
-              ],
+              "filters": [],
+              "orderBys": [],
               "path": "collection"
             }
           }
@@ -129,10 +122,8 @@
             "source": "cache"
           },
           "query": {
-            "filters": [
-            ],
-            "orderBys": [
-            ],
+            "filters": [],
+            "orderBys": [],
             "path": "collection"
           },
           "targetId": 2
@@ -157,10 +148,8 @@
             "fromCache": false,
             "hasPendingWrites": false,
             "query": {
-              "filters": [
-              ],
-              "orderBys": [
-              ],
+              "filters": [],
+              "orderBys": [],
               "path": "collection"
             }
           }
@@ -170,10 +159,8 @@
             "2": {
               "queries": [
                 {
-                  "filters": [
-                  ],
-                  "orderBys": [
-                  ],
+                  "filters": [],
+                  "orderBys": [],
                   "path": "collection"
                 }
               ],
@@ -190,10 +177,8 @@
         "clientIndex": 1,
         "userListen": {
           "query": {
-            "filters": [
-            ],
-            "orderBys": [
-            ],
+            "filters": [],
+            "orderBys": [],
             "path": "collection"
           },
           "targetId": 2
@@ -218,10 +203,8 @@
             "fromCache": false,
             "hasPendingWrites": false,
             "query": {
-              "filters": [
-              ],
-              "orderBys": [
-              ],
+              "filters": [],
+              "orderBys": [],
               "path": "collection"
             }
           }
@@ -231,10 +214,8 @@
             "2": {
               "queries": [
                 {
-                  "filters": [
-                  ],
-                  "orderBys": [
-                  ],
+                  "filters": [],
+                  "orderBys": [],
                   "path": "collection"
                 }
               ],
@@ -250,10 +231,8 @@
             "source": "cache"
           },
           "query": {
-            "filters": [
-            ],
-            "orderBys": [
-            ],
+            "filters": [],
+            "orderBys": [],
             "path": "collection"
           },
           "targetId": 2
@@ -278,10 +257,8 @@
             "fromCache": false,
             "hasPendingWrites": false,
             "query": {
-              "filters": [
-              ],
-              "orderBys": [
-              ],
+              "filters": [],
+              "orderBys": [],
               "path": "collection"
             }
           }
@@ -291,10 +268,8 @@
             "2": {
               "queries": [
                 {
-                  "filters": [
-                  ],
-                  "orderBys": [
-                  ],
+                  "filters": [],
+                  "orderBys": [],
                   "path": "collection"
                 }
               ],
@@ -332,8 +307,7 @@
       {
         "clientIndex": 0,
         "watchSnapshot": {
-          "targetIds": [
-          ],
+          "targetIds": [],
           "version": 2000
         },
         "expectedSnapshotEvents": [
@@ -356,10 +330,8 @@
             "fromCache": false,
             "hasPendingWrites": false,
             "query": {
-              "filters": [
-              ],
-              "orderBys": [
-              ],
+              "filters": [],
+              "orderBys": [],
               "path": "collection"
             }
           },
@@ -382,10 +354,8 @@
             "fromCache": false,
             "hasPendingWrites": false,
             "query": {
-              "filters": [
-              ],
-              "orderBys": [
-              ],
+              "filters": [],
+              "orderBys": [],
               "path": "collection"
             }
           }
@@ -414,10 +384,8 @@
             "fromCache": false,
             "hasPendingWrites": false,
             "query": {
-              "filters": [
-              ],
-              "orderBys": [
-              ],
+              "filters": [],
+              "orderBys": [],
               "path": "collection"
             }
           },
@@ -440,10 +408,8 @@
             "fromCache": false,
             "hasPendingWrites": false,
             "query": {
-              "filters": [
-              ],
-              "orderBys": [
-              ],
+              "filters": [],
+              "orderBys": [],
               "path": "collection"
             }
           }
@@ -477,10 +443,8 @@
             "source": "cache"
           },
           "query": {
-            "filters": [
-            ],
-            "orderBys": [
-            ],
+            "filters": [],
+            "orderBys": [],
             "path": "collection"
           },
           "targetId": 2
@@ -505,33 +469,27 @@
             "fromCache": true,
             "hasPendingWrites": true,
             "query": {
-              "filters": [
-              ],
-              "orderBys": [
-              ],
+              "filters": [],
+              "orderBys": [],
               "path": "collection"
             }
           }
         ],
         "expectedState": {
-          "activeTargets": {
-          }
+          "activeTargets": {}
         }
       },
       {
         "userUnlisten": [
           2,
           {
-            "filters": [
-            ],
-            "orderBys": [
-            ],
+            "filters": [],
+            "orderBys": [],
             "path": "collection"
           }
         ],
         "expectedState": {
-          "activeTargets": {
-          }
+          "activeTargets": {}
         }
       },
       {
@@ -543,8 +501,7 @@
             "acknowledgedDocs": [
               "collection/a"
             ],
-            "rejectedDocs": [
-            ]
+            "rejectedDocs": []
           }
         }
       },
@@ -554,33 +511,27 @@
             "source": "cache"
           },
           "query": {
-            "filters": [
-            ],
-            "orderBys": [
-            ],
+            "filters": [],
+            "orderBys": [],
             "path": "collection"
           },
           "targetId": 4
         },
         "expectedSnapshotEvents": [
           {
-            "added": [
-            ],
+            "added": [],
             "errorCode": 0,
             "fromCache": true,
             "hasPendingWrites": false,
             "query": {
-              "filters": [
-              ],
-              "orderBys": [
-              ],
+              "filters": [],
+              "orderBys": [],
               "path": "collection"
             }
           }
         ],
         "expectedState": {
-          "activeTargets": {
-          }
+          "activeTargets": {}
         }
       }
     ]
@@ -625,8 +576,7 @@
                 true
               ]
             ],
-            "orderBys": [
-            ],
+            "orderBys": [],
             "path": "collection"
           },
           "targetId": 2
@@ -670,15 +620,13 @@
                   true
                 ]
               ],
-              "orderBys": [
-              ],
+              "orderBys": [],
               "path": "collection"
             }
           }
         ],
         "expectedState": {
-          "activeTargets": {
-          }
+          "activeTargets": {}
         }
       },
       {
@@ -690,8 +638,7 @@
             "acknowledgedDocs": [
               "collection/a"
             ],
-            "rejectedDocs": [
-            ]
+            "rejectedDocs": []
           }
         }
       },
@@ -704,8 +651,7 @@
             "acknowledgedDocs": [
               "collection/b"
             ],
-            "rejectedDocs": [
-            ]
+            "rejectedDocs": []
           }
         }
       },
@@ -729,8 +675,7 @@
                   true
                 ]
               ],
-              "orderBys": [
-              ],
+              "orderBys": [],
               "path": "collection"
             },
             "removed": [
@@ -761,14 +706,12 @@
                 true
               ]
             ],
-            "orderBys": [
-            ],
+            "orderBys": [],
             "path": "collection"
           }
         ],
         "expectedState": {
-          "activeTargets": {
-          }
+          "activeTargets": {}
         }
       },
       {
@@ -780,8 +723,7 @@
             "acknowledgedDocs": [
               "collection/b"
             ],
-            "rejectedDocs": [
-            ]
+            "rejectedDocs": []
           }
         }
       },
@@ -791,49 +733,40 @@
             "source": "cache"
           },
           "query": {
-            "filters": [
-            ],
-            "orderBys": [
-            ],
+            "filters": [],
+            "orderBys": [],
             "path": "collection"
           },
           "targetId": 4
         },
         "expectedSnapshotEvents": [
           {
-            "added": [
-            ],
+            "added": [],
             "errorCode": 0,
             "fromCache": true,
             "hasPendingWrites": false,
             "query": {
-              "filters": [
-              ],
-              "orderBys": [
-              ],
+              "filters": [],
+              "orderBys": [],
               "path": "collection"
             }
           }
         ],
         "expectedState": {
-          "activeTargets": {
-          }
+          "activeTargets": {}
         }
       },
       {
         "userUnlisten": [
           4,
           {
-            "filters": [
-            ],
-            "orderBys": [
-            ],
+            "filters": [],
+            "orderBys": [],
             "path": "collection"
           }
         ],
         "expectedState": {
-          "activeTargets": {
-          }
+          "activeTargets": {}
         }
       }
     ]
@@ -841,8 +774,7 @@
   "Doesn't include unknown documents in cached result": {
     "describeName": "Listens source options:",
     "itName": "Doesn't include unknown documents in cached result",
-    "tags": [
-    ],
+    "tags": [],
     "config": {
       "numClients": 1,
       "useEagerGCForMemory": true
@@ -870,10 +802,8 @@
             "source": "cache"
           },
           "query": {
-            "filters": [
-            ],
-            "orderBys": [
-            ],
+            "filters": [],
+            "orderBys": [],
             "path": "collection"
           },
           "targetId": 2
@@ -898,17 +828,14 @@
             "fromCache": true,
             "hasPendingWrites": true,
             "query": {
-              "filters": [
-              ],
-              "orderBys": [
-              ],
+              "filters": [],
+              "orderBys": [],
               "path": "collection"
             }
           }
         ],
         "expectedState": {
-          "activeTargets": {
-          }
+          "activeTargets": {}
         }
       }
     ]
@@ -916,8 +843,7 @@
   "Doesn't raise 'hasPendingWrites' for deletes": {
     "describeName": "Listens source options:",
     "itName": "Doesn't raise 'hasPendingWrites' for deletes",
-    "tags": [
-    ],
+    "tags": [],
     "config": {
       "numClients": 1,
       "useEagerGCForMemory": false
@@ -926,10 +852,8 @@
       {
         "userListen": {
           "query": {
-            "filters": [
-            ],
-            "orderBys": [
-            ],
+            "filters": [],
+            "orderBys": [],
             "path": "collection"
           },
           "targetId": 2
@@ -939,10 +863,8 @@
             "2": {
               "queries": [
                 {
-                  "filters": [
-                  ],
-                  "orderBys": [
-                  ],
+                  "filters": [],
+                  "orderBys": [],
                   "path": "collection"
                 }
               ],
@@ -987,8 +909,7 @@
       },
       {
         "watchSnapshot": {
-          "targetIds": [
-          ],
+          "targetIds": [],
           "version": 1000
         },
         "expectedSnapshotEvents": [
@@ -1011,10 +932,8 @@
             "fromCache": false,
             "hasPendingWrites": false,
             "query": {
-              "filters": [
-              ],
-              "orderBys": [
-              ],
+              "filters": [],
+              "orderBys": [],
               "path": "collection"
             }
           }
@@ -1024,16 +943,13 @@
         "userUnlisten": [
           2,
           {
-            "filters": [
-            ],
-            "orderBys": [
-            ],
+            "filters": [],
+            "orderBys": [],
             "path": "collection"
           }
         ],
         "expectedState": {
-          "activeTargets": {
-          }
+          "activeTargets": {}
         }
       },
       {
@@ -1049,10 +965,8 @@
             "source": "cache"
           },
           "query": {
-            "filters": [
-            ],
-            "orderBys": [
-            ],
+            "filters": [],
+            "orderBys": [],
             "path": "collection"
           },
           "targetId": 2
@@ -1077,17 +991,14 @@
             "fromCache": true,
             "hasPendingWrites": false,
             "query": {
-              "filters": [
-              ],
-              "orderBys": [
-              ],
+              "filters": [],
+              "orderBys": [],
               "path": "collection"
             }
           }
         ],
         "expectedState": {
-          "activeTargets": {
-          }
+          "activeTargets": {}
         }
       },
       {
@@ -1098,10 +1009,8 @@
             "fromCache": true,
             "hasPendingWrites": false,
             "query": {
-              "filters": [
-              ],
-              "orderBys": [
-              ],
+              "filters": [],
+              "orderBys": [],
               "path": "collection"
             },
             "removed": [
@@ -1130,8 +1039,7 @@
             "acknowledgedDocs": [
               "collection/a"
             ],
-            "rejectedDocs": [
-            ]
+            "rejectedDocs": []
           }
         }
       }
@@ -1140,8 +1048,7 @@
   "Empty initial snapshot is raised from cache": {
     "describeName": "Listens source options:",
     "itName": "Empty initial snapshot is raised from cache",
-    "tags": [
-    ],
+    "tags": [],
     "config": {
       "numClients": 1,
       "useEagerGCForMemory": false
@@ -1150,10 +1057,8 @@
       {
         "userListen": {
           "query": {
-            "filters": [
-            ],
-            "orderBys": [
-            ],
+            "filters": [],
+            "orderBys": [],
             "path": "collection"
           },
           "targetId": 2
@@ -1163,10 +1068,8 @@
             "2": {
               "queries": [
                 {
-                  "filters": [
-                  ],
-                  "orderBys": [
-                  ],
+                  "filters": [],
+                  "orderBys": [],
                   "path": "collection"
                 }
               ],
@@ -1182,8 +1085,7 @@
       },
       {
         "watchEntity": {
-          "docs": [
-          ],
+          "docs": [],
           "targets": [
             2
           ]
@@ -1199,8 +1101,7 @@
       },
       {
         "watchSnapshot": {
-          "targetIds": [
-          ],
+          "targetIds": [],
           "version": 1000
         },
         "expectedSnapshotEvents": [
@@ -1209,10 +1110,8 @@
             "fromCache": false,
             "hasPendingWrites": false,
             "query": {
-              "filters": [
-              ],
-              "orderBys": [
-              ],
+              "filters": [],
+              "orderBys": [],
               "path": "collection"
             }
           }
@@ -1222,16 +1121,13 @@
         "userUnlisten": [
           2,
           {
-            "filters": [
-            ],
-            "orderBys": [
-            ],
+            "filters": [],
+            "orderBys": [],
             "path": "collection"
           }
         ],
         "expectedState": {
-          "activeTargets": {
-          }
+          "activeTargets": {}
         }
       },
       {
@@ -1247,10 +1143,8 @@
             "source": "cache"
           },
           "query": {
-            "filters": [
-            ],
-            "orderBys": [
-            ],
+            "filters": [],
+            "orderBys": [],
             "path": "collection"
           },
           "targetId": 2
@@ -1261,17 +1155,14 @@
             "fromCache": true,
             "hasPendingWrites": false,
             "query": {
-              "filters": [
-              ],
-              "orderBys": [
-              ],
+              "filters": [],
+              "orderBys": [],
               "path": "collection"
             }
           }
         ],
         "expectedState": {
-          "activeTargets": {
-          }
+          "activeTargets": {}
         }
       }
     ]
@@ -1279,8 +1170,7 @@
   "Empty-due-to-delete initial snapshot is raised from cache": {
     "describeName": "Listens source options:",
     "itName": "Empty-due-to-delete initial snapshot is raised from cache",
-    "tags": [
-    ],
+    "tags": [],
     "config": {
       "numClients": 1,
       "useEagerGCForMemory": false
@@ -1289,10 +1179,8 @@
       {
         "userListen": {
           "query": {
-            "filters": [
-            ],
-            "orderBys": [
-            ],
+            "filters": [],
+            "orderBys": [],
             "path": "collection"
           },
           "targetId": 2
@@ -1302,10 +1190,8 @@
             "2": {
               "queries": [
                 {
-                  "filters": [
-                  ],
-                  "orderBys": [
-                  ],
+                  "filters": [],
+                  "orderBys": [],
                   "path": "collection"
                 }
               ],
@@ -1350,8 +1236,7 @@
       },
       {
         "watchSnapshot": {
-          "targetIds": [
-          ],
+          "targetIds": [],
           "version": 1000
         },
         "expectedSnapshotEvents": [
@@ -1374,10 +1259,8 @@
             "fromCache": false,
             "hasPendingWrites": false,
             "query": {
-              "filters": [
-              ],
-              "orderBys": [
-              ],
+              "filters": [],
+              "orderBys": [],
               "path": "collection"
             }
           }
@@ -1387,16 +1270,13 @@
         "userUnlisten": [
           2,
           {
-            "filters": [
-            ],
-            "orderBys": [
-            ],
+            "filters": [],
+            "orderBys": [],
             "path": "collection"
           }
         ],
         "expectedState": {
-          "activeTargets": {
-          }
+          "activeTargets": {}
         }
       },
       {
@@ -1415,10 +1295,8 @@
             "source": "cache"
           },
           "query": {
-            "filters": [
-            ],
-            "orderBys": [
-            ],
+            "filters": [],
+            "orderBys": [],
             "path": "collection"
           },
           "targetId": 2
@@ -1429,17 +1307,14 @@
             "fromCache": true,
             "hasPendingWrites": false,
             "query": {
-              "filters": [
-              ],
-              "orderBys": [
-              ],
+              "filters": [],
+              "orderBys": [],
               "path": "collection"
             }
           }
         ],
         "expectedState": {
-          "activeTargets": {
-          }
+          "activeTargets": {}
         }
       }
     ]
@@ -1469,10 +1344,8 @@
         "clientIndex": 0,
         "userListen": {
           "query": {
-            "filters": [
-            ],
-            "orderBys": [
-            ],
+            "filters": [],
+            "orderBys": [],
             "path": "collection"
           },
           "targetId": 2
@@ -1482,10 +1355,8 @@
             "2": {
               "queries": [
                 {
-                  "filters": [
-                  ],
-                  "orderBys": [
-                  ],
+                  "filters": [],
+                  "orderBys": [],
                   "path": "collection"
                 }
               ],
@@ -1534,8 +1405,7 @@
       {
         "clientIndex": 0,
         "watchSnapshot": {
-          "targetIds": [
-          ],
+          "targetIds": [],
           "version": 1000
         },
         "expectedSnapshotEvents": [
@@ -1558,10 +1428,8 @@
             "fromCache": false,
             "hasPendingWrites": false,
             "query": {
-              "filters": [
-              ],
-              "orderBys": [
-              ],
+              "filters": [],
+              "orderBys": [],
               "path": "collection"
             }
           }
@@ -1578,10 +1446,8 @@
             "source": "cache"
           },
           "query": {
-            "filters": [
-            ],
-            "orderBys": [
-            ],
+            "filters": [],
+            "orderBys": [],
             "path": "collection"
           },
           "targetId": 2
@@ -1606,17 +1472,14 @@
             "fromCache": false,
             "hasPendingWrites": false,
             "query": {
-              "filters": [
-              ],
-              "orderBys": [
-              ],
+              "filters": [],
+              "orderBys": [],
               "path": "collection"
             }
           }
         ],
         "expectedState": {
-          "activeTargets": {
-          }
+          "activeTargets": {}
         }
       },
       {
@@ -1630,10 +1493,8 @@
             "source": "cache"
           },
           "query": {
-            "filters": [
-            ],
-            "orderBys": [
-            ],
+            "filters": [],
+            "orderBys": [],
             "path": "collection"
           },
           "targetId": 2
@@ -1658,17 +1519,14 @@
             "fromCache": false,
             "hasPendingWrites": false,
             "query": {
-              "filters": [
-              ],
-              "orderBys": [
-              ],
+              "filters": [],
+              "orderBys": [],
               "path": "collection"
             }
           }
         ],
         "expectedState": {
-          "activeTargets": {
-          }
+          "activeTargets": {}
         }
       },
       {
@@ -1700,8 +1558,7 @@
       {
         "clientIndex": 0,
         "watchSnapshot": {
-          "targetIds": [
-          ],
+          "targetIds": [],
           "version": 2000
         },
         "expectedSnapshotEvents": [
@@ -1724,10 +1581,8 @@
             "fromCache": false,
             "hasPendingWrites": false,
             "query": {
-              "filters": [
-              ],
-              "orderBys": [
-              ],
+              "filters": [],
+              "orderBys": [],
               "path": "collection"
             }
           }
@@ -1756,10 +1611,8 @@
             "fromCache": false,
             "hasPendingWrites": false,
             "query": {
-              "filters": [
-              ],
-              "orderBys": [
-              ],
+              "filters": [],
+              "orderBys": [],
               "path": "collection"
             }
           }
@@ -1788,10 +1641,8 @@
             "fromCache": false,
             "hasPendingWrites": false,
             "query": {
-              "filters": [
-              ],
-              "orderBys": [
-              ],
+              "filters": [],
+              "orderBys": [],
               "path": "collection"
             }
           }
@@ -1806,16 +1657,13 @@
         "userUnlisten": [
           2,
           {
-            "filters": [
-            ],
-            "orderBys": [
-            ],
+            "filters": [],
+            "orderBys": [],
             "path": "collection"
           }
         ],
         "expectedState": {
-          "activeTargets": {
-          }
+          "activeTargets": {}
         }
       }
     ]
@@ -1848,33 +1696,27 @@
             "source": "cache"
           },
           "query": {
-            "filters": [
-            ],
-            "orderBys": [
-            ],
+            "filters": [],
+            "orderBys": [],
             "path": "collection"
           },
           "targetId": 2
         },
         "expectedSnapshotEvents": [
           {
-            "added": [
-            ],
+            "added": [],
             "errorCode": 0,
             "fromCache": true,
             "hasPendingWrites": false,
             "query": {
-              "filters": [
-              ],
-              "orderBys": [
-              ],
+              "filters": [],
+              "orderBys": [],
               "path": "collection"
             }
           }
         ],
         "expectedState": {
-          "activeTargets": {
-          }
+          "activeTargets": {}
         }
       },
       {
@@ -1888,33 +1730,27 @@
             "source": "cache"
           },
           "query": {
-            "filters": [
-            ],
-            "orderBys": [
-            ],
+            "filters": [],
+            "orderBys": [],
             "path": "collection"
           },
           "targetId": 2
         },
         "expectedSnapshotEvents": [
           {
-            "added": [
-            ],
+            "added": [],
             "errorCode": 0,
             "fromCache": true,
             "hasPendingWrites": false,
             "query": {
-              "filters": [
-              ],
-              "orderBys": [
-              ],
+              "filters": [],
+              "orderBys": [],
               "path": "collection"
             }
           }
         ],
         "expectedState": {
-          "activeTargets": {
-          }
+          "activeTargets": {}
         }
       },
       {
@@ -1949,10 +1785,8 @@
             "fromCache": true,
             "hasPendingWrites": true,
             "query": {
-              "filters": [
-              ],
-              "orderBys": [
-              ],
+              "filters": [],
+              "orderBys": [],
               "path": "collection"
             }
           }
@@ -1981,10 +1815,8 @@
             "fromCache": true,
             "hasPendingWrites": true,
             "query": {
-              "filters": [
-              ],
-              "orderBys": [
-              ],
+              "filters": [],
+              "orderBys": [],
               "path": "collection"
             }
           }
@@ -2018,8 +1850,7 @@
         "clientIndex": 0,
         "userListen": {
           "query": {
-            "filters": [
-            ],
+            "filters": [],
             "limit": 2,
             "limitType": "LimitToFirst",
             "orderBys": [
@@ -2037,8 +1868,7 @@
             "2": {
               "queries": [
                 {
-                  "filters": [
-                  ],
+                  "filters": [],
                   "limit": 2,
                   "limitType": "LimitToFirst",
                   "orderBys": [
@@ -2107,8 +1937,7 @@
       {
         "clientIndex": 0,
         "watchSnapshot": {
-          "targetIds": [
-          ],
+          "targetIds": [],
           "version": 1000
         },
         "expectedSnapshotEvents": [
@@ -2143,8 +1972,7 @@
             "fromCache": false,
             "hasPendingWrites": false,
             "query": {
-              "filters": [
-              ],
+              "filters": [],
               "limit": 2,
               "limitType": "LimitToFirst",
               "orderBys": [
@@ -2169,8 +1997,7 @@
             "source": "cache"
           },
           "query": {
-            "filters": [
-            ],
+            "filters": [],
             "limit": 2,
             "limitType": "LimitToLast",
             "orderBys": [
@@ -2215,8 +2042,7 @@
             "fromCache": false,
             "hasPendingWrites": false,
             "query": {
-              "filters": [
-              ],
+              "filters": [],
               "limit": 2,
               "limitType": "LimitToLast",
               "orderBys": [
@@ -2230,8 +2056,7 @@
           }
         ],
         "expectedState": {
-          "activeTargets": {
-          }
+          "activeTargets": {}
         }
       },
       {
@@ -2263,8 +2088,7 @@
       {
         "clientIndex": 0,
         "watchSnapshot": {
-          "targetIds": [
-          ],
+          "targetIds": [],
           "version": 2000
         },
         "expectedSnapshotEvents": [
@@ -2287,8 +2111,7 @@
             "fromCache": false,
             "hasPendingWrites": false,
             "query": {
-              "filters": [
-              ],
+              "filters": [],
               "limit": 2,
               "limitType": "LimitToFirst",
               "orderBys": [
@@ -2339,8 +2162,7 @@
             "fromCache": false,
             "hasPendingWrites": false,
             "query": {
-              "filters": [
-              ],
+              "filters": [],
               "limit": 2,
               "limitType": "LimitToLast",
               "orderBys": [
@@ -2395,10 +2217,8 @@
         "clientIndex": 0,
         "userListen": {
           "query": {
-            "filters": [
-            ],
-            "orderBys": [
-            ],
+            "filters": [],
+            "orderBys": [],
             "path": "collection"
           },
           "targetId": 2
@@ -2408,10 +2228,8 @@
             "2": {
               "queries": [
                 {
-                  "filters": [
-                  ],
-                  "orderBys": [
-                  ],
+                  "filters": [],
+                  "orderBys": [],
                   "path": "collection"
                 }
               ],
@@ -2484,8 +2302,7 @@
       {
         "clientIndex": 0,
         "watchSnapshot": {
-          "targetIds": [
-          ],
+          "targetIds": [],
           "version": 1000
         },
         "expectedSnapshotEvents": [
@@ -2532,10 +2349,8 @@
             "fromCache": false,
             "hasPendingWrites": false,
             "query": {
-              "filters": [
-              ],
-              "orderBys": [
-              ],
+              "filters": [],
+              "orderBys": [],
               "path": "collection"
             }
           }
@@ -2546,16 +2361,13 @@
         "userUnlisten": [
           2,
           {
-            "filters": [
-            ],
-            "orderBys": [
-            ],
+            "filters": [],
+            "orderBys": [],
             "path": "collection"
           }
         ],
         "expectedState": {
-          "activeTargets": {
-          }
+          "activeTargets": {}
         }
       },
       {
@@ -2573,8 +2385,7 @@
             "source": "cache"
           },
           "query": {
-            "filters": [
-            ],
+            "filters": [],
             "limit": 2,
             "limitType": "LimitToFirst",
             "orderBys": [
@@ -2619,8 +2430,7 @@
             "fromCache": true,
             "hasPendingWrites": false,
             "query": {
-              "filters": [
-              ],
+              "filters": [],
               "limit": 2,
               "limitType": "LimitToFirst",
               "orderBys": [
@@ -2634,8 +2444,7 @@
           }
         ],
         "expectedState": {
-          "activeTargets": {
-          }
+          "activeTargets": {}
         }
       },
       {
@@ -2649,8 +2458,7 @@
             "source": "cache"
           },
           "query": {
-            "filters": [
-            ],
+            "filters": [],
             "limit": 2,
             "limitType": "LimitToLast",
             "orderBys": [
@@ -2695,8 +2503,7 @@
             "fromCache": true,
             "hasPendingWrites": false,
             "query": {
-              "filters": [
-              ],
+              "filters": [],
               "limit": 2,
               "limitType": "LimitToLast",
               "orderBys": [
@@ -2710,8 +2517,7 @@
           }
         ],
         "expectedState": {
-          "activeTargets": {
-          }
+          "activeTargets": {}
         }
       },
       {
@@ -2723,8 +2529,7 @@
         "userUnlisten": [
           4,
           {
-            "filters": [
-            ],
+            "filters": [],
             "limit": 2,
             "limitType": "LimitToFirst",
             "orderBys": [
@@ -2737,8 +2542,7 @@
           }
         ],
         "expectedState": {
-          "activeTargets": {
-          }
+          "activeTargets": {}
         }
       },
       {
@@ -2773,8 +2577,7 @@
             "fromCache": true,
             "hasPendingWrites": true,
             "query": {
-              "filters": [
-              ],
+              "filters": [],
               "limit": 2,
               "limitType": "LimitToLast",
               "orderBys": [
@@ -2829,10 +2632,8 @@
         "clientIndex": 0,
         "userListen": {
           "query": {
-            "filters": [
-            ],
-            "orderBys": [
-            ],
+            "filters": [],
+            "orderBys": [],
             "path": "collection"
           },
           "targetId": 2
@@ -2842,10 +2643,8 @@
             "2": {
               "queries": [
                 {
-                  "filters": [
-                  ],
-                  "orderBys": [
-                  ],
+                  "filters": [],
+                  "orderBys": [],
                   "path": "collection"
                 }
               ],
@@ -2918,8 +2717,7 @@
       {
         "clientIndex": 0,
         "watchSnapshot": {
-          "targetIds": [
-          ],
+          "targetIds": [],
           "version": 1000
         },
         "expectedSnapshotEvents": [
@@ -2966,10 +2764,8 @@
             "fromCache": false,
             "hasPendingWrites": false,
             "query": {
-              "filters": [
-              ],
-              "orderBys": [
-              ],
+              "filters": [],
+              "orderBys": [],
               "path": "collection"
             }
           }
@@ -2980,16 +2776,13 @@
         "userUnlisten": [
           2,
           {
-            "filters": [
-            ],
-            "orderBys": [
-            ],
+            "filters": [],
+            "orderBys": [],
             "path": "collection"
           }
         ],
         "expectedState": {
-          "activeTargets": {
-          }
+          "activeTargets": {}
         }
       },
       {
@@ -3011,8 +2804,7 @@
             "source": "cache"
           },
           "query": {
-            "filters": [
-            ],
+            "filters": [],
             "limit": 2,
             "limitType": "LimitToFirst",
             "orderBys": [
@@ -3057,8 +2849,7 @@
             "fromCache": true,
             "hasPendingWrites": false,
             "query": {
-              "filters": [
-              ],
+              "filters": [],
               "limit": 2,
               "limitType": "LimitToFirst",
               "orderBys": [
@@ -3072,8 +2863,7 @@
           }
         ],
         "expectedState": {
-          "activeTargets": {
-          }
+          "activeTargets": {}
         }
       },
       {
@@ -3083,8 +2873,7 @@
             "source": "cache"
           },
           "query": {
-            "filters": [
-            ],
+            "filters": [],
             "limit": 2,
             "limitType": "LimitToLast",
             "orderBys": [
@@ -3129,8 +2918,7 @@
             "fromCache": true,
             "hasPendingWrites": false,
             "query": {
-              "filters": [
-              ],
+              "filters": [],
               "limit": 2,
               "limitType": "LimitToLast",
               "orderBys": [
@@ -3144,8 +2932,7 @@
           }
         ],
         "expectedState": {
-          "activeTargets": {
-          }
+          "activeTargets": {}
         }
       },
       {
@@ -3153,8 +2940,7 @@
         "userUnlisten": [
           4,
           {
-            "filters": [
-            ],
+            "filters": [],
             "limit": 2,
             "limitType": "LimitToFirst",
             "orderBys": [
@@ -3167,8 +2953,7 @@
           }
         ],
         "expectedState": {
-          "activeTargets": {
-          }
+          "activeTargets": {}
         }
       },
       {
@@ -3199,8 +2984,7 @@
             "fromCache": true,
             "hasPendingWrites": true,
             "query": {
-              "filters": [
-              ],
+              "filters": [],
               "limit": 2,
               "limitType": "LimitToLast",
               "orderBys": [
@@ -3260,8 +3044,7 @@
         "clientIndex": 1,
         "userListen": {
           "query": {
-            "filters": [
-            ],
+            "filters": [],
             "limit": 2,
             "limitType": "LimitToFirst",
             "orderBys": [
@@ -3279,8 +3062,7 @@
             "2": {
               "queries": [
                 {
-                  "filters": [
-                  ],
+                  "filters": [],
                   "limit": 2,
                   "limitType": "LimitToFirst",
                   "orderBys": [
@@ -3305,8 +3087,7 @@
             "2": {
               "queries": [
                 {
-                  "filters": [
-                  ],
+                  "filters": [],
                   "limit": 2,
                   "limitType": "LimitToFirst",
                   "orderBys": [
@@ -3375,8 +3156,7 @@
       {
         "clientIndex": 0,
         "watchSnapshot": {
-          "targetIds": [
-          ],
+          "targetIds": [],
           "version": 1000
         }
       },
@@ -3415,8 +3195,7 @@
             "fromCache": false,
             "hasPendingWrites": false,
             "query": {
-              "filters": [
-              ],
+              "filters": [],
               "limit": 2,
               "limitType": "LimitToFirst",
               "orderBys": [
@@ -3441,8 +3220,7 @@
             "source": "cache"
           },
           "query": {
-            "filters": [
-            ],
+            "filters": [],
             "limit": 2,
             "limitType": "LimitToLast",
             "orderBys": [
@@ -3487,8 +3265,7 @@
             "fromCache": false,
             "hasPendingWrites": false,
             "query": {
-              "filters": [
-              ],
+              "filters": [],
               "limit": 2,
               "limitType": "LimitToLast",
               "orderBys": [
@@ -3506,8 +3283,7 @@
             "2": {
               "queries": [
                 {
-                  "filters": [
-                  ],
+                  "filters": [],
                   "limit": 2,
                   "limitType": "LimitToFirst",
                   "orderBys": [
@@ -3549,8 +3325,7 @@
       {
         "clientIndex": 0,
         "watchSnapshot": {
-          "targetIds": [
-          ],
+          "targetIds": [],
           "version": 2000
         },
         "expectedSnapshotEvents": [
@@ -3573,8 +3348,7 @@
             "fromCache": false,
             "hasPendingWrites": false,
             "query": {
-              "filters": [
-              ],
+              "filters": [],
               "limit": 2,
               "limitType": "LimitToLast",
               "orderBys": [
@@ -3625,8 +3399,7 @@
             "fromCache": false,
             "hasPendingWrites": false,
             "query": {
-              "filters": [
-              ],
+              "filters": [],
               "limit": 2,
               "limitType": "LimitToFirst",
               "orderBys": [
@@ -3659,8 +3432,7 @@
   "Newer deleted docs from bundles should delete cached docs": {
     "describeName": "Listens source options:",
     "itName": "Newer deleted docs from bundles should delete cached docs",
-    "tags": [
-    ],
+    "tags": [],
     "config": {
       "numClients": 1,
       "useEagerGCForMemory": false
@@ -3669,10 +3441,8 @@
       {
         "userListen": {
           "query": {
-            "filters": [
-            ],
-            "orderBys": [
-            ],
+            "filters": [],
+            "orderBys": [],
             "path": "collection"
           },
           "targetId": 2
@@ -3682,10 +3452,8 @@
             "2": {
               "queries": [
                 {
-                  "filters": [
-                  ],
-                  "orderBys": [
-                  ],
+                  "filters": [],
+                  "orderBys": [],
                   "path": "collection"
                 }
               ],
@@ -3730,8 +3498,7 @@
       },
       {
         "watchSnapshot": {
-          "targetIds": [
-          ],
+          "targetIds": [],
           "version": 1000
         },
         "expectedSnapshotEvents": [
@@ -3754,10 +3521,8 @@
             "fromCache": false,
             "hasPendingWrites": false,
             "query": {
-              "filters": [
-              ],
-              "orderBys": [
-              ],
+              "filters": [],
+              "orderBys": [],
               "path": "collection"
             }
           }
@@ -3767,16 +3532,13 @@
         "userUnlisten": [
           2,
           {
-            "filters": [
-            ],
-            "orderBys": [
-            ],
+            "filters": [],
+            "orderBys": [],
             "path": "collection"
           }
         ],
         "expectedState": {
-          "activeTargets": {
-          }
+          "activeTargets": {}
         }
       },
       {
@@ -3792,10 +3554,8 @@
             "source": "cache"
           },
           "query": {
-            "filters": [
-            ],
-            "orderBys": [
-            ],
+            "filters": [],
+            "orderBys": [],
             "path": "collection"
           },
           "targetId": 2
@@ -3820,17 +3580,14 @@
             "fromCache": true,
             "hasPendingWrites": false,
             "query": {
-              "filters": [
-              ],
-              "orderBys": [
-              ],
+              "filters": [],
+              "orderBys": [],
               "path": "collection"
             }
           }
         ],
         "expectedState": {
-          "activeTargets": {
-          }
+          "activeTargets": {}
         }
       },
       {
@@ -3841,10 +3598,8 @@
             "fromCache": true,
             "hasPendingWrites": false,
             "query": {
-              "filters": [
-              ],
-              "orderBys": [
-              ],
+              "filters": [],
+              "orderBys": [],
               "path": "collection"
             },
             "removed": [
@@ -3869,8 +3624,7 @@
   "Newer docs from bundles should keep not raise snapshot if there are unacknowledged writes": {
     "describeName": "Listens source options:",
     "itName": "Newer docs from bundles should keep not raise snapshot if there are unacknowledged writes",
-    "tags": [
-    ],
+    "tags": [],
     "config": {
       "numClients": 1,
       "useEagerGCForMemory": false
@@ -3879,10 +3633,8 @@
       {
         "userListen": {
           "query": {
-            "filters": [
-            ],
-            "orderBys": [
-            ],
+            "filters": [],
+            "orderBys": [],
             "path": "collection"
           },
           "targetId": 2
@@ -3892,10 +3644,8 @@
             "2": {
               "queries": [
                 {
-                  "filters": [
-                  ],
-                  "orderBys": [
-                  ],
+                  "filters": [],
+                  "orderBys": [],
                   "path": "collection"
                 }
               ],
@@ -3940,8 +3690,7 @@
       },
       {
         "watchSnapshot": {
-          "targetIds": [
-          ],
+          "targetIds": [],
           "version": 250
         },
         "expectedSnapshotEvents": [
@@ -3964,10 +3713,8 @@
             "fromCache": false,
             "hasPendingWrites": false,
             "query": {
-              "filters": [
-              ],
-              "orderBys": [
-              ],
+              "filters": [],
+              "orderBys": [],
               "path": "collection"
             }
           }
@@ -3977,16 +3724,13 @@
         "userUnlisten": [
           2,
           {
-            "filters": [
-            ],
-            "orderBys": [
-            ],
+            "filters": [],
+            "orderBys": [],
             "path": "collection"
           }
         ],
         "expectedState": {
-          "activeTargets": {
-          }
+          "activeTargets": {}
         }
       },
       {
@@ -4002,10 +3746,8 @@
             "source": "cache"
           },
           "query": {
-            "filters": [
-            ],
-            "orderBys": [
-            ],
+            "filters": [],
+            "orderBys": [],
             "path": "collection"
           },
           "targetId": 2
@@ -4030,17 +3772,14 @@
             "fromCache": true,
             "hasPendingWrites": false,
             "query": {
-              "filters": [
-              ],
-              "orderBys": [
-              ],
+              "filters": [],
+              "orderBys": [],
               "path": "collection"
             }
           }
         ],
         "expectedState": {
-          "activeTargets": {
-          }
+          "activeTargets": {}
         }
       },
       {
@@ -4070,10 +3809,8 @@
               }
             ],
             "query": {
-              "filters": [
-              ],
-              "orderBys": [
-              ],
+              "filters": [],
+              "orderBys": [],
               "path": "collection"
             }
           }
@@ -4087,8 +3824,7 @@
   "Newer docs from bundles should overwrite cache": {
     "describeName": "Listens source options:",
     "itName": "Newer docs from bundles should overwrite cache",
-    "tags": [
-    ],
+    "tags": [],
     "config": {
       "numClients": 1,
       "useEagerGCForMemory": false
@@ -4097,10 +3833,8 @@
       {
         "userListen": {
           "query": {
-            "filters": [
-            ],
-            "orderBys": [
-            ],
+            "filters": [],
+            "orderBys": [],
             "path": "collection"
           },
           "targetId": 2
@@ -4110,10 +3844,8 @@
             "2": {
               "queries": [
                 {
-                  "filters": [
-                  ],
-                  "orderBys": [
-                  ],
+                  "filters": [],
+                  "orderBys": [],
                   "path": "collection"
                 }
               ],
@@ -4158,8 +3890,7 @@
       },
       {
         "watchSnapshot": {
-          "targetIds": [
-          ],
+          "targetIds": [],
           "version": 1000
         },
         "expectedSnapshotEvents": [
@@ -4182,10 +3913,8 @@
             "fromCache": false,
             "hasPendingWrites": false,
             "query": {
-              "filters": [
-              ],
-              "orderBys": [
-              ],
+              "filters": [],
+              "orderBys": [],
               "path": "collection"
             }
           }
@@ -4195,16 +3924,13 @@
         "userUnlisten": [
           2,
           {
-            "filters": [
-            ],
-            "orderBys": [
-            ],
+            "filters": [],
+            "orderBys": [],
             "path": "collection"
           }
         ],
         "expectedState": {
-          "activeTargets": {
-          }
+          "activeTargets": {}
         }
       },
       {
@@ -4220,10 +3946,8 @@
             "source": "cache"
           },
           "query": {
-            "filters": [
-            ],
-            "orderBys": [
-            ],
+            "filters": [],
+            "orderBys": [],
             "path": "collection"
           },
           "targetId": 2
@@ -4248,17 +3972,14 @@
             "fromCache": true,
             "hasPendingWrites": false,
             "query": {
-              "filters": [
-              ],
-              "orderBys": [
-              ],
+              "filters": [],
+              "orderBys": [],
               "path": "collection"
             }
           }
         ],
         "expectedState": {
-          "activeTargets": {
-          }
+          "activeTargets": {}
         }
       },
       {
@@ -4283,10 +4004,8 @@
               }
             ],
             "query": {
-              "filters": [
-              ],
-              "orderBys": [
-              ],
+              "filters": [],
+              "orderBys": [],
               "path": "collection"
             }
           }
@@ -4297,8 +4016,7 @@
   "Newer docs from bundles should raise snapshot only when Watch catches up with acknowledged writes": {
     "describeName": "Listens source options:",
     "itName": "Newer docs from bundles should raise snapshot only when Watch catches up with acknowledged writes",
-    "tags": [
-    ],
+    "tags": [],
     "config": {
       "numClients": 1,
       "useEagerGCForMemory": false
@@ -4307,10 +4025,8 @@
       {
         "userListen": {
           "query": {
-            "filters": [
-            ],
-            "orderBys": [
-            ],
+            "filters": [],
+            "orderBys": [],
             "path": "collection"
           },
           "targetId": 2
@@ -4320,10 +4036,8 @@
             "2": {
               "queries": [
                 {
-                  "filters": [
-                  ],
-                  "orderBys": [
-                  ],
+                  "filters": [],
+                  "orderBys": [],
                   "path": "collection"
                 }
               ],
@@ -4368,8 +4082,7 @@
       },
       {
         "watchSnapshot": {
-          "targetIds": [
-          ],
+          "targetIds": [],
           "version": 250
         },
         "expectedSnapshotEvents": [
@@ -4392,10 +4105,8 @@
             "fromCache": false,
             "hasPendingWrites": false,
             "query": {
-              "filters": [
-              ],
-              "orderBys": [
-              ],
+              "filters": [],
+              "orderBys": [],
               "path": "collection"
             }
           }
@@ -4405,16 +4116,13 @@
         "userUnlisten": [
           2,
           {
-            "filters": [
-            ],
-            "orderBys": [
-            ],
+            "filters": [],
+            "orderBys": [],
             "path": "collection"
           }
         ],
         "expectedState": {
-          "activeTargets": {
-          }
+          "activeTargets": {}
         }
       },
       {
@@ -4430,10 +4138,8 @@
             "source": "cache"
           },
           "query": {
-            "filters": [
-            ],
-            "orderBys": [
-            ],
+            "filters": [],
+            "orderBys": [],
             "path": "collection"
           },
           "targetId": 2
@@ -4458,17 +4164,14 @@
             "fromCache": true,
             "hasPendingWrites": false,
             "query": {
-              "filters": [
-              ],
-              "orderBys": [
-              ],
+              "filters": [],
+              "orderBys": [],
               "path": "collection"
             }
           }
         ],
         "expectedState": {
-          "activeTargets": {
-          }
+          "activeTargets": {}
         }
       },
       {
@@ -4498,10 +4201,8 @@
               }
             ],
             "query": {
-              "filters": [
-              ],
-              "orderBys": [
-              ],
+              "filters": [],
+              "orderBys": [],
               "path": "collection"
             }
           }
@@ -4516,8 +4217,7 @@
             "acknowledgedDocs": [
               "collection/a"
             ],
-            "rejectedDocs": [
-            ]
+            "rejectedDocs": []
           }
         }
       },
@@ -4546,10 +4246,8 @@
               }
             ],
             "query": {
-              "filters": [
-              ],
-              "orderBys": [
-              ],
+              "filters": [],
+              "orderBys": [],
               "path": "collection"
             }
           }
@@ -4560,8 +4258,7 @@
   "Older deleted docs from bundles should do nothing": {
     "describeName": "Listens source options:",
     "itName": "Older deleted docs from bundles should do nothing",
-    "tags": [
-    ],
+    "tags": [],
     "config": {
       "numClients": 1,
       "useEagerGCForMemory": false
@@ -4570,10 +4267,8 @@
       {
         "userListen": {
           "query": {
-            "filters": [
-            ],
-            "orderBys": [
-            ],
+            "filters": [],
+            "orderBys": [],
             "path": "collection"
           },
           "targetId": 2
@@ -4583,10 +4278,8 @@
             "2": {
               "queries": [
                 {
-                  "filters": [
-                  ],
-                  "orderBys": [
-                  ],
+                  "filters": [],
+                  "orderBys": [],
                   "path": "collection"
                 }
               ],
@@ -4631,8 +4324,7 @@
       },
       {
         "watchSnapshot": {
-          "targetIds": [
-          ],
+          "targetIds": [],
           "version": 1000
         },
         "expectedSnapshotEvents": [
@@ -4655,10 +4347,8 @@
             "fromCache": false,
             "hasPendingWrites": false,
             "query": {
-              "filters": [
-              ],
-              "orderBys": [
-              ],
+              "filters": [],
+              "orderBys": [],
               "path": "collection"
             }
           }
@@ -4668,16 +4358,13 @@
         "userUnlisten": [
           2,
           {
-            "filters": [
-            ],
-            "orderBys": [
-            ],
+            "filters": [],
+            "orderBys": [],
             "path": "collection"
           }
         ],
         "expectedState": {
-          "activeTargets": {
-          }
+          "activeTargets": {}
         }
       },
       {
@@ -4693,10 +4380,8 @@
             "source": "cache"
           },
           "query": {
-            "filters": [
-            ],
-            "orderBys": [
-            ],
+            "filters": [],
+            "orderBys": [],
             "path": "collection"
           },
           "targetId": 2
@@ -4721,17 +4406,14 @@
             "fromCache": true,
             "hasPendingWrites": false,
             "query": {
-              "filters": [
-              ],
-              "orderBys": [
-              ],
+              "filters": [],
+              "orderBys": [],
               "path": "collection"
             }
           }
         ],
         "expectedState": {
-          "activeTargets": {
-          }
+          "activeTargets": {}
         }
       },
       {
@@ -4771,41 +4453,34 @@
             "source": "cache"
           },
           "query": {
-            "filters": [
-            ],
-            "orderBys": [
-            ],
+            "filters": [],
+            "orderBys": [],
             "path": "collection"
           },
           "targetId": 2
         },
         "expectedSnapshotEvents": [
           {
-            "added": [
-            ],
+            "added": [],
             "errorCode": 0,
             "fromCache": true,
             "hasPendingWrites": false,
             "query": {
-              "filters": [
-              ],
-              "orderBys": [
-              ],
+              "filters": [],
+              "orderBys": [],
               "path": "collection"
             }
           }
         ],
         "expectedState": {
-          "activeTargets": {
-          }
+          "activeTargets": {}
         }
       },
       {
         "clientIndex": 0,
         "drainQueue": true,
         "expectedState": {
-          "activeTargets": {
-          }
+          "activeTargets": {}
         }
       },
       {
@@ -4817,24 +4492,20 @@
         "userUnlisten": [
           2,
           {
-            "filters": [
-            ],
-            "orderBys": [
-            ],
+            "filters": [],
+            "orderBys": [],
             "path": "collection"
           }
         ],
         "expectedState": {
-          "activeTargets": {
-          }
+          "activeTargets": {}
         }
       },
       {
         "clientIndex": 0,
         "drainQueue": true,
         "expectedState": {
-          "activeTargets": {
-          }
+          "activeTargets": {}
         }
       }
     ]
@@ -4867,33 +4538,27 @@
             "source": "cache"
           },
           "query": {
-            "filters": [
-            ],
-            "orderBys": [
-            ],
+            "filters": [],
+            "orderBys": [],
             "path": "collection"
           },
           "targetId": 2
         },
         "expectedSnapshotEvents": [
           {
-            "added": [
-            ],
+            "added": [],
             "errorCode": 0,
             "fromCache": true,
             "hasPendingWrites": false,
             "query": {
-              "filters": [
-              ],
-              "orderBys": [
-              ],
+              "filters": [],
+              "orderBys": [],
               "path": "collection"
             }
           }
         ],
         "expectedState": {
-          "activeTargets": {
-          }
+          "activeTargets": {}
         }
       },
       {
@@ -4904,10 +4569,8 @@
         "clientIndex": 1,
         "userListen": {
           "query": {
-            "filters": [
-            ],
-            "orderBys": [
-            ],
+            "filters": [],
+            "orderBys": [],
             "path": "collection"
           },
           "targetId": 2
@@ -4917,10 +4580,8 @@
             "2": {
               "queries": [
                 {
-                  "filters": [
-                  ],
-                  "orderBys": [
-                  ],
+                  "filters": [],
+                  "orderBys": [],
                   "path": "collection"
                 }
               ],
@@ -4937,10 +4598,8 @@
             "2": {
               "queries": [
                 {
-                  "filters": [
-                  ],
-                  "orderBys": [
-                  ],
+                  "filters": [],
+                  "orderBys": [],
                   "path": "collection"
                 }
               ],
@@ -4980,8 +4639,7 @@
       {
         "clientIndex": 0,
         "watchSnapshot": {
-          "targetIds": [
-          ],
+          "targetIds": [],
           "version": 1000
         },
         "expectedSnapshotEvents": [
@@ -5004,10 +4662,8 @@
             "fromCache": true,
             "hasPendingWrites": false,
             "query": {
-              "filters": [
-              ],
-              "orderBys": [
-              ],
+              "filters": [],
+              "orderBys": [],
               "path": "collection"
             }
           }
@@ -5036,10 +4692,8 @@
             "fromCache": true,
             "hasPendingWrites": false,
             "query": {
-              "filters": [
-              ],
-              "orderBys": [
-              ],
+              "filters": [],
+              "orderBys": [],
               "path": "collection"
             }
           }
@@ -5061,8 +4715,7 @@
       {
         "clientIndex": 0,
         "watchSnapshot": {
-          "targetIds": [
-          ],
+          "targetIds": [],
           "version": 2000
         },
         "expectedSnapshotEvents": [
@@ -5071,10 +4724,8 @@
             "fromCache": false,
             "hasPendingWrites": false,
             "query": {
-              "filters": [
-              ],
-              "orderBys": [
-              ],
+              "filters": [],
+              "orderBys": [],
               "path": "collection"
             }
           }
@@ -5089,10 +4740,8 @@
             "fromCache": false,
             "hasPendingWrites": false,
             "query": {
-              "filters": [
-              ],
-              "orderBys": [
-              ],
+              "filters": [],
+              "orderBys": [],
               "path": "collection"
             }
           }
@@ -5136,33 +4785,27 @@
             "source": "cache"
           },
           "query": {
-            "filters": [
-            ],
-            "orderBys": [
-            ],
+            "filters": [],
+            "orderBys": [],
             "path": "collection"
           },
           "targetId": 2
         },
         "expectedSnapshotEvents": [
           {
-            "added": [
-            ],
+            "added": [],
             "errorCode": 0,
             "fromCache": true,
             "hasPendingWrites": false,
             "query": {
-              "filters": [
-              ],
-              "orderBys": [
-              ],
+              "filters": [],
+              "orderBys": [],
               "path": "collection"
             }
           }
         ],
         "expectedState": {
-          "activeTargets": {
-          }
+          "activeTargets": {}
         }
       },
       {
@@ -5173,10 +4816,8 @@
         "clientIndex": 3,
         "userListen": {
           "query": {
-            "filters": [
-            ],
-            "orderBys": [
-            ],
+            "filters": [],
+            "orderBys": [],
             "path": "collection"
           },
           "targetId": 2
@@ -5186,10 +4827,8 @@
             "2": {
               "queries": [
                 {
-                  "filters": [
-                  ],
-                  "orderBys": [
-                  ],
+                  "filters": [],
+                  "orderBys": [],
                   "path": "collection"
                 }
               ],
@@ -5206,10 +4845,8 @@
             "2": {
               "queries": [
                 {
-                  "filters": [
-                  ],
-                  "orderBys": [
-                  ],
+                  "filters": [],
+                  "orderBys": [],
                   "path": "collection"
                 }
               ],
@@ -5258,8 +4895,7 @@
       {
         "clientIndex": 0,
         "watchSnapshot": {
-          "targetIds": [
-          ],
+          "targetIds": [],
           "version": 1000
         }
       },
@@ -5290,10 +4926,8 @@
             "fromCache": false,
             "hasPendingWrites": false,
             "query": {
-              "filters": [
-              ],
-              "orderBys": [
-              ],
+              "filters": [],
+              "orderBys": [],
               "path": "collection"
             }
           }
@@ -5322,10 +4956,8 @@
             "fromCache": false,
             "hasPendingWrites": false,
             "query": {
-              "filters": [
-              ],
-              "orderBys": [
-              ],
+              "filters": [],
+              "orderBys": [],
               "path": "collection"
             }
           }
@@ -5358,10 +4990,8 @@
         "clientIndex": 0,
         "userListen": {
           "query": {
-            "filters": [
-            ],
-            "orderBys": [
-            ],
+            "filters": [],
+            "orderBys": [],
             "path": "collection"
           },
           "targetId": 2
@@ -5371,10 +5001,8 @@
             "2": {
               "queries": [
                 {
-                  "filters": [
-                  ],
-                  "orderBys": [
-                  ],
+                  "filters": [],
+                  "orderBys": [],
                   "path": "collection"
                 }
               ],
@@ -5423,8 +5051,7 @@
       {
         "clientIndex": 0,
         "watchSnapshot": {
-          "targetIds": [
-          ],
+          "targetIds": [],
           "version": 1000
         },
         "expectedSnapshotEvents": [
@@ -5447,10 +5074,8 @@
             "fromCache": false,
             "hasPendingWrites": false,
             "query": {
-              "filters": [
-              ],
-              "orderBys": [
-              ],
+              "filters": [],
+              "orderBys": [],
               "path": "collection"
             }
           }
@@ -5467,10 +5092,8 @@
             "source": "cache"
           },
           "query": {
-            "filters": [
-            ],
-            "orderBys": [
-            ],
+            "filters": [],
+            "orderBys": [],
             "path": "collection"
           },
           "targetId": 2
@@ -5495,17 +5118,14 @@
             "fromCache": false,
             "hasPendingWrites": false,
             "query": {
-              "filters": [
-              ],
-              "orderBys": [
-              ],
+              "filters": [],
+              "orderBys": [],
               "path": "collection"
             }
           }
         ],
         "expectedState": {
-          "activeTargets": {
-          }
+          "activeTargets": {}
         }
       },
       {
@@ -5517,16 +5137,13 @@
         "userUnlisten": [
           2,
           {
-            "filters": [
-            ],
-            "orderBys": [
-            ],
+            "filters": [],
+            "orderBys": [],
             "path": "collection"
           }
         ],
         "expectedState": {
-          "activeTargets": {
-          }
+          "activeTargets": {}
         }
       },
       {
@@ -5561,10 +5178,8 @@
             "fromCache": false,
             "hasPendingWrites": true,
             "query": {
-              "filters": [
-              ],
-              "orderBys": [
-              ],
+              "filters": [],
+              "orderBys": [],
               "path": "collection"
             }
           }
@@ -5575,16 +5190,13 @@
         "userUnlisten": [
           2,
           {
-            "filters": [
-            ],
-            "orderBys": [
-            ],
+            "filters": [],
+            "orderBys": [],
             "path": "collection"
           }
         ],
         "expectedState": {
-          "activeTargets": {
-          }
+          "activeTargets": {}
         }
       }
     ]
@@ -5592,8 +5204,7 @@
   "onSnapshotsInSync fires for multiple listeners": {
     "describeName": "Listens source options:",
     "itName": "onSnapshotsInSync fires for multiple listeners",
-    "tags": [
-    ],
+    "tags": [],
     "config": {
       "numClients": 1,
       "useEagerGCForMemory": false
@@ -5602,10 +5213,8 @@
       {
         "userListen": {
           "query": {
-            "filters": [
-            ],
-            "orderBys": [
-            ],
+            "filters": [],
+            "orderBys": [],
             "path": "collection"
           },
           "targetId": 2
@@ -5615,10 +5224,8 @@
             "2": {
               "queries": [
                 {
-                  "filters": [
-                  ],
-                  "orderBys": [
-                  ],
+                  "filters": [],
+                  "orderBys": [],
                   "path": "collection"
                 }
               ],
@@ -5663,8 +5270,7 @@
       },
       {
         "watchSnapshot": {
-          "targetIds": [
-          ],
+          "targetIds": [],
           "version": 1000
         },
         "expectedSnapshotEvents": [
@@ -5687,10 +5293,8 @@
             "fromCache": false,
             "hasPendingWrites": false,
             "query": {
-              "filters": [
-              ],
-              "orderBys": [
-              ],
+              "filters": [],
+              "orderBys": [],
               "path": "collection"
             }
           }
@@ -5700,16 +5304,13 @@
         "userUnlisten": [
           2,
           {
-            "filters": [
-            ],
-            "orderBys": [
-            ],
+            "filters": [],
+            "orderBys": [],
             "path": "collection"
           }
         ],
         "expectedState": {
-          "activeTargets": {
-          }
+          "activeTargets": {}
         }
       },
       {
@@ -5725,10 +5326,8 @@
             "source": "cache"
           },
           "query": {
-            "filters": [
-            ],
-            "orderBys": [
-            ],
+            "filters": [],
+            "orderBys": [],
             "path": "collection"
           },
           "targetId": 2
@@ -5753,17 +5352,14 @@
             "fromCache": true,
             "hasPendingWrites": false,
             "query": {
-              "filters": [
-              ],
-              "orderBys": [
-              ],
+              "filters": [],
+              "orderBys": [],
               "path": "collection"
             }
           }
         ],
         "expectedState": {
-          "activeTargets": {
-          }
+          "activeTargets": {}
         }
       },
       {
@@ -5797,10 +5393,8 @@
               }
             ],
             "query": {
-              "filters": [
-              ],
-              "orderBys": [
-              ],
+              "filters": [],
+              "orderBys": [],
               "path": "collection"
             }
           }
@@ -5842,10 +5436,8 @@
               }
             ],
             "query": {
-              "filters": [
-              ],
-              "orderBys": [
-              ],
+              "filters": [],
+              "orderBys": [],
               "path": "collection"
             }
           }
@@ -5882,10 +5474,8 @@
               }
             ],
             "query": {
-              "filters": [
-              ],
-              "orderBys": [
-              ],
+              "filters": [],
+              "orderBys": [],
               "path": "collection"
             }
           }

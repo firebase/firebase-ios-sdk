@@ -131,6 +131,373 @@
       }
     ]
   },
+  "Handles removal of old target (with cause) after re-listen": {
+    "describeName": "Remote store:",
+    "itName": "Handles removal of old target (with cause) after re-listen",
+    "tags": [
+    ],
+    "config": {
+      "allowUnlistedTargetRemoval": true,
+      "numClients": 1,
+      "useEagerGCForMemory": false
+    },
+    "steps": [
+      {
+        "userListen": {
+          "query": {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          },
+          "targetId": 2
+        },
+        "expectedState": {
+          "activeTargets": {
+            "2": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection"
+                }
+              ],
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "watchAck": [
+          2
+        ]
+      },
+      {
+        "userUnlisten": [
+          2,
+          {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          }
+        ],
+        "expectedState": {
+          "activeTargets": {
+          }
+        }
+      },
+      {
+        "userListen": {
+          "query": {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          },
+          "targetId": 2
+        },
+        "expectedState": {
+          "activeTargets": {
+            "2": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection"
+                }
+              ],
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "watchUsesTargetIndex": 0
+      },
+      {
+        "watchRemove": {
+          "cause": {
+            "code": 8
+          },
+          "targetIds": [
+            2
+          ]
+        },
+        "expectedState": {
+          "activeTargets": {
+            "2": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection"
+                }
+              ],
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "watchUsesTargetIndex": "latest"
+      },
+      {
+        "watchAck": [
+          2
+        ],
+        "expectedState": {
+          "activeTargets": {
+            "2": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection"
+                }
+              ],
+              "resumeToken": ""
+            }
+          }
+        }
+      }
+    ]
+  },
+  "Handles removal of old target after re-listen": {
+    "describeName": "Remote store:",
+    "itName": "Handles removal of old target after re-listen",
+    "tags": [
+    ],
+    "config": {
+      "numClients": 1,
+      "useEagerGCForMemory": false
+    },
+    "steps": [
+      {
+        "userListen": {
+          "query": {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          },
+          "targetId": 2
+        },
+        "expectedState": {
+          "activeTargets": {
+            "2": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection"
+                }
+              ],
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "watchAck": [
+          2
+        ]
+      },
+      {
+        "userUnlisten": [
+          2,
+          {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          }
+        ],
+        "expectedState": {
+          "activeTargets": {
+          }
+        }
+      },
+      {
+        "userListen": {
+          "query": {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          },
+          "targetId": 2
+        },
+        "expectedState": {
+          "activeTargets": {
+            "2": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection"
+                }
+              ],
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "watchUsesTargetIndex": 0
+      },
+      {
+        "watchRemove": {
+          "targetIds": [
+            2
+          ]
+        }
+      },
+      {
+        "watchUsesTargetIndex": "latest"
+      },
+      {
+        "watchAck": [
+          2
+        ],
+        "expectedState": {
+          "activeTargets": {
+            "2": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection"
+                }
+              ],
+              "resumeToken": ""
+            }
+          }
+        }
+      }
+    ]
+  },
+  "Handles removal of target with cause after unlisten and ignores future messages": {
+    "describeName": "Remote store:",
+    "itName": "Handles removal of target with cause after unlisten and ignores future messages",
+    "tags": [
+    ],
+    "config": {
+      "allowUnlistedTargetRemoval": true,
+      "numClients": 1,
+      "useEagerGCForMemory": false
+    },
+    "steps": [
+      {
+        "userListen": {
+          "query": {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          },
+          "targetId": 2
+        },
+        "expectedState": {
+          "activeTargets": {
+            "2": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection"
+                }
+              ],
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "watchAck": [
+          2
+        ]
+      },
+      {
+        "userUnlisten": [
+          2,
+          {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          }
+        ],
+        "expectedState": {
+          "activeTargets": {
+          }
+        }
+      },
+      {
+        "watchRemove": {
+          "cause": {
+            "code": 8
+          },
+          "targetIds": [
+            2
+          ]
+        },
+        "expectedState": {
+          "activeTargets": {
+          }
+        }
+      },
+      {
+        "watchEntity": {
+          "docs": [
+            {
+              "createTime": 0,
+              "key": "collection/a",
+              "options": {
+                "hasCommittedMutations": false,
+                "hasLocalMutations": false
+              },
+              "value": {
+                "key": "a"
+              },
+              "version": 1000
+            }
+          ],
+          "targets": [
+            2
+          ]
+        },
+        "expectedState": {
+          "activeTargets": {
+          }
+        }
+      }
+    ]
+  },
   "Handles user changes while offline (b/74749605).": {
     "describeName": "Remote store:",
     "itName": "Handles user changes while offline (b/74749605).",
@@ -440,11 +807,17 @@
         }
       },
       {
+        "watchUsesTargetIndex": 0
+      },
+      {
         "watchRemove": {
           "targetIds": [
             2
           ]
         }
+      },
+      {
+        "watchUsesTargetIndex": 1
       },
       {
         "watchAck": [
@@ -495,6 +868,9 @@
         }
       },
       {
+        "watchUsesTargetIndex": 2
+      },
+      {
         "watchAck": [
           2
         ]
@@ -541,6 +917,9 @@
             2
           ]
         }
+      },
+      {
+        "watchUsesTargetIndex": 3
       },
       {
         "watchAck": [
@@ -701,6 +1080,9 @@
         }
       },
       {
+        "watchUsesTargetIndex": 0
+      },
+      {
         "watchEntity": {
           "docs": [
             {
@@ -742,6 +1124,9 @@
             2
           ]
         }
+      },
+      {
+        "watchUsesTargetIndex": "latest"
       },
       {
         "watchAck": [
