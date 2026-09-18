@@ -47,11 +47,11 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.tvos.frameworks = 'CFNetwork', 'Security', 'SystemConfiguration'
   s.macos.frameworks = 'CFNetwork', 'Security', 'SystemConfiguration'
   s.watchos.frameworks = 'CFNetwork', 'Security', 'WatchKit'
-  s.dependency 'leveldb-library', '~> 1.22'
+  s.dependency 'leveldb-library', '>= 1.22.6', '< 1.23'
   s.dependency 'FirebaseCore', '~> 13.0.0'
   s.dependency 'FirebaseAppCheckInterop', '~> 13.0.0'
   s.dependency 'FirebaseSharedSwift', '~> 13.0.0'
-  s.dependency 'GoogleUtilities/UserDefaults', '~> 8.1'
+  s.dependency 'GoogleUtilities/UserDefaults', '>= 8.1.3', '< 9.0'
   s.pod_target_xcconfig = {
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
   }

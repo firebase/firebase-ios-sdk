@@ -14,6 +14,8 @@
   https://firebase.google.com/docs/ios/cocoapods-deprecation for details.
 - [removed] **Breaking change**: FirebaseMLModelDownloader has been removed. See
   https://firebase.google.com/docs/ml for more info.
+- [changed] **Breaking change**: The minimum supported version of
+  `GTMSessionFetcher` is now `4.0.0` (support for `3.x` has been dropped).
 
 # Firebase 12.19.1
 - [fixed] Fixed the zip distribution artifact naming on the GitHub release

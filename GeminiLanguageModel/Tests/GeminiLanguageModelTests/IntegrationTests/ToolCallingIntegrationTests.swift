@@ -44,7 +44,7 @@
       }
 
       func call(arguments: Arguments) async throws -> String {
-        "The current weather in \(arguments.city) is 72°F and sunny."
+        "The current weather in \(arguments.city) is 22°C and sunny."
       }
     }
 
@@ -63,6 +63,25 @@
       func call(arguments: Arguments) async throws -> String {
         "12:00 PM UTC"
       }
+    }
+
+    /// A structured weather summary used to exercise guided generation alongside tool calling.
+    @Generable
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    @available(tvOS, unavailable)
+    struct CurrentWeather {
+      @Generable
+      enum Conditions {
+        case cloudy
+        case rainy
+        case sunny
+      }
+
+      @Guide(description: "The current temperature in Celsius")
+      let temperature: Int
+
+      @Guide(description: "The current weather conditions")
+      let conditions: Conditions
     }
 
     @Test(
@@ -84,7 +103,7 @@
       #expect(!response.content.isEmpty)
       let containsExpected =
         response.content.localizedCaseInsensitiveContains("Paris")
-        || response.content.contains("72")
+        || response.content.contains("22")
       #expect(containsExpected)
       let hasToolCalls = session.transcript.contains { entry in
         if case .toolCalls = entry { return true }
@@ -150,7 +169,7 @@
       #expect(!secondResponse.content.isEmpty)
       let containsMiamiOrTemp =
         secondResponse.content.localizedCaseInsensitiveContains("Miami")
-        || secondResponse.content.contains("72")
+        || secondResponse.content.contains("22")
       #expect(containsMiamiOrTemp)
       let toolCallCount = session.transcript.filter { entry in
         if case .toolCalls = entry { return true }
@@ -233,13 +252,46 @@
       #expect(!response.content.isEmpty)
       let containsChicagoOrTemp =
         response.content.localizedCaseInsensitiveContains("Chicago")
-        || response.content.contains("72")
+        || response.content.contains("22")
       #expect(containsChicagoOrTemp)
       let hasToolCalls = session.transcript.contains { entry in
         if case .toolCalls = entry { return true }
         return false
       }
       #expect(hasToolCalls)
+    }
+
+    @Test(
+      .requireIntegrationTestingBackend,
+      arguments: IntegrationTestingBackend.availableBackends
+    )
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func sessionRespondToolCallAndGuidedGeneration(backend: IntegrationTestingBackend) async throws
+    {
+      let model = try await backend.makeModel()
+      let session = LanguageModelSession(
+        model: model,
+        tools: [WeatherTool()]
+      )
+
+      let response = try await session.respond(
+        to: "What is the weather in Paris right now?",
+        generating: CurrentWeather.self
+      )
+
+      #expect(response.content.temperature == 22)
+      #expect(response.content.conditions == .sunny)
+      let hasToolCalls = session.transcript.contains { entry in
+        if case .toolCalls = entry { return true }
+        return false
+      }
+      #expect(hasToolCalls)
+      let hasToolOutput = session.transcript.contains { entry in
+        if case .toolOutput = entry { return true }
+        return false
+      }
+      #expect(hasToolOutput)
+      #expect(response.usage.totalTokenCount > 0)
     }
   }
 #endif  // canImport(FoundationModels) && compiler(>=6.4)
