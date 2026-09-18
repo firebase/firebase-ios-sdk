@@ -60,3 +60,4 @@ extension CodableDecimal128Value {
 
 /** Extends Decimal128Value to conform to Codable. */
 extension FirebaseFirestore.Decimal128Value: FirebaseFirestore.CodableDecimal128Value {}
+extension FirebaseFirestore.Decimal128Value: @retroactive Codable {}

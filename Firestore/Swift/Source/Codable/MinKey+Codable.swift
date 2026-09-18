@@ -63,3 +63,4 @@ extension CodableMinKey {
 
 /** Extends MinKey to conform to Codable. */
 extension FirebaseFirestore.MinKey: FirebaseFirestore.CodableMinKey {}
+extension FirebaseFirestore.MinKey: @retroactive Codable {}

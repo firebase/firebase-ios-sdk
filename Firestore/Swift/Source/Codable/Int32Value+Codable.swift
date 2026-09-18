@@ -60,3 +60,4 @@ extension CodableInt32Value {
 
 /** Extends Int32Value to conform to Codable. */
 extension FirebaseFirestore.Int32Value: FirebaseFirestore.CodableInt32Value {}
+extension FirebaseFirestore.Int32Value: @retroactive Codable {}

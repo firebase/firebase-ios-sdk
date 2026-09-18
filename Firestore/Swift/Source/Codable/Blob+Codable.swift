@@ -63,3 +63,4 @@ extension CodableBlob {
 
 /** Extends Blob to conform to Codable. */
 extension FirebaseFirestore.Blob: FirebaseFirestore.CodableBlob {}
+extension FirebaseFirestore.Blob: @retroactive Codable {}

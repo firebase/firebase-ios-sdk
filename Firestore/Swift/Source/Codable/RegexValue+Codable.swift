@@ -64,3 +64,4 @@ extension CodableRegexValue {
 
 /** Extends RegexValue to conform to Codable. */
 extension FirebaseFirestore.RegexValue: FirebaseFirestore.CodableRegexValue {}
+extension FirebaseFirestore.RegexValue: @retroactive Codable {}

@@ -60,3 +60,4 @@ extension CodableBSONObjectId {
 
 /** Extends BSONObjectId to conform to Codable. */
 extension FirebaseFirestore.BSONObjectId: FirebaseFirestore.CodableBSONObjectId {}
+extension FirebaseFirestore.BSONObjectId: @retroactive Codable {}

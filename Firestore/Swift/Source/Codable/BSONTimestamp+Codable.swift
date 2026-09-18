@@ -64,3 +64,4 @@ extension CodableBSONTimestamp {
 
 /** Extends BSONTimestamp to conform to Codable. */
 extension FirebaseFirestore.BSONTimestamp: FirebaseFirestore.CodableBSONTimestamp {}
+extension FirebaseFirestore.BSONTimestamp: @retroactive Codable {}

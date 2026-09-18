@@ -63,3 +63,4 @@ extension CodableMaxKey {
 
 /** Extends MaxKey to conform to Codable. */
 extension FirebaseFirestore.MaxKey: FirebaseFirestore.CodableMaxKey {}
+extension FirebaseFirestore.MaxKey: @retroactive Codable {}
