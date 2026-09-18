@@ -46,9 +46,9 @@ Pod::Spec.new do |s|
 
   s.framework = 'Security'
   s.dependency 'FirebaseCore', '~> 13.0.0'
-  s.dependency 'PromisesObjC', '~> 2.4'
-  s.dependency 'GoogleUtilities/Environment', '~> 8.1'
-  s.dependency 'GoogleUtilities/UserDefaults', '~> 8.1'
+  s.dependency 'PromisesObjC', '>= 2.4.1', '< 3.0'
+  s.dependency 'GoogleUtilities/Environment', '>= 8.1.3', '< 9.0'
+  s.dependency 'GoogleUtilities/UserDefaults', '>= 8.1.3', '< 9.0'
 
   preprocessor_definitions = ''
   s.pod_target_xcconfig = {

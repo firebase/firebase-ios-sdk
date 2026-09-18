@@ -26,20 +26,19 @@ public struct LiveGenerationConfig: Sendable {
   /// Creates a new ``LiveGenerationConfig`` value.
   ///
   /// See the
-  /// [Configure model parameters](https://firebase.google.com/docs/vertex-ai/model-parameters)
-  /// guide and the
-  /// [Cloud documentation](https://cloud.google.com/vertex-ai/generative-ai/docs/model-reference/inference#generationconfig)
-  /// for more details.
+  /// [Configure model
+  /// parameters](https://firebase.google.com/docs/ai-logic/model-parameters#config-gemini-live-api)
+  /// guide for more details.
   ///
   /// - Parameters:
-  ///   - maxOutputTokens: Maximum number of tokens that can be generated in the response.
-  ///     See the configure model parameters [documentation](https://firebase.google.com/docs/vertex-ai/model-parameters?platform=ios#max-output-tokens)
-  ///     for more details.
+  ///   - maxOutputTokens: Maximum number of tokens that can be generated in the response. See
+  ///     [configure model
+  ///     parameters](https://firebase.google.com/docs/ai-logic/model-parameters#config-gemini-live-api).
   ///   - responseModalities: The data types (modalities) that may be returned in model responses.
   ///
-  ///     See the [multimodal
-  ///     responses](https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal-response-generation)
-  ///     documentation for more details.
+  ///     See the [configure model parameters
+  ///     documentation](https://firebase.google.com/docs/ai-logic/model-parameters#parameters-descriptions-gemini)
+  ///     for more details.
   ///
   ///     > Warning: Specifying response modalities is a **Public Preview** feature, which means
   ///     > that it is not subject to any SLA or deprecation policy and could change in
@@ -104,20 +103,18 @@ public struct LiveGenerationConfig: Sendable {
   /// Creates a new `LiveGenerationConfig` value.
   ///
   /// See the
-  /// [Configure model parameters](https://firebase.google.com/docs/vertex-ai/model-parameters)
-  /// guide and the
-  /// [Cloud documentation](https://cloud.google.com/vertex-ai/generative-ai/docs/model-reference/inference#generationconfig)
-  /// for more details.
+  /// [Configure model
+  /// parameters](https://firebase.google.com/docs/ai-logic/model-parameters#config-gemini-live-api)
+  /// guide for more details.
   ///
   /// - Parameters:
-  ///   - maxOutputTokens: Maximum number of tokens that can be generated in the response.
-  ///     See the configure model parameters [documentation](https://firebase.google.com/docs/vertex-ai/model-parameters?platform=ios#max-output-tokens)
-  ///     for more details.
-  ///   - responseModalities: The data types (modalities) that may be returned in model responses.
   ///
-  ///     See the [multimodal
-  ///     responses](https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal-response-generation)
-  ///     documentation for more details.
+  ///   - maxOutputTokens: Maximum number of tokens that can be generated in the response.
+  ///     See [configure model
+  ///     parameters](https://firebase.google.com/docs/ai-logic/model-parameters#config-gemini-live-api).
+  ///
+  ///   - responseModalities: The data types (modalities) that may be returned in model responses.
+  ///     See [configure model parameters](https://firebase.google.com/docs/ai-logic/model-parameters#parameters-descriptions-gemini).
   ///
   ///     > Warning: Specifying response modalities is a **Public Preview** feature, which means
   ///     > that it is not subject to any SLA or deprecation policy and could change in

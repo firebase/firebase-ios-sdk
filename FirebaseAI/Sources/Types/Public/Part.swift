@@ -60,7 +60,7 @@ public struct TextPart: Part {
 /// > Important: Only small files can be sent as inline data because of limits on total request
 /// sizes;
 ///  see [input files and requirements
-///  ](https://firebase.google.com/docs/vertex-ai/input-file-requirements#provide-file-as-inline-data)
+///  ](https://firebase.google.com/docs/ai-logic/input-file-requirements#provide-file-as-inline-data)
 ///  for more details and size limits.
 public struct InlineDataPart: Part {
   let inlineData: InlineData
@@ -79,16 +79,16 @@ public struct InlineDataPart: Part {
   /// Creates an inline data part from data and a MIME type.
   ///
   /// > Important: Supported input types depend on the model on the model being used; see [input
-  ///  files and requirements](https://firebase.google.com/docs/vertex-ai/input-file-requirements)
+  ///  files and requirements](https://firebase.google.com/docs/ai-logic/input-file-requirements)
   ///  for more details.
   ///
   /// - Parameters:
   ///   - data: The data representation of an image, video, audio or document; see [input files and
-  ///     requirements](https://firebase.google.com/docs/vertex-ai/input-file-requirements) for
+  ///     requirements](https://firebase.google.com/docs/ai-logic/input-file-requirements) for
   ///     supported media types.
   ///   - mimeType: The IANA standard MIME type of the data, for example, `"image/jpeg"` or
   ///     `"video/mp4"`; see [input files and
-  ///     requirements](https://firebase.google.com/docs/vertex-ai/input-file-requirements) for
+  ///     requirements](https://firebase.google.com/docs/ai-logic/input-file-requirements) for
   ///     supported values.
   public init(data: Data, mimeType: String) {
     self.init(InlineData(data: data, mimeType: mimeType), isThought: nil, thoughtSignature: nil)
@@ -118,7 +118,7 @@ public struct FileDataPart: Part {
   ///     `"gs://bucket-name/path/image.jpg"`.
   ///   - mimeType: The IANA standard MIME type of the uploaded file, for example, `"image/jpeg"`
   ///     or `"video/mp4"`; see [supported input files and
-  ///     requirements](https://firebase.google.com/docs/vertex-ai/input-file-requirements) for
+  ///     requirements](https://firebase.google.com/docs/ai-logic/input-file-requirements) for
   ///     supported values.
   public init(uri: String, mimeType: String) {
     self.init(FileData(fileURI: uri, mimeType: mimeType), isThought: nil, thoughtSignature: nil)
