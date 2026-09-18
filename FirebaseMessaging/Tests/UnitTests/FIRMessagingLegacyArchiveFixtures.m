@@ -162,14 +162,15 @@ static BOOL sGadgetWasDecoded = NO;
 
 @end
 
-/// Writes the `<= 10.18.0` key set, but with a gadget archive standing in for the nested
-/// APNSInfo blob. Only the `apns_info` value differs from `FIRMessagingTokenInfo_Legacy10_18`;
-/// everything else has to stay well-formed so the test can tell "APNSInfo was rejected" apart
-/// from "the whole record was rejected".
-@interface FIRMessagingTokenInfo_GadgetAPNSInfo : FIRMessagingTokenInfo
+/// Writes the `<= 10.18.0` key set, but with a caller-supplied payload standing in for the
+/// nested APNSInfo blob. Only the `apns_info` value differs from
+/// `FIRMessagingTokenInfo_Legacy10_18`; everything else stays well-formed so a test can tell
+/// "APNSInfo was rejected" apart from "the whole record was rejected".
+@interface FIRMessagingTokenInfo_SubstituteAPNSInfo : FIRMessagingTokenInfo
+@property(nonatomic, strong) NSData *substitutePayload;
 @end
 
-@implementation FIRMessagingTokenInfo_GadgetAPNSInfo
+@implementation FIRMessagingTokenInfo_SubstituteAPNSInfo
 
 - (void)encodeWithCoder:(NSCoder *)aCoder {
   [aCoder encodeObject:self.authorizedEntity forKey:kLegacyAuthorizedEntityKey];
@@ -177,8 +178,7 @@ static BOOL sGadgetWasDecoded = NO;
   [aCoder encodeObject:self.token forKey:kLegacyTokenKey];
   [aCoder encodeObject:self.appVersion forKey:kLegacyAppVersionKey];
   [aCoder encodeObject:self.firebaseAppID forKey:kLegacyFirebaseAppIDKey];
-  [aCoder encodeObject:[FIRMessagingLegacyArchiveFixtures archiveOfGadget]
-                forKey:kLegacyAPNSInfoKey];
+  [aCoder encodeObject:self.substitutePayload forKey:kLegacyAPNSInfoKey];
   [aCoder encodeObject:self.cacheTime forKey:kLegacyCacheTimeKey];
 }
 
@@ -253,28 +253,72 @@ static BOOL sGadgetWasDecoded = NO;
   return archive;
 }
 
-+ (NSData *)archiveWithGadgetInNestedAPNSInfoForAuthorizedEntity:(NSString *)authorizedEntity
-                                                           scope:(NSString *)scope
-                                                           token:(NSString *)token {
-  FIRMessagingTokenInfo_GadgetAPNSInfo *poisoned =
-      [[FIRMessagingTokenInfo_GadgetAPNSInfo alloc] initWithAuthorizedEntity:authorizedEntity
-                                                                       scope:scope
-                                                                       token:token
-                                                                  appVersion:@"1.0"
-                                                               firebaseAppID:@"firebaseAppID"
-                                                                   tokenType:@"V4"];
-  poisoned.cacheTime = [NSDate date];
++ (NSData *)archiveWithSubstituteAPNSInfoPayload:(NSData *)payload
+                                authorizedEntity:(NSString *)authorizedEntity
+                                           scope:(NSString *)scope
+                                           token:(NSString *)token {
+  FIRMessagingTokenInfo_SubstituteAPNSInfo *substituted =
+      [[FIRMessagingTokenInfo_SubstituteAPNSInfo alloc] initWithAuthorizedEntity:authorizedEntity
+                                                                           scope:scope
+                                                                           token:token
+                                                                      appVersion:@"1.0"
+                                                                   firebaseAppID:@"firebaseAppID"
+                                                                       tokenType:@"V4"];
+  substituted.substitutePayload = payload;
+  substituted.cacheTime = [NSDate date];
 
-  Class poisonedClass = [FIRMessagingTokenInfo_GadgetAPNSInfo class];
-  NSString *previousName = [NSKeyedArchiver classNameForClass:poisonedClass];
-  [NSKeyedArchiver setClassName:kLegacyTokenInfoClassName forClass:poisonedClass];
+  Class substitutedClass = [FIRMessagingTokenInfo_SubstituteAPNSInfo class];
+  NSString *previousName = [NSKeyedArchiver classNameForClass:substitutedClass];
+  [NSKeyedArchiver setClassName:kLegacyTokenInfoClassName forClass:substitutedClass];
   NSData *archive;
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  archive = [NSKeyedArchiver archivedDataWithRootObject:poisoned];
+  archive = [NSKeyedArchiver archivedDataWithRootObject:substituted];
 #pragma clang diagnostic pop
-  [NSKeyedArchiver setClassName:previousName forClass:poisonedClass];
+  [NSKeyedArchiver setClassName:previousName forClass:substitutedClass];
   return archive;
+}
+
++ (NSData *)archiveWithGadgetInNestedAPNSInfoForAuthorizedEntity:(NSString *)authorizedEntity
+                                                           scope:(NSString *)scope
+                                                           token:(NSString *)token {
+  return [self archiveWithSubstituteAPNSInfoPayload:[self archiveOfGadget]
+                                   authorizedEntity:authorizedEntity
+                                              scope:scope
+                                              token:token];
+}
+
++ (NSData *)archiveWithCorruptNestedAPNSInfoForAuthorizedEntity:(NSString *)authorizedEntity
+                                                          scope:(NSString *)scope
+                                                          token:(NSString *)token
+                                                    payloadKind:
+                                                        (FIRMessagingCorruptPayloadKind)kind {
+  NSData *payload = nil;
+  switch (kind) {
+    case FIRMessagingCorruptPayloadKindNotAPropertyList:
+      // Bytes that are not a plist at all. The archiver should reject these outright.
+      payload = [@"this is not an archive" dataUsingEncoding:NSUTF8StringEncoding];
+      break;
+    case FIRMessagingCorruptPayloadKindPropertyListButNotAnArchive:
+      // A well-formed plist that lacks `$archiver` / `$objects`. This is the more interesting
+      // case: the header parses, so failure happens further into the unarchiver.
+      payload = [NSPropertyListSerialization dataWithPropertyList:@{@"not" : @"an archive"}
+                                                           format:NSPropertyListBinaryFormat_v1_0
+                                                          options:0
+                                                            error:NULL];
+      break;
+    case FIRMessagingCorruptPayloadKindTruncatedArchive: {
+      // A real archive with its tail lopped off, which is what bit-rot or a partial write looks
+      // like rather than a deliberate attack.
+      NSData *whole = [self archiveOfGadget];
+      payload = [whole subdataWithRange:NSMakeRange(0, whole.length / 2)];
+      break;
+    }
+  }
+  return [self archiveWithSubstituteAPNSInfoPayload:payload
+                                   authorizedEntity:authorizedEntity
+                                              scope:scope
+                                              token:token];
 }
 
 @end

@@ -20,6 +20,17 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/// Flavours of a corrupt nested `apns_info` blob, ordered by how far into `NSKeyedUnarchiver`
+/// they get before failing.
+typedef NS_ENUM(NSInteger, FIRMessagingCorruptPayloadKind) {
+  /// Not a property list at all.
+  FIRMessagingCorruptPayloadKindNotAPropertyList,
+  /// A valid property list that is not a keyed archive.
+  FIRMessagingCorruptPayloadKindPropertyListButNotAnArchive,
+  /// A real keyed archive, truncated partway through.
+  FIRMessagingCorruptPayloadKindTruncatedArchive,
+};
+
 /// Reproduces the `<= 10.18.0` *encoding* format, in which `apns_info` was written as a nested
 /// `NSKeyedArchiver` blob rather than as a directly encoded object.
 ///
@@ -100,6 +111,16 @@ NS_ASSUME_NONNULL_BEGIN
 + (NSData *)archiveWithGadgetInNestedAPNSInfoForAuthorizedEntity:(NSString *)authorizedEntity
                                                            scope:(NSString *)scope
                                                            token:(NSString *)token;
+
+/// A keychain item in the `<= 10.18.0` shape whose nested `apns_info` blob is corrupt rather than
+/// hostile -- bit rot, a partial write, or a bug in some other writer. Distinct from the gadget
+/// case because these fail at different depths of `NSKeyedUnarchiver`, and the shallow ones are
+/// the ones that can raise rather than return an error.
++ (NSData *)archiveWithCorruptNestedAPNSInfoForAuthorizedEntity:(NSString *)authorizedEntity
+                                                          scope:(NSString *)scope
+                                                          token:(NSString *)token
+                                                    payloadKind:
+                                                        (FIRMessagingCorruptPayloadKind)kind;
 
 @end
 

@@ -406,6 +406,50 @@ static NSString *const kFakeCheckinPlistName = @"com.google.test.TestTokenStore"
                 @"of the hostile blob.");
 }
 
+/// **Scenario:** A `<= 10.18.0` record whose nested `apns_info` blob is corrupt rather than
+/// hostile: bit rot, a partial keychain write, or a bug in some other writer.
+/// **What it does:** Plants each flavour of corruption in turn and asserts the record still
+/// decodes with only its APNSInfo missing.
+///
+/// The three flavours fail at different depths of `NSKeyedUnarchiver`, which matters because the
+/// shallow ones are the ones that can *raise* instead of returning an error. If a raise escaped
+/// the nested decode it would unwind to the `@catch` in `tokenInfoFromKeychainItem:` and discard
+/// the whole record -- costing the user their token over a damaged APNS association. Losing the
+/// APNSInfo is recoverable on the next APNS registration; losing the token is not.
+- (void)testCorruptNestedAPNSInfoCostsOnlyTheAPNSInfo {
+  NSDictionary<NSString *, NSNumber *> *kinds = @{
+    @"not a property list" : @(FIRMessagingCorruptPayloadKindNotAPropertyList),
+    @"property list but not an archive" :
+        @(FIRMessagingCorruptPayloadKindPropertyListButNotAnArchive),
+    @"truncated archive" : @(FIRMessagingCorruptPayloadKindTruncatedArchive),
+  };
+
+  for (NSString *description in kinds) {
+    FIRMessagingCorruptPayloadKind kind = kinds[description].integerValue;
+    NSData *corruptArchive = [FIRMessagingLegacyArchiveFixtures
+        archiveWithCorruptNestedAPNSInfoForAuthorizedEntity:kAuthorizedEntity
+                                                      scope:kScope
+                                                      token:kToken
+                                                payloadKind:kind];
+
+    FIRMessagingTokenInfo *decoded =
+        [FIRMessagingTokenStore tokenInfoFromKeychainItem:corruptArchive];
+
+    XCTAssertNotNil(decoded, @"%@: a damaged APNSInfo must not cost the user their token.",
+                    description);
+    XCTAssertEqualObjects(decoded.token, kToken, @"%@", description);
+    XCTAssertEqualObjects(decoded.authorizedEntity, kAuthorizedEntity, @"%@", description);
+    XCTAssertNil(decoded.APNSInfo,
+                 @"%@: nothing should be substituted for a blob that failed to "
+                 @"decode.",
+                 description);
+    XCTAssertTrue(decoded.needsMigration,
+                  @"%@: the record is still in the legacy shape, so the store should rewrite it "
+                  @"and be rid of the bad blob.",
+                  description);
+  }
+}
+
 #pragma mark - Archive shape
 
 /// **Scenario:** Guards the absence of a `FIRInstanceIDAPNSInfo` -> `FIRMessagingAPNSInfo` class
