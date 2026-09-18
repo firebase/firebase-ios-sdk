@@ -1418,12 +1418,12 @@ func abseilDependency() -> Package.Dependency {
   if shouldUseSourceFirestore {
     packageInfo = (
       "https://github.com/firebase/abseil-cpp-SwiftPM.git",
-      "0.20250512.1" ..< "0.20250512.2"
+      "0.20250512.1" ..< "0.20250513.0"
     )
   } else {
     packageInfo = (
       "https://github.com/google/abseil-cpp-binary.git",
-      "1.2025051202.0" ..< "1.2025051203.0" // Should this float to minor instead?
+      "1.2025051202.0" ..< "1.2025051300.0"
     )
   }
 
