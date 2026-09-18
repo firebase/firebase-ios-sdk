@@ -213,7 +213,7 @@ NS_EXTENSION_UNAVAILABLE("Firebase In App Messaging is not supported for iOS ext
 
 // Try to handle the url as a universal link by triggering
 // scene:continueUserActivity: on any active scene delegate object directly.
-// @return YES if an scene delegate implementing that method was found and
+// @return YES if a scene delegate implementing that method was found and
 // invoked
 - (BOOL)followURLWithSceneContinueUserActivity:(NSURL *)url {
   NSString *browsingWebType = @"NSUserActivityTypeBrowsingWeb";
