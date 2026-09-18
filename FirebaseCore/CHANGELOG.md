@@ -17,6 +17,8 @@
 - [changed] **Breaking change**: Removed the CocoaPods generated umbrella headers
   (suffixed `-umbrella.h`) from the Zip and Carthage artifacts, in favor of `Firebase.h`
   and framework specific umbrella headers. (#16540)
+- [changed] **Breaking change**: The minimum supported version of
+  `GTMSessionFetcher` is now `4.0.0` (support for `3.x` has been dropped).
 
 # Firebase 12.19.1
 - [fixed] Fixed the zip distribution artifact naming on the GitHub release

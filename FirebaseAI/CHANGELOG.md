@@ -4,6 +4,9 @@
   `FirebaseAI`, which has now been removed. See the
   [Swift module name change](https://firebase.google.com/docs/ai-logic/faq-and-troubleshooting#swift-module-name-change)
   FAQ entry for more details.
+- [changed] Updated the default function calling mode to `VALIDATED` and
+  updated guided generation to use `responseJsonSchema` in
+  `GeminiLanguageModel`. (#16649)
 - [changed] Deprecated model tuning parameters (`temperature`, `topP`, `topK`, `candidateCount`,
   `presencePenalty`, and `frequencyPenalty`) in `GenerationConfig` and `LiveGenerationConfig` as
   they are unsupported in Gemini 3.x and later models.
@@ -199,7 +202,7 @@
 
   To start using the new SDK, import the `FirebaseAI` module and use the
   top-level `FirebaseAI` class. See details in the [migration guide
-  ](https://firebase.google.com/docs/vertex-ai/migrate-to-latest-sdk).
+  ](https://firebase.google.com/docs/ai-logic/migrate-to-latest-sdk).
 - [fixed] Fixed `ModalityTokenCount` decoding when the `tokenCount` field is
   omitted; this occurs when the count is 0. (#14745)
 - [fixed] Fixed `Candidate` decoding when `SafetyRating` values are missing a
@@ -234,7 +237,7 @@
 
 # 11.9.0
 - [feature] **Public Preview**: Added support for
-  [generating images](https://firebase.google.com/docs/vertex-ai/generate-images-imagen?platform=ios)
+  [generating images](https://firebase.google.com/docs/ai-logic/generate-images-imagen)
   using the Imagen 3 models.
   <br /><br />
   Note: This feature is in Public Preview, which means that it is not subject to
@@ -268,9 +271,9 @@
   Carthage distributions.
   <br /><br />
   - If you're new to this library, visit the
-    [getting started guide](http://firebase.google.com/docs/vertex-ai/get-started?platform=ios).
+    [getting started guide](https://firebase.google.com/docs/ai-logic/get-started).
   - If you used the preview version of the library, visit the
-    [migration guide](https://firebase.google.com/docs/vertex-ai/migrate-to-ga?platform=ios)
+    [migration guide](https://firebase.google.com/docs/ai-logic/migrate-to-ga)
     to learn about some important updates.
 - [changed] **Breaking Change**: The `HarmCategory` enum is no longer nested
   inside the `SafetySetting` struct and the `unspecified` case has been
@@ -371,7 +374,7 @@
   instead of the `Any` type. (#13575)
 - [added] Added support for specifying a JSON `responseSchema` in
   `GenerationConfig`; see
-  [control generated output](https://firebase.google.com/docs/vertex-ai/structured-output?platform=ios)
+  [control generated output](https://firebase.google.com/docs/ai-logic/structured-output)
   for more details. (#13576)
 
 # 10.29.0
@@ -381,7 +384,7 @@
 - [changed] Removed uses of the `gemini-1.5-flash-preview-0514` model in docs
   and samples. Developers should now use the auto-updated versions,
   `gemini-1.5-pro` or `gemini-1.5-flash`, or a specific stable version; see
-  [available model names](https://firebase.google.com/docs/vertex-ai/gemini-models#available-model-names)
+  [available model names](https://firebase.google.com/docs/ai-logic/models#available-model-names)
   for more details. (#13099)
 - [feature] Added community support for tvOS and visionOS. (#13090, #13092)
 
@@ -389,7 +392,7 @@
 - [changed] Removed uses of the `gemini-1.5-pro-preview-0409` model in docs and
   samples. Developers should now use `gemini-1.5-pro-preview-0514` or
   `gemini-1.5-flash-preview-0514`; see
-  [available model names](https://firebase.google.com/docs/vertex-ai/gemini-models#available-model-names)
+  [available model names](https://firebase.google.com/docs/ai-logic/models#available-model-names)
   for more details. (#12979)
 - [changed] Logged additional details when required APIs for Vertex AI are
   not enabled or response payloads when requests fail. (#13007, #13009)
@@ -397,5 +400,5 @@
 # 10.26.0
 - [feature] Initial release of the Vertex AI for Firebase SDK (public preview).
   Learn how to
-  [get started](https://firebase.google.com/docs/vertex-ai/get-started?platform=ios)
+  [get started](https://firebase.google.com/docs/ai-logic/get-started)
   with the SDK in your app.
