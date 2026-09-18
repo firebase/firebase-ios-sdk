@@ -27,6 +27,7 @@
 #import "FirebaseMessaging/Sources/Token/FIRMessagingTokenInfo.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingTokenStore.h"
 #import "FirebaseMessaging/Tests/UnitTests/FIRMessagingFakeKeychain.h"
+#import "FirebaseMessaging/Tests/UnitTests/FIRMessagingLegacyArchiveFixtures.h"
 
 static NSString *const kSubDirectoryName = @"FirebaseMessagingStoreTest";
 
@@ -62,43 +63,6 @@ static NSString *const kFakeCheckinPlistName = @"com.google.test.TestTokenStore"
 
 @end
 
-#pragma mark - Legacy Parity Testing Mocks
-
-/// **Mock:** Reproduces the `<= 10.18.0` *encoding* format, in which `apns_info` was written as a
-/// nested `NSKeyedArchiver` blob (an `NSData`) rather than as a directly encoded object. The
-/// nested blob names the class `FIRInstanceIDAPNSInfo`.
-///
-/// To verify exact parity, diff this implementation against `FIRMessagingTokenInfo` from the
-/// `10.18.0` release. Note that `token_type` is absent: it was introduced later.
-@interface FIRMessagingTokenInfo_Legacy10_18 : FIRMessagingTokenInfo
-@end
-
-@implementation FIRMessagingTokenInfo_Legacy10_18
-
-- (void)encodeWithCoder:(NSCoder *)aCoder {
-  [aCoder encodeObject:self.authorizedEntity forKey:@"authorized_entity"];
-  [aCoder encodeObject:self.scope forKey:@"scope"];
-  [aCoder encodeObject:self.token forKey:@"token"];
-  [aCoder encodeObject:self.appVersion forKey:@"app_version"];
-  [aCoder encodeObject:self.firebaseAppID forKey:@"firebase_app_id"];
-  if (self.APNSInfo) {
-    [NSKeyedArchiver setClassName:@"FIRInstanceIDAPNSInfo" forClass:[FIRMessagingAPNSInfo class]];
-    NSData *rawAPNSInfo;
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    rawAPNSInfo = [NSKeyedArchiver archivedDataWithRootObject:self.APNSInfo];
-#pragma clang diagnostic pop
-    // `setClassName:forClass:` is process-global, so undo it immediately. Leaving it in place
-    // would rename `FIRMessagingAPNSInfo` in every subsequent archive written by this test
-    // bundle.
-    [NSKeyedArchiver setClassName:nil forClass:[FIRMessagingAPNSInfo class]];
-    [aCoder encodeObject:rawAPNSInfo forKey:@"apns_info"];
-  }
-  [aCoder encodeObject:self.cacheTime forKey:@"cache_time"];
-}
-
-@end
-
 @interface FIRMessagingTokenStoreTest : XCTestCase
 
 @property(strong, nonatomic) FIRMessagingBackupExcludedPlist *checkinPlist;
@@ -130,6 +94,9 @@ static NSString *const kFakeCheckinPlistName = @"com.google.test.TestTokenStore"
   _tokenStore = [[FIRMessagingTokenStore alloc] init];
   _tokenStore.keychain = fakeKeychain;
   _mockTokenStore = OCMPartialMock(_tokenStore);
+
+  // Global, so clear it per test rather than trusting run order.
+  FIRMessagingArchiveGadget.wasDecoded = NO;
 }
 
 - (void)tearDown {
@@ -194,6 +161,32 @@ static NSString *const kFakeCheckinPlistName = @"com.google.test.TestTokenStore"
   [self waitForExpectationsWithTimeout:1 handler:nil];
 }
 
+#pragma mark - Archive Compatibility
+
+/// The keychain service the compatibility tests below read and write.
+- (NSString *)tokenServiceKey {
+  return [FIRMessagingTokenStore serviceKeyForAuthorizedEntity:kAuthorizedEntity scope:kScope];
+}
+
+/// Writes `item` into the fake keychain as though a previous SDK version had left it there.
+- (void)injectKeychainItem:(NSData *)item {
+  XCTestExpectation *injected = [self expectationWithDescription:@"Inject keychain item"];
+  [self.tokenStore.keychain setData:item
+                         forService:[self tokenServiceKey]
+                            account:FIRMessagingAppIdentifier()
+                            handler:^(NSError *error) {
+                              XCTAssertNil(error);
+                              [injected fulfill];
+                            }];
+  [self waitForExpectationsWithTimeout:1 handler:nil];
+}
+
+/// Reads the raw bytes currently stored for this test's token, bypassing any decoding.
+- (NSData *)keychainItem {
+  return [self.tokenStore.keychain dataForService:[self tokenServiceKey]
+                                          account:FIRMessagingAppIdentifier()];
+}
+
 /// **Scenario:** Tests that the actual Store class connects to the keychain and passes the right
 /// SecureCoding flags to read old data. **What it does:** Generates an insecure 10.19-era binary
 /// blob and injects it into the mock keychain. We then call the public
@@ -208,32 +201,11 @@ static NSString *const kFakeCheckinPlistName = @"com.google.test.TestTokenStore"
                                                 firebaseAppID:@"firebaseAppID"
                                                     tokenType:@"V4"];
 
-  // 1. Archive WITHOUT secure coding (simulating legacy data). `setClassName:forClass:` is
-  // process-global, so restore the incumbent mapping afterwards.
-  NSString *previousName = [NSKeyedArchiver classNameForClass:[FIRMessagingTokenInfo class]];
-  [NSKeyedArchiver setClassName:@"FIRInstanceIDTokenInfo" forClass:[FIRMessagingTokenInfo class]];
-  NSData *legacyArchive;
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  legacyArchive = [NSKeyedArchiver archivedDataWithRootObject:tokenInfo];
-#pragma clang diagnostic pop
-  [NSKeyedArchiver setClassName:previousName forClass:[FIRMessagingTokenInfo class]];
+  // Archive the way 12.19.0's `saveTokenInfo:` did -- insecure, rooted at
+  // `FIRInstanceIDTokenInfo` -- and plant it in the keychain.
+  [self injectKeychainItem:[FIRMessagingLegacyArchiveFixtures archiveWrittenBy12:tokenInfo]];
 
-  // 2. Inject directly into the keychain
-  NSString *account = FIRMessagingAppIdentifier();
-  NSString *service = [FIRMessagingTokenStore serviceKeyForAuthorizedEntity:kAuthorizedEntity
-                                                                      scope:kScope];
-  XCTestExpectation *expectation = [self expectationWithDescription:@"Inject legacy token"];
-  [self.tokenStore.keychain setData:legacyArchive
-                         forService:service
-                            account:account
-                            handler:^(NSError *error) {
-                              XCTAssertNil(error);
-                              [expectation fulfill];
-                            }];
-  [self waitForExpectationsWithTimeout:1 handler:nil];
-
-  // 3. Verify that the TokenStore's public API can read and decode it!
+  // Verify that the TokenStore's public API can read and decode it.
   FIRMessagingTokenInfo *retrievedTokenInfo =
       [self.tokenStore tokenInfoWithAuthorizedEntity:kAuthorizedEntity scope:kScope];
 
@@ -242,10 +214,13 @@ static NSString *const kFakeCheckinPlistName = @"com.google.test.TestTokenStore"
 }
 
 /// **Scenario:** The reverse downgrade integration test.
-/// **What it does:** Uses the new secure `saveTokenInfo:` API to write data to the mock keychain.
-/// We then pull that binary blob out of the keychain and parse it using the deprecated
-/// `[NSKeyedUnarchiver unarchiveObjectWithData:]` API to prove that an older app version can read
-/// the bytes produced by the new SDK.
+/// **What it does:** Uses the new secure `saveTokenInfo:` API to write data to the mock keychain,
+/// pulls the binary blob back out, and parses it with 12.19.0's `tokenInfoFromKeychainItem:` and
+/// `initWithCoder:` to prove an older app version can read the bytes the new SDK produced.
+///
+/// Routing the root object to `FIRMessagingTokenInfo_Legacy12` is what makes this a real
+/// downgrade test: mapping it onto the current `FIRMessagingTokenInfo` would run Firebase 13's
+/// decoder and prove only that the container is parseable.
 - (void)testLegacyTokenStoreReadsSecureToken {
   FIRMessagingTokenInfo *tokenInfo =
       [[FIRMessagingTokenInfo alloc] initWithAuthorizedEntity:kAuthorizedEntity
@@ -265,36 +240,34 @@ static NSString *const kFakeCheckinPlistName = @"com.google.test.TestTokenStore"
   [self waitForExpectationsWithTimeout:1 handler:nil];
 
   // 2. Manually read it from the keychain
-  NSString *account = FIRMessagingAppIdentifier();
-  NSString *service = [FIRMessagingTokenStore serviceKeyForAuthorizedEntity:kAuthorizedEntity
-                                                                      scope:kScope];
-  NSData *secureArchive = [self.tokenStore.keychain dataForService:service account:account];
+  NSData *secureArchive = [self keychainItem];
   XCTAssertNotNil(secureArchive);
 
-  // 3. Decode it using the old `tokenInfoFromKeychainItem:` logic. `setClass:forClassName:` is
-  // process-global here (unlike the instance-scoped variant), so restore what was there before.
-  Class previousClass = [NSKeyedUnarchiver classForClassName:@"FIRInstanceIDTokenInfo"];
-  [NSKeyedUnarchiver setClass:[FIRMessagingTokenInfo class] forClassName:@"FIRInstanceIDTokenInfo"];
-  FIRMessagingTokenInfo *downgradedInfo;
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  downgradedInfo = [NSKeyedUnarchiver unarchiveObjectWithData:secureArchive];
-#pragma clang diagnostic pop
-  [NSKeyedUnarchiver setClass:previousClass forClassName:@"FIRInstanceIDTokenInfo"];
+  // 3. Decode it with the genuine 12.19.0 read path.
+  FIRMessagingTokenInfo *downgradedInfo =
+      [FIRMessagingLegacyArchiveFixtures tokenInfoReadBy12:secureArchive];
 
   XCTAssertNotNil(downgradedInfo);
   XCTAssertEqualObjects(downgradedInfo.token, kToken);
+  XCTAssertEqualObjects(downgradedInfo.authorizedEntity, kAuthorizedEntity);
+  XCTAssertEqualObjects(downgradedInfo.scope, kScope);
+  XCTAssertEqualObjects(downgradedInfo.appVersion, @"1.0");
+  XCTAssertEqualObjects(downgradedInfo.firebaseAppID, @"firebaseAppID");
+  XCTAssertEqualObjects(downgradedInfo.tokenType, @"V4");
+  XCTAssertNotNil(downgradedInfo.cacheTime, @"`saveTokenInfo:` stamps the cache time on write.");
 }
 
-/// **Scenario:** A user upgrades directly from FirebaseMessaging 10.18.0 (or earlier), skipping
-/// the 10.19.0 - 12.x window entirely.
-/// **What it does:** Writes a token in the genuine `<= 10.18.0` on-disk format, where `apns_info`
-/// is a nested `NSData` blob, then decodes it through the production
-/// `tokenInfoFromKeychainItem:` path.
+/// The device token embedded in every `<= 10.18.0` fixture below.
+- (NSData *)legacyDeviceToken {
+  return [@"deviceToken" dataUsingEncoding:NSUTF8StringEncoding];
+}
+
+/// Builds a keychain item in the genuine `<= 10.18.0` on-disk format, where `apns_info` is a
+/// nested `NSKeyedArchiver` blob naming `FIRInstanceIDAPNSInfo`.
 ///
-/// Both the token and its `APNSInfo` must survive. The nested blob is read under secure coding,
-/// so nothing in the read path falls back to `requiresSecureCoding = NO`.
-- (void)testTokenInfoFrom10_18ArchiveIsDecodedSecurely {
+/// `tokenType:` is supplied but never lands in the archive: the 10.18.0 encoder had no
+/// `token_type` key. That absence is the point -- see the `V4` assertions below.
+- (NSData *)archiveWrittenBy10_18 {
   FIRMessagingTokenInfo_Legacy10_18 *legacyTokenInfo =
       [[FIRMessagingTokenInfo_Legacy10_18 alloc] initWithAuthorizedEntity:kAuthorizedEntity
                                                                     scope:kScope
@@ -302,27 +275,21 @@ static NSString *const kFakeCheckinPlistName = @"com.google.test.TestTokenStore"
                                                                appVersion:@"1.0"
                                                             firebaseAppID:@"firebaseAppID"
                                                                 tokenType:@"V4"];
-  legacyTokenInfo.APNSInfo = [[FIRMessagingAPNSInfo alloc]
-      initWithDeviceToken:[@"deviceToken" dataUsingEncoding:NSUTF8StringEncoding]
-                isSandbox:NO];
+  legacyTokenInfo.APNSInfo =
+      [[FIRMessagingAPNSInfo alloc] initWithDeviceToken:[self legacyDeviceToken] isSandbox:NO];
   legacyTokenInfo.cacheTime = [NSDate date];
+  NSData *archive = [FIRMessagingLegacyArchiveFixtures archiveWrittenBy10_18:legacyTokenInfo];
+  XCTAssertNotNil(archive);
+  return archive;
+}
 
-  // 1. Archive in the pre-10.19 format: insecure, and rooted at `FIRInstanceIDTokenInfo`.
-  [NSKeyedArchiver setClassName:@"FIRInstanceIDTokenInfo"
-                       forClass:[FIRMessagingTokenInfo_Legacy10_18 class]];
-  NSData *legacyArchive;
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  legacyArchive = [NSKeyedArchiver archivedDataWithRootObject:legacyTokenInfo];
-#pragma clang diagnostic pop
-  [NSKeyedArchiver setClassName:nil forClass:[FIRMessagingTokenInfo_Legacy10_18 class]];
-  XCTAssertNotNil(legacyArchive);
-
-  // Sanity check the fixture: `apns_info` must be a *nested* archive blob, not a directly encoded
-  // object. If this fails, the mock has drifted from the 10.18.0 format and the assertions below
-  // would prove nothing. The legacy class name lives inside the nested archive's bytes, so the
-  // outer plist has to be walked one level down to find it.
-  NSDictionary *plist = [NSPropertyListSerialization propertyListWithData:legacyArchive
+/// Asserts that `archive` really is in the pre-10.19 shape: `apns_info` must be a *nested*
+/// archive blob, not a directly encoded object. Without this the tests below could pass against
+/// a fixture that had silently drifted into the modern format, proving nothing. The legacy class
+/// name lives inside the nested archive's bytes, so the outer plist has to be walked one level
+/// down to find it.
+- (void)assertArchiveEmbedsLegacyAPNSInfoBlob:(NSData *)archive {
+  NSDictionary *plist = [NSPropertyListSerialization propertyListWithData:archive
                                                                   options:NSPropertyListImmutable
                                                                    format:NULL
                                                                     error:NULL];
@@ -344,26 +311,102 @@ static NSString *const kFakeCheckinPlistName = @"com.google.test.TestTokenStore"
   }
   XCTAssertTrue(embedsLegacyAPNSInfoArchive,
                 @"Fixture should embed a nested archive naming the legacy APNSInfo class.");
+}
 
-  // 2. Decode through the production read path.
+/// **Scenario:** A user upgrades directly from FirebaseMessaging 10.18.0 (or earlier), skipping
+/// the 10.19.0 - 12.x window entirely.
+/// **What it does:** Writes a token in the genuine `<= 10.18.0` on-disk format, where `apns_info`
+/// is a nested `NSData` blob, then decodes it through the production
+/// `tokenInfoFromKeychainItem:` path.
+///
+/// Both the token and its `APNSInfo` must survive. The nested blob is read under secure coding,
+/// so nothing in the read path falls back to `requiresSecureCoding = NO`.
+- (void)testTokenInfoFrom10_18ArchiveIsDecodedSecurely {
+  NSData *legacyArchive = [self archiveWrittenBy10_18];
+  [self assertArchiveEmbedsLegacyAPNSInfoBlob:legacyArchive];
+
+  // Decode through the production read path.
   FIRMessagingTokenInfo *decodedTokenInfo =
       [FIRMessagingTokenStore tokenInfoFromKeychainItem:legacyArchive];
 
-  // 3. Both the token and the legacy APNSInfo must survive.
+  // Both the token and the legacy APNSInfo must survive.
   XCTAssertNotNil(decodedTokenInfo,
                   @"A pre-10.19 keychain record must not be discarded wholesale just because its "
                   @"APNSInfo is in a retired format.");
   XCTAssertEqualObjects(decodedTokenInfo.token, kToken);
   XCTAssertEqualObjects(decodedTokenInfo.authorizedEntity, kAuthorizedEntity);
   XCTAssertEqualObjects(decodedTokenInfo.scope, kScope);
-  XCTAssertEqualObjects(decodedTokenInfo.APNSInfo.deviceToken,
-                        [@"deviceToken" dataUsingEncoding:NSUTF8StringEncoding],
+  XCTAssertEqualObjects(decodedTokenInfo.APNSInfo.deviceToken, [self legacyDeviceToken],
                         @"The nested blob is still readable under secure coding, so upgrading "
                         @"must not cost the cached APNS association.");
   XCTAssertFalse(decodedTokenInfo.APNSInfo.isSandbox);
   XCTAssertTrue(decodedTokenInfo.needsMigration,
                 @"A record carrying the legacy blob is exactly what `needsMigration` describes.");
+  XCTAssertEqualObjects(decodedTokenInfo.tokenType, @"V4",
+                        @"10.18.0 archives predate the `token_type` key, so the decoder's `V4` "
+                        @"default is the only thing standing between these users and a nil token "
+                        @"type. It is a compatibility contract, not an implementation detail.");
 }
+
+#pragma mark - Secure coding is enforced
+
+// The two tests below are the regression tests for the vulnerability this file's compatibility
+// work exists to fix. Everything else here checks that legacy data still *decodes*; these check
+// that hostile data still *does not*. Threat model: a local attacker or co-process sharing the
+// keychain access group that can write to `com.google.iid-tokens`.
+//
+// Both would pass just as happily with `requiresSecureCoding = NO`, were it not for the
+// `wasDecoded` assertion. That assertion is the test.
+
+/// **Scenario:** A hostile writer replaces the keychain item with an archive rooted at a class
+/// of its choosing, attacking the *outer* unarchiver.
+/// **What it does:** Plants a `FIRMessagingArchiveGadget` archive and asserts
+/// `tokenInfoFromKeychainItem:` rejects it without ever running the gadget's `initWithCoder:`.
+- (void)testHostileRootObjectIsRejectedWithoutBeingConstructed {
+  NSData *hostileArchive = [FIRMessagingLegacyArchiveFixtures archiveOfGadget];
+
+  FIRMessagingTokenInfo *decoded =
+      [FIRMessagingTokenStore tokenInfoFromKeychainItem:hostileArchive];
+
+  XCTAssertNil(decoded, @"An archive that is not a token info must not yield one.");
+  XCTAssertFalse(FIRMessagingArchiveGadget.wasDecoded,
+                 @"Secure coding must reject the class before `initWithCoder:` runs. If this "
+                 @"fails, the outer unarchiver is back to `requiresSecureCoding = NO` and the "
+                 @"keychain item is once again an arbitrary-class instantiation primitive.");
+}
+
+/// **Scenario:** The same attack aimed at the *nested* unarchiver, which the `<= 10.18.0`
+/// APNSInfo fallback keeps reachable. This is the subtler half: the outer record is perfectly
+/// well-formed, so only the inner decoder stands between the attacker and their gadget.
+/// **What it does:** Plants a legacy-shaped record whose `apns_info` blob is a gadget archive,
+/// and asserts the record still decodes -- minus its APNSInfo -- with the gadget never
+/// constructed.
+///
+/// Keeping the fallback is what makes upgrades from 10.18 lossless; this test is the price of
+/// keeping it, and the reason the nested unarchiver runs with secure coding on rather than being
+/// deleted outright.
+- (void)testHostileNestedAPNSInfoIsRejectedWithoutBeingConstructed {
+  NSData *hostileArchive = [FIRMessagingLegacyArchiveFixtures
+      archiveWithGadgetInNestedAPNSInfoForAuthorizedEntity:kAuthorizedEntity
+                                                     scope:kScope
+                                                     token:kToken];
+
+  FIRMessagingTokenInfo *decoded =
+      [FIRMessagingTokenStore tokenInfoFromKeychainItem:hostileArchive];
+
+  XCTAssertFalse(FIRMessagingArchiveGadget.wasDecoded,
+                 @"The nested unarchiver must reject the class before `initWithCoder:` runs. If "
+                 @"this fails, the legacy APNSInfo fallback has become the gadget surface the "
+                 @"outer fix was meant to close.");
+  XCTAssertNotNil(decoded, @"A bad `apns_info` must not cost the user their token.");
+  XCTAssertEqualObjects(decoded.token, kToken);
+  XCTAssertNil(decoded.APNSInfo, @"An APNSInfo that failed to decode must not be substituted.");
+  XCTAssertTrue(decoded.needsMigration,
+                @"The record is in the legacy shape, so the store should rewrite it and be rid "
+                @"of the hostile blob.");
+}
+
+#pragma mark - Archive shape
 
 /// **Scenario:** Guards the absence of a `FIRInstanceIDAPNSInfo` -> `FIRMessagingAPNSInfo` class
 /// mapping on the *outer* decoder in `-[FIRMessagingTokenInfo initWithCoder:]`.
@@ -405,41 +448,9 @@ static NSString *const kFakeCheckinPlistName = @"com.google.test.TestTokenStore"
 /// `tokenInfoWithAuthorizedEntity:scope:`, and asserts the store rewrites it in the modern
 /// format so the legacy blob is not re-encountered on every subsequent read.
 - (void)testReadingLegacyRecordMigratesItToTheModernFormat {
-  FIRMessagingTokenInfo_Legacy10_18 *legacyTokenInfo =
-      [[FIRMessagingTokenInfo_Legacy10_18 alloc] initWithAuthorizedEntity:kAuthorizedEntity
-                                                                    scope:kScope
-                                                                    token:kToken
-                                                               appVersion:@"1.0"
-                                                            firebaseAppID:@"firebaseAppID"
-                                                                tokenType:@"V4"];
-  legacyTokenInfo.APNSInfo = [[FIRMessagingAPNSInfo alloc]
-      initWithDeviceToken:[@"deviceToken" dataUsingEncoding:NSUTF8StringEncoding]
-                isSandbox:NO];
-  legacyTokenInfo.cacheTime = [NSDate date];
+  [self injectKeychainItem:[self archiveWrittenBy10_18]];
 
-  [NSKeyedArchiver setClassName:@"FIRInstanceIDTokenInfo"
-                       forClass:[FIRMessagingTokenInfo_Legacy10_18 class]];
-  NSData *legacyArchive;
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  legacyArchive = [NSKeyedArchiver archivedDataWithRootObject:legacyTokenInfo];
-#pragma clang diagnostic pop
-  [NSKeyedArchiver setClassName:nil forClass:[FIRMessagingTokenInfo_Legacy10_18 class]];
-
-  NSString *account = FIRMessagingAppIdentifier();
-  NSString *service = [FIRMessagingTokenStore serviceKeyForAuthorizedEntity:kAuthorizedEntity
-                                                                      scope:kScope];
-  XCTestExpectation *injected = [self expectationWithDescription:@"Inject legacy token"];
-  [self.tokenStore.keychain setData:legacyArchive
-                         forService:service
-                            account:account
-                            handler:^(NSError *error) {
-                              XCTAssertNil(error);
-                              [injected fulfill];
-                            }];
-  [self waitForExpectationsWithTimeout:1 handler:nil];
-
-  NSData *expectedDeviceToken = [@"deviceToken" dataUsingEncoding:NSUTF8StringEncoding];
+  NSData *expectedDeviceToken = [self legacyDeviceToken];
   FIRMessagingTokenInfo *retrieved =
       [self.tokenStore tokenInfoWithAuthorizedEntity:kAuthorizedEntity scope:kScope];
   XCTAssertNotNil(retrieved);
@@ -456,6 +467,45 @@ static NSString *const kFakeCheckinPlistName = @"com.google.test.TestTokenStore"
   XCTAssertEqualObjects(reread.APNSInfo.deviceToken, expectedDeviceToken);
   XCTAssertFalse(reread.needsMigration,
                  @"The legacy record should have been migrated on the first read.");
+}
+
+/// **Scenario:** The longest realistic version path: a user sitting on a `<= 10.18.0` record
+/// upgrades to Firebase 13, which migrates the record, and then downgrades to 12.x.
+/// **What it does:** Injects a 10.18 record, lets the store migrate it, then reads the migrated
+/// bytes straight out of the keychain with 12.19.0's decoder.
+///
+/// This is the one cell of the compatibility matrix that neither the 10.18 test nor the
+/// downgrade test covers on its own, and it is the cell where a mistake would be worst: the
+/// migration rewrites bytes the user may never be able to get back, so a 12.x SDK has to be able
+/// to read the result. It can, because migration writes the same modern shape 13 writes for
+/// everyone else.
+- (void)testRecordMigratedFrom10_18IsStillReadableBy12 {
+  [self injectKeychainItem:[self archiveWrittenBy10_18]];
+
+  // Reading through the store triggers the migration rewrite.
+  FIRMessagingTokenInfo *migrated = [self.tokenStore tokenInfoWithAuthorizedEntity:kAuthorizedEntity
+                                                                             scope:kScope];
+  XCTAssertNotNil(migrated);
+  XCTAssertTrue(migrated.needsMigration, @"The injected record should have been the legacy shape.");
+
+  NSData *migratedArchive = [self keychainItem];
+  XCTAssertNotNil(migratedArchive);
+
+  // The user downgrades. 12.19.0's read path must cope with the migrated bytes.
+  FIRMessagingTokenInfo *downgraded =
+      [FIRMessagingLegacyArchiveFixtures tokenInfoReadBy12:migratedArchive];
+  XCTAssertNotNil(downgraded, @"Migration must not strand the record on a newer SDK.");
+  XCTAssertEqualObjects(downgraded.token, kToken);
+  XCTAssertEqualObjects(downgraded.authorizedEntity, kAuthorizedEntity);
+  XCTAssertEqualObjects(downgraded.scope, kScope);
+  XCTAssertEqualObjects(downgraded.APNSInfo.deviceToken, [self legacyDeviceToken],
+                        @"The APNS association has to survive both the migration and the "
+                        @"downgrade, or the next APNS registration invalidates the token.");
+  XCTAssertEqualObjects(downgraded.tokenType, @"V4",
+                        @"Migration should persist the `V4` default the 13 decoder substituted, "
+                        @"so 12.x does not have to re-derive it.");
+  XCTAssertFalse(downgraded.needsMigration,
+                 @"Post-migration the record is in the modern shape, so 12.x sees nothing legacy.");
 }
 
 /**

@@ -25,6 +25,7 @@
 #import "FirebaseMessaging/Sources/FIRMessaging_Private.h"
 #import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessaging.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingAPNSInfo.h"
+#import "FirebaseMessaging/Tests/UnitTests/FIRMessagingLegacyArchiveFixtures.h"
 #import "FirebaseMessaging/Tests/UnitTests/FIRMessagingTestUtilities.h"
 
 static NSString *const kAuthorizedEntity = @"authorizedEntity";
@@ -48,74 +49,21 @@ static BOOL const kAPNSSandbox = NO;
 
 @end
 
-#pragma mark - Legacy Parity Testing Mocks
+#pragma mark - Archive Compatibility
 
 // ----------------------------------------------------------------------------
 // The serialization format of FIRMessagingTokenInfo evolved from insecure coding
 // (requiresSecureCoding = NO in Firebase 12 and earlier) to secure coding
 // (requiresSecureCoding = YES in Firebase 13+).
 //
-// These mocks and tests assert that the Firebase 13 SDK can read legacy payloads
-// and that older SDK versions can safely unarchive payloads written by Firebase 13.
+// These tests assert that the Firebase 13 SDK can read legacy payloads and that
+// older SDK versions can safely unarchive payloads written by Firebase 13.
+//
+// The legacy encoders and decoders they rely on live in
+// FIRMessagingLegacyArchiveFixtures, verified line-by-line against the 10.18.0
+// and 12.19.0 release tags. Keep them there: a second copy is a second thing to
+// drift.
 // ----------------------------------------------------------------------------
-
-/// **Mock:** Represents the `< 13.0` unarchiving logic used to decode the object.
-/// To verify exact parity, diff this implementation against `FIRMessagingTokenInfo` from the
-/// `12.18.0` / `12.19.0` releases.
-@interface FIRMessagingTokenInfo_Legacy12 : FIRMessagingTokenInfo
-@end
-
-@implementation FIRMessagingTokenInfo_Legacy12
-- (nullable instancetype)initWithCoder:(NSCoder *)aDecoder {
-  BOOL needsMigration = NO;
-  // These value cannot be nil
-
-  NSString *authorizedEntity = [aDecoder decodeObjectOfClass:[NSString class]
-                                                      forKey:@"authorized_entity"];
-  if (!authorizedEntity) {
-    return nil;
-  }
-
-  NSString *scope = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"scope"];
-  if (!scope) {
-    return nil;
-  }
-
-  NSString *token = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"token"];
-  if (!token) {
-    return nil;
-  }
-
-  // These values are nullable, so don't fail on nil.
-
-  NSString *appVersion = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"app_version"];
-  NSString *firebaseAppID = [aDecoder decodeObjectOfClass:[NSString class]
-                                                   forKey:@"firebase_app_id"];
-  NSSet *classes = [[NSSet alloc] initWithArray:@[ FIRMessagingAPNSInfo.class ]];
-  FIRMessagingAPNSInfo *rawAPNSInfo = [aDecoder decodeObjectOfClasses:classes forKey:@"apns_info"];
-
-  NSDate *cacheTime = [aDecoder decodeObjectOfClass:[NSDate class] forKey:@"cache_time"];
-  NSString *tokenType = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"token_type"];
-
-  self = [super init];
-  if (self) {
-    // Note: We use Key-Value Coding (setValue:forKey:) here to mirror the
-    // pre-fix unarchiving logic. Because this is a subclass, we cannot access the
-    // private `_ivars` of the parent class. KVC injects these values
-    // into the parent's readonly properties.
-    [self setValue:[authorizedEntity copy] forKey:@"authorizedEntity"];
-    [self setValue:[scope copy] forKey:@"scope"];
-    [self setValue:[token copy] forKey:@"token"];
-    [self setValue:[appVersion copy] forKey:@"appVersion"];
-    [self setValue:[firebaseAppID copy] forKey:@"firebaseAppID"];
-    [self setValue:[rawAPNSInfo copy] forKey:@"APNSInfo"];
-    [self setValue:cacheTime forKey:@"cacheTime"];
-    [self setValue:@(needsMigration) forKey:@"needsMigration"];
-    [self setValue:([tokenType copy] ?: @"V4") forKey:@"tokenType"];
-  }
-  return self;
-}
-@end
 
 @implementation FIRMessagingTokenInfoTest
 
@@ -201,56 +149,87 @@ static BOOL const kAPNSSandbox = NO;
   XCTAssertEqualObjects(restoredInfo.APNSInfo.deviceToken, info.APNSInfo.deviceToken);
 }
 
-/// **Scenario:** A comprehensive matrix proving a user can upgrade to the new SDK, run it, save
-/// data, and then downgrade back to the old SDK without breaking anything.
-/// **What it does:** Encodes
-/// insecurely (simulating old data) ➔ Decodes securely (simulating new SDK upgrade) ➔ Encodes
-/// securely (simulating saving in new SDK) ➔ Decodes insecurely using the exact
-/// `FIRMessagingTokenInfo_Legacy12` mock.
-- (void)testTokenInfoDowngradeRoundTrip_10_19_Plus {
-  FIRMessagingTokenInfo *info = self.validTokenInfo;
-  NSError *error;
-
-  // 1. Old (Insecure) Encoding
-  NSData *legacyArchive;
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  legacyArchive = [NSKeyedArchiver archivedDataWithRootObject:info];
-#pragma clang diagnostic pop
-
-  // 2. New (Secure) Decoding
-  NSSet *classes = [[NSSet alloc] initWithArray:@[ FIRMessagingTokenInfo.class, NSDate.class ]];
-  FIRMessagingTokenInfo *securelyRestoredInfo =
-      [NSKeyedUnarchiver unarchivedObjectOfClasses:classes fromData:legacyArchive error:&error];
-  XCTAssertNil(error);
-
-  // 3. New (Secure) Encoding. `setClassName:forClass:` is process-global, so capture the
-  // incumbent mapping and put it back below rather than assuming there wasn't one: production
-  // code sets this same mapping, and clearing it outright would alter later tests.
-  NSString *previousTokenInfoName =
-      [NSKeyedArchiver classNameForClass:[FIRMessagingTokenInfo class]];
+/// Archives `tokenInfo` the way Firebase 13 does: secure coding, root object renamed to
+/// `FIRInstanceIDTokenInfo`. `setClassName:forClass:` is process-global, so the incumbent mapping
+/// is captured and restored rather than cleared -- production code sets this same mapping, and
+/// clearing it outright would alter later tests.
+- (NSData *)archiveWrittenBy13:(FIRMessagingTokenInfo *)tokenInfo {
+  NSString *previousName = [NSKeyedArchiver classNameForClass:[FIRMessagingTokenInfo class]];
   [NSKeyedArchiver setClassName:@"FIRInstanceIDTokenInfo" forClass:[FIRMessagingTokenInfo class]];
-  NSData *secureArchive = [NSKeyedArchiver archivedDataWithRootObject:securelyRestoredInfo
-                                                requiringSecureCoding:YES
-                                                                error:&error];
-  [NSKeyedArchiver setClassName:previousTokenInfoName forClass:[FIRMessagingTokenInfo class]];
+  NSError *error = nil;
+  NSData *archive = [NSKeyedArchiver archivedDataWithRootObject:tokenInfo
+                                          requiringSecureCoding:YES
+                                                          error:&error];
+  [NSKeyedArchiver setClassName:previousName forClass:[FIRMessagingTokenInfo class]];
   XCTAssertNil(error);
+  return archive;
+}
 
-  // 4. Old (Insecure) Decoding using exact pre-fix logic. Only the root object needs a mapping:
-  // `APNSInfo` has always been archived under its own class name, so a 12.x reader resolves it
-  // without help.
-  NSKeyedUnarchiver *insecureUnarchiver =
-      [[NSKeyedUnarchiver alloc] initForReadingFromData:secureArchive error:&error];
-  insecureUnarchiver.requiresSecureCoding = NO;
-  [insecureUnarchiver setClass:[FIRMessagingTokenInfo_Legacy12 class]
-                  forClassName:@"FIRInstanceIDTokenInfo"];
-  FIRMessagingTokenInfo *downgradedInfo =
-      [insecureUnarchiver decodeObjectForKey:NSKeyedArchiveRootObjectKey];
-  [insecureUnarchiver finishDecoding];
+/// Decodes `archive` the way Firebase 13 does: secure coding, with the `FIRInstanceIDTokenInfo`
+/// mapping that `-setUp` installs (matching production).
+- (FIRMessagingTokenInfo *)tokenInfoReadBy13:(NSData *)archive {
+  NSSet *classes = [[NSSet alloc] initWithArray:@[ FIRMessagingTokenInfo.class, NSDate.class ]];
+  NSError *error = nil;
+  FIRMessagingTokenInfo *tokenInfo = [NSKeyedUnarchiver unarchivedObjectOfClasses:classes
+                                                                         fromData:archive
+                                                                            error:&error];
+  XCTAssertNil(error);
+  return tokenInfo;
+}
 
-  XCTAssertNotNil(downgradedInfo);
-  XCTAssertEqualObjects(downgradedInfo.token, info.token);
-  XCTAssertEqualObjects(downgradedInfo.APNSInfo.deviceToken, info.APNSInfo.deviceToken);
+/// **Scenario:** The full version-mixing cycle a user can actually produce with 10.19 - 12.x as
+/// the starting point: upgrade to 13, downgrade back, then roll forward to 13 again.
+/// **What it does:** Walks all six legs --
+/// 12.x writes ➔ 13 reads ➔ 13 writes ➔ 12.x reads ➔ 12.x writes ➔ 13 reads --
+/// asserting the payload survives each hop. The 12.x legs run the genuine 12.19.0 read/write
+/// logic from `FIRMessagingLegacyArchiveFixtures`, not an approximation of it.
+///
+/// The final leg is the one that matters most: a downgrade is only safe if the record the old
+/// SDK writes on its way back out is still readable by the new one. Stopping after leg 4 would
+/// leave a user who reinstalls the newer build in untested territory.
+- (void)testTokenInfoSurvivesUpgradeDowngradeRollForwardCycle_10_19_Plus {
+  FIRMessagingTokenInfo *info = self.validTokenInfo;
+
+  // Leg 1: a 12.x SDK writes the record.
+  NSData *legacyArchive = [FIRMessagingLegacyArchiveFixtures archiveWrittenBy12:info];
+
+  // Leg 2: the user upgrades, and 13 reads it under secure coding.
+  FIRMessagingTokenInfo *upgraded = [self tokenInfoReadBy13:legacyArchive];
+  XCTAssertNotNil(upgraded);
+  XCTAssertEqualObjects(upgraded.token, info.token);
+  XCTAssertEqualObjects(upgraded.APNSInfo.deviceToken, info.APNSInfo.deviceToken);
+
+  // Leg 3: 13 writes it back out.
+  NSData *secureArchive = [self archiveWrittenBy13:upgraded];
+
+  // Leg 4: the user downgrades, and 12.x reads what 13 wrote. Only the root object needs a
+  // mapping: `APNSInfo` has always been archived under its own class name, so a 12.x reader
+  // resolves it without help.
+  FIRMessagingTokenInfo *downgraded =
+      [FIRMessagingLegacyArchiveFixtures tokenInfoReadBy12:secureArchive];
+  XCTAssertNotNil(downgraded);
+  XCTAssertEqualObjects(downgraded.token, info.token);
+  XCTAssertEqualObjects(downgraded.APNSInfo.deviceToken, info.APNSInfo.deviceToken);
+  XCTAssertFalse(downgraded.needsMigration,
+                 @"A 13-written record is already in the modern format, so 12.x has nothing to "
+                 @"migrate.");
+
+  // Leg 5: 12.x writes it back out.
+  NSData *rewrittenArchive = [FIRMessagingLegacyArchiveFixtures archiveWrittenBy12:downgraded];
+
+  // Leg 6: the user rolls forward to 13 again.
+  FIRMessagingTokenInfo *rolledForward = [self tokenInfoReadBy13:rewrittenArchive];
+  XCTAssertNotNil(rolledForward);
+  XCTAssertEqualObjects(rolledForward.token, info.token);
+  XCTAssertEqualObjects(rolledForward.authorizedEntity, info.authorizedEntity);
+  XCTAssertEqualObjects(rolledForward.scope, info.scope);
+  XCTAssertEqualObjects(rolledForward.appVersion, info.appVersion);
+  XCTAssertEqualObjects(rolledForward.firebaseAppID, info.firebaseAppID);
+  XCTAssertEqualObjects(rolledForward.cacheTime, info.cacheTime);
+  XCTAssertEqualObjects(rolledForward.tokenType, info.tokenType);
+  XCTAssertEqualObjects(rolledForward.APNSInfo.deviceToken, info.APNSInfo.deviceToken);
+  XCTAssertEqual(rolledForward.APNSInfo.sandbox, info.APNSInfo.sandbox);
+  XCTAssertFalse(rolledForward.needsMigration);
 }
 
 // Test that archiving a FIRMessagingTokenInfo object with missing fields and restoring it
