@@ -1162,6 +1162,7 @@ func packageTargets() -> [Target] {
         .target(name: "FirebaseInAppMessaging",
                 condition: .when(platforms: [.iOS, .tvOS])),
         "FirebaseInstallations",
+        "FirebaseMessaging",
         .target(name: "FirebasePerformance",
                 condition: .when(platforms: [.iOS, .tvOS])),
         "FirebaseRemoteConfig",
