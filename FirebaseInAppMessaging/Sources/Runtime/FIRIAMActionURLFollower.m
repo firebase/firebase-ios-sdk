@@ -134,14 +134,14 @@ NS_EXTENSION_UNAVAILABLE("Firebase In App Messaging is not supported for iOS ext
 
   if ([self.class isHttpOrHttpsScheme:actionURL]) {
     FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM240001", @"Try to treat it as a universal link.");
-    if ([self followURLWithContinueUserActivity:actionURL]) {
-      completion(YES);
-      return;  // following the url has been fully handled by App Delegate's
-               // continueUserActivity method
-    }
     if ([self followURLWithSceneContinueUserActivity:actionURL]) {
       completion(YES);
       return;  // following the url has been fully handled by Scene Delegate's
+               // continueUserActivity method
+    }
+    if ([self followURLWithContinueUserActivity:actionURL]) {
+      completion(YES);
+      return;  // following the url has been fully handled by App Delegate's
                // continueUserActivity method
     }
   } else if ([self isCustomSchemeForCurrentApp:actionURL]) {
@@ -222,35 +222,14 @@ NS_EXTENSION_UNAVAILABLE("Firebase In App Messaging is not supported for iOS ext
 
   __block BOOL handled = NO;
   void (^executionBlock)(void) = ^{
-    NSSet<UIScene *> *connectedScenes = self.mainApplication.connectedScenes;
-    UIScene *targetScene = nil;
-    id<UISceneDelegate> targetDelegate = nil;
-    for (UIScene *scene in connectedScenes) {
-      id<UISceneDelegate> sceneDelegate = scene.delegate;
-      if ([sceneDelegate respondsToSelector:@selector(scene:continueUserActivity:)]) {
-        if (scene.activationState == UISceneActivationStateForegroundActive) {
-          targetScene = scene;
-          targetDelegate = sceneDelegate;
-          break;
-        } else if (scene.activationState == UISceneActivationStateForegroundInactive) {
-          // a scene in the `ForegroundInactive` state is visible and loaded
-          // in the foreground, but is temporarily not receiving touch events for
-          // whatever reason (eg; because a system dialog, permission prompt,
-          // or notification center overlay is covering it).
-          // So we fall back to any scene in this state, if we don't find
-          // a better alternative (a scene that's in the foreground and also
-          // active).
-          targetScene = scene;
-          targetDelegate = sceneDelegate;
-        }
-      }
-    }
-
-    if (targetScene && targetDelegate) {
+    SEL selector = @selector(scene:continueUserActivity:);
+    UIScene *targetScene = [FIRSceneDelegateFinder findForegroundSceneForApplication:application
+                                                                    matchingSelector:selector];
+    if (targetScene) {
       FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM240004",
                   @"Scene delegate responds to scene:continueUserActivity."
                    "Simulating action url opening.");
-      [targetDelegate scene:targetScene continueUserActivity:userActivity];
+      [targetScene.delegate scene:targetScene continueUserActivity:userActivity];
       handled = YES;
       // since scene:continueUserActivity: returns void, we assume it is handled
       // once we find an active scene delegate implementing it.
