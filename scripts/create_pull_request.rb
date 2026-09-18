@@ -52,14 +52,29 @@ BASE_BRANCH=@options[:base_branch]
 COMMIT_COMMENT=@options[:commit_comment]
 
 def generate_pr_for_target_changes(repo_root:, target_path:)
-  abs_target_path = File.expand_path(target_path)
-  Dir.chdir(repo_root) do
-    if system('git', 'diff', '--quiet', abs_target_path)
+  raise ArgumentError, "Repository root '#{repo_root}' does not exist or is not a directory." unless File.directory?(repo_root)
+
+  real_repo_root = File.realpath(repo_root)
+  abs_target_path = File.expand_path(target_path, real_repo_root)
+  raise ArgumentError, "Target path '#{target_path}' does not exist." unless File.exist?(abs_target_path)
+
+  real_target_path = File.realpath(abs_target_path)
+  repo_prefix = real_repo_root.end_with?(File::SEPARATOR) ? real_repo_root : real_repo_root + File::SEPARATOR
+  unless real_target_path == real_repo_root || real_target_path.start_with?(repo_prefix)
+    raise ArgumentError, "Target path '#{target_path}' must be within repository root."
+  end
+
+  unless BASE_BRANCH =~ /\A[a-zA-Z0-9_\.\/-]+\z/ && !BASE_BRANCH.start_with?('-')
+    raise ArgumentError, "Invalid base branch name '#{BASE_BRANCH}'."
+  end
+
+  Dir.chdir(real_repo_root) do
+    if system('git', 'diff', '--quiet', '--', real_target_path)
       puts "The file, #{target_path}, has no changes."
       return
     end
     system('git', 'checkout', '-B', BASE_BRANCH) || raise("git checkout failed")
-    system('git', 'add', abs_target_path) || raise("git add failed")
+    system('git', 'add', '--', real_target_path) || raise("git add failed")
     system('git', 'commit', '-m', COMMIT_COMMENT) || raise("git commit failed")
     system('git', 'push', '-u', 'origin', BASE_BRANCH) || raise("git push failed")
   end
