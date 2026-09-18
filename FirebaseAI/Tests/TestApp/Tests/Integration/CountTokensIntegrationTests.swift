@@ -101,7 +101,7 @@ struct CountTokensIntegrationTests {
     let response = try await model.countTokens(prompt)
 
     switch config.apiConfig.service {
-    case .vertexAI:
+    case .agentPlatform:
       #expect(response.totalTokens == 65)
     case .googleAI:
       // The Developer API erroneously ignores the `responseSchema` when counting tokens, resulting

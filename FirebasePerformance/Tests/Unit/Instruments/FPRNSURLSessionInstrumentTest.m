@@ -70,6 +70,9 @@
 /** @return an instance of the delegate proxy. */
 - (instancetype)initWithDelegate:(id)delegate;
 
+/** @return the wrapped delegate object. */
+- (id)delegate;
+
 @end
 
 @implementation FPRNSURLSessionDelegateProxy
@@ -79,6 +82,51 @@
     _delegate = delegate;
   }
   return self;
+}
+
+- (Class)class {
+  return [self.delegate class];
+}
+
+- (NSMethodSignature *)methodSignatureForSelector:(SEL)selector {
+  return [_delegate methodSignatureForSelector:selector];
+}
+
+- (BOOL)respondsToSelector:(SEL)aSelector {
+  return [_delegate respondsToSelector:aSelector];
+}
+
+- (id)delegate {
+  return _delegate;
+}
+
+- (void)forwardInvocation:(NSInvocation *)invocation {
+  [invocation invokeWithTarget:_delegate];
+}
+
+@end
+
+@interface FPRNSURLSessionDelegateWeakProxy : NSProxy {
+  // The wrapped delegate object.
+  __weak id _delegate;
+}
+
+/** @return an instance of the delegate proxy. */
+- (instancetype)initWithDelegate:(id)delegate;
+
+@end
+
+@implementation FPRNSURLSessionDelegateWeakProxy
+
+- (instancetype)initWithDelegate:(id)delegate {
+  if (self) {
+    _delegate = delegate;
+  }
+  return self;
+}
+
+- (Class)class {
+  return [self->_delegate class];
 }
 
 - (NSMethodSignature *)methodSignatureForSelector:(SEL)selector {
@@ -629,6 +677,23 @@
   XCTAssertEqual(instrument.delegateInstrument.instrumentedClasses.count, 1);
   XCTAssertTrue(
       [instrument.delegateInstrument.instrumentedClasses containsObject:[delegate class]]);
+  [instrument deregisterInstrumentors];
+}
+
+/** Tests that the delegate class is not instrumented in an NSProxy if it is weak. */
+- (void)testWeakProxyDelegateSkipsSwizzlingDelegate {
+  FPRNSURLSessionInstrument *instrument = [[FPRNSURLSessionInstrument alloc] init];
+  [instrument registerInstrumentors];
+  FPRNSURLSessionCompleteTestDelegate *delegate =
+      [[FPRNSURLSessionCompleteTestDelegate alloc] init];
+  FPRNSURLSessionDelegateWeakProxy *proxyDelegate =
+      [[FPRNSURLSessionDelegateWeakProxy alloc] initWithDelegate:delegate];
+  NSURLSessionConfiguration *configuration =
+      [NSURLSessionConfiguration defaultSessionConfiguration];
+  [NSURLSession sessionWithConfiguration:configuration delegate:proxyDelegate delegateQueue:nil];
+  [NSURLSession sessionWithConfiguration:configuration delegate:proxyDelegate delegateQueue:nil];
+  XCTAssertEqual(instrument.delegateInstrument.classInstrumentors.count, 0);
+  XCTAssertEqual(instrument.delegateInstrument.instrumentedClasses.count, 0);
   [instrument deregisterInstrumentors];
 }
 

@@ -30,15 +30,13 @@
                                    scope:(NSString *)scope
                       checkinPreferences:(FIRMessagingCheckinPreferences *)checkinPreferences
                               instanceID:(NSString *)instanceID
-                                  action:(FIRMessagingTokenAction)action
-                         heartbeatLogger:(id<FIRHeartbeatLoggerProtocol>)heartbeatLogger {
+                                  action:(FIRMessagingTokenAction)action {
   return [super initWithAction:action
            forAuthorizedEntity:authorizedEntity
                          scope:scope
                        options:nil
             checkinPreferences:checkinPreferences
-                    instanceID:instanceID
-               heartbeatLogger:heartbeatLogger];
+                    instanceID:instanceID];
 }
 
 - (void)performTokenOperation {

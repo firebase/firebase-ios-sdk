@@ -366,9 +366,6 @@ public struct FinishReason: DecodableProtoEnum, Hashable, Sendable {
   public static let malformedResponse = FinishReason(kind: .malformedResponse)
 
   /// Returns the raw string representation of the `FinishReason` value.
-  ///
-  /// > Note: This value directly corresponds to the values in the [REST
-  /// > API](https://cloud.google.com/vertex-ai/docs/reference/rest/v1beta1/GenerateContentResponse#FinishReason).
   public let rawValue: String
 
   static let unrecognizedValueMessageCode =
@@ -398,10 +395,6 @@ public struct PromptFeedback: Sendable {
     /// The prompt was blocked due to prohibited content.
     public static let prohibitedContent = BlockReason(kind: .prohibitedContent)
 
-    /// Returns the raw string representation of the `BlockReason` value.
-    ///
-    /// > Note: This value directly corresponds to the values in the [REST
-    /// > API](https://cloud.google.com/vertex-ai/docs/reference/rest/v1beta1/GenerateContentResponse#BlockedReason).
     public let rawValue: String
 
     static let unrecognizedValueMessageCode =
@@ -431,7 +424,8 @@ public struct PromptFeedback: Sendable {
 /// > Important: If using Grounding with Google Search, you are required to comply with the
 /// "Grounding with Google Search" usage requirements for your chosen API provider:
 /// [Gemini Developer API](https://ai.google.dev/gemini-api/terms#grounding-with-google-search)
-/// or Vertex AI Gemini API (see [Service Terms](https://cloud.google.com/terms/service-terms)
+/// or the Agent Platform Gemini API (see
+/// [Service Terms](https://cloud.google.com/terms/service-terms)
 /// section within the Service Specific Terms).
 public struct GroundingMetadata: Sendable, Equatable, Hashable {
   /// A list of web search queries that the model performed to gather the grounding information.
@@ -473,7 +467,7 @@ public struct GroundingMetadata: Sendable, Equatable, Hashable {
     public let title: String?
     /// The domain of the original URI from which the content was retrieved.
     ///
-    /// This field is only populated when using the Vertex AI Gemini API.
+    /// This field is only populated when using the Agent Platform Gemini API.
     public let domain: String?
   }
 
@@ -677,19 +671,17 @@ extension Candidate: Decodable {
 
 extension CitationMetadata: Decodable {
   enum CodingKeys: CodingKey {
-    case citations // Vertex AI
-    case citationSources // Google AI
+    case citations // Agent Platform Gemini API
+    case citationSources // Gemini Developer API
   }
 
   public init(from decoder: any Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
 
-    // Decode for Google API if `citationSources` key is present.
-    if container.contains(.citationSources) {
-      citations = try container.decode([Citation].self, forKey: .citationSources)
-    } else { // Fallback to default Vertex AI decoding.
-      citations = try container.decode([Citation].self, forKey: .citations)
-    }
+    let decodedCitations = try container.decodeIfPresent([Citation].self, forKey: .citationSources)
+      ?? container.decodeIfPresent([Citation].self, forKey: .citations)
+      ?? []
+    citations = decodedCitations.filter { !$0.isEmpty }
   }
 }
 
@@ -703,10 +695,19 @@ extension Citation: Decodable {
     case publicationDate
   }
 
+  var isEmpty: Bool {
+    startIndex == 0 &&
+      endIndex == 0 &&
+      uri == nil &&
+      title == nil &&
+      license == nil &&
+      publicationDate == nil
+  }
+
   public init(from decoder: any Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
     startIndex = try container.decodeIfPresent(Int.self, forKey: .startIndex) ?? 0
-    endIndex = try container.decode(Int.self, forKey: .endIndex)
+    endIndex = try container.decodeIfPresent(Int.self, forKey: .endIndex) ?? startIndex
 
     if let uri = try container.decodeIfPresent(String.self, forKey: .uri), !uri.isEmpty {
       self.uri = uri

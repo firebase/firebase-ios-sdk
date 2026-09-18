@@ -46,7 +46,7 @@ extension TemplateGenerateContentRequest: GenerativeAIRequest {
   func getURL() throws -> URL {
     var urlString =
       "\(apiConfig.service.endpoint.rawValue)/\(apiConfig.version.rawValue)/projects/\(projectID)"
-    if case let .vertexAI(_, location) = apiConfig.service {
+    if case let .agentPlatform(_, location) = apiConfig.service {
       urlString += "/locations/\(location)"
     }
 

@@ -6,6 +6,9 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+
 concurrency:
     group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
     cancel-in-progress: true
@@ -23,6 +26,7 @@ jobs:
       uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       with:
         fetch-depth: 0
+        persist-credentials: false
     - name: check files
       id: check_files
       env:
@@ -40,7 +44,7 @@ jobs:
         # the workflow.
         # If multiple podspecs need to be excluded, escaping space is required
         # to split podspecs, e.g. get_updated_files.sh ... -e Firebase.podspec\ FirebaseABTesting.podspec
-        ./scripts/health_metrics/get_updated_files.sh -p output.json -e Firebase.podspec\ FirebaseFunctions.podspec
+        ./scripts/spec_testing/get_updated_files.sh -p output.json -e Firebase.podspec\ FirebaseFunctions.podspec
         echo "matrix={\"include\":$( cat output.json )}" >> "$GITHUB_OUTPUT"
         # `podspecs` is to help determine if specs_testing job should be run.
         echo "podspecs=$(cat output.json)" >> "$GITHUB_OUTPUT"
@@ -58,6 +62,7 @@ jobs:
       uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       with:
         fetch-depth: 0
+        persist-credentials: false
     - name: Xcode
       run: sudo xcode-select -s /Applications/Xcode_26.2.app/Contents/Developer
     - name: Init podspecs and source

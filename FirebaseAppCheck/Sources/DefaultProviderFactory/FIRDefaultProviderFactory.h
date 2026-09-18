@@ -18,9 +18,10 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-/// The internal default provider factory that is set at +load time. It returns
-/// the Debug provider for simulator builds; otherwise, the DeviceCheck
-/// provider.
+/// The internal default provider factory that is set at +load time.
+///
+/// It returns the Debug provider for simulator builds. For device builds, it
+/// returns the DeviceCheck provider (if supported).
 @interface FIRDefaultProviderFactory : NSObject <FIRAppCheckProviderFactory>
 
 @end

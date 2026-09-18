@@ -84,6 +84,8 @@ using firebase::firestore::model::FieldPath;
 using firebase::firestore::model::FieldTransform;
 using firebase::firestore::model::NullValue;
 using firebase::firestore::model::NumericIncrementTransform;
+using firebase::firestore::model::NumericMaximumTransform;
+using firebase::firestore::model::NumericMinimumTransform;
 using firebase::firestore::model::ObjectValue;
 using firebase::firestore::model::ResourcePath;
 using firebase::firestore::model::ServerTimestampTransform;
@@ -452,6 +454,20 @@ NS_ASSUME_NONNULL_BEGIN
     NumericIncrementTransform numeric_increment(std::move(operand));
 
     context.AddToFieldTransforms(*context.path(), std::move(numeric_increment));
+
+  } else if ([fieldValue isKindOfClass:[FSTNumericMinimumFieldValue class]]) {
+    auto *numericMinimumFieldValue = (FSTNumericMinimumFieldValue *)fieldValue;
+    auto operand = [self parsedQueryValue:numericMinimumFieldValue.operand];
+    NumericMinimumTransform numeric_minimum(std::move(operand));
+
+    context.AddToFieldTransforms(*context.path(), std::move(numeric_minimum));
+
+  } else if ([fieldValue isKindOfClass:[FSTNumericMaximumFieldValue class]]) {
+    auto *numericMaximumFieldValue = (FSTNumericMaximumFieldValue *)fieldValue;
+    auto operand = [self parsedQueryValue:numericMaximumFieldValue.operand];
+    NumericMaximumTransform numeric_maximum(std::move(operand));
+
+    context.AddToFieldTransforms(*context.path(), std::move(numeric_maximum));
 
   } else {
     HARD_FAIL("Unknown FIRFieldValue type: %s", NSStringFromClass([fieldValue class]));

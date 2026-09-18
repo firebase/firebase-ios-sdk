@@ -75,6 +75,10 @@ void AsyncQueue::VerifyIsCurrentQueue() const {
               executor_->Name(), executor_->CurrentExecutorName());
 }
 
+bool AsyncQueue::IsCurrentQueue() const {
+  return executor_->IsCurrentExecutor();
+}
+
 void AsyncQueue::ExecuteBlocking(const Operation& operation) {
   // This is not guarded by `is_shutting_down_` because it is the execution
   // of the operation, not scheduling. Checking `is_shutting_down_` here

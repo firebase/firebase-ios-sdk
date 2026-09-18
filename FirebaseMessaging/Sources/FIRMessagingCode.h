@@ -48,6 +48,10 @@ typedef NS_ENUM(NSInteger, FIRMessagingMessageCode) {
   kFIRMessagingMessageCodeTopicFormatIsDeprecated = 2024,
   kFIRMessagingMessageCodeDirectChannelConnectionFailed = 2025,
   kFIRMessagingMessageCodeInvalidClient = 2026,  // no longer used
+  kFIRMessagingMessageCodeInstallationIdEnabled = 2027,
+  kFIRMessagingMessageCodeInstallationIdDisabled = 2028,
+  kFIRMessagingMessageCodeDebug = 2029,
+  kFIRMessagingMessageCodeInstallationIdRotation = 2030,
 
   // DO NOT USE 4000, 4004 - 4013
   kFIRMessagingMessageCodeClient001 = 4001,  // I-FCM004000
@@ -238,6 +242,9 @@ typedef NS_ENUM(NSInteger, FIRMessagingMessageCode) {
   kFIRMessagingMessageCodeUtilitiesCannotGetSystemVersion = 38003,
   // FIRMessagingTokenOperation.m
   kFIRMessagingMessageCodeTokenOperationFailedToSignParams = 39000,
+  kFIRMessagingMessageCodeTokenOperationInstallationAuthTokenNotAvailable = 39001,
+  kFIRMessagingMessageCodeTokenOperationInstallationIdNotAvailable = 39002,
+  kFIRMessagingMessageCodeFIDRegisterOperationBadResponse = 39003,
   // FIRMessagingTokenFetchOperation.m
   // DO NOT USE 40004, 40005
   kFIRMessagingMessageCodeTokenFetchOperationFetchRequest = 40000,

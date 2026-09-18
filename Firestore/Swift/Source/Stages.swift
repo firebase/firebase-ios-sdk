@@ -22,7 +22,6 @@ import Foundation
   @_exported import FirebaseFirestoreInternal
 #endif // SWIFT_PACKAGE
 
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 protocol Stage {
   var name: String { get }
   var bridge: StageBridge { get }
@@ -37,7 +36,6 @@ extension Stage {
   }
 }
 
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class CollectionSource: Stage {
   let name: String = "collection"
 
@@ -58,7 +56,6 @@ class CollectionSource: Stage {
   }
 }
 
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class SubcollectionStage: Stage {
   let name: String = "subcollection"
   let bridge: StageBridge
@@ -68,7 +65,6 @@ class SubcollectionStage: Stage {
   }
 }
 
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class CollectionGroupSource: Stage {
   let name: String = "collection_group"
 
@@ -87,7 +83,6 @@ class CollectionGroupSource: Stage {
 }
 
 // Represents the entire database as a source.
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class DatabaseSource: Stage {
   let name: String = "database"
   let bridge: StageBridge
@@ -102,7 +97,6 @@ class DatabaseSource: Stage {
 }
 
 // Represents a list of document references as a source.
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class DocumentsSource: Stage {
   let name: String = "documents"
   let bridge: StageBridge
@@ -120,7 +114,6 @@ class DocumentsSource: Stage {
   }
 }
 
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class Where: Stage {
   let name: String = "where"
 
@@ -140,7 +133,6 @@ class Where: Stage {
   }
 }
 
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class Limit: Stage {
   let name: String = "limit"
 
@@ -155,7 +147,6 @@ class Limit: Stage {
   }
 }
 
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class Offset: Stage {
   let name: String = "offset"
 
@@ -170,7 +161,6 @@ class Offset: Stage {
   }
 }
 
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class AddFields: Stage {
   let name: String = "add_fields"
   let bridge: StageBridge
@@ -191,7 +181,6 @@ class AddFields: Stage {
   }
 }
 
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class RemoveFieldsStage: Stage {
   let name: String = "remove_fields"
   let bridge: StageBridge
@@ -208,7 +197,6 @@ class RemoveFieldsStage: Stage {
   }
 }
 
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class Define: Stage {
   let name: String = "let"
   let bridge: StageBridge
@@ -227,7 +215,6 @@ class Define: Stage {
   }
 }
 
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class Select: Stage {
   let name: String = "select"
   let bridge: StageBridge
@@ -246,7 +233,6 @@ class Select: Stage {
   }
 }
 
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class Distinct: Stage {
   let name: String = "distinct"
   let bridge: StageBridge
@@ -265,7 +251,6 @@ class Distinct: Stage {
   }
 }
 
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class Aggregate: Stage {
   let name: String = "aggregate"
   let bridge: StageBridge
@@ -302,7 +287,6 @@ class Aggregate: Stage {
   }
 }
 
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class FindNearest: Stage {
   let name: String = "find_nearest"
   let bridge: StageBridge
@@ -332,7 +316,6 @@ class FindNearest: Stage {
   }
 }
 
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class Search: Stage {
   let name: String = "search"
   let bridge: StageBridge
@@ -421,7 +404,6 @@ class Search: Stage {
   }
 }
 
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class Sort: Stage {
   let name: String = "sort"
   let bridge: StageBridge
@@ -435,7 +417,6 @@ class Sort: Stage {
   }
 }
 
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class ReplaceWith: Stage {
   let name: String = "replace_with"
   let bridge: StageBridge
@@ -449,7 +430,6 @@ class ReplaceWith: Stage {
   }
 }
 
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class Sample: Stage {
   let name: String = "sample"
   let bridge: StageBridge
@@ -469,7 +449,6 @@ class Sample: Stage {
   }
 }
 
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class Union: Stage {
   let name: String = "union"
   let bridge: StageBridge
@@ -484,7 +463,6 @@ class Union: Stage {
   }
 }
 
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class Unnest: Stage {
   let name: String = "unnest"
   let bridge: StageBridge
@@ -508,7 +486,6 @@ class Unnest: Stage {
   }
 }
 
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class RawStage: Stage {
   let name: String
   let bridge: StageBridge

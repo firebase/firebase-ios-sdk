@@ -67,6 +67,27 @@ extern uint64_t dispatch_benchmark(size_t count, void (^block)(void));
   FPRMemoryGaugeData *gaugeData = fprCollectMemoryMetric();
   XCTAssertNotNil(gaugeData);
   XCTAssertNotNil(gaugeData.collectionTime);
+  // heapUsed is the process physical memory footprint from task_info, which is
+  // always positive for a live process.
+  XCTAssertGreaterThan(gaugeData.heapUsed, 0);
+}
+
+/**
+ * Validates that available memory is collected. heapAvailable comes from
+ * task_vm_info.limit_bytes_remaining. The simulator runs on the macOS kernel,
+ * which does not enforce the dirty memory limit, so the value is 0 there and
+ * nonzero on a real device.
+ */
+- (void)testMemoryMetricCollectsAvailableMemory {
+  FPRMemoryGaugeData *gaugeData = fprCollectMemoryMetric();
+  XCTAssertNotNil(gaugeData);
+  XCTAssertGreaterThan(gaugeData.heapUsed, 0);
+
+#if TARGET_OS_SIMULATOR
+  XCTAssertEqual(gaugeData.heapAvailable, 0);
+#else
+  XCTAssertGreaterThan(gaugeData.heapAvailable, 0);
+#endif
 }
 
 /** Validates the performance of the memory measurement. */

@@ -19,9 +19,15 @@
 #include <fstream>
 #include <iostream>
 
+#include "Firestore/core/src/util/filesystem.h"
 #include "Firestore/core/src/util/hard_assert.h"
 #include "Firestore/core/src/util/json_reader.h"
 #include "Firestore/core/src/util/path.h"
+
+#if defined(__APPLE__)
+#import <CoreFoundation/CoreFoundation.h>
+#include <dlfcn.h>
+#endif
 #include "absl/strings/escaping.h"
 #include "gtest/gtest.h"
 
@@ -225,8 +231,45 @@ class BloomFilterGoldenTest : public ::testing::Test {
   static const char* kGoldenDocumentPrefix;
 
   static Path GetGoldenTestFolder() {
-    return Path::FromUtf8(__FILE__).Dirname().AppendUtf8(
+    Path source_path = Path::FromUtf8(__FILE__).Dirname().AppendUtf8(
         "bloom_filter_golden_test_data/");
+
+    // For Simulator and Desktop builds, the files are accessible directly from
+    // the source tree.
+    if (util::Filesystem::Default()->IsDirectory(source_path).ok()) {
+      return source_path;
+    }
+
+#if defined(__APPLE__)
+    // On a real iOS device, the app runs in a sandbox and cannot access the
+    // source tree. We must find the files inside the app/test bundle.
+    Dl_info info;
+    // We use `dladdr` to find the path of the binary containing this code. This
+    // is more reliable than `CFBundleGetMainBundle()` in unit tests, because
+    // the latter might return the path of the host app bundle instead of the
+    // test bundle containing our resources.
+    if (dladdr((const void*)&BloomFilterGoldenTest::ReadFile, &info)) {
+      Path binary_path = Path::FromUtf8(info.dli_fname);
+      Path bundle_path =
+          binary_path.Dirname();  // Directory containing the test binary (the
+                                  // .xctest bundle)
+
+      Path data_path = bundle_path.AppendUtf8("bloom_filter_golden_test_data/");
+      // We check multiple paths because we don't know how the build system
+      // packaged the files.
+      // 1. Check if the resources are in the expected subdirectory (e.g. if
+      // added as a folder reference).
+      if (util::Filesystem::Default()->IsDirectory(data_path).ok()) {
+        return data_path;
+      }
+
+      // 2. If not in a subdirectory, CocoaPods likely flattened the resources
+      // and put them directly at the root of the bundle resources directory.
+      return bundle_path;
+    }
+#endif
+
+    return source_path;
   }
 
   static json ReadFile(const std::string& file_name) {

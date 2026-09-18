@@ -18,21 +18,23 @@
 
 import PackageDescription
 
-let firebaseVersion = "12.15.0"
+let firebaseVersion = "13.0.0"
 
 let shouldUseSourceFirestore = Context.environment["FIREBASE_SOURCE_FIRESTORE"] != nil
 
 let package = Package(
   name: "Firebase",
-  platforms: [.iOS(.v15), .macCatalyst(.v15), .macOS(.v10_15), .tvOS(.v15), .watchOS(.v7)],
-  products: [
-    .library(
-      name: "FirebaseAI",
-      targets: [
-        "FirebaseAI",
-        "FirebaseAILogic",
-      ]
-    ),
+  platforms: [.iOS(.v15), .macCatalyst(.v15), .macOS(.v11), .tvOS(.v15), .watchOS(.v8)],
+  products: packageProducts(),
+  dependencies: packageDependencies(),
+  targets: packageTargets(),
+  cxxLanguageStandard: CXXLanguageStandard.gnucxx17
+)
+
+// MARK: - Package Manifest Builders
+
+func packageProducts() -> [Product] {
+  return [
     .library(
       name: "FirebaseAILogic",
       targets: [
@@ -116,10 +118,6 @@ let package = Package(
       targets: ["FirebaseMessaging"]
     ),
     .library(
-      name: "FirebaseMLModelDownloader",
-      targets: ["FirebaseMLModelDownloader"]
-    ),
-    .library(
       name: "FirebasePerformance",
       targets: ["FirebasePerformanceTarget"]
     ),
@@ -131,28 +129,31 @@ let package = Package(
       name: "FirebaseStorage",
       targets: ["FirebaseStorage"]
     ),
-  ],
-  dependencies: [
+  ]
+}
+
+func packageDependencies() -> [Package.Dependency] {
+  return [
     .package(
       url: "https://github.com/google/promises.git",
-      "2.4.0" ..< "3.0.0"
+      "2.4.1" ..< "3.0.0"
     ),
     googleAppMeasurementDependency(),
     .package(
       url: "https://github.com/google/GoogleDataTransport.git",
-      "10.1.0" ..< "11.0.0"
+      "10.1.1" ..< "11.0.0"
     ),
     .package(
       url: "https://github.com/google/GoogleUtilities.git",
-      "8.1.0" ..< "9.0.0"
+      "8.1.3" ..< "9.0.0"
     ),
     .package(
       url: "https://github.com/google/gtm-session-fetcher.git",
-      "3.4.1" ..< "6.0.0"
+      "4.0.0" ..< "6.0.0"
     ),
     .package(
       url: "https://github.com/firebase/nanopb.git",
-      "2.30910.0" ..< "2.30911.0"
+      "2.30910.1" ..< "2.30911.0"
     ),
     abseilDependency(),
     grpcDependency(),
@@ -162,7 +163,7 @@ let package = Package(
     ),
     .package(
       url: "https://github.com/firebase/leveldb.git",
-      "1.22.2" ..< "1.23.0"
+      "1.22.5" ..< "1.23.0"
     ),
     .package(
       url: "https://github.com/SlaunchaMan/GCDWebServer.git",
@@ -173,8 +174,11 @@ let package = Package(
       "101.0.0" ..< "102.0.0"
     ),
     appCheckDependency(),
-  ],
-  targets: [
+  ]
+}
+
+func packageTargets() -> [Target] {
+  var targets: [Target] = [
     .target(
       name: "Firebase",
       path: "CoreOnly/Sources",
@@ -185,17 +189,7 @@ let package = Package(
 
     .target(
       name: "FirebaseAILogic",
-      dependencies: [
-        // Direct dependency on AppCheck for automatic token acquisition and
-        // management.
-        "FirebaseAppCheck",
-        // Despite the direct dependency on App Check, the AI Logic SDK still
-        // uses AppCheck through the interop.
-        "FirebaseAppCheckInterop",
-        "FirebaseAuthInterop",
-        "FirebaseCore",
-        "FirebaseCoreExtension",
-      ],
+      dependencies: firebaseAILogicDependencies(),
       path: "FirebaseAI/Sources",
       swiftSettings: [
         isFoundationModelsSupportedPlatformSwiftSetting(),
@@ -218,16 +212,6 @@ let package = Package(
       swiftSettings: [
         isFoundationModelsSupportedPlatformSwiftSetting(),
       ]
-    ),
-    .target(
-      name: "FirebaseAI",
-      dependencies: ["FirebaseAILogic"],
-      path: "FirebaseAI/Wrapper/Sources"
-    ),
-    .testTarget(
-      name: "FirebaseAIUnit",
-      dependencies: ["FirebaseAI"],
-      path: "FirebaseAI/Wrapper/Tests"
     ),
 
     // MARK: - Firebase Core
@@ -356,8 +340,8 @@ let package = Package(
     ),
     .binaryTarget(
       name: "FirebaseAnalytics",
-      url: "https://dl.google.com/firebase/ios/swiftpm/12.15.0/FirebaseAnalytics.zip",
-      checksum: "ba21a1b13404d96d4b6686eff250ce4088305d6d5c860bb07319118bae8b97b7"
+      url: "https://dl.google.com/firebase/ios/swiftpm/12.19.2/FirebaseAnalytics.zip",
+      checksum: "2062b12de12a9c96f4b775d580459386ee19ca5b969edb6de913da62cdc43b42"
     ),
     .testTarget(
       name: "AnalyticsSwiftUnit",
@@ -529,9 +513,6 @@ let package = Package(
       ],
       path: "FirebaseAuth/Tests/Unit",
       exclude: [
-        // TODO: these tests rely on a non-zero UIApplication.shared. They run from CocoaPods.
-        "PhoneAuthProviderTests.swift",
-        "AuthNotificationManagerTests.swift",
         // TODO: The following tests run in CocoaPods only, until mixed language or separate target.
         "ObjCAPITests.m",
         "ObjCGlobalTests.m",
@@ -812,25 +793,6 @@ let package = Package(
       linkerSettings: [
         .linkedFramework("Security"),
       ]
-    ),
-
-    .target(
-      name: "FirebaseMLModelDownloader",
-      dependencies: [
-        "FirebaseCore",
-        "FirebaseCoreExtension",
-        "FirebaseInstallations",
-        .product(name: "GULUserDefaults", package: "GoogleUtilities"),
-      ],
-      path: "FirebaseMLModelDownloader/Sources",
-      swiftSettings: [
-        .swiftLanguageMode(SwiftLanguageMode.v5),
-      ]
-    ),
-    .testTarget(
-      name: "FirebaseMLModelDownloaderUnit",
-      dependencies: ["FirebaseMLModelDownloader"],
-      path: "FirebaseMLModelDownloader/Tests/Unit"
     ),
 
     .target(
@@ -1361,9 +1323,15 @@ let package = Package(
         .headerSearchPath("../../../"),
       ]
     ),
-  ] + firestoreTargets(),
-  cxxLanguageStandard: CXXLanguageStandard.gnucxx14
-)
+  ]
+  targets.append(contentsOf: firestoreTargets())
+
+  #if compiler(>=6.4) && canImport(FoundationModels)
+    targets.append(contentsOf: geminiLanguageModelTargets())
+  #endif
+
+  return targets
+}
 
 // MARK: - Helper Functions
 
@@ -1439,7 +1407,7 @@ func googleAppMeasurementDependency() -> Package.Dependency {
     return .package(url: appMeasurementURL, branch: "main")
   }
 
-  return .package(url: appMeasurementURL, exact: "12.15.0")
+  return .package(url: appMeasurementURL, "12.19.2" ..< "12.20.0")
 }
 
 func abseilDependency() -> Package.Dependency {
@@ -1450,13 +1418,15 @@ func abseilDependency() -> Package.Dependency {
   if shouldUseSourceFirestore {
     packageInfo = (
       "https://github.com/firebase/abseil-cpp-SwiftPM.git",
-      "0.20240722.0" ..< "0.20240723.0"
+      "0.20250512.1" ..< "0.20250512.2"
     )
   } else {
     packageInfo = (
       "https://github.com/google/abseil-cpp-binary.git",
-      "1.2024072200.0" ..< "1.2024072300.0"
+      "1.2025051201.0" ..< "1.2025051202.0"
     )
+    // TODO: Delete following line before merging.
+    return .package(url: packageInfo.url, revision: "c473b33da325bd2cb854ae7834fc63f9a5563464")
   }
 
   return .package(url: packageInfo.url, packageInfo.range)
@@ -1468,9 +1438,11 @@ func grpcDependency() -> Package.Dependency {
   // If building Firestore from source, abseil will need to be built as source
   // as the headers in the binary version of abseil are unusable.
   if shouldUseSourceFirestore {
-    packageInfo = ("https://github.com/grpc/grpc-ios.git", "1.69.0" ..< "1.70.0")
+    packageInfo = ("https://github.com/grpc/grpc-ios.git", "1.83.1" ..< "1.84.0")
   } else {
-    packageInfo = ("https://github.com/google/grpc-binary.git", "1.69.0" ..< "1.70.0")
+    packageInfo = ("https://github.com/google/grpc-binary.git", "1.83.1" ..< "1.84.0")
+    // TODO: Delete following line before merging.
+    return .package(url: packageInfo.url, revision: "913d0ec56488611e32dc7a7291e627f467299aec")
   }
 
   return .package(url: packageInfo.url, packageInfo.range)
@@ -1570,6 +1542,7 @@ func firestoreTargets() -> [Target] {
             .when(platforms: [.iOS, .macOS, .tvOS, .visionOS])
           ),
           .linkedFramework("UIKit", .when(platforms: [.iOS, .tvOS, .visionOS])),
+          .linkedFramework("Network"),
           .linkedLibrary("c++"),
         ]
       ),
@@ -1620,8 +1593,8 @@ func firestoreTargets() -> [Target] {
     } else {
       return .binaryTarget(
         name: "FirebaseFirestoreInternal",
-        url: "https://dl.google.com/firebase/ios/bin/firestore/12.14.0/rc1/FirebaseFirestoreInternal.zip",
-        checksum: "28d4f75f8c07892157546a50151f5b6110e03d4f62dddadf35ef19197bf8b617"
+        url: "https://dl.google.com/firebase/ios/bin/firestore/13.0.0/pre_rc0/FirebaseFirestoreInternal.zip",
+        checksum: "dfbae6d47d6a427c31928db562344204e55a6af0c036a203c5dee8562d75b7d5"
       )
     }
   }()
@@ -1659,6 +1632,7 @@ func firestoreTargets() -> [Target] {
       linkerSettings: [
         .linkedFramework("SystemConfiguration", .when(platforms: [.iOS, .macOS, .tvOS])),
         .linkedFramework("UIKit", .when(platforms: [.iOS, .tvOS])),
+        .linkedFramework("Network"),
         .linkedLibrary("c++"),
       ]
     ),
@@ -1674,6 +1648,89 @@ func firestoreTargets() -> [Target] {
     firestoreInternalTarget,
   ]
 }
+
+func firebaseAILogicDependencies() -> [Target.Dependency] {
+  var dependencies: [Target.Dependency] = [
+    // Direct dependency on AppCheck for automatic token acquisition and
+    // management.
+    "FirebaseAppCheck",
+    // Despite the direct dependency on App Check, the AI Logic SDK still
+    // uses AppCheck through the interop.
+    "FirebaseAppCheckInterop",
+    "FirebaseAuthInterop",
+    "FirebaseCore",
+    "FirebaseCoreExtension",
+  ]
+
+  #if compiler(>=6.4) && canImport(FoundationModels)
+    dependencies.append("GeminiLanguageModel")
+  #endif // compiler(>=6.4) && canImport(FoundationModels)
+
+  return dependencies
+}
+
+#if compiler(>=6.4) && canImport(FoundationModels)
+  func geminiLanguageModelTargets() -> [Target] {
+    let swiftSettings: [SwiftSetting] = [
+      .enableUpcomingFeature("ExistentialAny"),
+      .enableUpcomingFeature("InternalImportsByDefault"),
+      .enableUpcomingFeature("MemberImportVisibility"),
+      .swiftLanguageMode(.v6),
+    ]
+
+    return [
+      .target(
+        name: "GeminiLanguageModel",
+        dependencies: [
+          "GeminiAPIClient",
+          "GeminiAPIDataModels",
+        ],
+        path: "GeminiLanguageModel/Sources/GeminiLanguageModel",
+        swiftSettings: swiftSettings
+      ),
+      .testTarget(
+        name: "GeminiLanguageModelTests",
+        dependencies: [
+          "GeminiLanguageModel",
+          "GeminiTestUtilities",
+        ],
+        path: "GeminiLanguageModel/Tests/GeminiLanguageModelTests",
+        swiftSettings: swiftSettings
+      ),
+      .target(
+        name: "GeminiAPIClient",
+        dependencies: [
+          "GeminiAPIDataModels",
+        ],
+        path: "GeminiLanguageModel/Sources/GeminiAPIClient",
+        swiftSettings: swiftSettings
+      ),
+      .testTarget(
+        name: "GeminiAPIClientTests",
+        dependencies: [
+          "GeminiAPIClient",
+          "GeminiTestUtilities",
+        ],
+        path: "GeminiLanguageModel/Tests/GeminiAPIClientTests",
+        swiftSettings: swiftSettings
+      ),
+      .target(
+        name: "GeminiAPIDataModels",
+        path: "GeminiLanguageModel/Sources/GeminiAPIDataModels",
+        swiftSettings: [
+          .enableUpcomingFeature("ExistentialAny"),
+          .enableUpcomingFeature("MemberImportVisibility"),
+          .swiftLanguageMode(.v6),
+        ]
+      ),
+      .target(
+        name: "GeminiTestUtilities",
+        path: "GeminiLanguageModel/Tests/GeminiTestUtilities",
+        swiftSettings: swiftSettings,
+      ),
+    ]
+  }
+#endif // compiler(>=6.4) && canImport(FoundationModels)
 
 func isFoundationModelsSupportedPlatformSwiftSetting() -> SwiftSetting {
   return SwiftSetting.define(
@@ -1693,5 +1750,7 @@ func appCheckDependency() -> Package.Dependency {
     return .package(url: appCheckURL, branch: branch)
   }
 
+  // TODO: Update to point to AppCheck 12.0
+  // return .package(url: appCheckURL, "12.0.0" ..< "13.0.0")
   return .package(url: appCheckURL, "11.3.0" ..< "12.0.0")
 }

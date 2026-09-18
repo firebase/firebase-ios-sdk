@@ -150,7 +150,7 @@ static unichar const HIGH_SURROGATE_PAIR_END = 0xDBFF;
                 high += 1;
                 NSString *highStr = [NSString stringWithFormat:@"%C", high];
 
-                [next replaceCharactersInRange:NSMakeRange(i - 1, i)
+                [next replaceCharactersInRange:NSMakeRange(i - 1, 1)
                                     withString:highStr];
                 plusOne = LOW_SURROGATE_PAIR_START; /* lowest value for the low
                                                        part of the pair */
@@ -262,7 +262,7 @@ static unichar const HIGH_SURROGATE_PAIR_END = 0xDBFF;
                 high -= 1;
                 NSString *highStr = [NSString stringWithFormat:@"%C", high];
 
-                [next replaceCharactersInRange:NSMakeRange(i - 1, i)
+                [next replaceCharactersInRange:NSMakeRange(i - 1, 1)
                                     withString:highStr];
                 minusOne = LOW_SURROGATE_PAIR_END; /* highest value for the low
                                                       part of the pair */

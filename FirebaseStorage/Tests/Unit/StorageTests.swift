@@ -256,6 +256,20 @@ class StorageTests: XCTestCase {
     XCTAssertEqual(storage.maxOperationRetryInterval, 8)
   }
 
+  func testPOSIXErrorFormatting() throws {
+    let app = try getApp(bucket: "bucket")
+    let storage = Storage.storage(app: app)
+    let ref = storage.reference(withPath: "ios/public/testPOSIX40")
+    let posixError = NSError(domain: NSPOSIXErrorDomain, code: 40, userInfo: nil)
+    let storageError = StorageErrorCode.error(withServerError: posixError, ref: ref)
+    XCTAssertEqual(storageError.domain, StorageErrorDomain)
+    XCTAssertEqual(storageError.code, StorageErrorCode.unknown.rawValue)
+    XCTAssertEqual(
+      storageError.userInfo[NSLocalizedDescriptionKey] as? String,
+      "POSIX errno 40 (The operation couldn’t be completed. Message too long)"
+    )
+  }
+
   // MARK: Private Helpers
 
   // Cache the app associated with each Storage bucket

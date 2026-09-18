@@ -63,7 +63,7 @@ extension CountTokensRequest: Encodable {
 
   func encode(to encoder: any Encoder) throws {
     switch apiConfig.service {
-    case .vertexAI:
+    case .agentPlatform:
       try encodeForVertexAI(to: encoder)
     case .googleAI:
       try encodeForDeveloper(to: encoder)

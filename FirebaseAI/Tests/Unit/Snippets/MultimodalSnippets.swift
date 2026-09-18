@@ -26,7 +26,7 @@ import XCTest
 @available(macOS 12.0, watchOS 8.0, *)
 final class MultimodalSnippets: XCTestCase {
   let bundle = BundleTestUtil.bundle()
-  lazy var model = FirebaseAI.firebaseAI(backend: .vertexAI()).generativeModel(
+  lazy var model = FirebaseAI.firebaseAI(backend: .agentPlatform()).generativeModel(
     modelName: "gemini-2.0-flash"
   )
   lazy var videoURL = {

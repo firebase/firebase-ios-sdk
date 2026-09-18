@@ -74,8 +74,8 @@ FOUNDATION_EXPORT NSString *const kFPersistenceLogTag;
 #define FFWarn(code, format, ...)                                              \
     do {                                                                       \
         if (FFIsLoggingEnabled(FLogLevelWarn)) {                               \
-            FIRLogWarning(kFIRLoggerDatabase, (code), (format),                \
-                          ##__VA_ARGS__);                                      \
+            FIRLogWarning(kFIRLoggerDatabase, (code),                          \
+                          (format), ##__VA_ARGS__);                            \
         }                                                                      \
     } while (0)
 

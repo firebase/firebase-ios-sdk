@@ -84,12 +84,37 @@ class StoragePathTests: XCTestCase {
     XCTAssertEqual(path.object, "#hashtag/no/token")
   }
 
+  func testHTTPURLObjectMarkerWithoutObject() throws {
+    // "/o" object marker present but no object path; must not index past the
+    // path components.
+    let httpURL = "http://firebasestorage.googleapis.com/v0/b/bucket/o"
+    let path = try StoragePath.path(string: httpURL)
+    XCTAssertEqual(path.bucket, "bucket")
+    XCTAssertNil(path.object)
+  }
+
   func testGSURIThrowsOnNoBucket() {
     XCTAssertThrowsError(try StoragePath.path(string: "gs://"))
   }
 
+  func testGSURIThrowsOnOnlySlashes() {
+    XCTAssertThrowsError(try StoragePath.path(string: "gs:///"))
+  }
+
   func testHTTPURLThrowsOnNoBucket() {
     XCTAssertThrowsError(try StoragePath.path(string: "http://firebasestorage.googleapis.com/"))
+  }
+
+  func testHTTPURLThrowsOnMissingObjectMarker() {
+    // A path segment in the "/o" marker position that isn't "o" is not a valid
+    // Storage URL and must throw rather than be parsed as an object.
+    let httpURL = "http://firebasestorage.googleapis.com/v0/b/bucket/x/path/to/object"
+    XCTAssertThrowsError(try StoragePath.path(string: httpURL))
+
+    // Same invalid marker but with no object path (exactly five components) must
+    // also throw rather than be parsed as a bucket-only path.
+    let shortHTTPURL = "http://firebasestorage.googleapis.com/v0/b/bucket/x"
+    XCTAssertThrowsError(try StoragePath.path(string: shortHTTPURL))
   }
 
   func testThrowsOnInvalidScheme() {

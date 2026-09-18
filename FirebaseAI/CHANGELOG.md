@@ -1,6 +1,65 @@
+# Unreleased
+- [changed] **Breaking Change**: Update imports to `import FirebaseAILogic`
+  and use the `FirebaseAILogic` Swift Package dependency instead of
+  `FirebaseAI`, which has now been removed. See the
+  [Swift module name change](https://firebase.google.com/docs/ai-logic/faq-and-troubleshooting#swift-module-name-change)
+  FAQ entry for more details.
+- [changed] Updated the default function calling mode to `VALIDATED` and
+  updated guided generation to use `responseJsonSchema` in
+  `GeminiLanguageModel`. (#16649)
+- [changed] Deprecated model tuning parameters (`temperature`, `topP`, `topK`, `candidateCount`,
+  `presencePenalty`, and `frequencyPenalty`) in `GenerationConfig` and `LiveGenerationConfig` as
+  they are unsupported in Gemini 3.x and later models.
+
+# 12.19.0
+- [feature] **Public Preview**: Added `GeminiLanguageModel`, allowing Gemini
+  models to be used with Apple's Foundation Models framework. See the
+  [getting started guide](https://firebase.google.com/docs/ai-logic/apple-foundation-models-framework/get-started)
+  for more details.
+- [fixed] Fixed an issue with a transitive import in the logger, which could cause
+  a build error in explicit module mode. (#16563)
+- [changed] In 12.5.0, the `FirebaseAI` module was renamed to
+  `FirebaseAILogic`. In the upcoming Firebase 13.0.0 release, the `FirebaseAI`
+  library will be removed. Ahead of the major release, imports should be changed
+  to `import FirebaseAILogic` and the `FirebaseAILogic` Swift Package
+  dependency should be selected. See the
+  [Swift module name change](https://firebase.google.com/docs/ai-logic/faq-and-troubleshooting#swift-module-name-change)
+  FAQ entry for more details.
+
+# 12.18.0
+- [removed] Removed deprecated Imagen methods and types due to Imagen models being shut down in
+  August 2026. As a replacement, you can [migrate your apps to use Gemini Image models (the
+  "Nano Banana" models)](https://firebase.google.com/docs/ai-logic/imagen-models-migration).
+- [feature] Added support for `RealtimeInputConfig` in `LiveGenerationConfig`. (#16441)
+- [feature] Added support for `sendStartActivityRealtime` and `sendStopActivityRealtime`
+  in `LiveSession`. (#16441)
+
+# 12.17.0
+- [fixed] Fixed a stream leak in the Live API where the WebSocket connection
+  would remain open indefinitely if the consumer cancelled the stream. (#16393)
+- [changed] Deprecated `Backend.vertexAI` in favor of `Backend.agentPlatform` to
+  reflect the renaming of Vertex AI to the Agent Platform Gemini API.
+  (#16372)
+  Note: The default location is now `global` instead of `us-central1` (no other
+  functionality has changed). To continue using `us-central1`, specify
+  `FirebaseAI.firebaseAI(backend: .agentPlatform(location: "us-central1"))` when
+  initializing the SDK.
+
+# 12.16.0
+- [fixed] Fixed a decoding failure in `GenerateContentResponse` when the Vertex AI
+  backend returns citation metadata with a missing `endIndex`. (#16328)
+- [fixed] Fixed an issue where `generateContentStream` could stall indefinitely
+  on mid-stream network drops. (#16298)
+- [fixed] Fixed a resource leak where background network requests would
+  continue downloading if the stream consumer terminated early. (#16298)
+
 # 12.15.0
+- [changed] Made Firebase App Check a dependency of Firebase AI Logic to
+  simplify App Check setup. (#16185)
 - [fixed] Fixed a namespace collision with the new
   `FoundationModels.LanguageModelSession.Error` type introduced in Xcode 27 Beta. (#16252)
+- [feature] Added support for `SpeechConfig` in `GenerationConfig`, and `MultiSpeakerVoiceConfig`
+  in `SpeechConfig`. (#16226)
 
 # 12.14.0
 - [fixed] Fixed an issue in `GenerativeModelSession` where `String` generation
@@ -143,7 +202,7 @@
 
   To start using the new SDK, import the `FirebaseAI` module and use the
   top-level `FirebaseAI` class. See details in the [migration guide
-  ](https://firebase.google.com/docs/vertex-ai/migrate-to-latest-sdk).
+  ](https://firebase.google.com/docs/ai-logic/migrate-to-latest-sdk).
 - [fixed] Fixed `ModalityTokenCount` decoding when the `tokenCount` field is
   omitted; this occurs when the count is 0. (#14745)
 - [fixed] Fixed `Candidate` decoding when `SafetyRating` values are missing a
@@ -178,7 +237,7 @@
 
 # 11.9.0
 - [feature] **Public Preview**: Added support for
-  [generating images](https://firebase.google.com/docs/vertex-ai/generate-images-imagen?platform=ios)
+  [generating images](https://firebase.google.com/docs/ai-logic/generate-images-imagen)
   using the Imagen 3 models.
   <br /><br />
   Note: This feature is in Public Preview, which means that it is not subject to
@@ -212,9 +271,9 @@
   Carthage distributions.
   <br /><br />
   - If you're new to this library, visit the
-    [getting started guide](http://firebase.google.com/docs/vertex-ai/get-started?platform=ios).
+    [getting started guide](https://firebase.google.com/docs/ai-logic/get-started).
   - If you used the preview version of the library, visit the
-    [migration guide](https://firebase.google.com/docs/vertex-ai/migrate-to-ga?platform=ios)
+    [migration guide](https://firebase.google.com/docs/ai-logic/migrate-to-ga)
     to learn about some important updates.
 - [changed] **Breaking Change**: The `HarmCategory` enum is no longer nested
   inside the `SafetySetting` struct and the `unspecified` case has been
@@ -315,7 +374,7 @@
   instead of the `Any` type. (#13575)
 - [added] Added support for specifying a JSON `responseSchema` in
   `GenerationConfig`; see
-  [control generated output](https://firebase.google.com/docs/vertex-ai/structured-output?platform=ios)
+  [control generated output](https://firebase.google.com/docs/ai-logic/structured-output)
   for more details. (#13576)
 
 # 10.29.0
@@ -325,7 +384,7 @@
 - [changed] Removed uses of the `gemini-1.5-flash-preview-0514` model in docs
   and samples. Developers should now use the auto-updated versions,
   `gemini-1.5-pro` or `gemini-1.5-flash`, or a specific stable version; see
-  [available model names](https://firebase.google.com/docs/vertex-ai/gemini-models#available-model-names)
+  [available model names](https://firebase.google.com/docs/ai-logic/models#available-model-names)
   for more details. (#13099)
 - [feature] Added community support for tvOS and visionOS. (#13090, #13092)
 
@@ -333,7 +392,7 @@
 - [changed] Removed uses of the `gemini-1.5-pro-preview-0409` model in docs and
   samples. Developers should now use `gemini-1.5-pro-preview-0514` or
   `gemini-1.5-flash-preview-0514`; see
-  [available model names](https://firebase.google.com/docs/vertex-ai/gemini-models#available-model-names)
+  [available model names](https://firebase.google.com/docs/ai-logic/models#available-model-names)
   for more details. (#12979)
 - [changed] Logged additional details when required APIs for Vertex AI are
   not enabled or response payloads when requests fail. (#13007, #13009)
@@ -341,5 +400,5 @@
 # 10.26.0
 - [feature] Initial release of the Vertex AI for Firebase SDK (public preview).
   Learn how to
-  [get started](https://firebase.google.com/docs/vertex-ai/get-started?platform=ios)
+  [get started](https://firebase.google.com/docs/ai-logic/get-started)
   with the SDK in your app.

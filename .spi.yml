@@ -1,5 +1,7 @@
 version: 1
-external_links:
-  documentation: "https://firebase.google.com/docs/ios/setup"
 metadata:
   authors: "Google"
+builder:
+  configs:
+  - documentation_targets: [FirebaseAILogic, FirebaseAuth, FirebaseAppCheck, FirebaseCore, FirebaseCrashlytics, FirebaseDatabase, FirebaseFirestore, FirebaseFunctions, FirebaseInstallations, FirebaseMessaging, FirebasePerformanceTarget, FirebaseRemoteConfig, FirebaseStorage]
+    platform: iOS

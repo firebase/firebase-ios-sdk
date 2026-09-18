@@ -467,6 +467,22 @@ std::pair<std::string, model::TransformOperation> Increment(
     std::string field, nanopb::Message<google_firestore_v1_Value> operand);
 
 /**
+ * Creates a pair of field name, TransformOperation that represents a numeric
+ * minimum on the given field, suitable for passing to TransformMutation,
+ * above.
+ */
+std::pair<std::string, model::TransformOperation> Minimum(
+    std::string field, nanopb::Message<google_firestore_v1_Value> operand);
+
+/**
+ * Creates a pair of field name, TransformOperation that represents a numeric
+ * maximum on the given field, suitable for passing to TransformMutation,
+ * above.
+ */
+std::pair<std::string, model::TransformOperation> Maximum(
+    std::string field, nanopb::Message<google_firestore_v1_Value> operand);
+
+/**
  * Creates a pair of field name, TransformOperation that represents an array
  * union on the given field, suitable for passing to TransformMutation,
  * above.

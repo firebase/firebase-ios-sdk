@@ -602,4 +602,8 @@ class AuthErrorUtils {
       "https://cloud.google.com/recaptcha-enterprise/docs/instrument-ios-apps"
     return error(code: .recaptchaActionCreationFailed, message: message)
   }
+
+  static func passwordDoesNotMeetRequirementsError(message: String?) -> Error {
+    return error(code: .passwordDoesNotMeetRequirements, message: message)
+  }
 }

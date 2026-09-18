@@ -25,4 +25,6 @@ extern dispatch_queue_t _firclsExceptionQueue;
 #define FIRCLSGetBinaryImageQueue() (_firclsBinaryImageQueue)
 #define FIRCLSGetExceptionQueue() (_firclsExceptionQueue)
 
+void FIRCLSExecuteOnLoggingQueue(void (^block)(void));
+
 __END_DECLS

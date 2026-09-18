@@ -90,12 +90,12 @@ mkdir -p "$TEST_PKG_ROOT/Sources/TestPkg"
 
 # Generate the package's `Package.swift`.
 cat > "$TEST_PKG_ROOT/Package.swift" <<- EOM
-// swift-tools-version: 5.6
+// swift-tools-version: 6.1
 import PackageDescription
 
 let package = Package(
     name: "TestPkg",
-    platforms: [.macOS(.v10_15)],
+    platforms: [.macOS(.v11)],
     dependencies: [
         .package(path: "${FIREBASE_REPO_PATH}")
     ],

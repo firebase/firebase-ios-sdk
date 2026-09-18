@@ -1,3 +1,24 @@
+# 12.19.0
+- [fixed] Fixed an issue where constructing a download URL could fail or produce
+  an invalid path if the storage bucket name contained special characters. (#16529)
+- [changed] Requests directed to the local emulator over a non-loopback HTTP connection
+  when tokens are present will now explicitly fail with an `unauthenticated`
+  error instead of silently omitting the tokens and proceeding. (#16536)
+- [added] Added a DEBUG-only `allowInsecureTokenAttachment` property on `Storage` to
+  allow insecure token attachment over HTTP for physical device testing. (#16536)
+
+# 12.17.0
+- [changed] Enforced stricter transport layer security when using the emulator: Auth and AppCheck
+  tokens are no longer attached to outbound requests if the connection is made over HTTP to a
+  non-loopback host. (#16395)
+- [fixed] Fixed an issue where `putFile` could fail on the iOS Simulator with `POSIX errno 40`
+  (`EMSGSIZE`) due to a QUIC bug in background sessions, and improved error formatting
+  for `NSPOSIXErrorDomain` errors. (#16351)
+- [fixed] Fixed a race condition in Storage task cancellation and improved Swift 6 strict
+  concurrency compliance for `StorageTask`. (#16353)
+- [fixed] Fixed a crash that could occur when parsing malformed `gs://` URLs, and improved
+  validation for HTTP download URLs provided to `Storage.reference(forURL:)`. (#16243)
+
 # 12.12.1
 - [fixed] Fixed `InstanceCache` keying by bucket only, which caused named apps sharing a
   storage bucket with the default app to use the wrong auth context. (#16039)

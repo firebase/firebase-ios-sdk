@@ -1,5 +1,23 @@
 # Unreleased
+- [changed] Dropped C++14 support; Firestore now requires C++17.
+- [changed] Update gRPC dependency to 1.83.1.
+- [changed] Update Abseil dependency to 1.20250512.2.
 
+# 12.19.0
+- [feature] Added support for `minimum` and `maximum` FieldValue operations [#16159].
+
+# 12.17.0
+- [fixed] Fixed a potential crash when parsing malformed bundle payloads.
+  (#16221)
+- [feature] Added support for 16 MB documents by increasing gRPC message size
+  limit to 17MB (#16206).
+
+# 12.16.0
+- [changed] Migrates the network connectivity monitoring implementation for
+  Apple platforms from the legacy SCNetworkReachability API to the modern
+  NWPathMonitor API.
+
+# 12.15.0
 - [fix] Remove use of designated initializers for `forceIndex` [#16229].
 
 # 12.13.0

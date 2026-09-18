@@ -196,9 +196,9 @@ Swift utility to build a podspec repo.
 
 Store for GitHub secret encrypted resources.
 
-### [health_metrics](https://github.com/firebase/firebase-ios-sdk/blob/main/scripts/health_metrics)
+### [spec_testing](https://github.com/firebase/firebase-ios-sdk/blob/main/scripts/spec_testing)
 
-Code coverage and binary size tooling.
+Tooling to determine which specs have been updated in a PR.
 
 ### [lib](https://github.com/firebase/firebase-ios-sdk/blob/main/scripts/lib)
 

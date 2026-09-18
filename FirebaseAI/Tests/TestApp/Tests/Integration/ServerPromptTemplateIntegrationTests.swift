@@ -24,10 +24,9 @@ import Testing
 struct ServerPromptTemplateIntegrationTests {
   private static let testConfigs: [InstanceConfig] = [
     .googleAI_v1beta,
-    .vertexAI_v1beta,
-    .vertexAI_v1beta_global,
+    .agentPlatform_v1beta,
+    .agentPlatform_v1beta_global,
   ]
-  private static let imageGenerationTestConfigs: [InstanceConfig] = [.vertexAI_v1beta]
 
   @Test(arguments: testConfigs)
   func generateContentWithText(_ config: InstanceConfig) async throws {
@@ -66,7 +65,7 @@ struct ServerPromptTemplateIntegrationTests {
 
   @Test(arguments: [
     InstanceConfig.googleAI_v1beta,
-    InstanceConfig.vertexAI_v1beta,
+    InstanceConfig.agentPlatform_v1beta,
   ])
   func generateContentWithTemplateMapsGrounding(_ config: InstanceConfig) async throws {
     let toolConfig = TemplateToolConfig(
@@ -86,23 +85,6 @@ struct ServerPromptTemplateIntegrationTests {
     let text = try #require(response.text)
     #expect(text.localizedCaseInsensitiveContains("Paul"))
     #expect(text.localizedCaseInsensitiveContains("museum"))
-  }
-
-  @Test(arguments: [
-    InstanceConfig.googleAI_v1beta,
-    InstanceConfig.vertexAI_v1beta,
-  ])
-  @available(*, deprecated)
-  func generateImages(_ config: InstanceConfig) async throws {
-    let imagenModel = FirebaseAI.componentInstance(config).templateImagenModel()
-    let imagenPrompt = "firefly"
-    let response = try await imagenModel.generateImages(
-      templateID: "image-generation-basic",
-      inputs: [
-        "prompt": imagenPrompt,
-      ]
-    )
-    #expect(response.images.count == 4)
   }
 
   @Test(arguments: testConfigs)

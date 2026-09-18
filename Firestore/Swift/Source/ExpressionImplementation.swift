@@ -1450,7 +1450,7 @@ public extension Expression {
                maxSnippetWidth: Int? = nil,
                maxSnippets: Int? = nil,
                separator: String? = nil) -> Expression {
-    var args: [Expression] = [self, Constant(rquery)]
+    let args: [Expression] = [self, Constant(rquery)]
 
     var options: [String: Sendable] = [:]
     if let maxSnippetWidth = maxSnippetWidth {

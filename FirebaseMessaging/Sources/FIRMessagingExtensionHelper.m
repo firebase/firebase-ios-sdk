@@ -112,8 +112,15 @@ pb_bytes_array_t *FIRMessagingEncodeString(NSString *string) {
 
   // The `userInfo` property isn't available on newer versions of tvOS.
 #if !TARGET_OS_TV
-  NSObject *currentImageURL = content.userInfo[kPayloadOptionsName][kPayloadOptionsImageURLName];
-  if (!currentImageURL || currentImageURL == [NSNull null]) {
+  // `userInfo` is the raw remote push payload, so `fcm_options` and its `image`
+  // entry can be any JSON type. Reach the URL only when both are the expected
+  // types, otherwise subscripting a non-dictionary or handing a non-string to
+  // URLWithString: raises an exception in the notification service extension.
+  NSObject *fcmOptions = content.userInfo[kPayloadOptionsName];
+  NSObject *currentImageURL = [fcmOptions isKindOfClass:[NSDictionary class]]
+                                  ? ((NSDictionary *)fcmOptions)[kPayloadOptionsImageURLName]
+                                  : nil;
+  if (![currentImageURL isKindOfClass:[NSString class]]) {
     [self deliverNotification];
     return;
   }
@@ -143,8 +150,14 @@ pb_bytes_array_t *FIRMessagingEncodeString(NSString *string) {
     return [NSString stringWithFormat:@".%@", suggestedPathExtension];
   }
   if ([response.MIMEType containsString:kImagePathPrefix]) {
-    return [response.MIMEType stringByReplacingOccurrencesOfString:kImagePathPrefix
-                                                        withString:@"."];
+    NSString *fileExtension =
+        [response.MIMEType stringByReplacingOccurrencesOfString:kImagePathPrefix withString:@"."];
+    // A MIME subtype does not contain a path separator. A server can set an arbitrary
+    // Content-Type on the downloaded image, so reject a value that carries one before it
+    // is appended to the temporary file path.
+    if (![fileExtension containsString:@"/"]) {
+      return fileExtension;
+    }
   }
   return kNoExtension;
 }

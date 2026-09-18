@@ -68,7 +68,7 @@
 
     func assertDefaultToken() {
       let expectation = self.expectation(description: "getToken")
-      messaging.token { token, error in
+      (messaging as LegacyMessaging).token { token, error in
         XCTAssertNil(error)
         XCTAssertNotNil(token)
         expectation.fulfill()

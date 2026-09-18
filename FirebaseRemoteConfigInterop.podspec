@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseRemoteConfigInterop'
-  s.version          = '12.15.0'
+  s.version          = '13.0.0'
   s.summary          = 'Interfaces that allow other Firebase SDKs to use Remote Config functionality.'
 
   s.description      = <<-DESC
@@ -28,9 +28,9 @@ Pod::Spec.new do |s|
 
   # The ios deployment target must support Crashlytics.
   s.ios.deployment_target = '15.0'
-  s.osx.deployment_target = '10.15'
+  s.osx.deployment_target = '11.0'
   s.tvos.deployment_target = '15.0'
-  s.watchos.deployment_target = '7.0'
+  s.watchos.deployment_target = '8.0'
 
   s.source_files = 'FirebaseRemoteConfig/Interop/*.swift'
 end

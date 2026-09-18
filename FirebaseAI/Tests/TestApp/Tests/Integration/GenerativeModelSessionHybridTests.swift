@@ -24,7 +24,7 @@
 
   @Suite(.serialized)
   struct GenerativeModelSessionHybridTests {
-    @Test(arguments: [InstanceConfig.vertexAI_v1beta_global])
+    @Test(arguments: [InstanceConfig.agentPlatform_v1beta_global])
     func respondText_fallbackOnGeminiModelError(_ config: InstanceConfig) async throws {
       let firebaseAI = FirebaseAI.componentInstance(config)
       let invalidModel1 = firebaseAI.geminiModel(name: "invalid-model-name-1")
@@ -46,17 +46,17 @@
       let content = response.content
       #expect(!content.isEmpty)
       #expect(response.rawContent.isComplete)
-      #if canImport(FoundationModels)
+      #if canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
         if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
           #expect(response.rawContent.kind == .string(content))
         }
-      #endif // canImport(FoundationModels)
+      #endif // canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
       #expect(response.rawContent.generationID != nil)
       #expect(response.rawResponse.text == content)
       #expect(response.rawResponse.modelVersion == validModel._modelName)
     }
 
-    @Test(arguments: [InstanceConfig.vertexAI_v1beta_global])
+    @Test(arguments: [InstanceConfig.agentPlatform_v1beta_global])
     @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
@@ -87,7 +87,7 @@
       }
     }
 
-    @Test(arguments: [InstanceConfig.vertexAI_v1beta_global])
+    @Test(arguments: [InstanceConfig.agentPlatform_v1beta_global])
     @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
@@ -115,7 +115,7 @@
       #expect(response.rawResponse.modelVersion == validModel._modelName)
     }
 
-    @Test(arguments: [InstanceConfig.vertexAI_v1beta_global])
+    @Test(arguments: [InstanceConfig.agentPlatform_v1beta_global])
     func streamResponseText_fallbackOnGeminiModelError(_ config: InstanceConfig) async throws {
       let firebaseAI = FirebaseAI.componentInstance(config)
       let invalidModel = firebaseAI.geminiModel(name: "invalid-model-name")
@@ -151,18 +151,18 @@
       #expect(!content.isEmpty)
       #expect(response.rawContent.isComplete, "The final response was not marked as complete.")
       #expect(response.rawContent.generationID == generationID)
-      #if canImport(FoundationModels)
+      #if canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
         if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
           #expect(response.rawContent.kind == .string(content))
         }
-      #endif // canImport(FoundationModels)
+      #endif // canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
       if let text = response.rawResponse.text {
         #expect(content.hasSuffix(text))
       }
       #expect(response.rawResponse.modelVersion == validModel._modelName)
     }
 
-    @Test(arguments: [InstanceConfig.vertexAI_v1beta_global])
+    @Test(arguments: [InstanceConfig.agentPlatform_v1beta_global])
     @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
@@ -208,7 +208,7 @@
       #expect(response.rawResponse.modelVersion == validModel._modelName)
     }
 
-    @Test(arguments: [InstanceConfig.vertexAI_v1beta_global])
+    @Test(arguments: [InstanceConfig.agentPlatform_v1beta_global])
     @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
@@ -250,7 +250,7 @@
     /// throw a `ModelManagerError` if the simulator's model version does not match the host macOS
     /// version. A new version of the model was introduced in Xcode/macOS/iOS 26.4.
     func foundationModelsIsAvailable() async -> Bool {
-      #if canImport(FoundationModels)
+      #if canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
         if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
           let model = SystemLanguageModel.default
           guard model.isAvailable else {
@@ -269,7 +269,7 @@
             return false
           }
         }
-      #endif // canImport(FoundationModels)
+      #endif // canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
 
       return false
     }
