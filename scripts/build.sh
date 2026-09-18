@@ -137,7 +137,15 @@ function RunXcodebuild() {
     "${xcbeautify_cmd[@]}" && CheckUnexpectedFailures "$log_filename" \
     || result=$?
 
-  if [[ $result == 65 ]]; then
+  local has_retry_flag=false
+  for arg in "$@"; do
+    if [[ "$arg" == "-retry-tests-on-failure" ]]; then
+      has_retry_flag=true
+      break
+    fi
+  done
+
+  if [[ $result == 65 && "$has_retry_flag" == "false" ]]; then
     ExportLogs "$@"
 
     echo "xcodebuild exited with 65, retrying" 1>&2
@@ -372,52 +380,83 @@ case "$product-$platform-$method" in
         build
     ;;
 
-  Firestore-*-xcodebuild)
-      # Memory intensive, so we limit jobs.
-      RunXcodebuild \
-          -workspace 'Firestore/Example/Firestore.xcworkspace' \
-          -scheme "Firestore_IntegrationTests_$platform" \
-          "${xcb_flags[@]}" \
-          -jobs 4 \
-          build-for-testing
+  Firestore-*-xcodebuild | FirestoreEnterprise-*-xcodebuild)
+      if [[ "$product" == "FirestoreEnterprise" ]]; then
+        scheme="Firestore_IntegrationTests_Enterprise_$platform"
+      else
+        scheme="Firestore_IntegrationTests_$platform"
+      fi
+
+      if compgen -G "Firestore/Example/DerivedData/Build/Products/${scheme}_*.xctestrun" > /dev/null; then
+        echo "Prebuilt xctestrun for $scheme already exists in DerivedData; skipping rebuild."
+      else
+        # Memory intensive, so we limit jobs.
+        # Build both Standard and Enterprise xctestrun files against the same DerivedData
+        # so the binary is compiled only once per platform.
+        RunXcodebuild \
+            -workspace 'Firestore/Example/Firestore.xcworkspace' \
+            -scheme "Firestore_IntegrationTests_$platform" \
+            -derivedDataPath 'Firestore/Example/DerivedData' \
+            "${xcb_flags[@]}" \
+            -jobs 8 \
+            build-for-testing
+
+        RunXcodebuild \
+            -workspace 'Firestore/Example/Firestore.xcworkspace' \
+            -scheme "Firestore_IntegrationTests_Enterprise_$platform" \
+            -derivedDataPath 'Firestore/Example/DerivedData' \
+            "${xcb_flags[@]}" \
+            -jobs 8 \
+            build-for-testing
+      fi
       ;;
 
-  Firestore-*-xcodetest)
-      "${firestore_emulator}" start
-      trap '"${firestore_emulator}" stop' ERR EXIT
+  Firestore-*-xcodetest | FirestoreEnterprise-*-xcodetest)
+      if [[ "$product" == "FirestoreEnterprise" ]]; then
+        scheme="Firestore_IntegrationTests_Enterprise_$platform"
+      else
+        scheme="Firestore_IntegrationTests_$platform"
+      fi
 
-      RunXcodebuild \
-          -workspace 'Firestore/Example/Firestore.xcworkspace' \
-          -scheme "Firestore_IntegrationTests_$platform" \
-          -enableCodeCoverage YES \
-          -retry-tests-on-failure \
-          -test-iterations 3 \
-          "${xcb_flags[@]}" \
-          test-without-building
-      ;;
+      if [[ "${USE_FIRESTORE_EMULATOR:-true}" == "true" ]]; then
+        "${firestore_emulator}" start
+        trap '"${firestore_emulator}" stop' ERR EXIT
+      fi
 
-  FirestoreEnterprise-*-xcodebuild)
-      # Memory intensive, so we limit jobs
-      RunXcodebuild \
-          -workspace 'Firestore/Example/Firestore.xcworkspace' \
-          -scheme "Firestore_IntegrationTests_Enterprise_$platform" \
-          "${xcb_flags[@]}" \
-          -jobs 4 \
-          build-for-testing
-      ;;
+      xctestrun_files=(Firestore/Example/DerivedData/Build/Products/${scheme}_*.xctestrun)
+      if [[ -f "${xctestrun_files[0]}" ]]; then
+        # Update GoogleService-Info.plist inside the prebuilt app bundle (for prod/nightly secrets)
+        for app_bundle in Firestore/Example/DerivedData/Build/Products/*/Firestore_Example_*.app; do
+          if [[ -d "$app_bundle/Contents/Resources" ]]; then
+            cp Firestore/Example/App/GoogleService-Info.plist "$app_bundle/Contents/Resources/GoogleService-Info.plist"
+          elif [[ -d "$app_bundle" ]]; then
+            cp Firestore/Example/App/GoogleService-Info.plist "$app_bundle/GoogleService-Info.plist"
+          fi
+          codesign --force --sign - "$app_bundle" 2>/dev/null || true
+        done
 
-  FirestoreEnterprise-*-xcodetest)
-      "${firestore_emulator}" start
-      trap '"${firestore_emulator}" stop' ERR EXIT
+        result_bundle="${PWD}/Firestore/Example/DerivedData/Logs/Test/Test-${scheme}.xcresult"
+        rm -rf "$result_bundle"
+        mkdir -p "$(dirname "$result_bundle")"
 
-      RunXcodebuild \
-          -workspace 'Firestore/Example/Firestore.xcworkspace' \
-          -scheme "Firestore_IntegrationTests_Enterprise_$platform" \
-          -enableCodeCoverage YES \
-          -retry-tests-on-failure \
-          -test-iterations 3 \
-          "${xcb_flags[@]}" \
-          test-without-building
+        RunXcodebuild \
+            -xctestrun "${xctestrun_files[0]}" \
+            -resultBundlePath "$result_bundle" \
+            -enableCodeCoverage YES \
+            -retry-tests-on-failure \
+            -test-iterations 3 \
+            "${xcb_flags[@]}" \
+            test-without-building
+      else
+        RunXcodebuild \
+            -workspace 'Firestore/Example/Firestore.xcworkspace' \
+            -scheme "$scheme" \
+            -enableCodeCoverage YES \
+            -retry-tests-on-failure \
+            -test-iterations 3 \
+            "${xcb_flags[@]}" \
+            test-without-building
+      fi
       ;;
 
   Firestore-macOS-cmake | Firestore-Linux-cmake)
