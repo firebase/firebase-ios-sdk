@@ -128,7 +128,9 @@ private enum GoogleDataTransportConfig {
   }
 
   // Initializes the SDK and begins the process of listening for lifecycle events and logging
-  // events. The given `logEventCallback` is invoked when event logging completes.
+  // events. The given `logEventCallback` is invoked on a global background queue by default,
+  // but configurable via `loggedEventCallbackQueue` for providing a higher priority queue
+  // during tests to reduce flakes.
   init(appID: String, sessionGenerator: SessionGenerator, coordinator: SessionCoordinatorProtocol,
        initiator: SessionInitiator, appInfo: ApplicationInfoProtocol, settings: SettingsProtocol,
        loggedEventCallbackQueue: DispatchQueue = .global(qos: .background),
@@ -175,8 +177,7 @@ private enum GoogleDataTransportConfig {
       // Wait until all expected subscribers have registered before
       // doing any data collection.
       Task {
-        await self.state.waitUntilAllRegistered()
-        let subscribers = await self.state.currentSubscribers
+        let subscribers = await self.state.waitUntilAllRegistered()
 
         self.loggedEventCallbackQueue.async {
           let isAnyDataCollectionEnabled = subscribers.contains { $0.isDataCollectionEnabled }
@@ -276,7 +277,13 @@ private enum GoogleDataTransportConfig {
     // before subscribers, so subscribers will miss the first Notification
     subscriber.onSessionChanged(currentSessionDetails)
 
-    // Register this subscriber to resume any waiting tasks
+    // Register this subscriber to resume any waiting tasks.
+    //
+    // Unlike the previous promise-based implementation, this hop is
+    // asynchronous: returning from `register(subscriber:)` does not guarantee
+    // the subscriber is visible to an in-flight session start. That is safe
+    // because a session start awaits `waitUntilAllRegistered()`, which only
+    // proceeds once this `Task` has run for every expected subscriber.
     let subscriberName = subscriber.sessionsSubscriberName
     Task {
       await state.register(subscriber: subscriber, name: subscriberName)
