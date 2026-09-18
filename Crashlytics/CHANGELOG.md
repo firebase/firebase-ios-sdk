@@ -1,3 +1,6 @@
+# Unreleased
+- [fixed] Fixed an issue casuing a crash while symbolicating stack frames if the binary image path is null. (#16622)
+
 # 12.18.0
 - [removed] Removes unused integration with the now deprecated ObjC MetricKit API.
 
