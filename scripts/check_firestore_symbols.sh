@@ -72,7 +72,7 @@ fi
 # This script uses an env var that will alter the repo's `Package.swift` to
 # pick up the copied Firestore framework. See
 # `FIREBASECI_USE_LOCAL_FIRESTORE_ZIP` in Firebase's `Package.swift` for more.
-cp -r "$FIRESTORE_XCFRAMEWORK_PATH" "$FIREBASE_REPO_PATH"
+cp -a "$FIRESTORE_XCFRAMEWORK_PATH" "$FIREBASE_REPO_PATH"
 
 # Create a temporary directory for the test package. The test package defines an
 # executable and has the following directory structure:
