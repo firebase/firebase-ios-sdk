@@ -1423,10 +1423,8 @@ func abseilDependency() -> Package.Dependency {
   } else {
     packageInfo = (
       "https://github.com/google/abseil-cpp-binary.git",
-      "1.2025051201.0" ..< "1.2025051202.0"
+      "1.2025051202.0" ..< "1.2025051203.0" // Should this float to minor instead?
     )
-    // TODO: Delete following line before merging.
-    return .package(url: packageInfo.url, revision: "c3374d429fd065c57b415537ff2144c9b95c3222")
   }
 
   return .package(url: packageInfo.url, packageInfo.range)
@@ -1441,8 +1439,6 @@ func grpcDependency() -> Package.Dependency {
     packageInfo = ("https://github.com/grpc/grpc-ios.git", "1.83.1" ..< "1.84.0")
   } else {
     packageInfo = ("https://github.com/google/grpc-binary.git", "1.83.1" ..< "1.84.0")
-    // TODO: Delete following line before merging.
-    return .package(url: packageInfo.url, revision: "8fb15e4ca2f838be53c024e2d6add4877ee32a8f")
   }
 
   return .package(url: packageInfo.url, packageInfo.range)
