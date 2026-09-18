@@ -1426,7 +1426,7 @@ func abseilDependency() -> Package.Dependency {
       "1.2025051201.0" ..< "1.2025051202.0"
     )
     // TODO: Delete following line before merging.
-    return .package(url: packageInfo.url, revision: "c473b33da325bd2cb854ae7834fc63f9a5563464")
+    return .package(url: packageInfo.url, revision: "c3374d429fd065c57b415537ff2144c9b95c3222")
   }
 
   return .package(url: packageInfo.url, packageInfo.range)
@@ -1442,7 +1442,7 @@ func grpcDependency() -> Package.Dependency {
   } else {
     packageInfo = ("https://github.com/google/grpc-binary.git", "1.83.1" ..< "1.84.0")
     // TODO: Delete following line before merging.
-    return .package(url: packageInfo.url, revision: "913d0ec56488611e32dc7a7291e627f467299aec")
+    return .package(url: packageInfo.url, revision: "8fb15e4ca2f838be53c024e2d6add4877ee32a8f")
   }
 
   return .package(url: packageInfo.url, packageInfo.range)
