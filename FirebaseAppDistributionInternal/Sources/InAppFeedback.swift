@@ -71,9 +71,13 @@ import UIKit
       requestOptions.isSynchronous = true
 
       let fetchResult = PHAsset.fetchAssets(with: .image, options: fetchOptions)
+      guard let screenshot = firstScreenshotAsset(in: fetchResult) else {
+        completion(nil)
+        return
+      }
 
       manager.requestImage(
-        for: fetchResult.object(at: 0),
+        for: screenshot,
         // TODO: Identify the correct size.
         targetSize: CGSize(width: 358, height: 442),
         contentMode: .aspectFill,
@@ -83,6 +87,13 @@ import UIKit
         completion(image)
       }
     })
+  }
+
+  static func firstScreenshotAsset(in fetchResult: PHFetchResult<PHAsset>) -> PHAsset? {
+    guard fetchResult.count > 0 else {
+      return nil
+    }
+    return fetchResult.object(at: 0)
   }
 
   static func getPhotoPermissionIfNecessary(completionHandler: @escaping (_ authorized: Bool)
