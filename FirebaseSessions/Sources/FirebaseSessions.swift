@@ -25,6 +25,14 @@ private enum GoogleDataTransportConfig {
   static let sessionsTarget = GDTCORTarget.FLL
 }
 
+/// - Note: The `@unchecked Sendable` conformance is required because the
+///   session start path captures `self` in a `Task`. All stored properties are
+///   `let`, but several of them have non-`Sendable` types, so the conformance
+///   cannot be checked today. The one with genuinely unsynchronized mutable
+///   state is `SessionGenerator`; its writes happen on the initiator's thread
+///   while `currentSessionDetails` may be read from a subscriber's thread.
+///   That predates this type's `Sendable` conformance and is unchanged here.
+///   TODO: Synchronize `SessionGenerator` and make this a checked conformance.
 @objc(FIRSessions) final class Sessions: NSObject, Library, SessionsProvider, @unchecked Sendable {
   // MARK: - Private Variables
 
@@ -38,8 +46,9 @@ private enum GoogleDataTransportConfig {
   private let appInfo: ApplicationInfoProtocol
   private let settings: SettingsProtocol
 
-  /// `state` holds the mutable state (subscribers array and registration)
-  /// ensuring mathematical safety in Swift Concurrency.
+  /// `state` holds the mutable state (the subscriber list and which
+  /// subscribers have registered), isolated to an actor so it can be mutated
+  /// and read safely from multiple concurrency domains.
   private let state: SessionsState
 
   /// Queue for callbacks
