@@ -1,3 +1,7 @@
+# Unreleased
+- [fixed] Prevented in-app feedback screenshot retrieval from crashing when no screenshot is
+  available in the user's photo library.
+
 # 10.6.0
 - [fixed] Fixed bug where testers were sent to the wrong URL when signing in (#10772).
 
