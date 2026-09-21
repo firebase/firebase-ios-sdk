@@ -19,5 +19,5 @@ import Foundation
 // interface for other 1P SDKs to talk to.
 @objc(FIRSessionsProvider)
 public protocol SessionsProvider {
-  @objc(registerWithSubscriber:) func register(subscriber: SessionsSubscriber)
+  @objc func register(subscriber: SessionsSubscriber)
 }

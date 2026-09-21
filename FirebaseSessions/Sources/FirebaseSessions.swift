@@ -262,7 +262,7 @@ private enum GoogleDataTransportConfig {
     }
   }
 
-  @objc(registerWithSubscriber:) func register(subscriber: SessionsSubscriber) {
+  func register(subscriber: SessionsSubscriber) {
     Logger
       .logDebug(
         "Registering Sessions SDK subscriber with name: \(subscriber.sessionsSubscriberName), data collection enabled: \(subscriber.isDataCollectionEnabled)"
