@@ -195,6 +195,156 @@
   XCTAssertEqual(result, mockSceneA);
 }
 
+#pragma mark - findForegroundSceneForApplication:matchingPredicate: Tests
+
+- (void)testFindForegroundScene_matchingPredicate_nilApplicationReturnsNil {
+  UIScene *result =
+      [FIRSceneDelegateFinder findForegroundSceneForApplication:nil
+                                              matchingPredicate:^BOOL(UIScene *scene) {
+                                                return YES;
+                                              }];
+  XCTAssertNil(result);
+}
+
+- (void)testFindForegroundScene_matchingPredicate_nilPredicateReturnsNil {
+  UIScene *result = [FIRSceneDelegateFinder findForegroundSceneForApplication:self.mockApplication
+                                                            matchingPredicate:nil];
+  XCTAssertNil(result);
+}
+
+- (void)testFindForegroundScene_matchingPredicate_filtersNonMatchingScenes {
+  id mockScene = OCMClassMock([UIScene class]);
+  OCMStub([mockScene activationState]).andReturn(UISceneActivationStateForegroundActive);
+
+  NSSet *connectedScenes = [NSSet setWithObject:mockScene];
+  OCMStub([self.mockApplication connectedScenes]).andReturn(connectedScenes);
+
+  UIScene *result =
+      [FIRSceneDelegateFinder findForegroundSceneForApplication:self.mockApplication
+                                              matchingPredicate:^BOOL(UIScene *scene) {
+                                                return NO;
+                                              }];
+  XCTAssertNil(result);
+}
+
+- (void)testFindForegroundScene_matchingPredicate_foregroundInactiveFallback {
+  // Scene A is background
+  id mockSceneA = OCMClassMock([UIScene class]);
+  OCMStub([mockSceneA activationState]).andReturn(UISceneActivationStateBackground);
+
+  // Scene B is foreground inactive
+  id mockSceneB = OCMClassMock([UIScene class]);
+  OCMStub([mockSceneB activationState]).andReturn(UISceneActivationStateForegroundInactive);
+
+  NSSet *connectedScenes = [NSSet setWithObjects:mockSceneA, mockSceneB, nil];
+  OCMStub([self.mockApplication connectedScenes]).andReturn(connectedScenes);
+
+  UIScene *result =
+      [FIRSceneDelegateFinder findForegroundSceneForApplication:self.mockApplication
+                                              matchingPredicate:^BOOL(UIScene *scene) {
+                                                return scene == mockSceneB;
+                                              }];
+  XCTAssertEqual(result, mockSceneB);
+}
+
+- (void)testFindForegroundScene_matchingPredicate_foregroundActivePriority {
+  // Scene A is foreground inactive
+  id mockSceneA = OCMClassMock([UIScene class]);
+  OCMStub([mockSceneA activationState]).andReturn(UISceneActivationStateForegroundInactive);
+
+  // Scene B is foreground active
+  id mockSceneB = OCMClassMock([UIScene class]);
+  OCMStub([mockSceneB activationState]).andReturn(UISceneActivationStateForegroundActive);
+
+  NSSet *connectedScenes = [NSSet setWithObjects:mockSceneA, mockSceneB, nil];
+  OCMStub([self.mockApplication connectedScenes]).andReturn(connectedScenes);
+
+  UIScene *result =
+      [FIRSceneDelegateFinder findForegroundSceneForApplication:self.mockApplication
+                                              matchingPredicate:^BOOL(UIScene *scene) {
+                                                return YES;
+                                              }];
+  XCTAssertEqual(result, mockSceneB);
+}
+
+- (void)testFindForegroundScene_matchingPredicate_activeSceneWithKeyWindowPriority {
+  // Scene A is foreground active (window is not key)
+  id mockWindowA = OCMClassMock([UIWindow class]);
+  OCMStub([mockWindowA isKeyWindow]).andReturn(NO);
+  id mockSceneA = OCMClassMock([UIWindowScene class]);
+  OCMStub([mockSceneA activationState]).andReturn(UISceneActivationStateForegroundActive);
+  OCMStub([mockSceneA windows]).andReturn(@[ mockWindowA ]);
+
+  // Scene B is foreground active (window IS key)
+  id mockWindowB = OCMClassMock([UIWindow class]);
+  OCMStub([mockWindowB isKeyWindow]).andReturn(YES);
+  id mockSceneB = OCMClassMock([UIWindowScene class]);
+  OCMStub([mockSceneB activationState]).andReturn(UISceneActivationStateForegroundActive);
+  OCMStub([mockSceneB windows]).andReturn(@[ mockWindowB ]);
+
+  NSSet *connectedScenes = [NSSet setWithObjects:mockSceneA, mockSceneB, nil];
+  OCMStub([self.mockApplication connectedScenes]).andReturn(connectedScenes);
+
+  UIScene *result =
+      [FIRSceneDelegateFinder findForegroundSceneForApplication:self.mockApplication
+                                              matchingPredicate:^BOOL(UIScene *scene) {
+                                                return YES;
+                                              }];
+  XCTAssertEqual(result, mockSceneB);
+}
+
+- (void)testFindForegroundScene_matchingPredicate_inactiveSceneWithKeyWindowPriority {
+  // Scene A is foreground inactive (window is not key)
+  id mockWindowA = OCMClassMock([UIWindow class]);
+  OCMStub([mockWindowA isKeyWindow]).andReturn(NO);
+  id mockSceneA = OCMClassMock([UIWindowScene class]);
+  OCMStub([mockSceneA activationState]).andReturn(UISceneActivationStateForegroundInactive);
+  OCMStub([mockSceneA windows]).andReturn(@[ mockWindowA ]);
+
+  // Scene B is foreground inactive (window IS key)
+  id mockWindowB = OCMClassMock([UIWindow class]);
+  OCMStub([mockWindowB isKeyWindow]).andReturn(YES);
+  id mockSceneB = OCMClassMock([UIWindowScene class]);
+  OCMStub([mockSceneB activationState]).andReturn(UISceneActivationStateForegroundInactive);
+  OCMStub([mockSceneB windows]).andReturn(@[ mockWindowB ]);
+
+  NSSet *connectedScenes = [NSSet setWithObjects:mockSceneA, mockSceneB, nil];
+  OCMStub([self.mockApplication connectedScenes]).andReturn(connectedScenes);
+
+  UIScene *result =
+      [FIRSceneDelegateFinder findForegroundSceneForApplication:self.mockApplication
+                                              matchingPredicate:^BOOL(UIScene *scene) {
+                                                return YES;
+                                              }];
+  XCTAssertEqual(result, mockSceneB);
+}
+
+- (void)testFindForegroundScene_matchingPredicate_activeWithoutKeyWindowBeatsInactiveWithKeyWindow {
+  // Scene A is foreground active (window is not key)
+  id mockWindowA = OCMClassMock([UIWindow class]);
+  OCMStub([mockWindowA isKeyWindow]).andReturn(NO);
+  id mockSceneA = OCMClassMock([UIWindowScene class]);
+  OCMStub([mockSceneA activationState]).andReturn(UISceneActivationStateForegroundActive);
+  OCMStub([mockSceneA windows]).andReturn(@[ mockWindowA ]);
+
+  // Scene B is foreground inactive (window IS key)
+  id mockWindowB = OCMClassMock([UIWindow class]);
+  OCMStub([mockWindowB isKeyWindow]).andReturn(YES);
+  id mockSceneB = OCMClassMock([UIWindowScene class]);
+  OCMStub([mockSceneB activationState]).andReturn(UISceneActivationStateForegroundInactive);
+  OCMStub([mockSceneB windows]).andReturn(@[ mockWindowB ]);
+
+  NSSet *connectedScenes = [NSSet setWithObjects:mockSceneA, mockSceneB, nil];
+  OCMStub([self.mockApplication connectedScenes]).andReturn(connectedScenes);
+
+  UIScene *result =
+      [FIRSceneDelegateFinder findForegroundSceneForApplication:self.mockApplication
+                                              matchingPredicate:^BOOL(UIScene *scene) {
+                                                return YES;
+                                              }];
+  XCTAssertEqual(result, mockSceneA);
+}
+
 @end
 
 #endif  // TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
