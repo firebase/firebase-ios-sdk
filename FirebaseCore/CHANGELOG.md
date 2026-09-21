@@ -14,6 +14,9 @@
   https://firebase.google.com/docs/ios/cocoapods-deprecation for details.
 - [removed] **Breaking change**: FirebaseMLModelDownloader has been removed. See
   https://firebase.google.com/docs/ml for more info.
+- [changed] **Breaking change**: Removed the CocoaPods generated umbrella headers
+  (suffixed `-umbrella.h`) from the Zip and Carthage artifacts, in favor of `Firebase.h`
+  and framework specific umbrella headers. (#16540)
 - [changed] **Breaking change**: The minimum supported version of
   `GTMSessionFetcher` is now `4.0.0` (support for `3.x` has been dropped).
 

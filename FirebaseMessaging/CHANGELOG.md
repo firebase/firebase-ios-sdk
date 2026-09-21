@@ -1,3 +1,9 @@
+# Unreleased
+- [fixed] Fixed an issue where deep links were not correctly routed in apps utilizing scene
+  delegates. (#15987)
+- [changed] **Breaking Change**: Scene delegates take priority over app delegates for
+  automatic deep link routing. (#15987)
+
 # 12.19.0
 - [fixed] Fix an issue where `messaging:didReceiveRegistrationToken:` was no
   longer called at app launch when a token was cached. (#16581)
