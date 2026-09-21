@@ -32,12 +32,13 @@ static BOOL FIRSceneHasKeyWindow(UIScene *scene) {
 @implementation FIRSceneDelegateFinder
 
 + (nullable UIScene *)findForegroundSceneForApplication:(nullable UIApplication *)application
-                                       matchingSelector:(SEL)selector {
+                                      matchingPredicate:(BOOL(NS_NOESCAPE ^)(UIScene *scene))
+                                                            predicate {
   NSAssert([NSThread isMainThread],
-           @"FIRSceneDelegateFinder findForegroundSceneForApplication:matchingSelector: must be "
+           @"FIRSceneDelegateFinder findForegroundSceneForApplication:matchingPredicate: must be "
            @"called on the main thread.");
 
-  if (!application || !selector) {
+  if (!application || !predicate) {
     return nil;
   }
 
@@ -46,8 +47,7 @@ static BOOL FIRSceneHasKeyWindow(UIScene *scene) {
   UIScene *inactiveWithoutKeyWindow = nil;
 
   for (UIScene *scene in application.connectedScenes) {
-    id<UISceneDelegate> sceneDelegate = scene.delegate;
-    if (![sceneDelegate respondsToSelector:selector]) {
+    if (!predicate(scene)) {
       continue;
     }
 
@@ -81,6 +81,19 @@ static BOOL FIRSceneHasKeyWindow(UIScene *scene) {
     return inactiveWithKeyWindow;
   }
   return inactiveWithoutKeyWindow;
+}
+
++ (nullable UIScene *)findForegroundSceneForApplication:(nullable UIApplication *)application
+                                       matchingSelector:(SEL)selector {
+  if (!selector) {
+    return nil;
+  }
+
+  return [self findForegroundSceneForApplication:application
+                               matchingPredicate:^BOOL(UIScene *scene) {
+                                 id<UISceneDelegate> sceneDelegate = scene.delegate;
+                                 return [sceneDelegate respondsToSelector:selector];
+                               }];
 }
 
 @end

@@ -61,6 +61,41 @@ NS_SWIFT_NAME(SceneDelegateFinder)
  @return The matching UIScene instance, or nil if no matching scene delegate is found.
  @note This method must be called on the main thread.
  */
+/**
+ Iterates through the connectedScenes of the specified application instance to find a
+ foreground scene matching the specified predicate.
+
+ Prioritizes `UISceneActivationStateForegroundActive` scenes over
+ `UISceneActivationStateForegroundInactive` scenes. If multiple matching scenes share the same
+ activation state, scenes containing a key window (`UIWindow.isKeyWindow`) are prioritized over
+ non-key window scenes.
+
+ Note that a scene in the `ForegroundInactive` state is visible and loaded
+ in the foreground, but is temporarily not receiving touch events for whatever
+ reason (eg; because a system dialog, permission prompt, or notification center
+ overlay is covering it). It's totally valid to interact with these scenes,
+ so we fall back to checking if these scenes exist if we don't find a better
+ alternative (ie; a scene that's in the foreground _and_ active).
+
+ ### Usage Example
+ ```objc
+ UIScene *targetScene = [FIRSceneDelegateFinder
+     findForegroundSceneForApplication:self.mainApplication
+                     matchingPredicate:^BOOL(UIScene *scene) {
+                       return [scene.session.role
+ isEqualToString:UIWindowSceneSessionRoleApplication];
+                     }];
+ ```
+
+ @param application UIApplication instance to search for scenes from.
+ @param predicate The block to evaluate against each scene in connectedScenes.
+ @return The matching UIScene instance, or nil if no matching scene is found.
+ @note This method must be called on the main thread.
+ */
++ (nullable UIScene *)findForegroundSceneForApplication:(nullable UIApplication *)application
+                                      matchingPredicate:(BOOL(NS_NOESCAPE ^)(UIScene *scene))
+                                                            predicate;
+
 + (nullable UIScene *)findForegroundSceneForApplication:(nullable UIApplication *)application
                                        matchingSelector:(SEL)selector;
 
