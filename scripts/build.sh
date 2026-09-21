@@ -132,11 +132,6 @@ function RunXcodebuild() {
     xcbeautify_cmd=(cat)
   fi
 
-  local result=0
-  NSUnbufferedIO=YES xcodebuild "$@" 2>&1 | tee "$log_filename" | \
-    "${xcbeautify_cmd[@]}" && CheckUnexpectedFailures "$log_filename" \
-    || result=$?
-
   local has_retry_flag=false
   for arg in "$@"; do
     if [[ "$arg" == "-retry-tests-on-failure" ]]; then
@@ -144,6 +139,12 @@ function RunXcodebuild() {
       break
     fi
   done
+
+  local result=0
+  NSUnbufferedIO=YES xcodebuild "$@" 2>&1 | tee "$log_filename" | \
+    "${xcbeautify_cmd[@]}" \
+    && { [[ "$has_retry_flag" == "true" ]] || CheckUnexpectedFailures "$log_filename"; } \
+    || result=$?
 
   if [[ $result == 65 && "$has_retry_flag" == "false" ]]; then
     ExportLogs "$@"
