@@ -99,6 +99,34 @@ NS_SWIFT_NAME(SceneDelegateFinder)
 + (nullable UIScene *)findForegroundSceneForApplication:(nullable UIApplication *)application
                                        matchingSelector:(SEL)selector;
 
+/**
+ Iterates through the connectedScenes of the specified application instance to find a
+ foreground UIWindowScene.
+
+ Prioritizes `UISceneActivationStateForegroundActive` window scenes over
+ `UISceneActivationStateForegroundInactive` window scenes. If multiple matching window scenes share
+ the same activation state, window scenes containing a key window (`UIWindow.isKeyWindow`) are
+ prioritized over non-key window scenes.
+
+ Note that scenes that are not instances of `UIWindowScene` are ignored.
+
+ ### Usage Example
+ ```objc
+ UIWindowScene *targetScene = [FIRSceneDelegateFinder
+     findForegroundWindowSceneForApplication:self.mainApplication];
+
+ if (targetScene) {
+   UIInterfaceOrientation orientation = targetScene.interfaceOrientation;
+ }
+ ```
+
+ @param application UIApplication instance to search for window scenes from.
+ @return The matching UIWindowScene instance, or nil if no matching window scene is found.
+ @note This method must be called on the main thread.
+ */
++ (nullable UIWindowScene *)findForegroundWindowSceneForApplication:
+    (nullable UIApplication *)application;
+
 @end
 
 NS_ASSUME_NONNULL_END

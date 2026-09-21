@@ -96,6 +96,15 @@ static BOOL FIRSceneHasKeyWindow(UIScene *scene) {
                                }];
 }
 
++ (nullable UIWindowScene *)findForegroundWindowSceneForApplication:
+    (nullable UIApplication *)application {
+  return (UIWindowScene *)[self findForegroundSceneForApplication:application
+                                                matchingPredicate:^BOOL(UIScene *scene) {
+                                                  return
+                                                      [scene isKindOfClass:[UIWindowScene class]];
+                                                }];
+}
+
 @end
 
 #endif  // TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
