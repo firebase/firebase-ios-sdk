@@ -329,8 +329,11 @@
 }
 
 - (void)testFindForegroundScene_matchingPredicate_nilPredicateReturnsNil {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnonnull"
   UIScene *result = [FIRSceneFinder findForegroundSceneForApplication:self.mockApplication
                                                     matchingPredicate:nil];
+#pragma clang diagnostic pop
   XCTAssertNil(result);
 }
 
