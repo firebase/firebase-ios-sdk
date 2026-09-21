@@ -16,8 +16,6 @@ import Foundation
 
 /// A type that represents a remote multimodal model (like Gemini), with the ability to generate
 /// content based on various input types.
-///
-/// **Public Preview**: This API is a public preview and may be subject to change.
 public final class TemplateGenerativeModel: Sendable {
   let generativeAIService: GenerativeAIService
   let apiConfig: APIConfig
@@ -41,8 +39,6 @@ public final class TemplateGenerativeModel: Sendable {
 
   /// Generates content from a prompt template and inputs.
   ///
-  /// **Public Preview**: This API is a public preview and may be subject to change.
-  ///
   /// - Parameters:
   ///   - templateID: The ID of the prompt template to use.
   ///   - inputs: A dictionary of variables to substitute into the template.
@@ -55,8 +51,6 @@ public final class TemplateGenerativeModel: Sendable {
 
   /// Generates content from a prompt template and inputs, with streaming responses.
   ///
-  /// **Public Preview**: This API is a public preview and may be subject to change.
-  ///
   /// - Parameters:
   ///   - templateID: The ID of the prompt template to use.
   ///   - inputs: A dictionary of variables to substitute into the template.
@@ -68,8 +62,6 @@ public final class TemplateGenerativeModel: Sendable {
     return try generateContentStreamWithHistory(history: [], template: templateID, inputs: inputs)
   }
 
-  // TODO: Restore `public` determined to be releaseable along with the contents of TemplateChatSession.
-
   /// Creates a new chat conversation using this model with the provided template, inputs, and
   /// history.
   ///
@@ -78,9 +70,9 @@ public final class TemplateGenerativeModel: Sendable {
   ///   - inputs: A dictionary of variables to substitute into the template.
   ///   - history: The conversation history to use.
   /// - Returns: A new ``TemplateChatSession`` instance.
-  func startChat(templateID: String,
-                 inputs: [String: Any],
-                 history: [ModelContent] = []) -> TemplateChatSession {
+  public func startChat(templateID: String,
+                        inputs: [String: Any],
+                        history: [ModelContent] = []) -> TemplateChatSession {
     return TemplateChatSession(
       model: self,
       templateID: templateID,
