@@ -15,9 +15,10 @@
 
 import Foundation
 
+private import FirebaseCoreInternal
 internal import FirebaseInstallations
 
-struct SessionInfo {
+struct SessionInfo: Sendable {
   let sessionId: String
   let firstSessionId: String
   let shouldDispatchEvents: Bool
@@ -37,40 +38,50 @@ struct SessionInfo {
 ///   2) Persisting and reading the Session ID from the last session
 ///   (Maybe) 3) Persisting, reading, and incrementing an increasing index
 ///
-class SessionGenerator {
-  private var thisSession: SessionInfo?
+/// Generation happens on whichever thread initiates a session (typically the
+/// main thread, via app lifecycle notifications), while `currentSession` is
+/// read by subscribers on their own threads. The mutable state is therefore
+/// guarded by a lock so this type can be safely `Sendable`.
+///
+final class SessionGenerator: Sendable {
+  /// The generator's mutable state, only reachable while holding `state`.
+  private struct State {
+    var thisSession: SessionInfo?
+    var firstSessionId: String = ""
+    /// This will be incremented to 0 on the first generation.
+    var sessionIndex: Int32 = -1
+  }
 
-  private var firstSessionId = ""
-  private var sessionIndex: Int32
-  private var collectEvents: Bool
+  private let state = UnfairLock(State())
+  private let collectEvents: Bool
 
   init(collectEvents: Bool) {
-    // This will be incremented to 0 on the first generation
-    sessionIndex = -1
-
     self.collectEvents = collectEvents
   }
 
   // Generates a new Session ID. If there was already a generated Session ID
   // from the last session during the app's lifecycle, it will also set the last Session ID
   func generateNewSession() -> SessionInfo {
-    let newSessionId = UUID().uuidString.replacingOccurrences(of: "-", with: "").lowercased()
+    let collectEvents = self.collectEvents
+    return state.withLock { state in
+      let newSessionId = UUID().uuidString.replacingOccurrences(of: "-", with: "").lowercased()
 
-    // If firstSessionId is set, use it. Otherwise set it to the
-    // first generated Session ID
-    firstSessionId = firstSessionId.isEmpty ? newSessionId : firstSessionId
+      // If firstSessionId is set, use it. Otherwise set it to the
+      // first generated Session ID
+      state.firstSessionId = state.firstSessionId.isEmpty ? newSessionId : state.firstSessionId
 
-    sessionIndex += 1
+      state.sessionIndex += 1
 
-    let newSession = SessionInfo(sessionId: newSessionId,
-                                 firstSessionId: firstSessionId,
-                                 dispatchEvents: collectEvents,
-                                 sessionIndex: sessionIndex)
-    thisSession = newSession
-    return newSession
+      let newSession = SessionInfo(sessionId: newSessionId,
+                                   firstSessionId: state.firstSessionId,
+                                   dispatchEvents: collectEvents,
+                                   sessionIndex: state.sessionIndex)
+      state.thisSession = newSession
+      return newSession
+    }
   }
 
   var currentSession: SessionInfo? {
-    return thisSession
+    state.withLock { $0.thisSession }
   }
 }

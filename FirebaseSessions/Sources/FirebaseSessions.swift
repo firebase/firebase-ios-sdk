@@ -26,13 +26,13 @@ private enum GoogleDataTransportConfig {
 }
 
 /// - Note: The `@unchecked Sendable` conformance is required because the
-///   session start path captures `self` in a `Task`. All stored properties are
-///   `let`, but several of them have non-`Sendable` types, so the conformance
-///   cannot be checked today. The one with genuinely unsynchronized mutable
-///   state is `SessionGenerator`; its writes happen on the initiator's thread
-///   while `currentSessionDetails` may be read from a subscriber's thread.
-///   That predates this type's `Sendable` conformance and is unchanged here.
-///   TODO: Synchronize `SessionGenerator` and make this a checked conformance.
+///   session start path captures `self` in a `Task`. Every stored property is
+///   a `let`, and each one is either immutable, independently synchronized
+///   (`SessionGenerator`, `SessionsState`), or already `Sendable`
+///   (`DispatchQueue`). The conformance is unchecked only because the
+///   injected `SessionCoordinatorProtocol`, `SettingsProtocol` and
+///   `ApplicationInfoProtocol` existentials are not declared `Sendable`.
+///   TODO: Mark those protocols `Sendable` and make this a checked conformance.
 @objc(FIRSessions) final class Sessions: NSObject, Library, SessionsProvider, @unchecked Sendable {
   // MARK: - Private Variables
 
