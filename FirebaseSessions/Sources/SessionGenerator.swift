@@ -62,10 +62,14 @@ final class SessionGenerator: Sendable {
   // Generates a new Session ID. If there was already a generated Session ID
   // from the last session during the app's lifecycle, it will also set the last Session ID
   func generateNewSession() -> SessionInfo {
+    // Generated outside the critical section: `UnfairLock` wraps
+    // `os_unfair_lock`, which should be held only for the state
+    // read-modify-write, never across allocations. The new ID is always
+    // consumed, so there is no wasted work.
+    let newSessionId = UUID().uuidString.replacingOccurrences(of: "-", with: "").lowercased()
+
     let collectEvents = self.collectEvents
     return state.withLock { state in
-      let newSessionId = UUID().uuidString.replacingOccurrences(of: "-", with: "").lowercased()
-
       // If firstSessionId is set, use it. Otherwise set it to the
       // first generated Session ID
       state.firstSessionId = state.firstSessionId.isEmpty ? newSessionId : state.firstSessionId
