@@ -15,7 +15,7 @@
 #import <TargetConditionals.h>
 #if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
 
-#import "FirebaseCore/Extension/FIRSceneDelegateFinder.h"
+#import "FirebaseCore/Extension/FIRSceneFinder.h"
 
 static BOOL FIRSceneHasKeyWindow(UIScene *scene) {
   if ([scene isKindOfClass:[UIWindowScene class]]) {
@@ -29,13 +29,13 @@ static BOOL FIRSceneHasKeyWindow(UIScene *scene) {
   return NO;
 }
 
-@implementation FIRSceneDelegateFinder
+@implementation FIRSceneFinder
 
 + (nullable UIScene *)findForegroundSceneForApplication:(nullable UIApplication *)application
                                       matchingPredicate:(BOOL(NS_NOESCAPE ^)(UIScene *scene))
                                                             predicate {
   NSAssert([NSThread isMainThread],
-           @"FIRSceneDelegateFinder findForegroundSceneForApplication:matchingPredicate: must be "
+           @"FIRSceneFinder findForegroundSceneForApplication:matchingPredicate: must be "
            @"called on the main thread.");
 
   if (!application || !predicate) {

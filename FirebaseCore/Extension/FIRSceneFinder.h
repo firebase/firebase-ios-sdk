@@ -22,8 +22,8 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * A utility class to help find active UIScene instances on UIApplication.
  */
-NS_SWIFT_NAME(SceneDelegateFinder)
-@interface FIRSceneDelegateFinder : NSObject
+NS_SWIFT_NAME(SceneFinder)
+@interface FIRSceneFinder : NSObject
 
 - (instancetype)init NS_UNAVAILABLE;
 
@@ -46,7 +46,7 @@ NS_SWIFT_NAME(SceneDelegateFinder)
  ### Usage Example
  ```objc
  SEL selector = @selector(scene:continueUserActivity:);
- UIScene *targetScene = [FIRSceneDelegateFinder
+ UIScene *targetScene = [FIRSceneFinder
      findForegroundSceneForApplication:self.mainApplication
                       matchingSelector:selector];
 
@@ -79,7 +79,7 @@ NS_SWIFT_NAME(SceneDelegateFinder)
 
  ### Usage Example
  ```objc
- UIScene *targetScene = [FIRSceneDelegateFinder
+ UIScene *targetScene = [FIRSceneFinder
      findForegroundSceneForApplication:self.mainApplication
                      matchingPredicate:^BOOL(UIScene *scene) {
                        return [scene.session.role
@@ -112,7 +112,7 @@ NS_SWIFT_NAME(SceneDelegateFinder)
 
  ### Usage Example
  ```objc
- UIWindowScene *targetScene = [FIRSceneDelegateFinder
+ UIWindowScene *targetScene = [FIRSceneFinder
      findForegroundWindowSceneForApplication:self.mainApplication];
 
  if (targetScene) {

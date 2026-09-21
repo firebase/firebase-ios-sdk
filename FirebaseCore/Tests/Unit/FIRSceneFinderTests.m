@@ -17,7 +17,7 @@
 
 #import "FirebaseCore/Tests/Unit/FIRTestCase.h"
 
-#import "FirebaseCore/Extension/FIRSceneDelegateFinder.h"
+#import "FirebaseCore/Extension/FIRSceneFinder.h"
 
 @interface MockSceneDelegate : NSObject <UISceneDelegate>
 - (void)scene:(UIScene *)scene continueUserActivity:(NSUserActivity *)userActivity;
@@ -28,11 +28,11 @@
 }
 @end
 
-@interface FIRSceneDelegateFinderTests : FIRTestCase
+@interface FIRSceneFinderTests : FIRTestCase
 @property(nonatomic, strong) id mockApplication;
 @end
 
-@implementation FIRSceneDelegateFinderTests
+@implementation FIRSceneFinderTests
 
 - (void)setUp {
   [super setUp];
@@ -45,9 +45,9 @@
 }
 
 - (void)testNilApplicationReturnsNil {
-  UIScene *result = [FIRSceneDelegateFinder
-      findForegroundSceneForApplication:nil
-                       matchingSelector:@selector(scene:continueUserActivity:)];
+  UIScene *result =
+      [FIRSceneFinder findForegroundSceneForApplication:nil
+                                       matchingSelector:@selector(scene:continueUserActivity:)];
   XCTAssertNil(result);
 }
 
@@ -61,9 +61,9 @@
   NSSet *connectedScenes = [NSSet setWithObject:mockScene];
   OCMStub([self.mockApplication connectedScenes]).andReturn(connectedScenes);
 
-  UIScene *result = [FIRSceneDelegateFinder
-      findForegroundSceneForApplication:self.mockApplication
-                       matchingSelector:@selector(scene:continueUserActivity:)];
+  UIScene *result =
+      [FIRSceneFinder findForegroundSceneForApplication:self.mockApplication
+                                       matchingSelector:@selector(scene:continueUserActivity:)];
   XCTAssertNil(result);
 }
 
@@ -83,9 +83,9 @@
   NSSet *connectedScenes = [NSSet setWithObjects:mockSceneA, mockSceneB, nil];
   OCMStub([self.mockApplication connectedScenes]).andReturn(connectedScenes);
 
-  UIScene *result = [FIRSceneDelegateFinder
-      findForegroundSceneForApplication:self.mockApplication
-                       matchingSelector:@selector(scene:continueUserActivity:)];
+  UIScene *result =
+      [FIRSceneFinder findForegroundSceneForApplication:self.mockApplication
+                                       matchingSelector:@selector(scene:continueUserActivity:)];
   XCTAssertEqual(result, mockSceneB);
 }
 
@@ -105,9 +105,9 @@
   NSSet *connectedScenes = [NSSet setWithObjects:mockSceneA, mockSceneB, nil];
   OCMStub([self.mockApplication connectedScenes]).andReturn(connectedScenes);
 
-  UIScene *result = [FIRSceneDelegateFinder
-      findForegroundSceneForApplication:self.mockApplication
-                       matchingSelector:@selector(scene:continueUserActivity:)];
+  UIScene *result =
+      [FIRSceneFinder findForegroundSceneForApplication:self.mockApplication
+                                       matchingSelector:@selector(scene:continueUserActivity:)];
   XCTAssertEqual(result, mockSceneB);
 }
 
@@ -133,9 +133,9 @@
   NSSet *connectedScenes = [NSSet setWithObjects:mockSceneA, mockSceneB, nil];
   OCMStub([self.mockApplication connectedScenes]).andReturn(connectedScenes);
 
-  UIScene *result = [FIRSceneDelegateFinder
-      findForegroundSceneForApplication:self.mockApplication
-                       matchingSelector:@selector(scene:continueUserActivity:)];
+  UIScene *result =
+      [FIRSceneFinder findForegroundSceneForApplication:self.mockApplication
+                                       matchingSelector:@selector(scene:continueUserActivity:)];
   XCTAssertEqual(result, mockSceneB);
 }
 
@@ -161,9 +161,9 @@
   NSSet *connectedScenes = [NSSet setWithObjects:mockSceneA, mockSceneB, nil];
   OCMStub([self.mockApplication connectedScenes]).andReturn(connectedScenes);
 
-  UIScene *result = [FIRSceneDelegateFinder
-      findForegroundSceneForApplication:self.mockApplication
-                       matchingSelector:@selector(scene:continueUserActivity:)];
+  UIScene *result =
+      [FIRSceneFinder findForegroundSceneForApplication:self.mockApplication
+                                       matchingSelector:@selector(scene:continueUserActivity:)];
   XCTAssertEqual(result, mockSceneB);
 }
 
@@ -189,16 +189,16 @@
   NSSet *connectedScenes = [NSSet setWithObjects:mockSceneA, mockSceneB, nil];
   OCMStub([self.mockApplication connectedScenes]).andReturn(connectedScenes);
 
-  UIScene *result = [FIRSceneDelegateFinder
-      findForegroundSceneForApplication:self.mockApplication
-                       matchingSelector:@selector(scene:continueUserActivity:)];
+  UIScene *result =
+      [FIRSceneFinder findForegroundSceneForApplication:self.mockApplication
+                                       matchingSelector:@selector(scene:continueUserActivity:)];
   XCTAssertEqual(result, mockSceneA);
 }
 
 #pragma mark - findForegroundWindowSceneForApplication: Tests
 
 - (void)testFindForegroundWindowScene_nilApplicationReturnsNil {
-  UIWindowScene *result = [FIRSceneDelegateFinder findForegroundWindowSceneForApplication:nil];
+  UIWindowScene *result = [FIRSceneFinder findForegroundWindowSceneForApplication:nil];
   XCTAssertNil(result);
 }
 
@@ -211,7 +211,7 @@
   OCMStub([self.mockApplication connectedScenes]).andReturn(connectedScenes);
 
   UIWindowScene *result =
-      [FIRSceneDelegateFinder findForegroundWindowSceneForApplication:self.mockApplication];
+      [FIRSceneFinder findForegroundWindowSceneForApplication:self.mockApplication];
   XCTAssertNil(result);
 }
 
@@ -228,7 +228,7 @@
   OCMStub([self.mockApplication connectedScenes]).andReturn(connectedScenes);
 
   UIWindowScene *result =
-      [FIRSceneDelegateFinder findForegroundWindowSceneForApplication:self.mockApplication];
+      [FIRSceneFinder findForegroundWindowSceneForApplication:self.mockApplication];
   XCTAssertEqual(result, mockSceneB);
 }
 
@@ -245,7 +245,7 @@
   OCMStub([self.mockApplication connectedScenes]).andReturn(connectedScenes);
 
   UIWindowScene *result =
-      [FIRSceneDelegateFinder findForegroundWindowSceneForApplication:self.mockApplication];
+      [FIRSceneFinder findForegroundWindowSceneForApplication:self.mockApplication];
   XCTAssertEqual(result, mockSceneB);
 }
 
@@ -268,7 +268,7 @@
   OCMStub([self.mockApplication connectedScenes]).andReturn(connectedScenes);
 
   UIWindowScene *result =
-      [FIRSceneDelegateFinder findForegroundWindowSceneForApplication:self.mockApplication];
+      [FIRSceneFinder findForegroundWindowSceneForApplication:self.mockApplication];
   XCTAssertEqual(result, mockSceneB);
 }
 
@@ -291,7 +291,7 @@
   OCMStub([self.mockApplication connectedScenes]).andReturn(connectedScenes);
 
   UIWindowScene *result =
-      [FIRSceneDelegateFinder findForegroundWindowSceneForApplication:self.mockApplication];
+      [FIRSceneFinder findForegroundWindowSceneForApplication:self.mockApplication];
   XCTAssertEqual(result, mockSceneB);
 }
 
@@ -314,24 +314,23 @@
   OCMStub([self.mockApplication connectedScenes]).andReturn(connectedScenes);
 
   UIWindowScene *result =
-      [FIRSceneDelegateFinder findForegroundWindowSceneForApplication:self.mockApplication];
+      [FIRSceneFinder findForegroundWindowSceneForApplication:self.mockApplication];
   XCTAssertEqual(result, mockSceneA);
 }
 
 #pragma mark - findForegroundSceneForApplication:matchingPredicate: Tests
 
 - (void)testFindForegroundScene_matchingPredicate_nilApplicationReturnsNil {
-  UIScene *result =
-      [FIRSceneDelegateFinder findForegroundSceneForApplication:nil
-                                              matchingPredicate:^BOOL(UIScene *scene) {
-                                                return YES;
-                                              }];
+  UIScene *result = [FIRSceneFinder findForegroundSceneForApplication:nil
+                                                    matchingPredicate:^BOOL(UIScene *scene) {
+                                                      return YES;
+                                                    }];
   XCTAssertNil(result);
 }
 
 - (void)testFindForegroundScene_matchingPredicate_nilPredicateReturnsNil {
-  UIScene *result = [FIRSceneDelegateFinder findForegroundSceneForApplication:self.mockApplication
-                                                            matchingPredicate:nil];
+  UIScene *result = [FIRSceneFinder findForegroundSceneForApplication:self.mockApplication
+                                                    matchingPredicate:nil];
   XCTAssertNil(result);
 }
 
@@ -342,11 +341,10 @@
   NSSet *connectedScenes = [NSSet setWithObject:mockScene];
   OCMStub([self.mockApplication connectedScenes]).andReturn(connectedScenes);
 
-  UIScene *result =
-      [FIRSceneDelegateFinder findForegroundSceneForApplication:self.mockApplication
-                                              matchingPredicate:^BOOL(UIScene *scene) {
-                                                return NO;
-                                              }];
+  UIScene *result = [FIRSceneFinder findForegroundSceneForApplication:self.mockApplication
+                                                    matchingPredicate:^BOOL(UIScene *scene) {
+                                                      return NO;
+                                                    }];
   XCTAssertNil(result);
 }
 
@@ -362,11 +360,10 @@
   NSSet *connectedScenes = [NSSet setWithObjects:mockSceneA, mockSceneB, nil];
   OCMStub([self.mockApplication connectedScenes]).andReturn(connectedScenes);
 
-  UIScene *result =
-      [FIRSceneDelegateFinder findForegroundSceneForApplication:self.mockApplication
-                                              matchingPredicate:^BOOL(UIScene *scene) {
-                                                return scene == mockSceneB;
-                                              }];
+  UIScene *result = [FIRSceneFinder findForegroundSceneForApplication:self.mockApplication
+                                                    matchingPredicate:^BOOL(UIScene *scene) {
+                                                      return scene == mockSceneB;
+                                                    }];
   XCTAssertEqual(result, mockSceneB);
 }
 
@@ -382,11 +379,10 @@
   NSSet *connectedScenes = [NSSet setWithObjects:mockSceneA, mockSceneB, nil];
   OCMStub([self.mockApplication connectedScenes]).andReturn(connectedScenes);
 
-  UIScene *result =
-      [FIRSceneDelegateFinder findForegroundSceneForApplication:self.mockApplication
-                                              matchingPredicate:^BOOL(UIScene *scene) {
-                                                return YES;
-                                              }];
+  UIScene *result = [FIRSceneFinder findForegroundSceneForApplication:self.mockApplication
+                                                    matchingPredicate:^BOOL(UIScene *scene) {
+                                                      return YES;
+                                                    }];
   XCTAssertEqual(result, mockSceneB);
 }
 
@@ -408,11 +404,10 @@
   NSSet *connectedScenes = [NSSet setWithObjects:mockSceneA, mockSceneB, nil];
   OCMStub([self.mockApplication connectedScenes]).andReturn(connectedScenes);
 
-  UIScene *result =
-      [FIRSceneDelegateFinder findForegroundSceneForApplication:self.mockApplication
-                                              matchingPredicate:^BOOL(UIScene *scene) {
-                                                return YES;
-                                              }];
+  UIScene *result = [FIRSceneFinder findForegroundSceneForApplication:self.mockApplication
+                                                    matchingPredicate:^BOOL(UIScene *scene) {
+                                                      return YES;
+                                                    }];
   XCTAssertEqual(result, mockSceneB);
 }
 
@@ -434,11 +429,10 @@
   NSSet *connectedScenes = [NSSet setWithObjects:mockSceneA, mockSceneB, nil];
   OCMStub([self.mockApplication connectedScenes]).andReturn(connectedScenes);
 
-  UIScene *result =
-      [FIRSceneDelegateFinder findForegroundSceneForApplication:self.mockApplication
-                                              matchingPredicate:^BOOL(UIScene *scene) {
-                                                return YES;
-                                              }];
+  UIScene *result = [FIRSceneFinder findForegroundSceneForApplication:self.mockApplication
+                                                    matchingPredicate:^BOOL(UIScene *scene) {
+                                                      return YES;
+                                                    }];
   XCTAssertEqual(result, mockSceneB);
 }
 
@@ -460,11 +454,10 @@
   NSSet *connectedScenes = [NSSet setWithObjects:mockSceneA, mockSceneB, nil];
   OCMStub([self.mockApplication connectedScenes]).andReturn(connectedScenes);
 
-  UIScene *result =
-      [FIRSceneDelegateFinder findForegroundSceneForApplication:self.mockApplication
-                                              matchingPredicate:^BOOL(UIScene *scene) {
-                                                return YES;
-                                              }];
+  UIScene *result = [FIRSceneFinder findForegroundSceneForApplication:self.mockApplication
+                                                    matchingPredicate:^BOOL(UIScene *scene) {
+                                                      return YES;
+                                                    }];
   XCTAssertEqual(result, mockSceneA);
 }
 
