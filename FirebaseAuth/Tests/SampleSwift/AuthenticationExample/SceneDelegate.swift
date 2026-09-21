@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import FirebaseAuth
-import UIKit
-import GoogleSignIn
 import FacebookCore
+import FirebaseAuth
+import GoogleSignIn
+import UIKit
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
   var window: UIWindow?
@@ -56,11 +56,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     for urlContext in URLContexts {
       let url = urlContext.url
       if Auth.auth().canHandle(url) {
-        continue;
+        continue
       }
       // Handle Google signins
       if GIDSignIn.sharedInstance.handle(url) {
-        continue;
+        continue
       }
       // Handle Facebook signins
       if ApplicationDelegate.shared.application(
