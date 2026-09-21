@@ -61,6 +61,10 @@ NS_SWIFT_NAME(SceneFinder)
  @return The matching UIScene instance, or nil if no matching scene delegate is found.
  @note This method must be called on the main thread.
  */
++ (nullable UIScene *)findForegroundSceneForApplication:(nullable UIApplication *)application
+                                      matchingPredicate:(BOOL(NS_NOESCAPE ^)(UIScene *scene))
+                                                            predicate;
+
 /**
  Iterates through the connectedScenes of the specified application instance to find a
  foreground scene matching the specified predicate.
@@ -92,10 +96,6 @@ NS_SWIFT_NAME(SceneFinder)
  @return The matching UIScene instance, or nil if no matching scene is found.
  @note This method must be called on the main thread.
  */
-+ (nullable UIScene *)findForegroundSceneForApplication:(nullable UIApplication *)application
-                                      matchingPredicate:(BOOL(NS_NOESCAPE ^)(UIScene *scene))
-                                                            predicate;
-
 + (nullable UIScene *)findForegroundSceneForApplication:(nullable UIApplication *)application
                                        matchingSelector:(SEL)selector;
 
