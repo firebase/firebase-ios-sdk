@@ -23,16 +23,18 @@ final class TemplateChatSessionTests: XCTestCase {
 
   override func setUp() {
     super.setUp()
+
     let configuration = URLSessionConfiguration.default
     configuration.protocolClasses = [MockURLProtocol.self]
     urlSession = URLSession(configuration: configuration)
     let firebaseInfo = GenerativeModelTestUtil.testFirebaseInfo()
-    let generativeAIService = GenerativeAIService(
+    model = TemplateGenerativeModel(
       firebaseInfo: firebaseInfo,
+      apiConfig: FirebaseAI.defaultVertexAIAPIConfig,
+      toolConfig: nil,
+      requestOptions: RequestOptions(),
       urlSession: urlSession
     )
-    let apiConfig = APIConfig(service: .googleAI(endpoint: .firebaseProxyProd), version: .v1beta)
-    model = TemplateGenerativeModel(generativeAIService: generativeAIService, apiConfig: apiConfig)
   }
 
   func testSendMessage() async throws {
@@ -42,8 +44,10 @@ final class TemplateChatSessionTests: XCTestCase {
       subdirectory: "mock-responses/googleai",
       isTemplateRequest: true
     )
-    let chat = model.startChat(templateID: "test-template")
-    let response = try await chat.sendMessage("Hello", inputs: ["name": "test"])
+    let chat = model.startChat(templateID: "test-template", inputs: ["name": "test"])
+
+    let response = try await chat.sendMessage("Hello")
+
     XCTAssertEqual(chat.history.count, 2)
     XCTAssertEqual(chat.history[0].role, "user")
     XCTAssertEqual((chat.history[0].parts.first as? TextPart)?.text, "Hello")
@@ -62,8 +66,8 @@ final class TemplateChatSessionTests: XCTestCase {
       subdirectory: "mock-responses/googleai",
       isTemplateRequest: true
     )
-    let chat = model.startChat(templateID: "test-template")
-    let stream = try chat.sendMessageStream("Hello", inputs: ["name": "test"])
+    let chat = model.startChat(templateID: "test-template", inputs: ["name": "test"])
+    let stream = try chat.sendMessageStream("Hello")
 
     let content = try await GenerativeModelTestUtil.collectTextFromStream(stream)
 
@@ -81,11 +85,10 @@ final class TemplateChatSessionTests: XCTestCase {
       subdirectory: "mock-responses/googleai",
       isTemplateRequest: true
     )
-    let chat = model.startChat(templateID: "test-template")
-    let response = try await chat.sendMessage(
-      [ModelContent(parts: [TextPart("Hello")])],
-      inputs: ["name": "test"]
-    )
+    let chat = model.startChat(templateID: "test-template", inputs: ["name": "test"])
+
+    let response = try await chat.sendMessage([ModelContent(parts: [TextPart("Hello")])])
+
     XCTAssertEqual(chat.history.count, 2)
     XCTAssertEqual(chat.history[0].role, "user")
     XCTAssertEqual((chat.history[0].parts.first as? TextPart)?.text, "Hello")
@@ -104,11 +107,8 @@ final class TemplateChatSessionTests: XCTestCase {
       subdirectory: "mock-responses/googleai",
       isTemplateRequest: true
     )
-    let chat = model.startChat(templateID: "test-template")
-    let stream = try chat.sendMessageStream(
-      [ModelContent(parts: [TextPart("Hello")])],
-      inputs: ["name": "test"]
-    )
+    let chat = model.startChat(templateID: "test-template", inputs: ["name": "test"])
+    let stream = try chat.sendMessageStream([ModelContent(parts: [TextPart("Hello")])])
 
     let content = try await GenerativeModelTestUtil.collectTextFromStream(stream)
 

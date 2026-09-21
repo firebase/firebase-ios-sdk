@@ -21,19 +21,21 @@ import XCTest
 final class TemplateGenerativeModelTests: XCTestCase {
   var urlSession: URLSession!
   var model: TemplateGenerativeModel!
+  let firebaseInfo = GenerativeModelTestUtil.testFirebaseInfo()
+  let apiConfig = FirebaseAI.defaultVertexAIAPIConfig
 
   override func setUp() {
     super.setUp()
     let configuration = URLSessionConfiguration.default
     configuration.protocolClasses = [MockURLProtocol.self]
     urlSession = URLSession(configuration: configuration)
-    let firebaseInfo = GenerativeModelTestUtil.testFirebaseInfo()
-    let generativeAIService = GenerativeAIService(
+    model = TemplateGenerativeModel(
       firebaseInfo: firebaseInfo,
+      apiConfig: apiConfig,
+      toolConfig: nil,
+      requestOptions: RequestOptions(),
       urlSession: urlSession
     )
-    let apiConfig = APIConfig(service: .googleAI(endpoint: .firebaseProxyProd), version: .v1beta)
-    model = TemplateGenerativeModel(generativeAIService: generativeAIService, apiConfig: apiConfig)
   }
 
   func testGenerateContent() async throws {
@@ -78,28 +80,21 @@ final class TemplateGenerativeModelTests: XCTestCase {
       subdirectory: "mock-responses/googleai",
       isTemplateRequest: true
     )
-
-    let firebaseInfo = GenerativeModelTestUtil.testFirebaseInfo()
-    let generativeAIService = GenerativeAIService(
-      firebaseInfo: firebaseInfo,
-      urlSession: urlSession
-    )
-    let apiConfig = APIConfig(service: .googleAI(endpoint: .firebaseProxyProd), version: .v1beta)
-    let model = TemplateGenerativeModel(
-      generativeAIService: generativeAIService,
-      apiConfig: apiConfig
-    )
-
     let toolConfig = TemplateToolConfig(
       retrievalConfig: RetrievalConfig(
         location: CLLocationCoordinate2D(latitude: 37.7799, longitude: -122.2822)
       )
     )
-    let response = try await model.generateContent(
-      templateID: "test-template",
-      inputs: ["name": "test"],
-      toolConfig: toolConfig
+    model = TemplateGenerativeModel(
+      firebaseInfo: firebaseInfo,
+      apiConfig: APIConfig(service: .googleAI(endpoint: .firebaseProxyProd), version: .v1beta),
+      toolConfig: toolConfig,
+      requestOptions: RequestOptions(),
+      urlSession: urlSession
     )
+
+    let response = try await model.generateContent(templateID: "test-template",
+                                                   inputs: ["name": "test"])
 
     XCTAssertEqual(response.candidates.count, 1)
     let candidate = try XCTUnwrap(response.candidates.first)
@@ -120,31 +115,21 @@ final class TemplateGenerativeModelTests: XCTestCase {
       subdirectory: "mock-responses/vertexai",
       isTemplateRequest: true
     )
-
-    let firebaseInfo = GenerativeModelTestUtil.testFirebaseInfo()
-    let generativeAIService = GenerativeAIService(
-      firebaseInfo: firebaseInfo,
-      urlSession: urlSession
-    )
-    let apiConfig = APIConfig(
-      service: .agentPlatform(endpoint: .firebaseProxyProd, location: "us-central1"),
-      version: .v1beta
-    )
-    let model = TemplateGenerativeModel(
-      generativeAIService: generativeAIService,
-      apiConfig: apiConfig
-    )
-
     let toolConfig = TemplateToolConfig(
       retrievalConfig: RetrievalConfig(
         location: CLLocationCoordinate2D(latitude: 37.7799, longitude: -122.2822)
       )
     )
-    let response = try await model.generateContent(
-      templateID: "test-template",
-      inputs: ["name": "test"],
-      toolConfig: toolConfig
+    model = TemplateGenerativeModel(
+      firebaseInfo: firebaseInfo,
+      apiConfig: FirebaseAI.defaultVertexAIAPIConfig,
+      toolConfig: toolConfig,
+      requestOptions: RequestOptions(),
+      urlSession: urlSession
     )
+
+    let response = try await model.generateContent(templateID: "test-template",
+                                                   inputs: ["name": "test"])
 
     XCTAssertEqual(response.candidates.count, 1)
     let candidate = try XCTUnwrap(response.candidates.first)

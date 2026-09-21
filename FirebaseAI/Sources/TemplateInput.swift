@@ -24,6 +24,8 @@ enum TemplateInput: Encodable, Sendable {
 
   init(value: Any) throws {
     switch value {
+    case let value as TemplateInput:
+      self = value
     case let value as String:
       self = .string(value)
     case let value as Int:
