@@ -88,10 +88,10 @@
       #expect(response.content.name == "Tokyo")
       #expect(response.content.population == 14_000_000)
       let capturedRequest = try #require(receivedRequest.withLock { $0 })
-      let textFormat = try #require(capturedRequest.generationConfig?.responseFormat?.text)
-      #expect(textFormat.mimeType == .applicationJson)
-      guard case .object(let schemaObject) = textFormat.schema else {
-        Issue.record("Expected schema to be a JSON object.")
+      let generationConfig = try #require(capturedRequest.generationConfig)
+      #expect(generationConfig.responseMimeType == "application/json")
+      guard case .object(let schemaObject) = generationConfig.responseJsonSchema else {
+        Issue.record("Expected responseJsonSchema to be a JSON object.")
         return
       }
       #expect(schemaObject["x-order"] == nil)

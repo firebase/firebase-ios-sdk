@@ -273,6 +273,8 @@ struct FIRCLSMachOSlice FIRCLSMachOSliceGetCurrent(void) {
   Dl_info dlinfo;
 
 #if !CLS_TARGET_OS_VISION
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   const NXArchInfo* archInfo;
   archInfo = NXGetLocalArchInfo();
 
@@ -280,6 +282,7 @@ struct FIRCLSMachOSlice FIRCLSMachOSliceGetCurrent(void) {
     slice.cputype = archInfo->cputype;
     slice.cpusubtype = archInfo->cpusubtype;
   }
+#pragma clang diagnostic pop
 #else
   cpu_type_t cputype;
   cpu_subtype_t cpusubtype;
@@ -348,6 +351,8 @@ const char* FIRCLSMachOSliceGetArchitectureName(FIRCLSMachOSliceRef slice) {
   }
 
 #if !CLS_TARGET_OS_VISION
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   const NXArchInfo* archInfo;
 
   archInfo = NXGetArchInfoFromCpuType(slice->cputype, slice->cpusubtype);
@@ -356,6 +361,7 @@ const char* FIRCLSMachOSliceGetArchitectureName(FIRCLSMachOSliceRef slice) {
   }
 
   return archInfo->name;
+#pragma clang diagnostic pop
 #else
   const char* archname = macho_arch_name_for_mach_header(slice->startAddress);
 
