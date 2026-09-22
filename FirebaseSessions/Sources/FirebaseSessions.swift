@@ -29,10 +29,20 @@ private enum GoogleDataTransportConfig {
 ///   session start path captures `self` in a `Task`. Every stored property is
 ///   a `let`, and each one is either immutable, independently synchronized
 ///   (`SessionGenerator`, `SessionsState`), or already `Sendable`
-///   (`DispatchQueue`). The conformance is unchecked only because the
-///   injected `SessionCoordinatorProtocol`, `SettingsProtocol` and
-///   `ApplicationInfoProtocol` existentials are not declared `Sendable`.
-///   TODO: Mark those protocols `Sendable` and make this a checked conformance.
+///   (`DispatchQueue`, `NotificationCenter`).
+///
+///   Two things keep the conformance unchecked:
+///   1. The injected `SessionCoordinatorProtocol`, `SettingsProtocol` and
+///      `ApplicationInfoProtocol` existentials are not declared `Sendable`,
+///      even though every in-tree conformer is immutable or internally
+///      synchronized.
+///   2. `SessionInitiator` is a non-`Sendable` class with mutable state
+///      (`backgroundTime`, `initiateSessionStart`). It is safe here only by
+///      confinement: it is used once, during `init`, and its state is
+///      otherwise mutated solely by main-thread lifecycle notifications. The
+///      session start `Task` never touches it.
+///   TODO: Mark those protocols `Sendable`, make `SessionInitiator` safe for
+///   concurrency, and turn this into a checked conformance.
 @objc(FIRSessions) final class Sessions: NSObject, Library, SessionsProvider, @unchecked Sendable {
   // MARK: - Private Variables
 
