@@ -53,6 +53,7 @@ Pod::Spec.new do |s|
     'GCC_PREPROCESSOR_DEFINITIONS' =>
       # For nanopb:
       'PB_FIELD_32BIT=1 PB_NO_PACKED_STRUCTS=1 PB_ENABLE_MALLOC=1',
+    'PRODUCT_BUNDLE_IDENTIFIER' => 'com.google.firebase.FirebaseSessions'
   }
 
   s.test_spec 'unit' do |unit_tests|

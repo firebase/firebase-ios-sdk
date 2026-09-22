@@ -26,6 +26,10 @@ Pod::Spec.new do |s|
     s.libraries  = 'c++', 'sqlite3', 'z'
     s.frameworks = 'StoreKit'
 
+    s.pod_target_xcconfig = {
+      'PRODUCT_BUNDLE_IDENTIFIER' => 'com.google.firebase.FirebaseAnalytics'
+    }
+
     s.dependency 'FirebaseCore', '~> 13.0.0'
     s.dependency 'FirebaseInstallations', '~> 13.0.0'
     s.dependency 'GoogleUtilities/AppDelegateSwizzler', '>= 8.1.3', '< 9.0'

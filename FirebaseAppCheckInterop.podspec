@@ -34,6 +34,10 @@ Pod::Spec.new do |s|
   s.source_files = 'FirebaseAppCheck/Interop/**/*.[hm]'
   s.public_header_files = 'FirebaseAppCheck/Interop/Public/FirebaseAppCheckInterop/*.h'
 
+  s.pod_target_xcconfig = {
+    'PRODUCT_BUNDLE_IDENTIFIER' => 'com.google.firebase.FirebaseAppCheckInterop'
+  }
+
   s.test_spec 'objc-unit' do |unit_tests|
     unit_tests.platforms = {
       :ios => ios_deployment_target,
