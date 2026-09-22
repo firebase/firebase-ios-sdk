@@ -17,7 +17,7 @@
 #include "Firestore/core/src/index/firestore_index_value_writer.h"
 
 #include <cmath>
-#include <cstdlib>
+#include <cstdlib>  // NOLINT(build/include_order)
 #include <limits>
 #include <string>
 #include <vector>
