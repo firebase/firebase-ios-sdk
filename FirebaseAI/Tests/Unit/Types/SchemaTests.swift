@@ -12,9 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import FirebaseAILogic
 import Foundation
 import XCTest
+
+@testable import FirebaseAILogic
 
 final class SchemaTests: XCTestCase {
   let encoder = JSONEncoder()
@@ -584,5 +585,339 @@ final class SchemaTests: XCTestCase {
 
     XCTAssertNotEqual(anyOf1, anyOf2, "Differing sub-schemas should not be equal")
     XCTAssertNotEqual(anyOf1, anyOf3, "Differing sub-schema counts should not be equal")
+  }
+
+  // MARK: - JSON Schema Conversion Tests
+
+  func testToJSONSchema_string() throws {
+    let schema = Schema.string()
+
+    let jsonSchema = schema.toJSONSchema()
+
+    let jsonData = try encoder.encode(jsonSchema)
+    let json = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
+    XCTAssertEqual(json, """
+    {
+      "type" : "string"
+    }
+    """)
+  }
+
+  func testToJSONSchema_integer() throws {
+    let schema = Schema.integer()
+
+    let jsonSchema = schema.toJSONSchema()
+
+    let jsonData = try encoder.encode(jsonSchema)
+    let json = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
+    XCTAssertEqual(json, """
+    {
+      "type" : "integer"
+    }
+    """)
+  }
+
+  func testToJSONSchema_float() throws {
+    let schema = Schema.float()
+
+    let jsonSchema = schema.toJSONSchema()
+
+    let jsonData = try encoder.encode(jsonSchema)
+    let json = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
+    XCTAssertEqual(json, """
+    {
+      "format" : "float",
+      "type" : "number"
+    }
+    """)
+  }
+
+  func testToJSONSchema_double() throws {
+    let schema = Schema.double()
+
+    let jsonSchema = schema.toJSONSchema()
+
+    let jsonData = try encoder.encode(jsonSchema)
+    let json = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
+    XCTAssertEqual(json, """
+    {
+      "type" : "number"
+    }
+    """)
+  }
+
+  func testToJSONSchema_boolean() throws {
+    let schema = Schema.boolean()
+
+    let jsonSchema = schema.toJSONSchema()
+
+    let jsonData = try encoder.encode(jsonSchema)
+    let json = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
+    XCTAssertEqual(json, """
+    {
+      "type" : "boolean"
+    }
+    """)
+  }
+
+  func testToJSONSchema_nullable() throws {
+    let schema = Schema.string(nullable: true)
+
+    let jsonSchema = schema.toJSONSchema()
+
+    let jsonData = try encoder.encode(jsonSchema)
+    let json = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
+    XCTAssertEqual(json, """
+    {
+      "type" : [
+        "string",
+        "null"
+      ]
+    }
+    """)
+  }
+
+  func testToJSONSchema_titleAndDescription() throws {
+    let schema = Schema.string(
+      description: "A person's full name.",
+      title: "FullName"
+    )
+
+    let jsonSchema = schema.toJSONSchema()
+
+    let jsonData = try encoder.encode(jsonSchema)
+    let json = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
+    XCTAssertEqual(json, """
+    {
+      "description" : "A person's full name.",
+      "title" : "FullName",
+      "type" : "string"
+    }
+    """)
+  }
+
+  func testToJSONSchema_enumeration() throws {
+    let schema = Schema.enumeration(values: ["phishing", "scam", "promotion"])
+
+    let jsonSchema = schema.toJSONSchema()
+
+    let jsonData = try encoder.encode(jsonSchema)
+    let json = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
+    XCTAssertEqual(json, """
+    {
+      "enum" : [
+        "phishing",
+        "scam",
+        "promotion"
+      ],
+      "type" : "string"
+    }
+    """)
+  }
+
+  func testToJSONSchema_customFormat() throws {
+    let schema = Schema.string(format: .custom("date-time"))
+
+    let jsonSchema = schema.toJSONSchema()
+
+    let jsonData = try encoder.encode(jsonSchema)
+    let json = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
+    XCTAssertEqual(json, """
+    {
+      "format" : "date-time",
+      "type" : "string"
+    }
+    """)
+  }
+
+  func testToJSONSchema_numericBounds() throws {
+    let schema = Schema.integer(minimum: 1, maximum: 100)
+
+    let jsonSchema = schema.toJSONSchema()
+
+    let jsonData = try encoder.encode(jsonSchema)
+    let json = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
+    XCTAssertEqual(json, """
+    {
+      "maximum" : 100,
+      "minimum" : 1,
+      "type" : "integer"
+    }
+    """)
+  }
+
+  func testToJSONSchema_array() throws {
+    let schema = Schema.array(items: .string(), minItems: 1, maxItems: 10)
+
+    let jsonSchema = schema.toJSONSchema()
+
+    let jsonData = try encoder.encode(jsonSchema)
+    let json = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
+    XCTAssertEqual(json, """
+    {
+      "items" : {
+        "type" : "string"
+      },
+      "maxItems" : 10,
+      "minItems" : 1,
+      "type" : "array"
+    }
+    """)
+  }
+
+  func testToJSONSchema_object() throws {
+    let schema = Schema.object(
+      properties: [
+        "name": .string(),
+        "age": .integer(),
+      ],
+      optionalProperties: ["age"],
+      propertyOrdering: ["name", "age"]
+    )
+
+    let jsonSchema = schema.toJSONSchema()
+
+    let jsonData = try encoder.encode(jsonSchema)
+    let json = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
+    XCTAssertEqual(json, """
+    {
+      "additionalProperties" : false,
+      "properties" : {
+        "age" : {
+          "type" : "integer"
+        },
+        "name" : {
+          "type" : "string"
+        }
+      },
+      "propertyOrdering" : [
+        "name",
+        "age"
+      ],
+      "required" : [
+        "name"
+      ],
+      "type" : "object"
+    }
+    """)
+  }
+
+  func testToJSONSchema_object_emptyRequired() throws {
+    let schema = Schema.object(
+      properties: ["name": .string()],
+      optionalProperties: ["name"]
+    )
+
+    let jsonSchema = schema.toJSONSchema()
+
+    let jsonData = try encoder.encode(jsonSchema)
+    let json = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
+    XCTAssertEqual(json, """
+    {
+      "additionalProperties" : false,
+      "properties" : {
+        "name" : {
+          "type" : "string"
+        }
+      },
+      "required" : [
+
+      ],
+      "type" : "object"
+    }
+    """)
+  }
+
+  func testToJSONSchema_anyOf() throws {
+    let schema = Schema.anyOf(schemas: [.string(), .integer()])
+
+    let jsonSchema = schema.toJSONSchema()
+
+    let jsonData = try encoder.encode(jsonSchema)
+    let json = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
+    XCTAssertEqual(json, """
+    {
+      "anyOf" : [
+        {
+          "type" : "string"
+        },
+        {
+          "type" : "integer"
+        }
+      ]
+    }
+    """)
+  }
+
+  func testToJSONSchema_nestedObjectAndArray() throws {
+    let schema = Schema.object(
+      properties: [
+        "recipe_name": .string(description: "The name of the recipe."),
+        "prep_time_minutes": .integer(
+          description: "Optional prep time.",
+          nullable: true
+        ),
+        "ingredients": .array(items: .object(properties: [
+          "name": .string(description: "Name of the ingredient."),
+          "quantity": .string(description: "Quantity with units."),
+        ])),
+      ],
+      optionalProperties: ["prep_time_minutes"],
+      propertyOrdering: ["recipe_name", "prep_time_minutes", "ingredients"]
+    )
+
+    let jsonSchema = schema.toJSONSchema()
+
+    let jsonData = try encoder.encode(jsonSchema)
+    let json = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
+    XCTAssertEqual(json, """
+    {
+      "additionalProperties" : false,
+      "properties" : {
+        "ingredients" : {
+          "items" : {
+            "additionalProperties" : false,
+            "properties" : {
+              "name" : {
+                "description" : "Name of the ingredient.",
+                "type" : "string"
+              },
+              "quantity" : {
+                "description" : "Quantity with units.",
+                "type" : "string"
+              }
+            },
+            "required" : [
+              "name",
+              "quantity"
+            ],
+            "type" : "object"
+          },
+          "type" : "array"
+        },
+        "prep_time_minutes" : {
+          "description" : "Optional prep time.",
+          "type" : [
+            "integer",
+            "null"
+          ]
+        },
+        "recipe_name" : {
+          "description" : "The name of the recipe.",
+          "type" : "string"
+        }
+      },
+      "propertyOrdering" : [
+        "recipe_name",
+        "prep_time_minutes",
+        "ingredients"
+      ],
+      "required" : [
+        "ingredients",
+        "recipe_name"
+      ],
+      "type" : "object"
+    }
+    """)
   }
 }
