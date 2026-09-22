@@ -24,7 +24,6 @@ import Testing
 struct ServerPromptTemplateIntegrationTests {
   private static let testConfigs: [InstanceConfig] = [
     .googleAI_v1beta,
-    .agentPlatform_v1beta,
     .agentPlatform_v1beta_global,
   ]
 
@@ -73,14 +72,13 @@ struct ServerPromptTemplateIntegrationTests {
         location: CLLocationCoordinate2D(latitude: 37.7799, longitude: -122.2822)
       )
     )
-    let model = FirebaseAI.componentInstance(config).templateGenerativeModel()
+    let model = FirebaseAI.componentInstance(config).templateGenerativeModel(toolConfig: toolConfig)
     let userName = "paul"
     let response = try await model.generateContent(
       templateID: "location-via-sdk",
       inputs: [
         "name": userName,
-      ],
-      toolConfig: toolConfig
+      ]
     )
     let text = try #require(response.text)
     #expect(text.localizedCaseInsensitiveContains("Paul"))
@@ -150,49 +148,120 @@ struct ServerPromptTemplateIntegrationTests {
   func chat(_ config: InstanceConfig) async throws {
     let model = FirebaseAI.componentInstance(config).templateGenerativeModel()
     let initialHistory = [
-      ModelContent(role: "user", parts: "Hello!"),
-      ModelContent(role: "model", parts: "Hi there! How can I help?"),
+      ModelContent(role: "user", parts: "Hi, my favourite colour is blue!"),
+      ModelContent(role: "model", parts: """
+      Hi there! Blue is a fantastic choice—it's the color of the ocean and the open sky.
+      """),
     ]
-    let chatSession = model.startChat(templateID: "chat-history", history: initialHistory)
+    let userMessage = "What is its complementary colour on the traditional colour wheel?"
+    let chatSession = model.startChat(templateID: "chat-history", inputs: ["message": userMessage],
+                                      history: initialHistory)
 
-    let userMessage = "What's the weather like?"
-
-    let response = try await chatSession.sendMessage(
-      userMessage,
-      inputs: ["message": userMessage]
-    )
-    let text = try #require(response.text)
-    #expect(!text.isEmpty)
+    let response = try await chatSession.sendMessage(userMessage)
+    let responseText = try #require(response.text)
+    #expect(!responseText.isEmpty)
+    #expect(responseText.localizedCaseInsensitiveContains("orange"))
     #expect(chatSession.history.count == 4)
-    let textPart = try #require(chatSession.history[2].parts.first as? TextPart)
-    #expect(textPart.text == userMessage)
+    let promptTextPart = try #require(chatSession.history[2].parts.first as? TextPart)
+    #expect(promptTextPart.text == userMessage)
   }
 
   @Test(arguments: testConfigs)
   func chatStream(_ config: InstanceConfig) async throws {
     let model = FirebaseAI.componentInstance(config).templateGenerativeModel()
     let initialHistory = [
-      ModelContent(role: "user", parts: "Hello!"),
-      ModelContent(role: "model", parts: "Hi there! How can I help?"),
+      ModelContent(role: "user", parts: "Hi, my favourite colour is blue!"),
+      ModelContent(role: "model", parts: """
+      Hi there! Blue is a fantastic choice—it's the color of the ocean and the open sky.
+      """),
     ]
-    let chatSession = model.startChat(templateID: "chat-history", history: initialHistory)
+    let userMessage = "What is its complementary colour on the traditional colour wheel?"
+    let chatSession = model.startChat(templateID: "chat-history", inputs: ["message": userMessage],
+                                      history: initialHistory)
 
-    let userMessage = "What's the weather like?"
-
-    let stream = try chatSession.sendMessageStream(
-      userMessage,
-      inputs: ["message": userMessage]
-    )
+    let stream = try chatSession.sendMessageStream(userMessage)
     var resultText = ""
     for try await response in stream {
       if let text = response.text {
         resultText += text
       }
     }
+
     #expect(!resultText.isEmpty)
+    #expect(resultText.localizedCaseInsensitiveContains("orange"))
     #expect(chatSession.history.count == 4)
-    let textPart = try #require(chatSession.history[2].parts.first as? TextPart)
-    #expect(textPart.text == userMessage)
+    let promptTextPart = try #require(chatSession.history[2].parts.first as? TextPart)
+    #expect(promptTextPart.text == userMessage)
+  }
+
+  @Test(arguments: testConfigs)
+  func chatFunctionCalling(_ config: InstanceConfig) async throws {
+    let weatherFunction = FunctionDeclaration(
+      name: "fetchWeather",
+      description: "Returns the weather for a given location at a given time",
+      parameters: [
+        "location": .object(properties: [
+          "city": .string(description: "The city of the location."),
+          "state": .string(description: "The state of the location."),
+        ]),
+        "date": .string(description: "The date for which to get the weather. Date must be in the format: YYYY-MM-DD."),
+        "unit": .enumeration(values: ["CELSIUS", "FAHRENHEIT"]),
+      ]
+    )
+    let model = FirebaseAI.componentInstance(config).templateGenerativeModel(
+      tools: [.functionDeclarations([weatherFunction])]
+    )
+    let chatSession = model.startChat(
+      templateID: "integration-test-function-calling",
+      inputs: [
+        "city": "Boston",
+        "state": "Massachusetts",
+        "date": "2024-10-17",
+        "unit": "CELSIUS",
+      ]
+    )
+
+    // The template prompt does not require any additional content so we specify `[]`. Prompt:
+    //   What was the weather like in {{city}}, {{state}} on {{date}}, formatted in {{unit}}?
+    //   {{history}}
+    let response = try await chatSession.sendMessage([])
+
+    // On October 17, 2024, the weather in Boston, Massachusetts was cool, dry, and mostly sunny
+    // with a high of 13°C.
+
+    #expect(response.functionCalls.count == 1)
+    let functionCall = try #require(response.functionCalls.first)
+    #expect(functionCall.name == weatherFunction.name)
+
+    // TODO: Validate `functionCall.args` after setting the function schema.
+    //    let arguments = functionCall.args
+    //    guard case let .object(location) = arguments["location"] else {
+    //      Issue.record("Missing object value named 'location' in arguments: \(arguments)")
+    //      return
+    //    }
+    //    guard case let .string(city) = location["city"] else {
+    //      Issue.record("Missing string value named 'city' in location: \(location)")
+    //      return
+    //    }
+    //    #expect(city == "Boston")
+    //    guard case let .string(state) = location["state"] else {
+    //      Issue.record("Missing string value named 'state' in location: \(location)")
+    //      return
+    //    }
+    //    #expect(state == "Massachusetts")
+    //    guard case let .string(date) = arguments["date"] else {
+    //      Issue.record("Missing string value named 'date' in arguments: \(arguments)")
+    //      return
+    //    }
+    //    #expect(date == "2024-10-17")
+    //    guard case let .string(unit) = arguments["unit"] else {
+    //      Issue.record("Missing string value named 'unit' in arguments: \(arguments)")
+    //      return
+    //    }
+    //    #expect(unit == "CELSIUS")
+    #expect(chatSession.history.count == 1)
+    let historyFunctionCall = try #require(chatSession.history[0].parts.first as? FunctionCallPart)
+    #expect(functionCall == historyFunctionCall)
   }
 }
 

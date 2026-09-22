@@ -190,16 +190,18 @@ public final class FirebaseAI: Sendable {
   /// Initializes a new ``TemplateGenerativeModel``.
   ///
   /// - Parameters:
+  ///   - tools: A list of ``Tool`` objects that the model may use to generate the next response.
   ///   - toolConfig: Tool configuration for any `Tool` specified in the request (for example, if it
   ///     uses the Grounding with Google Maps tool).
   ///   - requestOptions: Configuration parameters for sending requests to the backend.
   /// - Returns: A new ``TemplateGenerativeModel`` instance.
-  public func templateGenerativeModel(toolConfig: TemplateToolConfig? = nil,
+  public func templateGenerativeModel(tools: [Tool]? = nil, toolConfig: TemplateToolConfig? = nil,
                                       requestOptions: RequestOptions = RequestOptions())
     -> TemplateGenerativeModel {
     return TemplateGenerativeModel(
       firebaseInfo: firebaseInfo,
       apiConfig: apiConfig,
+      tools: tools,
       toolConfig: toolConfig,
       requestOptions: requestOptions,
     )
