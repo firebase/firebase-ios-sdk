@@ -43,6 +43,10 @@ Cloud Functions for Firebase.
   s.dependency 'FirebaseSharedSwift', '~> 13.0.0'
   s.dependency 'GTMSessionFetcher/Core', '>= 4.0', '< 6.0'
 
+  s.pod_target_xcconfig = {
+    'PRODUCT_BUNDLE_IDENTIFIER' => 'com.google.firebase.FirebaseFunctions'
+  }
+
   s.test_spec 'objc' do |objc_tests|
     objc_tests.platforms = {
       :ios => ios_deployment_target,
