@@ -68,7 +68,6 @@ final class SessionGenerator: Sendable {
     // consumed, so there is no wasted work.
     let newSessionId = UUID().uuidString.replacingOccurrences(of: "-", with: "").lowercased()
 
-    let collectEvents = self.collectEvents
     return state.withLock { state in
       // If firstSessionId is set, use it. Otherwise set it to the
       // first generated Session ID
