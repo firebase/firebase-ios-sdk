@@ -510,7 +510,8 @@ extension Schema {
   /// - Data types are lowercased strings.
   /// - Nullable schemas use a `["<type>", "null"]` array representation for `"type"`.
   /// - Objects include `"additionalProperties": false` and a `"required"` array.
-  /// - `"enum"` is used for string enumeration values, omitting the legacy `"format": "enum"`.
+  /// - `"enum"` is used for string enumeration values, omitting the legacy `"format": "enum"`; a
+  ///   nullable enumeration also includes `null` in the `"enum"` array.
   /// - Nested `properties`, `items`, and `anyOf` schemas are recursively converted.
   ///
   /// - Returns: A `JSONObject` representing this schema in Gemini-compatible JSON Schema format.
@@ -534,12 +535,21 @@ extension Schema {
       json["description"] = .string(description)
     }
 
-    if let format, format != "enum" {
+    // `enumeration(values:description:title:nullable:)` sets `format` to "enum" for the OpenAPI
+    // representation; JSON Schema expresses enumerations using the `enum` keyword alone.
+    if let format, enumValues == nil {
       json["format"] = .string(format)
     }
 
     if let enumValues {
-      json["enum"] = .array(enumValues.map { .string($0) })
+      var values: [JSONValue] = enumValues.map { .string($0) }
+      // In JSON Schema, `enum` is an independent assertion: the instance must equal one of the
+      // listed values. Widening `type` with "null" is not sufficient to permit null, so `null` must
+      // be a permitted `enum` value as well.
+      if nullable == true {
+        values.append(.null)
+      }
+      json["enum"] = .array(values)
     }
 
     if let minimum {

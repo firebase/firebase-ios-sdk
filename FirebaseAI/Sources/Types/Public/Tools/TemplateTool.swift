@@ -60,6 +60,12 @@ public extension TemplateTool {
   /// template. The function name in the ``FunctionDeclaration`` must match the function name
   /// listed in the template.
   ///
+  /// > Note: Only the ``FunctionDeclaration``'s name and schemas are sent to the backend. The
+  /// `description` is required when constructing a ``FunctionDeclaration``, but server prompt
+  /// templates source function descriptions from the template's frontmatter, so any description
+  /// provided in client code is ignored. To change how a function is described to the model, edit
+  /// the template rather than the client code.
+  ///
   /// - Parameter functionDeclarations: A list of ``FunctionDeclaration``s available to the model
   ///   that can be used for function calling.
   ///   The model does not execute the function directly. Instead, it returns a ``FunctionCallPart``

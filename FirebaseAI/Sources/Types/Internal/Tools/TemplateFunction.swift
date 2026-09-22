@@ -12,8 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/// Structured representation of a function declaration as defined by the
-/// [OpenAPI 3.0 specification](https://spec.openapis.org/oas/v3.0.3).
+/// Structured representation of a function declaration.
 ///
 /// This is a representation of a block of code that can be used as a `Tool` by the model and
 /// executed by the client. The name of the function must be listed in the template frontmatter
@@ -61,6 +60,10 @@ struct TemplateFunction: Sendable, Equatable {
 
 extension TemplateFunction {
   /// Initializes a `TemplateFunction` by converting from a ``FunctionDeclaration``.
+  ///
+  /// > Note: `FunctionDeclaration.description` has no counterpart on `TemplateFunction`. The
+  /// backend does not accept a description for template functions; descriptions are taken from the
+  /// template's frontmatter instead, so the value is intentionally dropped here.
   ///
   /// - Parameter functionDeclaration: The ``FunctionDeclaration`` to convert.
   /// - Throws: An error if parameter schema conversion fails.

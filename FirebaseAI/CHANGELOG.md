@@ -7,7 +7,7 @@
 - [feature] Server Prompt Templates is now Generally Available (GA). This
   release also adds support for multi-turn conversations (`TemplateChat`) and
   function calling (`TemplateTool`). See the
-  [getting started guide](https://firebase.google.com/docs/ai-logic/server-prompt-templates)
+  [getting started guide](https://firebase.google.com/docs/ai-logic/server-prompt-templates/get-started)
   for more details. (#16676)
 - [changed] Updated the default function calling mode to `VALIDATED` and
   updated guided generation to use `responseJsonSchema` in

@@ -47,6 +47,14 @@ struct TemplateGenerateContentRequest: Sendable {
 extension TemplateGenerateContentRequest: GenerativeAIRequest {
   typealias Response = GenerateContentResponse
 
+  /// Characters allowed, unescaped, within the template ID path segment.
+  ///
+  /// `CharacterSet.urlPathAllowed` permits `/` and `:`, which would let a template ID introduce
+  /// additional path components or a custom method separator (for example,
+  /// `:templateGenerateContent`); both are escaped.
+  private static let templateIDAllowedCharacters = CharacterSet.urlPathAllowed
+    .subtracting(CharacterSet(charactersIn: "/:"))
+
   /// Returns the request URL for the server prompt template request.
   ///
   /// - Returns: The fully qualified endpoint `URL`.
@@ -58,10 +66,20 @@ extension TemplateGenerateContentRequest: GenerativeAIRequest {
       urlString += "/locations/\(location)"
     }
 
+    // The template ID is developer-supplied (and commonly sourced from Firebase Remote Config), so
+    // escape it rather than interpolating it into the path verbatim.
+    guard let encodedTemplate = template.addingPercentEncoding(
+      withAllowedCharacters: Self.templateIDAllowedCharacters
+    ) else {
+      throw AILog.makeInternalError(
+        message: "Malformed template ID: \(template)", code: .malformedURL
+      )
+    }
+
     if stream {
-      urlString += "/templates/\(template):templateStreamGenerateContent?alt=sse"
+      urlString += "/templates/\(encodedTemplate):templateStreamGenerateContent?alt=sse"
     } else {
-      urlString += "/templates/\(template):templateGenerateContent"
+      urlString += "/templates/\(encodedTemplate):templateGenerateContent"
     }
     guard let url = URL(string: urlString) else {
       throw AILog.makeInternalError(message: "Malformed URL: \(urlString)", code: .malformedURL)

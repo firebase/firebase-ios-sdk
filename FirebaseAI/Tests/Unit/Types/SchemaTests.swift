@@ -920,4 +920,130 @@ final class SchemaTests: XCTestCase {
     }
     """)
   }
+
+  func testToJSONSchema_nullableEnumeration() throws {
+    let schema = Schema.enumeration(values: ["phishing", "scam"], nullable: true)
+
+    let jsonSchema = schema.toJSONSchema()
+
+    let jsonData = try encoder.encode(jsonSchema)
+    let json = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
+    XCTAssertEqual(json, """
+    {
+      "enum" : [
+        "phishing",
+        "scam",
+        null
+      ],
+      "type" : [
+        "string",
+        "null"
+      ]
+    }
+    """)
+  }
+
+  /// A custom `"enum"` format must not be mistaken for the marker set by `Schema.enumeration`.
+  func testToJSONSchema_customFormatNamedEnum() throws {
+    let schema = Schema.string(format: .custom("enum"))
+
+    let jsonSchema = schema.toJSONSchema()
+
+    let jsonData = try encoder.encode(jsonSchema)
+    let json = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
+    XCTAssertEqual(json, """
+    {
+      "format" : "enum",
+      "type" : "string"
+    }
+    """)
+  }
+
+  func testToJSONSchema_nullableObject() throws {
+    let schema = Schema.object(properties: ["name": .string()], nullable: true)
+
+    let jsonSchema = schema.toJSONSchema()
+
+    let jsonData = try encoder.encode(jsonSchema)
+    let json = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
+    XCTAssertEqual(json, """
+    {
+      "additionalProperties" : false,
+      "properties" : {
+        "name" : {
+          "type" : "string"
+        }
+      },
+      "required" : [
+        "name"
+      ],
+      "type" : [
+        "object",
+        "null"
+      ]
+    }
+    """)
+  }
+
+  func testToJSONSchema_nullableArray() throws {
+    let schema = Schema.array(items: .string(), nullable: true)
+
+    let jsonSchema = schema.toJSONSchema()
+
+    let jsonData = try encoder.encode(jsonSchema)
+    let json = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
+    XCTAssertEqual(json, """
+    {
+      "items" : {
+        "type" : "string"
+      },
+      "type" : [
+        "array",
+        "null"
+      ]
+    }
+    """)
+  }
+
+  func testToJSONSchema_anyOfWithObjects() throws {
+    let schema = Schema.anyOf(schemas: [
+      .object(properties: ["id": .integer()]),
+      .object(properties: ["name": .string()], optionalProperties: ["name"]),
+    ])
+
+    let jsonSchema = schema.toJSONSchema()
+
+    let jsonData = try encoder.encode(jsonSchema)
+    let json = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
+    XCTAssertEqual(json, """
+    {
+      "anyOf" : [
+        {
+          "additionalProperties" : false,
+          "properties" : {
+            "id" : {
+              "type" : "integer"
+            }
+          },
+          "required" : [
+            "id"
+          ],
+          "type" : "object"
+        },
+        {
+          "additionalProperties" : false,
+          "properties" : {
+            "name" : {
+              "type" : "string"
+            }
+          },
+          "required" : [
+
+          ],
+          "type" : "object"
+        }
+      ]
+    }
+    """)
+  }
 }

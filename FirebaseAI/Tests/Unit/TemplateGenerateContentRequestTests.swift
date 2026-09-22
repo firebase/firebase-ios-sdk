@@ -173,4 +173,181 @@ final class TemplateGenerateContentRequestTests: XCTestCase {
       }
     }
   #endif // compiler(>=6.2.3) && canImport(FoundationModels)
+
+  // MARK: - Request URL
+
+  private func templateRequest(template: String = "test-template",
+                               inputs: [String: TemplateInput] = [:],
+                               history: [ModelContent] = [],
+                               stream: Bool = false,
+                               apiConfig: APIConfig = FirebaseAI.defaultVertexAIAPIConfig,
+                               tools: [TemplateTool.Internal]? = nil,
+                               toolConfig: TemplateToolConfig? = nil)
+    -> TemplateGenerateContentRequest {
+    return TemplateGenerateContentRequest(
+      template: template,
+      inputs: inputs,
+      history: history,
+      projectID: "my-project-id",
+      stream: stream,
+      apiConfig: apiConfig,
+      options: RequestOptions(),
+      tools: tools,
+      toolConfig: toolConfig
+    )
+  }
+
+  func testGetURL_googleAI() throws {
+    let request = templateRequest(
+      apiConfig: APIConfig(service: .googleAI(endpoint: .firebaseProxyProd), version: .v1beta)
+    )
+
+    let url = try request.getURL()
+
+    XCTAssertEqual(url.absoluteString, """
+    https://firebasevertexai.googleapis.com/v1beta/projects/my-project-id\
+    /templates/test-template:templateGenerateContent
+    """)
+  }
+
+  func testGetURL_agentPlatform_includesLocation() throws {
+    let request = templateRequest(
+      apiConfig: APIConfig(
+        service: .agentPlatform(endpoint: .firebaseProxyProd, location: "us-central1"),
+        version: .v1beta
+      )
+    )
+
+    let url = try request.getURL()
+
+    XCTAssertEqual(url.absoluteString, """
+    https://firebasevertexai.googleapis.com/v1beta/projects/my-project-id/locations/us-central1\
+    /templates/test-template:templateGenerateContent
+    """)
+  }
+
+  func testGetURL_stream_usesStreamMethodAndSSEQuery() throws {
+    let request = templateRequest(
+      stream: true,
+      apiConfig: APIConfig(service: .googleAI(endpoint: .firebaseProxyProd), version: .v1beta)
+    )
+
+    let url = try request.getURL()
+
+    XCTAssertEqual(url.absoluteString, """
+    https://firebasevertexai.googleapis.com/v1beta/projects/my-project-id\
+    /templates/test-template:templateStreamGenerateContent?alt=sse
+    """)
+  }
+
+  func testGetURL_templateIDIsPercentEncoded() throws {
+    let request = templateRequest(
+      template: "a/b?c#d:e f",
+      apiConfig: APIConfig(service: .googleAI(endpoint: .firebaseProxyProd), version: .v1beta)
+    )
+
+    let url = try request.getURL()
+
+    XCTAssertEqual(url.absoluteString, """
+    https://firebasevertexai.googleapis.com/v1beta/projects/my-project-id\
+    /templates/a%2Fb%3Fc%23d%3Ae%20f:templateGenerateContent
+    """)
+    XCTAssertNil(url.query)
+    XCTAssertNil(url.fragment)
+  }
+
+  func testGetURL_ordinaryTemplateIDIsUnescaped() throws {
+    let request = templateRequest(
+      template: "my-template_v1.0.0",
+      apiConfig: APIConfig(service: .googleAI(endpoint: .firebaseProxyProd), version: .v1beta)
+    )
+
+    let url = try request.getURL()
+
+    XCTAssertTrue(
+      url.absoluteString.hasSuffix("/templates/my-template_v1.0.0:templateGenerateContent"),
+      "Unexpected URL: \(url.absoluteString)"
+    )
+  }
+
+  // MARK: - Request Encoding
+
+  func testEncodeRequest_minimal_omitsToolsAndToolConfig() throws {
+    let request = templateRequest(inputs: ["name": .string("test")])
+
+    let jsonData = try encoder.encode(request)
+
+    let json = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
+    XCTAssertEqual(json, """
+    {
+      "history" : [
+
+      ],
+      "inputs" : {
+        "name" : "test"
+      }
+    }
+    """)
+  }
+
+  func testEncodeRequest_withToolsAndToolConfig() throws {
+    let declaration = FunctionDeclaration(
+      name: "getGreeting",
+      description: "Returns greeting.",
+      parameters: ["name": .string()]
+    )
+    let request = try templateRequest(
+      inputs: ["count": .int(2)],
+      history: [ModelContent(role: "user", parts: "Hello")],
+      tools: [TemplateTool.functionDeclarations([declaration]).toInternal()],
+      toolConfig: TemplateToolConfig(retrievalConfig: RetrievalConfig(languageCode: "en_US"))
+    )
+
+    let jsonData = try encoder.encode(request)
+
+    let json = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
+    XCTAssertEqual(json, """
+    {
+      "history" : [
+        {
+          "parts" : [
+            {
+              "text" : "Hello"
+            }
+          ],
+          "role" : "user"
+        }
+      ],
+      "inputs" : {
+        "count" : 2
+      },
+      "toolConfig" : {
+        "retrievalConfig" : {
+          "languageCode" : "en_US"
+        }
+      },
+      "tools" : [
+        {
+          "templateFunctions" : [
+            {
+              "inputSchema" : {
+                "additionalProperties" : false,
+                "properties" : {
+                  "name" : {
+                    "type" : "string"
+                  }
+                },
+                "required" : [
+                  "name"
+                ],
+                "type" : "object"
+              },
+              "name" : "getGreeting"
+            }
+          ]
+        }
+      ]
+    }
+    """)
+  }
 }
