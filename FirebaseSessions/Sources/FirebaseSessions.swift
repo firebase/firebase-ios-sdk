@@ -33,8 +33,10 @@ private enum GoogleDataTransportConfig {
 ///   `NotificationCenter` are `Sendable`.
 ///
 ///   Exactly two stored properties block a checked conformance:
-///   1. `settings`, because `SettingsProtocol` does not inherit `Sendable`,
-///      even though both conformers are immutable or internally synchronized.
+///   1. `settings`, because `SettingsProtocol` does not inherit `Sendable`.
+///      The production conformer, `SessionsSettings`, holds only immutable
+///      providers, but the test mock has unsynchronized mutable state, so
+///      marking the protocol `Sendable` also means annotating that mock.
 ///   2. `initiator`, because `SessionInitiator` is a non-`Sendable` class with
 ///      mutable state (`backgroundTime`, `initiateSessionStart`). It is safe
 ///      here only by confinement: it is used once, during `init`, and its
