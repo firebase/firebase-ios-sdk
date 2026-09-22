@@ -15,6 +15,10 @@
 import Foundation
 import XCTest
 
+#if compiler(>=6.2.3) && canImport(FoundationModels)
+  import FoundationModels
+#endif // compiler(>=6.2.3) && canImport(FoundationModels)
+
 @testable import FirebaseAILogic
 
 final class TemplateGenerateContentRequestTests: XCTestCase {
@@ -137,22 +141,36 @@ final class TemplateGenerateContentRequestTests: XCTestCase {
 
   // MARK: - Unsupported Automatic Function Calling
 
-  func testInitWithUnsupportedAutomaticFunctionCalling() {
-    let declaration = FunctionDeclaration(
-      name: "autoFunction",
-      description: "Auto function calling is unsupported in Server Prompt Templates.",
-      parameters: nil,
-      parametersJSONSchema: nil,
-      responseJSONSchema: nil,
-      kind: .foundationModels("unsupported")
-    )
-    let templateTool = TemplateTool.functionDeclarations([declaration])
+  #if compiler(>=6.2.3) && canImport(FoundationModels)
+    @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
+    @available(tvOS, unavailable)
+    @available(watchOS, unavailable)
+    struct TestAutoTool: FoundationModels.Tool {
+      @Generable
+      struct VoidArguments {}
 
-    XCTAssertThrowsError(try templateTool.toInternal()) { error in
-      guard case EncodingError.invalidValue = error else {
-        XCTFail("Expected EncodingError.invalidValue, got: \(error)")
-        return
+      let description = "Auto function calling is unsupported in Server Prompt Templates."
+
+      func call(arguments: VoidArguments) async throws -> String {
+        fatalError("Unused: \(description)")
       }
     }
-  }
+
+    @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
+    @available(tvOS, unavailable)
+    @available(watchOS, unavailable)
+    func testInitWithUnsupportedAutomaticFunctionCalling() throws {
+      try XCTSkipFoundationModelsUnsupported()
+
+      let declaration = FunctionDeclaration(foundationModelsTool: TestAutoTool())
+      let templateTool = TemplateTool.functionDeclarations([declaration])
+
+      XCTAssertThrowsError(try templateTool.toInternal()) { error in
+        guard case EncodingError.invalidValue = error else {
+          XCTFail("Expected EncodingError.invalidValue, got: \(error)")
+          return
+        }
+      }
+    }
+  #endif // compiler(>=6.2.3) && canImport(FoundationModels)
 }
