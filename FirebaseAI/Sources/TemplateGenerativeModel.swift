@@ -21,7 +21,7 @@ public final class TemplateGenerativeModel: Sendable {
   let apiConfig: APIConfig
 
   /// A list of tools the model may use to generate the next response.
-  let tools: [Tool]?
+  let tools: [TemplateTool]?
 
   /// Tool configuration for any `Tool` specified in the request.
   let toolConfig: TemplateToolConfig?
@@ -29,7 +29,7 @@ public final class TemplateGenerativeModel: Sendable {
   /// Configuration parameters for sending requests to the backend.
   let requestOptions: RequestOptions
 
-  init(firebaseInfo: FirebaseInfo, apiConfig: APIConfig, tools: [Tool]?,
+  init(firebaseInfo: FirebaseInfo, apiConfig: APIConfig, tools: [TemplateTool]?,
        toolConfig: TemplateToolConfig?, requestOptions: RequestOptions,
        urlSession: URLSession = GenAIURLSession.default) {
     generativeAIService = GenerativeAIService(
@@ -99,7 +99,7 @@ public final class TemplateGenerativeModel: Sendable {
       stream: stream,
       apiConfig: apiConfig,
       options: requestOptions,
-      tools: tools?.map { try TemplateTool($0) },
+      tools: tools?.map { try $0.toInternal() },
       toolConfig: toolConfig
     )
   }

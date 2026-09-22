@@ -34,12 +34,11 @@ final class TemplateGenerateContentRequestTests: XCTestCase {
       parameters: ["city": .string()],
       optionalParameters: []
     )
-    let tool = Tool.functionDeclarations([declaration])
+    let templateTool = TemplateTool.functionDeclarations([declaration])
+    let internalTool = try templateTool.toInternal()
 
-    let templateTool = try TemplateTool(tool)
-
-    XCTAssertNil(templateTool.googleMaps)
-    let functions = try XCTUnwrap(templateTool.templateFunctions)
+    XCTAssertNil(internalTool.googleMaps)
+    let functions = try XCTUnwrap(internalTool.templateFunctions)
     XCTAssertEqual(functions.count, 1)
     XCTAssertEqual(functions[0].name, "fetchWeather")
     XCTAssertNil(functions[0].outputSchema)
@@ -65,12 +64,11 @@ final class TemplateGenerateContentRequestTests: XCTestCase {
       description: "Second function.",
       parameters: ["paramB": .integer()]
     )
-    let tool = Tool.functionDeclarations([declaration1, declaration2])
+    let templateTool = TemplateTool.functionDeclarations([declaration1, declaration2])
+    let internalTool = try templateTool.toInternal()
 
-    let templateTool = try TemplateTool(tool)
-
-    XCTAssertNil(templateTool.googleMaps)
-    let functions = try XCTUnwrap(templateTool.templateFunctions)
+    XCTAssertNil(internalTool.googleMaps)
+    let functions = try XCTUnwrap(internalTool.templateFunctions)
     XCTAssertEqual(functions.count, 2)
     XCTAssertEqual(functions[0].name, "funcA")
     XCTAssertEqual(functions[1].name, "funcB")
@@ -82,10 +80,10 @@ final class TemplateGenerateContentRequestTests: XCTestCase {
       description: "Returns greeting.",
       parameters: ["name": .string()]
     )
-    let tool = Tool.functionDeclarations([declaration])
-    let templateTool = try TemplateTool(tool)
+    let templateTool = TemplateTool.functionDeclarations([declaration])
+    let internalTool = try templateTool.toInternal()
 
-    let jsonData = try encoder.encode(templateTool)
+    let jsonData = try encoder.encode(internalTool)
 
     let json = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
     XCTAssertEqual(json, """
@@ -114,20 +112,18 @@ final class TemplateGenerateContentRequestTests: XCTestCase {
   // MARK: - Google Maps
 
   func testInitWithGoogleMaps() throws {
-    let tool = Tool.googleMaps()
+    let templateTool = TemplateTool.googleMaps()
+    let internalTool = try templateTool.toInternal()
 
-    let templateTool = try TemplateTool(tool)
-
-    XCTAssertNil(templateTool.templateFunctions)
-    let maps = try XCTUnwrap(templateTool.googleMaps)
-    XCTAssertNil(maps.enableWidget)
+    XCTAssertNil(internalTool.templateFunctions)
+    XCTAssertNotNil(internalTool.googleMaps)
   }
 
   func testEncodingTemplateTool_googleMaps() throws {
-    let tool = Tool.googleMaps()
-    let templateTool = try TemplateTool(tool)
+    let templateTool = TemplateTool.googleMaps()
+    let internalTool = try templateTool.toInternal()
 
-    let jsonData = try encoder.encode(templateTool)
+    let jsonData = try encoder.encode(internalTool)
 
     let json = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
     XCTAssertEqual(json, """
@@ -139,66 +135,20 @@ final class TemplateGenerateContentRequestTests: XCTestCase {
     """)
   }
 
-  // MARK: - Unsupported Tools
+  // MARK: - Unsupported Automatic Function Calling
 
-  func testInitWithUnsupportedTool_googleSearch() {
-    let tool = Tool.googleSearch()
-
-    XCTAssertThrowsError(try TemplateTool(tool)) { error in
-      guard case EncodingError.invalidValue = error else {
-        XCTFail("Expected EncodingError.invalidValue, got: \(error)")
-        return
-      }
-    }
-  }
-
-  func testInitWithUnsupportedTool_codeExecution() {
-    let tool = Tool.codeExecution()
-
-    XCTAssertThrowsError(try TemplateTool(tool)) { error in
-      guard case EncodingError.invalidValue = error else {
-        XCTFail("Expected EncodingError.invalidValue, got: \(error)")
-        return
-      }
-    }
-  }
-
-  func testInitWithUnsupportedTool_urlContext() {
-    let tool = Tool.urlContext()
-
-    XCTAssertThrowsError(try TemplateTool(tool)) { error in
-      guard case EncodingError.invalidValue = error else {
-        XCTFail("Expected EncodingError.invalidValue, got: \(error)")
-        return
-      }
-    }
-  }
-
-  // MARK: - Single Tool Constraint
-
-  func testInitWithEmptyTool() {
-    let tool = Tool()
-
-    XCTAssertThrowsError(try TemplateTool(tool)) { error in
-      guard case EncodingError.invalidValue = error else {
-        XCTFail("Expected EncodingError.invalidValue, got: \(error)")
-        return
-      }
-    }
-  }
-
-  func testInitWithMultipleToolTypes() {
+  func testInitWithUnsupportedAutomaticFunctionCalling() {
     let declaration = FunctionDeclaration(
-      name: "dummy",
-      description: "dummy",
-      parameters: [:]
+      name: "autoFunction",
+      description: "Auto function calling is unsupported in Server Prompt Templates.",
+      parameters: nil,
+      parametersJSONSchema: nil,
+      responseJSONSchema: nil,
+      kind: .foundationModels("unsupported")
     )
-    let tool = Tool(
-      functionDeclarations: [declaration],
-      googleMaps: GoogleMaps()
-    )
+    let templateTool = TemplateTool.functionDeclarations([declaration])
 
-    XCTAssertThrowsError(try TemplateTool(tool)) { error in
+    XCTAssertThrowsError(try templateTool.toInternal()) { error in
       guard case EncodingError.invalidValue = error else {
         XCTFail("Expected EncodingError.invalidValue, got: \(error)")
         return
