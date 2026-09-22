@@ -12,11 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/// Tool details that the model may use to generate a response.
+/// A tool that a model may use when generating responses with server prompt templates.
 ///
-/// A tool is a piece of code that enables the system to interact with external systems to perform
-/// an action, or set of actions, outside of knowledge and scope of the model. A tool object should
-/// contain exactly one type of tool.
+/// In Server Prompt Templates, tools available to the model must be listed in the `tools` object of
+/// the template's frontmatter. Server-side tools like Grounding with Google Search
+/// (`googleSearch`), Python code execution (`codeExecution`), and URL context (`urlContext`) are
+/// configured directly in the template and do not require client-side tool objects.
+///
+/// `TemplateTool` is used to configure client-involved tools:
+/// - ``functionDeclarations(_:)``: Provides client-side schemas or declarations for functions
+///   listed in the template.
+/// - ``googleMaps()``: Configures Grounding with Google Maps.
+///
+/// For more details, see
+/// [Tool use in server prompt templates](https://firebase.google.com/docs/ai-logic/server-prompt-templates/syntax-and-examples#tools)
+/// and [Function calling with server prompt templates](https://firebase.google.com/docs/ai-logic/server-prompt-templates/multi-turn-interactions#function-calling).
 public struct TemplateTool: Sendable {
   /// A list of user-provided functions for function calling.
   ///
@@ -40,23 +50,22 @@ public struct TemplateTool: Sendable {
 }
 
 public extension TemplateTool {
-  /// Creates a tool that allows the model to perform function calling.
+  /// Creates a tool that allows the model to perform function calling in server prompt templates.
   ///
-  /// Function calling can be used to provide data to the model that was not known at the time it
-  /// was trained (for example, the current date or weather conditions) or to allow it to interact
-  /// with external systems (for example, making an API request or querying/updating a database).
-  /// For more details and use cases, see [Function calling using the Gemini
-  /// API](https://firebase.google.com/docs/ai-logic/function-calling).
+  /// In Server Prompt Templates, functions available to the model must be listed in the `tools`
+  /// object of the template's frontmatter. Defining schemas in client code via this method allows
+  /// you to provide or override schemas for functions specified in the template.
+  ///
+  /// If a function's schema is provided in client code, it overrides any schema specified in the
+  /// template. The function name in the ``FunctionDeclaration`` must match the function name
+  /// listed in the template.
   ///
   /// - Parameter functionDeclarations: A list of ``FunctionDeclaration``s available to the model
   ///   that can be used for function calling.
-  ///   The model or system does not execute the function. Instead the defined function may be
-  ///   returned as a ``FunctionCallPart`` with arguments to the client side for execution. The
-  ///   model may decide to call none, some or all of the declared functions. When a
-  ///   ``FunctionCallPart`` is received, the next conversation turn must contain a
-  ///   ``FunctionResponsePart`` in ``ModelContent/parts`` with a ``ModelContent/role`` of
-  ///   `"user"`; this response contains the result of executing the function on the client,
-  ///   providing generation context for the model's next turn.
+  ///   The model does not execute the function directly. Instead, it returns a ``FunctionCallPart``
+  ///   with arguments to the client for execution. When a ``FunctionCallPart`` is received, the
+  ///   next conversation turn must supply a ``FunctionResponsePart`` in ``ModelContent/parts`` with
+  ///   a ``ModelContent/role`` of `"user"`, providing the execution result to the model.
   static func functionDeclarations(_ functionDeclarations: [FunctionDeclaration])
     -> TemplateTool {
     return self.init(functionDeclarations: functionDeclarations)
@@ -64,11 +73,17 @@ public extension TemplateTool {
 
   /// Creates a tool that allows the model to use Grounding with Google Maps.
   ///
-  /// Grounding with Google Maps can be used to allow the model to connect to Google Maps to
-  /// access and incorporate up-to-date information from the web into its responses.
+  /// Grounding with Google Maps connects the model to Google Maps to access geospatial data and
+  /// incorporate location-aware information into responses. To use this tool, `googleMaps` must
+  /// also be listed in the `tools` object of the template's frontmatter.
+  ///
+  /// You can optionally configure location coordinates and language preferences by passing a
+  /// ``TemplateToolConfig`` with a ``RetrievalConfig`` when initializing the model.
   ///
   /// > Important: When using this feature, you are required to comply with the
-  /// "Grounding with Google Maps" usage requirements for your chosen API provider.
+  /// "Grounding with Google Maps" usage requirements for your chosen API provider. For more
+  /// details, see
+  /// [Grounding with Google Maps](https://firebase.google.com/docs/ai-logic/grounding-google-maps).
   ///
   /// - Returns: A ``TemplateTool`` configured with the ``GoogleMaps`` tool.
   static func googleMaps() -> TemplateTool {

@@ -14,14 +14,21 @@
 
 import Foundation
 
-/// Tool configuration for any `Tool` specified in the request for server prompt templates.
+/// Tool configuration options for tools used with server prompt templates.
+///
+/// In Server Prompt Templates, `TemplateToolConfig` allows the client application to supply
+/// runtime configuration parameters for tools declared in the template's frontmatter.
+///
+/// For more details, see
+/// [Grounding with Google Maps in server prompt templates](https://firebase.google.com/docs/ai-logic/server-prompt-templates/syntax-and-examples#grounding-with-google-maps).
 public struct TemplateToolConfig: Sendable, Encodable {
-  /// Configures how the model should use the provided retrieval options.
+  /// Configures how the model should use retrieval options for Grounding with Google Maps.
   public let retrievalConfig: RetrievalConfig?
 
   /// Constructs a new `TemplateToolConfig`.
-  /// - Parameter retrievalConfig: Configures how the model should use the provided retrieval
-  /// options.
+  ///
+  /// - Parameter retrievalConfig: Configures retrieval options (such as user location coordinates
+  ///   and language preferences) for Grounding with Google Maps.
   public init(retrievalConfig: RetrievalConfig? = nil) {
     self.retrievalConfig = retrievalConfig
   }

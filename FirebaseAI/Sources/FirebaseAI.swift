@@ -189,10 +189,23 @@ public final class FirebaseAI: Sendable {
 
   /// Initializes a new ``TemplateGenerativeModel``.
   ///
+  /// Server prompt templates let you store prompts, schemas, tools, and configurations on the
+  /// server, decoupling prompt iteration from app release cycles.
+  ///
+  /// > Note: If your Firebase project enforces
+  /// [template-only mode](https://firebase.google.com/docs/ai-logic/server-prompt-templates/template-only-mode),
+  /// all Gemini requests in the project must use server prompt templates via
+  /// `templateGenerativeModel`; standard requests will be rejected with an unauthorized (403)
+  /// error.
+  ///
   /// - Parameters:
-  ///   - tools: A list of ``TemplateTool``s that the model may use to generate the next response.
-  ///   - toolConfig: Tool configuration for any `Tool` specified in the request (for example, if it
-  ///     uses the Grounding with Google Maps tool).
+  ///   - tools: An optional list of ``TemplateTool``s that the model may use to generate responses.
+  ///     Tools must be declared in the template's frontmatter. In client code, pass
+  ///     ``TemplateTool/functionDeclarations(_:)`` to provide or override schema definitions for
+  ///     functions declared in the template, or ``TemplateTool/googleMaps()`` to enable Grounding
+  ///     with Google Maps.
+  ///   - toolConfig: Tool configuration for tools specified in the request (such as providing a
+  ///     ``RetrievalConfig`` with user location and language code for Grounding with Google Maps).
   ///   - requestOptions: Configuration parameters for sending requests to the backend.
   /// - Returns: A new ``TemplateGenerativeModel`` instance.
   public func templateGenerativeModel(tools: [TemplateTool]? = nil,
