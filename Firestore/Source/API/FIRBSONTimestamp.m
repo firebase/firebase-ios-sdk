@@ -40,6 +40,10 @@
   return self.seconds == other.seconds && self.increment == other.increment;
 }
 
+- (NSUInteger)hash {
+  return 31u * (NSUInteger)self.seconds + (NSUInteger)self.increment;
+}
+
 - (id)copyWithZone:(__unused NSZone *_Nullable)zone {
   return [[FIRBSONTimestamp alloc] initWithSeconds:self.seconds increment:self.increment];
 }

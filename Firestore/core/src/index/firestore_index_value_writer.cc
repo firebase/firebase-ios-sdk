@@ -17,6 +17,7 @@
 #include "Firestore/core/src/index/firestore_index_value_writer.h"
 
 #include <cmath>
+#include <cstdlib>
 #include <limits>
 #include <string>
 #include <vector>
@@ -134,20 +135,8 @@ void WriteIndexBsonBinaryData(
     const google_firestore_v1_MapValue& map_index_value,
     DirectionalIndexByteEncoder* encoder) {
   const pb_bytes_array_t* bytes = map_index_value.fields[0].value.bytes_value;
-  if (!bytes || bytes->size == 0) {
-    WriteValueTypeLabel(encoder, IndexType::kBlob);
-    encoder->WriteBytes(const_cast<pb_bytes_array_t*>(bytes));
-    WriteTruncationMarker(encoder);
-    return;
-  }
-  uint8_t subtype = bytes->bytes[0];
-  if (subtype == 0) {
-    WriteValueTypeLabel(encoder, IndexType::kBlob);
-    encoder->WriteString(nanopb::MakeStringView(bytes).substr(1));
-  } else {
-    WriteValueTypeLabel(encoder, IndexType::kBsonBinaryData);
-    encoder->WriteBytes(const_cast<pb_bytes_array_t*>(bytes));
-  }
+  WriteValueTypeLabel(encoder, IndexType::kBsonBinaryData);
+  encoder->WriteBytes(const_cast<pb_bytes_array_t*>(bytes));
   WriteTruncationMarker(encoder);
 }
 
@@ -171,13 +160,14 @@ void WriteIndexBsonTimestamp(
   absl::optional<pb_size_t> increment_index = model::IndexOfKey(
       inner_map, model::kRawBsonTimestampTypeIncrementFieldValue,
       model::kBsonTimestampTypeIncrementFieldValue);
-  const int64_t seconds =
-      inner_map.fields[seconds_index.value()].value.integer_value;
-  const int64_t increment =
-      inner_map.fields[increment_index.value()].value.integer_value;
+  const uint64_t seconds = static_cast<uint64_t>(
+      inner_map.fields[seconds_index.value()].value.integer_value);
+  const uint64_t increment = static_cast<uint64_t>(
+      inner_map.fields[increment_index.value()].value.integer_value);
 
   // BsonTimestamp is encoded as a 64-bit long.
-  int64_t value_to_encode = (seconds << 32) | (increment & 0xFFFFFFFFL);
+  int64_t value_to_encode =
+      static_cast<int64_t>((seconds << 32) | (increment & 0xFFFFFFFFULL));
   encoder->WriteLong(value_to_encode);
 }
 
@@ -237,10 +227,12 @@ void WriteIndexDecimal128Value(
   // Note: We currently give up some precision and store the 128-bit decimal as
   // a 64-bit double for client-side indexing purposes. We could consider
   // improving this in the future.
-  // Note: std::stod is able to parse 'NaN', '-NaN', 'Infinity' and '-Infinity',
-  // with different string cases.
-  const double number = std::stod(
-      nanopb::MakeString(map_index_value.fields[0].value.string_value));
+  // Note: std::strtod is able to parse 'NaN', '-NaN', 'Infinity' and
+  // '-Infinity', with different string cases, and saturates out-of-range
+  // exponents without throwing exceptions.
+  std::string str =
+      nanopb::MakeString(map_index_value.fields[0].value.string_value);
+  const double number = std::strtod(str.c_str(), nullptr);
   WriteIndexDoubleValue(number, encoder);
 }
 

@@ -121,7 +121,7 @@ bool Quadruple::Parse(std::string s) {
   }
   bool negative = false;
   int len = s.size();
-  uint8_t* digits = new uint8_t[len];
+  std::vector<uint8_t> digits(len);
   int i = 0;
   int j = 0;
   int64_t exponent = 0;
@@ -170,12 +170,9 @@ bool Quadruple::Parse(std::string s) {
   if (j == 0 || i != len) {
     return false;
   }
-  std::vector<uint8_t> digits_copy(j);
-  for (int k = 0; k < j; k++) {
-    digits_copy[k] = digits[k];
-  }
+  digits.resize(j);
   QuadrupleBuilder parsed;
-  parsed.parseDecimal(digits_copy, exponent);
+  parsed.parseDecimal(digits, exponent);
   negative_ = negative;
   exponent_ = parsed.exponent;
   mantissa_hi_ = parsed.mantHi;

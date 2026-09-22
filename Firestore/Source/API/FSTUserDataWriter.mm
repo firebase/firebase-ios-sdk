@@ -265,11 +265,9 @@ NS_ASSUME_NONNULL_BEGIN
     const google_firestore_v1_Value &dataValue = mapValue.fields[0].value;
     if (dataValue.which_value_type == google_firestore_v1_Value_bytes_value_tag) {
       NSData *concatData = MakeNSData(dataValue.bytes_value);
-      if (concatData.length > 0) {
-        uint8_t buffer[1];
-        [concatData getBytes:buffer length:1];
-        subtype = buffer[0];
-      }
+      uint8_t buffer[1];
+      [concatData getBytes:buffer length:1];
+      subtype = buffer[0];
       if (concatData.length > 1) {
         data = [concatData subdataWithRange:NSMakeRange(1, concatData.length - 1)];
       }

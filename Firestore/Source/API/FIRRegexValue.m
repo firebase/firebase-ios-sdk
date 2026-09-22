@@ -41,6 +41,10 @@
       [self.pattern isEqualToString:other.pattern] && [self.options isEqualToString:other.options];
 }
 
+- (NSUInteger)hash {
+  return 31u * [self.pattern hash] + [self.options hash];
+}
+
 - (id)copyWithZone:(__unused NSZone *_Nullable)zone {
   return [[FIRRegexValue alloc] initWithPattern:self.pattern options:self.options];
 }

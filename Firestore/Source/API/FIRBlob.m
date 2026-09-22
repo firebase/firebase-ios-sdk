@@ -70,7 +70,7 @@
   NSUInteger selfLength = self.bytes.length;
   NSUInteger otherLength = other.bytes.length;
   NSUInteger minLength = MIN(selfLength, otherLength);
-  int cmp = memcmp(self.bytes.bytes, other.bytes.bytes, minLength);
+  int cmp = minLength > 0 ? memcmp(self.bytes.bytes, other.bytes.bytes, minLength) : 0;
   if (cmp < 0) {
     return NSOrderedAscending;
   } else if (cmp > 0) {

@@ -42,17 +42,30 @@ using firebase::firestore::util::Quadruple;
   }
 
   FIRDecimal128Value *other = (FIRDecimal128Value *)object;
+  if ([self.value isEqualToString:other.value]) {
+    return YES;
+  }
 
   Quadruple lhs = Quadruple();
   Quadruple rhs = Quadruple();
-  lhs.Parse(MakeString(self.value));
-  rhs.Parse(MakeString(other.value));
+  if (!lhs.Parse(MakeString(self.value)) || !rhs.Parse(MakeString(other.value))) {
+    return NO;
+  }
 
   // Firestore considers +0 and -0 to be equal, but `Quadruple::Compare()` does not.
   if (lhs.Compare(Quadruple(-0.0)) == 0) lhs = Quadruple();
   if (rhs.Compare(Quadruple(-0.0)) == 0) rhs = Quadruple();
 
   return lhs.Compare(rhs) == 0;
+}
+
+- (NSUInteger)hash {
+  Quadruple lhs = Quadruple();
+  if (!lhs.Parse(MakeString(self.value))) {
+    return [self.value hash];
+  }
+  if (lhs.Compare(Quadruple(-0.0)) == 0) lhs = Quadruple();
+  return (NSUInteger)lhs.HashValue();
 }
 
 - (id)copyWithZone:(__unused NSZone *_Nullable)zone {

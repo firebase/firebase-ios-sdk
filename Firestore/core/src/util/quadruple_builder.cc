@@ -451,8 +451,8 @@ int32_t QuadrupleBuilder::parseMantissa(std::vector<uint8_t>& digits,
   // Limit the string length to avoid unnecessary fuss
   if (static_cast<int32_t>((digits).size()) - firstDigit >
       MAX_MANTISSA_LENGTH) {
-    bool carry =
-        digits[MAX_MANTISSA_LENGTH] >= 5;  // The highest digit to be truncated
+    bool carry = digits[firstDigit + MAX_MANTISSA_LENGTH] >=
+                 5;  // The highest digit to be truncated
     std::vector<uint8_t> truncated(MAX_MANTISSA_LENGTH);
     for (int32_t i = (0); i < (MAX_MANTISSA_LENGTH); i++) {
       truncated[i] = digits[i + firstDigit];
