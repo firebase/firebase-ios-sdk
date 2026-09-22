@@ -119,4 +119,41 @@ final class TemplateChatTests: XCTestCase {
     XCTAssertEqual((chat.history[0].parts.first as? TextPart)?.text, "Hello")
     XCTAssertEqual(chat.history[1].role, "model")
   }
+
+  func testSendMessageNoArgs() async throws {
+    MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
+      forResource: "unary-success-basic-reply-short",
+      withExtension: "json",
+      subdirectory: "mock-responses/googleai",
+      isTemplateRequest: true
+    )
+    let chat = model.startChat(templateID: "test-template", inputs: ["name": "test"])
+
+    let response = try await chat.sendMessage()
+
+    XCTAssertEqual(chat.history.count, 1)
+    XCTAssertEqual(chat.history[0].role, "model")
+    XCTAssertEqual(
+      (chat.history[0].parts.first as? TextPart)?.text,
+      "Google's headquarters, also known as the Googleplex, is located in **Mountain View, California**.\n"
+    )
+    XCTAssertEqual(response.candidates.count, 1)
+  }
+
+  func testSendMessageStreamNoArgs() async throws {
+    MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
+      forResource: "streaming-success-basic-reply-short",
+      withExtension: "txt",
+      subdirectory: "mock-responses/googleai",
+      isTemplateRequest: true
+    )
+    let chat = model.startChat(templateID: "test-template", inputs: ["name": "test"])
+
+    let stream = try chat.sendMessageStream()
+    let content = try await GenerativeModelTestUtil.collectTextFromStream(stream)
+
+    XCTAssertEqual(content, "The capital of Wyoming is **Cheyenne**.\n")
+    XCTAssertEqual(chat.history.count, 1)
+    XCTAssertEqual(chat.history[0].role, "model")
+  }
 }

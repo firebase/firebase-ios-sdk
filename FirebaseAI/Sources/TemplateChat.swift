@@ -87,6 +87,9 @@ public final class TemplateChat: Sendable {
   /// - Throws: A ``GenerateContentError`` if the request failed.
   public func sendMessage(_ parts: any PartsRepresentable...) async throws
     -> GenerateContentResponse {
+    if parts.isEmpty {
+      return try await sendMessage([])
+    }
     return try await sendMessage([ModelContent(parts: parts)])
   }
 
@@ -148,6 +151,9 @@ public final class TemplateChat: Sendable {
   @available(macOS 12.0, watchOS 8.0, *)
   public func sendMessageStream(_ parts: any PartsRepresentable...) throws
     -> AsyncThrowingStream<GenerateContentResponse, Error> {
+    if parts.isEmpty {
+      return try sendMessageStream([])
+    }
     return try sendMessageStream([ModelContent(parts: parts)])
   }
 

@@ -196,8 +196,9 @@ struct ServerPromptTemplateIntegrationTests {
   @Test(arguments: testConfigs)
   func chatFunctionCalling(_ config: InstanceConfig) async throws {
     // 1. Configure the model with tools and start a template chat session.
+    let weatherFunctionName = "fetchWeather"
     let weatherFunction = FunctionDeclaration(
-      name: "fetchWeather",
+      name: weatherFunctionName,
       description: "Returns the weather for a given location at a given time",
       parameters: [
         "location": .object(properties: [
@@ -224,15 +225,17 @@ struct ServerPromptTemplateIntegrationTests {
     )
 
     // 2. Initial turn: Trigger the prompt template by sending an empty message.
-    // The template prompt does not require any additional content so we specify `[]`. Prompt:
+    // The template prompt does not require any additional content so we call `sendMessage()` with
+    // no parameters.
+    // Template's Prompt:
     //   What was the weather like in {{city}}, {{state}} on {{date}}, formatted in {{unit}}?
     //   {{history}}
-    let response = try await chat.sendMessage([])
+    let response = try await chat.sendMessage()
 
     // 3. Verify the model requested the fetchWeather function with populated arguments.
     #expect(response.functionCalls.count == 1)
     let functionCall = try #require(response.functionCalls.first)
-    #expect(functionCall.name == weatherFunction.name)
+    #expect(functionCall.name == weatherFunctionName)
     #expect(functionCall.args == [
       "location": .object([
         "city": .string("Boston"),
