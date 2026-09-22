@@ -525,7 +525,9 @@ NS_ASSUME_NONNULL_BEGIN
     // We need to prepend the data with one byte representation of the subtype.
     NSMutableData *concatData = [NSMutableData data];
     [concatData appendBytes:&subtypeByte length:1];
-    [concatData appendData:data];
+    if (data) {
+      [concatData appendData:data];
+    }
 
     __block Message<google_firestore_v1_Value> result;
     result->which_value_type = google_firestore_v1_Value_map_value_tag;

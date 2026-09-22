@@ -142,19 +142,22 @@ TEST(IndexValueWriterTest, writeIndexValueSupportsBsonBinaryData) {
   EXPECT_EQ(actual_bytes, expected_bytes);
 }
 
-TEST(IndexValueWriterTest, writeIndexValueSupportsBsonBinarySubtype0) {
-  auto bson_value = BsonBinaryData(0, {1, 2, 3});
-  auto blob_value = testutil::BlobValue(1, 2, 3);
+TEST(IndexValueWriterTest, writeIndexValueEncodesBsonBinarySubtype0AsMap) {
+  // A raw {"__binary__": <bytes>} map with subtype == 0 is not valid BsonBinary
+  // in Firestore and is encoded as a regular Map.
+  auto bson_subtype0_value = BsonBinaryData(0, {1, 2, 3});
+  auto expected_map =
+      testutil::Map("__binary__", testutil::BlobValue(0, 1, 2, 3));
 
   IndexEncodingBuffer bson_encoder;
-  WriteIndexValue(*bson_value,
+  WriteIndexValue(*bson_subtype0_value,
                   bson_encoder.ForKind(model::Segment::Kind::kAscending));
 
-  IndexEncodingBuffer blob_encoder;
-  WriteIndexValue(*blob_value,
-                  blob_encoder.ForKind(model::Segment::Kind::kAscending));
+  IndexEncodingBuffer map_encoder;
+  WriteIndexValue(*expected_map,
+                  map_encoder.ForKind(model::Segment::Kind::kAscending));
 
-  EXPECT_EQ(bson_encoder.GetEncodedBytes(), blob_encoder.GetEncodedBytes());
+  EXPECT_EQ(bson_encoder.GetEncodedBytes(), map_encoder.GetEncodedBytes());
 }
 
 TEST(IndexValueWriterTest, writeIndexValueSupportsBsonBinaryWithEmptyData) {
@@ -479,6 +482,33 @@ TEST(IndexValueWriterTest, writeIndexValueSupportsMaxKey) {
   auto& expected_bytes = expected_encoder.GetEncodedBytes();
 
   EXPECT_EQ(actual_bytes, expected_bytes);
+}
+
+TEST(IndexValueWriterTest, writeIndexValueSupportsOutOfDoubleRangeDecimal128) {
+  // Decimal128 supports exponents up to 1e6144, exceeding 64-bit double range
+  // (~1.8e308). WriteIndexDecimal128Value must saturate cleanly to +/-Infinity
+  // without throwing std::out_of_range.
+  auto pos_overflow = Decimal128("1e1000");
+  auto pos_infinity = Decimal128("Infinity");
+  IndexEncodingBuffer pos_overflow_encoder;
+  WriteIndexValue(*pos_overflow, pos_overflow_encoder.ForKind(
+                                     model::Segment::Kind::kAscending));
+  IndexEncodingBuffer pos_inf_encoder;
+  WriteIndexValue(*pos_infinity,
+                  pos_inf_encoder.ForKind(model::Segment::Kind::kAscending));
+  EXPECT_EQ(pos_overflow_encoder.GetEncodedBytes(),
+            pos_inf_encoder.GetEncodedBytes());
+
+  auto neg_overflow = Decimal128("-1e1000");
+  auto neg_infinity = Decimal128("-Infinity");
+  IndexEncodingBuffer neg_overflow_encoder;
+  WriteIndexValue(*neg_overflow, neg_overflow_encoder.ForKind(
+                                     model::Segment::Kind::kAscending));
+  IndexEncodingBuffer neg_inf_encoder;
+  WriteIndexValue(*neg_infinity,
+                  neg_inf_encoder.ForKind(model::Segment::Kind::kAscending));
+  EXPECT_EQ(neg_overflow_encoder.GetEncodedBytes(),
+            neg_inf_encoder.GetEncodedBytes());
 }
 
 }  // namespace

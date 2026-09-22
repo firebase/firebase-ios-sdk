@@ -54,8 +54,8 @@ NS_ASSUME_NONNULL_BEGIN
   FIRRegexValue *regex4 = [[FIRRegexValue alloc] initWithPattern:@"^bar" options:@"i"];
 
   // Test reading the values back.
-  XCTAssertEqual(regex1.pattern, @"^foo");
-  XCTAssertEqual(regex1.options, @"i");
+  XCTAssertEqualObjects(regex1.pattern, @"^foo");
+  XCTAssertEqualObjects(regex1.options, @"i");
 
   // Test isEqual
   XCTAssertTrue([regex1 isEqual:regex2]);
@@ -92,7 +92,7 @@ NS_ASSUME_NONNULL_BEGIN
   FIRDecimal128Value *val13 = [[FIRDecimal128Value alloc] initWithValue:@"0.0"];
 
   // Test reading the value back
-  XCTAssertEqual(@"1.2e3", val1.value);
+  XCTAssertEqualObjects(@"1.2e3", val1.value);
 
   // Test isEqual
   XCTAssertTrue([val1 isEqual:val2]);
@@ -115,7 +115,7 @@ NS_ASSUME_NONNULL_BEGIN
   FIRBSONObjectId *val3 = [[FIRBSONObjectId alloc] initWithValue:@"efgh"];
 
   // Test reading the value back
-  XCTAssertEqual(@"abcd", val1.value);
+  XCTAssertEqualObjects(@"abcd", val1.value);
 
   // Test isEqual
   XCTAssertTrue([val1 isEqual:val2]);
@@ -158,10 +158,10 @@ NS_ASSUME_NONNULL_BEGIN
 
   // Test reading properties back
   XCTAssertEqual(0, std1.subtype);
-  XCTAssertEqual(data1, std1.bytes);
+  XCTAssertEqualObjects(data1, std1.bytes);
 
   XCTAssertEqual(128, bson1.subtype);
-  XCTAssertEqual(data1, bson1.bytes);
+  XCTAssertEqualObjects(data1, bson1.bytes);
 
   // Test isEqual
   XCTAssertTrue([std1 isEqual:std2]);
@@ -204,8 +204,8 @@ NS_ASSUME_NONNULL_BEGIN
   FIRRegexValue *regex1 = [[FIRRegexValue alloc] initWithPattern:@"^foo" options:@"i"];
   FIRRegexValue *regex2 = [[FIRRegexValue alloc] initWithPattern:@"^foo" options:@"i"];
   XCTAssertTrue([regex1 isEqual:regex2]);
-  XCTAssertEqual(@"^foo", regex2.pattern);
-  XCTAssertEqual(@"i", regex2.options);
+  XCTAssertEqualObjects(@"^foo", regex2.pattern);
+  XCTAssertEqualObjects(@"i", regex2.options);
 }
 
 - (void)testFieldValueInt32 {
@@ -219,7 +219,7 @@ NS_ASSUME_NONNULL_BEGIN
   FIRBSONObjectId *oid1 = [[FIRBSONObjectId alloc] initWithValue:@"abcd"];
   FIRBSONObjectId *oid2 = [[FIRBSONObjectId alloc] initWithValue:@"abcd"];
   XCTAssertTrue([oid1 isEqual:oid2]);
-  XCTAssertEqual(@"abcd", oid2.value);
+  XCTAssertEqualObjects(@"abcd", oid2.value);
 }
 
 - (void)testFieldValueBsonTimestamp {
@@ -237,7 +237,7 @@ NS_ASSUME_NONNULL_BEGIN
   FIRBlob *val2 = [FIRBlob blobWithBSONBinary:data subtype:128];
   XCTAssertTrue([val1 isEqual:val2]);
   XCTAssertEqual(128, val2.subtype);
-  XCTAssertEqual(data, val2.bytes);
+  XCTAssertEqualObjects(data, val2.bytes);
 }
 
 @end

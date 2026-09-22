@@ -372,7 +372,8 @@ double ValueAsDouble(const google_firestore_v1_Value& value) {
     util::Quadruple q;
     std::string str =
         nanopb::MakeString(value.map_value.fields[0].value.string_value);
-    HARD_ASSERT(q.Parse(str), "Failed to parse Decimal128 string: %s", str);
+    bool success = q.Parse(str);
+    HARD_ASSERT(success, "Failed to parse Decimal128 string: %s", str);
     return static_cast<double>(q);
   } else {
     HARD_FAIL("Expected value to be of numeric type, but was %s (type %s)",

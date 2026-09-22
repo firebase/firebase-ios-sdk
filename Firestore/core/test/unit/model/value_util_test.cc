@@ -317,7 +317,7 @@ TEST_F(ValueUtilTest, Equality) {
   Add(equals_group, Decimal128("Infinity"));
   Add(equals_group, BlobValue(0, 1, 1));
   Add(equals_group, BlobValue(0, 1));
-  Add(equals_group, BlobValue(7, 8, 9), BsonBinaryData(0, {7, 8, 9}));
+  Add(equals_group, BlobValue(7, 8, 9));
   Add(equals_group, "string", "string");
   Add(equals_group, "strin");
   Add(equals_group, std::string("strin\0", 6));
@@ -429,11 +429,12 @@ TEST_F(ValueUtilTest, StrictOrdering) {
   Add(comparison_groups, "\u00e9a");
 
   // blobs (native & BSON binary merged)
-  Add(comparison_groups, BlobValue(), DeepClone(MinBsonBinaryData()));
+  Add(comparison_groups, BlobValue());
   Add(comparison_groups, BlobValue(0));
   Add(comparison_groups, BlobValue(0, 1, 2, 3, 4));
   Add(comparison_groups, BlobValue(0, 1, 2, 4, 3));
   Add(comparison_groups, BlobValue(255));
+  Add(comparison_groups, DeepClone(MinBsonBinaryData()), BsonBinaryData(1, {}));
   Add(comparison_groups, BsonBinaryData(5, {1, 2, 3}),
       BsonBinaryData(5, {1, 2, 3}));
   Add(comparison_groups, BsonBinaryData(7, {1}));
@@ -591,11 +592,12 @@ TEST_F(ValueUtilTest, RelaxedOrdering) {
 
   // blobs (native & BSON binary merged)
   Add(comparison_groups, DeepClone(MinBytes()));
-  Add(comparison_groups, BlobValue(), DeepClone(MinBsonBinaryData()));
+  Add(comparison_groups, BlobValue());
   Add(comparison_groups, BlobValue(0));
   Add(comparison_groups, BlobValue(0, 1, 2, 3, 4));
   Add(comparison_groups, BlobValue(0, 1, 2, 4, 3));
   Add(comparison_groups, BlobValue(255));
+  Add(comparison_groups, DeepClone(MinBsonBinaryData()), BsonBinaryData(1, {}));
   Add(comparison_groups, BsonBinaryData(5, {1, 2, 3}),
       BsonBinaryData(5, {1, 2, 3}));
   Add(comparison_groups, BsonBinaryData(7, {1}));
@@ -719,9 +721,11 @@ TEST_F(ValueUtilTest, ComputesLowerBound) {
 
   // Blobs (native & BSON binary merged)
   Add(groups, GetLowerBoundMessage(BlobValue(1, 2, 3)),
-      GetLowerBoundMessage(BsonBinaryData(128, {128, 128})), BlobValue(),
-      DeepClone(MinBytes()), DeepClone(MinBsonBinaryData()));
-  Add(groups, BlobValue(0), BsonBinaryData(0, {0}));
+      GetLowerBoundMessage(BsonBinaryData(128, {128, 128})),
+      GetLowerBoundMessage(DeepClone(MinBsonBinaryData())), BlobValue(),
+      DeepClone(MinBytes()));
+  Add(groups, BlobValue(0));
+  Add(groups, DeepClone(MinBsonBinaryData()), BsonBinaryData(1, {}));
 
   // References
   Add(groups, GetLowerBoundMessage(RefValue(DbId("p1/d1"), Key("c1/doc1"))),
@@ -922,6 +926,44 @@ TEST_F(ValueUtilTest, CompareMaps) {
   auto left_4 = Map("a", 7, "b", 0);
   auto right_4 = Map("a", 7, "b", 10);
   EXPECT_EQ(model::Compare(*left_4, *right_4), ComparisonResult::Ascending);
+}
+
+TEST_F(ValueUtilTest, IsBsonBinaryDataRequiresNonEmptyAndNonZeroSubtype) {
+  auto empty_binary_map = Map("__binary__", BlobValue());
+  EXPECT_FALSE(IsBsonBinaryData(*empty_binary_map));
+  EXPECT_EQ(GetTypeOrder(*empty_binary_map), TypeOrder::kMap);
+
+  auto subtype0_binary_map = BsonBinaryData(0, {1, 2, 3});
+  EXPECT_FALSE(IsBsonBinaryData(*subtype0_binary_map));
+  EXPECT_EQ(GetTypeOrder(*subtype0_binary_map), TypeOrder::kMap);
+
+  auto valid_empty_payload_binary = BsonBinaryData(1, {});
+  EXPECT_TRUE(IsBsonBinaryData(*valid_empty_payload_binary));
+  EXPECT_EQ(GetTypeOrder(*valid_empty_payload_binary), TypeOrder::kBlob);
+
+  EXPECT_TRUE(IsBsonBinaryData(MinBsonBinaryData()));
+  EXPECT_EQ(GetTypeOrder(MinBsonBinaryData()), TypeOrder::kBlob);
+}
+
+TEST_F(ValueUtilTest, Decimal128LeadingZeroTruncationRounding) {
+  // In Quadruple::Parse, the 59-significant-digit transition boundary above 1.0
+  // is between "...3683" (rounds to 1.0) and "...3684" (rounds to 1.0 +
+  // 2^-128). With 2 leading zeroes ("0.01...e2", firstDigit == 2), digits[59]
+  // is '8' (the 58th significant digit, >= 5) while digits[firstDigit +
+  // MAX_MANTISSA_LENGTH] (digits[61]) is the 60th significant digit ('0' vs
+  // '5').
+  std::string below_threshold_with_leading_zeroes =
+      "0.0100000000000000000000000000000000000000146936793852785936830e2";
+  std::string above_threshold_with_leading_zeroes =
+      "0.0100000000000000000000000000000000000000146936793852785936835e2";
+
+  EXPECT_TRUE(Equals(*Decimal128(below_threshold_with_leading_zeroes),
+                     *Decimal128("1")));
+  EXPECT_FALSE(Equals(*Decimal128(above_threshold_with_leading_zeroes),
+                      *Decimal128("1")));
+  EXPECT_EQ(model::Compare(*Decimal128(below_threshold_with_leading_zeroes),
+                           *Decimal128(above_threshold_with_leading_zeroes)),
+            ComparisonResult::Ascending);
 }
 
 }  // namespace

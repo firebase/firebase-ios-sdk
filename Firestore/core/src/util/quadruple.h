@@ -71,7 +71,7 @@ class Quadruple {
   // The actual exponent is exponent_-kExponentBias.
   static const uint32_t kExponentBias = 0x7FFFFFFF;
   int64_t HashValue() const;
-  std::string DebugString() {
+  std::string DebugString() const {
     std::stringstream out;
     if (negative_) {
       out << "-";

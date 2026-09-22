@@ -356,11 +356,7 @@ int GetBinarySubtype(const google_firestore_v1_Value& value) {
     return 0;
   }
   HARD_ASSERT(IsBsonBinaryData(value), "Expected binary value");
-  const pb_bytes_array_t* bytes = value.map_value.fields[0].value.bytes_value;
-  if (!bytes || bytes->size == 0) {
-    return 0;
-  }
-  return bytes->bytes[0];
+  return value.map_value.fields[0].value.bytes_value->bytes[0];
 }
 
 absl::string_view GetBinaryData(const google_firestore_v1_Value& value) {
@@ -372,9 +368,6 @@ absl::string_view GetBinaryData(const google_firestore_v1_Value& value) {
   }
   HARD_ASSERT(IsBsonBinaryData(value), "Expected binary value");
   const pb_bytes_array_t* bytes = value.map_value.fields[0].value.bytes_value;
-  if (!bytes || bytes->size <= 1) {
-    return {};
-  }
   return nanopb::MakeStringView(bytes).substr(1);
 }
 
@@ -1424,13 +1417,15 @@ bool IsBsonBinaryData(const google_firestore_v1_Value& value) {
     return false;
   }
 
-  // Must have a 'bytes' value.
+  // Must have a 'bytes' value with at least 1 byte (the subtype) and non-zero
+  // subtype.
   if (value.map_value.fields[0].value.which_value_type !=
       google_firestore_v1_Value_bytes_value_tag) {
     return false;
   }
 
-  return true;
+  const pb_bytes_array_t* bytes = value.map_value.fields[0].value.bytes_value;
+  return bytes != nullptr && bytes->size >= 1 && bytes->bytes[0] != 0;
 }
 
 bool IsInt32Value(const google_firestore_v1_Value& value) {
@@ -1682,10 +1677,16 @@ google_firestore_v1_Value MinBsonTimestamp() {
 }
 
 google_firestore_v1_Value MinBsonBinaryData() {
+  static const uint8_t kMinSubtypeByte[] = {1};
+  google_firestore_v1_Value min_binary_bytes;
+  min_binary_bytes.which_value_type = google_firestore_v1_Value_bytes_value_tag;
+  min_binary_bytes.bytes_value =
+      nanopb::MakeBytesArray(kMinSubtypeByte, sizeof(kMinSubtypeByte));
+
   google_firestore_v1_MapValue_FieldsEntry* field_entries =
       nanopb::MakeArray<google_firestore_v1_MapValue_FieldsEntry>(1);
   field_entries[0].key = kBsonBinaryDataTypeFieldValue;
-  field_entries[0].value = MinBytes();
+  field_entries[0].value = min_binary_bytes;
   google_firestore_v1_MapValue map_value;
   map_value.fields_count = 1;
   map_value.fields = field_entries;

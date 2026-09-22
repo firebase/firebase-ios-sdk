@@ -39,6 +39,10 @@
   return [self.value isEqualToString:other.value];
 }
 
+- (NSUInteger)hash {
+  return [self.value hash];
+}
+
 - (id)copyWithZone:(__unused NSZone *_Nullable)zone {
   return [[FIRBSONObjectId alloc] initWithValue:self.value];
 }
