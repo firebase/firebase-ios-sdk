@@ -305,6 +305,11 @@ private enum GoogleDataTransportConfig {
     // the subscriber is visible to an in-flight session start. That is safe
     // because a session start awaits `waitUntilAllRegistered()`, which only
     // proceeds once this `Task` has run for every expected subscriber.
+    //
+    // Ordering between concurrent registrations is likewise unspecified, and
+    // need not be: the gate is a set superset check, and `set(subscriber:)`
+    // writes a disjoint proto field per subscriber name, so any permutation
+    // produces an identical event.
     let subscriberName = subscriber.sessionsSubscriberName
     Task {
       await state.register(subscriber: subscriber, name: subscriberName)
