@@ -187,9 +187,10 @@ private enum GoogleDataTransportConfig {
       // If there are no Dependencies, then the Sessions SDK can't acknowledge
       // any products data collection state, so the Sessions SDK won't send events.
       guard !self.state.expectedSubscribers.isEmpty else {
-        self.loggedEventCallbackQueue.async {
-          loggedEventCallback(.failure(.NoDependenciesError))
-        }
+        // Delivered synchronously on the initiator's thread, matching the
+        // pre-refactor behavior. Unlike the paths below, this one awaits
+        // nothing and does no work that needs moving off the caller's thread.
+        loggedEventCallback(.failure(.NoDependenciesError))
         return
       }
 
