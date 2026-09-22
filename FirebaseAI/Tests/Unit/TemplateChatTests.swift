@@ -17,7 +17,7 @@ import FirebaseCore
 import XCTest
 
 @available(macOS 12.0, watchOS 8.0, *)
-final class TemplateChatSessionTests: XCTestCase {
+final class TemplateChatTests: XCTestCase {
   var model: TemplateGenerativeModel!
   var urlSession: URLSession!
 

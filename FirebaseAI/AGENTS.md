@@ -32,7 +32,7 @@ This directory contains the main source code for the FirebaseAI library.
 - **`PartsRepresentable.swift`**: Protocol implemented by types that can be converted into an array of `Part`s.
 - **`PartsRepresentable+Image.swift`**: Extends `UIImage`, `NSImage`, etc., to conform to `PartsRepresentable`.
 - **`Safety.swift`**: Structs and enums related to safety settings and ratings (e.g., `HarmCategory`).
-- **`TemplateChatSession.swift`**: Chat session that uses a prompt template.
+- **`TemplateChat.swift`**: Chat session that uses a prompt template.
 - **`TemplateGenerateContentRequest.swift`**: Request for generating content from a template.
 - **`TemplateGenerativeModel.swift`**: Model for generating content from a prompt template.
 - **`TemplateInput.swift`**: Defines the `TemplateInput` enum for representing different types of input to a template.

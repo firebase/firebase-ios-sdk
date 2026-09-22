@@ -30,7 +30,8 @@ import Foundation
 /// to dynamically manage template IDs in client requests.
 ///
 /// For more details, see the
-/// [Server prompt templates guide](https://firebase.google.com/docs/ai-logic/server-prompt-templates).
+/// [Server prompt templates
+/// guide](https://firebase.google.com/docs/ai-logic/server-prompt-templates).
 public final class TemplateGenerativeModel: Sendable {
   let generativeAIService: GenerativeAIService
   let apiConfig: APIConfig
@@ -94,7 +95,7 @@ public final class TemplateGenerativeModel: Sendable {
   /// history.
   ///
   /// The template's model, system instructions, and configurations apply to every turn
-  /// automatically, while the returned ``TemplateChatSession`` tracks conversation history.
+  /// automatically, while the returned ``TemplateChat`` tracks conversation history.
   ///
   /// > Important: The referenced server prompt template must include the `{{history}}` tag in its
   /// content, which indicates where the conversation turns managed by the client SDK should be
@@ -107,11 +108,11 @@ public final class TemplateGenerativeModel: Sendable {
   ///   - templateID: The ID of the server prompt template to use.
   ///   - inputs: A dictionary of variable names and values to substitute into the template.
   ///   - history: The previous conversation history to seed the chat session with.
-  /// - Returns: A new ``TemplateChatSession`` instance.
+  /// - Returns: A new ``TemplateChat`` instance.
   public func startChat(templateID: String,
                         inputs: [String: Any],
-                        history: [ModelContent] = []) -> TemplateChatSession {
-    return TemplateChatSession(
+                        history: [ModelContent] = []) -> TemplateChat {
+    return TemplateChat(
       model: self,
       templateID: templateID,
       inputs: inputs,

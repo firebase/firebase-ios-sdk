@@ -193,7 +193,8 @@ public final class FirebaseAI: Sendable {
   /// server, decoupling prompt iteration from app release cycles.
   ///
   /// > Note: If your Firebase project enforces
-  /// [template-only mode](https://firebase.google.com/docs/ai-logic/server-prompt-templates/template-only-mode),
+  /// [template-only
+  /// mode](https://firebase.google.com/docs/ai-logic/server-prompt-templates/template-only-mode),
   /// all Gemini requests in the project must use server prompt templates via
   /// `templateGenerativeModel`; standard requests will be rejected with an unauthorized (403)
   /// error.

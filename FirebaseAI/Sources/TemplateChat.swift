@@ -16,7 +16,7 @@ import Foundation
 
 /// An ongoing conversation with a model backed by a server prompt template.
 ///
-/// A `TemplateChatSession` manages conversation history on the client while utilizing the prompt,
+/// A `TemplateChat` manages conversation history on the client while utilizing the prompt,
 /// system instructions, and configurations defined in a server prompt template. The template's
 /// configurations apply to every turn automatically.
 ///
@@ -31,7 +31,7 @@ import Foundation
 ///
 /// For more details, see
 /// [Multi-turn interactions with server prompt templates](https://firebase.google.com/docs/ai-logic/server-prompt-templates/multi-turn-interactions).
-public final class TemplateChatSession: Sendable {
+public final class TemplateChat: Sendable {
   private let model: TemplateGenerativeModel
   private let templateID: String
   private let inputs: Result<[String: TemplateInput], Error>
