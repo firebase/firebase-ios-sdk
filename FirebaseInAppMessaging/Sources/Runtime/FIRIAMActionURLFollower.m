@@ -134,12 +134,20 @@ NS_EXTENSION_UNAVAILABLE("Firebase In App Messaging is not supported for iOS ext
 
   if ([self.class isHttpOrHttpsScheme:actionURL]) {
     FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM240001", @"Try to treat it as a universal link.");
+    if ([self followURLWithSceneContinueUserActivity:actionURL]) {
+      completion(YES);
+      return;  // following the url has been fully handled by Scene Delegate's
+               // continueUserActivity method
+    }
     if ([self followURLWithContinueUserActivity:actionURL]) {
       completion(YES);
       return;  // following the url has been fully handled by App Delegate's
                // continueUserActivity method
     }
   } else if ([self isCustomSchemeForCurrentApp:actionURL]) {
+    // for scene delegates, we can't reasonably support this. as such, we just follow
+    // apple's security guidance of "developers should use universal links instead".
+    // if folks want to use url schemes, it's up to them to properly support them.
     FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM240002", @"Custom URL scheme matches.");
     if ([self followURLWithAppDelegateOpenURLActivity:actionURL]) {
       completion(YES);
@@ -201,6 +209,37 @@ NS_EXTENSION_UNAVAILABLE("Firebase In App Messaging is not supported for iOS ext
   } else {
     return NO;
   }
+}
+
+// Try to handle the url as a universal link by triggering
+// scene:continueUserActivity: on any active scene delegate object directly.
+// @return YES if a scene delegate implementing that method was found and
+// invoked
+- (BOOL)followURLWithSceneContinueUserActivity:(NSURL *)url {
+  if (![NSThread isMainThread]) {
+    FIRLogWarning(kFIRLoggerInAppMessaging, @"I-IAM240011",
+                  @"URL following was triggered on a background thread.");
+    return NO;
+  }
+
+  NSString *browsingWebType = @"NSUserActivityTypeBrowsingWeb";
+  NSUserActivity *userActivity = [[NSUserActivity alloc] initWithActivityType:browsingWebType];
+  userActivity.webpageURL = url;
+
+  SEL selector = @selector(scene:continueUserActivity:);
+  UIScene *targetScene =
+      [FIRSceneDelegateFinder findForegroundSceneForApplication:self.mainApplication
+                                               matchingSelector:selector];
+  if (targetScene) {
+    FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM240004",
+                @"Scene delegate responds to scene:continueUserActivity."
+                 "Simulating action url opening.");
+    [targetScene.delegate scene:targetScene continueUserActivity:userActivity];
+    // since scene:continueUserActivity: returns void, we assume it is handled
+    // once we find an active scene delegate implementing it.
+    return YES;
+  }
+  return NO;
 }
 
 - (void)followURLViaIOS:(NSURL *)url withCompletionBlock:(void (^)(BOOL success))completion {
