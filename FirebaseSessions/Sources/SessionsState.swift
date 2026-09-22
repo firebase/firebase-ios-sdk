@@ -75,8 +75,12 @@ actor SessionsState {
     // above and the append below, so the continuation is always either
     // enqueued before the gate opens, or the fast path above already returned.
     //
-    // Note: If cancellation is required, use withTaskCancellationHandler and a throwing
-    // continuation.
+    // Note: this continuation is not cancellable, so if an expected subscriber
+    // never registers, waiters are never resumed. That matches the `FBLPromise`
+    // implementation this replaced, where an unfulfilled promise left every
+    // `.then` observer pending. Adding cancellation means first deciding what a
+    // cancelled waiter returns for a partial subscriber list, then using
+    // `withTaskCancellationHandler` with a throwing continuation.
     await withCheckedContinuation { continuation in
       continuations.append(continuation)
     }
