@@ -37,6 +37,10 @@ Firebase products. FirebaseSharedSwift is not supported for non-Firebase usage.
     'FirebaseSharedSwift/Sources/**/*.swift',
   ]
 
+  s.pod_target_xcconfig = {
+    'PRODUCT_BUNDLE_IDENTIFIER' => 'com.google.firebase.FirebaseSharedSwift'
+  }
+
   s.test_spec 'unit' do |unit_tests|
     unit_tests.platforms = {
       :ios => ios_deployment_target,

@@ -74,6 +74,10 @@ Pod::Spec.new do |s|
   s.osx.frameworks = 'Security', 'SystemConfiguration'
   s.watchos.frameworks = 'Security'
 
+  s.pod_target_xcconfig = {
+    'PRODUCT_BUNDLE_IDENTIFIER' => 'com.google.firebase.FirebaseCrashlytics'
+  }
+
   s.ios.pod_target_xcconfig = {
     'GCC_PREPROCESSOR_DEFINITIONS' =>
       'CLS_SDK_NAME="Crashlytics iOS SDK" ' +

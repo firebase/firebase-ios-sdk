@@ -30,6 +30,10 @@ Simplify your app development, grow your user base, and monetize more effectivel
 
   s.swift_version = '5.9'
 
+  s.pod_target_xcconfig = {
+    'PRODUCT_BUNDLE_IDENTIFIER' => 'com.google.firebase.Firebase'
+  }
+
   s.default_subspec = 'Core'
 
   s.subspec 'Core' do |ss|

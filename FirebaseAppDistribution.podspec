@@ -36,7 +36,8 @@ iOS SDK for App Distribution for Firebase.
   s.dependency 'FirebaseInstallations', '~> 13.0.0'
 
   s.pod_target_xcconfig = {
-    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
+    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"',
+    'PRODUCT_BUNDLE_IDENTIFIER' => 'com.google.firebase.FirebaseAppDistribution'
   }
 
   s.test_spec 'unit' do |unit_tests|
