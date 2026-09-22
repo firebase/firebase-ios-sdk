@@ -1161,7 +1161,8 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
             [((__FIRExprBridge *)dictionary[key]) cppExprWithReader:reader]->to_proto();
       } else if ([dictionary[key] isKindOfClass:[__FIRAggregateFunctionBridge class]]) {
         cpp_dictionary[MakeString(key)] =
-            [((__FIRAggregateFunctionBridge *)dictionary[key]) cppExprWithReader:reader]->to_proto();
+            [((__FIRAggregateFunctionBridge *)dictionary[key]) cppExprWithReader:reader]
+                ->to_proto();
       } else {
         ThrowInvalidArgument(
             "Dictionary value must be an __FIRExprBridge or __FIRAggregateFunctionBridge.");
@@ -1457,7 +1458,8 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
 
   for (const auto &cpp_stage_base : cpp_stages) {
     if (auto cpp_stage = std::dynamic_pointer_cast<api::CollectionSource>(cpp_stage_base)) {
-      [stageBridges addObject:[[__FIRCollectionSourceStageBridge alloc] initWithCppStage:cpp_stage]];
+      [stageBridges
+          addObject:[[__FIRCollectionSourceStageBridge alloc] initWithCppStage:cpp_stage]];
     } else if (auto cpp_stage =
                    std::dynamic_pointer_cast<api::CollectionGroupSource>(cpp_stage_base)) {
       [stageBridges
