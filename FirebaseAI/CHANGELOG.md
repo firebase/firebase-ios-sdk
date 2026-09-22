@@ -4,6 +4,11 @@
   `FirebaseAI`, which has now been removed. See the
   [Swift module name change](https://firebase.google.com/docs/ai-logic/faq-and-troubleshooting#swift-module-name-change)
   FAQ entry for more details.
+- [feature] Server Prompt Templates is now Generally Available (GA). This
+  release also adds support for multi-turn conversations (`TemplateChat`) and
+  function calling (`TemplateTool`). See the
+  [getting started guide](https://firebase.google.com/docs/ai-logic/server-prompt-templates)
+  for more details. (#16676)
 - [changed] Updated the default function calling mode to `VALIDATED` and
   updated guided generation to use `responseJsonSchema` in
   `GeminiLanguageModel`. (#16649)
