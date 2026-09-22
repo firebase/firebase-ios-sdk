@@ -37,9 +37,11 @@ internal import GoogleDataTransport
 ///   freed in `deinit`, so concurrent mutation would corrupt memory. The safety
 ///   invariant is that an event instance is only ever *handed off* between
 ///   executors, never shared: it is created on the initiator's thread, mutated
-///   on a single callback queue, and then handed to the coordinator, which
-///   serializes its own writes. Do not retain an event across those stages or
-///   mutate it from more than one context.
+///   by exactly one `loggedEventCallbackQueue` work item, and then handed to
+///   the coordinator, which serializes its own writes. Note that the callback
+///   queue is concurrent by default, so the protection here is single-owner
+///   confinement, not queue serialization: never enqueue a second work item
+///   against an event, and never mutate one from more than one context.
 ///   TODO: Make this checked `Sendable` by making the proto writes internally
 ///   synchronized, or by modeling the event as a value type.
 class SessionStartEvent: NSObject, GDTCOREventDataObject, @unchecked Sendable {
