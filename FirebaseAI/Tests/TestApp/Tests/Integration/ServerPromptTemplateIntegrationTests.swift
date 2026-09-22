@@ -14,8 +14,7 @@
 
 import CoreLocation
 
-// TODO: remove @testable when Template Chat is restored to the public API.
-@testable import FirebaseAILogic
+import FirebaseAILogic
 import Testing
 #if canImport(UIKit)
   import UIKit
@@ -196,6 +195,7 @@ struct ServerPromptTemplateIntegrationTests {
 
   @Test(arguments: testConfigs)
   func chatFunctionCalling(_ config: InstanceConfig) async throws {
+    // 1. Configure the model with tools and start a template chat session.
     let weatherFunction = FunctionDeclaration(
       name: "fetchWeather",
       description: "Returns the weather for a given location at a given time",
@@ -213,7 +213,7 @@ struct ServerPromptTemplateIntegrationTests {
     let model = FirebaseAI.componentInstance(config).templateGenerativeModel(
       tools: [.functionDeclarations([weatherFunction])]
     )
-    let chatSession = model.startChat(
+    let chat = model.startChat(
       templateID: "integration-test-function-calling",
       inputs: [
         "city": "Boston",
@@ -223,46 +223,67 @@ struct ServerPromptTemplateIntegrationTests {
       ]
     )
 
+    // 2. Initial turn: Trigger the prompt template by sending an empty message.
     // The template prompt does not require any additional content so we specify `[]`. Prompt:
     //   What was the weather like in {{city}}, {{state}} on {{date}}, formatted in {{unit}}?
     //   {{history}}
-    let response = try await chatSession.sendMessage([])
+    let response = try await chat.sendMessage([])
 
+    // 3. Verify the model requested the fetchWeather function with populated arguments.
     #expect(response.functionCalls.count == 1)
     let functionCall = try #require(response.functionCalls.first)
     #expect(functionCall.name == weatherFunction.name)
-
-    let arguments = functionCall.args
-    guard case let .object(location) = arguments["location"] else {
-      Issue.record("Missing object value named 'location' in arguments: \(arguments)")
-      return
-    }
-    guard case let .string(city) = location["city"] else {
-      Issue.record("Missing string value named 'city' in location: \(location)")
-      return
-    }
-    #expect(city == "Boston")
-    guard case let .string(state) = location["state"] else {
-      Issue.record("Missing string value named 'state' in location: \(location)")
-      return
-    }
-    #expect(state == "Massachusetts")
-    guard case let .string(date) = arguments["date"] else {
-      Issue.record("Missing string value named 'date' in arguments: \(arguments)")
-      return
-    }
-    #expect(date == "2024-10-17")
-    guard case let .string(unit) = arguments["unit"] else {
-      Issue.record("Missing string value named 'unit' in arguments: \(arguments)")
-      return
-    }
-    #expect(unit == "CELSIUS")
-    #expect(chatSession.history.count == 1)
-    let historyFunctionCall = try #require(chatSession.history[0].parts.first as? FunctionCallPart)
+    #expect(functionCall.args == [
+      "location": .object([
+        "city": .string("Boston"),
+        "state": .string("Massachusetts"),
+      ]),
+      "date": .string("2024-10-17"),
+      "unit": .string("CELSIUS"),
+    ])
+    #expect(chat.history.count == 1)
+    #expect(chat.history[0].role == "model")
+    let historyFunctionCall = try #require(chat.history[0].parts.first as? FunctionCallPart)
     #expect(functionCall == historyFunctionCall)
 
-    // TODO: Respond with a `FunctionResponse` and include the information "on October 17, 2024, the
-    // weather in Boston, Massachusetts was cool, dry, and mostly sunny with a high of 13°C.
+    // 4. Second turn: Supply the function execution result back to the model.
+    let functionResponse = FunctionResponsePart(
+      name: functionCall.name,
+      response: [
+        "condition": .string("Mostly sunny"),
+        "summary": .string("Cool, dry, and mostly sunny"),
+        "temperature": .object([
+          "high": .object([
+            "value": .number(13),
+            "unit": .string("CELSIUS"),
+          ]),
+        ]),
+        "precipitation": .object([
+          "description": .string("none"),
+          "value": .number(0),
+          "unit": .string("MILLIMETERS"),
+        ]),
+      ],
+      functionId: functionCall.functionId
+    )
+
+    let finalResponse = try await chat.sendMessage([functionResponse])
+
+    // 5. Verify the model generated the final text response using the function result.
+    #expect(finalResponse.functionCalls.isEmpty)
+    let responseText = try #require(finalResponse.text)
+    #expect(!responseText.isEmpty)
+    #expect(responseText.localizedCaseInsensitiveContains("sunny"))
+    #expect(responseText.contains("13"))
+    #expect(chat.history.count == 3)
+    #expect(chat.history[1].role == "user")
+    let promptFunctionResponse = try #require(
+      chat.history[1].parts.first as? FunctionResponsePart
+    )
+    #expect(promptFunctionResponse == functionResponse)
+    #expect(chat.history[2].role == "model")
+    let responseTextPart = try #require(chat.history[2].parts.first as? TextPart)
+    #expect(responseTextPart.text == responseText)
   }
 }
 
