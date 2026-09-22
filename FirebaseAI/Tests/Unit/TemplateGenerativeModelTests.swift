@@ -32,6 +32,7 @@ final class TemplateGenerativeModelTests: XCTestCase {
     model = TemplateGenerativeModel(
       firebaseInfo: firebaseInfo,
       apiConfig: apiConfig,
+      tools: nil,
       toolConfig: nil,
       requestOptions: RequestOptions(),
       urlSession: urlSession
@@ -88,6 +89,7 @@ final class TemplateGenerativeModelTests: XCTestCase {
     model = TemplateGenerativeModel(
       firebaseInfo: firebaseInfo,
       apiConfig: APIConfig(service: .googleAI(endpoint: .firebaseProxyProd), version: .v1beta),
+      tools: nil,
       toolConfig: toolConfig,
       requestOptions: RequestOptions(),
       urlSession: urlSession
@@ -123,6 +125,7 @@ final class TemplateGenerativeModelTests: XCTestCase {
     model = TemplateGenerativeModel(
       firebaseInfo: firebaseInfo,
       apiConfig: FirebaseAI.defaultVertexAIAPIConfig,
+      tools: nil,
       toolConfig: toolConfig,
       requestOptions: RequestOptions(),
       urlSession: urlSession

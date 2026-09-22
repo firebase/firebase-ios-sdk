@@ -31,6 +31,7 @@ final class TemplateChatSessionTests: XCTestCase {
     model = TemplateGenerativeModel(
       firebaseInfo: firebaseInfo,
       apiConfig: FirebaseAI.defaultVertexAIAPIConfig,
+      tools: nil,
       toolConfig: nil,
       requestOptions: RequestOptions(),
       urlSession: urlSession

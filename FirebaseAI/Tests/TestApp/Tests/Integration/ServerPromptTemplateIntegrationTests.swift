@@ -204,7 +204,9 @@ struct ServerPromptTemplateIntegrationTests {
           "city": .string(description: "The city of the location."),
           "state": .string(description: "The state of the location."),
         ]),
-        "date": .string(description: "The date for which to get the weather. Date must be in the format: YYYY-MM-DD."),
+        "date": .string(description: """
+        The date for which to get the weather. Date must be in the format: YYYY-MM-DD.
+        """),
         "unit": .enumeration(values: ["CELSIUS", "FAHRENHEIT"]),
       ]
     )
@@ -226,42 +228,41 @@ struct ServerPromptTemplateIntegrationTests {
     //   {{history}}
     let response = try await chatSession.sendMessage([])
 
-    // On October 17, 2024, the weather in Boston, Massachusetts was cool, dry, and mostly sunny
-    // with a high of 13°C.
-
     #expect(response.functionCalls.count == 1)
     let functionCall = try #require(response.functionCalls.first)
     #expect(functionCall.name == weatherFunction.name)
 
-    // TODO: Validate `functionCall.args` after setting the function schema.
-    //    let arguments = functionCall.args
-    //    guard case let .object(location) = arguments["location"] else {
-    //      Issue.record("Missing object value named 'location' in arguments: \(arguments)")
-    //      return
-    //    }
-    //    guard case let .string(city) = location["city"] else {
-    //      Issue.record("Missing string value named 'city' in location: \(location)")
-    //      return
-    //    }
-    //    #expect(city == "Boston")
-    //    guard case let .string(state) = location["state"] else {
-    //      Issue.record("Missing string value named 'state' in location: \(location)")
-    //      return
-    //    }
-    //    #expect(state == "Massachusetts")
-    //    guard case let .string(date) = arguments["date"] else {
-    //      Issue.record("Missing string value named 'date' in arguments: \(arguments)")
-    //      return
-    //    }
-    //    #expect(date == "2024-10-17")
-    //    guard case let .string(unit) = arguments["unit"] else {
-    //      Issue.record("Missing string value named 'unit' in arguments: \(arguments)")
-    //      return
-    //    }
-    //    #expect(unit == "CELSIUS")
+    let arguments = functionCall.args
+    guard case let .object(location) = arguments["location"] else {
+      Issue.record("Missing object value named 'location' in arguments: \(arguments)")
+      return
+    }
+    guard case let .string(city) = location["city"] else {
+      Issue.record("Missing string value named 'city' in location: \(location)")
+      return
+    }
+    #expect(city == "Boston")
+    guard case let .string(state) = location["state"] else {
+      Issue.record("Missing string value named 'state' in location: \(location)")
+      return
+    }
+    #expect(state == "Massachusetts")
+    guard case let .string(date) = arguments["date"] else {
+      Issue.record("Missing string value named 'date' in arguments: \(arguments)")
+      return
+    }
+    #expect(date == "2024-10-17")
+    guard case let .string(unit) = arguments["unit"] else {
+      Issue.record("Missing string value named 'unit' in arguments: \(arguments)")
+      return
+    }
+    #expect(unit == "CELSIUS")
     #expect(chatSession.history.count == 1)
     let historyFunctionCall = try #require(chatSession.history[0].parts.first as? FunctionCallPart)
     #expect(functionCall == historyFunctionCall)
+
+    // TODO: Respond with a `FunctionResponse` and include the information "on October 17, 2024, the
+    // weather in Boston, Massachusetts was cool, dry, and mostly sunny with a high of 13°C.
   }
 }
 

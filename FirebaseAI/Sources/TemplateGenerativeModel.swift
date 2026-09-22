@@ -99,7 +99,7 @@ public final class TemplateGenerativeModel: Sendable {
       stream: stream,
       apiConfig: apiConfig,
       options: requestOptions,
-      tools: nil, // TODO: Convert `tools` to `TemplateTool` values.
+      tools: tools?.map { try TemplateTool($0) },
       toolConfig: toolConfig
     )
   }
