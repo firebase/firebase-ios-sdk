@@ -26,6 +26,8 @@ on:
   pull_request:
     paths:
     - 'ReleaseTooling/Sources/**'
+    - 'Firestore/Source/Public/**'
+    - 'FirebaseFirestoreInternal/**'
     - '.github/workflows/release.zip.yml'
     - '.github/workflows/_quickstart.framework.yml'
     - 'scripts/zip/**'
