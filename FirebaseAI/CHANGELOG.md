@@ -1,4 +1,4 @@
-# Unreleased
+# 13.0.0
 - [changed] Deprecated `Backend.agentPlatform(location:)` in favor of
   `Backend.enterprise(location:)` to reflect the renaming of the Agent Platform
   Gemini API to the Gemini Enterprise API.

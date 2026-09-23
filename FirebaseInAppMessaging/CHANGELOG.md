@@ -1,4 +1,4 @@
-# Unreleased
+# 13.0.0
 - [fixed] Fixed an issue where universal links were not correctly routed in apps utilizing scene
   delegates. (#16083)
 - [changed] **Breaking Change**: Scene delegates take priority over app delegates for
