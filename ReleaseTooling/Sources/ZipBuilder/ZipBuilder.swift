@@ -459,6 +459,8 @@ struct ZipBuilder {
     }
     // We don't release GoogleSignIn, but we include its latest
     // version for convenience in the Zip and Carthage builds.
+    // Note: Removed GSI in Firebase.zip in #16544 due to a non-Firebase 13
+    // compatible release of GSI.
     // podsToInstall.append(CocoaPodUtils.VersionedPod(name: "GoogleSignIn",
     //                                                 version: nil,
     //                                                 platforms: ["ios"]))
