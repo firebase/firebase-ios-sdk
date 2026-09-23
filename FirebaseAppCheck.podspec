@@ -51,7 +51,8 @@ s.dependency 'AppCheckCore', '~> 12.0'
   s.dependency 'GoogleUtilities/UserDefaults', '>= 8.1.3', '< 9.0'
 
   s.pod_target_xcconfig = {
-    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
+    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"',
+    'PRODUCT_BUNDLE_IDENTIFIER' => 'com.google.firebase.FirebaseAppCheck'
   }
 
   s.test_spec 'unit' do |unit_tests|

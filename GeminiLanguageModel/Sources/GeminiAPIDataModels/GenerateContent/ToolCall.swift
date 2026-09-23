@@ -26,9 +26,9 @@ import Foundation
 /// client should pass this `ToolCall` back to the API in a subsequent turn
 /// within a `Content` message, along with the corresponding `ToolResponse`.
 ///
-/// ### Gemini Enterprise Agent Platform
+/// ### Gemini Enterprise API
 ///
-/// > Important: This type is not supported in the Gemini Enterprise Agent Platform.
+/// > Important: This type is not supported in the Gemini Enterprise API.
 package struct ToolCall: Codable, Sendable, Equatable, Hashable {
   /// Optional. Unique identifier of the tool call.
   ///
@@ -37,9 +37,9 @@ package struct ToolCall: Codable, Sendable, Equatable, Hashable {
   /// Optional. Unique identifier of the tool call.
   /// The server returns the tool response with the matching `id`.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
-  /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
+  /// > Important: This property is not supported in the Gemini Enterprise API.
   package let id: String?
 
   /// Required. The type of tool that was called.
@@ -48,9 +48,9 @@ package struct ToolCall: Codable, Sendable, Equatable, Hashable {
   ///
   /// Required. The type of tool that was called.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
-  /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
+  /// > Important: This property is not supported in the Gemini Enterprise API.
   package let toolType: ToolType
 
   /// Optional. The tool call arguments.
@@ -60,9 +60,9 @@ package struct ToolCall: Codable, Sendable, Equatable, Hashable {
   /// Optional. The tool call arguments.
   /// Example: {"arg1" : "value1", "arg2" : "value2" , ...}
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
-  /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
+  /// > Important: This property is not supported in the Gemini Enterprise API.
   package let args: [String: JSONValue]?
 
   /// Creates a new `ToolCall`.

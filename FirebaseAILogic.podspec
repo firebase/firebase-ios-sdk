@@ -43,6 +43,10 @@ Build AI-powered apps and features with the Gemini API using the Firebase AI Log
   s.tvos.framework = 'UIKit'
   s.watchos.framework = 'WatchKit'
 
+  s.pod_target_xcconfig = {
+    'PRODUCT_BUNDLE_IDENTIFIER' => 'com.google.firebase.FirebaseAILogic'
+  }
+
   swift_flags_xcconfig = {
     'OTHER_SWIFT_FLAGS' => '$(inherited) -D IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM'
   }

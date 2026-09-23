@@ -29,7 +29,7 @@ enum AILog {
     case verboseLoggingEnabled = 101
 
     // API Enablement Errors
-    case agentPlatformInFirebaseAPIDisabled = 200
+    case enterpriseInFirebaseAPIDisabled = 200
 
     // Generative Model Configuration
     case generativeModelInitialized = 1000

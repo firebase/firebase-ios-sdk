@@ -33,4 +33,8 @@ Pod::Spec.new do |s|
   s.watchos.deployment_target = '8.0'
 
   s.source_files = 'FirebaseRemoteConfig/Interop/*.swift'
+
+  s.pod_target_xcconfig = {
+    'PRODUCT_BUNDLE_IDENTIFIER' => 'com.google.firebase.FirebaseRemoteConfigInterop'
+  }
 end

@@ -22,7 +22,7 @@ import Foundation
 ///
 /// The configuration for a single speaker in a multi speaker setup.
 ///
-/// ### Gemini Enterprise Agent Platform
+/// ### Gemini Enterprise API
 ///
 /// Type: `GoogleCloudAiplatformV1beta1SpeakerVoiceConfig`
 ///
@@ -34,7 +34,7 @@ package struct SpeakerVoiceConfig: Codable, Sendable, Equatable, Hashable {
   ///
   /// Required. The name of the speaker to use. Should be the same as in the prompt.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Required. The name of the speaker. This should be the same as the speaker
   /// name used in the prompt.
@@ -46,7 +46,7 @@ package struct SpeakerVoiceConfig: Codable, Sendable, Equatable, Hashable {
   ///
   /// Required. The configuration for the voice to use.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Required. The configuration for the voice of this speaker.
   package let voiceConfig: VoiceConfig

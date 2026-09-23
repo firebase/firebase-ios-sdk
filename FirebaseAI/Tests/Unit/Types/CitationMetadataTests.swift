@@ -55,9 +55,9 @@ final class CitationMetadataTests: XCTestCase {
     XCTAssertEqual(citation, expectedCitation)
   }
 
-  // MARK: - Agent Platform Gemini API Format Decoding
+  // MARK: - Gemini Enterprise API Format Decoding
 
-  func testDecodeCitationMetadata_agentPlatformFormat() throws {
+  func testDecodeCitationMetadata_enterpriseFormat() throws {
     let json = """
     {
       "citations": [\(citationJSON)]

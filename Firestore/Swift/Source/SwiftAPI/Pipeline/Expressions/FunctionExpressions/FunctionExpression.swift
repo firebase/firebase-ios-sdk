@@ -20,7 +20,7 @@
 /// `FunctionExpression`s are typically used to perform operations on data in a pipeline, such as
 /// mathematical calculations, string manipulations, or array operations.
 public class FunctionExpression: Expression, BridgeWrapper, @unchecked Sendable {
-  let bridge: ExprBridge
+  let bridge: __ExprBridge
 
   let functionName: String
   let args: [Expression]
@@ -44,7 +44,7 @@ public class FunctionExpression: Expression, BridgeWrapper, @unchecked Sendable 
     self.functionName = functionName
     self.args = args
     self.options = options
-    bridge = FunctionExprBridge(
+    bridge = __FunctionExprBridge(
       name: functionName,
       args: self.args.map { $0.toBridge() },
       options: options?.mapValues { Helper.sendableToExpr($0).toBridge() }

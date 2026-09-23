@@ -26,7 +26,7 @@ import Foundation
 /// model and executed by the client. The name of the function must be listed in
 /// the template frontmatter for the model to be able to call it.
 ///
-/// ### Gemini Enterprise Agent Platform
+/// ### Gemini Enterprise API
 ///
 /// Type: `TemplateFunction`
 ///

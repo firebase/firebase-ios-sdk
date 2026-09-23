@@ -31,7 +31,7 @@ import Foundation
 ///  - Reports feedback on each candidate in `finish_reason` and
 ///    `safety_ratings`.
 ///
-/// ### Gemini Enterprise Agent Platform
+/// ### Gemini Enterprise API
 ///
 /// Type: `GoogleCloudAiplatformV1beta1GenerateContentResponse`
 ///
@@ -43,7 +43,7 @@ package struct GenerateContentResponse: Codable, Sendable, Equatable, Hashable {
   ///
   /// Candidate responses from the model.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Output only. Generated candidates.
   package let candidates: [Candidate]?
@@ -54,7 +54,7 @@ package struct GenerateContentResponse: Codable, Sendable, Equatable, Hashable {
   ///
   /// Returns the prompt's feedback related to the content filters.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Output only. Content filter results for a prompt sent in the request.
   /// Note: Sent only in the first stream chunk.
@@ -67,7 +67,7 @@ package struct GenerateContentResponse: Codable, Sendable, Equatable, Hashable {
   ///
   /// Output only. Metadata on the generation requests' token usage.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Usage metadata about the response(s).
   package let usageMetadata: UsageMetadata?
@@ -81,7 +81,7 @@ package struct GenerateContentResponse: Codable, Sendable, Equatable, Hashable {
   ///
   /// Output only. response_id is used to identify each response.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Output only. response_id is used to identify each response. It is the encoding of the
   /// event_id.
@@ -93,9 +93,9 @@ package struct GenerateContentResponse: Codable, Sendable, Equatable, Hashable {
   ///
   /// Output only. The current model status of this model.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
-  /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
+  /// > Important: This property is not supported in the Gemini Enterprise API.
   package let modelStatus: ModelStatus?
 
   /// Output only. Timestamp when the request is made to the server.
@@ -104,7 +104,7 @@ package struct GenerateContentResponse: Codable, Sendable, Equatable, Hashable {
   ///
   /// > Important: This property is not supported in the Gemini Developer API.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Output only. Timestamp when the request is made to the server.
   package let createTime: String?
@@ -118,7 +118,7 @@ package struct GenerateContentResponse: Codable, Sendable, Equatable, Hashable {
   ///   - modelVersion: Output only. The model version used to generate the response.
   ///   - responseId: Output only. response_id is used to identify each response. (behavior varies by backend). For more details, see ``responseId``.
   ///   - modelStatus: Output only. The current model status of this model. (Gemini Developer API only). For more details, see ``modelStatus``.
-  ///   - createTime: Output only. Timestamp when the request is made to the server. (Gemini Enterprise Agent Platform only). For more details, see ``createTime``.
+  ///   - createTime: Output only. Timestamp when the request is made to the server. (Gemini Enterprise API only). For more details, see ``createTime``.
   package init(
     candidates: [Candidate]? = nil,
     promptFeedback: PromptFeedback? = nil,

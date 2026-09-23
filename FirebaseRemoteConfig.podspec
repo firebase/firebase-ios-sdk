@@ -47,7 +47,8 @@ app update.
     "#{s.module_name}_Privacy" => 'FirebaseRemoteConfig/Swift/Resources/PrivacyInfo.xcprivacy'
   }
   s.pod_target_xcconfig = {
-    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
+    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"',
+    'PRODUCT_BUNDLE_IDENTIFIER' => 'com.google.firebase.FirebaseRemoteConfig'
   }
   s.dependency 'FirebaseABTesting', '~> 13.0.0'
   s.dependency 'FirebaseSharedSwift', '~> 13.0.0'

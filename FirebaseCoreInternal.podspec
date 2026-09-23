@@ -40,6 +40,10 @@ Pod::Spec.new do |s|
 
   s.dependency 'GoogleUtilities/NSData+zlib', '>= 8.1.3', '< 9.0'
 
+  s.pod_target_xcconfig = {
+    'PRODUCT_BUNDLE_IDENTIFIER' => 'com.google.firebase.FirebaseCoreInternal'
+  }
+
   s.test_spec 'Unit' do |unit_tests|
     unit_tests.scheme = { :code_coverage => true }
     unit_tests.platforms = {

@@ -30,58 +30,58 @@ namespace api = firebase::firestore::api;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRExprBridge (Internal)
+@interface __FIRExprBridge (Internal)
 
 - (std::shared_ptr<api::Expr>)cppExprWithReader:(FSTUserDataReader *)reader;
 
 @end
 
-@interface FIROrderingBridge (Internal)
+@interface __FIROrderingBridge (Internal)
 
 - (api::Ordering)cppOrderingWithReader:(FSTUserDataReader *)reader;
 
 @end
 
-@interface FIRStageBridge (Internal)
+@interface __FIRStageBridge (Internal)
 
 - (std::shared_ptr<api::Stage>)cppStageWithReader:(FSTUserDataReader *)reader;
 
 @end
 
-@interface FIRCollectionSourceStageBridge (Internal)
+@interface __FIRCollectionSourceStageBridge (Internal)
 - (id)initWithCppStage:(std::shared_ptr<const firebase::firestore::api::CollectionSource>)stage;
 @end
 
-@interface FIRSubcollectionSourceStageBridge (Internal)
+@interface __FIRSubcollectionSourceStageBridge (Internal)
 - (id)initWithCppStage:(std::shared_ptr<const firebase::firestore::api::SubcollectionSource>)stage;
 @end
 
-@interface FIRDatabaseSourceStageBridge (Internal)
+@interface __FIRDatabaseSourceStageBridge (Internal)
 - (id)initWithCppStage:(std::shared_ptr<const firebase::firestore::api::DatabaseSource>)stage;
 @end
 
-@interface FIRCollectionGroupSourceStageBridge (Internal)
+@interface __FIRCollectionGroupSourceStageBridge (Internal)
 - (id)initWithCppStage:
     (std::shared_ptr<const firebase::firestore::api::CollectionGroupSource>)stage;
 @end
 
-@interface FIRDocumentsSourceStageBridge (Internal)
+@interface __FIRDocumentsSourceStageBridge (Internal)
 - (id)initWithCppStage:(std::shared_ptr<const firebase::firestore::api::DocumentsSource>)stage;
 @end
 
-@interface FIRWhereStageBridge (Internal)
+@interface __FIRWhereStageBridge (Internal)
 - (id)initWithCppStage:(std::shared_ptr<const firebase::firestore::api::Where>)stage;
 @end
 
-@interface FIRLimitStageBridge (Internal)
+@interface __FIRLimitStageBridge (Internal)
 - (id)initWithCppStage:(std::shared_ptr<const firebase::firestore::api::LimitStage>)stage;
 @end
 
-@interface FIROffsetStageBridge (Internal)
+@interface __FIROffsetStageBridge (Internal)
 - (id)initWithCppStage:(std::shared_ptr<const firebase::firestore::api::OffsetStage>)stage;
 @end
 
-@interface FIRSorStageBridge (Internal)
+@interface __FIRSortStageBridge (Internal)
 - (id)initWithCppStage:(std::shared_ptr<const firebase::firestore::api::SortStage>)stage;
 @end
 
@@ -103,7 +103,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@interface FIRPipelineBridge (Internal)
+@interface __FIRPipelineBridge (Internal)
 
 - (std::shared_ptr<api::Pipeline>)cppPipelineWithReader:(FSTUserDataReader *)reader;
 

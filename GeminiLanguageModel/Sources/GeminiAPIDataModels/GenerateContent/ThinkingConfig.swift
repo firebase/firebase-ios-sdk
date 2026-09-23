@@ -22,7 +22,7 @@ import Foundation
 ///
 /// Config for thinking features.
 ///
-/// ### Gemini Enterprise Agent Platform
+/// ### Gemini Enterprise API
 ///
 /// Type: `GoogleCloudAiplatformV1beta1GenerationConfigThinkingConfig`
 ///
@@ -40,7 +40,7 @@ package struct ThinkingConfig: Codable, Sendable, Equatable, Hashable {
   /// Indicates whether to include thoughts in the response.
   /// If true, thoughts are returned only when available.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. If true, the model will include its thoughts in the response. "Thoughts"
   /// are the intermediate steps the model takes to arrive at the final
@@ -55,7 +55,7 @@ package struct ThinkingConfig: Codable, Sendable, Equatable, Hashable {
   ///
   /// The number of thoughts tokens that the model should generate.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. The token budget for the model's thinking process. The model will make a
   /// best effort to stay within this budget. This can be used to control the
@@ -73,7 +73,7 @@ package struct ThinkingConfig: Codable, Sendable, Equatable, Hashable {
   /// more details. Recommended for Gemini 3 or later models. Use with earlier
   /// models results in an error.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. The number of thoughts tokens that the model should generate.
   package let thinkingLevel: ThinkingLevel?

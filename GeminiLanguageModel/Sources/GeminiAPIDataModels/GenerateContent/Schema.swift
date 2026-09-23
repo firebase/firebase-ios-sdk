@@ -25,7 +25,7 @@ import Foundation
 /// Represents a select subset of an [OpenAPI 3.0 schema
 /// object](https://spec.openapis.org/oas/v3.0.3#schema).
 ///
-/// ### Gemini Enterprise Agent Platform
+/// ### Gemini Enterprise API
 ///
 /// Type: `GoogleCloudAiplatformV1beta1Schema`
 ///
@@ -39,7 +39,7 @@ package final class Schema: Codable, Sendable {
   ///
   /// Required. Data type.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. Data type of the schema field.
   package let type: DataType
@@ -51,7 +51,7 @@ package final class Schema: Codable, Sendable {
   /// Optional. The format of the data. Any value is allowed, but most do not trigger any
   /// special functionality.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. The format of the data.
   /// For `NUMBER` type, format can be `float` or `double`.
@@ -66,7 +66,7 @@ package final class Schema: Codable, Sendable {
   ///
   /// Optional. The title of the schema.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. Title for the schema.
   package let title: String?
@@ -78,7 +78,7 @@ package final class Schema: Codable, Sendable {
   /// Optional. A brief description of the parameter. This could contain examples of use.
   /// Parameter description may be formatted as Markdown.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. Describes the data. The model uses this field to understand
   /// the purpose of the schema and how to use it. It is a best practice to
@@ -92,7 +92,7 @@ package final class Schema: Codable, Sendable {
   ///
   /// Optional. Indicates if the value may be null.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. Indicates if the value of this field can be null.
   package let nullable: Bool?
@@ -105,7 +105,7 @@ package final class Schema: Codable, Sendable {
   /// For example we can define an Enum Direction as :
   /// {type:STRING, format:enum, enum:["EAST", NORTH", "SOUTH", "WEST"]}
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. Possible values of the field.
   /// This field can be used to restrict a value to a fixed set of values.
@@ -124,7 +124,7 @@ package final class Schema: Codable, Sendable {
   ///
   /// Optional. Schema of the elements of Type.ARRAY.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. If type is `ARRAY`, `items` specifies the schema of elements in the array.
   package let items: Schema?
@@ -135,7 +135,7 @@ package final class Schema: Codable, Sendable {
   ///
   /// Optional. Maximum number of the elements for Type.ARRAY.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. If type is `ARRAY`, `max_items` specifies the maximum number of items in an
   /// array.
@@ -147,7 +147,7 @@ package final class Schema: Codable, Sendable {
   ///
   /// Optional. Minimum number of the elements for Type.ARRAY.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. If type is `ARRAY`, `min_items` specifies the minimum number of items in an
   /// array.
@@ -159,7 +159,7 @@ package final class Schema: Codable, Sendable {
   ///
   /// Optional. Properties of Type.OBJECT.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. If type is `OBJECT`, `properties` is a map of property names to schema
   /// definitions for each property of the object.
@@ -171,7 +171,7 @@ package final class Schema: Codable, Sendable {
   ///
   /// Optional. Required properties of Type.OBJECT.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. If type is `OBJECT`, `required` lists the names of properties that must be
   /// present.
@@ -183,7 +183,7 @@ package final class Schema: Codable, Sendable {
   ///
   /// Optional. Minimum number of the properties for Type.OBJECT.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. If type is `OBJECT`, `min_properties` specifies the minimum number of
   /// properties that can be provided.
@@ -195,7 +195,7 @@ package final class Schema: Codable, Sendable {
   ///
   /// Optional. Maximum number of the properties for Type.OBJECT.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. If type is `OBJECT`, `max_properties` specifies the maximum number of
   /// properties that can be provided.
@@ -208,7 +208,7 @@ package final class Schema: Codable, Sendable {
   /// Optional. SCHEMA FIELDS FOR TYPE INTEGER and NUMBER
   /// Minimum value of the Type.INTEGER and Type.NUMBER
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. If type is `INTEGER` or `NUMBER`, `minimum` specifies the minimum allowed
   /// value.
@@ -220,7 +220,7 @@ package final class Schema: Codable, Sendable {
   ///
   /// Optional. Maximum value of the Type.INTEGER and Type.NUMBER
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. If type is `INTEGER` or `NUMBER`, `maximum` specifies the maximum allowed
   /// value.
@@ -233,7 +233,7 @@ package final class Schema: Codable, Sendable {
   /// Optional. SCHEMA FIELDS FOR TYPE STRING
   /// Minimum length of the Type.STRING
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. If type is `STRING`, `min_length` specifies the minimum length of the
   /// string.
@@ -245,7 +245,7 @@ package final class Schema: Codable, Sendable {
   ///
   /// Optional. Maximum length of the Type.STRING
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. If type is `STRING`, `max_length` specifies the maximum length of the
   /// string.
@@ -257,7 +257,7 @@ package final class Schema: Codable, Sendable {
   ///
   /// Optional. Pattern of the Type.STRING to restrict a string to a regular expression.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. If type is `STRING`, `pattern` specifies a regular expression that the
   /// string must match.
@@ -269,7 +269,7 @@ package final class Schema: Codable, Sendable {
   ///
   /// Optional. Example of the object. Will only populated when the object is the root.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. Example of an instance of this schema.
   package let example: JSONValue?
@@ -281,7 +281,7 @@ package final class Schema: Codable, Sendable {
   /// Optional. The value should be validated against any (one or more) of the subschemas
   /// in the list.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. The instance must be valid against any (one or more) of the subschemas
   /// listed in `any_of`.
@@ -295,7 +295,7 @@ package final class Schema: Codable, Sendable {
   /// Not a standard field in open api spec. Used to determine the order of the
   /// properties in the response.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. Order of properties displayed or used where order matters.
   /// This is not a standard field in OpenAPI specification, but can be used to
@@ -311,7 +311,7 @@ package final class Schema: Codable, Sendable {
   /// here and ignored so that developers who send schemas with a `default` field
   /// don't get unknown-field errors.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. Default value to use if the field is not specified.
   package let `default`: JSONValue?
@@ -322,7 +322,7 @@ package final class Schema: Codable, Sendable {
   ///
   /// > Important: This property is not supported in the Gemini Developer API.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. If `type` is `OBJECT`, specifies how to handle properties not defined in
   /// `properties`.
@@ -337,7 +337,7 @@ package final class Schema: Codable, Sendable {
   ///
   /// > Important: This property is not supported in the Gemini Developer API.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. Allows referencing another schema definition to use in place of this
   /// schema. The value must be a valid reference to a schema in `defs`.
@@ -368,7 +368,7 @@ package final class Schema: Codable, Sendable {
   ///
   /// > Important: This property is not supported in the Gemini Developer API.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. `defs` provides a map of schema definitions that can be reused by `ref`
   /// elsewhere in the schema.
@@ -400,9 +400,9 @@ package final class Schema: Codable, Sendable {
   ///   - anyOf: Optional. The value should be validated against any (one or more) of the subschemas (behavior varies by backend). For more details, see ``anyOf``.
   ///   - propertyOrdering: Optional. The order of the properties. (behavior varies by backend). For more details, see ``propertyOrdering``.
   ///   - `default`: Optional. Default value of the field. Per JSON Schema, this field is intended for (behavior varies by backend). For more details, see ```default```.
-  ///   - additionalProperties: Optional. If `type` is `OBJECT`, specifies how to handle properties not defined in (Gemini Enterprise Agent Platform only). For more details, see ``additionalProperties``.
-  ///   - ref: Optional. Allows referencing another schema definition to use in place of this (Gemini Enterprise Agent Platform only). For more details, see ``ref``.
-  ///   - defs: Optional. `defs` provides a map of schema definitions that can be reused by `ref` (Gemini Enterprise Agent Platform only). For more details, see ``defs``.
+  ///   - additionalProperties: Optional. If `type` is `OBJECT`, specifies how to handle properties not defined in (Gemini Enterprise API only). For more details, see ``additionalProperties``.
+  ///   - ref: Optional. Allows referencing another schema definition to use in place of this (Gemini Enterprise API only). For more details, see ``ref``.
+  ///   - defs: Optional. `defs` provides a map of schema definitions that can be reused by `ref` (Gemini Enterprise API only). For more details, see ``defs``.
   package init(
     type: DataType,
     format: String? = nil,

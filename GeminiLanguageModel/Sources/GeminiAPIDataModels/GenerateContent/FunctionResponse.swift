@@ -23,7 +23,7 @@ import Foundation
 /// An element in the history that represents the results of a function
 /// invocation.
 ///
-/// ### Gemini Enterprise Agent Platform
+/// ### Gemini Enterprise API
 ///
 /// Type: `GoogleCloudAiplatformV1beta1FunctionResponse`
 ///
@@ -40,7 +40,7 @@ package struct FunctionResponse: Codable, Sendable, Equatable, Hashable {
   /// Required. ID of the individual function invocation assigned by the model when it
   /// requests the function invocation.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. The id of the function call this response is for. Populated by the client
   /// to match the corresponding function call `id`.
@@ -52,7 +52,7 @@ package struct FunctionResponse: Codable, Sendable, Equatable, Hashable {
   ///
   /// Required. The name of the function.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Required. The name of the function to call.
   /// Matches FunctionDeclaration.name and FunctionCall.name.
@@ -64,7 +64,7 @@ package struct FunctionResponse: Codable, Sendable, Equatable, Hashable {
   ///
   /// Optional. The results of the function invocation.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Required. The function response in JSON object format.
   /// Use "output" key to specify function output and "error" key to specify
@@ -89,9 +89,9 @@ package struct FunctionResponse: Codable, Sendable, Equatable, Hashable {
   /// generation. To avoid triggering the generation and finish the function
   /// call, additionally set `scheduling` to `SILENT`.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
-  /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
+  /// > Important: This property is not supported in the Gemini Enterprise API.
   package let willContinue: Bool?
 
   /// Optional. Specifies how the response should be scheduled in the conversation.

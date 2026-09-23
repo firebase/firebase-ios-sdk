@@ -94,7 +94,7 @@ final class GenerativeModelVertexAITests: XCTestCase {
   let testModelName = "test-model"
   let testModelResourceName =
     "projects/test-project-id/locations/test-location/publishers/google/models/test-model"
-  let apiConfig = FirebaseAI.defaultVertexAIAPIConfig
+  let apiConfig = FirebaseAI.defaultEnterpriseAPIConfig
 
   let vertexSubdirectory = "mock-responses/vertexai"
 
@@ -886,7 +886,7 @@ final class GenerativeModelVertexAITests: XCTestCase {
       XCTAssertEqual(error.status, .permissionDenied)
       XCTAssertTrue(error.message
         .starts(with: "Vertex AI in Firebase API has not been used in project"))
-      XCTAssertTrue(error.isVertexAIInFirebaseServiceDisabledError())
+      XCTAssertTrue(error.isEnterpriseInFirebaseServiceDisabledError())
       return
     } catch {
       XCTFail("Should throw GenerateContentError.internalError(RPCError); error thrown: \(error)")
@@ -1241,7 +1241,7 @@ final class GenerativeModelVertexAITests: XCTestCase {
     XCTFail("Should have caught an error.")
   }
 
-  func testGenerateContentStream_failure_agentPlatformInFirebaseAPINotEnabled() async throws {
+  func testGenerateContentStream_failure_enterpriseInFirebaseAPINotEnabled() async throws {
     let expectedStatusCode = 403
     MockURLProtocol
       .requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
@@ -1261,7 +1261,7 @@ final class GenerativeModelVertexAITests: XCTestCase {
       XCTAssertEqual(error.status, .permissionDenied)
       XCTAssertTrue(error.message
         .starts(with: "Vertex AI in Firebase API has not been used in project"))
-      XCTAssertTrue(error.isVertexAIInFirebaseServiceDisabledError())
+      XCTAssertTrue(error.isEnterpriseInFirebaseServiceDisabledError())
       return
     }
 
