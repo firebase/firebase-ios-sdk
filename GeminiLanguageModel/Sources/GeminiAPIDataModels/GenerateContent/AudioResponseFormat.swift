@@ -22,7 +22,7 @@ import Foundation
 ///
 /// Configuration for audio output format.
 ///
-/// ### Gemini Enterprise Agent Platform
+/// ### Gemini Enterprise API
 ///
 /// Type: `GoogleCloudAiplatformV1beta1AudioResponseFormat`
 ///
@@ -37,7 +37,7 @@ package struct AudioResponseFormat: Codable, Sendable, Equatable, Hashable {
   ///
   /// Optional. The delivery mode for the audio output.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. Delivery mode for the generated content.
   package let delivery: Delivery?
@@ -48,7 +48,7 @@ package struct AudioResponseFormat: Codable, Sendable, Equatable, Hashable {
   ///
   /// Optional. Sample rate in Hz.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. Sample rate for the generated audio in Hertz.
   package let sampleRate: Int?

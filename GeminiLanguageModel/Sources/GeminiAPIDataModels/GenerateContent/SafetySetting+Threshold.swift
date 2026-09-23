@@ -21,7 +21,7 @@ extension SafetySetting {
   ///
   /// Required. Controls the probability threshold at which harm is blocked.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Required. The threshold for blocking content. If the harm probability
   /// exceeds this threshold, the content will be blocked.

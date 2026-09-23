@@ -27,7 +27,7 @@ import Foundation
 /// have Wifi" or "is Foo Bar wheelchair accessible?"). Currently we only
 /// support review snippets as sources.
 ///
-/// ### Gemini Enterprise Agent Platform
+/// ### Gemini Enterprise API
 ///
 /// Type: `GoogleCloudAiplatformV1beta1GroundingChunkMapsPlaceAnswerSources`
 ///
@@ -42,7 +42,7 @@ package struct PlaceAnswerSources: Codable, Sendable, Equatable, Hashable {
   /// Snippets of reviews that are used to generate answers about the
   /// features of a given place in Google Maps.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Snippets of reviews that were used to generate the answer.
   package let reviewSnippets: [ReviewSnippet]?

@@ -23,7 +23,7 @@ import Foundation
 /// A set of the feedback metadata the prompt specified in
 /// `GenerateContentRequest.content`.
 ///
-/// ### Gemini Enterprise Agent Platform
+/// ### Gemini Enterprise API
 ///
 /// Type: `GoogleCloudAiplatformV1beta1GenerateContentResponsePromptFeedback`
 ///
@@ -38,7 +38,7 @@ package struct PromptFeedback: Codable, Sendable, Equatable, Hashable {
   /// Optional. If set, the prompt was blocked and no candidates are returned.
   /// Rephrase the prompt.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Output only. The reason why the prompt was blocked.
   package let blockReason: BlockReason?
@@ -50,7 +50,7 @@ package struct PromptFeedback: Codable, Sendable, Equatable, Hashable {
   /// Ratings for safety of the prompt.
   /// There is at most one rating per category.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Output only. A list of safety ratings for the prompt. There is one rating per
   /// category.
@@ -62,7 +62,7 @@ package struct PromptFeedback: Codable, Sendable, Equatable, Hashable {
   ///
   /// > Important: This property is not supported in the Gemini Developer API.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Output only. A readable message that explains the reason why the prompt was
   /// blocked.
@@ -73,7 +73,7 @@ package struct PromptFeedback: Codable, Sendable, Equatable, Hashable {
   /// - Parameters:
   ///   - blockReason: Optional. If set, the prompt was blocked and no candidates are returned. (behavior varies by backend). For more details, see ``blockReason``.
   ///   - safetyRatings: Ratings for safety of the prompt. (behavior varies by backend). For more details, see ``safetyRatings``.
-  ///   - blockReasonMessage: Output only. A readable message that explains the reason why the prompt was (Gemini Enterprise Agent Platform only). For more details, see ``blockReasonMessage``.
+  ///   - blockReasonMessage: Output only. A readable message that explains the reason why the prompt was (Gemini Enterprise API only). For more details, see ``blockReasonMessage``.
   package init(
     blockReason: BlockReason? = nil,
     safetyRatings: [SafetyRating]? = nil,

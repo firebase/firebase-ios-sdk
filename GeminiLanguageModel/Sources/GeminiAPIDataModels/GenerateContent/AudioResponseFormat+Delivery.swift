@@ -21,7 +21,7 @@ extension AudioResponseFormat {
   ///
   /// Optional. The delivery mode for the audio output.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. Delivery mode for the generated content.
   package enum Delivery: Codable, Sendable, Equatable, Hashable {

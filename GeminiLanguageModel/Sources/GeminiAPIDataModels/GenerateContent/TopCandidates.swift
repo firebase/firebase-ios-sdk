@@ -22,7 +22,7 @@ import Foundation
 ///
 /// Candidates with top log probabilities at each decoding step.
 ///
-/// ### Gemini Enterprise Agent Platform
+/// ### Gemini Enterprise API
 ///
 /// Type: `GoogleCloudAiplatformV1beta1LogprobsResultTopCandidates`
 ///
@@ -36,7 +36,7 @@ package struct TopCandidates: Codable, Sendable, Equatable, Hashable {
   ///
   /// Sorted by log probability in descending order.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// The list of candidate tokens, sorted by log probability in
   /// descending order.

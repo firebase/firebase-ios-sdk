@@ -22,7 +22,7 @@ import Foundation
 ///
 /// Segment of the content.
 ///
-/// ### Gemini Enterprise Agent Platform
+/// ### Gemini Enterprise API
 ///
 /// Type: `GoogleCloudAiplatformV1beta1Segment`
 ///
@@ -34,7 +34,7 @@ package struct Segment: Codable, Sendable, Equatable, Hashable {
   ///
   /// The index of a Part object within its parent Content object.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Output only. The index of the `Part` object that this segment belongs to.
   /// This is useful for associating the segment with a specific part of the
@@ -48,7 +48,7 @@ package struct Segment: Codable, Sendable, Equatable, Hashable {
   /// Start index in the given Part, measured in bytes. Offset from the start of
   /// the Part, inclusive, starting at zero.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Output only. The start index of the segment in the `Part`, measured in
   /// bytes. This marks the beginning of the segment and is inclusive, meaning
@@ -62,7 +62,7 @@ package struct Segment: Codable, Sendable, Equatable, Hashable {
   /// End index in the given Part, measured in bytes. Offset from the start of
   /// the Part, exclusive, starting at zero.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Output only. The end index of the segment in the `Part`, measured in
   /// bytes. This marks the end of the segment and is exclusive, meaning the
@@ -76,7 +76,7 @@ package struct Segment: Codable, Sendable, Equatable, Hashable {
   ///
   /// The text corresponding to the segment from the response.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Output only. The text of the segment.
   package let text: String?

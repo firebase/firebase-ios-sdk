@@ -22,7 +22,7 @@ import Foundation
 ///
 /// A response candidate generated from the model.
 ///
-/// ### Gemini Enterprise Agent Platform
+/// ### Gemini Enterprise API
 ///
 /// Type: `GoogleCloudAiplatformV1beta1Candidate`
 ///
@@ -34,7 +34,7 @@ package struct Candidate: Codable, Sendable, Equatable, Hashable {
   ///
   /// Output only. Index of the candidate in the list of response candidates.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Output only. The 0-based index of this candidate in the list of generated
   /// responses. This is useful for distinguishing between multiple candidates
@@ -47,7 +47,7 @@ package struct Candidate: Codable, Sendable, Equatable, Hashable {
   ///
   /// Output only. Generated content returned from the model.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Output only. The content of the candidate.
   package let content: Content?
@@ -60,7 +60,7 @@ package struct Candidate: Codable, Sendable, Equatable, Hashable {
   ///
   /// If empty, the model has not stopped generating tokens.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Output only. The reason why the model stopped generating tokens. If empty,
   /// the model has not stopped generating.
@@ -73,7 +73,7 @@ package struct Candidate: Codable, Sendable, Equatable, Hashable {
   /// Optional. Output only. Details the reason why the model stopped generating tokens.
   /// This is populated only when `finish_reason` is set.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Output only. Describes the reason the model stopped generating tokens in
   /// more detail. This field is returned only when `finish_reason` is set.
@@ -87,7 +87,7 @@ package struct Candidate: Codable, Sendable, Equatable, Hashable {
   ///
   /// There is at most one rating per category.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Output only. A list of ratings for the safety of a response candidate.
   ///
@@ -104,7 +104,7 @@ package struct Candidate: Codable, Sendable, Equatable, Hashable {
   /// included in the `content`. These are passages that are "recited" from
   /// copyrighted material in the foundational LLM's training data.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Output only. A collection of citations that apply to the generated content.
   package let citationMetadata: CitationMetadata?
@@ -115,9 +115,9 @@ package struct Candidate: Codable, Sendable, Equatable, Hashable {
   ///
   /// Output only. Token count for this candidate.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
-  /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
+  /// > Important: This property is not supported in the Gemini Enterprise API.
   package let tokenCount: Int?
 
   /// Output only. Grounding metadata for the candidate.
@@ -128,7 +128,7 @@ package struct Candidate: Codable, Sendable, Equatable, Hashable {
   ///
   /// This field is populated for `GenerateContent` calls.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Output only. Metadata returned when grounding is enabled. It contains the
   /// sources used to ground the generated content.
@@ -140,7 +140,7 @@ package struct Candidate: Codable, Sendable, Equatable, Hashable {
   ///
   /// Output only. Average log probability score of the candidate.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Output only. The average log probability of the tokens in this candidate.
   /// This is a length-normalized score that can be used to compare the quality
@@ -154,7 +154,7 @@ package struct Candidate: Codable, Sendable, Equatable, Hashable {
   ///
   /// Output only. Log-likelihood scores for the response tokens and top tokens
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Output only. The detailed log probability information for the tokens in
   /// this candidate. This is useful for debugging, understanding model
@@ -167,7 +167,7 @@ package struct Candidate: Codable, Sendable, Equatable, Hashable {
   ///
   /// Output only. Metadata related to url context retrieval tool.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Output only. Metadata returned when the model uses the `url_context` tool
   /// to get information from a user-provided URL.

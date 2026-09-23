@@ -277,7 +277,7 @@ extension SafetyRating: Decodable {
       HarmProbability.self, forKey: .probability
     ) ?? .unspecified
 
-    // The following 3 fields are only provided when using the Agent Platform Gemini API
+    // The following 3 fields are only provided when using the Gemini Enterprise API
     // backend (not the Gemini Developer API).
     probabilityScore = try container.decodeIfPresent(Float.self, forKey: .probabilityScore) ?? 0.0
     severity = try container.decodeIfPresent(HarmSeverity.self, forKey: .severity) ?? .unspecified

@@ -22,7 +22,7 @@ import Foundation
 ///
 /// Config for image generation features.
 ///
-/// ### Gemini Enterprise Agent Platform
+/// ### Gemini Enterprise API
 ///
 /// Type: `GoogleCloudAiplatformV1beta1ImageConfig`
 ///
@@ -43,7 +43,7 @@ package struct ImageConfig: Codable, Sendable, Equatable, Hashable {
   /// If not specified, the model will choose a default aspect ratio based on any
   /// reference images provided.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. The desired aspect ratio for the generated images. The following
   /// aspect ratios are supported:
@@ -63,7 +63,7 @@ package struct ImageConfig: Codable, Sendable, Equatable, Hashable {
   /// Optional. Specifies the size of generated images. Supported values are `512`, `1K`,
   /// `2K`, `4K`. If not specified, the model will use default value `1K`.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. Specifies the size of generated images. Supported values are `1K`, `2K`,
   /// `4K`. If not specified, the model will use default value `1K`.
@@ -75,7 +75,7 @@ package struct ImageConfig: Codable, Sendable, Equatable, Hashable {
   ///
   /// > Important: This property is not supported in the Gemini Developer API.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. The image output format for generated images.
   package let imageOutputOptions: ImageConfigImageOutputOptions?
@@ -86,7 +86,7 @@ package struct ImageConfig: Codable, Sendable, Equatable, Hashable {
   ///
   /// > Important: This property is not supported in the Gemini Developer API.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. Controls whether the model can generate people.
   package let personGeneration: PersonGeneration?
@@ -97,7 +97,7 @@ package struct ImageConfig: Codable, Sendable, Equatable, Hashable {
   ///
   /// > Important: This property is not supported in the Gemini Developer API.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. Controls whether prominent people (celebrities) generation is allowed. If
   /// used with personGeneration, personGeneration enum would take precedence.
@@ -111,9 +111,9 @@ package struct ImageConfig: Codable, Sendable, Equatable, Hashable {
   /// - Parameters:
   ///   - aspectRatio: Optional. The aspect ratio of the image to generate. Supported aspect ratios: `1:1`, (behavior varies by backend). For more details, see ``aspectRatio``.
   ///   - imageSize: Optional. Specifies the size of generated images. Supported values are `512`, `1K`, (behavior varies by backend). For more details, see ``imageSize``.
-  ///   - imageOutputOptions: Optional. The image output format for generated images. (Gemini Enterprise Agent Platform only). For more details, see ``imageOutputOptions``.
-  ///   - personGeneration: Optional. Controls whether the model can generate people. (Gemini Enterprise Agent Platform only). For more details, see ``personGeneration``.
-  ///   - prominentPeople: Optional. Controls whether prominent people (celebrities) generation is allowed. If (Gemini Enterprise Agent Platform only). For more details, see ``prominentPeople``.
+  ///   - imageOutputOptions: Optional. The image output format for generated images. (Gemini Enterprise API only). For more details, see ``imageOutputOptions``.
+  ///   - personGeneration: Optional. Controls whether the model can generate people. (Gemini Enterprise API only). For more details, see ``personGeneration``.
+  ///   - prominentPeople: Optional. Controls whether prominent people (celebrities) generation is allowed. If (Gemini Enterprise API only). For more details, see ``prominentPeople``.
   package init(
     aspectRatio: String? = nil,
     imageSize: String? = nil,

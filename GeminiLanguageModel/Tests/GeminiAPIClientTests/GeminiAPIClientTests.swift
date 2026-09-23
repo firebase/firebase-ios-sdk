@@ -817,31 +817,31 @@ struct GeminiAPIClientTests {
 
   @Test
   @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
-  func streamGenerateContentAgentPlatformResourcePath() async throws {
-    let agentPlatformResource = ModelResource(
+  func streamGenerateContentEnterpriseResourcePath() async throws {
+    let enterpriseResource = ModelResource(
       modelID: "gemini-3.5-flash-lite",
       urlResourceName:
         "projects/my-project/locations/global/publishers/google/models/gemini-3.5-flash-lite",
       payloadResourceName: "publishers/google/models/gemini-3.5-flash-lite"
     )
-    let agentPlatformEndpoint = EndpointConfiguration(
+    let enterpriseEndpoint = EndpointConfiguration(
       host: "generativelanguage.googleapis.com",
       apiVersion: "v1beta1/\(testID)"
     )
     let client = makeClient(
-      modelResource: agentPlatformResource,
-      endpointConfiguration: agentPlatformEndpoint
+      modelResource: enterpriseResource,
+      endpointConfiguration: enterpriseEndpoint
     )
     let expectedURL = try makeExpectedURL(
-      modelResource: agentPlatformResource,
-      endpointConfiguration: agentPlatformEndpoint
+      modelResource: enterpriseResource,
+      endpointConfiguration: enterpriseEndpoint
     )
     let httpResponse = try makeResponse(
       url: expectedURL,
       headerFields: ["Content-Type": "text/event-stream"]
     )
     let ssePayload = """
-      data: {"candidates": [{"content": {"parts": [{"text": "Agent Platform response"}]}}]}
+      data: {"candidates": [{"content": {"parts": [{"text": "Enterprise API response"}]}}]}
 
       """
 
@@ -851,7 +851,7 @@ struct GeminiAPIClientTests {
       proto.client?.urlProtocolDidFinishLoading(proto)
     }
 
-    let request = makePromptRequest("Agent Platform test")
+    let request = makePromptRequest("Enterprise API test")
     let stream = try await client.generateContentStream(for: request)
     var responses: [GenerateContentResponse] = []
     for try await chunk in stream {
@@ -863,7 +863,7 @@ struct GeminiAPIClientTests {
     let candidate = try #require(response.candidates?.first)
     let content = try #require(candidate.content)
     let part = try #require(content.parts?.first)
-    #expect(part.data == .text("Agent Platform response"))
+    #expect(part.data == .text("Enterprise API response"))
   }
 
   @Test
@@ -918,24 +918,24 @@ struct GeminiAPIClientTests {
 
   @Test
   @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
-  func countTokensAgentPlatformResourcePath() async throws {
-    let agentPlatformResource = ModelResource(
+  func countTokensEnterpriseResourcePath() async throws {
+    let enterpriseResource = ModelResource(
       modelID: "gemini-3.5-flash-lite",
       urlResourceName:
         "projects/my-project/locations/global/publishers/google/models/gemini-3.5-flash-lite",
       payloadResourceName: "publishers/google/models/gemini-3.5-flash-lite"
     )
-    let agentPlatformEndpoint = EndpointConfiguration(
+    let enterpriseEndpoint = EndpointConfiguration(
       host: "generativelanguage.googleapis.com",
       apiVersion: "v1beta1/\(testID)"
     )
     let client = makeClient(
-      modelResource: agentPlatformResource,
-      endpointConfiguration: agentPlatformEndpoint
+      modelResource: enterpriseResource,
+      endpointConfiguration: enterpriseEndpoint
     )
     let expectedURL = try makeExpectedURL(
-      modelResource: agentPlatformResource,
-      endpointConfiguration: agentPlatformEndpoint,
+      modelResource: enterpriseResource,
+      endpointConfiguration: enterpriseEndpoint,
       action: "countTokens",
       query: nil
     )
@@ -957,7 +957,7 @@ struct GeminiAPIClientTests {
     }
 
     let request = CountTokensRequest(
-      contents: [Content(parts: [Part(data: .text("Agent Platform count tokens"))], role: "user")]
+      contents: [Content(parts: [Part(data: .text("Enterprise API count tokens"))], role: "user")]
     )
     let response = try await client.countTokens(for: request)
 

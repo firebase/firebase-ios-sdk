@@ -21,7 +21,7 @@ extension UsageMetadata {
   ///
   /// > Important: This property is not supported in the Gemini Developer API.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Output only. The traffic type for this request.
   package enum TrafficType: Codable, Sendable, Equatable, Hashable {

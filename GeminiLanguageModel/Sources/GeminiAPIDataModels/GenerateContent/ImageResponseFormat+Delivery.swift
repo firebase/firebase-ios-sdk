@@ -21,7 +21,7 @@ extension ImageResponseFormat {
   ///
   /// Optional. The delivery mode for the image output.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. Delivery mode for the generated content.
   package enum Delivery: Codable, Sendable, Equatable, Hashable {
