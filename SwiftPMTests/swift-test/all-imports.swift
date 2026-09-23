@@ -23,9 +23,9 @@ import Foundation
 #endif
 import FirebaseCrashlytics
 import FirebaseDatabase
-#if FirestoreSupport
+#if Firestore // Gated by the "Firestore" SwiftPM package trait.
   import FirebaseFirestore
-#endif // FirestoreSupport
+#endif // Firestore
 import FirebaseFunctions
 import FirebaseInstallations
 import FirebaseMessaging

@@ -17,12 +17,12 @@
 #warning "Firebase Firestore does not support watchOS"
 #endif
 
-#if !defined(FIREBASE_FIRESTORE_ENABLED)
+#if !defined(FIRESTORE_TRAIT_ENABLED)
 #error "FirebaseFirestore was included in your project dependencies, but the \
-'FirestoreSupport' SwiftPM package trait is disabled. To use Firestore, please \
-enable the 'FirestoreSupport' trait (or default traits) in your Package.swift \
+'Firestore' SwiftPM package trait is disabled. To use Firestore, please \
+enable the 'Firestore' trait (or default traits) in your Package.swift \
 or Xcode project configuration."
-#endif  // !defined(FIREBASE_FIRESTORE_ENABLED)
+#endif  // !defined(FIRESTORE_TRAIT_ENABLED)
 
 #if TARGET_OS_VISION && FIREBASE_BINARY_FIRESTORE
 #error "Firebase Firestore's binary SPM distribution does not support \

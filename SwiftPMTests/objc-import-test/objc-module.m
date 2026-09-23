@@ -22,9 +22,9 @@
 @import FirebaseCrashlytics;
 @import FirebaseCore;
 @import FirebaseDatabase;
-#if defined(FirestoreSupport) || defined(FIREBASE_FIRESTORE_ENABLED)
+#if defined(FIRESTORE_TRAIT_ENABLED)
 @import FirebaseFirestore;
-#endif  // defined(FirestoreSupport) || defined(FIREBASE_FIRESTORE_ENABLED)
+#endif  // defined(FIRESTORE_TRAIT_ENABLED)
 @import FirebaseFunctions;
 @import FirebaseInstallations;
 @import FirebaseMessaging;
