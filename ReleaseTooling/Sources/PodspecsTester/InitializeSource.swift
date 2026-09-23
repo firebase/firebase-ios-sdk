@@ -132,7 +132,7 @@ enum InitializeSpecTesting {
         version: specInfo.version
       )
       // Copy updated podspecs to directories `${HOME}/.cocoapods/${Pod}/${version}`
-      Shell.executeCommand("cp -rf \(spec) \(podDirURL.path)")
+      Shell.executeCommand("cp -rf \(spec) \(podDirURL)")
     }
   }
 
@@ -199,25 +199,19 @@ enum InitializeSpecTesting {
 
   private static func createPodDirectory(specRepoPath: String, podName: String,
                                          version: String) -> URL {
-    let specRepoURL = URL(fileURLWithPath: specRepoPath)
+    guard let specRepoURL = URL(string: specRepoPath) else {
+      fatalError("\(specRepoPath) does not exist.")
+    }
     let podDirPath = specRepoURL.appendingPathComponent(podName).appendingPathComponent(version)
-    // If the version directory already exists in SpecsTesting (which stores
-    // `.podspec.json` files pushed from `main`), remove it first so CocoaPods
-    // does not prioritize a stale `.podspec.json` over the local `.podspec`.
-    if FileManager.default.fileExists(atPath: podDirPath.path) {
+    if !FileManager.default.fileExists(atPath: podDirPath.absoluteString) {
       do {
-        try FileManager.default.removeItem(atPath: podDirPath.path)
+        print("create path: \(podDirPath.absoluteString)")
+        try FileManager.default.createDirectory(atPath: podDirPath.absoluteString,
+                                                withIntermediateDirectories: true,
+                                                attributes: nil)
       } catch {
         print(error.localizedDescription)
       }
-    }
-    do {
-      print("create path: \(podDirPath.path)")
-      try FileManager.default.createDirectory(atPath: podDirPath.path,
-                                              withIntermediateDirectories: true,
-                                              attributes: nil)
-    } catch {
-      print(error.localizedDescription)
     }
     return podDirPath
   }
