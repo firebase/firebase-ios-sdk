@@ -2,6 +2,10 @@
 - [changed] Dropped C++14 support; Firestore now requires C++17.
 - [changed] Update gRPC dependency to 1.83.1.
 - [changed] Update Abseil dependency to 1.20250512.2.
+- [changed] Added the `FirebaseFirestore` package trait to `Package.swift`.
+  Cloud Firestore support now requires the trait to be enabled (it is enabled
+  by default). Developers can opt out of the trait to avoid downloading
+  Firestore's underlying dependencies (such as gRPC and Abseil). (#16684)
 
 # 12.19.0
 - [feature] Added support for `minimum` and `maximum` FieldValue operations [#16159].
