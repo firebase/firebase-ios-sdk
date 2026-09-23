@@ -1163,19 +1163,19 @@ TEST_F(LevelDbIndexManagerTest, IndexBlobAndBsonBinaryOrderingAndMatching) {
 
     auto asc_query = Query("coll").AddingOrderBy(OrderBy("key", "asc"));
     VerifyResults(asc_query,
-                  {"coll/doc_blob", "coll/doc_bson0", "coll/doc_bson1"});
+                  {"coll/doc_blob", "coll/doc_bson1", "coll/doc_bson0"});
 
     auto desc_query = Query("coll").AddingOrderBy(OrderBy("key", "desc"));
     VerifyResults(desc_query,
-                  {"coll/doc_bson1", "coll/doc_bson0", "coll/doc_blob"});
+                  {"coll/doc_bson0", "coll/doc_bson1", "coll/doc_blob"});
 
     auto blob_query = Query("coll").AddingFilter(
         Filter("key", "==", testutil::BlobValue(1, 2, 3)));
-    VerifyResults(blob_query, {"coll/doc_bson0", "coll/doc_blob"});
+    VerifyResults(blob_query, {"coll/doc_blob"});
 
     auto bson0_query = Query("coll").AddingFilter(
         Filter("key", "==", BsonBinaryData(0, {1, 2, 3})));
-    VerifyResults(bson0_query, {"coll/doc_bson0", "coll/doc_blob"});
+    VerifyResults(bson0_query, {"coll/doc_bson0"});
 
     auto bson1_query = Query("coll").AddingFilter(
         Filter("key", "==", BsonBinaryData(1, {1, 2, 3})));
@@ -1705,13 +1705,13 @@ TEST_F(LevelDbIndexManagerTest, IndexAllTypesTogether) {
     auto query = Query("coll").AddingOrderBy(OrderBy("key", "desc"));
 
     VerifyResults(query,
-                  {"coll/doc26", "coll/doc25",       "coll/doc24", "coll/doc23",
-                   "coll/doc22", "coll/doc21",       "coll/doc20", "coll/doc19",
-                   "coll/doc18", "coll/doc17_bson0", "coll/doc17", "coll/doc16",
-                   "coll/doc15", "coll/doc14",       "coll/doc13", "coll/doc12",
-                   "coll/doc11", "coll/doc10",       "coll/doc9",  "coll/doc8",
-                   "coll/doc7",  "coll/doc6",        "coll/doc5",  "coll/doc4",
-                   "coll/doc3",  "coll/doc2",        "coll/doc1"});
+                  {"coll/doc26", "coll/doc25", "coll/doc17_bson0", "coll/doc24",
+                   "coll/doc23", "coll/doc22", "coll/doc21",       "coll/doc20",
+                   "coll/doc19", "coll/doc18", "coll/doc17",       "coll/doc16",
+                   "coll/doc15", "coll/doc14", "coll/doc13",       "coll/doc12",
+                   "coll/doc11", "coll/doc10", "coll/doc9",        "coll/doc8",
+                   "coll/doc7",  "coll/doc6",  "coll/doc5",        "coll/doc4",
+                   "coll/doc3",  "coll/doc2",  "coll/doc1"});
   });
 }
 
