@@ -1,4 +1,7 @@
 # Unreleased
+- [changed] Prefixed internal Pipeline Objective-C bridge classes and `NS_SWIFT_NAME` annotations
+  with `__` to hide them from IDE autocomplete and prevent them from appearing alongside public
+  APIs.
 - [feature] Adds support for the following new types: `MinKey`, `MaxKey`, `RegexValue`,
   `Int32Value`, `Decimal128Value`, `BSONObjectId`, `BSONTimestamp`, and `BSONBinaryData`. (#16265)
 - [changed] Dropped C++14 support; Firestore now requires C++17.
