@@ -15,6 +15,7 @@
  */
 
 #import <XCTest/XCTest.h>
+#import <objc/runtime.h>
 
 #import "FirebaseMessaging/Sources/FIRMessagingConstants.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingAPNSInfo.h"
@@ -90,26 +91,48 @@
   XCTAssertEqual(info.sandbox, restoredInfo.sandbox);
 }
 
-// Test that archiving a FIRMessagingAPNSInfo object constructed with an NSMutableData token
-// and restoring it from the archive succeeds under secure coding.
-- (void)testAPNSInfoEncodingAndDecodingWithMutableData {
+@interface FIRMessagingAPNSInfo_MutableDataFixture : FIRMessagingAPNSInfo
+@end
+
+@implementation FIRMessagingAPNSInfo_MutableDataFixture
+- (void)encodeWithCoder:(NSCoder *)aCoder {
   NSMutableData *mutableToken =
       [NSMutableData dataWithData:[@"mutableTokenData" dataUsingEncoding:NSUTF8StringEncoding]];
-  FIRMessagingAPNSInfo *info = [[FIRMessagingAPNSInfo alloc] initWithDeviceToken:mutableToken
-                                                                       isSandbox:YES];
-  NSError *error = nil;
-  NSData *archive = [NSKeyedArchiver archivedDataWithRootObject:info
-                                          requiringSecureCoding:YES
-                                                          error:&error];
-  XCTAssertNil(error);
+  [aCoder encodeObject:mutableToken forKey:@"device_token"];
+  [aCoder encodeBool:YES forKey:@"sandbox"];
+}
+@end
+
+// Test that archiving a FIRMessagingAPNSInfo object holding an NSMutableData token
+// and restoring it from the archive succeeds under secure coding.
+- (void)testAPNSInfoEncodingAndDecodingWithMutableData {
+  FIRMessagingAPNSInfo_MutableDataFixture *fixture =
+      [[FIRMessagingAPNSInfo_MutableDataFixture alloc] init];
+  NSKeyedArchiver *archiver = [[NSKeyedArchiver alloc] initRequiringSecureCoding:YES];
+  [archiver setClassName:@"FIRMessagingAPNSInfo"
+                forClass:[FIRMessagingAPNSInfo_MutableDataFixture class]];
+  [archiver encodeObject:fixture forKey:NSKeyedArchiveRootObjectKey];
+  [archiver finishEncoding];
+  NSData *archive = archiver.encodedData;
+  XCTAssertNil(archiver.error);
+
+  // Sanity check that the fixture archive actually encoded an NSMutableData instance.
+  NSString *archiveString = [[NSString alloc] initWithData:archive
+                                                  encoding:NSISOLatin1StringEncoding];
+  XCTAssertTrue([archiveString containsString:@"NSMutableData"],
+                @"Fixture archive must contain an encoded NSMutableData instance.");
+
   NSSet *classes = [[NSSet alloc]
       initWithArray:@[ FIRMessagingAPNSInfo.class, NSData.class, NSMutableData.class ]];
+  NSError *error = nil;
   FIRMessagingAPNSInfo *restoredInfo = [NSKeyedUnarchiver unarchivedObjectOfClasses:classes
                                                                            fromData:archive
                                                                               error:&error];
   XCTAssertNil(error);
-  XCTAssertEqualObjects(info.deviceToken, restoredInfo.deviceToken);
-  XCTAssertEqual(info.sandbox, restoredInfo.sandbox);
+  XCTAssertNotNil(restoredInfo);
+  XCTAssertEqualObjects([@"mutableTokenData" dataUsingEncoding:NSUTF8StringEncoding],
+                        restoredInfo.deviceToken);
+  XCTAssertEqual(YES, restoredInfo.sandbox);
 }
 
 @end

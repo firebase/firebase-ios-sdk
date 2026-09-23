@@ -450,6 +450,27 @@ static NSString *const kFakeCheckinPlistName = @"com.google.test.TestTokenStore"
   }
 }
 
+/// **Scenario:** A keychain item is corrupt as a whole (not just a nested blob): bit rot, a partial
+/// keychain write, or malformed data.
+/// **What it does:** Plants each corrupt payload directly as the keychain item and asserts
+/// `+tokenInfoFromKeychainItem:` returns nil without raising.
+- (void)testCorruptKeychainItemReturnsNilWithoutRaising {
+  NSArray<NSData *> *corruptItems = @[
+    [@"not a property list" dataUsingEncoding:NSUTF8StringEncoding],
+    [NSPropertyListSerialization dataWithPropertyList:@{@"foo" : @"bar"}
+                                               format:NSPropertyListXMLFormat_v1_0
+                                              options:0
+                                                error:nil],
+    [[@"not a property list" dataUsingEncoding:NSUTF8StringEncoding]
+        subdataWithRange:NSMakeRange(0, 5)]
+  ];
+
+  for (NSData *item in corruptItems) {
+    FIRMessagingTokenInfo *decoded = [FIRMessagingTokenStore tokenInfoFromKeychainItem:item];
+    XCTAssertNil(decoded, @"Corrupt keychain item must yield nil tokenInfo without throwing.");
+  }
+}
+
 #pragma mark - Archive shape
 
 /// **Scenario:** Guards the absence of a `FIRInstanceIDAPNSInfo` -> `FIRMessagingAPNSInfo` class
