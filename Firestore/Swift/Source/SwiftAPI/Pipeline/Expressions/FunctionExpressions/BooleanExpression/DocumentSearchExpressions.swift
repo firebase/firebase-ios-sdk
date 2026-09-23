@@ -32,7 +32,7 @@ import Foundation
 ///   .search(query: DocumentMatches("waffles OR pancakes"))
 /// ```
 public struct DocumentMatches: BooleanExpression, BridgeWrapper, @unchecked Sendable {
-  public let bridge: ExprBridge
+  public let bridge: __ExprBridge
 
   /// Creates a document search expression.
   /// - Parameters:

@@ -21,12 +21,12 @@ public struct Ordering: @unchecked Sendable {
   /// The direction to order in.
   public let direction: Direction
 
-  let bridge: OrderingBridge
+  let bridge: __OrderingBridge
 
   init(expression: Expression, direction: Direction) {
     self.expression = expression
     self.direction = direction
-    bridge = OrderingBridge(expr: expression.toBridge(), direction: direction.rawValue)
+    bridge = __OrderingBridge(expr: expression.toBridge(), direction: direction.rawValue)
   }
 }
 

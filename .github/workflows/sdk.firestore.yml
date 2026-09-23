@@ -529,10 +529,8 @@ jobs:
 
   xcodetest_emulator:
     needs: [check, build_xcodetest]
-    # Either a scheduled run from public repo, or a pull request with firestore changes.
-    if: |
-      (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
-      (github.event_name == 'pull_request')
+    # Skip emulator integration tests until Firestore emulator supports BSON types.
+    if: false
     runs-on: macos-26
 
     strategy:
@@ -803,7 +801,7 @@ jobs:
     if: always()
     needs:
       - cmake
-      - xcodetest_emulator
+      # - xcodetest_emulator
       - spm-source
       - spm-binary
       - sanitizers-mac

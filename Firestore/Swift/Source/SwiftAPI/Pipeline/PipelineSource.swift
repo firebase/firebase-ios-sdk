@@ -88,26 +88,26 @@ public struct PipelineSource: @unchecked Sendable {
   /// - Parameter query: The `Query` to convert into a pipeline.
   /// - Returns: A `Pipeline` that is equivalent to the given query.
   public func create(from query: Query) -> Pipeline {
-    let stageBridges = PipelineBridge.createStageBridges(from: query)
+    let stageBridges = __PipelineBridge.createStageBridges(from: query)
     let stages: [Stage] = stageBridges.map { bridge in
       switch bridge.name {
       case "collection":
         return CollectionSource(
-          bridge: bridge as! CollectionSourceStageBridge,
+          bridge: bridge as! __CollectionSourceStageBridge,
           db: query.firestore
         )
       case "collection_group":
-        return CollectionGroupSource(bridge: bridge as! CollectionGroupSourceStageBridge)
+        return CollectionGroupSource(bridge: bridge as! __CollectionGroupSourceStageBridge)
       case "documents":
-        return DocumentsSource(bridge: bridge as! DocumentsSourceStageBridge, db: query.firestore)
+        return DocumentsSource(bridge: bridge as! __DocumentsSourceStageBridge, db: query.firestore)
       case "where":
-        return Where(bridge: bridge as! WhereStageBridge)
+        return Where(bridge: bridge as! __WhereStageBridge)
       case "limit":
-        return Limit(bridge: bridge as! LimitStageBridge)
+        return Limit(bridge: bridge as! __LimitStageBridge)
       case "sort":
-        return Sort(bridge: bridge as! SortStageBridge)
+        return Sort(bridge: bridge as! __SortStageBridge)
       case "offset":
-        return Offset(bridge: bridge as! OffsetStageBridge)
+        return Offset(bridge: bridge as! __OffsetStageBridge)
       default:
         fatalError("Unknown stage type \(bridge.name)")
       }

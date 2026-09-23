@@ -2,6 +2,11 @@
 - [changed] Dropped C++14 support; Firestore now requires C++17.
 - [changed] Update gRPC dependency to 1.83.1.
 - [changed] Update Abseil dependency to 1.20250512.2.
+- [changed] Prefixed internal Pipeline Objective-C bridge classes and `NS_SWIFT_NAME` annotations
+  with `__` to hide them from IDE autocomplete and prevent them from appearing alongside public
+  APIs.
+- [feature] Adds support for the following new types: `MinKey`, `MaxKey`, `RegexValue`,
+  `Int32Value`, `Decimal128Value`, `BSONObjectId`, `BSONTimestamp`, and `BSONBinaryData`. (#16265)
 
 # 12.19.0
 - [feature] Added support for `minimum` and `maximum` FieldValue operations [#16159].
@@ -16,7 +21,6 @@
 - [changed] Migrates the network connectivity monitoring implementation for
   Apple platforms from the legacy SCNetworkReachability API to the modern
   NWPathMonitor API.
-
 # 12.15.0
 - [fix] Remove use of designated initializers for `forceIndex` [#16229].
 
@@ -60,7 +64,6 @@
 
 # 12.1.0
 - [fixed] Fixed accidental removal of `pod "Firebase/Firestore"` for tvOS in 12.0.0.
-
 # 11.12.0
 - [fixed] Fixed the `null` value handling in `isNotEqualTo` and `notIn` filters.
 
