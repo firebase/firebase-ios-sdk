@@ -1,4 +1,4 @@
-# Unreleased
+# 13.0.0
 - [changed] Replaced a force-unwrapped error with a safe fallback during Game
   Center authentication. (#16136)
 
