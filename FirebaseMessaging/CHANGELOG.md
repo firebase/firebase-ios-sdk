@@ -3,9 +3,7 @@
   delegates. (#15987)
 - [changed] **Breaking Change**: Scene delegates take priority over app delegates for
   automatic deep link routing. (#15987)
-- [fixed] Fixed an issue where deep links were not correctly routed in apps utilizing scene
-  delegates. (#15987)
-- [changed] Enforce `NSSecureCoding` when archiving and unarchiving registration
+- [fixed] Enforce `NSSecureCoding` when archiving and unarchiving registration
   tokens in the keychain. (#16511)
 
 # 12.19.0
