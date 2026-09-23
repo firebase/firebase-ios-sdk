@@ -459,9 +459,9 @@ struct ZipBuilder {
     }
     // We don't release GoogleSignIn, but we include its latest
     // version for convenience in the Zip and Carthage builds.
-    podsToInstall.append(CocoaPodUtils.VersionedPod(name: "GoogleSignIn",
-                                                    version: nil,
-                                                    platforms: ["ios"]))
+    // podsToInstall.append(CocoaPodUtils.VersionedPod(name: "GoogleSignIn",
+    //                                                 version: nil,
+    //                                                 platforms: ["ios"]))
 
     print("Final expected versions for the Zip file: \(podsToInstall)")
     let (installedPods, frameworks, carthageGoogleUtilitiesXcframeworkFirebase) =
