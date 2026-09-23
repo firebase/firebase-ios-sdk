@@ -251,7 +251,6 @@ private enum GoogleDataTransportConfig {
     return randomValue <= settings.samplingRate
   }
 
-
   // MARK: - SessionsProvider
 
   var currentSessionDetails: SessionDetails {
