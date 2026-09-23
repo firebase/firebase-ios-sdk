@@ -16,8 +16,9 @@
 
 #include "Firestore/core/src/index/firestore_index_value_writer.h"
 
-#include <cmath>
 #include <cstdlib>
+
+#include <cmath>
 #include <limits>
 #include <string>
 #include <vector>
