@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseAppCheckInterop'
-  s.version          = '12.19.0'
+  s.version          = '13.0.0'
   s.summary          = 'Interfaces that allow other Firebase SDKs to use AppCheck functionality.'
 
   s.description      = <<-DESC
@@ -33,6 +33,10 @@ Pod::Spec.new do |s|
 
   s.source_files = 'FirebaseAppCheck/Interop/**/*.[hm]'
   s.public_header_files = 'FirebaseAppCheck/Interop/Public/FirebaseAppCheckInterop/*.h'
+
+  s.pod_target_xcconfig = {
+    'PRODUCT_BUNDLE_IDENTIFIER' => 'com.google.firebase.FirebaseAppCheckInterop'
+  }
 
   s.test_spec 'objc-unit' do |unit_tests|
     unit_tests.platforms = {

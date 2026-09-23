@@ -67,20 +67,16 @@ public struct GenerationConfig: Sendable, Equatable {
   /// Creates a new `GenerationConfig` value.
   ///
   /// See the
-  /// [Configure model parameters](https://firebase.google.com/docs/vertex-ai/model-parameters)
-  /// guide and the
-  /// [Cloud documentation](https://cloud.google.com/vertex-ai/generative-ai/docs/model-reference/inference#generationconfig)
-  /// for more details.
+  /// [Configure model parameters](https://firebase.google.com/docs/ai-logic/model-parameters)
+  /// guide for more details.
   ///
   /// - Parameters:
   ///   - maxOutputTokens: Maximum number of tokens that can be generated in the response.
-  ///     See the configure model parameters [documentation](https://firebase.google.com/docs/vertex-ai/model-parameters?platform=ios#max-output-tokens)
-  ///     for more details.
+  ///     See [configure model
+  ///     parameters](https://firebase.google.com/docs/ai-logic/model-parameters#parameters-descriptions-gemini).
   ///   - stopSequences: A set of up to 5 `String`s that will stop output generation. If specified,
   ///     the API will stop at the first appearance of a stop sequence. The stop sequence will not
-  ///     be included as part of the response. See the
-  ///     [Cloud documentation](https://cloud.google.com/vertex-ai/generative-ai/docs/model-reference/inference#generationconfig)
-  ///     for more details.
+  ///     be included as part of the response.
   ///   - responseMIMEType: Output response MIME type of the generated candidate text.
   ///
   ///     Supported MIME types:
@@ -96,13 +92,13 @@ public struct GenerationConfig: Sendable, Equatable {
   ///
   ///     Refer to the
   ///     [Generate structured
-  ///     output](https://firebase.google.com/docs/vertex-ai/structured-output?platform=ios) guide
+  ///     output](https://firebase.google.com/docs/ai-logic/generate-structured-output) guide
   ///     for more details.
   ///   - responseModalities: The data types (modalities) that may be returned in model responses.
   ///
-  ///     See the [multimodal
-  ///     responses](https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal-response-generation)
-  ///     documentation for more details.
+  ///     See the [configure model parameters
+  ///     documentation](https://firebase.google.com/docs/ai-logic/model-parameters#parameters-descriptions-gemini)
+  ///     for more details.
   ///
   ///     > Warning: Specifying response modalities is a **Public Preview** feature, which means
   ///     > that it is not subject to any SLA or deprecation policy and could change in
@@ -150,20 +146,17 @@ public struct GenerationConfig: Sendable, Equatable {
   /// Creates a new `GenerationConfig` value without deprecated tuning parameters.
   ///
   /// See the
-  /// [Configure model parameters](https://firebase.google.com/docs/vertex-ai/model-parameters)
-  /// guide and the
-  /// [Cloud documentation](https://cloud.google.com/vertex-ai/generative-ai/docs/model-reference/inference#generationconfig)
-  /// for more details.
+  /// [Configure model parameters](https://firebase.google.com/docs/ai-logic/model-parameters)
+  /// guide for more details.
   ///
   /// - Parameters:
   ///   - maxOutputTokens: Maximum number of tokens that can be generated in the response.
-  ///     See the configure model parameters [documentation](https://firebase.google.com/docs/vertex-ai/model-parameters?platform=ios#max-output-tokens)
+  ///     See [configure model
+  ///     parameters](https://firebase.google.com/docs/ai-logic/model-parameters#parameters-descriptions-gemini)
   ///     for more details.
   ///   - stopSequences: A set of up to 5 `String`s that will stop output generation. If specified,
   ///     the API will stop at the first appearance of a stop sequence. The stop sequence will not
-  ///     be included as part of the response. See the
-  ///     [Cloud documentation](https://cloud.google.com/vertex-ai/generative-ai/docs/model-reference/inference#generationconfig)
-  ///     for more details.
+  ///     be included as part of the response.
   ///   - responseMIMEType: Output response MIME type of the generated candidate text.
   ///
   ///     Supported MIME types:
@@ -179,13 +172,11 @@ public struct GenerationConfig: Sendable, Equatable {
   ///
   ///     Refer to the
   ///     [Generate structured
-  ///     output](https://firebase.google.com/docs/vertex-ai/structured-output?platform=ios) guide
+  ///     output](https://firebase.google.com/docs/ai-logic/generate-structured-output) guide
   ///     for more details.
   ///   - responseModalities: The data types (modalities) that may be returned in model responses.
   ///
-  ///     See the [multimodal
-  ///     responses](https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal-response-generation)
-  ///     documentation for more details.
+  ///     See [configure model parameters](https://firebase.google.com/docs/ai-logic/model-parameters#parameters-descriptions-gemini).
   ///
   ///     > Warning: Specifying response modalities is a **Public Preview** feature, which means
   ///     > that it is not subject to any SLA or deprecation policy and could change in

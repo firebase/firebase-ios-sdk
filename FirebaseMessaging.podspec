@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseMessaging'
-  s.version          = '12.19.0'
+  s.version          = '13.0.0'
   s.summary          = 'Firebase Messaging'
 
   s.description      = <<-DESC
@@ -55,18 +55,19 @@ device, and it is completely free.
       'PB_FIELD_32BIT=1 PB_NO_PACKED_STRUCTS=1 PB_ENABLE_MALLOC=1',
     # Unit tests do library imports using repo-root relative paths.
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"',
+    'PRODUCT_BUNDLE_IDENTIFIER' => 'com.google.firebase.FirebaseMessaging'
   }
   s.ios.framework = 'SystemConfiguration'
   s.tvos.framework = 'SystemConfiguration'
   s.osx.framework = 'SystemConfiguration'
   s.weak_framework = 'UserNotifications'
-  s.dependency 'FirebaseInstallations', '~> 12.19.0'
-  s.dependency 'FirebaseCore', '~> 12.19.0'
-  s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 8.1'
-  s.dependency 'GoogleUtilities/Reachability', '~> 8.1'
-  s.dependency 'GoogleUtilities/Environment', '~> 8.1'
-  s.dependency 'GoogleUtilities/UserDefaults', '~> 8.1'
-  s.dependency 'GoogleDataTransport', '~> 10.1'
+  s.dependency 'FirebaseInstallations', '~> 13.0.0'
+  s.dependency 'FirebaseCore', '~> 13.0.0'
+  s.dependency 'GoogleUtilities/AppDelegateSwizzler', '>= 8.1.3', '< 9.0'
+  s.dependency 'GoogleUtilities/Reachability', '>= 8.1.3', '< 9.0'
+  s.dependency 'GoogleUtilities/Environment', '>= 8.1.3', '< 9.0'
+  s.dependency 'GoogleUtilities/UserDefaults', '>= 8.1.3', '< 9.0'
+  s.dependency 'GoogleDataTransport', '>= 10.1.1', '< 11.0'
   s.dependency 'nanopb', '~> 3.30910.0'
 
   s.test_spec 'unit' do |unit_tests|

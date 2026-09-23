@@ -98,7 +98,7 @@ public struct FunctionDeclaration: Sendable {
 /// > Important: When using this feature, you are required to comply with the
 /// "Grounding with Google Search" usage requirements for your chosen API provider:
 /// [Gemini Developer API](https://ai.google.dev/gemini-api/terms#grounding-with-google-search)
-/// or the Agent Platform Gemini API (see
+/// or the Gemini Enterprise API (see
 /// [Service Terms](https://cloud.google.com/terms/service-terms)
 /// section within the Service Specific Terms).
 public struct GoogleSearch: Sendable {
@@ -249,7 +249,7 @@ public extension ToolRepresentable where Self == FirebaseAILogic.Tool {
   /// was trained (for example, the current date or weather conditions) or to allow it to interact
   /// with external systems (for example, making an API request or querying/updating a database).
   /// For more details and use cases, see [Function calling using the Gemini
-  /// API](http://firebase.google.com/docs/vertex-ai/function-calling?platform=ios).
+  /// API](https://firebase.google.com/docs/ai-logic/function-calling).
   ///
   /// - Parameters:
   ///   - functionDeclarations: A list of `FunctionDeclarations` available to the model that can be
@@ -285,7 +285,7 @@ public extension ToolRepresentable where Self == FirebaseAILogic.Tool {
   /// > Important: When using this feature, you are required to comply with the
   /// "Grounding with Google Search" usage requirements for your chosen API provider:
   /// [Gemini Developer API](https://ai.google.dev/gemini-api/terms#grounding-with-google-search)
-  /// or the Agent Platform Gemini API (see
+  /// or the Gemini Enterprise API (see
   /// [Service Terms](https://cloud.google.com/terms/service-terms)
   /// section within the Service Specific Terms).
   ///

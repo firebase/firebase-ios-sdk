@@ -24,8 +24,8 @@ import XCTest
 final class FirebaseSessionsTestsBase_BaseBehaviors: FirebaseSessionsTestsBase {
   // MARK: - Test Settings & Sampling
 
-  @MainActor func test_settingsDisabled_doesNotLogSessionEventButDoesFetchSettings() {
-    runSessionsSDK(
+  @MainActor func test_settingsDisabled_doesNotLogSessionEventButDoesFetchSettings() async {
+    await runSessionsSDK(
       subscriberSDKs: [
         mockPerformanceSubscriber,
 
@@ -49,8 +49,8 @@ final class FirebaseSessionsTestsBase_BaseBehaviors: FirebaseSessionsTestsBase {
     )
   }
 
-  @MainActor func test_sessionSampled_doesNotLogSessionEventButDoesFetchSettings() {
-    runSessionsSDK(
+  @MainActor func test_sessionSampled_doesNotLogSessionEventButDoesFetchSettings() async {
+    await runSessionsSDK(
       subscriberSDKs: [
         mockPerformanceSubscriber,
 
@@ -84,15 +84,15 @@ final class FirebaseSessionsTestsBase_BaseBehaviors: FirebaseSessionsTestsBase {
     // This test ensures that if we go into the background for longer than
     // the Session Timeout, we log another event when we come to the foreground.
     //
-    // We wanted to make sure that since we've introduced promises,
-    // once the promise has been fulfilled, that .then'ing on the promise
+    // We wanted to make sure that since we've introduced Swift Concurrency,
+    // once all expected subscribers have been registered, awaiting on the registration
     // in future initiations still results in a log
-    @MainActor func test_multipleInitiations_logsSessionEventEachInitiation() {
+    @MainActor func test_multipleInitiations_logsSessionEventEachInitiation() async {
       var loggedCount = 0
       var lastLoggedSessionID = ""
       let loggedTwiceExpectation = expectation(description: "Sessions SDK logged events twice")
 
-      runSessionsSDK(
+      await runSessionsSDK(
         subscriberSDKs: [
           mockPerformanceSubscriber,
 
@@ -138,7 +138,7 @@ final class FirebaseSessionsTestsBase_BaseBehaviors: FirebaseSessionsTestsBase {
         }
       )
 
-      wait(for: [loggedTwiceExpectation], timeout: 3)
+      await fulfillment(of: [loggedTwiceExpectation], timeout: 3)
 
       // Make sure we logged 2 events
       XCTAssertEqual(loggedCount, 2)

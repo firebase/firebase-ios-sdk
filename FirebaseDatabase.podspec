@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseDatabase'
-  s.version          = '12.19.0'
+  s.version          = '13.0.0'
   s.summary          = 'Firebase Realtime Database'
 
   s.description      = <<-DESC
@@ -47,13 +47,14 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.tvos.frameworks = 'CFNetwork', 'Security', 'SystemConfiguration'
   s.macos.frameworks = 'CFNetwork', 'Security', 'SystemConfiguration'
   s.watchos.frameworks = 'CFNetwork', 'Security', 'WatchKit'
-  s.dependency 'leveldb-library', '~> 1.22'
-  s.dependency 'FirebaseCore', '~> 12.19.0'
-  s.dependency 'FirebaseAppCheckInterop', '~> 12.19.0'
-  s.dependency 'FirebaseSharedSwift', '~> 12.19.0'
-  s.dependency 'GoogleUtilities/UserDefaults', '~> 8.1'
+  s.dependency 'leveldb-library', '>= 1.22.6', '< 1.23'
+  s.dependency 'FirebaseCore', '~> 13.0.0'
+  s.dependency 'FirebaseAppCheckInterop', '~> 13.0.0'
+  s.dependency 'FirebaseSharedSwift', '~> 13.0.0'
+  s.dependency 'GoogleUtilities/UserDefaults', '>= 8.1.3', '< 9.0'
   s.pod_target_xcconfig = {
-    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
+    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"',
+    'PRODUCT_BUNDLE_IDENTIFIER' => 'com.google.firebase.FirebaseDatabase'
   }
 
   s.test_spec 'unit' do |unit_tests|
@@ -72,7 +73,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
       'SharedTestUtilities/FIRComponentTestUtilities.[mh]',
       'SharedTestUtilities/FIROptionsMock.[mh]',
     ]
-    unit_tests.dependency 'FirebaseAppCheckInterop', '~> 12.19.0'
+    unit_tests.dependency 'FirebaseAppCheckInterop', '~> 13.0.0'
     unit_tests.dependency 'OCMock'
     unit_tests.resources = 'FirebaseDatabase/Tests/Resources/syncPointSpec.json',
                            'FirebaseDatabase/Tests/Resources/GoogleService-Info.plist'

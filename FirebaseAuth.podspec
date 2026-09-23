@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseAuth'
-  s.version          = '12.19.0'
+  s.version          = '13.0.0'
   s.summary          = 'Apple platform client for Firebase Authentication'
 
   s.description      = <<-DESC
@@ -51,17 +51,18 @@ supports email and password accounts, as well as several 3rd party authenticatio
   s.pod_target_xcconfig = {
     # The second path is to find FirebaseAuth-Swift.h from a pod gen project
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}" "${OBJECT_FILE_DIR_normal}/${NATIVE_ARCH_ACTUAL}"',
-    'OTHER_SWIFT_FLAGS' => "$(inherited) #{ENV.key?('FIREBASE_CI') ? '-D FIREBASE_CI -warnings-as-errors' : ''}"
+    'OTHER_SWIFT_FLAGS' => "$(inherited) #{ENV.key?('FIREBASE_CI') ? '-D FIREBASE_CI -warnings-as-errors' : ''}",
+    'PRODUCT_BUNDLE_IDENTIFIER' => 'com.google.firebase.FirebaseAuth'
   }
   s.framework = 'Security'
   s.ios.framework = 'SafariServices'
-  s.dependency 'FirebaseAuthInterop', '~> 12.19.0'
-  s.dependency 'FirebaseAppCheckInterop', '~> 12.19.0'
-  s.dependency 'FirebaseCore', '~> 12.19.0'
-  s.dependency 'FirebaseCoreExtension', '~> 12.19.0'
-  s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 8.1'
-  s.dependency 'GoogleUtilities/Environment', '~> 8.1'
-  s.dependency 'GTMSessionFetcher/Core', '>= 3.4', '< 6.0'
+  s.dependency 'FirebaseAuthInterop', '~> 13.0.0'
+  s.dependency 'FirebaseAppCheckInterop', '~> 13.0.0'
+  s.dependency 'FirebaseCore', '~> 13.0.0'
+  s.dependency 'FirebaseCoreExtension', '~> 13.0.0'
+  s.dependency 'GoogleUtilities/AppDelegateSwizzler', '>= 8.1.3', '< 9.0'
+  s.dependency 'GoogleUtilities/Environment', '>= 8.1.3', '< 9.0'
+  s.dependency 'GTMSessionFetcher/Core', '>= 4.0', '< 6.0'
   s.ios.dependency 'RecaptchaInterop', '~> 101.0'
   s.test_spec 'unit' do |unit_tests|
     unit_tests.scheme = { :code_coverage => true }

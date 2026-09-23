@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseRemoteConfig'
-  s.version          = '12.19.0'
+  s.version          = '13.0.0'
   s.summary          = 'Firebase Remote Config'
 
   s.description      = <<-DESC
@@ -47,15 +47,16 @@ app update.
     "#{s.module_name}_Privacy" => 'FirebaseRemoteConfig/Swift/Resources/PrivacyInfo.xcprivacy'
   }
   s.pod_target_xcconfig = {
-    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
+    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"',
+    'PRODUCT_BUNDLE_IDENTIFIER' => 'com.google.firebase.FirebaseRemoteConfig'
   }
-  s.dependency 'FirebaseABTesting', '~> 12.19.0'
-  s.dependency 'FirebaseSharedSwift', '~> 12.19.0'
-  s.dependency 'FirebaseCore', '~> 12.19.0'
-  s.dependency 'FirebaseInstallations', '~> 12.19.0'
-  s.dependency 'GoogleUtilities/Environment', '~> 8.1'
-  s.dependency 'GoogleUtilities/NSData+zlib', '~> 8.1'
-  s.dependency 'FirebaseRemoteConfigInterop', '~> 12.19.0'
+  s.dependency 'FirebaseABTesting', '~> 13.0.0'
+  s.dependency 'FirebaseSharedSwift', '~> 13.0.0'
+  s.dependency 'FirebaseCore', '~> 13.0.0'
+  s.dependency 'FirebaseInstallations', '~> 13.0.0'
+  s.dependency 'GoogleUtilities/Environment', '>= 8.1.3', '< 9.0'
+  s.dependency 'GoogleUtilities/NSData+zlib', '>= 8.1.3', '< 9.0'
+  s.dependency 'FirebaseRemoteConfigInterop', '~> 13.0.0'
 
   s.test_spec 'unit' do |unit_tests|
     unit_tests.scheme = { :code_coverage => true }

@@ -402,20 +402,31 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
   if (!application) {
     return;
   }
-  id<UIApplicationDelegate> appDelegate = application.delegate;
-  SEL continueUserActivitySelector =
-      @selector(application:continueUserActivity:restorationHandler:);
 
+  // Use string literal to ensure compatibility with Xcode 26 and iOS 18
+  NSString *browsingWebType = @"NSUserActivityTypeBrowsingWeb";
+  NSUserActivity *userActivity = [[NSUserActivity alloc] initWithActivityType:browsingWebType];
+  userActivity.webpageURL = url;
+
+  SEL selector = @selector(scene:continueUserActivity:);
+  UIScene *targetScene = [FIRSceneFinder findForegroundSceneForApplication:application
+                                                          matchingSelector:selector];
+  if (targetScene) {
+    [targetScene.delegate scene:targetScene continueUserActivity:userActivity];
+    return;
+  }
+
+  // fallback to the app delegate when a matching scene delegate wasn't found
   // Due to FIRAAppDelegateProxy swizzling, this selector will most likely get chosen, whether or
   // not the actual application has implemented
   // |application:continueUserActivity:restorationHandler:|. A warning will be displayed to the user
   // if they haven't implemented it.
+  id<UIApplicationDelegate> appDelegate = application.delegate;
+  SEL continueUserActivitySelector =
+      @selector(application:continueUserActivity:restorationHandler:);
+
   if ([NSUserActivity class] != nil &&
       [appDelegate respondsToSelector:continueUserActivitySelector]) {
-    // Use string literal to ensure compatibility with Xcode 26 and iOS 18
-    NSString *browsingWebType = @"NSUserActivityTypeBrowsingWeb";
-    NSUserActivity *userActivity = [[NSUserActivity alloc] initWithActivityType:browsingWebType];
-    userActivity.webpageURL = url;
     [appDelegate application:application
         continueUserActivity:userActivity
           restorationHandler:^(NSArray *_Nullable restorableObjects){

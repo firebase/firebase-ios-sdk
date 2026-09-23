@@ -23,7 +23,7 @@ extension Part {
   ///
   /// Media resolution for tokenization.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Type: `GoogleCloudAiplatformV1beta1PartMediaResolution`
   ///
@@ -37,7 +37,7 @@ extension Part {
     /// The tokenization quality used for given media.
     ///  for Gemini API support .
     ///
-    /// ### Gemini Enterprise Agent Platform
+    /// ### Gemini Enterprise API
     ///
     /// The tokenization quality used for given media.
     package let level: Level?

@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseCoreInternal'
-  s.version          = '12.19.0'
+  s.version          = '13.0.0'
   s.summary          = 'APIs for internal FirebaseCore usage.'
 
   s.description      = <<-DESC
@@ -38,7 +38,11 @@ Pod::Spec.new do |s|
 
   s.swift_version = '5.9'
 
-  s.dependency 'GoogleUtilities/NSData+zlib', '~> 8.1'
+  s.dependency 'GoogleUtilities/NSData+zlib', '>= 8.1.3', '< 9.0'
+
+  s.pod_target_xcconfig = {
+    'PRODUCT_BUNDLE_IDENTIFIER' => 'com.google.firebase.FirebaseCoreInternal'
+  }
 
   s.test_spec 'Unit' do |unit_tests|
     unit_tests.scheme = { :code_coverage => true }

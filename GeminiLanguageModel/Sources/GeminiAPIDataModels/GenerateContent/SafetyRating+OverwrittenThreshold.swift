@@ -21,7 +21,7 @@ extension SafetyRating {
   ///
   /// > Important: This property is not supported in the Gemini Developer API.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Output only. The overwritten threshold for the safety category of
   /// Gemini 2.0 image out. If minors are detected in the output image, the

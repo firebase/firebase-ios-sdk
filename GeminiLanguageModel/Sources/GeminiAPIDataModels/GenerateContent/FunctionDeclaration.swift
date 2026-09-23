@@ -26,7 +26,7 @@ import Foundation
 /// FunctionDeclaration is a representation of a block of code that can be used
 /// as a `Tool` by the model and executed by the client.
 ///
-/// ### Gemini Enterprise Agent Platform
+/// ### Gemini Enterprise API
 ///
 /// Type: `GoogleCloudAiplatformV1beta1FunctionDeclaration`
 ///
@@ -44,7 +44,7 @@ package struct FunctionDeclaration: Codable, Sendable, Equatable, Hashable {
   /// Must be a-z, A-Z, 0-9, or contain underscores, colons, dots, and dashes,
   /// with a maximum length of 128.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Required. The name of the function to call.
   /// Must start with a letter or an underscore.
@@ -58,7 +58,7 @@ package struct FunctionDeclaration: Codable, Sendable, Equatable, Hashable {
   ///
   /// Required. A brief description of the function.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. Description and purpose of the function.
   /// Model uses it to decide how and whether to call the function.
@@ -73,7 +73,7 @@ package struct FunctionDeclaration: Codable, Sendable, Equatable, Hashable {
   /// case sensitive. Schema Value: the Schema defining the type used for the
   /// parameter.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. Describes the parameters to this function in JSON Schema Object format.
   /// Reflects the Open API 3.03 Parameter Object. string Key: the name of the
@@ -131,7 +131,7 @@ package struct FunctionDeclaration: Codable, Sendable, Equatable, Hashable {
   /// Optional. Specifies the function Behavior.
   /// Currently only supported by the BidiGenerateContent method.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. Specifies the function Behavior.
   /// If not specified, the system keeps the current function call behavior.

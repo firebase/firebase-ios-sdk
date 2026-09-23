@@ -22,7 +22,7 @@ import Foundation
 ///
 /// Tool to retrieve public maps data for grounding, powered by Google.
 ///
-/// ### Gemini Enterprise Agent Platform
+/// ### Gemini Enterprise API
 ///
 /// Type: `GoogleCloudAiplatformV1beta1GoogleMaps`
 ///
@@ -34,7 +34,7 @@ package struct GoogleMaps: Codable, Sendable, Equatable, Hashable {
   ///
   /// Optional. If true, include the widget context token in the response.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. Deprecated: The Google Maps contextual widget behavior in Grounding with
   /// Google Maps is being deprecated; this field is planned for removal and no

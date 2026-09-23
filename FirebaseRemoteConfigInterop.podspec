@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseRemoteConfigInterop'
-  s.version          = '12.19.0'
+  s.version          = '13.0.0'
   s.summary          = 'Interfaces that allow other Firebase SDKs to use Remote Config functionality.'
 
   s.description      = <<-DESC
@@ -33,4 +33,8 @@ Pod::Spec.new do |s|
   s.watchos.deployment_target = '8.0'
 
   s.source_files = 'FirebaseRemoteConfig/Interop/*.swift'
+
+  s.pod_target_xcconfig = {
+    'PRODUCT_BUNDLE_IDENTIFIER' => 'com.google.firebase.FirebaseRemoteConfigInterop'
+  }
 end

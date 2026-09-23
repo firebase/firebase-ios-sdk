@@ -579,7 +579,7 @@ Serializer::EncodeFieldTransform(const FieldTransform& field_transform) const {
           google_firestore_v1_DocumentTransform_FieldTransform_increment_tag;
       const auto& increment = static_cast<const NumericIncrementTransform&>(
           field_transform.transformation());
-      proto.increment = increment.operand();
+      proto.increment = *DeepClone(increment.operand()).release();
       return proto;
     }
 
@@ -588,7 +588,7 @@ Serializer::EncodeFieldTransform(const FieldTransform& field_transform) const {
           google_firestore_v1_DocumentTransform_FieldTransform_minimum_tag;
       const auto& minimum = static_cast<const NumericMinimumTransform&>(
           field_transform.transformation());
-      proto.minimum = minimum.operand();
+      proto.minimum = *DeepClone(minimum.operand()).release();
       return proto;
     }
 
@@ -597,7 +597,7 @@ Serializer::EncodeFieldTransform(const FieldTransform& field_transform) const {
           google_firestore_v1_DocumentTransform_FieldTransform_maximum_tag;
       const auto& maximum = static_cast<const NumericMaximumTransform&>(
           field_transform.transformation());
-      proto.maximum = maximum.operand();
+      proto.maximum = *DeepClone(maximum.operand()).release();
       return proto;
     }
   }
@@ -643,9 +643,11 @@ FieldTransform Serializer::DecodeFieldTransform(
     }
 
     case google_firestore_v1_DocumentTransform_FieldTransform_increment_tag: {
-      return FieldTransform(
+      FieldTransform field_transform(
           std::move(field),
           NumericIncrementTransform(MakeMessage(proto.increment)));
+      proto.increment = {};
+      return field_transform;
     }
 
     case google_firestore_v1_DocumentTransform_FieldTransform_minimum_tag: {

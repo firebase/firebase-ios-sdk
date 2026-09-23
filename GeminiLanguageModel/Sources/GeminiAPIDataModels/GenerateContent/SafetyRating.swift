@@ -28,7 +28,7 @@ import Foundation
 /// harm categories and the probability of the harm classification is included
 /// here.
 ///
-/// ### Gemini Enterprise Agent Platform
+/// ### Gemini Enterprise API
 ///
 /// Type: `GoogleCloudAiplatformV1beta1SafetyRating`
 ///
@@ -42,7 +42,7 @@ package struct SafetyRating: Codable, Sendable, Equatable, Hashable {
   ///
   /// Required. The category for this rating.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Output only. The harm category of this rating.
   package let category: HarmCategory?
@@ -53,7 +53,7 @@ package struct SafetyRating: Codable, Sendable, Equatable, Hashable {
   ///
   /// Required. The probability of harm for this content.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Output only. The probability of harm for this category.
   package let probability: Probability?
@@ -64,7 +64,7 @@ package struct SafetyRating: Codable, Sendable, Equatable, Hashable {
   ///
   /// Was this content blocked because of this rating?
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Output only. Indicates whether the content was blocked because of this
   /// rating.
@@ -76,7 +76,7 @@ package struct SafetyRating: Codable, Sendable, Equatable, Hashable {
   ///
   /// > Important: This property is not supported in the Gemini Developer API.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Output only. The probability score of harm for this category.
   package let probabilityScore: Double?
@@ -87,7 +87,7 @@ package struct SafetyRating: Codable, Sendable, Equatable, Hashable {
   ///
   /// > Important: This property is not supported in the Gemini Developer API.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Output only. The severity of harm for this category.
   package let severity: Severity?
@@ -98,7 +98,7 @@ package struct SafetyRating: Codable, Sendable, Equatable, Hashable {
   ///
   /// > Important: This property is not supported in the Gemini Developer API.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Output only. The severity score of harm for this category.
   package let severityScore: Double?
@@ -109,7 +109,7 @@ package struct SafetyRating: Codable, Sendable, Equatable, Hashable {
   ///
   /// > Important: This property is not supported in the Gemini Developer API.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Output only. The overwritten threshold for the safety category of
   /// Gemini 2.0 image out. If minors are detected in the output image, the
@@ -123,10 +123,10 @@ package struct SafetyRating: Codable, Sendable, Equatable, Hashable {
   ///   - category: Required. The category for this rating. (behavior varies by backend). For more details, see ``category``.
   ///   - probability: Required. The probability of harm for this content. (behavior varies by backend). For more details, see ``probability``.
   ///   - blocked: Was this content blocked because of this rating? (behavior varies by backend). For more details, see ``blocked``.
-  ///   - probabilityScore: Output only. The probability score of harm for this category. (Gemini Enterprise Agent Platform only). For more details, see ``probabilityScore``.
-  ///   - severity: Output only. The severity of harm for this category. (Gemini Enterprise Agent Platform only). For more details, see ``severity``.
-  ///   - severityScore: Output only. The severity score of harm for this category. (Gemini Enterprise Agent Platform only). For more details, see ``severityScore``.
-  ///   - overwrittenThreshold: Output only. The overwritten threshold for the safety category of (Gemini Enterprise Agent Platform only). For more details, see ``overwrittenThreshold``.
+  ///   - probabilityScore: Output only. The probability score of harm for this category. (Gemini Enterprise API only). For more details, see ``probabilityScore``.
+  ///   - severity: Output only. The severity of harm for this category. (Gemini Enterprise API only). For more details, see ``severity``.
+  ///   - severityScore: Output only. The severity score of harm for this category. (Gemini Enterprise API only). For more details, see ``severityScore``.
+  ///   - overwrittenThreshold: Output only. The overwritten threshold for the safety category of (Gemini Enterprise API only). For more details, see ``overwrittenThreshold``.
   package init(
     category: HarmCategory? = nil,
     probability: Probability? = nil,

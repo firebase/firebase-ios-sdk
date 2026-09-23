@@ -1,3 +1,7 @@
+# 13.0.0
+- [changed] Replaced a force-unwrapped error with a safe fallback during Game
+  Center authentication. (#16136)
+
 # 12.19.0
 - [fixed] Fixed a build error in app extensions introduced in 12.18.0, where
   `AuthNotificationManager` referenced `UIApplication.shared` directly. (#16583)

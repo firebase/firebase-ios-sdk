@@ -21,7 +21,7 @@ extension ImageConfig {
   ///
   /// > Important: This property is not supported in the Gemini Developer API.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. Controls whether the model can generate people.
   package enum PersonGeneration: Codable, Sendable, Equatable, Hashable {

@@ -22,7 +22,7 @@ import Foundation
 ///
 /// Standard web search for grounding and related configurations.
 ///
-/// ### Gemini Enterprise Agent Platform
+/// ### Gemini Enterprise API
 ///
 /// Type: `GoogleCloudAiplatformV1beta1ToolGoogleSearchWebSearch`
 ///

@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseCore'
-  s.version          = '12.19.0'
+  s.version          = '13.0.0'
   s.summary          = 'Firebase Core'
 
   s.description      = <<-DESC
@@ -58,15 +58,16 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
   s.watchos.framework = 'WatchKit'
 
   # Remember to also update version in `cmake/external/GoogleUtilities.cmake`
-  s.dependency 'GoogleUtilities/Environment', '~> 8.1'
-  s.dependency 'GoogleUtilities/Logger', '~> 8.1'
-  s.dependency 'FirebaseCoreInternal', '~> 12.19.0'
+  s.dependency 'GoogleUtilities/Environment', '>= 8.1.3', '< 9.0'
+  s.dependency 'GoogleUtilities/Logger', '>= 8.1.3', '< 9.0'
+  s.dependency 'FirebaseCoreInternal', '~> 13.0.0'
 
   s.pod_target_xcconfig = {
     'DEFINES_MODULE' => 'YES',
     'GCC_PREPROCESSOR_DEFINITIONS' => 'Firebase_VERSION=' + s.version.to_s,
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"',
-    'OTHER_CFLAGS' => '-fno-autolink'
+    'OTHER_CFLAGS' => '-fno-autolink',
+    'PRODUCT_BUNDLE_IDENTIFIER' => 'com.google.firebase.FirebaseCore'
   }
 
   s.test_spec 'unit' do |unit_tests|

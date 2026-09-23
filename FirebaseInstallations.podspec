@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseInstallations'
-  s.version          = '12.19.0'
+  s.version          = '13.0.0'
   s.summary          = 'Firebase Installations'
 
   s.description      = <<-DESC
@@ -45,16 +45,17 @@ Pod::Spec.new do |s|
   }
 
   s.framework = 'Security'
-  s.dependency 'FirebaseCore', '~> 12.19.0'
-  s.dependency 'PromisesObjC', '~> 2.4'
-  s.dependency 'GoogleUtilities/Environment', '~> 8.1'
-  s.dependency 'GoogleUtilities/UserDefaults', '~> 8.1'
+  s.dependency 'FirebaseCore', '~> 13.0.0'
+  s.dependency 'PromisesObjC', '>= 2.4.1', '< 3.0'
+  s.dependency 'GoogleUtilities/Environment', '>= 8.1.3', '< 9.0'
+  s.dependency 'GoogleUtilities/UserDefaults', '>= 8.1.3', '< 9.0'
 
   preprocessor_definitions = ''
   s.pod_target_xcconfig = {
     'DEFINES_MODULE' => 'YES',
     'GCC_PREPROCESSOR_DEFINITIONS' => preprocessor_definitions,
-    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
+    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"',
+    'PRODUCT_BUNDLE_IDENTIFIER' => 'com.google.firebase.FirebaseInstallations'
   }
 
   s.test_spec 'unit' do |unit_tests|

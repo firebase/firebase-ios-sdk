@@ -47,7 +47,8 @@ Pod::Spec.new do |s|
   s.pod_target_xcconfig = {
     'OTHER_CFLAGS' => '-fno-autolink',
     'HEADER_SEARCH_PATHS' =>
-      '"${PODS_TARGET_SRCROOT}" '
+      '"${PODS_TARGET_SRCROOT}" ',
+    'PRODUCT_BUNDLE_IDENTIFIER' => 'com.google.firebase.FirebaseFirestoreTestingSupport'
   }
 
   s.test_spec 'unit' do |unit_tests|

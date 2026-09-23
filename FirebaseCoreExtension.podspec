@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
     s.name             = 'FirebaseCoreExtension'
-    s.version          = '12.19.0'
+    s.version          = '13.0.0'
     s.summary          = 'Extended FirebaseCore APIs for Firebase product SDKs'
 
     s.description      = <<-DESC
@@ -35,8 +35,9 @@ Pod::Spec.new do |s|
     }
 
     s.pod_target_xcconfig = {
-      'DEFINES_MODULE' => 'YES'
+      'DEFINES_MODULE' => 'YES',
+      'PRODUCT_BUNDLE_IDENTIFIER' => 'com.google.firebase.FirebaseCoreExtension'
     }
 
-    s.dependency 'FirebaseCore', '~> 12.19.0'
+    s.dependency 'FirebaseCore', '~> 13.0.0'
   end
