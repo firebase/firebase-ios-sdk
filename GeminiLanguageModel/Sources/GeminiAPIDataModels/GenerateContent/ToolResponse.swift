@@ -26,9 +26,9 @@ import Foundation
 /// in a subsequent turn within a `Content` message, along with the corresponding
 /// `ToolCall`.
 ///
-/// ### Gemini Enterprise Agent Platform
+/// ### Gemini Enterprise API
 ///
-/// > Important: This type is not supported in the Gemini Enterprise Agent Platform.
+/// > Important: This type is not supported in the Gemini Enterprise API.
 package struct ToolResponse: Codable, Sendable, Equatable, Hashable {
   /// Optional. The identifier of the tool call this response is for.
   ///
@@ -36,9 +36,9 @@ package struct ToolResponse: Codable, Sendable, Equatable, Hashable {
   ///
   /// Optional. The identifier of the tool call this response is for.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
-  /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
+  /// > Important: This property is not supported in the Gemini Enterprise API.
   package let id: String?
 
   /// Required. The type of tool that was called, matching the `tool_type` in the
@@ -48,9 +48,9 @@ package struct ToolResponse: Codable, Sendable, Equatable, Hashable {
   /// Required. The type of tool that was called, matching the `tool_type` in the
   /// corresponding `ToolCall`.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
-  /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
+  /// > Important: This property is not supported in the Gemini Enterprise API.
   package let toolType: ToolType
 
   /// Optional. The tool response.
@@ -59,9 +59,9 @@ package struct ToolResponse: Codable, Sendable, Equatable, Hashable {
   ///
   /// Optional. The tool response.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
-  /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
+  /// > Important: This property is not supported in the Gemini Enterprise API.
   package let response: [String: JSONValue]?
 
   /// Creates a new `ToolResponse`.

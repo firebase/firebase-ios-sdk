@@ -1,4 +1,4 @@
-# Unreleased
+# 13.0.0
 - [removed] **Breaking change**: FirebaseMLModelDownloader has been removed. See
   https://firebase.google.com/docs/ml for more info.
 

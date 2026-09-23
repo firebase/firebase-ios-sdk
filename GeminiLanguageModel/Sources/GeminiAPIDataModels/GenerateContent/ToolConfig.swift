@@ -22,7 +22,7 @@ import Foundation
 ///
 /// Tool config. This config is shared for all tools provided in the request.
 ///
-/// ### Gemini Enterprise Agent Platform
+/// ### Gemini Enterprise API
 ///
 /// Type: `GoogleCloudAiplatformV1beta1ToolConfig`
 ///
@@ -42,9 +42,9 @@ package struct ToolConfig: Codable, Sendable, Equatable, Hashable {
   /// responses within the `Content` message. This allows clients to
   /// observe the server's tool interactions.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
-  /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
+  /// > Important: This property is not supported in the Gemini Enterprise API.
   package let includeServerSideToolInvocations: Bool?
 
   /// Creates a new `ToolConfig`.

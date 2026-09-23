@@ -20,7 +20,7 @@ import Foundation
 ///
 /// > Important: This type is not supported in the Gemini Developer API.
 ///
-/// ### Gemini Enterprise Agent Platform
+/// ### Gemini Enterprise API
 ///
 /// Type: `GoogleCloudAiplatformV1beta1ReplicatedVoiceConfig`
 ///
@@ -32,7 +32,7 @@ package struct ReplicatedVoiceConfig: Codable, Sendable, Equatable, Hashable {
   ///
   /// > Important: This property is not supported in the Gemini Developer API.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. The mimetype of the voice sample. The only currently supported value is
   /// `audio/wav`.
@@ -47,7 +47,7 @@ package struct ReplicatedVoiceConfig: Codable, Sendable, Equatable, Hashable {
   ///
   /// > Important: This property is not supported in the Gemini Developer API.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. The sample of the custom voice.
   package let voiceSampleAudio: Data?
@@ -55,8 +55,8 @@ package struct ReplicatedVoiceConfig: Codable, Sendable, Equatable, Hashable {
   /// Creates a new `ReplicatedVoiceConfig`.
   ///
   /// - Parameters:
-  ///   - mimeType: Optional. The mimetype of the voice sample. The only currently supported value is (Gemini Enterprise Agent Platform only). For more details, see ``mimeType``.
-  ///   - voiceSampleAudio: Optional. The sample of the custom voice. (Gemini Enterprise Agent Platform only). For more details, see ``voiceSampleAudio``.
+  ///   - mimeType: Optional. The mimetype of the voice sample. The only currently supported value is (Gemini Enterprise API only). For more details, see ``mimeType``.
+  ///   - voiceSampleAudio: Optional. The sample of the custom voice. (Gemini Enterprise API only). For more details, see ``voiceSampleAudio``.
   package init(
     mimeType: String? = nil,
     voiceSampleAudio: Data? = nil

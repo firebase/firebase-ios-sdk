@@ -36,16 +36,16 @@ struct APIConfig: Sendable, Hashable, Encodable {
 extension APIConfig {
   /// API services providing generative AI functionality.
   ///
-  /// See [Agent Platform Gemini API and Gemini Developer API
+  /// See [Gemini Enterprise API and Gemini Developer API
   /// differences](https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/migrate/migrate-google-ai#google-ai)
   /// for a comparison of the two [API services](https://google.aip.dev/9#api-service).
   enum Service: Hashable, Encodable {
-    /// Agent Platform Gemini API.
+    /// Gemini Enterprise API.
     ///
     /// See the [Cloud
     /// docs](https://docs.cloud.google.com/gemini-enterprise-agent-platform/reference/models/inference)
     /// for more details.
-    case agentPlatform(endpoint: Endpoint, location: String)
+    case enterprise(endpoint: Endpoint, location: String)
 
     /// The Gemini Developer API provided by Google AI.
     case googleAI(endpoint: Endpoint)
@@ -55,7 +55,7 @@ extension APIConfig {
     /// This must correspond with the API set in `service`.
     var endpoint: Endpoint {
       switch self {
-      case let .agentPlatform(endpoint: endpoint, _):
+      case let .enterprise(endpoint: endpoint, _):
         return endpoint
       case let .googleAI(endpoint: endpoint):
         return endpoint
@@ -70,14 +70,14 @@ extension APIConfig.Service {
   enum Endpoint: String, Encodable {
     /// The Firebase proxy production endpoint.
     ///
-    /// This endpoint supports both the Gemini Developer API and the Agent Platform Gemini API.
+    /// This endpoint supports both the Gemini Developer API and the Gemini Enterprise API.
     case firebaseProxyProd = "https://firebasevertexai.googleapis.com"
 
     #if DEBUG
       /// The Firebase proxy staging endpoint; for SDK development and testing only.
       ///
       /// This endpoint supports both the Gemini Developer API (commonly referred to as Google AI)
-      /// and the Agent Platform Gemini API.
+      /// and the Gemini Enterprise API.
       case firebaseProxyStaging = "https://staging-firebasevertexai.sandbox.googleapis.com"
 
       /// The Gemini Developer API (Google AI) direct production endpoint; for SDK development and
@@ -85,16 +85,16 @@ extension APIConfig.Service {
       ///
       /// This bypasses the Firebase proxy and directly connects to the Gemini Developer API
       /// (Google AI) backend. This endpoint only supports the Gemini Developer API, not the
-      /// Agent Platform Gemini API.
+      /// Gemini Enterprise API.
       case googleAIBypassProxy = "https://generativelanguage.googleapis.com"
 
-      /// The Agent Platform Gemini API direct staging endpoint; for SDK development and
+      /// The Gemini Enterprise API direct staging endpoint; for SDK development and
       /// testing only.
       ///
-      /// This bypasses the Firebase proxy and directly connects to the Agent Platform Gemini API
-      /// backend. This endpoint only supports the Agent Platform Gemini API, not the Gemini
+      /// This bypasses the Firebase proxy and directly connects to the Gemini Enterprise API
+      /// backend. This endpoint only supports the Gemini Enterprise API, not the Gemini
       /// Developer API.
-      case agentPlatformStagingBypassProxy = "https://staging-aiplatform.sandbox.googleapis.com"
+      case enterpriseStagingBypassProxy = "https://staging-aiplatform.sandbox.googleapis.com"
     #endif // DEBUG
   }
 }
@@ -110,7 +110,7 @@ extension APIConfig {
       /// only.
       case v1
 
-      /// The beta channel for version 1 of the direct Agent Platform Gemini API, when
+      /// The beta channel for version 1 of the direct Gemini Enterprise API, when
       /// bypassing the Firebase proxy; for SDK development and testing only.
       case v1beta1
     #endif // DEBUG

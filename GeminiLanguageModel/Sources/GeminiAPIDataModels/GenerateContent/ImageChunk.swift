@@ -22,7 +22,7 @@ import Foundation
 ///
 /// Chunk from image search.
 ///
-/// ### Gemini Enterprise Agent Platform
+/// ### Gemini Enterprise API
 ///
 /// Type: `GoogleCloudAiplatformV1beta1GroundingChunkImage`
 ///
@@ -37,7 +37,7 @@ package struct ImageChunk: Codable, Sendable, Equatable, Hashable {
   ///
   /// The web page URI for attribution.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// The URI of the image search result page.
   package let sourceUri: String?
@@ -48,7 +48,7 @@ package struct ImageChunk: Codable, Sendable, Equatable, Hashable {
   ///
   /// The image asset URL.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// The URI of the image.
   package let imageUri: String?
@@ -59,7 +59,7 @@ package struct ImageChunk: Codable, Sendable, Equatable, Hashable {
   ///
   /// The title of the web page that the image is from.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// The title of the image search result page.
   package let title: String?
@@ -71,7 +71,7 @@ package struct ImageChunk: Codable, Sendable, Equatable, Hashable {
   /// The root domain of the web page that the image is from, e.g.
   /// "example.com".
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// The domain of the image search result page.
   package let domain: String?

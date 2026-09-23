@@ -20,7 +20,7 @@ import Foundation
 ///
 /// > Important: This type is not supported in the Gemini Developer API.
 ///
-/// ### Gemini Enterprise Agent Platform
+/// ### Gemini Enterprise API
 ///
 /// Type: `GoogleCloudAiplatformV1beta1FunctionResponseFileData`
 ///
@@ -32,7 +32,7 @@ package struct FunctionResponseFileData: Codable, Sendable, Equatable, Hashable 
   ///
   /// > Important: This property is not supported in the Gemini Developer API.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Required. The IANA standard MIME type of the source data.
   package let mimeType: String
@@ -43,7 +43,7 @@ package struct FunctionResponseFileData: Codable, Sendable, Equatable, Hashable 
   ///
   /// > Important: This property is not supported in the Gemini Developer API.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Required. URI.
   package let fileUri: String
@@ -54,7 +54,7 @@ package struct FunctionResponseFileData: Codable, Sendable, Equatable, Hashable 
   ///
   /// > Important: This property is not supported in the Gemini Developer API.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. Display name of the file data.
   ///
@@ -68,9 +68,9 @@ package struct FunctionResponseFileData: Codable, Sendable, Equatable, Hashable 
   /// Creates a new `FunctionResponseFileData`.
   ///
   /// - Parameters:
-  ///   - mimeType: Required. The IANA standard MIME type of the source data. (Gemini Enterprise Agent Platform only). For more details, see ``mimeType``.
-  ///   - fileUri: Required. URI. (Gemini Enterprise Agent Platform only). For more details, see ``fileUri``.
-  ///   - displayName: Optional. Display name of the file data. (Gemini Enterprise Agent Platform only). For more details, see ``displayName``.
+  ///   - mimeType: Required. The IANA standard MIME type of the source data. (Gemini Enterprise API only). For more details, see ``mimeType``.
+  ///   - fileUri: Required. URI. (Gemini Enterprise API only). For more details, see ``fileUri``.
+  ///   - displayName: Optional. Display name of the file data. (Gemini Enterprise API only). For more details, see ``displayName``.
   package init(
     mimeType: String,
     fileUri: String,

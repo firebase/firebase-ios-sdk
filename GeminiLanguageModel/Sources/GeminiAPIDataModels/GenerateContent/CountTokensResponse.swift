@@ -24,7 +24,7 @@ import Foundation
 ///
 /// It returns the model's `token_count` for the `prompt`.
 ///
-/// ### Gemini Enterprise Agent Platform
+/// ### Gemini Enterprise API
 ///
 /// Type: `GoogleCloudAiplatformV1beta1CountTokensResponse`
 ///
@@ -37,7 +37,7 @@ package struct CountTokensResponse: Codable, Sendable, Equatable, Hashable {
   /// The number of tokens that the `Model` tokenizes the `prompt` into. Always
   /// non-negative.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// The total number of tokens counted across all instances from the request.
   package let totalTokens: Int?
@@ -48,9 +48,9 @@ package struct CountTokensResponse: Codable, Sendable, Equatable, Hashable {
   ///
   /// Number of tokens in the cached part of the prompt (the cached content).
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
-  /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
+  /// > Important: This property is not supported in the Gemini Enterprise API.
   package let cachedContentTokenCount: Int?
 
   /// Output only. List of modalities that were processed in the request input.
@@ -62,9 +62,9 @@ package struct CountTokensResponse: Codable, Sendable, Equatable, Hashable {
   ///
   /// Output only. List of modalities that were processed in the cached content.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
-  /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
+  /// > Important: This property is not supported in the Gemini Enterprise API.
   package let cacheTokensDetails: [ModalityTokenCount]?
 
   /// The total number of billable characters counted across all instances from
@@ -73,7 +73,7 @@ package struct CountTokensResponse: Codable, Sendable, Equatable, Hashable {
   ///
   /// > Important: This property is not supported in the Gemini Developer API.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// The total number of billable characters counted across all instances from
   /// the request.
@@ -86,7 +86,7 @@ package struct CountTokensResponse: Codable, Sendable, Equatable, Hashable {
   ///   - cachedContentTokenCount: Number of tokens in the cached part of the prompt (the cached content). (Gemini Developer API only). For more details, see ``cachedContentTokenCount``.
   ///   - promptTokensDetails: Output only. List of modalities that were processed in the request input.
   ///   - cacheTokensDetails: Output only. List of modalities that were processed in the cached content. (Gemini Developer API only). For more details, see ``cacheTokensDetails``.
-  ///   - totalBillableCharacters: The total number of billable characters counted across all instances from (Gemini Enterprise Agent Platform only). For more details, see ``totalBillableCharacters``.
+  ///   - totalBillableCharacters: The total number of billable characters counted across all instances from (Gemini Enterprise API only). For more details, see ``totalBillableCharacters``.
   package init(
     totalTokens: Int? = nil,
     cachedContentTokenCount: Int? = nil,

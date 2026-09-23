@@ -22,7 +22,7 @@ import Foundation
 ///
 /// A citation to a source for a portion of a specific response.
 ///
-/// ### Gemini Enterprise Agent Platform
+/// ### Gemini Enterprise API
 ///
 /// Type: `GoogleCloudAiplatformV1beta1Citation`
 ///
@@ -36,7 +36,7 @@ package struct Citation: Codable, Sendable, Equatable, Hashable {
   ///
   /// Index indicates the start of the segment, measured in bytes.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Output only. The start index of the citation in the content.
   package let startIndex: Int?
@@ -47,7 +47,7 @@ package struct Citation: Codable, Sendable, Equatable, Hashable {
   ///
   /// Optional. End of the attributed segment, exclusive.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Output only. The end index of the citation in the content.
   package let endIndex: Int?
@@ -58,7 +58,7 @@ package struct Citation: Codable, Sendable, Equatable, Hashable {
   ///
   /// Optional. URI that is attributed as a source for a portion of the text.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Output only. The URI of the source of the citation.
   package let uri: String?
@@ -71,7 +71,7 @@ package struct Citation: Codable, Sendable, Equatable, Hashable {
   ///
   /// License info is required for code citations.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Output only. The license of the source of the citation.
   package let license: String?
@@ -82,7 +82,7 @@ package struct Citation: Codable, Sendable, Equatable, Hashable {
   ///
   /// > Important: This property is not supported in the Gemini Developer API.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Output only. The title of the source of the citation.
   package let title: String?
@@ -93,7 +93,7 @@ package struct Citation: Codable, Sendable, Equatable, Hashable {
   ///
   /// > Important: This property is not supported in the Gemini Developer API.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Output only. The publication date of the source of the citation.
   package let publicationDate: Date?
@@ -105,8 +105,8 @@ package struct Citation: Codable, Sendable, Equatable, Hashable {
   ///   - endIndex: Optional. End of the attributed segment, exclusive. (behavior varies by backend). For more details, see ``endIndex``.
   ///   - uri: Optional. URI that is attributed as a source for a portion of the text. (behavior varies by backend). For more details, see ``uri``.
   ///   - license: Optional. License for the GitHub project that is attributed as a source for segment. (behavior varies by backend). For more details, see ``license``.
-  ///   - title: Output only. The title of the source of the citation. (Gemini Enterprise Agent Platform only). For more details, see ``title``.
-  ///   - publicationDate: Output only. The publication date of the source of the citation. (Gemini Enterprise Agent Platform only). For more details, see ``publicationDate``.
+  ///   - title: Output only. The title of the source of the citation. (Gemini Enterprise API only). For more details, see ``title``.
+  ///   - publicationDate: Output only. The publication date of the source of the citation. (Gemini Enterprise API only). For more details, see ``publicationDate``.
   package init(
     startIndex: Int? = nil,
     endIndex: Int? = nil,

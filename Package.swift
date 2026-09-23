@@ -1062,7 +1062,6 @@ func packageTargets() -> [Target] {
         // - https://github.com/firebase/firebase-ios-sdk/issues/15276
         // - https://github.com/firebase/firebase-ios-sdk/pull/15287
         .product(name: "nanopb", package: "nanopb"),
-        .product(name: "Promises", package: "Promises"),
         .product(name: "GoogleDataTransport", package: "GoogleDataTransport"),
         .product(name: "GULEnvironment", package: "GoogleUtilities"),
         .product(name: "GULUserDefaults", package: "GoogleUtilities"),

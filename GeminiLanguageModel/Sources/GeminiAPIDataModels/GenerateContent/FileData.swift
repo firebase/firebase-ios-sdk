@@ -22,7 +22,7 @@ import Foundation
 ///
 /// An element in the history the represents an external data file.
 ///
-/// ### Gemini Enterprise Agent Platform
+/// ### Gemini Enterprise API
 ///
 /// Type: `GoogleCloudAiplatformV1beta1FileData`
 ///
@@ -41,7 +41,7 @@ package struct FileData: Codable, Sendable, Equatable, Hashable {
   ///   - image/png
   ///   - image/jpeg
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Required. The IANA standard MIME type of the source data.
   package let mimeType: String
@@ -52,7 +52,7 @@ package struct FileData: Codable, Sendable, Equatable, Hashable {
   ///
   /// Required. URI.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Required. The URI of the file in Google Cloud Storage.
   package let fileUri: String
@@ -63,7 +63,7 @@ package struct FileData: Codable, Sendable, Equatable, Hashable {
   ///
   /// > Important: This property is not supported in the Gemini Developer API.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. The display name of the file. Used to provide a label or filename
   /// to distinguish files.
@@ -78,7 +78,7 @@ package struct FileData: Codable, Sendable, Equatable, Hashable {
   /// - Parameters:
   ///   - mimeType: Required. The IANA standard MIME type of the source data. (behavior varies by backend). For more details, see ``mimeType``.
   ///   - fileUri: Required. URI. (behavior varies by backend). For more details, see ``fileUri``.
-  ///   - displayName: Optional. The display name of the file. Used to provide a label or filename (Gemini Enterprise Agent Platform only). For more details, see ``displayName``.
+  ///   - displayName: Optional. The display name of the file. Used to provide a label or filename (Gemini Enterprise API only). For more details, see ``displayName``.
   package init(
     mimeType: String,
     fileUri: String,

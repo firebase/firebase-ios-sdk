@@ -20,7 +20,7 @@ final class BackendTests: XCTestCase {
   @available(*, deprecated)
   func testVertexAI_defaultLocation() {
     let expectedAPIConfig = APIConfig(
-      service: .agentPlatform(endpoint: .firebaseProxyProd, location: "us-central1"),
+      service: .enterprise(endpoint: .firebaseProxyProd, location: "us-central1"),
       version: .v1beta
     )
 
@@ -30,10 +30,35 @@ final class BackendTests: XCTestCase {
   }
 
   @available(*, deprecated)
+  func testAgentPlatform_defaultLocation() {
+    let expectedAPIConfig = APIConfig(
+      service: .enterprise(endpoint: .firebaseProxyProd, location: "global"),
+      version: .v1beta
+    )
+
+    let backend = Backend.agentPlatform()
+
+    XCTAssertEqual(backend.apiConfig, expectedAPIConfig)
+  }
+
+  @available(*, deprecated)
+  func testAgentPlatform_customLocation() {
+    let customLocation = "europe-west1"
+    let expectedAPIConfig = APIConfig(
+      service: .enterprise(endpoint: .firebaseProxyProd, location: customLocation),
+      version: .v1beta
+    )
+
+    let backend = Backend.agentPlatform(location: customLocation)
+
+    XCTAssertEqual(backend.apiConfig, expectedAPIConfig)
+  }
+
+  @available(*, deprecated)
   func testVertexAI_customLocation() {
     let customLocation = "europe-west1"
     let expectedAPIConfig = APIConfig(
-      service: .agentPlatform(endpoint: .firebaseProxyProd, location: customLocation),
+      service: .enterprise(endpoint: .firebaseProxyProd, location: customLocation),
       version: .v1beta
     )
 
@@ -53,25 +78,25 @@ final class BackendTests: XCTestCase {
     XCTAssertEqual(backend.apiConfig, expectedAPIConfig)
   }
 
-  func testAgentPlatform_defaultLocation() {
+  func testEnterprise_defaultLocation() {
     let expectedAPIConfig = APIConfig(
-      service: .agentPlatform(endpoint: .firebaseProxyProd, location: "global"),
+      service: .enterprise(endpoint: .firebaseProxyProd, location: "global"),
       version: .v1beta
     )
 
-    let backend = Backend.agentPlatform()
+    let backend = Backend.enterprise()
 
     XCTAssertEqual(backend.apiConfig, expectedAPIConfig)
   }
 
-  func testAgentPlatform_customLocation() {
+  func testEnterprise_customLocation() {
     let customLocation = "europe-west1"
     let expectedAPIConfig = APIConfig(
-      service: .agentPlatform(endpoint: .firebaseProxyProd, location: customLocation),
+      service: .enterprise(endpoint: .firebaseProxyProd, location: customLocation),
       version: .v1beta
     )
 
-    let backend = Backend.agentPlatform(location: customLocation)
+    let backend = Backend.enterprise(location: customLocation)
 
     XCTAssertEqual(backend.apiConfig, expectedAPIConfig)
   }

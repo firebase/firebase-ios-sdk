@@ -22,7 +22,7 @@ import Foundation
 ///
 /// Chunk from the web.
 ///
-/// ### Gemini Enterprise Agent Platform
+/// ### Gemini Enterprise API
 ///
 /// Type: `GoogleCloudAiplatformV1beta1GroundingChunkWeb`
 ///
@@ -37,7 +37,7 @@ package struct WebChunk: Codable, Sendable, Equatable, Hashable {
   ///
   /// Output only. URI reference of the chunk.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// The URI of the web page that contains the evidence.
   package let uri: String?
@@ -48,7 +48,7 @@ package struct WebChunk: Codable, Sendable, Equatable, Hashable {
   ///
   /// Output only. Title of the chunk.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// The title of the web page that contains the evidence.
   package let title: String?
@@ -59,7 +59,7 @@ package struct WebChunk: Codable, Sendable, Equatable, Hashable {
   ///
   /// > Important: This property is not supported in the Gemini Developer API.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// The domain of the web page that contains the evidence. This
   /// can be used to filter out low-quality sources.
@@ -70,7 +70,7 @@ package struct WebChunk: Codable, Sendable, Equatable, Hashable {
   /// - Parameters:
   ///   - uri: Output only. URI reference of the chunk. (behavior varies by backend). For more details, see ``uri``.
   ///   - title: Output only. Title of the chunk. (behavior varies by backend). For more details, see ``title``.
-  ///   - domain: The domain of the web page that contains the evidence. This (Gemini Enterprise Agent Platform only). For more details, see ``domain``.
+  ///   - domain: The domain of the web page that contains the evidence. This (Gemini Enterprise API only). For more details, see ``domain``.
   package init(
     uri: String? = nil,
     title: String? = nil,

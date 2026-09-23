@@ -23,9 +23,9 @@ import Foundation
 /// The status of the underlying model. This is used to indicate the stage of the
 /// underlying model and the retirement time if applicable.
 ///
-/// ### Gemini Enterprise Agent Platform
+/// ### Gemini Enterprise API
 ///
-/// > Important: This type is not supported in the Gemini Enterprise Agent Platform.
+/// > Important: This type is not supported in the Gemini Enterprise API.
 package struct ModelStatus: Codable, Sendable, Equatable, Hashable {
   /// The stage of the underlying model.
   ///
@@ -33,9 +33,9 @@ package struct ModelStatus: Codable, Sendable, Equatable, Hashable {
   ///
   /// The stage of the underlying model.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
-  /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
+  /// > Important: This property is not supported in the Gemini Enterprise API.
   package let modelStage: ModelStage?
 
   /// The time at which the model will be retired.
@@ -44,9 +44,9 @@ package struct ModelStatus: Codable, Sendable, Equatable, Hashable {
   ///
   /// The time at which the model will be retired.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
-  /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
+  /// > Important: This property is not supported in the Gemini Enterprise API.
   package let retirementTime: String?
 
   /// A message explaining the model status.
@@ -55,9 +55,9 @@ package struct ModelStatus: Codable, Sendable, Equatable, Hashable {
   ///
   /// A message explaining the model status.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
-  /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
+  /// > Important: This property is not supported in the Gemini Enterprise API.
   package let message: String?
 
   /// Creates a new `ModelStatus`.

@@ -26,7 +26,7 @@ import Foundation
 /// systems to perform an action, or set of actions, outside of knowledge and
 /// scope of the model. A Tool object should contain exactly one type of Tool.
 ///
-/// ### Gemini Enterprise Agent Platform
+/// ### Gemini Enterprise API
 ///
 /// Type: `GoogleCloudAiplatformV1beta1Tool`
 ///
@@ -51,7 +51,7 @@ package struct Tool: Codable, Sendable, Equatable, Hashable {
   ///
   /// Optional. Tool to retrieve public maps data for grounding, powered by Google.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. GoogleMaps tool type.
   /// Tool to support Google Maps in Model.
@@ -74,7 +74,7 @@ package struct Tool: Codable, Sendable, Equatable, Hashable {
   /// with the Content.role "function" generation context for the next model
   /// turn.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. Function tool type.
   /// One or more function declarations to be passed to the model along with the
@@ -92,7 +92,7 @@ package struct Tool: Codable, Sendable, Equatable, Hashable {
   ///
   /// Optional. Enables the model to execute code as part of generation.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. CodeExecution tool type.
   /// Enables the model to execute code as part of generation.

@@ -20,7 +20,7 @@ import Foundation
 ///
 /// > Important: This type is not supported in the Gemini Developer API.
 ///
-/// ### Gemini Enterprise Agent Platform
+/// ### Gemini Enterprise API
 ///
 /// Type: `GoogleCloudAiplatformV1beta1GroundingChunkMapsRoute`
 ///
@@ -32,7 +32,7 @@ package struct MapsRoute: Codable, Sendable, Equatable, Hashable {
   ///
   /// > Important: This property is not supported in the Gemini Developer API.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// The total distance of the route, in meters.
   package let distanceMeters: Int?
@@ -43,7 +43,7 @@ package struct MapsRoute: Codable, Sendable, Equatable, Hashable {
   ///
   /// > Important: This property is not supported in the Gemini Developer API.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// The total duration of the route.
   package let duration: String?
@@ -54,7 +54,7 @@ package struct MapsRoute: Codable, Sendable, Equatable, Hashable {
   ///
   /// > Important: This property is not supported in the Gemini Developer API.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// An encoded polyline of the route. See
   /// https://developers.google.com/maps/documentation/utilities/polylinealgorithm
@@ -63,9 +63,9 @@ package struct MapsRoute: Codable, Sendable, Equatable, Hashable {
   /// Creates a new `MapsRoute`.
   ///
   /// - Parameters:
-  ///   - distanceMeters: The total distance of the route, in meters. (Gemini Enterprise Agent Platform only). For more details, see ``distanceMeters``.
-  ///   - duration: The total duration of the route. (Gemini Enterprise Agent Platform only). For more details, see ``duration``.
-  ///   - encodedPolyline: An encoded polyline of the route. See (Gemini Enterprise Agent Platform only). For more details, see ``encodedPolyline``.
+  ///   - distanceMeters: The total distance of the route, in meters. (Gemini Enterprise API only). For more details, see ``distanceMeters``.
+  ///   - duration: The total duration of the route. (Gemini Enterprise API only). For more details, see ``duration``.
+  ///   - encodedPolyline: An encoded polyline of the route. See (Gemini Enterprise API only). For more details, see ``encodedPolyline``.
   package init(
     distanceMeters: Int? = nil,
     duration: String? = nil,

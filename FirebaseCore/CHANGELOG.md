@@ -1,4 +1,4 @@
-# Unreleased
+# Firebase 13.0.0
 - [feature] Added support for Swift Package Traits (SE-0450) to allow developers
   to opt out of unused features and prune heavy dependencies. (#16684)
 - [changed] **Breaking change**: Firebase's minimum supported versions have

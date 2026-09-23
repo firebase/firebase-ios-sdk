@@ -22,7 +22,7 @@ import Foundation
 ///
 /// Configuration for specifying function calling behavior.
 ///
-/// ### Gemini Enterprise Agent Platform
+/// ### Gemini Enterprise API
 ///
 /// Type: `GoogleCloudAiplatformV1beta1FunctionCallingConfig`
 ///
@@ -35,7 +35,7 @@ package struct FunctionCallingConfig: Codable, Sendable, Equatable, Hashable {
   /// Optional. Specifies the mode in which function calling should execute. If
   /// unspecified, the default value will be set to AUTO.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. Function calling mode.
   package let mode: Mode?
@@ -51,7 +51,7 @@ package struct FunctionCallingConfig: Codable, Sendable, Equatable, Hashable {
   /// should match [FunctionDeclaration.name]. When set, model will
   /// predict a function call from only allowed function names.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. Function names to call. Only set when the Mode is ANY. Function names
   /// should match FunctionDeclaration.name. With mode set to ANY, model will
@@ -64,7 +64,7 @@ package struct FunctionCallingConfig: Codable, Sendable, Equatable, Hashable {
   ///
   /// > Important: This property is not supported in the Gemini Developer API.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. When set to true, arguments of a single function call will be streamed out
   /// in multiple parts/contents/responses. Partial parameter results will be
@@ -76,7 +76,7 @@ package struct FunctionCallingConfig: Codable, Sendable, Equatable, Hashable {
   /// - Parameters:
   ///   - mode: Optional. Specifies the mode in which function calling should execute. If (behavior varies by backend). For more details, see ``mode``.
   ///   - allowedFunctionNames: Optional. A set of function names that, when provided, limits the functions the model (behavior varies by backend). For more details, see ``allowedFunctionNames``.
-  ///   - streamFunctionCallArguments: Optional. When set to true, arguments of a single function call will be streamed out (Gemini Enterprise Agent Platform only). For more details, see ``streamFunctionCallArguments``.
+  ///   - streamFunctionCallArguments: Optional. When set to true, arguments of a single function call will be streamed out (Gemini Enterprise API only). For more details, see ``streamFunctionCallArguments``.
   package init(
     mode: Mode? = nil,
     allowedFunctionNames: [String]? = nil,

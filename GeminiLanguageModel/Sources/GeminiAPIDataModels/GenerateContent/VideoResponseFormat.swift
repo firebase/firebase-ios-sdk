@@ -20,7 +20,7 @@ import Foundation
 ///
 /// > Important: This type is not supported in the Gemini Developer API.
 ///
-/// ### Gemini Enterprise Agent Platform
+/// ### Gemini Enterprise API
 ///
 /// Type: `GoogleCloudAiplatformV1beta1VideoResponseFormat`
 ///
@@ -32,7 +32,7 @@ package struct VideoResponseFormat: Codable, Sendable, Equatable, Hashable {
   ///
   /// > Important: This property is not supported in the Gemini Developer API.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. Delivery mode for the generated content.
   package let delivery: Delivery?
@@ -43,7 +43,7 @@ package struct VideoResponseFormat: Codable, Sendable, Equatable, Hashable {
   ///
   /// > Important: This property is not supported in the Gemini Developer API.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. The Google Cloud Storage URI to store the video output. Required for Vertex
   /// if delivery is URI.
@@ -55,7 +55,7 @@ package struct VideoResponseFormat: Codable, Sendable, Equatable, Hashable {
   ///
   /// > Important: This property is not supported in the Gemini Developer API.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// The aspect ratio for the video output.
   package let aspectRatio: AspectRatio?
@@ -66,7 +66,7 @@ package struct VideoResponseFormat: Codable, Sendable, Equatable, Hashable {
   ///
   /// > Important: This property is not supported in the Gemini Developer API.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. The duration for the video output.
   package let duration: String?
@@ -74,10 +74,10 @@ package struct VideoResponseFormat: Codable, Sendable, Equatable, Hashable {
   /// Creates a new `VideoResponseFormat`.
   ///
   /// - Parameters:
-  ///   - delivery: Optional. Delivery mode for the generated content. (Gemini Enterprise Agent Platform only). For more details, see ``delivery``.
-  ///   - gcsUri: Optional. The Google Cloud Storage URI to store the video output. Required for Vertex (Gemini Enterprise Agent Platform only). For more details, see ``gcsUri``.
-  ///   - aspectRatio: The aspect ratio for the video output. (Gemini Enterprise Agent Platform only). For more details, see ``aspectRatio``.
-  ///   - duration: Optional. The duration for the video output. (Gemini Enterprise Agent Platform only). For more details, see ``duration``.
+  ///   - delivery: Optional. Delivery mode for the generated content. (Gemini Enterprise API only). For more details, see ``delivery``.
+  ///   - gcsUri: Optional. The Google Cloud Storage URI to store the video output. Required for Vertex (Gemini Enterprise API only). For more details, see ``gcsUri``.
+  ///   - aspectRatio: The aspect ratio for the video output. (Gemini Enterprise API only). For more details, see ``aspectRatio``.
+  ///   - duration: Optional. The duration for the video output. (Gemini Enterprise API only). For more details, see ``duration``.
   package init(
     delivery: Delivery? = nil,
     gcsUri: String? = nil,

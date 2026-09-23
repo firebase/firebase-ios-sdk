@@ -22,7 +22,7 @@ import Foundation
 ///
 /// A single content block from the conversation history list.
 ///
-/// ### Gemini Enterprise Agent Platform
+/// ### Gemini Enterprise API
 ///
 /// Type: `HistoryContent`
 ///

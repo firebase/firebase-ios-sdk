@@ -23,7 +23,7 @@ import Foundation
 /// Configuration options for model generation and outputs. Not all parameters
 /// are configurable for every model.
 ///
-/// ### Gemini Enterprise Agent Platform
+/// ### Gemini Enterprise API
 ///
 /// Type: `GoogleCloudAiplatformV1beta1GenerationConfig`
 ///
@@ -41,7 +41,7 @@ package struct GenerationConfig: Codable, Sendable, Equatable, Hashable {
   /// to 1. Please note that this doesn't work for previous generation
   /// models (Gemini 1.0 family)
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. The number of candidate responses to generate.
   ///
@@ -59,7 +59,7 @@ package struct GenerationConfig: Codable, Sendable, Equatable, Hashable {
   /// `stop_sequence`. The stop sequence will not be included as part of the
   /// response.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. A list of character sequences that will stop the model from
   /// generating further tokens. If a stop sequence is generated, the output
@@ -77,7 +77,7 @@ package struct GenerationConfig: Codable, Sendable, Equatable, Hashable {
   /// Note: The default value varies by model, see the `Model.output_token_limit`
   /// attribute of the `Model` returned from the `getModel` function.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. The maximum number of tokens to generate in the response.
   ///
@@ -97,7 +97,7 @@ package struct GenerationConfig: Codable, Sendable, Equatable, Hashable {
   ///
   /// Values can range from [0.0, 2.0].
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. Controls the randomness of the output. A higher temperature
   /// results in more creative and diverse responses, while a lower temperature
@@ -123,7 +123,7 @@ package struct GenerationConfig: Codable, Sendable, Equatable, Hashable {
   /// `top_k` attribute indicates that the model doesn't apply top-k sampling
   /// and doesn't allow setting `top_k` on requests.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. Specifies the nucleus sampling threshold. The model considers
   /// only the smallest set of tokens whose cumulative probability is at least
@@ -148,7 +148,7 @@ package struct GenerationConfig: Codable, Sendable, Equatable, Hashable {
   /// `top_k` attribute indicates that the model doesn't apply top-k sampling
   /// and doesn't allow setting `top_k` on requests.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. Specifies the top-k sampling threshold. The model considers only
   /// the top k most probable tokens for the next token. This can be useful for
@@ -163,7 +163,7 @@ package struct GenerationConfig: Codable, Sendable, Equatable, Hashable {
   /// Optional. Seed used in decoding. If not set, the request uses a randomly generated
   /// seed.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. A seed for the random number generator.
   ///
@@ -190,7 +190,7 @@ package struct GenerationConfig: Codable, Sendable, Equatable, Hashable {
   /// [docs](https://ai.google.dev/gemini-api/docs/prompting_with_media#plain_text_formats)
   /// for a list of all supported text MIME types.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. The IANA standard MIME type of the response. The model will
   /// generate output that conforms to this MIME type. Supported values include
@@ -214,7 +214,7 @@ package struct GenerationConfig: Codable, Sendable, Equatable, Hashable {
   /// Refer to the [JSON text generation
   /// guide](https://ai.google.dev/gemini-api/docs/json-mode) for more details.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. Lets you to specify a schema for the model's response, ensuring
   /// that the output conforms to a particular structure. This is useful for
@@ -268,7 +268,7 @@ package struct GenerationConfig: Codable, Sendable, Equatable, Hashable {
   /// sufficient.) If `$ref` is set on a sub-schema, no other properties, except
   /// for than those starting as a `$`, may be set.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. When this field is set, `response_schema` must be omitted and `response_mime_type`
   /// must be set to `application/json`.
@@ -293,7 +293,7 @@ package struct GenerationConfig: Codable, Sendable, Equatable, Hashable {
   /// A negative penalty will encourage the use of tokens that have already been
   /// used in the response, decreasing the vocabulary.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. Penalizes tokens that have already appeared in the generated
   /// text. A positive value encourages the model to generate more diverse and
@@ -319,7 +319,7 @@ package struct GenerationConfig: Codable, Sendable, Equatable, Hashable {
   /// hits the max_output_tokens
   /// limit.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. Penalizes tokens based on their frequency in the generated text.
   /// A positive value helps to reduce the repetition of words and phrases.
@@ -332,7 +332,7 @@ package struct GenerationConfig: Codable, Sendable, Equatable, Hashable {
   ///
   /// Optional. If true, export the logprobs results in response.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. If set to true, the log probabilities of the output tokens are
   /// returned.
@@ -352,7 +352,7 @@ package struct GenerationConfig: Codable, Sendable, Equatable, Hashable {
   /// return at each decoding step in the Candidate.logprobs_result. The
   /// number must be in the range of [0, 20].
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. The number of top log probabilities to return for each token.
   ///
@@ -367,9 +367,9 @@ package struct GenerationConfig: Codable, Sendable, Equatable, Hashable {
   ///
   /// Optional. Enables enhanced civic answers. It may not be available for all models.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
-  /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
+  /// > Important: This property is not supported in the Gemini Enterprise API.
   package let enableEnhancedCivicAnswers: Bool?
 
   /// Optional. The requested modalities of the response. Represents the set of modalities
@@ -386,7 +386,7 @@ package struct GenerationConfig: Codable, Sendable, Equatable, Hashable {
   ///
   /// An empty list is equivalent to requesting only text.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. The modalities of the response. The model will generate a
   /// response that includes all the specified modalities. For example, if this
@@ -405,7 +405,7 @@ package struct GenerationConfig: Codable, Sendable, Equatable, Hashable {
   /// An error will be returned if this field is set for models that don't
   /// support thinking.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. Configuration for thinking features.
   /// An error will be returned if this field is set for models that don't
@@ -420,7 +420,7 @@ package struct GenerationConfig: Codable, Sendable, Equatable, Hashable {
   /// An error will be returned if this field is set for models that don't
   /// support these config options.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. Config for image generation features.
   /// Deprecated: Use `response_format.image` instead.
@@ -432,7 +432,7 @@ package struct GenerationConfig: Codable, Sendable, Equatable, Hashable {
   ///
   /// Optional. If specified, the media resolution specified will be used.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. The token resolution at which input media content is sampled. This is
   /// used to control the trade-off between the quality of the response and the
@@ -449,7 +449,7 @@ package struct GenerationConfig: Codable, Sendable, Equatable, Hashable {
   /// Optional. If enabled, the model will detect emotions and adapt its responses
   /// accordingly.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. If enabled, the model will detect emotions and adapt its
   /// responses accordingly. For example, if the model detects that the user is
@@ -463,7 +463,7 @@ package struct GenerationConfig: Codable, Sendable, Equatable, Hashable {
   /// Optional. Configuration for the response output format. Allows specifying output
   /// configuration per modality (text, audio, image) in a flat structure.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. New response format field for the model to configure output formatting and
   /// delivery.
@@ -475,7 +475,7 @@ package struct GenerationConfig: Codable, Sendable, Equatable, Hashable {
   ///
   /// > Important: This property is not supported in the Gemini Developer API.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. If enabled, audio timestamps will be included in the request to
   /// the model. This can be useful for synchronizing audio with other modalities
@@ -507,7 +507,7 @@ package struct GenerationConfig: Codable, Sendable, Equatable, Hashable {
   ///   - mediaResolution: Optional. If specified, the media resolution specified will be used. (behavior varies by backend). For more details, see ``mediaResolution``.
   ///   - enableAffectiveDialog: Optional. If enabled, the model will detect emotions and adapt its responses (behavior varies by backend). For more details, see ``enableAffectiveDialog``.
   ///   - responseFormat: Optional. Configuration for the response output format. Allows specifying output (behavior varies by backend). For more details, see ``responseFormat``.
-  ///   - audioTimestamp: Optional. If enabled, audio timestamps will be included in the request to (Gemini Enterprise Agent Platform only). For more details, see ``audioTimestamp``.
+  ///   - audioTimestamp: Optional. If enabled, audio timestamps will be included in the request to (Gemini Enterprise API only). For more details, see ``audioTimestamp``.
   package init(
     candidateCount: Int? = nil,
     stopSequences: [String]? = nil,

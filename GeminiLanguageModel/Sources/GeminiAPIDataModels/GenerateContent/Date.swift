@@ -20,7 +20,7 @@ import Foundation
 ///
 /// > Important: This type is not supported in the Gemini Developer API.
 ///
-/// ### Gemini Enterprise Agent Platform
+/// ### Gemini Enterprise API
 ///
 /// Type: `Date`
 ///
@@ -47,7 +47,7 @@ package struct Date: Codable, Sendable, Equatable, Hashable {
   ///
   /// > Important: This property is not supported in the Gemini Developer API.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Year of the date. Must be from 1 to 9999, or 0 to specify a date without
   /// a year.
@@ -59,7 +59,7 @@ package struct Date: Codable, Sendable, Equatable, Hashable {
   ///
   /// > Important: This property is not supported in the Gemini Developer API.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Month of a year. Must be from 1 to 12, or 0 to specify a year without a
   /// month and day.
@@ -71,7 +71,7 @@ package struct Date: Codable, Sendable, Equatable, Hashable {
   ///
   /// > Important: This property is not supported in the Gemini Developer API.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Day of a month. Must be from 1 to 31 and valid for the year and month, or 0
   /// to specify a year by itself or a year and month where the day isn't
@@ -81,9 +81,9 @@ package struct Date: Codable, Sendable, Equatable, Hashable {
   /// Creates a new `Date`.
   ///
   /// - Parameters:
-  ///   - year: Year of the date. Must be from 1 to 9999, or 0 to specify a date without (Gemini Enterprise Agent Platform only). For more details, see ``year``.
-  ///   - month: Month of a year. Must be from 1 to 12, or 0 to specify a year without a (Gemini Enterprise Agent Platform only). For more details, see ``month``.
-  ///   - day: Day of a month. Must be from 1 to 31 and valid for the year and month, or 0 (Gemini Enterprise Agent Platform only). For more details, see ``day``.
+  ///   - year: Year of the date. Must be from 1 to 9999, or 0 to specify a date without (Gemini Enterprise API only). For more details, see ``year``.
+  ///   - month: Month of a year. Must be from 1 to 12, or 0 to specify a year without a (Gemini Enterprise API only). For more details, see ``month``.
+  ///   - day: Day of a month. Must be from 1 to 31 and valid for the year and month, or 0 (Gemini Enterprise API only). For more details, see ``day``.
   package init(
     year: Int? = nil,
     month: Int? = nil,

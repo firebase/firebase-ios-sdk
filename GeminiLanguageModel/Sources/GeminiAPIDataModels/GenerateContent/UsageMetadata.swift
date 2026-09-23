@@ -22,7 +22,7 @@ import Foundation
 ///
 /// Metadata on the generation request's token usage.
 ///
-/// ### Gemini Enterprise Agent Platform
+/// ### Gemini Enterprise API
 ///
 /// Type: `GoogleCloudAiplatformV1beta1GenerateContentResponseUsageMetadata`
 ///
@@ -38,7 +38,7 @@ package struct UsageMetadata: Codable, Sendable, Equatable, Hashable {
   /// still the total effective prompt size meaning this includes the number of
   /// tokens in the cached content.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// The total number of tokens in the prompt. This includes any text, images,
   /// or other media provided in the request. When `cached_content` is set,
@@ -51,7 +51,7 @@ package struct UsageMetadata: Codable, Sendable, Equatable, Hashable {
   ///
   /// Number of tokens in the cached part of the prompt (the cached content)
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Output only. The number of tokens in the cached content that was used for this
   /// request.
@@ -63,7 +63,7 @@ package struct UsageMetadata: Codable, Sendable, Equatable, Hashable {
   ///
   /// Total number of tokens across all the generated response candidates.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// The total number of tokens in the generated candidates.
   package let candidatesTokenCount: Int?
@@ -74,7 +74,7 @@ package struct UsageMetadata: Codable, Sendable, Equatable, Hashable {
   ///
   /// Output only. Number of tokens present in tool-use prompt(s).
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Output only. The number of tokens in the results from tool executions, which are
   /// provided back to the model as input, if applicable.
@@ -86,7 +86,7 @@ package struct UsageMetadata: Codable, Sendable, Equatable, Hashable {
   ///
   /// Output only. Number of tokens of thoughts for thinking models.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Output only. The number of tokens that were part of the model's generated "thoughts"
   /// output, if applicable.
@@ -99,7 +99,7 @@ package struct UsageMetadata: Codable, Sendable, Equatable, Hashable {
   /// Total token count for the generation request (prompt + thoughts +
   /// response candidates).
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// The total number of tokens for the entire request. This is the sum of
   /// `prompt_token_count`, `candidates_token_count`,
@@ -112,7 +112,7 @@ package struct UsageMetadata: Codable, Sendable, Equatable, Hashable {
   ///
   /// Output only. List of modalities that were processed in the request input.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Output only. A detailed breakdown of the token count for each modality in the prompt.
   package let promptTokensDetails: [ModalityTokenCount]?
@@ -123,7 +123,7 @@ package struct UsageMetadata: Codable, Sendable, Equatable, Hashable {
   ///
   /// Output only. List of modalities of the cached content in the request input.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Output only. A detailed breakdown of the token count for each modality in the cached
   /// content.
@@ -135,7 +135,7 @@ package struct UsageMetadata: Codable, Sendable, Equatable, Hashable {
   ///
   /// Output only. List of modalities that were returned in the response.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Output only. A detailed breakdown of the token count for each modality in the
   /// generated candidates.
@@ -147,7 +147,7 @@ package struct UsageMetadata: Codable, Sendable, Equatable, Hashable {
   ///
   /// Output only. List of modalities that were processed for tool-use request inputs.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Output only. A detailed breakdown by modality of the token counts from the results
   /// of tool executions, which are provided back to the model as input.
@@ -159,9 +159,9 @@ package struct UsageMetadata: Codable, Sendable, Equatable, Hashable {
   ///
   /// Output only. Service tier of the request.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
-  /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
+  /// > Important: This property is not supported in the Gemini Enterprise API.
   package let serviceTier: ServiceTier?
 
   /// Output only. The traffic type for this request.
@@ -170,7 +170,7 @@ package struct UsageMetadata: Codable, Sendable, Equatable, Hashable {
   ///
   /// > Important: This property is not supported in the Gemini Developer API.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Output only. The traffic type for this request.
   package let trafficType: TrafficType?
@@ -189,7 +189,7 @@ package struct UsageMetadata: Codable, Sendable, Equatable, Hashable {
   ///   - candidatesTokensDetails: Output only. List of modalities that were returned in the response. (behavior varies by backend). For more details, see ``candidatesTokensDetails``.
   ///   - toolUsePromptTokensDetails: Output only. List of modalities that were processed for tool-use request inputs. (behavior varies by backend). For more details, see ``toolUsePromptTokensDetails``.
   ///   - serviceTier: Output only. Service tier of the request. (Gemini Developer API only). For more details, see ``serviceTier``.
-  ///   - trafficType: Output only. The traffic type for this request. (Gemini Enterprise Agent Platform only). For more details, see ``trafficType``.
+  ///   - trafficType: Output only. The traffic type for this request. (Gemini Enterprise API only). For more details, see ``trafficType``.
   package init(
     promptTokenCount: Int? = nil,
     cachedContentTokenCount: Int? = nil,
