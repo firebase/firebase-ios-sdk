@@ -1,4 +1,8 @@
 # 13.0.0
+- [removed] **Breaking Change:** Removed the deprecated `Backend.vertexAI()` and
+  `Backend.vertexAI(location:)` methods. Use `Backend.enterprise(location:)`
+  instead (note that the default location is `"global"` instead of
+  `"us-central1"`). (#16689)
 - [changed] Deprecated `Backend.agentPlatform(location:)` in favor of
   `Backend.enterprise(location:)` to reflect the renaming of the Agent Platform
   Gemini API to the Gemini Enterprise API.
