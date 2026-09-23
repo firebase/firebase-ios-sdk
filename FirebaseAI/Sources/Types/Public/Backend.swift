@@ -16,33 +16,6 @@
 public struct Backend {
   // MARK: - Public API
 
-  /// Initializes a `Backend` configured for the Gemini API in Vertex AI.
-  ///
-  /// Defaults to the location `us-central1`; see
-  /// [available
-  /// locations](https://firebase.google.com/docs/ai-logic/locations?api=vertex#available-locations)
-  /// for a list of supported locations.
-  @available(*, deprecated, message: """
-  Use enterprise(location:) instead; note that the default location is now "global" instead of "us-central1"
-  """)
-  public static func vertexAI() -> Backend {
-    return enterprise(location: "us-central1")
-  }
-
-  /// Initializes a `Backend` configured for the Gemini API in Vertex AI.
-  ///
-  /// - Parameters:
-  ///   - location: The region identifier; see [available locations][1]
-  ///     for a list of supported locations.
-  ///
-  /// [1]: https://firebase.google.com/docs/ai-logic/locations?api=vertex#available-locations
-  @available(*, deprecated, renamed: "enterprise(location:)", message: """
-  Vertex AI has been renamed to the Gemini Enterprise API.
-  """)
-  public static func vertexAI(location: String) -> Backend {
-    return enterprise(location: location)
-  }
-
   /// Initializes a `Backend` configured for the Gemini Enterprise API.
   ///
   /// > Note: The Gemini Enterprise API was formerly known as Vertex AI and, briefly,

@@ -49,58 +49,6 @@ class VertexComponentTests: XCTestCase {
     XCTAssertNotNil(NSClassFromString("FIRVertexAIComponent"))
   }
 
-  /// Tests that a vertex instance can be created properly using the default Firebase app.
-  @available(*, deprecated)
-  func testVertexInstanceCreation_defaultApp() throws {
-    let vertex = FirebaseAI.firebaseAI(backend: .vertexAI(location: "us-central1"))
-
-    XCTAssertNotNil(vertex)
-    XCTAssertEqual(vertex.firebaseInfo.projectID, VertexComponentTests.projectID)
-    XCTAssertEqual(vertex.firebaseInfo.apiKey, VertexComponentTests.apiKey)
-    XCTAssertEqual(
-      vertex.apiConfig.service, .enterprise(
-        endpoint: .firebaseProxyProd,
-        location: "us-central1"
-      )
-    )
-    XCTAssertEqual(vertex.apiConfig.service.endpoint, .firebaseProxyProd)
-    XCTAssertEqual(vertex.apiConfig.version, .v1beta)
-  }
-
-  /// Tests that a vertex instance can be created properly using the default Firebase app and custom
-  /// location.
-  @available(*, deprecated)
-  func testVertexInstanceCreation_defaultApp_customLocation() throws {
-    let vertex = FirebaseAI.firebaseAI(backend: .vertexAI(location: location))
-
-    XCTAssertNotNil(vertex)
-    XCTAssertEqual(vertex.firebaseInfo.projectID, VertexComponentTests.projectID)
-    XCTAssertEqual(vertex.firebaseInfo.apiKey, VertexComponentTests.apiKey)
-    XCTAssertEqual(
-      vertex.apiConfig.service, .enterprise(endpoint: .firebaseProxyProd, location: location)
-    )
-    XCTAssertEqual(vertex.apiConfig.service.endpoint, .firebaseProxyProd)
-    XCTAssertEqual(vertex.apiConfig.version, .v1beta)
-  }
-
-  /// Tests that a vertex instance can be created properly.
-  @available(*, deprecated)
-  func testVertexInstanceCreation_customApp() throws {
-    let vertex = FirebaseAI.firebaseAI(
-      app: VertexComponentTests.app,
-      backend: .vertexAI(location: location)
-    )
-
-    XCTAssertNotNil(vertex)
-    XCTAssertEqual(vertex.firebaseInfo.projectID, VertexComponentTests.projectID)
-    XCTAssertEqual(vertex.firebaseInfo.apiKey, VertexComponentTests.apiKey)
-    XCTAssertEqual(
-      vertex.apiConfig.service, .enterprise(endpoint: .firebaseProxyProd, location: location)
-    )
-    XCTAssertEqual(vertex.apiConfig.service.endpoint, .firebaseProxyProd)
-    XCTAssertEqual(vertex.apiConfig.version, .v1beta)
-  }
-
   /// Tests that an enterprise instance can be created properly using the default Firebase app.
   func testEnterpriseInstanceCreation_defaultApp() throws {
     let vertex = FirebaseAI.firebaseAI(backend: .enterprise())
@@ -298,41 +246,6 @@ class VertexComponentTests: XCTestCase {
     let modelResourceName = vertex.modelResourceName(modelName: model)
 
     XCTAssertEqual(modelResourceName, "projects/\(projectID)/models/\(model)")
-  }
-
-  @available(*, deprecated)
-  func testGenerativeModel_deprecatedVertexAI_defaultLocation() async throws {
-    let app = try XCTUnwrap(VertexComponentTests.app)
-    let vertex = FirebaseAI.firebaseAI(app: app, backend: .vertexAI())
-    let modelResourceName = vertex.modelResourceName(modelName: modelName)
-    let expectedSystemInstruction = ModelContent(role: nil, parts: systemInstruction.parts)
-
-    let generativeModel = vertex.generativeModel(
-      modelName: modelName, systemInstruction: systemInstruction
-    )
-
-    XCTAssertEqual(generativeModel.modelResourceName, modelResourceName)
-    XCTAssertEqual(generativeModel.systemInstruction, expectedSystemInstruction)
-    XCTAssertEqual(generativeModel.apiConfig, FirebaseAI.defaultEnterpriseAPIConfig)
-  }
-
-  @available(*, deprecated)
-  func testGenerativeModel_deprecatedVertexAI_customLocation() async throws {
-    let app = try XCTUnwrap(VertexComponentTests.app)
-    let vertex = FirebaseAI.firebaseAI(app: app, backend: .vertexAI(location: location))
-    let modelResourceName = vertex.modelResourceName(modelName: modelName)
-    let expectedAPIConfig = APIConfig(
-      service: .enterprise(endpoint: .firebaseProxyProd, location: location), version: .v1beta
-    )
-    let expectedSystemInstruction = ModelContent(role: nil, parts: systemInstruction.parts)
-
-    let generativeModel = vertex.generativeModel(
-      modelName: modelName, systemInstruction: systemInstruction
-    )
-
-    XCTAssertEqual(generativeModel.modelResourceName, modelResourceName)
-    XCTAssertEqual(generativeModel.systemInstruction, expectedSystemInstruction)
-    XCTAssertEqual(generativeModel.apiConfig, expectedAPIConfig)
   }
 
   @available(*, deprecated)
