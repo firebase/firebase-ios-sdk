@@ -466,7 +466,7 @@ struct GenerateContentIntegrationTests {
     do {
       let response = try await model.generateContent(prompt)
 
-      // enterprise gemini3_1_FlashImage doesn't throw.
+      // The Gemini Enterprise API's gemini3_1_FlashImage doesn't throw.
       let candidate = try #require(response.candidates.first)
       #expect(candidate.finishReason == .stop)
     } catch {

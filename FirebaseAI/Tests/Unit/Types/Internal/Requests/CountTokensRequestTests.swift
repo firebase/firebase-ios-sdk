@@ -22,7 +22,7 @@ final class CountTokensRequestTests: XCTestCase {
 
   let modelResourceName = "models/test-model-name"
   let textPart = TextPart("test-prompt")
-  let vertexAPIConfig = FirebaseAI.defaultVertexAIAPIConfig
+  let vertexAPIConfig = FirebaseAI.defaultEnterpriseAPIConfig
   let developerAPIConfig = APIConfig(
     service: .googleAI(endpoint: .firebaseProxyProd),
     version: .v1beta

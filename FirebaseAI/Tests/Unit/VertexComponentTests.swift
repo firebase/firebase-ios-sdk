@@ -313,7 +313,7 @@ class VertexComponentTests: XCTestCase {
 
     XCTAssertEqual(generativeModel.modelResourceName, modelResourceName)
     XCTAssertEqual(generativeModel.systemInstruction, expectedSystemInstruction)
-    XCTAssertEqual(generativeModel.apiConfig, FirebaseAI.defaultVertexAIAPIConfig)
+    XCTAssertEqual(generativeModel.apiConfig, FirebaseAI.defaultEnterpriseAPIConfig)
   }
 
   @available(*, deprecated)
