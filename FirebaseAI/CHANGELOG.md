@@ -273,7 +273,7 @@
   - If you're new to this library, visit the
     [getting started guide](https://firebase.google.com/docs/ai-logic/get-started).
   - If you used the preview version of the library, visit the
-    [migration guide](https://firebase.google.com/docs/ai-logic/migrate-to-ga)
+    [migration guide](https://firebase.google.com/docs/ai-logic/migrate-from-preview)
     to learn about some important updates.
 - [changed] **Breaking Change**: The `HarmCategory` enum is no longer nested
   inside the `SafetySetting` struct and the `unspecified` case has been
@@ -374,7 +374,7 @@
   instead of the `Any` type. (#13575)
 - [added] Added support for specifying a JSON `responseSchema` in
   `GenerationConfig`; see
-  [control generated output](https://firebase.google.com/docs/ai-logic/structured-output)
+  [control generated output](https://firebase.google.com/docs/ai-logic/generate-structured-output)
   for more details. (#13576)
 
 # 10.29.0
