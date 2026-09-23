@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if canImport(Combine) && FirebaseFirestore
+#if canImport(Combine) && swift(>=5.0)
 
   import Foundation
 
   // Make this class discoverable from Objective-C. Don't instantiate directly.
   @objc(FIRCombineFirestoreLibrary) private class __CombineFirestoreLibrary: NSObject {}
 
-#endif // canImport(Combine) && FirebaseFirestore
+#endif
