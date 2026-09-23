@@ -35,7 +35,8 @@ Pod::Spec.new do |s|
     }
 
     s.pod_target_xcconfig = {
-      'DEFINES_MODULE' => 'YES'
+      'DEFINES_MODULE' => 'YES',
+      'PRODUCT_BUNDLE_IDENTIFIER' => 'com.google.firebase.FirebaseCoreExtension'
     }
 
     s.dependency 'FirebaseCore', '~> 13.0.0'

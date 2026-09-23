@@ -24,7 +24,7 @@ import Foundation
 /// plain text message, a request to invoke a client-side function or the output
 /// from invoking a client-side function.
 ///
-/// ### Gemini Enterprise Agent Platform
+/// ### Gemini Enterprise API
 ///
 /// Type: `HistoryPart`
 ///

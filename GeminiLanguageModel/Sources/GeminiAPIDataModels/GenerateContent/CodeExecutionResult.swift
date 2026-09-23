@@ -23,7 +23,7 @@ import Foundation
 /// An element in the history that represents the result of executing the
 /// `ExecutableCode` and always follows a `part` containing the `ExecutableCode`.
 ///
-/// ### Gemini Enterprise Agent Platform
+/// ### Gemini Enterprise API
 ///
 /// Type: `GoogleCloudAiplatformV1beta1CodeExecutionResult`
 ///
@@ -39,7 +39,7 @@ package struct CodeExecutionResult: Codable, Sendable, Equatable, Hashable {
   /// String representation of a Gemini CodeExecutionResult.Outcome enum
   /// http://google3/google/ai/generativelanguage/v1main/content.proto?q=symbol:%5CbOutcome%5Cb
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Required. Outcome of the code execution.
   package let outcome: String
@@ -51,7 +51,7 @@ package struct CodeExecutionResult: Codable, Sendable, Equatable, Hashable {
   /// Optional. Contains stdout when code execution is successful; stderr or other
   /// description otherwise.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. Contains stdout when code execution is successful, stderr or other
   /// description otherwise.
@@ -64,9 +64,9 @@ package struct CodeExecutionResult: Codable, Sendable, Equatable, Hashable {
   /// Optional. The identifier of the `ExecutableCode` part this result is for.
   /// Only populated if the corresponding `ExecutableCode` has an id.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
-  /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
+  /// > Important: This property is not supported in the Gemini Enterprise API.
   package let id: String?
 
   /// Creates a new `CodeExecutionResult`.

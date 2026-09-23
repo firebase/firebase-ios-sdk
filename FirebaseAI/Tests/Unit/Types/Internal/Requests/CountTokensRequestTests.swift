@@ -22,7 +22,7 @@ final class CountTokensRequestTests: XCTestCase {
 
   let modelResourceName = "models/test-model-name"
   let textPart = TextPart("test-prompt")
-  let vertexAPIConfig = FirebaseAI.defaultVertexAIAPIConfig
+  let vertexAPIConfig = FirebaseAI.defaultEnterpriseAPIConfig
   let developerAPIConfig = APIConfig(
     service: .googleAI(endpoint: .firebaseProxyProd),
     version: .v1beta
@@ -37,7 +37,7 @@ final class CountTokensRequestTests: XCTestCase {
 
   // MARK: CountTokensRequest Encoding
 
-  func testEncodeCountTokensRequest_agentPlatform_minimal() throws {
+  func testEncodeCountTokensRequest_enterprise_minimal() throws {
     let content = ModelContent(role: nil, parts: [textPart])
     let generateContentRequest = GenerateContentRequest(
       model: modelResourceName,

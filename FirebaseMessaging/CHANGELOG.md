@@ -1,4 +1,6 @@
-# Unreleased
+# 13.0.0
+- [fixed] Fixed an issue where deep links were not correctly routed in apps utilizing scene
+  delegates. (#15987)
 - [changed] **Breaking Change**: Scene delegates take priority over app delegates for
   automatic deep link routing. (#15987)
 - [fixed] Fixed an issue where deep links were not correctly routed in apps utilizing scene

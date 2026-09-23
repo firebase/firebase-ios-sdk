@@ -15,7 +15,7 @@
 import Foundation
 
 /// Configuration for the response output format.
-/// Handles single object serialization for Gemini Developer API and array-wrapped serialization for Gemini Enterprise Agent Platform (Vertex AI).
+/// Handles single object serialization for Gemini Developer API and array-wrapped serialization for Gemini Enterprise API (Vertex AI).
 package struct ResponseFormatConfig: Codable, Sendable, Equatable, Hashable {
   /// Optional. Text output format configuration.
   package var text: TextResponseFormat?
@@ -104,6 +104,6 @@ package struct ResponseFormatConfig: Codable, Sendable, Equatable, Hashable {
   }
 
   /// Key to put in encoder.userInfo to control whether to encode this type as an array of objects
-  /// (Gemini Enterprise Agent Platform / Vertex AI) or as a single flat object (Gemini Developer API).
+  /// (Gemini Enterprise API / Vertex AI) or as a single flat object (Gemini Developer API).
   package static let useArrayFormatKey = CodingUserInfoKey(rawValue: "useArrayFormatKey")!
 }

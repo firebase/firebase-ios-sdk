@@ -44,10 +44,10 @@ struct IntegrationTestingBackendTests {
     let dev = IntegrationTestingBackend.developerAPI
     #expect(try dev.modelResource(modelID: "test-model").urlResourceName == "models/test-model")
 
-    let agentPlatform =
-      IntegrationTestingBackend.firebaseAILogicAgentPlatform(location: "us-central1")
+    let enterprise =
+      IntegrationTestingBackend.firebaseAILogicEnterprise(location: "us-central1")
     if hasFirebaseAILogicCredentials {
-      let resource = try agentPlatform.modelResource(modelID: "test-model")
+      let resource = try enterprise.modelResource(modelID: "test-model")
       let expectedSubpath = "locations/us-central1/publishers/google/models/test-model"
       #expect(resource.urlResourceName.contains(expectedSubpath))
     }

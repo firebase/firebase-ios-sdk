@@ -22,7 +22,7 @@ extension FunctionCallingConfig {
   /// Optional. Specifies the mode in which function calling should execute. If
   /// unspecified, the default value will be set to AUTO.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. Function calling mode.
   package enum Mode: Codable, Sendable, Equatable, Hashable {

@@ -41,6 +41,10 @@ Pod::Spec.new do |s|
 
   s.dependency 'FirebaseAuth', '> 12.0'
 
+  s.pod_target_xcconfig = {
+    'PRODUCT_BUNDLE_IDENTIFIER' => 'com.google.firebase.FirebaseAuthTestingSupport'
+  }
+
   s.test_spec 'unit' do |unit_tests|
     unit_tests.scheme = { :code_coverage => true }
     unit_tests.platforms = {:ios => ios_deployment_target, :osx => osx_deployment_target, :tvos => tvos_deployment_target}

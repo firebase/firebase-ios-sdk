@@ -23,7 +23,7 @@ extension Candidate {
   ///
   /// If empty, the model has not stopped generating tokens.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Output only. The reason why the model stopped generating tokens. If empty,
   /// the model has not stopped generating.

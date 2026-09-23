@@ -22,7 +22,7 @@ import Foundation
 ///
 /// Tool to support URL context retrieval.
 ///
-/// ### Gemini Enterprise Agent Platform
+/// ### Gemini Enterprise API
 ///
 /// Type: `GoogleCloudAiplatformV1beta1UrlContext`
 ///

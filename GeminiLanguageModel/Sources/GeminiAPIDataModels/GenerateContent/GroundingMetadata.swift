@@ -22,7 +22,7 @@ import Foundation
 ///
 /// Metadata returned to client when grounding is enabled.
 ///
-/// ### Gemini Enterprise Agent Platform
+/// ### Gemini Enterprise API
 ///
 /// Type: `GoogleCloudAiplatformV1beta1GroundingMetadata`
 ///
@@ -37,7 +37,7 @@ package struct GroundingMetadata: Codable, Sendable, Equatable, Hashable {
   ///
   /// Optional. Google search entry for the following-up web searches.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. A web search entry point that can be used to display search
   /// results. This field is populated only when the grounding source is Google
@@ -52,7 +52,7 @@ package struct GroundingMetadata: Codable, Sendable, Equatable, Hashable {
   /// When streaming, this only contains the grounding chunks that have not been
   /// included in the grounding metadata of previous responses.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// A list of supporting references retrieved from the grounding source.
   /// This field is populated when the grounding source is Google Search,
@@ -65,7 +65,7 @@ package struct GroundingMetadata: Codable, Sendable, Equatable, Hashable {
   ///
   /// List of grounding support.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. A list of grounding supports that connect the generated
   /// content to the grounding chunks. This field is populated when the grounding
@@ -78,7 +78,7 @@ package struct GroundingMetadata: Codable, Sendable, Equatable, Hashable {
   ///
   /// Metadata related to retrieval in the grounding flow.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. Output only. Metadata related to the retrieval grounding source.
   package let retrievalMetadata: RetrievalMetadata?
@@ -89,7 +89,7 @@ package struct GroundingMetadata: Codable, Sendable, Equatable, Hashable {
   ///
   /// Web search queries for the following-up web search.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. The web search queries that were used to generate the content.
   /// This field is populated only when the grounding source is Google Search.
@@ -101,7 +101,7 @@ package struct GroundingMetadata: Codable, Sendable, Equatable, Hashable {
   ///
   /// Image search queries used for grounding.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. The image search queries that were used to generate the content.
   /// This field is populated only when the grounding source is Google Search
@@ -116,7 +116,7 @@ package struct GroundingMetadata: Codable, Sendable, Equatable, Hashable {
   /// with the PlacesContextElement widget in order to render contextual data.
   /// Only populated in the case that grounding with Google Maps is enabled.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. Output only. Deprecated: The Google Maps contextual widget behavior in Grounding with
   /// Google Maps is being deprecated; this field is planned for removal and will
@@ -133,7 +133,7 @@ package struct GroundingMetadata: Codable, Sendable, Equatable, Hashable {
   ///
   /// > Important: This property is not supported in the Gemini Developer API.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. The queries that were executed by the retrieval tools.
   /// This field is populated only when the grounding source is a retrieval tool,
@@ -146,7 +146,7 @@ package struct GroundingMetadata: Codable, Sendable, Equatable, Hashable {
   ///
   /// > Important: This property is not supported in the Gemini Developer API.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. Output only. A list of URIs that can be used to flag a place or review for
   /// inappropriate content. This field is populated only when the grounding
@@ -163,8 +163,8 @@ package struct GroundingMetadata: Codable, Sendable, Equatable, Hashable {
   ///   - webSearchQueries: Web search queries for the following-up web search. (behavior varies by backend). For more details, see ``webSearchQueries``.
   ///   - imageSearchQueries: Image search queries used for grounding. (behavior varies by backend). For more details, see ``imageSearchQueries``.
   ///   - googleMapsWidgetContextToken: Optional. Resource name of the Google Maps widget context token that can be used (behavior varies by backend). For more details, see ``googleMapsWidgetContextToken``.
-  ///   - retrievalQueries: Optional. The queries that were executed by the retrieval tools. (Gemini Enterprise Agent Platform only). For more details, see ``retrievalQueries``.
-  ///   - sourceFlaggingUris: Optional. Output only. A list of URIs that can be used to flag a place or review for (Gemini Enterprise Agent Platform only). For more details, see ``sourceFlaggingUris``.
+  ///   - retrievalQueries: Optional. The queries that were executed by the retrieval tools. (Gemini Enterprise API only). For more details, see ``retrievalQueries``.
+  ///   - sourceFlaggingUris: Optional. Output only. A list of URIs that can be used to flag a place or review for (Gemini Enterprise API only). For more details, see ``sourceFlaggingUris``.
   package init(
     searchEntryPoint: SearchEntryPoint? = nil,
     groundingChunks: [GroundingChunk]? = nil,

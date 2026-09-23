@@ -26,7 +26,7 @@ import Foundation
 /// See also `ExecutableCode` and `CodeExecutionResult` which are only generated
 /// when using this tool.
 ///
-/// ### Gemini Enterprise Agent Platform
+/// ### Gemini Enterprise API
 ///
 /// Type: `GoogleCloudAiplatformV1beta1ToolCodeExecution`
 ///

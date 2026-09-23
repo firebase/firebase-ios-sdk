@@ -1,4 +1,4 @@
-# Unreleased
+# Firebase 13.0.0
 - [changed] **Breaking change**: Firebase's minimum supported versions have
   updated for the following platforms:
     - | Platform  | Firebase 13 |
@@ -19,6 +19,8 @@
   and framework specific umbrella headers. (#16540)
 - [changed] **Breaking change**: The minimum supported version of
   `GTMSessionFetcher` is now `4.0.0` (support for `3.x` has been dropped).
+- [changed] **Breaking change**: Bundle ID prefixes in the zip distribution are now
+  properly scoped to `com.google.firebase`, instead of `org.cocoapods.`. (#16678)
 
 # Firebase 12.19.1
 - [fixed] Fixed the zip distribution artifact naming on the GitHub release

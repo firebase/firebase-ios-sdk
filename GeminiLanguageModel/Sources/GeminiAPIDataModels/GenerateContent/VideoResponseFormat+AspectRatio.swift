@@ -21,7 +21,7 @@ extension VideoResponseFormat {
   ///
   /// > Important: This property is not supported in the Gemini Developer API.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// The aspect ratio for the video output.
   package enum AspectRatio: Codable, Sendable, Equatable, Hashable {

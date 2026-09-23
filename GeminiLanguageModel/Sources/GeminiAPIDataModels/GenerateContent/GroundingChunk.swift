@@ -24,7 +24,7 @@ import Foundation
 /// the model's response. It can be a chunk from the web, a retrieved context
 /// from a file, or information from Google Maps.
 ///
-/// ### Gemini Enterprise Agent Platform
+/// ### Gemini Enterprise API
 ///
 /// Type: `GoogleCloudAiplatformV1beta1GroundingChunk`
 ///
@@ -40,7 +40,7 @@ package struct GroundingChunk: Codable, Sendable, Equatable, Hashable {
   ///
   /// Grounding chunk from the web.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// A grounding chunk from a web page, typically from Google
   /// Search. See the `Web` message for details.
@@ -52,7 +52,7 @@ package struct GroundingChunk: Codable, Sendable, Equatable, Hashable {
   ///
   /// Optional. Grounding chunk from image search.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// A grounding chunk from an image search result. See the `Image` message
   /// for details.
@@ -64,7 +64,7 @@ package struct GroundingChunk: Codable, Sendable, Equatable, Hashable {
   ///
   /// Optional. Grounding chunk from Google Maps.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// A grounding chunk from Google Maps. See the `Maps` message
   /// for details.

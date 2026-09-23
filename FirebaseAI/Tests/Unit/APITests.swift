@@ -48,6 +48,8 @@ final class APITests: XCTestCase {
     let _ = FirebaseAI.firebaseAI(backend: .vertexAI(location: "my-location"))
     let _ = FirebaseAI.firebaseAI(backend: .agentPlatform())
     let _ = FirebaseAI.firebaseAI(backend: .agentPlatform(location: "my-location"))
+    let _ = FirebaseAI.firebaseAI(backend: .enterprise())
+    let _ = FirebaseAI.firebaseAI(backend: .enterprise(location: "my-location"))
 
     // Instantiate Firebase AI SDK - Custom App
     let _ = FirebaseAI.firebaseAI(app: app!)
@@ -56,6 +58,8 @@ final class APITests: XCTestCase {
     let _ = FirebaseAI.firebaseAI(app: app!, backend: .vertexAI(location: "my-location"))
     let _ = FirebaseAI.firebaseAI(app: app!, backend: .agentPlatform())
     let _ = FirebaseAI.firebaseAI(app: app!, backend: .agentPlatform(location: "my-location"))
+    let _ = FirebaseAI.firebaseAI(app: app!, backend: .enterprise())
+    let _ = FirebaseAI.firebaseAI(app: app!, backend: .enterprise(location: "my-location"))
 
     // Permutations without optional arguments.
 
