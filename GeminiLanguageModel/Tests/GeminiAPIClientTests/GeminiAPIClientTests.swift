@@ -817,24 +817,24 @@ struct GeminiAPIClientTests {
 
   @Test
   @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
-  func streamGenerateContentAgentPlatformResourcePath() async throws {
-    let agentPlatformResource = ModelResource(
+  func streamGenerateContentEnterpriseResourcePath() async throws {
+    let enterpriseResource = ModelResource(
       modelID: "gemini-3.5-flash-lite",
       urlResourceName:
         "projects/my-project/locations/global/publishers/google/models/gemini-3.5-flash-lite",
       payloadResourceName: "publishers/google/models/gemini-3.5-flash-lite"
     )
-    let agentPlatformEndpoint = EndpointConfiguration(
+    let enterpriseEndpoint = EndpointConfiguration(
       host: "generativelanguage.googleapis.com",
       apiVersion: "v1beta1/\(testID)"
     )
     let client = makeClient(
-      modelResource: agentPlatformResource,
-      endpointConfiguration: agentPlatformEndpoint
+      modelResource: enterpriseResource,
+      endpointConfiguration: enterpriseEndpoint
     )
     let expectedURL = try makeExpectedURL(
-      modelResource: agentPlatformResource,
-      endpointConfiguration: agentPlatformEndpoint
+      modelResource: enterpriseResource,
+      endpointConfiguration: enterpriseEndpoint
     )
     let httpResponse = try makeResponse(
       url: expectedURL,
@@ -918,24 +918,24 @@ struct GeminiAPIClientTests {
 
   @Test
   @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
-  func countTokensAgentPlatformResourcePath() async throws {
-    let agentPlatformResource = ModelResource(
+  func countTokensEnterpriseResourcePath() async throws {
+    let enterpriseResource = ModelResource(
       modelID: "gemini-3.5-flash-lite",
       urlResourceName:
         "projects/my-project/locations/global/publishers/google/models/gemini-3.5-flash-lite",
       payloadResourceName: "publishers/google/models/gemini-3.5-flash-lite"
     )
-    let agentPlatformEndpoint = EndpointConfiguration(
+    let enterpriseEndpoint = EndpointConfiguration(
       host: "generativelanguage.googleapis.com",
       apiVersion: "v1beta1/\(testID)"
     )
     let client = makeClient(
-      modelResource: agentPlatformResource,
-      endpointConfiguration: agentPlatformEndpoint
+      modelResource: enterpriseResource,
+      endpointConfiguration: enterpriseEndpoint
     )
     let expectedURL = try makeExpectedURL(
-      modelResource: agentPlatformResource,
-      endpointConfiguration: agentPlatformEndpoint,
+      modelResource: enterpriseResource,
+      endpointConfiguration: enterpriseEndpoint,
       action: "countTokens",
       query: nil
     )

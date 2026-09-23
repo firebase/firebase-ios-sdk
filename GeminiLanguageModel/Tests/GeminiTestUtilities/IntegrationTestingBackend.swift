@@ -33,18 +33,18 @@
 
     /// Firebase AI Logic proxying to the Gemini Enterprise Agent Platform (via
     /// `firebasevertexai.googleapis.com`).
-    case firebaseAILogicAgentPlatform(location: String)
+    case firebaseAILogicEnterprise(location: String)
 
     /// Convenience instance targeting the global Gemini Enterprise Agent Platform.
-    package static var firebaseAILogicAgentPlatform: IntegrationTestingBackend {
-      .firebaseAILogicAgentPlatform(location: "global")
+    package static var firebaseAILogicEnterprise: IntegrationTestingBackend {
+      .firebaseAILogicEnterprise(location: "global")
     }
 
     /// All canonical backend configurations for parameterized testing.
     package static let allCases: [IntegrationTestingBackend] = [
       .developerAPI,
       .firebaseAILogicDeveloperAPI,
-      .firebaseAILogicAgentPlatform(location: "global"),
+      .firebaseAILogicEnterprise(location: "global"),
     ]
 
     package var description: String {
@@ -53,7 +53,7 @@
         return "Developer API"
       case .firebaseAILogicDeveloperAPI:
         return "Firebase AI Logic (Developer API)"
-      case .firebaseAILogicAgentPlatform(let location):
+      case .firebaseAILogicEnterprise(let location):
         return "Firebase AI Logic (Agent Platform, \(location))"
       }
     }
@@ -68,7 +68,7 @@
       case .developerAPI:
         return environment.hasGeminiAPIKey
 
-      case .firebaseAILogicDeveloperAPI, .firebaseAILogicAgentPlatform:
+      case .firebaseAILogicDeveloperAPI, .firebaseAILogicEnterprise:
         return environment.hasFirebaseAILogicCredentials
       }
     }
@@ -89,7 +89,7 @@
       case .developerAPI:
         return .geminiDeveloperAPI
 
-      case .firebaseAILogicDeveloperAPI, .firebaseAILogicAgentPlatform:
+      case .firebaseAILogicDeveloperAPI, .firebaseAILogicEnterprise:
         return .firebaseAILogic
       }
     }
@@ -114,7 +114,7 @@
           payloadResourceName: "models/\(modelID)"
         )
 
-      case .firebaseAILogicAgentPlatform(let location):
+      case .firebaseAILogicEnterprise(let location):
         let projectID = try resolveProjectID()
         let resourcePath =
           "projects/\(projectID)/locations/\(location)/publishers/google/models/\(modelID)"
@@ -138,7 +138,7 @@
         }
         return nil
 
-      case .firebaseAILogicDeveloperAPI, .firebaseAILogicAgentPlatform:
+      case .firebaseAILogicDeveloperAPI, .firebaseAILogicEnterprise:
         let projectID = try resolveProjectID()
         guard let appID = firebaseAppID else {
           throw IntegrationBackendError.missingCredential("firebaseAppID")

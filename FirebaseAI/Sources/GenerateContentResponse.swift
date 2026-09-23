@@ -424,7 +424,7 @@ public struct PromptFeedback: Sendable {
 /// > Important: If using Grounding with Google Search, you are required to comply with the
 /// "Grounding with Google Search" usage requirements for your chosen API provider:
 /// [Gemini Developer API](https://ai.google.dev/gemini-api/terms#grounding-with-google-search)
-/// or the Agent Platform Gemini API (see
+/// or the Gemini Enterprise API (see
 /// [Service Terms](https://cloud.google.com/terms/service-terms)
 /// section within the Service Specific Terms).
 public struct GroundingMetadata: Sendable, Equatable, Hashable {
@@ -467,7 +467,7 @@ public struct GroundingMetadata: Sendable, Equatable, Hashable {
     public let title: String?
     /// The domain of the original URI from which the content was retrieved.
     ///
-    /// This field is only populated when using the Agent Platform Gemini API.
+    /// This field is only populated when using the Gemini Enterprise API.
     public let domain: String?
   }
 
@@ -671,7 +671,7 @@ extension Candidate: Decodable {
 
 extension CitationMetadata: Decodable {
   enum CodingKeys: CodingKey {
-    case citations // Agent Platform Gemini API
+    case citations // Gemini Enterprise API
     case citationSources // Gemini Developer API
   }
 

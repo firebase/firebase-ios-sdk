@@ -1,4 +1,5 @@
 # Unreleased
+- [changed] Deprecated `Backend.agentPlatform(location:)` in favor of `Backend.enterprise(location:)` and updated documentation to reflect the rename from Agent Platform Gemini API to Gemini Enterprise API.
 - [changed] **Breaking Change**: Update imports to `import FirebaseAILogic`
   and use the `FirebaseAILogic` Swift Package dependency instead of
   `FirebaseAI`, which has now been removed. See the
