@@ -101,31 +101,23 @@ static NSString *const kFIRMessagingTokenKeychainId = @"com.google.iid-tokens";
   FIRMessagingTokenInfo *tokenInfo = nil;
   if (item) {
     NSError *error = nil;
-    @try {
-      NSKeyedUnarchiver *unarchiver = [[NSKeyedUnarchiver alloc] initForReadingFromData:item
-                                                                                  error:&error];
-      if (unarchiver) {
-        unarchiver.requiresSecureCoding = YES;
-        [unarchiver setClass:[FIRMessagingTokenInfo class] forClassName:@"FIRInstanceIDTokenInfo"];
-        tokenInfo = [unarchiver decodeObjectOfClass:[FIRMessagingTokenInfo class]
-                                             forKey:NSKeyedArchiveRootObjectKey];
-        if (!tokenInfo && unarchiver.error) {
-          FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTokenStoreExceptionUnarchivingTokenInfo,
-                                  @"Failed to decode token info from Keychain item; error: %@",
-                                  unarchiver.error);
-        }
-        [unarchiver finishDecoding];
-      } else {
+    NSKeyedUnarchiver *unarchiver = [[NSKeyedUnarchiver alloc] initForReadingFromData:item
+                                                                                error:&error];
+    if (unarchiver) {
+      unarchiver.requiresSecureCoding = YES;
+      [unarchiver setClass:[FIRMessagingTokenInfo class] forClassName:@"FIRInstanceIDTokenInfo"];
+      tokenInfo = [unarchiver decodeObjectOfClass:[FIRMessagingTokenInfo class]
+                                           forKey:NSKeyedArchiveRootObjectKey];
+      if (!tokenInfo && unarchiver.error) {
         FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTokenStoreExceptionUnarchivingTokenInfo,
-                                @"Unable to parse token info from Keychain item; error: %@", error);
-        tokenInfo = nil;
+                                @"Failed to decode token info from Keychain item; error: %@",
+                                unarchiver.error);
       }
-    } @catch (NSException *exception) {
+      [unarchiver finishDecoding];
+    } else {
       FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTokenStoreExceptionUnarchivingTokenInfo,
-                              @"Unable to parse token info from Keychain item; item was in an "
-                              @"invalid format");
+                              @"Unable to parse token info from Keychain item; error: %@", error);
       tokenInfo = nil;
-    } @finally {
     }
   }
   return tokenInfo;
@@ -139,14 +131,14 @@ static NSString *const kFIRMessagingTokenKeychainId = @"com.google.iid-tokens";
               handler:(void (^)(NSError *))handler {  // Keep the cachetime up-to-date.
   tokenInfo.cacheTime = [NSDate date];
   // Always write to the Keychain, so that the cacheTime is up-to-date.
-  NSData *tokenInfoData;
-  [NSKeyedArchiver setClassName:@"FIRInstanceIDTokenInfo" forClass:[FIRMessagingTokenInfo class]];
-  NSError *error = nil;
-  tokenInfoData = [NSKeyedArchiver archivedDataWithRootObject:tokenInfo
-                                        requiringSecureCoding:YES
-                                                        error:&error];
-  if (!tokenInfoData) {
-    FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTokenStoreErrorArchivingTokenInfo,
+  NSKeyedArchiver *archiver = [[NSKeyedArchiver alloc] initRequiringSecureCoding:YES];
+  [archiver setClassName:@"FIRInstanceIDTokenInfo" forClass:[FIRMessagingTokenInfo class]];
+  [archiver encodeObject:tokenInfo forKey:NSKeyedArchiveRootObjectKey];
+  [archiver finishEncoding];
+  NSData *tokenInfoData = archiver.encodedData;
+  NSError *error = archiver.error;
+  if (!tokenInfoData || error) {
+    FIRMessagingLoggerError(kFIRMessagingMessageCodeTokenStoreErrorArchivingTokenInfo,
                             @"Failed to securely archive token info: %@", error);
     if (handler) {
       // The keychain write below delivers its handler on the main queue. Match that here so a
@@ -166,14 +158,14 @@ static NSString *const kFIRMessagingTokenKeychainId = @"com.google.iid-tokens";
 - (void)saveTokenInfoInCache:(FIRMessagingTokenInfo *)tokenInfo {
   tokenInfo.cacheTime = [NSDate date];
   // Always write to the Keychain, so that the cacheTime is up-to-date.
-  NSData *tokenInfoData;
-  [NSKeyedArchiver setClassName:@"FIRInstanceIDTokenInfo" forClass:[FIRMessagingTokenInfo class]];
-  NSError *error = nil;
-  tokenInfoData = [NSKeyedArchiver archivedDataWithRootObject:tokenInfo
-                                        requiringSecureCoding:YES
-                                                        error:&error];
-  if (!tokenInfoData) {
-    FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTokenStoreErrorArchivingTokenInfo,
+  NSKeyedArchiver *archiver = [[NSKeyedArchiver alloc] initRequiringSecureCoding:YES];
+  [archiver setClassName:@"FIRInstanceIDTokenInfo" forClass:[FIRMessagingTokenInfo class]];
+  [archiver encodeObject:tokenInfo forKey:NSKeyedArchiveRootObjectKey];
+  [archiver finishEncoding];
+  NSData *tokenInfoData = archiver.encodedData;
+  NSError *error = archiver.error;
+  if (!tokenInfoData || error) {
+    FIRMessagingLoggerError(kFIRMessagingMessageCodeTokenStoreErrorArchivingTokenInfo,
                             @"Failed to securely archive token info for cache: %@", error);
     return;
   }

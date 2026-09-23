@@ -90,4 +90,26 @@
   XCTAssertEqual(info.sandbox, restoredInfo.sandbox);
 }
 
+// Test that archiving a FIRMessagingAPNSInfo object constructed with an NSMutableData token
+// and restoring it from the archive succeeds under secure coding.
+- (void)testAPNSInfoEncodingAndDecodingWithMutableData {
+  NSMutableData *mutableToken =
+      [NSMutableData dataWithData:[@"mutableTokenData" dataUsingEncoding:NSUTF8StringEncoding]];
+  FIRMessagingAPNSInfo *info = [[FIRMessagingAPNSInfo alloc] initWithDeviceToken:mutableToken
+                                                                       isSandbox:YES];
+  NSError *error = nil;
+  NSData *archive = [NSKeyedArchiver archivedDataWithRootObject:info
+                                          requiringSecureCoding:YES
+                                                          error:&error];
+  XCTAssertNil(error);
+  NSSet *classes = [[NSSet alloc]
+      initWithArray:@[ FIRMessagingAPNSInfo.class, NSData.class, NSMutableData.class ]];
+  FIRMessagingAPNSInfo *restoredInfo = [NSKeyedUnarchiver unarchivedObjectOfClasses:classes
+                                                                           fromData:archive
+                                                                              error:&error];
+  XCTAssertNil(error);
+  XCTAssertEqualObjects(info.deviceToken, restoredInfo.deviceToken);
+  XCTAssertEqual(info.sandbox, restoredInfo.sandbox);
+}
+
 @end
