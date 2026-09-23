@@ -1,4 +1,9 @@
-# Unreleased
+# 13.0.0
+- [changed] Deprecated `Backend.agentPlatform(location:)` in favor of
+  `Backend.enterprise(location:)` to reflect the renaming of the Agent Platform
+  Gemini API to the Gemini Enterprise API.
+  Note: No functionality or default values have changed. The new method can be
+  used identically, for example: `FirebaseAI.firebaseAI(backend: .enterprise())`.
 - [changed] **Breaking Change**: Update imports to `import FirebaseAILogic`
   and use the `FirebaseAILogic` Swift Package dependency instead of
   `FirebaseAI`, which has now been removed. See the
@@ -273,7 +278,7 @@
   - If you're new to this library, visit the
     [getting started guide](https://firebase.google.com/docs/ai-logic/get-started).
   - If you used the preview version of the library, visit the
-    [migration guide](https://firebase.google.com/docs/ai-logic/migrate-to-ga)
+    [migration guide](https://firebase.google.com/docs/ai-logic/migrate-from-preview)
     to learn about some important updates.
 - [changed] **Breaking Change**: The `HarmCategory` enum is no longer nested
   inside the `SafetySetting` struct and the `unspecified` case has been
@@ -374,7 +379,7 @@
   instead of the `Any` type. (#13575)
 - [added] Added support for specifying a JSON `responseSchema` in
   `GenerationConfig`; see
-  [control generated output](https://firebase.google.com/docs/ai-logic/structured-output)
+  [control generated output](https://firebase.google.com/docs/ai-logic/generate-structured-output)
   for more details. (#13576)
 
 # 10.29.0

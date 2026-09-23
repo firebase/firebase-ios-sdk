@@ -25,7 +25,7 @@ import Foundation
 /// specified otherwise, this object must conform to the
 /// WGS84 standard. Values must be within normalized ranges.
 ///
-/// ### Gemini Enterprise Agent Platform
+/// ### Gemini Enterprise API
 ///
 /// Type: `LatLng`
 ///

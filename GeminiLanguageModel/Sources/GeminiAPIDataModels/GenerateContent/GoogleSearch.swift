@@ -23,7 +23,7 @@ import Foundation
 /// GoogleSearch tool type.
 /// Tool to support Google Search in Model. Powered by Google.
 ///
-/// ### Gemini Enterprise Agent Platform
+/// ### Gemini Enterprise API
 ///
 /// Type: `GoogleCloudAiplatformV1beta1ToolGoogleSearch`
 ///
@@ -38,9 +38,9 @@ package struct GoogleSearch: Codable, Sendable, Equatable, Hashable {
   /// If customers set a start time, they must set an end time (and vice
   /// versa).
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
-  /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
+  /// > Important: This property is not supported in the Gemini Enterprise API.
   package let timeRangeFilter: Interval?
 
   /// Optional. The set of search types to enable. If not set, web search is
@@ -53,7 +53,7 @@ package struct GoogleSearch: Codable, Sendable, Equatable, Hashable {
   ///
   /// > Important: This property is not supported in the Gemini Developer API.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. List of domains to be excluded from the search results.
   /// The default limit is 2000 domains.
@@ -66,7 +66,7 @@ package struct GoogleSearch: Codable, Sendable, Equatable, Hashable {
   ///
   /// > Important: This property is not supported in the Gemini Developer API.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. Sites with confidence level chosen & above this value will be blocked
   /// from the search results.
@@ -77,8 +77,8 @@ package struct GoogleSearch: Codable, Sendable, Equatable, Hashable {
   /// - Parameters:
   ///   - timeRangeFilter: Optional. Filter search results to a specific time range. (Gemini Developer API only). For more details, see ``timeRangeFilter``.
   ///   - searchTypes: Optional. The set of search types to enable. If not set, web search is
-  ///   - excludeDomains: Optional. List of domains to be excluded from the search results. (Gemini Enterprise Agent Platform only). For more details, see ``excludeDomains``.
-  ///   - blockingConfidence: Optional. Sites with confidence level chosen & above this value will be blocked (Gemini Enterprise Agent Platform only). For more details, see ``blockingConfidence``.
+  ///   - excludeDomains: Optional. List of domains to be excluded from the search results. (Gemini Enterprise API only). For more details, see ``excludeDomains``.
+  ///   - blockingConfidence: Optional. Sites with confidence level chosen & above this value will be blocked (Gemini Enterprise API only). For more details, see ``blockingConfidence``.
   package init(
     timeRangeFilter: Interval? = nil,
     searchTypes: SearchTypes? = nil,

@@ -22,7 +22,7 @@ import Foundation
 ///
 /// Image search for grounding and related configurations.
 ///
-/// ### Gemini Enterprise Agent Platform
+/// ### Gemini Enterprise API
 ///
 /// Type: `GoogleCloudAiplatformV1beta1ToolGoogleSearchImageSearch`
 ///

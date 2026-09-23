@@ -20,9 +20,9 @@ import Foundation
 ///
 /// Type: `GoogleAiGenerativelanguageV1betaModelStage`
 ///
-/// ### Gemini Enterprise Agent Platform
+/// ### Gemini Enterprise API
 ///
-/// > Important: This type is not supported in the Gemini Enterprise Agent Platform.
+/// > Important: This type is not supported in the Gemini Enterprise API.
 package enum ModelStage: Codable, Sendable, Equatable, Hashable {
   /// Models in this stage are for experimental purposes only.
   case experimental

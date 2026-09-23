@@ -73,11 +73,11 @@ class FirebaseSessionsTestsBase: XCTestCase {
   /// most assertions will happen.
   @MainActor func runSessionsSDK(subscriberSDKs: [SessionsSubscriber],
                                  preSessionsInit: (MockSettingsProtocol) -> Void,
-                                 postSessionsInit: () -> Void,
+                                 postSessionsInit: () async -> Void,
                                  postLogEvent: @escaping @MainActor (Result<Void,
                                    FirebaseSessionsError>,
                                  [SessionsSubscriber])
-                                   -> Void) {
+                                   -> Void) async {
     // This class is static, so we need to clear global state
     SessionsDependencies.removeAll()
 
@@ -124,11 +124,11 @@ class FirebaseSessionsTestsBase: XCTestCase {
 
     // Execute test cases after Sessions is initialized. This is a good
     // place register Subscriber SDKs
-    postSessionsInit()
+    await postSessionsInit()
 
     // Wait for the Sessions SDK to log the session before finishing
     // the test.
-    wait(for: [loggedEventExpectation], timeout: 3)
+    await fulfillment(of: [loggedEventExpectation], timeout: 3)
   }
 
   func assertSuccess(result: Result<Void, FirebaseSessionsError>) {

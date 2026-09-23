@@ -66,7 +66,8 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
     'DEFINES_MODULE' => 'YES',
     'GCC_PREPROCESSOR_DEFINITIONS' => 'Firebase_VERSION=' + s.version.to_s,
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"',
-    'OTHER_CFLAGS' => '-fno-autolink'
+    'OTHER_CFLAGS' => '-fno-autolink',
+    'PRODUCT_BUNDLE_IDENTIFIER' => 'com.google.firebase.FirebaseCore'
   }
 
   s.test_spec 'unit' do |unit_tests|

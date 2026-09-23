@@ -26,7 +26,7 @@ extension ThinkingConfig {
   /// more details. Recommended for Gemini 3 or later models. Use with earlier
   /// models results in an error.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. The number of thoughts tokens that the model should generate.
   package enum ThinkingLevel: Codable, Sendable, Equatable, Hashable {

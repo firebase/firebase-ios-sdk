@@ -21,7 +21,7 @@ extension GoogleSearch {
   ///
   /// > Important: This property is not supported in the Gemini Developer API.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. Sites with confidence level chosen & above this value will be blocked
   /// from the search results.

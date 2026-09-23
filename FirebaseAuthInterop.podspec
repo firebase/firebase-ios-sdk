@@ -27,4 +27,8 @@ Pod::Spec.new do |s|
 
   s.source_files = 'FirebaseAuth/Interop/**/*.[hm]'
   s.public_header_files = 'FirebaseAuth/Interop/Public/FirebaseAuthInterop/*.h'
+
+  s.pod_target_xcconfig = {
+    'PRODUCT_BUNDLE_IDENTIFIER' => 'com.google.firebase.FirebaseAuthInterop'
+  }
 end

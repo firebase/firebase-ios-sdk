@@ -23,7 +23,7 @@ import Foundation
 /// Deprecated: Use `GenerateContentRequest.processing_options` instead. Metadata
 /// describes the input video content.
 ///
-/// ### Gemini Enterprise Agent Platform
+/// ### Gemini Enterprise API
 ///
 /// Type: `GoogleCloudAiplatformV1beta1VideoMetadata`
 ///
@@ -45,7 +45,7 @@ package struct VideoMetadata: Codable, Sendable, Equatable, Hashable {
   /// default value will be 1.0.
   /// The fps range is (0.0, 24.0].
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. The frame rate of the video sent to the model. If not specified,
   /// the default value is 1.0. The valid range is (0.0, 24.0].

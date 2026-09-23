@@ -15,7 +15,7 @@
 #import <TargetConditionals.h>
 #if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
 
-#import "FirebaseCore/Extension/FIRSceneDelegateFinder.h"
+#import "FirebaseCore/Extension/FIRSceneFinder.h"
 
 static BOOL FIRSceneHasKeyWindow(UIScene *scene) {
   if ([scene isKindOfClass:[UIWindowScene class]]) {
@@ -29,15 +29,16 @@ static BOOL FIRSceneHasKeyWindow(UIScene *scene) {
   return NO;
 }
 
-@implementation FIRSceneDelegateFinder
+@implementation FIRSceneFinder
 
 + (nullable UIScene *)findForegroundSceneForApplication:(nullable UIApplication *)application
-                                       matchingSelector:(SEL)selector {
+                                      matchingPredicate:(BOOL(NS_NOESCAPE ^)(UIScene *scene))
+                                                            predicate {
   NSAssert([NSThread isMainThread],
-           @"FIRSceneDelegateFinder findForegroundSceneForApplication:matchingSelector: must be "
+           @"FIRSceneFinder findForegroundSceneForApplication:matchingPredicate: must be "
            @"called on the main thread.");
 
-  if (!application || !selector) {
+  if (!application || !predicate) {
     return nil;
   }
 
@@ -46,8 +47,7 @@ static BOOL FIRSceneHasKeyWindow(UIScene *scene) {
   UIScene *inactiveWithoutKeyWindow = nil;
 
   for (UIScene *scene in application.connectedScenes) {
-    id<UISceneDelegate> sceneDelegate = scene.delegate;
-    if (![sceneDelegate respondsToSelector:selector]) {
+    if (!predicate(scene)) {
       continue;
     }
 
@@ -81,6 +81,28 @@ static BOOL FIRSceneHasKeyWindow(UIScene *scene) {
     return inactiveWithKeyWindow;
   }
   return inactiveWithoutKeyWindow;
+}
+
++ (nullable UIScene *)findForegroundSceneForApplication:(nullable UIApplication *)application
+                                       matchingSelector:(SEL)selector {
+  if (!selector) {
+    return nil;
+  }
+
+  return [self findForegroundSceneForApplication:application
+                               matchingPredicate:^BOOL(UIScene *scene) {
+                                 id<UISceneDelegate> sceneDelegate = scene.delegate;
+                                 return [sceneDelegate respondsToSelector:selector];
+                               }];
+}
+
++ (nullable UIWindowScene *)findForegroundWindowSceneForApplication:
+    (nullable UIApplication *)application {
+  return (UIWindowScene *)[self findForegroundSceneForApplication:application
+                                                matchingPredicate:^BOOL(UIScene *scene) {
+                                                  return
+                                                      [scene isKindOfClass:[UIWindowScene class]];
+                                                }];
 }
 
 @end

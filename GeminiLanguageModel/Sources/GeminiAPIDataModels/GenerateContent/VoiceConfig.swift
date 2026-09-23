@@ -22,7 +22,7 @@ import Foundation
 ///
 /// The configuration for the voice to use.
 ///
-/// ### Gemini Enterprise Agent Platform
+/// ### Gemini Enterprise API
 ///
 /// Type: `GoogleCloudAiplatformV1beta1VoiceConfig`
 ///
@@ -34,7 +34,7 @@ package struct VoiceConfig: Codable, Sendable, Equatable, Hashable {
   ///
   /// The configuration for the prebuilt voice to use.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// The configuration for a prebuilt voice.
   package let prebuiltVoiceConfig: PrebuiltVoiceConfig?
@@ -45,7 +45,7 @@ package struct VoiceConfig: Codable, Sendable, Equatable, Hashable {
   ///
   /// > Important: This property is not supported in the Gemini Developer API.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. The configuration for a replicated voice. This enables users to replicate
   /// a voice from an audio sample.
@@ -55,7 +55,7 @@ package struct VoiceConfig: Codable, Sendable, Equatable, Hashable {
   ///
   /// - Parameters:
   ///   - prebuiltVoiceConfig: The configuration for the prebuilt voice to use. (behavior varies by backend). For more details, see ``prebuiltVoiceConfig``.
-  ///   - replicatedVoiceConfig: Optional. The configuration for a replicated voice. This enables users to replicate (Gemini Enterprise Agent Platform only). For more details, see ``replicatedVoiceConfig``.
+  ///   - replicatedVoiceConfig: Optional. The configuration for a replicated voice. This enables users to replicate (Gemini Enterprise API only). For more details, see ``replicatedVoiceConfig``.
   package init(
     prebuiltVoiceConfig: PrebuiltVoiceConfig? = nil,
     replicatedVoiceConfig: ReplicatedVoiceConfig? = nil

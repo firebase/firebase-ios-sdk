@@ -92,7 +92,7 @@ public struct GenerationConfig: Sendable, Equatable {
   ///
   ///     Refer to the
   ///     [Generate structured
-  ///     output](https://firebase.google.com/docs/ai-logic/structured-output) guide
+  ///     output](https://firebase.google.com/docs/ai-logic/generate-structured-output) guide
   ///     for more details.
   ///   - responseModalities: The data types (modalities) that may be returned in model responses.
   ///
@@ -172,7 +172,7 @@ public struct GenerationConfig: Sendable, Equatable {
   ///
   ///     Refer to the
   ///     [Generate structured
-  ///     output](https://firebase.google.com/docs/ai-logic/structured-output) guide
+  ///     output](https://firebase.google.com/docs/ai-logic/generate-structured-output) guide
   ///     for more details.
   ///   - responseModalities: The data types (modalities) that may be returned in model responses.
   ///

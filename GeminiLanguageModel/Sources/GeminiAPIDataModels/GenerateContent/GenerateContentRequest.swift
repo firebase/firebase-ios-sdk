@@ -22,7 +22,7 @@ import Foundation
 ///
 /// Request to generate a completion from the model.
 ///
-/// ### Gemini Enterprise Agent Platform
+/// ### Gemini Enterprise API
 ///
 /// Type: `GoogleCloudAiplatformV1beta1GenerateContentRequest`
 ///
@@ -36,9 +36,9 @@ package struct GenerateContentRequest: Codable, Sendable, Equatable, Hashable {
   ///
   /// Format: `models/{model}`.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
-  /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
+  /// > Important: This property is not supported in the Gemini Enterprise API.
   package let model: String?
 
   /// Optional. Developer set [system
@@ -49,7 +49,7 @@ package struct GenerateContentRequest: Codable, Sendable, Equatable, Hashable {
   /// instruction(s)](https://ai.google.dev/gemini-api/docs/system-instructions).
   /// Currently, text only.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. The user provided system instructions for the model.
   /// Note: only text should be used in parts and content in each part will be in
@@ -67,7 +67,7 @@ package struct GenerateContentRequest: Codable, Sendable, Equatable, Hashable {
   /// this is a repeated field that contains the conversation history and the
   /// latest request.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Required. The content of the current conversation with the model.
   ///
@@ -90,7 +90,7 @@ package struct GenerateContentRequest: Codable, Sendable, Equatable, Hashable {
   /// [Code execution](https://ai.google.dev/gemini-api/docs/code-execution)
   /// guides to learn more.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. A list of `Tools` the model may use to generate the next response.
   ///
@@ -108,7 +108,7 @@ package struct GenerateContentRequest: Codable, Sendable, Equatable, Hashable {
   /// guide](https://ai.google.dev/gemini-api/docs/function-calling#function_calling_mode)
   /// for a usage example.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. Tool config. This config is shared for all tools provided in the request.
   package let toolConfig: ToolConfig?
@@ -135,7 +135,7 @@ package struct GenerateContentRequest: Codable, Sendable, Equatable, Hashable {
   /// [Safety guidance](https://ai.google.dev/gemini-api/docs/safety-guidance) to
   /// learn how to incorporate safety considerations in your AI applications.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. Per request settings for blocking unsafe content.
   /// Enforced on GenerateContentResponse.candidates.
@@ -147,7 +147,7 @@ package struct GenerateContentRequest: Codable, Sendable, Equatable, Hashable {
   ///
   /// Optional. Configuration options for model generation and outputs.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. Generation config.
   package let generationConfig: GenerationConfig?
@@ -160,7 +160,7 @@ package struct GenerateContentRequest: Codable, Sendable, Equatable, Hashable {
   /// [cached](https://ai.google.dev/gemini-api/docs/caching) to use as context
   /// to serve the prediction. Format: `cachedContents/{cachedContent}`
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. The name of the cached content used as context to serve the prediction.
   /// Note: only used in explicit caching, where users can have control over
@@ -175,9 +175,9 @@ package struct GenerateContentRequest: Codable, Sendable, Equatable, Hashable {
   ///
   /// Optional. The service tier of the request.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
-  /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
+  /// > Important: This property is not supported in the Gemini Enterprise API.
   package let serviceTier: ServiceTier?
 
   /// Optional. Configures the logging behavior for a given request. If set, it takes
@@ -187,9 +187,9 @@ package struct GenerateContentRequest: Codable, Sendable, Equatable, Hashable {
   /// Optional. Configures the logging behavior for a given request. If set, it takes
   /// precedence over the project-level logging config.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
-  /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
+  /// > Important: This property is not supported in the Gemini Enterprise API.
   package let store: Bool?
 
   /// Optional. The labels with user-defined metadata for the request. It is used for
@@ -198,7 +198,7 @@ package struct GenerateContentRequest: Codable, Sendable, Equatable, Hashable {
   ///
   /// > Important: This property is not supported in the Gemini Developer API.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. The labels with user-defined metadata for the request. It is used for
   /// billing and reporting only.
@@ -222,7 +222,7 @@ package struct GenerateContentRequest: Codable, Sendable, Equatable, Hashable {
   ///   - cachedContent: Optional. The name of the content (behavior varies by backend). For more details, see ``cachedContent``.
   ///   - serviceTier: Optional. The service tier of the request. (Gemini Developer API only). For more details, see ``serviceTier``.
   ///   - store: Optional. Configures the logging behavior for a given request. If set, it takes (Gemini Developer API only). For more details, see ``store``.
-  ///   - labels: Optional. The labels with user-defined metadata for the request. It is used for (Gemini Enterprise Agent Platform only). For more details, see ``labels``.
+  ///   - labels: Optional. The labels with user-defined metadata for the request. It is used for (Gemini Enterprise API only). For more details, see ``labels``.
   package init(
     model: String? = nil,
     systemInstruction: Content? = nil,

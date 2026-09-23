@@ -22,7 +22,7 @@ import Foundation
 ///
 /// Represents token counting info for a single modality.
 ///
-/// ### Gemini Enterprise Agent Platform
+/// ### Gemini Enterprise API
 ///
 /// Type: `GoogleCloudAiplatformV1beta1ModalityTokenCount`
 ///
@@ -43,7 +43,7 @@ package struct ModalityTokenCount: Codable, Sendable, Equatable, Hashable {
   ///
   /// The modality associated with this token count.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// The modality that this token count applies to.
   package let modality: Modality?
@@ -54,7 +54,7 @@ package struct ModalityTokenCount: Codable, Sendable, Equatable, Hashable {
   ///
   /// Number of tokens.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// The number of tokens counted for this modality.
   package let tokenCount: Int?

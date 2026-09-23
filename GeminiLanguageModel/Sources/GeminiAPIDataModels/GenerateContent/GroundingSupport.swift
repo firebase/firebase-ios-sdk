@@ -22,7 +22,7 @@ import Foundation
 ///
 /// Grounding support.
 ///
-/// ### Gemini Enterprise Agent Platform
+/// ### Gemini Enterprise API
 ///
 /// Type: `GoogleCloudAiplatformV1beta1GroundingSupport`
 ///
@@ -35,7 +35,7 @@ package struct GroundingSupport: Codable, Sendable, Equatable, Hashable {
   ///
   /// Segment of the content this support belongs to.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// The content segment that this support message applies to.
   package let segment: Segment?
@@ -53,7 +53,7 @@ package struct GroundingSupport: Codable, Sendable, Equatable, Hashable {
   /// It is the client's responsibility to accumulate the grounding chunks from
   /// all responses (while maintaining the same order).
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// A list of indices into the `grounding_chunks` field of the
   /// `GroundingMetadata` message. These indices specify which grounding chunks
@@ -72,7 +72,7 @@ package struct GroundingSupport: Codable, Sendable, Equatable, Hashable {
   /// most confident. This list must have the same size as the
   /// grounding_chunk_indices.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// The confidence scores for the support references. This list is
   /// parallel to the `grounding_chunk_indices` list. A score is a value between
@@ -91,7 +91,7 @@ package struct GroundingSupport: Codable, Sendable, Equatable, Hashable {
   /// Output only. Indices into the `parts` field of the candidate's content. These indices
   /// specify which rendered parts are associated with this support source.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Indices into the `rendered_parts` field of the `GroundingMetadata`
   /// message. These indices specify which rendered parts are associated with

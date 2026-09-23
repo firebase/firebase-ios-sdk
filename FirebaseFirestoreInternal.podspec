@@ -129,7 +129,8 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
       '"${PODS_TARGET_SRCROOT}/Firestore/Source/Public" ' +
       '"${PODS_ROOT}/nanopb" ' +
       '"${PODS_TARGET_SRCROOT}/Firestore/Protos/nanopb" ' +
-      '"${PODS_TARGET_SRCROOT}/Firestore/third_party/re2" '
+      '"${PODS_TARGET_SRCROOT}/Firestore/third_party/re2" ',
+    'PRODUCT_BUNDLE_IDENTIFIER' => 'com.google.firebase.FirebaseFirestoreInternal'
   }
 
   s.compiler_flags = '$(inherited) -Wreorder -Werror=reorder -Wno-comma'
