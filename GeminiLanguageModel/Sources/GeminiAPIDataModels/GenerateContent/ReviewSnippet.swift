@@ -23,7 +23,7 @@ import Foundation
 /// Encapsulates a snippet of a user review that answers a question about
 /// the features of a specific place in Google Maps.
 ///
-/// ### Gemini Enterprise Agent Platform
+/// ### Gemini Enterprise API
 ///
 /// Type: `GoogleCloudAiplatformV1beta1GroundingChunkMapsPlaceAnswerSourcesReviewSnippet`
 ///
@@ -35,7 +35,7 @@ package struct ReviewSnippet: Codable, Sendable, Equatable, Hashable {
   ///
   /// The ID of the review snippet.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// The ID of the review that is being referenced.
   package let reviewId: String?
@@ -46,7 +46,7 @@ package struct ReviewSnippet: Codable, Sendable, Equatable, Hashable {
   ///
   /// A link that corresponds to the user review on Google Maps.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// A link to show the review on Google Maps.
   package let googleMapsUri: String?
@@ -57,7 +57,7 @@ package struct ReviewSnippet: Codable, Sendable, Equatable, Hashable {
   ///
   /// Title of the review.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// The title of the review.
   package let title: String?

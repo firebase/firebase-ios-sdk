@@ -21,7 +21,7 @@ extension SafetySetting {
   ///
   /// > Important: This property is not supported in the Gemini Developer API.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. The method for blocking content. If not specified, the default
   /// behavior is to use the probability score.

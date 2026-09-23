@@ -23,7 +23,7 @@ import Foundation
 /// An element in the history the represents the model asking the client to
 /// invoke a client-side function.
 ///
-/// ### Gemini Enterprise Agent Platform
+/// ### Gemini Enterprise API
 ///
 /// Type: `GoogleCloudAiplatformV1beta1FunctionCall`
 ///
@@ -38,7 +38,7 @@ package struct FunctionCall: Codable, Sendable, Equatable, Hashable {
   /// Required. ID of the individual function invocation assigned by the model when it
   /// requests the function invocation.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. The unique id of the function call. If populated, the client to execute the
   /// `function_call` and return the response with the matching `id`.
@@ -50,7 +50,7 @@ package struct FunctionCall: Codable, Sendable, Equatable, Hashable {
   ///
   /// Required. The name of the function to be invoked.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. The name of the function to call.
   /// Matches FunctionDeclaration.name.
@@ -62,7 +62,7 @@ package struct FunctionCall: Codable, Sendable, Equatable, Hashable {
   ///
   /// Optional. Inputs to the function passed by the model
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. The function parameters and values in JSON object format.
   /// See FunctionDeclaration.parameters for parameter details.
@@ -74,7 +74,7 @@ package struct FunctionCall: Codable, Sendable, Equatable, Hashable {
   ///
   /// > Important: This property is not supported in the Gemini Developer API.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. Whether this is the last part of the FunctionCall.
   /// If true, another partial message for the current FunctionCall is expected
@@ -87,7 +87,7 @@ package struct FunctionCall: Codable, Sendable, Equatable, Hashable {
   ///   - id: Required. ID of the individual function invocation assigned by the model when it (behavior varies by backend). For more details, see ``id``.
   ///   - name: Required. The name of the function to be invoked. (behavior varies by backend). For more details, see ``name``.
   ///   - args: Optional. Inputs to the function passed by the model (behavior varies by backend). For more details, see ``args``.
-  ///   - willContinue: Optional. Whether this is the last part of the FunctionCall. (Gemini Enterprise Agent Platform only). For more details, see ``willContinue``.
+  ///   - willContinue: Optional. Whether this is the last part of the FunctionCall. (Gemini Enterprise API only). For more details, see ``willContinue``.
   package init(
     id: String? = nil,
     name: String,

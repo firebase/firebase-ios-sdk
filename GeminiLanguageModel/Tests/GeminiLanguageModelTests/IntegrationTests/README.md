@@ -46,7 +46,7 @@ All integration tests are parameterized across
 * `.firebaseAILogicDeveloperAPI`: Firebase AI Logic proxy to Gemini Developer
   API (`firebasevertexai.googleapis.com`).
 * `.firebaseAILogicEnterprise(location:)`: Firebase AI Logic proxy to Gemini
-  Enterprise Agent Platform (defaulting to `location: "global"`).
+  Enterprise API (defaulting to `location: "global"`).
 
 ## Files in this Directory
 

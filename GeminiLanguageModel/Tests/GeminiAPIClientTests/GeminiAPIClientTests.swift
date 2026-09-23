@@ -841,7 +841,7 @@ struct GeminiAPIClientTests {
       headerFields: ["Content-Type": "text/event-stream"]
     )
     let ssePayload = """
-      data: {"candidates": [{"content": {"parts": [{"text": "Agent Platform response"}]}}]}
+      data: {"candidates": [{"content": {"parts": [{"text": "Enterprise API response"}]}}]}
 
       """
 
@@ -851,7 +851,7 @@ struct GeminiAPIClientTests {
       proto.client?.urlProtocolDidFinishLoading(proto)
     }
 
-    let request = makePromptRequest("Agent Platform test")
+    let request = makePromptRequest("Enterprise API test")
     let stream = try await client.generateContentStream(for: request)
     var responses: [GenerateContentResponse] = []
     for try await chunk in stream {
@@ -863,7 +863,7 @@ struct GeminiAPIClientTests {
     let candidate = try #require(response.candidates?.first)
     let content = try #require(candidate.content)
     let part = try #require(content.parts?.first)
-    #expect(part.data == .text("Agent Platform response"))
+    #expect(part.data == .text("Enterprise API response"))
   }
 
   @Test
@@ -957,7 +957,7 @@ struct GeminiAPIClientTests {
     }
 
     let request = CountTokensRequest(
-      contents: [Content(parts: [Part(data: .text("Agent Platform count tokens"))], role: "user")]
+      contents: [Content(parts: [Part(data: .text("Enterprise API count tokens"))], role: "user")]
     )
     let response = try await client.countTokens(for: request)
 

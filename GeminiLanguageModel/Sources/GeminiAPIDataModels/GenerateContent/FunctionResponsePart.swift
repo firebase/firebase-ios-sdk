@@ -30,7 +30,7 @@ import Foundation
 /// type and subtype of the media if the `inline_data` field is filled with raw
 /// bytes.
 ///
-/// ### Gemini Enterprise Agent Platform
+/// ### Gemini Enterprise API
 ///
 /// Type: `GoogleCloudAiplatformV1beta1FunctionResponsePart`
 ///
@@ -53,7 +53,7 @@ package struct FunctionResponsePart: Codable, Sendable, Equatable, Hashable {
   ///
   /// > Important: This property is not supported in the Gemini Developer API.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// URI based data.
   package let fileData: FunctionResponseFileData?
@@ -62,7 +62,7 @@ package struct FunctionResponsePart: Codable, Sendable, Equatable, Hashable {
   ///
   /// - Parameters:
   ///   - inlineData: Inline media bytes.
-  ///   - fileData: URI based data. (Gemini Enterprise Agent Platform only). For more details, see ``fileData``.
+  ///   - fileData: URI based data. (Gemini Enterprise API only). For more details, see ``fileData``.
   package init(
     inlineData: FunctionResponseBlob? = nil,
     fileData: FunctionResponseFileData? = nil

@@ -31,11 +31,11 @@
     /// `firebasevertexai.googleapis.com`).
     case firebaseAILogicDeveloperAPI
 
-    /// Firebase AI Logic proxying to the Gemini Enterprise Agent Platform (via
+    /// Firebase AI Logic proxying to the Gemini Enterprise API (via
     /// `firebasevertexai.googleapis.com`).
     case firebaseAILogicEnterprise(location: String)
 
-    /// Convenience instance targeting the global Gemini Enterprise Agent Platform.
+    /// Convenience instance targeting the global Gemini Enterprise API.
     package static var firebaseAILogicEnterprise: IntegrationTestingBackend {
       .firebaseAILogicEnterprise(location: "global")
     }
@@ -54,7 +54,7 @@
       case .firebaseAILogicDeveloperAPI:
         return "Firebase AI Logic (Developer API)"
       case .firebaseAILogicEnterprise(let location):
-        return "Firebase AI Logic (Agent Platform, \(location))"
+        return "Firebase AI Logic (Enterprise, \(location))"
       }
     }
 
