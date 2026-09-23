@@ -12,17 +12,4 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
-
-/// Tool configuration for any `Tool` specified in the request for server prompt templates.
-public struct TemplateToolConfig: Sendable, Encodable {
-  /// Configures how the model should use the provided retrieval options.
-  public let retrievalConfig: RetrievalConfig?
-
-  /// Constructs a new `TemplateToolConfig`.
-  /// - Parameter retrievalConfig: Configures how the model should use the provided retrieval
-  /// options.
-  public init(retrievalConfig: RetrievalConfig? = nil) {
-    self.retrievalConfig = retrievalConfig
-  }
-}
+#import <FirebaseFirestoreInternal/FIRRegexValue.h>

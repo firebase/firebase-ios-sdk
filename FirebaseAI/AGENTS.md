@@ -32,7 +32,7 @@ This directory contains the main source code for the FirebaseAI library.
 - **`PartsRepresentable.swift`**: Protocol implemented by types that can be converted into an array of `Part`s.
 - **`PartsRepresentable+Image.swift`**: Extends `UIImage`, `NSImage`, etc., to conform to `PartsRepresentable`.
 - **`Safety.swift`**: Structs and enums related to safety settings and ratings (e.g., `HarmCategory`).
-- **`TemplateChatSession.swift`**: Chat session that uses a prompt template.
+- **`TemplateChat.swift`**: Chat session that uses a prompt template.
 - **`TemplateGenerateContentRequest.swift`**: Request for generating content from a template.
 - **`TemplateGenerativeModel.swift`**: Model for generating content from a prompt template.
 - **`TemplateInput.swift`**: Defines the `TemplateInput` enum for representing different types of input to a template.
@@ -75,6 +75,8 @@ Data types used in the FirebaseAI library.
 
 - **`GoogleMaps.swift`**: Tool that allows the model to ground responses in data from Google Maps.
 - **`CodeExecution.swift`**: Tool that allows the model to execute code (currently an empty marker struct).
+- **`TemplateTool.swift`**: Tool that a model may use when generating responses with server prompt templates (function declarations and Grounding with Google Maps).
+- **`TemplateToolConfig.swift`**: Tool configuration options for tools used with server prompt templates.
 
 #### Sources/Types/Public/Live/
 
@@ -109,6 +111,8 @@ Data types used in the FirebaseAI library.
 #### Sources/Types/Internal/Tools/
 
 - **`URLContext.swift`**: Empty struct serving to enable the URL context tool.
+- **`TemplateFunction.swift`**: Wire representation of a function declaration for server prompt templates, using JSON Schema for its input and output schemas.
+- **`TemplateTool+Internal.swift`**: Converts the public `TemplateTool` into its encodable wire representation.
 
 #### Sources/Types/Internal/Requests/
 

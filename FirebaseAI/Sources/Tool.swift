@@ -199,13 +199,21 @@ public struct ToolConfig: Sendable {
   }
 }
 
-/// Retrieval configuration.
+/// Configuration for grounding retrieval tools, such as Grounding with Google Maps.
+///
+/// Use `RetrievalConfig` inside ``ToolConfig`` or ``TemplateToolConfig`` to provide optional
+/// location coordinates and language preferences to bias and localize search results.
 public struct RetrievalConfig: Sendable, Encodable {
-  /// The location for the search.
+  /// The geographic location coordinates used to bias the retrieval search.
   let location: CLLocationCoordinate2D?
-  /// The language code of the user.
+  /// The BCP 47 language code of the user (for example, `"en_US"`).
   let languageCode: String?
 
+  /// Constructs a new `RetrievalConfig`.
+  ///
+  /// - Parameters:
+  ///   - location: Geographic coordinates used to bias results towards the user's location.
+  ///   - languageCode: A BCP 47 language code to localize responses.
   public init(location: CLLocationCoordinate2D? = nil, languageCode: String? = nil) {
     self.location = location
     self.languageCode = languageCode

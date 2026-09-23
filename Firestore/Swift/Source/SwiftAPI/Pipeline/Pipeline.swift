@@ -75,11 +75,11 @@ public class Pipeline: @unchecked Sendable {
   private(set) var stages: [Stage]
   let db: Firestore?
 
-  var pipelineBridge: PipelineBridge {
+  var pipelineBridge: __PipelineBridge {
     guard let db = db else {
       fatalError("pipelineBridge cannot be accessed on a pipeline created without a database.")
     }
-    return PipelineBridge(stages: stages.map { $0.bridge }, db: db)
+    return __PipelineBridge(stages: stages.map { $0.bridge }, db: db)
   }
 
   var errorMessage: String? {

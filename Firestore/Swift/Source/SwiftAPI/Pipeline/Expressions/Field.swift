@@ -33,7 +33,7 @@
 /// ```
 public struct Field: Expression, Selectable, BridgeWrapper, SelectableWrapper,
   @unchecked Sendable {
-  let bridge: ExprBridge
+  let bridge: __ExprBridge
 
   var alias: String
 
@@ -48,7 +48,7 @@ public struct Field: Expression, Selectable, BridgeWrapper, SelectableWrapper,
   ///
   /// - Parameter name: The name of the field.
   public init(_ name: String) {
-    let fieldBridge = FieldBridge(name: name)
+    let fieldBridge = __FieldBridge(name: name)
     bridge = fieldBridge
     fieldName = fieldBridge.field_name()
     alias = fieldName
@@ -58,7 +58,7 @@ public struct Field: Expression, Selectable, BridgeWrapper, SelectableWrapper,
   ///
   /// - Parameter path: The `FieldPath` of the field.
   public init(_ path: FieldPath) {
-    let fieldBridge = FieldBridge(path: path)
+    let fieldBridge = __FieldBridge(path: path)
     bridge = fieldBridge
     fieldName = fieldBridge.field_name()
     alias = fieldName
