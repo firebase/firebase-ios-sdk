@@ -30,7 +30,7 @@ final class TemplateChatTests: XCTestCase {
     let firebaseInfo = GenerativeModelTestUtil.testFirebaseInfo()
     model = TemplateGenerativeModel(
       firebaseInfo: firebaseInfo,
-      apiConfig: FirebaseAI.defaultVertexAIAPIConfig,
+      apiConfig: FirebaseAI.defaultEnterpriseAPIConfig,
       tools: nil,
       toolConfig: nil,
       requestOptions: RequestOptions(),

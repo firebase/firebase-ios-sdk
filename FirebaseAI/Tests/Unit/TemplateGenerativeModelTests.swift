@@ -22,7 +22,7 @@ final class TemplateGenerativeModelTests: XCTestCase {
   var urlSession: URLSession!
   var model: TemplateGenerativeModel!
   let firebaseInfo = GenerativeModelTestUtil.testFirebaseInfo()
-  let apiConfig = FirebaseAI.defaultVertexAIAPIConfig
+  let apiConfig = FirebaseAI.defaultEnterpriseAPIConfig
 
   override func setUp() {
     super.setUp()
@@ -174,7 +174,7 @@ final class TemplateGenerativeModelTests: XCTestCase {
     )
     model = TemplateGenerativeModel(
       firebaseInfo: firebaseInfo,
-      apiConfig: FirebaseAI.defaultVertexAIAPIConfig,
+      apiConfig: FirebaseAI.defaultEnterpriseAPIConfig,
       tools: nil,
       toolConfig: toolConfig,
       requestOptions: RequestOptions(),
