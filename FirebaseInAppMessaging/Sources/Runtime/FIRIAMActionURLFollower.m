@@ -227,9 +227,8 @@ NS_EXTENSION_UNAVAILABLE("Firebase In App Messaging is not supported for iOS ext
   userActivity.webpageURL = url;
 
   SEL selector = @selector(scene:continueUserActivity:);
-  UIScene *targetScene =
-      [FIRSceneDelegateFinder findForegroundSceneForApplication:self.mainApplication
-                                               matchingSelector:selector];
+  UIScene *targetScene = [FIRSceneFinder findForegroundSceneForApplication:self.mainApplication
+                                                          matchingSelector:selector];
   if (targetScene) {
     FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM240004",
                 @"Scene delegate responds to scene:continueUserActivity."
