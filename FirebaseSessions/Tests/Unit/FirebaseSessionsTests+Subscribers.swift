@@ -37,8 +37,8 @@ final class FirebaseSessionsTestsBase_Subscribers: FirebaseSessionsTestsBase {
 
   // MARK: - Test Subscriber Callbacks
 
-  @MainActor func test_registerSubscriber_callsOnSessionChanged() {
-    runSessionsSDK(
+  @MainActor func test_registerSubscriber_callsOnSessionChanged() async {
+    await runSessionsSDK(
       subscriberSDKs: [
         mockCrashlyticsSubscriber,
         mockPerformanceSubscriber,
@@ -61,8 +61,8 @@ final class FirebaseSessionsTestsBase_Subscribers: FirebaseSessionsTestsBase {
   // Make sure that even if the Sessions SDK is disabled, and data collection
   // is disabled, the Sessions SDK still generates Session IDs and provides
   // them to Subscribers
-  @MainActor func test_subscribersDataCollectionDisabled_callsOnSessionChanged() {
-    runSessionsSDK(
+  @MainActor func test_subscribersDataCollectionDisabled_callsOnSessionChanged() async {
+    await runSessionsSDK(
       subscriberSDKs: [
         mockCrashlyticsSubscriber,
         mockPerformanceSubscriber,
@@ -86,8 +86,8 @@ final class FirebaseSessionsTestsBase_Subscribers: FirebaseSessionsTestsBase {
     )
   }
 
-  @MainActor func test_noDependencies_doesNotLogSessionEvent() {
-    runSessionsSDK(
+  @MainActor func test_noDependencies_doesNotLogSessionEvent() async {
+    await runSessionsSDK(
       subscriberSDKs: [],
       preSessionsInit: { _ in
         // Nothing
@@ -102,8 +102,8 @@ final class FirebaseSessionsTestsBase_Subscribers: FirebaseSessionsTestsBase {
     )
   }
 
-  @MainActor func test_noSubscribersWithRegistrations_doesNotCrash() {
-    runSessionsSDK(
+  @MainActor func test_noSubscribersWithRegistrations_doesNotCrash() async {
+    await runSessionsSDK(
       subscriberSDKs: [],
       preSessionsInit: { _ in
         // Nothing
