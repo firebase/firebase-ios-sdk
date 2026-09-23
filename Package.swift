@@ -41,7 +41,8 @@ let firestoreTrait = Trait(
 /// ```
 ///
 /// In Xcode (26.4+):
-/// - Select your project -> Package Dependencies -> Firebase -> Configure Traits.
+/// - Select your project -> Package Dependencies -> in the Traits dropdown for Firebase,
+///   uncheck any unwanted traits.
 let packageTraits = Set<Trait>([
   firestoreTrait,
   // All traits are enabled by default.

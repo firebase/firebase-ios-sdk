@@ -1,6 +1,9 @@
 # Firebase 13.0.0
 - [feature] Added support for Swift Package Traits (SE-0450) to allow developers
-  to opt out of unused features and prune heavy dependencies. (#16684)
+  to opt out of unused features and prune heavy dependencies. To opt out of
+  Firestore in Xcode: select your project -> **Package Dependencies**, and in
+  the **Traits** column for Firebase, uncheck `default` and check only the ones
+  you want, if any (it will show `None` if no traits are enabled). (#16684)
 - [changed] **Breaking change**: Firebase's minimum supported versions have
   updated for the following platforms:
     - | Platform  | Firebase 13 |

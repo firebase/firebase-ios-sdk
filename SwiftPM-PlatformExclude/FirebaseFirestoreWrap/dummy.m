@@ -21,7 +21,7 @@
 #error "FirebaseFirestore was included in your project dependencies, but the \
 'Firestore' SwiftPM package trait is disabled. To use Firestore, please \
 enable the 'Firestore' trait (or default traits) in your Package.swift \
-or Xcode project configuration."
+or in the Package Dependencies tab of your Xcode project."
 #endif  // !defined(FIRESTORE_TRAIT_ENABLED)
 
 #if TARGET_OS_VISION && FIREBASE_BINARY_FIRESTORE
