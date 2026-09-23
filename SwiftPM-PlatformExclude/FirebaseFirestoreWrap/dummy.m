@@ -18,9 +18,10 @@
 #endif
 
 #if !defined(FIREBASE_FIRESTORE_ENABLED)
-#error "FirebaseFirestore was included in your project dependencies, but the 'FirebaseFirestore' \
-package trait is disabled. To use Firestore, please enable the 'FirebaseFirestore' trait (or default traits) \
-in your package or project configuration."
+#error "FirebaseFirestore was included in your project dependencies, but the \
+'FirestoreSupport' SwiftPM package trait is disabled. To use Firestore, please \
+enable the 'FirestoreSupport' trait (or default traits) in your Package.swift \
+or Xcode project configuration."
 #endif  // !defined(FIREBASE_FIRESTORE_ENABLED)
 
 #if TARGET_OS_VISION && FIREBASE_BINARY_FIRESTORE

@@ -23,9 +23,9 @@ import Foundation
 #endif
 import FirebaseCrashlytics
 import FirebaseDatabase
-#if FirebaseFirestore
+#if FirestoreSupport
   import FirebaseFirestore
-#endif // FirebaseFirestore
+#endif // FirestoreSupport
 import FirebaseFunctions
 import FirebaseInstallations
 import FirebaseMessaging

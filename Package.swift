@@ -20,10 +20,10 @@ import PackageDescription
 
 let firebaseVersion = "13.0.0"
 
-/// If you don't use Firestore in your app, you can disable the "FirebaseFirestore" trait to reduce
+/// If you don't use Firestore in your app, you can disable the "FirestoreSupport" trait to reduce
 /// the number of dependencies fetched by SwiftPM during package resolution.
 let firestoreTrait = Trait(
-  name: "FirebaseFirestore",
+  name: "FirestoreSupport",
   description: "Enables Firestore support and its underlying dependencies (gRPC, Abseil)."
 )
 
@@ -562,7 +562,7 @@ func packageTargets() -> [Target] {
     .target(
       name: "FirebaseFirestoreCombineSwift",
       dependencies: [
-        .target(name: "FirebaseFirestoreTarget", condition: .when(traits: ["FirebaseFirestore"])),
+        .target(name: "FirebaseFirestoreTarget", condition: .when(traits: ["FirestoreSupport"])),
       ],
       path: "FirebaseCombineSwift/Sources/Firestore"
     ),
@@ -1182,14 +1182,14 @@ func packageTargets() -> [Target] {
                 condition: .when(platforms: [.iOS])),
         "FirebaseAuthCombineSwift",
         .target(name: "FirebaseFirestoreCombineSwift",
-                condition: .when(traits: ["FirebaseFirestore"])),
+                condition: .when(traits: ["FirestoreSupport"])),
         "FirebaseFunctionsCombineSwift",
         "FirebaseStorageCombineSwift",
         "FirebaseCrashlytics",
         "FirebaseCore",
         "FirebaseDatabase",
         .target(name: "FirebaseFirestoreTarget",
-                condition: .when(traits: ["FirebaseFirestore"])),
+                condition: .when(traits: ["FirestoreSupport"])),
         "FirebaseFunctions",
         .target(name: "FirebaseInAppMessaging",
                 condition: .when(platforms: [.iOS, .tvOS])),
@@ -1231,7 +1231,7 @@ func packageTargets() -> [Target] {
         "FirebaseCore",
         "FirebaseDatabase",
         .target(name: "FirebaseFirestoreTarget",
-                condition: .when(traits: ["FirebaseFirestore"])),
+                condition: .when(traits: ["FirestoreSupport"])),
         "FirebaseFunctions",
         .target(name: "FirebaseInAppMessaging",
                 condition: .when(platforms: [.iOS, .tvOS])),
@@ -1485,12 +1485,12 @@ func firestoreWrapperTarget() -> Target {
           name: "FirebaseFirestore",
           condition: .when(
             platforms: [.iOS, .tvOS, .macOS, .visionOS, .macCatalyst],
-            traits: ["FirebaseFirestore"]
+            traits: ["FirestoreSupport"]
           )
         ),
       ],
       path: "SwiftPM-PlatformExclude/FirebaseFirestoreWrap",
-      cSettings: [.define("FIREBASE_FIRESTORE_ENABLED", .when(traits: ["FirebaseFirestore"]))]
+      cSettings: [.define("FIREBASE_FIRESTORE_ENABLED", .when(traits: ["FirestoreSupport"]))]
     )
   }
 
@@ -1498,11 +1498,11 @@ func firestoreWrapperTarget() -> Target {
     name: "FirebaseFirestoreTarget",
     dependencies: [.target(name: "FirebaseFirestore",
                            condition: .when(platforms: [.iOS, .tvOS, .macOS, .macCatalyst],
-                                            traits: ["FirebaseFirestore"]))],
+                                            traits: ["FirestoreSupport"]))],
     path: "SwiftPM-PlatformExclude/FirebaseFirestoreWrap",
     cSettings: [
       .define("FIREBASE_BINARY_FIRESTORE", to: "1"),
-      .define("FIREBASE_FIRESTORE_ENABLED", .when(traits: ["FirebaseFirestore"])),
+      .define("FIREBASE_FIRESTORE_ENABLED", .when(traits: ["FirestoreSupport"])),
     ]
   )
 }
@@ -1518,9 +1518,9 @@ func firestoreTargets() -> [Target] {
           "leveldb",
           .product(name: "nanopb", package: "nanopb"),
           .product(name: "abseil", package: "abseil-cpp-SwiftPM",
-                   condition: .when(traits: ["FirebaseFirestore"])),
+                   condition: .when(traits: ["FirestoreSupport"])),
           .product(name: "gRPC-cpp", package: "grpc-ios",
-                   condition: .when(traits: ["FirebaseFirestore"])),
+                   condition: .when(traits: ["FirestoreSupport"])),
         ],
         path: "Firestore",
         exclude: [
@@ -1642,19 +1642,19 @@ func firestoreTargets() -> [Target] {
         .target(
           name: "FirebaseFirestoreInternalWrapper",
           condition: .when(platforms: [.iOS, .macCatalyst, .tvOS, .macOS],
-                           traits: ["FirebaseFirestore"])
+                           traits: ["FirestoreSupport"])
         ),
         .product(
           name: "abseil",
           package: "abseil-cpp-binary",
           condition: .when(platforms: [.iOS, .macCatalyst, .tvOS, .macOS],
-                           traits: ["FirebaseFirestore"])
+                           traits: ["FirestoreSupport"])
         ),
         .product(
           name: "gRPC-C++",
           package: "grpc-binary",
           condition: .when(platforms: [.iOS, .macCatalyst, .tvOS, .macOS],
-                           traits: ["FirebaseFirestore"])
+                           traits: ["FirestoreSupport"])
         ),
         .product(name: "nanopb", package: "nanopb"),
         "FirebaseAppCheckInterop",
@@ -1680,7 +1680,7 @@ func firestoreTargets() -> [Target] {
       dependencies: [.target(
         name: "FirebaseFirestoreInternal",
         condition: .when(platforms: [.iOS, .macCatalyst, .tvOS, .macOS],
-                         traits: ["FirebaseFirestore"])
+                         traits: ["FirestoreSupport"])
       )],
       path: "FirebaseFirestoreInternal",
       publicHeadersPath: "."
