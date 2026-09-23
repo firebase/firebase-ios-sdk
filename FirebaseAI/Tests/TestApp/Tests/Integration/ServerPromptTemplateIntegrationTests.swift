@@ -23,7 +23,7 @@ import Testing
 struct ServerPromptTemplateIntegrationTests {
   private static let testConfigs: [InstanceConfig] = [
     .googleAI_v1beta,
-    .agentPlatform_v1beta_global,
+    .enterprise_v1beta_global,
   ]
 
   @Test(arguments: testConfigs)
@@ -63,7 +63,7 @@ struct ServerPromptTemplateIntegrationTests {
 
   @Test(arguments: [
     InstanceConfig.googleAI_v1beta,
-    InstanceConfig.agentPlatform_v1beta,
+    InstanceConfig.enterprise_v1beta,
   ])
   func generateContentWithTemplateMapsGrounding(_ config: InstanceConfig) async throws {
     let toolConfig = TemplateToolConfig(

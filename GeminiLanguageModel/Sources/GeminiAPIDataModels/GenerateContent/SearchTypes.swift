@@ -22,7 +22,7 @@ import Foundation
 ///
 /// Different types of search that can be enabled on the GoogleSearch tool.
 ///
-/// ### Gemini Enterprise Agent Platform
+/// ### Gemini Enterprise API
 ///
 /// Type: `GoogleCloudAiplatformV1beta1ToolGoogleSearchSearchTypes`
 ///
@@ -34,7 +34,7 @@ package struct SearchTypes: Codable, Sendable, Equatable, Hashable {
   ///
   /// Optional. Enables web search. Only text results are returned.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. Setting this field enables web search. Only text results are returned.
   package let webSearch: WebSearch?
@@ -45,7 +45,7 @@ package struct SearchTypes: Codable, Sendable, Equatable, Hashable {
   ///
   /// Optional. Enables image search. Image bytes are returned.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. Setting this field enables image search. Image bytes are returned.
   package let imageSearch: ImageSearch?

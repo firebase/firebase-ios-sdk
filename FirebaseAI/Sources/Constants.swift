@@ -39,7 +39,7 @@ enum Constants {
     /// The key for an environment variable containing a Google Cloud Access Token.
     ///
     /// This should only be used for SDK development and testing with the Gemini
-    /// Enterprise Agent Platform direct backend that bypasses the Firebase proxy.
+    /// Enterprise API direct backend that bypasses the Firebase proxy.
     ///
     /// The value should is typically obtained from the gcloud CLI by calling
     /// `gcloud auth print-access-token`.

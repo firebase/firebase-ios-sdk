@@ -22,7 +22,7 @@ import Foundation
 ///
 /// An element in the history the represents raw binary data.
 ///
-/// ### Gemini Enterprise Agent Platform
+/// ### Gemini Enterprise API
 ///
 /// Type: `GoogleCloudAiplatformV1beta1Blob`
 ///
@@ -40,7 +40,7 @@ package struct Blob: Codable, Sendable, Equatable, Hashable {
   ///   - image/png
   ///   - image/jpeg
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Required. The IANA standard MIME type of the source data.
   package let mimeType: String
@@ -51,7 +51,7 @@ package struct Blob: Codable, Sendable, Equatable, Hashable {
   ///
   /// Required. Raw bytes for media formats.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Required. The raw bytes of the data.
   package let data: Data
@@ -62,7 +62,7 @@ package struct Blob: Codable, Sendable, Equatable, Hashable {
   ///
   /// > Important: This property is not supported in the Gemini Developer API.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. The display name of the blob. Used to provide a label or filename
   /// to distinguish blobs.
@@ -77,7 +77,7 @@ package struct Blob: Codable, Sendable, Equatable, Hashable {
   /// - Parameters:
   ///   - mimeType: Required. The IANA standard MIME type of the source data. (behavior varies by backend). For more details, see ``mimeType``.
   ///   - data: Required. Raw bytes for media formats. (behavior varies by backend). For more details, see ``data``.
-  ///   - displayName: Optional. The display name of the blob. Used to provide a label or filename (Gemini Enterprise Agent Platform only). For more details, see ``displayName``.
+  ///   - displayName: Optional. The display name of the blob. Used to provide a label or filename (Gemini Enterprise API only). For more details, see ``displayName``.
   package init(
     mimeType: String,
     data: Data,

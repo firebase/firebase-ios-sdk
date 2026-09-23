@@ -409,8 +409,8 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
   userActivity.webpageURL = url;
 
   SEL selector = @selector(scene:continueUserActivity:);
-  UIScene *targetScene = [FIRSceneDelegateFinder findForegroundSceneForApplication:application
-                                                                  matchingSelector:selector];
+  UIScene *targetScene = [FIRSceneFinder findForegroundSceneForApplication:application
+                                                          matchingSelector:selector];
   if (targetScene) {
     [targetScene.delegate scene:targetScene continueUserActivity:userActivity];
     return;

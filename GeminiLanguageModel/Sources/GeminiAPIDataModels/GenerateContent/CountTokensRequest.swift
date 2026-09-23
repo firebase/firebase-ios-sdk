@@ -25,7 +25,7 @@ import Foundation
 /// Models may tokenize text differently, so each model may return a different
 /// `token_count`.
 ///
-/// ### Gemini Enterprise Agent Platform
+/// ### Gemini Enterprise API
 ///
 /// Type: `GoogleCloudAiplatformV1beta1CountTokensRequest`
 ///
@@ -38,7 +38,7 @@ package struct CountTokensRequest: Codable, Sendable, Equatable, Hashable {
   /// Optional. The input given to the model as a prompt. This field is ignored when
   /// `generate_content_request` is set.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. Input content.
   package let contents: [Content]?
@@ -56,9 +56,9 @@ package struct CountTokensRequest: Codable, Sendable, Equatable, Hashable {
   /// exclusive. You can either send `Model` + `Content`s or a
   /// `generate_content_request`, but never both.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
-  /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
+  /// > Important: This property is not supported in the Gemini Enterprise API.
   package let generateContentRequest: GenerateContentRequest?
 
   /// Optional. The name of the publisher model requested to serve the prediction.
@@ -67,7 +67,7 @@ package struct CountTokensRequest: Codable, Sendable, Equatable, Hashable {
   ///
   /// > Important: This property is not supported in the Gemini Developer API.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. The name of the publisher model requested to serve the prediction.
   /// Format:
@@ -80,7 +80,7 @@ package struct CountTokensRequest: Codable, Sendable, Equatable, Hashable {
   ///
   /// > Important: This property is not supported in the Gemini Developer API.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. The instances that are the input to token counting call.
   /// Schema is identical to the prediction schema of the underlying model.
@@ -92,7 +92,7 @@ package struct CountTokensRequest: Codable, Sendable, Equatable, Hashable {
   ///
   /// > Important: This property is not supported in the Gemini Developer API.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. The user provided system instructions for the model.
   /// Note: only text should be used in parts and content in each part will be in
@@ -105,7 +105,7 @@ package struct CountTokensRequest: Codable, Sendable, Equatable, Hashable {
   ///
   /// > Important: This property is not supported in the Gemini Developer API.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. A list of `Tools` the model may use to generate the next response.
   ///
@@ -120,7 +120,7 @@ package struct CountTokensRequest: Codable, Sendable, Equatable, Hashable {
   ///
   /// > Important: This property is not supported in the Gemini Developer API.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. Generation config that the model will use to generate the response.
   package let generationConfig: GenerationConfig?
@@ -130,11 +130,11 @@ package struct CountTokensRequest: Codable, Sendable, Equatable, Hashable {
   /// - Parameters:
   ///   - contents: Optional. The input given to the model as a prompt. This field is ignored when (behavior varies by backend). For more details, see ``contents``.
   ///   - generateContentRequest: Optional. The overall input given to the `Model`. This includes the prompt as well as (Gemini Developer API only). For more details, see ``generateContentRequest``.
-  ///   - model: Optional. The name of the publisher model requested to serve the prediction. (Gemini Enterprise Agent Platform only). For more details, see ``model``.
-  ///   - instances: Optional. The instances that are the input to token counting call. (Gemini Enterprise Agent Platform only). For more details, see ``instances``.
-  ///   - systemInstruction: Optional. The user provided system instructions for the model. (Gemini Enterprise Agent Platform only). For more details, see ``systemInstruction``.
-  ///   - tools: Optional. A list of `Tools` the model may use to generate the next response. (Gemini Enterprise Agent Platform only). For more details, see ``tools``.
-  ///   - generationConfig: Optional. Generation config that the model will use to generate the response. (Gemini Enterprise Agent Platform only). For more details, see ``generationConfig``.
+  ///   - model: Optional. The name of the publisher model requested to serve the prediction. (Gemini Enterprise API only). For more details, see ``model``.
+  ///   - instances: Optional. The instances that are the input to token counting call. (Gemini Enterprise API only). For more details, see ``instances``.
+  ///   - systemInstruction: Optional. The user provided system instructions for the model. (Gemini Enterprise API only). For more details, see ``systemInstruction``.
+  ///   - tools: Optional. A list of `Tools` the model may use to generate the next response. (Gemini Enterprise API only). For more details, see ``tools``.
+  ///   - generationConfig: Optional. Generation config that the model will use to generate the response. (Gemini Enterprise API only). For more details, see ``generationConfig``.
   package init(
     contents: [Content]? = nil,
     generateContentRequest: GenerateContentRequest? = nil,

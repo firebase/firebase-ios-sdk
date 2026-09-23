@@ -32,7 +32,7 @@ package struct ModelResource: Sendable, Hashable, Equatable {
   /// - **Direct:** `models/{modelID}`
   /// - **Firebase AI Logic:** `projects/{projectID}/models/{modelID}`
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   /// The format is identical for both direct and Firebase AI Logic requests:
   /// - `projects/{projectID}/locations/{locationID}/publishers/google/models/{modelID}`
   let urlResourceName: String
@@ -45,7 +45,7 @@ package struct ModelResource: Sendable, Hashable, Equatable {
   ///
   /// ### Formats
   /// - **Gemini Developer API:** `models/{modelID}`
-  /// - **Gemini Enterprise Agent Platform:** `publishers/google/models/{modelID}`
+  /// - **Gemini Enterprise API:** `publishers/google/models/{modelID}`
   let payloadResourceName: String
 
   /// Creates a new model resource configuration.

@@ -340,8 +340,8 @@ func packageTargets() -> [Target] {
     ),
     .binaryTarget(
       name: "FirebaseAnalytics",
-      url: "https://dl.google.com/firebase/ios/swiftpm/12.19.2/FirebaseAnalytics.zip",
-      checksum: "2062b12de12a9c96f4b775d580459386ee19ca5b969edb6de913da62cdc43b42"
+      url: "https://dl.google.com/firebase/ios/swiftpm/13.0.0/FirebaseAnalytics.zip",
+      checksum: "2aedd5151cae32ce8d95ad6fb38b2f736fb66568d1b29edd6f6fc25a67c48664"
     ),
     .testTarget(
       name: "AnalyticsSwiftUnit",
@@ -1033,7 +1033,6 @@ func packageTargets() -> [Target] {
         // - https://github.com/firebase/firebase-ios-sdk/issues/15276
         // - https://github.com/firebase/firebase-ios-sdk/pull/15287
         .product(name: "nanopb", package: "nanopb"),
-        .product(name: "Promises", package: "Promises"),
         .product(name: "GoogleDataTransport", package: "GoogleDataTransport"),
         .product(name: "GULEnvironment", package: "GoogleUtilities"),
         .product(name: "GULUserDefaults", package: "GoogleUtilities"),
@@ -1407,7 +1406,7 @@ func googleAppMeasurementDependency() -> Package.Dependency {
     return .package(url: appMeasurementURL, branch: "main")
   }
 
-  return .package(url: appMeasurementURL, "12.19.2" ..< "12.20.0")
+  return .package(url: appMeasurementURL, "13.0.0" ..< "13.1.0")
 }
 
 func abseilDependency() -> Package.Dependency {

@@ -61,7 +61,7 @@ public final class GenerativeModel: Sendable {
   ///   - modelName: The name of the model.
   ///   - modelResourceName: The model resource name corresponding with `modelName` in the backend.
   ///     The form depends on the backend and will be one of:
-  ///       - Agent Platform Gemini API via Firebase AI SDK:
+  ///       - Gemini Enterprise API via Firebase AI SDK:
   ///       `"projects/{projectID}/locations/{locationID}/publishers/google/models/{modelName}"`
   ///       - Developer API via Firebase AI SDK: `"projects/{projectID}/models/{modelName}"`
   ///       - Developer API via Generative Language: `"models/{modelName}"`
@@ -207,7 +207,7 @@ public final class GenerativeModel: Sendable {
   /// ``CountTokensResponse/totalTokens``.
   public func countTokens(_ content: [ModelContent]) async throws -> CountTokensResponse {
     let requestContent = switch apiConfig.service {
-    case .agentPlatform:
+    case .enterprise:
       content
     case .googleAI:
       // The `role` defaults to "user" but is ignored in `countTokens`. However, it is erroneously
@@ -222,7 +222,7 @@ public final class GenerativeModel: Sendable {
     // "models/model-name". This field is unaltered by the Firebase backend before forwarding the
     // request to the Generative Language backend, which expects the form "models/model-name".
     let generateContentRequestModelResourceName = switch apiConfig.service {
-    case .agentPlatform:
+    case .enterprise:
       modelResourceName
     case .googleAI(endpoint: .firebaseProxyProd):
       "models/\(modelName)"
@@ -231,9 +231,9 @@ public final class GenerativeModel: Sendable {
         "models/\(modelName)"
       case .googleAI(endpoint: .googleAIBypassProxy):
         modelResourceName
-      case .googleAI(endpoint: .agentPlatformStagingBypassProxy):
+      case .googleAI(endpoint: .enterpriseStagingBypassProxy):
         fatalError(
-          "The Agent Platform Gemini API staging endpoint does not support the Gemini Developer API."
+          "The Gemini Enterprise API staging endpoint does not support the Gemini Developer API."
         )
     #endif // DEBUG
     }

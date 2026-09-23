@@ -25,7 +25,7 @@ import Foundation
 /// Passing a safety setting for a category changes the allowed probability that
 /// content is blocked.
 ///
-/// ### Gemini Enterprise Agent Platform
+/// ### Gemini Enterprise API
 ///
 /// Type: `GoogleCloudAiplatformV1beta1SafetySetting`
 ///
@@ -42,7 +42,7 @@ package struct SafetySetting: Codable, Sendable, Equatable, Hashable {
   ///
   /// Required. The category for this setting.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Required. The harm category to be blocked.
   package let category: HarmCategory
@@ -53,7 +53,7 @@ package struct SafetySetting: Codable, Sendable, Equatable, Hashable {
   ///
   /// Required. Controls the probability threshold at which harm is blocked.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Required. The threshold for blocking content. If the harm probability
   /// exceeds this threshold, the content will be blocked.
@@ -65,7 +65,7 @@ package struct SafetySetting: Codable, Sendable, Equatable, Hashable {
   ///
   /// > Important: This property is not supported in the Gemini Developer API.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. The method for blocking content. If not specified, the default
   /// behavior is to use the probability score.
@@ -76,7 +76,7 @@ package struct SafetySetting: Codable, Sendable, Equatable, Hashable {
   /// - Parameters:
   ///   - category: Required. The category for this setting. (behavior varies by backend). For more details, see ``category``.
   ///   - threshold: Required. Controls the probability threshold at which harm is blocked. (behavior varies by backend). For more details, see ``threshold``.
-  ///   - method: Optional. The method for blocking content. If not specified, the default (Gemini Enterprise Agent Platform only). For more details, see ``method``.
+  ///   - method: Optional. The method for blocking content. If not specified, the default (Gemini Enterprise API only). For more details, see ``method``.
   package init(
     category: HarmCategory,
     threshold: Threshold,

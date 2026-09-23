@@ -160,7 +160,7 @@ final class TemplateGenerativeModelTests: XCTestCase {
     XCTAssertEqual(firstChunk.placeID, "places/ChIJqdNaaBVbwokRLTafYrQlZI8")
   }
 
-  func testGenerateContent_success_mapsGrounding_agentPlatform() async throws {
+  func testGenerateContent_success_mapsGrounding_enterprise() async throws {
     MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
       forResource: "unary-success-google-maps-grounding",
       withExtension: "json",

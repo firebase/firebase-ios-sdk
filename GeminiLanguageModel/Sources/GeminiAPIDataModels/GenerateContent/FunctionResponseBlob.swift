@@ -25,7 +25,7 @@ import Foundation
 /// Text should not be sent as raw bytes, use the 'FunctionResponse.response'
 /// field.
 ///
-/// ### Gemini Enterprise Agent Platform
+/// ### Gemini Enterprise API
 ///
 /// Type: `GoogleCloudAiplatformV1beta1FunctionResponseBlob`
 ///
@@ -45,7 +45,7 @@ package struct FunctionResponseBlob: Codable, Sendable, Equatable, Hashable {
   /// complete list of supported types, see [Supported file
   /// formats](https://ai.google.dev/gemini-api/docs/prompting_with_media#supported_file_formats).
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Required. The IANA standard MIME type of the source data.
   package let mimeType: String?
@@ -56,7 +56,7 @@ package struct FunctionResponseBlob: Codable, Sendable, Equatable, Hashable {
   ///
   /// Raw bytes for media formats.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Required. Raw bytes.
   package let data: Data?
@@ -67,7 +67,7 @@ package struct FunctionResponseBlob: Codable, Sendable, Equatable, Hashable {
   ///
   /// > Important: This property is not supported in the Gemini Developer API.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. Display name of the blob.
   ///
@@ -83,7 +83,7 @@ package struct FunctionResponseBlob: Codable, Sendable, Equatable, Hashable {
   /// - Parameters:
   ///   - mimeType: The IANA standard MIME type of the source data. (behavior varies by backend). For more details, see ``mimeType``.
   ///   - data: Raw bytes for media formats. (behavior varies by backend). For more details, see ``data``.
-  ///   - displayName: Optional. Display name of the blob. (Gemini Enterprise Agent Platform only). For more details, see ``displayName``.
+  ///   - displayName: Optional. Display name of the blob. (Gemini Enterprise API only). For more details, see ``displayName``.
   package init(
     mimeType: String? = nil,
     data: Data? = nil,

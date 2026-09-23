@@ -28,7 +28,7 @@ import Foundation
 /// A `Part` must have a fixed IANA MIME type identifying the type and subtype
 /// of the media if the `inline_data` field is filled with raw bytes.
 ///
-/// ### Gemini Enterprise Agent Platform
+/// ### Gemini Enterprise API
 ///
 /// Type: `GoogleCloudAiplatformV1beta1Part`
 ///
@@ -50,9 +50,9 @@ package struct Part: Codable, Sendable, Equatable, Hashable {
   /// predicts a tool invocation that should be executed on the server.
   /// The client is expected to echo this message back to the API.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
-  /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
+  /// > Important: This property is not supported in the Gemini Enterprise API.
   package let toolCall: ToolCall?
 
   /// The output from a server-side `ToolCall` execution. This field is
@@ -63,9 +63,9 @@ package struct Part: Codable, Sendable, Equatable, Hashable {
   /// populated by the client with the results of executing the
   /// corresponding `ToolCall`.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
-  /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
+  /// > Important: This property is not supported in the Gemini Enterprise API.
   package let toolResponse: ToolResponse?
 
   /// Optional. Indicates if the part is thought from the model.
@@ -74,7 +74,7 @@ package struct Part: Codable, Sendable, Equatable, Hashable {
   ///
   /// Optional. Indicates if the part is thought from the model.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. Indicates whether the `part` represents the model's thought
   /// process or reasoning.
@@ -87,7 +87,7 @@ package struct Part: Codable, Sendable, Equatable, Hashable {
   /// Optional. An opaque signature for the thought so it can be reused in subsequent
   /// requests.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. An opaque signature for the thought so it can be reused in
   /// subsequent requests.
@@ -102,9 +102,9 @@ package struct Part: Codable, Sendable, Equatable, Hashable {
   /// of the additional information. For example it can be name of a file/source
   /// from which the Part originates or a way to multiplex multiple Part streams.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
-  /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
+  /// > Important: This property is not supported in the Gemini Enterprise API.
   package let partMetadata: [String: JSONValue]?
 
   /// Optional. Media resolution for the input media.
@@ -113,7 +113,7 @@ package struct Part: Codable, Sendable, Equatable, Hashable {
   ///
   /// Optional. Media resolution for the input media.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// per part media resolution.
   /// Media resolution for the input media.
