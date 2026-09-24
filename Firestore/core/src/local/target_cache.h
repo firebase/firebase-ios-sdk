@@ -21,6 +21,7 @@
 #include <unordered_map>
 
 #include "Firestore/core/src/core/pipeline_util.h"  // Added for TargetOrPipeline
+#include "Firestore/core/src/local/target_data_fwd.h"
 #include "Firestore/core/src/model/model_fwd.h"
 #include "Firestore/core/src/model/types.h"
 
@@ -33,7 +34,6 @@ class Target;
 }  // namespace core
 
 namespace local {
-class TargetData;
 
 using OrphanedDocumentCallback =
     std::function<void(const model::DocumentKey&, model::ListenSequenceNumber)>;
