@@ -19,6 +19,8 @@
   https://firebase.google.com/docs/ios/cocoapods-deprecation for details.
 - [removed] **Breaking change**: FirebaseMLModelDownloader has been removed. See
   https://firebase.google.com/docs/ml for more info.
+- [removed] **Breaking change**: GoogleSignIn is no longer included in the
+  Firebase zip distribution.
 - [changed] **Breaking change**: Removed the CocoaPods generated umbrella headers
   (suffixed `-umbrella.h`) from the Zip and Carthage artifacts, in favor of `Firebase.h`
   and framework specific umbrella headers. (#16540)
