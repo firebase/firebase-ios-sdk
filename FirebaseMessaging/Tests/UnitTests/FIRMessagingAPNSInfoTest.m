@@ -15,10 +15,21 @@
  */
 
 #import <XCTest/XCTest.h>
-#import <objc/runtime.h>
 
 #import "FirebaseMessaging/Sources/FIRMessagingConstants.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingAPNSInfo.h"
+
+@interface FIRMessagingAPNSInfo_MutableDataFixture : FIRMessagingAPNSInfo
+@end
+
+@implementation FIRMessagingAPNSInfo_MutableDataFixture
+- (void)encodeWithCoder:(NSCoder *)aCoder {
+  NSMutableData *mutableToken =
+      [NSMutableData dataWithData:[@"mutableTokenData" dataUsingEncoding:NSUTF8StringEncoding]];
+  [aCoder encodeObject:mutableToken forKey:@"device_token"];
+  [aCoder encodeBool:YES forKey:@"sandbox"];
+}
+@end
 
 @interface FIRMessagingAPNSInfoTest : XCTestCase
 
@@ -91,18 +102,6 @@
   XCTAssertEqual(info.sandbox, restoredInfo.sandbox);
 }
 
-@interface FIRMessagingAPNSInfo_MutableDataFixture : FIRMessagingAPNSInfo
-@end
-
-@implementation FIRMessagingAPNSInfo_MutableDataFixture
-- (void)encodeWithCoder:(NSCoder *)aCoder {
-  NSMutableData *mutableToken =
-      [NSMutableData dataWithData:[@"mutableTokenData" dataUsingEncoding:NSUTF8StringEncoding]];
-  [aCoder encodeObject:mutableToken forKey:@"device_token"];
-  [aCoder encodeBool:YES forKey:@"sandbox"];
-}
-@end
-
 // Test that archiving a FIRMessagingAPNSInfo object holding an NSMutableData token
 // and restoring it from the archive succeeds under secure coding.
 - (void)testAPNSInfoEncodingAndDecodingWithMutableData {
@@ -122,8 +121,8 @@
   XCTAssertTrue([archiveString containsString:@"NSMutableData"],
                 @"Fixture archive must contain an encoded NSMutableData instance.");
 
-  NSSet *classes = [[NSSet alloc]
-      initWithArray:@[ FIRMessagingAPNSInfo.class, NSData.class, NSMutableData.class ]];
+  NSSet *classes =
+      [NSSet setWithObjects:FIRMessagingAPNSInfo.class, NSData.class, NSMutableData.class, nil];
   NSError *error = nil;
   FIRMessagingAPNSInfo *restoredInfo = [NSKeyedUnarchiver unarchivedObjectOfClasses:classes
                                                                            fromData:archive
