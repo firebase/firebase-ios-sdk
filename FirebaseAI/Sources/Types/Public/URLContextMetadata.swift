@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/// Metadata related to the ``Tool/urlContext()`` tool.
+/// Metadata related to the ``GenerativeModel/Tool/urlContext()`` tool.
 public struct URLContextMetadata: Sendable, Hashable {
   /// List of URL metadata used to provide context to the Gemini model.
   public let urlMetadata: [URLMetadata]

@@ -21,7 +21,7 @@ struct GenerateContentRequest: Sendable {
   let contents: [ModelContent]
   let generationConfig: GenerationConfig?
   let safetySettings: [SafetySetting]?
-  let tools: [Tool]?
+  let tools: [GenerativeModel.Tool]?
   let toolConfig: ToolConfig?
   let systemInstruction: ModelContent?
 

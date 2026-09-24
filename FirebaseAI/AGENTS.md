@@ -61,8 +61,8 @@ Data types used in the FirebaseAI library.
 - **`ResponseModality.swift`**: Represents types of data a model can produce (text, image, audio).
 - **`Schema.swift`**: Allows definition of input and output data types for function calling.
 - **`ThinkingConfig.swift`**: Controls the "thinking" behavior of compatible Gemini models.
-- **`URLContextMetadata.swift`**: Metadata related to the `Tool.urlContext()` tool.
-- **`URLMetadata.swift`**: Metadata for a single URL retrieved by the `Tool.urlContext()` tool.
+- **`URLContextMetadata.swift`**: Metadata related to the `GenerativeModel.Tool.urlContext()` tool.
+- **`URLMetadata.swift`**: Metadata for a single URL retrieved by the `GenerativeModel.Tool.urlContext()` tool.
 
 #### Sources/Types/Public/Tools/
 

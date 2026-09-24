@@ -46,7 +46,7 @@ public final class GenerativeModel: Sendable {
   /// A list of tools the model may use to generate the next response.
   let tools: [Tool]?
 
-  /// Tool configuration for any `Tool` specified in the request.
+  /// Tool configuration for any ``Tool`` specified in the request.
   let toolConfig: ToolConfig?
 
   /// Instructions that direct the model to behave a certain way.
@@ -70,7 +70,7 @@ public final class GenerativeModel: Sendable {
   ///   - generationConfig: The content generation parameters your model should use.
   ///   - safetySettings: A value describing what types of harmful content your model should allow.
   ///   - tools: A list of ``Tool`` objects that the model may use to generate the next response.
-  ///   - toolConfig: Tool configuration for any `Tool` specified in the request.
+  ///   - toolConfig: Tool configuration for any ``Tool`` specified in the request.
   ///   - systemInstruction: Instructions that direct the model to behave a certain way; currently
   ///     only text content is supported.
   ///   - requestOptions: Configuration parameters for sending requests to the backend.

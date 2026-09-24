@@ -39,7 +39,7 @@ public final class TemplateGenerativeModel: Sendable {
   /// A list of tools the model may use to generate the next response.
   let tools: [TemplateTool]?
 
-  /// Tool configuration for any `Tool` specified in the request.
+  /// Tool configuration for any ``TemplateTool`` specified in the request.
   let toolConfig: TemplateToolConfig?
 
   /// Configuration parameters for sending requests to the backend.
