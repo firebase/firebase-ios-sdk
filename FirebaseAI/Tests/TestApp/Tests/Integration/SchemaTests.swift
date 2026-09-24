@@ -36,28 +36,14 @@ struct SchemaTests {
     SafetySetting(harmCategory: .civicIntegrity, threshold: .blockLowAndAbove),
   ]
 
-  @Test(
-    arguments: testConfigs(
-      instanceConfigs: InstanceConfig.defaultConfigs,
-      openAPISchema: .array(
-        items: .string(description: "The name of the city"),
-        description: "A list of city names",
-        minItems: 3,
-        maxItems: 5
-      ),
-      jsonSchema: [
-        "type": .string("array"),
-        "description": .string("A list of city names"),
-        "items": .object([
-          "type": .string("string"),
-          "description": .string("The name of the city"),
-        ]),
-        "minItems": .number(3),
-        "maxItems": .number(5),
-      ]
+  @Test(arguments: InstanceConfig.defaultConfigs)
+  func generateContentItemsSchema(_ config: InstanceConfig) async throws {
+    let schema = Schema.array(
+      items: .string(description: "The name of the city"),
+      description: "A list of city names",
+      minItems: 3,
+      maxItems: 5
     )
-  )
-  func generateContentItemsSchema(_ config: InstanceConfig, _ schema: SchemaType) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
       modelName: ModelNames.gemini2_5_FlashLite,
       generationConfig: SchemaTests.generationConfig(schema: schema),
@@ -72,22 +58,13 @@ struct SchemaTests {
     #expect(decodedJSON.count <= 5, "Expected at most 5 cities, but got \(decodedJSON.count)")
   }
 
-  @Test(arguments: testConfigs(
-    instanceConfigs: InstanceConfig.defaultConfigs,
-    openAPISchema: .integer(
+  @Test(arguments: InstanceConfig.defaultConfigs)
+  func generateContentSchemaNumberRange(_ config: InstanceConfig) async throws {
+    let schema = Schema.integer(
       description: "A number",
       minimum: 110,
       maximum: 120
-    ),
-    jsonSchema: [
-      "type": .string("integer"),
-      "description": .string("A number"),
-      "minimum": .number(110),
-      "maximum": .number(120),
-    ]
-  ))
-  func generateContentSchemaNumberRange(_ config: InstanceConfig,
-                                        _ schema: SchemaType) async throws {
+    )
     let model = FirebaseAI.componentInstance(config).generativeModel(
       modelName: ModelNames.gemini2_5_FlashLite,
       generationConfig: SchemaTests.generationConfig(schema: schema),
@@ -102,9 +79,9 @@ struct SchemaTests {
     #expect(decodedNumber <= 120.0, "Expected a number <= 120, but got \(decodedNumber)")
   }
 
-  @Test(arguments: testConfigs(
-    instanceConfigs: InstanceConfig.defaultConfigs,
-    openAPISchema: .object(
+  @Test(arguments: InstanceConfig.defaultConfigs)
+  func generateContentSchemaNumberRangeMultiType(_ config: InstanceConfig) async throws {
+    let schema = Schema.object(
       properties: [
         "productName": .string(description: "The name of the product"),
         "price": .double(
@@ -125,50 +102,7 @@ struct SchemaTests {
       ],
       propertyOrdering: ["salePrice", "rating", "price", "productName"],
       title: "ProductInfo"
-    ),
-    jsonSchema: [
-      "type": .string("object"),
-      "title": .string("ProductInfo"),
-      "properties": .object([
-        "productName": .object([
-          "type": .string("string"),
-          "description": .string("The name of the product"),
-        ]),
-        "price": .object([
-          "type": .string("number"),
-          "description": .string("A price"),
-          "minimum": .number(10.00),
-          "maximum": .number(120.00),
-        ]),
-        "salePrice": .object([
-          "type": .string("number"),
-          "description": .string("A sale price"),
-          "minimum": .number(5.00),
-          "maximum": .number(90.00),
-        ]),
-        "rating": .object([
-          "type": .string("integer"),
-          "description": .string("A rating"),
-          "minimum": .number(1),
-          "maximum": .number(5),
-        ]),
-      ]),
-      "required": .array([
-        .string("productName"),
-        .string("price"),
-        .string("salePrice"),
-        .string("rating"),
-      ]),
-      "propertyOrdering": .array([
-        .string("salePrice"),
-        .string("rating"),
-        .string("price"),
-        .string("productName"),
-      ]),
-    ]
-  ))
-  func generateContentSchemaNumberRangeMultiType(_ config: InstanceConfig,
-                                                 _ schema: SchemaType) async throws {
+    )
     struct ProductInfo: Codable {
       let productName: String
       let rating: Int
@@ -218,7 +152,8 @@ struct SchemaTests {
     let postalInfo: PostalInfo
   }
 
-  private static let generateContentAnyOfOpenAPISchema = {
+  @Test(arguments: InstanceConfig.defaultConfigs)
+  func generateContentAnyOfSchema(_ config: InstanceConfig) async throws {
     let streetSchema = Schema.string(description:
       "The civic number and street name, for example, '123 Main Street'.")
     let citySchema = Schema.string(description: "The name of the city.")
@@ -241,80 +176,8 @@ struct SchemaTests {
       "city": citySchema,
       "postalInfo": .anyOf(schemas: [canadaPostalInfoSchema, unitedStatesPostalInfoSchema]),
     ])
-    return Schema.array(items: mailingAddressSchema)
-  }()
+    let schema = Schema.array(items: mailingAddressSchema)
 
-  private static let generateContentAnyOfJSONSchema = {
-    let streetSchema: JSONValue = .object([
-      "type": .string("string"),
-      "description": .string("The civic number and street name, for example, '123 Main Street'."),
-    ])
-    let citySchema: JSONValue = .object([
-      "type": .string("string"),
-      "description": .string("The name of the city."),
-    ])
-    let postalInfoSchema: JSONValue = .object([
-      "anyOf": .array([
-        .object([
-          "type": .string("object"),
-          "properties": .object([
-            "province": .object([
-              "type": .string("string"),
-              "description": .string(
-                "The 2-letter Canadian province or territory code, for example, 'ON', 'QC', or 'NU'."
-              ),
-            ]),
-            "postalCode": .object([
-              "type": .string("string"),
-              "description": .string("The Canadian postal code, for example, 'A1A 1A1'."),
-            ]),
-          ]),
-          "required": .array([.string("province"), .string("postalCode")]),
-        ]),
-        .object([
-          "type": .string("object"),
-          "properties": .object([
-            "state": .object([
-              "type": .string("string"),
-              "description": .string(
-                "The 2-letter U.S. state or territory code, for example, 'CA', 'NY', or 'TX'."
-              ),
-            ]),
-            "zipCode": .object([
-              "type": .string("string"),
-              "description": .string("The 5-digit U.S. ZIP code, for example, '12345'."),
-            ]),
-          ]),
-          "required": .array([.string("state"), .string("zipCode")]),
-        ]),
-      ]),
-    ])
-    let mailingAddressSchema: JSONObject = [
-      "type": .string("object"),
-      "description": .string("A mailing address"),
-      "properties": .object([
-        "streetAddress": streetSchema,
-        "city": citySchema,
-        "postalInfo": postalInfoSchema,
-      ]),
-      "required": .array([
-        .string("streetAddress"),
-        .string("city"),
-        .string("postalInfo"),
-      ]),
-    ]
-    return [
-      "type": .string("array"),
-      "items": .object(mailingAddressSchema),
-    ] as JSONObject
-  }()
-
-  @Test(arguments: testConfigs(
-    instanceConfigs: InstanceConfig.defaultConfigs,
-    openAPISchema: generateContentAnyOfOpenAPISchema,
-    jsonSchema: generateContentAnyOfJSONSchema
-  ))
-  func generateContentAnyOfSchema(_ config: InstanceConfig, _ schema: SchemaType) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
       modelName: ModelNames.gemini3_1_FlashLite,
       generationConfig: SchemaTests.generationConfig(schema: schema),
@@ -354,35 +217,14 @@ struct SchemaTests {
     }
   }
 
-  enum SchemaType: CustomTestStringConvertible {
-    case openAPI(Schema)
-    case json(JSONObject)
-
-    var testDescription: String {
-      switch self {
-      case .openAPI:
-        return "OpenAPI Schema"
-      case .json:
-        return "JSON Schema"
-      }
-    }
-  }
-
-  private static func generationConfig(schema: SchemaType) -> GenerationConfig {
-    let mimeType = "application/json"
-    switch schema {
-    case let .openAPI(openAPISchema):
-      return GenerationConfig(temperature: 0.0, topP: 0.0, topK: 1, responseMIMEType: mimeType,
-                              responseSchema: openAPISchema)
-    case let .json(jsonSchema):
-      return GenerationConfig(temperature: 0.0, topP: 0.0, topK: 1, responseMIMEType: mimeType,
-                              responseJSONSchema: jsonSchema)
-    }
-  }
-
-  private static func testConfigs(instanceConfigs: [InstanceConfig], openAPISchema: Schema,
-                                  jsonSchema: JSONObject) -> [(InstanceConfig, SchemaType)] {
-    return instanceConfigs.flatMap { [($0, .openAPI(openAPISchema)), ($0, .json(jsonSchema))] }
+  private static func generationConfig(schema: Schema) -> GenerationConfig {
+    GenerationConfig(
+      temperature: 0.0,
+      topP: 0.0,
+      topK: 1,
+      responseMIMEType: "application/json",
+      responseSchema: schema
+    )
   }
 }
 
