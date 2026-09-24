@@ -190,10 +190,7 @@ func packageTargets() -> [Target] {
     .target(
       name: "FirebaseAILogic",
       dependencies: firebaseAILogicDependencies(),
-      path: "FirebaseAI/Sources",
-      swiftSettings: [
-        isFoundationModelsSupportedPlatformSwiftSetting(),
-      ]
+      path: "FirebaseAI/Sources"
     ),
     .testTarget(
       name: "FirebaseAILogicUnit",
@@ -208,9 +205,6 @@ func packageTargets() -> [Target] {
       ],
       cSettings: [
         .headerSearchPath("../../../"),
-      ],
-      swiftSettings: [
-        isFoundationModelsSupportedPlatformSwiftSetting(),
       ]
     ),
 
@@ -1726,13 +1720,6 @@ func firebaseAILogicDependencies() -> [Target.Dependency] {
     ]
   }
 #endif // compiler(>=6.4) && canImport(FoundationModels)
-
-func isFoundationModelsSupportedPlatformSwiftSetting() -> SwiftSetting {
-  return SwiftSetting.define(
-    "IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM",
-    .when(platforms: [.iOS, .macCatalyst, .macOS, .visionOS])
-  )
-}
 
 func appCheckDependency() -> Package.Dependency {
   let appCheckURL = "https://github.com/google/app-check.git"

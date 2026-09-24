@@ -27,7 +27,7 @@ public struct FunctionDeclaration: Sendable {
   let description: String
 
   /// Describes the parameters to this function; must be of type `DataType.object`.
-  let parameters: Schema?
+  let parameters: Schema
 
   /// Constructs a new `FunctionDeclaration`.
   ///
@@ -200,7 +200,7 @@ public struct RetrievalConfig: Sendable, Encodable {
 
 extension CLLocationCoordinate2D: @retroactive @unchecked Sendable {}
 
-// MARK: - ToolRepresentable Conformances
+// MARK: - Tool Conveniences
 
 public extension FirebaseAILogic.Tool {
   /// Creates a tool that allows the model to perform function calling.

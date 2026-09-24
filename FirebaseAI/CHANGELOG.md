@@ -1,4 +1,10 @@
 # 13.0.0
+- [removed] **Breaking Change**: Removed `GenerativeModelSession`,
+  `SystemLanguageModel`, `HybridModel`, and associated types and protocols that
+  previously provided an interim integration with Apple's Foundation Models
+  framework. Going forward, use `GeminiLanguageModel` via
+  `ai.geminiLanguageModel(name:)` directly with Apple's native Foundation
+  Models framework.
 - [removed] **Breaking Change:** Removed the deprecated `Backend.vertexAI()` and
   `Backend.vertexAI(location:)` methods. Use `Backend.enterprise(location:)`
   instead (note that the default location is `"global"` instead of
