@@ -101,23 +101,32 @@ static NSString *const kFIRMessagingTokenKeychainId = @"com.google.iid-tokens";
   // Check if it is saved as an archived FIRMessagingTokenInfo, otherwise return nil.
   FIRMessagingTokenInfo *tokenInfo = nil;
   if (item) {
-    NSError *error = nil;
-    NSKeyedUnarchiver *unarchiver = [[NSKeyedUnarchiver alloc] initForReadingFromData:item
-                                                                                error:&error];
-    if (unarchiver) {
-      unarchiver.requiresSecureCoding = YES;
-      [unarchiver setClass:[FIRMessagingTokenInfo class] forClassName:@"FIRInstanceIDTokenInfo"];
-      tokenInfo = [unarchiver decodeObjectOfClass:[FIRMessagingTokenInfo class]
-                                           forKey:NSKeyedArchiveRootObjectKey];
-      if (!tokenInfo && unarchiver.error) {
+    // The error-return policy covers decoder-detected failures; this guards exceptions from
+    // -initWithCoder: implementations or unanticipated archive shapes in persisted, externally
+    // writable keychain data.
+    @try {
+      NSError *error = nil;
+      NSKeyedUnarchiver *unarchiver = [[NSKeyedUnarchiver alloc] initForReadingFromData:item
+                                                                                  error:&error];
+      if (unarchiver) {
+        unarchiver.requiresSecureCoding = YES;
+        [unarchiver setClass:[FIRMessagingTokenInfo class] forClassName:@"FIRInstanceIDTokenInfo"];
+        tokenInfo = [unarchiver decodeObjectOfClass:[FIRMessagingTokenInfo class]
+                                             forKey:NSKeyedArchiveRootObjectKey];
+        if (!tokenInfo && unarchiver.error) {
+          FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTokenStoreExceptionUnarchivingTokenInfo,
+                                  @"Failed to decode token info from Keychain item; error: %@",
+                                  unarchiver.error);
+        }
+        [unarchiver finishDecoding];
+      } else {
         FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTokenStoreExceptionUnarchivingTokenInfo,
-                                @"Failed to decode token info from Keychain item; error: %@",
-                                unarchiver.error);
+                                @"Unable to parse token info from Keychain item; error: %@", error);
+        tokenInfo = nil;
       }
-      [unarchiver finishDecoding];
-    } else {
-      FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTokenStoreExceptionUnarchivingTokenInfo,
-                              @"Unable to parse token info from Keychain item; error: %@", error);
+    } @catch (NSException *exception) {
+      FIRMessagingLoggerError(kFIRMessagingMessageCodeTokenStoreExceptionUnarchivingTokenInfo,
+                              @"Exception thrown during token info unarchiving: %@", exception);
       tokenInfo = nil;
     }
   }

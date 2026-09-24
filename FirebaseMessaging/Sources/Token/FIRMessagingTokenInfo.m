@@ -204,15 +204,24 @@ static const NSTimeInterval kDefaultFetchTokenInterval = 7 * 24 * 60 * 60;  // 7
     // archive. Secure coding stays on: the blob was written insecurely, but FIRMessagingAPNSInfo
     // conforms to NSSecureCoding, so it can still be read under the strict decoder.
     NSError *APNSInfoError = nil;
-    NSKeyedUnarchiver *APNSInfoUnarchiver =
-        [[NSKeyedUnarchiver alloc] initForReadingFromData:decodedAPNSInfo error:&APNSInfoError];
-    if (APNSInfoUnarchiver) {
-      APNSInfoUnarchiver.requiresSecureCoding = YES;
-      [APNSInfoUnarchiver setClass:[FIRMessagingAPNSInfo class]
-                      forClassName:@"FIRInstanceIDAPNSInfo"];
-      rawAPNSInfo = [APNSInfoUnarchiver decodeObjectOfClass:[FIRMessagingAPNSInfo class]
-                                                     forKey:NSKeyedArchiveRootObjectKey];
-      [APNSInfoUnarchiver finishDecoding];
+    NSKeyedUnarchiver *APNSInfoUnarchiver = nil;
+    @try {
+      APNSInfoUnarchiver = [[NSKeyedUnarchiver alloc] initForReadingFromData:decodedAPNSInfo
+                                                                       error:&APNSInfoError];
+      if (APNSInfoUnarchiver) {
+        APNSInfoUnarchiver.requiresSecureCoding = YES;
+        [APNSInfoUnarchiver setClass:[FIRMessagingAPNSInfo class]
+                        forClassName:@"FIRInstanceIDAPNSInfo"];
+        rawAPNSInfo = [APNSInfoUnarchiver decodeObjectOfClass:[FIRMessagingAPNSInfo class]
+                                                       forKey:NSKeyedArchiveRootObjectKey];
+        [APNSInfoUnarchiver finishDecoding];
+      }
+    } @catch (NSException *exception) {
+      FIRMessagingLoggerInfo(kFIRMessagingMessageCodeTokenInfoBadAPNSInfo,
+                             @"Exception decoding APNS info archived by FirebaseMessaging 10.18.0 "
+                             @"or earlier: %@",
+                             exception);
+      rawAPNSInfo = nil;
     }
     if (!rawAPNSInfo) {
       FIRMessagingLoggerInfo(kFIRMessagingMessageCodeTokenInfoBadAPNSInfo,
