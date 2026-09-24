@@ -26,6 +26,10 @@
   `GTMSessionFetcher` is now `4.0.0` (support for `3.x` has been dropped).
 - [changed] **Breaking change**: Bundle ID prefixes in the zip distribution are now
   properly scoped to `com.google.firebase`, instead of `org.cocoapods.`. (#16678)
+- [changed] Firebase now requires Swift tools version 6.2.1 and the Swift 6.2.3
+  compiler for the Swift Package. The package will no longer resolve in Xcode
+  versions older than 26.2, which remains the minimum officially supported
+  version for the SDK. (#16696)
 
 # Firebase 12.19.1
 - [fixed] Fixed the zip distribution artifact naming on the GitHub release
