@@ -47,14 +47,6 @@ Build AI-powered apps and features with the Gemini API using the Firebase AI Log
     'PRODUCT_BUNDLE_IDENTIFIER' => 'com.google.firebase.FirebaseAILogic'
   }
 
-  swift_flags_xcconfig = {
-    'OTHER_SWIFT_FLAGS' => '$(inherited) -D IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM'
-  }
-
-  # Note: Foundation Models is only supported on iOS and macOS; watchOS and tvOS are omitted.
-  s.ios.pod_target_xcconfig = swift_flags_xcconfig
-  s.osx.pod_target_xcconfig = swift_flags_xcconfig
-
   # Direct dependency on AppCheck for automatic token acquisition and
   # management.
   s.dependency 'FirebaseAppCheck', '~> 13.0.0'
@@ -83,9 +75,5 @@ Build AI-powered apps and features with the Gemini API using the Firebase AI Log
       unit_tests_dir + 'vertexai-sdk-test-data/mock-responses',
       unit_tests_dir + 'Resources/**/*',
     ]
-
-    # Note: Foundation Models is only supported on iOS and macOS; watchOS and tvOS are omitted.
-    unit_tests.ios.pod_target_xcconfig = swift_flags_xcconfig
-    unit_tests.osx.pod_target_xcconfig = swift_flags_xcconfig
   end
 end

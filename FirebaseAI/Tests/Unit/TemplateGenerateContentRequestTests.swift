@@ -45,7 +45,6 @@ final class TemplateGenerateContentRequestTests: XCTestCase {
     let functions = try XCTUnwrap(internalTool.templateFunctions)
     XCTAssertEqual(functions.count, 1)
     XCTAssertEqual(functions[0].name, "fetchWeather")
-    XCTAssertNil(functions[0].outputSchema)
 
     let inputSchema = try XCTUnwrap(functions[0].inputSchema)
     XCTAssertEqual(inputSchema["type"], .string("object"))
@@ -138,41 +137,6 @@ final class TemplateGenerateContentRequestTests: XCTestCase {
     }
     """)
   }
-
-  // MARK: - Unsupported Automatic Function Calling
-
-  #if compiler(>=6.2.3) && canImport(FoundationModels)
-    @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
-    @available(tvOS, unavailable)
-    @available(watchOS, unavailable)
-    struct TestAutoTool: FoundationModels.Tool {
-      @Generable
-      struct VoidArguments {}
-
-      let description = "Auto function calling is unsupported in Server Prompt Templates."
-
-      func call(arguments: VoidArguments) async throws -> String {
-        fatalError("Unused: \(description)")
-      }
-    }
-
-    @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
-    @available(tvOS, unavailable)
-    @available(watchOS, unavailable)
-    func testInitWithUnsupportedAutomaticFunctionCalling() throws {
-      try XCTSkipFoundationModelsUnsupported()
-
-      let declaration = FunctionDeclaration(foundationModelsTool: TestAutoTool())
-      let templateTool = TemplateTool.functionDeclarations([declaration])
-
-      XCTAssertThrowsError(try templateTool.toInternal()) { error in
-        guard case EncodingError.invalidValue = error else {
-          XCTFail("Expected EncodingError.invalidValue, got: \(error)")
-          return
-        }
-      }
-    }
-  #endif // compiler(>=6.2.3) && canImport(FoundationModels)
 
   // MARK: - Request URL
 

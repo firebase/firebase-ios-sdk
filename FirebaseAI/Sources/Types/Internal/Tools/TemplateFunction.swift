@@ -40,21 +40,14 @@ struct TemplateFunction: Sendable, Equatable {
   /// ```
   let inputSchema: JSONObject?
 
-  /// Describes the output from this function in JSON Schema format.
-  ///
-  /// The value specified by the schema is the response value of the function.
-  let outputSchema: JSONObject?
-
   /// Initializes a new `TemplateFunction`.
   ///
   /// - Parameters:
   ///   - name: The name of the function to call.
   ///   - inputSchema: Describes the parameters to the function in JSON Schema format.
-  ///   - outputSchema: Describes the output from this function in JSON Schema format.
-  init(name: String, inputSchema: JSONObject? = nil, outputSchema: JSONObject? = nil) {
+  init(name: String, inputSchema: JSONObject?) {
     self.name = name
     self.inputSchema = inputSchema
-    self.outputSchema = outputSchema
   }
 }
 
@@ -68,27 +61,8 @@ extension TemplateFunction {
   /// - Parameter functionDeclaration: The ``FunctionDeclaration`` to convert.
   /// - Throws: An error if parameter schema conversion fails.
   init(_ functionDeclaration: FunctionDeclaration) throws {
-    guard case .manual = functionDeclaration.kind else {
-      throw EncodingError.invalidValue(
-        functionDeclaration,
-        EncodingError.Context(
-          codingPath: [],
-          debugDescription: "Server Prompt Templates do not support automatic function calling."
-        )
-      )
-    }
-
     name = functionDeclaration.name
-
-    if let parameters = functionDeclaration.parameters {
-      inputSchema = parameters.toJSONSchema()
-    } else if let parametersJSONSchema = functionDeclaration.parametersJSONSchema {
-      inputSchema = try parametersJSONSchema.toGeminiJSONSchema()
-    } else {
-      inputSchema = nil
-    }
-
-    outputSchema = functionDeclaration.responseJSONSchema
+    inputSchema = functionDeclaration.parameters.toJSONSchema()
   }
 }
 

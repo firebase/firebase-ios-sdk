@@ -14,20 +14,12 @@
 
 import CoreLocation
 import Foundation
-#if canImport(FoundationModels)
-  import FoundationModels
-#endif // canImport(FoundationModels)
 
 /// Structured representation of a function declaration.
 ///
 /// This `FunctionDeclaration` is a representation of a block of code that can be used as a ``Tool``
 /// by the model and executed by the client.
 public struct FunctionDeclaration: Sendable {
-  enum Kind {
-    case manual
-    case foundationModels(any Sendable)
-  }
-
   /// The name of the function.
   let name: String
 
@@ -35,13 +27,7 @@ public struct FunctionDeclaration: Sendable {
   let description: String
 
   /// Describes the parameters to this function; must be of type `DataType.object`.
-  let parameters: Schema?
-
-  let parametersJSONSchema: FirebaseAI.GenerationSchema?
-
-  let responseJSONSchema: JSONObject?
-
-  let kind: Kind
+  let parameters: Schema
 
   /// Constructs a new `FunctionDeclaration`.
   ///
@@ -61,35 +47,7 @@ public struct FunctionDeclaration: Sendable {
       optionalProperties: optionalParameters,
       nullable: false
     )
-    parametersJSONSchema = nil
-    responseJSONSchema = nil
-    kind = .manual
   }
-
-  #if compiler(>=6.2.3)
-    #if canImport(FoundationModels)
-      @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
-      @available(tvOS, unavailable)
-      @available(watchOS, unavailable)
-      init<T: FoundationModels.Tool>(foundationModelsTool: T) {
-        name = foundationModelsTool.name
-        description = foundationModelsTool.description
-        parameters = nil
-        parametersJSONSchema = FirebaseAI.GenerationSchema(foundationModelsTool.parameters)
-        // Gemini requires function responses to be JSON objects (not arrays or primitives); don't
-        // provide a `responseJSONSchema` in this scenario since it is optional.
-        if let generableOutputMetatype = T.Output.self as? any FoundationModels.Generable.Type,
-           let responseSchema = try? FirebaseAI.GenerationSchema(
-             generableOutputMetatype.generationSchema
-           ).toGeminiJSONSchema(), responseSchema["type"] == .string("object") {
-          responseJSONSchema = responseSchema
-        } else {
-          responseJSONSchema = nil
-        }
-        kind = .foundationModels(foundationModelsTool)
-      }
-    #endif // canImport(FoundationModels)
-  #endif // compiler(>=6.2.3)
 }
 
 /// A tool that allows the generative model to connect to Google Search to access and incorporate
@@ -242,15 +200,9 @@ public struct RetrievalConfig: Sendable, Encodable {
 
 extension CLLocationCoordinate2D: @retroactive @unchecked Sendable {}
 
-// MARK: - ToolRepresentable Conformances
+// MARK: - Tool Conveniences
 
-extension FirebaseAILogic.Tool: ToolRepresentable {
-  public var toolRepresentation: FirebaseAILogic.Tool {
-    return self
-  }
-}
-
-public extension ToolRepresentable where Self == FirebaseAILogic.Tool {
+public extension FirebaseAILogic.Tool {
   /// Creates a tool that allows the model to perform function calling.
   ///
   /// Function calling can be used to provide data to the model that was not known at the time it
@@ -273,17 +225,6 @@ public extension ToolRepresentable where Self == FirebaseAILogic.Tool {
   static func functionDeclarations(_ functionDeclarations: [FunctionDeclaration]) -> Tool {
     return self.init(functionDeclarations: functionDeclarations)
   }
-
-  #if compiler(>=6.2.3)
-    #if canImport(FoundationModels)
-      @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
-      @available(tvOS, unavailable)
-      @available(watchOS, unavailable)
-      static func autoFunctionDeclaration(_ tool: any FoundationModels.Tool) -> Tool {
-        return self.init(functionDeclarations: [FunctionDeclaration(foundationModelsTool: tool)])
-      }
-    #endif // canImport(FoundationModels)
-  #endif // compiler(>=6.2.3)
 
   /// Creates a tool that allows the model to use Grounding with Google Search.
   ///
@@ -336,63 +277,6 @@ public extension ToolRepresentable where Self == FirebaseAILogic.Tool {
   }
 }
 
-// MARK: - Automatic Function Calling Helpers
-
-#if compiler(>=6.2.3)
-  extension FunctionDeclaration {
-    static func toFunctionResponse(output: JSONValue,
-                                   functionCall: FunctionCallPart) -> FunctionResponsePart {
-      let outputJSONObject: JSONObject
-      if case let .object(value) = output {
-        outputJSONObject = value
-      } else {
-        outputJSONObject = ["result": output]
-      }
-
-      return FunctionResponsePart(
-        name: functionCall.name,
-        response: outputJSONObject,
-        functionId: functionCall.functionId
-      )
-    }
-  }
-
-  #if canImport(FoundationModels)
-    @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
-    @available(tvOS, unavailable)
-    @available(watchOS, unavailable)
-    extension FunctionDeclaration {
-      static func call<T: FoundationModels.Tool>(tool: T,
-                                                 functionCall: FunctionCallPart) async throws
-        -> FunctionResponsePart {
-        let arguments = try T.Arguments(functionCall.args.firebaseGeneratedContent.generatedContent)
-        let output = try await tool.call(arguments: arguments)
-        let outputErrorMessage = """
-        Unsupported output type "\(output.self)" for tool "\(tool.name)"; the associated type \
-        `Output` for the `FoundationModels.Tool` must conform to `ConvertibleToGeneratedContent`.
-        """
-        assert(output is (any FoundationModels.ConvertibleToGeneratedContent), outputErrorMessage)
-        guard let output = output as? (any FoundationModels.ConvertibleToGeneratedContent) else {
-          throw NSError(
-            domain: "\(Constants.baseErrorDomain).\(Self.self)",
-            code: AILog.MessageCode.invalidToolOutputType.rawValue,
-            userInfo: [NSLocalizedDescriptionKey: outputErrorMessage]
-          )
-        }
-        let generatedContent = output.generatedContent
-        let firebaseGeneratedContent = FirebaseAI.GeneratedContent(
-          kind: generatedContent.kind,
-          id: FirebaseAI.GenerationID(responseID: nil, generationID: generatedContent.id),
-          isComplete: generatedContent.isComplete
-        )
-        let outputJSONValue = try JSONValue(firebaseGeneratedContent)
-
-        return toFunctionResponse(output: outputJSONValue, functionCall: functionCall)
-      }
-    }
-  #endif // canImport(FoundationModels)
-#endif // compiler(>=6.2.3)
-
 // MARK: - Codable Conformance
 
 extension FunctionDeclaration: Encodable {
@@ -400,8 +284,6 @@ extension FunctionDeclaration: Encodable {
     case name
     case description
     case parameters
-    case parametersJSONSchema = "parametersJsonSchema"
-    case responseJSONSchema = "responseJsonSchema"
   }
 
   public func encode(to encoder: Encoder) throws {
@@ -409,12 +291,6 @@ extension FunctionDeclaration: Encodable {
     try container.encode(name, forKey: .name)
     try container.encode(description, forKey: .description)
     try container.encodeIfPresent(parameters, forKey: .parameters)
-    #if canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
-      if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
-        try container.encodeIfPresent(parametersJSONSchema, forKey: .parametersJSONSchema)
-        try container.encodeIfPresent(responseJSONSchema, forKey: .responseJSONSchema)
-      }
-    #endif // canImport(FoundationModels) && IS_FOUNDATION_MODELS_SUPPORTED_PLATFORM
   }
 }
 
