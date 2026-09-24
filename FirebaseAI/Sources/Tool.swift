@@ -17,8 +17,8 @@ import Foundation
 
 /// Structured representation of a function declaration.
 ///
-/// This `FunctionDeclaration` is a representation of a block of code that can be used as a ``Tool``
-/// by the model and executed by the client.
+/// This `FunctionDeclaration` is a representation of a block of code that can be used as a
+/// ``GenerativeModel/Tool`` by the model and executed by the client.
 public struct FunctionDeclaration: Sendable {
   /// The name of the function.
   let name: String
@@ -63,40 +63,35 @@ public struct GoogleSearch: Sendable {
   public init() {}
 }
 
-/// A helper tool that the model may use when generating responses.
-///
-/// A `Tool` is a piece of code that enables the system to interact with external systems to perform
-/// an action, or set of actions, outside of knowledge and scope of the model.
-public struct Tool: Sendable {
-  /// A list of `FunctionDeclarations` available to the model.
-  let functionDeclarations: [FunctionDeclaration]?
-
-  /// Specifies the Google Search configuration.
-  let googleSearch: GoogleSearch?
-
-  /// Specifies the Google Maps configuration.
-  let googleMaps: GoogleMaps?
-
-  let codeExecution: CodeExecution?
-  let urlContext: URLContext?
-
-  init(functionDeclarations: [FunctionDeclaration]? = nil,
-       googleSearch: GoogleSearch? = nil,
-       googleMaps: GoogleMaps? = nil,
-       urlContext: URLContext? = nil,
-       codeExecution: CodeExecution? = nil) {
-    self.functionDeclarations = functionDeclarations
-    self.googleSearch = googleSearch
-    self.googleMaps = googleMaps
-    self.urlContext = urlContext
-    self.codeExecution = codeExecution
-  }
-
-  /// Returns `true` if all tools contained in `Tool` are supported by Foundation Models.
+public extension GenerativeModel {
+  /// A helper tool that the model may use when generating responses.
   ///
-  /// Note: Currently only function declarations are supported.
-  var isFoundationModeCompatible: Bool {
-    return googleSearch == nil && googleMaps == nil && urlContext == nil && codeExecution == nil
+  /// A `Tool` is a piece of code that enables the system to interact with external systems to
+  /// perform an action, or set of actions, outside of knowledge and scope of the model.
+  struct Tool: Sendable {
+    /// A list of `FunctionDeclarations` available to the model.
+    let functionDeclarations: [FunctionDeclaration]?
+
+    /// Specifies the Google Search configuration.
+    let googleSearch: GoogleSearch?
+
+    /// Specifies the Google Maps configuration.
+    let googleMaps: GoogleMaps?
+
+    let codeExecution: CodeExecution?
+    let urlContext: URLContext?
+
+    init(functionDeclarations: [FunctionDeclaration]? = nil,
+         googleSearch: GoogleSearch? = nil,
+         googleMaps: GoogleMaps? = nil,
+         urlContext: URLContext? = nil,
+         codeExecution: CodeExecution? = nil) {
+      self.functionDeclarations = functionDeclarations
+      self.googleSearch = googleSearch
+      self.googleMaps = googleMaps
+      self.urlContext = urlContext
+      self.codeExecution = codeExecution
+    }
   }
 }
 
@@ -145,7 +140,7 @@ public struct FunctionCallingConfig: Sendable {
   }
 }
 
-/// Tool configuration for any `Tool` specified in the request.
+/// Tool configuration for any ``GenerativeModel/Tool`` specified in the request.
 public struct ToolConfig: Sendable {
   let functionCallingConfig: FunctionCallingConfig?
   let retrievalConfig: RetrievalConfig?
@@ -202,7 +197,7 @@ extension CLLocationCoordinate2D: @retroactive @unchecked Sendable {}
 
 // MARK: - Tool Conveniences
 
-public extension FirebaseAILogic.Tool {
+public extension GenerativeModel.Tool {
   /// Creates a tool that allows the model to perform function calling.
   ///
   /// Function calling can be used to provide data to the model that was not known at the time it
@@ -222,7 +217,8 @@ public extension FirebaseAILogic.Tool {
   ///   ``FunctionResponsePart`` in ``ModelContent/parts`` with a ``ModelContent/role`` of
   ///   `"user"`; this response contains the result of executing the function on the client,
   ///   providing generation context for the model's next turn.
-  static func functionDeclarations(_ functionDeclarations: [FunctionDeclaration]) -> Tool {
+  static func functionDeclarations(_ functionDeclarations: [FunctionDeclaration])
+    -> GenerativeModel.Tool {
     return self.init(functionDeclarations: functionDeclarations)
   }
 
@@ -242,9 +238,9 @@ public extension FirebaseAILogic.Tool {
   ///   - googleSearch: An empty ``GoogleSearch`` object. The presence of this object in the list
   ///     of tools enables the model to use Google Search.
   ///
-  /// - Returns: A `Tool` configured for Google Search.
-  static func googleSearch(_ googleSearch: GoogleSearch = GoogleSearch()) -> Tool {
-    return FirebaseAILogic.Tool(googleSearch: googleSearch)
+  /// - Returns: A ``GenerativeModel/Tool`` configured for Google Search.
+  static func googleSearch(_ googleSearch: GoogleSearch = GoogleSearch()) -> GenerativeModel.Tool {
+    return self.init(googleSearch: googleSearch)
   }
 
   /// Creates a tool that allows the model to use Grounding with Google Maps.
@@ -255,8 +251,8 @@ public extension FirebaseAILogic.Tool {
   /// > Important: When using this feature, you are required to comply with the
   /// "Grounding with Google Maps" usage requirements for your chosen API provider.
   ///
-  /// - Returns: A `Tool` configured for Google Maps.
-  static func googleMaps() -> Tool {
+  /// - Returns: A ``GenerativeModel/Tool`` configured for Google Maps.
+  static func googleMaps() -> GenerativeModel.Tool {
     return self.init(googleMaps: GoogleMaps())
   }
 
@@ -265,14 +261,14 @@ public extension FirebaseAILogic.Tool {
   ///
   /// By including URLs in your request, the Gemini model will access the content from those pages
   /// to inform and enhance its response.
-  static func urlContext() -> Tool {
+  static func urlContext() -> GenerativeModel.Tool {
     return self.init(urlContext: URLContext())
   }
 
   /// Creates a tool that allows the model to execute code.
   ///
   /// For more details, see ``CodeExecution``.
-  static func codeExecution() -> Tool {
+  static func codeExecution() -> GenerativeModel.Tool {
     return self.init(codeExecution: CodeExecution())
   }
 }
@@ -294,7 +290,7 @@ extension FunctionDeclaration: Encodable {
   }
 }
 
-extension Tool: Encodable {}
+extension GenerativeModel.Tool: Encodable {}
 
 extension FunctionCallingConfig: Encodable {}
 

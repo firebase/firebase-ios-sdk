@@ -213,7 +213,7 @@ public struct Candidate: Sendable {
 
   public let groundingMetadata: GroundingMetadata?
 
-  /// Metadata related to the ``Tool/urlContext()`` tool.
+  /// Metadata related to the ``GenerativeModel/Tool/urlContext()`` tool.
   public let urlContextMetadata: URLContextMetadata?
 
   /// Initializer for SwiftUI previews or tests.
