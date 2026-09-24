@@ -189,8 +189,8 @@ static const NSTimeInterval kDefaultFetchTokenInterval = 7 * 24 * 60 * 60;  // 7
   // `apns_info` has two on-disk shapes. FirebaseMessaging 10.19.0 and later encode APNSInfo
   // directly. 10.18.0 and earlier wrote a nested NSKeyedArchiver blob instead. Older versions could
   // also persist a mutable token (NSMutableData), so allowlist both NSData and NSMutableData.
-  NSSet *APNSInfoClasses = [[NSSet alloc]
-      initWithArray:@[ FIRMessagingAPNSInfo.class, NSData.class, NSMutableData.class ]];
+  NSSet *APNSInfoClasses =
+      [NSSet setWithObjects:FIRMessagingAPNSInfo.class, NSData.class, NSMutableData.class, nil];
   id decodedAPNSInfo = [aDecoder decodeObjectOfClasses:APNSInfoClasses
                                                 forKey:kFIRInstanceIDAPNSInfoKey];
 
