@@ -20,9 +20,9 @@ import Foundation
 ///
 /// Type: `GoogleAiGenerativelanguageV1betaServiceTier`
 ///
-/// ### Gemini Enterprise Agent Platform
+/// ### Gemini Enterprise API
 ///
-/// > Important: This type is not supported in the Gemini Enterprise Agent Platform.
+/// > Important: This type is not supported in the Gemini Enterprise API.
 package enum ServiceTier: Codable, Sendable, Equatable, Hashable {
   /// Standard service tier.
   case standard

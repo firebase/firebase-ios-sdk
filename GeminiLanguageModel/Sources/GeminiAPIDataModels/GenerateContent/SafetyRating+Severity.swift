@@ -21,7 +21,7 @@ extension SafetyRating {
   ///
   /// > Important: This property is not supported in the Gemini Developer API.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Output only. The severity of harm for this category.
   package enum Severity: Codable, Sendable, Equatable, Hashable {

@@ -23,7 +23,7 @@ import Foundation
 /// A grounding chunk from Google Maps. A Maps chunk corresponds to a single
 /// place.
 ///
-/// ### Gemini Enterprise Agent Platform
+/// ### Gemini Enterprise API
 ///
 /// Type: `GoogleCloudAiplatformV1beta1GroundingChunkMaps`
 ///
@@ -37,7 +37,7 @@ package struct MapsChunk: Codable, Sendable, Equatable, Hashable {
   ///
   /// URI reference of the place.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// The URI of the place.
   package let uri: String?
@@ -48,7 +48,7 @@ package struct MapsChunk: Codable, Sendable, Equatable, Hashable {
   ///
   /// Title of the place.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// The title of the place.
   package let title: String?
@@ -59,7 +59,7 @@ package struct MapsChunk: Codable, Sendable, Equatable, Hashable {
   ///
   /// Text description of the place answer.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// The text of the place answer.
   package let text: String?
@@ -71,7 +71,7 @@ package struct MapsChunk: Codable, Sendable, Equatable, Hashable {
   /// The ID of the place, in `places/{place_id}` format. A user can use this
   /// ID to look up that place.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// This Place's resource name, in `places/{place_id}` format. This can be
   /// used to look up the place in the Google Maps API.
@@ -84,7 +84,7 @@ package struct MapsChunk: Codable, Sendable, Equatable, Hashable {
   /// Sources that provide answers about the features of a given place in
   /// Google Maps.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// The sources that were used to generate the place answer. This includes
   /// review snippets and photos that were used to generate the answer, as well
@@ -97,7 +97,7 @@ package struct MapsChunk: Codable, Sendable, Equatable, Hashable {
   ///
   /// > Important: This property is not supported in the Gemini Developer API.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Output only. Route information.
   package let route: MapsRoute?
@@ -110,7 +110,7 @@ package struct MapsChunk: Codable, Sendable, Equatable, Hashable {
   ///   - text: Text description of the place answer. (behavior varies by backend). For more details, see ``text``.
   ///   - placeId: The ID of the place, in `places/{place_id}` format. A user can use this (behavior varies by backend). For more details, see ``placeId``.
   ///   - placeAnswerSources: Sources that provide answers about the features of a given place in (behavior varies by backend). For more details, see ``placeAnswerSources``.
-  ///   - route: Output only. Route information. (Gemini Enterprise Agent Platform only). For more details, see ``route``.
+  ///   - route: Output only. Route information. (Gemini Enterprise API only). For more details, see ``route``.
   package init(
     uri: String? = nil,
     title: String? = nil,

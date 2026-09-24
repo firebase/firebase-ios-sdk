@@ -46,13 +46,13 @@ Pod::Spec.new do |s|
   s.dependency 'GoogleUtilities/Environment', '>= 8.1.3', '< 9.0'
   s.dependency 'GoogleUtilities/UserDefaults', '>= 8.1.3', '< 9.0'
   s.dependency 'nanopb', '~> 3.30910.0'
-  s.dependency 'PromisesSwift', '>= 2.4.1', '< 3.0'
 
   s.pod_target_xcconfig = {
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"',
     'GCC_PREPROCESSOR_DEFINITIONS' =>
       # For nanopb:
       'PB_FIELD_32BIT=1 PB_NO_PACKED_STRUCTS=1 PB_ENABLE_MALLOC=1',
+    'PRODUCT_BUNDLE_IDENTIFIER' => 'com.google.firebase.FirebaseSessions'
   }
 
   s.test_spec 'unit' do |unit_tests|

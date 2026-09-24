@@ -59,6 +59,7 @@ for internal testing only. It should not be published.
 
   s.pod_target_xcconfig = {
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"',
+    'PRODUCT_BUNDLE_IDENTIFIER' => 'com.google.firebase.FirebaseCombineSwift'
   }
 
   s.test_spec 'unit' do |unit_tests|

@@ -20,7 +20,7 @@ import Foundation
 ///
 /// > Important: This type is not supported in the Gemini Developer API.
 ///
-/// ### Gemini Enterprise Agent Platform
+/// ### Gemini Enterprise API
 ///
 /// Type: `GoogleCloudAiplatformV1beta1ImageConfigImageOutputOptions`
 ///
@@ -32,7 +32,7 @@ package struct ImageConfigImageOutputOptions: Codable, Sendable, Equatable, Hash
   ///
   /// > Important: This property is not supported in the Gemini Developer API.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. The image format that the output should be saved as.
   package let mimeType: String?
@@ -43,7 +43,7 @@ package struct ImageConfigImageOutputOptions: Codable, Sendable, Equatable, Hash
   ///
   /// > Important: This property is not supported in the Gemini Developer API.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. The compression quality of the output image.
   package let compressionQuality: Int?
@@ -51,8 +51,8 @@ package struct ImageConfigImageOutputOptions: Codable, Sendable, Equatable, Hash
   /// Creates a new `ImageConfigImageOutputOptions`.
   ///
   /// - Parameters:
-  ///   - mimeType: Optional. The image format that the output should be saved as. (Gemini Enterprise Agent Platform only). For more details, see ``mimeType``.
-  ///   - compressionQuality: Optional. The compression quality of the output image. (Gemini Enterprise Agent Platform only). For more details, see ``compressionQuality``.
+  ///   - mimeType: Optional. The image format that the output should be saved as. (Gemini Enterprise API only). For more details, see ``mimeType``.
+  ///   - compressionQuality: Optional. The compression quality of the output image. (Gemini Enterprise API only). For more details, see ``compressionQuality``.
   package init(
     mimeType: String? = nil,
     compressionQuality: Int? = nil

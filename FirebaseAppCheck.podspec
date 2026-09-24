@@ -44,14 +44,15 @@ Pod::Spec.new do |s|
   s.osx.weak_framework = 'DeviceCheck'
   s.tvos.weak_framework = 'DeviceCheck'
 
-  s.dependency 'AppCheckCore', '~> 11.3'
+  s.dependency 'AppCheckCore', '~> 12.0'
   s.dependency 'FirebaseAppCheckInterop', '~> 13.0.0'
   s.dependency 'FirebaseCore', '~> 13.0.0'
   s.dependency 'GoogleUtilities/Environment', '>= 8.1.3', '< 9.0'
   s.dependency 'GoogleUtilities/UserDefaults', '>= 8.1.3', '< 9.0'
 
   s.pod_target_xcconfig = {
-    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
+    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"',
+    'PRODUCT_BUNDLE_IDENTIFIER' => 'com.google.firebase.FirebaseAppCheck'
   }
 
   s.test_spec 'unit' do |unit_tests|

@@ -20,7 +20,7 @@ import Foundation
 ///
 /// > Important: This type is not supported in the Gemini Developer API.
 ///
-/// ### Gemini Enterprise Agent Platform
+/// ### Gemini Enterprise API
 ///
 /// Type: `GoogleCloudAiplatformV1beta1GroundingMetadataSourceFlaggingUri`
 ///
@@ -33,7 +33,7 @@ package struct GroundingMetadataSourceFlaggingUri: Codable, Sendable, Equatable,
   ///
   /// > Important: This property is not supported in the Gemini Developer API.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// The ID of the place or review.
   package let sourceId: String?
@@ -44,7 +44,7 @@ package struct GroundingMetadataSourceFlaggingUri: Codable, Sendable, Equatable,
   ///
   /// > Important: This property is not supported in the Gemini Developer API.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// The URI that can be used to flag the content.
   package let flagContentUri: String?
@@ -52,8 +52,8 @@ package struct GroundingMetadataSourceFlaggingUri: Codable, Sendable, Equatable,
   /// Creates a new `GroundingMetadataSourceFlaggingUri`.
   ///
   /// - Parameters:
-  ///   - sourceId: The ID of the place or review. (Gemini Enterprise Agent Platform only). For more details, see ``sourceId``.
-  ///   - flagContentUri: The URI that can be used to flag the content. (Gemini Enterprise Agent Platform only). For more details, see ``flagContentUri``.
+  ///   - sourceId: The ID of the place or review. (Gemini Enterprise API only). For more details, see ``sourceId``.
+  ///   - flagContentUri: The URI that can be used to flag the content. (Gemini Enterprise API only). For more details, see ``flagContentUri``.
   package init(
     sourceId: String? = nil,
     flagContentUri: String? = nil

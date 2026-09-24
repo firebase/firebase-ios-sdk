@@ -76,7 +76,38 @@ class CodableIntegrationTests: FSTIntegrationTestCase {
     awaitExpectations()
   }
 
+  private struct ModelWithTestField<T: Codable & Equatable>: Codable {
+    var name: String
+    var testField: T
+  }
+
+  private func assertCanWriteAndReadCodableValueWithAllFlavors<T: Codable &
+    Equatable>(value: T) throws {
+    let model = ModelWithTestField(
+      name: "name",
+      testField: value
+    )
+
+    let docToWrite = documentRef()
+
+    for flavor in allFlavors {
+      try setData(from: model, forDocument: docToWrite, withFlavor: flavor)
+
+      let data = try readDocument(forRef: docToWrite).data(as: ModelWithTestField<T>.self)
+
+      XCTAssertEqual(
+        data.testField,
+        value,
+        "Failed with flavor \(flavor)"
+      )
+    }
+  }
+
   func testCodableRoundTrip() throws {
+    try XCTSkipIf(
+      FSTIntegrationTestCase.backendEdition() == .standard,
+      "BSON types are not supported on standard backend."
+    )
     struct Model: Codable, Equatable {
       var name: String
       var age: Int32
@@ -84,6 +115,14 @@ class CodableIntegrationTests: FSTIntegrationTestCase {
       var geoPoint: GeoPoint
       var docRef: DocumentReference
       var vector: VectorValue
+      var regex: RegexValue
+      var int32: Int32Value
+      var decimal128: Decimal128Value
+      var minKey: MinKey
+      var maxKey: MaxKey
+      var bsonOjectId: BSONObjectId
+      var bsonTimestamp: BSONTimestamp
+      var bsonBinaryData: Blob
     }
     let docToWrite = documentRef()
     let model = Model(name: "test",
@@ -91,7 +130,15 @@ class CodableIntegrationTests: FSTIntegrationTestCase {
                       ts: Timestamp(seconds: 987_654_321, nanoseconds: 0),
                       geoPoint: GeoPoint(latitude: 45, longitude: 54),
                       docRef: docToWrite,
-                      vector: FieldValue.vector([0.7, 0.6]))
+                      vector: FieldValue.vector([0.7, 0.6]),
+                      regex: RegexValue(pattern: "^foo", options: "i"),
+                      int32: Int32Value(1),
+                      decimal128: Decimal128Value("1.5"),
+                      minKey: MinKey.shared,
+                      maxKey: MaxKey.shared,
+                      bsonOjectId: BSONObjectId("507f191e810c19729de860ec"),
+                      bsonTimestamp: BSONTimestamp(seconds: 123, increment: 456),
+                      bsonBinaryData: Blob(bsonBinary: Data([1, 2]), subtype: 128))
 
     for flavor in allFlavors {
       try setData(from: model, forDocument: docToWrite, withFlavor: flavor)
@@ -188,28 +235,76 @@ class CodableIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testVectorValue() throws {
-    struct Model: Codable {
-      var name: String
-      var embedding: VectorValue
-    }
-    let model = Model(
-      name: "name",
-      embedding: VectorValue([0.1, 0.3, 0.4])
+    try assertCanWriteAndReadCodableValueWithAllFlavors(value: VectorValue([0.1, 0.3, 0.4]))
+  }
+
+  func testMinKey() throws {
+    try XCTSkipIf(
+      FSTIntegrationTestCase.backendEdition() == .standard,
+      "BSON types are not supported on standard backend."
     )
+    try assertCanWriteAndReadCodableValueWithAllFlavors(value: MinKey.shared)
+  }
 
-    let docToWrite = documentRef()
+  func testMaxKey() throws {
+    try XCTSkipIf(
+      FSTIntegrationTestCase.backendEdition() == .standard,
+      "BSON types are not supported on standard backend."
+    )
+    try assertCanWriteAndReadCodableValueWithAllFlavors(value: MaxKey.shared)
+  }
 
-    for flavor in allFlavors {
-      try setData(from: model, forDocument: docToWrite, withFlavor: flavor)
+  func testRegexValue() throws {
+    try XCTSkipIf(
+      FSTIntegrationTestCase.backendEdition() == .standard,
+      "BSON types are not supported on standard backend."
+    )
+    try assertCanWriteAndReadCodableValueWithAllFlavors(value: RegexValue(
+      pattern: "^foo",
+      options: "i"
+    ))
+  }
 
-      let data = try readDocument(forRef: docToWrite).data(as: Model.self)
+  func testInt32Value() throws {
+    try XCTSkipIf(
+      FSTIntegrationTestCase.backendEdition() == .standard,
+      "BSON types are not supported on standard backend."
+    )
+    try assertCanWriteAndReadCodableValueWithAllFlavors(value: Int32Value(123))
+  }
 
-      XCTAssertEqual(
-        data.embedding,
-        VectorValue([0.1, 0.3, 0.4]),
-        "Failed with flavor \(flavor)"
-      )
-    }
+  func testDecimal128Value() throws {
+    try XCTSkipIf(
+      FSTIntegrationTestCase.backendEdition() == .standard,
+      "BSON types are not supported on standard backend."
+    )
+    try assertCanWriteAndReadCodableValueWithAllFlavors(value: Decimal128Value("1.2e3"))
+  }
+
+  func testBsonObjectId() throws {
+    try XCTSkipIf(
+      FSTIntegrationTestCase.backendEdition() == .standard,
+      "BSON types are not supported on standard backend."
+    )
+    try assertCanWriteAndReadCodableValueWithAllFlavors(
+      value: BSONObjectId("507f191e810c19729de860ec")
+    )
+  }
+
+  func testBsonTimestamp() throws {
+    try XCTSkipIf(
+      FSTIntegrationTestCase.backendEdition() == .standard,
+      "BSON types are not supported on standard backend."
+    )
+    try assertCanWriteAndReadCodableValueWithAllFlavors(
+      value: BSONTimestamp(seconds: 123, increment: 456)
+    )
+  }
+
+  func testBlob() throws {
+    try assertCanWriteAndReadCodableValueWithAllFlavors(
+      value: Blob(bsonBinary: Data([1, 2, 3]), subtype: 128)
+    )
   }
 
   func testDataBlob() throws {

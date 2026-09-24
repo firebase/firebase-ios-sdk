@@ -22,7 +22,7 @@ import Foundation
 ///
 /// Metadata related to retrieval in the grounding flow.
 ///
-/// ### Gemini Enterprise Agent Platform
+/// ### Gemini Enterprise API
 ///
 /// Type: `GoogleCloudAiplatformV1beta1RetrievalMetadata`
 ///
@@ -39,7 +39,7 @@ package struct RetrievalMetadata: Codable, Sendable, Equatable, Hashable {
   /// google search grounding and dynamic retrieval is enabled. It will be
   /// compared to the threshold to determine whether to trigger google search.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. A score indicating how likely it is that a Google
   /// Search query could help answer the prompt. The score is in the range of

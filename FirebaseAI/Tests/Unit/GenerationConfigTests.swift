@@ -135,87 +135,6 @@ final class GenerationConfigTests: XCTestCase {
     """)
   }
 
-  func testEncodeGenerationConfig_responseJSONSchema() throws {
-    let mimeType = "application/json"
-    let responseJSONSchema: JSONObject = [
-      "type": .string("object"),
-      "title": .string("Person"),
-      "properties": .object([
-        "firstName": .object(["type": .string("string")]),
-        "middleNames": .object([
-          "type": .string("array"),
-          "items": .object(["type": .string("string")]),
-          "minItems": .number(0),
-          "maxItems": .number(3),
-        ]),
-        "lastName": .object(["type": .string("string")]),
-        "age": .object(["type": .string("integer")]),
-      ]),
-      "required": .array([
-        .string("firstName"),
-        .string("middleNames"),
-        .string("lastName"),
-        .string("age"),
-      ]),
-      "propertyOrdering": .array([
-        .string("firstName"),
-        .string("middleNames"),
-        .string("lastName"),
-        .string("age"),
-      ]),
-      "additionalProperties": .bool(false),
-    ]
-    let generationConfig = GenerationConfig(
-      responseMIMEType: mimeType,
-      responseJSONSchema: responseJSONSchema
-    )
-
-    let jsonData = try encoder.encode(generationConfig)
-
-    let json = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
-    XCTAssertEqual(json, """
-    {
-      "responseJsonSchema" : {
-        "additionalProperties" : false,
-        "properties" : {
-          "age" : {
-            "type" : "integer"
-          },
-          "firstName" : {
-            "type" : "string"
-          },
-          "lastName" : {
-            "type" : "string"
-          },
-          "middleNames" : {
-            "items" : {
-              "type" : "string"
-            },
-            "maxItems" : 3,
-            "minItems" : 0,
-            "type" : "array"
-          }
-        },
-        "propertyOrdering" : [
-          "firstName",
-          "middleNames",
-          "lastName",
-          "age"
-        ],
-        "required" : [
-          "firstName",
-          "middleNames",
-          "lastName",
-          "age"
-        ],
-        "title" : "Person",
-        "type" : "object"
-      },
-      "responseMimeType" : "\(mimeType)"
-    }
-    """)
-  }
-
   func testEncodeGenerationConfig_thinkingConfig() throws {
     let testCases: [(ThinkingConfig, String)] = [
       (ThinkingConfig(thinkingBudget: 0), "\"thinkingBudget\" : 0"),
@@ -379,33 +298,24 @@ final class GenerationConfigTests: XCTestCase {
     XCTAssertEqual(result.thinkingConfig?.thinkingBudget, 1024)
   }
 
-  func testMerge_schemaPrecedence_overridesJSONSchema() throws {
-    let base = GenerationConfig(responseSchema: .string())
-    let overrides = GenerationConfig(
-      responseMIMEType: "application/json",
-      responseJSONSchema: ["type": .string("string")]
-    )
-
-    let result = try XCTUnwrap(GenerationConfig.merge(base, with: overrides))
-
-    XCTAssertNil(result.responseSchema)
-    XCTAssertEqual(result.responseJSONSchema, ["type": .string("string")])
-    XCTAssertEqual(result.responseMIMEType, "application/json")
-  }
-
-  func testMerge_schemaPrecedence_overridesSchema() throws {
-    let base = GenerationConfig(
-      responseMIMEType: "application/json",
-      responseJSONSchema: ["type": .string("string")]
-    )
+  func testMerge_responseSchema() throws {
+    let base = GenerationConfig(responseSchema: .integer())
     let overrides = GenerationConfig(responseSchema: .string())
 
     let result = try XCTUnwrap(GenerationConfig.merge(base, with: overrides))
 
     let schema = try XCTUnwrap(result.responseSchema)
     XCTAssertEqual(schema.type, "STRING")
-    XCTAssertEqual(schema.nullable, false)
-    XCTAssertNil(result.responseJSONSchema)
+  }
+
+  func testMerge_responseSchema_fallbackToBase() throws {
+    let base = GenerationConfig(responseSchema: .string())
+    let overrides = GenerationConfig(maxOutputTokens: 100)
+
+    let result = try XCTUnwrap(GenerationConfig.merge(base, with: overrides))
+
+    let schema = try XCTUnwrap(result.responseSchema)
+    XCTAssertEqual(schema.type, "STRING")
   }
 
   func testMerge_speechConfig() throws {

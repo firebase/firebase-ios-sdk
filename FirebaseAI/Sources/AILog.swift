@@ -29,7 +29,7 @@ enum AILog {
     case verboseLoggingEnabled = 101
 
     // API Enablement Errors
-    case agentPlatformInFirebaseAPIDisabled = 200
+    case enterpriseInFirebaseAPIDisabled = 200
 
     // Generative Model Configuration
     case generativeModelInitialized = 1000
@@ -83,15 +83,9 @@ enum AILog {
     case invalidWebsocketURL = 4004
     case duplicateLiveSessionSetupComplete = 4005
     case malformedURL = 4006
-    case invalidToolOutputType = 4007
-    case hybridPrimarySessionInitializationFailed = 4008
-    case hybridPrimaryModelRequestFailed = 4009
-    case hybridPrimaryModelStreamingRequestFailed = 4010
 
     // SDK Debugging
     case loadRequestStreamResponseLine = 5000
-    case foundationModelsResponseTranscript = 5001
-    case foundationModelsStreamResponseTranscript = 5002
   }
 
   /// Subsystem that should be used for all Loggers.

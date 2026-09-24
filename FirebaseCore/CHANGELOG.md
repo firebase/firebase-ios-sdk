@@ -1,4 +1,9 @@
-# Unreleased
+# Firebase 13.0.0
+- [feature] Added support for Swift Package Traits (SE-0450) to allow developers
+  to opt out of unused features and prune heavy dependencies. To opt out of
+  Firestore in Xcode: select your project -> **Package Dependencies**, and in
+  the **Traits** column for Firebase, uncheck `default` and check only the ones
+  you want, if any (it will show `None` if no traits are enabled). (#16684)
 - [changed] **Breaking change**: Firebase's minimum supported versions have
   updated for the following platforms:
     - | Platform  | Firebase 13 |
@@ -14,6 +19,17 @@
   https://firebase.google.com/docs/ios/cocoapods-deprecation for details.
 - [removed] **Breaking change**: FirebaseMLModelDownloader has been removed. See
   https://firebase.google.com/docs/ml for more info.
+- [changed] **Breaking change**: Removed the CocoaPods generated umbrella headers
+  (suffixed `-umbrella.h`) from the Zip and Carthage artifacts, in favor of `Firebase.h`
+  and framework specific umbrella headers. (#16540)
+- [changed] **Breaking change**: The minimum supported version of
+  `GTMSessionFetcher` is now `4.0.0` (support for `3.x` has been dropped).
+- [changed] **Breaking change**: Bundle ID prefixes in the zip distribution are now
+  properly scoped to `com.google.firebase`, instead of `org.cocoapods.`. (#16678)
+- [changed] Firebase now requires Swift tools version 6.2.1 and the Swift 6.2.3
+  compiler for the Swift Package. The package will no longer resolve in Xcode
+  versions older than 26.2, which remains the minimum officially supported
+  version for the SDK. (#16696)
 
 # Firebase 12.19.1
 - [fixed] Fixed the zip distribution artifact naming on the GitHub release

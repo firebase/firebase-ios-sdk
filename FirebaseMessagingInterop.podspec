@@ -27,4 +27,8 @@ Pod::Spec.new do |s|
 
   s.source_files = 'FirebaseMessaging/Interop/*.[hm]'
   s.public_header_files = 'FirebaseMessaging/Interop/*.h'
+
+  s.pod_target_xcconfig = {
+    'PRODUCT_BUNDLE_IDENTIFIER' => 'com.google.firebase.FirebaseMessagingInterop'
+  }
 end

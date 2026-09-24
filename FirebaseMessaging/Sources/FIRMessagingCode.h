@@ -232,6 +232,7 @@ typedef NS_ENUM(NSInteger, FIRMessagingMessageCode) {
   kFIRMessagingMessageCodeTokenStore000 = 35000,
   kFIRMessagingMessageCodeTokenStore001 = 35001,
   kFIRMessagingMessageCodeTokenStoreExceptionUnarchivingTokenInfo = 35015,
+  kFIRMessagingMessageCodeTokenStoreErrorArchivingTokenInfo = 35016,
 
   // DO NOT USE 16000, 18004
 

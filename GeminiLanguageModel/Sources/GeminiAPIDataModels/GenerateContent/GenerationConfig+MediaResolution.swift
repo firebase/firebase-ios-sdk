@@ -21,7 +21,7 @@ extension GenerationConfig {
   ///
   /// Optional. If specified, the media resolution specified will be used.
   ///
-  /// ### Gemini Enterprise Agent Platform
+  /// ### Gemini Enterprise API
   ///
   /// Optional. The token resolution at which input media content is sampled. This is
   /// used to control the trade-off between the quality of the response and the
