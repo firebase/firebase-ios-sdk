@@ -2,7 +2,7 @@
 - [changed] **Breaking Change**: Renamed `Tool` to `GenerativeModel.Tool` to
   avoid naming conflicts with Apple's Foundation Models `Tool` type. Calls
   passing array literals (e.g. `tools: [.googleSearch()]`) continue to work
-  unmodified.
+  unmodified. (#16700)
 - [removed] **Breaking Change**: Removed `GenerativeModelSession`,
   `SystemLanguageModel`, `HybridModel`, and associated types and protocols that
   previously provided an interim integration with Apple's Foundation Models
