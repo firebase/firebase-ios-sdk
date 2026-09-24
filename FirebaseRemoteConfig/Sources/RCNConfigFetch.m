@@ -530,37 +530,61 @@ static NSInteger const kRCNFetchResponseHTTPStatusCodeGatewayTimeout = 504;
 
       // Config fetch succeeded.
       // JSONObjectWithData is always expected to return an NSDictionary in our case
-      NSMutableDictionary *fetchedConfig =
-          [NSJSONSerialization JSONObjectWithData:data
-                                          options:NSJSONReadingMutableContainers
-                                            error:&retError];
+      id JSONObject = [NSJSONSerialization JSONObjectWithData:data
+                                                      options:NSJSONReadingMutableContainers
+                                                        error:&retError];
       if (retError) {
         FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000042",
-                    @"RCN Fetch failure: %@. Could not parse response data as JSON", error);
+                    @"RCN Fetch failure: %@. Could not parse response data as JSON", retError);
       }
+
+      if (JSONObject && ![JSONObject isKindOfClass:[NSDictionary class]]) {
+        NSString *errStr =
+            [NSString stringWithFormat:@"RCN Fetch failure: Unexpected JSON response type: %@",
+                                       [JSONObject class]];
+        FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000042", @"%@", errStr);
+        [strongSelf->_settings updateMetadataWithFetchSuccessStatus:NO templateVersion:nil];
+        strongSelf->_settings.lastFetchStatus = FIRRemoteConfigFetchStatusFailure;
+        strongSelf->_settings.lastFetchError = FIRRemoteConfigErrorInternalError;
+        NSError *error = [NSError errorWithDomain:FIRRemoteConfigErrorDomain
+                                             code:FIRRemoteConfigErrorInternalError
+                                         userInfo:@{NSLocalizedDescriptionKey : errStr}];
+        return [strongSelf reportCompletionWithStatus:FIRRemoteConfigFetchStatusFailure
+                                           withUpdate:nil
+                                            withError:error
+                                    completionHandler:completionHandler
+                              updateCompletionHandler:updateCompletionHandler];
+      }
+
+      NSMutableDictionary *fetchedConfig = (NSMutableDictionary *)JSONObject;
 
       // Check and log if we received an error from the server
       if (fetchedConfig && fetchedConfig.count == 1 && fetchedConfig[RCNFetchResponseKeyError]) {
         NSString *errStr = [NSString stringWithFormat:@"RCN Fetch Failure: Server returned error:"];
         NSDictionary *errDict = fetchedConfig[RCNFetchResponseKeyError];
-        if (errDict[RCNFetchResponseKeyErrorCode]) {
-          errStr = [errStr
-              stringByAppendingString:[NSString
-                                          stringWithFormat:@"code: %@",
-                                                           errDict[RCNFetchResponseKeyErrorCode]]];
-        }
-        if (errDict[RCNFetchResponseKeyErrorStatus]) {
-          errStr = [errStr stringByAppendingString:
-                               [NSString stringWithFormat:@". Status: %@",
-                                                          errDict[RCNFetchResponseKeyErrorStatus]]];
-        }
-        if (errDict[RCNFetchResponseKeyErrorMessage]) {
-          errStr =
-              [errStr stringByAppendingString:
-                          [NSString stringWithFormat:@". Message: %@",
-                                                     errDict[RCNFetchResponseKeyErrorMessage]]];
+        if ([errDict isKindOfClass:[NSDictionary class]]) {
+          if (errDict[RCNFetchResponseKeyErrorCode]) {
+            errStr = [errStr
+                stringByAppendingString:
+                    [NSString stringWithFormat:@"code: %@", errDict[RCNFetchResponseKeyErrorCode]]];
+          }
+          if (errDict[RCNFetchResponseKeyErrorStatus]) {
+            errStr =
+                [errStr stringByAppendingString:
+                            [NSString stringWithFormat:@". Status: %@",
+                                                       errDict[RCNFetchResponseKeyErrorStatus]]];
+          }
+          if (errDict[RCNFetchResponseKeyErrorMessage]) {
+            errStr =
+                [errStr stringByAppendingString:
+                            [NSString stringWithFormat:@". Message: %@",
+                                                       errDict[RCNFetchResponseKeyErrorMessage]]];
+          }
         }
         FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000044", @"%@.", errStr);
+        [strongSelf->_settings updateMetadataWithFetchSuccessStatus:NO templateVersion:nil];
+        strongSelf->_settings.lastFetchStatus = FIRRemoteConfigFetchStatusFailure;
+        strongSelf->_settings.lastFetchError = FIRRemoteConfigErrorInternalError;
         NSError *error = [NSError errorWithDomain:FIRRemoteConfigErrorDomain
                                              code:FIRRemoteConfigErrorInternalError
                                          userInfo:@{NSLocalizedDescriptionKey : errStr}];

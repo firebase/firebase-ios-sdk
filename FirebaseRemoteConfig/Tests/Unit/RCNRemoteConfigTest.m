@@ -2041,6 +2041,150 @@ static NSString *UTCToLocal(NSString *utcTime) {
                @"FIRRemoteConfig instance was not deallocated. Retain cycle present!");
 }
 
+#pragma mark - Unexpected JSON Response Type Tests
+
+- (void)testFetchWithTopLevelSingleElementJSONArrayDoesNotCrash {
+  XCTestExpectation *fetchExpectation =
+      [self expectationWithDescription:@"Fetch with single-element JSON array fails gracefully"];
+
+  NSData *arrayResponseData = [NSJSONSerialization dataWithJSONObject:@[ @{@"some" : @"data"} ]
+                                                              options:0
+                                                                error:nil];
+  NSHTTPURLResponse *httpResponse =
+      [[NSHTTPURLResponse alloc] initWithURL:[NSURL URLWithString:@"https://firebase.com"]
+                                  statusCode:200
+                                 HTTPVersion:nil
+                                headerFields:@{@"etag" : @"etag-array-1"}];
+
+  RCNConfigContent *configContent = [[RCNConfigContent alloc] initWithDBManager:_DBManager];
+  FIRRemoteConfig *config =
+      OCMPartialMock([[FIRRemoteConfig alloc] initWithAppName:RCNTestsDefaultFIRAppName
+                                                   FIROptions:[self firstAppOptions]
+                                                    namespace:RCNTestsFIRNamespace
+                                                    DBManager:_DBManager
+                                                configContent:configContent
+                                                    analytics:nil]);
+  RCNConfigSettings *settings =
+      [[RCNConfigSettings alloc] initWithDatabaseManager:_DBManager
+                                               namespace:_fullyQualifiedNamespace
+                                         firebaseAppName:RCNTestsDefaultFIRAppName
+                                             googleAppID:[self firstAppOptions].googleAppID];
+  id configFetch = OCMPartialMock([[RCNConfigFetch alloc] initWithContent:configContent
+                                                                DBManager:_DBManager
+                                                                 settings:settings
+                                                                analytics:nil
+                                                               experiment:_experimentMock
+                                                                    queue:_queue
+                                                                namespace:_fullyQualifiedNamespace
+                                                                  options:[self firstAppOptions]]);
+
+  OCMStub([configFetch fetchConfigWithExpirationDuration:0 completionHandler:OCMOCK_ANY])
+      .andDo(^(NSInvocation *invocation) {
+        __unsafe_unretained void (^handler)(FIRRemoteConfigFetchStatus status,
+                                            NSError *_Nullable error) = nil;
+        [invocation getArgument:&handler atIndex:3];
+        [configFetch fetchWithUserProperties:@{}
+                             fetchTypeHeader:@"Base/1"
+                           completionHandler:handler
+                     updateCompletionHandler:nil];
+      });
+
+  id completionBlock =
+      [OCMArg invokeBlockWithArgs:arrayResponseData, httpResponse, [NSNull null], nil];
+  OCMStub([configFetch URLSessionDataTaskWithContent:[OCMArg any]
+                                     fetchTypeHeader:[OCMArg any]
+                                   completionHandler:completionBlock])
+      .andReturn(nil);
+
+  [config updateWithNewInstancesForConfigFetch:configFetch
+                                 configContent:configContent
+                                configSettings:settings
+                              configExperiment:_experimentMock];
+
+  [config fetchWithExpirationDuration:0
+                    completionHandler:^(FIRRemoteConfigFetchStatus status, NSError *error) {
+                      XCTAssertEqual(status, FIRRemoteConfigFetchStatusFailure);
+                      XCTAssertEqual(config.lastFetchStatus, FIRRemoteConfigFetchStatusFailure);
+                      XCTAssertNotNil(error);
+                      XCTAssertEqualObjects(error.domain, FIRRemoteConfigErrorDomain);
+                      XCTAssertEqual(error.code, FIRRemoteConfigErrorInternalError);
+                      [fetchExpectation fulfill];
+                    }];
+
+  [self waitForExpectationsWithTimeout:_expectationTimeout handler:nil];
+}
+
+- (void)testFetchWithTopLevelEmptyOrMultiElementJSONArrayDoesNotCrash {
+  XCTestExpectation *fetchExpectation =
+      [self expectationWithDescription:@"Fetch with multi-element JSON array fails gracefully"];
+
+  NSData *arrayResponseData = [NSJSONSerialization dataWithJSONObject:@[ @"item1", @"item2" ]
+                                                              options:0
+                                                                error:nil];
+  NSHTTPURLResponse *httpResponse =
+      [[NSHTTPURLResponse alloc] initWithURL:[NSURL URLWithString:@"https://firebase.com"]
+                                  statusCode:200
+                                 HTTPVersion:nil
+                                headerFields:@{@"etag" : @"etag-array-2"}];
+
+  RCNConfigContent *configContent = [[RCNConfigContent alloc] initWithDBManager:_DBManager];
+  FIRRemoteConfig *config =
+      OCMPartialMock([[FIRRemoteConfig alloc] initWithAppName:RCNTestsDefaultFIRAppName
+                                                   FIROptions:[self firstAppOptions]
+                                                    namespace:RCNTestsFIRNamespace
+                                                    DBManager:_DBManager
+                                                configContent:configContent
+                                                    analytics:nil]);
+  RCNConfigSettings *settings =
+      [[RCNConfigSettings alloc] initWithDatabaseManager:_DBManager
+                                               namespace:_fullyQualifiedNamespace
+                                         firebaseAppName:RCNTestsDefaultFIRAppName
+                                             googleAppID:[self firstAppOptions].googleAppID];
+  id configFetch = OCMPartialMock([[RCNConfigFetch alloc] initWithContent:configContent
+                                                                DBManager:_DBManager
+                                                                 settings:settings
+                                                                analytics:nil
+                                                               experiment:_experimentMock
+                                                                    queue:_queue
+                                                                namespace:_fullyQualifiedNamespace
+                                                                  options:[self firstAppOptions]]);
+
+  OCMStub([configFetch fetchConfigWithExpirationDuration:0 completionHandler:OCMOCK_ANY])
+      .andDo(^(NSInvocation *invocation) {
+        __unsafe_unretained void (^handler)(FIRRemoteConfigFetchStatus status,
+                                            NSError *_Nullable error) = nil;
+        [invocation getArgument:&handler atIndex:3];
+        [configFetch fetchWithUserProperties:@{}
+                             fetchTypeHeader:@"Base/1"
+                           completionHandler:handler
+                     updateCompletionHandler:nil];
+      });
+
+  id completionBlock =
+      [OCMArg invokeBlockWithArgs:arrayResponseData, httpResponse, [NSNull null], nil];
+  OCMStub([configFetch URLSessionDataTaskWithContent:[OCMArg any]
+                                     fetchTypeHeader:[OCMArg any]
+                                   completionHandler:completionBlock])
+      .andReturn(nil);
+
+  [config updateWithNewInstancesForConfigFetch:configFetch
+                                 configContent:configContent
+                                configSettings:settings
+                              configExperiment:_experimentMock];
+
+  [config fetchWithExpirationDuration:0
+                    completionHandler:^(FIRRemoteConfigFetchStatus status, NSError *error) {
+                      XCTAssertEqual(status, FIRRemoteConfigFetchStatusFailure);
+                      XCTAssertEqual(config.lastFetchStatus, FIRRemoteConfigFetchStatusFailure);
+                      XCTAssertNotNil(error);
+                      XCTAssertEqualObjects(error.domain, FIRRemoteConfigErrorDomain);
+                      XCTAssertEqual(error.code, FIRRemoteConfigErrorInternalError);
+                      [fetchExpectation fulfill];
+                    }];
+
+  [self waitForExpectationsWithTimeout:_expectationTimeout handler:nil];
+}
+
 #pragma mark - Test Helpers
 
 - (FIROptions *)firstAppOptions {

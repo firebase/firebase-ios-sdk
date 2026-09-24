@@ -523,7 +523,7 @@ static NSInteger const gMaxRetries = 7;
 - (void)evaluateStreamResponse:(NSDictionary *)response error:(NSError *)dataError {
   NSInteger updateTemplateVersion = 1;
   NSTimeInterval realtimeRetryInterval = 0;
-  if (dataError == nil) {
+  if (dataError == nil && [response isKindOfClass:[NSDictionary class]]) {
     if ([response objectForKey:kTemplateVersionNumberKey]) {
       updateTemplateVersion = [[response objectForKey:kTemplateVersionNumberKey] integerValue];
     }
