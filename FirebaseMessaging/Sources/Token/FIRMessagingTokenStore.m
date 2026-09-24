@@ -127,10 +127,8 @@ static NSString *const kFIRMessagingTokenKeychainId = @"com.google.iid-tokens";
 // Token Infos will be saved under these Keychain keys:
 // Account: <Main App Bundle ID> (e.g. com.mycompany.myapp)
 // Service: <Sender ID>:<Scope> (e.g. 1234567890:*)
-- (void)saveTokenInfo:(FIRMessagingTokenInfo *)tokenInfo
-              handler:(void (^)(NSError *))handler {  // Keep the cachetime up-to-date.
-  tokenInfo.cacheTime = [NSDate date];
-  // Always write to the Keychain, so that the cacheTime is up-to-date.
+- (nullable NSData *)archivedDataWithTokenInfo:(FIRMessagingTokenInfo *)tokenInfo
+                                         error:(NSError **)outError {
   NSData *tokenInfoData = nil;
   NSError *error = nil;
   @try {
@@ -149,6 +147,18 @@ static NSString *const kFIRMessagingTokenKeychainId = @"com.google.iid-tokens";
                                   ?: @"An exception occurred during archiving."
                             }];
   }
+  if (outError) {
+    *outError = error;
+  }
+  return tokenInfoData;
+}
+
+- (void)saveTokenInfo:(FIRMessagingTokenInfo *)tokenInfo
+              handler:(void (^)(NSError *))handler {  // Keep the cachetime up-to-date.
+  tokenInfo.cacheTime = [NSDate date];
+  // Always write to the Keychain, so that the cacheTime is up-to-date.
+  NSError *error = nil;
+  NSData *tokenInfoData = [self archivedDataWithTokenInfo:tokenInfo error:&error];
   if (!tokenInfoData || error) {
     FIRMessagingLoggerError(kFIRMessagingMessageCodeTokenStoreErrorArchivingTokenInfo,
                             @"Failed to securely archive token info: %@", error);
@@ -170,24 +180,8 @@ static NSString *const kFIRMessagingTokenKeychainId = @"com.google.iid-tokens";
 - (void)saveTokenInfoInCache:(FIRMessagingTokenInfo *)tokenInfo {
   tokenInfo.cacheTime = [NSDate date];
   // Always write to the Keychain, so that the cacheTime is up-to-date.
-  NSData *tokenInfoData = nil;
   NSError *error = nil;
-  @try {
-    NSKeyedArchiver *archiver = [[NSKeyedArchiver alloc] initRequiringSecureCoding:YES];
-    [archiver setClassName:@"FIRInstanceIDTokenInfo" forClass:[FIRMessagingTokenInfo class]];
-    [archiver encodeObject:tokenInfo forKey:NSKeyedArchiveRootObjectKey];
-    [archiver finishEncoding];
-    tokenInfoData = archiver.encodedData;
-    error = archiver.error;
-  } @catch (NSException *exception) {
-    tokenInfoData = nil;
-    error = [NSError errorWithDomain:@"com.google.firebase.messaging"
-                                code:-1
-                            userInfo:@{
-                              NSLocalizedDescriptionKey : exception.reason
-                                  ?: @"An exception occurred during archiving."
-                            }];
-  }
+  NSData *tokenInfoData = [self archivedDataWithTokenInfo:tokenInfo error:&error];
   if (!tokenInfoData || error) {
     FIRMessagingLoggerError(kFIRMessagingMessageCodeTokenStoreErrorArchivingTokenInfo,
                             @"Failed to securely archive token info for cache: %@", error);

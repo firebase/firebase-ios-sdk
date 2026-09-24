@@ -75,7 +75,7 @@ static NSString *const kFIRInstanceIDAPNSInfoSandboxKey = @"sandbox";
 }
 
 - (nullable instancetype)initWithCoder:(NSCoder *)aDecoder {
-  NSSet *classes = [[NSSet alloc] initWithArray:@[ NSData.class, NSMutableData.class ]];
+  NSSet *classes = [NSSet setWithObjects:NSData.class, NSMutableData.class, nil];
   NSData *deviceToken = [aDecoder decodeObjectOfClasses:classes
                                                  forKey:kFIRInstanceIDAPNSInfoTokenKey];
   if (!deviceToken) {
