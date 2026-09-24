@@ -202,6 +202,10 @@ func packageTargets() -> [Target] {
         "FirebaseStorage",
       ],
       path: "FirebaseAI/Tests/Unit",
+      exclude: [
+        "README.md",
+        "Snippets/README.md",
+      ],
       resources: [
         .copy("vertexai-sdk-test-data/mock-responses"),
         .process("Resources"),
