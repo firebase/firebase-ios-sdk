@@ -1,4 +1,6 @@
 # 13.0.0
+- [fixed] Fixed a timeout race in the APNs token manager that could leave concurrent phone
+  authentication requests waiting indefinitely.
 - [changed] Replaced a force-unwrapped error with a safe fallback during Game
   Center authentication. (#16136)
 
