@@ -128,6 +128,15 @@ static NSString *const kFIRMessagingTokenKeychainId = @"com.google.iid-tokens";
 
 + (nullable NSData *)archivedDataWithTokenInfo:(FIRMessagingTokenInfo *)tokenInfo
                                          error:(NSError **)outError {
+  if (!tokenInfo) {
+    if (outError) {
+      *outError =
+          [NSError errorWithDomain:FIRMessagingErrorDomain
+                              code:FIRMessagingErrorUnknown
+                          userInfo:@{NSLocalizedDescriptionKey : @"tokenInfo cannot be nil."}];
+    }
+    return nil;
+  }
   NSData *tokenInfoData = nil;
   NSError *error = nil;
   @try {
@@ -137,6 +146,12 @@ static NSString *const kFIRMessagingTokenKeychainId = @"com.google.iid-tokens";
     [archiver finishEncoding];
     tokenInfoData = archiver.encodedData;
     error = archiver.error;
+    if (!tokenInfoData && !error) {
+      error = [NSError
+          errorWithDomain:FIRMessagingErrorDomain
+                     code:FIRMessagingErrorUnknown
+                 userInfo:@{NSLocalizedDescriptionKey : @"Archiving failed to produce data."}];
+    }
   } @catch (NSException *exception) {
     tokenInfoData = nil;
     error = [NSError errorWithDomain:FIRMessagingErrorDomain
@@ -157,6 +172,17 @@ static NSString *const kFIRMessagingTokenKeychainId = @"com.google.iid-tokens";
 // Service: <Sender ID>:<Scope> (e.g. 1234567890:*)
 - (void)saveTokenInfo:(FIRMessagingTokenInfo *)tokenInfo
               handler:(void (^)(NSError *))handler {  // Keep the cachetime up-to-date.
+  if (!tokenInfo) {
+    if (handler) {
+      dispatch_async(dispatch_get_main_queue(), ^{
+        handler([NSError
+            errorWithDomain:FIRMessagingErrorDomain
+                       code:FIRMessagingErrorUnknown
+                   userInfo:@{NSLocalizedDescriptionKey : @"tokenInfo cannot be nil."}]);
+      });
+    }
+    return;
+  }
   tokenInfo.cacheTime = [NSDate date];
   // Always write to the Keychain, so that the cacheTime is up-to-date.
   NSError *error = nil;
@@ -180,6 +206,9 @@ static NSString *const kFIRMessagingTokenKeychainId = @"com.google.iid-tokens";
 }
 
 - (void)saveTokenInfoInCache:(FIRMessagingTokenInfo *)tokenInfo {
+  if (!tokenInfo) {
+    return;
+  }
   tokenInfo.cacheTime = [NSDate date];
   // Always write to the Keychain, so that the cacheTime is up-to-date.
   NSError *error = nil;
