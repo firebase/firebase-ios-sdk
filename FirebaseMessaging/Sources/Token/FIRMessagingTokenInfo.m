@@ -187,11 +187,10 @@ static const NSTimeInterval kDefaultFetchTokenInterval = 7 * 24 * 60 * 60;  // 7
                                                    forKey:kFIRInstanceIDFirebaseAppIDKey];
 
   // `apns_info` has two on-disk shapes. FirebaseMessaging 10.19.0 and later encode APNSInfo
-  // directly. 10.18.0 and earlier wrote a nested NSKeyedArchiver blob instead, which materializes
-  // as NSMutableData; secure coding requires naming that subclass explicitly rather than relying
-  // on NSData covering it.
-  NSSet *APNSInfoClasses = [[NSSet alloc]
-      initWithArray:@[ FIRMessagingAPNSInfo.class, NSData.class, NSMutableData.class ]];
+  // directly. 10.18.0 and earlier wrote a nested NSKeyedArchiver blob instead. Older versions could
+  // also persist a mutable token (NSMutableData), so allowlist both NSData and NSMutableData.
+  NSSet *APNSInfoClasses =
+      [NSSet setWithObjects:FIRMessagingAPNSInfo.class, NSData.class, NSMutableData.class, nil];
   id decodedAPNSInfo = [aDecoder decodeObjectOfClasses:APNSInfoClasses
                                                 forKey:kFIRInstanceIDAPNSInfoKey];
 
@@ -205,17 +204,28 @@ static const NSTimeInterval kDefaultFetchTokenInterval = 7 * 24 * 60 * 60;  // 7
     // archive. Secure coding stays on: the blob was written insecurely, but FIRMessagingAPNSInfo
     // conforms to NSSecureCoding, so it can still be read under the strict decoder.
     NSError *APNSInfoError = nil;
-    NSKeyedUnarchiver *APNSInfoUnarchiver =
-        [[NSKeyedUnarchiver alloc] initForReadingFromData:decodedAPNSInfo error:&APNSInfoError];
-    if (APNSInfoUnarchiver) {
-      APNSInfoUnarchiver.requiresSecureCoding = YES;
-      [APNSInfoUnarchiver setClass:[FIRMessagingAPNSInfo class]
-                      forClassName:@"FIRInstanceIDAPNSInfo"];
-      rawAPNSInfo = [APNSInfoUnarchiver decodeObjectOfClass:[FIRMessagingAPNSInfo class]
-                                                     forKey:NSKeyedArchiveRootObjectKey];
-      [APNSInfoUnarchiver finishDecoding];
+    NSKeyedUnarchiver *APNSInfoUnarchiver = nil;
+    BOOL caughtException = NO;
+    @try {
+      APNSInfoUnarchiver = [[NSKeyedUnarchiver alloc] initForReadingFromData:decodedAPNSInfo
+                                                                       error:&APNSInfoError];
+      if (APNSInfoUnarchiver) {
+        APNSInfoUnarchiver.requiresSecureCoding = YES;
+        [APNSInfoUnarchiver setClass:[FIRMessagingAPNSInfo class]
+                        forClassName:@"FIRInstanceIDAPNSInfo"];
+        rawAPNSInfo = [APNSInfoUnarchiver decodeObjectOfClass:[FIRMessagingAPNSInfo class]
+                                                       forKey:NSKeyedArchiveRootObjectKey];
+        [APNSInfoUnarchiver finishDecoding];
+      }
+    } @catch (NSException *exception) {
+      FIRMessagingLoggerInfo(kFIRMessagingMessageCodeTokenInfoBadAPNSInfo,
+                             @"Exception decoding APNS info archived by FirebaseMessaging 10.18.0 "
+                             @"or earlier: %@",
+                             exception);
+      rawAPNSInfo = nil;
+      caughtException = YES;
     }
-    if (!rawAPNSInfo) {
+    if (!rawAPNSInfo && !caughtException) {
       FIRMessagingLoggerInfo(kFIRMessagingMessageCodeTokenInfoBadAPNSInfo,
                              @"Could not parse APNS info archived by FirebaseMessaging 10.18.0 or "
                              @"earlier; error: %@",
