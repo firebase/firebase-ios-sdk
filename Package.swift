@@ -1791,7 +1791,5 @@ func appCheckDependency() -> Package.Dependency {
     return .package(url: appCheckURL, branch: branch)
   }
 
-  // TODO: Update to point to AppCheck 12.0
-  // return .package(url: appCheckURL, "12.0.0" ..< "13.0.0")
-  return .package(url: appCheckURL, "11.3.0" ..< "12.0.0")
+  return .package(url: appCheckURL, "12.0.0" ..< "13.0.0")
 }
