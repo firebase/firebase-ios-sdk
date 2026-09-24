@@ -205,6 +205,7 @@ static const NSTimeInterval kDefaultFetchTokenInterval = 7 * 24 * 60 * 60;  // 7
     // conforms to NSSecureCoding, so it can still be read under the strict decoder.
     NSError *APNSInfoError = nil;
     NSKeyedUnarchiver *APNSInfoUnarchiver = nil;
+    BOOL caughtException = NO;
     @try {
       APNSInfoUnarchiver = [[NSKeyedUnarchiver alloc] initForReadingFromData:decodedAPNSInfo
                                                                        error:&APNSInfoError];
@@ -222,8 +223,9 @@ static const NSTimeInterval kDefaultFetchTokenInterval = 7 * 24 * 60 * 60;  // 7
                              @"or earlier: %@",
                              exception);
       rawAPNSInfo = nil;
+      caughtException = YES;
     }
-    if (!rawAPNSInfo) {
+    if (!rawAPNSInfo && !caughtException) {
       FIRMessagingLoggerInfo(kFIRMessagingMessageCodeTokenInfoBadAPNSInfo,
                              @"Could not parse APNS info archived by FirebaseMessaging 10.18.0 or "
                              @"earlier; error: %@",
