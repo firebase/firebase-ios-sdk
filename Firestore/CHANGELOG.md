@@ -7,6 +7,10 @@
   APIs.
 - [feature] Adds support for the following new types: `MinKey`, `MaxKey`, `RegexValue`,
   `Int32Value`, `Decimal128Value`, `BSONObjectId`, `BSONTimestamp`, and `BSONBinaryData`. (#16265)
+- [changed] Added the `Firestore` package trait to `Package.swift`.
+  Cloud Firestore support now requires the trait to be enabled (it is enabled
+  by default). Developers can opt out of the trait to avoid downloading
+  Firestore's underlying dependencies (such as gRPC and Abseil). (#16684)
 
 # 12.19.0
 - [feature] Added support for `minimum` and `maximum` FieldValue operations [#16159].

@@ -21,7 +21,9 @@
 #import "FirebaseCore/FirebaseCore.h"
 #import "FirebaseCrashlytics/FirebaseCrashlytics.h"
 #import "FirebaseDatabase/FirebaseDatabase.h"
+#if defined(FIRESTORE_TRAIT_ENABLED)
 #import "FirebaseFirestore/FirebaseFirestore.h"
+#endif  // defined(FIRESTORE_TRAIT_ENABLED)
 #import "FirebaseInstallations/FirebaseInstallations.h"
 #import "FirebaseMessaging/FirebaseMessaging.h"
 #if (TARGET_OS_IOS && !TARGET_OS_MACCATALYST) || TARGET_OS_TV
@@ -39,7 +41,9 @@
 #import <FirebaseCore/FirebaseCore.h>
 #import <FirebaseCrashlytics/FirebaseCrashlytics.h>
 #import <FirebaseDatabase/FirebaseDatabase.h>
+#if defined(FIRESTORE_TRAIT_ENABLED)
 #import <FirebaseFirestore/FirebaseFirestore.h>
+#endif  // defined(FIRESTORE_TRAIT_ENABLED)
 #if TARGET_OS_IOS || TARGET_OS_TV
 #import <FirebaseInAppMessaging/FirebaseInAppMessaging.h>
 #endif
