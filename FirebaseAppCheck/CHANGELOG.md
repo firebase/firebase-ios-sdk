@@ -1,3 +1,25 @@
+# 12.19.0
+- [fixed] Fixed an issue where the Recaptcha provider could cause build
+  errors in binary environments, due to unsupported platforms. (#16564)
+
+# 12.18.0
+- [fixed] Safely disable the reCAPTCHA provider when its Swift dependencies
+  cannot be resolved to prevent `unknown receiver` build failures that
+  occur in unsupported `use_modular_headers!` use cases. (#16477)
+- [changed] Updated the App Check debug token log message to include Firebase CLI
+  registration commands and a link to the debug token guide.
+
+# 12.17.0
+- [changed] The default App Check provider for iOS physical devices no longer
+  attempts to configure the reCAPTCHA provider before falling back to
+  DeviceCheck. This reverts a change introduced in 12.15.0.
+- [changed] Changed `RecaptchaProvider` and `RecaptchaProviderFactory` to
+  explicitly require a `siteKey` parameter on initialization, rather than
+  reading it from `FirebaseOptions`. Note that the reCAPTCHA provider feature
+  is in public preview.
+  **Note:** Backend support for this capability is not yet available, but
+  it's coming soon.
+
 # 12.16.0
 - [changed] Changed error message for missing `FirebaseApp.configure()` to
   properly articulate supported methods. (#16294)

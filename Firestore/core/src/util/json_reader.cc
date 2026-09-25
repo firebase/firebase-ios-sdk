@@ -38,7 +38,7 @@ const std::vector<T>& EmptyVector() {
 
 const std::string& JsonReader::RequiredString(const char* name,
                                               const json& json_object) {
-  if (json_object.contains(name)) {
+  if (json_object.is_object() && json_object.contains(name)) {
     const json& child = json_object.at(name);
     if (child.is_string()) {
       return child.get_ref<const std::string&>();
@@ -53,7 +53,7 @@ const std::string& JsonReader::OptionalString(
     const char* name,
     const json& json_object,
     const std::string& default_value) {
-  if (json_object.contains(name)) {
+  if (json_object.is_object() && json_object.contains(name)) {
     const json& child = json_object.at(name);
     if (child.is_string()) {
       return child.get_ref<const std::string&>();
@@ -65,7 +65,7 @@ const std::string& JsonReader::OptionalString(
 
 const std::vector<json>& JsonReader::RequiredArray(const char* name,
                                                    const json& json_object) {
-  if (json_object.contains(name)) {
+  if (json_object.is_object() && json_object.contains(name)) {
     const json& child = json_object.at(name);
     if (child.is_array()) {
       return child.get_ref<const std::vector<json>&>();
@@ -80,7 +80,7 @@ const std::vector<json>& JsonReader::OptionalArray(
     const char* name,
     const json& json_object,
     const std::vector<json>& default_value) {
-  if (!json_object.contains(name)) {
+  if (!json_object.is_object() || !json_object.contains(name)) {
     return default_value;
   }
 
@@ -96,13 +96,21 @@ const std::vector<json>& JsonReader::OptionalArray(
 bool JsonReader::OptionalBool(const char* name,
                               const json& json_object,
                               bool default_value) {
-  return (json_object.contains(name) && json_object.at(name).is_boolean() &&
-          json_object.at(name).get<bool>()) ||
-         default_value;
+  if (json_object.is_object() && json_object.contains(name)) {
+    const json& child = json_object.at(name);
+    if (child.is_boolean()) {
+      return child.get<bool>();
+    }
+  }
+  return default_value;
 }
 
 const nlohmann::json& JsonReader::RequiredObject(const char* child_name,
                                                  const json& json_object) {
+  if (!json_object.is_object()) {
+    Fail("Parent is not a JSON object");
+    return json_object;
+  }
   if (!json_object.contains(child_name)) {
     Fail("Missing child '%s'", child_name);
     return json_object;
@@ -114,6 +122,9 @@ const nlohmann::json& JsonReader::OptionalObject(
     const char* child_name,
     const json& json_object,
     const nlohmann::json& default_value) {
+  if (!json_object.is_object()) {
+    return default_value;
+  }
   if (json_object.contains(child_name)) {
     return json_object.at(child_name);
   }
@@ -121,7 +132,7 @@ const nlohmann::json& JsonReader::OptionalObject(
 }
 
 double JsonReader::RequiredDouble(const char* name, const json& json_object) {
-  if (json_object.contains(name)) {
+  if (json_object.is_object() && json_object.contains(name)) {
     double result = DecodeDouble(json_object.at(name));
     if (ok()) {
       return result;
@@ -135,7 +146,7 @@ double JsonReader::RequiredDouble(const char* name, const json& json_object) {
 double JsonReader::OptionalDouble(const char* name,
                                   const json& json_object,
                                   double default_value) {
-  if (json_object.contains(name)) {
+  if (json_object.is_object() && json_object.contains(name)) {
     double result = DecodeDouble(json_object.at(name));
     if (ok()) {
       return result;

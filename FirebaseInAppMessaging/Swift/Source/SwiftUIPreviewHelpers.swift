@@ -18,7 +18,6 @@ import UIKit
   @_exported import FirebaseInAppMessagingInternal
 #endif // SWIFT_PACKAGE
 
-@available(iOS 13.0, tvOS 13.0, *)
 @available(iOSApplicationExtension, unavailable)
 @available(tvOSApplicationExtension, unavailable)
 public enum InAppMessagingPreviewHelpers {

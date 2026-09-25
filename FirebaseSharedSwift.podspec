@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name                    = 'FirebaseSharedSwift'
-  s.version                 = '12.17.0'
+  s.version                 = '13.0.0'
   s.summary                 = 'Shared Swift Extensions for Firebase'
 
   s.description      = <<-DESC
@@ -21,9 +21,9 @@ Firebase products. FirebaseSharedSwift is not supported for non-Firebase usage.
   s.swift_version           = '5.9'
 
   ios_deployment_target = '15.0'
-  osx_deployment_target = '10.15'
+  osx_deployment_target = '11.0'
   tvos_deployment_target = '15.0'
-  watchos_deployment_target = '7.0'
+  watchos_deployment_target = '8.0'
 
   s.ios.deployment_target = ios_deployment_target
   s.osx.deployment_target = osx_deployment_target
@@ -36,6 +36,10 @@ Firebase products. FirebaseSharedSwift is not supported for non-Firebase usage.
   s.source_files = [
     'FirebaseSharedSwift/Sources/**/*.swift',
   ]
+
+  s.pod_target_xcconfig = {
+    'PRODUCT_BUNDLE_IDENTIFIER' => 'com.google.firebase.FirebaseSharedSwift'
+  }
 
   s.test_spec 'unit' do |unit_tests|
     unit_tests.platforms = {

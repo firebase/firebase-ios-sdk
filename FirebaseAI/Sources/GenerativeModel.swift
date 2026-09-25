@@ -46,7 +46,7 @@ public final class GenerativeModel: Sendable {
   /// A list of tools the model may use to generate the next response.
   let tools: [Tool]?
 
-  /// Tool configuration for any `Tool` specified in the request.
+  /// Tool configuration for any ``Tool`` specified in the request.
   let toolConfig: ToolConfig?
 
   /// Instructions that direct the model to behave a certain way.
@@ -61,7 +61,7 @@ public final class GenerativeModel: Sendable {
   ///   - modelName: The name of the model.
   ///   - modelResourceName: The model resource name corresponding with `modelName` in the backend.
   ///     The form depends on the backend and will be one of:
-  ///       - Vertex AI via Firebase AI SDK:
+  ///       - Gemini Enterprise API via Firebase AI SDK:
   ///       `"projects/{projectID}/locations/{locationID}/publishers/google/models/{modelName}"`
   ///       - Developer API via Firebase AI SDK: `"projects/{projectID}/models/{modelName}"`
   ///       - Developer API via Generative Language: `"models/{modelName}"`
@@ -70,7 +70,7 @@ public final class GenerativeModel: Sendable {
   ///   - generationConfig: The content generation parameters your model should use.
   ///   - safetySettings: A value describing what types of harmful content your model should allow.
   ///   - tools: A list of ``Tool`` objects that the model may use to generate the next response.
-  ///   - toolConfig: Tool configuration for any `Tool` specified in the request.
+  ///   - toolConfig: Tool configuration for any ``Tool`` specified in the request.
   ///   - systemInstruction: Instructions that direct the model to behave a certain way; currently
   ///     only text content is supported.
   ///   - requestOptions: Configuration parameters for sending requests to the backend.
@@ -207,7 +207,7 @@ public final class GenerativeModel: Sendable {
   /// ``CountTokensResponse/totalTokens``.
   public func countTokens(_ content: [ModelContent]) async throws -> CountTokensResponse {
     let requestContent = switch apiConfig.service {
-    case .vertexAI:
+    case .enterprise:
       content
     case .googleAI:
       // The `role` defaults to "user" but is ignored in `countTokens`. However, it is erroneously
@@ -222,7 +222,7 @@ public final class GenerativeModel: Sendable {
     // "models/model-name". This field is unaltered by the Firebase backend before forwarding the
     // request to the Generative Language backend, which expects the form "models/model-name".
     let generateContentRequestModelResourceName = switch apiConfig.service {
-    case .vertexAI:
+    case .enterprise:
       modelResourceName
     case .googleAI(endpoint: .firebaseProxyProd):
       "models/\(modelName)"
@@ -231,9 +231,9 @@ public final class GenerativeModel: Sendable {
         "models/\(modelName)"
       case .googleAI(endpoint: .googleAIBypassProxy):
         modelResourceName
-      case .googleAI(endpoint: .vertexAIStagingBypassProxy):
+      case .googleAI(endpoint: .enterpriseStagingBypassProxy):
         fatalError(
-          "The Vertex AI staging endpoint does not support the Gemini Developer API (Google AI)."
+          "The Gemini Enterprise API staging endpoint does not support the Gemini Developer API."
         )
     #endif // DEBUG
     }

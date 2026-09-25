@@ -13,9 +13,6 @@
 // limitations under the License.
 
 import Foundation
-#if canImport(FoundationModels)
-  import FoundationModels
-#endif // canImport(FoundationModels)
 
 /// A discrete piece of data in a media format interpretable by an AI model.
 ///
@@ -60,7 +57,7 @@ public struct TextPart: Part {
 /// > Important: Only small files can be sent as inline data because of limits on total request
 /// sizes;
 ///  see [input files and requirements
-///  ](https://firebase.google.com/docs/vertex-ai/input-file-requirements#provide-file-as-inline-data)
+///  ](https://firebase.google.com/docs/ai-logic/input-file-requirements#provide-file-as-inline-data)
 ///  for more details and size limits.
 public struct InlineDataPart: Part {
   let inlineData: InlineData
@@ -79,16 +76,16 @@ public struct InlineDataPart: Part {
   /// Creates an inline data part from data and a MIME type.
   ///
   /// > Important: Supported input types depend on the model on the model being used; see [input
-  ///  files and requirements](https://firebase.google.com/docs/vertex-ai/input-file-requirements)
+  ///  files and requirements](https://firebase.google.com/docs/ai-logic/input-file-requirements)
   ///  for more details.
   ///
   /// - Parameters:
   ///   - data: The data representation of an image, video, audio or document; see [input files and
-  ///     requirements](https://firebase.google.com/docs/vertex-ai/input-file-requirements) for
+  ///     requirements](https://firebase.google.com/docs/ai-logic/input-file-requirements) for
   ///     supported media types.
   ///   - mimeType: The IANA standard MIME type of the data, for example, `"image/jpeg"` or
   ///     `"video/mp4"`; see [input files and
-  ///     requirements](https://firebase.google.com/docs/vertex-ai/input-file-requirements) for
+  ///     requirements](https://firebase.google.com/docs/ai-logic/input-file-requirements) for
   ///     supported values.
   public init(data: Data, mimeType: String) {
     self.init(InlineData(data: data, mimeType: mimeType), isThought: nil, thoughtSignature: nil)
@@ -118,7 +115,7 @@ public struct FileDataPart: Part {
   ///     `"gs://bucket-name/path/image.jpg"`.
   ///   - mimeType: The IANA standard MIME type of the uploaded file, for example, `"image/jpeg"`
   ///     or `"video/mp4"`; see [supported input files and
-  ///     requirements](https://firebase.google.com/docs/vertex-ai/input-file-requirements) for
+  ///     requirements](https://firebase.google.com/docs/ai-logic/input-file-requirements) for
   ///     supported values.
   public init(uri: String, mimeType: String) {
     self.init(FileData(fileURI: uri, mimeType: mimeType), isThought: nil, thoughtSignature: nil)
@@ -349,43 +346,3 @@ public struct CodeExecutionResultPart: Part {
     self.thoughtSignature = thoughtSignature
   }
 }
-
-#if compiler(>=6.2.3) && canImport(FoundationModels)
-  @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
-  @available(tvOS, unavailable)
-  @available(watchOS, unavailable)
-  extension [any Part] {
-    func toFoundationModelsPrompt() throws -> FoundationModels.Prompt {
-      let parts = ModelContent(parts: self)
-      let promptParts: [any FoundationModels.PromptRepresentable] = try parts.internalParts
-        .compactMap { part in
-          // Skip any `thought` parts since they are unused by Foundation Models.
-          guard !(part.isThought ?? false) else { return nil }
-
-          // Skip any parts without `data`, for example a `Part` containing only a thought
-          // signature, since they are unused by Foundation Models.
-          guard let data = part.data else { return nil }
-
-          // Currently only string types are supported.
-          guard case let .text(string) = data else {
-            throw GenerativeModelSession.GenerationError.unsupportedPromptContent(
-              GenerativeModelSession.GenerationError.Context(
-                debugDescription: """
-                Prompt data type "\(data)" is not supported by the on-device model; currently only \
-                text content is supported.
-                """
-              )
-            )
-          }
-
-          return string
-        }
-
-      return Prompt {
-        for part in promptParts {
-          part.promptRepresentation
-        }
-      }
-    }
-  }
-#endif // compiler(>=6.2.3) && canImport(FoundationModels)

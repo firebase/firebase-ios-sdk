@@ -248,13 +248,13 @@ public struct WindowSpec: Sendable {
     )
   }
 
-  public func toBridge() -> WindowSpecBridge {
+  public func toBridge() -> __WindowSpecBridge {
     let bridgePreceding: Any? = preceding?.bridgeValue
     let bridgeFollowing: Any? = following?.bridgeValue
     let bridgeUnit: Any? =
       (unit as? TimeGranularity)?.rawValue ?? (unit as? TimeUnit)?.rawValue
         ?? (unit as? Expression)?.toBridge() ?? unit
-    return WindowSpecBridge(
+    return __WindowSpecBridge(
       groups: groups.map { $0.toBridge() },
       sort: sort?.map { $0.bridge },
       preceding: bridgePreceding,

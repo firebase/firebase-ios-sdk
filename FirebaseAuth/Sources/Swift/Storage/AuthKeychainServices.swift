@@ -57,7 +57,14 @@ final class AuthKeychainServices: Sendable {
       return items[0][kSecValueData as String] as? Data
     }
     if status == errSecItemNotFound {
-      return nil
+      if isKeychainAccessible() {
+        return nil
+      } else {
+        throw AuthErrorUtils.keychainError(
+          function: "SecItemCopyMatching",
+          status: errSecInteractionNotAllowed
+        )
+      }
     } else {
       throw AuthErrorUtils.keychainError(function: "SecItemCopyMatching", status: status)
     }
@@ -179,7 +186,14 @@ final class AuthKeychainServices: Sendable {
     }
 
     if status == errSecItemNotFound {
-      return nil
+      if isKeychainAccessible() {
+        return nil
+      } else {
+        throw AuthErrorUtils.keychainError(
+          function: "SecItemCopyMatching",
+          status: errSecInteractionNotAllowed
+        )
+      }
     } else {
       throw AuthErrorUtils.keychainError(function: "SecItemCopyMatching", status: status)
     }
@@ -242,5 +256,28 @@ final class AuthKeychainServices: Sendable {
       kSecClass as String: kSecClassGenericPassword,
       kSecAttrAccount as String: key,
     ]
+  }
+
+  /// Determines if the keychain is currently accessible.
+  /// This is used to work around a known iOS bug where `SecItemCopyMatching` spuriously returns
+  /// `errSecItemNotFound` instead of `errSecInteractionNotAllowed` when the device is locked (e.g.
+  /// during prewarming).
+  private func isKeychainAccessible() -> Bool {
+    let dummyKey = "firebase_auth_keychain_accessibility_check"
+    var query: [String: Any] = [
+      kSecClass as String: kSecClassGenericPassword,
+      kSecAttrAccount as String: dummyKey,
+      kSecAttrService as String: service,
+      kSecValueData as String: Data([0]),
+      kSecAttrAccessible as String: kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
+    ]
+    query[kSecUseDataProtectionKeychain as String] = true
+
+    let status = keychainStorage.add(query: query)
+    if status == errSecInteractionNotAllowed {
+      return false
+    }
+
+    return true
   }
 }

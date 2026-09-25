@@ -14,7 +14,7 @@
 
 import Foundation
 
-enum TemplateInput: Encodable, Sendable {
+enum TemplateInput: Encodable, Equatable, Sendable {
   case string(String)
   case int(Int)
   case double(Double)
@@ -24,6 +24,12 @@ enum TemplateInput: Encodable, Sendable {
 
   init(value: Any) throws {
     switch value {
+    // `NSNumber` bridges to both `Bool` and `Int`, so booleans and integers originating from
+    // Foundation containers (for example, `JSONSerialization` output) are indistinguishable by
+    // `as?` alone: `NSNumber(value: true) as? Int` is `1` and `NSNumber(value: 1) as? Bool` is
+    // `true`. Check the underlying CoreFoundation type first to disambiguate.
+    case let value as NSNumber where CFGetTypeID(value) == CFBooleanGetTypeID():
+      self = .bool(value.boolValue)
     case let value as String:
       self = .string(value)
     case let value as Int:
@@ -41,8 +47,38 @@ enum TemplateInput: Encodable, Sendable {
     default:
       throw EncodingError.invalidValue(
         value,
-        EncodingError.Context(codingPath: [], debugDescription: "Invalid value")
+        EncodingError.Context(codingPath: [], debugDescription: """
+        Unsupported template input of type \(type(of: value)); supported types are String, Int, \
+        Double, Float, Bool, arrays of these types, and dictionaries keyed by String.
+        """)
       )
+    }
+  }
+
+  /// Converts a dictionary of raw template input values into ``TemplateInput`` values.
+  ///
+  /// - Parameter values: Template variable names mapped to their values.
+  /// - Returns: The converted template inputs.
+  /// - Throws: An `EncodingError.invalidValue` identifying the offending variable name if a value
+  ///   is not a supported template input type.
+  static func inputs(from values: [String: Any]) throws -> [String: TemplateInput] {
+    return try values.reduce(into: [String: TemplateInput]()) { inputs, element in
+      do {
+        inputs[element.key] = try TemplateInput(value: element.value)
+      } catch {
+        throw EncodingError.invalidValue(
+          element.value,
+          EncodingError.Context(
+            codingPath: [TemplateInputCodingKey(stringValue: element.key)],
+            debugDescription: """
+            Unsupported value of type \(type(of: element.value)) for template input \
+            "\(element.key)"; supported types are String, Int, Double, Float, Bool, arrays of \
+            these types, and dictionaries keyed by String.
+            """,
+            underlyingError: error
+          )
+        )
+      }
     }
   }
 
@@ -62,5 +98,20 @@ enum TemplateInput: Encodable, Sendable {
     case let .dictionary(value):
       try container.encode(value)
     }
+  }
+}
+
+/// Identifies a template variable name in an `EncodingError`'s coding path.
+private struct TemplateInputCodingKey: CodingKey {
+  let stringValue: String
+  let intValue: Int? = nil
+
+  init(stringValue: String) {
+    self.stringValue = stringValue
+  }
+
+  init?(intValue: Int) {
+    assertionFailure("Unexpected \(Self.self) with integer value: \(intValue)")
+    return nil
   }
 }

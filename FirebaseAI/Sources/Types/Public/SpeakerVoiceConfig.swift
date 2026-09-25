@@ -15,6 +15,8 @@
 import Foundation
 
 /// Configures a speaker with a unique name/identifier and a specific voice.
+///
+/// **Public Preview**: This API is a public preview and may be subject to change.
 public struct SpeakerVoiceConfig: Sendable {
   let speakerVoiceConfig: ProtoSpeakerVoiceConfig
 
@@ -28,10 +30,8 @@ public struct SpeakerVoiceConfig: Sendable {
   ///   - speaker: The unique name/identifier of the speaker (e.g., `"Alice"`).
   ///   - voiceName: The name of the preset voice to assign to this speaker.
   ///
-  /// Find the list of supported voices for:
-  /// - [Gemini Developer API](https://ai.google.dev/gemini-api/docs/speech-generation)
-  /// - [Vertex AI Gemini API](https://docs.cloud.google.com/text-to-speech/docs/gemini-tts)
-  // TODO(b/522397979): Update links to point to Firebase when they're live
+  /// Find the list of supported voices at
+  /// https://firebase.google.com/docs/ai-logic/generate-speech#supported-voices-and-languages
   public init(speaker: String, voiceName: String) {
     self.init(
       ProtoSpeakerVoiceConfig(

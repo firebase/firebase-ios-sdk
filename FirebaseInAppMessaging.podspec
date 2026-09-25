@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseInAppMessaging'
-  s.version          = '12.17.0-beta'
+  s.version          = '13.0.0-beta'
   s.summary          = 'Firebase In-App Messaging for iOS'
 
   s.description      = <<-DESC
@@ -75,16 +75,17 @@ See more product details at https://firebase.google.com/products/in-app-messagin
     'GCC_PREPROCESSOR_DEFINITIONS' =>
       '$(inherited) ' +
       'PB_FIELD_32BIT=1 PB_NO_PACKED_STRUCTS=1 PB_ENABLE_MALLOC=1',
-    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
+    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"',
+    'PRODUCT_BUNDLE_IDENTIFIER' => 'com.google.firebase.FirebaseInAppMessaging'
   }
 
   s.framework = 'UIKit'
 
-  s.dependency 'FirebaseCore', '~> 12.17.0'
-  s.dependency 'FirebaseInstallations', '~> 12.17.0'
-  s.dependency 'FirebaseABTesting', '~> 12.17.0'
-  s.dependency 'GoogleUtilities/Environment', '~> 8.1'
-  s.dependency 'GoogleUtilities/UserDefaults', '~> 8.1'
+  s.dependency 'FirebaseCore', '~> 13.0.0'
+  s.dependency 'FirebaseInstallations', '~> 13.0.0'
+  s.dependency 'FirebaseABTesting', '~> 13.0.0'
+  s.dependency 'GoogleUtilities/Environment', '>= 8.1.3', '< 9.0'
+  s.dependency 'GoogleUtilities/UserDefaults', '>= 8.1.3', '< 9.0'
   s.dependency 'nanopb', '~> 3.30910.0'
 
   s.test_spec 'unit' do |unit_tests|

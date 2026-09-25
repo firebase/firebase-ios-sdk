@@ -77,8 +77,9 @@ static const int64_t kDefaultSyncMessageTTL = 4 * 7 * 24 * 60 * 60;  // 4 weeks
 
 + (int64_t)expirationTimeForSyncMessage:(NSDictionary *)message {
   int64_t ttl = kDefaultSyncMessageTTL;
-  if (message[kFIRMessagingMessageSyncMessageTTLKey]) {
-    ttl = [message[kFIRMessagingMessageSyncMessageTTLKey] longLongValue];
+  id ttlValue = message[kFIRMessagingMessageSyncMessageTTLKey];
+  if ([ttlValue respondsToSelector:@selector(longLongValue)]) {
+    ttl = [ttlValue longLongValue];
   }
   int64_t currentTime = FIRMessagingCurrentTimestampInSeconds();
   return currentTime + ttl;

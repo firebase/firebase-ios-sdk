@@ -24,55 +24,55 @@
 
 @class FIRTimestamp;
 @class FIRVectorValue;
-@class FIRPipelineBridge;
+@class __FIRPipelineBridge;
 @class FIRFieldPath;
 
 NS_ASSUME_NONNULL_BEGIN
 
 NS_SWIFT_SENDABLE
-NS_SWIFT_NAME(ExprBridge)
-@interface FIRExprBridge : NSObject
+NS_SWIFT_NAME(__ExprBridge)
+@interface __FIRExprBridge : NSObject
 @end
 
 NS_SWIFT_SENDABLE
-NS_SWIFT_NAME(FieldBridge)
-@interface FIRFieldBridge : FIRExprBridge
+NS_SWIFT_NAME(__FieldBridge)
+@interface __FIRFieldBridge : __FIRExprBridge
 - (id)initWithName:(NSString *)name;
 - (id)initWithPath:(FIRFieldPath *)path;
 - (NSString *)field_name;
 @end
 
 NS_SWIFT_SENDABLE
-NS_SWIFT_NAME(VariableBridge)
-@interface FIRVariableBridge : FIRExprBridge
+NS_SWIFT_NAME(__VariableBridge)
+@interface __FIRVariableBridge : __FIRExprBridge
 - (id)initWithName:(NSString *)name;
 @end
 
 NS_SWIFT_SENDABLE
-NS_SWIFT_NAME(ConstantBridge)
-@interface FIRConstantBridge : FIRExprBridge
+NS_SWIFT_NAME(__ConstantBridge)
+@interface __FIRConstantBridge : __FIRExprBridge
 - (id)init:(id)input;
 @end
 
 NS_SWIFT_SENDABLE
-NS_SWIFT_NAME(FunctionExprBridge)
-@interface FIRFunctionExprBridge : FIRExprBridge
+NS_SWIFT_NAME(__FunctionExprBridge)
+@interface __FIRFunctionExprBridge : __FIRExprBridge
 - (id)initWithName:(NSString *)name
-              Args:(NSArray<FIRExprBridge *> *)args
-           Options:(NSDictionary<NSString *, FIRExprBridge *> *_Nullable)options;
+              Args:(NSArray<__FIRExprBridge *> *)args
+           Options:(NSDictionary<NSString *, __FIRExprBridge *> *_Nullable)options;
 @end
 
 NS_SWIFT_SENDABLE
-NS_SWIFT_NAME(OrderingBridge)
-@interface FIROrderingBridge : NSObject
-- (id)initWithExpr:(FIRExprBridge *)expr Direction:(NSString *)direction;
+NS_SWIFT_NAME(__OrderingBridge)
+@interface __FIROrderingBridge : NSObject
+- (id)initWithExpr:(__FIRExprBridge *)expr Direction:(NSString *)direction;
 @end
 
 NS_SWIFT_SENDABLE
-NS_SWIFT_NAME(WindowSpecBridge)
-@interface FIRWindowSpecBridge : NSObject
-- (id)initWithGroups:(NSArray<FIRExprBridge *> *)groups
-                sort:(NSArray<FIROrderingBridge *> *_Nullable)sort
+NS_SWIFT_NAME(__WindowSpecBridge)
+@interface __FIRWindowSpecBridge : NSObject
+- (id)initWithGroups:(NSArray<__FIRExprBridge *> *)groups
+                sort:(NSArray<__FIROrderingBridge *> *_Nullable)sort
            preceding:(id _Nullable)preceding
            following:(id _Nullable)following
                 type:(NSString *_Nullable)type
@@ -80,23 +80,23 @@ NS_SWIFT_NAME(WindowSpecBridge)
 @end
 
 NS_SWIFT_SENDABLE
-NS_SWIFT_NAME(AggregateFunctionBridge)
-@interface FIRAggregateFunctionBridge : NSObject
-- (id)initWithName:(NSString *)name Args:(NSArray<FIRExprBridge *> *)args;
+NS_SWIFT_NAME(__AggregateFunctionBridge)
+@interface __FIRAggregateFunctionBridge : NSObject
+- (id)initWithName:(NSString *)name Args:(NSArray<__FIRExprBridge *> *)args;
 - (id)initWithName:(NSString *)name
-              Args:(NSArray<FIRExprBridge *> *)args
-            Window:(FIRWindowSpecBridge *_Nullable)window;
+              Args:(NSArray<__FIRExprBridge *> *)args
+            Window:(__FIRWindowSpecBridge *_Nullable)window;
 @end
 
 NS_SWIFT_SENDABLE
-NS_SWIFT_NAME(StageBridge)
-@interface FIRStageBridge : NSObject
+NS_SWIFT_NAME(__StageBridge)
+@interface __FIRStageBridge : NSObject
 @property(nonatomic, readonly) NSString *name;
 @end
 
 NS_SWIFT_SENDABLE
-NS_SWIFT_NAME(CollectionSourceStageBridge)
-@interface FIRCollectionSourceStageBridge : FIRStageBridge
+NS_SWIFT_NAME(__CollectionSourceStageBridge)
+@interface __FIRCollectionSourceStageBridge : __FIRStageBridge
 
 - (id)initWithRef:(FIRCollectionReference *)ref
         firestore:(FIRFirestore *)db
@@ -104,158 +104,157 @@ NS_SWIFT_NAME(CollectionSourceStageBridge)
 @end
 
 NS_SWIFT_SENDABLE
-NS_SWIFT_NAME(SubcollectionSourceStageBridge)
-@interface FIRSubcollectionSourceStageBridge : FIRStageBridge
+NS_SWIFT_NAME(__SubcollectionSourceStageBridge)
+@interface __FIRSubcollectionSourceStageBridge : __FIRStageBridge
 
 - (id)initWithPath:(NSString *)path;
 @end
 
 NS_SWIFT_SENDABLE
-NS_SWIFT_NAME(DatabaseSourceStageBridge)
-@interface FIRDatabaseSourceStageBridge : FIRStageBridge
+NS_SWIFT_NAME(__DatabaseSourceStageBridge)
+@interface __FIRDatabaseSourceStageBridge : __FIRStageBridge
 
 - (id)init;
 @end
 
 NS_SWIFT_SENDABLE
-NS_SWIFT_NAME(CollectionGroupSourceStageBridge)
-@interface FIRCollectionGroupSourceStageBridge : FIRStageBridge
+NS_SWIFT_NAME(__CollectionGroupSourceStageBridge)
+@interface __FIRCollectionGroupSourceStageBridge : __FIRStageBridge
 
 - (id)initWithCollectionId:(NSString *)id forceIndex:(NSString *_Nullable)force_index;
 @end
 
 NS_SWIFT_SENDABLE
-NS_SWIFT_NAME(DocumentsSourceStageBridge)
-@interface FIRDocumentsSourceStageBridge : FIRStageBridge
+NS_SWIFT_NAME(__DocumentsSourceStageBridge)
+@interface __FIRDocumentsSourceStageBridge : __FIRStageBridge
 
 - (id)initWithDocuments:(NSArray<FIRDocumentReference *> *)documents firestore:(FIRFirestore *)db;
 @end
 
 NS_SWIFT_SENDABLE
-NS_SWIFT_NAME(WhereStageBridge)
-@interface FIRWhereStageBridge : FIRStageBridge
+NS_SWIFT_NAME(__WhereStageBridge)
+@interface __FIRWhereStageBridge : __FIRStageBridge
 
-- (id)initWithExpr:(FIRExprBridge *)expr;
+- (id)initWithExpr:(__FIRExprBridge *)expr;
 @end
 
 NS_SWIFT_SENDABLE
-NS_SWIFT_NAME(LimitStageBridge)
-@interface FIRLimitStageBridge : FIRStageBridge
+NS_SWIFT_NAME(__LimitStageBridge)
+@interface __FIRLimitStageBridge : __FIRStageBridge
 
 - (id)initWithLimit:(NSInteger)value;
 @end
 
 NS_SWIFT_SENDABLE
-NS_SWIFT_NAME(OffsetStageBridge)
-@interface FIROffsetStageBridge : FIRStageBridge
+NS_SWIFT_NAME(__OffsetStageBridge)
+@interface __FIROffsetStageBridge : __FIRStageBridge
 
 - (id)initWithOffset:(NSInteger)value;
 @end
 
 NS_SWIFT_SENDABLE
-NS_SWIFT_NAME(AddFieldsStageBridge)
-@interface FIRAddFieldsStageBridge : FIRStageBridge
-- (id)initWithFields:(NSDictionary<NSString *, FIRExprBridge *> *)fields;
+NS_SWIFT_NAME(__AddFieldsStageBridge)
+@interface __FIRAddFieldsStageBridge : __FIRStageBridge
+- (id)initWithFields:(NSDictionary<NSString *, __FIRExprBridge *> *)fields;
 @end
 
 NS_SWIFT_SENDABLE
-NS_SWIFT_NAME(AddWindowFieldsStageBridge)
-@interface FIRAddWindowFieldsStageBridge : FIRStageBridge
-- (id)initWithWindow:(FIRWindowSpecBridge *)window
-              fields:(NSDictionary<NSString *, FIRAggregateFunctionBridge *> *)fields
-             options:(NSDictionary<NSString *, FIRExprBridge *> *_Nullable)options;
+NS_SWIFT_NAME(__AddWindowFieldsStageBridge)
+@interface __FIRAddWindowFieldsStageBridge : __FIRStageBridge
+- (id)initWithWindow:(__FIRWindowSpecBridge *)window
+              fields:(NSDictionary<NSString *, __FIRAggregateFunctionBridge *> *)fields
+             options:(NSDictionary<NSString *, __FIRExprBridge *> *_Nullable)options;
 @end
 
-
 NS_SWIFT_SENDABLE
-NS_SWIFT_NAME(RemoveFieldsStageBridge)
-@interface FIRRemoveFieldsStageBridge : FIRStageBridge
+NS_SWIFT_NAME(__RemoveFieldsStageBridge)
+@interface __FIRRemoveFieldsStageBridge : __FIRStageBridge
 - (id)initWithFields:(NSArray<NSString *> *)fields;
 @end
 
 NS_SWIFT_SENDABLE
-NS_SWIFT_NAME(SelectStageBridge)
-@interface FIRSelectStageBridge : FIRStageBridge
-- (id)initWithSelections:(NSDictionary<NSString *, FIRExprBridge *> *)selections;
+NS_SWIFT_NAME(__SelectStageBridge)
+@interface __FIRSelectStageBridge : __FIRStageBridge
+- (id)initWithSelections:(NSDictionary<NSString *, __FIRExprBridge *> *)selections;
 @end
 
 NS_SWIFT_SENDABLE
-NS_SWIFT_NAME(DefineStageBridge)
-@interface FIRDefineStageBridge : FIRStageBridge
-- (id)initWithVariables:(NSDictionary<NSString *, FIRExprBridge *> *)variables;
+NS_SWIFT_NAME(__DefineStageBridge)
+@interface __FIRDefineStageBridge : __FIRStageBridge
+- (id)initWithVariables:(NSDictionary<NSString *, __FIRExprBridge *> *)variables;
 @end
 
 NS_SWIFT_SENDABLE
-NS_SWIFT_NAME(DistinctStageBridge)
-@interface FIRDistinctStageBridge : FIRStageBridge
-- (id)initWithGroups:(NSDictionary<NSString *, FIRExprBridge *> *)groups;
+NS_SWIFT_NAME(__DistinctStageBridge)
+@interface __FIRDistinctStageBridge : __FIRStageBridge
+- (id)initWithGroups:(NSDictionary<NSString *, __FIRExprBridge *> *)groups;
 @end
 
 NS_SWIFT_SENDABLE
-NS_SWIFT_NAME(AggregateStageBridge)
-@interface FIRAggregateStageBridge : FIRStageBridge
-- (id)initWithAccumulators:(NSDictionary<NSString *, FIRAggregateFunctionBridge *> *)accumulators
-                    groups:(NSDictionary<NSString *, FIRExprBridge *> *)groups;
+NS_SWIFT_NAME(__AggregateStageBridge)
+@interface __FIRAggregateStageBridge : __FIRStageBridge
+- (id)initWithAccumulators:(NSDictionary<NSString *, __FIRAggregateFunctionBridge *> *)accumulators
+                    groups:(NSDictionary<NSString *, __FIRExprBridge *> *)groups;
 @end
 
 NS_SWIFT_SENDABLE
-NS_SWIFT_NAME(FindNearestStageBridge)
-@interface FIRFindNearestStageBridge : FIRStageBridge
-- (id)initWithField:(FIRFieldBridge *)field
+NS_SWIFT_NAME(__FindNearestStageBridge)
+@interface __FIRFindNearestStageBridge : __FIRStageBridge
+- (id)initWithField:(__FIRFieldBridge *)field
         vectorValue:(FIRVectorValue *)vectorValue
     distanceMeasure:(NSString *)distanceMeasure
               limit:(NSNumber *_Nullable)limit
-      distanceField:(FIRExprBridge *_Nullable)distanceField;
+      distanceField:(__FIRExprBridge *_Nullable)distanceField;
 @end
 
 NS_SWIFT_SENDABLE
-NS_SWIFT_NAME(SearchStageBridge)
-@interface FIRSearchStageBridge : FIRStageBridge
-- (id)initWithOptions:(NSDictionary<NSString *, FIRExprBridge *> *)options
-            addFields:(NSDictionary<NSString *, FIRExprBridge *> *)add_fields
-               select:(NSDictionary<NSString *, FIRExprBridge *> *)select
-                 sort:(NSArray<FIROrderingBridge *> *)sort;
+NS_SWIFT_NAME(__SearchStageBridge)
+@interface __FIRSearchStageBridge : __FIRStageBridge
+- (id)initWithOptions:(NSDictionary<NSString *, __FIRExprBridge *> *)options
+            addFields:(NSDictionary<NSString *, __FIRExprBridge *> *)add_fields
+               select:(NSDictionary<NSString *, __FIRExprBridge *> *)select
+                 sort:(NSArray<__FIROrderingBridge *> *)sort;
 @end
 
 NS_SWIFT_SENDABLE
-NS_SWIFT_NAME(SortStageBridge)
-@interface FIRSorStageBridge : FIRStageBridge
+NS_SWIFT_NAME(__SortStageBridge)
+@interface __FIRSortStageBridge : __FIRStageBridge
 - (id)initWithOrderings:(NSArray<id> *)orderings;
 @end
 
 NS_SWIFT_SENDABLE
-NS_SWIFT_NAME(ReplaceWithStageBridge)
-@interface FIRReplaceWithStageBridge : FIRStageBridge
-- (id)initWithExpr:(FIRExprBridge *)expr;
+NS_SWIFT_NAME(__ReplaceWithStageBridge)
+@interface __FIRReplaceWithStageBridge : __FIRStageBridge
+- (id)initWithExpr:(__FIRExprBridge *)expr;
 @end
 
 NS_SWIFT_SENDABLE
-NS_SWIFT_NAME(SampleStageBridge)
-@interface FIRSampleStageBridge : FIRStageBridge
+NS_SWIFT_NAME(__SampleStageBridge)
+@interface __FIRSampleStageBridge : __FIRStageBridge
 - (id)initWithCount:(int64_t)count;
 - (id)initWithPercentage:(double)percentage;
 @end
 
 NS_SWIFT_SENDABLE
-NS_SWIFT_NAME(UnionStageBridge)
-@interface FIRUnionStageBridge : FIRStageBridge
-- (id)initWithOther:(FIRPipelineBridge *)other;
+NS_SWIFT_NAME(__UnionStageBridge)
+@interface __FIRUnionStageBridge : __FIRStageBridge
+- (id)initWithOther:(__FIRPipelineBridge *)other;
 @end
 
 NS_SWIFT_SENDABLE
-NS_SWIFT_NAME(UnnestStageBridge)
-@interface FIRUnnestStageBridge : FIRStageBridge
-- (id)initWithField:(FIRExprBridge *)field
-              alias:(FIRExprBridge *)alias
-         indexField:(FIRExprBridge *_Nullable)index_field;
+NS_SWIFT_NAME(__UnnestStageBridge)
+@interface __FIRUnnestStageBridge : __FIRStageBridge
+- (id)initWithField:(__FIRExprBridge *)field
+              alias:(__FIRExprBridge *)alias
+         indexField:(__FIRExprBridge *_Nullable)index_field;
 @end
 
 NS_SWIFT_SENDABLE
-NS_SWIFT_NAME(RawStageBridge)
-@interface FIRRawStageBridge : FIRStageBridge
+NS_SWIFT_NAME(__RawStageBridge)
+@interface __FIRRawStageBridge : __FIRStageBridge
 - (id)initWithName:(NSString *)name
             params:(NSArray<id> *)params
-           options:(NSDictionary<NSString *, FIRExprBridge *> *_Nullable)options;
+           options:(NSDictionary<NSString *, __FIRExprBridge *> *_Nullable)options;
 @end
 
 NS_SWIFT_SENDABLE
@@ -309,22 +308,22 @@ NS_SWIFT_NAME(__PipelineSnapshotBridge)
 @end
 
 NS_SWIFT_SENDABLE
-NS_SWIFT_NAME(PipelineBridge)
-@interface FIRPipelineBridge : NSObject
+NS_SWIFT_NAME(__PipelineBridge)
+@interface __FIRPipelineBridge : NSObject
 
 /** :nodoc: */
-- (id)initWithStages:(NSArray<FIRStageBridge *> *)stages db:(FIRFirestore *)db;
+- (id)initWithStages:(NSArray<__FIRStageBridge *> *)stages db:(FIRFirestore *)db;
 
 - (void)executeWithCompletion:(void (^)(__FIRPipelineSnapshotBridge *_Nullable result,
                                         NSError *_Nullable error))completion;
 
-+ (NSArray<FIRStageBridge *> *)createStageBridgesFromQuery:(FIRQuery *)query;
++ (NSArray<__FIRStageBridge *> *)createStageBridgesFromQuery:(FIRQuery *)query;
 @end
 
 NS_SWIFT_SENDABLE
-NS_SWIFT_NAME(PipelineExprBridge)
-@interface FIRPipelineExprBridge : FIRExprBridge
-- (id)initWithStages:(NSArray<FIRStageBridge *> *)stages;
+NS_SWIFT_NAME(__PipelineExprBridge)
+@interface __FIRPipelineExprBridge : __FIRExprBridge
+- (id)initWithStages:(NSArray<__FIRStageBridge *> *)stages;
 @end
 
 NS_SWIFT_SENDABLE
@@ -358,11 +357,11 @@ NS_SWIFT_NAME(__PipelineListenOptionsBridge)
 @end
 
 NS_SWIFT_SENDABLE
-NS_SWIFT_NAME(RealtimePipelineBridge)
-@interface FIRRealtimePipelineBridge : NSObject
+NS_SWIFT_NAME(__RealtimePipelineBridge)
+@interface __FIRRealtimePipelineBridge : NSObject
 
 /** :nodoc: */
-- (id)initWithStages:(NSArray<FIRStageBridge *> *)stages db:(FIRFirestore *)db;
+- (id)initWithStages:(NSArray<__FIRStageBridge *> *)stages db:(FIRFirestore *)db;
 
 - (id<FIRListenerRegistration>)
     addSnapshotListenerWithOptions:(__FIRPipelineListenOptionsBridge *)options

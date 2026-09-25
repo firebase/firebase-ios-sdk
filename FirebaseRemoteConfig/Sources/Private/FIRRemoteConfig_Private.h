@@ -79,7 +79,7 @@ NS_ASSUME_NONNULL_BEGIN
                   configContent:(RCNConfigContent *)configContent
                       analytics:(nullable id<FIRAnalyticsInterop>)analytics;
 
-/// Register RolloutsStateSubcriber to FIRRemoteConfig instance
+/// Register RolloutsStateSubscriber to FIRRemoteConfig instance
 - (void)addRemoteConfigInteropSubscriber:(id<FIRRolloutsStateSubscriber> _Nonnull)subscriber;
 
 @end

@@ -26,6 +26,8 @@ on:
   pull_request:
     paths:
     - 'ReleaseTooling/Sources/**'
+    - 'Firestore/Source/Public/**'
+    - 'FirebaseFirestoreInternal/**'
     - '.github/workflows/release.zip.yml'
     - '.github/workflows/_quickstart.framework.yml'
     - 'scripts/zip/**'
@@ -251,7 +253,6 @@ jobs:
                 NON_FIREBASE_SDKS="FBSDKLoginKit FBSDKCoreKit FBSDKCoreKit_Basics FBAEMKit" \
                 scripts/zip/setup_quickstart_framework.sh \
                 "${HOME}"/ios_frameworks/Firebase/NonFirebaseSDKs/* \
-                "${HOME}"/ios_frameworks/Firebase/GoogleSignIn/* \
                 "${HOME}"/ios_frameworks/Firebase/FirebaseAuth/* \
                 "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
 
@@ -267,7 +268,7 @@ jobs:
             plist_src: "scripts/gha-encrypted/qs-crashlytics.plist.gpg"
             plist_dst: "quickstart-ios/crashlytics/GoogleService-Info.plist"
             command: |
-              xcodebuild -downloadPlatform watchOS
+              scripts/setup_simulator.sh watchOS
               rm -rf "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/FirebaseAnalytics*
               rm -rf "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/GoogleAppMeasurement*
               rm -rf "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/GoogleAds*

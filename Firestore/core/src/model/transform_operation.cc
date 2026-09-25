@@ -16,8 +16,12 @@
 
 #include "Firestore/core/src/model/transform_operation.h"
 
+#include <algorithm>
+#include <cmath>
+#include <cstdint>
 #include <functional>
 #include <memory>
+#include <optional>
 #include <ostream>
 #include <utility>
 
@@ -27,6 +31,7 @@
 #include "Firestore/core/src/nanopb/nanopb_util.h"
 #include "Firestore/core/src/util/comparison.h"
 #include "Firestore/core/src/util/hard_assert.h"
+#include "Firestore/core/src/util/quadruple.h"
 #include "Firestore/core/src/util/to_string.h"
 #include "absl/algorithm/container.h"
 #include "absl/strings/str_cat.h"
@@ -67,21 +72,21 @@ class ServerTimestampTransform::Rep : public TransformOperation::Rep {
   }
 
   Message<google_firestore_v1_Value> ApplyToLocalView(
-      const absl::optional<google_firestore_v1_Value>& previous_value,
+      const std::optional<google_firestore_v1_Value>& previous_value,
       const Timestamp& local_write_time) const override {
     return EncodeServerTimestamp(local_write_time, previous_value);
   }
 
   Message<google_firestore_v1_Value> ApplyToRemoteDocument(
-      const absl::optional<google_firestore_v1_Value>&,
+      const std::optional<google_firestore_v1_Value>&,
       Message<google_firestore_v1_Value> transform_result) const override {
     return transform_result;
   }
 
-  absl::optional<nanopb::Message<google_firestore_v1_Value>> ComputeBaseValue(
-      const absl::optional<google_firestore_v1_Value>&) const override {
+  std::optional<nanopb::Message<google_firestore_v1_Value>> ComputeBaseValue(
+      const std::optional<google_firestore_v1_Value>&) const override {
     // Server timestamps are idempotent and don't require a base value.
-    return absl::nullopt;
+    return std::nullopt;
   }
 
   bool Equals(const TransformOperation::Rep& other) const override {
@@ -123,13 +128,13 @@ class ArrayTransform::Rep : public TransformOperation::Rep {
   }
 
   Message<google_firestore_v1_Value> ApplyToLocalView(
-      const absl::optional<google_firestore_v1_Value>& previous_value,
+      const std::optional<google_firestore_v1_Value>& previous_value,
       const Timestamp&) const override {
     return Apply(previous_value);
   }
 
   Message<google_firestore_v1_Value> ApplyToRemoteDocument(
-      const absl::optional<google_firestore_v1_Value>& previous_value,
+      const std::optional<google_firestore_v1_Value>& previous_value,
       Message<google_firestore_v1_Value>) const override {
     // The server just sends null as the transform result for array operations,
     // so we have to calculate a result the same as we do for local
@@ -137,10 +142,10 @@ class ArrayTransform::Rep : public TransformOperation::Rep {
     return Apply(previous_value);
   }
 
-  absl::optional<nanopb::Message<google_firestore_v1_Value>> ComputeBaseValue(
-      const absl::optional<google_firestore_v1_Value>&) const override {
+  std::optional<nanopb::Message<google_firestore_v1_Value>> ComputeBaseValue(
+      const std::optional<google_firestore_v1_Value>&) const override {
     // Array transforms are idempotent and don't require a base value.
-    return absl::nullopt;
+    return std::nullopt;
   }
 
   google_firestore_v1_ArrayValue elements() const {
@@ -162,10 +167,10 @@ class ArrayTransform::Rep : public TransformOperation::Rep {
    * google_firestore_v1_Value.
    */
   Message<google_firestore_v1_ArrayValue> CoercedFieldValueArray(
-      const absl::optional<google_firestore_v1_Value>& value) const;
+      const std::optional<google_firestore_v1_Value>& value) const;
 
   Message<google_firestore_v1_Value> Apply(
-      const absl::optional<google_firestore_v1_Value>& previous_value) const;
+      const std::optional<google_firestore_v1_Value>& previous_value) const;
 
   Type type_;
   nanopb::Message<google_firestore_v1_ArrayValue> elements_;
@@ -234,7 +239,7 @@ std::string ArrayTransform::Rep::ToString() const {
 
 Message<google_firestore_v1_ArrayValue>
 ArrayTransform::Rep::CoercedFieldValueArray(
-    const absl::optional<google_firestore_v1_Value>& value) const {
+    const std::optional<google_firestore_v1_Value>& value) const {
   if (IsArray(value)) {
     return DeepClone(value->array_value);
   } else {
@@ -244,7 +249,7 @@ ArrayTransform::Rep::CoercedFieldValueArray(
 }
 
 Message<google_firestore_v1_Value> ArrayTransform::Rep::Apply(
-    const absl::optional<google_firestore_v1_Value>& previous_value) const {
+    const std::optional<google_firestore_v1_Value>& previous_value) const {
   Message<google_firestore_v1_ArrayValue> array_value =
       CoercedFieldValueArray(previous_value);
   if (type_ == Type::ArrayUnion) {
@@ -290,147 +295,385 @@ Message<google_firestore_v1_Value> ArrayTransform::Rep::Apply(
   return result;
 }
 
-// MARK: - NumericIncrementTransform
+// MARK: - NumericTransform
 
-static_assert(sizeof(TransformOperation) == sizeof(NumericIncrementTransform),
+static_assert(sizeof(TransformOperation) == sizeof(NumericTransform),
               "No additional members allowed (everything must go in Rep)");
 
-class NumericIncrementTransform::Rep : public TransformOperation::Rep {
+namespace {
+
+/**
+ * Implements saturating integer addition. Overflows are resolved to
+ * INT64_MAX/INT64_MIN.
+ */
+int64_t SafeIncrement(int64_t x, int64_t y) {
+  if (x > 0 && y > INT64_MAX - x) {
+    return INT64_MAX;
+  }
+
+  if (x < 0 && y < INT64_MIN - x) {
+    return INT64_MIN;
+  }
+
+  return x + y;
+}
+
+/**
+ * Implements saturating 32-bit integer addition. Overflows are resolved to
+ * INT32_MAX/INT32_MIN.
+ */
+int32_t SafeIncrementInt32(int32_t x, int32_t y) {
+  if (x > 0 && y > INT32_MAX - x) {
+    return INT32_MAX;
+  }
+
+  if (x < 0 && y < INT32_MIN - x) {
+    return INT32_MIN;
+  }
+
+  return x + y;
+}
+
+Message<google_firestore_v1_Value> MakeInt32Value(int32_t val) {
+  Message<google_firestore_v1_Value> result;
+  result->which_value_type = google_firestore_v1_Value_map_value_tag;
+  result->map_value.fields_count = 1;
+  result->map_value.fields =
+      nanopb::MakeArray<google_firestore_v1_MapValue_FieldsEntry>(1);
+  result->map_value.fields[0].key =
+      nanopb::MakeBytesArray(kRawInt32TypeFieldValue);
+  result->map_value.fields[0].value.which_value_type =
+      google_firestore_v1_Value_integer_value_tag;
+  result->map_value.fields[0].value.integer_value = val;
+  return result;
+}
+
+Message<google_firestore_v1_Value> MakeDecimal128Value(const std::string& str) {
+  Message<google_firestore_v1_Value> result;
+  result->which_value_type = google_firestore_v1_Value_map_value_tag;
+  result->map_value.fields_count = 1;
+  result->map_value.fields =
+      nanopb::MakeArray<google_firestore_v1_MapValue_FieldsEntry>(1);
+  result->map_value.fields[0].key =
+      nanopb::MakeBytesArray(kRawDecimal128TypeFieldValue);
+  result->map_value.fields[0].value.which_value_type =
+      google_firestore_v1_Value_string_value_tag;
+  result->map_value.fields[0].value.string_value = nanopb::MakeBytesArray(str);
+  return result;
+}
+
+double ValueAsDouble(const google_firestore_v1_Value& value) {
+  if (IsDouble(value)) {
+    return value.double_value;
+  } else if (IsInteger(value)) {
+    return static_cast<double>(value.integer_value);
+  } else if (IsInt32Value(value)) {
+    return static_cast<double>(value.map_value.fields[0].value.integer_value);
+  } else if (IsDecimal128Value(value)) {
+    util::Quadruple q;
+    std::string str =
+        nanopb::MakeString(value.map_value.fields[0].value.string_value);
+    bool success = q.Parse(str);
+    HARD_ASSERT(success, "Failed to parse Decimal128 string: %s", str);
+    return static_cast<double>(q);
+  } else {
+    HARD_FAIL("Expected value to be of numeric type, but was %s (type %s)",
+              CanonicalId(value), GetTypeOrder(value));
+  }
+}
+
+}  // namespace
+
+class NumericTransform::Rep : public TransformOperation::Rep {
  public:
   explicit Rep(Message<google_firestore_v1_Value> operand)
       : operand_(std::move(operand)) {
   }
+
+  Message<google_firestore_v1_Value> ApplyToRemoteDocument(
+      const std::optional<google_firestore_v1_Value>&,
+      Message<google_firestore_v1_Value> transform_result) const override {
+    return transform_result;
+  }
+
+  std::optional<nanopb::Message<google_firestore_v1_Value>> ComputeBaseValue(
+      const std::optional<google_firestore_v1_Value>&) const override {
+    return std::nullopt;
+  }
+
+  double OperandAsDouble() const {
+    return ValueAsDouble(*operand_);
+  }
+
+  bool Equals(const TransformOperation::Rep& other) const override {
+    if (other.type() != type()) {
+      return false;
+    }
+    return *operand_ ==
+           static_cast<const NumericTransform::Rep&>(other).operand();
+  }
+
+  size_t Hash() const override {
+    return std::hash<std::string>()(CanonicalId(*operand_));
+  }
+
+  const google_firestore_v1_Value& operand() const {
+    return *operand_;
+  }
+
+ protected:
+  Message<google_firestore_v1_Value> operand_{};
+};
+
+NumericTransform::NumericTransform(
+    std::shared_ptr<const TransformOperation::Rep> rep)
+    : TransformOperation(std::move(rep)) {
+}
+
+NumericTransform::NumericTransform(const TransformOperation& op)
+    : TransformOperation(op) {
+  HARD_ASSERT(op.type() == Type::Increment || op.type() == Type::Minimum ||
+                  op.type() == Type::Maximum,
+              "Expected numeric transform type; got %s", op.type());
+}
+
+const google_firestore_v1_Value& NumericTransform::operand() const {
+  return static_cast<const Rep&>(rep()).operand();
+}
+
+// MARK: - NumericIncrementTransform
+
+static_assert(sizeof(NumericTransform) == sizeof(NumericIncrementTransform),
+              "No additional members allowed (everything must go in Rep)");
+
+class NumericIncrementTransform::Rep : public NumericTransform::Rep {
+ public:
+  using NumericTransform::Rep::Rep;
 
   Type type() const override {
     return Type::Increment;
   }
 
   Message<google_firestore_v1_Value> ApplyToLocalView(
-      const absl::optional<google_firestore_v1_Value>& previous_value,
+      const std::optional<google_firestore_v1_Value>& previous_value,
       const Timestamp& local_write_time) const override;
 
-  Message<google_firestore_v1_Value> ApplyToRemoteDocument(
-      const absl::optional<google_firestore_v1_Value>&,
-      Message<google_firestore_v1_Value> transform_result) const override {
-    return transform_result;
-  }
+  std::optional<nanopb::Message<google_firestore_v1_Value>> ComputeBaseValue(
+      const std::optional<google_firestore_v1_Value>& previous_value)
+      const override {
+    if (IsNumber(previous_value)) {
+      return DeepClone(*previous_value);
+    }
 
-  absl::optional<nanopb::Message<google_firestore_v1_Value>> ComputeBaseValue(
-      const absl::optional<google_firestore_v1_Value>& previous_value)
-      const override;
-
-  double OperandAsDouble() const;
-
-  bool Equals(const TransformOperation::Rep& other) const override;
-
-  size_t Hash() const override {
-    return std::hash<std::string>()(CanonicalId(*operand_));
+    Message<google_firestore_v1_Value> zero_value;
+    zero_value->which_value_type = google_firestore_v1_Value_integer_value_tag;
+    zero_value->integer_value = 0;
+    return zero_value;
   }
 
   std::string ToString() const override {
     return absl::StrCat("NumericIncrement(", operand_->ToString(), ")");
   }
-
- private:
-  friend class NumericIncrementTransform;
-
-  Message<google_firestore_v1_Value> operand_{};
 };
 
 NumericIncrementTransform::NumericIncrementTransform(
     Message<google_firestore_v1_Value> operand)
-    : TransformOperation(std::make_shared<Rep>(std::move(operand))) {
+    : NumericTransform(std::make_shared<Rep>(std::move(operand))) {
   HARD_ASSERT(IsNumber(this->operand()));
 }
 
 NumericIncrementTransform::NumericIncrementTransform(
     const TransformOperation& op)
-    : TransformOperation(op) {
+    : NumericTransform(op) {
   HARD_ASSERT(op.type() == Type::Increment, "Expected increment type; got %s",
               op.type());
 }
 
-const google_firestore_v1_Value& NumericIncrementTransform::operand() const {
-  return *static_cast<const Rep&>(rep()).operand_;
+// MARK: - NumericMinimumTransform
+
+static_assert(sizeof(NumericTransform) == sizeof(NumericMinimumTransform),
+              "No additional members allowed (everything must go in Rep)");
+
+class NumericMinimumTransform::Rep : public NumericTransform::Rep {
+ public:
+  using NumericTransform::Rep::Rep;
+
+  Type type() const override {
+    return Type::Minimum;
+  }
+
+  Message<google_firestore_v1_Value> ApplyToLocalView(
+      const std::optional<google_firestore_v1_Value>& previous_value,
+      const Timestamp& local_write_time) const override;
+
+  std::string ToString() const override {
+    return absl::StrCat("NumericMinimum(", operand_->ToString(), ")");
+  }
+};
+
+NumericMinimumTransform::NumericMinimumTransform(
+    Message<google_firestore_v1_Value> operand)
+    : NumericTransform(std::make_shared<Rep>(std::move(operand))) {
+  HARD_ASSERT(IsNumber(this->operand()));
 }
 
-namespace {
-
-/**
- * Implements saturating integer addition. Overflows are resolved to
- * LONG_MAX/LONG_MIN.
- */
-int64_t SafeIncrement(int64_t x, int64_t y) {
-  if (x > 0 && y > LONG_MAX - x) {
-    return LONG_MAX;
-  }
-
-  if (x < 0 && y < LONG_MIN - x) {
-    return LONG_MIN;
-  }
-
-  return x + y;
+NumericMinimumTransform::NumericMinimumTransform(const TransformOperation& op)
+    : NumericTransform(op) {
+  HARD_ASSERT(op.type() == Type::Minimum, "Expected minimum type; got %s",
+              op.type());
 }
 
-}  // namespace
+// MARK: - NumericMaximumTransform
 
-double NumericIncrementTransform::Rep::OperandAsDouble() const {
-  if (IsDouble(*operand_)) {
-    return operand_->double_value;
-  } else if (IsInteger(*operand_)) {
-    return static_cast<double>(operand_->integer_value);
-  } else {
-    HARD_FAIL("Expected 'operand' to be of numeric type, but was %s (type %s)",
-              CanonicalId(*operand_), GetTypeOrder(*operand_));
+static_assert(sizeof(NumericTransform) == sizeof(NumericMaximumTransform),
+              "No additional members allowed (everything must go in Rep)");
+
+class NumericMaximumTransform::Rep : public NumericTransform::Rep {
+ public:
+  using NumericTransform::Rep::Rep;
+
+  Type type() const override {
+    return Type::Maximum;
   }
+
+  Message<google_firestore_v1_Value> ApplyToLocalView(
+      const std::optional<google_firestore_v1_Value>& previous_value,
+      const Timestamp& local_write_time) const override;
+
+  std::string ToString() const override {
+    return absl::StrCat("NumericMaximum(", operand_->ToString(), ")");
+  }
+};
+
+NumericMaximumTransform::NumericMaximumTransform(
+    Message<google_firestore_v1_Value> operand)
+    : NumericTransform(std::make_shared<Rep>(std::move(operand))) {
+  HARD_ASSERT(IsNumber(this->operand()));
+}
+
+NumericMaximumTransform::NumericMaximumTransform(const TransformOperation& op)
+    : NumericTransform(op) {
+  HARD_ASSERT(op.type() == Type::Maximum, "Expected maximum type; got %s",
+              op.type());
 }
 
 Message<google_firestore_v1_Value>
 NumericIncrementTransform::Rep::ApplyToLocalView(
-    const absl::optional<google_firestore_v1_Value>& previous_value,
+    const std::optional<google_firestore_v1_Value>& previous_value,
     const Timestamp& /* local_write_time */) const {
   auto base_value = ComputeBaseValue(previous_value);
-  Message<google_firestore_v1_Value> result;
+  HARD_ASSERT(base_value.has_value() && IsNumber(**base_value),
+              "'base_value' is not of numeric type");
 
-  // Return an integer value only if the previous value and the operand is an
-  // integer.
-  if (IsInteger(**base_value) && IsInteger(*operand_)) {
-    result->which_value_type = google_firestore_v1_Value_integer_value_tag;
-    result->integer_value =
-        SafeIncrement((*base_value)->integer_value, operand_->integer_value);
-  } else if (IsInteger(**base_value)) {
-    result->which_value_type = google_firestore_v1_Value_double_value_tag;
-    result->double_value = (*base_value)->integer_value + OperandAsDouble();
-  } else {
-    HARD_ASSERT(IsDouble(**base_value), "'base_value' is not of numeric type");
-    result->which_value_type = google_firestore_v1_Value_double_value_tag;
-    result->double_value = (*base_value)->double_value + OperandAsDouble();
+  // If either base_value or operand is Decimal128, the result is Decimal128.
+  if (IsDecimal128Value(**base_value) || IsDecimal128Value(*operand_)) {
+    // Local evaluation is an IEEE 754 64-bit double approximation for latency
+    // compensation before server acknowledgment.
+    double sum = ValueAsDouble(**base_value) + OperandAsDouble();
+    std::string sum_str;
+    if (std::isnan(sum)) {
+      sum_str = "NaN";
+    } else if (std::isinf(sum)) {
+      sum_str = sum < 0 ? "-Infinity" : "Infinity";
+    } else {
+      sum_str = absl::StrCat(sum);
+    }
+    return MakeDecimal128Value(sum_str);
   }
 
+  // If base_value is Int32:
+  if (IsInt32Value(**base_value)) {
+    int32_t base_int32 = static_cast<int32_t>(
+        (*base_value)->map_value.fields[0].value.integer_value);
+    if (IsDouble(*operand_)) {
+      Message<google_firestore_v1_Value> result;
+      result->which_value_type = google_firestore_v1_Value_double_value_tag;
+      result->double_value =
+          static_cast<double>(base_int32) + operand_->double_value;
+      return result;
+    } else if (IsInteger(*operand_)) {
+      Message<google_firestore_v1_Value> result;
+      result->which_value_type = google_firestore_v1_Value_integer_value_tag;
+      result->integer_value =
+          SafeIncrement(base_int32, operand_->integer_value);
+      return result;
+    } else {
+      int32_t operand_int32 = static_cast<int32_t>(
+          operand_->map_value.fields[0].value.integer_value);
+      return MakeInt32Value(SafeIncrementInt32(base_int32, operand_int32));
+    }
+  }
+
+  // If base_value is Integer:
+  if (IsInteger(**base_value)) {
+    int64_t base_int64 = (*base_value)->integer_value;
+    if (IsInteger(*operand_)) {
+      Message<google_firestore_v1_Value> result;
+      result->which_value_type = google_firestore_v1_Value_integer_value_tag;
+      result->integer_value =
+          SafeIncrement(base_int64, operand_->integer_value);
+      return result;
+    } else if (IsInt32Value(*operand_)) {
+      int32_t operand_int32 = static_cast<int32_t>(
+          operand_->map_value.fields[0].value.integer_value);
+      Message<google_firestore_v1_Value> result;
+      result->which_value_type = google_firestore_v1_Value_integer_value_tag;
+      result->integer_value = SafeIncrement(base_int64, operand_int32);
+      return result;
+    } else {
+      Message<google_firestore_v1_Value> result;
+      result->which_value_type = google_firestore_v1_Value_double_value_tag;
+      result->double_value =
+          static_cast<double>(base_int64) + operand_->double_value;
+      return result;
+    }
+  }
+
+  HARD_ASSERT(IsDouble(**base_value), "'base_value' is not of numeric type");
+  Message<google_firestore_v1_Value> result;
+  result->which_value_type = google_firestore_v1_Value_double_value_tag;
+  result->double_value = (*base_value)->double_value + OperandAsDouble();
   return result;
 }
 
-absl::optional<Message<google_firestore_v1_Value>>
-NumericIncrementTransform::Rep::ComputeBaseValue(
-    const absl::optional<google_firestore_v1_Value>& previous_value) const {
-  if (IsNumber(previous_value)) {
+Message<google_firestore_v1_Value>
+NumericMinimumTransform::Rep::ApplyToLocalView(
+    const std::optional<google_firestore_v1_Value>& previous_value,
+    const Timestamp& /* local_write_time */) const {
+  if (!IsNumber(previous_value)) {
+    return DeepClone(*operand_);
+  }
+  if (IsNaNValue(*previous_value)) {
     return DeepClone(*previous_value);
   }
-
-  Message<google_firestore_v1_Value> zero_value;
-  zero_value->which_value_type = google_firestore_v1_Value_integer_value_tag;
-  zero_value->integer_value = 0;
-  return zero_value;
+  if (IsNaNValue(*operand_)) {
+    return DeepClone(*operand_);
+  }
+  util::ComparisonResult cmp = CompareNumbers(*operand_, *previous_value);
+  if (cmp == util::ComparisonResult::Ascending) {
+    return DeepClone(*operand_);
+  }
+  return DeepClone(*previous_value);
 }
 
-bool NumericIncrementTransform::Rep::Equals(
-    const TransformOperation::Rep& other) const {
-  if (other.type() != type()) {
-    return false;
+Message<google_firestore_v1_Value>
+NumericMaximumTransform::Rep::ApplyToLocalView(
+    const std::optional<google_firestore_v1_Value>& previous_value,
+    const Timestamp& /* local_write_time */) const {
+  if (!IsNumber(previous_value)) {
+    return DeepClone(*operand_);
   }
-
-  return *operand_ ==
-         *static_cast<const NumericIncrementTransform::Rep&>(other).operand_;
+  if (IsNaNValue(*previous_value)) {
+    return DeepClone(*previous_value);
+  }
+  if (IsNaNValue(*operand_)) {
+    return DeepClone(*operand_);
+  }
+  util::ComparisonResult cmp = CompareNumbers(*operand_, *previous_value);
+  if (cmp == util::ComparisonResult::Descending) {
+    return DeepClone(*operand_);
+  }
+  return DeepClone(*previous_value);
 }
 
 }  // namespace model

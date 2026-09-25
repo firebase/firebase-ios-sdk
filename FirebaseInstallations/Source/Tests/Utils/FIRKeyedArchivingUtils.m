@@ -19,67 +19,15 @@
 @implementation FIRKeyedArchivingUtils
 
 + (nullable NSData *)archivedDataWithRootObject:(id)object error:(NSError **)outError {
-  NSData *archivedData;
-  if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
-    archivedData = [NSKeyedArchiver archivedDataWithRootObject:object
-                                         requiringSecureCoding:YES
-                                                         error:outError];
-  } else {
-    @try {
-      NSMutableData *data = [NSMutableData data];
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-      NSKeyedArchiver *archiver = [[NSKeyedArchiver alloc] initForWritingWithMutableData:data];
-#pragma clang diagnostic pop
-      archiver.requiresSecureCoding = YES;
-
-      [archiver encodeObject:object forKey:NSKeyedArchiveRootObjectKey];
-      [archiver finishEncoding];
-
-      archivedData = [data copy];
-    } @catch (NSException *exception) {
-      if (outError) {
-        NSString *failureReason = [NSString stringWithFormat:@"Exception: %@", exception];
-        *outError = [NSError errorWithDomain:@"FIRKeyedArchivingUtils"
-                                        code:-1
-                                    userInfo:@{
-                                      NSLocalizedFailureReasonErrorKey : failureReason,
-                                    }];
-      }
-    }
-  }
-
-  return archivedData;
+  return [NSKeyedArchiver archivedDataWithRootObject:object
+                               requiringSecureCoding:YES
+                                               error:outError];
 }
 
 + (nullable id)unarchivedObjectOfClass:(Class)class
                               fromData:(NSData *)data
                                  error:(NSError **)outError {
-  id object;
-  if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
-    object = [NSKeyedUnarchiver unarchivedObjectOfClass:class fromData:data error:outError];
-  } else {
-    @try {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-      NSKeyedUnarchiver *unarchiver = [[NSKeyedUnarchiver alloc] initForReadingWithData:data];
-#pragma clang diagnostic pop
-      unarchiver.requiresSecureCoding = YES;
-
-      object = [unarchiver decodeObjectOfClass:class forKey:NSKeyedArchiveRootObjectKey];
-    } @catch (NSException *exception) {
-      if (outError) {
-        NSString *failureReason = [NSString stringWithFormat:@"Exception: %@", exception];
-        *outError = [NSError errorWithDomain:@"FIRKeyedArchivingUtils"
-                                        code:-1
-                                    userInfo:@{
-                                      NSLocalizedFailureReasonErrorKey : failureReason,
-                                    }];
-      }
-    }
-  }
-
-  return object;
+  return [NSKeyedUnarchiver unarchivedObjectOfClass:class fromData:data error:outError];
 }
 
 @end

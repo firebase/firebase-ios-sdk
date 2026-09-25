@@ -1,3 +1,35 @@
+# 13.0.0
+- [fixed] Fixed an issue where deep links were not correctly routed in apps utilizing scene
+  delegates. (#15987)
+- [changed] **Breaking Change**: Scene delegates take priority over app delegates for
+  automatic deep link routing. (#15987)
+- [fixed] Fixed an issue where `NSSecureCoding` was not enforced when
+  archiving and unarchiving registration tokens in the keychain. (#16511)
+
+# 12.19.0
+- [fixed] Fix an issue where `messaging:didReceiveRegistrationToken:` was no
+  longer called at app launch when a token was cached. (#16581)
+- [fixed] Fix an issue where cached FCM registration tokens were falsely
+  invalidated due to locale changes when
+  `FirebaseMessagingInstallationIdEnabled` was set to `YES`. (#16572)
+- [fixed] Fix a potential crash when parsing malformed FCM payloads with
+  unexpected non-numeric fields. (#16533)
+
+# 12.18.0
+- [fixed] Fix an issue where new FCM registration processing was not invoked
+  when `FirebaseMessagingInstallationIdEnabled` was set to `YES` and a legacy token
+  existed in cache. (#16429)
+- [changed] Deprecate token-related APIs (`tokenWithCompletion:`,
+  `deleteTokenWithCompletion:`, `retrieveFCMTokenForSenderID:completion:`,
+  `deleteFCMTokenForSenderID:completion:`, `FCMToken`,
+  `messaging:didReceiveRegistrationToken:`, and
+  `FIRMessagingRegistrationTokenRefreshedNotification`) in favor of the new
+  FID-based registration APIs. (#16466)
+
+# 12.17.0
+- [fixed] Reject path separators in file extensions for downloaded image
+  attachments. (#16387)
+
 # 12.16.0
 - [added] Add support for the new FCM registration API. (#16133)
 

@@ -116,10 +116,10 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
   return "/" + path;
 }
 
-@implementation FIRExprBridge
+@implementation __FIRExprBridge
 @end
 
-@implementation FIRFieldBridge {
+@implementation __FIRFieldBridge {
   FIRFieldPath *field_path;
   std::shared_ptr<Field> field;
 }
@@ -152,7 +152,7 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
 
 @end
 
-@implementation FIRVariableBridge {
+@implementation __FIRVariableBridge {
   std::shared_ptr<Variable> cpp_variable;
   NSString *_name;
   Boolean isUserDataRead;
@@ -176,7 +176,7 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
 }
 @end
 
-@implementation FIRConstantBridge {
+@implementation __FIRConstantBridge {
   std::shared_ptr<Constant> cpp_constant;
   id _input;
   Boolean isUserDataRead;
@@ -201,17 +201,17 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
 
 @end
 
-@implementation FIRFunctionExprBridge {
+@implementation __FIRFunctionExprBridge {
   std::shared_ptr<FunctionExpr> cpp_function;
   NSString *_name;
-  NSArray<FIRExprBridge *> *_args;
-  NSDictionary<NSString *, FIRExprBridge *> *_Nullable _options;
+  NSArray<__FIRExprBridge *> *_args;
+  NSDictionary<NSString *, __FIRExprBridge *> *_Nullable _options;
   Boolean isUserDataRead;
 }
 
 - (nonnull id)initWithName:(NSString *)name
-                      Args:(nonnull NSArray<FIRExprBridge *> *)args
-                   Options:(NSDictionary<NSString *, FIRExprBridge *> *_Nullable)options {
+                      Args:(nonnull NSArray<__FIRExprBridge *> *)args
+                   Options:(NSDictionary<NSString *, __FIRExprBridge *> *_Nullable)options {
   self = [super init];
   if (self) {
     _name = name;
@@ -225,7 +225,7 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
 - (std::shared_ptr<api::Expr>)cppExprWithReader:(FSTUserDataReader *)reader {
   if (!isUserDataRead) {
     std::vector<std::shared_ptr<Expr>> cpp_args;
-    for (FIRExprBridge *arg in _args) {
+    for (__FIRExprBridge *arg in _args) {
       cpp_args.push_back([arg cppExprWithReader:reader]);
     }
 
@@ -246,25 +246,25 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
 
 @end
 
-@interface FIRWindowSpecBridge ()
+@interface __FIRWindowSpecBridge ()
 - (firebase::firestore::google_firestore_v1_Value)toV1ValueWithReader:(FSTUserDataReader *)reader;
 @end
 
-@implementation FIRAggregateFunctionBridge {
+@implementation __FIRAggregateFunctionBridge {
   std::shared_ptr<AggregateFunction> cpp_function;
   NSString *_name;
-  NSArray<FIRExprBridge *> *_args;
-  FIRWindowSpecBridge *_Nullable _window;
+  NSArray<__FIRExprBridge *> *_args;
+  __FIRWindowSpecBridge *_Nullable _window;
   Boolean isUserDataRead;
 }
 
-- (nonnull id)initWithName:(NSString *)name Args:(nonnull NSArray<FIRExprBridge *> *)args {
+- (nonnull id)initWithName:(NSString *)name Args:(nonnull NSArray<__FIRExprBridge *> *)args {
   return [self initWithName:name Args:args Window:nil];
 }
 
 - (nonnull id)initWithName:(NSString *)name
-                      Args:(nonnull NSArray<FIRExprBridge *> *)args
-                    Window:(FIRWindowSpecBridge *_Nullable)window {
+                      Args:(nonnull NSArray<__FIRExprBridge *> *)args
+                    Window:(__FIRWindowSpecBridge *_Nullable)window {
   self = [super init];
   if (self) {
     _name = name;
@@ -278,7 +278,7 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
 - (std::shared_ptr<AggregateFunction>)cppExprWithReader:(FSTUserDataReader *)reader {
   if (!isUserDataRead) {
     std::vector<std::shared_ptr<Expr>> cpp_args;
-    for (FIRExprBridge *arg in _args) {
+    for (__FIRExprBridge *arg in _args) {
       cpp_args.push_back([arg cppExprWithReader:reader]);
     }
     cpp_function = std::make_shared<AggregateFunction>(MakeString(_name), std::move(cpp_args));
@@ -309,14 +309,14 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
 
 @end
 
-@implementation FIROrderingBridge {
+@implementation __FIROrderingBridge {
   std::unique_ptr<Ordering> cpp_ordering;
   NSString *_direction;
-  FIRExprBridge *_expr;
+  __FIRExprBridge *_expr;
   Boolean isUserDataRead;
 }
 
-- (nonnull id)initWithExpr:(FIRExprBridge *)expr Direction:(NSString *)direction {
+- (nonnull id)initWithExpr:(__FIRExprBridge *)expr Direction:(NSString *)direction {
   _expr = expr;
   _direction = direction;
   isUserDataRead = NO;
@@ -335,7 +335,7 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
 
 @end
 
-@implementation FIRStageBridge
+@implementation __FIRStageBridge
 - (NSString *)name {
   [NSException raise:NSInternalInconsistencyException
               format:@"You must override %@ in a subclass", NSStringFromSelector(_cmd)];
@@ -343,7 +343,7 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
 }
 @end
 
-@implementation FIRCollectionSourceStageBridge {
+@implementation __FIRCollectionSourceStageBridge {
   std::shared_ptr<CollectionSource> collection_source;
 }
 
@@ -387,7 +387,7 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
 }
 @end
 
-@implementation FIRSubcollectionSourceStageBridge {
+@implementation __FIRSubcollectionSourceStageBridge {
   std::shared_ptr<SubcollectionSource> cpp_subcollection_source;
 }
 
@@ -408,7 +408,7 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
 }
 @end
 
-@implementation FIRDatabaseSourceStageBridge {
+@implementation __FIRDatabaseSourceStageBridge {
   std::shared_ptr<DatabaseSource> cpp_database_source;
 }
 
@@ -437,7 +437,7 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
 }
 @end
 
-@implementation FIRCollectionGroupSourceStageBridge {
+@implementation __FIRCollectionGroupSourceStageBridge {
   std::shared_ptr<CollectionGroupSource> cpp_collection_group_source;
 }
 
@@ -471,7 +471,7 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
 }
 @end
 
-@implementation FIRDocumentsSourceStageBridge {
+@implementation __FIRDocumentsSourceStageBridge {
   std::shared_ptr<DocumentsSource> cpp_document_source;
 }
 
@@ -513,13 +513,13 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
 }
 @end
 
-@implementation FIRWhereStageBridge {
-  FIRExprBridge *_exprBridge;
+@implementation __FIRWhereStageBridge {
+  __FIRExprBridge *_exprBridge;
   Boolean isUserDataRead;
   std::shared_ptr<Where> cpp_where;
 }
 
-- (id)initWithExpr:(FIRExprBridge *)expr {
+- (id)initWithExpr:(__FIRExprBridge *)expr {
   self = [super init];
   if (self) {
     _exprBridge = expr;
@@ -551,7 +551,7 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
 }
 @end
 
-@implementation FIRLimitStageBridge {
+@implementation __FIRLimitStageBridge {
   Boolean isUserDataRead;
   std::shared_ptr<LimitStage> cpp_limit_stage;
   int32_t limit;
@@ -589,7 +589,7 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
 }
 @end
 
-@implementation FIROffsetStageBridge {
+@implementation __FIROffsetStageBridge {
   Boolean isUserDataRead;
   std::shared_ptr<OffsetStage> cpp_offset_stage;
   int32_t offset;
@@ -629,13 +629,13 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
 
 // TBD
 
-@implementation FIRAddFieldsStageBridge {
-  NSDictionary<NSString *, FIRExprBridge *> *_fields;
+@implementation __FIRAddFieldsStageBridge {
+  NSDictionary<NSString *, __FIRExprBridge *> *_fields;
   Boolean isUserDataRead;
   std::shared_ptr<AddFields> cpp_add_fields;
 }
 
-- (id)initWithFields:(NSDictionary<NSString *, FIRExprBridge *> *)fields {
+- (id)initWithFields:(NSDictionary<NSString *, __FIRExprBridge *> *)fields {
   self = [super init];
   if (self) {
     _fields = fields;
@@ -662,17 +662,17 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
 }
 @end
 
-@implementation FIRWindowSpecBridge {
-  NSArray<FIRExprBridge *> *_groups;
-  NSArray<FIROrderingBridge *> *_sort;
+@implementation __FIRWindowSpecBridge {
+  NSArray<__FIRExprBridge *> *_groups;
+  NSArray<__FIROrderingBridge *> *_sort;
   id _preceding;
   id _following;
   NSString *_type;
   id _unit;
 }
 
-- (id)initWithGroups:(NSArray<FIRExprBridge *> *)groups
-                sort:(NSArray<FIROrderingBridge *> *_Nullable)sort
+- (id)initWithGroups:(NSArray<__FIRExprBridge *> *)groups
+                sort:(NSArray<__FIROrderingBridge *> *_Nullable)sort
            preceding:(id _Nullable)preceding
            following:(id _Nullable)following
                 type:(NSString *_Nullable)type
@@ -695,7 +695,7 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
   // 1. Serialize partition if present
   if (_groups.count > 0) {
     std::vector<firebase::firestore::google_firestore_v1_Value> cpp_groups;
-    for (FIRExprBridge *group in _groups) {
+    for (__FIRExprBridge *group in _groups) {
       cpp_groups.push_back([group cppExprWithReader:reader]->to_proto());
     }
     firebase::firestore::google_firestore_v1_Value group_array_val;
@@ -709,7 +709,7 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
   // 2. Serialize sort if present
   if (_sort.count > 0) {
     std::vector<firebase::firestore::google_firestore_v1_Value> cpp_sort;
-    for (FIROrderingBridge *ordering in _sort) {
+    for (__FIROrderingBridge *ordering in _sort) {
       Ordering ord = [ordering cppOrderingWithReader:reader];
 
       // Each ordering is serialized as: { "expression": <expr>, "direction": <direction> }
@@ -748,8 +748,8 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
     // Helper lambda to convert bound to value
     auto convertBound = [reader](id bound) -> firebase::firestore::google_firestore_v1_Value {
       firebase::firestore::google_firestore_v1_Value val;
-      if ([bound isKindOfClass:[FIRExprBridge class]]) {
-        val = [(FIRExprBridge *)bound cppExprWithReader:reader]->to_proto();
+      if ([bound isKindOfClass:[__FIRExprBridge class]]) {
+        val = [(__FIRExprBridge *)bound cppExprWithReader:reader]->to_proto();
       } else if ([bound isKindOfClass:[NSString class]]) {
         val.which_value_type = google_firestore_v1_Value_string_value_tag;
         val.string_value = nanopb::MakeBytesArray(MakeString((NSString *)bound));
@@ -774,8 +774,8 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
 
     if (_unit != nil) {
       firebase::firestore::google_firestore_v1_Value unit_val;
-      if ([_unit isKindOfClass:[FIRExprBridge class]]) {
-        unit_val = [(FIRExprBridge *)_unit cppExprWithReader:reader]->to_proto();
+      if ([_unit isKindOfClass:[__FIRExprBridge class]]) {
+        unit_val = [(__FIRExprBridge *)_unit cppExprWithReader:reader]->to_proto();
       } else if ([_unit isKindOfClass:[NSString class]]) {
         unit_val.which_value_type = google_firestore_v1_Value_string_value_tag;
         unit_val.string_value = nanopb::MakeBytesArray(MakeString((NSString *)_unit));
@@ -807,17 +807,17 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
 }
 @end
 
-@implementation FIRAddWindowFieldsStageBridge {
-  FIRWindowSpecBridge *_window;
-  NSDictionary<NSString *, FIRAggregateFunctionBridge *> *_fields;
-  NSDictionary<NSString *, FIRExprBridge *> *_options;
+@implementation __FIRAddWindowFieldsStageBridge {
+  __FIRWindowSpecBridge *_window;
+  NSDictionary<NSString *, __FIRAggregateFunctionBridge *> *_fields;
+  NSDictionary<NSString *, __FIRExprBridge *> *_options;
   Boolean isUserDataRead;
   std::shared_ptr<firebase::firestore::api::RawStage> cpp_raw_stage;
 }
 
-- (id)initWithWindow:(FIRWindowSpecBridge *)window
-              fields:(NSDictionary<NSString *, FIRAggregateFunctionBridge *> *)fields
-             options:(NSDictionary<NSString *, FIRExprBridge *> *_Nullable)options {
+- (id)initWithWindow:(__FIRWindowSpecBridge *)window
+              fields:(NSDictionary<NSString *, __FIRAggregateFunctionBridge *> *)fields
+             options:(NSDictionary<NSString *, __FIRExprBridge *> *_Nullable)options {
   self = [super init];
   if (self) {
     _window = window;
@@ -867,8 +867,7 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
 }
 @end
 
-
-@implementation FIRRemoveFieldsStageBridge {
+@implementation __FIRRemoveFieldsStageBridge {
   NSArray<NSString *> *_fields;
   Boolean isUserDataRead;
   std::shared_ptr<RemoveFieldsStage> cpp_remove_fields;
@@ -901,13 +900,13 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
 }
 @end
 
-@implementation FIRSelectStageBridge {
-  NSDictionary<NSString *, FIRExprBridge *> *_selections;
+@implementation __FIRSelectStageBridge {
+  NSDictionary<NSString *, __FIRExprBridge *> *_selections;
   Boolean isUserDataRead;
   std::shared_ptr<SelectStage> cpp_select;
 }
 
-- (id)initWithSelections:(NSDictionary<NSString *, FIRExprBridge *> *)selections {
+- (id)initWithSelections:(NSDictionary<NSString *, __FIRExprBridge *> *)selections {
   self = [super init];
   if (self) {
     _selections = selections;
@@ -934,13 +933,13 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
 }
 @end
 
-@implementation FIRDefineStageBridge {
-  NSDictionary<NSString *, FIRExprBridge *> *_variables;
+@implementation __FIRDefineStageBridge {
+  NSDictionary<NSString *, __FIRExprBridge *> *_variables;
   Boolean isUserDataRead;
   std::shared_ptr<DefineStage> cpp_define;
 }
 
-- (id)initWithVariables:(NSDictionary<NSString *, FIRExprBridge *> *)variables {
+- (id)initWithVariables:(NSDictionary<NSString *, __FIRExprBridge *> *)variables {
   self = [super init];
   if (self) {
     _variables = variables;
@@ -966,13 +965,13 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
 }
 @end
 
-@implementation FIRDistinctStageBridge {
-  NSDictionary<NSString *, FIRExprBridge *> *_groups;
+@implementation __FIRDistinctStageBridge {
+  NSDictionary<NSString *, __FIRExprBridge *> *_groups;
   Boolean isUserDataRead;
   std::shared_ptr<DistinctStage> cpp_distinct;
 }
 
-- (id)initWithGroups:(NSDictionary<NSString *, FIRExprBridge *> *)groups {
+- (id)initWithGroups:(NSDictionary<NSString *, __FIRExprBridge *> *)groups {
   self = [super init];
   if (self) {
     _groups = groups;
@@ -999,15 +998,15 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
 }
 @end
 
-@implementation FIRAggregateStageBridge {
-  NSDictionary<NSString *, FIRAggregateFunctionBridge *> *_accumulators;
-  NSDictionary<NSString *, FIRExprBridge *> *_groups;
+@implementation __FIRAggregateStageBridge {
+  NSDictionary<NSString *, __FIRAggregateFunctionBridge *> *_accumulators;
+  NSDictionary<NSString *, __FIRExprBridge *> *_groups;
   Boolean isUserDataRead;
   std::shared_ptr<AggregateStage> cpp_aggregate;
 }
 
-- (id)initWithAccumulators:(NSDictionary<NSString *, FIRAggregateFunctionBridge *> *)accumulators
-                    groups:(NSDictionary<NSString *, FIRExprBridge *> *)groups {
+- (id)initWithAccumulators:(NSDictionary<NSString *, __FIRAggregateFunctionBridge *> *)accumulators
+                    groups:(NSDictionary<NSString *, __FIRExprBridge *> *)groups {
   self = [super init];
   if (self) {
     _accumulators = accumulators;
@@ -1041,21 +1040,21 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
 }
 @end
 
-@implementation FIRFindNearestStageBridge {
-  FIRFieldBridge *_field;
+@implementation __FIRFindNearestStageBridge {
+  __FIRFieldBridge *_field;
   FIRVectorValue *_vectorValue;
   NSString *_distanceMeasure;
   NSNumber *_limit;
-  FIRExprBridge *_Nullable _distanceField;
+  __FIRExprBridge *_Nullable _distanceField;
   Boolean isUserDataRead;
   std::shared_ptr<FindNearestStage> cpp_find_nearest;
 }
 
-- (id)initWithField:(FIRFieldBridge *)field
+- (id)initWithField:(__FIRFieldBridge *)field
         vectorValue:(FIRVectorValue *)vectorValue
     distanceMeasure:(NSString *)distanceMeasure
               limit:(NSNumber *_Nullable)limit
-      distanceField:(FIRExprBridge *_Nullable)distanceField {
+      distanceField:(__FIRExprBridge *_Nullable)distanceField {
   self = [super init];
   if (self) {
     _field = field;
@@ -1105,8 +1104,8 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
 }
 @end
 
-@implementation FIRSorStageBridge {
-  NSArray<FIROrderingBridge *> *_orderings;
+@implementation __FIRSortStageBridge {
+  NSArray<__FIROrderingBridge *> *_orderings;
   Boolean isUserDataRead;
   std::shared_ptr<SortStage> cpp_sort;
 }
@@ -1123,7 +1122,7 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
 - (std::shared_ptr<api::Stage>)cppStageWithReader:(FSTUserDataReader *)reader {
   if (!isUserDataRead) {
     std::vector<Ordering> cpp_orderings;
-    for (FIROrderingBridge *ordering in _orderings) {
+    for (__FIROrderingBridge *ordering in _orderings) {
       cpp_orderings.push_back([ordering cppOrderingWithReader:reader]);
     }
     cpp_sort = std::make_shared<SortStage>(std::move(cpp_orderings));
@@ -1147,13 +1146,13 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
 }
 @end
 
-@implementation FIRReplaceWithStageBridge {
-  FIRExprBridge *_expr;
+@implementation __FIRReplaceWithStageBridge {
+  __FIRExprBridge *_expr;
   Boolean isUserDataRead;
   std::shared_ptr<ReplaceWith> cpp_replace_with;
 }
 
-- (id)initWithExpr:(FIRExprBridge *)expr {
+- (id)initWithExpr:(__FIRExprBridge *)expr {
   self = [super init];
   if (self) {
     _expr = expr;
@@ -1176,7 +1175,7 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
 }
 @end
 
-@implementation FIRSampleStageBridge {
+@implementation __FIRSampleStageBridge {
   int64_t _count;
   double _percentage;
   Boolean isUserDataRead;
@@ -1226,13 +1225,13 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
 }
 @end
 
-@implementation FIRUnionStageBridge {
-  FIRPipelineBridge *_other;
+@implementation __FIRUnionStageBridge {
+  __FIRPipelineBridge *_other;
   Boolean isUserDataRead;
   std::shared_ptr<Union> cpp_union_stage;
 }
 
-- (id)initWithOther:(FIRPipelineBridge *)other {
+- (id)initWithOther:(__FIRPipelineBridge *)other {
   self = [super init];
   if (self) {
     _other = other;
@@ -1255,17 +1254,17 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
 }
 @end
 
-@implementation FIRUnnestStageBridge {
-  FIRExprBridge *_field;
-  FIRExprBridge *_Nullable _index_field;
-  FIRExprBridge *_alias;
+@implementation __FIRUnnestStageBridge {
+  __FIRExprBridge *_field;
+  __FIRExprBridge *_Nullable _index_field;
+  __FIRExprBridge *_alias;
   Boolean isUserDataRead;
   std::shared_ptr<Unnest> cpp_unnest;
 }
 
-- (id)initWithField:(FIRExprBridge *)field
-              alias:(FIRExprBridge *)alias
-         indexField:(FIRExprBridge *_Nullable)index_field {
+- (id)initWithField:(__FIRExprBridge *)field
+              alias:(__FIRExprBridge *)alias
+         indexField:(__FIRExprBridge *_Nullable)index_field {
   self = [super init];
   if (self) {
     _field = field;
@@ -1297,19 +1296,19 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
 }
 @end
 
-@implementation FIRSearchStageBridge {
-  NSDictionary<NSString *, FIRExprBridge *> *_options;
-  NSDictionary<NSString *, FIRExprBridge *> *_add_fields;
-  NSDictionary<NSString *, FIRExprBridge *> *_select;
-  NSArray<FIROrderingBridge *> *_sort;
+@implementation __FIRSearchStageBridge {
+  NSDictionary<NSString *, __FIRExprBridge *> *_options;
+  NSDictionary<NSString *, __FIRExprBridge *> *_add_fields;
+  NSDictionary<NSString *, __FIRExprBridge *> *_select;
+  NSArray<__FIROrderingBridge *> *_sort;
   Boolean isUserDataRead;
   std::shared_ptr<SearchStage> cpp_search;
 }
 
-- (id)initWithOptions:(NSDictionary<NSString *, FIRExprBridge *> *)options
-            addFields:(NSDictionary<NSString *, FIRExprBridge *> *)add_fields
-               select:(NSDictionary<NSString *, FIRExprBridge *> *)select
-                 sort:(NSArray<FIROrderingBridge *> *)sort {
+- (id)initWithOptions:(NSDictionary<NSString *, __FIRExprBridge *> *)options
+            addFields:(NSDictionary<NSString *, __FIRExprBridge *> *)add_fields
+               select:(NSDictionary<NSString *, __FIRExprBridge *> *)select
+                 sort:(NSArray<__FIROrderingBridge *> *)sort {
   self = [super init];
   if (self) {
     _options = options;
@@ -1346,7 +1345,7 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
 
     std::vector<Ordering> cpp_sort;
     if (_sort) {
-      for (FIROrderingBridge *ordering in _sort) {
+      for (__FIROrderingBridge *ordering in _sort) {
         cpp_sort.push_back([ordering cppOrderingWithReader:reader]);
       }
     }
@@ -1364,17 +1363,17 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
 }
 @end
 
-@implementation FIRRawStageBridge {
+@implementation __FIRRawStageBridge {
   NSString *_name;
   NSArray<id> *_params;
-  NSDictionary<NSString *, FIRExprBridge *> *_Nullable _options;
+  NSDictionary<NSString *, __FIRExprBridge *> *_Nullable _options;
   Boolean isUserDataRead;
   std::shared_ptr<RawStage> cpp_generic_stage;
 }
 
 - (id)initWithName:(NSString *)name
             params:(NSArray<id> *)params
-           options:(NSDictionary<NSString *, FIRExprBridge *> *_Nullable)options {
+           options:(NSDictionary<NSString *, __FIRExprBridge *> *_Nullable)options {
   self = [super init];
   if (self) {
     _name = name;
@@ -1387,24 +1386,24 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
 
 - (firebase::firestore::google_firestore_v1_Value)convertIdToV1Value:(id)value
                                                               reader:(FSTUserDataReader *)reader {
-  if ([value isKindOfClass:[FIRExprBridge class]]) {
-    return [((FIRExprBridge *)value) cppExprWithReader:reader]->to_proto();
-  } else if ([value isKindOfClass:[FIRAggregateFunctionBridge class]]) {
-    return [((FIRAggregateFunctionBridge *)value) toV1ValueWithReader:reader];
+  if ([value isKindOfClass:[__FIRExprBridge class]]) {
+    return [((__FIRExprBridge *)value) cppExprWithReader:reader]->to_proto();
+  } else if ([value isKindOfClass:[__FIRAggregateFunctionBridge class]]) {
+    return [((__FIRAggregateFunctionBridge *)value) toV1ValueWithReader:reader];
   } else if ([value isKindOfClass:[NSDictionary class]]) {
     NSDictionary<NSString *, id> *dictionary = (NSDictionary<NSString *, id> *)value;
 
     std::unordered_map<std::string, firebase::firestore::google_firestore_v1_Value> cpp_dictionary;
     for (NSString *key in dictionary) {
-      if ([dictionary[key] isKindOfClass:[FIRExprBridge class]]) {
+      if ([dictionary[key] isKindOfClass:[__FIRExprBridge class]]) {
         cpp_dictionary[MakeString(key)] =
-            [((FIRExprBridge *)dictionary[key]) cppExprWithReader:reader]->to_proto();
-      } else if ([dictionary[key] isKindOfClass:[FIRAggregateFunctionBridge class]]) {
+            [((__FIRExprBridge *)dictionary[key]) cppExprWithReader:reader]->to_proto();
+      } else if ([dictionary[key] isKindOfClass:[__FIRAggregateFunctionBridge class]]) {
         cpp_dictionary[MakeString(key)] =
-            [((FIRAggregateFunctionBridge *)dictionary[key]) toV1ValueWithReader:reader];
+            [((__FIRAggregateFunctionBridge *)dictionary[key]) toV1ValueWithReader:reader];
       } else {
         ThrowInvalidArgument(
-            "Dictionary value must be an FIRExprBridge or FIRAggregateFunctionBridge.");
+            "Dictionary value must be an __FIRExprBridge or __FIRAggregateFunctionBridge.");
       }
     }
 
@@ -1623,12 +1622,12 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
 }
 @end
 
-@implementation FIRPipelineExprBridge {
-  NSArray<FIRStageBridge *> *_stages;
+@implementation __FIRPipelineExprBridge {
+  NSArray<__FIRStageBridge *> *_stages;
   Boolean isUserDataRead;
   std::vector<std::shared_ptr<api::Stage>> cpp_stages;
 }
-- (id)initWithStages:(NSArray<FIRStageBridge *> *)stages {
+- (id)initWithStages:(NSArray<__FIRStageBridge *> *)stages {
   self = [super init];
   if (self) {
     _stages = stages;
@@ -1638,7 +1637,7 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
 }
 - (std::shared_ptr<api::Expr>)cppExprWithReader:(FSTUserDataReader *)reader {
   if (!isUserDataRead) {
-    for (FIRStageBridge *stage in _stages) {
+    for (__FIRStageBridge *stage in _stages) {
       cpp_stages.push_back([stage cppStageWithReader:reader]);
     }
     isUserDataRead = YES;
@@ -1647,14 +1646,14 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
 }
 @end
 
-@implementation FIRPipelineBridge {
-  NSArray<FIRStageBridge *> *_stages;
+@implementation __FIRPipelineBridge {
+  NSArray<__FIRStageBridge *> *_stages;
   FIRFirestore *firestore;
   Boolean isUserDataRead;
   std::shared_ptr<Pipeline> cpp_pipeline;
 }
 
-- (id)initWithStages:(NSArray<FIRStageBridge *> *)stages db:(FIRFirestore *)db {
+- (id)initWithStages:(NSArray<__FIRStageBridge *> *)stages db:(FIRFirestore *)db {
   _stages = stages;
   firestore = db;
   isUserDataRead = NO;
@@ -1678,7 +1677,7 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
 - (std::shared_ptr<api::Pipeline>)cppPipelineWithReader:(FSTUserDataReader *)reader {
   if (!isUserDataRead) {
     std::vector<std::shared_ptr<firebase::firestore::api::Stage>> cpp_stages;
-    for (FIRStageBridge *stage in _stages) {
+    for (__FIRStageBridge *stage in _stages) {
       cpp_stages.push_back([stage cppStageWithReader:reader]);
     }
     cpp_pipeline = std::make_shared<Pipeline>(cpp_stages, firestore.wrapped);
@@ -1688,30 +1687,31 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
   return cpp_pipeline;
 }
 
-+ (NSArray<FIRStageBridge *> *)createStageBridgesFromQuery:(FIRQuery *)query {
++ (NSArray<__FIRStageBridge *> *)createStageBridgesFromQuery:(FIRQuery *)query {
   std::vector<std::shared_ptr<api::EvaluableStage>> evaluable_stages =
       firebase::firestore::core::ToPipelineStages(query.query);
   std::vector<std::shared_ptr<api::Stage>> cpp_stages(evaluable_stages.begin(),
                                                       evaluable_stages.end());
-  NSMutableArray<FIRStageBridge *> *stageBridges = [NSMutableArray array];
+  NSMutableArray<__FIRStageBridge *> *stageBridges = [NSMutableArray array];
 
   for (const auto &cpp_stage_base : cpp_stages) {
     if (auto cpp_stage = std::dynamic_pointer_cast<api::CollectionSource>(cpp_stage_base)) {
-      [stageBridges addObject:[[FIRCollectionSourceStageBridge alloc] initWithCppStage:cpp_stage]];
+      [stageBridges
+          addObject:[[__FIRCollectionSourceStageBridge alloc] initWithCppStage:cpp_stage]];
     } else if (auto cpp_stage =
                    std::dynamic_pointer_cast<api::CollectionGroupSource>(cpp_stage_base)) {
       [stageBridges
-          addObject:[[FIRCollectionGroupSourceStageBridge alloc] initWithCppStage:cpp_stage]];
+          addObject:[[__FIRCollectionGroupSourceStageBridge alloc] initWithCppStage:cpp_stage]];
     } else if (auto cpp_stage = std::dynamic_pointer_cast<api::DocumentsSource>(cpp_stage_base)) {
-      [stageBridges addObject:[[FIRDocumentsSourceStageBridge alloc] initWithCppStage:cpp_stage]];
+      [stageBridges addObject:[[__FIRDocumentsSourceStageBridge alloc] initWithCppStage:cpp_stage]];
     } else if (auto cpp_stage = std::dynamic_pointer_cast<api::Where>(cpp_stage_base)) {
-      [stageBridges addObject:[[FIRWhereStageBridge alloc] initWithCppStage:cpp_stage]];
+      [stageBridges addObject:[[__FIRWhereStageBridge alloc] initWithCppStage:cpp_stage]];
     } else if (auto cpp_stage = std::dynamic_pointer_cast<api::LimitStage>(cpp_stage_base)) {
-      [stageBridges addObject:[[FIRLimitStageBridge alloc] initWithCppStage:cpp_stage]];
+      [stageBridges addObject:[[__FIRLimitStageBridge alloc] initWithCppStage:cpp_stage]];
     } else if (auto cpp_stage = std::dynamic_pointer_cast<api::SortStage>(cpp_stage_base)) {
-      [stageBridges addObject:[[FIRSorStageBridge alloc] initWithCppStage:cpp_stage]];
+      [stageBridges addObject:[[__FIRSortStageBridge alloc] initWithCppStage:cpp_stage]];
     } else if (auto cpp_stage = std::dynamic_pointer_cast<api::OffsetStage>(cpp_stage_base)) {
-      [stageBridges addObject:[[FIROffsetStageBridge alloc] initWithCppStage:cpp_stage]];
+      [stageBridges addObject:[[__FIROffsetStageBridge alloc] initWithCppStage:cpp_stage]];
     } else {
       ThrowInvalidArgument(
           "Unknown or unhandled stage type '%s' encountered when converting from FIRQuery.",
@@ -1803,13 +1803,13 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
 
 @end
 
-@implementation FIRRealtimePipelineBridge {
-  NSArray<FIRStageBridge *> *_stages;
+@implementation __FIRRealtimePipelineBridge {
+  NSArray<__FIRStageBridge *> *_stages;
   FIRFirestore *firestore;
   std::shared_ptr<api::RealtimePipeline> cpp_pipeline;
 }
 
-- (id)initWithStages:(NSArray<FIRStageBridge *> *)stages db:(FIRFirestore *)db {
+- (id)initWithStages:(NSArray<__FIRStageBridge *> *)stages db:(FIRFirestore *)db {
   _stages = stages;
   firestore = db;
   return [super init];
@@ -1864,7 +1864,7 @@ core::ListenOptions ToListenOptions(__FIRPipelineListenOptionsBridge *_Nullable 
   std::shared_ptr<api::Firestore> wrapped_firestore = firestore.wrapped;
 
   std::vector<std::shared_ptr<firebase::firestore::api::EvaluableStage>> cpp_stages;
-  for (FIRStageBridge *stage in _stages) {
+  for (__FIRStageBridge *stage in _stages) {
     auto evaluable_stage = std::dynamic_pointer_cast<api::EvaluableStage>(
         [stage cppStageWithReader:firestore.dataReader]);
     if (evaluable_stage) {

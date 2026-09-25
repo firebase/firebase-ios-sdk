@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseCore'
-  s.version          = '12.17.0'
+  s.version          = '13.0.0'
   s.summary          = 'Firebase Core'
 
   s.description      = <<-DESC
@@ -26,9 +26,9 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
   s.social_media_url = 'https://twitter.com/Firebase'
 
   ios_deployment_target = '15.0'
-  osx_deployment_target = '10.15'
+  osx_deployment_target = '11.0'
   tvos_deployment_target = '15.0'
-  watchos_deployment_target = '7.0'
+  watchos_deployment_target = '8.0'
 
   s.ios.deployment_target = ios_deployment_target
   s.osx.deployment_target = osx_deployment_target
@@ -58,22 +58,23 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
   s.watchos.framework = 'WatchKit'
 
   # Remember to also update version in `cmake/external/GoogleUtilities.cmake`
-  s.dependency 'GoogleUtilities/Environment', '~> 8.1'
-  s.dependency 'GoogleUtilities/Logger', '~> 8.1'
-  s.dependency 'FirebaseCoreInternal', '~> 12.17.0'
+  s.dependency 'GoogleUtilities/Environment', '>= 8.1.3', '< 9.0'
+  s.dependency 'GoogleUtilities/Logger', '>= 8.1.3', '< 9.0'
+  s.dependency 'FirebaseCoreInternal', '~> 13.0.0'
 
   s.pod_target_xcconfig = {
     'DEFINES_MODULE' => 'YES',
     'GCC_PREPROCESSOR_DEFINITIONS' => 'Firebase_VERSION=' + s.version.to_s,
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"',
-    'OTHER_CFLAGS' => '-fno-autolink'
+    'OTHER_CFLAGS' => '-fno-autolink',
+    'PRODUCT_BUNDLE_IDENTIFIER' => 'com.google.firebase.FirebaseCore'
   }
 
   s.test_spec 'unit' do |unit_tests|
     unit_tests.scheme = { :code_coverage => true }
     unit_tests.platforms = {
       :ios => ios_deployment_target,
-      :osx => '10.15',
+      :osx => osx_deployment_target,
       :tvos => tvos_deployment_target
     }
     unit_tests.source_files = [

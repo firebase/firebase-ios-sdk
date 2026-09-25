@@ -20,7 +20,7 @@ extension Expression {
     return Helper.errorMessage(for: self)
   }
 
-  func toBridge() -> ExprBridge {
+  func toBridge() -> __ExprBridge {
     return (self as! BridgeWrapper).bridge
   }
 

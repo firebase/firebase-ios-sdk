@@ -1,3 +1,15 @@
+# 13.0.0
+- [fixed] Safely validate memory reads when executing `DW_OP_deref_size`
+  operations during DWARF stack unwinding (#16550).
+- [fixed] Fixed an issue casuing a crash while symbolicating stack frames if the binary image path is null. (#16622)
+
+# 12.18.0
+- [removed] Removes unused integration with the now deprecated ObjC MetricKit API.
+
+# 12.17.0
+- [fixed] Fixed an issue where binary image details weren't properly
+  initialized. (#16407)
+
 # 12.16.0
 - [fixed] Fix deadlock in user logging on reentrant queue access. (#16163)
 

@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseAppDistribution'
-  s.version          = '12.17.0-beta'
+  s.version          = '13.0.0-beta'
   s.summary          = 'App Distribution for Firebase iOS SDK.'
 
   s.description      = <<-DESC
@@ -30,13 +30,14 @@ iOS SDK for App Distribution for Firebase.
   ]
   s.public_header_files = base_dir + 'Public/FirebaseAppDistribution/*.h'
 
-  s.dependency 'FirebaseCore', '~> 12.17.0'
-  s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 8.1'
-  s.dependency 'GoogleUtilities/UserDefaults', '~> 8.1'
-  s.dependency 'FirebaseInstallations', '~> 12.17.0'
+  s.dependency 'FirebaseCore', '~> 13.0.0'
+  s.dependency 'GoogleUtilities/AppDelegateSwizzler', '>= 8.1.3', '< 9.0'
+  s.dependency 'GoogleUtilities/UserDefaults', '>= 8.1.3', '< 9.0'
+  s.dependency 'FirebaseInstallations', '~> 13.0.0'
 
   s.pod_target_xcconfig = {
-    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
+    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"',
+    'PRODUCT_BUNDLE_IDENTIFIER' => 'com.google.firebase.FirebaseAppDistribution'
   }
 
   s.test_spec 'unit' do |unit_tests|

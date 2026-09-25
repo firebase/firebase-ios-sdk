@@ -50,6 +50,7 @@ using ProtoDocument = ::google::firestore::v1::Document;
 using ProtoMaybeDocument = ::firestore::client::MaybeDocument;
 using ProtoNamedQuery = ::firestore::NamedQuery;
 using ProtoValue = ::google::firestore::v1::Value;
+using MapValue = ::google::firestore::v1::MapValue;
 using core::Query;
 using core::Target;
 using local::LocalSerializer;
@@ -622,6 +623,103 @@ TEST_F(BundleSerializerTest, DecodesArrayValues) {
   VerifyFieldValueRoundtrip(value);
 }
 
+TEST_F(BundleSerializerTest, DecodesMinKey) {
+  ProtoValue null_value;
+  null_value.set_null_value(google::protobuf::NULL_VALUE);
+  ProtoValue object;
+  object.mutable_map_value()->mutable_fields()->insert(
+      {model::kRawMinKeyTypeFieldValue, null_value});
+
+  VerifyFieldValueRoundtrip(object);
+}
+
+TEST_F(BundleSerializerTest, DecodesMaxKey) {
+  ProtoValue null_value;
+  null_value.set_null_value(google::protobuf::NULL_VALUE);
+  ProtoValue object;
+  object.mutable_map_value()->mutable_fields()->insert(
+      {model::kRawMaxKeyTypeFieldValue, null_value});
+
+  VerifyFieldValueRoundtrip(object);
+}
+
+TEST_F(BundleSerializerTest, DecodesInt32Value) {
+  ProtoValue int_value;
+  int_value.set_integer_value(1234L);
+  ProtoValue object;
+  object.mutable_map_value()->mutable_fields()->insert(
+      {model::kRawInt32TypeFieldValue, int_value});
+
+  VerifyFieldValueRoundtrip(object);
+}
+
+TEST_F(BundleSerializerTest, DecodesDecimal128Value) {
+  ProtoValue decimal_value;
+  decimal_value.set_string_value("1.2e3");
+  ProtoValue object;
+  object.mutable_map_value()->mutable_fields()->insert(
+      {model::kRawDecimal128TypeFieldValue, decimal_value});
+
+  VerifyFieldValueRoundtrip(object);
+}
+
+TEST_F(BundleSerializerTest, DecodesRegexValue) {
+  ProtoValue pattern_value;
+  ProtoValue options_value;
+  ProtoValue inner_map_value;
+  ProtoValue value;
+
+  pattern_value.set_string_value("^foo");
+  options_value.set_string_value("i");
+  inner_map_value.mutable_map_value()->mutable_fields()->insert(
+      {model::kRawRegexTypePatternFieldValue, pattern_value});
+  inner_map_value.mutable_map_value()->mutable_fields()->insert(
+      {model::kRawRegexTypeOptionsFieldValue, options_value});
+  value.mutable_map_value()->mutable_fields()->insert(
+      {model::kRawRegexTypeFieldValue, inner_map_value});
+
+  VerifyFieldValueRoundtrip(value);
+}
+
+TEST_F(BundleSerializerTest, DecodesBsonObjectId) {
+  ProtoValue oid_value;
+  oid_value.set_string_value("foo");
+  ProtoValue object;
+  object.mutable_map_value()->mutable_fields()->insert(
+      {model::kRawBsonObjectIdTypeFieldValue, oid_value});
+
+  VerifyFieldValueRoundtrip(object);
+}
+
+TEST_F(BundleSerializerTest, DecodesBsonTimestamp) {
+  ProtoValue seconds_value;
+  ProtoValue increment_value;
+  ProtoValue inner_map_value;
+  ProtoValue value;
+
+  seconds_value.set_integer_value(1234L);
+  increment_value.set_integer_value(5678L);
+  inner_map_value.mutable_map_value()->mutable_fields()->insert(
+      {model::kRawBsonTimestampTypeSecondsFieldValue, seconds_value});
+  inner_map_value.mutable_map_value()->mutable_fields()->insert(
+      {model::kRawBsonTimestampTypeIncrementFieldValue, increment_value});
+  value.mutable_map_value()->mutable_fields()->insert(
+      {model::kRawBsonTimestampTypeFieldValue, inner_map_value});
+
+  VerifyFieldValueRoundtrip(value);
+}
+
+TEST_F(BundleSerializerTest, DecodesBsonBinaryData) {
+  ProtoValue binary_value;
+  uint8_t array[]{0, 1, 2, 3};
+  binary_value.set_bytes_value(array, 4);
+  ProtoValue value;
+  value.mutable_map_value()->mutable_fields()->insert(
+      {model::kRawBsonBinaryDataTypeFieldValue, binary_value});
+
+  VerifyFieldValueRoundtrip(value);
+}
+
 TEST_F(BundleSerializerTest, DecodesNestedObjectValues) {
   ProtoValue b;
   b.set_boolean_value(true);
@@ -1166,6 +1264,48 @@ TEST_F(BundleSerializerTest, DecodeInvalidBundledDocumentMetadataFails) {
   }
 }
 
+TEST_F(BundleSerializerTest, DecodeNonDocumentKeyResourceNameFails) {
+  // Resource names that pass the local-resource-name check but are not valid
+  // `DocumentKey`s must be rejected gracefully instead of tripping the
+  // `HARD_ASSERT` inside the `DocumentKey` constructor or the length assert
+  // inside `PopFirst`. Three malformed shapes are covered:
+  //   1. a collection path (odd number of segments after the `documents`
+  //      prefix),
+  //   2. a root `documents` path (resolves to an empty key), and
+  //   3. a short path (fewer than five segments, would crash `PopFirst(5)`).
+  const std::vector<std::string> names = {FullPath("bundle"), FullPath(""),
+                                          "projects/p/databases/default"};
+
+  for (const auto& name : names) {
+    {
+      ProtoDocument document = TestDocument(ProtoValue());
+      document.set_name(name);
+      std::string json_string;
+      MessageToJsonString(document, &json_string);
+
+      JsonReader reader;
+      bundle_serializer.DecodeDocument(reader, Parse(json_string));
+      EXPECT_NOT_OK(reader.status());
+    }
+
+    {
+      ProtoBundledDocumentMetadata metadata;
+      metadata.set_name(name);
+      metadata.set_exists(true);
+      google::protobuf::Timestamp t1;
+      t1.set_seconds(0);
+      t1.set_nanos(0);
+      *metadata.mutable_read_time() = t1;
+      std::string json_string;
+      MessageToJsonString(metadata, &json_string);
+
+      JsonReader reader;
+      bundle_serializer.DecodeDocumentMetadata(reader, Parse(json_string));
+      EXPECT_NOT_OK(reader.status());
+    }
+  }
+}
+
 TEST_F(BundleSerializerTest, DecodeTargetWithoutImplicitOrderByOnName) {
   std::string json(
       R"({"name":"myNamedQuery",
@@ -1196,6 +1336,48 @@ TEST_F(BundleSerializerTest,
   EXPECT_EQ(testutil::Query("foo").WithLimitToFirst(10).ToTarget(),
             named_query.bundled_query().target());
   EXPECT_EQ(core::LimitType::Last, named_query.bundled_query().limit_type());
+}
+
+TEST_F(BundleSerializerTest, DecodeCollectionSourceFromNotArrayFails) {
+  std::string json(
+      R"({"name":"myNamedQuery",
+"bundledQuery":{"parent":"projects/p/databases/default/documents",
+"structuredQuery":{"from":"not-an-array"},"limitType":"FIRST"},
+"readTime":{"seconds":"1679674432","nanos":579934000}})");
+  JsonReader reader;
+  bundle_serializer.DecodeNamedQuery(reader, Parse(json));
+  EXPECT_NOT_OK(reader.status());
+}
+
+TEST_F(BundleSerializerTest, DecodeLimitEmptyObjectFails) {
+  std::string json(
+      R"({"name":"myNamedQuery",
+"bundledQuery":{"parent":"projects/p/databases/default/documents",
+"structuredQuery":{"from":[{"collectionId":"foo"}],
+"limit":{}},"limitType":"FIRST"},
+"readTime":{"seconds":"1679674432","nanos":579934000}})");
+  JsonReader reader;
+  bundle_serializer.DecodeNamedQuery(reader, Parse(json));
+  EXPECT_NOT_OK(reader.status());
+}
+
+TEST_F(BundleSerializerTest, DecodePrimitiveAsObjectFails) {
+  std::string json(
+      R"({"name":"myNamedQuery",
+"bundledQuery":123,
+"readTime":{"seconds":"1679674432","nanos":579934000}})");
+  JsonReader reader;
+  bundle_serializer.DecodeNamedQuery(reader, Parse(json));
+  EXPECT_NOT_OK(reader.status());
+}
+
+TEST_F(BundleSerializerTest, DecodeReferenceValueMissingDocumentsSegmentFails) {
+  // The reference matches the local project and database but stops before the
+  // "documents" segment, so `IsLocalDocumentKey` must reject it rather than
+  // stripping a five-segment prefix off a four-segment path.
+  ProtoValue value;
+  value.set_reference_value("projects/p/databases/default");
+  VerifyFieldValueDecodeFails(value);
 }
 
 }  //  namespace

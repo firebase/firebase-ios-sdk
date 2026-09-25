@@ -1,3 +1,61 @@
+# Firebase 13.0.0
+- [feature] Added support for Swift Package Traits (SE-0450) to allow developers
+  to opt out of unused features and prune heavy dependencies. To opt out of
+  Firestore in Xcode: select your project -> **Package Dependencies**, and in
+  the **Traits** column for Firebase, uncheck `default` and check only the ones
+  you want, if any (it will show `None` if no traits are enabled). (#16684)
+- [changed] **Breaking change**: Firebase's minimum supported versions have
+  updated for the following platforms:
+    - | Platform  | Firebase 13 |
+      | ------------- | ------------- |
+      | iOS  | 15.0  |
+      | tvOS  | 15.0  |
+      | macOS  | **11.0**  |
+      | watchOS  | **8.0**  |
+- [removed] Firebase is no longer distributed via CocoaPods. Firebase 13.0.0
+  and future releases are distributed exclusively via Swift Package Manager
+  and binary distributions. Existing CocoaPods releases will remain
+  available as long as CocoaPods ecosystem support continues. See
+  https://firebase.google.com/docs/ios/cocoapods-deprecation for details.
+- [removed] **Breaking change**: FirebaseMLModelDownloader has been removed. See
+  https://firebase.google.com/docs/ml for more info.
+- [removed] **Breaking change**: GoogleSignIn is no longer included in the
+  Firebase zip and Carthage distributions.
+- [note] A Google Sign-In release compatible with Firebase 13 via Swift Package
+  Manager is not yet available and will follow in the coming weeks.
+- [changed] **Breaking change**: Removed the CocoaPods generated umbrella headers
+  (suffixed `-umbrella.h`) from the Zip and Carthage artifacts, in favor of `Firebase.h`
+  and framework specific umbrella headers. (#16540)
+- [changed] **Breaking change**: The minimum supported version of
+  `GTMSessionFetcher` is now `4.0.0` (support for `3.x` has been dropped).
+- [changed] **Breaking change**: Bundle ID prefixes in the zip distribution are now
+  properly scoped to `com.google.firebase`, instead of `org.cocoapods.`. (#16678)
+- [changed] Firebase now requires Swift tools version 6.2.1 and the Swift 6.2.3
+  compiler for the Swift Package. The package will no longer resolve in Xcode
+  versions older than 26.2, which remains the minimum officially supported
+  version for the SDK. (#16696)
+
+# Firebase 12.19.1
+- [fixed] Fixed the zip distribution artifact naming on the GitHub release
+  page. This release contains no SDK code changes and is functionally
+  identical to 12.19.0.
+
+# Firebase 12.19.0
+- [deprecated] Firebase 12.19.0 is the final planned minor release of 12.x and
+  the final scheduled release published to CocoaPods. Future major versions
+  (13.0.0+) will be distributed exclusively via Swift Package Manager and binary
+  distributions. Existing CocoaPods releases will remain available as long as
+  CocoaPods ecosystem support continues.
+  See https://firebase.google.com/docs/ios/cocoapods-deprecation for details.
+- [fixed] Fixed a race condition where initializing Firebase in a multi-threaded
+  environment could temporarily corrupt Foundation's locale and calendar caches,
+  resulting in unexpected behavior (e.g., losing the user's "First Day of Week"
+  override). (#16542)
+
+# Firebase 12.17.0
+- [changed] Removed the  (never activated) `recaptchaSiteKey` property from `FirebaseOptions`.
+  This feature is part of the public preview reCAPTCHA provider.
+
 # Firebase 12.15.0
 - [changed] Firebase now requires Swift tools version 6.1 for the Swift Package.
   The package will no longer resolve in Xcode versions older than 16.3. Note that

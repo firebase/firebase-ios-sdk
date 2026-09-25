@@ -18,7 +18,24 @@
 
   /// A class represents a credential that proves the identity of the app.
   @preconcurrency
-  class AuthNotificationManager {
+  // Protocol to help with unit tests.
+  protocol AuthNotificationApplication: Sendable {
+    var delegate: UIApplicationDelegate? { get }
+    var applicationState: UIApplication.State { get }
+
+    /// The `UIApplication` to pass to `UIApplicationDelegate` callbacks.
+    ///
+    /// The delegate signature requires a concrete `UIApplication`, which a test double
+    /// cannot be. Vending it through the protocol keeps `UIApplication.shared` - which
+    /// is unavailable in app extensions - out of this module.
+    var applicationForDelegate: UIApplication { get }
+  }
+
+  extension UIApplication: AuthNotificationApplication {
+    var applicationForDelegate: UIApplication { self }
+  }
+
+  class AuthNotificationManager: @unchecked Sendable {
     /// The key to locate payload data in the remote notification.
     private let kNotificationDataKey = "com.google.firebase.auth"
 
@@ -35,7 +52,7 @@
     private let kProbingTimeout = 1.0
 
     /// The application.
-    private let application: UIApplication
+    private let application: AuthNotificationApplication
 
     /// The object to handle app credentials delivered via notification.
     private let appCredentialManager: AuthAppCredentialManager
@@ -46,6 +63,14 @@
     /// Whether or not notification is being forwarded
     private var isNotificationBeingForwarded: Bool = false
 
+    private let lock = NSLock()
+
+    private func sync<T>(_ block: () throws -> T) rethrows -> T {
+      lock.lock()
+      defer { lock.unlock() }
+      return try block()
+    }
+
     /// The timeout for checking for notification forwarding.
     ///
     /// Only tests should access this property.
@@ -54,7 +79,16 @@
     /// Disable callback waiting for tests.
     ///
     /// Only tests should access this property.
-    var immediateCallbackForTestFaking: (() -> Bool)?
+    var immediateCallbackForTestFaking: (() -> Bool)? {
+      get {
+        return sync { _immediateCallbackForTestFaking }
+      }
+      set {
+        sync { _immediateCallbackForTestFaking = newValue }
+      }
+    }
+
+    private var _immediateCallbackForTestFaking: (() -> Bool)?
 
     private let condition: AuthCondition
 
@@ -63,7 +97,7 @@
     /// - Parameter appCredentialManager: The object to handle app credentials delivered via
     /// notification.
     /// - Returns: The initialized instance.
-    init(withApplication application: UIApplication,
+    init(withApplication application: AuthNotificationApplication,
          appCredentialManager: AuthAppCredentialManager) {
       self.application = application
       self.appCredentialManager = appCredentialManager
@@ -83,11 +117,19 @@
 
     /// Checks whether or not remote notifications are being forwarded to this class.
     func checkNotificationForwarding() async -> Bool {
-      if let getValueFunc = immediateCallbackForTestFaking {
+      let (getValueFunc, checked, forwarded) = sync {
+        (
+          _immediateCallbackForTestFaking,
+          hasCheckedNotificationForwarding,
+          isNotificationBeingForwarded
+        )
+      }
+
+      if let getValueFunc = getValueFunc {
         return getValueFunc()
       }
-      if hasCheckedNotificationForwarding {
-        return isNotificationBeingForwarded
+      if checked {
+        return forwarded
       }
       if await pendingCount.increment() == 1 {
         DispatchQueue.main.async {
@@ -97,7 +139,8 @@
              delegate
              .responds(to: #selector(UIApplicationDelegate
                  .application(_:didReceiveRemoteNotification:fetchCompletionHandler:))) {
-            delegate.application?(self.application,
+            let appObj = self.application.applicationForDelegate
+            delegate.application?(appObj,
                                   didReceiveRemoteNotification: proberNotification) { _ in
             }
           } else {
@@ -113,8 +156,10 @@
         }
       }
       await condition.wait()
-      hasCheckedNotificationForwarding = true
-      return isNotificationBeingForwarded
+      return sync {
+        hasCheckedNotificationForwarding = true
+        return isNotificationBeingForwarded
+      }
     }
 
     /// Attempts to handle the remote notification.
@@ -136,13 +181,19 @@
         return false
       }
       if dictionary[kNotificationProberKey] != nil {
-        if hasCheckedNotificationForwarding {
-          // The prober notification probably comes from another instance, so pass it along.
+        let shouldForward = sync {
+          if hasCheckedNotificationForwarding {
+            return false
+          }
+          isNotificationBeingForwarded = true
+          return true
+        }
+        if shouldForward {
+          condition.signal()
+          return true
+        } else {
           return false
         }
-        isNotificationBeingForwarded = true
-        condition.signal()
-        return true
       }
       guard let receipt = dictionary[kNotificationReceiptKey] as? String,
             let secret = dictionary[kNotificationSecretKey] as? String else {

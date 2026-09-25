@@ -144,16 +144,23 @@ static NSString *const kMethodNameLatestStartTime =
 
   // Update the last experiment start time with the latest payload.
   [self updateExperimentStartTime];
-  [self.experimentController
-      updateExperimentsWithServiceOrigin:kServiceOrigin
-                                  events:lifecycleEvent
-                                  policy:ABTExperimentPayloadExperimentOverflowPolicyDiscardOldest
-                           lastStartTime:lastStartTime
-                                payloads:_experimentPayloads
-                       completionHandler:handler];
 
   /// Update activated experiments payload and metadata in DB.
   [self updateActiveExperimentsInDB];
+
+  if (self.experimentController) {
+    [self.experimentController
+        updateExperimentsWithServiceOrigin:kServiceOrigin
+                                    events:lifecycleEvent
+                                    policy:ABTExperimentPayloadExperimentOverflowPolicyDiscardOldest
+                             lastStartTime:lastStartTime
+                                  payloads:_experimentPayloads
+                         completionHandler:handler];
+  } else {
+    if (handler) {
+      handler(nil);
+    }
+  }
 }
 
 - (void)updateExperimentStartTime {
@@ -193,8 +200,12 @@ static NSString *const kMethodNameLatestStartTime =
 }
 
 - (NSTimeInterval)latestStartTimeWithExistingLastStartTime:(NSTimeInterval)existingLastStartTime {
-  return [self.experimentController
-      latestExperimentStartTimestampBetweenTimestamp:existingLastStartTime
-                                         andPayloads:_experimentPayloads];
+  if (self.experimentController) {
+    return [self.experimentController
+        latestExperimentStartTimestampBetweenTimestamp:existingLastStartTime
+                                           andPayloads:_experimentPayloads];
+  } else {
+    return existingLastStartTime;
+  }
 }
 @end

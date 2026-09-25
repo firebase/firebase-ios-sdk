@@ -72,7 +72,7 @@
   FIRRemoteConfig *config = [provider remoteConfigForNamespace:sharedNamespace];
   XCTAssertNotNil(config);
 
-  // Use a new app and new povider, ensure the instances with the same namespace are different.
+  // Use a new app and new provider, ensure the instances with the same namespace are different.
   NSString *secondAppName = [provider.app.name stringByAppendingString:@"2"];
   FIRApp *secondApp = [[FIRApp alloc] initInstanceWithName:secondAppName
                                                    options:[self fakeOptions]];

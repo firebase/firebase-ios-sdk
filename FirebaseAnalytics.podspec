@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
     s.name             = 'FirebaseAnalytics'
-    s.version          = '12.17.0'
+    s.version          = '13.0.0'
     s.summary          = 'Firebase Analytics for iOS'
 
     s.description      = <<-DESC
@@ -13,41 +13,45 @@ Pod::Spec.new do |s|
     s.authors          = 'Google, Inc.'
 
     s.source           = {
-        :http => 'https://dl.google.com/firebase/ios/analytics/fde230ef9469d037/FirebaseAnalytics-12.16.0.tar.gz'
+        :http => 'https://dl.google.com/firebase/ios/analytics/88399e36ef71aa20/FirebaseAnalytics-13.0.0.tar.gz'
     }
 
     s.cocoapods_version = '>= 1.12.0'
     s.swift_version     = '5.9'
 
     s.ios.deployment_target = '15.0'
-    s.osx.deployment_target  = '10.15'
+    s.osx.deployment_target  = '11.0'
     s.tvos.deployment_target = '15.0'
 
     s.libraries  = 'c++', 'sqlite3', 'z'
     s.frameworks = 'StoreKit'
 
-    s.dependency 'FirebaseCore', '~> 12.17.0'
-    s.dependency 'FirebaseInstallations', '~> 12.17.0'
-    s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 8.1'
-    s.dependency 'GoogleUtilities/MethodSwizzler', '~> 8.1'
-    s.dependency 'GoogleUtilities/NSData+zlib', '~> 8.1'
-    s.dependency 'GoogleUtilities/Network', '~> 8.1'
+    s.pod_target_xcconfig = {
+      'PRODUCT_BUNDLE_IDENTIFIER' => 'com.google.firebase.FirebaseAnalytics'
+    }
+
+    s.dependency 'FirebaseCore', '~> 13.0.0'
+    s.dependency 'FirebaseInstallations', '~> 13.0.0'
+    s.dependency 'GoogleUtilities/AppDelegateSwizzler', '>= 8.1.3', '< 9.0'
+    s.dependency 'GoogleUtilities/MethodSwizzler', '>= 8.1.3', '< 9.0'
+    s.dependency 'GoogleUtilities/NSData+zlib', '>= 8.1.3', '< 9.0'
+    s.dependency 'GoogleUtilities/Network', '>= 8.1.3', '< 9.0'
     s.dependency 'nanopb', '~> 3.30910.0'
 
     s.default_subspecs = 'Default'
 
     s.subspec 'Default' do |ss|
-        ss.dependency 'GoogleAppMeasurement/Default', '12.17.0'
+        ss.dependency 'GoogleAppMeasurement/Default', '13.0.0'
         ss.vendored_frameworks = 'Frameworks/FirebaseAnalytics.xcframework'
     end
 
     s.subspec 'Core' do |ss|
-        ss.dependency 'GoogleAppMeasurement/Core', '12.17.0'
+        ss.dependency 'GoogleAppMeasurement/Core', '13.0.0'
         ss.vendored_frameworks = 'Frameworks/FirebaseAnalytics.xcframework'
     end
 
     s.subspec 'IdentitySupport' do |ss|
-        ss.dependency 'GoogleAppMeasurement/IdentitySupport', '12.17.0'
+        ss.dependency 'GoogleAppMeasurement/IdentitySupport', '13.0.0'
         ss.vendored_frameworks = 'Frameworks/FirebaseAnalytics.xcframework'
     end
 

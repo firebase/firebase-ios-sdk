@@ -20,66 +20,66 @@ final class APIConfigTests: XCTestCase {
   let defaultLocation = "us-central1"
   let globalLocation = "global"
 
-  func testInitialize_vertexAI_prod_v1() {
+  func testInitialize_enterprise_prod_v1() {
     let apiConfig = APIConfig(
-      service: .vertexAI(endpoint: .firebaseProxyProd, location: defaultLocation),
+      service: .enterprise(endpoint: .firebaseProxyProd, location: defaultLocation),
       version: .v1
     )
 
     switch apiConfig.service {
-    case let .vertexAI(endpoint: endpoint, location: location):
+    case let .enterprise(endpoint: endpoint, location: location):
       XCTAssertEqual(endpoint.rawValue, "https://firebasevertexai.googleapis.com")
       XCTAssertEqual(location, defaultLocation)
     case .googleAI:
-      XCTFail("Expected .vertexAI, got .googleAI")
+      XCTFail("Expected .enterprise, got .googleAI")
     }
     XCTAssertEqual(apiConfig.version.rawValue, "v1")
   }
 
-  func testInitialize_vertexAI_prod_v1beta() {
+  func testInitialize_enterprise_prod_v1beta() {
     let apiConfig = APIConfig(
-      service: .vertexAI(endpoint: .firebaseProxyProd, location: defaultLocation),
+      service: .enterprise(endpoint: .firebaseProxyProd, location: defaultLocation),
       version: .v1beta
     )
 
     switch apiConfig.service {
-    case let .vertexAI(endpoint: endpoint, location: location):
+    case let .enterprise(endpoint: endpoint, location: location):
       XCTAssertEqual(endpoint.rawValue, "https://firebasevertexai.googleapis.com")
       XCTAssertEqual(location, defaultLocation)
     case .googleAI:
-      XCTFail("Expected .vertexAI, got .googleAI")
+      XCTFail("Expected .enterprise, got .googleAI")
     }
     XCTAssertEqual(apiConfig.version.rawValue, "v1beta")
   }
 
-  func testInitialize_vertexAI_staging_v1() {
+  func testInitialize_enterprise_staging_v1() {
     let apiConfig = APIConfig(
-      service: .vertexAI(endpoint: .firebaseProxyStaging, location: defaultLocation),
+      service: .enterprise(endpoint: .firebaseProxyStaging, location: defaultLocation),
       version: .v1
     )
 
     switch apiConfig.service {
-    case let .vertexAI(endpoint: endpoint, location: location):
+    case let .enterprise(endpoint: endpoint, location: location):
       XCTAssertEqual(endpoint.rawValue, "https://staging-firebasevertexai.sandbox.googleapis.com")
       XCTAssertEqual(location, defaultLocation)
     case .googleAI:
-      XCTFail("Expected .vertexAI, got .googleAI")
+      XCTFail("Expected .enterprise, got .googleAI")
     }
     XCTAssertEqual(apiConfig.version.rawValue, "v1")
   }
 
-  func testInitialize_vertexAI_staging_v1beta() {
+  func testInitialize_enterprise_staging_v1beta() {
     let apiConfig = APIConfig(
-      service: .vertexAI(endpoint: .firebaseProxyStaging, location: defaultLocation),
+      service: .enterprise(endpoint: .firebaseProxyStaging, location: defaultLocation),
       version: .v1beta
     )
 
     switch apiConfig.service {
-    case let .vertexAI(endpoint: endpoint, location: location):
+    case let .enterprise(endpoint: endpoint, location: location):
       XCTAssertEqual(endpoint.rawValue, "https://staging-firebasevertexai.sandbox.googleapis.com")
       XCTAssertEqual(location, defaultLocation)
     case .googleAI:
-      XCTFail("Expected .vertexAI, got .googleAI")
+      XCTFail("Expected .enterprise, got .googleAI")
     }
     XCTAssertEqual(apiConfig.version.rawValue, "v1beta")
   }
@@ -90,8 +90,8 @@ final class APIConfigTests: XCTestCase {
     )
 
     switch apiConfig.service {
-    case .vertexAI:
-      XCTFail("Expected .googleAI, got .vertexAI")
+    case .enterprise:
+      XCTFail("Expected .googleAI, got .enterprise")
     case let .googleAI(endpoint: endpoint):
       XCTAssertEqual(endpoint.rawValue, "https://staging-firebasevertexai.sandbox.googleapis.com")
     }
@@ -102,8 +102,8 @@ final class APIConfigTests: XCTestCase {
     let apiConfig = APIConfig(service: .googleAI(endpoint: .googleAIBypassProxy), version: .v1beta)
 
     switch apiConfig.service {
-    case .vertexAI:
-      XCTFail("Expected .googleAI, got .vertexAI")
+    case .enterprise:
+      XCTFail("Expected .googleAI, got .enterprise")
     case let .googleAI(endpoint: endpoint):
       XCTAssertEqual(endpoint.rawValue, "https://generativelanguage.googleapis.com")
     }

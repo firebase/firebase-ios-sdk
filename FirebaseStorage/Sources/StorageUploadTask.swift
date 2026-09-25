@@ -112,9 +112,13 @@ import Foundation
           uploadFetcher.uploadFileURL = fileURL
           uploadFetcher.comment = "File UploadTask"
 
-          if !GULAppEnvironmentUtil.supportsBackgroundURLSessionUploads() {
+          #if targetEnvironment(simulator)
             uploadFetcher.useBackgroundSession = false
-          }
+          #else
+            if !GULAppEnvironmentUtil.supportsBackgroundURLSessionUploads() {
+              uploadFetcher.useBackgroundSession = false
+            }
+          #endif
         }
         uploadFetcher.maxRetryInterval = self.reference.storage.maxUploadRetryInterval
 

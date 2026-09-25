@@ -17,6 +17,7 @@
 #include "Firestore/core/src/bundle/bundle_loader.h"
 
 #include <memory>
+#include <optional>
 #include <unordered_map>
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
@@ -62,7 +63,7 @@ Status BundleLoader::AddElementInternal(const BundleElement& element) {
             document_metadata.key(),
             MutableDocument::NoDocument(document_metadata.key(),
                                         document_metadata.read_time()));
-        current_document_ = absl::nullopt;
+        current_document_ = std::nullopt;
       }
       break;
     }
@@ -77,7 +78,7 @@ Status BundleLoader::AddElementInternal(const BundleElement& element) {
       }
 
       documents_ = documents_.insert(document.key(), document.document());
-      current_document_ = absl::nullopt;
+      current_document_ = std::nullopt;
       break;
     }
 
@@ -90,7 +91,7 @@ Status BundleLoader::AddElementInternal(const BundleElement& element) {
   return Status::OK();
 }
 
-StatusOr<absl::optional<LoadBundleTaskProgress>> BundleLoader::AddElement(
+StatusOr<std::optional<LoadBundleTaskProgress>> BundleLoader::AddElement(
     std::unique_ptr<BundleElement> element_ptr, uint64_t byte_size) {
   HARD_ASSERT(element_ptr->element_type() != BundleElement::Type::Metadata,
               "Unexpected bundle metadata element.");
@@ -106,17 +107,17 @@ StatusOr<absl::optional<LoadBundleTaskProgress>> BundleLoader::AddElement(
 
   // Document has only been partially loaded, no progress to report.
   if (before_count == documents_.size()) {
-    return {absl::nullopt};
+    return {std::nullopt};
   }
 
   LoadBundleTaskProgress progress{
       documents_.size(), metadata_.total_documents(), bytes_loaded_,
       metadata_.total_bytes(), LoadBundleTaskState::kInProgress};
-  return {absl::make_optional(std::move(progress))};
+  return {std::make_optional(std::move(progress))};
 }
 
 StatusOr<DocumentMap> BundleLoader::ApplyChanges() {
-  if (current_document_ != absl::nullopt) {
+  if (current_document_ != std::nullopt) {
     return StatusOr<DocumentMap>(
         Status(Error::kErrorInvalidArgument,
                "Bundled documents end with a document metadata "

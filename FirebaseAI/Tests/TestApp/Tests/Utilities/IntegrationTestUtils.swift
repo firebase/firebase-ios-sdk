@@ -76,3 +76,59 @@ func retry<T>(times: Int,
   Issue.record("Flaky test failed after \(times) attempt(s): \(String(describing: lastError))")
   throw lastError
 }
+
+enum TimeoutResult<T: Sendable>: Sendable {
+  case completed(T)
+  case timedOut
+}
+
+/// The amount of nano seconds in a second.
+let nanosecondsPerSecond: Double = 1_000_000_000
+
+/// Run a callback, returning nil if it takes longer than the specified amount of seconds.
+///
+/// - Warning: The callback passed to this function **must** be cancellation-aware, otherwise,
+///   you won't get proper timeout support.
+///
+/// - Parameters:
+///   - seconds: The amount of seconds to wait before cancelling the callback and considering it a
+///     timeout. Must be **positive**, and at **max one hour**.
+///   - operation: The callback to execute. **Must** be cancellation-aware.
+func withTimeout<T: Sendable>(seconds: TimeInterval,
+                              operation: @escaping @Sendable () async throws -> T) async throws
+  -> T? {
+  guard seconds > 0 else {
+    fatalError("seconds must be a positive number, but we got \(seconds) instead")
+  }
+  // constrain to one hour, just in case someone accidentally passed too large of a value
+  guard seconds <= 3600 else {
+    fatalError("the maximum amount of seconds you can pass is 1 hour, but you passed \(seconds)")
+  }
+
+  let nanoseconds = UInt64(seconds * nanosecondsPerSecond)
+
+  return try await withThrowingTaskGroup(of: TimeoutResult<T>.self) { group in
+    group.addTask {
+      let result = try await operation()
+      return .completed(result)
+    }
+
+    group.addTask {
+      try await Task.sleep(nanoseconds: nanoseconds)
+      return .timedOut
+    }
+
+    defer { group.cancelAll() }
+
+    while let result = try await group.next() {
+      switch result {
+      case let .completed(value):
+        return value
+      case .timedOut:
+        return nil
+      }
+    }
+
+    return nil
+  }
+}
