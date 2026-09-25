@@ -57,8 +57,6 @@
 
 #pragma mark - Unswizzle based tests
 
-#if !SWIFT_PACKAGE
-
 /** Tests swizzling an instance selector. */
 - (void)testSwizzleInstanceSelector {
   FPRClassInstrumentor *classInstrumentor =
@@ -157,7 +155,5 @@
   XCTAssertTrue(wasInvoked);
   [classInstrumentor unswizzle];
 }
-
-#endif  // SWIFT_PACKAGE
 
 @end
