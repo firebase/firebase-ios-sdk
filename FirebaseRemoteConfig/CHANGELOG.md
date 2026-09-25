@@ -1,3 +1,6 @@
+# Unreleased
+- [fixed] Fixed a crash when the Remote Config fetch response contains a non-dictionary top-level JSON object (such as a JSON array).
+
 # 12.17.0
 - [fixed] Fixed a memory leak in Remote Config where `activateWithCompletion:`
   retained the `FIRRemoteConfig` instance indefinitely (#16413).
