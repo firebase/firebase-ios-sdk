@@ -29,9 +29,9 @@ actor PersistenceManager {
     /// Files here are encrypted by the OS. Since writes happen via `mmap`, physical file
     /// memory is owned, managed, and paged directly by the OS virtual memory system.
     let directory = if #available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *) {
-      URL.documentsDirectory
+      URL.cachesDirectory
     } else {
-      FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+      FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first!
     }
 
     return PersistenceManager(cacheDirectory: directory)
