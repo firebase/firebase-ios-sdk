@@ -15,24 +15,23 @@
 import Foundation
 import PersistenceWrapper
 
-internal enum PersistenceWrapperFactory {
-
+enum PersistenceWrapperFactory {
   #if DEBUG
-  /// Test-only hook to inject a mock buffer and recovered spans during unit tests.
-  nonisolated(unsafe) internal static var mockBuffer: PersistenceBuffer?
-  nonisolated(unsafe) internal static var mockRecoveredSpans: [PersistenceSpan] = []
-  nonisolated(unsafe) internal static var simulateBufferFailure: Bool = false
-  nonisolated(unsafe) internal static var captureInitFilePath: String?
-  nonisolated(unsafe) internal static var captureInitBufferSize: PersistenceBufferSize?
+    /// Test-only hook to inject a mock buffer and recovered spans during unit tests.
+    nonisolated(unsafe) static var mockBuffer: PersistenceBuffer?
+    nonisolated(unsafe) static var mockRecoveredSpans: [PersistenceSpan] = []
+    nonisolated(unsafe) static var simulateBufferFailure: Bool = false
+    nonisolated(unsafe) static var captureInitFilePath: String?
+    nonisolated(unsafe) static var captureInitBufferSize: PersistenceBufferSize?
 
-  /// Resets test-only configuration state back to default.
-  internal static func reset() {
-    mockBuffer = nil
-    mockRecoveredSpans = []
-    simulateBufferFailure = false
-    captureInitFilePath = nil
-    captureInitBufferSize = nil
-  }
+    /// Resets test-only configuration state back to default.
+    static func reset() {
+      mockBuffer = nil
+      mockRecoveredSpans = []
+      simulateBufferFailure = false
+      captureInitFilePath = nil
+      captureInitBufferSize = nil
+    }
   #endif
 
   /// Initializes and returns the storage buffer.
@@ -42,18 +41,16 @@ internal enum PersistenceWrapperFactory {
   ///   - bufferSize:Sizing constraints.
   ///   - outRecoveredSpans: Inout parameter containing any harvested spans from a prior session.
   /// - Returns: A `SpanBufferProtocol` instance, or nil if creation failed.
-  internal static func initialize(
-    filePath: String,
-    bufferSize: PersistenceBufferSize,
-    recoveredSpans outRecoveredSpans: inout NSArray?
-  ) -> PersistenceBuffer? {
+  static func initialize(filePath: String,
+                         bufferSize: PersistenceBufferSize,
+                         recoveredSpans outRecoveredSpans: inout NSArray?) -> PersistenceBuffer? {
     #if DEBUG
-    if mockBuffer != nil || simulateBufferFailure {
-      captureInitFilePath = filePath
-      captureInitBufferSize = bufferSize
-      outRecoveredSpans = mockRecoveredSpans as NSArray
-      return mockBuffer
-    }
+      if mockBuffer != nil || simulateBufferFailure {
+        captureInitFilePath = filePath
+        captureInitBufferSize = bufferSize
+        outRecoveredSpans = mockRecoveredSpans as NSArray
+        return mockBuffer
+      }
     #endif
 
     return PersistenceBufferWrapper.initialize(

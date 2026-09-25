@@ -30,15 +30,16 @@ let package = Package(
     .library(
       name: "FirebaseCrashlyticsTelemetry",
       targets: ["FirebaseCrashlyticsTelemetry"]
-    )
+    ),
   ],
   dependencies: [
     .package(
       url: "https://github.com/open-telemetry/opentelemetry-swift-core.git",
-      .upToNextMajor(from: "2.3.0")),
+      .upToNextMajor(from: "2.3.0")
+    ),
     .package(url: "https://github.com/firebase/firebase-telemetry-persistence.git", branch: "main"),
     .package(url: "https://github.com/firebase/firebase-ios-sdk.git", from: "12.0.0"),
-    .package(url: "https://github.com/firebase/nanopb.git", "2.30910.0"..<"2.30911.0"),
+    .package(url: "https://github.com/firebase/nanopb.git", "2.30910.0" ..< "2.30911.0"),
   ],
   targets: [
     .target(
@@ -68,14 +69,14 @@ let package = Package(
     .target(
       name: "PersistenceWrapper",
       dependencies: [
-        .product(name: "FirebaseTelemetryPersistence", package: "firebase-telemetry-persistence")
+        .product(name: "FirebaseTelemetryPersistence", package: "firebase-telemetry-persistence"),
       ],
       path: "SourcesObjC"
     ),
     .target(
       name: "NetworkStatus",
       dependencies: [
-        .product(name: "OpenTelemetryApi", package: "opentelemetry-swift-core")
+        .product(name: "OpenTelemetryApi", package: "opentelemetry-swift-core"),
       ],
       path: "Sources/third_party/opentelemetry-swift/Sources/Instrumentation/NetworkStatus",
       linkerSettings: [.linkedFramework("CoreTelephony", .when(platforms: [.iOS]))]
@@ -92,7 +93,7 @@ let package = Package(
     .target(
       name: "OpentelemetryProtos",
       dependencies: [
-        .product(name: "nanopb", package: "nanopb")
+        .product(name: "nanopb", package: "nanopb"),
       ],
       path: "Sources/third_party/opentelemetry-proto/Protogen/nanopb",
       publicHeadersPath: ".",
@@ -105,7 +106,7 @@ let package = Package(
     .testTarget(
       name: "CrashlyticsTelemetryUnitTests",
       dependencies: [
-        "FirebaseCrashlyticsTelemetry"
+        "FirebaseCrashlyticsTelemetry",
       ],
       path: "Tests/Unit",
       cSettings: [

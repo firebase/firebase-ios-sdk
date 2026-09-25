@@ -12,16 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import OpenTelemetryApi
-import OpenTelemetrySdk
-import OpentelemetryProtos
-import XCTest
 import nanopb
+import OpenTelemetryApi
+import OpentelemetryProtos
+import OpenTelemetrySdk
+import XCTest
 
 @testable import FirebaseCrashlyticsTelemetry
 
 final class CommonAdapterTests: XCTestCase {
-
   // MARK: - Helpers
 
   /// Safely releases dynamic memory allocated for a proto KeyValue.
@@ -72,32 +71,38 @@ final class CommonAdapterTests: XCTestCase {
 
   func test_toProtoAttribute_mapsBasicTypesCorrectly() {
     var stringAttr = CommonAdapter.unsafe.toProtoAttribute(
-      key: "env", attributeValue: .string("staging"))
+      key: "env", attributeValue: .string("staging")
+    )
     XCTAssertEqual(stringFromProtoBytes(stringAttr.key), "env")
     XCTAssertEqual(
       stringAttr.value.which_value,
-      pb_size_t(opentelemetry_proto_common_v1_AnyValue_string_value_tag))
+      pb_size_t(opentelemetry_proto_common_v1_AnyValue_string_value_tag)
+    )
     XCTAssertEqual(stringFromProtoBytes(stringAttr.value.string_value), "staging")
     releaseKeyValue(&stringAttr)
 
     var boolAttr = CommonAdapter.unsafe.toProtoAttribute(key: "debug", attributeValue: .bool(true))
     XCTAssertEqual(stringFromProtoBytes(boolAttr.key), "debug")
     XCTAssertEqual(
-      boolAttr.value.which_value, pb_size_t(opentelemetry_proto_common_v1_AnyValue_bool_value_tag))
+      boolAttr.value.which_value, pb_size_t(opentelemetry_proto_common_v1_AnyValue_bool_value_tag)
+    )
     XCTAssertTrue(boolAttr.value.bool_value)
     releaseKeyValue(&boolAttr)
 
     var intAttr = CommonAdapter.unsafe.toProtoAttribute(key: "port", attributeValue: .int(8080))
     XCTAssertEqual(
-      intAttr.value.which_value, pb_size_t(opentelemetry_proto_common_v1_AnyValue_int_value_tag))
+      intAttr.value.which_value, pb_size_t(opentelemetry_proto_common_v1_AnyValue_int_value_tag)
+    )
     XCTAssertEqual(intAttr.value.int_value, 8080)
     releaseKeyValue(&intAttr)
 
     var doubleAttr = CommonAdapter.unsafe.toProtoAttribute(
-      key: "pi", attributeValue: .double(3.14159))
+      key: "pi", attributeValue: .double(3.14159)
+    )
     XCTAssertEqual(
       doubleAttr.value.which_value,
-      pb_size_t(opentelemetry_proto_common_v1_AnyValue_double_value_tag))
+      pb_size_t(opentelemetry_proto_common_v1_AnyValue_double_value_tag)
+    )
     XCTAssertEqual(doubleAttr.value.double_value, 3.14159)
     releaseKeyValue(&doubleAttr)
   }
@@ -106,14 +111,15 @@ final class CommonAdapterTests: XCTestCase {
 
   func test_toProtoAnyValue_withSet_mapsKeyValueList() {
     let nestedAttributes: [String: AttributeValue] = [
-      "nested_key": .string("nested_val")
+      "nested_key": .string("nested_val"),
     ]
     let attributeValueSet = AttributeValue.set(AttributeSet(labels: nestedAttributes))
 
     var protoAny = CommonAdapter.unsafe.toProtoAnyValue(attributeValue: attributeValueSet)
 
     XCTAssertEqual(
-      protoAny.which_value, pb_size_t(opentelemetry_proto_common_v1_AnyValue_kvlist_value_tag))
+      protoAny.which_value, pb_size_t(opentelemetry_proto_common_v1_AnyValue_kvlist_value_tag)
+    )
     XCTAssertEqual(protoAny.kvlist_value.values_count, 1)
     XCTAssertNotNil(protoAny.kvlist_value.values)
 
@@ -132,17 +138,20 @@ final class CommonAdapterTests: XCTestCase {
     var protoAny = CommonAdapter.unsafe.toProtoAnyValue(attributeValue: attributeValueArray)
 
     XCTAssertEqual(
-      protoAny.which_value, pb_size_t(opentelemetry_proto_common_v1_AnyValue_array_value_tag))
+      protoAny.which_value, pb_size_t(opentelemetry_proto_common_v1_AnyValue_array_value_tag)
+    )
     XCTAssertEqual(protoAny.array_value.values_count, 2)
     XCTAssertNotNil(protoAny.array_value.values)
 
     if let elements = protoAny.array_value.values {
       XCTAssertEqual(
-        elements[0].which_value, pb_size_t(opentelemetry_proto_common_v1_AnyValue_string_value_tag))
+        elements[0].which_value, pb_size_t(opentelemetry_proto_common_v1_AnyValue_string_value_tag)
+      )
       XCTAssertEqual(stringFromProtoBytes(elements[0].string_value), "one")
 
       XCTAssertEqual(
-        elements[1].which_value, pb_size_t(opentelemetry_proto_common_v1_AnyValue_int_value_tag))
+        elements[1].which_value, pb_size_t(opentelemetry_proto_common_v1_AnyValue_int_value_tag)
+      )
       XCTAssertEqual(elements[1].int_value, 2)
     }
 
@@ -157,12 +166,15 @@ final class CommonAdapterTests: XCTestCase {
     )
     XCTAssertEqual(
       stringArrayProto.which_value,
-      pb_size_t(opentelemetry_proto_common_v1_AnyValue_array_value_tag))
+      pb_size_t(opentelemetry_proto_common_v1_AnyValue_array_value_tag)
+    )
     XCTAssertEqual(stringArrayProto.array_value.values_count, 2)
     XCTAssertEqual(
-      stringFromProtoBytes(stringArrayProto.array_value.values?[0].string_value), "apple")
+      stringFromProtoBytes(stringArrayProto.array_value.values?[0].string_value), "apple"
+    )
     XCTAssertEqual(
-      stringFromProtoBytes(stringArrayProto.array_value.values?[1].string_value), "banana")
+      stringFromProtoBytes(stringArrayProto.array_value.values?[1].string_value), "banana"
+    )
     releaseAnyValue(&stringArrayProto)
 
     var boolArrayProto = CommonAdapter.unsafe.toProtoAnyValue(
@@ -211,7 +223,8 @@ final class CommonAdapterTests: XCTestCase {
 
     if let attributes = protoResource.attributes {
       let buffer = UnsafeBufferPointer(
-        start: attributes, count: Int(protoResource.attributes_count))
+        start: attributes, count: Int(protoResource.attributes_count)
+      )
       let names = buffer.compactMap { stringFromProtoBytes($0.key) }
       XCTAssertTrue(names.contains("service.name"))
       XCTAssertTrue(names.contains("service.version"))
@@ -231,7 +244,8 @@ final class CommonAdapterTests: XCTestCase {
     )
 
     var protoScope = CommonAdapter.unsafe.toProtoInstrumentationScope(
-      instrumentationScopeInfo: scopeInfo)
+      instrumentationScopeInfo: scopeInfo
+    )
 
     XCTAssertEqual(stringFromProtoBytes(protoScope.name), "firebase-crashlytics-otel")
     XCTAssertEqual(stringFromProtoBytes(protoScope.version), "2.1.0")
@@ -242,7 +256,8 @@ final class CommonAdapterTests: XCTestCase {
       XCTAssertEqual(stringFromProtoBytes(attributes[0].key), "scope_priority")
       XCTAssertEqual(
         attributes[0].value.which_value,
-        pb_size_t(opentelemetry_proto_common_v1_AnyValue_int_value_tag))
+        pb_size_t(opentelemetry_proto_common_v1_AnyValue_int_value_tag)
+      )
       XCTAssertEqual(attributes[0].value.int_value, 1)
     }
 

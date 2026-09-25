@@ -19,12 +19,11 @@ import XCTest
 
 /// A thread-safe, actor-based mock conforming to `RecoveredTelemetryExporter`.
 final actor MockRecoveryManager: RecoveredTelemetryExporter {
-
   private(set) var uploadedBatches: [[RecoveredSpan]] = []
   private var uploadExpectation: XCTestExpectation?
 
   func setUploadExpectation(_ expectation: XCTestExpectation?) {
-    self.uploadExpectation = expectation
+    uploadExpectation = expectation
   }
 
   func uploadRecoveredSpans(spans: [RecoveredSpan]) async {

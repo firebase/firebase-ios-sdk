@@ -69,7 +69,7 @@ for file_path in "${PROTO_FILES[@]}"; do
   mkdir -p "${dest_file_dir}"
   cp "${TEMP_DIR}/${file_path}" "${PROTO_DIR}/${file_path}"
   echo "   ✅ Imported Proto: ${file_path}"
-  
+
   # Copy matching .option files from ProtoSupport/Options and place it next to the .proto
   file_name=$(basename "${file_path}" .proto)
   options_source="${OPTIONS_DIR}/${file_name}.options"

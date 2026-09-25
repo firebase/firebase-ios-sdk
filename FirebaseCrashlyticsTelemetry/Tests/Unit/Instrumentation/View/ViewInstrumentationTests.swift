@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import XCTest
-import SwiftUI
 import OpenTelemetryApi
 import OpenTelemetrySdk
+import SwiftUI
+import XCTest
 
 @testable import FirebaseCrashlyticsTelemetry
 
@@ -252,7 +252,7 @@ final class ViewInstrumentationTests: XCTestCase {
       userInfo: [
         "id": id,
         "screenName": name,
-        "type": type
+        "type": type,
       ]
     )
   }

@@ -12,14 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import XCTest
 import SwiftUI
+import XCTest
 
 @testable import FirebaseCrashlyticsTelemetry
 
 @MainActor
 final class TrackViewExtensionTests: XCTestCase {
-
   // MARK: - Indirect Name Resolution Tests (via trackView)
 
   func test_trackView_withExplicitName_appliesExplicitScreenName() {
@@ -40,7 +39,10 @@ final class TrackViewExtensionTests: XCTestCase {
 
   func test_trackView_withNilNameAndNestedPathFileID_extractsCleanFileName() {
     let baseView = Text("Hello World")
-    let modifiedView = baseView.trackView(nil, fileID: "App/Features/Settings/Subfeatures/NotificationSettingsView.swift")
+    let modifiedView = baseView.trackView(
+      nil,
+      fileID: "App/Features/Settings/Subfeatures/NotificationSettingsView.swift"
+    )
 
     let extractedName = extractScreenName(from: modifiedView)
     XCTAssertEqual(extractedName, "NotificationSettingsView")
@@ -73,10 +75,12 @@ final class TrackViewExtensionTests: XCTestCase {
 
   // MARK: - Private Reflection Helper
 
-  /// Inspects the modified view hierarchy via Mirror reflection to retrieve the screenName stored on ViewTrackingModifier.
+  /// Inspects the modified view hierarchy via Mirror reflection to retrieve the screenName stored
+  /// on ViewTrackingModifier.
   private func extractScreenName<V: View>(from view: V) -> String? {
     let mirror = Mirror(reflecting: view)
-    guard let modifier = mirror.children.first(where: { $0.label == "modifier" })?.value as? ViewTrackingModifier else {
+    guard let modifier = mirror.children.first(where: { $0.label == "modifier" })?
+      .value as? ViewTrackingModifier else {
       XCTFail("Expected view to be wrapped in ModifiedContent with ViewTrackingModifier")
       return nil
     }

@@ -18,7 +18,7 @@ import Foundation
 import OpenTelemetrySdk
 
 /// Manages the recovery and export of telemetry data from previous app sessions.
-internal actor RecoveryManager: RecoveredTelemetryExporter {
+actor RecoveryManager: RecoveredTelemetryExporter {
   /// The uploader to upload recovered telemetry
   private let uploader: TelemetryUploader
   /// The instrumentation scope information associated with the exported traces.
@@ -31,13 +31,11 @@ internal actor RecoveryManager: RecoveredTelemetryExporter {
   /// - Parameters:
   ///   - scope: The instrumentation scope info to include in trace exports.
   ///   - resource: The resource metadata to include in trace exports.
-  public init(
-    uploader: TelemetryUploader,
-    // TODO: Support persistence and recovery of these values instead of using
-    // the ones on initialization.
-    scope: InstrumentationScopeInfo? = nil,
-    resource: Resource? = nil
-  ) {
+  public init(uploader: TelemetryUploader,
+              // TODO: Support persistence and recovery of these values instead of using
+              // the ones on initialization.
+              scope: InstrumentationScopeInfo? = nil,
+              resource: Resource? = nil) {
     self.uploader = uploader
     self.scope = scope
     self.resource = resource
@@ -51,13 +49,13 @@ internal actor RecoveryManager: RecoveredTelemetryExporter {
       return
     }
 
-    let traceExportRequestPayloads = self.createTraceExportRequestPayloads(from: spans)
+    let traceExportRequestPayloads = createTraceExportRequestPayloads(from: spans)
 
     // The implementation for the final network request is not robust as we may
     // decide to use GDT for this, which will provide the robustness.
     for payload in traceExportRequestPayloads {
       do {
-        try await self.uploader.uploadTrace(payload)
+        try await uploader.uploadTrace(payload)
       } catch {
         LoggingHelper.logger.debug("Failed to export trace. \(error)")
         continue
@@ -82,9 +80,7 @@ internal actor RecoveryManager: RecoveredTelemetryExporter {
   ///
   /// - Parameter spans: The array of spans to serialize.
   /// - Returns: An array of serialized trace export requests payloads.
-  private func createTraceExportRequestPayloads(
-    from spans: [RecoveredSpan]
-  ) -> [Data] {
+  private func createTraceExportRequestPayloads(from spans: [RecoveredSpan]) -> [Data] {
     // Each OpenTelemetry span is roughly 1-2 KB in size.
     // Limiting each export trace request to 512 spans set the max request size to ~1MB.
     let chunkLength = 512
@@ -94,7 +90,7 @@ internal actor RecoveryManager: RecoveredTelemetryExporter {
       let endIdx = min(startIdx + chunkLength, spans.count)
       guard
         let payload = SpanAdapter.toTraceExportRequestPayload(
-          spans: Array(spans[startIdx..<endIdx]), scope: scope, resource: resource
+          spans: Array(spans[startIdx ..< endIdx]), scope: scope, resource: resource
         )
       else { continue }
 

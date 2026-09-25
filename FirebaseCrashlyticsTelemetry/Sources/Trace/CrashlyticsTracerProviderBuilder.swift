@@ -28,33 +28,33 @@ class CrashlyticsTracerProviderBuilder {
   private let crashlyticsProcessor: CrashlyticsSpanProcessor
 
   /// The configured clock for the provider.
-  public var clock: Clock? { self.otelTracerProviderBuilder.clock }
+  public var clock: Clock? { otelTracerProviderBuilder.clock }
   /// The configured ID generator for the provider.
-  public var idGenerator: IdGenerator? { self.otelTracerProviderBuilder.idGenerator }
+  public var idGenerator: IdGenerator? { otelTracerProviderBuilder.idGenerator }
   /// The configured resource for the provider.
-  public var resource: Resource? { self.otelTracerProviderBuilder.resource }
+  public var resource: Resource? { otelTracerProviderBuilder.resource }
   /// The configured span limits for the provider.
-  public var spanLimits: SpanLimits? { self.otelTracerProviderBuilder.spanLimits }
+  public var spanLimits: SpanLimits? { otelTracerProviderBuilder.spanLimits }
   /// The configured sampler for the provider.
-  public var sampler: Sampler? { self.otelTracerProviderBuilder.sampler }
+  public var sampler: Sampler? { otelTracerProviderBuilder.sampler }
   /// The list of standard span processors configured for the provider.
-  public var spanProcessors: [SpanProcessor] { self.otelTracerProviderBuilder.spanProcessors }
+  public var spanProcessors: [SpanProcessor] { otelTracerProviderBuilder.spanProcessors }
 
   /// Initializes a new Crashlytics tracer provider builder.
   ///
   /// This initializer sets up the underlying OpenTelemetry builder and instantiates the
   /// `CrashlyticsSpanProcessor` with its required exporter to ensure persistence tracking is ready.
   public init() {
-    self.otelTracerProviderBuilder = TracerProviderBuilder()
-    self.crashlyticsProcessor = CrashlyticsSpanProcessor()
+    otelTracerProviderBuilder = TracerProviderBuilder()
+    crashlyticsProcessor = CrashlyticsSpanProcessor()
   }
 
   public func build() -> CrashlyticsTracerProvider {
-    let tracerProvider = self.otelTracerProviderBuilder.build()
+    let tracerProvider = otelTracerProviderBuilder.build()
 
     return CrashlyticsTracerProvider(
       tracerProvider: tracerProvider,
-      crashlyticsProcessor: self.crashlyticsProcessor
+      crashlyticsProcessor: crashlyticsProcessor
     )
   }
 
@@ -65,7 +65,7 @@ class CrashlyticsTracerProviderBuilder {
   /// - Parameter clock: The clock to use.
   /// - Returns: This builder instance, for chaining.
   public func with(clock: Clock) -> Self {
-    _ = self.otelTracerProviderBuilder.with(clock: clock)
+    _ = otelTracerProviderBuilder.with(clock: clock)
     return self
   }
 
@@ -74,7 +74,7 @@ class CrashlyticsTracerProviderBuilder {
   /// - Parameter idGenerator: The ID generator to use.
   /// - Returns: This builder instance, for chaining.
   public func with(idGenerator: IdGenerator) -> Self {
-    _ = self.otelTracerProviderBuilder.with(idGenerator: idGenerator)
+    _ = otelTracerProviderBuilder.with(idGenerator: idGenerator)
     return self
   }
 
@@ -83,7 +83,7 @@ class CrashlyticsTracerProviderBuilder {
   /// - Parameter resource: The resource to associate with generated spans.
   /// - Returns: This builder instance, for chaining.
   public func with(resource: Resource) -> Self {
-    _ = self.otelTracerProviderBuilder.with(resource: resource)
+    _ = otelTracerProviderBuilder.with(resource: resource)
     return self
   }
 
@@ -92,7 +92,7 @@ class CrashlyticsTracerProviderBuilder {
   /// - Parameter spanLimits: The span limits to enforce.
   /// - Returns: This builder instance, for chaining.
   public func with(spanLimits: SpanLimits) -> Self {
-    _ = self.otelTracerProviderBuilder.with(spanLimits: spanLimits)
+    _ = otelTracerProviderBuilder.with(spanLimits: spanLimits)
     return self
   }
 
@@ -101,7 +101,7 @@ class CrashlyticsTracerProviderBuilder {
   /// - Parameter sampler: The sampler to use for trace sampling.
   /// - Returns: This builder instance, for chaining.
   public func with(sampler: Sampler) -> Self {
-    _ = self.otelTracerProviderBuilder.with(sampler: sampler)
+    _ = otelTracerProviderBuilder.with(sampler: sampler)
     return self
   }
 
@@ -110,7 +110,7 @@ class CrashlyticsTracerProviderBuilder {
   /// - Parameter spanProcessor: The span processor to add.
   /// - Returns: This builder instance, for chaining.
   public func add(spanProcessor: SpanProcessor) -> Self {
-    _ = self.otelTracerProviderBuilder.add(spanProcessor: spanProcessor)
+    _ = otelTracerProviderBuilder.add(spanProcessor: spanProcessor)
     return self
   }
 
@@ -119,7 +119,7 @@ class CrashlyticsTracerProviderBuilder {
   /// - Parameter spanProcessors: An array of span processors to add.
   /// - Returns: This builder instance, for chaining.
   public func add(spanProcessors: [SpanProcessor]) -> Self {
-    _ = self.otelTracerProviderBuilder.add(spanProcessors: spanProcessors)
+    _ = otelTracerProviderBuilder.add(spanProcessors: spanProcessors)
     return self
   }
 }

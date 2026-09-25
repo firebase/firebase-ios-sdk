@@ -20,29 +20,30 @@ public final class MockLogger: @unchecked Sendable {
   public let inMemoryExporter: TestLogRecordExporter
   public let loggerProvider: LoggerProviderSdk
   public let logger: Logger
-  
+
   /// Initializes an isolated logger and exporter for a test run.
   public init(instrumentationScopeName: String = "MockLogTests") {
     let exporter = TestLogRecordExporter()
     let processor = SimpleLogRecordProcessor(logRecordExporter: exporter)
     let provider = LoggerProviderBuilder().with(processors: [processor]).build()
-    
-    self.inMemoryExporter = exporter
-    self.loggerProvider = provider
-    self.logger = provider.get(instrumentationScopeName: instrumentationScopeName)
+
+    inMemoryExporter = exporter
+    loggerProvider = provider
+    logger = provider.get(instrumentationScopeName: instrumentationScopeName)
   }
-  
+
   // MARK: - Exporter Controls & Querying
-  
+
   public func exportedLogs() -> [ReadableLogRecord] {
     return inMemoryExporter.getFinishedLogRecords()
   }
-  
+
   public func reset() {
     inMemoryExporter.reset()
   }
-  
-  public func waitForLogCount(_ count: Int, timeout: TimeInterval = 2.0) async throws -> [ReadableLogRecord] {
+
+  public func waitForLogCount(_ count: Int,
+                              timeout: TimeInterval = 2.0) async throws -> [ReadableLogRecord] {
     let deadline = Date().addingTimeInterval(timeout)
     while Date() < deadline {
       let records = exportedLogs()
@@ -51,7 +52,7 @@ public final class MockLogger: @unchecked Sendable {
       }
       try await Task.sleep(nanoseconds: 10_000_000) // 10ms
     }
-    
+
     let finalRecords = exportedLogs()
     if finalRecords.count >= count {
       return finalRecords
@@ -68,7 +69,8 @@ public final class TestLogRecordExporter: LogRecordExporter, @unchecked Sendable
 
   public init() {}
 
-  public func export(logRecords: [ReadableLogRecord], explicitTimeout: TimeInterval? = nil) -> ExportResult {
+  public func export(logRecords: [ReadableLogRecord],
+                     explicitTimeout: TimeInterval? = nil) -> ExportResult {
     lock.lock()
     records.append(contentsOf: logRecords)
     lock.unlock()

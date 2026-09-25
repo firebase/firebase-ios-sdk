@@ -17,22 +17,25 @@
 
 #include <memory>
 #include <string>
-#include <vector>
 #include <utility>
+#include <vector>
 
-#include "firebase/telemetry/persistence/mmap_size.h"
-#include "firebase/telemetry/persistence/span.h"
-#include "firebase/telemetry/persistence/mutable_span_data.h"
 #include "firebase/telemetry/persistence/initialize.h"
+#include "firebase/telemetry/persistence/mmap_size.h"
+#include "firebase/telemetry/persistence/mutable_span_data.h"
+#include "firebase/telemetry/persistence/span.h"
 
 namespace ftp = firebase::telemetry::persistence;
 
 static ftp::MmapSize MapBufferSize(PersistenceBufferSize size) {
   switch (size) {
-    case PersistenceBufferSizeMedium: return ftp::MmapSize::Medium;
-    case PersistenceBufferSizeLarge:  return ftp::MmapSize::Large;
+    case PersistenceBufferSizeMedium:
+      return ftp::MmapSize::Medium;
+    case PersistenceBufferSizeLarge:
+      return ftp::MmapSize::Large;
     case PersistenceBufferSizeSmall:
-    default:                           return ftp::MmapSize::Small;
+    default:
+      return ftp::MmapSize::Small;
   }
 }
 
@@ -56,7 +59,8 @@ static NSArray<PersistenceSpan *> *ExtractRecoveredSpans(ftp::unspecified_contex
   std::shared_ptr<ftp::MutableSpanData> _mutableSpanData;
 }
 - (instancetype)initWithContext:(ftp::unspecified_context_t *)context
-                mutableSpanData:(std::shared_ptr<ftp::MutableSpanData>)spanData NS_DESIGNATED_INITIALIZER;
+                mutableSpanData:(std::shared_ptr<ftp::MutableSpanData>)spanData
+    NS_DESIGNATED_INITIALIZER;
 @end
 
 @implementation PersistenceBufferWrapper
@@ -73,7 +77,8 @@ static NSArray<PersistenceSpan *> *ExtractRecoveredSpans(ftp::unspecified_contex
 
 + (nullable instancetype)initializeWithFilePath:(NSString *)filePath
                                      bufferSize:(PersistenceBufferSize)bufferSize
-                                 recoveredSpans:(NSArray<PersistenceSpan *> * _Nullable * _Nonnull)outRecoveredSpans {
+                                 recoveredSpans:(NSArray<PersistenceSpan *> *_Nullable *_Nonnull)
+                                                    outRecoveredSpans {
   *outRecoveredSpans = @[];
 
   ftp::unspecified_context_t *context = ftp::initialize_span_data(
@@ -107,11 +112,8 @@ static NSArray<PersistenceSpan *> *ExtractRecoveredSpans(ftp::unspecified_contex
 
 - (void)setAttribute:(NSString *)value forKey:(NSString *)key onSpanId:(uint64_t)spanId {
   if (!_mutableSpanData) return;
-  _mutableSpanData->set_attribute_on_span(
-      spanId,
-      std::string(key.UTF8String ?: ""),
-      std::string(value.UTF8String ?: "")
-  );
+  _mutableSpanData->set_attribute_on_span(spanId, std::string(key.UTF8String ?: ""),
+                                          std::string(value.UTF8String ?: ""));
 }
 
 - (void)endSpanId:(uint64_t)spanId endTime:(uint64_t)endTime {

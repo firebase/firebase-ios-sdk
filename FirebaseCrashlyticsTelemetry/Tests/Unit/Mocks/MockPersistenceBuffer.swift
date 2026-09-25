@@ -18,7 +18,6 @@ import PersistenceWrapper
 @testable import CrashlyticsTelemetry
 
 final class MockPersistenceBuffer: PersistenceBuffer, @unchecked Sendable {
-
   struct SetAttributeCall: Equatable {
     let spanId: UInt64
     let key: String

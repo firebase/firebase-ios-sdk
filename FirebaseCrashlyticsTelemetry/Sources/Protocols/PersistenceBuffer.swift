@@ -15,7 +15,7 @@
 import Foundation
 import PersistenceWrapper
 
-internal protocol PersistenceBuffer: AnyObject, Sendable {
+protocol PersistenceBuffer: AnyObject, Sendable {
   func add(_ span: PersistenceSpan)
   func setAttribute(_ value: String, forKey key: String, onSpanId spanId: UInt64)
   func endSpanId(_ spanId: UInt64, endTime: UInt64)

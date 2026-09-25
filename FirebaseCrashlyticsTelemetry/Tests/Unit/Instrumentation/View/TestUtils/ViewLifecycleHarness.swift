@@ -20,10 +20,10 @@ final class ViewLifecycleHarness<V: View> {
   private let hostingController: UIHostingController<V>
 
   init(view: V) {
-    self.window = UIWindow(frame: CGRect(x: 0, y: 0, width: 300, height: 300))
-    self.hostingController = UIHostingController(rootView: view)
-    self.window.rootViewController = self.hostingController
-    self.window.makeKeyAndVisible()
+    window = UIWindow(frame: CGRect(x: 0, y: 0, width: 300, height: 300))
+    hostingController = UIHostingController(rootView: view)
+    window.rootViewController = hostingController
+    window.makeKeyAndVisible()
   }
 
   func appear() {
@@ -31,7 +31,12 @@ final class ViewLifecycleHarness<V: View> {
     hostingController.view.setNeedsLayout()
     hostingController.view.layoutIfNeeded()
 
-    let bounds = hostingController.view.bounds.isEmpty ? CGRect(x: 0, y: 0, width: 100, height: 100) : hostingController.view.bounds
+    let bounds = hostingController.view.bounds.isEmpty ? CGRect(
+      x: 0,
+      y: 0,
+      width: 100,
+      height: 100
+    ) : hostingController.view.bounds
     let renderer = UIGraphicsImageRenderer(bounds: bounds)
     _ = renderer.image { ctx in
       hostingController.view.layer.render(in: ctx.cgContext)

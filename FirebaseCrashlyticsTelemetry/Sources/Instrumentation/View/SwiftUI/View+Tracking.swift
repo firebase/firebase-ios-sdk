@@ -18,11 +18,12 @@ public extension View {
   /// Tracks when the view appears and disappears.
   ///
   /// - Parameters:
-  ///   - name: An optional explicit name for the screen. If nil, the name is derived from the file name.
+  ///   - name: An optional explicit name for the screen. If nil, the name is derived from the file
+  /// name.
   ///   - fileID: The file identifier where this modifier is called.
   func trackView(_ name: String? = nil, fileID: String = #fileID) -> some View {
     let resolvedName = name ?? getViewName(from: fileID)
-    return self.modifier(ViewTrackingModifier(screenName: resolvedName))
+    return modifier(ViewTrackingModifier(screenName: resolvedName))
   }
 }
 

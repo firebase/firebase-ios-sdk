@@ -12,16 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import OpenTelemetryApi
-import OpenTelemetrySdk
-import OpentelemetryProtos
-import XCTest
 import nanopb
+import OpenTelemetryApi
+import OpentelemetryProtos
+import OpenTelemetrySdk
+import XCTest
 
 @testable import FirebaseCrashlyticsTelemetry
 
 final class SpanAdapterTests: XCTestCase {
-
   // MARK: - Helpers
 
   /// Safely releases dynamic memory allocated for a proto span using nanopb field metadata.
@@ -61,6 +60,7 @@ final class SpanAdapterTests: XCTestCase {
   }
 
   // MARK: - toProtoSpanId
+
   func test_toProtoSpanId_withValidSpanId_mapsToCorrectBigEndianBytes() {
     let spanId = MockTrace.randomSpanId()
 
@@ -91,19 +91,24 @@ final class SpanAdapterTests: XCTestCase {
   func test_toProtoSpanKind_mapsCorrectly() {
     XCTAssertEqual(
       SpanAdapter.unsafe.toProtoSpanKind(kind: .internal),
-      opentelemetry_proto_trace_v1_Span_SpanKind_SPAN_KIND_INTERNAL)
+      opentelemetry_proto_trace_v1_Span_SpanKind_SPAN_KIND_INTERNAL
+    )
     XCTAssertEqual(
       SpanAdapter.unsafe.toProtoSpanKind(kind: .server),
-      opentelemetry_proto_trace_v1_Span_SpanKind_SPAN_KIND_SERVER)
+      opentelemetry_proto_trace_v1_Span_SpanKind_SPAN_KIND_SERVER
+    )
     XCTAssertEqual(
       SpanAdapter.unsafe.toProtoSpanKind(kind: .client),
-      opentelemetry_proto_trace_v1_Span_SpanKind_SPAN_KIND_CLIENT)
+      opentelemetry_proto_trace_v1_Span_SpanKind_SPAN_KIND_CLIENT
+    )
     XCTAssertEqual(
       SpanAdapter.unsafe.toProtoSpanKind(kind: .producer),
-      opentelemetry_proto_trace_v1_Span_SpanKind_SPAN_KIND_PRODUCER)
+      opentelemetry_proto_trace_v1_Span_SpanKind_SPAN_KIND_PRODUCER
+    )
     XCTAssertEqual(
       SpanAdapter.unsafe.toProtoSpanKind(kind: .consumer),
-      opentelemetry_proto_trace_v1_Span_SpanKind_SPAN_KIND_CONSUMER)
+      opentelemetry_proto_trace_v1_Span_SpanKind_SPAN_KIND_CONSUMER
+    )
   }
 
   // MARK: - toStatusProto
@@ -165,7 +170,8 @@ final class SpanAdapterTests: XCTestCase {
     if let attributes = protoEvent.attributes {
       XCTAssertEqual(
         attributes[0].value.which_value,
-        pb_size_t(opentelemetry_proto_common_v1_AnyValue_int_value_tag))
+        pb_size_t(opentelemetry_proto_common_v1_AnyValue_int_value_tag)
+      )
       XCTAssertEqual(attributes[0].value.int_value, 3)
     }
 
@@ -199,7 +205,8 @@ final class SpanAdapterTests: XCTestCase {
     if let attributes = protoLink.attributes {
       XCTAssertEqual(
         attributes[0].value.which_value,
-        pb_size_t(opentelemetry_proto_common_v1_AnyValue_bool_value_tag))
+        pb_size_t(opentelemetry_proto_common_v1_AnyValue_bool_value_tag)
+      )
       XCTAssertTrue(attributes[0].value.bool_value)
     }
 
@@ -229,13 +236,15 @@ final class SpanAdapterTests: XCTestCase {
     XCTAssertNotNil(protoChild.trace_id)
     XCTAssertNotNil(protoChild.span_id)
     XCTAssertNotNil(
-      protoChild.parent_span_id, "Child span must retain parent trace relationship ID")
+      protoChild.parent_span_id, "Child span must retain parent trace relationship ID"
+    )
     XCTAssertEqual(protoChild.kind, opentelemetry_proto_trace_v1_Span_SpanKind_SPAN_KIND_CLIENT)
     XCTAssertEqual(protoChild.attributes_count, 2)
 
     // Verify shared Trace ID linkage
     XCTAssertEqual(
-      parent.traceId, child.traceId, "Root Trace ID must be propagated down to child span context")
+      parent.traceId, child.traceId, "Root Trace ID must be propagated down to child span context"
+    )
 
     // Clean up both allocations cleanly
     releaseProtoSpan(&protoParent)
@@ -248,7 +257,8 @@ final class SpanAdapterTests: XCTestCase {
     var protoSpan = SpanAdapter.unsafe.toProtoSpan(spanData: errorSpan)
 
     XCTAssertEqual(
-      protoSpan.status.code, opentelemetry_proto_trace_v1_Status_StatusCode_STATUS_CODE_ERROR)
+      protoSpan.status.code, opentelemetry_proto_trace_v1_Status_StatusCode_STATUS_CODE_ERROR
+    )
     XCTAssertEqual(protoSpan.events_count, 1)
     XCTAssertEqual(protoSpan.attributes_count, 2)
 
@@ -294,7 +304,8 @@ final class SpanAdapterTests: XCTestCase {
       XCTAssertNotNil(arrayAttr)
       XCTAssertEqual(
         arrayAttr?.value.which_value,
-        pb_size_t(opentelemetry_proto_common_v1_AnyValue_array_value_tag))
+        pb_size_t(opentelemetry_proto_common_v1_AnyValue_array_value_tag)
+      )
       XCTAssertEqual(arrayAttr?.value.array_value.values_count, 2)
     }
 

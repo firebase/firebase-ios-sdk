@@ -13,10 +13,10 @@
 // limitations under the License.
 
 import Foundation
-import OpentelemetryProtos
 import nanopb
+import OpentelemetryProtos
 
-internal struct NanopbHelper: UnsafeOperations {}
+struct NanopbHelper: UnsafeOperations {}
 
 extension UnsafeMemoryOperations where Base == NanopbHelper {
   /// Allocates a buffer in memory for a given type `T`.
@@ -35,16 +35,18 @@ extension UnsafeMemoryOperations where Base == NanopbHelper {
     return rawPtr.assumingMemoryBound(to: T.self)
   }
 
-  /// Allocates zeroed memory for a C-array of type `TargetProto` and maps a Swift array of `Element` into it.
+  /// Allocates zeroed memory for a C-array of type `TargetProto` and maps a Swift array of
+  /// `Element` into it.
   /// Allocated memory should be released with `pb_free` or `pb_release` later.
   /// - Parameters:
   ///   - elements: The source Swift array.
   ///   - transform: Closure mapping the Swift element to the target nanopb C-struct.
   /// - Returns: A tuple containing the typed dynamic buffer pointer and its element count.
-  func allocateAndMapArray<Element, TargetProto>(
-    _ elements: [Element],
-    transform: (Element) -> TargetProto
-  ) -> (UnsafeMutablePointer<TargetProto>?, pb_size_t) {
+  func allocateAndMapArray<Element, TargetProto>(_ elements: [Element],
+                                                 transform: (Element) -> TargetProto)
+    -> (UnsafeMutablePointer<
+      TargetProto
+    >?, pb_size_t) {
     let count = elements.count
     guard count > 0 else { return (nil, 0) }
 
@@ -65,10 +67,9 @@ extension UnsafeMemoryOperations where Base == NanopbHelper {
   ///   - size: The size of the byte payload (e.g. 16 for TraceId, 8 for SpanId).
   ///   - populate: A closure to populate the raw byte buffer.
   /// - Returns: A pointer to the initialized `pb_bytes_array_t` allocated on the heap.
-  func allocateProtoBytesArray(
-    size: Int,
-    populate: (UnsafeMutableRawBufferPointer) -> Void
-  ) -> UnsafeMutablePointer<pb_bytes_array_t>? {
+  func allocateProtoBytesArray(size: Int,
+                               populate: (UnsafeMutableRawBufferPointer) -> Void)
+    -> UnsafeMutablePointer<pb_bytes_array_t>? {
     guard size > 0 else { return nil }
 
     let allocationSize = MemoryLayout<pb_size_t>.size + size
@@ -91,7 +92,8 @@ extension UnsafeMemoryOperations where Base == NanopbHelper {
   /// Allocates and initializes a C `pb_bytes_array_t` from a Swift String.
   /// Allocated memory should be released with `pb_free` or `pb_release` later.
   /// - Parameter string: The Swift string to convert.
-  /// - Returns: A pointer to the allocated C structure containing the UTF-8 representation of the string,
+  /// - Returns: A pointer to the allocated C structure containing the UTF-8 representation of the
+  /// string,
   ///            suitable for direct assignment to nanopb fields.
   func allocateProtoString(_ string: String) -> UnsafeMutablePointer<
     pb_bytes_array_t
@@ -113,7 +115,8 @@ extension UnsafeMemoryOperations where Base == NanopbHelper {
           }
 
           buffer.storeBytes(of: UInt8(0), toByteOffset: length, as: UInt8.self)
-        })
+        }
+      )
     else {
       LoggingHelper.logger.error("Failed to allocate proto string")
       return nil
@@ -127,12 +130,12 @@ extension UnsafeMemoryOperations where Base == NanopbHelper {
     return bytesArrayPointer
   }
 
-  /// Serializes an `ExportTraceServiceRequest` to binary `Data` and automatically releases all heap memory.
+  /// Serializes an `ExportTraceServiceRequest` to binary `Data` and automatically releases all heap
+  /// memory.
   /// - Parameter request: The nanopb request to serialize and deallocate.
   /// - Returns: The serialized binary Protobuf payload, or `nil` if serialization fails.
-  func serializeAndRelease(
-    _ request: inout opentelemetry_proto_collector_trace_v1_ExportTraceServiceRequest
-  ) -> Data? {
+  func serializeAndRelease(_ request: inout opentelemetry_proto_collector_trace_v1_ExportTraceServiceRequest)
+    -> Data? {
     return withUnsafePointer(
       to: opentelemetry_proto_collector_trace_v1_ExportTraceServiceRequest_fields
     ) { fieldsTuplePointer in
@@ -144,7 +147,7 @@ extension UnsafeMemoryOperations where Base == NanopbHelper {
         pb_release(fields, &request)
       }
 
-      var size: Int = 0
+      var size = 0
 
       // Dummy stream to calculate the size.
       var sizeStream = pb_ostream_t()
