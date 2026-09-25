@@ -183,6 +183,24 @@ public class Pipeline: @unchecked Sendable {
     return Pipeline(stages: stages + [addFieldsStage], db: db)
   }
 
+  /// Adds window function results to the output documents of the pipeline.
+  ///
+  /// - Parameters:
+  ///   - window: The window specification defining partition, sort, and frames. Defaults to an
+  ///     empty global window covering the entire result set.
+  ///   - fields: An array of at least one `AliasedAggregate` representing calculations.
+  ///   - options: Optional dictionary of named, `Sendable` raw parameters for the stage.
+  /// - Returns: A new `Pipeline` object with this stage appended.
+  public func addWindowFields(
+    window: WindowSpec = WindowSpec(),
+    fields: [AliasedAggregate],
+    options: [String: Sendable]? = nil
+  ) -> Pipeline {
+    let addWindowFieldsStage = AddWindowFields(window: window, fields: fields, options: options)
+    return Pipeline(stages: stages + [addWindowFieldsStage], db: db)
+  }
+
+
   /// Removes fields from outputs of previous stages.
   ///
   /// ```swift

@@ -63,15 +63,29 @@ NS_SWIFT_NAME(__FunctionExprBridge)
 @end
 
 NS_SWIFT_SENDABLE
-NS_SWIFT_NAME(__AggregateFunctionBridge)
-@interface __FIRAggregateFunctionBridge : NSObject
-- (id)initWithName:(NSString *)name Args:(NSArray<__FIRExprBridge *> *)args;
-@end
-
-NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(__OrderingBridge)
 @interface __FIROrderingBridge : NSObject
 - (id)initWithExpr:(__FIRExprBridge *)expr Direction:(NSString *)direction;
+@end
+
+NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(__WindowSpecBridge)
+@interface __FIRWindowSpecBridge : NSObject
+- (id)initWithGroups:(NSArray<__FIRExprBridge *> *)groups
+                sort:(NSArray<__FIROrderingBridge *> *_Nullable)sort
+           preceding:(id _Nullable)preceding
+           following:(id _Nullable)following
+                type:(NSString *_Nullable)type
+                unit:(id _Nullable)unit;
+@end
+
+NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(__AggregateFunctionBridge)
+@interface __FIRAggregateFunctionBridge : NSObject
+- (id)initWithName:(NSString *)name Args:(NSArray<__FIRExprBridge *> *)args;
+- (id)initWithName:(NSString *)name
+              Args:(NSArray<__FIRExprBridge *> *)args
+            Window:(__FIRWindowSpecBridge *_Nullable)window;
 @end
 
 NS_SWIFT_SENDABLE
@@ -142,6 +156,14 @@ NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(__AddFieldsStageBridge)
 @interface __FIRAddFieldsStageBridge : __FIRStageBridge
 - (id)initWithFields:(NSDictionary<NSString *, __FIRExprBridge *> *)fields;
+@end
+
+NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(__AddWindowFieldsStageBridge)
+@interface __FIRAddWindowFieldsStageBridge : __FIRStageBridge
+- (id)initWithWindow:(__FIRWindowSpecBridge *)window
+              fields:(NSDictionary<NSString *, __FIRAggregateFunctionBridge *> *)fields
+             options:(NSDictionary<NSString *, __FIRExprBridge *> *_Nullable)options;
 @end
 
 NS_SWIFT_SENDABLE

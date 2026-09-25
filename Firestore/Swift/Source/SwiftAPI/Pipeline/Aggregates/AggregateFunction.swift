@@ -22,6 +22,7 @@ public class AggregateFunction: AggregateBridgeWrapper, @unchecked Sendable {
 
   let functionName: String
   let args: [Expression]
+  let window: WindowSpec?
 
   /// The error message associated with this aggregate function or its arguments, if any.
   var errorMessage: String? {
@@ -37,11 +38,32 @@ public class AggregateFunction: AggregateBridgeWrapper, @unchecked Sendable {
   public init(functionName: String, args: [Expression]) {
     self.functionName = functionName
     self.args = args
+    window = nil
     bridge = __AggregateFunctionBridge(
       name: functionName,
-      args: self.args.map { $0.toBridge()
-      }
+      args: self.args.map { $0.toBridge() },
+      window: nil
     )
+  }
+
+  init(functionName: String, args: [Expression], window: WindowSpec?) {
+    self.functionName = functionName
+    self.args = args
+    self.window = window
+    bridge = __AggregateFunctionBridge(
+      name: functionName,
+      args: self.args.map { $0.toBridge() },
+      window: window?.toBridge()
+    )
+  }
+
+  /// Applies a window frame to this aggregate, evaluating it over the specified window frame
+  /// independent of the frame declared on the enclosing `addWindowFields` stage.
+  ///
+  /// - Parameter window: The window specification to evaluate this aggregate over.
+  /// - Returns: A new `AggregateFunction` with the given window framing.
+  public func over(_ window: WindowSpec) -> AggregateFunction {
+    return AggregateFunction(functionName: functionName, args: args, window: window)
   }
 
   /// Creates an `AliasedAggregate` from this aggregate function.
