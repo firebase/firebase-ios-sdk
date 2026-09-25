@@ -6233,6 +6233,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testWindowFieldsComputesCountIfAndCountDistinct() async throws {
+    throw XCTSkip("Pending backend support for count_if and count_distinct in add_window_fields")
     let collRef = collectionRef(withDocuments: Self.windowTestDocs)
     let snapshot = try await collRef.firestore.pipeline()
       .collection(collRef.path)
@@ -6328,6 +6329,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testWindowFieldsComputesArrayAggDistinct() async throws {
+    throw XCTSkip("Pending backend support for array_agg_distinct in add_window_fields")
     let collRef = collectionRef(withDocuments: Self.windowTestDocs)
     let snapshot = try await collRef.firestore.pipeline()
       .collection(collRef.path)
