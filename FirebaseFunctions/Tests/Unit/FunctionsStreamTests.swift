@@ -254,7 +254,7 @@ import XCTest
           httpVersion: nil,
           headerFields: ["Content-Type": "text/event-stream"]
         )!
-        return (response, URL(fileURLWithPath: tempURL.path).lines)
+        return (response, tempURL.lines)
       }
     }
   }
