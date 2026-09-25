@@ -19,17 +19,17 @@ import OpenTelemetryApi
 ///
 /// Listens for view appear and disappear notifications on a background thread. Processes
 /// the notifications in order to track and report the currently active screen.
-internal final actor ViewInstrumentation {
+final actor ViewInstrumentation {
   private var logger: Logger
   private var viewStack: [CrashlyticsView] = []
-  private var lastReportedView: CrashlyticsView? = nil
-  private var reportingTask: Task<Void, Never>? = nil
-  
+  private var lastReportedView: CrashlyticsView?
+  private var reportingTask: Task<Void, Never>?
+
   public init(logger: Logger) {
     self.logger = logger
-    self.configure()
+    configure()
   }
-  
+
   /// Returns the currently active view, defaults to unknown if the view stack is empty.
   public var activeView: CrashlyticsView {
     if let view = viewStack.last {
@@ -49,10 +49,10 @@ internal final actor ViewInstrumentation {
       let stream = NotificationCenter.default.notifications(named: .viewTrackingEvent)
       for await notification in stream {
         guard let id = notification.userInfo?["id"] as? UUID,
-          let screenName = notification.userInfo?["screenName"] as? String,
-          let type = notification.userInfo?["type"] as? ViewEventType
+              let screenName = notification.userInfo?["screenName"] as? String,
+              let type = notification.userInfo?["type"] as? ViewEventType
         else { continue }
-        
+
         await handleViewEvent(
           view: CrashlyticsView(id: id, name: screenName),
           type: type
@@ -75,7 +75,7 @@ internal final actor ViewInstrumentation {
         viewStack.append(view)
       }
       scheduleReporting()
-      
+
     case .disappear:
       if let index = viewStack.lastIndex(of: view) {
         viewStack.remove(at: index)
@@ -91,7 +91,7 @@ internal final actor ViewInstrumentation {
       do {
         try await Task.sleep(nanoseconds: 50_000_000) // 50ms
         guard !Task.isCancelled else { return }
-        
+
         let view = activeView
         if view != lastReportedView {
           reportActiveView(view)
@@ -107,9 +107,9 @@ internal final actor ViewInstrumentation {
   private func reportActiveView(_ view: CrashlyticsView) {
     let attributes: [String: AttributeValue] = [
       SemanticConventions.App.screenName.rawValue: AttributeValue(view.name),
-      SemanticConventions.App.navigationDestination: AttributeValue(view.name)
+      SemanticConventions.App.navigationDestination: AttributeValue(view.name),
     ]
-    
+
     logger
       .logRecordBuilder()
       .setEventName(SemanticConventions.App.navigationEvent)

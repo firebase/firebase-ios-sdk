@@ -35,11 +35,9 @@ struct TestViewEvent: Sendable, Equatable {
 
 /// Listens to `NotificationCenter.default` and collects the first matching viewTrackingEvent.
 @MainActor
-func waitForViewEvent(
-  matching predicate: @escaping @Sendable (TestViewEvent) -> Bool,
-  timeout: TimeInterval = 2.0,
-  action: () -> Void
-) async throws -> TestViewEvent {
+func waitForViewEvent(matching predicate: @escaping @Sendable (TestViewEvent) -> Bool,
+                      timeout: TimeInterval = 2.0,
+                      action: () -> Void) async throws -> TestViewEvent {
   let notifications = NotificationCenter.default.notifications(named: .viewTrackingEvent)
 
   return try await withThrowingTaskGroup(of: TestViewEvent.self) { group in

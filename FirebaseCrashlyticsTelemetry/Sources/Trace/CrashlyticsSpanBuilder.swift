@@ -32,11 +32,9 @@ class CrashlyticsSpanBuilder: SpanBuilder {
   /// - Parameters:
   ///   - spanBuilder: The underlying OpenTelemetry span builder.
   ///   - crashlyticsProcessor: The processor used to intercept and persist mutations.
-  init(
-    spanBuilder: SpanBuilder,
-    crashlyticsProcessor: CrashlyticsSpanProcessor
-  ) {
-    self.otelSpanBuilder = spanBuilder
+  init(spanBuilder: SpanBuilder,
+       crashlyticsProcessor: CrashlyticsSpanProcessor) {
+    otelSpanBuilder = spanBuilder
     self.crashlyticsProcessor = crashlyticsProcessor
   }
 
@@ -47,7 +45,7 @@ class CrashlyticsSpanBuilder: SpanBuilder {
   ///
   /// - Returns: A `CrashlyticsSpan` if the underlying span is readable; otherwise `Any Span`
   func startSpan() -> Span {
-    let realSpan = self.otelSpanBuilder
+    let realSpan = otelSpanBuilder
       // TODO: Remove this attribute. Currently added as a work around to a limitation in the
       // backend server.
       .setAttribute(key: "gcp.firebase.app_version", value: "1.0")
@@ -56,10 +54,10 @@ class CrashlyticsSpanBuilder: SpanBuilder {
     if let readableSpan = realSpan as? ReadableSpan {
       let crashlyticsSpan = CrashlyticsSpan(
         span: readableSpan,
-        crashlyticsProcessor: self.crashlyticsProcessor
+        crashlyticsProcessor: crashlyticsProcessor
       )
 
-      self.crashlyticsProcessor.onStart(parentContext: nil, span: crashlyticsSpan)
+      crashlyticsProcessor.onStart(parentContext: nil, span: crashlyticsSpan)
       return crashlyticsSpan
     }
 
@@ -74,11 +72,9 @@ class CrashlyticsSpanBuilder: SpanBuilder {
   ///   - key: The attribute key.
   ///   - value: The attribute value.
   /// - Returns: This builder instance, for chaining.
-  @discardableResult func setAttribute(
-    key: String,
-    value: OpenTelemetryApi.AttributeValue
-  ) -> Self {
-    _ = self.otelSpanBuilder.setAttribute(key: key, value: value)
+  @discardableResult func setAttribute(key: String,
+                                       value: OpenTelemetryApi.AttributeValue) -> Self {
+    _ = otelSpanBuilder.setAttribute(key: key, value: value)
     return self
   }
 
@@ -87,7 +83,7 @@ class CrashlyticsSpanBuilder: SpanBuilder {
   /// - Parameter active: A boolean indicating if the span should be active.
   /// - Returns: This builder instance, for chaining.
   @discardableResult func setActive(_ active: Bool) -> Self {
-    _ = self.otelSpanBuilder.setActive(active)
+    _ = otelSpanBuilder.setActive(active)
     return self
   }
 
@@ -96,7 +92,7 @@ class CrashlyticsSpanBuilder: SpanBuilder {
   /// - Parameter spanKind: The OpenTelemetry span kind.
   /// - Returns: This builder instance, for chaining.
   @discardableResult func setSpanKind(spanKind: OpenTelemetryApi.SpanKind) -> Self {
-    _ = self.otelSpanBuilder.setSpanKind(spanKind: spanKind)
+    _ = otelSpanBuilder.setSpanKind(spanKind: spanKind)
     return self
   }
 
@@ -105,7 +101,7 @@ class CrashlyticsSpanBuilder: SpanBuilder {
   /// - Parameter parent: The parent span.
   /// - Returns: This builder instance, for chaining.
   @discardableResult func setParent(_ parent: OpenTelemetryApi.Span) -> Self {
-    _ = self.otelSpanBuilder.setParent(parent)
+    _ = otelSpanBuilder.setParent(parent)
     return self
   }
 
@@ -114,7 +110,7 @@ class CrashlyticsSpanBuilder: SpanBuilder {
   /// - Parameter parent: The parent span context.
   /// - Returns: This builder instance, for chaining.
   @discardableResult func setParent(_ parent: OpenTelemetryApi.SpanContext) -> Self {
-    _ = self.otelSpanBuilder.setParent(parent)
+    _ = otelSpanBuilder.setParent(parent)
     return self
   }
 
@@ -122,7 +118,7 @@ class CrashlyticsSpanBuilder: SpanBuilder {
   ///
   /// - Returns: This builder instance, for chaining.
   @discardableResult func setNoParent() -> Self {
-    _ = self.otelSpanBuilder.setNoParent()
+    _ = otelSpanBuilder.setNoParent()
     return self
   }
 
@@ -131,7 +127,7 @@ class CrashlyticsSpanBuilder: SpanBuilder {
   /// - Parameter time: The explicit start time.
   /// - Returns: This builder instance, for chaining.
   @discardableResult func setStartTime(time: Date) -> Self {
-    _ = self.otelSpanBuilder.setStartTime(time: time)
+    _ = otelSpanBuilder.setStartTime(time: time)
     return self
   }
 
@@ -140,7 +136,7 @@ class CrashlyticsSpanBuilder: SpanBuilder {
   /// - Parameter spanContext: The context of the span to link.
   /// - Returns: This builder instance, for chaining.
   @discardableResult func addLink(spanContext: OpenTelemetryApi.SpanContext) -> Self {
-    _ = self.otelSpanBuilder.addLink(spanContext: spanContext)
+    _ = otelSpanBuilder.addLink(spanContext: spanContext)
     return self
   }
 
@@ -150,11 +146,9 @@ class CrashlyticsSpanBuilder: SpanBuilder {
   ///   - spanContext: The context of the span to link.
   ///   - attributes: The attributes associated with the link.
   /// - Returns: This builder instance, for chaining.
-  @discardableResult func addLink(
-    spanContext: OpenTelemetryApi.SpanContext,
-    attributes: [String: OpenTelemetryApi.AttributeValue]
-  ) -> Self {
-    _ = self.otelSpanBuilder.addLink(spanContext: spanContext, attributes: attributes)
+  @discardableResult func addLink(spanContext: OpenTelemetryApi.SpanContext,
+                                  attributes: [String: OpenTelemetryApi.AttributeValue]) -> Self {
+    _ = otelSpanBuilder.addLink(spanContext: spanContext, attributes: attributes)
     return self
   }
 
@@ -163,10 +157,9 @@ class CrashlyticsSpanBuilder: SpanBuilder {
   /// - Parameter operation: The closure to execute.
   /// - Throws: Any error thrown by the provided operation.
   /// - Returns: The result of the operation.
-  public func withActiveSpan<T>(
-    _ operation: (any OpenTelemetryApi.SpanBase) throws -> T
-  ) rethrows -> T {
-    return try self.otelSpanBuilder.withActiveSpan(operation)
+  public func withActiveSpan<T>(_ operation: (any OpenTelemetryApi.SpanBase) throws -> T) rethrows
+    -> T {
+    return try otelSpanBuilder.withActiveSpan(operation)
   }
 
   #if canImport(_Concurrency)
@@ -176,10 +169,9 @@ class CrashlyticsSpanBuilder: SpanBuilder {
     /// - Throws: Any error thrown by the provided operation.
     /// - Returns: The result of the operation.
     @available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
-    public func withActiveSpan<T>(
-      _ operation: @concurrent (any SpanBase) async throws -> T
-    ) async rethrows -> T {
-      let createdSpan = self.setActive(true).startSpan()
+    public func withActiveSpan<T>(_ operation: @concurrent (any SpanBase) async throws
+      -> T) async rethrows -> T {
+      let createdSpan = setActive(true).startSpan()
       defer {
         createdSpan.end()
       }

@@ -28,7 +28,7 @@ struct ViewTrackingModifier: ViewModifier {
           userInfo: [
             "screenName": screenName,
             "type": ViewEventType.appear,
-            "id": instanceID
+            "id": instanceID,
           ]
         )
       }
@@ -39,7 +39,7 @@ struct ViewTrackingModifier: ViewModifier {
           userInfo: [
             "screenName": screenName,
             "type": ViewEventType.disappear,
-            "id": instanceID
+            "id": instanceID,
           ]
         )
       }

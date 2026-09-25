@@ -17,8 +17,10 @@ import OpenTelemetryApi
 
 /// A specialized wrapper around a tracer that injects Crashlytics persistence into the pipeline.
 ///
-/// `CrashlyticsTracer` intercepts the standard span creation process. By overriding the `spanBuilder`
-/// method, it ensures that all telemetry generated through this tracer is built using a `CrashlyticsSpanBuilder`.
+/// `CrashlyticsTracer` intercepts the standard span creation process. By overriding the
+/// `spanBuilder`
+/// method, it ensures that all telemetry generated through this tracer is built using a
+/// `CrashlyticsSpanBuilder`.
 class CrashlyticsTracer: Tracer {
   /// The underlying tracer providing core functionality.
   private let otelTracer: Tracer
@@ -30,11 +32,9 @@ class CrashlyticsTracer: Tracer {
   /// - Parameters:
   ///   - tracer: The underlying OpenTelemetry tracer to wrap.
   ///   - crashlyticsProcessor: The processor used to intercept and persist span mutations.
-  init(
-    tracer: Tracer,
-    crashlyticsProcessor: CrashlyticsSpanProcessor
-  ) {
-    self.otelTracer = tracer
+  init(tracer: Tracer,
+       crashlyticsProcessor: CrashlyticsSpanProcessor) {
+    otelTracer = tracer
     self.crashlyticsProcessor = crashlyticsProcessor
   }
 
@@ -46,10 +46,10 @@ class CrashlyticsTracer: Tracer {
   /// - Parameter spanName: The name of the span to be built.
   /// - Returns: A `CrashlyticsSpanBuilder` instance configured with the active processor.
   func spanBuilder(spanName: String) -> SpanBuilder {
-    let realBuilder = self.otelTracer.spanBuilder(spanName: spanName)
+    let realBuilder = otelTracer.spanBuilder(spanName: spanName)
     return CrashlyticsSpanBuilder(
       spanBuilder: realBuilder,
-      crashlyticsProcessor: self.crashlyticsProcessor
+      crashlyticsProcessor: crashlyticsProcessor
     )
   }
 }

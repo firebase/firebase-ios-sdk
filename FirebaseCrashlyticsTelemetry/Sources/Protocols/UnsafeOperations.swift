@@ -15,14 +15,15 @@
 /// A marker protocol used to opt types into exposing an explicit namespace for unsafe operations.
 ///
 /// Types conforming to this protocol automatically gain a static `.unsafe` property.
-internal protocol UnsafeOperations {}
+protocol UnsafeOperations {}
 
 extension UnsafeOperations {
   /// Exposes unsafe memory operations scoped specifically to this type.
   ///
   /// This property returns a zero-cost namespace wrapper allowing safe APIs to remain
-  /// separated from manually managed memory operations (e.g., `CommonAdapter.unsafe.toProtoAttribute(...)`).
-  internal static var unsafe: UnsafeMemoryOperations<Self> {
+  /// separated from manually managed memory operations (e.g.,
+  /// `CommonAdapter.unsafe.toProtoAttribute(...)`).
+  static var unsafe: UnsafeMemoryOperations<Self> {
     return UnsafeMemoryOperations<Self>()
   }
 }

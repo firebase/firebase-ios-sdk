@@ -18,15 +18,14 @@ import OpenTelemetrySdk
 
 /// Centralized utility factory to generate mock OpenTelemetry trace data and spans for testing.
 public enum MockTrace {
-
   // Create an in-memory, thread-safe Tracer instance using the SDK's TracerProvider.
-  nonisolated(unsafe) private static let tracerProvider: TracerProviderSdk = {
-    return TracerProviderBuilder().build()
-  }()
+  private nonisolated(unsafe) static let tracerProvider: TracerProviderSdk = TracerProviderBuilder()
+    .build()
 
-  nonisolated(unsafe) private static let tracer: Tracer = {
-    return tracerProvider.get(instrumentationName: "MockTraceTests", instrumentationVersion: nil)
-  }()
+  private nonisolated(unsafe) static let tracer: Tracer = tracerProvider.get(
+    instrumentationName: "MockTraceTests",
+    instrumentationVersion: nil
+  )
 
   // MARK: - ID Generators
 
@@ -68,17 +67,15 @@ public enum MockTrace {
   // MARK: - Custom Span Builder
 
   /// Creates a customizable mock `SpanData` instance using the actual SDK tracer.
-  public static func mockSpan(
-    name: String = "mock_operation",
-    parentContext: SpanContext? = nil,
-    kind: SpanKind = .internal,
-    startTime: Date = Date(),
-    duration: TimeInterval = 1.0,
-    attributes: [String: AttributeValue] = [:],
-    events: [MockEvent] = [],
-    links: [MockLink] = [],
-    status: Status = .ok
-  ) -> SpanData {
+  public static func mockSpan(name: String = "mock_operation",
+                              parentContext: SpanContext? = nil,
+                              kind: SpanKind = .internal,
+                              startTime: Date = Date(),
+                              duration: TimeInterval = 1.0,
+                              attributes: [String: AttributeValue] = [:],
+                              events: [MockEvent] = [],
+                              links: [MockLink] = [],
+                              status: Status = .ok) -> SpanData {
     var builder = tracer.spanBuilder(spanName: name)
       .setSpanKind(spanKind: kind)
       .setStartTime(time: startTime)
@@ -108,7 +105,8 @@ public enum MockTrace {
 
     guard let readableSpan = span as? ReadableSpan else {
       fatalError(
-        "Failed to cast Span to ReadableSpan in tests. Verify that OpenTelemetrySdk is linked.")
+        "Failed to cast Span to ReadableSpan in tests. Verify that OpenTelemetrySdk is linked."
+      )
     }
 
     return readableSpan.toSpanData()
@@ -155,9 +153,8 @@ public enum MockTrace {
   }
 
   /// Generates a mock span that simulates a failed process.
-  public static func mockErrorSpan(
-    errorMessage: String = "Internal Server Error (500)"
-  ) -> SpanData {
+  public static func mockErrorSpan(errorMessage: String = "Internal Server Error (500)")
+    -> SpanData {
     let timestamp = Date()
 
     let errorEvent = MockEvent(

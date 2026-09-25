@@ -15,7 +15,7 @@
 import Foundation
 
 /// Represents a View modified to be tracked by Crashlytics.
-internal struct CrashlyticsView: Equatable {
+struct CrashlyticsView: Equatable {
   /// A unique identifier for the instance of the View
   let id: UUID
   /// An identifier of the View for human readability

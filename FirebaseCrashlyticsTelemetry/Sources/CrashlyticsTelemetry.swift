@@ -23,18 +23,18 @@ import URLSessionInstrumentation
 public final class CrashlyticsTelemetry: @unchecked Sendable {
   public static let shared = CrashlyticsTelemetry()
 
-  internal let tracerProvider: TracerProvider
-  internal let loggerProvider: LoggerProvider
-  internal let tracer: Tracer
-  internal let logger: Logger
+  let tracerProvider: TracerProvider
+  let loggerProvider: LoggerProvider
+  let tracer: Tracer
+  let logger: Logger
 
-  internal var recoveryManager: RecoveredTelemetryExporter?
+  var recoveryManager: RecoveredTelemetryExporter?
 
   private let lock = NSRecursiveLock()
   private var activeSpans = [any Span]()
 
-  private var urlInstrumentation: URLSessionInstrumentation? = nil
-  private var viewInstrumentation: ViewInstrumentation? = nil
+  private var urlInstrumentation: URLSessionInstrumentation?
+  private var viewInstrumentation: ViewInstrumentation?
 
   private let scopeName = "Firebase Crashlytics Telemetry"
   private let scopeVersion = "semver:0.1.0"
@@ -65,26 +65,28 @@ public final class CrashlyticsTelemetry: @unchecked Sendable {
     }
 
     let providers = Self.createProviders(resource: resource)
-    self.tracerProvider = providers.0
-    self.loggerProvider = providers.1
+    tracerProvider = providers.0
+    loggerProvider = providers.1
 
-    self.tracer = self.tracerProvider.get(
-      instrumentationName: scopeName, instrumentationVersion: scopeVersion)
-    self.logger = self.loggerProvider.get(instrumentationScopeName: scopeName)
+    tracer = tracerProvider.get(
+      instrumentationName: scopeName, instrumentationVersion: scopeVersion
+    )
+    logger = loggerProvider.get(instrumentationScopeName: scopeName)
   }
 
   // MARK: - Public API
+
   // TODO: Remove the public API methods below.
 
   public func configure() {
     lock.lock()
     defer { lock.unlock() }
 
-    if self.urlInstrumentation == nil {
-      self.setupNetworkAutoInstrumentation()
+    if urlInstrumentation == nil {
+      setupNetworkAutoInstrumentation()
     }
 
-    self.viewInstrumentation = ViewInstrumentation(logger: self.logger)
+    viewInstrumentation = ViewInstrumentation(logger: logger)
   }
 
   @discardableResult
@@ -95,7 +97,8 @@ public final class CrashlyticsTelemetry: @unchecked Sendable {
     let span = tracer.spanBuilder(spanName: "test-span \(activeSpans.count + 1)")
     span.setSpanKind(spanKind: .client)
     span.setAttribute(
-      key: mutableCustomAttributeKey, value: "value: \(mutableCustomAttributeValue)")
+      key: mutableCustomAttributeKey, value: "value: \(mutableCustomAttributeValue)"
+    )
 
     if let lastSpan = activeSpans.last {
       span.setParent(lastSpan)
@@ -116,7 +119,8 @@ public final class CrashlyticsTelemetry: @unchecked Sendable {
     for span in activeSpans {
       span.setAttribute(
         key: mutableCustomAttributeKey,
-        value: AttributeValue("value: \(mutableCustomAttributeValue)"))
+        value: AttributeValue("value: \(mutableCustomAttributeValue)")
+      )
     }
 
     return mutableCustomAttributeValue
@@ -181,11 +185,11 @@ public final class CrashlyticsTelemetry: @unchecked Sendable {
   // MARK: - Network Instrumentation
 
   private func setupNetworkAutoInstrumentation() {
-    self.urlInstrumentation = URLSessionInstrumentation(
+    urlInstrumentation = URLSessionInstrumentation(
       configuration: URLSessionInstrumentationConfiguration(
         shouldInstrument: filterNetworkRequests,
         spanCustomization: customizeNetworkSpan,
-        tracer: self.tracer,
+        tracer: tracer,
         semanticConvention: .stable
       )
     )

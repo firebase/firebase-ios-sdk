@@ -32,11 +32,13 @@ typedef NS_CLOSED_ENUM(NSInteger, PersistenceBufferSize) {
 ///
 /// @param filePath The absolute file path to the mmap buffer file.
 /// @param bufferSize The allocated size tier for the mmap buffer.
-/// @param outRecoveredSpans Populated with recovered spans if found, even if the active buffer fails to initialize.
+/// @param outRecoveredSpans Populated with recovered spans if found, even if the active buffer
+/// fails to initialize.
 /// @return An active buffer instance, or nil if the live mutable buffer could not be established.
 + (nullable instancetype)initializeWithFilePath:(NSString *)filePath
                                      bufferSize:(PersistenceBufferSize)bufferSize
-                                 recoveredSpans:(NSArray<PersistenceSpan *> * _Nullable * _Nonnull)outRecoveredSpans;
+                                 recoveredSpans:(NSArray<PersistenceSpan *> *_Nullable *_Nonnull)
+                                                    outRecoveredSpans;
 
 - (void)addSpan:(PersistenceSpan *)span;
 - (void)setAttribute:(NSString *)value forKey:(NSString *)key onSpanId:(uint64_t)spanId;

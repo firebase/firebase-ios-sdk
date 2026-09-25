@@ -18,7 +18,7 @@ import OpenTelemetrySdk
 import PersistenceWrapper
 
 /// A thread-safe interface for the native persistence layer.
-internal actor PersistenceManager {
+actor PersistenceManager {
   private let persistenceFile = "crashlytics_persistence.clsrecord"
 
   private var persistenceBuffer: PersistenceBuffer?
@@ -40,12 +40,12 @@ internal actor PersistenceManager {
   /// Initializes the manager and its underlying file handlers.
   ///
   /// - Parameter cacheDirectory: `URL` to the cache directory where the telemtry should be stored.
-  internal init(cacheDirectory dir: URL) {
+  init(cacheDirectory dir: URL) {
     ThreadHelper.isNotMainThread()
 
     let bufferFileURL = dir.appendingPathComponent(persistenceFile)
 
-    var recoveredSpansList: NSArray? = nil
+    var recoveredSpansList: NSArray?
     let buffer = PersistenceWrapperFactory.initialize(
       filePath: bufferFileURL.path,
       bufferSize: .small,
@@ -57,11 +57,10 @@ internal actor PersistenceManager {
     }
 
     if let activeBuffer = buffer {
-      self.persistenceBuffer = activeBuffer
+      persistenceBuffer = activeBuffer
     } else {
       LoggingHelper.logger.error("Failed to initialize PersistenceBuffer at \(bufferFileURL.path)")
     }
-
   }
 
   // MARK: - SpanProcessor
@@ -70,7 +69,7 @@ internal actor PersistenceManager {
   ///
   /// - Parameter span: The active span data.
   public func onSpanStart(span: SpanData) {
-    self.persistenceBuffer?.add(SpanAdapter.toPersistedSpan(spanData: span))
+    persistenceBuffer?.add(SpanAdapter.toPersistedSpan(spanData: span))
   }
 
   /// Updates the attributes for a span that has been persisted to disk.
@@ -81,7 +80,7 @@ internal actor PersistenceManager {
   ///   - value: The value for the attribute.
   public func onSpanAddAttribute(spanId: UInt64, key: String, value: String?) {
     if let value {
-      self.persistenceBuffer?.setAttribute(value, forKey: key, onSpanId: spanId)
+      persistenceBuffer?.setAttribute(value, forKey: key, onSpanId: spanId)
     }
   }
 
@@ -89,17 +88,17 @@ internal actor PersistenceManager {
   ///
   /// - Parameter spanId: The ID of the span.
   public func onSpanEnd(spanId: UInt64, endTime: UInt64) {
-    self.persistenceBuffer?.endSpanId(spanId, endTime: endTime)
+    persistenceBuffer?.endSpanId(spanId, endTime: endTime)
   }
 
   // MARK: - Upload Helper
 
   private static func uploadRecoveredSpans(spans: [PersistenceSpan]) {
     var recoveredSpans = [RecoveredSpan]()
-    spans.forEach({ span in
+    for span in spans {
       recoveredSpans.append(SpanAdapter.toRecoveredSpan(spanData: span))
-    })
-    
+    }
+
     Task {
       await CrashlyticsTelemetry.shared.recoveryManager?.uploadRecoveredSpans(spans: recoveredSpans)
     }

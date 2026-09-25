@@ -12,17 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import OpenTelemetryApi
-import OpenTelemetrySdk
-import OpentelemetryProtos
-import XCTest
 import nanopb
+import OpenTelemetryApi
+import OpentelemetryProtos
+import OpenTelemetrySdk
 import PersistenceWrapper
+import XCTest
 
 @testable import FirebaseCrashlyticsTelemetry
 
 final class CrashlyticsSpanAdapterTests: XCTestCase {
-
   // MARK: - Memory Deallocation Helpers
 
   private func releaseProtoSpan(_ span: inout opentelemetry_proto_trace_v1_Span) {
@@ -32,9 +31,7 @@ final class CrashlyticsSpanAdapterTests: XCTestCase {
     }
   }
 
-  private func releaseExportRequest(
-    _ request: inout opentelemetry_proto_collector_trace_v1_ExportTraceServiceRequest
-  ) {
+  private func releaseExportRequest(_ request: inout opentelemetry_proto_collector_trace_v1_ExportTraceServiceRequest) {
     withUnsafePointer(to: opentelemetry_proto_collector_trace_v1_ExportTraceServiceRequest_fields) {
       fieldsTuplePointer in
       let fields = UnsafeRawPointer(fieldsTuplePointer).assumingMemoryBound(to: pb_field_t.self)
@@ -62,7 +59,7 @@ final class CrashlyticsSpanAdapterTests: XCTestCase {
       duration: 2.5,
       attributes: [
         "sdk_layer": .string("swift"),
-        "network_calls": .int(1)
+        "network_calls": .int(1),
       ]
     )
 
@@ -93,7 +90,7 @@ final class CrashlyticsSpanAdapterTests: XCTestCase {
       name: "recovered_operation",
       attributes: [
         "device_model": "iPhone15,3",
-        "app_version": "1.2.3"
+        "app_version": "1.2.3",
       ]
     )
 
@@ -124,9 +121,13 @@ final class CrashlyticsSpanAdapterTests: XCTestCase {
     XCTAssertNotNil(protoSpan.span_id)
     XCTAssertEqual(stringFromProtoBytes(protoSpan.name), "fetch_network_configuration")
     XCTAssertEqual(
-      protoSpan.start_time_unix_nano, UInt64(recoveredSpan.startTime.timeIntervalSince1970 * 1_000_000_000))
+      protoSpan.start_time_unix_nano,
+      UInt64(recoveredSpan.startTime.timeIntervalSince1970 * 1_000_000_000)
+    )
     XCTAssertEqual(
-      protoSpan.end_time_unix_nano, UInt64(recoveredSpan.endTime!.timeIntervalSince1970 * 1_000_000_000))
+      protoSpan.end_time_unix_nano,
+      UInt64(recoveredSpan.endTime!.timeIntervalSince1970 * 1_000_000_000)
+    )
 
     releaseProtoSpan(&protoSpan)
 
@@ -151,7 +152,7 @@ final class CrashlyticsSpanAdapterTests: XCTestCase {
     )
 
     let resource = Resource(attributes: [
-      "service.name": .string("CrashlyticsOTelDaemon")
+      "service.name": .string("CrashlyticsOTelDaemon"),
     ])
 
     var request = SpanAdapter.unsafe.toProtoTraceExportRequest(
@@ -165,7 +166,8 @@ final class CrashlyticsSpanAdapterTests: XCTestCase {
 
     if let resourceSpans = request.resource_spans {
       XCTAssertEqual(
-        stringFromProtoBytes(resourceSpans[0].resource.attributes?[0].key), "service.name")
+        stringFromProtoBytes(resourceSpans[0].resource.attributes?[0].key), "service.name"
+      )
       XCTAssertEqual(resourceSpans[0].scope_spans_count, 1)
 
       if let scopeSpans = resourceSpans[0].scope_spans {
@@ -175,7 +177,10 @@ final class CrashlyticsSpanAdapterTests: XCTestCase {
 
         if let spans = scopeSpans[0].spans {
           XCTAssertEqual(stringFromProtoBytes(spans[0].name), "database_query_users")
-          XCTAssertEqual(spans[0].start_time_unix_nano, UInt64(span.startTime.timeIntervalSince1970 * 1_000_000_000))
+          XCTAssertEqual(
+            spans[0].start_time_unix_nano,
+            UInt64(span.startTime.timeIntervalSince1970 * 1_000_000_000)
+          )
         }
       }
     }

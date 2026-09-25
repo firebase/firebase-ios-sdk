@@ -32,18 +32,17 @@ class CrashlyticsTracerProvider: TracerProvider {
   /// - Parameters:
   ///   - tracerProvider: The underlying OpenTelemetry tracer provider to wrap.
   ///   - crashlyticsProcessor: The processor used to intercept and persist span mutations.
-  init(
-    tracerProvider: TracerProvider,
-    crashlyticsProcessor: CrashlyticsSpanProcessor
-  ) {
-    self.otelTracerProvider = tracerProvider
+  init(tracerProvider: TracerProvider,
+       crashlyticsProcessor: CrashlyticsSpanProcessor) {
+    otelTracerProvider = tracerProvider
     self.crashlyticsProcessor = crashlyticsProcessor
   }
 
   /// Retrieves a tracer configured with Crashlytics persistence tracking.
   ///
   /// This method retrieves a standard tracer from the underlying provider and wraps it in a
-  /// `CrashlyticsTracer`, ensuring the persistence processor is successfully passed down the pipeline.
+  /// `CrashlyticsTracer`, ensuring the persistence processor is successfully passed down the
+  /// pipeline.
   ///
   /// - Parameters:
   ///   - instrumentationName: The name of the instrumentation library requesting the tracer.
@@ -51,21 +50,20 @@ class CrashlyticsTracerProvider: TracerProvider {
   ///   - schemaUrl: The schema URL associated with the telemetry data, if available.
   ///   - attributes: The default attributes to associate with the tracer.
   /// - Returns: A `CrashlyticsTracer` instance configured with the active processor.
-  func get(
-    instrumentationName: String,
-    instrumentationVersion: String?,
-    schemaUrl: String?,
-    attributes: [String: AttributeValue]?
-  ) -> Tracer {
-    let tracer = self.otelTracerProvider.get(
+  func get(instrumentationName: String,
+           instrumentationVersion: String?,
+           schemaUrl: String?,
+           attributes: [String: AttributeValue]?) -> Tracer {
+    let tracer = otelTracerProvider.get(
       instrumentationName: instrumentationName,
       instrumentationVersion: instrumentationVersion,
       schemaUrl: schemaUrl,
-      attributes: attributes)
+      attributes: attributes
+    )
 
     return CrashlyticsTracer(
       tracer: tracer,
-      crashlyticsProcessor: self.crashlyticsProcessor
+      crashlyticsProcessor: crashlyticsProcessor
     )
   }
 }

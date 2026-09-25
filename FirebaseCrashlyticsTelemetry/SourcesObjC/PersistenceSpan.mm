@@ -74,15 +74,8 @@ namespace ftp = firebase::telemetry::persistence;
 
   ftp::TraceId cppTraceId = {.high = self.traceIdHi, .low = self.traceIdLo};
 
-  return ftp::Span(
-    cppTraceId,
-    self.spanId,
-    self.parentSpanId,
-    self.startTimeNano,
-    self.endTimeNano,
-    std::string(self.name.UTF8String ?: ""),
-    cppAttributes
-  );
+  return ftp::Span(cppTraceId, self.spanId, self.parentSpanId, self.startTimeNano, self.endTimeNano,
+                   std::string(self.name.UTF8String ?: ""), cppAttributes);
 }
 
 @end

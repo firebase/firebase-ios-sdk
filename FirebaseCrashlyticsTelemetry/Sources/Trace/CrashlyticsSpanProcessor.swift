@@ -29,7 +29,8 @@ class CrashlyticsSpanProcessor: SpanProcessor {
 
   /// Called when a span begins its lifecycle.
   ///
-  /// This method converts a custom `CrashlyticsSpan` to standard span data and asynchronously writes
+  /// This method converts a custom `CrashlyticsSpan` to standard span data and asynchronously
+  /// writes
   /// it to the persistence layer.
   ///
   /// - Parameters:
@@ -47,7 +48,8 @@ class CrashlyticsSpanProcessor: SpanProcessor {
 
   /// Synchronizes a newly added attribute with the active persistence buffer.
   ///
-  /// This is a custom Crashlytics hook called by the `CrashlyticsSpan` wrapper to ensure intermediate
+  /// This is a custom Crashlytics hook called by the `CrashlyticsSpan` wrapper to ensure
+  /// intermediate
   /// span mutations are safely persisted to disk before a potential crash.
   ///
   /// This is inspired by the proposal to add mutation hooks to span processors:
@@ -60,18 +62,21 @@ class CrashlyticsSpanProcessor: SpanProcessor {
   func onAddAttribute(span: ReadableSpan, key: String, value: AttributeValue?) {
     Task {
       await PersistenceManager.shared?.onSpanAddAttribute(
-        spanId: span.context.spanId.rawValue, key: key, value: value?.description)
+        spanId: span.context.spanId.rawValue, key: key, value: value?.description
+      )
     }
   }
 
   /// Called when a span completes its lifecycle.
   ///
-  /// This method exports the finalized span data. If the export succeeds, it asynchronously instructs
+  /// This method exports the finalized span data. If the export succeeds, it asynchronously
+  /// instructs
   /// the persistence layer to free the span's allocated memory slot in the in-flight disk buffer.
   ///
   /// - Parameter span: The completed readable span.
   func onEnd(span: ReadableSpan) {
-    let timestampNanoseconds = UInt64(span.toSpanData().endTime.timeIntervalSince1970 * 1_000_000_000)
+    let timestampNanoseconds = UInt64(span.toSpanData().endTime
+      .timeIntervalSince1970 * 1_000_000_000)
 
     Task {
       await PersistenceManager.shared?.onSpanEnd(

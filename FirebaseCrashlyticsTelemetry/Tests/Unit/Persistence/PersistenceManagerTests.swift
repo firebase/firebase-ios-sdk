@@ -21,7 +21,6 @@ import XCTest
 @testable import FirebaseCrashlyticsTelemetry
 
 final class PersistenceManagerTests: XCTestCase {
-
   private var mockBuffer: MockPersistenceBuffer!
   private var mockRecoveryManager: MockRecoveryManager!
   private var tempDirectoryURL: URL!
@@ -56,16 +55,17 @@ final class PersistenceManagerTests: XCTestCase {
 
   // MARK: - Test Helpers
 
-  private func makeSamplePersistenceSpan(
-    name: String = "test_recovered_span",
-    traceIdHi: UInt64 = 0x1111_2222_3333_4444,
-    traceIdLo: UInt64 = 0x5555_6666_7777_8888,
-    spanId: UInt64 = 0x9999_AAAA_BBBB_CCCC,
-    parentSpanId: UInt64 = 0x0000_1111_2222_3333,
-    startTimeNano: UInt64 = 1_000_000_000_000,
-    endTimeNano: UInt64 = 1_002_500_000_000,
-    attributes: [String: String] = ["crash.signal": "SIGSEGV", "app.version": "2.4.0"]
-  ) -> PersistenceSpan {
+  private func makeSamplePersistenceSpan(name: String = "test_recovered_span",
+                                         traceIdHi: UInt64 = 0x1111_2222_3333_4444,
+                                         traceIdLo: UInt64 = 0x5555_6666_7777_8888,
+                                         spanId: UInt64 = 0x9999_AAAA_BBBB_CCCC,
+                                         parentSpanId: UInt64 = 0x0000_1111_2222_3333,
+                                         startTimeNano: UInt64 = 1_000_000_000_000,
+                                         endTimeNano: UInt64 = 1_002_500_000_000,
+                                         attributes: [String: String] = [
+                                           "crash.signal": "SIGSEGV",
+                                           "app.version": "2.4.0",
+                                         ]) -> PersistenceSpan {
     return PersistenceSpan(
       traceIdHi: traceIdHi,
       traceIdLo: traceIdLo,
@@ -86,7 +86,8 @@ final class PersistenceManagerTests: XCTestCase {
 
     let manager = PersistenceManager(sessionDirectory: tempDirectoryURL)
 
-    let expectedFilePath = tempDirectoryURL.appendingPathComponent("crashlytics_persistence.clsrecord").path
+    let expectedFilePath = tempDirectoryURL
+      .appendingPathComponent("crashlytics_persistence.clsrecord").path
     XCTAssertEqual(PersistenceWrapperFactory.captureInitFilePath, expectedFilePath)
     XCTAssertEqual(PersistenceWrapperFactory.captureInitBufferSize, .small)
 
@@ -271,7 +272,7 @@ final class PersistenceManagerTests: XCTestCase {
       duration: 1.5,
       attributes: [
         "cart.total": .string("$99.99"),
-        "cart.items": .int(4)
+        "cart.items": .int(4),
       ]
     )
 
@@ -319,7 +320,7 @@ final class PersistenceManagerTests: XCTestCase {
     PersistenceWrapperFactory.mockBuffer = mockBuffer
     let manager = PersistenceManager(sessionDirectory: tempDirectoryURL)
 
-    let spanId: UInt64 = 0xFEEDBEEF
+    let spanId: UInt64 = 0xFEED_BEEF
     await manager.onSpanAddAttribute(spanId: spanId, key: "session.foreground", value: "true")
 
     XCTAssertEqual(mockBuffer.setAttributeCalls.count, 1)
@@ -332,7 +333,7 @@ final class PersistenceManagerTests: XCTestCase {
     PersistenceWrapperFactory.mockBuffer = mockBuffer
     let manager = PersistenceManager(sessionDirectory: tempDirectoryURL)
 
-    let spanId: UInt64 = 0xFEEDBEEF
+    let spanId: UInt64 = 0xFEED_BEEF
     await manager.onSpanAddAttribute(spanId: spanId, key: "empty_key", value: "")
 
     XCTAssertEqual(mockBuffer.setAttributeCalls.count, 1)
@@ -344,7 +345,7 @@ final class PersistenceManagerTests: XCTestCase {
     PersistenceWrapperFactory.mockBuffer = mockBuffer
     let manager = PersistenceManager(sessionDirectory: tempDirectoryURL)
 
-    await manager.onSpanAddAttribute(spanId: 0xFEEDBEEF, key: "session.foreground", value: nil)
+    await manager.onSpanAddAttribute(spanId: 0xFEED_BEEF, key: "session.foreground", value: nil)
 
     XCTAssertTrue(mockBuffer.setAttributeCalls.isEmpty)
   }
@@ -353,7 +354,7 @@ final class PersistenceManagerTests: XCTestCase {
     PersistenceWrapperFactory.mockBuffer = mockBuffer
     let manager = PersistenceManager(sessionDirectory: tempDirectoryURL)
 
-    let spanId: UInt64 = 0xCAFEBABE
+    let spanId: UInt64 = 0xCAFE_BABE
     await manager.onSpanEnd(spanId: spanId)
 
     XCTAssertEqual(mockBuffer.removedSpanIds.count, 1)
@@ -419,7 +420,7 @@ final class PersistenceManagerTests: XCTestCase {
     let operationCount = 100
 
     await withTaskGroup(of: Void.self) { group in
-      for i in 0..<operationCount {
+      for i in 0 ..< operationCount {
         let spanId = UInt64(i + 1)
         group.addTask {
           let span = MockTrace.mockSpan(name: "concurrent_span_\(spanId)")

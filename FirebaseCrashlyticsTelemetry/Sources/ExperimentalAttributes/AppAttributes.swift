@@ -14,26 +14,26 @@
 
 import OpenTelemetryApi
 
-extension SemanticConventions.App {
-    /**
-     This event represents a completed navigation to a destination of an application.
-     
-     - SeeAlso: [opentelemetry-android events.yaml](https://github.com/open-telemetry/opentelemetry-android/blob/main/semconv/model/android/events.yaml)
-     - Note: Stability level is `development`.
-     */
-    public static let navigationEvent = "app.navigation.complete"
+public extension SemanticConventions.App {
+  /**
+   This event represents a completed navigation to a destination of an application.
 
-    /**
-     The destination name of the navigation event.
-     
-     - Examples:
-     ```swift
-     attributes[SemanticConventions.App.navigationDestination] = "ProductDetailScreen"
-     attributes[SemanticConventions.App.navigationDestination] = "settings_route"
-     ```
-     - Requires: Value type should be `String`
-     - Note: Required attribute for the `app.navigation.complete` event.
-     - SeeAlso: [opentelemetry-android events.yaml](https://github.com/open-telemetry/opentelemetry-android/blob/main/semconv/model/android/events.yaml)
-     */
-    public static let navigationDestination = "app.navigation.destination.name"
+   - SeeAlso: [opentelemetry-android events.yaml](https://github.com/open-telemetry/opentelemetry-android/blob/main/semconv/model/android/events.yaml)
+   - Note: Stability level is `development`.
+   */
+  static let navigationEvent = "app.navigation.complete"
+
+  /**
+   The destination name of the navigation event.
+
+   - Examples:
+   ```swift
+   attributes[SemanticConventions.App.navigationDestination] = "ProductDetailScreen"
+   attributes[SemanticConventions.App.navigationDestination] = "settings_route"
+   ```
+   - Requires: Value type should be `String`
+   - Note: Required attribute for the `app.navigation.complete` event.
+   - SeeAlso: [opentelemetry-android events.yaml](https://github.com/open-telemetry/opentelemetry-android/blob/main/semconv/model/android/events.yaml)
+   */
+  static let navigationDestination = "app.navigation.destination.name"
 }

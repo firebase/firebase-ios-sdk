@@ -15,12 +15,12 @@
 import Foundation
 
 /// Denotes the different type of view events being tracked.
-internal enum ViewEventType: Sendable {
+enum ViewEventType: Sendable {
   case appear
   case disappear
 }
 
-internal extension Notification.Name {
+extension Notification.Name {
   /// Name for the internal view tracking event notification.
   static let viewTrackingEvent = Notification.Name("CrashlyticsViewEvent")
 }

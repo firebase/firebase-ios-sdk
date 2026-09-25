@@ -14,8 +14,8 @@
 
 import Foundation
 import OpenTelemetryApi
-import OpenTelemetrySdk
 import OpentelemetryProtos
+import OpenTelemetrySdk
 import PersistenceWrapper
 
 /// Adds Crashlytics-specific conversions to the OpenTelemetry span adapter.
@@ -23,7 +23,6 @@ import PersistenceWrapper
 /// This extension isolates custom data translations from the standard OpenTelemetry
 /// Protobuf pipeline, handling conversions for all Crashlytics-specific formats.
 extension SpanAdapter {
-
   /// Converts standard OpenTelemetry span data into an ObjC persisted span.
   ///
   /// - Parameter spanData: The Swift OpenTelemetry span to be converted.
@@ -57,7 +56,8 @@ extension SpanAdapter {
     let traceID = TraceId(idHi: spanData.traceIdHi, idLo: spanData.traceIdLo)
     let spanID = SpanId(id: spanData.spanId)
     let parentSpanID = spanData.parentSpanId == 0 ? nil : SpanId(id: spanData.parentSpanId)
-    let startTime = Date(timeIntervalSince1970: TimeInterval(spanData.startTimeNano) / 1_000_000_000)
+    let startTime =
+      Date(timeIntervalSince1970: TimeInterval(spanData.startTimeNano) / 1_000_000_000)
     let endTime = Date(timeIntervalSince1970: TimeInterval(spanData.endTimeNano) / 1_000_000_000)
 
     var swiftAttributes: [String: AttributeValue] = [:]
@@ -76,11 +76,9 @@ extension SpanAdapter {
     )
   }
 
-  nonisolated static func toTraceExportRequestPayload(
-    spans: [RecoveredSpan],
-    scope: InstrumentationScopeInfo?,
-    resource: Resource?
-  ) -> Data? {
+  nonisolated static func toTraceExportRequestPayload(spans: [RecoveredSpan],
+                                                      scope: InstrumentationScopeInfo?,
+                                                      resource: Resource?) -> Data? {
     var proto = unsafe.toProtoTraceExportRequest(
       spans: spans, scope: scope, resource: resource
     )
@@ -93,9 +91,7 @@ extension UnsafeMemoryOperations where Base == SpanAdapter {
   ///
   /// - Parameter spanData: The recovered span to be converted.
   /// - Returns: An OpenTelemetry span proto.
-  nonisolated func toProtoSpan(
-    spanData: RecoveredSpan
-  ) -> opentelemetry_proto_trace_v1_Span {
+  nonisolated func toProtoSpan(spanData: RecoveredSpan) -> opentelemetry_proto_trace_v1_Span {
     var protoSpan = opentelemetry_proto_trace_v1_Span()
     protoSpan.trace_id = toProtoTraceId(traceId: spanData.traceID)
     protoSpan.span_id = toProtoSpanId(spanId: spanData.spanID)
@@ -131,11 +127,10 @@ extension UnsafeMemoryOperations where Base == SpanAdapter {
   ///   - scope: The scope associated with the spans.
   ///   - resource: The resource associated with the spans.
   /// - Returns: An export trace service request proto.
-  nonisolated func toProtoTraceExportRequest(
-    spans: [RecoveredSpan],
-    scope: InstrumentationScopeInfo?,
-    resource: Resource?
-  ) -> opentelemetry_proto_collector_trace_v1_ExportTraceServiceRequest {
+  nonisolated func toProtoTraceExportRequest(spans: [RecoveredSpan],
+                                             scope: InstrumentationScopeInfo?,
+                                             resource: Resource?)
+    -> opentelemetry_proto_collector_trace_v1_ExportTraceServiceRequest {
     // Scope Spans
     var scopeSpans = opentelemetry_proto_trace_v1_ScopeSpans()
     if let scope = scope {
@@ -144,7 +139,7 @@ extension UnsafeMemoryOperations where Base == SpanAdapter {
       )
     }
     let (spansBuffer, spansCount) = NanopbHelper.unsafe.allocateAndMapArray(spans) { span in
-      return toProtoSpan(spanData: span)
+      toProtoSpan(spanData: span)
     }
     scopeSpans.spans = spansBuffer
     scopeSpans.spans_count = spansCount
@@ -155,16 +150,15 @@ extension UnsafeMemoryOperations where Base == SpanAdapter {
       resourceSpans.resource = CommonAdapter.unsafe.toProtoResource(resource: resource)
     }
     let (scopeSpansBuffer, scopeSpansCount) = NanopbHelper.unsafe.allocateAndMapArray([scopeSpans])
-    { $0 }
+      { $0 }
     resourceSpans.scope_spans = scopeSpansBuffer
     resourceSpans.scope_spans_count = scopeSpansCount
 
     // Export Trace Service Request
     var request = opentelemetry_proto_collector_trace_v1_ExportTraceServiceRequest()
     let (resourceSpansBuffer, resourceSpansCount) = NanopbHelper.unsafe.allocateAndMapArray([
-      resourceSpans
-    ]
-    ) { $0 }
+      resourceSpans,
+    ]) { $0 }
     request.resource_spans = resourceSpansBuffer
     request.resource_spans_count = resourceSpansCount
 

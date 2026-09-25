@@ -12,14 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import nanopb
 import OpentelemetryProtos
 import XCTest
-import nanopb
 
 @testable import FirebaseCrashlyticsTelemetry
 
 final class NanopbHelperTests: XCTestCase {
-
   private struct DummyTarget {
     var value: Int64
     var flag: Bool
@@ -39,7 +38,7 @@ final class NanopbHelperTests: XCTestCase {
     if let pointer = pointer {
       let totalBytes = count * stride
       pointer.withMemoryRebound(to: UInt8.self, capacity: totalBytes) { bytePointer in
-        for i in 0..<totalBytes {
+        for i in 0 ..< totalBytes {
           XCTAssertEqual(bytePointer[i], 0, "Byte at index \(i) was not zero-initialized.")
         }
       }
@@ -121,7 +120,7 @@ final class NanopbHelperTests: XCTestCase {
       let bytesStart = rawBase.advanced(by: MemoryLayout<pb_size_t>.size)
       let typedBytes = bytesStart.assumingMemoryBound(to: UInt8.self)
 
-      for i in 0..<size {
+      for i in 0 ..< size {
         XCTAssertEqual(typedBytes[i], mockBytes[i], "Byte mismatch at offset \(i)")
       }
 
@@ -170,20 +169,21 @@ final class NanopbHelperTests: XCTestCase {
       let typedBytes = bytesStart.assumingMemoryBound(to: UInt8.self)
 
       // Verify payload
-      for i in 0..<expectedBytes.count {
+      for i in 0 ..< expectedBytes.count {
         XCTAssertEqual(typedBytes[i], expectedBytes[i])
       }
 
       // Verify null terminator
       XCTAssertEqual(
-        typedBytes[expectedBytes.count], 0, "String payload must end with a null terminator")
+        typedBytes[expectedBytes.count], 0, "String payload must end with a null terminator"
+      )
 
       free(pointer)
     }
   }
 
   func test_allocateProtoString_withUnicodeString_calculatesSizeBasedOnBytes() {
-    let testString = "Telemetry🚀"  // "🚀" takes up 4 UTF-8 bytes
+    let testString = "Telemetry🚀" // "🚀" takes up 4 UTF-8 bytes
     let expectedBytes = Array(testString.utf8)
 
     let pointer = NanopbHelper.unsafe.allocateProtoString(testString)
@@ -197,7 +197,7 @@ final class NanopbHelperTests: XCTestCase {
       let bytesStart = rawBase.advanced(by: MemoryLayout<pb_size_t>.size)
       let typedBytes = bytesStart.assumingMemoryBound(to: UInt8.self)
 
-      for i in 0..<expectedBytes.count {
+      for i in 0 ..< expectedBytes.count {
         XCTAssertEqual(typedBytes[i], expectedBytes[i])
       }
 
@@ -225,7 +225,8 @@ final class NanopbHelperTests: XCTestCase {
       _ -> opentelemetry_proto_trace_v1_ResourceSpans in
       var resourceSpan = opentelemetry_proto_trace_v1_ResourceSpans()
       resourceSpan.schema_url = NanopbHelper.unsafe.allocateProtoString(
-        "https://opentelemetry.io/schemas/1.20.0")
+        "https://opentelemetry.io/schemas/1.20.0"
+      )
       return resourceSpan
     }
 
@@ -239,6 +240,7 @@ final class NanopbHelperTests: XCTestCase {
     XCTAssertGreaterThan(data?.count ?? 0, 0, "Serialization should contain encoded protobuf bytes")
     XCTAssertNil(
       request.resource_spans,
-      "serializeAndRelease must trigger pb_release, resetting heap pointers to nil")
+      "serializeAndRelease must trigger pb_release, resetting heap pointers to nil"
+    )
   }
 }

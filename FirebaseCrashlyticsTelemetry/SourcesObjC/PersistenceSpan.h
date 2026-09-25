@@ -34,7 +34,8 @@ NS_ASSUME_NONNULL_BEGIN
                     startTimeNano:(uint64_t)startTimeNano
                       endTimeNano:(uint64_t)endTimeNano
                              name:(NSString *)name
-                       attributes:(NSDictionary<NSString *, NSString *> *)attributes NS_DESIGNATED_INITIALIZER;
+                       attributes:(NSDictionary<NSString *, NSString *> *)attributes
+    NS_DESIGNATED_INITIALIZER;
 
 - (instancetype)init NS_UNAVAILABLE;
 + (instancetype)new NS_UNAVAILABLE;

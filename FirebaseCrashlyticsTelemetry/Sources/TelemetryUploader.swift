@@ -16,12 +16,12 @@ import FirebaseCore
 import Foundation
 
 /// Handles the formatting and network dispatch of telemetry data payloads.
-internal struct TelemetryUploader: @unchecked Sendable {
+struct TelemetryUploader: @unchecked Sendable {
   /// The telemetry data types that should be supported for export.
   /// Currently only Traces are supported.
   private enum TelemetryType: String {
-    case traces = "traces"
-    case logs = "logs"
+    case traces
+    case logs
   }
 
   private let options: FirebaseOptions
@@ -32,7 +32,8 @@ internal struct TelemetryUploader: @unchecked Sendable {
 
   /// Initializes the telemetry uploader.
   ///
-  /// - Parameter options: The FirebaseOptions used to construct endpoint URLs and authenticate requests.
+  /// - Parameter options: The FirebaseOptions used to construct endpoint URLs and authenticate
+  /// requests.
   public init(options: FirebaseOptions) {
     self.options = options
   }
@@ -43,9 +44,7 @@ internal struct TelemetryUploader: @unchecked Sendable {
   ///
   /// - Parameter payload: The serialized payload to upload.
   /// - Throws: An error if URL generation, serialization, or the network request fails.
-  public func uploadTrace(
-    _ payload: Data
-  ) async throws {
+  public func uploadTrace(_ payload: Data) async throws {
     let endpoint = try buildEndpointURL(for: .traces)
     let request = try createURLRequest(to: endpoint, payload: payload)
 
@@ -107,9 +106,10 @@ internal struct TelemetryUploader: @unchecked Sendable {
       throw URLError(.badServerResponse)
     }
 
-    if !(200...299).contains(httpResponse.statusCode) {
+    if !(200 ... 299).contains(httpResponse.statusCode) {
       LoggingHelper.logger.error(
-        "Telemetry export failed with status code \(httpResponse.statusCode)")
+        "Telemetry export failed with status code \(httpResponse.statusCode)"
+      )
       if let errorMessage = String(data: data, encoding: .utf8), !errorMessage.isEmpty {
         LoggingHelper.logger.error("Server error message: \(errorMessage)")
       }

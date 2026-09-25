@@ -17,8 +17,8 @@
 /// This type does not store any state and is optimized away entirely by the compiler at runtime.
 /// It uses the `Base` generic parameter as a phantom type to scope specific extensions
 /// (e.g., `extension UnsafeMemoryOperations where Base == CommonAdapter`).
-internal struct UnsafeMemoryOperations<Base> {
+struct UnsafeMemoryOperations<Base> {
   /// Initializes an instance of the namespace wrapper.
   /// This is kept internal to allow instantiation within the protocol extension.
-  internal init() {}
+  init() {}
 }
