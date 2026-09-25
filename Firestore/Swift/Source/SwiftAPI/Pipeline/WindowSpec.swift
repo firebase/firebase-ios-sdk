@@ -85,6 +85,12 @@ public struct WindowSpec: Sendable {
   let type: String?
   let unit: Sendable?
 
+  /// Creates an empty window specification representing a single global partition covering the
+  /// entire result set, with no sort and no explicit frame.
+  public init() {
+    self.init(groups: [], sort: nil, preceding: nil, following: nil, type: nil, unit: nil)
+  }
+
   init(
     groups: [Expression] = [],
     sort: [Ordering]? = nil,
@@ -104,7 +110,7 @@ public struct WindowSpec: Sendable {
   /** Specify group/partition configuration on top of this spec. */
   public func partition(_ groups: [Expression]) -> WindowSpec {
     return WindowSpec(
-      groups: self.groups + groups,
+      groups: groups,
       sort: sort,
       preceding: preceding,
       following: following,
@@ -202,7 +208,7 @@ public struct WindowSpec: Sendable {
       preceding: preceding,
       following: following,
       type: "range",
-      unit: unit ?? self.unit
+      unit: unit
     )
   }
 
@@ -245,7 +251,9 @@ public struct WindowSpec: Sendable {
   public func toBridge() -> WindowSpecBridge {
     let bridgePreceding: Any? = preceding?.bridgeValue
     let bridgeFollowing: Any? = following?.bridgeValue
-    let bridgeUnit: Any? = (unit as? TimeGranularity)?.rawValue ?? (unit as? Expression)?.toBridge() ?? unit
+    let bridgeUnit: Any? =
+      (unit as? TimeGranularity)?.rawValue ?? (unit as? TimeUnit)?.rawValue
+        ?? (unit as? Expression)?.toBridge() ?? unit
     return WindowSpecBridge(
       groups: groups.map { $0.toBridge() },
       sort: sort?.map { $0.bridge },

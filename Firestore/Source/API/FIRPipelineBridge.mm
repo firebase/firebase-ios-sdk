@@ -246,17 +246,32 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
 
 @end
 
+@interface FIRWindowSpecBridge ()
+- (firebase::firestore::google_firestore_v1_Value)toV1ValueWithReader:(FSTUserDataReader *)reader;
+@end
+
 @implementation FIRAggregateFunctionBridge {
   std::shared_ptr<AggregateFunction> cpp_function;
   NSString *_name;
   NSArray<FIRExprBridge *> *_args;
+  FIRWindowSpecBridge *_Nullable _window;
   Boolean isUserDataRead;
 }
 
 - (nonnull id)initWithName:(NSString *)name Args:(nonnull NSArray<FIRExprBridge *> *)args {
-  _name = name;
-  _args = args;
-  isUserDataRead = NO;
+  return [self initWithName:name Args:args Window:nil];
+}
+
+- (nonnull id)initWithName:(NSString *)name
+                      Args:(nonnull NSArray<FIRExprBridge *> *)args
+                    Window:(FIRWindowSpecBridge *_Nullable)window {
+  self = [super init];
+  if (self) {
+    _name = name;
+    _args = args;
+    _window = window;
+    isUserDataRead = NO;
+  }
   return self;
 }
 
@@ -271,6 +286,25 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
 
   isUserDataRead = YES;
   return cpp_function;
+}
+
+- (firebase::firestore::google_firestore_v1_Value)toV1ValueWithReader:(FSTUserDataReader *)reader {
+  firebase::firestore::google_firestore_v1_Value function_val =
+      [self cppExprWithReader:reader]->to_proto();
+  if (_window == nil) {
+    return function_val;
+  }
+
+  firebase::firestore::google_firestore_v1_Value over_val;
+  over_val.which_value_type = google_firestore_v1_Value_function_value_tag;
+  over_val.function_value = firebase::firestore::google_firestore_v1_Function{};
+  over_val.function_value.name = nanopb::MakeBytesArray("over");
+  over_val.function_value.args_count = 2;
+  over_val.function_value.args =
+      nanopb::MakeArray<firebase::firestore::google_firestore_v1_Value>(2);
+  over_val.function_value.args[0] = function_val;
+  over_val.function_value.args[1] = [_window toV1ValueWithReader:reader];
+  return over_val;
 }
 
 @end
@@ -658,7 +692,7 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
 - (firebase::firestore::google_firestore_v1_Value)toV1ValueWithReader:(FSTUserDataReader *)reader {
   std::unordered_map<std::string, firebase::firestore::google_firestore_v1_Value> map_fields;
 
-  // 1. Serialize groups if present
+  // 1. Serialize partition if present
   if (_groups.count > 0) {
     std::vector<firebase::firestore::google_firestore_v1_Value> cpp_groups;
     for (FIRExprBridge *group in _groups) {
@@ -667,10 +701,9 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
     firebase::firestore::google_firestore_v1_Value group_array_val;
     group_array_val.which_value_type = google_firestore_v1_Value_array_value_tag;
     nanopb::SetRepeatedField(
-        &group_array_val.array_value.values, &group_array_val.array_value.values_count,
-        cpp_groups,
+        &group_array_val.array_value.values, &group_array_val.array_value.values_count, cpp_groups,
         [](const firebase::firestore::google_firestore_v1_Value &val) { return val; });
-    map_fields["group"] = group_array_val;
+    map_fields["partition"] = group_array_val;
   }
 
   // 2. Serialize sort if present
@@ -678,21 +711,22 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
     std::vector<firebase::firestore::google_firestore_v1_Value> cpp_sort;
     for (FIROrderingBridge *ordering in _sort) {
       Ordering ord = [ordering cppOrderingWithReader:reader];
-      
+
       // Each ordering is serialized as: { "expression": <expr>, "direction": <direction> }
-      std::unordered_map<std::string, firebase::firestore::google_firestore_v1_Value> sort_entry_map;
+      std::unordered_map<std::string, firebase::firestore::google_firestore_v1_Value>
+          sort_entry_map;
       sort_entry_map["expression"] = ord.expr()->to_proto();
-      
+
       firebase::firestore::google_firestore_v1_Value dir_val;
       dir_val.which_value_type = google_firestore_v1_Value_string_value_tag;
-      dir_val.string_value = nanopb::MakeBytesArray(ord.direction() == Ordering::ASCENDING ? "ascending" : "descending");
+      dir_val.string_value = nanopb::MakeBytesArray(
+          ord.direction() == Ordering::ASCENDING ? "ascending" : "descending");
       sort_entry_map["direction"] = dir_val;
 
       firebase::firestore::google_firestore_v1_Value sort_entry_val;
       sort_entry_val.which_value_type = google_firestore_v1_Value_map_value_tag;
       nanopb::SetRepeatedField(
-          &sort_entry_val.map_value.fields, &sort_entry_val.map_value.fields_count,
-          sort_entry_map,
+          &sort_entry_val.map_value.fields, &sort_entry_val.map_value.fields_count, sort_entry_map,
           [](const std::pair<std::string, firebase::firestore::google_firestore_v1_Value> &entry) {
             return firebase::firestore::_google_firestore_v1_MapValue_FieldsEntry{
                 nanopb::MakeBytesArray(entry.first), entry.second};
@@ -702,16 +736,15 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
     firebase::firestore::google_firestore_v1_Value sort_array_val;
     sort_array_val.which_value_type = google_firestore_v1_Value_array_value_tag;
     nanopb::SetRepeatedField(
-        &sort_array_val.array_value.values, &sort_array_val.array_value.values_count,
-        cpp_sort,
+        &sort_array_val.array_value.values, &sort_array_val.array_value.values_count, cpp_sort,
         [](const firebase::firestore::google_firestore_v1_Value &val) { return val; });
     map_fields["sort"] = sort_array_val;
   }
 
-  // 3. Serialize range / documents boundary if present
+  // 3. Serialize range / documents boundary if present (with unit nested inside the frame)
   if (_type != nil) {
     std::unordered_map<std::string, firebase::firestore::google_firestore_v1_Value> frame_map;
-    
+
     // Helper lambda to convert bound to value
     auto convertBound = [reader](id bound) -> firebase::firestore::google_firestore_v1_Value {
       firebase::firestore::google_firestore_v1_Value val;
@@ -739,11 +772,21 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
     frame_map["preceding"] = convertBound(_preceding);
     frame_map["following"] = convertBound(_following);
 
+    if (_unit != nil) {
+      firebase::firestore::google_firestore_v1_Value unit_val;
+      if ([_unit isKindOfClass:[FIRExprBridge class]]) {
+        unit_val = [(FIRExprBridge *)_unit cppExprWithReader:reader]->to_proto();
+      } else if ([_unit isKindOfClass:[NSString class]]) {
+        unit_val.which_value_type = google_firestore_v1_Value_string_value_tag;
+        unit_val.string_value = nanopb::MakeBytesArray(MakeString((NSString *)_unit));
+      }
+      frame_map["unit"] = unit_val;
+    }
+
     firebase::firestore::google_firestore_v1_Value frame_val;
     frame_val.which_value_type = google_firestore_v1_Value_map_value_tag;
     nanopb::SetRepeatedField(
-        &frame_val.map_value.fields, &frame_val.map_value.fields_count,
-        frame_map,
+        &frame_val.map_value.fields, &frame_val.map_value.fields_count, frame_map,
         [](const std::pair<std::string, firebase::firestore::google_firestore_v1_Value> &entry) {
           return firebase::firestore::_google_firestore_v1_MapValue_FieldsEntry{
               nanopb::MakeBytesArray(entry.first), entry.second};
@@ -751,24 +794,11 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
     map_fields[MakeString(_type)] = frame_val;
   }
 
-  // 4. Serialize unit if present
-  if (_unit != nil) {
-    firebase::firestore::google_firestore_v1_Value unit_val;
-    if ([_unit isKindOfClass:[FIRExprBridge class]]) {
-      unit_val = [(FIRExprBridge *)_unit cppExprWithReader:reader]->to_proto();
-    } else if ([_unit isKindOfClass:[NSString class]]) {
-      unit_val.which_value_type = google_firestore_v1_Value_string_value_tag;
-      unit_val.string_value = nanopb::MakeBytesArray(MakeString((NSString *)_unit));
-    }
-    map_fields["unit"] = unit_val;
-  }
-
   // Combine into map value
   firebase::firestore::google_firestore_v1_Value result_val;
   result_val.which_value_type = google_firestore_v1_Value_map_value_tag;
   nanopb::SetRepeatedField(
-      &result_val.map_value.fields, &result_val.map_value.fields_count,
-      map_fields,
+      &result_val.map_value.fields, &result_val.map_value.fields_count, map_fields,
       [](const std::pair<std::string, firebase::firestore::google_firestore_v1_Value> &entry) {
         return firebase::firestore::_google_firestore_v1_MapValue_FieldsEntry{
             nanopb::MakeBytesArray(entry.first), entry.second};
@@ -800,11 +830,12 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
 
 - (std::shared_ptr<firebase::firestore::api::Stage>)cppStageWithReader:(FSTUserDataReader *)reader {
   if (!isUserDataRead) {
-    firebase::firestore::google_firestore_v1_Value window_val = [_window toV1ValueWithReader:reader];
+    firebase::firestore::google_firestore_v1_Value window_val =
+        [_window toV1ValueWithReader:reader];
 
     std::unordered_map<std::string, firebase::firestore::google_firestore_v1_Value> cpp_fields_map;
     for (NSString *key in _fields) {
-      cpp_fields_map[MakeString(key)] = [_fields[key] cppExprWithReader:reader]->to_proto();
+      cpp_fields_map[MakeString(key)] = [_fields[key] toV1ValueWithReader:reader];
     }
     
     firebase::firestore::google_firestore_v1_Value fields_val;
@@ -1359,7 +1390,7 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
   if ([value isKindOfClass:[FIRExprBridge class]]) {
     return [((FIRExprBridge *)value) cppExprWithReader:reader]->to_proto();
   } else if ([value isKindOfClass:[FIRAggregateFunctionBridge class]]) {
-    return [((FIRAggregateFunctionBridge *)value) cppExprWithReader:reader]->to_proto();
+    return [((FIRAggregateFunctionBridge *)value) toV1ValueWithReader:reader];
   } else if ([value isKindOfClass:[NSDictionary class]]) {
     NSDictionary<NSString *, id> *dictionary = (NSDictionary<NSString *, id> *)value;
 
@@ -1370,7 +1401,7 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
             [((FIRExprBridge *)dictionary[key]) cppExprWithReader:reader]->to_proto();
       } else if ([dictionary[key] isKindOfClass:[FIRAggregateFunctionBridge class]]) {
         cpp_dictionary[MakeString(key)] =
-            [((FIRAggregateFunctionBridge *)dictionary[key]) cppExprWithReader:reader]->to_proto();
+            [((FIRAggregateFunctionBridge *)dictionary[key]) toV1ValueWithReader:reader];
       } else {
         ThrowInvalidArgument(
             "Dictionary value must be an FIRExprBridge or FIRAggregateFunctionBridge.");

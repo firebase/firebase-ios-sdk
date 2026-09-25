@@ -62,10 +62,15 @@ NS_SWIFT_NAME(FunctionExprBridge)
            Options:(NSDictionary<NSString *, FIRExprBridge *> *_Nullable)options;
 @end
 
+@class FIRWindowSpecBridge;
+
 NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(AggregateFunctionBridge)
 @interface FIRAggregateFunctionBridge : NSObject
 - (id)initWithName:(NSString *)name Args:(NSArray<FIRExprBridge *> *)args;
+- (id)initWithName:(NSString *)name
+              Args:(NSArray<FIRExprBridge *> *)args
+            Window:(FIRWindowSpecBridge *_Nullable)window;
 @end
 
 NS_SWIFT_SENDABLE

@@ -490,5 +490,35 @@ final class PipelineApiTests: FSTIntegrationTestCase {
           Field("salesPrice").sum().as("sum")
         ]
       )
+
+    // Global window (explicit WindowSpec() and omitted window parameter)
+    _ = db.pipeline().collection("sales")
+      .addWindowFields(
+        window: WindowSpec(),
+        fields: [
+          Field("quantity").count().as("windowCount")
+        ]
+      )
+
+    _ = db.pipeline().collection("sales")
+      .addWindowFields(
+        fields: [
+          Field("quantity").count().as("windowCount")
+        ]
+      )
+
+    // Accumulator-level framing via over(_:)
+    _ = db.pipeline().collection("sales")
+      .addWindowFields(
+        window: .sort(Field("date").ascending()),
+        fields: [
+          Field("salesPrice").sum()
+            .over(.documents(preceding: .unbounded, following: .current))
+            .as("runningTotal"),
+          Field("salesPrice").average()
+            .over(.documents(preceding: 1, following: 1))
+            .as("movingAverage"),
+        ]
+      )
   }
 }
