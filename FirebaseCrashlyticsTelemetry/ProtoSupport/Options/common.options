@@ -1,0 +1,13 @@
+# Options for opentelemetry/proto/common/v1/common.proto from https://github.com/open-telemetry
+
+opentelemetry.proto.common.v1.AnyValue.string_value           type:FT_POINTER
+opentelemetry.proto.common.v1.AnyValue.bytes_value            type:FT_POINTER
+
+opentelemetry.proto.common.v1.ArrayValue.values               type:FT_POINTER
+
+opentelemetry.proto.common.v1.KeyValueList.values             type:FT_POINTER
+opentelemetry.proto.common.v1.KeyValue.key                    type:FT_POINTER
+
+opentelemetry.proto.common.v1.InstrumentationScope.name       type:FT_POINTER
+opentelemetry.proto.common.v1.InstrumentationScope.version    type:FT_POINTER
+opentelemetry.proto.common.v1.InstrumentationScope.attributes type:FT_POINTER

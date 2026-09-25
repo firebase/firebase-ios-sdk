@@ -1,0 +1,24 @@
+# Options for opentelemetry/proto/trace/v1/trace.proto from https://github.com/open-telemetry
+
+opentelemetry.proto.trace.v1.Span.trace_id             type:FT_POINTER
+opentelemetry.proto.trace.v1.Span.span_id              type:FT_POINTER
+opentelemetry.proto.trace.v1.Span.parent_span_id       type:FT_POINTER
+opentelemetry.proto.trace.v1.Span.links                type:FT_POINTER
+opentelemetry.proto.trace.v1.Span.events               type:FT_POINTER
+opentelemetry.proto.trace.v1.Span.name                 type:FT_POINTER
+opentelemetry.proto.trace.v1.Span.attributes           type:FT_POINTER
+
+opentelemetry.proto.trace.v1.Span.Link.trace_id        type:FT_POINTER
+opentelemetry.proto.trace.v1.Span.Link.span_id         type:FT_POINTER
+opentelemetry.proto.trace.v1.Span.Link.attributes      type:FT_POINTER
+
+opentelemetry.proto.trace.v1.Span.Event.name           type:FT_POINTER
+opentelemetry.proto.trace.v1.Span.Event.attributes     type:FT_POINTER
+
+opentelemetry.proto.trace.v1.Status.message            type:FT_POINTER
+
+opentelemetry.proto.trace.v1.ScopeSpans.spans          type:FT_POINTER
+opentelemetry.proto.trace.v1.ScopeSpans.schema_url     type:FT_POINTER
+
+opentelemetry.proto.trace.v1.ResourceSpans.scope_spans type:FT_POINTER
+opentelemetry.proto.trace.v1.ResourceSpans.schema_url  type:FT_POINTER

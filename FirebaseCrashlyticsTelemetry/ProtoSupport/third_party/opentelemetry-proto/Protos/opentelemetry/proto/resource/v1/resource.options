@@ -1,0 +1,4 @@
+# Options for opentelemetry/proto/resource/v1/resource.proto from https://github.com/open-telemetry
+
+opentelemetry.proto.resource.v1.Resource.attributes  type:FT_POINTER
+opentelemetry.proto.resource.v1.Resource.entity_refs type:FT_POINTER
