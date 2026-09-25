@@ -980,10 +980,10 @@
 /* Begin XCRemoteSwiftPackageReference section */
 		DE8B63702BEC2FB900607B82 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/google/GoogleSignIn-iOS.git";
+			repositoryURL = "https://github.com/paulb777/GoogleSignIn-iOS.git";
 			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 10.0.0;
+				branch = "pb-test-swift-app-check";
+				kind = branch;
 			};
 		};
 		DE8B63752BEC302200607B82 /* XCRemoteSwiftPackageReference "facebook-ios-sdk" */ = {
