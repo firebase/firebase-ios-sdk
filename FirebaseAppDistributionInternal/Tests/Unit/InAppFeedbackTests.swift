@@ -18,9 +18,18 @@ import XCTest
 @testable import FirebaseAppDistributionInternal
 
 final class InAppFeedbackTests: XCTestCase {
-  func testGetManuallyCapturedScreenshotWithNoScreenshotsDoesNotCrash() {
+  func testGetManuallyCapturedScreenshotWithNoScreenshotsCompletesWithNil() {
     let fetchResult = PHAsset.fetchAssets(withLocalIdentifiers: [], options: nil)
+    let completionExpectation = expectation(description: "No screenshot is returned")
 
-    XCTAssertNil(InAppFeedback.firstScreenshotAsset(in: fetchResult))
+    InAppFeedback.getManuallyCapturedScreenshot(
+      requestPermission: { completion in completion(true) },
+      fetchAssets: { fetchResult }
+    ) { screenshot in
+      XCTAssertNil(screenshot)
+      completionExpectation.fulfill()
+    }
+
+    wait(for: [completionExpectation], timeout: 1)
   }
 }

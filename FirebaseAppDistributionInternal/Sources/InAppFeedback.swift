@@ -52,32 +52,45 @@ import UIKit
   @objc(getManuallyCapturedScreenshotWithCompletion:)
   public static func getManuallyCapturedScreenshot(completion: @escaping (_ screenshot: UIImage?)
     -> Void) {
-    getPhotoPermissionIfNecessary(completionHandler: { authorized in
+    getManuallyCapturedScreenshot(
+      requestPermission: getPhotoPermissionIfNecessary,
+      fetchAssets: {
+        let fetchOptions = PHFetchOptions()
+        fetchOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
+        fetchOptions.predicate = NSPredicate(
+          format: "(mediaSubtype & %d) != 0",
+          PHAssetMediaSubtype.photoScreenshot.rawValue
+        )
+        return PHAsset.fetchAssets(with: .image, options: fetchOptions)
+      },
+      completion: completion
+    )
+  }
+
+  static func getManuallyCapturedScreenshot(requestPermission: (@escaping (Bool) -> Void)
+    -> Void,
+    fetchAssets: @escaping () -> PHFetchResult<
+      PHAsset
+    >,
+    completion: @escaping (UIImage?) -> Void) {
+    requestPermission { authorized in
       guard authorized else {
         completion(nil)
         return
       }
 
-      let manager = PHImageManager.default()
-
-      let fetchOptions = PHFetchOptions()
-      fetchOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
-      fetchOptions.predicate = NSPredicate(
-        format: "(mediaSubtype & %d) != 0",
-        PHAssetMediaSubtype.photoScreenshot.rawValue
-      )
-
-      let requestOptions = PHImageRequestOptions()
-      requestOptions.isSynchronous = true
-
-      let fetchResult = PHAsset.fetchAssets(with: .image, options: fetchOptions)
-      guard let screenshot = firstScreenshotAsset(in: fetchResult) else {
+      let fetchResult = fetchAssets()
+      guard fetchResult.count > 0 else {
         completion(nil)
         return
       }
 
+      let manager = PHImageManager.default()
+      let requestOptions = PHImageRequestOptions()
+      requestOptions.isSynchronous = true
+
       manager.requestImage(
-        for: screenshot,
+        for: fetchResult.object(at: 0),
         // TODO: Identify the correct size.
         targetSize: CGSize(width: 358, height: 442),
         contentMode: .aspectFill,
@@ -86,14 +99,7 @@ import UIKit
         // TODO: Add logic to respond correctly if there's an error.
         completion(image)
       }
-    })
-  }
-
-  static func firstScreenshotAsset(in fetchResult: PHFetchResult<PHAsset>) -> PHAsset? {
-    guard fetchResult.count > 0 else {
-      return nil
     }
-    return fetchResult.object(at: 0)
   }
 
   static func getPhotoPermissionIfNecessary(completionHandler: @escaping (_ authorized: Bool)
