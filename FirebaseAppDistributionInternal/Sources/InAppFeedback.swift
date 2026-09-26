@@ -52,25 +52,42 @@ import UIKit
   @objc(getManuallyCapturedScreenshotWithCompletion:)
   public static func getManuallyCapturedScreenshot(completion: @escaping (_ screenshot: UIImage?)
     -> Void) {
-    getPhotoPermissionIfNecessary(completionHandler: { authorized in
+    getManuallyCapturedScreenshot(
+      requestPermission: getPhotoPermissionIfNecessary,
+      fetchAssets: {
+        let fetchOptions = PHFetchOptions()
+        fetchOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
+        fetchOptions.predicate = NSPredicate(
+          format: "(mediaSubtype & %d) != 0",
+          PHAssetMediaSubtype.photoScreenshot.rawValue
+        )
+        return PHAsset.fetchAssets(with: .image, options: fetchOptions)
+      },
+      completion: completion
+    )
+  }
+
+  static func getManuallyCapturedScreenshot(requestPermission: (@escaping (Bool) -> Void)
+    -> Void,
+    fetchAssets: @escaping () -> PHFetchResult<
+      PHAsset
+    >,
+    completion: @escaping (UIImage?) -> Void) {
+    requestPermission { authorized in
       guard authorized else {
         completion(nil)
         return
       }
 
+      let fetchResult = fetchAssets()
+      guard fetchResult.count > 0 else {
+        completion(nil)
+        return
+      }
+
       let manager = PHImageManager.default()
-
-      let fetchOptions = PHFetchOptions()
-      fetchOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
-      fetchOptions.predicate = NSPredicate(
-        format: "(mediaSubtype & %d) != 0",
-        PHAssetMediaSubtype.photoScreenshot.rawValue
-      )
-
       let requestOptions = PHImageRequestOptions()
       requestOptions.isSynchronous = true
-
-      let fetchResult = PHAsset.fetchAssets(with: .image, options: fetchOptions)
 
       manager.requestImage(
         for: fetchResult.object(at: 0),
@@ -82,7 +99,7 @@ import UIKit
         // TODO: Add logic to respond correctly if there's an error.
         completion(image)
       }
-    })
+    }
   }
 
   static func getPhotoPermissionIfNecessary(completionHandler: @escaping (_ authorized: Bool)
