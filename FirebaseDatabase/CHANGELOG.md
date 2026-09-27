@@ -1,6 +1,9 @@
 # Unreleased
 - [fixed] Fixed a crash in `getData` when the server returned an error without
   a reason. (#16718)
+- [fixed] Fixed an issue where the `getData` error said that the client was
+  offline when the server rejected the request, e.g. because of security rules.
+  (#11835)
 
 # 12.19.0
 - [fixed] Reconnect after significant system clock changes so that
