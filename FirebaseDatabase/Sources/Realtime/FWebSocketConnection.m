@@ -464,12 +464,13 @@ static NSString *const kGoogleAppIDHeader = @"X-Firebase-GMPID";
                          reason:nil];
 #else
         [self.webSocket close];
+        self.webSocket.delegate = nil;
 #endif // TARGET_OS_WATCH
 
-        // Don't wait for the websocket to report that it closed. It may not
-        // report it for hours, e.g. if it's stuck in the TLS handshake, and
-        // the client would stay offline until then. If the report comes later,
-        // onClosed doesn't report the disconnect again.
+        // Don't wait for the websocket to report that it closed, and ignore
+        // the report if it comes later. It may not come for hours, e.g. if the
+        // websocket is stuck in the TLS handshake, and the client would stay
+        // offline until then.
         // https://github.com/firebase/firebase-ios-sdk/issues/9682
         [self onClosed];
     }

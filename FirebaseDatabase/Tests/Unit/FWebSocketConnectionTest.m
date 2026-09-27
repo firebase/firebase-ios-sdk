@@ -119,6 +119,8 @@
   [connection closeIfNeverConnected];
 
   OCMVerify([webSocket close]);
+  // The connection stops listening to the web socket.
+  OCMVerify([webSocket setDelegate:nil]);
   XCTAssertEqual(delegate.disconnectCount, 1);
   XCTAssertFalse(delegate.wasEverConnected);
 
@@ -145,10 +147,16 @@
 // OS gave up on it, possibly hours later.
 // https://github.com/firebase/firebase-ios-sdk/issues/9682
 - (void)testConnectTimeoutClosesConnectionStuckInTLSHandshake {
+  // Stop at the first failure, so that a failed wait doesn't lead to a blocking
+  // accept or read.
+  self.continueAfterFailure = NO;
   // A local server that accepts the connection but never answers the TLS
   // handshake.
   int server = socket(AF_INET, SOCK_STREAM, 0);
   XCTAssertGreaterThanOrEqual(server, 0);
+  [self addTeardownBlock:^{
+    close(server);
+  }];
   struct sockaddr_in address = {0};
   address.sin_len = sizeof(address);
   address.sin_family = AF_INET;
@@ -166,6 +174,9 @@
   XCTAssertTrue([self waitUntilReadable:server timeout:5]);
   int client = accept(server, NULL, NULL);
   XCTAssertGreaterThanOrEqual(client, 0);
+  [self addTeardownBlock:^{
+    close(client);
+  }];
   // Wait for the TLS ClientHello, then give the web socket time to queue its
   // handshake request.
   char buffer[4096];
@@ -183,9 +194,6 @@
   }
   XCTAssertTrue(closed);
   XCTAssertEqual(delegate.disconnectCount, 1);
-
-  close(client);
-  close(server);
 }
 
 @end
