@@ -400,6 +400,12 @@ typedef enum {
     self.realtime = nil;
     [self cancelSentTransactions];
     [self.requestCBHash removeAllObjects];
+    // The response callbacks of any gets that were already sent were just
+    // dropped, and sendGet: skips gets that are marked as sent. Mark them as
+    // unsent so that restoreState sends them again on reconnect.
+    for (FOutstandingGet *get in [self.outstandingGets allValues]) {
+        get.sent = NO;
+    }
     self.unackedListensCount = 0;
     if ([self shouldReconnect]) {
         NSTimeInterval timeSinceLastConnectSucceeded =
