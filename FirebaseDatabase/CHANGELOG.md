@@ -1,3 +1,7 @@
+# Unreleased
+- [fixed] Fixed an issue where `getData` on a child of an observed location
+  returned the data of the observed location instead of the child. (#12168)
+
 # 12.19.0
 - [fixed] Reconnect after significant system clock changes so that
   `.info/serverTimeOffset` is refreshed. (#363)
