@@ -1,3 +1,7 @@
+# Unreleased
+- [fixed] Fixed a crash in `getData` when the server returned an error without
+  a reason. (#16718)
+
 # 12.19.0
 - [fixed] Reconnect after significant system clock changes so that
   `.info/serverTimeOffset` is refreshed. (#363)
