@@ -147,17 +147,19 @@ static const int kConnectionStateConnecting = 2;
                  completedStatus = status;
                  completedData = data;
                }];
-  XCTAssertEqual(firstSocket.sentGets.count, 1);
+  NSArray<NSDictionary *> *firstSentGets = firstSocket.sentGets;
+  XCTAssertEqual(firstSentGets.count, 1);
 
   // The connection drops before the server replies to the get.
   [connection onDisconnect:firstSocket withReason:DISCONNECT_REASON_OTHER];
   FRecordingConnection *secondSocket = [[FRecordingConnection alloc] init];
   [self connect:connection toSocket:secondSocket];
 
-  XCTAssertEqual(secondSocket.sentGets.count, 1, @"The get should be resent after reconnecting");
-  NSDictionary *resentGet = secondSocket.sentGets[0];
+  NSArray<NSDictionary *> *secondSentGets = secondSocket.sentGets;
+  XCTAssertEqual(secondSentGets.count, 1, @"The get should be resent after reconnecting");
+  NSDictionary *resentGet = secondSentGets[0];
   XCTAssertEqualObjects(resentGet[kFWPRequestPayloadBody],
-                        firstSocket.sentGets[0][kFWPRequestPayloadBody]);
+                        firstSentGets[0][kFWPRequestPayloadBody]);
   XCTAssertEqual(completionCount, 0);
 
   [connection onDataMessage:secondSocket
@@ -181,9 +183,10 @@ static const int kConnectionStateConnecting = 2;
                withCallback:^(NSString *status, id data, NSString *errorReason) {
                  completionCount++;
                }];
-  XCTAssertEqual(firstSocket.sentGets.count, 1);
+  NSArray<NSDictionary *> *firstSentGets = firstSocket.sentGets;
+  XCTAssertEqual(firstSentGets.count, 1);
   [connection onDataMessage:firstSocket
-                withMessage:[self replyTo:firstSocket.sentGets[0]
+                withMessage:[self replyTo:firstSentGets[0]
                                    status:kFWPResponseForActionStatusOk
                                      data:@"bar"]];
   XCTAssertEqual(completionCount, 1);
