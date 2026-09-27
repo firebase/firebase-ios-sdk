@@ -1,3 +1,7 @@
+# Unreleased
+- [fixed] Fixed a crash in `purgeOutstandingWrites` when the server had already
+  acknowledged a write that the SDK hadn't processed yet. (#5161)
+
 # 12.19.0
 - [fixed] Reconnect after significant system clock changes so that
   `.info/serverTimeOffset` is refreshed. (#363)

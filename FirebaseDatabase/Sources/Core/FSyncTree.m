@@ -223,6 +223,16 @@ static const NSUInteger kFSizeThresholdForCompoundHash = 1024;
                              persist:(BOOL)persist
                                clock:(id<FClock>)clock {
     FWriteRecord *write = [self.pendingWriteTree writeForId:writeId];
+    if (write == nil) {
+        // The write was already removed by removeAllWrites, which reverted it
+        // and removed it from persistence. The connection can still deliver an
+        // ack for it afterwards: it defers acks that arrive while listens are
+        // outstanding, and delivers them when the writes are purged.
+        // https://github.com/firebase/firebase-ios-sdk/issues/5161
+        FFLog(@"I-RDB038025", @"Ignoring ack for removed write %ld",
+              (long)writeId);
+        return @[];
+    }
     BOOL needToReevaluate = [self.pendingWriteTree removeWriteId:writeId];
     if (write.visible) {
         if (persist) {
