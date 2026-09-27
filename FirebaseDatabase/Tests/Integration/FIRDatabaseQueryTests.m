@@ -4523,6 +4523,42 @@
   [listenQuery removeAllObservers];
 }
 
+// https://github.com/firebase/firebase-ios-sdk/issues/8286
+- (void)testGetForFilteredQueryDoesNotChangeDefaultListenerAtSameLocation {
+  // Without persistence, so that the listener doesn't start with cached data.
+  FIRDatabaseReference* ref = [FTestHelpers getRandomNodeWithoutPersistence];
+
+  __block BOOL done = NO;
+  [ref setValue:@{@"child1" : @{@"name" : @"child1"}, @"child2" : @{@"name" : @"child2"}}
+      withCompletionBlock:^(NSError* error, FIRDatabaseReference* ref) {
+        XCTAssertNil(error);
+        done = YES;
+      }];
+
+  WAIT_FOR(done);
+  done = NO;
+
+  // Start the get before the listener has data, so that the get isn't answered from it. The issue
+  // used queryOrderedByChild:, which the emulator rejects for a get without an index.
+  __block BOOL listening = NO;
+  NSMutableArray<NSNumber*>* listenerChildCounts = [NSMutableArray array];
+  [ref observeEventType:FIRDataEventTypeValue
+              withBlock:^(FIRDataSnapshot* snapshot) {
+                [listenerChildCounts addObject:@(snapshot.childrenCount)];
+                listening = YES;
+              }];
+  [[[ref queryOrderedByKey] queryEqualToValue:@"child2"]
+      getDataWithCompletionBlock:^(NSError* err, FIRDataSnapshot* snapshot) {
+        XCTAssertNil(err);
+        XCTAssertEqualObjects(snapshot.value, (@{@"child2" : @{@"name" : @"child2"}}));
+        done = YES;
+      }];
+
+  WAIT_FOR(listening && done);
+  XCTAssertEqualObjects(listenerChildCounts, @[ @2 ]);
+  [ref removeAllObservers];
+}
+
 - (void)testGetForFilteredQueryDoesNotChangeListenerBelowLocation {
   FIRDatabaseReference* ref = [FTestHelpers getRandomNode];
 

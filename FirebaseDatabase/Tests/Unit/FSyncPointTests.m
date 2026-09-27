@@ -996,6 +996,32 @@ typedef NSDictionary * (^fbt_nsdictionary_void)(void);
   XCTAssertEqualObjects([[syncTree getServerValue:listenQuery] val], listenValue);
 }
 
+// https://github.com/firebase/firebase-ios-sdk/issues/8286
+- (void)testGetResultForFilteredQueryDoesNotChangeDefaultViewAtSameLocation {
+  FSyncTree *syncTree =
+      [[FSyncTree alloc] initWithListenProvider:[self listenProviderRecordingStarts:nil stops:nil]];
+  FPath *path = [FPath pathWithString:@"p"];
+  FQuerySpec *defaultQuery = [FQuerySpec defaultQueryAtPath:path];
+  FTestEventRegistration *registration =
+      [[FTestEventRegistration alloc] initWithSpec:@{@"callbackId" : @1} query:defaultQuery];
+  [syncTree addEventRegistration:registration forQuery:defaultQuery];
+  NSDictionary *value = @{@"child1" : @{@"name" : @"child1"}, @"child2" : @{@"name" : @"child2"}};
+  [syncTree applyServerOverwriteAtPath:path newData:[FSnapshotUtilities nodeFrom:value]];
+  // Like queryOrderedByChild:@"name" and queryEqualToValue:@"child2".
+  id<FNode> name = [FSnapshotUtilities nodeFrom:@"child2"];
+  FQueryParams *params = [[[[FQueryParams defaultInstance]
+      orderBy:[[FPathIndex alloc] initWithPath:[FPath pathWithString:@"name"]]] startAt:name]
+      endAt:name];
+  FQuerySpec *getQuery = [[FQuerySpec alloc] initWithPath:path params:params];
+
+  NSArray *events = [syncTree
+      applyGetResultForQuery:getQuery
+                     newData:[FSnapshotUtilities nodeFrom:@{@"child2" : @{@"name" : @"child2"}}]];
+
+  XCTAssertEqual(events.count, 0);
+  XCTAssertEqualObjects([[syncTree getServerValue:defaultQuery] val], value);
+}
+
 - (void)testGetResultForFilteredQueryDoesNotChangeViewBelowLocation {
   FSyncTree *syncTree =
       [[FSyncTree alloc] initWithListenProvider:[self listenProviderRecordingStarts:nil stops:nil]];
