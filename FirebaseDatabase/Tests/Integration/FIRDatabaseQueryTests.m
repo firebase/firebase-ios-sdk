@@ -4472,4 +4472,151 @@
   WAIT_FOR(done);
 }
 
+- (void)testGetForFilteredQueryDoesNotChangeFilteredListenerAtSameLocation {
+  FIRDatabaseReference* ref = [FTestHelpers getRandomNode];
+
+  __block BOOL done = NO;
+  [ref setValue:@{
+    @"a" : @1,
+    @"b" : @2,
+    @"c" : @3,
+    @"d" : @4,
+    @"e" : @5,
+    @"f" : @6,
+    @"g" : @7,
+    @"h" : @8,
+    @"i" : @9,
+    @"j" : @10
+  }
+      withCompletionBlock:^(NSError* error, FIRDatabaseReference* ref) {
+        XCTAssertNil(error);
+        done = YES;
+      }];
+
+  WAIT_FOR(done);
+  done = NO;
+
+  // Listen to the children from "f" on, like the newest messages of a chat.
+  __block BOOL listening = NO;
+  NSMutableArray<NSNumber*>* listenerChildCounts = [NSMutableArray array];
+  FIRDatabaseQuery* listenQuery = [[ref queryOrderedByKey] queryStartingAtValue:@"f"];
+  [listenQuery observeEventType:FIRDataEventTypeValue
+                      withBlock:^(FIRDataSnapshot* snapshot) {
+                        [listenerChildCounts addObject:@(snapshot.childrenCount)];
+                        listening = YES;
+                      }];
+
+  WAIT_FOR(listening);
+
+  // Get the three children before "f", like a page of older messages.
+  FIRDatabaseQuery* getQuery =
+      [[[ref queryOrderedByKey] queryEndingBeforeValue:@"f"] queryLimitedToLast:3];
+  [getQuery getDataWithCompletionBlock:^(NSError* err, FIRDataSnapshot* snapshot) {
+    XCTAssertNil(err);
+    XCTAssertEqualObjects(snapshot.value, (@{@"c" : @3, @"d" : @4, @"e" : @5}));
+    done = YES;
+  }];
+
+  WAIT_FOR(done);
+  // Any events that the get causes are raised before its completion block runs.
+  XCTAssertEqualObjects(listenerChildCounts, @[ @5 ]);
+  [listenQuery removeAllObservers];
+}
+
+- (void)testGetForFilteredQueryDoesNotChangeListenerBelowLocation {
+  FIRDatabaseReference* ref = [FTestHelpers getRandomNode];
+
+  __block BOOL done = NO;
+  [ref setValue:@{@"a" : @1, @"b" : @2, @"c" : @3, @"d" : @4}
+      withCompletionBlock:^(NSError* error, FIRDatabaseReference* ref) {
+        XCTAssertNil(error);
+        done = YES;
+      }];
+
+  WAIT_FOR(done);
+  done = NO;
+
+  __block BOOL listening = NO;
+  NSMutableArray* listenerValues = [NSMutableArray array];
+  FIRDatabaseReference* childRef = [ref child:@"a"];
+  [childRef observeEventType:FIRDataEventTypeValue
+                   withBlock:^(FIRDataSnapshot* snapshot) {
+                     [listenerValues addObject:snapshot.value];
+                     listening = YES;
+                   }];
+
+  WAIT_FOR(listening);
+
+  // The result of the get doesn't include the observed child.
+  [[[ref queryOrderedByKey] queryLimitedToLast:2]
+      getDataWithCompletionBlock:^(NSError* err, FIRDataSnapshot* snapshot) {
+        XCTAssertNil(err);
+        XCTAssertEqualObjects(snapshot.value, (@{@"c" : @3, @"d" : @4}));
+        done = YES;
+      }];
+
+  WAIT_FOR(done);
+  XCTAssertEqualObjects(listenerValues, @[ @1 ]);
+  [childRef removeAllObservers];
+}
+
+- (void)testGetForFilteredQueryDoesNotOverwritePersistenceCache {
+  FIRDatabase* db = [self databaseForURL:self.databaseURL name:[[NSUUID UUID] UUIDString]];
+  FIRDatabase* db2 = [self databaseForURL:self.databaseURL name:[[NSUUID UUID] UUIDString]];
+
+  [db2 setPersistenceEnabled:true];
+
+  NSString* uuidPath = [[NSUUID UUID] UUIDString];
+
+  FIRDatabaseReference* writeRef = [db referenceWithPath:uuidPath];
+  FIRDatabaseReference* readRef = [db2 referenceWithPath:uuidPath];
+  NSDictionary* value = @{@"a" : @1, @"b" : @2, @"c" : @3, @"d" : @4};
+
+  __block BOOL done = NO;
+
+  [writeRef setValue:value
+      withCompletionBlock:^(NSError* error, FIRDatabaseReference* ref) {
+        XCTAssertNil(error);
+        done = YES;
+      }];
+
+  WAIT_FOR(done);
+  done = NO;
+
+  // Caches the whole value of the location.
+  [readRef getDataWithCompletionBlock:^(NSError* err, FIRDataSnapshot* snapshot) {
+    XCTAssertNil(err);
+    XCTAssertEqualObjects(snapshot.value, value);
+    done = YES;
+  }];
+
+  WAIT_FOR(done);
+  done = NO;
+
+  [[[readRef queryOrderedByKey] queryLimitedToLast:2]
+      getDataWithCompletionBlock:^(NSError* err, FIRDataSnapshot* snapshot) {
+        XCTAssertNil(err);
+        XCTAssertEqualObjects(snapshot.value, (@{@"c" : @3, @"d" : @4}));
+        done = YES;
+      }];
+
+  WAIT_FOR(done);
+  done = NO;
+
+  @try {
+    [db2 goOffline];
+
+    // While offline, the value comes from the persistence cache.
+    [readRef observeSingleEventOfType:FIRDataEventTypeValue
+                            withBlock:^(FIRDataSnapshot* snapshot) {
+                              XCTAssertEqualObjects(snapshot.value, value);
+                              done = YES;
+                            }];
+
+    WAIT_FOR(done);
+  } @finally {
+    [db2 goOnline];
+  }
+}
+
 @end

@@ -32,11 +32,18 @@
 #import "FirebaseDatabase/Sources/FKeyIndex.h"
 #import "FirebaseDatabase/Sources/FPathIndex.h"
 #import "FirebaseDatabase/Sources/FPriorityIndex.h"
+#import "FirebaseDatabase/Sources/Persistence/FCachePolicy.h"
+#import "FirebaseDatabase/Sources/Persistence/FPersistenceManager.h"
 #import "FirebaseDatabase/Sources/Snapshot/FCompoundWrite.h"
 #import "FirebaseDatabase/Sources/Snapshot/FEmptyNode.h"
 #import "FirebaseDatabase/Sources/Snapshot/FSnapshotUtilities.h"
+#import "FirebaseDatabase/Tests/Helpers/FMockStorageEngine.h"
 #import "FirebaseDatabase/Tests/Helpers/FTestClock.h"
 #import "FirebaseDatabase/Tests/Unit/FSyncPointTests.h"
+
+@interface FSyncTree (FSyncPointTests)
+- (NSNumber *)tagForQuery:(FQuerySpec *)query;
+@end
 
 typedef NSDictionary * (^fbt_nsdictionary_void)(void);
 
@@ -937,6 +944,152 @@ typedef NSDictionary * (^fbt_nsdictionary_void)(void);
 
 - (void)testdeepUpdateRaisesAllEvents {
   [self runTestForName:@"Deep update raises all events"];
+}
+
+#pragma mark - applyGetResultForQuery:newData:
+
+- (FListenProvider *)listenProviderRecordingStarts:(NSMutableArray<NSString *> *)starts
+                                             stops:(NSMutableArray<NSString *> *)stops {
+  __weak FSyncPointTests *weakSelf = self;
+  FListenProvider *listenProvider = [[FListenProvider alloc] init];
+  listenProvider.startListening = ^(FQuerySpec *query, NSNumber *tagId, id<FSyncTreeHash> hash,
+                                    fbt_nsarray_nsstring onComplete) {
+    [starts addObject:[weakSelf queryKeyForQuery:query tagId:tagId]];
+    return @[];
+  };
+  listenProvider.stopListening = ^(FQuerySpec *query, NSNumber *tagId) {
+    [stops addObject:[weakSelf queryKeyForQuery:query tagId:tagId]];
+  };
+  return listenProvider;
+}
+
+- (FQuerySpec *)keyQueryAtPath:(FPath *)path limitToLast:(NSInteger)limit {
+  FQueryParams *params =
+      [[[FQueryParams defaultInstance] orderBy:[FKeyIndex keyIndex]] limitToLast:limit];
+  return [[FQuerySpec alloc] initWithPath:path params:params];
+}
+
+- (void)testGetResultForFilteredQueryDoesNotChangeFilteredViewAtSameLocation {
+  FSyncTree *syncTree =
+      [[FSyncTree alloc] initWithListenProvider:[self listenProviderRecordingStarts:nil stops:nil]];
+  FPath *path = [FPath pathWithString:@"p"];
+  FQueryParams *byKey = [[FQueryParams defaultInstance] orderBy:[FKeyIndex keyIndex]];
+  FQuerySpec *listenQuery =
+      [[FQuerySpec alloc] initWithPath:path
+                                params:[byKey startAt:[FSnapshotUtilities nodeFrom:@"f"]]];
+  FTestEventRegistration *registration =
+      [[FTestEventRegistration alloc] initWithSpec:@{@"callbackId" : @1} query:listenQuery];
+  [syncTree addEventRegistration:registration forQuery:listenQuery];
+  NSDictionary *listenValue = @{@"f" : @6, @"g" : @7, @"h" : @8, @"i" : @9, @"j" : @10};
+  [syncTree applyTaggedQueryOverwriteAtPath:path
+                                    newData:[FSnapshotUtilities nodeFrom:listenValue]
+                                      tagId:[syncTree tagForQuery:listenQuery]];
+  FQuerySpec *getQuery = [[FQuerySpec alloc]
+      initWithPath:path
+            params:[[byKey endAt:[FSnapshotUtilities nodeFrom:@"e"]] limitToLast:3]];
+
+  NSArray *events = [syncTree
+      applyGetResultForQuery:getQuery
+                     newData:[FSnapshotUtilities nodeFrom:@{@"c" : @3, @"d" : @4, @"e" : @5}]];
+
+  XCTAssertEqual(events.count, 0);
+  XCTAssertEqualObjects([[syncTree getServerValue:listenQuery] val], listenValue);
+}
+
+- (void)testGetResultForFilteredQueryDoesNotChangeViewBelowLocation {
+  FSyncTree *syncTree =
+      [[FSyncTree alloc] initWithListenProvider:[self listenProviderRecordingStarts:nil stops:nil]];
+  FPath *path = [FPath pathWithString:@"p"];
+  FQuerySpec *childQuery = [FQuerySpec defaultQueryAtPath:[path childFromString:@"a"]];
+  FTestEventRegistration *registration =
+      [[FTestEventRegistration alloc] initWithSpec:@{@"callbackId" : @1} query:childQuery];
+  [syncTree addEventRegistration:registration forQuery:childQuery];
+  [syncTree applyServerOverwriteAtPath:childQuery.path newData:[FSnapshotUtilities nodeFrom:@1]];
+
+  NSArray *events =
+      [syncTree applyGetResultForQuery:[self keyQueryAtPath:path limitToLast:2]
+                               newData:[FSnapshotUtilities nodeFrom:@{@"c" : @3, @"d" : @4}]];
+
+  XCTAssertEqual(events.count, 0);
+  XCTAssertEqualObjects([[syncTree getServerValue:childQuery] val], @1);
+}
+
+- (void)testGetResultForFilteredQueryDoesNotOverwritePersistedServerCache {
+  FMockStorageEngine *storageEngine = [[FMockStorageEngine alloc] init];
+  FPersistenceManager *persistenceManager =
+      [[FPersistenceManager alloc] initWithStorageEngine:storageEngine
+                                             cachePolicy:[FNoCachePolicy noCachePolicy]];
+  FSyncTree *syncTree = [[FSyncTree alloc]
+      initWithPersistenceManager:persistenceManager
+                  listenProvider:[self listenProviderRecordingStarts:nil stops:nil]];
+  FPath *path = [FPath pathWithString:@"p"];
+  NSDictionary *value = @{@"a" : @1, @"b" : @2, @"c" : @3, @"d" : @4};
+  [syncTree applyGetResultForQuery:[FQuerySpec defaultQueryAtPath:path]
+                           newData:[FSnapshotUtilities nodeFrom:value]];
+
+  [syncTree applyGetResultForQuery:[self keyQueryAtPath:path limitToLast:2]
+                           newData:[FSnapshotUtilities nodeFrom:@{@"c" : @3, @"d" : @4}]];
+
+  XCTAssertEqualObjects([[storageEngine serverCacheAtPath:path] val], value);
+}
+
+- (void)testGetResultForFilteredQueryDoesNotListenOrKeepQueryState {
+  NSMutableArray<NSString *> *starts = [NSMutableArray array];
+  NSMutableArray<NSString *> *stops = [NSMutableArray array];
+  FSyncTree *syncTree = [[FSyncTree alloc]
+      initWithListenProvider:[self listenProviderRecordingStarts:starts stops:stops]];
+  FQuerySpec *query = [self keyQueryAtPath:[FPath pathWithString:@"p"] limitToLast:2];
+
+  NSArray *events =
+      [syncTree applyGetResultForQuery:query
+                               newData:[FSnapshotUtilities nodeFrom:@{@"c" : @3, @"d" : @4}]];
+
+  XCTAssertEqual(events.count, 0);
+  XCTAssertEqual(starts.count, 0);
+  XCTAssertEqual(stops.count, 0);
+  XCTAssertNil([syncTree tagForQuery:query]);
+}
+
+- (void)testGetResultForKeepSyncedFilteredQueryKeepsItSynced {
+  NSMutableArray<NSString *> *starts = [NSMutableArray array];
+  NSMutableArray<NSString *> *stops = [NSMutableArray array];
+  FSyncTree *syncTree = [[FSyncTree alloc]
+      initWithListenProvider:[self listenProviderRecordingStarts:starts stops:stops]];
+  FQuerySpec *query = [self keyQueryAtPath:[FPath pathWithString:@"p"] limitToLast:2];
+  [syncTree keepQuery:query synced:YES];
+  XCTAssertEqual(starts.count, 1);
+  NSDictionary *value = @{@"c" : @3, @"d" : @4};
+
+  NSArray *events = [syncTree applyGetResultForQuery:query
+                                             newData:[FSnapshotUtilities nodeFrom:value]];
+
+  XCTAssertEqual(events.count, 0);
+  XCTAssertEqual(stops.count, 0);
+  XCTAssertEqualObjects([[syncTree getServerValue:query] val], value);
+  // The keepSynced: registration is still there, so removing it stops its listen.
+  [syncTree keepQuery:query synced:NO];
+  XCTAssertEqualObjects(stops, starts);
+}
+
+- (void)testGetResultForFilteredQueryRaisesEventsForListenerOfSameQuery {
+  NSMutableArray<NSString *> *stops = [NSMutableArray array];
+  FSyncTree *syncTree = [[FSyncTree alloc]
+      initWithListenProvider:[self listenProviderRecordingStarts:nil stops:stops]];
+  FQuerySpec *query = [self keyQueryAtPath:[FPath pathWithString:@"p"] limitToLast:2];
+  FTestEventRegistration *registration =
+      [[FTestEventRegistration alloc] initWithSpec:@{@"callbackId" : @1} query:query];
+  [syncTree addEventRegistration:registration forQuery:query];
+  NSDictionary *value = @{@"c" : @3, @"d" : @4};
+
+  NSArray<FDataEvent *> *events =
+      [syncTree applyGetResultForQuery:query newData:[FSnapshotUtilities nodeFrom:value]];
+
+  FDataEvent *valueEvent = events.lastObject;
+  XCTAssertEqual(valueEvent.eventType, FIRDataEventTypeValue);
+  XCTAssertEqual(valueEvent.eventRegistration, registration);
+  XCTAssertEqualObjects(valueEvent.snapshot.value, value);
+  XCTAssertEqual(stops.count, 0);
+  XCTAssertNotNil([syncTree tagForQuery:query]);
 }
 
 @end

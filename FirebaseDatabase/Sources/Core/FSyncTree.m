@@ -454,6 +454,20 @@ static const NSUInteger kFSizeThresholdForCompoundHash = 1024;
  */
 - (NSArray *)addEventRegistration:(id<FEventRegistration>)eventRegistration
                          forQuery:(FQuerySpec *)query {
+    return [self addEventRegistration:eventRegistration
+                             forQuery:query
+                    skipListenerSetup:NO];
+}
+
+/**
+ * Add an event callback for the specified query
+ * @param skipListenerSetup If YES, no listen is started for a new view. Used
+ * when applying a get result, which doesn't need a listen.
+ * @return NSArray of FEvent to raise.
+ */
+- (NSArray *)addEventRegistration:(id<FEventRegistration>)eventRegistration
+                         forQuery:(FQuerySpec *)query
+                skipListenerSetup:(BOOL)skipListenerSetup {
     FPath *path = query.path;
 
     __block BOOL foundAncestorDefaultView = NO;
@@ -499,7 +513,7 @@ static const NSUInteger kFSizeThresholdForCompoundHash = 1024;
                                      serverCache:serverCache];
 
         // There was no view and no default listen
-        if (!foundAncestorDefaultView) {
+        if (!foundAncestorDefaultView && !skipListenerSetup) {
             FView *view = [syncPoint viewForQuery:query];
             NSMutableArray *mutableEvents = [events mutableCopy];
             [mutableEvents
@@ -589,6 +603,24 @@ static const NSUInteger kFSizeThresholdForCompoundHash = 1024;
 - (NSArray *)removeEventRegistration:(id<FEventRegistration>)eventRegistration
                             forQuery:(FQuerySpec *)query
                          cancelError:(NSError *)cancelError {
+    return [self removeEventRegistration:eventRegistration
+                                forQuery:query
+                             cancelError:cancelError
+                       skipListenerDedup:NO];
+}
+
+/**
+ * Remove event callback(s), as removeEventRegistration:forQuery:cancelError:
+ * does.
+ *
+ * @param skipListenerDedup If YES, no listens are started or stopped. Used to
+ * remove a registration added with skipListenerSetup, whose view has no listen.
+ * @return NSArray of FEvent to raise.
+ */
+- (NSArray *)removeEventRegistration:(id<FEventRegistration>)eventRegistration
+                            forQuery:(FQuerySpec *)query
+                         cancelError:(NSError *)cancelError
+                   skipListenerDedup:(BOOL)skipListenerDedup {
     // Find the syncPoint first. Then deal with whether or not it has matching
     // listeners
     FPath *path = query.path;
@@ -636,7 +668,7 @@ static const NSUInteger kFSizeThresholdForCompoundHash = 1024;
                   [NSNumber numberWithBool:[parentSyncPoint hasCompleteView]];
             }];
 
-        if (removingDefault && ![covered boolValue]) {
+        if (!skipListenerDedup && removingDefault && ![covered boolValue]) {
             FImmutableTree *subtree = [self.syncPointTree subtreeAtPath:path];
             // There are potentially child listeners. Determine what if any
             // listens we need to send before executing the removal
@@ -668,7 +700,8 @@ static const NSUInteger kFSizeThresholdForCompoundHash = 1024;
         // covered in terms of making sure we're set up on listens lower in the
         // tree. Also, note that if we have a cancelError, it's already been
         // removed at the provider level.
-        if (![covered boolValue] && [removed count] > 0 && cancelError == nil) {
+        if (!skipListenerDedup && ![covered boolValue] && [removed count] > 0 &&
+            cancelError == nil) {
             // If we removed a default, then we weren't listening on any of the
             // other queries here. Just cancel the one default. Otherwise, we
             // need to iterate through and cancel each individual query
@@ -707,6 +740,41 @@ static const NSUInteger kFSizeThresholdForCompoundHash = 1024;
                           cancelError:nil];
         [self.keepSyncedQueries removeObject:query];
     }
+}
+
+/**
+ * Apply the result of a get request for the specified query.
+ *
+ * The result for a query that doesn't load all data is only part of the data
+ * at the query's path. Applying it as a server overwrite at the path would
+ * replace the data of the other views at and below the path, and of the
+ * persisted server cache. Instead, it's applied to the query's own view, which
+ * is added without a listen for the duration of this call, like the JS SDK
+ * does. See https://github.com/firebase/firebase-ios-sdk/issues/14137.
+ * @return NSArray of FEvent to raise.
+ */
+- (NSArray *)applyGetResultForQuery:(FQuerySpec *)query
+                            newData:(id<FNode>)newData {
+    if ([query loadsAllData]) {
+        return [self applyServerOverwriteAtPath:query.path newData:newData];
+    }
+    // This registration raises no events. A new instance only matches itself,
+    // so removing it doesn't remove the query's other registrations, such as
+    // the shared keepSynced one.
+    id<FEventRegistration> registration =
+        [[FKeepSyncedEventRegistration alloc] init];
+    [self addEventRegistration:registration
+                      forQuery:query
+             skipListenerSetup:YES];
+    NSArray *events =
+        [self applyTaggedQueryOverwriteAtPath:query.path
+                                      newData:newData
+                                        tagId:[self tagForQuery:query]];
+    [self removeEventRegistration:registration
+                         forQuery:query
+                      cancelError:nil
+                skipListenerDedup:YES];
+    return events;
 }
 
 - (NSArray *)removeAllWrites {
