@@ -27,7 +27,6 @@ import Testing
 
 @Suite(.serialized)
 struct GenerateContentIntegrationTests {
-  let generationConfig = GenerationConfig()
   let safetySettings = [
     SafetySetting(harmCategory: .harassment, threshold: .blockLowAndAbove),
     SafetySetting(harmCategory: .hateSpeech, threshold: .blockLowAndAbove),
@@ -64,7 +63,6 @@ struct GenerateContentIntegrationTests {
   func generateContent(_ config: InstanceConfig, modelName: String) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
       modelName: modelName,
-      generationConfig: generationConfig,
       safetySettings: safetySettings,
     )
     let prompt = "Where is Google headquarters located? Answer with the city name only."
@@ -564,7 +562,6 @@ struct GenerateContentIntegrationTests {
   func generateContent_codeExecution_succeeds(_ config: InstanceConfig) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
       modelName: ModelNames.gemini3_1_FlashLite,
-      generationConfig: generationConfig,
       tools: [.codeExecution()]
     )
     let prompt = """
@@ -623,7 +620,6 @@ struct GenerateContentIntegrationTests {
     """
     let model = FirebaseAI.componentInstance(config).generativeModel(
       modelName: modelName,
-      generationConfig: generationConfig,
       safetySettings: safetySettings
     )
     let chat = model.startChat()
