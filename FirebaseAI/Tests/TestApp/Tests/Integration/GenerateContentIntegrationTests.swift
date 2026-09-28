@@ -28,7 +28,7 @@ import Testing
 @Suite(.serialized)
 struct GenerateContentIntegrationTests {
   // Set temperature, topP and topK to lowest allowed values to make responses more deterministic.
-  let generationConfig = GenerationConfig(temperature: 0.0, topP: 0.0, topK: 1)
+  let generationConfig = GenerationConfig()
   let safetySettings = [
     SafetySetting(harmCategory: .harassment, threshold: .blockLowAndAbove),
     SafetySetting(harmCategory: .hateSpeech, threshold: .blockLowAndAbove),
@@ -202,12 +202,7 @@ struct GenerateContentIntegrationTests {
                                thinkingConfig: ThinkingConfig) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
       modelName: modelName,
-      generationConfig: GenerationConfig(
-        temperature: 0.0,
-        topP: 0.0,
-        topK: 1,
-        thinkingConfig: thinkingConfig
-      ),
+      generationConfig: GenerationConfig(thinkingConfig: thinkingConfig),
       safetySettings: safetySettings
     )
     let chat = model.startChat()
@@ -306,12 +301,7 @@ struct GenerateContentIntegrationTests {
     )
     let model = FirebaseAI.componentInstance(config).generativeModel(
       modelName: modelName,
-      generationConfig: GenerationConfig(
-        temperature: 0.0,
-        topP: 0.0,
-        topK: 1,
-        thinkingConfig: thinkingConfig
-      ),
+      generationConfig: GenerationConfig(thinkingConfig: thinkingConfig),
       safetySettings: safetySettings,
       tools: [.functionDeclarations([getTemperatureDeclaration])],
       systemInstruction: ModelContent(parts: """
@@ -367,9 +357,6 @@ struct GenerateContentIntegrationTests {
   func generateImageWithAspectRatio(_ config: InstanceConfig, modelName: String) async throws {
     let imageConfig = ImageConfig(aspectRatio: .landscape16x9)
     let generationConfig = GenerationConfig(
-      temperature: 0.0,
-      topP: 0.0,
-      topK: 1,
       responseModalities: [.image],
       imageConfig: imageConfig
     )
@@ -414,9 +401,6 @@ struct GenerateContentIntegrationTests {
       imageSize: .size2K
     )
     let generationConfig = GenerationConfig(
-      temperature: 0.0,
-      topP: 0.0,
-      topK: 1,
       responseModalities: [.image],
       imageConfig: imageConfig
     )
@@ -492,9 +476,6 @@ struct GenerateContentIntegrationTests {
   ])
   func generateImage(_ config: InstanceConfig, modelName: String) async throws {
     let generationConfig = GenerationConfig(
-      temperature: 0.0,
-      topP: 0.0,
-      topK: 1,
       responseModalities: [.text, .image]
     )
     let model = FirebaseAI.componentInstance(config).generativeModel(
@@ -701,9 +682,6 @@ struct GenerateContentIntegrationTests {
   ])
   func generateImageStreaming(_ config: InstanceConfig, modelName: String) async throws {
     let generationConfig = GenerationConfig(
-      temperature: 0.0,
-      topP: 0.0,
-      topK: 1,
       responseModalities: [.text, .image]
     )
     let model = FirebaseAI.componentInstance(config).generativeModel(
