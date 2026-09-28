@@ -27,7 +27,6 @@ import Testing
 
 @Suite(.serialized)
 struct GenerateContentIntegrationTests {
-  // Set temperature, topP and topK to lowest allowed values to make responses more deterministic.
   let generationConfig = GenerationConfig()
   let safetySettings = [
     SafetySetting(harmCategory: .harassment, threshold: .blockLowAndAbove),

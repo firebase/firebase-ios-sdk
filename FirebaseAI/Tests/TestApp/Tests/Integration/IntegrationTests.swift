@@ -23,10 +23,7 @@ import XCTest
 
 // TODO(#14405): Migrate to Swift Testing and parameterize tests.
 final class IntegrationTests: XCTestCase {
-  // Set temperature, topP and topK to lowest allowed values to make responses more deterministic.
-  let generationConfig = GenerationConfig(
-    responseMIMEType: "text/plain"
-  )
+  let generationConfig = GenerationConfig(responseMIMEType: "text/plain")
   let systemInstruction = ModelContent(
     role: "system",
     parts: "You are a friendly and helpful assistant."
