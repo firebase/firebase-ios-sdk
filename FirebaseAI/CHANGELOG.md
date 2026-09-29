@@ -27,7 +27,7 @@
   (`TemplateChat`) and function calling (`TemplateTool`) with Server Prompt
   Templates. See the
   [getting started guide](https://firebase.google.com/docs/ai-logic/server-prompt-templates/get-started)
-  for more details. (#16676)
+  for more details. (#16740)
 - [changed] Updated the default function calling mode to `VALIDATED` and
   updated guided generation to use `responseJsonSchema` in
   `GeminiLanguageModel`. (#16649)
