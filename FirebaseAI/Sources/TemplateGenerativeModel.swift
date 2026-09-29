@@ -111,8 +111,7 @@ public final class TemplateGenerativeModel: Sendable {
   }
 
   /// **[Public Preview]** Creates a new chat conversation using this model with the provided
-  /// template, inputs, and
-  /// history.
+  /// template, inputs, and history.
   ///
   /// > Warning: This API is a public preview and may be subject to change.
   ///
