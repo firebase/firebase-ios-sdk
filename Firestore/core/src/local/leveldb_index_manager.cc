@@ -593,9 +593,30 @@ LevelDbIndexManager::GetDocumentsMatchingTarget(const core::Target& target) {
     auto encoded_upper = EncodeBound(index, sub_target, upper_bound);
     auto encoded_not_in = EncodeValues(index, sub_target, not_in_values);
 
+    std::optional<std::string> lower_bound_document_key;
+    if (lower_bound.document_key.has_value()) {
+      std::string encoded_key =
+          EncodedDirectionalKey(index, lower_bound.document_key.value());
+      if (!lower_bound.inclusive) {
+        encoded_key.push_back('\0');
+      }
+      lower_bound_document_key = std::move(encoded_key);
+    }
+
+    std::optional<std::string> upper_bound_document_key;
+    if (upper_bound.document_key.has_value()) {
+      std::string encoded_key =
+          EncodedDirectionalKey(index, upper_bound.document_key.value());
+      if (upper_bound.inclusive) {
+        encoded_key.push_back('\0');
+      }
+      upper_bound_document_key = std::move(encoded_key);
+    }
+
     auto index_ranges = GenerateIndexRanges(
         index.index_id(), array_values, encoded_lower, lower_bound.inclusive,
-        encoded_upper, upper_bound.inclusive, encoded_not_in);
+        lower_bound_document_key, encoded_upper, upper_bound.inclusive,
+        upper_bound_document_key, encoded_not_in);
 
     auto iter = db_->current_transaction()->NewIterator();
     for (const auto& range : index_ranges) {
@@ -661,8 +682,10 @@ LevelDbIndexManager::GenerateIndexRanges(
     core::IndexedValues array_values,
     const std::vector<std::string>& lower_bounds,
     bool lower_bounds_inclusive,
+    const std::optional<std::string>& lower_bound_document_key,
     const std::vector<std::string>& upper_bounds,
     bool upper_bounds_inclusive,
+    const std::optional<std::string>& upper_bound_document_key,
     std::vector<std::string> not_in_values) {
   // The number of total index scans we union together. This is similar to a
   // disjunctive normal form, but adapted for array values. We create a single
@@ -683,10 +706,10 @@ LevelDbIndexManager::GenerateIndexRanges(
 
     IndexEntry lower_bound = GenerateLowerBound(
         index_id, array_value, lower_bounds[i % scans_per_array_element],
-        lower_bounds_inclusive);
+        lower_bound_document_key.has_value() ? true : lower_bounds_inclusive);
     IndexEntry upper_bound = GenerateUpperBound(
         index_id, array_value, upper_bounds[i % scans_per_array_element],
-        upper_bounds_inclusive);
+        upper_bound_document_key.has_value() ? false : upper_bounds_inclusive);
 
     std::vector<IndexEntry> not_in_bounds;
     for (const auto& not_in : not_in_values) {
@@ -695,7 +718,8 @@ LevelDbIndexManager::GenerateIndexRanges(
     }
 
     auto new_range =
-        CreateRange(lower_bound, upper_bound, std::move(not_in_bounds));
+        CreateRange(lower_bound, lower_bound_document_key, upper_bound,
+                    upper_bound_document_key, std::move(not_in_bounds));
     index_ranges.insert(index_ranges.end(), new_range.begin(), new_range.end());
   }
 
@@ -704,7 +728,9 @@ LevelDbIndexManager::GenerateIndexRanges(
 
 std::vector<LevelDbIndexManager::IndexRange> LevelDbIndexManager::CreateRange(
     const index::IndexEntry& lower_bound,
+    std::optional<std::string> lower_bound_document_key,
     const index::IndexEntry& upper_bound,
+    std::optional<std::string> upper_bound_document_key,
     std::vector<index::IndexEntry> not_in_values) const {
   // The `not_in_values` need to be sorted and unique so that we can return a
   // sorted set of non-overlapping ranges.
@@ -730,11 +756,15 @@ std::vector<LevelDbIndexManager::IndexRange> LevelDbIndexManager::CreateRange(
       // `notInValue` is the lower bound. We therefore need to raise the bound
       // to the next value.
       bounds[0] = lower_bound.Successor();
+      lower_bound_document_key = std::nullopt;
     } else if (cmp_to_lower == util::ComparisonResult::Descending &&
                cmp_to_upper == util::ComparisonResult::Ascending) {
       // `notInValue` is in the middle of the range
       bounds.push_back(not_in_value);
       bounds.push_back(not_in_value.Successor());
+    } else if (cmp_to_upper == util::ComparisonResult::Same) {
+      upper_bound_document_key = std::nullopt;
+      break;
     } else if (cmp_to_upper == util::ComparisonResult::Descending) {
       // `notInValue` (and all following values) are out of the range
       break;
@@ -744,13 +774,17 @@ std::vector<LevelDbIndexManager::IndexRange> LevelDbIndexManager::CreateRange(
 
   std::vector<LevelDbIndexManager::IndexRange> ranges;
   for (size_t i = 0; i < bounds.size(); i += 2) {
+    const std::optional<std::string>& lower_doc_key =
+        (i == 0) ? lower_bound_document_key : std::nullopt;
+    const std::optional<std::string>& upper_doc_key =
+        (i + 1 == bounds.size() - 1) ? upper_bound_document_key : std::nullopt;
     ranges.push_back(LevelDbIndexManager::IndexRange{
-        LevelDbIndexEntryKey::KeyPrefix(bounds[i].index_id(), uid_,
-                                        bounds[i].array_value(),
-                                        bounds[i].directional_value()),
-        LevelDbIndexEntryKey::KeyPrefix(bounds[i + 1].index_id(), uid_,
-                                        bounds[i + 1].array_value(),
-                                        bounds[i + 1].directional_value())});
+        LevelDbIndexEntryKey::KeyPrefix(
+            bounds[i].index_id(), uid_, bounds[i].array_value(),
+            bounds[i].directional_value(), lower_doc_key),
+        LevelDbIndexEntryKey::KeyPrefix(
+            bounds[i + 1].index_id(), uid_, bounds[i + 1].array_value(),
+            bounds[i + 1].directional_value(), upper_doc_key)});
   }
   return ranges;
 }
