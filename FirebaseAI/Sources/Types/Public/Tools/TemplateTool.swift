@@ -12,7 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/// A tool that a model may use when generating responses with server prompt templates.
+/// **[Public Preview]** A tool that a model may use when generating responses with server prompt
+/// templates.
+///
+/// > Warning: This API is a public preview and may be subject to change.
 ///
 /// In Server Prompt Templates, tools available to the model must be listed in the `tools` object of
 /// the template's frontmatter. Server-side tools like Grounding with Google Search
@@ -50,7 +53,10 @@ public struct TemplateTool: Sendable {
 }
 
 public extension TemplateTool {
-  /// Creates a tool that allows the model to perform function calling in server prompt templates.
+  /// **[Public Preview]** Creates a tool that allows the model to perform function calling in
+  /// server prompt templates.
+  ///
+  /// > Warning: This API is a public preview and may be subject to change.
   ///
   /// In Server Prompt Templates, functions available to the model must be listed in the `tools`
   /// object of the template's frontmatter. Defining schemas in client code via this method allows
@@ -77,7 +83,9 @@ public extension TemplateTool {
     return self.init(functionDeclarations: functionDeclarations)
   }
 
-  /// Creates a tool that allows the model to use Grounding with Google Maps.
+  /// **[Public Preview]** Creates a tool that allows the model to use Grounding with Google Maps.
+  ///
+  /// > Warning: This API is a public preview and may be subject to change.
   ///
   /// Grounding with Google Maps connects the model to Google Maps to access geospatial data and
   /// incorporate location-aware information into responses. To use this tool, `googleMaps` must

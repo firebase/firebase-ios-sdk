@@ -14,7 +14,9 @@
 
 import Foundation
 
-/// An ongoing conversation with a model backed by a server prompt template.
+/// **[Public Preview]** An ongoing conversation with a model backed by a server prompt template.
+///
+/// > Warning: This API is a public preview and may be subject to change.
 ///
 /// A `TemplateChat` manages conversation history on the client while utilizing the prompt,
 /// system instructions, and configurations defined in a server prompt template. The template's
@@ -63,7 +65,9 @@ public final class TemplateChat: Sendable {
     }
   }
 
-  /// Sends a message to the model and returns the response.
+  /// **[Public Preview]** Sends a message to the model and returns the response.
+  ///
+  /// > Warning: This API is a public preview and may be subject to change.
   ///
   /// - Parameter content: The message content to send to the model, including any
   ///   ``FunctionResponsePart``s responding to previous function calls; pass an empty array to
@@ -86,7 +90,9 @@ public final class TemplateChat: Sendable {
     return response
   }
 
-  /// Sends a message to the model and returns the response.
+  /// **[Public Preview]** Sends a message to the model and returns the response.
+  ///
+  /// > Warning: This API is a public preview and may be subject to change.
   ///
   /// Calling this method with no arguments sends an empty turn, which runs the template's own
   /// prompt against the current history without adding any new content. This is typically how the
@@ -111,8 +117,10 @@ public final class TemplateChat: Sendable {
     return try await sendMessage([ModelContent(parts: parts)])
   }
 
-  /// Sends a message to the model and returns the response as a stream of
+  /// **[Public Preview]** Sends a message to the model and returns the response as a stream of
   /// `GenerateContentResponse`s.
+  ///
+  /// > Warning: This API is a public preview and may be subject to change.
   ///
   /// - Parameter content: The message to send to the model, including any ``FunctionResponsePart``s
   ///   responding to previous function calls; pass an empty array to send an empty turn.
@@ -162,8 +170,10 @@ public final class TemplateChat: Sendable {
     }
   }
 
-  /// Sends a message to the model and returns the response as a stream of
+  /// **[Public Preview]** Sends a message to the model and returns the response as a stream of
   /// `GenerateContentResponse`s.
+  ///
+  /// > Warning: This API is a public preview and may be subject to change.
   ///
   /// Calling this method with no arguments sends an empty turn, which runs the template's own
   /// prompt against the current history without adding any new content.
