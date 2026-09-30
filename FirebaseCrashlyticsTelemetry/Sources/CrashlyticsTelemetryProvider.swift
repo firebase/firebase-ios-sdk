@@ -185,7 +185,7 @@ final class CrashlyticsTelemetryProvider: NSObject, Library, TelemetryProvider,
 
   private func filterNetworkRequests(urlRequest: URLRequest) -> Bool {
     let urlString = urlRequest.url?.absoluteString.lowercased() ?? ""
-    return !urlString.contains("localhost") || !urlString.contains("firebasetelemetry")
+    return !urlString.contains("localhost") && !urlString.contains("firebasetelemetry")
   }
 
   private func customizeNetworkSpan(req: URLRequest, builder: SpanBuilder) {
