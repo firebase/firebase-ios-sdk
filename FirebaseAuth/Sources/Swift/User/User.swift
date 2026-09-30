@@ -1374,11 +1374,10 @@ extension User: NSSecureCoding {}
       var providerData: [String: UserInfoImpl] = [:]
       if let providerUserInfos = user.providerUserInfo {
         for providerUserInfo in providerUserInfos {
-          let userInfo = UserInfoImpl.userInfo(
+          if let userInfo = UserInfoImpl.userInfo(
             withGetAccountInfoResponseProviderUserInfo: providerUserInfo
-          )
-          if let providerID = providerUserInfo.providerID {
-            providerData[providerID] = userInfo
+          ) {
+            providerData[userInfo.providerID] = userInfo
           }
         }
       }
