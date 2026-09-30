@@ -1,3 +1,15 @@
+# Unreleased
+- [added] Added OrcaRouter as a first-class OpenAI-compatible provider in the AI Logic
+  transport. It is reachable through two explicit authentication entries that both yield the
+  same durable `sk-orca-…` API key: paste an existing key (`orcarouter`), or authorize with an
+  OrcaRouter account over OAuth 2.0 + PKCE (`orcarouter-oauth`). Authentication and inference
+  use separate public origins (`https://www.orcarouter.ai` and `https://api.orcarouter.ai/v1`),
+  each overridable with `ORCA_AUTH_BASE_URL`, `ORCA_API_BASE_URL`, or a shared `ORCA_BASE_URL`.
+- [added] Added OrcaRouter model discovery against `GET /v1/models` with per-capability
+  filtering (text chat, multimodal chat, embedding, image generation, video, and rerank). The
+  returned `vendor/model` identifiers are preserved verbatim, and a small verified seed keeps a
+  fresh installation usable when the catalog is unreachable.
+
 # 13.0.0
 - [changed] **Breaking Change**: Renamed `Tool` to `GenerativeModel.Tool` to
   avoid naming conflicts with Apple's Foundation Models `Tool` type. Calls
