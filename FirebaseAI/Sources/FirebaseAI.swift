@@ -108,7 +108,9 @@ public final class FirebaseAI: Sendable {
     )
   }
 
-  /// Initializes a new `TemplateGenerativeModel`.
+  /// **[Public Preview]** Initializes a new `TemplateGenerativeModel`.
+  ///
+  /// > Warning: This API is a public preview and may be subject to change.
   ///
   /// Server prompt templates let you store prompts, schemas, tools, and configurations on the
   /// server, decoupling prompt iteration from app release cycles.

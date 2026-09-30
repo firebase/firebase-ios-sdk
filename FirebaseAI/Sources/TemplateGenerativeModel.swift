@@ -14,7 +14,10 @@
 
 import Foundation
 
-/// A multimodal model (like Gemini) that generates content using server-managed prompt templates.
+/// **[Public Preview]** A multimodal model (like Gemini) that generates content using
+/// server-managed prompt templates.
+///
+/// > Warning: This API is a public preview and may be subject to change.
 ///
 /// When using server prompt templates, prompts, system instructions, tools, and model
 /// configurations are defined and stored server-side in the Firebase console or via the Firebase AI
@@ -58,7 +61,9 @@ public final class TemplateGenerativeModel: Sendable {
     self.requestOptions = requestOptions
   }
 
-  /// Generates content from a prompt template and inputs.
+  /// **[Public Preview]** Generates content from a prompt template and inputs.
+  ///
+  /// > Warning: This API is a public preview and may be subject to change.
   ///
   /// - Parameters:
   ///   - templateID: The ID of the server prompt template to use (for example,
@@ -80,7 +85,10 @@ public final class TemplateGenerativeModel: Sendable {
     )
   }
 
-  /// Generates content from a prompt template and inputs, with streaming responses.
+  /// **[Public Preview]** Generates content from a prompt template and inputs, with streaming
+  /// responses.
+  ///
+  /// > Warning: This API is a public preview and may be subject to change.
   ///
   /// - Parameters:
   ///   - templateID: The ID of the server prompt template to use (for example,
@@ -102,8 +110,10 @@ public final class TemplateGenerativeModel: Sendable {
     )
   }
 
-  /// Creates a new chat conversation using this model with the provided template, inputs, and
-  /// history.
+  /// **[Public Preview]** Creates a new chat conversation using this model with the provided
+  /// template, inputs, and history.
+  ///
+  /// > Warning: This API is a public preview and may be subject to change.
   ///
   /// The template's model, system instructions, and configurations apply to every turn
   /// automatically, while the returned ``TemplateChat`` tracks conversation history.
