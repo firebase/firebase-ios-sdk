@@ -15,7 +15,7 @@
 import Foundation
 import PersistenceWrapper
 
-@testable import CrashlyticsTelemetry
+@testable import FirebaseCrashlyticsTelemetry
 
 final class MockPersistenceBuffer: PersistenceBuffer, @unchecked Sendable {
   struct SetAttributeCall: Equatable {
@@ -24,8 +24,14 @@ final class MockPersistenceBuffer: PersistenceBuffer, @unchecked Sendable {
     let value: String
   }
 
+  struct EndSpanCall: Equatable {
+    let spanId: UInt64
+    let endTime: UInt64
+  }
+
   var addedSpans: [PersistenceSpan] = []
   var setAttributeCalls: [SetAttributeCall] = []
+  var endSpanCalls: [EndSpanCall] = []
   var removedSpanIds: [UInt64] = []
 
   func add(_ span: PersistenceSpan) {
@@ -34,6 +40,10 @@ final class MockPersistenceBuffer: PersistenceBuffer, @unchecked Sendable {
 
   func setAttribute(_ value: String, forKey key: String, onSpanId spanId: UInt64) {
     setAttributeCalls.append(.init(spanId: spanId, key: key, value: value))
+  }
+
+  func endSpanId(_ spanId: UInt64, endTime: UInt64) {
+    endSpanCalls.append(.init(spanId: spanId, endTime: endTime))
   }
 
   func removeSpanId(_ spanId: UInt64) {

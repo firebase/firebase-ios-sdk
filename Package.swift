@@ -128,6 +128,10 @@ func packageProducts() -> [Product] {
       targets: ["FirebaseCrashlytics"]
     ),
     .library(
+      name: "FirebaseCrashlyticsTelemetry",
+      targets: ["FirebaseCrashlyticsTelemetry"]
+    ),
+    .library(
       name: "FirebaseDatabase",
       targets: ["FirebaseDatabase"]
     ),
@@ -208,6 +212,11 @@ func packageDependencies() -> [Package.Dependency] {
       "101.0.0" ..< "102.0.0"
     ),
     appCheckDependency(),
+    .package(
+      url: "https://github.com/open-telemetry/opentelemetry-swift-core.git",
+      .upToNextMajor(from: "2.3.0")
+    ),
+    .package(url: "https://github.com/firebase/firebase-telemetry-persistence.git", branch: "main"),
   ]
 }
 
@@ -1360,6 +1369,7 @@ func packageTargets() -> [Target] {
     ),
   ]
   targets.append(contentsOf: firestoreTargets())
+  targets.append(contentsOf: firebaseCrashlyticsTelemetryTargets())
 
   #if compiler(>=6.4) && canImport(FoundationModels)
     targets.append(contentsOf: geminiLanguageModelTargets())
@@ -1431,6 +1441,84 @@ func firebaseCrashlyticsTarget() -> Target {
       .linkedFramework("SystemConfiguration", .when(platforms: [.iOS, .macOS, .tvOS])),
     ]
   )
+}
+
+func firebaseCrashlyticsTelemetryTargets() -> [Target] {
+  return [
+    .target(
+      name: "FirebaseCrashlyticsTelemetry",
+      dependencies: [
+        "FirebaseCrashlytics",
+        "OpentelemetryProtos",
+        "PersistenceWrapper",
+        "URLSessionInstrumentation",
+        .product(name: "OpenTelemetryApi", package: "opentelemetry-swift-core"),
+        .product(name: "OpenTelemetrySdk", package: "opentelemetry-swift-core"),
+        .product(name: "StdoutExporter", package: "opentelemetry-swift-core"),
+        .product(name: "nanopb", package: "nanopb"),
+      ],
+      path: "FirebaseCrashlyticsTelemetry/Sources",
+      exclude: [
+        "third_party/README.md",
+        "third_party/opentelemetry-proto",
+        "third_party/opentelemetry-swift",
+      ],
+      cSettings: [
+        .define("PB_FIELD_32BIT", to: "1"),
+        .define("PB_NO_PACKED_STRUCTS", to: "1"),
+        .define("PB_ENABLE_MALLOC", to: "1"),
+      ]
+    ),
+    .target(
+      name: "PersistenceWrapper",
+      dependencies: [
+        .product(name: "FirebaseTelemetryPersistence", package: "firebase-telemetry-persistence"),
+      ],
+      path: "FirebaseCrashlyticsTelemetry/SourcesObjC"
+    ),
+    .target(
+      name: "NetworkStatus",
+      dependencies: [
+        .product(name: "OpenTelemetryApi", package: "opentelemetry-swift-core"),
+      ],
+      path: "FirebaseCrashlyticsTelemetry/Sources/third_party/opentelemetry-swift/Sources/Instrumentation/NetworkStatus",
+      linkerSettings: [.linkedFramework("CoreTelephony", .when(platforms: [.iOS]))]
+    ),
+    .target(
+      name: "URLSessionInstrumentation",
+      dependencies: [
+        .product(name: "OpenTelemetrySdk", package: "opentelemetry-swift-core"),
+        "NetworkStatus",
+      ],
+      path: "FirebaseCrashlyticsTelemetry/Sources/third_party/opentelemetry-swift/Sources/Instrumentation/URLSession",
+      exclude: ["README.md"]
+    ),
+    .target(
+      name: "OpentelemetryProtos",
+      dependencies: [
+        .product(name: "nanopb", package: "nanopb"),
+      ],
+      path: "FirebaseCrashlyticsTelemetry/Sources/third_party/opentelemetry-proto/Protogen/nanopb",
+      publicHeadersPath: ".",
+      cSettings: [
+        .define("PB_FIELD_32BIT", to: "1"),
+        .define("PB_NO_PACKED_STRUCTS", to: "1"),
+        .define("PB_ENABLE_MALLOC", to: "1"),
+      ]
+    ),
+    .testTarget(
+      name: "FirebaseCrashlyticsTelemetryUnit",
+      dependencies: [
+        "FirebaseCrashlyticsTelemetry",
+      ],
+      path: "FirebaseCrashlyticsTelemetry/Tests/Unit",
+      cSettings: [
+        .define("PB_FIELD_32BIT", to: "1"),
+        .define("PB_NO_PACKED_STRUCTS", to: "1"),
+        .define("PB_ENABLE_MALLOC", to: "1"),
+      ]
+    ),
+  ]
 }
 
 func googleAppMeasurementDependency() -> Package.Dependency {

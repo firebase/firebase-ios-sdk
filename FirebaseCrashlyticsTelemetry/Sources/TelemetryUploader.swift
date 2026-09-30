@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import FirebaseCore
+internal import FirebaseCore
 import Foundation
 
 /// Handles the formatting and network dispatch of telemetry data payloads.

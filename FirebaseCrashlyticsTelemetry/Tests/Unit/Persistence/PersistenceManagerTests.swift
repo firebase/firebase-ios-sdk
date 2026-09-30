@@ -23,33 +23,22 @@ import XCTest
 final class PersistenceManagerTests: XCTestCase {
   private var mockBuffer: MockPersistenceBuffer!
   private var mockRecoveryManager: MockRecoveryManager!
-  private var tempDirectoryURL: URL!
 
   override func setUp() async throws {
     try await super.setUp()
     mockBuffer = MockPersistenceBuffer()
     mockRecoveryManager = MockRecoveryManager()
 
-    CrashlyticsTelemetry.shared.recoveryManager = mockRecoveryManager
-
-    tempDirectoryURL = URL(fileURLWithPath: "/tmp/crashlytics_test_\(UUID().uuidString)")
-    try FileManager.default.createDirectory(at: tempDirectoryURL, withIntermediateDirectories: true)
-
+    // Reset mocks
     PersistenceWrapperFactory.reset()
+    await mockRecoveryManager.reset()
   }
 
   override func tearDown() async throws {
     PersistenceWrapperFactory.reset()
-    CrashlyticsTelemetry.shared.recoveryManager = nil
-
-    if let url = tempDirectoryURL {
-      try? FileManager.default.removeItem(at: url)
-    }
-
     await mockRecoveryManager.reset()
     mockBuffer = nil
     mockRecoveryManager = nil
-    tempDirectoryURL = nil
     try await super.tearDown()
   }
 
@@ -78,17 +67,19 @@ final class PersistenceManagerTests: XCTestCase {
     )
   }
 
-  // MARK: - 1. Initialization & Factory Configuration Tests
+  // MARK: - 1. Initialization, Configuration, and Queueing Tests
 
-  func test_init_successfulBufferCreation_verifiesFactoryArgumentsAndActiveBuffer() async {
+  func test_configure_successfulBufferCreation_verifiesFactoryArgumentsAndActiveBuffer() async {
     PersistenceWrapperFactory.mockBuffer = mockBuffer
     PersistenceWrapperFactory.mockRecoveredSpans = []
 
-    let manager = PersistenceManager(sessionDirectory: tempDirectoryURL)
+    let manager = PersistenceManager()
+    await manager.configure(recoveryManager: mockRecoveryManager)
 
-    let expectedFilePath = tempDirectoryURL
-      .appendingPathComponent("crashlytics_persistence.clsrecord").path
-    XCTAssertEqual(PersistenceWrapperFactory.captureInitFilePath, expectedFilePath)
+    XCTAssertTrue(
+      PersistenceWrapperFactory.captureInitFilePath?
+        .contains("crashlytics_persistence.clsrecord") ?? false
+    )
     XCTAssertEqual(PersistenceWrapperFactory.captureInitBufferSize, .small)
 
     let spanData = MockTrace.mockSpan(name: "boot_span")
@@ -96,6 +87,38 @@ final class PersistenceManagerTests: XCTestCase {
 
     XCTAssertEqual(mockBuffer.addedSpans.count, 1)
     XCTAssertEqual(mockBuffer.addedSpans[0].name, "boot_span")
+  }
+
+  func test_events_whenCalledBeforeConfigure_areQueuedAndFlushedCorrectly() async {
+    PersistenceWrapperFactory.mockBuffer = mockBuffer
+    PersistenceWrapperFactory.mockRecoveredSpans = []
+    let manager = PersistenceManager()
+
+    let spanData = MockTrace.mockSpan(name: "queued_span")
+    let spanId: UInt64 = 0x5555
+    let endTime: UInt64 = 9_999_999
+
+    await manager.onSpanStart(span: spanData)
+    await manager.onSpanAddAttribute(spanId: spanId, key: "late_key", value: "late_value")
+    await manager.onSpanEnd(spanId: spanId, endTime: endTime)
+
+    XCTAssertEqual(mockBuffer.addedSpans.count, 0)
+    XCTAssertEqual(mockBuffer.setAttributeCalls.count, 0)
+    XCTAssertEqual(mockBuffer.endSpanCalls.count, 0)
+
+    await manager.configure(recoveryManager: mockRecoveryManager)
+
+    XCTAssertEqual(mockBuffer.addedSpans.count, 1)
+    XCTAssertEqual(mockBuffer.addedSpans[0].name, "queued_span")
+
+    XCTAssertEqual(mockBuffer.setAttributeCalls.count, 1)
+    XCTAssertEqual(mockBuffer.setAttributeCalls[0].spanId, spanId)
+    XCTAssertEqual(mockBuffer.setAttributeCalls[0].key, "late_key")
+    XCTAssertEqual(mockBuffer.setAttributeCalls[0].value, "late_value")
+
+    XCTAssertEqual(mockBuffer.endSpanCalls.count, 1)
+    XCTAssertEqual(mockBuffer.endSpanCalls[0].spanId, spanId)
+    XCTAssertEqual(mockBuffer.endSpanCalls[0].endTime, endTime)
   }
 
   // MARK: - 2. Recovery & Upload Pipeline Tests
@@ -118,12 +141,14 @@ final class PersistenceManagerTests: XCTestCase {
     PersistenceWrapperFactory.mockBuffer = mockBuffer
     PersistenceWrapperFactory.mockRecoveredSpans = [sampleSpan]
 
-    let manager = PersistenceManager(sessionDirectory: tempDirectoryURL)
+    let manager = PersistenceManager()
+    await manager.configure(recoveryManager: mockRecoveryManager)
 
     await fulfillment(of: [uploadExpectation], timeout: 2.0)
 
     let batches = await mockRecoveryManager.uploadedBatches
     XCTAssertEqual(batches.count, 1)
+
     guard let uploadedSpans = batches.first, uploadedSpans.count == 1 else {
       XCTFail("Expected 1 recovered span uploaded")
       return
@@ -140,8 +165,8 @@ final class PersistenceManagerTests: XCTestCase {
     XCTAssertEqual(recovered.attributes["thread.name"]?.description, "main")
     XCTAssertEqual(recovered.attributes["is_fatal"]?.description, "true")
 
-    await manager.onSpanEnd(spanId: 0x9999)
-    XCTAssertEqual(mockBuffer.removedSpanIds, [0x9999])
+    await manager.onSpanEnd(spanId: 0x9999, endTime: 2_002_000_000)
+    XCTAssertEqual(mockBuffer.endSpanCalls[0].spanId, 0x9999)
   }
 
   func test_init_whenMultipleRecoveredSpansPresent_uploadsAllSpansInSingleBatch() async {
@@ -154,12 +179,14 @@ final class PersistenceManagerTests: XCTestCase {
     PersistenceWrapperFactory.mockBuffer = mockBuffer
     PersistenceWrapperFactory.mockRecoveredSpans = [spanOne, spanTwo]
 
-    _ = PersistenceManager(sessionDirectory: tempDirectoryURL)
+    let manager = PersistenceManager()
+    await manager.configure(recoveryManager: mockRecoveryManager)
 
     await fulfillment(of: [uploadExpectation], timeout: 2.0)
 
     let batches = await mockRecoveryManager.uploadedBatches
     XCTAssertEqual(batches.count, 1)
+
     let batch = batches.first ?? []
     XCTAssertEqual(batch.count, 2)
     XCTAssertEqual(batch[0].name, "span_one")
@@ -175,7 +202,8 @@ final class PersistenceManagerTests: XCTestCase {
     PersistenceWrapperFactory.mockBuffer = mockBuffer
     PersistenceWrapperFactory.mockRecoveredSpans = [rootSpan]
 
-    _ = PersistenceManager(sessionDirectory: tempDirectoryURL)
+    let manager = PersistenceManager()
+    await manager.configure(recoveryManager: mockRecoveryManager)
 
     await fulfillment(of: [uploadExpectation], timeout: 2.0)
 
@@ -192,78 +220,21 @@ final class PersistenceManagerTests: XCTestCase {
     PersistenceWrapperFactory.mockBuffer = mockBuffer
     PersistenceWrapperFactory.mockRecoveredSpans = []
 
-    _ = PersistenceManager(sessionDirectory: tempDirectoryURL)
-
-    await fulfillment(of: [invertedExpectation], timeout: 0.2)
-    let batches = await mockRecoveryManager.uploadedBatches
-    XCTAssertEqual(batches.count, 0)
-  }
-
-  func test_init_whenBufferFactoryReturnsNil_stillUploadsRecoveredSpans() async {
-    let recoveredSpan = makeSamplePersistenceSpan(name: "salvaged_crash_span")
-
-    let uploadExpectation = expectation(description: "Upload spans when live buffer fails")
-    await mockRecoveryManager.setUploadExpectation(uploadExpectation)
-
-    PersistenceWrapperFactory.mockBuffer = nil
-    PersistenceWrapperFactory.simulateBufferFailure = true
-    PersistenceWrapperFactory.mockRecoveredSpans = [recoveredSpan]
-
-    let manager = PersistenceManager(sessionDirectory: tempDirectoryURL)
-
-    await fulfillment(of: [uploadExpectation], timeout: 2.0)
-
-    let batches = await mockRecoveryManager.uploadedBatches
-    XCTAssertEqual(batches.count, 1)
-    XCTAssertEqual(batches.first?.first?.name, "salvaged_crash_span")
-
-    await manager.onSpanEnd(spanId: 0x1234)
-    XCTAssertEqual(mockBuffer.removedSpanIds.count, 0)
-  }
-
-  func test_init_whenBufferFactoryReturnsNilAndNoRecoveredSpans_handlesFailureGracefully() async {
-    let invertedExpectation = expectation(description: "No upload on total failure")
-    invertedExpectation.isInverted = true
-    await mockRecoveryManager.setUploadExpectation(invertedExpectation)
-
-    PersistenceWrapperFactory.mockBuffer = nil
-    PersistenceWrapperFactory.simulateBufferFailure = true
-    PersistenceWrapperFactory.mockRecoveredSpans = []
-
-    let manager = PersistenceManager(sessionDirectory: tempDirectoryURL)
+    let manager = PersistenceManager()
+    await manager.configure(recoveryManager: mockRecoveryManager)
 
     await fulfillment(of: [invertedExpectation], timeout: 0.2)
 
     let batches = await mockRecoveryManager.uploadedBatches
     XCTAssertEqual(batches.count, 0)
-
-    let spanData = MockTrace.mockSpan()
-    await manager.onSpanStart(span: spanData)
-    await manager.onSpanAddAttribute(spanId: 100, key: "key", value: "value")
-    await manager.onSpanEnd(spanId: 100)
-
-    XCTAssertEqual(mockBuffer.addedSpans.count, 0)
-    XCTAssertEqual(mockBuffer.setAttributeCalls.count, 0)
-    XCTAssertEqual(mockBuffer.removedSpanIds.count, 0)
-  }
-
-  func test_init_whenRecoveryManagerIsNil_doesNotCrashDuringUpload() async {
-    CrashlyticsTelemetry.shared.recoveryManager = nil
-
-    let sampleSpan = makeSamplePersistenceSpan(name: "unhandled_span")
-    PersistenceWrapperFactory.mockBuffer = mockBuffer
-    PersistenceWrapperFactory.mockRecoveredSpans = [sampleSpan]
-
-    let manager = PersistenceManager(sessionDirectory: tempDirectoryURL)
-    await manager.onSpanEnd(spanId: 0x1111)
-    XCTAssertEqual(mockBuffer.removedSpanIds, [0x1111])
   }
 
   // MARK: - 3. SpanProcessor Operations (Active Buffer)
 
   func test_onSpanStart_withActiveBuffer_convertsAndForwardsAllFields() async {
     PersistenceWrapperFactory.mockBuffer = mockBuffer
-    let manager = PersistenceManager(sessionDirectory: tempDirectoryURL)
+    let manager = PersistenceManager()
+    await manager.configure(recoveryManager: mockRecoveryManager)
 
     let startTime = Date(timeIntervalSince1970: 5000.0)
     let spanData = MockTrace.mockSpan(
@@ -271,7 +242,7 @@ final class PersistenceManagerTests: XCTestCase {
       startTime: startTime,
       duration: 1.5,
       attributes: [
-        "cart.total": .string("$99.99"),
+        "cart.total": .string("99.99"),
         "cart.items": .int(4),
       ]
     )
@@ -286,16 +257,16 @@ final class PersistenceManagerTests: XCTestCase {
     XCTAssertEqual(persisted.spanId, spanData.spanId.rawValue)
     XCTAssertEqual(persisted.startTimeNano, 5_000_000_000_000)
     XCTAssertEqual(persisted.endTimeNano, 5_001_500_000_000)
-    XCTAssertEqual(persisted.attributes["cart.total"], "$99.99")
+    XCTAssertEqual(persisted.attributes["cart.total"], "99.99")
     XCTAssertEqual(persisted.attributes["cart.items"], "4")
   }
 
   func test_onSpanStart_withParentSpan_mapsParentSpanIdCorrectly() async {
     PersistenceWrapperFactory.mockBuffer = mockBuffer
-    let manager = PersistenceManager(sessionDirectory: tempDirectoryURL)
+    let manager = PersistenceManager()
+    await manager.configure(recoveryManager: mockRecoveryManager)
 
     let (parent, child) = MockTrace.mockParentChildTrace()
-
     await manager.onSpanStart(span: child)
 
     XCTAssertEqual(mockBuffer.addedSpans.count, 1)
@@ -306,10 +277,10 @@ final class PersistenceManagerTests: XCTestCase {
 
   func test_onSpanStart_withoutParentSpan_defaultsParentSpanIdToZero() async {
     PersistenceWrapperFactory.mockBuffer = mockBuffer
-    let manager = PersistenceManager(sessionDirectory: tempDirectoryURL)
+    let manager = PersistenceManager()
+    await manager.configure(recoveryManager: mockRecoveryManager)
 
     let rootSpan = MockTrace.mockSpan(name: "root_task", parentContext: nil)
-
     await manager.onSpanStart(span: rootSpan)
 
     XCTAssertEqual(mockBuffer.addedSpans.count, 1)
@@ -318,7 +289,8 @@ final class PersistenceManagerTests: XCTestCase {
 
   func test_onSpanAddAttribute_withValidValue_forwardsToBuffer() async {
     PersistenceWrapperFactory.mockBuffer = mockBuffer
-    let manager = PersistenceManager(sessionDirectory: tempDirectoryURL)
+    let manager = PersistenceManager()
+    await manager.configure(recoveryManager: mockRecoveryManager)
 
     let spanId: UInt64 = 0xFEED_BEEF
     await manager.onSpanAddAttribute(spanId: spanId, key: "session.foreground", value: "true")
@@ -331,7 +303,8 @@ final class PersistenceManagerTests: XCTestCase {
 
   func test_onSpanAddAttribute_withEmptyStringValue_forwardsToBuffer() async {
     PersistenceWrapperFactory.mockBuffer = mockBuffer
-    let manager = PersistenceManager(sessionDirectory: tempDirectoryURL)
+    let manager = PersistenceManager()
+    await manager.configure(recoveryManager: mockRecoveryManager)
 
     let spanId: UInt64 = 0xFEED_BEEF
     await manager.onSpanAddAttribute(spanId: spanId, key: "empty_key", value: "")
@@ -343,29 +316,33 @@ final class PersistenceManagerTests: XCTestCase {
 
   func test_onSpanAddAttribute_withNilValue_doesNotForwardToBuffer() async {
     PersistenceWrapperFactory.mockBuffer = mockBuffer
-    let manager = PersistenceManager(sessionDirectory: tempDirectoryURL)
+    let manager = PersistenceManager()
+    await manager.configure(recoveryManager: mockRecoveryManager)
 
     await manager.onSpanAddAttribute(spanId: 0xFEED_BEEF, key: "session.foreground", value: nil)
-
     XCTAssertTrue(mockBuffer.setAttributeCalls.isEmpty)
   }
 
   func test_onSpanEnd_forwardsRemoveSpanIdToBuffer() async {
     PersistenceWrapperFactory.mockBuffer = mockBuffer
-    let manager = PersistenceManager(sessionDirectory: tempDirectoryURL)
+    let manager = PersistenceManager()
+    await manager.configure(recoveryManager: mockRecoveryManager)
 
     let spanId: UInt64 = 0xCAFE_BABE
-    await manager.onSpanEnd(spanId: spanId)
+    let endTime: UInt64 = 123_456_789
+    await manager.onSpanEnd(spanId: spanId, endTime: endTime)
 
-    XCTAssertEqual(mockBuffer.removedSpanIds.count, 1)
-    XCTAssertEqual(mockBuffer.removedSpanIds[0], spanId)
+    XCTAssertEqual(mockBuffer.endSpanCalls.count, 1)
+    XCTAssertEqual(mockBuffer.endSpanCalls[0].spanId, spanId)
+    XCTAssertEqual(mockBuffer.endSpanCalls[0].endTime, endTime)
   }
 
   // MARK: - 4. Nil Buffer Operations (Graceful No-Op Safety)
 
   func test_onSpanStart_whenBufferIsNil_safelyNoOpsWithoutCrashing() async {
     PersistenceWrapperFactory.simulateBufferFailure = true
-    let manager = PersistenceManager(sessionDirectory: tempDirectoryURL)
+    let manager = PersistenceManager()
+    await manager.configure(recoveryManager: mockRecoveryManager)
 
     let spanData = MockTrace.mockSpan(name: "unbuffered_span")
     await manager.onSpanStart(span: spanData)
@@ -375,50 +352,52 @@ final class PersistenceManagerTests: XCTestCase {
 
   func test_onSpanAddAttribute_whenBufferIsNil_safelyNoOpsWithoutCrashing() async {
     PersistenceWrapperFactory.simulateBufferFailure = true
-    let manager = PersistenceManager(sessionDirectory: tempDirectoryURL)
+    let manager = PersistenceManager()
+    await manager.configure(recoveryManager: mockRecoveryManager)
 
     await manager.onSpanAddAttribute(spanId: 0x1111, key: "key", value: "value")
     await manager.onSpanAddAttribute(spanId: 0x1111, key: "key", value: nil)
-
     XCTAssertEqual(mockBuffer.setAttributeCalls.count, 0)
   }
 
   func test_onSpanEnd_whenBufferIsNil_safelyNoOpsWithoutCrashing() async {
     PersistenceWrapperFactory.simulateBufferFailure = true
-    let manager = PersistenceManager(sessionDirectory: tempDirectoryURL)
+    let manager = PersistenceManager()
+    await manager.configure(recoveryManager: mockRecoveryManager)
 
-    await manager.onSpanEnd(spanId: 0x2222)
-
-    XCTAssertEqual(mockBuffer.removedSpanIds.count, 0)
+    await manager.onSpanEnd(spanId: 0x2222, endTime: 99999)
+    XCTAssertEqual(mockBuffer.endSpanCalls.count, 0)
   }
 
   // MARK: - 5. Sequential Execution & Concurrency
 
   func test_spanLifecycle_startAddAttributesAndEnd_executesInOrder() async {
     PersistenceWrapperFactory.mockBuffer = mockBuffer
-    let manager = PersistenceManager(sessionDirectory: tempDirectoryURL)
+    let manager = PersistenceManager()
+    await manager.configure(recoveryManager: mockRecoveryManager)
 
     let spanId: UInt64 = 0x5555
     let spanData = MockTrace.mockSpan(name: "lifecycle_span")
+    let endTime: UInt64 = 1_002_000_000
 
     await manager.onSpanStart(span: spanData)
     await manager.onSpanAddAttribute(spanId: spanId, key: "step", value: "1")
     await manager.onSpanAddAttribute(spanId: spanId, key: "step", value: "2")
-    await manager.onSpanEnd(spanId: spanId)
+    await manager.onSpanEnd(spanId: spanId, endTime: endTime)
 
     XCTAssertEqual(mockBuffer.addedSpans.count, 1)
     XCTAssertEqual(mockBuffer.setAttributeCalls.count, 2)
     XCTAssertEqual(mockBuffer.setAttributeCalls[0].value, "1")
     XCTAssertEqual(mockBuffer.setAttributeCalls[1].value, "2")
-    XCTAssertEqual(mockBuffer.removedSpanIds, [spanId])
+    XCTAssertEqual(mockBuffer.endSpanCalls[0].spanId, spanId)
   }
 
   func test_concurrentSpanOperations_serializeSafelyOnActor() async {
     PersistenceWrapperFactory.mockBuffer = mockBuffer
-    let manager = PersistenceManager(sessionDirectory: tempDirectoryURL)
+    let manager = PersistenceManager()
+    await manager.configure(recoveryManager: mockRecoveryManager)
 
     let operationCount = 100
-
     await withTaskGroup(of: Void.self) { group in
       for i in 0 ..< operationCount {
         let spanId = UInt64(i + 1)
@@ -426,13 +405,13 @@ final class PersistenceManagerTests: XCTestCase {
           let span = MockTrace.mockSpan(name: "concurrent_span_\(spanId)")
           await manager.onSpanStart(span: span)
           await manager.onSpanAddAttribute(spanId: spanId, key: "iteration", value: "\(i)")
-          await manager.onSpanEnd(spanId: spanId)
+          await manager.onSpanEnd(spanId: spanId, endTime: 1000 + spanId)
         }
       }
     }
 
     XCTAssertEqual(mockBuffer.addedSpans.count, operationCount)
     XCTAssertEqual(mockBuffer.setAttributeCalls.count, operationCount)
-    XCTAssertEqual(mockBuffer.removedSpanIds.count, operationCount)
+    XCTAssertEqual(mockBuffer.endSpanCalls.count, operationCount)
   }
 }

@@ -40,7 +40,7 @@ class CrashlyticsSpanProcessor: SpanProcessor {
     let spanData = span.toSpanData()
 
     Task {
-      await PersistenceManager.shared?.onSpanStart(span: spanData)
+      await PersistenceManager.shared.onSpanStart(span: spanData)
     }
   }
 
@@ -61,7 +61,7 @@ class CrashlyticsSpanProcessor: SpanProcessor {
   ///   - value: The value of the added attribute.
   func onAddAttribute(span: ReadableSpan, key: String, value: AttributeValue?) {
     Task {
-      await PersistenceManager.shared?.onSpanAddAttribute(
+      await PersistenceManager.shared.onSpanAddAttribute(
         spanId: span.context.spanId.rawValue, key: key, value: value?.description
       )
     }
@@ -79,7 +79,7 @@ class CrashlyticsSpanProcessor: SpanProcessor {
       .timeIntervalSince1970 * 1_000_000_000)
 
     Task {
-      await PersistenceManager.shared?.onSpanEnd(
+      await PersistenceManager.shared.onSpanEnd(
         spanId: span.context.spanId.rawValue,
         endTime: timestampNanoseconds
       )
