@@ -31,6 +31,18 @@ public struct TextPart: Part {
   /// Text value.
   public let text: String
 
+  /// **[Public Preview]** Optional speech metadata configuring the speaker and delivery style for
+  /// speech synthesis.
+  ///
+  /// When using a Gemini text-to-speech model, this metadata controls turn-level delivery style
+  /// and speaker assignment for multi-speaker audio generation.
+  ///
+  /// > Important: When using a multi-speaker configuration, `speechMetadata` with a matching
+  /// > `speaker` is required on every ``TextPart``. Omitting `speaker` in a multi-speaker request
+  /// > results in a backend error.
+  ///
+  /// For more details, see the
+  /// [Text-to-speech guide](https://firebase.google.com/docs/ai-logic/generate-speech).
   public let speechMetadata: SpeechMetadata?
 
   public var isThought: Bool { _isThought ?? false }
@@ -39,6 +51,13 @@ public struct TextPart: Part {
 
   let _isThought: Bool?
 
+  /// Creates a text part with a string value and optional speech metadata.
+  ///
+  /// - Parameters:
+  ///   - text: The text string. For speech generation, this represents the verbatim transcript
+  ///     to be synthesized.
+  ///   - speechMetadata: Optional ``SpeechMetadata`` configuring the speaker and delivery style for
+  ///     text-to-speech generation. Defaults to `nil`.
   public init(_ text: String, speechMetadata: SpeechMetadata? = nil) {
     self.init(text, speechMetadata: speechMetadata, isThought: nil, thoughtSignature: nil)
   }
