@@ -148,6 +148,18 @@ public struct ModelContent: Equatable, Sendable {
           isThought: functionResponsePart._isThought,
           thoughtSignature: functionResponsePart.thoughtSignature
         ))
+      case let executableCodePart as ExecutableCodePart:
+        convertedParts.append(InternalPart(
+          .executableCode(executableCodePart.executableCode),
+          isThought: executableCodePart._isThought,
+          thoughtSignature: executableCodePart.thoughtSignature
+        ))
+      case let codeExecutionResultPart as CodeExecutionResultPart:
+        convertedParts.append(InternalPart(
+          .codeExecutionResult(codeExecutionResultPart.codeExecutionResult),
+          isThought: codeExecutionResultPart._isThought,
+          thoughtSignature: codeExecutionResultPart.thoughtSignature
+        ))
       default:
         fatalError()
       }
@@ -190,7 +202,12 @@ extension InternalPart: Codable {
   }
 
   public func encode(to encoder: Encoder) throws {
-    try data.encode(to: encoder)
+    // `data` is `nil` for parts with missing or unrecognized data received from the backend (e.g.,
+    // when sent back as chat history); encoding `nil` as a single value before requesting a keyed
+    // container below would trap in `JSONEncoder`.
+    if let data {
+      try data.encode(to: encoder)
+    }
     var container = encoder.container(keyedBy: CodingKeys.self)
     try container.encodeIfPresent(isThought, forKey: .isThought)
     try container.encodeIfPresent(thoughtSignature, forKey: .thoughtSignature)

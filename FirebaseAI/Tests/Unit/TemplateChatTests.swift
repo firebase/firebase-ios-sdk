@@ -156,4 +156,94 @@ final class TemplateChatTests: XCTestCase {
     XCTAssertEqual(chat.history.count, 1)
     XCTAssertEqual(chat.history[0].role, "model")
   }
+
+  // MARK: - Unexpected Server Responses
+
+  /// A model turn containing a text part, a part type that the SDK does not recognize (e.g., one
+  /// added to the backend after this SDK version was released) and a part with only a thought
+  /// signature.
+  private static let unrecognizedPartsJSON = """
+  {"role": "model", "parts": [{"text": "Hello"}, {"futurePartType": {"key": "value"}}, \
+  {"thoughtSignature": "sig"}]}
+  """
+
+  private static let textResponse = """
+  {"candidates": [{"content": {"role": "model", "parts": [{"text": "OK"}]}, \
+  "finishReason": "STOP"}]}
+  """
+
+  /// Returns a request handler that records the `history` sent in the request body.
+  private func historyCapturingHandler(responseBody: String,
+                                       _ capture: @escaping ([[String: Any]]) -> Void) throws
+    -> MockURLProtocol.MockURLRequestHandler {
+    let responseHandler = try GenerativeModelTestUtil.httpRequestHandler(body: responseBody)
+    return { request in
+      let body = try XCTUnwrap(request.extractBodyData())
+      let json = try XCTUnwrap(JSONSerialization.jsonObject(with: body) as? [String: Any])
+      try capture(XCTUnwrap(json["history"] as? [[String: Any]]))
+      return try responseHandler(request)
+    }
+  }
+
+  func testSendMessage_unrecognizedPartInResponse_nextTurnSucceeds() async throws {
+    nonisolated(unsafe) var sentHistory: [[String: Any]]?
+    MockURLProtocol.requestHandlersQueue = try [
+      GenerativeModelTestUtil.httpRequestHandler(body: """
+      {"candidates": [{"content": \(Self.unrecognizedPartsJSON), "finishReason": "STOP"}]}
+      """),
+      historyCapturingHandler(responseBody: Self.textResponse) { sentHistory = $0 },
+    ]
+    let chat = model.startChat(templateID: "test-template")
+
+    let response = try await chat.sendMessage("Hi")
+    XCTAssertEqual(response.text, "Hello")
+    XCTAssertEqual(chat.history.count, 2)
+    XCTAssertEqual(chat.history[1].parts.count, 1)
+
+    // The history, including the unrecognized parts, must be encodable for the next turn.
+    let secondResponse = try await chat.sendMessage("Again")
+
+    XCTAssertEqual(secondResponse.text, "OK")
+    XCTAssertEqual(chat.history.count, 4)
+    let history = try XCTUnwrap(sentHistory)
+    XCTAssertEqual(history.count, 3)
+    let modelParts = try XCTUnwrap(history[1]["parts"] as? [[String: Any]])
+    XCTAssertEqual(modelParts.count, 3)
+    XCTAssertEqual(modelParts[0]["text"] as? String, "Hello")
+    XCTAssertEqual(modelParts[2]["thoughtSignature"] as? String, "sig")
+  }
+
+  func testSendMessageStream_unrecognizedPartInResponse_nextTurnSucceeds() async throws {
+    nonisolated(unsafe) var sentHistory: [[String: Any]]?
+    MockURLProtocol.requestHandlersQueue = try [
+      GenerativeModelTestUtil.httpRequestHandler(body: """
+      data: {"candidates": [{"content": {"role": "model", "parts": [{"text": "Hel"}]}}]}
+
+      data: {"candidates": [{"content": \(Self.unrecognizedPartsJSON), "finishReason": "STOP"}]}
+      """),
+      historyCapturingHandler(responseBody: "data: \(Self.textResponse)") { sentHistory = $0 },
+    ]
+    let chat = model.startChat(templateID: "test-template")
+
+    let content = try await GenerativeModelTestUtil.collectTextFromStream(
+      chat.sendMessageStream("Hi")
+    )
+    XCTAssertEqual(content, "HelHello")
+    XCTAssertEqual(chat.history.count, 2)
+
+    // The aggregated history, including the unrecognized parts, must be encodable for the next
+    // turn.
+    let secondContent = try await GenerativeModelTestUtil.collectTextFromStream(
+      chat.sendMessageStream("Again")
+    )
+
+    XCTAssertEqual(secondContent, "OK")
+    XCTAssertEqual(chat.history.count, 4)
+    let history = try XCTUnwrap(sentHistory)
+    XCTAssertEqual(history.count, 3)
+    let modelParts = try XCTUnwrap(history[1]["parts"] as? [[String: Any]])
+    XCTAssertEqual(modelParts.count, 3)
+    XCTAssertEqual(modelParts[0]["text"] as? String, "HelHello")
+    XCTAssertEqual(modelParts[2]["thoughtSignature"] as? String, "sig")
+  }
 }

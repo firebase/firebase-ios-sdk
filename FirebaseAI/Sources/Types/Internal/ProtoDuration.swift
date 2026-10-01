@@ -94,7 +94,10 @@ extension ProtoDuration: Decodable {
       ))
     }
 
-    guard let fractionalSeconds = Double("0.\(nanoseconds)") else {
+    // Only allow digits so that values such as "1.5e10s", which `Double(_:)` would otherwise
+    // accept, cannot overflow `Int32` below.
+    guard nanoseconds.allSatisfy({ $0.isASCII && $0.isNumber }),
+          let fractionalSeconds = Double("0.\(nanoseconds)") else {
       AILog.warning(
         code: .decodedInvalidProtoDurationNanoseconds,
         "Failed to parse the nanoseconds to a Double: \(nanoseconds)."

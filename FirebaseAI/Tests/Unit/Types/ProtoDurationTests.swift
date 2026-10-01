@@ -96,4 +96,13 @@ final class ProtoDurationTests: XCTestCase {
 
     XCTAssertEqual(duration.timeInterval, 123.456, accuracy: 1e-9)
   }
+
+  func testDecodeProtoDuration_nonDigitNanoseconds() throws {
+    // These fractional parts are accepted by `Double(_:)`; multiplying the resulting values by 1e9
+    // would overflow `Int32`.
+    for durationString in ["1.5e10s", "1.1E300s", "0.9e+10s"] {
+      guard let error = try expectDecodeFailure(durationString) else { return }
+      XCTAssertContains(error.debugDescription, "Invalid proto duration nanoseconds")
+    }
+  }
 }
