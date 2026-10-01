@@ -750,6 +750,29 @@
   XCTAssertEqual([trace valueForAttribute:@"foo"], @"bar");
 }
 
+- (void)testConcurrentAttributeAccessIsSerialized {
+  FIRTrace *trace = [[FIRTrace alloc] initWithName:@"Random"];
+  dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+  dispatch_apply(100, queue, ^(size_t index) {
+    NSString *attribute = [NSString stringWithFormat:@"attribute-%lu", (unsigned long)index];
+    [trace setValue:@"value" forAttribute:attribute];
+  });
+  XCTAssertEqual(trace.attributes.count,
+                 (NSUInteger)kFPRMaxTraceCustomAttributesCount);
+
+  dispatch_apply(200, queue, ^(size_t index) {
+    NSUInteger attributeIndex = index % kFPRMaxTraceCustomAttributesCount;
+    NSString *attribute =
+        [NSString stringWithFormat:@"attribute-%lu", (unsigned long)attributeIndex];
+    (void)[trace valueForAttribute:attribute];
+    (void)trace.attributes;
+    [trace removeAttribute:attribute];
+    [trace setValue:@"value" forAttribute:attribute];
+  });
+  XCTAssertLessThanOrEqual(trace.attributes.count,
+                           (NSUInteger)kFPRMaxTraceCustomAttributesCount);
+}
+
 /** Validates if every trace contains a session Id. */
 - (void)testSessionId {
   [[FPRSessionManager sharedInstance] updateSessionId:@"testSessionId"];

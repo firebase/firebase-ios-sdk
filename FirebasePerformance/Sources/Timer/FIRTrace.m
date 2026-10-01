@@ -341,7 +341,11 @@
 #pragma mark - Custom attributes related methods
 
 - (NSDictionary<NSString *, NSString *> *)attributes {
-  return [self.customAttributes copy];
+  __block NSDictionary<NSString *, NSString *> *attributes;
+  dispatch_sync(self.customAttributesSerialQueue, ^{
+    attributes = [self.customAttributes copy];
+  });
+  return attributes;
 }
 
 - (void)setValue:(NSString *)value forAttribute:(nonnull NSString *)attribute {
@@ -368,26 +372,31 @@
     canAddAttribute = NO;
   }
 
-  if (self.customAttributes.allKeys.count >= kFPRMaxTraceCustomAttributesCount) {
-    FPRLogError(kFPRMaxAttributesReached,
-                @"Only %d attributes allowed. Already reached maximum attribute count.",
-                kFPRMaxTraceCustomAttributesCount);
-    canAddAttribute = NO;
-  }
-
   if (canAddAttribute) {
-    // Ensure concurrency during update of attributes.
+    __block BOOL reachedMaximum = NO;
     dispatch_sync(self.customAttributesSerialQueue, ^{
-      self.customAttributes[validatedName] = validatedValue;
+      if (self.customAttributes.count >= kFPRMaxTraceCustomAttributesCount) {
+        reachedMaximum = YES;
+      } else {
+        self.customAttributes[validatedName] = validatedValue;
+      }
     });
+    if (reachedMaximum) {
+      FPRLogError(kFPRMaxAttributesReached,
+                  @"Only %d attributes allowed. Already reached maximum attribute count.",
+                  kFPRMaxTraceCustomAttributesCount);
+    }
   }
   FPRLogDebug(kFPRClientMetricLogged, @"Setting attribute %@ to %@ on trace %@", validatedName,
               validatedValue, self.name);
 }
 
 - (NSString *)valueForAttribute:(NSString *)attribute {
-  // TODO(b/175053654): Should this be happening on the serial queue for thread safety?
-  return self.customAttributes[attribute];
+  __block NSString *value;
+  dispatch_sync(self.customAttributesSerialQueue, ^{
+    value = self.customAttributes[attribute];
+  });
+  return value;
 }
 
 - (void)removeAttribute:(NSString *)attribute {
@@ -398,7 +407,9 @@
     return;
   }
 
-  [self.customAttributes removeObjectForKey:attribute];
+  dispatch_sync(self.customAttributesSerialQueue, ^{
+    [self.customAttributes removeObjectForKey:attribute];
+  });
 }
 
 #pragma mark - Utility methods
