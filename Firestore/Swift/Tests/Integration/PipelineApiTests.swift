@@ -418,12 +418,36 @@ final class PipelineApiTests: FSTIntegrationTestCase {
     let _: WindowBound = .unbounded
     let _: WindowBound = .current
     let _: WindowBound = 5
+    let _: WindowBound = 1.5
     let _: WindowBound = WindowBound(10)
+    let _: WindowBound = WindowBound(2.5)
     let _: WindowBound = WindowBound(Field("offset"))
     let _: WindowBound = WindowBound(.unbounded)
     let _: WindowBound = WindowBound(.current)
     let _: WindowBound = WindowBound(.integer(10))
+    let _: WindowBound = WindowBound(.double(2.5))
     let _: WindowBound = WindowBound(.expression(Field("offset")))
+    let offset = 3
+    let fraction = 0.5
+    let _: WindowBound = WindowBound(offset)
+    let _: WindowBound = WindowBound(fraction)
+
+    _ = db.pipeline().collection("sales")
+      .addWindowFields(
+        window: .sort(Field("salesPrice").ascending())
+          .range(preceding: 1.5, following: .current),
+        fields: [Field("salesPrice").sum().as("nearbyTotal")]
+      )
+
+    _ = db.pipeline().collection("sales")
+      .addWindowFields(
+        window: .sort(Field("salesPrice").ascending()),
+        fields: [
+          Field("salesPrice").sum()
+            .over(.range(preceding: WindowBound(fraction), following: Field("f")))
+            .as("nearbyTotal"),
+        ]
+      )
 
     _ = db.pipeline().collection("sales")
       .addWindowFields(
@@ -518,6 +542,43 @@ final class PipelineApiTests: FSTIntegrationTestCase {
           Field("salesPrice").average()
             .over(.documents(preceding: 1, following: 1))
             .as("movingAverage"),
+        ]
+      )
+
+    // Rank over partition
+    _ = db.pipeline().collection("sales")
+      .addWindowFields(
+        window: .partition(["product"]).sort(Field("salesPrice").descending()),
+        fields: [
+          Rank().as("topSalesRank")
+        ]
+      )
+
+    // Aggregates only
+    _ = db.pipeline().collection("sales")
+      .addWindowFields(
+        window: .sort(Field("date").ascending()),
+        fields: [Field("salesPrice").sum().as("runningTotal")]
+      )
+
+    // Window functions only
+    _ = db.pipeline().collection("sales")
+      .addWindowFields(
+        window: .partition(["product"]).sort(Field("salesPrice").descending()),
+        fields: [
+          Rank().as("rank"),
+          Rank().over(.documents(preceding: .unbounded, following: .current)).as("framedRank"),
+          Field("salesPrice").sum().over(.documents(preceding: 1, following: 1)).as("movingSum"),
+        ]
+      )
+
+    // Mixed
+    _ = db.pipeline().collection("sales")
+      .addWindowFields(
+        window: .sort(Field("date").ascending()),
+        fields: [
+          Field("salesPrice").sum().as("runningTotal"),
+          Rank().as("rank"),
         ]
       )
   }

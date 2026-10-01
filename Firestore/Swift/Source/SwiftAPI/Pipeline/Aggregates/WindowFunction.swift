@@ -1,4 +1,4 @@
-// Copyright 2025 Google LLC
+// Copyright 2026 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,39 +12,35 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/// Represents an aggregate function in a pipeline.
+/// A function that is evaluated over a window of documents in an `addWindowFields` stage.
 ///
-/// An `AggregateFunction` is a function that computes a single value from a set of input values.
-///
-/// `AggregateFunction`s are typically used in the `aggregate` stage of a pipeline.
-public class AggregateFunction: AggregateBridgeWrapper, @unchecked Sendable {
+/// Create a `WindowFunction` with a dedicated window function such as `Rank()`, or by calling
+/// `over(_:)` on an `AggregateFunction`.
+public class WindowFunction: AggregateBridgeWrapper, @unchecked Sendable {
   let bridge: __AggregateFunctionBridge
 
   let functionName: String
   let args: [Expression]
+  let window: WindowSpec?
 
-  /// The error message associated with this aggregate function or its arguments, if any.
+  /// The error message associated with this window function or its arguments, if any.
   var errorMessage: String? {
     let errors = args.compactMap { $0.errorMessage }
     return errors.isEmpty ? nil : errors.joined(separator: "\n")
   }
 
-  /// Creates a new `AggregateFunction`.
-  ///
-  /// - Parameters:
-  ///   - functionName: The name of the aggregate function.
-  ///   - args: The arguments to the aggregate function.
-  public init(functionName: String, args: [Expression]) {
+  init(functionName: String, args: [Expression], window: WindowSpec? = nil) {
     self.functionName = functionName
     self.args = args
+    self.window = window
     bridge = __AggregateFunctionBridge(
       name: functionName,
-      args: self.args.map { $0.toBridge() },
-      window: nil
+      args: args.map { $0.toBridge() },
+      window: window?.toBridge()
     )
   }
 
-  /// Applies a window frame to this aggregate, evaluating it over the specified window frame
+  /// Applies a window frame to this window function, evaluating it over the specified window frame
   /// independent of the frame declared on the enclosing `addWindowFields` stage.
   ///
   /// - Note: Only `documents` or `range` window frames are supported on individual accumulators
@@ -52,17 +48,17 @@ public class AggregateFunction: AggregateBridgeWrapper, @unchecked Sendable {
   ///   parameters, such as `partition` or `sort`, is not supported here and must be specified
   ///   on the enclosing `addWindowFields` stage.
   ///
-  /// - Parameter window: The window specification containing the `documents` or `range` frame to evaluate this aggregate over.
+  /// - Parameter window: The window specification containing the `documents` or `range` frame to evaluate this window function over.
   /// - Returns: A new `WindowFunction` with the given window framing.
   public func over(_ window: WindowSpec) -> WindowFunction {
     return WindowFunction(functionName: functionName, args: args, window: window)
   }
 
-  /// Creates an `AliasedAggregate` from this aggregate function.
+  /// Creates an `AliasedWindowFunction` from this window function.
   ///
-  /// - Parameter name: The alias for the aggregate function.
-  /// - Returns: An `AliasedAggregate` with the given alias.
-  public func `as`(_ name: String) -> AliasedAggregate {
-    return AliasedAggregate(aggregate: self, alias: name)
+  /// - Parameter name: The name of the output field that will contain the result.
+  /// - Returns: An `AliasedWindowFunction` with the given alias.
+  public func `as`(_ name: String) -> AliasedWindowFunction {
+    return AliasedWindowFunction(windowFunction: self, alias: name)
   }
 }

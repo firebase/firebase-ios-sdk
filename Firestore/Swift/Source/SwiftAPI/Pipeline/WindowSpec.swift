@@ -20,46 +20,66 @@ import Foundation
   @_exported import FirebaseFirestoreInternal
 #endif // SWIFT_PACKAGE
 
-/// Represents a boundary in a window frame specification (e.g. integer offset, expression, `.unbounded`, or `.current`).
-public struct WindowBound: ExpressibleByIntegerLiteral, ExpressibleByStringLiteral, Sendable {
+/// Represents a boundary in a window frame specification: an integer or floating-point offset,
+/// an `Expression`, `.unbounded`, or `.current`.
+///
+/// Integer and floating-point literals can be used directly wherever a `WindowBound` is expected,
+/// e.g. `.documents(preceding: 2, following: .current)` or `.range(preceding: 1.5, following: 1.5)`.
+/// To pass a variable, use `WindowBound(_:)`.
+public struct WindowBound: ExpressibleByIntegerLiteral, ExpressibleByFloatLiteral, Sendable {
   /// The underlying value of a window frame boundary.
   public enum Value: Sendable {
+    /// An unbounded frame boundary extending to the start or end of the partition.
     case unbounded
+    /// The current document boundary. See `WindowBound.current`.
     case current
+    /// An integer offset.
     case integer(Int)
+    /// A floating-point offset. Only meaningful for `range` frames.
+    case double(Double)
+    /// An offset computed from an expression.
     case expression(Expression)
   }
 
   public let rawValue: Value
 
+  /// An unbounded frame boundary extending to the start or end of the partition.
   public static let unbounded = WindowBound(.unbounded)
+
+  /// The current document boundary.
+  ///
+  /// - In a `documents` frame, `.current` refers to the current document's position only
+  ///   (documents that tie on the sort value(s) at other positions are not included).
+  /// - In a `range` frame, `.current` is peer-inclusive (like SQL `CURRENT ROW` in `RANGE` mode):
+  ///   it includes all documents whose sort value(s) tie with the current document, making it
+  ///   equivalent to an offset of `0`.
   public static let current = WindowBound(.current)
 
   public init(_ value: Value) {
-    self.rawValue = value
+    rawValue = value
   }
 
+  /// Creates a boundary from an expression that evaluates to an offset.
   public init(_ expression: Expression) {
-    self.rawValue = .expression(expression)
+    rawValue = .expression(expression)
   }
 
+  /// Creates an integer offset boundary.
   public init(_ int: Int) {
-    self.rawValue = .integer(int)
+    rawValue = .integer(int)
+  }
+
+  /// Creates a floating-point offset boundary. Only meaningful for `range` frames.
+  public init(_ double: Double) {
+    rawValue = .double(double)
   }
 
   public init(integerLiteral value: Int) {
-    self.rawValue = .integer(value)
+    rawValue = .integer(value)
   }
 
-  public init(stringLiteral value: String) {
-    switch value.lowercased() {
-    case "unbounded":
-      self.rawValue = .unbounded
-    case "current":
-      self.rawValue = .current
-    default:
-      fatalError("Invalid WindowBound string literal: \"\(value)\". Expected \"unbounded\" or \"current\".")
-    }
+  public init(floatLiteral value: Double) {
+    rawValue = .double(value)
   }
 
   var bridgeValue: Any {
@@ -70,6 +90,8 @@ public struct WindowBound: ExpressibleByIntegerLiteral, ExpressibleByStringLiter
       return "current"
     case let .integer(int):
       return int
+    case let .double(double):
+      return double
     case let .expression(expr):
       return expr.toBridge()
     }
@@ -77,6 +99,15 @@ public struct WindowBound: ExpressibleByIntegerLiteral, ExpressibleByStringLiter
 }
 
 /// Window specification for window functions.
+///
+/// Defines how documents are partitioned, sorted, and framed when evaluating window functions in
+/// an `addWindowFields` stage.
+///
+/// - Default frame behavior:
+///   - If `sort` is not specified, the default frame is `documents` from `.unbounded` preceding to
+///     `.unbounded` following (the entire partition).
+///   - If `sort` is specified without an explicit `documents` or `range` frame, the default frame
+///     is `range` from `.unbounded` preceding to `.current`.
 public struct WindowSpec: Sendable {
   let groups: [Expression]
   let sort: [Ordering]?
@@ -124,7 +155,18 @@ public struct WindowSpec: Sendable {
     return partition(groups.map { Field($0) })
   }
 
-  /** Specify sort order for this window spec. */
+  /// Specifies the sort order of documents within each partition.
+  ///
+  /// - For document-based (`documents`) window frames, `sort` is optional; if no `sort` expressions
+  ///   are specified, documents are processed in incoming stream (fetch) order.
+  /// - For range-based (`range`) window frames, one or more `sort` expressions are required.
+  /// - Setting `sort` without an explicit `documents` or `range` frame changes the default window
+  ///   frame to `range(preceding: .unbounded, following: .current)`.
+  ///
+  /// Multiple sort orderings and string or boolean sort fields are supported for `documents` frames
+  /// and for `range` frames whose bounds are only `.current` or `.unbounded` (without a `unit`).
+  /// `range` frames with numeric or time offsets require exactly one sort ordering on a numeric or
+  /// timestamp field.
   public func sort(_ sort: Ordering) -> WindowSpec {
     return WindowSpec(
       groups: groups,
@@ -136,6 +178,18 @@ public struct WindowSpec: Sendable {
     )
   }
 
+  /// Specifies the sort order of documents within each partition.
+  ///
+  /// - For document-based (`documents`) window frames, `sort` is optional; if no `sort` expressions
+  ///   are specified, documents are processed in incoming stream (fetch) order.
+  /// - For range-based (`range`) window frames, one or more `sort` expressions are required.
+  /// - Setting `sort` without an explicit `documents` or `range` frame changes the default window
+  ///   frame to `range(preceding: .unbounded, following: .current)`.
+  ///
+  /// Multiple sort orderings and string or boolean sort fields are supported for `documents` frames
+  /// and for `range` frames whose bounds are only `.current` or `.unbounded` (without a `unit`).
+  /// `range` frames with numeric or time offsets require exactly one sort ordering on a numeric or
+  /// timestamp field.
   public func sort(_ sort: [Ordering]) -> WindowSpec {
     return WindowSpec(
       groups: groups,
@@ -149,7 +203,12 @@ public struct WindowSpec: Sendable {
 
   /// Specifies a document-count based window frame (row-based frame).
   ///
-  /// Defines frame boundaries relative to the current document within the partition using document counts.
+  /// Defines frame boundaries relative to the current document's position within the partition using
+  /// document counts. In a `documents` frame, `.current` refers strictly to the current document's
+  /// position (documents that tie on the sort value(s) at other positions are not included).
+  ///
+  /// - Note: `sort` is optional for document-count frames; if no `sort` is specified on the window,
+  ///   documents are processed in incoming stream (fetch) order.
   ///
   /// - Parameters:
   ///   - preceding: The starting boundary of the window frame. Can be `.unbounded`, `.current`, an integer offset,
@@ -186,13 +245,32 @@ public struct WindowSpec: Sendable {
 
   /// Specifies a range-value based window frame (value-based frame).
   ///
-  /// Defines frame boundaries relative to the sort key value of the current document within the partition.
+  /// Defines frame boundaries relative to the sort key value(s) of the current document within the
+  /// partition.
+  ///
+  /// In a `range` frame, `.current` is peer-inclusive (like SQL `CURRENT ROW` in `RANGE` mode): it
+  /// includes all documents whose sort value(s) tie with the current document, making `.current`
+  /// equivalent to an offset of `0`. For example, given sort values `[10, 10, 20]` and
+  /// `.range(preceding: .unbounded, following: .current)`, the frame for each `10` document includes
+  /// both `10`s, and the frame for `20` includes all three documents.
+  ///
+  /// - When both bounds are `.current` or `.unbounded` (and `unit` is `nil`), the window may specify
+  ///   multiple sort orderings and may sort on string or boolean fields.
+  /// - When numeric or time offsets are used, `range` requires exactly one sort ordering on a numeric
+  ///   or timestamp field. Specifying a `unit` on a string or boolean sort field is an error.
+  ///
+  /// - Note: One or more `sort` expressions are required when using a range-value based window frame.
+  ///   For time-based range frames, the backend only accepts duration units: `.microsecond`,
+  ///   `.millisecond`, `.second`, `.minute`, `.hour`, `.day`, `.week`, `.month`, `.quarter`, `.year`
+  ///   (or matching strings). Day-of-week week variants (such as `.weekMonday` through `.weekSunday`)
+  ///   and `.isoweek`/`.isoyear` are only for timestamp truncation, not window range duration frames,
+  ///   and will be rejected by the backend.
   ///
   /// - Parameters:
-  ///   - preceding: The starting boundary of the window frame. Can be `.unbounded`, `.current`, an integer offset,
+  ///   - preceding: The starting boundary of the window frame. Can be `.unbounded`, `.current`, an integer or floating-point offset,
   ///     or an `Expression`. A positive offset subtracts from the current document's sort value (looking into the past).
   ///     A negative offset adds to the current document's sort value (shifting the lower boundary past the current document).
-  ///   - following: The ending boundary of the window frame. Can be `.unbounded`, `.current`, an integer offset,
+  ///   - following: The ending boundary of the window frame. Can be `.unbounded`, `.current`, an integer or floating-point offset,
   ///     or an `Expression`. A positive offset adds to the current document's sort value (looking into the future).
   ///     A negative offset subtracts from the current document's sort value (shifting the upper boundary before the current document).
   ///   - unit: An optional date/time granularity unit (such as `TimeGranularity.day`) when computing range offsets over timestamp fields.
@@ -248,7 +326,7 @@ public struct WindowSpec: Sendable {
     )
   }
 
-  public func toBridge() -> __WindowSpecBridge {
+  func toBridge() -> __WindowSpecBridge {
     let bridgePreceding: Any? = preceding?.bridgeValue
     let bridgeFollowing: Any? = following?.bridgeValue
     let bridgeUnit: Any? =
@@ -275,18 +353,46 @@ public struct WindowSpec: Sendable {
     return WindowSpec(groups: groups.map { Field($0) })
   }
 
-  /// Creates a sort specification.
+  /// Creates a window specification with the given sort order for documents within each partition.
+  ///
+  /// - For document-based (`documents`) window frames, `sort` is optional; if no `sort` expressions
+  ///   are specified, documents are processed in incoming stream (fetch) order.
+  /// - For range-based (`range`) window frames, one or more `sort` expressions are required.
+  /// - Setting `sort` without an explicit `documents` or `range` frame changes the default window
+  ///   frame to `range(preceding: .unbounded, following: .current)`.
+  ///
+  /// Multiple sort orderings and string or boolean sort fields are supported for `documents` frames
+  /// and for `range` frames whose bounds are only `.current` or `.unbounded` (without a `unit`).
+  /// `range` frames with numeric or time offsets require exactly one sort ordering on a numeric or
+  /// timestamp field.
   public static func sort(_ sort: Ordering) -> WindowSpec {
     return WindowSpec(sort: [sort])
   }
 
+  /// Creates a window specification with the given sort order for documents within each partition.
+  ///
+  /// - For document-based (`documents`) window frames, `sort` is optional; if no `sort` expressions
+  ///   are specified, documents are processed in incoming stream (fetch) order.
+  /// - For range-based (`range`) window frames, one or more `sort` expressions are required.
+  /// - Setting `sort` without an explicit `documents` or `range` frame changes the default window
+  ///   frame to `range(preceding: .unbounded, following: .current)`.
+  ///
+  /// Multiple sort orderings and string or boolean sort fields are supported for `documents` frames
+  /// and for `range` frames whose bounds are only `.current` or `.unbounded` (without a `unit`).
+  /// `range` frames with numeric or time offsets require exactly one sort ordering on a numeric or
+  /// timestamp field.
   public static func sort(_ sort: [Ordering]) -> WindowSpec {
     return WindowSpec(sort: sort)
   }
 
   /// Creates a document-count based window specification (row-based frame).
   ///
-  /// Defines frame boundaries relative to the current document within the partition using document counts.
+  /// Defines frame boundaries relative to the current document's position within the partition using
+  /// document counts. In a `documents` frame, `.current` refers strictly to the current document's
+  /// position (documents that tie on the sort value(s) at other positions are not included).
+  ///
+  /// - Note: `sort` is optional for document-count frames; if no `sort` is specified on the window,
+  ///   documents are processed in incoming stream (fetch) order.
   ///
   /// - Parameters:
   ///   - preceding: The starting boundary of the window frame. Can be `.unbounded`, `.current`, an integer offset,
@@ -316,13 +422,32 @@ public struct WindowSpec: Sendable {
 
   /// Creates a range-value based window specification (value-based frame).
   ///
-  /// Defines frame boundaries relative to the sort key value of the current document within the partition.
+  /// Defines frame boundaries relative to the sort key value(s) of the current document within the
+  /// partition.
+  ///
+  /// In a `range` frame, `.current` is peer-inclusive (like SQL `CURRENT ROW` in `RANGE` mode): it
+  /// includes all documents whose sort value(s) tie with the current document, making `.current`
+  /// equivalent to an offset of `0`. For example, given sort values `[10, 10, 20]` and
+  /// `.range(preceding: .unbounded, following: .current)`, the frame for each `10` document includes
+  /// both `10`s, and the frame for `20` includes all three documents.
+  ///
+  /// - When both bounds are `.current` or `.unbounded` (and `unit` is `nil`), the window may specify
+  ///   multiple sort orderings and may sort on string or boolean fields.
+  /// - When numeric or time offsets are used, `range` requires exactly one sort ordering on a numeric
+  ///   or timestamp field. Specifying a `unit` on a string or boolean sort field is an error.
+  ///
+  /// - Note: One or more `sort` expressions are required when using a range-value based window frame.
+  ///   For time-based range frames, the backend only accepts duration units: `.microsecond`,
+  ///   `.millisecond`, `.second`, `.minute`, `.hour`, `.day`, `.week`, `.month`, `.quarter`, `.year`
+  ///   (or matching strings). Day-of-week week variants (such as `.weekMonday` through `.weekSunday`)
+  ///   and `.isoweek`/`.isoyear` are only for timestamp truncation, not window range duration frames,
+  ///   and will be rejected by the backend.
   ///
   /// - Parameters:
-  ///   - preceding: The starting boundary of the window frame. Can be `.unbounded`, `.current`, an integer offset,
+  ///   - preceding: The starting boundary of the window frame. Can be `.unbounded`, `.current`, an integer or floating-point offset,
   ///     or an `Expression`. A positive offset subtracts from the current document's sort value (looking into the past).
   ///     A negative offset adds to the current document's sort value (shifting the lower boundary past the current document).
-  ///   - following: The ending boundary of the window frame. Can be `.unbounded`, `.current`, an integer offset,
+  ///   - following: The ending boundary of the window frame. Can be `.unbounded`, `.current`, an integer or floating-point offset,
   ///     or an `Expression`. A positive offset adds to the current document's sort value (looking into the future).
   ///     A negative offset subtracts from the current document's sort value (shifting the upper boundary before the current document).
   ///   - unit: An optional date/time granularity unit (such as `TimeGranularity.day`) when computing range offsets over timestamp fields.

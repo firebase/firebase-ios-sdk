@@ -5879,7 +5879,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
   // --- range framing -------------------------------------------------------------------------
 
-  func testWindowFieldsRangeCurrentToCurrentCountsOnlyTheCurrentDocument() async throws {
+  func testWindowFieldsRangeCurrentToCurrentCountsTiedPeers() async throws {
     let collRef = collectionRef(withDocuments: Self.windowTestDocs)
     let snapshot = try await collRef.firestore.pipeline()
       .collection(collRef.path)
@@ -5897,8 +5897,8 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       ["product": "phone", "salesPrice": 12, "samePriceCount": 1],
       ["product": "phone", "salesPrice": 30, "samePriceCount": 1],
       ["product": "tablet", "salesPrice": 30, "samePriceCount": 1],
-      ["product": "tablet", "salesPrice": 60, "samePriceCount": 1],
-      ["product": "tablet", "salesPrice": 60, "samePriceCount": 1],
+      ["product": "tablet", "salesPrice": 60, "samePriceCount": 2],
+      ["product": "tablet", "salesPrice": 60, "samePriceCount": 2],
     ]
     TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
@@ -5946,6 +5946,98 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       ["salesPrice": 30, "cumulativeCount": 3],
       ["salesPrice": 60, "cumulativeCount": 5],
       ["salesPrice": 60, "cumulativeCount": 5],
+    ]
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
+  }
+
+  func testWindowFieldsDocumentsUnboundedToCurrentExcludesTiedPeers() async throws {
+    let collRef = collectionRef(withDocuments: Self.windowTestDocs)
+    let snapshot = try await collRef.firestore.pipeline()
+      .collection(collRef.path)
+      .addWindowFields(
+        window: .documents(preceding: .unbounded, following: .current)
+          .sort(Field("salesPrice").ascending()),
+        fields: [Field("quantity").count().as("runningCount")]
+      )
+      .sort([Field("runningCount").ascending()])
+      .select(["salesPrice", "runningCount"])
+      .execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      ["salesPrice": 12, "runningCount": 1],
+      ["salesPrice": 30, "runningCount": 2],
+      ["salesPrice": 30, "runningCount": 3],
+      ["salesPrice": 60, "runningCount": 4],
+      ["salesPrice": 60, "runningCount": 5],
+    ]
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
+  }
+
+  func testWindowFieldsRangeUnboundedToCurrentIncludesTiedPeers() async throws {
+    let collRef = collectionRef(withDocuments: Self.windowTestDocs)
+    let snapshot = try await collRef.firestore.pipeline()
+      .collection(collRef.path)
+      .addWindowFields(
+        window: .range(preceding: .unbounded, following: .current)
+          .sort(Field("salesPrice").ascending()),
+        fields: [Field("quantity").count().as("cumulativeCount")]
+      )
+      .sort([Field("date").ascending()])
+      .select(["salesPrice", "cumulativeCount"])
+      .execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      ["salesPrice": 12, "cumulativeCount": 1],
+      ["salesPrice": 30, "cumulativeCount": 3],
+      ["salesPrice": 30, "cumulativeCount": 3],
+      ["salesPrice": 60, "cumulativeCount": 5],
+      ["salesPrice": 60, "cumulativeCount": 5],
+    ]
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
+  }
+
+  func testWindowFieldsRangeUnboundedToCurrentWithStringSortKey() async throws {
+    let collRef = collectionRef(withDocuments: Self.windowTestDocs)
+    let snapshot = try await collRef.firestore.pipeline()
+      .collection(collRef.path)
+      .addWindowFields(
+        window: .range(preceding: .unbounded, following: .current)
+          .sort(Field("product").ascending()),
+        fields: [Field("quantity").count().as("cumulativeCount")]
+      )
+      .sort([Field("date").ascending()])
+      .select(["product", "cumulativeCount"])
+      .execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      ["product": "phone", "cumulativeCount": 2],
+      ["product": "phone", "cumulativeCount": 2],
+      ["product": "tablet", "cumulativeCount": 5],
+      ["product": "tablet", "cumulativeCount": 5],
+      ["product": "tablet", "cumulativeCount": 5],
+    ]
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
+  }
+
+  func testWindowFieldsRangeUnboundedToCurrentWithMultipleSortKeys() async throws {
+    let collRef = collectionRef(withDocuments: Self.windowTestDocs)
+    let snapshot = try await collRef.firestore.pipeline()
+      .collection(collRef.path)
+      .addWindowFields(
+        window: .range(preceding: .unbounded, following: .current)
+          .sort([Field("product").ascending(), Field("region").ascending()]),
+        fields: [Field("quantity").count().as("cumulativeCount")]
+      )
+      .sort([Field("date").ascending()])
+      .select(["product", "region", "cumulativeCount"])
+      .execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      ["product": "phone", "region": "east", "cumulativeCount": 1],
+      ["product": "phone", "region": "west", "cumulativeCount": 2],
+      ["product": "tablet", "region": "east", "cumulativeCount": 4],
+      ["product": "tablet", "region": "west", "cumulativeCount": 5],
+      ["product": "tablet", "region": "east", "cumulativeCount": 4],
     ]
     TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
@@ -6079,6 +6171,33 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       ["product": "tablet", "runningTotal": 72, "movingAverage": 40.0],
       ["product": "tablet", "runningTotal": 132, "movingAverage": 50.0],
       ["product": "tablet", "runningTotal": 192, "movingAverage": 60.0],
+    ]
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
+  }
+
+  func testWindowFieldsMixesPlainAggregateAndFramedWindowFunction() async throws {
+    let collRef = collectionRef(withDocuments: Self.windowTestDocs)
+    let snapshot = try await collRef.firestore.pipeline()
+      .collection(collRef.path)
+      .addWindowFields(
+        window: .partition(["product"]).sort(Field("date").ascending()),
+        fields: [
+          Field("quantity").count().as("partitionCount"),
+          Field("quantity").count()
+            .over(.documents(preceding: .unbounded, following: .current))
+            .as("runningCount"),
+        ]
+      )
+      .sort([Field("date").ascending()])
+      .select(["product", "partitionCount", "runningCount"])
+      .execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      ["product": "phone", "partitionCount": 2, "runningCount": 1],
+      ["product": "phone", "partitionCount": 2, "runningCount": 2],
+      ["product": "tablet", "partitionCount": 3, "runningCount": 1],
+      ["product": "tablet", "partitionCount": 3, "runningCount": 2],
+      ["product": "tablet", "partitionCount": 3, "runningCount": 3],
     ]
     TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
@@ -6476,6 +6595,29 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
 
+  func testWindowFieldsComputesAValueBasedRangeWindowWithDoubleOffsets() async throws {
+    let collRef = collectionRef(withDocuments: Self.windowTestDocs)
+    let snapshot = try await collRef.firestore.pipeline()
+      .collection(collRef.path)
+      .addWindowFields(
+        window: .range(preceding: 17.5, following: 0.5)
+          .sort(Field("salesPrice").ascending()),
+        fields: [Field("salesPrice").sum().as("nearbyTotal")]
+      )
+      .sort([Field("date").ascending()])
+      .select(["salesPrice", "nearbyTotal"])
+      .execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      ["salesPrice": 12, "nearbyTotal": 12],
+      ["salesPrice": 30, "nearbyTotal": 60],
+      ["salesPrice": 30, "nearbyTotal": 60],
+      ["salesPrice": 60, "nearbyTotal": 120],
+      ["salesPrice": 60, "nearbyTotal": 120],
+    ]
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
+  }
+
   func testWindowFieldsComputesATrailingThreeDayTotal() async throws {
     let collRef = collectionRef(withDocuments: Self.windowTestDocs)
     let snapshot = try await collRef.firestore.pipeline()
@@ -6540,6 +6682,29 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       ["product": "tablet", "windowCount": 3],
       ["product": "tablet", "windowCount": 3],
       ["product": "tablet", "windowCount": 3],
+    ]
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
+  }
+
+  func testWindowFieldsComputesRank() async throws {
+    throw XCTSkip("Pending backend support in cl/981715571")
+    let collRef = collectionRef(withDocuments: Self.windowTestDocs)
+    let snapshot = try await collRef.firestore.pipeline()
+      .collection(collRef.path)
+      .addWindowFields(
+        window: .sort(Field("salesPrice").ascending()),
+        fields: [Rank().as("priceRank")]
+      )
+      .sort([Field("date").ascending()])
+      .select(["salesPrice", "priceRank"])
+      .execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      ["salesPrice": 12, "priceRank": 1],
+      ["salesPrice": 30, "priceRank": 2],
+      ["salesPrice": 30, "priceRank": 2],
+      ["salesPrice": 60, "priceRank": 4],
+      ["salesPrice": 60, "priceRank": 4],
     ]
     TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }

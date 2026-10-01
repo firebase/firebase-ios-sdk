@@ -111,6 +111,43 @@ enum Helper {
     return (accumulatorMap, nil)
   }
 
+  static func windowFieldsToMap(fields: [Sendable])
+    -> ([String: __AggregateFunctionBridge], Error?) {
+    var map = [String: __AggregateFunctionBridge]()
+    var errors = [String]()
+    for field in fields {
+      let alias: String
+      let bridge: __AggregateFunctionBridge
+      let errorMessage: String?
+      if let aliased = field as? AliasedAggregate {
+        (alias, bridge, errorMessage) =
+          (aliased.alias, aliased.aggregate.bridge, aliased.aggregate.errorMessage)
+      } else if let aliased = field as? AliasedWindowFunction {
+        (alias, bridge, errorMessage) =
+          (aliased.alias, aliased.windowFunction.bridge, aliased.windowFunction.errorMessage)
+      } else {
+        errors.append(
+          "Unsupported window field type '\(type(of: field))'. Expected AliasedAggregate or AliasedWindowFunction."
+        )
+        continue
+      }
+      if let errorMessage { errors.append(errorMessage) }
+      if map[alias] != nil { errors.append("Duplicate alias '\(alias)' found in window fields.") }
+      map[alias] = bridge
+    }
+    if !errors.isEmpty {
+      return (
+        [:],
+        NSError(
+          domain: "com.google.firebase.firestore",
+          code: 3,
+          userInfo: [NSLocalizedDescriptionKey: errors.joined(separator: "\n")]
+        )
+      )
+    }
+    return (map, nil)
+  }
+
   static func map(_ elements: [String: Sendable?]) -> FunctionExpression {
     var result: [Expression] = []
     for (key, value) in elements {

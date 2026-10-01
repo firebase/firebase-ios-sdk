@@ -185,16 +185,16 @@ class AddWindowFields: Stage {
   let name: String = "add_window_fields"
   let bridge: __StageBridge
   private var window: WindowSpec
-  private var fields: [AliasedAggregate]
+  private var fields: [Sendable]
   private var options: [String: Sendable]?
   let errorMessage: String?
 
-  init(window: WindowSpec, fields: [AliasedAggregate], options: [String: Sendable]? = nil) {
+  init(window: WindowSpec, fields: [Sendable], options: [String: Sendable]? = nil) {
     self.window = window
     self.fields = fields
     self.options = options
 
-    let (fieldsMap, error) = Helper.aliasedAggregatesToMap(accumulators: fields)
+    let (fieldsBridgeMap, error) = Helper.windowFieldsToMap(fields: fields)
     if let error = error {
       errorMessage = error.localizedDescription
       // Return a dummy bridge to prevent crash during invalid setup
@@ -205,7 +205,6 @@ class AddWindowFields: Stage {
       )
     } else {
       errorMessage = nil
-      let fieldsBridgeMap = fieldsMap.mapValues { $0.bridge }
       let bridgeOptions = options?.mapValues { Helper.sendableToExpr($0).toBridge() }
       bridge = __AddWindowFieldsStageBridge(
         window: window.toBridge(),
