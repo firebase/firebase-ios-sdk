@@ -1,3 +1,7 @@
+# Unreleased
+- [fixed] Fixed a crash by safely skipping malformed account provider
+  entries. (#16745)
+
 # 13.0.0
 - [fixed] Fixed a timeout race in the APNs token manager that could leave concurrent phone
   authentication requests waiting indefinitely.
