@@ -44,11 +44,22 @@ import Foundation
    * Prepares a task and begins execution.
    */
   @objc open func enqueue() {
+    let generation = stateLock.withLock { () -> UInt64? in
+      guard uploadFetcher == nil,
+            state == .unknown || state == .resuming || state == .running else {
+        return nil
+      }
+      enqueueGeneration &+= 1
+      return enqueueGeneration
+    }
+    guard let generation else { return }
+
     // Capturing self so that the upload is done whether or not there is a callback.
     dispatchQueue.async { [self] in
       let contentValidationError = self.contentUploadError()
       var failureSnapshot: StorageTaskSnapshot?
       let shouldProceed = stateLock.withLock { () -> Bool in
+        guard generation == enqueueGeneration else { return false }
         guard state == .unknown || state == .queueing || state == .resuming || state == .running ||
           state == .progress else {
           return false
@@ -74,6 +85,10 @@ import Foundation
 
       Task {
         let fetcherService = await StorageFetcherService.shared.service(reference.storage)
+        guard stateLock.withLock({ generation == enqueueGeneration }) else {
+          setupDiscardedHandlerForTesting?()
+          return
+        }
         var request = self.baseRequest
         request.httpMethod = "POST"
         request.timeoutInterval = self.reference.storage.maxUploadRetryTime
@@ -127,6 +142,7 @@ import Foundation
             guard let self = self else { return }
             var snapshotToFire: StorageTaskSnapshot?
             self.stateLock.withLock {
+              guard generation == self.enqueueGeneration else { return }
               guard self.state == .unknown || self.state == .queueing || self.state == .resuming ||
                 self.state == .running || self.state == .progress else {
                 return
@@ -142,6 +158,7 @@ import Foundation
             }
 
             self.stateLock.withLock {
+              guard generation == self.enqueueGeneration else { return }
               guard self.state == .unknown || self.state == .queueing || self.state == .resuming ||
                 self.state == .running || self.state == .progress else {
                 return
@@ -152,6 +169,7 @@ import Foundation
         // Process fetches
         var isPaused = false
         let shouldContinue = self.stateLock.withLock { () -> Bool in
+          guard generation == self.enqueueGeneration else { return false }
           if self.state == .cancelled || self.state == .pausing || self.state == .paused {
             isPaused = self.state == .paused || self.state == .pausing
             return false
@@ -175,6 +193,7 @@ import Foundation
           var failureSnapshot: StorageTaskSnapshot?
 
           self.stateLock.withLock {
+            guard generation == self.enqueueGeneration else { return }
             if self.state == .cancelled { return }
 
             self.state = .progress
@@ -207,6 +226,7 @@ import Foundation
           var failureSnapshot: StorageTaskSnapshot?
 
           self.stateLock.withLock {
+            guard generation == self.enqueueGeneration else { return }
             if self.state == .cancelled || self.state == .paused || self
               .state == .pausing { return }
 
@@ -320,6 +340,10 @@ import Foundation
   }
 
   private var uploadFetcher: GTMSessionUploadFetcher?
+  private var enqueueGeneration: UInt64 = 0
+  var hasFetcherForTesting: Bool {
+    stateLock.withLock { uploadFetcher != nil }
+  }
   private var uploadMetadata: StorageMetadata
   private var uploadData: Data?
   // Hold completion in object to force it to be retained until completion block is called.

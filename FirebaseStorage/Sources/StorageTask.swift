@@ -91,6 +91,9 @@ import Foundation
 
   let baseRequest: URLRequest
 
+  // A narrow synchronization point for tests of task setup cancellation.
+  var setupDiscardedHandlerForTesting: (@Sendable () -> Void)?
+
   init(reference: StorageReference,
        queue: DispatchQueue) {
     self.reference = reference
