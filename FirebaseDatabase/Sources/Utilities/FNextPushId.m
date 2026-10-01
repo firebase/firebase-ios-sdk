@@ -37,6 +37,13 @@ static unichar const HIGH_SURROGATE_PAIR_END = 0xDBFF;
 + (NSString *)get:(NSTimeInterval)currentTime {
     static long long lastPushTime = 0;
     static int lastRandChars[12];
+    static NSLock *generationLock;
+    static dispatch_once_t lockOnceToken;
+    dispatch_once(&lockOnceToken, ^{
+      generationLock = [[NSLock alloc] init];
+    });
+
+    [generationLock lock];
 
     long long now = (long long)(currentTime * 1000);
 
@@ -68,7 +75,9 @@ static unichar const HIGH_SURROGATE_PAIR_END = 0xDBFF;
         [id appendFormat:@"%C", [PUSH_CHARS characterAtIndex:lastRandChars[i]]];
     }
 
-    return [NSString stringWithString:id];
+    NSString *pushId = [NSString stringWithString:id];
+    [generationLock unlock];
+    return pushId;
 }
 
 + (NSString *)from:(NSString *)fn successor:(NSString *_Nonnull)key {

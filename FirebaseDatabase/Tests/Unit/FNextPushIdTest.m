@@ -15,6 +15,7 @@
  */
 
 #import <XCTest/XCTest.h>
+#import <dispatch/dispatch.h>
 
 #import "FirebaseDatabase/Sources/Utilities/FNextPushId.h"
 #import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
@@ -47,6 +48,23 @@ static NSInteger MAX_KEY_LEN = 786;
   NSString *maxKeySuccessor = [FNextPushId from:@"test" successor:maxKey];
   XCTAssertEqualObjects(maxKeySuccessor, [FUtilities maxName],
                         @"successor(MAX_PUSH_CHAR repeated MAX_KEY_LEN times) == MAX_NAME");
+}
+
+- (void)testConcurrentPushIdsAreUniqueForTheSameTimestamp {
+  const size_t pushIdCount = 1000;
+  NSMutableArray<NSString *> *pushIds = [NSMutableArray arrayWithCapacity:pushIdCount];
+  NSLock *pushIdsLock = [[NSLock alloc] init];
+
+  dispatch_apply(pushIdCount, dispatch_get_global_queue(QOS_CLASS_DEFAULT, 0),
+                 ^(size_t index) {
+                   (void)index;
+                   NSString *pushId = [FNextPushId get:12345.0];
+                   [pushIdsLock lock];
+                   [pushIds addObject:pushId];
+                   [pushIdsLock unlock];
+                 });
+
+  XCTAssertEqual([NSSet setWithArray:pushIds].count, pushIdCount);
 }
 
 - (void)testSuccessorBasic {
