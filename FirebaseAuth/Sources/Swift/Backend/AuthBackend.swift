@@ -459,7 +459,7 @@ final class AuthBackend: AuthBackendProtocol {
       if let underlyingErrors = errorDictionary["errors"] as? [Any] {
         for case let underlyingError as [String: Any] in underlyingErrors {
           if let reason = underlyingError["reason"] as? String {
-            if reason.starts(with: "keyInvalid") {
+            if reason.hasPrefix("keyInvalid") {
               return AuthErrorUtils.invalidAPIKeyError()
             }
             if reason == "ipRefererBlocked" {
