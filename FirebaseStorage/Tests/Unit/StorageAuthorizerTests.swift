@@ -14,9 +14,108 @@
 
 @testable import FirebaseStorage
 import Foundation
+import FirebaseAppCheckInterop
+import FirebaseAuthInterop
 import GTMSessionFetcherCore
 import SharedTestUtilities
 import XCTest
+
+private final class ParallelCallbackBarrier: @unchecked Sendable {
+  private let lock = NSLock()
+  private var callbackCount = 0
+  private let callbacksReady = DispatchSemaphore(value: 0)
+  private let resumeCallbacks = DispatchSemaphore(value: 0)
+
+  func waitForRelease() {
+    lock.lock()
+    callbackCount += 1
+    if callbackCount == 2 {
+      callbacksReady.signal()
+    }
+    lock.unlock()
+    resumeCallbacks.wait()
+  }
+
+  func resumeBoth() {
+    callbacksReady.wait()
+    resumeCallbacks.signal()
+    resumeCallbacks.signal()
+  }
+}
+
+private final class ConcurrentAuthInteropFake: NSObject, AuthInterop, @unchecked Sendable {
+  let barrier: ParallelCallbackBarrier
+
+  init(barrier: ParallelCallbackBarrier) {
+    self.barrier = barrier
+  }
+
+  func getToken(forcingRefresh: Bool, completion handler: @escaping (String?, Error?) -> Void) {
+    DispatchQueue.global().async {
+      self.barrier.waitForRelease()
+      handler("auth-token", nil)
+    }
+  }
+
+  func getUserID() -> String? { nil }
+}
+
+private final class ConcurrentAppCheckTokenResult: NSObject, FIRAppCheckTokenResultInterop,
+  @unchecked Sendable {
+  let token = "app-check-token"
+  let error: Error? = nil
+}
+
+private final class ConcurrentAppCheckInteropFake: NSObject, AppCheckInterop, @unchecked Sendable {
+  let barrier: ParallelCallbackBarrier
+
+  init(barrier: ParallelCallbackBarrier) {
+    self.barrier = barrier
+  }
+
+  func getToken(forcingRefresh: Bool, completion handler: @escaping AppCheckTokenHandlerInterop) {
+    DispatchQueue.global().async {
+      self.barrier.waitForRelease()
+      handler(ConcurrentAppCheckTokenResult())
+    }
+  }
+
+  func tokenDidChangeNotificationName() -> String { "AppCheckTokenDidChange" }
+  func notificationTokenKey() -> String { "AppCheckToken" }
+  func notificationAppNameKey() -> String { "AppName" }
+}
+
+private final class ThreadCheckedMutableURLRequest: NSMutableURLRequest, @unchecked Sendable {
+  private let mutationLock = NSLock()
+  private var activeMutations = 0
+  private(set) var didMutateConcurrently = false
+
+  override init(url: URL,
+                cachePolicy: NSURLRequest.CachePolicy,
+                timeoutInterval: TimeInterval) {
+    super.init(url: url, cachePolicy: cachePolicy, timeoutInterval: timeoutInterval)
+  }
+
+  required init?(coder: NSCoder) {
+    fatalError("init(coder:) is not supported")
+  }
+
+  override func setValue(_ value: String?, forHTTPHeaderField field: String) {
+    mutationLock.lock()
+    if activeMutations > 0 {
+      didMutateConcurrently = true
+    }
+    activeMutations += 1
+    mutationLock.unlock()
+
+    Thread.sleep(forTimeInterval: 0.02)
+    super.setValue(value, forHTTPHeaderField: field)
+
+    mutationLock.lock()
+    activeMutations -= 1
+    mutationLock.unlock()
+  }
+}
 
 class StorageAuthorizerTests: StorageTestHelpers {
   var appCheckTokenSuccess: FIRAppCheckTokenResultFake!
@@ -132,6 +231,33 @@ class StorageAuthorizerTests: StorageTestHelpers {
     let headers = fetcher!.request?.allHTTPHeaderFields
     XCTAssertEqual(headers!["Authorization"], "Firebase \(StorageTestAuthToken)")
     XCTAssertEqual(headers!["X-Firebase-AppCheck"], appCheckTokenSuccess?.token)
+  }
+
+  func testAuthAndAppCheckTokenHeadersAreMutatedSerially() {
+    let barrier = ParallelCallbackBarrier()
+    let request = ThreadCheckedMutableURLRequest(
+      url: URL(string: "https://storage.googleapis.com/v0/b/bucket/o/object")!,
+      cachePolicy: .useProtocolCachePolicy,
+      timeoutInterval: 60
+    )
+    let authorizer = StorageTokenAuthorizer(
+      googleAppID: "dummyAppID",
+      callbackQueue: DispatchQueue(label: "com.google.firebase.storage.authorizer-test"),
+      authProvider: ConcurrentAuthInteropFake(barrier: barrier),
+      appCheck: ConcurrentAppCheckInteropFake(barrier: barrier)
+    )
+    let completion = expectation(description: "Token authorization completes")
+
+    authorizer.authorizeRequest(request) { error in
+      XCTAssertNil(error)
+      completion.fulfill()
+    }
+    barrier.resumeBoth()
+    wait(for: [completion], timeout: 3)
+
+    XCTAssertFalse(request.didMutateConcurrently)
+    XCTAssertEqual(request.value(forHTTPHeaderField: "Authorization"), "Firebase auth-token")
+    XCTAssertEqual(request.value(forHTTPHeaderField: "X-Firebase-AppCheck"), "app-check-token")
   }
 
   func testAppCheckError() async throws {

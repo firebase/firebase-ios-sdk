@@ -1,4 +1,6 @@
 # 12.19.0
+- [fixed] Serialize Auth and App Check token header updates to avoid concurrent mutation of
+  the request during Storage authorization.
 - [fixed] Fixed an issue where constructing a download URL could fail or produce
   an invalid path if the storage bucket name contained special characters. (#16529)
 - [changed] Requests directed to the local emulator over a non-loopback HTTP connection
