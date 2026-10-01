@@ -792,21 +792,15 @@ google_firestore_v1_Pipeline_Stage UpsertStage::to_proto() const {
   google_firestore_v1_Pipeline_Stage result;
   result.name = nanopb::MakeBytesArray(name());
 
-  if (!fields_.empty()) {
-    result.args_count = 1;
-    result.args = nanopb::MakeArray<google_firestore_v1_Value>(1);
-    result.args[0].which_value_type = google_firestore_v1_Value_map_value_tag;
-    nanopb::SetRepeatedField(
-        &result.args[0].map_value.fields,
-        &result.args[0].map_value.fields_count, fields_,
-        [](const std::pair<std::string, std::shared_ptr<Expr>>& entry) {
-          return _google_firestore_v1_MapValue_FieldsEntry{
-              nanopb::MakeBytesArray(entry.first), entry.second->to_proto()};
-        });
-  } else {
-    result.args_count = 0;
-    result.args = nullptr;
-  }
+  result.args_count = 1;
+  result.args = nanopb::MakeArray<google_firestore_v1_Value>(1);
+  result.args[0].which_value_type = google_firestore_v1_Value_map_value_tag;
+  nanopb::SetRepeatedField(
+      &result.args[0].map_value.fields, &result.args[0].map_value.fields_count,
+      fields_, [](const std::pair<std::string, std::shared_ptr<Expr>>& entry) {
+        return _google_firestore_v1_MapValue_FieldsEntry{
+            nanopb::MakeBytesArray(entry.first), entry.second->to_proto()};
+      });
 
   std::vector<std::pair<std::string, google_firestore_v1_Value>> opts;
   if (!collection_path_.empty()) {

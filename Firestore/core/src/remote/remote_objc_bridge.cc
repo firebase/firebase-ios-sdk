@@ -406,6 +406,8 @@ DatastoreSerializer::EncodeExecutePipelineRequest(
         google_firestore_v1_ExecutePipelineRequest_new_transaction_tag;
     result->consistency_selector.new_transaction.which_mode =
         google_firestore_v1_TransactionOptions_read_write_tag;
+    result->consistency_selector.new_transaction.read_write.concurrency_mode =
+        google_firestore_v1_TransactionOptions_ConcurrencyMode_OPTIMISTIC;
     result->auto_commit_transaction = true;
   }
 
