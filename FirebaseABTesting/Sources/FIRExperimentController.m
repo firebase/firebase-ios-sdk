@@ -31,6 +31,11 @@ const ABTExperimentPayloadExperimentOverflowPolicy FIRDefaultExperimentOverflowP
 
 /// Deserialize the experiment payloads.
 ABTExperimentPayload *ABTDeserializeExperimentPayload(NSData *payload) {
+  if (![payload isKindOfClass:[NSData class]]) {
+    FIRLogError(kFIRLoggerABTesting, @"I-ABT000001",
+                @"Failed to parse experiment payload: unexpected type %@.", [payload class]);
+    return nil;
+  }
   // Verify that we have a JSON object.
   NSError *error;
   id JSONObject = [NSJSONSerialization JSONObjectWithData:payload options:kNilOptions error:&error];
@@ -275,7 +280,9 @@ NSArray *ABTExperimentsToClearFromPayloads(
 
   NSMutableSet *runningExperimentIDs = [NSMutableSet setWithCapacity:payloads.count];
   for (ABTExperimentPayload *payload in payloads) {
-    [runningExperimentIDs addObject:payload.experimentId];
+    if (payload.experimentId) {
+      [runningExperimentIDs addObject:payload.experimentId];
+    }
   }
 
   for (NSDictionary<NSString *, NSString *> *activeExperimentDictionary in activeExperiments) {

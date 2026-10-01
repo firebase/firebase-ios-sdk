@@ -330,6 +330,106 @@ typedef void (^FakeAnalyticsLogEventWithOriginNameParametersHandler)(
                         @"payload_override_trigger_event");
 }
 
+#pragma mark - malformed payloads
+
+- (void)testSetExperimentWithMissingVariantIDDoesNotCrash {
+  // Parsed from a server payload that is missing `variantId`.
+  ABTExperimentPayload *payload =
+      [[ABTExperimentPayload alloc] initWithDictionary:@{@"experimentId" : @"exp_1"}];
+  XCTAssertNil(payload.variantId);
+  FIRLifecycleEvents *events = [[FIRLifecycleEvents alloc] init];
+  [_ABTCUPController
+      setExperimentWithOrigin:gABTTestOrigin
+                      payload:payload
+                       events:events
+                       policy:ABTExperimentPayloadExperimentOverflowPolicyDiscardOldest];
+
+  XCTAssertEqual([_ABTCUPController experimentsWithOrigin:gABTTestOrigin].count, 0);
+}
+
+- (void)testSetExperimentWithNullFieldsDoesNotCrash {
+  ABTExperimentPayload *payload = [[ABTExperimentPayload alloc] initWithDictionary:@{
+    @"experimentId" : [NSNull null],
+    @"variantId" : [NSNull null],
+    @"triggerEvent" : [NSNull null],
+    @"setEventToLog" : [NSNull null],
+    @"activateEventToLog" : @1,
+    @"timeoutEventToLog" : @[],
+    @"ttlExpiryEventToLog" : @{},
+  }];
+  FIRLifecycleEvents *events = [[FIRLifecycleEvents alloc] init];
+  [_ABTCUPController
+      setExperimentWithOrigin:gABTTestOrigin
+                      payload:payload
+                       events:events
+                       policy:ABTExperimentPayloadExperimentOverflowPolicyDiscardOldest];
+
+  XCTAssertEqual([_ABTCUPController experimentsWithOrigin:gABTTestOrigin].count, 0);
+}
+
+- (void)testSetExperimentWithWrongTypedEventNamesUsesDefaults {
+  ABTExperimentPayload *payload = [[ABTExperimentPayload alloc] initWithDictionary:@{
+    @"experimentId" : @"exp_1",
+    @"variantId" : @"v1",
+    @"triggerEvent" : @7,
+    @"activateEventToLog" : @1,
+    @"timeoutEventToLog" : @[],
+    @"ttlExpiryEventToLog" : [NSNull null],
+  }];
+  FIRLifecycleEvents *events = [[FIRLifecycleEvents alloc] init];
+  NSDictionary<NSString *, id> *experiment =
+      [_ABTCUPController createExperimentFromOrigin:gABTTestOrigin payload:payload events:events];
+
+  XCTAssertEqualObjects(experiment[@"name"], @"exp_1");
+  XCTAssertEqualObjects(experiment[@"value"], @"v1");
+  XCTAssertNil(experiment[@"triggerEventName"]);
+  XCTAssertEqualObjects(experiment[@"triggeredEvent"][@"name"], FIRActivateExperimentEventName);
+  XCTAssertEqualObjects(experiment[@"timedOutEvent"][@"name"], FIRTimeoutExperimentEventName);
+  XCTAssertEqualObjects(experiment[@"expiredEvent"][@"name"], FIRExpireExperimentEventName);
+}
+
+- (void)testCreateExperimentWithMissingVariantIDDoesNotCrash {
+  ABTExperimentPayload *payload =
+      [[ABTExperimentPayload alloc] initWithDictionary:@{@"experimentId" : @"exp_1"}];
+  FIRLifecycleEvents *events = [[FIRLifecycleEvents alloc] init];
+  NSDictionary<NSString *, id> *experiment =
+      [_ABTCUPController createExperimentFromOrigin:gABTTestOrigin payload:payload events:events];
+  XCTAssertEqualObjects(experiment[@"name"], @"exp_1");
+  XCTAssertEqualObjects(experiment[@"triggeredEvent"][@"parameters"], @{});
+}
+
+- (void)testClearExperimentWithNilIDsDoesNotCrash {
+  FIRLifecycleEvents *events = [[FIRLifecycleEvents alloc] init];
+  id payload = OCMClassMock([ABTExperimentPayload class]);
+  OCMStub([payload experimentId]).andReturn(@"exp_1");
+  OCMStub([payload variantId]).andReturn(@"v1");
+  [_ABTCUPController
+      setExperimentWithOrigin:gABTTestOrigin
+                      payload:payload
+                       events:events
+                       policy:ABTExperimentPayloadExperimentOverflowPolicyDiscardOldest];
+  XCTAssertEqual([_ABTCUPController experimentsWithOrigin:gABTTestOrigin].count, 1);
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnonnull"
+  // Missing experiment ID: nothing to clear.
+  [_ABTCUPController clearExperiment:nil
+                           variantID:@"v1"
+                          withOrigin:gABTTestOrigin
+                             payload:nil
+                              events:events];
+  XCTAssertEqual([_ABTCUPController experimentsWithOrigin:gABTTestOrigin].count, 1);
+
+  // Missing variant ID: experiment is still cleared.
+  [_ABTCUPController clearExperiment:@"exp_1"
+                           variantID:nil
+                          withOrigin:gABTTestOrigin
+                             payload:nil
+                              events:events];
+#pragma clang diagnostic pop
+  XCTAssertEqual([_ABTCUPController experimentsWithOrigin:gABTTestOrigin].count, 0);
+}
+
 #pragma mark - helpers
 
 - (void)testIsExperimentTheSameAsPayload {
