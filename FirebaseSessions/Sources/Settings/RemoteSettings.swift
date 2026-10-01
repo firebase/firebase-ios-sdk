@@ -75,11 +75,28 @@ final class RemoteSettings: SettingsProvider, Sendable {
   }
 
   var samplingRate: Double? {
-    cache.namespacedValue(forKey: RemoteSettings.flagSamplingRate)
+    guard let rate: Double = cache.namespacedValue(forKey: RemoteSettings.flagSamplingRate) else {
+      return nil
+    }
+    // Ignore values outside of [0, 1] (including NaN) so the SDK default is used instead.
+    guard (0 ... 1).contains(rate) else {
+      Logger.logDebug("[Settings] Ignoring invalid sampling rate: \(rate)")
+      return nil
+    }
+    return rate
   }
 
   var sessionTimeout: TimeInterval? {
-    cache.namespacedValue(forKey: RemoteSettings.flagSessionTimeout)
+    guard let timeout: TimeInterval = cache
+      .namespacedValue(forKey: RemoteSettings.flagSessionTimeout) else {
+      return nil
+    }
+    // Ignore negative or non-finite values so the SDK default is used instead.
+    guard timeout.isFinite, timeout >= 0 else {
+      Logger.logDebug("[Settings] Ignoring invalid session timeout: \(timeout)")
+      return nil
+    }
+    return timeout
   }
 
   func updateSettings(currentTime: Date) {

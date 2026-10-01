@@ -145,8 +145,12 @@ final class SettingsCache: SettingsCacheClient {
   }
 
   func updateContents(_ contents: [String: Any]) {
+    // Server-provided JSON may contain values that are not property list objects (e.g. `null`
+    // is parsed as `NSNull`). Writing those to user defaults raises an exception, so drop them.
+    let sanitizedContents = Self.propertyListCompatible(contents)
+
     // Write to in-memory cache directly (no flattening).
-    let container = SendableContainer(data: contents)
+    let container = SendableContainer(data: sanitizedContents)
 
     memoryCache.withLock { cache in
       cache = container.data
@@ -154,7 +158,27 @@ final class SettingsCache: SettingsCacheClient {
 
     // Write to disk cache.
     // We overwrite the entire key to match legacy behavior.
-    diskCache.setObject(contents, forKey: UserDefaultsKeys.forContent)
+    diskCache.setObject(sanitizedContents, forKey: UserDefaultsKeys.forContent)
+  }
+
+  /// Returns a copy of `dictionary` that recursively omits any values that cannot be stored in
+  /// a property list (such as `NSNull`).
+  private static func propertyListCompatible(_ dictionary: [String: Any]) -> [String: Any] {
+    dictionary.compactMapValues(propertyListCompatible(value:))
+  }
+
+  private static func propertyListCompatible(value: Any) -> Any? {
+    switch value {
+    case let dictionary as [String: Any]:
+      return propertyListCompatible(dictionary)
+    case let array as [Any]:
+      return array.compactMap(propertyListCompatible(value:))
+    case is String, is NSNumber, is Date, is Data:
+      return value
+    default:
+      Logger.logDebug("[Settings] Dropping invalid settings value: \(value)")
+      return nil
+    }
   }
 
   func updateMetadata(_ metadata: CacheKey) {
@@ -212,6 +236,10 @@ final class SettingsCache: SettingsCacheClient {
     // cache_duration is always at the root level
     let cacheDuration: Double? = rootValue(forKey: Self.flagCacheDuration)
     guard let duration = cacheDuration else {
+      return Self.cacheDurationSecondsDefault
+    }
+    guard duration.isFinite, duration >= 0 else {
+      Logger.logDebug("[Settings] Ignoring invalid cache duration: \(duration)")
       return Self.cacheDurationSecondsDefault
     }
     Logger.logDebug("[Settings] Cache duration: \(duration)")

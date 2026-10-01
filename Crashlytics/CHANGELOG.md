@@ -1,3 +1,8 @@
+# Unreleased
+- [fixed] Improved robustness in Firebase Sessions when parsing malformed
+  settings from the server, including `null` values that could cause a crash
+  when caching settings. (#16728)
+
 # 13.0.0
 - [fixed] Safely validate memory reads when executing `DW_OP_deref_size`
   operations during DWARF stack unwinding (#16550).
