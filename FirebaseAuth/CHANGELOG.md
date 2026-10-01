@@ -1,4 +1,6 @@
 # Unreleased
+- [fixed] Fixed a crash by safely skipping malformed account provider
+  entries. (#16745)
 - [fixed] Improved robustness when parsing malformed reCAPTCHA config and
   backend error details from the server. (#16728)
 
