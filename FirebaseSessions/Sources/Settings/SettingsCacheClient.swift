@@ -173,7 +173,7 @@ final class SettingsCache: SettingsCacheClient {
       return propertyListCompatible(dictionary)
     case let array as [Any]:
       return array.compactMap(propertyListCompatible(value:))
-    case is String, is NSNumber, is Date, is Data:
+    case is String, is Bool, is NSNumber, is Date, is Data:
       return value
     default:
       Logger.logDebug("[Settings] Dropping invalid settings value: \(value)")

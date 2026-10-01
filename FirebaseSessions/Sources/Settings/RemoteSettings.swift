@@ -79,7 +79,7 @@ final class RemoteSettings: SettingsProvider, Sendable {
       return nil
     }
     // Ignore values outside of [0, 1] (including NaN) so the SDK default is used instead.
-    guard (0 ... 1).contains(rate) else {
+    guard (0.0 ... 1.0).contains(rate) else {
       Logger.logDebug("[Settings] Ignoring invalid sampling rate: \(rate)")
       return nil
     }
