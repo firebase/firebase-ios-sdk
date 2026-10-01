@@ -362,10 +362,25 @@ typedef enum {
 
 - (void)onDataMessage:(FConnection *)fconnection
           withMessage:(NSDictionary *)message {
-    if (message[kFWPRequestNumber] != nil) {
-        // this is a response to a request we sent
-        NSNumber *rn = [NSNumber
-            numberWithInt:[[message objectForKey:kFWPRequestNumber] intValue]];
+    // The data envelope is parsed from server JSON; ignore it unless it is a
+    // JSON object, otherwise the keyed subscripts below crash the client.
+    if (![message isKindOfClass:[NSDictionary class]]) {
+        FFLog(@"I-RDB034047",
+              @"Ignoring data message that is not a JSON object: %@", message);
+        return;
+    }
+    id requestNumber = [message objectForKey:kFWPRequestNumber];
+    if (requestNumber != nil) {
+        // this is a response to a request we sent. The request number is
+        // server-controlled; a non-numeric value does not respond to -intValue.
+        if (![requestNumber isKindOfClass:[NSNumber class]] &&
+            ![requestNumber isKindOfClass:[NSString class]]) {
+            FFLog(@"I-RDB034053",
+                  @"Ignoring response with malformed request number: %@",
+                  message);
+            return;
+        }
+        NSNumber *rn = [NSNumber numberWithInt:[requestNumber intValue]];
         if ([self.requestCBHash objectForKey:rn]) {
             void (^callback)(NSDictionary *) =
                 [self.requestCBHash objectForKey:rn];
@@ -1034,6 +1049,16 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref,
 
 - (void)onDataPushWithAction:(NSString *)action andBody:(NSDictionary *)body {
     FFLog(@"I-RDB034029", @"handleServerMessage: %@, %@", action, body);
+    // action and body are server-controlled JSON; ignore the push unless they
+    // are a string and a JSON object, otherwise -isEqualToString: and the keyed
+    // access below crash the client.
+    if (![action isKindOfClass:[NSString class]] ||
+        ![body isKindOfClass:[NSDictionary class]]) {
+        FFLog(@"I-RDB034048",
+              @"Ignoring malformed server push (action: %@, body: %@)", action,
+              body);
+        return;
+    }
     id<FPersistentConnectionDelegate> delegate = self.delegate;
     if ([action isEqualToString:kFWPAsyncServerDataUpdate] ||
         [action isEqualToString:kFWPAsyncServerDataMerge]) {
@@ -1043,6 +1068,11 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref,
             [body objectForKey:kFWPAsyncServerDataUpdateBodyData]) {
             NSString *path =
                 [body objectForKey:kFWPAsyncServerDataUpdateBodyPath];
+            if (![path isKindOfClass:[NSString class]]) {
+                FFLog(@"I-RDB034049",
+                      @"Ignoring data update with non-string path: %@", body);
+                return;
+            }
             id payloadData =
                 [body objectForKey:kFWPAsyncServerDataUpdateBodyData];
             if (isMerge && [payloadData isKindOfClass:[NSDictionary class]] &&
@@ -1067,17 +1097,28 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref,
         NSString *path = body[kFWPAsyncServerDataUpdateBodyPath];
         NSArray *ranges = body[kFWPAsyncServerDataUpdateBodyData];
         NSNumber *tag = body[kFWPAsyncServerDataUpdateBodyTag];
+        if (![path isKindOfClass:[NSString class]] ||
+            ![ranges isKindOfClass:[NSArray class]]) {
+            FFLog(@"I-RDB034050",
+                  @"Ignoring range merge with malformed path or ranges: %@",
+                  body);
+            return;
+        }
         NSMutableArray *rangeMerges = [NSMutableArray array];
         for (NSDictionary *range in ranges) {
+            if (![range isKindOfClass:[NSDictionary class]]) {
+                continue;
+            }
             NSString *startString = range[kFWPAsyncServerDataUpdateStartPath];
             NSString *endString = range[kFWPAsyncServerDataUpdateEndPath];
             id updateData = range[kFWPAsyncServerDataUpdateRangeMerge];
             id<FNode> updates = [FSnapshotUtilities nodeFrom:updateData];
-            FPath *start = (startString != nil)
+            FPath *start = [startString isKindOfClass:[NSString class]]
                                ? [[FPath alloc] initWith:startString]
                                : nil;
-            FPath *end =
-                (endString != nil) ? [[FPath alloc] initWith:endString] : nil;
+            FPath *end = [endString isKindOfClass:[NSString class]]
+                             ? [[FPath alloc] initWith:endString]
+                             : nil;
             FRangeMerge *merge = [[FRangeMerge alloc] initWithStart:start
                                                                 end:end
                                                             updates:updates];
@@ -1087,14 +1128,24 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref,
     } else if ([action isEqualToString:kFWPAsyncServerAuthRevoked]) {
         NSString *status = [body objectForKey:kFWPResponseForActionStatus];
         NSString *reason = [body objectForKey:kFWPResponseForActionData];
+        if (![status isKindOfClass:[NSString class]]) {
+            FFLog(@"I-RDB034051",
+                  @"Ignoring auth revoked with non-string status: %@", body);
+            return;
+        }
         [self onAuthRevokedWithStatus:status andReason:reason];
     } else if ([action isEqualToString:kFWPASyncServerListenCancelled]) {
         NSString *pathString =
             [body objectForKey:kFWPAsyncServerDataUpdateBodyPath];
+        if (![pathString isKindOfClass:[NSString class]]) {
+            FFLog(@"I-RDB034052",
+                  @"Ignoring listen cancel with non-string path: %@", body);
+            return;
+        }
         [self onListenRevoked:[[FPath alloc] initWith:pathString]];
     } else if ([action isEqualToString:kFWPAsyncServerSecurityDebug]) {
         NSString *msg = [body objectForKey:@"msg"];
-        if (msg != nil) {
+        if ([msg isKindOfClass:[NSString class]]) {
             NSArray *msgs = [msg componentsSeparatedByString:@"\n"];
             for (NSString *m in msgs) {
                 FFWarn(@"I-RDB034031", @"%@", m);

@@ -144,9 +144,18 @@ typedef enum {
 // Corresponds to onMessageReceived in JS
 - (void)onMessage:(FWebSocketConnection *)fwebSocket
       withMessage:(NSDictionary *)message {
+    // The frame is parsed straight from server JSON, so its top-level type is
+    // whatever the server sent. A non-object frame (e.g. a JSON array) does not
+    // respond to -objectForKey: and would crash the client, so ignore it.
+    if (![message isKindOfClass:[NSDictionary class]]) {
+        FFLog(@"I-RDB082016",
+              @"Ignoring server message that is not a JSON object: %@",
+              message);
+        return;
+    }
     NSString *rawMessageType =
         [message objectForKey:kFWPAsyncServerEnvelopeType];
-    if (rawMessageType != nil) {
+    if ([rawMessageType isKindOfClass:[NSString class]]) {
         if ([rawMessageType isEqualToString:kFWPAsyncServerDataMessage]) {
             [self onDataMessage:[message
                                     objectForKey:kFWPAsyncServerEnvelopeData]];
@@ -171,7 +180,20 @@ typedef enum {
 
 - (void)onControl:(NSDictionary *)message {
     FFLog(@"I-RDB082011", @"Got control message: %@", message);
+    // The control envelope's data field is server-controlled; ignore it when it
+    // is not a JSON object, otherwise -objectForKey: below crashes the client.
+    if (![message isKindOfClass:[NSDictionary class]]) {
+        FFLog(@"I-RDB082017",
+              @"Ignoring control message that is not a JSON object: %@",
+              message);
+        return;
+    }
     NSString *type = [message objectForKey:kFWPAsyncServerControlMessageType];
+    if (![type isKindOfClass:[NSString class]]) {
+        FFLog(@"I-RDB082019",
+              @"Unknown control message returned from server: %@", message);
+        return;
+    }
     if ([type isEqualToString:kFWPAsyncServerControlMessageShutdown]) {
         NSString *reason =
             [message objectForKey:kFWPAsyncServerControlMessageData];
@@ -199,8 +221,18 @@ typedef enum {
 }
 
 - (void)onHandshake:(NSDictionary *)handshake {
+    if (![handshake isKindOfClass:[NSDictionary class]]) {
+        FFLog(@"I-RDB082018",
+              @"Ignoring handshake that is not a JSON object: %@", handshake);
+        return;
+    }
     NSNumber *timestamp =
         [handshake objectForKey:kFWPAsyncServerHelloTimestamp];
+    if (![timestamp isKindOfClass:[NSNumber class]]) {
+        FFLog(@"I-RDB082020",
+              @"Ignoring handshake with non-numeric timestamp: %@", handshake);
+        return;
+    }
     //    NSString* version = [handshake
     //    objectForKey:kFWPAsyncServerHelloVersion];
     NSString *host = [handshake objectForKey:kFWPAsyncServerHelloConnectedHost];

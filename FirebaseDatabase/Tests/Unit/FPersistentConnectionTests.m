@@ -44,6 +44,7 @@
 @interface FPersistentConnection (Testing)
 
 - (void)systemClockDidChange:(NSNotification *)notification;
+- (void)onDataPushWithAction:(NSString *)action andBody:(NSDictionary *)body;
 
 @end
 
@@ -84,6 +85,46 @@
   [self waitForConnectionQueue];
 
   [self assertConnectionRestartedForSystemClockChange];
+}
+
+// A server frame is parsed straight from JSON, so a malformed message (wrong
+// JSON type for the envelope, the push body, or a nested field) must be ignored
+// rather than crash the client with an unrecognized selector.
+- (void)testNonDictionaryDataMessageIsIgnored {
+  XCTAssertNoThrow([self.connection onDataMessage:nil withMessage:(id) @[ @1, @2 ]]);
+  XCTAssertNoThrow([self.connection onDataMessage:nil withMessage:(id) @"not a dict"]);
+}
+
+- (void)testMalformedServerPushIsIgnored {
+  // Body is not a JSON object.
+  XCTAssertNoThrow([self.connection onDataPushWithAction:kFWPAsyncServerDataUpdate
+                                                 andBody:(id) @"not a dict"]);
+  // Action is not a string.
+  XCTAssertNoThrow([self.connection onDataPushWithAction:(id) @5 andBody:@{}]);
+  // Data update with a non-string path.
+  XCTAssertNoThrow([self.connection onDataPushWithAction:kFWPAsyncServerDataUpdate
+                                                 andBody:@{
+                                                   kFWPAsyncServerDataUpdateBodyPath : @42,
+                                                   kFWPAsyncServerDataUpdateBodyData : @"value"
+                                                 }]);
+  // Range merge whose ranges are not an array.
+  XCTAssertNoThrow([self.connection
+      onDataPushWithAction:kFWPAsyncServerDataRangeMerge
+                   andBody:@{
+                     kFWPAsyncServerDataUpdateBodyPath : @"/",
+                     kFWPAsyncServerDataUpdateBodyData : @"not an array"
+                   }]);
+  // Range merge whose range elements are not dictionaries.
+  XCTAssertNoThrow([self.connection
+      onDataPushWithAction:kFWPAsyncServerDataRangeMerge
+                   andBody:@{
+                     kFWPAsyncServerDataUpdateBodyPath : @"/",
+                     kFWPAsyncServerDataUpdateBodyData : @[ @"not a dict" ]
+                   }]);
+  // Listen cancel with a non-string path.
+  XCTAssertNoThrow([self.connection
+      onDataPushWithAction:kFWPASyncServerListenCancelled
+                   andBody:@{kFWPAsyncServerDataUpdateBodyPath : @99}]);
 }
 
 - (void)waitForConnectionQueue {
