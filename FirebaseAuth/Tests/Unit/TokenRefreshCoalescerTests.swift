@@ -21,6 +21,32 @@ actor Counter {
   func value() -> Int { valueInternal }
 }
 
+actor RefreshGate {
+  private var isPaused = false
+  private var isReleased = false
+  private var pauseContinuation: CheckedContinuation<Void, Never>?
+  private var startContinuations: [CheckedContinuation<Void, Never>] = []
+
+  func pause() async {
+    isPaused = true
+    startContinuations.forEach { $0.resume() }
+    startContinuations.removeAll()
+    guard !isReleased else { return }
+    await withCheckedContinuation { pauseContinuation = $0 }
+  }
+
+  func waitUntilPaused() async {
+    guard !isPaused else { return }
+    await withCheckedContinuation { startContinuations.append($0) }
+  }
+
+  func release() {
+    isReleased = true
+    pauseContinuation?.resume()
+    pauseContinuation = nil
+  }
+}
+
 class TokenRefreshCoalescerTests: XCTestCase {
   /// Tests that when multiple concurrent refresh requests arrive for the same token,
   /// only ONE network call is made.
@@ -110,6 +136,57 @@ class TokenRefreshCoalescerTests: XCTestCase {
     // Should have made TWO network calls (one for each token)
     let callsAfterTwoTokens = await counter.value()
     XCTAssertEqual(callsAfterTwoTokens, 2)
+  }
+
+  /// An older refresh finishing after a different-token refresh starts must not clear the newer
+  /// refresh's coalescing slot.
+  func testOlderRefreshCompletionDoesNotClearNewerPendingRefresh() async throws {
+    let coalescer = TokenRefreshCoalescer()
+    let counter = Counter()
+    let firstGate = RefreshGate()
+    let secondGate = RefreshGate()
+
+    let firstTask = Task {
+      try await coalescer.coalescedRefresh(currentToken: "token_v1") {
+        await counter.increment()
+        await firstGate.pause()
+        return ("new_token_1", true)
+      }
+    }
+    await firstGate.waitUntilPaused()
+
+    let secondTask = Task {
+      try await coalescer.coalescedRefresh(currentToken: "token_v2") {
+        await counter.increment()
+        await secondGate.pause()
+        return ("new_token_2", true)
+      }
+    }
+    await secondGate.waitUntilPaused()
+
+    await firstGate.release()
+    let firstResult = try await firstTask.value
+    XCTAssertEqual(firstResult.0, "new_token_1")
+
+    let thirdTask = Task {
+      try await coalescer.coalescedRefresh(currentToken: "token_v2") {
+        await counter.increment()
+        return ("duplicate_token_v2", true)
+      }
+    }
+    // Give the third caller a chance to enter the actor while the second refresh remains pending.
+    await Task.yield()
+    try await Task.sleep(nanoseconds: 10_000_000)
+    let callsBeforeSecondRelease = await counter.value()
+    XCTAssertEqual(callsBeforeSecondRelease, 2)
+
+    await secondGate.release()
+    let secondResult = try await secondTask.value
+    let thirdResult = try await thirdTask.value
+    XCTAssertEqual(secondResult.0, "new_token_2")
+    XCTAssertEqual(thirdResult.0, "new_token_2")
+    let totalCallCount = await counter.value()
+    XCTAssertEqual(totalCallCount, 2)
   }
 
   /// Tests that if a refresh fails, the next call will start a fresh attempt

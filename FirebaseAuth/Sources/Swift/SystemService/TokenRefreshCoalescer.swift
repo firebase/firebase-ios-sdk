@@ -42,6 +42,10 @@ actor TokenRefreshCoalescer {
   /// Used to ensure we only coalesce requests for the same token.
   private var pendingRefreshToken: String?
 
+  /// Identifies the pending slot so an older refresh cannot clear a newer one after actor
+  /// reentrancy while awaiting its task.
+  private var pendingRefreshGeneration: UUID?
+
   /// Performs a coalesced token refresh.
   ///
   /// If a refresh is already in progress, this method waits for that refresh to complete
@@ -78,24 +82,23 @@ actor TokenRefreshCoalescer {
     let task = Task {
       try await refreshFunction()
     }
+    let generation = UUID()
 
     // Store the task so other concurrent callers can wait for it
     pendingRefreshTask = task
     pendingRefreshToken = currentToken
+    pendingRefreshGeneration = generation
 
     defer {
-      // Clean up the pending task after it completes
-      pendingRefreshTask = nil
-      pendingRefreshToken = nil
+      // A different-token request may have replaced this task while this call was suspended.
+      // Only the current task may clear its pending slot.
+      if pendingRefreshGeneration == generation {
+        pendingRefreshTask = nil
+        pendingRefreshToken = nil
+        pendingRefreshGeneration = nil
+      }
     }
 
-    do {
-      return try await task.value
-    } catch {
-      // On error, clear the pending task so the next call will retry
-      pendingRefreshTask = nil
-      pendingRefreshToken = nil
-      throw error
-    }
+    return try await task.value
   }
 }
