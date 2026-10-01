@@ -527,9 +527,12 @@ static NSInteger const kRealtimeMaxRetryIntervalSeconds = 60 * 60 * 24;
   NSInteger updateTemplateVersion = 1;
   NSTimeInterval realtimeRetryInterval = 0;
   if (dataError == nil && ![response isKindOfClass:[NSDictionary class]]) {
-    dataError = [NSError errorWithDomain:FIRRemoteConfigUpdateErrorDomain
-                                    code:FIRRemoteConfigUpdateErrorMessageInvalid
-                                userInfo:nil];
+    dataError =
+        [NSError errorWithDomain:FIRRemoteConfigUpdateErrorDomain
+                            code:FIRRemoteConfigUpdateErrorMessageInvalid
+                        userInfo:@{
+                          NSLocalizedDescriptionKey : @"ConfigUpdate message is not a JSON object."
+                        }];
   }
   if (dataError == nil) {
     id templateVersion = [response objectForKey:kTemplateVersionNumberKey];
@@ -573,10 +576,12 @@ static NSInteger const kRealtimeMaxRetryIntervalSeconds = 60 * 60 * 24;
       }
     }
   } else {
-    NSError *error =
-        [NSError errorWithDomain:FIRRemoteConfigUpdateErrorDomain
-                            code:FIRRemoteConfigUpdateErrorMessageInvalid
-                        userInfo:@{NSLocalizedDescriptionKey : @"Unable to parse ConfigUpdate."}];
+    NSError *error = [NSError errorWithDomain:FIRRemoteConfigUpdateErrorDomain
+                                         code:FIRRemoteConfigUpdateErrorMessageInvalid
+                                     userInfo:@{
+                                       NSLocalizedDescriptionKey : @"Unable to parse ConfigUpdate.",
+                                       NSUnderlyingErrorKey : dataError
+                                     }];
     [self propagateErrors:error];
   }
 }

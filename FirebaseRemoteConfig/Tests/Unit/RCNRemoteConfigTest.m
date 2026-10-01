@@ -82,6 +82,7 @@
     (RCNConfigUpdateCompletion _Nonnull)listener;
 - (void)removeConfigUpdateListener:(RCNConfigUpdateCompletion _Nonnull)listener;
 - (void)evaluateStreamResponse:(NSDictionary *)response error:(NSError *)dataError;
+- (void)propagateErrors:(NSError *)error;
 
 @end
 
@@ -1936,6 +1937,41 @@ static NSString *UTCToLocal(NSString *utcTime) {
   [_configRealtime[0] evaluateStreamResponse:response error:nil];
   XCTAssertEqualWithAccuracy(_configInstances[0].settings.realtimeExponentialBackoffThrottleEndTime,
                              maxThrottleEndTime, 5.0);
+}
+
+/// Returns the error `evaluateStreamResponse:error:` propagates to listeners.
+- (NSError *)propagatedErrorForStreamResponse:(id)response error:(NSError *)dataError {
+  __block NSError *propagatedError;
+  OCMStub([_configRealtime[0] propagateErrors:[OCMArg checkWithBlock:^BOOL(NSError *error) {
+                                propagatedError = error;
+                                return YES;
+                              }]])
+      .andDo(nil);
+  [_configRealtime[0] evaluateStreamResponse:response error:dataError];
+  return propagatedError;
+}
+
+- (void)testRealtimeStreamResponseParseErrorPreservesUnderlyingError {
+  NSError *jsonError = [NSError errorWithDomain:NSCocoaErrorDomain
+                                           code:NSPropertyListReadCorruptError
+                                       userInfo:nil];
+  NSError *error = [self propagatedErrorForStreamResponse:nil error:jsonError];
+  XCTAssertEqualObjects(error.domain, FIRRemoteConfigUpdateErrorDomain);
+  XCTAssertEqual(error.code, FIRRemoteConfigUpdateErrorMessageInvalid);
+  XCTAssertEqualObjects(error.localizedDescription, @"Unable to parse ConfigUpdate.");
+  XCTAssertEqualObjects(error.userInfo[NSUnderlyingErrorKey], jsonError);
+}
+
+- (void)testRealtimeStreamResponseNotDictionaryPreservesUnderlyingError {
+  NSError *error = [self propagatedErrorForStreamResponse:@[] error:nil];
+  XCTAssertEqualObjects(error.domain, FIRRemoteConfigUpdateErrorDomain);
+  XCTAssertEqual(error.code, FIRRemoteConfigUpdateErrorMessageInvalid);
+  XCTAssertEqualObjects(error.localizedDescription, @"Unable to parse ConfigUpdate.");
+  NSError *underlyingError = error.userInfo[NSUnderlyingErrorKey];
+  XCTAssertEqualObjects(underlyingError.domain, FIRRemoteConfigUpdateErrorDomain);
+  XCTAssertEqual(underlyingError.code, FIRRemoteConfigUpdateErrorMessageInvalid);
+  XCTAssertEqualObjects(underlyingError.localizedDescription,
+                        @"ConfigUpdate message is not a JSON object.");
 }
 
 /// Fetches with a fresh `RCNConfigFetch` whose network response is `responseData`.
