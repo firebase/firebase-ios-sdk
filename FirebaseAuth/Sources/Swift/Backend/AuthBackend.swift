@@ -456,13 +456,13 @@ final class AuthBackend: AuthBackendProtocol {
         message: serverDetailErrorMessage, credential: credential, email: email
       )
     default:
-      if let underlyingErrors = errorDictionary["errors"] as? [[String: String]] {
-        for underlyingError in underlyingErrors {
-          if let reason = underlyingError["reason"] {
+      if let underlyingErrors = errorDictionary["errors"] as? [Any] {
+        for case let underlyingError as [String: Any] in underlyingErrors {
+          if let reason = underlyingError["reason"] as? String {
             if reason.starts(with: "keyInvalid") {
               return AuthErrorUtils.invalidAPIKeyError()
             }
-            if underlyingError["reason"] == "ipRefererBlocked" {
+            if reason == "ipRefererBlocked" {
               return AuthErrorUtils.appNotAuthorizedError()
             }
           }

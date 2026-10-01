@@ -1,3 +1,7 @@
+# Unreleased
+- [fixed] Improved robustness when parsing malformed reCAPTCHA config and
+  backend error details from the server. (#16728)
+
 # 13.0.0
 - [fixed] Fixed a timeout race in the APNs token manager that could leave concurrent phone
   authentication requests waiting indefinitely.

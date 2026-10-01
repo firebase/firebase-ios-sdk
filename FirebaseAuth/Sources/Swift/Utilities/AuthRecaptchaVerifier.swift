@@ -256,7 +256,7 @@
       if isRecaptchaEnabled {
         if let recaptchaKey = response.recaptchaKey {
           let keys = recaptchaKey.components(separatedBy: "/")
-          if keys.count != 4 {
+          guard keys.count == 4, !keys[3].isEmpty else {
             throw AuthErrorUtils.error(code: .recaptchaNotEnabled, message: "Invalid siteKey")
           }
           siteKey = keys[3]

@@ -748,6 +748,40 @@ class AuthBackendTests: RPCBaseTests {
     }
   #endif // COCOAPODS || SWIFT_PACKAGE
 
+  /** @fn testUnderlyingErrorReasonWithMalformedSiblingFields
+      @brief Malformed entries or non-string fields in the server's `errors` array must not prevent
+          a known `reason` from being mapped to its client error.
+   */
+  func testUnderlyingErrorReasonWithMalformedSiblingFields() async throws {
+    let cases: [(reason: String, expectedCode: AuthErrorCode)] = [
+      ("keyInvalid", .invalidAPIKey),
+      ("ipRefererBlocked", .appNotAuthorized),
+    ]
+    for (reason, expectedCode) in cases {
+      let request = FakeRequest(withRequestBody: [:])
+      rpcIssuer.respondBlock = {
+        let errors: [Any] = [
+          NSNull(),
+          "garbage",
+          ["reason": 42] as [String: Any],
+          ["reason": reason, "domain": "global", "code": 400] as [String: Any],
+        ]
+        return try self.rpcIssuer.respond(
+          withJSON: ["error": ["message": "See the reason", "errors": errors] as [String: Any]],
+          error: NSError(domain: self.kFakeErrorDomain, code: self.kFakeErrorCode)
+        )
+      }
+      do {
+        let _ = try await authBackend.call(with: request)
+        XCTFail("Expected to throw")
+      } catch {
+        let rpcError = error as NSError
+        XCTAssertEqual(rpcError.domain, AuthErrors.domain)
+        XCTAssertEqual(rpcError.code, expectedCode.rawValue)
+      }
+    }
+  }
+
   private class FakeRequest: AuthRPCRequest {
     typealias Response = FakeResponse
 
