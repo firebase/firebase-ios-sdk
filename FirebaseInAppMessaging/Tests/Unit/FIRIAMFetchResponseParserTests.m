@@ -342,4 +342,75 @@
   }
 }
 
+- (void)testParsingWrongTypedIntermediateContentNodes {
+  // Intermediate nodes (title/body/action/button) that are not dictionaries should only drop the
+  // fields beneath them, not discard the whole message via an unrecognized selector exception.
+  NSDictionary *payload = @{@"campaignId" : @"c1", @"campaignName" : @"name"};
+  NSArray *triggers = @[ @{@"fiamTrigger" : @"ON_FOREGROUND"} ];
+  NSDictionary *responseDict = @{
+    @"messages" : @[
+      @{
+        @"vanillaPayload" : payload,
+        @"triggeringConditions" : triggers,
+        @"content" : @{
+          @"modal" : @{
+            @"title" : @{@"text" : @"Modal title"},
+            @"body" : [NSNull null],
+            @"actionButton" : @{@"text" : @"not a dictionary", @"buttonHexColor" : @5},
+            @"action" : @"not a dictionary",
+          }
+        }
+      },
+      @{
+        @"vanillaPayload" : payload,
+        @"triggeringConditions" : triggers,
+        @"content" : @{
+          @"card" : @{
+            @"title" : @{@"text" : @"Card title", @"hexColor" : [NSNull null]},
+            @"body" : @[ @"array" ],
+            @"primaryActionButton" : @42,
+            @"secondaryActionButton" : @{@"text" : [NSNull null]},
+            @"primaryAction" : [NSNull null],
+            @"secondaryAction" : @"not a dictionary",
+          }
+        }
+      },
+      @{
+        @"vanillaPayload" : payload,
+        @"triggeringConditions" : triggers,
+        @"content" : @{
+          @"banner" : @{
+            @"title" : @"not a dictionary",
+          }
+        }
+      },
+    ]
+  };
+
+  NSInteger discardCount = -1;
+  NSNumber *fetchWaitTime;
+  NSArray<FIRIAMMessageDefinition *> *results =
+      [self.parser parseAPIResponseDictionary:responseDict
+                            discardedMsgCount:&discardCount
+                       fetchWaitTimeInSeconds:&fetchWaitTime];
+
+  // The banner is discarded because its (required) title is missing, not because of an exception.
+  XCTAssertEqual(2, results.count);
+  XCTAssertEqual(1, discardCount);
+
+  id<FIRIAMMessageContentData> modal = results[0].renderData.contentData;
+  XCTAssertEqualObjects(@"Modal title", modal.titleText);
+  XCTAssertNil(modal.bodyText);
+  XCTAssertNil(modal.actionButtonText);
+  XCTAssertNil(modal.actionURL);
+
+  id<FIRIAMMessageContentData> card = results[1].renderData.contentData;
+  XCTAssertEqualObjects(@"Card title", card.titleText);
+  XCTAssertNil(card.bodyText);
+  XCTAssertNil(card.actionButtonText);
+  XCTAssertNil(card.secondaryActionButtonText);
+  XCTAssertNil(card.actionURL);
+  XCTAssertNil(card.secondaryActionURL);
+}
+
 @end

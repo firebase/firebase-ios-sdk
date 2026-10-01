@@ -40,6 +40,13 @@ static NSString *_Nullable FIRIAMStringOrNil(id _Nullable value) {
   return [value isKindOfClass:[NSString class]] ? value : nil;
 }
 
+// Returns `value` if it is an NSDictionary, nil otherwise. Used to safely walk nested nodes so a
+// wrong-typed intermediate node (e.g. NSNull or NSString) drops just that field rather than raising
+// an unrecognized selector exception that discards the whole message.
+static NSDictionary *_Nullable FIRIAMDictionaryOrNil(id _Nullable value) {
+  return [value isKindOfClass:[NSDictionary class]] ? value : nil;
+}
+
 @implementation FIRIAMFetchResponseParser
 
 - (instancetype)initWithTimeFetcher:(id<FIRIAMTimeFetcher>)timeFetcher {
@@ -237,13 +244,16 @@ static NSString *_Nullable FIRIAMStringOrNil(id _Nullable value) {
       NSDictionary *bannerNode = (NSDictionary *)contentNode[@"banner"];
       mode = FIRIAMRenderAsBannerView;
 
-      title = FIRIAMStringOrNil(bannerNode[@"title"][@"text"]);
-      titleTextColor = [UIColor firiam_colorWithHexString:bannerNode[@"title"][@"hexColor"]];
+      NSDictionary *titleNode = FIRIAMDictionaryOrNil(bannerNode[@"title"]);
+      title = FIRIAMStringOrNil(titleNode[@"text"]);
+      titleTextColor = [UIColor firiam_colorWithHexString:titleNode[@"hexColor"]];
 
-      body = FIRIAMStringOrNil(bannerNode[@"body"][@"text"]);
+      NSDictionary *bodyNode = FIRIAMDictionaryOrNil(bannerNode[@"body"]);
+      body = FIRIAMStringOrNil(bodyNode[@"text"]);
 
       imageURLStr = FIRIAMStringOrNil(bannerNode[@"imageUrl"]);
-      actionURLStr = FIRIAMStringOrNil(bannerNode[@"action"][@"actionUrl"]);
+      NSDictionary *actionNode = FIRIAMDictionaryOrNil(bannerNode[@"action"]);
+      actionURLStr = FIRIAMStringOrNil(actionNode[@"actionUrl"]);
       viewCardBackgroundColor =
           [UIColor firiam_colorWithHexString:bannerNode[@"backgroundHexColor"]];
 
@@ -251,19 +261,22 @@ static NSString *_Nullable FIRIAMStringOrNil(id _Nullable value) {
       mode = FIRIAMRenderAsModalView;
 
       NSDictionary *modalNode = (NSDictionary *)contentNode[@"modal"];
-      title = FIRIAMStringOrNil(modalNode[@"title"][@"text"]);
-      titleTextColor = [UIColor firiam_colorWithHexString:modalNode[@"title"][@"hexColor"]];
+      NSDictionary *titleNode = FIRIAMDictionaryOrNil(modalNode[@"title"]);
+      title = FIRIAMStringOrNil(titleNode[@"text"]);
+      titleTextColor = [UIColor firiam_colorWithHexString:titleNode[@"hexColor"]];
 
-      body = FIRIAMStringOrNil(modalNode[@"body"][@"text"]);
+      NSDictionary *bodyNode = FIRIAMDictionaryOrNil(modalNode[@"body"]);
+      body = FIRIAMStringOrNil(bodyNode[@"text"]);
 
       imageURLStr = FIRIAMStringOrNil(modalNode[@"imageUrl"]);
-      actionButtonText = FIRIAMStringOrNil(modalNode[@"actionButton"][@"text"][@"text"]);
-      btnTxtColor =
-          [UIColor firiam_colorWithHexString:modalNode[@"actionButton"][@"text"][@"hexColor"]];
-      btnBgColor =
-          [UIColor firiam_colorWithHexString:modalNode[@"actionButton"][@"buttonHexColor"]];
+      NSDictionary *actionButtonNode = FIRIAMDictionaryOrNil(modalNode[@"actionButton"]);
+      NSDictionary *actionButtonTextNode = FIRIAMDictionaryOrNil(actionButtonNode[@"text"]);
+      actionButtonText = FIRIAMStringOrNil(actionButtonTextNode[@"text"]);
+      btnTxtColor = [UIColor firiam_colorWithHexString:actionButtonTextNode[@"hexColor"]];
+      btnBgColor = [UIColor firiam_colorWithHexString:actionButtonNode[@"buttonHexColor"]];
 
-      actionURLStr = FIRIAMStringOrNil(modalNode[@"action"][@"actionUrl"]);
+      NSDictionary *actionNode = FIRIAMDictionaryOrNil(modalNode[@"action"]);
+      actionURLStr = FIRIAMStringOrNil(actionNode[@"actionUrl"]);
       viewCardBackgroundColor =
           [UIColor firiam_colorWithHexString:modalNode[@"backgroundHexColor"]];
     } else if ([content[@"imageOnly"] isKindOfClass:[NSDictionary class]]) {
@@ -277,31 +290,38 @@ static NSString *_Nullable FIRIAMStringOrNil(id _Nullable value) {
                       @"Image url is missing for image-only message %@", messageNode);
         return nil;
       }
-      actionURLStr = FIRIAMStringOrNil(imageOnlyNode[@"action"][@"actionUrl"]);
+      NSDictionary *actionNode = FIRIAMDictionaryOrNil(imageOnlyNode[@"action"]);
+      actionURLStr = FIRIAMStringOrNil(actionNode[@"actionUrl"]);
     } else if ([content[@"card"] isKindOfClass:[NSDictionary class]]) {
       mode = FIRIAMRenderAsCardView;
       NSDictionary *cardNode = (NSDictionary *)contentNode[@"card"];
-      title = FIRIAMStringOrNil(cardNode[@"title"][@"text"]);
-      titleTextColor = [UIColor firiam_colorWithHexString:cardNode[@"title"][@"hexColor"]];
+      NSDictionary *titleNode = FIRIAMDictionaryOrNil(cardNode[@"title"]);
+      title = FIRIAMStringOrNil(titleNode[@"text"]);
+      titleTextColor = [UIColor firiam_colorWithHexString:titleNode[@"hexColor"]];
 
-      body = FIRIAMStringOrNil(cardNode[@"body"][@"text"]);
+      NSDictionary *bodyNode = FIRIAMDictionaryOrNil(cardNode[@"body"]);
+      body = FIRIAMStringOrNil(bodyNode[@"text"]);
 
       imageURLStr = FIRIAMStringOrNil(cardNode[@"portraitImageUrl"]);
       landscapeImageURLStr = FIRIAMStringOrNil(cardNode[@"landscapeImageUrl"]);
 
       viewCardBackgroundColor = [UIColor firiam_colorWithHexString:cardNode[@"backgroundHexColor"]];
 
-      actionButtonText = FIRIAMStringOrNil(cardNode[@"primaryActionButton"][@"text"][@"text"]);
-      btnTxtColor = [UIColor
-          firiam_colorWithHexString:cardNode[@"primaryActionButton"][@"text"][@"hexColor"]];
+      NSDictionary *primaryButtonNode = FIRIAMDictionaryOrNil(cardNode[@"primaryActionButton"]);
+      NSDictionary *primaryButtonTextNode = FIRIAMDictionaryOrNil(primaryButtonNode[@"text"]);
+      actionButtonText = FIRIAMStringOrNil(primaryButtonTextNode[@"text"]);
+      btnTxtColor = [UIColor firiam_colorWithHexString:primaryButtonTextNode[@"hexColor"]];
 
-      secondaryActionButtonText =
-          FIRIAMStringOrNil(cardNode[@"secondaryActionButton"][@"text"][@"text"]);
-      secondaryBtnTxtColor = [UIColor
-          firiam_colorWithHexString:cardNode[@"secondaryActionButton"][@"text"][@"hexColor"]];
+      NSDictionary *secondaryButtonNode = FIRIAMDictionaryOrNil(cardNode[@"secondaryActionButton"]);
+      NSDictionary *secondaryButtonTextNode = FIRIAMDictionaryOrNil(secondaryButtonNode[@"text"]);
+      secondaryActionButtonText = FIRIAMStringOrNil(secondaryButtonTextNode[@"text"]);
+      secondaryBtnTxtColor =
+          [UIColor firiam_colorWithHexString:secondaryButtonTextNode[@"hexColor"]];
 
-      actionURLStr = FIRIAMStringOrNil(cardNode[@"primaryAction"][@"actionUrl"]);
-      secondaryActionURLStr = FIRIAMStringOrNil(cardNode[@"secondaryAction"][@"actionUrl"]);
+      NSDictionary *primaryActionNode = FIRIAMDictionaryOrNil(cardNode[@"primaryAction"]);
+      actionURLStr = FIRIAMStringOrNil(primaryActionNode[@"actionUrl"]);
+      NSDictionary *secondaryActionNode = FIRIAMDictionaryOrNil(cardNode[@"secondaryAction"]);
+      secondaryActionURLStr = FIRIAMStringOrNil(secondaryActionNode[@"actionUrl"]);
 
     } else {
       // Unknown message type
