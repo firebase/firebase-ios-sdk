@@ -1,4 +1,7 @@
 # 13.0.0
+- [fixed] Serialized display completion and impression reservation so overlapping
+  triggers cannot lose impression tracking for the next message. A message that
+  cannot be constructed now also releases the display gate.
 - [fixed] Fixed an issue where universal links were not correctly routed in apps utilizing scene
   delegates. (#16083)
 - [changed] **Breaking Change**: Scene delegates take priority over app delegates for

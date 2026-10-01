@@ -50,6 +50,10 @@
 @property(nonatomic, nonnull, readonly) FIRIAMActionURLFollower *actionURLFollower;
 // Used for displaying the test on device message error alert.
 @property(nonatomic, strong) UIWindow *alertWindow;
+
+- (nullable FIRIAMMessageDefinition *)currentMessageForDelegateCallbackEndingDisplay:(BOOL)ending
+                                                                   reserveImpression:(BOOL *_Nullable)reserveImpression;
+- (void)finishDisplayingMessage;
 @end
 
 @implementation FIRIAMDisplayExecutor {
@@ -76,22 +80,25 @@
     [appSideDelegate messageClicked:inAppMessage withAction:action];
   }
 
-  self.isMsgBeingDisplayed = NO;
-  if (!_currentMsgBeingDisplayed.renderData.messageID) {
+  BOOL shouldRecordImpression = NO;
+  FIRIAMMessageDefinition *currentMessage =
+      [self currentMessageForDelegateCallbackEndingDisplay:YES
+                                          reserveImpression:&shouldRecordImpression];
+  if (!currentMessage.renderData.messageID) {
     FIRLogWarning(kFIRLoggerInAppMessaging, @"I-IAM400030",
                   @"messageClicked called but "
                    "there is no current message ID.");
     return;
   }
 
-  if (_currentMsgBeingDisplayed.isTestMessage) {
+  if (currentMessage.isTestMessage) {
     FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400031",
                 @"A test message clicked. Do test event impression/click analytics logging");
 
     [self.analyticsEventLogger
         logAnalyticsEventForType:FIRIAMAnalyticsEventTestMessageImpression
-                   forCampaignID:_currentMsgBeingDisplayed.renderData.messageID
-                withCampaignName:_currentMsgBeingDisplayed.renderData.name
+                   forCampaignID:currentMessage.renderData.messageID
+                withCampaignName:currentMessage.renderData.name
                    eventTimeInMs:nil
                       completion:^(BOOL success) {
                         FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400036",
@@ -101,8 +108,8 @@
 
     [self.analyticsEventLogger
         logAnalyticsEventForType:FIRIAMAnalyticsEventTestMessageClick
-                   forCampaignID:_currentMsgBeingDisplayed.renderData.messageID
-                withCampaignName:_currentMsgBeingDisplayed.renderData.name
+                   forCampaignID:currentMessage.renderData.messageID
+                withCampaignName:currentMessage.renderData.name
                    eventTimeInMs:nil
                       completion:^(BOOL success) {
                         FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400039",
@@ -111,14 +118,16 @@
                       }];
   } else {
     // Logging the impression
-    [self recordValidImpression:_currentMsgBeingDisplayed.renderData.messageID
-                withMessageName:_currentMsgBeingDisplayed.renderData.name];
+    if (shouldRecordImpression) {
+      [self recordValidImpression:currentMessage.renderData.messageID
+                  withMessageName:currentMessage.renderData.name];
+    }
 
     if (action.actionURL) {
       [self.analyticsEventLogger
           logAnalyticsEventForType:FIRIAMAnalyticsEventActionURLFollow
-                     forCampaignID:_currentMsgBeingDisplayed.renderData.messageID
-                  withCampaignName:_currentMsgBeingDisplayed.renderData.name
+                     forCampaignID:currentMessage.renderData.messageID
+                  withCampaignName:currentMessage.renderData.name
                      eventTimeInMs:nil
                         completion:^(BOOL success) {
                           FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400032",
@@ -128,7 +137,7 @@
 
       // Also start tracking conversions.
       [self.analyticsEventLogger
-          logConversionTrackingEventForCampaignID:_currentMsgBeingDisplayed.renderData.messageID];
+          logConversionTrackingEventForCampaignID:currentMessage.renderData.messageID];
     }
   }
 
@@ -168,21 +177,24 @@
     [appSideDelegate messageDismissed:inAppMessage dismissType:dismissType];
   }
 
-  self.isMsgBeingDisplayed = NO;
-  if (!_currentMsgBeingDisplayed.renderData.messageID) {
+  BOOL shouldRecordImpression = NO;
+  FIRIAMMessageDefinition *currentMessage =
+      [self currentMessageForDelegateCallbackEndingDisplay:YES
+                                          reserveImpression:&shouldRecordImpression];
+  if (!currentMessage.renderData.messageID) {
     FIRLogWarning(kFIRLoggerInAppMessaging, @"I-IAM400014",
                   @"messageDismissedWithType called but "
                    "there is no current message ID.");
     return;
   }
 
-  if (_currentMsgBeingDisplayed.isTestMessage) {
+  if (currentMessage.isTestMessage) {
     FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400020",
                 @"A test message dismissed. Record the impression event.");
     [self.analyticsEventLogger
         logAnalyticsEventForType:FIRIAMAnalyticsEventTestMessageImpression
-                   forCampaignID:_currentMsgBeingDisplayed.renderData.messageID
-                withCampaignName:_currentMsgBeingDisplayed.renderData.name
+                   forCampaignID:currentMessage.renderData.messageID
+                withCampaignName:currentMessage.renderData.name
                    eventTimeInMs:nil
                       completion:^(BOOL success) {
                         FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400038",
@@ -194,8 +206,10 @@
   }
 
   // Logging the impression
-  [self recordValidImpression:_currentMsgBeingDisplayed.renderData.messageID
-              withMessageName:_currentMsgBeingDisplayed.renderData.name];
+  if (shouldRecordImpression) {
+    [self recordValidImpression:currentMessage.renderData.messageID
+                withMessageName:currentMessage.renderData.name];
+  }
 
   FIRIAMAnalyticsLogEventType logEventType = dismissType == FIRInAppMessagingDismissTypeAuto
                                                  ? FIRIAMAnalyticsEventMessageDismissAuto
@@ -203,8 +217,8 @@
 
   [self.analyticsEventLogger
       logAnalyticsEventForType:logEventType
-                 forCampaignID:_currentMsgBeingDisplayed.renderData.messageID
-              withCampaignName:_currentMsgBeingDisplayed.renderData.name
+                 forCampaignID:currentMessage.renderData.messageID
+              withCampaignName:currentMessage.renderData.name
                  eventTimeInMs:nil
                     completion:^(BOOL success) {
                       FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400004",
@@ -219,7 +233,11 @@
     [appSideDelegate impressionDetectedForMessage:inAppMessage];
   }
 
-  if (!_currentMsgBeingDisplayed.renderData.messageID) {
+  BOOL shouldRecordImpression = NO;
+  FIRIAMMessageDefinition *currentMessage =
+      [self currentMessageForDelegateCallbackEndingDisplay:NO
+                                          reserveImpression:&shouldRecordImpression];
+  if (!currentMessage.renderData.messageID) {
     FIRLogWarning(kFIRLoggerInAppMessaging, @"I-IAM400022",
                   @"impressionDetected called but "
                    "there is no current message ID.");
@@ -233,14 +251,16 @@
           forServiceOrigin:@"fiam"];
   }
 
-  if (!_currentMsgBeingDisplayed.isTestMessage) {
+  if (!currentMessage.isTestMessage) {
     // Displayed long enough to be a valid impression.
-    [self recordValidImpression:_currentMsgBeingDisplayed.renderData.messageID
-                withMessageName:_currentMsgBeingDisplayed.renderData.name];
+    if (shouldRecordImpression) {
+      [self recordValidImpression:currentMessage.renderData.messageID
+                  withMessageName:currentMessage.renderData.name];
+    }
 
-    if ([self shouldTrackConversionsOnImpressionForCurrentInAppMessage:_currentMsgBeingDisplayed]) {
+    if ([self shouldTrackConversionsOnImpressionForCurrentInAppMessage:currentMessage]) {
       [self.analyticsEventLogger
-          logConversionTrackingEventForCampaignID:_currentMsgBeingDisplayed.renderData.messageID];
+          logConversionTrackingEventForCampaignID:currentMessage.renderData.messageID];
     }
   } else {
     FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400011",
@@ -263,21 +283,23 @@
     [appSideDelegate displayErrorForMessage:inAppMessage error:error];
   }
 
-  self.isMsgBeingDisplayed = NO;
+  FIRIAMMessageDefinition *currentMessage =
+      [self currentMessageForDelegateCallbackEndingDisplay:YES
+                                          reserveImpression:NULL];
 
-  if (!_currentMsgBeingDisplayed.renderData.messageID) {
+  if (!currentMessage.renderData.messageID) {
     FIRLogWarning(kFIRLoggerInAppMessaging, @"I-IAM400017",
                   @"displayErrorEncountered called but "
                    "there is no current message ID.");
     return;
   }
 
-  NSString *messageID = _currentMsgBeingDisplayed.renderData.messageID;
+  NSString *messageID = currentMessage.renderData.messageID;
 
   FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400009",
               @"Display ran into error for message %@: %@", messageID, error);
 
-  if (_currentMsgBeingDisplayed.isTestMessage) {
+  if (currentMessage.isTestMessage) {
     [self displayMessageLoadError:error];
     FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400012",
                 @"A test message. No analytics tracking "
@@ -288,7 +310,7 @@
   // we remove the message from the client side cache so that it won't be retried until next time
   // it's fetched again from server.
   [self.messageCache removeMessageWithId:messageID];
-  NSString *messageName = _currentMsgBeingDisplayed.renderData.name;
+  NSString *messageName = currentMessage.renderData.name;
 
   if ([error.domain isEqualToString:NSURLErrorDomain]) {
     [self.analyticsEventLogger
@@ -316,23 +338,48 @@
 }
 
 - (void)recordValidImpression:(NSString *)messageID withMessageName:(NSString *)messageName {
-  if (!self.impressionRecorded) {
-    [self.displayBookKeeper
-        recordNewImpressionForMessage:messageID
-          withStartTimestampInSeconds:[self.timeFetcher currentTimestampInSeconds]];
-    self.impressionRecorded = YES;
-    [self.messageCache removeMessageWithId:messageID];
-    // Log an impression analytics event as well.
-    [self.analyticsEventLogger
-        logAnalyticsEventForType:FIRIAMAnalyticsEventMessageImpression
-                   forCampaignID:messageID
-                withCampaignName:messageName
-                   eventTimeInMs:nil
-                      completion:^(BOOL success) {
-                        FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400007",
-                                    @"Logging analytics event for impression %@",
-                                    success ? @"succeeded" : @"failed");
-                      }];
+  [self.displayBookKeeper
+      recordNewImpressionForMessage:messageID
+        withStartTimestampInSeconds:[self.timeFetcher currentTimestampInSeconds]];
+  [self.messageCache removeMessageWithId:messageID];
+  // Log an impression analytics event as well.
+  [self.analyticsEventLogger
+      logAnalyticsEventForType:FIRIAMAnalyticsEventMessageImpression
+                 forCampaignID:messageID
+              withCampaignName:messageName
+                 eventTimeInMs:nil
+                    completion:^(BOOL success) {
+                      FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400007",
+                                  @"Logging analytics event for impression %@",
+                                  success ? @"succeeded" : @"failed");
+                    }];
+}
+
+- (nullable FIRIAMMessageDefinition *)currentMessageForDelegateCallbackEndingDisplay:(BOOL)ending
+                                                                   reserveImpression:(BOOL *_Nullable)reserveImpression {
+  @synchronized(self) {
+    FIRIAMMessageDefinition *currentMessage = _currentMsgBeingDisplayed;
+    if (ending) {
+      self.isMsgBeingDisplayed = NO;
+    }
+
+    BOOL hasMessageID = currentMessage.renderData.messageID != nil;
+    BOOL shouldRecordImpression = reserveImpression && hasMessageID &&
+                                  !currentMessage.isTestMessage && !self.impressionRecorded;
+    if (shouldRecordImpression) {
+      // Reserve the current message's impression before another trigger can start a new message.
+      self.impressionRecorded = YES;
+    }
+    if (reserveImpression) {
+      *reserveImpression = shouldRecordImpression;
+    }
+    return currentMessage;
+  }
+}
+
+- (void)finishDisplayingMessage {
+  @synchronized(self) {
+    self.isMsgBeingDisplayed = NO;
   }
 }
 
@@ -625,7 +672,6 @@
                                             triggerType:triggerType];
           // short-circuit to display error handling
           [self displayErrorForMessage:erroredMessage error:error];
-          self.isMsgBeingDisplayed = NO;
           return;
         } else {
           if (standardImageRawData) {
@@ -651,7 +697,7 @@
         if (self.suppressMessageDisplay) {
           FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400042",
                       @"Message display suppressed by developer at message display time.");
-          self.isMsgBeingDisplayed = NO;
+          [self finishDisplayingMessage];
           return;
         }
 
@@ -667,6 +713,7 @@
         if (!displayMessage) {
           FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400043",
                       @"Failed to construct a non-nil display message.");
+          [self finishDisplayingMessage];
           return;
         }
 

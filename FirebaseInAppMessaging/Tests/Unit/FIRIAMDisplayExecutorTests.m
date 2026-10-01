@@ -131,6 +131,9 @@ typedef NS_ENUM(NSInteger, FIRInAppMessagingDelegateInteraction) {
 @interface FIRIAMMessageDisplayForTesting : NSObject <FIRInAppMessagingDisplay>
 @property FIRInAppMessagingDelegateInteraction delegateInteraction;
 @property(nonatomic, nullable, copy) FIRInAppMessagingAction *action;
+@property(nonatomic) BOOL dismissOnlyFirstMessage;
+@property(nonatomic) NSUInteger displayCount;
+@property(nonatomic, weak, nullable) id<FIRInAppMessagingDisplayDelegate> displayDelegate;
 
 // used for interaction verification
 @property FIRInAppMessagingDisplayMessage *message;
@@ -156,6 +159,12 @@ typedef NS_ENUM(NSInteger, FIRInAppMessagingDelegateInteraction) {
 - (void)displayMessage:(FIRInAppMessagingDisplayMessage *)messageForDisplay
        displayDelegate:(id<FIRInAppMessagingDisplayDelegate>)displayDelegate {
   self.message = messageForDisplay;
+  self.displayDelegate = displayDelegate;
+  self.displayCount++;
+
+  if (self.dismissOnlyFirstMessage && self.displayCount > 1) {
+    return;
+  }
 
   switch (self.delegateInteraction) {
     case FIRInAppMessagingDelegateInteractionClick:
@@ -1127,6 +1136,44 @@ NSTimeInterval DISPLAY_MIN_INTERVALS = 1;
 
   // Verify that the message content handed to display component is expected
   XCTAssertTrue(delegate.receivedMessageDismissedCallback);
+}
+
+- (void)testDismissalDoesNotLoseNextMessageImpressionDuringReentrantDisplay {
+  OCMStub([self.mockTimeFetcher currentTimestampInSeconds]).andReturn(1000);
+
+  FIRIAMMessageDisplayForTesting *display = [[FIRIAMMessageDisplayForTesting alloc]
+      initWithDelegateInteraction:FIRInAppMessagingDelegateInteractionDismiss];
+  display.dismissOnlyFirstMessage = YES;
+  self.displayExecutor.messageDisplayComponent = display;
+  OCMStub([self.mockBookkeeper getMessageIDsFromImpressions]).andReturn(@[]);
+  [self.clientMessageCache setMessageData:@[ self.m2, self.m4 ]];
+
+  __block BOOL displayedNextMessage = NO;
+  __weak typeof(self) weakSelf = self;
+  OCMStub([self.mockBookkeeper recordNewImpressionForMessage:[OCMArg any]
+                                 withStartTimestampInSeconds:1000])
+      .andDo(^(NSInvocation *invocation) {
+        __unsafe_unretained NSString *messageID = nil;
+        [invocation getArgument:&messageID atIndex:2];
+        if ([messageID isEqualToString:weakSelf.m2.renderData.messageID] &&
+            !displayedNextMessage) {
+          displayedNextMessage = YES;
+          OCMStub([weakSelf.mockBookkeeper getMessageIDsFromImpressions])
+              .andReturn(@[ weakSelf.m2.renderData.messageID ]);
+          [weakSelf.displayExecutor checkAndDisplayNextAppForegroundMessage];
+        }
+      });
+
+  [self.displayExecutor checkAndDisplayNextAppForegroundMessage];
+
+  XCTAssertTrue(displayedNextMessage);
+  XCTAssertEqualObjects(self.m4.renderData.messageID, display.message.campaignInfo.messageID);
+
+  [display.displayDelegate messageDismissed:display.message
+                                dismissType:FIRInAppMessagingDismissTypeAuto];
+
+  OCMVerify([self.mockBookkeeper recordNewImpressionForMessage:self.m4.renderData.messageID
+                                   withStartTimestampInSeconds:1000]);
 }
 
 - (void)testMessageWithDataBundle {
