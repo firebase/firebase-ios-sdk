@@ -672,6 +672,44 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   XCTAssertEqual(self.settings.errorLogBufferSize, 128000);
 }
 
+- (void)testCacheKeyComparedWithNilBuildInstanceID {
+  NSError *error = nil;
+  [self writeSettings:FIRCLSTestSettingsInverse error:&error];
+  XCTAssertNil(error, "%@", error);
+
+  NSTimeInterval currentTimestamp = [NSDate timeIntervalSinceReferenceDate];
+  [self.settings cacheSettingsWithGoogleAppID:TestGoogleAppID currentTimestamp:currentTimestamp];
+  XCTAssertEqual(self.settings.isCacheExpired, NO);
+
+  // A missing current Build Instance ID doesn't match the cached one.
+  NSString *nilBuildInstanceID = nil;
+  self.appIDModel.buildInstanceID = nilBuildInstanceID;
+
+  [self.settings reloadFromCacheWithGoogleAppID:TestGoogleAppID currentTimestamp:currentTimestamp];
+
+  XCTAssertEqual(self.settings.isCacheExpired, YES);
+  XCTAssertEqual(self.settings.errorLogBufferSize, 128000);
+}
+
+- (void)testCacheKeyComparedWithNilGoogleAppID {
+  NSError *error = nil;
+  [self writeSettings:FIRCLSTestSettingsInverse error:&error];
+  XCTAssertNil(error, "%@", error);
+
+  NSTimeInterval currentTimestamp = [NSDate timeIntervalSinceReferenceDate];
+  [self.settings cacheSettingsWithGoogleAppID:TestGoogleAppID currentTimestamp:currentTimestamp];
+  XCTAssertEqual(self.settings.isCacheExpired, NO);
+
+  // A missing current Google App ID is treated as a changed Google App ID.
+  NSString *nilGoogleAppID = nil;
+  [self reloadFromCacheWithGoogleAppID:nilGoogleAppID
+                      currentTimestamp:currentTimestamp
+                   expectedRemoveCount:2];
+
+  XCTAssertEqual(self.settings.isCacheExpired, YES);
+  [self assertDefaultLimitsAndSwitches];
+}
+
 - (void)testNewReportEndpointSettings {
   NSString *settingsJSON =
       @"{\"settings_version\":3,\"cache_duration\":60,\"app\":{\"report_upload_variant\":2}}";

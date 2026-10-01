@@ -188,7 +188,7 @@ static uint32_t FIRCLSSettingsUInt32Value(id value, NSString *key, uint32_t defa
 
   id cachedGoogleAppID = cacheKey[GoogleAppIDKey];
   if (![cachedGoogleAppID isKindOfClass:[NSString class]] ||
-      ![cachedGoogleAppID isEqualToString:googleAppID]) {
+      ![cachedGoogleAppID isEqual:googleAppID]) {
     FIRCLSDebugLog(
         @"[Crashlytics:Settings] Invalidating settings cache because Google App ID changed");
 
@@ -211,7 +211,7 @@ static uint32_t FIRCLSSettingsUInt32Value(id value, NSString *key, uint32_t defa
 
   id cacheBuildInstanceID = cacheKey[BuildInstanceID];
   if (![cacheBuildInstanceID isKindOfClass:[NSString class]] ||
-      ![cacheBuildInstanceID isEqualToString:self.appIDModel.buildInstanceID]) {
+      ![cacheBuildInstanceID isEqual:self.appIDModel.buildInstanceID]) {
     FIRCLSDebugLog(@"[Crashlytics:Settings] Settings expired because build instance changed");
 
     @synchronized(self) {
@@ -221,7 +221,7 @@ static uint32_t FIRCLSSettingsUInt32Value(id value, NSString *key, uint32_t defa
 
   id cacheAppVersion = cacheKey[AppVersion];
   if (![cacheAppVersion isKindOfClass:[NSString class]] ||
-      ![cacheAppVersion isEqualToString:self.appIDModel.synthesizedVersion]) {
+      ![cacheAppVersion isEqual:self.appIDModel.synthesizedVersion]) {
     FIRCLSDebugLog(@"[Crashlytics:Settings] Settings expired because app version changed");
 
     @synchronized(self) {
