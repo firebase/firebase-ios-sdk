@@ -24,6 +24,7 @@
 #import "FirebaseDatabase/Sources/Snapshot/FEmptyNode.h"
 #import "FirebaseDatabase/Sources/Snapshot/FLeafNode.h"
 #import "FirebaseDatabase/Sources/Snapshot/FSnapshotUtilities.h"
+#import "FirebaseDatabase/Sources/Utilities/FStringUtilities.h"
 #import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
 #import "FirebaseDatabase/Sources/third_party/FImmutableSortedDictionary/FImmutableSortedDictionary/FImmutableSortedDictionary.h"
 #import "FirebaseDatabase/Tests/Helpers/FTestHelpers.h"
@@ -202,6 +203,22 @@
   }];
 
   XCTAssertEqualObjects(@"Fm6tzN4CVEu5WxFDZUdTtqbTVaA=", [node dataHash], @"Check compound node");
+}
+
+- (void)testChildrenNodeHashUsesPriorityOrderWhenEveryChildHasPriority {
+  id<FNode> node = [FSnapshotUtilities nodeFrom:@{
+    @"a" : @{@".value" : @"value-a", @".priority" : @2},
+    @"z" : @{@".value" : @"value-z", @".priority" : @1}
+  }];
+
+  NSString *expectedHashRepresentation = [NSString
+      stringWithFormat:@":z:%@:a:%@",
+                       [[node getImmediateChild:@"z"] dataHash],
+                       [[node getImmediateChild:@"a"] dataHash]];
+  NSString *expectedHash =
+      [FStringUtilities base64EncodedSha1:expectedHashRepresentation];
+
+  XCTAssertEqualObjects(expectedHash, [node dataHash]);
 }
 
 - (void)testGetPredecessorChild {
