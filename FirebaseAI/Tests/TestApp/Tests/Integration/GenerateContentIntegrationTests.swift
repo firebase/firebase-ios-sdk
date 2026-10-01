@@ -27,8 +27,6 @@ import Testing
 
 @Suite(.serialized)
 struct GenerateContentIntegrationTests {
-  // Set temperature, topP and topK to lowest allowed values to make responses more deterministic.
-  let generationConfig = GenerationConfig(temperature: 0.0, topP: 0.0, topK: 1)
   let safetySettings = [
     SafetySetting(harmCategory: .harassment, threshold: .blockLowAndAbove),
     SafetySetting(harmCategory: .hateSpeech, threshold: .blockLowAndAbove),
@@ -65,7 +63,6 @@ struct GenerateContentIntegrationTests {
   func generateContent(_ config: InstanceConfig, modelName: String) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
       modelName: modelName,
-      generationConfig: generationConfig,
       safetySettings: safetySettings,
     )
     let prompt = "Where is Google headquarters located? Answer with the city name only."
@@ -202,12 +199,7 @@ struct GenerateContentIntegrationTests {
                                thinkingConfig: ThinkingConfig) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
       modelName: modelName,
-      generationConfig: GenerationConfig(
-        temperature: 0.0,
-        topP: 0.0,
-        topK: 1,
-        thinkingConfig: thinkingConfig
-      ),
+      generationConfig: GenerationConfig(thinkingConfig: thinkingConfig),
       safetySettings: safetySettings
     )
     let chat = model.startChat()
@@ -306,12 +298,7 @@ struct GenerateContentIntegrationTests {
     )
     let model = FirebaseAI.componentInstance(config).generativeModel(
       modelName: modelName,
-      generationConfig: GenerationConfig(
-        temperature: 0.0,
-        topP: 0.0,
-        topK: 1,
-        thinkingConfig: thinkingConfig
-      ),
+      generationConfig: GenerationConfig(thinkingConfig: thinkingConfig),
       safetySettings: safetySettings,
       tools: [.functionDeclarations([getTemperatureDeclaration])],
       systemInstruction: ModelContent(parts: """
@@ -367,9 +354,6 @@ struct GenerateContentIntegrationTests {
   func generateImageWithAspectRatio(_ config: InstanceConfig, modelName: String) async throws {
     let imageConfig = ImageConfig(aspectRatio: .landscape16x9)
     let generationConfig = GenerationConfig(
-      temperature: 0.0,
-      topP: 0.0,
-      topK: 1,
       responseModalities: [.image],
       imageConfig: imageConfig
     )
@@ -414,9 +398,6 @@ struct GenerateContentIntegrationTests {
       imageSize: .size2K
     )
     let generationConfig = GenerationConfig(
-      temperature: 0.0,
-      topP: 0.0,
-      topK: 1,
       responseModalities: [.image],
       imageConfig: imageConfig
     )
@@ -492,9 +473,6 @@ struct GenerateContentIntegrationTests {
   ])
   func generateImage(_ config: InstanceConfig, modelName: String) async throws {
     let generationConfig = GenerationConfig(
-      temperature: 0.0,
-      topP: 0.0,
-      topK: 1,
       responseModalities: [.text, .image]
     )
     let model = FirebaseAI.componentInstance(config).generativeModel(
@@ -584,7 +562,6 @@ struct GenerateContentIntegrationTests {
   func generateContent_codeExecution_succeeds(_ config: InstanceConfig) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
       modelName: ModelNames.gemini3_1_FlashLite,
-      generationConfig: generationConfig,
       tools: [.codeExecution()]
     )
     let prompt = """
@@ -643,7 +620,6 @@ struct GenerateContentIntegrationTests {
     """
     let model = FirebaseAI.componentInstance(config).generativeModel(
       modelName: modelName,
-      generationConfig: generationConfig,
       safetySettings: safetySettings
     )
     let chat = model.startChat()
@@ -701,9 +677,6 @@ struct GenerateContentIntegrationTests {
   ])
   func generateImageStreaming(_ config: InstanceConfig, modelName: String) async throws {
     let generationConfig = GenerationConfig(
-      temperature: 0.0,
-      topP: 0.0,
-      topK: 1,
       responseModalities: [.text, .image]
     )
     let model = FirebaseAI.componentInstance(config).generativeModel(
