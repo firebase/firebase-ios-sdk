@@ -6687,7 +6687,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testWindowFieldsComputesRank() async throws {
-    throw XCTSkip("Pending backend support in cl/981715571")
+    throw XCTSkip("Pending backend support for rank")
     let collRef = collectionRef(withDocuments: Self.windowTestDocs)
     let snapshot = try await collRef.firestore.pipeline()
       .collection(collRef.path)
