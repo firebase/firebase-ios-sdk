@@ -21,6 +21,35 @@
 
 #if !TARGET_OS_WATCH
 
+@interface FWebSocketConnection (KeepAliveTesting)
+- (void)onClosed;
+- (void)resetKeepAlive;
+@end
+
+@interface FWebSocketTimerSpy : NSObject
+@property(nonatomic) BOOL isValid;
+@property(nonatomic, strong) NSDate *fireDate;
+@property(nonatomic) BOOL invalidatedOnMainThread;
+@property(nonatomic) BOOL updatedOnMainThread;
+- (void)setInitialFireDate:(NSDate *)fireDate;
+@end
+
+@implementation FWebSocketTimerSpy
+- (void)setInitialFireDate:(NSDate *)fireDate {
+  _fireDate = fireDate;
+}
+
+- (void)invalidate {
+  self.invalidatedOnMainThread = [NSThread isMainThread];
+  self.isValid = NO;
+}
+
+- (void)setFireDate:(NSDate *)fireDate {
+  self.updatedOnMainThread = [NSThread isMainThread];
+  _fireDate = fireDate;
+}
+@end
+
 @interface FWebSocketConnectionTestDelegate : NSObject <FWebSocketDelegate>
 @property(nonatomic) BOOL receivedMessage;
 @end
@@ -71,6 +100,37 @@
 
   XCTAssertNoThrow([connection webSocket:nil didReceiveMessage:(id)[NSData data]]);
   XCTAssertFalse(delegate.receivedMessage);
+}
+
+- (void)testKeepAliveTimerIsAccessedOnMainThread {
+  FWebSocketConnectionTestDelegate *delegate = [[FWebSocketConnectionTestDelegate alloc] init];
+  FWebSocketConnection *connection = [self connectionWithDelegate:delegate];
+  FWebSocketTimerSpy *timer = [[FWebSocketTimerSpy alloc] init];
+  timer.isValid = YES;
+  [timer setInitialFireDate:[NSDate dateWithTimeIntervalSinceNow:-60]];
+  [connection setValue:timer forKey:@"keepAlive"];
+
+  XCTestExpectation *resetExpectation =
+      [self expectationWithDescription:@"timer reset on main"];
+  dispatch_async(dispatch_get_global_queue(QOS_CLASS_DEFAULT, 0), ^{
+    [connection resetKeepAlive];
+    dispatch_async(dispatch_get_main_queue(), ^{
+      XCTAssertTrue(timer.updatedOnMainThread);
+      [resetExpectation fulfill];
+    });
+  });
+  [self waitForExpectations:@[ resetExpectation ] timeout:2];
+
+  XCTestExpectation *closeExpectation =
+      [self expectationWithDescription:@"timer invalidated on main"];
+  dispatch_async(dispatch_get_global_queue(QOS_CLASS_DEFAULT, 0), ^{
+    [connection onClosed];
+    dispatch_async(dispatch_get_main_queue(), ^{
+      XCTAssertTrue(timer.invalidatedOnMainThread);
+      [closeExpectation fulfill];
+    });
+  });
+  [self waitForExpectations:@[ closeExpectation ] timeout:2];
 }
 
 @end

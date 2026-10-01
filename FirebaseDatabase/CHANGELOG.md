@@ -1,3 +1,6 @@
+- [fixed] Keep Realtime Database WebSocket keepalive timer updates on the main run loop
+  thread to avoid cross-thread timer access.
+
 # 12.19.0
 - [fixed] Reconnect after significant system clock changes so that
   `.info/serverTimeOffset` is refreshed. (#363)

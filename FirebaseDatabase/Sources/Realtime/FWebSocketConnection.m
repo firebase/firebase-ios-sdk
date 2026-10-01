@@ -51,6 +51,7 @@ static NSString *const kGoogleAppIDHeader = @"X-Firebase-GMPID";
 - (void)shutdown;
 - (void)onClosed;
 - (void)closeIfNeverConnected;
+- (BOOL)isConnectionClosed;
 
 #if TARGET_OS_WATCH
 @property(nonatomic, strong) NSURLSessionWebSocketTask *webSocketTask;
@@ -210,7 +211,9 @@ static NSString *const kGoogleAppIDHeader = @"X-Firebase-GMPID";
 - (void)close {
     FFLog(@"I-RDB083003", @"(wsc:%@) FWebSocketConnection is being closed.",
           self.connectionId);
-    isClosed = YES;
+    @synchronized(self) {
+        isClosed = YES;
+    }
 #if TARGET_OS_WATCH
     [self.webSocketTask
         cancelWithCloseCode:NSURLSessionWebSocketCloseCodeNormalClosure
@@ -253,7 +256,7 @@ static NSString *const kGoogleAppIDHeader = @"X-Firebase-GMPID";
 }
 
 - (void)nop:(NSTimer *)timer {
-    if (!isClosed) {
+    if (![self isConnectionClosed]) {
         FFLog(@"I-RDB083004", @"(wsc:%@) nop", self.connectionId);
         // Note: the backend is expecting a string "0" here, not any special
         // ping/pong from build in websocket APIs.
@@ -360,7 +363,7 @@ static NSString *const kGoogleAppIDHeader = @"X-Firebase-GMPID";
 
       if (message) {
           [strongSelf handleIncomingFrame:message.string];
-      } else if (error && !strongSelf->isClosed) {
+      } else if (error && ![strongSelf isConnectionClosed]) {
           FFWarn(@"I-RDB083020",
                  @"Error received from web socket, closing the connection. %@",
                  error);
@@ -405,6 +408,9 @@ static NSString *const kGoogleAppIDHeader = @"X-Firebase-GMPID";
     everConnected = YES;
 
     dispatch_async(dispatch_get_main_queue(), ^{
+      if ([self isConnectionClosed]) {
+          return;
+      }
       self->keepAlive =
           [NSTimer scheduledTimerWithTimeInterval:kWebsocketKeepaliveInterval
                                            target:self
@@ -465,14 +471,19 @@ static NSString *const kGoogleAppIDHeader = @"X-Firebase-GMPID";
 }
 
 - (void)shutdown {
-    isClosed = YES;
+    @synchronized(self) {
+        if (isClosed) {
+            return;
+        }
+        isClosed = YES;
+    }
 
     // Call delegate methods
     [self.delegate onDisconnect:self wasEverConnected:everConnected];
 }
 
 - (void)onClosed {
-    if (!isClosed) {
+    if (![self isConnectionClosed]) {
         FFLog(@"I-RDB083013", @"Websocket is closing itself");
         [self shutdown];
     }
@@ -481,20 +492,38 @@ static NSString *const kGoogleAppIDHeader = @"X-Firebase-GMPID";
 #else
     self.webSocket = nil;
 #endif // TARGET_OS_WATCH
-    if (keepAlive.isValid) {
-        [keepAlive invalidate];
-    }
+    dispatch_async(dispatch_get_main_queue(), ^{
+      if (self->keepAlive.isValid) {
+          [self->keepAlive invalidate];
+      }
+      self->keepAlive = nil;
+    });
 }
 
 - (void)resetKeepAlive {
-    NSDate *newTime =
-        [NSDate dateWithTimeIntervalSinceNow:kWebsocketKeepaliveInterval];
-    // Calling setFireDate is actually kinda' expensive, so wait at least 5
-    // seconds before updating it.
-    if ([newTime timeIntervalSinceDate:keepAlive.fireDate] > 5) {
-        FFLog(@"I-RDB083014", @"(wsc:%@) resetting keepalive, to %@ ; old: %@",
-              self.connectionId, newTime, [keepAlive fireDate]);
-        [keepAlive setFireDate:newTime];
+    dispatch_async(dispatch_get_main_queue(), ^{
+      // The timer is installed on the main run loop. Read and update it on the
+      // main thread as well; it may not exist yet if a message arrives before
+      // the queued webSocketDidOpen block has run.
+      if ([self isConnectionClosed] || !self->keepAlive.isValid) {
+          return;
+      }
+      NSDate *newTime =
+          [NSDate dateWithTimeIntervalSinceNow:kWebsocketKeepaliveInterval];
+      NSDate *oldFireDate = self->keepAlive.fireDate;
+      // Calling setFireDate is actually kinda' expensive, so wait at least 5
+      // seconds before updating it.
+      if ([newTime timeIntervalSinceDate:oldFireDate] > 5) {
+          FFLog(@"I-RDB083014", @"(wsc:%@) resetting keepalive, to %@ ; old: %@",
+                self.connectionId, newTime, oldFireDate);
+          [self->keepAlive setFireDate:newTime];
+      }
+    });
+}
+
+- (BOOL)isConnectionClosed {
+    @synchronized(self) {
+        return isClosed;
     }
 }
 
