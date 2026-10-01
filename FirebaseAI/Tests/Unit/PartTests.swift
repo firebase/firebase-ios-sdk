@@ -296,7 +296,45 @@ final class PartTests: XCTestCase {
     """)
   }
 
+  // MARK: - ModelContent Conversion
+
+  func testModelContent_unsupportedPartType_isSkippedAndLogged() throws {
+    var loggedCodes: [AILog.MessageCode] = []
+    AILog.logInterceptor = { _, code, _ in
+      loggedCodes.append(code)
+    }
+    defer { AILog.logInterceptor = nil }
+
+    let content = ModelContent(parts: [TextPart("Hello"), CustomPart(), TextPart("world")])
+
+    XCTAssertEqual(content.parts.count, 2)
+    XCTAssertEqual(content.parts.compactMap { ($0 as? TextPart)?.text }, ["Hello", "world"])
+    XCTAssertEqual(loggedCodes, [.modelContentUnsupportedPartType])
+  }
+
+  func testModelContent_errorPart_isSkippedAndLogged() throws {
+    var loggedCodes: [AILog.MessageCode] = []
+    AILog.logInterceptor = { _, code, _ in
+      loggedCodes.append(code)
+    }
+    defer { AILog.logInterceptor = nil }
+
+    let content = ModelContent(parts: [
+      TextPart("Hello"),
+      ErrorPart(ImageConversionError.couldNotConvertToJPEG),
+    ])
+
+    XCTAssertEqual(content.parts.count, 1)
+    XCTAssertEqual((content.parts.first as? TextPart)?.text, "Hello")
+    XCTAssertEqual(loggedCodes, [.modelContentPartConversionFailed])
+  }
+
   // MARK: - Helpers
+
+  /// A `Part` conformance defined outside of the SDK.
+  private struct CustomPart: Part {
+    var isThought: Bool { false }
+  }
 
   private static func bundle() -> Bundle {
     #if SWIFT_PACKAGE

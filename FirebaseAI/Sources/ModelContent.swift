@@ -160,8 +160,16 @@ public struct ModelContent: Equatable, Sendable {
           isThought: codeExecutionResultPart._isThought,
           thoughtSignature: codeExecutionResultPart.thoughtSignature
         ))
+      case let errorPart as ErrorPart:
+        AILog.error(
+          code: .modelContentPartConversionFailed,
+          "Skipping a part that failed to convert to model content: \(errorPart.error)"
+        )
       default:
-        fatalError()
+        AILog.error(
+          code: .modelContentUnsupportedPartType,
+          "Skipping a part with unsupported type: \(type(of: part))"
+        )
       }
     }
     internalParts = convertedParts

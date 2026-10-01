@@ -83,6 +83,8 @@ enum AILog {
     case invalidWebsocketURL = 4004
     case duplicateLiveSessionSetupComplete = 4005
     case malformedURL = 4006
+    case modelContentUnsupportedPartType = 4007
+    case modelContentPartConversionFailed = 4008
 
     // SDK Debugging
     case loadRequestStreamResponseLine = 5000
