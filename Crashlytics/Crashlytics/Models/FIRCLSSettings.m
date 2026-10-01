@@ -51,9 +51,10 @@ static BOOL FIRCLSSettingsBoolValue(id value, BOOL defaultValue) {
   return defaultValue;
 }
 
-// Returns YES if the value is a finite, non-negative number.
+// Returns YES if the value is a finite, non-negative number. Missing values and explicit JSON nulls
+// are not logged.
 static BOOL FIRCLSSettingsIsValidNumber(id value, NSString *key) {
-  if (value == nil) {
+  if (value == nil || [value isKindOfClass:[NSNull class]]) {
     return NO;
   }
 
@@ -196,10 +197,9 @@ static uint32_t FIRCLSSettingsUInt32Value(id value, NSString *key, uint32_t defa
     return;
   }
 
-  id cacheCreatedAtValue = cacheKey[CreatedAtKey];
-  NSTimeInterval cacheCreatedAt = [cacheCreatedAtValue isKindOfClass:[NSNumber class]]
-                                      ? [cacheCreatedAtValue unsignedIntValue]
-                                      : 0;
+  // An invalid timestamp falls back to 0, which expires the cache.
+  NSTimeInterval cacheCreatedAt =
+      FIRCLSSettingsDoubleValue(cacheKey[CreatedAtKey], CreatedAtKey, 0);
   NSTimeInterval cacheDurationSeconds = self.cacheDurationSeconds;
   if (currentTimestamp > (cacheCreatedAt + cacheDurationSeconds)) {
     FIRCLSDebugLog(@"[Crashlytics:Settings] Settings TTL expired");

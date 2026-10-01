@@ -672,6 +672,53 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   XCTAssertEqual(self.settings.errorLogBufferSize, 128000);
 }
 
+- (void)testCacheKeyCreatedAtKeepsFractionalSeconds {
+  NSError *error = nil;
+  [self writeSettings:FIRCLSTestSettingsInverse error:&error];
+  XCTAssertNil(error, "%@", error);
+
+  NSTimeInterval createdAt = floor([NSDate timeIntervalSinceReferenceDate]) + 0.75;
+  [self.settings cacheSettingsWithGoogleAppID:TestGoogleAppID currentTimestamp:createdAt];
+  XCTAssertEqual(self.settings.isCacheExpired, NO);
+
+  // Still within the TTL, but past it if created_at were truncated to whole seconds.
+  NSTimeInterval currentTimestamp = createdAt + self.settings.cacheDurationSeconds - 0.25;
+  [self.settings reloadFromCacheWithGoogleAppID:TestGoogleAppID currentTimestamp:currentTimestamp];
+  XCTAssertEqual(self.settings.isCacheExpired, NO);
+
+  currentTimestamp = createdAt + self.settings.cacheDurationSeconds + 0.25;
+  [self.settings reloadFromCacheWithGoogleAppID:TestGoogleAppID currentTimestamp:currentTimestamp];
+  XCTAssertEqual(self.settings.isCacheExpired, YES);
+}
+
+- (void)testCacheKeyInvalidCreatedAt {
+  NSArray<NSString *> *invalidCreatedAts = @[ @"-1", @"-1e300", @"null", @"true" ];
+  for (NSString *createdAt in invalidCreatedAts) {
+    NSError *error = nil;
+    [self writeSettings:FIRCLSTestSettingsInverse error:&error];
+    XCTAssertNil(error, "%@", error);
+
+    NSTimeInterval currentTimestamp = [NSDate timeIntervalSinceReferenceDate];
+    [self.settings cacheSettingsWithGoogleAppID:TestGoogleAppID currentTimestamp:currentTimestamp];
+    XCTAssertEqual(self.settings.isCacheExpired, NO);
+
+    NSString *cacheKeyJSON =
+        [NSString stringWithFormat:@"{\"google_app_id\":\"%@\",\"created_at\":%@,"
+                                   @"\"build_instance_id\":\"%@\",\"app_version\":\"%@\"}",
+                                   TestGoogleAppID, createdAt, self.appIDModel.buildInstanceID,
+                                   self.appIDModel.synthesizedVersion];
+    [self writeSettings:cacheKeyJSON error:&error isCacheKey:YES];
+    XCTAssertNil(error, "%@", error);
+
+    [self.settings reloadFromCacheWithGoogleAppID:TestGoogleAppID
+                                 currentTimestamp:currentTimestamp];
+
+    // An invalid timestamp expires the settings so they are fetched again.
+    XCTAssertEqual(self.settings.isCacheExpired, YES, @"created_at: %@", createdAt);
+    XCTAssertEqual(self.settings.errorLogBufferSize, 128000, @"created_at: %@", createdAt);
+  }
+}
+
 - (void)testCacheKeyComparedWithNilBuildInstanceID {
   NSError *error = nil;
   [self writeSettings:FIRCLSTestSettingsInverse error:&error];
