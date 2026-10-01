@@ -562,6 +562,9 @@ static NSInteger const kRCNFetchResponseHTTPStatusCodeGatewayTimeout = 504;
       if (fetchedConfig && fetchedConfig.count == 1 && fetchedConfig[RCNFetchResponseKeyError]) {
         NSString *errStr = [NSString stringWithFormat:@"RCN Fetch Failure: Server returned error:"];
         NSDictionary *errDict = fetchedConfig[RCNFetchResponseKeyError];
+        if (![errDict isKindOfClass:[NSDictionary class]]) {
+          errDict = nil;
+        }
         if (errDict[RCNFetchResponseKeyErrorCode]) {
           errStr = [errStr
               stringByAppendingString:[NSString

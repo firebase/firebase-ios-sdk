@@ -256,8 +256,9 @@ const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
   [self checkAndWaitForInitialDatabaseLoad];
   NSString *state = response[RCNFetchResponseKeyState];
 
-  if (!state) {
-    FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000049", @"State field in fetch response is nil.");
+  if (![state isKindOfClass:[NSString class]]) {
+    FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000049",
+                @"State field in fetch response is nil or invalid.");
     return;
   }
   FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000059",
@@ -354,9 +355,21 @@ const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
       _fetchedConfig[currentNamespace] = [[NSMutableDictionary alloc] init];
     }
 
+    if (entries && ![entries isKindOfClass:[NSDictionary class]]) {
+      FIRLogWarning(kFIRLoggerRemoteConfig, @"I-RCN000079",
+                    @"Ignoring invalid entries field in fetch response.");
+      entries = nil;
+    }
+
     // Store the fetched config values.
     for (NSString *key in entries) {
-      NSData *valueData = [entries[key] dataUsingEncoding:NSUTF8StringEncoding];
+      NSString *value = entries[key];
+      if (![key isKindOfClass:[NSString class]] || ![value isKindOfClass:[NSString class]]) {
+        FIRLogWarning(kFIRLoggerRemoteConfig, @"I-RCN000079",
+                      @"Ignoring invalid value in fetch response for key: %@", key);
+        continue;
+      }
+      NSData *valueData = [value dataUsingEncoding:NSUTF8StringEncoding];
       if (!valueData) {
         continue;
       }
@@ -372,6 +385,11 @@ const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
   if (!metadata) {
     return;
   }
+  if (![metadata isKindOfClass:[NSDictionary class]]) {
+    FIRLogWarning(kFIRLoggerRemoteConfig, @"I-RCN000080",
+                  @"Ignoring invalid personalization metadata in fetch response.");
+    return;
+  }
   @synchronized(self) {
     _fetchedPersonalization = metadata;
   }
@@ -379,6 +397,11 @@ const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
 }
 
 - (void)handleUpdateRolloutFetchedMetadata:(NSArray<NSDictionary *> *)metadata {
+  if (metadata && ![metadata isKindOfClass:[NSArray class]]) {
+    FIRLogWarning(kFIRLoggerRemoteConfig, @"I-RCN000081",
+                  @"Ignoring invalid rollout metadata in fetch response.");
+    metadata = nil;
+  }
   if (!metadata) {
     metadata = [[NSArray alloc] init];
   }
@@ -427,8 +450,8 @@ const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
   /// database.
   [self checkAndWaitForInitialDatabaseLoad];
   return @{
-    RCNFetchResponseKeyEntries : _activeConfig[FIRNamespace],
-    RCNFetchResponseKeyPersonalizationMetadata : _activePersonalization
+    RCNFetchResponseKeyEntries : _activeConfig[FIRNamespace] ?: @{},
+    RCNFetchResponseKeyPersonalizationMetadata : _activePersonalization ?: @{}
   };
 }
 
@@ -520,7 +543,9 @@ const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
 
         /// Map experiments to config keys.
         for (NSString *key in configKeys) {
-          [experimentsMap setObject:experimentCopy forKey:key];
+          if ([key isKindOfClass:[NSString class]]) {
+            [experimentsMap setObject:experimentCopy forKey:key];
+          }
         }
       }
     }
@@ -604,7 +629,7 @@ const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
 
     // add params with new/updated p13n metadata
     for (NSString *key in [fetchedP13n allKeys]) {
-      if (activeP13n[key] == nil || ![activeP13n[key] isEqualToDictionary:fetchedP13n[key]]) {
+      if (activeP13n[key] == nil || ![activeP13n[key] isEqual:fetchedP13n[key]]) {
         [updatedKeys addObject:key];
       }
     }
@@ -656,12 +681,22 @@ const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
     (NSArray<NSDictionary *> *)rolloutMetadata {
   NSMutableDictionary<NSString *, NSMutableDictionary *> *result =
       [[NSMutableDictionary alloc] init];
+  if (![rolloutMetadata isKindOfClass:[NSArray class]]) {
+    return @{};
+  }
   for (NSDictionary *metadata in rolloutMetadata) {
+    if (![metadata isKindOfClass:[NSDictionary class]]) {
+      continue;
+    }
     NSString *rolloutId = metadata[RCNFetchResponseKeyRolloutID];
     NSString *variantId = metadata[RCNFetchResponseKeyVariantID];
     NSArray<NSString *> *affectedKeys = metadata[RCNFetchResponseKeyAffectedParameterKeys];
-    if (rolloutId && variantId && affectedKeys) {
+    if ([rolloutId isKindOfClass:[NSString class]] && [variantId isKindOfClass:[NSString class]] &&
+        [affectedKeys isKindOfClass:[NSArray class]]) {
       for (NSString *key in affectedKeys) {
+        if (![key isKindOfClass:[NSString class]]) {
+          continue;
+        }
         if (result[key]) {
           NSMutableDictionary *rolloutIdToVariantId = result[key];
           [rolloutIdToVariantId setValue:variantId forKey:rolloutId];

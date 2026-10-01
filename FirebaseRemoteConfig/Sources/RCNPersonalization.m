@@ -33,12 +33,13 @@
 - (void)logArmActive:(NSString *)rcParameter config:(NSDictionary *)config {
   NSDictionary *ids = config[RCNFetchResponseKeyPersonalizationMetadata];
   NSDictionary<NSString *, FIRRemoteConfigValue *> *values = config[RCNFetchResponseKeyEntries];
-  if (ids.count < 1 || values.count < 1 || !values[rcParameter]) {
+  if (![ids isKindOfClass:[NSDictionary class]] || ![values isKindOfClass:[NSDictionary class]] ||
+      ids.count < 1 || values.count < 1 || !values[rcParameter]) {
     return;
   }
 
   NSDictionary *metadata = ids[rcParameter];
-  if (!metadata) {
+  if (![metadata isKindOfClass:[NSDictionary class]]) {
     return;
   }
 
@@ -54,15 +55,17 @@
   }
   self->_loggedChoiceIds[rcParameter] = choiceId;
 
+  // Server-provided fields may be missing; never insert nil into the parameters dictionary.
+  NSMutableDictionary<NSString *, id> *parameters = [[NSMutableDictionary alloc] init];
+  parameters[kExternalRcParameterParam] = rcParameter;
+  parameters[kExternalArmValueParam] = values[rcParameter].stringValue;
+  parameters[kExternalPersonalizationIdParam] = metadata[kPersonalizationId];
+  parameters[kExternalArmIndexParam] = metadata[kArmIndex];
+  parameters[kExternalGroupParam] = metadata[kGroup];
+
   [self->_analytics logEventWithOrigin:kAnalyticsOriginPersonalization
                                   name:kExternalEvent
-                            parameters:@{
-                              kExternalRcParameterParam : rcParameter,
-                              kExternalArmValueParam : values[rcParameter].stringValue,
-                              kExternalPersonalizationIdParam : metadata[kPersonalizationId],
-                              kExternalArmIndexParam : metadata[kArmIndex],
-                              kExternalGroupParam : metadata[kGroup]
-                            }];
+                            parameters:parameters];
 
   [self->_analytics logEventWithOrigin:kAnalyticsOriginPersonalization
                                   name:kInternalEvent
