@@ -1,3 +1,10 @@
+# Unreleased
+- [feature] **Public Preview**: Added `SpeechMetadata` support to `TextPart`
+  for Gemini text-to-speech (TTS) models, enabling turn-level speaker routing
+  in multi-speaker synthesis and sustained speech delivery styling. See the
+  [speech generation guide](https://firebase.google.com/docs/ai-logic/generate-speech)
+  for more details.
+
 # 13.0.0
 - [changed] **Breaking Change**: Renamed `Tool` to `GenerativeModel.Tool` to
   avoid naming conflicts with Apple's Foundation Models `Tool` type. Calls
