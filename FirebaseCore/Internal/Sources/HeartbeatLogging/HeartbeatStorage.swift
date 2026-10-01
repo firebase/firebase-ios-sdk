@@ -14,6 +14,22 @@
 
 import Foundation
 
+/// A weakly held storage instance plus the generation that owns its cache entry.
+struct HeartbeatStorageCacheEntry: Sendable {
+  let cacheIdentity: UUID
+  let instance: WeakContainer<HeartbeatStorage>
+
+  init(instance: HeartbeatStorage) {
+    cacheIdentity = instance.cacheIdentity
+    self.instance = WeakContainer(object: instance)
+  }
+
+  init(cacheIdentity: UUID, instance: HeartbeatStorage?) {
+    self.cacheIdentity = cacheIdentity
+    self.instance = WeakContainer(object: instance)
+  }
+}
+
 /// A type that can perform atomic operations using block-based transformations.
 protocol HeartbeatStorageProtocol: Sendable {
   func readAndWriteSync(using transform: (HeartbeatsBundle?) -> HeartbeatsBundle?)
@@ -29,6 +45,8 @@ protocol HeartbeatStorageProtocol: Sendable {
 final class HeartbeatStorage: Sendable, HeartbeatStorageProtocol {
   /// The identifier used to differentiate instances.
   private let id: String
+  /// A stable generation token used to identify this instance after weak references are cleared.
+  let cacheIdentity = UUID()
   /// The underlying storage container to read from and write to.
   private let storage: any Storage
   /// The encoder used for encoding heartbeat data.
@@ -53,7 +71,7 @@ final class HeartbeatStorage: Sendable, HeartbeatStorageProtocol {
 
   /// Statically allocated cache of `HeartbeatStorage` instances keyed by string IDs.
   private static let cachedInstances: UnfairLock<
-    [String: WeakContainer<HeartbeatStorage>]
+    [String: HeartbeatStorageCacheEntry]
   > = UnfairLock([:])
 
   /// Gets an existing `HeartbeatStorage` instance with the given `id` if one exists. Otherwise,
@@ -63,11 +81,11 @@ final class HeartbeatStorage: Sendable, HeartbeatStorageProtocol {
   /// - Returns: A `HeartbeatStorage` instance.
   static func getInstance(id: String) -> HeartbeatStorage {
     cachedInstances.withLock { cachedInstances in
-      if let cachedInstance = cachedInstances[id]?.object {
+      if let cachedInstance = cachedInstances[id]?.instance.object {
         return cachedInstance
       } else {
         let newInstance = HeartbeatStorage.makeHeartbeatStorage(id: id)
-        cachedInstances[id] = WeakContainer(object: newInstance)
+        cachedInstances[id] = HeartbeatStorageCacheEntry(instance: newInstance)
         return newInstance
       }
     }
@@ -78,10 +96,10 @@ final class HeartbeatStorage: Sendable, HeartbeatStorageProtocol {
   /// This is internal so the cache identity check can be covered by unit tests.
   static func removeCachedInstance(
     id: String,
-    instance: HeartbeatStorage,
-    from cachedInstances: inout [String: WeakContainer<HeartbeatStorage>]
+    cacheIdentity: UUID,
+    from cachedInstances: inout [String: HeartbeatStorageCacheEntry]
   ) {
-    guard cachedInstances[id]?.object === instance else { return }
+    guard cachedInstances[id]?.cacheIdentity == cacheIdentity else { return }
     cachedInstances.removeValue(forKey: id)
   }
 
@@ -106,7 +124,7 @@ final class HeartbeatStorage: Sendable, HeartbeatStorageProtocol {
   deinit {
     // Removes the instance if it was cached.
     Self.cachedInstances.withLock { value in
-      Self.removeCachedInstance(id: id, instance: self, from: &value)
+      Self.removeCachedInstance(id: id, cacheIdentity: cacheIdentity, from: &value)
     }
   }
 
