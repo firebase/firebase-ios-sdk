@@ -1,4 +1,5 @@
 # 13.0.0
+- [fixed] Preserve fractional retry-after seconds when exposing Gemini API errors as `NSError`.
 - [changed] **Breaking Change**: Renamed `Tool` to `GenerativeModel.Tool` to
   avoid naming conflicts with Apple's Foundation Models `Tool` type. Calls
   passing array literals (e.g. `tools: [.googleSearch()]`) continue to work
