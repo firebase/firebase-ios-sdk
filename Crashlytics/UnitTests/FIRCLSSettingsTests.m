@@ -440,6 +440,238 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   XCTAssertEqual(self.settings.onDemandBackoffStepDuration, 6);
 }
 
+#pragma mark - Malformed Settings
+
+- (void)assertDefaultLimitsAndSwitches {
+  XCTAssertTrue(self.settings.collectReportsEnabled);
+  XCTAssertTrue(self.settings.errorReportingEnabled);
+  XCTAssertTrue(self.settings.customExceptionsEnabled);
+  XCTAssertFalse(self.settings.metricKitCollectionEnabled);
+  XCTAssertTrue(self.settings.onDemandThreadSuspensionEnabled);
+
+  XCTAssertEqual(self.settings.errorLogBufferSize, 64 * 1000);
+  XCTAssertEqual(self.settings.logBufferSize, 64 * 1000);
+  XCTAssertEqual(self.settings.maxCustomExceptions, 8);
+  XCTAssertEqual(self.settings.maxCustomKeys, 64);
+  XCTAssertEqual(self.settings.onDemandUploadRate, 10);
+  XCTAssertEqual(self.settings.onDemandBackoffBase, 1.5);
+  XCTAssertEqual(self.settings.onDemandBackoffStepDuration, 6);
+}
+
+// A settings file that is valid JSON but not a JSON object should be discarded rather than crash
+// every launch when the cached settings are read.
+- (void)testSettingsNotADictionary {
+  NSArray<NSString *> *malformedSettings = @[ @"[1,2,3]", @"[]", @"\"str\"", @"null", @"42", @"" ];
+
+  for (NSString *settingsJSON in malformedSettings) {
+    NSError *error = nil;
+    [self writeSettings:settingsJSON error:&error];
+    XCTAssertNil(error, "%@", error);
+
+    NSTimeInterval currentTimestamp = [NSDate timeIntervalSinceReferenceDate];
+    // Invalid settings should be deleted along with the cache key.
+    [self cacheSettingsWithGoogleAppID:TestGoogleAppID
+                      currentTimestamp:currentTimestamp
+                   expectedRemoveCount:2];
+
+    XCTAssertNil(self.settings.settingsDictionary, @"%@", settingsJSON);
+    XCTAssertEqual(self.settings.isCacheExpired, YES, @"%@", settingsJSON);
+    XCTAssertEqual(self.settings.cacheDurationSeconds, 3600, @"%@", settingsJSON);
+    [self assertDefaultLimitsAndSwitches];
+  }
+}
+
+- (void)testSettingsGroupsWithWrongTypes {
+  NSString *settingsJSON =
+      @"{\"settings_version\":3,\"cache_duration\":60,\"features\":\"enabled\","
+      @"\"session\":[1,2],\"app\":null,\"fabric\":7}";
+
+  NSError *error = nil;
+  [self writeSettings:settingsJSON error:&error];
+  XCTAssertNil(error, "%@", error);
+
+  NSTimeInterval currentTimestamp = [NSDate timeIntervalSinceReferenceDate];
+  [self.settings cacheSettingsWithGoogleAppID:TestGoogleAppID currentTimestamp:currentTimestamp];
+
+  XCTAssertEqual(self.settings.isCacheExpired, NO);
+  XCTAssertEqual(self.settings.cacheDurationSeconds, 60);
+  [self assertDefaultLimitsAndSwitches];
+}
+
+- (void)testSettingsValuesWithWrongTypes {
+  NSString *settingsJSON =
+      @"{\"settings_version\":3,\"cache_duration\":null,"
+      @"\"features\":{\"collect_logged_exceptions\":null,\"collect_reports\":[],"
+      @"\"collect_metric_kit\":{}},"
+      @"\"session\":{\"log_buffer_size\":\"big\",\"max_custom_exception_events\":null,"
+      @"\"max_custom_key_value_pairs\":[1]},"
+      @"\"on_demand_upload_rate_per_minute\":null,\"on_demand_backoff_base\":[],"
+      @"\"on_demand_backoff_step_duration_seconds\":\"6\","
+      @"\"on_demand_thread_recording_suspension_enabled\":{}}";
+
+  NSError *error = nil;
+  [self writeSettings:settingsJSON error:&error];
+  XCTAssertNil(error, "%@", error);
+
+  NSTimeInterval currentTimestamp = [NSDate timeIntervalSinceReferenceDate];
+  [self.settings cacheSettingsWithGoogleAppID:TestGoogleAppID currentTimestamp:currentTimestamp];
+
+  XCTAssertEqual(self.settings.isCacheExpired, NO);
+  XCTAssertEqual(self.settings.cacheDurationSeconds, 3600);
+  [self assertDefaultLimitsAndSwitches];
+}
+
+- (void)testSettingsNegativeValues {
+  NSString *settingsJSON =
+      @"{\"settings_version\":3,\"cache_duration\":-1,"
+      @"\"session\":{\"log_buffer_size\":-1,\"max_custom_exception_events\":-5,"
+      @"\"max_custom_key_value_pairs\":-64},"
+      @"\"on_demand_upload_rate_per_minute\":-10,\"on_demand_backoff_base\":-2,"
+      @"\"on_demand_backoff_step_duration_seconds\":-6}";
+
+  NSError *error = nil;
+  [self writeSettings:settingsJSON error:&error];
+  XCTAssertNil(error, "%@", error);
+
+  NSTimeInterval currentTimestamp = [NSDate timeIntervalSinceReferenceDate];
+  [self.settings cacheSettingsWithGoogleAppID:TestGoogleAppID currentTimestamp:currentTimestamp];
+
+  XCTAssertEqual(self.settings.isCacheExpired, NO);
+  XCTAssertEqual(self.settings.cacheDurationSeconds, 3600);
+  [self assertDefaultLimitsAndSwitches];
+}
+
+- (void)testSettingsOutOfRangeValues {
+  // -1e400 is parsed by NSJSONSerialization as -infinity.
+  NSString *settingsJSON =
+      @"{\"settings_version\":3,\"cache_duration\":1e20,"
+      @"\"session\":{\"log_buffer_size\":4294967296,"
+      @"\"max_custom_exception_events\":18446744073709551616,"
+      @"\"max_custom_key_value_pairs\":1e300},"
+      @"\"on_demand_upload_rate_per_minute\":-1e400,\"on_demand_backoff_base\":-1e400,"
+      @"\"on_demand_backoff_step_duration_seconds\":4294967296}";
+
+  NSError *error = nil;
+  [self writeSettings:settingsJSON error:&error];
+  XCTAssertNil(error, "%@", error);
+
+  NSTimeInterval currentTimestamp = [NSDate timeIntervalSinceReferenceDate];
+  [self.settings cacheSettingsWithGoogleAppID:TestGoogleAppID currentTimestamp:currentTimestamp];
+
+  // Values too large for uint32_t are clamped rather than truncated.
+  XCTAssertEqual(self.settings.isCacheExpired, NO);
+  XCTAssertEqual(self.settings.cacheDurationSeconds, UINT32_MAX);
+  XCTAssertEqual(self.settings.logBufferSize, UINT32_MAX);
+  XCTAssertEqual(self.settings.maxCustomExceptions, UINT32_MAX);
+  XCTAssertEqual(self.settings.maxCustomKeys, UINT32_MAX);
+  XCTAssertEqual(self.settings.onDemandBackoffStepDuration, UINT32_MAX);
+
+  // Non-finite values fall back to defaults.
+  XCTAssertEqual(self.settings.onDemandUploadRate, 10);
+  XCTAssertEqual(self.settings.onDemandBackoffBase, 1.5);
+}
+
+- (void)testSettingsZeroAndFractionalValues {
+  NSString *settingsJSON = @"{\"settings_version\":3,\"cache_duration\":0,"
+                           @"\"session\":{\"log_buffer_size\":0,\"max_custom_exception_events\":0,"
+                           @"\"max_custom_key_value_pairs\":0},"
+                           @"\"on_demand_upload_rate_per_minute\":0,\"on_demand_backoff_base\":0,"
+                           @"\"on_demand_backoff_step_duration_seconds\":0}";
+
+  NSError *error = nil;
+  [self writeSettings:settingsJSON error:&error];
+  XCTAssertNil(error, "%@", error);
+
+  NSTimeInterval currentTimestamp = [NSDate timeIntervalSinceReferenceDate];
+  [self.settings cacheSettingsWithGoogleAppID:TestGoogleAppID currentTimestamp:currentTimestamp];
+
+  // Zero is a meaningful value for these settings and is respected.
+  XCTAssertEqual(self.settings.cacheDurationSeconds, 0);
+  XCTAssertEqual(self.settings.logBufferSize, 0);
+  XCTAssertEqual(self.settings.maxCustomExceptions, 0);
+  XCTAssertEqual(self.settings.maxCustomKeys, 0);
+  XCTAssertEqual(self.settings.onDemandUploadRate, 0);
+  XCTAssertEqual(self.settings.onDemandBackoffBase, 0);
+
+  // The step duration is used as a divisor, so zero falls back to the default.
+  XCTAssertEqual(self.settings.onDemandBackoffStepDuration, 6);
+
+  // A fractional step duration that truncates to zero also falls back to the default.
+  [self writeSettings:@"{\"on_demand_backoff_step_duration_seconds\":0.5}" error:&error];
+  XCTAssertNil(error, "%@", error);
+  [self.settings cacheSettingsWithGoogleAppID:TestGoogleAppID currentTimestamp:currentTimestamp];
+  XCTAssertEqual(self.settings.onDemandBackoffStepDuration, 6);
+}
+
+- (void)testCacheKeyNotADictionary {
+  NSArray<NSString *> *malformedCacheKeys = @[ @"\"just a string\"", @"123", @"[1,2,3]", @"null" ];
+
+  for (NSString *cacheKeyJSON in malformedCacheKeys) {
+    NSError *error = nil;
+    [self writeSettings:FIRCLSTestSettingsInverse error:&error];
+    XCTAssertNil(error, "%@", error);
+
+    NSTimeInterval currentTimestamp = [NSDate timeIntervalSinceReferenceDate];
+    [self.settings cacheSettingsWithGoogleAppID:TestGoogleAppID currentTimestamp:currentTimestamp];
+    XCTAssertEqual(self.settings.errorLogBufferSize, 128000, @"%@", cacheKeyJSON);
+
+    [self writeSettings:cacheKeyJSON error:&error isCacheKey:YES];
+    XCTAssertNil(error, "%@", error);
+
+    // An unreadable cache key invalidates the settings cache.
+    [self reloadFromCacheWithGoogleAppID:TestGoogleAppID
+                        currentTimestamp:currentTimestamp
+                     expectedRemoveCount:2];
+
+    XCTAssertEqual(self.settings.isCacheExpired, YES, @"%@", cacheKeyJSON);
+    XCTAssertEqual(self.settings.cacheDurationSeconds, 3600, @"%@", cacheKeyJSON);
+    [self assertDefaultLimitsAndSwitches];
+  }
+}
+
+- (void)testCacheKeyGoogleAppIDWrongType {
+  NSError *error = nil;
+  [self writeSettings:FIRCLSTestSettingsInverse error:&error];
+  XCTAssertNil(error, "%@", error);
+
+  NSTimeInterval currentTimestamp = [NSDate timeIntervalSinceReferenceDate];
+  [self.settings cacheSettingsWithGoogleAppID:TestGoogleAppID currentTimestamp:currentTimestamp];
+
+  [self writeSettings:@"{\"google_app_id\":123}" error:&error isCacheKey:YES];
+  XCTAssertNil(error, "%@", error);
+
+  // A Google App ID that isn't a string is treated as a changed Google App ID.
+  [self reloadFromCacheWithGoogleAppID:TestGoogleAppID
+                      currentTimestamp:currentTimestamp
+                   expectedRemoveCount:2];
+
+  XCTAssertEqual(self.settings.isCacheExpired, YES);
+  [self assertDefaultLimitsAndSwitches];
+}
+
+- (void)testCacheKeyValuesWithWrongTypes {
+  NSError *error = nil;
+  [self writeSettings:FIRCLSTestSettingsInverse error:&error];
+  XCTAssertNil(error, "%@", error);
+
+  NSTimeInterval currentTimestamp = [NSDate timeIntervalSinceReferenceDate];
+  [self.settings cacheSettingsWithGoogleAppID:TestGoogleAppID currentTimestamp:currentTimestamp];
+  XCTAssertEqual(self.settings.isCacheExpired, NO);
+
+  NSString *cacheKeyJSON =
+      [NSString stringWithFormat:@"{\"google_app_id\":\"%@\",\"created_at\":\"yesterday\","
+                                 @"\"build_instance_id\":5,\"app_version\":null}",
+                                 TestGoogleAppID];
+  [self writeSettings:cacheKeyJSON error:&error isCacheKey:YES];
+  XCTAssertNil(error, "%@", error);
+
+  [self.settings reloadFromCacheWithGoogleAppID:TestGoogleAppID currentTimestamp:currentTimestamp];
+
+  // The settings are kept, but are considered expired so they are fetched again.
+  XCTAssertEqual(self.settings.isCacheExpired, YES);
+  XCTAssertEqual(self.settings.errorLogBufferSize, 128000);
+}
+
 - (void)testNewReportEndpointSettings {
   NSString *settingsJSON =
       @"{\"settings_version\":3,\"cache_duration\":60,\"app\":{\"report_upload_variant\":2}}";

@@ -33,6 +33,62 @@ NSString *const AppVersion = @"app_version";
 NSString *const FirebaseCrashlyticsMachDefaultBehaviorKey =
     @"FirebaseCrashlyticsMachDefaultBehavior";
 
+#pragma mark - Value Validation
+
+// Settings are downloaded from the server, cached to disk and read early during launch, before
+// Crashlytics can report crashes. Values with an unexpected type or range are ignored in favor of
+// the defaults so that a malformed payload can't crash or misconfigure the SDK.
+
+static NSDictionary<NSString *, id> *FIRCLSSettingsDictionaryValue(id value) {
+  return [value isKindOfClass:[NSDictionary class]] ? value : nil;
+}
+
+static BOOL FIRCLSSettingsBoolValue(id value, BOOL defaultValue) {
+  if ([value isKindOfClass:[NSNumber class]] || [value isKindOfClass:[NSString class]]) {
+    return [value boolValue];
+  }
+
+  return defaultValue;
+}
+
+// Returns YES if the value is a finite, non-negative number.
+static BOOL FIRCLSSettingsIsValidNumber(id value, NSString *key) {
+  if (value == nil) {
+    return NO;
+  }
+
+  if ([value isKindOfClass:[NSNumber class]]) {
+    double doubleValue = [value doubleValue];
+    if (isfinite(doubleValue) && doubleValue >= 0) {
+      return YES;
+    }
+  }
+
+  FIRCLSDebugLog(@"[Crashlytics:Settings] Ignoring invalid value for %@: %@", key, value);
+  return NO;
+}
+
+static double FIRCLSSettingsDoubleValue(id value, NSString *key, double defaultValue) {
+  if (!FIRCLSSettingsIsValidNumber(value, key)) {
+    return defaultValue;
+  }
+
+  return [value doubleValue];
+}
+
+static uint32_t FIRCLSSettingsUInt32Value(id value, NSString *key, uint32_t defaultValue) {
+  if (!FIRCLSSettingsIsValidNumber(value, key)) {
+    return defaultValue;
+  }
+
+  // Clamp rather than truncate values that don't fit.
+  if ([value doubleValue] >= UINT32_MAX) {
+    return UINT32_MAX;
+  }
+
+  return [value unsignedIntValue];
+}
+
 @interface FIRCLSSettings ()
 
 @property(nonatomic, strong) FIRCLSFileManager *fileManager;
@@ -103,16 +159,23 @@ NSString *const FirebaseCrashlyticsMachDefaultBehaviorKey =
   }
 
   NSError *error = nil;
-  @synchronized(self) {
-    _settingsDictionary = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
-  }
+  id settingsObject = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
 
-  if (!_settingsDictionary) {
-    FIRCLSErrorLog(@"Could not load settings file data with error: %@", error.localizedDescription);
+  if (![settingsObject isKindOfClass:[NSDictionary class]]) {
+    if (settingsObject) {
+      FIRCLSErrorLog(@"Settings file data is not a dictionary");
+    } else {
+      FIRCLSErrorLog(@"Could not load settings file data with error: %@",
+                     error.localizedDescription);
+    }
 
     // Attempt to remove it, in case it's messed up
     [self deleteCachedSettings];
     return;
+  }
+
+  @synchronized(self) {
+    _settingsDictionary = settingsObject;
   }
 
   NSDictionary<NSString *, id> *cacheKey = [self loadCacheKey];
@@ -123,8 +186,9 @@ NSString *const FirebaseCrashlyticsMachDefaultBehaviorKey =
     return;
   }
 
-  NSString *cachedGoogleAppID = cacheKey[GoogleAppIDKey];
-  if (![cachedGoogleAppID isEqualToString:googleAppID]) {
+  id cachedGoogleAppID = cacheKey[GoogleAppIDKey];
+  if (![cachedGoogleAppID isKindOfClass:[NSString class]] ||
+      ![cachedGoogleAppID isEqualToString:googleAppID]) {
     FIRCLSDebugLog(
         @"[Crashlytics:Settings] Invalidating settings cache because Google App ID changed");
 
@@ -132,7 +196,10 @@ NSString *const FirebaseCrashlyticsMachDefaultBehaviorKey =
     return;
   }
 
-  NSTimeInterval cacheCreatedAt = [cacheKey[CreatedAtKey] unsignedIntValue];
+  id cacheCreatedAtValue = cacheKey[CreatedAtKey];
+  NSTimeInterval cacheCreatedAt = [cacheCreatedAtValue isKindOfClass:[NSNumber class]]
+                                      ? [cacheCreatedAtValue unsignedIntValue]
+                                      : 0;
   NSTimeInterval cacheDurationSeconds = self.cacheDurationSeconds;
   if (currentTimestamp > (cacheCreatedAt + cacheDurationSeconds)) {
     FIRCLSDebugLog(@"[Crashlytics:Settings] Settings TTL expired");
@@ -142,8 +209,9 @@ NSString *const FirebaseCrashlyticsMachDefaultBehaviorKey =
     }
   }
 
-  NSString *cacheBuildInstanceID = cacheKey[BuildInstanceID];
-  if (![cacheBuildInstanceID isEqualToString:self.appIDModel.buildInstanceID]) {
+  id cacheBuildInstanceID = cacheKey[BuildInstanceID];
+  if (![cacheBuildInstanceID isKindOfClass:[NSString class]] ||
+      ![cacheBuildInstanceID isEqualToString:self.appIDModel.buildInstanceID]) {
     FIRCLSDebugLog(@"[Crashlytics:Settings] Settings expired because build instance changed");
 
     @synchronized(self) {
@@ -151,8 +219,9 @@ NSString *const FirebaseCrashlyticsMachDefaultBehaviorKey =
     }
   }
 
-  NSString *cacheAppVersion = cacheKey[AppVersion];
-  if (![cacheAppVersion isEqualToString:self.appIDModel.synthesizedVersion]) {
+  id cacheAppVersion = cacheKey[AppVersion];
+  if (![cacheAppVersion isKindOfClass:[NSString class]] ||
+      ![cacheAppVersion isEqualToString:self.appIDModel.synthesizedVersion]) {
     FIRCLSDebugLog(@"[Crashlytics:Settings] Settings expired because app version changed");
 
     @synchronized(self) {
@@ -210,9 +279,13 @@ NSString *const FirebaseCrashlyticsMachDefaultBehaviorKey =
   }
 
   NSError *error = nil;
-  NSDictionary *cacheKey = [NSJSONSerialization JSONObjectWithData:cacheKeyData
-                                                           options:NSJSONReadingAllowFragments
-                                                             error:&error];
+  id cacheKey = [NSJSONSerialization JSONObjectWithData:cacheKeyData
+                                                options:NSJSONReadingAllowFragments
+                                                  error:&error];
+  if (![cacheKey isKindOfClass:[NSDictionary class]]) {
+    return nil;
+  }
+
   return cacheKey;
 }
 
@@ -243,19 +316,19 @@ NSString *const FirebaseCrashlyticsMachDefaultBehaviorKey =
 #pragma mark - Settings Groups
 
 - (NSDictionary<NSString *, id> *)appSettings {
-  return self.settingsDictionary[@"app"];
+  return FIRCLSSettingsDictionaryValue(self.settingsDictionary[@"app"]);
 }
 
 - (NSDictionary<NSString *, id> *)sessionSettings {
-  return self.settingsDictionary[@"session"];
+  return FIRCLSSettingsDictionaryValue(self.settingsDictionary[@"session"]);
 }
 
 - (NSDictionary<NSString *, id> *)featuresSettings {
-  return self.settingsDictionary[@"features"];
+  return FIRCLSSettingsDictionaryValue(self.settingsDictionary[@"features"]);
 }
 
 - (NSDictionary<NSString *, id> *)fabricSettings {
-  return self.settingsDictionary[@"fabric"];
+  return FIRCLSSettingsDictionaryValue(self.settingsDictionary[@"fabric"]);
 }
 
 #pragma mark - Caching
@@ -272,23 +345,13 @@ NSString *const FirebaseCrashlyticsMachDefaultBehaviorKey =
 
 - (uint32_t)cacheDurationSeconds {
   id fetchedCacheDuration = self.settingsDictionary[@"cache_duration"];
-  if (fetchedCacheDuration) {
-    return [fetchedCacheDuration unsignedIntValue];
-  }
-
-  return 60 * 60;
+  return FIRCLSSettingsUInt32Value(fetchedCacheDuration, @"cache_duration", 60 * 60);
 }
 
 #pragma mark - On / Off Switches
 
 - (BOOL)errorReportingEnabled {
-  NSNumber *value = [self featuresSettings][@"collect_logged_exceptions"];
-
-  if (value != nil) {
-    return [value boolValue];
-  }
-
-  return YES;
+  return FIRCLSSettingsBoolValue([self featuresSettings][@"collect_logged_exceptions"], YES);
 }
 
 - (BOOL)customExceptionsEnabled {
@@ -298,23 +361,11 @@ NSString *const FirebaseCrashlyticsMachDefaultBehaviorKey =
 }
 
 - (BOOL)collectReportsEnabled {
-  NSNumber *value = [self featuresSettings][@"collect_reports"];
-
-  if (value != nil) {
-    return value.boolValue;
-  }
-
-  return YES;
+  return FIRCLSSettingsBoolValue([self featuresSettings][@"collect_reports"], YES);
 }
 
 - (BOOL)metricKitCollectionEnabled {
-  NSNumber *value = [self featuresSettings][@"collect_metric_kit"];
-
-  if (value != nil) {
-    return value.boolValue;
-  }
-
-  return NO;
+  return FIRCLSSettingsBoolValue([self featuresSettings][@"collect_metric_kit"], NO);
 }
 
 #pragma mark - Optional Limit Overrides
@@ -324,74 +375,46 @@ NSString *const FirebaseCrashlyticsMachDefaultBehaviorKey =
 }
 
 - (uint32_t)logBufferSize {
-  NSNumber *value = [self sessionSettings][@"log_buffer_size"];
-
-  if (value != nil) {
-    return value.unsignedIntValue;
-  }
-
-  return 64 * 1000;
+  return FIRCLSSettingsUInt32Value([self sessionSettings][@"log_buffer_size"], @"log_buffer_size",
+                                   64 * 1000);
 }
 
 - (uint32_t)maxCustomExceptions {
-  NSNumber *value = [self sessionSettings][@"max_custom_exception_events"];
-
-  if (value != nil) {
-    return value.unsignedIntValue;
-  }
-
-  return 8;
+  return FIRCLSSettingsUInt32Value([self sessionSettings][@"max_custom_exception_events"],
+                                   @"max_custom_exception_events", 8);
 }
 
 - (uint32_t)maxCustomKeys {
-  NSNumber *value = [self sessionSettings][@"max_custom_key_value_pairs"];
-
-  if (value != nil) {
-    return value.unsignedIntValue;
-  }
-
-  return 64;
+  return FIRCLSSettingsUInt32Value([self sessionSettings][@"max_custom_key_value_pairs"],
+                                   @"max_custom_key_value_pairs", 64);
 }
 
 #pragma mark - On Demand Reporting Parameters
 
 - (double)onDemandUploadRate {
-  NSNumber *value = self.settingsDictionary[@"on_demand_upload_rate_per_minute"];
-
-  if (value != nil) {
-    return value.doubleValue;
-  }
-
-  return 10;  // on-demand uploads allowed per minute
+  return FIRCLSSettingsDoubleValue(self.settingsDictionary[@"on_demand_upload_rate_per_minute"],
+                                   @"on_demand_upload_rate_per_minute",
+                                   10);  // on-demand uploads allowed per minute
 }
 
 - (double)onDemandBackoffBase {
-  NSNumber *value = self.settingsDictionary[@"on_demand_backoff_base"];
-
-  if (value != nil) {
-    return [value doubleValue];
-  }
-
-  return 1.5;  // base of exponent for exponential backoff
+  return FIRCLSSettingsDoubleValue(self.settingsDictionary[@"on_demand_backoff_base"],
+                                   @"on_demand_backoff_base",
+                                   1.5);  // base of exponent for exponential backoff
 }
 
 - (uint32_t)onDemandBackoffStepDuration {
-  NSNumber *value = self.settingsDictionary[@"on_demand_backoff_step_duration_seconds"];
+  uint32_t defaultValue = 6;  // step duration for exponential backoff
+  uint32_t value =
+      FIRCLSSettingsUInt32Value(self.settingsDictionary[@"on_demand_backoff_step_duration_seconds"],
+                                @"on_demand_backoff_step_duration_seconds", defaultValue);
 
-  if (value != nil) {
-    return value.unsignedIntValue;
-  }
-
-  return 6;  // step duration for exponential backoff
+  // The step duration is used as a divisor when calculating the backoff, so it can't be zero.
+  return value > 0 ? value : defaultValue;
 }
 
 - (BOOL)onDemandThreadSuspensionEnabled {
-  NSNumber *value = self.settingsDictionary[@"on_demand_thread_recording_suspension_enabled"];
-
-  if (value != nil) {
-    return value.boolValue;
-  }
-
-  return YES;
+  return FIRCLSSettingsBoolValue(
+      self.settingsDictionary[@"on_demand_thread_recording_suspension_enabled"], YES);
 }
 @end
