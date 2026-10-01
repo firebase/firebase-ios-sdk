@@ -328,6 +328,43 @@ static void FIRCLSFileWriteStringWithSuffix(FIRCLSFile* file,
                                             const char* string,
                                             size_t length,
                                             char suffix) {
+  bool needsEscaping = false;
+  for (size_t i = 0; i < length; ++i) {
+    const unsigned char character = (unsigned char)string[i];
+    if (character == '"' || character == '\\' || character < 0x20) {
+      needsEscaping = true;
+      break;
+    }
+  }
+
+  if (needsEscaping) {
+    static const char hexDigits[] = "0123456789abcdef";
+    size_t segmentStart = 0;
+    FIRCLSFileWriteToFileDescriptorOrBuffer(file, "\"", 1);
+    for (size_t i = 0; i < length; ++i) {
+      const unsigned char character = (unsigned char)string[i];
+      if (character != '"' && character != '\\' && character >= 0x20) {
+        continue;
+      }
+
+      FIRCLSFileWriteToFileDescriptorOrBuffer(file, string + segmentStart, i - segmentStart);
+      if (character == '"' || character == '\\') {
+        const char escapedCharacter[] = {'\\', (char)character};
+        FIRCLSFileWriteToFileDescriptorOrBuffer(file, escapedCharacter, sizeof(escapedCharacter));
+      } else {
+        const char escapedControl[] = {
+            '\\', 'u', '0', '0', hexDigits[character >> 4], hexDigits[character & 0x0f]};
+        FIRCLSFileWriteToFileDescriptorOrBuffer(file, escapedControl, sizeof(escapedControl));
+      }
+      segmentStart = i + 1;
+    }
+    FIRCLSFileWriteToFileDescriptorOrBuffer(file, string + segmentStart, length - segmentStart);
+
+    char closingString[2] = {'"', suffix};
+    FIRCLSFileWriteToFileDescriptorOrBuffer(file, closingString, suffix == 0 ? 1 : 2);
+    return;
+  }
+
   // 2 for quotes, 1 for suffix (if present) and 1 more for null character
   const size_t maxStringSize = FIRCLSStringBufferLength - (suffix == 0 ? 3 : 4);
 

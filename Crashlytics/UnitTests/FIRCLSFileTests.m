@@ -150,6 +150,40 @@
 
 #pragma mark -
 
+- (void)testEscapesJSONStrings {
+  [self jsonEscapingWithFile:&_unbufferedFile filePath:self.unbufferedPath buffered:NO];
+  [self jsonEscapingWithFile:&_bufferedFile filePath:self.bufferedPath buffered:YES];
+}
+
+- (void)jsonEscapingWithFile:(FIRCLSFile *)file
+                    filePath:(NSString *)filePath
+                    buffered:(BOOL)buffered {
+  NSString *key = @"key\"\n";
+  NSString *value = [NSString stringWithFormat:
+                                @"quote\" slash\\ newline\n tab\t control %C",
+                                (unichar)1];
+
+  FIRCLSFileWriteSectionStart(file, "string_escaping");
+  FIRCLSFileWriteHashStart(file);
+  FIRCLSFileWriteHashEntryNSString(file, [key UTF8String], value);
+  FIRCLSFileWriteHashEnd(file);
+  FIRCLSFileWriteSectionEnd(file);
+
+  if (buffered) {
+    FIRCLSFileFlushWriteBuffer(file);
+  }
+  NSData *data = [NSData dataWithContentsOfFile:filePath];
+  XCTAssertNotNil(data);
+  if (data == nil) {
+    return;
+  }
+  NSError *error;
+  NSDictionary *root = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
+  XCTAssertNotNil(root, @"Escaped JSON should parse, got error %@", error);
+  NSDictionary *section = root[@"string_escaping"];
+  XCTAssertEqualObjects(section[key], value);
+}
+
 - (void)testHexEncodingString {
   [self hexEncodingStringWithFile:&_unbufferedFile filePath:self.unbufferedPath buffered:NO];
   [self hexEncodingStringWithFile:&_bufferedFile filePath:self.bufferedPath buffered:YES];
