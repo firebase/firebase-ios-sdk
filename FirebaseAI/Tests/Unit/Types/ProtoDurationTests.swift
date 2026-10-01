@@ -105,4 +105,13 @@ final class ProtoDurationTests: XCTestCase {
       XCTAssertContains(error.debugDescription, "Invalid proto duration nanoseconds")
     }
   }
+
+  func testDecodeProtoDuration_nonASCIIDigitNanoseconds() throws {
+    // Arabic-Indic digit three, vulgar fraction one half, superscript two, and an ASCII digit
+    // followed by a combining acute accent (a single `Character` that sorts within "0"..."9").
+    for durationString in ["1.\u{0663}s", "1.\u{00BD}s", "1.\u{00B2}s", "1.1\u{0301}s"] {
+      guard let error = try expectDecodeFailure(durationString) else { return }
+      XCTAssertContains(error.debugDescription, "Invalid proto duration nanoseconds")
+    }
+  }
 }
