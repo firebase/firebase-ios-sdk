@@ -102,7 +102,8 @@
   for (FIRIAMMessageDefinition *nextMessage in self.regularMessages) {
     // if it's event based triggering, add it to the watch set
     for (FIRIAMDisplayTriggerDefinition *nextTrigger in nextMessage.renderTriggers) {
-      if (nextTrigger.triggerType == FIRIAMRenderTriggerOnFirebaseAnalyticsEvent) {
+      if (nextTrigger.triggerType == FIRIAMRenderTriggerOnFirebaseAnalyticsEvent &&
+          nextTrigger.firebaseEventName) {
         [self.firebaseAnalyticEventsToWatch addObject:nextTrigger.firebaseEventName];
       }
     }
