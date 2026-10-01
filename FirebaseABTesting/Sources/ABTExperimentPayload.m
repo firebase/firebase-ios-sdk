@@ -63,13 +63,19 @@ static int64_t ABTInt64Value(id _Nullable value) {
 @implementation ABTExperimentPayload
 
 + (NSDateFormatter *)experimentStartTimeFormatter {
-  NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-  [dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"];
-  [dateFormatter setTimeZone:[NSTimeZone timeZoneForSecondsFromGMT:0]];
-  // Locale needs to be hardcoded. See
-  // https://developer.apple.com/library/ios/#qa/qa1480/_index.html for more details.
-  [dateFormatter setLocale:[[NSLocale alloc] initWithLocaleIdentifier:@"en_US_POSIX"]];
-  [dateFormatter setTimeZone:[NSTimeZone timeZoneWithAbbreviation:@"UTC"]];
+  // NSDateFormatter is expensive to create and is thread-safe on all supported OS versions, so
+  // create it once and share it.
+  static NSDateFormatter *dateFormatter;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    dateFormatter = [[NSDateFormatter alloc] init];
+    [dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"];
+    [dateFormatter setTimeZone:[NSTimeZone timeZoneForSecondsFromGMT:0]];
+    // Locale needs to be hardcoded. See
+    // https://developer.apple.com/library/ios/#qa/qa1480/_index.html for more details.
+    [dateFormatter setLocale:[[NSLocale alloc] initWithLocaleIdentifier:@"en_US_POSIX"]];
+    [dateFormatter setTimeZone:[NSTimeZone timeZoneWithAbbreviation:@"UTC"]];
+  });
   return dateFormatter;
 }
 
@@ -109,8 +115,7 @@ static int64_t ABTInt64Value(id _Nullable value) {
       // Convert from date string.
       NSDate *experimentStartTime =
           [[[self class] experimentStartTimeFormatter] dateFromString:experimentStartTimeString];
-      _experimentStartTimeMillis =
-          [@([experimentStartTime timeIntervalSince1970] * 1000) longLongValue];
+      _experimentStartTimeMillis = (int64_t)(experimentStartTime.timeIntervalSince1970 * 1000);
     } else if (dictionary[kExperimentPayloadKeyExperimentStartTimeMillis]) {
       // Simply store milliseconds.
       _experimentStartTimeMillis =

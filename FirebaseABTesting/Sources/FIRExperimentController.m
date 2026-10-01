@@ -36,14 +36,17 @@ ABTExperimentPayload *ABTDeserializeExperimentPayload(NSData *payload) {
                 @"Failed to parse experiment payload: unexpected type %@.", [payload class]);
     return nil;
   }
-  // Verify that we have a JSON object.
+  // Parse once and verify that we have a JSON object.
   NSError *error;
-  id JSONObject = [NSJSONSerialization JSONObjectWithData:payload options:kNilOptions error:&error];
-  if (JSONObject == nil) {
+  id JSONObject = [NSJSONSerialization JSONObjectWithData:payload
+                                                  options:NSJSONReadingAllowFragments
+                                                    error:&error];
+  if (![JSONObject isKindOfClass:[NSDictionary class]]) {
     FIRLogError(kFIRLoggerABTesting, @"I-ABT000001", @"Failed to parse experiment payload: %@",
-                error.debugDescription);
+                error ? error.debugDescription : @"top-level JSON value is not an object.");
+    return nil;
   }
-  return [ABTExperimentPayload parseFromData:payload];
+  return [[ABTExperimentPayload alloc] initWithDictionary:JSONObject];
 }
 
 /// Returns a list of experiments to be set given the payloads and current list of experiments from
