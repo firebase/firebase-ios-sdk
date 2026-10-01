@@ -429,21 +429,25 @@ void FIRCLSFileFDWriteUInt64(int fd, uint64_t number, bool hex) {
 }
 
 void FIRCLSFileWriteInt64(FIRCLSFile* file, int64_t number) {
+  uint64_t magnitude = (uint64_t)number;
   if (number < 0) {
     FIRCLSFileWriteToFileDescriptorOrBuffer(file, "-", 1);
-    number *= -1;  // make it positive
+    // Offset before negating so INT64_MIN is representable, then convert the absolute value to
+    // unsigned without signed overflow.
+    magnitude = (uint64_t)(-(number + 1)) + 1;
   }
 
-  FIRCLSFileWriteUInt64(file, number, false);
+  FIRCLSFileWriteUInt64(file, magnitude, false);
 }
 
 void FIRCLSFileFDWriteInt64(int fd, int64_t number) {
+  uint64_t magnitude = (uint64_t)number;
   if (number < 0) {
     FIRCLSFileWriteWithRetries(fd, "-", 1);
-    number *= -1;  // make it positive
+    magnitude = (uint64_t)(-(number + 1)) + 1;
   }
 
-  FIRCLSFileFDWriteUInt64(fd, number, false);
+  FIRCLSFileFDWriteUInt64(fd, magnitude, false);
 }
 
 short FIRCLSFilePrepareUInt64(char* buffer, uint64_t number, bool hex) {

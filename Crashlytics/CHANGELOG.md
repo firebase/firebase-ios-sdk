@@ -1,4 +1,5 @@
 # 13.0.0
+- [fixed] Correctly serialize the minimum signed 64-bit integer in recorded error data.
 - [fixed] Safely validate memory reads when executing `DW_OP_deref_size`
   operations during DWARF stack unwinding (#16550).
 - [fixed] Fixed an issue casuing a crash while symbolicating stack frames if the binary image path is null. (#16622)
