@@ -79,6 +79,8 @@ NS_SWIFT_NAME(__WindowSpecBridge)
                 unit:(id _Nullable)unit;
 @end
 
+// Bridges both Swift `AggregateFunction` and `WindowFunction` (such as `Rank` or an aggregate
+// framed with `over(_:)`).
 NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(__AggregateFunctionBridge)
 @interface __FIRAggregateFunctionBridge : NSObject

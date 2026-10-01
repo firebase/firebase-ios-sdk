@@ -250,6 +250,9 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
 - (firebase::firestore::google_firestore_v1_Value)toV1ValueWithReader:(FSTUserDataReader *)reader;
 @end
 
+// Bridges both Swift `AggregateFunction` and `WindowFunction` (such as `Rank` or an aggregate
+// framed with `over(_:)`), serializing optional accumulator-level window framing in
+// `toV1ValueWithReader:`.
 @implementation __FIRAggregateFunctionBridge {
   std::shared_ptr<AggregateFunction> cpp_function;
   NSString *_name;

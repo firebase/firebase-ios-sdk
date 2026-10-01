@@ -306,7 +306,7 @@ class Aggregate: Stage {
       self.groups = map
     }
 
-    let (accumulatorsMap, error) = Helper.aliasedAggregatesToMap(accumulators: accumulators)
+    let (accumulatorBridgesMap, error) = Helper.windowFieldsToMap(fields: accumulators)
     if let error = error {
       errorMessage = error.localizedDescription
       bridge = __AggregateStageBridge(accumulators: [:], groups: [:])
@@ -314,7 +314,6 @@ class Aggregate: Stage {
     }
 
     errorMessage = nil
-    let accumulatorBridgesMap = accumulatorsMap.mapValues { $0.bridge }
     bridge = __AggregateStageBridge(
       accumulators: accumulatorBridgesMap,
       groups: self.groups.mapValues { Helper.sendableToExpr($0).toBridge() }
