@@ -101,6 +101,21 @@ class HeartbeatStorageTests: XCTestCase {
     XCTAssertNil(heartbeatStorage2)
   }
 
+  func testRemovingStaleCachedInstancePreservesReplacement() {
+    let id = "stale_cache_entry"
+    let staleInstance = HeartbeatStorage(id: id, storage: StorageFake())
+    let replacement = HeartbeatStorage(id: id, storage: StorageFake())
+    var cachedInstances = [id: WeakContainer(object: replacement)]
+
+    HeartbeatStorage.removeCachedInstance(
+      id: id,
+      instance: staleInstance,
+      from: &cachedInstances
+    )
+
+    XCTAssertTrue(cachedInstances[id]?.object === replacement)
+  }
+
   // MARK: - HeartbeatStorageProtocol
 
   func testReadAndWrite_ReadsOldValueAndWritesNewValue() throws {

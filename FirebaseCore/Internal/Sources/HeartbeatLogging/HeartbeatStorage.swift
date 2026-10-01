@@ -73,6 +73,18 @@ final class HeartbeatStorage: Sendable, HeartbeatStorageProtocol {
     }
   }
 
+  /// Removes an instance only when it is still the cached value for its identifier.
+  ///
+  /// This is internal so the cache identity check can be covered by unit tests.
+  static func removeCachedInstance(
+    id: String,
+    instance: HeartbeatStorage,
+    from cachedInstances: inout [String: WeakContainer<HeartbeatStorage>]
+  ) {
+    guard cachedInstances[id]?.object === instance else { return }
+    cachedInstances.removeValue(forKey: id)
+  }
+
   /// Makes a `HeartbeatStorage` instance using a given `String` identifier.
   ///
   /// The created persistent storage object is platform dependent. For tvOS, user defaults
@@ -94,7 +106,7 @@ final class HeartbeatStorage: Sendable, HeartbeatStorageProtocol {
   deinit {
     // Removes the instance if it was cached.
     Self.cachedInstances.withLock { value in
-      value.removeValue(forKey: id)
+      Self.removeCachedInstance(id: id, instance: self, from: &value)
     }
   }
 
