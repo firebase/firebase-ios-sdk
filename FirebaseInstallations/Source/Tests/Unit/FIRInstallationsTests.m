@@ -15,6 +15,7 @@
  */
 
 #import <XCTest/XCTest.h>
+#import <Security/Security.h>
 
 #import <OCMock/OCMock.h>
 
@@ -28,6 +29,7 @@
 #import "FirebaseInstallations/Source/Library/Errors/FIRInstallationsHTTPError.h"
 #import "FirebaseInstallations/Source/Library/FIRInstallationsAuthTokenResultInternal.h"
 #import "FirebaseInstallations/Source/Library/InstallationsIDController/FIRInstallationsIDController.h"
+#import "FirebaseInstallations/Source/Library/IIDMigration/FIRInstallationsIIDStore.h"
 #import "FirebaseInstallations/Source/Library/InstallationsStore/FIRInstallationsStoredAuthToken.h"
 #import "FirebaseInstallations/Source/Library/Public/FirebaseInstallations/FIRInstallations.h"
 
@@ -37,7 +39,22 @@
 @property(nonatomic) FIROptions *appOptions;
 @end
 
+@interface FIRInstallationsIIDStore (Tests)
+- (NSDictionary *)keyQueryForKeyWithTagPrefix:(NSString *)tagPrefix;
+@end
+
 @implementation FIRInstallationsTests
+
+- (void)testIIDKeyQueryUsesRequestedTagPrefix {
+  FIRInstallationsIIDStore *IIDStore = [[FIRInstallationsIIDStore alloc] init];
+  NSString *privateTagPrefix = @"com.google.iid.keypair.private-";
+  NSDictionary *query = [IIDStore keyQueryForKeyWithTagPrefix:privateTagPrefix];
+  NSData *tagData = query[(__bridge id)kSecAttrApplicationTag];
+  NSString *tag = [[NSString alloc] initWithData:tagData encoding:NSUTF8StringEncoding];
+
+  XCTAssertTrue([tag hasPrefix:privateTagPrefix]);
+  XCTAssertFalse([tag containsString:@"keypair.public-"]);
+}
 
 - (void)setUp {
   [super setUp];

@@ -1,4 +1,5 @@
 # 12.16.0
+- [fixed] Delete the legacy Firebase Instance ID private key during IID migration cleanup.
 - [changed] Changed error message for missing `FirebaseApp.configure()` to
   properly articulate supported methods. (#16294)
 
