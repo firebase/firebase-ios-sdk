@@ -25,6 +25,7 @@
 #include "Firestore/core/src/local/leveldb_key.h"
 #include "Firestore/core/src/local/leveldb_persistence.h"
 #include "Firestore/core/src/local/reference_set.h"
+#include "Firestore/core/src/model/field_index.h"
 #include "Firestore/core/src/nanopb/byte_string.h"
 #include "Firestore/core/src/nanopb/message.h"
 #include "Firestore/core/src/nanopb/reader.h"
@@ -33,6 +34,7 @@
 #include "Firestore/core/test/unit/local/mutation_queue_test.h"
 #include "Firestore/core/test/unit/local/persistence_testing.h"
 #include "Firestore/core/test/unit/testutil/status_testing.h"
+#include "Firestore/core/test/unit/testutil/testutil.h"
 #include "absl/strings/string_view.h"
 #include "gtest/gtest.h"
 #include "leveldb/db.h"
@@ -52,6 +54,7 @@ using nanopb::ByteString;
 using nanopb::Message;
 using nanopb::StringReader;
 using nanopb::StringWriter;
+using testutil::MakeFieldIndex;
 using util::OrderedCode;
 
 // A dummy mutation value, useful for testing code that's known to examine only
@@ -156,6 +159,31 @@ TEST_F(LevelDbMutationQueueTest, LoadNextBatchIdOnlyFindsMutations) {
   // None of the higher tables should match -- this is the only entry that's in
   // the mutations table
   ASSERT_EQ(LoadNextBatchIdFromDb(db_), 4);
+}
+
+TEST_F(LevelDbMutationQueueTest,
+       LoadNextBatchIdIncludesLargestIndexedBatchIdAcrossUsers) {
+  persistence_->Run("AddIndexAndRestartMutationQueue", [&] {
+    auto* index_manager = persistence_->GetIndexManager(User("user"));
+    index_manager->Start();
+    index_manager->AddFieldIndex(
+        MakeFieldIndex("coll", "a", model::Segment::Kind::kAscending));
+    index_manager->UpdateCollectionGroup(
+        "coll", model::IndexOffset(model::SnapshotVersion::None(),
+                                   model::DocumentKey::Empty(), 20));
+
+    auto* other_user_index_manager =
+        persistence_->GetIndexManager(User("other-user"));
+    other_user_index_manager->Start();
+    other_user_index_manager->UpdateCollectionGroup(
+        "coll", model::IndexOffset(model::SnapshotVersion::None(),
+                                   model::DocumentKey::Empty(), 40));
+
+    // Re-starting models recreating the queue after the database has been
+    // reopened with no outstanding mutation batches.
+    mutation_queue_->Start();
+    ASSERT_EQ(AddMutationBatch().batch_id(), 41);
+  });
 }
 
 TEST_F(LevelDbMutationQueueTest, EmptyProtoCanBeUpgraded) {

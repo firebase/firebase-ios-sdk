@@ -16,6 +16,8 @@
 
 #include "Firestore/core/src/local/leveldb_mutation_queue.h"
 
+#include <algorithm>
+#include <limits>
 #include <memory>
 #include <optional>
 #include <utility>
@@ -32,6 +34,7 @@
 #include "Firestore/core/src/model/resource_path.h"
 #include "Firestore/core/src/nanopb/nanopb_util.h"
 #include "Firestore/core/src/nanopb/reader.h"
+#include "Firestore/core/src/util/hard_assert.h"
 #include "Firestore/core/src/util/string_util.h"
 #include "Firestore/core/src/util/to_string.h"
 #include "absl/strings/match.h"
@@ -122,12 +125,14 @@ BatchId LoadNextBatchIdFromDb(DB* db) {
     }
   }
 
+  HARD_ASSERT(max_batch_id < std::numeric_limits<BatchId>::max(),
+              "Mutation batch ID space exhausted");
   return max_batch_id + 1;
 }
 
 LevelDbMutationQueue::LevelDbMutationQueue(const User& user,
                                            LevelDbPersistence* db,
-                                           IndexManager* index_manager,
+                                           LevelDbIndexManager* index_manager,
                                            LocalSerializer* serializer)
     : db_(NOT_NULL(db)),
       index_manager_(NOT_NULL(index_manager)),
@@ -137,6 +142,16 @@ LevelDbMutationQueue::LevelDbMutationQueue(const User& user,
 
 void LevelDbMutationQueue::Start() {
   next_batch_id_ = LoadNextBatchIdFromDb(db_->ptr());
+  // Batch IDs are global. Index offsets are persisted per user and can outlive
+  // all acknowledged batches in the mutation queue, so include their global
+  // high-water mark when restoring the next ID.
+  const BatchId highest_indexed_batch_id =
+      index_manager_->GetHighestBatchIdAcrossUsers();
+  if (highest_indexed_batch_id >= 0) {
+    HARD_ASSERT(highest_indexed_batch_id < std::numeric_limits<BatchId>::max(),
+                "Mutation batch ID space exhausted");
+    next_batch_id_ = std::max(next_batch_id_, highest_indexed_batch_id + 1);
+  }
   metadata_ = MetadataForKey(mutation_queue_key());
 }
 
@@ -162,6 +177,8 @@ MutationBatch LevelDbMutationQueue::AddMutationBatch(
     const Timestamp& local_write_time,
     std::vector<Mutation>&& base_mutations,
     std::vector<Mutation>&& mutations) {
+  HARD_ASSERT(next_batch_id_ < std::numeric_limits<BatchId>::max(),
+              "Mutation batch ID space exhausted");
   BatchId batch_id = next_batch_id_;
   next_batch_id_++;
 

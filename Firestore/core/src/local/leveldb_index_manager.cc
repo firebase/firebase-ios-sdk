@@ -440,6 +440,26 @@ std::vector<model::FieldIndex> LevelDbIndexManager::GetFieldIndexes() const {
   return result;
 }
 
+model::BatchId LevelDbIndexManager::GetHighestBatchIdAcrossUsers() const {
+  model::BatchId highest_batch_id = model::IndexOffset::InitialLargestBatchId();
+  const auto state_key_prefix = LevelDbIndexStateKey::KeyPrefix();
+  auto state_iter = db_->current_transaction()->NewIterator();
+  LevelDbIndexStateKey state_key;
+  for (state_iter->Seek(state_key_prefix);
+       state_iter->Valid() &&
+       absl::StartsWith(state_iter->key(), state_key_prefix);
+       state_iter->Next()) {
+    if (!state_key.Decode(state_iter->key())) {
+      break;
+    }
+    highest_batch_id = std::max(
+        highest_batch_id, DecodeIndexState(state_iter->value())
+                             .index_offset()
+                             .largest_batch_id());
+  }
+  return highest_batch_id;
+}
+
 std::optional<model::FieldIndex> LevelDbIndexManager::GetFieldIndex(
     const core::Target& target) const {
   HARD_ASSERT(started_, "IndexManager not started");
