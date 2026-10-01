@@ -63,7 +63,9 @@ final class History: Sendable {
     // Loop through all the parts, aggregating the text.
     for part in chunks.flatMap({ $0.internalParts }) {
       // Only text parts may be combined.
-      if case let .text(text) = part.data, part.thoughtSignature == nil {
+      if case let .text(text) = part.data,
+         part.thoughtSignature == nil,
+         part.speechMetadata == nil {
         // Thought summaries must not be combined with regular text.
         if part.isThought ?? false {
           // If we were combining regular text, flush it before handling "thoughts".

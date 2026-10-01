@@ -55,8 +55,14 @@ struct InternalPart: Equatable, Sendable {
 
   let thoughtSignature: String?
 
-  init(_ data: OneOfData, isThought: Bool?, thoughtSignature: String?) {
+  let speechMetadata: SpeechMetadata?
+
+  init(_ data: OneOfData,
+       speechMetadata: SpeechMetadata? = nil,
+       isThought: Bool? = nil,
+       thoughtSignature: String? = nil) {
     self.data = data
+    self.speechMetadata = speechMetadata
     self.isThought = isThought
     self.thoughtSignature = thoughtSignature
   }
@@ -75,7 +81,12 @@ public struct ModelContent: Equatable, Sendable {
     return internalParts.compactMap { part -> (any Part)? in
       switch part.data {
       case let .text(text):
-        return TextPart(text, isThought: part.isThought, thoughtSignature: part.thoughtSignature)
+        return TextPart(
+          text,
+          speechMetadata: part.speechMetadata,
+          isThought: part.isThought,
+          thoughtSignature: part.thoughtSignature
+        )
       case let .inlineData(inlineData):
         return InlineDataPart(
           inlineData, isThought: part.isThought, thoughtSignature: part.thoughtSignature
@@ -121,6 +132,7 @@ public struct ModelContent: Equatable, Sendable {
       case let textPart as TextPart:
         convertedParts.append(InternalPart(
           .text(textPart.text),
+          speechMetadata: textPart.speechMetadata,
           isThought: textPart._isThought,
           thoughtSignature: textPart.thoughtSignature
         ))
@@ -187,6 +199,7 @@ extension InternalPart: Codable {
   enum CodingKeys: String, CodingKey {
     case isThought = "thought"
     case thoughtSignature
+    case speechMetadata
   }
 
   public func encode(to encoder: Encoder) throws {
@@ -194,6 +207,7 @@ extension InternalPart: Codable {
     var container = encoder.container(keyedBy: CodingKeys.self)
     try container.encodeIfPresent(isThought, forKey: .isThought)
     try container.encodeIfPresent(thoughtSignature, forKey: .thoughtSignature)
+    try container.encodeIfPresent(speechMetadata, forKey: .speechMetadata)
   }
 
   public init(from decoder: Decoder) throws {
@@ -208,6 +222,7 @@ extension InternalPart: Codable {
     let container = try decoder.container(keyedBy: CodingKeys.self)
     isThought = try container.decodeIfPresent(Bool.self, forKey: .isThought)
     thoughtSignature = try container.decodeIfPresent(String.self, forKey: .thoughtSignature)
+    speechMetadata = try container.decodeIfPresent(SpeechMetadata.self, forKey: .speechMetadata)
   }
 }
 

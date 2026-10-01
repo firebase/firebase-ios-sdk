@@ -31,18 +31,22 @@ public struct TextPart: Part {
   /// Text value.
   public let text: String
 
+  public let speechMetadata: SpeechMetadata?
+
   public var isThought: Bool { _isThought ?? false }
 
   let thoughtSignature: String?
 
   let _isThought: Bool?
 
-  public init(_ text: String) {
-    self.init(text, isThought: nil, thoughtSignature: nil)
+  public init(_ text: String, speechMetadata: SpeechMetadata? = nil) {
+    self.init(text, speechMetadata: speechMetadata, isThought: nil, thoughtSignature: nil)
   }
 
-  init(_ text: String, isThought: Bool?, thoughtSignature: String?) {
+  init(_ text: String, speechMetadata: SpeechMetadata? = nil, isThought: Bool? = nil,
+       thoughtSignature: String? = nil) {
     self.text = text
+    self.speechMetadata = speechMetadata
     _isThought = isThought
     self.thoughtSignature = thoughtSignature
   }
