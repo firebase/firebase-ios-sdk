@@ -1,4 +1,6 @@
 # 13.0.0
+- [fixed] Preserve the 256-character limit when truncating rollout parameter values
+  containing multibyte characters.
 - [fixed] Safely validate memory reads when executing `DW_OP_deref_size`
   operations during DWARF stack unwinding (#16550).
 - [fixed] Fixed an issue casuing a crash while symbolicating stack frames if the binary image path is null. (#16622)
