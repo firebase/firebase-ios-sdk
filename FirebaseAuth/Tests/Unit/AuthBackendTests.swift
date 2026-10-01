@@ -772,7 +772,7 @@ class AuthBackendTests: RPCBaseTests {
         )
       }
       do {
-        let _ = try await authBackend.call(with: request)
+        _ = try await authBackend.call(with: request)
         XCTFail("Expected to throw")
       } catch {
         let rpcError = error as NSError
