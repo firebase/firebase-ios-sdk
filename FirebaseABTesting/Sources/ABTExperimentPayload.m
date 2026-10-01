@@ -70,7 +70,6 @@ static int64_t ABTInt64Value(id _Nullable value) {
   dispatch_once(&onceToken, ^{
     dateFormatter = [[NSDateFormatter alloc] init];
     [dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"];
-    [dateFormatter setTimeZone:[NSTimeZone timeZoneForSecondsFromGMT:0]];
     // Locale needs to be hardcoded. See
     // https://developer.apple.com/library/ios/#qa/qa1480/_index.html for more details.
     [dateFormatter setLocale:[[NSLocale alloc] initWithLocaleIdentifier:@"en_US_POSIX"]];
