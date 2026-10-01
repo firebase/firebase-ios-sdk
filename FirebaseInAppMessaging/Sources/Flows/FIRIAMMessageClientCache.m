@@ -230,7 +230,7 @@
           [self.responseParser parseAPIResponseDictionary:response
                                         discardedMsgCount:&discardCount
                                    fetchWaitTimeInSeconds:&fetchWaitTime];
-      [self setMessageData:messagesFromStorage];
+      [self setMessageData:messagesFromStorage ?: @[]];
       completion(YES);
     } else {
       completion(NO);

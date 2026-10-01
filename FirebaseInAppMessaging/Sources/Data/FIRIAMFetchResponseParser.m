@@ -49,9 +49,10 @@ static NSString *_Nullable FIRIAMStringOrNil(id _Nullable value) {
   return self;
 }
 
-- (NSArray<FIRIAMMessageDefinition *> *)parseAPIResponseDictionary:(NSDictionary *)responseDict
-                                                 discardedMsgCount:(NSInteger *)discardCount
-                                            fetchWaitTimeInSeconds:(NSNumber **)fetchWaitTime {
+- (nullable NSArray<FIRIAMMessageDefinition *> *)
+    parseAPIResponseDictionary:(NSDictionary *)responseDict
+             discardedMsgCount:(NSInteger *)discardCount
+        fetchWaitTimeInSeconds:(NSNumber **)fetchWaitTime {
   if (fetchWaitTime != nil) {
     *fetchWaitTime = nil;  // It would be set to non nil value if it's detected in responseDict
   }
