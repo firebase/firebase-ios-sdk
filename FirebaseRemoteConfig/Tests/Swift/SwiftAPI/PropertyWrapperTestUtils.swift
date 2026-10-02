@@ -24,7 +24,6 @@
 /// value anywhere else makes SwiftUI create a new observable for each read and report a runtime
 /// warning, which XCTest detects as a runtime issue. Create the observable the same way
 /// `RemoteConfigProperty` does and read its value instead.
-@available(iOS 14.0, macOS 11.0, macCatalyst 14.0, tvOS 14.0, watchOS 7.0, *)
 func remoteConfigPropertyValue<T: Decodable>(_ type: T.Type, key: String, fallback: T) -> T {
   RemoteConfigValueObservable(key: key, fallbackValue: fallback).configValue
 }
