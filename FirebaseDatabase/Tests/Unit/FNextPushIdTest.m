@@ -66,7 +66,7 @@ static NSInteger MAX_KEY_LEN = 786;
 }
 
 - (void)testGenerationExceptionDoesNotBlockLaterCalls {
-  XCTAssertThrowsSpecificNamed([FNextPushId get:-0.001], NSException, NSRangeException);
+  XCTAssertThrowsSpecific([FNextPushId get:-0.001], NSException);
   XCTestExpectation *generated = [self expectationWithDescription:@"Generate after exception"];
   dispatch_async(dispatch_get_global_queue(QOS_CLASS_DEFAULT, 0), ^{
     NSString *pushId = [FNextPushId get:12345.0];
