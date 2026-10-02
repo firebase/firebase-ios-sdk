@@ -63,11 +63,11 @@ class RemoteConfigValueObservable<T: Decodable>: ObservableObject {
   /// has neither or its value can't be decoded.
   private func updateConfigValue() {
     do {
-      let configValue: RemoteConfigValue = remoteConfig[key]
-      if configValue.source == .remote || configValue.source == .default {
-        self.configValue = try configValue.decoded()
+      let remoteValue: RemoteConfigValue = remoteConfig[key]
+      if remoteValue.source == .remote || remoteValue.source == .default {
+        configValue = try remoteValue.decoded()
       } else {
-        self.configValue = fallbackValue
+        configValue = fallbackValue
       }
     } catch {
       configValue = fallbackValue
