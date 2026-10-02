@@ -1,3 +1,8 @@
+# Unreleased
+- [fixed] Ignore malformed realtime server push, control, and handshake
+  messages instead of crashing when a frame or one of its fields has an
+  unexpected JSON type.
+
 # 12.19.0
 - [fixed] Reconnect after significant system clock changes so that
   `.info/serverTimeOffset` is refreshed. (#363)

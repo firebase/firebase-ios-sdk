@@ -144,9 +144,18 @@ typedef enum {
 // Corresponds to onMessageReceived in JS
 - (void)onMessage:(FWebSocketConnection *)fwebSocket
       withMessage:(NSDictionary *)message {
+    // The frame is parsed straight from server JSON, so its top-level type is
+    // whatever the server sent. A non-object frame (e.g. a JSON array) does not
+    // respond to -objectForKey: and would crash the client, so ignore it.
+    if (![message isKindOfClass:[NSDictionary class]]) {
+        FFWarn(@"I-RDB082016",
+               @"Ignoring server message that is not a JSON object: %@",
+               message);
+        return;
+    }
     NSString *rawMessageType =
         [message objectForKey:kFWPAsyncServerEnvelopeType];
-    if (rawMessageType != nil) {
+    if ([rawMessageType isKindOfClass:[NSString class]]) {
         if ([rawMessageType isEqualToString:kFWPAsyncServerDataMessage]) {
             [self onDataMessage:[message
                                     objectForKey:kFWPAsyncServerEnvelopeData]];
@@ -171,7 +180,23 @@ typedef enum {
 
 - (void)onControl:(NSDictionary *)message {
     FFLog(@"I-RDB082011", @"Got control message: %@", message);
+    // The control envelope's data field is server-controlled; ignore it when it
+    // is not a JSON object, otherwise -objectForKey: below crashes the client.
+    if (![message isKindOfClass:[NSDictionary class]]) {
+        FFLog(@"I-RDB082017",
+              @"Ignoring control message that is not a JSON object: %@",
+              message);
+        return;
+    }
     NSString *type = [message objectForKey:kFWPAsyncServerControlMessageType];
+    if (![type isKindOfClass:[NSString class]]) {
+        // Treat a missing or non-string type like any other unrecognized
+        // control message: log and ignore it. A stray control frame does not
+        // block the connection, so there is no need to tear it down.
+        FFLog(@"I-RDB082019",
+              @"Ignoring control message with non-string type: %@", message);
+        return;
+    }
     if ([type isEqualToString:kFWPAsyncServerControlMessageShutdown]) {
         NSString *reason =
             [message objectForKey:kFWPAsyncServerControlMessageData];
@@ -199,12 +224,34 @@ typedef enum {
 }
 
 - (void)onHandshake:(NSDictionary *)handshake {
+    // The handshake is what moves the connection into the connected state, so a
+    // malformed one cannot simply be ignored: that would leave the client stuck
+    // in the connecting state with no handshake timeout to recover it. Close
+    // the connection instead and let the normal retry/backoff logic reconnect.
+    if (![handshake isKindOfClass:[NSDictionary class]]) {
+        FFWarn(@"I-RDB082018",
+               @"Closing connection: handshake is not a JSON object: %@",
+               handshake);
+        [self close];
+        return;
+    }
     NSNumber *timestamp =
         [handshake objectForKey:kFWPAsyncServerHelloTimestamp];
     //    NSString* version = [handshake
     //    objectForKey:kFWPAsyncServerHelloVersion];
     NSString *host = [handshake objectForKey:kFWPAsyncServerHelloConnectedHost];
     NSString *sessionID = [handshake objectForKey:kFWPAsyncServerHelloSession];
+    // The timestamp is used as a number and the host/session are used as
+    // strings, so reject the handshake if any of them has an unexpected type.
+    if (![timestamp isKindOfClass:[NSNumber class]] ||
+        (host != nil && ![host isKindOfClass:[NSString class]]) ||
+        (sessionID != nil && ![sessionID isKindOfClass:[NSString class]])) {
+        FFWarn(@"I-RDB082020",
+               @"Closing connection: handshake has malformed fields: %@",
+               handshake);
+        [self close];
+        return;
+    }
 
     self.repoInfo.internalHost = host;
 
@@ -228,7 +275,12 @@ typedef enum {
         @"I-RDB082015",
         @"Got a reset; killing connection to: %@; Updating internalHost to: %@",
         repoInfo.internalHost, host);
-    self.repoInfo.internalHost = host;
+    // The reset host is server-controlled; only cache it when it is actually a
+    // string, otherwise it would be stored in NSUserDefaults and later crash
+    // the string accessors on FRepoInfo.
+    if ([host isKindOfClass:[NSString class]]) {
+        self.repoInfo.internalHost = host;
+    }
 
     // Explicitly close the connection with SERVER_RESET so calling code knows
     // to reconnect immediately.
