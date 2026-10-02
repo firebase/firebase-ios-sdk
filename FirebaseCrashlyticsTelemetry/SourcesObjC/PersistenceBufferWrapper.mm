@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "PersistenceBufferWrapper.h"
-#import "PersistenceSpan+Internal.h"
+#import "FirebaseCrashlyticsTelemetry/SourcesObjC/PersistenceBufferWrapper.h"
+#import "FirebaseCrashlyticsTelemetry/SourcesObjC/PersistenceSpan+Internal.h"
 
 #include <memory>
 #include <string>

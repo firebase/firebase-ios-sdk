@@ -15,7 +15,7 @@
 import Foundation
 import OpenTelemetryApi
 import OpenTelemetrySdk
-import PersistenceWrapper
+internal import PersistenceWrapper
 
 /// A thread-safe interface for the native persistence layer.
 actor PersistenceManager {
