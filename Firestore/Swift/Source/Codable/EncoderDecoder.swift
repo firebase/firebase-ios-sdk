@@ -80,6 +80,21 @@ public extension Firestore {
     public var userInfo: [CodingUserInfoKey: Any] = [:]
 
     public func decode<T: Decodable>(_ t: T.Type, from data: Any) throws -> T {
+      return try decode(t, from: data, userInfo: userInfo)
+    }
+
+    public func decode<T: Decodable>(_ t: T.Type, from data: Any,
+                                     in reference: DocumentReference?) throws -> T {
+      // Scope the reference to this call so that it isn't reused by later calls.
+      var userInfo = self.userInfo
+      if let reference {
+        userInfo[CodingUserInfoKey.documentRefUserInfoKey] = reference
+      }
+      return try decode(T.self, from: data, userInfo: userInfo)
+    }
+
+    private func decode<T: Decodable>(_ t: T.Type, from data: Any,
+                                      userInfo: [CodingUserInfoKey: Any]) throws -> T {
       let decoder = FirebaseDataDecoder()
       decoder.dateDecodingStrategy = dateDecodingStrategy
       decoder.dataDecodingStrategy = dataDecodingStrategy
@@ -89,14 +104,6 @@ public extension Firestore {
       decoder.userInfo = userInfo
       // configure for firestore
       return try decoder.decode(t, from: data)
-    }
-
-    public func decode<T: Decodable>(_ t: T.Type, from data: Any,
-                                     in reference: DocumentReference?) throws -> T {
-      if let reference {
-        userInfo[CodingUserInfoKey.documentRefUserInfoKey] = reference
-      }
-      return try decode(T.self, from: data)
     }
 
     public init() {}
