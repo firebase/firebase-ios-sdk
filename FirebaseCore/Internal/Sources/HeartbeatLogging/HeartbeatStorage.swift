@@ -99,8 +99,11 @@ final class HeartbeatStorage: Sendable, HeartbeatStorageProtocol {
     cacheIdentity: UUID,
     from cachedInstances: inout [String: HeartbeatStorageCacheEntry]
   ) {
-    guard cachedInstances[id]?.cacheIdentity == cacheIdentity else { return }
-    cachedInstances.removeValue(forKey: id)
+    guard let cachedIndex = cachedInstances.index(forKey: id),
+          cachedInstances[cachedIndex].value.cacheIdentity == cacheIdentity else {
+      return
+    }
+    cachedInstances.remove(at: cachedIndex)
   }
 
   /// Makes a `HeartbeatStorage` instance using a given `String` identifier.
