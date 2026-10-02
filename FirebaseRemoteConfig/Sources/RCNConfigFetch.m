@@ -562,22 +562,24 @@ static NSInteger const kRCNFetchResponseHTTPStatusCodeGatewayTimeout = 504;
       if (fetchedConfig && fetchedConfig.count == 1 && fetchedConfig[RCNFetchResponseKeyError]) {
         NSString *errStr = [NSString stringWithFormat:@"RCN Fetch Failure: Server returned error:"];
         NSDictionary *errDict = fetchedConfig[RCNFetchResponseKeyError];
-        if (errDict[RCNFetchResponseKeyErrorCode]) {
-          errStr = [errStr
-              stringByAppendingString:[NSString
-                                          stringWithFormat:@"code: %@",
-                                                           errDict[RCNFetchResponseKeyErrorCode]]];
-        }
-        if (errDict[RCNFetchResponseKeyErrorStatus]) {
-          errStr = [errStr stringByAppendingString:
-                               [NSString stringWithFormat:@". Status: %@",
-                                                          errDict[RCNFetchResponseKeyErrorStatus]]];
-        }
-        if (errDict[RCNFetchResponseKeyErrorMessage]) {
-          errStr =
-              [errStr stringByAppendingString:
-                          [NSString stringWithFormat:@". Message: %@",
-                                                     errDict[RCNFetchResponseKeyErrorMessage]]];
+        if ([errDict isKindOfClass:[NSDictionary class]]) {
+          if (errDict[RCNFetchResponseKeyErrorCode]) {
+            errStr = [errStr
+                stringByAppendingString:
+                    [NSString stringWithFormat:@"code: %@", errDict[RCNFetchResponseKeyErrorCode]]];
+          }
+          if (errDict[RCNFetchResponseKeyErrorStatus]) {
+            errStr =
+                [errStr stringByAppendingString:
+                            [NSString stringWithFormat:@". Status: %@",
+                                                       errDict[RCNFetchResponseKeyErrorStatus]]];
+          }
+          if (errDict[RCNFetchResponseKeyErrorMessage]) {
+            errStr =
+                [errStr stringByAppendingString:
+                            [NSString stringWithFormat:@". Message: %@",
+                                                       errDict[RCNFetchResponseKeyErrorMessage]]];
+          }
         }
         FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000044", @"%@.", errStr);
         NSError *error = [NSError errorWithDomain:FIRRemoteConfigErrorDomain

@@ -146,6 +146,34 @@ extern const NSTimeInterval kDatabaseLoadTimeoutSecs;
                         @"value2");
 }
 
+/// A fetch response whose nested fields have unexpected JSON types must not crash the parser.
+- (void)testUpdateConfigContentWithMalformedResponseDoesNotCrash {
+  // Non-string `state` must not reach -isEqualToString:.
+  [_configContent updateConfigContentWithResponse:@{@"state" : @5}
+                                     forNamespace:_namespaceGoogleMobilePlatform];
+
+  // state == UPDATE with a non-dictionary `entries` must not be fast-enumerated.
+  [_configContent
+      updateConfigContentWithResponse:@{@"state" : @"UPDATE", @"entries" : @"not-a-dict"}
+                         forNamespace:_namespaceGoogleMobilePlatform];
+
+  // A non-string entry value must not reach -dataUsingEncoding:.
+  [_configContent
+      updateConfigContentWithResponse:@{@"state" : @"UPDATE", @"entries" : @{@"key1" : @7}}
+                         forNamespace:_namespaceGoogleMobilePlatform];
+
+  // A well-formed value alongside a bad one is still stored.
+  [_configContent updateConfigContentWithResponse:@{
+    @"state" : @"UPDATE",
+    @"entries" : @{@"key1" : @7, @"key2" : @"value2"}
+  }
+                                     forNamespace:_namespaceGoogleMobilePlatform];
+  NSDictionary *fetchedConfig = _configContent.fetchedConfig;
+  XCTAssertNil(fetchedConfig[_namespaceGoogleMobilePlatform][@"key1"]);
+  XCTAssertEqualObjects([fetchedConfig[_namespaceGoogleMobilePlatform][@"key2"] stringValue],
+                        @"value2");
+}
+
 /// Verify that fetchedConfig is overwritten for a new fetch call.
 - (void)testUpdateConfigContentWithStatusUpdateWithDifferentKeys {
   NSMutableDictionary *configToSet =
