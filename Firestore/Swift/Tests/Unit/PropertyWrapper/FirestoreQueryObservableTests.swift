@@ -125,8 +125,9 @@ private func deliver(_ snapshot: QuerySnapshot) throws {
 // MARK: - Tests
 
 // Each test swaps the listener implementation only around synchronous code, so that no other
-// test can observe the swapped implementation.
-@Suite("FirestoreQueryObservable Tests")
+// test can observe the swapped implementation. The suite is also serialized, so that its tests
+// can't overlap even if one of them awaits while the implementation is swapped.
+@Suite("FirestoreQueryObservable Tests", .serialized)
 struct FirestoreQueryObservableTests {
   @MainActor
   @Test("Array results are cleared after a decoding failure with the .raise strategy")
