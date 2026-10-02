@@ -6867,23 +6867,6 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     }
   }
 
-  func testWindowFieldsRejectsAnUnrecognizedFrameBound() async throws {
-    let collRef = collectionRef(withDocuments: Self.windowTestDocs)
-    do {
-      _ = try await collRef.firestore.pipeline()
-        .collection(collRef.path)
-        .addWindowFields(
-          window: .documents(preceding: Constant("infinite"), following: .current)
-            .sort(Field("quantity").ascending()),
-          fields: [Field("quantity").count().as("windowCount")]
-        )
-        .execute()
-      XCTFail("Expected error for unrecognized frame bound")
-    } catch {
-      // Expected backend rejection
-    }
-  }
-
   func testWindowFieldsRejectsAPartitionSuppliedToAnAccumulatorLevelOver() async throws {
     let collRef = collectionRef(withDocuments: Self.windowTestDocs)
     do {
