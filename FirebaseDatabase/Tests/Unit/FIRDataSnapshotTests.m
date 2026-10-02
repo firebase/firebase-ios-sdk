@@ -211,14 +211,14 @@
     @"z" : @{@".value" : @"value-z", @".priority" : @1}
   }];
 
-  NSString *expectedHashRepresentation = [NSString
-      stringWithFormat:@":z:%@:a:%@",
-                       [[node getImmediateChild:@"z"] dataHash],
-                       [[node getImmediateChild:@"a"] dataHash]];
-  NSString *expectedHash =
-      [FStringUtilities base64EncodedSha1:expectedHashRepresentation];
+  NSString* expectedHashRepresentation =
+      [NSString stringWithFormat:@":z:%@:a:%@", [[node getImmediateChild:@"z"] dataHash],
+                                 [[node getImmediateChild:@"a"] dataHash]];
+  NSString* expectedHash = [FStringUtilities base64EncodedSha1:expectedHashRepresentation];
 
   XCTAssertEqualObjects(expectedHash, [node dataHash]);
+  // Literal computed with the JS SDK's hash algorithm, independently of iOS child hashes.
+  XCTAssertEqualObjects(@"ioxrlJO1lx052It4dFes/dAFe9Y=", [node dataHash]);
 }
 
 - (void)testGetPredecessorChild {

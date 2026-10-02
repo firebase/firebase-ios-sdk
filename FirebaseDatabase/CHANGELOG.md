@@ -1,6 +1,8 @@
+# Unreleased
+- [fixed] Fixed an issue where transactions could fail with a maxretry error when
+  every child of a node had a priority. (#16769)
+
 # 12.19.0
-- [fixed] Use priority order when hashing nodes whose children all have
-  priorities, matching the Realtime Database transaction hash algorithm.
 - [fixed] Reconnect after significant system clock changes so that
   `.info/serverTimeOffset` is refreshed. (#363)
 
