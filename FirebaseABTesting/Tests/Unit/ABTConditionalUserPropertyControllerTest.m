@@ -265,7 +265,7 @@ typedef void (^FakeAnalyticsLogEventWithOriginNameParametersHandler)(
 
   FIRLifecycleEvents *events = [[FIRLifecycleEvents alloc] init];
   events.activateExperimentEventName = @"_lifecycle_override_activate";
-  events.expireExperimentEventName = @"lifecycle_override_time_to_live";
+  events.expireExperimentEventName = @"_lifecycle_override_time_to_live";
 
   NSDictionary<NSString *, id> *experiment =
       [_ABTCUPController createExperimentFromOrigin:gABTTestOrigin payload:payload events:events];
@@ -292,7 +292,7 @@ typedef void (^FakeAnalyticsLogEventWithOriginNameParametersHandler)(
   NSDictionary<NSString *, id> *expiredEvent = [experiment objectForKey:@"expiredEvent"];
   XCTAssertEqualObjects(gABTTestOrigin, expiredEvent[@"origin"]);
   XCTAssertEqualObjects(
-      @"lifecycle_override_time_to_live", expiredEvent[@"name"],
+      @"_lifecycle_override_time_to_live", expiredEvent[@"name"],
       @"payload doesn't have expiry event name, but lifecycle event does, use lifecycle event");
 
   // Trigger event name
