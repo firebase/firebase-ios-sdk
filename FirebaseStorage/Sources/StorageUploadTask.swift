@@ -76,6 +76,8 @@ import Foundation
       if !shouldProceed {
         if let failureSnapshot {
           self.finishTaskWithStatus(status: .failure, snapshot: failureSnapshot)
+        } else {
+          notifySetupDiscardedForTesting()
         }
         return
       }
@@ -86,7 +88,7 @@ import Foundation
       Task {
         let fetcherService = await StorageFetcherService.shared.service(reference.storage)
         guard stateLock.withLock({ generation == enqueueGeneration }) else {
-          setupDiscardedHandlerForTesting?()
+          notifySetupDiscardedForTesting()
           return
         }
         var request = self.baseRequest
@@ -179,6 +181,7 @@ import Foundation
           return true
         }
         if !shouldContinue {
+          notifySetupDiscardedForTesting()
           if isPaused {
             uploadFetcher.pauseFetching()
           } else {

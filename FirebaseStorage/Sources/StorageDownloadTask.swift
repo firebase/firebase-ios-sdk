@@ -168,7 +168,10 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement, @u
       state = .queueing
       return true
     }
-    if !shouldProceed { return }
+    if !shouldProceed {
+      notifySetupDiscardedForTesting()
+      return
+    }
 
     var request = baseRequest
     request.httpMethod = "GET"
@@ -184,7 +187,7 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement, @u
     } else {
       let fetcherService = await StorageFetcherService.shared.service(reference.storage)
       guard stateLock.withLock({ generation == enqueueGeneration }) else {
-        setupDiscardedHandlerForTesting?()
+        notifySetupDiscardedForTesting()
         return
       }
 
@@ -270,6 +273,7 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement, @u
       return true
     }
     if !shouldContinue {
+      notifySetupDiscardedForTesting()
       if isPausing {
         fetcher.resumeDataBlock = { [weak self] (data: Data) in
           guard let self = self else { return }

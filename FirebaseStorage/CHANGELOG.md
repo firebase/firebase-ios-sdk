@@ -1,6 +1,8 @@
-# 12.19.0
+# Unreleased
 - [fixed] Prevented duplicate upload and download requests when resuming a task before its initial
-  request setup has completed.
+  request setup has completed. (#16771)
+
+# 12.19.0
 - [fixed] Fixed an issue where constructing a download URL could fail or produce
   an invalid path if the storage bucket name contained special characters. (#16529)
 - [changed] Requests directed to the local emulator over a non-loopback HTTP connection
