@@ -1,3 +1,8 @@
+# Unreleased
+- [fixed] Fixed `Storage.hash` depending on `callbackQueue`, which made equal `Storage` and
+  `StorageReference` instances hash differently and changed their hashes when `callbackQueue`
+  was set, breaking lookups in sets and dictionaries. (#16794)
+
 # 12.19.0
 - [fixed] Fixed an issue where constructing a download URL could fail or produce
   an invalid path if the storage bucket name contained special characters. (#16529)
