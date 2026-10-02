@@ -51,6 +51,14 @@ public struct TextPart: Part {
 
   let _isThought: Bool?
 
+  /// Creates a text part with a string value.
+  ///
+  /// - Parameter text: The text string. For speech generation, this represents the verbatim transcript
+  ///   to be synthesized.
+  public init(_ text: String) {
+    self.init(text, speechMetadata: nil, isThought: nil, thoughtSignature: nil)
+  }
+
   /// Creates a text part with a string value and optional speech metadata.
   ///
   /// - Parameters:
@@ -62,8 +70,8 @@ public struct TextPart: Part {
     self.init(text, speechMetadata: speechMetadata, isThought: nil, thoughtSignature: nil)
   }
 
-  init(_ text: String, speechMetadata: SpeechMetadata? = nil, isThought: Bool? = nil,
-       thoughtSignature: String? = nil) {
+  init(_ text: String, speechMetadata: SpeechMetadata? = nil, isThought: Bool?,
+       thoughtSignature: String?) {
     self.text = text
     self.speechMetadata = speechMetadata
     _isThought = isThought

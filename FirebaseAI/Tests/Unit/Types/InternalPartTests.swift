@@ -573,7 +573,9 @@ final class InternalPartTests: XCTestCase {
   func testEncodeTextPartWithSpeechMetadata() throws {
     let part = InternalPart(
       .text("Have a wonderful day!"),
-      speechMetadata: SpeechMetadata(speaker: "Joe", style: "cheerful and friendly")
+      speechMetadata: SpeechMetadata(speaker: "Joe", style: "cheerful and friendly"),
+      isThought: nil,
+      thoughtSignature: nil
     )
 
     let jsonData = try encoder.encode(part)
@@ -593,7 +595,9 @@ final class InternalPartTests: XCTestCase {
   func testEncodeTextPartWithSpeechMetadata_speakerOnly() throws {
     let part = InternalPart(
       .text("How's it going today Jane?"),
-      speechMetadata: SpeechMetadata(speaker: "Joe")
+      speechMetadata: SpeechMetadata(speaker: "Joe"),
+      isThought: nil,
+      thoughtSignature: nil
     )
 
     let jsonData = try encoder.encode(part)
@@ -612,7 +616,9 @@ final class InternalPartTests: XCTestCase {
   func testEncodeTextPartWithSpeechMetadata_styleOnly() throws {
     let part = InternalPart(
       .text("Have a wonderful day!"),
-      speechMetadata: SpeechMetadata(style: "cheerful and friendly")
+      speechMetadata: SpeechMetadata(style: "cheerful and friendly"),
+      isThought: nil,
+      thoughtSignature: nil
     )
 
     let jsonData = try encoder.encode(part)

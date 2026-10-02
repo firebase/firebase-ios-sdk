@@ -59,8 +59,8 @@ struct InternalPart: Equatable, Sendable {
 
   init(_ data: OneOfData,
        speechMetadata: SpeechMetadata? = nil,
-       isThought: Bool? = nil,
-       thoughtSignature: String? = nil) {
+       isThought: Bool?,
+       thoughtSignature: String?) {
     self.data = data
     self.speechMetadata = speechMetadata
     self.isThought = isThought

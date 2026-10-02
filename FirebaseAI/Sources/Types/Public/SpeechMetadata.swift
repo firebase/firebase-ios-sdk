@@ -22,7 +22,7 @@
 ///
 /// For more details on speech generation, see the
 /// [Text-to-speech guide](https://firebase.google.com/docs/ai-logic/generate-speech).
-public struct SpeechMetadata: Sendable, Equatable {
+public struct SpeechMetadata: Sendable, Equatable, Hashable {
   /// The unique name or identifier of the speaker for multi-speaker synthesis.
   ///
   /// > Important: When using a multi-speaker configuration, `speaker` is required on every

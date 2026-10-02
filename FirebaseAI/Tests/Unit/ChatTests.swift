@@ -221,4 +221,39 @@ final class ChatTests: XCTestCase {
     XCTAssertEqual(part3.text, "Regular text B and C")
     XCTAssertNil(part3.speechMetadata)
   }
+
+  func testAggregatedChunks_adjacentSpeechMetadata_notCombined() throws {
+    let history = History(history: [])
+    let chunk1 = ModelContent(
+      role: "model",
+      parts: [
+        TextPart("First turn", speechMetadata: SpeechMetadata(speaker: "Joe", style: "cheerful")),
+      ]
+    )
+    let chunk2 = ModelContent(
+      role: "model",
+      parts: [
+        TextPart("Second turn", speechMetadata: SpeechMetadata(speaker: "Joe", style: "cheerful")),
+      ]
+    )
+    let chunk3 = ModelContent(
+      role: "model",
+      parts: [
+        TextPart("Third turn", speechMetadata: SpeechMetadata(speaker: "Jane", style: "calm")),
+      ]
+    )
+
+    let result = history.aggregatedChunks([chunk1, chunk2, chunk3])
+
+    XCTAssertEqual(result.parts.count, 3)
+    let part1 = try XCTUnwrap(result.parts[0] as? TextPart)
+    XCTAssertEqual(part1.text, "First turn")
+    XCTAssertEqual(part1.speechMetadata, SpeechMetadata(speaker: "Joe", style: "cheerful"))
+    let part2 = try XCTUnwrap(result.parts[1] as? TextPart)
+    XCTAssertEqual(part2.text, "Second turn")
+    XCTAssertEqual(part2.speechMetadata, SpeechMetadata(speaker: "Joe", style: "cheerful"))
+    let part3 = try XCTUnwrap(result.parts[2] as? TextPart)
+    XCTAssertEqual(part3.text, "Third turn")
+    XCTAssertEqual(part3.speechMetadata, SpeechMetadata(speaker: "Jane", style: "calm"))
+  }
 }

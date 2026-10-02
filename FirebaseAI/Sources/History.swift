@@ -81,7 +81,8 @@ final class History: Sendable {
           combinedText += text
         }
       } else {
-        // This is a non-combinable part (not text), flush any pending text.
+        // This is a non-combinable part (non-text, signed thought, or speech metadata), flush
+        // any pending text.
         flush()
         parts.append(part)
       }

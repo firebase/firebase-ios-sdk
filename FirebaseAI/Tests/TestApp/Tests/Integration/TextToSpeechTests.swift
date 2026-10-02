@@ -69,12 +69,13 @@ struct TextToSpeechTests {
 
     var receivedAudioDataCount = 0
     for try await chunk in responseStream {
-      if let candidate = chunk.candidates.first,
-         let audioPart = candidate.content.parts.first as? InlineDataPart {
+      guard let candidate = chunk.candidates.first else { continue }
+      if let audioPart = candidate.content.parts.first as? InlineDataPart {
         #expect(!audioPart.data.isEmpty)
         #expect(audioPart.mimeType == streamingMIMEType)
-        print(audioPart.mimeType)
         receivedAudioDataCount += audioPart.data.count
+      } else {
+        #expect(candidate.finishReason == .stop, "Unexpected non-audio chunk: \(candidate)")
       }
     }
     #expect(receivedAudioDataCount > 0)
@@ -117,11 +118,13 @@ struct TextToSpeechTests {
 
     var receivedAudioDataCount = 0
     for try await chunk in responseStream {
-      if let candidate = chunk.candidates.first,
-         let audioPart = candidate.content.parts.first as? InlineDataPart {
+      guard let candidate = chunk.candidates.first else { continue }
+      if let audioPart = candidate.content.parts.first as? InlineDataPart {
         #expect(!audioPart.data.isEmpty)
         #expect(audioPart.mimeType == streamingMIMEType)
         receivedAudioDataCount += audioPart.data.count
+      } else {
+        #expect(candidate.finishReason == .stop, "Unexpected non-audio chunk: \(candidate)")
       }
     }
     #expect(receivedAudioDataCount > 0)
@@ -195,11 +198,13 @@ struct TextToSpeechTests {
 
     var receivedAudioDataCount = 0
     for try await chunk in responseStream {
-      if let candidate = chunk.candidates.first,
-         let audioPart = candidate.content.parts.first as? InlineDataPart {
+      guard let candidate = chunk.candidates.first else { continue }
+      if let audioPart = candidate.content.parts.first as? InlineDataPart {
         #expect(!audioPart.data.isEmpty)
         #expect(audioPart.mimeType == streamingMIMEType)
         receivedAudioDataCount += audioPart.data.count
+      } else {
+        #expect(candidate.finishReason == .stop, "Unexpected non-audio chunk: \(candidate)")
       }
     }
     #expect(receivedAudioDataCount > 0)
@@ -228,14 +233,16 @@ struct TextToSpeechTests {
     let turn1 = TextPart("Hello!", speechMetadata: SpeechMetadata(speaker: "Speaker1"))
     let turn2 = TextPart("Hi!", speechMetadata: SpeechMetadata(speaker: "Speaker2"))
     let turn3 = TextPart("Hey!", speechMetadata: SpeechMetadata(speaker: "Speaker3"))
-    await #expect {
+    let error = try await #require(throws: GenerateContentError.self) {
       try await model.generateContent(turn1, turn2, turn3)
-    } throws: { error in
-      guard case let .internalError(underlyingError) = error as? GenerateContentError else {
-        return false
-      }
-      return String(describing: underlyingError)
-        .contains("the number of speaker_voice_configs must equal 2")
     }
+    guard case let .internalError(underlyingError) = error else {
+      Issue.record("Expected internalError; got \(error).")
+      return
+    }
+    #expect(
+      String(describing: underlyingError)
+        .contains("the number of speaker_voice_configs must equal 2")
+    )
   }
 }
