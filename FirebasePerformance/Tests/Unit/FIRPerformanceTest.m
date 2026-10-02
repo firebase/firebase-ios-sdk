@@ -222,8 +222,7 @@
   [self.performance setValue:@"updated" forAttribute:@"dim0"];
 
   XCTAssertEqual([self.performance valueForAttribute:@"dim0"], @"updated");
-  XCTAssertEqual(self.performance.attributes.count,
-                 (NSUInteger)kFPRMaxGlobalCustomAttributesCount);
+  XCTAssertEqual(self.performance.attributes.count, (NSUInteger)kFPRMaxGlobalCustomAttributesCount);
 }
 
 /** Validates if removing old attributes and adding new attributes work. */
@@ -244,8 +243,7 @@
     NSString *attribute = [NSString stringWithFormat:@"attribute_%lu", (unsigned long)index];
     [self.performance setValue:@"value" forAttribute:attribute];
   });
-  XCTAssertEqual(self.performance.attributes.count,
-                 (NSUInteger)kFPRMaxGlobalCustomAttributesCount);
+  XCTAssertEqual(self.performance.attributes.count, (NSUInteger)kFPRMaxGlobalCustomAttributesCount);
 
   dispatch_apply(200, queue, ^(size_t index) {
     NSUInteger attributeIndex = index % kFPRMaxGlobalCustomAttributesCount;

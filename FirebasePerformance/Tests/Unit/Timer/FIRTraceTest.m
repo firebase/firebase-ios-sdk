@@ -770,8 +770,7 @@
     NSString *attribute = [NSString stringWithFormat:@"attribute_%lu", (unsigned long)index];
     [trace setValue:@"value" forAttribute:attribute];
   });
-  XCTAssertEqual(trace.attributes.count,
-                 (NSUInteger)kFPRMaxTraceCustomAttributesCount);
+  XCTAssertEqual(trace.attributes.count, (NSUInteger)kFPRMaxTraceCustomAttributesCount);
 
   dispatch_apply(200, queue, ^(size_t index) {
     NSUInteger attributeIndex = index % kFPRMaxTraceCustomAttributesCount;
@@ -782,8 +781,7 @@
     [trace removeAttribute:attribute];
     [trace setValue:@"value" forAttribute:attribute];
   });
-  XCTAssertLessThanOrEqual(trace.attributes.count,
-                           (NSUInteger)kFPRMaxTraceCustomAttributesCount);
+  XCTAssertLessThanOrEqual(trace.attributes.count, (NSUInteger)kFPRMaxTraceCustomAttributesCount);
 }
 
 /** Validates if every trace contains a session Id. */

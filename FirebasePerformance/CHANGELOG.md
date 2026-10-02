@@ -1,6 +1,8 @@
+# Unreleased
+- [fixed] Prevent races when accessing global, trace, and HTTP metric custom
+  attributes concurrently. (#16761)
+
 # 12.19.0
-- [fixed] Serialize custom-attribute reads, writes and removals to prevent races during
-  concurrent access.
 - [fixed] Revert to using `kFPRSlowFrameThreshold` for slow frames on iOS to prevent
   falsely classifying 60 FPS frames as slow on ProMotion devices,
   while preserving dynamic frame rate support for tvOS.
