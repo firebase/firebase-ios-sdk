@@ -370,7 +370,11 @@ NSString *const kFPRNetworkTracePropertyName = @"fpr_networkTrace";
 #pragma mark - Custom attributes related methods
 
 - (NSDictionary<NSString *, NSString *> *)attributes {
-  return [self.customAttributes copy];
+  __block NSDictionary<NSString *, NSString *> *attributes;
+  dispatch_sync(self.syncQueue, ^{
+    attributes = [self.customAttributes copy];
+  });
+  return attributes;
 }
 
 - (void)setValue:(NSString *)value forAttribute:(nonnull NSString *)attribute {
@@ -397,26 +401,30 @@ NSString *const kFPRNetworkTracePropertyName = @"fpr_networkTrace";
     canAddAttribute = NO;
   }
 
-  if (self.customAttributes.allKeys.count >= kFPRMaxGlobalCustomAttributesCount) {
-    FPRLogError(kFPRMaxAttributesReached,
-                @"Only %d attributes allowed. Already reached maximum attribute count.",
-                kFPRMaxGlobalCustomAttributesCount);
-    canAddAttribute = NO;
+  if (!canAddAttribute) {
+    return;
   }
 
-  if (canAddAttribute) {
-    // Ensure concurrency during update of attributes.
-    dispatch_sync(self.syncQueue, ^{
-      self.customAttributes[validatedName] = validatedValue;
-      FPRLogDebug(kFPRClientMetricLogged, @"Setting attribute %@ to %@ on network request %@",
-                  validatedName, validatedValue, self.URLRequest.URL);
-    });
-  }
+  dispatch_sync(self.syncQueue, ^{
+    if (self.customAttributes[validatedName] == nil &&
+        self.customAttributes.count >= kFPRMaxGlobalCustomAttributesCount) {
+      FPRLogError(kFPRMaxAttributesReached,
+                  @"Only %d attributes allowed. Already reached maximum attribute count.",
+                  kFPRMaxGlobalCustomAttributesCount);
+      return;
+    }
+    self.customAttributes[validatedName] = validatedValue;
+    FPRLogDebug(kFPRClientMetricLogged, @"Setting attribute %@ to %@ on network request %@",
+                validatedName, validatedValue, self.URLRequest.URL);
+  });
 }
 
 - (NSString *)valueForAttribute:(NSString *)attribute {
-  // TODO(b/175053654): Should this be happening on the serial queue for thread safety?
-  return self.customAttributes[attribute];
+  __block NSString *value;
+  dispatch_sync(self.syncQueue, ^{
+    value = self.customAttributes[attribute];
+  });
+  return value;
 }
 
 - (void)removeAttribute:(NSString *)attribute {
@@ -427,7 +435,9 @@ NSString *const kFPRNetworkTracePropertyName = @"fpr_networkTrace";
     return;
   }
 
-  [self.customAttributes removeObjectForKey:attribute];
+  dispatch_sync(self.syncQueue, ^{
+    [self.customAttributes removeObjectForKey:attribute];
+  });
 }
 
 #pragma mark - Class methods related to object association.
