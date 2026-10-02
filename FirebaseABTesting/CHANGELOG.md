@@ -1,3 +1,8 @@
+# Unreleased
+- [fixed] Fixed an issue where Remote Config's `activate()` completion could be
+  delayed by several seconds on a busy device because A/B Testing updated
+  experiments at background priority. (#16784)
+
 # 12.14.0
 - [fixed] Fixed a race condition that could lead to a crash in ABTesting when
   updating experiments. (#16145)
