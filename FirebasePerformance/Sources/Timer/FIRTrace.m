@@ -375,7 +375,8 @@
   if (canAddAttribute) {
     __block BOOL reachedMaximum = NO;
     dispatch_sync(self.customAttributesSerialQueue, ^{
-      if (self.customAttributes.count >= kFPRMaxTraceCustomAttributesCount) {
+      if (self.customAttributes[validatedName] == nil &&
+          self.customAttributes.count >= kFPRMaxTraceCustomAttributesCount) {
         reachedMaximum = YES;
       } else {
         self.customAttributes[validatedName] = validatedValue;

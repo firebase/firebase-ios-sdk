@@ -136,7 +136,8 @@ static NSString *const kFirebasePerfErrorDomain = @"com.firebase.perf";
   if (canAddAttribute) {
     __block BOOL reachedMaximum = NO;
     dispatch_sync(self.customAttributesSerialQueue, ^{
-      if (self.customAttributes.count >= kFPRMaxGlobalCustomAttributesCount) {
+      if (self.customAttributes[validatedName] == nil &&
+          self.customAttributes.count >= kFPRMaxGlobalCustomAttributesCount) {
         reachedMaximum = YES;
       } else {
         self.customAttributes[validatedName] = validatedValue;
