@@ -29,6 +29,7 @@ public enum ModelNames {
   public static let gemini2_5_Pro = "gemini-2.5-pro"
   public static let gemini3_1_FlashLite = "gemini-3.1-flash-lite"
   public static let gemini3_1_FlashImage = "gemini-3.1-flash-image"
-  public static let gemini3_1_FlashTTSPreview = "gemini-3.1-flash-tts-preview"
+  public static let gemini3_8_FlashTTS = "gemini-3.8-flash-tts"
+  public static let gemini3_8_FlashLiteTTS = "gemini-3.8-flash-lite-tts"
   public static let gemma4_31B = "gemma-4-31b-it"
 }

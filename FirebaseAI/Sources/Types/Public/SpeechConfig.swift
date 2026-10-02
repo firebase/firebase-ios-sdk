@@ -14,12 +14,18 @@
 
 import Foundation
 
-/// Speech configuration class for controlling the model's speech and audio generation behaviors.
+/// **[Public Preview]** Configuration for model speech and audio generation behaviors.
 ///
-/// **Public Preview**: This API is a public preview and may be subject to change.
+/// > Warning: This API is a public preview and may be subject to change.
 ///
-/// This allows you to configure the voice properties (single-speaker OR multi-speaker setup) and
-/// language preferences when requesting the model to generate spoken responses.
+/// Configures voice properties (single-speaker or multi-speaker setup) and language preferences
+/// when requesting the model to generate spoken responses.
+///
+/// For turn-level speech delivery control (such as emotion, pacing, and whispering), attach
+/// ``SpeechMetadata`` to individual ``TextPart`` instances in your request prompt.
+///
+/// For more details on speech generation, see the
+/// [Text-to-speech guide](https://firebase.google.com/docs/ai-logic/generate-speech).
 public struct SpeechConfig: Sendable {
   let speechConfig: ProtoSpeechConfig
 
@@ -32,13 +38,13 @@ public struct SpeechConfig: Sendable {
   /// - Parameters:
   ///   - voiceName: The name of the prebuilt voice to be used for the model's speech response.
   ///
-  ///     To learn more about the available voices, see the docs on
-  ///     [Voice options](https://ai.google.dev/gemini-api/docs/speech-generation#voices)\.
+  ///     For available voices, see the documentation on
+  ///     [voices](https://firebase.google.com/docs/ai-logic/generate-speech#response-voices).
   ///   - languageCode: BCP-47 language code to use when parsing text sent from the client, instead
   ///     of audio. By default, the model will attempt to detect the input language automatically.
   ///
-  ///     To learn which codes are supported, see the docs on
-  ///     [Supported languages](https://ai.google.dev/gemini-api/docs/speech-generation#languages)\.
+  ///     For supported language codes, see the documentation on
+  ///     [languages](https://firebase.google.com/docs/ai-logic/generate-speech#languages).
   public init(voiceName: String, languageCode: String? = nil) {
     self.init(
       ProtoSpeechConfig(
@@ -50,13 +56,25 @@ public struct SpeechConfig: Sendable {
 
   /// Creates a new ``SpeechConfig`` value for a multi-speaker setup.
   ///
-  /// > Warning: Multi-speaker configurations are not currently supported by the Live API (e.g.,
-  /// > `LiveGenerationConfig`).
+  /// > Warning: Multi-speaker configurations are not currently supported by the Live API, such as
+  /// > ``LiveGenerationConfig``.
   ///
   /// - Parameters:
   ///   - multiSpeakerVoiceConfig: The configuration detailing multiple speakers and their
   ///     corresponding voices.
+  ///
+  ///     > Important: When using a multi-speaker configuration, each dialogue turn in the
+  ///     > request prompt must be passed as a separate ``TextPart`` with ``SpeechMetadata``
+  ///     > specifying a `speaker` matching one of the configured speakers. `speaker` is required
+  ///     > on every part in a multi-speaker request.
+  ///
+  ///     See the documentation on
+  ///     [multi-speaker](https://firebase.google.com/docs/ai-logic/generate-speech#multi-speaker)
+  ///     for more details.
   ///   - languageCode: BCP-47 language code to use when parsing text sent from the client.
+  ///
+  ///     For supported language codes, see the documentation on
+  ///     [languages](https://firebase.google.com/docs/ai-logic/generate-speech#languages).
   public init(multiSpeakerVoiceConfig: MultiSpeakerVoiceConfig, languageCode: String? = nil) {
     self.init(
       ProtoSpeechConfig(

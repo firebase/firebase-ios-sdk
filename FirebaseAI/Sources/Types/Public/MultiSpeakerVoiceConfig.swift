@@ -14,15 +14,22 @@
 
 import Foundation
 
-/// Configuration for a multi-speaker audio generation setup.
+/// **[Public Preview]** Configuration for a multi-speaker audio generation setup.
 ///
-/// **Public Preview**: This API is a public preview and may be subject to change.
+/// > Warning: This API is a public preview and may be subject to change.
 ///
 /// Enables the model to generate audio containing multiple distinct speakers, alternating voices
-/// dynamically based on speaker labels in the prompt.
+/// dynamically based on the `speaker` specified in each turn's ``SpeechMetadata``.
 ///
-/// > Warning: Multi-speaker configurations are not currently supported by the Live API (e.g.,
-/// > `LiveGenerationConfig`).
+/// > Important: When using multi-speaker generation, every ``TextPart`` in the request prompt must
+/// > include ``SpeechMetadata`` with a `speaker` matching one of the configured speakers. Omitting
+/// > `speaker` in a multi-speaker request results in a backend error.
+///
+/// > Warning: Multi-speaker configurations are not currently supported by the Live API, such as
+/// > ``LiveGenerationConfig``.
+///
+/// For more details, see the
+/// [multi-speaker guide](https://firebase.google.com/docs/ai-logic/generate-speech#multi-speaker).
 public struct MultiSpeakerVoiceConfig: Sendable {
   let multiSpeakerVoiceConfig: ProtoMultiSpeakerVoiceConfig
 
@@ -30,7 +37,7 @@ public struct MultiSpeakerVoiceConfig: Sendable {
     self.multiSpeakerVoiceConfig = multiSpeakerVoiceConfig
   }
 
-  /// Creates a configuration for the multi-speaker setup.
+  /// Creates a multi-speaker voice configuration.
   ///
   /// - Parameters:
   ///   - speakerVoiceConfigs: A list of voice configurations for the participating speakers.
