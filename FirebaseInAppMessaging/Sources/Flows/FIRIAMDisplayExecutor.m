@@ -51,12 +51,18 @@
 // Used for displaying the test on device message error alert.
 @property(nonatomic, strong) UIWindow *alertWindow;
 
-- (nullable FIRIAMMessageDefinition *)currentMessageForDelegateCallbackEndingDisplay:(BOOL)ending
-                                                                   reserveImpression:(BOOL *_Nullable)reserveImpression;
+- (nullable FIRIAMMessageDefinition *)
+    currentMessageForDelegateCallbackForMessageID:(NSString *)messageID
+                                    endingDisplay:(BOOL)ending
+                                reserveImpression:(BOOL *_Nullable)reserveImpression;
 - (void)finishDisplayingMessage;
+- (void)displayErrorForMessage:(FIRInAppMessagingDisplayMessage *)inAppMessage
+                     messageID:(NSString *)callbackMessageID
+                         error:(NSError *)error;
 @end
 
 @implementation FIRIAMDisplayExecutor {
+  NSObject *_callbackStateLock;
   FIRIAMMessageDefinition *_currentMsgBeingDisplayed;
 }
 
@@ -74,16 +80,17 @@
 #pragma mark - FIRInAppMessagingDisplayDelegate methods
 - (void)messageClicked:(FIRInAppMessagingDisplayMessage *)inAppMessage
             withAction:(FIRInAppMessagingAction *)action {
+  BOOL shouldRecordImpression = NO;
+  FIRIAMMessageDefinition *currentMessage =
+      [self currentMessageForDelegateCallbackForMessageID:inAppMessage.campaignInfo.messageID
+                                            endingDisplay:YES
+                                        reserveImpression:&shouldRecordImpression];
+
   // Call through to app-side delegate.
   __weak id<FIRInAppMessagingDisplayDelegate> appSideDelegate = self.inAppMessaging.delegate;
   if ([appSideDelegate respondsToSelector:@selector(messageClicked:withAction:)]) {
     [appSideDelegate messageClicked:inAppMessage withAction:action];
   }
-
-  BOOL shouldRecordImpression = NO;
-  FIRIAMMessageDefinition *currentMessage =
-      [self currentMessageForDelegateCallbackEndingDisplay:YES
-                                          reserveImpression:&shouldRecordImpression];
   if (!currentMessage.renderData.messageID) {
     FIRLogWarning(kFIRLoggerInAppMessaging, @"I-IAM400030",
                   @"messageClicked called but "
@@ -171,16 +178,17 @@
 
 - (void)messageDismissed:(FIRInAppMessagingDisplayMessage *)inAppMessage
              dismissType:(FIRInAppMessagingDismissType)dismissType {
+  BOOL shouldRecordImpression = NO;
+  FIRIAMMessageDefinition *currentMessage =
+      [self currentMessageForDelegateCallbackForMessageID:inAppMessage.campaignInfo.messageID
+                                            endingDisplay:YES
+                                        reserveImpression:&shouldRecordImpression];
+
   // Call through to app-side delegate.
   __weak id<FIRInAppMessagingDisplayDelegate> appSideDelegate = self.inAppMessaging.delegate;
   if ([appSideDelegate respondsToSelector:@selector(messageDismissed:dismissType:)]) {
     [appSideDelegate messageDismissed:inAppMessage dismissType:dismissType];
   }
-
-  BOOL shouldRecordImpression = NO;
-  FIRIAMMessageDefinition *currentMessage =
-      [self currentMessageForDelegateCallbackEndingDisplay:YES
-                                          reserveImpression:&shouldRecordImpression];
   if (!currentMessage.renderData.messageID) {
     FIRLogWarning(kFIRLoggerInAppMessaging, @"I-IAM400014",
                   @"messageDismissedWithType called but "
@@ -228,15 +236,16 @@
 }
 
 - (void)impressionDetectedForMessage:(FIRInAppMessagingDisplayMessage *)inAppMessage {
+  BOOL shouldRecordImpression = NO;
+  FIRIAMMessageDefinition *currentMessage =
+      [self currentMessageForDelegateCallbackForMessageID:inAppMessage.campaignInfo.messageID
+                                            endingDisplay:NO
+                                        reserveImpression:&shouldRecordImpression];
+
   __weak id<FIRInAppMessagingDisplayDelegate> appSideDelegate = self.inAppMessaging.delegate;
   if ([appSideDelegate respondsToSelector:@selector(impressionDetectedForMessage:)]) {
     [appSideDelegate impressionDetectedForMessage:inAppMessage];
   }
-
-  BOOL shouldRecordImpression = NO;
-  FIRIAMMessageDefinition *currentMessage =
-      [self currentMessageForDelegateCallbackEndingDisplay:NO
-                                          reserveImpression:&shouldRecordImpression];
   if (!currentMessage.renderData.messageID) {
     FIRLogWarning(kFIRLoggerInAppMessaging, @"I-IAM400022",
                   @"impressionDetected called but "
@@ -278,14 +287,23 @@
 
 - (void)displayErrorForMessage:(FIRInAppMessagingDisplayMessage *)inAppMessage
                          error:(NSError *)error {
+  [self displayErrorForMessage:inAppMessage
+                     messageID:inAppMessage.campaignInfo.messageID
+                         error:error];
+}
+
+- (void)displayErrorForMessage:(FIRInAppMessagingDisplayMessage *)inAppMessage
+                     messageID:(NSString *)callbackMessageID
+                         error:(NSError *)error {
+  FIRIAMMessageDefinition *currentMessage =
+      [self currentMessageForDelegateCallbackForMessageID:callbackMessageID
+                                            endingDisplay:YES
+                                        reserveImpression:NULL];
+
   __weak id<FIRInAppMessagingDisplayDelegate> appSideDelegate = self.inAppMessaging.delegate;
   if ([appSideDelegate respondsToSelector:@selector(displayErrorForMessage:error:)]) {
     [appSideDelegate displayErrorForMessage:inAppMessage error:error];
   }
-
-  FIRIAMMessageDefinition *currentMessage =
-      [self currentMessageForDelegateCallbackEndingDisplay:YES
-                                          reserveImpression:NULL];
 
   if (!currentMessage.renderData.messageID) {
     FIRLogWarning(kFIRLoggerInAppMessaging, @"I-IAM400017",
@@ -355,10 +373,18 @@
                     }];
 }
 
-- (nullable FIRIAMMessageDefinition *)currentMessageForDelegateCallbackEndingDisplay:(BOOL)ending
-                                                                   reserveImpression:(BOOL *_Nullable)reserveImpression {
-  @synchronized(self) {
+- (nullable FIRIAMMessageDefinition *)
+    currentMessageForDelegateCallbackForMessageID:(NSString *)messageID
+                                    endingDisplay:(BOOL)ending
+                                reserveImpression:(BOOL *_Nullable)reserveImpression {
+  @synchronized(_callbackStateLock) {
+    if (reserveImpression) {
+      *reserveImpression = NO;
+    }
     FIRIAMMessageDefinition *currentMessage = _currentMsgBeingDisplayed;
+    if (![currentMessage.renderData.messageID isEqualToString:messageID]) {
+      return nil;
+    }
     if (ending) {
       self.isMsgBeingDisplayed = NO;
     }
@@ -378,8 +404,35 @@
 }
 
 - (void)finishDisplayingMessage {
-  @synchronized(self) {
+  @synchronized(_callbackStateLock) {
     self.isMsgBeingDisplayed = NO;
+  }
+}
+
+@synthesize isMsgBeingDisplayed = _isMsgBeingDisplayed;
+@synthesize impressionRecorded = _impressionRecorded;
+
+- (BOOL)isMsgBeingDisplayed {
+  @synchronized(_callbackStateLock) {
+    return _isMsgBeingDisplayed;
+  }
+}
+
+- (void)setIsMsgBeingDisplayed:(BOOL)value {
+  @synchronized(_callbackStateLock) {
+    _isMsgBeingDisplayed = value;
+  }
+}
+
+- (BOOL)impressionRecorded {
+  @synchronized(_callbackStateLock) {
+    return _impressionRecorded;
+  }
+}
+
+- (void)setImpressionRecorded:(BOOL)value {
+  @synchronized(_callbackStateLock) {
+    _impressionRecorded = value;
   }
 }
 
@@ -425,6 +478,7 @@
                         activityLogger:(FIRIAMActivityLogger *)activityLogger
                   analyticsEventLogger:(id<FIRIAMAnalyticsEventLogger>)analyticsEventLogger {
   if (self = [super init]) {
+    _callbackStateLock = [[NSObject alloc] init];
     _inAppMessaging = inAppMessaging;
     _timeFetcher = timeFetcher;
     _lastDisplayTime = displayBookKeeper.lastDisplayTime;
@@ -652,8 +706,11 @@
 
 - (void)displayForMessage:(FIRIAMMessageDefinition *)message
               triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType {
-  _currentMsgBeingDisplayed = message;
-  self.isMsgBeingDisplayed = YES;
+  @synchronized(_callbackStateLock) {
+    _currentMsgBeingDisplayed = message;
+    _isMsgBeingDisplayed = YES;
+    _impressionRecorded = NO;
+  }
 
   [message.renderData.contentData
       loadImageDataWithBlock:^(NSData *_Nullable standardImageRawData,
@@ -671,7 +728,9 @@
                                      landscapeImageData:landscapeImageData
                                             triggerType:triggerType];
           // short-circuit to display error handling
-          [self displayErrorForMessage:erroredMessage error:error];
+          [self displayErrorForMessage:erroredMessage
+                             messageID:message.renderData.messageID
+                                 error:error];
           return;
         } else {
           if (standardImageRawData) {
@@ -701,8 +760,6 @@
           return;
         }
 
-        self.impressionRecorded = NO;
-
         FIRInAppMessagingDisplayMessage *displayMessage =
             [self displayMessageWithMessageDefinition:message
                                             imageData:imageData
@@ -713,7 +770,6 @@
         if (!displayMessage) {
           FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400043",
                       @"Failed to construct a non-nil display message.");
-          [self finishDisplayingMessage];
           return;
         }
 
