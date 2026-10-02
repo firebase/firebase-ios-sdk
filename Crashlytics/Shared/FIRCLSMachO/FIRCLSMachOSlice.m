@@ -66,6 +66,7 @@
             case LC_VERSION_MIN_MACOSX:
             case LC_VERSION_MIN_WATCHOS:
             case LC_VERSION_MIN_TVOS:
+            case LC_BUILD_VERSION:
               self->_minimumOSVersion = FIRCLSMachOGetMinimumOSVersion(cmd);
               self->_linkedSDKVersion = FIRCLSMachOGetLinkedSDKVersion(cmd);
               break;

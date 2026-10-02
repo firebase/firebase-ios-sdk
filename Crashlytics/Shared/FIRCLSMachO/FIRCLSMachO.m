@@ -514,10 +514,18 @@ static FIRCLSMachOVersion FIRCLSMachOVersionFromEncoded(uint32_t encoded) {
 }
 
 FIRCLSMachOVersion FIRCLSMachOGetMinimumOSVersion(const struct load_command* cmd) {
+  if (cmd->cmd == LC_BUILD_VERSION) {
+    return FIRCLSMachOVersionFromEncoded(((const struct build_version_command*)cmd)->minos);
+  }
+
   return FIRCLSMachOVersionFromEncoded(((const struct version_min_command*)cmd)->version);
 }
 
 FIRCLSMachOVersion FIRCLSMachOGetLinkedSDKVersion(const struct load_command* cmd) {
+  if (cmd->cmd == LC_BUILD_VERSION) {
+    return FIRCLSMachOVersionFromEncoded(((const struct build_version_command*)cmd)->sdk);
+  }
+
   return FIRCLSMachOVersionFromEncoded(((const struct version_min_command*)cmd)->sdk);
 }
 
