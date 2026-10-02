@@ -1,3 +1,7 @@
+# Unreleased
+- [fixed] Fixed an issue where cached In-App Messaging engagement logs from a previous app
+  session could be dropped instead of uploaded when the SDK started. (#16803)
+
 # 13.0.0
 - [fixed] Fixed an issue where universal links were not correctly routed in apps utilizing scene
   delegates. (#16083)

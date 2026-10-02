@@ -397,4 +397,46 @@
   // to send failure
   XCTAssertEqual([logStorage popStillValidRecordsForUpTo:10].count, 1);
 }
+
+- (void)testUploadsRecordsAlreadyInStorageWhenCreated {
+  // The next upload is now.
+  NSTimeInterval currentMoment = 10000;
+  OCMStub([self.mockTimeFetcher currentTimestampInSeconds]).andReturn(currentMoment);
+
+  // Using a real storage that already has a record before the uploader is created, like records
+  // restored from the cache file of a prior app session.
+  FIRIAMClearcutLogStorage *logStorage =
+      [[FIRIAMClearcutLogStorage alloc] initWithExpireAfterInSeconds:1000
+                                                     withTimeFetcher:self.mockTimeFetcher
+                                                           cachePath:self.cachePath];
+  FIRIAMClearcutLogRecord *cachedRecord =
+      [[FIRIAMClearcutLogRecord alloc] initWithExtensionJsonString:@"cached"
+                                           eventTimestampInSeconds:currentMoment];
+  [logStorage pushRecords:@[ cachedRecord ]];
+
+  XCTestExpectation *expectation = [self expectationWithDescription:@"Sends the cached record"];
+  __block NSArray<FIRIAMClearcutLogRecord *> *sentLogs = nil;
+  OCMStub([self.mockRequestSender sendClearcutHttpRequestForLogs:[OCMArg any]
+                                                  withCompletion:[OCMArg any]])
+      .andDo(^(NSInvocation *invocation) {
+        __unsafe_unretained NSArray<FIRIAMClearcutLogRecord *> *logs = nil;
+        [invocation getArgument:&logs atIndex:2];
+        sentLogs = logs;
+        [expectation fulfill];
+      });
+
+  FIRIAMClearcutUploader *uploader =
+      [[FIRIAMClearcutUploader alloc] initWithRequestSender:self.mockRequestSender
+                                                timeFetcher:self.mockTimeFetcher
+                                                 logStorage:logStorage
+                                              usingStrategy:self.defaultStrategy
+                                          usingUserDefaults:self.mockUserDefaults];
+  XCTAssertNotNil(uploader);
+
+  [self waitForExpectationsWithTimeout:2.0 handler:nil];
+  XCTAssertEqual(sentLogs.count, 1);
+  XCTAssertEqualObjects(sentLogs.firstObject.eventExtensionJsonString, @"cached");
+  // The upload consumed the record, so it isn't left in the storage to be sent again.
+  XCTAssertEqual([logStorage popStillValidRecordsForUpTo:10].count, 0);
+}
 @end
