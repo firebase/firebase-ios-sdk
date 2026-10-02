@@ -37,6 +37,34 @@ typedef NSMutableDictionary<NSString *,
     return configs;
 }
 
++ (NSArray<FRepo *> *)reposForConfigIdentifier:(NSString *)sessionIdentifier
+                                     inConfigs:(FRepoDictionary *)configs {
+    @synchronized(configs) {
+        return [configs[sessionIdentifier] allValues] ?: @[];
+    }
+}
+
++ (NSArray<FRepo *> *)
+    removeReposForConfigIdentifier:(NSString *)sessionIdentifier
+                         inConfigs:(FRepoDictionary *)configs {
+    @synchronized(configs) {
+        NSArray<FRepo *> *repos = configs[sessionIdentifier].allValues;
+        [configs removeObjectForKey:sessionIdentifier];
+        return repos ?: @[];
+    }
+}
+
++ (NSArray<FRepo *> *)allReposInConfigs:(FRepoDictionary *)configs {
+    @synchronized(configs) {
+        NSMutableArray<FRepo *> *repos = [NSMutableArray array];
+        for (NSDictionary<FRepoInfo *, FRepo *> *reposByInfo in
+             [configs allValues]) {
+            [repos addObjectsFromArray:[reposByInfo allValues]];
+        }
+        return [repos copy];
+    }
+}
+
 /**
  * Used for legacy unit tests.  The public API should go through
  * FirebaseDatabase which calls createRepo.
@@ -87,9 +115,10 @@ typedef NSMutableDictionary<NSString *,
 + (void)interrupt:(FIRDatabaseConfig *)config {
     dispatch_async([FIRDatabaseQuery sharedQueue], ^{
       FRepoDictionary *configs = [FRepoManager configs];
-      NSMutableDictionary<FRepoInfo *, FRepo *> *repos =
-          configs[config.sessionIdentifier];
-      for (FRepo *repo in [repos allValues]) {
+      NSArray<FRepo *> *repos =
+          [FRepoManager reposForConfigIdentifier:config.sessionIdentifier
+                                       inConfigs:configs];
+      for (FRepo *repo in repos) {
           [repo interrupt];
       }
     });
@@ -98,11 +127,8 @@ typedef NSMutableDictionary<NSString *,
 + (void)interruptAll {
     dispatch_async([FIRDatabaseQuery sharedQueue], ^{
       FRepoDictionary *configs = [FRepoManager configs];
-      for (NSMutableDictionary<FRepoInfo *, FRepo *> *repos in
-           [configs allValues]) {
-          for (FRepo *repo in [repos allValues]) {
-              [repo interrupt];
-          }
+      for (FRepo *repo in [FRepoManager allReposInConfigs:configs]) {
+          [repo interrupt];
       }
     });
 }
@@ -110,9 +136,10 @@ typedef NSMutableDictionary<NSString *,
 + (void)resume:(FIRDatabaseConfig *)config {
     dispatch_async([FIRDatabaseQuery sharedQueue], ^{
       FRepoDictionary *configs = [FRepoManager configs];
-      NSMutableDictionary<FRepoInfo *, FRepo *> *repos =
-          configs[config.sessionIdentifier];
-      for (FRepo *repo in [repos allValues]) {
+      NSArray<FRepo *> *repos =
+          [FRepoManager reposForConfigIdentifier:config.sessionIdentifier
+                                       inConfigs:configs];
+      for (FRepo *repo in repos) {
           [repo resume];
       }
     });
@@ -121,11 +148,8 @@ typedef NSMutableDictionary<NSString *,
 + (void)resumeAll {
     dispatch_async([FIRDatabaseQuery sharedQueue], ^{
       FRepoDictionary *configs = [FRepoManager configs];
-      for (NSMutableDictionary<FRepoInfo *, FRepo *> *repos in
-           [configs allValues]) {
-          for (FRepo *repo in [repos allValues]) {
-              [repo resume];
-          }
+      for (FRepo *repo in [FRepoManager allReposInConfigs:configs]) {
+          [repo resume];
       }
     });
 }
@@ -137,11 +161,13 @@ typedef NSMutableDictionary<NSString *,
     dispatch_sync([FIRDatabaseQuery sharedQueue], ^{
       FFLog(@"I-RDB040001", @"Disposing all repos for Config with name %@",
             config.sessionIdentifier);
-      NSMutableDictionary *configs = [FRepoManager configs];
-      for (FRepo *repo in [configs[config.sessionIdentifier] allValues]) {
+      FRepoDictionary *configs = [FRepoManager configs];
+      NSArray<FRepo *> *repos =
+          [FRepoManager removeReposForConfigIdentifier:config.sessionIdentifier
+                                             inConfigs:configs];
+      for (FRepo *repo in repos) {
           [repo dispose];
       }
-      [configs removeObjectForKey:config.sessionIdentifier];
     });
 }
 
