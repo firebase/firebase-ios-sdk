@@ -144,6 +144,9 @@ static NSString *const kFIRInstallationsIIDCreationTimePlistKey = @"|S|cre";
 
 - (BOOL)deleteKeychainKeyWithTagPrefix:(NSString *)tagPrefix error:(NSError **)outError {
   NSDictionary *keyQuery = [self keyQueryForKeyWithTagPrefix:tagPrefix];
+  if (!keyQuery) {
+    return YES;
+  }
 
   OSStatus status = SecItemDelete((__bridge CFDictionaryRef)keyQuery);
 
@@ -161,6 +164,9 @@ static NSString *const kFIRInstallationsIIDCreationTimePlistKey = @"|S|cre";
 
 - (NSDictionary *)keyQueryForKeyWithTagPrefix:(NSString *)tagPrefix {
   NSString *keyTag = [self keychainKeyTagWithPrefix:tagPrefix];
+  if (!keyTag) {
+    return nil;
+  }
   return [self keyPairQueryWithTag:keyTag returnData:NO];
 }
 
