@@ -276,6 +276,31 @@ extern const NSTimeInterval kDatabaseLoadTimeoutSecs;
                         [defaultConfig[@"default_namespace"][@"new_date_key"] stringValue]);
 }
 
+/// Array and dictionary defaults that can't be serialized as JSON are skipped instead of raising.
+- (void)testCopyFromDictionarySkipsDefaultsThatAreNotValidJSON {
+  NSData *data = [@"value1" dataUsingEncoding:NSUTF8StringEncoding];
+  NSDictionary *namespaceToConfig = @{
+    @"default_namespace" : @{
+      @"string_key" : @"string_value",
+      @"array_key" : @[ @"value1", @2 ],
+      @"dictionary_key" : @{@"key1" : @"value1"},
+      @"array_with_date_key" : @[ [NSDate date] ],
+      @"dictionary_with_data_key" : @{@"key1" : data},
+    }
+  };
+  XCTAssertNoThrow([_configContent copyFromDictionary:namespaceToConfig
+                                             toSource:RCNDBSourceDefault
+                                         forNamespace:@"default_namespace"]);
+
+  NSDictionary *defaultConfig = _configContent.defaultConfig[@"default_namespace"];
+  XCTAssertEqual(defaultConfig.count, 3);
+  XCTAssertEqualObjects([defaultConfig[@"string_key"] stringValue], @"string_value");
+  XCTAssertEqualObjects([defaultConfig[@"array_key"] JSONValue], (@[ @"value1", @2 ]));
+  XCTAssertEqualObjects([defaultConfig[@"dictionary_key"] JSONValue], @{@"key1" : @"value1"});
+  XCTAssertNil(defaultConfig[@"array_with_date_key"]);
+  XCTAssertNil(defaultConfig[@"dictionary_with_data_key"]);
+}
+
 - (void)testCopyFromDictionaryUpdatesActiveConfig {
   // Active config values must be RCNConfigValue format
   NSDictionary *embeddedDictionary = @{@"active_embedded_key" : @"active_embedded_Value"};

@@ -221,19 +221,27 @@ const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
         valueData = [(NSString *)strValue dataUsingEncoding:NSUTF8StringEncoding];
       } else if ([value isKindOfClass:[NSArray class]]) {
         NSError *error;
-        valueData = [NSJSONSerialization dataWithJSONObject:value options:0 error:&error];
-        if (error) {
+        if ([NSJSONSerialization isValidJSONObject:value]) {
+          valueData = [NSJSONSerialization dataWithJSONObject:value options:0 error:&error];
+        }
+        if (!valueData) {
           FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000076", @"Invalid array value for key '%@'",
                       key);
         }
       } else if ([value isKindOfClass:[NSDictionary class]]) {
         NSError *error;
-        valueData = [NSJSONSerialization dataWithJSONObject:value options:0 error:&error];
-        if (error) {
+        if ([NSJSONSerialization isValidJSONObject:value]) {
+          valueData = [NSJSONSerialization dataWithJSONObject:value options:0 error:&error];
+        }
+        if (!valueData) {
           FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000077",
                       @"Invalid dictionary value for key '%@'", key);
         }
       } else {
+        continue;
+      }
+      // Skip values that couldn't be converted to data, such as containers that aren't valid JSON.
+      if (!valueData) {
         continue;
       }
       toDict[FIRNamespace][key] = [[FIRRemoteConfigValue alloc] initWithData:valueData
