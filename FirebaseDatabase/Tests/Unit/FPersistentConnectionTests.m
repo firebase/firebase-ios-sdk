@@ -48,6 +48,38 @@
 
 @end
 
+// Records whether the connection forwarded a server push to its delegate so a
+// malformed message can be asserted to have been dropped rather than applied.
+@interface FPersistentConnectionRecordingDelegate : NSObject <FPersistentConnectionDelegate>
+
+@property(nonatomic) BOOL didReceiveDataUpdate;
+@property(nonatomic) BOOL didReceiveRangeMerge;
+
+@end
+
+@implementation FPersistentConnectionRecordingDelegate
+
+- (void)onDataUpdate:(FPersistentConnection *)fpconnection
+             forPath:(NSString *)pathString
+             message:(id)message
+             isMerge:(BOOL)isMerge
+               tagId:(NSNumber *)tagId {
+  self.didReceiveDataUpdate = YES;
+}
+
+- (void)onRangeMerge:(NSArray *)ranges forPath:(NSString *)path tagId:(NSNumber *)tag {
+  self.didReceiveRangeMerge = YES;
+}
+
+- (void)onConnect:(FPersistentConnection *)fpconnection {
+}
+- (void)onDisconnect:(FPersistentConnection *)fpconnection {
+}
+- (void)onServerInfoUpdate:(FPersistentConnection *)fpconnection updates:(NSDictionary *)updates {
+}
+
+@end
+
 @interface FPersistentConnectionTests : XCTestCase
 
 @property(nonatomic, strong) FPersistentConnectionTestDouble *connection;
@@ -89,42 +121,66 @@
 
 // A server frame is parsed straight from JSON, so a malformed message (wrong
 // JSON type for the envelope, the push body, or a nested field) must be ignored
-// rather than crash the client with an unrecognized selector.
+// rather than crash the client with an unrecognized selector. The literals are
+// bound to locals first because their commas would otherwise be split across
+// the XCTAssert macro's arguments.
 - (void)testNonDictionaryDataMessageIsIgnored {
-  XCTAssertNoThrow([self.connection onDataMessage:nil withMessage:(id) @[ @1, @2 ]]);
+  NSArray *arrayMessage = @[ @1, @2 ];
+  XCTAssertNoThrow([self.connection onDataMessage:nil withMessage:(id)arrayMessage]);
   XCTAssertNoThrow([self.connection onDataMessage:nil withMessage:(id) @"not a dict"]);
 }
 
+// A response whose body is not a JSON object must be dropped rather than passed
+// to the request callback, which reads it with -objectForKey:.
+- (void)testResponseWithNonDictionaryBodyIsIgnored {
+  NSDictionary *response = @{kFWPRequestNumber : @1, kFWPResponseForRNData : @"not a dict"};
+  XCTAssertNoThrow([self.connection onDataMessage:nil withMessage:response]);
+}
+
 - (void)testMalformedServerPushIsIgnored {
+  FPersistentConnectionRecordingDelegate *delegate =
+      [[FPersistentConnectionRecordingDelegate alloc] init];
+  self.connection.delegate = delegate;
+
   // Body is not a JSON object.
   XCTAssertNoThrow([self.connection onDataPushWithAction:kFWPAsyncServerDataUpdate
                                                  andBody:(id) @"not a dict"]);
   // Action is not a string.
-  XCTAssertNoThrow([self.connection onDataPushWithAction:(id) @5 andBody:@{}]);
+  NSNumber *numericAction = @5;
+  XCTAssertNoThrow([self.connection onDataPushWithAction:(id)numericAction andBody:@{}]);
   // Data update with a non-string path.
+  NSDictionary *nonStringPathUpdate =
+      @{kFWPAsyncServerDataUpdateBodyPath : @42, kFWPAsyncServerDataUpdateBodyData : @"value"};
   XCTAssertNoThrow([self.connection onDataPushWithAction:kFWPAsyncServerDataUpdate
-                                                 andBody:@{
-                                                   kFWPAsyncServerDataUpdateBodyPath : @42,
-                                                   kFWPAsyncServerDataUpdateBodyData : @"value"
-                                                 }]);
+                                                 andBody:nonStringPathUpdate]);
   // Range merge whose ranges are not an array.
-  XCTAssertNoThrow([self.connection
-      onDataPushWithAction:kFWPAsyncServerDataRangeMerge
-                   andBody:@{
-                     kFWPAsyncServerDataUpdateBodyPath : @"/",
-                     kFWPAsyncServerDataUpdateBodyData : @"not an array"
-                   }]);
+  NSDictionary *nonArrayRanges =
+      @{kFWPAsyncServerDataUpdateBodyPath : @"/", kFWPAsyncServerDataUpdateBodyData : @"not array"};
+  XCTAssertNoThrow([self.connection onDataPushWithAction:kFWPAsyncServerDataRangeMerge
+                                                 andBody:nonArrayRanges]);
   // Range merge whose range elements are not dictionaries.
-  XCTAssertNoThrow([self.connection
-      onDataPushWithAction:kFWPAsyncServerDataRangeMerge
-                   andBody:@{
-                     kFWPAsyncServerDataUpdateBodyPath : @"/",
-                     kFWPAsyncServerDataUpdateBodyData : @[ @"not a dict" ]
-                   }]);
+  NSDictionary *nonDictRangeElement = @{
+    kFWPAsyncServerDataUpdateBodyPath : @"/",
+    kFWPAsyncServerDataUpdateBodyData : @[ @"not a dict" ]
+  };
+  XCTAssertNoThrow([self.connection onDataPushWithAction:kFWPAsyncServerDataRangeMerge
+                                                 andBody:nonDictRangeElement]);
+  // Range merge with a non-string start bound; the whole message is rejected so
+  // a partial or widened merge is never applied.
+  NSDictionary *nonStringBoundRange = @{
+    kFWPAsyncServerDataUpdateBodyPath : @"/",
+    kFWPAsyncServerDataUpdateBodyData : @[ @{kFWPAsyncServerDataUpdateStartPath : @5} ]
+  };
+  XCTAssertNoThrow([self.connection onDataPushWithAction:kFWPAsyncServerDataRangeMerge
+                                                 andBody:nonStringBoundRange]);
   // Listen cancel with a non-string path.
-  XCTAssertNoThrow([self.connection
-      onDataPushWithAction:kFWPASyncServerListenCancelled
-                   andBody:@{kFWPAsyncServerDataUpdateBodyPath : @99}]);
+  NSDictionary *nonStringCancelPath = @{kFWPAsyncServerDataUpdateBodyPath : @99};
+  XCTAssertNoThrow([self.connection onDataPushWithAction:kFWPASyncServerListenCancelled
+                                                 andBody:nonStringCancelPath]);
+
+  // None of the malformed pushes should have reached the delegate.
+  XCTAssertFalse(delegate.didReceiveDataUpdate);
+  XCTAssertFalse(delegate.didReceiveRangeMerge);
 }
 
 - (void)waitForConnectionQueue {
