@@ -196,6 +196,25 @@ extern NSArray *ABTExperimentsToClearFromPayloads(
   XCTAssertEqual([_mockCUPController experimentsWithOrigin:gABTTestOrigin].count, 1);
 }
 
+- (void)testUpdateExperimentsDoesNotRunAtBackgroundQoS {
+  // Remote Config's activate() completion waits for this update. Background-QoS work can be
+  // starved for seconds when the CPU is busy, so the update must not be forced to background QoS.
+  XCTestExpectation *expectation = [self expectationWithDescription:@"completion"];
+  __block qos_class_t completionQoS = QOS_CLASS_UNSPECIFIED;
+  [_experimentController
+      updateExperimentsWithServiceOrigin:gABTTestOrigin
+                                  events:[[FIRLifecycleEvents alloc] init]
+                                  policy:ABTExperimentPayloadExperimentOverflowPolicyDiscardOldest
+                           lastStartTime:0
+                                payloads:@[]
+                       completionHandler:^(NSError *_Nullable error) {
+                         completionQoS = qos_class_self();
+                         [expectation fulfill];
+                       }];
+  [self waitForExpectationsWithTimeout:10 handler:nil];
+  XCTAssertGreaterThan(completionQoS, QOS_CLASS_BACKGROUND);
+}
+
 - (void)testLatestExperimentStartTimestamps {
   // Mock incoming payloads
   NSMutableArray<NSData *> *payloads = [[NSMutableArray alloc] init];
