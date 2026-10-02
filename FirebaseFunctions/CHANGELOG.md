@@ -1,3 +1,8 @@
+# Unreleased
+- [fixed] Fixed callable streams failing with "Unexpected format for streamed
+  response." when the server sends SSE comment lines, such as the `: ping`
+  heartbeat emitted during long-running streaming functions. (#16605)
+
 # 12.19.0
 - [changed] Requests directed to the local emulator over a non-loopback HTTP connection
   when tokens are present will now explicitly fail with an `unauthenticated` error
