@@ -42,6 +42,9 @@ actor TokenRefreshCoalescer {
   /// Used to ensure we only coalesce requests for the same token.
   private var pendingRefreshToken: String?
 
+  /// Exposes the pending slot for deterministic actor-reentrancy regression coverage.
+  var pendingTokenForTesting: String? { pendingRefreshToken }
+
   /// Identifies the pending slot so an older refresh cannot clear a newer one after actor
   /// reentrancy while awaiting its task.
   private var pendingRefreshGeneration: UUID?

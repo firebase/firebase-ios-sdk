@@ -168,23 +168,14 @@ class TokenRefreshCoalescerTests: XCTestCase {
     let firstResult = try await firstTask.value
     XCTAssertEqual(firstResult.0, "new_token_1")
 
-    let thirdTask = Task {
-      try await coalescer.coalescedRefresh(currentToken: "token_v2") {
-        await counter.increment()
-        return ("duplicate_token_v2", true)
-      }
-    }
-    // Give the third caller a chance to enter the actor while the second refresh remains pending.
-    await Task.yield()
-    try await Task.sleep(nanoseconds: 10_000_000)
-    let callsBeforeSecondRelease = await counter.value()
-    XCTAssertEqual(callsBeforeSecondRelease, 2)
+    let pendingTokenAfterFirstCompletion = await coalescer.pendingTokenForTesting
+    XCTAssertEqual(pendingTokenAfterFirstCompletion, "token_v2")
 
     await secondGate.release()
     let secondResult = try await secondTask.value
-    let thirdResult = try await thirdTask.value
     XCTAssertEqual(secondResult.0, "new_token_2")
-    XCTAssertEqual(thirdResult.0, "new_token_2")
+    let pendingTokenAfterSecondCompletion = await coalescer.pendingTokenForTesting
+    XCTAssertNil(pendingTokenAfterSecondCompletion)
     let totalCallCount = await counter.value()
     XCTAssertEqual(totalCallCount, 2)
   }
