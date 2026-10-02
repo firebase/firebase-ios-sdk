@@ -112,6 +112,9 @@ static NSInteger const gMaxRetries = 7;
   bool _isRequestInProgress;
   bool _isInBackground;
   bool _isRealtimeDisabled;
+  /// Stream data that hasn't been handled yet, such as the beginning of a config update message
+  /// whose end hasn't been received.
+  NSMutableData *_pendingStreamData;
 }
 
 - (instancetype)init:(RCNConfigFetch *)configFetch
@@ -133,6 +136,7 @@ static NSInteger const gMaxRetries = 7;
     _isRequestInProgress = false;
     _isRealtimeDisabled = false;
     _isInBackground = false;
+    _pendingStreamData = [[NSMutableData alloc] init];
 
     [self setUpHttpRequest];
     [self setUpHttpSession];
@@ -567,6 +571,36 @@ static NSInteger const gMaxRetries = 7;
   }
 }
 
+/// Removes the first complete config update message from `_pendingStreamData` and returns it, or
+/// returns nil if a complete message hasn't been received yet. The stream is a JSON array of flat
+/// JSON objects, one per message, and network reads don't necessarily line up with messages.
+- (NSData *)nextConfigUpdateMessage {
+  NSData *openingBrace = [NSData dataWithBytes:"{" length:1];
+  NSData *closingBrace = [NSData dataWithBytes:"}" length:1];
+  NSRange beginRange = [_pendingStreamData rangeOfData:openingBrace
+                                               options:0
+                                                 range:NSMakeRange(0, _pendingStreamData.length)];
+  if (beginRange.location == NSNotFound) {
+    // Data between messages, such as JSON array punctuation, isn't needed.
+    [_pendingStreamData setLength:0];
+    return nil;
+  }
+  [_pendingStreamData replaceBytesInRange:NSMakeRange(0, beginRange.location)
+                                withBytes:NULL
+                                   length:0];
+  NSRange endRange = [_pendingStreamData rangeOfData:closingBrace
+                                             options:0
+                                               range:NSMakeRange(1, _pendingStreamData.length - 1)];
+  if (endRange.location == NSNotFound) {
+    // Wait for the rest of the message.
+    return nil;
+  }
+  NSRange messageRange = NSMakeRange(0, endRange.location + 1);
+  NSData *message = [_pendingStreamData subdataWithRange:messageRange];
+  [_pendingStreamData replaceBytesInRange:messageRange withBytes:NULL length:0];
+  return message;
+}
+
 /// Delegate to asynchronously handle every new notification that comes over the wire. Auto-fetches
 /// and runs callback for each new notification
 - (void)URLSession:(NSURLSession *)session
@@ -586,26 +620,23 @@ static NSInteger const gMaxRetries = 7;
     return;
   }
 
-  NSRange beginRange = [strData rangeOfString:@"{"];
-  if (beginRange.location != NSNotFound) {
-    NSRange endRange =
-        [strData rangeOfString:@"}"
-                       options:0
-                         range:NSMakeRange(beginRange.location + 1,
-                                           strData.length - beginRange.location - 1)];
-    if (endRange.location != NSNotFound) {
-      FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000015",
-                  @"Received config update message on stream.");
-      NSRange msgRange =
-          NSMakeRange(beginRange.location, endRange.location - beginRange.location + 1);
-      strData = [strData substringWithRange:msgRange];
-      data = [strData dataUsingEncoding:NSUTF8StringEncoding];
-      NSDictionary *response =
-          [NSJSONSerialization JSONObjectWithData:data
-                                          options:NSJSONReadingMutableContainers
-                                            error:&dataError];
+  /// A message can be split across reads, and a read can contain several messages, so buffer the
+  /// data and handle each complete message.
+  [_pendingStreamData appendData:data];
+  NSData *message;
+  while ((message = [self nextConfigUpdateMessage])) {
+    FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000015",
+                @"Received config update message on stream.");
+    dataError = nil;
+    NSDictionary *response = [NSJSONSerialization JSONObjectWithData:message
+                                                             options:NSJSONReadingMutableContainers
+                                                               error:&dataError];
 
-      [self evaluateStreamResponse:response error:dataError];
+    [self evaluateStreamResponse:response error:dataError];
+    if (_isRealtimeDisabled) {
+      // The stream has been paused, so ignore the rest of its data.
+      [_pendingStreamData setLength:0];
+      break;
     }
   }
 }
@@ -625,6 +656,8 @@ static NSInteger const gMaxRetries = 7;
     didReceiveResponse:(NSURLResponse *)response
      completionHandler:(void (^)(NSURLSessionResponseDisposition disposition))completionHandler {
   _isRequestInProgress = false;
+  // A new response starts a new stream, so drop any partial message from the previous one.
+  [_pendingStreamData setLength:0];
   NSHTTPURLResponse *_httpURLResponse = (NSHTTPURLResponse *)response;
   NSInteger statusCode = [_httpURLResponse statusCode];
 
