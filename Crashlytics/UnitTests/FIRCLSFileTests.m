@@ -262,9 +262,7 @@
   [self minInt64WithFile:&_bufferedFile filePath:self.bufferedPath buffered:YES];
 }
 
-- (void)minInt64WithFile:(FIRCLSFile *)file
-                filePath:(NSString *)filePath
-                buffered:(BOOL)buffered {
+- (void)minInt64WithFile:(FIRCLSFile *)file filePath:(NSString *)filePath buffered:(BOOL)buffered {
   FIRCLSFileWriteSectionStart(file, "signed");
   FIRCLSFileWriteHashStart(file);
   FIRCLSFileWriteHashEntryInt64(file, "value", INT64_MIN);
