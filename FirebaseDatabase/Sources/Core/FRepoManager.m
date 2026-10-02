@@ -40,14 +40,15 @@ typedef NSMutableDictionary<NSString *,
 + (NSArray<FRepo *> *)reposForConfigIdentifier:(NSString *)sessionIdentifier
                                      inConfigs:(FRepoDictionary *)configs {
     @synchronized(configs) {
-        return [[configs[sessionIdentifier] allValues] copy] ?: @[];
+        return [configs[sessionIdentifier] allValues] ?: @[];
     }
 }
 
-+ (NSArray<FRepo *> *)removeReposForConfigIdentifier:(NSString *)sessionIdentifier
-                                            inConfigs:(FRepoDictionary *)configs {
++ (NSArray<FRepo *> *)
+    removeReposForConfigIdentifier:(NSString *)sessionIdentifier
+                         inConfigs:(FRepoDictionary *)configs {
     @synchronized(configs) {
-        NSArray<FRepo *> *repos = [configs[sessionIdentifier].allValues copy];
+        NSArray<FRepo *> *repos = configs[sessionIdentifier].allValues;
         [configs removeObjectForKey:sessionIdentifier];
         return repos ?: @[];
     }
@@ -163,7 +164,7 @@ typedef NSMutableDictionary<NSString *,
       FRepoDictionary *configs = [FRepoManager configs];
       NSArray<FRepo *> *repos =
           [FRepoManager removeReposForConfigIdentifier:config.sessionIdentifier
-                                              inConfigs:configs];
+                                             inConfigs:configs];
       for (FRepo *repo in repos) {
           [repo dispose];
       }
