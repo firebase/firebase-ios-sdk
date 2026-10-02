@@ -1330,7 +1330,7 @@
         }
 
         [self.eventRaiser raiseEvents:events];
-        events = nil;
+        events = [[NSMutableArray alloc] init];
 
         if (abortTransaction) {
             // Abort
