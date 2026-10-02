@@ -20,10 +20,10 @@
 #include <utility>
 #include <vector>
 
-#include "firebase/telemetry/persistence/initialize.h"
-#include "firebase/telemetry/persistence/mmap_size.h"
-#include "firebase/telemetry/persistence/mutable_span_data.h"
-#include "firebase/telemetry/persistence/span.h"
+#include <firebase/telemetry/persistence/initialize.h>
+#include <firebase/telemetry/persistence/mmap_size.h>
+#include <firebase/telemetry/persistence/mutable_span_data.h>
+#include <firebase/telemetry/persistence/span.h>
 
 namespace ftp = firebase::telemetry::persistence;
 

@@ -14,7 +14,7 @@
 
 #import "FirebaseCrashlyticsTelemetry/SourcesObjC/PersistenceSpan.h"
 
-#include "firebase/telemetry/persistence/span.h"
+#include <firebase/telemetry/persistence/span.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
