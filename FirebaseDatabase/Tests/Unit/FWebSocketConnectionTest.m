@@ -24,29 +24,27 @@
 @interface FWebSocketConnection (KeepAliveTesting)
 - (void)onClosed;
 - (void)resetKeepAlive;
+- (void)webSocketDidOpen;
+- (void)sendStringToWebSocket:(NSString *)string;
 @end
 
-@interface FWebSocketTimerSpy : NSObject
-@property(nonatomic) BOOL isValid;
-@property(nonatomic, strong) NSDate *fireDate;
-@property(nonatomic) BOOL invalidatedOnMainThread;
-@property(nonatomic) BOOL updatedOnMainThread;
-- (void)setInitialFireDate:(NSDate *)fireDate;
+static char workerQueueKey;
+
+@interface FWebSocketKeepAliveSpy : FWebSocketConnection
+@property(nonatomic) NSUInteger keepAliveCount;
+@property(nonatomic) BOOL sentOnWorkerQueue;
+@property(nonatomic, copy) NSString *lastSentString;
+@property(nonatomic, copy) void (^onKeepAlive)(void);
 @end
 
-@implementation FWebSocketTimerSpy
-- (void)setInitialFireDate:(NSDate *)fireDate {
-  _fireDate = fireDate;
-}
-
-- (void)invalidate {
-  self.invalidatedOnMainThread = [NSThread isMainThread];
-  self.isValid = NO;
-}
-
-- (void)setFireDate:(NSDate *)fireDate {
-  self.updatedOnMainThread = [NSThread isMainThread];
-  _fireDate = fireDate;
+@implementation FWebSocketKeepAliveSpy
+- (void)sendStringToWebSocket:(NSString *)string {
+  self.lastSentString = string;
+  self.sentOnWorkerQueue = dispatch_get_specific(&workerQueueKey) != NULL;
+  self.keepAliveCount++;
+  if (self.onKeepAlive) {
+    self.onKeepAlive();
+  }
 }
 @end
 
@@ -102,35 +100,60 @@
   XCTAssertFalse(delegate.receivedMessage);
 }
 
-- (void)testKeepAliveTimerIsAccessedOnMainThread {
-  FWebSocketConnectionTestDelegate *delegate = [[FWebSocketConnectionTestDelegate alloc] init];
-  FWebSocketConnection *connection = [self connectionWithDelegate:delegate];
-  FWebSocketTimerSpy *timer = [[FWebSocketTimerSpy alloc] init];
-  timer.isValid = YES;
-  [timer setInitialFireDate:[NSDate dateWithTimeIntervalSinceNow:-60]];
-  [connection setValue:timer forKey:@"keepAlive"];
+- (FWebSocketKeepAliveSpy *)keepAliveConnectionOnQueue:(dispatch_queue_t)queue {
+  FRepoInfo *info = [[FRepoInfo alloc] initWithHost:@"foo.firebaseio.com"
+                                           isSecure:YES
+                                      withNamespace:@"foo"];
+  dispatch_queue_set_specific(queue, &workerQueueKey, &workerQueueKey, NULL);
+  return [[FWebSocketKeepAliveSpy alloc] initWith:info
+                                         andQueue:queue
+                                      googleAppID:@"1:1234:ios:1234"
+                                    lastSessionID:nil
+                                    appCheckToken:nil];
+}
 
-  XCTestExpectation *resetExpectation =
-      [self expectationWithDescription:@"timer reset on main"];
-  dispatch_async(dispatch_get_global_queue(QOS_CLASS_DEFAULT, 0), ^{
+- (void)testKeepAliveRunsOnWorkerQueueAndResetsInline {
+  dispatch_queue_t queue = dispatch_queue_create("keepalive.test", DISPATCH_QUEUE_SERIAL);
+  FWebSocketKeepAliveSpy *connection = [self keepAliveConnectionOnQueue:queue];
+  XCTestExpectation *sent = [self expectationWithDescription:@"worker keepalive"];
+  dispatch_async(queue, ^{
+    [connection webSocketDidOpen];
+    [connection setValue:[NSDate distantPast] forKey:@"keepAliveFireDate"];
     [connection resetKeepAlive];
-    dispatch_async(dispatch_get_main_queue(), ^{
-      XCTAssertTrue(timer.updatedOnMainThread);
-      [resetExpectation fulfill];
-    });
+    NSDate *fireDate = [connection valueForKey:@"keepAliveFireDate"];
+    XCTAssertGreaterThan([fireDate timeIntervalSinceNow], 40.0);
+    connection.onKeepAlive = ^{
+      XCTAssertEqualObjects(connection.lastSentString, @"0");
+      XCTAssertTrue(connection.sentOnWorkerQueue);
+      [connection onClosed];
+      connection.onKeepAlive = nil;
+      [sent fulfill];
+    };
+    dispatch_source_t timer = [connection valueForKey:@"keepAlive"];
+    dispatch_source_set_timer(timer, DISPATCH_TIME_NOW, DISPATCH_TIME_FOREVER, 0);
   });
-  [self waitForExpectations:@[ resetExpectation ] timeout:2];
+  [self waitForExpectations:@[ sent ] timeout:2];
+}
 
-  XCTestExpectation *closeExpectation =
-      [self expectationWithDescription:@"timer invalidated on main"];
-  dispatch_async(dispatch_get_global_queue(QOS_CLASS_DEFAULT, 0), ^{
+- (void)testCloseCancelsKeepAliveAndCannotReinstallIt {
+  dispatch_queue_t queue = dispatch_queue_create("keepalive.close.test", DISPATCH_QUEUE_SERIAL);
+  FWebSocketKeepAliveSpy *connection = [self keepAliveConnectionOnQueue:queue];
+  XCTestExpectation *closed = [self expectationWithDescription:@"no keepalive after close"];
+  dispatch_async(queue, ^{
+    [connection webSocketDidOpen];
+    dispatch_source_t timer = [connection valueForKey:@"keepAlive"];
+    dispatch_source_set_timer(timer, dispatch_time(DISPATCH_TIME_NOW, 100 * NSEC_PER_MSEC),
+                              DISPATCH_TIME_FOREVER, 0);
     [connection onClosed];
-    dispatch_async(dispatch_get_main_queue(), ^{
-      XCTAssertTrue(timer.invalidatedOnMainThread);
-      [closeExpectation fulfill];
+    [connection resetKeepAlive];
+    [connection webSocketDidOpen];
+    XCTAssertNil([connection valueForKey:@"keepAlive"]);
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 200 * NSEC_PER_MSEC), queue, ^{
+      XCTAssertEqual(connection.keepAliveCount, 0U);
+      [closed fulfill];
     });
   });
-  [self waitForExpectations:@[ closeExpectation ] timeout:2];
+  [self waitForExpectations:@[ closed ] timeout:2];
 }
 
 @end
