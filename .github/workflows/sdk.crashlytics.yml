@@ -38,6 +38,30 @@ jobs:
       product: FirebaseCrashlytics
       target: FirebaseCrashlytics-Unit-unit
 
+  catalyst-2:
+    uses: ./.github/workflows/_catalyst.yml
+    with:
+      product: FirebaseCrashlytics
+      target: FirebaseCrashlytics-Unit-unit
+
+  catalyst-3:
+    uses: ./.github/workflows/_catalyst.yml
+    with:
+      product: FirebaseCrashlytics
+      target: FirebaseCrashlytics-Unit-unit
+
+  catalyst-4:
+    uses: ./.github/workflows/_catalyst.yml
+    with:
+      product: FirebaseCrashlytics
+      target: FirebaseCrashlytics-Unit-unit
+
+  catalyst-5:
+    uses: ./.github/workflows/_catalyst.yml
+    with:
+      product: FirebaseCrashlytics
+      target: FirebaseCrashlytics-Unit-unit
+
   pod_lib_lint:
     uses: ./.github/workflows/_cocoapods.yml
     with:
