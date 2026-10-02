@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import FirebaseCore
 import FirebaseCrashlytics
 import Foundation
 import OpenTelemetrySdk
@@ -67,11 +66,6 @@ actor RecoveryManager: RecoveredTelemetryExporter {
   ///
   /// - Returns: `true` if a crash occurred during the previous run; otherwise, `false`.
   private func crashDidOccur() -> Bool {
-    guard FirebaseApp.app() != nil else {
-      LoggingHelper.logger.info("FirebaseApp not initialized, skipping crash check.")
-      return false
-    }
-
     return Crashlytics.crashlytics().didCrashDuringPreviousExecution()
   }
 

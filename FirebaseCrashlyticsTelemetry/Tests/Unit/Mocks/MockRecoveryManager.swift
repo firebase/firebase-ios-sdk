@@ -15,7 +15,7 @@
 import Foundation
 import XCTest
 
-@testable import CrashlyticsTelemetry
+@testable import FirebaseCrashlyticsTelemetry
 
 /// A thread-safe, actor-based mock conforming to `RecoveredTelemetryExporter`.
 final actor MockRecoveryManager: RecoveredTelemetryExporter {
