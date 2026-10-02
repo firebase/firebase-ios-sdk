@@ -452,10 +452,10 @@ model::BatchId LevelDbIndexManager::GetHighestBatchIdAcrossUsers() const {
     if (!state_key.Decode(state_iter->key())) {
       break;
     }
-    highest_batch_id = std::max(
-        highest_batch_id, DecodeIndexState(state_iter->value())
-                             .index_offset()
-                             .largest_batch_id());
+    highest_batch_id =
+        std::max(highest_batch_id, DecodeIndexState(state_iter->value())
+                                       .index_offset()
+                                       .largest_batch_id());
   }
   return highest_batch_id;
 }
