@@ -1,3 +1,7 @@
+# Unreleased
+- [fixed] Fixed an issue where Firebase Sessions truncated session start event
+  timestamps to whole seconds. (#16796)
+
 # 13.0.0
 - [fixed] Safely validate memory reads when executing `DW_OP_deref_size`
   operations during DWARF stack unwinding (#16550).
