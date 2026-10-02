@@ -352,42 +352,54 @@ static dispatch_once_t gSharedInstanceToken;
 
 #pragma mark - Traces rate limiting configurations.
 
+/**
+ * Returns the rate limiting time duration in minutes. Remote config values that are less than one
+ * minute (including zero and negative values) are ignored since the rate limiter divides by this
+ * value.
+ */
+- (uint32_t)rateLimitTimeLimitInMinutes {
+  uint32_t timeLimit = 600;
+  if (self.remoteConfigFlags) {
+    int rcTimeLimit = [self.remoteConfigFlags rateLimitTimeDurationWithDefaultValue:timeLimit];
+    if (rcTimeLimit >= 60) {
+      timeLimit = rcTimeLimit;
+    }
+  }
+
+  uint32_t timeLimitInMinutes = timeLimit / 60;
+  return timeLimitInMinutes;
+}
+
 - (uint32_t)foregroundEventCount {
   uint32_t eventCount = 300;
   if (self.remoteConfigFlags) {
-    eventCount =
+    int rcEventCount =
         [self.remoteConfigFlags rateLimitTraceCountInForegroundWithDefaultValue:eventCount];
+    if (rcEventCount >= 0) {
+      eventCount = rcEventCount;
+    }
   }
   return eventCount;
 }
 
 - (uint32_t)foregroundEventTimeLimit {
-  uint32_t timeLimit = 600;
-  if (self.remoteConfigFlags) {
-    timeLimit = [self.remoteConfigFlags rateLimitTimeDurationWithDefaultValue:timeLimit];
-  }
-
-  uint32_t timeLimitInMinutes = timeLimit / 60;
-  return timeLimitInMinutes;
+  return [self rateLimitTimeLimitInMinutes];
 }
 
 - (uint32_t)backgroundEventCount {
   uint32_t eventCount = 30;
   if (self.remoteConfigFlags) {
-    eventCount =
+    int rcEventCount =
         [self.remoteConfigFlags rateLimitTraceCountInBackgroundWithDefaultValue:eventCount];
+    if (rcEventCount >= 0) {
+      eventCount = rcEventCount;
+    }
   }
   return eventCount;
 }
 
 - (uint32_t)backgroundEventTimeLimit {
-  uint32_t timeLimit = 600;
-  if (self.remoteConfigFlags) {
-    timeLimit = [self.remoteConfigFlags rateLimitTimeDurationWithDefaultValue:timeLimit];
-  }
-
-  uint32_t timeLimitInMinutes = timeLimit / 60;
-  return timeLimitInMinutes;
+  return [self rateLimitTimeLimitInMinutes];
 }
 
 #pragma mark - Network requests rate limiting configurations.
@@ -395,39 +407,33 @@ static dispatch_once_t gSharedInstanceToken;
 - (uint32_t)foregroundNetworkEventCount {
   uint32_t eventCount = 700;
   if (self.remoteConfigFlags) {
-    eventCount = [self.remoteConfigFlags
+    int rcEventCount = [self.remoteConfigFlags
         rateLimitNetworkRequestCountInForegroundWithDefaultValue:eventCount];
+    if (rcEventCount >= 0) {
+      eventCount = rcEventCount;
+    }
   }
   return eventCount;
 }
 
 - (uint32_t)foregroundNetworkEventTimeLimit {
-  uint32_t timeLimit = 600;
-  if (self.remoteConfigFlags) {
-    timeLimit = [self.remoteConfigFlags rateLimitTimeDurationWithDefaultValue:timeLimit];
-  }
-
-  uint32_t timeLimitInMinutes = timeLimit / 60;
-  return timeLimitInMinutes;
+  return [self rateLimitTimeLimitInMinutes];
 }
 
 - (uint32_t)backgroundNetworkEventCount {
   uint32_t eventCount = 70;
   if (self.remoteConfigFlags) {
-    eventCount = [self.remoteConfigFlags
+    int rcEventCount = [self.remoteConfigFlags
         rateLimitNetworkRequestCountInBackgroundWithDefaultValue:eventCount];
+    if (rcEventCount >= 0) {
+      eventCount = rcEventCount;
+    }
   }
   return eventCount;
 }
 
 - (uint32_t)backgroundNetworkEventTimeLimit {
-  uint32_t timeLimit = 600;
-  if (self.remoteConfigFlags) {
-    timeLimit = [self.remoteConfigFlags rateLimitTimeDurationWithDefaultValue:timeLimit];
-  }
-
-  uint32_t timeLimitInMinutes = timeLimit / 60;
-  return timeLimitInMinutes;
+  return [self rateLimitTimeLimitInMinutes];
 }
 
 #pragma mark - Sessions feature related configurations.
@@ -452,22 +458,32 @@ static dispatch_once_t gSharedInstanceToken;
 - (uint32_t)maxSessionLengthInMinutes {
   uint32_t sessionLengthInMinutes = 240;
   if (self.remoteConfigFlags) {
-    sessionLengthInMinutes =
+    int rcSessionLengthInMinutes =
         [self.remoteConfigFlags sessionMaxDurationWithDefaultValue:sessionLengthInMinutes];
+    // If the session max length is set to 0 or a negative value, default it to 240 minutes.
+    if (rcSessionLengthInMinutes > 0) {
+      sessionLengthInMinutes = rcSessionLengthInMinutes;
+    }
   }
 
-  // If the session max length gets set to 0, default it to 240 minutes.
-  if (sessionLengthInMinutes == 0) {
-    return 240;
-  }
   return sessionLengthInMinutes;
+}
+
+/**
+ * Returns the remote config gauge capture frequency if it is valid (zero disables collection),
+ * otherwise returns the default frequency. Negative values are ignored.
+ */
+- (uint32_t)validatedGaugeFrequency:(int)rcFrequency defaultFrequency:(uint32_t)defaultFrequency {
+  return rcFrequency >= 0 ? (uint32_t)rcFrequency : defaultFrequency;
 }
 
 - (uint32_t)cpuSamplingFrequencyInForegroundInMS {
   uint32_t samplingFrequency = 100;
   if (self.remoteConfigFlags) {
-    samplingFrequency = [self.remoteConfigFlags
+    int rcFrequency = [self.remoteConfigFlags
         sessionGaugeCPUCaptureFrequencyInForegroundWithDefaultValue:samplingFrequency];
+    samplingFrequency = [self validatedGaugeFrequency:rcFrequency
+                                     defaultFrequency:samplingFrequency];
   }
   return samplingFrequency;
 }
@@ -475,8 +491,10 @@ static dispatch_once_t gSharedInstanceToken;
 - (uint32_t)cpuSamplingFrequencyInBackgroundInMS {
   uint32_t samplingFrequency = 0;
   if (self.remoteConfigFlags) {
-    samplingFrequency = [self.remoteConfigFlags
+    int rcFrequency = [self.remoteConfigFlags
         sessionGaugeCPUCaptureFrequencyInBackgroundWithDefaultValue:samplingFrequency];
+    samplingFrequency = [self validatedGaugeFrequency:rcFrequency
+                                     defaultFrequency:samplingFrequency];
   }
   return samplingFrequency;
 }
@@ -484,8 +502,10 @@ static dispatch_once_t gSharedInstanceToken;
 - (uint32_t)memorySamplingFrequencyInForegroundInMS {
   uint32_t samplingFrequency = 100;
   if (self.remoteConfigFlags) {
-    samplingFrequency = [self.remoteConfigFlags
+    int rcFrequency = [self.remoteConfigFlags
         sessionGaugeMemoryCaptureFrequencyInForegroundWithDefaultValue:samplingFrequency];
+    samplingFrequency = [self validatedGaugeFrequency:rcFrequency
+                                     defaultFrequency:samplingFrequency];
   }
   return samplingFrequency;
 }
@@ -493,8 +513,10 @@ static dispatch_once_t gSharedInstanceToken;
 - (uint32_t)memorySamplingFrequencyInBackgroundInMS {
   uint32_t samplingFrequency = 0;
   if (self.remoteConfigFlags) {
-    samplingFrequency = [self.remoteConfigFlags
+    int rcFrequency = [self.remoteConfigFlags
         sessionGaugeMemoryCaptureFrequencyInBackgroundWithDefaultValue:samplingFrequency];
+    samplingFrequency = [self validatedGaugeFrequency:rcFrequency
+                                     defaultFrequency:samplingFrequency];
   }
   return samplingFrequency;
 }
