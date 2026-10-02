@@ -159,9 +159,8 @@
                     filePath:(NSString *)filePath
                     buffered:(BOOL)buffered {
   NSString *key = @"key\"\n";
-  NSString *value = [NSString stringWithFormat:
-                                @"quote\" slash\\ newline\n tab\t control %C",
-                                (unichar)1];
+  NSString *value =
+      [NSString stringWithFormat:@"quote\" slash\\ newline\n tab\t control %C", (unichar)1];
 
   FIRCLSFileWriteSectionStart(file, "string_escaping");
   FIRCLSFileWriteHashStart(file);
