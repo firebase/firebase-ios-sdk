@@ -1,6 +1,8 @@
-# 12.19.0
+# Unreleased
 - [fixed] Serialize Auth and App Check token header updates to avoid concurrent mutation of
-  the request during Storage authorization.
+  the request when using custom interop providers or a custom Promises callback queue. (#16766)
+
+# 12.19.0
 - [fixed] Fixed an issue where constructing a download URL could fail or produce
   an invalid path if the storage bucket name contained special characters. (#16529)
 - [changed] Requests directed to the local emulator over a non-loopback HTTP connection

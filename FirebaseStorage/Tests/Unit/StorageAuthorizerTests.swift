@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-@testable import FirebaseStorage
-import Foundation
 import FirebaseAppCheckInterop
 import FirebaseAuthInterop
+@testable import FirebaseStorage
+import Foundation
 import GTMSessionFetcherCore
 import SharedTestUtilities
 import XCTest
@@ -33,11 +33,15 @@ private final class ParallelCallbackBarrier: @unchecked Sendable {
       callbacksReady.signal()
     }
     lock.unlock()
-    resumeCallbacks.wait()
+    if resumeCallbacks.wait(timeout: .now() + 2) == .timedOut {
+      XCTFail("Timed out waiting for token callbacks to be released")
+    }
   }
 
   func resumeBoth() {
-    callbacksReady.wait()
+    if callbacksReady.wait(timeout: .now() + 2) == .timedOut {
+      XCTFail("Timed out waiting for both token callbacks")
+    }
     resumeCallbacks.signal()
     resumeCallbacks.signal()
   }
@@ -96,6 +100,7 @@ private final class ThreadCheckedMutableURLRequest: NSMutableURLRequest, @unchec
     super.init(url: url, cachePolicy: cachePolicy, timeoutInterval: timeoutInterval)
   }
 
+  @available(*, unavailable)
   required init?(coder: NSCoder) {
     fatalError("init(coder:) is not supported")
   }
