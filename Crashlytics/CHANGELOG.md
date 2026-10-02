@@ -1,3 +1,7 @@
+# Unreleased
+- [fixed] Made rollout parameter-value truncation consistent with the
+  character-count guard. (#16764)
+
 # 13.0.0
 - [fixed] Safely validate memory reads when executing `DW_OP_deref_size`
   operations during DWARF stack unwinding (#16550).

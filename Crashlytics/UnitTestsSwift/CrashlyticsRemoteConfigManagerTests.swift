@@ -82,6 +82,28 @@ final class CrashlyticsRemoteConfigManagerTests: XCTestCase {
     }
   }
 
+  func testRemoteConfigManagerTruncatesMultibyteParameterValueByCharacterCount() throws {
+    let value = String(repeating: "😀", count: 257)
+    let assignment = RolloutAssignment(
+      rolloutId: "rollout_1",
+      variantId: "control",
+      templateVersion: 1,
+      parameterKey: "emoji_feature",
+      parameterValue: value
+    )
+    let state = RolloutsState(assignmentList: [assignment])
+    let rcManager = CrashlyticsRemoteConfigManager(
+      remoteConfig: rcInterop,
+      persistenceDelegate: PersistenceManagerMock()
+    )
+
+    rcManager.updateRolloutsState(rolloutsState: state, reportID: "789")
+
+    let firstAssignment = try XCTUnwrap(rcManager.rolloutAssignment.first)
+    XCTAssertEqual(firstAssignment.parameterValue.count, 256)
+    XCTAssertEqual(firstAssignment.parameterValue, String(value.prefix(256)))
+  }
+
   func testRemoteConfigManagerGenerateEncodedRolloutAssignmentsJson() throws {
     let expectedString =
       "[{\"parameter_key\":\"6d795f66656174757265\",\"parameter_value\":\"e8bf99e698af7468656d6973e79a84e6b58be8af95e695b0e68daeefbc8ce8be93e585a5e4b8ade69687\",\"rollout_id\":\"726f6c6c6f75745f31\",\"template_version\":1,\"variant_id\":\"636f6e74726f6c\"}]"
