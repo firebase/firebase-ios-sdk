@@ -31,14 +31,22 @@ const ABTExperimentPayloadExperimentOverflowPolicy FIRDefaultExperimentOverflowP
 
 /// Deserialize the experiment payloads.
 ABTExperimentPayload *ABTDeserializeExperimentPayload(NSData *payload) {
-  // Verify that we have a JSON object.
-  NSError *error;
-  id JSONObject = [NSJSONSerialization JSONObjectWithData:payload options:kNilOptions error:&error];
-  if (JSONObject == nil) {
-    FIRLogError(kFIRLoggerABTesting, @"I-ABT000001", @"Failed to parse experiment payload: %@",
-                error.debugDescription);
+  if (![payload isKindOfClass:[NSData class]]) {
+    FIRLogError(kFIRLoggerABTesting, @"I-ABT000001",
+                @"Failed to parse experiment payload: unexpected type %@.", [payload class]);
+    return nil;
   }
-  return [ABTExperimentPayload parseFromData:payload];
+  // Parse once and verify that we have a JSON object.
+  NSError *error;
+  id JSONObject = [NSJSONSerialization JSONObjectWithData:payload
+                                                  options:NSJSONReadingAllowFragments
+                                                    error:&error];
+  if (![JSONObject isKindOfClass:[NSDictionary class]]) {
+    FIRLogError(kFIRLoggerABTesting, @"I-ABT000001", @"Failed to parse experiment payload: %@",
+                error ? error.debugDescription : @"top-level JSON value is not an object.");
+    return nil;
+  }
+  return [[ABTExperimentPayload alloc] initWithDictionary:JSONObject];
 }
 
 /// Returns a list of experiments to be set given the payloads and current list of experiments from
@@ -275,7 +283,9 @@ NSArray *ABTExperimentsToClearFromPayloads(
 
   NSMutableSet *runningExperimentIDs = [NSMutableSet setWithCapacity:payloads.count];
   for (ABTExperimentPayload *payload in payloads) {
-    [runningExperimentIDs addObject:payload.experimentId];
+    if (payload.experimentId) {
+      [runningExperimentIDs addObject:payload.experimentId];
+    }
   }
 
   for (NSDictionary<NSString *, NSString *> *activeExperimentDictionary in activeExperiments) {
