@@ -328,6 +328,8 @@ static void FIRCLSFileWriteStringWithSuffix(FIRCLSFile* file,
                                             const char* string,
                                             size_t length,
                                             char suffix) {
+  // Signal and Mach exception handlers use this path for thread names and queue labels.
+  // Keep it async-signal-safe: no allocation, Objective-C calls, or locks.
   bool needsEscaping = false;
   for (size_t i = 0; i < length; ++i) {
     const unsigned char character = (unsigned char)string[i];

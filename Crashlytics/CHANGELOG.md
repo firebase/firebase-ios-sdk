@@ -1,6 +1,8 @@
-# 13.0.0
+# Unreleased
 - [fixed] Escape quotes, backslashes, and control characters when writing strings to
-  Crashlytics JSON records.
+  Crashlytics JSON records for thread names, queue labels, and binary image paths. (#16772)
+
+# 13.0.0
 - [fixed] Safely validate memory reads when executing `DW_OP_deref_size`
   operations during DWARF stack unwinding (#16550).
 - [fixed] Fixed an issue casuing a crash while symbolicating stack frames if the binary image path is null. (#16622)
