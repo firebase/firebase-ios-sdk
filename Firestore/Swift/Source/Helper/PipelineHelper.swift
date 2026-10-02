@@ -84,19 +84,29 @@ enum Helper {
     return (exprMap, nil)
   }
 
-  static func aliasedAggregatesToMap(accumulators: [AliasedAggregate])
-    -> ([String: AggregateFunction], Error?) {
-    var accumulatorMap = [String: AggregateFunction]()
+  static func windowFieldsToMap(fields: [Sendable])
+    -> ([String: __AggregateFunctionBridge], Error?) {
+    var map = [String: __AggregateFunctionBridge]()
     var errors = [String]()
-    for aliasedAggregate in accumulators {
-      let alias = aliasedAggregate.alias
-      if let errorMessage = aliasedAggregate.aggregate.errorMessage {
-        errors.append(errorMessage)
+    for field in fields {
+      let alias: String
+      let bridge: __AggregateFunctionBridge
+      let errorMessage: String?
+      if let aliased = field as? AliasedAggregate {
+        (alias, bridge, errorMessage) =
+          (aliased.alias, aliased.aggregate.bridge, aliased.aggregate.errorMessage)
+      } else if let aliased = field as? AliasedWindowFunction {
+        (alias, bridge, errorMessage) =
+          (aliased.alias, aliased.windowFunction.bridge, aliased.windowFunction.errorMessage)
+      } else {
+        errors.append(
+          "Unsupported field type '\(type(of: field))'. Expected AliasedAggregate or AliasedWindowFunction."
+        )
+        continue
       }
-      if accumulatorMap[alias] != nil {
-        errors.append("Duplicate alias '\(alias)' found in accumulators.")
-      }
-      accumulatorMap[alias] = aliasedAggregate.aggregate
+      if let errorMessage { errors.append(errorMessage) }
+      if map[alias] != nil { errors.append("Duplicate alias '\(alias)' found in fields.") }
+      map[alias] = bridge
     }
     if !errors.isEmpty {
       return (
@@ -108,7 +118,7 @@ enum Helper {
         )
       )
     }
-    return (accumulatorMap, nil)
+    return (map, nil)
   }
 
   static func map(_ elements: [String: Sendable?]) -> FunctionExpression {
