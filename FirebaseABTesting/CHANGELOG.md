@@ -1,3 +1,7 @@
+# Unreleased
+- [fixed] Fixed an issue where `LifecycleEvents.expireExperimentEventName` accepted event names
+  without the required `_` prefix instead of falling back to the default name. (#16785)
+
 # 12.14.0
 - [fixed] Fixed a race condition that could lead to a crash in ABTesting when
   updating experiments. (#16145)
