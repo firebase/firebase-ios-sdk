@@ -1,4 +1,6 @@
-- [fixed] Generate Realtime Database push IDs safely when called concurrently.
+# Unreleased
+- [fixed] Fixed a race where calling childByAutoId() concurrently from multiple
+  threads could generate duplicate push IDs. (#16768)
 
 # 12.19.0
 - [fixed] Reconnect after significant system clock changes so that
