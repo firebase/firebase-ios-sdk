@@ -15,5 +15,5 @@
 import Foundation
 
 /// Empty protocol to register with FirebaseCore's component system.
-@objc(FIRTelemetryProvider)
-protocol TelemetryProvider {}
+@objc(CLSTelemetryProvider)
+protocol CrashlyticsTelemetryProvider {}

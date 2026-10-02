@@ -228,7 +228,7 @@ final class PersistenceManagerTests: XCTestCase {
     let batches = await mockRecoveryManager.uploadedBatches
     XCTAssertEqual(batches.count, 0)
   }
-  
+
   func test_init_whenBufferFactoryReturnsNil_stillUploadsRecoveredSpans() async {
     let recoveredSpan = makeSamplePersistenceSpan(name: "salvaged_crash_span")
 

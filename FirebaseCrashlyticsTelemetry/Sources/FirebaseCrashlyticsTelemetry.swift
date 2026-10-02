@@ -21,9 +21,9 @@ import StdoutExporter
 import URLSessionInstrumentation
 
 @objc(FIRCrashlyticsTelemetry)
-final class CrashlyticsTelemetryProvider: NSObject, Library, TelemetryProvider,
+final class FirebaseCrashlyticsTelemetry: NSObject, Library, CrashlyticsTelemetryProvider,
   @unchecked Sendable {
-  private(set) nonisolated(unsafe) static var instance: CrashlyticsTelemetryProvider?
+  private(set) nonisolated(unsafe) static var instance: FirebaseCrashlyticsTelemetry?
 
   let tracerProvider: TracerProvider
   let loggerProvider: LoggerProvider
@@ -197,7 +197,7 @@ final class CrashlyticsTelemetryProvider: NSObject, Library, TelemetryProvider,
   // MARK: - Library conformance
 
   static func componentsToRegister() -> [Component] {
-    return [Component(TelemetryProvider.self,
+    return [Component(CrashlyticsTelemetryProvider.self,
                       instantiationTiming: .eagerInDefaultApp) { container, isCacheable in
         // Crashlytics Telemetry SDK only works for the default app
         guard let app = container.app, app.isDefaultApp else { return nil }

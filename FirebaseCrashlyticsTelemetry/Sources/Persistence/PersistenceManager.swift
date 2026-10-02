@@ -32,6 +32,7 @@ actor PersistenceManager {
     case addAttribute(spanId: UInt64, key: String, value: String?)
     case spanEnd(spanId: UInt64, endTime: UInt64)
   }
+
   private var pendingEvents = [PersistenceEvent]()
 
   init() {}

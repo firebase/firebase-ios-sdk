@@ -28,7 +28,7 @@ public final class CrashlyticsTelemetry {
   /// - Returns: The total count of currently active spans, or `0` if the SDK is unconfigured.
   @discardableResult
   public static func startSpan() -> Int {
-    return CrashlyticsTelemetryProvider.instance?.startSpan() ?? 0
+    return FirebaseCrashlyticsTelemetry.instance?.startSpan() ?? 0
   }
 
   /// Increments custom tracking attributes inside active spans for debugging and correlation.
@@ -36,7 +36,7 @@ public final class CrashlyticsTelemetry {
   /// - Returns: The updated attribute counter value, or `0` if the SDK is unconfigured.
   @discardableResult
   public static func incrementCustomAttribute() -> Int {
-    return CrashlyticsTelemetryProvider.instance?.incrementCustomAttribute() ?? 0
+    return FirebaseCrashlyticsTelemetry.instance?.incrementCustomAttribute() ?? 0
   }
 
   /// Completes the most recently started active span, marking its status as OK and ending its
@@ -45,11 +45,11 @@ public final class CrashlyticsTelemetry {
   /// - Returns: The remaining count of active spans, or `0` if the SDK is unconfigured.
   @discardableResult
   public static func stopSpan() -> Int {
-    return CrashlyticsTelemetryProvider.instance?.stopSpan() ?? 0
+    return FirebaseCrashlyticsTelemetry.instance?.stopSpan() ?? 0
   }
 
   /// Emits a diagnostic telemetry log, associating it with the current span context if one exists.
   public static func addLog() {
-    CrashlyticsTelemetryProvider.instance?.addLog()
+    FirebaseCrashlyticsTelemetry.instance?.addLog()
   }
 }
