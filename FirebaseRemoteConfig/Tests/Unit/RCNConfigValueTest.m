@@ -79,4 +79,17 @@
   XCTAssertEqual(value.numberValue.longLongValue, strValue.longLongValue);
 }
 
+- (void)testCopyPreservesDataAndSource {
+  NSData *data = [@"value" dataUsingEncoding:NSUTF8StringEncoding];
+  FIRRemoteConfigValue *value =
+      [[FIRRemoteConfigValue alloc] initWithData:data source:FIRRemoteConfigSourceDefault];
+
+  FIRRemoteConfigValue *copy;
+  XCTAssertNoThrow(copy = [value copy]);
+  XCTAssertNotNil(copy);
+  XCTAssertEqualObjects(copy.dataValue, data);
+  XCTAssertEqualObjects(copy.stringValue, @"value");
+  XCTAssertEqual(copy.source, FIRRemoteConfigSourceDefault);
+}
+
 @end
