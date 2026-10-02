@@ -13,7 +13,8 @@
 // limitations under the License.
 
 #import <Foundation/Foundation.h>
-#import "PersistenceSpan.h"
+
+@class PersistenceSpan;
 
 NS_ASSUME_NONNULL_BEGIN
 

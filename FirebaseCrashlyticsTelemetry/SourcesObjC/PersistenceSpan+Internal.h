@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "PersistenceSpan.h"
+#import "FirebaseCrashlyticsTelemetry/SourcesObjC/PersistenceSpan.h"
 
-#include "firebase/telemetry/persistence/span.h"
+#include <firebase/telemetry/persistence/span.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

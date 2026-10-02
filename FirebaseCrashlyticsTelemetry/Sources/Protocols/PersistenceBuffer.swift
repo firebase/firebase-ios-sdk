@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import Foundation
-import PersistenceWrapper
+internal import PersistenceWrapper
 
 protocol PersistenceBuffer: AnyObject, Sendable {
   func add(_ span: PersistenceSpan)

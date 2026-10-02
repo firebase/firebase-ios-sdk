@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "PersistenceSpan+Internal.h"
+#import "FirebaseCrashlyticsTelemetry/SourcesObjC/PersistenceSpan+Internal.h"
 
 namespace ftp = firebase::telemetry::persistence;
 

@@ -1474,7 +1474,10 @@ func firebaseCrashlyticsTelemetryTargets() -> [Target] {
       dependencies: [
         .product(name: "FirebaseTelemetryPersistence", package: "firebase-telemetry-persistence"),
       ],
-      path: "FirebaseCrashlyticsTelemetry/SourcesObjC"
+      path: "FirebaseCrashlyticsTelemetry/SourcesObjC",
+      cSettings: [
+        .headerSearchPath("../.."),
+      ]
     ),
     .target(
       name: "NetworkStatus",

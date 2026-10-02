@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import Foundation
-import PersistenceWrapper
+internal import PersistenceWrapper
 
 enum PersistenceWrapperFactory {
   #if DEBUG
