@@ -79,8 +79,8 @@ class FirestoreQueryObservable<T>: ObservableObject {
         }
       }
 
-      if configuration.error != nil {
-        if configuration.decodingFailureStrategy == .raise {
+      if self.configuration.error != nil {
+        if self.configuration.decodingFailureStrategy == .raise {
           self.animated {
             self.items = []
           }
@@ -137,7 +137,7 @@ class FirestoreQueryObservable<T>: ObservableObject {
       }
 
       if let error = self.configuration.error {
-        if configuration.decodingFailureStrategy == .raise {
+        if self.configuration.decodingFailureStrategy == .raise {
           self.animated {
             self.items = .failure(error)
           }
