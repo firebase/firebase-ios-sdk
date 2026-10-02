@@ -92,8 +92,11 @@
       block(nil, nil, error);
     }
   } else {
-    NSData *imageData = [@"image data" dataUsingEncoding:NSUTF8StringEncoding];
-    NSData *landscapeImageData = [@"landscape image data" dataUsingEncoding:NSUTF8StringEncoding];
+    NSData *imageData =
+        self.imageURL ? [@"image data" dataUsingEncoding:NSUTF8StringEncoding] : nil;
+    NSData *landscapeImageData =
+        self.landscapeImageURL ? [@"landscape image data" dataUsingEncoding:NSUTF8StringEncoding]
+                               : nil;
 
     if (_loadImagesAsynchronously) {
       [self performOnMainQueueAfterDelay:0.01
@@ -1127,6 +1130,27 @@ NSTimeInterval DISPLAY_MIN_INTERVALS = 1;
 
   // Verify that the message content handed to display component is expected
   XCTAssertTrue(delegate.receivedMessageDismissedCallback);
+}
+
+- (void)testCardWithoutImageDoesNotBlockNextMessage {
+  OCMStub([self.mockTimeFetcher currentTimestampInSeconds]).andReturn(1000);
+  OCMStub([self.mockBookkeeper getMessageIDsFromImpressions]).andReturn(@[]);
+  self.m2.renderData.renderingEffectSettings.viewMode = FIRIAMRenderAsCardView;
+  FIRIAMMessageContentDataForTesting *content =
+      (FIRIAMMessageContentDataForTesting *)self.m2.renderData.contentData;
+  content.imageURL = nil;
+  content.landscapeImageURL = nil;
+  [self.clientMessageCache setMessageData:@[ self.m2, self.m4 ]];
+
+  FIRIAMMessageDisplayForTesting *display = [[FIRIAMMessageDisplayForTesting alloc]
+      initWithDelegateInteraction:FIRInAppMessagingDelegateInteractionDismiss];
+  self.displayExecutor.messageDisplayComponent = display;
+
+  [self.displayExecutor checkAndDisplayNextAppForegroundMessage];
+  XCTAssertNil(display.message);
+  [self.displayExecutor checkAndDisplayNextAppForegroundMessage];
+  XCTAssertNotNil(display.message);
+  XCTAssertEqualObjects(display.message.campaignInfo.messageID, self.m4.renderData.messageID);
 }
 
 - (void)testMessageWithDataBundle {
