@@ -651,7 +651,9 @@ std::shared_ptr<api::Expr> WhereConditionsFromCursor(
         conditions.push_back(std::make_shared<api::FunctionExpr>(
             "equal", std::vector<std::shared_ptr<api::Expr>>{
                          orderings[index].expr_shared(), cursors[index]}));
-      } else if (bound.inclusive() && sub_end == orderings.size() - 1) {
+      } else if (bound.inclusive() && sub_end == cursors.size()) {
+        // For an inclusive bound, only the comparison on the last cursor
+        // component may also match a value equal to the cursor.
         conditions.push_back(std::make_shared<api::FunctionExpr>(
             func_inclusive_name,
             std::vector<std::shared_ptr<api::Expr>>{
