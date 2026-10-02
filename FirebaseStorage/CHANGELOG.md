@@ -1,3 +1,8 @@
+# Unreleased
+- [fixed] Fixed a race where an observer added while an upload or download task was completing
+  could be called twice for the success or failure event. This could crash `putDataAsync`,
+  `putFileAsync`, and `writeAsync` when called with an `onProgress` handler. (#16813)
+
 # 12.19.0
 - [fixed] Fixed an issue where constructing a download URL could fail or produce
   an invalid path if the storage bucket name contained special characters. (#16529)
