@@ -33,7 +33,10 @@
   [[NSFileManager defaultManager] removeItemAtPath:path error:nil];
 
   FIRCLSFile file;
-  XCTAssertTrue(FIRCLSFileInitWithPath(&file, [path fileSystemRepresentation], false));
+  if (!FIRCLSFileInitWithPath(&file, [path fileSystemRepresentation], false)) {
+    XCTFail(@"Failed to open %@", path);
+    return;
+  }
   XCTAssertTrue(FIRCLSBinaryImageRecordMainExecutable(&file));
   FIRCLSFileClose(&file);
 
