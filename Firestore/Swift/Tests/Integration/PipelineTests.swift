@@ -6448,7 +6448,6 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testWindowFieldsComputesArrayAggDistinct() async throws {
-    throw XCTSkip("Pending backend support for array_agg_distinct in add_window_fields")
     let collRef = collectionRef(withDocuments: Self.windowTestDocs)
     let snapshot = try await collRef.firestore.pipeline()
       .collection(collRef.path)
@@ -6463,8 +6462,8 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       .execute()
 
     XCTAssertEqual(snapshot.results.count, 5)
-    XCTAssertEqual(snapshot.results[0].get("distinctPrices") as? [Int], [12, 30])
-    XCTAssertEqual(snapshot.results[2].get("distinctPrices") as? [Int], [30, 60])
+    XCTAssertEqual((snapshot.results[0].get("distinctPrices") as? [Int])?.sorted(), [12, 30])
+    XCTAssertEqual((snapshot.results[2].get("distinctPrices") as? [Int])?.sorted(), [30, 60])
   }
 
   func testWindowFieldsComputesARunningTotal() async throws {
