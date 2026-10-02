@@ -1,3 +1,8 @@
+# Unreleased
+- [fixed] Fixed `Firestore.Decoder` reusing the `DocumentReference` from a previous
+  `decode(_:from:in:)` call to populate `@DocumentID` properties when a later call on the same
+  decoder has no reference. (#16789)
+
 # 13.0.0
 - [changed] Dropped C++14 support; Firestore now requires C++17.
 - [changed] Update gRPC dependency to 1.83.1.
