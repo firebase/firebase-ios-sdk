@@ -256,4 +256,32 @@ final class ChatTests: XCTestCase {
     XCTAssertEqual(part3.text, "Third turn")
     XCTAssertEqual(part3.speechMetadata, SpeechMetadata(speaker: "Jane", style: "calm"))
   }
+
+  func testSendMessage_unary_codeExecution_appendsHistory() async throws {
+    MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
+      forResource: "unary-success-code-execution",
+      withExtension: "json",
+      subdirectory: "mock-responses/vertexai"
+    )
+    let model = GenerativeModel(
+      modelName: modelName,
+      modelResourceName: modelResourceName,
+      firebaseInfo: GenerativeModelTestUtil.testFirebaseInfo(),
+      apiConfig: FirebaseAI.defaultEnterpriseAPIConfig,
+      tools: [.codeExecution()],
+      requestOptions: RequestOptions(),
+      urlSession: urlSession
+    )
+    let chat = model.startChat()
+
+    let response = try await chat.sendMessage("Test input")
+
+    XCTAssertEqual(chat.history.count, 2)
+    let modelResponse = try XCTUnwrap(chat.history.last)
+    XCTAssertEqual(modelResponse.role, "model")
+    let expectedParts = try XCTUnwrap(response.candidates.first?.content.parts)
+    XCTAssertEqual(modelResponse.parts.count, expectedParts.count)
+    XCTAssertEqual(modelResponse.parts.compactMap { $0 as? ExecutableCodePart }.count, 1)
+    XCTAssertEqual(modelResponse.parts.compactMap { $0 as? CodeExecutionResultPart }.count, 1)
+  }
 }

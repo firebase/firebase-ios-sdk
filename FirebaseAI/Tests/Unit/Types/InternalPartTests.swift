@@ -633,4 +633,27 @@ final class InternalPartTests: XCTestCase {
     }
     """)
   }
+
+  func testEncodeUnsupportedPart_doesNotCrash() throws {
+    let json = """
+    {
+      "futurePartType": {"key": "value"},
+      "thought": true,
+      "thoughtSignature": "sig"
+    }
+    """
+    let jsonData = try XCTUnwrap(json.data(using: .utf8))
+    let part = try decoder.decode(InternalPart.self, from: jsonData)
+    XCTAssertNil(part.data)
+
+    // Parts received from the server are sent back as history in chat sessions.
+    let encodedData = try JSONEncoder().encode(part)
+
+    let encodedJSON = try XCTUnwrap(
+      JSONSerialization.jsonObject(with: encodedData) as? [String: Any]
+    )
+    XCTAssertEqual(encodedJSON.count, 2)
+    XCTAssertEqual(encodedJSON["thought"] as? Bool, true)
+    XCTAssertEqual(encodedJSON["thoughtSignature"] as? String, "sig")
+  }
 }
