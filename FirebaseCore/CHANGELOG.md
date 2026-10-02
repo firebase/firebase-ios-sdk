@@ -1,6 +1,4 @@
 # Firebase 13.0.0
-- [fixed] Prevented a deinitializing heartbeat storage instance from evicting a
-  newer cached instance with the same identifier.
 - [feature] Added support for Swift Package Traits (SE-0450) to allow developers
   to opt out of unused features and prune heavy dependencies. To opt out of
   Firestore in Xcode: select your project -> **Package Dependencies**, and in
