@@ -403,6 +403,19 @@ TEST(PipelineUtilTest, ToPipelineStagesCursorsMatchQuerySemantics) {
   }
 }
 
+TEST(PipelineUtilTest,
+     ToPipelineStagesRejectsCursorWithMoreValuesThanOrderings) {
+  // The API rejects such cursors, so this only guards the conversion against
+  // reading past the end of the orderings, here (a, __name__).
+  core::Query query =
+      testutil::Query("k").AddingOrderBy(testutil::OrderBy("a"));
+  Bound cursor = Bound::FromValue(testutil::Array(2, KeyRef("k/3"), 3),
+                                  /*inclusive=*/true);
+
+  EXPECT_ANY_THROW(ToPipelineStages(query.StartingAt(cursor)));
+  EXPECT_ANY_THROW(ToPipelineStages(query.EndingAt(cursor)));
+}
+
 }  // namespace core
 }  // namespace firestore
 }  // namespace firebase

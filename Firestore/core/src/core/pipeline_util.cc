@@ -634,6 +634,8 @@ std::shared_ptr<api::Expr> WhereConditionsFromCursor(
     bool is_before) {
   std::vector<std::shared_ptr<api::Expr>> cursors;
   const auto& pos = bound.position();
+  HARD_ASSERT(pos->values_count <= orderings.size(),
+              "Bound has more components than the provided orderings.");
   for (size_t i = 0; i < pos->values_count; ++i) {
     cursors.push_back(
         std::make_shared<api::Constant>(model::DeepClone(pos->values[i])));
