@@ -34,6 +34,19 @@
 @property(nonatomic) id<FIRIAMTimeFetcher> timeFetcher;
 @end
 
+// Returns `value` if it is an NSString, nil otherwise. Guards against server values of an
+// unexpected type being stored as strings and crashing later outside of the parser.
+static NSString *_Nullable FIRIAMStringOrNil(id _Nullable value) {
+  return [value isKindOfClass:[NSString class]] ? value : nil;
+}
+
+// Returns `value` if it is an NSDictionary, nil otherwise. Used to safely walk nested nodes so a
+// wrong-typed intermediate node (e.g. NSNull or NSString) drops just that field rather than raising
+// an unrecognized selector exception that discards the whole message.
+static NSDictionary *_Nullable FIRIAMDictionaryOrNil(id _Nullable value) {
+  return [value isKindOfClass:[NSDictionary class]] ? value : nil;
+}
+
 @implementation FIRIAMFetchResponseParser
 
 - (instancetype)initWithTimeFetcher:(id<FIRIAMTimeFetcher>)timeFetcher {
@@ -43,11 +56,21 @@
   return self;
 }
 
-- (NSArray<FIRIAMMessageDefinition *> *)parseAPIResponseDictionary:(NSDictionary *)responseDict
-                                                 discardedMsgCount:(NSInteger *)discardCount
-                                            fetchWaitTimeInSeconds:(NSNumber **)fetchWaitTime {
+- (nullable NSArray<FIRIAMMessageDefinition *> *)
+    parseAPIResponseDictionary:(NSDictionary *)responseDict
+             discardedMsgCount:(NSInteger *)discardCount
+        fetchWaitTimeInSeconds:(NSNumber **)fetchWaitTime {
   if (fetchWaitTime != nil) {
     *fetchWaitTime = nil;  // It would be set to non nil value if it's detected in responseDict
+  }
+
+  if (![responseDict isKindOfClass:[NSDictionary class]]) {
+    FIRLogWarning(kFIRLoggerInAppMessaging, @"I-IAM900019", @"API response is not a dictionary: %@",
+                  responseDict);
+    return nil;
+  }
+
+  if (fetchWaitTime != nil) {
     if ([responseDict[@"expirationEpochTimestampMillis"] isKindOfClass:NSString.class]) {
       NSTimeInterval nextFetchTimeInResponse =
           [responseDict[@"expirationEpochTimestampMillis"] doubleValue] / 1000;
@@ -71,12 +94,19 @@
   }
 
   NSArray<NSDictionary *> *messageArray = responseDict[@"messages"];
+  if (messageArray && ![messageArray isKindOfClass:[NSArray class]]) {
+    FIRLogWarning(kFIRLoggerInAppMessaging, @"I-IAM900020",
+                  @"messages node in API response is not an array: %@", messageArray);
+    return nil;
+  }
   NSInteger discarded = 0;
 
   NSMutableArray<FIRIAMMessageDefinition *> *definitions = [[NSMutableArray alloc] init];
   for (NSDictionary *nextMsg in messageArray) {
     FIRIAMMessageDefinition *nextDefinition =
-        [self convertToMessageDefinitionWithMessageDict:nextMsg];
+        [nextMsg isKindOfClass:[NSDictionary class]]
+            ? [self convertToMessageDefinitionWithMessageDict:nextMsg]
+            : nil;
     if (nextDefinition) {
       [definitions addObject:nextDefinition];
     } else {
@@ -99,25 +129,30 @@
 // Return nil if no valid triggering condition can be detected
 - (NSArray<FIRIAMDisplayTriggerDefinition *> *)parseTriggeringCondition:
     (NSArray<NSDictionary *> *)triggerConditions {
-  if (triggerConditions == nil || triggerConditions.count == 0) {
+  if (![triggerConditions isKindOfClass:[NSArray class]] || triggerConditions.count == 0) {
     return nil;
   }
 
   NSMutableArray<FIRIAMDisplayTriggerDefinition *> *triggers = [[NSMutableArray alloc] init];
 
   for (NSDictionary *nextTriggerCondition in triggerConditions) {
+    if (![nextTriggerCondition isKindOfClass:[NSDictionary class]]) {
+      continue;
+    }
     // Handle app_launch and on_foreground cases.
     if (nextTriggerCondition[@"fiamTrigger"]) {
-      if ([nextTriggerCondition[@"fiamTrigger"] isEqualToString:@"ON_FOREGROUND"]) {
+      NSString *fiamTrigger = FIRIAMStringOrNil(nextTriggerCondition[@"fiamTrigger"]);
+      if ([fiamTrigger isEqualToString:@"ON_FOREGROUND"]) {
         [triggers addObject:[[FIRIAMDisplayTriggerDefinition alloc] initForAppForegroundTrigger]];
-      } else if ([nextTriggerCondition[@"fiamTrigger"] isEqualToString:@"APP_LAUNCH"]) {
+      } else if ([fiamTrigger isEqualToString:@"APP_LAUNCH"]) {
         [triggers addObject:[[FIRIAMDisplayTriggerDefinition alloc] initForAppLaunchTrigger]];
       }
     } else if ([nextTriggerCondition[@"event"] isKindOfClass:[NSDictionary class]]) {
       NSDictionary *triggeringEvent = (NSDictionary *)nextTriggerCondition[@"event"];
-      if (triggeringEvent[@"name"]) {
+      NSString *eventName = FIRIAMStringOrNil(triggeringEvent[@"name"]);
+      if (eventName.length > 0) {
         [triggers addObject:[[FIRIAMDisplayTriggerDefinition alloc]
-                                initWithFirebaseAnalyticEvent:triggeringEvent[@"name"]]];
+                                initWithFirebaseAnalyticEvent:eventName]];
       }
     }
   }
@@ -146,14 +181,14 @@
       return nil;
     }
 
-    NSString *messageID = payloadNode[@"campaignId"];
-    if (!messageID) {
+    NSString *messageID = FIRIAMStringOrNil(payloadNode[@"campaignId"]);
+    if (messageID.length == 0) {
       FIRLogWarning(kFIRLoggerInAppMessaging, @"I-IAM900010",
                     @"message id is missing in message node %@", messageNode);
       return nil;
     }
 
-    NSString *messageName = payloadNode[@"campaignName"];
+    NSString *messageName = FIRIAMStringOrNil(payloadNode[@"campaignName"]);
     if (!messageName && !isTestMessage) {
       FIRLogWarning(kFIRLoggerInAppMessaging, @"I-IAM900011",
                     @"campaign name is missing in non-test message node %@", messageNode);
@@ -163,7 +198,7 @@
     ABTExperimentPayload *experimentPayload = nil;
     NSDictionary *experimentPayloadDictionary = payloadNode[@"experimentPayload"];
 
-    if (experimentPayloadDictionary) {
+    if ([experimentPayloadDictionary isKindOfClass:[NSDictionary class]]) {
       experimentPayload =
           [[ABTExperimentPayload alloc] initWithDictionary:experimentPayloadDictionary];
     }
@@ -209,13 +244,16 @@
       NSDictionary *bannerNode = (NSDictionary *)contentNode[@"banner"];
       mode = FIRIAMRenderAsBannerView;
 
-      title = bannerNode[@"title"][@"text"];
-      titleTextColor = [UIColor firiam_colorWithHexString:bannerNode[@"title"][@"hexColor"]];
+      NSDictionary *titleNode = FIRIAMDictionaryOrNil(bannerNode[@"title"]);
+      title = FIRIAMStringOrNil(titleNode[@"text"]);
+      titleTextColor = [UIColor firiam_colorWithHexString:titleNode[@"hexColor"]];
 
-      body = bannerNode[@"body"][@"text"];
+      NSDictionary *bodyNode = FIRIAMDictionaryOrNil(bannerNode[@"body"]);
+      body = FIRIAMStringOrNil(bodyNode[@"text"]);
 
-      imageURLStr = bannerNode[@"imageUrl"];
-      actionURLStr = bannerNode[@"action"][@"actionUrl"];
+      imageURLStr = FIRIAMStringOrNil(bannerNode[@"imageUrl"]);
+      NSDictionary *actionNode = FIRIAMDictionaryOrNil(bannerNode[@"action"]);
+      actionURLStr = FIRIAMStringOrNil(actionNode[@"actionUrl"]);
       viewCardBackgroundColor =
           [UIColor firiam_colorWithHexString:bannerNode[@"backgroundHexColor"]];
 
@@ -223,56 +261,67 @@
       mode = FIRIAMRenderAsModalView;
 
       NSDictionary *modalNode = (NSDictionary *)contentNode[@"modal"];
-      title = modalNode[@"title"][@"text"];
-      titleTextColor = [UIColor firiam_colorWithHexString:modalNode[@"title"][@"hexColor"]];
+      NSDictionary *titleNode = FIRIAMDictionaryOrNil(modalNode[@"title"]);
+      title = FIRIAMStringOrNil(titleNode[@"text"]);
+      titleTextColor = [UIColor firiam_colorWithHexString:titleNode[@"hexColor"]];
 
-      body = modalNode[@"body"][@"text"];
+      NSDictionary *bodyNode = FIRIAMDictionaryOrNil(modalNode[@"body"]);
+      body = FIRIAMStringOrNil(bodyNode[@"text"]);
 
-      imageURLStr = modalNode[@"imageUrl"];
-      actionButtonText = modalNode[@"actionButton"][@"text"][@"text"];
-      btnTxtColor =
-          [UIColor firiam_colorWithHexString:modalNode[@"actionButton"][@"text"][@"hexColor"]];
-      btnBgColor =
-          [UIColor firiam_colorWithHexString:modalNode[@"actionButton"][@"buttonHexColor"]];
+      imageURLStr = FIRIAMStringOrNil(modalNode[@"imageUrl"]);
+      NSDictionary *actionButtonNode = FIRIAMDictionaryOrNil(modalNode[@"actionButton"]);
+      NSDictionary *actionButtonTextNode = FIRIAMDictionaryOrNil(actionButtonNode[@"text"]);
+      actionButtonText = FIRIAMStringOrNil(actionButtonTextNode[@"text"]);
+      btnTxtColor = [UIColor firiam_colorWithHexString:actionButtonTextNode[@"hexColor"]];
+      btnBgColor = [UIColor firiam_colorWithHexString:actionButtonNode[@"buttonHexColor"]];
 
-      actionURLStr = modalNode[@"action"][@"actionUrl"];
+      NSDictionary *actionNode = FIRIAMDictionaryOrNil(modalNode[@"action"]);
+      actionURLStr = FIRIAMStringOrNil(actionNode[@"actionUrl"]);
       viewCardBackgroundColor =
           [UIColor firiam_colorWithHexString:modalNode[@"backgroundHexColor"]];
     } else if ([content[@"imageOnly"] isKindOfClass:[NSDictionary class]]) {
       mode = FIRIAMRenderAsImageOnlyView;
       NSDictionary *imageOnlyNode = (NSDictionary *)contentNode[@"imageOnly"];
 
-      imageURLStr = imageOnlyNode[@"imageUrl"];
+      imageURLStr = FIRIAMStringOrNil(imageOnlyNode[@"imageUrl"]);
 
       if (!imageURLStr) {
         FIRLogWarning(kFIRLoggerInAppMessaging, @"I-IAM900007",
                       @"Image url is missing for image-only message %@", messageNode);
         return nil;
       }
-      actionURLStr = imageOnlyNode[@"action"][@"actionUrl"];
+      NSDictionary *actionNode = FIRIAMDictionaryOrNil(imageOnlyNode[@"action"]);
+      actionURLStr = FIRIAMStringOrNil(actionNode[@"actionUrl"]);
     } else if ([content[@"card"] isKindOfClass:[NSDictionary class]]) {
       mode = FIRIAMRenderAsCardView;
       NSDictionary *cardNode = (NSDictionary *)contentNode[@"card"];
-      title = cardNode[@"title"][@"text"];
-      titleTextColor = [UIColor firiam_colorWithHexString:cardNode[@"title"][@"hexColor"]];
+      NSDictionary *titleNode = FIRIAMDictionaryOrNil(cardNode[@"title"]);
+      title = FIRIAMStringOrNil(titleNode[@"text"]);
+      titleTextColor = [UIColor firiam_colorWithHexString:titleNode[@"hexColor"]];
 
-      body = cardNode[@"body"][@"text"];
+      NSDictionary *bodyNode = FIRIAMDictionaryOrNil(cardNode[@"body"]);
+      body = FIRIAMStringOrNil(bodyNode[@"text"]);
 
-      imageURLStr = cardNode[@"portraitImageUrl"];
-      landscapeImageURLStr = cardNode[@"landscapeImageUrl"];
+      imageURLStr = FIRIAMStringOrNil(cardNode[@"portraitImageUrl"]);
+      landscapeImageURLStr = FIRIAMStringOrNil(cardNode[@"landscapeImageUrl"]);
 
       viewCardBackgroundColor = [UIColor firiam_colorWithHexString:cardNode[@"backgroundHexColor"]];
 
-      actionButtonText = cardNode[@"primaryActionButton"][@"text"][@"text"];
-      btnTxtColor = [UIColor
-          firiam_colorWithHexString:cardNode[@"primaryActionButton"][@"text"][@"hexColor"]];
+      NSDictionary *primaryButtonNode = FIRIAMDictionaryOrNil(cardNode[@"primaryActionButton"]);
+      NSDictionary *primaryButtonTextNode = FIRIAMDictionaryOrNil(primaryButtonNode[@"text"]);
+      actionButtonText = FIRIAMStringOrNil(primaryButtonTextNode[@"text"]);
+      btnTxtColor = [UIColor firiam_colorWithHexString:primaryButtonTextNode[@"hexColor"]];
 
-      secondaryActionButtonText = cardNode[@"secondaryActionButton"][@"text"][@"text"];
-      secondaryBtnTxtColor = [UIColor
-          firiam_colorWithHexString:cardNode[@"secondaryActionButton"][@"text"][@"hexColor"]];
+      NSDictionary *secondaryButtonNode = FIRIAMDictionaryOrNil(cardNode[@"secondaryActionButton"]);
+      NSDictionary *secondaryButtonTextNode = FIRIAMDictionaryOrNil(secondaryButtonNode[@"text"]);
+      secondaryActionButtonText = FIRIAMStringOrNil(secondaryButtonTextNode[@"text"]);
+      secondaryBtnTxtColor =
+          [UIColor firiam_colorWithHexString:secondaryButtonTextNode[@"hexColor"]];
 
-      actionURLStr = cardNode[@"primaryAction"][@"actionUrl"];
-      secondaryActionURLStr = cardNode[@"secondaryAction"][@"actionUrl"];
+      NSDictionary *primaryActionNode = FIRIAMDictionaryOrNil(cardNode[@"primaryAction"]);
+      actionURLStr = FIRIAMStringOrNil(primaryActionNode[@"actionUrl"]);
+      NSDictionary *secondaryActionNode = FIRIAMDictionaryOrNil(cardNode[@"secondaryAction"]);
+      secondaryActionURLStr = FIRIAMStringOrNil(secondaryActionNode[@"actionUrl"]);
 
     } else {
       // Unknown message type

@@ -168,9 +168,18 @@ static NSInteger const SuccessHTTPStatusCode = 200;
                             @"Fetch API response headers are %@", [httpResponse allHeaderFields]);
 
                 NSError *errorJson = nil;
-                NSDictionary *responseDict = [NSJSONSerialization JSONObjectWithData:data
-                                                                             options:kNilOptions
-                                                                               error:&errorJson];
+                NSDictionary *responseDict = nil;
+                if (data) {
+                  responseDict = [NSJSONSerialization JSONObjectWithData:data
+                                                                 options:kNilOptions
+                                                                   error:&errorJson];
+                } else {
+                  // NSJSONSerialization throws if data is nil.
+                  errorJson = [NSError
+                      errorWithDomain:FIRInAppMessagingErrorDomain
+                                 code:0
+                             userInfo:@{NSLocalizedDescriptionKey : @"Fetch response has no body"}];
+                }
                 if (errorJson) {
                   FIRLogWarning(kFIRLoggerInAppMessaging, @"I-IAM130003",
                                 @"Failed to parse the response body as JSON string %@", errorJson);
