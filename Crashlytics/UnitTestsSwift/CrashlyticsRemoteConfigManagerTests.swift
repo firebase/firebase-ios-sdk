@@ -99,8 +99,9 @@ final class CrashlyticsRemoteConfigManagerTests: XCTestCase {
 
     rcManager.updateRolloutsState(rolloutsState: state, reportID: "789")
 
-    XCTAssertEqual(rcManager.rolloutAssignment.first?.parameterValue.count, 256)
-    XCTAssertEqual(rcManager.rolloutAssignment.first?.parameterValue, String(value.prefix(256)))
+    let firstAssignment = try XCTUnwrap(rcManager.rolloutAssignment.first)
+    XCTAssertEqual(firstAssignment.parameterValue.count, 256)
+    XCTAssertEqual(firstAssignment.parameterValue, String(value.prefix(256)))
   }
 
   func testRemoteConfigManagerGenerateEncodedRolloutAssignmentsJson() throws {
