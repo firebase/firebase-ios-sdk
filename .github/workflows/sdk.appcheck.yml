@@ -58,6 +58,44 @@ jobs:
       sanitizers: ${{ matrix.diagnostic }}
       setup_command: scripts/setup_spm_tests.sh
 
+  # Build-only. The E2E suites need live credentials, and App Attest and
+  # DeviceCheck need a signed physical device; CI has neither. This catches
+  # compile breaks in the test app and its tests. See
+  # FirebaseAppCheck/Apps/FIRAppCheckTestApp/E2E_TESTING.md to run them.
+  test_app_build:
+    if: |
+      (github.repository == 'firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
+      contains(fromJSON('["pull_request", "workflow_dispatch"]'), github.event_name)
+    runs-on: macos-26
+    env:
+      FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
+    steps:
+    - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      with:
+        persist-credentials: false
+    - name: Xcode
+      run: sudo xcode-select -s /Applications/Xcode_26.4.app/Contents/Developer
+    - name: Install placeholder GoogleService-Info.plist
+      # The real plist is gitignored but the app target lists it as a
+      # resource, so the build needs a file at that path. Nothing runs, so the
+      # placeholder values from FirebaseCore's unit tests are enough.
+      run: |
+        cp FirebaseCore/Tests/Unit/Resources/GoogleService-Info.plist \
+          FirebaseAppCheck/Apps/FIRAppCheckTestApp/FIRAppCheckTestApp/GoogleService-Info.plist
+    - name: Build app and tests
+      uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
+      with:
+        timeout_minutes: 60
+        max_attempts: 3
+        retry_wait_seconds: 120
+        command: |
+          export TOOLCHAINS=com.apple.dt.toolchain.XcodeDefault
+          xcodebuild build-for-testing \
+            -project FirebaseAppCheck/Apps/FIRAppCheckTestApp/FIRAppCheckTestApp.xcodeproj \
+            -scheme FIRAppCheckTestApp \
+            -destination 'generic/platform=iOS Simulator' \
+            CODE_SIGNING_ALLOWED=NO
+
   app_check-cron-only:
     needs: pod_lib_lint
     uses: ./.github/workflows/_cocoapods.cron.yml
