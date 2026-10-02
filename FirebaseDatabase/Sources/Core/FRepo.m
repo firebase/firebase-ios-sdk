@@ -561,6 +561,7 @@
                                            userInfo:errorDict],
                            nil);
                    }];
+                   [self.persistenceManager setQueryInactive:querySpec];
                    return;
                }
                [self.eventRaiser raiseCallback:^{
