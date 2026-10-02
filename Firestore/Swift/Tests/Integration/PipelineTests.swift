@@ -6571,6 +6571,105 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     XCTAssertEqual(snapshot.results[4].get("windowCount") as? Int, 0)
   }
 
+  func testWindowFieldsComputesALookBehindAverageWithANegativeFollowingBound() async throws {
+    let collRef = collectionRef(withDocuments: Self.windowTestDocs)
+    let snapshot = try await collRef.firestore.pipeline()
+      .collection(collRef.path)
+      .addWindowFields(
+        window: .documents(preceding: 2, following: -1)
+          .sort(Field("date").ascending()),
+        fields: [
+          Field("salesPrice").average().as("lookBehindAverage"),
+          CountAll().as("windowCount"),
+        ]
+      )
+      .sort([Field("date").ascending()])
+      .select(["product", "lookBehindAverage", "windowCount"])
+      .execute()
+
+    XCTAssertEqual(snapshot.results.count, 5)
+    XCTAssertNil(snapshot.results[0].get("lookBehindAverage"))
+    XCTAssertEqual(snapshot.results[0].get("windowCount") as? Int, 0)
+
+    XCTAssertEqual(snapshot.results[1].get("lookBehindAverage") as? Double, 12.0)
+    XCTAssertEqual(snapshot.results[1].get("windowCount") as? Int, 1)
+
+    XCTAssertEqual(snapshot.results[2].get("lookBehindAverage") as? Double, 21.0)
+    XCTAssertEqual(snapshot.results[2].get("windowCount") as? Int, 2)
+
+    XCTAssertEqual(snapshot.results[3].get("lookBehindAverage") as? Double, 30.0)
+    XCTAssertEqual(snapshot.results[3].get("windowCount") as? Int, 2)
+
+    XCTAssertEqual(snapshot.results[4].get("lookBehindAverage") as? Double, 45.0)
+    XCTAssertEqual(snapshot.results[4].get("windowCount") as? Int, 2)
+  }
+
+  func testWindowFieldsComputesRangeWithNegativeFollowingBound() async throws {
+    let collRef = collectionRef(withDocuments: Self.windowTestDocs)
+    let snapshot = try await collRef.firestore.pipeline()
+      .collection(collRef.path)
+      .addWindowFields(
+        window: .range(preceding: .unbounded, following: -1)
+          .sort(Field("salesPrice").ascending()),
+        fields: [
+          Field("salesPrice").average().as("lowerPriceAverage"),
+          CountAll().as("windowCount"),
+        ]
+      )
+      .sort([Field("date").ascending()])
+      .select(["product", "lowerPriceAverage", "windowCount"])
+      .execute()
+
+    XCTAssertEqual(snapshot.results.count, 5)
+    XCTAssertNil(snapshot.results[0].get("lowerPriceAverage"))
+    XCTAssertEqual(snapshot.results[0].get("windowCount") as? Int, 0)
+
+    XCTAssertEqual(snapshot.results[1].get("lowerPriceAverage") as? Double, 12.0)
+    XCTAssertEqual(snapshot.results[1].get("windowCount") as? Int, 1)
+
+    XCTAssertEqual(snapshot.results[2].get("lowerPriceAverage") as? Double, 12.0)
+    XCTAssertEqual(snapshot.results[2].get("windowCount") as? Int, 1)
+
+    XCTAssertEqual(snapshot.results[3].get("lowerPriceAverage") as? Double, 24.0)
+    XCTAssertEqual(snapshot.results[3].get("windowCount") as? Int, 3)
+
+    XCTAssertEqual(snapshot.results[4].get("lowerPriceAverage") as? Double, 24.0)
+    XCTAssertEqual(snapshot.results[4].get("windowCount") as? Int, 3)
+  }
+
+  func testWindowFieldsComputesRangeWithNegativePrecedingBound() async throws {
+    let collRef = collectionRef(withDocuments: Self.windowTestDocs)
+    let snapshot = try await collRef.firestore.pipeline()
+      .collection(collRef.path)
+      .addWindowFields(
+        window: .range(preceding: -1, following: .unbounded)
+          .sort(Field("salesPrice").ascending()),
+        fields: [
+          Field("salesPrice").average().as("higherPriceAverage"),
+          CountAll().as("windowCount"),
+        ]
+      )
+      .sort([Field("date").ascending()])
+      .select(["product", "higherPriceAverage", "windowCount"])
+      .execute()
+
+    XCTAssertEqual(snapshot.results.count, 5)
+    XCTAssertEqual(snapshot.results[0].get("higherPriceAverage") as? Double, 45.0)
+    XCTAssertEqual(snapshot.results[0].get("windowCount") as? Int, 4)
+
+    XCTAssertEqual(snapshot.results[1].get("higherPriceAverage") as? Double, 60.0)
+    XCTAssertEqual(snapshot.results[1].get("windowCount") as? Int, 2)
+
+    XCTAssertEqual(snapshot.results[2].get("higherPriceAverage") as? Double, 60.0)
+    XCTAssertEqual(snapshot.results[2].get("windowCount") as? Int, 2)
+
+    XCTAssertNil(snapshot.results[3].get("higherPriceAverage"))
+    XCTAssertEqual(snapshot.results[3].get("windowCount") as? Int, 0)
+
+    XCTAssertNil(snapshot.results[4].get("higherPriceAverage"))
+    XCTAssertEqual(snapshot.results[4].get("windowCount") as? Int, 0)
+  }
+
   func testWindowFieldsComputesAValueBasedRangeWindow() async throws {
     let collRef = collectionRef(withDocuments: Self.windowTestDocs)
     let snapshot = try await collRef.firestore.pipeline()
