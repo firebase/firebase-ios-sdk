@@ -123,7 +123,7 @@ final class PersistenceManagerTests: XCTestCase {
 
   // MARK: - 2. Recovery & Upload Pipeline Tests
 
-  func test_init_whenRecoveredSpansPresent_convertsAndUploadsAllFields() async {
+  func test_configure_whenRecoveredSpansPresent_convertsAndUploadsAllFields() async {
     let sampleSpan = makeSamplePersistenceSpan(
       name: "crash_in_flight_operation",
       traceIdHi: 0xAAAA_BBBB_CCCC_DDDD,
@@ -169,7 +169,7 @@ final class PersistenceManagerTests: XCTestCase {
     XCTAssertEqual(mockBuffer.endSpanCalls[0].spanId, 0x9999)
   }
 
-  func test_init_whenMultipleRecoveredSpansPresent_uploadsAllSpansInSingleBatch() async {
+  func test_configure_whenMultipleRecoveredSpansPresent_uploadsAllSpansInSingleBatch() async {
     let spanOne = makeSamplePersistenceSpan(name: "span_one", spanId: 0x101)
     let spanTwo = makeSamplePersistenceSpan(name: "span_two", spanId: 0x202)
 
@@ -193,7 +193,7 @@ final class PersistenceManagerTests: XCTestCase {
     XCTAssertEqual(batch[1].name, "span_two")
   }
 
-  func test_init_whenRecoveredSpanHasZeroParentSpanId_mapsParentSpanIdToNil() async {
+  func test_configure_whenRecoveredSpanHasZeroParentSpanId_mapsParentSpanIdToNil() async {
     let rootSpan = makeSamplePersistenceSpan(name: "root_span", parentSpanId: 0)
 
     let uploadExpectation = expectation(description: "Upload root span")
@@ -212,7 +212,7 @@ final class PersistenceManagerTests: XCTestCase {
     XCTAssertNil(recovered?.parentSpanID)
   }
 
-  func test_init_whenRecoveredSpansListIsEmpty_doesNotTriggerUpload() async {
+  func test_configure_whenRecoveredSpansListIsEmpty_doesNotTriggerUpload() async {
     let invertedExpectation = expectation(description: "No upload triggered for empty spans")
     invertedExpectation.isInverted = true
     await mockRecoveryManager.setUploadExpectation(invertedExpectation)
@@ -227,6 +227,56 @@ final class PersistenceManagerTests: XCTestCase {
 
     let batches = await mockRecoveryManager.uploadedBatches
     XCTAssertEqual(batches.count, 0)
+  }
+  
+  func test_init_whenBufferFactoryReturnsNil_stillUploadsRecoveredSpans() async {
+    let recoveredSpan = makeSamplePersistenceSpan(name: "salvaged_crash_span")
+
+    let uploadExpectation = expectation(description: "Upload spans when live buffer fails")
+    await mockRecoveryManager.setUploadExpectation(uploadExpectation)
+
+    PersistenceWrapperFactory.mockBuffer = nil
+    PersistenceWrapperFactory.simulateBufferFailure = true
+    PersistenceWrapperFactory.mockRecoveredSpans = [recoveredSpan]
+
+    let manager = PersistenceManager()
+    await manager.configure(recoveryManager: mockRecoveryManager)
+
+    await fulfillment(of: [uploadExpectation], timeout: 2.0)
+
+    let batches = await mockRecoveryManager.uploadedBatches
+    XCTAssertEqual(batches.count, 1)
+    XCTAssertEqual(batches.first?.first?.name, "salvaged_crash_span")
+
+    await manager.onSpanEnd(spanId: 0x1234, endTime: 2_002_000_000)
+    XCTAssertEqual(mockBuffer.endSpanCalls.count, 0)
+  }
+
+  func test_init_whenBufferFactoryReturnsNilAndNoRecoveredSpans_handlesFailureGracefully() async {
+    let invertedExpectation = expectation(description: "No upload on total failure")
+    invertedExpectation.isInverted = true
+    await mockRecoveryManager.setUploadExpectation(invertedExpectation)
+
+    PersistenceWrapperFactory.mockBuffer = nil
+    PersistenceWrapperFactory.simulateBufferFailure = true
+    PersistenceWrapperFactory.mockRecoveredSpans = []
+
+    let manager = PersistenceManager()
+    await manager.configure(recoveryManager: mockRecoveryManager)
+
+    await fulfillment(of: [invertedExpectation], timeout: 0.2)
+
+    let batches = await mockRecoveryManager.uploadedBatches
+    XCTAssertEqual(batches.count, 0)
+
+    let spanData = MockTrace.mockSpan()
+    await manager.onSpanStart(span: spanData)
+    await manager.onSpanAddAttribute(spanId: 100, key: "key", value: "value")
+    await manager.onSpanEnd(spanId: 100, endTime: 2_002_000_000)
+
+    XCTAssertEqual(mockBuffer.addedSpans.count, 0)
+    XCTAssertEqual(mockBuffer.setAttributeCalls.count, 0)
+    XCTAssertEqual(mockBuffer.endSpanCalls.count, 0)
   }
 
   // MARK: - 3. SpanProcessor Operations (Active Buffer)
