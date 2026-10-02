@@ -1,3 +1,8 @@
+# Unreleased
+- [fixed] Fixed a memory leak in `StorageReference.listAll(completion:)` where the completion
+  handler, anything it captured, and partially listed results were never released after the
+  listing failed. (#16814)
+
 # 12.19.0
 - [fixed] Fixed an issue where constructing a download URL could fail or produce
   an invalid path if the storage bucket name contained special characters. (#16529)
