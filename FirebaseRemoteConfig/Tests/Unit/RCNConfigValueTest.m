@@ -84,12 +84,12 @@
   FIRRemoteConfigValue *value =
       [[FIRRemoteConfigValue alloc] initWithData:data source:FIRRemoteConfigSourceDefault];
 
-  FIRRemoteConfigValue *copy;
-  XCTAssertNoThrow(copy = [value copy]);
-  XCTAssertNotNil(copy);
-  XCTAssertEqualObjects(copy.dataValue, data);
-  XCTAssertEqualObjects(copy.stringValue, @"value");
-  XCTAssertEqual(copy.source, FIRRemoteConfigSourceDefault);
+  FIRRemoteConfigValue *copiedValue;
+  XCTAssertNoThrow(copiedValue = [value copy]);
+  XCTAssertNotNil(copiedValue);
+  XCTAssertEqualObjects(copiedValue.dataValue, data);
+  XCTAssertEqualObjects(copiedValue.stringValue, @"value");
+  XCTAssertEqual(copiedValue.source, FIRRemoteConfigSourceDefault);
 }
 
 @end
