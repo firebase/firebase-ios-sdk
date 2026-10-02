@@ -344,6 +344,7 @@ import Foundation
   var hasFetcherForTesting: Bool {
     stateLock.withLock { uploadFetcher != nil }
   }
+
   private var uploadMetadata: StorageMetadata
   private var uploadData: Data?
   // Hold completion in object to force it to be retained until completion block is called.

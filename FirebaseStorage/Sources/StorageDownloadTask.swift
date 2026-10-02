@@ -139,6 +139,7 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement, @u
   var hasFetcherForTesting: Bool {
     stateLock.withLock { fetcher != nil }
   }
+
   var downloadData: Data?
   // Hold completion in object to force it to be retained until completion block is called.
   var completionData: ((Data?, Error?) -> Void)?
