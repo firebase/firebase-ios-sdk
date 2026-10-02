@@ -312,21 +312,57 @@ final class PartTests: XCTestCase {
     XCTAssertEqual(loggedCodes, [.modelContentUnsupportedPartType])
   }
 
-  func testModelContent_errorPart_isSkippedAndLogged() throws {
-    var loggedCodes: [AILog.MessageCode] = []
-    AILog.logInterceptor = { _, code, _ in
-      loggedCodes.append(code)
-    }
-    defer { AILog.logInterceptor = nil }
-
+  func testModelContent_errorPart_isKeptAndThrowIfErrorThrows() throws {
     let content = ModelContent(parts: [
       TextPart("Hello"),
       ErrorPart(ImageConversionError.couldNotConvertToJPEG),
     ])
+    // `Chat` and `countTokens` may rebuild content from its `parts`; the error must survive that.
+    let rebuiltContent = ModelContent(role: nil, parts: content.parts)
 
-    XCTAssertEqual(content.parts.count, 1)
-    XCTAssertEqual((content.parts.first as? TextPart)?.text, "Hello")
-    XCTAssertEqual(loggedCodes, [.modelContentPartConversionFailed])
+    XCTAssertEqual(content.parts.count, 2)
+    XCTAssertTrue(content.parts.last is ErrorPart)
+    for contents in [[content], [rebuiltContent]] {
+      XCTAssertThrowsError(try contents.throwIfError()) { error in
+        guard case let GenerateContentError.internalError(underlying) = error else {
+          XCTFail("Expected an internal error, got \(error) instead.")
+          return
+        }
+        XCTAssertEqual(underlying as? ImageConversionError, .couldNotConvertToJPEG)
+      }
+    }
+  }
+
+  func testModelContent_errorPart_encodingThrows() throws {
+    let content = ModelContent(parts: [ErrorPart(ImageConversionError.couldNotConvertToJPEG)])
+
+    XCTAssertThrowsError(try encoder.encode(content)) { error in
+      guard case EncodingError.invalidValue = error else {
+        XCTFail("Expected an invalid value error, got \(error) instead.")
+        return
+      }
+    }
+  }
+
+  func testModelContent_errorPart_equality() throws {
+    let content = ModelContent(parts: [ErrorPart(ImageConversionError.couldNotConvertToJPEG)])
+
+    XCTAssertEqual(
+      content,
+      ModelContent(parts: [ErrorPart(ImageConversionError.couldNotConvertToJPEG)])
+    )
+    XCTAssertNotEqual(
+      content,
+      ModelContent(parts: [ErrorPart(ImageConversionError.invalidUnderlyingImage)])
+    )
+    XCTAssertNotEqual(content, ModelContent(parts: [TextPart("Hello")]))
+  }
+
+  func testErrorPart_encodingAndDecodingThrow() throws {
+    XCTAssertThrowsError(
+      try encoder.encode(ErrorPart(ImageConversionError.couldNotConvertToJPEG))
+    )
+    XCTAssertThrowsError(try decoder.decode(ErrorPart.self, from: Data("{}".utf8)))
   }
 
   // MARK: - Helpers

@@ -246,4 +246,40 @@ final class TemplateChatTests: XCTestCase {
     XCTAssertEqual(modelParts[0]["text"] as? String, "HelHello")
     XCTAssertEqual(modelParts[2]["thoughtSignature"] as? String, "sig")
   }
+
+  // MARK: - Invalid Content
+
+  /// Content with the part that an image returns when it cannot be converted to JPEG.
+  private static let invalidImageContent = ModelContent(parts: [
+    TextPart("Describe this image."),
+    ErrorPart(ImageConversionError.couldNotConvertToJPEG),
+  ])
+
+  func testSendMessage_imageConversionError_throwsWithoutSending() async throws {
+    MockURLProtocol.requestHandler = nil // `MockURLProtocol` traps if a request is sent.
+    let chat = model.startChat(templateID: "test-template")
+
+    do {
+      _ = try await chat.sendMessage([Self.invalidImageContent])
+      XCTFail("Should have thrown an error.")
+    } catch let GenerateContentError.internalError(error as ImageConversionError) {
+      XCTAssertEqual(error, .couldNotConvertToJPEG)
+    }
+
+    XCTAssertTrue(chat.history.isEmpty)
+  }
+
+  func testSendMessageStream_imageConversionError_throwsWithoutSending() async throws {
+    MockURLProtocol.requestHandler = nil // `MockURLProtocol` traps if a request is sent.
+    let chat = model.startChat(templateID: "test-template")
+
+    XCTAssertThrowsError(try chat.sendMessageStream([Self.invalidImageContent])) { error in
+      guard case let GenerateContentError.internalError(underlying) = error else {
+        XCTFail("Expected an internal error, got \(error) instead.")
+        return
+      }
+      XCTAssertEqual(underlying as? ImageConversionError, .couldNotConvertToJPEG)
+    }
+    XCTAssertTrue(chat.history.isEmpty)
+  }
 }

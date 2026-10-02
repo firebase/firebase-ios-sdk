@@ -16,14 +16,14 @@ import Foundation
 
 extension [ModelContent] {
   // TODO: Rename and refactor this.
+  /// Throws a ``GenerateContentError/internalError(underlying:)`` wrapping the error of the first
+  /// part that failed to convert to model content (for example, an image that could not be
+  /// converted to JPEG) so that a request is not sent with that part silently missing.
   func throwIfError() throws {
     for content in self {
-      for part in content.parts {
-        switch part {
-        case let errorPart as ErrorPart:
-          throw errorPart.error
-        default:
-          break
+      for part in content.internalParts {
+        if case let .error(errorPart) = part.data {
+          throw GenerateContentError.internalError(underlying: errorPart.error)
         }
       }
     }
@@ -39,6 +39,9 @@ struct InternalPart: Equatable, Sendable {
     case functionResponse(FunctionResponse)
     case executableCode(ExecutableCode)
     case codeExecutionResult(CodeExecutionResult)
+    /// A part that failed to convert to model content on the client (for example, an image that
+    /// could not be converted to JPEG); it is never sent to or received from the backend.
+    case error(ErrorPart)
 
     struct UnsupportedDataError: Error {
       let decodingError: DecodingError
@@ -102,6 +105,8 @@ public struct ModelContent: Equatable, Sendable {
           isThought: part.isThought,
           thoughtSignature: part.thoughtSignature
         )
+      case let .error(errorPart):
+        return errorPart
       case .none:
         // Filter out parts that contain missing or unrecognized data
         return nil
@@ -161,10 +166,13 @@ public struct ModelContent: Equatable, Sendable {
           thoughtSignature: codeExecutionResultPart.thoughtSignature
         ))
       case let errorPart as ErrorPart:
-        AILog.error(
-          code: .modelContentPartConversionFailed,
-          "Skipping a part that failed to convert to model content: \(errorPart.error)"
-        )
+        // Keep the error so that `throwIfError()` fails the request instead of the part being
+        // silently dropped.
+        convertedParts.append(InternalPart(
+          .error(errorPart),
+          isThought: nil,
+          thoughtSignature: nil
+        ))
       default:
         AILog.error(
           code: .modelContentUnsupportedPartType,
@@ -264,6 +272,10 @@ extension InternalPart.OneOfData: Codable {
       try container.encode(executableCode, forKey: .executableCode)
     case let .codeExecutionResult(codeExecutionResult):
       try container.encode(codeExecutionResult, forKey: .codeExecutionResult)
+    case let .error(errorPart):
+      // Requests reject these in `throwIfError()` before encoding; anything else that encodes one
+      // (e.g., a `LiveSession`) gets an `EncodingError` instead of a crash.
+      try errorPart.encode(to: encoder)
     }
   }
 
