@@ -1,3 +1,7 @@
+# Unreleased
+- [fixed] Improved robustness when parsing malformed settings from the server
+  or from the on-disk settings cache. (#16728)
+
 # 13.0.0
 - [fixed] Safely validate memory reads when executing `DW_OP_deref_size`
   operations during DWARF stack unwinding (#16550).
