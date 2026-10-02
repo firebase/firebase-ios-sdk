@@ -266,6 +266,7 @@
                 filePath:(NSString *)filePath
                 buffered:(BOOL)buffered {
   FIRCLSFileWriteSectionStart(file, "signed");
+  FIRCLSFileWriteHashStart(file);
   FIRCLSFileWriteHashEntryInt64(file, "value", INT64_MIN);
   FIRCLSFileWriteHashEnd(file);
   FIRCLSFileWriteSectionEnd(file);
