@@ -183,6 +183,22 @@
   XCTAssertFalse(delegate.didReceiveRangeMerge);
 }
 
+- (void)testResponseWithMalformedRequestNumberIsIgnored {
+  NSDictionary *response = @{kFWPRequestNumber : @[ @1 ]};
+  XCTAssertNoThrow([self.connection onDataMessage:nil withMessage:response]);
+}
+
+- (void)testAuthRevokedWithNonStringStatusIsIgnored {
+  NSDictionary *body = @{kFWPResponseForActionStatus : @5};
+  XCTAssertNoThrow([self.connection onDataPushWithAction:kFWPAsyncServerAuthRevoked andBody:body]);
+}
+
+- (void)testSecurityDebugWithNonStringMessageIsIgnored {
+  NSDictionary *body = @{@"msg" : @5};
+  XCTAssertNoThrow([self.connection onDataPushWithAction:kFWPAsyncServerSecurityDebug
+                                                 andBody:body]);
+}
+
 - (void)waitForConnectionQueue {
   dispatch_sync(self.connectionQueue, ^{
                 });
