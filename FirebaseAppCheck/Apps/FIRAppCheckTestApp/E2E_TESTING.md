@@ -1,182 +1,138 @@
 # E2E Testing with FIRAppCheckTestApp
 
-This document provides information on how to configure and run End-to-End (E2E)
-tests for App Check providers using this sample app.
+End-to-end tests for Firebase App Check v12, run inside this sample app against
+the real backend and, on a physical device, real App Attest and DeviceCheck.
 
-## Configurability
+- [TEST_PLAN.md](TEST_PLAN.md): the full case list (MIG, ATT, COR, REF, DBG,
+  DVC, RCP, INT) and which cases this suite automates (section 9).
+- [VERSION_DIFFING.md](FIRAppCheckTestAppTests/VERSION_DIFFING.md): running
+  the same suite against Firebase v11.
 
-The app's behavior can be configured using environment variables passed during
-test execution.
+## What's in the test target
 
-### Environment Variables
+`FIRAppCheckTestAppTests` is a hosted test bundle: it runs inside the app
+process, so the app's `AppDelegate` configures the default `FirebaseApp` first.
 
-Starting with Xcode 13, you can pass environment variables directly to the
-test runner by prefixing them with `TEST_RUNNER_`. The prefix is stripped when
-it reaches the test process.
+| Suite | Kind | Backend |
+| :--- | :--- | :--- |
+| Core token lifecycle, Auto-refresh tests, Language interoperability, Legacy storage address parity, Public API contract | Swift Testing | None. Uses scripted providers and fake options. |
+| Debug provider tests | Swift Testing | Live, debug token |
+| App Attest, DeviceCheck, Recaptcha provider tests | Swift Testing | Live. Hardware tests skip in the Simulator. |
+| `AppCheckObjCAPITests` | XCTest, Objective-C | None |
+| `FIRAppCheckTestAppTests` | XCTest | Live, through the host app's provider |
 
-- **`TEST_RUNNER_RECAPTCHA_SITE_KEY`**: The reCAPTCHA site key used
-  by the `AppCheckRecaptchaProvider`.
-    - **Access in Code**: Read via
-      `ProcessInfo.processInfo.environment["RECAPTCHA_SITE_KEY"]`.
-- **`TEST_RUNNER_APP_CHECK_PROVIDER`**: Specifies which App Check provider
-  factory to use.
-    - **Supported Values**: `recaptcha` (default), `debug`.
-    - **Access in Code**: Read via
-      `ProcessInfo.processInfo.environment["APP_CHECK_PROVIDER"]`.
+Each Swift Testing test's doc comment starts with the TEST_PLAN.md case ID it
+covers.
 
-### Manual Override
+## Prerequisites
 
-For local debugging and manual testing, you can override the environment
-variables by setting `manualProviderOverride` in `AppDelegate.swift`:
+1. **`GoogleService-Info.plist`**: download it from the Firebase console and
+   place it at `FIRAppCheckTestApp/GoogleService-Info.plist`. It is gitignored;
+   never commit it.
+2. **Debug token**: a UUID registered for that app under App Check > Apps >
+   Manage debug tokens. Debug tokens are registered per Firebase app, so a new
+   plist needs its own token.
+3. **reCAPTCHA Enterprise site key** for the project.
+4. **Device runs only**:
+   - A team, bundle ID, and provisioning profile with App Attest enabled,
+     matching the plist's `BUNDLE_ID`. Set them in the target's Signing
+     settings locally; don't commit them.
+   - A DeviceCheck private key uploaded in the console for that team, or the
+     DeviceCheck tests fail with HTTP 403.
+   - Leave `com.apple.developer.devicecheck.appattest-environment` set to
+     `production` in `FIRAppCheckTestApp.entitlements`. App Check rejects
+     `development`.
 
-```swift
-let manualProviderOverride: String? = "debug"
-```
+## Configuration values
 
-## Running Tests
+The app and the tests read these from the process environment.
 
-The commands below should be run from the **repository root**.
+| Variable | Required for | Notes |
+| :--- | :--- | :--- |
+| `AppCheckDebugToken` | Debug provider tests, `FIRAppCheckTestAppTests` | Takes precedence over the legacy `FIRAAppCheckDebugToken`. Set only one, or App Check logs a warning for every debug provider it creates. |
+| `RECAPTCHA_SITE_KEY` | Recaptcha provider tests; `APP_CHECK_PROVIDER=recaptcha` | |
+| `APP_CHECK_PROVIDER` | Optional | Host app's provider: `debug` (default) or `recaptcha`. |
 
-### Prerequisites
-- Ensure you have a local checkout of the `app-check` repository if you are
-  developing it locally. Set `FIREBASE_APP_CHECK_LOCAL_PATH` to point to it.
+> [!WARNING]
+> Never put the debug token or site key in the shared
+> `FIRAppCheckTestApp.xcscheme`. Use a personal scheme (below) or the
+> command line.
 
-### Sample Commands
+## Running in Xcode
 
-#### Run tests with reCAPTCHA provider
+1. Open `FIRAppCheckTestApp.xcodeproj`.
+2. **Product > Scheme > Manage Schemes...**, select `FIRAppCheckTestApp`, and
+   click **Duplicate**. In the copy, leave **Shared** unchecked so it is stored
+   under `xcuserdata/`, which is gitignored.
+3. **Edit Scheme > Test > Arguments**. Under **Environment Variables**, add
+   `AppCheckDebugToken` and `RECAPTCHA_SITE_KEY`. Alternatively, add them to
+   the Run action and check **Use the Run action's arguments and environment
+   variables** in the Test action.
+4. Pick a simulator or your device and press **⌘U**.
 
-```bash
-export TEST_RUNNER_RECAPTCHA_SITE_KEY="your_site_key_here"
-export TEST_RUNNER_APP_CHECK_PROVIDER="recaptcha"
-export FIREBASE_APP_CHECK_LOCAL_PATH="/path/to/your/local/app-check"
-SIM_ID=$(xcrun simctl list devices available | grep "iPhone" | grep -E -o '[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}' | head -n 1)
+## Running from the command line
 
+Run from the repository root. `xcodebuild` passes variables prefixed with
+`TEST_RUNNER_` to the test process with the prefix removed, so the shared
+scheme needs no secrets.
+
+Simulator:
+
+```sh
+TEST_RUNNER_AppCheckDebugToken=<debug-token> \
+TEST_RUNNER_RECAPTCHA_SITE_KEY=<site-key> \
 xcodebuild test \
-  -workspace FirebaseAppCheck/Apps/FIRAppCheckTestApp/FIRAppCheckTestApp.xcworkspace \
-  -scheme FIRAppCheckTestApp \
-  -destination "platform=iOS Simulator,id=$SIM_ID"
+-project FirebaseAppCheck/Apps/FIRAppCheckTestApp/FIRAppCheckTestApp.xcodeproj \
+-scheme FIRAppCheckTestApp \
+-destination 'platform=iOS Simulator,name=iPhone 17'
 ```
 
-#### Run tests with Debug provider
+Device (unlocked, with local signing configured):
 
-```bash
-export TEST_RUNNER_APP_CHECK_PROVIDER="debug"
-export FIREBASE_APP_CHECK_LOCAL_PATH="/path/to/your/local/app-check"
-SIM_ID=$(xcrun simctl list devices available | grep "iPhone" | grep -E -o '[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}' | head -n 1)
-
+```sh
+TEST_RUNNER_AppCheckDebugToken=<debug-token> \
+TEST_RUNNER_RECAPTCHA_SITE_KEY=<site-key> \
 xcodebuild test \
-  -workspace FirebaseAppCheck/Apps/FIRAppCheckTestApp/FIRAppCheckTestApp.xcworkspace \
-  -scheme FIRAppCheckTestApp \
-  -destination "platform=iOS Simulator,id=$SIM_ID"
-```
-*Note: The Debug provider might require you to register the generated debug token in the Firebase Console for the tests to pass if they interact with live services.*
-
-### Running and Testing in Xcode
-
-If you prefer to use the Xcode UI instead of `xcodebuild`, follow these steps
-to configure the environment:
-
-#### 1. Resolve Local Dependency
-If you are using a local checkout of the `app-check` repository, Xcode must be
-launched from the terminal with the `FIREBASE_APP_CHECK_LOCAL_PATH` environment
-variable set so that Swift Package Manager can resolve it correctly.
-
-Run the following command from the repository root:
-```bash
-open --env FIREBASE_APP_CHECK_LOCAL_PATH=/path/to/your/local/app-check FirebaseAppCheck/Apps/FIRAppCheckTestApp/FIRAppCheckTestApp.xcworkspace
+-project FirebaseAppCheck/Apps/FIRAppCheckTestApp/FIRAppCheckTestApp.xcodeproj \
+-scheme FIRAppCheckTestApp \
+-destination 'platform=iOS,id=<device-udid>'
 ```
 
-#### 2. Configure Provider and Site Key
-You have two options to configure the provider when running or testing in Xcode:
+`xcrun xctrace list devices` lists simulator names and device UDIDs.
 
-**Option A: Via Manual Override in Code (Easiest for Running the App)**
-If you just want to quickly run the app with a specific provider without
-changing scheme settings:
-1.  Open `AppDelegate.swift`.
-2.  Locate `manualProviderOverride` in `application(_:didFinishLaunchingWithOptions:)`.
-3.  Set it to your desired provider:
-    ```swift
-    let manualProviderOverride: String? = "recaptcha"
-    ```
-    *Note: Remember to revert this change before committing.*
+## Expected results
 
-**Option B: Via Xcode Scheme (Recommended for Tests)**
-This avoids modifying code and works for both running and testing.
-1.  In Xcode, go to **Product > Scheme > Edit Scheme...** (or press `⌘<`).
-2.  Select the **Run** or **Test** action in the left sidebar, depending on
-    what you are doing.
-3.  Go to the **Arguments** tab.
-4.  In the **Environment Variables** section, add:
-    *   `APP_CHECK_PROVIDER`: Set to `recaptcha` or `debug`.
-    *   `RECAPTCHA_SITE_KEY`: Set to your reCAPTCHA site key (required for
-        `recaptcha`).
+| Destination | Passed | Skipped | Skipped tests |
+| :--- | ---: | ---: | :--- |
+| Simulator | 45 | 6 | Physical-hardware App Attest, DeviceCheck, and reCAPTCHA token tests |
+| Device | 47 | 4 | Simulator-only App Attest and DeviceCheck "fails safely" tests |
 
-### Running and Testing with CocoaPods
+Anything other than zero failures and these skips needs a look. Common causes:
 
-If you prefer to use the CocoaPods workflow instead of SPM:
+| Symptom | Likely cause |
+| :--- | :--- |
+| Debug provider and `FIRAppCheckTestAppTests` fail with HTTP 403 | Debug token missing, or registered for a different Firebase app than the plist. |
+| DeviceCheck hardware tests fail with HTTP 403 | No DeviceCheck key uploaded for the signing team. |
+| App Attest hardware tests fail | Entitlement not `production`, or App Attest not enabled for the bundle ID. |
+| Recaptcha tests fail on `#require` | `RECAPTCHA_SITE_KEY` not set. |
 
-#### 0. Clean Up State (Optional but Recommended)
-If you are switching from the SPM workflow or encounter issues, it is
-recommended to clean up the CocoaPods state first:
-```bash
-pod deintegrate FirebaseAppCheck/Apps/FIRAppCheckTestApp/FIRAppCheckTestApp.xcodeproj
-rm -rf FirebaseAppCheck/Apps/FIRAppCheckTestApp/FIRAppCheckTestApp.xcworkspace
-rm -f FirebaseAppCheck/Apps/FIRAppCheckTestApp/Podfile.lock
-```
+Log lines you can ignore: `[XPC] ... DownloadFailed`, `Hang detected` with a
+debugger attached, `GTMSessionFetcher ... was already running`, and the debug
+token banner (`I-FAA005001`).
 
-#### 1. Install Dependencies
-To ensure a clean update and avoid conflicts with local development paths or
-stale state, it is recommended to remove the existing `Pods` directory and
-`Podfile.lock` before updating.
+## CI
 
-Run the following command from the repository root:
-```bash
-rm -rf FirebaseAppCheck/Apps/FIRAppCheckTestApp/Pods
-rm -f FirebaseAppCheck/Apps/FIRAppCheckTestApp/Podfile.lock
-FIREBASE_APP_CHECK_LOCAL_PATH="/path/to/your/local/app-check" pod update --repo-update --project-directory=FirebaseAppCheck/Apps/FIRAppCheckTestApp/
-```
+The `test_app_build` job in `.github/workflows/sdk.appcheck.yml` only builds
+the app and test bundle (`build-for-testing`, simulator, no signing). It does
+not run tests: CI has no debug token or site key, and App Attest and
+DeviceCheck need a signed physical device.
 
-#### 2. Open Workspace
-Open the generated CocoaPods workspace instead of the project file:
-```bash
-open FirebaseAppCheck/Apps/FIRAppCheckTestApp/FIRAppCheckTestApp.xcworkspace
-```
+The app target lists `GoogleService-Info.plist` as a resource, so the build
+fails if the file is missing. The real plist is gitignored, so the job first
+copies the placeholder plist from `FirebaseCore/Tests/Unit/Resources/` into
+place. Do the same to reproduce the CI build locally without a real plist.
 
-#### 3. Remove SPM Dependencies (If needed)
-By default, the project file is configured for SPM. To avoid duplicate symbol
-issues or conflicting resolutions when using CocoaPods:
-1.  In Xcode, select the project in the file navigator.
-2.  Select the project file at the top (not a target).
-3.  Go to the **Package Dependencies** tab.
-4.  Remove the `firebase-ios-sdk` or `app-check` package references if they
-    appear there.
-5.  Also, select the `FIRAppCheckTestApp` target, go to the **General** tab,
-    and scroll down to **Frameworks, Libraries, and Embedded Content**.
-6.  Remove any SPM-resolved frameworks from this list.
+## Legacy: CocoaPods
 
-#### 4. Configure and Run
-You can configure the provider and site key either via the Xcode Scheme or by
-passing environment variables to `xcodebuild`.
-
-**Via Xcode Scheme:**
-Follow the instructions in **[Running and Testing in Xcode](#running-and-testing-in-xcode)**.
-
-**Via `xcodebuild` (Command Line):**
-Run the following command from the repository root, replacing the site key with
-your own:
-```bash
-export TEST_RUNNER_RECAPTCHA_SITE_KEY="your_site_key_here"
-export TEST_RUNNER_APP_CHECK_PROVIDER="recaptcha"
-SIM_ID=$(xcrun simctl list devices available | grep "iPhone" | grep -E -o '[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}' | head -n 1)
-
-xcodebuild test \
-  -workspace FirebaseAppCheck/Apps/FIRAppCheckTestApp/FIRAppCheckTestApp.xcworkspace \
-  -scheme FIRAppCheckTestApp \
-  -destination "platform=iOS Simulator,id=$SIM_ID"
-```
-*(Note: See [Running Tests](#running-tests) for how to dynamically find a valid
-simulator destination).*
-
-## Project Structure
-
-- **`FIRAppCheckTestAppTests`**: A hosted unit test target containing the test cases. It runs inside the app process to have access to the full app context.
+The project still has a `Podfile` and workspace, but CocoaPods is being phased
+out and that path is not maintained. Use Swift Package Manager as above.

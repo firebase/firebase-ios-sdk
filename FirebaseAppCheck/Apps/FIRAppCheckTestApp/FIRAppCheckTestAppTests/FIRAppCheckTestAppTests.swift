@@ -23,6 +23,9 @@ final class FIRAppCheckTestAppTests: XCTestCase {
   @MainActor
   override func setUp() async throws {
     try await super.setUp()
+    if let debugToken = AppCheckTestEnvironment.debugToken {
+      setenv("AppCheckDebugToken", debugToken, 1)
+    }
     appDelegate = try XCTUnwrap(AppDelegate.shared, "AppDelegate.shared is nil")
   }
 
@@ -39,14 +42,12 @@ final class FIRAppCheckTestAppTests: XCTestCase {
   func testCacheWorks() async throws {
     let token1 = try await appDelegate.fetchAppCheckToken().token
     let token2 = try await appDelegate.fetchAppCheckToken().token
-
     XCTAssertEqual(token1, token2, "Tokens should be identical (cached)")
   }
 
   func testForceRefresh() async throws {
     let token1 = try await appDelegate.fetchAppCheckToken().token
     let token2 = try await appDelegate.fetchAppCheckToken(forcingRefresh: true).token
-
     XCTAssertNotEqual(token1, token2, "Tokens should be different after forced refresh")
   }
 }

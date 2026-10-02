@@ -7,12 +7,31 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-
+		075B2D2B4BA0429F16C238C1 /* DeviceCheckProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72E45E9A3353103429E84DA3 /* DeviceCheckProviderTests.swift */; };
+		179548F696FB4A6B3698E3FC /* AutoRefreshTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A03B04FD4592B1D98AFCE9FC /* AutoRefreshTests.swift */; };
+		2A72D347B4D15F0093704D3D /* ProgrammableProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1066B01C7FFE97AF4E9A95AD /* ProgrammableProvider.swift */; };
+		2C9AB1F3A99386C567C103A0 /* AppCheckTestEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D89FAD9970DD6BB76FBB979 /* AppCheckTestEnvironment.swift */; };
+		5F660B56B08564C06D0A52BF /* LegacyStorageAddress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48BB3A1AE7B39EE3CDC3DC09 /* LegacyStorageAddress.swift */; };
+		60DF26DD6BE07ED7B46BE29D /* AppCheckObjCAPITests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32873A8169A0ECE52485F3F8 /* AppCheckObjCAPITests.m */; };
+		6631D7432232528363B857C0 /* DebugProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59A0DD74E792429F6156602F /* DebugProviderTests.swift */; };
+		6A3E51BED482AA7D6DB1C878 /* KeychainProbe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39223BD5B3CAA038E3D3A700 /* KeychainProbe.swift */; };
+		7076AA3EC70DEB909BB77902 /* InteropTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C82876E05A33516FF2D707F /* InteropTests.swift */; };
+		7964F898CA8980105D20922A /* TestProviderRegistry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 931080A28A68B00500E0B752 /* TestProviderRegistry.swift */; };
+		89D922F754AA717E5297A0B3 /* PublicContractTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 278455C42D356E3C30B536B2 /* PublicContractTests.swift */; };
+		8D523A0262C66AD1F2287E8E /* ConditionTrait+AppCheck.swift in Sources */ = {isa = PBXBuildFile; fileRef = 977E5E0E34B1C35C59B9F8D1 /* ConditionTrait+AppCheck.swift */; };
 		8F1202DD209F881D67D20BA8 /* FIRAppCheckTestAppTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DBE09F2A53CEC2B3E7600F4 /* FIRAppCheckTestAppTests.swift */; };
+		4BBBF21D99D8FCFEAB9BF474 /* LiveApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C03ABB319FF2C6ABB843810 /* LiveApp.swift */; };
+		BA828086083712A08034DA34 /* AppCheckErrorMatchers.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEF43648DE553275E3685C6E /* AppCheckErrorMatchers.swift */; };
 		9AC7C27C2541C7E500F5DD80 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AC7C27B2541C7E500F5DD80 /* AppDelegate.swift */; };
 		9AC7C27E2541C7E500F5DD80 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AC7C27D2541C7E500F5DD80 /* SceneDelegate.swift */; };
 		9AC7C2852541C7E600F5DD80 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9AC7C2842541C7E600F5DD80 /* Assets.xcassets */; };
 		9AC7C2882541C7E600F5DD80 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9AC7C2862541C7E600F5DD80 /* LaunchScreen.storyboard */; };
+		9B69D38BE39DB3C15396F954 /* RecaptchaProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 779FD5C35C61C6D0381AA862 /* RecaptchaProviderTests.swift */; };
+		9E81D6371E209A1B27B4FD2F /* TestApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62FAD6D579439F2F0AEE129D /* TestApp.swift */; };
+		A1B2C3D4E5F60718293A4B5C /* AppAttestProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1C2D3E4F5A60718293A4B5D /* AppAttestProviderTests.swift */; };
+		AC2AA231AF307F03AA573F7D /* CoreTokenLifecycleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA514F1EC8D0625EC802698E /* CoreTokenLifecycleTests.swift */; };
+		ADB381D67E63A2AF75940A37 /* LegacyStorageAddressParityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2441D36ABF07045AFCEDB036 /* LegacyStorageAddressParityTests.swift */; };
+		C88E8683F4CD1A19D25220F1 /* Tag+AppCheck.swift in Sources */ = {isa = PBXBuildFile; fileRef = 596C239695D35548E4917798 /* Tag+AppCheck.swift */; };
 		CB1E711C5CFEE1D2BFB9069D /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A5A8784D39A5706A47E89D31 /* Foundation.framework */; };
 		EAA2C1AB2FAA966B008D663E /* RecaptchaEnterprise in Frameworks */ = {isa = PBXBuildFile; productRef = EAA2C1AA2FAA966B008D663E /* RecaptchaEnterprise */; };
 		EAA2C1AD2FABCB69008D663E /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = EAA2C1AC2FABCB69008D663E /* FirebaseStorage */; };
@@ -33,7 +52,22 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		1066B01C7FFE97AF4E9A95AD /* ProgrammableProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ProgrammableProvider.swift; path = FIRAppCheckTestAppTests/Support/ProgrammableProvider.swift; sourceTree = "<group>"; };
+		2441D36ABF07045AFCEDB036 /* LegacyStorageAddressParityTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = LegacyStorageAddressParityTests.swift; path = FIRAppCheckTestAppTests/LegacyStorageAddressParityTests.swift; sourceTree = "<group>"; };
+		278455C42D356E3C30B536B2 /* PublicContractTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PublicContractTests.swift; path = FIRAppCheckTestAppTests/PublicContractTests.swift; sourceTree = "<group>"; };
 		2F8964B09A6746481927ACD1 /* FIRAppCheckTestAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FIRAppCheckTestAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		32873A8169A0ECE52485F3F8 /* AppCheckObjCAPITests.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; name = AppCheckObjCAPITests.m; path = FIRAppCheckTestAppTests/AppCheckObjCAPITests.m; sourceTree = "<group>"; };
+		39223BD5B3CAA038E3D3A700 /* KeychainProbe.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = KeychainProbe.swift; path = FIRAppCheckTestAppTests/Support/KeychainProbe.swift; sourceTree = "<group>"; };
+		3C82876E05A33516FF2D707F /* InteropTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = InteropTests.swift; path = FIRAppCheckTestAppTests/InteropTests.swift; sourceTree = "<group>"; };
+		3D89FAD9970DD6BB76FBB979 /* AppCheckTestEnvironment.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AppCheckTestEnvironment.swift; path = FIRAppCheckTestAppTests/Support/AppCheckTestEnvironment.swift; sourceTree = "<group>"; };
+		48BB3A1AE7B39EE3CDC3DC09 /* LegacyStorageAddress.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = LegacyStorageAddress.swift; path = FIRAppCheckTestAppTests/Support/LegacyStorageAddress.swift; sourceTree = "<group>"; };
+		596C239695D35548E4917798 /* Tag+AppCheck.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "Tag+AppCheck.swift"; path = "FIRAppCheckTestAppTests/Support/Tag+AppCheck.swift"; sourceTree = "<group>"; };
+		59A0DD74E792429F6156602F /* DebugProviderTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DebugProviderTests.swift; path = FIRAppCheckTestAppTests/DebugProviderTests.swift; sourceTree = "<group>"; };
+		62FAD6D579439F2F0AEE129D /* TestApp.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TestApp.swift; path = FIRAppCheckTestAppTests/Support/TestApp.swift; sourceTree = "<group>"; };
+		72E45E9A3353103429E84DA3 /* DeviceCheckProviderTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DeviceCheckProviderTests.swift; path = FIRAppCheckTestAppTests/DeviceCheckProviderTests.swift; sourceTree = "<group>"; };
+		779FD5C35C61C6D0381AA862 /* RecaptchaProviderTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = RecaptchaProviderTests.swift; path = FIRAppCheckTestAppTests/RecaptchaProviderTests.swift; sourceTree = "<group>"; };
+		931080A28A68B00500E0B752 /* TestProviderRegistry.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TestProviderRegistry.swift; path = FIRAppCheckTestAppTests/Support/TestProviderRegistry.swift; sourceTree = "<group>"; };
+		977E5E0E34B1C35C59B9F8D1 /* ConditionTrait+AppCheck.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "ConditionTrait+AppCheck.swift"; path = "FIRAppCheckTestAppTests/Support/ConditionTrait+AppCheck.swift"; sourceTree = "<group>"; };
 		9AC7C2782541C7E500F5DD80 /* FIRAppCheckTestApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FIRAppCheckTestApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9AC7C27B2541C7E500F5DD80 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		9AC7C27D2541C7E500F5DD80 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -41,9 +75,14 @@
 		9AC7C2872541C7E600F5DD80 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		9AC7C2892541C7E600F5DD80 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9DBE09F2A53CEC2B3E7600F4 /* FIRAppCheckTestAppTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = FIRAppCheckTestAppTests.swift; path = FIRAppCheckTestAppTests/FIRAppCheckTestAppTests.swift; sourceTree = "<group>"; };
+		3C03ABB319FF2C6ABB843810 /* LiveApp.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "LiveApp.swift"; path = "FIRAppCheckTestAppTests/Support/LiveApp.swift"; sourceTree = "<group>"; };
+		CEF43648DE553275E3685C6E /* AppCheckErrorMatchers.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "AppCheckErrorMatchers.swift"; path = "FIRAppCheckTestAppTests/Support/AppCheckErrorMatchers.swift"; sourceTree = "<group>"; };
+		A03B04FD4592B1D98AFCE9FC /* AutoRefreshTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AutoRefreshTests.swift; path = FIRAppCheckTestAppTests/AutoRefreshTests.swift; sourceTree = "<group>"; };
 		A5A8784D39A5706A47E89D31 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
-
+		B1C2D3E4F5A60718293A4B5D /* AppAttestProviderTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AppAttestProviderTests.swift; path = FIRAppCheckTestAppTests/AppAttestProviderTests.swift; sourceTree = "<group>"; };
+		EA514F1EC8D0625EC802698E /* CoreTokenLifecycleTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CoreTokenLifecycleTests.swift; path = FIRAppCheckTestAppTests/CoreTokenLifecycleTests.swift; sourceTree = "<group>"; };
 		EABC1CB72FA9257600C35F73 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		EAC93A4E3065D55800301DD5 /* FIRAppCheckTestApp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = FIRAppCheckTestApp.entitlements; sourceTree = "<group>"; };
 		EAD122F02DB98BCC004D64C9 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		EAD122F22DB99206004D64C9 /* AppCheckTestApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCheckTestApp.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -93,7 +132,26 @@
 				9AC7C2792541C7E500F5DD80 /* Products */,
 				671F07FAFFBA7B1FCBCABDBD /* Frameworks */,
 				9DBE09F2A53CEC2B3E7600F4 /* FIRAppCheckTestAppTests.swift */,
-
+				3C03ABB319FF2C6ABB843810 /* LiveApp.swift */,
+				CEF43648DE553275E3685C6E /* AppCheckErrorMatchers.swift */,
+				A03B04FD4592B1D98AFCE9FC /* AutoRefreshTests.swift */,
+				59A0DD74E792429F6156602F /* DebugProviderTests.swift */,
+				72E45E9A3353103429E84DA3 /* DeviceCheckProviderTests.swift */,
+				B1C2D3E4F5A60718293A4B5D /* AppAttestProviderTests.swift */,
+				779FD5C35C61C6D0381AA862 /* RecaptchaProviderTests.swift */,
+				278455C42D356E3C30B536B2 /* PublicContractTests.swift */,
+				931080A28A68B00500E0B752 /* TestProviderRegistry.swift */,
+				3C82876E05A33516FF2D707F /* InteropTests.swift */,
+				32873A8169A0ECE52485F3F8 /* AppCheckObjCAPITests.m */,
+				1066B01C7FFE97AF4E9A95AD /* ProgrammableProvider.swift */,
+				62FAD6D579439F2F0AEE129D /* TestApp.swift */,
+				EA514F1EC8D0625EC802698E /* CoreTokenLifecycleTests.swift */,
+				596C239695D35548E4917798 /* Tag+AppCheck.swift */,
+				3D89FAD9970DD6BB76FBB979 /* AppCheckTestEnvironment.swift */,
+				977E5E0E34B1C35C59B9F8D1 /* ConditionTrait+AppCheck.swift */,
+				48BB3A1AE7B39EE3CDC3DC09 /* LegacyStorageAddress.swift */,
+				39223BD5B3CAA038E3D3A700 /* KeychainProbe.swift */,
+				2441D36ABF07045AFCEDB036 /* LegacyStorageAddressParityTests.swift */,
 			);
 			sourceTree = "<group>";
 		};
@@ -109,6 +167,7 @@
 		9AC7C27A2541C7E500F5DD80 /* FIRAppCheckTestApp */ = {
 			isa = PBXGroup;
 			children = (
+				EAC93A4E3065D55800301DD5 /* FIRAppCheckTestApp.entitlements */,
 				EABC1CB72FA9257600C35F73 /* GoogleService-Info.plist */,
 				9AC7C27B2541C7E500F5DD80 /* AppDelegate.swift */,
 				9AC7C27D2541C7E500F5DD80 /* SceneDelegate.swift */,
@@ -128,7 +187,6 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 9AC7C2A22541C7E600F5DD80 /* Build configuration list for PBXNativeTarget "FIRAppCheckTestApp" */;
 			buildPhases = (
-
 				9AC7C2742541C7E500F5DD80 /* Sources */,
 				9AC7C2752541C7E500F5DD80 /* Frameworks */,
 				9AC7C2762541C7E500F5DD80 /* Resources */,
@@ -205,7 +263,6 @@
 				9AC7C2882541C7E600F5DD80 /* LaunchScreen.storyboard in Resources */,
 				9AC7C2852541C7E600F5DD80 /* Assets.xcassets in Resources */,
 				EABC1CB82FA9257600C35F73 /* GoogleService-Info.plist in Resources */,
-
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -217,10 +274,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
-
-/* Begin PBXShellScriptBuildPhase section */
-
-/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		9AC7C2742541C7E500F5DD80 /* Sources */ = {
@@ -239,6 +292,26 @@
 			buildActionMask = 2147483647;
 			files = (
 				8F1202DD209F881D67D20BA8 /* FIRAppCheckTestAppTests.swift in Sources */,
+				4BBBF21D99D8FCFEAB9BF474 /* LiveApp.swift in Sources */,
+				BA828086083712A08034DA34 /* AppCheckErrorMatchers.swift in Sources */,
+				179548F696FB4A6B3698E3FC /* AutoRefreshTests.swift in Sources */,
+				6631D7432232528363B857C0 /* DebugProviderTests.swift in Sources */,
+				075B2D2B4BA0429F16C238C1 /* DeviceCheckProviderTests.swift in Sources */,
+				A1B2C3D4E5F60718293A4B5C /* AppAttestProviderTests.swift in Sources */,
+				9B69D38BE39DB3C15396F954 /* RecaptchaProviderTests.swift in Sources */,
+				89D922F754AA717E5297A0B3 /* PublicContractTests.swift in Sources */,
+				7964F898CA8980105D20922A /* TestProviderRegistry.swift in Sources */,
+				7076AA3EC70DEB909BB77902 /* InteropTests.swift in Sources */,
+				60DF26DD6BE07ED7B46BE29D /* AppCheckObjCAPITests.m in Sources */,
+				2A72D347B4D15F0093704D3D /* ProgrammableProvider.swift in Sources */,
+				9E81D6371E209A1B27B4FD2F /* TestApp.swift in Sources */,
+				AC2AA231AF307F03AA573F7D /* CoreTokenLifecycleTests.swift in Sources */,
+				C88E8683F4CD1A19D25220F1 /* Tag+AppCheck.swift in Sources */,
+				2C9AB1F3A99386C567C103A0 /* AppCheckTestEnvironment.swift in Sources */,
+				8D523A0262C66AD1F2287E8E /* ConditionTrait+AppCheck.swift in Sources */,
+				5F660B56B08564C06D0A52BF /* LegacyStorageAddress.swift in Sources */,
+				6A3E51BED482AA7D6DB1C878 /* KeychainProbe.swift in Sources */,
+				ADB381D67E63A2AF75940A37 /* LegacyStorageAddressParityTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -386,6 +459,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = FIRAppCheckTestApp/FIRAppCheckTestApp.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = EQHXZ8M8AV;
@@ -409,6 +483,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = FIRAppCheckTestApp/FIRAppCheckTestApp.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = EQHXZ8M8AV;

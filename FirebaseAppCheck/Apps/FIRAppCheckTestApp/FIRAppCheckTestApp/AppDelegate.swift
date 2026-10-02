@@ -24,6 +24,14 @@ import FirebaseStorage
 class AppDelegate: UIResponder, UIApplicationDelegate {
   private(set) static var shared: AppDelegate?
 
+  /// The provider factory this delegate handed to App Check at launch.
+  ///
+  /// The test bundle installs a routing factory of its own so that concurrent
+  /// tests do not overwrite each other's provider. It needs a way to fall back
+  /// to this one for the default app, and App Check exposes no getter for the
+  /// currently installed factory.
+  private(set) static var installedProviderFactory: AppCheckProviderFactory?
+
   override init() {
     super.init()
     AppDelegate.shared = self
@@ -70,8 +78,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
           "Error: RECAPTCHA_SITE_KEY environment variable is missing or empty. E2E tests require this key."
         )
       }
-      options.recaptchaSiteKey = siteKey
-      providerFactory = RecaptchaProviderFactory()
+      // In v12 the site key is supplied to the factory rather than set on
+      // `FirebaseOptions`, which no longer exposes `recaptchaSiteKey`.
+      providerFactory = RecaptchaProviderFactory(siteKey: siteKey)
     case "debug":
       providerFactory = AppCheckDebugProviderFactory()
     default:
@@ -82,6 +91,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     AppCheck.setAppCheckProviderFactory(providerFactory)
+    // Recorded so the test bundle can install its own routing factory without
+    // losing the one the app configured. Tests that drive the default app
+    // through this delegate still need this provider.
+    Self.installedProviderFactory = providerFactory
 
     return options
   }
