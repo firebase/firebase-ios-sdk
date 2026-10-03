@@ -1,6 +1,6 @@
 # Unreleased
 - [fixed] Fixed a memory leak where `StorageUploadTask` and `StorageDownloadTask` objects, and the
-  data being uploaded, were never released after `cancel()`, or for downloads, after `pause()`.
+  data being uploaded, were never released after `cancel()` or, for downloads, `pause()`. (#16841)
 
 # 12.19.0
 - [fixed] Fixed an issue where constructing a download URL could fail or produce
