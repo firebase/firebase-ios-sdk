@@ -1133,7 +1133,10 @@ NSTimeInterval DISPLAY_MIN_INTERVALS = 1;
 }
 
 - (void)testCardWithoutImageDoesNotBlockNextMessage {
-  OCMStub([self.mockTimeFetcher currentTimestampInSeconds]).andReturn(1000);
+  __block NSTimeInterval timestamp = 1000;
+  OCMStub([self.mockTimeFetcher currentTimestampInSeconds]).andDo(^(NSInvocation *invocation) {
+    [invocation setReturnValue:&timestamp];
+  });
   OCMStub([self.mockBookkeeper getMessageIDsFromImpressions]).andReturn(@[]);
   self.m2.renderData.renderingEffectSettings.viewMode = FIRIAMRenderAsCardView;
   FIRIAMMessageContentDataForTesting *content =
@@ -1148,6 +1151,10 @@ NSTimeInterval DISPLAY_MIN_INTERVALS = 1;
 
   [self.displayExecutor checkAndDisplayNextAppForegroundMessage];
   XCTAssertNil(display.message);
+  XCTAssertEqual(self.clientMessageCache.allRegularMessages.count, 1);
+  // The failed construction still advances lastDisplayTime. Exercise the display
+  // gate after the ordinary display interval, rather than failing its rate limit.
+  timestamp += self.displaySetting.displayMinIntervalInMinutes * 60;
   [self.displayExecutor checkAndDisplayNextAppForegroundMessage];
   XCTAssertNotNil(display.message);
   XCTAssertEqualObjects(display.message.campaignInfo.messageID, self.m4.renderData.messageID);
