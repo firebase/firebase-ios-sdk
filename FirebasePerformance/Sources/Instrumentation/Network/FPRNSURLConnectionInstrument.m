@@ -209,6 +209,12 @@ void InstrumentConnectionCancel(FPRClassInstrumentor *instrumentor) {
 
 - (void)registerInstrumentors {
   dispatch_sync(GetInstrumentationQueue(), ^{
+    // Check if it's in the denylist. This is needed because it's
+    // a top level class, otherwise the FPRAssert is wrongly trigerred.
+    if (![self isClassInstrumentable:[NSURLConnection class]]) {
+      return;
+    }
+
     FPRClassInstrumentor *instrumentor =
         [[FPRClassInstrumentor alloc] initWithClass:[NSURLConnection class]];
 
