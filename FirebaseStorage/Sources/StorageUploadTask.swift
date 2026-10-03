@@ -168,65 +168,7 @@ import Foundation
           }
           return
         }
-        do {
-          let data = try await uploadFetcher.beginFetch()
-          var progressSnapshot: StorageTaskSnapshot?
-          var successSnapshot: StorageTaskSnapshot?
-          var failureSnapshot: StorageTaskSnapshot?
-
-          self.stateLock.withLock {
-            if self.state == .cancelled { return }
-
-            self.state = .progress
-            progressSnapshot = self.snapshotUnderLock()
-
-            if let responseDictionary = try? JSONSerialization
-              .jsonObject(with: data) as? [String: AnyHashable] {
-              self.state = .success
-              let metadata = StorageMetadata(dictionary: responseDictionary)
-              metadata.fileType = .file
-              self.metadata = metadata
-              successSnapshot = self.snapshotUnderLock()
-            } else {
-              self.state = .failed
-              self.error = StorageErrorCode.error(withInvalidRequest: data)
-              failureSnapshot = self.snapshotUnderLock()
-            }
-          }
-
-          if let progressSnapshot {
-            self.fire(for: .progress, snapshot: progressSnapshot)
-          }
-          if let successSnapshot {
-            self.finishTaskWithStatus(status: .success, snapshot: successSnapshot)
-          } else if let failureSnapshot {
-            self.finishTaskWithStatus(status: .failure, snapshot: failureSnapshot)
-          }
-        } catch {
-          var progressSnapshot: StorageTaskSnapshot?
-          var failureSnapshot: StorageTaskSnapshot?
-
-          self.stateLock.withLock {
-            if self.state == .cancelled || self.state == .paused || self
-              .state == .pausing { return }
-
-            self.state = .progress
-            progressSnapshot = self.snapshotUnderLock()
-
-            self.state = .failed
-            self.error = StorageErrorCode.error(withServerError: error as NSError,
-                                                ref: self.reference)
-            self.metadata = self.uploadMetadata
-            failureSnapshot = self.snapshotUnderLock()
-          }
-
-          if let progressSnapshot {
-            self.fire(for: .progress, snapshot: progressSnapshot)
-          }
-          if let failureSnapshot {
-            self.finishTaskWithStatus(status: .failure, snapshot: failureSnapshot)
-          }
-        }
+        self.startFetch(with: uploadFetcher)
       }
     }
   }
@@ -363,6 +305,79 @@ import Foundation
   func finishTaskWithStatus(status: StorageTaskStatus, snapshot: StorageTaskSnapshot) {
     fire(for: status, snapshot: snapshot)
     removeAllObservers()
+  }
+
+  /// Starts `uploadFetcher` with a completion handler rather than
+  /// `try await uploadFetcher.beginFetch()`. Stopping the fetcher in `cancel()` releases the
+  /// completion handler without calling it, which would leave an awaiting task suspended forever,
+  /// retaining this task and the data being uploaded.
+  private func startFetch(with uploadFetcher: GTMSessionUploadFetcher) {
+    uploadFetcher.beginFetch { data, error in
+      if let error {
+        self.fetchDidFail(with: error)
+      } else {
+        self.fetchDidSucceed(with: data ?? Data())
+      }
+    }
+  }
+
+  private func fetchDidSucceed(with data: Data) {
+    var progressSnapshot: StorageTaskSnapshot?
+    var successSnapshot: StorageTaskSnapshot?
+    var failureSnapshot: StorageTaskSnapshot?
+
+    stateLock.withLock {
+      if state == .cancelled { return }
+
+      state = .progress
+      progressSnapshot = snapshotUnderLock()
+
+      if let responseDictionary = try? JSONSerialization
+        .jsonObject(with: data) as? [String: AnyHashable] {
+        state = .success
+        let metadata = StorageMetadata(dictionary: responseDictionary)
+        metadata.fileType = .file
+        self.metadata = metadata
+        successSnapshot = snapshotUnderLock()
+      } else {
+        state = .failed
+        error = StorageErrorCode.error(withInvalidRequest: data)
+        failureSnapshot = snapshotUnderLock()
+      }
+    }
+
+    if let progressSnapshot {
+      fire(for: .progress, snapshot: progressSnapshot)
+    }
+    if let successSnapshot {
+      finishTaskWithStatus(status: .success, snapshot: successSnapshot)
+    } else if let failureSnapshot {
+      finishTaskWithStatus(status: .failure, snapshot: failureSnapshot)
+    }
+  }
+
+  private func fetchDidFail(with error: Error) {
+    var progressSnapshot: StorageTaskSnapshot?
+    var failureSnapshot: StorageTaskSnapshot?
+
+    stateLock.withLock {
+      if state == .cancelled || state == .paused || state == .pausing { return }
+
+      state = .progress
+      progressSnapshot = snapshotUnderLock()
+
+      state = .failed
+      self.error = StorageErrorCode.error(withServerError: error as NSError, ref: reference)
+      metadata = uploadMetadata
+      failureSnapshot = snapshotUnderLock()
+    }
+
+    if let progressSnapshot {
+      fire(for: .progress, snapshot: progressSnapshot)
+    }
+    if let failureSnapshot {
+      finishTaskWithStatus(status: .failure, snapshot: failureSnapshot)
+    }
   }
 
   private func GCSEscapedString(_ input: String?) -> String? {
