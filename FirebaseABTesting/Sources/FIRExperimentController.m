@@ -167,7 +167,10 @@ NSArray *ABTExperimentsToClearFromPayloads(
                              (nullable void (^)(NSError *_Nullable error))completionHandler {
   NSArray<NSData *> *payloadsCopy = [payloads copy];
   FIRExperimentController *__weak weakSelf = self;
-  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
+  // Use the default global queue, which runs the block at the caller's QoS. Remote Config's
+  // activate() completion waits for this update, and work forced to background QoS can be
+  // starved for seconds on a busy device.
+  dispatch_async(dispatch_get_global_queue(QOS_CLASS_DEFAULT, 0), ^{
     FIRExperimentController *strongSelf = weakSelf;
     [strongSelf updateExperimentConditionalUserPropertiesWithServiceOrigin:origin
                                                                     events:events
