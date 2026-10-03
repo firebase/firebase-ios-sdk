@@ -1,5 +1,7 @@
 # Unreleased
 - [fixed] Preserve newer in-flight token refreshes when an older refresh completes. (#16765)
+- [fixed] Fixed a crash by safely skipping malformed account provider
+  entries. (#16745)
 
 # 13.0.0
 - [fixed] Fixed a timeout race in the APNs token manager that could leave concurrent phone
