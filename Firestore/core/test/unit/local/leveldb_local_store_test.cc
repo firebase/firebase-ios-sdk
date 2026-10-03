@@ -17,6 +17,7 @@
 #include "Firestore/core/include/firebase/firestore/geo_point.h"
 #include "Firestore/core/src/core/filter.h"
 #include "Firestore/core/src/core/query.h"
+#include "Firestore/core/src/local/leveldb_index_manager.h"
 #include "Firestore/core/src/local/leveldb_persistence.h"
 #include "Firestore/core/src/local/local_write_result.h"
 #include "Firestore/core/src/local/target_data.h"
@@ -243,11 +244,12 @@ TEST(LevelDbLocalStoreRestartTest, IndexedCacheQueryIncludesNewPendingWrite) {
     auto mutation = SetMutation("coll/a", Map("matches", true));
     const auto write = store.WriteLocally({mutation});
     store.Backfill();
-    ASSERT_GT(store.GetFieldIndexes()[0]
-                  .index_state()
-                  .index_offset()
-                  .largest_batch_id(),
-              0);
+    const auto indexed_batch_id = persistence->Run("ReadIndexedBatchId", [&] {
+      return persistence->GetIndexManager(user)
+          ->GetMinOffset("coll")
+          .largest_batch_id();
+    });
+    ASSERT_GT(indexed_batch_id, 0);
 
     model::MutationBatch batch(write.batch_id(), Timestamp::Now(), {},
                                {std::move(mutation)});
