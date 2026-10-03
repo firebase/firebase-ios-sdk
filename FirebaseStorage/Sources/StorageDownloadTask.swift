@@ -282,9 +282,6 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement, @u
   }
 
   private func fetchDidSucceed(with data: Data) {
-    let isCancelled = stateLock.withLock { state == .cancelled }
-    if isCancelled { return }
-
     var progressSnapshot: StorageTaskSnapshot?
     var successSnapshot: StorageTaskSnapshot?
 
