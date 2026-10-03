@@ -273,6 +273,20 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 }
 
 - (void)start {
+#if !TARGET_OS_SIMULATOR
+  // The first `FIRMessagingIsSandboxApp()` call can block for seconds on a synchronous XPC call in
+  // `-[NSBundle appStoreReceiptURL]`. Make it in the background now so that the result is usually
+  // cached by the time the app sets the APNs token, typically on the main thread. The simulator
+  // always uses the sandbox environment, so it never needs the result.
+  // See https://github.com/firebase/firebase-ios-sdk/issues/16726.
+  static dispatch_once_t prewarmIsSandboxAppOnceToken;
+  dispatch_once(&prewarmIsSandboxAppOnceToken, ^{
+    dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0), ^{
+      FIRMessagingIsSandboxApp();
+    });
+  });
+#endif  // !TARGET_OS_SIMULATOR
+
   [self setupFileManagerSubDirectory];
   [self setupNotificationListeners];
 

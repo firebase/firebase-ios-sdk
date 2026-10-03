@@ -320,7 +320,8 @@ BOOL FIRMessagingIsProductionApp(void) {
       stringByAppendingPathComponent:@"embedded.mobileprovision"];
 #endif  // TARGET_OS_OSX || TARGET_OS_MACCATALYST
 
-  if ([GULAppEnvironmentUtil isAppStoreReceiptSandbox] && !path.length) {
+  if (![[NSFileManager defaultManager] fileExistsAtPath:path] &&
+      [GULAppEnvironmentUtil isAppStoreReceiptSandbox]) {
     // Distributed via TestFlight
     return defaultAppTypeProd;
   }
