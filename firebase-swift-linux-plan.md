@@ -724,16 +724,23 @@ Before moving to Phase 4, each framework must be unit tested using injected
 
 ### 6.4 Phase 3 checklist (gate before Phase 4)
 
-- [ ] Implement `FirebaseAppCheck/Portable/Sources` (`AppCheck`, `AppCheckToken`,
-  `AppCheckProvider`, `AppCheckProviderFactory`, `AppCheckDebugProvider`).
+- [x] Implement `FirebaseAppCheck/Portable/Sources` (`AppCheck`, `AppCheckToken`,
+  `AppCheckProvider`, `AppCheckProviderFactory`, `AppCheckDebugProvider`,
+  `AppCheckDebugProviderFactory`, `AppCheckErrorCode`).
 - [ ] Implement `FirebaseAuth/Portable/Sources` (`Auth`, `User`,
   `AuthDataResult`, REST token exchange & refresh).
+- [x] Add unit tests using mock `URLProtocol` handlers in
+  `FirebaseAppCheck/Portable/Tests` (11/11 tests passing; 37/37 total portable
+  tests passing).
 - [ ] Add unit tests using mock `URLProtocol` handlers in
-  `FirebaseAppCheck/Portable/Tests` and `FirebaseAuth/Portable/Tests`.
+  `FirebaseAuth/Portable/Tests`.
 - [ ] **Phase 3 exit gate**:
-  - [ ] `FIREBASE_PORTABLE=1 swift test` passes all `FirebaseAppCheckPortableTests`
-    and `FirebaseAuthPortableTests` on macOS.
-  - [ ] Static Linux SDK cross-build succeeds for both frameworks.
+  - [x] `FIREBASE_PORTABLE=1 swift test --filter FirebaseAppCheckPortableTests`
+    passes on macOS, and Static Linux SDK cross-build succeeds for
+    `FirebaseAppCheck`.
+  - [ ] `FIREBASE_PORTABLE=1 swift test --filter FirebaseAuthPortableTests`
+    passes on macOS, and Static Linux SDK cross-build succeeds for
+    `FirebaseAuth`.
 
 ---
 

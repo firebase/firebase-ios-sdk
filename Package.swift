@@ -1820,6 +1820,10 @@ func portableProducts() -> [Product] {
       name: "FirebaseCore",
       targets: ["FirebaseCore"]
     ),
+    .library(
+      name: "FirebaseAppCheck",
+      targets: ["FirebaseAppCheck"]
+    ),
   ]
 }
 
@@ -1866,6 +1870,17 @@ func portableTargets() -> [Target] {
       path: "FirebaseAuth/Interop/Portable/Sources",
       swiftSettings: portableSwiftSettings
     ),
+    .target(
+      name: "FirebaseAppCheck",
+      dependencies: [
+        "FirebaseAppCheckInterop",
+        "FirebaseCore",
+        "FirebaseCoreExtension",
+        "FirebaseCoreInternal",
+      ],
+      path: "FirebaseAppCheck/Portable/Sources",
+      swiftSettings: portableSwiftSettings
+    ),
     .testTarget(
       name: "FirebaseCorePortableTests",
       dependencies: [
@@ -1896,6 +1911,18 @@ func portableTargets() -> [Target] {
         "FirebaseCoreInternal",
       ],
       path: "FirebaseAuth/Interop/Portable/Tests",
+      swiftSettings: portableSwiftSettings
+    ),
+    .testTarget(
+      name: "FirebaseAppCheckPortableTests",
+      dependencies: [
+        "FirebaseAppCheck",
+        "FirebaseAppCheckInterop",
+        "FirebaseCore",
+        "FirebaseCoreExtension",
+        "FirebaseCoreInternal",
+      ],
+      path: "FirebaseAppCheck/Portable/Tests",
       swiftSettings: portableSwiftSettings
     ),
   ]
